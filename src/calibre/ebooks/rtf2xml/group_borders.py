@@ -99,7 +99,7 @@ class GroupBorders:
             # lists
             'mi<tg<item_end__',
             'mi<tg<item_end__',
-            'mi<mk<list_start'
+            'mi<mk<list_start',
             # body close
             #
             # style-group

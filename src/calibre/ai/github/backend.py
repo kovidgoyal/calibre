@@ -203,9 +203,9 @@ def newest_gpt_models() -> dict[str, Model]:
                 which = low
             which.append(model)
     return {
-        'high': sorted(high, key=get_date)[-1],
-        'medium': sorted(medium, key=get_date)[-1],
-        'low': sorted(low, key=get_date)[-1],
+        'high': max(high, key=get_date),
+        'medium': max(medium, key=get_date),
+        'low': max(low, key=get_date),
     }
 
 

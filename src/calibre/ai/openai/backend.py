@@ -128,9 +128,9 @@ def newest_gpt_models() -> dict[str, Model]:
                 which = high
             which.append(model)
     return {
-        'high': sorted(high, key=attrgetter('created'))[-1],
-        'medium': sorted(medium, key=attrgetter('created'))[-1],
-        'low': sorted(low, key=attrgetter('created'))[-1],
+        'high': max(high, key=attrgetter('created')),
+        'medium': max(medium, key=attrgetter('created')),
+        'low': max(low, key=attrgetter('created')),
     }
 
 

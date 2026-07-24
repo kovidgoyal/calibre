@@ -55,9 +55,9 @@ class NASA(BasicNewsRecipe):
             # Remove any links/ads/comments/cruft from the end of the body
             # of the article.
             (
-                r'((<!-- end article content -->)|(<div id="st-custom-afterpagecontent">)'
+                (r'((<!-- end article content -->)|(<div id="st-custom-afterpagecontent">)'
                 r'|(<p class="ap-story-p">&copy;)|(<div class="entry-footer">)'
-                r'|(<div id="see_also">)|(<p>Via <a href=)|(<div id="ss_nav">)).*?</html>',
+                r'|(<div id="see_also">)|(<p>Via <a href=)|(<div id="ss_nav">)).*?</html>'),
                 lambda match: '</div></body></html>',
             ),
             # Correctly embed in-line images by removing the surrounding

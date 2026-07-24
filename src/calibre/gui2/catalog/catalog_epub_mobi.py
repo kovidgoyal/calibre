@@ -83,7 +83,7 @@ class PluginWidget(QWidget, Ui_Form):
             elif type(self.__dict__[item]) is QTextEdit:
                 TextEditControls.append(self.__dict__[item].objectName())
 
-        option_fields: list[tuple[str, bool | None | str | int | float | dict[str, int | str], str]] = list(
+        option_fields: list[tuple[str, bool | str | int | float | dict[str, int | str] | None, str]] = list(
             zip(CheckBoxControls, [True for i in CheckBoxControls], ['check_box' for i in CheckBoxControls])
         )
         option_fields += list(zip(ComboBoxControls, [None for i in ComboBoxControls], ['combo_box' for i in ComboBoxControls]))

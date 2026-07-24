@@ -127,7 +127,7 @@ class ParseWorker(Thread):
             if shutdown in requests:
                 self.worker.shutdown()
                 break
-            request = sorted(requests, reverse=True)[0]
+            request = max(requests)
             del requests
             pi, data = request[1:]
             try:

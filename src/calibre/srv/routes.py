@@ -94,7 +94,7 @@ class RouteFunction:
     methods: frozenset[str]
     auth_required: bool
     android_workaround: bool
-    cache_control: int | float | None | bool | Literal['no-cache'] | tuple[str, int]
+    cache_control: int | float | bool | Literal['no-cache'] | tuple[str, int] | None
     ok_code: int | None
     postprocess: PostProcessFunc | None
     needs_db_write: bool
@@ -120,7 +120,7 @@ def endpoint[**P](
     # Set to a number to cache for at most number hours
     # Set to a tuple (cache_type, max_age) to explicitly set the
     # Cache-Control header
-    cache_control: int | float | None | bool | Literal['no-cache'] | tuple[str, int] = False,
+    cache_control: int | float | bool | Literal['no-cache'] | tuple[str, int] | None = False,
     # The HTTP code to be used when no error occurs. By default it is
     # 200 for GET and HEAD and 201 for POST
     ok_code: int | None = None,

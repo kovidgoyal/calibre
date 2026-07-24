@@ -92,7 +92,7 @@ def shorten_title(doc):
                 add_match(candidates, e.text_content(), orig)
 
     if candidates:
-        title = sorted(candidates, key=len)[-1]
+        title = max(candidates, key=len)
     else:
         for delimiter in [' | ', ' - ', ' :: ', ' / ']:
             if delimiter in title:

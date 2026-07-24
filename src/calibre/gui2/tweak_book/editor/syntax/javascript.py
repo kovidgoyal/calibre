@@ -39,8 +39,8 @@ class JavascriptLexer(RegexLexer):
         'slashstartsregex': [
             include('commentsandwhitespace'),
             (
-                r'/(\\.|[^[/\\\n]|\[(\\.|[^\]\\\n])*])+/'
-                r'([gim]+\b|\B)',
+                (r'/(\\.|[^[/\\\n]|\[(\\.|[^\]\\\n])*])+/'
+                r'([gim]+\b|\B)'),
                 String.Regex,
                 '#pop',
             ),
@@ -53,35 +53,35 @@ class JavascriptLexer(RegexLexer):
             (r'^(?=\s|/|<!--)', Text, 'slashstartsregex'),
             include('commentsandwhitespace'),
             (
-                r'\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'
-                r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?',
+                (r'\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'
+                r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?'),
                 Operator,
                 'slashstartsregex',
             ),
             (r'[{(\[;,]', Punctuation, 'slashstartsregex'),
             (r'[})\].]', Punctuation),
             (
-                r'(for|in|while|do|break|return|continue|switch|case|default|if|else|'
+                (r'(for|in|while|do|break|return|continue|switch|case|default|if|else|'
                 r'throw|try|catch|finally|new|delete|typeof|instanceof|void|yield|'
-                r'this)\b',
+                r'this)\b'),
                 Keyword,
                 'slashstartsregex',
             ),
             (r'(var|let|with|function)\b', Keyword.Declaration, 'slashstartsregex'),
             (
-                r'(abstract|boolean|byte|char|class|const|debugger|double|enum|export|'
+                (r'(abstract|boolean|byte|char|class|const|debugger|double|enum|export|'
                 r'extends|final|float|goto|implements|import|int|interface|long|native|'
                 r'package|private|protected|public|short|static|super|synchronized|throws|'
-                r'transient|volatile)\b',
+                r'transient|volatile)\b'),
                 Keyword.Reserved,
             ),
             (r'(true|false|null|NaN|Infinity|undefined)\b', Keyword.Constant),
             (
-                r'(Array|Boolean|Date|Error|Function|Math|netscape|'
+                (r'(Array|Boolean|Date|Error|Function|Math|netscape|'
                 r'Number|Object|Packages|RegExp|String|sun|decodeURI|'
                 r'decodeURIComponent|encodeURI|encodeURIComponent|'
                 r'Error|eval|isFinite|isNaN|parseFloat|parseInt|document|this|'
-                r'window)\b',
+                r'window)\b'),
                 Name.Builtin,
             ),
             (JS_IDENT, Name.Other),

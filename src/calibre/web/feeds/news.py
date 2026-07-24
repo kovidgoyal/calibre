@@ -1945,7 +1945,7 @@ class BasicNewsRecipe(Recipe):
                     for curl in self.canonicalize_internal_url(url):
                         articles = self.article_url_map.get(curl)
                         if articles:
-                            arelpath = sorted(articles, key=numeric_sort_key)[0]
+                            arelpath = min(articles, key=numeric_sort_key)
                             a.set('href', item.relhref(arelpath))
                             if a.text and len(a) == 0:
                                 a.text = a.text + '·'  # mark as local link

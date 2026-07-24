@@ -1469,7 +1469,7 @@ class DeviceMixin:  # {{{
                     self.location_manager.free[1]: 'carda',
                     self.location_manager.free[2]: 'cardb',
                 }
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                on_card = space.get(max(space.keys()), None)
                 self.upload_books(files, names, metadata, on_card=on_card, memory=[files, remove])
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
@@ -1540,7 +1540,7 @@ class DeviceMixin:  # {{{
                     self.location_manager.free[1]: 'carda',
                     self.location_manager.free[2]: 'cardb',
                 }
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                on_card = space.get(max(space.keys()), None)
                 try:
                     total_size = sum(os.stat(f).st_size for f in files)
                 except Exception:

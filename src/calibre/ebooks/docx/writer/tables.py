@@ -186,7 +186,7 @@ class Cell:
                 border.level,
             )
 
-        border = sorted(borders, key=weight)[-1]
+        border = max(borders, key=weight)
         return border
 
     def resolve_borders(self):

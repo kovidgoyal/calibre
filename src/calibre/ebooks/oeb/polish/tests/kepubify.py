@@ -82,17 +82,17 @@ class KepubifyTests(BaseTest):
             '</p>  <p><span class="koboSpan" id="kobo.2.1">&#160;</span></p>'
             '<p>&#160;<i><span class="koboSpan" id="kobo.3.1">a</span></i></p>',
             '<p>Simple sentences. In a single paragraph.<p>A sentence <i>with <b>nested</b>, tailed</i> formatting. Another.': (
-                '<p><span class="koboSpan" id="kobo.1.1">Simple sentences. </span><span class="koboSpan" id="kobo.1.2">In a single paragraph.</span></p>'
+                ('<p><span class="koboSpan" id="kobo.1.1">Simple sentences. </span><span class="koboSpan" id="kobo.1.2">In a single paragraph.</span></p>'
                 '<p><span class="koboSpan" id="kobo.2.1">A sentence </span><i><span class="koboSpan" id="kobo.2.2">with </span>'
                 '<b><span class="koboSpan" id="kobo.2.3">nested</span></b><span class="koboSpan" id="kobo.2.4">, tailed</span></i>'
                 '<span class="koboSpan" id="kobo.2.5"> formatting. </span>'
-                '<span class="koboSpan" id="kobo.2.6">Another.</span></p>',
+                '<span class="koboSpan" id="kobo.2.6">Another.</span></p>'),
                 # with prefer_justification
-                '<p><span class="koboSpan" id="kobo.1.1">Simple sentences.</span> <span class="koboSpan" id="kobo.1.2">In a single paragraph.</span></p>'
+                ('<p><span class="koboSpan" id="kobo.1.1">Simple sentences.</span> <span class="koboSpan" id="kobo.1.2">In a single paragraph.</span></p>'
                 '<p><span class="koboSpan" id="kobo.2.1">A sentence</span> <i><span class="koboSpan" id="kobo.2.2">with</span>'
                 ' <b><span class="koboSpan" id="kobo.2.3">nested</span></b><span class="koboSpan" id="kobo.2.4">, tailed</span></i> '
                 '<span class="koboSpan" id="kobo.2.5">formatting.</span> '
-                '<span class="koboSpan" id="kobo.2.6">Another.</span></p>',
+                '<span class="koboSpan" id="kobo.2.6">Another.</span></p>'),
             ),
             # img tags
             '<p>An image<img src="x">with tail<img src="b"><i>without': '<p><span class="koboSpan" id="kobo.1.1">'
@@ -105,15 +105,15 @@ class KepubifyTests(BaseTest):
             '<p><span class="koboSpan" id="kobo.2.1">A comment</span><!-- xx --><i><span class="koboSpan" id="kobo.2.2">without tail</span></i></p>',
             # nested block tags
             '<div>A div<div> nested.<ul><li>A list<p> with nested block</p> tail1</li> tail2</ul> tail3': (
-                '<div><span class="koboSpan" id="kobo.1.1">A div</span><div><span class="koboSpan" id="kobo.1.2"> nested.</span>'
+                ('<div><span class="koboSpan" id="kobo.1.1">A div</span><div><span class="koboSpan" id="kobo.1.2"> nested.</span>'
                 '<ul><li><span class="koboSpan" id="kobo.2.1">A list</span><p><span class="koboSpan" id="kobo.3.1"> with nested block</span></p>'
                 '<span class="koboSpan" id="kobo.3.2"> tail1</span></li><span class="koboSpan" id="kobo.3.3"> tail2</span></ul>'
-                '<span class="koboSpan" id="kobo.3.4"> tail3</span></div></div>',
+                '<span class="koboSpan" id="kobo.3.4"> tail3</span></div></div>'),
                 # with prefer_justification
-                '<div><span class="koboSpan" id="kobo.1.1">A div</span><div> <span class="koboSpan" id="kobo.1.2">nested.</span>'
+                ('<div><span class="koboSpan" id="kobo.1.1">A div</span><div> <span class="koboSpan" id="kobo.1.2">nested.</span>'
                 '<ul><li><span class="koboSpan" id="kobo.2.1">A list</span><p> <span class="koboSpan" id="kobo.3.1">with nested block</span></p>'
                 ' <span class="koboSpan" id="kobo.3.2">tail1</span></li> <span class="koboSpan" id="kobo.3.3">tail2</span></ul>'
-                ' <span class="koboSpan" id="kobo.3.4">tail3</span></div></div>',
+                ' <span class="koboSpan" id="kobo.3.4">tail3</span></div></div>'),
             ),
             # skipped tags
             '<div>Script: <script>a = 1</script> with tail': (
@@ -121,10 +121,10 @@ class KepubifyTests(BaseTest):
                 '<div><span class="koboSpan" id="kobo.1.1">Script:</span> <script>a = 1</script> <span class="koboSpan" id="kobo.1.2">with tail</span></div>',
             ),
             '<div>Svg: <svg>mouse</svg><i> no tail': (
-                '<div><span class="koboSpan" id="kobo.1.1">Svg: </span><svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
-                '<i><span class="koboSpan" id="kobo.1.2"> no tail</span></i></div>',
-                '<div><span class="koboSpan" id="kobo.1.1">Svg:</span> <svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
-                '<i> <span class="koboSpan" id="kobo.1.2">no tail</span></i></div>',
+                ('<div><span class="koboSpan" id="kobo.1.1">Svg: </span><svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
+                '<i><span class="koboSpan" id="kobo.1.2"> no tail</span></i></div>'),
+                ('<div><span class="koboSpan" id="kobo.1.1">Svg:</span> <svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
+                '<i> <span class="koboSpan" id="kobo.1.2">no tail</span></i></div>'),
             ),
             # encoding quirks
             '<p>A\xa0nbsp;&nbsp;': (

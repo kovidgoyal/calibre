@@ -41,7 +41,7 @@ def weight_key(font):
 
 def get_best_font(fonts, style, stretch):
     try:
-        return sorted(find_fonts_matching(fonts, style, stretch), key=weight_key)[0]
+        return min(find_fonts_matching(fonts, style, stretch), key=weight_key)
     except Exception:
         pass
 

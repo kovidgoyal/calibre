@@ -248,7 +248,7 @@ def generate_ebook_convert_help(preamble, app):
 
     raw += '\n\n' + options
     for pl in sorted(input_format_plugins(), key=lambda x: x.name):
-        parser, plumber = create_option_parser(['ebook-convert', 'dummyi.' + sorted(pl.file_types)[0], 'dummyo.epub', '-h'], default_log)
+        parser, plumber = create_option_parser(['ebook-convert', 'dummyi.' + min(pl.file_types), 'dummyo.epub', '-h'], default_log)
         groups = [(pl.name + ' Options', '', g.option_list) for g in parser.option_groups if g.title == 'INPUT OPTIONS']
         prog = 'ebook-convert-' + (pl.name.lower().replace(' ', '-'))
         raw += '\n\n' + '\n'.join(render_options(prog, groups, False, True))

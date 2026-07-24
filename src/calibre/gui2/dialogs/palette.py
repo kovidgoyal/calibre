@@ -208,8 +208,8 @@ class PaletteWidget(QWidget):
             get_debug_executable()
             + [
                 '--command',
-                'from qt.core import QApplication; from calibre.gui2.palette import *; app = QApplication([]);'
-                'import sys; sys.stdout.buffer.write(serialize_palette(app.palette()))',
+                ('from qt.core import QApplication; from calibre.gui2.palette import *; app = QApplication([]);'
+                'import sys; sys.stdout.buffer.write(serialize_palette(app.palette()))'),
             ]
         )
         p = QPalette()

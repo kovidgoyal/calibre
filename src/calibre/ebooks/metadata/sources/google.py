@@ -162,7 +162,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
                 if t:
                     isbns.append(t)
     if isbns:
-        mi.isbn = sorted(isbns, key=len)[-1]
+        mi.isbn = max(isbns, key=len)
     mi.all_isbns = isbns
 
     # Tags

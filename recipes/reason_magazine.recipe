@@ -25,7 +25,7 @@ def process_image_block(lines, block):
 def json_to_html(raw):
     data = json.loads(raw)
     # open('/t/p.json', 'w').write(json.dumps(data, indent=2))
-    data = sorted((v['data'] for v in data['props']['pageProps']['urqlState'].values()), key=len)[-1]
+    data = max((v['data'] for v in data['props']['pageProps']['urqlState'].values()), key=len)
     article = json.loads(data)['article']
     lines = []
     lines.append('<h1 style="align: center">' + prepare_string_for_xml(article['title']) + '</h1>')

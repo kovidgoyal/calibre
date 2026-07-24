@@ -108,7 +108,7 @@ def query_vcvarsall(is64bit=True):
         m = pat.match(k)
         if m is not None:
             comn_tools[k] = int(m.group(1))
-    comntools = sorted(comn_tools, key=comn_tools.__getitem__)[-1]
+    comntools = max(comn_tools, key=comn_tools.__getitem__)
 
     def g(k):
         try:
