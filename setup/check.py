@@ -136,18 +136,26 @@ class Check(Command):
                 raise
         if self.files:
             all_files = tuple(self.files)
+
+            def t(f):
+                return True
+
         else:
-            all_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+            all_files = tuple(self.get_files())
+
+            def t(f):
+                return not self.is_cache_valid(f, cache)
 
         python_exts = {'.py', '.pyi', '.recipe'}
         python_files = [f for f in all_files if os.path.splitext(f)[1] in python_exts]
-        other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts]
+        other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts and t(f)]
 
         try:
             # Check all Python files with ruff, splitting into safe chunks to
             # avoid hitting the kernel ARG_MAX limit on command-line length.
             bad_python_files = set()
             if python_files:
+                self.info('\tChecking python files')
                 ruff = self._ruff_executable()
                 ruff_cmd = [ruff, 'check', '-q', '--output-format=json']
                 if self.auto_fix:
@@ -181,9 +189,6 @@ class Check(Command):
                             bad_python_files.update(d['filename'] for d in diagnostics)
                         except json.JSONDecodeError, KeyError:
                             bad_python_files.update(batch)
-            for f in python_files:
-                if f not in bad_python_files:
-                    cache[f] = self.file_hash(f)
 
             # For each Python file that has errors, open editor and re-check individually.
             bad_list = list(bad_python_files)
@@ -191,7 +196,6 @@ class Check(Command):
                 self.info('\tErrors in', f)
                 self.info(f'{len(bad_list) - i - 1} bad Python files remaining')
                 self.open_editor_file(f)
-                cache[f] = self.file_hash(f)
 
             # Check non-Python files one by one as before.
             for i, f in enumerate(other_files):
