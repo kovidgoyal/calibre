@@ -484,7 +484,7 @@ class CentralContainer(QWidget):
         if not self.ignore_button_toggles:
             b = self.sender()
             assert isinstance(b, LayoutButton)
-            if b.name == 'quick_view':
+            if b.name == 'quick_view' or not hasattr(self.is_visible, b.name):  # AlternateViewsButtons sub class LayoutButton
                 return
             self.set_visibility_of(b.name, b.isChecked())
             self.relayout()
