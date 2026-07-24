@@ -315,7 +315,7 @@ class CreateCustomColumn(QDialog):
 
         # Lookup name
         self.column_name_box = cnb = QLineEdit(self)
-        cnb.setToolTip(_('Used for searching the column. Must contain only digits and lower case letters.'))
+        cnb.setToolTip(_('Used for searching the column. Must contain only digits, lower case letters and underscores and start with a letter.'))
         add_row(_('&Lookup name:'), cnb)
 
         # Heading
