@@ -279,14 +279,16 @@ class ExtDev(Command):
             wcmd = [
                 '"{}"'.format(os.path.join(bin_dir, 'calibre-debug')),
                 '-c',
-                ('"'
-                'import sys, json, binascii, os, subprocess; cmd = json.loads(binascii.unhexlify(sys.argv[-1]));'
-                'env = os.environ.copy();'
-                '''env[str('CALIBRE_DEVELOP_FROM')] = str(os.path.abspath('calibre-src/src'));'''
-                'from calibre.debug import get_debug_executable; exe_dir = os.path.dirname(get_debug_executable()[0]);'
-                'cmd[0] = os.path.join(exe_dir, cmd[0]); ret = subprocess.Popen(cmd, env=env).wait();'
-                'sys.stdout.flush(); sys.stderr.flush(); sys.exit(ret)'
-                '"'),
+                (
+                    '"'
+                    'import sys, json, binascii, os, subprocess; cmd = json.loads(binascii.unhexlify(sys.argv[-1]));'
+                    'env = os.environ.copy();'
+                    '''env[str('CALIBRE_DEVELOP_FROM')] = str(os.path.abspath('calibre-src/src'));'''
+                    'from calibre.debug import get_debug_executable; exe_dir = os.path.dirname(get_debug_executable()[0]);'
+                    'cmd[0] = os.path.join(exe_dir, cmd[0]); ret = subprocess.Popen(cmd, env=env).wait();'
+                    'sys.stdout.flush(); sys.stderr.flush(); sys.exit(ret)'
+                    '"'
+                ),
                 enc,
             ]
             ret = subprocess.Popen(['ssh', '-S', control_path, host] + wcmd).wait()

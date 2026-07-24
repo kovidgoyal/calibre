@@ -328,11 +328,13 @@ class ChapterGroup:
             'body { background: var(--ca-bg); color: var(--ca-text); margin: 0; }',
             '.calibre-annotations-container { font-family: sans-serif; }',
             '.calibre-filter-controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
-            ('.calibre-filter-label {'
-            ' padding: 5px 15px; border-radius: 20px; cursor: pointer;'
-            ' border: 2px solid var(--ca-filter-label-border);'
-            ' background: var(--ca-filter-label-bg); color: var(--ca-filter-label-color);'
-            ' font-size: 14px; font-weight: bold; }'),
+            (
+                '.calibre-filter-label {'
+                ' padding: 5px 15px; border-radius: 20px; cursor: pointer;'
+                ' border: 2px solid var(--ca-filter-label-border);'
+                ' background: var(--ca-filter-label-bg); color: var(--ca-filter-label-color);'
+                ' font-size: 14px; font-weight: bold; }'
+            ),
             '.calibre-filter-label:hover { opacity: 0.8; }',
             '.calibre-show-all { background: var(--ca-show-all-bg) !important; }',
             'input.calibre-filter-cb:checked ~ .calibre-annotation { display: none !important; }',
@@ -435,27 +437,33 @@ class ChapterGroup:
         # Styles for the generated outline sidebar and main content
         style_lines.extend([
             '.calibre-wrapper { display: flex; min-height: 100vh; }',
-            ('.calibre-outline {'
-            ' width: 280px; position: fixed; left: 0; top: 0; bottom: 0;'
-            ' overflow-y: auto; background: var(--ca-sidebar-bg);'
-            ' border-right: 1px solid var(--ca-sidebar-border);'
-            ' padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100;'
-            ' font-family: sans-serif;'
-            ' transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);'
-            ' box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }'),
-            ('.calibre-main {'
-            ' margin-left: 280px; padding: 2em 3em 2em 5em; box-sizing: border-box;'
-            ' width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }'),
-            ('.calibre-toggle {'
-            ' position: fixed; left: 295px; top: 20px; z-index: 200;'
-            ' width: 40px; height: 40px; display: flex; align-items: center;'
-            ' justify-content: center; cursor: pointer; border-radius: 50%;'
-            ' border: 1px solid var(--ca-toggle-border); background: var(--ca-toggle-bg);'
-            ' box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),'
-            ' 0 2px 4px -1px rgba(0,0,0,0.06);'
-            ' transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),'
-            ' background-color 0.2s, color 0.2s, transform 0.2s;'
-            ' font-size: 1.25em; color: var(--ca-toggle-color); }'),
+            (
+                '.calibre-outline {'
+                ' width: 280px; position: fixed; left: 0; top: 0; bottom: 0;'
+                ' overflow-y: auto; background: var(--ca-sidebar-bg);'
+                ' border-right: 1px solid var(--ca-sidebar-border);'
+                ' padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100;'
+                ' font-family: sans-serif;'
+                ' transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);'
+                ' box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }'
+            ),
+            (
+                '.calibre-main {'
+                ' margin-left: 280px; padding: 2em 3em 2em 5em; box-sizing: border-box;'
+                ' width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }'
+            ),
+            (
+                '.calibre-toggle {'
+                ' position: fixed; left: 295px; top: 20px; z-index: 200;'
+                ' width: 40px; height: 40px; display: flex; align-items: center;'
+                ' justify-content: center; cursor: pointer; border-radius: 50%;'
+                ' border: 1px solid var(--ca-toggle-border); background: var(--ca-toggle-bg);'
+                ' box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),'
+                ' 0 2px 4px -1px rgba(0,0,0,0.06);'
+                ' transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),'
+                ' background-color 0.2s, color 0.2s, transform 0.2s;'
+                ' font-size: 1.25em; color: var(--ca-toggle-color); }'
+            ),
             '.calibre-toggle:hover { background: var(--ca-toggle-hover-bg); color: var(--ca-toggle-hover-color); transform: scale(1.05); }',
             '#theme-toggle { top: 70px; }',
             '.calibre-wrapper.sidebar-collapsed .calibre-outline { transform: translateX(-100%); }',
@@ -464,25 +472,31 @@ class ChapterGroup:
             '.calibre-outline-list { list-style: none; padding-left: 0; margin: 0; }',
             '.calibre-outline-list ul { list-style: none; padding-left: 1.2em; margin: 0.25em 0; border-left: 1px solid var(--ca-outline-nested-border); }',
             '.calibre-outline-item { margin: 0.4em 0; }',
-            ('.calibre-outline a {'
-            ' color: var(--ca-outline-link); text-decoration: none; font-size: 0.9em;'
-            ' transition: color 0.15s ease; display: inline-block; padding: 2px 0; }'),
+            (
+                '.calibre-outline a {'
+                ' color: var(--ca-outline-link); text-decoration: none; font-size: 0.9em;'
+                ' transition: color 0.15s ease; display: inline-block; padding: 2px 0; }'
+            ),
             '.calibre-outline a:hover { color: var(--ca-outline-link-hover); }',
             '.calibre-outline a.active { font-weight: 600; color: var(--ca-outline-link-active); }',
             '.calibre-search-box { margin-bottom: 1em; display: flex; flex-direction: column; gap: 4px; }',
-            ('#calibre-search-input {'
-            ' width: 100%; padding: 5px 8px;'
-            ' border: 1px solid var(--ca-search-input-border);'
-            ' border-radius: 4px; font-size: 0.85em; font-family: sans-serif;'
-            ' box-sizing: border-box; outline: none;'
-            ' background: var(--ca-search-input-bg); color: var(--ca-search-input-color); }'),
+            (
+                '#calibre-search-input {'
+                ' width: 100%; padding: 5px 8px;'
+                ' border: 1px solid var(--ca-search-input-border);'
+                ' border-radius: 4px; font-size: 0.85em; font-family: sans-serif;'
+                ' box-sizing: border-box; outline: none;'
+                ' background: var(--ca-search-input-bg); color: var(--ca-search-input-color); }'
+            ),
             '#calibre-search-input:focus { border-color: #3182ce; box-shadow: 0 0 0 2px rgba(49,130,206,0.2); }',
             '.calibre-search-nav { display: flex; align-items: center; gap: 4px; }',
-            ('.calibre-search-nav button {'
-            ' padding: 2px 7px; border: 1px solid var(--ca-search-btn-border);'
-            ' background: var(--ca-search-btn-bg);'
-            ' border-radius: 3px; cursor: pointer; font-size: 0.85em;'
-            ' color: var(--ca-search-btn-color); }'),
+            (
+                '.calibre-search-nav button {'
+                ' padding: 2px 7px; border: 1px solid var(--ca-search-btn-border);'
+                ' background: var(--ca-search-btn-bg);'
+                ' border-radius: 3px; cursor: pointer; font-size: 0.85em;'
+                ' color: var(--ca-search-btn-color); }'
+            ),
             '.calibre-search-nav button:hover { background: var(--ca-search-btn-hover-bg); color: var(--ca-search-btn-hover-color); }',
             '#calibre-search-count { font-size: 0.8em; color: var(--ca-search-count-color); margin-left: 2px; }',
             'mark.calibre-search-match { background: var(--ca-search-match-bg); color: var(--ca-search-match-color); padding: 0; border-radius: 2px; }',
@@ -492,10 +506,12 @@ class ChapterGroup:
             '  .calibre-main { margin-left: 0; padding: 1.5em; padding-top: 5em; }',
             '  .calibre-toggle { left: 20px !important; top: 20px; }',
             '  .calibre-wrapper.sidebar-open .calibre-outline { transform: translateX(0); }',
-            ('  .calibre-sidebar-overlay {'
-            ' display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;'
-            ' background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0;'
-            ' transition: opacity 0.3s ease; }'),
+            (
+                '  .calibre-sidebar-overlay {'
+                ' display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;'
+                ' background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0;'
+                ' transition: opacity 0.3s ease; }'
+            ),
             '  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay { display: block; opacity: 1; }',
             '}',
         ])

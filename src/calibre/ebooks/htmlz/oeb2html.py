@@ -56,8 +56,10 @@ class OEB2HTML:
 
     def mlize_spine(self, oeb_book):
         output = [
-            ('<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><title>'
-            f'{prepare_string_for_xml(self.book_title)}</title></head><body>')
+            (
+                '<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><title>'
+                f'{prepare_string_for_xml(self.book_title)}</title></head><body>'
+            )
         ]
         for item in oeb_book.spine:
             self.log.debug(f'Converting {item.href} to HTML...')

@@ -53,8 +53,10 @@ class TypeCheck(Command):
                     'def findChild(self, types: tuple[type[QObjectT], ...],'
                     ' name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT: ...'
                 ): [
-                    ('def findChild('
-                    'self, types: tuple[type[QObjectT], ...], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT | None: ...')
+                    (
+                        'def findChild('
+                        'self, types: tuple[type[QObjectT], ...], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT | None: ...'
+                    )
                 ],
             },
         )
