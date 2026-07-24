@@ -192,8 +192,9 @@ class Check(Command):
 
             # For each Python file that has errors, open editor and re-check individually.
             bad_list = list(bad_python_files)
-            for i, f in enumerate(bad_list):
+            for f in bad_list:
                 self.info('\tErrors in', f)
+            for i, f in enumerate(bad_list):
                 self.info(f'{len(bad_list) - i - 1} bad Python files remaining')
                 self.open_editor_file(f)
 
@@ -212,6 +213,7 @@ class Check(Command):
         if self.no_editor:
             raise e
         try:
+            self.info('\tOpen', f)
             edit_file(f)
         except FileNotFoundError:
             raise e
