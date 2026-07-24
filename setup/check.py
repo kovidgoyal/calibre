@@ -5,21 +5,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import errno
-import hashlib
+import concurrent.futures
 import json
 import os
+import re
 import subprocess
+import sys
 
-from setup import Command, build_cache_dir, dump_json, edit_file, iswindows
-
-
-class Message:
-    def __init__(self, filename, lineno, msg):
-        self.filename, self.lineno, self.msg = filename, lineno, msg
-
-    def __str__(self):
-        return f'{self.filename}:{self.lineno}: {self.msg}'
+from setup import Command, edit_file, iswindows
 
 
 def files_walker(root_path, ext):
@@ -42,193 +35,170 @@ class Check(Command):
     usage_help = 'To check specific files, specify them as command line arguments'
     require_venv = True
 
-    CACHE = 'check.json'
-
     def add_options(self, parser):
-        parser.add_option(
-            '--fix',
-            '--auto-fix',
-            default=False,
-            action='store_true',
-            help='Try to automatically fix some of the smallest errors instead of opening an editor for bad files.',
-        )
         parser.add_option('--no-editor', default=False, action='store_true', help="Don't open the editor when a bad file is found.")
-
-    def get_files(self):
-        yield from checkable_python_files(self.SRC)
-
-        yield from files_walker(self.j(self.d(self.SRC), 'recipes'), '.recipe')
-
-        yield from files_walker(self.j(self.d(self.SRC), 'stubs'), '.pyi')
-
-        yield from files_walker(self.j(self.SRC, 'pyj'), '.pyj')
-
-        if self.has_changelog_check:
-            yield self.j(self.d(self.SRC), 'Changelog.txt')
-
-    def read_file(self, f):
-        with open(f, 'rb') as f:
-            return f.read()
-
-    def file_hash(self, f):
-        try:
-            return self.fhash_cache[f]
-        except KeyError:
-            self.fhash_cache[f] = ans = hashlib.sha1(self.read_file(f)).hexdigest()
-            return ans
-
-    def is_cache_valid(self, f, cache):
-        return cache.get(f) == self.file_hash(f)
-
-    @property
-    def cache_file(self):
-        return self.j(build_cache_dir(), self.CACHE)
-
-    def save_cache(self, cache):
-        dump_json(cache, self.cache_file)
+        parser.add_option('--fix', '--auto-fix', default=False, action='store_true', help='Try to automatically fix errors with ruff.')
 
     def _ruff_executable(self):
+        import shutil
         ruff = self.j(self.PROJECT_ROOT, '.venv/bin/ruff')
         if iswindows:
             ruff += '.exe'
         if not os.path.exists(ruff):
-            import shutil
-
             ruff = shutil.which('ruff') or 'ruff'
+        self._ruff_executable = lambda: ruff
         return ruff
 
-    def file_has_errors(self, f):
+    def _rapydscript_executable(self):
+        import shutil
+        rs = self.j(self.PROJECT_ROOT, '.venv/bin/rapydscript')
+        if iswindows:
+            rs += '.exe'
+        if not os.path.exists(rs):
+            rs = shutil.which('rapydscript') or 'rapydscript'
+        self._rapydscript_executable = lambda: rs
+        return rs
+
+    def _run_ruff(self, targets):
+        ruff = self._ruff_executable()
+        cmd = [ruff, 'check', '--output-format=json']
+        if self.auto_fix:
+            cmd.append('--fix')
+        p = subprocess.run(
+            cmd + targets,
+            capture_output=True, text=True, cwd=self.PROJECT_ROOT,
+        )
+        output_lines = []
+        files_with_errors = set()
+        if p.stdout:
+            try:
+                for d in json.loads(p.stdout):
+                    fname = d['filename']
+                    if not os.path.isabs(fname):
+                        fname = os.path.join(self.PROJECT_ROOT, fname)
+                    loc = d.get('location', {})
+                    row = loc.get('row', 0)
+                    col = loc.get('column', 0)
+                    code = d.get('code', '')
+                    msg = d.get('message', '')
+                    output_lines.append(f'{fname}:{row}:{col}: {code} {msg}')
+                    files_with_errors.add(fname)
+            except (json.JSONDecodeError, KeyError):
+                output_lines.append(p.stdout.strip())
+        if p.stderr.strip():
+            output_lines.append(p.stderr.strip())
+        return p.returncode, '\n'.join(filter(None, output_lines)), files_with_errors
+
+    def _run_rapydscript(self, targets):
+        p = subprocess.run(
+            [self._rapydscript_executable(), 'lint'] + targets,
+            capture_output=True, text=True,
+        )
+        combined = (p.stdout + p.stderr).strip()
+        files_with_errors = set()
+        if p.returncode != 0:
+            for line in combined.splitlines():
+                m = re.match(r'^(.+\.pyj):\d+', line)
+                if m:
+                    fname = m.group(1)
+                    if not os.path.isabs(fname):
+                        fname = os.path.join(self.PROJECT_ROOT, fname)
+                    files_with_errors.add(fname)
+        return p.returncode, combined, files_with_errors
+
+    def _run_changelog(self, wn_path):
+        changelog_file = self.j(self.d(self.SRC), 'Changelog.txt')
+        p = subprocess.run(
+            ['python', self.j(wn_path, 'whats_new.py'), changelog_file],
+            capture_output=True, text=True,
+        )
+        return p.returncode, (p.stdout + p.stderr).strip()
+
+    def _check_file(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.pyi', '.recipe'}:
             ruff = self._ruff_executable()
-            if self.auto_fix:
-                p = subprocess.Popen([ruff, 'check', '-q', '--fix', f], cwd=self.PROJECT_ROOT)
-            else:
-                p = subprocess.Popen([ruff, 'check', '-q', f], cwd=self.PROJECT_ROOT)
-            return p.wait() != 0
+            p = subprocess.run([ruff, 'check', f], capture_output=True, text=True, cwd=self.PROJECT_ROOT)
+            output = (p.stdout + p.stderr).strip()
+            if p.returncode != 0 and output:
+                print(output, file=sys.stderr)
+            return p.returncode != 0
         if ext == '.pyj':
-            p = subprocess.Popen(['rapydscript', 'lint', f])
-            return p.wait() != 0
-        if ext == '.yaml':
-            p = subprocess.Popen(['python', self.j(self.wn_path, 'whats_new.py'), f])
-            return p.wait() != 0
+            p = subprocess.run([self._rapydscript_executable(), 'lint', f], capture_output=True, text=True)
+            output = (p.stdout + p.stderr).strip()
+            if p.returncode != 0 and output:
+                print(output, file=sys.stderr)
+            return p.returncode != 0
+        return False
 
     def run(self, opts):
-        self.fhash_cache = {}
-        self.wn_path = os.path.expanduser('~/work/srv/main/static')
-        self.has_changelog_check = os.path.exists(self.wn_path)
+        no_editor = opts.no_editor
         self.auto_fix = opts.fix
-        self.no_editor = opts.no_editor
-        self.files = ()
-        if opts.cli_args:
-            self.files = tuple(x for x in opts.cli_args if x.endswith(('.py', '.recipe', '.pyj')))
-            if not self.files:
-                return
-        self.run_check_files()
-
-    def run_check_files(self):
-        cache = {}
-        try:
-            with open(self.cache_file, 'rb') as f:
-                cache = json.load(f)
-        except OSError as err:
-            if err.errno != errno.ENOENT:
-                raise
-        if self.files:
-            all_files = tuple(self.files)
-        else:
-            all_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+        cli_args = opts.cli_args
 
         python_exts = {'.py', '.pyi', '.recipe'}
-        python_files = [f for f in all_files if os.path.splitext(f)[1] in python_exts]
-        other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts]
+        wn_path = os.path.expanduser('~/work/srv/main/static')
+        has_changelog = os.path.exists(wn_path) and not cli_args
 
-        try:
-            # Check all Python files with ruff, splitting into safe chunks to
-            # avoid hitting the kernel ARG_MAX limit on command-line length.
-            bad_python_files = set()
-            if python_files:
-                ruff = self._ruff_executable()
-                ruff_cmd = [ruff, 'check', '-q', '--output-format=json']
-                if self.auto_fix:
-                    ruff_cmd.insert(3, '--fix')
-                # Keep each chunk well under typical ARG_MAX (128 KiB on Linux,
-                # 256 KiB on macOS).  We budget 64 KiB for the file-list portion.
-                chunk_limit = 64 * 1024
-                chunk: list[str] = []
-                chunk_len = 0
-                chunks: list[list[str]] = []
-                for f in python_files:
-                    flen = len(f.encode()) + 1  # +1 for the NUL separator
-                    if chunk and chunk_len + flen > chunk_limit:
-                        chunks.append(chunk)
-                        chunk = []
-                        chunk_len = 0
-                    chunk.append(f)
-                    chunk_len += flen
-                if chunk:
-                    chunks.append(chunk)
-                for batch in chunks:
-                    p = subprocess.run(
-                        ruff_cmd + batch,
-                        capture_output=True,
-                        text=True,
-                        cwd=self.PROJECT_ROOT,
-                    )
-                    if p.returncode != 0:
-                        try:
-                            diagnostics = json.loads(p.stdout)
-                            bad_python_files.update(d['filename'] for d in diagnostics)
-                        except json.JSONDecodeError, KeyError:
-                            bad_python_files.update(batch)
-            for f in python_files:
-                if f not in bad_python_files:
-                    cache[f] = self.file_hash(f)
+        if cli_args:
+            ruff_targets = []
+            rapydscript_targets = []
+            for f in cli_args:
+                ext = os.path.splitext(f)[1]
+                if ext in python_exts:
+                    ruff_targets.append(f)
+                elif ext == '.pyj':
+                    rapydscript_targets.append(f)
+                else:
+                    ruff_targets.append(f)
+                    rapydscript_targets.append(f)
+        else:
+            ruff_targets = ['.']
+            rapydscript_targets = [self.j(self.SRC, 'pyj')]
 
-            # For each Python file that has errors, open editor and re-check individually.
-            bad_list = list(bad_python_files)
-            for i, f in enumerate(bad_list):
-                self.info('\tErrors in', f)
-                self.info(f'{len(bad_list) - i - 1} bad Python files remaining')
-                e = SystemExit(1)
-                if self.no_editor:
-                    raise e
-                try:
-                    edit_file(f)
-                except FileNotFoundError:
-                    raise e
-                if self.file_has_errors(f):
-                    raise e
-                cache[f] = self.file_hash(f)
+        with concurrent.futures.ThreadPoolExecutor() as ex:
+            futures = {}
+            if ruff_targets:
+                futures['ruff'] = ex.submit(self._run_ruff, ruff_targets)
+            if rapydscript_targets:
+                futures['rapydscript'] = ex.submit(self._run_rapydscript, rapydscript_targets)
+            if has_changelog:
+                futures['changelog'] = ex.submit(self._run_changelog, wn_path)
+            results = {name: f.result() for name, f in futures.items()}
 
-            # Check non-Python files one by one as before.
-            for i, f in enumerate(other_files):
-                self.info('\tChecking', f)
-                if self.file_has_errors(f):
-                    self.info(f'{len(other_files) - i - 1} files left to check')
-                    e = SystemExit(1)
-                    if self.no_editor:
-                        raise e
-                    try:
-                        edit_file(f)
-                    except FileNotFoundError:
-                        raise e
-                    if self.file_has_errors(f):
-                        raise e
-                cache[f] = self.file_hash(f)
-        finally:
-            self.save_cache(cache)
+        ruff_rc, ruff_output, ruff_files = results.get('ruff', (0, '', set()))
+        rs_rc, rs_output, rs_files = results.get('rapydscript', (0, '', set()))
+        cl_rc, cl_output = results.get('changelog', (0, ''))
 
-    def report_errors(self, errors):
-        for err in errors:
-            self.info('\t\t', str(err))
+        if ruff_output:
+            print(ruff_output, file=sys.stderr)
+        if rs_output:
+            print(rs_output, file=sys.stderr)
+        if cl_output:
+            print(cl_output, file=sys.stderr)
 
-    def clean(self):
-        try:
-            os.remove(self.cache_file)
-        except OSError as err:
-            if err.errno != errno.ENOENT:
-                raise
+        had_errors = ruff_rc != 0 or rs_rc != 0 or cl_rc != 0
+
+        if no_editor:
+            raise SystemExit(1 if had_errors else 0)
+
+        # Errors that can't be resolved by opening a file in the editor
+        unresolvable = cl_rc != 0
+        if ruff_rc != 0 and not ruff_files:
+            unresolvable = True
+        if rs_rc != 0 and not rs_files:
+            unresolvable = True
+
+        for f in sorted(ruff_files | rs_files):
+            try:
+                edit_file(f)
+            except FileNotFoundError:
+                raise SystemExit(1)
+            if self._check_file(f):
+                raise SystemExit(1)
+
+        if unresolvable:
+            raise SystemExit(1)
 
 
 class CheckAll(Command):
