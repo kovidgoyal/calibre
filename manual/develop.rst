@@ -388,6 +388,14 @@ that the calibre environment is fully initialized, so you can use all the calibr
 The ``--`` causes all subsequent arguments to be passed to your script.
 
 
+Running the calibre test suite
+------------------------------------
+
+The calibre test suite can be run by:
+
+    calibre-debug -t all
+
+
 Using calibre in your projects
 ----------------------------------------
 
