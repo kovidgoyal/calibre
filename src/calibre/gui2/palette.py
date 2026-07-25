@@ -325,7 +325,7 @@ class PaletteManager(QObject):
         QIcon.ic.set_theme()  # type: ignore
         app.setProperty('is_dark_theme', self.is_dark_theme)
         if self.using_calibre_style:
-            ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
+            ss = 'QTabBar::tab:selected { font-style: italic }\nQMenu::separator { height: 1px; background: palette(shadow); margin-top: 4px; margin-bottom: 4px; }\n\n'
             if self.is_dark_theme:
                 ss += 'QMenu { border: 1px solid palette(shadow); }'
                 ss += '''
