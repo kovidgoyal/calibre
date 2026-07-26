@@ -119,7 +119,6 @@ def parse_index(raw=None):  # {{{
         else:
             raw = res.decode('cp1252', 'replace')
 
-
     dpat = re.compile(r'''(?is)Donate\s*:\s*<a\s+href=['"](.+?)['"]''')
     key_pat = re.compile(r'''(?is)(History|Uninstall)\s*:\s*([^<;]+)[<;]''')
     seen = {}
