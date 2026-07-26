@@ -1126,6 +1126,71 @@ def evaluate(book, ctx):
         unload_user_template_functions('aaaaa')
         self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two', 'one argument'})
 
+        # test that recursive template() calls inherit the python template policy
+        # The outer GPM calls template() with a python template string argument.
+        # The single-quoted string spans a newline; re.DOTALL allows this.
+        recursive_python = "program: template('python:\ndef evaluate(book, ctx): return \"recursive_ran\"')"
+
+        # with allow_python_templates=True, the recursive template should succeed
+        formatter2 = SafeFormat()
+        formatter2.allow_python_templates = True
+        v = formatter2.safe_format(recursive_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, 'recursive_ran')
+
+        # with allow_python_templates=False, the recursive template should be blocked.
+        # The inner safe_format (called inside template()) returns the disallow error
+        # prefixed with its own error_value 'TEMPLATE'; the outer formatter returns
+        # that string as a normal result rather than its own 'TEMPLATE ERROR' prefix.
+        formatter3 = SafeFormat()
+        formatter3.allow_python_templates = False
+        v = formatter3.safe_format(recursive_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertNotEqual(v, 'recursive_ran')
+        self.assertTrue(v.startswith('TEMPLATE'))
+
+        # test that eval() inherits the python template policy.
+        # eval() uses EvalFormatter with book=None, so the python template must
+        # not access ctx.db.
+        eval_python = "program: eval('python:\ndef evaluate(book, ctx): return \"eval_ran\"')"
+
+        formatter4 = SafeFormat()
+        formatter4.allow_python_templates = True
+        v = formatter4.safe_format(eval_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, 'eval_ran')
+
+        formatter5 = SafeFormat()
+        formatter5.allow_python_templates = False
+        v = formatter5.safe_format(eval_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertNotEqual(v, 'eval_ran')
+        self.assertTrue(v.startswith('EVAL'))
+
+        # test that re_group() inherits the python template policy.
+        # The template substitution arg to re_group() is evaluated by EvalFormatter
+        # with book=None, so the python template must not access ctx.db.
+        re_group_python = "program: re_group('hello', '(hello)', 'python:\ndef evaluate(book, ctx): return \"re_group_ran\"')"
+
+        formatter6 = SafeFormat()
+        formatter6.allow_python_templates = True
+        v = formatter6.safe_format(re_group_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, 're_group_ran')
+
+        formatter7 = SafeFormat()
+        formatter7.allow_python_templates = False
+        v = formatter7.safe_format(re_group_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertNotEqual(v, 're_group_ran')
+
+        # test that list_re_group() inherits the python template policy.
+        list_re_group_python = "program: list_re_group('hello', ',', 'hello', '(hello)', 'python:\ndef evaluate(book, ctx): return \"list_re_group_ran\"')"
+
+        formatter8 = SafeFormat()
+        formatter8.allow_python_templates = True
+        v = formatter8.safe_format(list_re_group_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, 'list_re_group_ran')
+
+        formatter9 = SafeFormat()
+        formatter9.allow_python_templates = False
+        v = formatter9.safe_format(list_re_group_python, {}, 'TEMPLATE ERROR', mi)
+        self.assertNotEqual(v, 'list_re_group_ran')
+
     # }}}
 
     def test_cover_cache(self):

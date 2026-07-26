@@ -661,7 +661,9 @@ mode.
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         (template,) = args
         template = template.replace('[[', '{').replace(']]', '}')
-        return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)
+        new_formatter = formatter.__class__()
+        new_formatter.allow_python_templates = formatter.allow_python_templates
+        return new_formatter.safe_format(template, kwargs, 'TEMPLATE', mi)
 
 
 class BuiltinEval(BuiltinFormatterFunction):
@@ -690,7 +692,9 @@ function when using Template Program Mode.
         from calibre.utils.formatter import EvalFormatter
 
         template = template.replace('[[', '{').replace(']]', '}')
-        return EvalFormatter().safe_format(template, locals, 'EVAL', None)
+        new_formatter = EvalFormatter()
+        new_formatter.allow_python_templates = formatter.allow_python_templates
+        return new_formatter.safe_format(template, locals, 'EVAL', None)
 
 
 class BuiltinAssign(BuiltinFormatterFunction):
@@ -1207,6 +1211,8 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
         val, pattern, *args = args
         from calibre.utils.formatter import EvalFormatter
 
+        allow_python = formatter.allow_python_templates
+
         def repl(mo):
             res = ''
             if mo and mo.lastindex:
@@ -1216,7 +1222,9 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
                         continue
                     if len(args) > dex:
                         template = args[dex].replace('[[', '{').replace(']]', '}')
-                        res += EvalFormatter().safe_format(template, {'$': gv}, 'EVAL', None, strip_results=False)
+                        new_formatter = EvalFormatter()
+                        new_formatter.allow_python_templates = allow_python
+                        res += new_formatter.safe_format(template, {'$': gv}, 'EVAL', None, strip_results=False)
                     else:
                         res += gv
             return res
@@ -2485,6 +2493,7 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
         src_list, separator, include_re, search_re, *args = args
         from calibre.utils.formatter import EvalFormatter
 
+        allow_python = formatter.allow_python_templates
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
         res = []
         for item in l:
@@ -2498,7 +2507,9 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
                             continue
                         if len(args) > dex:
                             template = args[dex].replace('[[', '{').replace(']]', '}')
-                            newval += EvalFormatter().safe_format(template, {'$': gv}, 'EVAL', None, strip_results=False)
+                            new_formatter = EvalFormatter()
+                            new_formatter.allow_python_templates = allow_python
+                            newval += new_formatter.safe_format(template, {'$': gv}, 'EVAL', None, strip_results=False)
                         else:
                             newval += gv
                 return newval
