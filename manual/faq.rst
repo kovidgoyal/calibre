@@ -948,9 +948,8 @@ I get only a black or white screen when running the calibre E-book viewer?
 This will be because of an incompatibility between Qt WebEngine, which the
 viewer uses to render and the GPU drivers on your system. First try
 upgrading the GPU drivers. If that does not help, you can try turning off
-hardware acceleration in Qt WebEngine by setting the environment variable
-``QTWEBENGINE_CHROMIUM_FLAGS`` to the value ``--disable-gpu``.
-See :ref:`customize_env_vars` for how to change environment variables.
+hardware acceleration in Qt WebEngine via Preferences->Tweaks->Control GPU
+usage in Qt WebEngine.
 
 
 I downloaded the installer, but it is not working?
