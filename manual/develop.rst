@@ -391,7 +391,7 @@ The ``--`` causes all subsequent arguments to be passed to your script.
 Running the calibre test suite
 ------------------------------------
 
-The calibre test suite can be run by:
+The calibre test suite can be run by::
 
     calibre-debug -t all
 
