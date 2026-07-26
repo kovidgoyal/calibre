@@ -515,11 +515,15 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
                                 QPalette::Text);
                         w = menuItem->fontMetrics.horizontalAdvance(menuItem->text) + margin;
                     }
-                    if (is_color_dark(menuItem->palette.color(QPalette::Window))) painter->setPen(Qt::gray);
-                    else painter->setPen(QColor(0, 0, 0, 60).lighter(106));
+                    QColor c = QColor(0, 0, 0, 60).lighter(106);
+                    if (is_color_dark(menuItem->palette.color(QPalette::Window))) c = QColor(Qt::gray);
                     bool reverse = menuItem->direction == Qt::RightToLeft;
-                    painter->drawLine(menuItem->rect.left() + margin + (reverse ? 0 : w), menuItem->rect.center().y(),
-                            menuItem->rect.right() - margin - (reverse ? w : 0), menuItem->rect.center().y());
+                    unsigned xpos = menuItem->rect.left() + margin + w;
+                    unsigned used = 2 * margin - w;
+                    if (used < menuItem->rect.width()) {
+                        unsigned width = menuItem->rect.width() - used;
+                        painter->fillRect(xpos, menuItem->rect.center().y(), width, 1, c);
+                    }
                     painter->restore();
                     return;
                 }
