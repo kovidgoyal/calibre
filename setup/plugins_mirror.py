@@ -104,7 +104,21 @@ def url_to_plugin_id(url, deprecated):
 
 
 def parse_index(raw=None):  # {{{
-    raw = raw or read(INDEX).decode('utf-8', 'replace')
+    if raw is None:
+        res = read(INDEX, get_info=True)
+        if isinstance(res, tuple):
+            raw_bytes, info = res
+            charset = 'cp1252'
+            try:
+                content_type = info.get('Content-Type', '')
+                if 'charset=' in content_type:
+                    charset = content_type.split('charset=')[-1].strip()
+            except Exception:
+                pass
+            raw = raw_bytes.decode(charset, 'replace')
+        else:
+            raw = res.decode('cp1252', 'replace')
+
 
     dpat = re.compile(r'''(?is)Donate\s*:\s*<a\s+href=['"](.+?)['"]''')
     key_pat = re.compile(r'''(?is)(History|Uninstall)\s*:\s*([^<;]+)[<;]''')
