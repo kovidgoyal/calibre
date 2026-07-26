@@ -51,6 +51,8 @@ class EditWithComplete(EWC):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
         self.set_clear_button_enabled(False)
+        if le := self.lineEdit():
+            le.setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
 
 
 def safe_disconnect(signal):
