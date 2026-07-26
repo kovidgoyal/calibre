@@ -103,21 +103,32 @@ def url_to_plugin_id(url, deprecated):
     return ans
 
 
+def decode_html(raw_bytes, info=None):
+    charset = 'cp1252'
+    if info is not None:
+        try:
+            content_type = info.get('Content-Type', '')
+            if 'charset=' in content_type:
+                charset = content_type.split('charset=')[-1].strip()
+        except Exception:
+            pass
+    c = charset.lower().replace('_', '-').replace(' ', '')
+    if c in ('iso-8859-1', 'latin-1', 'latin1', 'iso8859-1', 'iso_8859-1'):
+        charset = 'cp1252'
+    try:
+        return raw_bytes.decode(charset, 'replace')
+    except Exception:
+        return raw_bytes.decode('cp1252', 'replace')
+
+
 def parse_index(raw=None):  # {{{
     if raw is None:
         res = read(INDEX, get_info=True)
         if isinstance(res, tuple):
             raw_bytes, info = res
-            charset = 'cp1252'
-            try:
-                content_type = info.get('Content-Type', '')
-                if 'charset=' in content_type:
-                    charset = content_type.split('charset=')[-1].strip()
-            except Exception:
-                pass
-            raw = raw_bytes.decode(charset, 'replace')
+            raw = decode_html(raw_bytes, info)
         else:
-            raw = res.decode('cp1252', 'replace')
+            raw = decode_html(res)
 
     dpat = re.compile(r'''(?is)Donate\s*:\s*<a\s+href=['"](.+?)['"]''')
     key_pat = re.compile(r'''(?is)(History|Uninstall)\s*:\s*([^<;]+)[<;]''')
@@ -444,7 +455,8 @@ def update_plugin_from_entry(plugin, entry):
 
 def fetch_plugin(old_index, entry):
     lm_map = {plugin['thread_id']: plugin for plugin in old_index.values()}
-    raw = read(entry.url).decode('utf-8', 'replace')
+    res = read(entry.url, get_info=True)
+    raw = decode_html(*res)
     url, name = parse_plugin_zip_url(raw)
     if url is None:
         raise ValueError(f'Failed to find zip file URL for entry: {entry!r}')
