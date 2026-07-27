@@ -14,7 +14,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from functools import lru_cache
 
 iswindows = re.search(r'win(32|64)', sys.platform)
@@ -71,7 +71,7 @@ def curl_supports_etags():
     return '--etag-compare' in subprocess.check_output(['curl', '--help', 'all']).decode('utf-8')
 
 
-def _download_securely(url):
+def _download_securely(url, ignore_cache):
     # We use curl here as on some OSes (OS X) when bootstrapping calibre,
     # python will be unable to validate certificates until after cacerts is
     # installed
@@ -88,6 +88,9 @@ def _download_securely(url):
     os.makedirs(cache_dir, exist_ok=True)
     staging = os.path.join(cache_dir, 'data.bin.staging')
     etag = os.path.join(cache_dir, 'etag.txt')
+    if ignore_cache:
+        with suppress(FileNotFoundError):
+            os.remove(etag)
     try:
         subprocess.check_call(['curl', '-fsSL', '--etag-compare', etag, '--etag-save', etag, '-o', staging, url])
     except Exception:
@@ -103,10 +106,10 @@ def _download_securely(url):
         return f.read()
 
 
-def download_securely(url, retry_count: int = 5 if is_ci else 3, sleep_time: float = 1):
+def download_securely(url, retry_count: int = 5 if is_ci else 3, sleep_time: float = 1, ignore_cache: bool = False) -> bytes:
     for i in range(retry_count):
         try:
-            return _download_securely(url)
+            return _download_securely(url, ignore_cache)
         except Exception as err:
             if i >= retry_count - 1:
                 raise
