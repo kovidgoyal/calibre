@@ -182,6 +182,11 @@ def get_rating(rating, rchar, e_rchar):
 
 
 class Series(str):
+    roman: str
+    name: str
+    number: str
+    roman_number: str
+
     def __new__(cls, series, series_index):
         if series and series_index is not None:
             roman = _('{1} of <em>{0}</em>').format(escape(series), escape(fmt_sidx(series_index, use_roman=True)))

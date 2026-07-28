@@ -17,6 +17,8 @@ Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
 
 class Choices(frozenset):
+    default: str
+
     def __new__(cls, *args):
         self = super().__new__(cls, args)
         self.default = args[0]

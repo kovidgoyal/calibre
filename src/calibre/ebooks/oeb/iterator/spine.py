@@ -39,6 +39,18 @@ def all_links(html):
 
 
 class SpineItem(str):
+    encoding: str
+    character_count: int
+    anchor_map: dict[str, int]
+    all_links: set[str]
+    verified_links: set[str]
+    pages: int
+    start_page: int
+    max_page: int
+    index_entries: list[IndexEntry]
+    is_single_page: bool | None
+    mime_type: str
+
     def __new__(cls, path, mime_type=None, read_anchor_map=True, run_char_count=True, from_epub=False, read_links=True):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):

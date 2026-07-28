@@ -20,6 +20,8 @@ if TYPE_CHECKING:
 
 
 class AsYouType(str):
+    as_you_type: bool
+
     def __new__(cls, text):
         self = str.__new__(cls, text)
         self.as_you_type = True
