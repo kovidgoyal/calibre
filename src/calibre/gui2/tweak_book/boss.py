@@ -1932,6 +1932,7 @@ class Boss(QObject):
                     webp_quality=d.webp_quality,
                     compress_png=d.compress_png,
                     png_to_format=d.png_to_format,
+                    gif_to_format=d.gif_to_format,
                     parent=self.gui,
                 )
                 if d.exec() != QDialog.DialogCode.Accepted:

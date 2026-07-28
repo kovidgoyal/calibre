@@ -304,6 +304,32 @@ class CompressImages(Dialog):
         pc.currentIndexChanged.connect(self.save_png_to_format)
         pcla.setBuddy(pc)
         l.addWidget(pc)
+
+        l.addSpacing(10)
+        self.gif_conv_la = gcla = QLabel(_('Convert &GIF images to:'))
+        gcla.setWordWrap(True)
+        l.addWidget(gcla)
+        self.gif_conv = gc = QComboBox(self)
+        gc.addItem(_('No conversion'), '')
+        gc.addItem(_('JPEG'), 'jpeg')
+        gc.addItem(_('WEBP (lossy)'), 'webp')
+        gc.addItem(_('WEBP Lossless'), 'webp-lossless')
+        gc.setToolTip(
+            _(
+                'Optionally convert GIF images to a different format before compression.'
+                ' JPEG and WEBP (lossy) reduce file size at the expense of image quality.'
+                ' WEBP Lossless produces smaller files than GIF with no quality loss.'
+                ' Note: animated GIFs will not be converted to JPEG.'
+                ' When enabled, conversion is performed before all other image optimisation.'
+            )
+        )
+        saved = tprefs.get('compress_images_gif_to_format', '')
+        idx = gc.findData(saved)
+        if idx >= 0:
+            gc.setCurrentIndex(idx)
+        gc.currentIndexChanged.connect(self.save_gif_to_format)
+        gcla.setBuddy(gc)
+        l.addWidget(gc)
         l.addStretch(10)
         l.addWidget(self.bb)
 
@@ -312,6 +338,9 @@ class CompressImages(Dialog):
 
     def save_png_to_format(self):
         tprefs.set('compress_images_png_to_format', self.png_conv.currentData())
+
+    def save_gif_to_format(self):
+        tprefs.set('compress_images_gif_to_format', self.gif_conv.currentData())
 
     @property
     def names(self):
@@ -337,16 +366,21 @@ class CompressImages(Dialog):
     def png_to_format(self):
         return self.png_conv.currentData() or None
 
+    @property
+    def gif_to_format(self):
+        return self.gif_conv.currentData() or None
+
 
 class CompressImagesProgress(Dialog):
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, parent=None):
+    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, gif_to_format=None, parent=None):
         self.names, self.jpeg_quality = names, jpeg_quality
         self.webp_quality = webp_quality
         self.compress_png = compress_png
         self.png_to_format = png_to_format
+        self.gif_to_format = gif_to_format
         self.keep_going = True
         self.compress_result: tuple = (None, '')
         Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
@@ -371,6 +405,7 @@ class CompressImagesProgress(Dialog):
                     webp_quality=self.webp_quality,
                     compress_png=self.compress_png,
                     png_to_format=self.png_to_format,
+                    gif_to_format=self.gif_to_format,
                     progress_callback=self.progress_callback,
                 )[0],
                 report,
