@@ -236,7 +236,11 @@ class Economist(BasicNewsRecipe):
     resolve_internal_links = True
 
     delay = 2
-    browser_type = 'webengine'
+    # Article pages must be fetched via get_obfuscated_article (which uses the
+    # mobile-app webview headers to bypass the Cloudflare challenge); without
+    # this flag calibre fetches them with the plain browser and gets a 403
+    # challenge page, crashing preprocess_raw_html with an IndexError.
+    articles_are_obfuscated = True
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
