@@ -160,34 +160,52 @@ def forked_map[T, R](
 forked_map_is_supported = hasattr(os, 'fork')
 
 
-def find_tests():
+def forked_map_test_main() -> None:
     import random
     import time
     import unittest
 
+    def sleep(x: int) -> int:
+        time.sleep(10 * x)
+        return x
+
+    def raise_error(x: int) -> None:
+        raise ReferenceError('testing')
+
+    tc = unittest.TestCase()
+    tc.maxDiff = None
+
+    with tc.assertRaises(TimeoutError):
+        tuple(forked_map(sleep, range(3), timeout=0.001))
+
+    with tc.assertRaises(ReferenceError):
+        tuple(forked_map(raise_error, range(3)))
+
+    timings = 0, 1, 2, 3
+
+    def echo(x: int) -> int:
+        time.sleep(0.0001 * random.choice(timings))
+        return x
+
+    for num_workers in range(1, 9):
+        items = tuple(range(num_workers * 3 + 1))
+        tc.assertEqual(tuple(map(echo, items)), tuple(forked_map(echo, items, num_workers=num_workers)))
+
+
+def find_tests():
+    import subprocess
+    import unittest
+
+    from calibre.utils.ipc.simple_worker import start_pipe_worker
+
     class TestForkedMap(unittest.TestCase):
         @unittest.skipUnless(forked_map_is_supported, 'forking not supported on this platform')
         def test_forked_map(self):
-            def sleep(x: int) -> int:
-                time.sleep(10 * x)
-                return x
-
-            with self.assertRaises(TimeoutError):
-                tuple(forked_map(sleep, range(3), timeout=0.001))
-
-            def raise_error(x: int) -> None:
-                raise ReferenceError('testing')
-
-            with self.assertRaises(ReferenceError):
-                tuple(forked_map(raise_error, range(3)))
-            timings = 0, 1, 2, 3
-
-            def echo(x: int) -> int:
-                time.sleep(0.0001 * random.choice(timings))
-                return x
-
-            for num_workers in range(1, 9):
-                items = tuple(range(num_workers * 3 + 1))
-                self.assertEqual(tuple(map(echo, items)), tuple(forked_map(echo, items, num_workers=num_workers)))
+            proc = start_pipe_worker(
+                'from calibre.utils.forked_map import forked_map_test_main; forked_map_test_main()',
+                stderr=subprocess.STDOUT,
+            )
+            if proc.wait(60) != 0:
+                raise AssertionError(f'forked_map test failed with output:\n{proc.stdout.read().decode()}')
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestForkedMap)
