@@ -358,7 +358,7 @@ def _print_summary(
     times: dict[str, float],
     total: int,
     elapsed: float,
-    lost: int,
+    lost_ids: list[str],
 ) -> None:
     """Print the failure details, one-line stats, and five slowest tests."""
     for label, colour, items in (
@@ -373,6 +373,7 @@ def _print_summary(
         s = f'{label}: {count}'
         return _c(colour, s) if count else s
 
+    lost = len(lost_ids)
     print(f'\n{_c(_BD, f"Ran {total} tests")} in {elapsed:.1f}s')
     parts = [
         _c(_GR, f'OK: {ok_count}'),
@@ -385,6 +386,10 @@ def _print_summary(
     if lost:
         parts.append(_c(_RD, f'LOST (worker crash?): {lost}'))
     print('  '.join(parts))
+    if lost_ids:
+        print(_c(_RD, '\nLost tests (never reported back):'))
+        for tid in lost_ids:
+            print(f'  {_c(_RD, tid)}')
 
     slowest = sorted(times.items(), key=lambda kv: kv[1], reverse=True)[:5]
     if slowest:
@@ -510,9 +515,9 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
         print()
 
     elapsed = monotonic() - start_time
-    lost = total - completed
-    _print_summary(failures, errors, skips, ok_count, xfail_count, times, total, elapsed, lost)
-    return 1 if len(failures) + len(errors) + lost else 0
+    lost_ids = [t.id() for t in all_tests if t.id() not in times]
+    _print_summary(failures, errors, skips, ok_count, xfail_count, times, total, elapsed, lost_ids)
+    return 1 if len(failures) + len(errors) + len(lost_ids) else 0
 
 
 # ─── Test discovery ───────────────────────────────────────────────────────────
