@@ -417,7 +417,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     Returns the number of failures + errors (0 means all passed).
     """
 
-    all_tests = list(itertests(suite))
+    all_tests = sorted(itertests(suite), key=lambda t: t.id())
     total = len(all_tests)
     if not total:
         print('No tests found.', file=sys.stderr)
