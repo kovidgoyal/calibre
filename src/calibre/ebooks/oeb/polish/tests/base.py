@@ -76,30 +76,41 @@ def setup_simple_book(src):
 
 
 def get_simple_book(fmt='epub'):
+    from calibre.utils.lock import ExclusiveFile
+
     cache = get_cache()
     ans = os.path.join(cache, 'simple.' + fmt)
     src = os.path.join(os.path.dirname(__file__), 'simple.html')
     if needs_recompile(ans, src):
-        with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
-            x = setup_simple_book(src)
-            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
+        with ExclusiveFile(ans + '.lock', timeout=120):
+            # Re-check after acquiring the lock: another worker may have just built it.
+            # On the second call needs_recompile falls through to the mtime check
+            # (once_per_run already contains ans), so it returns False if ans is fresh.
+            if needs_recompile(ans, src):
+                with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
+                    x = setup_simple_book(src)
+                    build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
     return ans
 
 
 def get_split_book(fmt='epub'):
+    from calibre.utils.lock import ExclusiveFile
+
     cache = get_cache()
     ans = os.path.join(cache, 'split.' + fmt)
     src = os.path.join(os.path.dirname(__file__), 'split.html')
     if needs_recompile(ans, src):
-        x = src.replace('split.html', 'index.html')
-        with open(src, 'rb') as sf:
-            raw = sf.read().decode('utf-8')
-        try:
-            with open(x, 'wb') as f:
-                f.write(raw.encode('utf-8'))
-            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=' + I('lt.png')])
-        finally:
-            os.remove(x)
+        with ExclusiveFile(ans + '.lock', timeout=120):
+            if needs_recompile(ans, src):
+                x = src.replace('split.html', 'index.html')
+                with open(src, 'rb') as sf:
+                    raw = sf.read().decode('utf-8')
+                try:
+                    with open(x, 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+                    build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=' + I('lt.png')])
+                finally:
+                    os.remove(x)
     return ans
 
 

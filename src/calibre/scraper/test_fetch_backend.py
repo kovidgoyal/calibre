@@ -174,13 +174,18 @@ class TestFetchBackend(unittest.TestCase):
 
     def run_server(self):
         from http.server import HTTPServer
-        from socketserver import TCPServer
+        from socketserver import TCPServer, ThreadingMixIn
 
         def create_handler(*a):
             ans = Handler(self, *a)
             return ans
 
-        class Server(HTTPServer):
+        class Server(ThreadingMixIn, HTTPServer):
+            # Each connection is handled in its own thread so a blocked keep-alive
+            # connection (e.g. after a timeout test) doesn't prevent the server from
+            # accepting the follow-up connection for a redirect target.
+            daemon_threads = True
+
             def server_bind(self):
                 # Avoid calling socket.getfqdn() which is slow on some systems
                 TCPServer.server_bind(self)

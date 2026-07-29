@@ -102,7 +102,8 @@ class ContainerTests(BaseTest):
 
         def new_container():
             count[0] += 1
-            tdir = os.mkdir(os.path.join(self.tdir, str(count[0])))
+            tdir = os.path.join(self.tdir, str(count[0]))
+            os.mkdir(tdir)
             return get_container(book, tdir=tdir)
 
         # Test simple opf rename
