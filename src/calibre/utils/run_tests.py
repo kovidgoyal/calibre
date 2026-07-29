@@ -8,6 +8,7 @@ import json
 import os
 import queue
 import sys
+import tempfile
 import threading
 import unittest
 
@@ -306,18 +307,20 @@ def _start_worker(chunk: list, worker_cmd: list[str] | None = None) -> tuple:
 
         cmd = get_debug_executable() + ['-c', code]
 
+    output_tf = tempfile.NamedTemporaryFile(delete=False)
     proc = subprocess.Popen(
         cmd,
         stdin=subprocess.PIPE,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=output_tf,
+        stderr=output_tf,
         close_fds=False,
     )
+    output_tf.close()
     assert proc.stdin is not None
     proc.stdin.write(test_ids_json.encode())
     proc.stdin.close()
     os.close(w)
-    return proc, os.fdopen(r, 'r', errors='replace')
+    return proc, os.fdopen(r, 'r', errors='replace'), output_tf.name
 
 
 _STATUS_INTERVAL = 1.0  # seconds between status lines when stdout is not a TTY
@@ -415,10 +418,10 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     chunks = _chunk_round_robin(all_tests, num_workers)
 
     pipes: list = []
-    win_procs = []
+    workers: list[tuple] = []  # (proc, output_file)
     for chunk in chunks:
-        proc, pipe = _start_worker(chunk, worker_cmd=worker_cmd)
-        win_procs.append(proc)
+        proc, pipe, output_file = _start_worker(chunk, worker_cmd=worker_cmd)
+        workers.append((proc, output_file))
         pipes.append(pipe)
 
     ev_queue: queue.Queue[dict | None] = queue.Queue()
@@ -478,9 +481,22 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
         _print_status(completed, total, start_time, len(failures) + len(errors))
 
-    # Reap worker processes.
-    for proc in win_procs:
-        proc.wait()
+    # Reap worker processes; report crashes.
+    try:
+        for proc, output_path in workers:
+            rc = proc.wait()
+            if rc != 0:
+                with open(output_path, 'rb') as f:
+                    output = f.read().decode(errors='replace')
+                print(f'\n{_c(_RD, f"Worker process crashed (exit code {rc})")}', flush=True)
+                if output.strip():
+                    print(output, flush=True)
+    finally:
+        for _, output_path in workers:
+            try:
+                os.unlink(output_path)
+            except OSError:
+                pass
 
     if _IS_TTY:
         print()
