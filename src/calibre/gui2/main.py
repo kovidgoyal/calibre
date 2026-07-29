@@ -583,8 +583,8 @@ def communicate(opts, args):
         if len(args) > 1:
             args[1:] = [os.path.abspath(x) if os.path.exists(x) else x for x in args[1:]]
         if opts.with_library and os.path.isdir(os.path.expanduser(opts.with_library)):
-            library_id = os.path.basename(opts.with_library).replace(' ', '_').encode('utf-8').hex()
-            args.insert(1, 'calibre://switch-library/_hex_-' + library_id)
+            libpath = os.path.abspath(os.path.expanduser(opts.with_library))
+            args.insert(1, 'calibre://switch-library-by-path/_hex_-' + libpath.encode('utf-8').hex())
         import json
 
         if not send_message(b'launched:' + as_bytes(json.dumps(args))):

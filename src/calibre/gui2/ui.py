@@ -761,13 +761,13 @@ class Main(
                 a = os.path.abspath(p)
                 if not os.path.isdir(a) and os.access(a, os.R_OK):
                     files.append(a)
-        if files:
-            self.iactions['Add Books'].add_filesystem_book(files)
-        if urls:
+        if files or urls:
 
             def doit():
                 for action, path, query in urls:
                     self.handle_url_action(action, path, query)
+                if files:
+                    self.iactions['Add Books'].add_filesystem_book(files)
 
             QTimer.singleShot(10, doit)
 
@@ -795,6 +795,10 @@ class Main(
             library_id = decode_library_id(posixpath.basename(path))
             library_path = self.library_broker.path_for_library_id(library_id)
             if not db_matches(self.current_db, library_id, library_path):
+                self.library_moved(library_path)
+        elif action == 'switch-library-by-path':
+            library_path = decode_library_id(posixpath.basename(path))
+            if os.path.isdir(library_path) and not db_matches(self.current_db, library_path, library_path):
                 self.library_moved(library_path)
         elif action == 'book-details':
             parts = tuple(filter(None, path.split('/')))
