@@ -512,7 +512,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     elapsed = monotonic() - start_time
     lost = total - completed
     _print_summary(failures, errors, skips, ok_count, xfail_count, times, total, elapsed, lost)
-    return len(failures) + len(errors) + lost
+    return 1 if len(failures) + len(errors) + lost else 0
 
 
 # ─── Test discovery ───────────────────────────────────────────────────────────
