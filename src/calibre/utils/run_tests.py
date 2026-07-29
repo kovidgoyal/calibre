@@ -262,10 +262,17 @@ def _chunk_round_robin(tests: list, num_workers: int) -> list[list]:
     return [c for c in chunks if c]
 
 
-def _start_worker(chunk: list) -> tuple:
+def _start_worker(chunk: list, worker_cmd: list[str] | None = None) -> tuple:
     """
-    Start a calibre-debug subprocess worker for the given test chunk.
+    Start a subprocess worker for the given test chunk.
     Returns (Popen, read_pipe_file).
+
+    When *worker_cmd* is provided it must be a list whose last element is the
+    placeholder to which the Python code string will be appended, e.g.
+    ``[sys.executable, 'setup.py', 'test', '--worker']``.  The code string is
+    appended as a new argument so the worker runs via setup.py instead of
+    calibre-debug.  When *worker_cmd* is None (the default) the traditional
+    ``calibre-debug -c <code>`` invocation is used.
 
     On POSIX, the write-end file descriptor number is passed directly to the
     worker (close_fds=False lets it be inherited).  On Windows, POSIX fd
@@ -277,8 +284,6 @@ def _start_worker(chunk: list) -> tuple:
     worker's write-end.
     """
     import subprocess
-
-    from calibre.startup import get_debug_executable
 
     r, w = os.pipe()
     os.set_inheritable(r, False)
@@ -294,7 +299,13 @@ def _start_worker(chunk: list) -> tuple:
     else:
         code = f'from calibre.utils.run_tests import _worker_entry; _worker_entry({w})'
 
-    cmd = get_debug_executable() + ['-c', code]
+    if worker_cmd is not None:
+        cmd = worker_cmd + [code]
+    else:
+        from calibre.startup import get_debug_executable
+
+        cmd = get_debug_executable() + ['-c', code]
+
     proc = subprocess.Popen(
         cmd,
         stdin=subprocess.PIPE,
@@ -375,7 +386,7 @@ class TooFewTests(Exception):
     pass
 
 
-def run_parallel(suite: unittest.TestSuite, num_workers: int = 0) -> int:
+def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: list[str] | None = None) -> int:
     """
     Run *suite* spread across independent worker processes.
     Each process receives a round-robin slice of the tests and streams results
@@ -406,7 +417,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0) -> int:
     pipes: list = []
     win_procs = []
     for chunk in chunks:
-        proc, pipe = _start_worker(chunk)
+        proc, pipe = _start_worker(chunk, worker_cmd=worker_cmd)
         win_procs.append(proc)
         pipes.append(pipe)
 
@@ -779,18 +790,20 @@ def run_test(test_name, verbosity=4):
     run_cli(tests, verbosity, buffer=buffer)
 
 
-def run_cli(suite, verbosity=4, buffer=True):
+def run_cli(suite, verbosity=4, buffer=True, worker_cmd: list[str] | None = None):
     """
     Run *suite* and exit.
     When *buffer* is True (the default, used for full-suite runs) tests are
     distributed across worker processes via run_parallel().
     When *buffer* is False (used for single named-test runs) the suite runs
     single-threaded with verbose TextTestRunner output.
+    *worker_cmd*, when provided, is forwarded to run_parallel() / _start_worker()
+    as the command prefix used to spawn worker processes.
     """
     init_env()
     if buffer:
         try:
-            raise SystemExit(run_parallel(suite))
+            raise SystemExit(run_parallel(suite, worker_cmd=worker_cmd))
         except TooFewTests:
             pass
     r = unittest.TextTestRunner

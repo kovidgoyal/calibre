@@ -68,6 +68,11 @@ class Test(BaseTest):
             action='append',
             help='The name of an individual test to be excluded from the test run. Can be specified more than once for multiple tests.',
         )
+        parser.add_option(
+            '--worker',
+            default=None,
+            help='Python code to eval inside a worker process (used internally by the parallel test runner).',
+        )
 
     def run(self, opts):
         super().run(opts)
@@ -86,6 +91,10 @@ class Test(BaseTest):
 
         from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
 
+        if opts.worker is not None:
+            eval(compile(opts.worker, '<worker>', 'exec'))
+            raise SystemExit(0)
+
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
         only = []
         if opts.test_name:
@@ -96,7 +105,8 @@ class Test(BaseTest):
             tests = filter_tests_by_name(tests, *only)
         if opts.exclude_test_name:
             tests = remove_tests_by_name(tests, *opts.exclude_test_name)
-        run_cli(tests, verbosity=opts.test_verbosity, buffer=not opts.test_name)
+        worker_cmd = [sys.executable, 'setup.py', 'test', '--worker']
+        run_cli(tests, verbosity=opts.test_verbosity, buffer=not opts.test_name, worker_cmd=worker_cmd)
         if is_ci:
             print('run_cli returned', flush=True)
             raise SystemExit(0)
