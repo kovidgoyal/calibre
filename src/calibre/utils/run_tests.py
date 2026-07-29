@@ -14,6 +14,8 @@ import unittest
 
 from calibre.constants import debug, isbsd, islinux, ismacos, iswindows
 from calibre.utils.monotonic import monotonic
+from calibre.utils.serialize import msgpack_dumps
+from polyglot.binary import as_hex_unicode
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -308,12 +310,18 @@ def _start_worker(chunk: list, worker_cmd: list[str] | None = None) -> tuple:
         cmd = get_debug_executable() + ['-c', code]
 
     output_tf = tempfile.NamedTemporaryFile(delete=False)
+    env = os.environ.copy()
+    from calibre.ptempfile import base_dir
+
+    tdir = tempfile.mkdtemp(dir=base_dir())
+    env['CALIBRE_WORKER_TEMP_DIR'] = as_hex_unicode(msgpack_dumps(tdir))
     proc = subprocess.Popen(
         cmd,
         stdin=subprocess.PIPE,
         stdout=output_tf,
         stderr=output_tf,
         close_fds=False,
+        env=env,
     )
     output_tf.close()
     assert proc.stdin is not None
