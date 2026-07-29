@@ -606,7 +606,7 @@ def find_tests(only_build=False):
 def test():
     from calibre.utils.run_tests import run_cli
 
-    run_cli(find_tests())
+    run_cli(find_tests(), buffer=False)
 
 
 def test_qt_main():
