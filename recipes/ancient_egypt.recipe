@@ -49,6 +49,7 @@ class ancientegypt(BasicNewsRecipe):
                 if w and isinstance(w, str):
                     res = '?w=' + w
                 img['src'] = img['src'].split('?')[0] + res
+            img.attrs = {"src": img['src']}
         exp = soup.find(attrs={'class': lambda x: x and 'post-subtitle' in x.split()})
         if exp:
             exp.name = 'p'
