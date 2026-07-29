@@ -265,7 +265,7 @@ def _chunk_round_robin(tests: list, num_workers: int) -> list[list]:
     return [c for c in chunks if c]
 
 
-def _start_worker(chunk: list, worker_cmd: list[str] | None = None) -> tuple:
+def _start_worker(idx: int, chunk: list, worker_cmd: list[str] | None = None) -> tuple:
     """
     Start a subprocess worker for the given test chunk.
     Returns (Popen, read_pipe_file).
@@ -313,7 +313,8 @@ def _start_worker(chunk: list, worker_cmd: list[str] | None = None) -> tuple:
     env = os.environ.copy()
     from calibre.ptempfile import base_dir
 
-    tdir = tempfile.mkdtemp(dir=base_dir())
+    tdir = os.path.join(base_dir(), f'w{idx}')
+    os.mkdir(tdir)
     env['CALIBRE_WORKER_TEMP_DIR'] = as_hex_unicode(msgpack_dumps(tdir))
     proc = subprocess.Popen(
         cmd,
@@ -432,8 +433,8 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
     pipes: list = []
     workers: list[tuple] = []  # (proc, output_file)
-    for chunk in chunks:
-        proc, pipe, output_file = _start_worker(chunk, worker_cmd=worker_cmd)
+    for i, chunk in enumerate(chunks):
+        proc, pipe, output_file = _start_worker(i, chunk, worker_cmd=worker_cmd)
         workers.append((proc, output_file))
         pipes.append(pipe)
 
