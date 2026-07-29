@@ -308,7 +308,15 @@ class WebSocketConnection(HTTPConnection):
     def set_ws_state(self):
         if self.ws_close_sent or self.ws_close_received:
             if self.ws_close_sent:
-                self.ready = False
+                if self.ws_close_received:
+                    # Both sides have exchanged CLOSE frames; safe to close.
+                    self.ready = False
+                else:
+                    # Half-closed: server sent CLOSE+FIN but client is still
+                    # sending.  Keep reading to drain the receive buffer so the
+                    # OS does not issue a RST that would destroy the CLOSE
+                    # frame already queued in the client's TCP receive buffer.
+                    self.wait_for = READ
             else:
                 self.wait_for = WRITE
             return
@@ -341,6 +349,12 @@ class WebSocketConnection(HTTPConnection):
         self.set_ws_state()
 
     def ws_read(self):
+        if self.ws_close_sent:
+            # Drain mode: read and discard incoming data so the OS does not
+            # send RST when we close.  Connection.recv() sets ready=False on
+            # EOF, which causes the event loop to call close() after draining.
+            self.recv(4096)
+            return
         if not self.stop_reading:
             self.read_frame(self)
 
@@ -440,6 +454,13 @@ class WebSocketConnection(HTTPConnection):
                 self.end_send_optimization()
                 if getattr(self.send_buf, 'is_close_frame', False):
                     self.ws_close_sent = True
+                    # Half-close the write side so the client receives FIN
+                    # after the CLOSE frame.  This unblocks the client's
+                    # read_messages() loop while we drain the receive buffer.
+                    try:
+                        self.socket.shutdown(socket.SHUT_WR)
+                    except OSError:
+                        pass
                 self.send_buf = None
         else:
             with self.cf_lock:
