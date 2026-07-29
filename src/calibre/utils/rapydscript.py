@@ -409,7 +409,7 @@ def external_compiler_version() -> tuple[str, tuple[int, int, int]]:
             ver = qver[0], qver[1], qver[2]
         except Exception:
             return '', ver
-        if ver < (0, 8, 4):
+        if ver < (0, 8, 5):
             return '', ver
     return rs, ver
 
