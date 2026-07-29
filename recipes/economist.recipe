@@ -167,21 +167,18 @@ class NoArticles(Exception):
 
 
 def get_content(url):
-    UA_GRAPHQL = 'TheEconomist-Liskov-android'
     headers = {
-        'User-Agent': UA_GRAPHQL,
-        'accept': 'multipart/mixed; deferSpec=20220824, application/json',
-        'accept-encoding': 'gzip',
-        'content-type': 'application/json',
-        'x-app-trace-id': str(uuid4()),
-        'x-economist-consumer': UA_GRAPHQL,
-        'x-teg-client-name': 'Economist-Android',
-        'x-teg-client-os': 'Android',
-        'x-teg-client-version': '4.40.0',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.7871.124 Mobile Safari/537.36 Liskov',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'x-requested-with': 'com.economist.lamarr',
+        'blaize_session': str(uuid4()),
+        'sec-ch-ua-mobile': '?1',
+        'sec-ch-ua-platform': 'Android',
+        'upgrade-insecure-requests': '1',
     }
     br = browser()
     req = Request(
-        url,
+        url + '?app=core%2Cfocused&no-chrome=key&no-adverts=key&webview=liskov',
         headers=headers,
     )
     res = br.open(req)
@@ -238,7 +235,7 @@ class Economist(BasicNewsRecipe):
 
     resolve_internal_links = True
 
-    delay = 1
+    delay = 2
     browser_type = 'webengine'
     recipe_specific_options = {
         'date': {
@@ -293,6 +290,9 @@ class Economist(BasicNewsRecipe):
             cache[edition_date] = get_edition(edition_date)
             self._edition_cache = cache
         return cache[edition_date]
+    
+    def get_obfuscated_article(self, url):
+        return {'data': get_content(url), 'url': url}
 
     def economist_return_index(self, ans):
         if not ans:
@@ -305,7 +305,7 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_test_article(self):
-        return [('Articles', [{'title': 'test', 'url': 'https://www.economist.com/china/2025/09/10/china-is-ditching-the-dollar-fast'}])]
+        return [('Articles', [{'title': 'test', 'url': 'https://www.economist.com/international/2026/07/23/the-geopolitics-of-air-conditioning'}])]
 
     def parse_index(self):
         # return self.economist_test_article()
@@ -333,7 +333,7 @@ class Economist(BasicNewsRecipe):
         return self.economist_return_index(ans)
 
     def economist_parse_index(self, url):
-        soup = self.index_to_soup(url)
+        soup = self.index_to_soup(get_content(url))
         script_tag = soup.find('script', id='__NEXT_DATA__')
         if script_tag is None:
             self.log('Failed to get index with UA:', self.last_used_ua)
