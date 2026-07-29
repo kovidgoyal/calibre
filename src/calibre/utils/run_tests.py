@@ -309,22 +309,21 @@ def _start_worker(idx: int, chunk: list, worker_cmd: list[str] | None = None) ->
 
         cmd = get_debug_executable() + ['-c', code]
 
-    output_tf = tempfile.NamedTemporaryFile(delete=False)
-    env = os.environ.copy()
-    from calibre.ptempfile import base_dir
+    with tempfile.NamedTemporaryFile(delete=False) as output_tf:
+        env = os.environ.copy()
+        from calibre.ptempfile import base_dir
 
-    tdir = os.path.join(base_dir(), f'w{idx}')
-    os.mkdir(tdir)
-    env['CALIBRE_WORKER_TEMP_DIR'] = as_hex_unicode(msgpack_dumps(tdir))
-    proc = subprocess.Popen(
-        cmd,
-        stdin=subprocess.PIPE,
-        stdout=output_tf,
-        stderr=output_tf,
-        close_fds=False,
-        env=env,
-    )
-    output_tf.close()
+        tdir = os.path.join(base_dir(), f'w{idx}')
+        os.mkdir(tdir)
+        env['CALIBRE_WORKER_TEMP_DIR'] = as_hex_unicode(msgpack_dumps(tdir))
+        proc = subprocess.Popen(
+            cmd,
+            stdin=subprocess.PIPE,
+            stdout=output_tf,
+            stderr=output_tf,
+            close_fds=False,
+            env=env,
+        )
     assert proc.stdin is not None
     proc.stdin.write(test_ids_json.encode())
     proc.stdin.close()
