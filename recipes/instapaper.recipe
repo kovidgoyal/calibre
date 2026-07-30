@@ -69,10 +69,10 @@ class InstapaperRecipe(BasicNewsRecipe):
     ]
     use_embedded_content = False
     needs_subscription = True
-    INDEX = 'https://www.instapaper.com'
+    INDEX = 'https://old.instapaper.com'
     LOGIN = INDEX + '/user/login'
 
-    feeds = [('Instapaper Unread', 'https://www.instapaper.com/u')]
+    feeds = [('Instapaper Unread', 'https://old.instapaper.com/u')]
     remove_empty_feeds = True
 
     def get_browser(self):
@@ -96,7 +96,7 @@ class InstapaperRecipe(BasicNewsRecipe):
             soup = self.index_to_soup(feedurl)
             for item in soup.findAll('a', attrs={'class': 'article_title'}):
                 articles.append({
-                    'url': 'https://www.instapaper.com' + item['href'],
+                    'url': 'https://old.instapaper.com' + item['href'],
                     'title': item['title'],
                 })
             totalfeeds.append((feedtitle, articles))
