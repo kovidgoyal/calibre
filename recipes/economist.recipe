@@ -236,7 +236,7 @@ class Economist(BasicNewsRecipe):
     resolve_internal_links = True
 
     delay = 2
-    browser_type = 'webengine'
+    # browser_type = 'webengine'
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
