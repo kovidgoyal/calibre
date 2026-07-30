@@ -177,6 +177,45 @@ async function read_file(name, encoding) {
     throw e;
 }
 
+if (typeof Uint8Array.prototype.toBase64 !== 'function') {
+  Uint8Array.prototype.toBase64 = function (options = {}) {
+    const alphabetType = options.alphabet || 'base64';
+    const omitPadding = !!options.omitPadding;
+
+    // 1. Standard Base64 Standard Alphabet vs Base64URL Alphabet
+    const chars = alphabetType === 'base64url'
+      ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+      : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+    let result = '';
+    const len = this.length;
+    const extraBytes = len % 3;
+    const mainLength = len - extraBytes;
+
+    // 2. Process bytes in chunks of 3 (turns 3 bytes into 4 base64 characters)
+    for (let i = 0; i < mainLength; i += 3) {
+      const chunk = (this[i] << 16) | (this[i + 1] << 8) | this[i + 2];
+      result += chars[(chunk >> 18) & 63] +
+                chars[(chunk >> 12) & 63] +
+                chars[(chunk >> 6) & 63] +
+                chars[chunk & 63];
+    }
+
+    // 3. Handle remaining bytes (padding logic)
+    if (extraBytes === 1) {
+      const chunk = this[mainLength];
+      result += chars[(chunk >> 2) & 63] + chars[(chunk << 4) & 63];
+      if (!omitPadding) result += '==';
+    } else if (extraBytes === 2) {
+      const chunk = (this[mainLength] << 8) | this[mainLength + 1];
+      result += chars[(chunk >> 10) & 63] + chars[(chunk >> 4) & 63] + chars[(chunk << 2) & 63];
+      if (!omitPadding) result += '=';
+    }
+
+    return result;
+  };
+}
+
 async function write_file(name, data) {
     let payload = data;
     let is_binary = false;
