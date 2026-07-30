@@ -57,7 +57,8 @@ add_extra_css(def ():
     sel = '.book-side-margin'
     ans = build_rule(
         sel, cursor='pointer', text_align='center', height='100dvh', user_select='none',
-        display='flex', align_items='center', justify_content='space-between', flex_direction='column'
+        display='flex', align_items='center', justify_content='space-between', flex_direction='column',
+        flex_shrink='0',
     )
     ans += build_rule(sel + ' > .arrow', display='none')
     ans += build_rule(sel + ' > *', max_width='100%', overflow='hidden')
