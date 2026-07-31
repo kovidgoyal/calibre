@@ -27,7 +27,7 @@
 
 :: new features
 
-- macOS: Add sharing of books via AirDop to the Connect/Share button
+- macOS: Add sharing of books via AirDrop to the Connect/Share button
 
 - Content server: Add support for plugins that can add new endpoints to the server backend
 
