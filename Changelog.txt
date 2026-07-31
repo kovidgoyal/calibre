@@ -47,7 +47,7 @@
 
 - When evaluating recursive templates inherit python template policy
 
-- [2161833] Fix inablity to input more than ~30K characters in custom tag like columns
+- [2161833] Fix inability to input more than ~30K characters in custom tag like columns
 
 - Fix some menu separators not rendering on some systems with high res monitors
 
