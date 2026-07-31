@@ -23,6 +23,52 @@
 # - title by author
 # }}}
 
+{{{ 9.12.0 2026-07-31
+
+:: new features
+
+- macOS: Add sharing of books via AirDop to the Connect/Share button
+
+- Content server: Add support for plugins that can add new endpoints to the server backend
+
+- Edit book: Compress images: Add an option to convert GIF images to JPEG/WebP
+
+- [2161171] ToC Editor: Add a button to sort the entries in the Table of Contents
+
+- [2161117] Content server: OPDS: Add kind metadata to feed links
+
+- Kobo driver: Add support for latest Tolino firmware
+
+:: bug fixes
+
+- [2160341] E-book viewer: Fix an issue causing text area width to change when using section titles in header/footers and the text is too long to fit in the space
+
+- [2162073] When adding books via calibre.exe fix --with-library not working. Now calibre will switch to the specified library and only then add the book
+
+- When evaluating recursive templates inherit python template policy
+
+- [2161833] Fix inablity to input more than ~30K characters in custom tag like columns
+
+- Fix some menu separators not rendering on some systems with high res monitors
+
+- Content server: fix unstyled flash when transitioning between series/author views in dark mode
+
+- Content server: Prevent unauthenticated users from updating annotations
+
+- [2160467] Edit metadata dialog: Fix right click menu->Remove format not working
+
+- Edit book: fix typo in string format that broke convert PNG to JPEG function
+
+:: improved recipes
+- Minerva
+- Project Syndicate
+- The Past
+- Ancient Egypt
+- New Scientist
+- Substack
+
+}}}
+
 {{{ 9.11.0 2026-07-02
 
 :: new features
