@@ -59,6 +59,8 @@
 
 - Edit book: fix typo in string format that broke convert PNG to JPEG function
 
+- Linux binaries: Preload libxml2 to ensure the correct version is loaded despite Qt WebEngine probing
+
 :: improved recipes
 - Minerva
 - Project Syndicate

@@ -34,6 +34,15 @@ def setup_openssl_environment():
             os.environ['SSL_CERT_DIR'] = '/etc/ssl/certs'
 
 
+def preload_libxml2():
+    # QtWebEngineProcess on some Linux systems probes for GPU backends and its
+    # probing causes libxml2.so to be loaded from system libraries.
+    # We need a specific version of libxml2 so preload it to ensure we have the
+    # correct one.
+    from lxml import etree
+    setattr(preload_libxml2, 'etree', etree)
+
+
 def set_helper():
     builtins.help = _sitebuiltins._Helper()
 
@@ -42,6 +51,7 @@ def main():
     sys.argv[0] = sys.calibre_basename
     set_helper()
     setup_openssl_environment()
+    preload_libxml2()
     set_quit()
     mod = __import__(sys.calibre_module, fromlist=[1])
     func = getattr(mod, sys.calibre_function)
