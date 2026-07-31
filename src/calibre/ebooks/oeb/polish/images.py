@@ -197,7 +197,10 @@ def convert_gif_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
         from qt.core import QImageReader
 
         reader = QImageReader(path)
-        if reader.imageCount() > 1:
+        is_animated = reader.imageCount() > 1
+        if d := reader.device():
+            d.close()
+        if is_animated:
             if report:
                 report(_('Skipping animated GIF {0}: animated GIFs cannot be converted to JPEG').format(name))
             return name, 0, 0
@@ -219,14 +222,13 @@ def convert_gif_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     after = len(new_data)
 
     path_dir = os.path.dirname(path)
-    fd, tmp_path = tempfile.mkstemp(dir=path_dir)
+    with tempfile.NamedTemporaryFile(dir=path_dir, delete=False) as tf:
+        tf.write(new_data)
     try:
-        with os.fdopen(fd, 'wb') as f:
-            f.write(new_data)
-        os.replace(tmp_path, path)
+        os.replace(tf.name, path)
     except Exception:
         try:
-            os.unlink(tmp_path)
+            os.unlink(tf.name)
         except OSError:
             pass
         raise
