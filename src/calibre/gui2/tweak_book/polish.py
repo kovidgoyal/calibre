@@ -314,11 +314,14 @@ class CompressImages(Dialog):
         gc.addItem(_('JPEG'), 'jpeg')
         gc.addItem(_('WEBP (lossy)'), 'webp')
         gc.addItem(_('WEBP Lossless'), 'webp-lossless')
+        gc.addItem(_('PNG'), 'png')
         gc.setToolTip(
             _(
                 'Optionally convert GIF images to a different format before compression.'
                 ' JPEG and WEBP (lossy) reduce file size at the expense of image quality.'
                 ' WEBP Lossless produces smaller files than GIF with no quality loss.'
+                ' PNG is a lossless format; if PNG conversion is also enabled above,'
+                ' GIFs will be converted directly to that target format instead.'
                 ' Note: animated GIFs will not be converted to JPEG.'
                 ' When enabled, conversion is performed before all other image optimisation.'
             )
