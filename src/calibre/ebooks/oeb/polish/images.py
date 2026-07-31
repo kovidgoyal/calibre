@@ -8,6 +8,7 @@ from queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre import detect_ncpus, filesystem_encoding, force_unicode, human_readable
+from calibre.utils.filenames import atomic_rename
 from calibre.utils.localization import _, ngettext
 
 
@@ -230,7 +231,7 @@ def convert_gif_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     with tempfile.NamedTemporaryFile(dir=path_dir, delete=False) as tf:
         tf.write(new_data)
     try:
-        os.replace(tf.name, path)
+        atomic_rename(tf.name, path)
     except Exception:
         try:
             os.unlink(tf.name)
