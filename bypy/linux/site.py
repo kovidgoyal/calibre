@@ -35,12 +35,16 @@ def setup_openssl_environment():
 
 
 def preload_libxml2():
-    # QtWebEngineProcess on some Linux systems probes for GPU backends and its
-    # probing causes libxml2.so to be loaded from system libraries.
-    # We need a specific version of libxml2 so preload it to ensure we have the
-    # correct one.
-    from lxml import etree
-    setattr(preload_libxml2, 'etree', etree)
+    # QtWebEngineProcess on some ancient Linux systems probes for GPU backends
+    # which loads swrast_dri.so which links against system libxml2, which
+    # overwrites or global libxml2 symbols.
+    # So we preload lxml and html5_parser as a workaround.
+    # Thankfully this is basically only needed for ancient Debian as modern
+    # mesa uses libexpat not libxml2.
+    # We need a specific version of libxml2 as html5-parser checks the version,
+    # so preload it to ensure we have the correct one.
+    from html5_parser import parse
+    setattr(preload_libxml2, 'parse', parse)
 
 
 def set_helper():
