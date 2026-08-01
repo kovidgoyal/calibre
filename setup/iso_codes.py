@@ -15,9 +15,9 @@ from setup import Command, download_securely
 
 
 @lru_cache(2)
-def iso_codes_data():
+def iso_codes_data(ignore_cache=False):
     URL = 'https://download.calibre-ebook.com/iso-codes.zip'
-    return download_securely(URL)
+    return download_securely(URL, ignore_cache=ignore_cache)
 
 
 class ISOData(Command):
