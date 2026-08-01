@@ -51,7 +51,7 @@
 
 - Fix some menu separators not rendering on some systems with high res monitors
 
-- Content server: fix unstyled flash when transitioning between series/author views in dark mode
+- Content server: fix un-styled flash when transitioning between series/author views in dark mode
 
 - Content server: Prevent unauthenticated users from updating annotations
 
