@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-from qt.core import QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, Qt, QToolButton, QVBoxLayout, QWidget
+from qt.core import QComboBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QSizePolicy, Qt, QToolButton, QVBoxLayout, QWidget
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.widgets import HistoryLineEdit
@@ -60,30 +60,31 @@ class Wizard(QDialog):
 class XPathEdit(QWidget):
     def __init__(self, parent=None, object_name='', show_msg=True):
         QWidget.__init__(self, parent)
-        self.h = h = QHBoxLayout(self)
-        h.setContentsMargins(0, 0, 0, 0)
-        self.l = l = QVBoxLayout()
-        h.addLayout(l)
+        self.g = g = QGridLayout(self)
+        g.setContentsMargins(0, 0, 0, 0)
         self.button = b = QToolButton(self)
         b.setIcon(QIcon.ic('wizard.png'))
         b.setToolTip(_('Use a wizard to generate the XPath expression'))
         b.clicked.connect(self.wizard)
-        h.addWidget(b)
+        p = b.sizePolicy()
+        p.setVerticalPolicy(QSizePolicy.Policy.Minimum)
+        b.setSizePolicy(p)
         self.edit = e = HistoryLineEdit(self)
         e.setMinimumWidth(350)
         e.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         e.setMinimumContentsLength(30)
         self.msg = QLabel('')
-        l.addWidget(self.msg)
-        l.addWidget(self.edit)
-        if object_name:
-            self.setObjectName(object_name)
         if show_msg:
-            b.setIconSize(QSize(40, 40))
-            self.msg.setBuddy(self.edit)
+            g.addWidget(self.msg, 0, 0, 1, 2)
+            g.addWidget(e, 1, 0)
+            g.addWidget(b, 1, 1)
+            self.msg.setBuddy(e)
         else:
             self.msg.setVisible(False)
-            l.setContentsMargins(0, 0, 0, 0)
+            g.addWidget(e, 0, 0)
+            g.addWidget(b, 0, 1)
+        if object_name:
+            self.setObjectName(object_name)
 
     def setPlaceholderText(self, val):
         self.edit.setPlaceholderText(val)
