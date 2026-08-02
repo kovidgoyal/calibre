@@ -98,7 +98,7 @@ register_callback(def ():
 runtime = {
     'is_standalone_viewer': False,
     'viewer_in_full_screen': False,
-    'in_develop_mode': v'!!window.calibre_in_develop_mode',
+    'in_develop_mode': v'(typeof window !== "undefined") && !!window.calibre_in_develop_mode',
     'QT_VERSION': 0,
 }
 
