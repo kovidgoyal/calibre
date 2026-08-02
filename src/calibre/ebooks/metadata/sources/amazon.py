@@ -1145,7 +1145,7 @@ class Worker(Thread):  # Get details {{{
 
 class Amazon(Source):
     name = 'Amazon.com'
-    version = (1, 3, 18)
+    version = (1, 3, 19)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 

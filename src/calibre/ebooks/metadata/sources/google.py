@@ -205,7 +205,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 
 class GoogleBooks(Source):
     name = 'Google'
-    version = (1, 1, 3)
+    version = (1, 1, 4)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 

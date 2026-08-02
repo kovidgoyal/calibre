@@ -206,7 +206,7 @@ def get_basic_data(browser, log, *skus):
 
 class Edelweiss(Source):
     name = 'Edelweiss'
-    version = (2, 0, 1)
+    version = (2, 0, 2)
     minimum_calibre_version = (3, 6, 0)
     description = _('Downloads metadata and covers from Edelweiss - A catalog updated by book publishers')
 

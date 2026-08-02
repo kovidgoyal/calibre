@@ -65,7 +65,7 @@ def parse_google_markup(raw):
 
 class GoogleImages(Source):
     name = 'Google Images'
-    version = (1, 0, 6)
+    version = (1, 0, 7)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])

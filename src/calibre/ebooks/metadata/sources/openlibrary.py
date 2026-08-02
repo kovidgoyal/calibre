@@ -14,7 +14,7 @@ except ImportError:
 
 class OpenLibrary(Source):
     name = 'Open Library'
-    version = (1, 0, 2)
+    version = (1, 0, 3)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from The Open Library')
 
