@@ -1362,10 +1362,11 @@ def files_added(check_existing, top_container_id, book_id, container_id, files):
     added = []
 
     def exists(fname):
-        for relpath in mi.data_files:
-            q = relpath.partition('/')[2]
-            if q is fname:
-                return True
+        if mi.data_files:
+            for relpath in mi.data_files:
+                q = relpath.partition('/')[2]
+                if q is fname:
+                    return True
         return False
 
     if check_existing:
