@@ -244,6 +244,7 @@ def set_disabled(name, val):
 
 # Look & feel {{{
 @ep
+@no_prune
 def look_and_feel(container):
     def subhead(text):
         container.appendChild(E.div(
@@ -301,6 +302,7 @@ def look_and_feel(container):
 
 # Heuristics {{{
 @ep
+@no_prune
 def heuristics(container):
     settings = []
 
@@ -341,6 +343,7 @@ def heuristics(container):
 
 # Page setup {{{
 @ep
+@no_prune
 def page_setup(container):
     def show_profile_desc(name):
         profile = get(name)
@@ -366,6 +369,7 @@ def page_setup(container):
 
 # Structure detection {{{
 @ep
+@no_prune
 def structure_detection(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -382,6 +386,7 @@ def structure_detection(container):
 
 # ToC {{{
 @ep
+@no_prune
 def toc(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -399,6 +404,7 @@ def toc(container):
 
 # Search & replace {{{
 @ep
+@no_prune
 def search_and_replace(container):
     def add(val):
         c = container_for_option('search_replace')
@@ -454,6 +460,7 @@ def search_and_replace(container):
 
 # Comic Input {{{
 @ep
+@no_prune
 def comic_input(container):
     settings = []
 
@@ -491,6 +498,7 @@ def comic_input(container):
 
 # FB2 Input {{{
 @ep
+@no_prune
 def fb2_input(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -500,6 +508,7 @@ def fb2_input(container):
 
 # PDF Input {{{
 @ep
+@no_prune
 def pdf_input(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -515,6 +524,7 @@ def pdf_input(container):
 
 # RTF Input {{{
 @ep
+@no_prune
 def rtf_input(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -524,6 +534,7 @@ def rtf_input(container):
 
 # DOCX Input {{{
 @ep
+@no_prune
 def docx_input(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -535,6 +546,7 @@ def docx_input(container):
 
 # TXT Input {{{
 @ep
+@no_prune
 def txt_input(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -556,6 +568,7 @@ def txt_input(container):
 
 # EPUB Output {{{
 @ep
+@no_prune
 def epub_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -575,6 +588,7 @@ def epub_output(container):
 
 # KEPUB Output {{{
 @ep
+@no_prune
 def kepub_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -594,6 +608,7 @@ def kepub_output(container):
 
 # DOCX Output {{{
 @ep
+@no_prune
 def docx_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -611,6 +626,7 @@ def docx_output(container):
 
 # FB2 Output {{{
 @ep
+@no_prune
 def fb2_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -621,6 +637,7 @@ def fb2_output(container):
 
 # LRF Output {{{
 @ep
+@no_prune
 def lrf_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -641,6 +658,7 @@ def lrf_output(container):
 
 # MOBI Output {{{
 @ep
+@no_prune
 def mobi_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -659,6 +677,7 @@ def mobi_output(container):
 
 # AZW3 Output {{{
 @ep
+@no_prune
 def azw3_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -673,6 +692,7 @@ def azw3_output(container):
 
 # PDB Output {{{
 @ep
+@no_prune
 def pdb_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -684,6 +704,7 @@ def pdb_output(container):
 
 # PDF Output {{{
 @ep
+@no_prune
 def pdf_output(container):
     add_listener('use_profile_size', def (name):
         disabled = get('use_profile_size')
@@ -728,6 +749,7 @@ def pdf_output(container):
 
 # PMLZ Output {{{
 @ep
+@no_prune
 def pml_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -739,6 +761,7 @@ def pml_output(container):
 
 # RB Output {{{
 @ep
+@no_prune
 def rb_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -748,6 +771,7 @@ def rb_output(container):
 
 # TXT Output {{{
 @ep
+@no_prune
 def txt_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -770,6 +794,7 @@ def txt_output(container):
 
 
 @ep
+@no_prune
 def txtz_output(container):
     return txt_output(container)
 # }}}
@@ -777,6 +802,7 @@ def txtz_output(container):
 
 # HTMLZ Output {{{
 @ep
+@no_prune
 def htmlz_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
@@ -788,6 +814,7 @@ def htmlz_output(container):
 
 # SNB Output {{{
 @ep
+@no_prune
 def snb_output(container):
     g = E.div(class_='simple-group')
     container.appendChild(g)
