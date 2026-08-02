@@ -1109,13 +1109,13 @@ class BulkBase(Base):
         assert widgets is not None
         l = widgets[1].layout()
         assert isinstance(l, QHBoxLayout)
-        if not edit_widget or self.bools_are_tristate:
+        if not is_bool or self.bools_are_tristate:
             self.clear_button = QToolButton(parent)
             self.clear_button.setIcon(QIcon.ic('trash.png'))
             self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
             self.clear_button.clicked.connect(self.set_to_undefined)
             l.insertWidget(1, self.clear_button)
-        if edit_widget:
+        if is_bool:
             self.set_no_button = QToolButton(parent)
             self.set_no_button.setIcon(QIcon.ic('list_remove.png'))
             self.set_no_button.clicked.connect(lambda: self.main_widget.setCurrentIndex(1))
