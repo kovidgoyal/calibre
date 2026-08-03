@@ -1532,7 +1532,9 @@ class DropMixin:
             event.accept()
             if y is None:
                 # Local image
-                if isinstance(self, DialogBookInfo):
+                from calibre.gui2.dialogs.book_info import BookInfo
+
+                if isinstance(self, BookInfo):
                     self.cover.set_pixmap(x)
                 else:
                     self.cover_view.paste_from_clipboard(x)
