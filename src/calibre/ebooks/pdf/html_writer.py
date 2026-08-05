@@ -671,7 +671,7 @@ class AnchorLocation:
         return self.pagenum, self.left, self.top, self.zoom
 
 
-def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log):
+def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log, top_margin=0):
     ans = {}
     anchors = pdf_doc.extract_anchors()
     try:
@@ -686,6 +686,10 @@ def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log):
     for anchor, loc in anchors.items():
         loc = list(loc)
         loc[0] += first_page_num - 1
+        # Chromium generates XYZ destination coordinates relative to the content
+        # area (ignoring top margin), so the top value is top_margin pts too large.
+        if top_margin:
+            loc[2] -= top_margin
         ans[anchor] = AnchorLocation(*loc)
     return ans
 
@@ -1218,9 +1222,10 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         if not isinstance(data, bytes):
             raise SystemExit(data)
         doc = data_as_pdf_doc(data)
-        anchor_locations.update(get_anchor_locations(name, doc, num_pages + 1, links_page_uuid, log))
+        effective_margins = resolve_margins(margin_file.margins, page_layout)
+        anchor_locations.update(get_anchor_locations(name, doc, num_pages + 1, links_page_uuid, log, effective_margins.top))
         doc_pages = doc.page_count()
-        page_margins_map.extend(repeat(resolve_margins(margin_file.margins, page_layout), doc_pages))
+        page_margins_map.extend(repeat(effective_margins, doc_pages))
         num_pages += doc_pages
         all_docs.append(doc)
 
