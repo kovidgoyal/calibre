@@ -213,72 +213,72 @@
  * Devices that send "ObjectDeleted" events after deletion
  * of images. (libgphoto2)
  */
-#define DEVICE_FLAG_DELETE_SENDS_EVENT	0x00020000
+#define DEVICE_FLAG_DELETE_SENDS_EVENT 0x00020000
 
 /**
  * Cameras that can capture images. (libgphoto2)
  */
-#define DEVICE_FLAG_CAPTURE		0x00040000
+#define DEVICE_FLAG_CAPTURE 0x00040000
 
 /**
  * Cameras that can capture images. (libgphoto2)
  */
-#define DEVICE_FLAG_CAPTURE_PREVIEW	0x00080000
+#define DEVICE_FLAG_CAPTURE_PREVIEW 0x00080000
 
 /**
  * Nikon broken capture support without proper ObjectAdded events.
  * (libgphoto2)
  */
-#define DEVICE_FLAG_NIKON_BROKEN_CAPTURE	0x00100000
+#define DEVICE_FLAG_NIKON_BROKEN_CAPTURE 0x00100000
 
 /**
  * To distinguish the V1 series from the DSLRs and handle them
  * (libgphoto2)
  */
-#define DEVICE_FLAG_NIKON_1			0x00200000
+#define DEVICE_FLAG_NIKON_1 0x00200000
 
 /**
  * Broken capture support where cameras do not send CaptureComplete events.
  * (libgphoto2)
  */
-#define DEVICE_FLAG_NO_CAPTURE_COMPLETE		0x00400000
+#define DEVICE_FLAG_NO_CAPTURE_COMPLETE 0x00400000
 
 /**
  * Direct PTP match required.
  * (libgphoto2)
  */
-#define DEVICE_FLAG_OLYMPUS_XML_WRAPPED		0x00800000
+#define DEVICE_FLAG_OLYMPUS_XML_WRAPPED 0x00800000
 /**
  * This flag is like DEVICE_FLAG_OGG_IS_UNKNOWN but for FLAC
  * files instead. Using the unknown filetype for FLAC files.
  */
-#define DEVICE_FLAG_FLAC_IS_UNKNOWN		0x01000000
+#define DEVICE_FLAG_FLAC_IS_UNKNOWN 0x01000000
 /**
  * Device needs unique filenames, no two files can be
  * named the same string.
  */
-#define DEVICE_FLAG_UNIQUE_FILENAMES		0x02000000
+#define DEVICE_FLAG_UNIQUE_FILENAMES 0x02000000
 /**
  * This flag performs some random magic on the BlackBerry
  * device to switch from USB mass storage to MTP mode we think.
  */
-#define DEVICE_FLAG_SWITCH_MODE_BLACKBERRY	0x04000000
+#define DEVICE_FLAG_SWITCH_MODE_BLACKBERRY 0x04000000
 /**
  * This flag indicates that the device need an extra long
  * timeout on some operations.
  */
-#define DEVICE_FLAG_LONG_TIMEOUT		0x08000000
+#define DEVICE_FLAG_LONG_TIMEOUT 0x08000000
 /**
  * This flag indicates that the device need an explicit
  * USB reset after each connection. Some devices don't
  * like this, so it's not done by default.
  */
-#define DEVICE_FLAG_FORCE_RESET_ON_CLOSE	0x10000000
+#define DEVICE_FLAG_FORCE_RESET_ON_CLOSE 0x10000000
 /**
  * On 2016 EOS cameras, do not close the session on exiting,
  * as the device will only report ptp errors afterwards.
  */
-#define DEVICE_FLAG_DONT_CLOSE_SESSION          0x20000000
+#define DEVICE_FLAG_DONT_CLOSE_SESSION 0x20000000
 /**
  * It seems that some devices return an bad data when
  * using the GetObjectInfo operation. So in these cases
@@ -289,7 +289,7 @@
  * stack that present the ObjectInfo in 64 bit instead of
  * 32 bit.
  */
-#define DEVICE_FLAG_PROPLIST_OVERRIDES_OI	0x40000000
+#define DEVICE_FLAG_PROPLIST_OVERRIDES_OI 0x40000000
 /**
  * The MTP stack of Samsung Galaxy devices has a mysterious bug in
  * GetPartialObject. When GetPartialObject is invoked to read the last
@@ -298,7 +298,7 @@
  * packet size, then the Samsung Galaxy device hangs, resulting in a
  * timeout error.
  */
-#define DEVICE_FLAG_SAMSUNG_OFFSET_BUG		0x80000000
+#define DEVICE_FLAG_SAMSUNG_OFFSET_BUG 0x80000000
 
 /**
  * All these bug flags need to be set on SONY NWZ Walkman
@@ -306,10 +306,7 @@
  * by detecting the vendor extension descriptor "sony.net"
  */
 #define DEVICE_FLAGS_SONY_NWZ_BUGS \
-  (DEVICE_FLAG_UNLOAD_DRIVER | \
-   DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | \
-   DEVICE_FLAG_UNIQUE_FILENAMES | \
-   DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
+    (DEVICE_FLAG_UNLOAD_DRIVER | DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | DEVICE_FLAG_UNIQUE_FILENAMES | DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
 /**
  * All these bug flags need to be set on Android devices,
  * they claim to support MTP operations they actually
@@ -317,13 +314,9 @@
  * These are auto-assigned to devices reporting
  * "android.com" in their device extension descriptor.
  */
-#define DEVICE_FLAGS_ANDROID_BUGS \
-  (DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | \
-   DEVICE_FLAG_BROKEN_SET_OBJECT_PROPLIST | \
-   DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | \
-   DEVICE_FLAG_UNLOAD_DRIVER | \
-   DEVICE_FLAG_LONG_TIMEOUT | \
-   DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
+#define DEVICE_FLAGS_ANDROID_BUGS                                                                                                                          \
+    (DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | DEVICE_FLAG_BROKEN_SET_OBJECT_PROPLIST | DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | DEVICE_FLAG_UNLOAD_DRIVER | \
+     DEVICE_FLAG_LONG_TIMEOUT | DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
 /**
  * All these bug flags appear on a number of SonyEricsson
  * devices including Android devices not using the stock
@@ -338,7 +331,4 @@
  * "sonyericsson.com/SE" but NOT the "android.com"
  * descriptor.
  */
-#define DEVICE_FLAGS_ARICENT_BUGS \
-  (DEVICE_FLAG_IGNORE_HEADER_ERRORS | \
-   DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | \
-   DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST)
+#define DEVICE_FLAGS_ARICENT_BUGS (DEVICE_FLAG_IGNORE_HEADER_ERRORS | DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST)

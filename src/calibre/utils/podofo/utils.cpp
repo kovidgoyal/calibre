@@ -18,9 +18,7 @@ pdf::podofo_set_exception(const PdfError &err) {
     std::stringstream stream;
     stream << msg << "\n";
     const PdErrorInfoStack &s = err.GetCallStack();
-    for (auto info : s) {
-        stream << "File: " << info.GetFilePath() << " Line: " << info.GetLine() << " " << info.GetInformation() << "\n";
-    }
+    for (auto info : s) { stream << "File: " << info.GetFilePath() << " Line: " << info.GetLine() << " " << info.GetInformation() << "\n"; }
     PyErr_SetString(Error, stream.str().c_str());
 }
 

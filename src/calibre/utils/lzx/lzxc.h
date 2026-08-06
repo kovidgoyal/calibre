@@ -21,18 +21,22 @@ typedef int (*lzxc_put_bytes_t)(void *arg, int n, void *buf);
 typedef void (*lzxc_mark_frame_t)(void *arg, uint32_t uncomp, uint32_t comp);
 typedef int (*lzxc_at_eof_t)(void *arg);
 
-typedef struct lzxc_results
-{
-  /* add more here? Error codes, # blocks, # frames, etc? */
-  long len_compressed_output;
-  long len_uncompressed_input;
+typedef struct lzxc_results {
+    /* add more here? Error codes, # blocks, # frames, etc? */
+    long len_compressed_output;
+    long len_uncompressed_input;
 } lzxc_results;
 
-int lzxc_init(struct lzxc_data **lzxdp, int wsize_code,
-	     lzxc_get_bytes_t get_bytes, void *get_bytes_arg,
-	     lzxc_at_eof_t at_eof,
-	     lzxc_put_bytes_t put_bytes, void *put_bytes_arg,
-	     lzxc_mark_frame_t mark_frame, void *mark_frame_arg);
+int lzxc_init(
+    struct lzxc_data **lzxdp,
+    int wsize_code,
+    lzxc_get_bytes_t get_bytes,
+    void *get_bytes_arg,
+    lzxc_at_eof_t at_eof,
+    lzxc_put_bytes_t put_bytes,
+    void *put_bytes_arg,
+    lzxc_mark_frame_t mark_frame,
+    void *mark_frame_arg);
 
 void lzxc_reset(lzxc_data *lzxd);
 

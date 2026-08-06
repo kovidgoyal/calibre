@@ -13,24 +13,28 @@
 
 QImage remove_borders(const QImage &image, double fuzz);
 QImage grayscale(const QImage &image);
-QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality=true);
+QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality = true);
 QImage gaussian_blur(const QImage &img, const float radius, const float sigma);
 QImage despeckle(const QImage &image);
 void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top);
 QImage normalize(const QImage &image);
-QImage oil_paint(const QImage &image, const float radius=-1, const bool high_quality=true);
+QImage oil_paint(const QImage &image, const float radius = -1, const bool high_quality = true);
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QVector<QRgb> &palette);
 bool has_transparent_pixels(const QImage &image);
 QImage set_opacity(const QImage &image, double alpha);
 QImage texture_image(const QImage &image, const QImage &texturei);
 QImage ordered_dither(const QImage &image);
-QColor* dominant_color(const QImage &image);
+QColor *dominant_color(const QImage &image);
 bool load_from_data_without_gil(QImage &image, const char *data, size_t len);
 
 class ScopedGILRelease {
-public:
+  public:
     inline ScopedGILRelease() { this->thread_state = PyEval_SaveThread(); }
-    inline ~ScopedGILRelease() { PyEval_RestoreThread(this->thread_state); this->thread_state = NULL; }
-private:
-    PyThreadState * thread_state;
+    inline ~ScopedGILRelease() {
+        PyEval_RestoreThread(this->thread_state);
+        this->thread_state = NULL;
+    }
+
+  private:
+    PyThreadState *thread_state;
 };

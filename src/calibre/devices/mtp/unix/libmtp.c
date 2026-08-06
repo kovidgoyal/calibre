@@ -21,29 +21,29 @@
 // Macros and utilities {{{
 static PyObject *MTPError = NULL;
 
-#define ENSURE_DEV(rval) \
-    if (self->device == NULL) { \
+#define ENSURE_DEV(rval)                                                    \
+    if (self->device == NULL) {                                             \
         PyErr_SetString(MTPError, "This device has not been initialized."); \
-        return rval; \
+        return rval;                                                        \
     }
 
-#define ENSURE_STORAGE(rval) \
-    if (self->device->storage == NULL) { \
+#define ENSURE_STORAGE(rval)                                                 \
+    if (self->device->storage == NULL) {                                     \
         PyErr_SetString(MTPError, "The device has no storage information."); \
-        return rval; \
+        return rval;                                                         \
     }
 
 // Storage types
-#define ST_Undefined            0x0000
-#define ST_FixedROM             0x0001
-#define ST_RemovableROM         0x0002
-#define ST_FixedRAM             0x0003
-#define ST_RemovableRAM         0x0004
+#define ST_Undefined 0x0000
+#define ST_FixedROM 0x0001
+#define ST_RemovableROM 0x0002
+#define ST_FixedRAM 0x0003
+#define ST_RemovableRAM 0x0004
 
 // Storage Access capability
-#define AC_ReadWrite            0x0000
-#define AC_ReadOnly             0x0001
-#define AC_ReadOnly_with_Object_Deletion    0x0002
+#define AC_ReadWrite 0x0000
+#define AC_ReadOnly 0x0001
+#define AC_ReadOnly_with_Object_Deletion 0x0002
 
 
 typedef struct {
@@ -52,7 +52,8 @@ typedef struct {
     PyThreadState *state;
 } ProgressCallback;
 
-static int report_progress(uint64_t const sent, uint64_t const total, void const *const data) {
+static int
+report_progress(uint64_t const sent, uint64_t const total, void const *const data) {
     PyObject *res;
     ProgressCallback *cb;
 
@@ -66,11 +67,12 @@ static int report_progress(uint64_t const sent, uint64_t const total, void const
     return 0;
 }
 
-static void dump_errorstack(LIBMTP_mtpdevice_t *dev, PyObject *list) {
+static void
+dump_errorstack(LIBMTP_mtpdevice_t *dev, PyObject *list) {
     LIBMTP_error_t *stack;
     PyObject *err;
 
-    for(stack = LIBMTP_Get_Errorstack(dev); stack != NULL; stack=stack->next) {
+    for (stack = LIBMTP_Get_Errorstack(dev); stack != NULL; stack = stack->next) {
         err = Py_BuildValue("is", stack->errornumber, stack->error_text);
         if (err == NULL) break;
         PyList_Append(list, err);
@@ -80,7 +82,8 @@ static void dump_errorstack(LIBMTP_mtpdevice_t *dev, PyObject *list) {
     LIBMTP_Clear_Errorstack(dev);
 }
 
-static uint16_t data_to_python(void *params, void *priv, uint32_t sendlen, unsigned char *data, uint32_t *putlen) {
+static uint16_t
+data_to_python(void *params, void *priv, uint32_t sendlen, unsigned char *data, uint32_t *putlen) {
     PyObject *res;
     ProgressCallback *cb;
     uint16_t ret = LIBMTP_HANDLER_RETURN_OK;
@@ -100,7 +103,8 @@ static uint16_t data_to_python(void *params, void *priv, uint32_t sendlen, unsig
     return ret;
 }
 
-static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, unsigned char *data, uint32_t *gotlen) {
+static uint16_t
+data_from_python(void *params, void *priv, uint32_t wantlen, unsigned char *data, uint32_t *gotlen) {
     PyObject *res;
     ProgressCallback *cb;
     char *buf = NULL;
@@ -123,23 +127,32 @@ static uint16_t data_from_python(void *params, void *priv, uint32_t wantlen, uns
     return ret;
 }
 
-static PyObject* build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
+static PyObject *
+build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
     PyObject *ans = NULL;
 
-    ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:L, s:O}",
-            "name", nf->filename,
-            "id", (unsigned long)nf->item_id,
-            "parent_id", (unsigned long)nf->parent_id,
-            "storage_id", (unsigned long)storage_id,
-            "size", nf->filesize,
-            "modified", (PY_LONG_LONG)nf->modificationdate,
-            "is_folder", (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False
-    );
+    ans = Py_BuildValue(
+        "{s:s, s:k, s:k, s:k, s:K, s:L, s:O}",
+        "name",
+        nf->filename,
+        "id",
+        (unsigned long)nf->item_id,
+        "parent_id",
+        (unsigned long)nf->parent_id,
+        "storage_id",
+        (unsigned long)storage_id,
+        "size",
+        nf->filesize,
+        "modified",
+        (PY_LONG_LONG)nf->modificationdate,
+        "is_folder",
+        (nf->filetype == LIBMTP_FILETYPE_FOLDER) ? Py_True : Py_False);
 
     return ans;
 }
 
-static PyObject* file_metadata(LIBMTP_mtpdevice_t *device, PyObject *errs, uint32_t item_id, uint32_t storage_id) {
+static PyObject *
+file_metadata(LIBMTP_mtpdevice_t *device, PyObject *errs, uint32_t item_id, uint32_t storage_id) {
     LIBMTP_file_t *nf;
     PyObject *ans = NULL;
 
@@ -158,8 +171,8 @@ static PyObject* file_metadata(LIBMTP_mtpdevice_t *device, PyObject *errs, uint3
 // Device object definition {{{
 typedef struct {
     PyObject_HEAD
-    // Type-specific fields go here.
-    LIBMTP_mtpdevice_t *device;
+        // Type-specific fields go here.
+        LIBMTP_mtpdevice_t *device;
     PyObject *ids;
     PyObject *friendly_name;
     PyObject *manufacturer_name;
@@ -171,8 +184,7 @@ typedef struct {
 
 // Device.__init__() {{{
 static void
-Device_dealloc(Device* self)
-{
+Device_dealloc(Device *self) {
     if (self->device != NULL) {
         Py_BEGIN_ALLOW_THREADS;
         LIBMTP_Release_Device(self->device);
@@ -180,19 +192,24 @@ Device_dealloc(Device* self)
     }
     self->device = NULL;
 
-    Py_XDECREF(self->ids); self->ids = NULL;
-    Py_XDECREF(self->friendly_name); self->friendly_name = NULL;
-    Py_XDECREF(self->manufacturer_name); self->manufacturer_name = NULL;
-    Py_XDECREF(self->model_name); self->model_name = NULL;
-    Py_XDECREF(self->serial_number); self->serial_number = NULL;
-    Py_XDECREF(self->device_version); self->device_version = NULL;
+    Py_XDECREF(self->ids);
+    self->ids = NULL;
+    Py_XDECREF(self->friendly_name);
+    self->friendly_name = NULL;
+    Py_XDECREF(self->manufacturer_name);
+    self->manufacturer_name = NULL;
+    Py_XDECREF(self->model_name);
+    self->model_name = NULL;
+    Py_XDECREF(self->serial_number);
+    self->serial_number = NULL;
+    Py_XDECREF(self->device_version);
+    self->device_version = NULL;
 
-    Py_TYPE(self)->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static int
-Device_init(Device *self, PyObject *args, PyObject *kwds)
-{
+Device_init(Device *self, PyObject *args, PyObject *kwds) {
     unsigned long busnum;
     unsigned char devnum;
     unsigned short vendor_id, product_id;
@@ -211,10 +228,22 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
     Py_BEGIN_ALLOW_THREADS;
     err = LIBMTP_Detect_Raw_Devices(&rawdevs, &numdevs);
     Py_END_ALLOW_THREADS;
-    if (err == LIBMTP_ERROR_NO_DEVICE_ATTACHED) { PyErr_SetString(MTPError, "No raw devices found"); return -1; }
-    if (err == LIBMTP_ERROR_CONNECTING) { PyErr_SetString(MTPError, "There has been an error connecting"); return -1; }
-    if (err == LIBMTP_ERROR_MEMORY_ALLOCATION) { PyErr_NoMemory(); return -1; }
-    if (err != LIBMTP_ERROR_NONE) { PyErr_SetString(MTPError, "Failed to detect raw MTP devices"); return -1; }
+    if (err == LIBMTP_ERROR_NO_DEVICE_ATTACHED) {
+        PyErr_SetString(MTPError, "No raw devices found");
+        return -1;
+    }
+    if (err == LIBMTP_ERROR_CONNECTING) {
+        PyErr_SetString(MTPError, "There has been an error connecting");
+        return -1;
+    }
+    if (err == LIBMTP_ERROR_MEMORY_ALLOCATION) {
+        PyErr_NoMemory();
+        return -1;
+    }
+    if (err != LIBMTP_ERROR_NONE) {
+        PyErr_SetString(MTPError, "Failed to detect raw MTP devices");
+        return -1;
+    }
 
     for (c = 0; c < numdevs; c++) {
         rdev = rawdevs[c];
@@ -250,19 +279,28 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
         self->friendly_name = PyUnicode_FromString(friendly_name);
         free(friendly_name);
     }
-    if (self->friendly_name == NULL) { self->friendly_name = Py_None; Py_INCREF(Py_None); }
+    if (self->friendly_name == NULL) {
+        self->friendly_name = Py_None;
+        Py_INCREF(Py_None);
+    }
 
     if (manufacturer_name != NULL) {
         self->manufacturer_name = PyUnicode_FromString(manufacturer_name);
         free(manufacturer_name);
     }
-    if (self->manufacturer_name == NULL) { self->manufacturer_name = Py_None; Py_INCREF(Py_None); }
+    if (self->manufacturer_name == NULL) {
+        self->manufacturer_name = Py_None;
+        Py_INCREF(Py_None);
+    }
 
     if (model_name != NULL) {
         self->model_name = PyUnicode_FromString(model_name);
         free(model_name);
     }
-    if (self->model_name == NULL) { self->model_name = Py_None; Py_INCREF(Py_None); }
+    if (self->model_name == NULL) {
+        self->model_name = Py_None;
+        Py_INCREF(Py_None);
+    }
 
     if (serial_number != NULL) {
         if (serial_number[0]) self->serial_number = PyUnicode_FromString(serial_number);
@@ -277,7 +315,10 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
         self->device_version = PyUnicode_FromString(device_version);
         free(device_version);
     }
-    if (self->device_version == NULL) { self->device_version = Py_None; Py_INCREF(Py_None); }
+    if (self->device_version == NULL) {
+        self->device_version = Py_None;
+        Py_INCREF(Py_None);
+    }
 
     return 0;
 }
@@ -286,41 +327,47 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
 // Device.friendly_name {{{
 static PyObject *
 Device_friendly_name(Device *self, void *closure) {
-    Py_INCREF(self->friendly_name); return self->friendly_name;
+    Py_INCREF(self->friendly_name);
+    return self->friendly_name;
 } // }}}
 
 // Device.manufacturer_name {{{
 static PyObject *
 Device_manufacturer_name(Device *self, void *closure) {
-    Py_INCREF(self->manufacturer_name); return self->manufacturer_name;
+    Py_INCREF(self->manufacturer_name);
+    return self->manufacturer_name;
 } // }}}
 
 // Device.model_name {{{
 static PyObject *
 Device_model_name(Device *self, void *closure) {
-    Py_INCREF(self->model_name); return self->model_name;
+    Py_INCREF(self->model_name);
+    return self->model_name;
 } // }}}
 
 // Device.serial_number {{{
 static PyObject *
 Device_serial_number(Device *self, void *closure) {
-    Py_INCREF(self->serial_number); return self->serial_number;
+    Py_INCREF(self->serial_number);
+    return self->serial_number;
 } // }}}
 
 // Device.device_version {{{
 static PyObject *
 Device_device_version(Device *self, void *closure) {
-    Py_INCREF(self->device_version); return self->device_version;
+    Py_INCREF(self->device_version);
+    return self->device_version;
 } // }}}
 
 // Device.ids {{{
 static PyObject *
 Device_ids(Device *self, void *closure) {
-    Py_INCREF(self->ids); return self->ids;
+    Py_INCREF(self->ids);
+    return self->ids;
 } // }}}
 
 // Device.update_storage_info() {{{
-static PyObject*
+static PyObject *
 Device_update_storage_info(Device *self, PyObject *args) {
     ENSURE_DEV(NULL);
     if (LIBMTP_Get_Storage(self->device, LIBMTP_STORAGE_SORTBY_NOTSORTED) < 0) {
@@ -337,31 +384,44 @@ Device_storage_info(Device *self, void *closure) {
     PyObject *ans, *loc;
     LIBMTP_devicestorage_t *storage;
     int ro = 0;
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     ans = PyList_New(0);
-    if (ans == NULL) { PyErr_NoMemory(); return NULL; }
+    if (ans == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     for (storage = self->device->storage; storage != NULL; storage = storage->next) {
         ro = 0;
         // Check if read only storage
-        if (storage->StorageType == ST_FixedROM || storage->StorageType == ST_RemovableROM || (storage->id & 0x0000FFFFU) == 0x00000000U || storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion) ro = 1;
+        if (storage->StorageType == ST_FixedROM || storage->StorageType == ST_RemovableROM || (storage->id & 0x0000FFFFU) == 0x00000000U ||
+            storage->AccessCapability == AC_ReadOnly || storage->AccessCapability == AC_ReadOnly_with_Object_Deletion)
+            ro = 1;
 
-        loc = Py_BuildValue("{s:k,s:O,s:K,s:K,s:K,s:s,s:s,s:O}",
-                "id", (unsigned long)storage->id,
-                "removable", ((storage->StorageType == ST_RemovableRAM) ? Py_True : Py_False),
-                "capacity", (unsigned long long)storage->MaxCapacity,
-                "freespace_bytes", (unsigned long long)storage->FreeSpaceInBytes,
-                "freespace_objects", (unsigned long long)storage->FreeSpaceInObjects,
-                "name", storage->StorageDescription,
-                "volume_id", storage->VolumeIdentifier,
-                "rw", (ro) ? Py_False : Py_True
-        );
+        loc = Py_BuildValue(
+            "{s:k,s:O,s:K,s:K,s:K,s:s,s:s,s:O}",
+            "id",
+            (unsigned long)storage->id,
+            "removable",
+            ((storage->StorageType == ST_RemovableRAM) ? Py_True : Py_False),
+            "capacity",
+            (unsigned long long)storage->MaxCapacity,
+            "freespace_bytes",
+            (unsigned long long)storage->FreeSpaceInBytes,
+            "freespace_objects",
+            (unsigned long long)storage->FreeSpaceInObjects,
+            "name",
+            storage->StorageDescription,
+            "volume_id",
+            storage->VolumeIdentifier,
+            "rw",
+            (ro) ? Py_False : Py_True);
 
         if (loc == NULL) return NULL;
         if (PyList_Append(ans, loc) != 0) return NULL;
         Py_DECREF(loc);
-
     }
 
     return ans;
@@ -369,7 +429,8 @@ Device_storage_info(Device *self, void *closure) {
 
 // Device.get_filesystem {{{
 
-static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uint32_t parent_id, PyObject *ans, PyObject *errs, PyObject *callback, unsigned int level) {
+static int
+recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uint32_t parent_id, PyObject *ans, PyObject *errs, PyObject *callback, unsigned int level) {
     LIBMTP_file_t *f, *files;
     PyObject *entry, *r;
     int ok = 1, recurse;
@@ -382,8 +443,9 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
 
     for (f = files; ok && f != NULL; f = f->next) {
         entry = build_file_metadata(f, storage_id);
-        if (entry == NULL) { ok = 0; }
-        else {
+        if (entry == NULL) {
+            ok = 0;
+        } else {
             r = PyObject_CallFunction(callback, "OI", entry, level);
             recurse = (r != NULL && PyObject_IsTrue(r)) ? 1 : 0;
             Py_XDECREF(r);
@@ -392,16 +454,16 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
         }
 
         if (ok && recurse && f->filetype == LIBMTP_FILETYPE_FOLDER) {
-            if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs, callback, level+1)) {
-                ok = 0;
-            }
+            if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs, callback, level + 1)) { ok = 0; }
         }
     }
 
     // Release memory
     f = files;
     while (f != NULL) {
-        files = f; f = f->next; LIBMTP_destroy_file_t(files);
+        files = f;
+        f = f->next;
+        LIBMTP_destroy_file_t(files);
     }
 
     return ok;
@@ -413,13 +475,20 @@ Device_get_filesystem(Device *self, PyObject *args) {
     unsigned long storage_id;
     int ok = 0;
 
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     if (!PyArg_ParseTuple(args, "kO", &storage_id, &callback)) return NULL;
-    if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback is not a callable"); return NULL; }
+    if (!PyCallable_Check(callback)) {
+        PyErr_SetString(PyExc_TypeError, "callback is not a callable");
+        return NULL;
+    }
     ans = PyList_New(0);
     errs = PyList_New(0);
-    if (errs == NULL || ans == NULL) { PyErr_NoMemory(); return NULL; }
+    if (errs == NULL || ans == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     LIBMTP_Clear_Errorstack(self->device);
     ok = recursive_get_files(self->device, (uint32_t)storage_id, LIBMTP_FILES_AND_FOLDERS_ROOT, ans, errs, callback, 0);
@@ -435,23 +504,27 @@ Device_get_filesystem(Device *self, PyObject *args) {
 } // }}}
 
 // Device.get_file {{{
-static PyObject*
+static PyObject *
 get_file_impl(Device *self, PyObject *stream, PyObject *callback, unsigned long fileid) {
     int ret;
     PyObject *errs = PyList_New(0);
-    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+    if (errs == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     ProgressCallback cb = {0};
-    cb.obj = callback; cb.extra = stream;
-    Py_XINCREF(callback); Py_INCREF(stream);
+    cb.obj = callback;
+    cb.extra = stream;
+    Py_XINCREF(callback);
+    Py_INCREF(stream);
     cb.state = PyEval_SaveThread();
     ret = LIBMTP_Get_File_To_Handler(self->device, (uint32_t)fileid, data_to_python, &cb, report_progress, &cb);
     PyEval_RestoreThread(cb.state);
-    Py_XDECREF(callback); Py_DECREF(stream);
+    Py_XDECREF(callback);
+    Py_DECREF(stream);
 
-    if (ret != 0) {
-        dump_errorstack(self->device, errs);
-    }
+    if (ret != 0) { dump_errorstack(self->device, errs); }
     PyObject *pret = PyObject_CallMethod(stream, "flush", NULL);
     if (pret == NULL) PyErr_Clear();
     else Py_DECREF(pret);
@@ -462,7 +535,8 @@ static PyObject *
 Device_get_file(Device *self, PyObject *args) {
     PyObject *stream, *callback = NULL;
     unsigned long fileid;
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
     if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL;
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
     return get_file_impl(self, stream, callback, fileid);
@@ -480,9 +554,13 @@ find_in_parent(Device *self, unsigned long storage_id, unsigned long parent_id, 
     for (f = files; f != NULL; f = f->next) {
         if (!f->filename) continue;
         PyObject *k = PyUnicode_FromString(f->filename);
-        if (!k) { PyErr_Clear(); continue; }
+        if (!k) {
+            PyErr_Clear();
+            continue;
+        }
         PyObject *l = PyObject_CallMethod(k, "lower", NULL);
-        Py_DECREF(k); if (!l) break;
+        Py_DECREF(k);
+        if (!l) break;
         bool matches = PyUnicode_Compare(l, name) == 0;
         Py_DECREF(l);
         if (matches) {
@@ -493,7 +571,9 @@ find_in_parent(Device *self, unsigned long storage_id, unsigned long parent_id, 
     }
     f = files;
     while (f != NULL) {
-        files = f; f = f->next; LIBMTP_destroy_file_t(files);
+        files = f;
+        f = f->next;
+        LIBMTP_destroy_file_t(files);
     }
     return found;
 }
@@ -502,14 +582,18 @@ static PyObject *
 Device_get_file_by_name(Device *self, PyObject *args) {
     PyObject *stream, *callback = NULL, *names;
     unsigned long fileid = 0, storageid, parentid;
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
     if (!PyArg_ParseTuple(args, "kkO!O|O", &storageid, &parentid, &PyTuple_Type, &names, &stream, &callback)) return NULL;
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
     if (!PyTuple_GET_SIZE(names)) Py_RETURN_NONE;
 
     for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
         PyObject *k = PyTuple_GET_ITEM(names, i);
-        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        if (!PyUnicode_Check(k)) {
+            PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings");
+            return NULL;
+        }
         PyObject *l = PyObject_CallMethod(k, "lower", NULL);
         if (!l) return NULL;
         bool found = find_in_parent(self, storageid, parentid, l, &fileid);
@@ -528,15 +612,20 @@ Device_get_file_by_name(Device *self, PyObject *args) {
 // Device.get_metadata_by_name {{{
 static PyObject *
 Device_get_metadata_by_name(Device *self, PyObject *args) {
-    unsigned long parent_id, storage_id, folder_id = 0; PyObject *names;
+    unsigned long parent_id, storage_id, folder_id = 0;
+    PyObject *names;
     bool found = false;
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     if (!PyArg_ParseTuple(args, "kkO!", &storage_id, &parent_id, &PyTuple_Type, &names)) return NULL;
 
     for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
         PyObject *k = PyTuple_GET_ITEM(names, i);
-        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        if (!PyUnicode_Check(k)) {
+            PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings");
+            return NULL;
+        }
         PyObject *l = PyObject_CallMethod(k, "lower", NULL);
         if (!l) return NULL;
         found = find_in_parent(self, storage_id, parent_id, l, &folder_id);
@@ -551,22 +640,30 @@ Device_get_metadata_by_name(Device *self, PyObject *args) {
     PyObject *errs = PyList_New(0);
     if (!errs) return NULL;
     PyObject *ans = file_metadata(self->device, errs, folder_id, storage_id);
-    if (ans == NULL) { ans = Py_None; Py_INCREF(ans); }
+    if (ans == NULL) {
+        ans = Py_None;
+        Py_INCREF(ans);
+    }
     return Py_BuildValue("NN", ans, errs);
 } // }}}
 
 // Device.list_folder_by_name {{{
 static PyObject *
 Device_list_folder_by_name(Device *self, PyObject *args) {
-    unsigned long parent_id, storage_id, folder_id = 0; PyObject *names;
+    unsigned long parent_id, storage_id, folder_id = 0;
+    PyObject *names;
     bool found = false;
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     if (!PyArg_ParseTuple(args, "kkO!", &storage_id, &parent_id, &PyTuple_Type, &names)) return NULL;
 
     for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
         PyObject *k = PyTuple_GET_ITEM(names, i);
-        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        if (!PyUnicode_Check(k)) {
+            PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings");
+            return NULL;
+        }
         PyObject *l = PyObject_CallMethod(k, "lower", NULL);
         if (!l) return NULL;
         found = find_in_parent(self, storage_id, parent_id, l, &folder_id);
@@ -588,14 +685,22 @@ Device_list_folder_by_name(Device *self, PyObject *args) {
     if (!ans) return NULL;
     for (f = files; f != NULL; f = f->next) {
         entry = build_file_metadata(f, storage_id);
-        if (entry == NULL) { Py_CLEAR(ans); break; }
+        if (entry == NULL) {
+            Py_CLEAR(ans);
+            break;
+        }
         bool appended = PyList_Append(ans, entry) == 0;
         Py_DECREF(entry);
-        if (!appended) { Py_CLEAR(ans); break; }
+        if (!appended) {
+            Py_CLEAR(ans);
+            break;
+        }
     }
     f = files;
     while (f != NULL) {
-	    files = f; f = f->next; LIBMTP_destroy_file_t(files);
+        files = f;
+        f = f->next;
+        LIBMTP_destroy_file_t(files);
     }
     return ans;
 } // }}}
@@ -611,24 +716,39 @@ Device_put_file(Device *self, PyObject *args) {
     char *name;
     LIBMTP_file_t f;
 
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     if (!PyArg_ParseTuple(args, "kksOK|O", &storage_id, &parent_id, &name, &stream, &filesize, &callback)) return NULL;
     errs = PyList_New(0);
-    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+    if (errs == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
 
-    cb.obj = callback; cb.extra = stream;
-    f.parent_id = (uint32_t)parent_id; f.storage_id = (uint32_t)storage_id; f.item_id = 0; f.filename = name; f.filetype = LIBMTP_FILETYPE_UNKNOWN; f.filesize = (uint64_t)filesize;
-    Py_XINCREF(callback); Py_INCREF(stream);
+    cb.obj = callback;
+    cb.extra = stream;
+    f.parent_id = (uint32_t)parent_id;
+    f.storage_id = (uint32_t)storage_id;
+    f.item_id = 0;
+    f.filename = name;
+    f.filetype = LIBMTP_FILETYPE_UNKNOWN;
+    f.filesize = (uint64_t)filesize;
+    Py_XINCREF(callback);
+    Py_INCREF(stream);
     cb.state = PyEval_SaveThread();
     ret = LIBMTP_Send_File_From_Handler(self->device, data_from_python, &cb, &f, report_progress, &cb);
     PyEval_RestoreThread(cb.state);
-    Py_XDECREF(callback); Py_DECREF(stream);
+    Py_XDECREF(callback);
+    Py_DECREF(stream);
 
     if (ret != 0) dump_errorstack(self->device, errs);
     else fo = file_metadata(self->device, errs, f.item_id, storage_id);
-    if (fo == NULL) { fo = Py_None; Py_INCREF(fo); }
+    if (fo == NULL) {
+        fo = Py_None;
+        Py_INCREF(fo);
+    }
 
     return Py_BuildValue("NN", fo, errs);
 
@@ -641,11 +761,15 @@ Device_delete_object(Device *self, PyObject *args) {
     unsigned long id;
     int res;
 
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     if (!PyArg_ParseTuple(args, "k", &id)) return NULL;
     errs = PyList_New(0);
-    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+    if (errs == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     Py_BEGIN_ALLOW_THREADS;
     res = LIBMTP_Delete_Object(self->device, (uint32_t)id);
@@ -663,11 +787,15 @@ Device_create_folder(Device *self, PyObject *args) {
     uint32_t folder_id;
     char *name;
 
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    ENSURE_DEV(NULL);
+    ENSURE_STORAGE(NULL);
 
     if (!PyArg_ParseTuple(args, "kks", &storage_id, &parent_id, &name)) return NULL;
     errs = PyList_New(0);
-    if (errs == NULL) { PyErr_NoMemory(); return NULL; }
+    if (errs == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     Py_BEGIN_ALLOW_THREADS;
     folder_id = LIBMTP_Create_Folder(self->device, name, (uint32_t)parent_id, (uint32_t)storage_id);
@@ -675,92 +803,100 @@ Device_create_folder(Device *self, PyObject *args) {
 
     if (folder_id == 0) dump_errorstack(self->device, errs);
     else fo = file_metadata(self->device, errs, folder_id, storage_id);
-    if (fo == NULL) { fo = Py_None; Py_INCREF(fo); }
+    if (fo == NULL) {
+        fo = Py_None;
+        Py_INCREF(fo);
+    }
 
     return Py_BuildValue("NN", fo, errs);
 } // }}}
 
 static PyMethodDef Device_methods[] = {
-    {"update_storage_info", (PyCFunction)Device_update_storage_info, METH_VARARGS,
-     "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"
-    },
+    {"update_storage_info",
+     (PyCFunction)Device_update_storage_info,
+     METH_VARARGS,
+     "update_storage_info() -> Reread the storage info from the device (total, space, free space, storage locations, etc.)"},
 
-    {"get_filesystem", (PyCFunction)Device_get_filesystem, METH_VARARGS,
-     "get_filesystem(storage_id, callback) -> Get the list of files and folders on the device in storage_id. Returns files, errors. callback must be a callable that is called as with (entry, level). It is called with every found object. If callback returns False and the object is a folder, it is not recursed into."
-    },
+    {"get_filesystem",
+     (PyCFunction)Device_get_filesystem,
+     METH_VARARGS,
+     "get_filesystem(storage_id, callback) -> Get the list of files and folders on the device in storage_id. Returns files, errors. callback must be a "
+     "callable that is called as with (entry, level). It is called with every found object. If callback returns False and the object is a folder, it is not "
+     "recursed into."},
 
-    {"get_file", (PyCFunction)Device_get_file, METH_VARARGS,
-     "get_file(fileid, stream, callback=None) -> Get the file specified by fileid from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns ok, errs, where errs is a list of errors (if any)."
-    },
+    {"get_file",
+     (PyCFunction)Device_get_file,
+     METH_VARARGS,
+     "get_file(fileid, stream, callback=None) -> Get the file specified by fileid from the device. stream must be a file-like object. The file will be written "
+     "to it. callback works the same as in get_filelist(). Returns ok, errs, where errs is a list of errors (if any)."},
 
-    {"get_file_by_name", (PyCFunction)Device_get_file_by_name, METH_VARARGS,
-     "get_file_by_name(storage_id, parent_id, names, stream, callback=None) -> Get the file specified by names (a tuple of name components) relative to parent_id from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns None or (ok, errs), where errs is a list of errors (if any)."
-    },
+    {"get_file_by_name",
+     (PyCFunction)Device_get_file_by_name,
+     METH_VARARGS,
+     "get_file_by_name(storage_id, parent_id, names, stream, callback=None) -> Get the file specified by names (a tuple of name components) relative to "
+     "parent_id from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns None "
+     "or (ok, errs), where errs is a list of errors (if any)."},
 
-    {"list_folder_by_name", (PyCFunction)Device_list_folder_by_name, METH_VARARGS,
-     "list_folder_by_name(storage_id, parent_id, names) -> List the folder specified by names (a tuple of name components) relative to parent_id from the device. Return None or a list of entries."
-    },
+    {"list_folder_by_name",
+     (PyCFunction)Device_list_folder_by_name,
+     METH_VARARGS,
+     "list_folder_by_name(storage_id, parent_id, names) -> List the folder specified by names (a tuple of name components) relative to parent_id from the "
+     "device. Return None or a list of entries."},
 
-    {"get_metadata_by_name", (PyCFunction)Device_get_metadata_by_name, METH_VARARGS,
-     "get_metadata_by_name(storage_id, parent_id, names) -> Return metadata for specified name (a tuple of name components) relative to parent from the device. Return (metadata, errs)."
-    },
+    {"get_metadata_by_name",
+     (PyCFunction)Device_get_metadata_by_name,
+     METH_VARARGS,
+     "get_metadata_by_name(storage_id, parent_id, names) -> Return metadata for specified name (a tuple of name components) relative to parent from the "
+     "device. Return (metadata, errs)."},
 
-    {"put_file", (PyCFunction)Device_put_file, METH_VARARGS,
-     "put_file(storage_id, parent_id, filename, stream, size, callback=None) -> Put a file on the device. The file is read from stream. It is put inside the folder identified by parent_id on the storage identified by storage_id. Use parent_id=0 to put it in the root. stream must be a file-like object. size is the size in bytes of the data in stream. callback works the same as in get_filelist(). Returns fileinfo, errs, where errs is a list of errors (if any), and fileinfo is a file information dictionary, as returned by get_filelist(). fileinfo will be None if case or errors."
-    },
+    {"put_file",
+     (PyCFunction)Device_put_file,
+     METH_VARARGS,
+     "put_file(storage_id, parent_id, filename, stream, size, callback=None) -> Put a file on the device. The file is read from stream. It is put inside the "
+     "folder identified by parent_id on the storage identified by storage_id. Use parent_id=0 to put it in the root. stream must be a file-like object. size "
+     "is the size in bytes of the data in stream. callback works the same as in get_filelist(). Returns fileinfo, errs, where errs is a list of errors (if "
+     "any), and fileinfo is a file information dictionary, as returned by get_filelist(). fileinfo will be None if case or errors."},
 
-    {"create_folder", (PyCFunction)Device_create_folder, METH_VARARGS,
-     "create_folder(storage_id, parent_id, name) -> Create a folder named name under parent parent_id (use 0 for root) in the storage identified by storage_id. Returns folderinfo, errors, where folderinfo is the same dict as returned by get_folderlist(), it will be None if there are errors."
-    },
+    {"create_folder",
+     (PyCFunction)Device_create_folder,
+     METH_VARARGS,
+     "create_folder(storage_id, parent_id, name) -> Create a folder named name under parent parent_id (use 0 for root) in the storage identified by "
+     "storage_id. Returns folderinfo, errors, where folderinfo is the same dict as returned by get_folderlist(), it will be None if there are errors."},
 
-    {"delete_object", (PyCFunction)Device_delete_object, METH_VARARGS,
-     "delete_object(id) -> Delete the object identified by id from the device. Can be used to delete files, folders, etc. Returns ok, errs."
-    },
+    {"delete_object",
+     (PyCFunction)Device_delete_object,
+     METH_VARARGS,
+     "delete_object(id) -> Delete the object identified by id from the device. Can be used to delete files, folders, etc. Returns ok, errs."},
 
 
-    {NULL}  /* Sentinel */
+    {NULL} /* Sentinel */
 };
 
 static PyGetSetDef Device_getsetters[] = {
-    {(char *)"friendly_name",
-     (getter)Device_friendly_name, NULL,
-     (char *)"The friendly name of this device, can be None.",
-     NULL},
+    {(char *)"friendly_name", (getter)Device_friendly_name, NULL, (char *)"The friendly name of this device, can be None.", NULL},
 
-    {(char *)"manufacturer_name",
-     (getter)Device_manufacturer_name, NULL,
-     (char *)"The manufacturer name of this device, can be None.",
-     NULL},
+    {(char *)"manufacturer_name", (getter)Device_manufacturer_name, NULL, (char *)"The manufacturer name of this device, can be None.", NULL},
 
-    {(char *)"model_name",
-     (getter)Device_model_name, NULL,
-     (char *)"The model name of this device, can be None.",
-     NULL},
+    {(char *)"model_name", (getter)Device_model_name, NULL, (char *)"The model name of this device, can be None.", NULL},
 
-    {(char *)"serial_number",
-     (getter)Device_serial_number, NULL,
-     (char *)"The serial number of this device, can be None.",
-     NULL},
+    {(char *)"serial_number", (getter)Device_serial_number, NULL, (char *)"The serial number of this device, can be None.", NULL},
 
-    {(char *)"device_version",
-     (getter)Device_device_version, NULL,
-     (char *)"The device version of this device, can be None.",
-     NULL},
+    {(char *)"device_version", (getter)Device_device_version, NULL, (char *)"The device version of this device, can be None.", NULL},
 
-    {(char *)"ids",
-     (getter)Device_ids, NULL,
-     (char *)"The ids of the device (busnum, devnum, vendor_id, product_id, usb_serialnum)",
-     NULL},
+    {(char *)"ids", (getter)Device_ids, NULL, (char *)"The ids of the device (busnum, devnum, vendor_id, product_id, usb_serialnum)", NULL},
 
     {(char *)"storage_info",
-     (getter)Device_storage_info, NULL,
-     (char *)"Information about the storage locations on the device. Returns a list of dictionaries where each dictionary corresponds to the LIBMTP_devicestorage_struct.",
+     (getter)Device_storage_info,
+     NULL,
+     (char *)"Information about the storage locations on the device. Returns a list of dictionaries where each dictionary corresponds to the "
+             "LIBMTP_devicestorage_struct.",
      NULL},
 
-    {NULL}  /* Sentinel */
+    {NULL} /* Sentinel */
 };
 
-static PyTypeObject DeviceType = { // {{{
+static PyTypeObject DeviceType = {
+    // {{{
     PyVarObject_HEAD_INIT(NULL, 0)
     /* tp_name             */ "libmtp.Device",
     /* tp_basicsize        */ sizeof(Device),
@@ -780,7 +916,7 @@ static PyTypeObject DeviceType = { // {{{
     /* tp_getattro         */ 0,
     /* tp_setattro         */ 0,
     /* tp_as_buffer        */ 0,
-    /* tp_flags            */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_flags            */ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     /* tp_doc              */ "Device",
     /* tp_traverse         */ 0,
     /* tp_clear            */ 0,
@@ -825,10 +961,9 @@ is_mtp_device(PyObject *self, PyObject *args) {
     if (ans) Py_RETURN_TRUE;
 
     Py_RETURN_FALSE;
-
 }
 
-static PyObject*
+static PyObject *
 known_devices(PyObject *self, PyObject *args) {
     PyObject *ans, *d;
     size_t i;
@@ -836,11 +971,21 @@ known_devices(PyObject *self, PyObject *args) {
     ans = PyList_New(0);
     if (ans == NULL) return PyErr_NoMemory();
 
-    for (i = 0; ; i++) {
+    for (i = 0;; i++) {
         if (calibre_mtp_device_table[i].vendor == NULL && calibre_mtp_device_table[i].product == NULL && calibre_mtp_device_table[i].vendor_id == 0xffff) break;
         d = Py_BuildValue("(HH)", (unsigned short)calibre_mtp_device_table[i].vendor_id, (unsigned short)calibre_mtp_device_table[i].product_id);
-        if (d == NULL) { Py_DECREF(ans); ans = NULL; break; }
-        if (PyList_Append(ans, d) != 0) { Py_DECREF(d); Py_DECREF(ans); ans = NULL; PyErr_NoMemory(); break; }
+        if (d == NULL) {
+            Py_DECREF(ans);
+            ans = NULL;
+            break;
+        }
+        if (PyList_Append(ans, d) != 0) {
+            Py_DECREF(d);
+            Py_DECREF(ans);
+            ans = NULL;
+            PyErr_NoMemory();
+            break;
+        }
         Py_DECREF(d);
     }
 
@@ -850,20 +995,17 @@ known_devices(PyObject *self, PyObject *args) {
 static char libmtp_doc[] = "Interface to libmtp.";
 
 static PyMethodDef libmtp_methods[] = {
-    {"set_debug_level", set_debug_level, METH_VARARGS,
-        "set_debug_level(level)\n\nSet the debug level bit mask, see LIBMTP_DEBUG_* constants."
-    },
+    {"set_debug_level", set_debug_level, METH_VARARGS, "set_debug_level(level)\n\nSet the debug level bit mask, see LIBMTP_DEBUG_* constants."},
 
-    {"is_mtp_device", is_mtp_device, METH_VARARGS,
-        "is_mtp_device(busnum, devnum)\n\nA probe is done and True returned if the probe succeeds. Note that probing can cause some devices to malfunction, and it is not very reliable, which is why we prefer to use the device database."
-    },
+    {"is_mtp_device",
+     is_mtp_device,
+     METH_VARARGS,
+     "is_mtp_device(busnum, devnum)\n\nA probe is done and True returned if the probe succeeds. Note that probing can cause some devices to malfunction, and "
+     "it is not very reliable, which is why we prefer to use the device database."},
 
-    {"known_devices", known_devices, METH_VARARGS,
-        "known_devices() -> Return the list of known (vendor_id, product_id) combinations."
-    },
+    {"known_devices", known_devices, METH_VARARGS, "known_devices() -> Return the list of known (vendor_id, product_id) combinations."},
 
-    {NULL, NULL, 0, NULL}
-};
+    {NULL, NULL, 0, NULL}};
 static int
 exec_module(PyObject *m) {
     DeviceType.tp_new = PyType_GenericNew;
@@ -877,7 +1019,8 @@ exec_module(PyObject *m) {
     // who designs a library without anyway to control/redirect the debugging
     // output, and hardcoded paths that cannot be changed? Compiling libmtp without the crypt use flag disables mtpz support in libmtp
     /* int bak, new; */
-    /* fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather than using line buffering, and setlinebuf does not work. */
+    /* fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather
+     * than using line buffering, and setlinebuf does not work. */
     /* fflush(stdout); */
     /* bak = dup(STDOUT_FILENO); */
     /* new = open("/dev/null", O_WRONLY); */
@@ -902,17 +1045,18 @@ exec_module(PyObject *m) {
     PyModule_AddIntMacro(m, LIBMTP_DEBUG_ALL);
     PyModule_AddIntMacro(m, LIBMTP_FILES_AND_FOLDERS_ROOT);
 
-	return 0;
+    return 0;
 }
 
-static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+static PyModuleDef_Slot slots[] = {{Py_mod_exec, exec_module}, {0, NULL}};
 
 static struct PyModuleDef module_def = {
-    .m_base     = PyModuleDef_HEAD_INIT,
-    .m_name     = "libmtp",
-    .m_doc      = libmtp_doc,
-    .m_methods  = libmtp_methods,
-    .m_slots    = slots,
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "libmtp",
+    .m_doc = libmtp_doc,
+    .m_methods = libmtp_methods,
+    .m_slots = slots,
 };
 
-CALIBRE_MODINIT_FUNC PyInit_libmtp(void) { return PyModuleDef_Init(&module_def); }
+CALIBRE_MODINIT_FUNC
+PyInit_libmtp(void) { return PyModuleDef_Init(&module_def); }

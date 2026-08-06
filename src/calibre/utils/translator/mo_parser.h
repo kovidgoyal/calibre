@@ -13,23 +13,26 @@
 #include "plural_expression_parser.h"
 
 typedef struct MOKey {
-    std::string_view context, msgid, msgid_plural ;
-    bool operator==(const MOKey& other) const = default;
+    std::string_view context, msgid, msgid_plural;
+    bool operator==(const MOKey &other) const = default;
 } MOKey;
 
 // Custom hasher as a separate struct
 static inline size_t
-hash_combine(size_t seed, std::size_t hash) { return seed ^ (hash + 0x9e3779b9 + (seed << 6) + (seed >> 2)); }
+hash_combine(size_t seed, std::size_t hash) {
+    return seed ^ (hash + 0x9e3779b9 + (seed << 6) + (seed >> 2));
+}
 
 struct MoKeyHash {
     std::hash<std::string_view> h;
-    size_t operator()(const MOKey& key) const {
+    size_t
+    operator()(const MOKey &key) const {
         return hash_combine(hash_combine(h(key.msgid), h(key.msgid_plural)), h(key.context));
     }
 };
 
 class MOParser {
-public:
+  public:
     MOParser();
     ~MOParser();
 
@@ -42,22 +45,38 @@ public:
     std::string_view gettext(std::string_view context, std::string_view msgid, std::string_view msgid_plural, unsigned long n) const;
 
     // Check if file is loaded
-    bool isLoaded() const { return loaded_; }
+    bool
+    isLoaded() const {
+        return loaded_;
+    }
 
     // Get the number of strings in the catalog
-    size_t size() const { return catalog.size(); }
+    size_t
+    size() const {
+        return catalog.size();
+    }
 
     // Get plural expression string (for debugging)
-    std::string getPluralExpression() const { return plural_expr_; }
+    std::string
+    getPluralExpression() const {
+        return plural_expr_;
+    }
 
     // Get number of plural forms
-    unsigned getNumPlurals() const { return num_plurals_; }
+    unsigned
+    getNumPlurals() const {
+        return num_plurals_;
+    }
 
     // Get plural message index
-    unsigned long plural(int n) const { return plural_parser_.evaluate(n); }
+    unsigned long
+    plural(int n) const {
+        return plural_parser_.evaluate(n);
+    }
 
     std::unordered_map<std::string, std::string_view> info;
-private:
+
+  private:
     struct MOHeader {
         uint32_t magic;
         uint32_t revision;

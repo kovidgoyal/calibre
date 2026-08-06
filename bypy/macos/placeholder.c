@@ -14,7 +14,7 @@
 
 
 int
-main(int argc, char * const *argv, const char **envp) {
+main(int argc, char *const *argv, const char **envp) {
     int ret;
     pid_t pid;
     char pathbuf[PROC_PIDPATHINFO_MAXSIZE], realpath_buf[PROC_PIDPATHINFO_MAXSIZE * 5];

@@ -32,11 +32,12 @@ typedef unsigned __int32 uint32_t;
 #endif
 
 // Only needed for the (commented out) Indexed8 codepath
-//#include <QVector>
+// #include <QVector>
 
 // NOTE: *May* not behave any better than a simple / 0xFF on modern x86_64 CPUs...
 //       This was, however, tested on ARM, where it is noticeably faster.
-static uint32_t DIV255(uint32_t v) {
+static uint32_t
+DIV255(uint32_t v) {
     v += 128;
     return (((v >> 8U) + v) >> 8U);
 }
@@ -50,13 +51,11 @@ static uint32_t DIV255(uint32_t v) {
 // NOTE: As the references imply, this is straight from ImageMagick,
 //       with only minor simplifications to enforce Q8 & avoid fp maths.
 static uint8_t
-    dither_o8x8(int x, int y, uint8_t v)
-{
+dither_o8x8(int x, int y, uint8_t v) {
     // c.f., https://github.com/ImageMagick/ImageMagick/blob/ecfeac404e75f304004f0566557848c53030bad6/config/thresholds.xml#L107
-    static const uint8_t threshold_map_o8x8[] = { 1,  49, 13, 61, 4,  52, 16, 64, 33, 17, 45, 29, 36, 20, 48, 32,
-                                                9,  57, 5,  53, 12, 60, 8,  56, 41, 25, 37, 21, 44, 28, 40, 24,
-                                                3,  51, 15, 63, 2,  50, 14, 62, 35, 19, 47, 31, 34, 18, 46, 30,
-                                                11, 59, 7,  55, 10, 58, 6,  54, 43, 27, 39, 23, 42, 26, 38, 22 };
+    static const uint8_t threshold_map_o8x8[] = {1,  49, 13, 61, 4,  52, 16, 64, 33, 17, 45, 29, 36, 20, 48, 32, 9,  57, 5,  53, 12, 60,
+                                                 8,  56, 41, 25, 37, 21, 44, 28, 40, 24, 3,  51, 15, 63, 2,  50, 14, 62, 35, 19, 47, 31,
+                                                 34, 18, 46, 30, 11, 59, 7,  55, 10, 58, 6,  54, 43, 27, 39, 23, 42, 26, 38, 22};
 
     // Constants:
     // Quantum = 8; Levels = 16; map Divisor = 65
@@ -83,7 +82,8 @@ static uint8_t
     return (q > UINT8_MAX ? UINT8_MAX : static_cast<uint8_t>(q));
 }
 
-QImage ordered_dither(const QImage &image) { // {{{
+QImage
+ordered_dither(const QImage &image) { // {{{
     ScopedGILRelease PyGILRelease;
     QImage img = image;
     int y = 0, x = 0, width = img.width(), height = img.height();
@@ -116,7 +116,7 @@ QImage ordered_dither(const QImage &image) { // {{{
     const bool is_gray = img.isGrayscale();
 
     for (y = 0; y < height; y++) {
-        const QRgb *src_row = reinterpret_cast<const QRgb*>(img.constScanLine(y));
+        const QRgb *src_row = reinterpret_cast<const QRgb *>(img.constScanLine(y));
         uint8_t *dst_row = dst.scanLine(y);
         for (x = 0; x < width; x++) {
             const QRgb pixel = *(src_row + x);
@@ -127,7 +127,7 @@ QImage ordered_dither(const QImage &image) { // {{{
                 gray = qGray(pixel);
             }
             dithered = dither_o8x8(x, y, gray);
-            *(dst_row + x) = dithered;  // ... or palette.indexOf(dithered); for Indexed8
+            *(dst_row + x) = dithered; // ... or palette.indexOf(dithered); for Indexed8
         }
     }
     return dst;

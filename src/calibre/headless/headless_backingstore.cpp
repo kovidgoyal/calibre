@@ -7,28 +7,21 @@
 
 QT_BEGIN_NAMESPACE
 
-HeadlessBackingStore::HeadlessBackingStore(QWindow *window)
-    : QPlatformBackingStore(window)
-    , mDebug(0)
-{
-    if (mDebug)
-        qDebug() << "HeadlessBackingStore::HeadlessBackingStore:" << (quintptr)this;
+HeadlessBackingStore::HeadlessBackingStore(QWindow *window) : QPlatformBackingStore(window), mDebug(0) {
+    if (mDebug) qDebug() << "HeadlessBackingStore::HeadlessBackingStore:" << (quintptr)this;
 }
 
-HeadlessBackingStore::~HeadlessBackingStore()
-{
-}
+HeadlessBackingStore::~HeadlessBackingStore() {}
 
-QPaintDevice *HeadlessBackingStore::paintDevice()
-{
-    if (mDebug)
-        qDebug() << "HeadlessBackingStore::paintDevice";
+QPaintDevice *
+HeadlessBackingStore::paintDevice() {
+    if (mDebug) qDebug() << "HeadlessBackingStore::paintDevice";
 
     return &mImage;
 }
 
-void HeadlessBackingStore::flush(QWindow *window, const QRegion &region, const QPoint &offset)
-{
+void
+HeadlessBackingStore::flush(QWindow *window, const QRegion &region, const QPoint &offset) {
     Q_UNUSED(window);
     Q_UNUSED(region);
     Q_UNUSED(offset);
@@ -41,11 +34,10 @@ void HeadlessBackingStore::flush(QWindow *window, const QRegion &region, const Q
     }
 }
 
-void HeadlessBackingStore::resize(const QSize &size, const QRegion &)
-{
+void
+HeadlessBackingStore::resize(const QSize &size, const QRegion &) {
     QImage::Format format = QGuiApplication::primaryScreen()->handle()->format();
-    if (mImage.size() != size)
-        mImage = QImage(size, format);
+    if (mImage.size() != size) mImage = QImage(size, format);
 }
 
 QT_END_NAMESPACE

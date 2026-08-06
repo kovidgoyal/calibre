@@ -7,27 +7,32 @@
 
 QT_BEGIN_NAMESPACE
 
-class HeadlessScreen : public QPlatformScreen
-{
-public:
-    HeadlessScreen()
-        : mDepth(32), mFormat(QImage::Format_ARGB32_Premultiplied) {}
+class HeadlessScreen : public QPlatformScreen {
+  public:
+    HeadlessScreen() : mDepth(32), mFormat(QImage::Format_ARGB32_Premultiplied) {}
 
-    QRect geometry() const { return mGeometry; }
-    int depth() const { return mDepth; }
-    QImage::Format format() const { return mFormat; }
+    QRect
+    geometry() const {
+        return mGeometry;
+    }
+    int
+    depth() const {
+        return mDepth;
+    }
+    QImage::Format
+    format() const {
+        return mFormat;
+    }
 
-public:
+  public:
     QRect mGeometry;
     int mDepth;
     QImage::Format mFormat;
     QSize mPhysicalSize;
 };
 
-class HeadlessIntegration : public QPlatformIntegration
-{
-public:
-
+class HeadlessIntegration : public QPlatformIntegration {
+  public:
     explicit HeadlessIntegration(const QStringList &parameters);
     ~HeadlessIntegration();
 
@@ -38,17 +43,23 @@ public:
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const override;
     QAbstractEventDispatcher *createEventDispatcher() const override;
     QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const override;
-	QStringList themeNames() const override;
-	QPlatformTheme *createPlatformTheme(const QString &name) const override;
+    QStringList themeNames() const override;
+    QPlatformTheme *createPlatformTheme(const QString &name) const override;
     QPlatformNativeInterface *nativeInterface() const override;
 
-    unsigned options() const { return 0; }
+    unsigned
+    options() const {
+        return 0;
+    }
 
     static HeadlessIntegration *instance();
 
-    virtual QPlatformServices *services() const override { return platform_services.data(); }
+    virtual QPlatformServices *
+    services() const override {
+        return platform_services.data();
+    }
 
-private:
+  private:
     QScopedPointer<QPlatformFontDatabase> m_fontDatabase;
     QScopedPointer<QPlatformServices> platform_services;
     mutable QScopedPointer<QPlatformNativeInterface> m_nativeInterface;

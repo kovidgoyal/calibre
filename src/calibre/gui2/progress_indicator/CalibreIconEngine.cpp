@@ -24,13 +24,10 @@ static struct {
 } theme;
 
 // Copied with a few modifications Qt QPixmapIconEngine private code {{{
-struct QPixmapIconEngineEntry
-{
+struct QPixmapIconEngineEntry {
     QPixmapIconEngineEntry() = default;
-    QPixmapIconEngineEntry(const QPixmap &pm, QIcon::Mode m, QIcon::State s)
-        : pixmap(pm), size(pm.size()), mode(m), state(s) {}
-    QPixmapIconEngineEntry(const QString &file, const QSize &sz, QIcon::Mode m, QIcon::State s)
-        : fileName(file), size(sz), mode(m), state(s) {}
+    QPixmapIconEngineEntry(const QPixmap &pm, QIcon::Mode m, QIcon::State s) : pixmap(pm), size(pm.size()), mode(m), state(s) {}
+    QPixmapIconEngineEntry(const QString &file, const QSize &sz, QIcon::Mode m, QIcon::State s) : fileName(file), size(sz), mode(m), state(s) {}
     QPixmapIconEngineEntry(const QString &file, const QImage &image, QIcon::Mode m, QIcon::State s);
     QPixmap pixmap;
     QString fileName;
@@ -41,13 +38,12 @@ struct QPixmapIconEngineEntry
 Q_DECLARE_TYPEINFO(QPixmapIconEngineEntry, Q_RELOCATABLE_TYPE);
 
 inline QPixmapIconEngineEntry::QPixmapIconEngineEntry(const QString &file, const QImage &image, QIcon::Mode m, QIcon::State s)
-    : fileName(file), size(image.size()), mode(m), state(s)
-{
+    : fileName(file), size(image.size()), mode(m), state(s) {
     pixmap.convertFromImage(image);
 }
 
 class QPixmapIconEngine : public QIconEngine {
-public:
+  public:
     QPixmapIconEngine();
     QPixmapIconEngine(const QPixmapIconEngine &);
     ~QPixmapIconEngine();
@@ -63,20 +59,20 @@ public:
     QString key() const override;
     QIconEngine *clone() const override;
 
-    static inline QSize adjustSize(const QSize &expectedSize, QSize size)
-    {
-        if (!size.isNull() && (size.width() > expectedSize.width() || size.height() > expectedSize.height()))
-            size.scale(expectedSize, Qt::KeepAspectRatio);
+    static inline QSize
+    adjustSize(const QSize &expectedSize, QSize size) {
+        if (!size.isNull() && (size.width() > expectedSize.width() || size.height() > expectedSize.height())) size.scale(expectedSize, Qt::KeepAspectRatio);
         return size;
     }
 
-    void clear() {
+    void
+    clear() {
         pixmaps.clear();
     }
 
-private:
-    void removePixmapEntry(QPixmapIconEngineEntry *pe)
-    {
+  private:
+    void
+    removePixmapEntry(QPixmapIconEngineEntry *pe) {
         auto idx = pixmaps.size();
         while (--idx >= 0) {
             if (pe == &pixmaps.at(idx)) {
@@ -89,28 +85,24 @@ private:
     QList<QPixmapIconEngineEntry> pixmaps;
 };
 
-QPixmapIconEngine::QPixmapIconEngine()
-{
-}
+QPixmapIconEngine::QPixmapIconEngine() {}
 
-QPixmapIconEngine::QPixmapIconEngine(const QPixmapIconEngine &other)
-    : QIconEngine(other), pixmaps(other.pixmaps)
-{
-}
+QPixmapIconEngine::QPixmapIconEngine(const QPixmapIconEngine &other) : QIconEngine(other), pixmaps(other.pixmaps) {}
 
-QPixmapIconEngine::~QPixmapIconEngine()
-{
-}
+QPixmapIconEngine::~QPixmapIconEngine() {}
 
-void QPixmapIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
-{
+void
+QPixmapIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) {
     auto paintDevice = painter->device();
     qreal dpr = paintDevice ? paintDevice->devicePixelRatio() : qApp->devicePixelRatio();
     QPixmap px = scaledPixmap(rect.size(), mode, state, dpr);
     painter->drawPixmap(rect, px);
 }
 
-static inline qint64 area(const QSize &s) { return qint64(s.width()) * s.height(); }
+static inline qint64
+area(const QSize &s) {
+    return qint64(s.width()) * s.height();
+}
 
 // Returns the smallest of the two that is still larger than or equal to size.
 // Pixmaps at the correct scale are preferred, pixmaps at lower scale are
@@ -118,13 +110,12 @@ static inline qint64 area(const QSize &s) { return qint64(s.width()) * s.height(
 // that no 2x pixmap is going to be a better match than a 3x pixmap for the the
 // target scale of 3 (It's OK if 3x pixmaps are missing - we'll fall back to
 // the 2x pixmaps then.)
-static QPixmapIconEngineEntry *bestSizeScaleMatch(const QSize &size, qreal scale, QPixmapIconEngineEntry *pa, QPixmapIconEngineEntry *pb)
-{
+static QPixmapIconEngineEntry *
+bestSizeScaleMatch(const QSize &size, qreal scale, QPixmapIconEngineEntry *pa, QPixmapIconEngineEntry *pb) {
     const auto scaleA = pa->pixmap.devicePixelRatio();
     const auto scaleB = pb->pixmap.devicePixelRatio();
     // scale: we can only differentiate on scale if the scale differs
     if (scaleA != scaleB) {
-
         // Score the pixmaps: 0 is an exact scale match, positive
         // scores have more detail than requested, negative scores
         // have less detail than requested.
@@ -132,8 +123,7 @@ static QPixmapIconEngineEntry *bestSizeScaleMatch(const QSize &size, qreal scale
         qreal bscore = scaleB - scale;
 
         // always prefer positive scores to prevent upscaling
-        if ((ascore < 0) != (bscore < 0))
-            return bscore < 0 ? pa : pb;
+        if ((ascore < 0) != (bscore < 0)) return bscore < 0 ? pa : pb;
         // Take the one closest to 0
         return (qAbs(ascore) < qAbs(bscore)) ? pa : pb;
     }
@@ -150,71 +140,51 @@ static QPixmapIconEngineEntry *bestSizeScaleMatch(const QSize &size, qreal scale
     }
     qint64 b = area(pb->size);
     qint64 res = a;
-    if (qMin(a,b) >= s)
-        res = qMin(a,b);
-    else
-        res = qMax(a,b);
-    if (res == a)
-        return pa;
+    if (qMin(a, b) >= s) res = qMin(a, b);
+    else res = qMax(a, b);
+    if (res == a) return pa;
     return pb;
 }
 
-QPixmapIconEngineEntry *QPixmapIconEngine::tryMatch(const QSize &size, qreal scale, QIcon::Mode mode, QIcon::State state)
-{
+QPixmapIconEngineEntry *
+QPixmapIconEngine::tryMatch(const QSize &size, qreal scale, QIcon::Mode mode, QIcon::State state) {
     QPixmapIconEngineEntry *pe = nullptr;
     for (auto &entry : pixmaps) {
         if (entry.mode == mode && entry.state == state) {
-            if (pe)
-                pe = bestSizeScaleMatch(size, scale, &entry, pe);
-            else
-                pe = &entry;
+            if (pe) pe = bestSizeScaleMatch(size, scale, &entry, pe);
+            else pe = &entry;
         }
     }
     return pe;
 }
 
 
-QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, qreal scale, QIcon::Mode mode, QIcon::State state)
-{
+QPixmapIconEngineEntry *
+QPixmapIconEngine::bestMatch(const QSize &size, qreal scale, QIcon::Mode mode, QIcon::State state) {
     QPixmapIconEngineEntry *pe = tryMatch(size, scale, mode, state);
-    while (!pe){
+    while (!pe) {
         QIcon::State oppositeState = (state == QIcon::On) ? QIcon::Off : QIcon::On;
         if (mode == QIcon::Disabled || mode == QIcon::Selected) {
             QIcon::Mode oppositeMode = (mode == QIcon::Disabled) ? QIcon::Selected : QIcon::Disabled;
-            if ((pe = tryMatch(size, scale, QIcon::Normal, state)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Active, state)))
-                break;
-            if ((pe = tryMatch(size, scale, mode, oppositeState)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Normal, oppositeState)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Active, oppositeState)))
-                break;
-            if ((pe = tryMatch(size, scale, oppositeMode, state)))
-                break;
-            if ((pe = tryMatch(size, scale, oppositeMode, oppositeState)))
-                break;
+            if ((pe = tryMatch(size, scale, QIcon::Normal, state))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Active, state))) break;
+            if ((pe = tryMatch(size, scale, mode, oppositeState))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Normal, oppositeState))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Active, oppositeState))) break;
+            if ((pe = tryMatch(size, scale, oppositeMode, state))) break;
+            if ((pe = tryMatch(size, scale, oppositeMode, oppositeState))) break;
         } else {
             QIcon::Mode oppositeMode = (mode == QIcon::Normal) ? QIcon::Active : QIcon::Normal;
-            if ((pe = tryMatch(size, scale, oppositeMode, state)))
-                break;
-            if ((pe = tryMatch(size, scale, mode, oppositeState)))
-                break;
-            if ((pe = tryMatch(size, scale, oppositeMode, oppositeState)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Disabled, state)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Selected, state)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Disabled, oppositeState)))
-                break;
-            if ((pe = tryMatch(size, scale, QIcon::Selected, oppositeState)))
-                break;
+            if ((pe = tryMatch(size, scale, oppositeMode, state))) break;
+            if ((pe = tryMatch(size, scale, mode, oppositeState))) break;
+            if ((pe = tryMatch(size, scale, oppositeMode, oppositeState))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Disabled, state))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Selected, state))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Disabled, oppositeState))) break;
+            if ((pe = tryMatch(size, scale, QIcon::Selected, oppositeState))) break;
         }
 
-        if (!pe)
-            return pe;
+        if (!pe) return pe;
     }
 
     if (pe->pixmap.isNull()) {
@@ -236,34 +206,29 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, qreal sc
     return pe;
 }
 
-QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
-{
+QPixmap
+QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) {
     return scaledPixmap(size, mode, state, 1.0);
 }
 
-qreal pixmapDevicePixelRatio(qreal displayDevicePixelRatio, const QSize &requestedSize, const QSize &actualSize)
-{
+qreal
+pixmapDevicePixelRatio(qreal displayDevicePixelRatio, const QSize &requestedSize, const QSize &actualSize) {
     QSize targetSize = requestedSize * displayDevicePixelRatio;
     if ((actualSize.width() == targetSize.width() && actualSize.height() <= targetSize.height()) ||
         (actualSize.width() <= targetSize.width() && actualSize.height() == targetSize.height())) {
         // Correctly scaled for dpr, just having different aspect ratio
         return displayDevicePixelRatio;
     }
-    qreal scale = 0.5 * (qreal(actualSize.width()) / qreal(targetSize.width()) +
-                         qreal(actualSize.height() / qreal(targetSize.height())));
-    return qMax(qreal(1.0), displayDevicePixelRatio *scale);
+    qreal scale = 0.5 * (qreal(actualSize.width()) / qreal(targetSize.width()) + qreal(actualSize.height() / qreal(targetSize.height())));
+    return qMax(qreal(1.0), displayDevicePixelRatio * scale);
 }
 
-template <typename T>
-        struct HexString
-{
-    inline HexString(const T t)
-        : val(t)
-    {}
+template <typename T> struct HexString {
+    inline HexString(const T t) : val(t) {}
 
-    inline void write(QChar *&dest) const
-    {
-        const char16_t hexChars[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    inline void
+    write(QChar *&dest) const {
+        const char16_t hexChars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
         const char *c = reinterpret_cast<const char *>(&val);
         for (uint i = 0; i < sizeof(T); ++i) {
             *dest++ = hexChars[*c & 0xf];
@@ -275,51 +240,47 @@ template <typename T>
 };
 
 // specialization to enable fast concatenating of our string tokens to a string
-template <typename T>
-        struct QConcatenable<HexString<T> >
-{
+template <typename T> struct QConcatenable<HexString<T>> {
     typedef HexString<T> type;
     enum { ExactSize = true };
-    static int size(const HexString<T> &) { return sizeof(T) * 2; }
-    static inline void appendTo(const HexString<T> &str, QChar *&out) { str.write(out); }
+    static int
+    size(const HexString<T> &) {
+        return sizeof(T) * 2;
+    }
+    static inline void
+    appendTo(const HexString<T> &str, QChar *&out) {
+        str.write(out);
+    }
     typedef QString ConvertTo;
 };
 
-QPixmap apply_style(QPixmap pm, QIcon::Mode mode) {
+QPixmap
+apply_style(QPixmap pm, QIcon::Mode mode) {
     QStyleOption opt(0);
     opt.palette = QGuiApplication::palette();
     return QApplication::style()->generatedIconPixmap(mode, pm, &opt);
 }
 
-QPixmap QPixmapIconEngine::scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state, qreal scale)
-{
+QPixmap
+QPixmapIconEngine::scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state, qreal scale) {
     QPixmap pm;
     QPixmapIconEngineEntry *pe = bestMatch(size, scale, mode, state);
-    if (pe)
-        pm = pe->pixmap;
-    else
-        return pm;
+    if (pe) pm = pe->pixmap;
+    else return pm;
 
     if (pm.isNull()) {
         removePixmapEntry(pe);
-        if (pixmaps.isEmpty())
-            return pm;
+        if (pixmaps.isEmpty()) return pm;
         return scaledPixmap(size, mode, state, scale);
     }
 
     const auto actualSize = adjustSize(size * scale, pm.size());
     const auto calculatedDpr = pixmapDevicePixelRatio(scale, size, actualSize);
-    QString key = "cl_"_L1
-                  % HexString<quint64>(pm.cacheKey())
-                  % HexString<quint8>(pe->mode)
-                  % HexString<quint64>(QGuiApplication::palette().cacheKey())
-                  % HexString<uint>(actualSize.width())
-                  % HexString<uint>(actualSize.height())
-                  % HexString<quint16>(qRound(calculatedDpr * 1000));
+    QString key = "cl_"_L1 % HexString<quint64>(pm.cacheKey()) % HexString<quint8>(pe->mode) % HexString<quint64>(QGuiApplication::palette().cacheKey()) %
+                  HexString<uint>(actualSize.width()) % HexString<uint>(actualSize.height()) % HexString<quint16>(qRound(calculatedDpr * 1000));
 
     if (mode == QIcon::Active) {
-        if (QPixmapCache::find(key % HexString<quint8>(mode), &pm))
-            return pm; // horray
+        if (QPixmapCache::find(key % HexString<quint8>(mode), &pm)) return pm; // horray
         if (QPixmapCache::find(key % HexString<quint8>(QIcon::Normal), &pm)) {
             QPixmap active = apply_style(pm, mode);
             if (pm.cacheKey() == active.cacheKey()) return pm;
@@ -327,12 +288,10 @@ QPixmap QPixmapIconEngine::scaledPixmap(const QSize &size, QIcon::Mode mode, QIc
     }
 
     if (!QPixmapCache::find(key % HexString<quint8>(mode), &pm)) {
-        if (pm.size() != actualSize)
-            pm = pm.scaled(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        if (pm.size() != actualSize) pm = pm.scaled(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         if (pe->mode != mode && mode != QIcon::Normal) {
             QPixmap generated = apply_style(pm, mode);
-            if (!generated.isNull())
-                pm = generated;
+            if (!generated.isNull()) pm = generated;
         }
         pm.setDevicePixelRatio(calculatedDpr);
         QPixmapCache::insert(key % HexString<quint8>(mode), pm);
@@ -340,8 +299,8 @@ QPixmap QPixmapIconEngine::scaledPixmap(const QSize &size, QIcon::Mode mode, QIc
     return pm;
 }
 
-QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
-{
+QSize
+QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state) {
     QSize actualSize;
 
     // The returned actual size is the size in device independent pixels,
@@ -349,33 +308,29 @@ QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::
     // does not proviode extra actual sizes not also provided by the 1x versions.
     qreal scale = 1;
 
-    if (QPixmapIconEngineEntry *pe = bestMatch(size, scale, mode, state))
-        actualSize = pe->size;
+    if (QPixmapIconEngineEntry *pe = bestMatch(size, scale, mode, state)) actualSize = pe->size;
 
     return adjustSize(size, actualSize);
 }
 
-QList<QSize> QPixmapIconEngine::availableSizes(QIcon::Mode mode, QIcon::State state)
-{
+QList<QSize>
+QPixmapIconEngine::availableSizes(QIcon::Mode mode, QIcon::State state) {
     QList<QSize> sizes;
     for (QPixmapIconEngineEntry &pe : pixmaps) {
-        if (pe.mode != mode || pe.state != state)
-            continue;
+        if (pe.mode != mode || pe.state != state) continue;
         if (pe.size.isEmpty() && pe.pixmap.isNull()) {
             pe.pixmap = QPixmap(pe.fileName);
             pe.size = pe.pixmap.size();
         }
-        if (!pe.size.isEmpty() && !sizes.contains(pe.size))
-            sizes.push_back(pe.size);
+        if (!pe.size.isEmpty() && !sizes.contains(pe.size)) sizes.push_back(pe.size);
     }
     return sizes;
 }
 
-void QPixmapIconEngine::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state)
-{
+void
+QPixmapIconEngine::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state) {
     if (!pixmap.isNull()) {
-        QPixmapIconEngineEntry *pe = tryMatch(pixmap.size() / pixmap.devicePixelRatio(),
-                                              pixmap.devicePixelRatio(), mode, state);
+        QPixmapIconEngineEntry *pe = tryMatch(pixmap.size() / pixmap.devicePixelRatio(), pixmap.devicePixelRatio(), mode, state);
         if (pe && pe->size == pixmap.size() && pe->pixmap.devicePixelRatio() == pixmap.devicePixelRatio()) {
             pe->pixmap = pixmap;
             pe->fileName.clear();
@@ -385,23 +340,23 @@ void QPixmapIconEngine::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon
     }
 }
 
-bool QPixmapIconEngine::isNull()
-{
+bool
+QPixmapIconEngine::isNull() {
     return pixmaps.isEmpty();
 }
 
-QString QPixmapIconEngine::key() const
-{
+QString
+QPixmapIconEngine::key() const {
     return "CalibrePixmapIconEngine"_L1;
 }
 
-QIconEngine *QPixmapIconEngine::clone() const
-{
+QIconEngine *
+QPixmapIconEngine::clone() const {
     return new QPixmapIconEngine(*this);
 } // }}}
 
 class CalibreIconEngine : public QIconEngine {
-    private:
+  private:
     const QString name;
     const QByteArray fallback_data;
     std::atomic<unsigned> used_theme_key;
@@ -410,7 +365,8 @@ class CalibreIconEngine : public QIconEngine {
     const QString dark_path;
     const QString light_path;
 
-    bool try_with_path(const QString &path) {
+    bool
+    try_with_path(const QString &path) {
         QPixmap pm(path);
         if (pm.isNull()) return false;
         pixmap_engine.clear();
@@ -418,12 +374,14 @@ class CalibreIconEngine : public QIconEngine {
         return true;
     }
 
-    bool try_with_key(const QString &key) {
+    bool
+    try_with_key(const QString &key) {
         QString path = ":/icons/"_L1 % key % "/images/"_L1 % name;
         return try_with_path(path);
     }
 
-    void load_from_paths() {
+    void
+    load_from_paths() {
         if (theme.using_dark_colors) {
             if (try_with_path(dark_path)) return;
             if (try_with_path(any_path)) return;
@@ -435,10 +393,14 @@ class CalibreIconEngine : public QIconEngine {
         }
     }
 
-    void ensure_state() {
+    void
+    ensure_state() {
         if (used_theme_key == current_theme_key) return;
         used_theme_key.store(current_theme_key.load());
-        if (name.isEmpty()) { load_from_paths(); return; }
+        if (name.isEmpty()) {
+            load_from_paths();
+            return;
+        }
         if (theme.using_dark_colors) {
             if (theme.has_dark_user_theme && try_with_key("calibre-user-dark"_L1)) return;
             if (theme.has_any_user_theme) {
@@ -464,55 +426,68 @@ class CalibreIconEngine : public QIconEngine {
         }
     }
 
-    public:
-    CalibreIconEngine(QString name, QByteArray fallback_data) :
-        name(name), fallback_data(fallback_data), used_theme_key(0), pixmap_engine(), any_path(), dark_path(), light_path()
-    {}
-    CalibreIconEngine(const CalibreIconEngine &other) :
-        QIconEngine(other), name(other.name), fallback_data(other.fallback_data),
-        used_theme_key(other.used_theme_key.load()), pixmap_engine(other.pixmap_engine),
-        any_path(other.any_path), dark_path(other.dark_path), light_path(other.light_path)
-    {}
-    CalibreIconEngine(QString any_path, QString light_path, QString dark_path) :
-        name(), fallback_data(), used_theme_key(0), pixmap_engine(), any_path(any_path), dark_path(dark_path), light_path(light_path)
-    {}
+  public:
+    CalibreIconEngine(QString name, QByteArray fallback_data)
+        : name(name), fallback_data(fallback_data), used_theme_key(0), pixmap_engine(), any_path(), dark_path(), light_path() {}
+    CalibreIconEngine(const CalibreIconEngine &other)
+        : QIconEngine(other), name(other.name), fallback_data(other.fallback_data), used_theme_key(other.used_theme_key.load()),
+          pixmap_engine(other.pixmap_engine), any_path(other.any_path), dark_path(other.dark_path), light_path(other.light_path) {}
+    CalibreIconEngine(QString any_path, QString light_path, QString dark_path)
+        : name(), fallback_data(), used_theme_key(0), pixmap_engine(), any_path(any_path), dark_path(dark_path), light_path(light_path) {}
 
-    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override {
+    void
+    paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override {
         ensure_state();
         pixmap_engine.paint(painter, rect, mode, state);
     }
-    QIconEngine* clone() const override { return new CalibreIconEngine(*this); }
-    QString key() const override { return "CalibreIconEngine"_L1; }
-    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override {
+    QIconEngine *
+    clone() const override {
+        return new CalibreIconEngine(*this);
+    }
+    QString
+    key() const override {
+        return "CalibreIconEngine"_L1;
+    }
+    QPixmap
+    pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override {
         ensure_state();
         return pixmap_engine.pixmap(size, mode, state);
     }
-    QPixmap scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state, qreal scale) override {
+    QPixmap
+    scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state, qreal scale) override {
         ensure_state();
         return pixmap_engine.scaledPixmap(size, mode, state, scale);
     }
-    QList<QSize> availableSizes(QIcon::Mode mode, QIcon::State state) override {
+    QList<QSize>
+    availableSizes(QIcon::Mode mode, QIcon::State state) override {
         ensure_state();
         return pixmap_engine.availableSizes(mode, state);
     }
-    void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state) override {
+    void
+    addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state) override {
         ensure_state();
         return pixmap_engine.addPixmap(pixmap, mode, state);
     }
-    bool isNull() override {
+    bool
+    isNull() override {
         ensure_state();
         return pixmap_engine.isNull();
     }
-    void virtual_hook(int id, void *data) override {
+    void
+    virtual_hook(int id, void *data) override {
         ensure_state();
         pixmap_engine.virtual_hook(id, data);
     }
-    QString iconName() override { return name; }
+    QString
+    iconName() override {
+        return name;
+    }
 };
 
 void
 set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme) {
-    if (is_dark != theme.using_dark_colors || has_dark_user_theme != theme.has_dark_user_theme || has_light_user_theme != theme.has_light_user_theme || has_any_user_theme != theme.has_any_user_theme) {
+    if (is_dark != theme.using_dark_colors || has_dark_user_theme != theme.has_dark_user_theme || has_light_user_theme != theme.has_light_user_theme ||
+        has_any_user_theme != theme.has_any_user_theme) {
         theme.using_dark_colors = is_dark;
         theme.has_dark_user_theme = has_dark_user_theme;
         theme.has_light_user_theme = has_light_user_theme;
@@ -524,11 +499,11 @@ set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme
 QIcon
 icon_from_name(QString name, const QByteArray fallback_data) {
     auto engine = new CalibreIconEngine(name, fallback_data);
-    return QIcon(reinterpret_cast<QIconEngine*>(engine));
+    return QIcon(reinterpret_cast<QIconEngine *>(engine));
 }
 
 QIcon
 icon_from_paths(QString any_path, QString light_path, QString dark_path) {
     auto engine = new CalibreIconEngine(any_path, light_path, dark_path);
-    return QIcon(reinterpret_cast<QIconEngine*>(engine));
+    return QIcon(reinterpret_cast<QIconEngine *>(engine));
 }

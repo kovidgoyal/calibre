@@ -16,8 +16,7 @@
 static PyObject *FreeTypeError = NULL;
 
 typedef struct {
-    PyObject_HEAD
-    FT_Face face;
+    PyObject_HEAD FT_Face face;
     // Every face must keep a reference to the FreeType library object to
     // ensure it is garbage collected before the library object, to prevent
     // segfaults.
@@ -26,14 +25,12 @@ typedef struct {
 } Face;
 
 typedef struct {
-    PyObject_HEAD
-    FT_Library library;
+    PyObject_HEAD FT_Library library;
 } FreeType;
 
 // Face.__init__() {{{
 static void
-Face_dealloc(Face* self)
-{
+Face_dealloc(Face *self) {
     if (self->face != NULL) {
         Py_BEGIN_ALLOW_THREADS;
         FT_Done_Face(self->face);
@@ -47,12 +44,11 @@ Face_dealloc(Face* self)
     Py_XDECREF(self->data);
     self->data = NULL;
 
-    Py_TYPE(self)->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static int
-Face_init(Face *self, PyObject *args, PyObject *kwds)
-{
+Face_init(Face *self, PyObject *args, PyObject *kwds) {
     FT_Error error = 0;
     char *data;
     Py_ssize_t sz;
@@ -61,15 +57,12 @@ Face_init(Face *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple(args, "Oy#", &ft, &data, &sz)) return -1;
 
     Py_BEGIN_ALLOW_THREADS;
-    error = FT_New_Memory_Face( ( (FreeType*)ft )->library,
-            (const FT_Byte*)data, (FT_Long)sz, 0, &self->face);
+    error = FT_New_Memory_Face(((FreeType *)ft)->library, (const FT_Byte *)data, (FT_Long)sz, 0, &self->face);
     Py_END_ALLOW_THREADS;
     if (error) {
         self->face = NULL;
-        if ( error == FT_Err_Unknown_File_Format || error == FT_Err_Invalid_Stream_Operation)
-            PyErr_SetString(FreeTypeError, "Not a supported font format");
-        else
-            PyErr_Format(FreeTypeError, "Failed to initialize the Font with error: 0x%x", error);
+        if (error == FT_Err_Unknown_File_Format || error == FT_Err_Invalid_Stream_Operation) PyErr_SetString(FreeTypeError, "Not a supported font format");
+        else PyErr_Format(FreeTypeError, "Failed to initialize the Font with error: 0x%x", error);
         return -1;
     }
     self->library = ft;
@@ -91,7 +84,7 @@ style_name(Face *self, void *closure) {
     return Py_BuildValue("s", self->face->style_name);
 }
 
-static PyObject*
+static PyObject *
 supports_text(Face *self, PyObject *args) {
     PyObject *chars, *fast, *ret = Py_True;
     Py_ssize_t sz, i;
@@ -115,7 +108,7 @@ supports_text(Face *self, PyObject *args) {
     return ret;
 }
 
-static PyObject*
+static PyObject *
 glyph_id(Face *self, PyObject *args) {
     unsigned long code;
 
@@ -124,35 +117,27 @@ glyph_id(Face *self, PyObject *args) {
 }
 
 static PyGetSetDef Face_getsetters[] = {
-    {(char *)"family_name",
-     (getter)family_name, NULL,
-     (char *)"The family name of this font.",
-     NULL},
+    {(char *)"family_name", (getter)family_name, NULL, (char *)"The family name of this font.", NULL},
 
-    {(char *)"style_name",
-     (getter)style_name, NULL,
-     (char *)"The style name of this font.",
-     NULL},
+    {(char *)"style_name", (getter)style_name, NULL, (char *)"The style name of this font.", NULL},
 
-    {NULL}  /* Sentinel */
+    {NULL} /* Sentinel */
 };
 
 static PyMethodDef Face_methods[] = {
-    {"supports_text", (PyCFunction)supports_text, METH_VARARGS,
-     "supports_text(sequence of unicode character codes) -> Return True iff this font has glyphs for all the specified characters."
-    },
+    {"supports_text",
+     (PyCFunction)supports_text,
+     METH_VARARGS,
+     "supports_text(sequence of unicode character codes) -> Return True iff this font has glyphs for all the specified characters."},
 
-    {"glyph_id", (PyCFunction)glyph_id, METH_VARARGS,
-     "glyph_id(character code) -> Returns the glyph id for the specified character code."
-    },
+    {"glyph_id", (PyCFunction)glyph_id, METH_VARARGS, "glyph_id(character code) -> Returns the glyph id for the specified character code."},
 
-    {NULL}  /* Sentinel */
+    {NULL} /* Sentinel */
 };
 
 // FreeType.__init__() {{{
 static void
-dealloc(FreeType* self)
-{
+dealloc(FreeType *self) {
     if (self->library != NULL) {
         Py_BEGIN_ALLOW_THREADS;
         FT_Done_FreeType(self->library);
@@ -160,12 +145,11 @@ dealloc(FreeType* self)
     }
     self->library = NULL;
 
-    Py_TYPE(self)->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static int
-init(FreeType *self, PyObject *args, PyObject *kwds)
-{
+init(FreeType *self, PyObject *args, PyObject *kwds) {
     FT_Error error = 0;
     Py_BEGIN_ALLOW_THREADS;
     error = FT_Init_FreeType(&self->library);
@@ -180,7 +164,8 @@ init(FreeType *self, PyObject *args, PyObject *kwds)
 
 // }}}
 
-static PyTypeObject FaceType = { // {{{
+static PyTypeObject FaceType = {
+    // {{{
     PyVarObject_HEAD_INIT(NULL, 0)
     /* tp_name              */ "freetype.Face",
     /* tp_basicsize         */ sizeof(Face),
@@ -200,7 +185,7 @@ static PyTypeObject FaceType = { // {{{
     /* tp_getattro          */ 0,
     /* tp_setattro          */ 0,
     /* tp_as_buffer         */ 0,
-    /* tp_flags             */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_flags             */ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     /* tp_doc               */ "Face",
     /* tp_traverse          */ 0,
     /* tp_clear             */ 0,
@@ -221,7 +206,7 @@ static PyTypeObject FaceType = { // {{{
     /* tp_new               */ 0,
 }; // }}}
 
-static PyObject*
+static PyObject *
 load_font(FreeType *self, PyObject *args) {
     PyObject *ret, *arg_list, *bytes;
 
@@ -230,22 +215,21 @@ load_font(FreeType *self, PyObject *args) {
     arg_list = Py_BuildValue("OO", self, bytes);
     if (arg_list == NULL) return NULL;
 
-    ret = PyObject_CallObject((PyObject *) &FaceType, arg_list);
+    ret = PyObject_CallObject((PyObject *)&FaceType, arg_list);
     Py_DECREF(arg_list);
 
     return ret;
 }
 
 static PyMethodDef FreeType_methods[] = {
-    {"load_font", (PyCFunction)load_font, METH_VARARGS,
-     "load_font(bytestring) -> Load a font from font data."
-    },
+    {"load_font", (PyCFunction)load_font, METH_VARARGS, "load_font(bytestring) -> Load a font from font data."},
 
-    {NULL}  /* Sentinel */
+    {NULL} /* Sentinel */
 };
 
 
-static PyTypeObject FreeTypeType = { // {{{
+static PyTypeObject FreeTypeType = {
+    // {{{
     PyVarObject_HEAD_INIT(NULL, 0)
     /* tp_name              */ "freetype.FreeType",
     /* tp_basicsize         */ sizeof(FreeType),
@@ -265,7 +249,7 @@ static PyTypeObject FreeTypeType = { // {{{
     /* tp_getattro          */ 0,
     /* tp_setattro          */ 0,
     /* tp_as_buffer         */ 0,
-    /* tp_flags             */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
+    /* tp_flags             */ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     /* tp_doc               */ "FreeType",
     /* tp_traverse          */ 0,
     /* tp_clear             */ 0,
@@ -296,7 +280,7 @@ exec_module(PyObject *m) {
     FaceType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&FaceType) < 0) return -1;
 
-    FreeTypeError = PyErr_NewException((char*)"freetype.FreeTypeError", NULL, NULL);
+    FreeTypeError = PyErr_NewException((char *)"freetype.FreeTypeError", NULL, NULL);
     if (FreeTypeError == NULL) return -1;
     PyModule_AddObject(m, "FreeTypeError", FreeTypeError);
 
@@ -304,16 +288,17 @@ exec_module(PyObject *m) {
     PyModule_AddObject(m, "FreeType", (PyObject *)&FreeTypeType);
     Py_INCREF(&FaceType);
     PyModule_AddObject(m, "Face", (PyObject *)&FaceType);
-	return 0;
+    return 0;
 }
 
-static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+static PyModuleDef_Slot slots[] = {{Py_mod_exec, (void *)exec_module}, {0, NULL}};
 
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
-CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
-	module_def.m_name = "freetype";
-	module_def.m_doc = freetype_doc;
-	module_def.m_slots = slots;
-	return PyModuleDef_Init(&module_def);
+CALIBRE_MODINIT_FUNC
+PyInit_freetype(void) {
+    module_def.m_name = "freetype";
+    module_def.m_doc = freetype_doc;
+    module_def.m_slots = slots;
+    return PyModuleDef_Init(&module_def);
 }

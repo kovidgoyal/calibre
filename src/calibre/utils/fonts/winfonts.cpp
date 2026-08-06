@@ -19,20 +19,32 @@
 #include <new>
 
 // Utils {{{
-static wchar_t* unicode_to_wchar(PyObject *o) {
+static wchar_t *
+unicode_to_wchar(PyObject *o) {
     wchar_t *buf;
     Py_ssize_t len;
     if (o == NULL) return NULL;
-    if (!PyUnicode_Check(o)) {PyErr_Format(PyExc_TypeError, "The python object must be a unicode object"); return NULL;}
+    if (!PyUnicode_Check(o)) {
+        PyErr_Format(PyExc_TypeError, "The python object must be a unicode object");
+        return NULL;
+    }
     len = PyUnicode_GET_LENGTH(o);
-    buf = (wchar_t *)calloc(len+2, sizeof(wchar_t));
-    if (buf == NULL) { PyErr_NoMemory(); return NULL; }
+    buf = (wchar_t *)calloc(len + 2, sizeof(wchar_t));
+    if (buf == NULL) {
+        PyErr_NoMemory();
+        return NULL;
+    }
     len = PyUnicode_AsWideChar(o, buf, len);
-    if (len == -1) { free(buf); PyErr_Format(PyExc_TypeError, "Invalid python unicode object."); return NULL; }
+    if (len == -1) {
+        free(buf);
+        PyErr_Format(PyExc_TypeError, "Invalid python unicode object.");
+        return NULL;
+    }
     return buf;
 }
 
-static PyObject* wchar_to_unicode(const wchar_t *o) {
+static PyObject *
+wchar_to_unicode(const wchar_t *o) {
     PyObject *ans;
     if (o == NULL) return NULL;
     ans = PyUnicode_FromWideChar(o, wcslen(o));
@@ -49,7 +61,8 @@ struct EnumData {
 };
 
 
-static PyObject* logfont_to_dict(const ENUMLOGFONTEX *lf, const TEXTMETRIC *tm, DWORD font_type, HDC hdc) {
+static PyObject *
+logfont_to_dict(const ENUMLOGFONTEX *lf, const TEXTMETRIC *tm, DWORD font_type, HDC hdc) {
     PyObject *name, *full_name, *style, *script;
     LOGFONT f = lf->elfLogFont;
 
@@ -58,35 +71,46 @@ static PyObject* logfont_to_dict(const ENUMLOGFONTEX *lf, const TEXTMETRIC *tm, 
     style = wchar_to_unicode(lf->elfStyle);
     script = wchar_to_unicode(lf->elfScript);
 
-    return Py_BuildValue("{s:N, s:N, s:N, s:N, s:O, s:O, s:O, s:O, s:l}",
-        "name", name,
-        "full_name", full_name,
-        "style", style,
-        "script", script,
-        "is_truetype", (font_type & TRUETYPE_FONTTYPE) ? Py_True : Py_False,
-        "is_italic", (tm->tmItalic != 0) ? Py_True : Py_False,
-        "is_underlined", (tm->tmUnderlined != 0) ? Py_True : Py_False,
-        "is_strikeout", (tm->tmStruckOut != 0) ? Py_True : Py_False,
-        "weight", tm->tmWeight
-    );
+    return Py_BuildValue(
+        "{s:N, s:N, s:N, s:N, s:O, s:O, s:O, s:O, s:l}",
+        "name",
+        name,
+        "full_name",
+        full_name,
+        "style",
+        style,
+        "script",
+        script,
+        "is_truetype",
+        (font_type & TRUETYPE_FONTTYPE) ? Py_True : Py_False,
+        "is_italic",
+        (tm->tmItalic != 0) ? Py_True : Py_False,
+        "is_underlined",
+        (tm->tmUnderlined != 0) ? Py_True : Py_False,
+        "is_strikeout",
+        (tm->tmStruckOut != 0) ? Py_True : Py_False,
+        "weight",
+        tm->tmWeight);
 }
 
-static int CALLBACK find_families_callback(const ENUMLOGFONTEX *lpelfe, const TEXTMETRIC *lpntme, DWORD font_type, LPARAM lParam) {
-    struct EnumData *enum_data = reinterpret_cast<struct EnumData*>(lParam);
+static int CALLBACK
+find_families_callback(const ENUMLOGFONTEX *lpelfe, const TEXTMETRIC *lpntme, DWORD font_type, LPARAM lParam) {
+    struct EnumData *enum_data = reinterpret_cast<struct EnumData *>(lParam);
     PyObject *font = logfont_to_dict(lpelfe, lpntme, font_type, enum_data->hdc);
     if (font == NULL) return 0;
     PyList_Append(enum_data->families, font);
 
-	return 1;
+    return 1;
 }
 
-static PyObject* enum_font_families(PyObject *self, PyObject *args) {
+static PyObject *
+enum_font_families(PyObject *self, PyObject *args) {
     LOGFONTW logfont;
-	HDC hdc;
+    HDC hdc;
     PyObject *families;
     struct EnumData enum_data;
 
-	families = PyList_New(0);
+    families = PyList_New(0);
     if (families == NULL) return PyErr_NoMemory();
     SecureZeroMemory(&logfont, sizeof(logfont));
 
@@ -97,23 +121,23 @@ static PyObject* enum_font_families(PyObject *self, PyObject *args) {
     enum_data.hdc = hdc;
     enum_data.families = families;
 
-    EnumFontFamiliesExW(hdc, &logfont, (FONTENUMPROC)find_families_callback,
-					(LPARAM)(&enum_data), 0);
+    EnumFontFamiliesExW(hdc, &logfont, (FONTENUMPROC)find_families_callback, (LPARAM)(&enum_data), 0);
     ReleaseDC(NULL, hdc);
 
-	return families;
+    return families;
 }
 
 // }}}
 
 // font_data() {{{
-static PyObject* font_data(PyObject *self, PyObject *args) {
+static PyObject *
+font_data(PyObject *self, PyObject *args) {
     PyObject *ans = NULL, *italic, *pyname;
     LOGFONTW lf;
-	HDC hdc;
+    HDC hdc;
     LONG weight;
     LPWSTR family = NULL;
-	HGDIOBJ old_font = NULL;
+    HGDIOBJ old_font = NULL;
     HFONT hf;
     DWORD sz;
     char *buf;
@@ -123,7 +147,10 @@ static PyObject* font_data(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "OOl", &pyname, &italic, &weight)) return NULL;
 
     family = unicode_to_wchar(pyname);
-    if (family == NULL) { Py_DECREF(ans); return NULL; }
+    if (family == NULL) {
+        Py_DECREF(ans);
+        return NULL;
+    }
     StringCchCopyW(lf.lfFaceName, LF_FACESIZE, family);
     free(family);
 
@@ -133,12 +160,11 @@ static PyObject* font_data(PyObject *self, PyObject *args) {
 
     hdc = GetDC(NULL);
 
-    if ( (hf = CreateFontIndirect(&lf)) != NULL) {
-
-        if ( (old_font = SelectObject(hdc, hf)) != NULL ) {
+    if ((hf = CreateFontIndirect(&lf)) != NULL) {
+        if ((old_font = SelectObject(hdc, hf)) != NULL) {
             sz = GetFontData(hdc, 0, 0, NULL, 0);
             if (sz != GDI_ERROR) {
-                buf = (char*)calloc(sz, sizeof(char));
+                buf = (char *)calloc(sz, sizeof(char));
 
                 if (buf != NULL) {
                     if (GetFontData(hdc, 0, 0, buf, sz) != GDI_ERROR) {
@@ -160,7 +186,8 @@ static PyObject* font_data(PyObject *self, PyObject *args) {
 }
 // }}}
 
-static PyObject* add_font(PyObject *self, PyObject *args) {
+static PyObject *
+add_font(PyObject *self, PyObject *args) {
     char *data;
     Py_ssize_t sz;
     DWORD num = 0;
@@ -172,7 +199,8 @@ static PyObject* add_font(PyObject *self, PyObject *args) {
     return Py_BuildValue("k", num);
 }
 
-static PyObject* add_system_font(PyObject *self, PyObject *args) {
+static PyObject *
+add_system_font(PyObject *self, PyObject *args) {
     PyObject *name;
     LPWSTR path;
     int num;
@@ -182,13 +210,13 @@ static PyObject* add_system_font(PyObject *self, PyObject *args) {
     if (path == NULL) return NULL;
 
     num = AddFontResource(path);
-    if (num > 0)
-        SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
+    if (num > 0) SendMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
     free(path);
     return Py_BuildValue("i", num);
 }
 
-static PyObject* remove_system_font(PyObject *self, PyObject *args) {
+static PyObject *
+remove_system_font(PyObject *self, PyObject *args) {
     PyObject *name, *ok = Py_False;
     LPWSTR path;
 
@@ -207,33 +235,38 @@ static PyObject* remove_system_font(PyObject *self, PyObject *args) {
 static char winfonts_doc[] = "Windows font API";
 
 static PyMethodDef winfonts_methods[] = {
-    {"enum_font_families", enum_font_families, METH_VARARGS,
-    "enum_font_families()\n\n"
-        "Enumerate all regular (not italic/bold/etc. variants) font families on the system. Note there will be multiple entries for every family (corresponding to each charset of the font)."
-    },
+    {"enum_font_families",
+     enum_font_families,
+     METH_VARARGS,
+     "enum_font_families()\n\n"
+     "Enumerate all regular (not italic/bold/etc. variants) font families on the system. Note there will be multiple entries for every family (corresponding "
+     "to each charset of the font)."},
 
-    {"font_data", font_data, METH_VARARGS,
-    "font_data(family_name, italic, weight)\n\n"
-        "Return the raw font data for the specified font."
-    },
+    {"font_data",
+     font_data,
+     METH_VARARGS,
+     "font_data(family_name, italic, weight)\n\n"
+     "Return the raw font data for the specified font."},
 
-    {"add_font", add_font, METH_VARARGS,
-    "add_font(data)\n\n"
-        "Add the font(s) in the data (bytestring) to windows. Added fonts are always private. Returns the number of fonts added."
-    },
+    {"add_font",
+     add_font,
+     METH_VARARGS,
+     "add_font(data)\n\n"
+     "Add the font(s) in the data (bytestring) to windows. Added fonts are always private. Returns the number of fonts added."},
 
-    {"add_system_font", add_system_font, METH_VARARGS,
-    "add_system_font(data)\n\n"
-        "Add the font(s) in the specified file to the system font tables."
-    },
+    {"add_system_font",
+     add_system_font,
+     METH_VARARGS,
+     "add_system_font(data)\n\n"
+     "Add the font(s) in the specified file to the system font tables."},
 
-    {"remove_system_font", remove_system_font, METH_VARARGS,
-    "remove_system_font(data)\n\n"
-        "Remove the font(s) in the specified file from the system font tables."
-    },
+    {"remove_system_font",
+     remove_system_font,
+     METH_VARARGS,
+     "remove_system_font(data)\n\n"
+     "Remove the font(s) in the specified file from the system font tables."},
 
-    {NULL, NULL, 0, NULL}
-};
+    {NULL, NULL, 0, NULL}};
 static int
 exec_module(PyObject *m) {
     PyModule_AddIntMacro(m, FW_DONTCARE);
@@ -252,17 +285,18 @@ exec_module(PyObject *m) {
     PyModule_AddIntMacro(m, FW_HEAVY);
     PyModule_AddIntMacro(m, FW_BLACK);
 
-	return 0;
+    return 0;
 }
 
-static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+static PyModuleDef_Slot slots[] = {{Py_mod_exec, (void *)exec_module}, {0, NULL}};
 
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
-CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
-	module_def.m_name = "winfonts";
-	module_def.m_slots = slots;
-	module_def.m_doc = winfonts_doc;
-	module_def.m_methods = winfonts_methods;
-	return PyModuleDef_Init(&module_def);
+CALIBRE_MODINIT_FUNC
+PyInit_winfonts(void) {
+    module_def.m_name = "winfonts";
+    module_def.m_slots = slots;
+    module_def.m_doc = winfonts_doc;
+    module_def.m_methods = winfonts_methods;
+    return PyModuleDef_Init(&module_def);
 }

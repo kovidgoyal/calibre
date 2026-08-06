@@ -30,57 +30,60 @@
 #include <type_traits>
 
 namespace frozen {
-template <class UIntType, UIntType a, UIntType c, UIntType m>
-class linear_congruential_engine {
+template <class UIntType, UIntType a, UIntType c, UIntType m> class linear_congruential_engine {
+    static_assert(std::is_unsigned<UIntType>::value, "UIntType must be an unsigned integral type");
 
-  static_assert(std::is_unsigned<UIntType>::value,
-                "UIntType must be an unsigned integral type");
+  public:
+    using result_type = UIntType;
+    static constexpr result_type multiplier = a;
+    static constexpr result_type increment = c;
+    static constexpr result_type modulus = m;
+    static constexpr result_type default_seed = 1u;
 
-public:
-  using result_type = UIntType;
-  static constexpr result_type multiplier = a;
-  static constexpr result_type increment = c;
-  static constexpr result_type modulus = m;
-  static constexpr result_type default_seed = 1u;
+    linear_congruential_engine() = default;
+    constexpr linear_congruential_engine(result_type s) { seed(s); }
 
-  linear_congruential_engine() = default;
-  constexpr linear_congruential_engine(result_type s) { seed(s); }
+    void
+    seed(result_type s = default_seed) {
+        state_ = s;
+    }
+    constexpr result_type
+    operator()() {
+        using uint_least_t = bits::select_uint_least_t<bits::log(a) + bits::log(m) + 4>;
+        uint_least_t tmp = static_cast<uint_least_t>(multiplier) * state_ + increment;
 
-  void seed(result_type s = default_seed) { state_ = s; }
-  constexpr result_type operator()() {
-	  using uint_least_t = bits::select_uint_least_t<bits::log(a) + bits::log(m) + 4>;
-    uint_least_t tmp = static_cast<uint_least_t>(multiplier) * state_ + increment;
+        // the static cast below may end up doing a truncation
+        if (modulus != 0) state_ = static_cast<result_type>(tmp % modulus);
+        else state_ = static_cast<result_type>(tmp);
+        return state_;
+    }
+    constexpr void
+    discard(unsigned long long n) {
+        while (n--) operator()();
+    }
+    static constexpr result_type
+    min() {
+        return increment == 0u ? 1u : 0u;
+    }
+    static constexpr result_type
+    max() {
+        return modulus - 1u;
+    }
+    friend constexpr bool
+    operator==(linear_congruential_engine const &self, linear_congruential_engine const &other) {
+        return self.state_ == other.state_;
+    }
+    friend constexpr bool
+    operator!=(linear_congruential_engine const &self, linear_congruential_engine const &other) {
+        return !(self == other);
+    }
 
-    // the static cast below may end up doing a truncation
-    if(modulus != 0)
-      state_ = static_cast<result_type>(tmp % modulus);
-    else
-      state_ = static_cast<result_type>(tmp);
-    return state_;
-  }
-  constexpr void discard(unsigned long long n) {
-    while (n--)
-      operator()();
-  }
-  static constexpr result_type min() { return increment == 0u ? 1u : 0u; }
-  static constexpr result_type max() { return modulus - 1u; }
-  friend constexpr bool operator==(linear_congruential_engine const &self,
-                                   linear_congruential_engine const &other) {
-    return self.state_ == other.state_;
-  }
-  friend constexpr bool operator!=(linear_congruential_engine const &self,
-                                   linear_congruential_engine const &other) {
-    return !(self == other);
-  }
-
-private:
-  result_type state_ = default_seed;
+  private:
+    result_type state_ = default_seed;
 };
 
-using minstd_rand0 =
-    linear_congruential_engine<std::uint_fast32_t, 16807, 0, 2147483647>;
-using minstd_rand =
-    linear_congruential_engine<std::uint_fast32_t, 48271, 0, 2147483647>;
+using minstd_rand0 = linear_congruential_engine<std::uint_fast32_t, 16807, 0, 2147483647>;
+using minstd_rand = linear_congruential_engine<std::uint_fast32_t, 48271, 0, 2147483647>;
 
 // This generator is used by default in unordered frozen containers
 using default_prg_t = minstd_rand;

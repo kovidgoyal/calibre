@@ -27,14 +27,12 @@ impose_page(PdfMemDocument *doc, unsigned int dest_page_num, unsigned int src_pa
     contents->GetStreamForAppending().SetData(s.str());
 }
 
-static PyObject*
+static PyObject *
 impose(PDFDoc *self, PyObject *args) {
     unsigned long dest_page_num, src_page_num, count;
     if (!PyArg_ParseTuple(args, "kkk", &dest_page_num, &src_page_num, &count)) return NULL;
-    for (unsigned long i = 0; i < count; i++) {
-        impose_page(self->doc, dest_page_num - 1 + i, src_page_num - 1 + i);
-    }
-    auto& pages = self->doc->GetPages();
+    for (unsigned long i = 0; i < count; i++) { impose_page(self->doc, dest_page_num - 1 + i, src_page_num - 1 + i); }
+    auto &pages = self->doc->GetPages();
     while (count-- && src_page_num <= pages.GetCount()) pages.RemovePageAt(src_page_num - 1);
     Py_RETURN_NONE;
 }

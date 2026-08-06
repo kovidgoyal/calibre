@@ -59,19 +59,17 @@
 
 #include <QWidget>
 
-class FlowImages : public QObject
-{
-Q_OBJECT
+class FlowImages : public QObject {
+    Q_OBJECT
 
-public:
-	virtual int count();
-	virtual QImage image(int index);
-	virtual QString caption(int index);
+  public:
+    virtual int count();
+    virtual QImage image(int index);
+    virtual QString caption(int index);
     virtual QString subtitle(int index);
 
-signals:
-	void dataChanged();
-
+  signals:
+    void dataChanged();
 };
 
 class PictureFlowPrivate;
@@ -86,148 +84,147 @@ class PictureFlowPrivate;
   placed at the center.
 
  */
-class PictureFlow : public QWidget
-{
-Q_OBJECT
+class PictureFlow : public QWidget {
+    Q_OBJECT
 
-  Q_PROPERTY(int currentSlide READ currentSlide WRITE setCurrentSlide)
-  Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
-  Q_PROPERTY(QFont subtitleFont READ subtitleFont WRITE setSubtitleFont)
-  Q_PROPERTY(bool preserveAspectRatio READ preserveAspectRatio WRITE setPreserveAspectRatio)
-  Q_PROPERTY(bool activateOnDoubleClick READ activateOnDoubleClick WRITE setActivateOnDoubleClick)
+    Q_PROPERTY(int currentSlide READ currentSlide WRITE setCurrentSlide)
+    Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
+    Q_PROPERTY(QFont subtitleFont READ subtitleFont WRITE setSubtitleFont)
+    Q_PROPERTY(bool preserveAspectRatio READ preserveAspectRatio WRITE setPreserveAspectRatio)
+    Q_PROPERTY(bool activateOnDoubleClick READ activateOnDoubleClick WRITE setActivateOnDoubleClick)
 
-public:
-  /*!
-    Creates a new PictureFlow widget.
-  */
-  PictureFlow(QWidget* parent = 0, int queueLength = 3);
+  public:
+    /*!
+      Creates a new PictureFlow widget.
+    */
+    PictureFlow(QWidget *parent = 0, int queueLength = 3);
 
-  /*!
-    Destroys the widget.
-  */
-  ~PictureFlow();
+    /*!
+      Destroys the widget.
+    */
+    ~PictureFlow();
 
-  /*!
-    Set the images to be displayed by this widget.
-  */
-  void setImages(FlowImages *images);
+    /*!
+      Set the images to be displayed by this widget.
+    */
+    void setImages(FlowImages *images);
 
-  int count() const;
+    int count() const;
 
-  /*!
-    Returns the dimension of each slide (in pixels).
-  */
-  QSize slideSize() const;
+    /*!
+      Returns the dimension of each slide (in pixels).
+    */
+    QSize slideSize() const;
 
-  /*!
-    Sets the dimension of each slide (in pixels). Do not use this method directly
-    instead use resize which automatically sets an appropriate slide size.
-  */
-  void setSlideSize(QSize size);
+    /*!
+      Sets the dimension of each slide (in pixels). Do not use this method directly
+      instead use resize which automatically sets an appropriate slide size.
+    */
+    void setSlideSize(QSize size);
 
-  /*!
-    Returns whether aspect ration is preserved when scaling images
-  */
-  bool preserveAspectRatio() const;
+    /*!
+      Returns whether aspect ration is preserved when scaling images
+    */
+    bool preserveAspectRatio() const;
 
-  /*!
-    Whether to preserve aspect ration when scaling images
-  */
-  void setPreserveAspectRatio(bool preserve);
+    /*!
+      Whether to preserve aspect ration when scaling images
+    */
+    void setPreserveAspectRatio(bool preserve);
 
-  /*!
-    Turn the reflections on/off.
-  */
-  void setShowReflections(bool show);
-  bool showReflections() const;
+    /*!
+      Turn the reflections on/off.
+    */
+    void setShowReflections(bool show);
+    bool showReflections() const;
 
-  int maxFontSize() const;
-  void setMaxFontSize(int val);
+    int maxFontSize() const;
+    void setMaxFontSize(int val);
 
-  /*!
-    Returns the font used to render subtitles
-  */
-  QFont subtitleFont() const;
+    /*!
+      Returns the font used to render subtitles
+    */
+    QFont subtitleFont() const;
 
-  /*!
-    Sets the font used to render subtitles
-  */
-  void setSubtitleFont(QFont font);
+    /*!
+      Sets the font used to render subtitles
+    */
+    void setSubtitleFont(QFont font);
 
 
-  /*!
-    Clears any caches held to free up memory
-  */
-  void clearCaches();
+    /*!
+      Clears any caches held to free up memory
+    */
+    void clearCaches();
 
-  /*!
-    Returns QImage of specified slide.
-    This function will be called only whenever necessary, e.g. the 100th slide
-    will not be retrieved when only the first few slides are visible.
-  */
-  virtual QImage slide(int index) const;
+    /*!
+      Returns QImage of specified slide.
+      This function will be called only whenever necessary, e.g. the 100th slide
+      will not be retrieved when only the first few slides are visible.
+    */
+    virtual QImage slide(int index) const;
 
-  /*!
-    Returns the index of slide currently shown in the middle of the viewport.
-  */
-  int currentSlide() const;
+    /*!
+      Returns the index of slide currently shown in the middle of the viewport.
+    */
+    int currentSlide() const;
 
-  bool activateOnDoubleClick() const;
-  void setActivateOnDoubleClick(bool on);
+    bool activateOnDoubleClick() const;
+    void setActivateOnDoubleClick(bool on);
 
-public slots:
+  public slots:
 
-  /*!
-    Sets slide to be shown in the middle of the viewport. No animation
-    effect will be produced, unlike using showSlide.
-  */
-  void setCurrentSlide(int index);
+    /*!
+      Sets slide to be shown in the middle of the viewport. No animation
+      effect will be produced, unlike using showSlide.
+    */
+    void setCurrentSlide(int index);
 
-  /*!
-    Rerender the widget. Normally this function will be automatically invoked
-    whenever necessary, e.g. during the transition animation.
-  */
-  void render();
+    /*!
+      Rerender the widget. Normally this function will be automatically invoked
+      whenever necessary, e.g. during the transition animation.
+    */
+    void render();
 
-  /*!
-    Shows previous slide using animation effect.
-  */
-  void showPrevious();
+    /*!
+      Shows previous slide using animation effect.
+    */
+    void showPrevious();
 
-  /*!
-    Shows next slide using animation effect.
-  */
-  void showNext();
+    /*!
+      Shows next slide using animation effect.
+    */
+    void showNext();
 
-  /*!
-    Go to specified slide using animation effect.
-  */
-  void showSlide(int index);
+    /*!
+      Go to specified slide using animation effect.
+    */
+    void showSlide(int index);
 
-  /*!
-    Clear all caches and redraw
-  */
-  void dataChanged();
+    /*!
+      Clear all caches and redraw
+    */
+    void dataChanged();
 
-  void emitcurrentChanged(int index);
+    void emitcurrentChanged(int index);
 
-signals:
-  void itemActivated(int index);
-  void currentChanged(int index);
-  void stop(); //Emitted when the user presses the Esc key
+  signals:
+    void itemActivated(int index);
+    void currentChanged(int index);
+    void stop(); // Emitted when the user presses the Esc key
 
-protected:
-  void paintEvent(QPaintEvent *event);
-  void keyPressEvent(QKeyEvent* event);
-  void mouseMoveEvent(QMouseEvent* event);
-  void mousePressEvent(QMouseEvent* event);
-  void mouseReleaseEvent(QMouseEvent* event);
-  void mouseDoubleClickEvent(QMouseEvent* event);
-  void resizeEvent(QResizeEvent* event);
-  void timerEvent(QTimerEvent* event);
+  protected:
+    void paintEvent(QPaintEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *event);
+    void timerEvent(QTimerEvent *event);
 
-private:
-  PictureFlowPrivate* d;
-  qreal device_pixel_ratio() const;
-  qreal last_device_pixel_ratio;
+  private:
+    PictureFlowPrivate *d;
+    qreal device_pixel_ratio() const;
+    qreal last_device_pixel_ratio;
 };

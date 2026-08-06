@@ -21,9 +21,9 @@
 
 static inline bool
 is_color_dark(const QColor &col) {
-	int r, g, b;
-	col.getRgb(&r, &g, &b);
-	return r < 115 && g < 155 && b < 115;
+    int r, g, b;
+    col.getRgb(&r, &g, &b);
+    return r < 115 && g < 155 && b < 115;
 }
 
 extern int qt_defaultDpiX();
@@ -39,25 +39,21 @@ dpiScaled(qreal value) {
 #endif
 }
 
-static inline QByteArray detectDesktopEnvironment()
-{
+static inline QByteArray
+detectDesktopEnvironment() {
     const QByteArray xdgCurrentDesktop = qgetenv("XDG_CURRENT_DESKTOP");
     if (!xdgCurrentDesktop.isEmpty())
         // See http://standards.freedesktop.org/menu-spec/latest/apb.html
         return xdgCurrentDesktop.toUpper();
 
     // Classic fallbacks
-    if (!qEnvironmentVariableIsEmpty("KDE_FULL_SESSION"))
-        return QByteArrayLiteral("KDE");
-    if (!qEnvironmentVariableIsEmpty("GNOME_DESKTOP_SESSION_ID"))
-        return QByteArrayLiteral("GNOME");
+    if (!qEnvironmentVariableIsEmpty("KDE_FULL_SESSION")) return QByteArrayLiteral("KDE");
+    if (!qEnvironmentVariableIsEmpty("GNOME_DESKTOP_SESSION_ID")) return QByteArrayLiteral("GNOME");
 
     // Fallback to checking $DESKTOP_SESSION (unreliable)
     const QByteArray desktopSession = qgetenv("DESKTOP_SESSION");
-    if (desktopSession == "gnome")
-        return QByteArrayLiteral("GNOME");
-    if (desktopSession == "xfce")
-        return QByteArrayLiteral("XFCE");
+    if (desktopSession == "gnome") return QByteArrayLiteral("GNOME");
+    if (desktopSession == "xfce") return QByteArrayLiteral("XFCE");
 
     return QByteArrayLiteral("UNKNOWN");
 }
@@ -68,13 +64,13 @@ static const qreal qstyleBaseDpi = 72;
 static const qreal qstyleBaseDpi = 96;
 #endif
 
-qreal dpiScaled(qreal value, qreal dpi)
-{
+qreal
+dpiScaled(qreal value, qreal dpi) {
     return value * dpi / qstyleBaseDpi;
 }
 
-static QPixmap styleCachePixmap(const QSize &size)
-{
+static QPixmap
+styleCachePixmap(const QSize &size) {
     const qreal pixelRatio = qApp->devicePixelRatio();
     QPixmap cachePixmap = QPixmap(size * pixelRatio);
     cachePixmap.setDevicePixelRatio(pixelRatio);
@@ -84,8 +80,7 @@ static QPixmap styleCachePixmap(const QSize &size)
 
 static void
 draw_arrow(Qt::ArrowType type, QPainter *painter, const QStyleOption *option, const QRect &rect, const QColor &color) {
-    if (rect.isEmpty())
-        return;
+    if (rect.isEmpty()) return;
 
     const qreal dpi = std::max(76.0, option->fontMetrics.fontDpi());
     const int arrowWidth = int(dpiScaled(14, dpi));
@@ -105,26 +100,16 @@ draw_arrow(Qt::ArrowType type, QPainter *painter, const QStyleOption *option, co
         QRectF arrowRect;
         arrowRect.setWidth(size);
         arrowRect.setHeight(arrowHeight * size / arrowWidth);
-        if (type == Qt::LeftArrow || type == Qt::RightArrow)
-            arrowRect = arrowRect.transposed();
-        arrowRect.moveTo((rect.width() - arrowRect.width()) / 2.0,
-                         (rect.height() - arrowRect.height()) / 2.0);
+        if (type == Qt::LeftArrow || type == Qt::RightArrow) arrowRect = arrowRect.transposed();
+        arrowRect.moveTo((rect.width() - arrowRect.width()) / 2.0, (rect.height() - arrowRect.height()) / 2.0);
 
         QPolygonF triangle;
         triangle.reserve(3);
         switch (type) {
-        case Qt::DownArrow:
-            triangle << arrowRect.topLeft() << arrowRect.topRight() << QPointF(arrowRect.center().x(), arrowRect.bottom());
-            break;
-        case Qt::RightArrow:
-            triangle << arrowRect.topLeft() << arrowRect.bottomLeft() << QPointF(arrowRect.right(), arrowRect.center().y());
-            break;
-        case Qt::LeftArrow:
-            triangle << arrowRect.topRight() << arrowRect.bottomRight() << QPointF(arrowRect.left(), arrowRect.center().y());
-            break;
-        default:
-            triangle << arrowRect.bottomLeft() << arrowRect.bottomRight() << QPointF(arrowRect.center().x(), arrowRect.top());
-            break;
+            case Qt::DownArrow: triangle << arrowRect.topLeft() << arrowRect.topRight() << QPointF(arrowRect.center().x(), arrowRect.bottom()); break;
+            case Qt::RightArrow: triangle << arrowRect.topLeft() << arrowRect.bottomLeft() << QPointF(arrowRect.right(), arrowRect.center().y()); break;
+            case Qt::LeftArrow: triangle << arrowRect.topRight() << arrowRect.bottomRight() << QPointF(arrowRect.left(), arrowRect.center().y()); break;
+            default: triangle << arrowRect.bottomLeft() << arrowRect.bottomRight() << QPointF(arrowRect.center().x(), arrowRect.top()); break;
         }
 
         cachePainter.setPen(Qt::NoPen);
@@ -140,7 +125,7 @@ draw_arrow(Qt::ArrowType type, QPainter *painter, const QStyleOption *option, co
 
 // scrollbar {{{
 void
-CalibreStyle::draw_scrollbar(const QStyleOptionSlider *scroll_bar, QPainter * painter, const QWidget * widget) const {
+CalibreStyle::draw_scrollbar(const QStyleOptionSlider *scroll_bar, QPainter *painter, const QWidget *widget) const {
     bool is_dark = is_color_dark(scroll_bar->palette.color(QPalette::Window));
     bool horizontal = scroll_bar->orientation == Qt::Horizontal;
 
@@ -192,13 +177,16 @@ CalibreStyle::draw_scrollbar(const QStyleOptionSlider *scroll_bar, QPainter * pa
     QColor m = scroll_bar->palette.window().color();
     m = is_dark ? m.lighter(130) : m.darker(115);
     if (scroll_bar->state & State_MouseOver) {
-        gradient.setColorAt(0, is_dark ? m.lighter() : m.darker(115)); gradient.setColorAt(1, is_dark ? m.lighter(175) : m.darker(145));
+        gradient.setColorAt(0, is_dark ? m.lighter() : m.darker(115));
+        gradient.setColorAt(1, is_dark ? m.lighter(175) : m.darker(145));
     } else {
-        gradient.setColorAt(0, m); gradient.setColorAt(1, is_dark ? m.lighter() : m.darker(135));
+        gradient.setColorAt(0, m);
+        gradient.setColorAt(1, is_dark ? m.lighter() : m.darker(135));
     }
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, true);
-    painter->setBrush(gradient); painter->setPen(alphaOutline);
+    painter->setBrush(gradient);
+    painter->setPen(alphaOutline);
     painter->drawRoundedRect(QRectF(scrollBarSlider.adjusted(horizontal ? -1 : 0, horizontal ? 0 : -1, horizontal ? 0 : -1, horizontal ? -1 : 0)), 5., 5.);
     painter->restore();
 
@@ -222,14 +210,15 @@ CalibreStyle::CalibreStyle(int transient_scroller) : QProxyStyle(QString::fromUt
     setObjectName(QString("calibre"));
     desktop_environment = detectDesktopEnvironment();
     button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
-    if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment || QLatin1String("CINNAMON") == desktop_environment || QLatin1String("X-CINNAMON") == desktop_environment)
+    if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment ||
+        QLatin1String("CINNAMON") == desktop_environment || QLatin1String("X-CINNAMON") == desktop_environment)
         button_layout = QDialogButtonBox::GnomeLayout;
 }
 
-int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget, QStyleHintReturn *returnData) const {
+int
+CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget, QStyleHintReturn *returnData) const {
     switch (hint) {
-        case SH_DialogButtonBox_ButtonsHaveIcons:
-            return 1;  // We want icons on dialog button box buttons
+        case SH_DialogButtonBox_ButtonsHaveIcons: return 1; // We want icons on dialog button box buttons
         case SH_DialogButtonLayout:
             // Use platform specific button orders always
 #ifdef Q_OS_WIN32
@@ -238,47 +227,41 @@ int CalibreStyle::styleHint(StyleHint hint, const QStyleOption *option, const QW
             return QDialogButtonBox::MacLayout;
 #endif
             return button_layout;
-        case SH_FormLayoutFieldGrowthPolicy:
-            return QFormLayout::FieldsStayAtSizeHint;  // Do not have fields expand to fill all available space in QFormLayout
-        case SH_ScrollBar_Transient:
-            return transient_scroller;
+        case SH_FormLayoutFieldGrowthPolicy: return QFormLayout::FieldsStayAtSizeHint; // Do not have fields expand to fill all available space in QFormLayout
+        case SH_ScrollBar_Transient: return transient_scroller;
 #ifdef Q_OS_MAC
-        case SH_UnderlineShortcut:
-            return 0;
+        case SH_UnderlineShortcut: return 0;
 #endif
-        case SH_EtchDisabledText:
-            return 0;
-        case SH_DitherDisabledText:
-            return 0;
-        default:
-            break;
+        case SH_EtchDisabledText: return 0;
+        case SH_DitherDisabledText: return 0;
+        default: break;
     }
     return QProxyStyle::styleHint(hint, option, widget, returnData);
 }
 
-QIcon CalibreStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption * option, const QWidget * widget) const {
+QIcon
+CalibreStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const {
     QIcon ret;
     QMetaObject::invokeMethod(QApplication::instance(), "get_qt_standard_icon", Q_RETURN_ARG(QIcon, ret), Q_ARG(int, standardIcon));
     if (!ret.isNull()) return ret;
     return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
 
-int CalibreStyle::pixelMetric(PixelMetric metric, const QStyleOption * option, const QWidget * widget) const {
+int
+CalibreStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const {
     switch (metric) {
-        case PM_TabBarTabVSpace:
-            return 8;  // Make tab bars a little narrower, the value for the Fusion style is 12
-        case PM_TreeViewIndentation:
-            return int(dpiScaled(12));  // Reduce indentation in tree views
-        default:
-            break;
+        case PM_TabBarTabVSpace: return 8;                      // Make tab bars a little narrower, the value for the Fusion style is 12
+        case PM_TreeViewIndentation: return int(dpiScaled(12)); // Reduce indentation in tree views
+        default: break;
     }
     return QProxyStyle::pixelMetric(metric, option, widget);
 }
 
-void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, QPainter * painter, const QWidget * widget) const {
+void
+CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const {
     const QStyleOptionToolButton *toolbutton = NULL;
     switch (control) {
-        case CC_ToolButton:  // {{{
+        case CC_ToolButton: // {{{
             // We do not want an arrow if the toolbutton has an instant popup
             toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option);
             if (toolbutton && (toolbutton->features & QStyleOptionToolButton::HasMenu) && !(toolbutton->features & QStyleOptionToolButton::PopupDelay)) {
@@ -293,21 +276,23 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
             if (!transient_scroller && scroll_bar) {
                 this->draw_scrollbar(scroll_bar, painter, widget);
                 return;
-            }} break;
+            }
+        } break;
 
-        default:
-            break;
+        default: break;
     }
     return QProxyStyle::drawComplexControl(control, option, painter, widget);
 }
 
-QSize CalibreStyle::sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &contentsSize, const QWidget *widget) const {
+QSize
+CalibreStyle::sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &contentsSize, const QWidget *widget) const {
     QSize ans = QProxyStyle::sizeFromContents(type, option, contentsSize, widget);
-    if (type == CT_SpinBox) ans += QSize(0, 3);  // fusion style reduces spinbox height by 3 for some reason, undo that
+    if (type == CT_SpinBox) ans += QSize(0, 3); // fusion style reduces spinbox height by 3 for some reason, undo that
     return ans;
 }
 
-void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const {
+void
+CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
     const QStyleOptionViewItem *vopt = NULL;
     switch (element) {
         case PE_FrameTabBarBase: // {{{
@@ -330,8 +315,7 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
 
             if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange)
                 painter->setPen(QPen(is_color_dark(option->palette.color(QPalette::Window)) ? Qt::white : Qt::black));
-            else
-                painter->setPen(QPen(option->palette.color(QPalette::WindowText)));
+            else painter->setPen(QPen(option->palette.color(QPalette::WindowText)));
             painter->drawRect(rect);
             painter->restore();
             return;
@@ -354,7 +338,7 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
                 }
                 painter->drawPath(circle);
 
-                if (option->state & (State_On )) {
+                if (option->state & (State_On)) {
                     circle = QPainterPath();
                     const qreal checkmarkRadius = outlineRadius / 2.32;
                     circle.addEllipse(circleCenter, checkmarkRadius, checkmarkRadius);
@@ -367,12 +351,15 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
                 }
                 painter->restore();
                 return;
-            } else { baseStyle()->drawPrimitive(element, option, painter, widget); }
+            } else {
+                baseStyle()->drawPrimitive(element, option, painter, widget);
+            }
             break; // }}}
 
-        case PE_PanelItemViewItem:  // {{{
+        case PE_PanelItemViewItem: // {{{
             // Highlight the current, selected item with a different background in an item view if the highlight current item property is set
-            if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
+            if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget &&
+                widget->property("highlight_current_item").toBool()) {
                 QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
                 QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
                 if (is_color_dark(option->palette.color(QPalette::Window))) {
@@ -385,15 +372,18 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
             }
             break; // }}}
 
-        case PE_IndicatorBranch:  // {{{
-            if (option->state & State_MouseOver && option->state & State_Children && widget && widget->property("hovered_item_is_highlighted").toBool() && is_color_dark(option->palette.color(QPalette::Window))) {;
+        case PE_IndicatorBranch: // {{{
+            if (option->state & State_MouseOver && option->state & State_Children && widget && widget->property("hovered_item_is_highlighted").toBool() &&
+                is_color_dark(option->palette.color(QPalette::Window))) {
+                ;
                 if (option->rect.width() <= 1 || option->rect.height() <= 1) return;
                 Qt::ArrowType arrow = Qt::ArrowType::DownArrow;
                 if (!(option->state & State_Open)) arrow = Qt::ArrowType::RightArrow;
                 draw_arrow(arrow, painter, option, option->rect, QColor(Qt::black));
                 return;
-            } break;  // }}}
-        case PE_IndicatorToolBarSeparator:  // {{{
+            }
+            break;                         // }}}
+        case PE_IndicatorToolBarSeparator: // {{{
             // Make toolbar separators stand out a bit more in dark themes
             {
                 QRect rect = option->rect;
@@ -408,39 +398,27 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
                     second = bg.lighter(110);
                 }
                 if (option->state & State_Horizontal) {
-                    const int offset = rect.width()/2;
+                    const int offset = rect.width() / 2;
                     painter->setPen(QPen(first));
-                    painter->drawLine(rect.bottomLeft().x() + offset,
-                            rect.bottomLeft().y() - margin,
-                            rect.topLeft().x() + offset,
-                            rect.topLeft().y() + margin);
+                    painter->drawLine(rect.bottomLeft().x() + offset, rect.bottomLeft().y() - margin, rect.topLeft().x() + offset, rect.topLeft().y() + margin);
                     painter->setPen(QPen(second));
-                    painter->drawLine(rect.bottomLeft().x() + offset + 1,
-                            rect.bottomLeft().y() - margin,
-                            rect.topLeft().x() + offset + 1,
-                            rect.topLeft().y() + margin);
-                } else { //Draw vertical separator
-                    const int offset = rect.height()/2;
+                    painter->drawLine(
+                        rect.bottomLeft().x() + offset + 1, rect.bottomLeft().y() - margin, rect.topLeft().x() + offset + 1, rect.topLeft().y() + margin);
+                } else { // Draw vertical separator
+                    const int offset = rect.height() / 2;
                     painter->setPen(QPen(first));
-                    painter->drawLine(rect.topLeft().x() + margin ,
-                            rect.topLeft().y() + offset,
-                            rect.topRight().x() - margin,
-                            rect.topRight().y() + offset);
+                    painter->drawLine(rect.topLeft().x() + margin, rect.topLeft().y() + offset, rect.topRight().x() - margin, rect.topRight().y() + offset);
                     painter->setPen(QPen(second));
-                    painter->drawLine(rect.topLeft().x() + margin ,
-                            rect.topLeft().y() + offset + 1,
-                            rect.topRight().x() - margin,
-                            rect.topRight().y() + offset + 1);
+                    painter->drawLine(
+                        rect.topLeft().x() + margin, rect.topLeft().y() + offset + 1, rect.topRight().x() - margin, rect.topRight().y() + offset + 1);
                 }
             }
             return; // }}}
 
-        case PE_FrameFocusRect:  // {{{
-            if (!widget || !widget->property("frame_for_focus").toBool())
-                break;
+        case PE_FrameFocusRect: // {{{
+            if (!widget || !widget->property("frame_for_focus").toBool()) break;
             if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(option)) {
-                if (!(fropt->state & State_KeyboardFocusChange))
-                    break;
+                if (!(fropt->state & State_KeyboardFocusChange)) break;
                 painter->save();
                 painter->setRenderHint(QPainter::Antialiasing, true);
                 painter->translate(0.5, 0.5);
@@ -451,15 +429,15 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
                 return;
             }
             break; // }}}
-        default:
-            break;
+        default: break;
     }
     return QProxyStyle::drawPrimitive(element, option, painter, widget);
 }
 
-void CalibreStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
+void
+CalibreStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const {
     const QStyleOptionViewItem *vopt = NULL;
-    switch(element) {
+    switch (element) {
         case CE_Splitter: {
             painter->save();
             // draw the separator bar.
@@ -476,22 +454,23 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
             const float handle_width = pixelMetric(PM_SplitterWidth, option, widget);
             const float available_diameter = (horizontal ? option->rect.width() : option->rect.height());
             const float dot_size = std::max(1.f, std::min(handle_width, available_diameter - 1));
-            const int start_point = (horizontal ? option->rect.height()/2 : option->rect.width()/2) - (dot_count*dot_size/2);
+            const int start_point = (horizontal ? option->rect.height() / 2 : option->rect.width() / 2) - (dot_count * dot_size / 2);
             const float offset = (available_diameter - dot_size) / 2.f;
             QRectF dot_rect = QRectF(option->rect.left(), option->rect.top(), dot_size, dot_size);
             if (horizontal) dot_rect.moveLeft(dot_rect.left() + offset);
             else dot_rect.moveTop(dot_rect.top() + offset);
             for (int i = 0; i < dot_count; i++) {
                 // Move the rect to leave spaces between the dots
-                if (horizontal) dot_rect.moveTop(option->rect.top() + start_point + i*dot_size*2);
-                else dot_rect.moveLeft(option->rect.left() + start_point + i*dot_size*2);
+                if (horizontal) dot_rect.moveTop(option->rect.top() + start_point + i * dot_size * 2);
+                else dot_rect.moveLeft(option->rect.left() + start_point + i * dot_size * 2);
                 painter->drawEllipse(dot_rect);
             }
             painter->restore();
             return;
         } break;
         case CE_ItemViewItem: {
-            if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
+            if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget &&
+                widget->property("highlight_current_item").toBool()) {
                 if (is_color_dark(option->palette.color(QPalette::Window))) {
                     QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
                     opt.palette.setColor(QPalette::HighlightedText, Qt::black);
@@ -501,7 +480,7 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
             }
         } break;
 
-        case CE_MenuItem:  // {{{
+        case CE_MenuItem: // {{{
             // Draw menu separators that work in both light and dark modes
             if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
                 if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
@@ -510,9 +489,14 @@ void CalibreStyle::drawControl(ControlElement element, const QStyleOption *optio
                     painter->save();
                     if (!menuItem->text.isEmpty()) {
                         painter->setFont(menuItem->font);
-                        proxy()->drawItemText(painter, menuItem->rect.adjusted(margin, 0, -margin, 0), Qt::AlignLeft | Qt::AlignVCenter,
-                                menuItem->palette, menuItem->state & State_Enabled, menuItem->text,
-                                QPalette::Text);
+                        proxy()->drawItemText(
+                            painter,
+                            menuItem->rect.adjusted(margin, 0, -margin, 0),
+                            Qt::AlignLeft | Qt::AlignVCenter,
+                            menuItem->palette,
+                            menuItem->state & State_Enabled,
+                            menuItem->text,
+                            QPalette::Text);
                         w = menuItem->fontMetrics.horizontalAdvance(menuItem->text) + margin;
                     }
                     QColor c = QColor(0, 0, 0, 60).lighter(106);

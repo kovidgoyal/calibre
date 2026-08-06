@@ -9,25 +9,26 @@
 constexpr uint32_t MO_MAGIC_LE = 0x950412de;
 constexpr uint32_t MO_MAGIC_BE = 0xde120495;
 
-MOParser::MOParser() : swap_bytes_(false), loaded_(false), data(NULL), sz(0), num_plurals_(2), plural_expr_("n != 1") { }
+MOParser::MOParser() : swap_bytes_(false), loaded_(false), data(NULL), sz(0), num_plurals_(2), plural_expr_("n != 1") {}
 
 MOParser::~MOParser() {
-    std::free((void*)data); data = NULL;
+    std::free((void *)data);
+    data = NULL;
 }
 
-uint32_t MOParser::swap32(uint32_t value) const {
-    return ((value & 0x000000FF) << 24) |
-           ((value & 0x0000FF00) << 8) |
-           ((value & 0x00FF0000) >> 8) |
-           ((value & 0xFF000000) >> 24);
+uint32_t
+MOParser::swap32(uint32_t value) const {
+    return ((value & 0x000000FF) << 24) | ((value & 0x0000FF00) << 8) | ((value & 0x00FF0000) >> 8) | ((value & 0xFF000000) >> 24);
 }
 
-bool MOParser::needsSwap(uint32_t magic) const {
+bool
+MOParser::needsSwap(uint32_t magic) const {
     return magic == MO_MAGIC_BE;
 }
 
-std::string MOParser::load(const char *data, size_t sz) {
-    char *copy = (char*)std::malloc(sz);
+std::string
+MOParser::load(const char *data, size_t sz) {
+    char *copy = (char *)std::malloc(sz);
     std::memcpy(copy, data, sz);
     this->data = copy;
     this->sz = sz;
@@ -40,15 +41,15 @@ std::string MOParser::load(const char *data, size_t sz) {
     return err;
 }
 
-std::string MOParser::parseHeader() {
+std::string
+MOParser::parseHeader() {
     if (sz < sizeof(MOHeader)) return ".mo data too small (" + std::to_string(sz) + ")";
 
     // Read magic number to determine endianness
-    uint32_t magic; std::memcpy(&magic, data, sizeof(uint32_t));
+    uint32_t magic;
+    std::memcpy(&magic, data, sizeof(uint32_t));
 
-    if (magic != MO_MAGIC_LE && magic != MO_MAGIC_BE) {
-        return ".mo data has unrecognised magic bytes";
-    }
+    if (magic != MO_MAGIC_LE && magic != MO_MAGIC_BE) { return ".mo data has unrecognised magic bytes"; }
 
     swap_bytes_ = needsSwap(magic);
 
@@ -57,7 +58,7 @@ std::string MOParser::parseHeader() {
 
     // Swap bytes if needed
     if (swap_bytes_) {
-        header_.magic = swap32(header_. magic);
+        header_.magic = swap32(header_.magic);
         header_.revision = swap32(header_.revision);
         header_.num_strings = swap32(header_.num_strings);
         header_.offset_original = swap32(header_.offset_original);
@@ -69,7 +70,8 @@ std::string MOParser::parseHeader() {
     return "";
 }
 
-std::string MOParser::parseStrings() {
+std::string
+MOParser::parseStrings() {
     for (uint32_t i = 0; i < header_.num_strings; ++i) {
         // Read original string descriptor
         size_t orig_desc_offset = header_.offset_original + i * sizeof(StringDescriptor);
@@ -107,8 +109,9 @@ std::string MOParser::parseStrings() {
             std::string err = parseMetadata(msgstr);
             if (err.size()) return err;
         } else {
-            MOKey key = {.msgid=msgid};
-            size_t sep; bool complex = false;
+            MOKey key = {.msgid = msgid};
+            size_t sep;
+            bool complex = false;
             if ((sep = msgid.find((char)4)) != std::string_view::npos) {
                 key.context = key.msgid.substr(0, sep);
                 key.msgid = key.msgid.substr(sep + 1);
@@ -121,7 +124,7 @@ std::string MOParser::parseStrings() {
             }
             catalog[key] = msgstr;
             if (complex) {
-                MOKey only_msgid = {.msgid=key.msgid};
+                MOKey only_msgid = {.msgid = key.msgid};
                 if ((sep = msgstr.find('\0')) != std::string_view::npos) msgstr = msgstr.substr(0, sep);
                 catalog.try_emplace(only_msgid, msgstr);
             }
@@ -132,10 +135,10 @@ std::string MOParser::parseStrings() {
 
 static std::string_view
 trim(std::string_view str) {
-    const char* whitespace = " \t\n\r\f\v";
+    const char *whitespace = " \t\n\r\f\v";
 
     auto start = str.find_first_not_of(whitespace);
-    if (start == std::string_view:: npos) {
+    if (start == std::string_view::npos) {
         return std::string_view(); // All whitespace
     }
 
@@ -147,8 +150,7 @@ static std::string
 to_ascii_lower(std::string_view sv) {
     std::string result;
     result.resize(sv.size());
-    std::transform(sv.begin(), sv.end(), result.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
+    std::transform(sv.begin(), sv.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
     return result;
 }
 
@@ -178,9 +180,7 @@ MOParser::parsePluralForms(std::string_view plural_forms_line) {
         if (semicolon == std::string::npos) semicolon = plural_forms_line.size();
         plural_expr_ = trim(plural_forms_line.substr(plural_pos, semicolon - plural_pos));
         // Parse the expression
-        if (!plural_parser_.parse(plural_expr_)) {
-            return std::string("failed to parse plural forms expresion: " + plural_expr_);
-        }
+        if (!plural_parser_.parse(plural_expr_)) { return std::string("failed to parse plural forms expresion: " + plural_expr_); }
     } else {
         // No plural expression, use default
         plural_parser_.parse(plural_expr_);
@@ -194,7 +194,7 @@ MOParser::parseMetadata(std::string_view header) {
     bool found_plural_forms = false;
     while (pos < header.size()) {
         if (header[pos] == '\n') {
-            std::string_view line = header.substr(start, pos-start);
+            std::string_view line = header.substr(start, pos - start);
             start = pos + 1;
             if (auto result = parse_key_value(line)) {
                 auto [key, value] = *result;
@@ -207,11 +207,8 @@ MOParser::parseMetadata(std::string_view header) {
                 } else if (lkey == "content-type") {
                     size_t ctpos = value.find("charset=");
                     if (ctpos != std::string::npos) {
-                        std::string charset = to_ascii_lower(value.substr(
-                                    ctpos + sizeof("charset"), value.size() - ctpos - sizeof("charset")));
-                        if (charset != "utf8" && charset != "utf-8") {
-                            return "unsupported charset in .mo file: " + std::string(charset);
-                        }
+                        std::string charset = to_ascii_lower(value.substr(ctpos + sizeof("charset"), value.size() - ctpos - sizeof("charset")));
+                        if (charset != "utf8" && charset != "utf-8") { return "unsupported charset in .mo file: " + std::string(charset); }
                     }
                 }
             }
@@ -224,17 +221,17 @@ MOParser::parseMetadata(std::string_view header) {
 
 std::string_view
 MOParser::gettext(std::string_view msgid) const {
-    MOKey k = {.msgid=msgid};
+    MOKey k = {.msgid = msgid};
     auto it = catalog.find(k);
-    if (it != catalog.end() && ! it->second.empty()) return it->second;
+    if (it != catalog.end() && !it->second.empty()) return it->second;
     return std::string_view(NULL, 0);
 }
 
 std::string_view
 MOParser::gettext(std::string_view context, std::string_view msgid) const {
-    MOKey k = {.context=context, .msgid=msgid};
+    MOKey k = {.context = context, .msgid = msgid};
     auto it = catalog.find(k);
-    if (it != catalog.end() && ! it->second.empty()) return it->second;
+    if (it != catalog.end() && !it->second.empty()) return it->second;
     return gettext(msgid);
 }
 
@@ -254,17 +251,17 @@ ngettext(std::string_view x, unsigned long plural_index, unsigned long num_plura
 
 std::string_view
 MOParser::gettext(std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
-    MOKey k = {.msgid=msgid, .msgid_plural=msgid_plural};
+    MOKey k = {.msgid = msgid, .msgid_plural = msgid_plural};
     auto it = catalog.find(k);
-    if (it != catalog.end() && ! it->second.empty()) return ngettext(it->second, plural(n), num_plurals_);
+    if (it != catalog.end() && !it->second.empty()) return ngettext(it->second, plural(n), num_plurals_);
     if (n <= 1) return gettext(msgid);
     return std::string_view(NULL, 0);
 }
 
 std::string_view
 MOParser::gettext(std::string_view context, std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
-    MOKey k = {.context=context, .msgid=msgid, .msgid_plural=msgid_plural};
+    MOKey k = {.context = context, .msgid = msgid, .msgid_plural = msgid_plural};
     auto it = catalog.find(k);
-    if (it != catalog.end() && ! it->second.empty()) return ngettext(it->second, plural(n), num_plurals_);
+    if (it != catalog.end() && !it->second.empty()) return ngettext(it->second, plural(n), num_plurals_);
     return gettext(msgid, msgid_plural, n);
 }

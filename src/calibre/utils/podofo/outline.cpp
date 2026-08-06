@@ -12,20 +12,16 @@ using namespace pdf;
 
 // Constructor/destructor {{{
 static void
-dealloc(PDFOutlineItem* self)
-{
-    Py_TYPE(self)->tp_free((PyObject*)self);
+dealloc(PDFOutlineItem *self) {
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
-new_item(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
+new_item(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     PDFOutlineItem *self;
 
     self = (PDFOutlineItem *)type->tp_alloc(type, 0);
-    if (self != NULL) {
-        self->item = NULL;
-    }
+    if (self != NULL) { self->item = NULL; }
 
     return (PyObject *)self;
 }
@@ -36,7 +32,7 @@ static PyObject *
 erase(PDFOutlineItem *self, PyObject *args) {
     try {
         self->item->Erase();
-    } catch(const PdfError & err) {
+    } catch (const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
     }
@@ -56,39 +52,44 @@ create(PDFOutlineItem *self, PyObject *args) {
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
     if (ans == NULL) return NULL;
     ans->doc = self->doc;
-    pyunique_ptr decref_ans_on_exit((PyObject*)ans);
+    pyunique_ptr decref_ans_on_exit((PyObject *)ans);
 
     try {
         PdfString title = podofo_convert_pystring(title_buf);
         const PdfPage *page = get_page(self->doc, num - 1);
-        if (!page) { PyErr_Format(PyExc_ValueError, "Invalid page number: %u", num); return NULL; }
+        if (!page) {
+            PyErr_Format(PyExc_ValueError, "Invalid page number: %u", num);
+            return NULL;
+        }
         auto dest = std::make_shared<PdfDestination>(*page, left, top, zoom);
         if (PyObject_IsTrue(as_child)) {
             ans->item = self->item->CreateChild(title, dest);
-        } else
-            ans->item = self->item->CreateNext(title, dest);
+        } else ans->item = self->item->CreateNext(title, dest);
     } catch (const PdfError &err) {
-        podofo_set_exception(err); return NULL;
-    } catch(const std::exception & err) {
-        PyErr_Format(PyExc_ValueError, "An error occurred while trying to create the outline: %s", err.what()); return NULL;
+        podofo_set_exception(err);
+        return NULL;
+    } catch (const std::exception &err) {
+        PyErr_Format(PyExc_ValueError, "An error occurred while trying to create the outline: %s", err.what());
+        return NULL;
     } catch (...) {
-        PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to create the outline item"); return NULL;
+        PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to create the outline item");
+        return NULL;
     }
 
-    return (PyObject*) decref_ans_on_exit.release();
+    return (PyObject *)decref_ans_on_exit.release();
 }
 
 static PyMethodDef methods[] = {
 
-    {"create", (PyCFunction)create, METH_VARARGS,
-        "create(title, pagenum, as_child=False) -> Create a new outline item with title 'title', pointing to page number pagenum. If as_child is True the new item will be a child of this item otherwise it will be a sibling. Returns the newly created item."
-    },
+    {"create",
+     (PyCFunction)create,
+     METH_VARARGS,
+     "create(title, pagenum, as_child=False) -> Create a new outline item with title 'title', pointing to page number pagenum. If as_child is True the new "
+     "item will be a child of this item otherwise it will be a sibling. Returns the newly created item."},
 
-    {"erase", (PyCFunction)erase, METH_VARARGS,
-        "erase() -> Delete this item and all its children, removing it from the outline tree completely."
-    },
+    {"erase", (PyCFunction)erase, METH_VARARGS, "erase() -> Delete this item and all its children, removing it from the outline tree completely."},
 
-    {NULL}  /* Sentinel */
+    {NULL} /* Sentinel */
 };
 
 

@@ -42,14 +42,24 @@ class GenericUnixServices : public QDesktopUnixServices {
      *
      * Also for the portal BS, we need to ignore openUrl and openDocument
      */
-    QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }
-	bool openUrl(const QUrl &url) { Q_UNUSED(url); return false; }
-	bool openDocument(const QUrl &url) { Q_UNUSED(url); return false; }
+    QByteArray
+    desktopEnvironment() const {
+        return QByteArrayLiteral("UNKNOWN");
+    }
+    bool
+    openUrl(const QUrl &url) {
+        Q_UNUSED(url);
+        return false;
+    }
+    bool
+    openDocument(const QUrl &url) {
+        Q_UNUSED(url);
+        return false;
+    }
 };
 #endif
 
-HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
-{
+HeadlessIntegration::HeadlessIntegration(const QStringList &parameters) {
     Q_UNUSED(parameters);
     HeadlessScreen *mPrimaryScreen = new HeadlessScreen();
 
@@ -80,48 +90,46 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
 #endif
 }
 
-HeadlessIntegration::~HeadlessIntegration()
-{
-}
+HeadlessIntegration::~HeadlessIntegration() {}
 
-bool HeadlessIntegration::hasCapability(QPlatformIntegration::Capability cap) const
-{
+bool
+HeadlessIntegration::hasCapability(QPlatformIntegration::Capability cap) const {
     switch (cap) {
-    case ThreadedPixmaps: return true;
-    case MultipleWindows: return true;
-    case OpenGL: return false;
-    case ThreadedOpenGL: return false;
-    default: return QPlatformIntegration::hasCapability(cap);
+        case ThreadedPixmaps: return true;
+        case MultipleWindows: return true;
+        case OpenGL: return false;
+        case ThreadedOpenGL: return false;
+        default: return QPlatformIntegration::hasCapability(cap);
     }
 }
 
-QPlatformOpenGLContext *HeadlessIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
-{
+QPlatformOpenGLContext *
+HeadlessIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const {
     Q_UNUSED(context);
     // Suppress warnings about this plugin not supporting createPlatformOpenGLContext that come from the default implementation of this function
     return 0;
 }
 
-QPlatformFontDatabase *HeadlessIntegration::fontDatabase() const
-{
+QPlatformFontDatabase *
+HeadlessIntegration::fontDatabase() const {
     return m_fontDatabase.data();
 }
 
-QPlatformWindow *HeadlessIntegration::createPlatformWindow(QWindow *window) const
-{
+QPlatformWindow *
+HeadlessIntegration::createPlatformWindow(QWindow *window) const {
     Q_UNUSED(window);
     QPlatformWindow *w = new QPlatformWindow(window);
     w->requestActivateWindow();
     return w;
 }
 
-QPlatformBackingStore *HeadlessIntegration::createPlatformBackingStore(QWindow *window) const
-{
+QPlatformBackingStore *
+HeadlessIntegration::createPlatformBackingStore(QWindow *window) const {
     return new HeadlessBackingStore(window);
 }
 
-QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
-{
+QAbstractEventDispatcher *
+HeadlessIntegration::createEventDispatcher() const {
 #ifdef __APPLE__
     return new QEventDispatcherUNIX();
 #else
@@ -129,44 +137,43 @@ QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
 #endif
 }
 
-QPlatformNativeInterface *HeadlessIntegration::nativeInterface() const
-{
-    if (!m_nativeInterface)
-        m_nativeInterface.reset(new QPlatformNativeInterface);
+QPlatformNativeInterface *
+HeadlessIntegration::nativeInterface() const {
+    if (!m_nativeInterface) m_nativeInterface.reset(new QPlatformNativeInterface);
     return m_nativeInterface.get();
 }
 
-HeadlessIntegration *HeadlessIntegration::instance()
-{
+HeadlessIntegration *
+HeadlessIntegration::instance() {
     return static_cast<HeadlessIntegration *>(QGuiApplicationPrivate::platformIntegration());
 }
 
 
 #define THEME_NAME "headless"
 
-QStringList HeadlessIntegration::themeNames() const { return QStringList(THEME_NAME); }
+QStringList
+HeadlessIntegration::themeNames() const {
+    return QStringList(THEME_NAME);
+}
 
 // Restrict the styles to "fusion" to prevent native styles requiring native
 // window handles (eg Windows Vista style) from being used.
-class HeadlessTheme : public QPlatformTheme
-{
-public:
-	HeadlessTheme() {}
+class HeadlessTheme : public QPlatformTheme {
+  public:
+    HeadlessTheme() {}
 
-	QVariant themeHint(ThemeHint h) const override
-	{
-		switch (h) {
-		case StyleNames:
-			return QVariant(QStringList(QStringLiteral("fusion")));
-		default:
-			break;
-		}
-		return QPlatformTheme::themeHint(h);
-	}
+    QVariant
+    themeHint(ThemeHint h) const override {
+        switch (h) {
+            case StyleNames: return QVariant(QStringList(QStringLiteral("fusion")));
+            default: break;
+        }
+        return QPlatformTheme::themeHint(h);
+    }
 };
 
-QPlatformTheme *HeadlessIntegration::createPlatformTheme(const QString &name) const
-{
+QPlatformTheme *
+HeadlessIntegration::createPlatformTheme(const QString &name) const {
     return name == THEME_NAME ? new HeadlessTheme() : nullptr;
 }
 

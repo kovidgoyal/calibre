@@ -45,13 +45,12 @@ class QIODevice;
 class QTextStream;
 
 
-class RCCResourceLibrary
-{
+class RCCResourceLibrary {
     RCCResourceLibrary(const RCCResourceLibrary &);
     RCCResourceLibrary &operator=(const RCCResourceLibrary &);
 
-public:
-    RCCResourceLibrary(quint8 formatVersion=3);
+  public:
+    RCCResourceLibrary(quint8 formatVersion = 3);
     ~RCCResourceLibrary();
 
     bool output(QIODevice &outDevice, QIODevice &tempDevice, QIODevice &errorDevice);
@@ -59,11 +58,23 @@ public:
     bool readFiles(bool listMode, QIODevice &errorDevice);
 
     enum Format { Binary, C_Code, Pass1, Pass2, Python_Code };
-    void setFormat(Format f) { m_format = f; }
-    Format format() const { return m_format; }
+    void
+    setFormat(Format f) {
+        m_format = f;
+    }
+    Format
+    format() const {
+        return m_format;
+    }
 
-    void setInputFiles(const QStringList &files) { m_fileNames = files; }
-    QStringList inputFiles() const { return m_fileNames; }
+    void
+    setInputFiles(const QStringList &files) {
+        m_fileNames = files;
+    }
+    QStringList
+    inputFiles() const {
+        return m_fileNames;
+    }
 
     QStringList dataFiles() const;
 
@@ -71,14 +82,32 @@ public:
     typedef QHash<QString, QString> ResourceDataFileMap;
     ResourceDataFileMap resourceDataFileMap() const;
 
-    void setVerbose(bool b) { m_verbose = b; }
-    bool verbose() const { return m_verbose; }
+    void
+    setVerbose(bool b) {
+        m_verbose = b;
+    }
+    bool
+    verbose() const {
+        return m_verbose;
+    }
 
-    void setInitName(const QString &name) { m_initName = name; }
-    QString initName() const { return m_initName; }
+    void
+    setInitName(const QString &name) {
+        m_initName = name;
+    }
+    QString
+    initName() const {
+        return m_initName;
+    }
 
-    void setOutputName(const QString &name) { m_outputName = name; }
-    QString outputName() const { return m_outputName; }
+    void
+    setOutputName(const QString &name) {
+        m_outputName = name;
+    }
+    QString
+    outputName() const {
+        return m_outputName;
+    }
 
     enum class CompressionAlgorithm {
         Zlib,
@@ -89,30 +118,72 @@ public:
     };
 
     static CompressionAlgorithm parseCompressionAlgorithm(QStringView algo, QString *errorMsg);
-    void setCompressionAlgorithm(CompressionAlgorithm algo) { m_compressionAlgo = algo; }
-    CompressionAlgorithm compressionAlgorithm() const { return m_compressionAlgo; }
+    void
+    setCompressionAlgorithm(CompressionAlgorithm algo) {
+        m_compressionAlgo = algo;
+    }
+    CompressionAlgorithm
+    compressionAlgorithm() const {
+        return m_compressionAlgo;
+    }
 
     static int parseCompressionLevel(CompressionAlgorithm algo, const QString &level, QString *errorMsg);
-    void setCompressLevel(int c) { m_compressLevel = c; }
-    int compressLevel() const { return m_compressLevel; }
+    void
+    setCompressLevel(int c) {
+        m_compressLevel = c;
+    }
+    int
+    compressLevel() const {
+        return m_compressLevel;
+    }
 
-    void setCompressThreshold(int t) { m_compressThreshold = t; }
-    int compressThreshold() const { return m_compressThreshold; }
+    void
+    setCompressThreshold(int t) {
+        m_compressThreshold = t;
+    }
+    int
+    compressThreshold() const {
+        return m_compressThreshold;
+    }
 
-    void setResourceRoot(const QString &root) { m_resourceRoot = root; }
-    QString resourceRoot() const { return m_resourceRoot; }
+    void
+    setResourceRoot(const QString &root) {
+        m_resourceRoot = root;
+    }
+    QString
+    resourceRoot() const {
+        return m_resourceRoot;
+    }
 
-    void setUseNameSpace(bool v) { m_useNameSpace = v; }
-    bool useNameSpace() const { return m_useNameSpace; }
+    void
+    setUseNameSpace(bool v) {
+        m_useNameSpace = v;
+    }
+    bool
+    useNameSpace() const {
+        return m_useNameSpace;
+    }
 
-    QStringList failedResources() const { return m_failedResources; }
+    QStringList
+    failedResources() const {
+        return m_failedResources;
+    }
 
-    int formatVersion() const { return m_formatVersion; }
+    int
+    formatVersion() const {
+        return m_formatVersion;
+    }
 
-    void setNoZstd(bool v) { m_noZstd = v; }
-    bool noZstd() const { return m_noZstd; }
+    void
+    setNoZstd(bool v) {
+        m_noZstd = v;
+    }
+    bool
+    noZstd() const {
+        return m_noZstd;
+    }
 
-private:
+  private:
     struct Strings {
         Strings();
         const QString TAG_RCC;
@@ -128,8 +199,7 @@ private:
     friend class RCCFileInfo;
     void reset();
     bool addFile(const QString &alias, const RCCFileInfo &file);
-    bool interpretResourceFile(QIODevice *inputDevice, const QString &file,
-        QString currentPath = QString(), bool listMode = false);
+    bool interpretResourceFile(QIODevice *inputDevice, const QString &file, QString currentPath = QString(), bool listMode = false);
     bool writeHeader();
     bool writeDataBlobs();
     bool writeDataNames();
@@ -143,10 +213,16 @@ private:
     void writeNumber2(quint16 number);
     void writeNumber4(quint32 number);
     void writeNumber8(quint64 number);
-    void writeChar(char c) { m_out.append(c); }
+    void
+    writeChar(char c) {
+        m_out.append(c);
+    }
     void writeByteArray(const QByteArray &);
     void write(const char *, int len);
-    void writeString(const char *s) { write(s, static_cast<int>(strlen(s))); }
+    void
+    writeString(const char *s) {
+        write(s, static_cast<int>(strlen(s)));
+    }
 
     const Strings m_strings;
     RCCFileInfo *m_root;

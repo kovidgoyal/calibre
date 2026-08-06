@@ -22,8 +22,8 @@
 #include <openssl/err.h>
 #include <openssl/conf.h>
 
-static PyObject*
-set_error_with_detail(const char *where, const char* detail) {
+static PyObject *
+set_error_with_detail(const char *where, const char *detail) {
     char *suffix = NULL, buf[1024];
     unsigned long err = ERR_get_error();
     if (err == 0) {
@@ -36,12 +36,12 @@ set_error_with_detail(const char *where, const char* detail) {
     return PyErr_Format(PyExc_ValueError, "Error calling: %s: %s", where, suffix);
 }
 
-static PyObject*
+static PyObject *
 set_error(const char *where) {
     return set_error_with_detail(where, NULL);
 }
 
-static PyObject*
+static PyObject *
 set_openssl_error(PyObject *err_class, const char *msg) {
     BIO *bio = BIO_new(BIO_s_mem());
     ERR_print_errors(bio);
@@ -51,13 +51,15 @@ set_openssl_error(PyObject *err_class, const char *msg) {
     if (len > 0 && data != NULL) s = PyUnicode_FromStringAndSize(data, len);
     PyObject *m = PyUnicode_FromString(msg);
     PyErr_Format(err_class, "%V: %V", m, s);
-    Py_XDECREF(m); Py_XDECREF(s);
+    Py_XDECREF(m);
+    Py_XDECREF(s);
     BIO_free(bio);
     return NULL;
 }
 
-static void free_rsa_keypair(PyObject *capsule) {
-    EVP_PKEY *pkey= PyCapsule_GetPointer(capsule, NULL);
+static void
+free_rsa_keypair(PyObject *capsule) {
+    EVP_PKEY *pkey = PyCapsule_GetPointer(capsule, NULL);
     EVP_PKEY_free(pkey);
 }
 
@@ -66,7 +68,10 @@ static EVP_PKEY *
 EVP_RSA_gen(int keysize) {
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
     if (!ctx) return NULL;
-    if (EVP_PKEY_keygen_init(ctx) <= 0) { EVP_PKEY_CTX_free(ctx); return NULL; }
+    if (EVP_PKEY_keygen_init(ctx) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
+        return NULL;
+    }
     if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, keysize) <= 0) {
         EVP_PKEY_CTX_free(ctx);
         return NULL;
@@ -81,11 +86,11 @@ EVP_RSA_gen(int keysize) {
 }
 #endif
 
-static PyObject*
+static PyObject *
 create_rsa_keypair(PyObject *self, PyObject *args) {
     int keysize = 0;
     PyObject *ans = NULL;
-    if(!PyArg_ParseTuple(args, "i", &keysize)) return NULL;
+    if (!PyArg_ParseTuple(args, "i", &keysize)) return NULL;
     if (keysize < 1024) return PyErr_Format(PyExc_ValueError, "The key size %d is less than 1024. 1024 is the minimum.", keysize);
     if (RAND_status() != 1) return PyErr_Format(PyExc_RuntimeError, "The OopenSSL PRNG failed to seed itself");
 
@@ -99,50 +104,84 @@ create_rsa_keypair(PyObject *self, PyObject *args) {
 }
 
 #ifdef _WIN32
-static int add_entry(X509_NAME *Name, const char *field, const char *bytes) {
+static int
+add_entry(X509_NAME *Name, const char *field, const char *bytes) {
 #else
-static inline int add_entry(X509_NAME *Name, const char *field, const char *bytes) {
+static inline int
+add_entry(X509_NAME *Name, const char *field, const char *bytes) {
 #endif
     if (bytes && *bytes) {
-        if (!X509_NAME_add_entry_by_txt(Name, field, MBSTRING_ASC, (const unsigned char*)bytes, -1, -1, 0)) { set_error("X509_NAME_add_entry_by_txt"); return 0; }
+        if (!X509_NAME_add_entry_by_txt(Name, field, MBSTRING_ASC, (const unsigned char *)bytes, -1, -1, 0)) {
+            set_error("X509_NAME_add_entry_by_txt");
+            return 0;
+        }
     }
     return 1;
 }
 
-static void free_req(PyObject *capsule) {
+static void
+free_req(PyObject *capsule) {
     X509_REQ *Cert = PyCapsule_GetPointer(capsule, NULL);
     if (Cert) X509_REQ_free(Cert);
 }
 
 static int
-add_ext(STACK_OF(X509_EXTENSION) *sk, int nid, const char *value, char *item_type) {
-  X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, NULL, nid, value);
-  if (!ex) { set_error_with_detail("X509V3_EXT_conf_nid", value); return 0;}
-  if (!sk_X509_EXTENSION_push(sk, ex)) { set_error_with_detail("sk_X509_EXTENSION_push", item_type); return 0; }
-  return 1;
+add_ext(STACK_OF(X509_EXTENSION) * sk, int nid, const char *value, char *item_type) {
+    X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, NULL, nid, value);
+    if (!ex) {
+        set_error_with_detail("X509V3_EXT_conf_nid", value);
+        return 0;
+    }
+    if (!sk_X509_EXTENSION_push(sk, ex)) {
+        set_error_with_detail("sk_X509_EXTENSION_push", item_type);
+        return 0;
+    }
+    return 1;
 }
 
-static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
+static PyObject *
+create_rsa_cert_req(PyObject *self, PyObject *args) {
     PyObject *capsule = NULL, *ans = NULL, *t = NULL;
     X509_NAME *Name = NULL;
-    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL, *digital_key_usage = NULL, *ext_key_usage = NULL;
+    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL,
+         *digital_key_usage = NULL, *ext_key_usage = NULL;
     X509_REQ *Cert = NULL;
     PyObject *alt_names = NULL;
     int ok = 0, signature_length = 0;
     Py_ssize_t i = 0;
     STACK_OF(X509_EXTENSION) *exts = NULL;
 
-    if(!PyArg_ParseTuple(args, "OO!szzzzzzzzz",
-        &capsule, &PyTuple_Type, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email,
-        &basic_constraints, &digital_key_usage, &ext_key_usage)) return NULL;
-    if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
+    if (!PyArg_ParseTuple(
+            args,
+            "OO!szzzzzzzzz",
+            &capsule,
+            &PyTuple_Type,
+            &alt_names,
+            &common_name,
+            &country,
+            &state,
+            &locality,
+            &org,
+            &org_unit,
+            &email,
+            &basic_constraints,
+            &digital_key_usage,
+            &ext_key_usage))
+        return NULL;
+    if (!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
     EVP_PKEY *KeyPair = PyCapsule_GetPointer(capsule, NULL);
     if (!KeyPair) return PyErr_Format(PyExc_TypeError, "The key capsule is NULL");
     Cert = X509_REQ_new();
     if (!Cert) return set_error("X509_REQ_new");
-    if (!X509_REQ_set_version(Cert, X509_REQ_VERSION_1)) { set_error("X509_REQ_set_version"); goto error; }
+    if (!X509_REQ_set_version(Cert, X509_REQ_VERSION_1)) {
+        set_error("X509_REQ_set_version");
+        goto error;
+    }
     Name = X509_REQ_get_subject_name(Cert);
-    if (!Name) { set_error("X509_REQ_get_subject_name"); goto error; }
+    if (!Name) {
+        set_error("X509_REQ_get_subject_name");
+        goto error;
+    }
     if (!add_entry(Name, "C", country)) goto error;
     if (!add_entry(Name, "ST", state)) goto error;
     if (!add_entry(Name, "L", locality)) goto error;
@@ -153,32 +192,42 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
 
     if (PyTuple_GET_SIZE(alt_names) > 0 || basic_constraints || digital_key_usage) {
         exts = sk_X509_EXTENSION_new_null();
-        if (!exts) { set_error("sk_X509_EXTENSION_new_null"); goto error; }
+        if (!exts) {
+            set_error("sk_X509_EXTENSION_new_null");
+            goto error;
+        }
         for (i = 0; i < PyTuple_GET_SIZE(alt_names); i++) {
             t = PyTuple_GET_ITEM(alt_names, i);
             if (!PyUnicode_Check(t)) {
-                PyErr_SetString(PyExc_TypeError, "ALT names must be unicode objects"); goto error;
+                PyErr_SetString(PyExc_TypeError, "ALT names must be unicode objects");
+                goto error;
             }
             if (!add_ext(exts, NID_subject_alt_name, PyUnicode_AsUTF8(t), "alt_names")) goto error;
         }
         if (basic_constraints) {
-            if(!add_ext(exts, NID_basic_constraints, basic_constraints, "basic_constraints")) goto error;
+            if (!add_ext(exts, NID_basic_constraints, basic_constraints, "basic_constraints")) goto error;
         }
         if (digital_key_usage) {
-            if(!add_ext(exts, NID_key_usage, digital_key_usage, "key_usage")) goto error;
+            if (!add_ext(exts, NID_key_usage, digital_key_usage, "key_usage")) goto error;
         }
         if (ext_key_usage) {
-            if(!add_ext(exts, NID_ext_key_usage, ext_key_usage, "key_usage")) goto error;
+            if (!add_ext(exts, NID_ext_key_usage, ext_key_usage, "key_usage")) goto error;
         }
         X509_REQ_add_extensions(Cert, exts);
         sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
     }
 
-    if (!X509_REQ_set_pubkey(Cert, KeyPair))  { set_error("X509_REQ_set_pubkey"); goto error; }
+    if (!X509_REQ_set_pubkey(Cert, KeyPair)) {
+        set_error("X509_REQ_set_pubkey");
+        goto error;
+    }
     Py_BEGIN_ALLOW_THREADS;
     signature_length = X509_REQ_sign(Cert, KeyPair, EVP_sha256());
     Py_END_ALLOW_THREADS;
-    if (signature_length <= 0) { set_error("X509_REQ_sign"); goto error; }
+    if (signature_length <= 0) {
+        set_error("X509_REQ_sign");
+        goto error;
+    }
     ans = PyCapsule_New(Cert, NULL, free_req);
     if (!ans) { goto error; }
     ok = 1;
@@ -189,7 +238,8 @@ error:
     return ans;
 }
 
-static void free_cert(PyObject *capsule) {
+static void
+free_cert(PyObject *capsule) {
     X509 *Cert = PyCapsule_GetPointer(capsule, NULL);
     if (Cert) X509_free(Cert);
 }
@@ -212,20 +262,25 @@ certificate_set_serial(X509 *cert) {
         set_error("RAND_bytes in certificate_set_serial");
         return 0;
     }
-    BIGNUM *bn = NULL; ASN1_INTEGER *sno = NULL;
+    BIGNUM *bn = NULL;
+    ASN1_INTEGER *sno = NULL;
     sno = ASN1_INTEGER_new();
     if (!sno) {
-        PyErr_NoMemory(); goto err;
+        PyErr_NoMemory();
+        goto err;
     }
     bn = BN_bin2bn(random_bytes, sizeof(random_bytes), NULL);
     if (!bn) {
-        PyErr_NoMemory(); goto err;
+        PyErr_NoMemory();
+        goto err;
     }
-    if ((sno = BN_to_ASN1_INTEGER(bn,sno)) == NULL) {
-        set_error("BN_to_ASN1_INTEGER"); goto err;
+    if ((sno = BN_to_ASN1_INTEGER(bn, sno)) == NULL) {
+        set_error("BN_to_ASN1_INTEGER");
+        goto err;
     }
     if (X509_set_serialNumber(cert, sno) != 1) {
-        set_error("X509_set_serialNumber"); goto err ;
+        set_error("X509_set_serialNumber");
+        goto err;
     }
     rv = 1;
 err:
@@ -235,7 +290,8 @@ err:
 }
 
 
-static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
+static PyObject *
+create_rsa_cert(PyObject *self, PyObject *args) {
     PyObject *reqC = NULL, *CA_certC = NULL, *CA_keyC = NULL, *ans = NULL;
     X509_REQ *req = NULL;
     X509 *CA_cert = NULL, *Cert = NULL;
@@ -245,11 +301,13 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     X509V3_CTX ctx;
     STACK_OF(X509_EXTENSION) *exts = NULL;
 
-    if(!PyArg_ParseTuple(args, "OOO|ii", &reqC, &CA_certC, &CA_keyC, &not_before, &expire)) return NULL;
-    if(!PyCapsule_CheckExact(reqC)) return PyErr_Format(PyExc_TypeError, "The req is not a capsule object");
+    if (!PyArg_ParseTuple(args, "OOO|ii", &reqC, &CA_certC, &CA_keyC, &not_before, &expire)) return NULL;
+    if (!PyCapsule_CheckExact(reqC)) return PyErr_Format(PyExc_TypeError, "The req is not a capsule object");
     req_is_for_CA_cert = (CA_certC == Py_None) ? 1 : 0;
-    if (!req_is_for_CA_cert) {if(!PyCapsule_CheckExact(CA_certC)) return PyErr_Format(PyExc_TypeError, "The CA_cert is not a capsule object");}
-    if(!PyCapsule_CheckExact(CA_keyC)) return PyErr_Format(PyExc_TypeError, "The CA_key is not a capsule object");
+    if (!req_is_for_CA_cert) {
+        if (!PyCapsule_CheckExact(CA_certC)) return PyErr_Format(PyExc_TypeError, "The CA_cert is not a capsule object");
+    }
+    if (!PyCapsule_CheckExact(CA_keyC)) return PyErr_Format(PyExc_TypeError, "The CA_key is not a capsule object");
     req = PyCapsule_GetPointer(reqC, NULL);
     if (!reqC) PyErr_Format(PyExc_TypeError, "The req capsule is NULL");
     if (!req_is_for_CA_cert) {
@@ -260,38 +318,80 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     if (!CA_key) PyErr_Format(PyExc_TypeError, "The CA_key capsule is NULL");
 
     Cert = X509_new();
-    if (!Cert) { set_error("X509_new"); goto error; }
-    if (!X509_set_version (Cert, 2)) { set_error("X509_set_version"); goto error; }
+    if (!Cert) {
+        set_error("X509_new");
+        goto error;
+    }
+    if (!X509_set_version(Cert, 2)) {
+        set_error("X509_set_version");
+        goto error;
+    }
     if (!certificate_set_serial(Cert)) goto error;
 #ifdef X509_time_adj_ex
-    if(!X509_time_adj_ex(X509_get_notBefore(Cert), not_before, 0, NULL)) { set_error("X509_time_adj_ex"); goto error; }
-    if(!X509_time_adj_ex(X509_get_notAfter(Cert), expire, 0, NULL)) { set_error("X509_time_adj_ex"); goto error; }
+    if (!X509_time_adj_ex(X509_get_notBefore(Cert), not_before, 0, NULL)) {
+        set_error("X509_time_adj_ex");
+        goto error;
+    }
+    if (!X509_time_adj_ex(X509_get_notAfter(Cert), expire, 0, NULL)) {
+        set_error("X509_time_adj_ex");
+        goto error;
+    }
 #else
-    if(!X509_gmtime_adj(X509_get_notBefore(Cert), not_before * 24 * 60 * 60)) { set_error("X509_gmtime_adj"); goto error; }
-    if(!X509_gmtime_adj(X509_get_notAfter(Cert), expire * 24 * 60 * 60)) { set_error("X509_gmtime_adj"); goto error; }
+    if (!X509_gmtime_adj(X509_get_notBefore(Cert), not_before * 24 * 60 * 60)) {
+        set_error("X509_gmtime_adj");
+        goto error;
+    }
+    if (!X509_gmtime_adj(X509_get_notAfter(Cert), expire * 24 * 60 * 60)) {
+        set_error("X509_gmtime_adj");
+        goto error;
+    }
 #endif
 
     Name = X509_REQ_get_subject_name(req);
-    if (!Name) { set_error("X509_REQ_get_subject_name(req)"); goto error; }
-    if (!X509_set_subject_name(Cert, Name)) { set_error("X509_set_subject_name"); goto error; }
+    if (!Name) {
+        set_error("X509_REQ_get_subject_name(req)");
+        goto error;
+    }
+    if (!X509_set_subject_name(Cert, Name)) {
+        set_error("X509_set_subject_name");
+        goto error;
+    }
 
-    if (req_is_for_CA_cert) Name = X509_REQ_get_subject_name((X509_REQ*)req);
+    if (req_is_for_CA_cert) Name = X509_REQ_get_subject_name((X509_REQ *)req);
     else Name = X509_get_subject_name(CA_cert);
-    if (!Name) { set_error("X509_REQ_get_subject_name(CA_cert)"); goto error; }
-    if (!X509_set_issuer_name(Cert, Name)) { set_error("X509_set_issuer_name"); goto error; }
+    if (!Name) {
+        set_error("X509_REQ_get_subject_name(CA_cert)");
+        goto error;
+    }
+    if (!X509_set_issuer_name(Cert, Name)) {
+        set_error("X509_set_issuer_name");
+        goto error;
+    }
 
     exts = X509_REQ_get_extensions(req);
     if (exts) {
         X509V3_set_ctx(&ctx, CA_cert, Cert, NULL, NULL, 0);
         for (i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
-            if(!X509_add_ext(Cert, sk_X509_EXTENSION_value(exts, i), -1)) { set_error("X509_add_ext"); goto error; }
+            if (!X509_add_ext(Cert, sk_X509_EXTENSION_value(exts, i), -1)) {
+                set_error("X509_add_ext");
+                goto error;
+            }
         }
     }
 
-    PubKey=X509_REQ_get_pubkey(req);
-    if (!PubKey) { set_error("X509_REQ_get_pubkey"); goto error; }
-    if (!X509_REQ_verify(req, PubKey)) { set_error("X509_REQ_verify"); goto error; }
-    if (!X509_set_pubkey(Cert, PubKey)) { set_error("X509_set_pubkey"); goto error; }
+    PubKey = X509_REQ_get_pubkey(req);
+    if (!PubKey) {
+        set_error("X509_REQ_get_pubkey");
+        goto error;
+    }
+    if (!X509_REQ_verify(req, PubKey)) {
+        set_error("X509_REQ_verify");
+        goto error;
+    }
+    if (!X509_set_pubkey(Cert, PubKey)) {
+        set_error("X509_set_pubkey");
+        goto error;
+    }
     X509_EXTENSION *ex;
     if (req_is_for_CA_cert) {
         X509V3_set_ctx(&ctx, Cert, Cert, NULL, NULL, 0);
@@ -301,20 +401,32 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
         X509V3_set_ctx_nodb(&ctx);
     }
     ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_subject_key_identifier, "hash");
-    if (!ex) { set_error("creating subject key identifier failed"); goto error; }
+    if (!ex) {
+        set_error("creating subject key identifier failed");
+        goto error;
+    }
     X509_add_ext(Cert, ex, -1);
     X509_EXTENSION_free(ex);
     ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_authority_key_identifier, "keyid:always");
-    if (!ex) { set_error("creating authority key identifier failed"); goto error; }
+    if (!ex) {
+        set_error("creating authority key identifier failed");
+        goto error;
+    }
     X509_add_ext(Cert, ex, -1);
     X509_EXTENSION_free(ex);
 
     Py_BEGIN_ALLOW_THREADS;
     signature_length = X509_sign(Cert, CA_key, EVP_sha256());
     Py_END_ALLOW_THREADS;
-    if (signature_length <= 0) { set_error("X509_sign"); goto error; }
+    if (signature_length <= 0) {
+        set_error("X509_sign");
+        goto error;
+    }
     ans = PyCapsule_New(Cert, NULL, free_cert);
-    if (!ans) { PyErr_NoMemory(); goto error; }
+    if (!ans) {
+        PyErr_NoMemory();
+        goto error;
+    }
     ok = 1;
 
 error:
@@ -324,21 +436,25 @@ error:
     return ans;
 }
 
-static PyObject* serialize_cert(PyObject *self, PyObject *args) {
+static PyObject *
+serialize_cert(PyObject *self, PyObject *args) {
     PyObject *capsule = NULL, *ans = NULL;
     X509 *cert = NULL;
     BIO *mem = NULL;
     long sz = 0;
     char *p = NULL;
 
-    if(!PyArg_ParseTuple(args, "O", &capsule)) return NULL;
-    if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The cert is not a capsule object");
+    if (!PyArg_ParseTuple(args, "O", &capsule)) return NULL;
+    if (!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The cert is not a capsule object");
     cert = PyCapsule_GetPointer(capsule, NULL);
     if (!cert) return PyErr_Format(PyExc_TypeError, "The cert capsule is NULL");
 
     mem = BIO_new(BIO_s_mem());
     if (!mem) return set_error("BIO_new");
-    if (!PEM_write_bio_X509(mem, cert)) { BIO_free(mem); return set_error("PEM_write_bio_X509"); }
+    if (!PEM_write_bio_X509(mem, cert)) {
+        BIO_free(mem);
+        return set_error("PEM_write_bio_X509");
+    }
     sz = BIO_get_mem_data(mem, &p);
     Py_ssize_t psz = sz;
     ans = Py_BuildValue("s#", p, psz);
@@ -346,21 +462,25 @@ static PyObject* serialize_cert(PyObject *self, PyObject *args) {
     return ans;
 }
 
-static PyObject* cert_info(PyObject *self, PyObject *args) {
+static PyObject *
+cert_info(PyObject *self, PyObject *args) {
     PyObject *capsule = NULL, *ans = NULL;
     X509 *cert = NULL;
     BIO *mem = NULL;
     long sz = 0;
     char *p = NULL;
 
-    if(!PyArg_ParseTuple(args, "O", &capsule)) return NULL;
-    if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The cert is not a capsule object");
+    if (!PyArg_ParseTuple(args, "O", &capsule)) return NULL;
+    if (!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The cert is not a capsule object");
     cert = PyCapsule_GetPointer(capsule, NULL);
     if (!cert) return PyErr_Format(PyExc_TypeError, "The cert capsule is NULL");
 
     mem = BIO_new(BIO_s_mem());
     if (!mem) return set_error("BIO_new");
-    if (!X509_print_ex(mem, cert, XN_FLAG_COMPAT, X509_FLAG_COMPAT)) { BIO_free(mem); return set_error("X509_print_ex"); }
+    if (!X509_print_ex(mem, cert, XN_FLAG_COMPAT, X509_FLAG_COMPAT)) {
+        BIO_free(mem);
+        return set_error("X509_print_ex");
+    }
     sz = BIO_get_mem_data(mem, &p);
     Py_ssize_t psz = sz;
     ans = Py_BuildValue("s#", p, psz);
@@ -368,7 +488,8 @@ static PyObject* cert_info(PyObject *self, PyObject *args) {
     return ans;
 }
 
-static PyObject* serialize_rsa_key(PyObject *self, PyObject *args) {
+static PyObject *
+serialize_rsa_key(PyObject *self, PyObject *args) {
     PyObject *capsule = NULL, *ans = NULL;
     char *password = NULL;
     EVP_PKEY *keypair = NULL;
@@ -377,16 +498,22 @@ static PyObject* serialize_rsa_key(PyObject *self, PyObject *args) {
     int ok = 0;
     char *p = NULL;
 
-    if(!PyArg_ParseTuple(args, "Oz", &capsule, &password)) return NULL;
-    if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
+    if (!PyArg_ParseTuple(args, "Oz", &capsule, &password)) return NULL;
+    if (!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
     keypair = PyCapsule_GetPointer(capsule, NULL);
     if (!keypair) return PyErr_Format(PyExc_TypeError, "The key capsule is NULL");
 
     mem = BIO_new(BIO_s_mem());
-    if (!mem) {set_error("BIO_new"); goto error; }
+    if (!mem) {
+        set_error("BIO_new");
+        goto error;
+    }
     if (password && *password) ok = PEM_write_bio_PKCS8PrivateKey(mem, keypair, EVP_aes_256_cbc(), NULL, 0, 0, password);
     else ok = PEM_write_bio_PKCS8PrivateKey(mem, keypair, NULL, NULL, 0, 0, NULL);
-    if (!ok) { set_error("PEM_write_bio_PrivateKey"); goto error; }
+    if (!ok) {
+        set_error("PEM_write_bio_PrivateKey");
+        goto error;
+    }
     sz = BIO_get_mem_data(mem, &p);
     Py_ssize_t psz = sz;
     ans = Py_BuildValue("s#", p, psz);
@@ -395,47 +522,49 @@ error:
     return ans;
 }
 
-static PyObject*
+static PyObject *
 verify_cert(PyObject *self, PyObject *args) {
     PyObject *ca_cert_cap, *cert_cap;
-    if(!PyArg_ParseTuple(args, "OO", &ca_cert_cap, &cert_cap)) return NULL;
-    if(!PyCapsule_CheckExact(ca_cert_cap)) return PyErr_Format(PyExc_TypeError, "The ca_cert is not a capsule object");
-    if(!PyCapsule_CheckExact(cert_cap)) return PyErr_Format(PyExc_TypeError, "The cert is not a capsule object");
+    if (!PyArg_ParseTuple(args, "OO", &ca_cert_cap, &cert_cap)) return NULL;
+    if (!PyCapsule_CheckExact(ca_cert_cap)) return PyErr_Format(PyExc_TypeError, "The ca_cert is not a capsule object");
+    if (!PyCapsule_CheckExact(cert_cap)) return PyErr_Format(PyExc_TypeError, "The cert is not a capsule object");
     X509 *ca_cert = PyCapsule_GetPointer(ca_cert_cap, NULL);
     X509 *cert = PyCapsule_GetPointer(cert_cap, NULL);
     X509_STORE *store = X509_STORE_new();
     X509_STORE_add_cert(store, ca_cert);
-    X509_STORE_set_flags(store,
-        X509_V_FLAG_X509_STRICT | X509_V_FLAG_CHECK_SS_SIGNATURE |
-        X509_V_FLAG_POLICY_CHECK | X509_V_FLAG_EXPLICIT_POLICY |
-        X509_V_FLAG_NOTIFY_POLICY);
+    X509_STORE_set_flags(
+        store, X509_V_FLAG_X509_STRICT | X509_V_FLAG_CHECK_SS_SIGNATURE | X509_V_FLAG_POLICY_CHECK | X509_V_FLAG_EXPLICIT_POLICY | X509_V_FLAG_NOTIFY_POLICY);
     X509_STORE_CTX *vfy_ctx = X509_STORE_CTX_new();
     X509_STORE_CTX_init(vfy_ctx, store, cert, NULL);
     // X509_STORE_CTX_set_flags(vfy_ctx, X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
     int ok;
-    Py_BEGIN_ALLOW_THREADS
-    ok = X509_verify_cert(vfy_ctx);
-    Py_END_ALLOW_THREADS
-    X509_STORE_CTX_free(vfy_ctx);
+    Py_BEGIN_ALLOW_THREADS ok = X509_verify_cert(vfy_ctx);
+    Py_END_ALLOW_THREADS X509_STORE_CTX_free(vfy_ctx);
     X509_STORE_free(store);
-    if (!ok) { set_error("X509_verify_cert"); return NULL; }
+    if (!ok) {
+        set_error("X509_verify_cert");
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
-static PyObject*
+static PyObject *
 create_CA_dir(PyObject *self, PyObject *args) {
-    const char *pem_bundle; Py_ssize_t bundle_sz; const char *output_path;
+    const char *pem_bundle;
+    Py_ssize_t bundle_sz;
+    const char *output_path;
     if (!PyArg_ParseTuple(args, "s#s", &pem_bundle, &bundle_sz, &output_path)) return NULL;
     BIO *mem_in = BIO_new_mem_buf(pem_bundle, bundle_sz);
     if (!mem_in) return PyErr_NoMemory();
-    X509 *x = NULL; char path[4096];
+    X509 *x = NULL;
+    char path[4096];
     // Iterate through the certificates in memory
     while ((x = PEM_read_bio_X509(mem_in, NULL, NULL, NULL))) {
         unsigned long hash = X509_subject_name_hash(x);
         int suffix = 0;
 
         // Collision handling: check if .0, .1, etc exists
-        while(1) {
+        while (1) {
             snprintf(path, sizeof(path), "%s/%08lx.%d", output_path, hash, suffix);
             struct stat buffer;
             if (stat(path, &buffer) != 0) break; // File doesn't exist, we can use this name
@@ -448,7 +577,10 @@ create_CA_dir(PyObject *self, PyObject *args) {
         if (out) ok = PEM_write_bio_X509(out, x);
         if (out) BIO_free(out);
         X509_free(x);
-        if (!ok) { set_openssl_error(PyExc_ValueError, "failed to write inidividual PEM certificate"); break; }
+        if (!ok) {
+            set_openssl_error(PyExc_ValueError, "failed to write inidividual PEM certificate");
+            break;
+        }
     }
     BIO_free(mem_in);
     if (PyErr_Occurred()) return NULL;
@@ -456,57 +588,53 @@ create_CA_dir(PyObject *self, PyObject *args) {
 }
 
 static PyMethodDef certgen_methods[] = {
-    {"create_rsa_keypair", create_rsa_keypair, METH_VARARGS,
-        "create_rsa_keypair(size)\n\nCreate a RSA keypair of the specified size"
-    },
+    {"create_rsa_keypair", create_rsa_keypair, METH_VARARGS, "create_rsa_keypair(size)\n\nCreate a RSA keypair of the specified size"},
 
-    {"create_rsa_cert_req", create_rsa_cert_req, METH_VARARGS,
-        "create_rsa_cert_req(keypair, alt_names, common_name, country, state, locality, org, org_unit, email_address)\n\nCreate a certificate signing request."
-    },
+    {"create_rsa_cert_req",
+     create_rsa_cert_req,
+     METH_VARARGS,
+     "create_rsa_cert_req(keypair, alt_names, common_name, country, state, locality, org, org_unit, email_address)\n\nCreate a certificate signing request."},
 
-    {"create_rsa_cert", create_rsa_cert, METH_VARARGS,
-        "create_rsa_cert(req, CA_cert, CA_key, not_before, expire)\n\nCreate a certificate from a signing request."
-    },
+    {"create_rsa_cert",
+     create_rsa_cert,
+     METH_VARARGS,
+     "create_rsa_cert(req, CA_cert, CA_key, not_before, expire)\n\nCreate a certificate from a signing request."},
 
-    {"serialize_cert", serialize_cert, METH_VARARGS,
-        "serialize_cert(cert)\n\nReturn certificate as a PEM format bytestring"
-    },
+    {"serialize_cert", serialize_cert, METH_VARARGS, "serialize_cert(cert)\n\nReturn certificate as a PEM format bytestring"},
 
-    {"serialize_rsa_key", serialize_rsa_key, METH_VARARGS,
-        "serialize_rsa_key(key, [password])\n\nReturn key as a PEM format bytestring, optionally encrypted by password"
-    },
+    {"serialize_rsa_key",
+     serialize_rsa_key,
+     METH_VARARGS,
+     "serialize_rsa_key(key, [password])\n\nReturn key as a PEM format bytestring, optionally encrypted by password"},
 
-    {"cert_info", cert_info, METH_VARARGS,
-        "cert_info(cert)\n\nReturn the certificate information (certificate in text format)"
-    },
+    {"cert_info", cert_info, METH_VARARGS, "cert_info(cert)\n\nReturn the certificate information (certificate in text format)"},
 
-    {"verify_cert", verify_cert, METH_VARARGS,
-        "verify_cert(cacert, cert)\n\nVerify cert against CA cert"
-    },
+    {"verify_cert", verify_cert, METH_VARARGS, "verify_cert(cacert, cert)\n\nVerify cert against CA cert"},
 
-    {"create_CA_dir", create_CA_dir, METH_VARARGS,
-        "create_CA_dir(cacerts_as_pem_bundle_string, output_path)\n\nCreate an OpenSSL CA certificate lookup directory. output_path must be an empty directory."
-    },
+    {"create_CA_dir",
+     create_CA_dir,
+     METH_VARARGS,
+     "create_CA_dir(cacerts_as_pem_bundle_string, output_path)\n\nCreate an OpenSSL CA certificate lookup directory. output_path must be an empty directory."},
 
-    {NULL, NULL, 0, NULL}
-};
+    {NULL, NULL, 0, NULL}};
 
 
 static int
 exec_module(PyObject *module) {
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
-	return 0;
+    return 0;
 }
-static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+static PyModuleDef_Slot slots[] = {{Py_mod_exec, exec_module}, {0, NULL}};
 
 static struct PyModuleDef module_def = {
-    .m_base     = PyModuleDef_HEAD_INIT,
-    .m_name     = "certgen",
-    .m_doc      = "OpenSSL bindings to easily create certificates/certificate authorities.",
-    .m_methods  = certgen_methods,
-    .m_slots    = slots,
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "certgen",
+    .m_doc = "OpenSSL bindings to easily create certificates/certificate authorities.",
+    .m_methods = certgen_methods,
+    .m_slots = slots,
 
 };
 
-CALIBRE_MODINIT_FUNC PyInit_certgen(void) { return PyModuleDef_Init(&module_def); }
+CALIBRE_MODINIT_FUNC
+PyInit_certgen(void) { return PyModuleDef_Init(&module_def); }

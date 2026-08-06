@@ -18,4 +18,4 @@ typedef int bool;
 #define END_ALLOW_CASE_RANGE
 #define UNUSED
 #define PYNOARG PyObject *__a1 UNUSED, PyObject *__a2 UNUSED
-#define arraysz(x) (sizeof(x)/sizeof(x[0]))
+#define arraysz(x) (sizeof(x) / sizeof(x[0]))

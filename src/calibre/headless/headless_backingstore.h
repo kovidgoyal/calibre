@@ -6,9 +6,8 @@
 
 QT_BEGIN_NAMESPACE
 
-class HeadlessBackingStore : public QPlatformBackingStore
-{
-public:
+class HeadlessBackingStore : public QPlatformBackingStore {
+  public:
     HeadlessBackingStore(QWindow *window);
     ~HeadlessBackingStore();
 
@@ -16,10 +15,9 @@ public:
     void flush(QWindow *window, const QRegion &region, const QPoint &offset);
     void resize(const QSize &size, const QRegion &staticContents);
 
-private:
+  private:
     QImage mImage;
     const bool mDebug;
 };
 
 QT_END_NAMESPACE
-

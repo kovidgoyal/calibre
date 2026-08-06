@@ -6,54 +6,54 @@
 #define UNICODE
 #endif
 #define WINDOWS_LEAN_AND_MEAN
-#include<windows.h>
-#include<strsafe.h>
+#include <windows.h>
+#include <strsafe.h>
 
-static size_t mystrlen(const wchar_t *buf) {
+static size_t
+mystrlen(const wchar_t *buf) {
     size_t ans = 0;
     if (FAILED(StringCbLengthW(buf, 500, &ans))) return 0;
     return ans;
 }
 
-static int show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
+static int
+show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
     wchar_t *buf;
-    buf = (wchar_t*)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t)*
-            (mystrlen(msg) + mystrlen(preamble) + 80));
+    buf = (wchar_t *)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t) * (mystrlen(msg) + mystrlen(preamble) + 80));
     if (!buf) {
-        MessageBox(NULL, preamble, NULL, MB_OK|MB_ICONERROR);
+        MessageBox(NULL, preamble, NULL, MB_OK | MB_ICONERROR);
         return code;
     }
 
     MessageBeep(MB_ICONERROR);
     wsprintf(buf, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
-    MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
+    MessageBox(NULL, buf, NULL, MB_OK | MB_ICONERROR);
     LocalFree(buf);
     return code;
 }
 
-static int show_last_error(wchar_t *preamble) {
+static int
+show_last_error(wchar_t *preamble) {
     wchar_t *msg = NULL;
     DWORD dw = GetLastError();
     int ret;
 
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPWSTR)&msg,
         0,
-        NULL );
+        NULL);
 
     ret = show_error(preamble, msg, (int)dw);
     if (msg != NULL) LocalFree(msg);
     return ret;
 }
 
-typedef int (__cdecl *ENTRYPROC)(const wchar_t*, const wchar_t*, const wchar_t*, int);
-typedef void (__cdecl *SIMPLEPRINT)(const wchar_t*);
+typedef int(__cdecl *ENTRYPROC)(const wchar_t *, const wchar_t *, const wchar_t *, int);
+typedef void(__cdecl *SIMPLEPRINT)(const wchar_t *);
 typedef BOOL (*SETDEFAULTDIRS)(DWORD);
 static ENTRYPROC entrypoint = NULL;
 static SIMPLEPRINT simple_print = NULL;
@@ -61,7 +61,7 @@ static HMODULE dll = 0;
 
 static void
 load_launcher_dll() {
-    static wchar_t buf[MAX_PATH];  // Cannot use a zero initializer for the array as it generates an implicit call to memset()
+    static wchar_t buf[MAX_PATH]; // Cannot use a zero initializer for the array as it generates an implicit call to memset()
     wchar_t *dll_point = NULL;
     int i = 0;
     DWORD sz = 0;
@@ -72,7 +72,10 @@ load_launcher_dll() {
     }
 
     while (sz > 0) {
-        if (buf[sz] == L'\\' || buf[sz] == L'/') { dll_point = buf + sz + 1; break; }
+        if (buf[sz] == L'\\' || buf[sz] == L'/') {
+            dll_point = buf + sz + 1;
+            break;
+        }
         sz--;
     }
     if (dll_point == NULL) {
@@ -101,14 +104,15 @@ load_launcher_dll() {
         show_last_error(L"Failed to load: calibre-launcher.dll");
         return;
     }
-    if (!(entrypoint = (ENTRYPROC) GetProcAddress(dll, "execute_python_entrypoint"))) {
+    if (!(entrypoint = (ENTRYPROC)GetProcAddress(dll, "execute_python_entrypoint"))) {
         show_last_error(L"Failed to get the calibre-launcher dll entry point");
         return;
     }
-    simple_print = (SIMPLEPRINT) GetProcAddress(dll, "simple_print");
+    simple_print = (SIMPLEPRINT)GetProcAddress(dll, "simple_print");
 }
 
-int __stdcall start_here() {
+int __stdcall
+start_here() {
     int ret = 0;
     load_launcher_dll();
     if (entrypoint) {

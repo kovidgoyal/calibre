@@ -32,9 +32,7 @@
 
 #else
 
-#define constexpr_assert(cond, msg)\
-    assert(cond && msg);
+#define constexpr_assert(cond, msg) assert(cond &&msg);
 #endif
 
 #endif
-

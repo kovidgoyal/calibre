@@ -27,19 +27,15 @@
 static void
 show_error(LPCWSTR msg) {
     MessageBeep(MB_ICONERROR);
-    MessageBoxW(NULL, msg, L"Error", MB_OK|MB_ICONERROR);
+    MessageBoxW(NULL, msg, L"Error", MB_OK | MB_ICONERROR);
 }
 
 static void
 show_detailed_error(LPCWSTR preamble, LPCWSTR msg, int code) {
     LPTSTR buf;
-    buf = (LPTSTR)LocalAlloc(LMEM_ZEROINIT, sizeof(TCHAR)*
-            (_tcslen(msg) + _tcslen(preamble) + 80));
+    buf = (LPTSTR)LocalAlloc(LMEM_ZEROINIT, sizeof(TCHAR) * (_tcslen(msg) + _tcslen(preamble) + 80));
 
-    _snwprintf_s(buf,
-        LocalSize(buf) / sizeof(TCHAR), _TRUNCATE,
-        L"%s\r\n  %s (Error Code: %d)\r\n",
-        preamble, msg, code);
+    _snwprintf_s(buf, LocalSize(buf) / sizeof(TCHAR), _TRUNCATE, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
 
     show_error(buf);
     LocalFree(buf);
@@ -61,14 +57,13 @@ show_last_error(LPCWSTR preamble) {
     DWORD dw = GetLastError();
 
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR)&msg,
-        0, NULL );
+        0,
+        NULL);
 
     show_detailed_error(preamble, msg, (int)dw);
 }
@@ -77,16 +72,15 @@ show_last_error(LPCWSTR preamble) {
 // }}}
 
 
-
 static bool
-get_app_dir(std::wstring& ans, std::wstring& exe_name) {
+get_app_dir(std::wstring &ans, std::wstring &exe_name) {
     DWORD sz;
     static wchar_t drive[_MAX_DRIVE] = {0};
     static wchar_t buf[BUFSIZE] = {0}, dirpath[_MAX_DIR] = {0}, fname[_MAX_FNAME] = {0}, ext[_MAX_EXT] = {0};
 
     sz = GetModuleFileName(NULL, buf, BUFSIZE);
 
-    if (sz == 0 || sz > BUFSIZE-1) {
+    if (sz == 0 || sz > BUFSIZE - 1) {
         show_error(L"Failed to get path to portable launcher");
         return false;
     }
@@ -97,7 +91,8 @@ get_app_dir(std::wstring& ans, std::wstring& exe_name) {
         show_last_error_crt(L"Failed to split path to portable launcher");
         return false;
     }
-    ans.append(drive); ans.append(dirpath);
+    ans.append(drive);
+    ans.append(dirpath);
     if (ans.length() > 58) {
         std::wstring msg;
         msg.append(L"Path to Calibre Portable (");
@@ -105,7 +100,7 @@ get_app_dir(std::wstring& ans, std::wstring& exe_name) {
         msg.append(L") too long. It must be less than 59 characters.");
         show_error(msg.c_str());
         return false;
-	}
+    }
     exe_name.append(fname);
     exe_name.erase(exe_name.length() - sizeof("portable"), sizeof("portable"));
     exe_name.append(ext);
@@ -114,14 +109,14 @@ get_app_dir(std::wstring& ans, std::wstring& exe_name) {
 
 
 static void
-quote_argv(const std::wstring& arg, std::wstring& cmd_line) {
+quote_argv(const std::wstring &arg, std::wstring &cmd_line) {
     if (!arg.empty() && arg.find_first_of(L" \t\n\v\"") == arg.npos) {
         cmd_line.append(arg);
         return;
     }
     cmd_line.push_back(L'"');
 
-    for (auto iterator = arg.begin() ; ; ++iterator) {
+    for (auto iterator = arg.begin();; ++iterator) {
         unsigned num_back_slashes = 0;
 
         while (iterator != arg.end() && *iterator == L'\\') {
@@ -130,43 +125,38 @@ quote_argv(const std::wstring& arg, std::wstring& cmd_line) {
         }
 
         if (iterator == arg.end()) {
-
             //
             // Escape all backslashes, but let the terminating
             // double quotation mark we add below be interpreted
             // as a metacharacter.
             //
 
-            cmd_line.append (num_back_slashes * 2, L'\\');
+            cmd_line.append(num_back_slashes * 2, L'\\');
             break;
-        }
-        else if (*iterator == L'"') {
-
+        } else if (*iterator == L'"') {
             //
             // Escape all backslashes and the following
             // double quotation mark.
             //
 
-            cmd_line.append (num_back_slashes * 2 + 1, L'\\');
-            cmd_line.push_back (*iterator);
-        }
-        else {
-
+            cmd_line.append(num_back_slashes * 2 + 1, L'\\');
+            cmd_line.push_back(*iterator);
+        } else {
             //
             // Backslashes aren't special here.
             //
 
-            cmd_line.append (num_back_slashes, L'\\');
-            cmd_line.push_back (*iterator);
+            cmd_line.append(num_back_slashes, L'\\');
+            cmd_line.push_back(*iterator);
         }
     }
 
-    cmd_line.push_back (L'"');
+    cmd_line.push_back(L'"');
 }
 
 static int
 launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
-    DWORD dwFlags=0;
+    DWORD dwFlags = 0;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     if (cmd_line.length() > BUFSIZE - 4) {
@@ -186,30 +176,32 @@ launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
 
     dwFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP;
 
-    ZeroMemory( &si, sizeof(si) );
+    ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
-    ZeroMemory( &pi, sizeof(pi) );
+    ZeroMemory(&pi, sizeof(pi));
     static wchar_t mutable_cmdline[BUFSIZE] = {0};
-    cmd_line.copy(mutable_cmdline, BUFSIZE-1);
+    cmd_line.copy(mutable_cmdline, BUFSIZE - 1);
 
-    if (!CreateProcess(NULL, mutable_cmdline,
-        NULL,           // Process handle not inheritable
-        NULL,           // Thread handle not inheritable
-        FALSE,          // Set handle inheritance to FALSE
-        dwFlags,        // Creation flags http://msdn.microsoft.com/en-us/library/ms684863(v=vs.85).aspx
-        NULL,           // Use parent's environment block
-        NULL,           // Use parent's starting directory
-        &si,            // Pointer to STARTUPINFO structure
-        &pi             // Pointer to PROCESS_INFORMATION structure
-    )) {
+    if (!CreateProcess(
+            NULL,
+            mutable_cmdline,
+            NULL,    // Process handle not inheritable
+            NULL,    // Thread handle not inheritable
+            FALSE,   // Set handle inheritance to FALSE
+            dwFlags, // Creation flags http://msdn.microsoft.com/en-us/library/ms684863(v=vs.85).aspx
+            NULL,    // Use parent's environment block
+            NULL,    // Use parent's starting directory
+            &si,     // Pointer to STARTUPINFO structure
+            &pi      // Pointer to PROCESS_INFORMATION structure
+            )) {
         std::wstring message(L"Failed to launch: ");
         message.append(mutable_cmdline);
         show_last_error(message.c_str());
     }
 
     // Close process and thread handles.
-    CloseHandle( pi.hProcess );
-    CloseHandle( pi.hThread );
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
     return 0;
 }
 
@@ -219,8 +211,11 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR orig_cmd_line, int 
     std::wstring exe, config_dir, cmd_line, application_dir, exe_name;
 
     if (!get_app_dir(application_dir, exe_name)) return 1;
-    config_dir.append(application_dir); config_dir.append(L"Calibre Settings");
-    exe.append(application_dir); exe.append(L"Calibre\\"); exe.append(exe_name);
+    config_dir.append(application_dir);
+    config_dir.append(L"Calibre Settings");
+    exe.append(application_dir);
+    exe.append(L"Calibre\\");
+    exe.append(exe_name);
 
     int argc;
     wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
