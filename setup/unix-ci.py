@@ -220,6 +220,8 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-48937',
     'CVE-2026-48617',
     'CVE-2026-48931',
+    'CVE-2026-58040',
+    'CVE-2026-58039',
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
