@@ -92,6 +92,7 @@ dev = [
     "types-lxml >= 2026.2.16",
     "ty >= 0.0.59",
     "rapydscript-ng >= 0.8.5",
+    "clang-format >= 22.1.8",
 ]
 
 [tool.ruff]
