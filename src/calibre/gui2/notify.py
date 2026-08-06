@@ -182,7 +182,7 @@ class QtNotifier(Notifier):
                 pass
 
 
-class WinToastNotifier:
+class WinToastNotifier(Notifier):
     def __init__(self):
         try:
             from calibre_extensions.wintoast import initialize_toast
@@ -203,18 +203,29 @@ class WinToastNotifier:
                 print('Failed to initialize_toast with error:', err, file=sys.stderr)
             else:
                 self.ok = True
+            from qt.core import QObject, Qt, pyqtSignal
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
-        if summary:
-            title, message = summary, body
-        else:
-            title, message = '', body
+            class dispatcher(QObject):
+                dispatch = pyqtSignal(str, str)
+
+            self.dispatcher = dispatcher()
+            self.dispatcher.dispatch.connect(self.do_notify, type=Qt.ConnectionType.QueuedConnection)
+
+    def do_notify(self, title, message):
         from calibre_extensions.wintoast import notify
 
         try:
             notify(title, message, icon())
         except Exception as err:
             print('Failed to send toast notification with error:', err, file=sys.stderr)
+
+    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+        timeout, body, summary = self.get_msg_parms(timeout, body, summary)
+        if summary:
+            title, message = summary, body
+        else:
+            title, message = '', body
+        self.dispatcher.dispatch.emit(title, message)
 
 
 class DummyNotifier(Notifier):

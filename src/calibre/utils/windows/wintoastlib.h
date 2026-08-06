@@ -240,14 +240,13 @@ namespace WinToastLib {
                 _notify(notify), _activatedToken(activatedToken), _dismissedToken(dismissedToken), _failedToken(failedToken) {}
 
             ~NotifyData() {
-                RemoveTokens();
+                ForceRemoveTokens();
             }
 
-            void RemoveTokens() {
-                if (!_readyForDeletion) {
-                    return;
-                }
-
+            // Unregisters event tokens unconditionally.  Must be called before
+            // the IToastNotification refcount reaches zero; wpnapps.dll aborts
+            // if any token remains registered when the object is destroyed.
+            void ForceRemoveTokens() {
                 if (_previouslyTokenRemoved) {
                     return;
                 }
@@ -260,6 +259,17 @@ namespace WinToastLib {
                 _notify->remove_Dismissed(_dismissedToken);
                 _notify->remove_Failed(_failedToken);
                 _previouslyTokenRemoved = true;
+            }
+
+            // Like ForceRemoveTokens() but only runs once the notification has
+            // completed its lifecycle (activated / dismissed / failed).  Used by
+            // the markAsReadyForDeletion flush loop so that mid-flight
+            // notifications are not prematurely deregistered.
+            void RemoveTokens() {
+                if (!_readyForDeletion) {
+                    return;
+                }
+                ForceRemoveTokens();
             }
 
             void markAsReadyForDeletion() {

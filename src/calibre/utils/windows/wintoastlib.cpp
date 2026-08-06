@@ -389,7 +389,14 @@ namespace Util {
 } // namespace Util
 
 WinToast* WinToast::instance() {
-    thread_local static WinToast instance;
+    // Must be a plain process-wide singleton, NOT thread_local.  A thread_local
+    // singleton is destroyed when its owning thread exits.  If a worker thread
+    // that registered toast notifications exits while the GUI is still running
+    // (e.g. a ThreadedJob whose callback calls notify()), the destructor fires
+    // mid-process, before pending IToastNotification objects have been properly
+    // cleaned up, causing wpnapps.dll to abort() inside
+    // ToastNotificationImpl::~ToastNotificationImpl.
+    static WinToast instance;
     return &instance;
 }
 
@@ -818,44 +825,64 @@ bool WinToast::hideToast(_In_ INT64 id) {
         return false;
     }
 
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    auto iter = _buffer.find(id);
-    if (iter == _buffer.end()) {
-        return false;
+    // Extract the entry under the lock so that concurrent callbacks see a
+    // clean buffer.  Token removal happens outside the lock for the same
+    // deadlock reason as in clear().
+    NotifyData localData;
+    {
+        std::lock_guard<std::mutex> lock(_bufferMutex);
+        auto iter = _buffer.find(id);
+        if (iter == _buffer.end()) {
+            return false;
+        }
+        localData = std::move(iter->second);
+        _buffer.erase(iter);
     }
 
     auto succeded = false;
     auto notify   = notifier(&succeded);
     if (!succeded) {
+        localData.ForceRemoveTokens();
         return false;
     }
 
-    auto& notifyData = iter->second;
-    auto result = notify->Hide(notifyData.notification());
+    auto result = notify->Hide(localData.notification());
+    localData.ForceRemoveTokens();
     if (FAILED(result)) {
         DEBUG_MSG("Error when hiding the toast. Error code: " << result);
         return false;
     }
-
-    notifyData.RemoveTokens();
-    _buffer.erase(iter);
-    return SUCCEEDED(result);
+    return true;
 }
 
 void WinToast::clear() {
-    auto succeded = false;
-    auto notify   = notifier(&succeded);
-    if (!succeded) {
-        return;
+    // Move the entire buffer out while holding the lock so that concurrent
+    // callbacks observe an empty _buffer and return harmlessly.
+    // Token removal must happen OUTSIDE the lock: remove_*() blocks until
+    // any in-flight callback returns, and those callbacks re-acquire
+    // _bufferMutex via markAsReadyForDeletion() — holding the lock here
+    // would deadlock.
+    std::map<INT64, NotifyData> localBuffer;
+    {
+        std::lock_guard<std::mutex> lock(_bufferMutex);
+        localBuffer = std::move(_buffer);
     }
 
-    std::lock_guard<std::mutex> lock(_bufferMutex);
-    for (auto& data : _buffer) {
+    auto succeded = false;
+    auto notify   = notifier(&succeded);
+
+    for (auto& data : localBuffer) {
         auto& notifyData = data.second;
-        notify->Hide(notifyData.notification());
-        notifyData.RemoveTokens();
+        if (succeded) {
+            notify->Hide(notifyData.notification());
+        }
+        // ForceRemoveTokens() must be called before the IToastNotification
+        // refcount drops to zero (which happens when localBuffer is destroyed
+        // at the end of this scope).  Using the Force variant because
+        // _readyForDeletion may still be false for notifications that never
+        // received a lifecycle callback before shutdown.
+        notifyData.ForceRemoveTokens();
     }
-    _buffer.clear();
 }
 
 //
