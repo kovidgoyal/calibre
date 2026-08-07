@@ -238,7 +238,7 @@ def gemini_models(version: float = 0) -> dict[str, Model]:
 
 def model_choice_for_text() -> Model:
     m = gemini_models()
-    return m.get(pref('model_strategy', 'medium')) or m['medium']
+    return m.get(pref('model_choice_strategy', 'medium')) or m['medium']
 
 
 def chat_request(data: dict[str, Any], model: Model, streaming: bool = True) -> Request:
