@@ -45,7 +45,7 @@ def sw():
 
 def sanitize_path():
     needed_paths = []
-    executables = 'git.exe curl.exe rapydscript.cmd node.exe'.split()
+    executables = 'git.exe curl.exe rapydscript.exe node.exe'.split()
     for p in os.environ['PATH'].split(os.pathsep):
         for x in tuple(executables):
             if os.path.exists(os.path.join(p, x)):
@@ -95,7 +95,7 @@ def main():
     q = sys.argv[-1]
     setup_env()
     if q == 'bootstrap':
-        subprocess.check_call(['rapydscript.cmd', '--version'])
+        subprocess.check_call(['rapydscript.exe', '--version'])
         build()
     elif q == 'test':
         test()

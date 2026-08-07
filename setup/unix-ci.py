@@ -296,11 +296,11 @@ def main():
 
     if action == 'install':
         # WebEngine is flaky in macOS CI so install rapydscript so bootstrap wont fail
-        npm = 'npm.cmd' if iswindows else 'npm'
-        run(npm, 'install', 'rapydscript-ng')
-        root = subprocess.check_output([npm, 'root']).decode().strip()
+        import sysconfig
+
+        run(sys.executable, '-m', 'pip', 'install', 'rapydscript-ng')
         with open(os.environ['GITHUB_PATH'], 'a') as f:
-            print(os.path.abspath(os.path.join(root, '.bin')), file=f)
+            print(sysconfig.get_path('scripts'), file=f)
 
     if iswindows:
         import runpy
