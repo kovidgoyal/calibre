@@ -23,6 +23,33 @@
 # - title by author
 # }}}
 
+{{{ 9.13.0 2026-08-07
+
+:: bug fixes
+
+- PDF Output: Fix a regression in calibre 9 which caused links in PDF to scroll to a target location minus the top margin, thus ending up a few lines above the target
+
+- [2162628] Content server: Fix an error when uploading a data file to a book with no existing data files
+
+- [2162644] Content server: Fix a regression in the previous release that broke searching in the builtin viewer
+
+- [2162647] Content server: Fix a regression in the previous release that caused the conversion options sections to be missing
+
+- [2162711] Book details panel: Fix a regression in the previous release that broke drag and drop of covers
+
+- [2162935] Windows: Fix a crash caused by some third party plugins trying to send notifications in non-GUI threads
+
+- [2162638] Bulk metadata dialog: Fix a regression in the previous release that caused the yes/no buttons to be hidden for Yes/No column edit controls
+
+- Edit book: Compress Images: Fix error when converting GIF to JPEG on Windows
+
+- Linux: Preload html5-parser to avoid errors on systems that ship ancient libxml2 when converting to PDF
+
+:: improved recipes
+- Nautilus Magazine
+
+}}}
+
 {{{ 9.12.0 2026-07-31
 
 :: new features
