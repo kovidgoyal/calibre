@@ -46,7 +46,7 @@ functions.
     The set of standard metadata fields.
 
 .. literalinclude:: ../../../src/calibre/ebooks/metadata/book/__init__.py
-   :lines: 7-
+   :lines: 8-
 '''
 
 
