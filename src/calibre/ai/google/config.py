@@ -44,9 +44,16 @@ class ConfigWidget(QWidget):
             a.setText(decode_secret(key))
         self.model_strategy = ms = model_choice_strategy_config_widget(pref('model_choice_strategy', 'medium'), self)
         l.addRow(_('Model &choice strategy:'), ms)
-        self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
+        self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses (small quota)'))
         aws.setChecked(pref('allow_web_searches', True))
-        aws.setToolTip('<p>' + _('If enabled, Gemini will use Google Web searches to return accurate and up-to-date information for queries, where possible'))
+        aws.setToolTip(
+            '<p>'
+            + _(
+                'If enabled, Gemini will use Google Web searches to return accurate and up-to-date'
+                ' information for queries, where possible. Note that this is very limited when using'
+                ' the free tier and quickly causes rate limit errors.'
+            )
+        )
         l.addRow(aws)
         self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy'), self)
         l.addRow(_('&Reasoning effort:'), rs)
