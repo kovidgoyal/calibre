@@ -48,7 +48,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         assert isinstance(_m, BooksModel)
         result = _m.get_book(index)
         if result:
-            self.plugin.open(self, result.detail_item)
+            self.plugin.open(self, detail_item=result.detail_item)
 
     def update_book_total(self, total):
         self.total.setText('%s' % total)
