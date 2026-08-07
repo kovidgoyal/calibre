@@ -22,11 +22,6 @@ jobs:
               with:
                 python-version: "3.14"
 
-            - name: Setup node.js for rapydscript
-              uses: actions/setup-node@v7.0.0
-              with:
-                node-version: "latest"
-
             - name: Install calibre dependencies
               run:
                   python setup/unix-ci.py install
