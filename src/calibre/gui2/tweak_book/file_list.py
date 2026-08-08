@@ -11,8 +11,10 @@ from functools import lru_cache, partial
 from qt.core import (
     QAbstractItemView,
     QCheckBox,
+    QColor,
     QDialog,
     QDialogButtonBox,
+    QDockWidget,
     QFont,
     QFormLayout,
     QGridLayout,
@@ -23,10 +25,14 @@ from qt.core import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QMainWindow,
     QMenu,
     QPainter,
+    QPen,
     QPixmap,
+    QPoint,
     QRadioButton,
+    QRect,
     QScrollArea,
     QSize,
     QSpinBox,
@@ -62,6 +68,7 @@ from calibre.gui2 import (
 from calibre.gui2.tweak_book import CONTAINER_DND_MIMETYPE, current_container, editors, tprefs
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
+from calibre.gui2.widgets import draw_size
 from calibre.startup import connect_lambda
 from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
@@ -77,6 +84,59 @@ LINEAR_ROLE = CATEGORY_ROLE + 1
 MIME_ROLE = LINEAR_ROLE + 1
 TEMP_NAME_ROLE = MIME_ROLE + 1
 NBSP = '\xa0'
+PREVIEW_MAX_SIZE = 250  # max logical px for either dimension of the image preview popup
+PREVIEW_GAP = 6  # px gap between dock panel edge and preview popup
+
+
+class ImagePreviewPopup(QWidget):
+    """Frameless tooltip-style popup that shows an image file preview with resolution overlay."""
+
+    def __init__(self):
+        QWidget.__init__(self, None, Qt.WindowType.ToolTip)
+        self._pixmap = QPixmap()
+        self._img_w = 0
+        self._img_h = 0
+
+    def show_for(self, pixmap, screen_pos):
+        self._pixmap = pixmap
+        self._img_w = pixmap.width()
+        self._img_h = pixmap.height()
+        if pixmap.isNull() or self._img_w <= 0 or self._img_h <= 0:
+            self.hide()
+            return
+        dpr = max(1.0, pixmap.devicePixelRatio())
+        lw = self._img_w / dpr
+        lh = self._img_h / dpr
+        scale = min(PREVIEW_MAX_SIZE / lw, PREVIEW_MAX_SIZE / lh, 1.0)
+        self.resize(max(1, int(lw * scale)), max(1, int(lh * scale)))
+        self.move(screen_pos)
+        self.update()
+        self.show()
+        self.raise_()
+
+    def paintEvent(self, a0):
+        if self._pixmap.isNull():
+            return
+        p = QPainter(self)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
+        cw, ch = self.width(), self.height()
+        dpr = self._pixmap.devicePixelRatio()
+        scaled = self._pixmap.scaled(
+            int(cw * dpr),
+            int(ch * dpr),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        pw = int(scaled.width() / dpr)
+        ph = int(scaled.height() / dpr)
+        target = QRect((cw - pw) // 2, (ch - ph) // 2, pw, ph)
+        p.drawPixmap(target, scaled)
+        pen = QPen(QColor(0, 0, 0, 180))
+        pen.setWidth(1)
+        p.setPen(pen)
+        p.drawRect(QRect(0, 0, cw - 1, ch - 1))
+        if pw >= 64 and ph >= 64:
+            draw_size(p, target, self._img_w, self._img_h)
 
 
 @lru_cache(maxsize=2)
@@ -331,6 +391,14 @@ class FileList(QTreeWidget, OpenWithHandler):
             }.items()
         }
         self.itemActivated.connect(self.item_double_clicked)
+        self._image_preview = ImagePreviewPopup()
+        self._preview_item_name = None
+        self._preview_pixmap_cache = {}
+        self._preview_timer = QTimer(self)
+        self._preview_timer.setSingleShot(True)
+        self._preview_timer.timeout.connect(self._show_preview_now)
+        self.entered.connect(self._on_item_entered)
+        self.viewportEntered.connect(self._hide_preview)
 
     def possible_rename_requested(self, index, old, new):
         if old != new:
@@ -517,6 +585,8 @@ class FileList(QTreeWidget, OpenWithHandler):
     def build(self, container, preserve_state=True):
         if container is None:
             return
+        self._hide_preview()
+        self._preview_pixmap_cache.clear()
         if preserve_state:
             state = self.get_state()
         self.clear()
@@ -1273,6 +1343,110 @@ class FileList(QTreeWidget, OpenWithHandler):
                     sheets.append(str(item_il.text()))
             if sheets:
                 self.link_stylesheets_requested.emit(names, sheets, r.isChecked())
+
+    # --- image hover preview ---
+
+    def leaveEvent(self, a0):
+        QTreeWidget.leaveEvent(self, a0)
+        self._hide_preview()
+
+    def _on_item_entered(self, index):
+        item = self.itemFromIndex(index)
+        if item is None or str(item.data(0, CATEGORY_ROLE) or '') != 'images':
+            self._hide_preview()
+            return
+        name = str(item.data(0, NAME_ROLE) or '')
+        if not name or name == self._preview_item_name:
+            return
+        if not sip.isdeleted(self._image_preview):
+            self._image_preview.hide()
+        self._preview_item_name = name
+        self._preview_timer.start(400)
+
+    def _hide_preview(self):
+        self._preview_timer.stop()
+        self._preview_item_name = None
+        if not sip.isdeleted(self._image_preview):
+            self._image_preview.hide()
+
+    def _show_preview_now(self):
+        name = self._preview_item_name
+        if not name:
+            return
+        item = self.item_from_name(name)
+        if item is None:
+            self._preview_item_name = None
+            return
+        pixmap = self._load_preview_pixmap(name)
+        if pixmap.isNull():
+            return
+        pos = self._compute_preview_pos(item, pixmap)
+        if pos is not None:
+            self._image_preview.show_for(pixmap, pos)
+
+    def _load_preview_pixmap(self, name):
+        if name in self._preview_pixmap_cache:
+            return self._preview_pixmap_cache[name]
+        pixmap = QPixmap()
+        try:
+            raw = current_container().raw_data(name, decode=False)
+            pixmap.loadFromData(raw)
+        except Exception:
+            pass
+        self._preview_pixmap_cache[name] = pixmap
+        return pixmap
+
+    def _compute_preview_pos(self, item, pixmap):
+        dpr = max(1.0, pixmap.devicePixelRatio())
+        lw = pixmap.width() / dpr
+        lh = pixmap.height() / dpr
+        scale = min(PREVIEW_MAX_SIZE / max(lw, 1), PREVIEW_MAX_SIZE / max(lh, 1), 1.0)
+        pw = max(1, int(lw * scale))
+        ph = max(1, int(lh * scale))
+
+        vp = self.viewport()
+        if vp is None:
+            return None
+        item_rect = self.visualItemRect(item)
+        item_center_screen = vp.mapToGlobal(QPoint(0, item_rect.center().y()))
+
+        # Walk up to find the enclosing QDockWidget
+        dock = self.parent()
+        while dock is not None and not isinstance(dock, QDockWidget):
+            dock = dock.parent()
+
+        if dock is not None and not dock.isFloating():
+            # Docked: check which side the dock is on
+            mw = dock.parent()
+            while mw is not None and not isinstance(mw, QMainWindow):
+                mw = mw.parent()
+            if mw is not None and mw.dockWidgetArea(dock) == Qt.DockWidgetArea.RightDockWidgetArea:
+                x = dock.mapToGlobal(QPoint(0, 0)).x() - pw - PREVIEW_GAP
+            else:
+                x = dock.mapToGlobal(QPoint(dock.width(), 0)).x() + PREVIEW_GAP
+        elif dock is not None:
+            # Floating dock window: show to the right (or left if near screen edge)
+            x = dock.frameGeometry().right() + PREVIEW_GAP
+        else:
+            x = vp.mapToGlobal(QPoint(vp.width(), 0)).x() + PREVIEW_GAP
+
+        y = item_center_screen.y() - ph // 2
+
+        screen = self.screen()
+        if screen is not None:
+            sg = screen.availableGeometry()
+            if x + pw > sg.right():
+                # Not enough space on the right; try the left side of the dock
+                if dock is not None:
+                    x = (dock.frameGeometry().left() if dock.isFloating() else dock.mapToGlobal(QPoint(0, 0)).x()) - pw - PREVIEW_GAP
+                else:
+                    x = sg.right() - pw
+            x = max(sg.left(), min(x, sg.right() - pw))
+            y = max(sg.top(), min(y, sg.bottom() - ph))
+
+        return QPoint(x, y)
+
+    # --- end image hover preview ---
 
 
 class NewFileDialog(QDialog):  # {{{
