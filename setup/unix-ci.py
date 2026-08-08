@@ -210,48 +210,17 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-11940',  # tarfile, unused
     'CVE-2026-11972',  # tarfile, unused
     'CVE-2026-0864',  # configparser unused
-    # nodejs used only at build time CVEs are irrelevant
-    'CVE-2026-21710',
-    'CVE-2026-21717',
-    'CVE-2026-21714',
-    'CVE-2026-21713',
-    'CVE-2026-21715',
-    'CVE-2026-21716',
-    'CVE-2026-48937',
-    'CVE-2026-48617',
-    'CVE-2026-48931',
-    'CVE-2026-58040',
-    'CVE-2026-58039',
-    'CVE-2026-58043',
-    'CVE-2026-56847',
-    'CVE-2026-56850',
-    'CVE-2026-56848',
-    'CVE-2026-56846',
-    'CVE-2026-58042',
-    'CVE-2026-58041',
-    'CVE-2026-58045',
-    'CVE-2026-58044',
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
     'CVE-2017-1000376',  # false match in the database
     # espeak
     'CVE-2023-4990',  # false match because we currently build with a specific commit pending release of espeak 1.53
-    # ffmpeg cannot be updated till Qt starts using FFMPEG 8 and these CVEs are
-    # anyway for file types we dont use or support
-    'CVE-2025-59733',
-    'CVE-2025-59731',
-    'CVE-2025-59732',  # OpenEXR image files, not supported by calibre
-    'CVE-2025-59730',
-    'CVE-2025-59734',  # SANM decoding unused by calibre
-    'CVE-2025-59729',  # DHAV files unused by calibre ad negligible security impact: https://issuetracker.google.com/issues/433513232
-    'CVE-2025-25469',
-    'CVE-2025-25468',  # memory leak, not a security issue
-    'CVE-2025-12343',
-    'CVE-2025-10256',  # DoS in video decoder unused in calibre
-    'CVE-2026-40962',  # overflow in video decoder not used by calibre
-    'CVE-2026-8461',  # DoS in YUV decoder unused in calibre
     'CVE-2026-2673',  # openssl fix not released
+]
+IGNORED_DEPENDENCY_PACKAGES = [
+    'nodejs',  # only used at build time
+    'ffmpeg',  # cannot be updated till we update Qt
 ]
 
 
@@ -279,6 +248,9 @@ def check_dependencies() -> None:
         print('ignore:', file=f)
         for x in IGNORED_DEPENDENCY_CVES:
             print('  - vulnerability:', x, file=f)
+        for x in IGNORED_DEPENDENCY_PACKAGES:
+            print('  - package:', file=f)
+            print(f'      name: {x}', file=f)
     cmdline = [grype, '--by-cve', '--config', gc, '--fail-on', 'medium', '--only-fixed', '--add-cpes-if-none']
     # disable testing against dir as it raises false positives on sqlite
     # embedded in dependencies we dont use at runtime
