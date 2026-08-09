@@ -537,7 +537,7 @@ class TextEdit(PlainTextEdit):
             self.saved_matches[save_match] = (exp, m)
         return True
 
-    def find_text(self, pat, options=False, complete=False):
+    def find_text(self, pat, wrap=False, complete=False):
         reverse = pat.flags & regex.REVERSE
         c = self.textCursor()
         c.clearSelection()
@@ -545,7 +545,7 @@ class TextEdit(PlainTextEdit):
             # Search the entire text
             c.movePosition(QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start)
         pos = QTextCursor.MoveOperation.Start if reverse else QTextCursor.MoveOperation.End
-        if options and not complete:
+        if wrap and not complete:
             pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
         c.movePosition(pos, QTextCursor.MoveMode.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
