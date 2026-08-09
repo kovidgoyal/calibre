@@ -461,15 +461,24 @@ class ImageView(QWidget, ImageDropMixin):
         w, h = pmap.width(), pmap.height()
         ow, oh = w, h
         cw, ch = self.rect().width(), self.rect().height()
-        scaled, nw, nh = fit_image(w, h, cw, ch)
+        dpr = pmap.devicePixelRatio()
+        # Convert widget logical dimensions to physical pixels so fit_image
+        # works in a consistent unit (pmap.width/height are physical pixels).
+        phys_cw, phys_ch = max(1, round(cw * dpr)), max(1, round(ch * dpr))
+        scaled, nw, nh = fit_image(w, h, phys_cw, phys_ch)
+        if not scaled and (w != phys_cw or h != phys_ch):
+            # Image is smaller than the widget; scale up to fill, preserving aspect ratio.
+            scale = min(phys_cw / w, phys_ch / h)
+            nw, nh = int(w * scale), int(h * scale)
+            scaled = True
         if scaled:
             pmap = pmap.scaled(
-                int(nw * pmap.devicePixelRatio()),
-                int(nh * pmap.devicePixelRatio()),
+                nw,
+                nh,
                 Qt.AspectRatioMode.IgnoreAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )
-        w, h = int(pmap.width() / pmap.devicePixelRatio()), int(pmap.height() / pmap.devicePixelRatio())
+        w, h = int(pmap.width() / dpr), int(pmap.height() / dpr)
         x = int(abs(cw - w) / 2)
         y = int(abs(ch - h) / 2)
         target = QRect(x, y, w, h)
