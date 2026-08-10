@@ -15,7 +15,7 @@ from calibre.utils.imghdr import identify
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
-from polyglot.binary import from_hex_unicode
+from polyglot.binary import as_base64_bytes, from_hex_unicode
 
 
 def setUpModule():
@@ -232,7 +232,8 @@ class ContentTest(LibraryBaseTest):
 
     def test_set_fields_languages(self):  # {{{
         "Test /cdb/set-fields with a single language string"
-        with self.create_server() as server:
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
             db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
 
@@ -245,7 +246,7 @@ class ContentTest(LibraryBaseTest):
                 'POST',
                 '/cdb/set-fields/1',
                 body=data,
-                headers={'Content-Type': 'application/json'},
+                headers={'Content-Type': 'application/json', 'Authorization': 'Basic ' + as_base64_bytes('12:test').decode()},
             )
 
             r = conn.getresponse()
