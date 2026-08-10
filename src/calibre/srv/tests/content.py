@@ -230,6 +230,33 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
+    def test_set_fields_languages(self):  # {{{
+        "Test /cdb/set-fields with a single language string"
+        with self.create_server() as server:
+            db = server.handler.router.ctx.library_broker.get(None)
+            conn = server.connect()
+
+            data = json.dumps({
+                'changes': {'languages': 'eng'},
+                'loaded_book_ids': [1],
+            }).encode('utf-8')
+
+            conn.request(
+                'POST',
+                '/cdb/set-fields/1',
+                body=data,
+                headers={'Content-Type': 'application/json'},
+            )
+
+            r = conn.getresponse()
+            self.ae(r.status, http.client.OK)
+
+            result = json.loads(r.read())
+            self.ae(result['1']['languages'], ['eng'])
+            self.ae(db.field_for('languages', 1), ('eng',))
+
+    # }}}
+
     def test_html_as_json(self):  # {{{
         from calibre.ebooks.oeb.parse_utils import html5_parse
         from calibre.srv.render_book import html_as_json

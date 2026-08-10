@@ -238,6 +238,9 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             def to_lang_code(x):
                 return rmap.get(x, canonicalize_lang(x))
 
+            if isinstance(value, str):
+                value = (value,)
+
             value = list(filter(None, map(to_lang_code, value)))
         dirtied |= db.set_field(field, {book_id: value})
     ctx.notify_changes(db.backend.library_path, metadata(dirtied))
