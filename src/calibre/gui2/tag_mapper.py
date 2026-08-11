@@ -525,7 +525,7 @@ class SaveLoadMixin:
     def load_ruleset(self, name: str) -> None:
         self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
-        self.ruleset_changed.emit()
+        self.ruleset_changed.emit()  # type: ignore
 
     def delete_ruleset(self: SaveLoadSelf, name):
         del self.PREFS_OBJECT[name]

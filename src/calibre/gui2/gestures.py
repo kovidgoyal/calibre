@@ -46,7 +46,7 @@ class TouchPoint:
             QPointF(tp.globalPosition()),
         )
         movement = (self.current_screen_position - self.previous_screen_position).manhattanLength()
-        self.total_movement += movement
+        self.total_movement += int(movement)
         if movement > 5:
             self.time_of_last_move = now
 
