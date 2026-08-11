@@ -4,12 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
 class TheDailyMail(BasicNewsRecipe):
@@ -28,11 +23,11 @@ class TheDailyMail(BasicNewsRecipe):
     browser_type = 'webengine'
 
     keep_only_tags = [
-        dict(name='h1'),
-        classes('author-section byline-section'),
+        prefixed_classes('headline--'),
+        classes('article-page-headline author-section byline-section'),
         dict(itemprop='articleBody'),
     ]
-    remove_tags = [classes('related-carousel')]
+    remove_tags = [classes('related-carousel'), dict(attrs={'data-mol-fe-xpmodule-join-debate': True})]
 
     feeds = [
         ('Home', 'https://www.dailymail.co.uk/home/index.rss'),
@@ -50,7 +45,4 @@ class TheDailyMail(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll(attrs={'data-src': True}):
             img['src'] = img['data-src']
-        all_h1s = soup.findAll('h1')
-        for h1 in all_h1s[1:]:
-            h1.extract()
         return soup
