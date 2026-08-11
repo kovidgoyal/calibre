@@ -1,86 +1,200 @@
+# vim:fileencoding=utf-8
+"""
+Calibre recipe for FAZ.NET (Frankfurter Allgemeine Zeitung).
+
+The site's markup changes fairly often, so this recipe carries a fair amount
+of bespoke cleanup for a handful of recurring content types:
+  - plain articles
+  - "storytelling" articles whose body is embedded as JSON in a
+    ``__NUXT_DATA__`` script tag instead of plain HTML
+  - Tickaroo-based live blogs ("tik4-*" classes)
+  - "Bilderstrecke" image galleries, also delivered via ``__NUXT_DATA__``
+"""
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
 import re
 
-from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+from bs4 import BeautifulSoup, NavigableString
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+# ---------------------------------------------------------------------------
+# Shared helpers
+# ---------------------------------------------------------------------------
+
+# FAZ serves a "960w" entry in most srcset lists for the standard article-
+# width image. When present, the entry just before it is a higher-density
+# (retina) variant of the same image, which is what we prefer.
+SRCSET_MARKERS = ('960w', '960w,')
 
 
-def format_tickaroo_liveblog(soup):
-    for img in soup.findAll('img', attrs={'class': 'tik4-media-image__img', 'srcset': True}):
-        sources = img['srcset'].split()
-        i = 0
-        for x in sources:
-            if x in {'960w,', '960w'}:
-                img['src'] = sources[i - 1]
-                break
-            i = i + 1
-        if not img.has_attr('src'):
-            img['src'] = sources[0]
-    for div in soup.findAll('div', attrs={'class': 'tik4-content-block tik4-content-block--rich-text tik4-content-block--position-2'}):
-        div.insert_before(soup.new_tag('br'))
+def pick_srcset_source(srcset, fallback=None):
+    """Pick the best URL out of a ``srcset`` attribute string.
 
-    # format liveblogs
-    for tag in soup.findAll('time'):
-        ntag = soup.new_tag('br')
-        tag.insert_before(ntag)
-
-    for tag in soup.findAll(class_='tik4-author__wrapper'):
-        ntag = tag.find(class_='tik4-author__name')
-        if ntag:
-            temp = ntag.extract()
-            temp['class'] = 'tik4-media-body__title'
-        ntag = tag.find(class_='tik4-author__thumb')
-        if ntag and temp:
-            ntag.insert_after(temp)
+    Returns the source right before the "960w" marker if one is found,
+    otherwise ``fallback`` if given, otherwise the first source listed.
+    """
+    sources = srcset.split()
+    for i, source in enumerate(sources):
+        if source in SRCSET_MARKERS:
+            return sources[i - 1]
+    return fallback if fallback is not None else sources[0]
 
 
-# process run of images
-def bilderstrecke(soup, tag):
-    flag = False
+def find_image_source(img_tag):
+    """Collapse an <img srcset=...> tag down to a single concrete src."""
+    img_tag['src'] = pick_srcset_source(img_tag['srcset'], img_tag.get('src'))
+    del img_tag['srcset']
+
+
+def format_tickaroo_liveblog(recipe, soup):
+    """Reformat a Tickaroo live-blog ("tik4-*") article into plain flow HTML."""
+
+    IMG_SELECTOR = 'img.tik4-media-image__img[srcset]'
+    RICH_TEXT_DIV_SELECTOR = 'div.tik4-content-block.tik4-content-block--rich-text.tik4-content-block--position-2'
+    AUTHOR_WRAPPER_SELECTOR = '.tik4-author__wrapper'
+    AUTHOR_NAME_SELECTOR = '.tik4-author__name__t'
+    AUTHOR_THUMB_SELECTOR = '.tik4-author__thumb'
+    MEDIA_BODY_SELECTOR = '.tik4-media-body'
+    MEDIA_BODY_TITLE_CLASS = 'tik4-media-body__title'
+    MEDIA_BODY_TITLE_SELECTOR = '.' + MEDIA_BODY_TITLE_CLASS
+    MEDIA_BODY_PUNCTUATION_SELECTOR = '.tik4-media-body__punctuation'
+    MEDIA_BODY_CREDIT_SELECTOR = '.tik4-media-body__credit'
+    EXTERNAL_LINK_SELECTOR = 'a.tik4-we-simple'
+    EXTERNAL_LINK_TITLE_SELECTOR = '.tik4-we-simple__title'
+    EXTERNAL_LINK_DESC_SELECTOR = '.tik4-we-simple__description'
+    EXTERNAL_TEASER_IMG_SELECTOR = '[data-external-selector="teaser-object parent-image-label"]'
+
+    # 1. Resolve images that only carry a srcset.
+    for img_tag in soup.select(IMG_SELECTOR):
+        find_image_source(img_tag)
+
+    # 2. Add a line break before each rich-text news block.
+    for div_tag in soup.select(RICH_TEXT_DIV_SELECTOR):
+        div_tag.insert_before(soup.new_tag('br'))
+
+    # 3. Add a line break before each timestamp.
+    for time_tag in soup.find_all('time'):
+        time_tag.insert_before(soup.new_tag('br'))
+
+    # 4. Move the author name next to the author thumbnail.
+    for author_wrapper in soup.select(AUTHOR_WRAPPER_SELECTOR):
+        author_name_tag = author_wrapper.select_one(AUTHOR_NAME_SELECTOR)
+        author_thumb_tag = author_wrapper.select_one(AUTHOR_THUMB_SELECTOR)
+        if not author_name_tag:
+            continue
+
+        extracted_name = author_name_tag.extract()
+        extracted_name['class'] = MEDIA_BODY_TITLE_CLASS
+
+        if author_thumb_tag:
+            img = author_thumb_tag.find('img')
+            if img and img.has_attr('srcset'):
+                del img['srcset']
+            author_thumb_tag.insert_after(extracted_name)
+
+    # 5. Fold punctuation and credit into the media title.
+    for media_body in soup.select(MEDIA_BODY_SELECTOR):
+        title = media_body.select_one(MEDIA_BODY_TITLE_SELECTOR)
+        if not title:
+            continue
+        punctuation = media_body.select_one(MEDIA_BODY_PUNCTUATION_SELECTOR)
+        credit = media_body.select_one(MEDIA_BODY_CREDIT_SELECTOR)
+        if punctuation:
+            title.append(punctuation.extract())
+        if credit:
+            title.append(credit.extract())
+
+    # 6. Unwrap "external link" teasers (tik4-we-simple) into plain text/links.
+    for link_tag in soup.select(EXTERNAL_LINK_SELECTOR):
+        href = link_tag.get('href')
+        if not href:
+            continue
+
+        teaser_soup = recipe.index_to_soup(href)
+        if not teaser_soup:
+            continue
+
+        picture = teaser_soup.find('picture') or teaser_soup.select_one(EXTERNAL_TEASER_IMG_SELECTOR)
+        if picture:
+            link_tag.insert_before(soup.new_tag('br'))
+            if picture.img:
+                link_tag.insert_before(picture.img.extract())
+        link_tag.insert_after(soup.new_tag('br'))
+
+        title_element = link_tag.select_one(EXTERNAL_LINK_TITLE_SELECTOR)
+        if title_element:
+            title_element.insert_before(soup.new_tag('br'))
+            title_element.insert_after(soup.new_tag('br'))
+
+        description_element = link_tag.select_one(EXTERNAL_LINK_DESC_SELECTOR)
+        if description_element:
+            description_element.name = 'a'
+            description_element['href'] = href
+            description_element.wrap(soup.new_tag('div'))
+
+        link_tag.unwrap()
+
+
+def bilderstrecke(soup, script_tag):
+    """Render a "Bilderstrecke" image gallery from its embedded JSON blob.
+
+    The gallery data lives inside a ``__NUXT_DATA__`` script tag as a flat
+    JSON array; string values are referenced elsewhere in the array by index
+    rather than inlined, which is why the lookups below index back into
+    ``image_data``.
+    """
     try:
-        struct = json.loads(str(tag.contents[0]))
-    except Exception:
+        image_data = json.loads(script_tag.contents[0])
+    except ValueError, IndexError:
+        return
+    if not isinstance(image_data, list) or not any(isinstance(item, dict) and 'caption' in item for item in image_data):
         return
 
-    if struct and isinstance(struct, list):
-        for v in struct:
-            if isinstance(v, dict) and 'caption' in v:
-                flag = True
-                break
-    if not flag:
-        return
+    header_teaser = soup.find_all(attrs={'data-external-selector': 'header-teaser'})
+    header_teaser_element = None
+    if header_teaser:
+        if len(header_teaser) > 1:
+            header_teaser[0].extract()
+        header_teaser_element = header_teaser[0]
 
-    temp = soup.findAll(class_='header-teaser')
-    if len(temp) > 1:
-        temp[0].extract()
-    collect = soup.new_tag('div')
+    image_gallery = soup.new_tag('div')
+    oldfigure = None
+    for item in image_data:
+        if not (isinstance(item, dict) and 'caption' in item and 'derivatives' in item):
+            continue
 
-    for v in struct:
-        if isinstance(v, dict) and 'caption' in v and 'defaultUrl' in v:
-            # if type(struct[i-1])== str:
-            #     head = soup.new_tag("h4")
-            #     head.append(struct[i-1])
-            cap = soup.new_tag('p')
-            cap.append(struct[int(v['caption'])])
-            cap['class'] = 'body-elements__image-figcaption'
-            if 'source' in v.keys():
-                cred = soup.new_tag('span')
-                cred.append(struct[int(v['source'])])
-                cred['class'] = 'body-elements__image-figcaption--source'
-                cap.append(cred)
-            if 'defaultUrl' in v.keys():
-                fig = soup.new_tag('figure')
-                img = soup.new_tag('img')
-                img['src'] = struct[int(v['defaultUrl'])]
-                fig.append(img)
-                fig.append(cap)
-                collect.append(fig)
-    soup.find(class_='header-teaser').insert_after(collect)
+        caption = soup.new_tag('p')
+        caption.append(image_data[int(item['caption'])])
+        caption['class'] = 'body-elements__image-figcaption'
+        if 'source' in item:
+            credit = soup.new_tag('span')
+            credit.append(image_data[int(item['source'])])
+            credit['class'] = 'body-elements__image-figcaption--source'
+            caption.append(credit)
 
-    for tag in soup.findAll(class_='header-teaser__image--default'):
+        figure = soup.new_tag('figure')
+        img = soup.new_tag('img')
+        img['src'] = image_data[int(image_data[int(item['derivatives'])]['original_aspect_ratio'])]
+        figure.append(img)
+        figure.append(caption)
+        if img['src'] != oldfigure:
+            image_gallery.append(figure)
+            oldfigure = img['src']
+
+    if header_teaser_element:
+        header_teaser_element.insert_after(image_gallery)
+    else:
+        soup.append(image_gallery)
+
+    for tag in soup.find_all(class_='header-teaser__image--default'):
         tag.extract()
 
 
 def story(soup, tag):
+    """Move the first caption next to the first image in a story article."""
     first_image = soup.find('img', attrs={'loading': 'lazy'})
     first_caption = soup.find('figcaption', attrs={'class': 'caption'})
     if first_image and first_caption:
@@ -88,8 +202,8 @@ def story(soup, tag):
 
 
 class FazNet(BasicNewsRecipe):
-    # Version 9.1m
-    # Update 2024-05
+    # Version 11.1m
+    # Update 2026
     # original by Armin Geller
     # overhaul to deal with changes in the faz.net websites
 
@@ -108,25 +222,26 @@ class FazNet(BasicNewsRecipe):
     scale_news_images = (10, 100)
     delay = 1
 
-    test_feed = 'https://www.faz.net/rss/aktuell/feuilleton/kunst-und-architektur/berlinische-galerie-zeigt-edvard-munch-die-ganze-gefuehlsskala-des-lebens-19180631.html?printPagedArticle=true#pageIndex_2'
-
     extra_css = '''
-        .header-title,.scrolly-title {font-size: 1.5em; font-weight:bold; text-align:left;}
-        .quote {font-size: 1.5em; font-weight:bold; text-align:center;}
-        .author {font-size: 0.7em; font-weight:bold; text-align:center; display:block;
-            margin-bottom: 0.95 em; color:grey;}
-        .header-label__content {font-size: 0.7em; font-weight:bold; text-align:left; display:block;
-            margin-bottom: 0.95 em; color:grey;}
-        h3 {font-size:1.3em;text-align:left;}
-        .caption,.body-elements__image-figcaption,.header-teaser__image-details,.tik4-media-body__title,.scrolly-text {
-                margin-top:0.05em;margin-bottom:1em; font-size: 0.85em; text-align:left;}
-        .body-elements__image-figcaption--source,.header-teaser__image-details--source,.tik4-media-body__credit {
-                font-size: 0.65em; font-style:italic; text-align:left;margin-left:0.4em;}
+        .scrolly-title {font-size: 1.5em; font-weight:bold; text-align:left;}
+        .quote,.tik4-quote__text,.tik4-we-simple__title, .section-heading {
+                font-size: 1.3em; font-weight:bold; text-align:center;color:grey;margin-bottom:1em;margin-top:1em;}
+        .intro-text,.author, .tik4-quote__cite--source {font-size: 0.7em; font-weight:bold; text-align:center; display:block;
+              margin-bottom: 0.95em; color:grey;}
+        .intro-label,.header-label__content {font-size: 0.7em; font-weight:bold; text-align:left; display:block;
+              margin-bottom: 0.95em; color:grey;}
+        h2 {font-size:1.4em;text-align:left;}
+        .dict-txt,.caption,.body-elements__image-figcaption,.header-teaser__image-details,.meta2,
+          .tik4-media-body__title,.scrolly-text {line-height:0.8; display:block; margin-top:0.05em;margin-bottom:1em; font-size: 0.85em; text-align:left;}
+        .caption__copyright,.meta2-italic,.body-elements__image-figcaption--source,.header-teaser__image-details--source,
+          .dict-img-src,.tik4-media-body__credit, .tik4-we-simple__meta {font-size: 0.65em; font-style:italic; text-align:left;margin-left:0.4em;}
         .header-detail--bold {font-size:0.6em; font-weight:bold; margin-bottom:0.75em;text-align:left;}
+        .header-detail {font-size:0.8em}
         time {font-size:0.6em; font-weight: normal; margin-bottom:0.75em; text-align:left; display:block;}
-        .header-teaser,.scrolly-intro {font-size:1em; font-style:italic; font-weight:bold;margin-bottom:1em;}
-        .tik4-media-image {margin-bottom:1em;margin-top:1em;}
-        '''
+        .copy--intro,.header-teaser,.scrolly-intro {font-size:1em; font-style:italic; font-weight:bold;margin-bottom:1em;}
+        .dict-hl {font-size:1em; font-style:italic; font-weight:bold}
+        .tik4-media-image,.dict-box {margin-bottom:1em;margin-top:1em;}
+    '''
 
     keep_only_tags = [
         dict(name='article', attrs={'class': ['article', 'storytelling']}),
@@ -134,6 +249,7 @@ class FazNet(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['imageGallery', 'image_only']}),
         dict(name='div', attrs={'class': 'tik4-live__container'}),
         dict(name='script', attrs={'id': '__NUXT_DATA__'}),
+        dict(name='figure', attrs={'class': 'image'}),
     ]
 
     remove_tags = [
@@ -141,35 +257,53 @@ class FazNet(BasicNewsRecipe):
             name='div',
             attrs={
                 'class': [
-                    'related-articles',
-                    'consent-placeholder',
-                    'article-footer content-container',
                     'tik4-sharing',
                     'tik4-load-more-bottom',
                     'tik4-by',
                     'header-detail__image',
                     'mm-adbox',
-                    'upper-toolbar content-container',
+                    'upper-toolbar',
+                    'tik4-chapters__label',
+                    'tik4-we-toggle',
                 ]
             },
         ),
-        # dict(name ='script'),
-        dict(name='style'),
         dict(name='svg'),
         dict(name='div', attrs={'data-module': 'teaser'}),
+        dict(
+            attrs={
+                'data-external-selector': [
+                    'upper-toolbar',
+                    'article-footer',
+                    'related-articles',
+                    'placeholder',
+                    'media-label',
+                ]
+            }
+        ),
+        dict(name='img', attrs={'class': 'sm:hidden'}),
     ]
 
-    remove_attributes = ['onclick']
+    remove_attributes = ['onclick', 'initialdata', 'sizes']
 
-    test_article = False
-    if not test_article:
+    # To fetch a single article instead of the full set of RSS feeds (handy
+    # while debugging a markup change), set TEST_ARTICLE_URL below.
+    TEST_ARTICLE_URL = None
+    # "https://www.faz.net/aktuell/besser-leben/stil/bilderstrecke-mode-accessoires-fuer-maenner-16997909.html"
+
+    if TEST_ARTICLE_URL:
+
+        def parse_index(self):
+            return [('Articles', [{'title': 'Test article', 'url': self.TEST_ARTICLE_URL}])]
+
+    else:
         feeds = [
             ('FAZ.NET Aktuell', 'https://www.faz.net/rss/aktuell/'),
             ('Politik', 'https://www.faz.net/rss/aktuell/politik/'),
             ('Wirtschaft', 'https://www.faz.net/rss/aktuell/wirtschaft/'),
             ('Feuilleton', 'https://www.faz.net/rss/aktuell/feuilleton/'),
             ('Sport', 'https://www.faz.net/rss/aktuell/sport/'),
-            ('Lebensstil', 'https://www.faz.net/rss/aktuell/lebensstil/'),
+            ('Lebensstil', 'https://www.faz.net/rss/aktuell/besser-leben/stil/'),
             ('Gesellschaft', 'https://www.faz.net/rss/aktuell/gesellschaft/'),
             ('Finanzen', 'https://www.faz.net/rss/aktuell/finanzen/'),
             ('Technik & Motor', 'https://www.faz.net/rss/aktuell/technik-motor/'),
@@ -178,106 +312,216 @@ class FazNet(BasicNewsRecipe):
             ('Karriere & Hochschule', 'https://www.faz.net/rss/aktuell/karriere-hochschule/'),
             ('Rhein-Main', 'https://www.faz.net/rss/aktuell/rhein-main/'),
         ]
-    else:
 
-        def parse_index(self):
-            test_article = 'https://www.faz.net/aktuell/stil/mode-im-em-jahr-wir-zeigen-wie-fussball-und-mode-zusammengehoeren-19766969.html'
-            # test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/film-eruption-ein-thriller-aus-dem-nachlass-von-michael-crichton-19770491.html'
-            # test_article = 'https://www.faz.net/aktuell/stil/mode-design/leonie-benesch-sandra-hueller-ist-eine-meiner-heldinnen-19671638.html'
-            # test_article = 'https://www.faz.net/aktuell/feuilleton/medien/sabine-postel-zum-siebzigsten-die-briten-nannten-sie-german-traktor-19708409.html'
-            # test_article = 'https://www.faz.net/aktuell/stil/mode-design/von-richert-beil-bis-william-fan-wer-kauft-denn-das-19666592.html'
-            # test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/rezensionen/sachbuch/tom-mustills-buch-die-sprache-der-wale-19657782.html'
-            if test_article:
-                return [('Articles', [{'title': 'Test article', 'url': test_article}])]
-            soup = self.index_to_soup(self.INDEX)
-            img = soup.find(**prefixed_classes('IssueDescription_cover__'))
-            if img is not None:
-                self.cover_url = img['src']
-            current_section, current_articles = 'Cover Story', []
-            feeds = []
-            for x in soup.findAll(**prefixed_classes('TocFeaturedSection_heading__ TocSection_heading__ TocHeroGridItem_hedLink___ TocGridItem_hedLink__')):
-                cls = x['class']
-                if not isinstance(cls, str):
-                    cls = ' '.join(cls)
-                title = self.tag_to_string(x).strip()
-                if 'Section' in cls:
-                    if current_articles:
-                        feeds.append((current_section, current_articles))
-                    current_section, current_articles = title, []
-                    self.log(current_section)
+    def _unpack_storytelling_article(self, soup):
+        """Render "storytelling" articles whose body is embedded as JSON.
+
+        These articles ship an empty <article class="storytelling"> shell;
+        the actual content lives inside a __NUXT_DATA__ script tag and has
+        to be parsed out and re-inserted as HTML.
+        """
+        article_tag = soup.find(name='article', attrs={'class': 'storytelling'})
+        if not (article_tag and not article_tag.get_text().strip()):
+            return
+
+        nuxt_script_tag = soup.find('script', attrs={'id': '__NUXT_DATA__', 'type': 'application/json'})
+        if not nuxt_script_tag:
+            return
+
+        try:
+            json_data = json.loads(str(nuxt_script_tag.contents[0]))
+            for item in json_data:
+                if not (isinstance(item, dict) and 'body' in item):
                     continue
-                url = x['href']
-                current_articles.append({'title': title, 'url': url})
-                self.log('\t', title, url)
-            if current_articles:
-                feeds.append((current_section, current_articles))
-            return feeds
+                body = json_data[int(item['body'])]
+                if not body:
+                    continue
+                new_soup = BeautifulSoup(body, 'html.parser')
+                soup.append(new_soup)
+                storytelling_tag = soup.find(attrs={'data-content': 'storytelling'})
+                if storytelling_tag:
+                    storytelling_tag.unwrap()
+                break
+        except Exception:
+            pass
 
     def preprocess_html(self, soup):
-        # Format story-type article
-        tag = soup.find(class_='storyContainer')
-        if tag:
-            story(soup, tag)
+        self._unpack_storytelling_article(soup)
 
-        # Extract images and text from image galleries
-        for par in soup.findAll('p'):
-            if len(par.contents) == 1:
-                cont = str(par.contents[0])
-                if re.search(r'^[1-9]\d* Bilder$', cont):
-                    # print(cont)
-                    for tag in soup.findAll('script', attrs={'id': '__NUXT_DATA__', 'type': 'application/json'}):
-                        bilderstrecke(soup, tag)
-                        break
-                    break
+        # Format hovering images: resolve lazy-loaded src, and drop duplicate
+        # captions that immediately repeat the same text.
+        for figure_tag in soup.find_all('figure', class_='image'):
+            img_tag = figure_tag.find('img', attrs={'data-src': True})
+            if img_tag:
+                img_tag['src'] = img_tag['data-src']
+                del img_tag['data-src']
+            caption_tag = figure_tag.find('figcaption')
+            if caption_tag:
+                next_caption = caption_tag.find_next('figcaption')
+                if next_caption and caption_tag.get_text(strip=True) == next_caption.get_text(strip=True):
+                    next_caption.extract()
 
-        # unwrap buttons
-        for tag in soup.findAll('button'):
-            tag.unwrap()
+        # Move the headline in front of the lead image, if it isn't already.
+        lead_image = soup.find('figure', attrs={'class': 'image'})
+        h1 = soup.find('h1')
+        if lead_image and h1 and h1.parent and not h1.parent.find(lead_image):
+            lead_image.insert_before(h1.parent.extract())
 
-        # remove ":""
-        tag = soup.find(class_='header-label__content')
-        if tag:
-            colon = tag.find(class_='sr-only')
-            if colon:
-                colon.extract()
+        # Normalize all figure captions to <span class="caption">.
+        for tag in soup.find_all('figcaption'):
+            tag['class'] = 'caption'
+            tag.name = 'span'
 
-        # Skip articles behind paywall
+        # Format the "header-detail" byline/date block into a plain span.
+        header_detail_selectors = ['header-detail', 'header-detail-opinion header-detail']
+        header_detail_tag = soup.find(attrs={'data-external-selector': header_detail_selectors})
+        if header_detail_tag:
+            span = soup.new_tag('span')
+            span['class'] = 'header-detail'
+            span.string = header_detail_tag.get_text(separator=' ', strip=True).replace(' ,', ',')
+            if header_detail_tag.img and header_detail_tag.img.parent and header_detail_tag != header_detail_tag.img.parent:
+                header_detail_tag.insert_before(header_detail_tag.img.parent.extract())
+            header_detail_tag.replace_with(span)
+
+        # Format "story"-type articles (moves the first caption next to the
+        # first image).
+        if soup.find(class_='storyContainer'):
+            story(soup, None)
+
+        # Extract images and text from "Bilderstrecke" image galleries: these
+        # show up in the body as a lone "<n> Bilder" paragraph, with the
+        # actual gallery data embedded in a __NUXT_DATA__ script tag.
+        for par in soup.find_all('p'):
+            if len(par.contents) != 1:
+                continue
+            content = str(par.contents[0]).strip()
+            if re.search(r'^[1-9]\d* Bilder$', content):
+                par.extract()
+                nuxt_script_tag = soup.find('script', attrs={'id': '__NUXT_DATA__', 'type': 'application/json'})
+                if nuxt_script_tag:
+                    bilderstrecke(soup, nuxt_script_tag)
+                break
+
+        # Unwrap buttons, dropping "Weitere anzeigen" (show more) entirely.
+        for tag in soup.find_all('button'):
+            if 'Weitere anzeigen' in tag.get_text():
+                tag.extract()
+            else:
+                tag.unwrap()
+
+        # Rename the section-label span to a class we style explicitly.
+        label_tag = soup.find('span', class_='sm:o2-medium')
+        if label_tag:
+            label_tag['class'] = 'header-label__content'
+
+        # Drop the screen-reader-only colon inside the section label.
+        header_label_tag = soup.find(class_='header-label__content')
+        if header_label_tag:
+            colon_tag = header_label_tag.find(class_='sr-only')
+            if colon_tag:
+                colon_tag.extract()
+
+        # Clean up <h2> headers: turn nested <div>s into <span>s.
+        h2_tag = soup.find('h2')
+        if h2_tag:
+            for div_tag in h2_tag.find_all('div'):
+                div_tag.name = 'span'
+
+        # Format the "header-teaser" lead paragraph.
+        header_teaser_tag = soup.find(attrs={'data-external-selector': 'header-teaser'})
+        if header_teaser_tag:
+            header_teaser_tag['class'] = 'header-teaser'
+
+        # Skip articles behind the paywall.
         if soup.find(id='faz-paywall'):
-            self.abort_article('Skipping paywalled article')
+            self.abort_article()
 
-        # Remove F.A.Z. ad
-        for tag in soup.findAll(attrs={'class': 'body-elements__paragraph'}):
-            if tag.contents[0] and 'F.A.Z.-Newsletter' in tag.contents[0]:
+        # Remove the F.A.Z. newsletter ad.
+        for tag in soup.find_all(attrs={'class': 'body-elements__paragraph'}):
+            if tag.contents and isinstance(tag.contents[0], NavigableString):
+                if 'F.A.Z.-Newsletter' in str(tag.contents[0]):
+                    tag.extract()
+
+        # Remove the "prefer us on Google" nudge (paragraph and link forms).
+        for tag in soup.find_all('p'):
+            if 'in Ihren Suchergebnissen sehen' in tag.get_text():
+                tag.extract()
+        for tag in soup.find_all('a'):
+            if 'bei Google bevorzugen' in tag.get_text():
                 tag.extract()
 
-        # format liveblog
+        # Reformat Tickaroo live blogs.
         if soup.find(attrs={'class': 'tik4-live__container'}):
-            format_tickaroo_liveblog(soup)
+            format_tickaroo_liveblog(self, soup)
 
-        # remove sizes and calc attributes in images
-        for tag in soup.findAll('img'):
-            if tag.has_attr('src'):
-                new_img = soup.new_tag('img')
-                new_img['src'] = tag['src']
-                if tag.has_attr('alt'):
-                    new_img['alt'] = tag['alt']
-                if tag.has_attr('title'):
-                    new_img['title'] = tag['title']
-                tag.replace_with(new_img)
+        # Resolve any remaining srcset-only images.
+        for img_tag in soup.find_all('img', srcset=True):
+            find_image_source(img_tag)
+
+        # Resolve <picture><source srcset=...> images.
+        for picture_tag in soup.find_all('picture'):
+            source_tag = picture_tag.find('source', srcset=True)
+            img_tag = picture_tag.find('img') if source_tag else None
+            if img_tag:
+                img_tag['src'] = pick_srcset_source(source_tag['srcset'])
+
+        # Strip all image attributes except src/alt/title; drop images with
+        # no resolvable src entirely.
+        attributes_to_keep = {'src', 'alt', 'title'}
+        for img_tag in soup.find_all('img'):
+            if not img_tag.has_attr('src'):
+                img_tag.decompose()
+                continue
+            for attr in list(img_tag.attrs):
+                if attr not in attributes_to_keep:
+                    del img_tag[attr]
+
         return soup
 
-    # Some last cleanup
-
     def postprocess_html(self, soup, first_fetch):
+        # Remove the style attribute from certain image captions.
+        for tag in soup.select('div.meta2'):
+            if tag.has_attr('style'):
+                del tag['style']
+                if tag.span:
+                    tag.span.unwrap()
 
-        # Position point between figure caption and figure credit, where needed
-        for tag in soup.findAll(attrs={'class': ['body-elements__image-figcaption', 'header-teaser__image-details']}):
-            if tag.string is None:
-                if tag.contents[0].string:
-                    tag = tag.contents[0]
+        # Unwrap any remaining <span> inside a caption.
+        for tag in soup.find_all(attrs={'class': 'caption'}):
+            span = tag.find('span')
+            if span:
+                span.unwrap()
+
+        # Add a trailing period between a figure caption and its credit,
+        # where the caption doesn't already end in punctuation.
+        caption_classes = [
+            'body-elements__image-figcaption',
+            'header-teaser__image-details',
+            'caption',
+            'meta2',
+        ]
+        for tag in soup.find_all(attrs={'class': caption_classes}):
+            if tag.string is None and tag.contents and tag.contents[0].string:
+                tag = tag.contents[0]
             if tag.string:
-                text = str(tag.string)
-                text = text.strip()
-                if text != '' and text[-1] not in ['.', '?', '!', ':']:
-                    tag.string.replace_with(text + '.')
-        return self.adeify_images(soup)
+                text = str(tag.string).strip()
+                if text and text[-1] not in '.?!:':
+                    tag.string.replace_with(text + '. ')
+
+        # Add a line break between an image and a following header-teaser.
+        for tag in soup.find_all(class_='header-teaser'):
+            tag.insert_before(soup.new_tag('br'))
+
+        # Wrap every image in its own <div>, stripped of layout attributes.
+        for img_tag in soup.find_all('img'):
+            for attrib in ('height', 'width', 'border', 'align', 'style'):
+                if img_tag.has_attr(attrib):
+                    del img_tag[attrib]
+            parent = img_tag.parent
+            index = parent.contents.index(img_tag)
+            img_tag.extract()
+            div_tag = soup.new_tag('div')
+            parent.insert(index, div_tag)
+            div_tag.append(img_tag)
+
+        return soup
