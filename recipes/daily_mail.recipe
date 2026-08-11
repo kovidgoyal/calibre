@@ -9,18 +9,20 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 class TheDailyMail(BasicNewsRecipe):
     title = 'The Daily Mail'
-    oldest_article = 2
     language = 'en_GB'
-
     __author__ = 'Kovid Goyal'
-    simultaneous_downloads = 1
-    max_articles_per_feed = 50
+
     use_embedded_content = False
+    oldest_article = 2
+    max_articles_per_feed = 20
+
     compress_news_images = True
     compress_news_images_auto_size = 8
     no_stylesheets = True
-    delay = 2
-    browser_type = 'webengine'
+
+    simultaneous_downloads = 1
+    # delay = 2
+    # browser_type = 'webengine'
 
     keep_only_tags = [
         prefixed_classes('headline--'),
