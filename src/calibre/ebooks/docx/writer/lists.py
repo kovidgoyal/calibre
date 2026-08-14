@@ -156,5 +156,5 @@ class ListsManager:
             defn.serialize(parent)
         makeelement = self.namespace.makeelement
         for defn in self.definitions:
-            n = makeelement(parent, 'w:num', w_numId=str(defn.num_id + 1))
+            n = makeelement(parent, 'w:num', w_numId=str((defn.num_id or 0) + 1))
             makeelement(n, 'w:abstractNumId', w_val=str(defn.num_id))

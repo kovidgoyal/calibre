@@ -9,6 +9,7 @@ from contextlib import suppress
 from threading import Thread
 from uuid import uuid4
 
+from calibre.utils.config import dynamic
 from calibre.utils.localization import _
 
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
@@ -23,12 +24,6 @@ def set_app_uid(val=None):
 
 def is_ok():
     return os.path.exists(HELPER)
-
-
-try:
-    from calibre.utils.config import dynamic
-except ImportError:
-    dynamic = {}  # type: ignore
 
 
 def get_hwnd(widget=None):
