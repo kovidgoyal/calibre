@@ -44,6 +44,10 @@ def safe_localhost():
         from calibre_extensions.winutil import get_computer_name
 
         fqdn = get_computer_name()
+    except UnicodeEncodeError:
+        # happens when fqdn is too long to encode in IDNA
+        # https://bugs.launchpad.net/bugs/2163484
+        fqdn = ''
     if '.' in fqdn and fqdn != '.':
         # Some mail servers have problems with non-ascii local hostnames, see
         # https://bugs.launchpad.net/bugs/1256549
