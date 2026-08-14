@@ -83,7 +83,7 @@ def render_legacy_book_details(ctx, mi, library_id):
         lang_links = []
         for lang in mi.languages:
             search_url = f'/mobile?library_id={library_id}&search=languages:%22%3D{lang}%22'
-            lang_links.append(f'<a href="{search_url}">{lang}</a>')
+            lang_links.append(f'<a href="{escape(search_url)}">{escape(lang)}</a>')
         metadata_rows.append(f'<tr><td>Languages</td><td>{", ".join(lang_links)}</td></tr>')
 
     # Identifiers
@@ -99,7 +99,7 @@ def render_legacy_book_details(ctx, mi, library_id):
             else:
                 url = f'#{key}:{value}'  # fallback
                 display = f'{key}: {value}'
-            id_links.append(f'<a href="{url}" target="_blank">{display}</a>')
+            id_links.append(f'<a href="{escape(url)}" target="_blank">{escape(display)}</a>')
         metadata_rows.append(f'<tr><td>Identifiers</td><td>{", ".join(id_links)}</td></tr>')
 
     if mi.formats:
