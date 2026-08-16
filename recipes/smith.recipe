@@ -19,9 +19,11 @@ class Smithsonian(BasicNewsRecipe):
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'
-    keep_only_tags = [classes('article-header articleLeft')]
+    keep_only_tags = [classes('article-header'), classes('articleLeft')]
     remove_tags = [
-        classes('hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container widget-article-pixel tag-list recommended-videos comments')
+        dict(name='source'),
+        classes('hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container share-control'
+                ' widget-article-pixel tag-list recommended-videos comments widget-related-articles in-article-newsletter')
     ]
     no_javascript = True
     no_stylesheets = True
@@ -29,23 +31,28 @@ class Smithsonian(BasicNewsRecipe):
     def parse_section(self, url):
         soup = self.index_to_soup(url)
         seen = set()
-        for al in soup.findAll(attrs={'class': 'article-list'}):
-            for article in al.findAll(attrs={'class': 'article-list-item'}):
-                div = article.find(attrs={'class': 'article-list-text'})
-                a = div.find('a')
-                title = self.tag_to_string(a)
-                if title in seen:
-                    continue
-                seen.add(title)
-                url = 'https://www.smithsonianmag.com/' + a['href'].lstrip('/')
-                if '/tag/' in url:
-                    continue
-                desc = ''
-                p = div.find(attrs={'class': 'article-list-text'})
-                if p is not None:
-                    desc = self.tag_to_string(p)
-                self.log('\t' + title)
-                yield {'title': title, 'url': url, 'description': desc}
+        for article in soup.findAll(attrs={'class': 'content-list-item'}):
+            div = article.find(attrs={'class': 'content-list-text'})
+            if div is None:
+                continue
+            a = div.find('a')
+            if a is None:
+                continue
+            title = self.tag_to_string(a)
+            if title in seen:
+                continue
+            seen.add(title)
+            article_url = a['href']
+            if not article_url.startswith('http'):
+                article_url = 'https://www.smithsonianmag.com/' + article_url.lstrip('/')
+            if '/tag/' in article_url:
+                continue
+            desc = ''
+            p = div.find(attrs={'class': 'dek'})
+            if p is not None:
+                desc = self.tag_to_string(p)
+            self.log('\t' + title)
+            yield {'title': title, 'url': article_url, 'description': desc}
 
     def parse_index(self):
         ans = []
