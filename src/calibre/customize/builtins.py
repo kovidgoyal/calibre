@@ -3,7 +3,6 @@
 import glob
 import os
 
-from calibre.ai.github import GitHubAI
 from calibre.ai.google import GoogleAI
 from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.ollama import OllamaAI
@@ -2086,7 +2085,7 @@ plugins += [
 
 # }}}
 
-plugins.extend((OpenRouterAI, GoogleAI, GitHubAI, OllamaAI, LMStudioAI, OpenAICompatible))
+plugins.extend((OpenRouterAI, GoogleAI, OllamaAI, LMStudioAI, OpenAICompatible))
 
 if __name__ == '__main__':
     # Test load speed
