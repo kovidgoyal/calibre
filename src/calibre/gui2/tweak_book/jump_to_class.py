@@ -46,7 +46,7 @@ def find_first_rule_that_matches_elem(container, elem, select, class_name, rules
         if rule.type == CSSRule.STYLE_RULE:
             if rule_matches_elem(rule, elem, select, class_name):
                 return RuleLocation(rule_address + [i - num_comment_rules], current_file_name)
-        elif rule.type == CSSRule.COMMENT:
+        elif rule.type in (CSSRule.COMMENT, CSSRule.CHARSET_RULE):
             num_comment_rules += 1
         elif rule.type == CSSRule.MEDIA_RULE:
             res = find_first_rule_that_matches_elem(
