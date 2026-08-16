@@ -22,8 +22,10 @@ class Smithsonian(BasicNewsRecipe):
     keep_only_tags = [classes('article-header'), classes('articleLeft')]
     remove_tags = [
         dict(name='source'),
-        classes('hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container share-control'
-                ' widget-article-pixel tag-list recommended-videos comments widget-related-articles in-article-newsletter')
+        classes(
+            'hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container share-control'
+            ' widget-article-pixel tag-list recommended-videos comments widget-related-articles in-article-newsletter'
+        ),
     ]
     no_javascript = True
     no_stylesheets = True
