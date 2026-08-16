@@ -122,17 +122,26 @@ cpalmdoc_rfind(Byte *data, Py_ssize_t pos, Py_ssize_t chunk_length) {
 
 
 static Py_ssize_t
-cpalmdoc_do_compress(buffer *b, char *output) {
+cpalmdoc_do_compress(buffer *b, char *output, Py_ssize_t output_len) {
     Py_ssize_t i = 0, j, chunk_len, dist;
     unsigned int compound;
     Byte c, n;
     bool found;
-    char *head;
+    char *head = output, *end = output + output_len;
     buffer temp;
-    head = output;
     temp.data = (Byte *)PyMem_Malloc(sizeof(Byte) * 8);
     temp.len = 0;
     if (temp.data == NULL) return 0;
+#define NEED(n)                \
+    if (output + n > end) {    \
+        PyMem_Free(temp.data); \
+        return -1;             \
+    }
+#define WRITE(ch) *(output++) = ch;
+#define CHECK_WRITE(ch) \
+    NEED(1);            \
+    WRITE(ch);
+
     while (i < b->len) {
         c = b->data[i];
         // do repeats
@@ -144,8 +153,9 @@ cpalmdoc_do_compress(buffer *b, char *output) {
                 if (j < i && dist <= 2047) {
                     found = true;
                     compound = (unsigned int)((dist << 3) + chunk_len - 3);
-                    *(output++) = CHAR(0x80 + (compound >> 8));
-                    *(output++) = CHAR(compound & 0xFF);
+                    NEED(2);
+                    WRITE(CHAR(0x80 + (compound >> 8)));
+                    WRITE(CHAR(compound & 0xFF));
                     i += chunk_len;
                     break;
                 }
@@ -158,13 +168,14 @@ cpalmdoc_do_compress(buffer *b, char *output) {
         if (c == 32 && i < b->len) {
             n = b->data[i];
             if (n >= 0x40 && n <= 0x7F) {
-                *(output++) = CHAR(n ^ 0x80);
+                CHECK_WRITE(CHAR(n ^ 0x80));
                 i++;
                 continue;
             }
         }
-        if (c == 0 || (c > 8 && c < 0x80)) *(output++) = CHAR(c);
-        else { // Write binary data
+        if (c == 0 || (c > 8 && c < 0x80)) {
+            CHECK_WRITE(CHAR(c));
+        } else { // Write binary data
             j = i;
             temp.data[0] = c;
             temp.len = 1;
@@ -175,10 +186,14 @@ cpalmdoc_do_compress(buffer *b, char *output) {
                 j++;
             }
             i += temp.len - 1;
-            *(output++) = (char)temp.len;
-            for (j = 0; j < temp.len; j++) *(output++) = (char)temp.data[j];
+            CHECK_WRITE((char)temp.len);
+            NEED(temp.len);
+            for (j = 0; j < temp.len; j++) { WRITE((char)temp.data[j]); }
         }
     }
+#undef NEED
+#undef WRITE
+#undef CHECK_WRITE
     PyMem_Free(temp.data);
     return output - head;
 }
@@ -188,7 +203,7 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     const char *_input = NULL;
     Py_ssize_t input_len = 0;
     char *output;
-    PyObject *ans;
+    PyObject *ans = NULL;
     Py_ssize_t j = 0;
     buffer b;
     if (!PyArg_ParseTuple(args, "y#", &_input, &input_len)) return NULL;
@@ -199,11 +214,11 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     b.len = input_len;
     // Make the output buffer larger than the input as sometimes
     // compression results in a larger block
-    output = (char *)PyMem_Malloc(sizeof(char) * (int)(1.25 * b.len));
+    Py_ssize_t output_len = (2 * b.len + 1);
+    output = (char *)PyMem_Malloc(sizeof(char) * output_len);
     if (output == NULL) return PyErr_NoMemory();
-    j = cpalmdoc_do_compress(&b, output);
-    if (j == 0) return PyErr_NoMemory();
-    ans = Py_BuildValue("y#", output, j);
+    j = cpalmdoc_do_compress(&b, output, output_len);
+    if (j != 0) ans = Py_BuildValue("y#", output, j);
     PyMem_Free(output);
     PyMem_Free(b.data);
     return ans;
