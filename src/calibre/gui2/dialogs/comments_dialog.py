@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QSize, Qt, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import Application, gprefs
 from calibre.gui2.comments_editor import Editor
+from calibre.gui2.tweak_book.widgets import PlainTextEdit as BasePlainTextEdit
 from calibre.gui2.widgets2 import Dialog
 from calibre.library.comments import comments_to_html
 from calibre.utils.localization import _
@@ -51,8 +52,11 @@ class CommentsDialog(QDialog):
         return QDialog.closeEvent(self, a0)
 
 
-class PlainTextEdit(QPlainTextEdit):
+class PlainTextEdit(BasePlainTextEdit):
     ctrl_enter_pushed = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent, use_smarten_punctuation=True)
 
     def keyPressEvent(self, e):
         if e.modifiers() & Qt.KeyboardModifier.ControlModifier and e.key() == Qt.Key.Key_Return:
