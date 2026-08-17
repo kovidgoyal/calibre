@@ -1664,7 +1664,7 @@ class Editor(QWidget):  # {{{
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(QTabWidget.TabPosition.South)
         self.wyswyg = QWidget(self.tabs)
-        self.code_edit = PlainTextEdit(self.tabs)
+        self.code_edit = PlainTextEdit(self.tabs, use_smarten_punctuation=True)
         self.code_edit.setTabChangesFocus(True)
         self.source_dirty = False
         self.wyswyg_dirty = True

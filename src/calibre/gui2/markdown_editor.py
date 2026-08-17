@@ -3,10 +3,11 @@
 
 import os
 
-from qt.core import QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt, QTabWidget, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QSize, Qt, QTabWidget, QUrl, QVBoxLayout, QWidget
 
 from calibre.gui2 import gprefs, safe_open_url
 from calibre.gui2.book_details import resolved_css
+from calibre.gui2.tweak_book.widgets import PlainTextEdit
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import markdown as get_markdown
 from calibre.utils.localization import _
@@ -25,21 +26,12 @@ class Preview(HTMLDisplay):
         return super().loadResource(type, name)
 
 
-class MarkdownEdit(QPlainTextEdit):
-    smarten_punctuation = pyqtSignal()
-
+class MarkdownEdit(PlainTextEdit):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, use_smarten_punctuation=True)
         from calibre.gui2.markdown_syntax_highlighter import MarkdownHighlighter
 
         self.highlighter = MarkdownHighlighter(self.document())
-
-    def contextMenuEvent(self, e):
-        m = self.createStandardContextMenu()
-        assert m is not None
-        m.addSeparator()
-        m.addAction(_('Smarten punctuation'), self.smarten_punctuation.emit)
-        m.exec(e.globalPos())
 
 
 class MarkdownEditDialog(QDialog):
@@ -102,7 +94,6 @@ class Editor(QWidget):  # {{{
         self._layout.addWidget(self.tabs)
 
         self.editor = MarkdownEdit(self)
-        self.editor.smarten_punctuation.connect(self.smarten_punctuation)
 
         self.preview = Preview(self)
         self.preview.anchor_clicked.connect(self.link_clicked)
@@ -165,14 +156,6 @@ class Editor(QWidget):  # {{{
         tab_bar = self.tabs.tabBar()
         assert tab_bar is not None
         tab_bar.setVisible(False)
-
-    def smarten_punctuation(self):
-        from calibre.ebooks.conversion.preprocess import smarten_punctuation
-
-        markdown = self.markdown
-        newmarkdown = smarten_punctuation(markdown)
-        if markdown != newmarkdown:
-            self.markdown = newmarkdown
 
 
 # }}}

@@ -19,7 +19,6 @@ from qt.core import (
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPlainTextEdit,
     QSizePolicy,
     QSpacerItem,
     QStyle,
@@ -37,6 +36,7 @@ from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
 from calibre.gui2.markdown_editor import Editor as MarkdownEditor
+from calibre.gui2.tweak_book.widgets import PlainTextEdit
 from calibre.gui2.widgets2 import DateTimeEdit as DateTimeEditBase
 from calibre.gui2.widgets2 import RatingEditor
 from calibre.library.comments import comments_to_html
@@ -241,7 +241,7 @@ class LongText(Base):
         self._box = QGroupBox(parent)
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
-        self._tb = QPlainTextEdit(self._box)
+        self._tb = PlainTextEdit(self._box, use_smarten_punctuation=True)
         self._tb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
