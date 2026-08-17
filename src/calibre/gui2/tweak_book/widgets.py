@@ -1551,11 +1551,12 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
                 break
             left = min(c.anchor(), c.position())
             right = max(c.anchor(), c.position())
-            if q[0] in '“‘':
+            quotes = '“”‘’‟„«»‹›《》〈〉「」『』'
+            if q[0] in quotes:
                 changed = True
                 c.setPosition(left + 1)
                 c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
-            elif q[-1] in '’”':
+            elif q[-1] in quotes:
                 changed = True
                 c.setPosition(left)
                 c.setPosition(right - 1, QTextCursor.MoveMode.KeepAnchor)
