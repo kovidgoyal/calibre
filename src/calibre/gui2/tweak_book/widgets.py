@@ -1544,6 +1544,10 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         c = self.textCursor()
         # Workaround for QTextCursor considering smart quotes as word
         # characters https://bugreports.qt.io/browse/QTBUG-101372
+        from calibre.ebooks.metadata import quote_pairs
+
+        opening_quotes = frozenset(quote_pairs)
+        closing_quotes = frozenset(ch for chars in quote_pairs.values() for ch in chars)
         changed = False
         while True:
             q = c.selectedText()
@@ -1551,11 +1555,11 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
                 break
             left = min(c.anchor(), c.position())
             right = max(c.anchor(), c.position())
-            if q[0] in '“‘':
+            if q[0] in opening_quotes:
                 changed = True
                 c.setPosition(left + 1)
                 c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
-            elif q[-1] in '’”':
+            elif q[-1] in closing_quotes:
                 changed = True
                 c.setPosition(left)
                 c.setPosition(right - 1, QTextCursor.MoveMode.KeepAnchor)
