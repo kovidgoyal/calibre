@@ -6,7 +6,7 @@ import re
 import sys
 import weakref
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from functools import partial
 from threading import Thread
@@ -376,6 +376,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     action_title_case: QAction
     action_block_style: QAction
 
+    # allow plugins to extend the actions in the toolbar and the "Advanced" submenu
+    # each function take the EditorWidget and the QMenu as arguments and return a single or list of QAction
+    plugin_actions: set[Callable[[EditorWidget], QAction | Iterable[QAction]]] = set()
+
     @property
     def readonly(self):
         return self.isReadOnly()
@@ -411,6 +415,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.base_url = None
         self._parent = weakref.ref(parent)
         self.shortcut_map = {}
+        self.plugin_actions_items: list[list[QAction]] = []
 
         def r(name, icon, text, checkable=False, shortcut=None, callback=None):
             ac = QAction(QIcon.ic(icon + '.png'), text, self) if icon else QAction(text, self)
@@ -496,6 +501,17 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             ac.setCheckable(True)
             self.block_style_actions.append(ac)
             ac.triggered.connect(self.do_format_block)
+
+        for f in self.plugin_actions:
+            if not (lst := f(self)):
+                continue
+            if isinstance(lst, QAction):
+                lst = [lst]
+            else:
+                lst = list(lst)
+            self.plugin_actions_items.append(lst)
+            for ac in lst:
+                self.addAction(ac)
 
         self.setHtml('')
         self.copyAvailable.connect(self.update_clipboard_actions)
@@ -1310,6 +1326,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             am.addAction(self.action_insert_image)
         am.addAction(self.action_background)
         am.addAction(self.action_color)
+
+        am.addSeparator()
+        for lst in self.plugin_actions_items:
+            for ac in lst:
+                am.addAction(ac)
+
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
         menu.exec(e.globalPos())
 
@@ -1731,6 +1753,13 @@ class Editor(QWidget):  # {{{
             ac = getattr(self.editor, 'action_align_' + x)
             self.toolbar.add_action(ac)
         self.toolbar.add_separator()
+
+        for lst in self.editor.plugin_actions_items:
+            for ac in lst:
+                self.toolbar.add_action(ac)
+                self.addAction(ac)
+            self.toolbar.add_separator()
+
         QTimer.singleShot(0, self.toolbar.updateGeometry)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
@@ -1815,6 +1844,12 @@ class Editor(QWidget):  # {{{
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
+    def extend_actions(e):
+        for n in ['beautify', 'bullhorn']:
+            yield QAction(QIcon.ic(n + '.png'), n, e)
+
+    EditorWidget.plugin_actions.add(extend_actions)
 
     app = Application([])
     w = Editor(one_line_toolbar=False)
