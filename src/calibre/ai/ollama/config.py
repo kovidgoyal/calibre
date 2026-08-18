@@ -16,7 +16,7 @@ pref = partial(pref_for_provider, OllamaAI.name)
 
 
 class ConfigWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -133,7 +133,7 @@ class ConfigWidget(QWidget):
             return False
         return True
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         set_prefs_for_provider(OllamaAI.name, self.settings)
 
 

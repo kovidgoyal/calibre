@@ -18,7 +18,7 @@ pref = partial(pref_for_provider, LMStudioAI.name)
 
 
 class ConfigWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -86,7 +86,7 @@ class ConfigWidget(QWidget):
 
         mc.activated.connect(self._on_model_selected)
 
-    def refresh_models(self):
+    def refresh_models(self) -> None:
         with BusyCursor():
             try:
                 plugin = plugin_for_name(LMStudioAI.name)
@@ -153,10 +153,10 @@ class ConfigWidget(QWidget):
             return False
         return True
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         set_prefs_for_provider(LMStudioAI.name, self.settings)
 
-    def _on_model_selected(self, index: int):
+    def _on_model_selected(self, index: int) -> None:
         model_id = self.model_combo.itemText(index)
         self.model_status.setText(_('Selected model: {0}').format(model_id))
 

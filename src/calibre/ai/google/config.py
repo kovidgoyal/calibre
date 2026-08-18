@@ -15,7 +15,7 @@ pref = partial(pref_for_provider, GoogleAI.name)
 
 
 class ConfigWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -93,7 +93,7 @@ class ConfigWidget(QWidget):
         error_dialog(self, _('No API key'), _('You must supply an API key to use Google AI.'), show=True)
         return False
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         set_prefs_for_provider(GoogleAI.name, self.settings)
 
 

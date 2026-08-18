@@ -205,7 +205,7 @@ def config_widget():
     return ConfigWidget()
 
 
-def save_settings(config_widget):
+def save_settings(config_widget) -> None:
     config_widget.save_settings()
 
 

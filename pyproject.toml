@@ -140,6 +140,7 @@ select = [
     'E201', 'E202', 'E211', 'E251', 'E275',  # various whitespace
 ]
 unfixable = ['PIE794', 'ISC001']
+extend-select = ["ANN"]
 
 [tool.ruff.lint.per-file-ignores]
 "recipes/*" = ['UP', 'FURB188']
@@ -149,6 +150,7 @@ unfixable = ['PIE794', 'ISC001']
 "src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
+"!{src/calibre/ai/**/*.py}" = ['ANN']
 
 [tool.ruff.lint.isort]
 detect-same-package = true

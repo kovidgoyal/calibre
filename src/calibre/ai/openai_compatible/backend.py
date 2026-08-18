@@ -95,7 +95,7 @@ def config_widget():
     return ConfigWidget()
 
 
-def save_settings(config_widget):
+def save_settings(config_widget) -> None:
     config_widget.save_settings()
 
 
@@ -194,7 +194,7 @@ def find_tests():
     import unittest
 
     class TestOpenAICompatibleBackend(unittest.TestCase):
-        def test_api_url_normalization(self):
+        def test_api_url_normalization(self) -> None:
             self.assertEqual(api_url('models', 'http://localhost:1234'), 'http://localhost:1234/v1/models')
             self.assertEqual(api_url('models', 'http://localhost:1234/v1'), 'http://localhost:1234/v1/models')
             self.assertEqual(api_url('models', 'https://example.com/custom/api'), 'https://example.com/custom/api/models')
@@ -207,11 +207,11 @@ def find_tests():
                 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
             )
 
-        def test_request_headers_allows_missing_headers_pref(self):
+        def test_request_headers_allows_missing_headers_pref(self) -> None:
             headers = request_headers()
             self.assertEqual(headers, (('Content-Type', 'application/json'),))
 
-        def test_parsing_stream_deltas(self):
+        def test_parsing_stream_deltas(self) -> None:
             responses = tuple(
                 as_chat_responses(
                     {

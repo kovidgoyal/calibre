@@ -138,7 +138,7 @@ def config_widget():
     return ConfigWidget()
 
 
-def save_settings(config_widget):
+def save_settings(config_widget) -> None:
     config_widget.save_settings()
 
 
@@ -302,7 +302,7 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
 
 
-def develop(msg: str = '', use_model: str = ''):
+def develop(msg: str = '', use_model: str = '') -> None:
     # calibre-debug -c 'from calibre.ai.open_router.backend import *; develop()'
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, use_model, messages=m)

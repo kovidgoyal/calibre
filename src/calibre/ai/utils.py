@@ -12,9 +12,9 @@ from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
 from threading import Thread
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError, URLError
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.request import OpenerDirector, ProxyHandler, Request, build_opener
 
 from calibre import get_proxies
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, WebLink
@@ -23,8 +23,15 @@ from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from unittest.suite import TestSuite
 
-def atomic_write(path, data):
+    from qt.core import QComboBox, QWidget
+else:
+    TestSuite = QWidget = QComboBox = object
+
+
+def atomic_write(path: str, data: str | bytes) -> None:
     mode = 'w' if isinstance(data, str) else 'wb'
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with tempfile.NamedTemporaryFile(mode, delete=False, dir=os.path.dirname(path)) as f:
@@ -32,7 +39,7 @@ def atomic_write(path, data):
     os.replace(f.name, path)
 
 
-def opener(user_agent=f'calibre {__version__}'):
+def opener(user_agent: str = f'calibre {__version__}') -> OpenerDirector:
     proxies = get_proxies(debug=False)
     proxy_handler = ProxyHandler(proxies)
     ans = build_opener(proxy_handler)
@@ -159,7 +166,7 @@ def add_citations(text: str, metadata: ChatResponse) -> str:
 
 
 class StreamedResponseAccumulator:
-    def __init__(self):
+    def __init__(self) -> None:
         self.all_reasoning = self.all_content = ''
         self.all_reasoning_details: list[dict[str, Any]] = []
         self.metadata = ChatResponse()
@@ -260,7 +267,7 @@ def develop_text_chat(
     text_chat: Callable[[Iterable[ChatMessage], str], Iterator[ChatResponse]],
     use_model: str = '',
     messages: Sequence[ChatMessage] = (),
-):
+) -> None:
     acc = StreamedResponseAccumulator()
     messages = messages or (
         ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
@@ -300,7 +307,7 @@ def plugin_for_name(plugin_name: str) -> AIProviderPlugin:
     raise KeyError(f'No plugin named {plugin_name} is available')
 
 
-def configure(plugin_name: str, parent: Any = None) -> None:
+def configure(plugin_name: str, parent: QWidget | None = None) -> None:
     from qt.core import QDialog, QDialogButtonBox, QVBoxLayout
 
     from calibre.gui2 import ensure_app
@@ -310,7 +317,7 @@ def configure(plugin_name: str, parent: Any = None) -> None:
     cw = plugin.config_widget()
 
     class D(QDialog):
-        def accept(self):
+        def accept(self) -> None:
             if not cw.validate():
                 return
             super().accept()
@@ -327,7 +334,7 @@ def configure(plugin_name: str, parent: Any = None) -> None:
         plugin.save_settings(cw)
 
 
-def reasoning_strategy_config_widget(current_val: str = 'auto', parent: Any = None) -> Any:
+def reasoning_strategy_config_widget(current_val: str = 'auto', parent: QWidget | None = None) -> QComboBox:
     from qt.core import QComboBox
 
     rs = QComboBox(parent)
@@ -347,7 +354,7 @@ def reasoning_strategy_config_widget(current_val: str = 'auto', parent: Any = No
     return rs
 
 
-def model_choice_strategy_config_widget(current_val: str = 'medium', parent: Any = None) -> Any:
+def model_choice_strategy_config_widget(current_val: str = 'medium', parent: QWidget | None = None) -> QComboBox:
     from qt.core import QComboBox
 
     ms = QComboBox(parent)
@@ -359,11 +366,11 @@ def model_choice_strategy_config_widget(current_val: str = 'medium', parent: Any
     return ms
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
     class TestAIUtils(unittest.TestCase):
-        def test_ai_response_accumulator(self):
+        def test_ai_response_accumulator(self) -> None:
             a = StreamedResponseAccumulator()
             a.accumulate(ChatResponse('an initial msg'))
             a.accumulate(ChatResponse('. more text.'))

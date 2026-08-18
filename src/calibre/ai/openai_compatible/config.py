@@ -31,7 +31,7 @@ pref = partial(pref_for_provider, OpenAICompatible.name)
 
 
 class ConfigWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -107,7 +107,7 @@ class ConfigWidget(QWidget):
         ms.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         l.addRow('', ms)
 
-    def refresh_models(self):
+    def refresh_models(self) -> None:
         with BusyCursor():
             try:
                 plugin = plugin_for_name(OpenAICompatible.name)
@@ -194,7 +194,7 @@ class ConfigWidget(QWidget):
             return False
         return True
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         set_prefs_for_provider(OpenAICompatible.name, self.settings)
 
 
