@@ -63,10 +63,8 @@ class Nautilus(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        prefixed_classes(
-            'AscendiumAdUnit_wrapper__ AscendiumAdUnit_hidden__ PrimisVideoAdBlock_wrapper__'
-        ),
-        classes('wp-block-embed is-type-video is-provider-youtube')       
+        prefixed_classes('AscendiumAdUnit_wrapper__ AscendiumAdUnit_hidden__ PrimisVideoAdBlock_wrapper__'),
+        classes('wp-block-embed is-type-video is-provider-youtube'),
     ]
 
     remove_tags_after = [prefixed_classes('PostBylineRiver_bio__')]
@@ -94,7 +92,7 @@ class Nautilus(BasicNewsRecipe):
         ('GEOSCIENCE', 'https://nautil.us/topics/geoscience/feed'),
         ('NEUROSCIENCE', 'https://nautil.us/topics/neuroscience/feed'),
         ('SOCIOLOGY', 'https://nautil.us/topics/sociology/feed'),
-        ('OTHERS', 'https://nautil.us/feed')
+        ('OTHERS', 'https://nautil.us/feed'),
     ]
 
     def preprocess_html(self, soup):
