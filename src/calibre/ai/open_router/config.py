@@ -3,6 +3,7 @@
 
 import datetime
 import textwrap
+from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING, Any, cast
 
@@ -85,7 +86,7 @@ class Model(QWidget):
 
 
 class ModelsModel(QAbstractListModel):
-    def __init__(self, capabilities, parent: QObject | None = None) -> None:
+    def __init__(self, capabilities: AICapabilities, parent: QObject | None = None) -> None:
         super().__init__(parent)
         for plugin in available_ai_provider_plugins():
             if plugin.name == OpenRouterAI.name:
@@ -97,13 +98,13 @@ class ModelsModel(QAbstractListModel):
         self.all_models = tuple(filter(lambda m: capabilities & m.capabilities == capabilities, self.all_models_map.values()))
         self.sorts = tuple(primary_sort_key(m.name) for m in self.all_models)
 
-    def generate_sorts(self, *sorts) -> None:
+    def generate_sorts(self, *sorts: Callable[[AIModel], object]) -> None:
         self.sorts = tuple(tuple(f(m) for f in sorts) for m in self.all_models)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.all_models)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | None = None) -> object:
         try:
             m = self.all_models[index.row()]
         except IndexError:
@@ -118,7 +119,7 @@ class ModelsModel(QAbstractListModel):
 
 
 class ProxyModels(QSortFilterProxyModel):
-    def __init__(self, capabilities, parent=None) -> None:
+    def __init__(self, capabilities: AICapabilities, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self.source_model = ModelsModel(capabilities, self)
         self.source_model.generate_sorts(lambda x: primary_sort_key(x.name))
@@ -126,7 +127,7 @@ class ProxyModels(QSortFilterProxyModel):
         self.filters = []
         self.setSortRole(Qt.ItemDataRole.UserRole + 1)
 
-    def filterAcceptsRow(self, source_row: int, source_parent) -> bool:
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         try:
             m = self.source_model.all_models[source_row]
         except IndexError:
@@ -136,14 +137,14 @@ class ProxyModels(QSortFilterProxyModel):
                 return False
         return True
 
-    def lessThan(self, left, right):
+    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
         return left.data(self.sortRole()) < right.data(self.sortRole())
 
-    def set_filters(self, *filters) -> None:
+    def set_filters(self, *filters: Callable[[AIModel], bool]) -> None:
         self.filters = filters
         self.invalidate()
 
-    def set_sorts(self, *sorts) -> None:
+    def set_sorts(self, *sorts: Callable[[AIModel], object]) -> None:
         self.source_model.generate_sorts(*sorts)
         self.invalidate()
 
@@ -156,7 +157,7 @@ class ProxyModels(QSortFilterProxyModel):
 
 
 class ModelDetails(QTextBrowser):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setOpenLinks(False)
         self.anchorClicked.connect(self.open_link)
@@ -208,7 +209,7 @@ class ModelDetails(QTextBrowser):
         '''
         self.setText(html)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(350, 500)
 
     def open_link(self, url: QUrl) -> None:
@@ -219,7 +220,7 @@ class ModelDetails(QTextBrowser):
 
 
 class SortLoc(QComboBox):
-    def __init__(self, initial='', parent=None) -> None:
+    def __init__(self, initial: str = '', parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.addItem('', '')
         self.addItem(_('Newest'), 'newest')
@@ -235,7 +236,7 @@ class SortLoc(QComboBox):
         return self.currentData()
 
     @property
-    def sort_key_func(self):
+    def sort_key_func(self) -> Callable[[AIModel], object]:
         match self.sort_key:
             case 'oldest':
                 return lambda x: x.created
@@ -262,7 +263,7 @@ class ChooseModel(Dialog):
         super().__init__(title=_('Choose an AI model'), name='open-router-choose-model', parent=parent)
         self.model_id = model_id
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(700, 500)
 
     @property
@@ -274,7 +275,7 @@ class ChooseModel(Dialog):
         self.models.currentIndex().data(Qt.ItemDataRole.UserRole).id
 
     @model_id.setter
-    def model_id(self, val) -> None:
+    def model_id(self, val: str) -> None:
         pm = self.models.model()
         assert isinstance(pm, ProxyModels)
         self.models.setCurrentIndex(pm.index_for_model_id(val))
@@ -362,7 +363,7 @@ class ChooseModel(Dialog):
         if text:
             search_tokens = text.lower().split()
 
-            def model_matches(m) -> bool:
+            def model_matches(m: AIModel) -> bool:
                 name_tokens = m.name.lower().split()
                 for tok in search_tokens:
                     for q in name_tokens:

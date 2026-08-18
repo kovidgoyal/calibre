@@ -13,8 +13,13 @@ import json
 import os
 from collections.abc import Iterable, Iterator
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.request import Request
+
+if TYPE_CHECKING:
+    from calibre.ai.google.config import ConfigWidget
+else:
+    ConfigWidget = object
 
 from calibre.ai import (
     AICapabilities,
@@ -39,7 +44,7 @@ API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
 
-def pref(key: str, defval: Any = None) -> Any:
+def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(GoogleAI.name, key, defval)
 
 
@@ -199,13 +204,13 @@ def get_available_models() -> dict[str, Model]:
     return parse_models_list(json.loads(data))
 
 
-def config_widget():
+def config_widget() -> ConfigWidget:
     from calibre.ai.google.config import ConfigWidget
 
     return ConfigWidget()
 
 
-def save_settings(config_widget) -> None:
+def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
 
 

@@ -23,7 +23,7 @@ def prefs() -> JSONConfig:
     return ans
 
 
-def pref_for_provider(name: str, key: str, defval: Any = None) -> Any:
+def pref_for_provider(name: str, key: str, defval: Any = None) -> Any:  # noqa: ANN401
     try:
         return prefs()['providers'][name][key]
     except Exception:

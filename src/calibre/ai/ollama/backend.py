@@ -8,9 +8,14 @@ import posixpath
 from collections.abc import Iterable, Iterator, Sequence
 from contextlib import suppress
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
+
+if TYPE_CHECKING:
+    from calibre.ai.ollama.config import ConfigWidget
+else:
+    ConfigWidget = object
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked
 from calibre.ai.ollama import OllamaAI
@@ -21,7 +26,7 @@ from calibre.utils.localization import _
 module_version = 1  # needed for live updates
 
 
-def pref(key: str, defval: Any = None) -> Any:
+def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(OllamaAI.name, key, defval)
 
 
@@ -92,13 +97,13 @@ def does_model_exist_locally(model_id: str, use_api_url: str | None = None, head
         return False
 
 
-def config_widget():
+def config_widget() -> ConfigWidget:
     from calibre.ai.ollama.config import ConfigWidget
 
     return ConfigWidget()
 
 
-def save_settings(config_widget) -> None:
+def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
 
 

@@ -6,9 +6,14 @@ import json
 import posixpath
 from collections.abc import Iterable, Iterator
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
+
+if TYPE_CHECKING:
+    from calibre.ai.lm_studio.config import ConfigWidget
+else:
+    ConfigWidget = object
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse
 from calibre.ai.lm_studio import LMStudioAI
@@ -18,7 +23,7 @@ from calibre.ai.utils import chat_with_error_handler, develop_text_chat, downloa
 module_version = 1
 
 
-def pref(key: str, defval: Any = None) -> Any:
+def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(LMStudioAI.name, key, defval)
 
 
@@ -79,13 +84,13 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
-def config_widget():
+def config_widget() -> ConfigWidget:
     from calibre.ai.lm_studio.config import ConfigWidget
 
     return ConfigWidget()
 
 
-def save_settings(config_widget) -> None:
+def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
 
 

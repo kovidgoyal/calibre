@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, OpenAI
 
+from typing import TYPE_CHECKING
+
 from calibre.customize import AIProviderPlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ai import AICapabilities
+else:
+    AICapabilities = object
 
 
 class OpenAICompatible(AIProviderPlugin):
@@ -16,7 +23,7 @@ class OpenAICompatible(AIProviderPlugin):
     builtin_live_module_name = 'calibre.ai.openai_compatible.backend'
 
     @property
-    def capabilities(self):
+    def capabilities(self) -> AICapabilities:
         from calibre.ai import AICapabilities
 
         return AICapabilities.text_to_text

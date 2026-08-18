@@ -7,8 +7,13 @@ import os
 from collections.abc import Iterable, Iterator, Sequence
 from functools import lru_cache
 from operator import attrgetter
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.request import Request
+
+if TYPE_CHECKING:
+    from calibre.ai.openai.config import ConfigWidget
+else:
+    ConfigWidget = object
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, PromptBlocked
 from calibre.ai.openai import OpenAI
@@ -22,7 +27,7 @@ MODELS_URL = 'https://api.openai.com/v1/models'
 CHAT_URL = 'https://api.openai.com/v1/responses'
 
 
-def pref(key: str, defval: Any = None) -> Any:
+def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(OpenAI.name, key, defval)
 
 
@@ -100,13 +105,13 @@ def find_models_matching_name(name: str) -> Iterator[str]:
             yield model.id
 
 
-def config_widget():
+def config_widget() -> ConfigWidget:
     from calibre.ai.openai.config import ConfigWidget
 
     return ConfigWidget()
 
 
-def save_settings(config_widget) -> None:
+def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
 
 
@@ -140,7 +145,7 @@ def model_choice_for_text() -> Model:
     return m.get(pref('model_strategy', 'medium'), m['medium'])
 
 
-def reasoning_effort():
+def reasoning_effort() -> str:
     return {'none': 'minimal', 'auto': 'medium', 'low': 'low', 'medium': 'medium', 'high': 'high'}.get(pref('reasoning_strategy', 'auto'), 'medium')
 
 

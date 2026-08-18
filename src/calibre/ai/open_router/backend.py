@@ -5,10 +5,15 @@ import datetime
 import json
 import os
 import re
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.request import Request
+
+if TYPE_CHECKING:
+    from calibre.ai.open_router.config import ConfigWidget
+else:
+    ConfigWidget = object
 
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, NoFreeModels
 from calibre.ai.open_router import OpenRouterAI
@@ -21,7 +26,7 @@ module_version = 2  # needed for live updates
 MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 
-def pref(key: str, defval: Any = None) -> Any:
+def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
@@ -132,13 +137,13 @@ def parse_models_list(entries: dict[str, Any]) -> dict[str, Model]:
     return ans
 
 
-def config_widget():
+def config_widget() -> ConfigWidget:
     from calibre.ai.open_router.config import ConfigWidget
 
     return ConfigWidget()
 
 
-def save_settings(config_widget) -> None:
+def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
 
 
@@ -159,7 +164,7 @@ def free_model_choice(capabilities: AICapabilities = AICapabilities.text_to_text
     gpt_oss_free, gpt_oss_paid = [], []
     claude_free, claude_paid = [], []
 
-    def only(*model_groups: list[Model], sort_key=lambda m: m.created, reverse=True) -> Iterator[Model]:
+    def only(*model_groups: list[Model], sort_key: Callable[[Model], Any] = lambda m: m.created, reverse: bool = True) -> Iterator[Model]:  # noqa: ANN401
         for models in model_groups:
             if models:
                 models.sort(key=sort_key, reverse=reverse)
@@ -215,7 +220,7 @@ def decoded_api_key() -> str:
     return decode_secret(ans)
 
 
-def chat_request(data: dict[str, Any], url='https://openrouter.ai/api/v1/chat/completions') -> Request:
+def chat_request(data: dict[str, Any], url: str = 'https://openrouter.ai/api/v1/chat/completions') -> Request:
     headers = {
         'Authorization': f'Bearer {decoded_api_key()}',
         'Content-Type': 'application/json',

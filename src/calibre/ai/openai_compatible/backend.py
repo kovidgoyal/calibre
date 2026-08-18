@@ -5,9 +5,16 @@ import json
 import posixpath
 from collections.abc import Iterable, Iterator, Sequence
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
+
+if TYPE_CHECKING:
+    from unittest import TestSuite
+
+    from calibre.ai.openai_compatible.config import ConfigWidget
+else:
+    TestSuite = ConfigWidget = object
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked, ResultBlockReason
 from calibre.ai.openai_compatible import OpenAICompatible
@@ -17,7 +24,7 @@ from calibre.ai.utils import chat_with_error_handler, develop_text_chat, downloa
 module_version = 1
 
 
-def pref(key: str, defval: Any = None) -> Any:
+def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(OpenAICompatible.name, key, defval)
 
 
@@ -89,13 +96,13 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
-def config_widget():
+def config_widget() -> ConfigWidget:
     from calibre.ai.openai_compatible.config import ConfigWidget
 
     return ConfigWidget()
 
 
-def save_settings(config_widget) -> None:
+def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
 
 
@@ -110,7 +117,7 @@ def for_assistant(self: ChatMessage) -> dict[str, Any]:
     return {'role': self.type.value, 'content': self.query}
 
 
-def coerce_text(value: Any) -> str:
+def coerce_text(value: Any) -> str:  # noqa: ANN401
     if isinstance(value, str):
         return value
     if isinstance(value, dict):
@@ -190,7 +197,7 @@ def develop(use_model: str = '', msg: str = '') -> None:
     develop_text_chat(text_chat, use_model, messages=m)
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
     class TestOpenAICompatibleBackend(unittest.TestCase):
