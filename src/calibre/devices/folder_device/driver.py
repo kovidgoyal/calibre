@@ -105,7 +105,11 @@ class FOLDER_DEVICE(USBMS):
         self.is_connected = False
 
     @classmethod
-    def settings(self):
+    def _config(cls):
+        return FOLDER_DEVICE_FOR_CONFIG._config()
+
+    @classmethod
+    def settings(cls):
         return FOLDER_DEVICE_FOR_CONFIG._config().parse()
 
     def config_widget(self):
