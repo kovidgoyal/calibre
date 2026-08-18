@@ -378,7 +378,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     # allow plugins to extend the actions in the toolbar and the "Advanced" submenu
     # each function take the EditorWidget and the QMenu as arguments and return a single or list of QAction
-    plugin_actions: set[Callable[[EditorWidget], QAction | Iterable[QAction]]] = set()
+    # inside a list of QAction, use None to add separator
+    plugin_actions: set[Callable[[EditorWidget], QAction | Iterable[QAction | None]]] = set()
 
     @property
     def readonly(self):
@@ -415,7 +416,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.base_url = None
         self._parent = weakref.ref(parent)
         self.shortcut_map = {}
-        self.plugin_actions_items: list[list[QAction]] = []
+        self.plugin_actions_items: list[list[QAction | None]] = []
 
         def r(name, icon, text, checkable=False, shortcut=None, callback=None):
             ac = QAction(QIcon.ic(icon + '.png'), text, self) if icon else QAction(text, self)
@@ -509,8 +510,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 lst = [lst]
             else:
                 lst = list(lst)
-            self.plugin_actions_items.append(lst)
-            for ac in lst:
+            self.plugin_actions_items.append(lst)  # type: ignore
+            for ac in filter(None, lst):
                 self.addAction(ac)
 
         self.setHtml('')
@@ -1330,7 +1331,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         am.addSeparator()
         for lst in self.plugin_actions_items:
             for ac in lst:
-                am.addAction(ac)
+                if ac:
+                    am.addAction(ac)
+                else:
+                    am.addSeparator()
 
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
         menu.exec(e.globalPos())
@@ -1756,8 +1760,11 @@ class Editor(QWidget):  # {{{
 
         for lst in self.editor.plugin_actions_items:
             for ac in lst:
-                self.toolbar.add_action(ac)
-                self.addAction(ac)
+                if ac:
+                    self.toolbar.add_action(ac)
+                    self.addAction(ac)
+                else:
+                    self.toolbar.add_separator()
             self.toolbar.add_separator()
 
         QTimer.singleShot(0, self.toolbar.updateGeometry)
