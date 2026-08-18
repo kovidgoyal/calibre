@@ -1230,6 +1230,8 @@ class ZipFile:
         """Extract the ZipInfo object 'member' to a physical
         file on the path targetpath.
         """
+        if lock is None:
+            lock = Lock()
         if member.filename[-1] == '/':
             if not os.path.isdir(targetpath):
                 try:
@@ -1248,7 +1250,6 @@ class ZipFile:
             target = open(targetpath, 'wb')
 
         with target:
-            assert lock is not None
             if max(member.compress_size, member.file_size) > 256 * 1024 * 1024:
                 with lock, closing(self.open(member, pwd=pwd)) as source:
                     shutil.copyfileobj(source, target)
