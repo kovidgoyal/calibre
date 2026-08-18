@@ -78,7 +78,8 @@ class HTMLInput(InputFormatPlugin):
     }
 
     def set_root_dir_of_input(self, basedir):
-        self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(basedir)) + os.sep)
+        # realpath so /var and /private/var compare equal on macOS
+        self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.realpath(os.path.abspath(basedir))) + os.sep)
 
     def convert(self, stream, options, file_ext, log, accelerators):
         opts = options
