@@ -1,154 +1,112 @@
-#!/usr/bin/env python
-
-"""
-Nautilus Magazine recipe for Calibre
-Grouped by subject category.
-"""
-
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env  python
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
 class Nautilus(BasicNewsRecipe):
     title = 'Nautilus Magazine'
-    __author__ = 'Ludoviko'
     language = 'en_US'
-
-    description = 'Nautilus is a science magazine exploring science, culture, technology, philosophy, nature, and society.'
-
-    publisher = 'Nautilus'
-    category = 'Science, Technology, Culture'
-
-    # Only include articles published during the last 30 days.
-    oldest_article = 30
-
-    # Maximum number of articles in each category.
-    max_articles_per_feed = 20
-
-    # Remove categories that have no recent articles.
-    remove_empty_feeds = True
-    ignore_duplicate_articles = {'url'}
-    # Follow each RSS entry to the full Nautilus article page.
-    use_embedded_content = False
-
-    # Let Calibre identify and clean the main article text.
-    auto_cleanup = True
-
-    # Simplify the formatting for ebook readers.
+    __author__ = 'unkn0wn'
+    oldest_article = 30  # days
+    max_articles_per_feed = 50
+    description = (
+        'Nautilus is a different kind of science magazine. Our stories take you into the depths'
+        ' of science and spotlight its ripples in our lives and cultures. We believe any subject in science,'
+        ' no matter how complex, can be explained with clarity and vitality.'
+    )
     no_stylesheets = True
     remove_javascript = True
-
-    # Allow images to resize correctly.
-    remove_attributes = ['height', 'width']
-
-    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Nautilus.svg/640px-Nautilus.svg.png'
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://lede-admin.nautil.us/wp-content/uploads/sites/70/sites/3/nautilus/Nautilus-logo.png?w=440'
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    resolve_internal_links = True
 
     extra_css = '''
-        body {
-            line-height: 1.45;
+        .calibre-nuked-tag-figcaption,
+        [class^="PostByline_textColumn__"],
+        [class^="PostHeaderMeta_timestamp__"],
+        [class^="PostBylineRiver_author__"],
+        [class^="PostBylineRiver_bio__"] {
+            font-size: small;
         }
-
-        h1 {
-            line-height: 1.15;
-        }
-
-        blockquote {
-            margin: 1em 2em;
-            font-style: italic;
-        }
-
-        figcaption {
-            font-size: 0.85em;
-            text-align: center;
-        }
+        blockquote { color:#202020; text-align:center; }
+        em { color:#202020; }
+        [class^="PostHeader_dek__"] { font-style: italic; }
     '''
 
-    feeds = [
-        (
-            'ANTHROPOLOGY',
-            'https://nautil.us/category/anthropology/feed',
-        ),
-        (
-            'ENVIRONMENT',
-            'https://nautil.us/category/environment/feed',
-        ),
-        (
-            'HEALTH',
-            'https://nautil.us/category/health/feed',
-        ),
-        (
-            'PALEONTOLOGY',
-            'https://nautil.us/category/paleontology/feed',
-        ),
-        (
-            'TECHNOLOGY',
-            'https://nautil.us/category/technology/feed',
-        ),
-        (
-            'ARTS',
-            'https://nautil.us/category/arts/feed',
-        ),
-        (
-            'EVOLUTION',
-            'https://nautil.us/category/evolution/feed',
-        ),
-        (
-            'HISTORY',
-            'https://nautil.us/category/history/feed',
-        ),
-        (
-            'PHILOSOPHY',
-            'https://nautil.us/category/philosophy/feed',
-        ),
-        (
-            'ZOOLOGY',
-            'https://nautil.us/category/zoology/feed',
-        ),
-        (
-            'ASTRONOMY',
-            'https://nautil.us/category/astronomy/feed',
-        ),
-        (
-            'GENERAL',
-            'https://nautil.us/category/general/feed',
-        ),
-        (
-            'MATH',
-            'https://nautil.us/category/math/feed',
-        ),
-        (
-            'PHYSICS',
-            'https://nautil.us/category/physics/feed',
-        ),
-        (
-            'COMMUNICATION',
-            'https://nautil.us/category/communication/feed',
-        ),
-        (
-            'GENETICS',
-            'https://nautil.us/category/genetics/feed',
-        ),
-        (
-            'MICROBIOLOGY',
-            'https://nautil.us/category/microbiology/feed',
-        ),
-        (
-            'PSYCHOLOGY',
-            'https://nautil.us/category/psychology/feed',
-        ),
-        (
-            'ECONOMICS',
-            'https://nautil.us/category/economics/feed',
-        ),
-        (
-            'GEOSCIENCE',
-            'https://nautil.us/category/geoscience/feed',
-        ),
-        (
-            'NEUROSCIENCE',
-            'https://nautil.us/category/neuroscience/feed',
-        ),
-        (
-            'SOCIOLOGY',
-            'https://nautil.us/category/sociology/feed',
-        ),
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article),
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600',
+        },
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
+    keep_only_tags = [
+        prefixed_classes(
+            'FeaturedImage_fullWidthWrapper__ PostHeader_postTitle__ PostHeader_dek__ '
+            'PostByline_textColumn__ PostHeaderMeta_timestamp__ FeaturedImage_wrapper__ '
+            'PostContent_content__ PostBylineRiver_author__ PostBylineRiver_bio__'
+        )
     ]
+
+    remove_tags = [
+        prefixed_classes(
+            'AscendiumAdUnit_wrapper__ AscendiumAdUnit_hidden__ PrimisVideoAdBlock_wrapper__'
+        ),
+        classes('wp-block-embed is-type-video is-provider-youtube')       
+    ]
+
+    remove_tags_after = [prefixed_classes('PostBylineRiver_bio__')]
+
+    feeds = [
+        ('ANTHROPOLOGY', 'https://nautil.us/topics/anthropology/feed'),
+        ('ENVIRONMENT', 'https://nautil.us/topics/environment/feed'),
+        ('HEALTH', 'https://nautil.us/topics/health/feed'),
+        ('PALEONTOLOGY', 'https://nautil.us/topics/paleontology/feed'),
+        ('TECHNOLOGY', 'https://nautil.us/topics/technology/feed'),
+        ('ARTS', 'https://nautil.us/topics/arts/feed'),
+        ('EVOLUTION', 'https://nautil.us/topics/evolution/feed'),
+        ('HISTORY', 'https://nautil.us/topics/history/feed'),
+        ('PHILOSOPHY', 'https://nautil.us/topics/philosophy/feed'),
+        ('ZOOLOGY', 'https://nautil.us/topics/zoology/feed'),
+        ('ASTRONOMY', 'https://nautil.us/topics/astronomy/feed'),
+        ('GENERAL', 'https://nautil.us/topics/general/feed'),
+        ('MATH', 'https://nautil.us/topics/math/feed'),
+        ('PHYSICS', 'https://nautil.us/topics/physics/feed'),
+        ('COMMUNICATION', 'https://nautil.us/topics/communication/feed'),
+        ('GENETICS', 'https://nautil.us/topics/genetics/feed'),
+        ('MICROBIOLOGY', 'https://nautil.us/topics/microbiology/feed'),
+        ('PHILOSOPHY', 'https://nautil.us/topics/psychology/feed'),
+        ('ECONOMICS', 'https://nautil.us/topics/economics/feed'),
+        ('GEOSCIENCE', 'https://nautil.us/topics/geoscience/feed'),
+        ('NEUROSCIENCE', 'https://nautil.us/topics/neuroscience/feed'),
+        ('SOCIOLOGY', 'https://nautil.us/topics/sociology/feed'),
+        ('OTHERS', 'https://nautil.us/feed')
+    ]
+
+    def preprocess_html(self, soup):
+        for b in soup.findAll('button'):
+            if b.find('img'):
+                b.name = 'div'
+        for img in soup.findAll('img', src=True):
+            if 'favicon' in img['src']:
+                continue
+            res = '?w=600'
+            w = self.recipe_specific_options.get('res')
+            if w and isinstance(w, str):
+                res = '?w=' + w
+            img['src'] = img['src'].split('?')[0] + res
+        return soup
