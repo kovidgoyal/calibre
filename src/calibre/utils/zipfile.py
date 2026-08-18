@@ -1157,7 +1157,9 @@ class ZipFile:
         if path is None:
             path = os.getcwd()
 
-        return self._extract_member(member, path, pwd)
+        lock = Lock()
+
+        return self._extract_member(member, path, pwd, lock=lock)
 
     def extractall(self, path=None, members=None, pwd=None):
         """
@@ -1223,8 +1225,11 @@ class ZipFile:
                     os.makedirs(upperdirs)
         return targetpath
 
-    def _extract_member(self, member, targetpath, pwd):
-        return self._extract_member_to(member, self._get_targetpath(member, targetpath), pwd)
+    def _extract_member(self, member, targetpath, pwd, lock=None):
+        if lock is None:
+            lock = Lock()
+
+        return self._extract_member_to(member, self._get_targetpath(member, targetpath), pwd, lock=lock)
 
     def _extract_member_to(self, member, targetpath, pwd, lock=None):
         """Extract the ZipInfo object 'member' to a physical
