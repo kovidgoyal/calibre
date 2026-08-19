@@ -12,7 +12,6 @@ sys.resources_location = os.path.join(base, 'resources')
 sys.extensions_location = os.path.join(src, 'calibre', 'plugins')
 if len(sys.argv) > 1:
     entry_point = sys.argv[1]
-    del sys.argv[1]
 else:
     entry_point = ''
 del src
@@ -32,5 +31,7 @@ def run_matching(entry_point: str) -> None:
 av0 = os.path.basename(sys.argv[0])
 if av0 != 'run-local':
     run_matching(av0)
-run_matching(entry_point)
+if entry_point:
+    del sys.argv[1]
+    run_matching(entry_point)
 raise SystemExit(f'No entry point named: {entry_point!r}')
