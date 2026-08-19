@@ -263,6 +263,18 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         from calibre.gui2.metadata.bulk_download import start_download
 
         update_sources()
+        if len(ids) > 15 and not confirm(
+            _(
+                'Too many books selected. Most metadata sources will block your computer'
+                ' if you try to download metadata for too many books, leading to download'
+                ' failures. You will most likely be able to download successsfully only a few books a day. Proceed anyway?'
+            ),
+            'bulk-metadata-download-too-many',
+            parent=self.gui,
+            title=_('Too many books'),
+            confirm_msg=_('Show this warning again'),
+        ):
+            return
         start_download(self.gui, ids, Dispatcher(self.metadata_downloaded), ensure_fields=ensure_fields)
 
     def cleanup_bulk_download(self, tdir, *args):
