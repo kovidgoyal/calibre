@@ -402,7 +402,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         data['system_instruction'] = {'parts': system_instructions}
     if contents:
         data['contents'] = [{'parts': contents}]
-    if pref('allow_web_searches', True):
+    if pref('allow_web_searches', False):
         data['tools'] = [{'google_search': {}}]
     rq = chat_request(data, model)
 

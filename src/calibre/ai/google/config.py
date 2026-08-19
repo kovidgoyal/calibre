@@ -45,7 +45,7 @@ class ConfigWidget(QWidget):
         self.model_strategy = ms = model_choice_strategy_config_widget(pref('model_choice_strategy', 'medium'), self)
         l.addRow(_('Model &choice strategy:'), ms)
         self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses (small quota)'))
-        aws.setChecked(pref('allow_web_searches', True))
+        aws.setChecked(pref('allow_web_searches', False))
         aws.setToolTip(
             '<p>'
             + _(
