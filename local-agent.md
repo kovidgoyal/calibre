@@ -6,6 +6,7 @@ copy_resource: .ruff_cache
 copy_resource: .venv
 copy_resource: translations
 copy_resource: resources
+prepend_to_path: develop
 pre_commit: ./setup.py fmt
 
 # System Instructions & Project Context

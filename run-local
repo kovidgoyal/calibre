@@ -3,24 +3,34 @@ import importlib
 import os
 import sys
 
-
-sys.run_local = os.path.abspath(__file__)
+sys.run_local = os.path.abspath(os.path.realpath(__file__))
 base = os.path.dirname(sys.run_local)
 src = os.path.join(base, 'src')
 if src not in sys.path:
     sys.path.insert(0, src)
 sys.resources_location = os.path.join(base, 'resources')
 sys.extensions_location = os.path.join(src, 'calibre', 'plugins')
-entry_point = sys.argv[1]
-del sys.argv[1]
+if len(sys.argv) > 1:
+    entry_point = sys.argv[1]
+    del sys.argv[1]
+else:
+    entry_point = ''
 del src
 del base
 
-for ep in importlib.import_module('calibre.linux').entry_points.values():
-    for line in ep:
-        q, spec = (x.strip() for x in line.split('='))
-        if q == entry_point:
-            mod, func = spec.split(':')
-            m = importlib.import_module(mod)
-            sys.exit(getattr(m, func)())
-raise SystemExit('No entry point named: {}'.format(entry_point))
+
+def run_matching(entry_point: str) -> None:
+    for ep in importlib.import_module('calibre.linux').entry_points.values():
+        for line in ep:
+            q, spec = (x.strip() for x in line.split('='))
+            if q == entry_point:
+                mod, func = spec.split(':')
+                m = importlib.import_module(mod)
+                sys.exit(getattr(m, func)())
+
+
+av0 = os.path.basename(sys.argv[0])
+if av0 != 'run-local':
+    run_matching(av0)
+run_matching(entry_point)
+raise SystemExit(f'No entry point named: {entry_point!r}')
