@@ -668,6 +668,9 @@ def find_tests(which_tests=None, exclude_tests=None):
 
         a(run_tests(return_tests=True))
     if ok('ebooks'):
+        from calibre.ebooks.mobi.writer2.resources import find_tests
+
+        a(find_tests())
         from calibre.ebooks.conversion.plugins.archive_input import find_tests
 
         a(find_tests())

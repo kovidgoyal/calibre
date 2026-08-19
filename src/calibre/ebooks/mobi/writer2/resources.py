@@ -22,10 +22,11 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
         # Amazon's MOBI renderer can't render JPEG images without JFIF metadata
         # and images with EXIF data don't get displayed on the cover screen
         changed = not img.info
-        has_exif = False
+        # Check for EXIF segment presence via img.info, not tag count, so that
+        # empty EXIF segments (APP1 marker with zero entries) are also detected.
+        has_exif = 'exif' in img.info
         if hasattr(img, 'getexif'):
             exif = img.getexif()
-            has_exif = bool(exif)
             if exif.get(0x0112) in (2, 3, 4, 5, 6, 7, 8):
                 changed = True
                 img = ImageOps.exif_transpose(img)
@@ -34,6 +35,67 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
             img.save(out, 'JPEG')
             data = out.getvalue()
     return data
+
+
+def find_tests():
+    import struct
+    import unittest
+
+    class TestProcessJpegsForAmazon(unittest.TestCase):
+        def _make_minimal_jpeg(self) -> bytes:
+            from PIL import Image as PILImage
+
+            img = PILImage.new('RGB', (8, 8), color=(255, 0, 0))
+            buf = BytesIO()
+            img.save(buf, 'JPEG')
+            return buf.getvalue()
+
+        def _inject_app1_segment(self, jpeg_data: bytes, app1_payload: bytes) -> bytes:
+            # Insert an APP1 segment right after the SOI marker (FF D8)
+            length = struct.pack('>H', len(app1_payload) + 2)
+            app1_segment = b'\xff\xe1' + length + app1_payload
+            return jpeg_data[:2] + app1_segment + jpeg_data[2:]
+
+        def _make_empty_exif_payload(self) -> bytes:
+            # Minimal TIFF with 0 IFD entries (little-endian byte order)
+            tiff = b'II' + struct.pack('<HI', 42, 8) + struct.pack('<H', 0) + struct.pack('<I', 0)
+            return b'Exif\x00\x00' + tiff
+
+        def _has_exif_segment(self, data: bytes) -> bool:
+            from PIL import Image as PILImage
+
+            img = PILImage.open(BytesIO(data))
+            return 'exif' in img.info
+
+        def test_jpeg_without_exif_is_unchanged(self):
+            data = self._make_minimal_jpeg()
+            # PIL saves with JFIF by default, not EXIF — should pass through unchanged
+            result = process_jpegs_for_amazon(data)
+            self.assertFalse(self._has_exif_segment(result))
+
+        def test_jpeg_with_populated_exif_is_stripped(self):
+            from PIL import Image as PILImage
+
+            img = PILImage.new('RGB', (8, 8), color=(0, 255, 0))
+            exif = img.getexif()
+            exif[0x010E] = 'test'  # ImageDescription tag
+            buf = BytesIO()
+            img.save(buf, 'JPEG', exif=exif.tobytes())
+            data = buf.getvalue()
+            self.assertTrue(self._has_exif_segment(data))
+            result = process_jpegs_for_amazon(data)
+            self.assertFalse(self._has_exif_segment(result))
+
+        def test_jpeg_with_empty_exif_segment_is_stripped(self):
+            # Regression test for https://bugs.launchpad.net/bugs/1943495:
+            # empty EXIF segments (APP1 marker, zero tag entries) must also be removed.
+            base = self._make_minimal_jpeg()
+            data = self._inject_app1_segment(base, self._make_empty_exif_payload())
+            self.assertTrue(self._has_exif_segment(data))
+            result = process_jpegs_for_amazon(data)
+            self.assertFalse(self._has_exif_segment(result))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestProcessJpegsForAmazon)
 
 
 class Resources:
