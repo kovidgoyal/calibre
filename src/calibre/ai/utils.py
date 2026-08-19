@@ -82,12 +82,16 @@ def get_cached_resource(path: str, url: str, headers: Sequence[tuple[str, str]] 
 
 
 def _read_response(buffer: str) -> Iterator[dict[str, Any]]:
-    if not buffer.startswith('data: '):
+    # Parse a single Server-sent event. Ignores event: and comment lines and
+    # joins together multiple data: lines, as per the SSE specification.
+    data_lines = []
+    for line in buffer.splitlines():
+        if line.startswith('data:'):
+            data_lines.append(line[5:].strip())
+    data = '\n'.join(data_lines)
+    if not data or data == '[DONE]':
         return
-    buffer = buffer[6:].rstrip()
-    if buffer == '[DONE]':
-        return
-    yield json.loads(buffer)
+    yield json.loads(data)
 
 
 def read_streaming_response(rq: Request, provider_name: str = 'AI provider', timeout: int = 120) -> Iterator[dict[str, Any]]:
@@ -370,6 +374,17 @@ def find_tests() -> TestSuite:
     import unittest
 
     class TestAIUtils(unittest.TestCase):
+        def test_ai_sse_event_parsing(self) -> None:
+            def p(buffer: str) -> list[dict[str, Any]]:
+                return list(_read_response(buffer))
+
+            self.assertEqual(p('data: {"a": 1}\n'), [{'a': 1}])
+            self.assertEqual(p('event: content_block_delta\ndata: {"a": 1}\n'), [{'a': 1}])
+            self.assertEqual(p('data: {"a":\ndata: 1}\n'), [{'a': 1}])
+            self.assertEqual(p(': comment\n'), [])
+            self.assertEqual(p('data: [DONE]\n'), [])
+            self.assertEqual(p('event: ping\n'), [])
+
         def test_ai_response_accumulator(self) -> None:
             a = StreamedResponseAccumulator()
             a.accumulate(ChatResponse('an initial msg'))
