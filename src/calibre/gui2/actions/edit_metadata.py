@@ -267,7 +267,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             _(
                 'Too many books selected. Most metadata sources will block your computer'
                 ' if you try to download metadata for too many books, leading to download'
-                ' failures. You will most likely be able to download successsfully only a few books a day. Proceed anyway?'
+                ' failures. You will most likely be able to download successfully only a few books a day. Proceed anyway?'
             ),
             'bulk-metadata-download-too-many',
             parent=self.gui,
