@@ -66,6 +66,35 @@ class ChatResponse(NamedTuple):
     web_links: Sequence[WebLink] = ()
 
 
+class ImageData(NamedTuple):
+    data: bytes  # raw image bytes, not base64 encoded
+    mime_type: str = 'image/png'
+
+    def __bool__(self) -> bool:
+        return bool(self.data)
+
+
+class ImageGenerationOptions(NamedTuple):
+    # The desired aspect ratio for the generated image. One of:
+    # 'auto', '1:1', '16:9', '9:16', '4:3', '3:4'. Backends map this to
+    # whatever their provider supports, possibly only approximately.
+    aspect_ratio: str = 'auto'
+
+
+class ImageGenerationResult(NamedTuple):
+    image: ImageData | None = None
+    text: str = ''  # any accompanying text from multimodal models
+
+    exception: Exception | None = None
+    error_details: str = ''  # can be traceback or error message from HTTP response
+
+    cost: float = 0
+    currency: str = ''  # no currency means unknown
+    provider: str = ''
+    model: str = ''
+    plugin_name: str = ''
+
+
 class NoFreeModels(Exception):
     pass
 

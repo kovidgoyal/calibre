@@ -3,11 +3,11 @@
 
 from functools import partial
 
-from qt.core import QCheckBox, QFormLayout, QLabel, QLineEdit, QWidget
+from qt.core import QCheckBox, QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QWidget
 
 from calibre.ai.openai import OpenAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
-from calibre.ai.utils import configure, model_choice_strategy_config_widget, reasoning_strategy_config_widget
+from calibre.ai.utils import configure, image_quality_config_widget, model_choice_strategy_config_widget, reasoning_strategy_config_widget
 from calibre.gui2 import error_dialog
 from calibre.utils.localization import _
 
@@ -47,8 +47,22 @@ class ConfigWidget(QWidget):
         self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
         aws.setChecked(pref('allow_web_searches', True))
         aws.setToolTip(_('If enabled, OpenAI will use web searches to return accurate and up-to-date information for queries, where possible'))
+        l.addRow(aws)
         self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy', 'auto'), self)
         l.addRow(_('&Reasoning effort:'), rs)
+
+        self.image_gb = gb = QGroupBox(_('Image generation'), self)
+        gl = QFormLayout(gb)
+        gl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.image_model_strategy_choice = ims = QComboBox(self)
+        ims.addItem(_('Best quality'), 'high')
+        ims.addItem(_('Cheaper and faster'), 'low')
+        ims.setCurrentIndex(max(0, ims.findData(pref('image_model_strategy', 'high'))))
+        ims.setToolTip('<p>' + _('The model used to generate and edit images. The cheaper model produces lower quality images.'))
+        gl.addRow(_('&Image model:'), ims)
+        self.image_quality_choice = iq = image_quality_config_widget(pref('image_quality', 'auto'), self)
+        gl.addRow(_('Image &quality:'), iq)
+        l.addRow(gb)
 
     @property
     def api_key(self) -> str:
@@ -67,12 +81,22 @@ class ConfigWidget(QWidget):
         return self._allow_web_searches.isChecked()
 
     @property
+    def image_model_strategy(self) -> str:
+        return self.image_model_strategy_choice.currentData()
+
+    @property
+    def image_quality(self) -> str:
+        return self.image_quality_choice.currentData()
+
+    @property
     def settings(self) -> dict[str, str | bool]:
         ans: dict[str, str | bool] = {
             'api_key': encode_secret(self.api_key),
             'model_choice_strategy': self.model_choice_strategy,
             'reasoning_strategy': self.reasoning_strategy,
             'allow_web_searches': self.allow_web_searches,
+            'image_model_strategy': self.image_model_strategy,
+            'image_quality': self.image_quality,
         }
         return ans
 
@@ -82,7 +106,7 @@ class ConfigWidget(QWidget):
 
     def validate(self) -> bool:
         if not self.is_ready_for_use:
-            error_dialog(self, _('No API key'), _('You must supply a Personal access token to use GitHub AI.'), show=True)
+            error_dialog(self, _('No API key'), _('You must supply an API key to use OpenAI.'), show=True)
             return False
         return True
 

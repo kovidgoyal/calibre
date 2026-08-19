@@ -470,6 +470,10 @@ class ConfigWidget(QWidget):
         tm.select_model.connect(self.select_model)
         l.addRow(_('Model for &text tasks:'), tm)
 
+        self.image_model = im = Model(for_text=False, parent=self)
+        im.select_model.connect(self.select_model)
+        l.addRow(_('Model for &image tasks:'), im)
+
     def select_model(self, model_id: str, for_text: bool) -> None:
         model_choice_target = cast(Model, self.sender())
         caps = AICapabilities.text_to_text if for_text else AICapabilities.text_to_image
@@ -503,6 +507,8 @@ class ConfigWidget(QWidget):
         }
         if self.text_model.model_id:
             ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
+        if self.image_model.model_id:
+            ans['text_to_image_model'] = (self.image_model.model_id, self.image_model.model_name)
         return ans
 
     @property

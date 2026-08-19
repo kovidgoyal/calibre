@@ -12,9 +12,9 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
-    from calibre.ai import ChatMessage, ChatResponse
+    from calibre.ai import ChatMessage, ChatResponse, ImageData, ImageGenerationOptions, ImageGenerationResult
 
 if iswindows:
     platform = 'windows'
@@ -925,6 +925,29 @@ class AIProviderPlugin(Plugin):  # {{{
         if not self.builtin_live_module_name:
             raise NotImplementedError()
         yield from self.builtin_live_module.text_chat(messages, use_model)
+
+    def generate_image(
+        self,
+        prompt: str,
+        source_images: Sequence[ImageData] = (),
+        options: ImageGenerationOptions | None = None,
+        use_model: str = '',
+    ) -> ImageGenerationResult:
+        """
+        Generate an image from the specified prompt. When :code:`source_images` are specified,
+        they are edited/transformed as per the prompt instead (the plugin must have the
+        text_and_image_to_image capability for this). Errors are reported via the
+        exception field of the returned result, rather than being raised. The
+        :code:`use_model` parameter causes the plugin to use the specified model rather
+        than choosing one automatically.
+        """
+        if not self.builtin_live_module_name:
+            raise NotImplementedError()
+        if options is None:
+            from calibre.ai import ImageGenerationOptions
+
+            options = ImageGenerationOptions()
+        return self.builtin_live_module.generate_image(prompt, source_images, options, use_model)
 
     def human_readable_model_name(self, model_id: str) -> str:
         "Return a human readable model name for the specified model id"

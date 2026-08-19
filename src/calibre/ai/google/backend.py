@@ -9,11 +9,14 @@
 # Image generation with imagen: https://ai.google.dev/gemini-api/docs/imagen#rest
 # TTS: https://ai.google.dev/gemini-api/docs/speech-generation#rest
 
+import base64
+import http
 import json
 import os
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
+from urllib.error import HTTPError
 from urllib.request import Request
 
 if TYPE_CHECKING:
@@ -27,6 +30,9 @@ from calibre.ai import (
     ChatMessageType,
     ChatResponse,
     Citation,
+    ImageData,
+    ImageGenerationOptions,
+    ImageGenerationResult,
     NoAPIKey,
     PromptBlocked,
     PromptBlockReason,
@@ -36,10 +42,20 @@ from calibre.ai import (
 )
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
-from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
+from calibre.ai.utils import (
+    chat_with_error_handler,
+    develop_image_generation,
+    develop_text_chat,
+    get_cached_resource,
+    image_data_from_file_path,
+    image_generation_with_error_handler,
+    read_json_response,
+    read_streaming_response,
+)
 from calibre.constants import cache_dir
+from calibre.utils.localization import _
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
@@ -124,6 +140,12 @@ def get_model_costs() -> dict[str, Pricing]:
             caching=Price(0.01 / 1e6),
             caching_storage=Price(1 / 1e6),
         ),
+        'models/gemini-2.5-flash-image': Pricing(
+            input=Price(0.3 / 1e6),
+            output=Price(30 / 1e6),  # roughly $0.039 per image at 1290 tokens per image
+            caching=Price(0),
+            caching_storage=Price(0),
+        ),
     }
 
 
@@ -159,10 +181,11 @@ class Model(NamedTuple):
                 family = ''
         match family:
             case 'imagen':
-                caps |= AICapabilities.text_to_image
+                if 'generate' in name_parts:
+                    caps |= AICapabilities.text_to_image
             case 'gemini':
-                if family_version >= 2.5:
-                    caps |= AICapabilities.text_and_image_to_image
+                if 'image' in name_parts:
+                    caps |= AICapabilities.text_to_image | AICapabilities.text_and_image_to_image
                 if 'tts' in name_parts:
                     caps |= AICapabilities.tts
         pmap = get_model_costs()
@@ -246,17 +269,39 @@ def model_choice_for_text() -> Model:
     return m.get(pref('model_choice_strategy', 'medium')) or m['medium']
 
 
-def chat_request(data: dict[str, Any], model: Model, streaming: bool = True) -> Request:
+def model_choices_for_images(need_editing: bool) -> tuple[Model, ...]:
+    gemini, imagen = [], []
+    for m in get_available_models().values():
+        if m.family == 'gemini' and m.capabilities.supports_text_to_image:
+            gemini.append(m)
+        elif m.family == 'imagen' and m.capabilities.supports_text_to_image:
+            imagen.append(m)
+    if pref('image_model', 'auto') == 'imagen' and not need_editing and imagen:
+        # Prefer the newest standard generation model over fast/ultra variants
+        return (max(imagen, key=lambda m: (m.family_version, ('fast' not in m.name_parts) + ('ultra' not in m.name_parts))),)
+    if not gemini:
+        raise ValueError(_('No Gemini models capable of image generation found'))
+    # Prefer stable flash models with the highest version. Newer models are
+    # tried first, falling back to older ones when quota is exceeded, as
+    # typically only older models are available on the free tier.
+    gemini.sort(
+        key=lambda m: ('preview' not in m.name_parts and 'exp' not in m.name_parts, 'flash' in m.name_parts, 'lite' not in m.name_parts, m.family_version),
+        reverse=True,
+    )
+    return tuple(gemini)
+
+
+def api_request(data: dict[str, Any], model: Model, action: str) -> Request:
     headers = {
         'X-goog-api-key': decoded_api_key(),
         'Content-Type': 'application/json',
     }
-    url = f'{API_BASE_URL}/{model.slug}'
-    if streaming:
-        url += ':streamGenerateContent?alt=sse'
-    else:
-        url += ':generateContent'
+    url = f'{API_BASE_URL}/{model.slug}:{action}'
     return Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+
+
+def chat_request(data: dict[str, Any], model: Model, streaming: bool = True) -> Request:
+    return api_request(data, model, 'streamGenerateContent?alt=sse' if streaming else 'generateContent')
 
 
 def thinking_budget(m: Model) -> int | None:
@@ -415,6 +460,110 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
 
 def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
+
+
+def parse_gemini_image_response(d: dict[str, Any], model: Model) -> ImageGenerationResult:
+    # See https://ai.google.dev/gemini-api/docs/image-generation
+    if pf := d.get('promptFeedback'):
+        if br := pf.get('blockReason'):
+            raise PromptBlocked(block_reason(br))
+    image = None
+    text_parts: list[str] = []
+    for c in d.get('candidates') or ():
+        if (fr := c.get('finishReason')) and fr != 'STOP':
+            raise ResultBlocked(result_block_reason(fr))
+        for part in c.get('content', {}).get('parts', ()):
+            if (text := part.get('text')) and not part.get('thought'):
+                text_parts.append(text)
+            if idata := part.get('inlineData'):
+                image = ImageData(data=base64.standard_b64decode(idata['data']), mime_type=idata.get('mimeType') or 'image/png')
+    if image is None:
+        raise ValueError(_('No image was returned by the model: {}').format(model.name))
+    cost, currency = 0.0, ''
+    if um := d.get('usageMetadata'):
+        cost, currency = model.get_cost(um)
+    return ImageGenerationResult(image=image, text=''.join(text_parts), cost=cost, currency=currency, model=model.id, plugin_name=GoogleAI.name)
+
+
+def gemini_generate_image(prompt: str, source_images: Sequence[ImageData], options: ImageGenerationOptions, model: Model) -> ImageGenerationResult:
+    parts: list[dict[str, Any]] = [{'text': prompt}]
+    for img in source_images:
+        parts.append({'inline_data': {'mime_type': img.mime_type, 'data': base64.standard_b64encode(img.data).decode('ascii')}})
+    generation_config: dict[str, Any] = {'responseModalities': ['TEXT', 'IMAGE']}
+    if options.aspect_ratio != 'auto':
+        generation_config['imageConfig'] = {'aspectRatio': options.aspect_ratio}
+    data = {'contents': [{'parts': parts}], 'generationConfig': generation_config}
+    rq = chat_request(data, model, streaming=False)
+    return parse_gemini_image_response(read_json_response(rq, GoogleAI.name), model)
+
+
+def parse_imagen_response(d: dict[str, Any], model: Model) -> ImageGenerationResult:
+    # See https://ai.google.dev/gemini-api/docs/imagen
+    for p in d.get('predictions') or ():
+        if b64 := p.get('bytesBase64Encoded'):
+            # Per image pricing, see https://ai.google.dev/gemini-api/docs/pricing
+            cost = 0.06 if 'ultra' in model.name_parts else (0.02 if 'fast' in model.name_parts else 0.04)
+            return ImageGenerationResult(
+                image=ImageData(data=base64.standard_b64decode(b64), mime_type=p.get('mimeType') or 'image/png'),
+                cost=cost,
+                currency='USD',
+                model=model.id,
+                plugin_name=GoogleAI.name,
+            )
+        if reason := p.get('raiFilteredReason'):
+            raise ResultBlocked(ResultBlockReason.unsafe_image_generated, custom_message=reason)
+    raise ValueError(_('No image was returned by the model: {}').format(model.name))
+
+
+def imagen_generate_image(prompt: str, options: ImageGenerationOptions, model: Model) -> ImageGenerationResult:
+    parameters: dict[str, Any] = {'sampleCount': 1}
+    if options.aspect_ratio != 'auto':
+        parameters['aspectRatio'] = options.aspect_ratio
+    data = {'instances': [{'prompt': prompt}], 'parameters': parameters}
+    rq = api_request(data, model, 'predict')
+    return parse_imagen_response(read_json_response(rq, GoogleAI.name), model)
+
+
+def generate_image_implementation(
+    prompt: str,
+    source_images: Sequence[ImageData] = (),
+    options: ImageGenerationOptions = ImageGenerationOptions(),
+    use_model: str = '',
+) -> ImageGenerationResult:
+    if use_model:
+        models = (get_available_models()[use_model],)
+    else:
+        models = model_choices_for_images(bool(source_images))
+    for i, model in enumerate(models):
+        try:
+            if model.family == 'imagen':
+                if source_images:
+                    raise ValueError(_('The model {} cannot edit existing images').format(model.name))
+                return imagen_generate_image(prompt, options, model)
+            return gemini_generate_image(prompt, source_images, options, model)
+        except HTTPError as e:
+            # Fallback to older models when quota is exceeded, as typically
+            # only older models are available on the free tier
+            if e.code != http.HTTPStatus.TOO_MANY_REQUESTS or i == len(models) - 1:
+                raise
+    raise ValueError(_('No Gemini models capable of image generation found'))
+
+
+def generate_image(
+    prompt: str,
+    source_images: Sequence[ImageData] = (),
+    options: ImageGenerationOptions = ImageGenerationOptions(),
+    use_model: str = '',
+) -> ImageGenerationResult:
+    return image_generation_with_error_handler(lambda: generate_image_implementation(prompt, source_images, options, use_model))
+
+
+def develop_image(prompt: str = '', source_image_path: str = '', use_model: str = '', aspect_ratio: str = 'auto', output_path: str = '') -> None:
+    # calibre-debug -c 'from calibre.ai.google.backend import develop_image; develop_image()'
+    source_images = (image_data_from_file_path(source_image_path),) if source_image_path else ()
+    develop_image_generation(
+        generate_image, prompt, source_images, ImageGenerationOptions(aspect_ratio=aspect_ratio), ('models/' + use_model) if use_model else '', output_path
+    )
 
 
 def develop(use_model: str = '', msg: str = '') -> None:

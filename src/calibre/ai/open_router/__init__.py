@@ -23,4 +23,4 @@ class OpenRouterAI(AIProviderPlugin):
     def capabilities(self) -> AICapabilities:
         from calibre.ai import AICapabilities
 
-        return AICapabilities.text_to_text | AICapabilities.text_to_image
+        return AICapabilities.text_to_text | AICapabilities.text_to_image | AICapabilities.text_and_image_to_image
