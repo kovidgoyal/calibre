@@ -27,7 +27,9 @@ class JobStatus:
         self.job_id = job_id
         self.log = self.traceback = ''
         self.book_id = book_id
-        self.output_path = os.path.join(tdir, 'output.' + conversion_data['output_fmt'].lower())
+        # sanitize output_fmt to prevent path traversal
+        output_fmt = conversion_data['output_fmt'].replace('/', '').replace('\\', '').lower()
+        self.output_path = os.path.join(tdir, 'output.' + output_fmt)
         self.tdir = tdir
         self.library_id, self.pathtoebook = library_id, pathtoebook
         self.conversion_data = conversion_data
