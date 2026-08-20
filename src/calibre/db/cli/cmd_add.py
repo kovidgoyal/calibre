@@ -132,6 +132,8 @@ def book(db, notify_changes, is_remote, args):
     ) = args
     with add_ctx(), TemporaryDirectory('add-single') as tdir, run_import_plugins_before_metadata(tdir):
         if is_remote:
+            # sanitise to avoid path traversal
+            fname = fname.replace('/', '').replace('\\', '')
             with open(os.path.join(tdir, fname), 'wb') as f:
                 f.write(data[1])
             path = f.name
