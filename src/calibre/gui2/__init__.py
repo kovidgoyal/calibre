@@ -1463,6 +1463,8 @@ class Application(QApplication):
         if should_handle_calibre_urls:
             # See https://bugreports.qt.io/browse/QTBUG-134316
             QDesktopServices.setUrlHandler('calibre', self.handle_calibre_url)
+        QDesktopServices.setUrlHandler('http', self.handle_http_url)
+        QDesktopServices.setUrlHandler('https', self.handle_http_url)
         set_image_allocation_limit()
         self.palette_manager.initialize()
         icon_resource_manager.initialize()
@@ -1688,6 +1690,10 @@ class Application(QApplication):
             self._file_open_paths.append(url)
         QTimer.singleShot(100, self._send_file_open_events)
 
+    @pyqtSlot(QUrl)
+    def handle_http_url(self, qurl):
+        safe_open_url(qurl)
+
     @property
     def current_custom_colors(self):
         from qt.core import QColorDialog
@@ -1787,8 +1793,10 @@ def open_url(qurl):
                     run_cmd(cmd)
 
 
-def safe_open_url(qurl):
-    if isinstance(qurl, (str, bytes)):
+def safe_open_url(qurl: QUrl | str | bytes) -> None:
+    if isinstance(qurl, bytes):
+        qurl = qurl.decode()
+    if isinstance(qurl, str):
         qurl = QUrl(qurl)
     if qurl.scheme() in ('', 'file'):
         path = qurl.toLocalFile()
