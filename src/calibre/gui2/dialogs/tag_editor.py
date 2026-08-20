@@ -1,6 +1,6 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import QAbstractItemView, QDialog, QSortFilterProxyModel, QStringListModel, Qt
+from qt.core import QAbstractItemView, QCheckBox, QDialog, QSortFilterProxyModel, QStringListModel, Qt
 
 from calibre.constants import islinux
 from calibre.gui2 import error_dialog, gprefs, question_dialog
@@ -94,6 +94,20 @@ class TagEditor(QDialog, Ui_TagEditor):
         p.setSourceModel(self.all_tags_model)
         self.available_tags.setModel(p)
 
+        self._in_vl = bool(db.data.get_base_restriction() or db.data.get_search_restriction())
+        self._vl_tags_cache = None
+        self.restrict_to_vl = QCheckBox(_('Limit to current virtual &library'))
+        self.restrict_to_vl.setEnabled(self._in_vl)
+        if self._in_vl:
+            self.restrict_to_vl.setToolTip(_('Only show items used by books in the current virtual library'))
+            self.restrict_to_vl.setChecked(bool(gprefs.get('tag_editor_limit_to_vl', False)))
+        else:
+            self.restrict_to_vl.setToolTip(_('No virtual library is currently active'))
+        self.verticalLayout.insertWidget(self.verticalLayout.count() - 1, self.restrict_to_vl)
+        self.restrict_to_vl.toggled.connect(self._vl_restriction_changed)
+        if self.restrict_to_vl.isChecked():
+            self._apply_vl_filter()
+
         connect_lambda(self.apply_button.clicked, self, lambda self: self.apply_tags())
         connect_lambda(self.unapply_button.clicked, self, lambda self: self.unapply_tags())
         self.add_tag_button.clicked.connect(self.add_tag)
@@ -120,6 +134,30 @@ class TagEditor(QDialog, Ui_TagEditor):
             self.applied_tags.activated.connect(self.unapply_tags)
 
         self.restore_geometry(gprefs, 'tag_editor_geometry')
+
+    def _get_vl_tags(self):
+        if self._vl_tags_cache is None:
+            book_ids = frozenset(self.db.search('', return_matches=True, sort_results=False))
+            cat_key = ('#' + self.key) if self.key else 'tags'
+            cats = self.db.new_api.get_categories(book_ids=book_ids)
+            self._vl_tags_cache = {item.name for item in cats.get(cat_key, [])}
+        return self._vl_tags_cache
+
+    def _apply_vl_filter(self):
+        vl_tags = self._get_vl_tags()
+        applied = set(self._get_applied_tags_box_contents())
+        self.all_tags_model.setStringList(sorted(vl_tags - applied, key=sort_key))
+
+    def _vl_restriction_changed(self, checked):
+        if checked:
+            self._apply_vl_filter()
+        else:
+            applied = set(self._get_applied_tags_box_contents())
+            if self.key:
+                all_tags = list(self.db.all_custom(label=self.key))
+            else:
+                all_tags = list(self.db.all_tags())
+            self.all_tags_model.setStringList(sorted(set(all_tags) - applied, key=sort_key))
 
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which
@@ -205,6 +243,9 @@ class TagEditor(QDialog, Ui_TagEditor):
         for item in row_indices:
             self.applied_model.removeRows(item.row(), 1)
 
+        if self.restrict_to_vl.isChecked():
+            vl_tags = self._get_vl_tags()
+            tags = [t for t in tags if t in vl_tags]
         all_tags = self.all_tags_model.stringList() + tags
         all_tags.sort(key=sort_key)
         self.all_tags_model.setStringList(all_tags)
@@ -250,6 +291,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def save_state(self):
         self.save_geometry(gprefs, 'tag_editor_geometry')
+        gprefs['tag_editor_limit_to_vl'] = self.restrict_to_vl.isChecked()
 
 
 if __name__ == '__main__':
