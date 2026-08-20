@@ -66,7 +66,7 @@ class ConfigWidget(QWidget):
             + _(
                 'If enabled, Claude will search the web to return accurate and up-to-date'
                 ' information for queries, where possible. Note that web searches cost'
-                ' an extra cent per search, in addition to the normal query cost.'
+                ' extra per search, in addition to the normal query cost.'
             )
         )
         l.addRow(aws)
