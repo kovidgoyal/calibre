@@ -14,6 +14,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.metadata.book.serialize import read_cover, serialize_cover
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ptempfile import TemporaryDirectory
+from calibre.srv.cdb import is_recipe_fmt
 from calibre.srv.changes import books_added, formats_added
 from calibre.utils.localization import _, canonicalize_lang
 from calibre.utils.short_uuid import uuid4
@@ -46,8 +47,10 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
     identical_book_list, added_ids, updated_ids = set(), set(), set()
     duplicates = []
     identical_books_data = None
-    if is_remote and ('recipe' in format_map or 'original_recipe' in format_map):
-        raise ValueError('Cannot use the add interface to add recipe files, as they allow code execution')
+    if is_remote:
+        for fmt in format_map:
+            if is_recipe_fmt(fmt):
+                raise ValueError('Cannot use the add interface to add recipe files, as they allow code execution')
 
     def add_format(book_id, fmt):
         db.add_format(book_id, fmt, format_map[fmt], replace=True, run_hooks=False)
