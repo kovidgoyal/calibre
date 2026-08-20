@@ -169,7 +169,7 @@
     },
 
     {
-        "name": "openssl 3.5.8",
+        "name": "openssl 3.5.7",
         "unix": {
             "file_extension": "tar.gz",
             "hash": "sha256:a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8",
