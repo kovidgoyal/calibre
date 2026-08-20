@@ -445,7 +445,8 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def open_store(self, result):
         self.gui.istores[result.store_name].open(
-            self,
+            gui=self.gui,
+            parent=self,
             detail_item=result.detail_item,
             external=self.open_external.isChecked(),
         )
