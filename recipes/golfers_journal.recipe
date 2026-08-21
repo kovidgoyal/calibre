@@ -1,0 +1,222 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2026, Ben Ng <ben at tangentialtechnologies.com>
+"""
+The Golfer's Journal (https://www.golfersjournal.com)
+
+A subscriber-only quarterly. The recipe logs in with the reader's own
+WooCommerce account (calibre asks for the credentials when scheduling the
+download) and builds one e-book per printed issue from the issue's table of
+contents.
+"""
+
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class GolfersJournal(BasicNewsRecipe):
+    title = "The Golfer's Journal"
+    __author__ = 'Ben Ng'
+    description = (
+        'A subscriber-only quarterly of golf writing, photography and art. '
+        'Downloads a single printed issue (default: the newest) from your '
+        "Golfer's Journal account. Requires an active subscription."
+    )
+    publisher = "The Golfer's Journal"
+    category = 'golf, sports, magazine'
+    language = 'en'
+    encoding = 'utf-8'
+
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    # Deliberately not compressing images: this is a photography magazine and the
+    # site serves full-resolution originals. Let the output profile handle any
+    # device scaling instead of recompressing here.
+    compress_news_images = False
+    ignore_duplicate_articles = {'url'}
+
+    # Emit an EPUB 3 navigation document (nav.xhtml): the default ncx-only EPUB 2
+    # output leaves crengine based readers (KOReader) without a usable table of
+    # contents for this book. Ignored for non-EPUB output formats.
+    conversion_options = {
+        'epub_version': '3',
+        # Scale the cover proportionally rather than stretching it to fill the
+        # screen, which warps these covers noticeably.
+        'preserve_cover_aspect_ratio': True,
+    }
+
+    needs_subscription = True
+
+    BASE = 'https://www.golfersjournal.com'
+    LOGIN = BASE + '/my-account/'
+
+    # Download a specific issue instead of the newest one.
+    recipe_specific_options = {
+        'issue': {
+            'short': 'The issue number to download',
+            'long': 'For example, 36. Defaults to the newest issue.',
+        }
+    }
+
+    # The whole feature -- headline, dek, byline, hero image and body -- is
+    # wrapped in a single <article> element, so keeping it discards the site
+    # chrome for free.
+    keep_only_tags = [
+        dict(name='article'),
+    ]
+    remove_tags = [
+        # For subscribers the site injects a download/share widget at the top of
+        # every article: an ePub/Kindle/Instapaper bar and a hidden "Send to
+        # Kindle" modal. It is all namespaced with epub-* classes and ids, so
+        # dropping anything epub-* removes the widget and nothing else.
+        dict(attrs={'class': lambda x: x and any(
+            (c or '').startswith('epub-')
+            for c in (x if isinstance(x, (list, tuple)) else x.split()))}),
+        dict(attrs={'id': lambda x: x and x.startswith('epub-')}),
+        classes(
+            'sign-in tgj-login-block sign-in-only paywall subscribe-block '
+            'sharedaddy sd-sharing-enabled jp-relatedposts related-posts '
+            'newsletter-signup newsletter comments-area comment-respond '
+            'nav-links post-navigation author-box wp-block-buttons '
+            'yardage-book-download entry-footer '
+            # the category/department link (e.g. "Adventures") above the headline
+            'department'
+        ),
+        dict(name=['script', 'style', 'noscript', 'iframe', 'form', 'button', 'svg']),
+        dict(attrs={'role': 'dialog'}),
+    ]
+    remove_attributes = ['style', 'width', 'height', 'srcset', 'sizes']
+
+    extra_css = '''
+        .articleSection, .article-section { text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.1em; color: #666; }
+        .subtitle, .dek { font-style: italic; color: #333; }
+        .byline, .credit, figcaption, .caption, .wp-caption-text { font-size: 0.75em; color: #555; }
+        img { display: block; margin: 0.5em auto; max-width: 100%; height: auto; }
+        figure { margin: 0.5em 0; }
+        blockquote { font-style: italic; color: #333; }
+    '''
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        if self.username and self.password:
+            br.open(self.LOGIN)
+
+            def is_login_form(form):
+                names = {c.name for c in form.controls}
+                return 'username' in names and 'woocommerce-login-nonce' in names
+
+            br.select_form(predicate=is_login_form)
+            br['username'] = self.username
+            br['password'] = self.password
+            res = br.submit()
+            html = res.read().decode('utf-8', 'replace')
+            if 'customer-logout' not in html and 'woocommerce-MyAccount' not in html:
+                hint = ''
+                if re.search(r'wordfence|verification code|two-factor|2fa', html, re.I):
+                    hint = (' The site asked for two-factor / Wordfence verification, '
+                            'which cannot be answered automatically.')
+                raise ValueError(
+                    "Failed to log in to The Golfer's Journal. Check your "
+                    'username and password.' + hint)
+        return br
+
+    def _newest_issue(self):
+        soup = self.index_to_soup(self.BASE + '/issues/')
+        nums = set()
+        for a in soup.findAll('a', href=True):
+            m = re.search(r'/issues/no-(\d+)/', a['href'])
+            if m:
+                nums.add(int(m.group(1)))
+        if not nums:
+            raise ValueError('Could not find any issues on ' + self.BASE + '/issues/')
+        return max(nums)
+
+    def parse_index(self):
+        opt = self.recipe_specific_options.get('issue')
+        if opt and isinstance(opt, str) and opt.strip().isdigit():
+            num = int(opt.strip())
+        else:
+            num = self._newest_issue()
+
+        issue_url = '%s/issues/no-%d/' % (self.BASE, num)
+        soup = self.index_to_soup(issue_url)
+
+        self.title = "The Golfer's Journal No. %d" % num
+
+        cover = soup.find('meta', attrs={'property': 'og:image', 'content': True})
+        if cover is not None:
+            self.cover_url = cover['content']
+
+        toc = soup.find(attrs={'class': lambda x: x and 'toc-block' in x})
+        if toc is None:
+            toc = soup.find('div', id='toc')
+
+        articles = []
+        seen = set()
+        containers = toc.findAll('div', attrs={'class': 'feature'}) if toc else []
+        for feat in containers:
+            a = feat.find('a', href=re.compile(r'/editorial/'))
+            if a is None:
+                continue
+            url = a['href'].split('#')[0].split('?')[0]
+            if url in seen:
+                continue
+            seen.add(url)
+            title = self.tag_to_string(a).strip()
+            sub = feat.find(attrs={'class': 'subtitle'})
+            desc = self.tag_to_string(sub).strip() if sub else ''
+            articles.append({'title': title, 'url': url, 'description': desc})
+            self.log('\t', title, url)
+
+        if not articles:
+            raise ValueError('No articles found for issue No. %d' % num)
+
+        return [("The Golfer's Journal No. %d" % num, articles)]
+
+    @staticmethod
+    def _best_srcset(srcset):
+        # srcset is either "url 1x, url 2x" or "url 640w, url 2560w, ...".
+        # Return the URL with the highest resolution (largest w/x descriptor).
+        best_url, best_score = None, -1.0
+        for cand in srcset.split(','):
+            parts = cand.split()
+            if not parts:
+                continue
+            url, score = parts[0], 1.0
+            if len(parts) > 1:
+                d = parts[1].strip().lower()
+                try:
+                    score = float(d[:-1]) if d[-1:] in ('w', 'x') else float(d)
+                except ValueError:
+                    score = 1.0
+            if score > best_score:
+                best_score, best_url = score, url
+        return best_url
+
+    def preprocess_html(self, soup):
+        # If we somehow landed on a paywalled copy, make it obvious in the log.
+        if soup.find(string=re.compile(r'Sign in to read this feature')):
+            self.log.warn('Article appears paywalled - login may have failed')
+        # Unwrap <picture>: crengine (KOReader) support for it is spotty and can
+        # mis-size the contained image. Replace each <picture> with its <img>.
+        for pic in soup.findAll('picture'):
+            img = pic.find('img')
+            if img is not None:
+                pic.replaceWith(img)
+        for img in soup.findAll('img'):
+            # Prefer the highest-resolution source: src holds a downscaled image
+            # (e.g. ...-1280x855.webp) while srcset lists the full-size original.
+            # Use the original so the photographs aren't needlessly shrunk.
+            srcset = img.get('srcset') or img.get('data-srcset')
+            if srcset:
+                best = self._best_srcset(srcset)
+                if best:
+                    img['src'] = best
+                    continue
+            for attr in ('data-lazy-src', 'data-src'):
+                if img.get(attr):
+                    img['src'] = img[attr]
+                    break
+        return soup
