@@ -2,14 +2,99 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2008-2025, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2026, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
+import json
+import re
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
+def find_global_content(raw_html):
+    """Return the parsed Fusion.globalContent dict, or None if not present."""
+    # `\s*=\s*` deliberately fails to match `Fusion.globalContentConfig=`,
+    # because the char after "globalContent" there is 'C', not '='.
+    m = re.search(r'Fusion\.globalContent\s*=\s*', raw_html)
+    if m is None:
+        return None
+    try:
+        # raw_decode parses exactly ONE JSON value starting at m.end() and
+        # returns where it stopped, ignoring the ; and following assignments.
+        # This is robust to '{' / '}' appearing inside the article text.
+        obj, _end = json.JSONDecoder().raw_decode(raw_html, m.end())
+    except ValueError:
+        return None
+    return obj if isinstance(obj, dict) else None
+
+
+def ans_element_to_html(el):
+    """Render a single ANS content_element to an HTML string."""
+    if not isinstance(el, dict):
+        return ''
+    t = el.get('type')
+
+    if t == 'text':
+        c = el.get('content', '')
+        return '<p>%s</p>' % c if c.strip() else ''
+
+    if t == 'raw_html':
+        # embeds (tweets, iframes, ads...). Keep or drop as you prefer.
+        return el.get('content', '')
+
+    if t == 'header':
+        lvl = int(el.get('level', 2) or 2)
+        lvl = min(max(lvl, 1), 6)
+        return '<h%d>%s</h%d>' % (lvl, el.get('content', ''), lvl)
+
+    if t == 'image':
+        url = el.get('url', '')
+        if not url:
+            return ''
+        cap = el.get('caption') or ''
+        out = '<figure><img src="%s"/>' % url
+        if cap:
+            out += '<figcaption>%s</figcaption>' % cap
+        return out + '</figure>'
+
+    if t == 'list':
+        tag = 'ol' if el.get('list_type') == 'ordered' else 'ul'
+        items = []
+        for it in el.get('items', []):
+            if isinstance(it, dict) and it.get('type') == 'text':
+                items.append('<li>%s</li>' % it.get('content', ''))
+            elif isinstance(it, dict):
+                items.append('<li>%s</li>' % ans_element_to_html(it))
+            else:
+                items.append('<li>%s</li>' % it)
+        return '<%s>%s</%s>' % (tag, ''.join(items), tag)
+
+    if t == 'blockquote':
+        return '<blockquote>%s</blockquote>' % el.get('content', '')
+
+    if t == 'quote':  # pull quote: nested content_elements
+        inner = ''.join(ans_element_to_html(e)
+                        for e in el.get('content_elements', []))
+        return '<blockquote>%s</blockquote>' % inner
+
+    if t == 'oembed_response':
+        raw = el.get('raw_oembed') or {}
+        return raw.get('html', '') or el.get('html', '')
+
+    if t == 'code':
+        return '<pre>%s</pre>' % el.get('content', '')
+
+    if t == 'divider':
+        return '<hr/>'
+
+    if t == 'correction':
+        return '<p><em>%s</em></p>' % el.get('text', '')
+
+    # Types intentionally skipped: custom_embed, gallery, reference, story,
+    # video, table, interstitial_link, etc. Add handlers here if you need them.
+    return ''
 
 class Pagina12(BasicNewsRecipe):
     title = 'Pagina - 12'
@@ -47,20 +132,6 @@ class Pagina12(BasicNewsRecipe):
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    remove_tags = [
-        dict(name=['meta', 'link']),
-        dict(attrs={'class': ['article-main-media-social show-for-medium', 'social-share-bar', 'iframely-embed medium-embedded-content']}),
-    ]
-
-    keep_only_tags = [
-        dict(name='h2', attrs={'class': lambda x: x and 'h4' in x}),
-        dict(name='h1'),
-        dict(name='h2', attrs={'class': lambda x: x and 'h3' in x}),
-        dict(name='div', attrs={'class': 'author'}),
-        dict(name='div', attrs={'class': lambda x: x and 'article-main-media-image__container' in x}),
-        dict(name='div', attrs={'class': lambda x: x and 'article-main-content' in x}),
-    ]
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('https://www.pagina12.com.ar/')
@@ -73,16 +144,16 @@ class Pagina12(BasicNewsRecipe):
         return br
 
     feeds = [
-        ('Diario de hoy', 'https://www.pagina12.com.ar/rss/edicion-impresa'),
-        ('Espectaculos', 'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
-        ('Radar', 'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
-        ('Radar libros', 'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
-        ('Cash', 'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
-        ('NO', 'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
-        ('Las 12', 'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
-        ('Soy', 'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
-        ('M2', 'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
-        ('Rosario 12', 'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas'),
+        ('Diario de hoy', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/edicion-impresa'),
+        ('Espectaculos', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/cultura-y-espectaculos/notas'),
+        ('Radar', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/radar/notas'),
+        ('Radar libros', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/radar-libros/notas'),
+        ('Cash', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/cash/notas'),
+        ('NO', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/no/notas'),
+        ('Las 12', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/las12/notas'),
+        ('Soy', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/soy/notas'),
+        ('M2', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/m2/notas'),
+        ('Rosario 12', 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/rosario12/notas'),
     ]
 
     def get_cover_url(self):
@@ -112,3 +183,47 @@ class Pagina12(BasicNewsRecipe):
                 self.info('Retrying download...')
             count += 1
         return result
+
+    def preprocess_raw_html(self, raw_html, url):
+        data = find_global_content(raw_html)
+        if not data or not data.get('content_elements'):
+            # Not an article page, or structure changed: let Calibre try the DOM.
+            return raw_html
+
+        parts = []
+
+        headline = (data.get('headlines') or {}).get('basic')
+        if headline:
+            parts.append('<h1>%s</h1>' % headline)
+
+        subhead = ((data.get('subheadlines') or {}).get('basic')
+                   or (data.get('description') or {}).get('basic'))
+        if subhead:
+            parts.append('<p class="subhead"><strong>%s</strong></p>' % subhead)
+
+        credits = (data.get('credits') or {}).get('by') or []
+        names = [c.get('name') for c in credits
+                 if isinstance(c, dict) and c.get('name')]
+        if names:
+            parts.append('<p class="byline">%s</p>' % ', '.join(names))
+
+        date = data.get('display_date') or data.get('publish_date')
+        if date:
+            parts.append('<p class="date">%s</p>' % date)
+
+        # lead image (promo_items.basic)
+        promo = (data.get('promo_items') or {}).get('basic') or {}
+        if promo.get('type') == 'image' and promo.get('url'):
+            parts.append(ans_element_to_html(promo))
+
+        # body
+        for el in data['content_elements']:
+            html = ans_element_to_html(el)
+            if html:
+                parts.append(html)
+
+        title = headline or self.title
+        return (
+            '<html><head><meta charset="utf-8"/><title>%s</title></head>'
+            '<body>%s</body></html>' % (title, '\n'.join(parts))
+        )
