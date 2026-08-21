@@ -71,9 +71,7 @@ class GolfersJournal(BasicNewsRecipe):
         # every article: an ePub/Kindle/Instapaper bar and a hidden "Send to
         # Kindle" modal. It is all namespaced with epub-* classes and ids, so
         # dropping anything epub-* removes the widget and nothing else.
-        dict(attrs={'class': lambda x: x and any(
-            (c or '').startswith('epub-')
-            for c in (x if isinstance(x, (list, tuple)) else x.split()))}),
+        dict(attrs={'class': lambda x: x and any((c or '').startswith('epub-') for c in (x if isinstance(x, (list, tuple)) else x.split()))}),
         dict(attrs={'id': lambda x: x and x.startswith('epub-')}),
         classes(
             'sign-in tgj-login-block sign-in-only paywall subscribe-block '
@@ -115,11 +113,8 @@ class GolfersJournal(BasicNewsRecipe):
             if 'customer-logout' not in html and 'woocommerce-MyAccount' not in html:
                 hint = ''
                 if re.search(r'wordfence|verification code|two-factor|2fa', html, re.I):
-                    hint = (' The site asked for two-factor / Wordfence verification, '
-                            'which cannot be answered automatically.')
-                raise ValueError(
-                    "Failed to log in to The Golfer's Journal. Check your "
-                    'username and password.' + hint)
+                    hint = ' The site asked for two-factor / Wordfence verification, which cannot be answered automatically.'
+                raise ValueError("Failed to log in to The Golfer's Journal. Check your username and password." + hint)
         return br
 
     def _newest_issue(self):

@@ -8,6 +8,7 @@ pagina12.com.ar
 '''
 import json
 import re
+
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -75,8 +76,7 @@ def ans_element_to_html(el):
         return '<blockquote>%s</blockquote>' % el.get('content', '')
 
     if t == 'quote':  # pull quote: nested content_elements
-        inner = ''.join(ans_element_to_html(e)
-                        for e in el.get('content_elements', []))
+        inner = ''.join(ans_element_to_html(e) for e in el.get('content_elements', []))
         return '<blockquote>%s</blockquote>' % inner
 
     if t == 'oembed_response':
@@ -95,6 +95,7 @@ def ans_element_to_html(el):
     # Types intentionally skipped: custom_embed, gallery, reference, story,
     # video, table, interstitial_link, etc. Add handlers here if you need them.
     return ''
+
 
 class Pagina12(BasicNewsRecipe):
     title = 'Pagina - 12'
@@ -180,7 +181,7 @@ class Pagina12(BasicNewsRecipe):
                 self.temp_files.append(tfile)
                 result = tfile.name
             except Exception:
-                self.info('Retrying download...')
+                print('Retrying download...')
             count += 1
         return result
 
@@ -196,14 +197,12 @@ class Pagina12(BasicNewsRecipe):
         if headline:
             parts.append('<h1>%s</h1>' % headline)
 
-        subhead = ((data.get('subheadlines') or {}).get('basic')
-                   or (data.get('description') or {}).get('basic'))
+        subhead = (data.get('subheadlines') or {}).get('basic') or (data.get('description') or {}).get('basic')
         if subhead:
             parts.append('<p class="subhead"><strong>%s</strong></p>' % subhead)
 
         credits = (data.get('credits') or {}).get('by') or []
-        names = [c.get('name') for c in credits
-                 if isinstance(c, dict) and c.get('name')]
+        names = [c.get('name') for c in credits if isinstance(c, dict) and c.get('name')]
         if names:
             parts.append('<p class="byline">%s</p>' % ', '.join(names))
 
@@ -223,7 +222,4 @@ class Pagina12(BasicNewsRecipe):
                 parts.append(html)
 
         title = headline or self.title
-        return (
-            '<html><head><meta charset="utf-8"/><title>%s</title></head>'
-            '<body>%s</body></html>' % (title, '\n'.join(parts))
-        )
+        return '<html><head><meta charset="utf-8"/><title>%s</title></head><body>%s</body></html>' % (title, '\n'.join(parts))
