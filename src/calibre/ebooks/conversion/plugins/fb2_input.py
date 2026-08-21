@@ -62,6 +62,8 @@ class FB2Input(InputFormatPlugin):
         doc = ensure_namespace(doc)
         try:
             fb_ns = doc.nsmap[doc.prefix]
+            if fb_ns not in (FB2NS, FB21NS):
+                fb_ns = FB2NS
         except Exception:
             fb_ns = FB2NS
 
