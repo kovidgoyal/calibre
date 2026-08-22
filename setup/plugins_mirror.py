@@ -432,7 +432,7 @@ def get_plugin_info(raw_zip):
         raw, names = get_plugin_init(zf)
         try:
             return parse_plugin(raw, names, zf)
-        except SyntaxError, TabError, IndentationError:
+        except (SyntaxError, TabError, IndentationError):  # fmt: skip
             with tempfile.NamedTemporaryFile(suffix='.zip') as f:
                 f.write(raw_zip)
                 f.flush()
