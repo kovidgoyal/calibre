@@ -11,6 +11,8 @@ contents.
 """
 
 import re
+from contextlib import closing
+from io import BytesIO
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -52,6 +54,13 @@ class GolfersJournal(BasicNewsRecipe):
     BASE = 'https://www.golfersjournal.com'
     LOGIN = BASE + '/my-account/'
 
+    # Every cover is emitted at this size. Some issues publish their cover only
+    # as a photograph of the printed magazine lying open -- back and front side
+    # by side -- so without normalizing, the covers have wildly different
+    # aspect ratios in the calibre grid. 1000x1214 is the aspect ratio of the
+    # publisher's own front-cover asset (925x1123).
+    COVER_W, COVER_H = 1000, 1214
+
     # Download a specific issue instead of the newest one.
     recipe_specific_options = {
         'issue': {
@@ -80,7 +89,15 @@ class GolfersJournal(BasicNewsRecipe):
             'nav-links post-navigation author-box wp-block-buttons '
             'yardage-book-download entry-footer '
             # the category/department link (e.g. "Adventures") above the headline
-            'department'
+            'department '
+            # the "Light / Dark" theme toggle in the byline block
+            'light-dark '
+            # audio readings ("Listen to a reading of this feature...") - the
+            # player does not work in an e-book, so drop the whole figure
+            'wp-block-audio '
+            # photo gallery chrome: the "+ Click to enlarge" hint and the
+            # numeric slide counters shown under each gallery image
+            'hint index'
         ),
         dict(name=['script', 'style', 'noscript', 'iframe', 'form', 'button', 'svg']),
         dict(attrs={'role': 'dialog'}),
@@ -139,10 +156,8 @@ class GolfersJournal(BasicNewsRecipe):
         soup = self.index_to_soup(issue_url)
 
         self.title = "The Golfer's Journal No. %d" % num
-
-        cover = soup.find('meta', attrs={'property': 'og:image', 'content': True})
-        if cover is not None:
-            self.cover_url = cover['content']
+        self.issue_number = num
+        self._cover_candidates = self._find_cover_candidates(soup, num)
 
         toc = soup.find(attrs={'class': lambda x: x and 'toc-block' in x})
         if toc is None:
@@ -166,9 +181,372 @@ class GolfersJournal(BasicNewsRecipe):
             self.log('\t', title, url)
 
         if not articles:
+            # Older issues (roughly No. 26 and earlier) use a different layout:
+            # no toc-block; instead each article is an <a href> wrapping a
+            # div.feature-story with the headline in <h1> and the dek in <h3>.
+            for feat in soup.findAll(**classes('feature-story')):
+                url = ''
+                meta = feat.find('meta', attrs={'itemprop': 'url', 'content': True})
+                if meta is not None:
+                    url = meta['content']
+                else:
+                    a = feat.findParent('a', href=True)
+                    if a is not None:
+                        url = a['href']
+                if '/editorial/' not in url:
+                    continue
+                url = url.split('#')[0].split('?')[0]
+                if url in seen:
+                    continue
+                seen.add(url)
+                h = feat.find(['h1', 'h2'])
+                title = self.tag_to_string(h).strip() if h else url
+                sub = feat.find('h3')
+                desc = self.tag_to_string(sub).strip() if sub else ''
+                articles.append({'title': title, 'url': url, 'description': desc})
+                self.log('\t', title, url)
+
+        if not articles and containers:
+            # A few issues (Nos. 27-28) have a table of contents with no links
+            # at all, just titles. The articles do exist online at the WordPress
+            # slug of the title, so construct each URL and keep it if it resolves.
+            br = self.browser
+            for feat in containers:
+                h = feat.find('h3')
+                if h is None:
+                    continue
+                title = self.tag_to_string(h).strip()
+                slug = re.sub(r'[^a-z0-9]+', '-', title.lower().replace("'", '').replace('’', '')).strip('-')
+                if not slug:
+                    continue
+                url = '%s/editorial/%s/' % (self.BASE, slug)
+                if url in seen:
+                    continue
+                try:
+                    br.open(url, timeout=self.timeout).close()
+                except Exception:
+                    self.log.warn('No online version found for: ' + title)
+                    continue
+                seen.add(url)
+                sub = feat.find(attrs={'class': 'subtitle'})
+                desc = self.tag_to_string(sub).strip() if sub else ''
+                articles.append({'title': title, 'url': url, 'description': desc})
+                self.log('\t', title, url)
+
+        if not articles:
             raise ValueError('No articles found for issue No. %d' % num)
 
         return [("The Golfer's Journal No. %d" % num, articles)]
+
+    @staticmethod
+    def _unsized(url):
+        # WordPress appends -WIDTHxHEIGHT before the extension for the scaled
+        # copies it generates. Strip it to get the full resolution original.
+        return re.sub(r'-\d+x\d+(\.\w+)$', r'\1', url.strip())
+
+    def _find_cover_candidates(self, soup, num):
+        """URLs that might be the cover, best first.
+
+        Most issues publish a front-cover-only asset somewhere on the issue
+        page even when og:image points at a back+front spread, so look for that
+        first and fall back to og:image (which is cropped later if need be).
+        """
+        urls, seen = [], set()
+
+        def add(url):
+            if not url:
+                return
+            url = self._unsized(url)
+            if url.startswith('//'):
+                url = 'https:' + url
+            if url.startswith('http') and url not in seen:
+                seen.add(url)
+                urls.append(url)
+
+        # 1. Newer issue pages wrap the front cover in its own block.
+        block = soup.find(attrs={'class': lambda x: x and 'cover-image-block' in x})
+        if block is not None:
+            for img in block.findAll('img'):
+                for attr in ('data-lazy-src', 'data-src', 'src'):
+                    val = img.get(attr)
+                    if val and not val.startswith('data:'):
+                        add(val)
+                        break
+
+        # 2. Otherwise the front cover is uploaded under a predictable name,
+        #    e.g. No36-FRONT-925w-CI-Page.webp or TGJ-1-4-Cover-925w.jpg. Names
+        #    saying BACK/SIDE-BY-SIDE/SPREAD are the two-page spread, not this.
+        front = re.compile(r'/[^/]*(?:no\.?-?%d|tgj-(?:1-)?%d)[-_.][^/]*(?:front|cover)[^/]*\.(?:jpe?g|png|webp)$' % (num, num), re.I)
+        spread = re.compile(r'back|side-by-side|spread|placeholder', re.I)
+        for url in sorted(set(re.findall(r'https://[^"\'\s]+?\.(?:jpe?g|png|webp)', str(soup)))):
+            name = url.rpartition('/')[2]
+            if front.search('/' + name) and not spread.search(name):
+                add(url)
+
+        # 3. Last resort: whatever the page advertises to social networks.
+        og = soup.find('meta', attrs={'property': 'og:image', 'content': True})
+        if og is not None:
+            self.cover_url = og['content']
+            add(og['content'])
+        return urls
+
+    def _crop_front_cover(self, img):
+        """Cut the front cover out of a photograph of a back+front spread.
+
+        The two panels are equal width with the front cover on the left (the
+        one carrying the masthead), photographed on a plain but often
+        gradient-lit background.
+        """
+        from qt.core import QImage, QRect, Qt
+
+        aw = 360
+        small = img.scaledToWidth(aw, Qt.TransformationMode.SmoothTransformation)
+        small = small.convertToFormat(QImage.Format.Format_RGB32)
+        w, h = small.width(), small.height()
+        grid = []
+        for y in range(h):
+            row = []
+            for x in range(w):
+                v = small.pixel(x, y)
+                row.append(((v >> 16) & 0xFF, (v >> 8) & 0xFF, v & 0xFF))
+            grid.append(row)
+
+        thr = 34
+
+        def differs(a, b):
+            return abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2]) > thr
+
+        # Count, per column, the pixels unlike that column's own top and bottom
+        # pixel. Comparing within a column rather than against one global
+        # background colour tolerates the gradient backgrounds.
+        colmass = [sum(1 for y in range(h) if differs(grid[y][x], grid[0][x]) and differs(grid[y][x], grid[h - 1][x])) for x in range(w)]
+        cmin = max(2, int(0.12 * h))
+        cols = [x for x in range(w) if colmass[x] > cmin]
+        if not cols:
+            self.log.warn('Could not locate the covers in the spread; using it as is')
+            return img
+        lo, hi = cols[0], cols[-1]
+        span = hi - lo + 1
+
+        gaps, x = [], lo
+        while x <= hi:
+            if colmass[x] <= cmin:
+                start = x
+                while x <= hi and colmass[x] <= cmin:
+                    x += 1
+                if x - start >= max(2, int(0.008 * w)):
+                    gaps.append((start, x))
+            else:
+                x += 1
+        # The panels are equal width, so the gutter sits at the middle of the
+        # span. Pick the gap nearest to it rather than the widest one: a flat
+        # area inside a cover can read as a wider gap than the gutter itself.
+        best = None
+        for start, end in gaps:
+            off = abs(((start + end) / 2.0 - lo) / span - 0.5)
+            if off < 0.15 and (best is None or off < best[0]):
+                best = (off, start)
+        x0, x1 = (lo, best[1] - 1) if best is not None else (lo, lo + span // 2)
+
+        # Vertical extent measured only within the panel that was chosen.
+        rmin = max(2, int(0.12 * (x1 - x0 + 1)))
+        ys = [y for y in range(h) if sum(1 for x in range(x0, x1 + 1) if differs(grid[y][x], grid[y][x0]) and differs(grid[y][x], grid[y][x1])) > rmin]
+        y0, y1 = (ys[0], ys[-1]) if ys else (0, h - 1)
+
+        sx, sy = img.width() / w, img.height() / h
+        return img.copy(QRect(int(x0 * sx), int(y0 * sy), max(1, int((x1 - x0 + 1) * sx)), max(1, int((y1 - y0 + 1) * sy))))
+
+    def _normalize_cover(self, img):
+        from qt.core import QRect, Qt
+
+        w, h = img.width(), img.height()
+        target = self.COVER_W / self.COVER_H
+        if w / h > target:
+            nw = round(h * target)
+            img = img.copy(QRect((w - nw) // 2, 0, nw, h))
+        else:
+            nh = round(w / target)
+            img = img.copy(QRect(0, (h - nh) // 2, w, nh))
+        return img.scaled(self.COVER_W, self.COVER_H, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+
+    def _stamp_issue_number(self, img, num):
+        """Overlay the issue number in a black disc in the lower right corner.
+
+        The covers are photographs and carry the issue number only in small
+        print, if at all, so this is what makes an issue identifiable in the
+        calibre cover grid.
+        """
+        from qt.core import QBrush, QColor, QFont, QFontMetrics, QImage, QPainter, Qt
+
+        from calibre.ebooks.covers import init_environment
+
+        init_environment()  # a Qt app and the bundled fonts, needed to draw text
+        img = img.convertToFormat(QImage.Format.Format_RGB32)
+        w, h = img.width(), img.height()
+        diameter = int(0.25 * w)
+        margin = int(0.045 * w)
+        cx, cy = w - margin - diameter // 2, h - margin - diameter // 2
+
+        text = str(num)
+        font = QFont('Liberation Serif')
+        font.setBold(True)
+        font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
+        size = int(diameter * 0.66)
+        font.setPixelSize(size)
+        fm = QFontMetrics(font)
+        while fm.horizontalAdvance(text) > int(diameter * 0.68) and size > 8:
+            size -= 2
+            font.setPixelSize(size)
+            fm = QFontMetrics(font)
+
+        p = QPainter(img)
+        try:
+            p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(QBrush(QColor(0, 0, 0)))
+            p.drawEllipse(cx - diameter // 2, cy - diameter // 2, diameter, diameter)
+            p.setFont(font)
+            p.setPen(QColor(255, 255, 255))
+            rect = fm.tightBoundingRect(text)
+            p.drawText(cx - rect.width() // 2 - rect.x(), cy + rect.height() // 2, text)
+        finally:
+            p.end()
+        return img
+
+    def get_cover_url(self):
+        from calibre.utils.img import image_from_data, image_to_data
+
+        candidates = list(getattr(self, '_cover_candidates', ()))
+        if not candidates and getattr(self, 'cover_url', None):
+            candidates = [self.cover_url]
+        front, spread = None, None
+        for url in candidates:
+            try:
+                with closing(self.browser.open(url, timeout=self.timeout)) as r:
+                    img = image_from_data(r.read())
+            except Exception as err:
+                self.log.warn('Could not fetch cover candidate %s: %s' % (url, err))
+                continue
+            if not img.width() or not img.height():
+                continue
+            if img.height() > img.width():
+                self.log('Using front cover image: ' + url)
+                front = img
+                break
+            if spread is None:
+                spread = (url, img)
+        if front is None:
+            if spread is None:
+                self.log.warn('No usable cover image found')
+                return None
+            url, img = spread
+            self.log('Only a back+front spread is published for this issue; cropping the front cover out of ' + url)
+            front = self._crop_front_cover(img)
+        img = self._normalize_cover(front)
+        num = getattr(self, 'issue_number', None)
+        if num is not None:
+            img = self._stamp_issue_number(img, num)
+        # _download_cover() reads file-like objects, which lets the cover be
+        # handed over already cropped and stamped.
+        return BytesIO(image_to_data(img, fmt='JPEG', compression_quality=92))
+
+    # Every article carries its credits in a div.byline near the headline, but
+    # the markup varies a lot between issues:
+    #   <address class="author">Words by <span itemprop="author">Tom Coyne</span></address>
+    #   <address itemprop="author">Words by Caleb Hannan, photos curated by Chris Reynolds</address>
+    #   <address itemprop="author">Photos and captions by Ryan Young</address>
+    # so the credit line is parsed into "<role> by <names>" clauses and the
+    # writing credit is preferred over the photography one. Photo essays have
+    # only the latter, and a few features (and the odd "Photos courtesy of ..."
+    # archive piece) have no attributable person at all.
+    _ROLE_BY = re.compile(
+        r'\b(words|word|story|stories|text|writing|written|essay|interview|interviews|reporting|as told to|'
+        r'photo|photos|photograph|photographs|photography|image|images|caption|captions|'
+        r'illustration|illustrations|artwork|art|film|video)\b[^,;]{0,40}?\bby\b[:\s]*',
+        re.I,
+    )
+    _WRITING_ROLE = re.compile(r'word|story|stories|text|writing|written|essay|interview|reporting|as told to', re.I)
+    # Credits that name an archive, agency or the magazine itself rather than a person.
+    _NOT_A_PERSON = re.compile(
+        r'courtesy|unless otherwise|getty|archive|associated press|staff|'
+        r'golfer.s journal|tgj|usga|lpga|pga|r&a',
+        re.I,
+    )
+
+    @classmethod
+    def _clean_byline_names(cls, text):
+        """A displayable person (or two) from the names half of a credit clause."""
+        text = re.sub(r'\s+', ' ', text or '').strip(' .,;:&/-·')
+        if not text or len(text) > 60 or any(ch.isdigit() for ch in text):
+            return ''
+        if cls._NOT_A_PERSON.search(text):
+            return ''
+        names = [n.strip(' .,;:&/-') for n in re.split(r',|\s+&\s+|\s+and\s+', text)]
+        names = [n for n in names if n and not cls._NOT_A_PERSON.search(n)]
+        if not names:
+            return ''
+        # Keep the credit short enough to read in a TOC list on a small screen.
+        return ' & '.join(names[:2])
+
+    @classmethod
+    def _author_from_credit(cls, text):
+        text = text or ''
+        matches = list(cls._ROLE_BY.finditer(text))
+        if not matches:
+            # No named role, so either a bare name ("Tom Coyne") or a one-off
+            # credit such as "Excerpted from The Authentic Swing by Steven
+            # Pressfield", where the name follows the last "by".
+            parts = re.split(r'\bby\b', text, flags=re.I)
+            return cls._clean_byline_names(parts[-1] if len(parts) > 1 else text)
+        clauses = []
+        for i, m in enumerate(matches):
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            clauses.append((m.group(1), text[m.end() : end]))
+        for want_writer in (True, False):
+            for role, names in clauses:
+                if want_writer and not cls._WRITING_ROLE.search(role):
+                    continue
+                name = cls._clean_byline_names(names)
+                if name:
+                    return name
+        return ''
+
+    def _article_author(self, soup):
+        block = soup.find(attrs={'class': lambda x: x and 'byline' in (x if isinstance(x, (list, tuple)) else x.split())})
+        if block is None:
+            return ''
+        # itemprop="author" is sometimes the writer's name alone and sometimes
+        # the whole credit line, so parse whatever it holds either way.
+        node = block.find(attrs={'itemprop': 'author'}) or block
+        return self._author_from_credit(self.tag_to_string(node)) or (self._author_from_credit(self.tag_to_string(block)) if node is not block else '')
+
+    def populate_article_metadata(self, article, soup, first):
+        # Put the writer in the table of contents ("Title - Author"): the
+        # features are titled evocatively rather than descriptively, so the
+        # byline is the most useful thing to identify them by. calibre builds
+        # both the NCX and the EPUB 3 nav from these titles, so this lands in
+        # both. The article page itself is left untouched.
+        if not first:
+            return
+        author = self._article_author(soup)
+        if not author:
+            self.log('\tNo byline found for: ' + (article.title or ''))
+            return
+        article.author = author
+        if article.title and ' · ' not in article.title:
+            article.title = '%s · %s' % (article.title, author)
+
+    def postprocess_book(self, oeb, opts, log):
+        # Remove the inline navigation bars ('| Next | Section menu | ... |')
+        # that calibre adds to the top and bottom of every article. The book
+        # has a proper navigation document, so they are just visual clutter in
+        # a photography-heavy magazine.
+        for item in oeb.spine:
+            root = getattr(item, 'data', None)
+            if root is None or not hasattr(root, 'xpath'):
+                continue
+            for div in root.xpath('//*[contains(@class, "calibre_navbar")]'):
+                div.getparent().remove(div)
 
     @staticmethod
     def _best_srcset(srcset):
@@ -191,7 +569,8 @@ class GolfersJournal(BasicNewsRecipe):
         return best_url
 
     def preprocess_html(self, soup):
-        # If we somehow landed on a paywalled copy, make it obvious in the log.
+        # A paywalled copy means the login did not take effect; say so in the
+        # log rather than silently producing a stub article.
         if soup.find(string=re.compile(r'Sign in to read this feature')):
             self.log.warn('Article appears paywalled - login may have failed')
         # Unwrap <picture>: crengine (KOReader) support for it is spotty and can
