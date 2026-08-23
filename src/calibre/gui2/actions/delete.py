@@ -81,6 +81,49 @@ class MultiDeleter(QObject):  # {{{
 # }}}
 
 
+class MultiRestorer(QObject):  # {{{
+    def __init__(self, gui, book_ids, callback):
+        from calibre.gui2.dialogs.progress import ProgressDialog
+
+        QObject.__init__(self, gui)
+        self.db = gui.current_db.new_api
+        self.ids = list(book_ids)
+        self.gui = gui
+        self.restored_ids = []
+        self.callback = callback
+        single_shot(self.restore_one)
+        self.pd = ProgressDialog(_('Restoring...'), parent=gui, cancelable=False, min=0, max=len(self.ids))
+        self.pd.setModal(True)
+        self.pd.show()
+
+    def restore_one(self):
+        if not self.ids:
+            self.cleanup()
+            return
+        book_id = self.ids.pop()
+        try:
+            self.db.move_book_from_trash(book_id)
+            self.restored_ids.append(book_id)
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
+        pd = self.pd
+        assert pd is not None
+        pd.value += 1
+        single_shot(self.restore_one)
+
+    def cleanup(self):
+        pd = self.pd
+        assert pd is not None
+        pd.hide()
+        self.pd = None
+        self.callback(self.restored_ids)
+
+
+# }}}
+
+
 class DeleteAction(InterfaceActionWithLibraryDrop):
     name = 'Remove Books'
     action_spec = (_('Remove books'), 'remove_books.png', _('Delete books'), 'Backspace' if ismacos else 'Del')
@@ -400,11 +443,13 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
                         db.move_format_from_trash(book_id, fmt)
             if current_idx.isValid():
                 self.gui.library_view.model().current_changed(current_idx, current_idx)
-        else:
+        elif len(book_ids) < 5:
             with BusyCursor():
                 for book_id in book_ids:
                     db.move_book_from_trash(book_id)
             self.refresh_after_undelete(book_ids)
+        else:
+            self.__mr = MultiRestorer(self.gui, book_ids, self.refresh_after_undelete)
 
     def refresh_after_undelete(self, book_ids):
         self.gui.current_db.data.books_added(book_ids)
