@@ -23,7 +23,9 @@ class AccentInsensitiveFilter(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         if not self._filter_text:
             return True
-        idx = self.sourceModel().index(source_row, 0, source_parent)
+        m = self.sourceModel()
+        assert m is not None
+        idx = m.index(source_row, 0, source_parent)
         name = idx.data(Qt.ItemDataRole.DisplayRole) or ''
         return primary_contains(self._filter_text, name)
 
