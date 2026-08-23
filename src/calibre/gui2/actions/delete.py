@@ -90,6 +90,7 @@ class MultiRestorer(QObject):  # {{{
         self.ids = list(book_ids)
         self.gui = gui
         self.restored_ids = []
+        self.failures = []
         self.callback = callback
         single_shot(self.restore_one)
         self.pd = ProgressDialog(_('Restoring...'), parent=gui, cancelable=False, min=0, max=len(self.ids))
@@ -107,7 +108,7 @@ class MultiRestorer(QObject):  # {{{
         except Exception:
             import traceback
 
-            traceback.print_exc()
+            self.failures.append((book_id, traceback.format_exc()))
         pd = self.pd
         assert pd is not None
         pd.value += 1
@@ -119,6 +120,15 @@ class MultiRestorer(QObject):  # {{{
         pd.hide()
         self.pd = None
         self.callback(self.restored_ids)
+        if self.failures:
+            msg = [f'id:{x[0]}\n{x[1]}' for x in self.failures]
+            error_dialog(
+                self.gui,
+                _('Failed to restore'),
+                _('Failed to restore some books, click the "Show details" button for details.'),
+                det_msg='\n\n'.join(msg),
+                show=True,
+            )
 
 
 # }}}
