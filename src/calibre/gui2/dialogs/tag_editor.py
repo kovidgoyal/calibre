@@ -1,14 +1,31 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import QAbstractItemView, QCheckBox, QDialog, QSortFilterProxyModel, QStringListModel, Qt
+from qt.core import QAbstractItemView, QCheckBox, QDialog, QModelIndex, QSortFilterProxyModel, QStringListModel, Qt
 
 from calibre.constants import islinux
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.startup import connect_lambda
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import _
+
+
+class AccentInsensitiveFilter(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._filter_text = ''
+
+    def set_filter_text(self, text):
+        self._filter_text = text
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
+        if not self._filter_text:
+            return True
+        idx = self.sourceModel().index(source_row, 0, source_parent)
+        name = idx.data(Qt.ItemDataRole.DisplayRole) or ''
+        return primary_contains(self._filter_text, name)
 
 
 class TagEditor(QDialog, Ui_TagEditor):
@@ -75,8 +92,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         else:
             tags = []
         self.applied_model = QStringListModel(tags)
-        p = QSortFilterProxyModel()
-        p.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        p = AccentInsensitiveFilter()
         p.setSourceModel(self.applied_model)
         self.applied_tags.setModel(p)
         if self.is_names:
@@ -89,8 +105,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             all_tags = list(self.db.all_tags())
         all_tags = sorted(set(all_tags) - set(tags), key=sort_key)
         self.all_tags_model = QStringListModel(all_tags)
-        p = QSortFilterProxyModel()
-        p.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        p = AccentInsensitiveFilter()
         p.setSourceModel(self.all_tags_model)
         self.available_tags.setModel(p)
 
@@ -276,7 +291,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def filter_tags(self, filter_value, which='available_tags'):
         collection = getattr(self, which)
-        collection.model().setFilterFixedString(filter_value or '')
+        collection.model().set_filter_text(filter_value or '')
 
     def accept(self):
         if self.add_tag_input.text().strip():
