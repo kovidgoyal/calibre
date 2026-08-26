@@ -264,8 +264,6 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)
-    if extra:
-        extra = html_to_lxml('\n'.join(extra))
     ans = E.entry(
         TITLE(mi.title),
         E.author(E.name(authors_to_string(mi.authors))),
@@ -276,8 +274,10 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
     if mi.pubdate and not is_date_undefined(mi.pubdate):
         ans.append(ans.makeelement(f'{{{DC_NS}}}date'))
         ans[-1].text = mi.pubdate.isoformat()
-    if len(extra):
-        ans.append(E.content(*extra, type='xhtml'))
+    if extra:
+        extra_tag = html_to_lxml('\n'.join(extra))
+        if len(extra_tag):
+            ans.append(E.content(extra_tag, type='xhtml'))
 
     def get(**kwargs: Any) -> str:
         return request_context.ctx.url_for('/get', book_id=book_id, library_id=request_context.library_id, **kwargs)
