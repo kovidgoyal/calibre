@@ -1294,13 +1294,11 @@ class Cover(ImageView):  # {{{
         b.setMenu(m)
         self.remove_cover_button = CB(_('&Remove'), 'trash.png', self.remove_cover)
 
-        self.download_cover_button = CB(_('Download co&ver'), 'arrow-down.png', self.download_cover)
-        self.generate_cover_button = b = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
+        self.download_cover_button = CB(_('&Download'), 'arrow-down.png', self.download_cover)
+        self.generate_cover_button = b = CB(_('&Generate'), 'default_cover.png', self.generate_cover)
         b.m = m = QMenu(b)
         b.setMenu(m)
         m.addAction(QIcon.ic('config.png'), _('Customize the styles and colors of the generated cover'), self.custom_cover)
-        if not tweaks['hide_ai_features']:
-            m.addAction(QIcon.ic('ai.png'), _('Generate cover with AI'), self.generate_cover_with_ai)
         m.addAction(QIcon.ic('edit-undo.png'), _('Undo last Generate cover'), self.undo_generate)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         self.buttons = [
@@ -1310,6 +1308,9 @@ class Cover(ImageView):  # {{{
             self.download_cover_button,
             self.generate_cover_button,
         ]
+        if not tweaks['hide_ai_features']:
+            self.ai_generate_cover_button = CB(_('&AI Generate'), 'ai.png', self.generate_cover_with_ai)
+            self.buttons.append(self.ai_generate_cover_button)
 
         self.frame_size = (300, 400)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred))
