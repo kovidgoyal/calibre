@@ -8,17 +8,22 @@ from typing import Any, NamedTuple
 from qt.core import (
     QCheckBox,
     QComboBox,
+    QContextMenuEvent,
     QDialogButtonBox,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QIcon,
+    QInputDialog,
     QLabel,
+    QListWidget,
+    QListWidgetItem,
     QPixmap,
     QPlainTextEdit,
     QPushButton,
     QSize,
     QSizePolicy,
+    QSplitter,
     QStackedLayout,
     Qt,
     QVBoxLayout,
@@ -53,6 +58,8 @@ PREFS_DEFAULTS: dict[str, Any] = {
     'include_authors': True,
     'include_series': True,
     'last_style': 'pulp',
+    'custom_styles': [],
+    'cover_splitter_state': None,
 }
 
 
@@ -147,7 +154,36 @@ def builtin_styles() -> tuple[CoverStyle, ...]:
     )
 
 
+def custom_styles() -> list[CoverStyle]:
+    raw = cover_prefs().get('custom_styles') or []
+    return [CoverStyle(s['name'], s['human_name'], s['template']) for s in raw if isinstance(s, dict)]
+
+
+def save_custom_styles(styles: list[CoverStyle]) -> None:
+    vals = cover_prefs()
+    vals['custom_styles'] = [{'name': s.name, 'human_name': s.human_name, 'template': s.template} for s in styles]
+    save_cover_prefs(vals)
+
+
+def add_custom_style(human_name: str, template: str) -> CoverStyle:
+    styles = custom_styles()
+    existing_names = {s.name for s in styles} | {s.name for s in builtin_styles()}
+    base = 'custom_' + human_name.lower().replace(' ', '_')
+    name = base
+    counter = 1
+    while name in existing_names:
+        name = f'{base}_{counter}'
+        counter += 1
+    style = CoverStyle(name, human_name, template)
+    styles.append(style)
+    save_custom_styles(styles)
+    return style
+
+
 def style_by_name(name: str) -> CoverStyle:
+    for s in custom_styles():
+        if s.name == name:
+            return s
     styles = builtin_styles()
     for s in styles:
         if s.name == name:
@@ -180,10 +216,63 @@ def text_rendering_block(mi: Metadata, include_title: bool, include_authors: boo
     )
 
 
+class PromptEdit(QPlainTextEdit):
+    save_as_custom_requested = pyqtSignal()
+
+    def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
+        menu = self.createStandardContextMenu()
+        assert menu is not None
+        menu.addSeparator()
+        ac = menu.addAction(QIcon.ic('plus.png'), _('Save current text as custom style…'))
+        assert ac is not None
+        ac.triggered.connect(self.save_as_custom_requested)
+        ac.setEnabled(bool(self.toPlainText().strip()))
+        assert e is not None
+        menu.exec(e.globalPos())  # type: ignore
+
+
+class CustomStylesWidget(QWidget):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        la = QLabel(_('Custom styles (shown above built-in styles in the dropdown):'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.list_widget = lw = QListWidget(self)
+        lw.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
+        l.addWidget(lw)
+        self.remove_button = rb = QPushButton(QIcon.ic('trash.png'), _('&Delete selected'), self)
+        rb.clicked.connect(self.remove_selected)
+        l.addWidget(rb)
+        self.refresh()
+
+    def refresh(self) -> None:
+        self.list_widget.clear()
+        for style in custom_styles():
+            item = QListWidgetItem(style.human_name)
+            item.setData(Qt.ItemDataRole.UserRole, style.name)
+            self.list_widget.addItem(item)
+        self.remove_button.setEnabled(self.list_widget.count() > 0)
+
+    def remove_selected(self) -> None:
+        selected_names = {item.data(Qt.ItemDataRole.UserRole) for item in self.list_widget.selectedItems()}
+        if not selected_names:
+            return
+        remaining = [s for s in custom_styles() if s.name not in selected_names]
+        save_custom_styles(remaining)
+        self.refresh()
+
+    def commit(self) -> bool:
+        return True
+
+
 class CoverGenSettingsWidget(QWidget):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
-        l = QFormLayout(self)
+        l = QVBoxLayout(self)
+        fl = QFormLayout()
+        l.addLayout(fl)
         self.aspect_box = ab = QComboBox(self)
         for val, text in (
             ('3:4', _('Portrait (3:4, typical of book covers)')),
@@ -196,7 +285,7 @@ class CoverGenSettingsWidget(QWidget):
             ab.addItem(text, val)
         idx = ab.findData(cover_prefs()['aspect_ratio'])
         ab.setCurrentIndex(max(0, idx))
-        l.addRow(_('&Aspect ratio for generated covers:'), ab)
+        fl.addRow(_('&Aspect ratio for generated covers:'), ab)
         self.note = la = QLabel(
             _(
                 'Note that the exact pixel resolution and quality of the generated'
@@ -206,7 +295,9 @@ class CoverGenSettingsWidget(QWidget):
             )
         )
         la.setWordWrap(True)
-        l.addRow(la)
+        fl.addRow(la)
+        self.custom_styles_widget = csw = CustomStylesWidget(self)
+        l.addWidget(csw, 1)
 
     def commit(self) -> bool:
         vals = cover_prefs()
@@ -240,6 +331,7 @@ class CoverCreateDialog(Dialog):
         self.session_cost = 0.0
         self.session_currency = ''
         self.cover_data: bytes | None = None  # the result, read by callers after exec()
+        self.splitter: QSplitter | None = None
         p = cover_prefs()
         self.current_style_key: str = p['last_style']
         self.update_provider_plugin()
@@ -288,11 +380,15 @@ class CoverCreateDialog(Dialog):
         p = cover_prefs()
         self.main_page = mp = QWidget(self)
         v = QVBoxLayout(mp)
-        h = QHBoxLayout()
-        v.addLayout(h, 1)
 
-        left = QVBoxLayout()
-        h.addLayout(left)
+        self.splitter = splitter = QSplitter(Qt.Orientation.Horizontal, mp)
+        v.addWidget(splitter, 1)
+
+        left_widget = QWidget(splitter)
+        left = QVBoxLayout(left_widget)
+        left.setContentsMargins(0, 0, 0, 0)
+        splitter.addWidget(left_widget)
+
         title = prepare_string_for_xml(self.mi.title or '')
         authors = prepare_string_for_xml(self.mi.format_authors())
         self.book_label = bl = QLabel(_('<b>{0}</b> by {1}').format(title, authors))
@@ -300,8 +396,7 @@ class CoverCreateDialog(Dialog):
         left.addWidget(bl)
 
         self.style_box = sb = QComboBox(self)
-        for style in builtin_styles():
-            sb.addItem(style.human_name, style.name)
+        self.populate_style_combo()
         sb.setCurrentIndex(max(0, sb.findData(self.current_style_key)))
         self.current_style_key = sb.currentData()
         sb.activated.connect(self.style_activated)
@@ -311,7 +406,8 @@ class CoverCreateDialog(Dialog):
         sh.addWidget(sla), sh.addWidget(sb, 1)
         left.addLayout(sh)
 
-        self.prompt_edit = pe = QPlainTextEdit(self)
+        self.prompt_edit = pe = PromptEdit(self)
+        pe.save_as_custom_requested.connect(self.save_prompt_as_custom)
         pe.setPlainText(style_by_name(self.current_style_key).template)
         left.addWidget(pe, 1)
 
@@ -347,12 +443,50 @@ class CoverCreateDialog(Dialog):
         cv.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.wait_stack = ws = WaitStack(_('Generating cover, this can take a while...'), after=cv, parent=self, size=128)
         ws.stop()
-        h.addWidget(ws, 1)
+        splitter.addWidget(ws)
+
+        saved_state = p.get('cover_splitter_state')
+        if saved_state:
+            try:
+                splitter.restoreState(bytes(saved_state))
+            except Exception:
+                pass
 
         self.status_label = st = QLabel('')
         st.setWordWrap(True)
         v.addWidget(st)
         self.stack.addWidget(mp)
+
+    def populate_style_combo(self) -> None:
+        sb = self.style_box
+        sb.clear()
+        custom = custom_styles()
+        if custom:
+            for style in custom:
+                sb.addItem(style.human_name, style.name)
+            sb.insertSeparator(sb.count())
+        for style in builtin_styles():
+            sb.addItem(style.human_name, style.name)
+
+    def save_prompt_as_custom(self) -> None:
+        text = self.prompt_edit.toPlainText().strip()
+        if not text:
+            return
+        name, ok = QInputDialog.getText(self, _('Save as custom style'), _('Name for this custom style:'))
+        if not ok or not name.strip():
+            return
+        style = add_custom_style(name.strip(), text)
+        current_key = self.current_style_key
+        self.populate_style_combo()
+        idx = self.style_box.findData(current_key)
+        if idx >= 0:
+            self.style_box.setCurrentIndex(idx)
+        self.current_style_key = self.style_box.currentData()
+        # select the newly added style
+        new_idx = self.style_box.findData(style.name)
+        if new_idx >= 0:
+            self.style_box.setCurrentIndex(new_idx)
+            self.current_style_key = style.name
 
     @property
     def ok_button(self) -> QPushButton:
@@ -496,6 +630,10 @@ class CoverCreateDialog(Dialog):
 
     def style_activated(self) -> None:
         key = self.style_box.currentData()
+        if key is None:
+            # separator selected — revert to previous
+            self.style_box.setCurrentIndex(max(0, self.style_box.findData(self.current_style_key)))
+            return
         if key == self.current_style_key:
             return
         if self.prompt_history and not question_dialog(
@@ -523,6 +661,12 @@ class CoverCreateDialog(Dialog):
         self.update_provider_plugin()
         if not self.is_ready_for_use:
             self.stack.setCurrentIndex(0)
+        # refresh in case the user added/deleted custom styles
+        current_key = self.current_style_key
+        self.populate_style_combo()
+        idx = self.style_box.findData(current_key)
+        self.style_box.setCurrentIndex(max(0, idx))
+        self.current_style_key = self.style_box.currentData()
         self.update_ui_state()
 
     def save_ui_state_to_prefs(self) -> None:
@@ -532,6 +676,8 @@ class CoverCreateDialog(Dialog):
         if self.include_series.isVisible():
             vals['include_series'] = self.include_series.isChecked()
         vals['last_style'] = self.current_style_key
+        if self.splitter is not None:
+            vals['cover_splitter_state'] = bytearray(self.splitter.saveState())
         save_cover_prefs(vals)
 
     def accept(self) -> None:
