@@ -43,7 +43,7 @@ from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.llm import LLMSettingsDialogBase
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets import ImageView
-from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.widgets2 import Dialog, FlowLayout
 from calibre.utils.localization import _
 
 # The purpose used both to configure AI providers and to look up the
@@ -258,6 +258,52 @@ class PromptEdit(QPlainTextEdit):
         menu.exec(e.globalPos())  # type: ignore
 
 
+class AddCustomStyleDialog(Dialog):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(title=_('Add custom style'), name='llm-cover-add-custom-style', parent=parent)
+
+    def setup_ui(self) -> None:
+        l = QVBoxLayout(self)
+        fl = QFormLayout()
+        fl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.name_edit = ne = QLineEdit(self)
+        ne.setPlaceholderText(_('e.g. Watercolor'))
+        fl.addRow(_('Style &name:'), ne)
+        l.addLayout(fl)
+        la = QLabel(_('Style &instructions:'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.instructions_edit = ie = QPlainTextEdit(self)
+        ie.setPlaceholderText(_('Describe the visual style for the cover image'))
+        la.setBuddy(ie)
+        l.addWidget(ie, 1)
+        l.addWidget(self.bb)
+
+    def sizeHint(self) -> QSize:
+        return QSize(520, 340)
+
+    def commit(self) -> bool:
+        if not self.name_edit.text().strip():
+            error_dialog(self, _('Name required'), _('Please enter a name for the custom style.'), show=True)
+            return False
+        if not self.instructions_edit.toPlainText().strip():
+            error_dialog(self, _('Instructions required'), _('Please enter instructions for the custom style.'), show=True)
+            return False
+        return True
+
+    def accept(self) -> None:
+        if self.commit():
+            super().accept()
+
+    @property
+    def style_name(self) -> str:
+        return self.name_edit.text().strip()
+
+    @property
+    def style_instructions(self) -> str:
+        return self.instructions_edit.toPlainText().strip()
+
+
 class CustomStylesWidget(QWidget):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -270,9 +316,14 @@ class CustomStylesWidget(QWidget):
         la.setBuddy(lw)
         lw.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         l.addWidget(lw)
+        bh = QHBoxLayout()
+        self.add_button = ab = QPushButton(QIcon.ic('plus.png'), _('&Add style…'), self)
+        ab.clicked.connect(self.add_style)
+        bh.addWidget(ab)
         self.remove_button = rb = QPushButton(QIcon.ic('trash.png'), _('&Delete selected'), self)
         rb.clicked.connect(self.remove_selected)
-        l.addWidget(rb)
+        bh.addWidget(rb)
+        l.addLayout(bh)
         self.refresh()
 
     def refresh(self) -> None:
@@ -282,6 +333,12 @@ class CustomStylesWidget(QWidget):
             item.setData(Qt.ItemDataRole.UserRole, style.name)
             self.list_widget.addItem(item)
         self.remove_button.setEnabled(self.list_widget.count() > 0)
+
+    def add_style(self) -> None:
+        d = AddCustomStyleDialog(self)
+        if d.exec():
+            add_custom_style(d.style_name, d.style_instructions)
+            self.refresh()
 
     def remove_selected(self) -> None:
         selected_names = {item.data(Qt.ItemDataRole.UserRole) for item in self.list_widget.selectedItems()}
@@ -515,7 +572,7 @@ class CoverCreateDialog(Dialog):
         left.addWidget(pe, 1)
 
         self.text_group = tg = QGroupBox(_('Render text on the cover'), self)
-        tl = QVBoxLayout(tg)
+        tl = FlowLayout(tg)
         self.include_title = it = QCheckBox(_('&Title'), tg)
         it.setChecked(bool(p['include_title']))
         tl.addWidget(it)
