@@ -992,6 +992,12 @@ class ActionLLMBook(InterfaceActionBase):
     description = _('Discuss books in your calibre library with AI')
 
 
+class ActionAIGenerateCover(InterfaceActionBase):
+    name = 'AI Generate Cover'
+    actual_plugin = 'calibre.gui2.actions.llm_cover:GenerateAICoverAction'
+    description = _('Generate covers for the books in your calibre library using AI')
+
+
 class ActionFetchNews(InterfaceActionBase):
     name = 'Fetch News'
     actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
@@ -1256,6 +1262,7 @@ plugins += [
     ActionQuickview,
     ActionPolish,
     ActionLLMBook,
+    ActionAIGenerateCover,
     ActionShowBookDetails,
     ActionRestart,
     ActionOpenFolder,

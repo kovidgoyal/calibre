@@ -44,7 +44,7 @@ from calibre.gui2.llm import LLMSettingsDialogBase
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog, FlowLayout
-from calibre.utils.localization import _
+from calibre.utils.localization import _, ngettext
 
 # The purpose used both to configure AI providers and to look up the
 # configured provider. These must be the same value as the configured provider
@@ -251,6 +251,35 @@ def text_rendering_block(title: str, authors: str, series: str, include_title: b
         ' translating, correcting or omitting anything:\n' + '\n'.join(lines) + '\nThe title should be the most prominent text. Do not render any other'
         ' text on the image.'
     )
+
+
+def build_generation_prompt(
+    mi: Metadata,
+    prompt_text: str,
+    include_title: bool,
+    include_authors: bool,
+    include_series: bool,
+    include_comments: bool,
+    refinements: tuple[str, ...] = (),
+) -> str:
+    """Build the full prompt sent to the AI model to generate a cover for the
+    book described by mi. refinements are only used when regenerating a cover
+    from scratch with a model that cannot edit images."""
+    p = cover_prefs()
+    title = resolved_title(mi, p['title_template'])
+    authors = resolved_authors(mi, p['authors_template'])
+    series = resolved_series(mi, p['series_template'])
+    tb = text_rendering_block(title, authors, series, include_title, include_authors, include_series)
+    extra = p.get('extra_instructions', '').strip()
+    parts = [context_line(title, authors), prompt_text]
+    if extra:
+        parts.insert(1, extra)
+    if include_comments and mi.comments:
+        parts.insert(1, 'Book description:\n' + comments_as_plain_text(mi.comments))
+    if refinements:
+        parts.append('Additionally apply the following refinements:\n- ' + '\n- '.join(refinements))
+    parts.append(tb)
+    return '\n\n'.join(parts)
 
 
 class PromptEdit(QPlainTextEdit):
@@ -511,28 +540,20 @@ class CoverSettingsDialog(LLMSettingsDialogBase):
                 load_defaults()
 
 
-class CoverCreateDialog(Dialog):
-    result_received = pyqtSignal(int, object)
+class CoverDialogBase(Dialog):
+    """Base class for the cover generation dialogs. Provides the AI provider
+    configuration page and the cover style/prompt handling shared by the
+    single book and bulk dialogs."""
 
-    def __init__(self, mi: Metadata, parent: QWidget | None = None):
+    # created by the subclass implementations of setup_main_page()
+    style_box: QComboBox
+    prompt_edit: PromptEdit
+
+    def __init__(self, title: str, name: str, parent: QWidget | None = None):
         # These are used by setup_ui() which is called by Dialog.__init__()
-        self.mi = mi
-        self.counter = count(start=1)
-        self.current_call_number = 0
-        self.is_busy = False
-        self.current_image: ImageData | None = None
-        self.prompt_history: list[str] = []
-        self.current_note = ''
-        self.session_cost = 0.0
-        self.session_currency = ''
-        self.cover_data: bytes | None = None  # the result, read by callers after exec()
-        self.splitter: QSplitter | None = None
-        p = cover_prefs()
-        self.current_style_key: str = p['last_style']
+        self.current_style_key: str = cover_prefs()['last_style']
         self.update_provider_plugin()
-        super().__init__(title=_('Generate cover with AI'), name='llm-cover-create-dialog', parent=parent)
-        self.result_received.connect(self.on_result, type=Qt.ConnectionType.QueuedConnection)
-        self.finished.connect(self.cleanup_on_close)
+        super().__init__(title=title, name=name, parent=parent)
 
     def update_provider_plugin(self) -> None:
         self.plugin: AIProviderPlugin | None = plugin_for_purpose(COVER_PURPOSE)
@@ -543,12 +564,10 @@ class CoverCreateDialog(Dialog):
         return p is not None and p.is_ready_for_use
 
     @property
-    def supports_editing(self) -> bool:
-        p = self.plugin
-        return p is not None and AICapabilities.text_and_image_to_image in p.capabilities
-
-    def sizeHint(self) -> QSize:
-        return QSize(900, 680)
+    def ok_button(self) -> QPushButton:
+        ans = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+        assert ans is not None
+        return ans
 
     def setup_ui(self) -> None:
         l = QVBoxLayout(self)
@@ -570,6 +589,130 @@ class CoverCreateDialog(Dialog):
         cl.addWidget(cw)
         cl.addStretch(1)
         self.stack.addWidget(cp)
+
+    def setup_main_page(self) -> None:
+        raise NotImplementedError
+
+    def update_main_ui_state(self) -> None:
+        raise NotImplementedError
+
+    def commit_main_page(self) -> bool:
+        raise NotImplementedError
+
+    def update_ui_state(self) -> None:
+        if self.stack.currentIndex() == 0:
+            self.ok_button.setText(_('&Continue'))
+            self.ok_button.setEnabled(True)
+            return
+        self.update_main_ui_state()
+
+    def populate_style_combo(self) -> None:
+        sb = self.style_box
+        sb.clear()
+        custom = custom_styles()
+        if custom:
+            for style in custom:
+                sb.addItem(style.human_name, style.name)
+            sb.insertSeparator(sb.count())
+        for style in builtin_styles():
+            sb.addItem(style.human_name, style.name)
+
+    def save_prompt_as_custom(self) -> None:
+        text = self.prompt_edit.toPlainText().strip()
+        if not text:
+            return
+        name, ok = QInputDialog.getText(self, _('Save as custom style'), _('Name for this custom style:'))
+        if not ok or not name.strip():
+            return
+        style = add_custom_style(name.strip(), text)
+        current_key = self.current_style_key
+        self.populate_style_combo()
+        idx = self.style_box.findData(current_key)
+        if idx >= 0:
+            self.style_box.setCurrentIndex(idx)
+        self.current_style_key = self.style_box.currentData()
+        # select the newly added style
+        new_idx = self.style_box.findData(style.name)
+        if new_idx >= 0:
+            self.style_box.setCurrentIndex(new_idx)
+            self.current_style_key = style.name
+
+    def style_activated(self) -> None:
+        key = self.style_box.currentData()
+        if key is None:
+            # separator selected — revert to previous
+            self.style_box.setCurrentIndex(max(0, self.style_box.findData(self.current_style_key)))
+            return
+        if key == self.current_style_key:
+            return
+        if not self.confirm_style_change():
+            self.style_box.setCurrentIndex(max(0, self.style_box.findData(self.current_style_key)))
+            return
+        self.current_style_key = key
+        self.apply_current_style()
+
+    def confirm_style_change(self) -> bool:
+        return True
+
+    def apply_current_style(self) -> None:
+        self.prompt_edit.setPlainText(style_by_name(self.current_style_key).template)
+        self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def show_settings(self) -> None:
+        CoverSettingsDialog(self).exec()
+        # the user may have switched provider or model, or removed the
+        # provider configuration entirely
+        self.update_provider_plugin()
+        if not self.is_ready_for_use:
+            self.stack.setCurrentIndex(0)
+        # refresh in case the user added/deleted custom styles
+        current_key = self.current_style_key
+        self.populate_style_combo()
+        idx = self.style_box.findData(current_key)
+        self.style_box.setCurrentIndex(max(0, idx))
+        self.current_style_key = self.style_box.currentData()
+        self.update_ui_state()
+
+    def accept(self) -> None:
+        if self.stack.currentIndex() == 0:
+            if not self.config_widget.commit():
+                return
+            self.update_provider_plugin()
+            if self.is_ready_for_use:
+                self.stack.setCurrentIndex(1)
+                self.update_ui_state()
+            return  # do not close the dialog
+        if self.commit_main_page():
+            super().accept()
+
+
+class CoverCreateDialog(CoverDialogBase):
+    result_received = pyqtSignal(int, object)
+
+    def __init__(self, mi: Metadata, parent: QWidget | None = None):
+        # These are used by setup_ui() which is called by Dialog.__init__()
+        self.mi = mi
+        self.counter = count(start=1)
+        self.current_call_number = 0
+        self.is_busy = False
+        self.current_image: ImageData | None = None
+        self.prompt_history: list[str] = []
+        self.current_note = ''
+        self.session_cost = 0.0
+        self.session_currency = ''
+        self.cover_data: bytes | None = None  # the result, read by callers after exec()
+        self.splitter: QSplitter | None = None
+        super().__init__(title=_('Generate cover with AI'), name='llm-cover-create-dialog', parent=parent)
+        self.result_received.connect(self.on_result, type=Qt.ConnectionType.QueuedConnection)
+        self.finished.connect(self.cleanup_on_close)
+
+    @property
+    def supports_editing(self) -> bool:
+        p = self.plugin
+        return p is not None and AICapabilities.text_and_image_to_image in p.capabilities
+
+    def sizeHint(self) -> QSize:
+        return QSize(900, 680)
 
     def setup_main_page(self) -> None:
         p = cover_prefs()
@@ -658,48 +801,7 @@ class CoverCreateDialog(Dialog):
         v.addWidget(st)
         self.stack.addWidget(mp)
 
-    def populate_style_combo(self) -> None:
-        sb = self.style_box
-        sb.clear()
-        custom = custom_styles()
-        if custom:
-            for style in custom:
-                sb.addItem(style.human_name, style.name)
-            sb.insertSeparator(sb.count())
-        for style in builtin_styles():
-            sb.addItem(style.human_name, style.name)
-
-    def save_prompt_as_custom(self) -> None:
-        text = self.prompt_edit.toPlainText().strip()
-        if not text:
-            return
-        name, ok = QInputDialog.getText(self, _('Save as custom style'), _('Name for this custom style:'))
-        if not ok or not name.strip():
-            return
-        style = add_custom_style(name.strip(), text)
-        current_key = self.current_style_key
-        self.populate_style_combo()
-        idx = self.style_box.findData(current_key)
-        if idx >= 0:
-            self.style_box.setCurrentIndex(idx)
-        self.current_style_key = self.style_box.currentData()
-        # select the newly added style
-        new_idx = self.style_box.findData(style.name)
-        if new_idx >= 0:
-            self.style_box.setCurrentIndex(new_idx)
-            self.current_style_key = style.name
-
-    @property
-    def ok_button(self) -> QPushButton:
-        ans = self.bb.button(QDialogButtonBox.StandardButton.Ok)
-        assert ans is not None
-        return ans
-
-    def update_ui_state(self) -> None:
-        if self.stack.currentIndex() == 0:
-            self.ok_button.setText(_('&Continue'))
-            self.ok_button.setEnabled(True)
-            return
+    def update_main_ui_state(self) -> None:
         self.ok_button.setText(_('&Use this cover'))
         self.ok_button.setEnabled(self.current_image is not None and not self.is_busy)
         refining = self.current_image is not None
@@ -732,31 +834,19 @@ class CoverCreateDialog(Dialog):
         if not text:
             error_dialog(self, _('No prompt'), _('Describe the cover you want in the prompt box before generating it.'), show=True)
             return None
-        title, authors, series = self._resolved_metadata()
-        tb = text_rendering_block(
-            title,
-            authors,
-            series,
-            self.include_title.isChecked(),
-            self.include_authors.isChecked(),
-            self.include_series.isVisible() and self.include_series.isChecked(),
-        )
-        extra = cover_prefs().get('extra_instructions', '').strip()
-        self.current_note = ''
+        include_title = self.include_title.isChecked()
+        include_authors = self.include_authors.isChecked()
+        include_series = self.include_series.isVisible() and self.include_series.isChecked()
         send_comments = self.include_comments.isVisible() and self.include_comments.isChecked() and bool(self.mi.comments)
-        comments_block = ('Book description:\n' + comments_as_plain_text(self.mi.comments)) if send_comments else ''
+        self.current_note = ''
         if self.current_image is None:
             self.prompt_history = [text]
-            cl = context_line(title, authors)
-            parts = [cl, text]
-            if extra:
-                parts.insert(1, extra)
-            if comments_block:
-                parts.insert(1, comments_block)
-            parts.append(tb)
-            return '\n\n'.join(parts), ()
+            return build_generation_prompt(self.mi, text, include_title, include_authors, include_series, send_comments), ()
         self.prompt_history.append(text)
         if self.supports_editing:
+            title, authors, series = self._resolved_metadata()
+            tb = text_rendering_block(title, authors, series, include_title, include_authors, include_series)
+            extra = cover_prefs().get('extra_instructions', '').strip()
             parts = [text]
             if extra:
                 parts.insert(0, extra)
@@ -767,16 +857,15 @@ class CoverCreateDialog(Dialog):
             ' regenerated from scratch with your refinements added to the prompt.'
             ' Results may differ noticeably.'
         )
-        refinements = '\n- '.join(self.prompt_history[1:])
-        cl = context_line(title, authors)
-        parts = [cl, self.prompt_history[0]]
-        if extra:
-            parts.insert(1, extra)
-        if comments_block:
-            parts.insert(1, comments_block)
-        parts.append(f'Additionally apply the following refinements:\n- {refinements}')
-        parts.append(tb)
-        return '\n\n'.join(parts), ()
+        return build_generation_prompt(
+            self.mi,
+            self.prompt_history[0],
+            include_title,
+            include_authors,
+            include_series,
+            send_comments,
+            refinements=tuple(self.prompt_history[1:]),
+        ), ()
 
     def start_generation(self) -> None:
         if self.is_busy:
@@ -864,20 +953,12 @@ class CoverCreateDialog(Dialog):
 
     # }}}
 
-    def style_activated(self) -> None:
-        key = self.style_box.currentData()
-        if key is None:
-            # separator selected — revert to previous
-            self.style_box.setCurrentIndex(max(0, self.style_box.findData(self.current_style_key)))
-            return
-        if key == self.current_style_key:
-            return
-        if self.prompt_history and not question_dialog(
+    def confirm_style_change(self) -> bool:
+        return not self.prompt_history or question_dialog(
             self, _('Start over?'), _('Changing the cover style will discard the current cover and start over. Are you sure?')
-        ):
-            self.style_box.setCurrentIndex(max(0, self.style_box.findData(self.current_style_key)))
-            return
-        self.current_style_key = key
+        )
+
+    def apply_current_style(self) -> None:
         self.start_over()
 
     def start_over(self) -> None:
@@ -888,21 +969,6 @@ class CoverCreateDialog(Dialog):
         self.status_label.setText('')
         self.prompt_edit.setPlainText(style_by_name(self.current_style_key).template)
         self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.update_ui_state()
-
-    def show_settings(self) -> None:
-        CoverSettingsDialog(self).exec()
-        # the user may have switched provider or model, or removed the
-        # provider configuration entirely
-        self.update_provider_plugin()
-        if not self.is_ready_for_use:
-            self.stack.setCurrentIndex(0)
-        # refresh in case the user added/deleted custom styles
-        current_key = self.current_style_key
-        self.populate_style_combo()
-        idx = self.style_box.findData(current_key)
-        self.style_box.setCurrentIndex(max(0, idx))
-        self.current_style_key = self.style_box.currentData()
         self.update_ui_state()
 
     def save_ui_state_to_prefs(self) -> None:
@@ -917,23 +983,127 @@ class CoverCreateDialog(Dialog):
             vals['cover_splitter_state'] = bytearray(self.splitter.saveState())
         save_cover_prefs(vals)
 
-    def accept(self) -> None:
-        if self.stack.currentIndex() == 0:
-            if not self.config_widget.commit():
-                return
-            self.update_provider_plugin()
-            if self.is_ready_for_use:
-                self.stack.setCurrentIndex(1)
-                self.update_ui_state()
-            return  # do not close the dialog
+    def commit_main_page(self) -> bool:
         if self.current_image is None:
-            return
+            return False
         self.cover_data = self.current_image.data
-        super().accept()
+        return True
 
     def cleanup_on_close(self) -> None:
         self.current_call_number = -1  # any in-flight result becomes stale
         self.save_ui_state_to_prefs()
+
+
+class BulkCoverGenerationSettings(NamedTuple):
+    prompt_text: str
+    include_title: bool
+    include_authors: bool
+    include_series: bool
+    include_comments: bool
+
+
+class CoverBulkCreateDialog(CoverDialogBase):
+    """Collects the cover generation settings used to queue background jobs
+    that generate covers for multiple books. The chosen settings are available
+    in the settings attribute after exec() returns."""
+
+    def __init__(self, num_of_books: int, parent: QWidget | None = None):
+        self.num_of_books = num_of_books
+        self.settings: BulkCoverGenerationSettings | None = None  # the result, read by callers after exec()
+        super().__init__(title=_('Generate covers with AI'), name='llm-cover-bulk-dialog', parent=parent)
+        self.finished.connect(self.save_ui_state_to_prefs)
+
+    def sizeHint(self) -> QSize:
+        return QSize(600, 540)
+
+    def setup_main_page(self) -> None:
+        p = cover_prefs()
+        self.main_page = mp = QWidget(self)
+        v = QVBoxLayout(mp)
+
+        self.count_label = bl = QLabel(
+            ngettext(
+                'A cover will be generated for the selected book, as a background job.',
+                'Covers will be generated for the {} selected books, as background jobs.',
+                self.num_of_books,
+            ).format(self.num_of_books)
+        )
+        bl.setWordWrap(True)
+        v.addWidget(bl)
+
+        self.style_box = sb = QComboBox(self)
+        self.populate_style_combo()
+        sb.setCurrentIndex(max(0, sb.findData(self.current_style_key)))
+        self.current_style_key = sb.currentData()
+        sb.activated.connect(self.style_activated)
+        sla = QLabel(_('Cover &style:'))
+        sla.setBuddy(sb)
+        sh = QHBoxLayout()
+        sh.addWidget(sla), sh.addWidget(sb, 1)
+        v.addLayout(sh)
+
+        self.prompt_edit = pe = PromptEdit(self)
+        pe.save_as_custom_requested.connect(self.save_prompt_as_custom)
+        pe.setPlainText(style_by_name(self.current_style_key).template)
+        pe.setPlaceholderText(_('Describe the cover you want the AI to create'))
+        v.addWidget(pe, 1)
+
+        self.text_group = tg = QGroupBox(_('Render text on the cover'), self)
+        tl = FlowLayout(tg)
+        self.include_title = it = QCheckBox(_('&Title'), tg)
+        it.setChecked(bool(p['include_title']))
+        tl.addWidget(it)
+        self.include_authors = ia = QCheckBox(_('&Author(s)'), tg)
+        ia.setChecked(bool(p['include_authors']))
+        tl.addWidget(ia)
+        self.include_series = ise = QCheckBox(_('&Series'), tg)
+        ise.setChecked(bool(p['include_series']))
+        tl.addWidget(ise)
+        v.addWidget(tg)
+
+        self.include_comments = ic = QCheckBox(_('Send book &descriptions to AI as context'), self)
+        ic.setToolTip(_('Include the book description/comments in the prompt so the AI can generate a more relevant cover'))
+        ic.setChecked(bool(p['include_comments']))
+        v.addWidget(ic)
+
+        self.stack.addWidget(mp)
+
+        stb = self.bb.addButton(_('S&ettings'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert stb is not None
+        stb.setIcon(QIcon.ic('config.png'))
+        stb.clicked.connect(self.show_settings)
+        self.settings_button = stb
+
+    def update_ui_state(self) -> None:
+        super().update_ui_state()
+        self.settings_button.setVisible(self.stack.currentIndex() != 0)
+
+    def update_main_ui_state(self) -> None:
+        self.ok_button.setText(_('&Generate covers'))
+        self.ok_button.setEnabled(True)
+
+    def commit_main_page(self) -> bool:
+        text = self.prompt_edit.toPlainText().strip()
+        if not text:
+            error_dialog(self, _('No prompt'), _('Describe the covers you want in the prompt box before generating them.'), show=True)
+            return False
+        self.settings = BulkCoverGenerationSettings(
+            text,
+            self.include_title.isChecked(),
+            self.include_authors.isChecked(),
+            self.include_series.isChecked(),
+            self.include_comments.isChecked(),
+        )
+        return True
+
+    def save_ui_state_to_prefs(self) -> None:
+        vals = cover_prefs()
+        vals['include_title'] = self.include_title.isChecked()
+        vals['include_authors'] = self.include_authors.isChecked()
+        vals['include_series'] = self.include_series.isChecked()
+        vals['include_comments'] = self.include_comments.isChecked()
+        vals['last_style'] = self.current_style_key
+        save_cover_prefs(vals)
 
 
 if __name__ == '__main__':
