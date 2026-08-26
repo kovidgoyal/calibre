@@ -16,6 +16,7 @@ from qt.core import (
     QIcon,
     QInputDialog,
     QLabel,
+    QLineEdit,
     QListWidget,
     QListWidgetItem,
     QPixmap,
@@ -60,6 +61,10 @@ PREFS_DEFAULTS: dict[str, Any] = {
     'last_style': 'pulp',
     'custom_styles': [],
     'cover_splitter_state': None,
+    'title_template': '',
+    'authors_template': '',
+    'series_template': '',
+    'extra_instructions': '',
 }
 
 
@@ -191,21 +196,43 @@ def style_by_name(name: str) -> CoverStyle:
     return styles[0]
 
 
-def context_line(mi: Metadata) -> str:
-    return f'Design a book cover for the book "{mi.title}" by {mi.format_authors()}.'
+def evaluate_template(template: str, mi: Metadata) -> str:
+    from calibre.ebooks.metadata.book.formatter import SafeFormat
+
+    return SafeFormat().safe_format(template, mi, '', mi)
 
 
-def text_rendering_block(mi: Metadata, include_title: bool, include_authors: bool, include_series: bool) -> str:
+def resolved_title(mi: Metadata, template: str) -> str:
+    return evaluate_template(template, mi) if template.strip() else (mi.title or '')
+
+
+def resolved_authors(mi: Metadata, template: str) -> str:
+    return evaluate_template(template, mi) if template.strip() else mi.format_authors()
+
+
+def resolved_series(mi: Metadata, template: str) -> str:
+    if template.strip():
+        return evaluate_template(template, mi)
+    if mi.is_null('series'):
+        return ''
+    s = mi.series
+    if mi.series_index is not None:
+        s += f', book {mi.format_series_index()}'
+    return s
+
+
+def context_line(title: str, authors: str) -> str:
+    return f'Design a book cover for the book "{title}" by {authors}.'
+
+
+def text_rendering_block(title: str, authors: str, series: str, include_title: bool, include_authors: bool, include_series: bool) -> str:
     lines = []
-    if include_title and mi.title:
-        lines.append(f'Title: "{mi.title}"')
-    if include_authors and mi.authors:
-        lines.append(f'Author: "{mi.format_authors()}"')
-    if include_series and not mi.is_null('series'):
-        s = mi.series
-        if mi.series_index is not None:
-            s += f', book {mi.format_series_index()}'
-        lines.append(f'Series: "{s}"')
+    if include_title and title:
+        lines.append(f'Title: "{title}"')
+    if include_authors and authors:
+        lines.append(f'Author: "{authors}"')
+    if include_series and series:
+        lines.append(f'Series: "{series}"')
     if not lines:
         return 'Do not render any text, words, letters or typography anywhere in the image.'
     return (
@@ -236,10 +263,11 @@ class CustomStylesWidget(QWidget):
         super().__init__(parent)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        la = QLabel(_('Custom styles (shown above built-in styles in the dropdown):'))
+        la = QLabel(_('Custom &styles:'))
         la.setWordWrap(True)
         l.addWidget(la)
         self.list_widget = lw = QListWidget(self)
+        la.setBuddy(lw)
         lw.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         l.addWidget(lw)
         self.remove_button = rb = QPushButton(QIcon.ic('trash.png'), _('&Delete selected'), self)
@@ -264,6 +292,80 @@ class CustomStylesWidget(QWidget):
         self.refresh()
 
     def commit(self) -> bool:
+        return True
+
+
+class TemplateFieldRow(QWidget):
+    def __init__(self, label: str, value: str, parent: QWidget | None = None):
+        super().__init__(parent)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
+        self.edit = ed = QLineEdit(self)
+        ed.setText(value)
+        ed.setPlaceholderText(_('Leave empty to use the value directly'))
+        h.addWidget(ed, 1)
+        self.btn = btn = QPushButton(QIcon.ic('template_funcs.png'), _('&Edit…'), self)
+        btn.setToolTip(_('Open the calibre template editor'))
+        btn.clicked.connect(self._open_editor)
+        h.addWidget(btn)
+
+    def _open_editor(self) -> None:
+        from calibre.gui2.dialogs.template_dialog import TemplateDialog
+
+        d = TemplateDialog(self, self.edit.text(), mi=None)
+        d.setWindowTitle(_('Edit template'))
+        if d.exec():
+            self.edit.setText(d.rule[1])
+
+    def text(self) -> str:
+        return self.edit.text()
+
+
+class TemplatesSettingsWidget(QWidget):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        l = QVBoxLayout(self)
+        p = cover_prefs()
+
+        fl = QFormLayout()
+        fl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        l.addLayout(fl)
+
+        self.title_row = tr = TemplateFieldRow(_('Title:'), p['title_template'], self)
+        fl.addRow(_('&Title template:'), tr)
+
+        self.authors_row = ar = TemplateFieldRow(_('Authors:'), p['authors_template'], self)
+        fl.addRow(_('&Authors template:'), ar)
+
+        self.series_row = sr = TemplateFieldRow(_('Series:'), p['series_template'], self)
+        fl.addRow(_('&Series template:'), sr)
+
+        la = QLabel(
+            _('Each template is evaluated using the calibre template language. Leave a template blank to use the corresponding metadata field directly.')
+        )
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+        sep = QLabel('')
+        sep.setFixedHeight(8)
+        l.addWidget(sep)
+
+        extra_label = QLabel(_('Extra &instructions prepended to every cover generation prompt (regardless of cover style):'))
+        extra_label.setWordWrap(True)
+        l.addWidget(extra_label)
+        self.extra_instructions = ei = QPlainTextEdit(self)
+        ei.setPlainText(p['extra_instructions'])
+        ei.setPlaceholderText(_('Optional text prepended to the cover generation instructions for every style'))
+        extra_label.setBuddy(ei)
+        l.addWidget(ei, 1)
+
+    def commit(self) -> bool:
+        vals = cover_prefs()
+        vals['title_template'] = self.title_row.text()
+        vals['authors_template'] = self.authors_row.text()
+        vals['series_template'] = self.series_row.text()
+        vals['extra_instructions'] = self.extra_instructions.toPlainText()
+        save_cover_prefs(vals)
         return True
 
 
@@ -314,6 +416,7 @@ class CoverSettingsDialog(LLMSettingsDialogBase):
 
     def custom_tabs(self):
         yield 'default_cover.png', _('Cover &generation'), CoverGenSettingsWidget(self)
+        yield 'template_funcs.png', _('&Templates'), TemplatesSettingsWidget(self)
 
 
 class CoverCreateDialog(Dialog):
@@ -519,28 +622,57 @@ class CoverCreateDialog(Dialog):
         self.update_ui_state()
 
     # Prompt building and generation {{{
+    def _resolved_metadata(self) -> tuple[str, str, str]:
+        p = cover_prefs()
+        title = resolved_title(self.mi, p['title_template'])
+        authors = resolved_authors(self.mi, p['authors_template'])
+        series = resolved_series(self.mi, p['series_template'])
+        return title, authors, series
+
     def build_prompt_and_sources(self) -> tuple[str, tuple[ImageData, ...]] | None:
         text = self.prompt_edit.toPlainText().strip()
         if not text:
             error_dialog(self, _('No prompt'), _('Describe the cover you want in the prompt box before generating it.'), show=True)
             return None
+        title, authors, series = self._resolved_metadata()
         tb = text_rendering_block(
-            self.mi, self.include_title.isChecked(), self.include_authors.isChecked(), self.include_series.isVisible() and self.include_series.isChecked()
+            title,
+            authors,
+            series,
+            self.include_title.isChecked(),
+            self.include_authors.isChecked(),
+            self.include_series.isVisible() and self.include_series.isChecked(),
         )
+        extra = cover_prefs().get('extra_instructions', '').strip()
         self.current_note = ''
         if self.current_image is None:
             self.prompt_history = [text]
-            return f'{context_line(self.mi)}\n\n{text}\n\n{tb}', ()
+            cl = context_line(title, authors)
+            parts = [cl, text]
+            if extra:
+                parts.insert(1, extra)
+            parts.append(tb)
+            return '\n\n'.join(parts), ()
         self.prompt_history.append(text)
         if self.supports_editing:
-            return f'{text}\n\n{tb}', (self.current_image,)
+            parts = [text]
+            if extra:
+                parts.insert(0, extra)
+            parts.append(tb)
+            return '\n\n'.join(parts), (self.current_image,)
         self.current_note = _(
             'Note: the selected AI model cannot edit images, so the cover is'
             ' regenerated from scratch with your refinements added to the prompt.'
             ' Results may differ noticeably.'
         )
         refinements = '\n- '.join(self.prompt_history[1:])
-        return (f'{context_line(self.mi)}\n\n{self.prompt_history[0]}\n\nAdditionally apply the following refinements:\n- {refinements}\n\n{tb}'), ()
+        cl = context_line(title, authors)
+        parts = [cl, self.prompt_history[0]]
+        if extra:
+            parts.insert(1, extra)
+        parts.append(f'Additionally apply the following refinements:\n- {refinements}')
+        parts.append(tb)
+        return '\n\n'.join(parts), ()
 
     def start_generation(self) -> None:
         if self.is_busy:
