@@ -38,10 +38,18 @@ from calibre.ai import (
     PromptBlockReason,
     ResultBlocked,
     ResultBlockReason,
+    StructuredOutputResult,
     WebLink,
 )
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
+from calibre.ai.structured import (
+    develop_structured_output,
+    gemini_response_schema,
+    messages_for_structured_output,
+    structured_output_from_chat,
+    structured_output_with_error_handler,
+)
 from calibre.ai.utils import (
     chat_with_error_handler,
     develop_image_generation,
@@ -55,7 +63,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 2  # needed for live updates
+module_version = 3  # needed for live updates
 API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
@@ -421,12 +429,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
         )
 
 
-def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-    # See https://ai.google.dev/gemini-api/docs/text-generation
-    if use_model:
-        model = get_available_models()[use_model]
-    else:
-        model = model_choice_for_text()
+def chat_data(messages: Iterable[ChatMessage], model: Model, allow_web_searches: bool = True) -> dict[str, Any]:
     contents = []
     system_instructions = []
     for m in messages:
@@ -447,10 +450,13 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         data['system_instruction'] = {'parts': system_instructions}
     if contents:
         data['contents'] = [{'parts': contents}]
-    if pref('allow_web_searches', False):
+    if allow_web_searches and pref('allow_web_searches', False):
         data['tools'] = [{'google_search': {}}]
-    rq = chat_request(data, model)
+    return data
 
+
+def responses_for_data(data: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
+    rq = chat_request(data, model)
     for datum in read_streaming_response(rq, GoogleAI.name):
         for res in as_chat_responses(datum, model):
             yield res
@@ -458,8 +464,40 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
                 break
 
 
+def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
+    # See https://ai.google.dev/gemini-api/docs/text-generation
+    if use_model:
+        model = get_available_models()[use_model]
+    else:
+        model = model_choice_for_text()
+    yield from responses_for_data(chat_data(messages, model), model)
+
+
 def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
+
+
+def structured_output_data(messages: Iterable[ChatMessage], model: Model, schema: type) -> dict[str, Any]:
+    # See https://ai.google.dev/gemini-api/docs/structured-output
+    # responseSchema is incompatible with the google_search tool
+    data = chat_data(messages, model, allow_web_searches=False)
+    gc = data['generationConfig']
+    gc['responseMimeType'] = 'application/json'
+    gc['responseSchema'] = gemini_response_schema(schema)
+    return data
+
+
+def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    if use_model:
+        model = get_available_models()[use_model]
+    else:
+        model = model_choice_for_text()
+    data = structured_output_data(messages_for_structured_output(prompt, instructions), model, schema)
+    return structured_output_from_chat(responses_for_data(data, model), schema, GoogleAI.name)
+
+
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
 
 
 def parse_gemini_image_response(d: dict[str, Any], model: Model) -> ImageGenerationResult:
@@ -571,6 +609,11 @@ def develop(use_model: str = '', msg: str = '') -> None:
     print('\n'.join(f'{k}:{m.id}' for k, m in gemini_models().items()))
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, ('models/' + use_model) if use_model else '', messages=m)
+
+
+def develop_structured(use_model: str = '', prompt: str = '') -> None:
+    # calibre-debug -c 'from calibre.ai.google.backend import develop_structured; develop_structured()'
+    develop_structured_output(generate_structured_output, prompt, use_model=('models/' + use_model) if use_model else '')
 
 
 if __name__ == '__main__':

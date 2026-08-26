@@ -15,12 +15,19 @@ if TYPE_CHECKING:
 else:
     ConfigWidget = object
 
-from calibre.ai import ChatMessage, ChatMessageType, ChatResponse
+from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, StructuredOutputResult
 from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.prefs import pref_for_provider
+from calibre.ai.structured import (
+    develop_structured_output,
+    messages_for_structured_output,
+    strict_json_schema,
+    structured_output_from_chat,
+    structured_output_with_error_handler,
+)
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, read_streaming_response
 
-module_version = 1
+module_version = 2
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
@@ -106,19 +113,17 @@ def chat_request(data: dict[str, Any], url_override: str | None = None) -> Reque
     return Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
 
 
-def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-    model_id = use_model or pref('text_model')
-    temperature = pref('temperature', 0.7)
-
-    data = {
+def chat_data(messages: Iterable[ChatMessage], model_id: str) -> dict[str, Any]:
+    return {
         'model': model_id,
         'messages': [for_assistant(m) for m in messages],
         'stream': True,
-        'temperature': temperature,
+        'temperature': pref('temperature', 0.7),
     }
 
-    rq = chat_request(data)
 
+def responses_for_data(data: dict[str, Any], model_id: str) -> Iterator[ChatResponse]:
+    rq = chat_request(data)
     for data in read_streaming_response(rq, LMStudioAI.name):
         for choice in data.get('choices', []):
             d = choice.get('delta', {})
@@ -131,13 +136,40 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
             yield ChatResponse(has_metadata=True, provider='LM Studio', model=data.get('model', model_id), plugin_name=LMStudioAI.name)
 
 
+def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
+    model_id = use_model or pref('text_model')
+    yield from responses_for_data(chat_data(messages, model_id), model_id)
+
+
 def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
+
+
+def structured_output_data(messages: Iterable[ChatMessage], model_id: str, schema: type) -> dict[str, Any]:
+    # See https://lmstudio.ai/docs/app/api/structured-output
+    data = chat_data(messages, model_id)
+    data['response_format'] = {'type': 'json_schema', 'json_schema': {'name': schema.__name__, 'strict': True, 'schema': strict_json_schema(schema)}}
+    return data
+
+
+def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    model_id = use_model or pref('text_model')
+    data = structured_output_data(messages_for_structured_output(prompt, instructions), model_id, schema)
+    return structured_output_from_chat(responses_for_data(data, model_id), schema, LMStudioAI.name)
+
+
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
 
 
 def develop(use_model: str = '', msg: str = '') -> None:
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, use_model, messages=m)
+
+
+def develop_structured(use_model: str = '', prompt: str = '') -> None:
+    # calibre-debug -c 'from calibre.ai.lm_studio.backend import develop_structured; develop_structured()'
+    develop_structured_output(generate_structured_output, prompt, use_model=use_model)
 
 
 if __name__ == '__main__':

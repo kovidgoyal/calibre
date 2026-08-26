@@ -17,13 +17,20 @@ if TYPE_CHECKING:
 else:
     ConfigWidget = object
 
-from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked
+from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked, StructuredOutputResult
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider
+from calibre.ai.structured import (
+    develop_structured_output,
+    messages_for_structured_output,
+    strict_json_schema,
+    structured_output_from_chat,
+    structured_output_with_error_handler,
+)
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, opener
 from calibre.utils.localization import _
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
@@ -166,17 +173,14 @@ def read_streaming_response(rq: Request) -> Iterator[dict[str, Any]]:
             yield json.loads(raw_line)
 
 
-def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-    # https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion
-    # Doesnt use SSE
-    if use_model:
-        model = get_available_models()[use_model]
-    else:
-        model = model_choice_for_text()
-    data = {
+def chat_data(messages: Iterable[ChatMessage], model: Model) -> dict[str, Any]:
+    return {
         'model': model.id,
         'messages': [for_assistant(m) for m in messages],
     }
+
+
+def responses_for_data(data: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
     rq = chat_request(data, model)
     for datum in read_streaming_response(rq):
         for res in as_chat_responses(datum, model):
@@ -185,14 +189,49 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
                 break
 
 
+def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
+    # https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion
+    # Doesnt use SSE
+    if use_model:
+        model = get_available_models()[use_model]
+    else:
+        model = model_choice_for_text()
+    yield from responses_for_data(chat_data(messages, model), model)
+
+
 def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
+
+
+def structured_output_data(messages: Iterable[ChatMessage], model: Model, schema: type) -> dict[str, Any]:
+    # https://github.com/ollama/ollama/blob/main/docs/api.md#structured-outputs
+    data = chat_data(messages, model)
+    data['format'] = strict_json_schema(schema)
+    return data
+
+
+def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    if use_model:
+        model = get_available_models()[use_model]
+    else:
+        model = model_choice_for_text()
+    data = structured_output_data(messages_for_structured_output(prompt, instructions), model, schema)
+    return structured_output_from_chat(responses_for_data(data, model), schema, OllamaAI.name)
+
+
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
 
 
 def develop(use_model: str = '', msg: str = '') -> None:
     # calibre-debug -c 'from calibre.ai.ollama.backend import develop; develop()'
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, use_model, messages=m)
+
+
+def develop_structured(use_model: str = '', prompt: str = '') -> None:
+    # calibre-debug -c 'from calibre.ai.ollama.backend import develop_structured; develop_structured()'
+    develop_structured_output(generate_structured_output, prompt, use_model=use_model)
 
 
 if __name__ == '__main__':

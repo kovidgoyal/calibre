@@ -25,14 +25,22 @@ if TYPE_CHECKING:
 else:
     ConfigWidget = object
 
-from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, NoAPIKey, ResultBlocked, ResultBlockReason, WebLink
+from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, NoAPIKey, ResultBlocked, ResultBlockReason, StructuredOutputResult, WebLink
 from calibre.ai.anthropic import AnthropicAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
+from calibre.ai.structured import (
+    develop_structured_output,
+    messages_for_structured_output,
+    strict_json_schema,
+    structured_output_from_chat,
+    structured_output_via_prompt,
+    structured_output_with_error_handler,
+)
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 API_VERSION = '2023-06-01'
 API_BASE_URL = 'https://api.anthropic.com/v1'
 MODELS_URL = f'{API_BASE_URL}/models?limit=1000'
@@ -148,6 +156,17 @@ class Model(NamedTuple):
     context_length: int
     output_limit: int
     pricing: Pricing | None
+
+    @property
+    def supports_native_structured_output(self) -> bool:
+        # See https://docs.anthropic.com/en/docs/build-with-claude/structured-outputs
+        # Only available on newer models. Assume future model families and
+        # versions support it.
+        if self.family in ('fable', 'mythos') or self.family_version == 0:
+            return True
+        if self.family == 'opus':
+            return self.family_version >= 4.1
+        return self.family_version >= 4.5
 
     @classmethod
     def create(
@@ -337,9 +356,9 @@ def apply_reasoning_settings(data: dict[str, Any], model: Model) -> None:
             data['thinking'] = {'type': 'adaptive', 'display': 'summarized'}
             if strategy == 'none':
                 # thinking cannot be disabled on this model, use lowest effort instead
-                data['output_config'] = {'effort': 'low'}
+                data.setdefault('output_config', {})['effort'] = 'low'
             elif strategy in ('low', 'medium', 'high'):
-                data['output_config'] = {'effort': strategy}
+                data.setdefault('output_config', {})['effort'] = strategy
         case ThinkingMode.budget:
             if strategy == 'none':
                 return
@@ -440,12 +459,13 @@ def response_from_events(events: Iterator[dict[str, Any]], model: Model) -> Iter
     )
 
 
-def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-    # https://docs.anthropic.com/en/api/messages
+def model_for_use_model(use_model: str) -> Model:
     if use_model:
-        model = get_available_models().get(use_model) or Model.create(use_model, use_model)
-    else:
-        model = model_choice_for_text()
+        return get_available_models().get(use_model) or Model.create(use_model, use_model)
+    return model_choice_for_text()
+
+
+def chat_data(messages: Iterable[ChatMessage], model: Model, use_tools: bool = True) -> dict[str, Any]:
     system_prompts, chat = [], []
     for m in messages:
         if m.type in (ChatMessageType.system, ChatMessageType.developer):
@@ -461,11 +481,17 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
     if system_prompts:
         data['system'] = '\n\n'.join(system_prompts)
     apply_reasoning_settings(data, model)
-    if pref('allow_web_searches', False):
+    if use_tools and pref('allow_web_searches', False):
         # https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool
         tool_type = 'web_search_20260209' if model.thinking is ThinkingMode.adaptive else 'web_search_20250305'
         data['tools'] = [{'type': tool_type, 'name': 'web_search'}]
-    rq = chat_request(data)
+    return data
+
+
+def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
+    # https://docs.anthropic.com/en/api/messages
+    model = model_for_use_model(use_model)
+    rq = chat_request(chat_data(messages, model))
     yield from response_from_events(read_streaming_response(rq, AnthropicAI.name), model)
 
 
@@ -473,10 +499,36 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
 
 
+def structured_output_data(messages: Iterable[ChatMessage], model: Model, schema: type) -> dict[str, Any]:
+    # https://docs.anthropic.com/en/docs/build-with-claude/structured-outputs
+    # tools must be disabled as web search results are not JSON
+    data = chat_data(messages, model, use_tools=False)
+    data.setdefault('output_config', {})['format'] = {'type': 'json_schema', 'schema': strict_json_schema(schema)}
+    return data
+
+
+def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    model = model_for_use_model(use_model)
+    if not model.supports_native_structured_output:
+        return structured_output_via_prompt(text_chat_implementation, prompt, schema, instructions, use_model, AnthropicAI.name)
+    data = structured_output_data(messages_for_structured_output(prompt, instructions), model, schema)
+    rq = chat_request(data)
+    return structured_output_from_chat(response_from_events(read_streaming_response(rq, AnthropicAI.name), model), schema, AnthropicAI.name)
+
+
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
+
+
 def develop(use_model: str = '', msg: str = '') -> None:
     # calibre-debug -c 'from calibre.ai.anthropic.backend import develop; develop()'
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, use_model, messages=m)
+
+
+def develop_structured(use_model: str = '', prompt: str = '') -> None:
+    # calibre-debug -c 'from calibre.ai.anthropic.backend import develop_structured; develop_structured()'
+    develop_structured_output(generate_structured_output, prompt, use_model=use_model)
 
 
 if __name__ == '__main__':

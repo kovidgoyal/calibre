@@ -26,9 +26,17 @@ from calibre.ai import (
     NoAPIKey,
     ResultBlocked,
     ResultBlockReason,
+    StructuredOutputResult,
 )
 from calibre.ai.openai import OpenAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
+from calibre.ai.structured import (
+    develop_structured_output,
+    messages_for_structured_output,
+    strict_json_schema,
+    structured_output_from_chat,
+    structured_output_with_error_handler,
+)
 from calibre.ai.utils import (
     chat_with_error_handler,
     develop_image_generation,
@@ -43,7 +51,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 2  # needed for live updates
+module_version = 3  # needed for live updates
 MODELS_URL = 'https://api.openai.com/v1/models'
 CHAT_URL = 'https://api.openai.com/v1/responses'
 IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations'
@@ -172,11 +180,11 @@ def reasoning_effort() -> str:
     return {'none': 'minimal', 'auto': 'medium', 'low': 'low', 'medium': 'medium', 'high': 'high'}.get(pref('reasoning_strategy', 'auto'), 'medium')
 
 
-def chat_request(data: dict[str, Any], model: Model) -> Request:
+def chat_request(data: dict[str, Any], model: Model, use_tools: bool = True) -> Request:
     # See https://platform.openai.com/docs/api-reference/responses/create
     data['model'] = model.id
     data['stream'] = True
-    if pref('allow_web_searches', True):
+    if use_tools and pref('allow_web_searches', True):
         data.setdefault('tools', []).append({'type': 'web_search'})
     data['reasoning'] = {'effort': reasoning_effort(), 'summary': 'auto'}
     return Request(CHAT_URL, data=json.dumps(data).encode('utf-8'), headers=dict(headers()), method='POST')
@@ -260,6 +268,41 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
 
 
+def structured_output_data(messages: Iterable[ChatMessage], schema: type) -> dict[str, Any]:
+    # See https://platform.openai.com/docs/guides/structured-outputs
+    return {
+        'input': [for_assistant(m) for m in messages],
+        'text': {
+            'format': {
+                'type': 'json_schema',
+                'name': schema.__name__,
+                'strict': True,
+                'schema': strict_json_schema(schema),
+            }
+        },
+    }
+
+
+def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    if use_model:
+        model = get_available_models()[use_model]
+    else:
+        model = model_choice_for_text()
+    data = structured_output_data(messages_for_structured_output(prompt, instructions), schema)
+    # tools must be disabled as web search results are not JSON
+    rq = chat_request(data, model, use_tools=False)
+
+    def responses() -> Iterator[ChatResponse]:
+        for datum in read_streaming_response(rq, OpenAI.name):
+            yield from as_chat_responses(datum, model)
+
+    return structured_output_from_chat(responses(), schema, OpenAI.name)
+
+
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
+
+
 def size_for_aspect_ratio(aspect_ratio: str) -> str:
     # The gpt-image models only support a few fixed sizes
     return {'1:1': '1024x1024', '16:9': '1536x1024', '4:3': '1536x1024', '9:16': '1024x1536', '3:4': '1024x1536'}.get(aspect_ratio, 'auto')
@@ -340,6 +383,11 @@ def develop(use_model: str = '', msg: str = '') -> None:
     # calibre-debug -c 'from calibre.ai.openai.backend import develop; develop()'
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, use_model, messages=m)
+
+
+def develop_structured(use_model: str = '', prompt: str = '') -> None:
+    # calibre-debug -c 'from calibre.ai.openai.backend import develop_structured; develop_structured()'
+    develop_structured_output(generate_structured_output, prompt, use_model=use_model)
 
 
 if __name__ == '__main__':
