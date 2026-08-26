@@ -426,6 +426,12 @@ class TemplatesSettingsWidget(QWidget):
         extra_label.setBuddy(ei)
         l.addWidget(ei, 1)
 
+    def load_defaults(self) -> None:
+        self.title_row.edit.setText(PREFS_DEFAULTS['title_template'])
+        self.authors_row.edit.setText(PREFS_DEFAULTS['authors_template'])
+        self.series_row.edit.setText(PREFS_DEFAULTS['series_template'])
+        self.extra_instructions.setPlainText(PREFS_DEFAULTS['extra_instructions'])
+
     def commit(self) -> bool:
         vals = cover_prefs()
         vals['title_template'] = self.title_row.text()
@@ -468,6 +474,11 @@ class CoverGenSettingsWidget(QWidget):
         self.custom_styles_widget = csw = CustomStylesWidget(self)
         l.addWidget(csw, 1)
 
+    def load_defaults(self) -> None:
+        idx = self.aspect_box.findData(PREFS_DEFAULTS['aspect_ratio'])
+        self.aspect_box.setCurrentIndex(max(0, idx))
+        self.custom_styles_widget.refresh()
+
     def commit(self) -> bool:
         vals = cover_prefs()
         vals['aspect_ratio'] = self.aspect_box.currentData()
@@ -484,6 +495,20 @@ class CoverSettingsDialog(LLMSettingsDialogBase):
     def custom_tabs(self):
         yield 'default_cover.png', _('Cover &generation'), CoverGenSettingsWidget(self)
         yield 'template_funcs.png', _('&Templates'), TemplatesSettingsWidget(self)
+
+    def setup_ui(self) -> None:
+        super().setup_ui()
+        restore_btn = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert restore_btn is not None
+        restore_btn.clicked.connect(self.restore_defaults)
+
+    def restore_defaults(self) -> None:
+        vals = dict(PREFS_DEFAULTS)
+        vals['custom_styles'] = cover_prefs().get('custom_styles', [])
+        for i in range(1, self.tabs.count()):  # index 0 is the AI Provider tab
+            w = self.tabs.widget(i)
+            if load_defaults := getattr(w, 'load_defaults', None):
+                load_defaults()
 
 
 class CoverCreateDialog(Dialog):
