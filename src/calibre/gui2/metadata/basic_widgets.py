@@ -1299,6 +1299,8 @@ class Cover(ImageView):  # {{{
         b.m = m = QMenu(b)
         b.setMenu(m)
         m.addAction(QIcon.ic('config.png'), _('Customize the styles and colors of the generated cover'), self.custom_cover)
+        if not tweaks['hide_ai_features']:
+            m.addAction(QIcon.ic('ai.png'), _('Generate cover with AI'), self.generate_cover_with_ai)
         m.addAction(QIcon.ic('edit-undo.png'), _('Undo last Generate cover'), self.undo_generate)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         self.buttons = [
@@ -1452,6 +1454,17 @@ class Cover(ImageView):  # {{{
         mi = dialog.to_book_metadata()
         self.cdata_before_generate = self.current_val
         self.current_val = generate_cover(mi)
+
+    def generate_cover_with_ai(self):
+        from calibre.gui2.dialogs.llm_cover import CoverCreateDialog
+
+        dialog = self.dialog
+        assert dialog is not None
+        mi = dialog.to_book_metadata()
+        d = CoverCreateDialog(mi, parent=self)
+        if d.exec() == QDialog.DialogCode.Accepted and d.cover_data is not None:
+            self.cdata_before_generate = self.current_val
+            self.current_val = d.cover_data
 
     def custom_cover(self):
         from calibre.ebooks.covers import generate_cover

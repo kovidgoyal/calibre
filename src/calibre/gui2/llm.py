@@ -788,6 +788,8 @@ class LLMActionsSettingsWidget(QWidget):
 
 
 class LLMSettingsDialogBase(Dialog):
+    ai_purpose = AICapabilities.text_to_text
+
     def __init__(self, name, prefs, title='', parent=None):
         super().__init__(title=title or _('AI Settings'), name=name, prefs=prefs, parent=parent)
 
@@ -798,7 +800,7 @@ class LLMSettingsDialogBase(Dialog):
     def setup_ui(self):
         l = QVBoxLayout(self)
         self.tabs = tabs = QTabWidget(self)
-        self.ai_config = ai = ConfigureAI(parent=self)
+        self.ai_config = ai = ConfigureAI(self.ai_purpose, parent=self)
         tabs.addTab(ai, QIcon.ic('ai.png'), _('AI &Provider'))
         for icon, title, widget in self.custom_tabs():
             tabs.addTab(widget, QIcon.ic(icon), title)
