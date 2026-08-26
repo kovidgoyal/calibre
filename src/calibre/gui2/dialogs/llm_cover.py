@@ -58,6 +58,7 @@ PREFS_DEFAULTS: dict[str, Any] = {
     'include_title': True,
     'include_authors': True,
     'include_series': True,
+    'include_comments': False,
     'last_style': 'pulp',
     'custom_styles': [],
     'cover_splitter_state': None,
@@ -219,6 +220,15 @@ def resolved_series(mi: Metadata, template: str) -> str:
     if mi.series_index is not None:
         s += f', book {mi.format_series_index()}'
     return s
+
+
+def comments_as_plain_text(comments: str) -> str:
+    from calibre.utils.html2text import html2text
+
+    text = html2text(comments, single_line_break=True).strip()
+    if len(text) > 2000:
+        text = text[:2000].rstrip() + '…'
+    return text
 
 
 def context_line(title: str, authors: str) -> str:
@@ -585,6 +595,12 @@ class CoverCreateDialog(Dialog):
         tl.addWidget(ise)
         left.addWidget(tg)
 
+        self.include_comments = ic = QCheckBox(_('Send book &description to AI as context'), self)
+        ic.setToolTip(_('Include the book description/comments in the prompt so the AI can generate a more relevant cover'))
+        ic.setChecked(bool(p['include_comments']))
+        ic.setVisible(bool(self.mi.comments))
+        left.addWidget(ic)
+
         bh = QHBoxLayout()
         self.generate_button = gb = QPushButton(QIcon.ic('ai.png'), _('&Generate cover'), self)
         gb.clicked.connect(self.start_generation)
@@ -666,7 +682,7 @@ class CoverCreateDialog(Dialog):
         self.prompt_edit.setPlaceholderText(
             _('Describe the changes you want, e.g. "make the background darker"') if refining else _('Describe the cover you want the AI to create')
         )
-        for w in (self.generate_button, self.style_box, self.prompt_edit, self.text_group, self.settings_button):
+        for w in (self.generate_button, self.style_box, self.prompt_edit, self.text_group, self.include_comments, self.settings_button):
             w.setEnabled(not self.is_busy)
         self.start_over_button.setEnabled(not self.is_busy and bool(self.prompt_history))
 
@@ -702,12 +718,16 @@ class CoverCreateDialog(Dialog):
         )
         extra = cover_prefs().get('extra_instructions', '').strip()
         self.current_note = ''
+        send_comments = self.include_comments.isVisible() and self.include_comments.isChecked() and bool(self.mi.comments)
+        comments_block = ('Book description:\n' + comments_as_plain_text(self.mi.comments)) if send_comments else ''
         if self.current_image is None:
             self.prompt_history = [text]
             cl = context_line(title, authors)
             parts = [cl, text]
             if extra:
                 parts.insert(1, extra)
+            if comments_block:
+                parts.insert(1, comments_block)
             parts.append(tb)
             return '\n\n'.join(parts), ()
         self.prompt_history.append(text)
@@ -727,6 +747,8 @@ class CoverCreateDialog(Dialog):
         parts = [cl, self.prompt_history[0]]
         if extra:
             parts.insert(1, extra)
+        if comments_block:
+            parts.insert(1, comments_block)
         parts.append(f'Additionally apply the following refinements:\n- {refinements}')
         parts.append(tb)
         return '\n\n'.join(parts), ()
@@ -864,6 +886,7 @@ class CoverCreateDialog(Dialog):
         vals['include_authors'] = self.include_authors.isChecked()
         if self.include_series.isVisible():
             vals['include_series'] = self.include_series.isChecked()
+        vals['include_comments'] = self.include_comments.isChecked()
         vals['last_style'] = self.current_style_key
         if self.splitter is not None:
             vals['cover_splitter_state'] = bytearray(self.splitter.saveState())
@@ -896,6 +919,17 @@ if __name__ == '__main__':
     app = Application([])
     mi = Metadata('The Moving Toyshop', ['Edmund Crispin'])
     mi.series, mi.series_index = 'Gervase Fen', 3
+    mi.comments = '''
+Famous poet Richard Cadogan takes an impromptu holiday to Oxford, where he studied at the university, after growing bored with the literary life in the suburbs.
+After finding himself in a high street, in the middle of the night and with no place to stay, he stumbles across a shop with its awning still up.
+Closer inspection reveals it to be a toyshop, and on finding the door unlocked, curiosity leads Cadogan inside,
+then up a flight of stairs to a flat where he finds the murdered body of an elderly woman,
+before being knocked unconscious. He wakes up the next morning in a supply closet, but after escaping and bringing back the police,
+the toyshop is no longer there, replaced, it seems, with a grocer's.
+
+Bewildered, Cadogan turns to an old friend at the University of Oxford,
+eccentric professor and amateur sleuth Gervase Fen, to help him solve the mystery of the moving toyshop.
+'''
     d = CoverCreateDialog(mi)
     if d.exec() == QDialog.DialogCode.Accepted and d.cover_data is not None:
         print('Generated cover of', len(d.cover_data), 'bytes')
