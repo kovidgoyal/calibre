@@ -563,6 +563,61 @@ def find_tests() -> TestSuite:
             self.assertEqual(res.model, 'gpt-image-1')
             self.assertRaises(ValueError, parse_image_response, {'data': []}, 'gpt-image-1')
 
+        def test_ai_grok_chat_response_parsing(self) -> None:
+            from calibre.ai.grok.backend import Model, as_chat_responses
+
+            model = Model.from_dict({'id': 'grok-4.6', 'created': 0, 'prompt_text_token_price': 20000, 'completion_text_token_price': 100000})
+            self.assertEqual(model.family_version, 4.6)
+            self.assertFalse(model.supports_reasoning_effort)
+            self.assertTrue(Model.from_dict({'id': 'grok-4.20-0309-reasoning'}).supports_reasoning_effort)
+            self.assertFalse(Model.from_dict({'id': 'grok-4.20-0309-non-reasoning'}).supports_reasoning_effort)
+
+            def p(d: dict[str, Any]) -> list[ChatResponse]:
+                return list(as_chat_responses(d, model))
+
+            r = p({'id': 'c1', 'choices': [{'delta': {'role': 'assistant', 'content': 'Hello', 'reasoning_content': 'Think'}, 'finish_reason': None}]})[0]
+            self.assertEqual(r.content, 'Hello')
+            self.assertEqual(r.reasoning, 'Think')
+            self.assertEqual(r.id, 'c1')
+            self.assertEqual(r.type, ChatMessageType.assistant)
+            r = p({
+                'id': 'c1',
+                'model': 'grok-4.6',
+                'choices': [{'delta': {}, 'finish_reason': 'stop'}],
+                'usage': {'prompt_tokens': 1_000_000, 'completion_tokens': 1_000_000},
+                'citations': ['https://example.com'],
+            })[-1]
+            self.assertTrue(r.has_metadata)
+            self.assertEqual((r.model, r.currency), ('grok-4.6', 'USD'))
+            self.assertAlmostEqual(r.cost, 2 + 10)  # $2/M input and $10/M output tokens
+            self.assertEqual(r.web_links, (WebLink(title='https://example.com', uri='https://example.com'),))
+            r = p({'choices': [{'delta': {}, 'finish_reason': 'content_filter'}]})[0]
+            self.assertIsNotNone(r.exception)
+
+            from calibre.ai.grok.backend import for_assistant
+
+            self.assertEqual(for_assistant(ChatMessage(type=ChatMessageType.developer, query='q')), {'role': 'system', 'content': 'q'})
+            self.assertRaises(ValueError, for_assistant, ChatMessage(type=ChatMessageType.tool, query='q'))
+
+        def test_ai_grok_image_response_parsing(self) -> None:
+            from calibre.ai.grok.backend import Model, parse_image_response
+
+            model = Model.from_dict({'id': 'grok-imagine-image-2.0', 'image_price': 4}, generates_images=True)
+            self.assertTrue(model.generates_images)
+            d = {'data': [{'b64_json': base64.standard_b64encode(b'image bytes').decode(), 'mime_type': 'image/jpeg'}]}
+            res = parse_image_response(d, model)
+            self.assertEqual(res.image, ImageData(data=b'image bytes', mime_type='image/jpeg'))
+            self.assertEqual((res.cost, res.currency), (0.04, 'USD'))
+            self.assertEqual(res.model, 'grok-imagine-image-2.0')
+            self.assertRaises(ValueError, parse_image_response, {'data': []}, model)
+
+            # Grok cannot edit images, check the error is reported via the
+            # result so that the cover dialog can show it, rather than raised
+            from calibre.ai.grok.backend import generate_image
+
+            res = generate_image('a prompt', source_images=(ImageData(data=b'image bytes'),))
+            self.assertIsInstance(res.exception, ValueError)
+
         def test_ai_google_image_response_parsing(self) -> None:
             from calibre.ai import AICapabilities, PromptBlocked, ResultBlocked
             from calibre.ai.google.backend import Model, parse_gemini_image_response, parse_imagen_response
