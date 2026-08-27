@@ -468,10 +468,10 @@ def image_quality_config_widget(current_val: str = 'auto', parent: QWidget | Non
     from qt.core import QComboBox
 
     q = QComboBox(parent)
-    q.addItem(pgettext('image resolution', 'Automatic'), 'auto')
-    q.addItem(pgettext('image resolution', 'Low'), 'low')
-    q.addItem(pgettext('image resolution', 'Medium'), 'medium')
-    q.addItem(pgettext('image resolution', 'High'), 'high')
+    q.addItem(pgettext('image quality', 'Automatic'), 'auto')
+    q.addItem(pgettext('image quality', 'Low'), 'low')
+    q.addItem(pgettext('image quality', 'Medium'), 'medium')
+    q.addItem(pgettext('image quality', 'High'), 'high')
     q.setCurrentIndex(max(0, q.findData(current_val)))
     q.setToolTip('<p>' + _('The quality of generated images. Higher quality images cost more and take longer to generate.'))
     return q

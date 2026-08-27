@@ -57,7 +57,7 @@ class ConfigWidget(QWidget):
         gl = QFormLayout(gb)
         gl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.image_resolution_choice = ir = QComboBox(self)
-        ir.addItem(pgettext('image resolution', _('Standard')), '1k')
+        ir.addItem(pgettext('image resolution', 'Standard'), '1k')
         ir.addItem(pgettext('image resolution', 'High'), '2k')
         ir.setCurrentIndex(max(0, ir.findData(pref('image_resolution', '1k'))))
         ir.setToolTip('<p>' + _('The resolution of generated images. Higher resolution images cost more and take longer to generate.'))
