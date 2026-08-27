@@ -221,6 +221,9 @@ WORLD_GENERATION_INSTRUCTIONS = (
     ' Include physical descriptions and a little back story for the characters.'
     ' If the world description mentions a central character, then have the playable characters all be'
     ' variants of that person with different descriptions and back stories.'
+    ' Format all descriptive text fields (world_description, character descriptions, backstories, win_condition)'
+    ' using Markdown: use **bold** for emphasis, *italics* for atmosphere, and newlines to separate paragraphs.'
+    ' Do not use headers or bullet lists in these fields.'
 )
 
 
@@ -238,11 +241,15 @@ def turn_instructions(state: GameState) -> str:
         (
             'You are the game master of an interactive "choose your own adventure" game.'
             " Continue the story based on the story summary, the transcript of the current chapter and the player's latest action."
+            ' Format all narrative and descriptive text using Markdown:'
+            ' use **bold** for emphasis and important moments, *italics* for atmosphere and inner thoughts,'
+            ' and blank lines to separate paragraphs. Do not use headers or bullet lists in narrative text.'
         ),
         'Rules for the fields of your response:',
         (
             '- narrative: describe what happens next in second person present tense, addressing the player as "you".'
             ' Stop at a point where the player must decide what to do next.'
+            ' Use Markdown formatting as instructed above.'
         ),
         '- quick_actions: exactly three short, distinct actions the player could plausibly take next.',
         (
