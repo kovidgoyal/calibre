@@ -5,7 +5,6 @@
 # interfaces and use them to get structured (JSON) output from AI models.
 
 import enum
-import inspect
 import json
 import re
 import types
@@ -20,6 +19,17 @@ if TYPE_CHECKING:
     from unittest.suite import TestSuite
 else:
     TestSuite = object
+
+
+class Doc(str):
+    # A description string for schema classes and enums that survives
+    # optimized Python builds (python -OO strips docstrings). Assign as an
+    # unannotated class attribute: doc = Doc("Human-readable description.")
+    # Being a descriptor prevents Enum from treating it as a member.
+    __slots__ = ()
+
+    def __get__(self, obj: object, objtype: type | None = None) -> Doc:
+        return self
 
 
 class Kind(Enum):
@@ -51,13 +61,11 @@ class FieldSpec(NamedTuple):
 
 
 def class_doc(cls: type) -> str:
-    # Only use a docstring actually present on the class, not one inherited
-    # from a base class, and not the one auto-generated for NamedTuple.
-    doc = cls.__dict__.get('__doc__') or ''
-    doc = inspect.cleandoc(doc).strip() if doc else ''
-    if doc.startswith(cls.__name__ + '('):
-        return ''
-    return doc
+    ans = ''
+    for v in cls.__dict__.values():
+        if type(v) is Doc:
+            ans += str(v) + '\n'
+    return ans.rstrip()
 
 
 def defaults_for_class(cls: type) -> dict[str, Any]:
@@ -446,8 +454,7 @@ def messages_for_structured_output(prompt: str, instructions: str = '') -> tuple
 
 
 class ExampleBookInfo(NamedTuple):
-    "Information about a printed book"
-
+    doc = Doc('Information about a printed book')
     title: Annotated[str, 'The title of the book without any subtitle']
     authors: Annotated[list[str], 'All the authors of the book']
     publication_year: Annotated[int | None, 'The year of first publication or null if unknown'] = None
@@ -477,21 +484,18 @@ def find_tests() -> TestSuite:
     import unittest
 
     class Mood(Enum):
-        "The dominant emotional tone."
-
+        doc = Doc('The dominant emotional tone.')
         dark = 'dark'
         neutral = 'neutral'
         uplifting = 'uplifting'
 
     class Chapter(NamedTuple):
-        "A single chapter of the book"
-
+        doc = Doc('A single chapter of the book')
         title: Annotated[str, 'The chapter title']
         number: int
 
     class Book(NamedTuple):
-        "Structured analysis of a single book."
-
+        doc = Doc('Structured analysis of a single book.')
         title: Annotated[str, 'The full title of the book']
         subtitle: Annotated[str | None, 'The subtitle or null if the book has none']
         rating: Annotated[float, 'Overall quality from 0 (worst) to 5 (best)']
