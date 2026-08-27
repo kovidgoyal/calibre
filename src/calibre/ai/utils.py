@@ -22,7 +22,7 @@ from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, Ima
 from calibre.constants import __version__
 from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
-from calibre.utils.localization import _
+from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
     from unittest.suite import TestSuite
@@ -437,9 +437,9 @@ def reasoning_strategy_config_widget(current_val: str = 'auto', parent: QWidget 
 
     rs = QComboBox(parent)
     rs.addItem(_('Automatic'), 'auto')
-    rs.addItem(_('Medium'), 'medium')
-    rs.addItem(_('High'), 'high')
-    rs.addItem(_('Low'), 'low')
+    rs.addItem(pgettext('reasoning effort', 'Medium'), 'medium')
+    rs.addItem(pgettext('reasoning effort', 'High'), 'high')
+    rs.addItem(pgettext('reasoning effort', 'Low'), 'low')
     rs.addItem(_('No reasoning'), 'none')
     rs.setCurrentIndex(max(0, rs.findData(current_val)))
     rs.setToolTip(
@@ -457,7 +457,7 @@ def model_choice_strategy_config_widget(current_val: str = 'medium', parent: QWi
 
     ms = QComboBox(parent)
     ms.addItem(_('Cheap and fastest'), 'low')
-    ms.addItem(_('Medium'), 'medium')
+    ms.addItem(pgettext('model choice', 'Medium'), 'medium')
     ms.addItem(_('High quality, expensive and slower'), 'high')
     ms.setCurrentIndex(max(0, ms.findData(current_val)))
     ms.setToolTip('<p>' + _('The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower quality results.'))
@@ -468,10 +468,10 @@ def image_quality_config_widget(current_val: str = 'auto', parent: QWidget | Non
     from qt.core import QComboBox
 
     q = QComboBox(parent)
-    q.addItem(_('Automatic'), 'auto')
-    q.addItem(_('Low'), 'low')
-    q.addItem(_('Medium'), 'medium')
-    q.addItem(_('High'), 'high')
+    q.addItem(pgettext('image resolution', 'Automatic'), 'auto')
+    q.addItem(pgettext('image resolution', 'Low'), 'low')
+    q.addItem(pgettext('image resolution', 'Medium'), 'medium')
+    q.addItem(pgettext('image resolution', 'High'), 'high')
     q.setCurrentIndex(max(0, q.findData(current_val)))
     q.setToolTip('<p>' + _('The quality of generated images. Higher quality images cost more and take longer to generate.'))
     return q

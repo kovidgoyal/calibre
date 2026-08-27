@@ -9,7 +9,7 @@ from calibre.ai.grok import GrokAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, model_choice_strategy_config_widget, reasoning_strategy_config_widget
 from calibre.gui2 import error_dialog
-from calibre.utils.localization import _
+from calibre.utils.localization import _, pgettext
 
 pref = partial(pref_for_provider, GrokAI.name)
 
@@ -57,8 +57,8 @@ class ConfigWidget(QWidget):
         gl = QFormLayout(gb)
         gl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.image_resolution_choice = ir = QComboBox(self)
-        ir.addItem(_('Standard'), '1k')
-        ir.addItem(_('High'), '2k')
+        ir.addItem(pgettext('image resolution', _('Standard')), '1k')
+        ir.addItem(pgettext('image resolution', 'High'), '2k')
         ir.setCurrentIndex(max(0, ir.findData(pref('image_resolution', '1k'))))
         ir.setToolTip('<p>' + _('The resolution of generated images. Higher resolution images cost more and take longer to generate.'))
         gl.addRow(_('Image &resolution:'), ir)
