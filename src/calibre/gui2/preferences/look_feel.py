@@ -60,7 +60,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             widget = tuple(self.tabWidget.all_widgets)[num]
             pos = self.sections_view.mapToGlobal(pos)
             can_restore = hasattr(widget, 'restore_defaults') or isinstance(widget, QTabWidget)
-            if can_restore and menu.exec(pos):  # type: ignore
+            if can_restore and menu.exec(pos):
                 self._restore_widget_defaults(widget)
                 self.changed_signal.emit()
 

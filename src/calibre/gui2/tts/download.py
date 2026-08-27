@@ -47,7 +47,7 @@ class ProgressBar(QWidget):
         self.file_obj = tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(self.path), delete=False)
         req = QNetworkRequest(qurl)
         fi = QFileInfo(self.path)
-        if fi.exists():  # type: ignore
+        if fi.exists():
             req.setHeader(
                 QNetworkRequest.KnownHeaders.IfModifiedSinceHeader,
                 fi.lastModified(QTimeZone(QTimeZone.Initialization.UTC)),

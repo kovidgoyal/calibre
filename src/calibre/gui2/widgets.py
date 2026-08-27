@@ -1364,7 +1364,7 @@ class PaperSizes(QComboBox):  # {{{
             if iswindows or ismacos:
                 # On Linux, this can cause Qt to load the system cups plugin
                 # which can crash: https://bugs.launchpad.net/calibre/+bug/1861741
-                ps_id = QPrinter().pageLayout().pageSize().id()  # type: ignore
+                ps_id = QPrinter().pageLayout().pageSize().id()
                 PaperSizes.system_default_paper_size = 'letter' if ps_id == QPageSize.PageSizeId.Letter else 'a4'
         if not choices:
             from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES

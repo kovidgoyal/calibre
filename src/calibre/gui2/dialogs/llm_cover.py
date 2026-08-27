@@ -294,7 +294,7 @@ class PromptEdit(QPlainTextEdit):
         ac.triggered.connect(self.save_as_custom_requested)
         ac.setEnabled(bool(self.toPlainText().strip()))
         assert e is not None
-        menu.exec(e.globalPos())  # type: ignore
+        menu.exec(e.globalPos())
 
 
 class AddCustomStyleDialog(Dialog):
