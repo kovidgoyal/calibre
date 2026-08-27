@@ -14,6 +14,7 @@
 # rewound and saved/loaded.
 
 import json
+import textwrap
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any, NamedTuple, Protocol
@@ -51,7 +52,10 @@ class GeneratedWorld(NamedTuple):
     doc = Doc('A detailed game world generated from a brief description')
     title: Annotated[str, 'A short, evocative title for this adventure']
     world_description: Annotated[str, 'Detailed description of the world: its geography, factions, atmosphere, central conflict and stakes']
-    characters: Annotated[tuple[PlayerCharacter, ...], 'Between three and five distinct characters the player can choose to play as']
+    characters: Annotated[
+        tuple[PlayerCharacter, ...],
+        'Between three and five distinct characters or character variants the player can choose to play as, with physical descriptions and brief back stories',
+    ]
     win_condition: Annotated[str, 'The single concrete goal the player must achieve to win the adventure']
 
 
@@ -214,6 +218,9 @@ WORLD_GENERATION_INSTRUCTIONS = (
     ' inventing concrete details: places, factions, conflicts and atmosphere.'
     ' Create between three and five distinct playable characters, each with a different perspective'
     " on the world's central conflict, and a single concrete, achievable win condition for the adventure."
+    ' Include physical descriptions and a little back story for the characters.'
+    ' If the world description mentions a central character, then have the playable characters all be'
+    ' variants of that person with different descriptions and back stories.'
 )
 
 
@@ -368,6 +375,9 @@ def develop(use_model: str = '') -> None:  # {{{
     print(f'\n=== {world.title} ===\n\n{world.world_description}\n\nWin condition: {world.win_condition}\n')
     for i, c in enumerate(world.characters):
         print(f'{i + 1}) {c.name}: {c.description}')
+        bs = textwrap.indent(textwrap.fill(c.backstory), '\t')
+        print(bs)
+        print()
     num = input(f'\nChoose your character [1-{len(world.characters)}]: ')
     state = start_game(brief, world, world.characters[int(num) - 1])
     player_input, victory_reported = '', False
