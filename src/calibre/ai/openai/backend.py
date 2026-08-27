@@ -150,18 +150,20 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+_NON_CHAT_MODEL_TYPES = frozenset({'realtime', 'audio', 'tts', 'transcribe', 'search', 'image', 'codex', 'live', 'whisper'})
+
+
 @lru_cache(2)
 def newest_gpt_models() -> dict[str, Model]:
     high, medium, low = [], [], []
     for model in get_available_models().values():
-        if model.id_parts[0] == 'gpt' and len(model.id_parts) > 1:
+        parts = model.id_parts
+        if parts[0] == 'gpt' and len(parts) > 1 and not (_NON_CHAT_MODEL_TYPES & set(parts)):
             which = high
-            if 'mini' in model.id.split('-'):
+            if 'mini' in parts:
                 which = medium
-            elif 'nano' in model.id.split('-'):
+            elif 'nano' in parts:
                 which = low
-            elif len(model.id_parts) == 2:
-                which = high
             which.append(model)
     return {
         'high': max(high, key=attrgetter('created')),
