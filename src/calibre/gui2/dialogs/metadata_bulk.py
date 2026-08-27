@@ -108,7 +108,7 @@ class MyBlockingBusy(QDialog):  # {{{
             bool(args.au),
             args.do_auto_author,
             bool(args.aus) and args.do_aus,
-            args.cover_action in {'remove', 'generate', 'trim', 'clone'},
+            args.cover_action in {'remove', 'generate', 'trim', 'clone', 'ai_generate'},
             args.restore_original,
             args.rating != -1,
             args.clear_pub,
@@ -424,6 +424,37 @@ class MyBlockingBusy(QDialog):  # {{{
                 cache.set_cover({bid: cdata for bid in self.ids if bid != book_id})
                 self.progress_finished_cur_step.emit()
 
+        elif args.cover_action == 'ai_generate':
+            self.progress_next_step_range.emit(len(self.ids))
+            from calibre.ai import ImageGenerationOptions
+            from calibre.ai.prefs import plugin_for_purpose
+            from calibre.gui2.dialogs.llm_cover import COVER_PURPOSE, build_generation_prompt, cover_prefs, style_by_name
+
+            plugin = plugin_for_purpose(COVER_PURPOSE)
+            if plugin is None or not plugin.is_ready_for_use:
+                raise Exception(_('No AI provider capable of image generation is configured.'))
+            p = cover_prefs()
+            options = ImageGenerationOptions(aspect_ratio=p['aspect_ratio'])
+            prompt_text = style_by_name(p['last_style']).template
+            for book_id in self.ids:
+                mi = self.db.get_metadata(book_id, index_is_id=True)
+                prompt = build_generation_prompt(
+                    mi,
+                    prompt_text,
+                    bool(p['include_title']),
+                    bool(p['include_authors']),
+                    bool(p['include_series']),
+                    bool(p['include_comments']),
+                )
+                res = plugin.generate_image(prompt, options=options)
+                if res.exception is not None:
+                    details = f'\n{res.error_details}' if res.error_details else ''
+                    raise Exception(_('Failed to generate cover: {}{}').format(res.exception, details))
+                if res.image is not None:
+                    cache.set_cover({book_id: res.image.data})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         if args.restore_original:
             self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
@@ -710,6 +741,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.authors.setFocus(Qt.FocusReason.OtherFocusReason)
         self.generate_cover_settings = None
         self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
+        if tweaks['hide_ai_features']:
+            self.cover_ai_generate.setVisible(False)
         self.button_transform_tags.clicked.connect(self.transform_tags)
         self.button_transform_authors.clicked.connect(self.transform_authors)
         self.button_transform_publishers.clicked.connect(self.transform_publishers)
@@ -1481,6 +1514,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             cover_action = 'trim'
         elif self.cover_clone.isChecked():
             cover_action = 'clone'
+        elif self.cover_ai_generate.isChecked():
+            cover_action = 'ai_generate'
 
         args = Settings(
             remove_all,

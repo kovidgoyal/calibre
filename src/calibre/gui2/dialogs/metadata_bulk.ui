@@ -633,6 +633,16 @@ as that of the first selected book.</string>
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QRadioButton" name="cover_ai_generate">
+             <property name="toolTip">
+              <string>Generate covers using AI, using the current AI cover generation settings</string>
+             </property>
+             <property name="text">
+              <string>AI &amp;generate covers</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -1604,6 +1614,7 @@ is completed. This can be slow on large libraries.</string>
   <tabstop>cover_trim</tabstop>
   <tabstop>cover_from_fmt</tabstop>
   <tabstop>cover_clone</tabstop>
+  <tabstop>cover_ai_generate</tabstop>
   <tabstop>button_config_cover_gen</tabstop>
   <tabstop>comments_button</tabstop>
   <tabstop>query_field</tabstop>
