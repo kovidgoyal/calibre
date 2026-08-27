@@ -759,14 +759,14 @@ class CoverCreateDialog(CoverDialogBase):
         tl.addWidget(ia)
         self.include_series = ise = QCheckBox(_('&Series'), tg)
         ise.setChecked(bool(p['include_series']))
-        ise.setVisible(not self.mi.is_null('series'))
+        # ise.setVisible(not self.mi.is_null('series'))
         tl.addWidget(ise)
         left.addWidget(tg)
 
         self.include_comments = ic = QCheckBox(_('Send book &description to AI as context'), self)
         ic.setToolTip(_('Include the book description/comments in the prompt so the AI can generate a more relevant cover'))
         ic.setChecked(bool(p['include_comments']))
-        ic.setVisible(bool(self.mi.comments))
+        # ic.setVisible(bool(self.mi.comments))
         left.addWidget(ic)
 
         bh = QHBoxLayout()
