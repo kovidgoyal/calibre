@@ -34,7 +34,7 @@ from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog
 from calibre.gui2.cyoa import data
 from calibre.gui2.progress_indicator import WaitStack
-from calibre.utils.localization import _
+from calibre.utils.localization import _, pgettext
 
 
 class PremadeWorld(NamedTuple):
@@ -138,7 +138,7 @@ class CharacterEditor(QWidget):
         l.setContentsMargins(0, 0, 0, 0)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.name_edit = QLineEdit(self)
-        l.addRow(_('&Name:'), self.name_edit)
+        l.addRow(pgettext('name of a character in a story', '&Name:'), self.name_edit)
         self.description_edit = QPlainTextEdit(self)
         l.addRow(_('&Description:'), self.description_edit)
         self.backstory_edit = QPlainTextEdit(self)
