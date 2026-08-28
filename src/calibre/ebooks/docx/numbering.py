@@ -155,7 +155,8 @@ class Level:
 
     def char_css(self):
         character_style = self.character_style
-        assert character_style is not None
+        if character_style is None:
+            return {}
         try:
             css = character_style.css
         except AttributeError:
