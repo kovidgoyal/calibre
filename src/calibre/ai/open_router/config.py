@@ -450,6 +450,7 @@ class ConfigWidget(QWidget):
                 ' information for queries, where possible. This adds about two cents to the cost of every request.'
             )
         )
+        l.addRow(aws)
 
         self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy', 'auto'), self)
         l.addRow(_('&Reasoning effort:'), rs)
