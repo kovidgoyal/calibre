@@ -52,8 +52,11 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 4  # needed for live updates
+module_version = 5  # needed for live updates
 MODELS_URL = 'https://openrouter.ai/api/v1/models'
+# The default models listing only contains models that can output text, models
+# that only output images must be fetched separately
+IMAGE_MODELS_URL = MODELS_URL + '?output_modalities=image'
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
@@ -62,9 +65,12 @@ def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
 
 @lru_cache(2)
 def get_available_models() -> dict[str, Model]:
-    cache_loc = os.path.join(cache_dir(), 'ai', f'{OpenRouterAI.name}-models-v1.json')
-    data = get_cached_resource(cache_loc, MODELS_URL)
-    return parse_models_list(json.loads(data))
+    ans: dict[str, Model] = {}
+    for key, url in (('models', MODELS_URL), ('image-models', IMAGE_MODELS_URL)):
+        cache_loc = os.path.join(cache_dir(), 'ai', f'{OpenRouterAI.name}-{key}-v1.json')
+        data = get_cached_resource(cache_loc, url)
+        ans.update(parse_models_list(json.loads(data)))
+    return ans
 
 
 def human_readable_model_name(model_id: str) -> str:
@@ -79,6 +85,8 @@ class Pricing(NamedTuple):
     output_token: float = 0  # cost per output token
     request: float = 0  # per API request
     image: float = 0  # per image
+    image_token: float = 0  # per input image token
+    image_output: float = 0  # per output image token
     web_search: float = 0  # per web search
     internal_reasoning: float = 0  # cost per internal reasoning token
     input_cache_read: float = 0  # cost per cached input token read
@@ -91,6 +99,8 @@ class Pricing(NamedTuple):
             output_token=float(x['completion']),
             request=float(x.get('request', 0)),
             image=float(x.get('image', 0)),
+            image_token=float(x.get('image_token', 0)),
+            image_output=float(x.get('image_output', 0)),
             web_search=float(x.get('web_search', 0)),
             internal_reasoning=float(x.get('internal_reasoning', 0)),
             input_cache_read=float(x.get('input_cache_read', 0)),
@@ -100,6 +110,12 @@ class Pricing(NamedTuple):
     @property
     def is_free(self) -> bool:
         return max(self) == 0
+
+    @property
+    def output_cost(self) -> float:
+        # Per unit output cost comparable across models. Models that only
+        # output images have no text output token pricing.
+        return self.output_token or self.image_output or self.image
 
 
 class Model(NamedTuple):
@@ -401,7 +417,7 @@ def model_choice_for_images(need_editing: bool) -> Model:
         raise ValueError(_('No models capable of image generation found on OpenRouter'))
     if free := [m for m in candidates if m.pricing.is_free]:
         return max(free, key=lambda m: m.created)
-    return min(candidates, key=lambda m: (m.pricing.image or m.pricing.output_token, m.pricing.output_token))
+    return min(candidates, key=lambda m: (m.pricing.image or m.pricing.image_output or m.pricing.output_token, m.pricing.output_token))
 
 
 def parse_image_chat_response(d: dict[str, Any], model_id: str) -> ImageGenerationResult:
