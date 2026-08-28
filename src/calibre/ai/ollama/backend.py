@@ -30,7 +30,7 @@ from calibre.ai.structured import (
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, opener
 from calibre.utils.localization import _
 
-module_version = 2  # needed for live updates
+module_version = 3  # needed for live updates
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
@@ -120,8 +120,9 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
-@lru_cache(2)
 def model_choice_for_text() -> Model:
+    # Deliberately not cached so that changes to the preference, including
+    # temporary overrides via override_prefs_for_providers(), take effect.
     return get_available_models()[pref('text_model')]
 
 

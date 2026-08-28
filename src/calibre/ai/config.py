@@ -1,22 +1,37 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Callable
 from typing import Any
 
 from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
 from calibre.ai import AICapabilities
 from calibre.ai.prefs import plugin_for_purpose, plugins_for_purpose, prefs
+from calibre.customize import AIProviderPlugin
 from calibre.gui2 import Application, error_dialog
 from calibre.utils.localization import _
 
 
 class ConfigureAI(QWidget):
-    def __init__(self, purpose: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        purpose: AICapabilities = AICapabilities.text_to_text,
+        parent: QWidget | None = None,
+        *,
+        save_hook: Callable[[AIProviderPlugin, QWidget], None] | None = None,
+        initial_provider_name: str = '',
+    ) -> None:
+        # When save_hook is specified it is called by commit() with the
+        # selected plugin and its config widget instead of saving the
+        # settings into the common AI preferences, allowing callers to store
+        # them elsewhere. In that case the purpose_map in the common AI
+        # preferences is also left untouched.
         super().__init__(parent)
         plugins = tuple(plugins_for_purpose(purpose))
         self.available_plugins = plugins
         self.purpose = purpose
+        self.save_hook = save_hook
         self.plugin_config_widgets: tuple[Any, ...] = tuple(p.config_widget() for p in plugins)
         v = QVBoxLayout(self)
         self.gb = QGroupBox(self)
@@ -33,7 +48,7 @@ class ConfigureAI(QWidget):
             h.addWidget(la), h.addWidget(pcb), h.addStretch()
             v.addLayout(h)
             pcb.currentIndexChanged.connect(self.stack.setCurrentIndex)
-            idx = pcb.findText(getattr(plugin_for_purpose(self.purpose), 'name', ''))
+            idx = pcb.findText(initial_provider_name or getattr(plugin_for_purpose(self.purpose), 'name', ''))
             pcb.setCurrentIndex(max(0, idx))
         elif len(plugins) == 1:
             self.gb.setTitle(_('Configure AI provider: {}').format(plugins[0].name))
@@ -56,6 +71,12 @@ class ConfigureAI(QWidget):
             return 0
         return self.provider_combo.currentIndex()
 
+    @property
+    def current_plugin(self) -> AIProviderPlugin | None:
+        if not self.available_plugins:
+            return None
+        return self.available_plugins[self.current_idx]
+
     def validate(self) -> bool:
         if not self.available_plugins:
             error_dialog(self, _('No AI providers'), self.none_label.text(), show=True)
@@ -69,6 +90,9 @@ class ConfigureAI(QWidget):
         p, w = self.available_plugins[idx], self.plugin_config_widgets[idx]
         if not w.validate():
             return False
+        if self.save_hook is not None:
+            self.save_hook(p, w)
+            return True
         p.save_settings(w)
         pmap = prefs()['purpose_map']
         pmap[self.purpose.purpose] = p.name

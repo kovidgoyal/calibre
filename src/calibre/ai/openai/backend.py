@@ -51,7 +51,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 3  # needed for live updates
+module_version = 4  # needed for live updates
 MODELS_URL = 'https://api.openai.com/v1/models'
 CHAT_URL = 'https://api.openai.com/v1/responses'
 IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations'
@@ -172,10 +172,11 @@ def newest_gpt_models() -> dict[str, Model]:
     }
 
 
-@lru_cache(2)
 def model_choice_for_text() -> Model:
+    # Deliberately not cached so that changes to the preference, including
+    # temporary overrides via override_prefs_for_providers(), take effect.
     m = newest_gpt_models()
-    return m.get(pref('model_strategy', 'medium'), m['medium'])
+    return m.get(pref('model_choice_strategy', 'medium'), m['medium'])
 
 
 def reasoning_effort() -> str:
