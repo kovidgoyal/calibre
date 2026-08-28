@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Protocol
 
 from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
@@ -13,13 +13,18 @@ from calibre.gui2 import Application, error_dialog
 from calibre.utils.localization import _
 
 
+class AIConfigWidget(Protocol):
+    @property
+    def settings(self) -> dict[str, Any]: ...
+
+
 class ConfigureAI(QWidget):
     def __init__(
         self,
         purpose: AICapabilities = AICapabilities.text_to_text,
         parent: QWidget | None = None,
         *,
-        save_hook: Callable[[AIProviderPlugin, QWidget], None] | None = None,
+        save_hook: Callable[[AIProviderPlugin, AIConfigWidget], None] | None = None,
         initial_provider_name: str = '',
     ) -> None:
         # When save_hook is specified it is called by commit() with the

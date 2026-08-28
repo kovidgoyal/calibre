@@ -9,7 +9,7 @@
 from qt.core import QFrame, QGroupBox, QHBoxLayout, QIcon, QLabel, QPushButton, QScrollArea, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ai import AICapabilities
-from calibre.ai.config import ConfigureAI
+from calibre.ai.config import AIConfigWidget, ConfigureAI
 from calibre.customize import AIProviderPlugin
 from calibre.gui2.cyoa import data
 from calibre.utils.localization import _
@@ -91,10 +91,10 @@ class WelcomeWidget(QScrollArea):
         l.addLayout(h)
         l.addStretch()
 
-    def save_text_settings(self, plugin: AIProviderPlugin, config_widget: QWidget) -> None:
+    def save_text_settings(self, plugin: AIProviderPlugin, config_widget: AIConfigWidget) -> None:
         data.save_ai_settings('text', plugin.name, config_widget.settings)
 
-    def save_image_settings(self, plugin: AIProviderPlugin, config_widget: QWidget) -> None:
+    def save_image_settings(self, plugin: AIProviderPlugin, config_widget: AIConfigWidget) -> None:
         data.save_ai_settings('image', plugin.name, config_widget.settings)
 
     def commit(self) -> None:
