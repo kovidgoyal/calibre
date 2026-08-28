@@ -241,6 +241,7 @@ def turn_instructions(state: GameState) -> str:
         (
             'You are the game master of an interactive "choose your own adventure" game.'
             " Continue the story based on the story summary, the transcript of the current chapter and the player's latest action."
+            " Have the characters react to the player's actions and the world in realistic and consistent ways."
             ' Format all narrative and descriptive text using Markdown:'
             ' use **bold** for emphasis and important moments, *italics* for atmosphere and inner thoughts,'
             ' and blank lines to separate paragraphs. Do not use headers or bullet lists in narrative text.'
