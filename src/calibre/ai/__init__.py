@@ -193,7 +193,7 @@ class ResultBlocked(ValueError):
 
 
 class AICapabilities(Flag):
-    none = auto()
+    none = 0
     text_to_text = auto()
     text_to_image = auto()
     text_and_image_to_image = auto()
