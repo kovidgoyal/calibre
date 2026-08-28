@@ -23,6 +23,67 @@
 # - title by author
 # }}}
 
+{{{ 9.14.0 2026-08-28
+
+:: new features
+
+- [major] Allow generating book covers using AI with different cover styles such as romance, sci-fi, pulp fiction etc.
+
+  To use it select a book and click Edit metadata and then the "AI Generate" button. Note that you will have to configure an image
+  generating AI provider the first time you use this feature.
+
+- Edit book: File browser: When hovering the mouse over an image file show a floating preview of the image next to the file browser
+
+- [2164853] Tags editor: have searching ignore accents
+
+- AI: Add Anthropic and Grok backends for Claude and Grok models
+
+- [2163567] AI: Remove GitHub backend as service has been discontinued
+
+- Edit metadata dialog: Always scale up cover preview to fill available space while maintaining aspect ratio
+
+:: bug fixes
+
+- [2165075] Content server: OPDS: Fix a regression that caused first line of comments to be missing
+
+- [2164811] Undo delete books: Show a progress bar when more than five books have to be undeleted
+
+- [2164584] Linux: Binary builds: Fix hyperlinks in labels not working on some Linux systems
+
+- [2164586] Get books: Fix a regression that broke show in store
+
+- [1943495] Fix cover images with empty EXIF records not showing on Kindle lockscreen
+
+- [2163674] Fix a regression in 9.11 that broke configuring the Folder device driver
+
+- [2163025] Google AI: Fix the checkbox to allow search grounding invisible in the config dialog
+
+- Fix a regression in 9.11 that broke reading metadata from HTML files in builds of calibre with Python runtime assertions enabled
+
+- Edit book: Jump to class: Fix @charset rule causing jump to class to be off-by-one because it uses tiny css which ignores chaset rules while cssutils does not
+
+- FB2 Input: Only accept known FB2 namespaces to avoid arbitrary file write
+
+- Content server: Fix various arbitrary file write bugs for authenticated users
+
+- Content server: Fix remote code execution for authenticated users
+
+- Content server: Fix cross site scripting in legacy book details page
+
+- MOBI Output: Make palmdoc compression robust against crafted input
+
+:: improved recipes
+- Pagina12
+- The Week
+- Nautilus
+- Smithsonian Magazine
+- FAZ.net
+- Daily Mail
+
+:: new recipes
+- The Golfer's Journal by Ben Ng
+}}}
+
 {{{ 9.13.0 2026-08-07
 
 :: bug fixes
