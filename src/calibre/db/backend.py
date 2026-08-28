@@ -2965,14 +2965,30 @@ class DB:
         self.conn  # Connect to the moved metadata.db
         progress(_('Completed'), total, total)
 
-    def _backup_database(self, path, name, extra_sql=''):
-        with closing(apsw.Connection(path)) as dest_db:
-            with dest_db.backup('main', self.conn, name) as b:
-                while not b.done:
-                    with suppress(apsw.BusyError):
-                        b.step(128)
-            if extra_sql:
-                dest_db.cursor().execute(extra_sql)
+    def _backup_database(self, path, name, extra_sql='', num_of_retries=10):
+        for retry_count in range(num_of_retries):
+            try:
+                with closing(apsw.Connection(path)) as dest_db:
+                    with dest_db.backup('main', self.conn, name) as b:
+                        while not b.done:
+                            with suppress(apsw.BusyError):
+                                b.step(128)
+                    if extra_sql:
+                        dest_db.cursor().execute(extra_sql)
+                return
+            except apsw.IOError as e:
+                # backup step() can fail transiently, either with
+                # SQLITE_IOERR_SHORT_READ when the source database is modified
+                # while it is being read, or with a plain SQLITE_IOERR and no
+                # error message set on the connection, which apsw reports as
+                # "not an error". Once step() fails the backup object is dead,
+                # so restart the entire backup. Any other extended result code
+                # is a genuine I/O error, and is not retried.
+                if retry_count >= num_of_retries - 1 or getattr(e, 'extendedresult', None) not in (apsw.SQLITE_IOERR, apsw.SQLITE_IOERR_SHORT_READ):
+                    raise
+                with suppress(OSError):
+                    os.remove(path)
+                time.sleep(0.2)
 
     def backup_database(self, path):
         self._backup_database(path, 'main', 'DELETE FROM metadata_dirtied; VACUUM;')

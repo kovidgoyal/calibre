@@ -4,6 +4,7 @@
 import os
 import time
 import unittest
+from contextlib import closing
 from io import BytesIO
 
 from calibre.constants import iswindows
@@ -367,6 +368,74 @@ class FilesystemTest(BaseTest):
             ) = a.pop('mtime'), b.pop('mtime')
             self.assertEqual(a, b)
             self.assertLess(abs(at - bt), 2)
+
+    def test_backup_database_retries_transient_ioerror(self):
+        import apsw
+
+        cache = self.init_cache()
+        backend = cache.backend
+        step_calls = {'count': 0}
+        orig_connection = apsw.Connection
+
+        class FlakyBackup:
+            def __init__(self, real):
+                self.real = real
+
+            def __enter__(self):
+                self.real.__enter__()
+                return self
+
+            def __exit__(self, *a):
+                return self.real.__exit__(*a)
+
+            @property
+            def done(self):
+                return self.real.done
+
+            def step(self, npages):
+                step_calls['count'] += 1
+                if step_calls['count'] == 1:
+                    e = apsw.IOError('not an error')
+                    e.extendedresult = apsw.SQLITE_IOERR_SHORT_READ
+                    raise e
+                return self.real.step(npages)
+
+        class FlakyConnection(orig_connection):
+            def backup(self, *a, **kw):
+                return FlakyBackup(super().backup(*a, **kw))
+
+        with TemporaryDirectory('backup_db') as tdir:
+            path = os.path.join(tdir, 'backup.db')
+            apsw.Connection = FlakyConnection
+            try:
+                backend.backup_database(path)
+            finally:
+                apsw.Connection = orig_connection
+            self.assertGreater(step_calls['count'], 1)
+            with closing(orig_connection(path)) as conn:
+                self.assertTrue(conn.cursor().execute('SELECT id FROM books').fetchall())
+
+        # A non-transient I/O error must not be retried
+        class FatalBackup(FlakyBackup):
+            def step(self, npages):
+                step_calls['count'] += 1
+                e = apsw.IOError('disk I/O error')
+                e.extendedresult = apsw.SQLITE_IOERR_WRITE
+                raise e
+
+        class FatalConnection(orig_connection):
+            def backup(self, *a, **kw):
+                return FatalBackup(super().backup(*a, **kw))
+
+        with TemporaryDirectory('backup_db') as tdir:
+            path = os.path.join(tdir, 'backup.db')
+            step_calls['count'] = 0
+            apsw.Connection = FatalConnection
+            try:
+                self.assertRaises(apsw.IOError, backend.backup_database, path)
+            finally:
+                apsw.Connection = orig_connection
+            self.assertEqual(step_calls['count'], 1)
 
     def test_find_books_in_directory(self):
         from calibre.db.adding import compile_rule, find_books_in_directory
