@@ -44,10 +44,10 @@ except ImportError:
 
 
 try:
-    from urllib.error import URLError
+    from urllib.error import HTTPError, URLError
     from urllib.request import Request, build_opener, urlopen
 except Exception:
-    from urllib2 import Request, URLError, build_opener, urlopen
+    from urllib2 import HTTPError, Request, URLError, build_opener, urlopen
 # }}}
 
 USER_AGENT = 'calibre mirror'
@@ -69,11 +69,16 @@ def read(url, get_info=False):  # {{{
         ('User-Agent', USER_AGENT),
         ('Accept-Encoding', 'gzip,deflate'),
     ]
-    # Sporadic network failures in rackspace, so retry with random sleeps
+    # Sporadic network failures in rackspace, so retry with random sleeps.
+    # Also retry on HTTP 429 (rate-limit) with exponential backoff: 5s, 10s, 20s, 40s, 60s, 60s, ...
     for i in range(10):
         try:
             res = opener.open(url)
             break
+        except HTTPError as e:
+            if e.code != 429 or i == 9:
+                raise
+            time.sleep(min(5 * (2**i), 60))
         except URLError as e:
             if not isinstance(e.reason, socket.timeout) or i == 9:
                 raise
