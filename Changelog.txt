@@ -60,7 +60,7 @@
 
 - Fix a regression in 9.11 that broke reading metadata from HTML files in builds of calibre with Python runtime assertions enabled
 
-- Edit book: Jump to class: Fix @charset rule causing jump to class to be off-by-one because it uses tiny css which ignores chaset rules while cssutils does not
+- Edit book: Jump to class: Fix @charset rule causing jump to class to be off-by-one
 
 - FB2 Input: Only accept known FB2 namespaces to avoid arbitrary file write
 
