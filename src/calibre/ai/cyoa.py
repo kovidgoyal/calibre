@@ -240,8 +240,10 @@ def art_style_for_key(key: str) -> ArtStyle:
     return ART_STYLES[0]
 
 
-def character_portrait_prompt(character: PlayerCharacter, style_key: str = '') -> str:
+def character_portrait_prompt(character: PlayerCharacter, style_key: str = '', world_description: str = '') -> str:
     parts = [f'A portrait of {character.name}, a character in an adventure story.', character.description]
+    if world_description:
+        parts.append(f'The world they inhabit: {world_description}')
     if style := art_style_for_key(style_key).prompt:
         parts.append(style)
     return '\n'.join(parts)
@@ -531,12 +533,15 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIs(art_style_for_key(''), ART_STYLES[0])
             self.assertIs(art_style_for_key('no-such-style'), ART_STYLES[0])
             self.ae(art_style_for_key('anime').key, 'anime')
-            c = make_world().characters[0]
-            prompt = character_portrait_prompt(c, 'anime')
+            w = make_world()
+            c = w.characters[0]
+            prompt = character_portrait_prompt(c, 'anime', w.world_description)
             self.assertIn(c.name, prompt)
             self.assertIn(c.description, prompt)
+            self.assertIn(w.world_description, prompt)
             self.assertIn(art_style_for_key('anime').prompt, prompt)
             self.ae(character_portrait_prompt(c), character_portrait_prompt(c, 'no-such-style'))
+            self.assertNotIn(w.world_description, character_portrait_prompt(c))
             self.assertIn('image generation', WORLD_GENERATION_INSTRUCTIONS, 'character descriptions must be requested to be usable as image prompts')
 
         def test_ai_cyoa_turn_flow_and_chapters(self) -> None:

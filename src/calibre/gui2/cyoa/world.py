@@ -462,18 +462,24 @@ class WorldEditWidget(QWidget):
             return
         idx = self.portrait_queue.pop(0)
         style = self.current_art_style
+        world_description = self.world_edit.markdown
         self.portrait_call = next(self.portrait_counter)
         self.portrait_inflight = idx
         self.portrait_inflight_style = style
         Thread(
-            name='CYOAPortraitGen', daemon=True, target=self.do_generate_portrait, args=(self.characters[idx], idx, style, self.portrait_call, plugin)
+            name='CYOAPortraitGen',
+            daemon=True,
+            target=self.do_generate_portrait,
+            args=(self.characters[idx], idx, style, world_description, self.portrait_call, plugin),
         ).start()
 
-    def do_generate_portrait(self, character: PlayerCharacter, idx: int, style: str, call_number: int, plugin: AIProviderPlugin) -> None:
+    def do_generate_portrait(
+        self, character: PlayerCharacter, idx: int, style: str, world_description: str, call_number: int, plugin: AIProviderPlugin
+    ) -> None:
         try:
             # the preferences overlay is thread local so must be entered here
             with data.cyoa_ai_settings():
-                res = plugin.generate_image(character_portrait_prompt(character, style), options=ImageGenerationOptions(aspect_ratio='3:4'))
+                res = plugin.generate_image(character_portrait_prompt(character, style, world_description), options=ImageGenerationOptions(aspect_ratio='3:4'))
             portrait: dict[str, str] | None = None
             error, error_details = '', ''
             if res.exception is not None:
