@@ -6,11 +6,14 @@
 # world with playable characters, then customize the world and choose the
 # character to play as.
 
+from base64 import standard_b64decode, standard_b64encode
+from collections.abc import Sequence
 from itertools import count
 from threading import Thread
 from typing import NamedTuple
 
 from qt.core import (
+    QComboBox,
     QFormLayout,
     QHBoxLayout,
     QIcon,
@@ -18,24 +21,28 @@ from qt.core import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QPixmap,
     QPlainTextEdit,
     QPushButton,
+    QSize,
     QStackedLayout,
     Qt,
     QTextBrowser,
     QTextEdit,
+    QToolButton,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
     sip,
 )
 
-from calibre.ai import StructuredOutputResult
-from calibre.ai.cyoa import GeneratedWorld, PlayerCharacter, generate_world
+from calibre.ai import ImageGenerationOptions, StructuredOutputResult
+from calibre.ai.cyoa import ART_STYLES, GeneratedWorld, PlayerCharacter, character_portrait_prompt, generate_world
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.cyoa import data
 from calibre.gui2.progress_indicator import WaitStack
+from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, pgettext
 
 
@@ -131,6 +138,19 @@ PREMADE_WORLDS = (
 
 BRIEF_ROLE = Qt.ItemDataRole.UserRole
 SAVED_WORLD_ROLE = Qt.ItemDataRole.UserRole + 1
+# Portraits are stored downscaled to fit this size and displayed at half of
+# it, keeping the saved world JSON reasonably small while looking sharp even
+# on high DPI screens.
+PORTRAIT_SIZE = QSize(384, 512)
+
+
+class PortraitResult(NamedTuple):
+    # The outcome of generating one character portrait, in the form stored in
+    # saved worlds: {'mime': mime type, 'data': base64 encoded image data}.
+    portrait: dict[str, str] | None
+    style: str  # the art style key the portrait was generated with
+    error: str = ''
+    error_details: str = ''
 
 
 class MarkdownEdit(QTextEdit):
@@ -145,6 +165,8 @@ class MarkdownEdit(QTextEdit):
 
 
 class CharacterEditor(QWidget):
+    portrait_refresh_requested = pyqtSignal()
+
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QFormLayout(self)
@@ -153,7 +175,35 @@ class CharacterEditor(QWidget):
         self.name_edit = QLineEdit(self)
         l.addRow(pgettext('name of a character in a story', '&Name:'), self.name_edit)
         self.description_edit = MarkdownEdit(self)
-        l.addRow(_('&Description:'), self.description_edit)
+
+        # The AI generated portrait of the character, shown to the right of
+        # the description, hidden when no image AI is configured.
+        self.portrait_panel = pp = QWidget(self)
+        pl = QVBoxLayout(pp)
+        pl.setContentsMargins(0, 0, 0, 0)
+        self.portrait_label = pla = QLabel(pp)
+        pla.setFixedSize(PORTRAIT_SIZE / 2)
+        pla.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.portrait_stack = ps = WaitStack(_('Generating…'), after=pla, parent=pp, size=64)
+        ps.stop()
+        pl.addWidget(ps)
+        h = QHBoxLayout()
+        self.refresh_portrait_button = rb = QToolButton(pp)
+        rb.setIcon(QIcon.ic('view-refresh.png'))
+        rb.setAutoRaise(True)
+        rb.setToolTip('<p>' + _('Re-generate the portrait using the current description'))
+        rb.clicked.connect(self.portrait_refresh_requested)
+        h.addStretch(), h.addWidget(rb)
+        pl.addLayout(h)
+        pl.addStretch()
+
+        dw = QWidget(self)
+        dw.setFocusProxy(self.description_edit)
+        dl = QHBoxLayout(dw)
+        dl.setContentsMargins(0, 0, 0, 0)
+        dl.addWidget(self.description_edit, stretch=1)
+        dl.addWidget(pp, alignment=Qt.AlignmentFlag.AlignTop)
+        l.addRow(_('&Description:'), dw)
         self.backstory_edit = MarkdownEdit(self)
         l.addRow(_('&Backstory:'), self.backstory_edit)
 
@@ -161,6 +211,23 @@ class CharacterEditor(QWidget):
         self.name_edit.setText(c.name)
         self.description_edit.load(c.description)
         self.backstory_edit.load(c.backstory)
+
+    def set_portrait_ui_visible(self, visible: bool) -> None:
+        self.portrait_panel.setVisible(visible)
+
+    def show_portrait_busy(self, busy: bool) -> None:
+        self.portrait_stack.start() if busy else self.portrait_stack.stop()
+
+    def set_portrait(self, image_data: bytes | None) -> None:
+        if not image_data:
+            self.portrait_label.setText(_('No portrait'))
+            return
+        pm = QPixmap()
+        pm.loadFromData(image_data)
+        dpr = self.devicePixelRatioF()
+        pm = pm.scaled(self.portrait_label.size() * dpr, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        pm.setDevicePixelRatio(dpr)
+        self.portrait_label.setPixmap(pm)
 
     @property
     def character(self) -> PlayerCharacter:
@@ -175,11 +242,27 @@ class WorldEditWidget(QWidget):
     start_requested = pyqtSignal(object, object)  # (GeneratedWorld, PlayerCharacter)
     back_requested = pyqtSignal()
 
+    portrait_result_received = pyqtSignal(int, int, object)  # (call_number, character index, PortraitResult)
+
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.brief = ''
         self.characters: list[PlayerCharacter] = []
         self.current_char_idx = -1
+        self.images_enabled = False
+        # Portraits in stored form ({'mime': ..., 'data': base64} or None)
+        # and the art style key each was generated with, aligned with
+        # self.characters. Generation runs one character at a time on a
+        # background thread: portrait_inflight/portrait_call identify the
+        # current generation (results from superseded calls are discarded)
+        # and portrait_queue holds the characters still to be generated.
+        self.portraits: list[dict[str, str] | None] = []
+        self.portrait_styles: list[str] = []
+        self.portrait_counter = count(start=1)
+        self.portrait_call = -1
+        self.portrait_inflight = -1
+        self.portrait_inflight_style = ''
+        self.portrait_queue: list[int] = []
         self.stack = s = QStackedLayout(self)
 
         self.world_page = wp = QWidget(self)
@@ -205,6 +288,16 @@ class WorldEditWidget(QWidget):
         wc.setMaximumHeight(wc.fontMetrics().lineSpacing() * 4)
         cl.setBuddy(wc)
         l.addWidget(cl), l.addWidget(wc)
+
+        h = QHBoxLayout()
+        self.art_style_label = asl = QLabel(_('Art style for generated &images:'))
+        self.art_style_combo = asc = QComboBox(wp)
+        for style in ART_STYLES:
+            asc.addItem(style.name, style.key)
+        asc.setToolTip('<p>' + _('The visual style used when generating pictures for this world, such as character portraits'))
+        asl.setBuddy(asc)
+        h.addWidget(asl), h.addWidget(asc), h.addStretch()
+        l.addLayout(h)
 
         h = QHBoxLayout()
         self.back_button = bb = QPushButton(QIcon.ic('back.png'), _('&Back'), wp)
@@ -236,6 +329,7 @@ class WorldEditWidget(QWidget):
         cw.currentRowChanged.connect(self.on_character_changed)
         h.addWidget(cw, stretch=1)
         self.character_editor = ce = CharacterEditor(cp)
+        ce.portrait_refresh_requested.connect(self.regenerate_current_portrait)
         h.addWidget(ce, stretch=3)
         l.addLayout(h)
 
@@ -257,10 +351,21 @@ class WorldEditWidget(QWidget):
         l.addLayout(h)
         s.addWidget(cp)
 
-    def load(self, brief: str, world: GeneratedWorld) -> None:
+        self.portrait_result_received.connect(self.on_portrait_result, type=Qt.ConnectionType.QueuedConnection)
+
+    def load(self, brief: str, world: GeneratedWorld, art_style: str = '', portraits: Sequence[dict[str, str] | None] = ()) -> None:
         self.brief = brief
         self.current_char_idx = -1
         self.characters = list(world.characters)
+        self.images_enabled = data.images_enabled()
+        self.cancel_portrait_generation()
+        self.portraits = list(portraits[: len(self.characters)])
+        self.portraits.extend([None] * (len(self.characters) - len(self.portraits)))
+        self.portrait_styles = [art_style if p else '' for p in self.portraits]
+        self.art_style_combo.setCurrentIndex(max(0, self.art_style_combo.findData(art_style)))
+        self.art_style_label.setVisible(self.images_enabled)
+        self.art_style_combo.setVisible(self.images_enabled)
+        self.character_editor.set_portrait_ui_visible(self.images_enabled)
         self.title_edit.setText(world.title)
         self.world_edit.load(world.world_description)
         self.win_edit.load(world.win_condition)
@@ -288,6 +393,7 @@ class WorldEditWidget(QWidget):
                 self, _('No win condition'), _('The world must have a win condition, otherwise the adventure can never be completed.'), show=True
             )
         self.stack.setCurrentWidget(self.character_page)
+        self.generate_missing_portraits()
 
     def commit_character_edits(self) -> None:
         if -1 < self.current_char_idx < len(self.characters):
@@ -304,6 +410,117 @@ class WorldEditWidget(QWidget):
         self.current_char_idx = row
         if -1 < row < len(self.characters):
             self.character_editor.load(self.characters[row])
+        self.update_portrait_display()
+
+    # Character portrait generation {{{
+
+    @property
+    def current_art_style(self) -> str:
+        return str(self.art_style_combo.currentData() or '')
+
+    def cancel_portrait_generation(self) -> None:
+        # Any in-flight generation keeps running but its result is discarded
+        # as its call number no longer matches.
+        self.portrait_call = -1
+        self.portrait_inflight = -1
+        self.portrait_inflight_style = ''
+        self.portrait_queue = []
+
+    def generate_missing_portraits(self, force: Sequence[int] = ()) -> None:
+        # Generate portraits for all characters that have none cached or
+        # whose cached portrait was generated with a different art style.
+        # Characters in force are re-generated unconditionally.
+        if not self.images_enabled or not self.characters:
+            return
+        style = self.current_art_style
+        needed = [i for i in range(len(self.characters)) if i in force or self.portraits[i] is None or self.portrait_styles[i] != style]
+        needed.sort(key=lambda i: i != self.current_char_idx)  # the visible character first
+        keep_inflight = self.portrait_inflight > -1 and self.portrait_inflight_style == style and self.portrait_inflight not in force
+        if keep_inflight:
+            self.portrait_queue = [i for i in needed if i != self.portrait_inflight]
+        else:
+            self.cancel_portrait_generation()
+            self.portrait_queue = needed
+            self.start_next_portrait()
+        self.update_portrait_display()
+
+    def regenerate_current_portrait(self) -> None:
+        self.commit_character_edits()
+        idx = self.current_char_idx
+        if not self.images_enabled or not (-1 < idx < len(self.characters)):
+            return
+        self.portraits[idx] = None
+        self.portrait_styles[idx] = ''
+        self.generate_missing_portraits(force=(idx,))
+
+    def start_next_portrait(self) -> None:
+        if not self.portrait_queue:
+            return
+        plugin = data.plugin_for('image')
+        if plugin is None:
+            self.cancel_portrait_generation()
+            return
+        idx = self.portrait_queue.pop(0)
+        style = self.current_art_style
+        self.portrait_call = next(self.portrait_counter)
+        self.portrait_inflight = idx
+        self.portrait_inflight_style = style
+        Thread(
+            name='CYOAPortraitGen', daemon=True, target=self.do_generate_portrait, args=(self.characters[idx], idx, style, self.portrait_call, plugin)
+        ).start()
+
+    def do_generate_portrait(self, character: PlayerCharacter, idx: int, style: str, call_number: int, plugin: AIProviderPlugin) -> None:
+        try:
+            # the preferences overlay is thread local so must be entered here
+            with data.cyoa_ai_settings():
+                res = plugin.generate_image(character_portrait_prompt(character, style), options=ImageGenerationOptions(aspect_ratio='3:4'))
+            portrait: dict[str, str] | None = None
+            error, error_details = '', ''
+            if res.exception is not None:
+                error, error_details = str(res.exception), res.error_details
+            elif not res.image:
+                error = _('The AI did not return an image')
+            else:
+                try:
+                    img = resize_to_fit(image_from_data(res.image.data), PORTRAIT_SIZE.width(), PORTRAIT_SIZE.height())[1]
+                    webp = image_to_data(img, compression_quality=70, fmt='WEBP')
+                    portrait = {'mime': 'image/webp', 'data': standard_b64encode(webp).decode('ascii')}
+                except Exception as e:
+                    error = str(e)
+            if sip.isdeleted(self):
+                return
+            self.portrait_result_received.emit(call_number, idx, PortraitResult(portrait, style, error, error_details))
+        except RuntimeError:
+            pass  # when self gets deleted between call to sip.isdeleted and next statement
+
+    def on_portrait_result(self, call_number: int, idx: int, pr: PortraitResult) -> None:
+        if call_number != self.portrait_call:
+            return  # a stale result from a superseded or cancelled call
+        self.portrait_call = -1
+        self.portrait_inflight = -1
+        self.portrait_inflight_style = ''
+        if pr.error:
+            name = self.characters[idx].name if idx < len(self.characters) else ''
+            self.show_status(_('Failed to generate a portrait for {0}: {1}').format(name, pr.error))
+            self.char_status_label.setToolTip(pr.error_details)
+        elif idx < len(self.portraits):
+            self.portraits[idx] = pr.portrait
+            self.portrait_styles[idx] = pr.style
+        self.start_next_portrait()
+        self.update_portrait_display()
+
+    def update_portrait_display(self) -> None:
+        if not self.images_enabled:
+            return
+        idx = self.current_char_idx
+        if idx > -1 and (idx == self.portrait_inflight or idx in self.portrait_queue):
+            self.character_editor.show_portrait_busy(True)
+            return
+        self.character_editor.show_portrait_busy(False)
+        p = self.portraits[idx] if -1 < idx < len(self.portraits) else None
+        self.character_editor.set_portrait(standard_b64decode(p['data']) if p else None)
+
+    # }}}
 
     @property
     def current_world(self) -> GeneratedWorld:
@@ -334,7 +551,7 @@ class WorldEditWidget(QWidget):
                 _('A saved world named "{}" already exists. Replace it with this world?').format(w.title),
             ):
                 return
-        data.add_saved_world(self.brief, w)
+        data.add_saved_world(self.brief, w, self.current_art_style, self.portraits)
         self.show_status(_('World saved. You can select it when creating future adventures.'))
 
     def start_game(self) -> None:
@@ -497,7 +714,7 @@ class CreateWorldWidget(QWidget):
             return
         entry, world = sw
         self.current_brief = str(entry.get('brief') or '')
-        self.world_edit.load(self.current_brief, world)
+        self.world_edit.load(self.current_brief, world, data.art_style_from_saved(entry), data.portraits_from_saved(entry, len(world.characters)))
         self.world_edit.show_status('')
         self.stack.setCurrentWidget(self.world_edit)
 
@@ -517,6 +734,7 @@ class CreateWorldWidget(QWidget):
 
     def show_brief_page(self) -> None:
         self.current_call_number = -1  # cancels any in-flight generation
+        self.world_edit.cancel_portrait_generation()
         self.wait_stack.stop()
         self.populate_saved_worlds_list()
         self.right_stack.setCurrentWidget(self.generate_page)
@@ -572,7 +790,7 @@ class CreateWorldWidget(QWidget):
 
     def on_start_requested(self, world: GeneratedWorld, character: PlayerCharacter) -> None:
         # remember the world so more adventures can be played in it later
-        data.add_saved_world(self.world_edit.brief, world)
+        data.add_saved_world(self.world_edit.brief, world, self.world_edit.current_art_style, self.world_edit.portraits)
         self.game_start_requested.emit(world, character, self.world_edit.brief)
 
 

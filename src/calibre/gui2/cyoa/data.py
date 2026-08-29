@@ -14,6 +14,7 @@
 import json
 import os
 import shutil
+from collections.abc import Sequence
 from contextlib import AbstractContextManager
 from functools import lru_cache
 from time import time
@@ -128,6 +129,12 @@ def is_ready(kind: AIPurpose = 'text') -> bool:
         return bool(p.is_ready_for_use)
 
 
+def images_enabled() -> bool:
+    # Images are generated only when the user has configured an image AI and
+    # not skipped image generation on the welcome screen.
+    return not image_skipped() and is_ready('image')
+
+
 # }}}
 
 
@@ -234,14 +241,18 @@ def saved_world_index_with_title(title: str) -> int:
     return -1
 
 
-def add_saved_world(brief: str, world: GeneratedWorld) -> None:
-    # Save the world, replacing any previously saved world with the same title
+def add_saved_world(brief: str, world: GeneratedWorld, art_style: str = '', portraits: Sequence[dict[str, str] | None] = ()) -> None:
+    # Save the world, replacing any previously saved world with the same
+    # title. portraits is a list of character portraits, aligned with
+    # world.characters, each either None or {'mime': mime type, 'data':
+    # base64 encoded image data}.
     jw = as_jsonable(world, spec_for_class(GeneratedWorld))
+    pl = list(portraits)
     p = prefs()
     worlds = p['worlds']
-    if any(e.get('world') == jw for e in worlds):
+    if any(e.get('world') == jw and (e.get('art_style') or '') == art_style and (e.get('portraits') or []) == pl for e in worlds):
         return
-    entry: dict[str, Any] = {'brief': brief, 'created': time(), 'world': jw}
+    entry: dict[str, Any] = {'brief': brief, 'created': time(), 'world': jw, 'art_style': art_style, 'portraits': pl}
     idx = saved_world_index_with_title(world.title)
     if idx > -1:
         entry['created'] = worlds[idx].get('created') or entry['created']
@@ -254,6 +265,21 @@ def add_saved_world(brief: str, world: GeneratedWorld) -> None:
 def world_from_saved(entry: dict[str, Any]) -> GeneratedWorld:
     ans = instantiate(entry['world'], spec_for_class(GeneratedWorld), GeneratedWorld.__name__)
     assert isinstance(ans, GeneratedWorld)
+    return ans
+
+
+def art_style_from_saved(entry: dict[str, Any]) -> str:
+    return str(entry.get('art_style') or '')
+
+
+def portraits_from_saved(entry: dict[str, Any], num_characters: int) -> list[dict[str, str] | None]:
+    # The saved character portraits, validated and clamped/padded to one
+    # entry per character.
+    ans: list[dict[str, str] | None] = []
+    for x in entry.get('portraits') or ():
+        ans.append(x if isinstance(x, dict) and x.get('mime') and x.get('data') else None)
+    del ans[num_characters:]
+    ans.extend([None] * (num_characters - len(ans)))
     return ans
 
 
@@ -367,6 +393,21 @@ def find_tests() -> TestSuite:  # {{{
                     other = world._replace(title='Sun City')
                     add_saved_world('sunny brief', other)
                     self.ae(len(saved_worlds()), 2, 'a world with a different title must not replace existing worlds')
+                    entry = saved_worlds()[saved_world_index_with_title('Sun City')]
+                    self.ae(art_style_from_saved(entry), '')
+                    self.ae(portraits_from_saved(entry, 1), [None])
+                    portrait = {'mime': 'image/webp', 'data': 'abcd'}
+                    add_saved_world('sunny brief', other, 'anime', [portrait])
+                    self.ae(len(saved_worlds()), 2, 'adding portraits must update the existing saved world, not create a new one')
+                    entry = saved_worlds()[saved_world_index_with_title('Sun City')]
+                    self.ae(art_style_from_saved(entry), 'anime')
+                    self.ae(portraits_from_saved(entry, 1), [portrait])
+                    self.ae(portraits_from_saved(entry, 2), [portrait, None], 'missing portraits must be padded with None')
+                    self.ae(portraits_from_saved(entry, 0), [], 'extra portraits must be discarded')
+                    created = entry['created']
+                    add_saved_world('sunny brief', other, 'anime', [portrait])
+                    entry = saved_worlds()[saved_world_index_with_title('Sun City')]
+                    self.ae(entry['created'], created, 'saving an identical world must not change it')
                     remove_saved_world(1)
                     remove_saved_world(0)
                     self.ae(saved_worlds(), [])

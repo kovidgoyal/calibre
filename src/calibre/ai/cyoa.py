@@ -209,6 +209,47 @@ def deserialize_game(raw: str) -> GameState:
 # }}}
 
 
+# Art styles for generated images {{{
+
+
+class ArtStyle(NamedTuple):
+    key: str  # stable key used in settings and serialized data
+    name: str  # human readable, translated name for display in the UI
+    # What to add to image generation prompts for this style, deliberately
+    # not translated as AI models work best with English instructions. Empty
+    # for the default style, which leaves the choice to the AI.
+    prompt: str
+
+
+ART_STYLES: tuple[ArtStyle, ...] = (
+    ArtStyle('default', _('Let the AI decide'), ''),
+    ArtStyle('anime', _('Anime'), 'Render in a vibrant anime style: clean line art, cel shading, expressive features.'),
+    ArtStyle('photorealistic', _('Photo realistic'), 'Render as a photorealistic photograph: natural lighting, shallow depth of field, fine detail.'),
+    ArtStyle('digital-painting', _('Fantasy painting'), 'Render as an epic fantasy digital painting: rich colors, dramatic lighting, painterly brushwork.'),
+    ArtStyle('comic', _('Comic book'), 'Render in a comic book style: bold ink outlines, flat colors, dynamic halftone shading.'),
+    ArtStyle('watercolor', _('Watercolor'), 'Render as a delicate watercolor painting: soft washes of color, visible paper texture, loose expressive strokes.'),
+    ArtStyle('pixel-art', _('Pixel art'), 'Render as detailed retro pixel art: limited color palette, crisp pixels, 16-bit video game aesthetic.'),
+    ArtStyle('noir', _('Film noir'), 'Render in a film noir style: moody high contrast black and white, deep shadows, dramatic lighting.'),
+)
+
+
+def art_style_for_key(key: str) -> ArtStyle:
+    for s in ART_STYLES:
+        if s.key == key:
+            return s
+    return ART_STYLES[0]
+
+
+def character_portrait_prompt(character: PlayerCharacter, style_key: str = '') -> str:
+    parts = [f'A portrait of {character.name}, a character in an adventure story.', character.description]
+    if style := art_style_for_key(style_key).prompt:
+        parts.append(style)
+    return '\n'.join(parts)
+
+
+# }}}
+
+
 # Prompt construction {{{
 # Deliberately not translated as AI models work best with English instructions.
 
@@ -221,6 +262,9 @@ WORLD_GENERATION_INSTRUCTIONS = (
     ' Include physical descriptions and a little back story for the characters.'
     ' If the world description mentions a central character, then have the playable characters all be'
     ' variants of that person with different descriptions and back stories.'
+    " Make each character's physical description detailed enough to be used, on its own, as a prompt for"
+    ' an image generation AI: cover their appearance, age and distinguishing features without'
+    ' relying on the rest of the world description.'
     ' Format all descriptive text fields (world_description, character descriptions, backstories, win_condition)'
     ' using Markdown: use **bold** for emphasis, *italics* for atmosphere, and newlines to separate paragraphs.'
     ' Do not use headers or bullet lists in these fields.'
@@ -478,6 +522,22 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('win condition', instructions)
             res = generate_world('anything', FakePlugin([StructuredOutputResult(exception=ValueError('boom'))]))
             self.assertIsInstance(res.exception, ValueError)
+
+        def test_ai_cyoa_art_styles(self) -> None:
+            keys = [s.key for s in ART_STYLES]
+            self.ae(len(keys), len(set(keys)), 'art style keys must be unique')
+            self.assertTrue(all(s.key and s.name for s in ART_STYLES), 'art styles must have a key and a human readable name')
+            self.assertFalse(ART_STYLES[0].prompt, 'the default art style must not add anything to image prompts')
+            self.assertIs(art_style_for_key(''), ART_STYLES[0])
+            self.assertIs(art_style_for_key('no-such-style'), ART_STYLES[0])
+            self.ae(art_style_for_key('anime').key, 'anime')
+            c = make_world().characters[0]
+            prompt = character_portrait_prompt(c, 'anime')
+            self.assertIn(c.name, prompt)
+            self.assertIn(c.description, prompt)
+            self.assertIn(art_style_for_key('anime').prompt, prompt)
+            self.ae(character_portrait_prompt(c), character_portrait_prompt(c, 'no-such-style'))
+            self.assertIn('image generation', WORLD_GENERATION_INSTRUCTIONS, 'character descriptions must be requested to be usable as image prompts')
 
         def test_ai_cyoa_turn_flow_and_chapters(self) -> None:
             state = start_game('a foggy city', make_world(), make_world().characters[0])
