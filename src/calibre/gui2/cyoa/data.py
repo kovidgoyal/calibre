@@ -224,13 +224,30 @@ def saved_worlds() -> list[dict[str, Any]]:
     return prefs()['worlds']
 
 
+def saved_world_index_with_title(title: str) -> int:
+    # The index of the saved world with the specified title (case insensitive), or -1
+    q = title.strip().casefold()
+    for i, e in enumerate(saved_worlds()):
+        t = str((e.get('world') or {}).get('title') or '')
+        if t.strip().casefold() == q:
+            return i
+    return -1
+
+
 def add_saved_world(brief: str, world: GeneratedWorld) -> None:
+    # Save the world, replacing any previously saved world with the same title
     jw = as_jsonable(world, spec_for_class(GeneratedWorld))
     p = prefs()
     worlds = p['worlds']
     if any(e.get('world') == jw for e in worlds):
         return
-    worlds.append({'brief': brief, 'created': time(), 'world': jw})
+    entry: dict[str, Any] = {'brief': brief, 'created': time(), 'world': jw}
+    idx = saved_world_index_with_title(world.title)
+    if idx > -1:
+        entry['created'] = worlds[idx].get('created') or entry['created']
+        worlds[idx] = entry
+    else:
+        worlds.append(entry)
     p.set('worlds', worlds)
 
 
@@ -337,6 +354,20 @@ def find_tests() -> TestSuite:  # {{{
                     self.ae(len(entries), 1, 'adding an identical world twice must not create a duplicate')
                     self.ae(entries[0]['brief'], 'a brief')
                     self.ae(world_from_saved(entries[0]), world)
+                    self.ae(saved_world_index_with_title(' MIST city '), 0)
+                    self.ae(saved_world_index_with_title('no such world'), -1)
+                    created = entries[0]['created']
+                    world2 = world._replace(win_condition='Rule the city.')
+                    add_saved_world('changed brief', world2)
+                    entries = saved_worlds()
+                    self.ae(len(entries), 1, 'a world with the same title must replace the existing saved world')
+                    self.ae(entries[0]['brief'], 'changed brief')
+                    self.ae(entries[0]['created'], created, 'replacing a world must preserve its creation time')
+                    self.ae(world_from_saved(entries[0]), world2)
+                    other = world._replace(title='Sun City')
+                    add_saved_world('sunny brief', other)
+                    self.ae(len(saved_worlds()), 2, 'a world with a different title must not replace existing worlds')
+                    remove_saved_world(1)
                     remove_saved_world(0)
                     self.ae(saved_worlds(), [])
 

@@ -180,56 +180,82 @@ class WorldEditWidget(QWidget):
         self.brief = ''
         self.characters: list[PlayerCharacter] = []
         self.current_char_idx = -1
-        l = QVBoxLayout(self)
-        la = QLabel(_('Customize the world to your liking, then select the character you will play as and edit them as needed.'))
+        self.stack = s = QStackedLayout(self)
+
+        self.world_page = wp = QWidget(self)
+        l = QVBoxLayout(wp)
+        la = QLabel(_('Customize the world to your liking. In the next step you will choose the character to play as.'))
         la.setWordWrap(True)
         l.addWidget(la)
 
         h = QHBoxLayout()
         tl = QLabel(_('&Title:'))
-        self.title_edit = te = QLineEdit(self)
+        self.title_edit = te = QLineEdit(wp)
         tl.setBuddy(te)
         h.addWidget(tl), h.addWidget(te)
         l.addLayout(h)
 
         wl = QLabel(_('&World description:'))
-        self.world_edit = we = MarkdownEdit(self)
+        self.world_edit = we = MarkdownEdit(wp)
         wl.setBuddy(we)
         l.addWidget(wl), l.addWidget(we)
 
         cl = QLabel(_('Win &condition:'))
-        self.win_edit = wc = MarkdownEdit(self)
+        self.win_edit = wc = MarkdownEdit(wp)
         wc.setMaximumHeight(wc.fontMetrics().lineSpacing() * 4)
         cl.setBuddy(wc)
         l.addWidget(cl), l.addWidget(wc)
 
-        chl = QLabel(_('Choose the character you will &play as:'))
-        l.addWidget(chl)
         h = QHBoxLayout()
-        self.char_list = cw = QListWidget(self)
-        chl.setBuddy(cw)
-        cw.currentRowChanged.connect(self.on_character_changed)
-        h.addWidget(cw, stretch=1)
-        self.character_editor = ce = CharacterEditor(self)
-        h.addWidget(ce, stretch=3)
-        l.addLayout(h)
-
-        h = QHBoxLayout()
-        self.back_button = bb = QPushButton(QIcon.ic('back.png'), _('&Back'), self)
+        self.back_button = bb = QPushButton(QIcon.ic('back.png'), _('&Back'), wp)
         bb.setToolTip('<p>' + _('Go back and generate a different world'))
         bb.clicked.connect(self.back_requested)
         h.addWidget(bb)
-        self.save_button = sb = QPushButton(QIcon.ic('save.png'), _('&Save world for later'), self)
+        self.save_button = sb = QPushButton(QIcon.ic('save.png'), _('&Save world for later'), wp)
         sb.setToolTip('<p>' + _('Save this world so you can play more adventures in it later without re-generating it'))
         sb.clicked.connect(self.save_world)
         h.addWidget(sb)
         self.status_label = st = QLabel('')
         st.setWordWrap(True)
         h.addWidget(st, stretch=10)
-        self.start_button = pb = QPushButton(QIcon.ic('ok.png'), _('Start &playing'), self)
+        self.next_button = nb = QPushButton(QIcon.ic('forward.png'), _('Choose &character'), wp)
+        nb.setToolTip('<p>' + _('Proceed to choosing the character you will play as'))
+        nb.clicked.connect(self.show_character_page)
+        h.addWidget(nb)
+        l.addLayout(h)
+        s.addWidget(wp)
+
+        self.character_page = cp = QWidget(self)
+        l = QVBoxLayout(cp)
+        chl = QLabel(_('Choose the character you will &play as and edit them as needed:'))
+        chl.setWordWrap(True)
+        l.addWidget(chl)
+        h = QHBoxLayout()
+        self.char_list = cw = QListWidget(cp)
+        chl.setBuddy(cw)
+        cw.currentRowChanged.connect(self.on_character_changed)
+        h.addWidget(cw, stretch=1)
+        self.character_editor = ce = CharacterEditor(cp)
+        h.addWidget(ce, stretch=3)
+        l.addLayout(h)
+
+        h = QHBoxLayout()
+        self.char_back_button = cbb = QPushButton(QIcon.ic('back.png'), _('&Back'), cp)
+        cbb.setToolTip('<p>' + _('Go back and customize the world'))
+        cbb.clicked.connect(self.show_world_page)
+        h.addWidget(cbb)
+        self.char_save_button = csb = QPushButton(QIcon.ic('save.png'), _('&Save world for later'), cp)
+        csb.setToolTip('<p>' + _('Save this world so you can play more adventures in it later without re-generating it'))
+        csb.clicked.connect(self.save_world)
+        h.addWidget(csb)
+        self.char_status_label = cst = QLabel('')
+        cst.setWordWrap(True)
+        h.addWidget(cst, stretch=10)
+        self.start_button = pb = QPushButton(QIcon.ic('ok.png'), _('Start &playing'), cp)
         pb.clicked.connect(self.start_game)
         h.addWidget(pb)
         l.addLayout(h)
+        s.addWidget(cp)
 
     def load(self, brief: str, world: GeneratedWorld) -> None:
         self.brief = brief
@@ -243,9 +269,25 @@ class WorldEditWidget(QWidget):
             self.char_list.addItem(c.name)
         if self.characters:
             self.char_list.setCurrentRow(0)
+        self.stack.setCurrentWidget(self.world_page)
 
     def show_status(self, text: str) -> None:
         self.status_label.setText(text)
+        self.char_status_label.setText(text)
+
+    def show_world_page(self) -> None:
+        self.stack.setCurrentWidget(self.world_page)
+
+    def show_character_page(self) -> None:
+        if not self.title_edit.text().strip():
+            return error_dialog(self, _('No title'), _('The world must have a title.'), show=True)
+        if not self.world_edit.markdown:
+            return error_dialog(self, _('No world description'), _('The world must have a description.'), show=True)
+        if not self.win_edit.markdown:
+            return error_dialog(
+                self, _('No win condition'), _('The world must have a win condition, otherwise the adventure can never be completed.'), show=True
+            )
+        self.stack.setCurrentWidget(self.character_page)
 
     def commit_character_edits(self) -> None:
         if -1 < self.current_char_idx < len(self.characters):
@@ -274,19 +316,29 @@ class WorldEditWidget(QWidget):
         )
 
     def save_world(self) -> None:
-        data.add_saved_world(self.brief, self.current_world)
+        w = self.current_world
+        if not w.title:
+            return error_dialog(self, _('No title'), _('The world must have a title to be saved.'), show=True)
+        idx = data.saved_world_index_with_title(w.title)
+        if idx > -1:
+            try:
+                existing = data.world_from_saved(data.saved_worlds()[idx])
+            except Exception:
+                existing = None  # corrupted entry, offer to replace it
+            if existing == w:
+                self.show_status(_('World already saved.'))
+                return
+            if not question_dialog(
+                self,
+                _('World already exists'),
+                _('A saved world named "{}" already exists. Replace it with this world?').format(w.title),
+            ):
+                return
+        data.add_saved_world(self.brief, w)
         self.show_status(_('World saved. You can select it when creating future adventures.'))
 
     def start_game(self) -> None:
         w = self.current_world
-        if not w.title:
-            return error_dialog(self, _('No title'), _('The world must have a title.'), show=True)
-        if not w.world_description:
-            return error_dialog(self, _('No world description'), _('The world must have a description.'), show=True)
-        if not w.win_condition:
-            return error_dialog(
-                self, _('No win condition'), _('The world must have a win condition, otherwise the adventure can never be completed.'), show=True
-            )
         row = self.char_list.currentRow()
         if not w.characters or not (-1 < row < len(w.characters)):
             return error_dialog(self, _('No character selected'), _('Select the character you will play as.'), show=True)
