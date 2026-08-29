@@ -246,6 +246,7 @@ def character_portrait_prompt(character: PlayerCharacter, style_key: str = '', w
         parts.append(f'The world they inhabit: {world_description}')
     if style := art_style_for_key(style_key).prompt:
         parts.append(style)
+    parts.append('Do not include any text in the image you generate.')
     return '\n'.join(parts)
 
 
