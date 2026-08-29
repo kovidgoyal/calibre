@@ -523,7 +523,7 @@
 
     /*
      * SanDisk
-     * several devices (c150 for sure) are definately dual-mode and must
+     * several devices (c150 for sure) are definitely dual-mode and must
      * have the USB mass storage driver that hooks them unloaded first.
      * They all have problematic dual-mode making the device unload effect
      * uncertain on these devices.
