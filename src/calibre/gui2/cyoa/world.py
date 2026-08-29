@@ -49,6 +49,7 @@ from calibre.utils.localization import _, pgettext
 class PremadeWorld(NamedTuple):
     title: str
     brief: str
+    art_style: str  # the key of the recommended art style from calibre.ai.cyoa.ART_STYLES
 
 
 # The briefs are prompts sent to the AI and are deliberately not translated,
@@ -61,6 +62,7 @@ PREMADE_WORLDS = (
             ' An ancient prophecy is stirring, dragons have been sighted for the first time in centuries,'
             ' and a darkness gathers in the north while the great houses squabble over a fractured throne.'
         ),
+        'digital-painting',
     ),
     PremadeWorld(
         _('Space opera'),
@@ -69,6 +71,7 @@ PREMADE_WORLDS = (
             ' Faster-than-light travel runs on mysterious alien artifacts nobody fully understands,'
             ' and a newly discovered artifact at the galactic rim could change the balance of power forever.'
         ),
+        'digital-painting',
     ),
     PremadeWorld(
         _('Cyberpunk noir'),
@@ -77,6 +80,7 @@ PREMADE_WORLDS = (
             ' from the shadows and memories can be bought and sold. Street-level hustlers, jaded'
             " detectives and rogue programs all chase the same secret buried in the city's oldest network."
         ),
+        'anime',
     ),
     PremadeWorld(
         _('Post-apocalyptic survival'),
@@ -85,6 +89,7 @@ PREMADE_WORLDS = (
             ' cities, toxic zones and mutated wilderness. Water and fuel are currency, raiders prowl'
             ' the old highways, and rumors spread of a pre-collapse vault that could restore the world.'
         ),
+        'photorealistic',
     ),
     PremadeWorld(
         _('Pirate adventure'),
@@ -93,6 +98,7 @@ PREMADE_WORLDS = (
             ' patrols, smuggler coves and legends of cursed gold. A recently surfaced map promises'
             ' the hoard of a legendary pirate king, and every crew in the islands wants it.'
         ),
+        'comic',
     ),
     PremadeWorld(
         _('Gothic horror'),
@@ -101,6 +107,7 @@ PREMADE_WORLDS = (
             ' and things that walk at night. The new heir has just arrived to claim an inheritance'
             ' that the villagers whisper is cursed, and the house itself seems to be watching.'
         ),
+        'noir',
     ),
     PremadeWorld(
         _('Murder mystery'),
@@ -109,6 +116,7 @@ PREMADE_WORLDS = (
             ' Every guest has a motive, the telephone lines are down, and the killer must be found'
             ' before the snow melts and they slip away.'
         ),
+        'noir',
     ),
     PremadeWorld(
         _('Wild West'),
@@ -117,6 +125,7 @@ PREMADE_WORLDS = (
             ' baron, a crooked railroad company and the last honest lawman. Fortunes are made and'
             ' lost overnight, and every stranger riding in brings trouble with them.'
         ),
+        'photorealistic',
     ),
     PremadeWorld(
         _('Greek mythology'),
@@ -125,6 +134,7 @@ PREMADE_WORLDS = (
             ' monsters haunt the wine-dark sea and glory is won through impossible quests. An oracle'
             ' has spoken of a deed that could earn a mortal a place among the stars.'
         ),
+        'digital-painting',
     ),
     PremadeWorld(
         _('Regency intrigue'),
@@ -133,8 +143,19 @@ PREMADE_WORLDS = (
             ' marriages, ruinous gossip and fortunes won at the card table. Beneath the polished'
             ' manners, a scandal is brewing that could topple one of the great families.'
         ),
+        'watercolor',
     ),
 )
+
+
+def recommended_art_style(brief: str) -> str:
+    # The recommended art style for a brief when it is one of the pre-made
+    # worlds, the empty string (let the AI decide) otherwise.
+    for pw in PREMADE_WORLDS:
+        if pw.brief == brief:
+            return pw.art_style
+    return ''
+
 
 BRIEF_ROLE = Qt.ItemDataRole.UserRole
 SAVED_WORLD_ROLE = Qt.ItemDataRole.UserRole + 1
@@ -785,7 +806,7 @@ class CreateWorldWidget(QWidget):
         if not isinstance(world, GeneratedWorld) or not world.characters:
             error_dialog(self, _('World generation failed'), _('The AI returned an invalid world, try again.'), det_msg=res.raw, show=True)
             return
-        self.world_edit.load(self.current_brief, world)
+        self.world_edit.load(self.current_brief, world, recommended_art_style(self.current_brief))
         parts = []
         if res.model:
             parts.append(_('Model: {}').format(res.model))

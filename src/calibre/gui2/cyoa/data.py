@@ -412,6 +412,15 @@ def find_tests() -> TestSuite:  # {{{
                     remove_saved_world(0)
                     self.ae(saved_worlds(), [])
 
+        def test_cyoa_premade_world_art_styles(self) -> None:
+            from calibre.ai.cyoa import art_style_for_key
+            from calibre.gui2.cyoa.world import PREMADE_WORLDS, recommended_art_style
+
+            for pw in PREMADE_WORLDS:
+                self.ae(art_style_for_key(pw.art_style).key, pw.art_style, f'the recommended art style for {pw.title!r} must be a valid art style key')
+                self.ae(recommended_art_style(pw.brief), pw.art_style)
+            self.ae(recommended_art_style('not a pre-made brief'), '', 'a custom brief must not have a recommended art style')
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCYOAData)
 
 
