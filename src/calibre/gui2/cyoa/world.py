@@ -22,6 +22,8 @@ from qt.core import (
     QPushButton,
     QStackedLayout,
     Qt,
+    QTextBrowser,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -31,7 +33,7 @@ from qt.core import (
 from calibre.ai import StructuredOutputResult
 from calibre.ai.cyoa import GeneratedWorld, PlayerCharacter, generate_world
 from calibre.customize import AIProviderPlugin
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.cyoa import data
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.utils.localization import _, pgettext
@@ -131,6 +133,17 @@ BRIEF_ROLE = Qt.ItemDataRole.UserRole
 SAVED_WORLD_ROLE = Qt.ItemDataRole.UserRole + 1
 
 
+class MarkdownEdit(QTextEdit):
+    # Edits Markdown text, displaying the formatting rather than the markup
+
+    def load(self, text: str) -> None:
+        self.setMarkdown(text)
+
+    @property
+    def markdown(self) -> str:
+        return self.toMarkdown().strip()
+
+
 class CharacterEditor(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -139,22 +152,22 @@ class CharacterEditor(QWidget):
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.name_edit = QLineEdit(self)
         l.addRow(pgettext('name of a character in a story', '&Name:'), self.name_edit)
-        self.description_edit = QPlainTextEdit(self)
+        self.description_edit = MarkdownEdit(self)
         l.addRow(_('&Description:'), self.description_edit)
-        self.backstory_edit = QPlainTextEdit(self)
+        self.backstory_edit = MarkdownEdit(self)
         l.addRow(_('&Backstory:'), self.backstory_edit)
 
     def load(self, c: PlayerCharacter) -> None:
         self.name_edit.setText(c.name)
-        self.description_edit.setPlainText(c.description)
-        self.backstory_edit.setPlainText(c.backstory)
+        self.description_edit.load(c.description)
+        self.backstory_edit.load(c.backstory)
 
     @property
     def character(self) -> PlayerCharacter:
         return PlayerCharacter(
             name=self.name_edit.text().strip(),
-            description=self.description_edit.toPlainText().strip(),
-            backstory=self.backstory_edit.toPlainText().strip(),
+            description=self.description_edit.markdown,
+            backstory=self.backstory_edit.markdown,
         )
 
 
@@ -180,12 +193,12 @@ class WorldEditWidget(QWidget):
         l.addLayout(h)
 
         wl = QLabel(_('&World description:'))
-        self.world_edit = we = QPlainTextEdit(self)
+        self.world_edit = we = MarkdownEdit(self)
         wl.setBuddy(we)
         l.addWidget(wl), l.addWidget(we)
 
         cl = QLabel(_('Win &condition:'))
-        self.win_edit = wc = QPlainTextEdit(self)
+        self.win_edit = wc = MarkdownEdit(self)
         wc.setMaximumHeight(wc.fontMetrics().lineSpacing() * 4)
         cl.setBuddy(wc)
         l.addWidget(cl), l.addWidget(wc)
@@ -223,8 +236,8 @@ class WorldEditWidget(QWidget):
         self.current_char_idx = -1
         self.characters = list(world.characters)
         self.title_edit.setText(world.title)
-        self.world_edit.setPlainText(world.world_description)
-        self.win_edit.setPlainText(world.win_condition)
+        self.world_edit.load(world.world_description)
+        self.win_edit.load(world.win_condition)
         self.char_list.clear()
         for c in self.characters:
             self.char_list.addItem(c.name)
@@ -255,9 +268,9 @@ class WorldEditWidget(QWidget):
         self.commit_character_edits()
         return GeneratedWorld(
             title=self.title_edit.text().strip(),
-            world_description=self.world_edit.toPlainText().strip(),
+            world_description=self.world_edit.markdown,
             characters=tuple(self.characters),
-            win_condition=self.win_edit.toPlainText().strip(),
+            win_condition=self.win_edit.markdown,
         )
 
     def save_world(self) -> None:
@@ -307,24 +320,59 @@ class CreateWorldWidget(QWidget):
         la.setWordWrap(True)
         bl.addWidget(la)
         h = QHBoxLayout()
-        self.worlds_list = wli = QListWidget(bp)
-        wli.currentItemChanged.connect(self.on_world_selected)
-        wli.itemActivated.connect(self.on_world_activated)
-        h.addWidget(wli, stretch=1)
-        v = QVBoxLayout()
+        left = QVBoxLayout()
+        dl = QLabel(_('&Descriptions to generate a world from:'))
+        self.descriptions_list = dli = QListWidget(bp)
+        dl.setBuddy(dli)
+        dli.currentItemChanged.connect(self.on_description_selected)
+        left.addWidget(dl), left.addWidget(dli)
+        self.saved_worlds_label = swl = QLabel(_('Previously created &worlds:'))
+        self.saved_worlds_list = swli = QListWidget(bp)
+        swl.setBuddy(swli)
+        swli.currentItemChanged.connect(self.on_saved_world_selected)
+        swli.itemActivated.connect(self.proceed_with_world)
+        left.addWidget(swl), left.addWidget(swli)
+        h.addLayout(left, stretch=1)
+
+        self.right_stack = rs = QStackedLayout()
+
+        self.generate_page = gp = QWidget(bp)
+        v = QVBoxLayout(gp)
+        v.setContentsMargins(0, 0, 0, 0)
         pl = QLabel(_('&World description:'))
-        self.prompt_edit = pe = QPlainTextEdit(bp)
+        self.prompt_edit = pe = QPlainTextEdit(gp)
         pe.setPlaceholderText(_('Describe the world for your adventure'))
         pl.setBuddy(pe)
         v.addWidget(pl), v.addWidget(pe)
         bh = QHBoxLayout()
-        self.generate_button = gb = QPushButton(QIcon.ic('ai.png'), _('&Generate world'), bp)
+        self.generate_button = gb = QPushButton(QIcon.ic('ai.png'), _('&Generate world'), gp)
         gb.clicked.connect(self.start_generation)
         bh.addWidget(gb), bh.addStretch()
         v.addLayout(bh)
-        h.addLayout(v, stretch=2)
+        rs.addWidget(gp)
+
+        self.saved_world_page = sp = QWidget(bp)
+        v = QVBoxLayout(sp)
+        v.setContentsMargins(0, 0, 0, 0)
+        self.saved_world_view = swv = QTextBrowser(sp)
+        swv.setOpenLinks(False)
+        v.addWidget(swv)
+        bh = QHBoxLayout()
+        self.proceed_button = pb = QPushButton(QIcon.ic('ok.png'), _('&Proceed with world'), sp)
+        pb.setToolTip('<p>' + _('Play in this world without re-generating it with AI'))
+        pb.clicked.connect(self.proceed_with_world)
+        bh.addWidget(pb)
+        self.remove_button = rb = QPushButton(QIcon.ic('trash.png'), _('&Remove world'), sp)
+        rb.setToolTip('<p>' + _('Delete this world from the list of saved worlds'))
+        rb.clicked.connect(self.remove_world)
+        bh.addWidget(rb), bh.addStretch()
+        v.addLayout(bh)
+        rs.addWidget(sp)
+
+        h.addLayout(rs, stretch=2)
         bl.addLayout(h)
-        self.populate_worlds_list()
+        self.populate_descriptions_list()
+        self.populate_saved_worlds_list()
 
         self.wait_stack = ws = WaitStack(_('Creating your world, this can take a while…'), after=bp, parent=self, size=128)
         ws.stop()
@@ -337,46 +385,89 @@ class CreateWorldWidget(QWidget):
 
         self.result_received.connect(self.on_result, type=Qt.ConnectionType.QueuedConnection)
 
-    def populate_worlds_list(self) -> None:
-        self.worlds_list.clear()
+    def populate_descriptions_list(self) -> None:
+        self.descriptions_list.clear()
         for pw in PREMADE_WORLDS:
-            i = QListWidgetItem(pw.title, self.worlds_list)
+            i = QListWidgetItem(pw.title, self.descriptions_list)
             i.setData(BRIEF_ROLE, pw.brief)
+
+    def populate_saved_worlds_list(self) -> None:
+        self.saved_worlds_list.clear()
         saved = data.saved_worlds()
-        if saved:
-            sep = QListWidgetItem(_('Previously created worlds:'), self.worlds_list)
-            sep.setFlags(Qt.ItemFlag.NoItemFlags)
-            for idx, entry in enumerate(saved):
-                title = (entry.get('world') or {}).get('title') or _('Untitled world')
-                i = QListWidgetItem(title, self.worlds_list)
-                i.setToolTip('<p>' + _('A world you created previously. Activate it to play in it without re-generating it.'))
-                i.setData(BRIEF_ROLE, entry.get('brief') or '')
-                i.setData(SAVED_WORLD_ROLE, idx)
+        for idx, entry in enumerate(saved):
+            title = (entry.get('world') or {}).get('title') or _('Untitled world')
+            i = QListWidgetItem(title, self.saved_worlds_list)
+            i.setToolTip('<p>' + _('A world you created previously. Select it to play in it without re-generating it.'))
+            i.setData(SAVED_WORLD_ROLE, idx)
+        has_saved = bool(saved)
+        self.saved_worlds_label.setVisible(has_saved)
+        self.saved_worlds_list.setVisible(has_saved)
 
-    def on_world_selected(self, current: QListWidgetItem | None, previous: QListWidgetItem | None) -> None:
-        if current is not None and current.data(SAVED_WORLD_ROLE) is None:
-            if brief := current.data(BRIEF_ROLE):
-                self.prompt_edit.setPlainText(brief)
-
-    def on_world_activated(self, item: QListWidgetItem) -> None:
+    def saved_world_for_item(self, item: QListWidgetItem) -> tuple[dict[str, object], GeneratedWorld] | None:
         idx = item.data(SAVED_WORLD_ROLE)
-        if idx is None:
-            return
         try:
             entry = data.saved_worlds()[idx]
             world = data.world_from_saved(entry)
         except Exception as e:
             error_dialog(self, _('Corrupted saved world'), _('Failed to load the saved world: {}').format(e), show=True)
+            return None
+        return entry, world
+
+    def on_description_selected(self, current: QListWidgetItem | None, previous: QListWidgetItem | None) -> None:
+        if current is None:
             return
-        self.current_brief = entry.get('brief') or ''
+        self.saved_worlds_list.setCurrentItem(None)
+        if brief := current.data(BRIEF_ROLE):
+            self.prompt_edit.setPlainText(brief)
+        self.right_stack.setCurrentWidget(self.generate_page)
+
+    def on_saved_world_selected(self, current: QListWidgetItem | None, previous: QListWidgetItem | None) -> None:
+        if current is None:
+            return
+        self.descriptions_list.setCurrentItem(None)
+        sw = self.saved_world_for_item(current)
+        if sw is None:
+            return
+        world = sw[1]
+        md = [f'# {world.title}', '', world.world_description, '', '## ' + _('Characters'), '']
+        for c in world.characters:
+            md.extend((f'### {c.name}', '', c.description, '', c.backstory, ''))
+        md.extend(('## ' + _('Win condition'), '', world.win_condition))
+        self.saved_world_view.setMarkdown('\n'.join(md))
+        self.right_stack.setCurrentWidget(self.saved_world_page)
+
+    def proceed_with_world(self) -> None:
+        item = self.saved_worlds_list.currentItem()
+        if item is None:
+            return
+        sw = self.saved_world_for_item(item)
+        if sw is None:
+            return
+        entry, world = sw
+        self.current_brief = str(entry.get('brief') or '')
         self.world_edit.load(self.current_brief, world)
         self.world_edit.show_status('')
         self.stack.setCurrentWidget(self.world_edit)
 
+    def remove_world(self) -> None:
+        item = self.saved_worlds_list.currentItem()
+        if item is None:
+            return
+        if not question_dialog(self, _('Are you sure?'), _('Permanently remove the saved world "{}"? This cannot be undone.').format(item.text())):
+            return
+        idx = item.data(SAVED_WORLD_ROLE)
+        try:
+            data.remove_saved_world(idx)
+        except IndexError:
+            pass
+        self.populate_saved_worlds_list()
+        self.right_stack.setCurrentWidget(self.generate_page)
+
     def show_brief_page(self) -> None:
         self.current_call_number = -1  # cancels any in-flight generation
         self.wait_stack.stop()
-        self.populate_worlds_list()
+        self.populate_saved_worlds_list()
+        self.right_stack.setCurrentWidget(self.generate_page)
         self.stack.setCurrentWidget(self.wait_stack)
 
     def reset(self) -> None:
