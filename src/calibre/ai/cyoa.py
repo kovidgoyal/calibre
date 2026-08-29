@@ -82,7 +82,8 @@ class StoryTurn(NamedTuple):
     scene_description: Annotated[
         str,
         'A self-contained visual description of the current scene,'
-        ' suitable as a prompt for an image generation AI, that does not rely on knowledge of the story',
+        ' suitable as a prompt for an image generation AI, that does not rely on knowledge of the story.'
+        ' Describe the current physical state of the characters, their clothing and emotional state.',
     ]
     updated_summary: Annotated[StorySummary, 'The story summary updated to include the events of this turn']
     starts_new_chapter: Annotated[bool, 'True only when this turn begins a major new phase of the story, suitable as the start of a new chapter']
@@ -265,9 +266,10 @@ WORLD_GENERATION_INSTRUCTIONS = (
     ' Include physical descriptions and a little back story for the characters.'
     ' If the world description mentions a central character, then have the playable characters all be'
     ' variants of that person with different descriptions and back stories.'
-    " Make each character's physical description detailed enough to be used, on its own, as a prompt for"
+    " Make each character's physical description detailed enough to be used, as a prompt for"
     ' an image generation AI: cover their appearance, age and distinguishing features without'
-    ' relying on the rest of the world description.'
+    ' relying on the rest of the world description. Describe the kind of clothes the character'
+    ' typically wears but not an individual outfit, let the image generation AI choose that.'
     ' Format all descriptive text fields (world_description, character descriptions, backstories, win_condition)'
     ' using Markdown: use **bold** for emphasis, *italics* for atmosphere, and newlines to separate paragraphs.'
     ' Do not use headers or bullet lists in these fields.'
