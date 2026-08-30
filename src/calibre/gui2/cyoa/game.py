@@ -6,8 +6,9 @@
 # box below it to enter the action to take. A picture of the scene currently
 # scrolled into view is shown on the right, when an image AI is configured.
 # The game is auto-saved after every turn; the toolbar allows saving under a
-# name of the player's choosing, loading such saves, rewinding, turning
-# scene images on/off and starting over in a new world.
+# name of the player's choosing, loading such saves, rewinding and starting
+# over in a new world, while a checkbox in the scene panel turns scene
+# images on/off.
 
 import os
 from collections.abc import Callable
@@ -20,10 +21,13 @@ from typing import NamedTuple
 
 from qt.core import (
     QAction,
+    QCheckBox,
+    QContextMenuEvent,
     QCursor,
     QDialogButtonBox,
     QHBoxLayout,
     QIcon,
+    QImage,
     QInputDialog,
     QKeyEvent,
     QKeySequence,
@@ -31,6 +35,8 @@ from qt.core import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QMenu,
+    QMouseEvent,
     QPainter,
     QPaintEvent,
     QPixmap,
@@ -49,11 +55,13 @@ from qt.core import (
     QTextBrowser,
     QTextCharFormat,
     QTextCursor,
+    QTextDocument,
     QTextOption,
     QToolBar,
     QToolTip,
     QUrl,
     QVBoxLayout,
+    QWheelEvent,
     QWidget,
     pyqtSignal,
     sip,
@@ -64,12 +72,15 @@ from calibre.ai.config import AIConfigWidget, ConfigureAI
 from calibre.ai.cyoa import AIProvider, GameOutcome, GameState, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
-from calibre.gui2 import error_dialog, question_dialog, safe_open_url
+from calibre.gui2 import error_dialog, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
+from calibre.gui2.image_popup import ImagePopup
+from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, ngettext
+from calibre.utils.resources import get_image_path
 
 QUICK_ACTION_SCHEME = 'quick-action'
 # Quick action number i is activated by pressing Ctrl+(i+1)
@@ -78,10 +89,41 @@ SAVE_NAME_ROLE = Qt.ItemDataRole.UserRole
 # Scene images are stored downscaled to fit this many pixels in either
 # dimension, keeping saved games reasonably small.
 SCENE_IMAGE_SIZE = 1280
+# The ornamental divider drawn between turns, rendered from
+# imgsrc/scene-divider.svg at twice its display width so it stays crisp on
+# high DPI screens.
+SCENE_DIVIDER_URL = 'cyoa://scene-divider'
+SCENE_DIVIDER_WIDTH = 300  # display width in the story view in device independent pixels
+INFO_DIVIDER_WIDTH = 220  # a narrower divider for the info panel, so it does not need to scroll horizontally
+# Symbols for the currencies AI providers commonly bill in.
+CURRENCY_SYMBOLS = {'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥', 'INR': '₹', 'KRW': '₩'}
 
 
 def fmt_cost(cost: float, currency: str) -> str:
-    return f'{cost:.4f} {currency}'.strip()
+    # At most four decimal places so fractions of a cent stay visible, at
+    # least two so amounts look like money, e.g. 0.0123 -> $0.0123 and
+    # 0.5 -> $0.50 for USD.
+    amount = f'{cost:.4f}'.rstrip('0')
+    if len(amount) - 1 - amount.index('.') < 2:
+        amount = f'{cost:.2f}'
+    if symbol := CURRENCY_SYMBOLS.get(currency.upper()):
+        return symbol + amount
+    return f'{amount} {currency}'.strip()
+
+
+def scene_divider_html() -> str:
+    return f'<p align="center"><img src="{SCENE_DIVIDER_URL}"></p>'
+
+
+def insert_scene_divider(c: QTextCursor) -> None:
+    # The divider needs its own insertion helper as insertHtml() merges the
+    # fragment's first block into the current block, losing the center
+    # alignment scene_divider_html() specifies, see insert_html_block().
+    bf = QTextBlockFormat()
+    bf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+    bf.setTopMargin(12), bf.setBottomMargin(12)
+    c.insertBlock(bf, QTextCharFormat())
+    c.insertHtml(f'<img src="{SCENE_DIVIDER_URL}">')
 
 
 def insert_html_block(c: QTextCursor, html: str) -> None:
@@ -280,13 +322,43 @@ class PromptEdit(QPlainTextEdit):
 
 class SceneImageDisplay(QWidget):
     # Shows an image scaled to fit while preserving aspect ratio, or a
-    # placeholder message when there is no image.
+    # placeholder message when there is no image. Double clicking the image
+    # opens it in a popup and right clicking it shows a context menu, both
+    # handled by the game widget.
+    popup_requested = pyqtSignal()
+    context_menu_requested = pyqtSignal(object)  # the global position of the click as a QPoint
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.image_data = b''
         self.placeholder = ''
         self.pixmap = QPixmap()
+        # Request a height matching the image so widgets placed below in a
+        # layout sit directly under the image rather than under empty space.
+        sp = self.sizePolicy()
+        sp.setHeightForWidth(True)
+        self.setSizePolicy(sp)
+
+    def hasHeightForWidth(self) -> bool:
+        return True
+
+    def heightForWidth(self, a0: int) -> int:
+        if self.pixmap.isNull():
+            return (a0 * 3) // 4  # the aspect ratio scene images are generated at
+        sz = self.pixmap.deviceIndependentSize()
+        return round(a0 * sz.height() / sz.width())
+
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        if a0 is not None and a0.button() == Qt.MouseButton.LeftButton and not self.pixmap.isNull():
+            a0.accept()
+            self.popup_requested.emit()
+            return
+        super().mouseDoubleClickEvent(a0)
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        if a0 is not None and not self.pixmap.isNull():
+            a0.accept()
+            self.context_menu_requested.emit(a0.globalPos())
 
     def set_image(self, image_data: bytes | None, placeholder: str) -> None:
         image_data = image_data or b''
@@ -298,6 +370,7 @@ class SceneImageDisplay(QWidget):
             pm.loadFromData(image_data)
             pm.setDevicePixelRatio(self.devicePixelRatioF())
         self.pixmap = pm
+        self.updateGeometry()  # the height for width depends on the image aspect ratio
         self.update()
 
     def sizeHint(self) -> QSize:
@@ -318,6 +391,30 @@ class SceneImageDisplay(QWidget):
             r.moveTop(0)  # centered horizontally, aligned with the panel top
             p.drawPixmap(r, self.pixmap, QRectF(self.pixmap.rect()))
         p.end()
+
+
+class StoryView(MomentumScrollMixin, QTextBrowser):
+    # The chapter text display: a text browser with momentum scrolling and
+    # an extra context menu action to copy the current turn.
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.copy_turn_action: QAction | None = None
+
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:
+        MomentumScrollMixin.wheelEvent(self, a0)
+
+    def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
+        if e is None:
+            return
+        m = self.createStandardContextMenu(e.pos())
+        if m is None:
+            return
+        if self.copy_turn_action is not None:
+            m.addSeparator()
+            m.addAction(self.copy_turn_action)
+        m.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        m.exec(e.globalPos())
 
 
 class GameWidget(QWidget):
@@ -368,13 +465,6 @@ class GameWidget(QWidget):
         self.jump_action = toolbar_action(
             'edit-undo.png', _('Jump to turn'), _('Rewind the adventure to an earlier turn, discarding all turns after it'), self.jump_to_turn
         )
-        self.images_action = toolbar_action(
-            'view-image.png',
-            _('Images'),
-            _('Show AI generated pictures of each scene. When turned off, no images are generated for new turns'),
-            self.toggle_images,
-        )
-        self.images_action.setCheckable(True)
         self.exit_action = toolbar_action(
             'back.png', _('New world'), _('Leave this game and return to the world creation screen'), self.exit_to_world_generation
         )
@@ -387,7 +477,7 @@ class GameWidget(QWidget):
         left = QWidget(sp)
         ll = QVBoxLayout(left)
         ll.setContentsMargins(0, 0, 0, 0)
-        self.story_view = sv = QTextBrowser(left)
+        self.story_view = sv = StoryView(left)
         sv.setOpenLinks(False)
         doc = sv.document()
         if doc is not None:  # quick action links are colored but not underlined
@@ -422,16 +512,24 @@ class GameWidget(QWidget):
         sp.addWidget(left)
 
         right = QWidget(sp)
-        rl = QVBoxLayout(right)
+        self.right_panel_layout = rl = QVBoxLayout(right)
         rl.setContentsMargins(0, 0, 0, 0)
         self.scene_image = si = SceneImageDisplay(right)
-        rl.addWidget(si, stretch=10)
+        si.popup_requested.connect(self.show_scene_image_popup)
+        si.context_menu_requested.connect(self.show_scene_image_context_menu)
+        rl.addWidget(si)
         self.condition_label = cl = QLabel(right)
         cl.setWordWrap(True)
         cl.setTextFormat(Qt.TextFormat.RichText)
         rl.addWidget(cl)
+        self.scene_filler = filler = QWidget(right)  # absorbs the leftover space under the condition text when images are shown
+        rl.addWidget(filler, stretch=10)
         self.info_view = iv = QTextBrowser(right)  # shown instead of the image when the image AI is disabled
         rl.addWidget(iv, stretch=10)
+        self.images_check = ic = QCheckBox(_('&Generate images'), right)
+        ic.setToolTip('<p>' + _('Show AI generated pictures of each scene. When turned off, no images are generated for new turns'))
+        ic.clicked.connect(self.toggle_images)  # clicked, not toggled, so programmatic setChecked() does not re-enter
+        rl.addWidget(ic)
         sp.addWidget(right)
         sp.setStretchFactor(0, 3)
         sp.setStretchFactor(1, 1)
@@ -442,6 +540,35 @@ class GameWidget(QWidget):
         self.status_label = sl = QLabel(sb)
         sb.addPermanentWidget(sl)
         l.addWidget(sb)
+
+        # The ornamental divider drawn between turns, pre-scaled for this
+        # screen. It must be re-registered on the story document after every
+        # clear(), as that discards document resources.
+        dpr = self.devicePixelRatioF()
+        src = QImage(get_image_path('scene-divider.png'))
+
+        def scaled_divider(width: int) -> QImage:
+            img = src.scaledToWidth(round(width * dpr), Qt.TransformationMode.SmoothTransformation)
+            img.setDevicePixelRatio(dpr)
+            return img
+
+        self.scene_divider = scaled_divider(SCENE_DIVIDER_WIDTH)
+        self.add_scene_divider_resource(iv, scaled_divider(INFO_DIVIDER_WIDTH))
+
+        self.image_popup = ImagePopup(self)
+        self.copy_image_action = a = QAction(QIcon.ic('edit-copy.png'), _('&Copy image to clipboard'), self)
+        a.setShortcut(QKeySequence('Ctrl+Alt+C', QKeySequence.SequenceFormat.PortableText))
+        a.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        a.triggered.connect(self.copy_scene_image)
+        self.addAction(a)
+        self.popup_image_action = a = QAction(QIcon.ic('view-image.png'), _('&Show image in a popup window'), self)
+        a.triggered.connect(self.show_scene_image_popup)
+        self.copy_turn_action = a = QAction(QIcon.ic('edit-copy.png'), _('Copy current &turn to clipboard'), self)
+        a.setShortcut(QKeySequence('Ctrl+Shift+C', QKeySequence.SequenceFormat.PortableText))
+        a.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        a.triggered.connect(self.copy_current_turn)
+        self.addAction(a)
+        sv.copy_turn_action = a
 
         # Ctrl+1, Ctrl+2, … activate the corresponding quick action link
         for i in range(MAX_QUICK_ACTION_SHORTCUTS):
@@ -484,7 +611,7 @@ class GameWidget(QWidget):
         self.session_cost = 0.0
         self.last_save_name = data.save_name_for_title(state.world.title)
         self.cancel_pending_ai_calls()
-        self.images_action.setChecked(self.images_enabled)
+        self.images_check.setChecked(self.images_enabled)
         self.apply_images_enabled()
         self.prompt_edit.clear()
         self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -512,9 +639,15 @@ class GameWidget(QWidget):
 
     # Story display {{{
 
+    def add_scene_divider_resource(self, view: QTextBrowser, divider: QImage | None = None) -> None:
+        doc = view.document()
+        if doc is not None:
+            doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl(SCENE_DIVIDER_URL), divider if divider is not None else self.scene_divider)
+
     def render_story(self) -> None:
         sv = self.story_view
         sv.clear()
+        self.add_scene_divider_resource(sv)  # clear() discards document resources
         self.turn_positions = []
         state = self.state
         if state is None:
@@ -524,7 +657,7 @@ class GameWidget(QWidget):
         if not state.turns:
             insert_html_block(c, f'<h2>{escape(state.world.title)}</h2>')
             insert_html_block(c, response_to_html(state.world.world_description, ContentType.markdown))
-            insert_html_block(c, '<hr>')
+            insert_scene_divider(c)
             insert_html_block(c, f'<p><b>{_("Win condition")}</b></p>' + response_to_html(state.world.win_condition, ContentType.markdown))
             return
         insert_html_block(c, f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
@@ -532,12 +665,12 @@ class GameWidget(QWidget):
             if t.chapter != state.current_chapter:
                 continue
             if self.turn_positions:
-                insert_html_block(c, '<hr>')
+                insert_scene_divider(c)
             self.turn_positions.append((c.position(), i + 1))
             if t.player_input:
                 insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
             insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
-        insert_html_block(c, '<hr>')
+        insert_scene_divider(c)
         last = state.turns[-1].turn
         if last.outcome is GameOutcome.victory:
             insert_html_block(c, '<p><b>' + _('You have achieved victory!') + '</b></p>')
@@ -599,7 +732,27 @@ class GameWidget(QWidget):
         else:
             QToolTip.hideText()
 
+    def copy_current_turn(self) -> None:
+        # Copy the text of the turn being read, along with the quick actions
+        # when it is the last turn, to the clipboard as plain text.
+        state = self.state
+        tn = self.visible_turn_number()
+        if state is None or not tn:
+            return
+        t = state.turns[tn - 1]
+        parts: list[str] = []
+        if t.player_input:
+            parts.append(f'➤ {t.player_input}')
+        parts.append(t.turn.narrative)
+        if tn == len(state.turns) and t.turn.quick_actions:
+            parts.append(_('Quick actions') + ':\n' + '\n'.join(f'• {a}' for a in t.turn.quick_actions))
+        clipboard = qapplication_or_fail().clipboard()
+        assert clipboard is not None
+        clipboard.setText('\n\n'.join(parts))
+        self.status_bar.showMessage(_('Copied the text of turn {} to the clipboard').format(tn), 5000)
+
     def scroll_to_turn(self, turn_number: int) -> None:
+        self.story_view.stopMomentumScroll()
         for pos, tn in self.turn_positions:
             if tn == turn_number:
                 sv = self.story_view
@@ -655,7 +808,7 @@ class GameWidget(QWidget):
         if not self.images_enabled:
             html = f'<h3>{escape(state.world.title)}</h3>'
             html += response_to_html(state.world.world_description, ContentType.markdown)
-            html += '<hr>' + self.condition_html()
+            html += scene_divider_html() + self.condition_html()
             if html != self.info_view.property('cyoa-html'):  # avoid losing the scroll position on every update
                 self.info_view.setProperty('cyoa-html', html)
                 self.info_view.setHtml(html)
@@ -668,6 +821,41 @@ class GameWidget(QWidget):
             placeholder = _('No picture of this scene is available')
         self.scene_image.set_image(img.data if img else None, placeholder)
         self.condition_label.setText(self.condition_html())
+
+    def displayed_scene_image(self) -> data.SceneImage | None:
+        # The picture of the turn the player is currently reading, if any.
+        tn = self.visible_turn_number()
+        return self.images.get(tn) if tn else None
+
+    def show_scene_image_popup(self) -> None:
+        img = self.displayed_scene_image()
+        if img is None:
+            return
+        pm = QPixmap()
+        if not pm.loadFromData(img.data):
+            return
+        self.image_popup.current_img = pm
+        self.image_popup.current_url = QUrl(data.image_file_name(self.visible_turn_number()))
+        self.image_popup()
+
+    def copy_scene_image(self) -> None:
+        img = self.displayed_scene_image()
+        if img is None:
+            self.status_bar.showMessage(_('There is no picture of the current scene to copy'), 5000)
+            return
+        pm = QPixmap()
+        if pm.loadFromData(img.data):
+            clipboard = qapplication_or_fail().clipboard()
+            assert clipboard is not None
+            clipboard.setPixmap(pm)
+            self.status_bar.showMessage(_('Copied the picture of the scene to the clipboard'), 5000)
+
+    def show_scene_image_context_menu(self, pos: QPoint) -> None:
+        m = QMenu(self.scene_image)
+        m.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        m.addAction(self.copy_image_action)
+        m.addAction(self.popup_image_action)
+        m.exec(pos)
 
     def update_window_title(self) -> None:
         w = self.window()
@@ -802,14 +990,20 @@ class GameWidget(QWidget):
     def apply_images_enabled(self) -> None:
         self.scene_image.setVisible(self.images_enabled)
         self.condition_label.setVisible(self.images_enabled)
+        self.scene_filler.setVisible(self.images_enabled)
         self.info_view.setVisible(not self.images_enabled)
+        # The checkbox sits directly under the scene image when images are
+        # on and at the bottom of the panel, under the world info, when off.
+        rl = self.right_panel_layout
+        rl.removeWidget(self.images_check)
+        rl.insertWidget(1 if self.images_enabled else rl.count(), self.images_check)
         self.update_scene_panel()
 
     def toggle_images(self) -> None:
-        enabled = self.images_action.isChecked()
+        enabled = self.images_check.isChecked()
         if enabled and not data.is_ready('image'):
             if ConfigureImageAIDialog(self).exec() != Dialog.DialogCode.Accepted or not data.is_ready('image'):
-                self.images_action.setChecked(False)
+                self.images_check.setChecked(False)
                 return
         data.mark_image_skipped(not enabled)
         self.images_enabled = enabled

@@ -24,6 +24,7 @@ sizes = {
     'tweak': '256',
     'favicon-192': '192',
     'favicon-512': '512',
+    'scene-divider': 'original',
 }
 
 skip = {'calibre'}

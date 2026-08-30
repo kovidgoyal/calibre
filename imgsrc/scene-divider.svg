@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="30" viewBox="0 0 600 30">
+  <!-- Ornamental divider drawn between scenes in the CYOA game. Rendered at
+       twice its display size for crispness on high DPI screens. The single
+       mid-gray tone keeps it legible on both light and dark backgrounds. -->
+  <defs>
+    <linearGradient id="fade-in" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#888888" stop-opacity="0"/>
+      <stop offset="1" stop-color="#888888" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="fade-out" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#888888" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#888888" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="20" y="14" width="230" height="2" rx="1" fill="url(#fade-in)"/>
+  <rect x="350" y="14" width="230" height="2" rx="1" fill="url(#fade-out)"/>
+  <path d="M300 6 309 15 300 24 291 15Z" fill="none" stroke="#888888" stroke-width="2" stroke-linejoin="round" opacity="0.85"/>
+  <circle cx="300" cy="15" r="2.5" fill="#888888" opacity="0.85"/>
+  <circle cx="272" cy="15" r="2" fill="#888888" opacity="0.7"/>
+  <circle cx="328" cy="15" r="2" fill="#888888" opacity="0.7"/>
+</svg>
