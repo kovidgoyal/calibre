@@ -5,64 +5,10 @@ import base64
 import json
 import re
 from collections import defaultdict
+from datetime import datetime
+from html import escape
 
 from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def range(r_, otxt):
-    return otxt[r_['rangeStart'] : r_['rangeStart'] + r_['rangeLength']]
-
-
-def make_hlinks(zx):
-    otxt = zx['body']['text']
-    txt = otxt
-    if zx['body'].get('inlineTextStyles'):
-        for sty in zx['body']['inlineTextStyles']:
-            rtxt = range(sty, otxt)
-            if 'Italic' in sty['textStyle']['fontName']:
-                txt = txt.replace(rtxt, f'<em>{rtxt}</em>')
-            if 'Bold' in sty['textStyle']['fontName']:
-                txt = txt.replace(rtxt, f'<b>{rtxt}</b>')
-            if sty['textStyle'].get('fontSize', '') == 16:
-                txt = txt.replace(rtxt, f'<b><u>{rtxt}</u></b>')
-    if zx['body'].get('additions'):
-        for ad in zx['body']['additions']:
-            if ad.get('type', '') == 'link' and ad.get('value'):
-                n_txt = range(ad, otxt)
-                lnk = ad['value']
-                lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
-                txt = txt.replace(n_txt, lnk_txt)
-    return txt.replace('\n', '<br>')
-
-
-def make_html(a):
-    typ = a.get('type', '')
-    if typ == 'byline':
-        if 'article-logo' in a['byline'].get('textStyleID', ''):
-            return ''
-        st = ' style="font-size:small;"'
-        return f'<div {st}>{a["byline"]["text"]}</div>'
-    if typ == 'title':
-        return f'<h1>{a["title"]["text"]}</h1>'
-    if typ == 'body':
-        if 'body-h' in a['body'].get('textStyleID', ''):
-            return f'<h4>{a["body"]["text"]}</h4>'
-        if 'article-summary' in a['body'].get('textStyleID', ''):
-            return f'<p><i>{a["body"]["text"]}</i></p>'
-        return f'<p>{make_hlinks(a)}</p>'
-    if typ == 'image':
-        return f'<img src={a["image"]["url"]}>'
-    if typ == 'caption':
-        st = ' style="font-size:small; text-align: center;"'
-        return f'<div {st}>{a["caption"]["text"]}</div>'
-    if typ == 'listelement':
-        return f'<li>{make_hlinks(a)}</li>'
-    if typ == 'dynamicinset':
-        if a.get('webview') and 'datawrapper-chart-' in a['webview']['value']:
-            dw = re.search(r'datawrapper-chart-(.{5})', a['webview']['value']).group(1)
-            return f'<img src=https://datawrapper.dwcdn.net/{dw}/full.png>'
-    return ''
-
 
 keys = [
     'ZXlKaGJHY2lPaUpTVXpJMU5pSjk=',
@@ -71,6 +17,54 @@ keys = [
     'T0RZZ0hBZklvaTdES1drUzhnOEd1bkZOQVhwSkRVT0xkSTJydFFrVEVp',
     'RTNvOTByZFpIdW5QUjdwMFVMalJtSENuRG9mQWRwVFFkSnRUWGpROWVFRFpUMnhvb29WR2RCcG9WS2hF',
 ]
+
+
+def _content_to_html(content):
+    html = ''
+    for node in content or []:
+        if not isinstance(node, dict):
+            continue
+        text = escape(node.get('text', ''))
+        if not text:
+            continue
+        if node.get('type') == 'link' and node.get('uri'):
+            html += f'<a href="{node["uri"]}">{text}</a>'
+        else:
+            html += text
+    return html
+
+
+def _body_to_html(body):
+    html = ''
+    for item in body or []:
+        if not isinstance(item, dict):
+            continue
+        typ = item.get('type', '')
+        if typ == 'paragraph':
+            text = _content_to_html(item.get('content'))
+            if text:
+                html += f'<p>{text}</p>\n'
+        elif typ in ('heading', 'subheading'):
+            text = _content_to_html(item.get('content'))
+            if text:
+                html += f'<h3>{text}</h3>\n'
+        elif typ == 'image':
+            src = item.get('url') or item.get('imageUrl', '')
+            cap_raw = item.get('caption', '')
+            cap = _content_to_html(cap_raw) if isinstance(cap_raw, list) else escape(str(cap_raw or ''))
+            if src:
+                html += f'<figure><img src="{src}"/>'
+                if cap:
+                    html += f'<figcaption>{cap}</figcaption>'
+                html += '</figure>\n'
+        elif typ == 'list':
+            tag = 'ol' if item.get('ordered') else 'ul'
+            html += f'<{tag}>\n'
+            for li in item.get('items') or item.get('content') or []:
+                if isinstance(li, dict):
+                    html += f'<li>{_content_to_html(li.get("content"))}</li>\n'
+            html += f'</{tag}>\n'
+    return html
 
 
 class Barrons(BasicNewsRecipe):
@@ -86,7 +80,13 @@ class Barrons(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.barrons.com/asset/barrons/images/barrons-logo.png'
     resolve_internal_links = True
-    delay = 0.5
+    delay = 1
+
+    extra_css = '''
+        .auth { font-size:small; }
+        .caption { font-size:small; text-align:center; }
+        img { display:block; margin:0 auto; }
+    '''
 
     recipe_specific_options = {
         'date': {
@@ -95,69 +95,127 @@ class Barrons(BasicNewsRecipe):
         },
     }
 
+    def preprocess_raw_html(self, raw, url):
+        html = raw if isinstance(raw, str) else raw.decode('utf-8', errors='ignore')
+        nd_match = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
+        if not nd_match:
+            return html
+        try:
+            j = json.loads(nd_match.group(1))
+            pp = j['props']['pageProps']
+            art = pp.get('articleData', {})
+
+            headline_text = art.get('headline', {})
+            if isinstance(headline_text, dict):
+                headline_text = headline_text.get('text', '')
+
+            byline = art.get('byline', [])
+            byline_text = ''.join(x.get('text', '') for x in byline if isinstance(x, dict)).strip()
+
+            # Subscribers get full body; non-subscribers get snippet (first para only)
+            body = art.get('body') or pp.get('snippet', [])
+
+            out = '<html><body>\n'
+            if headline_text:
+                out += f'<h1>{escape(headline_text)}</h1>\n'
+            if byline_text:
+                out += f'<div class="auth">{escape(byline_text)}</div>\n'
+            out += _body_to_html(body)
+            out += '</body></html>'
+            return out
+        except Exception:
+            return html
+
     def parse_index(self):
+        # Step 1: Use mobile API for archive listing (cover image + edition dates)
         index = 'https://barrons.djmedia.djservices.io'
         theatre = '/apps/barrons/theaters/'
         archive = self.index_to_soup(
             index + theatre + 'magazine-archive?screen_ids=magazine-archive',
             raw=True,
         )
-
         scrn = json.loads(archive)['screens'][0]['frames']
         self.log(
             'Available Editions: ',
             ' | '.join(x['screenIds'][0]['name'][6:] for x in scrn),
         )
+
+        selected = None
         for frme in scrn:
             edition_date = self.recipe_specific_options.get('date')
             if edition_date and isinstance(edition_date, str):
                 nme = frme['screenIds'][0]['name']
                 if edition_date.lower() not in nme.lower():
                     continue
-            nme = frme['screenIds'][0]['name']
-            cid = frme['screenIds'][0]['id']
-            bseurl = frme['baseUrl']
-            self.cover_url = frme['image']['url']
-            self.log('Downloading ', nme)
-            self.timefmt = ' [' + nme[6:] + ']'
+            selected = frme
             break
 
-        feeds_dict = defaultdict(list)
+        if selected is None:
+            selected = scrn[0]
 
-        data = json.loads(self.index_to_soup(index + bseurl, raw=True))
-        for x in data['screens'][0]['frames']:
-            if x['type'] != 'article':
-                continue
-            url = index + theatre + cid + '?screen_ids=' + x['articleId']
-            title = x['title']['text']
-            section = 'Articles'
-            if x.get('label'):
-                section = x['label'].get('text', 'Articles').split('|')[0].strip()
-            desc = ''
-            if x.get('summary'):
-                desc = x['summary']['text']
-            if x.get('byline'):
-                desc = x['byline']['text'] + ' | ' + desc
-            self.log('          ', title, '\n\t', desc)
-            feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
+        nme = selected['screenIds'][0]['name']
+        self.cover_url = selected['image']['url']
+        self.log('Downloading ', nme)
+        self.timefmt = ' [' + nme[6:] + ']'
+
+        # Convert mobile API date to website URL
+        date_text = selected['date']['text']  # e.g. "2026-08-31T04:00:00Z"
+        dt = datetime.strptime(date_text[:10], '%Y-%m-%d')
+        date_str = dt.strftime('%Y%m%d')
+
+        # Step 2: Fetch article list from website __NEXT_DATA__
+        web_url = 'https://www.barrons.com/magazine/' + date_str
+        raw_html = self.index_to_soup(web_url, raw=True).decode('utf-8', errors='ignore')
+        nd_match = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', raw_html, re.DOTALL)
+        if not nd_match:
+            raise ValueError('Could not find article data in Barrons magazine page')
+
+        mag_data = json.loads(nd_match.group(1))['props']['pageProps']['magazineData']
+
+        sections_map = [
+            ('coverArticle', 'Cover Story'),
+            ('featureArticles', 'Features'),
+            ('columnsArticles', 'Columns'),
+            ('departmentsArticles', 'Departments'),
+            ('restArticles', 'More'),
+        ]
+
+        feeds_dict = defaultdict(list)
+        for key, section_name in sections_map:
+            for art in mag_data.get(key, []):
+                if not isinstance(art, dict):
+                    continue
+                url = art.get('url', '')
+                if 'barrons.com/articles/' not in url:
+                    continue
+                url = url.split('?')[0]
+                title = art.get('headline', '')
+                if not title or not url:
+                    continue
+                desc = art.get('summary', '') or ''
+                self.log('          ', title, '\n\t', desc)
+                feeds_dict[section_name].append({'title': title, 'url': url, 'description': desc})
+
         return list(feeds_dict.items())
 
-    def preprocess_raw_html(self, raw, url):
-        rdata = json.loads(raw)
-        body = ''
-        for x in rdata['screens'][0]['frames']:
-            body += '\n' + make_html(x)
-        return '<html><body>' + body.replace(' _', '') + '</body></html>'
-
     def get_browser(self, *args, **kw):
-        kw['user_agent'] = 'okhttp/4.12.0'
+        kw['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         k2 = '.'.join(base64.b64decode(b).decode() for b in keys[:3])
         k3 = '_'.join(base64.b64decode(v).decode() for v in keys[3:])
         br.addheaders += [
             ('Accept-Encoding', 'gzip'),
+            ('Accept-Language', 'en-US,en;q=0.9'),
+            ('Sec-Ch-Ua', '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"'),
+            ('Sec-Ch-Ua-Mobile', '?0'),
+            ('Sec-Ch-Ua-Platform', '"Windows"'),
+            ('Sec-Fetch-Dest', 'document'),
+            ('Sec-Fetch-Mode', 'navigate'),
+            ('Sec-Fetch-Site', 'none'),
+            ('Sec-Fetch-User', '?1'),
+            # Mobile API token (used only for the archive listing)
             ('App-Identifier', 'com.news.screens'),
-            ('App-Version', 1),
+            ('App-Version', '1'),
             ('Device-Type', 'phone'),
             ('Os-Name', 'Android'),
             ('X-Access-Token', k2 + '_' + k3),
@@ -165,4 +223,5 @@ class Barrons(BasicNewsRecipe):
         return br
 
     def populate_article_metadata(self, article, soup, first):
-        article.url = 'https://www.barrons.com/articles/' + article.url.split('=')[-1]
+        if '/articles/' not in article.url:
+            article.url = 'https://www.barrons.com/articles/' + article.url.split('=')[-1]
