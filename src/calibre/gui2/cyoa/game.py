@@ -52,7 +52,7 @@ from qt.core import (
 )
 
 from calibre.ai import ImageGenerationOptions, StructuredOutputResult
-from calibre.ai.cyoa import AIProvider, GameState, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
+from calibre.ai.cyoa import AIProvider, GameOutcome, GameState, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, question_dialog, safe_open_url
@@ -436,9 +436,9 @@ class GameWidget(QWidget):
             c.insertHtml(response_to_html(t.turn.narrative, ContentType.markdown))
         c.insertHtml('<hr>')
         last = state.turns[-1].turn
-        if last.win_condition_met:
+        if last.outcome is GameOutcome.victory:
             c.insertHtml('<p><b>' + _('You have achieved victory!') + '</b></p>')
-        elif last.player_defeated:
+        elif last.outcome is GameOutcome.defeat:
             c.insertHtml('<p><b>' + _('You have been defeated!') + '</b></p>')
         if last.quick_actions:
             items = ''.join(f'<li><a href="{QUICK_ACTION_SCHEME}:{i}">{escape(a)}</a></li>' for i, a in enumerate(last.quick_actions))
@@ -821,7 +821,7 @@ if __name__ == '__main__':
                 ),
                 starts_new_chapter=n > 1 and (n % 4) == 0,
                 chapter_title=f'Chapter of turn {n}' if n > 1 and (n % 4) == 0 else None,
-                win_condition_met=n == 6,
+                outcome=GameOutcome.victory if n == 6 else GameOutcome.undetermined,
             )
             return StructuredOutputResult(data=turn, raw='{}', cost=0.01 * n, currency='USD', provider='fake', model='fake-model')
 
