@@ -47,12 +47,12 @@ class CYOAMainWindow(MainWindow):
             return
         if game_id := data.current_game_id():
             try:
-                state, images = data.load_game(game_id)
+                state, images, npc_portraits = data.load_game(game_id)
             except Exception as e:
                 error_dialog(self, _('Failed to load game'), _('Failed to load the current game: {}').format(e), show=True)
                 data.set_current_game('')
             else:
-                self.game.load_game(game_id, state, images)
+                self.game.load_game(game_id, state, images, npc_portraits)
                 self.stack.setCurrentWidget(self.game)
                 return
         self.world.reset()

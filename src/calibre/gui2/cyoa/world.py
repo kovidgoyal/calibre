@@ -37,7 +37,7 @@ from qt.core import (
 )
 
 from calibre.ai import ImageGenerationOptions, StructuredOutputResult
-from calibre.ai.cyoa import ART_STYLES, GeneratedWorld, PlayerCharacter, character_portrait_prompt, generate_world
+from calibre.ai.cyoa import ART_STYLES, CharacterState, GeneratedWorld, PlayerCharacter, character_portrait_prompt, generate_world
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.cyoa import data
@@ -222,7 +222,7 @@ class CharacterEditor(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        l = QFormLayout(self)
+        self.form_layout = l = QFormLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.name_edit = QLineEdit(self)
@@ -259,11 +259,25 @@ class CharacterEditor(QWidget):
         l.addRow(_('&Description:'), dw)
         self.backstory_edit = MarkdownEdit(self)
         l.addRow(_('&Backstory:'), self.backstory_edit)
+        # Relationships exist only for characters from the story summary,
+        # hidden unless load_state() is used, see set_relationships_visible().
+        self.relationships_edit = MarkdownEdit(self)
+        l.addRow(_('&Relationships:'), self.relationships_edit)
+        self.set_relationships_visible(False)
 
     def load(self, c: PlayerCharacter) -> None:
         self.name_edit.setText(c.name)
         self.description_edit.load(c.description)
         self.backstory_edit.load(c.backstory)
+
+    def load_state(self, c: CharacterState) -> None:
+        # Load a character of the story summary, which additionally tracks
+        # their relationships with the other characters.
+        self.load(PlayerCharacter(name=c.name, description=c.description, backstory=c.backstory))
+        self.relationships_edit.load(c.relationships)
+
+    def set_relationships_visible(self, visible: bool) -> None:
+        self.form_layout.setRowVisible(self.relationships_edit, visible)
 
     def set_portrait_ui_visible(self, visible: bool) -> None:
         self.portrait_panel.setVisible(visible)
@@ -289,6 +303,11 @@ class CharacterEditor(QWidget):
             description=self.description_edit.markdown,
             backstory=self.backstory_edit.markdown,
         )
+
+    @property
+    def character_state(self) -> CharacterState:
+        c = self.character
+        return CharacterState(name=c.name, description=c.description, backstory=c.backstory, relationships=self.relationships_edit.markdown)
 
 
 class WorldEditWidget(QWidget):

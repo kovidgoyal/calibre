@@ -204,9 +204,15 @@ def image_file_name(turn_number: int) -> str:
     return f'turn{turn_number}.webp'
 
 
-def save_game(game_id: str, state: GameState, images: dict[int, SceneImage] | None = None, base: str = '') -> None:
+def save_game(
+    game_id: str, state: GameState, images: dict[int, SceneImage] | None = None, base: str = '', npc_portraits: dict[str, dict[str, str]] | None = None
+) -> None:
     # images maps one based turn number to the picture of that turn's scene.
     # Pictures of turns not in images are deleted, so always pass all of them.
+    # npc_portraits maps the names of the characters the AI introduced during
+    # this game to their portraits as {'mime': mime type, 'data': base64
+    # encoded image data}. They are stored in the game file rather than the
+    # saved world, so that games played in the same world do not share them.
     gf = game_file(game_id, base)
     created = time()
     try:
@@ -224,6 +230,7 @@ def save_game(game_id: str, state: GameState, images: dict[int, SceneImage] | No
         'images': {
             str(k): {'file': image_file_name(k), 'cost': v.cost, 'currency': v.currency, 'provider': v.provider, 'model': v.model} for k, v in images.items()
         },
+        'npc_portraits': npc_portraits or {},
     }
     commit_data(gf, json.dumps(data, ensure_ascii=False, indent=2).encode('utf-8'))
     gdir = game_dir(game_id, base)
@@ -236,7 +243,7 @@ def save_game(game_id: str, state: GameState, images: dict[int, SceneImage] | No
                 os.remove(os.path.join(gdir, x))
 
 
-def load_game(game_id: str, base: str = '') -> tuple[GameState, dict[int, SceneImage]]:
+def load_game(game_id: str, base: str = '') -> tuple[GameState, dict[int, SceneImage], dict[str, dict[str, str]]]:
     with open(game_file(game_id, base), 'rb') as f:
         data = json.load(f)
     if not isinstance(data, dict) or data.get('version') != GAME_FILE_VERSION:
@@ -253,7 +260,11 @@ def load_game(game_id: str, base: str = '') -> tuple[GameState, dict[int, SceneI
         images[int(k)] = SceneImage(
             data=raw, cost=v.get('cost') or 0, currency=v.get('currency') or '', provider=v.get('provider') or '', model=v.get('model') or ''
         )
-    return state, images
+    npc_portraits: dict[str, dict[str, str]] = {}
+    for name, x in (data.get('npc_portraits') or {}).items():
+        if name and isinstance(x, dict) and x.get('mime') and x.get('data'):
+            npc_portraits[str(name)] = x
+    return state, images, npc_portraits
 
 
 def list_games(base: str = '') -> list[SavedGame]:
@@ -428,15 +439,18 @@ def find_tests() -> TestSuite:  # {{{
                     state = start_game('brief', world, world.characters[0])
                     gid = new_game_id(tdir)
                     img1, img2 = SceneImage(data=b'webp1', cost=0.5, currency='USD', provider='prov', model='mod'), SceneImage(data=b'webp2')
-                    save_game(gid, state, {1: img1, 2: img2}, base=tdir)
+                    npc_portrait = {'mime': 'image/webp', 'data': 'abcd'}
+                    save_game(gid, state, {1: img1, 2: img2}, base=tdir, npc_portraits={'Nia': npc_portrait, '': npc_portrait, 'Bad': {'mime': 'image/webp'}})
                     self.assertTrue(os.path.exists(os.path.join(game_dir(gid, tdir), 'turn1.webp')))
-                    loaded, images = load_game(gid, base=tdir)
+                    loaded, images, npc_portraits = load_game(gid, base=tdir)
                     self.ae(state, loaded)
                     self.ae(images, {1: img1, 2: img2})
+                    self.ae(npc_portraits, {'Nia': npc_portrait}, 'invalid NPC portraits must be dropped when reading')
                     self.ae(list_games(base=tdir), [SavedGame(gid, 'Mist City', list_games(base=tdir)[0].updated, 0)])
                     save_game(gid, state, {1: img1}, base=tdir)
                     self.assertFalse(os.path.exists(os.path.join(game_dir(gid, tdir), 'turn2.webp')), 'images of turns not passed to save_game must be deleted')
                     self.ae(load_game(gid, base=tdir)[1], {1: img1})
+                    self.ae(load_game(gid, base=tdir)[2], {}, 'NPC portraits not passed to save_game must be discarded')
                     self.ae(current_game_id(), '')
                     set_current_game(gid)
                     self.ae(current_game_id(), gid)

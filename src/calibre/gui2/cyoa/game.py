@@ -73,7 +73,18 @@ from qt.core import (
 
 from calibre.ai import AICapabilities, ImageGenerationOptions, StructuredOutputResult
 from calibre.ai.config import AIConfigWidget, ConfigureAI
-from calibre.ai.cyoa import AIProvider, GameOutcome, GameState, PlayerCharacter, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
+from calibre.ai.cyoa import (
+    AIProvider,
+    CharacterState,
+    GameOutcome,
+    GameState,
+    PlayerCharacter,
+    deserialize_game,
+    next_turn,
+    rewind,
+    scene_image_prompt,
+    serialize_game,
+)
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, qapplication_or_fail, question_dialog, safe_open_url
@@ -321,29 +332,43 @@ def played_character_index(state: GameState) -> int:
 
 
 class CharactersDialog(Dialog):
-    # Lists the named characters of the world, letting the player edit their
-    # descriptions and backstories mid-game and regenerate their portraits.
-    # The edits are applied to the game state by the caller after the dialog
-    # is accepted, via the characters and portraits attributes.
+    # Lists the characters of the story: the character the player plays,
+    # followed by the named characters the AI introduced during play, taken
+    # from the story summary. The player can edit their descriptions,
+    # backstories and, for the story characters, relationships, mid-game and
+    # (re-)generate their portraits. The edits are applied to the game state
+    # by the caller after the dialog is accepted, via the player_character,
+    # npcs, portraits and npc_portraits attributes.
 
-    portrait_result_received = pyqtSignal(int, int, object)  # (call_number, character index, PortraitResult)
+    portrait_result_received = pyqtSignal(int, int, object)  # (call_number, list row, PortraitResult)
 
-    def __init__(self, state: GameState, parent: QWidget | None = None) -> None:
-        self.characters: list[PlayerCharacter] = list(state.world.characters)
+    def __init__(self, state: GameState, npc_portraits: dict[str, dict[str, str]] | None = None, parent: QWidget | None = None) -> None:
+        self.player_character = state.character
         self.played_idx = played_character_index(state)
-        # Portraits in stored form ({'mime': ..., 'data': base64} or None),
-        # aligned with self.characters, from the saved world of the same
-        # title, where the world creation flow keeps them.
+        # The characters the AI introduced during play, i.e. every character
+        # in the story summary other than the player, with their original
+        # names so that renames can be followed in the stored summaries and
+        # portraits.
+        pname = state.character.name.strip().casefold()
+        self.npcs: list[CharacterState] = [c for c in state.current_summary.characters if c.name.strip().casefold() != pname]
+        self.npc_original_names = [c.name for c in self.npcs]
+        # Portraits in stored form ({'mime': ..., 'data': base64} or None).
+        # The playable characters' portraits come from the saved world of the
+        # same title, aligned with world.characters, where the world creation
+        # flow keeps them. The NPC portraits, keyed by character name, belong
+        # to this game alone and are supplied by the caller, who stores them
+        # in the game file so games in the same world do not share them.
         idx = data.saved_world_index_with_title(state.world.title)
         entry = data.saved_worlds()[idx] if idx > -1 else {}
-        self.portraits: list[dict[str, str] | None] = data.portraits_from_saved(entry, len(self.characters))
+        self.portraits: list[dict[str, str] | None] = data.portraits_from_saved(entry, len(state.world.characters))
+        self.npc_portraits: dict[str, dict[str, str]] = dict(npc_portraits or {})
         self.art_style = state.art_style
         self.world_description = state.world.world_description
         self.images_enabled = data.images_enabled()
         self.current_idx = -1
         # Portrait generation runs one at a time on a background thread:
         # portrait_call identifies the current generation (results from
-        # superseded calls are discarded) and portrait_idx is the index of
+        # superseded calls are discarded) and portrait_idx is the list row of
         # the character whose portrait is being generated.
         self.portrait_counter = count(start=1)
         self.portrait_call = -1
@@ -356,14 +381,18 @@ class CharactersDialog(Dialog):
     def setup_ui(self) -> None:
         l = QVBoxLayout(self)
         self.msg_label = la = QLabel(
-            _('Edit the characters of this world as needed. Changes to the character you are playing as take effect from the next turn.')
+            _(
+                'Edit the characters of the story as needed, changes take effect from the next turn.'
+                ' Note that editing a character that has already interacted with the world for a while'
+                ' is not recommended, as the changes can contradict the story so far.'
+            )
         )
         la.setWordWrap(True)
         l.addWidget(la)
         h = QHBoxLayout()
         self.char_list = cw = QListWidget(self)
-        for i, c in enumerate(self.characters):
-            cw.addItem(self.display_name(i, c.name))
+        for row in range(1 + len(self.npcs)):
+            cw.addItem(self.display_name(row))
         cw.currentRowChanged.connect(self.on_character_changed)
         h.addWidget(cw, stretch=1)
         self.character_editor = ce = CharacterEditor(self)
@@ -376,86 +405,146 @@ class CharactersDialog(Dialog):
         l.addWidget(sl)
         l.addWidget(self.bb)
         self.portrait_result_received.connect(self.on_portrait_result, type=Qt.ConnectionType.QueuedConnection)
-        if self.characters:
-            cw.setCurrentRow(max(0, self.played_idx))
+        cw.setCurrentRow(0)
 
-    def display_name(self, idx: int, name: str) -> str:
-        return _('{} (you)').format(name) if idx == self.played_idx else name
+    def name_for_row(self, row: int) -> str:
+        if row == 0:
+            return self.player_character.name
+        return self.npcs[row - 1].name if 0 < row <= len(self.npcs) else ''
+
+    def display_name(self, row: int) -> str:
+        return _('{} (you)').format(self.name_for_row(row)) if row == 0 else self.name_for_row(row)
 
     def commit_character_edits(self) -> None:
-        if -1 < self.current_idx < len(self.characters):
-            c = self.character_editor.character
-            self.characters[self.current_idx] = c
-            item = self.char_list.item(self.current_idx)
-            if item is not None and c.name:
-                item.setText(self.display_name(self.current_idx, c.name))
+        row = self.current_idx
+        if row == 0:
+            self.player_character = self.character_editor.character
+        elif 0 < row <= len(self.npcs):
+            self.npcs[row - 1] = self.character_editor.character_state
+        else:
+            return
+        item = self.char_list.item(row)
+        if item is not None and self.name_for_row(row):
+            item.setText(self.display_name(row))
 
     def on_character_changed(self, row: int) -> None:
         if row == self.current_idx:
             return
         self.commit_character_edits()
         self.current_idx = row
-        if -1 < row < len(self.characters):
-            self.character_editor.load(self.characters[row])
+        if row == 0:
+            self.character_editor.load(self.player_character)
+        elif 0 < row <= len(self.npcs):
+            self.character_editor.load_state(self.npcs[row - 1])
+        self.character_editor.set_relationships_visible(row > 0)
         self.update_portrait_display()
+        self.maybe_generate_portrait()
+
+    def row_can_have_portrait(self, row: int) -> bool:
+        # The player character's portrait is stored aligned with
+        # world.characters, so it cannot be stored when the played character
+        # is not found there.
+        return (row == 0 and self.played_idx > -1) or 0 < row <= len(self.npcs)
+
+    def portrait_for_row(self, row: int) -> dict[str, str] | None:
+        if row == 0:
+            return self.portraits[self.played_idx] if -1 < self.played_idx < len(self.portraits) else None
+        if 0 < row <= len(self.npcs):
+            return self.npc_portraits.get(self.npc_original_names[row - 1])
+        return None
+
+    def store_portrait(self, row: int, portrait: dict[str, str] | None) -> None:
+        if portrait is None:
+            return
+        if row == 0:
+            if -1 < self.played_idx < len(self.portraits):
+                self.portraits[self.played_idx] = portrait
+        elif 0 < row <= len(self.npcs):
+            self.npc_portraits[self.npc_original_names[row - 1]] = portrait
+
+    def character_for_row(self, row: int) -> PlayerCharacter:
+        if row == 0:
+            return self.player_character
+        c = self.npcs[row - 1]
+        return PlayerCharacter(name=c.name, description=c.description, backstory=c.backstory)
 
     def update_portrait_display(self) -> None:
         if not self.images_enabled:
             return
-        idx = self.current_idx
-        if idx > -1 and idx == self.portrait_idx:
+        row = self.current_idx
+        if row > -1 and row == self.portrait_idx:
             self.character_editor.show_portrait_busy(True)
             return
         self.character_editor.show_portrait_busy(False)
-        p = self.portraits[idx] if -1 < idx < len(self.portraits) else None
+        p = self.portrait_for_row(row)
         self.character_editor.set_portrait(standard_b64decode(p['data']) if p else None)
+
+    def maybe_generate_portrait(self) -> None:
+        # Portraits of characters introduced during play are generated on
+        # demand, the first time their page is opened in this dialog.
+        row = self.current_idx
+        if self.images_enabled and self.portrait_idx == -1 and self.row_can_have_portrait(row) and self.portrait_for_row(row) is None:
+            self.start_portrait_generation(row)
 
     def regenerate_current_portrait(self) -> None:
         self.commit_character_edits()
-        idx = self.current_idx
-        if not self.images_enabled or not (-1 < idx < len(self.characters)):
-            return
         if self.portrait_idx > -1:
             self.status_label.setText(_('A portrait is already being generated, please wait.'))
+            return
+        self.start_portrait_generation(self.current_idx)
+
+    def start_portrait_generation(self, row: int) -> None:
+        if not self.images_enabled or not self.row_can_have_portrait(row):
             return
         plugin = data.plugin_for('image')
         if plugin is None:
             return
         self.status_label.setText('')
         self.portrait_call = next(self.portrait_counter)
-        self.portrait_idx = idx
+        self.portrait_idx = row
         Thread(
-            name='CYOACharacterPortrait', daemon=True, target=self.do_generate_portrait, args=(self.characters[idx], idx, self.portrait_call, plugin)
+            name='CYOACharacterPortrait', daemon=True, target=self.do_generate_portrait, args=(self.character_for_row(row), row, self.portrait_call, plugin)
         ).start()
         self.update_portrait_display()
 
-    def do_generate_portrait(self, character: PlayerCharacter, idx: int, call_number: int, plugin: AIProviderPlugin) -> None:
+    def do_generate_portrait(self, character: PlayerCharacter, row: int, call_number: int, plugin: AIProviderPlugin) -> None:
         try:
             pr = generate_portrait(character, self.art_style, self.world_description, plugin)
             if sip.isdeleted(self):
                 return
-            self.portrait_result_received.emit(call_number, idx, pr)
+            self.portrait_result_received.emit(call_number, row, pr)
         except RuntimeError:
             pass  # when self gets deleted between call to sip.isdeleted and next statement
 
-    def on_portrait_result(self, call_number: int, idx: int, pr: PortraitResult) -> None:
+    def on_portrait_result(self, call_number: int, row: int, pr: PortraitResult) -> None:
         if call_number != self.portrait_call:
             return  # a stale result from a superseded or cancelled call
         self.portrait_call = -1
         self.portrait_idx = -1
         if pr.error:
-            name = self.characters[idx].name if idx < len(self.characters) else ''
-            self.status_label.setText(_('Failed to generate a portrait for {0}: {1}').format(name, pr.error))
+            self.status_label.setText(_('Failed to generate a portrait for {0}: {1}').format(self.name_for_row(row), pr.error))
             self.status_label.setToolTip(pr.error_details)
-        elif idx < len(self.portraits):
-            self.portraits[idx] = pr.portrait
+        else:
+            self.store_portrait(row, pr.portrait)
         self.update_portrait_display()
+        # the player may have switched to another character without a
+        # portrait while this one was being generated
+        self.maybe_generate_portrait()
 
     def accept(self) -> None:
         self.commit_character_edits()
-        if any(not c.name for c in self.characters):
+        if not self.player_character.name or any(not c.name for c in self.npcs):
             error_dialog(self, _('No character name'), _('Every character must have a name.'), show=True)
             return
+        # Re-key the NPC portraits by the possibly renamed character names,
+        # preserving portraits of characters not shown in this dialog, e.g.
+        # ones no longer in the current summary after rewinding the game.
+        shown = set(self.npc_original_names)
+        portraits = {name: p for name, p in self.npc_portraits.items() if name not in shown}
+        for c, original_name in zip(self.npcs, self.npc_original_names):
+            if p := self.npc_portraits.get(original_name):
+                portraits[c.name] = p
+        self.npc_portraits = portraits
         super().accept()
 
 
@@ -583,6 +672,9 @@ class GameWidget(QWidget):
         self.game_id = ''
         self.state: GameState | None = None
         self.images: dict[int, data.SceneImage] = {}  # keyed by one based turn number
+        # Portraits of the characters the AI introduced during this game,
+        # keyed by character name, saved as part of the game.
+        self.npc_portraits: dict[str, dict[str, str]] = {}
         self.images_enabled = False
         self.session_cost = 0.0
         self.last_save_name = ''
@@ -626,7 +718,7 @@ class GameWidget(QWidget):
             self.back_to_turn,
         )
         self.characters_action = toolbar_action(
-            'user_profile.png', _('Characters'), _('View and edit the characters of this world and their portraits'), self.edit_characters
+            'user_profile.png', _('Characters'), _('View and edit the characters of the story and their portraits'), self.edit_characters
         )
         self.exit_action = toolbar_action(
             'back.png', _('New world'), _('Leave this game and return to the world creation screen'), self.exit_to_world_generation
@@ -776,10 +868,13 @@ class GameWidget(QWidget):
         if self.splitter_state_restored:  # ignore programmatic moves during initial layout
             data.save_game_splitter_state(bytes(self.splitter.saveState()))
 
-    def load_game(self, game_id: str, state: GameState, images: dict[int, data.SceneImage] | None = None) -> None:
+    def load_game(
+        self, game_id: str, state: GameState, images: dict[int, data.SceneImage] | None = None, npc_portraits: dict[str, dict[str, str]] | None = None
+    ) -> None:
         self.game_id = game_id
         self.state = state
         self.images = dict(images or {})
+        self.npc_portraits = dict(npc_portraits or {})
         self.images_enabled = data.images_enabled()
         self.session_cost = 0.0
         self.last_save_name = data.save_name_for_title(state.world.title)
@@ -1294,7 +1389,7 @@ class GameWidget(QWidget):
         if not self.game_id or self.state is None:
             return
         try:
-            data.save_game(self.game_id, self.state, self.images)
+            data.save_game(self.game_id, self.state, self.images, npc_portraits=self.npc_portraits)
         except Exception as e:
             self.status_bar.showMessage(_('Failed to auto-save the game: {}').format(e), 10000)
 
@@ -1306,7 +1401,7 @@ class GameWidget(QWidget):
             return
         name = d.save_name
         try:
-            data.save_game(name, self.state, self.images, base=data.saves_dir())
+            data.save_game(name, self.state, self.images, base=data.saves_dir(), npc_portraits=self.npc_portraits)
         except Exception as e:
             error_dialog(self, _('Failed to save game'), _('Failed to save the game: {}').format(e), show=True)
             return
@@ -1322,13 +1417,14 @@ class GameWidget(QWidget):
         ):
             return
         try:
-            state, images = data.load_game(d.save_name, base=data.saves_dir())
+            state, images, npc_portraits = data.load_game(d.save_name, base=data.saves_dir())
         except Exception as e:
             error_dialog(self, _('Failed to load game'), _('Failed to load the saved game "{0}": {1}').format(d.save_name, e), show=True)
             return
         self.cancel_pending_ai_calls()
         self.state = state
         self.images = images
+        self.npc_portraits = npc_portraits
         self.last_save_name = d.save_name
         self.autosave()
         self.refresh_ui()
@@ -1388,16 +1484,27 @@ class GameWidget(QWidget):
         state = self.state
         if state is None:
             return
-        d = CharactersDialog(state, self)
+        d = CharactersDialog(state, self.npc_portraits, self)
         if d.exec() != Dialog.DialogCode.Accepted:
             return
-        chars = tuple(d.characters)
-        played_idx = played_character_index(state)
-        state.world = state.world._replace(characters=chars)
-        if -1 < played_idx < len(chars):
-            state.character = chars[played_idx]
+        self.npc_portraits = d.npc_portraits
+        state.character = d.player_character
+        if -1 < d.played_idx < len(state.world.characters):
+            chars = list(state.world.characters)
+            chars[d.played_idx] = d.player_character
+            state.world = state.world._replace(characters=tuple(chars))
+        # Apply the NPC edits to the summaries of all stored turns, matching
+        # by the original names, so the edits survive rewinding the game.
+        if edits := dict(zip(d.npc_original_names, d.npcs)):
+            for i, t in enumerate(state.turns):
+                s = t.turn.updated_summary
+                characters = tuple(edits.get(c.name, c) for c in s.characters)
+                if characters != s.characters:
+                    state.turns[i] = t._replace(turn=t.turn._replace(updated_summary=s._replace(characters=characters)))
         if self.game_id:  # an empty game_id means a test/demo that must not touch the config directory
-            # keep the saved world, where portraits live, in sync with the edits
+            # keep the saved world, where the playable characters' portraits
+            # live, in sync with the edits; NPC portraits are saved with the
+            # game by autosave()
             data.add_saved_world(state.brief, state.world, state.art_style, d.portraits)
             self.autosave()
         self.status_bar.showMessage(_('Changes to the characters will be used from the next turn'), 5000)
@@ -1425,7 +1532,10 @@ if __name__ == '__main__':
                 updated_summary=StorySummary(
                     world='A city lost in mist.',
                     major_events=tuple(f'event {i}' for i in range(1, n + 1)),
-                    characters=(CharacterState('Ada', 'the player', 'alone so far'),),
+                    characters=(
+                        CharacterState('Ada', 'the player', 'She built the mist engines.', 'alone so far'),
+                        CharacterState('Marlo', 'a mist-runner who guides travelers', 'He grew up in the tunnels under the city.', "wary of Ada's engines"),
+                    ),
                     current_situation='In the mist.',
                     upcoming_events=('The mist thickens.',),
                 ),

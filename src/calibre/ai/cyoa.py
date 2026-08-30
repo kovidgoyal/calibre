@@ -64,6 +64,7 @@ class CharacterState(NamedTuple):
     doc = Doc('The current state of a significant character in the story')
     name: str
     description: Annotated[str, 'Who this character is and their current status']
+    backstory: Annotated[str, "The character's brief backstory: who they are and how they came to be part of the story"]
     relationships: Annotated[str, 'Their relationships with the player and the other characters']
 
 
@@ -71,7 +72,9 @@ class StorySummary(NamedTuple):
     doc = Doc('A summary of the story so far, serving as memory for continuing it')
     world: Annotated[str, 'Description of the world and its current state']
     major_events: Annotated[tuple[str, ...], 'The major events of the story so far, in chronological order']
-    characters: Annotated[tuple[CharacterState, ...], 'All significant characters in the story and their relationships']
+    characters: Annotated[
+        tuple[CharacterState, ...], 'All significant named characters in the story, each with a description, brief backstory and their relationships'
+    ]
     current_situation: Annotated[str, 'Where the player currently is and what is happening']
     upcoming_events: Annotated[tuple[str, ...], 'Foreshadowed or planned future events and unresolved plot threads']
 
@@ -129,7 +132,7 @@ def initial_summary(world: GeneratedWorld, character: PlayerCharacter) -> StoryS
     return StorySummary(
         world=world.world_description,
         major_events=(),
-        characters=(CharacterState(name=character.name, description=character.description, relationships=''),),
+        characters=(CharacterState(name=character.name, description=character.description, backstory=character.backstory, relationships=''),),
         current_situation='The adventure has not yet begun.',
         upcoming_events=(),
     )
@@ -341,6 +344,9 @@ def turn_instructions(state: GameState) -> str:
         (
             "- updated_summary: the story summary updated with this turn's events."
             ' Preserve all information that is still relevant, including characters, relationships and unresolved plot threads, and keep it concise.'
+            ' Whenever the narrative introduces a new named character, add an entry for them to the characters field of the summary'
+            ' with a short description and a brief backstory.'
+            " Keep existing characters' descriptions, backstories and relationships up to date as the story evolves."
         ),
         '- starts_new_chapter: true only when this turn begins a major new phase of the story, with chapter_title naming the new chapter.',
         (
@@ -543,7 +549,7 @@ def find_tests() -> TestSuite:  # {{{
         return StorySummary(
             world='A city lost in mist.',
             major_events=events,
-            characters=(CharacterState('Ada', 'the player', 'alone so far'),),
+            characters=(CharacterState('Ada', 'the player', 'built the mist engines', 'alone so far'),),
             current_situation='In the mist.',
             upcoming_events=('The mist thickens.',),
         )
@@ -624,6 +630,8 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn(state.world.world_description, instructions)
             self.assertIn(state.character.backstory, instructions)
             self.assertIn(state.world.win_condition, instructions)
+            self.assertIn('new named character', instructions, 'the AI must be told to add a bio for every newly introduced named character')
+            self.assertIn('brief backstory', instructions, "new characters' bios must include a brief backstory")
             self.ae(len(state.turns), 1)
             self.ae(state.turns[0].chapter, 0)
             self.ae(state.turns[0].raw_response, '{"raw": "json"}')
