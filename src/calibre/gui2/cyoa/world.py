@@ -137,6 +137,16 @@ PREMADE_WORLDS = (
         'digital-painting',
     ),
     PremadeWorld(
+        _('Abbasid Caliphate'),
+        (
+            'Baghdad at the height of the Abbasid Caliphate, the glittering heart of the Islamic'
+            ' Golden Age: bustling bazaars, the scholars of the House of Wisdom, caravans on the'
+            ' Silk Road and palace intrigue in the court of the Caliph. A famed treatise has vanished'
+            ' from the House of Wisdom, and whispers in the souk say its loss conceals a plot against the throne.'
+        ),
+        'digital-painting',
+    ),
+    PremadeWorld(
         _('Regency intrigue'),
         (
             'London high society at the height of the Regency era: glittering balls, arranged'
