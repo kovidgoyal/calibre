@@ -41,24 +41,25 @@ class CYOAMainWindow(MainWindow):
         return QSize(1000, 720)
 
     def show_appropriate_page(self) -> None:
+        self.setWindowTitle(_('Create Your Own Adventure'))
         if not data.is_ready('text'):
             self.stack.setCurrentWidget(self.welcome)
             return
         if game_id := data.current_game_id():
             try:
-                state, _images = data.load_game(game_id)
+                state, images = data.load_game(game_id)
             except Exception as e:
                 error_dialog(self, _('Failed to load game'), _('Failed to load the current game: {}').format(e), show=True)
                 data.set_current_game('')
             else:
-                self.game.load_game(game_id, state)
+                self.game.load_game(game_id, state, images)
                 self.stack.setCurrentWidget(self.game)
                 return
         self.world.reset()
         self.stack.setCurrentWidget(self.world)
 
-    def start_new_game(self, world: GeneratedWorld, character: PlayerCharacter, brief: str) -> None:
-        state = start_game(brief, world, character)
+    def start_new_game(self, world: GeneratedWorld, character: PlayerCharacter, brief: str, art_style: str) -> None:
+        state = start_game(brief, world, character, art_style)
         game_id = data.new_game_id()
         data.save_game(game_id, state)
         data.set_current_game(game_id)

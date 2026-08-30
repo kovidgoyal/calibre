@@ -594,7 +594,7 @@ class WorldEditWidget(QWidget):
 
 class CreateWorldWidget(QWidget):
     result_received = pyqtSignal(int, object)
-    game_start_requested = pyqtSignal(object, object, str)  # (GeneratedWorld, PlayerCharacter, brief)
+    game_start_requested = pyqtSignal(object, object, str, str)  # (GeneratedWorld, PlayerCharacter, brief, art style key)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -818,7 +818,7 @@ class CreateWorldWidget(QWidget):
     def on_start_requested(self, world: GeneratedWorld, character: PlayerCharacter) -> None:
         # remember the world so more adventures can be played in it later
         data.add_saved_world(self.world_edit.brief, world, self.world_edit.current_art_style, self.world_edit.portraits)
-        self.game_start_requested.emit(world, character, self.world_edit.brief)
+        self.game_start_requested.emit(world, character, self.world_edit.brief, self.world_edit.current_art_style)
 
 
 if __name__ == '__main__':
@@ -826,7 +826,7 @@ if __name__ == '__main__':
 
     app = Application([])
     w = CreateWorldWidget()
-    w.game_start_requested.connect(lambda world, character, brief: print('start playing:', world.title, 'as', character.name))
+    w.game_start_requested.connect(lambda world, character, brief, art_style: print('start playing:', world.title, 'as', character.name))
     w.resize(900, 600)
     w.show()
     app.exec()
