@@ -506,7 +506,7 @@ class GameWidget(QWidget):
         ib.clicked.connect(self.interesting_event)
         h.addWidget(ib), h.addStretch()
         il.addLayout(h)
-        self.input_stack = ws = WaitStack(_('The AI is writing what happens next…'), after=input_panel, parent=left, size=64)
+        self.input_stack = ws = WaitStack(_('Thinking, please wait…'), after=input_panel, parent=left, size=64)
         ws.stop()
         ll.addWidget(ws)
         sp.addWidget(left)
