@@ -6,8 +6,8 @@
 # box below it to enter the action to take. A picture of the scene currently
 # scrolled into view is shown on the right, when an image AI is configured.
 # The game is auto-saved after every turn; the toolbar allows saving under a
-# name of the player's choosing, loading such saves, rewinding and starting
-# over in a new world.
+# name of the player's choosing, loading such saves, rewinding, turning
+# scene images on/off and starting over in a new world.
 
 import os
 from collections.abc import Callable
@@ -51,7 +51,8 @@ from qt.core import (
     sip,
 )
 
-from calibre.ai import ImageGenerationOptions, StructuredOutputResult
+from calibre.ai import AICapabilities, ImageGenerationOptions, StructuredOutputResult
+from calibre.ai.config import AIConfigWidget, ConfigureAI
 from calibre.ai.cyoa import AIProvider, GameOutcome, GameState, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
@@ -204,6 +205,42 @@ class LoadGameDialog(Dialog):
 # }}}
 
 
+class ConfigureImageAIDialog(Dialog):
+    # Asks the player to configure the AI used to generate pictures of each
+    # scene, saving the settings the same way as the welcome screen.
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(_('Configure image AI'), 'cyoa-configure-image-ai', parent)
+
+    def setup_ui(self) -> None:
+        l = QVBoxLayout(self)
+        self.msg_label = la = QLabel(
+            '<p>' + _('No AI for image generation has been configured for the game. To show pictures of each scene, configure one below:')
+        )
+        la.setWordWrap(True)
+        l.addWidget(la)
+        # Construct the provider config widget inside the CYOA settings
+        # overlay so it displays the settings used for the game, with API
+        # keys falling through to the common AI preferences.
+        with data.cyoa_ai_settings():
+            self.image_config = ic = ConfigureAI(
+                AICapabilities.text_to_image,
+                parent=self,
+                save_hook=self.save_image_settings,
+                initial_provider_name=data.configured_provider_name('image'),
+            )
+        l.addWidget(ic)
+        l.addWidget(self.bb)
+
+    def save_image_settings(self, plugin: AIProviderPlugin, config_widget: AIConfigWidget) -> None:
+        data.save_ai_settings('image', plugin.name, config_widget.settings)
+
+    def accept(self) -> None:
+        if not self.image_config.commit():
+            return
+        super().accept()
+
+
 class PromptEdit(QPlainTextEdit):
     # The box the player types their next action into. Ctrl+Enter submits.
     submit_requested = pyqtSignal()
@@ -309,6 +346,13 @@ class GameWidget(QWidget):
         self.jump_action = toolbar_action(
             'edit-undo.png', _('Jump to turn'), _('Rewind the adventure to an earlier turn, discarding all turns after it'), self.jump_to_turn
         )
+        self.images_action = toolbar_action(
+            'view-image.png',
+            _('Images'),
+            _('Show AI generated pictures of each scene. When turned off, no images are generated for new turns'),
+            self.toggle_images,
+        )
+        self.images_action.setCheckable(True)
         self.exit_action = toolbar_action(
             'back.png', _('New world'), _('Leave this game and return to the world creation screen'), self.exit_to_world_generation
         )
@@ -382,9 +426,8 @@ class GameWidget(QWidget):
         self.session_cost = 0.0
         self.last_save_name = data.save_name_for_title(state.world.title)
         self.cancel_pending_ai_calls()
-        self.scene_image.setVisible(self.images_enabled)
-        self.condition_label.setVisible(self.images_enabled)
-        self.info_view.setVisible(not self.images_enabled)
+        self.images_action.setChecked(self.images_enabled)
+        self.apply_images_enabled()
         self.prompt_edit.clear()
         self.refresh_ui()
         if not state.turns:
@@ -651,6 +694,30 @@ class GameWidget(QWidget):
     # }}}
 
     # Scene image generation {{{
+
+    def apply_images_enabled(self) -> None:
+        self.scene_image.setVisible(self.images_enabled)
+        self.condition_label.setVisible(self.images_enabled)
+        self.info_view.setVisible(not self.images_enabled)
+        self.update_scene_panel()
+
+    def toggle_images(self) -> None:
+        enabled = self.images_action.isChecked()
+        if enabled and not data.is_ready('image'):
+            if ConfigureImageAIDialog(self).exec() != Dialog.DialogCode.Accepted or not data.is_ready('image'):
+                self.images_action.setChecked(False)
+                return
+        data.mark_image_skipped(not enabled)
+        self.images_enabled = enabled
+        if not enabled:
+            # Discard any in-flight image generation, its result no longer
+            # matches image_call when it arrives.
+            self.image_call = -1
+            self.image_turn = -1
+        self.apply_images_enabled()
+        state = self.state
+        if enabled and state is not None and state.turns and len(state.turns) not in self.images:
+            self.request_image(len(state.turns))
 
     def request_image(self, turn_number: int) -> None:
         state = self.state
