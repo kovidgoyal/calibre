@@ -672,20 +672,20 @@ def ensure_selection_boundary_visible(use_end):
                 # Scroll the end of the selection to one line inside the
                 # viewport start, the line_height() adjustment keeps the
                 # boundary line itself visible
-                if x_end < 0 or x_end >= inline_limit:
+                if x_end < 0 or x_end > inline_limit:
                     x = scroll_viewport.viewport_to_document_inline(x_end, doc=node.ownerDocument) - line_height()
                     scroll_viewport.scroll_to_in_inline_direction(x, True)
-                if y_end < 0 or y_end >= block_limit:
+                if y_end < 0 or y_end > block_limit:
                     y = scroll_viewport.viewport_to_document_block(y_end, doc=node.ownerDocument) - line_height()
                     scroll_viewport.scroll_to_in_block_direction(y, True)
             else:
                 # Scroll if any part of the selection is not visible, so that
                 # a selection running past the viewport end is brought into
                 # view, keeping one line of context before the selection start
-                if x_beg < 0 or x_beg >= inline_limit or x_end < 0 or x_end >= inline_limit:
+                if x_beg < 0 or x_beg > inline_limit or x_end < 0 or x_end > inline_limit:
                     x = scroll_viewport.viewport_to_document_inline(x_beg, doc=node.ownerDocument) - line_height()
                     scroll_viewport.scroll_to_in_inline_direction(x, True)
-                if y_beg < 0 or y_beg >= block_limit or y_end < 0 or y_end >= block_limit:
+                if y_beg < 0 or y_beg > block_limit or y_end < 0 or y_end > block_limit:
                     y = scroll_viewport.viewport_to_document_block(y_beg, doc=node.ownerDocument) - line_height()
                     scroll_viewport.scroll_to_in_block_direction(y, True)
 
