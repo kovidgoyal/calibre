@@ -56,7 +56,18 @@ def prefs() -> JSONConfig:
     ans.defaults['image_skipped'] = False
     ans.defaults['worlds'] = []
     ans.defaults['current_game'] = ''
+    ans.defaults['game_splitter_state'] = None
     return ans
+
+
+def save_game_splitter_state(raw: bytes) -> None:
+    # The position of the splitter between the story and scene panels of the
+    # game widget, remembered across sessions.
+    prefs().set('game_splitter_state', bytearray(raw))
+
+
+def game_splitter_state() -> bytes:
+    return bytes(prefs()['game_splitter_state'] or b'')
 
 
 def cyoa_dir() -> str:

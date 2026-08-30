@@ -11,6 +11,7 @@
 
 import os
 from collections.abc import Callable
+from functools import partial
 from html import escape
 from itertools import count
 from threading import Thread
@@ -19,11 +20,13 @@ from typing import NamedTuple
 
 from qt.core import (
     QAction,
+    QCursor,
     QDialogButtonBox,
     QHBoxLayout,
     QIcon,
     QInputDialog,
     QKeyEvent,
+    QKeySequence,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -35,15 +38,20 @@ from qt.core import (
     QPoint,
     QPushButton,
     QRectF,
+    QShortcut,
+    QShowEvent,
     QSize,
     QSizeF,
     QSplitter,
     QStatusBar,
     Qt,
+    QTextBlockFormat,
     QTextBrowser,
+    QTextCharFormat,
     QTextCursor,
     QTextOption,
     QToolBar,
+    QToolTip,
     QUrl,
     QVBoxLayout,
     QWidget,
@@ -64,6 +72,8 @@ from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, ngettext
 
 QUICK_ACTION_SCHEME = 'quick-action'
+# Quick action number i is activated by pressing Ctrl+(i+1)
+MAX_QUICK_ACTION_SHORTCUTS = 9
 SAVE_NAME_ROLE = Qt.ItemDataRole.UserRole
 # Scene images are stored downscaled to fit this many pixels in either
 # dimension, keeping saved games reasonably small.
@@ -72,6 +82,17 @@ SCENE_IMAGE_SIZE = 1280
 
 def fmt_cost(cost: float, currency: str) -> str:
     return f'{cost:.4f} {currency}'.strip()
+
+
+def insert_html_block(c: QTextCursor, html: str) -> None:
+    # QTextCursor.insertHtml() merges the first block of the fragment into
+    # the current block, which inherits its block format. Sequential calls
+    # thus run text into the preceding heading and attach the ruler of a
+    # preceding <hr> to the following paragraph, so start every fragment in
+    # a fresh block with default formatting.
+    if c.position():
+        c.insertBlock(QTextBlockFormat(), QTextCharFormat())
+    c.insertHtml(html)
 
 
 def fmt_timestamp(ts: float) -> str:
@@ -294,6 +315,7 @@ class SceneImageDisplay(QWidget):
             sz.scale(QSizeF(self.size()), Qt.AspectRatioMode.KeepAspectRatio)
             r = QRectF(0, 0, sz.width(), sz.height())
             r.moveCenter(QRectF(self.rect()).center())
+            r.moveTop(0)  # centered horizontally, aligned with the panel top
             p.drawPixmap(r, self.pixmap, QRectF(self.pixmap.rect()))
         p.end()
 
@@ -360,12 +382,18 @@ class GameWidget(QWidget):
 
         self.splitter = sp = QSplitter(self)
         sp.setChildrenCollapsible(False)
+        self.splitter_state_restored = False
+        sp.splitterMoved.connect(self.save_splitter_state, type=Qt.ConnectionType.QueuedConnection)
         left = QWidget(sp)
         ll = QVBoxLayout(left)
         ll.setContentsMargins(0, 0, 0, 0)
         self.story_view = sv = QTextBrowser(left)
         sv.setOpenLinks(False)
+        doc = sv.document()
+        if doc is not None:  # quick action links are colored but not underlined
+            doc.setDefaultStyleSheet('a { text-decoration: none }')
         sv.anchorClicked.connect(self.on_link_clicked)
+        sv.highlighted.connect(self.on_link_hovered)
         vsb = sv.verticalScrollBar()
         if vsb is not None:
             vsb.valueChanged.connect(self.on_story_scrolled)
@@ -415,8 +443,38 @@ class GameWidget(QWidget):
         sb.addPermanentWidget(sl)
         l.addWidget(sb)
 
+        # Ctrl+1, Ctrl+2, … activate the corresponding quick action link
+        for i in range(MAX_QUICK_ACTION_SHORTCUTS):
+            sc = QShortcut(QKeySequence(f'Ctrl+{i + 1}'), self)
+            sc.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+            sc.activated.connect(partial(self.activate_quick_action, i))
+
+        # Focus given to this widget, e.g. when it becomes the visible page
+        # of the main window, goes to the box the player types into.
+        self.setFocusProxy(self.prompt_edit)
+
         self.turn_result_received.connect(self.on_turn_result, type=Qt.ConnectionType.QueuedConnection)
         self.image_result_received.connect(self.on_image_result, type=Qt.ConnectionType.QueuedConnection)
+
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        super().showEvent(a0)
+        if not self.splitter_state_restored:
+            self.splitter_state_restored = True
+            if state := data.game_splitter_state():
+                self.splitter.restoreState(state)
+            else:
+                # With no saved state, make the scene panel wide enough to
+                # show a 4:3 scene image using most of the panel height
+                # (leaving room for the condition text under it), while
+                # keeping the majority of the width for the story.
+                total = self.splitter.width()
+                image_height = int(self.splitter.height() * 0.75)
+                image_width = max(250, min(int(image_height * 4 / 3), int(total * 0.45)))
+                self.splitter.setSizes([total - image_width, image_width])
+
+    def save_splitter_state(self) -> None:
+        if self.splitter_state_restored:  # ignore programmatic moves during initial layout
+            data.save_game_splitter_state(bytes(self.splitter.saveState()))
 
     def load_game(self, game_id: str, state: GameState, images: dict[int, data.SceneImage] | None = None) -> None:
         self.game_id = game_id
@@ -429,6 +487,7 @@ class GameWidget(QWidget):
         self.images_action.setChecked(self.images_enabled)
         self.apply_images_enabled()
         self.prompt_edit.clear()
+        self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
         self.refresh_ui()
         if not state.turns:
             self.request_turn('')  # the opening turn of a new game
@@ -463,44 +522,82 @@ class GameWidget(QWidget):
         c = sv.textCursor()
         c.movePosition(QTextCursor.MoveOperation.End)
         if not state.turns:
-            c.insertHtml(f'<h2>{escape(state.world.title)}</h2>')
-            c.insertHtml(response_to_html(state.world.world_description, ContentType.markdown))
-            c.insertHtml(f'<hr><p><b>{_("Win condition")}</b></p>' + response_to_html(state.world.win_condition, ContentType.markdown))
+            insert_html_block(c, f'<h2>{escape(state.world.title)}</h2>')
+            insert_html_block(c, response_to_html(state.world.world_description, ContentType.markdown))
+            insert_html_block(c, '<hr>')
+            insert_html_block(c, f'<p><b>{_("Win condition")}</b></p>' + response_to_html(state.world.win_condition, ContentType.markdown))
             return
-        c.insertHtml(f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
+        insert_html_block(c, f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
         for i, t in enumerate(state.turns):
             if t.chapter != state.current_chapter:
                 continue
             if self.turn_positions:
-                c.insertHtml('<hr>')
+                insert_html_block(c, '<hr>')
             self.turn_positions.append((c.position(), i + 1))
             if t.player_input:
-                c.insertHtml(f'<p><i>➤ {escape(t.player_input)}</i></p>')
-            c.insertHtml(response_to_html(t.turn.narrative, ContentType.markdown))
-        c.insertHtml('<hr>')
+                insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
+            insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
+        insert_html_block(c, '<hr>')
         last = state.turns[-1].turn
         if last.outcome is GameOutcome.victory:
-            c.insertHtml('<p><b>' + _('You have achieved victory!') + '</b></p>')
+            insert_html_block(c, '<p><b>' + _('You have achieved victory!') + '</b></p>')
         elif last.outcome is GameOutcome.defeat:
-            c.insertHtml('<p><b>' + _('You have been defeated!') + '</b></p>')
+            insert_html_block(c, '<p><b>' + _('You have been defeated!') + '</b></p>')
         if last.quick_actions:
-            items = ''.join(f'<li><a href="{QUICK_ACTION_SCHEME}:{i}">{escape(a)}</a></li>' for i, a in enumerate(last.quick_actions))
-            c.insertHtml('<p>' + _('Quick actions:') + f'</p><ul>{items}</ul>')
+            # each action in its own paragraph with a top margin, giving
+            # enough space between the links to click them comfortably
+            items = ''.join(
+                f'<p style="margin-top: 8px; margin-left: 16px"><a href="{QUICK_ACTION_SCHEME}:{i}">{escape(a)}</a></p>'
+                for i, a in enumerate(last.quick_actions)
+            )
+            insert_html_block(c, f'<h4>{_("Quick actions")}</h4>' + items)
+
+    def quick_action(self, action_number: int) -> str:
+        # The text of the zero based action_number quick action of the last
+        # turn, empty when there is no such action.
+        if self.state is None or not self.state.turns:
+            return ''
+        actions = self.state.turns[-1].turn.quick_actions
+        return actions[action_number] if 0 <= action_number < len(actions) else ''
+
+    def activate_quick_action(self, action_number: int) -> None:
+        # Put the quick action into the prompt box, submitting it when it is
+        # already there, so that activating an action twice plays it.
+        action = self.quick_action(action_number)
+        if not action:
+            return
+        if self.prompt_edit.toPlainText().strip() == action:
+            self.take_action()
+            return
+        self.prompt_edit.setPlainText(action)
+        self.prompt_edit.moveCursor(QTextCursor.MoveOperation.End)
+        self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def on_link_clicked(self, url: QUrl) -> None:
         if url.scheme() != QUICK_ACTION_SCHEME:
             safe_open_url(url)
             return
-        if self.state is None or not self.state.turns:
-            return
-        actions = self.state.turns[-1].turn.quick_actions
         try:
-            action = actions[int(url.path())]
-        except ValueError, IndexError:
+            action_number = int(url.path())
+        except ValueError:
             return
-        self.prompt_edit.setPlainText(action)
-        self.prompt_edit.moveCursor(QTextCursor.MoveOperation.End)
-        self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
+        self.activate_quick_action(action_number)
+
+    def on_link_hovered(self, url: QUrl) -> None:
+        if url.scheme() != QUICK_ACTION_SCHEME:
+            QToolTip.hideText()
+            return
+        try:
+            action_number = int(url.path())
+        except ValueError:
+            return
+        if action := self.quick_action(action_number):
+            tip = f'<p>{escape(action)}'
+            if action_number < MAX_QUICK_ACTION_SHORTCUTS:
+                tip += '<br>' + _('Shortcut: {}').format(f'Ctrl+{action_number + 1}')
+            QToolTip.showText(QCursor.pos(), tip, self.story_view)
+        else:
+            QToolTip.hideText()
 
     def scroll_to_turn(self, turn_number: int) -> None:
         for pos, tn in self.turn_positions:
@@ -516,10 +613,16 @@ class GameWidget(QWidget):
                 break
 
     def visible_turn_number(self) -> int:
-        # The one based number of the turn currently at the top of the story
-        # view, 0 when no turns are displayed.
+        # The one based number of the turn the player is currently reading,
+        # 0 when no turns are displayed. That is the turn at the top of the
+        # story view, except when the view is scrolled to the end: the last
+        # turn is usually too short to reach the top of the view, but it is
+        # what the player is reading.
         if not self.turn_positions:
             return 0
+        vsb = self.story_view.verticalScrollBar()
+        if vsb is None or vsb.value() >= vsb.maximum():
+            return self.turn_positions[-1][1]
         p = self.story_view.cursorForPosition(QPoint(5, 5)).position()
         ans = self.turn_positions[0][1]
         for pos, tn in self.turn_positions:
@@ -664,6 +767,7 @@ class GameWidget(QWidget):
         self.state = snapshot
         self.session_cost += res.cost
         self.prompt_edit.clear()
+        self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
         self.autosave()
         self.refresh_ui()
         if self.images_enabled:
