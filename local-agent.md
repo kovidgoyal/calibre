@@ -41,6 +41,12 @@ To isolate testing to a specific test use, use the test name without the leading
 ./setup.py test my_function
 ```
 
+To test changes to recipes for news download, you can run them as:
+
+```bash
+ebook-convert recipes/filename.recipe output.epub --test
+```
+
 ## Verification Pipeline
 Before declaring a task complete, you must follow this exact verification lifecycle:
 1. Run the local **Build Command** to guarantee zero compilation or compilation-stage type errors.
