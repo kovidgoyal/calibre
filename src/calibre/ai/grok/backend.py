@@ -58,15 +58,19 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 API_BASE_URL = 'https://api.x.ai/v1'
 TEXT_MODELS_URL = f'{API_BASE_URL}/language-models'
 IMAGE_MODELS_URL = f'{API_BASE_URL}/image-generation-models'
 CHAT_URL = f'{API_BASE_URL}/chat/completions'
 IMAGE_GENERATIONS_URL = f'{API_BASE_URL}/images/generations'
 DEFAULT_IMAGE_MODEL = 'grok-imagine-image-2.0'
-# Token prices in the models list APIs are in USD cents per hundred million tokens
-PRICE_UNIT_TO_USD_PER_TOKEN = 1 / (100 * 1e8)
+# Prices in the models list APIs are in hundred-millionths of a USD cent:
+# token prices are USD cents per hundred million tokens and image prices,
+# despite the API documentation describing image_price as plain USD cents,
+# use the same unit per image, e.g. grok-imagine-image has an image_price of
+# 200,000,000 and costs 0.02 USD per generated image.
+PRICE_UNIT_TO_USD = 1 / (100 * 1e8)
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
@@ -120,9 +124,9 @@ class Model(NamedTuple):
             created=datetime.datetime.fromtimestamp(x.get('created') or 0, datetime.UTC),
             family_version=version,
             context_length=int(x.get('context_length') or 0),
-            input_price=(x.get('prompt_text_token_price') or 0) * PRICE_UNIT_TO_USD_PER_TOKEN,
-            output_price=(x.get('completion_text_token_price') or 0) * PRICE_UNIT_TO_USD_PER_TOKEN,
-            image_price=(x.get('image_price') or 0) / 100,  # USD cents per image
+            input_price=(x.get('prompt_text_token_price') or 0) * PRICE_UNIT_TO_USD,
+            output_price=(x.get('completion_text_token_price') or 0) * PRICE_UNIT_TO_USD,
+            image_price=(x.get('image_price') or 0) * PRICE_UNIT_TO_USD,
             generates_images=generates_images or 'image' in (x.get('output_modalities') or ()),
         )
 
@@ -220,6 +224,9 @@ def chat_data(messages: Iterable[ChatMessage], model: Model, use_tools: bool = T
         'model': model.id,
         'messages': [for_assistant(m) for m in messages],
         'stream': True,
+        # usage is null in streamed chunks unless explicitly requested, and
+        # without it responses have no cost or model metadata
+        'stream_options': {'include_usage': True},
     }
     strategy = pref('reasoning_strategy', 'auto')
     if strategy != 'auto' and model.supports_reasoning_effort:
@@ -302,8 +309,13 @@ def generate_structured_output_implementation(prompt: str, schema: type, instruc
     rq = chat_request(data)
 
     def responses() -> Iterator[ChatResponse]:
+        seen_metadata = False
         for datum in read_streaming_response(rq, GrokAI.name):
-            yield from as_chat_responses(datum, model)
+            for res in as_chat_responses(datum, model):
+                seen_metadata = seen_metadata or res.has_metadata
+                yield res
+        if not seen_metadata:  # at least report the model used
+            yield ChatResponse(has_metadata=True, provider=GrokAI.name, model=model.id, plugin_name=GrokAI.name)
 
     return structured_output_from_chat(responses(), schema, GrokAI.name)
 

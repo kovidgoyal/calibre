@@ -594,15 +594,17 @@ def find_tests() -> TestSuite:
             r = p({'choices': [{'delta': {}, 'finish_reason': 'content_filter'}]})[0]
             self.assertIsNotNone(r.exception)
 
-            from calibre.ai.grok.backend import for_assistant
+            from calibre.ai.grok.backend import chat_data, for_assistant
 
             self.assertEqual(for_assistant(ChatMessage(type=ChatMessageType.developer, query='q')), {'role': 'system', 'content': 'q'})
             self.assertRaises(ValueError, for_assistant, ChatMessage(type=ChatMessageType.tool, query='q'))
+            d = chat_data((ChatMessage('q'),), model)
+            self.assertEqual(d['stream_options'], {'include_usage': True}, 'streamed responses must request usage so cost and model are reported')
 
         def test_ai_grok_image_response_parsing(self) -> None:
             from calibre.ai.grok.backend import Model, parse_image_response
 
-            model = Model.from_dict({'id': 'grok-imagine-image-2.0', 'image_price': 4}, generates_images=True)
+            model = Model.from_dict({'id': 'grok-imagine-image-2.0', 'image_price': 400_000_000}, generates_images=True)
             self.assertTrue(model.generates_images)
             d = {'data': [{'b64_json': base64.standard_b64encode(b'image bytes').decode(), 'mime_type': 'image/jpeg'}]}
             res = parse_image_response(d, model)
