@@ -24,6 +24,7 @@ class MyOutputDevice : public OutputStreamDevice {
     PyObject *read_func;
     PyObject *write_func;
     PyObject *flush_func;
+    PyObject *truncate_func;
     size_t written;
 
     void
@@ -34,7 +35,7 @@ class MyOutputDevice : public OutputStreamDevice {
     }
 
   public:
-    MyOutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) {
+    MyOutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), truncate_func(0), written(0) {
         SetAccess(DeviceAccess::Write);
 #define GA(f, a)                                                                   \
     {                                                                              \
@@ -45,6 +46,9 @@ class MyOutputDevice : public OutputStreamDevice {
         GA(read_func, "read");
         GA(write_func, "write");
         GA(flush_func, "flush");
+#undef GA
+        // truncate() is optional in the python file protocol
+        if ((truncate_func = PyObject_GetAttrString(file, "truncate")) == NULL) PyErr_Clear();
     }
     ~MyOutputDevice() {
         NUKE(tell_func);
@@ -52,6 +56,7 @@ class MyOutputDevice : public OutputStreamDevice {
         NUKE(read_func);
         NUKE(write_func);
         NUKE(flush_func);
+        NUKE(truncate_func);
     }
 
     size_t
@@ -195,15 +200,30 @@ class MyOutputDevice : public OutputStreamDevice {
     Flush() {
         Py_XDECREF(PyObject_CallFunctionObjArgs(flush_func, NULL));
     }
+
+  protected:
+    void
+    truncate() {
+        if (truncate_func == NULL) {
+            PyErr_SetString(PyExc_Exception, "The python file object has no truncate() method");
+            throw std::exception();
+        }
+        PyObject *ret = PyObject_CallFunctionObjArgs(truncate_func, NULL);
+        if (ret == NULL) {
+            if (PyErr_Occurred() == NULL) PyErr_SetString(PyExc_Exception, "Failed to call truncate() on python file object");
+            throw std::exception();
+        }
+        Py_DECREF(ret);
+    }
 };
 
 
 PyObject *
-pdf::write_doc(PdfMemDocument *doc, PyObject *f) {
+pdf::write_doc(PdfMemDocument *doc, PyObject *f, PdfSaveOptions options) {
     MyOutputDevice d(f);
 
     try {
-        doc->Save(d, save_options);
+        doc->Save(d, options);
         d.Flush();
     } catch (const PdfError &err) {
         podofo_set_exception(err);

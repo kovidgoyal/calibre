@@ -289,5 +289,294 @@ def develop(path=sys.argv[-1]):
     p.title = 'test'
 
 
+def find_tests():
+    import base64
+    import unittest
+
+    # A 4x4 red pixel JPEG
+    jpeg_data = base64.standard_b64decode(
+        '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAx'
+        'NDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy'
+        'MjIyMjIyMjL/wAARCAAEAAQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUF'
+        'BAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVW'
+        'V1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi'
+        '4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAEC'
+        'AxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVm'
+        'Z2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq'
+        '8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDi6KKK+ZP3E//Z'
+    )
+
+    class Builder:
+        "Builds a PDF file from a list of numbered objects, generating the cross reference table"
+
+        def __init__(self):
+            self.objects = []
+
+        def add(self, body):
+            "Add an object, return its object number. body must be bytes, use reserve() for forward references"
+            self.objects.append(body)
+            return len(self.objects)
+
+        def reserve(self):
+            self.objects.append(None)
+            return len(self.objects)
+
+        def add_stream(self, dict_items, stream_data):
+            body = b'<</Length ' + str(len(stream_data)).encode('ascii') + dict_items + b'>>\nstream\n' + stream_data + b'\nendstream'
+            return self.add(body)
+
+        def set(self, num, body):
+            self.objects[num - 1] = body
+
+        def build(self, info=None):
+            ans = []
+            pos = 0
+
+            def w(raw):
+                nonlocal pos
+                ans.append(raw)
+                pos += len(raw)
+
+            w(b'%PDF-1.5\n%\xe2\xe3\xcf\xd3\n')
+            offsets = []
+            for i, body in enumerate(self.objects):
+                if body is None:
+                    raise ValueError(f'Object {i + 1} was reserved but never set')
+                offsets.append(pos)
+                w(f'{i + 1} 0 obj\n'.encode('ascii'))
+                w(body)
+                w(b'\nendobj\n')
+            xref_pos = pos
+            w(f'xref\n0 {len(self.objects) + 1}\n'.encode('ascii'))
+            w(b'0000000000 65535 f \n')
+            for off in offsets:
+                w(f'{off:010d} 00000 n \n'.encode('ascii'))
+            trailer = f'trailer\n<</Size {len(self.objects) + 1}/Root 1 0 R'
+            if info is not None:
+                trailer += f'/Info {info} 0 R'
+            trailer += f'>>\nstartxref\n{xref_pos}\n%%EOF\n'
+            w(trailer.encode('ascii'))
+            return b''.join(ans)
+
+    def multi_page_pdf(
+        num_pages=2,
+        uri='',
+        dests=False,
+        unused_type0_font=False,
+        type3_font=False,
+        font_file_data=b'FONTFILEDATA',
+    ):
+        "Build a PDF with num_pages pages, all using an indirect Type1 font with a font file, and various optional features"
+        b = Builder()
+        catalog = b.reserve()
+        pages = b.reserve()
+        font_file = b.add_stream(b'', font_file_data)
+        descriptor = b.add(b'<</Type/FontDescriptor/FontName/Times-Roman/Flags 34/FontFile2 ' + f'{font_file} 0 R'.encode('ascii') + b'>>')
+        font = b.add(f'<</Type/Font/Subtype/Type1/BaseFont/Times-Roman/FontDescriptor {descriptor} 0 R>>'.encode('ascii'))
+        annot = 0
+        if uri:
+            annot = b.add(b'<</Type/Annot/Subtype/Link/Rect[0 0 100 100]/A<</Type/Action/S/URI/URI(' + uri.encode('ascii') + b')>>>>')
+        page_nums = []
+        unused_font = 0
+        if unused_type0_font:
+            uff = b.add_stream(b'', b'FAKEFONTDATA')
+            ufd = b.add(f'<</Type/FontDescriptor/FontName/Fake/Flags 4/FontFile2 {uff} 0 R>>'.encode('ascii'))
+            udf = b.add(f'<</Type/Font/Subtype/CIDFontType2/BaseFont/Fake/FontDescriptor {ufd} 0 R>>'.encode('ascii'))
+            unused_font = b.add(f'<</Type/Font/Subtype/Type0/BaseFont/Fake/Encoding/Identity-H/DescendantFonts[{udf} 0 R]>>'.encode('ascii'))
+        for i in range(num_pages):
+            contents = b.add_stream(b'', f'BT /F1 24 Tf 72 720 Td (Page {i + 1}) Tj ET'.encode('ascii'))
+            fonts = f'/F1 {font} 0 R'
+            if unused_font:
+                # the font is in the page resources, but never selected by a Tf operator in the content stream
+                fonts += f'/F2 {unused_font} 0 R'
+            page = f'<</Type/Page/Parent {pages} 0 R/MediaBox[0 0 612 792]/Contents {contents} 0 R/Resources<</Font<<{fonts}>>>>'
+            if annot and i == 0:
+                page += f'/Annots[{annot} 0 R]'
+            page += '>>'
+            page_nums.append(b.add(page.encode('ascii')))
+        kids = ' '.join(f'{n} 0 R' for n in page_nums)
+        b.set(pages, f'<</Type/Pages/Count {num_pages}/Kids[{kids}]>>'.encode('ascii'))
+        catalog_body = f'<</Type/Catalog/Pages {pages} 0 R'
+        if dests:
+            d = b.add(f'<</anchor1[{page_nums[0]} 0 R/XYZ 10.5 20.5 3]>>'.encode('ascii'))
+            catalog_body += f'/Dests {d} 0 R'
+        if type3_font:
+            cp1 = b.add_stream(b'', b'10 0 0 0 10 10 d1')
+            cp2 = b.add_stream(b'', b'10 0 0 0 10 10 d1')
+            b.add(
+                (
+                    '<</Type/Font/Subtype/Type3/FontBBox[0 0 10 10]/FontMatrix[0.001 0 0 0.001 0 0]'
+                    f'/CharProcs<</a {cp1} 0 R/b {cp2} 0 R>>/Encoding<</Type/Encoding/Differences[97/a 98/b]>>/FirstChar 97/LastChar 98/Widths[10 10]>>'
+                ).encode('ascii')
+            )
+        b.set(catalog, (catalog_body + '>>').encode('ascii'))
+        return b.build()
+
+    def load(raw):
+        p = get_podofo().PDFDoc()
+        p.load(raw)
+        return p
+
+    def roundtrip(p):
+        return load(p.write())
+
+    class TestPodofo(unittest.TestCase):
+        def test_podofo_basic(self):
+            test_podofo()
+
+        def test_podofo_load_open_save(self):
+            import tempfile
+
+            raw = multi_page_pdf(num_pages=3)
+            p = load(raw)
+            self.assertEqual(p.page_count(), 3)
+            with tempfile.TemporaryDirectory() as tdir:
+                path = os.path.join(tdir, 'test.pdf')
+                p.save(path)
+                q = get_podofo().PDFDoc()
+                q.open(path)
+                self.assertEqual(q.page_count(), 3)
+
+        def test_podofo_pages(self):
+            p = load(multi_page_pdf(num_pages=3))
+            self.assertEqual(p.page_count(), 3)
+            self.assertEqual(p.pages, 3)
+            p.copy_page(1, 3)
+            self.assertEqual(p.page_count(), 4)
+            p.delete_pages(2, 2)
+            self.assertEqual(p.page_count(), 2)
+            other = load(multi_page_pdf(num_pages=2))
+            p.insert_existing_page(other, 0, 0)
+            self.assertEqual(p.page_count(), 3)
+            p.extract_first_page()
+            self.assertEqual(p.page_count(), 1)
+            self.assertEqual(roundtrip(p).page_count(), 1)
+
+        def test_podofo_append(self):
+            a = load(multi_page_pdf(num_pages=2))
+            b = load(multi_page_pdf(num_pages=3))
+            c = load(multi_page_pdf(num_pages=1))
+            a.append(b, c)
+            self.assertEqual(a.page_count(), 6)
+            q = roundtrip(a)
+            self.assertEqual(q.page_count(), 6)
+
+        def test_podofo_page_boxes(self):
+            p = load(multi_page_pdf())
+            self.assertEqual(p.get_page_box('MediaBox', 1), (0, 0, 612, 792))
+            p.set_page_box('CropBox', 1, 10, 20, 300, 400)
+            p = roundtrip(p)
+            self.assertEqual(p.get_page_box('CropBox', 1), (10, 20, 300, 400))
+            self.assertRaises(KeyError, p.get_page_box, 'MoosBox', 1)
+            self.assertRaises(ValueError, p.get_page_box, 'CropBox', 33)
+
+        def test_podofo_uncompress(self):
+            p = load(sample_pdf_data())
+            self.assertNotIn(b'xpacket', p.write())
+            p.uncompress()
+            self.assertIn(b'xpacket', p.write())
+
+        def test_podofo_outlines(self):
+            p = load(multi_page_pdf(num_pages=3))
+            root = p.create_outline('Root', 1)
+            child = root.create('Child', 2, True, 11.0, 22.0, 1.5)
+            child.create('Grandchild', 3, True)
+            root.create('Sibling', 3, False)
+            p = roundtrip(p)
+            outline = p.get_outline()
+            self.assertEqual(len(outline['children']), 2)
+            r = outline['children'][0]
+            self.assertEqual(r['title'], 'Root')
+            self.assertEqual(r['dest'], {'page': 1, 'top': 0.0, 'left': 0.0, 'zoom': 0.0})
+            c = r['children'][0]
+            self.assertEqual(c['title'], 'Child')
+            self.assertEqual(c['dest'], {'page': 2, 'top': 22.0, 'left': 11.0, 'zoom': 1.5})
+            self.assertEqual(c['children'][0]['title'], 'Grandchild')
+            s = outline['children'][1]
+            self.assertEqual(s['title'], 'Sibling')
+            self.assertEqual(s['dest']['page'], 3)
+
+        def test_podofo_extract_anchors(self):
+            p = load(multi_page_pdf(num_pages=2, dests=True))
+            self.assertEqual(p.extract_anchors(), {'anchor1': (1, 10.5, 20.5, 3)})
+
+        def test_podofo_alter_links(self):
+            url = 'https://example.com'
+            p = load(multi_page_pdf(num_pages=2, uri=url))
+            seen = []
+
+            def callback(uri):
+                seen.append(uri)
+                return (2, 10.0, 20.0, 1.5)
+
+            p.alter_links(callback, True)
+            self.assertEqual(seen, [url])
+            raw = p.write()
+            self.assertNotIn(url.encode('ascii'), raw)
+            self.assertIn(b'/Dest', raw)
+            self.assertIn(b'/XYZ', raw)
+            self.assertIn(b'/Border', raw)
+            # a callback that returns None leaves the link alone
+            p = load(multi_page_pdf(num_pages=2, uri=url))
+            p.alter_links(lambda uri: None, False)
+            self.assertIn(url.encode('ascii'), p.write())
+
+        def test_podofo_list_fonts(self):
+            p = load(multi_page_pdf(num_pages=2, font_file_data=b'FONTFILEDATA'))
+            fonts = p.list_fonts(True)
+            self.assertEqual(len(fonts), 1)
+            f = fonts[0]
+            self.assertEqual(f['BaseFont'], 'Times-Roman')
+            self.assertEqual(f['Subtype'], 'Type1')
+            self.assertEqual(f['Data'], b'FONTFILEDATA')
+
+        def test_podofo_remove_unused_fonts(self):
+            p = load(multi_page_pdf(num_pages=2, unused_type0_font=True))
+            self.assertEqual(len(p.list_fonts()), 3)
+            p.uncompress()
+            self.assertIn(b'FAKEFONTDATA', p.write())
+            self.assertEqual(p.remove_unused_fonts(), 1)
+            p = roundtrip(p)
+            p.uncompress()
+            raw = p.write()
+            self.assertNotIn(b'FAKEFONTDATA', raw)
+            self.assertIn(b'FONTFILEDATA', raw)
+            self.assertEqual(len(p.list_fonts()), 1)
+
+        def test_podofo_replace_font_data(self):
+            p = load(multi_page_pdf(font_file_data=b'OLDDATA'))
+            ref = p.list_fonts(True)[0]['Reference']
+            p.replace_font_data(b'NEWDATA', *ref)
+            p = roundtrip(p)
+            self.assertEqual(p.list_fonts(True)[0]['Data'], b'NEWDATA')
+
+        def test_podofo_dedup_type3_fonts(self):
+            p = load(multi_page_pdf(type3_font=True))
+            self.assertEqual(p.dedup_type3_fonts(), 1)
+
+        def test_podofo_images(self):
+            page_size = (0.0, 0.0, 612.0, 792.0)
+            p = get_podofo().PDFDoc()
+            add_image_page(p, jpeg_data, page_size=page_size)
+            add_image_page(p, jpeg_data, page_size=page_size, page_num=2)
+            p = roundtrip(p)
+            self.assertEqual(p.page_count(), 2)
+            self.assertEqual(p.image_count(), 2)
+            self.assertGreaterEqual(p.dedup_images(), 1)
+
+        def test_podofo_impose(self):
+            p = load(multi_page_pdf(num_pages=2))
+            p.impose(1, 2, 1)
+            self.assertEqual(p.page_count(), 1)
+            p.uncompress()
+            raw = p.write()
+            self.assertIn(b' Do', raw)
+            q = load(raw)
+            self.assertEqual(q.page_count(), 1)
+            self.assertEqual(q.image_count(), 1)  # the form xobject created by impose
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestPodofo)
+
+
 if __name__ == '__main__':
     develop()

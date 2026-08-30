@@ -714,6 +714,10 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.gui2.cyoa.data import find_tests
 
         a(find_tests())
+    if ok('podofo'):
+        from calibre.utils.podofo import find_tests
+
+        a(find_tests())
     if ok('misc'):
         from calibre.ebooks.html.input import find_tests
 

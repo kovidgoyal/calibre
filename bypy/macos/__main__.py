@@ -495,7 +495,7 @@ class Freeze:
     @flush
     def add_podofo(self):
         print('\nAdding PoDoFo')
-        pdf = join(PREFIX, 'lib', 'libpodofo.2.dylib')
+        pdf = join(PREFIX, 'lib', 'libpodofo.4.dylib')
         self.install_dylib(pdf)
 
     @flush

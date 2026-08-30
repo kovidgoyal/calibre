@@ -104,7 +104,7 @@ run_one_dedup_pass(PDFDoc *self, hash_cache_map &hash_cache) {
     for (auto &k : objects) {
         if (!k->IsDictionary()) continue;
         const PdfDictionary &dict = k->GetDictionary();
-        if (dictionary_has_key_name(dict, PdfName::KeyType, "XObject") && dictionary_has_key_name(dict, PdfName::KeySubtype, "Image")) {
+        if (dictionary_has_key_name(dict, "Type", "XObject") && dictionary_has_key_name(dict, "Subtype", "Image")) {
             Image img(object_as_reference(k), k, hash_cache);
             auto it = image_map.find(img);
             if (it == image_map.end()) {
@@ -120,7 +120,7 @@ run_one_dedup_pass(PDFDoc *self, hash_cache_map &hash_cache) {
             for (auto &ref : x.second) {
                 if (ref != canonical_ref) {
                     ref_map[ref] = canonical_ref;
-                    objects.RemoveObject(ref).reset();
+                    remove_object(objects, ref);
                     count++;
                 }
             }
@@ -151,8 +151,8 @@ run_one_dedup_pass(PDFDoc *self, hash_cache_map &hash_cache) {
                 }
                 if (changed) resources.AddKey("XObject", new_xobject);
             } else if (
-                dictionary_has_key_name(dict, PdfName::KeyType, "XObject") && dictionary_has_key_name(dict, PdfName::KeySubtype, "Image") &&
-                dict.HasKey("SMask") && dict.MustGetKey("SMask").IsReference()) {
+                dictionary_has_key_name(dict, "Type", "XObject") && dictionary_has_key_name(dict, "Subtype", "Image") && dict.HasKey("SMask") &&
+                dict.MustGetKey("SMask").IsReference()) {
                 try {
                     const PdfReference &r = ref_map.at(dict.MustGetKey("SMask").GetReference());
                     dict.AddKey("SMask", r);

@@ -87,7 +87,7 @@ PDFDoc_save(PDFDoc *self, PyObject *args) {
 
     if (PyArg_ParseTuple(args, "s", &buffer)) {
         try {
-            self->doc->Save(buffer, save_options);
+            self->doc->Save(buffer, save_options_for(self));
         } catch (const PdfError &err) {
             podofo_set_exception(err);
             return NULL;
@@ -149,6 +149,11 @@ class BytesOutputDevice : public OutputStreamDevice {
         written = 0;
         return ans;
     }
+
+  protected:
+    // the write position is always at the end of the buffer so truncation is a no-op
+    void
+    truncate() {}
 };
 
 static PyObject *
@@ -157,7 +162,7 @@ PDFDoc_write(PDFDoc *self, PyObject *args) {
     BytesOutputDevice d;
 
     try {
-        self->doc->Save(d, save_options);
+        self->doc->Save(d, save_options_for(self));
         return d.Release();
     } catch (const PdfError &err) {
         podofo_set_exception(err);
@@ -172,7 +177,7 @@ PDFDoc_save_to_fileobj(PDFDoc *self, PyObject *args) {
     PyObject *f;
 
     if (!PyArg_ParseTuple(args, "O", &f)) return NULL;
-    return write_doc(self->doc, f);
+    return write_doc(self->doc, f, save_options_for(self));
 }
 
 static PyObject *
@@ -186,12 +191,13 @@ PDFDoc_uncompress_pdf(PDFDoc *self, PyObject *args) {
                 try {
                     stream->Unwrap();
                 } catch (PdfError &e) {
-                    if (e.GetCode() != PdfErrorCode::Flate) throw e;
+                    if (e.GetCode() != PdfErrorCode::FlateError) throw e;
                 }
             } catch (PdfError &e) {
                 if (e.GetCode() != PdfErrorCode::UnsupportedFilter) throw e;
             }
         }
+        self->uncompressed = true;
     } catch (const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
@@ -238,8 +244,8 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
     try {
         for (auto &it : self->doc->GetObjects()) {
             if (it->IsDictionary()) {
-                obj_type = it->GetDictionary().GetKey(PdfName::KeyType);
-                obj_sub_type = it->GetDictionary().GetKey(PdfName::KeySubtype);
+                obj_type = it->GetDictionary().GetKey("Type");
+                obj_sub_type = it->GetDictionary().GetKey("Subtype");
                 if ((obj_type && obj_type->IsName() && (obj_type->GetName().GetString() == "XObject")) ||
                     (obj_sub_type && obj_sub_type->IsName() && (obj_sub_type->GetName().GetString() == "Image")))
                     count++;
@@ -351,37 +357,6 @@ PDFDoc_copy_page(PDFDoc *self, PyObject *args) {
 
 static PyObject *
 PDFDoc_append(PDFDoc *self, PyObject *args) {
-    class AppendPagesData {
-      public:
-        const PdfPage *src_page;
-        PdfPage *dest_page;
-        PdfReference dest_page_parent;
-        AppendPagesData(const PdfPage &src, PdfPage &dest) {
-            src_page = &src;
-            dest_page = &dest;
-            dest_page_parent = dest.GetDictionary().GetKeyAs<PdfReference>("Parent");
-        }
-    };
-    class MapReferences : public std::unordered_map<PdfReference, PdfObject *> {
-      public:
-        void
-        apply(PdfObject &parent) {
-            switch (parent.GetDataType()) {
-                case PdfDataType::Dictionary:
-                    for (auto &pair : parent.GetDictionary()) { apply(pair.second); }
-                    break;
-                case PdfDataType::Array:
-                    for (auto &child : parent.GetArray()) apply(child);
-                    break;
-                case PdfDataType::Reference:
-                    if (auto search = find(parent.GetReference()); search != end()) { parent.SetReference(search->second->GetIndirectReference()); }
-                    break;
-                default: break;
-            }
-        }
-    };
-
-    static const PdfName inheritableAttributes[] = {PdfName("Resources"), PdfName("MediaBox"), PdfName("CropBox"), PdfName("Rotate"), PdfName::KeyNull};
     PdfMemDocument *dest = self->doc;
     std::vector<const PdfMemDocument *> docs(PyTuple_GET_SIZE(args));
     for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
@@ -398,64 +373,9 @@ PDFDoc_append(PDFDoc *self, PyObject *args) {
     PyThreadState *_save;
     _save = PyEval_SaveThread();
     try {
-        unsigned total_pages_to_append = 0;
-        for (auto src : docs) total_pages_to_append += src->GetPages().GetCount();
-        unsigned base_page_index = dest->GetPages().GetCount();
-        dest->GetPages().CreatePagesAt(base_page_index, total_pages_to_append, Rect());
-        for (auto src : docs) {
-            MapReferences ref_map;
-            std::vector<AppendPagesData> pages;
-            // append pages first
-            for (unsigned i = 0; i < src->GetPages().GetCount(); i++) {
-                const auto &src_page = src->GetPages().GetPageAt(i);
-                auto &dest_page = dest->GetPages().GetPageAt(base_page_index++);
-                pages.emplace_back(src_page, dest_page);
-                dest_page.GetObject() = src_page.GetObject();
-                dest_page.GetDictionary().RemoveKey("Resource");
-                dest_page.GetDictionary().RemoveKey("Parent");
-                ref_map[src_page.GetObject().GetIndirectReference()] = &dest_page.GetObject();
-            }
-            // append all remaining objects
-            for (const auto &obj : src->GetObjects()) {
-                if (obj->IsIndirect() && ref_map.find(obj->GetIndirectReference()) == ref_map.end()) {
-                    auto copied_obj = &dest->GetObjects().CreateObject(*obj);
-                    ref_map[obj->GetIndirectReference()] = copied_obj;
-                }
-            }
-            // fix references in appended objects
-            for (auto &elem : ref_map) ref_map.apply(*elem.second);
-            // fixup all pages
-            for (auto &x : pages) {
-                auto &src_page = *x.src_page;
-                auto &dest_page = *x.dest_page;
-                dest_page.GetDictionary().AddKey("Parent", x.dest_page_parent);
-                // Set the page contents
-                if (auto key = src_page.GetDictionary().GetKeyAs<PdfReference>(PdfName::KeyContents); key.IsIndirect()) {
-                    if (auto search = ref_map.find(key); search != ref_map.end()) { dest_page.GetOrCreateContents().Reset(search->second); }
-                }
-                // ensure the contents is not NULL to prevent segfaults in other code that assumes it
-                dest_page.GetOrCreateContents();
-
-                // Set the page resources
-                if (src_page.GetResources() != nullptr) {
-                    const auto &src_resources = src_page.GetResources()->GetDictionary();
-                    dest_page.GetOrCreateResources().GetDictionary() = src_resources;
-                    ref_map.apply(dest_page.GetResources()->GetObject());
-                } else dest_page.GetOrCreateResources();
-
-                // Copy inherited properties
-                auto inherited = inheritableAttributes;
-                while (!inherited->IsNull()) {
-                    auto attribute = src_page.GetDictionary().FindKeyParent(*inherited);
-                    if (attribute != nullptr) {
-                        PdfObject attributeCopy(*attribute);
-                        ref_map.apply(attributeCopy);
-                        dest_page.GetDictionary().AddKey(*inherited, attributeCopy);
-                    }
-                    inherited++;
-                }
-            }
-        }
+        // AppendDocumentPages() bulk copies all pages and referenced objects
+        // with a single relocation map, so it is fast even for large documents
+        for (auto src : docs) dest->GetPages().AppendDocumentPages(*src);
     } catch (const PdfError &err) {
         PyEval_RestoreThread(_save);
         podofo_set_exception(err);
@@ -498,7 +418,7 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
         Rect r(left, bottom, width, height);
         PdfArray o;
         r.ToArray(o);
-        self->doc->GetPages().GetPageAt(num).GetObject().GetDictionary().AddKey(PdfName(box), o);
+        self->doc->GetPages().GetPageAt(num).GetObject().GetDictionary().AddKey(PdfName(std::string_view(box)), o);
     } catch (const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
@@ -587,8 +507,8 @@ PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     try {
         auto &metadata = self->doc->GetCatalog().GetOrCreateMetadataObject();
         auto &stream = metadata.GetOrCreateStream();
-        stream.SetData(std::string_view(raw, len), true);
-        metadata.GetDictionary().RemoveKey(PdfName::KeyFilter);
+        stream.SetData(bufferview(raw, len), true);
+        metadata.GetDictionary().RemoveKey("Filter");
     } catch (const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
@@ -623,8 +543,8 @@ PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
                                 unsigned int pagenum = page->GetPageNumber();
                                 double left = dest[2].GetReal(), top = dest[3].GetReal();
                                 long long zoom = dest[4].GetNumber();
-                                const std::string &anchor = itres.first.GetString();
-                                PyObject *key = PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace");
+                                const std::string_view anchor = itres.first.GetString();
+                                PyObject *key = PyUnicode_DecodeUTF8(anchor.data(), anchor.size(), "replace");
                                 PyObject *tuple = Py_BuildValue("IddL", pagenum, left, top, zoom);
                                 if (!tuple || !key) { break; }
                                 int ret = PyDict_SetItem(ans, key, tuple);
@@ -657,8 +577,8 @@ alter_link(PDFDoc *self, PdfDictionary &link, PyObject *alter_callback, bool mar
     }
     PdfDictionary &A = link.GetKey("A")->GetDictionary();
     PdfObject *uo = A.GetKey("URI");
-    const std::string &uri = uo->GetString().GetString();
-    pyunique_ptr ret(PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace"))));
+    const std::string_view uri = uo->GetString().GetString();
+    pyunique_ptr ret(PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.data(), uri.size(), "replace"))));
     if (!ret) { return; }
     if (PyTuple_Check(ret.get()) && PyTuple_GET_SIZE(ret.get()) == 4) {
         int pagenum;
@@ -670,8 +590,15 @@ alter_link(PDFDoc *self, PdfDictionary &link, PyObject *alter_callback, bool mar
                 return;
             }
             link.RemoveKey("A");
-            PdfDestination dest(*page, left, top, zoom);
-            dest.AddToDictionary(link);
+            // In PoDoFo >= 1.0 PdfDestination can no longer be created standalone
+            // or added to arbitrary dictionaries, so build the /Dest array directly
+            PdfArray dest;
+            dest.Add(page->GetObject().GetIndirectReference());
+            dest.Add(PdfName("XYZ"));
+            dest.Add(left);
+            dest.Add(top);
+            dest.Add(zoom);
+            link.AddKey("Dest", dest);
         }
     }
 }
@@ -694,11 +621,11 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
         for (auto &it : self->doc->GetObjects()) {
             PdfDictionary *link;
             if (it->TryGetDictionary(link)) {
-                if (dictionary_has_key_name(*link, PdfName::KeyType, "Annot") && dictionary_has_key_name(*link, PdfName::KeySubtype, "Link")) {
+                if (dictionary_has_key_name(*link, "Type", "Annot") && dictionary_has_key_name(*link, "Subtype", "Link")) {
                     PdfObject *akey;
                     PdfDictionary *A;
                     if ((akey = link->GetKey("A")) && akey->TryGetDictionary(A)) {
-                        if (dictionary_has_key_name(*A, PdfName::KeyType, "Action") && dictionary_has_key_name(*A, "S", "URI")) {
+                        if (dictionary_has_key_name(*A, "Type", "Action") && dictionary_has_key_name(*A, "S", "URI")) {
                             PdfObject *uo = A->GetKey("URI");
                             if (uo && uo->IsString()) { links.push_back(object_as_reference(it)); }
                         }

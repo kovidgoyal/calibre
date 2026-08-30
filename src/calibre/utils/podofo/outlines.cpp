@@ -25,19 +25,16 @@ create_outline(PDFDoc *self, PyObject *args) {
     try {
         PdfString title = podofo_convert_pystring(title_buf);
         PdfOutlines &outlines = self->doc->GetOrCreateOutlines();
-        ans->item = outlines.CreateRoot(title);
-        if (ans->item == NULL) {
-            PyErr_NoMemory();
-            return NULL;
-        }
+        ans->item = &outlines.CreateRoot(title);
         ans->doc = self->doc;
         auto page = get_page(self->doc, pagenum - 1);
         if (!page) {
             PyErr_Format(PyExc_ValueError, "Invalid page number: %u", pagenum - 1);
             return NULL;
         }
-        auto dest = std::make_shared<PdfDestination>(*page, left, top, zoom);
-        ans->item->SetDestination(dest);
+        auto dest = self->doc->CreateDestination();
+        dest->SetDestination(*page, left, top, zoom);
+        ans->item->SetDestination(*dest);
     } catch (const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
@@ -70,7 +67,7 @@ convert_outline(PDFDoc *self, PyObject *parent, PdfOutlineItem *item) {
     if (!node) return;
     if (PyDict_SetItemString(node.get(), "title", title.get()) != 0) return;
     auto dest = item->GetDestination();
-    if (dest) {
+    if (dest.has_value()) {
         PdfPage *page = dest->GetPage();
         long pnum = page ? page->GetPageNumber() : -1;
         pyunique_ptr d(Py_BuildValue("{sl sd sd sd}", "page", pnum, "top", dest->GetTop(), "left", dest->GetLeft(), "zoom", dest->GetZoom()));

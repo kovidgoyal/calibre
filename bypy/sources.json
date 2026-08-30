@@ -420,9 +420,9 @@
     },
 
     {
-        "name": "podofo 0.10.5",
+        "name": "podofo 1.1.2",
         "unix": {
-            "hash": "sha256:49b159e88ba177ad2561b5cf6cbd68ecbe83272f5488bc527e44f97dbf695273",
+            "hash": "sha256:d6ffe6fc173ac6d6e5b00f5cb9db01990cab1bdf7cc03bdeffce3013bc9ec63a",
             "urls": ["https://github.com/podofo/podofo/archive/refs/tags/{version}.{file_extension}"]
         }
     },

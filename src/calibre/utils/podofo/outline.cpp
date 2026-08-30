@@ -61,10 +61,12 @@ create(PDFOutlineItem *self, PyObject *args) {
             PyErr_Format(PyExc_ValueError, "Invalid page number: %u", num);
             return NULL;
         }
-        auto dest = std::make_shared<PdfDestination>(*page, left, top, zoom);
+        auto dest = self->doc->CreateDestination();
+        dest->SetDestination(*page, left, top, zoom);
         if (PyObject_IsTrue(as_child)) {
-            ans->item = self->item->CreateChild(title, dest);
-        } else ans->item = self->item->CreateNext(title, dest);
+            ans->item = &self->item->CreateChild(title);
+        } else ans->item = &self->item->CreateNext(title);
+        ans->item->SetDestination(*dest);
     } catch (const PdfError &err) {
         podofo_set_exception(err);
         return NULL;

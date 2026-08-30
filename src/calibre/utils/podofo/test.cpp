@@ -11,17 +11,15 @@ main(int argc, char **argv) {
     if (argc < 2) return 1;
     char *fname = argv[1];
 
-    PdfMemDocument doc(fname);
-    PdfInfo *info = doc.GetInfo();
+    PdfMemDocument doc;
+    doc.Load(fname);
+    auto &metadata = doc.GetMetadata();
     cout << endl;
-    cout << "is encrypted: " << doc.GetEncrypted() << endl;
-    PdfString old_title = info->GetTitle();
-    cout << "is hex: " << old_title.IsHex() << endl;
-    PdfString new_title(reinterpret_cast<const pdf_utf16be *>("\0z\0z\0z"), 3);
-    cout << "is new unicode: " << new_title.IsUnicode() << endl;
-    info->SetTitle(new_title);
+    auto old_title = metadata.GetTitle();
+    cout << "old title: " << (old_title.has_value() ? old_title->GetString() : "<none>") << endl;
+    metadata.SetTitle(PdfString("zzz"));
 
-    doc.Write("/t/x.pdf");
+    doc.Save("/t/x.pdf");
     cout << "Output written to: " << "/t/x.pdf" << endl;
     return 0;
 }
