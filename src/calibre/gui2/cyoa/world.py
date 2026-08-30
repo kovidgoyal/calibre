@@ -184,6 +184,28 @@ class PortraitResult(NamedTuple):
     error_details: str = ''
 
 
+def generate_portrait(character: PlayerCharacter, style: str, world_description: str, plugin: AIProviderPlugin) -> PortraitResult:
+    # Generate the portrait of a character, blocking, so call it on a
+    # background thread. Errors are reported in the result, not raised.
+    # the preferences overlay is thread local so must be entered here
+    with data.cyoa_ai_settings():
+        res = plugin.generate_image(character_portrait_prompt(character, style, world_description), options=ImageGenerationOptions(aspect_ratio='3:4'))
+    portrait: dict[str, str] | None = None
+    error, error_details = '', ''
+    if res.exception is not None:
+        error, error_details = str(res.exception), res.error_details
+    elif not res.image:
+        error = _('The AI did not return an image')
+    else:
+        try:
+            img = resize_to_fit(image_from_data(res.image.data), PORTRAIT_SIZE.width(), PORTRAIT_SIZE.height())[1]
+            webp = image_to_data(img, compression_quality=70, fmt='WEBP')
+            portrait = {'mime': 'image/webp', 'data': standard_b64encode(webp).decode('ascii')}
+        except Exception as e:
+            error = str(e)
+    return PortraitResult(portrait, style, error, error_details)
+
+
 class MarkdownEdit(QTextEdit):
     # Edits Markdown text, displaying the formatting rather than the markup
 
@@ -508,25 +530,10 @@ class WorldEditWidget(QWidget):
         self, character: PlayerCharacter, idx: int, style: str, world_description: str, call_number: int, plugin: AIProviderPlugin
     ) -> None:
         try:
-            # the preferences overlay is thread local so must be entered here
-            with data.cyoa_ai_settings():
-                res = plugin.generate_image(character_portrait_prompt(character, style, world_description), options=ImageGenerationOptions(aspect_ratio='3:4'))
-            portrait: dict[str, str] | None = None
-            error, error_details = '', ''
-            if res.exception is not None:
-                error, error_details = str(res.exception), res.error_details
-            elif not res.image:
-                error = _('The AI did not return an image')
-            else:
-                try:
-                    img = resize_to_fit(image_from_data(res.image.data), PORTRAIT_SIZE.width(), PORTRAIT_SIZE.height())[1]
-                    webp = image_to_data(img, compression_quality=70, fmt='WEBP')
-                    portrait = {'mime': 'image/webp', 'data': standard_b64encode(webp).decode('ascii')}
-                except Exception as e:
-                    error = str(e)
+            pr = generate_portrait(character, style, world_description, plugin)
             if sip.isdeleted(self):
                 return
-            self.portrait_result_received.emit(call_number, idx, PortraitResult(portrait, style, error, error_details))
+            self.portrait_result_received.emit(call_number, idx, pr)
         except RuntimeError:
             pass  # when self gets deleted between call to sip.isdeleted and next statement
 

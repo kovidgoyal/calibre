@@ -6,11 +6,13 @@
 # box below it to enter the action to take. A picture of the scene currently
 # scrolled into view is shown on the right, when an image AI is configured.
 # The game is auto-saved after every turn; the toolbar allows saving under a
-# name of the player's choosing, loading such saves, rewinding and starting
-# over in a new world, while a checkbox in the scene panel turns scene
-# images on/off.
+# name of the player's choosing, loading such saves, rewinding, editing the
+# characters and starting over in a new world, while a checkbox in the scene
+# panel turns scene images on/off.
 
 import os
+from base64 import standard_b64decode
+from bisect import bisect_right
 from collections.abc import Callable
 from functools import partial
 from html import escape
@@ -36,6 +38,7 @@ from qt.core import (
     QListWidget,
     QListWidgetItem,
     QMenu,
+    QMimeData,
     QMouseEvent,
     QPainter,
     QPaintEvent,
@@ -57,6 +60,7 @@ from qt.core import (
     QTextCursor,
     QTextDocument,
     QTextOption,
+    QTimer,
     QToolBar,
     QToolTip,
     QUrl,
@@ -69,11 +73,12 @@ from qt.core import (
 
 from calibre.ai import AICapabilities, ImageGenerationOptions, StructuredOutputResult
 from calibre.ai.config import AIConfigWidget, ConfigureAI
-from calibre.ai.cyoa import AIProvider, GameOutcome, GameState, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
+from calibre.ai.cyoa import AIProvider, GameOutcome, GameState, PlayerCharacter, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
+from calibre.gui2.cyoa.world import CharacterEditor, PortraitResult, generate_portrait
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.progress_indicator import WaitStack
@@ -304,6 +309,156 @@ class ConfigureImageAIDialog(Dialog):
         super().accept()
 
 
+def played_character_index(state: GameState) -> int:
+    # The index in state.world.characters of the character the player plays,
+    # -1 when it cannot be found.
+    chars = state.world.characters
+    try:
+        return chars.index(state.character)
+    except ValueError:
+        # the played character was edited, fall back to matching by name
+        return next((i for i, c in enumerate(chars) if c.name == state.character.name), -1)
+
+
+class CharactersDialog(Dialog):
+    # Lists the named characters of the world, letting the player edit their
+    # descriptions and backstories mid-game and regenerate their portraits.
+    # The edits are applied to the game state by the caller after the dialog
+    # is accepted, via the characters and portraits attributes.
+
+    portrait_result_received = pyqtSignal(int, int, object)  # (call_number, character index, PortraitResult)
+
+    def __init__(self, state: GameState, parent: QWidget | None = None) -> None:
+        self.characters: list[PlayerCharacter] = list(state.world.characters)
+        self.played_idx = played_character_index(state)
+        # Portraits in stored form ({'mime': ..., 'data': base64} or None),
+        # aligned with self.characters, from the saved world of the same
+        # title, where the world creation flow keeps them.
+        idx = data.saved_world_index_with_title(state.world.title)
+        entry = data.saved_worlds()[idx] if idx > -1 else {}
+        self.portraits: list[dict[str, str] | None] = data.portraits_from_saved(entry, len(self.characters))
+        self.art_style = state.art_style
+        self.world_description = state.world.world_description
+        self.images_enabled = data.images_enabled()
+        self.current_idx = -1
+        # Portrait generation runs one at a time on a background thread:
+        # portrait_call identifies the current generation (results from
+        # superseded calls are discarded) and portrait_idx is the index of
+        # the character whose portrait is being generated.
+        self.portrait_counter = count(start=1)
+        self.portrait_call = -1
+        self.portrait_idx = -1
+        super().__init__(_('Characters'), 'cyoa-characters', parent)
+
+    def sizeHint(self) -> QSize:
+        return QSize(900, 600)
+
+    def setup_ui(self) -> None:
+        l = QVBoxLayout(self)
+        self.msg_label = la = QLabel(
+            _('Edit the characters of this world as needed. Changes to the character you are playing as take effect from the next turn.')
+        )
+        la.setWordWrap(True)
+        l.addWidget(la)
+        h = QHBoxLayout()
+        self.char_list = cw = QListWidget(self)
+        for i, c in enumerate(self.characters):
+            cw.addItem(self.display_name(i, c.name))
+        cw.currentRowChanged.connect(self.on_character_changed)
+        h.addWidget(cw, stretch=1)
+        self.character_editor = ce = CharacterEditor(self)
+        ce.set_portrait_ui_visible(self.images_enabled)
+        ce.portrait_refresh_requested.connect(self.regenerate_current_portrait)
+        h.addWidget(ce, stretch=3)
+        l.addLayout(h)
+        self.status_label = sl = QLabel('')
+        sl.setWordWrap(True)
+        l.addWidget(sl)
+        l.addWidget(self.bb)
+        self.portrait_result_received.connect(self.on_portrait_result, type=Qt.ConnectionType.QueuedConnection)
+        if self.characters:
+            cw.setCurrentRow(max(0, self.played_idx))
+
+    def display_name(self, idx: int, name: str) -> str:
+        return _('{} (you)').format(name) if idx == self.played_idx else name
+
+    def commit_character_edits(self) -> None:
+        if -1 < self.current_idx < len(self.characters):
+            c = self.character_editor.character
+            self.characters[self.current_idx] = c
+            item = self.char_list.item(self.current_idx)
+            if item is not None and c.name:
+                item.setText(self.display_name(self.current_idx, c.name))
+
+    def on_character_changed(self, row: int) -> None:
+        if row == self.current_idx:
+            return
+        self.commit_character_edits()
+        self.current_idx = row
+        if -1 < row < len(self.characters):
+            self.character_editor.load(self.characters[row])
+        self.update_portrait_display()
+
+    def update_portrait_display(self) -> None:
+        if not self.images_enabled:
+            return
+        idx = self.current_idx
+        if idx > -1 and idx == self.portrait_idx:
+            self.character_editor.show_portrait_busy(True)
+            return
+        self.character_editor.show_portrait_busy(False)
+        p = self.portraits[idx] if -1 < idx < len(self.portraits) else None
+        self.character_editor.set_portrait(standard_b64decode(p['data']) if p else None)
+
+    def regenerate_current_portrait(self) -> None:
+        self.commit_character_edits()
+        idx = self.current_idx
+        if not self.images_enabled or not (-1 < idx < len(self.characters)):
+            return
+        if self.portrait_idx > -1:
+            self.status_label.setText(_('A portrait is already being generated, please wait.'))
+            return
+        plugin = data.plugin_for('image')
+        if plugin is None:
+            return
+        self.status_label.setText('')
+        self.portrait_call = next(self.portrait_counter)
+        self.portrait_idx = idx
+        Thread(
+            name='CYOACharacterPortrait', daemon=True, target=self.do_generate_portrait, args=(self.characters[idx], idx, self.portrait_call, plugin)
+        ).start()
+        self.update_portrait_display()
+
+    def do_generate_portrait(self, character: PlayerCharacter, idx: int, call_number: int, plugin: AIProviderPlugin) -> None:
+        try:
+            pr = generate_portrait(character, self.art_style, self.world_description, plugin)
+            if sip.isdeleted(self):
+                return
+            self.portrait_result_received.emit(call_number, idx, pr)
+        except RuntimeError:
+            pass  # when self gets deleted between call to sip.isdeleted and next statement
+
+    def on_portrait_result(self, call_number: int, idx: int, pr: PortraitResult) -> None:
+        if call_number != self.portrait_call:
+            return  # a stale result from a superseded or cancelled call
+        self.portrait_call = -1
+        self.portrait_idx = -1
+        if pr.error:
+            name = self.characters[idx].name if idx < len(self.characters) else ''
+            self.status_label.setText(_('Failed to generate a portrait for {0}: {1}').format(name, pr.error))
+            self.status_label.setToolTip(pr.error_details)
+        elif idx < len(self.portraits):
+            self.portraits[idx] = pr.portrait
+        self.update_portrait_display()
+
+    def accept(self) -> None:
+        self.commit_character_edits()
+        if any(not c.name for c in self.characters):
+            error_dialog(self, _('No character name'), _('Every character must have a name.'), show=True)
+            return
+        super().accept()
+
+
 class PromptEdit(QPlainTextEdit):
     # The box the player types their next action into. Ctrl+Enter submits.
     submit_requested = pyqtSignal()
@@ -445,6 +600,8 @@ class GameWidget(QWidget):
         # (document position, one based turn number) of every turn shown in
         # the story view, used to map the scroll position to a turn.
         self.turn_positions: list[tuple[int, int]] = []
+        # The turn to scroll to once the widget is shown, see scroll_to_turn()
+        self.pending_scroll_turn = 0
         # Substituted by tests and the demo in __main__ to play without AI
         self.plugin_override: AIProvider | None = None
 
@@ -462,8 +619,14 @@ class GameWidget(QWidget):
         self.save_action = toolbar_action('save.png', _('Save'), _('Save this game under a name of your choosing'), self.save_game_as)
         self.load_action = toolbar_action('document_open.png', _('Load'), _('Load a previously saved game, replacing the current game'), self.load_saved_game)
         self.restart_action = toolbar_action('restart.png', _('Restart'), _('Restart the adventure from the first turn'), self.restart_game)
-        self.jump_action = toolbar_action(
-            'edit-undo.png', _('Jump to turn'), _('Rewind the adventure to an earlier turn, discarding all turns after it'), self.jump_to_turn
+        self.back_action = toolbar_action(
+            'edit-undo.png',
+            _('Back to turn'),
+            _('Go back to an earlier turn, discarding all turns after it. Press {} to go back one turn').format('Alt+Left'),
+            self.back_to_turn,
+        )
+        self.characters_action = toolbar_action(
+            'user_profile.png', _('Characters'), _('View and edit the characters of this world and their portraits'), self.edit_characters
         )
         self.exit_action = toolbar_action(
             'back.png', _('New world'), _('Leave this game and return to the world creation screen'), self.exit_to_world_generation
@@ -575,6 +738,10 @@ class GameWidget(QWidget):
             sc = QShortcut(QKeySequence(f'Ctrl+{i + 1}'), self)
             sc.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
             sc.activated.connect(partial(self.activate_quick_action, i))
+        # Alt+Left goes back one turn, after a confirmation
+        sc = QShortcut(QKeySequence('Alt+Left'), self)
+        sc.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        sc.activated.connect(self.go_back)
 
         # Focus given to this widget, e.g. when it becomes the visible page
         # of the main window, goes to the box the player types into.
@@ -598,6 +765,12 @@ class GameWidget(QWidget):
                 image_height = int(self.splitter.height() * 0.75)
                 image_width = max(250, min(int(image_height * 4 / 3), int(total * 0.45)))
                 self.splitter.setSizes([total - image_width, image_width])
+        if self.pending_scroll_turn:
+            # The story was rendered while the widget was hidden, with the
+            # document laid out for the wrong geometry, so scroll only now,
+            # once this show and the splitter sizing above have taken effect.
+            tn, self.pending_scroll_turn = self.pending_scroll_turn, 0
+            QTimer.singleShot(0, partial(self.scroll_to_turn, tn))
 
     def save_splitter_state(self) -> None:
         if self.splitter_state_restored:  # ignore programmatic moves during initial layout
@@ -733,25 +906,47 @@ class GameWidget(QWidget):
             QToolTip.hideText()
 
     def copy_current_turn(self) -> None:
-        # Copy the text of the turn being read, along with the quick actions
-        # when it is the last turn, to the clipboard as plain text.
+        # Copy the turn being read, along with the quick actions when it is
+        # the last turn, to the clipboard as both rich and plain text, with
+        # the picture of its scene, if any.
         state = self.state
         tn = self.visible_turn_number()
         if state is None or not tn:
             return
         t = state.turns[tn - 1]
-        parts: list[str] = []
+        text_parts: list[str] = []
+        html_parts: list[str] = []
         if t.player_input:
-            parts.append(f'➤ {t.player_input}')
-        parts.append(t.turn.narrative)
+            text_parts.append(f'➤ {t.player_input}')
+            html_parts.append(f'<p><i>➤ {escape(t.player_input)}</i></p>')
+        text_parts.append(t.turn.narrative)
+        html_parts.append(response_to_html(t.turn.narrative, ContentType.markdown))
         if tn == len(state.turns) and t.turn.quick_actions:
-            parts.append(_('Quick actions') + ':\n' + '\n'.join(f'• {a}' for a in t.turn.quick_actions))
+            text_parts.append(_('Quick actions') + ':\n' + '\n'.join(f'• {a}' for a in t.turn.quick_actions))
+            html_parts.append(f'<h4>{_("Quick actions")}</h4>' + ''.join(f'<p>• {escape(a)}</p>' for a in t.turn.quick_actions))
+        md = QMimeData()
+        md.setText('\n\n'.join(text_parts))
+        md.setHtml(''.join(html_parts))
+        img, scene = self.images.get(tn), QImage()
+        has_image = img is not None and scene.loadFromData(img.data)
+        if has_image:
+            md.setImageData(scene)
         clipboard = qapplication_or_fail().clipboard()
         assert clipboard is not None
-        clipboard.setText('\n\n'.join(parts))
-        self.status_bar.showMessage(_('Copied the text of turn {} to the clipboard').format(tn), 5000)
+        clipboard.setMimeData(md)
+        if has_image:
+            self.status_bar.showMessage(_('Copied the text and scene picture of turn {} to the clipboard').format(tn), 5000)
+        else:
+            self.status_bar.showMessage(_('Copied the text of turn {} to the clipboard').format(tn), 5000)
 
     def scroll_to_turn(self, turn_number: int) -> None:
+        if not self.isVisible():
+            # While the widget is hidden the story document is laid out for
+            # the wrong geometry, so scrolling now would land in the wrong
+            # place; deferred until showEvent().
+            self.pending_scroll_turn = turn_number
+            return
+        self.pending_scroll_turn = 0
         self.story_view.stopMomentumScroll()
         for pos, tn in self.turn_positions:
             if tn == turn_number:
@@ -767,21 +962,44 @@ class GameWidget(QWidget):
 
     def visible_turn_number(self) -> int:
         # The one based number of the turn the player is currently reading,
-        # 0 when no turns are displayed. That is the turn at the top of the
-        # story view, except when the view is scrolled to the end: the last
-        # turn is usually too short to reach the top of the view, but it is
-        # what the player is reading.
+        # 0 when no turns are displayed. That is the turn covering the
+        # largest part of the viewport, so that slight scrolling does not
+        # flip between turns, except when the view is scrolled to the end:
+        # the last turn is usually too short to cover most of the view, but
+        # it is what the player is reading.
         if not self.turn_positions:
             return 0
-        vsb = self.story_view.verticalScrollBar()
-        if vsb is None or vsb.value() >= vsb.maximum():
+        sv = self.story_view
+        vsb = sv.verticalScrollBar()
+        vp = sv.viewport()
+        if vsb is None or vp is None or vsb.value() >= vsb.maximum():
             return self.turn_positions[-1][1]
-        p = self.story_view.cursorForPosition(QPoint(5, 5)).position()
-        ans = self.turn_positions[0][1]
-        for pos, tn in self.turn_positions:
-            if pos > p:
-                break
-            ans = tn
+        height = vp.height()
+        # Only the turns intersecting the viewport, found by mapping the
+        # viewport top and bottom to document positions, need their pixel
+        # geometry computed, keeping this cheap however long the chapter is.
+        starts = [pos for pos, tn in self.turn_positions]
+        first = max(0, bisect_right(starts, sv.cursorForPosition(QPoint(5, 0)).position()) - 1)
+        last = max(0, bisect_right(starts, sv.cursorForPosition(QPoint(5, height - 1)).position()) - 1)
+        c = sv.textCursor()
+
+        def top_of(idx: int) -> int:
+            # The viewport y coordinate at which turn_positions[idx] starts,
+            # clamped to the viewport bottom for turns known to start at or
+            # below it and for the end of the story.
+            if idx > last or idx >= len(self.turn_positions):
+                return height
+            c.setPosition(self.turn_positions[idx][0])
+            return sv.cursorRect(c).top()
+
+        ans, best_overlap = self.turn_positions[first][1], 0
+        top = top_of(first)
+        for i in range(first, last + 1):
+            bottom = top_of(i + 1)
+            overlap = min(bottom, height) - max(top, 0)
+            if overlap >= best_overlap:  # ties go to the later turn
+                ans, best_overlap = self.turn_positions[i][1], overlap
+            top = bottom
         return ans
 
     def on_story_scrolled(self) -> None:
@@ -1137,17 +1355,26 @@ class GameWidget(QWidget):
         ):
             self.rewind_to_turn(1)
 
-    def jump_to_turn(self) -> None:
+    def back_to_turn(self) -> None:
         state = self.state
         if state is None or len(state.turns) < 2:
-            self.status_bar.showMessage(_('There are no other turns to jump to.'), 5000)
+            self.status_bar.showMessage(_('There are no earlier turns to go back to.'), 5000)
             return
-        n = len(state.turns)
-        num, ok = QInputDialog.getInt(self, _('Jump to turn'), _('Jump to turn number (1 to {}):').format(n), n, 1, n)
-        if not ok or num == n:
+        max_back = len(state.turns) - 1
+        num, ok = QInputDialog.getInt(self, _('Back to turn'), _('Number of turns to go back (1 to {}):').format(max_back), 1, 1, max_back)
+        if ok:
+            self.go_back(num)
+
+    def go_back(self, num_turns: int = 1) -> None:
+        state = self.state
+        if state is None or len(state.turns) < 2:
+            self.status_bar.showMessage(_('There are no earlier turns to go back to.'), 5000)
             return
-        if question_dialog(self, _('Are you sure?'), _('Jump to turn {}? All turns after it are discarded and any unsaved progress will be lost.').format(num)):
-            self.rewind_to_turn(num)
+        target = len(state.turns) - min(num_turns, len(state.turns) - 1)
+        if question_dialog(
+            self, _('Are you sure?'), _('Go back to turn {}? All turns after it are discarded and any unsaved progress will be lost.').format(target)
+        ):
+            self.rewind_to_turn(target)
 
     def exit_to_world_generation(self) -> None:
         if question_dialog(
@@ -1156,6 +1383,24 @@ class GameWidget(QWidget):
             _('Leave this game and return to the world creation screen? Any unsaved progress will be lost. Use the Save button to keep this game.'),
         ):
             self.game_abandoned.emit()
+
+    def edit_characters(self) -> None:
+        state = self.state
+        if state is None:
+            return
+        d = CharactersDialog(state, self)
+        if d.exec() != Dialog.DialogCode.Accepted:
+            return
+        chars = tuple(d.characters)
+        played_idx = played_character_index(state)
+        state.world = state.world._replace(characters=chars)
+        if -1 < played_idx < len(chars):
+            state.character = chars[played_idx]
+        if self.game_id:  # an empty game_id means a test/demo that must not touch the config directory
+            # keep the saved world, where portraits live, in sync with the edits
+            data.add_saved_world(state.brief, state.world, state.art_style, d.portraits)
+            self.autosave()
+        self.status_bar.showMessage(_('Changes to the characters will be used from the next turn'), 5000)
 
     # }}}
 
