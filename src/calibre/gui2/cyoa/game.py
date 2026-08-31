@@ -82,7 +82,7 @@ from calibre.ai.config import AIConfigWidget, ConfigureAI
 from calibre.ai.cyoa import AIProvider, CharacterState, GameState, PlayerCharacter, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
-from calibre.gui2 import error_dialog, qapplication_or_fail, question_dialog, safe_open_url
+from calibre.gui2 import config, error_dialog, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.world import CharacterEditor, PortraitResult, generate_portrait
 from calibre.gui2.image_popup import ImagePopup
@@ -1429,6 +1429,25 @@ class GameWidget(QWidget):
         self.refresh_ui()
         if self.images_enabled:
             self.request_image(len(snapshot.turns))
+        self._notify_turn_ready()
+
+    def _notify_turn_ready(self) -> None:
+        w = self.window()
+        if w is None:
+            return
+        if w.isVisible() and w.isActiveWindow():
+            return
+        if not w.isVisible():
+            w.show()
+        w.raise_and_focus()
+        if not config['disable_tray_notification']:
+            from calibre.gui2.notify import get_notifier
+
+            notifier = get_notifier()
+            if notifier is not None:
+                state = self.state
+                summary = state.world.title if state is not None else None
+                notifier(_('Your adventure turn is ready'), summary=summary)
 
     # }}}
 
