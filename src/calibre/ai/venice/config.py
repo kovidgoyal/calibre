@@ -305,7 +305,7 @@ class ConfigWidget(QWidget):
                 ' and buy some credits, which are consumed as needed when you use the AI.'
                 ' See the Venice AI <a href="{2}">privacy policy</a> for how your data is handled.'
             ).format(
-                '<a href="https://venice.ai">Venice AI</a>',
+                '<a href="https://venice.ai/sign-up">Venice AI</a>',
                 'https://venice.ai/settings/api',
                 'https://venice.ai/legal/privacy-policy',
             )
