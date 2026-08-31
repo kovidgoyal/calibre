@@ -270,4 +270,15 @@ class ReadAloud:
         if msg.type is 'text-extracted':
             if msg.pos:
                 self.stop()
-            ui_operations.tts('play', {'marked_text': msg.marked_text})
+            has_words = False
+            for x in msg.marked_text:
+                if jstype(x) is 'number':
+                    has_words = True
+                    break
+            if has_words:
+                ui_operations.tts('play', {'marked_text': msg.marked_text})
+            else:
+                # nothing to speak in this file (e.g. a full page image) so
+                # skip to the next spine item, see https://bugs.launchpad.net/bugs/2165923
+                self.state = STOPPED
+                self.view.show_next_spine_item()

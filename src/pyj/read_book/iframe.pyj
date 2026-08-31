@@ -19,7 +19,7 @@ from range_utils import (
 from read_book.anchor_visibility import ensure_page_list_target_is_displayed, invalidate_anchor_position_cache
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
-from read_book.find import reset_find_caches, select_search_result, select_tts_mark, tts_data
+from read_book.find import first_tts_word_after_viewport_start, reset_find_caches, select_search_result, select_tts_mark, tts_data
 from read_book.flow_mode import anchor_funcs as flow_anchor_funcs
 from read_book.flow_mode import auto_scroll_action as flow_auto_scroll_action
 from read_book.flow_mode import cancel_drag_scroll as cancel_drag_scroll_flow
@@ -1038,7 +1038,6 @@ class IframeBoss:
         if data.type is 'mark':
             self.mark_word_being_spoken(data.num)
         elif data.type is 'play':
-            text_node, offset = None, 0
             if data.pos:
                 r = word_at_point(data.pos.x, data.pos.y)
                 if not r:
@@ -1046,8 +1045,13 @@ class IframeBoss:
             else:
                 r = first_visible_word()
             if r and r.startContainer?.nodeType is Node.TEXT_NODE:
-                text_node, offset = r.startContainer, r.startOffset
-            marked_text = tts_data(text_node, offset)
+                marked_text = tts_data(r.startContainer, r.startOffset)
+            else:
+                # no text visible in the viewport (e.g. a full page image).
+                # Start from the first word after the viewport start rather
+                # than from the start of the file, see https://bugs.launchpad.net/bugs/2165923
+                entry = first_tts_word_after_viewport_start()
+                marked_text = tts_data(entry.node, 0) if entry else v'[]'
             sel = window.getSelection()
             sel.removeAllRanges()
             self.send_message('tts', type='text-extracted', marked_text=marked_text, pos=data.pos)

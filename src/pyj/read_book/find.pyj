@@ -2,6 +2,9 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from read_book.globals import current_layout_mode
+from read_book.viewport import scroll_viewport
+
 ignored_tags = {
     'style': True, 'script': True, 'noscript': True, 'title': True, 'meta': True, 'head': True, 'link': True, 'html': True,
     'img': True, 'rt': True, 'rp': True, 'rtc': True,
@@ -87,6 +90,23 @@ def cached_tts_text_map():
     if not cache.tts_text_map:
         cache.tts_text_map = build_text_map(True)
     return cache.tts_text_map
+
+
+def first_tts_word_after_viewport_start():
+    # Find the first text node (in reading order) positioned at or after the
+    # start of the current viewport/page. Used when there is no text visible
+    # in the viewport, e.g. a full page image.
+    text_map = cached_tts_text_map()
+    is_flow = current_layout_mode() is 'flow'
+    r = document.createRange()
+    for entry in text_map.node_list:
+        r.selectNodeContents(entry.node)
+        rect = r.getBoundingClientRect()
+        if not rect.width and not rect.height:
+            continue
+        pos = scroll_viewport.rect_block_start(rect) if is_flow else scroll_viewport.rect_inline_start(rect)
+        if pos >= 0:
+            return entry
 
 
 def tts_data(text_node, offset):

@@ -175,7 +175,13 @@ class TTSManager(QObject):
     def speak_marked_text(self, marked_text):
         self._stop()
         self.speaking_simple_text = False
-        self.tts.say(self.tracker.parse_marked_text(marked_text))
+        text = self.tracker.parse_marked_text(marked_text)
+        if text.strip():
+            self.tts.say(text)
+        else:
+            # no speakable text, emit the end event so the client knows
+            # speaking is done, see https://bugs.launchpad.net/bugs/2165923
+            self.emit_state_event('end')
 
     @contextmanager
     def resume_after(self):

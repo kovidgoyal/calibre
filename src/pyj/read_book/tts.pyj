@@ -212,8 +212,12 @@ class Client:
         self.stop()
         self.onevent = onevent
         text = self.tracker.parse_marked_text(text_segments)
-        if text and text.length:
+        if text and text.trim().length:
             self.speak(text)
+        else:
+            # no speakable text, fire the end event so the client knows
+            # speaking is done, see https://bugs.launchpad.net/bugs/2165923
+            onevent('end')
 
     def faster(self):
         self.change_rate(steps=1)
