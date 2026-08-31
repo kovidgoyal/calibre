@@ -442,6 +442,7 @@ def find_tests():
                 q = get_podofo().PDFDoc()
                 q.open(path)
                 self.assertEqual(q.page_count(), 3)
+                del q  # release file handle before temp dir cleanup (Windows)
 
         def test_podofo_pages(self):
             p = load(multi_page_pdf(num_pages=3))
