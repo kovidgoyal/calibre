@@ -48,6 +48,7 @@ from qt.core import (
     QPoint,
     QPushButton,
     QRectF,
+    QResizeEvent,
     QShortcut,
     QShowEvent,
     QSize,
@@ -64,6 +65,7 @@ from qt.core import (
     QTextOption,
     QTimer,
     QToolBar,
+    QToolButton,
     QToolTip,
     QUrl,
     QVBoxLayout,
@@ -636,20 +638,50 @@ class SceneImageDisplay(QWidget):
     # Shows an image scaled to fit while preserving aspect ratio, or a
     # placeholder message when there is no image. Double clicking the image
     # opens it in a popup and right clicking it shows a context menu, both
-    # handled by the game widget.
+    # handled by the game widget. A discreet refresh button in the bottom
+    # right corner of the image and, when there is no image because
+    # generation failed or was never attempted for this scene, a retry or
+    # generate button shown in place of the placeholder text all ask the
+    # game widget to (re-)generate the picture via refresh_requested.
     popup_requested = pyqtSignal()
     context_menu_requested = pyqtSignal(object)  # the global position of the click as a QPoint
+    refresh_requested = pyqtSignal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.image_data = b''
         self.placeholder = ''
+        self.failed = False
+        self.busy = False
+        self.can_generate = False
         self.pixmap = QPixmap()
         # Request a height matching the image so widgets placed below in a
         # layout sit directly under the image rather than under empty space.
         sp = self.sizePolicy()
         sp.setHeightForWidth(True)
         self.setSizePolicy(sp)
+        self.refresh_button = rb = QToolButton(self)
+        rb.setIcon(QIcon.ic('view-refresh.png'))
+        rb.setAutoRaise(True)
+        rb.setCursor(Qt.CursorShape.PointingHandCursor)
+        rb.setToolTip('<p>' + _('Re-generate the picture of this scene'))
+        rb.clicked.connect(self.refresh_requested)
+        rb.hide()
+        # Shown in place of the placeholder text when there is no picture of
+        # this scene, offering to generate one, or to retry when generation
+        # failed. Label and button texts are set in set_image().
+        self.retry_panel = rp = QWidget(self)
+        rl = QVBoxLayout(rp)
+        self.retry_label = rla = QLabel(rp)
+        rla.setWordWrap(True)
+        rla.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.retry_button = tb = QPushButton(QIcon.ic('view-refresh.png'), '', rp)
+        tb.clicked.connect(self.refresh_requested)
+        rl.addStretch()
+        rl.addWidget(rla)
+        rl.addWidget(tb, alignment=Qt.AlignmentFlag.AlignHCenter)
+        rl.addStretch()
+        rp.hide()
 
     def hasHeightForWidth(self) -> bool:
         return True
@@ -672,21 +704,74 @@ class SceneImageDisplay(QWidget):
             a0.accept()
             self.context_menu_requested.emit(a0.globalPos())
 
-    def set_image(self, image_data: bytes | None, placeholder: str) -> None:
+    def set_image(
+        self,
+        image_data: bytes | None,
+        placeholder: str,
+        failed: bool = False,
+        busy: bool = False,
+        can_generate: bool = False,
+    ) -> None:
         image_data = image_data or b''
-        if image_data == self.image_data and placeholder == self.placeholder:
+        if (
+            image_data == self.image_data
+            and placeholder == self.placeholder
+            and failed == self.failed
+            and busy == self.busy
+            and can_generate == self.can_generate
+        ):
             return
-        self.image_data, self.placeholder = image_data, placeholder
+        self.image_data, self.placeholder, self.failed, self.busy = image_data, placeholder, failed, busy
+        self.can_generate = can_generate
+        if failed:
+            self.retry_label.setText(
+                _(
+                    'Failed to generate a picture of this scene. If retrying does not help,'
+                    ' try changing the image generation AI model via the Settings button in the toolbar.'
+                )
+            )
+            self.retry_button.setText(_('&Retry image generation'))
+        else:
+            self.retry_label.setText(_('No picture of this scene is available'))
+            self.retry_button.setText(_('&Generate scene image'))
         pm = QPixmap()
         if image_data:
             pm.loadFromData(image_data)
             pm.setDevicePixelRatio(self.devicePixelRatioF())
         self.pixmap = pm
+        self.position_overlays()
         self.updateGeometry()  # the height for width depends on the image aspect ratio
         self.update()
 
     def sizeHint(self) -> QSize:
         return QSize(300, 400)
+
+    def image_rect(self) -> QRectF:
+        # Where the image is drawn: scaled to fit, centered horizontally and
+        # aligned with the panel top.
+        sz = QSizeF(self.pixmap.deviceIndependentSize())
+        sz.scale(QSizeF(self.size()), Qt.AspectRatioMode.KeepAspectRatio)
+        r = QRectF(0, 0, sz.width(), sz.height())
+        r.moveCenter(QRectF(self.rect()).center())
+        r.moveTop(0)
+        return r
+
+    def position_overlays(self) -> None:
+        self.retry_panel.setGeometry(self.rect())
+        self.retry_panel.setVisible((self.failed or self.can_generate) and self.pixmap.isNull() and not self.busy)
+        if self.pixmap.isNull() or self.busy:
+            self.refresh_button.hide()
+            return
+        margin = 4
+        r = self.image_rect()
+        s = self.refresh_button.sizeHint()
+        self.refresh_button.move(round(r.right()) - s.width() - margin, round(r.bottom()) - s.height() - margin)
+        self.refresh_button.show()
+        self.refresh_button.raise_()
+
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
+        super().resizeEvent(a0)
+        self.position_overlays()  # the image rect the refresh button sits in depends on the widget size
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         p = QPainter(self)
@@ -696,12 +781,7 @@ class SceneImageDisplay(QWidget):
             p.drawText(QRectF(self.rect()), self.placeholder, to)
         else:
             p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-            sz = QSizeF(self.pixmap.deviceIndependentSize())
-            sz.scale(QSizeF(self.size()), Qt.AspectRatioMode.KeepAspectRatio)
-            r = QRectF(0, 0, sz.width(), sz.height())
-            r.moveCenter(QRectF(self.rect()).center())
-            r.moveTop(0)  # centered horizontally, aligned with the panel top
-            p.drawPixmap(r, self.pixmap, QRectF(self.pixmap.rect()))
+            p.drawPixmap(self.image_rect(), self.pixmap, QRectF(self.pixmap.rect()))
         p.end()
 
 
@@ -740,6 +820,9 @@ class GameWidget(QWidget):
         self.game_id = ''
         self.state: GameState | None = None
         self.images: dict[int, data.SceneImage] = {}  # keyed by one based turn number
+        # One based numbers of the turns whose scene image generation failed,
+        # shown a retry button in the scene panel. Not saved with the game.
+        self.failed_image_turns: set[int] = set()
         # Portraits of the characters the AI introduced during this game,
         # keyed by character name, saved as part of the game.
         self.npc_portraits: dict[str, dict[str, str]] = {}
@@ -843,6 +926,7 @@ class GameWidget(QWidget):
         self.scene_image = si = SceneImageDisplay(right)
         si.popup_requested.connect(self.show_scene_image_popup)
         si.context_menu_requested.connect(self.show_scene_image_context_menu)
+        si.refresh_requested.connect(self.regenerate_scene_image)
         rl.addWidget(si)
         self.condition_label = cl = QLabel(right)
         cl.setWordWrap(True)
@@ -945,6 +1029,7 @@ class GameWidget(QWidget):
         self.game_id = game_id
         self.state = state
         self.images = dict(images or {})
+        self.failed_image_turns = set()
         self.npc_portraits = dict(npc_portraits or {})
         self.images_enabled = data.images_enabled()
         self.session_cost = 0.0
@@ -1199,11 +1284,16 @@ class GameWidget(QWidget):
             return
         tn = self.visible_turn_number()
         img = self.images.get(tn)
-        if tn and tn == self.image_turn:
+        busy = bool(tn) and tn == self.image_turn
+        failed = img is None and not busy and tn in self.failed_image_turns
+        can_generate = bool(tn) and img is None and not busy and not failed
+        if busy:
             placeholder = _('Generating a picture of this scene…')
+        elif failed or can_generate:
+            placeholder = ''  # the scene image display shows its retry/generate panel instead
         else:
             placeholder = _('No picture of this scene is available')
-        self.scene_image.set_image(img.data if img else None, placeholder)
+        self.scene_image.set_image(img.data if img else None, placeholder, failed=failed, busy=busy, can_generate=can_generate)
         self.condition_label.setText(self.condition_html())
 
     def displayed_scene_image(self) -> data.SceneImage | None:
@@ -1444,13 +1534,25 @@ class GameWidget(QWidget):
         self.image_call = -1
         self.image_turn = -1
         if res.image is None:
+            self.failed_image_turns.add(turn_number)
             self.status_bar.showMessage(_('Failed to generate a picture of the scene: {}').format(res.error), 10000)
         else:
+            self.failed_image_turns.discard(turn_number)
             self.images[turn_number] = res.image
             self.session_cost += res.image.cost
             self.autosave()
         self.update_status()
         self.update_scene_panel()
+
+    def regenerate_scene_image(self) -> None:
+        # (Re-)generate the picture of the turn the player is currently
+        # reading, replacing any existing picture, triggered by the refresh,
+        # retry and generate buttons on the scene image display.
+        if self.image_call > -1:
+            self.status_bar.showMessage(_('A picture of a scene is already being generated, please wait.'), 5000)
+            return
+        if tn := self.visible_turn_number():
+            self.request_image(tn)
 
     # }}}
 
@@ -1495,6 +1597,7 @@ class GameWidget(QWidget):
         self.cancel_pending_ai_calls()
         self.state = state
         self.images = images
+        self.failed_image_turns = set()
         self.npc_portraits = npc_portraits
         self.last_save_name = d.save_name
         self.autosave()
@@ -1509,6 +1612,7 @@ class GameWidget(QWidget):
         self.cancel_pending_ai_calls()
         rewind(state, len(state.turns) - turn_number)
         self.images = {k: v for k, v in self.images.items() if k <= turn_number}
+        self.failed_image_turns = {t for t in self.failed_image_turns if t <= turn_number}
         self.autosave()
         self.refresh_ui()
 
