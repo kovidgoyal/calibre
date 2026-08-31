@@ -88,7 +88,11 @@ class GameOutcome(Enum):
 
 class StoryTurn(NamedTuple):
     doc = Doc('One turn of the adventure')
-    narrative: Annotated[str, 'The narrative text describing what happens in this turn']
+    narrative: Annotated[
+        str,
+        'The narrative text describing what happens in this turn, written as immersive long form prose'
+        ' with dialogue from the characters, their expressions and reactions, and scene descriptions where needed',
+    ]
     quick_actions: Annotated[tuple[str, ...], 'Exactly three short, distinct actions the player could plausibly take next']
     scene_description: Annotated[
         str,
@@ -326,6 +330,12 @@ def turn_instructions(state: GameState) -> str:
             'You are the game master of an interactive "choose your own adventure" game.'
             " Continue the story based on the story summary, the transcript of the current chapter and the player's latest action."
             " Have the characters react to the player's actions and the world in realistic and consistent ways."
+            ' Write each turn as immersive long form fiction, the way a skilled novelist would:'
+            ' let scenes breathe and unfold over several paragraphs rather than summarizing events.'
+            ' Bring the characters to life with spoken dialogue, quoting their words directly in their own distinct voices,'
+            ' and show their expressions, gestures, body language and emotional reactions as they speak and act.'
+            ' When the story enters a new location or the mood shifts, ground the scene with vivid sensory detail:'
+            ' sights, sounds, smells and atmosphere.'
             ' Format all narrative and descriptive text using Markdown:'
             ' use **bold** for emphasis and important moments, *italics* for atmosphere and inner thoughts,'
             ' and blank lines to separate paragraphs. Do not use headers or bullet lists in narrative text.'
@@ -333,6 +343,8 @@ def turn_instructions(state: GameState) -> str:
         'Rules for the fields of your response:',
         (
             '- narrative: describe what happens next in second person present tense, addressing the player as "you".'
+            ' Write it as compelling long form prose: multiple paragraphs weaving together action, dialogue from the characters,'
+            ' their expressions and reactions, and scene description where needed, never a terse summary of events.'
             ' Stop at a point where the player must decide what to do next.'
             ' Use Markdown formatting as instructed above.'
         ),
