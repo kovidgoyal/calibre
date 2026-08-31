@@ -355,12 +355,6 @@ class WorldEditWidget(QWidget):
         wl.setBuddy(we)
         l.addWidget(wl), l.addWidget(we)
 
-        cl = QLabel(_('Win &condition:'))
-        self.win_edit = wc = MarkdownEdit(wp)
-        wc.setMaximumHeight(wc.fontMetrics().lineSpacing() * 4)
-        cl.setBuddy(wc)
-        l.addWidget(cl), l.addWidget(wc)
-
         h = QHBoxLayout()
         self.art_style_label = asl = QLabel(_('Art style for generated &images:'))
         self.art_style_combo = asc = QComboBox(wp)
@@ -440,7 +434,6 @@ class WorldEditWidget(QWidget):
         self.character_editor.set_portrait_ui_visible(self.images_enabled)
         self.title_edit.setText(world.title)
         self.world_edit.load(world.world_description)
-        self.win_edit.load(world.win_condition)
         self.char_list.clear()
         for c in self.characters:
             self.char_list.addItem(c.name)
@@ -460,10 +453,6 @@ class WorldEditWidget(QWidget):
             return error_dialog(self, _('No title'), _('The world must have a title.'), show=True)
         if not self.world_edit.markdown:
             return error_dialog(self, _('No world description'), _('The world must have a description.'), show=True)
-        if not self.win_edit.markdown:
-            return error_dialog(
-                self, _('No win condition'), _('The world must have a win condition, otherwise the adventure can never be completed.'), show=True
-            )
         self.stack.setCurrentWidget(self.character_page)
         self.generate_missing_portraits()
 
@@ -592,7 +581,6 @@ class WorldEditWidget(QWidget):
             title=self.title_edit.text().strip(),
             world_description=self.world_edit.markdown,
             characters=tuple(self.characters),
-            win_condition=self.win_edit.markdown,
         )
 
     def save_world(self) -> None:
@@ -764,7 +752,6 @@ class CreateWorldWidget(QWidget):
         md = [f'# {world.title}', '', world.world_description, '', '## ' + _('Characters'), '']
         for c in world.characters:
             md.extend((f'### {c.name}', '', c.description, '', c.backstory, ''))
-        md.extend(('## ' + _('Win condition'), '', world.win_condition))
         self.saved_world_view.setMarkdown('\n'.join(md))
         self.right_stack.setCurrentWidget(self.saved_world_page)
 

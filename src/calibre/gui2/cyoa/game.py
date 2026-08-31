@@ -77,18 +77,7 @@ from qt.core import (
 
 from calibre.ai import AICapabilities, ImageGenerationOptions, StructuredOutputResult
 from calibre.ai.config import AIConfigWidget, ConfigureAI
-from calibre.ai.cyoa import (
-    AIProvider,
-    CharacterState,
-    GameOutcome,
-    GameState,
-    PlayerCharacter,
-    deserialize_game,
-    next_turn,
-    rewind,
-    scene_image_prompt,
-    serialize_game,
-)
+from calibre.ai.cyoa import AIProvider, CharacterState, GameState, PlayerCharacter, deserialize_game, next_turn, rewind, scene_image_prompt, serialize_game
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, qapplication_or_fail, question_dialog, safe_open_url
@@ -131,14 +120,10 @@ def fmt_cost(cost: float, currency: str) -> str:
     return f'{amount} {currency}'.strip()
 
 
-def scene_divider_html() -> str:
-    return f'<p align="center"><img src="{SCENE_DIVIDER_URL}"></p>'
-
-
 def insert_scene_divider(c: QTextCursor) -> None:
     # The divider needs its own insertion helper as insertHtml() merges the
     # fragment's first block into the current block, losing the center
-    # alignment scene_divider_html() specifies, see insert_html_block().
+    # alignment, see insert_html_block().
     bf = QTextBlockFormat()
     bf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
     bf.setTopMargin(12), bf.setBottomMargin(12)
@@ -928,11 +913,7 @@ class GameWidget(QWidget):
         si.context_menu_requested.connect(self.show_scene_image_context_menu)
         si.refresh_requested.connect(self.regenerate_scene_image)
         rl.addWidget(si)
-        self.condition_label = cl = QLabel(right)
-        cl.setWordWrap(True)
-        cl.setTextFormat(Qt.TextFormat.RichText)
-        rl.addWidget(cl)
-        self.scene_filler = filler = QWidget(right)  # absorbs the leftover space under the condition text when images are shown
+        self.scene_filler = filler = QWidget(right)  # absorbs the leftover space under the scene image when images are shown
         rl.addWidget(filler, stretch=10)
         self.info_view = iv = QTextBrowser(right)  # shown instead of the image when the image AI is disabled
         rl.addWidget(iv, stretch=10)
@@ -1081,8 +1062,6 @@ class GameWidget(QWidget):
         if not state.turns:
             insert_html_block(c, f'<h2>{escape(state.world.title)}</h2>')
             insert_html_block(c, response_to_html(state.world.world_description, ContentType.markdown))
-            insert_scene_divider(c)
-            insert_html_block(c, f'<p><b>{_("Win condition")}</b></p>' + response_to_html(state.world.win_condition, ContentType.markdown))
             return
         insert_html_block(c, f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
         for i, t in enumerate(state.turns):
@@ -1096,10 +1075,6 @@ class GameWidget(QWidget):
             insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
         insert_scene_divider(c)
         last = state.turns[-1].turn
-        if last.outcome is GameOutcome.victory:
-            insert_html_block(c, '<p><b>' + _('You have achieved victory!') + '</b></p>')
-        elif last.outcome is GameOutcome.defeat:
-            insert_html_block(c, '<p><b>' + _('You have been defeated!') + '</b></p>')
         if last.quick_actions:
             # each action in its own paragraph with a top margin, giving
             # enough space between the links to click them comfortably
@@ -1260,16 +1235,6 @@ class GameWidget(QWidget):
 
     # Scene panel and status displays {{{
 
-    def condition_html(self) -> str:
-        state = self.state
-        if state is None:
-            return ''
-        if state.victory_achieved:
-            return '<p><b>' + _('You have achieved victory!') + '</b></p>'
-        if state.defeat_achieved:
-            return '<p><b>' + _('You have been defeated!') + '</b></p>'
-        return f'<p><b>{_("Win condition")}</b></p>' + response_to_html(state.world.win_condition, ContentType.markdown)
-
     def update_scene_panel(self) -> None:
         state = self.state
         if state is None:
@@ -1277,7 +1242,6 @@ class GameWidget(QWidget):
         if not self.images_enabled:
             html = f'<h3>{escape(state.world.title)}</h3>'
             html += response_to_html(state.world.world_description, ContentType.markdown)
-            html += scene_divider_html() + self.condition_html()
             if html != self.info_view.property('cyoa-html'):  # avoid losing the scroll position on every update
                 self.info_view.setProperty('cyoa-html', html)
                 self.info_view.setHtml(html)
@@ -1294,7 +1258,6 @@ class GameWidget(QWidget):
         else:
             placeholder = _('No picture of this scene is available')
         self.scene_image.set_image(img.data if img else None, placeholder, failed=failed, busy=busy, can_generate=can_generate)
-        self.condition_label.setText(self.condition_html())
 
     def displayed_scene_image(self) -> data.SceneImage | None:
         # The picture of the turn the player is currently reading, if any.
@@ -1425,7 +1388,6 @@ class GameWidget(QWidget):
                 show=True,
             )
             return
-        was_over = self.state is not None and self.state.game_over
         self.state = snapshot
         self.session_cost += res.cost
         self.prompt_edit.clear()
@@ -1434,28 +1396,6 @@ class GameWidget(QWidget):
         self.refresh_ui()
         if self.images_enabled:
             self.request_image(len(snapshot.turns))
-        if not was_over and snapshot.game_over:
-            self.show_game_over()
-
-    def show_game_over(self) -> None:
-        state = self.state
-        if state is None:
-            return
-        if state.victory_achieved:
-            title = _('Victory!')
-            msg = _('Congratulations, you have achieved the win condition and completed the adventure!')
-        else:
-            title = _('Defeat')
-            msg = _('Alas, you have been defeated and the adventure has come to an end.')
-        keep_playing = question_dialog(
-            self,
-            title,
-            '<p>' + msg + '</p><p>' + _('Do you want to keep playing this adventure anyway, or return to the world creation screen?'),
-            yes_text=_('&Keep playing'),
-            no_text=_('&New world'),
-        )
-        if not keep_playing:
-            self.game_abandoned.emit()
 
     # }}}
 
@@ -1463,7 +1403,6 @@ class GameWidget(QWidget):
 
     def apply_images_enabled(self) -> None:
         self.scene_image.setVisible(self.images_enabled)
-        self.condition_label.setVisible(self.images_enabled)
         self.scene_filler.setVisible(self.images_enabled)
         self.info_view.setVisible(not self.images_enabled)
         # The checkbox sits directly under the scene image when images are
@@ -1734,7 +1673,6 @@ if __name__ == '__main__':
                 ),
                 starts_new_chapter=n > 1 and (n % 4) == 0,
                 chapter_title=f'Chapter of turn {n}' if n > 1 and (n % 4) == 0 else None,
-                outcome=GameOutcome.victory if n == 6 else GameOutcome.undetermined,
             )
             return StructuredOutputResult(data=turn, raw='{}', cost=0.01 * n, currency='USD', provider='fake', model='fake-model')
 
@@ -1742,7 +1680,7 @@ if __name__ == '__main__':
     w = GameWidget()
     w.plugin_override = FakePlugin()
     pc = PlayerCharacter('Ada', 'a stubborn engineer', 'She built the mist engines.')
-    world = GeneratedWorld(title='Mist City', world_description='A city lost in *perpetual* mist.', characters=(pc,), win_condition='Escape the city.')
+    world = GeneratedWorld(title='Mist City', world_description='A city lost in *perpetual* mist.', characters=(pc,))
     # An empty game_id disables auto-saving, so the demo does not touch the
     # calibre config directory.
     w.load_game('', start_game('a foggy city', world, pc))

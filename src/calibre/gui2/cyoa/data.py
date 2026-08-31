@@ -402,7 +402,6 @@ def find_tests() -> TestSuite:  # {{{
             title='Mist City',
             world_description='A city lost in perpetual mist.',
             characters=(PlayerCharacter('Ada', 'a stubborn engineer', 'She built the mist engines.'),),
-            win_condition='Escape the city.',
         )
 
     def temp_prefs(tdir: str) -> JSONConfig:
@@ -490,7 +489,7 @@ def find_tests() -> TestSuite:  # {{{
                     self.ae(saved_world_index_with_title(' MIST city '), 0)
                     self.ae(saved_world_index_with_title('no such world'), -1)
                     created = entries[0]['created']
-                    world2 = world._replace(win_condition='Rule the city.')
+                    world2 = world._replace(world_description='A city that rules the mist.')
                     add_saved_world('changed brief', world2)
                     entries = saved_worlds()
                     self.ae(len(entries), 1, 'a world with the same title must replace the existing saved world')

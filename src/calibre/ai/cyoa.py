@@ -3,12 +3,11 @@
 
 # Backend for an AI driven "Create Your Own Adventure" game. The game has two
 # phases: world generation, where a brief description from the player is
-# expanded by the AI into a full world with playable characters and a win
-# condition, and the turn-by-turn game itself. Every turn the AI narrates what
-# happens, suggests three quick actions, describes the current scene for an
-# image generation AI, updates a running summary of the story and reports
-# whether a new chapter starts and whether the adventure has ended in victory
-# or defeat. The AI is sent the
+# expanded by the AI into a full world with playable characters, and the
+# turn-by-turn game itself. Every turn the AI narrates what happens, suggests
+# three quick actions, describes the current scene for an image generation AI,
+# updates a running summary of the story and reports whether a new chapter
+# starts. The AI is sent the
 # story summary and the transcript of only the current chapter, so the context
 # stays bounded no matter how long the game runs. A full log of everything
 # sent to and received from the AI is kept, turn by turn, so games can be
@@ -57,7 +56,6 @@ class GeneratedWorld(NamedTuple):
         tuple[PlayerCharacter, ...],
         'Between three and five distinct characters or character variants the player can choose to play as, with physical descriptions and brief back stories',
     ]
-    win_condition: Annotated[str, 'The single concrete goal the player must achieve to win the adventure']
 
 
 class CharacterState(NamedTuple):
@@ -79,13 +77,6 @@ class StorySummary(NamedTuple):
     upcoming_events: Annotated[tuple[str, ...], 'Foreshadowed or planned future events and unresolved plot threads']
 
 
-class GameOutcome(Enum):
-    doc = Doc('Whether the adventure has ended in victory or defeat, or its outcome is still undetermined')
-    undetermined = 'undetermined'
-    victory = 'victory'
-    defeat = 'defeat'
-
-
 class StoryTurn(NamedTuple):
     doc = Doc('One turn of the adventure')
     narrative: Annotated[
@@ -103,12 +94,6 @@ class StoryTurn(NamedTuple):
     updated_summary: Annotated[StorySummary, 'The story summary updated to include the events of this turn']
     starts_new_chapter: Annotated[bool, 'True only when this turn begins a major new phase of the story, suitable as the start of a new chapter']
     chapter_title: Annotated[str | None, 'A title for the new chapter when starts_new_chapter is true, null otherwise']
-    outcome: Annotated[
-        GameOutcome,
-        "'victory' once the player has achieved the win condition,"
-        " 'defeat' once the player has been decisively defeated and the adventure has ended in failure,"
-        " 'undetermined' otherwise",
-    ]
 
 
 # }}}
@@ -146,7 +131,7 @@ def initial_summary(world: GeneratedWorld, character: PlayerCharacter) -> StoryS
 class GameState:
     # The complete state of a game. Everything except the turn log is
     # derived, which keeps rewinding trivial: dropping turn records restores
-    # the summary, chapter position and victory status automatically.
+    # the summary and chapter position automatically.
     brief: str  # the player's original brief description of the world
     world: GeneratedWorld
     character: PlayerCharacter  # the character the player chose
@@ -168,21 +153,6 @@ class GameState:
         return self.turns[-1].turn.updated_summary if self.turns else initial_summary(self.world, self.character)
 
     @property
-    def victory_achieved(self) -> bool:
-        # Latched: once the win condition is met it stays met, even if the
-        # player keeps playing and the AI stops reporting it.
-        return any(t.turn.outcome is GameOutcome.victory for t in self.turns)
-
-    @property
-    def defeat_achieved(self) -> bool:
-        # Latched, like victory_achieved.
-        return any(t.turn.outcome is GameOutcome.defeat for t in self.turns)
-
-    @property
-    def game_over(self) -> bool:
-        return self.victory_achieved or self.defeat_achieved
-
-    @property
     def chapter_titles(self) -> tuple[str, ...]:
         titles: list[str] = []
         for t in self.turns:
@@ -196,8 +166,8 @@ def start_game(brief: str, world: GeneratedWorld, character: PlayerCharacter, ar
 
 
 def rewind(state: GameState, num_of_turns: int = 1) -> None:
-    # Undo the last num_of_turns turns. The summary, current chapter and
-    # victory status are all derived from the remaining turn records.
+    # Undo the last num_of_turns turns. The summary and current chapter are
+    # derived from the remaining turn records.
     if not 0 < num_of_turns <= len(state.turns):
         raise ValueError(f'Cannot rewind {num_of_turns} turns in a game with {len(state.turns)} turns')
     del state.turns[-num_of_turns:]
@@ -301,7 +271,7 @@ WORLD_GENERATION_INSTRUCTIONS = (
     ' Given a brief description of a world, flesh it out into a rich, internally consistent game world,'
     ' inventing concrete details: places, factions, conflicts and atmosphere.'
     ' Create between three and five distinct playable characters, each with a different perspective'
-    " on the world's central conflict, and a single concrete, achievable win condition for the adventure."
+    " on the world's central conflict."
     ' Include physical descriptions and a little back story for the characters.'
     ' If the world description mentions a central character, then have the playable characters all be'
     ' variants of that person with different descriptions and back stories.'
@@ -309,7 +279,7 @@ WORLD_GENERATION_INSTRUCTIONS = (
     ' an image generation AI: cover their appearance, age and distinguishing features without'
     ' relying on the rest of the world description. Describe the kind of clothes the character'
     ' typically wears but not an individual outfit, let the image generation AI choose that.'
-    ' Format all descriptive text fields (world_description, character descriptions, backstories, win_condition)'
+    ' Format all descriptive text fields (world_description, character descriptions, backstories)'
     ' using Markdown: use **bold** for emphasis, *italics* for atmosphere, and newlines to separate paragraphs.'
     ' Do not use headers or bullet lists in these fields.'
 )
@@ -361,31 +331,13 @@ def turn_instructions(state: GameState) -> str:
             " Keep existing characters' descriptions, backstories and relationships up to date as the story evolves."
         ),
         '- starts_new_chapter: true only when this turn begins a major new phase of the story, with chapter_title naming the new chapter.',
-        (
-            "- outcome: 'victory' once the player has achieved the win condition."
-            " 'defeat' only when the player has been decisively defeated:"
-            ' killed, permanently incapacitated, or the win condition has become impossible to achieve.'
-            " 'undetermined' otherwise."
-        ),
         '',
         f'The world, titled {w.title!r}, is described as:',
         w.world_description,
         '',
         f'The player plays {c.name}: {c.description}',
         c.backstory,
-        '',
-        f'The win condition for the player is: {w.win_condition}',
     ]
-    if state.victory_achieved:
-        parts.append(
-            'The player has already achieved the win condition and has chosen to keep playing.'
-            ' Ignore the win condition from now on and continue the story wherever the player takes it.'
-        )
-    elif state.defeat_achieved:
-        parts.append(
-            'The player has been defeated but has chosen to keep playing.'
-            ' Find a plausible way for the story to continue from the defeat and take it wherever the player goes.'
-        )
     return '\n'.join(parts)
 
 
@@ -499,7 +451,7 @@ def develop(use_model: str = '') -> None:  # {{{
     brief = input('Describe the world for your adventure: ')
     world = unwrap(generate_world(brief, plugin, use_model))
     assert isinstance(world, GeneratedWorld)
-    print(f'\n=== {world.title} ===\n\n{world.world_description}\n\nWin condition: {world.win_condition}\n')
+    print(f'\n=== {world.title} ===\n\n{world.world_description}\n')
     for i, c in enumerate(world.characters):
         print(f'{i + 1}) {c.name}: {c.description}')
         bs = textwrap.indent(textwrap.fill(c.backstory), '\t')
@@ -507,7 +459,7 @@ def develop(use_model: str = '') -> None:  # {{{
         print()
     num = input(f'\nChoose your character [1-{len(world.characters)}]: ')
     state = start_game(brief, world, world.characters[int(num) - 1])
-    player_input, game_over_reported = '', False
+    player_input = ''
     while True:
         chapter_before = state.current_chapter if state.turns else -1
         turn = unwrap(next_turn(state, player_input, plugin, use_model))
@@ -516,12 +468,6 @@ def develop(use_model: str = '') -> None:  # {{{
             print(f'\n--- {state.chapter_titles[-1]} ---')
         print(f'\n{turn.narrative}\n')
         print(f'[Scene: {turn.scene_description}]\n')
-        if state.game_over and not game_over_reported:
-            game_over_reported = True
-            if state.victory_achieved:
-                print('*** You have achieved the win condition! Keep playing if you like. ***\n')
-            else:
-                print('*** You have been defeated! Keep playing if you like. ***\n')
         for i, action in enumerate(turn.quick_actions):
             print(f'{i + 1}) {action}')
         player_input = input('\nWhat do you do? (number for a quick action, empty to quit): ').strip()
@@ -554,7 +500,6 @@ def find_tests() -> TestSuite:  # {{{
                 PlayerCharacter('Ada', 'a stubborn engineer', 'She built the mist engines.'),
                 PlayerCharacter('Brin', 'a nimble thief', 'He stole the last map.'),
             ),
-            win_condition='Escape the city before the mist swallows it.',
         )
 
     def make_summary(*events: str) -> StorySummary:
@@ -571,7 +516,6 @@ def find_tests() -> TestSuite:  # {{{
         *events: str,
         starts_new_chapter: bool = False,
         chapter_title: str | None = None,
-        outcome: GameOutcome = GameOutcome.undetermined,
     ) -> StoryTurn:
         return StoryTurn(
             narrative=narrative,
@@ -580,7 +524,6 @@ def find_tests() -> TestSuite:  # {{{
             updated_summary=make_summary(*events),
             starts_new_chapter=starts_new_chapter,
             chapter_title=chapter_title,
-            outcome=outcome,
         )
 
     def ok(data: GeneratedWorld | StoryTurn) -> StructuredOutputResult:
@@ -597,7 +540,6 @@ def find_tests() -> TestSuite:  # {{{
             prompt, schema, instructions, use_model = fake.calls[0]
             self.assertIn('a foggy city', prompt)
             self.assertIs(schema, GeneratedWorld)
-            self.assertIn('win condition', instructions)
             res = generate_world('anything', FakePlugin([StructuredOutputResult(exception=ValueError('boom'))]))
             self.assertIsInstance(res.exception, ValueError)
 
@@ -641,7 +583,6 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('Begin the adventure', prompt)
             self.assertIn(state.world.world_description, instructions)
             self.assertIn(state.character.backstory, instructions)
-            self.assertIn(state.world.win_condition, instructions)
             self.assertIn('new named character', instructions, 'the AI must be told to add a bio for every newly introduced named character')
             self.assertIn('brief backstory', instructions, "new characters' bios must include a brief backstory")
             self.ae(len(state.turns), 1)
@@ -680,41 +621,11 @@ def find_tests() -> TestSuite:  # {{{
             self.assertNotIn('The player responds', prompt)
             self.ae(state.turns[-1].player_input, '', 'an interesting event must not record any player input')
 
-        def test_ai_cyoa_win_condition(self) -> None:
-            state = start_game('brief', make_world(), make_world().characters[1])
-            fake = FakePlugin([
-                ok(make_turn('You escape.', 'escaped', outcome=GameOutcome.victory)),
-                ok(make_turn('You wander on.', 'escaped', 'wandered')),
-            ])
-            next_turn(state, '', fake)
-            self.assertTrue(state.victory_achieved)
-            self.assertTrue(state.game_over)
-            next_turn(state, 'keep going', fake)
-            self.assertIn('already achieved the win condition', fake.calls[1][2])
-            self.assertTrue(state.victory_achieved, 'victory must stay latched even when later turns do not report it')
-            self.assertNotIn('already achieved', fake.calls[0][2])
-
-        def test_ai_cyoa_defeat(self) -> None:
-            state = start_game('brief', make_world(), make_world().characters[0])
-            fake = FakePlugin([
-                ok(make_turn('You perish.', 'perished', outcome=GameOutcome.defeat)),
-                ok(make_turn('You wake, somehow.', 'perished', 'woke')),
-            ])
-            next_turn(state, '', fake)
-            self.assertIn("'defeat'", fake.calls[0][2], 'the AI must be told how to report defeat')
-            self.assertNotIn('has been defeated', fake.calls[0][2])
-            self.assertTrue(state.defeat_achieved)
-            self.assertFalse(state.victory_achieved)
-            self.assertTrue(state.game_over)
-            next_turn(state, 'keep going', fake)
-            self.assertIn('has been defeated', fake.calls[1][2])
-            self.assertTrue(state.defeat_achieved, 'defeat must stay latched even when later turns do not report it')
-
         def test_ai_cyoa_rewind(self) -> None:
             state = start_game('brief', make_world(), make_world().characters[0])
             fake = FakePlugin([
                 ok(make_turn('One.', 'one')),
-                ok(make_turn('Two.', 'one', 'two', outcome=GameOutcome.victory)),
+                ok(make_turn('Two.', 'one', 'two')),
                 ok(make_turn('Three.', 'one', 'two', 'three', starts_new_chapter=True, chapter_title='Part II')),
             ])
             for x in ('', 'a', 'b'):
@@ -723,9 +634,7 @@ def find_tests() -> TestSuite:  # {{{
             rewind(state)
             self.ae(state.current_chapter, 0)
             self.ae(state.current_summary.major_events, ('one', 'two'))
-            self.assertTrue(state.victory_achieved)
             rewind(state)
-            self.assertFalse(state.victory_achieved)
             self.assertRaises(ValueError, rewind, state, 2)
             self.assertRaises(ValueError, rewind, state, 0)
             rewind(state)
@@ -735,16 +644,14 @@ def find_tests() -> TestSuite:  # {{{
             state = start_game('a foggy city', make_world(), make_world().characters[0], art_style='anime')
             fake = FakePlugin([
                 ok(make_turn('You awaken.', 'awoke')),
-                ok(make_turn('You escape.', 'awoke', 'escaped', starts_new_chapter=True, chapter_title='Freedom', outcome=GameOutcome.victory)),
+                ok(make_turn('You escape.', 'awoke', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
             ])
             next_turn(state, '', fake)
             next_turn(state, 'run', fake)
             restored = deserialize_game(serialize_game(state))
             self.ae(state, restored)
-            self.assertTrue(restored.victory_achieved)
             self.ae(restored.current_chapter, 1)
             self.ae(restored.art_style, 'anime')
-            self.assertFalse(restored.defeat_achieved)
             self.assertRaises(ValueError, deserialize_game, json.dumps({'version': GAME_SERIALIZATION_VERSION + 1, 'game': {}}))
             self.assertRaises(ValueError, deserialize_game, json.dumps(['not', 'a', 'game']))
 
