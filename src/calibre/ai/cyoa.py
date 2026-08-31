@@ -81,7 +81,8 @@ class StoryTurn(NamedTuple):
     doc = Doc('One turn of the adventure')
     narrative: Annotated[
         str,
-        'The narrative text describing what happens in this turn, written as immersive long form prose'
+        'The next passage of the novel, continuing seamlessly from the prose written so far without repeating any of it,'
+        ' written as immersive long form prose'
         ' with dialogue from the characters, their expressions and reactions, and scene descriptions where needed',
     ]
     quick_actions: Annotated[tuple[str, ...], 'Exactly three short, distinct actions the player could plausibly take next']
@@ -297,11 +298,16 @@ def turn_instructions(state: GameState) -> str:
     w, c = state.world, state.character
     parts = [
         (
-            'You are the game master of an interactive "choose your own adventure" game.'
-            " Continue the story based on the story summary, the transcript of the current chapter and the player's latest action."
-            " Have the characters react to the player's actions and the world in realistic and consistent ways."
-            ' Write each turn as immersive long form fiction, the way a skilled novelist would:'
-            ' let scenes breathe and unfold over several paragraphs rather than summarizing events.'
+            'You are a novelist writing an interactive novel in collaboration with your reader.'
+            f" You write the novel's prose; the reader directs the actions of the protagonist, {c.name}, between passages."
+            ' Write the next passage based on the story summary, the prose of the current chapter so far'
+            " and the reader's latest direction."
+            ' Each passage you write must continue seamlessly from exactly where the previous passage ended,'
+            ' as if it were the next paragraphs of the same chapter.'
+            ' Never repeat, summarize or rephrase prose that has already been written: the reader has just read it.'
+            " Have the characters react to the protagonist's actions and the world in realistic and consistent ways."
+            ' Write each passage as rich long form fiction of several substantial paragraphs, typically 400-800 words,'
+            ' the way a skilled novelist would: let scenes breathe and unfold rather than summarizing events.'
             ' Bring the characters to life with spoken dialogue, quoting their words directly in their own distinct voices,'
             ' and show their expressions, gestures, body language and emotional reactions as they speak and act.'
             ' When the story enters a new location or the mood shifts, ground the scene with vivid sensory detail:'
@@ -312,30 +318,31 @@ def turn_instructions(state: GameState) -> str:
         ),
         'Rules for the fields of your response:',
         (
-            '- narrative: describe what happens next in second person present tense, addressing the player as "you".'
+            '- narrative: the next passage of the novel, in second person present tense, addressing the reader as "you".'
+            " It must pick up exactly where the chapter's prose left off, without repeating or recapping anything already written."
             ' Write it as compelling long form prose: multiple paragraphs weaving together action, dialogue from the characters,'
             ' their expressions and reactions, and scene description where needed, never a terse summary of events.'
-            ' Stop at a point where the player must decide what to do next.'
+            ' End at a point where the reader must decide what the protagonist does next.'
             ' Use Markdown formatting as instructed above.'
         ),
-        '- quick_actions: exactly three short, distinct actions the player could plausibly take next.',
+        '- quick_actions: exactly three short, distinct actions the reader could plausibly have the protagonist take next.',
         (
             '- scene_description: a self-contained visual description of the current scene for an image generation AI.'
             ' It must make sense without any knowledge of the story.'
         ),
         (
-            "- updated_summary: the story summary updated with this turn's events."
+            "- updated_summary: the story summary updated with this passage's events."
             ' Preserve all information that is still relevant, including characters, relationships and unresolved plot threads, and keep it concise.'
             ' Whenever the narrative introduces a new named character, add an entry for them to the characters field of the summary'
             ' with a short description and a brief backstory.'
             " Keep existing characters' descriptions, backstories and relationships up to date as the story evolves."
         ),
-        '- starts_new_chapter: true only when this turn begins a major new phase of the story, with chapter_title naming the new chapter.',
+        '- starts_new_chapter: true only when this passage begins a major new phase of the story, with chapter_title naming the new chapter.',
         '',
         f'The world, titled {w.title!r}, is described as:',
         w.world_description,
         '',
-        f'The player plays {c.name}: {c.description}',
+        f'The protagonist, {c.name}, is {c.description}',
         c.backstory,
     ]
     return '\n'.join(parts)
@@ -344,24 +351,26 @@ def turn_instructions(state: GameState) -> str:
 def turn_prompt(state: GameState, player_input: str = '', interesting_event: bool = False) -> str:
     parts = ['The summary of the story so far, as JSON:', summary_as_json(state.current_summary), '']
     if transcript := state.current_chapter_turns:
-        parts.append('The transcript of the current chapter:')
+        parts.append('The prose of the current chapter so far, which the reader has already read:')
+        parts.append('')
         for t in transcript:
             if t.player_input:
-                parts.append(f'Player: {t.player_input}')
-            parts.append(f'Narrator: {t.turn.narrative}')
-        parts.append('')
+                parts.append(f'[The reader directs: {t.player_input}]')
+                parts.append('')
+            parts.append(t.turn.narrative)
+            parts.append('')
     if state.turns:
         if interesting_event:
             parts.append(
-                'The player waits to see what happens next. Have something unexpected and interesting happen, taking the story in a surprising new direction.'
+                'The reader waits to see what happens next. Have something unexpected and interesting happen, taking the story in a surprising new direction.'
             )
         else:
-            parts.append(f'The player responds: {player_input}' if player_input else 'The player says nothing.')
-        parts.append('Generate the next turn of the story.')
+            parts.append(f'The reader directs: {player_input}' if player_input else 'The reader offers no direction.')
+        parts.append("Write the next passage of the novel, continuing seamlessly from where the chapter's prose ends.")
     else:
         if player_input:
-            parts.append(f'The player asks for the story to begin as follows: {player_input}')
-        parts.append('Begin the adventure with an opening scene that introduces the player character and their situation.')
+            parts.append(f'The reader asks for the novel to begin as follows: {player_input}')
+        parts.append('Begin the novel with an opening scene that introduces the protagonist and their situation.')
     return '\n'.join(parts)
 
 
@@ -580,11 +589,13 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIsNone(res.exception)
             prompt, schema, instructions, _um = fake.calls[0]
             self.assertIs(schema, StoryTurn)
-            self.assertIn('Begin the adventure', prompt)
+            self.assertIn('Begin the novel', prompt)
             self.assertIn(state.world.world_description, instructions)
             self.assertIn(state.character.backstory, instructions)
             self.assertIn('new named character', instructions, 'the AI must be told to add a bio for every newly introduced named character')
             self.assertIn('brief backstory', instructions, "new characters' bios must include a brief backstory")
+            self.assertIn('Never repeat', instructions, 'the AI must be forbidden from repeating prose it has already written')
+            self.assertIn('400', instructions, 'the AI must be given a concrete length target for passages')
             self.ae(len(state.turns), 1)
             self.ae(state.turns[0].chapter, 0)
             self.ae(state.turns[0].raw_response, '{"raw": "json"}')
@@ -592,8 +603,9 @@ def find_tests() -> TestSuite:  # {{{
 
             next_turn(state, 'look around', fake)
             prompt = fake.calls[1][0]
-            self.assertIn('Narrator: You awaken in the mist.', prompt)
-            self.assertIn('The player responds: look around', prompt)
+            self.assertIn('You awaken in the mist.', prompt)
+            self.assertNotIn('Narrator:', prompt, 'the chapter prose must be presented as plain prose, not a dialogue transcript')
+            self.assertIn('The reader directs: look around', prompt)
             self.assertIn('awoke', prompt, 'the summary from the previous turn must be sent')
             self.assertNotIn('has not yet begun', prompt, 'the initial summary must have been replaced')
 
@@ -618,7 +630,7 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIsNone(res.exception)
             prompt = fake.calls[0][0]
             self.assertIn('something unexpected', prompt)
-            self.assertNotIn('The player responds', prompt)
+            self.assertNotIn('ignored', prompt, "an interesting event must not send the player's input to the AI")
             self.ae(state.turns[-1].player_input, '', 'an interesting event must not record any player input')
 
         def test_ai_cyoa_rewind(self) -> None:
