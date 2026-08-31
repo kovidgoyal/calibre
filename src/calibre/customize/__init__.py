@@ -15,7 +15,11 @@ from calibre.utils.localization import _
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
-    from calibre.ai import ChatMessage, ChatResponse, ImageData, ImageGenerationOptions, ImageGenerationResult, StructuredOutputResult
+    from calibre.ai import AICapabilities, ChatMessage, ChatResponse, ImageData, ImageGenerationOptions, ImageGenerationResult, StructuredOutputResult
+else:
+    Iterable = Iterator = Sequence = ChatMessage = ChatResponse = ImageData = ImageGenerationOptions = ImageGenerationResult = StructuredOutputResult = (
+        AICapabilities
+    ) = None
 
 if iswindows:
     platform = 'windows'
