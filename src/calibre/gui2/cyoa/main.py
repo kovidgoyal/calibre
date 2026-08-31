@@ -10,6 +10,7 @@
 from qt.core import QIcon, QSize, QStackedWidget
 
 from calibre.ai.cyoa import GeneratedWorld, PlayerCharacter, start_game
+from calibre.constants import CYOA_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.game import GameWidget
@@ -72,7 +73,8 @@ class CYOAMainWindow(MainWindow):
 
 
 def main() -> None:
-    app = Application([])
+    override = 'calibre-ebook-viewer' if islinux else None
+    app = Application([], override_program_name=override, windows_app_uid=CYOA_APP_UID)
     w = CYOAMainWindow()
     w.set_exception_handler()
     w.show()
