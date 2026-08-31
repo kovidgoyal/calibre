@@ -79,6 +79,15 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    try:
+        if for_image:
+            return model_choice_for_images(False).id
+        return next(model_choice_for_text()).id
+    except Exception:
+        return ''
+
+
 class Pricing(NamedTuple):
     # Values are in credits per token/request/unit
     input_token: float = 0  # cost per input token

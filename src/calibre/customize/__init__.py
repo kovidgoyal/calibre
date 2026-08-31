@@ -977,6 +977,13 @@ class AIProviderPlugin(Plugin):  # {{{
             return model_id
         return self.builtin_live_module.human_readable_model_name(model_id)
 
+    def configured_model_name(self, capability: AICapabilities) -> str:
+        "Return the model id that would be used for a query with the given capability, or empty string if not determinable"
+        m = self.builtin_live_module
+        if m is not None and hasattr(m, 'configured_model_name'):
+            return m.configured_model_name(for_image=capability.supports_text_to_image)
+        return ''
+
 
 # }}}
 

@@ -97,6 +97,10 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    return '' if for_image else (pref('text_model') or '')
+
+
 def config_widget() -> ConfigWidget:
     from calibre.ai.openai_compatible.config import ConfigWidget
 

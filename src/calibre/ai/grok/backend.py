@@ -176,6 +176,15 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    try:
+        if for_image:
+            return model_choice_for_images().id
+        return model_choice_for_text().id
+    except Exception:
+        return ''
+
+
 _SPECIALIZED_MODEL_TYPES = frozenset({'image', 'video', 'voice', 'imagine', 'code', 'build', 'embedding'})
 
 

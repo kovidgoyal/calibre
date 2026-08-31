@@ -150,6 +150,15 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    try:
+        if for_image:
+            return model_choice_for_images()  # returns a model id str with hardcoded fallback
+        return model_choice_for_text().id
+    except Exception:
+        return ''
+
+
 _NON_CHAT_MODEL_TYPES = frozenset({'realtime', 'audio', 'tts', 'transcribe', 'search', 'image', 'codex', 'live', 'whisper'})
 
 

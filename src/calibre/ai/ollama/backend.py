@@ -120,6 +120,10 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    return '' if for_image else (pref('text_model') or '')
+
+
 def model_choice_for_text() -> Model:
     # Deliberately not cached so that changes to the preference, including
     # temporary overrides via override_prefs_for_providers(), take effect.

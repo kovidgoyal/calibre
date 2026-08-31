@@ -251,6 +251,15 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    try:
+        if for_image:
+            return model_choices_for_images(False)[0].id
+        return model_choice_for_text().id
+    except Exception:
+        return ''
+
+
 @lru_cache(8)
 def gemini_models(version: float = 0) -> dict[str, Model]:
     models = {}

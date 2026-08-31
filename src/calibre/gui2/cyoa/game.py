@@ -1346,21 +1346,21 @@ class GameWidget(QWidget):
             self.status_label.setText('')
             return
         parts = [_('Turn: {}').format(len(state.turns)), _('Chapter: {}').format(state.current_chapter + 1)]
-        models: list[str] = []
         currency = ''
         total_cost = 0.0
         for t in state.turns:
-            if t.model and t.model not in models:
-                models.append(t.model)
             total_cost += t.cost
             currency = currency or t.currency
         for img in self.images.values():
-            if img.model and img.model not in models:
-                models.append(img.model)
             total_cost += img.cost
             currency = currency or img.currency
-        if models:
-            parts.append(_('Models: {}').format(', '.join(models)))
+        model_parts: list[str] = []
+        for kind in ('text', 'image'):
+            m = data.configured_model_name(kind) or data.configured_provider_name(kind)
+            if m:
+                model_parts.append(m)
+        if model_parts:
+            parts.append(_('Models: {}').format(', '.join(model_parts)))
         if total_cost or self.session_cost:
             parts.append(_('Cost: {0} this session, {1} in total').format(fmt_cost(self.session_cost, currency), fmt_cost(total_cost, currency)))
         self.status_label.setText(' · '.join(parts))

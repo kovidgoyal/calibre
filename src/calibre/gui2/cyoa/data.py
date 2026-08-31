@@ -98,6 +98,14 @@ def configured_provider_name(kind: AIPurpose) -> str:
     return ai_settings(kind).get('provider', '')
 
 
+def configured_model_name(kind: AIPurpose) -> str:
+    plugin = plugin_for(kind)
+    if plugin is None:
+        return ''
+    with cyoa_ai_settings():
+        return plugin.configured_model_name(PURPOSE_CAPABILITIES[kind])
+
+
 def mark_image_skipped(skipped: bool = True) -> None:
     prefs().set('image_skipped', skipped)
 

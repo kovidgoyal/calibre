@@ -193,6 +193,15 @@ def human_readable_model_name(model_id: str) -> str:
     return m.name if m is not None else model_id
 
 
+def configured_model_name(for_image: bool = False) -> str:
+    try:
+        if for_image:
+            return model_choice_for_images().id
+        return model_choice_for_text().id
+    except Exception:
+        return ''
+
+
 @lru_cache(2)
 def models_by_strategy() -> dict[str, Model]:
     candidates = [m for m in get_available_models().values() if not m.generates_images and not m.offline]
