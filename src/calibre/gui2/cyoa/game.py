@@ -27,6 +27,7 @@ from qt.core import (
     QContextMenuEvent,
     QCursor,
     QDialogButtonBox,
+    QGroupBox,
     QHBoxLayout,
     QIcon,
     QImage,
@@ -54,6 +55,7 @@ from qt.core import (
     QSplitter,
     QStatusBar,
     Qt,
+    QTabWidget,
     QTextBlockFormat,
     QTextBrowser,
     QTextCharFormat,
@@ -317,6 +319,72 @@ class ConfigureImageAIDialog(Dialog):
     def accept(self) -> None:
         if not self.image_config.commit():
             return
+        super().accept()
+
+
+class SettingsDialog(Dialog):
+    # Lets the player change the AIs used to run the game mid-game: one tab
+    # for the main AI that generates the story and one for the AI that
+    # generates pictures of each scene, saving the settings the same way as
+    # the welcome screen.
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(_('Game settings'), 'cyoa-settings', parent)
+
+    def setup_ui(self) -> None:
+        l = QVBoxLayout(self)
+        self.tabs = tabs = QTabWidget(self)
+        l.addWidget(tabs)
+        # Construct the provider config widgets inside the CYOA settings
+        # overlay so they display the settings used for the game, with API
+        # keys falling through to the common AI preferences.
+        with data.cyoa_ai_settings():
+            text_tab = QWidget(self)
+            tv = QVBoxLayout(text_tab)
+            self.text_config = tc = ConfigureAI(
+                AICapabilities.text_to_text,
+                parent=text_tab,
+                save_hook=self.save_text_settings,
+                initial_provider_name=data.configured_provider_name('text'),
+            )
+            tv.addWidget(tc), tv.addStretch()
+            tabs.addTab(text_tab, QIcon.ic('ai.png'), _('&Main AI'))
+
+            image_tab = QWidget(self)
+            iv = QVBoxLayout(image_tab)
+            self.image_group = ig = QGroupBox(_('Generate &pictures of the story'), image_tab)
+            ig.setCheckable(True)
+            ig.setToolTip('<p>' + _('Uncheck this to play a text only game. You can always configure it later.'))
+            gl = QVBoxLayout(ig)
+            self.image_config = ic = ConfigureAI(
+                AICapabilities.text_to_image,
+                parent=ig,
+                save_hook=self.save_image_settings,
+                initial_provider_name=data.configured_provider_name('image'),
+            )
+            gl.addWidget(ic)
+            ig.setChecked(bool(data.configured_provider_name('image')) and not data.image_skipped())
+            iv.addWidget(ig), iv.addStretch()
+            tabs.addTab(image_tab, QIcon.ic('view-image.png'), _('&Image generation AI'))
+        l.addWidget(self.bb)
+
+    def save_text_settings(self, plugin: AIProviderPlugin, config_widget: AIConfigWidget) -> None:
+        data.save_ai_settings('text', plugin.name, config_widget.settings)
+
+    def save_image_settings(self, plugin: AIProviderPlugin, config_widget: AIConfigWidget) -> None:
+        data.save_ai_settings('image', plugin.name, config_widget.settings)
+
+    def accept(self) -> None:
+        if not self.text_config.commit():
+            self.tabs.setCurrentIndex(0)
+            return
+        if self.image_group.isChecked():
+            if not self.image_config.commit():
+                self.tabs.setCurrentIndex(1)
+                return
+            data.mark_image_skipped(False)
+        else:
+            data.mark_image_skipped(True)
         super().accept()
 
 
@@ -719,6 +787,9 @@ class GameWidget(QWidget):
         )
         self.characters_action = toolbar_action(
             'user_profile.png', _('Characters'), _('View and edit the characters of the story and their portraits'), self.edit_characters
+        )
+        self.settings_action = toolbar_action(
+            'config.png', _('Settings'), _('Change the AIs used to generate the story and the pictures of each scene'), self.change_settings
         )
         self.exit_action = toolbar_action(
             'back.png', _('New world'), _('Leave this game and return to the world creation screen'), self.exit_to_world_generation
@@ -1508,6 +1579,24 @@ class GameWidget(QWidget):
             data.add_saved_world(state.brief, state.world, state.art_style, d.portraits)
             self.autosave()
         self.status_bar.showMessage(_('Changes to the characters will be used from the next turn'), 5000)
+
+    def change_settings(self) -> None:
+        if SettingsDialog(self).exec() != Dialog.DialogCode.Accepted:
+            return
+        # The image AI may have been enabled, disabled or changed, so re-sync
+        # the scene panel with the new settings, as toggle_images() does.
+        self.images_enabled = data.images_enabled()
+        self.images_check.setChecked(self.images_enabled)
+        if not self.images_enabled:
+            # Discard any in-flight image generation, its result no longer
+            # matches image_call when it arrives.
+            self.image_call = -1
+            self.image_turn = -1
+        self.apply_images_enabled()
+        state = self.state
+        if self.images_enabled and state is not None and state.turns and len(state.turns) not in self.images:
+            self.request_image(len(state.turns))
+        self.status_bar.showMessage(_('The changed AI settings will be used from the next turn'), 5000)
 
     # }}}
 
