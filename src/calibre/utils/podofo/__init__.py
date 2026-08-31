@@ -383,12 +383,27 @@ def find_tests():
             ufd = b.add(f'<</Type/FontDescriptor/FontName/Fake/Flags 4/FontFile2 {uff} 0 R>>'.encode('ascii'))
             udf = b.add(f'<</Type/Font/Subtype/CIDFontType2/BaseFont/Fake/FontDescriptor {ufd} 0 R>>'.encode('ascii'))
             unused_font = b.add(f'<</Type/Font/Subtype/Type0/BaseFont/Fake/Encoding/Identity-H/DescendantFonts[{udf} 0 R]>>'.encode('ascii'))
+        t3_font = 0
+        if type3_font:
+            cp1 = b.add_stream(b'', b'10 0 0 0 10 10 d1')
+            cp2 = b.add_stream(b'', b'10 0 0 0 10 10 d1')
+            t3_font = b.add(
+                (
+                    '<</Type/Font/Subtype/Type3/FontBBox[0 0 10 10]/FontMatrix[0.001 0 0 0.001 0 0]'
+                    f'/CharProcs<</a {cp1} 0 R/b {cp2} 0 R>>/Encoding<</Type/Encoding/Differences[97/a 98/b]>>/FirstChar 97/LastChar 98/Widths[10 10]>>'
+                ).encode('ascii')
+            )
         for i in range(num_pages):
-            contents = b.add_stream(b'', f'BT /F1 24 Tf 72 720 Td (Page {i + 1}) Tj ET'.encode('ascii'))
+            text = f'BT /F1 24 Tf 72 720 Td (Page {i + 1}) Tj ET'
+            if t3_font:
+                text += ' BT /F3 24 Tf 72 600 Td (ab) Tj ET'
+            contents = b.add_stream(b'', text.encode('ascii'))
             fonts = f'/F1 {font} 0 R'
             if unused_font:
                 # the font is in the page resources, but never selected by a Tf operator in the content stream
                 fonts += f'/F2 {unused_font} 0 R'
+            if t3_font:
+                fonts += f'/F3 {t3_font} 0 R'
             page = f'<</Type/Page/Parent {pages} 0 R/MediaBox[0 0 612 792]/Contents {contents} 0 R/Resources<</Font<<{fonts}>>>>'
             if annot and i == 0:
                 page += f'/Annots[{annot} 0 R]'
@@ -400,15 +415,6 @@ def find_tests():
         if dests:
             d = b.add(f'<</anchor1[{page_nums[0]} 0 R/XYZ 10.5 20.5 3]>>'.encode('ascii'))
             catalog_body += f'/Dests {d} 0 R'
-        if type3_font:
-            cp1 = b.add_stream(b'', b'10 0 0 0 10 10 d1')
-            cp2 = b.add_stream(b'', b'10 0 0 0 10 10 d1')
-            b.add(
-                (
-                    '<</Type/Font/Subtype/Type3/FontBBox[0 0 10 10]/FontMatrix[0.001 0 0 0.001 0 0]'
-                    f'/CharProcs<</a {cp1} 0 R/b {cp2} 0 R>>/Encoding<</Type/Encoding/Differences[97/a 98/b]>>/FirstChar 97/LastChar 98/Widths[10 10]>>'
-                ).encode('ascii')
-            )
         b.set(catalog, (catalog_body + '>>').encode('ascii'))
         return b.build()
 
@@ -539,9 +545,26 @@ def find_tests():
             p = roundtrip(p)
             p.uncompress()
             raw = p.write()
+            # the font, its descendant font, descriptor and font file must
+            # all have been garbage collected when saving
             self.assertNotIn(b'FAKEFONTDATA', raw)
+            self.assertNotIn(b'/Fake', raw)
             self.assertIn(b'FONTFILEDATA', raw)
             self.assertEqual(len(p.list_fonts()), 1)
+
+        def test_podofo_merge_fonts(self):
+            p = load(multi_page_pdf(num_pages=1, unused_type0_font=True))
+            refs = tuple(f['Reference'] for f in p.list_fonts() if f['StreamRef'] is not None)
+            self.assertEqual(len(refs), 2)
+            p.merge_fonts(b'MERGEDDATA', refs)
+            p = roundtrip(p)
+            p.uncompress()
+            raw = p.write()
+            # both font descriptors must point at a single font file, with the
+            # orphaned font file garbage collected when saving
+            self.assertEqual(raw.count(b'MERGEDDATA'), 1)
+            self.assertNotIn(b'FONTFILEDATA', raw)
+            self.assertNotIn(b'FAKEFONTDATA', raw)
 
         def test_podofo_replace_font_data(self):
             p = load(multi_page_pdf(font_file_data=b'OLDDATA'))
@@ -552,7 +575,13 @@ def find_tests():
 
         def test_podofo_dedup_type3_fonts(self):
             p = load(multi_page_pdf(type3_font=True))
+            p.uncompress()
+            self.assertEqual(p.write().count(b'10 0 0 0 10 10 d1'), 2)
             self.assertEqual(p.dedup_type3_fonts(), 1)
+            p = roundtrip(p)
+            p.uncompress()
+            # the duplicate char proc must have been garbage collected when saving
+            self.assertEqual(p.write().count(b'10 0 0 0 10 10 d1'), 1)
 
         def test_podofo_images(self):
             page_size = (0.0, 0.0, 612.0, 792.0)
@@ -562,7 +591,10 @@ def find_tests():
             p = roundtrip(p)
             self.assertEqual(p.page_count(), 2)
             self.assertEqual(p.image_count(), 2)
-            self.assertGreaterEqual(p.dedup_images(), 1)
+            self.assertEqual(p.dedup_images(), 1)
+            # the duplicate image must be garbage collected when saving
+            p = roundtrip(p)
+            self.assertEqual(p.image_count(), 1)
 
         def test_podofo_impose(self):
             p = load(multi_page_pdf(num_pages=2))

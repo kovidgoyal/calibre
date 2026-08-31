@@ -127,13 +127,10 @@ get_page(PdfDocument *doc, const unsigned num) {
     return nullptr;
 }
 
-// PdfIndirectObjectList::RemoveObject() is private in PoDoFo >= 1.0. Turn the
-// object into a null object instead, which drops its data (and any stream)
-// from the serialized file, leaving only a tiny xref entry behind.
-static inline void
-remove_object(const PdfIndirectObjectList &objects, const PdfReference &ref) {
-    if (PdfObject *o = objects.GetObject(ref)) *o = PdfObject(nullptr);
-}
+// PdfIndirectObjectList::RemoveObject() is private in PoDoFo >= 1.0. Instead,
+// PoDoFo garbage collects unreferenced objects when saving (as long as
+// PdfSaveOptions::NoCollectGarbage is not used), so to remove an object it is
+// sufficient to remove all references to it from the document tree.
 
 static inline PdfReference
 object_as_reference(const PdfObject &o) {
