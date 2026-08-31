@@ -26,6 +26,7 @@ from qt.core import (
     QCheckBox,
     QContextMenuEvent,
     QCursor,
+    QDialog,
     QDialogButtonBox,
     QGroupBox,
     QHBoxLayout,
@@ -62,6 +63,7 @@ from qt.core import (
     QTextCharFormat,
     QTextCursor,
     QTextDocument,
+    QTextEdit,
     QTextOption,
     QTimer,
     QToolBar,
@@ -954,6 +956,10 @@ class GameWidget(QWidget):
         self.addAction(a)
         self.popup_image_action = a = QAction(QIcon.ic('view-image.png'), _('&Show image in a popup window'), self)
         a.triggered.connect(self.show_scene_image_popup)
+        self.show_image_prompt_action = a = QAction(QIcon.ic('dialog_information.png'), _('Show image &prompt'), self)
+        a.triggered.connect(self.show_scene_image_prompt)
+        self.edit_image_prompt_action = a = QAction(QIcon.ic('edit_input.png'), _('&Edit prompt and regenerate image'), self)
+        a.triggered.connect(self.edit_scene_image_prompt)
         self.copy_turn_action = a = QAction(QIcon.ic('edit-copy.png'), _('Copy current &turn to clipboard'), self)
         a.setShortcut(QKeySequence('Ctrl+Shift+C', QKeySequence.SequenceFormat.PortableText))
         a.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
@@ -1292,7 +1298,55 @@ class GameWidget(QWidget):
         m.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         m.addAction(self.copy_image_action)
         m.addAction(self.popup_image_action)
+        img = self.displayed_scene_image()
+        has_prompt = bool(img and img.prompt)
+        self.show_image_prompt_action.setEnabled(has_prompt)
+        m.addAction(self.show_image_prompt_action)
+        can_regen = self.image_call == -1 and bool(self.visible_turn_number())
+        self.edit_image_prompt_action.setEnabled(can_regen)
+        m.addAction(self.edit_image_prompt_action)
         m.exec(pos)
+
+    def show_scene_image_prompt(self) -> None:
+        img = self.displayed_scene_image()
+        if img and img.prompt:
+            d = QDialog(self)
+            d.setWindowTitle(_('Image generation prompt'))
+            d.resize(700, 400)
+            l = QVBoxLayout(d)
+            la = QTextEdit(d)
+            la.setReadOnly(True)
+            la.setPlainText(img.prompt)
+            bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, d)
+            bb.rejected.connect(d.reject)
+            l.addWidget(la)
+            l.addWidget(bb)
+            d.exec()
+
+    def edit_scene_image_prompt(self) -> None:
+        tn = self.visible_turn_number()
+        if not tn or self.state is None:
+            return
+        img = self.displayed_scene_image()
+        if img and img.prompt:
+            current_prompt = img.prompt
+        else:
+            current_prompt = scene_image_prompt(self.state.turns[tn - 1].turn.scene_description, self.state.art_style)
+        d = QDialog(self)
+        d.setWindowTitle(_('Edit image prompt'))
+        d.resize(700, 400)
+        l = QVBoxLayout(d)
+        la = QTextEdit(d)
+        la.setPlainText(current_prompt)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, d)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        l.addWidget(la)
+        l.addWidget(bb)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            prompt = la.toPlainText().strip()
+            if prompt:
+                self.request_image(tn, prompt=prompt)
 
     def update_window_title(self) -> None:
         w = self.window()
@@ -1430,14 +1484,15 @@ class GameWidget(QWidget):
         if enabled and state is not None and state.turns and len(state.turns) not in self.images:
             self.request_image(len(state.turns))
 
-    def request_image(self, turn_number: int) -> None:
+    def request_image(self, turn_number: int, prompt: str = '') -> None:
         state = self.state
         if state is None or not self.images_enabled or not 0 < turn_number <= len(state.turns):
             return
         plugin = data.plugin_for('image')
         if plugin is None:
             return
-        prompt = scene_image_prompt(state.turns[turn_number - 1].turn.scene_description, state.art_style)
+        if not prompt:
+            prompt = scene_image_prompt(state.turns[turn_number - 1].turn.scene_description, state.art_style)
         self.image_call = next(self.image_counter)
         self.image_turn = turn_number
         Thread(name='CYOASceneImage', daemon=True, target=self.do_generate_image, args=(prompt, turn_number, self.image_call, plugin)).start()
@@ -1458,7 +1513,7 @@ class GameWidget(QWidget):
                 try:
                     img = resize_to_fit(image_from_data(res.image.data), SCENE_IMAGE_SIZE, SCENE_IMAGE_SIZE)[1]
                     webp = image_to_data(img, compression_quality=70, fmt='WEBP')
-                    image = data.SceneImage(data=webp, cost=res.cost, currency=res.currency, provider=res.provider, model=res.model)
+                    image = data.SceneImage(data=webp, cost=res.cost, currency=res.currency, provider=res.provider, model=res.model, prompt=prompt)
                 except Exception as e:
                     error = str(e)
             if sip.isdeleted(self):

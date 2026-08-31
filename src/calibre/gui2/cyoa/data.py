@@ -172,6 +172,7 @@ class SceneImage(NamedTuple):
     currency: str = ''
     provider: str = ''
     model: str = ''
+    prompt: str = ''
 
 
 class SavedGame(NamedTuple):
@@ -236,7 +237,8 @@ def save_game(
         'updated': time(),
         'game': json.loads(serialize_game(state)),
         'images': {
-            str(k): {'file': image_file_name(k), 'cost': v.cost, 'currency': v.currency, 'provider': v.provider, 'model': v.model} for k, v in images.items()
+            str(k): {'file': image_file_name(k), 'cost': v.cost, 'currency': v.currency, 'provider': v.provider, 'model': v.model, 'prompt': v.prompt}
+            for k, v in images.items()
         },
         'npc_portraits': npc_portraits or {},
     }
@@ -266,7 +268,12 @@ def load_game(game_id: str, base: str = '') -> tuple[GameState, dict[int, SceneI
         except OSError:
             continue
         images[int(k)] = SceneImage(
-            data=raw, cost=v.get('cost') or 0, currency=v.get('currency') or '', provider=v.get('provider') or '', model=v.get('model') or ''
+            data=raw,
+            cost=v.get('cost') or 0,
+            currency=v.get('currency') or '',
+            provider=v.get('provider') or '',
+            model=v.get('model') or '',
+            prompt=v.get('prompt') or '',
         )
     npc_portraits: dict[str, dict[str, str]] = {}
     for name, x in (data.get('npc_portraits') or {}).items():
