@@ -12,6 +12,7 @@ from range_utils import (
     last_span_for_crw,
     reset_highlight_counter,
     select_crw,
+    set_title_for_crw,
     unwrap_all_crw,
     unwrap_crw,
     wrap_text_in_range
@@ -867,7 +868,7 @@ class IframeBoss:
         else:
             end_reference_mode()
 
-    def apply_highlight(self, uuid, existing, has_notes, style_defn):
+    def apply_highlight(self, uuid, existing, has_notes, style_defn, notes):
         sel = window.getSelection()
         if not sel.rangeCount:
             return
@@ -876,7 +877,8 @@ class IframeBoss:
         bounds = cfi_for_selection()
         style = highlight_style_as_css(style_defn, opts.is_dark_theme, opts.color_scheme.foreground)
         cls = 'crw-has-dot' if has_notes else None
-        annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
+        title = None if opts.hide_tooltips else notes
+        annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners, title)
         removed_highlights = []
         if annot_id is not None:
             intersecting_uuids = {annot_id_uuid_map[x]: True for x in intersecting_wrappers}
@@ -956,6 +958,7 @@ class IframeBoss:
                             node.classList.add(cls)
                         else:
                             node.classList.remove(cls)
+                    set_title_for_crw(qcrw, None if opts.hide_tooltips else data.notes)
         elif dtype is 'remove-highlight':
             found_highlight_to_remove = False
             for qcrw, quuid in Object.entries(annot_id_uuid_map):
@@ -970,13 +973,13 @@ class IframeBoss:
         elif dtype is 'apply-highlight':
             existing = all_annots_in_selection(window.getSelection(), annot_id_uuid_map)
             if existing.length is 0 or (existing.length is 1 and existing[0] is data.existing):
-                self.apply_highlight(data.uuid, data.existing, data.has_notes, data.style)
+                self.apply_highlight(data.uuid, data.existing, data.has_notes, data.style, data.notes)
             else:
                 self.send_message(
                     'annotations', type='highlight-overlapped',
-                    uuid=data.uuid, existing=data.existing, has_notes=data.has_notes, style=data.style)
+                    uuid=data.uuid, existing=data.existing, has_notes=data.has_notes, style=data.style, notes=data.notes)
         elif dtype is 'apply-highlight-overwrite':
-            self.apply_highlight(data.uuid, data.existing, data.has_notes, data.style)
+            self.apply_highlight(data.uuid, data.existing, data.has_notes, data.style, data.notes)
         elif dtype is 'cite-current-selection':
             sel = window.getSelection()
             if not sel.rangeCount:
@@ -998,7 +1001,8 @@ class IframeBoss:
                 continue
             style = highlight_style_as_css(h.style, opts.is_dark_theme, opts.color_scheme.foreground)
             cls = 'crw-has-dot' if h.notes else None
-            annot_id, intersecting_wrappers = wrap_text_in_range(style, r, cls, self.add_highlight_listeners)
+            title = None if opts.hide_tooltips else h.notes
+            annot_id, intersecting_wrappers = wrap_text_in_range(style, r, cls, self.add_highlight_listeners, title)
             if annot_id is not None:
                 annot_id_uuid_map[annot_id] = h.uuid
                 for crw in intersecting_wrappers:

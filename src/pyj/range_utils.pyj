@@ -200,7 +200,7 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
 wrapper_counter = 0
 
 
-def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper):
+def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper, title):
     if not r:
         sel = window.getSelection()
         if not sel or not sel.rangeCount:
@@ -211,6 +211,8 @@ def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper):
 
     wrapper_elem = document.createElement('span')
     wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
+    if title:
+        wrapper_elem.setAttribute('title', title)
     if styler:
         styler(wrapper_elem)
 
@@ -236,6 +238,14 @@ def last_span_for_crw(crw):
     nodes = document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]')
     if nodes and nodes.length:
         return nodes[-1]
+
+
+def set_title_for_crw(crw, title):
+    for node in document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]'):
+        if title:
+            node.setAttribute('title', title)
+        else:
+            node.removeAttribute('title')
 
 
 def reset_highlight_counter():
