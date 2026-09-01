@@ -78,7 +78,7 @@ class Model(QWidget):
         b.clicked.connect(self._select_model)
 
     def set(self, model_id: str, model_name: str) -> None:
-        self.model_id, self.model_name = model_id, model_name
+        self.model_id, self.model_name = model_id, model_name or _('Automatic')
         self.la.setText(self.model_name)
 
     def _select_model(self) -> None:

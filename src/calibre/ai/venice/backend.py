@@ -133,6 +133,17 @@ class Model(NamedTuple):
             p = pricing.get(key)
             return float(p.get('usd') or 0) if isinstance(p, dict) else 0.0
 
+        def image_generation_usd() -> float:
+            # Newer image models are priced per resolution rather than having a
+            # single generation price. As calibre does not request a specific
+            # resolution, generation happens at the default resolution.
+            ans = usd('generation')
+            if not ans and isinstance(resolutions := pricing.get('resolutions'), dict):
+                p = resolutions.get(constraints.get('defaultResolution')) or next(iter(resolutions.values()), None)
+                if isinstance(p, dict):
+                    ans = float(p.get('usd') or 0)
+            return ans
+
         return cls(
             id=x['id'],
             name=spec.get('name') or x['id'],
@@ -140,7 +151,7 @@ class Model(NamedTuple):
             context_length=int(spec.get('availableContextTokens') or 0),
             input_price=usd('input') * PRICE_UNIT_TO_USD,
             output_price=usd('output') * PRICE_UNIT_TO_USD,
-            image_price=usd('generation'),
+            image_price=image_generation_usd(),
             traits=frozenset(spec.get('traits') or ()),
             supports_reasoning=bool(caps.get('supportsReasoning')),
             supports_reasoning_effort=bool(caps.get('supportsReasoningEffort')),
