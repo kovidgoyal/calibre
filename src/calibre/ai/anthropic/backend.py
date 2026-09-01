@@ -12,18 +12,23 @@
 
 import json
 import os
+import posixpath
 import sys
 from collections.abc import Iterable, Iterator
 from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
+from hashlib import sha256
 from typing import TYPE_CHECKING, Any, NamedTuple
+from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
 
 if TYPE_CHECKING:
+    from unittest import TestSuite
+
     from calibre.ai.anthropic.config import ConfigWidget
 else:
-    ConfigWidget = object
+    ConfigWidget = TestSuite = object
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, NoAPIKey, ResultBlocked, ResultBlockReason, StructuredOutputResult, WebLink
 from calibre.ai.anthropic import AnthropicAI
@@ -40,15 +45,39 @@ from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cac
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 2  # needed for live updates
+module_version = 4  # needed for live updates
 API_VERSION = '2023-06-01'
-API_BASE_URL = 'https://api.anthropic.com/v1'
-MODELS_URL = f'{API_BASE_URL}/models?limit=1000'
-CHAT_URL = f'{API_BASE_URL}/messages'
+DEFAULT_API_BASE_URL = 'https://api.anthropic.com/v1'
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
     return pref_for_provider(AnthropicAI.name, key, defval)
+
+
+def api_url(path: str = '', use_api_url: str | None = None) -> str:
+    base = ((pref('api_url') if use_api_url is None else use_api_url) or '').strip() or DEFAULT_API_BASE_URL
+    purl = urlparse(base)
+    base_path = (purl.path or '').rstrip('/')
+    if not base_path:
+        base_path = '/v1'
+    else:
+        # be tolerant of users pasting a full endpoint URL
+        for suffix in ('/messages', '/models'):
+            if base_path.endswith(suffix):
+                base_path = base_path[: -len(suffix)]
+                break
+    if path:
+        base_path = posixpath.join(base_path, path)
+    return urlunparse(purl._replace(path=base_path, fragment=''))
+
+
+def models_url() -> str:
+    url = api_url('models')
+    return url + ('&' if urlparse(url).query else '?') + 'limit=1000'
+
+
+def chat_url() -> str:
+    return api_url('messages')
 
 
 def api_key() -> str:
@@ -285,10 +314,13 @@ def get_available_models() -> dict[str, Model]:
     ans = dict(builtin_models())
     if not is_ready_for_use():
         return ans
-    cache_loc = os.path.join(cache_dir(), 'ai', f'{AnthropicAI.name}-models-v1.json')
+    url = models_url()
+    # a custom endpoint gets its own cache file
+    suffix = '' if url == f'{DEFAULT_API_BASE_URL}/models?limit=1000' else '-' + sha256(url.encode('utf-8')).hexdigest()[:16]
+    cache_loc = os.path.join(cache_dir(), 'ai', f'{AnthropicAI.name}-models-v1{suffix}.json')
     headers = (('x-api-key', decoded_api_key()), ('anthropic-version', API_VERSION))
     try:
-        entries = json.loads(get_cached_resource(cache_loc, MODELS_URL, headers=headers))
+        entries = json.loads(get_cached_resource(cache_loc, url, headers=headers))
     except Exception as e:
         print(f'Failed to download the list of Anthropic models with error: {e}', file=sys.stderr)
         return ans
@@ -310,6 +342,8 @@ def config_widget() -> ConfigWidget:
 
 def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
+    get_available_models.cache_clear()
+    models_by_strategy.cache_clear()
 
 
 def human_readable_model_name(model_id: str) -> str:
@@ -382,7 +416,7 @@ def chat_request(data: dict[str, Any]) -> Request:
         'anthropic-version': API_VERSION,
         'Content-Type': 'application/json',
     }
-    return Request(CHAT_URL, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+    return Request(chat_url(), data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
 
 
 def for_assistant(m: ChatMessage) -> dict[str, Any]:
@@ -538,6 +572,35 @@ def develop(use_model: str = '', msg: str = '') -> None:
 def develop_structured(use_model: str = '', prompt: str = '') -> None:
     # calibre-debug -c 'from calibre.ai.anthropic.backend import develop_structured; develop_structured()'
     develop_structured_output(generate_structured_output, prompt, use_model=use_model)
+
+
+def find_tests() -> TestSuite:
+    import unittest
+    from unittest.mock import patch
+
+    class TestAnthropicBackend(unittest.TestCase):
+        def test_api_url_normalization(self) -> None:
+            self.assertEqual(api_url('messages', ''), 'https://api.anthropic.com/v1/messages')
+            self.assertEqual(api_url('messages', '   '), 'https://api.anthropic.com/v1/messages')
+            self.assertEqual(api_url('models', 'http://localhost:4000'), 'http://localhost:4000/v1/models')
+            self.assertEqual(api_url('models', 'http://localhost:4000/'), 'http://localhost:4000/v1/models')
+            self.assertEqual(api_url('messages', 'http://localhost:4000/v1'), 'http://localhost:4000/v1/messages')
+            self.assertEqual(api_url('messages', 'https://example.com/anthropic/v1'), 'https://example.com/anthropic/v1/messages')
+            # tolerate a full endpoint URL being pasted in
+            self.assertEqual(api_url('messages', 'https://example.com/v1/messages'), 'https://example.com/v1/messages')
+            self.assertEqual(api_url('models', 'https://example.com/v1/messages'), 'https://example.com/v1/models')
+            self.assertEqual(api_url('messages', 'https://example.com/v1/models'), 'https://example.com/v1/messages')
+            self.assertEqual(
+                api_url('models', 'https://bedrock-mantle.us-east-1.api.aws/anthropic/v1/messages'),
+                'https://bedrock-mantle.us-east-1.api.aws/anthropic/v1/models',
+            )
+            # query parameters are preserved and fragments are discarded
+            self.assertEqual(api_url('messages', 'https://example.com/v1?a=b#c'), 'https://example.com/v1/messages?a=b')
+            with patch.dict(api_url.__globals__, {'pref': lambda key, defval=None: 'https://example.com/v1?route=anthropic'}):
+                self.assertEqual(models_url(), 'https://example.com/v1/models?route=anthropic&limit=1000')
+                self.assertEqual(chat_url(), 'https://example.com/v1/messages?route=anthropic')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestAnthropicBackend)
 
 
 if __name__ == '__main__':

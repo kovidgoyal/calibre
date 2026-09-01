@@ -42,10 +42,23 @@ class ConfigWidget(QWidget):
         l.addRow(la)
 
         self.api_key_edit = a = QLineEdit(self)
+        a.setClearButtonEnabled(True)
         a.setPlaceholderText(_('An API key is required to use Anthropic AI'))
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
             a.setText(decode_secret(key))
+        self.api_url_edit = au = QLineEdit(self)
+        au.setClearButtonEnabled(True)
+        au.setPlaceholderText(_('Optional. Defaults to: {}').format('https://api.anthropic.com/v1'))
+        au.setToolTip(
+            '<p>'
+            + _(
+                'The base URL of an Anthropic compatible API endpoint, for example a gateway or a'
+                ' proxy that implements the Anthropic Messages API. Leave empty to use the official Anthropic API.'
+            )
+        )
+        au.setText(pref('api_url') or '')
+        l.addRow(_('API &URL:'), au)
         self.model_strategy = ms = model_choice_strategy_config_widget(pref('model_choice_strategy', 'medium'), self)
         l.addRow(_('Model &choice strategy:'), ms)
         self.model_choice = mc = QComboBox(self)
@@ -87,6 +100,10 @@ class ConfigWidget(QWidget):
         return self.api_key_edit.text().strip()
 
     @property
+    def api_url(self) -> str:
+        return self.api_url_edit.text().strip()
+
+    @property
     def model_choice_strategy(self) -> str:
         return self.model_strategy.currentData()
 
@@ -106,6 +123,7 @@ class ConfigWidget(QWidget):
     def settings(self) -> dict[str, str | bool]:
         return {
             'api_key': encode_secret(self.api_key),
+            'api_url': self.api_url,
             'model_choice_strategy': self.model_choice_strategy,
             'model': self.model,
             'reasoning_strategy': self.reasoning_strategy,
