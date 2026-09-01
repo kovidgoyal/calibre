@@ -5,6 +5,7 @@ from functools import partial
 
 from qt.core import QCheckBox, QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QWidget
 
+from calibre.ai import AICapabilities
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, model_choice_strategy_config_widget, reasoning_strategy_config_widget
@@ -77,6 +78,15 @@ class ConfigWidget(QWidget):
         )
         gl.addRow(_('&Image model:'), imc)
         l.addRow(gb)
+
+    def restrict_to_purpose(self, purpose: AICapabilities) -> None:
+        # Hide the settings irrelevant to the given purpose, e.g. the image
+        # generation settings when configuring the AI for text only use.
+        lay = self.layout()
+        assert isinstance(lay, QFormLayout)
+        lay.setRowVisible(self.image_gb, purpose.supports_text_to_image)
+        for w in (self.model_strategy, self._allow_web_searches, self.reasoning_strat):
+            lay.setRowVisible(w, purpose.supports_text_to_text)
 
     @property
     def api_key(self) -> str:

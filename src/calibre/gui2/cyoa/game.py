@@ -1478,6 +1478,7 @@ class GameWidget(QWidget):
             self.image_call = -1
             self.image_turn = -1
         self.apply_images_enabled()
+        self.update_status()  # a new image AI may have been configured above
         state = self.state
         if enabled and state is not None and state.turns and len(state.turns) not in self.images:
             self.request_image(len(state.turns))
@@ -1689,6 +1690,7 @@ class GameWidget(QWidget):
             self.image_call = -1
             self.image_turn = -1
         self.apply_images_enabled()
+        self.update_status()  # show the newly configured models in the status bar
         state = self.state
         if self.images_enabled and state is not None and state.turns and len(state.turns) not in self.images:
             self.request_image(len(state.turns))

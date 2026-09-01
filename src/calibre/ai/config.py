@@ -38,6 +38,14 @@ class ConfigureAI(QWidget):
         self.purpose = purpose
         self.save_hook = save_hook
         self.plugin_config_widgets: tuple[Any, ...] = tuple(p.config_widget() for p in plugins)
+        for pc in self.plugin_config_widgets:
+            # Optional in config widgets, hides settings irrelevant to the
+            # purpose, e.g. image generation settings when configuring the AI
+            # for text only use. getattr() rather than a Protocol as config
+            # widgets can come from live loaded or third party plugin code
+            # that predates this method.
+            if restrict := getattr(pc, 'restrict_to_purpose', None):
+                restrict(purpose)
         v = QVBoxLayout(self)
         self.gb = QGroupBox(self)
         self.stack = s = QStackedLayout(self.gb)

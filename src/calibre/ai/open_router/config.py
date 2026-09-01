@@ -477,6 +477,16 @@ class ConfigWidget(QWidget):
         im.select_model.connect(self.select_model)
         l.addRow(_('Model for &image tasks:'), im)
 
+    def restrict_to_purpose(self, purpose: AICapabilities) -> None:
+        # Hide the settings irrelevant to the given purpose, e.g. the image
+        # model choice when configuring the AI for text only use. The data
+        # collection setting stays as it applies to image requests too.
+        lay = self.layout()
+        assert isinstance(lay, QFormLayout)
+        lay.setRowVisible(self.image_model, purpose.supports_text_to_image)
+        for w in (self.model_strategy, self._allow_web_searches, self.reasoning_strat, self.text_model):
+            lay.setRowVisible(w, purpose.supports_text_to_text)
+
     def select_model(self, model_id: str, for_text: bool) -> None:
         model_choice_target = cast(Model, self.sender())
         caps = AICapabilities.text_to_text if for_text else AICapabilities.text_to_image
