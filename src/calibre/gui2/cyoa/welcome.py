@@ -51,7 +51,7 @@ class WelcomeWidget(QScrollArea):
                 ' <b>{0}</b>, or <b>{1}</b> with <i>{2}</i> or <i>{3}</i>'
                 ' as the model, as other AIs tend to refuse to generate such content. For image generation'
                 ' use the <b>{4}</b> provider with the <i>{5}</i> model.'
-            ).format('Grok', 'OpenRouter', 'Llama 4 Scout', 'DeepSeek v3.2', 'Venice.ai', 'Grok Imagine 2.0')
+            ).format('Grok', 'OpenRouter', 'Llama 4 Scout', 'DeepSeek v3.2', 'Venice.ai', 'Z Image Turbo')
         )
         la.setWordWrap(True)
         l.addWidget(la)
