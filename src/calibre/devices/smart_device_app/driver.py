@@ -1977,6 +1977,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             try:
                 self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 set_socket_inherit(self.listen_socket, False)
+                # Allow rebinding to the port even if the previous connection
+                # to a device is still in the TIME_WAIT state, as happens when
+                # the connection is stopped while a device is connected
+                self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             except Exception:
                 traceback.print_exc()
                 message = 'creation of listen socket failed'
