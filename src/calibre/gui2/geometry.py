@@ -141,8 +141,24 @@ def _do_restore(self: QWidget, s: QScreen, geometry: QRect, saved_data: dict):
     return True
 
 
+def saved_geometry_is_sane(saved_geometry: QRect, virtual_geometry: QRect) -> bool:
+    # Guard against corrupted saved geometry that would make the window
+    # unusable, such as one larger than the entire virtual desktop or fully
+    # off-screen. Partially off-screen is fine, users park windows that way.
+    if not saved_geometry.isValid():
+        return False
+    if saved_geometry.width() > virtual_geometry.width() or saved_geometry.height() > virtual_geometry.height():
+        return False
+    if not saved_geometry.intersects(virtual_geometry):
+        return False
+    return True
+
+
 def _restore_to_matching_screen(self: QWidget, s: QScreen, saved_data: dict) -> bool:
     saved_geometry = dict_as_rect(saved_data['geometry'])
+    if not saved_geometry_is_sane(saved_geometry, s.virtualGeometry()):
+        debug('Saved geometry is not sane for matched screen, restoring as if to a new screen')
+        return _restore_to_new_screen(self, s, saved_data)
     return _do_restore(self, s, saved_geometry, saved_data)
 
 
@@ -212,8 +228,14 @@ def restore_geometry(self: QWidget, prefs: Prefs, name: str, get_legacy_saved_ge
         debug('Screens currently in system:')
         for screen in qapplication_or_fail().screens():
             debug(screen_as_dict(screen))
-    if _restore_geometry(self, prefs, name, get_legacy_saved_geometry):
-        return True
+    try:
+        if _restore_geometry(self, prefs, name, get_legacy_saved_geometry):
+            return True
+    except Exception:
+        # Corrupted saved geometry data, fall back to the default size
+        import traceback
+
+        traceback.print_exc()
     sz = self.sizeHint()
     if sz.isValid():
         self.resize(self.sizeHint())
@@ -222,3 +244,27 @@ def restore_geometry(self: QWidget, prefs: Prefs, name: str, get_legacy_saved_ge
 
 QWidget.save_geometry = save_geometry
 QWidget.restore_geometry = restore_geometry
+
+
+def find_tests():
+    import unittest
+
+    class TestSavedGeometrySanity(unittest.TestCase):
+        def test_saved_geometry_sanity(self):
+            virtual_geometry = QRect(0, 0, 1920, 1080)
+
+            def sane(x, y, width, height):
+                return saved_geometry_is_sane(QRect(x, y, width, height), virtual_geometry)
+
+            self.assertTrue(sane(10, 10, 800, 600))
+            self.assertTrue(sane(0, 0, 1920, 1080), 'geometry filling the virtual desktop must be sane')
+            self.assertTrue(sane(-400, -300, 800, 600), 'partially off-screen geometry must be sane')
+            self.assertTrue(sane(1900, 1060, 800, 600), 'partially off-screen geometry must be sane')
+            self.assertFalse(sane(0, 0, 0, 0), 'empty geometry must not be sane')
+            self.assertFalse(sane(0, 0, -800, 600), 'negative size geometry must not be sane')
+            self.assertFalse(sane(0, 0, 100000, 600), 'geometry wider than the virtual desktop must not be sane')
+            self.assertFalse(sane(0, 0, 800, 100000), 'geometry taller than the virtual desktop must not be sane')
+            self.assertFalse(sane(5000, 5000, 800, 600), 'fully off-screen geometry must not be sane')
+            self.assertFalse(sane(-5000, 100, 800, 600), 'fully off-screen geometry must not be sane')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestSavedGeometrySanity)

@@ -770,6 +770,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.gui2.listener import find_tests
 
         a(find_tests())
+        from calibre.gui2.geometry import find_tests
+
+        a(find_tests())
         if iswindows:
             from calibre.utils.windows.wintest import find_tests
 
