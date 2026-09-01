@@ -48,9 +48,10 @@ class WelcomeWidget(QScrollArea):
                 'To play, first configure the AI used to generate the story text. Configuring an'
                 ' AI to generate pictures of the story is optional, you can skip it and play a'
                 ' text only game. Note that for games with mature themes it is best to use'
-                ' <b>Grok</b>, or <b>OpenRouter</b> with <i>Llama 4 Scout</i> or <i>DeepSeek v3.2</i>'
-                ' as the model, as other AIs tend to refuse to generate such content.'
-            )
+                ' <b>{0}</b>, or <b>{1}</b> with <i>{2}</i> or <i>{3}</i>'
+                ' as the model, as other AIs tend to refuse to generate such content. For image generation'
+                ' use the <b>{4}</b> provider with the <i>{5}</i> model.'
+            ).format('Grok', 'OpenRouter', 'Llama 4 Scout', 'DeepSeek v3.2', 'Venice.ai', 'Grok Imagine 2.0')
         )
         la.setWordWrap(True)
         l.addWidget(la)
