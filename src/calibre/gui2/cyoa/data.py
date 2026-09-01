@@ -126,7 +126,10 @@ def plugin_for(kind: AIPurpose) -> AIProviderPlugin | None:
 
 def prefs_overlay() -> dict[str, dict[str, Any]]:
     ans: dict[str, dict[str, Any]] = {}
-    for kind in ('text', 'image'):
+    for kind in ('image', 'text'):
+        # text is processed last so that text-specific settings (e.g. text_model)
+        # take precedence over stale copies captured in image settings when the
+        # same provider is used for both purposes.
         e = ai_settings(kind)
         if e.get('provider'):
             ans.setdefault(e['provider'], {}).update(e.get('settings') or {})
