@@ -280,7 +280,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
     def recount_pages(self) -> None:
         ok, force = confirm(
             _(
-                'This will cause calibre to rescan all books in your library and update page counts, where changed.'
+                'This will cause calibre to rescan all books in your library and update page counts and stored file sizes, where changed.'
                 ' The scanning happens in the background and can take up to an hour per thousand books'
                 ' depending on the size of the books and the power of your computer. This is'
                 ' typically never needed and is present mainly to aid debugging and testing. Are you sure?'

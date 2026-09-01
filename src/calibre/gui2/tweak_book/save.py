@@ -169,7 +169,14 @@ class SaveManager(QObject):
         while True:
             if not self.notify_requests.get():
                 break
-            send_message(self.notify_data)
+            try:
+                send_message(self.notify_data)
+            except Exception:
+                # calibre may not be running, dont let that kill this thread
+                # as the user could start calibre again before the next save
+                import traceback
+
+                traceback.print_exc()
 
     def clear_notify_data(self):
         self.notify_data = None

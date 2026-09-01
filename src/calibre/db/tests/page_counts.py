@@ -18,6 +18,9 @@ class PageCountTest(BaseTest):
     def test_page_count_in_db(self):
         test_page_count_in_db(self)
 
+    def test_page_count_refreshes_file_sizes(self):
+        test_page_count_refreshes_file_sizes(self)
+
     def test_page_count(self):
         from calibre.library.page_count import test_page_count
 
@@ -91,3 +94,46 @@ def test_page_count_in_db(self: BaseTest) -> None:
     db.queue_pages_scan(force=True)
     db.maintain_page_counts.tick_event.wait()
     self.ae(4, len(counted))
+
+
+def test_page_count_refreshes_file_sizes(self: BaseTest) -> None:
+    from calibre.library.page_count import CHARS_PER_PAGE
+
+    db = self.init_cache()
+    counted = []
+    db.maintain_page_counts.count_callback = counted.append
+
+    def run_scan(book_id: int = 0) -> None:
+        db.maintain_page_counts.tick_event.clear()
+        db.queue_pages_scan(book_id)
+        db.maintain_page_counts.tick_event.wait()
+
+    txt_data = ('a ' * (2 * CHARS_PER_PAGE + 10)).encode()
+    db.maintain_page_counts.tick_event.clear()
+    db.add_format(1, 'TXT', io.BytesIO(txt_data), replace=True)
+    db.maintain_page_counts.tick_event.wait()
+    self.ae(1, len(counted))
+    self.ae(db.format_db_size(1, 'TXT'), len(txt_data))
+    self.ae(db.field_for('pages', 1), 3)
+
+    # simulate an edit of the format file outside of calibre
+    new_data = ('b ' * (4 * CHARS_PER_PAGE + 10)).encode()
+    with open(db.format_abspath(1, 'TXT'), 'wb') as f:
+        f.write(new_data)
+    self.ae(db.format_db_size(1, 'TXT'), len(txt_data))  # stored size is now stale
+
+    # a recount must detect the changed file and update both page count and stored size
+    db.mark_for_pages_recount()
+    run_scan()
+    self.ae(2, len(counted))
+    self.ae(db.field_for('pages', 1), 5)
+    self.ae(db.get_pages(1).format_size, len(new_data))
+    self.ae(db.format_db_size(1, 'TXT'), len(new_data))
+    self.ae(db.field_for('size', 1), max(db.format_db_size(1, f) for f in db.formats(1)))
+
+    # unchanged books must not be re-counted and sizes must remain correct
+    db.mark_for_pages_recount()
+    run_scan()
+    self.ae(2, len(counted))
+    self.ae(db.pages_needs_scan(), set())
+    self.ae(db.format_db_size(1, 'TXT'), len(new_data))

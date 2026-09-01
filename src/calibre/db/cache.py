@@ -1294,6 +1294,32 @@ class Cache:
 
     _format_db_size = format_db_size
 
+    @write_api
+    def refresh_format_sizes(self, size_map: dict[tuple[int, str], int]) -> set[int]:
+        """
+        Update the database with the on-disk sizes of the specified format files.
+        ``size_map`` maps ``(book_id, fmt)`` to the size of the format file. Used
+        to fix stored sizes that have gone stale because format files were
+        changed outside of calibre. Returns the ids of the books whose stored
+        sizes were changed.
+        """
+        formats_field = self.fields['formats']
+        max_sizes = {}
+        for (book_id, fmt), size in size_map.items():
+            fmt = fmt.upper()
+            stored_size = formats_field.format_size(book_id, fmt)
+            if stored_size is None or stored_size == size:
+                continue  # the format was removed or its size is already correct
+            name = formats_field.format_fname(book_id, fmt)
+            max_sizes[book_id] = formats_field.table.update_fmt(book_id, fmt, name, size, self.backend)
+            self.format_metadata_cache[book_id].pop(fmt, None)
+        if max_sizes:
+            self.fields['size'].table.update_sizes(max_sizes)
+            self._clear_composite_caches(max_sizes)
+        return set(max_sizes)
+
+    _refresh_format_sizes = refresh_format_sizes
+
     @read_api
     def pref(self, name, default=None, namespace=None, get_default_from_defaults=False):
         "Return the value for the specified preference or the value specified as ``default`` if the preference is not set."

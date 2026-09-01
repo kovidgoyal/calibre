@@ -37,6 +37,7 @@ class MaintainPageCounts(Thread):
         self.count_callback = lambda fmt_file: None
         self.dbref: Callable[[], Cache | None] = weakref.ref(db_new_api)
         self.queue: Queue[int] = Queue()
+        self.pending_size_updates: dict[tuple[int, str], int] = {}
         self.tdir = ''
         self.failure_log_path = os.path.join(cache_dir(), f'page-count-failures-{db_new_api.library_id}.txt')
 
@@ -83,6 +84,7 @@ class MaintainPageCounts(Thread):
                         break
                     if book_id:
                         self.count_book_and_commit(book_id, server)
+                        self.flush_size_updates()
                     else:
                         self.do_backlog(server)
                     self.tick_event.set()
@@ -97,6 +99,7 @@ class MaintainPageCounts(Thread):
                     break
                 self.count_book_and_commit(book_id, server)
                 self.shutdown_event.wait(YIELD_TIME)
+            self.flush_size_updates()
 
     def get_batch(self, size: int = 100) -> Iterator[int]:
         "Order results by book id to prioritise newer books"
@@ -123,6 +126,20 @@ class MaintainPageCounts(Thread):
     def sort_key(self, fmt: str) -> int:
         return self.sort_order.get(fmt, len(self.sort_order) + 100)
 
+    def note_format_size(self, db: Cache, book_id: int, fmt: str, size: int) -> None:
+        "Record the on-disk size of a format file so that stale stored sizes can be fixed, in batches"
+        if size > -1 and db.format_db_size(book_id, fmt) not in (size, None):
+            self.pending_size_updates[(book_id, fmt.upper())] = size
+
+    def flush_size_updates(self) -> None:
+        if not self.pending_size_updates:
+            return
+        # replace the pending map before writing so that a failed write does
+        # not cause the same updates to be retried forever
+        updates, self.pending_size_updates = self.pending_size_updates, {}
+        if (db := self.dbref()) is not None and not self.shutdown_event.is_set():
+            db.refresh_format_sizes(updates)
+
     def count_book(self, db: Cache, book_id: int, server: Server) -> Pages:
         with db.safe_read_lock:
             fmts = db._formats(book_id)
@@ -138,7 +155,10 @@ class MaintainPageCounts(Thread):
             if idx > -1:
                 sz = -1
                 with suppress(Exception):
-                    sz = db.format_db_size(book_id, pages.format)
+                    # stat the actual file rather than using the stored size, so
+                    # that changes made to the file outside of calibre are detected
+                    sz = db.format_metadata(book_id, pages.format, allow_cache=False).get('size', -1)
+                    self.note_format_size(db, book_id, pages.format, sz)
                 if sz == pages.format_size and pages.algorithm == server.ALGORITHM and pages.pages != COUNT_FAILED:
                     prev_scan_result = pages
                     if idx == 0:
@@ -159,6 +179,7 @@ class MaintainPageCounts(Thread):
                     traceback.print_exc()
                     self.log_failure(book_id, str(e), traceback.format_exc())
                     continue
+                self.note_format_size(db, book_id, fmt, fmt_size)
                 try:
                     self.count_callback(fmt_file)
                     pages = server.count_pages(fmt_file)
