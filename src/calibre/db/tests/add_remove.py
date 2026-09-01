@@ -492,6 +492,22 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(dest_db.format(rdata['new_book_id'], 'FMT1'), b'second-round')
         assert_has_extra_files(rdata['new_book_id'])
 
+        import calibre.db.cache as cache_mod
+        import calibre.db.copy_to_library as ctl_mod
+
+        src_db.set_field('tags', {1: ('orig',)})
+        orig_cache_prefs, orig_ctl_prefs = cache_mod.prefs, ctl_mod.prefs
+        cache_mod.prefs = {'new_book_tags': ('newbook',)}
+        ctl_mod.prefs = {'add_new_book_tags_when_importing_books': True}
+        try:
+            rdata = copy_one_book(1, src_db, dest_db)
+            self.assertEqual(('orig', 'newbook'), dest_db.field_for('tags', rdata['new_book_id']))
+            ctl_mod.prefs = {'add_new_book_tags_when_importing_books': False}
+            rdata = copy_one_book(1, src_db, dest_db)
+            self.assertEqual(('orig',), dest_db.field_for('tags', rdata['new_book_id']))
+        finally:
+            cache_mod.prefs, ctl_mod.prefs = orig_cache_prefs, orig_ctl_prefs
+
     # }}}
 
     def test_merging_extra_files(self):  # {{{

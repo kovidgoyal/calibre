@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 from calibre.db.utils import find_identical_books
-from calibre.utils.config import tweaks
+from calibre.utils.config import prefs
 from calibre.utils.date import now
 
 source_removal_actions = frozenset({'add', 'automerge'})
@@ -37,7 +37,7 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
             new_book_id = newdb.add_books(
                 [(mi, format_map)],
                 add_duplicates=True,
-                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                apply_import_tags=prefs['add_new_book_tags_when_importing_books'],
                 preserve_uuid=False,
                 run_hooks=False,
             )[0][0]
@@ -129,7 +129,7 @@ def copy_one_book(
         new_book_id = newdb.add_books(
             [(mi, format_map)],
             add_duplicates=True,
-            apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+            apply_import_tags=prefs['add_new_book_tags_when_importing_books'],
             preserve_uuid=preserve_uuid,
             run_hooks=False,
         )[0][0]

@@ -628,6 +628,11 @@ def create_global_prefs(conf_obj=None):
     c.add_opt('installation_uuid', default=None, help='Installation UUID')
     c.add_opt('new_book_tags', default=[], help=_('Tags to apply to books added to the library'))
     c.add_opt(
+        'add_new_book_tags_when_importing_books',
+        default=False,
+        help=_('Apply the tags to apply to books added to the library when copying books to another library as well'),
+    )
+    c.add_opt(
         'mark_new_books',
         default=False,
         help=_('Mark newly added books. The mark is a temporary mark that is automatically removed when calibre is restarted.'),
@@ -805,6 +810,11 @@ def migrate_tweaks_to_prefs():
     if 'numeric_collation' in tweaks:
         prefs['numeric_collation'] = tweaks.get('numeric_collation', False)
         tweaks.pop('numeric_collation')
+        write_custom_tweaks(tweaks)
+    # Migrate the add_new_book_tags_when_importing_books tweak
+    if 'add_new_book_tags_when_importing_books' in tweaks:
+        prefs['add_new_book_tags_when_importing_books'] = tweaks.get('add_new_book_tags_when_importing_books', False)
+        tweaks.pop('add_new_book_tags_when_importing_books')
         write_custom_tweaks(tweaks)
 
 

@@ -381,11 +381,6 @@ sony_collection_name_template = '{value}{category:| (|)}'
 # Default: empty (no rules), so no collection attributes are named.
 sony_collection_sorting_rules = []
 
-#: Control how tags are applied when copying books to another library
-# Set this to True to ensure that tags in 'Tags to add when adding
-# a book' are added when copying books to another library
-add_new_book_tags_when_importing_books = False
-
 #: Set the maximum number of sort 'levels'
 # Set the maximum number of sort 'levels' that calibre will use to resort the
 # library after certain operations such as searches or device insertion. Each
