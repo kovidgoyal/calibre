@@ -19,6 +19,7 @@ from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
 from hashlib import sha256
+from time import monotonic
 from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
@@ -45,12 +46,21 @@ from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cac
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 5  # needed for live updates
+module_version = 6  # needed for live updates
 API_VERSION = '2023-06-01'
 DEFAULT_API_BASE_URL = 'https://api.anthropic.com/v1'
-# Maximum number of times a single logical turn is resumed after the API
-# pauses it with the pause_turn stop reason
-PAUSE_TURN_CONTINUATION_LIMIT = 8
+# Maximum number of times, and maximum total time in seconds, a single
+# logical turn is resumed after the API pauses it with the pause_turn stop
+# reason
+PAUSE_TURN_CONTINUATION_LIMIT = 4
+PAUSE_TURN_TIME_LIMIT = 300
+# The web search tool to use. Deliberately the basic tool rather than the
+# newer dynamic filtering one (web_search_20260209): that one runs its
+# searches inside a code execution container and then emits no citation
+# deltas at all, so there is no way to tell the user where the parts of a
+# response came from. It also uses several times as many tokens and searches
+# for the same question.
+WEB_SEARCH_TOOL = 'web_search_20250305'
 
 
 def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
@@ -498,7 +508,17 @@ class StreamedMessage:
         self.content_blocks: list[dict[str, Any]] = []
         self.partial_json = ''
         self.stop_reason = ''
+        self.container_id = ''
         self.errored = False
+
+    @property
+    def can_be_resumed(self) -> bool:
+        # A paused turn is resumed by sending its content back as an assistant
+        # message, which the API accepts only when that message ends with a
+        # server tool use it has still to run, the state a turn is paused in.
+        # An assistant message ending in a text or thinking block is instead
+        # rejected as a prefill, which none of the current models support.
+        return bool(self.content_blocks) and self.content_blocks[-1].get('type') == 'server_tool_use'
 
     @property
     def current_block(self) -> dict[str, Any]:
@@ -580,6 +600,11 @@ class StreamedMessage:
                         self.usages[-1].update(event.get('usage') or {})
                     else:
                         self.usages.append(dict(event.get('usage') or {}))
+                    # Server tools such as web search run their code in a
+                    # container, whose id has to be repeated to resume a turn
+                    # paused while using them.
+                    if container_id := (delta.get('container') or {}).get('id'):
+                        self.container_id = container_id
                     if stop_reason := delta.get('stop_reason'):
                         self.stop_reason = stop_reason
                         if stop_reason != 'pause_turn' and (exc := exception_for_stop_reason(stop_reason, delta)) is not None:
@@ -595,20 +620,28 @@ def stream_chat(data: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
     # The API pauses long running turns with the pause_turn stop reason. Such
     # a response is incomplete: its content must be sent back as an assistant
     # message and the request repeated for the model to continue, otherwise
-    # the result is silently truncated.
+    # the result is silently truncated. Only a turn paused with a server tool
+    # use still pending can be resumed, see StreamedMessage.can_be_resumed.
+    # Every resumption re-sends the entire turn so far, which for a turn using
+    # web search is easily hundreds of thousands of tokens, so resumption is
+    # bounded by elapsed time as well as by a number of attempts, to keep one
+    # runaway turn from appearing to hang for many minutes.
     sm = StreamedMessage()
     data = dict(data, messages=list(data['messages']))
-    for _attempt in range(PAUSE_TURN_CONTINUATION_LIMIT):
+    deadline = monotonic() + PAUSE_TURN_TIME_LIMIT
+    paused = False
+    for _attempt in range(PAUSE_TURN_CONTINUATION_LIMIT + 1):
         yield from sm.process(read_streaming_response(chat_request(data), AnthropicAI.name))
         if sm.errored:
             return
-        if sm.stop_reason != 'pause_turn':
+        if not sm.stop_reason:
+            raise Exception('The response stream from Anthropic ended without a stop reason, the response is likely incomplete')
+        paused = sm.stop_reason == 'pause_turn'
+        if not paused or not sm.can_be_resumed or monotonic() >= deadline:
             break
         data['messages'].append({'role': 'assistant', 'content': sm.take_content_blocks()})
-    else:
-        raise Exception(f'Response from Anthropic was paused more than {PAUSE_TURN_CONTINUATION_LIMIT} times without completing')
-    if not sm.stop_reason:
-        raise Exception('The response stream from Anthropic ended without a stop reason, the response is likely incomplete')
+        if sm.container_id:
+            data['container'] = sm.container_id
     cost, currency = model.pricing.get_cost(sm.total_usage()) if model.pricing else (0.0, '')
     yield ChatResponse(
         type=ChatMessageType.assistant,
@@ -622,6 +655,11 @@ def stream_chat(data: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
         citations=tuple(sm.citations),
         web_links=tuple(sm.web_links),
     )
+    if paused:
+        # The turn was still paused when we gave up resuming it, so what was
+        # generated is truncated. Report it rather than passing off a partial
+        # response as a complete one.
+        yield ChatResponse(exception=ResultBlocked(custom_message=_('The AI paused this response and it could not be resumed, so it is incomplete')))
 
 
 def model_for_use_model(use_model: str) -> Model:
@@ -648,8 +686,7 @@ def chat_data(messages: Iterable[ChatMessage], model: Model, use_tools: bool = T
     apply_reasoning_settings(data, model)
     if use_tools and pref('allow_web_searches', False):
         # https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool
-        tool_type = 'web_search_20260209' if model.thinking is ThinkingMode.adaptive else 'web_search_20250305'
-        data['tools'] = [{'type': tool_type, 'name': 'web_search'}]
+        data['tools'] = [{'type': WEB_SEARCH_TOOL, 'name': 'web_search'}]
     return data
 
 
@@ -707,39 +744,64 @@ def find_tests() -> TestSuite:
                 sent.append(json.loads(json.dumps(data)))
                 return data
 
+            # A turn is paused with a server tool use still pending, the only
+            # state the API will resume from, and reports the id of the
+            # container the tool ran in.
+            def paused_events() -> Iterator[dict[str, Any]]:
+                yield {'type': 'message_start', 'message': {'id': 'm1', 'usage': {'input_tokens': 10, 'output_tokens': 1}}}
+                yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'thinking', 'thinking': '', 'signature': ''}}
+                yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'thinking_delta', 'thinking': 'hmm'}}
+                yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'signature_delta', 'signature': 'sig'}}
+                yield {'type': 'content_block_stop', 'index': 0}
+                yield {'type': 'content_block_start', 'index': 1, 'content_block': {'type': 'text', 'text': ''}}
+                yield {'type': 'content_block_delta', 'index': 1, 'delta': {'type': 'text_delta', 'text': 'Searching. '}}
+                yield {'type': 'content_block_stop', 'index': 1}
+                yield {'type': 'content_block_start', 'index': 2, 'content_block': {'type': 'server_tool_use', 'id': 's1', 'name': 'web_search', 'input': {}}}
+                yield {'type': 'content_block_delta', 'index': 2, 'delta': {'type': 'input_json_delta', 'partial_json': '{"query": "emma"}'}}
+                yield {'type': 'content_block_stop', 'index': 2}
+                yield {
+                    'type': 'message_delta',
+                    'delta': {'stop_reason': 'pause_turn', 'container': {'id': 'container_1'}},
+                    'usage': {'input_tokens': 10, 'output_tokens': 5},
+                }
+                yield {'type': 'message_stop'}
+
+            def completed_events() -> Iterator[dict[str, Any]]:
+                yield {'type': 'message_start', 'message': {'id': 'm2', 'usage': {'input_tokens': 20, 'output_tokens': 1}}}
+                yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'text', 'text': ''}}
+                yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': 'Done.'}}
+                yield {'type': 'content_block_stop', 'index': 0}
+                yield {'type': 'message_delta', 'delta': {'stop_reason': 'end_turn'}, 'usage': {'input_tokens': 20, 'output_tokens': 3}}
+                yield {'type': 'message_stop'}
+
             def fake_read(rq: dict[str, Any], provider_name: str = '', timeout: int = 120) -> Iterator[dict[str, Any]]:
-                if len(sent) == 1:
-                    yield {'type': 'message_start', 'message': {'id': 'm1', 'usage': {'input_tokens': 10, 'output_tokens': 1}}}
-                    yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'thinking', 'thinking': '', 'signature': ''}}
-                    yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'thinking_delta', 'thinking': 'hmm'}}
-                    yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'signature_delta', 'signature': 'sig'}}
-                    yield {'type': 'content_block_stop', 'index': 0}
-                    yield {'type': 'content_block_start', 'index': 1, 'content_block': {'type': 'text', 'text': ''}}
-                    yield {'type': 'content_block_delta', 'index': 1, 'delta': {'type': 'text_delta', 'text': '{"title": "Em'}}
-                    yield {'type': 'content_block_stop', 'index': 1}
-                    yield {'type': 'message_delta', 'delta': {'stop_reason': 'pause_turn'}, 'usage': {'output_tokens': 5}}
-                    yield {'type': 'message_stop'}
-                else:
-                    yield {'type': 'message_start', 'message': {'id': 'm2', 'usage': {'input_tokens': 20, 'output_tokens': 1}}}
-                    yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'text', 'text': ''}}
-                    yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': 'ma"}'}}
-                    yield {'type': 'content_block_stop', 'index': 0}
-                    yield {'type': 'message_delta', 'delta': {'stop_reason': 'end_turn'}, 'usage': {'output_tokens': 3}}
-                    yield {'type': 'message_stop'}
+                yield from (paused_events() if len(sent) == 1 else completed_events())
 
             data = {'model': model.id, 'max_tokens': 100, 'messages': [{'role': 'user', 'content': 'q'}], 'stream': True}
             with patch.dict(stream_chat.__globals__, {'chat_request': fake_chat_request, 'read_streaming_response': fake_read}):
                 responses = list(stream_chat(data, model))
-            self.assertEqual(''.join(r.content for r in responses), '{"title": "Emma"}')
+            self.assertEqual(''.join(r.content for r in responses), 'Searching. Done.')
             self.assertEqual(''.join(r.reasoning for r in responses), 'hmm')
             self.assertEqual(len(sent), 2, 'a paused turn must be continued with a second request')
             self.assertEqual(sent[1]['messages'][0], {'role': 'user', 'content': 'q'})
-            # the partial content including thinking blocks with signatures
+            # the partial content, including thinking blocks with their
+            # signatures and the pending tool use with its accumulated input,
             # must be sent back unchanged for the model to continue the turn
             self.assertEqual(
                 sent[1]['messages'][1],
-                {'role': 'assistant', 'content': [{'type': 'thinking', 'thinking': 'hmm', 'signature': 'sig'}, {'type': 'text', 'text': '{"title": "Em'}]},
+                {
+                    'role': 'assistant',
+                    'content': [
+                        {'type': 'thinking', 'thinking': 'hmm', 'signature': 'sig'},
+                        {'type': 'text', 'text': 'Searching. '},
+                        {'type': 'server_tool_use', 'id': 's1', 'name': 'web_search', 'input': {'query': 'emma'}},
+                    ],
+                },
             )
+            # the API rejects the continuation unless the container the
+            # pending server tool use ran in is repeated
+            self.assertEqual(sent[1].get('container'), 'container_1')
+            self.assertNotIn('container', sent[0])
             m = responses[-1]
             self.assertTrue(m.has_metadata)
             self.assertIsNone(m.exception)
@@ -747,16 +809,142 @@ def find_tests() -> TestSuite:
             # usage must be summed over both requests: 30 input and 8 output tokens
             self.assertAlmostEqual(m.cost, (30 * 3 + 8 * 15) / 1e6)
 
-            def fake_read_truncated(rq: dict[str, Any], provider_name: str = '', timeout: int = 120) -> Iterator[dict[str, Any]]:
+        def test_anthropic_unresumable_pause_turn(self) -> None:
+            # A turn paused with no server tool use pending cannot be resumed:
+            # the API rejects an assistant message ending in a text or thinking
+            # block as a prefill, which the current models do not support. Such
+            # a response must be reported as incomplete rather than retried.
+            model = Model.create('claude-sonnet-5', 'Claude Sonnet 5', pricing=Pricing.per_million(3, 15))
+            sent: list[dict[str, Any]] = []
+
+            def fake_chat_request(data: dict[str, Any]) -> dict[str, Any]:
+                sent.append(json.loads(json.dumps(data)))
+                return data
+
+            def fake_read(rq: dict[str, Any], provider_name: str = '', timeout: int = 120) -> Iterator[dict[str, Any]]:
+                yield {'type': 'message_start', 'message': {'id': 'm1', 'usage': {'input_tokens': 10, 'output_tokens': 1}}}
+                yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'text', 'text': ''}}
+                yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': '{"title": "Em'}}
+                yield {'type': 'content_block_stop', 'index': 0}
+                yield {'type': 'message_delta', 'delta': {'stop_reason': 'pause_turn'}, 'usage': {'output_tokens': 5}}
+                yield {'type': 'message_stop'}
+
+            data = {'model': model.id, 'max_tokens': 100, 'messages': [{'role': 'user', 'content': 'q'}], 'stream': True}
+            with patch.dict(stream_chat.__globals__, {'chat_request': fake_chat_request, 'read_streaming_response': fake_read}):
+                responses = list(stream_chat(data, model))
+            self.assertEqual(len(sent), 1, 'a pause the API cannot resume must not be retried')
+            self.assertEqual(''.join(r.content for r in responses), '{"title": "Em')
+            self.assertTrue(responses[-2].has_metadata, 'the cost of the incomplete turn must still be reported')
+            exc = responses[-1].exception
+            self.assertIsInstance(exc, ResultBlocked)
+            self.assertIn('incomplete', str(exc))
+
+        def test_anthropic_pause_turn_limit(self) -> None:
+            # A turn the model keeps pausing must stop being resumed rather
+            # than resending an ever growing conversation indefinitely.
+            model = Model.create('claude-sonnet-5', 'Claude Sonnet 5', pricing=Pricing.per_million(3, 15))
+            sent: list[dict[str, Any]] = []
+
+            def fake_chat_request(data: dict[str, Any]) -> dict[str, Any]:
+                sent.append(json.loads(json.dumps(data)))
+                return data
+
+            def fake_read(rq: dict[str, Any], provider_name: str = '', timeout: int = 120) -> Iterator[dict[str, Any]]:
+                yield {'type': 'message_start', 'message': {'id': f'm{len(sent)}', 'usage': {'input_tokens': 10, 'output_tokens': 1}}}
+                yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'server_tool_use', 'id': 's1', 'name': 'web_search', 'input': {}}}
+                yield {'type': 'content_block_stop', 'index': 0}
+                yield {'type': 'message_delta', 'delta': {'stop_reason': 'pause_turn'}, 'usage': {'output_tokens': 1}}
+                yield {'type': 'message_stop'}
+
+            data = {'model': model.id, 'max_tokens': 100, 'messages': [{'role': 'user', 'content': 'q'}], 'stream': True}
+            with patch.dict(stream_chat.__globals__, {'chat_request': fake_chat_request, 'read_streaming_response': fake_read}):
+                responses = list(stream_chat(data, model))
+            self.assertEqual(len(sent), PAUSE_TURN_CONTINUATION_LIMIT + 1)
+            self.assertIsInstance(responses[-1].exception, ResultBlocked)
+
+            # and the elapsed time limit stops it even before the attempt limit
+            sent.clear()
+            times = iter([0.0] + [float(PAUSE_TURN_TIME_LIMIT + 1)] * 10)
+            with patch.dict(
+                stream_chat.__globals__,
+                {'chat_request': fake_chat_request, 'read_streaming_response': fake_read, 'monotonic': lambda: next(times)},
+            ):
+                responses = list(stream_chat(data, model))
+            self.assertEqual(len(sent), 1, 'resuming must stop once the time limit is exceeded')
+            self.assertIsInstance(responses[-1].exception, ResultBlocked)
+
+        def test_anthropic_stream_without_stop_reason(self) -> None:
+            # a stream that ends without a stop reason is incomplete and must
+            # not be silently treated as a successful response
+            model = Model.create('claude-sonnet-5', 'Claude Sonnet 5', pricing=Pricing.per_million(3, 15))
+
+            def fake_chat_request(data: dict[str, Any]) -> dict[str, Any]:
+                return data
+
+            def fake_read(rq: dict[str, Any], provider_name: str = '', timeout: int = 120) -> Iterator[dict[str, Any]]:
                 yield {'type': 'message_start', 'message': {'id': 'm1', 'usage': {'input_tokens': 10}}}
                 yield {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'text', 'text': ''}}
                 yield {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': '{"title": "Em'}}
 
-            # a stream that ends without a stop reason is incomplete and must
-            # not be silently treated as a successful response
-            with patch.dict(stream_chat.__globals__, {'chat_request': fake_chat_request, 'read_streaming_response': fake_read_truncated}):
+            data = {'model': model.id, 'max_tokens': 100, 'messages': [{'role': 'user', 'content': 'q'}], 'stream': True}
+            with patch.dict(stream_chat.__globals__, {'chat_request': fake_chat_request, 'read_streaming_response': fake_read}):
                 with self.assertRaisesRegex(Exception, 'without a stop reason'):
                     list(stream_chat(data, model))
+
+        def test_anthropic_web_search_tool(self) -> None:
+            # The basic web search tool must be used for every model: the
+            # dynamic filtering tool runs its searches in a code execution
+            # container and then emits no citations, so the sources of a
+            # response cannot be shown to the user.
+            adaptive = Model.create('claude-sonnet-5', 'Claude Sonnet 5')
+            budget = Model.create('claude-sonnet-4-5', 'Claude Sonnet 4.5')
+            self.assertIs(adaptive.thinking, ThinkingMode.adaptive)
+            self.assertIs(budget.thinking, ThinkingMode.budget)
+            with patch.dict(chat_data.__globals__, {'pref': lambda key, defval=None: True if key == 'allow_web_searches' else defval}):
+                for model in (adaptive, budget):
+                    data = chat_data((ChatMessage('q'),), model)
+                    self.assertEqual(data['tools'], [{'type': 'web_search_20250305', 'name': 'web_search'}], model.id)
+                self.assertNotIn('tools', chat_data((ChatMessage('q'),), adaptive, use_tools=False))
+
+        def test_anthropic_citation_accumulation(self) -> None:
+            # Web search responses are split into one text block per cited
+            # span, with the sources of each arriving as citation deltas.
+            from calibre.ai.utils import add_citations
+
+            u1, u2 = 'https://example.com/a', 'https://example.com/b'
+
+            def cite(url: str, title: str) -> dict[str, Any]:
+                return {'type': 'citations_delta', 'citation': {'type': 'web_search_result_location', 'cited_text': 'x', 'url': url, 'title': title}}
+
+            def events() -> Iterator[dict[str, Any]]:
+                yield {'type': 'message_start', 'message': {'id': 'm1', 'usage': {'input_tokens': 1}}}
+                for i, (text, citations) in enumerate((
+                    ('A ', ()),
+                    ('big claim', (cite(u1, 'Site A'),)),
+                    (' and ', ()),
+                    ('another', (cite(u1, 'Site A'), cite(u2, 'Site B'))),
+                )):
+                    yield {'type': 'content_block_start', 'index': i, 'content_block': {'citations': [], 'type': 'text', 'text': ''}}
+                    yield {'type': 'content_block_delta', 'index': i, 'delta': {'type': 'text_delta', 'text': text}}
+                    for c in citations:
+                        yield {'type': 'content_block_delta', 'index': i, 'delta': c}
+                    yield {'type': 'content_block_stop', 'index': i}
+                yield {'type': 'message_delta', 'delta': {'stop_reason': 'end_turn'}, 'usage': {'output_tokens': 1}}
+
+            sm = StreamedMessage()
+            content = ''.join(r.content for r in sm.process(events()))
+            self.assertEqual(content, 'A big claim and another')
+            self.assertEqual(sm.web_links, [WebLink('Site A', u1), WebLink('Site B', u2)])
+            # one citation per cited block, spanning exactly that block's text
+            self.assertEqual(sm.citations, [Citation((0,), 2, 11), Citation((0, 1), 16, 23)])
+            for c in sm.citations:
+                self.assertEqual(content[c.start_offset : c.end_offset], {2: 'big claim', 16: 'another'}[c.start_offset])
+            # and the offsets let the sources be rendered inline
+            rendered = add_citations(content, ChatResponse(citations=tuple(sm.citations), web_links=tuple(sm.web_links)))
+            self.assertEqual(
+                rendered,
+                f'A [big claim]({u1} "Site A") and another<sup>[1]({u1} "Site A"), [2]({u2} "Site B")</sup>',
+            )
 
         def test_api_url_normalization(self) -> None:
             self.assertEqual(api_url('messages', ''), 'https://api.anthropic.com/v1/messages')

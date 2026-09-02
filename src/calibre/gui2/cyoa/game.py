@@ -824,6 +824,9 @@ class GameWidget(QWidget):
         # rewinding while a turn is in-flight cannot corrupt the game.
         self.turn_counter = count(start=1)
         self.turn_call = -1
+        # What the in-flight turn generation was asked for, so that it can be
+        # abandoned and asked for again by the retry button on the spinner.
+        self.turn_request: tuple[str, bool] | None = None
         self.image_counter = count(start=1)
         self.image_call = -1
         self.image_turn = -1
@@ -903,6 +906,8 @@ class GameWidget(QWidget):
         h.addWidget(ib), h.addStretch()
         il.addLayout(h)
         self.input_stack = ws = WaitStack(_('Thinking, please wait…'), after=input_panel, parent=left, size=64)
+        ws.enable_retry('<p>' + _('Stop waiting for this turn and ask the AI game master for it again'))
+        ws.retry_requested.connect(self.retry_turn)
         ws.stop()
         ll.addWidget(ws)
         sp.addWidget(left)
@@ -1034,6 +1039,7 @@ class GameWidget(QWidget):
         # In-flight generations keep running but their results are discarded
         # as their call numbers no longer match.
         self.turn_call = -1
+        self.turn_request = None
         self.image_call = -1
         self.image_turn = -1
         self.input_stack.stop()
@@ -1382,6 +1388,16 @@ class GameWidget(QWidget):
     def interesting_event(self) -> None:
         self.request_turn('', interesting_event=True)
 
+    def retry_turn(self) -> None:
+        # Abandon the in-flight generation, which keeps running on its thread
+        # but whose result is discarded as its call number no longer matches,
+        # and ask for the same turn again.
+        if self.turn_call < 0 or self.turn_request is None:
+            return
+        player_input, interesting_event = self.turn_request
+        self.turn_call = -1
+        self.request_turn(player_input, interesting_event)
+
     def request_turn(self, player_input: str, interesting_event: bool = False) -> None:
         if self.state is None or self.turn_call > -1:
             return
@@ -1393,6 +1409,7 @@ class GameWidget(QWidget):
         # generating cannot corrupt the current game state.
         snapshot = deserialize_game(serialize_game(self.state))
         self.turn_call = next(self.turn_counter)
+        self.turn_request = (player_input, interesting_event)
         self.input_stack.start()
         Thread(name='CYOATurn', daemon=True, target=self.do_turn, args=(snapshot, player_input, interesting_event, self.turn_call, plugin)).start()
 
@@ -1411,6 +1428,7 @@ class GameWidget(QWidget):
         if call_number != self.turn_call:
             return  # a stale result from a superseded or cancelled call
         self.turn_call = -1
+        self.turn_request = None
         self.input_stack.stop()
         if res.exception is not None:
             error_dialog(
