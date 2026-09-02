@@ -63,7 +63,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 3  # needed for live updates
+module_version = 4  # needed for live updates
 API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
@@ -127,7 +127,52 @@ class Pricing(NamedTuple):
 @lru_cache(2)
 def get_model_costs() -> dict[str, Pricing]:
     # https://ai.google.dev/gemini-api/docs/pricing
+    search_new = Price(14 / 1e3, 5000)  # $14/1000 requests, 5000 free/month
     return {
+        # gemini-3.7-flash and gemini-3.6-flash have promotional pricing through 2026-12-31;
+        # rates double on 2027-01-01.
+        'models/gemini-3.7-flash': Pricing(
+            input=Price(0.75 / 1e6),
+            output=Price(3.75 / 1e6),
+            caching=Price(0.075 / 1e6),
+            caching_storage=Price(0.5 / 1e6),
+            google_search=search_new,
+        ),
+        'models/gemini-3.6-flash': Pricing(
+            input=Price(0.75 / 1e6),
+            output=Price(3.75 / 1e6),
+            caching=Price(0.075 / 1e6),
+            caching_storage=Price(0.5 / 1e6),
+            google_search=search_new,
+        ),
+        'models/gemini-3.5-flash': Pricing(
+            input=Price(1.5 / 1e6),
+            output=Price(9 / 1e6),
+            caching=Price(0.15 / 1e6),
+            caching_storage=Price(1 / 1e6),
+            google_search=search_new,
+        ),
+        'models/gemini-3.5-flash-lite': Pricing(
+            input=Price(0.3 / 1e6),
+            output=Price(2.5 / 1e6),
+            caching=Price(0),
+            caching_storage=Price(0),
+        ),
+        'models/gemini-3.1-flash-lite': Pricing(
+            input=Price(0.25 / 1e6),
+            input_audio=Price(0.5 / 1e6),
+            output=Price(1.5 / 1e6),
+            caching=Price(0.025 / 1e6),
+            caching_storage=Price(1 / 1e6),
+        ),
+        'models/gemini-3.1-pro-preview': Pricing(
+            input=Price(4 / 1e6, 200_000, 2 / 1e6),
+            output=Price(18 / 1e6, 200_000, 12 / 1e6),
+            caching=Price(0.4 / 1e6, 200_000, 0.2 / 1e6),
+            caching_storage=Price(4.5 / 1e6),
+            google_search=search_new,
+        ),
+        # Legacy 2.5-era models
         'models/gemini-2.5-pro': Pricing(
             input=Price(2.5 / 1e6, 200_000, 1.25 / 1e6),
             output=Price(15 / 1e6, 200_000, 10 / 1e6),
