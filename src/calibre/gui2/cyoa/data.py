@@ -306,7 +306,7 @@ def list_games(base: str = '') -> list[SavedGame]:
                     game_id=x,
                     title=data.get('title') or x,
                     updated=data.get('updated') or 0,
-                    num_turns=len((data.get('game') or {}).get('turns') or ()),
+                    num_turns=len(((data.get('game') or {}).get('game') or {}).get('turns') or ()),
                 )
             )
     entries.sort(key=lambda e: e.updated, reverse=True)
