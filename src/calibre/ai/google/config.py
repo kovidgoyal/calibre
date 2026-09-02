@@ -88,6 +88,18 @@ class ConfigWidget(QWidget):
         for w in (self.model_strategy, self._allow_web_searches, self.reasoning_strat):
             lay.setRowVisible(w, purpose.supports_text_to_text)
 
+    def set_model(self, model_id: str, purpose: AICapabilities) -> bool:
+        # Google AI does not allow choosing a specific model for text tasks,
+        # only a model choice strategy, and identifies the models it can use
+        # to generate images by family rather than by id, see image_model_choice.
+        if not purpose.supports_text_to_image:
+            return False
+        idx = self.image_model_choice.findData(model_id)
+        if idx < 0:
+            return False
+        self.image_model_choice.setCurrentIndex(idx)
+        return True
+
     @property
     def api_key(self) -> str:
         return self.api_key_edit.text().strip()

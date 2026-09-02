@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -50,6 +50,13 @@ if TYPE_CHECKING:
     from calibre.ai.venice.backend import Model as AIModel
 
 
+def backend() -> Any:  # noqa: ANN401
+    for plugin in available_ai_provider_plugins():
+        if plugin.name == VeniceAI.name:
+            return plugin.builtin_live_module
+    raise ValueError(f'Could not find the {VeniceAI.name} plugin')
+
+
 class Model(QWidget):
     select_model = pyqtSignal(str, bool)
 
@@ -81,12 +88,7 @@ class Model(QWidget):
 class ModelsModel(QAbstractListModel):
     def __init__(self, for_text: bool, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        for plugin in available_ai_provider_plugins():
-            if plugin.name == VeniceAI.name:
-                self.backend = plugin.builtin_live_module
-                break
-        else:
-            raise ValueError('Could not find VeniceAI plugin')
+        self.backend = backend()
         all_models = self.backend.get_available_models().values()
         self.all_models = tuple(
             sorted(
@@ -359,6 +361,23 @@ class ConfigWidget(QWidget):
         lay.setRowVisible(self.image_gb, purpose.supports_text_to_image)
         for w in (self.model_strategy, self._allow_web_searches, self.reasoning_strat, self.text_model):
             lay.setRowVisible(w, purpose.supports_text_to_text)
+
+    def set_model(self, model_id: str, purpose: AICapabilities) -> bool:
+        # Make the specified model be used for the specified purpose,
+        # returning False if Venice AI does not offer that model.
+        target = self.image_model if purpose.supports_text_to_image else self.text_model
+        model_name = model_id
+        try:
+            available = backend().get_available_models()
+        except Exception:
+            available = None  # the list of models could not be fetched, trust the caller
+        if available is not None:
+            m = available.get(model_id)
+            if m is None:
+                return False
+            model_name = m.name
+        target.set(model_id, model_name)
+        return True
 
     def select_model(self, model_id: str, for_text: bool) -> None:
         model_choice_target = cast(Model, self.sender())

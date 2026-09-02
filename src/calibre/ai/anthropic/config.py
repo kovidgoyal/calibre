@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QWidget
 
+from calibre.ai import AICapabilities
 from calibre.ai.anthropic import AnthropicAI
 
 if TYPE_CHECKING:
@@ -94,6 +95,17 @@ class ConfigWidget(QWidget):
         else:
             raise ValueError(f'Could not find the {AnthropicAI.name} plugin')
         return tuple(sorted(backend.get_available_models().values(), key=lambda m: (-m.family_version, primary_sort_key(m.name))))
+
+    def set_model(self, model_id: str, purpose: AICapabilities) -> bool:
+        # Make the specified model be used, returning False if Anthropic
+        # does not offer it. Anthropic AI can only generate text.
+        if not purpose.supports_text_to_text:
+            return False
+        idx = self.model_choice.findData(model_id)
+        if idx < 1:  # index zero is the automatic choice, not a model
+            return False
+        self.model_choice.setCurrentIndex(idx)
+        return True
 
     @property
     def api_key(self) -> str:

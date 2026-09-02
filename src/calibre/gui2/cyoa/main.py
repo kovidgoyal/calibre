@@ -44,6 +44,7 @@ class CYOAMainWindow(MainWindow):
     def show_appropriate_page(self) -> None:
         self.setWindowTitle(_('Create Your Own Adventure'))
         if not data.is_ready('text'):
+            self.welcome.show_intro_page()
             self.stack.setCurrentWidget(self.welcome)
             return
         if game_id := data.current_game_id():

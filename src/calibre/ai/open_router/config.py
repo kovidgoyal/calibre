@@ -53,6 +53,13 @@ if TYPE_CHECKING:
     from calibre.ai.open_router.backend import Model as AIModel
 
 
+def backend() -> Any:  # noqa: ANN401
+    for plugin in available_ai_provider_plugins():
+        if plugin.name == OpenRouterAI.name:
+            return plugin.builtin_live_module
+    raise ValueError(f'Could not find the {OpenRouterAI.name} plugin')
+
+
 class Model(QWidget):
     select_model = pyqtSignal(str, bool)
 
@@ -88,12 +95,7 @@ class Model(QWidget):
 class ModelsModel(QAbstractListModel):
     def __init__(self, capabilities: AICapabilities, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        for plugin in available_ai_provider_plugins():
-            if plugin.name == OpenRouterAI.name:
-                self.backend = plugin.builtin_live_module
-                break
-        else:
-            raise ValueError('Could not find OpenRouterAI plugin')
+        self.backend = backend()
         self.all_models_map = self.backend.get_available_models()
         self.all_models = tuple(filter(lambda m: capabilities & m.capabilities == capabilities, self.all_models_map.values()))
         self.sorts = tuple(primary_sort_key(m.name) for m in self.all_models)
@@ -486,6 +488,23 @@ class ConfigWidget(QWidget):
         lay.setRowVisible(self.image_model, purpose.supports_text_to_image)
         for w in (self.model_strategy, self._allow_web_searches, self.reasoning_strat, self.text_model):
             lay.setRowVisible(w, purpose.supports_text_to_text)
+
+    def set_model(self, model_id: str, purpose: AICapabilities) -> bool:
+        # Make the specified model be used for the specified purpose,
+        # returning False if OpenRouter does not offer that model.
+        target = self.image_model if purpose.supports_text_to_image else self.text_model
+        model_name = model_id
+        try:
+            available = backend().get_available_models()
+        except Exception:
+            available = None  # the list of models could not be fetched, trust the caller
+        if available is not None:
+            m = available.get(model_id)
+            if m is None:
+                return False
+            model_name = m.name
+        target.set(model_id, model_name)
+        return True
 
     def select_model(self, model_id: str, for_text: bool) -> None:
         model_choice_target = cast(Model, self.sender())

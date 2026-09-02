@@ -4,7 +4,21 @@
 from collections.abc import Callable
 from typing import Any, Protocol
 
-from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
+from qt.core import (
+    QAbstractButton,
+    QComboBox,
+    QDialog,
+    QDoubleSpinBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QSpinBox,
+    QStackedLayout,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.ai import AICapabilities
 from calibre.ai.prefs import plugin_for_purpose, plugins_for_purpose, prefs
@@ -17,8 +31,20 @@ class AIConfigWidget(Protocol):
     @property
     def settings(self) -> dict[str, Any]: ...
 
+    # Config widgets may also implement the optional method:
+    #     set_model(model_id: str, purpose: AICapabilities) -> bool
+    # which makes the widget use the specified provider specific model for
+    # the specified purpose, returning False if the provider does not offer
+    # that model or does not allow choosing models explicitly. It is used by
+    # ConfigureAI.set_provider_and_model() to let callers offer the user
+    # ready made provider plus model combinations. It is optional as config
+    # widgets can come from live loaded or third party plugin code that
+    # predates it, so it must always be looked up with getattr().
+
 
 class ConfigureAI(QWidget):
+    changed = pyqtSignal()
+
     def __init__(
         self,
         purpose: AICapabilities = AICapabilities.text_to_text,
@@ -71,6 +97,54 @@ class ConfigureAI(QWidget):
             )
             s.addWidget(la)
         v.addWidget(self.gb)
+        self.watch_for_changes()
+
+    def watch_for_changes(self) -> None:
+        # Provider config widgets have no common "settings changed" signal,
+        # so instead watch the standard input widgets they are built from.
+        # Allows callers to react to the user editing settings, for instance
+        # to enable a "Next" button only once is_ready_for_use becomes True.
+        for w in self.findChildren(QWidget):
+            if isinstance(w, QLineEdit):
+                w.textChanged.connect(self.settings_changed)
+            elif isinstance(w, QComboBox):
+                w.currentIndexChanged.connect(self.settings_changed)
+            elif isinstance(w, QAbstractButton):
+                w.clicked.connect(self.settings_changed)
+            elif isinstance(w, (QSpinBox, QDoubleSpinBox)):
+                w.valueChanged.connect(self.settings_changed)
+
+    def settings_changed(self) -> None:
+        self.changed.emit()
+
+    def index_for_provider(self, provider_name: str) -> int:
+        for i, p in enumerate(self.available_plugins):
+            if p.name == provider_name:
+                return i
+        return -1
+
+    def can_set_provider_and_model(self, provider_name: str) -> bool:
+        # True iff the named provider is available for this purpose and its
+        # config widget allows the model to be chosen explicitly.
+        idx = self.index_for_provider(provider_name)
+        return idx > -1 and getattr(self.plugin_config_widgets[idx], 'set_model', None) is not None
+
+    def set_provider_and_model(self, provider_name: str, model_id: str) -> bool:
+        # Switch to the named provider and make it use the specified model
+        # for this purpose. Returns False if the provider is unavailable or
+        # does not offer the model, note that in the latter case the
+        # provider is switched to anyway.
+        idx = self.index_for_provider(provider_name)
+        if idx < 0:
+            return False
+        if len(self.available_plugins) > 1:
+            self.provider_combo.setCurrentIndex(idx)
+        set_model = getattr(self.plugin_config_widgets[idx], 'set_model', None)
+        if set_model is None:
+            return False
+        ans = bool(set_model(model_id, self.purpose))
+        self.settings_changed()
+        return ans
 
     @property
     def is_ready_for_use(self) -> bool:
