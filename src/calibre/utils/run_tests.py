@@ -702,6 +702,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.ai.utils import find_tests
 
         a(find_tests())
+        from calibre.ai.anthropic.backend import find_tests
+
+        a(find_tests())
         from calibre.ai.structured import find_tests
 
         a(find_tests())
