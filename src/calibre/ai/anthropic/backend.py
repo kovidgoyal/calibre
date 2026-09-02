@@ -156,12 +156,13 @@ class Pricing(NamedTuple):
     web_search: float = 10 / 1e3  # USD per web search request
 
     @classmethod
-    def per_million(cls, input_price: float, output_price: float) -> Pricing:
-        # Cache writes cost 1.25x and cache reads 0.1x the input token price
+    def per_million(cls, input_price: float, output_price: float, cache_read_multiplier: float = 0.1) -> Pricing:
+        # Cache writes cost 1.25x the input token price by default.
+        # Cache reads cost cache_read_multiplier × input price (0.025x on Fable/Mythos 5.1+, 0.1x otherwise).
         return Pricing(
             input_token=input_price / 1e6,
             output_token=output_price / 1e6,
-            cache_read=0.1 * input_price / 1e6,
+            cache_read=cache_read_multiplier * input_price / 1e6,
             cache_write=1.25 * input_price / 1e6,
         )
 
@@ -242,12 +243,36 @@ class Model(NamedTuple):
 @lru_cache(2)
 def builtin_models() -> dict[str, Model]:
     # The models API provides no pricing data, so model pricing must be kept
-    # up to date manually from https://docs.anthropic.com/en/docs/about-claude/pricing
+    # up to date manually from https://platform.claude.com/docs/en/about-claude/pricing
     models = (
+        Model.create(
+            'claude-fable-5-1',
+            'Claude Fable 5.1',
+            _('The most capable Claude model, for the most demanding tasks. Note that it is expensive.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(10, 50, cache_read_multiplier=0.025),
+        ),
+        Model.create(
+            'claude-mythos-5-1',
+            'Claude Mythos 5.1',
+            _('The most capable Claude model (limited availability). For the most demanding tasks. Note that it is expensive.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(10, 50, cache_read_multiplier=0.025),
+        ),
         Model.create(
             'claude-fable-5',
             'Claude Fable 5',
-            _('The most capable Claude model, for the most demanding tasks. Note that it is expensive.'),
+            _('An older generation of the most capable Claude model, for the most demanding tasks. Note that it is expensive.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(10, 50),
+        ),
+        Model.create(
+            'claude-mythos-5',
+            'Claude Mythos 5',
+            _('An older generation of the most capable Claude model (limited availability). Note that it is expensive.'),
             context_length=1_000_000,
             output_limit=128_000,
             pricing=Pricing.per_million(10, 50),
@@ -285,16 +310,32 @@ def builtin_models() -> dict[str, Model]:
             pricing=Pricing.per_million(5, 25),
         ),
         Model.create(
+            'claude-opus-4-5',
+            'Claude Opus 4.5',
+            _('An older generation of the flagship Claude Opus series of models.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(5, 25),
+        ),
+        Model.create(
             'claude-sonnet-5',
             'Claude Sonnet 5',
             _('A fast and capable model, well suited to most everyday tasks.'),
             context_length=1_000_000,
             output_limit=128_000,
-            pricing=Pricing.per_million(3, 15),
+            pricing=Pricing.per_million(2, 10),
         ),
         Model.create(
             'claude-sonnet-4-6',
             'Claude Sonnet 4.6',
+            _('An older generation of the fast and capable Claude Sonnet series of models.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(3, 15),
+        ),
+        Model.create(
+            'claude-sonnet-4-5',
+            'Claude Sonnet 4.5',
             _('An older generation of the fast and capable Claude Sonnet series of models.'),
             context_length=1_000_000,
             output_limit=128_000,
