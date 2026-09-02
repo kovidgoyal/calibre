@@ -51,7 +51,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 4  # needed for live updates
+module_version = 5  # needed for live updates
 MODELS_URL = 'https://api.openai.com/v1/models'
 CHAT_URL = 'https://api.openai.com/v1/responses'
 IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations'
@@ -102,7 +102,7 @@ class Model(NamedTuple):
             version = 0
         return Model(
             id=x['id'],
-            created=datetime.datetime.fromtimestamp(x['created'], datetime.UTC),
+            created=datetime.datetime.fromtimestamp(x.get('created') or 0, datetime.UTC),
             id_parts=id_parts,
             version=version,
         )
@@ -144,6 +144,10 @@ def config_widget() -> ConfigWidget:
 
 def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
+    # the API key may have changed, and with it the list of available models
+    headers.cache_clear()
+    get_available_models.cache_clear()
+    newest_gpt_models.cache_clear()
 
 
 def human_readable_model_name(model_id: str) -> str:
@@ -160,6 +164,26 @@ def configured_model_name(for_image: bool = False) -> str:
 
 
 _NON_CHAT_MODEL_TYPES = frozenset({'realtime', 'audio', 'tts', 'transcribe', 'search', 'image', 'codex', 'live', 'whisper'})
+_CHAT_MODEL_FAMILIES = frozenset({'gpt', 'chatgpt'})
+
+
+def is_chat_model(model: Model) -> bool:
+    # The models usable for text generation. Deliberately more permissive
+    # than the filter used by newest_gpt_models() for automatic model
+    # choice, so that the reasoning only models, such as o3, can be picked
+    # by hand. Used to populate the model choice in the config widget.
+    parts = model.id_parts
+    family = parts[0]
+    if family not in _CHAT_MODEL_FAMILIES and not (family.startswith('o') and family[1:].isdigit()):
+        return False
+    return not (_NON_CHAT_MODEL_TYPES & set(parts))
+
+
+def is_image_model(model: Model) -> bool:
+    # The models usable for image generation and editing. The legacy dall-e
+    # models are excluded as their API and pricing differ from the gpt-image
+    # ones, see image_generation_cost().
+    return model.id_parts[0] == 'gpt' and 'image' in model.id_parts
 
 
 @lru_cache(2)
@@ -184,8 +208,17 @@ def newest_gpt_models() -> dict[str, Model]:
 def model_choice_for_text() -> Model:
     # Deliberately not cached so that changes to the preference, including
     # temporary overrides via override_prefs_for_providers(), take effect.
+    if model_id := pref('text_model', ''):
+        if m := get_available_models().get(model_id):
+            return m
     m = newest_gpt_models()
     return m.get(pref('model_choice_strategy', 'medium'), m['medium'])
+
+
+def model_for_use_model(use_model: str) -> Model:
+    if use_model:
+        return get_available_models().get(use_model) or Model.from_dict({'id': use_model})
+    return model_choice_for_text()
 
 
 def reasoning_effort() -> str:
@@ -251,10 +284,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
 
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     # See https://platform.openai.com/docs/guides/text?api-mode=responses
-    if use_model:
-        model = get_available_models()[use_model]
-    else:
-        model = model_choice_for_text()
+    model = model_for_use_model(use_model)
     previous_response_id = ''
     messages = mcon = tuple(messages)
     for i, m in enumerate(reversed(messages)):
@@ -296,10 +326,7 @@ def structured_output_data(messages: Iterable[ChatMessage], schema: type) -> dic
 
 
 def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
-    if use_model:
-        model = get_available_models()[use_model]
-    else:
-        model = model_choice_for_text()
+    model = model_for_use_model(use_model)
     data = structured_output_data(messages_for_structured_output(prompt, instructions), schema)
     # tools must be disabled as web search results are not JSON
     rq = chat_request(data, model, use_tools=False)
@@ -321,8 +348,11 @@ def size_for_aspect_ratio(aspect_ratio: str) -> str:
 
 
 def model_choice_for_images() -> str:
+    if model_id := pref('text_to_image_model', ''):
+        if model_id in get_available_models():
+            return model_id
     want_mini = pref('image_model_strategy', 'high') == 'low'
-    candidates = [m for m in get_available_models().values() if m.id_parts[0] == 'gpt' and 'image' in m.id_parts]
+    candidates = [m for m in get_available_models().values() if is_image_model(m)]
     if preferred := [m for m in candidates if ('mini' in m.id_parts) == want_mini]:
         candidates = preferred
     if not candidates:

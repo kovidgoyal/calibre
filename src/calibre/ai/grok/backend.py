@@ -58,7 +58,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 2  # needed for live updates
+module_version = 3  # needed for live updates
 API_BASE_URL = 'https://api.x.ai/v1'
 TEXT_MODELS_URL = f'{API_BASE_URL}/language-models'
 IMAGE_MODELS_URL = f'{API_BASE_URL}/image-generation-models'
@@ -170,6 +170,10 @@ def config_widget() -> ConfigWidget:
 
 def save_settings(config_widget: ConfigWidget) -> None:
     config_widget.save_settings()
+    # the API key may have changed, and with it the list of available models
+    headers.cache_clear()
+    get_available_models.cache_clear()
+    models_by_strategy.cache_clear()
 
 
 def human_readable_model_name(model_id: str) -> str:
@@ -188,13 +192,19 @@ def configured_model_name(for_image: bool = False) -> str:
 _SPECIALIZED_MODEL_TYPES = frozenset({'image', 'video', 'voice', 'imagine', 'code', 'build', 'embedding'})
 
 
+def is_text_model(model: Model) -> bool:
+    return model.id_parts[0] == 'grok' and not (_SPECIALIZED_MODEL_TYPES & set(model.id_parts)) and not model.generates_images
+
+
+def is_image_model(model: Model) -> bool:
+    return model.generates_images
+
+
 @lru_cache(2)
 def models_by_strategy() -> dict[str, Model]:
-    candidates = [
-        m
-        for m in get_available_models().values()
-        if m.id_parts[0] == 'grok' and m.family_version > 0 and not (_SPECIALIZED_MODEL_TYPES & set(m.id_parts)) and not m.generates_images
-    ]
+    # models with no version number in their id, such as the grok-beta alias,
+    # are not used for automatic choice as they cannot be ranked by recency
+    candidates = [m for m in get_available_models().values() if is_text_model(m) and m.family_version > 0]
     if not candidates:
         raise ValueError('No Grok models found for automatic model choice')
     candidates.sort(key=attrgetter('family_version', 'created'), reverse=True)
@@ -207,6 +217,9 @@ def models_by_strategy() -> dict[str, Model]:
 
 
 def model_choice_for_text() -> Model:
+    if model_id := pref('text_model', ''):
+        if m := get_available_models().get(model_id):
+            return m
     m = models_by_strategy()
     return m.get(pref('model_choice_strategy', 'medium')) or m['medium']
 
@@ -334,7 +347,10 @@ def generate_structured_output(prompt: str, schema: type, instructions: str = ''
 
 
 def model_choice_for_images() -> Model:
-    candidates = [m for m in get_available_models().values() if m.generates_images]
+    if model_id := pref('text_to_image_model', ''):
+        if m := get_available_models().get(model_id):
+            return m
+    candidates = [m for m in get_available_models().values() if is_image_model(m)]
     if not candidates:
         return Model.from_dict({'id': DEFAULT_IMAGE_MODEL}, generates_images=True)
     return max(candidates, key=attrgetter('created'))

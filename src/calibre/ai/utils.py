@@ -464,6 +464,25 @@ def model_choice_strategy_config_widget(current_val: str = 'medium', parent: QWi
     return ms
 
 
+def model_choice_config_widget(models: Iterable[tuple[str, str]], current_val: str = '', automatic_text: str = '', parent: QWidget | None = None) -> QComboBox:
+    # A combo box for choosing the model to use explicitly. models is a
+    # sequence of (id, name) pairs, in the order they should be displayed.
+    # The first entry, whose data is the empty string, lets the model be
+    # chosen automatically instead. A current_val that is not among models,
+    # for instance because the list of models could not be downloaded, is
+    # added so that the existing setting is never silently discarded.
+    from qt.core import QComboBox
+
+    mc = QComboBox(parent)
+    mc.addItem(automatic_text or _('Automatic (based on model choice strategy)'), '')
+    for model_id, name in models:
+        mc.addItem(name, model_id)
+    if current_val and mc.findData(current_val) < 0:
+        mc.addItem(current_val, current_val)
+    mc.setCurrentIndex(max(0, mc.findData(current_val)))
+    return mc
+
+
 def image_quality_config_widget(current_val: str = 'auto', parent: QWidget | None = None) -> QComboBox:
     from qt.core import QComboBox
 
