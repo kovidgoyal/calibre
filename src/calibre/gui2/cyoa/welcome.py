@@ -33,7 +33,7 @@ class WelcomeWidget(QScrollArea):
             + _(
                 'Create Your Own Adventure is an interactive storytelling game run by an AI.'
                 ' Describe the world you want to play in and the AI expands it into a full'
-                ' game world, complete with characters to play as and a goal to achieve.'
+                ' game world, complete with different characters you can choose to play as.'
                 ' Then play the adventure turn-by-turn: the AI narrates what happens and you'
                 ' decide what your character does next, with the story, and optionally'
                 ' pictures of each scene, generated as you go.'
