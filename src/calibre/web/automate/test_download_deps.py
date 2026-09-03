@@ -68,8 +68,13 @@ class TestDownloadDeps(unittest.TestCase):
     # Utilities {{{
 
     def read_metadata(self) -> dict[str, Any]:
-        with open(self.installer.metadata_path) as f:
-            raw = f.read()
+        # On Windows ExclusiveFile opens with share mode 0, so a concurrent lock
+        # holder causes PermissionError — treat that as "not yet written".
+        try:
+            with open(self.installer.metadata_path) as f:
+                raw = f.read()
+        except PermissionError:
+            return {}
         if not raw:
             return {}
         try:
@@ -231,7 +236,12 @@ class TestDownloadDeps(unittest.TestCase):
             dd.make_executable(prog)
             self.assertTrue(os.access(prog, os.X_OK))
 
-        for unsafe in ('../evil', 'sub/../../evil', '/evil'):
+        # On Windows os.path.isabs('/evil') is False (no drive letter), so the
+        # production code safely extracts it to dest/evil rather than raising.
+        unsafe_paths = ['../evil', 'sub/../../evil']
+        if not iswindows:
+            unsafe_paths.append('/evil')
+        for unsafe in unsafe_paths:
             with zipfile.ZipFile(src, 'w') as zf:
                 zf.writestr(unsafe, 'evil')
             with self.assertRaises(ValueError):
