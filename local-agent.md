@@ -53,4 +53,4 @@ Before declaring a task complete, you must follow this exact verification lifecy
 1. Run the local **Build Command** to guarantee zero compilation or compilation-stage type errors.
 2. Run the local **Test Command** 
 3. If errors occur, analyze the output logs completely before writing a fix. Do not guess.
-4. Run `/setup.py check --fix && ./setup.py type_check` to ensure all files pass quality checks 
+4. Run `/setup.py check --fix --no-editor && ./setup.py type_check` to ensure all files pass quality checks 
