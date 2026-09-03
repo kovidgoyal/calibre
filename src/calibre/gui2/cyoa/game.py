@@ -1427,17 +1427,30 @@ class GameWidget(QWidget):
     def on_turn_result(self, call_number: int, snapshot: GameState, res: StructuredOutputResult) -> None:
         if call_number != self.turn_call:
             return  # a stale result from a superseded or cancelled call
+        turn_request = self.turn_request
         self.turn_call = -1
         self.turn_request = None
         self.input_stack.stop()
         if res.exception is not None:
-            error_dialog(
+            d = error_dialog(
                 self,
                 _('Failed to generate the next turn'),
                 _('The AI failed to continue the story: {}').format(res.exception),
                 det_msg=res.error_details,
-                show=True,
             )
+            should_retry = [False]
+            retry_btn = d.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
+            retry_btn.setIcon(QIcon.ic('view-refresh.png'))
+
+            def on_retry() -> None:
+                should_retry[0] = True
+                d.accept()
+
+            retry_btn.clicked.connect(on_retry)
+            d.exec()
+            if should_retry[0] and turn_request is not None:
+                player_input, interesting_event = turn_request
+                self.request_turn(player_input, interesting_event)
             return
         self.state = snapshot
         self.session_cost += res.cost
