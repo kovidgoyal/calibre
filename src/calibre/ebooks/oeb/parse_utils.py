@@ -65,7 +65,7 @@ def clone_element(elem, nsmap={}, in_context=True):
         maker = etree.Element
     nelem = maker(elem.tag, attrib=elem.attrib, nsmap=nsmap)
     nelem.text, nelem.tail = elem.text, elem.tail
-    nelem.extend(elem)
+    nelem.extend(tuple(elem))
     return nelem
 
 

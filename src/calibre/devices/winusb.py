@@ -1096,7 +1096,8 @@ def get_device_languages(hub_handle, device_port, buf=None):
 
     buf, bytes_returned = device_io_control(hub_handle, IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION, buf, buf, initbuf)
     data = cast(buf, PUSB_DESCRIPTOR_REQUEST).contents.Data
-    sz, dtype = data.bLength, data.bType
+    sz: int = data.bLength
+    dtype = data.bType
     if dtype != 0x03:
         raise OSError(errno.EINVAL, f'Invalid datatype for string descriptor: 0x{dtype:x}')
     data = cast(data.String, POINTER(USHORT * (sz // 2)))

@@ -5,15 +5,17 @@ import array
 import sys
 from itertools import repeat
 from operator import itemgetter
+from typing import Literal
 
 from calibre.utils.fonts.sfnt import UnknownTable
 
 
-def four_byte_type_code():
-    for c in 'IL':
+def four_byte_type_code() -> Literal['I', 'L']:
+    for c in ('I', 'L'):
         a = array.array(c)
         if a.itemsize == 4:
             return c
+    raise ValueError('No four byte unsigned integer type code found')
 
 
 def read_array(data, fmt='H'):

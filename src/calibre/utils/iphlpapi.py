@@ -359,7 +359,7 @@ def routes():
         if p_forward_table is None:
             return ans
         forward_table = p_forward_table.contents
-        table = ctypes.cast(ctypes.addressof(forward_table.table), ctypes.POINTER(Win32_MIB_IPFORWARDROW * forward_table.dwNumEntries)).contents
+        table = ctypes.cast(ctypes.addressof(forward_table.table), ctypes.POINTER(Win32_MIB_IPFORWARDROW * int(forward_table.dwNumEntries))).contents
 
         for row in table:
             destination = Ws2_32.inet_ntoa(row.dwForwardDest).decode()
