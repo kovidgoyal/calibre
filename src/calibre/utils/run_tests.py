@@ -659,6 +659,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.web.automate.test_worker import find_tests
 
         a(find_tests())
+        from calibre.web.automate.test_download_deps import find_tests
+
+        a(find_tests())
     if ok('icu'):
         from calibre.utils.icu_test import find_tests
 
