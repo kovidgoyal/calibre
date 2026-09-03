@@ -15,6 +15,7 @@
 
 import json
 import textwrap
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any, NamedTuple, Protocol
@@ -391,14 +392,165 @@ def no_provider_error() -> StructuredOutputResult:
     return StructuredOutputResult(exception=ValueError(msg), error_details=msg)
 
 
+class InvalidAIResponse(ValueError):
+    # Raised when the AI returns a response that matches the schema, so the
+    # provider plugin reports no error, but that is not actually usable, for
+    # example an empty passage of prose or too few quick actions.
+    pass
+
+
+def validation_error(res: StructuredOutputResult, e: InvalidAIResponse) -> StructuredOutputResult:
+    # Report an unusable response the same way as an error from the provider,
+    # keeping the raw response so the player can see what the AI actually said.
+    return res._replace(data=None, exception=e, error_details=res.error_details or res.raw)
+
+
+# The player chooses who to play as, so a world with only one character defeats
+# the point of the phase. The AI is asked for three to five, but rejecting an
+# otherwise usable world costs the player a full regeneration, so fewer are
+# accepted as long as there is a choice.
+MIN_PLAYER_CHARACTERS = 2
+
+
+def validated_player_characters(characters: Iterable[PlayerCharacter]) -> tuple[PlayerCharacter, ...]:
+    # Unlike the characters of a story summary there is no previous state to
+    # repair these from, and every field is either shown to the player or used
+    # to generate their portrait, so incomplete characters are discarded.
+    ans: list[PlayerCharacter] = []
+    seen: set[str] = set()
+    for c in characters:
+        name, description, backstory = c.name.strip(), c.description.strip(), c.backstory.strip()
+        key = name.casefold()
+        if not name or not description or not backstory or key in seen:
+            continue
+        seen.add(key)
+        ans.append(PlayerCharacter(name=name, description=description, backstory=backstory))
+    return tuple(ans)
+
+
+def validated_world(world: GeneratedWorld) -> GeneratedWorld:
+    # Nothing here can be repaired from previous state, as the world is the
+    # start of the game, but generating it again loses the player nothing that
+    # has been written, so an incomplete world is rejected rather than patched
+    # up: the title and description are used for the rest of the game.
+    title = world.title.strip()
+    if not title:
+        raise InvalidAIResponse('The AI returned a world with no title')
+    description = world.world_description.strip()
+    if not description:
+        raise InvalidAIResponse('The AI returned a world with no description')
+    characters = validated_player_characters(world.characters)
+    if len(characters) < MIN_PLAYER_CHARACTERS:
+        raise InvalidAIResponse(f'The AI returned {len(characters)} usable playable characters, at least {MIN_PLAYER_CHARACTERS} are needed')
+    return GeneratedWorld(title=title, world_description=description, characters=characters)
+
+
 def generate_world(brief: str, plugin: AIProvider | None = None, use_model: str = '') -> StructuredOutputResult:
     # The world generation phase: expand the player's brief description into
-    # a GeneratedWorld, available as the data field of the returned result.
-    # Errors are reported via the exception field, not raised.
+    # a GeneratedWorld, available as the data field of the returned result. The
+    # response is validated and normalized by validated_world() before being
+    # returned. Errors, including an unusable response, are reported via the
+    # exception field, not raised.
     plugin = plugin or default_provider()
     if plugin is None:
         return no_provider_error()
-    return plugin.generate_structured_output(world_generation_prompt(brief), GeneratedWorld, WORLD_GENERATION_INSTRUCTIONS, use_model)
+    res = plugin.generate_structured_output(world_generation_prompt(brief), GeneratedWorld, WORLD_GENERATION_INSTRUCTIONS, use_model)
+    if res.exception is not None:
+        return res
+    world = res.data
+    try:
+        if not isinstance(world, GeneratedWorld):
+            raise InvalidAIResponse(f'The AI returned {type(world).__name__} instead of a world')
+        world = validated_world(world)
+    except InvalidAIResponse as e:
+        return validation_error(res, e)
+    return res._replace(data=world)
+
+
+NUM_QUICK_ACTIONS = 3
+
+
+def clean_text_list(items: Iterable[str]) -> tuple[str, ...]:
+    # Strip whitespace and discard blank and duplicate entries, preserving order.
+    ans: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        text = item.strip()
+        if text and (key := text.casefold()) not in seen:
+            seen.add(key)
+            ans.append(text)
+    return tuple(ans)
+
+
+def validated_characters(characters: Iterable[CharacterState], previous: StorySummary) -> tuple[CharacterState, ...]:
+    # Fill in fields the AI left blank from the entry for the same character in
+    # the previous summary and discard entries that say nothing at all.
+    known = {c.name.strip().casefold(): c for c in previous.characters if c.name.strip()}
+    ans: list[CharacterState] = []
+    seen: set[str] = set()
+    for c in characters:
+        name = c.name.strip()
+        # A character without a name can neither be matched with a previous
+        # entry nor be referred to by the AI or the player on later turns.
+        if not name or (key := name.casefold()) in seen:
+            continue
+        seen.add(key)
+        prev = known.get(key)
+        description = c.description.strip() or (prev.description if prev else '')
+        backstory = c.backstory.strip() or (prev.backstory if prev else '')
+        if not description and not backstory:
+            continue  # nothing is known about this character, a later turn will re-introduce them if they matter
+        # An empty relationships field is legitimate for a character who has not yet met anyone.
+        relationships = c.relationships.strip() or (prev.relationships if prev else '')
+        ans.append(CharacterState(name=name, description=description, backstory=backstory, relationships=relationships))
+    # Losing every character means losing the cast of the story, so keep the previous one rather than an empty summary.
+    return tuple(ans) or previous.characters
+
+
+def validated_summary(summary: StorySummary, previous: StorySummary) -> StorySummary:
+    # The summary is the only memory the AI has of the story beyond the current
+    # chapter, so blank fields are carried over from the previous summary
+    # instead of being stored as is, which would silently lose the plot.
+    world = summary.world.strip() or previous.world
+    if not world:
+        raise InvalidAIResponse('The AI returned a story summary with no description of the world')
+    current_situation = summary.current_situation.strip() or previous.current_situation
+    if not current_situation:
+        raise InvalidAIResponse('The AI returned a story summary with no description of the current situation')
+    characters = validated_characters(summary.characters, previous)
+    if not characters:
+        raise InvalidAIResponse('The AI returned a story summary with no characters')
+    return StorySummary(
+        world=world,
+        major_events=clean_text_list(summary.major_events) or previous.major_events,
+        characters=characters,
+        current_situation=current_situation,
+        upcoming_events=clean_text_list(summary.upcoming_events),
+    )
+
+
+def validated_turn(turn: StoryTurn, previous: StorySummary) -> StoryTurn:
+    # Responses are checked against the schema before they get here, but that
+    # only guarantees that the fields are present and of the right type. Repair
+    # what can be repaired from the previous summary and reject turns that are
+    # not usable, so that a bad response is reported to the player as a failed
+    # turn they can retry rather than being added to the game.
+    narrative = turn.narrative.strip()
+    if not narrative:
+        raise InvalidAIResponse('The AI returned an empty passage of prose')
+    quick_actions = clean_text_list(turn.quick_actions)[:NUM_QUICK_ACTIONS]
+    if len(quick_actions) < NUM_QUICK_ACTIONS:
+        raise InvalidAIResponse(f'The AI returned {len(quick_actions)} usable quick actions, {NUM_QUICK_ACTIONS} are needed')
+    return StoryTurn(
+        narrative=narrative,
+        quick_actions=quick_actions,
+        # A missing scene description only means no image can be generated for
+        # this turn, which is not worth failing an otherwise good turn for.
+        scene_description=turn.scene_description.strip(),
+        updated_summary=validated_summary(turn.updated_summary, previous),
+        starts_new_chapter=turn.starts_new_chapter,
+        chapter_title=(turn.chapter_title or '').strip() or None,
+    )
 
 
 def next_turn(
@@ -406,12 +558,14 @@ def next_turn(
 ) -> StructuredOutputResult:
     # Play one turn: send the AI the story summary, the transcript of the
     # current chapter and the player's input, returning a result whose data
-    # field is a StoryTurn. On success the turn is appended to the game log,
-    # starting a new chapter when the AI indicates one. On error the state is
-    # left unmodified and the error is reported via the exception field of
-    # the result, not raised. For the opening turn of the game player_input
-    # may be empty. When interesting_event is true the player's input is
-    # ignored and the AI is asked to have something unexpected happen instead.
+    # field is a StoryTurn. The response is validated and normalized by
+    # validated_turn() before being used. On success the turn is appended to
+    # the game log, starting a new chapter when the AI indicates one. On error,
+    # including an unusable response, the state is left unmodified and the
+    # error is reported via the exception field of the result, not raised.
+    # For the opening turn of the game player_input may be empty. When
+    # interesting_event is true the player's input is ignored and the AI is
+    # asked to have something unexpected happen instead.
     plugin = plugin or default_provider()
     if plugin is None:
         return no_provider_error()
@@ -420,26 +574,33 @@ def next_turn(
     instructions = turn_instructions(state)
     prompt = turn_prompt(state, player_input, interesting_event)
     res = plugin.generate_structured_output(prompt, StoryTurn, instructions, use_model)
+    if res.exception is not None:
+        return res
     turn = res.data
-    if res.exception is None and isinstance(turn, StoryTurn):
-        chapter = state.current_chapter
-        if state.turns and turn.starts_new_chapter:
-            chapter += 1
-        state.turns.append(
-            TurnRecord(
-                player_input=player_input,
-                instructions=instructions,
-                prompt=prompt,
-                raw_response=res.raw,
-                turn=turn,
-                chapter=chapter,
-                cost=res.cost,
-                currency=res.currency,
-                provider=res.provider,
-                model=res.model,
-            )
+    try:
+        if not isinstance(turn, StoryTurn):
+            raise InvalidAIResponse(f'The AI returned {type(turn).__name__} instead of a story turn')
+        turn = validated_turn(turn, state.current_summary)
+    except InvalidAIResponse as e:
+        return validation_error(res, e)
+    chapter = state.current_chapter
+    if state.turns and turn.starts_new_chapter:
+        chapter += 1
+    state.turns.append(
+        TurnRecord(
+            player_input=player_input,
+            instructions=instructions,
+            prompt=prompt,
+            raw_response=res.raw,
+            turn=turn,
+            chapter=chapter,
+            cost=res.cost,
+            currency=res.currency,
+            provider=res.provider,
+            model=res.model,
         )
-    return res
+    )
+    return res._replace(data=turn)
 
 
 # }}}
@@ -545,12 +706,60 @@ def find_tests() -> TestSuite:  # {{{
             world = make_world()
             fake = FakePlugin([ok(world)])
             res = generate_world('a foggy city', fake)
-            self.assertIs(res.data, world)
+            self.ae(res.data, world)
             prompt, schema, instructions, use_model = fake.calls[0]
             self.assertIn('a foggy city', prompt)
             self.assertIs(schema, GeneratedWorld)
             res = generate_world('anything', FakePlugin([StructuredOutputResult(exception=ValueError('boom'))]))
             self.assertIsInstance(res.exception, ValueError)
+
+        def test_ai_cyoa_world_validation(self) -> None:
+            def generated(world: GeneratedWorld) -> StructuredOutputResult:
+                return generate_world('a foggy city', FakePlugin([ok(world)]))
+
+            def rejected(world: GeneratedWorld) -> str:
+                res = generated(world)
+                self.assertIsInstance(res.exception, InvalidAIResponse)
+                self.assertIsNone(res.data)
+                self.ae(res.error_details, '{"raw": "json"}', 'the raw response must be reported for an unusable world')
+                return str(res.exception)
+
+            def accepted(world: GeneratedWorld) -> GeneratedWorld:
+                res = generated(world)
+                self.assertIsNone(res.exception, f'world unexpectedly rejected: {res.exception}')
+                assert isinstance(res.data, GeneratedWorld)
+                return res.data
+
+            # A schema conforming but unusable response must be reported as an error
+            self.assertIn('title', rejected(make_world()._replace(title='  ')))
+            self.assertIn('description', rejected(make_world()._replace(world_description='\n')))
+            chars = make_world().characters
+            self.assertIn('playable characters', rejected(make_world()._replace(characters=())))
+            self.assertIn('playable characters', rejected(make_world()._replace(characters=chars[:1])))
+            self.assertIn(
+                'playable characters',
+                rejected(make_world()._replace(characters=(chars[0], chars[1]._replace(backstory='  ')))),
+                'characters with an empty field must not count towards the minimum',
+            )
+            res = generate_world('a foggy city', FakePlugin([StructuredOutputResult(data=None, raw='{}')]))
+            self.assertIsInstance(res.exception, InvalidAIResponse, 'a result with neither data nor an exception must be an error')
+
+            # Text fields are stripped and unusable characters are discarded
+            padded = make_world()._replace(
+                title='  Mist City \n',
+                world_description=' A city lost in perpetual mist. ',
+                characters=(
+                    PlayerCharacter('  Ada  ', ' a stubborn engineer ', ' She built the mist engines. '),
+                    PlayerCharacter('ada', 'a duplicate', 'dropped as a duplicate name'),
+                    PlayerCharacter(' ', 'nameless', 'dropped for having no name'),
+                    PlayerCharacter('Brin', 'a nimble thief', 'He stole the last map.'),
+                    PlayerCharacter('Cass', '', 'dropped for having no description'),
+                ),
+            )
+            w = accepted(padded)
+            self.ae(w.title, 'Mist City')
+            self.ae(w.world_description, 'A city lost in perpetual mist.')
+            self.ae(w.characters, make_world().characters)
 
         def test_ai_cyoa_art_styles(self) -> None:
             keys = [s.key for s in ART_STYLES]
@@ -632,6 +841,93 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('something unexpected', prompt)
             self.assertNotIn('ignored', prompt, "an interesting event must not send the player's input to the AI")
             self.ae(state.turns[-1].player_input, '', 'an interesting event must not record any player input')
+
+        def test_ai_cyoa_turn_validation(self) -> None:
+            def played(turn: StoryTurn, state: GameState | None = None) -> tuple[GameState, StructuredOutputResult]:
+                state = state or start_game('a foggy city', make_world(), make_world().characters[0])
+                return state, next_turn(state, 'go', FakePlugin([ok(turn)]))
+
+            def rejected(turn: StoryTurn) -> str:
+                state, res = played(turn)
+                self.assertIsInstance(res.exception, InvalidAIResponse)
+                self.assertIsNone(res.data)
+                self.ae(res.error_details, '{"raw": "json"}', 'the raw response must be reported for an unusable turn')
+                self.ae(state.turns, [], 'an unusable turn must not modify the game state')
+                return str(res.exception)
+
+            def accepted(turn: StoryTurn, state: GameState | None = None) -> StoryTurn:
+                state, res = played(turn, state)
+                self.assertIsNone(res.exception, f'turn unexpectedly rejected: {res.exception}')
+                ans = state.turns[-1].turn
+                self.assertIs(res.data, ans, 'the validated turn must be returned as well as stored')
+                return ans
+
+            # A schema conforming but unusable response must be reported as an error
+            self.assertIn('empty passage', rejected(make_turn('   \n  ')))
+            self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=('Look', '  ', 'look'))))
+            self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=())))
+            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            res = next_turn(state, 'go', FakePlugin([StructuredOutputResult(data=None, raw='{}')]))
+            self.assertIsInstance(res.exception, InvalidAIResponse, 'a result with neither data nor an exception must be an error')
+            self.ae(state.turns, [])
+
+            # Text fields are stripped and quick actions are deduplicated and truncated to three
+            turn = accepted(
+                make_turn(' You awaken. ')._replace(
+                    quick_actions=(' Run ', 'Run', 'Hide', '', 'Shout', 'Wait'),
+                    scene_description='  A misty street.  ',
+                    chapter_title='   ',
+                )
+            )
+            self.ae(turn.narrative, 'You awaken.')
+            self.ae(turn.quick_actions, ('Run', 'Hide', 'Shout'))
+            self.ae(turn.scene_description, 'A misty street.')
+            self.assertIsNone(turn.chapter_title, 'a blank chapter title must be normalized to null')
+            # A missing scene description must not fail an otherwise good turn
+            self.ae(accepted(make_turn('x')._replace(scene_description=' ')).scene_description, '')
+
+            # Blank summary fields must be repaired from the previous summary
+            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            previous = state.current_summary
+            blank_summary = make_summary('awoke')._replace(
+                world='  ',
+                current_situation='',
+                major_events=(' ', ''),
+                upcoming_events=('The mist thickens.', '  ', 'The mist thickens.'),
+                characters=(CharacterState('  ', 'nameless', 'nobody', ''), CharacterState('Ada', '', '  ', '')),
+            )
+            summary = accepted(make_turn('x')._replace(updated_summary=blank_summary), state).updated_summary
+            self.ae(summary.world, previous.world)
+            self.ae(summary.current_situation, previous.current_situation)
+            self.ae(summary.major_events, previous.major_events, 'an empty list of major events must not erase the story memory')
+            self.ae(summary.upcoming_events, ('The mist thickens.',))
+            self.ae(summary.characters, previous.characters, "a character's blank fields must be filled in from the previous summary")
+
+            # Characters that carry no information at all are dropped, an empty cast falls back to the previous one
+            summary = accepted(
+                make_turn('x')._replace(updated_summary=make_summary('awoke')._replace(characters=(CharacterState('Ghost', ' ', '', ''),)))
+            ).updated_summary
+            self.ae(summary.characters, previous.characters)
+            summary = accepted(
+                make_turn('x')._replace(
+                    updated_summary=make_summary('awoke')._replace(
+                        characters=(CharacterState('Ada', 'the player', 'engineer', ''), CharacterState('Brin', 'a thief', '', ''))
+                    )
+                )
+            ).updated_summary
+            self.ae(tuple(c.name for c in summary.characters), ('Ada', 'Brin'))
+            self.ae(summary.characters[1].backstory, '', 'a new character with a description but no backstory must be kept')
+
+            # An unrepairable summary must fail the turn
+            empty = StorySummary(world='', major_events=(), characters=(), current_situation='', upcoming_events=())
+            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            state.turns.append(
+                TurnRecord(player_input='', instructions='', prompt='', raw_response='', turn=make_turn('x')._replace(updated_summary=empty), chapter=0)
+            )
+            res = next_turn(state, 'go', FakePlugin([ok(make_turn('y')._replace(updated_summary=empty))]))
+            self.assertIsInstance(res.exception, InvalidAIResponse)
+            self.assertIn('world', str(res.exception))
+            self.ae(len(state.turns), 1, 'an unusable turn must not modify the game state')
 
         def test_ai_cyoa_rewind(self) -> None:
             state = start_game('brief', make_world(), make_world().characters[0])
