@@ -626,7 +626,7 @@ class Notes:
                         doc,
                         resources,
                         searchable_text,
-                        ctime=st.st_ctime,
+                        ctime=getattr(st, 'st_birthtime', st.st_ctime),  # type: ignore
                         mtime=st.st_mtime,
                     )
                 except Exception as e:

@@ -14,7 +14,7 @@ class File:
         stats = os.stat(path)
         self.is_dir = os.path.isdir(path)
         self.is_readonly = not os.access(path, os.W_OK)
-        self.ctime = stats.st_ctime
+        self.ctime = getattr(stats, 'st_birthtime', stats.st_ctime)  # type: ignore
         self.wtime = stats.st_mtime
         self.size = stats.st_size
         if path.endswith(os.sep):

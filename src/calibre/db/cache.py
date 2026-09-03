@@ -863,7 +863,10 @@ class Cache:
             with open(path_to_html_file, 'rb') as f:
                 html = f.read()
                 st = os.stat(f.fileno())
-                ctime, mtime = st.st_ctime, st.st_mtime
+                try:
+                    ctime, mtime = st.st_birthtime, st.st_mtime
+                except AttributeError:
+                    ctime, mtime = st.st_ctime, st.st_mtime  # type: ignore
             basedir = os.path.dirname(os.path.abspath(path_to_html_file))
         ans = self.backend.import_note(field, item_id, html, basedir, ctime, mtime)
         self.event_dispatcher(EventType.notes_changed, field, frozenset({item_id}))
