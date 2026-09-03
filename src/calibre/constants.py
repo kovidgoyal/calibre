@@ -168,7 +168,7 @@ def _get_cache_dir():
     return candidate
 
 
-def cache_dir():
+def cache_dir() -> str:
     ans = getattr(cache_dir, 'ans', None)
     if ans is None:
         ans = os.path.realpath(_get_cache_dir())
@@ -516,6 +516,23 @@ def bundled_binaries_dir() -> str:
     if (islinux or isbsd) and getattr(sys, 'frozen', False):
         return os.path.join(getattr(sys, 'executables_location'), 'bin')
     return ''
+
+
+@lru_cache(maxsize=2)
+def bin_install_dir() -> str:
+    """Return a platform-specific directory suitable for installing binaries for use by calibre."""
+    if portable := get_portable_base():
+        return os.path.join(portable, 'Calibre', 'dbin')
+    dname = f'{__appname__}-dbin'
+    if iswindows:
+        try:
+            return os.path.join(winutil.special_folder_path(winutil.CSIDL_LOCAL_APPDATA), dname)
+        except ValueError:
+            return cache_dir()
+    if ismacos:
+        return os.path.join(os.path.expanduser('~/Library/Application Support'), dname)
+    base = os.path.expanduser(os.getenv('XDG_DATA_HOME', '~/.local/share'))
+    return os.path.join(base, dname)
 
 
 @contextmanager
