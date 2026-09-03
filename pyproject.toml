@@ -57,6 +57,10 @@ dependencies = [
     "tzdata == 2025.2",
     "tzlocal == 5.3.1",
 	"pystache == 0.6.8",
+
+    "apify_fingerprint_datapoints == 0.15.0",  # needed for browserforge
+	"click == 8.5.0",  # needed for browserforge
+	"browserforge == 1.2.4",  # needed for camoufox
 ]
 
 [project.urls]
