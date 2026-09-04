@@ -298,10 +298,10 @@ class MobiReader:
             elem.getparent().remove(elem)
         htmlfile = os.path.join(output_dir, 'index.html')
         try:
-            assert guide is not None
-            for ref in guide.xpath('descendant::reference'):
-                if 'href' in ref.attrib:
-                    ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
+            if guide is not None:
+                for ref in guide.xpath('descendant::reference'):
+                    if 'href' in ref.attrib:
+                        ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
         except AttributeError:
             pass
 
