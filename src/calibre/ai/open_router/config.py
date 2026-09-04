@@ -483,6 +483,7 @@ class ConfigWidget(QWidget):
         # Hide the settings irrelevant to the given purpose, e.g. the image
         # model choice when configuring the AI for text only use. The data
         # collection setting stays as it applies to image requests too.
+        self._restricted_purpose = purpose
         lay = self.layout()
         assert isinstance(lay, QFormLayout)
         lay.setRowVisible(self.image_model, purpose.supports_text_to_image)
@@ -537,9 +538,10 @@ class ConfigWidget(QWidget):
             'reasoning_strategy': self.reasoning_strategy,
             'data_collection': self.data_collection,
         }
-        if self.text_model.model_id:
+        purpose = getattr(self, '_restricted_purpose', None)
+        if self.text_model.model_id and (purpose is None or purpose.supports_text_to_text):
             ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
-        if self.image_model.model_id:
+        if self.image_model.model_id and (purpose is None or purpose.supports_text_to_image):
             ans['text_to_image_model'] = (self.image_model.model_id, self.image_model.model_name)
         return ans
 

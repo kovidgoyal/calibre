@@ -356,6 +356,7 @@ class ConfigWidget(QWidget):
     def restrict_to_purpose(self, purpose: AICapabilities) -> None:
         # Hide the settings irrelevant to the given purpose, e.g. the image
         # generation settings when configuring the AI for text only use.
+        self._restricted_purpose = purpose
         lay = self.layout()
         assert isinstance(lay, QFormLayout)
         lay.setRowVisible(self.image_gb, purpose.supports_text_to_image)
@@ -414,9 +415,10 @@ class ConfigWidget(QWidget):
             'allow_web_searches': self.allow_web_searches,
             'safe_mode': self.safe_mode,
         }
-        if self.text_model.model_id:
+        purpose = getattr(self, '_restricted_purpose', None)
+        if self.text_model.model_id and (purpose is None or purpose.supports_text_to_text):
             ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
-        if self.image_model.model_id:
+        if self.image_model.model_id and (purpose is None or purpose.supports_text_to_image):
             ans['text_to_image_model'] = (self.image_model.model_id, self.image_model.model_name)
         return ans
 
