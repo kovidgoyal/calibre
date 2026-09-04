@@ -825,8 +825,12 @@ class GameWidget(QWidget):
         self.turn_counter = count(start=1)
         self.turn_call = -1
         # What the in-flight turn generation was asked for, so that it can be
-        # abandoned and asked for again by the retry button on the spinner.
+        # retried if the turn times out or fails.
         self.turn_request: tuple[str, bool] | None = None
+        self.turn_timer = QTimer(self)
+        self.turn_timer.setSingleShot(True)
+        self.turn_timer.setInterval(5 * 60 * 1000)  # 5 minute timeout
+        self.turn_timer.timeout.connect(self.on_turn_timeout)
         self.image_counter = count(start=1)
         self.image_call = -1
         self.image_turn = -1
@@ -906,8 +910,6 @@ class GameWidget(QWidget):
         h.addWidget(ib), h.addStretch()
         il.addLayout(h)
         self.input_stack = ws = WaitStack(_('Thinking, please wait…'), after=input_panel, parent=left, size=64)
-        ws.enable_retry('<p>' + _('Stop waiting for this turn and ask the AI to generate it again'))
-        ws.retry_requested.connect(self.retry_turn)
         ws.stop()
         ll.addWidget(ws)
         sp.addWidget(left)
@@ -1040,6 +1042,7 @@ class GameWidget(QWidget):
         # as their call numbers no longer match.
         self.turn_call = -1
         self.turn_request = None
+        self.turn_timer.stop()
         self.image_call = -1
         self.image_turn = -1
         self.input_stack.stop()
@@ -1388,15 +1391,31 @@ class GameWidget(QWidget):
     def interesting_event(self) -> None:
         self.request_turn('', interesting_event=True)
 
-    def retry_turn(self) -> None:
-        # Abandon the in-flight generation, which keeps running on its thread
-        # but whose result is discarded as its call number no longer matches,
-        # and ask for the same turn again.
+    def on_turn_timeout(self) -> None:
         if self.turn_call < 0 or self.turn_request is None:
             return
-        player_input, interesting_event = self.turn_request
+        turn_request = self.turn_request
         self.turn_call = -1
-        self.request_turn(player_input, interesting_event)
+        self.turn_request = None
+        self.input_stack.stop()
+        d = error_dialog(
+            self,
+            _('AI response timed out'),
+            _('The AI did not respond within 5 minutes.'),
+        )
+        should_retry = [False]
+        retry_btn = d.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
+        retry_btn.setIcon(QIcon.ic('view-refresh.png'))
+
+        def on_retry() -> None:
+            should_retry[0] = True
+            d.accept()
+
+        retry_btn.clicked.connect(on_retry)
+        d.exec()
+        if should_retry[0]:
+            player_input, interesting_event = turn_request
+            self.request_turn(player_input, interesting_event)
 
     def request_turn(self, player_input: str, interesting_event: bool = False) -> None:
         if self.state is None or self.turn_call > -1:
@@ -1411,6 +1430,7 @@ class GameWidget(QWidget):
         self.turn_call = next(self.turn_counter)
         self.turn_request = (player_input, interesting_event)
         self.input_stack.start()
+        self.turn_timer.start()
         Thread(name='CYOATurn', daemon=True, target=self.do_turn, args=(snapshot, player_input, interesting_event, self.turn_call, plugin)).start()
 
     def do_turn(self, snapshot: GameState, player_input: str, interesting_event: bool, call_number: int, plugin: AIProvider) -> None:
@@ -1427,6 +1447,7 @@ class GameWidget(QWidget):
     def on_turn_result(self, call_number: int, snapshot: GameState, res: StructuredOutputResult) -> None:
         if call_number != self.turn_call:
             return  # a stale result from a superseded or cancelled call
+        self.turn_timer.stop()
         turn_request = self.turn_request
         self.turn_call = -1
         self.turn_request = None
