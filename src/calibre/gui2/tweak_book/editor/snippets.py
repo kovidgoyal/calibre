@@ -480,6 +480,7 @@ class SnippetManager(QObject):
 class SnippetTextEdit(PlainTextEdit):
     def __init__(self, text, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.syntax = None
         if text:
             self.setPlainText(text)
         self.snippet_manager = SnippetManager(self)
