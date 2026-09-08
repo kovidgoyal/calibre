@@ -1426,6 +1426,7 @@ class GameWidget(QWidget):
         retry_btn = d.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
         retry_btn.setIcon(QIcon.ic('view-refresh.png'))
         wait_btn = d.bb.addButton(_('&Wait longer'), QDialogButtonBox.ButtonRole.ActionRole)
+        wait_btn.setIcon(QIcon.ic('jobs.png'))
 
         def on_retry() -> None:
             should_retry[0] = True
