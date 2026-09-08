@@ -15,6 +15,7 @@ import threading
 import time
 import unittest
 from collections.abc import Awaitable, Callable
+from unittest.mock import patch
 
 from calibre.constants import iswindows
 from calibre.web.automate import camoufox
@@ -220,6 +221,57 @@ class TestCamoufoxTransport(unittest.TestCase):
         finally:
             camoufox.close_fd(read_fd)
             camoufox.close_fd(write_fd)
+
+    def test_remove_profile_dir(self) -> None:
+        """The profile directory is deleted even if it is briefly undeletable."""
+        base = tempfile.mkdtemp()
+        self.addCleanup(camoufox.remove_profile_dir, base)
+
+        def make_profile(name: str) -> str:
+            path = os.path.join(base, name)
+            os.makedirs(os.path.join(path, 'sub'))
+            with open(os.path.join(path, 'sub', 'file.txt'), 'w') as f:
+                f.write('some profile data')
+            return path
+
+        path = make_profile('plain')
+        camoufox.remove_profile_dir(path)
+        self.assertFalse(os.path.exists(path))
+        # Deleting one that is already gone is not an error
+        camoufox.remove_profile_dir(path)
+
+        # A file held open by something else, which is routine on Windows,
+        # only delays the deletion, it does not prevent it
+        path = make_profile('locked')
+        real_rmtree, attempts = camoufox.shutil.rmtree, []
+
+        def rmtree_that_is_busy_at_first(target: str) -> None:
+            attempts.append(target)
+            if len(attempts) < 3:
+                raise PermissionError(f'{target} is in use by another process')
+            real_rmtree(target)
+
+        with patch.object(camoufox.shutil, 'rmtree', rmtree_that_is_busy_at_first):
+            camoufox.remove_profile_dir(path)
+        self.assertEqual(len(attempts), 3)
+        self.assertFalse(os.path.exists(path))
+
+        # One that never becomes deletable is handed to the atexit worker
+        # instead of raising or blocking forever
+        path = make_profile('wedged')
+        deferred: list[str] = []
+
+        def always_busy(target: str) -> None:
+            raise PermissionError(f'{target} is in use by another process')
+
+        with (
+            patch.object(camoufox.shutil, 'rmtree', always_busy),
+            patch.object(camoufox, 'remove_folder_atexit', deferred.append),
+            patch.object(camoufox, 'debug', lambda *a: None),
+        ):
+            camoufox.remove_profile_dir(path, timeout=0)
+        self.assertEqual(deferred, [path])
+        self.assertTrue(os.path.exists(path))
 
     def test_crt_handle_block(self) -> None:
         """The layout of the inherited file descriptor block handed to Windows.

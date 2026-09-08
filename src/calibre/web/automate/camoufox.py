@@ -36,6 +36,7 @@ import os
 import queue
 import random
 import re
+import shutil
 import struct
 import sys
 import tempfile
@@ -46,7 +47,8 @@ from functools import lru_cache
 from typing import Any, NamedTuple
 
 from calibre.constants import cache_dir, ismacos, iswindows
-from calibre.utils.safe_atexit import remove_dir
+from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.safe_atexit import remove_folder_atexit
 from calibre.web.automate.download_deps import browserforge_data, camoufox_installer, camoufox_resource_dir, debug
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
@@ -58,6 +60,7 @@ INPUT_TIMEOUT = 5.0  # seconds, for a single input event
 INPUT_DIAGNOSTIC_TIMEOUT = 5.0  # seconds, for each question asked of a browser that stopped accepting input
 LAUNCH_TIMEOUT = 180.0  # seconds, the first launch has to create a fresh profile
 CLOSE_TIMEOUT = 20.0  # seconds to wait for the browser to exit before killing it
+PROFILE_REMOVE_TIMEOUT = 30.0  # seconds to keep trying to delete the profile directory, see remove_profile_dir()
 MAX_TRACKED_REQUESTS = 2048  # per page, bounds the memory used to map URLs to network requests
 
 # The OS names used by camoufox in its config, its bundled data directories and
@@ -1127,6 +1130,39 @@ def spawn(argv: Sequence[str], env: Mapping[str, str], log_path: str) -> Process
     if iswindows:
         return spawn_windows(argv, env, log_path)  # type: ignore[name-defined]
     return spawn_posix(argv, env, log_path)
+
+
+def remove_profile_dir(path: str, timeout: float = PROFILE_REMOVE_TIMEOUT) -> None:
+    """Delete a browser profile directory, waiting for it to become deletable.
+
+    On Windows a file cannot be deleted while any process has it open, and the
+    handles that keep a freshly written profile open outlive the browser that
+    wrote it: a virus scanner or the search indexer picks the files up as they
+    are created and holds them for a while, and a file that is deleted while
+    open keeps its directory entry, so removing the directory itself fails
+    with ENOTEMPTY until the last handle goes away. None of those handles are
+    ours to close, so the only thing to do is keep trying, which takes at most
+    a second or two in practice. Every step of this blocks, so it must be run
+    in a worker thread rather than on the event loop.
+    """
+    deadline = time.monotonic() + timeout
+    delay = 0.01
+    while True:
+        try:
+            shutil.rmtree(make_long_path_useable(path))
+            return
+        except FileNotFoundError:
+            return
+        except OSError as err:
+            if time.monotonic() >= deadline:
+                # Whatever is holding the profile open is not going to let go,
+                # so hand it to the atexit worker, which will delete it once
+                # this process, and hopefully the culprit, are gone
+                debug(f'Failed to delete the camoufox profile directory {path} with error: {err}')
+                remove_folder_atexit(path)
+                return
+            time.sleep(delay)
+            delay = min(2 * delay, 0.5)
 
 
 # }}}
@@ -2705,7 +2741,7 @@ class Browser:
             # Deleting the profile retries for a while on Windows, so it must
             # not run on the event loop either
             profile_dir, self.profile_dir = self.profile_dir, ''
-            await loop.run_in_executor(None, remove_dir, profile_dir)
+            await loop.run_in_executor(None, remove_profile_dir, profile_dir)
 
 
 async def main(args: Sequence[str] = tuple(sys.argv)) -> None:
