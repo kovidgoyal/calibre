@@ -71,9 +71,9 @@ STORY_RECOMMENDATIONS = (
             ' and does not store your chats, so use it if you want a game with mature themes.'
         ),
         (
-            RecommendedModel('deepseek-v3.2', 'DeepSeek V3.2', _('very cheap and rarely refuses')),
-            RecommendedModel('deepseek-v4-pro', 'DeepSeek V4 Pro', _('better writing, a few times the cost')),
-            RecommendedModel('grok-4-3', 'Grok 4.3', _('lively narration with a huge memory')),
+            RecommendedModel('e2ee-gemma-4-26b-a4b-uncensored-p', 'Gemma Uncensored', _('rarely refuses, but often fails needing a retry')),
+            RecommendedModel('deepseek-v4-pro', 'DeepSeek V4 Pro', _('better writing, more limits, extra cost')),
+            RecommendedModel('grok-4-3', 'Grok 4.3', _('lively narration with a huge memory, but has more content limits')),
         ),
     ),
 )
