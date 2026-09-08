@@ -135,6 +135,7 @@ class EbookViewer(MainWindow):
         self.image_popup = ImagePopup(self, prefs=vprefs)
         self.actions_toolbar = at = ActionsToolBar(self)
         at.open_book_at_path.connect(self.ask_for_open)
+        at.resize_window_requested.connect(self.resize_window_to)
         self.addToolBar(Qt.ToolBarArea.LeftToolBarArea, at)
         try:
             os.makedirs(annotations_dir())
@@ -338,6 +339,15 @@ class EbookViewer(MainWindow):
 
     def toggle_full_screen(self):
         self.set_full_screen(not self.isFullScreen())
+
+    def resize_window_to(self, width, height):
+        if self.isFullScreen():
+            self.maximized_at_last_fullscreen = False
+            self.set_full_screen(False)
+        elif self.isMaximized():
+            self.showNormal()
+        self.resize(width, height)
+        qapplication_or_fail().ensure_window_on_screen(self)
 
     # }}}
 

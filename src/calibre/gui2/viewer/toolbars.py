@@ -29,7 +29,7 @@ from qt.webengine import QWebEnginePage
 import calibre.gui2.viewer.web_view as _web_view_module
 from calibre.constants import ismacos
 from calibre.gui2 import elided_text
-from calibre.gui2.viewer.config import get_session_pref
+from calibre.gui2.viewer.config import get_session_pref, save_window_size, saved_window_sizes
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.gui2.widgets2 import Dialog
@@ -63,6 +63,7 @@ def all_actions() -> Actions:
         amap = {
             'color_scheme': Action('format-fill-color.png', _('Switch color scheme')),
             'profiles': Action('auto-reload.png', _('Apply settings from a saved profile')),
+            'window_size': Action('resize.png', _('Change the window size')),
             'back': Action('back.png', _('Back'), 'back'),
             'forward': Action('forward.png', _('Forward'), 'forward'),
             'open': Action('document_open.png', _('Open e-book')),
@@ -154,11 +155,13 @@ class ToolBar(QToolBar):
 class ActionsToolBar(ToolBar):
     action_triggered = pyqtSignal(object)
     open_book_at_path = pyqtSignal(object)
+    resize_window_requested = pyqtSignal(int, int)
 
     def __init__(self, parent=None):
         ToolBar.__init__(self, parent)
         self.setObjectName('actions_toolbar')
         self.prevent_sleep_cookie = None
+        self.window_sizes: dict[str, tuple[int, int]] = {}
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     def update_action_state(self, book_open):
@@ -264,6 +267,10 @@ class ActionsToolBar(ToolBar):
         self.profiles_menu = m = QMenu(self)
         a.setMenu(m)
         m.aboutToShow.connect(self.populate_profiles_menu)
+        self.window_size_action = a = QAction(aa.window_size.icon, aa.window_size.text, self)
+        self.window_size_menu = m = QMenu(self)
+        a.setMenu(m)
+        m.aboutToShow.connect(self.populate_window_size_menu)
 
         self.add_actions()
 
@@ -293,7 +300,7 @@ class ActionsToolBar(ToolBar):
                     self.addAction(getattr(self, f'{x}_action'))
                 except AttributeError:
                     pass
-        for x in (self.color_scheme_action, self.profiles_action):
+        for x in (self.color_scheme_action, self.profiles_action, self.window_size_action):
             w = self.widgetForAction(x)
             if isinstance(w, QToolButton):
                 w.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
@@ -452,6 +459,61 @@ class ActionsToolBar(ToolBar):
         name, ok = QInputDialog.getText(self, _('Enter name of profile to create'), _('&Name of profile'))
         if ok:
             self.web_view.profile_op('request-save', name, {})
+
+    def populate_window_size_menu(self):
+        m = self.window_size_menu
+        m.clear()
+        self.window_sizes = saved_window_sizes()
+        for name in sorted(self.window_sizes, key=primary_sort_key):
+            w, h = self.window_sizes[name]
+            # & is escaped as it is used to indicate keyboard mnemonics in menu item text
+            a = m.addAction(_('{name} ({width}x{height})').format(name=name.replace('&', '&&'), width=w, height=h))
+            assert a is not None
+            a.setObjectName(f'window-size-switch-action:{name}')
+            a.triggered.connect(self.window_size_switch_triggered)
+        if self.window_sizes:
+            m.addSeparator()
+        a = m.addAction(_('Save current window size'))
+        assert a is not None
+        a.triggered.connect(self.save_current_window_size)
+        if self.window_sizes:
+            s = m.addMenu(_('Delete saved size...'))
+            assert s is not None
+            for name in sorted(self.window_sizes, key=primary_sort_key):
+                a = s.addAction(name.replace('&', '&&'))
+                assert a is not None
+                a.setObjectName(f'window-size-delete-action:{name}')
+                a.triggered.connect(self.window_size_delete_triggered)
+
+    def window_size_switch_triggered(self):
+        sender = self.sender()
+        assert sender is not None
+        name = sender.objectName().partition(':')[-1]
+        size = self.window_sizes.get(name)
+        if size is not None:
+            self.resize_window_requested.emit(size[0], size[1])
+
+    def window_size_delete_triggered(self):
+        sender = self.sender()
+        assert sender is not None
+        name = sender.objectName().partition(':')[-1]
+        save_window_size(name, None)
+
+    def save_current_window_size(self):
+        # note that self.window() is not used as it returns the toolbar itself when the toolbar is floating
+        parent = self.parentWidget()
+        assert parent is not None
+        window = parent.window()
+        assert window is not None
+        sz = window.size()
+        name, ok = QInputDialog.getText(
+            self,
+            _('Enter name for window size'),
+            _('&Name for the current window size of {0}x{1}:').format(sz.width(), sz.height()),
+        )
+        name = name.strip()
+        if ok and name:
+            save_window_size(name, (sz.width(), sz.height()))
 
     def populate_color_scheme_menu(self):
         m = self.color_scheme_menu

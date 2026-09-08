@@ -20,6 +20,29 @@ vprefs.defaults['old_prefs_migrated'] = False
 vprefs.defaults['bookmarks_sort'] = 'title'
 vprefs.defaults['highlight_export_format'] = 'txt'
 vprefs.defaults['auto_update_lookup'] = True
+vprefs.defaults['saved_window_sizes'] = {}
+
+
+def saved_window_sizes() -> dict[str, tuple[int, int]]:
+    ans = {}
+    for name, size in (vprefs['saved_window_sizes'] or {}).items():
+        try:
+            width, height = map(int, size)
+        except Exception:
+            continue
+        if width > 0 and height > 0:
+            ans[name] = width, height
+    return ans
+
+
+def save_window_size(name: str, size: tuple[int, int] | None) -> None:
+    "Save size under name, or, when size is None, delete the size saved under name"
+    sizes = saved_window_sizes()
+    if size is None:
+        sizes.pop(name, None)
+    else:
+        sizes[name] = int(size[0]), int(size[1])
+    vprefs['saved_window_sizes'] = sizes
 
 
 def get_session_pref(name, default=None, group='standalone_misc_settings'):
