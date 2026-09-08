@@ -852,11 +852,13 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertIn('still runs JavaScript', str(ctx.exception))
             self.assertTrue(page.input_wedged)
             # Further input fails at once instead of waiting for another reply
-            # that is not coming
+            # that is not coming, without sending the browser anything at all
+            sent = page.connection.message_id
             started = time.monotonic()
             with self.assertRaises(camoufox.InputWedged):
                 await page.mouse.click(10, 10)
-            self.assertLess(time.monotonic() - started, 1)
+            self.assertEqual(page.connection.message_id, sent)
+            self.assertLess(time.monotonic() - started, camoufox.INPUT_TIMEOUT)
             # while the page is still usable for everything else
             self.assertEqual(await page.evaluate('1 + 1'), 2)
 
@@ -873,12 +875,26 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertNotIn('humanize', browser.config)
             await page.open(base + 'click.html')
             await page.call(RECORDER_JS)
+            # Every position along a path is a separate event the browser has
+            # to acknowledge, and on a loaded machine those round trips, not
+            # the budget, are what the wall clock is mostly made of, so measure
+            # one here rather than assuming it is quick
+            probe = time.monotonic()
+            for i in range(6):
+                await page.mouse.move(20 + 10 * i, 20, human=False)
+            per_event = (time.monotonic() - probe) / 6
+            # Back into the corner the cursor started in, so that the click
+            # below is the same journey it would have been without measuring
+            await page.mouse.move(1, 1, human=False)
+            await page.evaluate('window.__reset()')
             start = time.monotonic()
             await page.click('#btn')
             self.assertGreater(len(await page.evaluate('window.__moves')), 5)
             self.assertEqual([e['type'] for e in await page.evaluate('window.__events')], ['mousedown', 'mouseup', 'click'])
-            # The movement kept to the budget, with the click itself on top of it
-            self.assertLess(time.monotonic() - start, 0.3 + 2)
+            # The movement kept to the budget, with the click itself, the round
+            # trips it took and the pauses of a human hand on top of it
+            round_trips = (camoufox.MAX_MOVE_STEPS + 8) * per_event
+            self.assertLess(time.monotonic() - start, 0.3 + round_trips + 4)
 
         self.run_browser(check, humanize=0.3)
 

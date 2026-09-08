@@ -1665,6 +1665,8 @@ class Mouse:
 
         The destination and every position on the way to it are moved inside
         the viewport if they are not already, see :func:`clamp_to_viewport`.
+        Raises :class:`InputWedged` without sending or waiting for anything if
+        the page has already stopped acknowledging input.
 
         :param human: follow a human like path instead of jumping straight
             there. The default, None, means do so.
@@ -1672,6 +1674,7 @@ class Mouse:
             default, None, means the browser's, see :class:`Browser`.
         :param modifiers: the modifier keys to hold down, see :data:`MODIFIERS`
         """
+        self.page.check_accepts_input()
         mask = modifier_mask(modifiers)
         if human is None:
             human = True
@@ -1699,6 +1702,7 @@ class Mouse:
         clear of the edges.
         """
         number, bit = mouse_button(button)
+        self.page.check_accepts_input()
         await self.move_onto_pixel(*clamp_to_viewport(self.x, self.y, *await self.page.viewport()), modifier_mask(modifiers))
         self.buttons |= bit
         try:
@@ -1710,6 +1714,7 @@ class Mouse:
     async def up(self, button: str = 'left', *, click_count: int = 1, modifiers: Sequence[str] = ()) -> None:
         """Release a mouse button where the cursor currently is."""
         number, bit = mouse_button(button)
+        self.page.check_accepts_input()
         self.buttons &= ~bit
         try:
             await self.dispatch('mouseup', self.x, self.y, button=number, click_count=click_count, modifiers=modifier_mask(modifiers))
@@ -1871,6 +1876,7 @@ class Element:
 
     async def hover(self, *, human: bool | None = None, max_time: float | None = None, modifiers: Sequence[str] = ()) -> None:
         """Move the cursor onto this element, scrolling it into view first."""
+        self.page.check_accepts_input()
         x, y = await self.point_to_click()
         await self.page.mouse.move(x, y, human=human, max_time=max_time, modifiers=modifiers)
 
@@ -1890,6 +1896,7 @@ class Element:
         button is held down for a human like length of time, see
         :meth:`Mouse.click` for what the parameters mean.
         """
+        self.page.check_accepts_input()
         x, y = await self.point_to_click()
         await self.page.mouse.click(x, y, button=button, click_count=click_count, delay=delay, human=human, max_time=max_time, modifiers=modifiers)
 
@@ -2015,7 +2022,13 @@ class Page:
         return self.viewport_size
 
     def check_accepts_input(self) -> None:
-        """Raise :class:`InputWedged` if the browser has stopped accepting input for this page."""
+        """Raise :class:`InputWedged` if the browser has stopped accepting input for this page.
+
+        Called at the start of every input method, not just before each event
+        is sent, so that a wedged page is reported without first walking a
+        cursor path or asking the browser anything, neither of which it is
+        going to answer.
+        """
         if self.input_wedged:
             raise InputWedged(f'{self} stopped acknowledging input events, no more input can be delivered to it')
 
