@@ -12,6 +12,7 @@ import socketserver
 import struct
 import tempfile
 import threading
+import time
 import unittest
 from collections.abc import Awaitable, Callable
 
@@ -484,6 +485,20 @@ class TestCamoufoxMouse(unittest.TestCase):
         quad = {'p1': {'x': -5, 'y': -5}, 'p2': {'x': 50, 'y': -5}, 'p3': {'x': 50, 'y': 50}, 'p4': {'x': -5, 'y': 50}}
         self.assertEqual(camoufox.clamp_quad(quad, 20, 30), [(0.0, 0.0), (20.0, 0.0), (20.0, 30.0), (0.0, 30.0)])
 
+    def test_clamp_to_viewport(self) -> None:
+        self.assertEqual(camoufox.VIEWPORT_MARGIN, 1.0)
+        # A position outside the viewport is brought to the nearest usable pixel inside it
+        self.assertEqual(camoufox.clamp_to_viewport(-3.0, 4.4, 100.0, 50.0), (1.0, 4.0))
+        self.assertEqual(camoufox.clamp_to_viewport(120.0, 60.0, 100.0, 50.0), (98.0, 48.0))
+        # The edge of the viewport is left alone, an event there is never acknowledged
+        self.assertEqual(camoufox.clamp_to_viewport(0.0, 0.0, 100.0, 50.0), (1.0, 1.0))
+        self.assertEqual(camoufox.clamp_to_viewport(99.0, 49.0, 100.0, 50.0), (98.0, 48.0))
+        # One already inside is only snapped onto a whole pixel
+        self.assertEqual(camoufox.clamp_to_viewport(10.5, 20.4, 100.0, 50.0), (11.0, 20.0))
+        # A viewport too small to have an inside does not produce a position outside it
+        self.assertEqual(camoufox.clamp_to_viewport(5.0, 5.0, 0.0, 0.0), (0.0, 0.0))
+        self.assertEqual(camoufox.clamp_to_viewport(5.0, 5.0, 2.0, 2.0), (0.0, 0.0))
+
     def test_buttons_and_modifiers(self) -> None:
         self.assertEqual(camoufox.mouse_button('right'), (2, 2))
         self.assertEqual(camoufox.modifier_mask(()), 0)
@@ -798,19 +813,72 @@ class TestCamoufoxBrowser(unittest.TestCase):
             await page.mouse.up()
             self.assertEqual(page.mouse.buttons, 0)
 
+            # Every position on a path stays clear of the edges of the
+            # viewport, even when the path bows or overshoots past one on its
+            # way to a corner. A movement onto an edge is never acknowledged
+            # and takes every later one down with it, so this hangs the page
+            # rather than merely putting the cursor in the wrong place.
+            width, height = await page.viewport()
+            await page.evaluate('window.__reset()')
+            await page.mouse.move(width - 1, height - 1)
+            moves = await page.evaluate('window.__moves')
+            self.assertTrue(moves)
+            margin = camoufox.VIEWPORT_MARGIN
+            for x, y in moves:
+                inside = margin <= x < width - margin and margin <= y < height - margin
+                self.assertTrue(inside, f'the cursor reached ({x}, {y}), too close to the edge of the {width}x{height} viewport')
+            self.assertEqual(page.mouse.position, camoufox.clamp_to_viewport(width - 1, height - 1, width, height))
+
         self.run_browser(check)
 
-    def test_clicking_with_browser_humanize(self) -> None:
+    def test_input_that_is_not_acknowledged(self) -> None:
         base = self.server.base
 
         async def check(browser: camoufox.Browser) -> None:
             page = browser.page
             await page.open(base + 'click.html')
+            await page.mouse.move(60, 60)
+            # An event the page never sees is never answered, so waiting for
+            # one is given up on quickly and the page written off, since
+            # nothing sent to it after that is dispatched either
+            original = camoufox.INPUT_TIMEOUT
+            camoufox.INPUT_TIMEOUT = 0.000001
+            try:
+                with self.assertRaises(camoufox.InputWedged) as ctx:
+                    await page.mouse.move(200, 200, human=False)
+            finally:
+                camoufox.INPUT_TIMEOUT = original
+            # The failure says which half of the browser stopped answering
+            self.assertIn('still runs JavaScript', str(ctx.exception))
+            self.assertTrue(page.input_wedged)
+            # Further input fails at once instead of waiting for another reply
+            # that is not coming
+            started = time.monotonic()
+            with self.assertRaises(camoufox.InputWedged):
+                await page.mouse.click(10, 10)
+            self.assertLess(time.monotonic() - started, 1)
+            # while the page is still usable for everything else
+            self.assertEqual(await page.evaluate('1 + 1'), 2)
+
+        self.run_browser(check)
+
+    def test_clicking_with_humanize(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            # The browser is never asked to generate cursor paths itself, the
+            # option only says how long one of ours may take
+            self.assertEqual(browser.max_move_time, 0.3)
+            self.assertNotIn('humanize', browser.config)
+            await page.open(base + 'click.html')
             await page.call(RECORDER_JS)
+            start = time.monotonic()
             await page.click('#btn')
-            # The browser expanded the single movement we sent into a path
             self.assertGreater(len(await page.evaluate('window.__moves')), 5)
             self.assertEqual([e['type'] for e in await page.evaluate('window.__events')], ['mousedown', 'mouseup', 'click'])
+            # The movement kept to the budget, with the click itself on top of it
+            self.assertLess(time.monotonic() - start, 0.3 + 2)
 
         self.run_browser(check, humanize=0.3)
 

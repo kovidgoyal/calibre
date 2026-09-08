@@ -50,6 +50,12 @@ from calibre.utils.safe_atexit import remove_dir
 from calibre.web.automate.download_deps import browserforge_data, camoufox_installer, camoufox_resource_dir, debug
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
+# The browser answers an input event only once the page has actually seen it,
+# see Mouse.dispatch, and an event the page never sees is never answered at
+# all, so the wait for one is kept short. An event that has not been
+# acknowledged within a few seconds never will be.
+INPUT_TIMEOUT = 5.0  # seconds, for a single input event
+INPUT_DIAGNOSTIC_TIMEOUT = 5.0  # seconds, for each question asked of a browser that stopped accepting input
 LAUNCH_TIMEOUT = 180.0  # seconds, the first launch has to create a fresh profile
 CLOSE_TIMEOUT = 20.0  # seconds to wait for the browser to exit before killing it
 MAX_TRACKED_REQUESTS = 2048  # per page, bounds the memory used to map URLs to network requests
@@ -79,6 +85,20 @@ class ProtocolError(Error):
 
 class BrowserClosedError(Error):
     """The browser process exited or the connection to it was lost."""
+
+
+class InputWedged(Error):
+    """The browser stopped acknowledging input events.
+
+    Every mouse and wheel event the browser is sent is dispatched from a single
+    queue shared by the whole browser process, and the browser works through it
+    one event at a time, answering each only once the page has seen it. An
+    event that never reaches the page is therefore never answered, and worse,
+    nothing behind it in the queue is ever dispatched either, so the page can no
+    longer be given input of any kind. Nothing here can undo that, the page has
+    to be abandoned, so once it happens further input events fail immediately
+    rather than waiting for a reply that will not come.
+    """
 
 
 class JavaScriptError(Error):
@@ -533,7 +553,6 @@ def generate_config(
     window: tuple[int, int] | None = None,
     fonts: Sequence[str] | None = None,
     locale: str | Sequence[str] = '',
-    humanize: bool | float = False,
     extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the camoufox config used to spoof the browser fingerprint.
@@ -545,11 +564,13 @@ def generate_config(
     :param fonts: the font families to report, defaults to a random subset of the
         fonts camoufox bundles for target_os
     :param locale: the locale(s) to report, the first is used for the Intl API
-    :param humanize: have the browser itself expand every mouse movement into a
-        human like path, optionally taking the maximum duration of a movement
-        in seconds. See :class:`Mouse`, which does this in a more controllable
-        way and is what :class:`Browser` uses by default.
     :param extra: config properties that override the generated ones
+
+    Note that the camoufox ``humanize`` property, which has the browser expand
+    every mouse movement into a path of its own, is deliberately not set here
+    and must not be set through extra either: :class:`Mouse` generates paths
+    itself and the two cannot be combined, see :class:`InputWedged` for what
+    letting the browser do it costs.
     """
     target_os = check_valid_os(target_os or current_os())
     ff_version = version.split('.', 1)[0]
@@ -580,11 +601,6 @@ def generate_config(
             if region:
                 config['locale:region'] = region
             config['locale:all'] = ','.join(x.replace('_', '-') for x in languages)
-
-    if humanize:
-        config['humanize'] = True
-        if isinstance(humanize, (int, float)) and not isinstance(humanize, bool):
-            config['humanize:maxTime'] = float(humanize)
 
     # Randomize the per-launch noise seeds. They must differ between runs or the
     # audio/canvas/font measurements they perturb become a stable identifier.
@@ -1331,13 +1347,16 @@ FETCH_JS = '''async (url) => {
 
 # Human like mouse input {{{
 
-# The browser can generate humanized cursor paths itself, see the humanize
-# parameter of Browser, but it does so with a fixed ten milliseconds between
-# the points of every path, no way to vary that or skip it for an individual
-# movement, and it does nothing about the timing of the click itself. So the
-# path is generated here instead. The two cannot be combined, the browser
-# expands every single mousemove it is sent into a full path of its own, which
-# is why the browser side is used only when it has been switched on explicitly.
+# The browser can generate humanized cursor paths itself, and camoufox's
+# humanize property switches that on, but it is not used here and Browser does
+# not switch it on. It does so with a fixed ten milliseconds between the points
+# of every path, no way to vary that or skip it for an individual movement, and
+# it does nothing about the timing of the click itself. Worse, the points it
+# generates are its own business: they are fractional, consecutive ones can
+# land on the same pixel, and a movement onto the pixel the cursor is already
+# on is never answered, see Mouse.dispatch. The two cannot be combined either,
+# since the browser expands every single mousemove it is sent into a full path
+# of its own. So paths are generated here instead.
 
 # The number the protocol uses for each mouse button and the bit the DOM uses
 # to report that button as being held down
@@ -1345,10 +1364,13 @@ MOUSE_BUTTONS = {'left': (0, 1), 'middle': (1, 4), 'right': (2, 2)}
 # The bits the protocol uses for the modifier keys
 MODIFIERS = {'alt': 1, 'control': 2, 'shift': 4, 'meta': 8}
 
+VIEWPORT_MARGIN = 1.0  # pixels of the edge of the viewport that are never aimed at, see clamp_to_viewport()
 MIN_MOVE_TIME = 0.05  # seconds, the quickest a movement is ever performed
 MAX_MOVE_TIME = 0.9  # seconds, about as long as a hand takes to cross a large window
-MOVE_STEP_TIME = 0.012  # seconds between consecutive positions along a path
-MAX_MOVE_STEPS = 96  # every position along a path costs a round trip to the browser
+# One position per screen refresh. Sending them faster than the browser paints
+# them costs a round trip each without the page seeing a different cursor.
+MOVE_STEP_TIME = 0.016  # seconds between consecutive positions along a path
+MAX_MOVE_STEPS = 24  # every position along a path costs a round trip to the browser
 SETTLE_TIME = (0.02, 0.09)  # seconds the hand rests on the target before pressing
 CLICK_DWELL = (0.045, 0.125)  # seconds a button is held down for
 DOUBLE_CLICK_INTERVAL = (0.07, 0.16)  # seconds between the clicks of a multiple click
@@ -1528,6 +1550,32 @@ def point_to_aim_at(corners: Sequence[tuple[float, float]]) -> tuple[float, floa
     return candidates[0]
 
 
+def clamp_to_viewport(x: float, y: float, width: float, height: float) -> tuple[float, float]:
+    """The whole pixel nearest to (x, y) that is safely inside a viewport of the given size.
+
+    An event aimed outside the viewport is not delivered to the page. Rather
+    than say so, the browser moves the cursor off the page altogether and stops
+    keeping track of where it is, which leaves it somewhere neither we nor the
+    browser expects. Paths bow and overshoot, so one that runs along an edge of
+    the viewport does stray outside it.
+
+    An event aimed at the very edge of the viewport is worse: the browser
+    decides where the edge is from the size of the window it draws the page in,
+    which differs by a fraction of a pixel from the ``window.innerWidth`` and
+    ``window.innerHeight`` the page reports, so an event on the last row or
+    column can be delivered as the cursor leaving the page instead of moving
+    within it, and then it is never acknowledged, see :class:`InputWedged`.
+    That fraction is unknowable from out here, so :data:`VIEWPORT_MARGIN`
+    pixels of the edge are left alone.
+    """
+
+    def clamp(value: float, size: float) -> float:
+        high = max(size - 1.0 - VIEWPORT_MARGIN, 0.0)
+        return min(max(whole_pixel(value), min(VIEWPORT_MARGIN, high)), high)
+
+    return clamp(x, width), clamp(y, height)
+
+
 def clamp_quad(quad: Mapping[str, Mapping[str, float]], width: float, height: float) -> list[tuple[float, float]]:
     """The corners of a quad from the protocol, clipped to a viewport of the given size."""
     return [(min(max(float(p['x']), 0.0), width), min(max(float(p['y']), 0.0), height)) for p in (quad['p1'], quad['p2'], quad['p3'], quad['p4'])]
@@ -1546,10 +1594,14 @@ class Mouse:
         # Where the browser thinks the cursor is. It starts in the top left
         # corner and moves only when we tell it to.
         self.x, self.y = 0.0, 0.0
+        # Whether that is still to be trusted. An event that was not answered
+        # may or may not have moved the cursor before it was given up on.
+        self.position_known = True
         self.buttons = 0  # the bitmask of the buttons currently held down
 
     def __repr__(self) -> str:
-        return f'<Mouse at ({self.x:.0f}, {self.y:.0f})>'
+        where = f'({self.x:.0f}, {self.y:.0f})' if self.position_known else 'an unknown position'
+        return f'<Mouse at {where}>'
 
     @property
     def position(self) -> tuple[float, float]:
@@ -1563,20 +1615,35 @@ class Mouse:
         fractional coordinate is snapped to a pixel of the browser window,
         whose grid is not necessarily the one this coordinate is measured on,
         so sending one risks an event that never arrives anywhere and a command
-        that never completes, see :meth:`move_onto_pixel`.
+        that never completes, see :meth:`move_onto_pixel`. An event that has
+        not been answered within :data:`INPUT_TIMEOUT` never will be, and it
+        takes every later event down with it, see :class:`InputWedged`.
         """
-        await self.page.send(
-            'Page.dispatchMouseEvent',
-            {
-                'type': event_type,
-                'x': whole_pixel(x),
-                'y': whole_pixel(y),
-                'button': button,
-                'buttons': self.buttons,
-                'modifiers': modifiers,
-                'clickCount': click_count,
-            },
-        )
+        self.page.check_accepts_input()
+        try:
+            await self.page.send(
+                'Page.dispatchMouseEvent',
+                {
+                    'type': event_type,
+                    'x': whole_pixel(x),
+                    'y': whole_pixel(y),
+                    'button': button,
+                    'buttons': self.buttons,
+                    'modifiers': modifiers,
+                    'clickCount': click_count,
+                },
+                timeout=INPUT_TIMEOUT,
+            )
+        except TimeoutExceeded as err:
+            self.position_known = False
+            self.page.input_wedged = True
+            raise InputWedged(
+                f'The browser did not acknowledge a {event_type} at ({whole_pixel(x):.0f}, {whole_pixel(y):.0f}) within'
+                f' {INPUT_TIMEOUT} seconds, so this page can no longer be given input. {await self.page.input_diagnostics()}'
+            ) from err
+        except BaseException:
+            self.position_known = False
+            raise
 
     async def move_onto_pixel(self, x: float, y: float, modifiers: int = 0) -> None:
         """Move the cursor onto the whole pixel nearest to (x, y).
@@ -1588,36 +1655,51 @@ class Mouse:
         until the command times out.
         """
         px, py = whole_pixel(x), whole_pixel(y)
-        if (px, py) != (self.x, self.y):
+        if not self.position_known or (px, py) != (self.x, self.y):
             await self.dispatch('mousemove', px, py, modifiers=modifiers)
             self.x, self.y = px, py
+            self.position_known = True
 
-    async def move(self, x: float, y: float, *, human: bool | None = None, max_time: float = MAX_MOVE_TIME, modifiers: Sequence[str] = ()) -> None:
+    async def move(self, x: float, y: float, *, human: bool | None = None, max_time: float | None = None, modifiers: Sequence[str] = ()) -> None:
         """Move the cursor onto the whole pixel nearest to (x, y).
 
+        The destination and every position on the way to it are moved inside
+        the viewport if they are not already, see :func:`clamp_to_viewport`.
+
         :param human: follow a human like path instead of jumping straight
-            there. The default, None, means do so unless the browser has been
-            asked to humanize cursor movement itself, in which case a single
-            movement is sent and the browser expands it into a path of its own.
-        :param max_time: the longest the movement may take, in seconds
+            there. The default, None, means do so.
+        :param max_time: the longest the movement may take, in seconds. The
+            default, None, means the browser's, see :class:`Browser`.
         :param modifiers: the modifier keys to hold down, see :data:`MODIFIERS`
         """
         mask = modifier_mask(modifiers)
         if human is None:
-            human = not self.page.browser.humanize
+            human = True
+        if max_time is None:
+            max_time = self.page.browser.max_move_time
+        width, height = await self.page.viewport()
+        x, y = clamp_to_viewport(x, y, width, height)
         if human:
             started = time.monotonic()
             for px, py, at in human_trajectory((self.x, self.y), (x, y), max_time=max_time):
                 if (delay := started + at - time.monotonic()) > 0:
                     await asyncio.sleep(delay)
-                await self.move_onto_pixel(px, py, mask)
+                await self.move_onto_pixel(*clamp_to_viewport(px, py, width, height), mask)
         # The steps of a path that land on the pixel the cursor is already on
         # are skipped, including the last one, so the journey is finished here
         await self.move_onto_pixel(x, y, mask)
 
     async def down(self, button: str = 'left', *, click_count: int = 1, modifiers: Sequence[str] = ()) -> None:
-        """Press a mouse button where the cursor currently is."""
+        """Press a mouse button where the cursor currently is.
+
+        The cursor is moved out of the edge of the viewport first if it is
+        still in the top left corner it starts in and has not been moved since,
+        because a button pressed there is never acknowledged, see
+        :func:`clamp_to_viewport`. Anywhere it has been moved to is already
+        clear of the edges.
+        """
         number, bit = mouse_button(button)
+        await self.move_onto_pixel(*clamp_to_viewport(self.x, self.y, *await self.page.viewport()), modifier_mask(modifiers))
         self.buttons |= bit
         try:
             await self.dispatch('mousedown', self.x, self.y, button=number, click_count=click_count, modifiers=modifier_mask(modifiers))
@@ -1644,7 +1726,7 @@ class Mouse:
         click_count: int = 1,
         delay: float | None = None,
         human: bool | None = None,
-        max_time: float = MAX_MOVE_TIME,
+        max_time: float | None = None,
         modifiers: Sequence[str] = (),
     ) -> None:
         """Move the cursor to (x, y) and click there.
@@ -1761,7 +1843,7 @@ class Element:
         """
         self.check_alive()
         result = await self.page.send('Page.getContentQuads', {'frameId': self.page.main_frame, 'objectId': self.object_id})
-        width, height = await self.page.evaluate('[window.innerWidth, window.innerHeight]')
+        width, height = await self.page.viewport()
         # An element can be laid out as several boxes, for instance a link
         # broken across two lines, any of which is as good to click on as the
         # bounding box of the lot, which might not even be over the element
@@ -1787,7 +1869,7 @@ class Element:
                     raise
         raise AssertionError('unreachable')
 
-    async def hover(self, *, human: bool | None = None, max_time: float = MAX_MOVE_TIME, modifiers: Sequence[str] = ()) -> None:
+    async def hover(self, *, human: bool | None = None, max_time: float | None = None, modifiers: Sequence[str] = ()) -> None:
         """Move the cursor onto this element, scrolling it into view first."""
         x, y = await self.point_to_click()
         await self.page.mouse.move(x, y, human=human, max_time=max_time, modifiers=modifiers)
@@ -1799,7 +1881,7 @@ class Element:
         click_count: int = 1,
         delay: float | None = None,
         human: bool | None = None,
-        max_time: float = MAX_MOVE_TIME,
+        max_time: float | None = None,
         modifiers: Sequence[str] = (),
     ) -> None:
         """Click this element, scrolling it into view first.
@@ -1841,6 +1923,10 @@ class Page:
         self.request_urls: dict[str, str] = {}
         self.requests_by_url: dict[str, str] = {}
         self.content_types: dict[str, str] = {}
+        # The size of the viewport, cached since every cursor movement needs it
+        self.viewport_size: tuple[float, float] | None = None
+        # Whether the browser has stopped acknowledging input events for this page
+        self.input_wedged = False
         self.mouse = Mouse(self)
 
     def __repr__(self) -> str:
@@ -1863,6 +1949,8 @@ class Page:
                 self.lifecycle[frame_id] = set()
                 if frame_id == self.main_frame:
                     self.url = params.get('url') or self.url
+                    # A new document can have scrollbars where the old one had none
+                    self.viewport_size = None
             case 'Page.eventFired':
                 self.lifecycle.setdefault(params['frameId'], set()).add(params['name'])
             case 'Page.sameDocumentNavigation':
@@ -1914,6 +2002,54 @@ class Page:
         if self.closed:
             raise BrowserClosedError('This page has been closed')
         return await self.connection.send(method, params, self.session_id, timeout)
+
+    async def viewport(self) -> tuple[float, float]:
+        """The size of the visible part of the page, in CSS pixels.
+
+        Cached, and discarded when the page navigates, because every cursor
+        movement needs it, see :func:`clamp_to_viewport`.
+        """
+        if self.viewport_size is None:
+            width, height = await self.evaluate('[window.innerWidth, window.innerHeight]')
+            self.viewport_size = float(width), float(height)
+        return self.viewport_size
+
+    def check_accepts_input(self) -> None:
+        """Raise :class:`InputWedged` if the browser has stopped accepting input for this page."""
+        if self.input_wedged:
+            raise InputWedged(f'{self} stopped acknowledging input events, no more input can be delivered to it')
+
+    async def input_diagnostics(self) -> str:
+        """What can be discovered about a browser that stopped acknowledging input.
+
+        Called only once an input event has already been given up on, so that
+        the failure says which half of the browser is stuck rather than just
+        that something is. Answers no question for longer than
+        :data:`INPUT_DIAGNOSTIC_TIMEOUT` and never raises.
+        """
+        notes = []
+        try:
+            await self.evaluate('1', timeout=INPUT_DIAGNOSTIC_TIMEOUT)
+        except Exception as err:
+            notes.append(f'The page no longer runs JavaScript either ({err.__class__.__name__}), so the whole browser is stuck.')
+        else:
+            notes.append('The page still runs JavaScript, so only its input queue is stuck.')
+        # A movement onto the pixel the cursor is already on is discarded by
+        # the browser without being dispatched, so probe with a different one
+        probe = (1.0, 1.0) if (self.mouse.x, self.mouse.y) != (1.0, 1.0) else (2.0, 2.0)
+        try:
+            await self.send(
+                'Page.dispatchMouseEvent',
+                {'type': 'mousemove', 'x': probe[0], 'y': probe[1], 'button': 0, 'buttons': 0, 'modifiers': 0, 'clickCount': 0},
+                timeout=INPUT_DIAGNOSTIC_TIMEOUT,
+            )
+        except Exception as err:
+            notes.append(f'A further mouse event was not acknowledged either ({err.__class__.__name__}), the input queue is stuck for good.')
+        else:
+            notes.append('A further mouse event was acknowledged, so only the one event was lost.')
+        if (process := self.browser.process) is not None and (log := process.log_tail(10).strip()):
+            notes.append(f'The tail of the browser log:\n{log}')
+        return ' '.join(notes)
 
     async def wait_until_ready(self, timeout: float = DEFAULT_TIMEOUT) -> None:
         try:
@@ -2155,7 +2291,7 @@ class Page:
     # Mouse input {{{
 
     async def hover(
-        self, css_selector: str, *, timeout: float = DEFAULT_TIMEOUT, human: bool | None = None, max_time: float = MAX_MOVE_TIME, modifiers: Sequence[str] = ()
+        self, css_selector: str, *, timeout: float = DEFAULT_TIMEOUT, human: bool | None = None, max_time: float | None = None, modifiers: Sequence[str] = ()
     ) -> None:
         """Move the cursor onto the first visible element matching css_selector.
 
@@ -2177,7 +2313,7 @@ class Page:
         click_count: int = 1,
         delay: float | None = None,
         human: bool | None = None,
-        max_time: float = MAX_MOVE_TIME,
+        max_time: float | None = None,
         modifiers: Sequence[str] = (),
     ) -> None:
         """Click the first visible element matching css_selector.
@@ -2269,12 +2405,11 @@ class Browser:
     :param locale: the locale(s) to report to pages
     :param fonts: the font families to report, defaults to a random subset of the bundled ones
     :param window: a fixed (width, height) for the window instead of a random one
-    :param humanize: hand the job of moving the cursor along a human like path
-        to the browser itself, instead of doing it here. The browser does it
-        with a fixed ten milliseconds between the points of a path, no way to
-        control an individual movement and nothing for the timing of the click,
-        so this is off by default and :class:`Mouse` does the work instead. The
-        two cannot be combined, so turning this on turns that off.
+    :param humanize: move the cursor along a human like path rather than
+        teleporting it, optionally giving the longest such a movement may take
+        in seconds. This is what :class:`Mouse` does anyway, so the only thing
+        this changes is that duration. The browser is never asked to generate
+        the paths itself, see :func:`generate_config`.
     :param block_images: do not load images at all
     :param block_webrtc: disable WebRTC entirely
     :param enable_cache: keep previously loaded pages and requests around, using more memory
@@ -2306,7 +2441,10 @@ class Browser:
         keep_log: bool = False,
     ) -> None:
         self.headless, self.target_os = headless, check_valid_os(target_os or current_os())
-        self.locale, self.fonts, self.window, self.humanize = locale, fonts, window, humanize
+        self.locale, self.fonts, self.window = locale, fonts, window
+        # The browser's own cursor humanizing is never used, so all this says
+        # is how long a movement made by Mouse may take
+        self.max_move_time = float(humanize) if isinstance(humanize, (int, float)) and not isinstance(humanize, bool) else MAX_MOVE_TIME
         self.block_images, self.block_webrtc, self.enable_cache = block_images, block_webrtc, enable_cache
         self.proxy, self.extra_config, self.allow_prerelease = proxy, config, allow_prerelease
         self.extra_user_prefs = firefox_user_prefs
@@ -2383,7 +2521,6 @@ class Browser:
                 window=self.window,
                 fonts=self.fonts,
                 locale=self.locale,
-                humanize=self.humanize,
                 extra=self.extra_config,
             ),
         )
