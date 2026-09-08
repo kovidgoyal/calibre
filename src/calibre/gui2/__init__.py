@@ -135,8 +135,8 @@ class IconResourceManager:
                 r.append(path)
                 setattr(self, f'user_{x}_theme_name', f'calibre-user-{x}')
         self.registered_user_resource_files = tuple(r)
-        any_dark = (self.user_any_theme_name + '-dark') if self.user_any_theme_name else ''
-        any_light = (self.user_any_theme_name + '-light') if self.user_any_theme_name else ''
+        any_dark = (self.user_any_theme_name + '-dark') if self.user_any_theme_name else ''  # ty: ignore[redundant-condition]
+        any_light = (self.user_any_theme_name + '-light') if self.user_any_theme_name else ''  # ty: ignore[redundant-condition]
         self.dark_theme_name = self.user_dark_theme_name or any_dark or self.default_dark_theme_name
         self.light_theme_name = self.user_light_theme_name or any_light or self.default_light_theme_name
         # self.dump_available_icon_resource_names()

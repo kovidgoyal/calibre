@@ -1281,7 +1281,7 @@ class ZipFile:
             raise RuntimeError('write() requires mode "w" or "a"')
         if not self.fp:
             raise RuntimeError('Attempt to write ZIP archive that was already closed')
-        if zinfo.compress_type == ZIP_DEFLATED and not zlib:
+        if zinfo.compress_type == ZIP_DEFLATED and not zlib:  # ty: ignore[redundant-condition]
             raise RuntimeError('Compression requires the (missing) zlib module')
         if zinfo.compress_type not in (ZIP_STORED, ZIP_DEFLATED):
             raise RuntimeError(f'The compression method {zinfo.compress_type} is not supported')

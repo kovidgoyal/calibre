@@ -1202,7 +1202,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        if not self.Rules:
+        if not self.Rules:  # ty: ignore[redundant-condition]
             self.initialize_class_members()
 
     @classmethod

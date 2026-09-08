@@ -243,7 +243,7 @@ class ZshCompleter:  # {{{
         self.dest = None
         base = os.path.dirname(self.opts.staging_sharedir)
         self.detect_zsh(base)
-        if not self.dest and base == '/usr/share':
+        if not self.dest and base == '/usr/share':  # ty: ignore[redundant-condition]
             # Ubuntu puts site-functions in /usr/local/share
             self.detect_zsh('/usr/local/share')
 

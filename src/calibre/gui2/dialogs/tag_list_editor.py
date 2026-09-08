@@ -1054,7 +1054,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         table = self.table
         assert table is not None
         col_zero_items = (table.item(item.row(), VALUE_COLUMN) for item in table.selectedItems())
-        if not col_zero_items:
+        if not col_zero_items:  # ty: ignore[redundant-condition]
             error_dialog(self, _('No item selected'), _('You must select one item from the list of available items.')).exec()
             return
 

@@ -248,7 +248,7 @@ def uniq(vals):
     vals = vals or ()
     seen = set()
     seen_add = seen.add
-    return tuple(x for x in vals if x not in seen and not seen_add(x))
+    return tuple(x for x in vals if x not in seen and not seen_add(x))  # ty: ignore[redundant-condition]
 
 
 def get_editor_settings(tprefs):

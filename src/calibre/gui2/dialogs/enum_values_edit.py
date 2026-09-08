@@ -289,7 +289,7 @@ class EnumValuesEdit(QDialog):
                 id_map[fid] = v
 
         ids_to_delete = (self.db.new_api.get_item_id(self.key, v) for v in self.deleted_values.values())
-        if ids_to_delete:
+        if ids_to_delete:  # ty: ignore[redundant-condition]
             self.db.new_api.remove_items(self.key, ids_to_delete)
 
         disp['enum_values'] = values

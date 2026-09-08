@@ -1902,7 +1902,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             self.beginResetModel(), self.endResetModel()
 
     def resort(self, reset=True):
-        if self.sorted_on:
+        if self.sorted_on:  # ty: ignore[redundant-condition]
             self.sort(self.column_map.index(self.sorted_on[0]), self.sorted_on[1], reset=False)
         if reset:
             self.beginResetModel(), self.endResetModel()

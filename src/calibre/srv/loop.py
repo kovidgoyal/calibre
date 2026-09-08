@@ -492,12 +492,12 @@ class ServerLoop:
                 self.bind(af, socktype, proto)
             except OSError as serr:
                 msg = f'{msg} -- ({sa}: {as_unicode(serr)})'
-                if self.socket:
+                if self.socket:  # ty: ignore[redundant-condition]
                     self.socket.close()
                 self.socket = None
                 continue
             break
-        if not self.socket:
+        if not self.socket:  # ty: ignore[redundant-condition]
             raise OSError(msg)
 
     def initialize_socket(self):

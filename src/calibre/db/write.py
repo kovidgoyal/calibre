@@ -397,7 +397,7 @@ def uniq(vals, kmap=lambda x: x):
     lvals = (kmap(x) for x in vals)
     seen = set()
     seen_add = seen.add
-    return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+    return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))  # ty: ignore[redundant-condition]
 
 
 def many_many(book_id_val_map, db, field, allow_case_change, *args):

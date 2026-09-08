@@ -196,7 +196,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 p(traceback.format_exc())
                 continue
             break
-        if self.currently_connected_pnp_id:
+        if self.currently_connected_pnp_id:  # ty: ignore[redundant-condition]
             p('Opened', self.current_friendly_name, 'successfully')
             p('Device info:')
             p(pprint.pformat(self.dev.data))

@@ -240,7 +240,7 @@ class Chunker:
             # for all chunks
             self.skeletons.append(Skeleton(i, item, root, chunks))
 
-        if orig_dumps:
+        if orig_dumps:  # ty: ignore[redundant-condition]
             self.dump(orig_dumps)
 
         # Create the SKEL and Chunk tables

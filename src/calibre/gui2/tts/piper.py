@@ -442,7 +442,7 @@ class Piper(TTSBackend):
         return piper_cache_dir()
 
     def is_voice_downloaded(self, v: Voice) -> bool:
-        if not v or not v.name:
+        if not v or not v.name:  # ty: ignore[redundant-condition]
             v = self._default_voice
         for path in paths_for_voice(v):
             if not os.path.exists(path):

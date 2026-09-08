@@ -227,7 +227,7 @@ def w3cdtf(date_time, assume_utc=False):
     if hasattr(date_time, 'tzinfo'):
         if date_time.tzinfo is None:
             date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-        date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
+        date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)  # ty: ignore[redundant-condition]
     return str(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 

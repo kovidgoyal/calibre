@@ -2604,7 +2604,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def restore_current_book_state(self, state: SavedState) -> None:
         m = self.model()
-        if not state or not m:
+        if not state or not m:  # ty: ignore[redundant-condition]
             return
         db = m.db
         assert db is not None

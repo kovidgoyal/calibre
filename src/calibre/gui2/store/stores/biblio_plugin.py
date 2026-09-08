@@ -76,7 +76,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
 
                 s = SearchResult()
                 s.detail_item = ''.join(data.xpath('.//a[@class="th"]/@href')).strip()
-                if not id:
+                if not id:  # ty: ignore[redundant-condition]
                     continue
 
                 s.cover_url = ''.join(data.xpath('.//a[@class="th"]/img/@data-original')).strip()

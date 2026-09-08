@@ -141,7 +141,7 @@ class FileDialog(QObject):
                     fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, '', opts)
                 else:
                     fs = create_dialog(title, ftext), True
-                if fs and fs[0]:
+                if fs and fs[0]:  # ty: ignore[redundant-condition]
                     for f in fs[0]:
                         f = str(f)
                         if not f:

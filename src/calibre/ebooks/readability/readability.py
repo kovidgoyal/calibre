@@ -112,7 +112,7 @@ class Document:
         doc = build_doc(input)
         doc = html_cleaner.clean_html(doc)
         base_href = self.options['url']
-        if base_href:
+        if base_href:  # ty: ignore[redundant-condition]
             doc.make_links_absolute(base_href, resolve_base_href=True)
         else:
             doc.resolve_base_href()

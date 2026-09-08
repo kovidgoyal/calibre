@@ -862,7 +862,7 @@ class KOBO(USBMS):
         # debug_print("KOBO:book_from_path - title=%s"%title)
         from calibre.ebooks.metadata import MetaInformation
 
-        if cls.read_metadata or cls.MUST_READ_METADATA:
+        if cls.read_metadata or cls.MUST_READ_METADATA:  # ty: ignore[redundant-condition]
             mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
         else:
             from calibre.ebooks.metadata.meta import metadata_from_filename

@@ -1024,7 +1024,7 @@ class ChooseTheme(Dialog):
             t.daemon = True
             t.start()
             ret = d.exec()
-            if self.err_traceback:
+            if self.err_traceback:  # ty: ignore[redundant-condition]
                 return error_dialog(
                     self,
                     _('Download failed'),
