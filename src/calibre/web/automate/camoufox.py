@@ -23,6 +23,8 @@ Typical usage::
         page = browser.page
         await page.open('https://example.com')
         await page.click('a.more')
+        await page.fill('input[name=q]', 'search terms')
+        await page.press('input[name=q]', 'Enter')
         await page.remove('script, style')
         html = await page.html()
         img = await page.get_resource('https://example.com/logo.png')
@@ -42,6 +44,7 @@ import sys
 import tempfile
 import threading
 import time
+import unicodedata
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import lru_cache
 from typing import Any, NamedTuple
@@ -93,12 +96,12 @@ class BrowserClosedError(Error):
 class InputWedged(Error):
     """The browser stopped acknowledging input events.
 
-    Every mouse and wheel event the browser is sent is dispatched from a single
-    queue shared by the whole browser process, and the browser works through it
-    one event at a time, answering each only once the page has seen it. An
-    event that never reaches the page is therefore never answered, and worse,
-    nothing behind it in the queue is ever dispatched either, so the page can no
-    longer be given input of any kind. Nothing here can undo that, the page has
+    Every mouse, wheel and key event the browser is sent is dispatched from a
+    single queue shared by the whole browser process, and the browser works
+    through it one event at a time, answering each only once the page has seen
+    it. An event that never reaches the page is therefore never answered, and
+    worse, nothing behind it in the queue is ever dispatched either, so the page
+    can no longer be given input of any kind. Nothing here can undo that, the page has
     to be abandoned, so once it happens further input events fail immediately
     rather than waiting for a reply that will not come.
     """
@@ -1358,6 +1361,21 @@ WAIT_FOR_SELECTOR_JS = '''(selector, timeout, visible) => new Promise((resolve) 
     if (again) done(again);
 })'''
 
+# Text can only be inserted into an element that can hold it, and inserting it
+# into anything else quietly does nothing at all, see Keyboard.insert_text().
+# The types listed are the ones an input element cannot hold text for.
+FOCUSED_IS_EDITABLE_JS = '''() => {
+    const node = document.activeElement;
+    if (!node || node === document.body) return false;
+    if (node.isContentEditable) return true;
+    const name = node.localName;
+    if (name === 'textarea') return !node.disabled && !node.readOnly;
+    if (name !== 'input') return false;
+    const kind = (node.type || 'text').toLowerCase();
+    const uneditable = ['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'image', 'range', 'color', 'hidden'];
+    return !node.disabled && !node.readOnly && !uneditable.includes(kind);
+}'''
+
 # Scripts run behind Xray wrappers, which forbid reading the contents of a typed
 # array, so the bytes are turned into base64 by the browser itself rather than by
 # walking a Uint8Array. It has to be an async function because the promise
@@ -1413,8 +1431,9 @@ DOUBLE_CLICK_INTERVAL = (0.07, 0.16)  # seconds between the clicks of a multiple
 OVERSHOOT_DISTANCE = 250.0  # pixels, a hand does not overshoot a target closer than this
 OVERSHOOT_PROBABILITY = 0.5
 
-# The source of randomness for cursor paths and click timing. Tests pass their
-# own seeded generator to human_trajectory() to get reproducible paths.
+# The source of randomness for cursor paths, click timing and the rhythm of
+# typing. Tests pass their own seeded generator to human_trajectory() and to
+# human_typing_plan() to get reproducible paths and keystrokes.
 MOTION_RNG = random.Random()
 
 
@@ -1795,6 +1814,591 @@ class Mouse:
 # }}}
 
 
+# Human like keyboard input {{{
+
+# Key events name a physical key, so the tables below are those of a US
+# layout, the one the fingerprints generated here always claim. There is no
+# numpad and no other layout: the point of them is to type into forms, not to
+# emulate a keyboard.
+
+
+class KeyInfo(NamedTuple):
+    """The fields a page sees for a single key."""
+
+    key: str  # the value the page sees as event.key
+    code: str  # the physical key, event.code
+    key_code: int  # the legacy event.keyCode
+    location: int = 0  # 1 for the left hand copy of a modifier, see NAMED_KEYS
+    shifted: bool = False  # whether shift has to be held down to produce this key
+
+
+# The four rows of the layout, unshifted and shifted, from which every table
+# below is derived: which key produces a character, which shifted character
+# that key also produces, which keys are next to it and which hand types it
+KEY_ROWS = ('`1234567890-=', 'qwertyuiop[]\\', "asdfghjkl;'", 'zxcvbnm,./')
+SHIFTED_KEY_ROWS = ('~!@#$%^&*()_+', 'QWERTYUIOP{}|', 'ASDFGHJKL:"', 'ZXCVBNM<>?')
+# The event.code of each key of each row
+ROW_CODES = (
+    ('Backquote', *(f'Digit{d}' for d in '1234567890'), 'Minus', 'Equal'),
+    (*(f'Key{c}' for c in 'QWERTYUIOP'), 'BracketLeft', 'BracketRight', 'Backslash'),
+    (*(f'Key{c}' for c in 'ASDFGHJKL'), 'Semicolon', 'Quote'),
+    (*(f'Key{c}' for c in 'ZXCVBNM'), 'Comma', 'Period', 'Slash'),
+)
+# The legacy event.keyCode of each key of each row. A letter uses the code
+# point of its capital, the rest are the fixed numbers a browser reports.
+ROW_KEY_CODES = (
+    (192, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 189, 187),
+    (*(ord(c) for c in 'QWERTYUIOP'), 219, 221, 220),
+    (*(ord(c) for c in 'ASDFGHJKL'), 186, 222),
+    (*(ord(c) for c in 'ZXCVBNM'), 188, 190, 191),
+)
+# How many keys at the start of each row the left hand types
+ROW_LEFT_HAND = (6, 5, 5, 5)
+
+# The keys that are not characters. Firefox reports a modifier as its left
+# hand copy, which is the one a hand reaches for by default.
+NAMED_KEYS: dict[str, KeyInfo] = {
+    'Enter': KeyInfo('Enter', 'Enter', 13),
+    'Tab': KeyInfo('Tab', 'Tab', 9),
+    'Backspace': KeyInfo('Backspace', 'Backspace', 8),
+    'Delete': KeyInfo('Delete', 'Delete', 46),
+    'Escape': KeyInfo('Escape', 'Escape', 27),
+    'ArrowLeft': KeyInfo('ArrowLeft', 'ArrowLeft', 37),
+    'ArrowUp': KeyInfo('ArrowUp', 'ArrowUp', 38),
+    'ArrowRight': KeyInfo('ArrowRight', 'ArrowRight', 39),
+    'ArrowDown': KeyInfo('ArrowDown', 'ArrowDown', 40),
+    'Home': KeyInfo('Home', 'Home', 36),
+    'End': KeyInfo('End', 'End', 35),
+    'PageUp': KeyInfo('PageUp', 'PageUp', 33),
+    'PageDown': KeyInfo('PageDown', 'PageDown', 34),
+    'Insert': KeyInfo('Insert', 'Insert', 45),
+    'CapsLock': KeyInfo('CapsLock', 'CapsLock', 20),
+    'ContextMenu': KeyInfo('ContextMenu', 'ContextMenu', 93),
+    'Shift': KeyInfo('Shift', 'ShiftLeft', 16, 1),
+    'Control': KeyInfo('Control', 'ControlLeft', 17, 1),
+    'Alt': KeyInfo('Alt', 'AltLeft', 18, 1),
+    'Meta': KeyInfo('Meta', 'MetaLeft', 224, 1),
+    **{f'F{i}': KeyInfo(f'F{i}', f'F{i}', 111 + i) for i in range(1, 13)},
+}
+NAMED_KEYS_BY_LOWER = {name.lower(): info for name, info in NAMED_KEYS.items()}
+# The names people actually write for the keys above
+KEY_ALIASES = {
+    'esc': 'Escape',
+    'del': 'Delete',
+    'return': 'Enter',
+    'space': ' ',
+    'spacebar': ' ',
+    'up': 'ArrowUp',
+    'down': 'ArrowDown',
+    'left': 'ArrowLeft',
+    'right': 'ArrowRight',
+    'pgup': 'PageUp',
+    'pgdn': 'PageDown',
+    'ctrl': 'Control',
+    'cmd': 'Meta',
+    'command': 'Meta',
+    'super': 'Meta',
+    'win': 'Meta',
+    'windows': 'Meta',
+    'option': 'Alt',
+    'menu': 'ContextMenu',
+}
+MODIFIER_KEY_NAMES = ('Shift', 'Control', 'Alt', 'Meta')
+# The chord that selects everything in the focused field. Which one it is
+# depends on the machine the browser actually runs on, not on the operating
+# system its fingerprint claims, since the key handling is the real one.
+SELECT_ALL_CHORD = 'meta+a' if ismacos else 'control+a'
+
+DEFAULT_TYPING_WPM = 55.0  # words per minute, a moderately quick typist who is not a professional one
+CHARS_PER_WORD = 5.0  # the conventional definition of a word when measuring typing speed
+KEY_INTERVAL_SPREAD = 0.34  # the sigma of the lognormal distribution the gaps between keystrokes are drawn from
+MIN_KEY_INTERVAL = 0.02  # seconds, no two keystrokes are ever closer together than this
+MAX_KEY_INTERVAL = 2.5  # seconds, the tail of the distribution is cut off here
+KEY_DWELL = (0.045, 0.11)  # seconds a key is held down for
+KEY_REPEAT_INTERVAL = (0.07, 0.16)  # seconds between two presses of the same key
+SHIFT_LEAD = (0.04, 0.11)  # seconds between pressing shift and the key it shifts
+SHIFT_TRAIL = (0.02, 0.06)  # seconds shift stays down after the last key it shifted
+SAME_HAND_PENALTY = 1.22  # two keys in a row typed with the same hand are slower than alternating ones
+SAME_KEY_PENALTY = 1.4  # a doubled letter is slower still
+AWKWARD_KEY_PENALTY = 1.3  # digits, punctuation and symbols, which are typed far less often than letters
+SHIFTED_KEY_PENALTY = 1.25  # a capital or a symbol costs the time to reach for shift
+WORD_PAUSE_PROBABILITY = 0.12  # how often the space between two words becomes a pause for thought
+WORD_PAUSE = (0.2, 0.75)  # seconds of that pause, at DEFAULT_TYPING_WPM
+LINE_PAUSE = (0.1, 0.4)  # seconds of pause after a newline, at DEFAULT_TYPING_WPM
+MISTAKE_NOTICE = (0.12, 0.5)  # seconds between typing a wrong character and noticing it
+MISTAKE_REPAIR = (0.08, 0.3)  # seconds between deleting a wrong character and typing the right one
+# Characters that belong to the character before them rather than standing on
+# their own: the zero width joiner and the two variation selectors
+ATTACHING_CHARS = '\u200d\ufe0e\ufe0f'
+
+
+def build_key_tables() -> tuple[dict[str, KeyInfo], dict[str, str], dict[str, tuple[str, ...]], frozenset[str]]:
+    """The tables of the layout, built from its rows.
+
+    Returns the key each character is produced by, the shifted character each
+    key also produces, the characters either side of each one and the codes of
+    the keys the left hand types. Tab and the newlines are included as the keys
+    that produce them so that a string containing them can simply be typed.
+    """
+    keys: dict[str, KeyInfo] = {
+        ' ': KeyInfo(' ', 'Space', 32),
+        '\t': KeyInfo('Tab', 'Tab', 9),
+        '\n': KeyInfo('Enter', 'Enter', 13),
+        '\r': KeyInfo('Enter', 'Enter', 13),
+    }
+    shifted: dict[str, str] = {}
+    neighbours: dict[str, tuple[str, ...]] = {}
+    left: set[str] = set()
+    for plain, shift_row, codes, key_codes, left_count in zip(KEY_ROWS, SHIFTED_KEY_ROWS, ROW_CODES, ROW_KEY_CODES, ROW_LEFT_HAND, strict=True):
+        for i, (ch, shift_ch, code, key_code) in enumerate(zip(plain, shift_row, codes, key_codes, strict=True)):
+            keys[ch] = KeyInfo(ch, code, key_code)
+            keys[shift_ch] = KeyInfo(shift_ch, code, key_code, shifted=True)
+            shifted[ch] = shift_ch
+            if i < left_count:
+                left.add(code)
+            for source in (plain, shift_row):
+                neighbours[source[i]] = tuple(source[j] for j in (i - 1, i + 1) if 0 <= j < len(source))
+    return keys, shifted, neighbours, frozenset(left)
+
+
+PRINTABLE_KEYS, SHIFTED_KEYS, KEY_NEIGHBOURS, LEFT_HAND_CODES = build_key_tables()
+
+
+def key_for_character(ch: str) -> KeyInfo | None:
+    """The key press that produces the character ch, or None if no key does.
+
+    A character from a script the layout knows nothing about, Cyrillic or
+    Chinese for instance, has no key that produces it and has to be inserted as
+    text instead, see :meth:`Keyboard.insert_text`. An accented Latin character
+    is a middle case: it is not on a US layout either, but the key for the
+    letter it decomposes to is the one a US International layout produces it
+    with, as a dead key or AltGr sequence, so it is typed as that key carrying
+    the accented character as its value, which is exactly what such a sequence
+    looks like to a page. A character with no such decomposition, ``ø`` or
+    ``ł``, is left to be inserted as text.
+    """
+    if (info := PRINTABLE_KEYS.get(ch)) is not None:
+        return info
+    decomposed = unicodedata.normalize('NFD', ch)
+    if len(decomposed) > 1 and all(unicodedata.combining(c) for c in decomposed[1:]):
+        if (info := PRINTABLE_KEYS.get(decomposed[0])) is not None:
+            return info._replace(key=ch)
+    return None
+
+
+def key_info(name: str) -> KeyInfo:
+    """The key event fields for a key named by the character it produces or by name.
+
+    ``a``, ``A`` and ``!`` are the keys that produce them, the rest are named,
+    case insensitively and with the usual aliases, so ``Enter``, ``esc``,
+    ``ctrl`` and ``ArrowLeft`` are all understood, see :data:`NAMED_KEYS`.
+    """
+    if (info := PRINTABLE_KEYS.get(name)) is not None:  # a and A are different keys, so the case matters here
+        return info
+    canonical = KEY_ALIASES.get(name.lower(), name)
+    if (info := PRINTABLE_KEYS.get(canonical)) is not None:
+        return info
+    if (info := NAMED_KEYS_BY_LOWER.get(canonical.lower())) is not None:
+        return info
+    if len(canonical) == 1 and (info := key_for_character(canonical)) is not None:
+        return info
+    raise ValueError(f'{name!r} is not a known key, expected a single character or one of: {", ".join(NAMED_KEYS)}')
+
+
+def parse_chord(spec: str) -> tuple[tuple[str, ...], str]:
+    """The modifiers to hold down and the key to press for a chord such as ``ctrl+shift+a``.
+
+    A single character is always the key itself, so ``+`` is the plus key
+    rather than a chord with nothing in it, and a chord can end with that key:
+    ``shift++``.
+    """
+    if not spec:
+        raise ValueError('An empty string is not a key')
+    if len(spec) == 1:
+        return (), spec
+    segments = spec.split('+')
+    if segments[-1] == '':  # the last plus was the key itself rather than a separator
+        segments = segments[:-1]
+        if segments and segments[-1] == '':
+            segments = segments[:-1]
+        segments.append('+')
+    *modifier_names, key = segments
+    modifiers = []
+    for modifier in modifier_names:
+        info = key_info(modifier)
+        if info.key not in MODIFIER_KEY_NAMES:
+            raise ValueError(f'{modifier!r} is not a modifier key, expected one of: {", ".join(MODIFIER_KEY_NAMES)}')
+        if info.key not in modifiers:
+            modifiers.append(info.key)
+    key_info(key)  # fail now rather than with the modifiers already held down
+    return tuple(modifiers), key
+
+
+def graphemes(text: str) -> list[str]:
+    """text split into the units a single keystroke produces.
+
+    A combining mark, a variation selector and a zero width joiner all belong
+    to the character before them, so they are kept with it rather than being
+    typed on their own. The text is not normalized, so joining the result gives
+    back exactly what was passed in.
+    """
+    ans: list[str] = []
+    for ch in text:
+        if ans and (unicodedata.combining(ch) or ch in ATTACHING_CHARS or ans[-1].endswith('\u200d')):
+            ans[-1] += ch
+        else:
+            ans.append(ch)
+    return ans
+
+
+def key_hand(ch: str) -> str:
+    """Which hand types the character ch: ``left``, ``right`` or neither."""
+    info = key_for_character(ch)
+    if info is None or info.code == 'Space':  # the space bar is hit by whichever thumb is idle
+        return ''
+    return 'left' if info.code in LEFT_HAND_CODES else 'right'
+
+
+def is_awkward_key(ch: str) -> bool:
+    """Whether ch is one of the keys a hand is less practised at reaching for."""
+    return not ch.isalpha() and ch != ' '
+
+
+def typing_interval(previous: str, current: str, median: float, rng: random.Random) -> float:
+    """The seconds between pressing the key for previous and the key for current.
+
+    Keystroke gaps are spread out around a median rather than being regular,
+    with the same tail as real typing, and what is being typed moves that
+    median about: a hand alternating between its two halves is quicker than one
+    doubling back on itself, a capital costs the reach for shift, anything that
+    is not a letter is less practised, and the gap between two words is
+    sometimes a pause for thought rather than a keystroke at all.
+    """
+    factor = 1.0
+    info = key_for_character(current)
+    if info is not None and info.shifted:
+        factor *= SHIFTED_KEY_PENALTY
+    if is_awkward_key(current):
+        factor *= AWKWARD_KEY_PENALTY
+    if previous:
+        if previous == current:
+            factor *= SAME_KEY_PENALTY
+        elif (hand := key_hand(previous)) and hand == key_hand(current):
+            factor *= SAME_HAND_PENALTY
+    ans = rng.lognormvariate(math.log(median * factor), KEY_INTERVAL_SPREAD)
+    # A quick typist does not stop to think for as long as a slow one, so the
+    # pauses are scaled with the speed rather than being the same however fast
+    # the typing is, which would make a high speed mean much less than it says
+    pause = median / (60.0 / (DEFAULT_TYPING_WPM * CHARS_PER_WORD))
+    if previous == ' ' and rng.random() < WORD_PAUSE_PROBABILITY:
+        ans += pause * rng.uniform(*WORD_PAUSE)
+    elif previous in ('\n', '\r'):
+        ans += pause * rng.uniform(*LINE_PAUSE)
+    return min(max(ans, MIN_KEY_INTERVAL), MAX_KEY_INTERVAL)
+
+
+class Keystroke(NamedTuple):
+    """One keystroke of a planned burst of typing."""
+
+    key: str  # the key to press, or '' to insert text without pressing anything
+    text: str  # the characters this keystroke produces, empty for one that produces none
+    delay: float  # seconds after the previous keystroke was pressed before this one is
+    dwell: float  # seconds the key is held down for
+
+
+def human_typing_plan(text: str, *, wpm: float = DEFAULT_TYPING_WPM, mistakes: float = 0.0, rng: random.Random | None = None) -> list[Keystroke]:
+    """A human like way of typing text out, one keystroke at a time.
+
+    A character no key produces becomes a keystroke with no key, to be inserted
+    as text instead, see :func:`key_for_character`. Joining the text of every
+    keystroke gives back exactly what was passed in, unless mistakes are asked
+    for, in which case the extra characters are each taken back out again by
+    the backspace that follows them.
+
+    :param wpm: how fast to type, in words per minute. Text that is awkward to
+        type comes out somewhat below this, the way it does for a hand.
+    :param mistakes: the chance, per character, of pressing a neighbouring key
+        by accident, noticing and correcting it with backspace
+    :param rng: the source of randomness, pass a seeded one for reproducible typing
+    """
+    if wpm <= 0:
+        raise ValueError(f'{wpm} is not a valid typing speed')
+    if not 0.0 <= mistakes <= 1.0:
+        raise ValueError(f'{mistakes} is not a valid chance of a mistake')
+    r = MOTION_RNG if rng is None else rng
+    median = 60.0 / (wpm * CHARS_PER_WORD)
+    ans: list[Keystroke] = []
+    previous = ''
+
+    def keystroke(unit: str, delay: float) -> Keystroke:
+        key = unit if len(unit) == 1 and key_for_character(unit) is not None else ''
+        # A key held down longer than the gap to the next one would still be
+        # down when that one is pressed, which is a roll rather than a keystroke
+        return Keystroke(key, unit, delay, min(r.uniform(*KEY_DWELL), delay * 0.7))
+
+    for unit in graphemes(text):
+        delay = typing_interval(previous, unit, median, r)
+        if mistakes and (nearby := KEY_NEIGHBOURS.get(unit)) and r.random() < mistakes:
+            wrong = r.choice(nearby)
+            ans.append(keystroke(wrong, delay))
+            ans.append(Keystroke('Backspace', '', r.uniform(*MISTAKE_NOTICE), r.uniform(*KEY_DWELL)))
+            delay = r.uniform(*MISTAKE_REPAIR)
+        ans.append(keystroke(unit, delay))
+        previous = unit
+    return ans
+
+
+async def sleep_until(when: float) -> None:
+    """Wait until the monotonic clock reaches when, or return at once if it already has."""
+    if (delay := when - time.monotonic()) > 0:
+        await asyncio.sleep(delay)
+
+
+class Keyboard:
+    """Presses keys and types text, the way a hand does.
+
+    Available as :attr:`Page.keyboard`. A key is named either by the character
+    it produces, ``a``, ``A`` or ``!``, or by name, ``Enter`` or ``ctrl``, and a
+    chord is written with pluses, ``ctrl+shift+a``, see :func:`key_info` and
+    :func:`parse_chord`.
+
+    Keystrokes go to whatever the page has focused, which is nothing at all
+    until something is clicked or focused, so type into a field through
+    :meth:`Element.type` or :meth:`Page.type` rather than through this.
+    """
+
+    def __init__(self, page: Page) -> None:
+        self.page = page
+        # The keys currently held down, in the order they were pressed
+        self.pressed: list[str] = []
+
+    def __repr__(self) -> str:
+        return f'<Keyboard holding {", ".join(self.pressed) if self.pressed else "nothing"}>'
+
+    @property
+    def modifiers(self) -> tuple[str, ...]:
+        """The modifier keys currently held down."""
+        return tuple(key for key in self.pressed if key in MODIFIER_KEY_NAMES)
+
+    async def dispatch(self, event_type: str, info: KeyInfo, *, repeat: bool = False) -> None:
+        """Send a single key event to the page.
+
+        Key events are dispatched from the same queue as mouse events and the
+        browser answers one only once the page has seen it, so an event the
+        page never sees is never answered and takes every later input event down
+        with it, see :meth:`Mouse.dispatch` and :class:`InputWedged`.
+
+        The text the key produces is not sent: the browser works it out from the
+        key itself, which is what makes the page see the same composition and
+        input events it would see from a real keyboard.
+        """
+        self.page.check_accepts_input()
+        try:
+            await self.page.send(
+                'Page.dispatchKeyEvent',
+                {'type': event_type, 'key': info.key, 'code': info.code, 'keyCode': info.key_code, 'location': info.location, 'repeat': repeat},
+                timeout=INPUT_TIMEOUT,
+            )
+        except TimeoutExceeded as err:
+            self.page.input_wedged = True
+            raise InputWedged(
+                f'The browser did not acknowledge a {event_type} for the {info.key} key within {INPUT_TIMEOUT} seconds,'
+                f' so this page can no longer be given input. {await self.page.input_diagnostics()}'
+            ) from err
+
+    async def down(self, key: str, *, repeat: bool = False) -> None:
+        """Press a key and hold it down.
+
+        A key that is already held down is pressed again as an auto repeat, the
+        way a keyboard with a key held down on it behaves.
+        """
+        info = key_info(key)
+        self.page.check_accepts_input()
+        already_held = info.key in self.pressed
+        if not already_held:
+            self.pressed.append(info.key)
+        try:
+            await self.dispatch('keydown', info, repeat=repeat or already_held)
+        except BaseException:
+            if not already_held:
+                self.pressed.remove(info.key)
+            raise
+
+    async def up(self, key: str) -> None:
+        """Release a key."""
+        info = key_info(key)
+        self.page.check_accepts_input()
+        was_held = info.key in self.pressed
+        if was_held:
+            self.pressed.remove(info.key)
+        try:
+            await self.dispatch('keyup', info)
+        except BaseException:
+            if was_held:
+                self.pressed.append(info.key)
+            raise
+
+    async def release(self, keys: Sequence[str], *, best_effort: bool = False) -> None:
+        """Release keys, the last one pressed first.
+
+        :param best_effort: report a key that could not be released rather than
+            raising, for use while unwinding from an error that must not be
+            replaced by the one releasing it runs into
+        """
+        for key in reversed(keys):
+            try:
+                await self.up(key)
+            except Exception as err:
+                if not best_effort:
+                    raise
+                debug(f'Failed to release the {key} key: {err}')
+
+    async def tap(self, key: str, dwell: float | None = None) -> None:
+        """Press a key and release it again, holding it down for a human like time."""
+        await self.down(key)
+        await asyncio.sleep(MOTION_RNG.uniform(*KEY_DWELL) if dwell is None else dwell)
+        await self.up(key)
+
+    async def press(self, key: str, *, delay: float | None = None, count: int = 1) -> None:
+        """Press a key, or a chord such as ``ctrl+a``, count times.
+
+        Any modifier of the chord that is not already held down is pressed
+        before the key and released after it, and shift produces the shifted
+        key, so ``shift+a`` types ``A``.
+
+        :param delay: how long to hold the key down for, in seconds. The
+            default, None, means a randomly chosen human like duration.
+        :param count: press the key more than once, with a human like gap in between
+        """
+        modifiers, name = parse_chord(key)
+        if count < 1:
+            raise ValueError(f'{count} is not a valid number of key presses')
+        self.page.check_accepts_input()
+        if ('Shift' in modifiers or 'Shift' in self.pressed) and (twin := SHIFTED_KEYS.get(name)):
+            name = twin
+        held = [modifier for modifier in modifiers if modifier not in self.pressed]
+        for modifier in held:
+            await self.down(modifier)
+            # A hand has the modifier down before it reaches the key it shifts
+            await asyncio.sleep(MOTION_RNG.uniform(*SHIFT_LEAD))
+        try:
+            for i in range(count):
+                if i:
+                    await asyncio.sleep(MOTION_RNG.uniform(*KEY_REPEAT_INTERVAL))
+                await self.tap(name, delay)
+        except BaseException:
+            await self.release(held, best_effort=True)
+            raise
+        if held:
+            await asyncio.sleep(MOTION_RNG.uniform(*SHIFT_TRAIL))
+            await self.release(held)
+
+    async def commit_text(self, text: str) -> None:
+        """Insert text into the focused element without checking that there is one."""
+        self.page.check_accepts_input()
+        try:
+            await self.page.send('Page.insertText', {'text': text}, timeout=INPUT_TIMEOUT)
+        except TimeoutExceeded as err:
+            self.page.input_wedged = True
+            raise InputWedged(
+                f'The browser did not acknowledge the insertion of {text!r} within {INPUT_TIMEOUT} seconds,'
+                f' so this page can no longer be given input. {await self.page.input_diagnostics()}'
+            ) from err
+
+    async def insert_text(self, text: str) -> None:
+        """Insert text into the focused element in one go, without pressing any keys.
+
+        The page sees composition and input events but no key events, which is
+        how text committed by an input method arrives. Nothing at all happens if
+        the page has no editable element focused, so that is checked first
+        rather than leaving the text to vanish silently. The text goes to the
+        main frame, so an element inside an iframe cannot be typed into.
+        """
+        if not text:
+            return
+        self.page.check_accepts_input()
+        if not await self.page.call(FOCUSED_IS_EDITABLE_JS):
+            raise Error('The page has no editable element focused, so text cannot be inserted into it')
+        await self.commit_text(text)
+
+    async def type(self, text: str, *, wpm: float | None = None, delay: float | None = None, human: bool | None = None, mistakes: float | None = None) -> None:
+        """Type text into whatever the page has focused.
+
+        Every character a US keyboard can produce is typed as a real key press,
+        with the rhythm of a hand rather than of a clock, see
+        :func:`human_typing_plan`. A character no key produces, from a non Latin
+        script for instance, is inserted as text instead, see
+        :meth:`insert_text`, so it reaches the page but without key events.
+
+        Raises :class:`Error` if the page has nothing editable focused, since
+        the keystrokes would otherwise be thrown away without a word.
+
+        :param wpm: how fast to type, in words per minute. The default, None,
+            means the browser's, see :class:`Browser`.
+        :param delay: a fixed gap between keystrokes, in seconds, instead of a
+            human like one
+        :param human: vary the rhythm of the keystrokes the way a hand does.
+            The default, None, means do so unless a fixed delay was given.
+        :param mistakes: the chance, per character, of pressing a neighbouring
+            key and correcting it with backspace. The default, None, means the
+            browser's, see :class:`Browser`.
+        """
+        self.page.check_accepts_input()
+        if not text:
+            return
+        if human is None:
+            human = delay is None
+        if human:
+            browser = self.page.browser
+            plan = human_typing_plan(text, wpm=browser.typing_wpm if wpm is None else wpm, mistakes=browser.typing_mistakes if mistakes is None else mistakes)
+        else:
+            gap = 0.0 if delay is None else delay
+            plan = [Keystroke(unit if len(unit) == 1 and key_for_character(unit) is not None else '', unit, gap, 0.0) for unit in graphemes(text)]
+        # Keystrokes sent to a page with nothing editable focused are simply
+        # thrown away, so typing into one is a mistake worth reporting rather
+        # than a burst of events that quietly does nothing. Use press() to send
+        # keys somewhere other than a field, a keyboard shortcut for instance.
+        if not await self.page.call(FOCUSED_IS_EDITABLE_JS):
+            raise Error(f'The page has no editable element focused, so {text!r} cannot be typed into it')
+        # Keystrokes are due at times measured from the start of the burst, so
+        # that the round trip each of them costs comes out of the gap to the
+        # next one instead of being added to it
+        due = time.monotonic()
+        shifted = False  # whether shift is being held down for a run of shifted keys
+        try:
+            for keystroke in plan:
+                due += keystroke.delay
+                if not keystroke.key:
+                    await sleep_until(due)
+                    await self.commit_text(keystroke.text)
+                    continue
+                needs_shift = key_info(keystroke.key).shifted
+                if needs_shift and not shifted:
+                    await sleep_until(due - MOTION_RNG.uniform(*SHIFT_LEAD))
+                    await self.down('Shift')
+                    shifted = True
+                elif shifted and not needs_shift:
+                    # Shift is held down for a whole run of capitals rather than
+                    # being pressed again for each one of them
+                    await sleep_until(due - MOTION_RNG.uniform(*SHIFT_TRAIL))
+                    await self.up('Shift')
+                    shifted = False
+                await sleep_until(due)
+                await self.down(keystroke.key)
+                await asyncio.sleep(keystroke.dwell)
+                await self.up(keystroke.key)
+        except BaseException:
+            if shifted:
+                await self.release(('Shift',), best_effort=True)
+            raise
+        if shifted:
+            await asyncio.sleep(MOTION_RNG.uniform(*SHIFT_TRAIL))
+            await self.up('Shift')
+
+
+# }}}
+
+
 class Resource(NamedTuple):
     """The bytes of something the page loaded, such as an image."""
 
@@ -1936,6 +2540,80 @@ class Element:
         x, y = await self.point_to_click()
         await self.page.mouse.click(x, y, button=button, click_count=click_count, delay=delay, human=human, max_time=max_time, modifiers=modifiers)
 
+    async def focus(self) -> None:
+        """Give this element the keyboard focus, without using the mouse."""
+        await self.call('(node) => { node.focus(); }')
+
+    async def value(self) -> str:
+        """The text this element holds: the value of a form field or the text of anything else."""
+        return await self.call('(node) => node.value ?? node.textContent ?? ""')
+
+    async def press(self, key: str, *, delay: float | None = None, count: int = 1) -> None:
+        """Press a key, or a chord such as ``ctrl+a``, with this element focused.
+
+        The element is focused rather than clicked, so the caret is left
+        wherever typing into it put it, see :meth:`Keyboard.press`.
+        """
+        self.page.check_accepts_input()
+        await self.focus()
+        await self.page.keyboard.press(key, delay=delay, count=count)
+
+    async def type(
+        self,
+        text: str,
+        *,
+        click: bool = True,
+        wpm: float | None = None,
+        delay: float | None = None,
+        human: bool | None = None,
+        mistakes: float | None = None,
+        max_time: float | None = None,
+    ) -> None:
+        """Type text into this element, at the caret.
+
+        The text is appended to whatever the element already holds, see
+        :meth:`fill` to replace that instead.
+
+        :param click: reach the element by clicking on it, the way a human
+            does, rather than focusing it from JavaScript
+        :param max_time: the longest the cursor may take to get there, see :meth:`Mouse.move`
+        """
+        self.page.check_accepts_input()
+        if click:
+            await self.click(max_time=max_time)
+        else:
+            await self.focus()
+        await self.page.keyboard.type(text, wpm=wpm, delay=delay, human=human, mistakes=mistakes)
+
+    async def fill(
+        self,
+        text: str,
+        *,
+        click: bool = True,
+        wpm: float | None = None,
+        delay: float | None = None,
+        human: bool | None = None,
+        mistakes: float | None = None,
+        max_time: float | None = None,
+    ) -> None:
+        """Replace the contents of this element with text, typing it out.
+
+        What is already there is selected with the platform's select all
+        accelerator and deleted rather than being assigned from JavaScript, so
+        that a page which watches for key and input events, as anything built
+        on a JavaScript framework does, sees what it is expecting. Pass an empty
+        string to only clear it.
+        """
+        self.page.check_accepts_input()
+        if click:
+            await self.click(max_time=max_time)
+        else:
+            await self.focus()
+        keyboard = self.page.keyboard
+        await keyboard.press(SELECT_ALL_CHORD)
+        await keyboard.press('Backspace')
+        await keyboard.type(text, wpm=wpm, delay=delay, human=human, mistakes=mistakes)
+
     async def dispose(self) -> None:
         if self.disposed:
             return
@@ -1971,6 +2649,7 @@ class Page:
         # Whether the browser has stopped acknowledging input events for this page
         self.input_wedged = False
         self.mouse = Mouse(self)
+        self.keyboard = Keyboard(self)
 
     def __repr__(self) -> str:
         return f'<Page {self.target_id} {self.url}{" (closed)" if self.closed else ""}>'
@@ -2379,6 +3058,67 @@ class Page:
 
     # }}}
 
+    # Keyboard input {{{
+
+    async def type(
+        self,
+        css_selector: str,
+        text: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT,
+        click: bool = True,
+        wpm: float | None = None,
+        delay: float | None = None,
+        human: bool | None = None,
+        mistakes: float | None = None,
+        max_time: float | None = None,
+    ) -> None:
+        """Type text into the first visible element matching css_selector.
+
+        Waits for the element to appear and become visible, then clicks on it
+        and types the way a human would, see :meth:`Element.type` and
+        :meth:`Keyboard.type`.
+        """
+        element = await self.wait_for_selector(css_selector, timeout=timeout, visible=True)
+        try:
+            await element.type(text, click=click, wpm=wpm, delay=delay, human=human, mistakes=mistakes, max_time=max_time)
+        finally:
+            await element.dispose()
+
+    async def fill(
+        self,
+        css_selector: str,
+        text: str,
+        *,
+        timeout: float = DEFAULT_TIMEOUT,
+        click: bool = True,
+        wpm: float | None = None,
+        delay: float | None = None,
+        human: bool | None = None,
+        mistakes: float | None = None,
+        max_time: float | None = None,
+    ) -> None:
+        """Replace the contents of the first visible element matching css_selector, typing text out.
+
+        See :meth:`Element.fill`.
+        """
+        element = await self.wait_for_selector(css_selector, timeout=timeout, visible=True)
+        try:
+            await element.fill(text, click=click, wpm=wpm, delay=delay, human=human, mistakes=mistakes, max_time=max_time)
+        finally:
+            await element.dispose()
+
+    async def press(self, css_selector: str, key: str, *, timeout: float = DEFAULT_TIMEOUT, delay: float | None = None, count: int = 1) -> None:
+        """Press a key, or a chord such as ``ctrl+a``, with the first visible
+        element matching css_selector focused, see :meth:`Keyboard.press`."""
+        element = await self.wait_for_selector(css_selector, timeout=timeout, visible=True)
+        try:
+            await element.press(key, delay=delay, count=count)
+        finally:
+            await element.dispose()
+
+    # }}}
+
     # Resources {{{
 
     def resource_urls(self, pattern: str = '') -> tuple[str, ...]:
@@ -2459,6 +3199,12 @@ class Browser:
         in seconds. This is what :class:`Mouse` does anyway, so the only thing
         this changes is that duration. The browser is never asked to generate
         the paths itself, see :func:`generate_config`.
+    :param typing_wpm: how fast to type, in words per minute, see
+        :meth:`Keyboard.type`. The default, 0, means :data:`DEFAULT_TYPING_WPM`.
+    :param typing_mistakes: the chance, per character typed, of pressing a
+        neighbouring key by accident and correcting it with backspace. Off by
+        default, since a field that reformats or validates what is typed into it
+        as it goes can react badly to a character that is only there for a moment.
     :param block_images: do not load images at all
     :param block_webrtc: disable WebRTC entirely
     :param enable_cache: keep previously loaded pages and requests around, using more memory
@@ -2479,6 +3225,8 @@ class Browser:
         fonts: Sequence[str] | None = None,
         window: tuple[int, int] | None = None,
         humanize: bool | float = False,
+        typing_wpm: float = 0.0,
+        typing_mistakes: float = 0.0,
         block_images: bool = False,
         block_webrtc: bool = False,
         enable_cache: bool = True,
@@ -2494,6 +3242,10 @@ class Browser:
         # The browser's own cursor humanizing is never used, so all this says
         # is how long a movement made by Mouse may take
         self.max_move_time = float(humanize) if isinstance(humanize, (int, float)) and not isinstance(humanize, bool) else MAX_MOVE_TIME
+        if typing_wpm < 0 or not 0.0 <= typing_mistakes <= 1.0:
+            raise ValueError(f'{typing_wpm} words per minute with a {typing_mistakes} chance of a mistake is not a valid way to type')
+        self.typing_wpm = typing_wpm or DEFAULT_TYPING_WPM
+        self.typing_mistakes = typing_mistakes
         self.block_images, self.block_webrtc, self.enable_cache = block_images, block_webrtc, enable_cache
         self.proxy, self.extra_config, self.allow_prerelease = proxy, config, allow_prerelease
         self.extra_user_prefs = firefox_user_prefs

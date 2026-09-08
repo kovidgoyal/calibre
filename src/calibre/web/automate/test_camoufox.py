@@ -4,6 +4,7 @@
 import asyncio
 import functools
 import http.server
+import itertools
 import json
 import math
 import os
@@ -60,6 +61,32 @@ RECORDER_JS = '''() => {
 RECT_JS = '''(id) => {
     const r = document.getElementById(id).getBoundingClientRect();
     return {left: r.left, top: r.top, right: r.right, bottom: r.bottom};
+}'''
+
+TYPE_PAGE = '''<!DOCTYPE html><html><head><title>Type Test</title></head><body>
+<form id="form" action="second.html">
+<input id="text" name="q" value="old">
+<button id="go" type="submit">go</button>
+</form>
+<textarea id="area"></textarea>
+<div id="rich" contenteditable="true">old text</div>
+<input id="ro" value="fixed" readonly>
+</body></html>'''
+
+KEY_RECORDER_JS = '''() => {
+    window.__keys = [];
+    window.__inputs = [];
+    window.__submitted = false;
+    window.__reset = () => { window.__keys = []; window.__inputs = []; window.__submitted = false; };
+    for (const type of ['keydown', 'keyup', 'keypress'])
+        document.addEventListener(type, (e) => window.__keys.push({
+            type: e.type, key: e.key, code: e.code, keyCode: e.keyCode, location: e.location,
+            repeat: e.repeat, at: performance.now(), target: e.target.id,
+            alt: e.altKey, ctrl: e.ctrlKey, shift: e.shiftKey, meta: e.metaKey}), true);
+    document.addEventListener('input', (e) => window.__inputs.push({
+        data: e.data ?? null, inputType: e.inputType || '', at: performance.now()}), true);
+    document.getElementById('form').addEventListener('submit', (e) => {
+        e.preventDefault(); window.__submitted = true; });
 }'''
 
 TEST_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="red"/></svg>'
@@ -439,6 +466,8 @@ class Server:
             f.write('<!DOCTYPE html><html><head><title>Second</title></head><body><h1>Second</h1></body></html>')
         with open(os.path.join(self.dir, 'click.html'), 'w') as f:
             f.write(CLICK_PAGE)
+        with open(os.path.join(self.dir, 'type.html'), 'w') as f:
+            f.write(TYPE_PAGE)
         with open(os.path.join(self.dir, 'pic.svg'), 'w') as f:
             f.write(TEST_SVG)
 
@@ -558,6 +587,162 @@ class TestCamoufoxMouse(unittest.TestCase):
         for bad in (lambda: camoufox.mouse_button('sideways'), lambda: camoufox.modifier_mask(('hyper',))):
             with self.assertRaises(ValueError):
                 bad()
+
+
+class TestCamoufoxKeyboard(unittest.TestCase):
+    """Tests for the keyboard layout and for planning human like typing. These
+    never touch the browser."""
+
+    def test_key_lookup(self) -> None:
+        self.assertEqual(camoufox.key_info('a'), camoufox.KeyInfo('a', 'KeyA', 65))
+        # a and A are the same physical key, one of them with shift held down
+        self.assertEqual(camoufox.key_info('A'), camoufox.KeyInfo('A', 'KeyA', 65, shifted=True))
+        self.assertEqual(camoufox.key_info('!'), camoufox.KeyInfo('!', 'Digit1', 49, shifted=True))
+        self.assertEqual(camoufox.key_info(' ').code, 'Space')
+        # The keys that are not characters are named, without regard to case,
+        # and with the names people actually write for them
+        self.assertEqual(camoufox.key_info('Enter'), camoufox.key_info('return'))
+        self.assertEqual(camoufox.key_info('ESC').key, 'Escape')
+        self.assertEqual(camoufox.key_info('ctrl'), camoufox.key_info('Control'))
+        self.assertEqual(camoufox.key_info('cmd').key, 'Meta')
+        self.assertEqual(camoufox.key_info('F7'), camoufox.KeyInfo('F7', 'F7', 118))
+        # A modifier is reported as its left hand copy, the one a hand reaches for
+        self.assertEqual(camoufox.key_info('shift'), camoufox.KeyInfo('Shift', 'ShiftLeft', 16, 1))
+        # Tab and newlines are the keys that produce them, so text containing them can be typed
+        self.assertEqual(camoufox.key_info('\n').key, 'Enter')
+        self.assertEqual(camoufox.key_info('\t').key, 'Tab')
+        for bad in ('', 'sideways', 'Hyper', 'ab'):
+            with self.assertRaises(ValueError):
+                camoufox.key_info(bad)
+
+    def test_key_for_character(self) -> None:
+        # An accented Latin character is typed as the key for the letter it
+        # decomposes to, which is the one that produces it on a US
+        # International layout, carrying the accented character as its value
+        for ch, code in (('\u00e9', 'KeyE'), ('\u00fc', 'KeyU'), ('\u00f1', 'KeyN'), ('\u00e7', 'KeyC')):
+            info = camoufox.key_for_character(ch)
+            assert info is not None
+            self.assertEqual((info.key, info.code, info.shifted), (ch, code, False))
+        capital = camoufox.key_for_character('\u00c9')
+        assert capital is not None
+        self.assertEqual((capital.key, capital.code, capital.shifted), ('\u00c9', 'KeyE', True))
+        self.assertEqual(camoufox.key_for_character('\u00e9'), camoufox.key_info('\u00e9'))
+        # Anything else has no key that produces it and has to be inserted as text
+        for ch in ('\u0444', '\u5b57', '\u00f8', '\u0142', '\u20ac', '\U0001f600'):
+            self.assertIsNone(camoufox.key_for_character(ch), f'{ch} was claimed to be on the layout')
+
+    def test_parse_chord(self) -> None:
+        self.assertEqual(camoufox.parse_chord('a'), ((), 'a'))
+        self.assertEqual(camoufox.parse_chord('Enter'), ((), 'Enter'))
+        self.assertEqual(camoufox.parse_chord('ctrl+shift+a'), (('Control', 'Shift'), 'a'))
+        self.assertEqual(camoufox.parse_chord('control+a'), (('Control',), 'a'))
+        # The plus key is a key like any other, even at the end of a chord
+        self.assertEqual(camoufox.parse_chord('+'), ((), '+'))
+        self.assertEqual(camoufox.parse_chord('shift++'), (('Shift',), '+'))
+        self.assertEqual(camoufox.parse_chord('ctrl+'), (('Control',), '+'))
+        for bad in ('', 'a+b', 'ctrl+nosuchkey', 'ctrl++a'):
+            with self.assertRaises(ValueError):
+                camoufox.parse_chord(bad)
+
+    def test_graphemes(self) -> None:
+        # A combining mark belongs to the character before it rather than being
+        # typed on its own, and the text is given back exactly as it came in
+        for text in ('ab', 'e\u0301x', 'a\u0301\u0301b', '\U0001f44d\ufe0f', 'a\u200db', ''):
+            self.assertEqual(''.join(camoufox.graphemes(text)), text)
+        self.assertEqual(camoufox.graphemes('e\u0301x'), ['e\u0301', 'x'])
+        self.assertEqual(camoufox.graphemes('ab'), ['a', 'b'])
+        self.assertEqual(camoufox.graphemes('\U0001f44d\ufe0f!'), ['\U0001f44d\ufe0f', '!'])
+
+    def test_typing_plan(self) -> None:
+        self.assertEqual(camoufox.human_typing_plan(''), [])
+        text = 'Hello, World! 42 times.'
+        for seed in range(16):
+            plan = camoufox.human_typing_plan(text, rng=random.Random(seed))
+            # Every character of the text is typed, in order and only once
+            self.assertEqual(''.join(k.text for k in plan), text)
+            self.assertEqual(len(plan), len(text))
+            for keystroke in plan:
+                # A key must be one the browser can be told about
+                self.assertTrue(keystroke.key, f'{keystroke.text!r} was not typed as a key press')
+                camoufox.key_info(keystroke.key)
+                self.assertTrue(math.isfinite(keystroke.delay) and math.isfinite(keystroke.dwell))
+                self.assertGreaterEqual(keystroke.delay, camoufox.MIN_KEY_INTERVAL)
+                self.assertLessEqual(keystroke.delay, camoufox.MAX_KEY_INTERVAL)
+                # A key held down for longer than the gap to the next one would
+                # still be down when that one is pressed
+                self.assertGreater(keystroke.delay, keystroke.dwell)
+                self.assertGreater(keystroke.dwell, 0)
+            # Shift is needed for exactly the capitals and the shifted symbols
+            self.assertEqual(''.join(k.key for k in plan if camoufox.key_info(k.key).shifted), 'HW!')
+        # The same seed must give the same typing, so that failures are reproducible
+        self.assertEqual(camoufox.human_typing_plan(text, rng=random.Random(3)), camoufox.human_typing_plan(text, rng=random.Random(3)))
+
+    def test_typing_rhythm(self) -> None:
+        text = 'the quick brown fox jumps over the lazy dog'
+        for seed in range(8):
+            fast = camoufox.human_typing_plan(text, wpm=200, rng=random.Random(seed))
+            slow = camoufox.human_typing_plan(text, wpm=30, rng=random.Random(seed))
+            self.assertLess(sum(k.delay for k in fast), sum(k.delay for k in slow))
+            # The gaps between keystrokes must vary rather than being a metronome
+            self.assertGreater(len({round(k.delay, 4) for k in slow}), len(text) // 2)
+        # A speed in words per minute means what it says, once the pauses a
+        # hand takes between words are averaged in
+        median = 60.0 / (60.0 * camoufox.CHARS_PER_WORD)
+        total = sum(sum(k.delay for k in camoufox.human_typing_plan(text, wpm=60, rng=random.Random(seed))) for seed in range(20))
+        self.assertAlmostEqual(total / (20 * len(text)), median, delta=median * 0.5)
+        for bad in (0, -5):
+            with self.assertRaises(ValueError):
+                camoufox.human_typing_plan(text, wpm=bad)
+        with self.assertRaises(ValueError):
+            camoufox.human_typing_plan(text, mistakes=1.5)
+
+    def test_typing_text_that_is_not_on_the_layout(self) -> None:
+        plan = camoufox.human_typing_plan('a\u0444\u00e9\u5b57', rng=random.Random(0))
+        # An accented Latin character is a key press, anything the layout knows
+        # nothing about is inserted as text instead
+        self.assertEqual([(k.key, k.text) for k in plan], [('a', 'a'), ('', '\u0444'), ('\u00e9', '\u00e9'), ('', '\u5b57')])
+        for text in ('\u043f\u0440\u0438\u0432\u0435\u0442 \u043c\u0438\u0440', '\u4f60\u597d', '\u00e1'):
+            plan = camoufox.human_typing_plan(text, rng=random.Random(0))
+            self.assertEqual(''.join(k.text for k in plan), text)
+
+    def test_typing_mistakes(self) -> None:
+        text = 'the quick brown fox'
+        seen_mistakes = 0
+        for seed in range(16):
+            plan = camoufox.human_typing_plan(text, mistakes=1.0, rng=random.Random(seed))
+            # A mistake is a neighbouring key, so it is a key press like any other
+            typed: list[str] = []
+            for keystroke in plan:
+                camoufox.key_info(keystroke.key)
+                if keystroke.key == 'Backspace':
+                    self.assertTrue(typed, 'backspace was pressed with nothing typed yet')
+                    typed.pop()
+                    seen_mistakes += 1
+                else:
+                    typed.append(keystroke.text)
+            # Every mistake is taken back out again, so the text still ends up right
+            self.assertEqual(''.join(typed), text)
+        self.assertGreater(seen_mistakes, 16 * len(text) // 2, 'mistakes were asked for and not made')
+        # and none are made unless they are asked for
+        for seed in range(8):
+            plan = camoufox.human_typing_plan(text, rng=random.Random(seed))
+            self.assertFalse([k for k in plan if k.key == 'Backspace'])
+
+    def test_hands_and_neighbours(self) -> None:
+        self.assertEqual(camoufox.key_hand('f'), 'left')
+        self.assertEqual(camoufox.key_hand('j'), 'right')
+        self.assertEqual(camoufox.key_hand('F'), 'left')
+        self.assertEqual(camoufox.key_hand('\u00e9'), 'left')  # the hand that types the letter it decomposes to
+        self.assertEqual(camoufox.key_hand(' '), '')  # whichever thumb is idle
+        self.assertEqual(camoufox.key_hand('\u5b57'), '')  # no key, so no hand
+        self.assertEqual(camoufox.KEY_NEIGHBOURS['f'], ('d', 'g'))
+        self.assertEqual(camoufox.KEY_NEIGHBOURS['F'], ('D', 'G'))
+        self.assertEqual(camoufox.KEY_NEIGHBOURS['q'], ('w',))  # nothing to the left of it
+        # The shifted twin of a key is on the same key
+        for ch, twin in camoufox.SHIFTED_KEYS.items():
+            self.assertEqual(camoufox.key_info(ch).code, camoufox.key_info(twin).code)
+            self.assertTrue(camoufox.key_info(twin).shifted)
+            self.assertFalse(camoufox.key_info(ch).shifted)
 
 
 @unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
@@ -911,6 +1096,10 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 await page.mouse.click(10, 10)
             self.assertEqual(page.connection.message_id, sent)
             self.assertLess(time.monotonic() - started, camoufox.INPUT_TIMEOUT)
+            for typing in (page.keyboard.press('a'), page.keyboard.type('abc'), page.keyboard.insert_text('abc')):
+                with self.assertRaises(camoufox.InputWedged):
+                    await typing
+            self.assertEqual(page.connection.message_id, sent)
             # while the page is still usable for everything else
             self.assertEqual(await page.evaluate('1 + 1'), 2)
 
@@ -950,10 +1139,149 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
         self.run_browser(check, humanize=0.3)
 
+    def test_typing(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            await page.open(base + 'type.html')
+            await page.call(KEY_RECORDER_JS)
+
+            # Filling a field replaces what was in it, by typing rather than by
+            # assigning to it, so the page sees every keystroke
+            await page.fill('#text', 'Hello World')
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'Hello World')
+            downs = [e for e in await page.evaluate('window.__keys') if e['type'] == 'keydown']
+            typed = [e for e in downs if len(e['key']) == 1 and not e['ctrl']]  # the a of the select all chord is not typing
+            self.assertEqual(''.join(e['key'] for e in typed), 'Hello World')
+            self.assertEqual([e['code'] for e in typed[:5]], ['KeyH', 'KeyE', 'KeyL', 'KeyL', 'KeyO'])
+            self.assertEqual([e['keyCode'] for e in typed[:2]], [72, 69])
+            # Shift is held down for the capitals and for nothing else
+            self.assertEqual(''.join(e['key'] for e in typed if e['shift']), 'HW')
+            # and it arrives as a key of its own, the way a keyboard sends it
+            self.assertIn('Shift', [e['key'] for e in downs])
+            # The page sees the text arrive as well as the keys
+            self.assertEqual(''.join(e['data'] or '' for e in await page.evaluate('window.__inputs')), 'Hello World')
+            # The keystrokes must have the uneven rhythm of a hand, not of a clock
+            gaps = [b['at'] - a['at'] for a, b in itertools.pairwise(typed)]
+            self.assertTrue(all(gap > 0 for gap in gaps))
+            self.assertGreater(max(gaps) - min(gaps), 10, 'the typing was perfectly regular')
+
+            # Typing appends at the caret instead of replacing
+            await page.type('#text', '!')
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'Hello World!')
+
+            # A chord, and a key pressed more than once
+            await page.evaluate('window.__reset()')
+            await page.press('#text', 'ctrl+a')
+            pressed = [e for e in await page.evaluate('window.__keys') if e['type'] == 'keydown']
+            self.assertEqual([e['key'] for e in pressed], ['Control', 'a'])
+            self.assertTrue(pressed[-1]['ctrl'])
+            self.assertEqual(page.keyboard.modifiers, (), 'a modifier was left held down')
+            await page.press('#text', 'Backspace')
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), '')
+            await page.type('#text', 'abcd')
+            await page.press('#text', 'Backspace', count=2)
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'ab')
+            # shift makes a key produce its shifted character
+            await page.press('#text', 'shift+c')
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'abC')
+
+            # Newlines are typed as the key that produces them
+            await page.fill('#area', 'one\ntwo')
+            self.assertEqual(await page.evaluate('document.getElementById("area").value'), 'one\ntwo')
+            # and enter in a form submits it
+            await page.evaluate('window.__reset()')
+            await page.press('#text', 'Enter')
+            self.assertIs(await page.evaluate('window.__submitted'), True)
+
+            # An element can be typed into without the mouse, and something
+            # that is not a form field can be typed into too
+            await page.fill('#rich', 'edited', click=False)
+            self.assertEqual(await page.evaluate('document.getElementById("rich").textContent'), 'edited')
+
+            # Mistakes are corrected as they are made, so the text still ends up right
+            await page.fill('#text', 'corrected', mistakes=1.0)
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'corrected')
+
+        self.run_browser(check)
+
+    def test_typing_text_that_is_not_on_the_keyboard(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            await page.open(base + 'type.html')
+            await page.call(KEY_RECORDER_JS)
+            # An accented Latin character is a real key press, with the key of
+            # the letter it decomposes to, which is how a US International
+            # layout produces it. A character from another script has no key at
+            # all, so it is inserted as text instead and the page sees no key
+            # events for it, only the text arriving.
+            text = 'café привет'
+            await page.fill('#text', text)
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), text)
+            downs = [e for e in await page.evaluate('window.__keys') if e['type'] == 'keydown']
+            accented = [e for e in downs if e['key'] == 'é']
+            self.assertEqual(len(accented), 1)
+            self.assertEqual((accented[0]['code'], accented[0]['keyCode']), ('KeyE', 69))
+            self.assertFalse([e for e in downs if len(e['key']) == 1 and e['key'] in 'привет'])
+            self.assertIn('п', ''.join(e['data'] or '' for e in await page.evaluate('window.__inputs')))
+
+            # Text can only be inserted into something that can hold it, and
+            # inserting it into anything else silently does nothing, so it fails
+            await page.evaluate('document.activeElement.blur()')
+            with self.assertRaises(camoufox.Error):
+                await page.keyboard.insert_text('你好')
+            # Keystrokes are thrown away by a page with nothing editable
+            # focused too, so typing into one is reported rather than lost
+            with self.assertRaises(camoufox.Error):
+                await page.keyboard.type('abc')
+            readonly = await page.find('#ro')
+            assert readonly is not None
+            await readonly.focus()
+            with self.assertRaises(camoufox.Error):
+                await page.keyboard.insert_text('你好')
+            with self.assertRaises(camoufox.Error):
+                await page.type('#ro', '你好', click=False)
+            # while a field that can hold it takes it without any key events
+            await page.evaluate('window.__reset()')
+            await page.fill('#area', '')
+            await page.keyboard.insert_text('你好')
+            self.assertEqual(await page.evaluate('document.getElementById("area").value'), '你好')
+
+        self.run_browser(check)
+
+    def test_typing_speed(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            self.assertEqual(browser.typing_wpm, 240)
+            await page.open(base + 'type.html')
+            await page.call(KEY_RECORDER_JS)
+            # Every keystroke is two events the browser has to acknowledge, and
+            # on a loaded machine those round trips, not the requested speed,
+            # are what the wall clock is mostly made of, so measure one here
+            # rather than assuming it is quick
+            text = 'the quick brown fox'
+            probe = time.monotonic()
+            await page.fill('#text', text, delay=0)
+            per_key = (time.monotonic() - probe) / len(text)
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), text)
+            # A fixed delay means no rhythm at all, which is quicker than a hand
+            started = time.monotonic()
+            await page.fill('#text', text, wpm=240)
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), text)
+            expected = 60.0 * len(text) / (240 * camoufox.CHARS_PER_WORD)
+            self.assertLess(time.monotonic() - started, expected + len(text) * per_key + 8)
+
+        self.run_browser(check, typing_wpm=240)
+
 
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestCamoufoxConfig, TestCamoufoxTransport, TestCamoufoxFonts, TestCamoufoxMouse, TestCamoufoxBrowser):
+    for cls in (TestCamoufoxConfig, TestCamoufoxTransport, TestCamoufoxFonts, TestCamoufoxMouse, TestCamoufoxKeyboard, TestCamoufoxBrowser):
         ans.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 
