@@ -13,6 +13,7 @@ from calibre.db.constants import DATA_DIR_NAME
 from calibre.gui2 import Dispatcher, config, elided_text, error_dialog, info_dialog, open_local_file, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.gui2.readest import open_book_with_readest, readest_supports_format, rprefs
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.localization import _
@@ -60,6 +61,9 @@ class ViewAction(InterfaceAction):
         self.llm_action = cm('llm-book', _('Discuss selected book(s) with AI'), triggered=self.ask_ai, icon='ai.png', shortcut=False)
         self.llm_action.setVisible(not tweaks['hide_ai_features'])
         self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), icon='viewer.png', triggered=self.view_internal)
+        self.readest_action = cm('readest', _('Use Readest as the e-book viewer'), triggered=self.toggle_readest_viewer, shortcut=False)
+        self.readest_action.setCheckable(True)
+        self.readest_action.setChecked(rprefs['enabled'])
         self.action_pick_random = cm('pick random', _('Read a random book'), icon='random.png', triggered=self.view_random)
         self.view_menu.addAction(QIcon.ic('highlight.png'), _('Browse annotations'), self.browse_annots)
         self.clear_sep1 = self.view_menu.addSeparator()
@@ -221,8 +225,34 @@ class ViewAction(InterfaceAction):
                 open_local_file(name)
                 time.sleep(2)  # User feedback
 
+    def _view_with_readest(self, name, ext, open_at):
+        '''Open the file with Readest. Returns False if Readest is disabled or
+        cannot handle the file, so the caller can fall back to the calibre viewer.'''
+        if self.force_internal_viewer or open_at is not None or not rprefs['enabled']:
+            return False
+        if not readest_supports_format(ext):
+            return False
+        if open_book_with_readest(name, parent=self.gui):
+            return True
+        if getattr(self, '_readest_not_found_warned', False):
+            return False
+        self._readest_not_found_warned = True
+        from calibre.gui2.readest import not_found_message
+
+        error_dialog(
+            self.gui,
+            _('Readest not found'),
+            _('Readest is set as the viewer, but the Readest app was not found on this computer.'
+              ' The calibre E-book viewer will be used instead.'),
+            det_msg=not_found_message(),
+            show=True,
+        )
+        return False
+
     def _view_file(self, name, calibre_book_data=None, open_at=None):
         ext = os.path.splitext(name)[1].upper().replace('.', '').replace('ORIGINAL_', '')
+        if self._view_with_readest(name, ext, open_at):
+            return
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
         internal = self.force_internal_viewer or ext in config['internally_viewed_formats'] or open_at is not None
         self._launch_viewer(name, viewer, internal, calibre_book_data=calibre_book_data, open_at=open_at)
@@ -351,6 +381,9 @@ class ViewAction(InterfaceAction):
             self.view_book(triggered)
         finally:
             self.force_internal_viewer = False
+
+    def toggle_readest_viewer(self):
+        rprefs['enabled'] = self.readest_action.isChecked()
 
     def view_triggered(self, index):
         self._view_books([index])
