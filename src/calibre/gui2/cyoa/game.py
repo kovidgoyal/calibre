@@ -1411,6 +1411,7 @@ class GameWidget(QWidget):
     def on_turn_timeout(self) -> None:
         if self.turn_call < 0 or self.turn_request is None:
             return
+        saved_turn_call = self.turn_call
         turn_request = self.turn_request
         self.turn_call = -1
         self.turn_request = None
@@ -1421,16 +1422,31 @@ class GameWidget(QWidget):
             _('The AI did not respond within 5 minutes.'),
         )
         should_retry = [False]
+        should_wait = [False]
         retry_btn = d.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
         retry_btn.setIcon(QIcon.ic('view-refresh.png'))
+        wait_btn = d.bb.addButton(_('&Wait longer'), QDialogButtonBox.ButtonRole.ActionRole)
 
         def on_retry() -> None:
             should_retry[0] = True
             d.accept()
 
+        def on_wait() -> None:
+            should_wait[0] = True
+            d.accept()
+
         retry_btn.clicked.connect(on_retry)
+        wait_btn.clicked.connect(on_wait)
         d.exec()
-        if should_retry[0]:
+        if should_wait[0]:
+            self.turn_call = saved_turn_call
+            self.turn_request = turn_request
+            self._thinking_start = monotonic()
+            self.input_stack.msg = _('Thinking…')
+            self.input_stack.start()
+            self._thinking_ticker.start()
+            self.turn_timer.start()
+        elif should_retry[0]:
             player_input, interesting_event = turn_request
             self.request_turn(player_input, interesting_event)
 
