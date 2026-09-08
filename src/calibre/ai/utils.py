@@ -56,7 +56,10 @@ def download_data(url: str, headers: Sequence[tuple[str, str]] = ()) -> bytes:
 
 
 def update_cached_data(path: str, url: str, headers: Sequence[tuple[str, str]] = ()) -> None:
-    raw = download_data(url, headers)
+    try:
+        raw = download_data(url, headers)
+    except HTTPError as e:
+        raise Exception(f'Failed to download AI provider data from {url} with error: {e}') from None
     atomic_write(path, raw)
 
 
