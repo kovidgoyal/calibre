@@ -9,7 +9,7 @@
 
 from qt.core import QIcon, QSize, QStackedWidget
 
-from calibre.ai.cyoa import GeneratedWorld, PlayerCharacter, start_game
+from calibre.ai.cyoa import PROTAGONIST_ID, GeneratedWorld, start_game
 from calibre.constants import CYOA_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.cyoa import data
@@ -49,23 +49,26 @@ class CYOAMainWindow(MainWindow):
             return
         if game_id := data.current_game_id():
             try:
-                state, images, npc_portraits = data.load_game(game_id)
+                state, images, portraits = data.load_game(game_id)
             except Exception as e:
                 error_dialog(self, _('Failed to load game'), _('Failed to load the current game: {}').format(e), show=True)
                 data.set_current_game('')
             else:
-                self.game.load_game(game_id, state, images, npc_portraits)
+                self.game.load_game(game_id, state, images, portraits)
                 self.stack.setCurrentWidget(self.game)
                 return
         self.world.reset()
         self.stack.setCurrentWidget(self.world)
 
-    def start_new_game(self, world: GeneratedWorld, character: PlayerCharacter, brief: str, art_style: str) -> None:
-        state = start_game(brief, world, character, art_style)
+    def start_new_game(self, world: GeneratedWorld, character_index: int, brief: str, art_style: str, portrait: dict[str, str] | None) -> None:
+        # The portrait of the chosen character comes from the world it was
+        # generated in, but from now on the game owns its own copy of it.
+        state = start_game(brief, world, character_index, art_style)
+        portraits = {PROTAGONIST_ID: portrait} if portrait else {}
         game_id = data.new_game_id()
-        data.save_game(game_id, state)
+        data.save_game(game_id, state, portraits=portraits)
         data.set_current_game(game_id)
-        self.game.load_game(game_id, state)
+        self.game.load_game(game_id, state, portraits=portraits)
         self.stack.setCurrentWidget(self.game)
 
     def abandon_game(self) -> None:

@@ -9,9 +9,10 @@
 # updates a running summary of the story and reports whether a new chapter
 # starts. The AI is sent the
 # story summary and the transcript of only the current chapter, so the context
-# stays bounded no matter how long the game runs. A full log of everything
-# sent to and received from the AI is kept, turn by turn, so games can be
-# rewound and saved/loaded.
+# stays bounded no matter how long the game runs. The AI's response to every
+# turn is kept, turn by turn, so games can be rewound and saved/loaded. What
+# was sent to the AI is not kept, as it is reconstructable from the game
+# state, see STORE_PROMPTS_IN_TURN_RECORDS.
 
 import json
 import textwrap
@@ -29,7 +30,22 @@ if TYPE_CHECKING:
 else:
     TestSuite = object
 
-GAME_SERIALIZATION_VERSION = 1
+# Games serialized by older versions are migrated up to this version on load,
+# see migrated_game(), so bumping it does not orphan existing saves.
+GAME_SERIALIZATION_VERSION = 2
+
+# The id of the CharacterState of the character the player plays. It is fixed
+# so that their entry in the story summary and their portrait can be found
+# without matching on their name, which both the player and the AI can change.
+PROTAGONIST_ID = 'protagonist'
+
+
+def character_id_for_name(name: str) -> str:
+    # A stable id derived from a character's name, for characters that have
+    # none, either because the AI failed to invent one or because they come
+    # from a game saved before ids existed.
+    words = ''.join(c if c.isalnum() else ' ' for c in name.casefold()).split()
+    return '-'.join(words)[:32].rstrip('-') or 'character'
 
 
 class AIProvider(Protocol):
@@ -76,7 +92,7 @@ class CharacterState(NamedTuple):
         ' Only extend it when the story reveals something new about their past.',
     ]
     relationships: Annotated[str, 'Their relationships with the player and the other characters, and how those have changed']
-    # Trailing and defaulted so that games serialized before this field
+    # Trailing and defaulted so that games serialized before these fields
     # existed still deserialize, see instantiate(). The schema sent to the AI
     # marks every field required regardless of the default.
     current_state: Annotated[
@@ -84,6 +100,13 @@ class CharacterState(NamedTuple):
         'Everything that is true of this character only right now: where they are, what they are doing,'
         ' their physical condition and any injuries, their mood, what they are carrying and what they intend to do next.'
         ' Rewrite this every turn: it is the field that carries change.',
+    ] = ''
+    id: Annotated[
+        str,
+        "A short, permanent, lowercase identifier for this character, such as 'marlo'."
+        ' It is the identity of the character, not their name: reproduce it verbatim for every character that already has one,'
+        ' even when they are renamed or their true identity is revealed.'
+        ' Never change, swap or re-use an id, and invent a new one only for a character being added to the summary for the first time.',
     ] = ''
 
 
@@ -125,12 +148,19 @@ class StoryTurn(NamedTuple):
 # Game state and log of AI exchanges {{{
 
 
+# Set this to True to record the exact instructions and prompt sent to the AI
+# in every turn record. Both are reconstructable from the game state via
+# turn_instructions() and turn_prompt(), and the prompt embeds the transcript
+# of the chapter so far, so storing them makes a saved game grow
+# quadratically with the length of a chapter. For debugging only.
+STORE_PROMPTS_IN_TURN_RECORDS = False
+
+
 class TurnRecord(NamedTuple):
-    # The full log of a single exchange with the AI, sufficient to replay or
-    # rewind the game and to audit exactly what was sent and received.
+    # The log of a single exchange with the AI, sufficient to replay or rewind
+    # the game and to audit what the AI returned. What was sent to the AI is
+    # not recorded, see STORE_PROMPTS_IN_TURN_RECORDS.
     player_input: str  # what the player typed or chose, empty for the opening turn
-    instructions: str  # the system prompt sent to the AI
-    prompt: str  # the full user prompt sent to the AI
     raw_response: str  # the raw JSON text returned by the AI
     turn: StoryTurn  # the parsed response
     chapter: int  # zero based chapter number this turn belongs to
@@ -138,6 +168,10 @@ class TurnRecord(NamedTuple):
     currency: str = ''
     provider: str = ''
     model: str = ''
+    # The system prompt and the user prompt sent to the AI, empty unless
+    # STORE_PROMPTS_IN_TURN_RECORDS was on when the turn was played.
+    instructions: str = ''
+    prompt: str = ''
 
 
 def initial_summary(world: GeneratedWorld, character: PlayerCharacter) -> StorySummary:
@@ -145,7 +179,9 @@ def initial_summary(world: GeneratedWorld, character: PlayerCharacter) -> StoryS
         world=world.world_description,
         major_events=(),
         # current_state is left at its default: nothing has happened yet.
-        characters=(CharacterState(name=character.name, description=character.description, backstory=character.backstory, relationships=''),),
+        characters=(
+            CharacterState(name=character.name, description=character.description, backstory=character.backstory, relationships='', id=PROTAGONIST_ID),
+        ),
         current_situation='The adventure has not yet begun.',
         upcoming_events=(),
     )
@@ -158,10 +194,19 @@ class GameState:
     # the summary and chapter position automatically.
     brief: str  # the player's original brief description of the world
     world: GeneratedWorld
-    character: PlayerCharacter  # the character the player chose
+    # The index in world.characters of the character the player chose. Only
+    # the index is stored, so that there is a single copy of the played
+    # character to edit, see the character property.
+    character_index: int
     turns: list[TurnRecord] = field(default_factory=list)
     # The key of the art style from ART_STYLES used for generated scene images.
     art_style: str = ''
+
+    @property
+    def character(self) -> PlayerCharacter:
+        # Always in range: deserialize_game() and start_game() reject an
+        # out of range index and nothing removes characters from a world.
+        return self.world.characters[self.character_index]
 
     @property
     def current_chapter(self) -> int:
@@ -185,8 +230,12 @@ class GameState:
         return tuple(titles)
 
 
-def start_game(brief: str, world: GeneratedWorld, character: PlayerCharacter, art_style: str = '') -> GameState:
-    return GameState(brief=brief, world=world, character=character, art_style=art_style)
+def start_game(brief: str, world: GeneratedWorld, character_index: int = 0, art_style: str = '') -> GameState:
+    # character_index is the index in world.characters of the character the
+    # player chose to play as.
+    if not 0 <= character_index < len(world.characters):
+        raise ValueError(f'{character_index} is not the index of a character in a world with {len(world.characters)} characters')
+    return GameState(brief=brief, world=world, character_index=character_index, art_style=art_style)
 
 
 def rewind(state: GameState, num_of_turns: int = 1) -> None:
@@ -223,12 +272,76 @@ def serialize_game(state: GameState) -> str:
     return json.dumps({'version': GAME_SERIALIZATION_VERSION, 'game': as_jsonable(state, spec_for_class(GameState))}, ensure_ascii=False)
 
 
+def migrated_game_v1_to_v2(game: dict[str, Any]) -> dict[str, Any]:
+    # Version 1 stored a copy of the played character rather than its index in
+    # world.characters, had no stable ids for the characters of the story
+    # summary, and recorded the instructions and prompt of every turn, which
+    # are reconstructable from the state, see STORE_PROMPTS_IN_TURN_RECORDS.
+    game = dict(game)
+    world = dict(game.get('world') or {})
+    characters = list(world.get('characters') or ())
+    played = game.pop('character', None)
+    protagonist, idx = '', -1
+    if isinstance(played, dict):
+        protagonist = str(played.get('name') or '')
+        try:
+            idx = characters.index(played)
+        except ValueError:
+            idx = next((i for i, c in enumerate(characters) if isinstance(c, dict) and c.get('name') == protagonist), -1)
+        if idx < 0 and protagonist:
+            # the played character was edited until it no longer matched any
+            # character of the world, so add them back rather than lose them
+            characters.append(played)
+            idx = len(characters) - 1
+    world['characters'] = characters
+    game['world'] = world
+    game['character_index'] = max(0, idx)
+    turns: list[Any] = []
+    for record in game.get('turns') or ():
+        if isinstance(record, dict):
+            record = {k: v for k, v in record.items() if k not in ('instructions', 'prompt')}
+            turn = dict(record.get('turn') or {})
+            summary = dict(turn.get('updated_summary') or {})
+            summary['characters'] = [migrated_character_v1_to_v2(c, protagonist) for c in summary.get('characters') or ()]
+            turn['updated_summary'] = summary
+            record['turn'] = turn
+        turns.append(record)
+    game['turns'] = turns
+    return game
+
+
+def migrated_character_v1_to_v2(character: Any, protagonist: str) -> Any:  # noqa: ANN401
+    if not isinstance(character, dict) or character.get('id'):
+        return character
+    name = str(character.get('name') or '')
+    cid = PROTAGONIST_ID if name.strip() and name.strip().casefold() == protagonist.strip().casefold() else character_id_for_name(name)
+    return dict(character, id=cid)
+
+
+def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
+    # Bring the JSON of a game serialized by an older version of calibre up to
+    # GAME_SERIALIZATION_VERSION, so that changing the format does not orphan
+    # existing saves. Keys that no longer exist are ignored by instantiate()
+    # and missing keys with a default are filled in by it, so only renamed and
+    # newly required fields need handling here.
+    if version < 2:
+        game = migrated_game_v1_to_v2(game)
+    return game
+
+
 def deserialize_game(raw: str) -> GameState:
     data = json.loads(raw)
-    if not isinstance(data, dict) or data.get('version') != GAME_SERIALIZATION_VERSION:
+    if not isinstance(data, dict) or not isinstance(data.get('game'), dict):
         raise ValueError('Not a valid serialized CYOA game')
-    ans = instantiate(data['game'], spec_for_class(GameState), GameState.__name__)
+    version = data.get('version')
+    if not isinstance(version, int) or version < 1:
+        raise ValueError(f'Not a valid serialized CYOA game: {version!r} is not a serialization version')
+    if version > GAME_SERIALIZATION_VERSION:
+        raise ValueError(f'This game was saved in the version {version} format, which this version of calibre cannot read')
+    ans = instantiate(migrated_game(data['game'], version), spec_for_class(GameState), GameState.__name__)
     assert isinstance(ans, GameState)
+    if not 0 <= ans.character_index < len(ans.world.characters):
+        raise ValueError(f'{ans.character_index} is not the index of a character in a world with {len(ans.world.characters)} characters')
     return ans
 
 
@@ -358,6 +471,13 @@ def turn_instructions(state: GameState) -> str:
             ' Preserve all information that is still relevant, including characters, relationships and unresolved plot threads, and keep it concise.'
             ' Whenever the narrative introduces a new named character, add an entry for them to the characters field of the summary'
             ' with a short description and a brief backstory.'
+        ),
+        (
+            "- Every character in updated_summary has an id, which is that character's permanent identity, not their name."
+            ' Reproduce the id of every character already in the summary verbatim, even when you rename them:'
+            ' when "the stranger" turns out to be Marlo, change their name and leave their id untouched.'
+            ' Never change, swap or re-use an id and never add a second entry for a character who already has one.'
+            ' Invent a new short lowercase id, based on their name, only for a character you are adding to the summary for the first time.'
         ),
         (
             '- The four text fields of each character in updated_summary have distinct jobs and must never be mixed up.'
@@ -516,17 +636,27 @@ def clean_text_list(items: Iterable[str]) -> tuple[str, ...]:
 def validated_characters(characters: Iterable[CharacterState], previous: StorySummary) -> tuple[CharacterState, ...]:
     # Fill in fields the AI left blank from the entry for the same character in
     # the previous summary and discard entries that say nothing at all.
-    known = {c.name.strip().casefold(): c for c in previous.characters if c.name.strip()}
+    # A character is identified by their id rather than their name, so that
+    # renaming one, which fiction does constantly as "the stranger" turns out
+    # to be Marlo, updates their entry instead of forking it in two. The AI is
+    # told to carry ids forward but cannot be relied on to always do so, hence
+    # the fallback to matching by name and the invented ids.
+    by_id = {c.id: c for c in previous.characters if c.id}
+    by_name = {c.name.strip().casefold(): c for c in previous.characters if c.name.strip()}
     ans: list[CharacterState] = []
-    seen: set[str] = set()
+    seen_ids: set[str] = set()
+    seen_names: set[str] = set()
     for c in characters:
         name = c.name.strip()
         # A character without a name can neither be matched with a previous
         # entry nor be referred to by the AI or the player on later turns.
-        if not name or (key := name.casefold()) in seen:
+        if not name:
             continue
-        seen.add(key)
-        prev = known.get(key)
+        key = name.casefold()
+        prev = by_id.get(c.id.strip()) or by_name.get(key)
+        cid = (prev.id if prev is not None else '') or c.id.strip() or character_id_for_name(name)
+        if cid in seen_ids or key in seen_names:
+            continue  # a second entry for a character already in this summary
         description = c.description.strip() or (prev.description if prev else '')
         backstory = c.backstory.strip() or (prev.backstory if prev else '')
         if not description and not backstory:
@@ -535,7 +665,8 @@ def validated_characters(characters: Iterable[CharacterState], previous: StorySu
         # and an empty current_state simply means nothing about them has changed this turn.
         relationships = c.relationships.strip() or (prev.relationships if prev else '')
         current_state = c.current_state.strip() or (prev.current_state if prev else '')
-        ans.append(CharacterState(name=name, description=description, backstory=backstory, relationships=relationships, current_state=current_state))
+        seen_ids.add(cid), seen_names.add(key)
+        ans.append(CharacterState(name=name, description=description, backstory=backstory, relationships=relationships, current_state=current_state, id=cid))
     # Losing every character means losing the cast of the story, so keep the previous one rather than an empty summary.
     return tuple(ans) or previous.characters
 
@@ -622,8 +753,6 @@ def next_turn(
     state.turns.append(
         TurnRecord(
             player_input=player_input,
-            instructions=instructions,
-            prompt=prompt,
             raw_response=res.raw,
             turn=turn,
             chapter=chapter,
@@ -631,6 +760,8 @@ def next_turn(
             currency=res.currency,
             provider=res.provider,
             model=res.model,
+            instructions=instructions if STORE_PROMPTS_IN_TURN_RECORDS else '',
+            prompt=prompt if STORE_PROMPTS_IN_TURN_RECORDS else '',
         )
     )
     return res._replace(data=turn)
@@ -661,7 +792,7 @@ def develop(use_model: str = '') -> None:  # {{{
         print(bs)
         print()
     num = input(f'\nChoose your character [1-{len(world.characters)}]: ')
-    state = start_game(brief, world, world.characters[int(num) - 1])
+    state = start_game(brief, world, int(num) - 1)
     player_input = ''
     while True:
         chapter_before = state.current_chapter if state.turns else -1
@@ -818,7 +949,7 @@ def find_tests() -> TestSuite:  # {{{
             self.assertNotIn(art_style_for_key('anime').prompt, scene_image_prompt('A misty street.'))
 
         def test_ai_cyoa_turn_flow_and_chapters(self) -> None:
-            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            state = start_game('a foggy city', make_world())
             self.ae(state.current_summary.world, state.world.world_description)
             self.ae(state.current_chapter, 0)
             fake = FakePlugin([
@@ -844,9 +975,11 @@ def find_tests() -> TestSuite:  # {{{
             )
             self.assertIn('Never repeat', instructions, 'the AI must be forbidden from repeating prose it has already written')
             self.assertIn('400', instructions, 'the AI must be given a concrete length target for passages')
+            self.assertIn('permanent identity', instructions, 'the AI must be told to carry the id of every character in the summary forward unchanged')
             self.ae(len(state.turns), 1)
             self.ae(state.turns[0].chapter, 0)
             self.ae(state.turns[0].raw_response, '{"raw": "json"}')
+            self.ae((state.turns[0].instructions, state.turns[0].prompt), ('', ''), 'what was sent to the AI must not be recorded by default')
             self.ae((state.turns[0].cost, state.turns[0].provider, state.turns[0].model), (0.25, 'prov', 'mod'))
 
             next_turn(state, 'look around', fake)
@@ -883,7 +1016,7 @@ def find_tests() -> TestSuite:  # {{{
 
         def test_ai_cyoa_turn_validation(self) -> None:
             def played(turn: StoryTurn, state: GameState | None = None) -> tuple[GameState, StructuredOutputResult]:
-                state = state or start_game('a foggy city', make_world(), make_world().characters[0])
+                state = state or start_game('a foggy city', make_world())
                 return state, next_turn(state, 'go', FakePlugin([ok(turn)]))
 
             def rejected(turn: StoryTurn) -> str:
@@ -905,7 +1038,7 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('empty passage', rejected(make_turn('   \n  ')))
             self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=('Look', '  ', 'look'))))
             self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=())))
-            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            state = start_game('a foggy city', make_world())
             res = next_turn(state, 'go', FakePlugin([StructuredOutputResult(data=None, raw='{}')]))
             self.assertIsInstance(res.exception, InvalidAIResponse, 'a result with neither data nor an exception must be an error')
             self.ae(state.turns, [])
@@ -926,7 +1059,7 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(accepted(make_turn('x')._replace(scene_description=' ')).scene_description, '')
 
             # Blank summary fields must be repaired from the previous summary
-            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            state = start_game('a foggy city', make_world())
             previous = state.current_summary
             blank_summary = make_summary('awoke')._replace(
                 world='  ',
@@ -959,7 +1092,7 @@ def find_tests() -> TestSuite:  # {{{
 
             # current_state is rewritten every turn but carried over when the AI leaves it blank,
             # and it must never be needed to keep a character alive in the summary.
-            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            state = start_game('a foggy city', make_world())
             with_state = make_summary('awoke')._replace(characters=(CharacterState('Ada', 'the player', 'engineer', 'alone', ' wounded, hiding '),))
             summary = accepted(make_turn('x')._replace(updated_summary=with_state), state).updated_summary
             self.ae(summary.characters[0].current_state, 'wounded, hiding')
@@ -972,17 +1105,15 @@ def find_tests() -> TestSuite:  # {{{
 
             # An unrepairable summary must fail the turn
             empty = StorySummary(world='', major_events=(), characters=(), current_situation='', upcoming_events=())
-            state = start_game('a foggy city', make_world(), make_world().characters[0])
-            state.turns.append(
-                TurnRecord(player_input='', instructions='', prompt='', raw_response='', turn=make_turn('x')._replace(updated_summary=empty), chapter=0)
-            )
+            state = start_game('a foggy city', make_world())
+            state.turns.append(TurnRecord(player_input='', raw_response='', turn=make_turn('x')._replace(updated_summary=empty), chapter=0))
             res = next_turn(state, 'go', FakePlugin([ok(make_turn('y')._replace(updated_summary=empty))]))
             self.assertIsInstance(res.exception, InvalidAIResponse)
             self.assertIn('world', str(res.exception))
             self.ae(len(state.turns), 1, 'an unusable turn must not modify the game state')
 
         def test_ai_cyoa_rewind(self) -> None:
-            state = start_game('brief', make_world(), make_world().characters[0])
+            state = start_game('brief', make_world())
             fake = FakePlugin([
                 ok(make_turn('One.', 'one')),
                 ok(make_turn('Two.', 'one', 'two')),
@@ -1001,7 +1132,7 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(state.current_summary, initial_summary(state.world, state.character))
 
         def test_ai_cyoa_serialization(self) -> None:
-            state = start_game('a foggy city', make_world(), make_world().characters[0], art_style='anime')
+            state = start_game('a foggy city', make_world(), art_style='anime')
             fake = FakePlugin([
                 ok(make_turn('You awaken.', 'awoke')),
                 ok(make_turn('You escape.', 'awoke', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
@@ -1013,7 +1144,14 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(restored.current_chapter, 1)
             self.ae(restored.art_style, 'anime')
             self.assertRaises(ValueError, deserialize_game, json.dumps({'version': GAME_SERIALIZATION_VERSION + 1, 'game': {}}))
+            self.assertRaises(ValueError, deserialize_game, json.dumps({'version': 0, 'game': {}}))
+            self.assertRaises(ValueError, deserialize_game, json.dumps({'game': {}}))
             self.assertRaises(ValueError, deserialize_game, json.dumps(['not', 'a', 'game']))
+            bad = json.loads(serialize_game(state))
+            bad['game']['character_index'] = len(state.world.characters)
+            with self.assertRaises(ValueError, msg='an out of range played character index must be rejected'):
+                deserialize_game(json.dumps(bad))
+            self.assertRaises(ValueError, start_game, 'brief', make_world(), len(make_world().characters))
 
             # Games saved before characters had a current_state must still load
             data = json.loads(serialize_game(state))
@@ -1026,6 +1164,146 @@ def find_tests() -> TestSuite:  # {{{
                 ('',) * len(restored.current_summary.characters),
                 'a character saved without a current_state must load with an empty one',
             )
+
+        def test_ai_cyoa_serialization_migration(self) -> None:
+            state = start_game('a foggy city', make_world(), art_style='anime')
+            fake = FakePlugin([
+                ok(make_turn('You awaken.', 'awoke')),
+                ok(make_turn('You escape.', 'awoke', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
+            ])
+            next_turn(state, '', fake)
+            next_turn(state, 'run', fake)
+
+            def as_v1(played: PlayerCharacter) -> str:
+                # A game as version 1 serialized it: a copy of the played
+                # character instead of its index, characters without ids and
+                # the instructions and prompt of every turn.
+                data = json.loads(serialize_game(state))
+                data['version'] = 1
+                game = data['game']
+                del game['character_index']
+                game['character'] = as_jsonable(played, spec_for_class(PlayerCharacter))
+                for record in game['turns']:
+                    record['instructions'] = 'the system prompt of this turn'
+                    record['prompt'] = 'the prompt of this turn, with the whole transcript embedded in it'
+                    for c in record['turn']['updated_summary']['characters']:
+                        del c['id']
+                return json.dumps(data)
+
+            restored = deserialize_game(as_v1(state.character))
+            self.ae(restored.character_index, 0)
+            self.ae(restored.character, state.character)
+            self.ae(restored.world, state.world)
+            self.ae(restored.art_style, 'anime')
+            self.ae(restored.current_chapter, 1)
+            self.ae(len(restored.turns), len(state.turns))
+            self.ae([(t.instructions, t.prompt) for t in restored.turns], [('', '')] * len(state.turns), 'migration must drop the recorded prompts')
+            self.ae(
+                tuple(c.id for c in restored.current_summary.characters),
+                (PROTAGONIST_ID,),
+                'migration must give the played character a stable id in the summary',
+            )
+            self.ae(
+                tuple(c.id for c in restored.turns[0].turn.updated_summary.characters),
+                (PROTAGONIST_ID,),
+                'every stored summary must be migrated, not just the last one',
+            )
+
+            # An edited played character must still be linked to its world entry by name
+            restored = deserialize_game(as_v1(state.character._replace(description='an edited engineer')))
+            self.ae(restored.character_index, 0)
+            self.ae(restored.character, state.world.characters[0], 'the world entry must win over the stale copy of the played character')
+
+            # A played character that is no longer part of the world must not be lost
+            restored = deserialize_game(as_v1(state.character._replace(name='Zed')))
+            self.ae(restored.character_index, len(state.world.characters))
+            self.ae(restored.character.name, 'Zed')
+            self.ae(len(restored.world.characters), len(state.world.characters) + 1)
+
+        def test_ai_cyoa_character_ids(self) -> None:
+            self.ae(character_id_for_name('  The Stranger '), 'the-stranger')
+            self.ae(character_id_for_name('Ada Lovelace-Smith'), 'ada-lovelace-smith')
+            self.ae(character_id_for_name(' ?! '), 'character')
+            self.ae(character_id_for_name('x' * 40), 'x' * 32)
+            state = start_game('a foggy city', make_world())
+            self.ae(tuple(c.id for c in state.current_summary.characters), (PROTAGONIST_ID,))
+
+            def play(*characters: CharacterState) -> tuple[tuple[str, str], ...]:
+                turn = make_turn('x')._replace(updated_summary=make_summary('awoke')._replace(characters=characters))
+                res = next_turn(state, 'go', FakePlugin([ok(turn)]))
+                self.assertIsNone(res.exception, f'turn unexpectedly rejected: {res.exception}')
+                return tuple((c.id, c.name) for c in state.current_summary.characters)
+
+            # A character the AI introduces without an id gets one derived from their name
+            self.ae(
+                play(
+                    CharacterState('Ada', 'the player', 'engineer', 'alone'),
+                    CharacterState('the stranger', 'a hooded figure', 'unknown', 'watching Ada'),
+                ),
+                ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'the stranger')),
+            )
+
+            # Renaming a character while carrying their id forward must update their entry, not fork it
+            self.ae(
+                play(
+                    CharacterState('Ada', 'the player', 'engineer', 'alone', '', PROTAGONIST_ID),
+                    CharacterState('Marlo', 'a hooded figure', 'a mist-runner', 'guiding Ada', '', 'the-stranger'),
+                ),
+                ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo')),
+                'a renamed character must keep their id and their entry',
+            )
+
+            # An id the AI invents for a character that already has one must not fork them either
+            self.ae(
+                play(
+                    CharacterState('Ada', 'the player', 'engineer', 'alone', '', 'ada'),
+                    CharacterState('Marlo', 'a hooded figure', 'a mist-runner', 'guiding Ada', '', 'marlo'),
+                ),
+                ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo')),
+                'a character matched by name must keep the id they already have',
+            )
+
+            # Duplicate entries for a character already in the summary must be dropped
+            self.ae(
+                play(
+                    CharacterState('Ada', 'the player', 'engineer', 'alone', '', PROTAGONIST_ID),
+                    CharacterState('Marlo', 'a hooded figure', 'a mist-runner', 'guiding Ada', '', 'the-stranger'),
+                    CharacterState('Marlo', 'a duplicate', 'dropped as a duplicate', '', '', 'invented'),
+                    CharacterState('The Stranger', 'the same person again', 'dropped as a duplicate', '', '', 'the-stranger'),
+                ),
+                ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo')),
+            )
+
+        def test_ai_cyoa_prompts_are_not_stored(self) -> None:
+            from unittest.mock import patch
+
+            def play_two_turns() -> GameState:
+                state = start_game('a foggy city', make_world())
+                fake = FakePlugin([ok(make_turn('You awaken in the mist.', 'awoke')), ok(make_turn('Shapes loom.', 'awoke', 'loomed'))])
+                next_turn(state, '', fake)
+                next_turn(state, 'look around', fake)
+                return state
+
+            state = play_two_turns()
+            raw = serialize_game(state)
+            records = json.loads(raw)['game']['turns']
+            self.assertNotIn('You awaken in the mist.', json.dumps(records[1]), 'the prose of a turn must not be repeated in the record of every later turn')
+            self.assertNotIn('The prose of the current chapter so far', raw, 'the prompt sent to the AI must not be stored')
+            self.ae([(t.instructions, t.prompt) for t in state.turns], [('', '')] * 2)
+            self.ae(deserialize_game(raw), state)
+
+            # The debug flag records exactly what was sent, at the cost of size
+            with patch('calibre.ai.cyoa.STORE_PROMPTS_IN_TURN_RECORDS', True):
+                recorded = play_two_turns()
+            self.assertIn('novelist', recorded.turns[0].instructions)
+            self.assertIn('You awaken in the mist.', recorded.turns[1].prompt)
+            self.assertGreater(len(serialize_game(recorded)), len(raw))
+            self.ae(deserialize_game(serialize_game(recorded)), recorded, 'a game with the prompts recorded must still round trip')
+
+            # Both are reconstructable from the state, which is why they need not be stored
+            rewind(state)  # back to the state the second turn was played from
+            self.ae(turn_instructions(state), recorded.turns[1].instructions)
+            self.ae(turn_prompt(state, 'look around'), recorded.turns[1].prompt)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCYOA)
 
