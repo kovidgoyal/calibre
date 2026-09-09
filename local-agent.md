@@ -6,6 +6,8 @@ copy_resource: .ruff_cache
 copy_resource: .venv
 copy_resource: translations
 copy_resource: resources
+copy_resource: ~/.local/share/calibre-dbin
+copy_resource: ~/.local/lib/python3.14/site-packages/apify_fingerprint_datapoints
 env PODOFO_PREFIX /opt/podofo-1
 prepend_to_path: develop
 pre_commit: ./setup.py fmt

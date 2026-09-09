@@ -230,7 +230,7 @@ def get_last_read_position(ctx, rd, library_id, which):
     return ans
 
 
-@endpoint('/book-set-last-read-position/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',))
+@endpoint('/book-set-last-read-position/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',), needs_db_write=True)
 def set_last_read_position(ctx, rd, library_id, book_id, fmt):
     db = get_db(ctx, rd, library_id)
     user = rd.username or None

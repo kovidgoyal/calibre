@@ -60,7 +60,7 @@ STORY_RECOMMENDATIONS = (
             RecommendedModel('deepseek/deepseek-v4-pro', 'DeepSeek V4 Pro', _('the cheapest of these, good for long games')),
             RecommendedModel('z-ai/glm-5.2', 'GLM 5.2', _('particularly good at creative writing and role-play')),
             RecommendedModel('x-ai/grok-4.3', 'Grok 4.3', _('lively narration and less likely to refuse')),
-            RecommendedModel('anthropic/claude-haiku-4.5', 'Claude Haiku 4.5', _('the most polished prose, somewhat pricier')),
+            RecommendedModel('anthropic/claude-sonnet-5', 'Claude Sonnet 5', _('the most polished prose, expensive')),
         ),
     ),
     Recommendations(
