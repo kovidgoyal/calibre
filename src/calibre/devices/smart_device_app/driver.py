@@ -275,6 +275,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_CALIBRE_DEVICE_INFO': 1,
         'SET_CALIBRE_DEVICE_NAME': 2,
         'TOTAL_SPACE': 4,
+        'GET_COLLECTIONS': 21,
+        'UPDATE_COLLECTIONS': 22,
     }
     reverse_opcodes = {v: k for k, v in opcodes.items()}
 
