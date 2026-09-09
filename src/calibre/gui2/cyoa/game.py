@@ -54,6 +54,7 @@ from qt.core import (
     QShowEvent,
     QSize,
     QSizeF,
+    QSpinBox,
     QSplitter,
     QStatusBar,
     Qt,
@@ -829,7 +830,6 @@ class GameWidget(QWidget):
         self.turn_request: tuple[str, bool] | None = None
         self.turn_timer = QTimer(self)
         self.turn_timer.setSingleShot(True)
-        self.turn_timer.setInterval(5 * 60 * 1000)  # 5 minute timeout
         self.turn_timer.timeout.connect(self.on_turn_timeout)
         self._thinking_start: float = 0.0
         self._thinking_ticker = QTimer(self)
@@ -1413,13 +1413,15 @@ class GameWidget(QWidget):
             return
         saved_turn_call = self.turn_call
         turn_request = self.turn_request
+        thinking_start = self._thinking_start
         self.turn_call = -1
         self.turn_request = None
         self._stop_thinking()
+        timeout_minutes = data.turn_timeout_minutes()
         d = error_dialog(
             self,
             _('AI response timed out'),
-            _('The AI did not respond within 5 minutes.'),
+            ngettext('The AI did not respond within {} minute.', 'The AI did not respond within {} minutes.', timeout_minutes).format(timeout_minutes),
         )
         should_retry = [False]
         should_wait = [False]
@@ -1427,6 +1429,21 @@ class GameWidget(QWidget):
         retry_btn.setIcon(QIcon.ic('view-refresh.png'))
         wait_btn = d.bb.addButton(_('&Wait longer'), QDialogButtonBox.ButtonRole.ActionRole)
         wait_btn.setIcon(QIcon.ic('jobs.png'))
+
+        timeout_widget = QWidget(d)
+        timeout_layout = QHBoxLayout(timeout_widget)
+        timeout_layout.setContentsMargins(0, 0, 0, 0)
+        timeout_label = QLabel(_('&Timeout (minutes, 0 = no timeout):'), timeout_widget)
+        timeout_spin = QSpinBox(timeout_widget)
+        timeout_spin.setRange(0, 60)
+        timeout_spin.setValue(timeout_minutes)
+        timeout_label.setBuddy(timeout_spin)
+        timeout_layout.addWidget(timeout_label)
+        timeout_layout.addWidget(timeout_spin)
+        timeout_layout.addStretch()
+        d.gridLayout.removeWidget(d.bb)
+        d.gridLayout.addWidget(timeout_widget, 3, 0, 1, 2)
+        d.gridLayout.addWidget(d.bb, 4, 0, 1, 2)
 
         def on_retry() -> None:
             should_retry[0] = True
@@ -1439,14 +1456,18 @@ class GameWidget(QWidget):
         retry_btn.clicked.connect(on_retry)
         wait_btn.clicked.connect(on_wait)
         d.exec()
+        new_timeout = timeout_spin.value()
+        data.set_turn_timeout_minutes(new_timeout)
         if should_wait[0]:
             self.turn_call = saved_turn_call
             self.turn_request = turn_request
-            self._thinking_start = monotonic()
-            self.input_stack.msg = _('Thinking…')
+            self._thinking_start = thinking_start
+            self._update_thinking_elapsed()
             self.input_stack.start()
             self._thinking_ticker.start()
-            self.turn_timer.start()
+            if new_timeout > 0:
+                self.turn_timer.setInterval(new_timeout * 60 * 1000)
+                self.turn_timer.start()
         elif should_retry[0]:
             player_input, interesting_event = turn_request
             self.request_turn(player_input, interesting_event)
@@ -1467,7 +1488,10 @@ class GameWidget(QWidget):
         self.input_stack.msg = _('Thinking…')
         self.input_stack.start()
         self._thinking_ticker.start()
-        self.turn_timer.start()
+        timeout = data.turn_timeout_minutes()
+        if timeout > 0:
+            self.turn_timer.setInterval(timeout * 60 * 1000)
+            self.turn_timer.start()
         Thread(name='CYOATurn', daemon=True, target=self.do_turn, args=(snapshot, player_input, interesting_event, self.turn_call, plugin)).start()
 
     def do_turn(self, snapshot: GameState, player_input: str, interesting_event: bool, call_number: int, plugin: AIProvider) -> None:

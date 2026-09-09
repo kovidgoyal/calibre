@@ -57,6 +57,7 @@ def prefs() -> JSONConfig:
     ans.defaults['worlds'] = []
     ans.defaults['current_game'] = ''
     ans.defaults['game_splitter_state'] = None
+    ans.defaults['turn_timeout_minutes'] = 5
     return ans
 
 
@@ -68,6 +69,14 @@ def save_game_splitter_state(raw: bytes) -> None:
 
 def game_splitter_state() -> bytes:
     return bytes(prefs()['game_splitter_state'] or b'')
+
+
+def turn_timeout_minutes() -> int:
+    return int(prefs()['turn_timeout_minutes'])
+
+
+def set_turn_timeout_minutes(minutes: int) -> None:
+    prefs().set('turn_timeout_minutes', max(0, int(minutes)))
 
 
 def cyoa_dir() -> str:
