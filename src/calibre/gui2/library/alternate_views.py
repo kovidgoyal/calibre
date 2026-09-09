@@ -59,7 +59,7 @@ from qt.core import (
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
-from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, qapplication_or_fail, rating_font, resolve_grid_color
+from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, is_dark_theme, qapplication_or_fail, rating_font, resolve_grid_color
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverThumbnailCache
@@ -981,6 +981,11 @@ class GridView(MomentumScrollMixin, QListView):
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
 
+    # Prevents changeEvent() from running set_color() re-entrantly or before
+    # __init__() has finished constructing this view. Cleared at the end of
+    # __init__().
+    setting_color = True
+
     def __init__(self, parent):
         QListView.__init__(self, parent)
         self.setFrameShape(QFrame.Shape.Box)
@@ -1010,6 +1015,7 @@ class GridView(MomentumScrollMixin, QListView):
         vp = self.viewport()
         assert vp is not None
         vp.installEventFilter(self)
+        self.setting_color = False
         self.set_color()
         qapplication_or_fail().palette_changed.connect(self.set_color)
         self.ignore_render_requests = Event()
@@ -1091,14 +1097,30 @@ class GridView(MomentumScrollMixin, QListView):
             self.update(idx)
 
     def set_color(self):
-        r, g, b = resolve_grid_color()
-        tex = resolve_grid_color(which='texture')
+        if self.setting_color:
+            # setPalette() below causes changeEvent() to be called, ignore it
+            return
+        self.setting_color = True
+        try:
+            self.do_set_color()
+        finally:
+            self.setting_color = False
+
+    def do_set_color(self):
+        # Use the palette that is currently in effect rather than the value
+        # cached by PaletteManager, since this is also called in response to
+        # palette changes made by Qt itself, which PaletteManager does not
+        # always see.
+        for_dark = is_dark_theme()
+        r, g, b = resolve_grid_color(for_dark=for_dark)
+        tex = resolve_grid_color(which='texture', for_dark=for_dark)
         pal = self.palette()
         bgcol = QColor(r, g, b)
         pal.setColor(QPalette.ColorRole.Base, bgcol)
         pal.setColor(QPalette.ColorRole.Window, bgcol)
         pal.setColor(QPalette.ColorRole.WindowText, bgcol)  # frame color
         self._texture_pixmap = None
+        self._scaled_texture_pixmap = QPixmap()
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
 
@@ -1123,6 +1145,19 @@ class GridView(MomentumScrollMixin, QListView):
         vp.setPalette(pal)
         vp.setAutoFillBackground(self._texture_pixmap is None)
         vp.update()
+
+    def changeEvent(self, a0):
+        super().changeEvent(a0)
+        if a0 is not None and a0.type() in (QEvent.Type.PaletteChange, QEvent.Type.ApplicationPaletteChange):
+            # This view overrides the colors it inherits from the application
+            # palette, so unlike ordinary widgets it does not follow a change
+            # of the application palette by itself. Qt can change the
+            # application palette without PaletteManager noticing, for example
+            # when the system switches between light and dark mode, in which
+            # case palette_changed is never emitted and this view would go on
+            # using the colors for the previous theme until calibre is
+            # restarted. See https://bugs.launchpad.net/calibre/+bug/2119560
+            self.set_color()
 
     def eventFilter(self, object, event):
         if object is self.viewport() and event.type() == QEvent.Type.Paint:
