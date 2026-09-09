@@ -62,9 +62,29 @@ class GeneratedWorld(NamedTuple):
 class CharacterState(NamedTuple):
     doc = Doc('The current state of a significant character in the story')
     name: str
-    description: Annotated[str, 'Who this character is and their current status']
-    backstory: Annotated[str, "The character's brief backstory: who they are and how they came to be part of the story"]
-    relationships: Annotated[str, 'Their relationships with the player and the other characters']
+    description: Annotated[
+        str,
+        'The physical appearance and nature of the character: their looks, age, distinguishing features,'
+        ' the kind of clothes they wear and their temperament. This doubles as the prompt used to draw them.'
+        ' Reproduce the previous description verbatim unless their appearance or nature has permanently changed,'
+        ' for example a new scar, the loss of a limb or aging.'
+        ' Never record events, mood, injuries, location or plot developments here, they belong in current_state.',
+    ]
+    backstory: Annotated[
+        str,
+        "The character's brief backstory: who they are and how they came to be part of the story."
+        ' Only extend it when the story reveals something new about their past.',
+    ]
+    relationships: Annotated[str, 'Their relationships with the player and the other characters, and how those have changed']
+    # Trailing and defaulted so that games serialized before this field
+    # existed still deserialize, see instantiate(). The schema sent to the AI
+    # marks every field required regardless of the default.
+    current_state: Annotated[
+        str,
+        'Everything that is true of this character only right now: where they are, what they are doing,'
+        ' their physical condition and any injuries, their mood, what they are carrying and what they intend to do next.'
+        ' Rewrite this every turn: it is the field that carries change.',
+    ] = ''
 
 
 class StorySummary(NamedTuple):
@@ -72,7 +92,8 @@ class StorySummary(NamedTuple):
     world: Annotated[str, 'Description of the world and its current state']
     major_events: Annotated[tuple[str, ...], 'The major events of the story so far, in chronological order']
     characters: Annotated[
-        tuple[CharacterState, ...], 'All significant named characters in the story, each with a description, brief backstory and their relationships'
+        tuple[CharacterState, ...],
+        'All significant named characters in the story, each with a description, brief backstory, their relationships and their current state',
     ]
     current_situation: Annotated[str, 'Where the player currently is and what is happening']
     upcoming_events: Annotated[tuple[str, ...], 'Foreshadowed or planned future events and unresolved plot threads']
@@ -123,6 +144,7 @@ def initial_summary(world: GeneratedWorld, character: PlayerCharacter) -> StoryS
     return StorySummary(
         world=world.world_description,
         major_events=(),
+        # current_state is left at its default: nothing has happened yet.
         characters=(CharacterState(name=character.name, description=character.description, backstory=character.backstory, relationships=''),),
         current_situation='The adventure has not yet begun.',
         upcoming_events=(),
@@ -336,7 +358,16 @@ def turn_instructions(state: GameState) -> str:
             ' Preserve all information that is still relevant, including characters, relationships and unresolved plot threads, and keep it concise.'
             ' Whenever the narrative introduces a new named character, add an entry for them to the characters field of the summary'
             ' with a short description and a brief backstory.'
-            " Keep existing characters' descriptions, backstories and relationships up to date as the story evolves."
+        ),
+        (
+            '- The four text fields of each character in updated_summary have distinct jobs and must never be mixed up.'
+            ' current_state holds everything that is only true right now: where the character is, what they are doing, their physical'
+            ' condition and injuries, their mood, what they carry and what they intend next. Rewrite it every turn.'
+            ' description is the durable appearance and nature of the character and is also used as the prompt to draw them, so copy it'
+            ' verbatim from the previous summary unless their appearance or nature has permanently changed, and never put events,'
+            ' mood, injuries or location into it.'
+            ' backstory grows only when the story reveals something new about the past.'
+            ' relationships tracks how the character stands with the protagonist and the other characters.'
         ),
         '- starts_new_chapter: true only when this passage begins a major new phase of the story, with chapter_title naming the new chapter.',
         '',
@@ -500,9 +531,11 @@ def validated_characters(characters: Iterable[CharacterState], previous: StorySu
         backstory = c.backstory.strip() or (prev.backstory if prev else '')
         if not description and not backstory:
             continue  # nothing is known about this character, a later turn will re-introduce them if they matter
-        # An empty relationships field is legitimate for a character who has not yet met anyone.
+        # An empty relationships field is legitimate for a character who has not yet met anyone,
+        # and an empty current_state simply means nothing about them has changed this turn.
         relationships = c.relationships.strip() or (prev.relationships if prev else '')
-        ans.append(CharacterState(name=name, description=description, backstory=backstory, relationships=relationships))
+        current_state = c.current_state.strip() or (prev.current_state if prev else '')
+        ans.append(CharacterState(name=name, description=description, backstory=backstory, relationships=relationships, current_state=current_state))
     # Losing every character means losing the cast of the story, so keep the previous one rather than an empty summary.
     return tuple(ans) or previous.characters
 
@@ -676,7 +709,7 @@ def find_tests() -> TestSuite:  # {{{
         return StorySummary(
             world='A city lost in mist.',
             major_events=events,
-            characters=(CharacterState('Ada', 'the player', 'built the mist engines', 'alone so far'),),
+            characters=(CharacterState('Ada', 'the player', 'built the mist engines', 'alone so far', 'lost in the mist'),),
             current_situation='In the mist.',
             upcoming_events=('The mist thickens.',),
         )
@@ -803,6 +836,12 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn(state.character.backstory, instructions)
             self.assertIn('new named character', instructions, 'the AI must be told to add a bio for every newly introduced named character')
             self.assertIn('brief backstory', instructions, "new characters' bios must include a brief backstory")
+            self.assertIn('current_state', instructions, 'the AI must be told to record what is only true right now in current_state')
+            self.assertIn(
+                'verbatim',
+                instructions,
+                "the AI must be told to copy a character's description unchanged unless their appearance permanently changed",
+            )
             self.assertIn('Never repeat', instructions, 'the AI must be forbidden from repeating prose it has already written')
             self.assertIn('400', instructions, 'the AI must be given a concrete length target for passages')
             self.ae(len(state.turns), 1)
@@ -918,6 +957,19 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(tuple(c.name for c in summary.characters), ('Ada', 'Brin'))
             self.ae(summary.characters[1].backstory, '', 'a new character with a description but no backstory must be kept')
 
+            # current_state is rewritten every turn but carried over when the AI leaves it blank,
+            # and it must never be needed to keep a character alive in the summary.
+            state = start_game('a foggy city', make_world(), make_world().characters[0])
+            with_state = make_summary('awoke')._replace(characters=(CharacterState('Ada', 'the player', 'engineer', 'alone', ' wounded, hiding '),))
+            summary = accepted(make_turn('x')._replace(updated_summary=with_state), state).updated_summary
+            self.ae(summary.characters[0].current_state, 'wounded, hiding')
+            blank_state = make_summary('awoke')._replace(characters=(CharacterState('Ada', 'the player', 'engineer', 'alone', '  '),))
+            summary = accepted(make_turn('y')._replace(updated_summary=blank_state), state).updated_summary
+            self.ae(summary.characters[0].current_state, 'wounded, hiding', 'a blank current_state must be carried over from the previous summary')
+            only_state = make_summary('awoke')._replace(characters=(CharacterState('Ghost', '', '', '', 'watching from the roof'),))
+            summary = accepted(make_turn('z')._replace(updated_summary=only_state), state).updated_summary
+            self.ae(tuple(c.name for c in summary.characters), ('Ada',), 'a character known only by a current state must be dropped')
+
             # An unrepairable summary must fail the turn
             empty = StorySummary(world='', major_events=(), characters=(), current_situation='', upcoming_events=())
             state = start_game('a foggy city', make_world(), make_world().characters[0])
@@ -962,6 +1014,18 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(restored.art_style, 'anime')
             self.assertRaises(ValueError, deserialize_game, json.dumps({'version': GAME_SERIALIZATION_VERSION + 1, 'game': {}}))
             self.assertRaises(ValueError, deserialize_game, json.dumps(['not', 'a', 'game']))
+
+            # Games saved before characters had a current_state must still load
+            data = json.loads(serialize_game(state))
+            for record in data['game']['turns']:
+                for c in record['turn']['updated_summary']['characters']:
+                    del c['current_state']
+            restored = deserialize_game(json.dumps(data))
+            self.ae(
+                tuple(c.current_state for c in restored.current_summary.characters),
+                ('',) * len(restored.current_summary.characters),
+                'a character saved without a current_state must load with an empty one',
+            )
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCYOA)
 

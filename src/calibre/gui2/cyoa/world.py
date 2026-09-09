@@ -259,11 +259,14 @@ class CharacterEditor(QWidget):
         l.addRow(_('&Description:'), dw)
         self.backstory_edit = MarkdownEdit(self)
         l.addRow(_('&Backstory:'), self.backstory_edit)
-        # Relationships exist only for characters from the story summary,
-        # hidden unless load_state() is used, see set_relationships_visible().
+        # Relationships and current state exist only for characters from the
+        # story summary, hidden unless load_state() is used, see
+        # set_story_fields_visible().
         self.relationships_edit = MarkdownEdit(self)
         l.addRow(_('&Relationships:'), self.relationships_edit)
-        self.set_relationships_visible(False)
+        self.current_state_edit = MarkdownEdit(self)
+        l.addRow(_('C&urrent state:'), self.current_state_edit)
+        self.set_story_fields_visible(False)
 
     def load(self, c: PlayerCharacter) -> None:
         self.name_edit.setText(c.name)
@@ -272,12 +275,15 @@ class CharacterEditor(QWidget):
 
     def load_state(self, c: CharacterState) -> None:
         # Load a character of the story summary, which additionally tracks
-        # their relationships with the other characters.
+        # their relationships with the other characters and what is true of
+        # them at this point in the story.
         self.load(PlayerCharacter(name=c.name, description=c.description, backstory=c.backstory))
         self.relationships_edit.load(c.relationships)
+        self.current_state_edit.load(c.current_state)
 
-    def set_relationships_visible(self, visible: bool) -> None:
+    def set_story_fields_visible(self, visible: bool) -> None:
         self.form_layout.setRowVisible(self.relationships_edit, visible)
+        self.form_layout.setRowVisible(self.current_state_edit, visible)
 
     def set_portrait_ui_visible(self, visible: bool) -> None:
         self.portrait_panel.setVisible(visible)
@@ -307,7 +313,13 @@ class CharacterEditor(QWidget):
     @property
     def character_state(self) -> CharacterState:
         c = self.character
-        return CharacterState(name=c.name, description=c.description, backstory=c.backstory, relationships=self.relationships_edit.markdown)
+        return CharacterState(
+            name=c.name,
+            description=c.description,
+            backstory=c.backstory,
+            relationships=self.relationships_edit.markdown,
+            current_state=self.current_state_edit.markdown,
+        )
 
 
 class WorldEditWidget(QWidget):

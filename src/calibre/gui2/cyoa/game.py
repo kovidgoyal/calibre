@@ -393,10 +393,10 @@ class CharactersDialog(Dialog):
     # Lists the characters of the story: the character the player plays,
     # followed by the named characters the AI introduced during play, taken
     # from the story summary. The player can edit their descriptions,
-    # backstories and, for the story characters, relationships, mid-game and
-    # (re-)generate their portraits. The edits are applied to the game state
-    # by the caller after the dialog is accepted, via the player_character,
-    # npcs, portraits and npc_portraits attributes.
+    # backstories and, for the story characters, relationships and current
+    # state, mid-game and (re-)generate their portraits. The edits are
+    # applied to the game state by the caller after the dialog is accepted,
+    # via the player_character, npcs, portraits and npc_portraits attributes.
 
     portrait_result_received = pyqtSignal(int, int, object)  # (call_number, list row, PortraitResult)
 
@@ -494,7 +494,7 @@ class CharactersDialog(Dialog):
             self.character_editor.load(self.player_character)
         elif 0 < row <= len(self.npcs):
             self.character_editor.load_state(self.npcs[row - 1])
-        self.character_editor.set_relationships_visible(row > 0)
+        self.character_editor.set_story_fields_visible(row > 0)
         self.update_portrait_display()
         self.maybe_generate_portrait()
 
@@ -1833,8 +1833,14 @@ if __name__ == '__main__':
                     world='A city lost in mist.',
                     major_events=tuple(f'event {i}' for i in range(1, n + 1)),
                     characters=(
-                        CharacterState('Ada', 'the player', 'She built the mist engines.', 'alone so far'),
-                        CharacterState('Marlo', 'a mist-runner who guides travelers', 'He grew up in the tunnels under the city.', "wary of Ada's engines"),
+                        CharacterState('Ada', 'the player', 'She built the mist engines.', 'alone so far', 'standing in the rain outside the depot'),
+                        CharacterState(
+                            'Marlo',
+                            'a mist-runner who guides travelers',
+                            'He grew up in the tunnels under the city.',
+                            "wary of Ada's engines",
+                            'waiting at the tunnel mouth, out of breath',
+                        ),
                     ),
                     current_situation='In the mist.',
                     upcoming_events=('The mist thickens.',),
