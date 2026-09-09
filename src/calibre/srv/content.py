@@ -176,6 +176,38 @@ def fname_for_content_disposition(fname, as_encoded_unicode=False):
     return fname
 
 
+# Mimetypes that can run scripts in the browser, either directly or via an
+# embedded stylesheet, when rendered as a document rather than downloaded.
+SCRIPTABLE_MIMETYPES = frozenset({
+    'text/html',
+    'text/xml',
+    'application/xhtml+xml',
+    'application/xml',
+    'image/svg+xml',
+})
+
+
+def needs_sandboxing(content_type: str) -> bool:
+    mt = content_type.partition(';')[0].strip().lower()
+    if mt in SCRIPTABLE_MIMETYPES:
+        return True
+    # PDFs, images and plain text are rendered inertly by browsers. Anything
+    # unrecognized is sandboxed since the browser may sniff it as HTML.
+    return not (mt == 'application/pdf' or mt.startswith(('image/', 'text/')))
+
+
+def add_sandbox_headers(rd, content_type: str) -> None:
+    """
+    Prevent user supplied content that is rendered inline by the browser from
+    being able to script the server's origin. The sandbox directive applies to
+    top level documents as well, so it protects both direct navigation to the
+    URL and embedding of it in a frame.
+    """
+    if needs_sandboxing(content_type):
+        rd.outheaders['X-Content-Type-Options'] = 'nosniff'
+        rd.outheaders['Content-Security-Policy'] = 'sandbox allow-scripts allow-downloads'
+
+
 def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     au = authors_to_string(mi.authors or [_('Unknown')])
     title = mi.title or _('Unknown')
@@ -489,7 +521,9 @@ def get_note_resource(ctx, rd, scheme, digest, library_id):
     if not d:
         raise HTTPNotFound(f'Notes resource {scheme}:{digest} not found')
     name = d['name']
-    rd.outheaders['Content-Type'] = guess_type(name)[0] or 'application/octet-stream'
+    content_type = guess_type(name)[0] or 'application/octet-stream'
+    rd.outheaders['Content-Type'] = content_type
+    add_sandbox_headers(rd, content_type)
     rd.outheaders['Content-Disposition'] = (
         f'''inline; filename="{fname_for_content_disposition(name)}"; filename*=utf-8''{fname_for_content_disposition(name, as_encoded_unicode=True)}'''
     )
@@ -554,6 +588,9 @@ def sanitize_content_disposition(x: str) -> str:
 
 def data_file(rd, fname, path, stat_result):
     cd = sanitize_content_disposition(rd.query.get('content_disposition', 'attachment'))
+    # Content-Type for this response is guessed from the filename when the
+    # response is sent, see http_response.py
+    add_sandbox_headers(rd, guess_type(fname)[0] or '')
     rd.outheaders['Content-Disposition'] = (
         f'''{cd}; filename="{fname_for_content_disposition(fname)}"; filename*=utf-8''{fname_for_content_disposition(fname, as_encoded_unicode=True)}'''
     )
