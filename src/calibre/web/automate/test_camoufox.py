@@ -101,6 +101,13 @@ TEST_TYPING_WPM = 240.0
 # seconds. Same idea: shorter than a hand takes, but long enough that the
 # movement is still a path of its own rather than a jump.
 TEST_MAX_MOVE_TIME = 0.3
+# Which chord selects everything in a field depends on the machine the browser
+# runs on, see camoufox.SELECT_ALL_CHORD, and so both the key events a page
+# sees when one is pressed and, since ctrl+a moves the caret to the start of
+# the line on macOS instead of selecting, what pressing it actually does
+SELECT_ALL_MODIFIERS, SELECT_ALL_KEY = camoufox.parse_chord(camoufox.SELECT_ALL_CHORD)
+# The property of a key event that says that chord's modifier is held down
+SELECT_ALL_FLAG = {'Control': 'ctrl', 'Meta': 'meta'}[SELECT_ALL_MODIFIERS[-1]]
 
 
 def installed_camoufox() -> tuple[str, str] | None:
@@ -1232,7 +1239,8 @@ class TestCamoufoxBrowser(unittest.TestCase):
             await page.fill('#text', 'Hello World')
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'Hello World')
             downs = [e for e in await page.evaluate('window.__keys') if e['type'] == 'keydown']
-            typed = [e for e in downs if len(e['key']) == 1 and not e['ctrl']]  # the a of the select all chord is not typing
+            # the a of the select all chord is not typing
+            typed = [e for e in downs if len(e['key']) == 1 and not e[SELECT_ALL_FLAG]]
             self.assertEqual(''.join(e['key'] for e in typed), 'Hello World')
             self.assertEqual([e['code'] for e in typed[:5]], ['KeyH', 'KeyE', 'KeyL', 'KeyL', 'KeyO'])
             self.assertEqual([e['keyCode'] for e in typed[:2]], [72, 69])
@@ -1253,10 +1261,10 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
             # A chord, and a key pressed more than once
             await page.evaluate('window.__reset()')
-            await page.press('#text', 'ctrl+a')
+            await page.press('#text', camoufox.SELECT_ALL_CHORD)
             pressed = [e for e in await page.evaluate('window.__keys') if e['type'] == 'keydown']
-            self.assertEqual([e['key'] for e in pressed], ['Control', 'a'])
-            self.assertTrue(pressed[-1]['ctrl'])
+            self.assertEqual([e['key'] for e in pressed], [*SELECT_ALL_MODIFIERS, SELECT_ALL_KEY])
+            self.assertTrue(pressed[-1][SELECT_ALL_FLAG])
             self.assertEqual(page.keyboard.modifiers, (), 'a modifier was left held down')
             await page.press('#text', 'Backspace')
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), '')
