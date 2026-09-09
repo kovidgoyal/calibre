@@ -91,6 +91,17 @@ KEY_RECORDER_JS = '''() => {
 
 TEST_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="red"/></svg>'
 
+# How fast the browser shared by the tests types, in words per minute. Well
+# above what a hand manages, but far enough below the floor a keystroke gap is
+# clamped to, MIN_KEY_INTERVAL, that the gaps are still visibly uneven. What
+# the default speed produces is checked by the tests of human_typing_plan(),
+# which need no browser.
+TEST_TYPING_WPM = 240.0
+# The longest a cursor movement made by the shared browser may take, in
+# seconds. Same idea: shorter than a hand takes, but long enough that the
+# movement is still a path of its own rather than a jump.
+TEST_MAX_MOVE_TIME = 0.3
+
 
 def installed_camoufox() -> tuple[str, str] | None:
     """The camoufox install, but only if it is already present, so that running
@@ -475,6 +486,14 @@ class Server:
             def log_message(self, *a: object) -> None:
                 pass
 
+            def end_headers(self) -> None:
+                # The tests share a browser, so without this the pages and
+                # images one of them loads are served to the next one out of
+                # the cache, which is not the fresh response with headers of
+                # its own that they are written against
+                self.send_header('Cache-Control', 'no-store')
+                super().end_headers()
+
         self.httpd = socketserver.TCPServer(('127.0.0.1', 0), functools.partial(Handler, directory=self.dir))
         self.thread = threading.Thread(target=self.httpd.serve_forever, name='CamoufoxTestServer', daemon=True)
         self.thread.start()
@@ -750,16 +769,45 @@ class TestCamoufoxBrowser(unittest.TestCase):
     """Tests that drive the real browser. Skipped unless it is already installed."""
 
     server: Server
+    loop: asyncio.AbstractEventLoop
+    browser: camoufox.Browser | None
+
+    # These tests each drive a real browser, which is slow to start and heavy
+    # to run, so the parallel test runner keeps them to a few of its worker
+    # processes, where they can share one, rather than starting a browser in
+    # every one of them. Measured on a sixteen core machine, one per worker
+    # made the whole test suite take about a fifth longer than this does.
+    max_parallel_workers = 6
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.server = Server()
+        # Starting a browser and cleaning up after it costs well over a second,
+        # which is longer than most of these tests take, so the ones that need
+        # nothing particular of it share a single instance, started on first
+        # use. It has to live on an event loop of its own, since the connection
+        # to the browser is bound to the loop it was opened on and asyncio.run()
+        # closes the loop it makes.
+        cls.loop = asyncio.new_event_loop()
+        cls.browser = None
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.server.close()
+        try:
+            if (browser := cls.browser) is not None:
+                cls.browser = None
+                profile_dir = browser.profile_dir
+                cls.loop.run_until_complete(browser.close())
+                if os.path.exists(profile_dir):
+                    raise AssertionError('the shared browser profile directory was not cleaned up')
+        finally:
+            cls.loop.close()
+            cls.server.close()
 
     def run_browser(self, coro: Callable[[camoufox.Browser], Awaitable[object]], **kw: object) -> object:
+        """Run coro against a browser of its own, for a test that needs one
+        started with particular options."""
+
         async def main() -> object:
             async with camoufox.Browser(headless=True, **kw) as browser:  # type: ignore[arg-type]
                 self.profile_dir = browser.profile_dir
@@ -768,6 +816,38 @@ class TestCamoufoxBrowser(unittest.TestCase):
         ans = asyncio.run(main())
         self.assertFalse(os.path.exists(self.profile_dir), 'the browser profile directory was not cleaned up')
         return ans
+
+    def run_shared(self, coro: Callable[[camoufox.Browser], Awaitable[object]]) -> object:
+        """Run coro against the browser shared with the other tests, in a tab
+        of its own."""
+        cls = type(self)
+
+        async def main() -> object:
+            # A browser whose process died takes every later test down with it,
+            # so it is replaced rather than handed on
+            if cls.browser is not None and cls.browser.closed:
+                cls.browser = None
+            if cls.browser is None:
+                # Typing and cursor movement are deliberately slow, so the
+                # shared browser does both faster than a hand would, to keep
+                # the test suite quick. Their timing is scaled rather than
+                # removed, so what a page sees is still the uneven rhythm of a
+                # hand, see typing_interval() and human_trajectory().
+                browser = camoufox.Browser(headless=True, typing_wpm=TEST_TYPING_WPM, humanize=TEST_MAX_MOVE_TIME)
+                await browser.launch()
+                cls.browser = browser
+            browser = cls.browser
+            # A tab of its own, with the ones any earlier test left behind
+            # closed, so that the test sees the single blank page and empty
+            # cookie jar that a freshly launched browser has
+            page = await browser.new_page()
+            for other in browser.open_pages:
+                if other is not page:
+                    await other.close()
+            await browser.clear_cookies()
+            return await coro(browser)
+
+        return cls.loop.run_until_complete(main())
 
     def test_fingerprint_is_applied(self) -> None:
         async def check(browser: camoufox.Browser) -> None:
@@ -809,7 +889,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             with self.assertRaises(camoufox.Error):
                 await page.open('http://127.0.0.1:47913/nothing-is-listening-here', timeout=30)
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_waiting_for_elements(self) -> None:
         base = self.server.base
@@ -825,7 +905,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 await page.wait_for_selector('#does-not-exist', timeout=1)
             await page.wait_for_load('domcontentloaded')
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_dom_modification(self) -> None:
         base = self.server.base
@@ -852,7 +932,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertNotIn('class="para"', html)
             self.assertIn('<span class="added">child text</span>', html)
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_element_handles(self) -> None:
         base = self.server.base
@@ -883,7 +963,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             with self.assertRaises(camoufox.Error):
                 await image.attribute('id')  # the handle was disposed by remove()
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_resources(self) -> None:
         base = self.server.base
@@ -902,7 +982,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 await page.get_resource(base + 'does-not-exist.png')
             self.assertTrue((await page.screenshot()).startswith(b'\x89PNG\r\n\x1a\n'))
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_tabs(self) -> None:
         base = self.server.base
@@ -920,7 +1000,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             with self.assertRaises(camoufox.BrowserClosedError):
                 await second.title()
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_javascript_errors(self) -> None:
         async def check(browser: camoufox.Browser) -> None:
@@ -933,7 +1013,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertEqual(await page.evaluate('1 + 1'), 2)
             self.assertEqual(await page.call('(a, b) => a + b', 2, 3), 5)
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_cookies(self) -> None:
         base = self.server.base
@@ -946,7 +1026,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             await browser.clear_cookies()
             self.assertEqual(await browser.cookies(), [])
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_mouse_clicking(self) -> None:
         base = self.server.base
@@ -1017,7 +1097,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertEqual(await page.evaluate('window.__events'), [])
             self.assertEqual(await page.evaluate('document.querySelectorAll("#btn:hover").length'), 1)
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_mouse_errors(self) -> None:
         base = self.server.base
@@ -1066,7 +1146,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 self.assertTrue(inside, f'the cursor reached ({x}, {y}), too close to the edge of the {width}x{height} viewport')
             self.assertEqual(page.mouse.position, camoufox.clamp_to_viewport(width - 1, height - 1, width, height))
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_input_that_is_not_acknowledged(self) -> None:
         base = self.server.base
@@ -1103,7 +1183,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # while the page is still usable for everything else
             self.assertEqual(await page.evaluate('1 + 1'), 2)
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_clicking_with_humanize(self) -> None:
         base = self.server.base
@@ -1112,7 +1192,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             page = browser.page
             # The browser is never asked to generate cursor paths itself, the
             # option only says how long one of ours may take
-            self.assertEqual(browser.max_move_time, 0.3)
+            self.assertEqual(browser.max_move_time, TEST_MAX_MOVE_TIME)
             self.assertNotIn('humanize', browser.config)
             await page.open(base + 'click.html')
             await page.call(RECORDER_JS)
@@ -1135,9 +1215,9 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # The movement kept to the budget, with the click itself, the round
             # trips it took and the pauses of a human hand on top of it
             round_trips = (camoufox.MAX_MOVE_STEPS + 8) * per_event
-            self.assertLess(time.monotonic() - start, 0.3 + round_trips + 4)
+            self.assertLess(time.monotonic() - start, TEST_MAX_MOVE_TIME + round_trips + 4)
 
-        self.run_browser(check, humanize=0.3)
+        self.run_shared(check)
 
     def test_typing(self) -> None:
         base = self.server.base
@@ -1200,11 +1280,16 @@ class TestCamoufoxBrowser(unittest.TestCase):
             await page.fill('#rich', 'edited', click=False)
             self.assertEqual(await page.evaluate('document.getElementById("rich").textContent'), 'edited')
 
-            # Mistakes are corrected as they are made, so the text still ends up right
-            await page.fill('#text', 'corrected', mistakes=1.0)
+            # Mistakes are corrected as they are made, so the text still ends
+            # up right. Noticing a mistake and going back over it are pauses of
+            # a fixed length rather than ones that scale with the typing speed,
+            # so they are shortened here: what this checks is that the
+            # correction happens, not how long a hand takes to make it.
+            with patch.object(camoufox, 'MISTAKE_NOTICE', (0.01, 0.02)), patch.object(camoufox, 'MISTAKE_REPAIR', (0.01, 0.02)):
+                await page.fill('#text', 'corrected', mistakes=1.0)
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'corrected')
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_typing_text_that_is_not_on_the_keyboard(self) -> None:
         base = self.server.base
@@ -1250,14 +1335,14 @@ class TestCamoufoxBrowser(unittest.TestCase):
             await page.keyboard.insert_text('你好')
             self.assertEqual(await page.evaluate('document.getElementById("area").value'), '你好')
 
-        self.run_browser(check)
+        self.run_shared(check)
 
     def test_typing_speed(self) -> None:
         base = self.server.base
 
         async def check(browser: camoufox.Browser) -> None:
             page = browser.page
-            self.assertEqual(browser.typing_wpm, 240)
+            self.assertEqual(browser.typing_wpm, TEST_TYPING_WPM)
             await page.open(base + 'type.html')
             await page.call(KEY_RECORDER_JS)
             # Every keystroke is two events the browser has to acknowledge, and
@@ -1271,12 +1356,12 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), text)
             # A fixed delay means no rhythm at all, which is quicker than a hand
             started = time.monotonic()
-            await page.fill('#text', text, wpm=240)
+            await page.fill('#text', text, wpm=TEST_TYPING_WPM)
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), text)
-            expected = 60.0 * len(text) / (240 * camoufox.CHARS_PER_WORD)
+            expected = 60.0 * len(text) / (TEST_TYPING_WPM * camoufox.CHARS_PER_WORD)
             self.assertLess(time.monotonic() - started, expected + len(text) * per_key + 8)
 
-        self.run_browser(check, typing_wpm=240)
+        self.run_shared(check)
 
 
 def find_tests() -> unittest.TestSuite:
