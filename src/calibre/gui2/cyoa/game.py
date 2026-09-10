@@ -7,13 +7,14 @@
 # scrolled into view is shown on the right, when an image AI is configured.
 # The game is auto-saved after every turn; the toolbar allows saving under a
 # name of the player's choosing, loading such saves, rewinding, editing the
-# characters and starting over in a new world, while a checkbox in the scene
-# panel turns scene images on/off.
+# world (its characters and the story memory the AI is given) and starting
+# over in a new world, while a checkbox in the scene panel turns scene
+# images on/off.
 
 import os
 from base64 import standard_b64decode
 from bisect import bisect_right
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from functools import partial
 from html import escape
 from itertools import count
@@ -28,6 +29,7 @@ from qt.core import (
     QCursor,
     QDialog,
     QDialogButtonBox,
+    QGridLayout,
     QHBoxLayout,
     QIcon,
     QImage,
@@ -57,6 +59,7 @@ from qt.core import (
     QSplitter,
     QStatusBar,
     Qt,
+    QTabWidget,
     QTextBlockFormat,
     QTextBrowser,
     QTextCharFormat,
@@ -78,12 +81,15 @@ from qt.core import (
 
 from calibre.ai import ImageGenerationOptions, StructuredOutputResult
 from calibre.ai.cyoa import (
+    MAX_MAJOR_EVENTS,
     PROTAGONIST_ID,
     AIProvider,
     CharacterState,
     GameState,
     PlayerCharacter,
     QuickAction,
+    StorySummary,
+    clean_text_list,
     deserialize_game,
     next_turn,
     quick_action_kind_name,
@@ -97,7 +103,7 @@ from calibre.gui2 import config, error_dialog, qapplication_or_fail, question_di
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.settings import ConfigureImageAIDialog, SettingsDialog
 from calibre.gui2.cyoa.text_display import TextDisplay, TextDisplayMixin
-from calibre.gui2.cyoa.world import CharacterEditor, PortraitResult, generate_portrait
+from calibre.gui2.cyoa.world import CharacterEditor, MarkdownEdit, PortraitResult, generate_portrait
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.progress_indicator import WaitStack
@@ -304,14 +310,132 @@ class LoadGameDialog(Dialog):
 # }}}
 
 
-class CharactersDialog(Dialog):
-    # Lists the characters of the story: the character the player plays,
-    # followed by the named characters the AI introduced during play, taken
-    # from the story summary. The player can edit their descriptions,
-    # backstories and, for the story characters, relationships and current
-    # state, mid-game and (re-)generate their portraits. The edits are
-    # applied to the game state by the caller after the dialog is accepted,
-    # via the player_character, npcs and portraits attributes.
+class LineListEdit(QPlainTextEdit):
+    # Edits an ordered list of short entries, one entry per line. Blank and
+    # duplicate lines are discarded when the list is read back, just as they
+    # are in the lists the AI sends.
+
+    def load(self, items: Sequence[str]) -> None:
+        self.setPlainText('\n'.join(items))
+
+    @property
+    def items(self) -> tuple[str, ...]:
+        return clean_text_list(self.toPlainText().splitlines())
+
+
+class StoryMemoryEditor(QWidget):
+    # Edits the story summary as it stands at the current turn: the world,
+    # the current situation and the lists of past and upcoming events. That
+    # summary, together with the characters edited on the other tab of
+    # EditWorldDialog, is everything the AI remembers of the story beyond the
+    # prose of the current chapter, so editing it steers the story far more
+    # directly than rewinding does.
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.msg_label = la = QLabel(
+            _(
+                'The story memory is all the AI remembers of the story beyond the prose of the current chapter,'
+                ' so editing it is the most direct way to steer where the story goes next. Changes take effect from'
+                ' the next turn and are stored with the current turn, so going back to an earlier turn restores the'
+                ' memory as it was then.'
+            )
+        )
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.grid = g = QGridLayout()
+        g.setColumnStretch(0, 1), g.setColumnStretch(1, 1)
+        l.addLayout(g, stretch=1)
+        self.world_edit = MarkdownEdit(self)
+        self.add_field(
+            0,
+            0,
+            _('&World:'),
+            self.world_edit,
+            _('The world the story happens in and its current state. The AI updates this as the story changes the world.'),
+        )
+        self.current_situation_edit = MarkdownEdit(self)
+        self.add_field(
+            0,
+            1,
+            _('Current &situation:'),
+            self.current_situation_edit,
+            _('Where the protagonist is and what is happening as the story stands. The next turn continues from here.'),
+        )
+        self.major_events_edit = LineListEdit(self)
+        self.add_field(
+            1,
+            0,
+            _('&Major events:'),
+            self.major_events_edit,
+            _(
+                'The major events of the story so far, in chronological order, one per line. At most {} are remembered,'
+                ' so combine older events into a single line rather than letting the list grow without end.'
+            ).format(MAX_MAJOR_EVENTS),
+        )
+        self.upcoming_events_edit = LineListEdit(self)
+        self.add_field(
+            1,
+            1,
+            _('&Upcoming events:'),
+            self.upcoming_events_edit,
+            _(
+                'Foreshadowed or planned future events and unresolved plot threads, one per line. The AI is asked to pay'
+                ' these off as the story goes on, so this is the most direct way to plan what happens next.'
+            ),
+        )
+
+    def add_field(self, row: int, col: int, label: str, editor: QWidget, tooltip: str) -> None:
+        la = QLabel(label)
+        la.setBuddy(editor)
+        editor.setToolTip('<p>' + tooltip)
+        la.setToolTip(editor.toolTip())
+        self.grid.addWidget(la, 2 * row, col)
+        self.grid.addWidget(editor, 2 * row + 1, col)
+        self.grid.setRowStretch(2 * row + 1, 1)
+
+    def load(self, summary: StorySummary) -> None:
+        self.world_edit.load(summary.world)
+        self.current_situation_edit.load(summary.current_situation)
+        self.major_events_edit.load(summary.major_events)
+        self.upcoming_events_edit.load(summary.upcoming_events)
+
+    @property
+    def validation_error(self) -> str:
+        # The AI sends only what a turn changed and whatever it leaves empty
+        # is carried over from this summary, so an empty world or situation
+        # makes the next turn fail, see updated_summary().
+        if not self.world_edit.markdown:
+            return _('The description of the world cannot be empty, the AI needs it to continue the story.')
+        if not self.current_situation_edit.markdown:
+            return _('The current situation cannot be empty, the AI continues the story from it.')
+        if (num := len(self.major_events_edit.items)) > MAX_MAJOR_EVENTS:
+            return _('The story memory holds at most {0} major events, but {1} are listed. Combine or remove some of them.').format(MAX_MAJOR_EVENTS, num)
+        return ''
+
+    def updated(self, summary: StorySummary) -> StorySummary:
+        # The characters of the summary are edited on the characters tab and
+        # applied separately, so they are left untouched here.
+        return summary._replace(
+            world=self.world_edit.markdown,
+            major_events=self.major_events_edit.items,
+            current_situation=self.current_situation_edit.markdown,
+            upcoming_events=self.upcoming_events_edit.items,
+        )
+
+
+class EditWorldDialog(Dialog):
+    # Edits the world of the game in progress, on two tabs. The characters
+    # tab lists the character the player plays followed by the named
+    # characters the AI introduced during play, taken from the story summary,
+    # and allows editing their descriptions, backstories and, for the story
+    # characters, relationships and current state, as well as (re-)generating
+    # their portraits. The story memory tab edits the rest of the summary.
+    # The edits are applied to the game state by the caller after the dialog
+    # is accepted, via the player_character, npcs, portraits and
+    # story_memory attributes.
 
     portrait_result_received = pyqtSignal(int, int, object)  # (call_number, list row, PortraitResult)
 
@@ -329,6 +453,11 @@ class CharactersDialog(Dialog):
         self.portraits: dict[str, dict[str, str]] = dict(portraits or {})
         self.art_style = state.art_style
         self.world_description = state.world.world_description
+        # The summary of the last played turn, which is the memory the next
+        # turn is generated from. Before the first turn has been played there
+        # is no stored summary to edit, only one derived from the world.
+        self.summary = state.current_summary
+        self.can_edit_story_memory = bool(state.turns)
         self.images_enabled = data.images_enabled()
         self.current_idx = -1
         # Portrait generation runs one at a time on a background thread:
@@ -338,13 +467,33 @@ class CharactersDialog(Dialog):
         self.portrait_counter = count(start=1)
         self.portrait_call = -1
         self.portrait_idx = -1
-        super().__init__(_('Characters'), 'cyoa-characters', parent)
+        super().__init__(_('Edit world'), 'cyoa-edit-world', parent)
 
     def sizeHint(self) -> QSize:
-        return QSize(900, 600)
+        return QSize(1000, 700)
 
     def setup_ui(self) -> None:
         l = QVBoxLayout(self)
+        self.tabs = t = QTabWidget(self)
+        l.addWidget(t)
+        t.addTab(self.create_characters_tab(), QIcon.ic('user_profile.png'), _('&Characters'))
+        self.memory_editor = me = StoryMemoryEditor(self)
+        me.load(self.summary)
+        t.addTab(me, QIcon.ic('notes.png'), _('Story &memory'))
+        if not self.can_edit_story_memory:
+            idx = t.indexOf(me)
+            t.setTabEnabled(idx, False)
+            t.setTabToolTip(idx, '<p>' + _('The story memory can be edited once the first turn of the story has been played'))
+        self.status_label = sl = QLabel('')
+        sl.setWordWrap(True)
+        l.addWidget(sl)
+        l.addWidget(self.bb)
+        self.portrait_result_received.connect(self.on_portrait_result, type=Qt.ConnectionType.QueuedConnection)
+        self.char_list.setCurrentRow(0)
+
+    def create_characters_tab(self) -> QWidget:
+        w = QWidget(self)
+        l = QVBoxLayout(w)
         self.msg_label = la = QLabel(
             _(
                 'Edit the characters of the story as needed, changes take effect from the next turn.'
@@ -355,22 +504,17 @@ class CharactersDialog(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
         h = QHBoxLayout()
-        self.char_list = cw = QListWidget(self)
+        self.char_list = cw = QListWidget(w)
         for row in range(1 + len(self.npcs)):
             cw.addItem(self.display_name(row))
         cw.currentRowChanged.connect(self.on_character_changed)
         h.addWidget(cw, stretch=1)
-        self.character_editor = ce = CharacterEditor(self)
+        self.character_editor = ce = CharacterEditor(w)
         ce.set_portrait_ui_visible(self.images_enabled)
         ce.portrait_refresh_requested.connect(self.regenerate_current_portrait)
         h.addWidget(ce, stretch=3)
         l.addLayout(h)
-        self.status_label = sl = QLabel('')
-        sl.setWordWrap(True)
-        l.addWidget(sl)
-        l.addWidget(self.bb)
-        self.portrait_result_received.connect(self.on_portrait_result, type=Qt.ConnectionType.QueuedConnection)
-        cw.setCurrentRow(0)
+        return w
 
     def name_for_row(self, row: int) -> str:
         if row == 0:
@@ -494,10 +638,23 @@ class CharactersDialog(Dialog):
         # portrait while this one was being generated
         self.maybe_generate_portrait()
 
+    @property
+    def story_memory(self) -> StorySummary | None:
+        # The edited summary, with its characters left as they were: those
+        # are edited on the characters tab and applied to every turn rather
+        # than only to the current one. None when there is no stored summary
+        # to edit because the story has not begun.
+        return self.memory_editor.updated(self.summary) if self.can_edit_story_memory else None
+
     def accept(self) -> None:
         self.commit_character_edits()
         if not self.player_character.name or any(not c.name for c in self.npcs):
+            self.tabs.setCurrentIndex(0)
             error_dialog(self, _('No character name'), _('Every character must have a name.'), show=True)
+            return
+        if self.can_edit_story_memory and (err := self.memory_editor.validation_error):
+            self.tabs.setCurrentWidget(self.memory_editor)
+            error_dialog(self, _('Story memory is incomplete'), err, show=True)
             return
         super().accept()
 
@@ -784,8 +941,11 @@ class GameWidget(QWidget):
             _('Go back to an earlier turn, discarding all turns after it. Press {} to go back one turn').format('Alt+Left'),
             self.back_to_turn,
         )
-        self.characters_action = toolbar_action(
-            'user_profile.png', _('Characters'), _('View and edit the characters of the story and their portraits'), self.edit_characters
+        self.world_action = toolbar_action(
+            'metadata.png',
+            _('Edit world'),
+            _('View and edit the characters of the story and their portraits, and the story memory the AI continues the story from'),
+            self.edit_world,
         )
         self.settings_action = toolbar_action(
             'config.png', _('Settings'), _('Change the AIs used to generate the story and the pictures of each scene'), self.change_settings
@@ -1739,11 +1899,11 @@ class GameWidget(QWidget):
         ):
             self.game_abandoned.emit()
 
-    def edit_characters(self) -> None:
+    def edit_world(self) -> None:
         state = self.state
         if state is None:
             return
-        d = CharactersDialog(state, self.portraits, self)
+        d = EditWorldDialog(state, self.portraits, self)
         if d.exec() != Dialog.DialogCode.Accepted:
             return
         self.portraits = d.portraits
@@ -1760,11 +1920,24 @@ class GameWidget(QWidget):
                 characters = tuple(edits.get(c.id, c) for c in t.summary.characters)
                 if characters != t.summary.characters:
                     state.turns[i] = t._replace(summary=t.summary._replace(characters=characters))
+        # The story memory, unlike the characters, is a snapshot of where the
+        # story stands, so it is applied to the last turn alone: going back to
+        # an earlier turn must restore the memory as it was at that turn.
+        if (memory := d.story_memory) is not None:
+            t = state.turns[-1]
+            state.turns[-1] = t._replace(
+                summary=t.summary._replace(
+                    world=memory.world,
+                    major_events=memory.major_events,
+                    current_situation=memory.current_situation,
+                    upcoming_events=memory.upcoming_events,
+                )
+            )
         # The saved world the game started from is only its template, so it is
         # deliberately left alone: the edited characters and their portraits
         # belong to this game and are stored with it.
         self.autosave()
-        self.status_bar.showMessage(_('Changes to the characters will be used from the next turn'), 5000)
+        self.status_bar.showMessage(_('Changes to the world will be used from the next turn'), 5000)
 
     def change_settings(self) -> None:
         if SettingsDialog(self).exec() != Dialog.DialogCode.Accepted:
