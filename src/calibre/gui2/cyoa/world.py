@@ -27,7 +27,6 @@ from qt.core import (
     QSize,
     QStackedLayout,
     Qt,
-    QTextBrowser,
     QTextEdit,
     QToolButton,
     QVBoxLayout,
@@ -41,6 +40,7 @@ from calibre.ai.cyoa import ART_STYLES, CharacterState, GeneratedWorld, PlayerCh
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.cyoa import data
+from calibre.gui2.cyoa.text_display import TextDisplay
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, pgettext
@@ -704,7 +704,7 @@ class CreateWorldWidget(QWidget):
         self.saved_world_page = sp = QWidget(bp)
         v = QVBoxLayout(sp)
         v.setContentsMargins(0, 0, 0, 0)
-        self.saved_world_view = swv = QTextBrowser(sp)
+        self.saved_world_view = swv = TextDisplay(sp)
         swv.setOpenLinks(False)
         v.addWidget(swv)
         bh = QHBoxLayout()

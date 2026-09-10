@@ -62,6 +62,7 @@ def prefs() -> JSONConfig:
     ans.defaults['current_game'] = ''
     ans.defaults['game_splitter_state'] = None
     ans.defaults['turn_timeout_minutes'] = 5
+    ans.defaults['text_display'] = {}
     return ans
 
 
@@ -85,6 +86,76 @@ def set_turn_timeout_minutes(minutes: int) -> None:
 
 def cyoa_dir() -> str:
     return os.path.join(config_dir, 'cyoa')
+
+
+# Text display appearance {{{
+
+# The appearance of the widgets that display the text of the story is
+# controlled by a single set of preferences shared by all of them, so that,
+# for instance, zooming in one of them zooms all of them.
+MIN_FONT_SIZE = 6
+MAX_FONT_SIZE = 72
+# Long lines are tiring to read, so the main story text is limited to this
+# many characters per line by default. Zero means: use the full width.
+DEFAULT_MAX_LINE_WIDTH = 100
+MAX_LINE_WIDTH_LIMIT = 500
+
+
+class TextDisplaySettings(NamedTuple):
+    # Empty strings and a zero font size mean: follow the calibre defaults.
+    font_family: str = ''
+    font_size: int = 0
+    foreground: str = ''  # a color specification understood by QColor, e.g. #aabbcc
+    background: str = ''
+    max_line_width: int = DEFAULT_MAX_LINE_WIDTH  # in characters, zero means no limit
+
+
+def as_int(x: Any, default: int = 0) -> int:  # noqa: ANN401
+    # Values in the preferences file can be anything, it is user editable
+    try:
+        return int(x)
+    except TypeError, ValueError:
+        return default
+
+
+def normalized_text_display_settings(s: TextDisplaySettings) -> TextDisplaySettings:
+    font_size = as_int(s.font_size)
+    return TextDisplaySettings(
+        font_family=str(s.font_family or ''),
+        font_size=0 if font_size <= 0 else max(MIN_FONT_SIZE, min(font_size, MAX_FONT_SIZE)),
+        foreground=str(s.foreground or ''),
+        background=str(s.background or ''),
+        max_line_width=max(0, min(as_int(s.max_line_width, DEFAULT_MAX_LINE_WIDTH), MAX_LINE_WIDTH_LIMIT)),
+    )
+
+
+def text_display_settings() -> TextDisplaySettings:
+    stored = prefs()['text_display']
+    if not isinstance(stored, dict):
+        return TextDisplaySettings()
+    d = TextDisplaySettings()
+    return normalized_text_display_settings(
+        TextDisplaySettings(
+            font_family=stored.get('font_family', d.font_family),
+            font_size=stored.get('font_size', d.font_size),
+            foreground=stored.get('foreground', d.foreground),
+            background=stored.get('background', d.background),
+            max_line_width=stored.get('max_line_width', d.max_line_width),
+        )
+    )
+
+
+def set_text_display_settings(s: TextDisplaySettings) -> None:
+    prefs().set('text_display', normalized_text_display_settings(s)._asdict())
+
+
+def set_text_display_font_size(size: int) -> None:
+    # The font size is a single preference shared by every widget that
+    # displays text, see TextDisplaySettings. Zero restores the default size.
+    set_text_display_settings(text_display_settings()._replace(font_size=size))
+
+
+# }}}
 
 
 # AI configuration {{{
@@ -512,6 +583,7 @@ def find_tests() -> TestSuite:  # {{{
         ans.defaults['image_skipped'] = False
         ans.defaults['worlds'] = []
         ans.defaults['current_game'] = ''
+        ans.defaults['text_display'] = {}
         return ans
 
     class TestCYOAData(unittest.TestCase):
@@ -717,6 +789,26 @@ def find_tests() -> TestSuite:  # {{{
                 self.ae(art_style_for_key(pw.art_style).key, pw.art_style, f'the recommended art style for {pw.title!r} must be a valid art style key')
                 self.ae(recommended_art_style(pw.brief), pw.art_style)
             self.ae(recommended_art_style('not a pre-made brief'), '', 'a custom brief must not have a recommended art style')
+
+        def test_cyoa_text_display_settings(self) -> None:
+            with tempfile.TemporaryDirectory() as tdir:
+                p = temp_prefs(tdir)
+                with patch('calibre.gui2.cyoa.data.prefs', return_value=p):
+                    self.ae(text_display_settings(), TextDisplaySettings(), 'the defaults must be used when nothing is stored')
+                    s = TextDisplaySettings(font_family='Times', font_size=14, foreground='#ff0000', background='#000000', max_line_width=72)
+                    set_text_display_settings(s)
+                    self.ae(text_display_settings(), s)
+                    set_text_display_font_size(9999)
+                    self.ae(text_display_settings().font_size, MAX_FONT_SIZE, 'the font size must be clamped')
+                    set_text_display_font_size(1)
+                    self.ae(text_display_settings().font_size, MIN_FONT_SIZE, 'the font size must be clamped')
+                    set_text_display_font_size(0)
+                    self.ae(text_display_settings(), s._replace(font_size=0), 'a zero font size means the default size and must not change the rest')
+                    # the preferences file is user editable, so it can contain anything
+                    p.set('text_display', {'font_size': 'nonsense', 'max_line_width': None, 'unknown': 1})
+                    self.ae(text_display_settings(), TextDisplaySettings(font_size=0, max_line_width=DEFAULT_MAX_LINE_WIDTH))
+                    p.set('text_display', 'not a dict')
+                    self.ae(text_display_settings(), TextDisplaySettings())
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCYOAData)
 

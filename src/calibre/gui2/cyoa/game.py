@@ -28,6 +28,7 @@ from qt.core import (
     QCursor,
     QDialog,
     QDialogButtonBox,
+    QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QIcon,
@@ -96,11 +97,13 @@ from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import config, error_dialog, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
+from calibre.gui2.cyoa.text_display import TextDisplay, TextDisplayMixin, apply_text_display_settings
 from calibre.gui2.cyoa.world import CharacterEditor, PortraitResult, generate_portrait
+from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.progress_indicator import WaitStack
-from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.widgets2 import ColorButton, Dialog
 from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, ngettext
 from calibre.utils.resources import get_image_path
@@ -323,11 +326,85 @@ class ConfigureImageAIDialog(Dialog):
         super().accept()
 
 
+class LookAndFeelTab(QWidget):
+    # Controls the appearance of every widget that displays the text of the
+    # story: the font it is displayed in, the colors used for it and how
+    # long the lines of the main story text are allowed to get.
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        s = data.text_display_settings()
+        l = QFormLayout(self)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+
+        self.family_chooser = fc = FontFamilyChooser(self)
+        fc.font_family = s.font_family
+        fc.setToolTip('<p>' + _('The font used to display the text of the story. Clear it to use the standard calibre font.'))
+        l.addRow(_('&Font:'), fc)
+
+        self.size_spin = ss = QSpinBox(self)
+        ss.setRange(0, data.MAX_FONT_SIZE)
+        ss.setSpecialValueText(_('Standard size'))
+        ss.setSuffix(' ' + _('pt'))
+        ss.setValue(s.font_size)
+        ss.setToolTip(
+            '<p>'
+            + _(
+                'The size of the text of the story. It can also be changed at any time with {0} and {1}, or by holding Ctrl and turning the mouse wheel.'
+            ).format('Ctrl++', 'Ctrl+-')
+        )
+        l.addRow(_('Font &size:'), ss)
+
+        self.foreground_button = fg = self.add_color_row(l, _('&Text color:'), s.foreground)
+        self.background_button = bg = self.add_color_row(l, _('&Background color:'), s.background)
+        for b in (fg, bg):
+            b.setToolTip('<p>' + _('Leave this unset to follow the standard calibre colors, which adapt to the light or dark theme in use.'))
+
+        self.line_width_spin = lw = QSpinBox(self)
+        lw.setRange(0, data.MAX_LINE_WIDTH_LIMIT)
+        lw.setSpecialValueText(_('No limit'))
+        lw.setSuffix(' ' + _('characters'))
+        lw.setValue(s.max_line_width)
+        lw.setToolTip(
+            '<p>'
+            + _(
+                'Very long lines of text are tiring to read, so the text of the story is limited to this many characters per line,'
+                ' centered in the space available to it. Set it to zero to use the full width.'
+            )
+        )
+        l.addRow(_('Maximum &line length:'), lw)
+
+    def add_color_row(self, l: QFormLayout, label: str, color: str) -> ColorButton:
+        # A color button with a button next to it to go back to the standard
+        # color, which is what an unset color means.
+        b = ColorButton(color, self, choose_text=_('Standard color'))
+        h = QHBoxLayout()
+        h.addWidget(b)
+        clear = QToolButton(self)
+        clear.setIcon(QIcon.ic('edit-clear.png'))
+        clear.setToolTip(_('Use the standard color'))
+        clear.clicked.connect(partial(setattr, b, 'color', None))
+        h.addWidget(clear), h.addStretch(10)
+        l.addRow(label, h)
+        return b
+
+    @property
+    def settings(self) -> data.TextDisplaySettings:
+        return data.TextDisplaySettings(
+            font_family=self.family_chooser.font_family or '',
+            font_size=self.size_spin.value(),
+            foreground=self.foreground_button.color or '',
+            background=self.background_button.color or '',
+            max_line_width=self.line_width_spin.value(),
+        )
+
+
 class SettingsDialog(Dialog):
     # Lets the player change the AIs used to run the game mid-game: one tab
     # for the main AI that generates the story and one for the AI that
-    # generates pictures of each scene, saving the settings the same way as
-    # the welcome screen.
+    # generates pictures of each scene, plus a tab controlling the look of
+    # the widgets the story is displayed in. The AI settings are saved the
+    # same way as on the welcome screen.
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(_('Game settings'), 'cyoa-settings', parent)
@@ -367,6 +444,12 @@ class SettingsDialog(Dialog):
             ig.setChecked(bool(data.configured_provider_name('image')) and not data.image_skipped())
             iv.addWidget(ig), iv.addStretch()
             tabs.addTab(image_tab, QIcon.ic('view-image.png'), _('&Image generation AI'))
+
+        look_tab = QWidget(self)
+        lv = QVBoxLayout(look_tab)
+        self.look_and_feel = laf = LookAndFeelTab(look_tab)
+        lv.addWidget(laf), lv.addStretch()
+        tabs.addTab(look_tab, QIcon.ic('format-text-color.png'), _('&Look && feel'))
         l.addWidget(self.bb)
 
     def save_text_settings(self, plugin: AIProviderPlugin, config_widget: AIConfigWidget) -> None:
@@ -386,6 +469,10 @@ class SettingsDialog(Dialog):
             data.mark_image_skipped(False)
         else:
             data.mark_image_skipped(True)
+        # Applied to every text display widget in the game, not just the ones
+        # of the window this dialog was opened from.
+        data.set_text_display_settings(self.look_and_feel.settings)
+        apply_text_display_settings()
         super().accept()
 
 
@@ -754,16 +841,22 @@ class SceneImageDisplay(QWidget):
         p.end()
 
 
-class StoryView(MomentumScrollMixin, QTextBrowser):
-    # The chapter text display: a text browser with momentum scrolling and
-    # an extra context menu action to copy the current turn.
+class StoryView(TextDisplayMixin, MomentumScrollMixin, QTextBrowser):
+    # The chapter text display: a text browser with momentum scrolling,
+    # a line length limited to keep it comfortable to read and an extra
+    # context menu action to copy the current turn.
+
+    constrain_line_width = True
+    extra_style_sheet = 'a { text-decoration: none }'  # quick action links are colored but not underlined
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.copy_turn_action: QAction | None = None
+        self.setup_text_display()
 
     def wheelEvent(self, a0: QWheelEvent | None) -> None:
-        MomentumScrollMixin.wheelEvent(self, a0)
+        if not self.zoom_wheel_event(a0):
+            MomentumScrollMixin.wheelEvent(self, a0)
 
     def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
         if e is None:
@@ -827,6 +920,14 @@ class GameWidget(QWidget):
         self.image_counter = count(start=1)
         self.image_call = -1
         self.image_turn = -1
+        # Scrolling the story view emits valueChanged continuously, in
+        # particular under momentum scrolling, and working out which turn is
+        # on screen needs layout queries, so the scene panel is only
+        # refreshed once the scrolling has paused, see on_story_scrolled().
+        self.scroll_settle_timer = t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(50)
+        t.timeout.connect(self.update_scene_panel)
         # (document position, one based turn number) of every turn shown in
         # the story view, used to map the scroll position to a turn.
         self.turn_positions: list[tuple[int, int]] = []
@@ -875,9 +976,6 @@ class GameWidget(QWidget):
         ll.setContentsMargins(0, 0, 0, 0)
         self.story_view = sv = StoryView(left)
         sv.setOpenLinks(False)
-        doc = sv.document()
-        if doc is not None:  # quick action links are colored but not underlined
-            doc.setDefaultStyleSheet('a { text-decoration: none }')
         sv.anchorClicked.connect(self.on_link_clicked)
         sv.highlighted.connect(self.on_link_hovered)
         vsb = sv.verticalScrollBar()
@@ -917,7 +1015,7 @@ class GameWidget(QWidget):
         rl.addWidget(si)
         self.scene_filler = filler = QWidget(right)  # absorbs the leftover space under the scene image when images are shown
         rl.addWidget(filler, stretch=10)
-        self.info_view = iv = QTextBrowser(right)  # shown instead of the image when the image AI is disabled
+        self.info_view = iv = TextDisplay(right)  # shown instead of the image when the image AI is disabled
         rl.addWidget(iv, stretch=10)
         self.images_check = ic = QCheckBox(_('&Generate images'), right)
         ic.setToolTip('<p>' + _('Show AI generated pictures of each scene. When turned off, no images are generated for new turns'))
@@ -1055,6 +1153,18 @@ class GameWidget(QWidget):
         self.image_turn = -1
         self._stop_thinking()
 
+    def refresh_text_display(self) -> None:
+        # The colors of the links of the story are baked into the document
+        # when the HTML is parsed, so the story and the info panel have to be
+        # rendered again for a change to the text display settings to become
+        # fully visible, without losing the place the player is reading at.
+        tn = self.visible_turn_number()
+        self.render_story()
+        self.info_view.setProperty('cyoa-html', None)
+        self.update_scene_panel()
+        if tn:
+            self.scroll_to_turn(tn)
+
     def refresh_ui(self) -> None:
         self.render_story()
         if self.state is not None and self.state.turns:
@@ -1074,6 +1184,7 @@ class GameWidget(QWidget):
         sv = self.story_view
         sv.clear()
         self.add_scene_divider_resource(sv)  # clear() discards document resources
+        sv.apply_max_line_width()  # as does the margin limiting the line length
         self.turn_positions = []
         state = self.state
         if state is None:
@@ -1144,11 +1255,12 @@ class GameWidget(QWidget):
             action_number = int(url.path())
         except ValueError:
             return
-        if action := self.quick_action(action_number):
-            tip = f'<p>{escape(action)}'
+        if self.quick_action(action_number):
+            tip = ''
             if action_number < MAX_QUICK_ACTION_SHORTCUTS:
-                tip += '<br>' + _('Shortcut: {}').format(f'Ctrl+{action_number + 1}')
-            QToolTip.showText(QCursor.pos(), tip, self.story_view)
+                tip = _('Shortcut: {}').format(f'Ctrl+{action_number + 1}') + '<br>'
+            tip += _('Click twice to take this action: once to put it in the box below, again to send it to the AI')
+            QToolTip.showText(QCursor.pos(), f'<p>{tip}', self.story_view)
         else:
             QToolTip.hideText()
 
@@ -1250,7 +1362,7 @@ class GameWidget(QWidget):
         return ans
 
     def on_story_scrolled(self) -> None:
-        self.update_scene_panel()
+        self.scroll_settle_timer.start()
 
     # }}}
 
@@ -1814,6 +1926,7 @@ class GameWidget(QWidget):
             self.image_call = -1
             self.image_turn = -1
         self.apply_images_enabled()
+        self.refresh_text_display()
         self.update_status()  # show the newly configured models in the status bar
         state = self.state
         if self.images_enabled and state is not None and state.turns and len(state.turns) not in self.images:

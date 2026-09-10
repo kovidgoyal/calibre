@@ -12,13 +12,14 @@
 
 from typing import NamedTuple
 
-from qt.core import QFrame, QHBoxLayout, QIcon, QLabel, QPushButton, QScrollArea, QSize, QStackedLayout, QTextBrowser, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QFrame, QHBoxLayout, QIcon, QLabel, QPushButton, QScrollArea, QSize, QStackedLayout, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ai import AICapabilities
 from calibre.ai.config import AIConfigWidget, ConfigureAI
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, safe_open_url
 from calibre.gui2.cyoa import data
+from calibre.gui2.cyoa.text_display import TextDisplay
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.localization import _
 
@@ -106,7 +107,7 @@ IMAGE_RECOMMENDATIONS = (
 )
 
 
-class RecommendationsPanel(QTextBrowser):
+class RecommendationsPanel(TextDisplay):
     # Shows the recommended models for one AI purpose, as links that
     # configure the AI when clicked.
 
