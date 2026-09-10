@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Annotated, Any, NamedTuple, Protocol
 
 from calibre.ai import AICapabilities, StructuredOutputResult
 from calibre.ai.structured import Doc, Kind, OnText, StreamingStringField, TypeSpec, instantiate, spec_for_class
-from calibre.utils.localization import _
+from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
     from unittest.suite import TestSuite
@@ -248,7 +248,7 @@ def quick_action_kind_name(kind: QuickActionKind) -> str:
     # worth taking up space in the UI for.
     return {
         QuickActionKind.cautious: _('Cautious'),
-        QuickActionKind.bold: _('Bold'),
+        QuickActionKind.bold: pgettext('CYOA quick action kind', 'Bold')
         QuickActionKind.social: _('Social'),
         QuickActionKind.investigate: _('Investigate'),
     }.get(kind, '')
