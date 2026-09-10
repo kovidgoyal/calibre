@@ -233,6 +233,9 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-11940',  # tarfile, unused
     'CVE-2026-11972',  # tarfile, unused
     'CVE-2026-0864',  # configparser unused
+    'CVE-2026-17084',  # idna encoding, unused
+    'CVE-2026-15806',  # HTTPPasswordMgr unused
+    'CVE-2026-15310',  # DoS in unzip
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
