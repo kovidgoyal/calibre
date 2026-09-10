@@ -19,7 +19,7 @@ else:
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked, ResultBlockReason, StructuredOutputResult
 from calibre.ai.openai_compatible import OpenAICompatible
 from calibre.ai.prefs import decode_secret, pref_for_provider
-from calibre.ai.structured import develop_structured_output, structured_output_via_prompt, structured_output_with_error_handler
+from calibre.ai.structured import OnText, develop_structured_output, structured_output_via_prompt, structured_output_with_error_handler
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, read_streaming_response
 
 module_version = 2
@@ -197,14 +197,16 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
 
 
-def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+def generate_structured_output_implementation(
+    prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None
+) -> StructuredOutputResult:
     # As this plugin talks to arbitrary servers, native response_format
     # support cannot be assumed, so use the prompt based fallback.
-    return structured_output_via_prompt(text_chat_implementation, prompt, schema, instructions, use_model, OpenAICompatible.name)
+    return structured_output_via_prompt(text_chat_implementation, prompt, schema, instructions, use_model, OpenAICompatible.name, on_text)
 
 
-def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
-    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None) -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model, on_text))
 
 
 def develop(use_model: str = '', msg: str = '') -> None:

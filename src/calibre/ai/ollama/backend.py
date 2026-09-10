@@ -21,6 +21,7 @@ from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.ai.structured import (
+    OnText,
     develop_structured_output,
     messages_for_structured_output,
     strict_json_schema,
@@ -215,17 +216,19 @@ def structured_output_data(messages: Iterable[ChatMessage], model: Model, schema
     return data
 
 
-def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+def generate_structured_output_implementation(
+    prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None
+) -> StructuredOutputResult:
     if use_model:
         model = get_available_models()[use_model]
     else:
         model = model_choice_for_text()
     data = structured_output_data(messages_for_structured_output(prompt, instructions), model, schema)
-    return structured_output_from_chat(responses_for_data(data, model), schema, OllamaAI.name)
+    return structured_output_from_chat(responses_for_data(data, model), schema, OllamaAI.name, on_text)
 
 
-def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
-    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None) -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model, on_text))
 
 
 def develop(use_model: str = '', msg: str = '') -> None:
