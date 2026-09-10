@@ -83,8 +83,10 @@ from calibre.ai.cyoa import (
     CharacterState,
     GameState,
     PlayerCharacter,
+    QuickAction,
     deserialize_game,
     next_turn,
+    quick_action_kind_name,
     rewind,
     scene_image_prompt,
     serialize_game,
@@ -157,6 +159,22 @@ def insert_html_block(c: QTextCursor, html: str) -> None:
 
 def fmt_timestamp(ts: float) -> str:
     return strftime('%d %b %Y, %H:%M', localtime(ts))
+
+
+def quick_action_kind_html(action: QuickAction) -> str:
+    # The kind of approach an action takes, shown after it in a discreet
+    # italic aside. Empty for the catch-all kind, which is not worth the
+    # space, see quick_action_kind_name().
+    if kind := quick_action_kind_name(action.kind):
+        return f' <i>&mdash; {escape(kind)}</i>'
+    return ''
+
+
+def quick_action_as_text(action: QuickAction) -> str:
+    # An action and its kind as plain text, for the clipboard.
+    if kind := quick_action_kind_name(action.kind):
+        return f'{action.text} — {kind}'
+    return action.text
 
 
 class SceneImageResult(NamedTuple):
@@ -811,6 +829,10 @@ class GameWidget(QWidget):
         h.addWidget(ib), h.addStretch()
         il.addLayout(h)
         self.input_stack = ws = WaitStack(_('Thinking…'), after=input_panel, parent=left, size=64)
+        # A discreet Stop button in the corner of the overlay, for abandoning
+        # a turn that is taking too long or was asked for by mistake.
+        ws.enable_corner_button('window-close.png', '<p>' + _('Stop waiting for the AI to write this turn. The AI provider may still charge for it.'))
+        ws.corner_button_clicked.connect(self.stop_turn)
         ws.stop()
         ll.addWidget(ws)
         sp.addWidget(left)
@@ -951,17 +973,33 @@ class GameWidget(QWidget):
         self._thinking_ticker.stop()
         self.input_stack.stop()
 
-    def cancel_pending_ai_calls(self) -> None:
-        # In-flight generations keep running but their results are discarded
-        # as their call numbers no longer match.
+    def abandon_pending_turn(self) -> None:
+        # Stop waiting for the turn being generated. It keeps running, as
+        # there is no way to abort a request to an AI provider, but its result
+        # is discarded when it arrives as its call number no longer matches.
         self.turn_call = -1
         self.turn_request = None
         self.turn_timed_out = False
         self.late_turn_result = None
         self.turn_timer.stop()
+        self._stop_thinking()
+
+    def cancel_pending_ai_calls(self) -> None:
+        # In-flight generations keep running but their results are discarded
+        # as their call numbers no longer match.
+        self.abandon_pending_turn()
         self.image_call = -1
         self.image_turn = -1
-        self._stop_thinking()
+
+    def stop_turn(self) -> None:
+        # The Stop button of the "Thinking…" overlay. The game is left exactly
+        # as it was before the turn was asked for, so the player can edit
+        # their action and try again, or do something else entirely.
+        if self.turn_call < 0:
+            return
+        self.abandon_pending_turn()
+        self.status_bar.showMessage(_('Stopped waiting for this turn. The AI provider may still charge for it.'), 5000)
+        self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def refresh_text_display(self) -> None:
         # The colors of the links of the story are baked into the document
@@ -1019,27 +1057,30 @@ class GameWidget(QWidget):
         last = state.turns[-1].turn
         if last.quick_actions:
             # each action in its own paragraph with a top margin, giving
-            # enough space between the links to click them comfortably
+            # enough space between the links to click them comfortably, with
+            # the kind of approach it takes after it, so that the three read
+            # as the three different choices they are meant to be
             items = ''.join(
-                f'<p style="margin-top: 8px; margin-left: 16px"><a href="{QUICK_ACTION_SCHEME}:{i}">{escape(a)}</a></p>'
+                f'<p style="margin-top: 8px; margin-left: 16px"><a href="{QUICK_ACTION_SCHEME}:{i}">{escape(a.text)}</a>{quick_action_kind_html(a)}</p>'
                 for i, a in enumerate(last.quick_actions)
             )
             insert_html_block(c, f'<h4>{_("Quick actions")}</h4>' + items)
 
-    def quick_action(self, action_number: int) -> str:
-        # The text of the zero based action_number quick action of the last
-        # turn, empty when there is no such action.
+    def quick_action(self, action_number: int) -> QuickAction | None:
+        # The zero based action_number quick action of the last turn, None
+        # when there is no such action.
         if self.state is None or not self.state.turns:
-            return ''
+            return None
         actions = self.state.turns[-1].turn.quick_actions
-        return actions[action_number] if 0 <= action_number < len(actions) else ''
+        return actions[action_number] if 0 <= action_number < len(actions) else None
 
     def activate_quick_action(self, action_number: int) -> None:
         # Put the quick action into the prompt box, submitting it when it is
         # already there, so that activating an action twice plays it.
-        action = self.quick_action(action_number)
-        if not action:
+        a = self.quick_action(action_number)
+        if a is None:
             return
+        action = a.text
         if self.prompt_edit.toPlainText().strip() == action:
             self.take_action()
             return
@@ -1065,10 +1106,12 @@ class GameWidget(QWidget):
             action_number = int(url.path())
         except ValueError:
             return
-        if self.quick_action(action_number):
+        if (a := self.quick_action(action_number)) is not None:
             tip = ''
+            if kind := quick_action_kind_name(a.kind):
+                tip = _('Kind of action: {}').format(kind) + '<br>'
             if action_number < MAX_QUICK_ACTION_SHORTCUTS:
-                tip = _('Shortcut: {}').format(f'Ctrl+{action_number + 1}') + '<br>'
+                tip += _('Shortcut: {}').format(f'Ctrl+{action_number + 1}') + '<br>'
             tip += _('Click twice to take this action: once to put it in the box below, again to send it to the AI')
             QToolTip.showText(QCursor.pos(), f'<p>{tip}', self.story_view)
         else:
@@ -1091,8 +1134,8 @@ class GameWidget(QWidget):
         text_parts.append(t.turn.narrative)
         html_parts.append(response_to_html(t.turn.narrative, ContentType.markdown))
         if tn == len(state.turns) and t.turn.quick_actions:
-            text_parts.append(_('Quick actions') + ':\n' + '\n'.join(f'• {a}' for a in t.turn.quick_actions))
-            html_parts.append(f'<h4>{_("Quick actions")}</h4>' + ''.join(f'<p>• {escape(a)}</p>' for a in t.turn.quick_actions))
+            text_parts.append(_('Quick actions') + ':\n' + '\n'.join(f'• {quick_action_as_text(a)}' for a in t.turn.quick_actions))
+            html_parts.append(f'<h4>{_("Quick actions")}</h4>' + ''.join(f'<p>• {escape(a.text)}{quick_action_kind_html(a)}</p>' for a in t.turn.quick_actions))
         md = QMimeData()
         md.setText('\n\n'.join(text_parts))
         md.setHtml(''.join(html_parts))
@@ -1747,7 +1790,7 @@ class GameWidget(QWidget):
 
 
 if __name__ == '__main__':
-    from calibre.ai.cyoa import PROTAGONIST_ID, CharacterDelta, GeneratedWorld, PlayerCharacter, StoryTurn, SummaryUpdate, start_game
+    from calibre.ai.cyoa import PROTAGONIST_ID, CharacterDelta, GeneratedWorld, PlayerCharacter, QuickActionKind, StoryTurn, SummaryUpdate, start_game
     from calibre.gui2 import Application
 
     class FakePlugin:
@@ -1761,7 +1804,11 @@ if __name__ == '__main__':
             n = next(self.counter)
             turn = StoryTurn(
                 narrative=f'**Turn {n}**: The mist *swirls* around you as something stirs in the distance.\n\nYou must decide quickly.',
-                quick_actions=(f'Look around (turn {n})', 'Call out', 'Run away'),
+                quick_actions=(
+                    QuickAction(f'Wait and watch (turn {n})', QuickActionKind.cautious),
+                    QuickAction('Charge into the mist', QuickActionKind.bold),
+                    QuickAction('Call out to whoever is there', QuickActionKind.social),
+                ),
                 scene_description='A foggy city street at night.',
                 summary_update=SummaryUpdate(
                     current_situation='In the mist.',

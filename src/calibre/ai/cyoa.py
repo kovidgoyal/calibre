@@ -5,11 +5,13 @@
 # phases: world generation, where a brief description from the player is
 # expanded by the AI into a full world with playable characters, and the
 # turn-by-turn game itself. Every turn the AI narrates what happens, suggests
-# three quick actions, describes the current scene for an image generation AI,
+# three quick actions of deliberately different kinds, see QuickActionKind,
+# describes the current scene for an image generation AI,
 # reports whether a new chapter starts and sends the changes the passage makes
 # to a running summary of the story, which Python, not the AI, maintains. The
 # AI is sent the story summary and the transcript of only the current chapter,
-# so the context stays bounded no matter how long the game runs. The AI's
+# plus the closing passages of the previous one as a bridge while a chapter is
+# young, so the context stays bounded no matter how long the game runs. The AI's
 # response to every turn is kept, turn by turn, so games can be rewound and
 # saved/loaded. What was sent to the AI is not kept, as it is reconstructable
 # from the game state, see STORE_PROMPTS_IN_TURN_RECORDS.
@@ -32,7 +34,7 @@ else:
 
 # Games serialized by older versions are migrated up to this version on load,
 # see migrated_game(), so bumping it does not orphan existing saves.
-GAME_SERIALIZATION_VERSION = 3
+GAME_SERIALIZATION_VERSION = 4
 
 # The id of the CharacterState of the character the player plays. It is fixed
 # so that their entry in the story summary and their portrait can be found
@@ -197,6 +199,67 @@ class SummaryUpdate(NamedTuple):
     ] = ()
 
 
+# Asking the AI for three "short, distinct actions the player could plausibly
+# take next" reliably gets three variations on the single obvious move. Asking
+# for one action of each kind instead costs nothing and gets three choices that
+# actually differ, so every action the AI suggests comes tagged with its kind,
+# taken from this fixed vocabulary.
+class QuickActionKind(Enum):
+    doc = Doc(
+        'The kind of approach a suggested action takes. The actions offered to the player must differ in kind,'
+        ' so that they are genuinely different choices rather than variations on a single idea.'
+    )
+    cautious = 'cautious'
+    bold = 'bold'
+    social = 'social'
+    investigate = 'investigate'
+    # The catch-all for an action that fits none of the above. Also what an
+    # action of a game saved before the kinds existed becomes, see
+    # migrated_game_v3_to_v4().
+    other = 'other'
+
+
+# What each kind of action means, sent to the AI as part of the instructions
+# so that the vocabulary is defined in exactly one place. Deliberately not
+# translated, as AI models work best with English instructions.
+QUICK_ACTION_KIND_DESCRIPTIONS: dict[QuickActionKind, str] = {
+    QuickActionKind.cautious: 'hold back, defend, hide, retreat, prepare or take the careful option',
+    QuickActionKind.bold: 'act directly and decisively: confront someone, force the issue or take the physical risk',
+    QuickActionKind.social: 'engage another character: persuade, deceive, plead, bargain, provoke or simply ask',
+    QuickActionKind.investigate: 'find something out: look closer, search, follow, eavesdrop or examine',
+    QuickActionKind.other: 'an action that fits none of the other kinds',
+}
+
+# The kinds of action the AI is asked for, one per entry, in this order. Each
+# entry the AI may satisfy with any one of its kinds, so that a scene with
+# nobody to talk to can still offer a third action worth taking.
+REQUESTED_QUICK_ACTION_KINDS: tuple[tuple[QuickActionKind, ...], ...] = (
+    (QuickActionKind.cautious,),
+    (QuickActionKind.bold,),
+    (QuickActionKind.social, QuickActionKind.investigate),
+)
+
+
+def quick_action_kind_name(kind: QuickActionKind) -> str:
+    # A short, translated name for the kind of an action, shown to the player
+    # next to the action. Empty for the catch-all kind, which says nothing
+    # worth taking up space in the UI for.
+    return {
+        QuickActionKind.cautious: _('Cautious'),
+        QuickActionKind.bold: _('Bold'),
+        QuickActionKind.social: _('Social'),
+        QuickActionKind.investigate: _('Investigate'),
+    }.get(kind, '')
+
+
+class QuickAction(NamedTuple):
+    doc = Doc('One action suggested to the player, with the kind of approach it takes')
+    text: Annotated[str, 'The action itself, as a short imperative phrase, such as "Follow the stranger into the alley"']
+    # Trailing and defaulted so that a response that omits it, and a game
+    # serialized before the kinds existed, are still usable.
+    kind: Annotated[QuickActionKind, 'Which kind of approach this action takes'] = QuickActionKind.other
+
+
 class StoryTurn(NamedTuple):
     doc = Doc('One turn of the adventure')
     narrative: Annotated[
@@ -205,7 +268,12 @@ class StoryTurn(NamedTuple):
         ' written as immersive long form prose'
         ' with dialogue from the characters, their expressions and reactions, and scene descriptions where needed',
     ]
-    quick_actions: Annotated[tuple[str, ...], 'Three short, distinct actions the player could plausibly take next']
+    quick_actions: Annotated[
+        tuple[QuickAction, ...],
+        'Exactly three actions the player could plausibly take next, one of each kind requested in the instructions:'
+        ' a cautious one, a bold one and one that engages another character or investigates something.'
+        ' They must be three genuinely different approaches to the situation, not three phrasings of the obvious next step.',
+    ]
     scene_description: Annotated[
         str,
         'A self-contained visual description of the current scene,'
@@ -267,6 +335,15 @@ def initial_summary(world: GeneratedWorld, character: PlayerCharacter) -> StoryS
     )
 
 
+# The prose sent to the AI is that of the current chapter, which collapses to
+# a single passage the moment the AI starts a new chapter, taking the ground
+# out from under the instruction to continue seamlessly from where the
+# chapter's prose ends. So the closing passages of the previous chapter are
+# sent as well, as a bridge, until the new chapter holds this many turns of
+# its own, see GameState.prose_context.
+MIN_PROSE_CONTEXT_TURNS = 3
+
+
 @dataclass
 class GameState:
     # The complete state of a game. Everything except the turn log is
@@ -296,6 +373,17 @@ class GameState:
     def current_chapter_turns(self) -> tuple[TurnRecord, ...]:
         c = self.current_chapter
         return tuple(t for t in self.turns if t.chapter == c)
+
+    @property
+    def prose_context(self) -> tuple[tuple[TurnRecord, ...], tuple[TurnRecord, ...]]:
+        # The prose to send to the AI, as (bridge, current chapter): the turns
+        # of the current chapter, and the turns of earlier chapters needed to
+        # bring the prose in context up to MIN_PROSE_CONTEXT_TURNS turns,
+        # which is empty once the current chapter is long enough to stand on
+        # its own. Only the summary carries the story before that.
+        current = self.current_chapter_turns
+        bridge = tuple(t for t in self.turns[-MIN_PROSE_CONTEXT_TURNS:] if t.chapter != self.current_chapter)
+        return bridge, current
 
     @property
     def current_summary(self) -> StorySummary:
@@ -439,6 +527,26 @@ def migrated_game_v2_to_v3(game: dict[str, Any]) -> dict[str, Any]:
     return game
 
 
+def migrated_game_v3_to_v4(game: dict[str, Any]) -> dict[str, Any]:
+    # Version 3 had the AI return the quick actions as bare strings. Every
+    # action now comes with the kind of approach it takes, chosen from a fixed
+    # vocabulary, so that the three actions offered differ in kind instead of
+    # being three variations on the obvious. Nothing records what kind the
+    # actions of an old game were, so they all become the catch-all kind,
+    # which the UI shows no label for.
+    game = dict(game)
+    turns: list[Any] = []
+    for record in game.get('turns') or ():
+        if isinstance(record, dict):
+            record = dict(record)
+            turn = dict(record.get('turn') or {})
+            turn['quick_actions'] = [{'text': a, 'kind': QuickActionKind.other.value} if isinstance(a, str) else a for a in turn.get('quick_actions') or ()]
+            record['turn'] = turn
+        turns.append(record)
+    game['turns'] = turns
+    return game
+
+
 def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
     # Bring the JSON of a game serialized by an older version of calibre up to
     # GAME_SERIALIZATION_VERSION, so that changing the format does not orphan
@@ -449,6 +557,8 @@ def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
         game = migrated_game_v1_to_v2(game)
     if version < 3:
         game = migrated_game_v2_to_v3(game)
+    if version < 4:
+        game = migrated_game_v3_to_v4(game)
     return game
 
 
@@ -553,6 +663,29 @@ def summary_as_json(summary: StorySummary) -> str:
     return json.dumps(as_jsonable(summary, spec_for_class(StorySummary)), ensure_ascii=False, indent=2)
 
 
+def quick_action_instructions() -> str:
+    # The part of the turn instructions that asks for the quick actions, built
+    # from the vocabulary of kinds so that the AI is told what each kind it
+    # can tag an action with means, see QuickActionKind.
+    parts = [
+        (
+            '- quick_actions: exactly three actions the reader could have the protagonist take next, each a short imperative'
+            ' phrase and each tagged with the kind of approach it takes. They must be three genuinely different approaches to'
+            ' the situation, not three phrasings of the obvious next step, so give one action of each of these kinds, in this order:'
+        )
+    ]
+    for group in REQUESTED_QUICK_ACTION_KINDS:
+        kinds = ' or '.join(f'"{k.value}"' for k in group)
+        meanings = '; or '.join(QUICK_ACTION_KIND_DESCRIPTIONS[k] for k in group)
+        parts.append(f'  * {kinds}: {meanings}.')
+    parts.append(
+        f'  Use whichever kind of the last group the scene affords. Use "{QuickActionKind.other.value}" only for an action that'
+        ' genuinely fits none of the kinds. Every action must be something the protagonist can actually do from where they are'
+        ' right now, and must follow from the passage you have just written rather than from the story in general.'
+    )
+    return '\n'.join(parts)
+
+
 def turn_instructions(state: GameState) -> str:
     w, c = state.world, state.character
     parts = [
@@ -584,7 +717,7 @@ def turn_instructions(state: GameState) -> str:
             ' End at a point where the reader must decide what the protagonist does next.'
             ' Use Markdown formatting as instructed above.'
         ),
-        '- quick_actions: three short, distinct actions the reader could plausibly have the protagonist take next.',
+        quick_action_instructions(),
         (
             '- scene_description: a self-contained visual description of the current scene for an image generation AI.'
             ' It must make sense without any knowledge of the story.'
@@ -636,20 +769,43 @@ def turn_instructions(state: GameState) -> str:
 
 def turn_prompt(state: GameState, player_input: str = '', interesting_event: bool = False) -> str:
     parts = ['The summary of the story so far, as JSON:', summary_as_json(state.current_summary), '']
-    if transcript := state.current_chapter_turns:
-        parts.append('The prose of the current chapter so far, which the reader has already read:')
-        parts.append('')
-        for t in transcript:
+
+    def add_prose(turns: Iterable[TurnRecord]) -> None:
+        for t in turns:
             if t.player_input:
                 parts.append(f'[The reader directs: {t.player_input}]')
                 parts.append('')
             parts.append(t.turn.narrative)
             parts.append('')
+
+    bridge, transcript = state.prose_context
+    if bridge:
+        # A chapter that has only just started has almost no prose of its own,
+        # so the passages leading up to it come along to bridge the gap. They
+        # are labelled as belonging to the previous chapter, so that the AI
+        # continues from the end of the current chapter, not from these.
+        parts.append('The closing prose of the previous chapter, for continuity. The reader has read it and the story has moved past it:')
+        parts.append('')
+        add_prose(bridge)
+    if transcript:
+        parts.append('The prose of the current chapter so far, which the reader has already read:')
+        parts.append('')
+        add_prose(transcript)
     if state.turns:
         if interesting_event:
             parts.append(
                 'The reader waits to see what happens next. Have something unexpected and interesting happen, taking the story in a surprising new direction.'
             )
+            if threads := state.current_summary.upcoming_events:
+                # The summary already lists the threads the AI itself
+                # foreshadowed, so a surprise that pays one of them off beats
+                # one invented from nothing, which leaves them dangling.
+                parts.append(
+                    'Do it, if you can, by paying off one of these unresolved threads from upcoming_events,'
+                    ' bringing it to the surface now rather than leaving it for later:'
+                )
+                parts.extend(f'- {t}' for t in threads)
+                parts.append('Invent something unrelated only if none of them can plausibly surface in this moment.')
         else:
             parts.append(f'The reader directs: {player_input}' if player_input else 'The reader offers no direction.')
         parts.append("Write the next passage of the novel, continuing seamlessly from where the chapter's prose ends.")
@@ -752,12 +908,39 @@ def generate_world(brief: str, plugin: AIProvider | None = None, use_model: str 
     return res._replace(data=world)
 
 
-# The AI is asked for three quick actions, but they are only a convenience:
-# the player can always type an action of their own. Throwing away a passage
-# of prose the player has already paid for because the AI repeated itself and
-# one of the three was deduplicated away would be a far worse trade than
-# rendering the two that survived, so any at all are accepted.
-NUM_QUICK_ACTIONS = 3
+# The AI is asked for one quick action of each requested kind, but they are
+# only a convenience: the player can always type an action of their own.
+# Throwing away a passage of prose the player has already paid for because the
+# AI repeated itself and one of the three was deduplicated away would be a far
+# worse trade than rendering the two that survived, so any at all are accepted.
+NUM_QUICK_ACTIONS = len(REQUESTED_QUICK_ACTION_KINDS)
+
+
+def selected_quick_actions(actions: Iterable[QuickAction]) -> tuple[QuickAction, ...]:
+    # Normalize the actions the AI suggests: strip them, discard the blank and
+    # duplicate ones and keep at most NUM_QUICK_ACTIONS. When the AI offers
+    # more than that, one action of each kind is preferred over simply taking
+    # the first few, as three actions that differ in kind is the whole point
+    # of asking for kinds. The order the AI put them in is kept, as it is
+    # asked for them in the order the kinds are requested.
+    unique: list[QuickAction] = []
+    seen: set[str] = set()
+    for a in actions:
+        text = a.text.strip()
+        if text and (key := text.casefold()) not in seen:
+            seen.add(key)
+            unique.append(a._replace(text=text))
+    if len(unique) <= NUM_QUICK_ACTIONS:
+        return tuple(unique)
+    of_kind: dict[QuickActionKind, QuickAction] = {}
+    for a in unique:
+        of_kind.setdefault(a.kind, a)
+    chosen = list(of_kind.values())[:NUM_QUICK_ACTIONS]
+    if len(chosen) < NUM_QUICK_ACTIONS:  # fewer kinds than actions to show, so fill up with the rest
+        picked = {a.text for a in chosen}
+        chosen += [a for a in unique if a.text not in picked][: NUM_QUICK_ACTIONS - len(chosen)]
+    position = {a.text: i for i, a in enumerate(unique)}
+    return tuple(sorted(chosen, key=lambda a: position[a.text]))
 
 
 def clean_text_list(items: Iterable[str]) -> tuple[str, ...]:
@@ -873,7 +1056,7 @@ def validated_turn(turn: StoryTurn) -> StoryTurn:
     narrative = turn.narrative.strip()
     if not narrative:
         raise InvalidAIResponse('The AI returned an empty passage of prose')
-    quick_actions = clean_text_list(turn.quick_actions)[:NUM_QUICK_ACTIONS]
+    quick_actions = selected_quick_actions(turn.quick_actions)
     if not quick_actions:
         raise InvalidAIResponse('The AI returned no usable quick actions')
     return StoryTurn(
@@ -977,12 +1160,12 @@ def develop(use_model: str = '') -> None:  # {{{
         print(f'\n{turn.narrative}\n')
         print(f'[Scene: {turn.scene_description}]\n')
         for i, action in enumerate(turn.quick_actions):
-            print(f'{i + 1}) {action}')
+            print(f'{i + 1}) [{action.kind.value}] {action.text}')
         player_input = input('\nWhat do you do? (number for a quick action, empty to quit): ').strip()
         if not player_input:
             break
         if player_input.isdigit() and 1 <= int(player_input) <= len(turn.quick_actions):
-            player_input = turn.quick_actions[int(player_input) - 1]
+            player_input = turn.quick_actions[int(player_input) - 1].text
 
 
 # }}}
@@ -1021,6 +1204,11 @@ def find_tests() -> TestSuite:  # {{{
         )
         return ans._replace(**kw)
 
+    def make_actions(*actions: str | QuickAction) -> tuple[QuickAction, ...]:
+        # Bare strings are convenient for the tests that do not care about the
+        # kinds, they get the catch-all kind.
+        return tuple(a if isinstance(a, QuickAction) else QuickAction(a) for a in actions)
+
     def make_turn(
         narrative: str,
         *new_events: str,
@@ -1029,7 +1217,11 @@ def find_tests() -> TestSuite:  # {{{
     ) -> StoryTurn:
         return StoryTurn(
             narrative=narrative,
-            quick_actions=('Look around', 'Call out', 'Run'),
+            quick_actions=(
+                QuickAction('Hide in the doorway', QuickActionKind.cautious),
+                QuickAction('Charge into the mist', QuickActionKind.bold),
+                QuickAction('Call out to whoever is there', QuickActionKind.social),
+            ),
             scene_description=f'A picture of: {narrative}',
             summary_update=make_update(*new_events),
             starts_new_chapter=starts_new_chapter,
@@ -1179,8 +1371,13 @@ def find_tests() -> TestSuite:  # {{{
             next_turn(state, 'go deeper', fake)
             prompt = fake.calls[3][0]
             self.assertIn('You descend into the tunnels.', prompt, 'the transcript must contain the current chapter')
-            self.assertNotIn('You awaken in the mist.', prompt, 'the transcript must not contain previous chapters')
-            self.assertNotIn('Shapes loom around you.', prompt, 'the transcript must not contain previous chapters')
+            self.assertIn('closing prose of the previous chapter', prompt, 'a chapter that has only just started must be given a bridge')
+            self.assertIn('Shapes loom around you.', prompt, 'the bridge must contain the passages leading up to the new chapter')
+            self.assertLess(
+                prompt.index('Shapes loom around you.'),
+                prompt.index('You descend into the tunnels.'),
+                'the bridge must come before the prose of the current chapter',
+            )
             self.ae(state.turns[3].chapter, 1)
 
             failing = FakePlugin([StructuredOutputResult(exception=ValueError('boom'), error_details='details')])
@@ -1195,6 +1392,96 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('something unexpected', prompt)
             self.assertNotIn('ignored', prompt, "an interesting event must not send the player's input to the AI")
             self.ae(state.turns[-1].player_input, '', 'an interesting event must not record any player input')
+
+        def test_ai_cyoa_prose_context(self) -> None:
+            # The prose of the current chapter is sent to the AI, with the
+            # passages before it bridging the gap when a chapter has only just
+            # started, as the AI is told to continue from where the prose ends.
+            state = start_game('a foggy city', make_world())
+
+            def play(narrative: str, new_chapter: bool = False) -> tuple[tuple[str, ...], tuple[str, ...]]:
+                turn = make_turn(narrative, starts_new_chapter=new_chapter, chapter_title='Next' if new_chapter else None)
+                res = next_turn(state, 'go', FakePlugin([ok(turn)]))
+                self.assertIsNone(res.exception, f'turn unexpectedly rejected: {res.exception}')
+                bridge, current = state.prose_context
+                return tuple(t.turn.narrative for t in bridge), tuple(t.turn.narrative for t in current)
+
+            self.ae(state.prose_context, ((), ()), 'a game that has not started has no prose')
+            self.ae(play('one'), ((), ('one',)), 'the first chapter needs no bridge')
+            self.ae(play('two'), ((), ('one', 'two')))
+            self.ae(play('three'), ((), ('one', 'two', 'three')))
+            self.ae(play('four'), ((), ('one', 'two', 'three', 'four')), 'the bridge must not reach back within a chapter')
+            self.ae(play('five', new_chapter=True), (('three', 'four'), ('five',)), 'a chapter that has just started must be bridged')
+            self.ae(play('six'), (('four',), ('five', 'six')), 'the bridge must shrink as the new chapter grows')
+            self.ae(play('seven'), ((), ('five', 'six', 'seven')), 'the bridge must go away once the chapter can stand on its own')
+            self.ae(play('eight', new_chapter=True), (('six', 'seven'), ('eight',)))
+
+        def test_ai_cyoa_interesting_event_pays_off_threads(self) -> None:
+            # The AI is told to spring a surprise, but the summary already
+            # holds the threads it foreshadowed itself, so it is pointed at
+            # them rather than left to invent something unrelated.
+            state = start_game('a foggy city', make_world())
+            fake = FakePlugin([ok(make_turn('You awaken in the mist.', 'awoke')), ok(make_turn('A door opens.'))])
+            next_turn(state, '', fake)
+            self.ae(state.current_summary.upcoming_events, ('The mist thickens.',))
+            next_turn(state, '', fake, interesting_event=True)
+            prompt = fake.calls[1][0]
+            self.assertIn('something unexpected', prompt)
+            self.assertIn('paying off one of these unresolved threads', prompt)
+            self.assertIn('- The mist thickens.', prompt, 'the unresolved threads must be listed for the AI to choose from')
+
+            # With no threads open there is nothing to pay off and the AI must
+            # not be sent an empty list to work from
+            state = start_game('a foggy city', make_world())
+            fake = FakePlugin([ok(make_turn('You awaken.')._replace(summary_update=make_update(upcoming_events=()))), ok(make_turn('A door opens.'))])
+            next_turn(state, '', fake)
+            self.ae(state.current_summary.upcoming_events, ())
+            next_turn(state, '', fake, interesting_event=True)
+            prompt = fake.calls[1][0]
+            self.assertIn('something unexpected', prompt)
+            self.assertNotIn('unresolved threads', prompt)
+
+        def test_ai_cyoa_quick_actions(self) -> None:
+            # The AI is asked for one action of each requested kind, rather
+            # than for three "distinct" actions, which gets three variations
+            # on the single obvious move.
+            state = start_game('a foggy city', make_world())
+            res = next_turn(state, '', FakePlugin([ok(make_turn('You awaken.'))]))
+            self.assertIsNone(res.exception)
+            instructions = turn_instructions(state)
+            for group in REQUESTED_QUICK_ACTION_KINDS:
+                for kind in group:
+                    self.assertIn(f'"{kind.value}"', instructions, 'every requested kind of action must be named in the instructions')
+                    self.assertIn(QUICK_ACTION_KIND_DESCRIPTIONS[kind], instructions, 'the AI must be told what each kind of action means')
+            self.ae(state.turns[-1].turn.quick_actions[0].kind, QuickActionKind.cautious)
+            self.ae(quick_action_kind_name(QuickActionKind.other), '', 'the catch-all kind must have no name to show the player')
+            self.assertTrue(all(quick_action_kind_name(k) for k in QuickActionKind if k is not QuickActionKind.other))
+
+            def selected(*actions: str | QuickAction) -> tuple[tuple[str, str], ...]:
+                return tuple((a.text, a.kind.value) for a in selected_quick_actions(make_actions(*actions)))
+
+            # Blanks and duplicates are discarded and the text is stripped
+            self.ae(selected(' Run ', 'Run', '', '\n', 'RUN'), (('Run', 'other'),))
+            # An action of every kind offered is preferred over the first few
+            cautious = QuickAction('Wait for them to pass', QuickActionKind.cautious)
+            bold = QuickAction('Kick the door in', QuickActionKind.bold)
+            bold2 = QuickAction('Kick the window in', QuickActionKind.bold)
+            social = QuickAction('Ask them who they are', QuickActionKind.social)
+            self.ae(
+                selected(bold, bold2, cautious, social),
+                (('Kick the door in', 'bold'), ('Wait for them to pass', 'cautious'), ('Ask them who they are', 'social')),
+                'when the AI offers more actions than are shown, one of each kind must be preferred',
+            )
+            self.ae(
+                selected(cautious, bold, social, QuickAction('Search the desk', QuickActionKind.investigate)),
+                (('Wait for them to pass', 'cautious'), ('Kick the door in', 'bold'), ('Ask them who they are', 'social')),
+                'the order the AI put the actions in must be kept',
+            )
+            self.ae(
+                selected(bold, bold2, QuickAction('Kick the wall in', QuickActionKind.bold), 'Something else'),
+                (('Kick the door in', 'bold'), ('Kick the window in', 'bold'), ('Something else', 'other')),
+                'with fewer kinds than actions to show, the leftover slots must be filled in the order the AI gave',
+            )
 
         def test_ai_cyoa_turn_validation(self) -> None:
             def played(turn: StoryTurn, state: GameState | None = None) -> tuple[GameState, StructuredOutputResult]:
@@ -1219,7 +1506,7 @@ def find_tests() -> TestSuite:  # {{{
             # A schema conforming but unusable response must be reported as an error
             self.assertIn('empty passage', rejected(make_turn('   \n  ')))
             self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=())))
-            self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=(' ', '\n'))))
+            self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=make_actions(' ', '\n'))))
             state = start_game('a foggy city', make_world())
             res = next_turn(state, 'go', FakePlugin([StructuredOutputResult(data=None, raw='{}')]))
             self.assertIsInstance(res.exception, InvalidAIResponse, 'a result with neither data nor an exception must be an error')
@@ -1228,21 +1515,21 @@ def find_tests() -> TestSuite:  # {{{
             # Text fields are stripped and quick actions are deduplicated and truncated to three
             turn = accepted(
                 make_turn(' You awaken. ')._replace(
-                    quick_actions=(' Run ', 'Run', 'Hide', '', 'Shout', 'Wait'),
+                    quick_actions=make_actions(' Run ', 'Run', 'Hide', '', 'Shout', 'Wait'),
                     scene_description='  A misty street.  ',
                     chapter_title='   ',
                 )
             ).turn
             self.ae(turn.narrative, 'You awaken.')
-            self.ae(turn.quick_actions, ('Run', 'Hide', 'Shout'))
+            self.ae(turn.quick_actions, make_actions('Run', 'Hide', 'Shout'))
             self.ae(turn.scene_description, 'A misty street.')
             self.assertIsNone(turn.chapter_title, 'a blank chapter title must be normalized to null')
             # A missing scene description must not fail an otherwise good turn
             self.ae(accepted(make_turn('x')._replace(scene_description=' ')).turn.scene_description, '')
             # Nor must too few quick actions: they are a convenience, the passage of prose is what the player paid for
             self.ae(
-                accepted(make_turn('x')._replace(quick_actions=('Look', '  ', 'look'))).turn.quick_actions,
-                ('Look',),
+                accepted(make_turn('x')._replace(quick_actions=make_actions('Look', '  ', 'look'))).turn.quick_actions,
+                make_actions('Look'),
                 'a turn with a single usable quick action must be kept',
             )
 
@@ -1400,6 +1687,27 @@ def find_tests() -> TestSuite:  # {{{
             ])
             next_turn(state, '', fake)
             next_turn(state, 'run', fake)
+
+            def as_v3() -> str:
+                # A game as version 3 serialized it: the quick actions as bare
+                # strings, without the kind of approach each of them takes.
+                data = json.loads(serialize_game(state))
+                data['version'] = 3
+                for record in data['game']['turns']:
+                    record['turn']['quick_actions'] = [a['text'] for a in record['turn']['quick_actions']]
+                return json.dumps(data)
+
+            restored = deserialize_game(as_v3())
+            self.ae(
+                [tuple(a.text for a in t.turn.quick_actions) for t in restored.turns],
+                [tuple(a.text for a in t.turn.quick_actions) for t in state.turns],
+                'migration must keep the text of every quick action of every turn',
+            )
+            self.ae(
+                {a.kind for t in restored.turns for a in t.turn.quick_actions},
+                {QuickActionKind.other},
+                'a quick action saved without a kind must get the catch-all kind',
+            )
 
             def as_v2() -> str:
                 # A game as version 2 serialized it: the whole story summary,
