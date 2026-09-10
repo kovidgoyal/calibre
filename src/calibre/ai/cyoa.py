@@ -6,13 +6,13 @@
 # expanded by the AI into a full world with playable characters, and the
 # turn-by-turn game itself. Every turn the AI narrates what happens, suggests
 # three quick actions, describes the current scene for an image generation AI,
-# updates a running summary of the story and reports whether a new chapter
-# starts. The AI is sent the
-# story summary and the transcript of only the current chapter, so the context
-# stays bounded no matter how long the game runs. The AI's response to every
-# turn is kept, turn by turn, so games can be rewound and saved/loaded. What
-# was sent to the AI is not kept, as it is reconstructable from the game
-# state, see STORE_PROMPTS_IN_TURN_RECORDS.
+# reports whether a new chapter starts and sends the changes the passage makes
+# to a running summary of the story, which Python, not the AI, maintains. The
+# AI is sent the story summary and the transcript of only the current chapter,
+# so the context stays bounded no matter how long the game runs. The AI's
+# response to every turn is kept, turn by turn, so games can be rewound and
+# saved/loaded. What was sent to the AI is not kept, as it is reconstructable
+# from the game state, see STORE_PROMPTS_IN_TURN_RECORDS.
 
 import json
 import textwrap
@@ -32,7 +32,7 @@ else:
 
 # Games serialized by older versions are migrated up to this version on load,
 # see migrated_game(), so bumping it does not orphan existing saves.
-GAME_SERIALIZATION_VERSION = 2
+GAME_SERIALIZATION_VERSION = 3
 
 # The id of the CharacterState of the character the player plays. It is fixed
 # so that their entry in the story summary and their portrait can be found
@@ -77,49 +77,124 @@ class GeneratedWorld(NamedTuple):
 
 class CharacterState(NamedTuple):
     doc = Doc('The current state of a significant character in the story')
+    # Never generated directly by the AI: every turn it sends a
+    # CharacterDelta for each character it changes and updated_characters()
+    # merges those into the cast of the previous summary.
     name: str
-    description: Annotated[
-        str,
-        'The physical appearance and nature of the character: their looks, age, distinguishing features,'
-        ' the kind of clothes they wear and their temperament. This doubles as the prompt used to draw them.'
-        ' Reproduce the previous description verbatim unless their appearance or nature has permanently changed,'
-        ' for example a new scar, the loss of a limb or aging.'
-        ' Never record events, mood, injuries, location or plot developments here, they belong in current_state.',
-    ]
-    backstory: Annotated[
-        str,
-        "The character's brief backstory: who they are and how they came to be part of the story."
-        ' Only extend it when the story reveals something new about their past.',
-    ]
+    description: Annotated[str, 'The durable physical appearance and nature of the character, doubling as the prompt used to draw them']
+    backstory: Annotated[str, "The character's brief backstory: who they are and how they came to be part of the story"]
     relationships: Annotated[str, 'Their relationships with the player and the other characters, and how those have changed']
     # Trailing and defaulted so that games serialized before these fields
-    # existed still deserialize, see instantiate(). The schema sent to the AI
-    # marks every field required regardless of the default.
+    # existed still deserialize, see instantiate().
     current_state: Annotated[
         str,
         'Everything that is true of this character only right now: where they are, what they are doing,'
-        ' their physical condition and any injuries, their mood, what they are carrying and what they intend to do next.'
-        ' Rewrite this every turn: it is the field that carries change.',
+        ' their physical condition and any injuries, their mood, what they are carrying and what they intend to do next',
     ] = ''
     id: Annotated[
         str,
         "A short, permanent, lowercase identifier for this character, such as 'marlo'."
-        ' It is the identity of the character, not their name: reproduce it verbatim for every character that already has one,'
-        ' even when they are renamed or their true identity is revealed.'
-        ' Never change, swap or re-use an id, and invent a new one only for a character being added to the summary for the first time.',
+        ' It is the identity of the character, not their name, so it survives them being renamed.',
     ] = ''
+
+
+# The summary is sent to the AI in full on every turn, so the list of major
+# events has to be bounded or it grows without limit as a game goes on. The AI
+# is asked to condense the older events into single lines as the list
+# approaches this cap, see SummaryUpdate.consolidated_major_events, and the
+# oldest are dropped if it does not.
+MAX_MAJOR_EVENTS = 30
 
 
 class StorySummary(NamedTuple):
     doc = Doc('A summary of the story so far, serving as memory for continuing it')
+    # Maintained by Python, not by the AI: every turn the AI sends only a
+    # SummaryUpdate and updated_summary() merges it into the previous summary.
     world: Annotated[str, 'Description of the world and its current state']
-    major_events: Annotated[tuple[str, ...], 'The major events of the story so far, in chronological order']
+    major_events: Annotated[tuple[str, ...], f'The major events of the story so far, in chronological order, at most {MAX_MAJOR_EVENTS} of them']
     characters: Annotated[
         tuple[CharacterState, ...],
         'All significant named characters in the story, each with a description, brief backstory, their relationships and their current state',
     ]
     current_situation: Annotated[str, 'Where the player currently is and what is happening']
     upcoming_events: Annotated[tuple[str, ...], 'Foreshadowed or planned future events and unresolved plot threads']
+
+
+class CharacterDelta(NamedTuple):
+    doc = Doc(
+        'A change to one character of the story summary. Only what changed this turn need be filled in:'
+        ' every field left empty keeps the value the character already has in the summary.'
+    )
+    id: Annotated[
+        str,
+        "The short, permanent, lowercase identifier of the character this updates, such as 'marlo'."
+        ' It is the identity of the character, not their name: reproduce the id from the summary verbatim,'
+        ' even when you rename the character or reveal their true identity.'
+        ' Invent a new one, based on their name, only for a character you are adding to the summary for the first time.',
+    ]
+    current_state: Annotated[
+        str,
+        'Everything that is true of this character only right now: where they are, what they are doing,'
+        ' their physical condition and any injuries, their mood, what they are carrying and what they intend to do next.'
+        ' Always fill this in: it replaces whatever the summary currently says about them.',
+    ]
+    name: Annotated[
+        str,
+        'The name of the character. Fill this in only when you are adding them to the summary or the story renames them;'
+        ' leave it empty to keep the name they already have.',
+    ] = ''
+    description: Annotated[
+        str,
+        'The physical appearance and nature of the character: their looks, age, distinguishing features,'
+        ' the kind of clothes they wear and their temperament. This doubles as the prompt used to draw them.'
+        ' Leave it empty unless you are adding them to the summary, or their appearance or nature has permanently'
+        ' changed, for example a new scar, the loss of a limb or aging, in which case give the full new description.'
+        ' Never record events, mood, injuries, location or plot developments here, they belong in current_state.',
+    ] = ''
+    backstory: Annotated[
+        str,
+        "The character's brief backstory: who they are and how they came to be part of the story."
+        ' Leave it empty unless you are adding them to the summary, or the story has just revealed something new'
+        ' about their past, in which case give the full extended backstory.',
+    ] = ''
+    relationships: Annotated[
+        str,
+        'How this character stands with the protagonist and the other characters.'
+        ' Leave it empty unless their relationships changed this turn, in which case give them in full.',
+    ] = ''
+
+
+class SummaryUpdate(NamedTuple):
+    doc = Doc('The changes a passage of the story makes to the running summary of the story')
+    current_situation: Annotated[str, 'Where the protagonist is and what is happening as this passage ends. This replaces the previous situation.']
+    character_updates: Annotated[
+        tuple[CharacterDelta, ...],
+        'One entry for every character this passage changes and every new named character it introduces.'
+        ' Leave out the characters it does not touch: they keep the state they already have in the summary.',
+    ]
+    new_major_events: Annotated[
+        tuple[str, ...],
+        'The events of this passage that matter to the rest of the story, one short line each, in chronological order.'
+        ' They are appended to the major events already in the summary, so never repeat one that is already there.'
+        ' Leave this empty when nothing of lasting importance happened.',
+    ]
+    upcoming_events: Annotated[
+        tuple[str, ...],
+        'The complete list of foreshadowed or planned future events and unresolved plot threads as it now stands.'
+        ' This one field replaces the previous list rather than adding to it, so repeat every thread that is still'
+        ' open and leave out only the ones this passage has resolved.',
+    ]
+    world: Annotated[
+        str,
+        'The description of the world. Leave it empty unless the state of the world itself has changed, in which case give the full new description.',
+    ] = ''
+    consolidated_major_events: Annotated[
+        tuple[str, ...],
+        'A condensed rewrite of the major events that were already in the summary, replacing them.'
+        f' Leave this empty except when the summary is nearing its limit of {MAX_MAJOR_EVENTS} major events:'
+        ' then merge the older ones into fewer single lines, each covering several events,'
+        ' keeping every development the rest of the story still depends on.',
+    ] = ()
 
 
 class StoryTurn(NamedTuple):
@@ -130,14 +205,14 @@ class StoryTurn(NamedTuple):
         ' written as immersive long form prose'
         ' with dialogue from the characters, their expressions and reactions, and scene descriptions where needed',
     ]
-    quick_actions: Annotated[tuple[str, ...], 'Exactly three short, distinct actions the player could plausibly take next']
+    quick_actions: Annotated[tuple[str, ...], 'Three short, distinct actions the player could plausibly take next']
     scene_description: Annotated[
         str,
         'A self-contained visual description of the current scene,'
         ' suitable as a prompt for an image generation AI, that does not rely on knowledge of the story.'
         ' Describe the current physical state of the characters, their clothing and emotional state.',
     ]
-    updated_summary: Annotated[StorySummary, 'The story summary updated to include the events of this turn']
+    summary_update: Annotated[SummaryUpdate, 'The changes this passage makes to the running summary of the story']
     starts_new_chapter: Annotated[bool, 'True only when this turn begins a major new phase of the story, suitable as the start of a new chapter']
     chapter_title: Annotated[str | None, 'A title for the new chapter when starts_new_chapter is true, null otherwise']
 
@@ -163,6 +238,11 @@ class TurnRecord(NamedTuple):
     player_input: str  # what the player typed or chose, empty for the opening turn
     raw_response: str  # the raw JSON text returned by the AI
     turn: StoryTurn  # the parsed response
+    # The story summary as it stands after this turn: the summary of the
+    # previous turn with the turn's SummaryUpdate merged into it. Stored
+    # rather than recomputed by replaying the updates so that rewinding a
+    # game stays a matter of dropping turn records.
+    summary: StorySummary
     chapter: int  # zero based chapter number this turn belongs to
     cost: float = 0
     currency: str = ''
@@ -219,7 +299,7 @@ class GameState:
 
     @property
     def current_summary(self) -> StorySummary:
-        return self.turns[-1].turn.updated_summary if self.turns else initial_summary(self.world, self.character)
+        return self.turns[-1].summary if self.turns else initial_summary(self.world, self.character)
 
     @property
     def chapter_titles(self) -> tuple[str, ...]:
@@ -318,6 +398,47 @@ def migrated_character_v1_to_v2(character: Any, protagonist: str) -> Any:  # noq
     return dict(character, id=cid)
 
 
+def migrated_game_v2_to_v3(game: dict[str, Any]) -> dict[str, Any]:
+    # Version 2 had the AI return the whole story summary every turn, stored
+    # as updated_summary inside the turn. It now returns only what changed,
+    # which Python merges into the summary of the previous turn, so the
+    # summary moves onto the turn record and the turn keeps the update the AI
+    # sent. There is no record of what the AI actually changed in an old game,
+    # so the update is synthesized as one that replaces everything, which
+    # merges to exactly the summary that was stored.
+    game = dict(game)
+    turns: list[Any] = []
+    for record in game.get('turns') or ():
+        if isinstance(record, dict):
+            record = dict(record)
+            turn = dict(record.get('turn') or {})
+            summary = dict(turn.pop('updated_summary', None) or {})
+            record['summary'] = summary
+            turn['summary_update'] = {
+                'world': summary.get('world') or '',
+                'current_situation': summary.get('current_situation') or '',
+                'character_updates': [
+                    {
+                        'id': c.get('id') or '',
+                        'name': c.get('name') or '',
+                        'description': c.get('description') or '',
+                        'backstory': c.get('backstory') or '',
+                        'relationships': c.get('relationships') or '',
+                        'current_state': c.get('current_state') or '',
+                    }
+                    for c in summary.get('characters') or ()
+                    if isinstance(c, dict)
+                ],
+                'new_major_events': [],
+                'consolidated_major_events': list(summary.get('major_events') or ()),
+                'upcoming_events': list(summary.get('upcoming_events') or ()),
+            }
+            record['turn'] = turn
+        turns.append(record)
+    game['turns'] = turns
+    return game
+
+
 def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
     # Bring the JSON of a game serialized by an older version of calibre up to
     # GAME_SERIALIZATION_VERSION, so that changing the format does not orphan
@@ -326,6 +447,8 @@ def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
     # newly required fields need handling here.
     if version < 2:
         game = migrated_game_v1_to_v2(game)
+    if version < 3:
+        game = migrated_game_v2_to_v3(game)
     return game
 
 
@@ -461,34 +584,45 @@ def turn_instructions(state: GameState) -> str:
             ' End at a point where the reader must decide what the protagonist does next.'
             ' Use Markdown formatting as instructed above.'
         ),
-        '- quick_actions: exactly three short, distinct actions the reader could plausibly have the protagonist take next.',
+        '- quick_actions: three short, distinct actions the reader could plausibly have the protagonist take next.',
         (
             '- scene_description: a self-contained visual description of the current scene for an image generation AI.'
             ' It must make sense without any knowledge of the story.'
         ),
         (
-            "- updated_summary: the story summary updated with this passage's events."
-            ' Preserve all information that is still relevant, including characters, relationships and unresolved plot threads, and keep it concise.'
-            ' Whenever the narrative introduces a new named character, add an entry for them to the characters field of the summary'
-            ' with a short description and a brief backstory.'
+            '- summary_update: how this passage changes the story summary, which is your only memory of everything'
+            ' that happened before the current chapter. Send only what changed. Every field you leave empty keeps the'
+            ' value it already has in the summary, so there is never any need to copy text out of the summary and back.'
         ),
         (
-            "- Every character in updated_summary has an id, which is that character's permanent identity, not their name."
-            ' Reproduce the id of every character already in the summary verbatim, even when you rename them:'
-            ' when "the stranger" turns out to be Marlo, change their name and leave their id untouched.'
-            ' Never change, swap or re-use an id and never add a second entry for a character who already has one.'
+            '- character_updates: one entry for every character this passage changes, and one for every new named character it introduces.'
+            ' Leave out the characters the passage does not touch. Fill in current_state, which is everything that is only true of them'
+            ' right now: where they are, what they are doing, their physical condition and injuries, their mood, what they carry and what'
+            ' they intend next. Leave description, backstory and relationships empty unless this passage changed them: description only when'
+            ' their appearance or nature has permanently changed, backstory only when the story reveals something new about their past,'
+            ' relationships only when how they stand with someone has shifted. Never put events, mood, injuries or location into description,'
+            ' which is also used as the prompt to draw them.'
+            ' A character you are introducing needs a name, a short description and a brief backstory as well as their current state.'
+        ),
+        (
+            "- Each entry of character_updates names its character by id, which is that character's permanent identity, not their name."
+            ' Reproduce the id from the summary verbatim, even when you rename them:'
+            ' when "the stranger" turns out to be Marlo, put the new name in name and leave the id untouched.'
+            ' Never change, swap or re-use an id and never send two entries for the same character.'
             ' Invent a new short lowercase id, based on their name, only for a character you are adding to the summary for the first time.'
         ),
         (
-            '- The four text fields of each character in updated_summary have distinct jobs and must never be mixed up.'
-            ' current_state holds everything that is only true right now: where the character is, what they are doing, their physical'
-            ' condition and injuries, their mood, what they carry and what they intend next. Rewrite it every turn.'
-            ' description is the durable appearance and nature of the character and is also used as the prompt to draw them, so copy it'
-            ' verbatim from the previous summary unless their appearance or nature has permanently changed, and never put events,'
-            ' mood, injuries or location into it.'
-            ' backstory grows only when the story reveals something new about the past.'
-            ' relationships tracks how the character stands with the protagonist and the other characters.'
+            '- new_major_events: the events of this passage that matter to the rest of the story, one short line each.'
+            ' They are added to the major events already in the summary, so never repeat one that is already there,'
+            ' and leave the field empty when nothing of lasting importance happened.'
+            f' The summary holds at most {MAX_MAJOR_EVENTS} major events: as it nears that many, use consolidated_major_events to'
+            ' replace the events already in the summary with a shorter list that merges the older ones into single lines.'
         ),
+        (
+            '- upcoming_events is the one field that replaces rather than adds to what the summary holds:'
+            ' give the whole list of unresolved plot threads as it now stands, repeating those still open and dropping those this passage resolved.'
+        ),
+        '- current_situation: where the protagonist is and what is happening as this passage ends.',
         '- starts_new_chapter: true only when this passage begins a major new phase of the story, with chapter_title naming the new chapter.',
         '',
         f'The world, titled {w.title!r}, is described as:',
@@ -618,6 +752,11 @@ def generate_world(brief: str, plugin: AIProvider | None = None, use_model: str 
     return res._replace(data=world)
 
 
+# The AI is asked for three quick actions, but they are only a convenience:
+# the player can always type an action of their own. Throwing away a passage
+# of prose the player has already paid for because the AI repeated itself and
+# one of the three was deduplicated away would be a far worse trade than
+# rendering the two that survived, so any at all are accepted.
 NUM_QUICK_ACTIONS = 3
 
 
@@ -633,85 +772,117 @@ def clean_text_list(items: Iterable[str]) -> tuple[str, ...]:
     return tuple(ans)
 
 
-def validated_characters(characters: Iterable[CharacterState], previous: StorySummary) -> tuple[CharacterState, ...]:
-    # Fill in fields the AI left blank from the entry for the same character in
-    # the previous summary and discard entries that say nothing at all.
+def updated_characters(updates: Iterable[CharacterDelta], previous: StorySummary) -> tuple[CharacterState, ...]:
+    # Merge the AI's per character updates into the cast of the previous
+    # summary. Every field an update leaves blank keeps the value the
+    # character already has, and a character the AI says nothing about this
+    # turn is left exactly as they were, so "unchanged" is the default rather
+    # than something the AI has to achieve by retyping text it was sent.
     # A character is identified by their id rather than their name, so that
     # renaming one, which fiction does constantly as "the stranger" turns out
     # to be Marlo, updates their entry instead of forking it in two. The AI is
     # told to carry ids forward but cannot be relied on to always do so, hence
     # the fallback to matching by name and the invented ids.
-    by_id = {c.id: c for c in previous.characters if c.id}
-    by_name = {c.name.strip().casefold(): c for c in previous.characters if c.name.strip()}
-    ans: list[CharacterState] = []
-    seen_ids: set[str] = set()
-    seen_names: set[str] = set()
-    for c in characters:
-        name = c.name.strip()
-        # A character without a name can neither be matched with a previous
-        # entry nor be referred to by the AI or the player on later turns.
-        if not name:
+    ans = list(previous.characters)
+    by_id = {c.id: i for i, c in enumerate(ans) if c.id}
+    by_name = {c.name.strip().casefold(): i for i, c in enumerate(ans) if c.name.strip()}
+    updated: set[int] = set()
+    for u in updates:
+        uid, name = u.id.strip(), u.name.strip()
+        idx = by_id.get(uid, -1) if uid else -1
+        if idx < 0 and name:
+            idx = by_name.get(name.casefold(), -1)
+        if idx >= 0:
+            if idx in updated:
+                continue  # a second update for a character already updated this turn
+            updated.add(idx)
+            c = ans[idx]
+            ans[idx] = c._replace(
+                name=name or c.name,
+                description=u.description.strip() or c.description,
+                backstory=u.backstory.strip() or c.backstory,
+                relationships=u.relationships.strip() or c.relationships,
+                current_state=u.current_state.strip() or c.current_state,
+            )
+            if name:
+                by_name[name.casefold()] = idx
             continue
-        key = name.casefold()
-        prev = by_id.get(c.id.strip()) or by_name.get(key)
-        cid = (prev.id if prev is not None else '') or c.id.strip() or character_id_for_name(name)
-        if cid in seen_ids or key in seen_names:
-            continue  # a second entry for a character already in this summary
-        description = c.description.strip() or (prev.description if prev else '')
-        backstory = c.backstory.strip() or (prev.backstory if prev else '')
-        if not description and not backstory:
-            continue  # nothing is known about this character, a later turn will re-introduce them if they matter
-        # An empty relationships field is legitimate for a character who has not yet met anyone,
-        # and an empty current_state simply means nothing about them has changed this turn.
-        relationships = c.relationships.strip() or (prev.relationships if prev else '')
-        current_state = c.current_state.strip() or (prev.current_state if prev else '')
-        seen_ids.add(cid), seen_names.add(key)
-        ans.append(CharacterState(name=name, description=description, backstory=backstory, relationships=relationships, current_state=current_state, id=cid))
-    # Losing every character means losing the cast of the story, so keep the previous one rather than an empty summary.
-    return tuple(ans) or previous.characters
+        # A character not already in the summary. Without a name they can
+        # neither be matched with a later update nor be referred to by the AI
+        # or the player, and without a description or a backstory nothing is
+        # known about them that outlives this turn, so they are dropped and a
+        # later turn can re-introduce them if they matter.
+        description, backstory = u.description.strip(), u.backstory.strip()
+        if not name or not (description or backstory):
+            continue
+        cid = uid or character_id_for_name(name)
+        if cid in by_id:  # the AI invented an id already in use, keep them apart
+            base, n = cid, 2
+            while cid in by_id:
+                cid, n = f'{base}-{n}', n + 1
+        ans.append(
+            CharacterState(
+                name=name, description=description, backstory=backstory, relationships=u.relationships.strip(), current_state=u.current_state.strip(), id=cid
+            )
+        )
+        by_id[cid] = by_name[name.casefold()] = len(ans) - 1
+        updated.add(len(ans) - 1)
+    return tuple(ans)
 
 
-def validated_summary(summary: StorySummary, previous: StorySummary) -> StorySummary:
-    # The summary is the only memory the AI has of the story beyond the current
-    # chapter, so blank fields are carried over from the previous summary
-    # instead of being stored as is, which would silently lose the plot.
-    world = summary.world.strip() or previous.world
+def updated_summary(update: SummaryUpdate, previous: StorySummary) -> StorySummary:
+    # The summary is the only memory the AI has of the story beyond the
+    # current chapter, so it is maintained here rather than by the AI: the AI
+    # sends only what this turn changed and everything else is carried over
+    # from the previous summary, which cannot silently lose the plot the way
+    # asking the AI to re-emit the whole summary every turn does.
+    world = update.world.strip() or previous.world
     if not world:
         raise InvalidAIResponse('The AI returned a story summary with no description of the world')
-    current_situation = summary.current_situation.strip() or previous.current_situation
+    current_situation = update.current_situation.strip() or previous.current_situation
     if not current_situation:
         raise InvalidAIResponse('The AI returned a story summary with no description of the current situation')
-    characters = validated_characters(summary.characters, previous)
+    characters = updated_characters(update.character_updates, previous)
     if not characters:
         raise InvalidAIResponse('The AI returned a story summary with no characters')
+    # The AI is asked to condense the older events as the list approaches
+    # MAX_MAJOR_EVENTS; dropping the oldest is the backstop for when it does
+    # not, which keeps the summary, and so the prompt, bounded.
+    events = clean_text_list(update.consolidated_major_events) or previous.major_events
     return StorySummary(
         world=world,
-        major_events=clean_text_list(summary.major_events) or previous.major_events,
+        major_events=clean_text_list(events + tuple(update.new_major_events))[-MAX_MAJOR_EVENTS:],
         characters=characters,
         current_situation=current_situation,
-        upcoming_events=clean_text_list(summary.upcoming_events),
+        # Deliberately the one field that is replaced rather than merged: a
+        # plot thread the story has resolved has to be able to leave the
+        # summary, and there is no way to say "drop this one" in a list of
+        # bare strings. The list is short, so having the AI re-send the
+        # threads that are still open costs little.
+        upcoming_events=clean_text_list(update.upcoming_events),
     )
 
 
-def validated_turn(turn: StoryTurn, previous: StorySummary) -> StoryTurn:
+def validated_turn(turn: StoryTurn) -> StoryTurn:
     # Responses are checked against the schema before they get here, but that
-    # only guarantees that the fields are present and of the right type. Repair
-    # what can be repaired from the previous summary and reject turns that are
-    # not usable, so that a bad response is reported to the player as a failed
-    # turn they can retry rather than being added to the game.
+    # only guarantees that the fields are present and of the right type.
+    # Normalize what can be normalized and reject turns that are not usable,
+    # so that a bad response is reported to the player as a failed turn they
+    # can retry rather than being added to the game. The summary update is not
+    # touched here, updated_summary() repairs it against the previous summary.
     narrative = turn.narrative.strip()
     if not narrative:
         raise InvalidAIResponse('The AI returned an empty passage of prose')
     quick_actions = clean_text_list(turn.quick_actions)[:NUM_QUICK_ACTIONS]
-    if len(quick_actions) < NUM_QUICK_ACTIONS:
-        raise InvalidAIResponse(f'The AI returned {len(quick_actions)} usable quick actions, {NUM_QUICK_ACTIONS} are needed')
+    if not quick_actions:
+        raise InvalidAIResponse('The AI returned no usable quick actions')
     return StoryTurn(
         narrative=narrative,
         quick_actions=quick_actions,
         # A missing scene description only means no image can be generated for
         # this turn, which is not worth failing an otherwise good turn for.
         scene_description=turn.scene_description.strip(),
-        updated_summary=validated_summary(turn.updated_summary, previous),
+        summary_update=turn.summary_update,
         starts_new_chapter=turn.starts_new_chapter,
         chapter_title=(turn.chapter_title or '').strip() or None,
     )
@@ -723,7 +894,8 @@ def next_turn(
     # Play one turn: send the AI the story summary, the transcript of the
     # current chapter and the player's input, returning a result whose data
     # field is a StoryTurn. The response is validated and normalized by
-    # validated_turn() before being used. On success the turn is appended to
+    # validated_turn() and its summary update merged into the story summary by
+    # updated_summary() before being used. On success the turn is appended to
     # the game log, starting a new chapter when the AI indicates one. On error,
     # including an unusable response, the state is left unmodified and the
     # error is reported via the exception field of the result, not raised.
@@ -744,7 +916,8 @@ def next_turn(
     try:
         if not isinstance(turn, StoryTurn):
             raise InvalidAIResponse(f'The AI returned {type(turn).__name__} instead of a story turn')
-        turn = validated_turn(turn, state.current_summary)
+        turn = validated_turn(turn)
+        summary = updated_summary(turn.summary_update, state.current_summary)
     except InvalidAIResponse as e:
         return validation_error(res, e)
     chapter = state.current_chapter
@@ -755,6 +928,7 @@ def next_turn(
             player_input=player_input,
             raw_response=res.raw,
             turn=turn,
+            summary=summary,
             chapter=chapter,
             cost=res.cost,
             currency=res.currency,
@@ -836,18 +1010,20 @@ def find_tests() -> TestSuite:  # {{{
             ),
         )
 
-    def make_summary(*events: str) -> StorySummary:
-        return StorySummary(
-            world='A city lost in mist.',
-            major_events=events,
-            characters=(CharacterState('Ada', 'the player', 'built the mist engines', 'alone so far', 'lost in the mist'),),
+    def make_update(*new_events: str, **kw: Any) -> SummaryUpdate:  # noqa: ANN401
+        # An update of the kind the AI sends every turn: what just happened
+        # and the protagonist's new state, with everything else left unchanged.
+        ans = SummaryUpdate(
             current_situation='In the mist.',
+            character_updates=(CharacterDelta(id=PROTAGONIST_ID, current_state='lost in the mist'),),
+            new_major_events=new_events,
             upcoming_events=('The mist thickens.',),
         )
+        return ans._replace(**kw)
 
     def make_turn(
         narrative: str,
-        *events: str,
+        *new_events: str,
         starts_new_chapter: bool = False,
         chapter_title: str | None = None,
     ) -> StoryTurn:
@@ -855,7 +1031,7 @@ def find_tests() -> TestSuite:  # {{{
             narrative=narrative,
             quick_actions=('Look around', 'Call out', 'Run'),
             scene_description=f'A picture of: {narrative}',
-            updated_summary=make_summary(*events),
+            summary_update=make_update(*new_events),
             starts_new_chapter=starts_new_chapter,
             chapter_title=chapter_title,
         )
@@ -954,9 +1130,9 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(state.current_chapter, 0)
             fake = FakePlugin([
                 ok(make_turn('You awaken in the mist.', 'awoke')),
-                ok(make_turn('Shapes loom around you.', 'awoke', 'saw shapes')),
-                ok(make_turn('You descend into the tunnels.', 'awoke', 'saw shapes', 'descended', starts_new_chapter=True, chapter_title='The Descent')),
-                ok(make_turn('The tunnels narrow.', 'awoke', 'saw shapes', 'descended', 'tunnels narrowed')),
+                ok(make_turn('Shapes loom around you.', 'saw shapes')),
+                ok(make_turn('You descend into the tunnels.', 'descended', starts_new_chapter=True, chapter_title='The Descent')),
+                ok(make_turn('The tunnels narrow.', 'tunnels narrowed')),
             ])
             res = next_turn(state, '', fake)
             self.assertIsNone(res.exception)
@@ -969,10 +1145,16 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('brief backstory', instructions, "new characters' bios must include a brief backstory")
             self.assertIn('current_state', instructions, 'the AI must be told to record what is only true right now in current_state')
             self.assertIn(
-                'verbatim',
+                'Send only what changed',
                 instructions,
-                "the AI must be told to copy a character's description unchanged unless their appearance permanently changed",
+                'the AI must be told to send only what this turn changed, not the whole summary',
             )
+            self.assertIn(
+                'leave empty keeps the value it already has',
+                instructions,
+                'the AI must be told that a field it leaves empty keeps the value the summary already has',
+            )
+            self.assertIn(str(MAX_MAJOR_EVENTS), instructions, 'the AI must be told the limit it has to consolidate major events to stay under')
             self.assertIn('Never repeat', instructions, 'the AI must be forbidden from repeating prose it has already written')
             self.assertIn('400', instructions, 'the AI must be given a concrete length target for passages')
             self.assertIn('permanent identity', instructions, 'the AI must be told to carry the id of every character in the summary forward unchanged')
@@ -1027,17 +1209,17 @@ def find_tests() -> TestSuite:  # {{{
                 self.ae(state.turns, [], 'an unusable turn must not modify the game state')
                 return str(res.exception)
 
-            def accepted(turn: StoryTurn, state: GameState | None = None) -> StoryTurn:
+            def accepted(turn: StoryTurn, state: GameState | None = None) -> TurnRecord:
                 state, res = played(turn, state)
                 self.assertIsNone(res.exception, f'turn unexpectedly rejected: {res.exception}')
-                ans = state.turns[-1].turn
-                self.assertIs(res.data, ans, 'the validated turn must be returned as well as stored')
+                ans = state.turns[-1]
+                self.assertIs(res.data, ans.turn, 'the validated turn must be returned as well as stored')
                 return ans
 
             # A schema conforming but unusable response must be reported as an error
             self.assertIn('empty passage', rejected(make_turn('   \n  ')))
-            self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=('Look', '  ', 'look'))))
             self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=())))
+            self.assertIn('quick actions', rejected(make_turn('x')._replace(quick_actions=(' ', '\n'))))
             state = start_game('a foggy city', make_world())
             res = next_turn(state, 'go', FakePlugin([StructuredOutputResult(data=None, raw='{}')]))
             self.assertIsInstance(res.exception, InvalidAIResponse, 'a result with neither data nor an exception must be an error')
@@ -1050,74 +1232,119 @@ def find_tests() -> TestSuite:  # {{{
                     scene_description='  A misty street.  ',
                     chapter_title='   ',
                 )
-            )
+            ).turn
             self.ae(turn.narrative, 'You awaken.')
             self.ae(turn.quick_actions, ('Run', 'Hide', 'Shout'))
             self.ae(turn.scene_description, 'A misty street.')
             self.assertIsNone(turn.chapter_title, 'a blank chapter title must be normalized to null')
             # A missing scene description must not fail an otherwise good turn
-            self.ae(accepted(make_turn('x')._replace(scene_description=' ')).scene_description, '')
-
-            # Blank summary fields must be repaired from the previous summary
-            state = start_game('a foggy city', make_world())
-            previous = state.current_summary
-            blank_summary = make_summary('awoke')._replace(
-                world='  ',
-                current_situation='',
-                major_events=(' ', ''),
-                upcoming_events=('The mist thickens.', '  ', 'The mist thickens.'),
-                characters=(CharacterState('  ', 'nameless', 'nobody', ''), CharacterState('Ada', '', '  ', '')),
+            self.ae(accepted(make_turn('x')._replace(scene_description=' ')).turn.scene_description, '')
+            # Nor must too few quick actions: they are a convenience, the passage of prose is what the player paid for
+            self.ae(
+                accepted(make_turn('x')._replace(quick_actions=('Look', '  ', 'look'))).turn.quick_actions,
+                ('Look',),
+                'a turn with a single usable quick action must be kept',
             )
-            summary = accepted(make_turn('x')._replace(updated_summary=blank_summary), state).updated_summary
-            self.ae(summary.world, previous.world)
-            self.ae(summary.current_situation, previous.current_situation)
-            self.ae(summary.major_events, previous.major_events, 'an empty list of major events must not erase the story memory')
-            self.ae(summary.upcoming_events, ('The mist thickens.',))
-            self.ae(summary.characters, previous.characters, "a character's blank fields must be filled in from the previous summary")
-
-            # Characters that carry no information at all are dropped, an empty cast falls back to the previous one
-            summary = accepted(
-                make_turn('x')._replace(updated_summary=make_summary('awoke')._replace(characters=(CharacterState('Ghost', ' ', '', ''),)))
-            ).updated_summary
-            self.ae(summary.characters, previous.characters)
-            summary = accepted(
-                make_turn('x')._replace(
-                    updated_summary=make_summary('awoke')._replace(
-                        characters=(CharacterState('Ada', 'the player', 'engineer', ''), CharacterState('Brin', 'a thief', '', ''))
-                    )
-                )
-            ).updated_summary
-            self.ae(tuple(c.name for c in summary.characters), ('Ada', 'Brin'))
-            self.ae(summary.characters[1].backstory, '', 'a new character with a description but no backstory must be kept')
-
-            # current_state is rewritten every turn but carried over when the AI leaves it blank,
-            # and it must never be needed to keep a character alive in the summary.
-            state = start_game('a foggy city', make_world())
-            with_state = make_summary('awoke')._replace(characters=(CharacterState('Ada', 'the player', 'engineer', 'alone', ' wounded, hiding '),))
-            summary = accepted(make_turn('x')._replace(updated_summary=with_state), state).updated_summary
-            self.ae(summary.characters[0].current_state, 'wounded, hiding')
-            blank_state = make_summary('awoke')._replace(characters=(CharacterState('Ada', 'the player', 'engineer', 'alone', '  '),))
-            summary = accepted(make_turn('y')._replace(updated_summary=blank_state), state).updated_summary
-            self.ae(summary.characters[0].current_state, 'wounded, hiding', 'a blank current_state must be carried over from the previous summary')
-            only_state = make_summary('awoke')._replace(characters=(CharacterState('Ghost', '', '', '', 'watching from the roof'),))
-            summary = accepted(make_turn('z')._replace(updated_summary=only_state), state).updated_summary
-            self.ae(tuple(c.name for c in summary.characters), ('Ada',), 'a character known only by a current state must be dropped')
 
             # An unrepairable summary must fail the turn
+            def with_summary(summary: StorySummary) -> GameState:
+                state = start_game('a foggy city', make_world())
+                state.turns.append(TurnRecord(player_input='', raw_response='', turn=make_turn('x'), summary=summary, chapter=0))
+                return state
+
             empty = StorySummary(world='', major_events=(), characters=(), current_situation='', upcoming_events=())
-            state = start_game('a foggy city', make_world())
-            state.turns.append(TurnRecord(player_input='', raw_response='', turn=make_turn('x')._replace(updated_summary=empty), chapter=0))
-            res = next_turn(state, 'go', FakePlugin([ok(make_turn('y')._replace(updated_summary=empty))]))
+            state = with_summary(empty)
+            res = next_turn(state, 'go', FakePlugin([ok(make_turn('y')._replace(summary_update=make_update()._replace(current_situation='')))]))
             self.assertIsInstance(res.exception, InvalidAIResponse)
             self.assertIn('world', str(res.exception))
             self.ae(len(state.turns), 1, 'an unusable turn must not modify the game state')
+            state = with_summary(empty._replace(world='A city lost in mist.'))
+            res = next_turn(state, 'go', FakePlugin([ok(make_turn('y')._replace(summary_update=make_update()._replace(current_situation='')))]))
+            self.assertIsInstance(res.exception, InvalidAIResponse)
+            self.assertIn('current situation', str(res.exception))
+            state = with_summary(empty._replace(world='A city lost in mist.', current_situation='In the mist.'))
+            res = next_turn(state, 'go', FakePlugin([ok(make_turn('y'))]))
+            self.assertIsInstance(res.exception, InvalidAIResponse)
+            self.assertIn('no characters', str(res.exception), 'an update that leaves the story with no cast at all must fail the turn')
+
+        def test_ai_cyoa_summary_updates(self) -> None:
+            state = start_game('a foggy city', make_world())
+            initial = state.current_summary
+            ada = initial.characters[0]
+
+            def play(update: SummaryUpdate) -> StorySummary:
+                res = next_turn(state, 'go', FakePlugin([ok(make_turn('x')._replace(summary_update=update))]))
+                self.assertIsNone(res.exception, f'turn unexpectedly rejected: {res.exception}')
+                return state.current_summary
+
+            # Everything the update does not mention is carried over from the previous summary
+            s = play(make_update('awoke'))
+            self.ae(s.world, initial.world, 'an empty world must leave the description of the world unchanged')
+            self.ae(s.current_situation, 'In the mist.')
+            self.ae(s.major_events, ('awoke',))
+            self.ae(s.upcoming_events, ('The mist thickens.',))
+            self.ae(
+                s.characters,
+                (ada._replace(current_state='lost in the mist'),),
+                'the fields an update leaves empty must keep the values the character already has',
+            )
+
+            # Major events accumulate rather than being re-sent, and are not duplicated
+            self.ae(play(make_update('saw shapes')).major_events, ('awoke', 'saw shapes'))
+            self.ae(play(make_update('saw shapes')).major_events, ('awoke', 'saw shapes'), 'an event already in the summary must not be added twice')
+            self.ae(play(make_update()).major_events, ('awoke', 'saw shapes'), 'a turn in which nothing important happens must not erase the story memory')
+
+            # A character the update says nothing about is left exactly as they were
+            s = play(make_update(character_updates=()))
+            self.ae(s.characters, (ada._replace(current_state='lost in the mist'),), 'a character the AI does not mention must keep their state')
+
+            # The world and a character's durable fields change only when the update says so
+            s = play(
+                make_update(
+                    world='The mist has lifted.',
+                    character_updates=(CharacterDelta(id=PROTAGONIST_ID, current_state='blinking in the sun', description='a stubborn engineer, now scarred'),),
+                )
+            )
+            self.ae(s.world, 'The mist has lifted.')
+            self.ae(s.characters[0].description, 'a stubborn engineer, now scarred')
+            self.ae(s.characters[0].backstory, ada.backstory, 'a description that changed must not drag the rest of the character with it')
+            self.ae(s.characters[0].current_state, 'blinking in the sun')
+
+            # A new character is added at the end of the cast, one with nothing durable known about them is dropped
+            s = play(
+                make_update(
+                    character_updates=(
+                        CharacterDelta(id='marlo', current_state='waiting at the tunnel mouth', name='Marlo', description='a mist-runner', backstory='a local'),
+                        CharacterDelta(id='ghost', current_state='watching from the roof'),
+                        CharacterDelta(id='', current_state='hiding', name='Nameless friend'),
+                    )
+                )
+            )
+            self.ae(tuple(c.name for c in s.characters), ('Ada', 'Marlo'))
+            self.ae(s.characters[1].relationships, '', 'a new character who has not met anyone yet must be kept')
+
+            # The list of upcoming events replaces the previous one, so that resolved threads can leave the summary
+            self.ae(play(make_update(upcoming_events=('Marlo returns', ' Marlo returns '))).upcoming_events, ('Marlo returns',))
+            self.ae(play(make_update(upcoming_events=())).upcoming_events, (), 'the last unresolved plot thread must be able to leave the summary')
+
+            # The major events are capped, with the AI asked to consolidate the older ones before the cap drops them
+            s = play(make_update(*(f'event {i}' for i in range(MAX_MAJOR_EVENTS + 5))))
+            self.ae(len(s.major_events), MAX_MAJOR_EVENTS, 'the list of major events must be bounded')
+            self.ae(s.major_events[-1], f'event {MAX_MAJOR_EVENTS + 4}')
+            self.assertNotIn('awoke', s.major_events, 'the oldest events must be the ones dropped when the cap is exceeded')
+            s = play(make_update('and then this happened', consolidated_major_events=('everything up to now',)))
+            self.ae(
+                s.major_events,
+                ('everything up to now', 'and then this happened'),
+                'a consolidated list must replace the events already in the summary, with this turn appended to it',
+            )
 
         def test_ai_cyoa_rewind(self) -> None:
             state = start_game('brief', make_world())
             fake = FakePlugin([
                 ok(make_turn('One.', 'one')),
-                ok(make_turn('Two.', 'one', 'two')),
-                ok(make_turn('Three.', 'one', 'two', 'three', starts_new_chapter=True, chapter_title='Part II')),
+                ok(make_turn('Two.', 'two')),
+                ok(make_turn('Three.', 'three', starts_new_chapter=True, chapter_title='Part II')),
             ])
             for x in ('', 'a', 'b'):
                 next_turn(state, x, fake)
@@ -1135,7 +1362,7 @@ def find_tests() -> TestSuite:  # {{{
             state = start_game('a foggy city', make_world(), art_style='anime')
             fake = FakePlugin([
                 ok(make_turn('You awaken.', 'awoke')),
-                ok(make_turn('You escape.', 'awoke', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
+                ok(make_turn('You escape.', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
             ])
             next_turn(state, '', fake)
             next_turn(state, 'run', fake)
@@ -1156,7 +1383,7 @@ def find_tests() -> TestSuite:  # {{{
             # Games saved before characters had a current_state must still load
             data = json.loads(serialize_game(state))
             for record in data['game']['turns']:
-                for c in record['turn']['updated_summary']['characters']:
+                for c in record['summary']['characters']:
                     del c['current_state']
             restored = deserialize_game(json.dumps(data))
             self.ae(
@@ -1169,10 +1396,29 @@ def find_tests() -> TestSuite:  # {{{
             state = start_game('a foggy city', make_world(), art_style='anime')
             fake = FakePlugin([
                 ok(make_turn('You awaken.', 'awoke')),
-                ok(make_turn('You escape.', 'awoke', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
+                ok(make_turn('You escape.', 'escaped', starts_new_chapter=True, chapter_title='Freedom')),
             ])
             next_turn(state, '', fake)
             next_turn(state, 'run', fake)
+
+            def as_v2() -> str:
+                # A game as version 2 serialized it: the whole story summary,
+                # returned by the AI on every turn, stored inside the turn.
+                data = json.loads(serialize_game(state))
+                data['version'] = 2
+                for record in data['game']['turns']:
+                    record['turn']['updated_summary'] = record.pop('summary')
+                    del record['turn']['summary_update']
+                return json.dumps(data)
+
+            restored = deserialize_game(as_v2())
+            self.ae([t.summary for t in restored.turns], [t.summary for t in state.turns], 'migration must move the stored summary onto the turn record')
+            self.ae(restored.current_summary, state.current_summary)
+            self.ae(
+                updated_summary(restored.turns[0].turn.summary_update, initial_summary(restored.world, restored.character)),
+                restored.turns[0].summary,
+                'the update synthesized for a migrated turn must merge to exactly the summary that was stored',
+            )
 
             def as_v1(played: PlayerCharacter) -> str:
                 # A game as version 1 serialized it: a copy of the played
@@ -1186,6 +1432,8 @@ def find_tests() -> TestSuite:  # {{{
                 for record in game['turns']:
                     record['instructions'] = 'the system prompt of this turn'
                     record['prompt'] = 'the prompt of this turn, with the whole transcript embedded in it'
+                    record['turn']['updated_summary'] = record.pop('summary')
+                    del record['turn']['summary_update']
                     for c in record['turn']['updated_summary']['characters']:
                         del c['id']
                 return json.dumps(data)
@@ -1204,7 +1452,7 @@ def find_tests() -> TestSuite:  # {{{
                 'migration must give the played character a stable id in the summary',
             )
             self.ae(
-                tuple(c.id for c in restored.turns[0].turn.updated_summary.characters),
+                tuple(c.id for c in restored.turns[0].summary.characters),
                 (PROTAGONIST_ID,),
                 'every stored summary must be migrated, not just the last one',
             )
@@ -1228,8 +1476,8 @@ def find_tests() -> TestSuite:  # {{{
             state = start_game('a foggy city', make_world())
             self.ae(tuple(c.id for c in state.current_summary.characters), (PROTAGONIST_ID,))
 
-            def play(*characters: CharacterState) -> tuple[tuple[str, str], ...]:
-                turn = make_turn('x')._replace(updated_summary=make_summary('awoke')._replace(characters=characters))
+            def play(*updates: CharacterDelta) -> tuple[tuple[str, str], ...]:
+                turn = make_turn('x')._replace(summary_update=make_update('awoke', character_updates=updates))
                 res = next_turn(state, 'go', FakePlugin([ok(turn)]))
                 self.assertIsNone(res.exception, f'turn unexpectedly rejected: {res.exception}')
                 return tuple((c.id, c.name) for c in state.current_summary.characters)
@@ -1237,41 +1485,41 @@ def find_tests() -> TestSuite:  # {{{
             # A character the AI introduces without an id gets one derived from their name
             self.ae(
                 play(
-                    CharacterState('Ada', 'the player', 'engineer', 'alone'),
-                    CharacterState('the stranger', 'a hooded figure', 'unknown', 'watching Ada'),
+                    CharacterDelta(id=PROTAGONIST_ID, current_state='alone'),
+                    CharacterDelta(id='', current_state='watching Ada', name='the stranger', description='a hooded figure', backstory='unknown'),
                 ),
                 ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'the stranger')),
             )
 
             # Renaming a character while carrying their id forward must update their entry, not fork it
             self.ae(
-                play(
-                    CharacterState('Ada', 'the player', 'engineer', 'alone', '', PROTAGONIST_ID),
-                    CharacterState('Marlo', 'a hooded figure', 'a mist-runner', 'guiding Ada', '', 'the-stranger'),
-                ),
+                play(CharacterDelta(id='the-stranger', current_state='guiding Ada', name='Marlo')),
                 ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo')),
                 'a renamed character must keep their id and their entry',
             )
+            self.ae(state.current_summary.characters[1].description, 'a hooded figure', 'renaming a character must not disturb the rest of their entry')
 
             # An id the AI invents for a character that already has one must not fork them either
             self.ae(
-                play(
-                    CharacterState('Ada', 'the player', 'engineer', 'alone', '', 'ada'),
-                    CharacterState('Marlo', 'a hooded figure', 'a mist-runner', 'guiding Ada', '', 'marlo'),
-                ),
+                play(CharacterDelta(id='marlo', current_state='still guiding Ada', name='Marlo')),
                 ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo')),
                 'a character matched by name must keep the id they already have',
             )
 
-            # Duplicate entries for a character already in the summary must be dropped
+            # A second update for a character already updated this turn must be ignored
             self.ae(
                 play(
-                    CharacterState('Ada', 'the player', 'engineer', 'alone', '', PROTAGONIST_ID),
-                    CharacterState('Marlo', 'a hooded figure', 'a mist-runner', 'guiding Ada', '', 'the-stranger'),
-                    CharacterState('Marlo', 'a duplicate', 'dropped as a duplicate', '', '', 'invented'),
-                    CharacterState('The Stranger', 'the same person again', 'dropped as a duplicate', '', '', 'the-stranger'),
+                    CharacterDelta(id='the-stranger', current_state='at the gate'),
+                    CharacterDelta(id='the-stranger', current_state='somewhere else entirely', name='Not Marlo'),
                 ),
                 ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo')),
+            )
+            self.ae(state.current_summary.characters[1].current_state, 'at the gate', 'the first update for a character must win')
+
+            # A new character whose invented id is already taken must not be merged into the character that has it
+            self.ae(
+                play(CharacterDelta(id='', current_state='still hooded', name='The Stranger', description='a different hooded figure', backstory='unknown')),
+                ((PROTAGONIST_ID, 'Ada'), ('the-stranger', 'Marlo'), ('the-stranger-2', 'The Stranger')),
             )
 
         def test_ai_cyoa_prompts_are_not_stored(self) -> None:

@@ -1792,10 +1792,9 @@ class GameWidget(QWidget):
         # and apply to a character the player renamed here.
         if edits := {c.id: c for c in d.npcs if c.id}:
             for i, t in enumerate(state.turns):
-                s = t.turn.updated_summary
-                characters = tuple(edits.get(c.id, c) for c in s.characters)
-                if characters != s.characters:
-                    state.turns[i] = t._replace(turn=t.turn._replace(updated_summary=s._replace(characters=characters)))
+                characters = tuple(edits.get(c.id, c) for c in t.summary.characters)
+                if characters != t.summary.characters:
+                    state.turns[i] = t._replace(summary=t.summary._replace(characters=characters))
         # The saved world the game started from is only its template, so it is
         # deliberately left alone: the edited characters and their portraits
         # belong to this game and are stored with it.
@@ -1825,7 +1824,7 @@ class GameWidget(QWidget):
 
 
 if __name__ == '__main__':
-    from calibre.ai.cyoa import CharacterState, GeneratedWorld, PlayerCharacter, StorySummary, StoryTurn, start_game
+    from calibre.ai.cyoa import PROTAGONIST_ID, CharacterDelta, GeneratedWorld, PlayerCharacter, StoryTurn, SummaryUpdate, start_game
     from calibre.gui2 import Application
 
     class FakePlugin:
@@ -1841,20 +1840,27 @@ if __name__ == '__main__':
                 narrative=f'**Turn {n}**: The mist *swirls* around you as something stirs in the distance.\n\nYou must decide quickly.',
                 quick_actions=(f'Look around (turn {n})', 'Call out', 'Run away'),
                 scene_description='A foggy city street at night.',
-                updated_summary=StorySummary(
-                    world='A city lost in mist.',
-                    major_events=tuple(f'event {i}' for i in range(1, n + 1)),
-                    characters=(
-                        CharacterState('Ada', 'the player', 'She built the mist engines.', 'alone so far', 'standing in the rain outside the depot'),
-                        CharacterState(
-                            'Marlo',
-                            'a mist-runner who guides travelers',
-                            'He grew up in the tunnels under the city.',
-                            "wary of Ada's engines",
-                            'waiting at the tunnel mouth, out of breath',
+                summary_update=SummaryUpdate(
+                    current_situation='In the mist.',
+                    character_updates=(
+                        CharacterDelta(
+                            id=PROTAGONIST_ID,
+                            current_state='standing in the rain outside the depot',
+                            name='Ada',
+                            description='the player',
+                            backstory='She built the mist engines.',
+                            relationships='alone so far',
+                        ),
+                        CharacterDelta(
+                            id='marlo',
+                            current_state='waiting at the tunnel mouth, out of breath',
+                            name='Marlo',
+                            description='a mist-runner who guides travelers',
+                            backstory='He grew up in the tunnels under the city.',
+                            relationships="wary of Ada's engines",
                         ),
                     ),
-                    current_situation='In the mist.',
+                    new_major_events=(f'event {n}',),
                     upcoming_events=('The mist thickens.',),
                 ),
                 starts_new_chapter=n > 1 and (n % 4) == 0,
