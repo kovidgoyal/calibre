@@ -7,11 +7,11 @@
 # game itself.
 # Run with: calibre-debug -c 'from calibre.gui2.cyoa.main import main; main()'
 
-from qt.core import QIcon, QSize, QStackedWidget
+from qt.core import QFont, QIcon, QSize, QStackedWidget
 
 from calibre.ai.cyoa import PROTAGONIST_ID, GeneratedWorld, start_game
 from calibre.constants import CYOA_APP_UID, islinux
-from calibre.gui2 import Application, error_dialog
+from calibre.gui2 import Application, error_dialog, gprefs
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.game import GameWidget
 from calibre.gui2.cyoa.welcome import WelcomeWidget
@@ -79,6 +79,13 @@ class CYOAMainWindow(MainWindow):
 def main() -> None:
     override = 'calibre-ebook-viewer' if islinux else None
     app = Application([], override_program_name=override, windows_app_uid=CYOA_APP_UID)
+    fi = gprefs['font']
+    if fi is not None:
+        font = QFont(*(fi[:4]))
+        s = gprefs.get('font_stretch', None)
+        if s is not None:
+            font.setStretch(s)
+        app.setFont(font)
     w = CYOAMainWindow()
     w.set_exception_handler()
     w.show()
