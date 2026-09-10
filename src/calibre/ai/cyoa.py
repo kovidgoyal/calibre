@@ -248,7 +248,7 @@ def quick_action_kind_name(kind: QuickActionKind) -> str:
         QuickActionKind.cautious: _('Cautious'),
         QuickActionKind.bold: _('Bold'),
         QuickActionKind.social: _('Social'),
-        QuickActionKind.investigate: _('Investigate'),
+        QuickActionKind.investigate: _('Investigative'),
     }.get(kind, '')
 
 
