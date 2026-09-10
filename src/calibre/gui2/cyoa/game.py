@@ -166,6 +166,7 @@ class GameWidget(QWidget):
     game_abandoned = pyqtSignal()
 
     turn_result_received = pyqtSignal(int, object, object)  # (call_number, GameState the turn was played on, StructuredOutputResult)
+    turn_narrative_received = pyqtSignal(int, str)  # (call_number, the next fragment of the prose of the turn being written)
     image_result_received = pyqtSignal(int, int, object)  # (call_number, turn number, SceneImageResult)
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -208,6 +209,18 @@ class GameWidget(QWidget):
         self._thinking_ticker = QTimer(self)
         self._thinking_ticker.setInterval(1000)
         self._thinking_ticker.timeout.connect(self._update_thinking_elapsed)
+        # The prose of the turn being generated, as far as the AI has written
+        # it, shown in the story view while the rest of the turn is generated,
+        # see render_story(). The fragments arrive many times a second, so
+        # the display is refreshed by a timer rather than for every fragment.
+        self.streamed_narrative = ''
+        # Where in the story document the prose of the turn being generated is
+        # rendered, -1 when no turn is being generated.
+        self.streaming_block_start = -1
+        self.narrative_render_timer = t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(100)
+        t.timeout.connect(self.render_streamed_narrative)
         self.image_counter = count(start=1)
         self.image_call = -1
         self.image_turn = -1
@@ -376,6 +389,7 @@ class GameWidget(QWidget):
         self.setFocusProxy(self.prompt_edit)
 
         self.turn_result_received.connect(self.on_turn_result, type=Qt.ConnectionType.QueuedConnection)
+        self.turn_narrative_received.connect(self.on_turn_narrative, type=Qt.ConnectionType.QueuedConnection)
         self.image_result_received.connect(self.on_image_result, type=Qt.ConnectionType.QueuedConnection)
 
     def showEvent(self, a0: QShowEvent | None) -> None:
@@ -433,7 +447,8 @@ class GameWidget(QWidget):
         else:
             mins, s = divmod(secs, 60)
             human = _('{m}m {s}s').format(m=mins, s=s)
-        self.input_stack.msg = _('Thinking… {}').format(human)
+        # Once prose starts arriving the AI is no longer thinking but writing
+        self.input_stack.msg = (_('Writing… {}') if self.streamed_narrative else _('Thinking… {}')).format(human)
 
     def _stop_thinking(self) -> None:
         self._thinking_ticker.stop()
@@ -449,6 +464,19 @@ class GameWidget(QWidget):
         self.late_turn_result = None
         self.turn_timer.stop()
         self._stop_thinking()
+        self.discard_pending_turn_display()
+
+    def discard_pending_turn_display(self) -> None:
+        # Remove the prose of a turn that was being written from the story
+        # view, once the turn has been given up on or has failed. Must be
+        # called after turn_call has been reset, so that render_story() does
+        # not put the prose right back.
+        self.streamed_narrative = ''
+        self.narrative_render_timer.stop()
+        if self.streaming_block_start > -1:
+            self.render_story()
+            if self.state is not None and self.state.turns:
+                self.scroll_to_turn(len(self.state.turns))
 
     def cancel_pending_ai_calls(self) -> None:
         # In-flight generations keep running but their results are discarded
@@ -508,17 +536,32 @@ class GameWidget(QWidget):
         if not state.turns:
             insert_html_block(c, f'<h2>{escape(state.world.title)}</h2>')
             insert_html_block(c, response_to_html(state.world.world_description, ContentType.markdown))
+        else:
+            insert_html_block(c, f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
+            for i, t in enumerate(state.turns):
+                if t.chapter != state.current_chapter:
+                    continue
+                if self.turn_positions:
+                    insert_scene_divider(c)
+                self.turn_positions.append((c.position(), i + 1))
+                if t.player_input:
+                    insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
+                insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
+        if self.turn_call > -1 and self.turn_request is not None:
+            # A turn is being generated: show the action the player took and
+            # the prose the AI has written so far in place of the quick
+            # actions, which are for a turn that has already been played.
+            insert_scene_divider(c)
+            player_input = self.turn_request[0]  # empty for the opening turn and for "something interesting happens"
+            if player_input:
+                insert_html_block(c, f'<p><i>➤ {escape(player_input)}</i></p>')
+            self.streaming_block_start = c.position()
+            if self.streamed_narrative:
+                insert_html_block(c, response_to_html(self.streamed_narrative, ContentType.markdown))
             return
-        insert_html_block(c, f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
-        for i, t in enumerate(state.turns):
-            if t.chapter != state.current_chapter:
-                continue
-            if self.turn_positions:
-                insert_scene_divider(c)
-            self.turn_positions.append((c.position(), i + 1))
-            if t.player_input:
-                insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
-            insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
+        self.streaming_block_start = -1
+        if not state.turns:
+            return
         insert_scene_divider(c)
         last = state.turns[-1].turn
         if last.quick_actions:
@@ -531,6 +574,33 @@ class GameWidget(QWidget):
                 for i, a in enumerate(last.quick_actions)
             )
             insert_html_block(c, f'<h4>{_("Quick actions")}</h4>' + items)
+
+    def render_streamed_narrative(self) -> None:
+        # Replace the prose of the turn being generated in the story view
+        # with what the AI has written so far. The prose is Markdown, which
+        # cannot be rendered a fragment at a time, so the whole passage is
+        # rendered again, which is cheap as it is at most a few thousand
+        # characters and happens at most ten times a second.
+        if self.streaming_block_start < 0 or self.turn_call < 0:
+            return
+        sv = self.story_view
+        doc = sv.document()
+        if doc is None or self.streaming_block_start > doc.characterCount():
+            return  # the document was replaced under us, render_story() will restore the prose
+        vsb = sv.verticalScrollBar()
+        # Follow the prose as it is written unless the player has scrolled
+        # away from the end to re-read something.
+        follow = vsb is None or vsb.value() >= vsb.maximum() - 4
+        c = sv.textCursor()
+        c.beginEditBlock()
+        c.setPosition(self.streaming_block_start)
+        c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
+        c.removeSelectedText()
+        if self.streamed_narrative:
+            insert_html_block(c, response_to_html(self.streamed_narrative, ContentType.markdown))
+        c.endEditBlock()
+        if follow and vsb is not None:
+            vsb.setValue(vsb.maximum())
 
     def quick_action(self, action_number: int) -> QuickAction | None:
         # The zero based action_number quick action of the last turn, None
@@ -904,6 +974,7 @@ class GameWidget(QWidget):
         # The player gave up on this turn, so a result for it is now stale
         self.turn_call = -1
         self.turn_request = None
+        self.discard_pending_turn_display()
         if should_retry[0]:
             player_input, interesting_event = turn_request
             self.request_turn(player_input, interesting_event)
@@ -920,6 +991,7 @@ class GameWidget(QWidget):
         snapshot = deserialize_game(serialize_game(self.state))
         self.turn_call = next(self.turn_counter)
         self.turn_request = (player_input, interesting_event)
+        self.streamed_narrative = ''
         self._thinking_start = monotonic()
         self.input_stack.msg = _('Thinking…')
         self.input_stack.start()
@@ -928,18 +1000,42 @@ class GameWidget(QWidget):
         if timeout > 0:
             self.turn_timer.setInterval(timeout * 60 * 1000)
             self.turn_timer.start()
+        # Show the action being taken where the prose of the turn will appear
+        # as the AI writes it, see on_turn_narrative()
+        self.render_story()
+        if (vsb := self.story_view.verticalScrollBar()) is not None:
+            vsb.setValue(vsb.maximum())
         Thread(name='CYOATurn', daemon=True, target=self.do_turn, args=(snapshot, player_input, interesting_event, self.turn_call, plugin)).start()
 
     def do_turn(self, snapshot: GameState, player_input: str, interesting_event: bool, call_number: int, plugin: AIProvider) -> None:
+        def on_narrative(text: str) -> None:
+            if not sip.isdeleted(self):
+                self.turn_narrative_received.emit(call_number, text)
+
         try:
             # the preferences overlay is thread local so must be entered here
             with data.cyoa_ai_settings():
-                res = next_turn(snapshot, player_input, plugin, interesting_event=interesting_event)
+                res = next_turn(snapshot, player_input, plugin, interesting_event=interesting_event, on_narrative=on_narrative)
             if sip.isdeleted(self):
                 return
             self.turn_result_received.emit(call_number, snapshot, res)
         except RuntimeError:
             pass  # when self gets deleted between call to sip.isdeleted and next statement
+
+    def on_turn_narrative(self, call_number: int, text: str) -> None:
+        if call_number != self.turn_call:
+            return  # a stale fragment from a superseded or cancelled call
+        first = not self.streamed_narrative
+        self.streamed_narrative += text
+        if first:
+            self._update_thinking_elapsed()  # switch to "Writing…"
+        # An AI that is writing has not stopped responding, so the timeout
+        # is measured from the last fragment received rather than from the
+        # start of the turn.
+        if self.turn_timer.isActive():
+            self.turn_timer.start()
+        if not self.narrative_render_timer.isActive():
+            self.narrative_render_timer.start()
 
     def on_turn_result(self, call_number: int, snapshot: GameState, res: StructuredOutputResult) -> None:
         if call_number != self.turn_call:
@@ -958,6 +1054,7 @@ class GameWidget(QWidget):
         self.turn_request = None
         self._stop_thinking()
         if res.exception is not None:
+            self.discard_pending_turn_display()
             d = error_dialog(
                 self,
                 _('Failed to generate the next turn'),
@@ -980,6 +1077,8 @@ class GameWidget(QWidget):
             return
         self.state = snapshot
         self.session_cost += res.cost
+        self.streamed_narrative = ''
+        self.narrative_render_timer.stop()
         self.prompt_edit.clear()
         self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
         self.autosave()
@@ -1269,20 +1368,37 @@ class GameWidget(QWidget):
 
 
 if __name__ == '__main__':
-    from calibre.ai.cyoa import PROTAGONIST_ID, CharacterDelta, GeneratedWorld, PlayerCharacter, QuickActionKind, StoryTurn, SummaryUpdate, start_game
+    import json
+
+    from calibre.ai.cyoa import (
+        PROTAGONIST_ID,
+        CharacterDelta,
+        GeneratedWorld,
+        PlayerCharacter,
+        QuickActionKind,
+        StoryTurn,
+        SummaryUpdate,
+        as_jsonable,
+        start_game,
+    )
+    from calibre.ai.structured import OnText, spec_for_class
     from calibre.gui2 import Application
 
     class FakePlugin:
-        # Plays canned turns so the widget can be exercised without an AI
+        # Plays canned turns so the widget can be exercised without an AI,
+        # streaming their JSON a few characters at a time like an AI would
         counter = count(start=1)
 
-        def generate_structured_output(self, prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+        def generate_structured_output(
+            self, prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None
+        ) -> StructuredOutputResult:
             import time
 
             time.sleep(1)
             n = next(self.counter)
             turn = StoryTurn(
-                narrative=f'**Turn {n}**: The mist *swirls* around you as something stirs in the distance.\n\nYou must decide quickly.',
+                narrative=f'**Turn {n}**: The mist *swirls* around you as something stirs in the distance.\n\nYou must decide quickly.'
+                + ' The fog thickens with every breath you take, and somewhere ahead a bell begins to toll.' * 3,
                 quick_actions=(
                     QuickAction(f'Wait and watch (turn {n})', QuickActionKind.cautious),
                     QuickAction('Charge into the mist', QuickActionKind.bold),
@@ -1315,7 +1431,12 @@ if __name__ == '__main__':
                 starts_new_chapter=n > 1 and (n % 4) == 0,
                 chapter_title=f'Chapter of turn {n}' if n > 1 and (n % 4) == 0 else None,
             )
-            return StructuredOutputResult(data=turn, raw='{}', cost=0.01 * n, currency='USD', provider='fake', model='fake-model')
+            raw = json.dumps(as_jsonable(turn, spec_for_class(StoryTurn)))
+            if on_text is not None:
+                for i in range(0, len(raw), 6):
+                    on_text(raw[i : i + 6])
+                    time.sleep(0.02)
+            return StructuredOutputResult(data=turn, raw=raw, cost=0.01 * n, currency='USD', provider='fake', model='fake-model')
 
     app = Application([])
     w = GameWidget()

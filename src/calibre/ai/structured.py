@@ -367,9 +367,142 @@ def parse_structured_response(text: str, schema: type) -> Any:  # noqa: ANN401
     return instantiate(data, spec, schema.__name__)
 
 
-def structured_output_from_chat(responses: Iterable[ChatResponse], schema: type, plugin_name: str) -> StructuredOutputResult:
+# Called with every fragment of the raw response text as it arrives from the
+# AI, on the thread the request is made on, before the complete response has
+# been parsed. Use StreamingStringField to extract the value of a field from
+# the fragments, for displaying it before the whole response is available.
+OnText = Callable[[str], None]
+
+
+class StreamingStringField:
+    # Extract the value of one top-level string field of a JSON object as the
+    # JSON text arrives in fragments, without waiting for the object to be
+    # complete. Feed fragments of the response to feed(), which returns the
+    # newly decoded characters of the field: nothing until the value begins,
+    # nothing once it has ended. Fields are extracted in the order the model
+    # writes them, so this is only an improvement over waiting for the whole
+    # response when the field comes early in the schema.
+    #
+    # This is a minimal JSON scanner rather than a parser: it tracks nesting
+    # depth, whether it is inside a string and escape sequences, which is
+    # enough to know which top-level key a string belongs to. Text before the
+    # opening brace is skipped, so the code fences and prose that models using
+    # the prompt based fallback sometimes add do not confuse it, see
+    # strip_code_fences().
+
+    ESCAPES = {'"': '"', '\\': '\\', '/': '/', 'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t'}
+
+    def __init__(self, field_name: str) -> None:
+        self.field_name = field_name
+        self.depth = 0  # nesting depth of objects and arrays, 0 before the root object begins and after it ends
+        self.in_string = False
+        self.escaped = False  # the previous character in the current string was a backslash
+        self.unicode_digits: str | None = None  # hex digits of the \uXXXX escape being read, None when not in one
+        self.pending_high_surrogate = ''  # the first half of a surrogate pair, awaiting the second
+        self.after_colon = False  # at depth 1: a value rather than a key comes next
+        self.in_key = False  # the current string is a key of the root object
+        self.in_value = False  # the current string is the value of the field being extracted
+        self.key_chars: list[str] = []
+        self.current_key = ''
+        self.done = False  # the value of the field has been read completely, or the root object ended without it
+
+    def feed(self, text: str) -> str:
+        if self.done:
+            return ''
+        out: list[str] = []
+        for ch in text:
+            if self.in_string:
+                self.string_char(ch, out)
+            else:
+                self.structural_char(ch)
+            if self.done:
+                break
+        return ''.join(out)
+
+    def structural_char(self, ch: str) -> None:
+        if self.depth == 0:
+            if ch == '{':
+                self.depth = 1
+            return
+        match ch:
+            case '"':
+                self.in_string, self.escaped = True, False
+                if self.depth == 1:
+                    if self.after_colon:
+                        self.in_value = self.current_key == self.field_name
+                    else:
+                        self.in_key, self.key_chars = True, []
+            case '{' | '[':
+                self.depth += 1
+            case '}' | ']':
+                self.depth -= 1
+                if self.depth == 0:
+                    self.done = True
+            case ':':
+                if self.depth == 1:
+                    self.after_colon = True
+            case ',':
+                if self.depth == 1:
+                    self.after_colon = False
+
+    def string_char(self, ch: str, out: list[str]) -> None:
+        if self.unicode_digits is not None:
+            self.unicode_digits += ch
+            if len(self.unicode_digits) == 4:
+                digits, self.unicode_digits = self.unicode_digits, None
+                try:
+                    self.emit_code_point(int(digits, 16), out)
+                except ValueError:
+                    self.emit('�', out)
+            return
+        if self.escaped:
+            self.escaped = False
+            if ch == 'u':
+                self.unicode_digits = ''
+            else:
+                self.emit(self.ESCAPES.get(ch, ch), out)
+            return
+        if ch == '\\':
+            self.escaped = True
+            return
+        if ch == '"':
+            self.flush_surrogate(out)
+            self.in_string = False
+            if self.in_key:
+                self.in_key, self.current_key = False, ''.join(self.key_chars)
+            elif self.in_value:
+                self.in_value = self.done = True
+            return
+        self.emit(ch, out)
+
+    def emit_code_point(self, code: int, out: list[str]) -> None:
+        if 0xD800 <= code <= 0xDBFF:
+            self.flush_surrogate(out)
+            self.pending_high_surrogate = chr(code)
+        elif 0xDC00 <= code <= 0xDFFF and (high := self.pending_high_surrogate):
+            self.pending_high_surrogate = ''
+            self.emit(chr(0x10000 + ((ord(high) - 0xD800) << 10) + (code - 0xDC00)), out)
+        else:
+            self.emit(chr(code), out)
+
+    def flush_surrogate(self, out: list[str]) -> None:
+        # A high surrogate not followed by a low one, passed through as is like json.loads() does
+        if high := self.pending_high_surrogate:
+            self.pending_high_surrogate = ''
+            self.emit(high, out)
+
+    def emit(self, text: str, out: list[str]) -> None:
+        self.flush_surrogate(out)
+        if self.in_key:
+            self.key_chars.append(text)
+        elif self.in_value:
+            out.append(text)
+
+
+def structured_output_from_chat(responses: Iterable[ChatResponse], schema: type, plugin_name: str, on_text: OnText | None = None) -> StructuredOutputResult:
     # Accumulate a chat session whose text content is JSON conforming to
-    # schema into a StructuredOutputResult.
+    # schema into a StructuredOutputResult, reporting the text to on_text as
+    # it arrives.
     content = ''
     metadata = ChatResponse()
     for r in responses:
@@ -377,7 +510,10 @@ def structured_output_from_chat(responses: Iterable[ChatResponse], schema: type,
             return StructuredOutputResult(exception=r.exception, error_details=r.error_details, plugin_name=plugin_name)
         if r.has_metadata:
             metadata = r
-        content += r.content
+        if r.content:
+            content += r.content
+            if on_text is not None:
+                on_text(r.content)
     data = parse_structured_response(content, schema)
     return StructuredOutputResult(
         data=data,
@@ -412,6 +548,7 @@ def structured_output_via_prompt(
     instructions: str = '',
     use_model: str = '',
     plugin_name: str = '',
+    on_text: OnText | None = None,
 ) -> StructuredOutputResult:
     # Fallback for AI providers that have no native structured output
     # support: describe the schema as a TypeScript interface in a system
@@ -420,7 +557,7 @@ def structured_output_via_prompt(
         ChatMessage(type=ChatMessageType.system, query=system_prompt_for_schema(schema, instructions)),
         ChatMessage(prompt),
     )
-    return structured_output_from_chat(text_chat(messages, use_model), schema, plugin_name)
+    return structured_output_from_chat(text_chat(messages, use_model), schema, plugin_name, on_text)
 
 
 def structured_output_with_error_handler(func: Callable[[], StructuredOutputResult]) -> StructuredOutputResult:
@@ -468,7 +605,9 @@ def develop_structured_output(
 ) -> None:
     schema = schema or ExampleBookInfo
     prompt = prompt or 'Give me the details of the novel Pride and Prejudice by Jane Austen.'
-    res = generate_structured_output(prompt, schema, use_model=use_model)
+    print('Streamed JSON:')
+    res = generate_structured_output(prompt, schema, use_model=use_model, on_text=lambda text: print(end=text, flush=True))
+    print()
     if res.exception is not None:
         raise SystemExit(str(res.exception) + (': ' + res.error_details if res.error_details else ''))
     print('Raw JSON:')
@@ -679,6 +818,61 @@ def find_tests() -> TestSuite:
 
             res = structured_output_with_error_handler(lambda: structured_output_via_prompt(bad_json_chat, 'q', ExampleBookInfo))
             self.assertIsInstance(res.exception, ValueError)
+
+        def test_ai_structured_streaming_string_field(self) -> None:
+            def streamed(text: str, field: str = 'narrative', chunk_size: int = 1) -> tuple[list[str], StreamingStringField]:
+                f = StreamingStringField(field)
+                pieces = [f.feed(text[i : i + chunk_size]) for i in range(0, len(text), chunk_size)]
+                return [p for p in pieces if p], f
+
+            doc = {'narrative': 'The mist "parts".\nA shape\tmoves \\ on: {, [ and } lurk', 'quick_actions': [{'text': 'narrative', 'kind': 'bold'}]}
+            raw = json.dumps(doc)
+            for chunk_size in (1, 2, 7, len(raw)):
+                pieces, f = streamed(raw, chunk_size=chunk_size)
+                self.ae(''.join(pieces), doc['narrative'], f'chunk size {chunk_size}')
+                self.assertTrue(f.done)
+            self.assertGreater(len(streamed(raw)[0]), 1, 'characters must be reported as they arrive')
+            # the field need not be first, keys inside nested values are not confused with top level keys
+            self.ae(''.join(streamed(json.dumps({'a': {'narrative': 'no', 'b': ['narrative']}, 'narrative': 'yes', 'c': 1}))[0]), 'yes')
+            self.ae(''.join(streamed(json.dumps({'a': [{'narrative': 'no'}], 'narrative': 'yes'}))[0]), 'yes')
+            # code fences and prose before the object are skipped, as is everything after the field
+            pieces, f = streamed('Sure:\n```json\n{"x": "narrative", "narrative": "a\\u00e9b", "y": "z"}\n```')
+            self.ae(''.join(pieces), 'aéb')
+            self.assertTrue(f.done)
+            # unicode escapes, including surrogate pairs, are decoded as by json.loads
+            for text in ('\U0001f600', 'a\U0001f600b', '\U0001f600\U0001f600', 'é☃'):
+                escaped = json.dumps({'narrative': text}, ensure_ascii=True)
+                for chunk_size in (1, 3, len(escaped)):
+                    self.ae(''.join(streamed(escaped, chunk_size=chunk_size)[0]), text, f'{escaped!r} in chunks of {chunk_size}')
+            # a lone high surrogate is passed through like json.loads does, and invalid hex digits do not raise
+            self.ae(''.join(streamed('{"narrative": "\\ud83dx"}')[0]), json.loads('"\\ud83dx"'))
+            self.ae(''.join(streamed('{"narrative": "a\\uzzzzb"}')[0]), 'a�b')
+            # nothing is reported for a document that lacks the field or is incomplete
+            pieces, f = streamed('{"other": "narrative"}')
+            self.ae(pieces, [])
+            self.assertTrue(f.done)
+            pieces, f = streamed('{"other": "x", "narr')
+            self.ae(pieces, [])
+            self.assertFalse(f.done)
+            # non-string values of the field are ignored, and a string is not reported after done
+            f = StreamingStringField('narrative')
+            self.ae(f.feed('{"narrative": 42, "x": "narrative"}'), '')
+            self.assertTrue(f.done)
+            self.ae(f.feed('{"narrative": "again"}'), '')
+
+        def test_ai_structured_streaming_from_chat(self) -> None:
+            payload = json.dumps({'title': 'Emma', 'authors': ['Jane Austen'], 'publication_year': 1815})
+            responses = (
+                ChatResponse(content=payload[:12]),
+                ChatResponse(reasoning='thinking'),
+                ChatResponse(content=payload[12:]),
+                ChatResponse(has_metadata=True),
+            )
+            seen: list[str] = []
+            res = structured_output_from_chat(responses, ExampleBookInfo, 'p', on_text=seen.append)
+            self.assertIsNone(res.exception)
+            self.ae(seen, [payload[:12], payload[12:]], 'every fragment of content, and only content, must be reported')
+            self.ae(res.raw, payload)
 
         def test_ai_structured_openai_request(self) -> None:
             from calibre.ai.openai.backend import structured_output_data

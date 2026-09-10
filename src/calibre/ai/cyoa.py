@@ -24,7 +24,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any, NamedTuple, Protocol
 
 from calibre.ai import AICapabilities, StructuredOutputResult
-from calibre.ai.structured import Doc, Kind, TypeSpec, instantiate, spec_for_class
+from calibre.ai.structured import Doc, Kind, OnText, StreamingStringField, TypeSpec, instantiate, spec_for_class
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
@@ -54,7 +54,9 @@ class AIProvider(Protocol):
     # The subset of calibre.customize.AIProviderPlugin used by this module,
     # expressed as a Protocol so that tests and alternative implementations
     # can be substituted for actual plugins.
-    def generate_structured_output(self, prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult: ...
+    def generate_structured_output(
+        self, prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None
+    ) -> StructuredOutputResult: ...
 
 
 # Schema classes describing what the AI must generate {{{
@@ -248,7 +250,7 @@ def quick_action_kind_name(kind: QuickActionKind) -> str:
         QuickActionKind.cautious: _('Cautious'),
         QuickActionKind.bold: _('Bold'),
         QuickActionKind.social: _('Social'),
-        QuickActionKind.investigate: _('Investigative'),
+        QuickActionKind.investigate: _('Investigate'),
     }.get(kind, '')
 
 
@@ -1071,8 +1073,27 @@ def validated_turn(turn: StoryTurn) -> StoryTurn:
     )
 
 
+def narrative_streamer(on_narrative: OnText) -> OnText:
+    # Adapt a callback wanting the prose of a turn as it is written into one
+    # taking the fragments of raw JSON a provider reports. The prose is the
+    # first field of StoryTurn precisely so that it can be shown to the player
+    # while the AI is still writing the rest of the turn.
+    field = StreamingStringField(StoryTurn._fields[0])
+
+    def on_text(text: str) -> None:
+        if prose := field.feed(text):
+            on_narrative(prose)
+
+    return on_text
+
+
 def next_turn(
-    state: GameState, player_input: str = '', plugin: AIProvider | None = None, use_model: str = '', interesting_event: bool = False
+    state: GameState,
+    player_input: str = '',
+    plugin: AIProvider | None = None,
+    use_model: str = '',
+    interesting_event: bool = False,
+    on_narrative: OnText | None = None,
 ) -> StructuredOutputResult:
     # Play one turn: send the AI the story summary, the transcript of the
     # current chapter and the player's input, returning a result whose data
@@ -1084,7 +1105,11 @@ def next_turn(
     # error is reported via the exception field of the result, not raised.
     # For the opening turn of the game player_input may be empty. When
     # interesting_event is true the player's input is ignored and the AI is
-    # asked to have something unexpected happen instead.
+    # asked to have something unexpected happen instead. on_narrative is
+    # called, on this thread, with each new fragment of the prose of the turn
+    # as the AI writes it, before the response is complete: the prose so far
+    # is all that is shown to the player until the turn has been validated,
+    # and it is not stripped or normalized the way the final turn is.
     plugin = plugin or default_provider()
     if plugin is None:
         return no_provider_error()
@@ -1092,7 +1117,8 @@ def next_turn(
         player_input = ''
     instructions = turn_instructions(state)
     prompt = turn_prompt(state, player_input, interesting_event)
-    res = plugin.generate_structured_output(prompt, StoryTurn, instructions, use_model)
+    on_text = narrative_streamer(on_narrative) if on_narrative is not None else None
+    res = plugin.generate_structured_output(prompt, StoryTurn, instructions, use_model, on_text)
     if res.exception is not None:
         return res
     turn = res.data
@@ -1175,12 +1201,18 @@ def find_tests() -> TestSuite:  # {{{
     import unittest
 
     class FakePlugin:
-        def __init__(self, results: list[StructuredOutputResult]) -> None:
+        def __init__(self, results: list[StructuredOutputResult], streamed_text: str = '') -> None:
             self.results = list(results)
+            self.streamed_text = streamed_text  # reported to on_text in small fragments before the result is returned
             self.calls: list[tuple[str, type, str, str]] = []
 
-        def generate_structured_output(self, prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+        def generate_structured_output(
+            self, prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None
+        ) -> StructuredOutputResult:
             self.calls.append((prompt, schema, instructions, use_model))
+            if on_text is not None:
+                for i in range(0, len(self.streamed_text), 3):
+                    on_text(self.streamed_text[i : i + 3])
             return self.results.pop(0)
 
     def make_world() -> GeneratedWorld:
@@ -1392,6 +1424,23 @@ def find_tests() -> TestSuite:  # {{{
             self.assertIn('something unexpected', prompt)
             self.assertNotIn('ignored', prompt, "an interesting event must not send the player's input to the AI")
             self.ae(state.turns[-1].player_input, '', 'an interesting event must not record any player input')
+
+        def test_ai_cyoa_streaming_narrative(self) -> None:
+            # Streaming the prose only helps if the AI writes it before the
+            # rest of the turn, which it does in the order of the schema
+            self.ae(spec_for_class(StoryTurn).fields[0].name, 'narrative', 'the narrative must be the first field of StoryTurn so it can be streamed')
+            turn = make_turn('  The mist *parts*.\nA "shape" moves.  ')
+            raw = json.dumps(as_jsonable(turn, spec_for_class(StoryTurn)))
+            state = start_game('a foggy city', make_world())
+            received: list[str] = []
+            res = next_turn(state, 'look', FakePlugin([ok(turn)], streamed_text='```json\n' + raw + '\n```'), on_narrative=received.append)
+            self.assertIsNone(res.exception)
+            self.assertGreater(len(received), 1, 'the prose must be reported as it arrives, not all at once')
+            self.ae(''.join(received), '  The mist *parts*.\nA "shape" moves.  ', 'the streamed prose must not be normalized')
+            self.ae(state.turns[-1].turn.narrative, 'The mist *parts*.\nA "shape" moves.')
+            # without a callback nothing is streamed
+            res = next_turn(state, 'look', FakePlugin([ok(turn)], streamed_text=raw))
+            self.assertIsNone(res.exception)
 
         def test_ai_cyoa_prose_context(self) -> None:
             # The prose of the current chapter is sent to the AI, with the

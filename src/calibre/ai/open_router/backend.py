@@ -30,6 +30,7 @@ from calibre.ai import (
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.structured import (
+    OnText,
     develop_structured_output,
     messages_for_structured_output,
     strict_json_schema,
@@ -393,7 +394,9 @@ def structured_output_data(messages: Iterable[ChatMessage], models: Sequence[Mod
     return data
 
 
-def generate_structured_output_implementation(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
+def generate_structured_output_implementation(
+    prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None
+) -> StructuredOutputResult:
     models, model_id = models_for_chat(use_model)
     if use_model:
         m = get_available_models().get(use_model)
@@ -403,13 +406,13 @@ def generate_structured_output_implementation(prompt: str, schema: type, instruc
     else:
         native = supports_structured_output(models[0])
     if not native:
-        return structured_output_via_prompt(text_chat_implementation, prompt, schema, instructions, use_model, OpenRouterAI.name)
+        return structured_output_via_prompt(text_chat_implementation, prompt, schema, instructions, use_model, OpenRouterAI.name, on_text)
     data = structured_output_data(messages_for_structured_output(prompt, instructions), models, model_id, schema)
-    return structured_output_from_chat(responses_from_stream(chat_request(data)), schema, OpenRouterAI.name)
+    return structured_output_from_chat(responses_from_stream(chat_request(data)), schema, OpenRouterAI.name, on_text)
 
 
-def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '') -> StructuredOutputResult:
-    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model))
+def generate_structured_output(prompt: str, schema: type, instructions: str = '', use_model: str = '', on_text: OnText | None = None) -> StructuredOutputResult:
+    return structured_output_with_error_handler(lambda: generate_structured_output_implementation(prompt, schema, instructions, use_model, on_text))
 
 
 def model_choice_for_images(need_editing: bool) -> Model:
