@@ -7,7 +7,22 @@
 # game renders its turns with, so that it follows the text display settings
 # and zooms along with the game.
 
-from qt.core import QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, QSplitter, QTextCursor, QUrl, QVBoxLayout, QWidget
+from qt.core import (
+    QDialogButtonBox,
+    QEvent,
+    QKeyEvent,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QObject,
+    QSize,
+    QSplitter,
+    Qt,
+    QTextCursor,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+)
 
 from calibre.ai.cyoa import GameState
 from calibre.gui2 import safe_open_url
@@ -58,6 +73,8 @@ class ReadStoryDialog(Dialog):
         cl.setCurrentRow(self.state.current_chapter)
         cl.currentRowChanged.connect(self.show_chapter)
         self.show_chapter(cl.currentRow())
+        sv.installEventFilter(self)
+        sv.setFocus()
 
     def sizeHint(self) -> QSize:
         return QSize(900, 700)
@@ -75,6 +92,56 @@ class ReadStoryDialog(Dialog):
         # chapter, but a chapter is meant to be read from its start.
         if (vsb := sv.verticalScrollBar()) is not None:
             vsb.setValue(vsb.minimum())
+
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a0 is self.story_view and a1 is not None and a1.type() == QEvent.Type.KeyPress:
+            assert isinstance(a1, QKeyEvent)
+            if self._handle_story_key(a1):
+                return True
+        return super().eventFilter(a0, a1)
+
+    def _handle_story_key(self, event: QKeyEvent) -> bool:
+        key = event.key()
+        mods = event.modifiers()
+        no_mods = mods == Qt.KeyboardModifier.NoModifier
+        ctrl = mods == Qt.KeyboardModifier.ControlModifier
+        sv = self.story_view
+        cl = self.chapters_list
+        vsb = sv.verticalScrollBar()
+        if vsb is None:
+            return False
+
+        if ctrl and key == Qt.Key.Key_Home:
+            cl.setCurrentRow(0)
+            vsb.setValue(vsb.minimum())
+            return True
+
+        if ctrl and key == Qt.Key.Key_End:
+            cl.setCurrentRow(cl.count() - 1)
+            vsb.setValue(vsb.maximum())
+            return True
+
+        if no_mods and key in (Qt.Key.Key_Up, Qt.Key.Key_PageUp):
+            if vsb.value() <= vsb.minimum():
+                row = cl.currentRow()
+                if row > 0:
+                    cl.setCurrentRow(row - 1)
+                    vsb.setValue(vsb.maximum())
+                return True
+            return False
+
+        if no_mods and key in (Qt.Key.Key_Down, Qt.Key.Key_PageDown, Qt.Key.Key_Space):
+            if vsb.value() >= vsb.maximum():
+                row = cl.currentRow()
+                if row < cl.count() - 1:
+                    cl.setCurrentRow(row + 1)
+                return True
+            if key == Qt.Key.Key_Space:
+                vsb.setValue(min(vsb.value() + vsb.pageStep(), vsb.maximum()))
+                return True
+            return False
+
+        return False
 
     def on_link_clicked(self, url: QUrl) -> None:
         safe_open_url(url)
