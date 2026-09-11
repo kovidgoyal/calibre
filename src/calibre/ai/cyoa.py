@@ -248,7 +248,7 @@ def quick_action_kind_name(kind: QuickActionKind) -> str:
     # worth taking up space in the UI for.
     return {
         QuickActionKind.cautious: _('Cautious'),
-        QuickActionKind.bold: pgettext('CYOA quick action kind', 'Bold')
+        QuickActionKind.bold: pgettext('CYOA quick action kind', 'Bold'),
         QuickActionKind.social: _('Social'),
         QuickActionKind.investigate: _('Investigate'),
     }.get(kind, '')
