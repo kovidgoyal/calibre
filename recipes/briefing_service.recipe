@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+__license__ = 'GPL v3'
+__copyright__ = '2026, Jordan Shelley'
+
+import json
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+BASE = 'https://briefing-service.wholemind.workers.dev/v1/briefings/'
+
+SECTIONS = (
+    ('ai', 'AI Briefing'),
+    ('labs', 'Frontier Labs'),
+    ('finance', 'Markets'),
+    ('sports', 'US Sports'),
+    ('soccer', 'European Football'),
+    ('us', 'US News'),
+    ('world', 'World News'),
+)
+
+
+class BriefingService(BasicNewsRecipe):
+    title = 'Briefing Service'
+    __author__ = 'Jordan Shelley'
+    description = (
+        'Hourly LLM-ranked news briefings: AI, frontier labs, markets, '
+        'US sports, European football, US and world news'
+    )
+    publisher = 'Briefing Service'
+    category = 'news, ai, finance, sports'
+    language = 'en'
+    publication_type = 'newspaper'
+    oldest_article = 1
+    max_articles_per_feed = 30
+    no_stylesheets = True
+    timefmt = ''
+    auto_cleanup = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+    cover_url = BASE + 'ai/pages/0.png'
+
+    def parse_index(self):
+        feeds = []
+        for key, name in SECTIONS:
+            try:
+                raw = self.index_to_soup(BASE + key + '/summary', raw=True)
+                data = json.loads(raw)
+            except Exception as e:
+                self.log.warn('Failed to fetch section', name, ':', e)
+                continue
+            ranked_at = (data.get('ranked_at') or '')[:16].replace('T', ' ')
+            items = []
+            if data.get('lead'):
+                items.append(data['lead'])
+            items.extend(data.get('stories') or [])
+            items.extend(data.get('research') or [])
+            articles = []
+            for story in items:
+                url = story.get('link')
+                if not url:
+                    continue
+                desc = story.get('summary') or ''
+                src = story.get('source')
+                if src:
+                    desc = '{} [{}]'.format(desc, src).strip()
+                articles.append({
+                    'title': story.get('headline') or url,
+                    'url': url,
+                    'date': story.get('published') or ranked_at,
+                    'description': desc,
+                })
+            if articles:
+                title = data.get('name') or name
+                if ranked_at:
+                    title = '{} ({} UTC)'.format(title, ranked_at)
+                feeds.append((title, articles))
+        return feeds
