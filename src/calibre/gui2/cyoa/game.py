@@ -43,11 +43,7 @@ from qt.core import (
     QSplitter,
     QStatusBar,
     Qt,
-    QTextBlockFormat,
-    QTextBrowser,
-    QTextCharFormat,
     QTextCursor,
-    QTextDocument,
     QTextEdit,
     QTimer,
     QToolBar,
@@ -77,9 +73,20 @@ from calibre.ai.utils import ContentType, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import config, error_dialog, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
+from calibre.gui2.cyoa.read import ReadStoryDialog
 from calibre.gui2.cyoa.saves import LoadGameDialog, SaveGameDialog
 from calibre.gui2.cyoa.settings import ConfigureImageAIDialog, SettingsDialog
-from calibre.gui2.cyoa.story_widgets import PromptEdit, SceneImageDisplay, StoryView
+from calibre.gui2.cyoa.story_widgets import (
+    SCENE_DIVIDER_WIDTH,
+    PromptEdit,
+    SceneImageDisplay,
+    StoryView,
+    add_scene_divider_resource,
+    insert_html_block,
+    insert_scene_divider,
+    render_chapter,
+    scene_divider_image,
+)
 from calibre.gui2.cyoa.text_display import TextDisplay
 from calibre.gui2.cyoa.world_editor import EditWorldDialog
 from calibre.gui2.image_popup import ImagePopup
@@ -87,7 +94,6 @@ from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, ngettext
-from calibre.utils.resources import get_image_path
 
 QUICK_ACTION_SCHEME = 'quick-action'
 # Quick action number i is activated by pressing Ctrl+(i+1)
@@ -95,12 +101,7 @@ MAX_QUICK_ACTION_SHORTCUTS = 9
 # Scene images are stored downscaled to fit this many pixels in either
 # dimension, keeping saved games reasonably small.
 SCENE_IMAGE_SIZE = 1280
-# The ornamental divider drawn between turns, rendered from
-# imgsrc/scene-divider.svg at twice its display width so it stays crisp on
-# high DPI screens.
-SCENE_DIVIDER_URL = 'cyoa://scene-divider'
-SCENE_DIVIDER_WIDTH = 300  # display width in the story view in device independent pixels
-INFO_DIVIDER_WIDTH = 220  # a narrower divider for the info panel, so it does not need to scroll horizontally
+INFO_DIVIDER_WIDTH = 220  # a narrower scene divider for the info panel, so it does not need to scroll horizontally
 # Symbols for the currencies AI providers commonly bill in.
 CURRENCY_SYMBOLS = {'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥', 'INR': '₹', 'KRW': '₩'}
 
@@ -115,28 +116,6 @@ def fmt_cost(cost: float, currency: str) -> str:
     if symbol := CURRENCY_SYMBOLS.get(currency.upper()):
         return symbol + amount
     return f'{amount} {currency}'.strip()
-
-
-def insert_scene_divider(c: QTextCursor) -> None:
-    # The divider needs its own insertion helper as insertHtml() merges the
-    # fragment's first block into the current block, losing the center
-    # alignment, see insert_html_block().
-    bf = QTextBlockFormat()
-    bf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-    bf.setTopMargin(12), bf.setBottomMargin(12)
-    c.insertBlock(bf, QTextCharFormat())
-    c.insertHtml(f'<img src="{SCENE_DIVIDER_URL}">')
-
-
-def insert_html_block(c: QTextCursor, html: str) -> None:
-    # QTextCursor.insertHtml() merges the first block of the fragment into
-    # the current block, which inherits its block format. Sequential calls
-    # thus run text into the preceding heading and attach the ruler of a
-    # preceding <hr> to the following paragraph, so start every fragment in
-    # a fresh block with default formatting.
-    if c.position():
-        c.insertBlock(QTextBlockFormat(), QTextCharFormat())
-    c.insertHtml(html)
 
 
 def quick_action_kind_html(action: QuickAction) -> str:
@@ -260,6 +239,7 @@ class GameWidget(QWidget):
             _('Go back to an earlier turn, discarding all turns after it. Press {} to go back one turn').format('Alt+Left'),
             self.back_to_turn,
         )
+        self.read_action = toolbar_action('view.png', _('Read'), _('Read the story so far, chapter by chapter, as a book'), self.read_story)
         self.world_action = toolbar_action(
             'metadata.png',
             _('Edit world'),
@@ -347,15 +327,8 @@ class GameWidget(QWidget):
         # screen. It must be re-registered on the story document after every
         # clear(), as that discards document resources.
         dpr = self.devicePixelRatioF()
-        src = QImage(get_image_path('scene-divider.png'))
-
-        def scaled_divider(width: int) -> QImage:
-            img = src.scaledToWidth(round(width * dpr), Qt.TransformationMode.SmoothTransformation)
-            img.setDevicePixelRatio(dpr)
-            return img
-
-        self.scene_divider = scaled_divider(SCENE_DIVIDER_WIDTH)
-        self.add_scene_divider_resource(iv, scaled_divider(INFO_DIVIDER_WIDTH))
+        self.scene_divider = scene_divider_image(SCENE_DIVIDER_WIDTH, dpr)
+        add_scene_divider_resource(iv, scene_divider_image(INFO_DIVIDER_WIDTH, dpr))
 
         self.image_popup = ImagePopup(self)
         self.copy_image_action = a = QAction(QIcon.ic('edit-copy.png'), _('&Copy image to clipboard'), self)
@@ -509,6 +482,8 @@ class GameWidget(QWidget):
 
     def refresh_ui(self) -> None:
         self.render_story()
+        # There is nothing to read until the opening turn has been written
+        self.read_action.setEnabled(self.state is not None and bool(self.state.turns))
         if self.state is not None and self.state.turns:
             self.scroll_to_turn(len(self.state.turns))
         self.update_window_title()
@@ -517,15 +492,10 @@ class GameWidget(QWidget):
 
     # Story display {{{
 
-    def add_scene_divider_resource(self, view: QTextBrowser, divider: QImage | None = None) -> None:
-        doc = view.document()
-        if doc is not None:
-            doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl(SCENE_DIVIDER_URL), divider if divider is not None else self.scene_divider)
-
     def render_story(self) -> None:
         sv = self.story_view
         sv.clear()
-        self.add_scene_divider_resource(sv)  # clear() discards document resources
+        add_scene_divider_resource(sv, self.scene_divider)  # clear() discards document resources
         sv.apply_max_line_width()  # as does the margin limiting the line length
         self.turn_positions = []
         state = self.state
@@ -537,16 +507,7 @@ class GameWidget(QWidget):
             insert_html_block(c, f'<h2>{escape(state.world.title)}</h2>')
             insert_html_block(c, response_to_html(state.world.world_description, ContentType.markdown))
         else:
-            insert_html_block(c, f'<h2>{escape(state.chapter_titles[state.current_chapter])}</h2>')
-            for i, t in enumerate(state.turns):
-                if t.chapter != state.current_chapter:
-                    continue
-                if self.turn_positions:
-                    insert_scene_divider(c)
-                self.turn_positions.append((c.position(), i + 1))
-                if t.player_input:
-                    insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
-                insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
+            self.turn_positions = render_chapter(c, state, state.current_chapter)
         if self.turn_call > -1 and self.turn_request is not None:
             # A turn is being generated: show the action the player took and
             # the prose the AI has written so far in place of the quick
@@ -1343,6 +1304,12 @@ class GameWidget(QWidget):
         # belong to this game and are stored with it.
         self.autosave()
         self.status_bar.showMessage(_('Changes to the world will be used from the next turn'), 5000)
+
+    def read_story(self) -> None:
+        # The story so far as a book: all of its chapters, not just the one
+        # being played, in a dialog of their own.
+        if self.state is not None and self.state.turns:
+            ReadStoryDialog(self.state, self).exec()
 
     def change_settings(self) -> None:
         if SettingsDialog(self).exec() != Dialog.DialogCode.Accepted:

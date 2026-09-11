@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
+from html import escape
+
 from qt.core import (
     QAction,
     QContextMenuEvent,
     QIcon,
+    QImage,
     QKeyEvent,
     QLabel,
     QMouseEvent,
@@ -18,18 +21,32 @@ from qt.core import (
     QSize,
     QSizeF,
     Qt,
+    QTextBlockFormat,
     QTextBrowser,
+    QTextCharFormat,
+    QTextCursor,
+    QTextDocument,
     QTextOption,
     QToolButton,
+    QUrl,
     QVBoxLayout,
     QWheelEvent,
     QWidget,
     pyqtSignal,
 )
 
+from calibre.ai.cyoa import GameState
+from calibre.ai.utils import ContentType, response_to_html
 from calibre.gui2.cyoa.text_display import TextDisplayMixin
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.utils.localization import _
+from calibre.utils.resources import get_image_path
+
+# The ornamental divider drawn between the turns of a chapter, rendered from
+# imgsrc/scene-divider.svg at twice its display width so it stays crisp on
+# high DPI screens.
+SCENE_DIVIDER_URL = 'cyoa://scene-divider'
+SCENE_DIVIDER_WIDTH = 300  # display width in a story view in device independent pixels
 
 
 class PromptEdit(QPlainTextEdit):
@@ -227,3 +244,69 @@ class StoryView(TextDisplayMixin, MomentumScrollMixin, QTextBrowser):
             m.addAction(self.copy_turn_action)
         m.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         m.exec(e.globalPos())
+
+
+# Rendering the story into a text document {{{
+
+
+def scene_divider_image(width: int, device_pixel_ratio: float) -> QImage:
+    # The divider scaled for the screen it is displayed on. It must be
+    # registered on the document of every view that shows it, see
+    # add_scene_divider_resource().
+    img = QImage(get_image_path('scene-divider.png')).scaledToWidth(round(width * device_pixel_ratio), Qt.TransformationMode.SmoothTransformation)
+    img.setDevicePixelRatio(device_pixel_ratio)
+    return img
+
+
+def add_scene_divider_resource(view: QTextBrowser, divider: QImage) -> None:
+    if (doc := view.document()) is not None:
+        doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl(SCENE_DIVIDER_URL), divider)
+
+
+def insert_scene_divider(c: QTextCursor) -> None:
+    # The divider needs its own insertion helper as insertHtml() merges the
+    # fragment's first block into the current block, losing the center
+    # alignment, see insert_html_block().
+    bf = QTextBlockFormat()
+    bf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+    bf.setTopMargin(12), bf.setBottomMargin(12)
+    c.insertBlock(bf, QTextCharFormat())
+    c.insertHtml(f'<img src="{SCENE_DIVIDER_URL}">')
+
+
+def insert_html_block(c: QTextCursor, html: str) -> None:
+    # QTextCursor.insertHtml() merges the first block of the fragment into
+    # the current block, which inherits its block format. Sequential calls
+    # thus run text into the preceding heading and attach the ruler of a
+    # preceding <hr> to the following paragraph, so start every fragment in
+    # a fresh block with default formatting.
+    if c.position():
+        c.insertBlock(QTextBlockFormat(), QTextCharFormat())
+    c.insertHtml(html)
+
+
+def render_chapter(c: QTextCursor, state: GameState, chapter: int) -> list[tuple[int, int]]:
+    # Insert the title and the prose of one zero based chapter of the story
+    # at the cursor, as the player read it while playing: the action taken
+    # before each turn followed by the passage the AI wrote for it, with a
+    # divider between turns. Returns the (document position, one based turn
+    # number) of every turn inserted, which maps a position in the document
+    # back to the turn at it, see GameWidget.visible_turn_number().
+    ans: list[tuple[int, int]] = []
+    titles = state.chapter_titles
+    if not 0 <= chapter < len(titles):
+        return ans
+    insert_html_block(c, f'<h2>{escape(titles[chapter])}</h2>')
+    for i, t in enumerate(state.turns):
+        if t.chapter != chapter:
+            continue
+        if ans:
+            insert_scene_divider(c)
+        ans.append((c.position(), i + 1))
+        if t.player_input:
+            insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
+        insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
+    return ans
+
+
+# }}}
