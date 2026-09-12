@@ -1804,3 +1804,6 @@ class _MOFileParser:
             return tup[0]
         return tup
 # }}}
+
+if __name__ == '__main__':
+    pass
