@@ -160,11 +160,15 @@ class TestHyperlinks(unittest.TestCase):
             for label, count in (('Styled', 1), ('Adjacent', 2), ('Nested', 1), ('Internal', 1), ('Cell one', 1), ('Cell two', 1)):
                 self.assertEqual(len(paragraphs[label].xpath('.//a')), count, label)
             a = paragraphs['Styled'].find('a')
+            assert a is not None
             self.assertEqual(''.join(a.itertext()), 'oddities linktext & ampersands')
             self.assertEqual(a.get('href'), 'https://example.com')
             self.assertEqual(a.get('title'), 'Example')
             self.assertEqual(''.join(paragraphs['Styled'].itertext()), 'Styled: oddities linktext & ampersands outside.')
-            href = paragraphs['Internal'].find('a').get('href')
+            a = paragraphs['Internal'].find('a')
+            assert a is not None
+            href = a.get('href')
+            assert href is not None
             self.assertTrue(href.startswith('#'))
             self.assertTrue(result.xpath('//*[@id=$target]', target=href[1:]))
 
