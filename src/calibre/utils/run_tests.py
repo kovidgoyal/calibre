@@ -663,6 +663,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.ebooks.docx.writer.utils import test_convert_color
 
         a(test_convert_color(return_tests=True))
+        from calibre.ebooks.docx.writer.tests import find_tests
+
+        a(find_tests())
     if ok('cfi'):
         from calibre.ebooks.epub.cfi.tests import find_tests
 
