@@ -63,6 +63,7 @@ def prefs() -> JSONConfig:
     ans.defaults['game_splitter_state'] = None
     ans.defaults['turn_timeout_minutes'] = 5
     ans.defaults['text_display'] = {}
+    ans.defaults['read_story_show_images'] = True
     return ans
 
 
@@ -74,6 +75,16 @@ def save_game_splitter_state(raw: bytes) -> None:
 
 def game_splitter_state() -> bytes:
     return bytes(prefs()['game_splitter_state'] or b'')
+
+
+def read_story_show_images() -> bool:
+    # Whether the dialog that shows the story so far as a book displays the
+    # pictures of the scenes of its turns as illustrations.
+    return bool(prefs()['read_story_show_images'])
+
+
+def set_read_story_show_images(val: bool) -> None:
+    prefs().set('read_story_show_images', bool(val))
 
 
 def turn_timeout_minutes() -> int:

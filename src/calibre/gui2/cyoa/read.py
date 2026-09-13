@@ -5,35 +5,85 @@
 # book. The chapters it is made of are listed on the left, the prose of the
 # selected chapter is shown on the right, rendered by the same widget the
 # game renders its turns with, so that it follows the text display settings
-# and zooms along with the game.
+# and zooms along with the game. The pictures of the scenes of the turns are
+# shown as the illustrations of the chapter, each after the prose it
+# illustrates, and can be shown full size by clicking them.
+
+from collections.abc import Mapping
 
 from qt.core import (
+    QCheckBox,
     QDialogButtonBox,
     QEvent,
+    QHBoxLayout,
     QKeyEvent,
     QLabel,
     QListWidget,
     QListWidgetItem,
     QObject,
+    QPixmap,
+    QResizeEvent,
     QSize,
     QSplitter,
     Qt,
     QTextCursor,
+    QTimer,
     QUrl,
     QVBoxLayout,
     QWidget,
+    pyqtSignal,
 )
 
 from calibre.ai.cyoa import GameState
 from calibre.gui2 import safe_open_url
-from calibre.gui2.cyoa.story_widgets import SCENE_DIVIDER_WIDTH, StoryView, add_scene_divider_resource, render_chapter, scene_divider_image
+from calibre.gui2.cyoa import data
+from calibre.gui2.cyoa.story_widgets import (
+    SCENE_DIVIDER_WIDTH,
+    SCENE_IMAGE_SCHEME,
+    StoryView,
+    add_scene_divider_resource,
+    add_scene_image_resources,
+    render_chapter,
+    scene_divider_image,
+    story_text_width,
+)
+from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _, ngettext
 
+# How long to wait after the width available for the story changes before
+# rendering the chapter again with the illustrations scaled to the new width,
+# so that dragging the splitter or the window edge does not re-render on
+# every pixel of movement.
+RELAYOUT_DELAY = 300  # milliseconds
+# The width has to change by at least this fraction for the illustrations to
+# be worth scaling again.
+MIN_RELAYOUT_CHANGE = 0.05
+
+
+class ReadStoryView(StoryView):
+    # The illustrations are scaled for the width of the text column, which
+    # changes both when the view is resized and when the text display
+    # settings, such as the font size or the maximum line length, change.
+    relayout_needed = pyqtSignal()
+
+    def apply_text_display_settings(self) -> None:
+        super().apply_text_display_settings()
+        self.relayout_needed.emit()
+
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
+        super().resizeEvent(a0)
+        self.relayout_needed.emit()
+
 
 class ReadStoryDialog(Dialog):
-    def __init__(self, state: GameState, parent: QWidget | None = None) -> None:
+    def __init__(self, state: GameState, images: Mapping[int, data.SceneImage] | None = None, parent: QWidget | None = None) -> None:
+        # images maps one based turn number to the picture of that turn's
+        # scene, as GameWidget keeps them.
         self.state = state
+        self.images: dict[int, bytes] = {k: v.data for k, v in (images or {}).items() if v.data}
+        self.displayed_image_turns: frozenset[int] = frozenset()
+        self.rendered_width = 0
         super().__init__(_('Read the story so far'), 'cyoa-read-story', parent, default_buttons=QDialogButtonBox.StandardButton.Close)
 
     def setup_ui(self) -> None:
@@ -51,7 +101,7 @@ class ReadStoryDialog(Dialog):
         ll.addWidget(la), ll.addWidget(cl)
         sp.addWidget(left)
 
-        self.story_view = sv = StoryView(sp)
+        self.story_view = sv = ReadStoryView(sp)
         # Links in the prose are opened in the browser rather than followed
         # in this view, which would replace the chapter being read.
         sv.setOpenLinks(False)
@@ -60,7 +110,24 @@ class ReadStoryDialog(Dialog):
         sp.setStretchFactor(0, 1)
         sp.setStretchFactor(1, 3)
         l.addWidget(sp, stretch=10)
-        l.addWidget(self.bb)
+
+        bl = QHBoxLayout()
+        self.show_images = si = QCheckBox(_('Show &pictures'), self)
+        si.setToolTip('<p>' + _('Show the pictures of the scenes of the story as illustrations. Click an illustration to see it full size.'))
+        si.setChecked(data.read_story_show_images())
+        si.setVisible(bool(self.images))
+        si.toggled.connect(self.toggle_images)
+        bl.addWidget(si), bl.addStretch(10), bl.addWidget(self.bb)
+        l.addLayout(bl)
+
+        self.image_popup = ImagePopup(self)
+        # Scaling the illustrations for a width that is still changing as
+        # the window or the splitter is dragged would be wasted work.
+        self.relayout_timer = rt = QTimer(self)
+        rt.setSingleShot(True)
+        rt.setInterval(RELAYOUT_DELAY)
+        rt.timeout.connect(self.relayout_images)
+        sv.relayout_needed.connect(rt.start)
 
         self.scene_divider = scene_divider_image(SCENE_DIVIDER_WIDTH, self.devicePixelRatioF())
         for i, title in enumerate(self.state.chapter_titles):
@@ -79,19 +146,62 @@ class ReadStoryDialog(Dialog):
     def sizeHint(self) -> QSize:
         return QSize(900, 700)
 
-    def show_chapter(self, chapter: int) -> None:
+    def show_chapter(self, chapter: int, preserve_scroll: bool = False) -> None:
         sv = self.story_view
+        vsb = sv.verticalScrollBar()
+        # When the chapter is rendered again only because the illustrations
+        # need scaling for a new width, the player must not lose their place
+        # in it. The place is remembered as a fraction of the chapter as the
+        # text is about to be laid out afresh.
+        fraction = 0.0
+        if preserve_scroll and vsb is not None and vsb.maximum() > vsb.minimum():
+            fraction = (vsb.value() - vsb.minimum()) / (vsb.maximum() - vsb.minimum())
         sv.stopMomentumScroll()
         sv.clear()
         add_scene_divider_resource(sv, self.scene_divider)  # clear() discards document resources
         sv.apply_max_line_width()  # as does the margin limiting the line length
+        self.rendered_width = story_text_width(sv)
+        self.displayed_image_turns = self.register_images(chapter)
         c = sv.textCursor()
         c.movePosition(QTextCursor.MoveOperation.End)
-        render_chapter(c, self.state, chapter)
+        render_chapter(c, self.state, chapter, self.displayed_image_turns)
         # Inserting the text leaves the view scrolled to the end of the
         # chapter, but a chapter is meant to be read from its start.
-        if (vsb := sv.verticalScrollBar()) is not None:
-            vsb.setValue(vsb.minimum())
+        if vsb is not None:
+            vsb.setValue(vsb.minimum() + round(fraction * (vsb.maximum() - vsb.minimum())))
+
+    def register_images(self, chapter: int) -> frozenset[int]:
+        # Make the pictures of the turns of this chapter available to the
+        # text layout, scaled for the current width of the text column. Only
+        # the chapter being read is rendered, so only its pictures are
+        # decoded and scaled.
+        if not self.images or not self.show_images.isChecked():
+            return frozenset()
+        of_chapter = {i + 1: self.images[i + 1] for i, t in enumerate(self.state.turns) if t.chapter == chapter and i + 1 in self.images}
+        return add_scene_image_resources(self.story_view, of_chapter, self.rendered_width)
+
+    def relayout_images(self) -> None:
+        # The illustrations are scaled for the width of the text column, so
+        # a change to it means they have to be scaled and inserted again.
+        if not self.displayed_image_turns:
+            return
+        width = story_text_width(self.story_view)
+        if not width or abs(width - self.rendered_width) < MIN_RELAYOUT_CHANGE * max(1, self.rendered_width):
+            return
+        self.show_chapter(self.chapters_list.currentRow(), preserve_scroll=True)
+
+    def toggle_images(self) -> None:
+        data.set_read_story_show_images(self.show_images.isChecked())
+        self.show_chapter(self.chapters_list.currentRow(), preserve_scroll=True)
+
+    def show_scene_image(self, turn_number: int) -> None:
+        # The picture of a scene at its full size, as double clicking the
+        # picture of the current scene does while playing.
+        pm = QPixmap()
+        if (raw := self.images.get(turn_number)) and pm.loadFromData(raw):
+            self.image_popup.current_img = pm
+            self.image_popup.current_url = QUrl(data.image_file_name(turn_number))
+            self.image_popup()
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a0 is self.story_view and a1 is not None and a1.type() == QEvent.Type.KeyPress:
@@ -144,12 +254,36 @@ class ReadStoryDialog(Dialog):
         return False
 
     def on_link_clicked(self, url: QUrl) -> None:
-        safe_open_url(url)
+        if url.scheme() != SCENE_IMAGE_SCHEME:
+            safe_open_url(url)
+            return
+        try:
+            turn_number = int(url.path())
+        except ValueError:
+            return
+        self.show_scene_image(turn_number)
 
 
 if __name__ == '__main__':
+    from qt.core import QBuffer, QColor, QImage, QIODeviceBase, QPainter
+
     from calibre.ai.cyoa import GeneratedWorld, PlayerCharacter, StoryTurn, SummaryUpdate, TurnRecord, initial_summary, start_game
     from calibre.gui2 import Application
+
+    def demo_image(turn_number: int) -> data.SceneImage:
+        img = QImage(1024, 768, QImage.Format.Format_RGB32)
+        img.fill(QColor.fromHsv((turn_number * 37) % 360, 120, 160))
+        p = QPainter(img)
+        f = p.font()
+        f.setPointSize(72)
+        p.setFont(f)
+        p.setPen(QColor('white'))
+        p.drawText(img.rect(), int(Qt.AlignmentFlag.AlignCenter), f'Scene {turn_number}')
+        p.end()
+        buf = QBuffer()
+        buf.open(QIODeviceBase.OpenModeFlag.WriteOnly)
+        img.save(buf, 'PNG')
+        return data.SceneImage(data=bytes(buf.data()))
 
     app = Application([])
     pc = PlayerCharacter('Ada', 'a stubborn engineer', 'She built the mist engines.')
@@ -174,5 +308,8 @@ if __name__ == '__main__':
                 chapter=i // 3,
             )
         )
-    ReadStoryDialog(state).exec()
+    # Only some of the turns have a picture, as in a game in which image
+    # generation was turned on part way through or failed for a turn.
+    images = {i: demo_image(i) for i in range(1, len(state.turns) + 1) if i % 3 != 2}
+    ReadStoryDialog(state, images).exec()
     del app

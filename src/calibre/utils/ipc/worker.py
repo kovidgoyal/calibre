@@ -25,6 +25,7 @@ PARALLEL_FUNCS = {
     'ebook-edit': ('calibre.gui_launch', 'gui_ebook_edit', None),
     'store-dialog': ('calibre.gui_launch', 'store_dialog', None),
     'toc-dialog': ('calibre.gui_launch', 'toc_dialog', None),
+    'cyoa': ('calibre.gui_launch', 'cyoa', None),
     'webengine-dialog': ('calibre.gui_launch', 'webengine_dialog', None),
     'render_pages': ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
     'gui_convert': ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),

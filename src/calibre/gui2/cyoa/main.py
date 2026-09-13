@@ -4,20 +4,38 @@
 # The main window for the "Create Your Own Adventure" game. It shows the
 # welcome screen until the AI used to generate the story is configured, then
 # either the world creation flow or, when a game is already in progress, the
-# game itself.
+# game itself. Like the E-book viewer and the editor, the game is a program
+# of its own: it is normally started as a separate process, either from the
+# command line or by the calibre GUI via
+# job_manager.launch_gui_app('cyoa'), and keeps running after the calibre
+# GUI that launched it is closed.
 # Run with: calibre-debug -c 'from calibre.gui2.cyoa.main import main; main()'
 
-from qt.core import QFont, QIcon, QSize, QStackedWidget
+import os
+import sys
+from collections.abc import Sequence
+from contextlib import closing
+
+from qt.core import QFont, QIcon, QSize, QStackedWidget, Qt
 
 from calibre.ai.cyoa import PROTAGONIST_ID, GeneratedWorld, StoryStyle, start_game
 from calibre.constants import CYOA_APP_UID, islinux
-from calibre.gui2 import Application, error_dialog, gprefs
+from calibre.gui2 import Application, error_dialog, gprefs, setup_gui_option_parser
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.game import GameWidget
 from calibre.gui2.cyoa.welcome import WelcomeWidget
 from calibre.gui2.cyoa.world import CreateWorldWidget
+from calibre.gui2.listener import Listener, send_message_in_process
 from calibre.gui2.main_window import MainWindow
+from calibre.ptempfile import reset_base_dir
+from calibre.utils.config import OptionParser
+from calibre.utils.ipc import cyoa_socket_address
 from calibre.utils.localization import _
+from calibre.utils.lock import SingleInstance
+
+# Only one process can play at a time, as two of them would overwrite each
+# other's auto-saved game, see main().
+SINGLE_INSTANCE_NAME = 'calibre_cyoa'
 
 
 class CYOAMainWindow(MainWindow):
@@ -90,10 +108,50 @@ class CYOAMainWindow(MainWindow):
         data.set_current_game('')
         self.show_appropriate_page()
 
+    def message_from_other_instance(self, msg: bytes) -> None:
+        # Another process was started to play the game. Since there can be
+        # only one, it asks this one to come to the front instead, see
+        # main().
+        self.raise_and_focus()
 
-def main() -> None:
-    override = 'calibre-ebook-viewer' if islinux else None
-    app = Application([], override_program_name=override, windows_app_uid=CYOA_APP_UID)
+
+def option_parser() -> OptionParser:
+    from calibre.gui2.main_window import option_parser as base_option_parser
+
+    parser = base_option_parser(
+        _(
+            '''\
+%prog [options]
+
+Play a "Create Your Own Adventure" game, in which the story is written by an AI as you play it.
+'''
+        )
+    )
+    setup_gui_option_parser(parser)
+    return parser
+
+
+def run_gui(app: Application, listener: Listener | None = None) -> None:
+    w = CYOAMainWindow()
+    w.set_exception_handler()
+    app.shutdown_signal_received.connect(w.close)
+    if listener is not None:
+        listener.message_received.connect(w.message_from_other_instance, type=Qt.ConnectionType.QueuedConnection)
+    w.show()
+    app.exec()
+    del w
+
+
+def main(args: Sequence[str] = sys.argv) -> None:
+    # Ensure the game can continue to be played if the calibre GUI that
+    # launched it is closed, which would otherwise take its temporary
+    # directory away.
+    os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
+    reset_base_dir()
+    args = list(args)
+    override = 'calibre-cyoa' if islinux else None
+    app = Application(args, override_program_name=override, windows_app_uid=CYOA_APP_UID)
+    option_parser().parse_args(args)
     fi = gprefs['font']
     if fi is not None:
         font = QFont(*(fi[:4]))
@@ -101,11 +159,39 @@ def main() -> None:
         if s is not None:
             font.setStretch(s)
         app.setFont(font)
-    w = CYOAMainWindow()
-    w.set_exception_handler()
-    w.show()
-    app.exec()
-    del w
+    app.setWindowIcon(QIcon.ic('ai.png'))
+    # Two processes playing at the same time would overwrite each other's
+    # auto-saved game, so a second launch asks the one already running to
+    # come to the front and exits.
+    with SingleInstance(SINGLE_INSTANCE_NAME) as si:
+        if not si:
+            try:
+                send_message_in_process(b'raise-window', address=cyoa_socket_address())
+            except Exception as err:
+                error_dialog(
+                    None,
+                    _('Failed to connect'),
+                    _('Could not connect to the already running game window, try restarting it.'),
+                    det_msg=str(err),
+                    show=True,
+                )
+                raise SystemExit(1)
+        else:
+            try:
+                listener = Listener(address=cyoa_socket_address(), parent=app)
+                listener.start_listening()
+            except Exception as err:
+                error_dialog(
+                    None,
+                    _('Failed to start listener'),
+                    _('Could not start the listener used to ensure only one game is played at a time. Try rebooting your computer.'),
+                    det_msg=str(err),
+                    show=True,
+                )
+                run_gui(app)
+            else:
+                with closing(listener):
+                    run_gui(app, listener)
     del app
 
 

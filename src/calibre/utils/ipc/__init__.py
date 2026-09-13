@@ -51,3 +51,7 @@ def gui_socket_address():
 
 def viewer_socket_address():
     return socket_address('Viewer' if iswindows else 'viewer')
+
+
+def cyoa_socket_address():
+    return socket_address('CYOA' if iswindows else 'cyoa')

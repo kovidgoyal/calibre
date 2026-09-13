@@ -282,7 +282,7 @@ class GameWidget(QWidget):
         ab.setToolTip('<p>' + _('Submit your action to the AI. You can also press {} in the box above').format('Ctrl+Enter'))
         ab.clicked.connect(self.take_action)
         h.addWidget(ab)
-        self.interesting_button = ib = QPushButton(QIcon.ic('ai.png'), _('Something &interesting happens'), input_panel)
+        self.interesting_button = ib = QPushButton(QIcon.ic('random.png'), _('Something &interesting happens'), input_panel)
         ib.setToolTip('<p>' + _('Instead of taking an action yourself, have the AI make something unexpected and interesting happen next'))
         ib.clicked.connect(self.interesting_event)
         h.addWidget(ib), h.addStretch()
@@ -1342,7 +1342,7 @@ class GameWidget(QWidget):
         # The story so far as a book: all of its chapters, not just the one
         # being played, in a dialog of their own.
         if self.state is not None and self.state.turns:
-            ReadStoryDialog(self.state, self).exec()
+            ReadStoryDialog(self.state, self.images, self).exec()
 
     def change_settings(self) -> None:
         if SettingsDialog(self).exec() != Dialog.DialogCode.Accepted:

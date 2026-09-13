@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Container, Mapping
 from html import escape
 
 from qt.core import (
@@ -47,6 +48,12 @@ from calibre.utils.resources import get_image_path
 # high DPI screens.
 SCENE_DIVIDER_URL = 'cyoa://scene-divider'
 SCENE_DIVIDER_WIDTH = 300  # display width in a story view in device independent pixels
+# The pictures of the scenes of individual turns, shown in the read the story
+# dialog. Every picture is both a document resource, named by the one based
+# number of the turn it belongs to, and a link with the same number, so that
+# clicking it can show the picture full size.
+SCENE_IMAGE_URL_PREFIX = 'cyoa://scene/'
+SCENE_IMAGE_SCHEME = 'cyoa-scene'
 
 
 class PromptEdit(QPlainTextEdit):
@@ -263,6 +270,73 @@ def add_scene_divider_resource(view: QTextBrowser, divider: QImage) -> None:
         doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl(SCENE_DIVIDER_URL), divider)
 
 
+def scene_image_url(turn_number: int) -> str:
+    return f'{SCENE_IMAGE_URL_PREFIX}{turn_number}'
+
+
+def add_scene_image_resources(view: QTextBrowser, images: Mapping[int, bytes], width: int) -> frozenset[int]:
+    # Register the pictures of the scenes of turns, keyed by one based turn
+    # number, as resources of the document of view, scaled to width device
+    # independent pixels but never enlarged beyond their natural size, and
+    # return the numbers of the turns whose picture can actually be shown.
+    # The scaling is done here rather than by the text layout as the layout
+    # neither smooths the images it scales nor accounts for the device pixel
+    # ratio of the screen. The resources must be registered before the
+    # images are inserted, as the layout resolves their size as they are
+    # inserted, again after every clear(), which discards them, and again
+    # whenever the width available for them changes.
+    ans: set[int] = set()
+    doc = view.document()
+    if doc is None or width <= 0:
+        return frozenset(ans)
+    dpr = view.devicePixelRatioF()
+    target = round(width * dpr)
+    for turn_number, raw in images.items():
+        img = QImage()
+        if not raw or not img.loadFromData(raw):
+            continue
+        if 0 < target < img.width():
+            img = img.scaledToWidth(target, Qt.TransformationMode.SmoothTransformation)
+        img.setDevicePixelRatio(dpr)
+        doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl(scene_image_url(turn_number)), img)
+        ans.add(turn_number)
+    return frozenset(ans)
+
+
+def story_text_width(view: QTextBrowser) -> int:
+    # The width in device independent pixels of the column the text of the
+    # story is laid out in, which is narrower than the view when the length
+    # of a line is limited, see TextDisplayMixin.apply_max_line_width().
+    doc, vp = view.document(), view.viewport()
+    if doc is None or vp is None:
+        return 0
+    margin = doc.documentMargin()
+    left = right = margin
+    if (frame := doc.rootFrame()) is not None:
+        fmt = frame.frameFormat()
+        left, right = max(margin, fmt.leftMargin()), max(margin, fmt.rightMargin())
+    ans = vp.width() - left - right
+    if (vsb := view.verticalScrollBar()) is not None and not vsb.isVisible():
+        # A chapter is almost always long enough to need a vertical
+        # scrollbar, which narrows the viewport as soon as it appears, so
+        # leave room for it. Without this an image scaled to the full width
+        # of the column overflows it the moment the text is inserted.
+        ans -= vsb.sizeHint().width()
+    return max(0, round(ans))
+
+
+def insert_scene_image(c: QTextCursor, turn_number: int) -> None:
+    # The picture of the scene of a turn, centered in a block of its own and
+    # wrapped in a link, so that clicking it can show it full size. Its
+    # resource must already be registered on the document, see
+    # add_scene_image_resources().
+    bf = QTextBlockFormat()
+    bf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+    bf.setTopMargin(12), bf.setBottomMargin(12)
+    c.insertBlock(bf, QTextCharFormat())
+    c.insertHtml(f'<a href="{SCENE_IMAGE_SCHEME}:{turn_number}"><img src="{scene_image_url(turn_number)}"></a>')
+
+
 def insert_scene_divider(c: QTextCursor) -> None:
     # The divider needs its own insertion helper as insertHtml() merges the
     # fragment's first block into the current block, losing the center
@@ -285,13 +359,16 @@ def insert_html_block(c: QTextCursor, html: str) -> None:
     c.insertHtml(html)
 
 
-def render_chapter(c: QTextCursor, state: GameState, chapter: int) -> list[tuple[int, int]]:
+def render_chapter(c: QTextCursor, state: GameState, chapter: int, image_turns: Container[int] = ()) -> list[tuple[int, int]]:
     # Insert the title and the prose of one zero based chapter of the story
     # at the cursor, as the player read it while playing: the action taken
     # before each turn followed by the passage the AI wrote for it, with a
-    # divider between turns. Returns the (document position, one based turn
-    # number) of every turn inserted, which maps a position in the document
-    # back to the turn at it, see GameWidget.visible_turn_number().
+    # divider between turns. The picture of the scene of a turn, if its one
+    # based number is in image_turns, follows the prose it illustrates, as
+    # the illustrations of a book do. Returns the (document position, one
+    # based turn number) of every turn inserted, which maps a position in
+    # the document back to the turn at it, see
+    # GameWidget.visible_turn_number().
     ans: list[tuple[int, int]] = []
     titles = state.chapter_titles
     if not 0 <= chapter < len(titles):
@@ -306,6 +383,8 @@ def render_chapter(c: QTextCursor, state: GameState, chapter: int) -> list[tuple
         if t.player_input:
             insert_html_block(c, f'<p><i>➤ {escape(t.player_input)}</i></p>')
         insert_html_block(c, response_to_html(t.turn.narrative, ContentType.markdown))
+        if i + 1 in image_turns:
+            insert_scene_image(c, i + 1)
     return ans
 
 

@@ -173,6 +173,16 @@ def toc_dialog(**kw):
 
 
 @media_pack_error_check
+def cyoa(args=sys.argv):
+    "Play the Create Your Own Adventure game, from the command line or from inside calibre"
+    detach_gui()
+    setup_qt_logging()
+    from calibre.gui2.cyoa.main import main
+
+    main(args)
+
+
+@media_pack_error_check
 def gui_ebook_edit(path=None, notify=None):
     "For launching the editor from inside calibre"
     from calibre.gui2.tweak_book.main import gui_main
