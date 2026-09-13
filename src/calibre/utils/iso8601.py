@@ -9,7 +9,10 @@ import tzlocal
 
 from calibre_extensions import speedup
 
-tz_name = tzlocal.get_localzone_name() or 'UTC'
+try:
+    tz_name = tzlocal.get_localzone_name() or 'UTC'
+except Exception:
+    tz_name = 'UTC'
 local_tz = ZoneInfo(tz_name)
 UNDEFINED_DATE = datetime(101, 1, 1, tzinfo=utc_tz)
 
