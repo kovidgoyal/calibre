@@ -82,9 +82,10 @@ class TextRun:
     def add_image(self, drawing, bookmark=None):
         self.texts.append((drawing, None, bookmark))
 
-    def serialize(self, p, links_manager):
+    def serialize(self, p, links_manager, parent=None):
         makeelement = self.makeelement
-        parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
+        if parent is None:
+            parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
         r = makeelement(parent, 'w:r')
         rpr = makeelement(r, 'w:rPr', append=False)
         if getattr(self.descendant_style, 'id', None) is not None:
@@ -210,7 +211,8 @@ class Block:
         ws = style['white-space']
         preserve_whitespace = ws in {'pre', 'pre-wrap', '-o-pre-wrap'}
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
-        if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link and lang == self.runs[-1].lang:
+        # Each source anchor has its own link tuple, even when its destination and tooltip match another anchor.
+        if self.runs and ts == self.runs[-1].style and link is self.runs[-1].link and lang == self.runs[-1].lang:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent, lang=lang)
@@ -271,8 +273,12 @@ class Block:
             makeelement(ppr, 'w:pageBreakBefore', w_val='on')
         if self.keep_lines:
             makeelement(ppr, 'w:keepLines', w_val='on')
+        current_link, parent = None, p
         for run in self.runs:
-            run.serialize(p, self.links_manager)
+            if run.link is not current_link:
+                current_link = run.link
+                parent = p if current_link is None else self.links_manager.serialize_hyperlink(p, current_link)
+            run.serialize(p, self.links_manager, parent=parent)
         for bmark in end_bookmarks:
             makeelement(p, 'w:bookmarkEnd', w_id=bmark)
 
