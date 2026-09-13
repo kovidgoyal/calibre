@@ -161,6 +161,9 @@ class ArchiveExtract(FileTypePlugin):
             ext = os.path.splitext(fname)[1][1:]
             if ext.lower() not in {
                 'lit',
+                'txt',
+                'md',
+                'markdown',
                 'epub',
                 'mobi',
                 'prc',
