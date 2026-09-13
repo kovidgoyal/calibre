@@ -12,6 +12,7 @@ from qt.core import (
     QCheckBox,
     QComboBox,
     QDialog,
+    QFontDatabase,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -242,6 +243,7 @@ class LongText(Base):
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
         self._tb = PlainTextEdit(self._box, use_smarten_punctuation=True)
+        self._tb.setFont(QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont))
         self._tb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
