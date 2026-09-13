@@ -567,6 +567,7 @@ def create_defs():
     defs['emblem_size'] = 32
     defs['emblem_position'] = 'left'
     defs['emblem_style'] = 'none'
+    defs['emblem_emboss_position'] = 'top_left'
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
     defs['tag_browser_show_tooltips'] = True

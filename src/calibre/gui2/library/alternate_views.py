@@ -653,6 +653,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.original_emblem_style = gprefs['emblem_style']
         self.orginal_emblem_size = gprefs['emblem_size']
         self.orginal_emblem_position = gprefs['emblem_position']
+        self.original_emblem_emboss_position = gprefs['emblem_emboss_position']
         self.emblem_size = gprefs['emblem_size'] if self.original_emblem_style != 'none' else 0
         try:
             self.gutter_position = getattr(self, self.orginal_emblem_position.upper())
@@ -889,19 +890,25 @@ class CoverDelegate(QStyledItemDelegate):
         available_height = rect.height()
         sz_with_margin = esz + margin
         max_per_edge = max(1, available_height // sz_with_margin)
+        corner = self.original_emblem_emboss_position
+        from_right = corner in ('top_right', 'bottom_right')
+        from_bottom = corner in ('bottom_left', 'bottom_right')
         painter.save()
         try:
             painter.setClipRect(rect)
             for i, emblem in enumerate(emblems):
-                if i < max_per_edge:
-                    x = rect.left()
-                    y = rect.top() + i * sz_with_margin
+                col = i // max_per_edge
+                row = i % max_per_edge
+                if col >= 2:
+                    break
+                if from_right:
+                    x = rect.right() - esz - col * sz_with_margin
                 else:
-                    j = i - max_per_edge
-                    if j >= max_per_edge:
-                        break
-                    x = rect.right() - esz
-                    y = rect.top() + j * sz_with_margin
+                    x = rect.left() + col * sz_with_margin
+                if from_bottom:
+                    y = rect.bottom() - esz - row * sz_with_margin
+                else:
+                    y = rect.top() + row * sz_with_margin
                 ew = int(emblem.width() / emblem.devicePixelRatio())
                 eh = int(emblem.height() / emblem.devicePixelRatio())
                 painter.drawPixmap(QRect(x, y, ew, eh), emblem)
@@ -1193,6 +1200,7 @@ class GridView(MomentumScrollMixin, QListView):
             or gprefs['emblem_style'] != self.delegate.original_emblem_style
             or gprefs['emblem_size'] != self.delegate.orginal_emblem_size
             or gprefs['emblem_position'] != self.delegate.orginal_emblem_position
+            or gprefs['emblem_emboss_position'] != self.delegate.original_emblem_emboss_position
             or gprefs['cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom
         ):
             self.delegate.set_dimensions()

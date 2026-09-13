@@ -37,6 +37,16 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
             gprefs,
             choices=[(_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')],
         )
+        r(
+            'emblem_emboss_position',
+            gprefs,
+            choices=[
+                (_('Top-left'), 'top_left'),
+                (_('Top-right'), 'top_right'),
+                (_('Bottom-left'), 'bottom_left'),
+                (_('Bottom-right'), 'bottom_right'),
+            ],
+        )
 
         fm = db.field_metadata
         choices = sorted(
