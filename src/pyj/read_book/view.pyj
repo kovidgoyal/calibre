@@ -1241,6 +1241,11 @@ class View:
             self.selection_bar.notes_edited(uuid)
             self.selection_bar.update_position()
 
+    def set_style_for_highlights(self, updates):
+        if self.annotations_manager.set_style_for_highlights(updates):
+            hl = self.annotations_manager.highlights_for_currently_showing()
+            self.iframe_wrapper.send_message('replace_highlights', highlights=hl)
+
     def add_notes_or_create_highlight(self, notes, style):
         if self.selection_bar.is_visible:
             return self.selection_bar.add_notes_or_create_highlight(notes, style)

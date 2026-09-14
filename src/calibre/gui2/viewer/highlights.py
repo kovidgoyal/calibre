@@ -349,6 +349,27 @@ class Export(ExportBase):
         return '\n'.join(lines).strip()
 
 
+class ChangeStyleDialog(Dialog):
+    def __init__(self, parent=None):
+        Dialog.__init__(self, name='change-style-highlights', title=_('Change highlight style'), parent=parent)
+
+    def sizeHint(self):
+        return QSize(300, 120)
+
+    def setup_ui(self):
+        self.setWindowIcon(QIcon.ic('format-text-color.png'))
+        l = QVBoxLayout(self)
+        la = QLabel(_('Choose new highlight style:'))
+        l.addWidget(la)
+        self.style_combo = HighlightColorCombo(self)
+        l.addWidget(self.style_combo)
+        l.addWidget(self.bb)
+
+    @property
+    def style_name(self) -> str:
+        return self.style_combo.highlight_style_name
+
+
 class Highlights(QTreeWidget):
     jump_to_highlight = pyqtSignal(object)
     current_highlight_changed = pyqtSignal(object)
@@ -356,6 +377,7 @@ class Highlights(QTreeWidget):
     edit_requested = pyqtSignal()
     edit_notes_requested = pyqtSignal()
     export_selected_requested = pyqtSignal()
+    change_style_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -385,18 +407,27 @@ class Highlights(QTreeWidget):
     def show_context_menu(self, point):
         index = self.indexAt(point)
         h = index.data(highlight_role)
+        selected = list(self.selected_highlights)
+        n = len(selected)
         self.context_menu = m = QMenu(self)
-        if h is not None:
-            m.addAction(QIcon.ic('edit_input.png'), _('Modify this highlight'), self.edit_requested.emit)
-            m.addAction(QIcon.ic('modified.png'), _('Edit notes for this highlight'), self.edit_notes_requested.emit)
+        if h is not None or n:
+            if n <= 1:
+                m.addAction(QIcon.ic('edit_input.png'), _('Modify this highlight'), self.edit_requested.emit)
+                m.addAction(QIcon.ic('modified.png'), _('Edit notes for this highlight'), self.edit_notes_requested.emit)
+            m.addAction(
+                QIcon.ic('format-text-color.png'),
+                ngettext('Change style of this highlight…', 'Change style of {} highlights…', n).format(n),
+                self.change_style_requested.emit,
+            )
             m.addAction(
                 QIcon.ic('trash.png'),
-                ngettext('Delete this highlight', 'Delete selected highlights', len(self.selectedItems())),
+                ngettext('Delete this highlight', 'Delete selected highlights', n),
                 self.delete_requested.emit,
             )
         m.addSeparator()
-        if tuple(self.selected_highlights):
+        if n:
             m.addAction(QIcon.ic('save.png'), _('Export selected highlights'), self.export_selected_requested.emit)
+        m.addAction(QIcon.ic('edit-select-all.png'), _('Select all highlights'), self.selectAll)
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         self.context_menu.popup(self.mapToGlobal(point))
@@ -734,6 +765,7 @@ class HighlightsPanel(QWidget):
         h.edit_notes_requested.connect(self.edit_notes)
         h.current_highlight_changed.connect(self.current_highlight_changed)
         h.export_selected_requested.connect(self.export_selected)
+        h.change_style_requested.connect(self.change_style_of_selected)
         self.load = h.load
         self.refresh = h.refresh
 
@@ -836,6 +868,16 @@ class HighlightsPanel(QWidget):
         if not hl:
             return error_dialog(self, _('No highlights'), _('No highlights selected to export'), show=True)
         Export(hl, self).exec()
+
+    def change_style_of_selected(self):
+        highlights = list(self.highlights.selected_highlights)
+        if not highlights:
+            return self.no_selected_highlight()
+        d = ChangeStyleDialog(self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            style = style_definition_for_name(d.style_name)
+            updates = [{'uuid': h['uuid'], 'style': style} for h in highlights]
+            self.web_action.emit('set-style-in-highlights', {'updates': updates})
 
     def selected_text_changed(self, text, annot_id):
         if annot_id:

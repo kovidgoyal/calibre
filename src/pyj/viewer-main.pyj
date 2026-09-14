@@ -271,6 +271,8 @@ def highlight_action(uuid, which):
 def generic_action(which, data):
     if which is 'set-notes-in-highlight':
         view.set_notes_for_highlight(data.uuid, data.notes or '')
+    elif which is 'set-style-in-highlights':
+        view.set_style_for_highlights(data.updates)
     elif which is 'show-status-message':
         view.show_status_message(data.text)
     elif which is 'remove-recently-opened':
