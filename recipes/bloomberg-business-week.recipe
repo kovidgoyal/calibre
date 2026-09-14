@@ -166,6 +166,13 @@ class Bloomberg(BasicNewsRecipe):
             img['src'] = img['src'].replace('-1x-1', '750x-1')
         return soup
 
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = (
+            'BloombergHorseshoe|Android|16|6.66.0'
+        )
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        return br
+
     def populate_article_metadata(self, article, soup, first):
         article.url = soup.find('h1')['title']
         article.summary = self.tag_to_string(soup.find('div', attrs={'class': 'subhead'}))

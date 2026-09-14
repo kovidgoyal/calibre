@@ -29,6 +29,8 @@ class TheWeekRecipe(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://www.theweek.in/content/dam/revamp-week/logo/THE-WEEK-LOGO.jpg'
 
+    browser_type = 'webengine'
+
     keep_only_tags = [classes('articlecontent')]
 
     remove_tags = [
@@ -69,8 +71,9 @@ class TheWeekRecipe(BasicNewsRecipe):
             issue_url = f'https://www.theweek.in/theweek/{edition_date}.html'
         else:
             archive_soup = self.index_to_soup('https://www.theweek.in/magazine-archives.html')
-            issue_url = build_absolute_url(archive_soup.find('a', **classes('cmp-story-list__image-link'))['href'])
-        self.log(issue_url)
+            arch = archive_soup.find('a', attrs={'class': 'cmp-story-list__image-link'})
+            issue_url = build_absolute_url(arch['href'])
+            self.timefmt = ' [' + arch['title'] + ']'
 
         soup = self.index_to_soup(issue_url)
         feeds = []
