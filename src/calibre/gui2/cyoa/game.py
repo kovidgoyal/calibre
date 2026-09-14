@@ -102,6 +102,9 @@ MAX_QUICK_ACTION_SHORTCUTS = 9
 # dimension, keeping saved games reasonably small.
 SCENE_IMAGE_SIZE = 1280
 INFO_DIVIDER_WIDTH = 220  # a narrower scene divider for the info panel, so it does not need to scroll horizontally
+# How far the story view can be from where it was put programmatically before
+# the difference is taken to be the player having scrolled it themselves
+SCROLL_SLACK = 4
 # Symbols for the currencies AI providers commonly bill in.
 CURRENCY_SYMBOLS = {'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥', 'INR': '₹', 'KRW': '₩'}
 
@@ -196,6 +199,18 @@ class GameWidget(QWidget):
         # Where in the story document the prose of the turn being generated is
         # rendered, -1 when no turn is being generated.
         self.streaming_block_start = -1
+        # Where in the story document the turn being generated starts, that is
+        # the position render_chapter() will report for it once it has been
+        # played, -1 when no turn is being generated. Used as the anchor that
+        # keeps the story still when the finished turn replaces the streamed
+        # prose, see on_turn_result().
+        self.streaming_turn_start = -1
+        # Whether the story view is still following the prose as it is
+        # streamed in, see render_streamed_narrative(), and the scroll
+        # position it was last moved to by that following, used to notice
+        # that the player has scrolled somewhere themselves.
+        self.following_streamed_prose = False
+        self.followed_scroll_value = -1
         self.narrative_render_timer = t = QTimer(self)
         t.setSingleShot(True)
         t.setInterval(100)
@@ -454,6 +469,7 @@ class GameWidget(QWidget):
         # not put the prose right back.
         self.streamed_narrative = ''
         self.narrative_render_timer.stop()
+        self.following_streamed_prose = False
         if self.streaming_block_start > -1:
             self.render_story()
             if self.state is not None and self.state.turns:
@@ -521,6 +537,8 @@ class GameWidget(QWidget):
             # the prose the AI has written so far in place of the quick
             # actions, which are for a turn that has already been played.
             insert_scene_divider(c)
+            # The turn starts after the divider, as it does in render_chapter()
+            self.streaming_turn_start = c.position()
             player_input = self.turn_request[0]  # empty for the opening turn and for "something interesting happens"
             if player_input:
                 insert_html_block(c, f'<p><i>➤ {escape(player_input)}</i></p>')
@@ -528,7 +546,7 @@ class GameWidget(QWidget):
             if self.streamed_narrative:
                 insert_html_block(c, response_to_html(self.streamed_narrative, ContentType.markdown))
             return
-        self.streaming_block_start = -1
+        self.streaming_block_start = self.streaming_turn_start = -1
         if not state.turns:
             return
         insert_scene_divider(c)
@@ -557,9 +575,12 @@ class GameWidget(QWidget):
         if doc is None or self.streaming_block_start > doc.characterCount():
             return  # the document was replaced under us, render_story() will restore the prose
         vsb = sv.verticalScrollBar()
-        # Follow the prose as it is written unless the player has scrolled
-        # away from the end to re-read something.
-        follow = vsb is None or vsb.value() >= vsb.maximum() - 4
+        if vsb is None:
+            self.following_streamed_prose = False
+        elif self.following_streamed_prose and abs(vsb.value() - self.followed_scroll_value) > SCROLL_SLACK:
+            # The player has scrolled somewhere themselves, to re-read
+            # something, so the prose is no longer followed.
+            self.following_streamed_prose = False
         c = sv.textCursor()
         c.beginEditBlock()
         c.setPosition(self.streaming_block_start)
@@ -568,8 +589,23 @@ class GameWidget(QWidget):
         if self.streamed_narrative:
             insert_html_block(c, response_to_html(self.streamed_narrative, ContentType.markdown))
         c.endEditBlock()
-        if follow and vsb is not None:
-            vsb.setValue(vsb.maximum())
+        if self.following_streamed_prose and vsb is not None:
+            # Follow the prose as it is written, but only until its first line
+            # reaches the top of the view. Scrolling further would push text
+            # the player has not read yet off the top of the screen, and there
+            # is no need for it: from here on the prose grows downwards into
+            # the empty part of the view.
+            y = self.story_y_of_position(self.streaming_block_start)
+            if y is None:
+                vsb.setValue(vsb.maximum())
+            else:
+                # The scrollbar value that puts the first line of the prose at
+                # the top of the view; the prose is followed no further
+                pin = vsb.value() + y
+                vsb.setValue(min(vsb.maximum(), pin))
+                if vsb.value() >= pin:
+                    self.following_streamed_prose = False
+            self.followed_scroll_value = vsb.value()
 
     def quick_action(self, action_number: int) -> QuickAction | None:
         # The zero based action_number quick action of the last turn, None
@@ -676,6 +712,28 @@ class GameWidget(QWidget):
                 if vsb is not None:  # align the start of the turn with the top of the view
                     vsb.setValue(vsb.value() + sv.cursorRect().top())
                 break
+
+    def story_y_of_position(self, pos: int) -> int | None:
+        # The y coordinate, relative to the top of the viewport of the story
+        # view, at which the document position pos is currently drawn, None
+        # when it cannot be worked out. Negative for text scrolled off the
+        # top of the view.
+        sv = self.story_view
+        doc = sv.document()
+        if doc is None or not 0 <= pos < doc.characterCount():
+            return None
+        c = sv.textCursor()
+        c.setPosition(pos)
+        return sv.cursorRect(c).top()
+
+    def scroll_position_to_y(self, pos: int, y: int = 0) -> None:
+        # Scroll the story view so that the document position pos is drawn y
+        # pixels below the top of its viewport.
+        current = self.story_y_of_position(pos)
+        vsb = self.story_view.verticalScrollBar()
+        if current is not None and vsb is not None:
+            self.story_view.stopMomentumScroll()
+            vsb.setValue(vsb.value() + current - y)
 
     def visible_turn_number(self) -> int:
         # The one based number of the turn the player is currently reading,
@@ -972,8 +1030,11 @@ class GameWidget(QWidget):
         # Show the action being taken where the prose of the turn will appear
         # as the AI writes it, see on_turn_narrative()
         self.render_story()
+        self.following_streamed_prose = False
         if (vsb := self.story_view.verticalScrollBar()) is not None:
             vsb.setValue(vsb.maximum())
+            self.following_streamed_prose = True
+            self.followed_scroll_value = vsb.value()
         Thread(name='CYOATurn', daemon=True, target=self.do_turn, args=(snapshot, player_input, interesting_event, self.turn_call, plugin)).start()
 
     def do_turn(self, snapshot: GameState, player_input: str, interesting_event: bool, call_number: int, plugin: AIProvider) -> None:
@@ -1044,35 +1105,30 @@ class GameWidget(QWidget):
                 player_input, interesting_event = turn_request
                 self.request_turn(player_input, interesting_event)
             return
+        chapter_before = self.state.current_chapter if self.state is not None else -1
         self.state = snapshot
         self.session_cost += res.cost
+        was_streaming = bool(self.streamed_narrative)
         self.streamed_narrative = ''
         self.narrative_render_timer.stop()
-        # Before render_story() clears the document, decide whether to scroll
-        # to the start of the new turn. Skip the scroll if the user has already
-        # reached or passed the turn start (so the completion doesn't yank them
-        # back), and save the scroll fraction to restore afterwards.
-        sv = self.story_view
-        scroll_to_last_turn = True
-        saved_scroll_fraction = 1.0
-        if self.streaming_block_start >= 0:
-            vsb = sv.verticalScrollBar()
-            vp = sv.viewport()
-            if vsb is not None and vp is not None and vp.height() > 0:
-                c = sv.textCursor()
-                c.setPosition(self.streaming_block_start)
-                if sv.cursorRect(c).top() < vp.height():
-                    scroll_to_last_turn = False
-                    if vsb.maximum() > 0:
-                        saved_scroll_fraction = vsb.value() / vsb.maximum()
+        self.following_streamed_prose = False
+        # Before render_story() clears the document, remember where on screen
+        # the turn being written starts, so that the finished turn can be put
+        # in exactly the same place: the player is reading the prose and it
+        # must not move under them as it is replaced. Only the prose of the
+        # turn changes, so everything above its start is left where it is too.
+        # This is not possible when the turn opens a new chapter, as then the
+        # rest of the story leaves the view, nor when the AI did not stream
+        # its prose, as then the turn has not been seen at all yet.
+        anchor_y = None
+        if was_streaming and self.streaming_turn_start >= 0 and snapshot.current_chapter == chapter_before:
+            anchor_y = self.story_y_of_position(self.streaming_turn_start)
         self.prompt_edit.clear()
         self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
         self.autosave()
-        self.refresh_ui(scroll_to_last_turn)
-        if not scroll_to_last_turn:
-            vsb = sv.verticalScrollBar()
-            if vsb is not None and vsb.maximum() > 0:
-                vsb.setValue(round(saved_scroll_fraction * vsb.maximum()))
+        self.refresh_ui(anchor_y is None)
+        if anchor_y is not None and self.turn_positions:
+            self.scroll_position_to_y(self.turn_positions[-1][0], anchor_y)
         if self.images_enabled:
             self.request_image(len(snapshot.turns))
         self._notify_turn_ready()
