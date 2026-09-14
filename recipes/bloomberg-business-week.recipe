@@ -167,9 +167,7 @@ class Bloomberg(BasicNewsRecipe):
         return soup
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = (
-            'BloombergHorseshoe|Android|16|6.66.0'
-        )
+        kwargs['user_agent'] = 'BloombergHorseshoe|Android|16|6.66.0'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
