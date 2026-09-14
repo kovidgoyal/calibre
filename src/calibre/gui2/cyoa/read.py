@@ -295,7 +295,7 @@ if __name__ == '__main__':
             narrative=f'**Turn {i + 1}**: The mist *swirls* around you as something stirs in the distance.' + ' The fog thickens with every breath.' * 3,
             quick_actions=(),
             scene_description='A foggy city street at night.',
-            summary_update=SummaryUpdate(current_situation='In the mist.', character_updates=(), new_major_events=(), upcoming_events=()),
+            summary_update=SummaryUpdate(current_situation='In the mist.', character_updates=(), new_major_events=()),
             starts_new_chapter=new_chapter,
             chapter_title=f'Chapter starting at turn {i + 1}' if new_chapter else None,
         )

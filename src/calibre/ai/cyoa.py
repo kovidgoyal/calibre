@@ -183,11 +183,12 @@ class SummaryUpdate(NamedTuple):
         ' Leave this empty when nothing of lasting importance happened.',
     ]
     upcoming_events: Annotated[
-        tuple[str, ...],
-        'The complete list of foreshadowed or planned future events and unresolved plot threads as it now stands.'
-        ' This one field replaces the previous list rather than adding to it, so repeat every thread that is still'
-        ' open and leave out only the ones this passage has resolved.',
-    ]
+        tuple[str, ...] | None,
+        'The foreshadowed or planned future events and unresolved plot threads of the story.'
+        ' Send null, as most passages must, unless this passage opens a new thread or resolves one the summary already holds.'
+        ' When one does change, this field replaces the previous list rather than adding to it: give the complete list of threads'
+        ' as it now stands, repeating every one that is still open, or an empty list when this passage resolves the last of them.',
+    ] = None
     world: Annotated[
         str,
         'The description of the world. Leave it empty unless the state of the world itself has changed, in which case give the full new description.',
@@ -915,8 +916,10 @@ def turn_instructions(state: GameState) -> str:
             ' replace the events already in the summary with a shorter list that merges the older ones into single lines.'
         ),
         (
-            '- upcoming_events is the one field that replaces rather than adds to what the summary holds:'
-            ' give the whole list of unresolved plot threads as it now stands, repeating those still open and dropping those this passage resolved.'
+            '- upcoming_events: null on most passages. Leave it null unless this passage opens a new unresolved plot thread or resolves one'
+            ' the summary already holds. When one of them does change, this is the one field that replaces rather than adds to what the summary'
+            ' holds: give the whole list of unresolved threads as it now stands, repeating those still open and dropping those this passage'
+            ' resolved, or an empty list when it resolved the last of them.'
         ),
         '- current_situation: where the protagonist is and what is happening as this passage ends.',
         '- starts_new_chapter: true only when this passage begins a major new phase of the story, with chapter_title naming the new chapter.',
@@ -1203,9 +1206,11 @@ def updated_summary(update: SummaryUpdate, previous: StorySummary) -> StorySumma
         # Deliberately the one field that is replaced rather than merged: a
         # plot thread the story has resolved has to be able to leave the
         # summary, and there is no way to say "drop this one" in a list of
-        # bare strings. The list is short, so having the AI re-send the
-        # threads that are still open costs little.
-        upcoming_events=clean_text_list(update.upcoming_events),
+        # bare strings. Most passages neither open nor resolve a thread, so
+        # re-sending the whole list every turn is wasted output: the AI sends
+        # null for those turns and the list is carried over untouched. An
+        # empty list is a real change, this passage resolving the last thread.
+        upcoming_events=previous.upcoming_events if update.upcoming_events is None else clean_text_list(update.upcoming_events),
     )
 
 
@@ -1852,8 +1857,22 @@ def find_tests() -> TestSuite:  # {{{
             self.ae(tuple(c.name for c in s.characters), ('Ada', 'Marlo'))
             self.ae(s.characters[1].relationships, '', 'a new character who has not met anyone yet must be kept')
 
-            # The list of upcoming events replaces the previous one, so that resolved threads can leave the summary
+            # The list of upcoming events is left alone by the passages that change no threads, which is most of them,
+            # and replaced wholesale by those that do, so that resolved threads can leave the summary
             self.ae(play(make_update(upcoming_events=('Marlo returns', ' Marlo returns '))).upcoming_events, ('Marlo returns',))
+            self.ae(
+                play(make_update(upcoming_events=None)).upcoming_events,
+                ('Marlo returns',),
+                'a passage that neither opens nor resolves a thread must leave the open threads alone',
+            )
+
+            # The AI is told it may leave the field out entirely on the turns that change nothing, so a response without it must parse
+            data = as_jsonable(make_turn('x'), spec_for_class(StoryTurn))
+            del data['summary_update']['upcoming_events']
+            omitted = instantiate(data, spec_for_class(StoryTurn), StoryTurn.__name__).summary_update
+            self.assertIsNone(omitted.upcoming_events, 'an omitted upcoming_events must parse as no change to the threads')
+            self.ae(play(omitted).upcoming_events, ('Marlo returns',), 'a turn that omits upcoming_events must leave the open threads alone')
+
             self.ae(play(make_update(upcoming_events=())).upcoming_events, (), 'the last unresolved plot thread must be able to leave the summary')
 
             # The major events are capped, with the AI asked to consolidate the older ones before the cap drops them
