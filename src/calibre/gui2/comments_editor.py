@@ -1120,7 +1120,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def selectedText(self) -> str:
         return self.text()
 
-    def setText(self, text: str | None) -> None:
+    def setText(self, text: str | None) -> None:  # ty: ignore[invalid-method-override]
         with self.editing_cursor() as c:
             c.insertText(text or '')
 
@@ -1253,7 +1253,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             name = QUrl.fromLocalFile(os.path.join(os.path.dirname(self.base_url.toLocalFile()), name.path()))
         safe_open_url(name)
 
-    def contextMenuEvent(self, e):
+    def contextMenuEvent(self, e):  # ty: ignore[invalid-method-override]
         menu = QMenu(self)
         doc = self.document()
         assert doc is not None

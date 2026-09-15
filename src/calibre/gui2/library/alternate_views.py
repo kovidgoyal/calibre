@@ -1038,7 +1038,7 @@ class GridView(MomentumScrollMixin, QListView):
         t.setInterval(200), t.setSingleShot(True)
         t.timeout.connect(self.update_memory_cover_cache_size)
 
-    def wheelEvent(self, a0):
+    def wheelEvent(self, a0):  # ty: ignore[invalid-method-override]
         MomentumScrollMixin.wheelEvent(self, a0)
 
     def viewportEvent(self, e):

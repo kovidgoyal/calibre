@@ -408,13 +408,13 @@ class ImageView(QWidget, ImageDropMixin):
         if self.show_size_pref_name:
             self.show_size = gprefs.get(self.show_size_pref_name, default_show_size)
 
-    def dragEnterEvent(self, a0):
+    def dragEnterEvent(self, a0):  # ty: ignore[invalid-method-override]
         ImageDropMixin.dragEnterEvent(self, a0)
 
-    def dragMoveEvent(self, a0):
+    def dragMoveEvent(self, a0):  # ty: ignore[invalid-method-override]
         ImageDropMixin.dragMoveEvent(self, a0)
 
-    def dropEvent(self, a0):
+    def dropEvent(self, a0):  # ty: ignore[invalid-method-override]
         ImageDropMixin.dropEvent(self, a0)
 
     def setPixmap(self, pixmap):
@@ -519,7 +519,7 @@ class CoverView(QGraphicsView, ImageDropMixin):
             self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         self.set_background()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event):  # ty: ignore[invalid-method-override]
         return ImageDropMixin.contextMenuEvent(self, event)
 
     def get_pixmap(self) -> QPixmap:

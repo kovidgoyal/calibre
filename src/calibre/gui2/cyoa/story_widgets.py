@@ -236,7 +236,7 @@ class StoryView(TextDisplayMixin, MomentumScrollMixin, QTextBrowser):
         self.copy_turn_action: QAction | None = None
         self.setup_text_display()
 
-    def wheelEvent(self, a0: QWheelEvent | None) -> None:
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:  # ty: ignore[invalid-method-override]
         if not self.zoom_wheel_event(a0):
             MomentumScrollMixin.wheelEvent(self, a0)
 
