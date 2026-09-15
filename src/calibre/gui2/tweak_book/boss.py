@@ -1254,7 +1254,7 @@ class Boss(QObject):
 
     def show_text_search(self):
         self.gui.text_search_dock.show()
-        self.gui.text_search.find.setFocus(Qt.FocusReason.OtherFocusReason)
+        self.gui.text_search.find_widget.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def search_action_triggered(self, action, overrides=None):
         ss = self.gui.saved_searches.isVisible()
