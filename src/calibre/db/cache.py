@@ -3676,8 +3676,7 @@ class Cache:
                 continue
             mi = self._get_metadata(book_id)
             buf = BytesIO()
-            if not self._copy_cover_to(book_id, buf):
-                return
+            self._copy_cover_to(book_id, buf)
             cdata = buf.getvalue()
             if cdata:
                 mi.cover_data = ('jpeg', cdata)
