@@ -6,9 +6,9 @@ from calibre.utils.localization import _
 
 
 class CYOAAction(InterfaceAction):
-    name = 'Create your own Adventure'
+    name = 'Create your own adventure'
     action_spec = (
-        _('Create your own Adventure'),
+        _('Create your own adventure'),
         'cyoa.png',
         _('Play a "Create your own Adventure" game, in which the story is written by an AI as you play it'),
         (),
