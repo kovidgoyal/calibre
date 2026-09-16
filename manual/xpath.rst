@@ -71,6 +71,16 @@ Here, the ``@`` operator refers to the attributes of the tag. You can use some
 of the `XPath built-in functions`_ to perform more sophisticated
 matching on attribute values.
 
+.. note::
+    When XPath expressions are used for conversion options such as chapter
+    detection or the start reading at position, they are evaluated against the
+    *input* document, before calibre flattens the CSS. CSS flattening rewrites
+    class names, so the class names you see in the converted output (things like
+    ``calibre1``) do not exist yet when your expression runs. Copy
+    class names from the input document, not from the converted book. If in
+    doubt, match on tag names and text content instead, as these are not changed
+    by the conversion.
+
 
 Selecting by tag content
 ------------------------
