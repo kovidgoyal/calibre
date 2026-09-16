@@ -1000,6 +1000,12 @@ class ActionAIGenerateCover(InterfaceActionBase):
     description = _('Generate covers for the books in your calibre library using AI')
 
 
+class ActionCYOA(InterfaceActionBase):
+    name = 'Create your own Adventure'
+    actual_plugin = 'calibre.gui2.actions.cyoa:CYOAAction'
+    description = _('Play a "Create your own Adventure" game, in which the story is written by an AI as you play it')
+
+
 class ActionFetchNews(InterfaceActionBase):
     name = 'Fetch News'
     actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
@@ -1265,6 +1271,7 @@ plugins += [
     ActionPolish,
     ActionLLMBook,
     ActionAIGenerateCover,
+    ActionCYOA,
     ActionShowBookDetails,
     ActionRestart,
     ActionOpenFolder,
