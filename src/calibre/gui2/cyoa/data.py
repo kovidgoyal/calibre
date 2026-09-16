@@ -507,23 +507,35 @@ def saved_world_index_with_title(title: str) -> int:
 
 
 def add_saved_world(
-    brief: str, world: GeneratedWorld, style: StoryStyle = StoryStyle(), portraits: Sequence[dict[str, str] | None] = (), world_id: str = ''
+    brief: str,
+    world: GeneratedWorld,
+    style: StoryStyle = StoryStyle(),
+    portraits: Sequence[dict[str, str] | None] = (),
+    world_id: str = '',
+    npc_portraits: Sequence[dict[str, str] | None] = (),
 ) -> str:
     # Save the world, updating the entry with the specified id, or the first
     # entry with the same title when no id is given. Returns the id of the
     # saved entry, which keeps identifying it however the world is renamed.
     # portraits is a list of character portraits, aligned with
     # world.characters, each either None or {'mime': mime type, 'data':
-    # base64 encoded image data}. These are the portraits of the world as a
-    # template for new games; the portraits of the characters of a game are
-    # stored with the game, see save_game().
+    # base64 encoded image data}, and npc_portraits is the same, aligned with
+    # world.npcs. These are the portraits of the world as a template for new
+    # games; the portraits of the characters of a game are stored with the
+    # game, see save_game().
     jw = as_jsonable(world, spec_for_class(GeneratedWorld))
-    pl = list(portraits)
+    pl, npl = list(portraits), list(npc_portraits)
     p = prefs()
     worlds = p['worlds']
     idx = saved_world_index_with_id(world_id) if world_id else saved_world_index_with_title(world.title)
     existing = worlds[idx] if idx > -1 else {}
-    if world_id_from_saved(existing) and existing.get('world') == jw and style_from_saved(existing) == style and (existing.get('portraits') or []) == pl:
+    if (
+        world_id_from_saved(existing)
+        and existing.get('world') == jw
+        and style_from_saved(existing) == style
+        and (existing.get('portraits') or []) == pl
+        and (existing.get('npc_portraits') or []) == npl
+    ):
         return world_id_from_saved(existing)  # nothing has changed
     # The fields of the style are stored individually, at the top level, so
     # that a world saved before one of them existed still loads, with that
@@ -534,6 +546,7 @@ def add_saved_world(
         'created': existing.get('created') or time(),
         'world': jw,
         'portraits': pl,
+        'npc_portraits': npl,
         **style._asdict(),
     }
     if idx > -1:
@@ -561,13 +574,19 @@ def style_from_saved(entry: dict[str, Any]) -> StoryStyle:
     )
 
 
-def portraits_from_saved(entry: dict[str, Any], num_characters: int) -> list[dict[str, str] | None]:
+def portraits_from_saved(entry: dict[str, Any], num_characters: int, key: str = 'portraits') -> list[dict[str, str] | None]:
     # The saved character portraits, validated and clamped/padded to one
-    # entry per character.
-    ans: list[dict[str, str] | None] = [validated_portrait(x) for x in entry.get('portraits') or ()]
+    # entry per character. The portraits of the non player characters of the
+    # world are stored separately, under npc_portraits, aligned with the
+    # npcs of the world rather than with its playable characters.
+    ans: list[dict[str, str] | None] = [validated_portrait(x) for x in entry.get(key) or ()]
     del ans[num_characters:]
     ans.extend([None] * (num_characters - len(ans)))
     return ans
+
+
+def npc_portraits_from_saved(entry: dict[str, Any], num_npcs: int) -> list[dict[str, str] | None]:
+    return portraits_from_saved(entry, num_npcs, 'npc_portraits')
 
 
 def remove_saved_world(index: int) -> None:
@@ -585,7 +604,7 @@ def find_tests() -> TestSuite:  # {{{
     import unittest
     from unittest.mock import patch
 
-    from calibre.ai.cyoa import PlayerCharacter, start_game
+    from calibre.ai.cyoa import NonPlayerCharacter, PlayerCharacter, start_game
     from calibre.ai.prefs import pref_for_provider
 
     def make_world() -> GeneratedWorld:
@@ -593,6 +612,7 @@ def find_tests() -> TestSuite:  # {{{
             title='Mist City',
             world_description='A city lost in perpetual mist.',
             characters=(PlayerCharacter('Ada', 'a stubborn engineer', 'She built the mist engines.'),),
+            npcs=(NonPlayerCharacter('Marlo', 'a mist-runner', 'He grew up in the tunnels.', 'wary of Ada'),),
         )
 
     def temp_prefs(tdir: str) -> JSONConfig:
@@ -751,6 +771,27 @@ def find_tests() -> TestSuite:  # {{{
                     self.ae(len(saved_worlds()), 3, 'a world without an id must still be matched by title')
                     self.ae(world_id_from_saved(saved_worlds()[0]), legacy)
                     self.assertTrue(legacy)
+
+                    # The portraits of the characters the player cannot play
+                    # as are stored alongside those of the playable ones
+                    npc_portrait = {'mime': 'image/webp', 'data': 'efgh'}
+                    add_saved_world('sunny brief', renamed, style, [portrait], world_id=wid, npc_portraits=[npc_portrait])
+                    entry = saved_worlds()[saved_world_index_with_id(wid)]
+                    self.ae(portraits_from_saved(entry, 1), [portrait])
+                    self.ae(npc_portraits_from_saved(entry, 1), [npc_portrait])
+                    self.ae(npc_portraits_from_saved(entry, 2), [npc_portrait, None])
+                    self.ae(world_from_saved(entry).npcs, renamed.npcs, 'the non playable characters must survive a save/load round trip')
+
+                    # A world saved before the non playable characters existed
+                    # must load with none of them and with no portraits for them
+                    worlds = saved_worlds()
+                    legacy_idx = saved_world_index_with_id(wid)
+                    del worlds[legacy_idx]['npc_portraits']
+                    worlds[legacy_idx]['world'] = {k: v for k, v in worlds[legacy_idx]['world'].items() if k != 'npcs'}
+                    p.set('worlds', worlds)
+                    entry = saved_worlds()[legacy_idx]
+                    self.ae(world_from_saved(entry).npcs, ())
+                    self.ae(npc_portraits_from_saved(entry, 1), [None])
 
                     for _ in range(len(saved_worlds())):
                         remove_saved_world(0)

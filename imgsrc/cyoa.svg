@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- The "Create Your Own Adventure" game: a heart over crossed cutlasses,
+     for a story of romance and swashbuckling written as it is played. -->
+<svg
+   viewBox="0 0 64 64"
+   version="1.1"
+   id="cyoa"
+   xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs1">
+    <!-- One cutlass, pointing straight up, so that the two crossed ones
+         differ only in the direction they are rotated in. -->
+    <g id="cutlass">
+      <path
+         d="M 31.5 2 C 38 12 41 24 38.5 39 L 28.5 39 C 30.5 25 31 12 31.5 2 Z"
+         style="fill:#8b9caa" />
+      <path
+         d="M 31.5 2 C 38 12 41 24 38.5 39 L 34.5 39 C 35.5 25 34 12 31.5 2 Z"
+         style="fill:#cfdae3" />
+      <path
+         d="M 28 43 C 21 47 22 54 29 56"
+         style="fill:none;stroke:#e3a52c;stroke-width:3;stroke-linecap:round" />
+      <rect x="21" y="38.5" width="22" height="4.5" rx="2.25" style="fill:#e3a52c" />
+      <rect x="29" y="43" width="6" height="11" rx="2" style="fill:#7a4a25" />
+      <circle cx="32" cy="55" r="3.5" style="fill:#e3a52c" />
+    </g>
+  </defs>
+  <use href="#cutlass" transform="rotate(-40 32 32)" />
+  <use href="#cutlass" transform="rotate(40 32 32)" />
+  <!-- The heart, a touch smaller than the crossed blades so that both the
+       tips and the hilts of the cutlasses stay visible at small sizes. -->
+  <path
+     transform="translate(32 36) scale(0.86) translate(-32 -36)"
+     d="M 32 53 C 19.5 43.5 11.5 37.5 11.5 29 C 11.5 22.5 16.5 18 22 18 C 26.5 18 30 20.5 32 24.5 C 34 20.5 37.5 18 42 18 C 47.5 18 52.5 22.5 52.5 29 C 52.5 37.5 44.5 43.5 32 53 Z"
+     style="fill:#d1332c" />
+</svg>

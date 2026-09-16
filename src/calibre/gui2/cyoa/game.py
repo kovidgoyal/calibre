@@ -60,10 +60,12 @@ from calibre.ai.cyoa import (
     PROTAGONIST_ID,
     AIProvider,
     GameState,
+    NonPlayerCharacter,
     PlayerCharacter,
     QuickAction,
     deserialize_game,
     next_turn,
+    npc_character_ids,
     quick_action_kind_name,
     rewind,
     scene_image_prompt,
@@ -102,9 +104,6 @@ MAX_QUICK_ACTION_SHORTCUTS = 9
 # dimension, keeping saved games reasonably small.
 SCENE_IMAGE_SIZE = 1280
 INFO_DIVIDER_WIDTH = 220  # a narrower scene divider for the info panel, so it does not need to scroll horizontally
-# How far the story view can be from where it was put programmatically before
-# the difference is taken to be the player having scrolled it themselves
-SCROLL_SLACK = 4
 # Symbols for the currencies AI providers commonly bill in.
 CURRENCY_SYMBOLS = {'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥', 'INR': '₹', 'KRW': '₩'}
 
@@ -205,12 +204,12 @@ class GameWidget(QWidget):
         # keeps the story still when the finished turn replaces the streamed
         # prose, see on_turn_result().
         self.streaming_turn_start = -1
-        # Whether the story view is still following the prose as it is
-        # streamed in, see render_streamed_narrative(), and the scroll
-        # position it was last moved to by that following, used to notice
-        # that the player has scrolled somewhere themselves.
-        self.following_streamed_prose = False
-        self.followed_scroll_value = -1
+        # The story view is scrolled once per turn, when the first words of
+        # the prose arrive: the start of the turn is moved to the top of the
+        # view and the prose then fills the blank space below it as it is
+        # written, see pin_streaming_turn(). This is the scroll position it
+        # was pinned at, -1 until that has been done.
+        self.streaming_pin_value = -1
         self.narrative_render_timer = t = QTimer(self)
         t.setSingleShot(True)
         t.setInterval(100)
@@ -469,7 +468,7 @@ class GameWidget(QWidget):
         # not put the prose right back.
         self.streamed_narrative = ''
         self.narrative_render_timer.stop()
-        self.following_streamed_prose = False
+        self.streaming_pin_value = -1
         if self.streaming_block_start > -1:
             self.render_story()
             if self.state is not None and self.state.turns:
@@ -574,13 +573,6 @@ class GameWidget(QWidget):
         doc = sv.document()
         if doc is None or self.streaming_block_start > doc.characterCount():
             return  # the document was replaced under us, render_story() will restore the prose
-        vsb = sv.verticalScrollBar()
-        if vsb is None:
-            self.following_streamed_prose = False
-        elif self.following_streamed_prose and abs(vsb.value() - self.followed_scroll_value) > SCROLL_SLACK:
-            # The player has scrolled somewhere themselves, to re-read
-            # something, so the prose is no longer followed.
-            self.following_streamed_prose = False
         c = sv.textCursor()
         c.beginEditBlock()
         c.setPosition(self.streaming_block_start)
@@ -589,23 +581,29 @@ class GameWidget(QWidget):
         if self.streamed_narrative:
             insert_html_block(c, response_to_html(self.streamed_narrative, ContentType.markdown))
         c.endEditBlock()
-        if self.following_streamed_prose and vsb is not None:
-            # Follow the prose as it is written, but only until its first line
-            # reaches the top of the view. Scrolling further would push text
-            # the player has not read yet off the top of the screen, and there
-            # is no need for it: from here on the prose grows downwards into
-            # the empty part of the view.
-            y = self.story_y_of_position(self.streaming_block_start)
-            if y is None:
-                vsb.setValue(vsb.maximum())
-            else:
-                # The scrollbar value that puts the first line of the prose at
-                # the top of the view; the prose is followed no further
-                pin = vsb.value() + y
-                vsb.setValue(min(vsb.maximum(), pin))
-                if vsb.value() >= pin:
-                    self.following_streamed_prose = False
-            self.followed_scroll_value = vsb.value()
+        if self.streaming_pin_value < 0:
+            self.pin_streaming_turn()
+        else:
+            # Keep the blank space below the prose just large enough to hold
+            # the view where it was pinned: as the prose grows into it, the
+            # space shrinks, so that once the turn is long enough to fill the
+            # view on its own there is no blank space left at all.
+            self.pad_story_to_scroll_value(self.streaming_pin_value)
+
+    def pin_streaming_turn(self) -> None:
+        # Called when the first words of a turn have been rendered: scroll the
+        # start of the turn to the top of the view, padding the story with
+        # blank space below it so that it can get there, and leave the view
+        # there. The prose then fills the blank space as it is written, rather
+        # than the view chasing it downwards, which makes it hard to read.
+        # Once the prose has filled the view, reading on is up to the player.
+        if self.streaming_turn_start < 0:
+            return
+        vsb = self.story_view.verticalScrollBar()
+        if vsb is None:
+            return
+        self.scroll_position_to_y(self.streaming_turn_start, 0)
+        self.streaming_pin_value = vsb.value()
 
     def quick_action(self, action_number: int) -> QuickAction | None:
         # The zero based action_number quick action of the last turn, None
@@ -707,10 +705,7 @@ class GameWidget(QWidget):
                 c = sv.textCursor()
                 c.setPosition(pos)
                 sv.setTextCursor(c)
-                sv.ensureCursorVisible()
-                vsb = sv.verticalScrollBar()
-                if vsb is not None:  # align the start of the turn with the top of the view
-                    vsb.setValue(vsb.value() + sv.cursorRect().top())
+                self.scroll_position_to_y(pos)  # align the start of the turn with the top of the view
                 break
 
     def story_y_of_position(self, pos: int) -> int | None:
@@ -733,7 +728,33 @@ class GameWidget(QWidget):
         vsb = self.story_view.verticalScrollBar()
         if current is not None and vsb is not None:
             self.story_view.stopMomentumScroll()
-            vsb.setValue(vsb.value() + current - y)
+            target = vsb.value() + current - y
+            self.pad_story_to_scroll_value(target)
+            vsb.setValue(target)
+
+    def pad_story_to_scroll_value(self, value: int) -> None:
+        # Hold blank space at the bottom of the story, as much of it as is
+        # needed for the view to be scrollable to value and no more. The story
+        # is usually too short for the turn being read to be put at the top of
+        # the view, which is where it belongs: the prose of the turn being
+        # written grows into the space below it, and the space shrinks as it
+        # does, see pin_streaming_turn(). The space is held as the bottom
+        # margin of the root frame rather than as blank paragraphs, so that it
+        # is not part of the text: it moves nothing, is not copied with the
+        # story and is discarded by the clear() in render_story().
+        sv = self.story_view
+        doc, vp = sv.document(), sv.viewport()
+        if doc is None or vp is None or (frame := doc.rootFrame()) is None:
+            return
+        fmt = frame.frameFormat()
+        # The height of the story itself, that is without the space currently
+        # held at the bottom of it.
+        content = doc.size().height() - fmt.bottomMargin()
+        padding = max(0.0, value + vp.height() - content)
+        if abs(fmt.bottomMargin() - padding) < 1:
+            return  # sub-pixel changes are not worth a re-layout
+        fmt.setBottomMargin(padding)
+        frame.setFrameFormat(fmt)
 
     def visible_turn_number(self) -> int:
         # The one based number of the turn the player is currently reading,
@@ -1030,11 +1051,12 @@ class GameWidget(QWidget):
         # Show the action being taken where the prose of the turn will appear
         # as the AI writes it, see on_turn_narrative()
         self.render_story()
-        self.following_streamed_prose = False
+        # The action being taken is shown at the end of the story. The view is
+        # left where it is from here on, until the first words the AI writes
+        # arrive, see pin_streaming_turn().
+        self.streaming_pin_value = -1
         if (vsb := self.story_view.verticalScrollBar()) is not None:
             vsb.setValue(vsb.maximum())
-            self.following_streamed_prose = True
-            self.followed_scroll_value = vsb.value()
         Thread(name='CYOATurn', daemon=True, target=self.do_turn, args=(snapshot, player_input, interesting_event, self.turn_call, plugin)).start()
 
     def do_turn(self, snapshot: GameState, player_input: str, interesting_event: bool, call_number: int, plugin: AIProvider) -> None:
@@ -1111,7 +1133,7 @@ class GameWidget(QWidget):
         was_streaming = bool(self.streamed_narrative)
         self.streamed_narrative = ''
         self.narrative_render_timer.stop()
-        self.following_streamed_prose = False
+        self.streaming_pin_value = -1
         # Before render_story() clears the document, remember where on screen
         # the turn being written starts, so that the finished turn can be put
         # in exactly the same place: the player is reading the prose and it
@@ -1363,10 +1385,30 @@ class GameWidget(QWidget):
         chars = list(state.world.characters)
         chars[state.character_index] = d.player_character
         state.world = state.world._replace(characters=tuple(chars))
+        edits = {c.id: c for c in d.npcs if c.id}
+        if edits and not state.turns:
+            # Until the first turn has been played the cast of the story comes
+            # from the world rather than from a stored summary, so edits to it
+            # have to go back into the world to survive at all, see
+            # calibre.ai.cyoa.initial_summary().
+            npcs = []
+            old_ids = npc_character_ids(state.world.npcs)
+            for npc, cid in zip(state.world.npcs, old_ids):
+                c = edits.get(cid)
+                npcs.append(
+                    npc if c is None else NonPlayerCharacter(name=c.name, description=c.description, backstory=c.backstory, relationships=c.relationships)
+                )
+            state.world = state.world._replace(npcs=tuple(npcs))
+            # These ids are derived from the names of the characters, so
+            # renaming one changes their id, which their portrait is stored
+            # under, and it has to move with them.
+            for old_id, new_id in zip(old_ids, npc_character_ids(state.world.npcs)):
+                if old_id != new_id and (p := self.portraits.pop(old_id, None)) is not None:
+                    self.portraits[new_id] = p
         # Apply the edits to the summaries of all stored turns, matching by
         # the stable character ids, so that they survive rewinding the game
         # and apply to a character the player renamed here.
-        if edits := {c.id: c for c in d.npcs if c.id}:
+        if edits:
             for i, t in enumerate(state.turns):
                 characters = tuple(edits.get(c.id, c) for c in t.summary.characters)
                 if characters != t.summary.characters:

@@ -18,7 +18,7 @@ from contextlib import closing
 
 from qt.core import QFont, QIcon, QSize, QStackedWidget, Qt
 
-from calibre.ai.cyoa import PROTAGONIST_ID, GeneratedWorld, StoryStyle, start_game
+from calibre.ai.cyoa import GeneratedWorld, StoryStyle, start_game
 from calibre.constants import CYOA_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog, gprefs, setup_gui_option_parser
 from calibre.gui2.cyoa import data
@@ -42,7 +42,7 @@ class CYOAMainWindow(MainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(_('Create Your Own Adventure'))
-        self.setWindowIcon(QIcon.ic('ai.png'))
+        self.setWindowIcon(QIcon.ic('cyoa.png'))
         self.stack = s = QStackedWidget(self)
         self.setCentralWidget(s)
         self.welcome = w = WelcomeWidget(self)
@@ -79,11 +79,12 @@ class CYOAMainWindow(MainWindow):
         self.world.reset()
         self.stack.setCurrentWidget(self.world)
 
-    def start_new_game(self, world: GeneratedWorld, character_index: int, brief: str, style: StoryStyle, portrait: dict[str, str] | None) -> None:
-        # The portrait of the chosen character comes from the world it was
-        # generated in, but from now on the game owns its own copy of it.
+    def start_new_game(self, world: GeneratedWorld, character_index: int, brief: str, style: StoryStyle, portraits: dict[str, dict[str, str]]) -> None:
+        # The portraits of the chosen character and of the other characters of
+        # the world come from the world they were generated in, keyed by
+        # character id, but from now on the game owns its own copies of them.
         state = start_game(brief, world, character_index, style)
-        portraits = {PROTAGONIST_ID: portrait} if portrait else {}
+        portraits = dict(portraits)
         game_id = data.new_game_id()
         data.save_game(game_id, state, portraits=portraits)
         data.set_current_game(game_id)
@@ -159,7 +160,7 @@ def main(args: Sequence[str] = sys.argv) -> None:
         if s is not None:
             font.setStretch(s)
         app.setFont(font)
-    app.setWindowIcon(QIcon.ic('ai.png'))
+    app.setWindowIcon(QIcon.ic('cyoa.png'))
     # Two processes playing at the same time would overwrite each other's
     # auto-saved game, so a second launch asks the one already running to
     # come to the front and exits.
