@@ -8,6 +8,7 @@ import builtins
 import locale
 import os
 import sys
+from collections.abc import Sequence
 from typing import Any
 
 # Default translation is NOOP
@@ -20,7 +21,7 @@ builtins.__dict__['__'] = lambda s: s
 # For backwards compat with some third party plugins
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
-from calibre.constants import DEBUG, isfreebsd, islinux, ismacos, iswindows
+from calibre.constants import DEBUG, get_portable_base, isfreebsd, islinux, ismacos, iswindows
 
 
 def get_debug_executable(headless=False, exe_name='calibre-debug'):
@@ -45,6 +46,55 @@ def get_debug_executable(headless=False, exe_name='calibre-debug'):
     if os.path.exists(nearby):
         return [nearby]
     return [exe_name]
+
+
+def get_calibre_gui_command(args: Sequence[str] = ()) -> list[str]:
+    """The command needed to start the main calibre GUI, passing it args. Note
+    that when a calibre GUI is already running, starting another one simply
+    causes the running one to be given args and raised, see
+    calibre.gui2.main.communicate()."""
+    if ismacos and hasattr(sys, 'frameworks_dir'):
+        bundle = os.path.dirname(os.path.dirname(sys.frameworks_dir))
+        # -n is needed as, without it, open() simply activates the already
+        # running calibre, throwing away args. The extra instance it starts
+        # hands args to the running one over a socket and exits immediately.
+        return ['open', '-n', '-a', bundle, '--args'] + list(args)
+    if iswindows and (base := get_portable_base()):
+        # Go via the portable launcher rather than the executable it launches,
+        # so that the settings and library of the portable install are used
+        # even if the environment variables it sets have been lost.
+        launcher = os.path.join(base, 'calibre-portable.exe')
+        if os.path.exists(launcher):
+            return [launcher] + list(args)
+    cmd = get_debug_executable(exe_name='calibre')
+    if islinux:
+        # Run in a session of its own, so that the calibre GUI is unaffected by
+        # whatever happens to the process that started it.
+        cmd.append('--detach')
+    return cmd + list(args)
+
+
+def launch_calibre_gui(args: Sequence[str] = ()) -> None:
+    "Start the main calibre GUI in a new process, passing it args. Raises an exception if the process cannot be started."
+    import subprocess
+
+    cmd = get_calibre_gui_command(args)
+    if cmd[0] == 'open':
+        from calibre.constants import sanitize_env_vars
+
+        # open() is a program of the system, it must not be given the library
+        # paths of the calibre bundle. It does not pass on our environment to
+        # the calibre GUI it launches, anyway.
+        with sanitize_env_vars():
+            subprocess.Popen(cmd, close_fds=True)
+        return
+    # The calibre GUI is not a worker process and must not inherit the
+    # temporary folder or other environment of one, in case we are.
+    env = {k: v for k, v in os.environ.items() if not k.startswith('CALIBRE_WORKER')}
+    creationflags = 0
+    if iswindows:
+        creationflags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+    subprocess.Popen(cmd, env=env, close_fds=True, creationflags=creationflags)
 
 
 def connect_lambda(bound_signal, self, func, **kw):

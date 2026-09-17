@@ -69,8 +69,36 @@ various URL based actions is in the User Manual.
             'Cause a running calibre instance, if any, to be shutdown. Note that if there are running jobs, they will be silently aborted, so use with care.'
         ),
     )
+    parser.add_option(
+        '--add-and-delete',
+        default=[],
+        action='append',
+        dest='add_and_delete',
+        help=_('Add the book at the specified path to the library and then delete it. Works only for files inside the temporary folder of the system.'),
+    )
     setup_gui_option_parser(parser)
     return parser
+
+
+# Books to be added and deleted are passed on as arguments in this form, so
+# that they reach both a newly started calibre GUI and, via communicate(), one
+# that is already running.
+ADD_AND_DELETE_PREFIX = '--add-and-delete='
+
+
+def args_for_add_and_delete(paths: list[str]) -> list[str]:
+    from calibre.ptempfile import is_in_system_tempdir
+
+    ans = []
+    for path in paths:
+        path = os.path.abspath(os.path.expanduser(path))
+        # Deleting files is only safe to do for the temporary files this option
+        # exists for, see calibre.gui2.cyoa.read.ReadStoryDialog.export_epub()
+        if is_in_system_tempdir(path) and os.path.isfile(path):
+            ans.append(ADD_AND_DELETE_PREFIX + path)
+        else:
+            prints(f'Ignoring {path!r} as it is not a file in the temporary folder of the system', file=sys.stderr)
+    return ans
 
 
 def find_portable_library():
@@ -122,6 +150,8 @@ def init_qt(args):
         if os.path.isdir(libpath):
             prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
+    if opts.add_and_delete:
+        args += args_for_add_and_delete(opts.add_and_delete)
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override, windows_app_uid=MAIN_APP_UID, should_handle_calibre_urls=True)
 

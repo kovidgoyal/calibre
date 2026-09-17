@@ -326,3 +326,33 @@ def better_mktemp(*args, **kwargs):
     fd, path = tempfile.mkstemp(*args, **kwargs)
     os.close(fd)
     return path
+
+
+def is_in_system_tempdir(path: str) -> bool:
+    """Check if path is an existing file or folder inside the temporary folder
+    of the system. Used to sanity check paths that are going to be deleted."""
+    from calibre.utils.filenames import is_path_inside
+
+    try:
+        # realpath() so that neither symlinks nor, on Windows, short names can
+        # be used to make a path outside the temporary folder look like one
+        # inside it
+        tdir = os.path.realpath(get_default_tempdir(), strict=True)  # type: ignore
+        path = os.path.realpath(path, strict=True)  # type: ignore
+    except OSError:
+        return False
+    return is_path_inside(tdir, path, case_sensitive=not iswindows)
+
+
+def delete_temp_file(path: str) -> None:
+    """Delete a temporary file, also deleting the folder containing it, if that
+    folder is now empty and is itself a folder inside the temporary folder of
+    the system, as is the case for files made in a folder from mkdtemp()."""
+    from calibre.utils.filenames import remove_dir_if_empty
+
+    parent = os.path.dirname(os.path.abspath(path))
+    unlink(path)
+    # is_in_system_tempdir() is False for the temporary folder of the system
+    # itself, which must never be deleted
+    if is_in_system_tempdir(parent):
+        remove_dir_if_empty(parent, ignore_metadata_caches=True)

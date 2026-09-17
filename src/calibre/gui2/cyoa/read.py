@@ -13,7 +13,6 @@
 
 import os
 import shutil
-import subprocess
 import tempfile
 from collections.abc import Mapping
 
@@ -236,7 +235,7 @@ class ReadStoryDialog(Dialog):
         # calibre's own temporary folder is deleted the moment the game
         # exits. So it goes into a folder of the system temporary folder
         # instead, which is removed again here in every case except that
-        # one.
+        # one, in which calibre removes it, see add_book_to_calibre().
         tdir = tempfile.mkdtemp(prefix='calibre-cyoa-', dir=get_default_tempdir())
         path = os.path.join(tdir, data.save_name_for_title(self.state.world.title) + '.epub')
         try:
@@ -272,13 +271,15 @@ class ReadStoryDialog(Dialog):
             self.save_book_to_disk(path, tdir)
 
     def add_book_to_calibre(self, path: str, tdir: str) -> None:
-        # Adding to the library is the running calibre GUI's job, and
-        # starting it with the book as its argument is what asks it to do it,
-        # whether or not one is already running.
-        from calibre.startup import get_debug_executable
+        # Adding to the library is the calibre GUI's job, and starting it with
+        # the book as the argument of --add-and-delete is what asks it to do
+        # it, whether or not one is already running. calibre takes ownership
+        # of the book file, deleting both it and the folder it is in once it
+        # has been added, so tdir must not be removed here.
+        from calibre.startup import launch_calibre_gui
 
         try:
-            subprocess.Popen(get_debug_executable() + ['-g', '--', path], close_fds=True)
+            launch_calibre_gui(('--add-and-delete', path))
         except Exception:
             import traceback
 

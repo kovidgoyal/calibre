@@ -26,7 +26,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, delete_temp_file
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename, make_long_path_useable
 from calibre.utils.icu import sort_key
@@ -584,19 +584,21 @@ class AddAction(InterfaceAction):
         if add_as_data_files:
             self._add_extra_files({cid}, add_as_data_files)
 
-    def __add_filesystem_book(self, paths, allow_device=True):
+    def __add_filesystem_book(self, paths, allow_device=True, delete_after_add=()):
         if isinstance(paths, (str, bytes)):
             paths = [paths]
         books = [path for path in map(os.path.abspath, paths) if os.access(path, os.R_OK)]
 
         if books:
             to_device = allow_device and self.gui.stack.currentIndex() != 0
-            self._add_books(books, to_device)
+            self._add_books(books, to_device, delete_after_add=delete_after_add)
             if to_device:
                 self.gui.status_bar.show_message(_('Uploading books to device.'), 2000)
 
-    def add_filesystem_book(self, paths, allow_device=True):
-        self._add_filesystem_book(paths, allow_device=allow_device)
+    def add_filesystem_book(self, paths, allow_device=True, delete_after_add=()):
+        # delete_after_add is for temporary files that are to be deleted once
+        # they have been added, see calibre --add-and-delete
+        self._add_filesystem_book(paths, allow_device=allow_device, delete_after_add=delete_after_add)
 
     def add_from_isbn(self, *args):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
@@ -620,7 +622,7 @@ class AddAction(InterfaceAction):
             return
         self._add_books(books, to_device)
 
-    def _add_books(self, paths, to_device, on_card=None):
+    def _add_books(self, paths, to_device, on_card=None, delete_after_add=()):
         if on_card is None:
             on_card = 'carda' if self.gui.stack.currentIndex() == 2 else 'cardb' if self.gui.stack.currentIndex() == 3 else None
         if not paths:
@@ -631,7 +633,7 @@ class AddAction(InterfaceAction):
             paths,
             db=None if to_device else self.gui.current_db,
             parent=self.gui,
-            callback=partial(self._files_added, on_card=on_card),
+            callback=partial(self._files_added, on_card=on_card, delete_after_add=delete_after_add),
             pool=self.gui.spare_pool(),
         )
 
@@ -643,7 +645,7 @@ class AddAction(InterfaceAction):
         if recount:
             self.gui.tags_view.recount()
 
-    def _files_added(self, adder, on_card=None):
+    def _files_added(self, adder, on_card=None, delete_after_add=()):
         if adder.items:
             paths, infos, names = [], [], []
             for mi, cover_path, format_paths in adder.items:
@@ -652,7 +654,17 @@ class AddAction(InterfaceAction):
                 names.append(ascii_filename(os.path.basename(paths[-1])))
             self.gui.upload_books(paths, names, infos, on_card=on_card)
             self.gui.status_bar.show_message(_('Uploading books to device.'), 2000)
+            # The books are uploaded to the device from the files themselves,
+            # asynchronously, so any temporary ones among them cannot be
+            # deleted here. They are deleted when calibre exits instead, see
+            # calibre.gui2.ui.Main.handle_cli_args()
             return
+
+        # The adder is done, whether it succeeded, failed or was canceled, and
+        # it no longer needs the files it was given, having copied whatever it
+        # added into the library, so the temporary ones among them can go.
+        for path in delete_after_add:
+            delete_temp_file(path)
 
         if adder.number_of_books_added > 0:
             self.refresh_gui(adder.number_of_books_added, set_current_row=0)
