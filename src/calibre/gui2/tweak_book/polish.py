@@ -269,6 +269,9 @@ class CompressImages(Dialog):
         la.setWordWrap(True)
         la.setMinimumWidth(250)
         l.addWidget(la)
+        self.enable_jpeg_gray = QCheckBox(_('Drop color from jpg images'))
+        self.enable_jpeg_gray.setToolTip(_('Calling jpegran with -grayscale. Will leave color if filesize is not reduced!'))
+        l.addSpacing(30), l.addWidget(self.enable_jpeg_gray)
         self.jpeg = LossyCompression('jpeg', parent=self)
         l.addSpacing(30), l.addWidget(self.jpeg)
         self.webp = LossyCompression('webp', default_compression=75, parent=self)
@@ -356,6 +359,10 @@ class CompressImages(Dialog):
         return self.jpeg.jq.value()
 
     @property
+    def jpeg_gray(self):
+         return self.enable_jpeg_gray.isChecked()
+
+    @property
     def webp_quality(self):
         if not self.webp.enable_lossy.isChecked():
             return None
@@ -378,8 +385,9 @@ class CompressImagesProgress(Dialog):
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, gif_to_format=None, parent=None):
+    def __init__(self, names=None, jpeg_quality=None, jpeg_gray=False, webp_quality=None, compress_png=True, png_to_format=None, gif_to_format=None, parent=None):
         self.names, self.jpeg_quality = names, jpeg_quality
+        self.jpeg_gray = jpeg_gray
         self.webp_quality = webp_quality
         self.compress_png = compress_png
         self.png_to_format = png_to_format
@@ -405,6 +413,7 @@ class CompressImagesProgress(Dialog):
                     report=report.append,
                     names=self.names,
                     jpeg_quality=self.jpeg_quality,
+                    jpeg_gray=self.jpeg_gray,
                     webp_quality=self.webp_quality,
                     compress_png=self.compress_png,
                     png_to_format=self.png_to_format,
