@@ -6,14 +6,14 @@
 # window. The book is built with the same container machinery the editor and
 # the polish tools use: an empty EPUB is created, upgraded from EPUB 2 to
 # EPUB 3, and its chapters, pictures and navigation are then added to the
-# container, see story_to_epub(). The book opens with a prologue holding the
-# description of the world, followed by a dramatis personae listing the
-# character the player plays and everybody they share the world with, and
-# then one file per chapter, laid out so that it reads well on screens of
-# widely differing sizes, see EPUB_CSS. This module must not import any GUI
-# code, so that it can be used and tested headless; asking the player where
-# the book should go is the job of the read the story dialog, see
-# calibre.gui2.cyoa.read.
+# container, see story_to_epub(). The book opens with a generated cover, see
+# add_cover(), then a prologue holding the description of the world, followed
+# by a dramatis personae listing the character the player plays and everybody
+# they share the world with, and then one file per chapter, laid out so that
+# it reads well on screens of widely differing sizes, see EPUB_CSS. This
+# module must not import any GUI code, so that it can be used and tested
+# headless; asking the player where the book should go is the job of the read
+# the story dialog, see calibre.gui2.cyoa.read.
 
 import os
 from base64 import standard_b64decode
@@ -50,7 +50,15 @@ CSS_NAME = 'styles/story.css'
 PROLOGUE_NAME = 'text/prologue.xhtml'
 CAST_NAME = 'text/dramatis-personae.xhtml'
 DIVIDER_NAME = 'images/divider.png'
+COVER_NAME = 'images/cover.jpg'
 XHTML_MIME = 'application/xhtml+xml'
+
+# The tag every exported story is given, so that the stories a player has
+# exported are one click away from each other in their library. It is the
+# name of the genre rather than a word of prose, so it is not translated: a
+# library is often shared between machines running calibre in different
+# languages and the books in it have to stay grouped.
+CYOA_TAG = 'CYOA'
 
 # The picture of a scene is capped by the height of the screen as well as by
 # its width: a portrait picture scaled to the full width of a phone screen
@@ -377,7 +385,29 @@ def book_metadata(state: GameState) -> tuple[Metadata, str]:
     mi.author_sort = author
     mi.comments = state.world.world_description
     mi.languages = [lang]
+    mi.tags = [CYOA_TAG]
     return mi, lang_as_iso639_1(lang) or lang
+
+
+def add_cover(container: EpubContainer, mi: Metadata) -> None:
+    # A book with no cover is a grey rectangle in every library and on every
+    # reader, so one is drawn from the title and the author with the same
+    # machinery as the "Generate cover" command in the library and the
+    # editor, which means it follows whatever cover style the player has
+    # chosen there. The imports are deferred because calibre.ebooks.covers
+    # needs Qt and pulls in calibre.gui2 for it, which this module must not
+    # do at import time, see the note at the top.
+    from calibre.ebooks.covers import generate_cover
+    from calibre.ebooks.oeb.polish.cover import set_cover
+
+    name = container.add_file(COVER_NAME, generate_cover(mi), modify_name_if_needed=True)
+    # As well as marking the picture as the cover of the book, for the
+    # library and the reader to show, this wraps it in a title page and puts
+    # that at the start of the spine, so that the cover is also the first
+    # page of the book when it is opened. The aspect ratio of the picture is
+    # preserved, as a generated cover stretched to the shape of the screen
+    # would have its lettering distorted.
+    set_cover(container, name, options={'existing_image': True, 'keep_aspect': True})
 
 
 def story_to_epub(
@@ -416,6 +446,9 @@ def story_to_epub(
 
     container.remove_item(PLACEHOLDER_NAME)
     container.set_spine([(name, True) for name in b.spine])
+    # The cover is added after the spine has been set, as setting the spine
+    # replaces it wholesale and would throw away the title page.
+    add_cover(container, mi)
     # The prologue is where the book begins and the first chapter is where
     # the story proper does, which is where a reader offering to jump to the
     # start of the book should land.
@@ -466,6 +499,10 @@ def find_tests() -> TestSuite:  # {{{
         img.fill(QColor('red'))
         return image_to_data(img, fmt=fmt)
 
+    # The name of the page wrapping the cover picture is chosen by
+    # set_cover(), not by this module, so it is spelled out only here.
+    TITLEPAGE_NAME = 'text/titlepage.xhtml'
+
     class TestCYOAEpub(unittest.TestCase):
         ae = unittest.TestCase.assertEqual
 
@@ -485,9 +522,9 @@ def find_tests() -> TestSuite:  # {{{
                 self.ae(1, len(tuple(c.manifest_items_with_property('nav'))))
                 self.assertFalse([n for n in c.name_path_map if n.endswith('.ncx')])
                 self.assertFalse(c.exists(PLACEHOLDER_NAME))
-                # One file per chapter, after the prologue and the cast
+                # One file per chapter, after the cover, the prologue and the cast
                 self.ae(2, len(state.chapter_titles))
-                self.ae([PROLOGUE_NAME, CAST_NAME, 'text/chapter-001.xhtml', 'text/chapter-002.xhtml'], [n for n, linear in c.spine_names])
+                self.ae([TITLEPAGE_NAME, PROLOGUE_NAME, CAST_NAME, 'text/chapter-001.xhtml', 'text/chapter-002.xhtml'], [n for n, linear in c.spine_names])
                 # Every spine item is in the table of contents, in order
                 nav = c.raw_data([n for n in c.name_path_map if n.endswith('nav.xhtml')][0])
                 for title in (_('Prologue'), _('Dramatis personae'), *state.chapter_titles):
@@ -551,6 +588,20 @@ def find_tests() -> TestSuite:  # {{{
                 self.ae('Mist City', mi.title)
                 self.ae([username()], list(mi.authors))
                 self.ae(state.world.world_description, mi.comments)
+                self.ae([CYOA_TAG], list(mi.tags))
+
+        def test_cyoa_epub_cover(self) -> None:
+            from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_page
+
+            state = make_state()
+            with tempfile.TemporaryDirectory() as tdir:
+                c = self.export(state, tdir)
+                # The generated cover is in the book, marked as its cover and
+                # wrapped in the page the book opens with
+                self.ae(COVER_NAME, find_cover_image(c, strict=True))
+                self.ae(TITLEPAGE_NAME, find_cover_page(c))
+                self.assertIn(COVER_NAME, c.raw_data(TITLEPAGE_NAME))
+                self.assertTrue(c.raw_data(COVER_NAME, decode=False))
 
         def test_cyoa_epub_no_turns(self) -> None:
             # A game the player has not yet played a turn of still makes a
@@ -558,7 +609,7 @@ def find_tests() -> TestSuite:  # {{{
             state = make_state(0)
             with tempfile.TemporaryDirectory() as tdir:
                 c = self.export(state, tdir)
-                self.ae([PROLOGUE_NAME, CAST_NAME], [n for n, linear in c.spine_names])
+                self.ae([TITLEPAGE_NAME, PROLOGUE_NAME, CAST_NAME], [n for n, linear in c.spine_names])
                 self.assertIn('Marlo', c.raw_data(CAST_NAME))
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCYOAEpub)

@@ -18,6 +18,7 @@ from collections.abc import Mapping
 
 from qt.core import (
     QCheckBox,
+    QDialog,
     QDialogButtonBox,
     QEvent,
     QHBoxLayout,
@@ -42,7 +43,7 @@ from qt.core import (
 )
 
 from calibre.ai.cyoa import GameState
-from calibre.gui2 import Aborted, choose_save_file, error_dialog, info_dialog, question_dialog, safe_open_url
+from calibre.gui2 import choose_save_file, error_dialog, info_dialog, safe_open_url
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.story_widgets import (
     SCENE_DIVIDER_WIDTH,
@@ -83,6 +84,54 @@ class ReadStoryView(StoryView):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         super().resizeEvent(a0)
         self.relayout_needed.emit()
+
+
+class ExportDestination(Dialog):
+    # Asks what should be done with a book that has just been exported. There
+    # are three answers to that and not two, which is why this is a dialog of
+    # its own rather than a question_dialog(): on a question there is no way
+    # to say "neither", so dismissing it with Esc or the window close button
+    # counted as the answer no and quietly went on to save a book the player
+    # had changed their mind about. Here only the two buttons choose a
+    # destination and everything else abandons the export.
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        self.add_to_library = False
+        super().__init__(_('Where should the book go?'), 'cyoa-export-epub-destination', parent, default_buttons=QDialogButtonBox.StandardButton.Cancel)
+
+    def setup_ui(self) -> None:
+        l = QVBoxLayout(self)
+        self.msg = la = QLabel(
+            _('The story so far has been made into an EPUB book. It can be added to your calibre library or saved to a file of your choosing.'), self
+        )
+        la.setWordWrap(True)
+        la.setMinimumWidth(400)
+        l.addWidget(la)
+        l.addWidget(self.bb)
+
+        self.add_button = b = self.bb.addButton(_('&Add to calibre'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
+        b.setIcon(QIcon.ic('add_book.png'))
+        b.setToolTip('<p>' + _('Add the book to your calibre library, starting calibre if it is not already running'))
+        b.clicked.connect(self.add_to_calibre_requested)
+        # Adding to the library is both the more common choice and the
+        # reversible one, so it is what Enter does.
+        b.setDefault(True)
+        b.setFocus(Qt.FocusReason.OtherFocusReason)
+
+        self.save_button = b = self.bb.addButton(_('&Save to a file'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
+        b.setIcon(QIcon.ic('save.png'))
+        b.setToolTip('<p>' + _('Save the book as an EPUB file of your choosing, to read outside calibre'))
+        b.clicked.connect(self.save_to_disk_requested)
+
+    def add_to_calibre_requested(self) -> None:
+        self.add_to_library = True
+        self.accept()
+
+    def save_to_disk_requested(self) -> None:
+        self.add_to_library = False
+        self.accept()
 
 
 class ReadStoryDialog(Dialog):
@@ -253,19 +302,11 @@ class ReadStoryDialog(Dialog):
                 show=True,
             )
             return
-        try:
-            add_to_library = question_dialog(
-                self,
-                _('Where should the book go?'),
-                _('The story so far has been made into an EPUB book. Would you like it added to your calibre library, or saved to a file of your choosing?'),
-                yes_text=_('&Add to calibre'),
-                no_text=_('&Save to a file'),
-                add_abort_button=True,
-            )
-        except Aborted:
+        d = ExportDestination(self)
+        if d.exec() != QDialog.DialogCode.Accepted:
             shutil.rmtree(tdir, ignore_errors=True)
             return
-        if add_to_library:
+        if d.add_to_library:
             self.add_book_to_calibre(path, tdir)
         else:
             self.save_book_to_disk(path, tdir)
