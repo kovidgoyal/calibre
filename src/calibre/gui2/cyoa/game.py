@@ -1440,7 +1440,7 @@ class GameWidget(QWidget):
         # The story so far as a book: all of its chapters, not just the one
         # being played, in a dialog of their own.
         if self.state is not None and self.state.turns:
-            ReadStoryDialog(self.state, self.images, self).exec()
+            ReadStoryDialog(self.state, self.images, self, self.portraits).exec()
 
     def change_settings(self) -> None:
         if SettingsDialog(self).exec() != Dialog.DialogCode.Accepted:

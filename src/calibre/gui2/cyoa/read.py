@@ -7,8 +7,14 @@
 # game renders its turns with, so that it follows the text display settings
 # and zooms along with the game. The pictures of the scenes of the turns are
 # shown as the illustrations of the chapter, each after the prose it
-# illustrates, and can be shown full size by clicking them.
+# illustrates, and can be shown full size by clicking them. The story can
+# also be exported from here as an EPUB book, to be read outside the game,
+# see export_epub() and calibre.gui2.cyoa.epub.
 
+import os
+import shutil
+import subprocess
+import tempfile
 from collections.abc import Mapping
 
 from qt.core import (
@@ -16,12 +22,14 @@ from qt.core import (
     QDialogButtonBox,
     QEvent,
     QHBoxLayout,
+    QIcon,
     QKeyEvent,
     QLabel,
     QListWidget,
     QListWidgetItem,
     QObject,
     QPixmap,
+    QPushButton,
     QResizeEvent,
     QSize,
     QSplitter,
@@ -35,7 +43,7 @@ from qt.core import (
 )
 
 from calibre.ai.cyoa import GameState
-from calibre.gui2 import safe_open_url
+from calibre.gui2 import Aborted, choose_save_file, error_dialog, info_dialog, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.story_widgets import (
     SCENE_DIVIDER_WIDTH,
@@ -48,7 +56,9 @@ from calibre.gui2.cyoa.story_widgets import (
     story_text_width,
 )
 from calibre.gui2.image_popup import ImagePopup
+from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
+from calibre.ptempfile import get_default_tempdir
 from calibre.utils.localization import _, ngettext
 
 # How long to wait after the width available for the story changes before
@@ -77,11 +87,20 @@ class ReadStoryView(StoryView):
 
 
 class ReadStoryDialog(Dialog):
-    def __init__(self, state: GameState, images: Mapping[int, data.SceneImage] | None = None, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        state: GameState,
+        images: Mapping[int, data.SceneImage] | None = None,
+        parent: QWidget | None = None,
+        portraits: Mapping[str, Mapping[str, str]] | None = None,
+    ) -> None:
         # images maps one based turn number to the picture of that turn's
-        # scene, as GameWidget keeps them.
+        # scene and portraits maps the stable id of a character to their
+        # portrait, both as GameWidget keeps them. The portraits are not used
+        # by the view, only by the dramatis personae of an exported book.
         self.state = state
         self.images: dict[int, bytes] = {k: v.data for k, v in (images or {}).items() if v.data}
+        self.portraits: dict[str, Mapping[str, str]] = dict(portraits or {})
         self.displayed_image_turns: frozenset[int] = frozenset()
         self.rendered_width = 0
         super().__init__(_('Read the story so far'), 'cyoa-read-story', parent, default_buttons=QDialogButtonBox.StandardButton.Close)
@@ -117,7 +136,10 @@ class ReadStoryDialog(Dialog):
         si.setChecked(data.read_story_show_images())
         si.setVisible(bool(self.images))
         si.toggled.connect(self.toggle_images)
-        bl.addWidget(si), bl.addStretch(10), bl.addWidget(self.bb)
+        self.export_button = eb = QPushButton(QIcon.ic('save.png'), _('Export as &EPUB'), self)
+        eb.setToolTip('<p>' + _('Turn the story so far into an EPUB book, to read outside the game or add to your calibre library'))
+        eb.clicked.connect(self.export_epub)
+        bl.addWidget(si), bl.addStretch(10), bl.addWidget(eb), bl.addWidget(self.bb)
         l.addLayout(bl)
 
         self.image_popup = ImagePopup(self)
@@ -203,6 +225,105 @@ class ReadStoryDialog(Dialog):
             self.image_popup.current_url = QUrl(data.image_file_name(turn_number))
             self.image_popup()
 
+    # Exporting the story as a book {{{
+
+    def export_epub(self) -> None:
+        from calibre.gui2.cyoa.epub import story_to_epub
+
+        # The book has to be able to outlive this process: when it is handed
+        # to calibre to add, the game could easily be closed before the GUI
+        # it just launched has copied the book into the library, and
+        # calibre's own temporary folder is deleted the moment the game
+        # exits. So it goes into a folder of the system temporary folder
+        # instead, which is removed again here in every case except that
+        # one.
+        tdir = tempfile.mkdtemp(prefix='calibre-cyoa-', dir=get_default_tempdir())
+        path = os.path.join(tdir, data.save_name_for_title(self.state.world.title) + '.epub')
+        try:
+            with BusyCursor():
+                story_to_epub(self.state, path, self.images, self.portraits)
+        except Exception:
+            import traceback
+
+            shutil.rmtree(tdir, ignore_errors=True)
+            error_dialog(
+                self,
+                _('Failed to create the book'),
+                _('Failed to turn this story into an EPUB book. Click "Show details" for more information.'),
+                det_msg=traceback.format_exc(),
+                show=True,
+            )
+            return
+        try:
+            add_to_library = question_dialog(
+                self,
+                _('Where should the book go?'),
+                _('The story so far has been made into an EPUB book. Would you like it added to your calibre library, or saved to a file of your choosing?'),
+                yes_text=_('&Add to calibre'),
+                no_text=_('&Save to a file'),
+                add_abort_button=True,
+            )
+        except Aborted:
+            shutil.rmtree(tdir, ignore_errors=True)
+            return
+        if add_to_library:
+            self.add_book_to_calibre(path, tdir)
+        else:
+            self.save_book_to_disk(path, tdir)
+
+    def add_book_to_calibre(self, path: str, tdir: str) -> None:
+        # Adding to the library is the running calibre GUI's job, and
+        # starting it with the book as its argument is what asks it to do it,
+        # whether or not one is already running.
+        from calibre.startup import get_debug_executable
+
+        try:
+            subprocess.Popen(get_debug_executable() + ['-g', '--', path], close_fds=True)
+        except Exception:
+            import traceback
+
+            shutil.rmtree(tdir, ignore_errors=True)
+            error_dialog(
+                self,
+                _('Failed to start calibre'),
+                _('Failed to start calibre to add the book to your library. Click "Show details" for more information.'),
+                det_msg=traceback.format_exc(),
+                show=True,
+            )
+            return
+        info_dialog(
+            self,
+            _('Adding the book to calibre'),
+            _('The book is being added to your calibre library. The calibre main window will open if it is not already running.'),
+            show=True,
+        )
+
+    def save_book_to_disk(self, path: str, tdir: str) -> None:
+        try:
+            dest = choose_save_file(
+                self, 'cyoa-export-epub', _('Save the story as'), filters=[(_('EPUB books'), ['epub'])], initial_filename=os.path.basename(path)
+            )
+            if not dest:
+                return
+            if not dest.lower().endswith('.epub'):
+                dest += '.epub'
+            try:
+                shutil.move(path, dest)
+            except Exception:
+                import traceback
+
+                error_dialog(
+                    self,
+                    _('Failed to save the book'),
+                    _('Failed to save the book to {}. Click "Show details" for more information.').format(dest),
+                    det_msg=traceback.format_exc(),
+                    show=True,
+                )
+        finally:
+            shutil.rmtree(tdir, ignore_errors=True)
+
+    # }}}
+
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a0 is self.story_view and a1 is not None and a1.type() == QEvent.Type.KeyPress:
             assert isinstance(a1, QKeyEvent)
@@ -265,9 +386,11 @@ class ReadStoryDialog(Dialog):
 
 
 if __name__ == '__main__':
+    from base64 import standard_b64encode
+
     from qt.core import QBuffer, QColor, QImage, QIODeviceBase, QPainter
 
-    from calibre.ai.cyoa import GeneratedWorld, PlayerCharacter, StoryTurn, SummaryUpdate, TurnRecord, initial_summary, start_game
+    from calibre.ai.cyoa import PROTAGONIST_ID, GeneratedWorld, PlayerCharacter, StoryTurn, SummaryUpdate, TurnRecord, initial_summary, start_game
     from calibre.gui2 import Application
 
     def demo_image(turn_number: int) -> data.SceneImage:
@@ -311,5 +434,6 @@ if __name__ == '__main__':
     # Only some of the turns have a picture, as in a game in which image
     # generation was turned on part way through or failed for a turn.
     images = {i: demo_image(i) for i in range(1, len(state.turns) + 1) if i % 3 != 2}
-    ReadStoryDialog(state, images).exec()
+    portraits = {PROTAGONIST_ID: {'mime': 'image/png', 'data': standard_b64encode(demo_image(99).data).decode('ascii')}}
+    ReadStoryDialog(state, images, portraits=portraits).exec()
     del app
