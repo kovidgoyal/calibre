@@ -1929,6 +1929,7 @@ class Boss(QObject):
                 d = CompressImagesProgress(
                     names=d.names,
                     jpeg_quality=d.jpeg_quality,
+                    jpeg_gray=d.jpeg_gray,
                     webp_quality=d.webp_quality,
                     compress_png=d.compress_png,
                     png_to_format=d.png_to_format,
