@@ -136,9 +136,8 @@ class SizeTable(OneToOneTable):
         # A single aggregate pass over data is much faster than running a
         # correlated subquery for every book
         query = db.execute(
-            'SELECT books.id, s.size FROM books LEFT JOIN'
-            ' (SELECT book, MAX(uncompressed_size) AS size FROM data GROUP BY book) AS s'
-            ' ON s.book=books.id')
+            'SELECT books.id, s.size FROM books LEFT JOIN (SELECT book, MAX(uncompressed_size) AS size FROM data GROUP BY book) AS s ON s.book=books.id'
+        )
         self.book_col_map = dict(query)
 
     def update_sizes(self, size_map):
