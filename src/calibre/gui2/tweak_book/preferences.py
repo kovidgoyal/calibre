@@ -522,6 +522,7 @@ class ToolbarSettings(QWidget):
         QWidget.__init__(self, parent)
         self.l = gl = QGridLayout(self)
         self.changed = False
+        self.current_row_map = []
 
         self.bars = b = QComboBox(self)
         b.addItem(_('Choose which toolbar you want to customize'))
@@ -625,6 +626,11 @@ class ToolbarSettings(QWidget):
         from calibre.gui2.tweak_book.plugin import plugin_toolbar_actions
 
         self.available.clear(), self.current.clear()
+        # Maps a row in self.current to the position of the corresponding
+        # action in self.current_settings[name]. Needed because actions that
+        # are no longer available, for instance, from an uninstalled plugin,
+        # are present in the settings but not shown in self.current.
+        self.current_row_map = row_map = []
         name = self.current_name
         if not name:
             return
@@ -656,7 +662,7 @@ class ToolbarSettings(QWidget):
             QListWidgetItem(QIcon.ic('donate.png'), _('Donate'), self.available).setData(Qt.ItemDataRole.UserRole, 'donate')
 
         QListWidgetItem(blank, '--- {} ---'.format(_('Separator')), self.available)
-        for key in items:
+        for i, key in enumerate(items):
             if key is None:
                 QListWidgetItem(blank, '--- {} ---'.format(_('Separator')), self.current)
             elif key == 'donate':
@@ -665,9 +671,9 @@ class ToolbarSettings(QWidget):
                 try:
                     ac = all_items[key]
                 except KeyError:
-                    pass
-                else:
-                    to_item(key, ac, self.current)
+                    continue
+                to_item(key, ac, self.current)
+            row_map.append(i)
 
     def bar_changed(self):
         name = self.current_name
@@ -691,7 +697,10 @@ class ToolbarSettings(QWidget):
         nr = r + (-1 if up else 1)
         v.insertItem(nr, item)
         v.setCurrentItem(item)
-        s[r], s[nr] = s[nr], s[r]
+        i, ni = self.current_row_map[r], self.current_row_map[nr]
+        # Note that self.current_row_map needs no updating, as the rows and the
+        # positions they map to are both swapped
+        s[i], s[ni] = s[ni], s[i]
         self.changed_signal.emit()
 
     def add_action(self):
@@ -724,11 +733,11 @@ class ToolbarSettings(QWidget):
             s = self.current_settings[self.current_name]
         except KeyError:
             return
-        rows = sorted({self.current.row(i) for i in items}, reverse=True)
-        if not rows:
+        positions = sorted({self.current_row_map[self.current.row(i)] for i in items}, reverse=True)
+        if not positions:
             return
-        for r in rows:
-            s.pop(r)
+        for p in positions:
+            s.pop(p)
         self.build_lists()
         self.changed_signal.emit()
 
