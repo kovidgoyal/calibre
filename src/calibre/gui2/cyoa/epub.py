@@ -408,13 +408,21 @@ def story_to_epub(
     b.add_page(PROLOGUE_NAME, _('Prologue'), prologue_body(state), etype='prologue')
     if body := cast_body(b, state, portraits):
         b.add_page(CAST_NAME, _('Dramatis personae'), body, etype='frontmatter')
+    first_chapter = ''
     for chapter, title in enumerate(state.chapter_titles):
         name = f'text/chapter-{chapter + 1:03d}.xhtml'
         b.add_page(name, title, chapter_body(b, state, chapter, name, images), etype='chapter')
+        first_chapter = first_chapter or name
 
     container.remove_item(PLACEHOLDER_NAME)
     container.set_spine([(name, True) for name in b.spine])
-    commit_nav_toc(container, b.toc, lang=lang)
+    # The prologue is where the book begins and the first chapter is where
+    # the story proper does, which is where a reader offering to jump to the
+    # start of the book should land.
+    landmarks = [{'type': 'frontmatter', 'dest': PROLOGUE_NAME, 'frag': '', 'title': _('Prologue')}]
+    if first_chapter:
+        landmarks.append({'type': 'bodymatter', 'dest': first_chapter, 'frag': '', 'title': _('Start of the story')})
+    commit_nav_toc(container, b.toc, lang=lang, landmarks=landmarks)
     container.commit(path)
     return path
 
@@ -484,6 +492,20 @@ def find_tests() -> TestSuite:  # {{{
                 nav = c.raw_data([n for n in c.name_path_map if n.endswith('nav.xhtml')][0])
                 for title in (_('Prologue'), _('Dramatis personae'), *state.chapter_titles):
                     self.assertIn(escape(title), nav)
+
+        def test_cyoa_epub_landmarks(self) -> None:
+            from calibre.ebooks.oeb.polish.toc import get_landmarks
+
+            state = make_state()
+            with tempfile.TemporaryDirectory() as tdir:
+                c = self.export(state, tdir)
+                self.ae(
+                    [
+                        {'dest': PROLOGUE_NAME, 'frag': '', 'type': 'frontmatter', 'title': _('Prologue')},
+                        {'dest': 'text/chapter-001.xhtml', 'frag': '', 'type': 'bodymatter', 'title': _('Start of the story')},
+                    ],
+                    get_landmarks(c),
+                )
 
         def test_cyoa_epub_content(self) -> None:
             state = make_state()

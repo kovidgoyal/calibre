@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.create import create_book
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.polish.toc import from_xpaths as toc_from_xpaths
 from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
+from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.ebooks.oeb.polish.utils import guess_type
 
 OPF_TEMPLATE = f'''
@@ -149,6 +150,24 @@ class Structure(BaseTest):
             [
                 {'dest': 'xxx.html', 'frag': 'moo', 'type': 'x', 'title': 'XXX'},
                 {'dest': 'a.html', 'frag': '', 'type': '', 'title': 'YYY'},
+            ],
+            get_landmarks(c),
+        )
+
+    def test_landmarks_are_kept_on_upgrade(self):
+        # Upgrading to EPUB 3 removes the guide, so its entries have to end
+        # up in the landmarks nav of the upgraded book, see commit_nav_toc()
+        body = b'<html xmlns="http://www.w3.org/1999/xhtml"><body><p>x</p></body></html>'
+        c = self.create_epub([cmi('xxx.html', body), cmi('a.html', body)], guide=[('xxx.html', 'cover', 'Cover'), ('a.html', 'text', 'Start')], ver=2)
+        self.assertEqual(2, c.opf_version_parsed.major)
+        upgrade_book(c, lambda *a: None)
+        self.assertEqual(3, c.opf_version_parsed.major)
+        self.assertFalse(c.opf_xpath('./opf:guide'))
+        self.assertEqual(
+            [
+                {'dest': 'xxx.html', 'frag': '', 'type': 'cover', 'title': 'Cover'},
+                # The guide types are translated to the EPUB 3 vocabulary
+                {'dest': 'a.html', 'frag': '', 'type': 'bodymatter', 'title': 'Start'},
             ],
             get_landmarks(c),
         )

@@ -781,6 +781,9 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
     collapse_li(nav)
     nav.tail = '\n'
 
+    if landmarks is not None:
+        set_landmarks(container, root, tocname, landmarks)
+
     if toc.page_list:
         nav = ensure_single_nav_of_type(root, 'page-list')
         nav.set('hidden', '')
