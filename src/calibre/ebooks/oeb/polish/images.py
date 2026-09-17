@@ -60,7 +60,8 @@ class Worker(Thread):
             if self.jpeg_gray:
                 func = partial(optimize_jpeg, gray=True)
             else:
-                func = optimize_jpeg        else:
+                func = optimize_jpeg
+        else:
             func = partial(encode_jpeg, quality=self.jpeg_quality)
         before = os.path.getsize(path)
         with open(path, 'rb') as f:
