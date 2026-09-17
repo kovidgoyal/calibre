@@ -664,9 +664,12 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
                 raise
 
 
-def optimize_jpeg(file_path):
+def optimize_jpeg(file_path, gray=False):
     exe = get_exe_path('jpegtran')
-    cmd = [exe] + '-copy none -optimize -progressive -maxmemory 100M -outfile'.split() + [False, True]
+    cmd = [exe] + '-copy none -optimize -progressive -maxmemory 100M'.split()
+    if gray:
+		cmd += ['-grayscale']
+    cmd += ['-outfile', False, True]
     return run_optimizer(file_path, cmd)
 
 
