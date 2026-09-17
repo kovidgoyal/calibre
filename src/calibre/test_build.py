@@ -535,7 +535,7 @@ class BuildTest(unittest.TestCase):
     def test_openssl(self):
         import ssl
 
-        ssl.PROTOCOL_TLSv1_2
+        ssl.PROTOCOL_TLS_CLIENT
         if ismacos or (iswindows and not is_ci):
             paths = ssl.get_default_verify_paths()
             capath = paths.capath
