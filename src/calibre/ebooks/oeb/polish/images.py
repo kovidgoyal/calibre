@@ -15,11 +15,12 @@ from calibre.utils.localization import _, ngettext
 class Worker(Thread):
     daemon = True
 
-    def __init__(self, abort, name, queue, results, jpeg_quality, webp_quality, progress_callback):
+    def __init__(self, abort, name, queue, results, jpeg_quality, jpeg_gray, webp_quality, progress_callback):
         Thread.__init__(self, name=name)
         self.queue, self.results = queue, results
         self.progress_callback = progress_callback
         self.jpeg_quality = jpeg_quality
+        self.jpeg_gray = jpeg_gray
         self.webp_quality = webp_quality
         self.abort = abort
         self.start()
@@ -56,8 +57,10 @@ class Worker(Thread):
             else:
                 func = partial(encode_webp, quality=self.jpeg_quality)
         elif self.jpeg_quality is None:
-            func = optimize_jpeg
-        else:
+            if self.jpeg_gray:
+                func = partial(optimize_jpeg, gray=True)
+            else:
+                func = optimize_jpeg        else:
             func = partial(encode_jpeg, quality=self.jpeg_quality)
         before = os.path.getsize(path)
         with open(path, 'rb') as f:
@@ -266,6 +269,7 @@ def compress_images(
     report=None,
     names=None,
     jpeg_quality=None,
+    jpeg_gray=False,
     webp_quality=None,
     compress_png=True,
     png_to_format=None,
@@ -337,7 +341,7 @@ def compress_images(
             abort.set()
 
     progress_callback(0, num_to_process, '')
-    [Worker(abort, f'CompressImage{i}', queue, results, jpeg_quality, webp_quality, pc) for i in range(min(detect_ncpus(), num_to_process))]
+    [Worker(abort, f'CompressImage{i}', queue, results, jpeg_quality, jpeg_gray=jpeg_gray, webp_quality, pc) for i in range(min(detect_ncpus(), num_to_process))]
     queue.join()
     before_total = after_total = 0
     processed_num = 0
