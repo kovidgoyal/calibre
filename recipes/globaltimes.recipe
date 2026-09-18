@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from calibre.utils.date import parse_date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 index = 'https://www.globaltimes.cn/'
+
+# the site publishes timestamps as bare local wall clock times, with no
+# timezone marker anywhere in the markup. Global Times is based in Beijing and
+# files on Beijing time, so parse them as such rather than as the timezone of
+# whoever happens to be running the recipe.
+CHINA_TZ = ZoneInfo('Asia/Shanghai')
 
 
 class GlobalTimes(BasicNewsRecipe):
@@ -84,6 +91,9 @@ class GlobalTimes(BasicNewsRecipe):
     def articles_from_soup(self, soup):
         ans = []
         dt = datetime.today().strftime('%Y%m')
+        # parse_date() fills in missing fields, and crucially the timezone,
+        # from this default
+        cn_default = datetime.now(CHINA_TZ).replace(day=15, hour=0, minute=0, second=0, microsecond=0)
         for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + 'page/' + dt + '/')}):
             if a.find('img'):
                 continue
@@ -95,13 +105,18 @@ class GlobalTimes(BasicNewsRecipe):
                 desc = self.tag_to_string(p).strip()
             src_time = a.find_next_sibling(attrs={'class': 'source_time'})
             if src_time:
-                time = self.tag_to_string(src_time).strip()
-                if '|' in time:
-                    time = time.split('|')[1].strip()
-                date = parse_date(time)
-                today = (datetime.now(timezone.utc)).replace(microsecond=0)
-                if (today - date) > timedelta(self.oldest_article):
-                    continue
+                # the text is of the form "By Author | Source | 2026/9/12 10:14:20"
+                # with the author and source fields both optional, so the
+                # timestamp is always the last pipe separated field
+                time = self.tag_to_string(src_time).split('|')[-1].strip()
+                try:
+                    date = parse_date(time, default=cn_default)
+                except Exception:
+                    self.log.warn('Failed to parse the date:', time, 'for article:', url)
+                else:
+                    today = (datetime.now(timezone.utc)).replace(microsecond=0)
+                    if (today - date) > timedelta(self.oldest_article):
+                        continue
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
             ans.append({'title': title, 'url': url, 'description': desc})
         return ans
