@@ -23,6 +23,63 @@
 # - title by author
 # }}}
 
+{{{ 9.15.0 2026-09-18
+
+:: new features
+
+- [major] A "Create your own adventure" writing game -- interactive storytelling with an AI managing the world you create
+
+  This is a little different from the usual run of calibre features. It started out as a way to test the AI backends in calibre
+  but turned into something fun to use. As always with AI features its completely optional and not even loaded unless
+  you explicitly run it. Go to Preferences->Toolbars & menus and add the "Create your own Adventure" to the main toolbar to use it
+
+- [2167215] E-book viewer: Highlights panel: Allow selecting multiple highlights and right clicking to change their style
+
+- [2167194] Cover grid: Allow choosing which corner of the cover emblems are placed on in Preferences->Look & feel->Cover grid->Layout
+
+- [2166717] E-book viewer: An optional button to add to the sidebar to easily switch between saved window sizes, add it by right clicking the sidebar and choosing customize
+
+- [2159668] E-book viewer: When creating highlights with notes, show the notes as a tooltip when the mouse hovers over the highlights. Controlled via the setting to hide mouse over tooltips in the Miscellaneous section of the viewer preferences
+
+- A new CLI flag to add and delete a book from a specified path in the system temp dir when running calibre.exe
+
+:: bug fixes
+
+- [2165923] E-book viewer: Fix Read Aloud stopping at some full screen images
+
+- [2165439] E-book viewer: In flow mode when using Read Aloud be more robust about keeping the selected text visible
+
+- Edit book: fix a regression that caused an error when using the test box in the snippets dialog
+
+- Edit book: Preferences: Fix moving and deleting toolbar icons from plugins not working
+
+- Fix landmarks being lost when upgrading a book to EPUB 3
+
+- DOCX output: preserve hyperlinks across styled text runs
+
+- DOCX Input: Fix an error when the input document has numbering without any styles
+
+- [2167294] calibredb embed_metadata: Fix skipping books with no covers
+
+- Edit book: Spell check: Fix words with a typographic single apostrophe not being correctly checked
+
+- Windows: Fix calibre not starting in Alberta Canada because of a new timezone
+
+- Windows: Cover grid: Fix changing the background color not working
+
+- Content server: Sanitise supplied conversion options
+
+- OpenRouter: Fix models that only output images not text not being listed
+
+:: improved recipes
+- The Week
+- Bloomberg
+- Global Times
+
+:: new recipes
+- Briefing Service by Jordan Shelley
+}}}
+
 {{{ 9.14.0 2026-08-28
 
 :: new features
