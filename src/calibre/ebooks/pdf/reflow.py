@@ -10,6 +10,8 @@ from typing import cast
 
 from lxml import etree
 
+from calibre.ebooks.pdf.bidi import fix_pdftohtml_xml, is_predominantly_rtl
+
 # Global constants affecting formatting decisions
 
 #### Pages/lines
@@ -1410,6 +1412,9 @@ class PDFDocument:
             self.opts.pdf_footer_regex = ''  # Do nothing
 
         self.root = safe_xml_fromstring(xml)
+        # pdftohtml outputs the text of a line in visual order, which means
+        # right-to-left text comes out of it with its letters backwards
+        fix_pdftohtml_xml(self.root)
         idc = iter(range(sys.maxsize))
         self.stats = DocStats()
 
@@ -2060,13 +2065,17 @@ class PDFDocument:
             '<title>' + title + '</title>',
             '<meta content="PDF Reflow conversion" name="generator"/>',
             '</head>',
-            '<body>',
         ]
+        body = []
         for page in self.pages:
-            html.extend(page.to_html())
+            body.extend(page.to_html())
             if page.page_break_after:
-                html += ['<div style="page-break-after:always"></div>']
-        html += ['</body>', '</html>']
+                body += ['<div style="page-break-after:always"></div>']
+        # Without this right-to-left text renders with its punctuation in the
+        # wrong places, as the reading system assumes left-to-right paragraphs
+        rtl = is_predominantly_rtl(re.sub(r'<[^>]+>', ' ', '\n'.join(body)))
+        html.append('<body dir="rtl">' if rtl else '<body>')
+        html += body + ['</body>', '</html>']
         raw = ('\n'.join(html)).replace('</strong><strong>', '')
         raw = raw.replace('</i><i>', '')
         raw = raw.replace('</em><em>', '')

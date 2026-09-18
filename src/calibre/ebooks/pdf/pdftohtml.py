@@ -11,6 +11,7 @@ from calibre import CurrentDir, prints, xml_replace_entities
 from calibre.constants import bundled_binaries_dir, isbsd, iswindows
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.pdf.bidi import fix_pdftohtml_html
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
@@ -94,6 +95,9 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 raw = re.sub(r'<a href="index.html#(\d+)"', r'<a href="#p\1"', raw, flags=re.I)
                 raw = xml_replace_entities(raw)
                 raw = re.sub(r'[\u00a0\u2029]', ' ', raw)
+                # pdftohtml outputs the text of a line in visual order, which
+                # means right-to-left text comes out with its letters backwards
+                raw = fix_pdftohtml_html(raw)
 
                 i.write(raw.encode('utf-8'))
 

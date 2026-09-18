@@ -32,7 +32,7 @@ from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.icu import title_case as icu_title
 from calibre.utils.icu import upper as icu_upper
-from calibre.utils.localization import _, get_lang, lang_as_iso639_1, ngettext
+from calibre.utils.localization import _, get_lang, is_rtl_lang, lang_as_iso639_1, ngettext
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -3677,6 +3677,8 @@ class CatalogBuilder:
         root = safe_xml_fromstring(header)
         manifest = root.xpath('//*[local-name()="manifest"]')[0]
         spine = root.xpath('//*[local-name()="spine"]')[0]
+        if is_rtl_lang(lang):
+            spine.set('page-progression-direction', 'rtl')
         guide = root.xpath('//*[local-name()="guide"]')[0]
 
         # Create the OPF tags
