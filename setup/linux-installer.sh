@@ -637,10 +637,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
     server's certificates.
     '''
     if ssl_version is None:
-        try:
-            ssl_version = ssl.PROTOCOL_TLSv1_2
-        except AttributeError:
-            ssl_version = ssl.PROTOCOL_TLSv1  # old python
+        ssl_version = getattr(ssl, 'PROTOCOL_TLS_CLIENT', None) or getattr(ssl, 'PROTOCOL_TLSv1_2', ssl.PROTOCOL_TLSv1)
     with tempfile.NamedTemporaryFile(prefix='calibre-ca-cert-') as f:
         f.write(CACERT)
         f.flush()
