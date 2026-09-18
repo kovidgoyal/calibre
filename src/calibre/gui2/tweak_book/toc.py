@@ -8,6 +8,7 @@ from qt.core import (
     QApplication,
     QDialog,
     QDialogButtonBox,
+    QFont,
     QGridLayout,
     QIcon,
     QMenu,
@@ -210,6 +211,33 @@ class TOCViewer(QWidget):
         menu.addAction(self.refresh_action)
         menu.exec(self.view.mapToGlobal(pos))
 
+    def mark_name_as_current(self, name):
+        if name == self.currently_editing:
+            return
+        self.currently_editing = name
+        self.apply_currently_editing(scroll=True)
+
+    def clear_currently_edited_name(self):
+        self.mark_name_as_current(None)
+
+    def apply_currently_editing(self, scroll=False):
+        font = QFont(self.view.font())
+        font.setItalic(True), font.setBold(True)
+        current = None
+        for item in self.iter_items():
+            is_current = bool(self.currently_editing) and str(item.data(0, DEST_ROLE) or '') == self.currently_editing
+            item.setData(0, Qt.ItemDataRole.FontRole, font if is_current else None)
+            if is_current and current is None:
+                current = item
+        if scroll and current is not None and self.isVisible():
+            # Ensure the item is actually on screen, expanding its ancestors as
+            # needed, otherwise the emphasis is invisible in a nested ToC
+            parent = current.parent()
+            while parent is not None:
+                parent.setExpanded(True)
+                parent = parent.parent()
+            self.view.scrollToItem(current)
+
     def iter_items(self, parent=None):
         if parent is None:
             parent = self.view.invisibleRootItem()
@@ -247,11 +275,18 @@ class TOCViewer(QWidget):
 
         self.view.clear()
         process_node(toc, self.view.invisibleRootItem())
+        # Dont scroll as build() is also called by the auto refresh timer while
+        # the user is typing in an editor
+        self.apply_currently_editing()
 
     def showEvent(self, a0):
         if self.toc_name is None or not a0.spontaneous():
             self.build()
+        QTimer.singleShot(0, self.apply_currently_editing_and_scroll)
         return super().showEvent(a0)
+
+    def apply_currently_editing_and_scroll(self):
+        self.apply_currently_editing(scroll=True)
 
     def update_if_visible(self):
         if self.isVisible():
