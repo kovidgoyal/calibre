@@ -2,6 +2,7 @@
 
 """E-book management software"""
 
+import gc
 import os
 import re
 import sys
@@ -620,6 +621,21 @@ def fsync(fileobj):
             import traceback
 
             traceback.print_exc()
+
+
+class stop_gc:
+    def __init__(self):
+        self._enabled = False
+
+    def __enter__(self):
+        self._enabled = gc.isenabled()
+        gc.disable()
+        return self
+
+    def __exit__(self, *a):
+        if self._enabled:
+            gc.enable()
+        self._enabled = False
 
 
 class TimedPrint:
