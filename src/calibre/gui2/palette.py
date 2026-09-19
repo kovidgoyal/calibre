@@ -8,16 +8,16 @@ from functools import lru_cache
 
 from qt.core import QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
 
-from calibre.constants import DEBUG, ismacos, iswindows
+from calibre.constants import DEBUG, cache_dir, ismacos, iswindows
 from calibre.constants import dark_link_color as dlc
 from calibre.utils.localization import _
 
 dark_link_color = QColor(dlc)
-dark_color = QColor(45, 45, 45)
-dark_text_color = QColor('#ddd')
-light_color = QColor(0xF0, 0xF0, 0xF0)
-light_text_color = QColor(0, 0, 0)
-light_link_color = QColor(0, 0, 255)
+dark_color = QColor(0x1F, 0x20, 0x23)
+dark_text_color = QColor('#e3e3e6')
+light_color = QColor(0xF3, 0xF4, 0xF6)
+light_text_color = QColor(0x1F, 0x23, 0x28)
+light_link_color = QColor(0x25, 0x63, 0xEB)
 
 
 class UseCalibreIcons(QProxyStyle):
@@ -73,18 +73,18 @@ def default_dark_palette():
     p.setColor(QPalette.ColorRole.Window, dark_color)
     p.setColor(QPalette.ColorRole.WindowText, dark_text_color)
     p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
-    p.setColor(QPalette.ColorRole.Base, QColor(18, 18, 18))
-    p.setColor(QPalette.ColorRole.AlternateBase, dark_color)
-    p.setColor(QPalette.ColorRole.ToolTipBase, dark_color)
+    p.setColor(QPalette.ColorRole.Base, QColor(0x16, 0x17, 0x19))
+    p.setColor(QPalette.ColorRole.AlternateBase, QColor(0x23, 0x24, 0x28))
+    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0x2B, 0x2D, 0x31))
     p.setColor(QPalette.ColorRole.ToolTipText, dark_text_color)
     p.setColor(QPalette.ColorRole.Text, dark_text_color)
-    p.setColor(QPalette.ColorRole.Button, dark_color)
+    p.setColor(QPalette.ColorRole.Button, QColor(0x2B, 0x2D, 0x31))
     p.setColor(QPalette.ColorRole.ButtonText, dark_text_color)
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, dark_link_color)
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.darkMagenta)
-    p.setColor(QPalette.ColorRole.Highlight, QColor(0x0B, 0x45, 0xC4))
-    p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
+    p.setColor(QPalette.ColorRole.Highlight, QColor(0x3D, 0x6F, 0xE0))
+    p.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
     p.setColor(QPalette.ColorRole.Accent, QColor(0x7A, 0xBC, 0x43))
 
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
@@ -101,16 +101,16 @@ def default_light_palette():
     p.setColor(QPalette.ColorRole.WindowText, light_text_color)
     p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
     p.setColor(QPalette.ColorRole.Base, Qt.GlobalColor.white)
-    p.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
-    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0xFF, 0xFF, 0xDC))
-    p.setColor(QPalette.ColorRole.ToolTipText, light_text_color)
+    p.setColor(QPalette.ColorRole.AlternateBase, QColor(0xF7, 0xF8, 0xFA))
+    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0x2B, 0x2D, 0x31))
+    p.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
     p.setColor(QPalette.ColorRole.Text, light_text_color)
-    p.setColor(QPalette.ColorRole.Button, light_color)
+    p.setColor(QPalette.ColorRole.Button, QColor(0xFB, 0xFB, 0xFC))
     p.setColor(QPalette.ColorRole.ButtonText, light_text_color)
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, light_link_color)
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.magenta)
-    p.setColor(QPalette.ColorRole.Highlight, QColor(48, 140, 198))
+    p.setColor(QPalette.ColorRole.Highlight, QColor(0x2F, 0x6F, 0xED))
     p.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
     p.setColor(QPalette.ColorRole.Accent, QColor(0x31, 0xBD, 0x5A))
 
@@ -221,6 +221,114 @@ standard_pixmaps = {  # {{{
 }  # }}}
 
 
+def chevron_icons(color: str) -> tuple[str, str]:
+    # Stylesheets can only reference arrow images by path, so write them to the cache dir
+    base = os.path.join(cache_dir(), 'qss')
+    os.makedirs(base, exist_ok=True)
+    ans = []
+    for name, points in (('down', '2,4 6,8 10,4'), ('up', '2,8 6,4 10,8')):
+        path = os.path.join(base, f'{name}-{color.lstrip("#")}.svg')
+        if not os.path.exists(path):
+            with open(path, 'w') as f:
+                f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><polyline points="{points}"'
+                        f' fill="none" stroke="{color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+        ans.append(path.replace(os.sep, '/'))
+    return ans[0], ans[1]
+
+
+def modern_stylesheet(is_dark: bool) -> str:
+    # Flat, rounded look layered on top of the calibre (Fusion based) style.
+    # Colors come from the palette so user defined palettes keep working.
+    hover = 'rgba(255, 255, 255, 22)' if is_dark else 'rgba(0, 0, 0, 14)'
+    pressed = 'rgba(255, 255, 255, 36)' if is_dark else 'rgba(0, 0, 0, 26)'
+    border = 'rgba(255, 255, 255, 30)' if is_dark else 'rgba(0, 0, 0, 38)'
+    handle = 'rgba(255, 255, 255, 60)' if is_dark else 'rgba(0, 0, 0, 60)'
+    handle_hover = 'rgba(255, 255, 255, 110)' if is_dark else 'rgba(0, 0, 0, 110)'
+    down, up = chevron_icons('#b8b9bd' if is_dark else '#5f6368')
+    return f"""
+QToolTip {{ border: 1px solid {border}; border-radius: 6px; padding: 4px 8px; }}
+
+QMenu {{ border: 1px solid {border}; padding: 4px; }}
+QMenu::item {{ padding: 5px 24px 5px 10px; border-radius: 4px; }}
+QMenu::item:selected {{ background: palette(highlight); color: palette(highlighted-text); }}
+QMenu::item:disabled {{ color: palette(placeholder-text); }}
+QMenu::separator {{ height: 1px; background: {border}; margin: 4px 6px; }}
+QMenu::icon {{ padding-left: 8px; }}
+
+QToolBar {{ border: none; spacing: 2px; padding: 2px; }}
+QToolBar QToolButton {{ border: none; border-radius: 6px; padding: 4px; background: transparent; }}
+QToolBar QToolButton:hover {{ background: {hover}; }}
+QToolBar QToolButton:pressed, QToolBar QToolButton:checked {{ background: {pressed}; }}
+QToolBar QToolButton[popupMode="1"] {{ padding-right: 16px; }}
+QToolBar QToolButton::menu-button {{ border: none; background: transparent; width: 16px; }}
+QToolBar QToolButton::menu-arrow, QToolBar QToolButton::menu-indicator {{ image: url({down}); width: 10px; height: 10px; }}
+
+QPushButton {{
+    background: palette(button); border: 1px solid {border}; border-radius: 6px;
+    padding: 4px 14px; min-height: 1.4em;
+}}
+QPushButton:hover {{ background: {hover}; }}
+QPushButton:pressed, QPushButton:checked {{ background: {pressed}; }}
+QPushButton:default {{ border-color: palette(highlight); }}
+QPushButton:disabled {{ color: palette(placeholder-text); }}
+QPushButton:flat {{ border: none; background: transparent; }}
+QPushButton:flat:hover {{ background: {hover}; }}
+
+QLineEdit, QAbstractSpinBox, QTextEdit, QPlainTextEdit {{
+    border: 1px solid {border}; border-radius: 6px; padding: 3px 6px;
+    selection-background-color: palette(highlight);
+}}
+QTextEdit, QPlainTextEdit {{ padding: 2px; }}
+QLineEdit:focus, QAbstractSpinBox:focus, QTextEdit:focus, QPlainTextEdit:focus {{ border-color: palette(highlight); }}
+QComboBox {{ border: 1px solid {border}; border-radius: 6px; padding: 3px 6px; background: palette(base); }}
+QComboBox:focus, QComboBox:on {{ border-color: palette(highlight); }}
+QComboBox::drop-down {{ border: none; width: 20px; }}
+QComboBox::down-arrow {{ image: url({down}); width: 10px; height: 10px; }}
+QComboBox QAbstractItemView {{ border: 1px solid {border}; selection-background-color: palette(highlight); }}
+QAbstractSpinBox {{ padding-right: 18px; }}
+QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {{ border: none; width: 18px; background: transparent; }}
+QAbstractSpinBox::up-button {{ subcontrol-position: top right; }}
+QAbstractSpinBox::down-button {{ subcontrol-position: bottom right; }}
+QAbstractSpinBox::up-button:hover, QAbstractSpinBox::down-button:hover {{ background: {hover}; }}
+QAbstractSpinBox::up-arrow {{ image: url({up}); width: 8px; height: 8px; }}
+QAbstractSpinBox::down-arrow {{ image: url({down}); width: 8px; height: 8px; }}
+QAbstractSpinBox::up-arrow:disabled, QAbstractSpinBox::down-arrow:disabled {{ image: none; }}
+
+QTabWidget::pane {{ border: 1px solid {border}; border-radius: 8px; top: -1px; }}
+QTabBar::tab:top, QTabBar::tab:bottom {{
+    padding: 6px 14px; border: none; background: transparent; color: palette(placeholder-text);
+}}
+QTabBar::tab:top {{ border-bottom: 2px solid transparent; }}
+QTabBar::tab:bottom {{ border-top: 2px solid transparent; }}
+QTabBar::tab:top:hover, QTabBar::tab:bottom:hover {{ color: palette(window-text); background: {hover}; }}
+QTabBar::tab:top:selected {{ color: palette(window-text); border-bottom-color: palette(highlight); }}
+QTabBar::tab:bottom:selected {{ color: palette(window-text); border-top-color: palette(highlight); }}
+
+QHeaderView::section {{
+    background: palette(window); border: none; border-bottom: 1px solid {border};
+    border-right: 1px solid {border}; padding: 4px 6px;
+}}
+QHeaderView::section:last {{ border-right: none; }}
+
+QGroupBox {{ border: 1px solid {border}; border-radius: 8px; margin-top: 1.2em; padding-top: 0.6em; }}
+QGroupBox::title {{ subcontrol-origin: margin; left: 10px; padding: 0 4px; }}
+
+QProgressBar {{ border: none; border-radius: 4px; background: {hover}; text-align: center; }}
+QProgressBar::chunk {{ border-radius: 4px; background: palette(highlight); }}
+
+QSplitter::handle {{ background: transparent; }}
+
+QScrollBar:vertical {{ width: 12px; background: transparent; margin: 0; }}
+QScrollBar:horizontal {{ height: 12px; background: transparent; margin: 0; }}
+QScrollBar::handle {{ background: {handle}; border-radius: 4px; border: 2px solid transparent; }}
+QScrollBar::handle:vertical {{ min-height: 30px; margin: 2px; }}
+QScrollBar::handle:horizontal {{ min-width: 30px; margin: 2px; }}
+QScrollBar::handle:hover {{ background: {handle_hover}; }}
+QScrollBar::add-line, QScrollBar::sub-line {{ width: 0; height: 0; border: none; background: none; }}
+QScrollBar::add-page, QScrollBar::sub-page {{ background: none; }}
+"""
+
+
 class PaletteManager(QObject):
     color_palette: str
     using_calibre_style: bool
@@ -325,43 +433,7 @@ class PaletteManager(QObject):
         QIcon.ic.set_theme()  # type: ignore
         app.setProperty('is_dark_theme', self.is_dark_theme)
         if self.using_calibre_style:
-            ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
-            if self.is_dark_theme:
-                ss += 'QMenu { border: 1px solid palette(shadow); }'
-                ss += '''
-QTabBar::tab:selected {
-    background-color: palette(base);
-    border: 1px solid gray;
-    padding: 2px 8px;
-    margin-left: -4px;
-    margin-right: -4px;
-}
-
-QTabBar::tab:top:selected {
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom-width: 0;
-}
-
-QTabBar::tab:bottom:selected {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-width: 0;
-}
-
-QTabBar::tab:first:selected {
-    margin-left: 0; /* the first selected tab has nothing to overlap with on the left */
-}
-
-QTabBar::tab:last:selected {
-    margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
-}
-
-QTabBar::tab:only-one {
-    margin: 0; /* if there is only one tab, we don't want overlapping margins */
-}
-'''
-            app.setStyleSheet(ss)
+            app.setStyleSheet(modern_stylesheet(self.is_dark_theme))
         app.palette_changed.emit()
 
     def set_dark_mode_palette(self):
