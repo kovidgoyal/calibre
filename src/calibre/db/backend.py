@@ -3,7 +3,6 @@
 
 # Imports {{{
 import errno
-import gc
 import hashlib
 import json
 import os
@@ -19,7 +18,7 @@ from typing import TYPE_CHECKING, cast
 
 import apsw
 
-from calibre import as_unicode, force_unicode, prints
+from calibre import as_unicode, force_unicode, prints, stop_gc
 from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
@@ -1746,22 +1745,16 @@ class DB:
         # garbage. Their number grows with the size of the library, and with
         # the cyclic garbage collector enabled it repeatedly traverses all of
         # them, which is slow in larger libraries.
-        gc_was_enabled = gc.isenabled()
-        gc.disable()
-        try:
-            with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
-                for table in self.tables.values():
-                    try:
-                        table.read(self)
-                    except Exception:
-                        prints('Failed to read table:', table.name)
-                        import pprint
+        with self.conn, stop_gc():  # Use a single transaction, to ensure nothing modifies the db while we are reading
+            for table in self.tables.values():
+                try:
+                    table.read(self)
+                except Exception:
+                    prints('Failed to read table:', table.name)
+                    import pprint
 
-                        pprint.pprint(table.metadata)
-                        raise
-        finally:
-            if gc_was_enabled:
-                gc.enable()
+                    pprint.pprint(table.metadata)
+                    raise
 
     def find_path_for_book(self, book_id):
         q = BOOK_ID_PATH_TEMPLATE.format(book_id)

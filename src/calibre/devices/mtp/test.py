@@ -5,6 +5,7 @@ import gc
 import io
 import unittest
 
+from calibre import stop_gc
 from calibre.constants import islinux, iswindows
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
@@ -171,16 +172,13 @@ class TestDeviceInteraction(unittest.TestCase):
     def measure_memory_usage(self, repetitions, func, *args, **kwargs):
         from calibre.utils.mem import memory
 
-        gc.disable()
-        try:
+        with stop_gc():
             start_mem = memory()
             for i in range(repetitions):
                 func(*args, **kwargs)
             for i in range(3):
                 gc.collect()
             end_mem = memory()
-        finally:
-            gc.enable()
         return end_mem - start_mem
 
     def check_memory(self, once, many, msg, factor=2):
