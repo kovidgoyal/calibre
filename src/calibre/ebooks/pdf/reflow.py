@@ -10,6 +10,8 @@ from typing import cast
 
 from lxml import etree
 
+from calibre.ebooks.pdf.bidi import fix_markup_line, has_rtl, is_predominantly_rtl, markup_to_text
+
 # Global constants affecting formatting decisions
 
 #### Pages/lines
@@ -383,6 +385,18 @@ class Text(Element):
             self.raw += '</span>'
         self.set_av_char_width()
         # self.last_left = other.left
+
+    def convert_visual_order_to_logical(self):
+        # pdftohtml outputs the text of a line in visual order, that is, in the
+        # order the glyphs are painted from left to right, which means
+        # right-to-left text comes out of it with its letters backwards. This
+        # must only be called once the fragments of a line have been joined, so
+        # that the whole line is reordered in one go.
+        if not has_rtl(self.raw):
+            return
+        self.raw = fix_markup_line(self.raw)
+        self.text_as_string = markup_to_text(self.raw)
+        self.set_av_char_width()
 
     def to_html(self):
         return self.raw
@@ -1107,6 +1121,11 @@ class Page:
 
         # Join fragments on a line
         self.join_fragments(opts)
+
+        # Every Text is now a complete line, so right-to-left lines can be
+        # converted from the visual order pdftohtml emits into logical order
+        for text in self.texts:
+            text.convert_visual_order_to_logical()
 
         # This processes user-supplied regex for header/footer
         # Do this before automatic actions
@@ -2060,13 +2079,18 @@ class PDFDocument:
             '<title>' + title + '</title>',
             '<meta content="PDF Reflow conversion" name="generator"/>',
             '</head>',
-            '<body>',
         ]
+        body = []
         for page in self.pages:
-            html.extend(page.to_html())
+            body.extend(page.to_html())
             if page.page_break_after:
-                html += ['<div style="page-break-after:always"></div>']
-        html += ['</body>', '</html>']
+                body += ['<div style="page-break-after:always"></div>']
+        # Without this right-to-left text renders with its punctuation in the
+        # wrong places, as the reading system assumes left-to-right paragraphs
+        raw_body = '\n'.join(body)
+        rtl = has_rtl(raw_body) and is_predominantly_rtl(markup_to_text(raw_body))
+        html.append('<body dir="rtl">' if rtl else '<body>')
+        html += body + ['</body>', '</html>']
         raw = ('\n'.join(html)).replace('</strong><strong>', '')
         raw = raw.replace('</i><i>', '')
         raw = raw.replace('</em><em>', '')

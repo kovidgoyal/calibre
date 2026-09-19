@@ -5,6 +5,7 @@
 import codecs
 import sys
 import threading
+from typing import Literal, overload
 
 from calibre.utils.config_base import prefs, tweaks
 from calibre_extensions import icu as _icu
@@ -334,6 +335,46 @@ def remove_accents_regex(txt: str) -> str:
 
 
 remove_accents = remove_accents_regex  # more robust and faster
+
+
+@overload
+def visual_to_logical(text: str, want_map: Literal[False] = False) -> str: ...
+
+
+@overload
+def visual_to_logical(text: str, want_map: Literal[True]) -> tuple[str, tuple[int, ...]]: ...
+
+
+def visual_to_logical(text: str, want_map: bool = False) -> str | tuple[str, tuple[int, ...]]:
+    """
+    Convert text that is in visual order, that is, in the order the glyphs are
+    painted from left to right, into logical (storage) order, running the
+    inverse of the Unicode bidirectional algorithm and mirroring characters
+    such as brackets. Text in left-to-right scripts is returned unchanged.
+
+    If want_map is True returns (text, index_map) where index_map[i] is the
+    index in the input of the character at index i of the output, or -1 if
+    there is no such character.
+    """
+    return _icu.bidi_reorder(text, True, want_map)
+
+
+@overload
+def logical_to_visual(text: str, want_map: Literal[False] = False) -> str: ...
+
+
+@overload
+def logical_to_visual(text: str, want_map: Literal[True]) -> tuple[str, tuple[int, ...]]: ...
+
+
+def logical_to_visual(text: str, want_map: bool = False) -> str | tuple[str, tuple[int, ...]]:
+    """
+    Convert text from logical (storage) order into visual order, that is, the
+    order in which the glyphs are painted from left to right. This is what a
+    renderer does when displaying text. See visual_to_logical() for want_map.
+    """
+    return _icu.bidi_reorder(text, False, want_map)
+
 
 ################################################################################
 if __name__ == '__main__':

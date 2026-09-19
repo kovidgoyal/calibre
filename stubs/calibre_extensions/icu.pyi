@@ -270,6 +270,16 @@ def roundtrip(string: str) -> str:
     "roundtrip(string) -> Roundtrip a unicode object from python to ICU back to python (useful for testing)"
     pass
 
+def bidi_reorder(text: str, to_logical: bool = True, want_map: bool = False) -> str | tuple[str, tuple[int, ...]]:
+    """
+    bidi_reorder(text, to_logical=True, want_map=False) -> Reorder text between
+    visual and logical order running the Unicode bidirectional algorithm,
+    mirroring characters such as brackets as needed. Returns the reordered
+    text, or (text, index_map) if want_map is True, where index_map[i] is the
+    index in the input of the character at index i of the output, or -1.
+    """
+    pass
+
 def available_locales_for_break_iterator() -> tuple[bytes, ...]:
     "available_locales_for_break_iterator() -> Return tuple of all available locales for the BreakIterator"
     pass

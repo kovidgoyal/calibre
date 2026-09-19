@@ -22,6 +22,7 @@
 #include <unicode/utrans.h>
 #include <unicode/unorm2.h>
 #include <unicode/ubrk.h>
+#include <unicode/ubidi.h>
 
 #if PY_VERSION_HEX < 0x03030000
 #error Not implemented for python < 3.3
