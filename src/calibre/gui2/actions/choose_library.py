@@ -67,7 +67,7 @@ class LibraryIcon:
         q = library_icon_path(lib_name)
         if os.path.exists(q):
             return QIcon(q)
-        return self.default_icon or QIcon.ic('lt.png')
+        return self.default_icon or QIcon.ic('bookshelf.png')
 
     def cache_clear(self) -> None:
         self.__call__.cache_clear()
@@ -222,7 +222,7 @@ class BackupStatus(QDialog):  # {{{
         b = bb.addButton(_('Queue &all books for backup'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.clicked.connect(self.mark_all_dirty)
-        b.setIcon(QIcon.ic('lt.png'))
+        b.setIcon(QIcon.ic('bookshelf.png'))
         l.addWidget(bb)
         self.db = weakref.ref(gui.current_db)
         self.setResult(9)
@@ -267,7 +267,7 @@ def get_change_library_action_plugin():
 
 class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
-    action_spec = (_('Choose library'), 'lt.png', _('Choose calibre library to work with'), None)
+    action_spec = (_('Choose library'), 'bookshelf.png', _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library')

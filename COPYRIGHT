@@ -8,6 +8,13 @@ Files: resources/content-server/font-awesome/*
 Copyright: Various
 License: MIT and SIL OFL
 
+Files: resources/images/*-for-light-theme.png resources/images/*-for-dark-theme.png
+Copyright: Copyright (c) Lucide Icons and Contributors
+License: ISC
+ Permission to use, copy, modify, and/or distribute this software for any
+ purpose with or without fee is hereby granted, provided that the above
+ copyright notice and this permission notice appear in all copies.
+
 Files: resources/rapydscript/*
 Copyright: Various
 License: BSD
