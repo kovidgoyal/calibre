@@ -1,0 +1,341 @@
+#!/usr/bin/env python
+__license__ = 'GPL v3'
+
+'''
+thebeliever.net
+'''
+
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+BASE = 'https://www.thebeliever.net'
+STORE = 'https://store.mcsweeneys.net'
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def absurl(url):
+    if url.startswith('//'):
+        url = 'https:' + url
+    elif url.startswith('/'):
+        url = BASE + url
+    return url
+
+
+def slug_to_title(url):
+    slug = url.rstrip('/').rpartition('/')[-1]
+    return slug.replace('-', ' ').title()
+
+
+class TheBeliever(BasicNewsRecipe):
+    title = 'The Believer'
+    description = (
+        'The Believer is a magazine of interviews, essays, poetry, comics and '
+        "columns, published quarterly by McSweeney's."
+    )
+    publisher = "McSweeney's"
+    category = 'magazine, literature, culture, interviews'
+    language = 'en'
+    publication_type = 'magazine'
+    masthead_url = BASE + '/wp-content/uploads/2018/07/cropped-B-192x192.png'
+
+    # The site has a metered paywall: after a few articles, pages are cut
+    # off with "you have reached your article limit". Each user logs in
+    # with their own subscription: the email and password for the
+    # store.mcsweeneys.net account that bought the Believer subscription.
+    needs_subscription = True
+
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    delay = 1
+    simultaneous_downloads = 2
+    oldest_article = 365
+    max_articles_per_feed = 100
+
+    extra_css = '''
+        .art-credit, .bel-category, .bel-date { font-size: small; color: #555; }
+        .bel-byline { font-style: italic; }
+        .bel-bio { margin-top: 2em; border-top: 1px solid #999; padding-top: 1em; font-size: small; }
+        img { max-width: 100%; height: auto; }
+    '''
+
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Issue slug to download',
+            'long': (
+                'The part of the issue URL after /product/, for example '
+                'spring-2026 or fall-2025. Leave blank to get the newest '
+                'issue that has articles online.'
+            ),
+        },
+        'latest_cover': {
+            'short': 'Use the newest print cover (yes/no)',
+            'long': (
+                "New print issues are announced on the McSweeney's store "
+                'before their articles go online. Set to yes to use that '
+                'newest cover even when the articles come from the previous '
+                'issue. By default the cover matches the downloaded issue.'
+            ),
+            'default': 'no',
+        },
+    }
+
+    # The article page is rebuilt from scratch in preprocess_html, so we keep
+    # everything here and pick the pieces out there.
+    remove_tags = [
+        dict(name=['script', 'noscript', 'style', 'form', 'input', 'iframe']),
+    ]
+
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+            '(KHTML, like Gecko) Chrome/128.0 Safari/537.36'
+        )
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        if self.username and self.password:
+            # Subscriptions are sold through the McSweeney's store, which also
+            # handles sign-in: believer-auth sends you to the store's login,
+            # then redirects back to thebeliever.net with a subscriber cookie.
+            br.open(STORE + '/believer-auth?redirect_to=' + BASE + '/')
+            br.select_form(predicate=lambda f: f.attrs.get('id') == 'new_spree_user')
+            br['spree_user[email]'] = self.username
+            br['spree_user[password]'] = self.password
+            resp = br.submit()
+            raw = resp.read()
+            if 'thebeliever.net' not in resp.geturl():
+                reason = ''
+                for m in re.findall(
+                    br'<div[^>]*class="[^"]*(?:flash|error|alert)[^"]*"[^>]*>(.*?)</div>', raw, re.S
+                ):
+                    reason = ' '.join(
+                        re.sub(r'<[^>]+>', ' ', m.decode('utf-8', 'replace')).split()
+                    )
+                    reason = reason.rstrip('.')
+                    if reason:
+                        break
+                raise ValueError(
+                    'Login to store.mcsweeneys.net failed{}. Use the email and '
+                    "password of the McSweeney's store account that holds your "
+                    'Believer subscription.'.format(': ' + reason if reason else '')
+                )
+            self.log('Logged in via store.mcsweeneys.net')
+        return br
+
+    # ------------------------------------------------------------------ index
+
+    def issue_urls(self):
+        # The "Latest Issues" menu on every page lists issues newest first.
+        # /issues/ has the full archive but is sometimes down, so it is only
+        # a fallback.
+        seen, urls = set(), []
+        for page in (BASE + '/', BASE + '/issues/'):
+            try:
+                soup = self.index_to_soup(page)
+            except Exception as e:
+                self.log.warn('Could not load', page, ':', e)
+                continue
+            for a in soup.findAll('a', href=re.compile(r'/product/[a-z]+-\d{4}/?$')):
+                url = absurl(a['href'])
+                if url not in seen:
+                    seen.add(url)
+                    urls.append(url)
+            if urls:
+                break
+        return urls
+
+    def store_cover(self, soup):
+        # Each issue page has a "Buy Issue" link to the McSweeney's store,
+        # whose listing has the full-size print cover.
+        a = soup.find('a', href=re.compile(r'store\.mcsweeneys\.net/products/believer-\d+'))
+        if a is None:
+            return None
+        try:
+            store = self.index_to_soup(a['href'].partition('?')[0])
+        except Exception as e:
+            self.log.warn('Could not load store page', a['href'], ':', e)
+            return None
+        og = store.find('meta', attrs={'property': 'og:image', 'content': True})
+        return og['content'] if og is not None else None
+
+    def issue_cover(self, soup):
+        cover = self.store_cover(soup)
+        if not cover:
+            og = soup.find('meta', attrs={'property': 'og:image', 'content': True})
+            cover = og['content'] if og is not None else None
+        return cover
+
+    def parse_issue(self, soup):
+        feeds, seen = [], set()
+        for part in soup.findAll(**classes('issue_part')):
+            h2 = part.find('h2')
+            if h2 is None:
+                continue
+            section = self.tag_to_string(h2).strip()
+            articles = []
+            for entry in part.findAll(**classes('selected-interview nav-issue-article')):
+                a = entry.find('a', href=True)
+                if a is None:
+                    continue
+                url = absurl(a['href'])
+                if url in seen or '/contributor/' in url:
+                    continue
+                seen.add(url)
+                head = entry.find(['h6', 'h4'])
+                title = self.tag_to_string(head).strip() if head else ''
+                desc = ''
+                if entry.find('h6') is not None:
+                    # Interviews: the h5 holds the interviewee's field.
+                    h5 = entry.find('h5')
+                    if h5 is not None:
+                        desc = self.tag_to_string(h5).strip().capitalize()
+                else:
+                    p = entry.find('p')
+                    if p is not None:
+                        desc = self.tag_to_string(p).strip()
+                if not title or title == title.lower():
+                    # Departments list the department name (e.g.
+                    # "instructions") rather than the article title.
+                    pretty = slug_to_title(url)
+                    title = f'{title.title()}: {pretty}' if title else pretty
+                self.log('\t', title, '|', url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                # Sections are rendered twice (desktop and mobile); merge them.
+                for name, existing in feeds:
+                    if name == section:
+                        existing.extend(articles)
+                        break
+                else:
+                    feeds.append((section, articles))
+        return feeds
+
+    def parse_index(self):
+        opt = (self.recipe_specific_options.get('issue') or '')
+        opt = opt.strip().strip('/') if isinstance(opt, str) else ''
+        if opt:
+            candidates = [BASE + '/product/' + opt.rpartition('/')[-1] + '/']
+        else:
+            candidates = self.issue_urls()
+
+        latest_cover = None
+        want_latest = str(self.recipe_specific_options.get('latest_cover') or '').strip().lower()
+        want_latest = want_latest in ('yes', 'y', 'true', '1')
+
+        for url in candidates:
+            self.log('Trying issue', url)
+            soup = self.index_to_soup(url)
+            if want_latest and latest_cover is None:
+                latest_cover = self.issue_cover(soup)
+            feeds = self.parse_issue(soup)
+            if not feeds:
+                self.log('\tNo articles online yet for', url, '- skipping')
+                continue
+
+            title = soup.find('title')
+            name = self.tag_to_string(title).split(' - ')[0].strip() if title else ''
+            if name:
+                self.timefmt = ' [' + name + ']'
+                self.log('Issue:', name)
+            self.cover_url = latest_cover or self.issue_cover(soup)
+            if self.cover_url:
+                self.log('Cover:', self.cover_url)
+            return feeds
+
+        raise ValueError('Could not find a Believer issue with articles online')
+
+    # --------------------------------------------------------------- articles
+
+    def preprocess_raw_html(self, raw, url):
+        if 'reached your article limit' in raw:
+            self.log.warn(
+                'Paywall hit, article is truncated:', url,
+                '- check your subscription login'
+            )
+        return raw
+
+    def preprocess_html(self, soup):
+        body = soup.find('body')
+        if body is None:
+            return soup
+
+        header = soup.find(**classes('single-header-content'))
+        image = soup.find(**classes('single-image'))
+        content = soup.find(**classes('content-container'))
+        bio = soup.find(**classes('article-author-container'))
+        category = soup.find(**classes('article-category'))
+        if content is None:
+            return soup
+
+        new_body = soup.new_tag('body')
+
+        if category is not None:
+            div = soup.new_tag('div', attrs={'class': 'bel-category'})
+            div.append(self.tag_to_string(category).strip().upper())
+            new_body.append(div)
+
+        if header is not None:
+            for share in header.findAll(**classes('single-share-container')):
+                share.extract()
+            date = header.find(**classes('article-date'))
+            if date is not None:
+                date['class'] = 'bel-date'
+            author = header.find(**classes('single-author'))
+            if author is not None:
+                for h6 in author.findAll('h6'):
+                    if 'art-credit' not in (h6.get('class') or []):
+                        h6['class'] = 'bel-byline'
+            for h5 in header.findAll('h5'):
+                if not self.tag_to_string(h5).strip():
+                    h5.extract()
+            new_body.append(header.extract())
+
+        if image is not None:
+            new_body.append(image.extract())
+
+        new_body.append(content.extract())
+
+        if bio is not None:
+            for tag in bio.findAll(['svg', 'h5']):
+                tag.extract()
+            bio['class'] = 'bel-bio'
+            new_body.append(bio.extract())
+
+        body.replace_with(new_body)
+
+        for img in new_body.findAll('img'):
+            src = img.get('data-src') or img.get('data-lazy-src')
+            if src:
+                img['src'] = src
+            srcset = img.get('srcset') or img.get('data-srcset')
+            if srcset:
+                # Pick the widest candidate that isn't enormous.
+                best, best_w = None, 0
+                for part in srcset.split(','):
+                    bits = part.strip().split()
+                    if len(bits) == 2 and bits[1].endswith('w'):
+                        try:
+                            w = int(bits[1][:-1])
+                        except ValueError:
+                            continue
+                        if best_w < w <= 1200:
+                            best, best_w = bits[0], w
+                if best:
+                    img['src'] = best
+            for attr in ('srcset', 'data-srcset', 'sizes', 'loading', 'width', 'height'):
+                if img.has_attr(attr):
+                    del img[attr]
+        return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        if not article.author:
+            byline = soup.find(**classes('bel-byline'))
+            if byline is not None:
+                article.author = re.sub(
+                    r'^\s*by\s+', '', self.tag_to_string(byline), flags=re.I
+                ).strip()
