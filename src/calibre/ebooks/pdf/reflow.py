@@ -64,6 +64,27 @@ SECTION_FACTOR = 1.3
 # of a particular element to detect columns.
 YFUZZ = 1.5
 
+#### Columns
+# A column gutter is found by looking for a vertical strip of the page that
+# the text does not cross. A strip has to be free of text on all but this
+# fraction of the rows of the page to count, so that a full width heading over
+# a two column body does not hide the gutter below it.
+COLUMN_CROSS_FACTOR = 0.15
+# At least this many rows must have text on both sides of a strip, otherwise
+# it is a margin or the indent of a block quote rather than a gutter
+COLUMN_MIN_ROWS = 3
+# Each column must hold at least this fraction of the text on the page, so
+# that a narrow strip of text, such as the page numbers down the side of a
+# table of contents, is not mistaken for a column
+COLUMN_MIN_SHARE = 0.15
+# A gutter has to be at least this many times the average height of the text
+# wide, so that ordinary word spacing is never mistaken for one
+COLUMN_MIN_GUTTER = 1.5
+# A column of prose puts this many characters on each of its rows. The cells
+# of a table line up just as neatly but hold far less, and reading a table one
+# column at a time would destroy it, so pages like that are left alone.
+COLUMN_MIN_CHARS_PER_ROW = 15
+
 # Left (and other) margins can waver.
 # Plus or minus this
 LEFT_WAVER = 2.0
@@ -179,6 +200,10 @@ class Text(Element):
         self.bottom = self.top + self.height
         self.right = self.left + self.width
         self.tag = 'p'  # Normal paragraph <p...>
+        # Where in the reading order of the page this is, as a (band, column)
+        # pair, counted so that sorting by it gives reading order. See
+        # Page.find_columns(), single column pages leave every text at (0, 0).
+        self.column = (0, 0)
         self.indented = 0
         self.margin_left = 0  # Normal margins
         self.margin_right = 0  # Normal margins
@@ -848,6 +873,150 @@ class Page:
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
 
+        # Sort the page into columns. The sort is stable, so within a column
+        # the texts stay in the page order worked out above.
+        self.column_count = self.find_columns()
+        if self.column_count > 1:
+            self.texts.sort(key=attrgetter('column'))
+
+    def rows(self):
+        # The texts of the page grouped into rows, two texts being in the same
+        # row if they overlap vertically by more than half the height of the
+        # shorter of the two
+        ans: list[list[Text]] = []
+        current: list[Text] = []
+        top = bottom = 0.0
+        for t in sorted(self.texts, key=attrgetter('top')):
+            if current:
+                overlap = min(bottom, t.bottom) - max(top, t.top)
+                if overlap > 0.5 * min(bottom - top, t.height):
+                    current.append(t)
+                    top, bottom = min(top, t.top), max(bottom, t.bottom)
+                    continue
+                ans.append(current)
+            current = [t]
+            top, bottom = t.top, t.bottom
+        if current:
+            ans.append(current)
+        return ans
+
+    def find_gutters(self):
+        # The x ranges of the page that the text does not cross, which is what
+        # separates one column of text from the next. Looking at the page as a
+        # whole rather than at the gap between two fragments is what tells a
+        # gutter apart from the wide spacing of a justified line, as the latter
+        # does not line up from one row to the next.
+        rows = self.rows()
+        if len(rows) < COLUMN_MIN_ROWS:
+            return []
+        left = int(min(t.left for t in self.texts))
+        right = int(max(t.right for t in self.texts)) + 1
+        width = right - left
+        if width < 1:
+            return []
+        # How many rows have text crossing each x position of the page. Each
+        # row contributes the union of the x ranges of its fragments, counted
+        # into a difference array so that this costs no more than the number
+        # of fragments on the page plus its width.
+        diff = [0] * (width + 1)
+        for row in rows:
+            start = end = -1
+            for t in sorted(row, key=attrgetter('left')):
+                a = min(width, max(0, int(t.left) - left))
+                b = min(width, max(0, int(t.right) - left))
+                if b <= a:
+                    continue
+                if start < 0:
+                    start, end = a, b
+                elif a <= end:  # overlaps or touches the range being built
+                    end = max(end, b)
+                else:
+                    diff[start] += 1
+                    diff[end] -= 1
+                    start, end = a, b
+            if start >= 0:
+                diff[start] += 1
+                diff[end] -= 1
+        # Every maximal run of x positions that few enough rows cross. At
+        # least one row is always allowed to cross, otherwise a single full
+        # width heading would hide the gutter of a short page.
+        max_crossings = max(1, int(COLUMN_CROSS_FACTOR * len(rows)))
+        min_width = max(1, int(COLUMN_MIN_GUTTER * self.average_text_height))
+        ans, start, crossing = [], None, 0
+        for i in range(width):
+            crossing += diff[i]
+            if crossing <= max_crossings:
+                if start is None:
+                    start = i
+            elif start is not None:
+                # A run reaching either edge of the text is a margin rather
+                # than a gutter, and a run that reaches the right hand edge
+                # never gets here as it is not followed by any text
+                if start > 0 and i - start >= min_width:
+                    ans.append((left + start, left + i))
+                start = None
+        return ans
+
+    def find_columns(self):
+        # Split the page into columns at its gutters and record where in the
+        # reading order each text is, as a (band, column) pair. A band is a
+        # horizontal slice of the page, started by an element that spans the
+        # gutters, such as a heading over a two column body. Within a band the
+        # columns are read one after the other. Returns the number of columns
+        # found, one meaning the page is not split and nothing is changed.
+        gutters = self.find_gutters()
+        if not gutters:
+            return 1
+        boundaries = [(a + b) / 2.0 for a, b in gutters]
+
+        def column_of(t):
+            # -1 for an element that spans a gutter rather than sitting in a
+            # column, so that it is read before the columns it spans
+            for b in boundaries:
+                if t.left < b < t.right:
+                    return -1
+            centre = (t.left + t.right) / 2.0
+            for i, b in enumerate(boundaries):
+                if centre < b:
+                    return i
+            return len(boundaries)
+
+        columns: list[list[Text]] = [[] for _ in range(len(boundaries) + 1)]
+        for t in self.texts:
+            idx = column_of(t)
+            if idx >= 0:
+                columns[idx].append(t)
+        # A gutter with too little text on one side of it is a margin or an
+        # aside rather than a column boundary
+        sizes = [sum(len(t.text_as_string) for t in c) for c in columns]
+        total = sum(sizes)
+        if not total or min(sizes) < COLUMN_MIN_SHARE * total:
+            return 1
+        # Count the rows of each column separately, a column of prose has to
+        # have both enough of them and enough text on each of them
+        row_counts = [0] * len(columns)
+        for row in self.rows():
+            for i in {column_of(t) for t in row} - {-1}:
+                row_counts[i] += 1
+        for size, rows in zip(sizes, row_counts):
+            if rows < COLUMN_MIN_ROWS or size < COLUMN_MIN_CHARS_PER_ROW * rows:
+                return 1
+        from calibre.ebooks.pdf.bidi import is_predominantly_rtl
+
+        # On a right-to-left page the rightmost column is read first
+        rtl = is_predominantly_rtl(''.join(t.text_as_string for t in self.texts))
+        last = len(boundaries)
+        band = 0
+        for t in sorted(self.texts, key=attrgetter('top')):
+            idx = column_of(t)
+            if idx < 0:
+                # A spanning element ends the band above it and leads the next
+                band += 1
+                t.column = (band, -1)
+            else:
+                t.column = (band, last - idx if rtl else idx)
+        return len(columns)
+
     @property
     def is_empty(self):
         # There is nothing in this Page
@@ -858,7 +1027,7 @@ class Page:
         # Approximate the line spacing for checking overlapped lines
         line_height = frag.bottom - frag.top
         for t in self.texts:
-            if t is not frag:
+            if t is not frag and t.column == frag.column:
                 # Do the parts of a line overlap?
                 # Some files can have separate lines overlapping slightly
                 # BOTTOM_FACTOR allows for this
@@ -1025,6 +1194,7 @@ class Page:
                     or (same_left and first_text.indented == second_text.indented and second_text.indented > 1)
                     or (second_text.left >= first_text.last_left and second_text.bottom <= first_text.bottom)
                 )
+                and first_text.column == second_text.column
                 and 'href=' not in second_text.raw
                 and '"float:right"' not in first_text.raw
                 and first_text.bottom + stats.line_space + (stats.line_space * LINE_FACTOR) >= second_text.bottom
