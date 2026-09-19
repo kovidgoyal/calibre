@@ -3,6 +3,7 @@
 
 # Imports {{{
 import errno
+import gc
 import hashlib
 import json
 import os
@@ -1741,16 +1742,26 @@ class DB:
         Read all data from the db into the python in-memory tables
         """
 
-        with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
-            for table in self.tables.values():
-                try:
-                    table.read(self)
-                except Exception:
-                    prints('Failed to read table:', table.name)
-                    import pprint
+        # Reading creates many long lived container objects, none of which are
+        # garbage. Their number grows with the size of the library, and with
+        # the cyclic garbage collector enabled it repeatedly traverses all of
+        # them, which is slow in larger libraries.
+        gc_was_enabled = gc.isenabled()
+        gc.disable()
+        try:
+            with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
+                for table in self.tables.values():
+                    try:
+                        table.read(self)
+                    except Exception:
+                        prints('Failed to read table:', table.name)
+                        import pprint
 
-                    pprint.pprint(table.metadata)
-                    raise
+                        pprint.pprint(table.metadata)
+                        raise
+        finally:
+            if gc_was_enabled:
+                gc.enable()
 
     def find_path_for_book(self, book_id):
         q = BOOK_ID_PATH_TEMPLATE.format(book_id)
