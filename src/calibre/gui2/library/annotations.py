@@ -370,13 +370,19 @@ class ChapterGroup:
             if not sanitized_color:
                 continue
             border_color = builtin_border.get(color) or (color if sanitized_color != 'default' else '#cccccc')
+            if color in builtin_colors_light:
+                label = builtin_highlight_style_title('color', color)
+            elif color == 'default':
+                label = _('Default')
+            else:
+                label = color
             filter_inputs.append(f'<input type="checkbox" id="filter-color-{sanitized_color}" class="calibre-filter-cb" style="display:none;">')
             filter_labels.append(
                 f'<label for="filter-color-{sanitized_color}"'
                 f' class="calibre-filter-label"'
-                f' title="{prepare_string_for_xml(_("Show only {color} highlights").format(color=color), attribute=True)}"'
+                f' title="{prepare_string_for_xml(_("Show only annotations with style: {name}").format(name=label), attribute=True)}"'
                 f' style="border-color:{border_color};">'
-                f'{prepare_string_for_xml(color)}</label>'
+                f'{prepare_string_for_xml(label)}</label>'
             )
             ids.append(f'filter-color-{sanitized_color}')
             style_lines.append(f'input#filter-color-{sanitized_color}:checked ~ .bq-{sanitized_color} {{ display: block !important; }}')
@@ -402,13 +408,14 @@ class ChapterGroup:
             dec_color = dec_style.get('text-decoration-color', '#000')
             dec_line = dec_style.get('text-decoration-line', 'underline')
             dec_style_type = dec_style.get('text-decoration-style', 'solid')
+            label = builtin_highlight_style_title('decoration', fname) if fname in builtin_decorations else fname
             filter_inputs.append(f'<input type="checkbox" id="filter-decor-{safe_fname}" class="calibre-filter-cb" style="display:none;">')
             filter_labels.append(
                 f'<label for="filter-decor-{safe_fname}"'
                 f' class="calibre-filter-label"'
-                f' title="{prepare_string_for_xml(_("Show only {name} style annotations").format(name=fname), attribute=True)}"'
+                f' title="{prepare_string_for_xml(_("Show only annotations with style: {name}").format(name=label), attribute=True)}"'
                 f' style="text-decoration: {dec_line} {dec_style_type} {dec_color};">'
-                f'{prepare_string_for_xml(fname)}</label>'
+                f'{prepare_string_for_xml(label)}</label>'
             )
             ids.append(f'filter-decor-{safe_fname}')
             # Filter logic overrides the generic hide rule
@@ -940,6 +947,30 @@ def annotation_title(atype, singular=False):
     if singular:
         return {'bookmark': _('Bookmark'), 'highlight': pgettext('type of annotation', 'Highlight')}.get(atype, atype.title())
     return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype.title())
+
+
+def builtin_highlight_style_title(kind, which):
+    # Keep in sync with builtin_friendly_name() in src/pyj/read_book/highlights.pyj
+    if kind == 'decoration':
+        return {
+            'wavy': _('Red wavy underline'),
+            'strikeout': _('Red strikeout'),
+        }.get(which, which.title())
+    return {
+        'yellow': _('Yellow highlight'),
+        'green': _('Green highlight'),
+        'blue': _('Blue highlight'),
+        'red': _('Pink highlight'),
+        'purple': _('Purple highlight'),
+    }.get(which, which.title())
+
+
+def highlight_style_title(style_name, style):
+    # Custom styles store their display name in friendly_name; built-in styles
+    # are identified by their kind/which pair.
+    if style.get('type') == 'custom':
+        return style.get('friendly_name') or style_name
+    return builtin_highlight_style_title(style.get('kind') or 'color', style.get('which') or style_name)
 
 
 class AnnotsResultsDelegate(ResultsDelegate):
@@ -1677,15 +1708,8 @@ class Restrictions(QWidget):
             all_styles = self.annotation_style_cache.get(db.library_id)
             if all_styles is None:
                 all_styles = self.annotation_style_cache[db.library_id] = db.all_annotation_styles()
-            translate = _
             for style_name, style in all_styles.items():
-                # Custom styles store their display name in friendly_name;
-                # built-in styles use annotation_title on the style name.
-                if style.get('type') == 'custom':
-                    label = style.get('friendly_name', style_name)
-                else:
-                    label = annotation_title(style_name)
-                item = QStandardItem(translate(label))
+                item = QStandardItem(highlight_style_title(style_name, style))
                 item.setData({'type': 'highlight', 'style': style}, Qt.ItemDataRole.UserRole)
                 dec = decoration_for_style(self.palette(), style, self.icon_size, dpr, is_dark)
                 if dec:
