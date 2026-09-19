@@ -375,8 +375,6 @@ class BooksView(TableView):  # {{{
         assert _init_vh is not None
         self.default_row_height = _init_vh.defaultSectionSize()
         self.gui = parent
-        self.setProperty('highlight_current_item', 150)
-        self.pin_view.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
         self.alternate_views = AlternateViews(self)
 

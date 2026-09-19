@@ -502,7 +502,7 @@ def create_defs():
     )
 
     defs['show_splash_screen'] = True
-    defs['toolbar_icon_size'] = 'medium'
+    defs['toolbar_icon_size'] = 'mid-small'
     defs['automerge'] = 'ignore'
     defs['toolbar_text'] = 'always'
     defs['font'] = None
@@ -539,7 +539,7 @@ def create_defs():
     defs['tags_browser_value_icons'] = {}
     defs['cover_browser_reflections'] = True
     defs['cover_browser_max_font_size'] = 11
-    defs['book_list_extra_row_spacing'] = 0
+    defs['book_list_extra_row_spacing'] = 8
     defs['refresh_book_list_on_bulk_edit'] = True
     defs['cover_grid_width'] = 0
     defs['cover_grid_height'] = 0
@@ -571,7 +571,7 @@ def create_defs():
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
     defs['tag_browser_show_tooltips'] = True
-    defs['row_numbers_in_book_list'] = True
+    defs['row_numbers_in_book_list'] = False
     defs['tag_browser_item_padding'] = 0.5
     defs['paste_isbn_prefixes'] = ['isbn', 'url', 'amazon', 'google']
     defs['qv_respects_vls'] = True

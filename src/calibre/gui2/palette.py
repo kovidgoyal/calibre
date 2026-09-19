@@ -259,7 +259,8 @@ QToolBar {{ border: none; spacing: 2px; padding: 2px; }}
 QToolBar QToolButton {{ border: none; border-radius: 6px; padding: 4px; background: transparent; }}
 QToolBar QToolButton:hover {{ background: {hover}; }}
 QToolBar QToolButton:pressed, QToolBar QToolButton:checked {{ background: {pressed}; }}
-QToolBar QToolButton[popupMode="1"] {{ padding-right: 16px; }}
+QToolBar QToolButton[popupMode="1"], QToolBar QToolButton[popupMode="2"] {{ padding-right: 16px; }}
+QToolBar QToolButton::menu-indicator {{ subcontrol-origin: padding; subcontrol-position: right center; }}
 QToolBar QToolButton::menu-button {{ border: none; background: transparent; width: 16px; }}
 QToolBar QToolButton::menu-arrow, QToolBar QToolButton::menu-indicator {{ image: url({down}); width: 10px; height: 10px; }}
 
