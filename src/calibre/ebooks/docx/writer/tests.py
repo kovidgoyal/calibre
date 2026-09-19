@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from zipfile import ZipFile
 
+from html5_parser import parse
 from lxml import etree
 
 from calibre.ebooks.docx.names import DOCXNamespace
@@ -16,7 +17,7 @@ from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.utils.logging import DevNull
 
 
-class TestHyperlinks(unittest.TestCase):
+class BaseTest(unittest.TestCase):
     def setUp(self):
         self.namespace = DOCXNamespace()
         self.relationships = DocumentRelationships(self.namespace)
@@ -41,6 +42,8 @@ class TestHyperlinks(unittest.TestCase):
     def xpath(self, expression, root=None):
         return self.namespace.XPath(expression)(self.body if root is None else root)
 
+
+class TestHyperlinks(BaseTest):
     def test_styled_hyperlink(self):
         block, link = self.block(), self.link(tooltip='Example')
         self.add_text(block, 'Before ')
@@ -173,5 +176,68 @@ class TestHyperlinks(unittest.TestCase):
             self.assertTrue(result.xpath('//*[@id=$target]', target=href[1:]))
 
 
+class TestWhitespace(BaseTest):
+    """Non-breaking spaces must survive HTML -> DOCX, see https://bugs.launchpad.net/calibre/+bug/2167710"""
+
+    def texts(self, text, **kw):
+        block = self.block()
+        block.add_text(text, {'white-space': kw.pop('white_space', 'normal')}, **kw)
+        block.serialize(self.body)
+        return self.xpath('.//w:t/text()')
+
+    def test_nbsp_is_not_collapsible_whitespace(self):
+        for ch in ('\xa0', '\u2007', '\u202f'):
+            with self.subTest(ch=ch):
+                self.body.clear()
+                self.assertEqual(self.texts(f'one{ch}two  three{ch}{ch}four'), [f'one{ch}two three{ch}{ch}four'])
+
+    def test_leading_nbsp_is_preserved(self):
+        # ignore_leading_whitespace must not eat a leading NBSP
+        self.assertEqual(self.texts(' \t\n\xa0 indented', ignore_leading_whitespace=True), ['\xa0 indented'])
+
+    def test_ascii_whitespace_is_still_collapsed(self):
+        # In particular the form feed, which lxml refuses to serialize
+        self.assertEqual(self.texts('one \t\r\n\f\vtwo'), ['one two'])
+
+    def test_preserved_whitespace_is_untouched(self):
+        self.assertEqual(self.texts('  one\xa0 two  ', white_space='pre'), ['  one\xa0 two  '])
+        self.assertEqual(self.xpath('.//w:t/@xml:space'), ['preserve'])
+
+    def test_html_docx_html_roundtrip(self):
+        from calibre.ebooks.conversion.plumber import Plumber
+
+        source = (
+            '<html><head><title>Whitespace</title></head><body>'
+            '<p>Inline: one&#160;two  three&#160;&#160;four</p>'
+            '<p>&#160;Leading: indented</p>'
+            '<p>Trailing: text&#160;</p>'
+            '</body></html>'
+        )
+        with TemporaryDirectory() as tdir:
+            base = Path(tdir)
+            html, docx, htmlz = (base / name for name in ('input.html', 'output.docx', 'output.htmlz'))
+            html.write_text(source, encoding='utf-8')
+            plumber = Plumber(str(html), str(docx), DevNull())
+            plumber.merge_ui_recommendations([('docx_no_toc', True, 3), ('docx_no_cover', True, 3)])
+            plumber.run()
+            with ZipFile(docx) as zf:
+                document = etree.fromstring(zf.read('word/document.xml'))
+            paragraphs = [''.join(self.xpath('.//w:t/text()', p)) for p in self.xpath('.//w:p', document)]
+            self.assertIn('Inline: one\xa0two three\xa0\xa0four', paragraphs)
+            self.assertIn('\xa0Leading: indented', paragraphs)
+            self.assertIn('Trailing: text\xa0', paragraphs)
+            plumber = Plumber(str(docx), str(htmlz), DevNull())
+            plumber.merge_ui_recommendations([('docx_inline_subsup', True, 3)])
+            plumber.run()
+            with ZipFile(htmlz) as zf:
+                # html5_parser rather than etree as the NBSP comes back as an &nbsp; entity
+                result = parse(zf.read('index.html').decode('utf-8'))
+            paragraphs = [''.join(p.itertext()) for p in result.iter('{*}p')]
+            self.assertIn('Inline: one\xa0two three\xa0\xa0four', paragraphs)
+            self.assertIn('\xa0Leading: indented', paragraphs)
+            self.assertIn('Trailing: text\xa0', paragraphs)
+
+
 def find_tests():
-    return unittest.defaultTestLoader.loadTestsFromTestCase(TestHyperlinks)
+    loader = unittest.defaultTestLoader
+    return unittest.TestSuite(loader.loadTestsFromTestCase(cls) for cls in (TestHyperlinks, TestWhitespace))

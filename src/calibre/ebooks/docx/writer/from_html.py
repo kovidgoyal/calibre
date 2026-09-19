@@ -16,6 +16,14 @@ from calibre.ebooks.oeb.stylizer import Style as St
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz
 from calibre.utils.localization import lang_as_iso639_1
 
+# The whitespace characters that are collapsible under the CSS/HTML whitespace
+# processing rules. Deliberately ASCII only: NBSP and the other non-breaking
+# spaces (U+00A0, U+2007, U+202F, ...) are content, not whitespace, and must
+# reach Word verbatim. Note that unlike oeb.base.COLLAPSE_RE this includes the
+# form feed, since lxml refuses to serialize control characters.
+COLLAPSIBLE_WS = ' \t\r\n\f\v'
+COLLAPSE_WS_PAT = re.compile(f'[{COLLAPSIBLE_WS}]+')
+
 
 def lang_for_tag(tag):
     for attr in ('lang', '{http://www.w3.org/XML/1998/namespace}lang'):
@@ -49,12 +57,11 @@ class Stylizer(Sz):
 
 
 class TextRun:
-    ws_pat = soft_hyphen_pat = None
+    soft_hyphen_pat = None
 
     def __init__(self, namespace, style, first_html_parent, lang=None):
         self.first_html_parent = first_html_parent
-        if self.ws_pat is None:
-            TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
+        if self.soft_hyphen_pat is None:
             TextRun.soft_hyphen_pat = self.soft_hyphen_pat = re.compile(r'(\xad)')
         self.style = style
         self.texts = []
@@ -66,10 +73,8 @@ class TextRun:
 
     def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
         if not preserve_whitespace:
-            ws_pat = self.ws_pat
-            assert ws_pat is not None
-            text = ws_pat.sub(' ', text)
-            if text.strip() != text:
+            text = COLLAPSE_WS_PAT.sub(' ', text)
+            if text.strip(COLLAPSIBLE_WS) != text:
                 # If preserve_whitespace is False, Word ignores leading and
                 # trailing whitespace
                 preserve_whitespace = True
@@ -120,12 +125,12 @@ class TextRun:
                         # ignored, so put them in a preserve whitespace
                         # element with a single space.
                         if not preserve_whitespace and len(r) and r[-1].text and r[-1].text.endswith(' '):
-                            r[-1].text = r[-1].text.rstrip()
+                            r[-1].text = r[-1].text.rstrip(COLLAPSIBLE_WS)
                             add_text(' ', True)
                         makeelement(r, 'w:softHyphen')
                     elif x:
                         if not preserve_whitespace and x.startswith(' ') and len(r) and r[-1].tag and 'softHyphen' in r[-1].tag:
-                            x = x.lstrip()
+                            x = x.lstrip(COLLAPSIBLE_WS)
                             add_text(' ', True)
                         add_text(x, preserve_whitespace)
             else:
@@ -218,7 +223,7 @@ class Block:
             run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent, lang=lang)
             self.runs.append(run)
         if ignore_leading_whitespace and not preserve_whitespace:
-            text = text.lstrip()
+            text = text.lstrip(COLLAPSIBLE_WS)
         if preserve_whitespace or ws == 'pre-line':
             for text in text.splitlines():
                 run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
@@ -602,7 +607,7 @@ class Convert:
             return  # We ignore the tail for these tags
 
         ignore_whitespace_tail = is_block or display.startswith('table')
-        if not is_first_tag and html_tag.tail and (not ignore_whitespace_tail or not html_tag.tail.isspace()):
+        if not is_first_tag and html_tag.tail and (not ignore_whitespace_tail or html_tag.tail.strip(COLLAPSIBLE_WS)):
             # Ignore trailing space after a block tag, as otherwise it will
             # become a new empty paragraph
             block = self.create_block_from_parent(html_tag, stylizer)
@@ -632,7 +637,7 @@ class Convert:
             text = html_tag.text
             is_list_item = tagname == 'li'
             has_sublist = is_list_item and len(html_tag) and isinstance(html_tag[0].tag, str) and barename(html_tag[0].tag) in ('ul', 'ol') and len(html_tag[0])
-            if text and has_sublist and not text.strip():
+            if text and has_sublist and not text.strip(COLLAPSIBLE_WS):
                 text = ''  # whitespace only, ignore
             if text:
                 block.add_text(
