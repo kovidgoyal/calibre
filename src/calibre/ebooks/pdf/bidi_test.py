@@ -54,9 +54,22 @@ ENGLISH_HEBREW = 'The word שלום here'
 ENGLISH_HEBREW_PARENS = 'See Genesis (בראשית) chapter 1'
 
 RTL_LINES = (
-    HEBREW, HEBREW_SENTENCE, HEBREW_NUMBER, HEBREW_LATIN, HEBREW_QUOTED,
-    ARABIC, ARABIC_SENTENCE, ARABIC_DIGITS, ARABIC_PUNCT, ARABIC_GUILLEMETS,
-    PERSIAN, PERSIAN_DIGITS, URDU, SYRIAC, THAANA, NKO,
+    HEBREW,
+    HEBREW_SENTENCE,
+    HEBREW_NUMBER,
+    HEBREW_LATIN,
+    HEBREW_QUOTED,
+    ARABIC,
+    ARABIC_SENTENCE,
+    ARABIC_DIGITS,
+    ARABIC_PUNCT,
+    ARABIC_GUILLEMETS,
+    PERSIAN,
+    PERSIAN_DIGITS,
+    URDU,
+    SYRIAC,
+    THAANA,
+    NKO,
 )
 # Lines with no right-to-left characters in them at all
 PURE_LTR_LINES = (ENGLISH, '', '   ', '12345', 'a<b')
@@ -139,7 +152,6 @@ class TestICUBidi(unittest.TestCase):
 
 
 class TestHasRTL(unittest.TestCase):
-
     def test_covers_every_rtl_character(self):
         missed = []
         for cp in range(0x110000):
@@ -158,7 +170,6 @@ class TestHasRTL(unittest.TestCase):
 
 
 class TestIsPredominantlyRTL(unittest.TestCase):
-
     def test_rtl(self):
         for text in (HEBREW, ARABIC, HEBREW_SENTENCE, HEBREW_NUMBER, PERSIAN):
             self.assertTrue(is_predominantly_rtl(text), f'{text!r} should be predominantly right-to-left')
@@ -206,7 +217,6 @@ class TestVisualToLogical(unittest.TestCase):
 
 
 class TestParseMarkup(unittest.TestCase):
-
     def round_trip(self, raw):
         "Parsing and re-serializing must not change anything"
         runs: list = []
@@ -245,9 +255,7 @@ class TestParseMarkup(unittest.TestCase):
             'text <br> more',
         ):
             rebuilt = self.round_trip(raw)
-            self.assertEqual(
-                markup_to_text(raw), markup_to_text(rebuilt), f'Text was lost or changed for {raw!r} -> {rebuilt!r}'
-            )
+            self.assertEqual(markup_to_text(raw), markup_to_text(rebuilt), f'Text was lost or changed for {raw!r} -> {rebuilt!r}')
 
     def test_object_replacement_in_the_text_is_not_dropped(self):
         # The character used to stand in for an object while reordering can
@@ -295,19 +303,13 @@ class TestFixMarkupLine(unittest.TestCase):
     def test_latin_phrase_spanning_a_style_change(self):
         # The whole line has to be reordered as a unit, otherwise the words of
         # an English phrase that is split up by a tag come out backwards
-        self.assertEqual(
-            'שלום The <b>Great</b> Book עולם', fix_markup_line('םלוע The <b>Great</b> Book םולש')
-        )
+        self.assertEqual('שלום The <b>Great</b> Book עולם', fix_markup_line('םלוע The <b>Great</b> Book םולש'))
 
     def test_link_targets_stay_at_the_edge_of_the_line(self):
         # pdftohtml puts an anchor at the start of every page and the generated
         # table of contents links to it, so it must not drift into the text
-        self.assertEqual(
-            '<a id="p1"></a>שלום עולם', fix_markup_line('<a id="p1"></a>' + render('שלום עולם'))
-        )
-        self.assertEqual(
-            'שלום עולם<a id="p1"></a>', fix_markup_line(render('שלום עולם') + '<a id="p1"></a>')
-        )
+        self.assertEqual('<a id="p1"></a>שלום עולם', fix_markup_line('<a id="p1"></a>' + render('שלום עולם')))
+        self.assertEqual('שלום עולם<a id="p1"></a>', fix_markup_line(render('שלום עולם') + '<a id="p1"></a>'))
 
     def test_several_link_targets_at_the_start(self):
         raw = '<a id="p1"></a><a id="p2"></a>' + render(HEBREW)
@@ -332,7 +334,8 @@ class TestFixMarkupLine(unittest.TestCase):
                 visual = render_markup(raw)
                 fixed = fix_markup_line(visual)
                 self.assertEqual(
-                    sorted(markup_to_text(visual)), sorted(markup_to_text(fixed)),
+                    sorted(markup_to_text(visual)),
+                    sorted(markup_to_text(fixed)),
                     f'Characters were lost or added for {raw!r}',
                 )
 
@@ -344,13 +347,13 @@ class TestFixMarkupLine(unittest.TestCase):
     def test_malformed_markup_loses_no_text(self):
         for raw in ('םולש <b>םלוע', 'םולש </b> םלוע', '<b><i>םולש</b> םלוע'):
             self.assertEqual(
-                sorted(markup_to_text(raw)), sorted(markup_to_text(fix_markup_line(raw))),
+                sorted(markup_to_text(raw)),
+                sorted(markup_to_text(fix_markup_line(raw))),
                 f'Text was lost for {raw!r}',
             )
 
 
 class TestReorderRuns(unittest.TestCase):
-
     def test_context_travels_with_text(self):
         runs = [('םולש', 'a'), (' The Book ', 'b'), ('םלוע', 'c')]
         ans = reorder_runs(runs)
@@ -522,13 +525,20 @@ class TestReflowIntegration(unittest.TestCase):
 
 
 def find_tests():
-    return unittest.defaultTestLoader.loadTestsFromNames(
-        [f'{__name__}.{x.__name__}' for x in (
-            TestICUBidi, TestHasRTL, TestIsPredominantlyRTL, TestVisualToLogical,
-            TestParseMarkup, TestFixMarkupLine, TestReorderRuns, TestFixPDFToHTML,
+    return unittest.defaultTestLoader.loadTestsFromNames([
+        f'{__name__}.{x.__name__}'
+        for x in (
+            TestICUBidi,
+            TestHasRTL,
+            TestIsPredominantlyRTL,
+            TestVisualToLogical,
+            TestParseMarkup,
+            TestFixMarkupLine,
+            TestReorderRuns,
+            TestFixPDFToHTML,
             TestReflowIntegration,
-        )]
-    )
+        )
+    ])
 
 
 if __name__ == '__main__':

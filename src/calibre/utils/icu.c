@@ -2102,7 +2102,7 @@ icu_word_prefix_find(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
 
 // bidi_reorder {{{
 
-static PyObject*
+static PyObject *
 icu_bidi_reorder(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     UErrorCode status = U_ZERO_ERROR;
     int32_t sz = 0, rsz = 0, cap = 0, i = 0, cp = 0;
@@ -2129,45 +2129,73 @@ icu_bidi_reorder(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     if (source == NULL) return NULL;
 
     bidi = ubidi_open();
-    if (bidi == NULL) { PyErr_NoMemory(); goto end; }
+    if (bidi == NULL) {
+        PyErr_NoMemory();
+        goto end;
+    }
     // UBIDI_REORDER_INVERSE_LIKE_DIRECT is the exact inverse of the standard
     // algorithm a PDF renderer uses to paint the glyphs, which is what we need
     // to undo when reading text back out of a PDF.
     ubidi_setReorderingMode(bidi, to_logical ? UBIDI_REORDER_INVERSE_LIKE_DIRECT : UBIDI_REORDER_DEFAULT);
     // Let the base direction of the paragraph be auto-detected
     ubidi_setPara(bidi, source, sz, UBIDI_DEFAULT_LTR, NULL, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        goto end;
+    }
 
     cap = sz + 1;
     while (1) {
-        UChar *nd = (UChar*)realloc(dest, (size_t)cap * sizeof(UChar));
-        if (nd == NULL) { PyErr_NoMemory(); goto end; }
+        UChar *nd = (UChar *)realloc(dest, (size_t)cap * sizeof(UChar));
+        if (nd == NULL) {
+            PyErr_NoMemory();
+            goto end;
+        }
         dest = nd;
         status = U_ZERO_ERROR;
         rsz = ubidi_writeReordered(bidi, dest, cap, UBIDI_DO_MIRRORING, &status);
-        if (status == U_BUFFER_OVERFLOW_ERROR) { cap *= 2; continue; }
+        if (status == U_BUFFER_OVERFLOW_ERROR) {
+            cap *= 2;
+            continue;
+        }
         break;
     }
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        goto end;
+    }
 
     text = icu_to_python(dest, rsz);
     if (text == NULL) goto end;
-    if (!want_map) { ans = text; text = NULL; goto end; }
+    if (!want_map) {
+        ans = text;
+        text = NULL;
+        goto end;
+    }
 
     // cp_of_unit[u] is the index, counted in code points, of the character of
     // the input string that UTF-16 code unit u is a part of. Needed because
     // ICU indexes in UTF-16 code units while python indexes in code points.
-    cp_of_unit = (int32_t*)malloc((size_t)(sz > 0 ? sz : 1) * sizeof(int32_t));
-    if (cp_of_unit == NULL) { PyErr_NoMemory(); goto end; }
+    cp_of_unit = (int32_t *)malloc((size_t)(sz > 0 ? sz : 1) * sizeof(int32_t));
+    if (cp_of_unit == NULL) {
+        PyErr_NoMemory();
+        goto end;
+    }
     for (i = 0; i < sz; i++) {
-        if (i > 0 && U16_IS_TRAIL(source[i]) && U16_IS_LEAD(source[i-1])) cp_of_unit[i] = cp - 1;
+        if (i > 0 && U16_IS_TRAIL(source[i]) && U16_IS_LEAD(source[i - 1])) cp_of_unit[i] = cp - 1;
         else cp_of_unit[i] = cp++;
     }
 
-    index_map = (int32_t*)malloc((size_t)(rsz > 0 ? rsz : 1) * sizeof(int32_t));
-    if (index_map == NULL) { PyErr_NoMemory(); goto end; }
+    index_map = (int32_t *)malloc((size_t)(rsz > 0 ? rsz : 1) * sizeof(int32_t));
+    if (index_map == NULL) {
+        PyErr_NoMemory();
+        goto end;
+    }
     ubidi_getVisualMap(bidi, index_map, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        goto end;
+    }
 
     map_obj = PyTuple_New(PyUnicode_GET_LENGTH(text));
     if (map_obj == NULL) goto end;
@@ -2175,7 +2203,7 @@ icu_bidi_reorder(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     for (i = 0; i < rsz; i++) {
         PyObject *num = NULL;
         int32_t src_unit = 0;
-        if (i > 0 && U16_IS_TRAIL(dest[i]) && U16_IS_LEAD(dest[i-1])) continue;
+        if (i > 0 && U16_IS_TRAIL(dest[i]) && U16_IS_LEAD(dest[i - 1])) continue;
         if (cp >= PyUnicode_GET_LENGTH(text)) break;
         src_unit = index_map[i];
         // UBIDI_MAP_NOWHERE (-1) means this character was inserted by ICU and
@@ -2206,7 +2234,9 @@ static PyMethodDef icu_methods[] = {
     {"bidi_reorder",
      (PyCFunction)(void (*)(void))icu_bidi_reorder,
      METH_FASTCALL,
-     "bidi_reorder(text, to_logical=True, want_map=False) -> Reorder text between visual and logical order running the Unicode bidirectional algorithm, mirroring characters such as brackets as needed. Returns the reordered text, or (text, index_map) if want_map is True, where index_map[i] is the index in the input of the character at index i of the output (-1 if there is none)."},
+     "bidi_reorder(text, to_logical=True, want_map=False) -> Reorder text between visual and logical order running the Unicode bidirectional algorithm, "
+     "mirroring characters such as brackets as needed. Returns the reordered text, or (text, index_map) if want_map is True, where index_map[i] is the index "
+     "in the input of the character at index i of the output (-1 if there is none)."},
 
     {"change_case",
      (PyCFunction)(void (*)(void))icu_change_case,

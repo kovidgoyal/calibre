@@ -99,8 +99,7 @@ class TestSingleColumn(unittest.TestCase):
 
     def test_too_few_rows_to_tell(self):
         # Two rows is not enough to know a gap is a gutter and not a wide space
-        self.check_not_split([(10, 10, 200, 'Left one'), (330, 10, 200, 'Right one'),
-                              (10, 30, 200, 'Left two'), (330, 30, 200, 'Right two')])
+        self.check_not_split([(10, 10, 200, 'Left one'), (330, 10, 200, 'Right one'), (10, 30, 200, 'Left two'), (330, 30, 200, 'Right two')])
 
     def test_justified_text(self):
         # Justified text has wide gaps between words, but in a different place
@@ -139,7 +138,6 @@ class TestSingleColumn(unittest.TestCase):
 
 
 class TestColumnDetection(unittest.TestCase):
-
     def test_two_columns(self):
         page = build(two_columns())
         self.assertEqual(2, page.column_count)
@@ -147,9 +145,7 @@ class TestColumnDetection(unittest.TestCase):
 
     def test_columns_are_read_one_after_the_other(self):
         page = build(two_columns())
-        self.assertEqual(
-            [f'{LEFT_LINE} {i}' for i in range(6)] + [f'{RIGHT_LINE} {i}' for i in range(6)], texts_of(page)
-        )
+        self.assertEqual([f'{LEFT_LINE} {i}' for i in range(6)] + [f'{RIGHT_LINE} {i}' for i in range(6)], texts_of(page))
 
     def test_fragments_are_not_joined_across_a_gutter(self):
         # This is what used to run the two columns of a line together
@@ -167,8 +163,7 @@ class TestColumnDetection(unittest.TestCase):
         page = build(fragments)
         self.assertEqual(2, page.column_count)
         self.assertEqual(
-            [f'the left column of this page holds {i}' for i in range(6)]
-            + [f'{RIGHT_LINE} {i}' for i in range(6)],
+            [f'the left column of this page holds {i}' for i in range(6)] + [f'{RIGHT_LINE} {i}' for i in range(6)],
             texts_of(page),
         )
 
@@ -180,9 +175,7 @@ class TestColumnDetection(unittest.TestCase):
                 fragments.append((x, 10 + i * 20, 180, f'text of the {names[c]} column {i}'))
         page = build(fragments)
         self.assertEqual(3, page.column_count)
-        self.assertEqual(
-            [f'text of the {n} column {i}' for n in names for i in range(6)], texts_of(page)
-        )
+        self.assertEqual([f'text of the {n} column {i}' for n in names for i in range(6)], texts_of(page))
 
     def test_gutters(self):
         page = build(two_columns(), join=False)
@@ -214,9 +207,7 @@ class TestSpanningElements(unittest.TestCase):
         page = build(fragments)
         self.assertEqual(2, page.column_count)
         self.assertEqual('A Full Width Heading Over The Page', texts_of(page)[0])
-        self.assertEqual(
-            [f'{LEFT_LINE} {i}' for i in range(6)] + [f'{RIGHT_LINE} {i}' for i in range(6)], texts_of(page)[1:]
-        )
+        self.assertEqual([f'{LEFT_LINE} {i}' for i in range(6)] + [f'{RIGHT_LINE} {i}' for i in range(6)], texts_of(page)[1:])
 
     def test_heading_over_a_short_page(self):
         # Few enough rows that the allowance for rows crossing a gutter rounds
@@ -239,9 +230,11 @@ class TestSpanningElements(unittest.TestCase):
             fragments.append((250, 50 + i * 20, 200, f'{RIGHT_LINE} {i}'))
         page = build(fragments)
         self.assertEqual(
-            [f'{LEFT_LINE} {i}' for i in range(4)] + [f'{RIGHT_LINE} {i}' for i in range(4)]
+            [f'{LEFT_LINE} {i}' for i in range(4)]
+            + [f'{RIGHT_LINE} {i}' for i in range(4)]
             + ['A Mid Page Heading Over The Page']
-            + [f'{LEFT_LINE} {i}' for i in range(4, 8)] + [f'{RIGHT_LINE} {i}' for i in range(4, 8)],
+            + [f'{LEFT_LINE} {i}' for i in range(4, 8)]
+            + [f'{RIGHT_LINE} {i}' for i in range(4, 8)],
             texts_of(page),
         )
 
@@ -345,12 +338,16 @@ class TestRightToLeftColumns(unittest.TestCase):
 
 
 def find_tests():
-    return unittest.defaultTestLoader.loadTestsFromNames(
-        [f'{__name__}.{x.__name__}' for x in (
-            TestSingleColumn, TestColumnDetection, TestSpanningElements, TestTables,
+    return unittest.defaultTestLoader.loadTestsFromNames([
+        f'{__name__}.{x.__name__}'
+        for x in (
+            TestSingleColumn,
+            TestColumnDetection,
+            TestSpanningElements,
+            TestTables,
             TestRightToLeftColumns,
-        )]
-    )
+        )
+    ])
 
 
 if __name__ == '__main__':
