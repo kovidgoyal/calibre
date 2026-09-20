@@ -13,24 +13,27 @@
 # saved by the player go into folders of cyoa/saves named after the game
 # title. API keys are NOT stored here, they live in the common AI
 # preferences; all other AI provider settings used for the game are scoped
-# to these preferences via override_prefs_for_providers(). This module must
-# not import Qt so that it can be used and tested headless.
+# to these preferences via override_prefs_for_providers(). A game can also be
+# exported as a single file the player can keep or pass on, which is a zip of
+# the same data with the extension .calibre-cyoa, see export_game(). This
+# module must not import Qt so that it can be used and tested headless.
 
 import json
 import os
 import re
 import shutil
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from contextlib import AbstractContextManager, suppress
 from functools import lru_cache
 from time import time
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
+from typing import IO, TYPE_CHECKING, Any, Literal, NamedTuple
+from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, ZipFile
 
 from calibre.ai import AICapabilities
 from calibre.ai.cyoa import PROTAGONIST_ID, GameState, GeneratedWorld, StoryStyle, as_jsonable, character_id_for_name, deserialize_game, serialize_game
 from calibre.ai.prefs import override_prefs_for_providers, plugins_for_purpose, update_prefs_for_provider
 from calibre.ai.structured import instantiate, spec_for_class
-from calibre.constants import config_dir
+from calibre.constants import __version__, config_dir
 from calibre.customize import AIProviderPlugin
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import commit_data
@@ -45,6 +48,18 @@ else:
 # so bumping this does not orphan existing games.
 GAME_FILE_VERSION = 2
 GAME_FILE_NAME = 'game.json'
+# The pictures of the scenes of a game, both in its folder and in an exported
+# game, see image_file_name().
+IMAGE_FILE_PATTERN = re.compile(r'turn\d+\.webp')
+# An exported game is a zip of the game file, the pictures of its scenes and a
+# metadata file that marks the zip as an exported game and versions the layout
+# of the zip itself. The game data in it is versioned separately by
+# GAME_FILE_VERSION, so a game exported by an older calibre is migrated on
+# import exactly like a game in the cyoa folder, see import_game().
+EXPORT_VERSION = 1
+EXPORT_EXTENSION = 'calibre-cyoa'
+EXPORT_FORMAT = 'calibre-cyoa-game'
+EXPORT_METADATA_NAME = 'metadata.json'
 AIPurpose = Literal['text', 'image']
 PURPOSE_CAPABILITIES: dict[str, AICapabilities] = {
     'text': AICapabilities.text_to_text,
@@ -324,8 +339,53 @@ def save_name_for_title(title: str) -> str:
     return sanitize_file_name(title) or 'Adventure'
 
 
+def unique_save_name(title: str, base: str = '') -> str:
+    # A name as close as possible to the requested one that no game in base
+    # uses yet, for when the player does not want to replace an existing save,
+    # see import_game().
+    name = ans = save_name_for_title(title)
+    counter = 1
+    while os.path.exists(game_dir(ans, base)):
+        counter += 1
+        ans = save_name_for_title(f'{name} ({counter})')
+    return ans
+
+
 def image_file_name(turn_number: int) -> str:
     return f'turn{turn_number}.webp'
+
+
+def game_file_data(state: GameState, images: dict[int, SceneImage], portraits: dict[str, dict[str, str]] | None, created: float) -> dict[str, Any]:
+    # The contents of the game file, used both for the game file in the folder
+    # of a game, see save_game(), and the one in an exported game, see
+    # export_game(). The pictures of the scenes are not in it, only the
+    # metadata describing them, they are stored alongside it as turn<N>.webp.
+    return {
+        'version': GAME_FILE_VERSION,
+        'title': state.world.title,
+        'created': created,
+        'updated': time(),
+        'game': json.loads(serialize_game(state)),
+        'images': {
+            str(k): {'file': image_file_name(k), 'cost': v.cost, 'currency': v.currency, 'provider': v.provider, 'model': v.model, 'prompt': v.prompt}
+            for k, v in images.items()
+        },
+        'portraits': validated_portraits(portraits),
+    }
+
+
+def serialized_game_file(data: dict[str, Any]) -> bytes:
+    return json.dumps(data, ensure_ascii=False, indent=2).encode('utf-8')
+
+
+def creation_time(game_file_path: str) -> float:
+    # Re-saving a game preserves the time it was first created. A game file
+    # that does not exist yet or cannot be read is being created now.
+    with suppress(Exception):
+        with open(game_file_path, 'rb') as f:
+            if created := json.load(f).get('created'):
+                return float(created)
+    return time()
 
 
 def save_game(
@@ -340,32 +400,14 @@ def save_game(
     # started from, so that games played in the same world do not share them
     # and renaming a world or a character cannot orphan them.
     gf = game_file(game_id, base)
-    created = time()
-    try:
-        with open(gf, 'rb') as f:
-            created = json.load(f).get('created') or created
-    except Exception:
-        pass
     images = images or {}
-    data = {
-        'version': GAME_FILE_VERSION,
-        'title': state.world.title,
-        'created': created,
-        'updated': time(),
-        'game': json.loads(serialize_game(state)),
-        'images': {
-            str(k): {'file': image_file_name(k), 'cost': v.cost, 'currency': v.currency, 'provider': v.provider, 'model': v.model, 'prompt': v.prompt}
-            for k, v in images.items()
-        },
-        'portraits': validated_portraits(portraits),
-    }
-    commit_data(gf, json.dumps(data, ensure_ascii=False, indent=2).encode('utf-8'))
+    commit_data(gf, serialized_game_file(game_file_data(state, images, portraits, creation_time(gf))))
     gdir = game_dir(game_id, base)
     for k, v in images.items():
         commit_data(os.path.join(gdir, image_file_name(k)), v.data)
     current_files = {image_file_name(k) for k in images}
     for x in os.listdir(gdir):
-        if re.fullmatch(r'turn\d+\.webp', x) and x not in current_files:
+        if IMAGE_FILE_PATTERN.fullmatch(x) and x not in current_files:
             with suppress(OSError):
                 os.remove(os.path.join(gdir, x))
 
@@ -392,30 +434,47 @@ def portraits_from_v1_game_file(data: dict[str, Any], state: GameState) -> dict[
     return ans
 
 
-def load_game(game_id: str, base: str = '') -> tuple[GameState, dict[int, SceneImage], dict[str, dict[str, str]]]:
-    # Returns the game, the pictures of the scenes keyed by one based turn
-    # number and the portraits of the characters keyed by character id.
-    gf = game_file(game_id, base)
-    with open(gf, 'rb') as f:
-        data = json.load(f)
+# Reads the picture of a scene by file name, returning None when there is no
+# such picture, see parse_game_file().
+ImageReader = Callable[[str], bytes | None]
+LoadedGame = tuple[GameState, dict[int, SceneImage], dict[str, dict[str, str]]]
+
+
+def parse_game_file(raw: bytes, read_image: ImageReader, description: str) -> LoadedGame:
+    # Reads a game file, whether it comes from the folder of a game, see
+    # load_game(), or from an exported game, see import_game(). description
+    # identifies the source of the game file in error messages. Returns the
+    # game, the pictures of the scenes keyed by one based turn number and the
+    # portraits of the characters keyed by character id.
+    try:
+        data = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f'Not a valid CYOA game file: {description}: {e}') from e
     if not isinstance(data, dict):
-        raise ValueError(f'Not a valid CYOA game file: {gf}')
+        raise ValueError(f'Not a valid CYOA game file: {description}')
     version = data.get('version')
     if not isinstance(version, int) or version < 1:
-        raise ValueError(f'Not a valid CYOA game file: {gf}: {version!r} is not a game file version')
+        raise ValueError(f'Not a valid CYOA game file: {description}: {version!r} is not a game file version')
     if version > GAME_FILE_VERSION:
-        raise ValueError(f'The game file {gf} is in the version {version} format, which this version of calibre cannot read')
+        raise ValueError(f'The game file {description} is in the version {version} format, which this version of calibre cannot read')
     state = deserialize_game(json.dumps(data.get('game')))
     images: dict[int, SceneImage] = {}
-    gdir = game_dir(game_id, base)
     for k, v in (data.get('images') or {}).items():
-        try:
-            with open(os.path.join(gdir, v['file']), 'rb') as f:
-                raw = f.read()
-        except OSError:
+        # A picture that is missing, malformed or not named like a picture of
+        # a scene simply means that turn is shown without one, the story
+        # itself is unaffected. Only names generated by image_file_name() are
+        # ever read, so a game file cannot point at some other file.
+        file_name = str(v.get('file', '')) if isinstance(v, dict) else ''
+        if not IMAGE_FILE_PATTERN.fullmatch(file_name):
             continue
-        images[int(k)] = SceneImage(
-            data=raw,
+        try:
+            turn_number = int(k)
+        except TypeError, ValueError:
+            continue
+        if (img := read_image(file_name)) is None:
+            continue
+        images[turn_number] = SceneImage(
+            data=img,
             cost=v.get('cost') or 0,
             currency=v.get('currency') or '',
             provider=v.get('provider') or '',
@@ -424,6 +483,24 @@ def load_game(game_id: str, base: str = '') -> tuple[GameState, dict[int, SceneI
         )
     portraits = portraits_from_v1_game_file(data, state) if version < 2 else validated_portraits(data.get('portraits'))
     return state, images, portraits
+
+
+def load_game(game_id: str, base: str = '') -> LoadedGame:
+    # Returns the game, the pictures of the scenes keyed by one based turn
+    # number and the portraits of the characters keyed by character id.
+    gf = game_file(game_id, base)
+    gdir = game_dir(game_id, base)
+
+    def read_image(name: str) -> bytes | None:
+        try:
+            with open(os.path.join(gdir, name), 'rb') as f:
+                return f.read()
+        except OSError:
+            return None
+
+    with open(gf, 'rb') as f:
+        raw = f.read()
+    return parse_game_file(raw, read_image, gf)
 
 
 def list_games(base: str = '') -> list[SavedGame]:
@@ -466,6 +543,102 @@ def current_game_id() -> str:
 
 def set_current_game(game_id: str) -> None:
     prefs().set('current_game', game_id)
+
+
+# }}}
+
+
+# Exporting and importing games {{{
+
+
+class ImportedGame(NamedTuple):
+    state: GameState
+    images: dict[int, SceneImage]
+    portraits: dict[str, dict[str, str]]
+    name: str  # the name the game had when it was exported, safe to use as a folder name
+
+
+def export_game(
+    path_or_stream: str | IO[bytes],
+    state: GameState,
+    images: dict[int, SceneImage] | None = None,
+    portraits: dict[str, dict[str, str]] | None = None,
+    name: str = '',
+    created: float = 0,
+) -> None:
+    # Write the game to a zip file, conventionally named with the
+    # EXPORT_EXTENSION extension, holding the same game file and pictures as
+    # the folder of a game plus the metadata that identifies the zip as an
+    # exported game, so that an export is recognised by what is in it rather
+    # than by what it is called. name is the name the game is suggested to be
+    # imported under and created the time the game was first started, if
+    # known, see creation_time().
+    images = images or {}
+    name = save_name_for_title(name or state.world.title)
+    metadata = {
+        'format': EXPORT_FORMAT,
+        'version': EXPORT_VERSION,
+        'game_file_version': GAME_FILE_VERSION,
+        'name': name,
+        'title': state.world.title,
+        'num_turns': len(state.turns),
+        'exported': time(),
+        'calibre_version': __version__,
+    }
+    with ZipFile(path_or_stream, 'w', ZIP_DEFLATED) as zf:
+        zf.writestr(EXPORT_METADATA_NAME, json.dumps(metadata, ensure_ascii=False, indent=2))
+        zf.writestr(GAME_FILE_NAME, serialized_game_file(game_file_data(state, images, portraits, created or time())))
+        for turn_number, image in images.items():
+            # WebP data is already compressed, deflating it again only costs time.
+            zf.writestr(image_file_name(turn_number), image.data, compress_type=ZIP_STORED)
+
+
+def exported_game_metadata(zf: ZipFile) -> dict[str, Any]:
+    # The metadata of an exported game, raising ValueError if the zip is not
+    # an exported game this version of calibre can read.
+    try:
+        raw = zf.read(EXPORT_METADATA_NAME)
+    except KeyError:
+        raise ValueError(f'Not an exported CYOA game: it does not contain {EXPORT_METADATA_NAME}') from None
+    try:
+        ans = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f'Not an exported CYOA game: its {EXPORT_METADATA_NAME} is not valid JSON: {e}') from e
+    if not isinstance(ans, dict) or ans.get('format') != EXPORT_FORMAT:
+        raise ValueError('Not an exported CYOA game: it is a zip file of some other kind')
+    version = ans.get('version')
+    if not isinstance(version, int) or version < 1:
+        raise ValueError(f'Not an exported CYOA game: {version!r} is not an export format version')
+    if version > EXPORT_VERSION:
+        raise ValueError(f'This game was exported in the version {version} format, which this version of calibre cannot read')
+    return ans
+
+
+def import_game(path_or_stream: str | IO[bytes]) -> ImportedGame:
+    # Read a game written by export_game(), migrating it if it was exported by
+    # an older version of calibre, raising ValueError if it cannot be read.
+    # Nothing is written to disk here and no name taken from the zip is ever
+    # used as a path, so importing a hostile export cannot touch any file;
+    # storing the game is left to the caller, see save_game().
+    try:
+        zf = ZipFile(path_or_stream, 'r')
+    except BadZipFile as e:
+        raise ValueError(f'Not an exported CYOA game: it is not a zip file: {e}') from e
+    with zf:
+        metadata = exported_game_metadata(zf)
+        try:
+            raw = zf.read(GAME_FILE_NAME)
+        except KeyError:
+            raise ValueError(f'Not an exported CYOA game: it does not contain {GAME_FILE_NAME}') from None
+
+        def read_image(name: str) -> bytes | None:
+            try:
+                return zf.read(name)
+            except KeyError:
+                return None
+
+        state, images, portraits = parse_game_file(raw, read_image, 'the exported game')
+    return ImportedGame(state, images, portraits, save_name_for_title(str(metadata.get('name') or state.world.title)))
 
 
 # }}}
@@ -600,6 +773,7 @@ def remove_saved_world(index: int) -> None:
 
 
 def find_tests() -> TestSuite:  # {{{
+    import io
     import tempfile
     import unittest
     from unittest.mock import patch
@@ -696,6 +870,58 @@ def find_tests() -> TestSuite:  # {{{
                     self.ae(save_name_for_title(' Mist / City? '), 'Mist _ City_')
                     self.ae(save_name_for_title('  '), 'Adventure')
                     self.ae(saves_dir(tdir), os.path.join(tdir, 'saves'))
+
+        def test_cyoa_game_export(self) -> None:
+            with tempfile.TemporaryDirectory() as tdir:
+                p = temp_prefs(tdir)
+                with patch('calibre.gui2.cyoa.data.prefs', return_value=p):
+                    state = start_game('brief', make_world())
+                    images = {1: SceneImage(data=b'webp1', cost=0.5, currency='USD', provider='prov', model='mod', prompt='a prompt')}
+                    portraits = {'nia': {'mime': 'image/webp', 'data': 'abcd'}}
+                    buf = io.BytesIO()
+                    export_game(buf, state, images, portraits, name='Mist City')
+                    raw = buf.getvalue()
+                    with ZipFile(io.BytesIO(raw)) as zf:
+                        self.ae(sorted(zf.namelist()), sorted((EXPORT_METADATA_NAME, GAME_FILE_NAME, image_file_name(1))))
+                        metadata = json.loads(zf.read(EXPORT_METADATA_NAME))
+                        game_file_contents = json.loads(zf.read(GAME_FILE_NAME))
+                    self.ae(metadata['format'], EXPORT_FORMAT)
+                    self.ae(metadata['version'], EXPORT_VERSION)
+                    self.ae(metadata['game_file_version'], GAME_FILE_VERSION, 'the export must record the version of the game data it holds')
+                    self.ae(metadata['name'], 'Mist City')
+                    imported = import_game(io.BytesIO(raw))
+                    self.ae(imported, ImportedGame(state, images, portraits, 'Mist City'))
+                    sdir = saves_dir(tdir)
+                    save_game(imported.name, imported.state, imported.images, base=sdir, portraits=imported.portraits)
+                    self.ae(load_game('Mist City', base=sdir), (state, images, portraits))
+                    self.ae(unique_save_name('Mist City', sdir), 'Mist City (2)')
+                    self.ae(unique_save_name('Mist City', tdir), 'Mist City', 'a name no game uses must be left alone')
+
+                    def export_with(replacements: dict[str, bytes | None]) -> io.BytesIO:
+                        # The exported game with some of its members replaced, None meaning removed
+                        ans = io.BytesIO()
+                        with ZipFile(io.BytesIO(raw)) as src, ZipFile(ans, 'w') as dest:
+                            for name in src.namelist():
+                                data = replacements[name] if name in replacements else src.read(name)
+                                if data is not None:
+                                    dest.writestr(name, data)
+                        ans.seek(0)
+                        return ans
+
+                    def assert_rejected(stream: io.BytesIO, msg: str) -> None:
+                        with self.assertRaises(ValueError, msg=msg):
+                            import_game(stream)
+
+                    assert_rejected(io.BytesIO(b'this is not a zip file'), 'a file that is not a zip must be rejected')
+                    assert_rejected(export_with({EXPORT_METADATA_NAME: None}), 'a zip without export metadata must be rejected')
+                    assert_rejected(export_with({EXPORT_METADATA_NAME: b'not json'}), 'a zip with unreadable export metadata must be rejected')
+                    assert_rejected(export_with({EXPORT_METADATA_NAME: b'{}'}), 'a zip that is not an exported game must be rejected')
+                    assert_rejected(export_with({GAME_FILE_NAME: None}), 'an export without a game file must be rejected')
+                    newer = json.dumps(dict(metadata, version=EXPORT_VERSION + 1)).encode('utf-8')
+                    assert_rejected(export_with({EXPORT_METADATA_NAME: newer}), 'an export from a newer calibre must be rejected')
+                    newer = json.dumps(dict(game_file_contents, version=GAME_FILE_VERSION + 1)).encode('utf-8')
+                    assert_rejected(export_with({GAME_FILE_NAME: newer}), 'an export holding game data from a newer calibre must be rejected')
+                    self.ae(import_game(export_with({image_file_name(1): None})).images, {}, 'a missing picture must not prevent importing')
 
         def test_cyoa_saved_worlds(self) -> None:
             with tempfile.TemporaryDirectory() as tdir:

@@ -1286,7 +1286,7 @@ class GameWidget(QWidget):
     def save_game_as(self) -> None:
         if self.state is None:
             return
-        d = SaveGameDialog(self.last_save_name, self)
+        d = SaveGameDialog(self.last_save_name, self.state, self.images, self.portraits, data.creation_time(data.game_file(self.game_id)), self)
         if d.exec() != Dialog.DialogCode.Accepted:
             return
         name = d.save_name

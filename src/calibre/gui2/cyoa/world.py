@@ -62,7 +62,7 @@ from calibre.ai.cyoa import (
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.cyoa import data
-from calibre.gui2.cyoa.saves import LoadGameDialog, has_saved_games
+from calibre.gui2.cyoa.saves import LoadGameDialog
 from calibre.gui2.cyoa.text_display import TextDisplay
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets2 import Dialog
@@ -1015,13 +1015,12 @@ class CreateWorldWidget(QWidget):
         bl.addLayout(h)
         lh = QHBoxLayout()
         self.load_game_button = lgb = QPushButton(QIcon.ic('document_open.png'), _('&Load saved game'), bp)
-        lgb.setToolTip('<p>' + _('Resume a game you saved earlier instead of starting a new one in a new world'))
+        lgb.setToolTip('<p>' + _('Resume a game you saved earlier, or import one that was exported, instead of starting a new one in a new world'))
         lgb.clicked.connect(self.load_saved_game)
         lh.addWidget(lgb), lh.addStretch()
         bl.addLayout(lh)
         self.populate_descriptions_list()
         self.populate_saved_worlds_list()
-        self.update_load_game_button()
 
         self.wait_stack = ws = WaitStack(WORLD_GENERATION_MESSAGE, after=bp, parent=self, size=128)
         ws.stop()
@@ -1053,11 +1052,6 @@ class CreateWorldWidget(QWidget):
         has_saved = bool(saved)
         self.saved_worlds_label.setVisible(has_saved)
         self.saved_worlds_list.setVisible(has_saved)
-
-    def update_load_game_button(self) -> None:
-        # With no saved games there is nothing for the dialog to show, so the
-        # button would be a dead end.
-        self.load_game_button.setVisible(has_saved_games())
 
     def load_saved_game(self) -> None:
         d = LoadGameDialog(self)
@@ -1141,7 +1135,6 @@ class CreateWorldWidget(QWidget):
         self.world_edit.cancel_portrait_generation()
         self.wait_stack.stop()
         self.populate_saved_worlds_list()
-        self.update_load_game_button()
         self.right_stack.setCurrentWidget(self.generate_page)
         self.stack.setCurrentWidget(self.wait_stack)
 
