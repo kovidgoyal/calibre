@@ -34,8 +34,7 @@ def slug_to_title(url):
 class TheBeliever(BasicNewsRecipe):
     title = 'The Believer'
     __author__ = 'flurbs'
-    description = (
-        "The Believer is a magazine of interviews, essays, poetry, comics and columns, published quarterly by McSweeney's.")
+    description = "The Believer is a magazine of interviews, essays, poetry, comics and columns, published quarterly by McSweeney's."
     publisher = "McSweeney's"
     category = 'magazine, literature, culture, interviews'
     language = 'en'
