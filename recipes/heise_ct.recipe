@@ -79,7 +79,7 @@ class heise_select(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             loginURL = 'https://www.heise.de/sso/login?forward=%2Fselect'
             br.open(loginURL)
-            br.select_form(action='/sso/login/login')
+            br.select_form(action='/sso/login/login/nojs')
             br['username'] = self.username
             br['password'] = self.password
             br.submit()
