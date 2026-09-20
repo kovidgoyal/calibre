@@ -63,6 +63,7 @@ from calibre.ai.cyoa import (
     NonPlayerCharacter,
     PlayerCharacter,
     QuickAction,
+    apply_character_edits,
     deserialize_game,
     next_turn,
     npc_character_ids,
@@ -1405,14 +1406,13 @@ class GameWidget(QWidget):
             for old_id, new_id in zip(old_ids, npc_character_ids(state.world.npcs)):
                 if old_id != new_id and (p := self.portraits.pop(old_id, None)) is not None:
                     self.portraits[new_id] = p
-        # Apply the edits to the summaries of all stored turns, matching by
-        # the stable character ids, so that they survive rewinding the game
-        # and apply to a character the player renamed here.
-        if edits:
-            for i, t in enumerate(state.turns):
-                characters = tuple(edits.get(c.id, c) for c in t.summary.characters)
-                if characters != t.summary.characters:
-                    state.turns[i] = t._replace(summary=t.summary._replace(characters=characters))
+        # Apply the edits to the summaries of the stored turns. What is
+        # durable about a character reaches every turn, so that it survives
+        # rewinding the game, and the state they are in only the last one, see
+        # calibre.ai.cyoa.apply_character_edits(). The played character is
+        # passed separately because the world, not the summary, holds the copy
+        # of them the dialog edits.
+        apply_character_edits(state, edits, d.player_character)
         # The story memory, unlike the characters, is a snapshot of where the
         # story stands, so it is applied to the last turn alone: going back to
         # an earlier turn must restore the memory as it was at that turn.

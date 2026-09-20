@@ -18,7 +18,7 @@
 
 import json
 import textwrap
-from collections.abc import Container, Iterable, Sequence
+from collections.abc import Container, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any, NamedTuple, Protocol
@@ -538,6 +538,42 @@ def rewind(state: GameState, num_of_turns: int = 1) -> None:
     if not 0 < num_of_turns <= len(state.turns):
         raise ValueError(f'Cannot rewind {num_of_turns} turns in a game with {len(state.turns)} turns')
     del state.turns[-num_of_turns:]
+
+
+def apply_character_edits(state: GameState, edits: Mapping[str, CharacterState], player: PlayerCharacter | None = None) -> None:
+    # Apply the player's edits of the cast, keyed by the stable id of the
+    # character each one edits, to the summaries of the stored turns. Matching
+    # by id rather than by name means an edit that renames a character renames
+    # them throughout the story rather than forking them in two.
+    #
+    # What is durable about a character, their name, description, backstory
+    # and relationships, is applied to every turn, so that the edits survive
+    # rewinding the game. Their current_state is not: like the rest of the
+    # story memory it is a snapshot of where the story stands as a turn ends,
+    # so it is applied to the last turn alone and going back to an earlier
+    # turn restores the state the character was in then, see GameState.turns.
+    #
+    # The character the player plays is edited as a PlayerCharacter, because
+    # the world holds the only copy of them, but they are in the story summary
+    # too, which is what the AI is actually sent, so their edit has to reach
+    # both: pass it as player and it is merged into the entry the summary
+    # holds for them, leaving the parts of it a PlayerCharacter does not
+    # carry, their relationships and current state, as the story left them.
+    all_edits = dict(edits)
+    if player is not None and state.turns:
+        for c in state.turns[-1].summary.characters:
+            if c.id == PROTAGONIST_ID:
+                all_edits[PROTAGONIST_ID] = c._replace(name=player.name, description=player.description, backstory=player.backstory)
+                break
+    if not all_edits:
+        return
+    last = len(state.turns) - 1
+    for i, t in enumerate(state.turns):
+        characters = tuple(
+            c if (e := all_edits.get(c.id)) is None else (e if i == last else e._replace(current_state=c.current_state)) for c in t.summary.characters
+        )
+        if characters != t.summary.characters:
+            state.turns[i] = t._replace(summary=t.summary._replace(characters=characters))
 
 
 # }}}
@@ -2140,6 +2176,65 @@ def find_tests() -> TestSuite:  # {{{
             self.assertRaises(ValueError, rewind, state, 0)
             rewind(state)
             self.ae(state.current_summary, initial_summary(state.world, state.character))
+
+        def test_ai_cyoa_character_edits(self) -> None:
+            # Editing a character changes who they are for the whole story,
+            # but the state they are in is a snapshot of the turn it was
+            # edited at, just like the rest of the story memory, so rewinding
+            # to an earlier turn restores the state they were in then.
+            world = make_world()._replace(npcs=(NonPlayerCharacter('Marlo', 'a mist-runner', 'He grew up in the tunnels.', 'guides'),))
+            state = start_game('brief', world)
+
+            def turn_in_state(narrative: str, event: str, current_state: str) -> StoryTurn:
+                t = make_turn(narrative, event)
+                return t._replace(summary_update=t.summary_update._replace(character_updates=(CharacterDelta(id=PROTAGONIST_ID, current_state=current_state),)))
+
+            fake = FakePlugin([
+                ok(turn_in_state('One.', 'one', 'on the quay')),
+                ok(turn_in_state('Two.', 'two', 'in the tunnels')),
+                ok(turn_in_state('Three.', 'three', 'in the tower')),
+            ])
+            for x in ('', 'a', 'b'):
+                next_turn(state, x, fake)
+
+            def cast(turn_number: int) -> dict[str, CharacterState]:
+                return {c.id: c for c in state.turns[turn_number - 1].summary.characters}
+
+            self.ae(cast(1)[PROTAGONIST_ID].current_state, 'on the quay')
+            self.ae(cast(3)[PROTAGONIST_ID].current_state, 'in the tower')
+            marlo = cast(3)['marlo']
+            apply_character_edits(
+                state,
+                {'marlo': marlo._replace(name='Marlowe', description='a scarred mist-runner', current_state='waiting at the gate')},
+                player=PlayerCharacter('Adamant', 'a scarred engineer', 'She built the mist engines and lost them.'),
+            )
+            for tn in (1, 2, 3):
+                p, m = cast(tn)[PROTAGONIST_ID], cast(tn)['marlo']
+                self.ae((p.name, p.description), ('Adamant', 'a scarred engineer'), 'an edit of who a character is must reach every turn')
+                self.ae((m.name, m.description), ('Marlowe', 'a scarred mist-runner'))
+            self.ae(cast(1)[PROTAGONIST_ID].current_state, 'on the quay', 'an edit must not overwrite the state a character was in at an earlier turn')
+            self.ae(cast(2)[PROTAGONIST_ID].current_state, 'in the tunnels')
+            self.ae(cast(3)[PROTAGONIST_ID].current_state, 'in the tower', 'the played character has no current state to edit, so it must be left alone')
+            self.ae(cast(1)['marlo'].current_state, NPC_NOT_YET_MET)
+            self.ae(cast(3)['marlo'].current_state, 'waiting at the gate', 'an edit of the state of a character must be applied to the last turn')
+            # The protagonist keeps the relationships the story gave them: a
+            # PlayerCharacter has none to edit.
+            self.ae(cast(3)[PROTAGONIST_ID].relationships, '')
+
+            # Restarting the game from its first turn must restore both the
+            # story memory and the cast as they were at that turn.
+            rewind(state, 2)
+            p = {c.id: c for c in state.current_summary.characters}
+            self.ae(p[PROTAGONIST_ID].current_state, 'on the quay')
+            self.ae(p[PROTAGONIST_ID].name, 'Adamant')
+            self.ae(p['marlo'].current_state, NPC_NOT_YET_MET)
+            self.ae(state.current_summary.major_events, ('one',))
+
+            # An edit of a character no turn holds, and an empty edit, change nothing
+            before = list(state.turns)
+            apply_character_edits(state, {'nobody': marlo._replace(id='nobody')})
+            apply_character_edits(state, {})
+            self.ae(before, state.turns)
 
         def test_ai_cyoa_serialization(self) -> None:
             style = StoryStyle(art_style='anime', pace='short', tone='comedic', narration='third-past')
