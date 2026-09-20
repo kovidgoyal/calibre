@@ -6,6 +6,7 @@ import textwrap
 from qt.core import QComboBox, Qt
 
 from calibre.gui2 import config as gui_conf
+from calibre.gui2.removable_history import enable_item_removal_for_combobox, remove_item_from_combobox
 
 
 class HistoryBox(QComboBox):
@@ -16,6 +17,7 @@ class HistoryBox(QComboBox):
     def initialize(self, opt_name, default, help=None):
         self.opt_name = opt_name
         self.set_value(default)
+        enable_item_removal_for_combobox(self, self.remove_history_item)
         if help:
             self.setStatusTip(help)
             help = '\n'.join(textwrap.wrap(help))
@@ -29,6 +31,10 @@ class HistoryBox(QComboBox):
         self.clear()
         self.addItems(history)
         self.setCurrentIndex(self.findText(val, Qt.MatchFlag.MatchFixedString))
+
+    def remove_history_item(self, item):
+        if remove_item_from_combobox(self, item):
+            gui_conf[self.opt_name] = [str(self.itemText(i)) for i in range(self.count())]
 
     def save_history(self, opt_name):
         history = [str(self.itemText(i)) for i in range(self.count())]

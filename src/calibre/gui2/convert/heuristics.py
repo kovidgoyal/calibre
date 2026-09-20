@@ -6,6 +6,7 @@ from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2 import gprefs
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.heuristics_ui import Ui_Form
+from calibre.gui2.removable_history import enable_item_removal_for_combobox, remove_item_from_combobox
 from calibre.utils.localization import _, localize_user_manual_link
 
 
@@ -22,6 +23,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
 
         self.load_histories()
+        enable_item_removal_for_combobox(self.opt_replace_scene_breaks, self.remove_history_item)
 
         self.opt_enable_heuristics.stateChanged.connect(self.enable_heuristics)
         self.opt_unwrap_lines.stateChanged.connect(self.enable_unwrap)
@@ -64,6 +66,10 @@ class HeuristicsWidget(Widget, Ui_Form):
         if not val and g is self.opt_replace_scene_breaks:
             g.lineEdit().setText('')
             return True
+
+    def remove_history_item(self, item):
+        if remove_item_from_combobox(self.opt_replace_scene_breaks, item):
+            gprefs['replace_scene_breaks_history'] = [str(self.opt_replace_scene_breaks.itemText(i)) for i in range(self.opt_replace_scene_breaks.count())]
 
     def load_histories(self):
         val = str(self.opt_replace_scene_breaks.currentText())

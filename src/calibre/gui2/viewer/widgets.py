@@ -142,6 +142,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 
 class SearchBox(HistoryComboBox):  # {{{
     history_saved = pyqtSignal(object, object)
+    history_pruned = pyqtSignal(object)
     history_cleared = pyqtSignal()
     cleared = pyqtSignal()
 
@@ -163,6 +164,10 @@ class SearchBox(HistoryComboBox):  # {{{
         ret = HistoryComboBox.save_history(self)
         self.history_saved.emit(self.text(), self.history)
         return ret
+
+    def remove_history_item(self, item):
+        super().remove_history_item(item)
+        self.history_pruned.emit(self.history)
 
     def clear_history(self):
         super().clear_history()

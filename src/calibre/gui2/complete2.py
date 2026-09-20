@@ -157,11 +157,13 @@ class CompleteModel(QAbstractListModel):  # {{{
 
 class Completer(QListView):  # {{{
     item_selected = pyqtSignal(object)
+    remove_item_requested = pyqtSignal(object)
     apply_current_text = pyqtSignal()
     relayout_needed = pyqtSignal()
 
     def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key, strip_completion_entries=True):
         QListView.__init__(self, completer_widget)
+        self.item_remover = None
         self.disable_popup = False
         self.setWindowFlags(Qt.WindowType.Popup)
         self.max_visible_items = max_visible_items
@@ -182,6 +184,13 @@ class Completer(QListView):  # {{{
     def hide(self):
         self.setCurrentIndex(QModelIndex())
         QListView.hide(self)
+
+    def enable_item_removal(self) -> None:
+        "Allow the user to remove individual entries from the list of completions"
+        if self.item_remover is None:
+            from calibre.gui2.removable_history import HistoryItemRemover
+
+            self.item_remover = HistoryItemRemover(self, self.remove_item_requested.emit, hide_popup=self.hide, text_role=Qt.ItemDataRole.UserRole)
 
     def _complete_model(self) -> CompleteModel:
         m = self.model()
@@ -411,6 +420,7 @@ class LineEdit(QLineEdit, LineEditECM):
         self.textEdited.connect(self.text_edited)
         self.cursorPositionChanged.connect(self.cursor_position_changed)
         self.no_popup = False
+        self.remove_completion_item_callback = None
 
     # Interface {{{
     def set_use_startswith_search(self, yes: bool) -> None:
@@ -453,7 +463,30 @@ class LineEdit(QLineEdit, LineEditECM):
     def set_elide_mode(self, val):
         self.mcompleter.setTextElideMode(val)
 
+    def enable_history_item_removal(self, callback) -> None:
+        """
+        Allow the user to remove individual entries from the completion popup
+        with Shift+Delete or the remove button shown when hovering over an
+        entry. callback() is called with the text of the removed entry and must
+        update the list of completions via update_items_cache().
+        """
+        self.remove_completion_item_callback = callback
+        self.mcompleter.remove_item_requested.connect(self.remove_completion_item)
+        self.mcompleter.enable_item_removal()
+
     # }}}
+
+    def remove_completion_item(self, text: str) -> None:
+        if self.remove_completion_item_callback is None:
+            return
+        cm = self.mcompleter._complete_model()
+        # updating the list of completions resets the completion prefix, so
+        # restore it, to keep the popup showing the same set of entries
+        prefix = cm.current_prefix
+        self.remove_completion_item_callback(text)
+        self.mcompleter.set_completion_prefix(prefix, self.hierarchy_separator)
+        if cm.rowCount() > 0:
+            self.relayout()
 
     def event(self, a0):
         # See https://bugreports.qt.io/browse/QTBUG-46911
@@ -641,6 +674,9 @@ class EditWithComplete(EnComboBox):
 
     def set_clear_button_enabled(self, val=True):
         self._line_edit().setClearButtonEnabled(bool(val))
+
+    def enable_history_item_removal(self, callback) -> None:
+        self._line_edit().enable_history_item_removal(callback)
 
     # }}}
 

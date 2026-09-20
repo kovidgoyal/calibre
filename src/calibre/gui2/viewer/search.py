@@ -482,6 +482,7 @@ class SearchInput(QWidget):  # {{{
         sb.initialize(f'viewer-{panel_name}-panel-expression')
         sb.item_selected.connect(self.saved_search_selected)
         sb.history_saved.connect(self.history_saved)
+        sb.history_pruned.connect(self.history_pruned)
         sb.history_cleared.connect(self.history_cleared)
         sb.cleared.connect(self.cleared)
         le_sb = sb.lineEdit()
@@ -552,6 +553,11 @@ class SearchInput(QWidget):  # {{{
             history = frozenset(history)
             sss = {k: v for k, v in sss.items() if k in history}
             vprefs[f'saved-{self.panel_name}-settings'] = sss
+
+    def history_pruned(self, history):
+        sss = vprefs.get(f'saved-{self.panel_name}-settings') or {}
+        history = frozenset(history)
+        vprefs[f'saved-{self.panel_name}-settings'] = {k: v for k, v in sss.items() if k in history}
 
     def history_cleared(self):
         vprefs[f'saved-{self.panel_name}-settings'] = {}

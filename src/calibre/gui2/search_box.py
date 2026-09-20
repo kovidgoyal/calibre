@@ -11,6 +11,7 @@ from qt.core import QAction, QApplication, QComboBox, QCompleter, QDialog, QEven
 from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION, config, gprefs, question_dialog
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
+from calibre.gui2.removable_history import HistoryItemRemover, remove_item_from_combobox
 from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, pgettext
@@ -202,7 +203,27 @@ class SearchBox2(QComboBox):  # {{{
                 items.append(item)
         self.addItems(items)
         self.line_edit.setPlaceholderText(help_text)
+        self.enable_history_item_removal()
         self.clear()
+
+    def enable_history_item_removal(self):
+        "Allow removing individual entries from both the drop down list and the completion popup"
+        view = self.view()
+        if view is not None:
+            HistoryItemRemover(view, self.remove_history_item, hide_popup=self.hidePopup)
+        completer = self.line_edit.completer()
+        popup = None if completer is None else completer.popup()
+        if popup is not None:
+            HistoryItemRemover(popup, partial(self.remove_history_item, refresh_completer=True), hide_popup=popup.hide, restore_current_row=False)
+
+    def remove_history_item(self, item, refresh_completer=False):
+        if remove_item_from_combobox(self, item):
+            config[self.opt_name] = [str(self.itemText(i)) for i in range(self.count())]
+        if refresh_completer:
+            completer = self.line_edit.completer()
+            if completer is not None:
+                # resize the completion popup to account for the removed entry
+                completer.complete()
 
     def clear_history(self):
         config[self.opt_name] = []
