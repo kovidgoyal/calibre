@@ -62,9 +62,9 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
         if tweaks['locale_for_sorting']:
             _locale = tweaks['locale_for_sorting']
         else:
-            from calibre.utils.localization import get_lang
+            from calibre.utils.localization import bcp47_locale_name
 
-            _locale = get_lang()
+            _locale = bcp47_locale_name()
     key = strength, numeric, ignore_alternate_chars, upper_first
     if (ans := thread_local_collator_cache.cache.get(key)) is not None:
         return ans

@@ -89,7 +89,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.img import set_image_allocation_limit
-from calibre.utils.localization import _, get_lang, install_qt_translator
+from calibre.utils.localization import _, bcp47_locale_name, install_qt_translator
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
@@ -1511,7 +1511,7 @@ class Application(QApplication):
             QTimer.singleShot(0, lambda: QApplication.setFont(font_from_prefs))
         self.line_height = max(12, QFontMetrics(self.font()).lineSpacing())
 
-        dl = QLocale(get_lang())
+        dl = QLocale(bcp47_locale_name())
         if str(dl.bcp47Name()) != 'C':
             QLocale.setDefault(dl)
         global gui_thread, qt_app

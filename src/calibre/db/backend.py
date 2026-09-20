@@ -407,10 +407,10 @@ class Connection(apsw.Connection):  # {{{
     BUSY_TIMEOUT = 10000  # milliseconds
 
     def __init__(self, path):
-        from calibre.utils.localization import get_lang
+        from calibre.utils.localization import bcp47_locale_name
         from calibre_extensions.sqlite_extension import set_ui_language
 
-        set_ui_language(get_lang())
+        set_ui_language(bcp47_locale_name())
         super().__init__(path)
         plugins.load_apsw_extension(self, 'sqlite_extension')
         self.fts_dbpath = self.notes_dbpath = None

@@ -151,6 +151,33 @@ def locale_fallbacks(lang):
     return ans
 
 
+# The gettext locale modifiers that name a writing system rather than some
+# other variation such as a currency or a collation order.
+_script_modifiers = {'latin': 'Latn', 'latn': 'Latn', 'cyrillic': 'Cyrl', 'cyrl': 'Cyrl'}
+
+
+def bcp47_locale_name(lang: str = '') -> str:
+    """Convert a calibre locale name into the form understood by Qt and ICU.
+
+    calibre follows gettext in marking a script variant with an @modifier, as in
+    ``sr@latin``. Both Qt and ICU truncate a locale name at the ``@``, so
+    ``sr@latin`` resolves to plain Serbian, which is written in Cyrillic. They
+    want the script as a subtag instead: ``sr_Latn``/``sr_Latn_RS``.
+    """
+    lang = lang or get_lang()
+    base, sep, modifier = lang.partition('@')
+    if not sep:
+        return lang
+    script = _script_modifiers.get(modifier.lower())
+    if script is None:
+        # Not a script variant, and passing the modifier on would be
+        # misinterpreted, so use the plain locale.
+        return base
+    parts = base.split('_')
+    parts.insert(1, script)
+    return '_'.join(parts)
+
+
 def get_lc_messages_path(lang):
     if zf_exists():
         available = available_translations()
