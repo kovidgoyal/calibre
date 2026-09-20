@@ -33,10 +33,9 @@ def slug_to_title(url):
 
 class TheBeliever(BasicNewsRecipe):
     title = 'The Believer'
+    __author__ = 'flurbs'
     description = (
-        'The Believer is a magazine of interviews, essays, poetry, comics and '
-        "columns, published quarterly by McSweeney's."
-    )
+        "The Believer is a magazine of interviews, essays, poetry, comics and columns, published quarterly by McSweeney's.")
     publisher = "McSweeney's"
     category = 'magazine, literature, culture, interviews'
     language = 'en'
@@ -69,9 +68,7 @@ class TheBeliever(BasicNewsRecipe):
         'issue': {
             'short': 'Issue slug to download',
             'long': (
-                'The part of the issue URL after /product/, for example '
-                'spring-2026 or fall-2025. Leave blank to get the newest '
-                'issue that has articles online.'
+                'The part of the issue URL after /product/, for example spring-2026 or fall-2025. Leave blank to get the newest issue that has articles online.'
             ),
         },
         'latest_cover': {
@@ -93,10 +90,7 @@ class TheBeliever(BasicNewsRecipe):
     ]
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = (
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/128.0 Safari/537.36'
-        )
+        kwargs['user_agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         if self.username and self.password:
             # Subscriptions are sold through the McSweeney's store, which also
@@ -110,12 +104,8 @@ class TheBeliever(BasicNewsRecipe):
             raw = resp.read()
             if 'thebeliever.net' not in resp.geturl():
                 reason = ''
-                for m in re.findall(
-                    br'<div[^>]*class="[^"]*(?:flash|error|alert)[^"]*"[^>]*>(.*?)</div>', raw, re.S
-                ):
-                    reason = ' '.join(
-                        re.sub(r'<[^>]+>', ' ', m.decode('utf-8', 'replace')).split()
-                    )
+                for m in re.findall(rb'<div[^>]*class="[^"]*(?:flash|error|alert)[^"]*"[^>]*>(.*?)</div>', raw, re.S):
+                    reason = ' '.join(re.sub(r'<[^>]+>', ' ', m.decode('utf-8', 'replace')).split())
                     reason = reason.rstrip('.')
                     if reason:
                         break
@@ -216,7 +206,7 @@ class TheBeliever(BasicNewsRecipe):
         return feeds
 
     def parse_index(self):
-        opt = (self.recipe_specific_options.get('issue') or '')
+        opt = self.recipe_specific_options.get('issue') or ''
         opt = opt.strip().strip('/') if isinstance(opt, str) else ''
         if opt:
             candidates = [BASE + '/product/' + opt.rpartition('/')[-1] + '/']
@@ -251,13 +241,10 @@ class TheBeliever(BasicNewsRecipe):
 
     # --------------------------------------------------------------- articles
 
-    def preprocess_raw_html(self, raw, url):
-        if 'reached your article limit' in raw:
-            self.log.warn(
-                'Paywall hit, article is truncated:', url,
-                '- check your subscription login'
-            )
-        return raw
+    def preprocess_raw_html(self, raw_html, url):
+        if 'reached your article limit' in raw_html:
+            self.log.warn('Paywall hit, article is truncated:', url, '- check your subscription login')
+        return raw_html
 
     def preprocess_html(self, soup):
         body = soup.find('body')
@@ -336,6 +323,4 @@ class TheBeliever(BasicNewsRecipe):
         if not article.author:
             byline = soup.find(**classes('bel-byline'))
             if byline is not None:
-                article.author = re.sub(
-                    r'^\s*by\s+', '', self.tag_to_string(byline), flags=re.I
-                ).strip()
+                article.author = re.sub(r'^\s*by\s+', '', self.tag_to_string(byline), flags=re.I).strip()
