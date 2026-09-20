@@ -10,7 +10,7 @@ dependencies = [
 	"unrardll == 0.1.7",
 	"lxml == 6.1.1",
 	"pychm == 0.8.6",
-	"html5-parser == 0.4.12",
+	"html5-parser == 0.5.0",
 	"css-parser == 1.1.1",
 	"python-dateutil == 2.9.0",
 	"jeepney == 0.9.0",
