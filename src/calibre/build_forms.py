@@ -77,7 +77,10 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False, che
             if not summary:
                 info('\tCompiling form', form)
             buf = PolyglotStringIO()
-            m.compileUi(form, buf)
+            try:
+                m.compileUi(form, buf)
+            except Exception as e:
+                raise ValueError(f'Failed to comfile form: {form} with error: {e}') from e
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', '')
             dat = transdef_pat.sub('', dat)
