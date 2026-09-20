@@ -31,7 +31,8 @@
 
   This is a little different from the usual run of calibre features. It started out as a way to test the AI backends in calibre
   but turned into something fun to use. As always with AI features its completely optional and not even loaded unless
-  you explicitly run it. Go to Preferences->Toolbars & menus and add the "Create your own Adventure" to the main toolbar to use it
+  you explicitly run it. Go to Preferences->Toolbars & menus and add the "Create your own Adventure" button
+  to the main toolbar to use it
 
 - [2167215] E-book viewer: Highlights panel: Allow selecting multiple highlights and right clicking to change their style
 
