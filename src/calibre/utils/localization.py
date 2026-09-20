@@ -93,9 +93,18 @@ def get_system_locale():
 
 def sanitize_lang(lang):
     if lang:
-        match = re.match(r'[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
+        # Split off the script modifier first so that the encoding can be
+        # discarded while the modifier is kept, turning a system locale such as
+        # sr_RS.UTF-8@latin into sr_RS@latin. The modifier distinguishes
+        # translations like sr@latin from sr, so it must survive.
+        base, sep, modifier = lang.partition('@')
+        match = re.match(r'[a-z]{2,3}(_[A-Z]{2}){0,1}', base.partition('.')[0])
         if match:
             lang = match.group()
+            if sep:
+                match = re.match(r'[A-Za-z]+', modifier)
+                if match:
+                    lang += '@' + match.group()
     if lang == 'zh':
         lang = 'zh_CN'
     if not lang:
@@ -125,16 +134,30 @@ def is_rtl():
     return get_lang()[:2].lower() in {'he', 'ar'}
 
 
+def locale_fallbacks(lang):
+    """Locale names to look for translation data under, most specific first.
+
+    A script modifier (the ``@latin`` in ``sr@latin``) identifies a different
+    writing system, so it is more significant than a country code: ``sr_RS@latin``
+    prefers ``sr@latin`` over ``sr_RS``.
+    """
+    base, sep, modifier = lang.partition('@')
+    modifier = '@' + modifier if sep and modifier else ''
+    primary = base.partition('_')[0].lower()
+    ans = []
+    for candidate in (lang, primary + modifier, base, primary):
+        if candidate and candidate not in ans:
+            ans.append(candidate)
+    return ans
+
+
 def get_lc_messages_path(lang):
-    hlang = None
     if zf_exists():
-        if lang in available_translations():
-            hlang = lang
-        else:
-            xlang = lang.split('_')[0].lower()
-            if xlang in available_translations():
-                hlang = xlang
-    return hlang
+        available = available_translations()
+        for candidate in locale_fallbacks(lang):
+            if candidate in available:
+                return candidate
+    return None
 
 
 def zf_exists():
@@ -369,6 +392,7 @@ _extra_lang_codes = {
     'zh_TW': _('Traditional Chinese'),
     'bn_IN': _('Indian Bengali'),
     'bn_BD': _('Bangladeshi Bengali'),
+    'sr@latin': _('Serbian (Latin)'),
     'en': _('English'),
     'und': _('Unknown'),
 }
@@ -498,7 +522,7 @@ def canonicalize_lang(raw):
     raw = raw.lower().strip()
     if not raw:
         return None
-    raw = raw.replace('_', '-').partition('-')[0].strip()
+    raw = raw.replace('_', '-').partition('-')[0].partition('@')[0].strip()
     if not raw:
         return None
     iso639 = _load_iso639()

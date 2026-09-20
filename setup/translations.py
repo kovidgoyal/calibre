@@ -347,11 +347,11 @@ class Translations(POT):  # {{{
 
     def is_po_file_ok(self, x):
         bname = os.path.splitext(os.path.basename(x))[0]
-        # sr@latin.po is identical to sr.po. And we don't support country
-        # specific variants except for a few.
+        # We don't support country specific variants except for a few. Script
+        # variants (such as sr@latin) are always supported.
         if '_' in bname:
             return bname.partition('_')[0] in ('pt', 'zh', 'bn')
-        return bname != 'sr@latin'
+        return True
 
     def po_files(self):
         return [x for x in glob.glob(os.path.join(self.TRANSLATIONS, __appname__, '*.po')) if self.is_po_file_ok(x)]
@@ -420,6 +420,8 @@ class Translations(POT):  # {{{
         exec(compile(open(lc_dataf, 'rb').read(), lc_dataf, 'exec'), l, l)
         lcdata = {k: dict(v) for k, v in l['data']}
         self.info('Compiling main UI translation files...')
+        from calibre.utils.localization import locale_fallbacks
+
         fmap = {f: self.mo_file(f) for f in self.po_files()}
         files = [(f, fmap[f][1]) for f in self.po_files()]
 
@@ -478,15 +480,13 @@ class Translations(POT):  # {{{
             iso_data.extract_po_files('iso_639-3', tdir)
             for f, (locale, dest) in fmap.items():
                 iscpo = {'zh_HK': 'zh_CN'}.get(locale, locale)
-                iso639 = self.j(tdir, f'{iscpo}.po')
-                if os.path.exists(iso639):
-                    files.append((iso639, self.j(self.d(dest), 'iso639.mo')))
-                else:
-                    iscpo = iscpo.partition('_')[0]
-                    iso639 = self.j(tdir, f'{iscpo}.po')
+                for candidate in locale_fallbacks(iscpo):
+                    iso639 = self.j(tdir, f'{candidate}.po')
                     if os.path.exists(iso639):
                         files.append((iso639, self.j(self.d(dest), 'iso639.mo')))
-                    elif locale not in skip_iso:
+                        break
+                else:
+                    if locale not in skip_iso:
                         self.warn('No ISO 639 translations for locale:', locale)
             self.compile_group(
                 files,
@@ -501,14 +501,13 @@ class Translations(POT):  # {{{
         with tempfile.TemporaryDirectory() as tdir:
             iso_data.extract_po_files('iso_3166-1', tdir)
             for f, (locale, dest) in fmap.items():
-                pofile = self.j(tdir, f'{locale}.po')
-                if os.path.exists(pofile):
-                    files.append((pofile, self.j(self.d(dest), 'iso3166.mo')))
-                else:
-                    pofile = self.j(tdir, f'{locale.partition("_")[0]}.po')
+                for candidate in locale_fallbacks(locale):
+                    pofile = self.j(tdir, f'{candidate}.po')
                     if os.path.exists(pofile):
                         files.append((pofile, self.j(self.d(dest), 'iso3166.mo')))
-                    elif locale not in skip_iso:
+                        break
+                else:
+                    if locale not in skip_iso:
                         self.warn('No ISO 3166 translations for locale:', locale)
             self.compile_group(
                 files,
