@@ -65,8 +65,8 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item row="1" column="1" colspan="2">
+           <layout class="FlowLayout" name="horizontalLayout_2">
             <item>
              <widget class="QCheckBox" name="auto_author_sort">
               <property name="toolTip">
@@ -269,7 +269,7 @@
              <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
             </property>
             <property name="minimumContentsLength">
-             <number>40</number>
+             <number>20</number>
             </property>
            </widget>
           </item>
@@ -283,8 +283,8 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
-           <layout class="QHBoxLayout" name="HLayout_3">
+          <item row="8" column="0" colspan="3">
+           <layout class="FlowLayout" name="HLayout_3">
             <item>
              <widget class="QCheckBox" name="autonumber_series">
               <property name="enabled">
@@ -302,56 +302,74 @@ Book A will have series number 1 and Book B series number 2.</string>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="series_numbering_restarts">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Series will normally be renumbered from the highest number in the database
+             <widget class="QWidget" name="series_numbering_container" native="true">
+              <layout class="QHBoxLayout" name="series_numbering_layout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="series_numbering_restarts">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>Series will normally be renumbered from the highest number in the database
 for that series. Checking this box will tell calibre to start numbering
 from the value in the box</string>
-              </property>
-              <property name="text">
-               <string>&amp;Force numbers to start with:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="series_start_number">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimum">
-               <double>0.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>99000000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QDoubleSpinBox" name="series_increment">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>The amount by which to increment the series number for successive books. Only applicable when using force series numbers.</string>
-              </property>
-              <property name="prefix">
-               <string>+ </string>
-              </property>
-              <property name="minimum">
-               <double>0.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>99999.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
+                 </property>
+                 <property name="text">
+                  <string>&amp;Force numbers to start with:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="series_start_number">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>99000000.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="series_increment">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>The amount by which to increment the series number for successive books. Only applicable when using force series numbers.</string>
+                 </property>
+                 <property name="prefix">
+                  <string>+ </string>
+                 </property>
+                 <property name="minimum">
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>99999.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
            </layout>
@@ -494,24 +512,20 @@ from the value in the box</string>
          </spacer>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="1" column="1">
-           <widget class="QComboBox" name="casing_algorithm">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+         <layout class="FlowLayout" name="gridLayout_2">
+          <item>
+           <widget class="QCheckBox" name="remove_conversion_settings">
+            <property name="toolTip">
+             <string>Remove stored conversion settings for the selected books.
+
+Future conversion of these books will use the default settings.</string>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
+            <property name="text">
+             <string>Remove &amp;stored conversion settings for the selected books</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item>
            <widget class="QCheckBox" name="restore_original">
             <property name="toolTip">
              <string>When doing a same format to same format conversion,
@@ -525,30 +539,46 @@ from the value in the box</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="remove_conversion_settings">
-            <property name="toolTip">
-             <string>Remove stored conversion settings for the selected books.
-
-Future conversion of these books will use the default settings.</string>
-            </property>
-            <property name="text">
-             <string>Remove &amp;stored conversion settings for the selected books</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="change_title_to_title_case">
-            <property name="toolTip">
-             <string>Force the title to be in title case. If both this and swap authors are checked,
+          <item>
+           <widget class="QWidget" name="title_casing_container" native="true">
+            <layout class="QHBoxLayout" name="title_casing_layout">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="change_title_to_title_case">
+               <property name="toolTip">
+                <string>Force the title to be in title case. If both this and swap authors are checked,
 title and author are swapped before the title case is set</string>
-            </property>
-            <property name="text">
-             <string>Change title &amp;case to:</string>
-            </property>
+               </property>
+               <property name="text">
+                <string>Change title &amp;case to:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="casing_algorithm">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item>
            <widget class="QCheckBox" name="update_title_sort">
             <property name="toolTip">
              <string>Update title sort based on the current title. This will be applied only after other changes to title.</string>
@@ -557,19 +587,6 @@ title and author are swapped before the title case is set</string>
              <string>Update &amp;title sort</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
@@ -702,7 +719,7 @@ as that of the first selected book.</string>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
+         <layout class="FlowLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="button_config_cover_gen">
             <property name="toolTip">
@@ -725,19 +742,6 @@ as that of the first selected book.</string>
              <string>Set the co&amp;mments for all selected books</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>

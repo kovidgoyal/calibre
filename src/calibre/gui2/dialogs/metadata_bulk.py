@@ -22,6 +22,7 @@ from qt.core import (
     QLineEdit,
     QProgressBar,
     QSize,
+    QStyle,
     Qt,
     QVBoxLayout,
     pyqtSignal,
@@ -824,11 +825,34 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self._change_transform_rules(RulesDialog, 'series')
 
     def sizeHint(self):
+        # The tabs are inside scroll areas, whose size hints do not account for
+        # their contents, so calculate a size large enough to show the first
+        # tab without scrolling instead of simply filling the screen. Font
+        # metrics are used so that the dialog scales with the user's font size.
+        fm = self.fontMetrics()
+        nw = 125 * fm.averageCharWidth()
+        layout = self.layout()
+        assert layout is not None
+        margins = layout.contentsMargins()
+        style = self.style()
+        assert style is not None
+        frame = style.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth, None, self)
+        vbar = self.scrollArea1.verticalScrollBar()
+        assert vbar is not None
+        # Width available to the contents of the tab, allowing for the dialog
+        # margins, the tab widget frame and a vertical scroll bar
+        cw = nw - margins.left() - margins.right() - 2 * frame - vbar.sizeHint().width()
+        btab_layout = self.btab.layout()
+        assert btab_layout is not None
+        nh = btab_layout.heightForWidth(cw)
+        tab_bar = self.central_widget.tabBar()
+        assert tab_bar is not None
+        nh += tab_bar.sizeHint().height() + self.button_box.sizeHint().height()
+        nh += margins.top() + margins.bottom() + layout.spacing() + 2 * frame
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
-        nh, nw = max(300, geom.height() - 50), max(400, geom.width() - 70)
-        return QSize(nw, nh)
+        return QSize(max(400, min(nw, geom.width() - 70)), max(300, min(nh, geom.height() - 50)))
 
     def customize_cover_generation(self):
         from calibre.gui2.covers import CoverSettingsDialog
