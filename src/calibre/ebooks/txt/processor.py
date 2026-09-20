@@ -381,6 +381,6 @@ def get_images_from_polyglot_text(txt: str, base_dir: str = '', file_ext: str = 
 
         root = parse(html)
         for img in root.iterdescendants('img'):
-            path = img.get('src')
+            path = img.get('src') or ''
             check_path(path)
     return images
