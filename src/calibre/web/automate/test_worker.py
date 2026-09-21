@@ -22,8 +22,11 @@ def print(*a: object, **kw: Any) -> None:  # noqa: ANN401
 
 
 # Long enough that the client has certainly finished writing its request, and
-# so half closed its end of the socket, before the answer is ready
-SLOW_HANDLER_TIME = 1.5  # seconds
+# so half closed its end of the socket, before the answer is ready. That takes
+# a fraction of a millisecond on a unix socket, so this is already a margin of
+# three orders of magnitude, and every second of it is a second the test suite
+# spends asleep.
+SLOW_HANDLER_TIME = 0.5  # seconds
 
 
 class TestAutomateWorker(unittest.TestCase):

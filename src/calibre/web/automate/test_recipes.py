@@ -11,9 +11,11 @@ import tempfile
 import threading
 import unittest
 from collections import Counter
+from unittest.mock import patch
 from urllib.error import URLError
 from urllib.request import Request
 
+from calibre.web.automate import browser as browser_module
 from calibre.web.automate import recipes
 from calibre.web.automate.browser import Warmup
 from calibre.web.automate.test_camoufox import installed_camoufox
@@ -378,20 +380,25 @@ class TestRecipeBrowser(unittest.TestCase):
 
     def test_recipes_warmup_visits(self) -> None:
         "Warming up actually loads the sites it was given"
-        from calibre.web.automate.browser import Browser as WarmingBrowser
-
         urls = (self.server.base + 'article.html', self.server.base + 'latin1.html')
         warmup = Warmup(*urls, min_num=0, max_num=0)
         self.assertEqual(warmup.urls, urls)
 
         async def main() -> None:
-            browser = WarmingBrowser(headless=True, warmup=warmup)
+            browser = browser_module.Browser(headless=True, warmup=warmup)
             try:
                 await browser.launch()
             finally:
                 await browser.close()
 
-        asyncio.run(main())
+        # A visit dwells on the page for a few seconds so that it looks like
+        # someone reading it, which is several times the cost of everything
+        # else in this file put together. The pauses are of a length chosen to
+        # fool a web site rather than one that scales with anything, so they
+        # are shortened here: what this checks is that the sites are visited,
+        # not how long a reader lingers on them.
+        with patch.object(browser_module, 'MIN_DWELL_TIME', 0.0), patch.object(browser_module, 'MAX_DWELL_TIME', 0.01):
+            asyncio.run(main())
         self.assertEqual(self.server.count_for('/article.html'), 1)
         self.assertEqual(self.server.count_for('/latin1.html'), 1)
 
