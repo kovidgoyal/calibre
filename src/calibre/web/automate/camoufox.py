@@ -65,6 +65,14 @@ LAUNCH_TIMEOUT = 180.0  # seconds, the first launch has to create a fresh profil
 CLOSE_TIMEOUT = 20.0  # seconds to wait for the browser to exit before killing it
 PROFILE_REMOVE_TIMEOUT = 30.0  # seconds to keep trying to delete the profile directory, see remove_profile_dir()
 MAX_TRACKED_REQUESTS = 2048  # per page, bounds the memory used to map URLs to network requests
+# A wait that the page itself times out needs the reply to arrive after its own
+# deadline rather than before it, see Page.wait_for_selector()
+IN_PAGE_REPLY_GRACE = 5.0  # seconds added to the timeout of a call the page ends by itself
+# What the browser says when a navigation tears down the world a call was
+# running in. It is the only signal for it: the reply can reach us before the
+# events announcing the new document do, so the state of the page at the time
+# cannot be used to tell this apart from a call that failed for another reason.
+CONTEXT_DESTROYED = 'execution context was destroyed'
 
 # The OS names used by camoufox in its config, its bundled data directories and
 # its user agent strings, respectively
@@ -2809,6 +2817,28 @@ class Page:
         await wait_for(self.events.expect(is_our_context), timeout, 'a JavaScript execution context')
         return self.execution_context
 
+    async def wait_for_new_execution_context(self, previous: str, timeout: float = DEFAULT_TIMEOUT) -> str:
+        """The execution context of the main frame, waiting for one that is not
+        previous.
+
+        Used after a navigation has destroyed previous, since the reply saying
+        so can arrive before the events that replace it in :attr:`contexts`, so
+        that looking the current one up would hand back the dead one.
+        """
+        current = self.contexts.get(self.main_frame)
+        if current is not None and current != previous:
+            return current
+
+        def is_a_new_context(method: str, params: Mapping[str, Any]) -> bool:
+            return (
+                method == 'Runtime.executionContextCreated'
+                and (params.get('auxData') or {}).get('frameId') == self.main_frame
+                and params.get('executionContextId') != previous
+            )
+
+        await wait_for(self.events.expect(is_a_new_context), timeout, 'a new JavaScript execution context')
+        return self.execution_context
+
     def unwrap(self, result: Mapping[str, Any], by_value: bool) -> Any:  # noqa: ANN401
         if (details := result.get('exceptionDetails')) is not None:
             raise JavaScriptError(details.get('text') or details.get('stack') or repr(details.get('value')))
@@ -2847,9 +2877,12 @@ class Page:
         return await self.call_with_handles(function_declaration, [{'value': a} for a in args], by_value=by_value, timeout=timeout)
 
     async def call_with_handles(
-        self, function_declaration: str, args: Sequence[Mapping[str, Any]], *, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT
+        self, function_declaration: str, args: Sequence[Mapping[str, Any]], *, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT, context: str = ''
     ) -> Any:  # noqa: ANN401
-        context = await self.wait_for_execution_context(timeout)
+        """Pass context to run the function in a particular execution context,
+        for a caller that needs to know which one its call was made in, see
+        :meth:`wait_for_selector`."""
+        context = context or await self.wait_for_execution_context(timeout)
         result = await self.send(
             'Runtime.callFunction',
             {'executionContextId': context, 'functionDeclaration': function_declaration, 'args': list(args), 'returnByValue': by_value},
@@ -2912,11 +2945,15 @@ class Page:
         name = {'load': 'load', 'domcontentloaded': 'DOMContentLoaded'}.get(state.lower())
         if name is None:
             raise ValueError(f'{state} is not a valid state to wait for, use load or domcontentloaded')
+        # Until the page is ready there is no main frame to match events
+        # against, and waiting on the empty frame id would simply time out
+        deadline = time.monotonic() + timeout
+        await self.wait_until_ready(timeout)
         if name in self.lifecycle.get(self.main_frame, ()):
             return
         await wait_for(
             self.events.expect(lambda method, params: method == 'Page.eventFired' and params['frameId'] == self.main_frame and params['name'] == name),
-            timeout,
+            max(deadline - time.monotonic(), 0),
             f'the {name} event',
         )
 
@@ -2964,11 +3001,60 @@ class Page:
         A mutation observer is used, so this returns as soon as the element
         appears rather than polling. Pass visible=True to additionally require
         that the element has a non zero size and is not hidden.
+
+        If the page navigates while waiting, the search starts again in the new
+        document, since what was asked for is the element, not the element in
+        one particular document.
         """
-        handle = await self.call(WAIT_FOR_SELECTOR_JS, css_selector, int(timeout * 1000), visible, by_value=False, timeout=timeout + 5)
-        if not isinstance(handle, Element):
-            raise TimeoutExceeded(f'No element matching {css_selector!r} appeared within {timeout} seconds')
-        return handle
+        await self.wait_until_ready(timeout)
+        deadline = time.monotonic() + timeout
+        remaining = max(deadline - time.monotonic(), 0)
+        context = await self.wait_for_execution_context(remaining)
+        while True:
+            remaining = max(deadline - time.monotonic(), 0)
+            args = ({'value': css_selector}, {'value': int(remaining * 1000)}, {'value': visible})
+            try:
+                handle = await self.call_with_handles(WAIT_FOR_SELECTOR_JS, args, by_value=False, timeout=remaining + IN_PAGE_REPLY_GRACE, context=context)
+            except ProtocolError as err:
+                # A navigation destroys the world the observer is running in,
+                # which fails the call rather than returning from it
+                if CONTEXT_DESTROYED not in err.message.lower() or time.monotonic() >= deadline:
+                    raise
+                context = await self.wait_for_new_execution_context(context, max(deadline - time.monotonic(), 0))
+                continue
+            if isinstance(handle, Element):
+                return handle
+            # The observer gave up. Its timer was set for the time left when it
+            # was installed, so this is the deadline unless a navigation cut it
+            # short, in which case there is still time to look in the new document.
+            if time.monotonic() >= deadline:
+                raise TimeoutExceeded(f'No element matching {css_selector!r} appeared within {timeout} seconds')
+            context = await self.wait_for_execution_context(max(deadline - time.monotonic(), 0))
+
+    async def wait_for_dom_ready(self, timeout: float = DEFAULT_TIMEOUT) -> None:
+        """Wait until the DOM of the current document is fully parsed.
+
+        This is the DOMContentLoaded event, so it returns while images,
+        stylesheets and other sub-resources may still be loading.
+        """
+        await self.wait_for_load('domcontentloaded', timeout)
+
+    async def wait_for_page_loaded(self, timeout: float = DEFAULT_TIMEOUT) -> None:
+        """Wait until the current document and all of its sub-resources have loaded.
+
+        This is the load event, so unlike :meth:`wait_for_dom_ready` it waits
+        for images, stylesheets and the like as well as for the DOM.
+        """
+        await self.wait_for_load('load', timeout)
+
+    async def wait_for_element(self, css_selector: str, *, timeout: float = DEFAULT_TIMEOUT) -> Element:
+        """Wait until an element matching css_selector exists in the DOM and return it.
+
+        The element need only be present, it can be hidden or have zero size.
+        Use ``wait_for_selector(css_selector, visible=True)`` to wait for one
+        the user could actually see.
+        """
+        return await self.wait_for_selector(css_selector, timeout=timeout)
 
     async def find(self, css_selector: str) -> Element | None:
         """The first element matching css_selector, or None."""

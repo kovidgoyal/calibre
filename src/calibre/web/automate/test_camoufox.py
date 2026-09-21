@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 import asyncio
+import contextlib
 import functools
 import http.server
 import itertools
@@ -15,7 +16,7 @@ import tempfile
 import threading
 import time
 import unittest
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Iterator
 from unittest.mock import patch
 
 from calibre.constants import iswindows
@@ -90,6 +91,14 @@ KEY_RECORDER_JS = '''() => {
 }'''
 
 TEST_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="red"/></svg>'
+
+# The image is served by a route the test holds open, so the DOM of this page
+# is ready long before the page has finished loading, see Server.stall
+STALL_TIMEOUT = 120  # seconds before a held open stall.svg request gives up, so a broken test cannot wedge the server thread forever
+STALL_PAGE = '''<!DOCTYPE html><html><head><title>Stall</title></head><body>
+<h1 id="parsed">parsed</h1>
+<img id="stalled" src="stall.svg">
+</body></html>'''
 
 # How fast the browser shared by the tests types, in words per minute. Well
 # above what a hand manages, but far enough below the floor a keystroke gap is
@@ -488,6 +497,13 @@ class Server:
             f.write(TYPE_PAGE)
         with open(os.path.join(self.dir, 'pic.svg'), 'w') as f:
             f.write(TEST_SVG)
+        with open(os.path.join(self.dir, 'stall.html'), 'w') as f:
+            f.write(STALL_PAGE)
+        # Set while stall.svg is to be served immediately. A test clears it to
+        # hold the request open and with it the load event of stall.html.
+        self.stall_released = threading.Event()
+        self.stall_released.set()
+        released = self.stall_released
 
         class Handler(http.server.SimpleHTTPRequestHandler):
             def log_message(self, *a: object) -> None:
@@ -501,10 +517,36 @@ class Server:
                 self.send_header('Cache-Control', 'no-store')
                 super().end_headers()
 
-        self.httpd = socketserver.TCPServer(('127.0.0.1', 0), functools.partial(Handler, directory=self.dir))
+            def do_GET(self) -> None:
+                if self.path.rpartition('/')[2].partition('?')[0] == 'stall.svg':
+                    if not released.wait(STALL_TIMEOUT):
+                        raise AssertionError(f'stall.svg was not released within {STALL_TIMEOUT} seconds')
+                    body = TEST_SVG.encode('utf-8')
+                    self.send_response(http.HTTPStatus.OK)
+                    self.send_header('Content-Type', 'image/svg+xml')
+                    self.send_header('Content-Length', str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+                super().do_GET()
+
+        # Threading, so that a request being held open by stall.svg does not
+        # also hold up the rest of the pages the browser asks for
+        self.httpd = socketserver.ThreadingTCPServer(('127.0.0.1', 0), functools.partial(Handler, directory=self.dir))
+        self.httpd.daemon_threads = True
         self.thread = threading.Thread(target=self.httpd.serve_forever, name='CamoufoxTestServer', daemon=True)
         self.thread.start()
         self.base = f'http://127.0.0.1:{self.httpd.server_address[1]}/'
+
+    @contextlib.contextmanager
+    def stall(self) -> Iterator[None]:
+        """Hold requests for stall.svg open for the duration of the block, so
+        that the load event of stall.html cannot fire."""
+        self.stall_released.clear()
+        try:
+            yield
+        finally:
+            self.stall_released.set()
 
     def close(self) -> None:
         import shutil
@@ -513,6 +555,13 @@ class Server:
         self.httpd.server_close()
         self.thread.join(timeout=10)
         shutil.rmtree(self.dir, ignore_errors=True)
+
+
+async def navigate_after(page: camoufox.Page, delay: float, url: str) -> None:
+    """Navigate page to url after delay, to run alongside a wait that the
+    navigation is expected not to disturb."""
+    await asyncio.sleep(delay)
+    await page.open(url, timeout=30)
 
 
 class TestCamoufoxMouse(unittest.TestCase):
@@ -911,6 +960,71 @@ class TestCamoufoxBrowser(unittest.TestCase):
             with self.assertRaises(camoufox.TimeoutExceeded):
                 await page.wait_for_selector('#does-not-exist', timeout=1)
             await page.wait_for_load('domcontentloaded')
+            # wait_for_element is the same wait, for an element that need only exist
+            self.assertEqual(await (await page.wait_for_element('#title')).text(), 'Hello')
+            self.assertEqual(await (await page.wait_for_element('#late', timeout=30)).text(), 'appeared')
+            with self.assertRaises(camoufox.TimeoutExceeded):
+                await page.wait_for_element('#does-not-exist', timeout=1)
+
+        self.run_shared(check)
+
+    def test_waiting_across_navigation(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            await page.open(base + 'index.html')
+            # A navigation destroys the world the search runs in. The wait must
+            # carry on in the new document rather than fail with the protocol
+            # error that destroying the world produces.
+            navigate = asyncio.create_task(navigate_after(page, 0.5, base + 'type.html'))
+            try:
+                start = time.monotonic()
+                with self.assertRaises(camoufox.TimeoutExceeded):
+                    await page.wait_for_element('#does-not-exist', timeout=4)
+                self.assertGreater(time.monotonic() - start, 3, 'the wait gave up when the page navigated instead of using its full timeout')
+            finally:
+                await navigate
+            # An element that only exists in the document navigated to must be found
+            navigate = asyncio.create_task(navigate_after(page, 0.5, base + 'index.html'))
+            try:
+                element = await page.wait_for_element('#title', timeout=30)
+                self.assertEqual(await element.text(), 'Hello')
+            finally:
+                await navigate
+
+        self.run_shared(check)
+
+    def test_waiting_for_load_states(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            with self.server.stall():
+                # The DOM is parsed while the image the page asks for is still
+                # being held open by the server, so the load event cannot fire
+                await page.open(base + 'stall.html', wait='domcontentloaded', timeout=30)
+                await page.wait_for_dom_ready(timeout=30)
+                self.assertEqual(await (await page.wait_for_element('#parsed')).text(), 'parsed')
+                with self.assertRaises(camoufox.TimeoutExceeded):
+                    await page.wait_for_page_loaded(timeout=3)
+            # Releasing the image lets the load event fire
+            await page.wait_for_page_loaded(timeout=30)
+            # Both states are already recorded for this document, so asking
+            # again must return at once rather than wait for another event
+            await page.wait_for_dom_ready(timeout=30)
+            await page.wait_for_page_loaded(timeout=30)
+            self.assertIs(await page.evaluate('document.readyState === "complete"'), True)
+            # A tab that has only just been created is ready without having
+            # been navigated anywhere
+            fresh = await browser.new_page()
+            try:
+                await fresh.wait_for_dom_ready(timeout=10)
+                await fresh.wait_for_page_loaded(timeout=10)
+            finally:
+                await fresh.close()
+            with self.assertRaises(ValueError):
+                await page.wait_for_load('networkidle')
 
         self.run_shared(check)
 
