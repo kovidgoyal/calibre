@@ -9,15 +9,17 @@ import secrets
 import socket
 import struct
 import sys
+import time
 from collections.abc import Awaitable, Callable
 from functools import partial
-from typing import Any, NamedTuple, cast
+from typing import IO, Any, NamedTuple, cast
 
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.ptempfile import base_dir
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
 if iswindows:
+    import msvcrt
     from asyncio.windows_events import PipeServer
 
     from calibre_extensions import winutil
@@ -314,12 +316,54 @@ class Response(NamedTuple):
     traceback: str = ''
 
 
+def connect_to_named_pipe(worker_path: str, timeout: float = 120.0) -> IO[bytes]:
+    """Connect to the worker's named pipe, waiting for a free instance of it.
+
+    asyncio's Windows pipe server (see asyncio.windows_events.PipeServer)
+    keeps only a single unconnected instance of the pipe around, creating the
+    next one only once a client has connected to the current one. So when
+    multiple clients connect at the same time all but one of them find the
+    pipe busy. The documented remedy is to wait for an instance to become
+    free and retry.
+
+    Note that the builtin open() is useless for this. It goes via the CRT's
+    _wopen() which maps the Win32 error onto errno, so CPython reports a busy
+    pipe as a bare EINVAL with winerror unset, indistinguishable from a real
+    failure. Hence CreateFile() is called directly and the handle it returns
+    wrapped up in a file object.
+    """
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            h = winutil.create_file(worker_path, winutil.GENERIC_READ | winutil.GENERIC_WRITE, 0, winutil.OPEN_EXISTING, winutil.FILE_ATTRIBUTE_NORMAL)
+        except OSError as err:
+            if err.winerror != winutil.ERROR_PIPE_BUSY:
+                raise
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise
+            try:
+                winutil.wait_named_pipe(worker_path, max(1, int(remaining * 1000)))
+            except OSError:
+                # No instance became free before the deadline (or the pipe
+                # went away), report the busy pipe rather than the wait failure
+                raise err from None
+        else:
+            fd = msvcrt.open_osfhandle(int(h), os.O_RDWR | os.O_BINARY | os.O_NOINHERIT)
+            h.detach()  # the fd owns the handle now, closing the file closes it
+            try:
+                return open(fd, 'r+b', buffering=0)
+            except Exception:
+                os.close(fd)
+                raise
+
+
 def make_request(worker_path: str, data: Any = None) -> Response:  # noqa: ANN401
     "Make a request and get a response from the worker"
     data = msgpack_dumps(data)
     datalen = struct.pack('!I', len(data))
     if iswindows:
-        with open(worker_path, 'r+b', buffering=0) as w:
+        with connect_to_named_pipe(worker_path) as w:
             w.write(datalen)
             w.write(data)
             w.flush()

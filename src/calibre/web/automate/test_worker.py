@@ -8,6 +8,7 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
 import unittest
 from collections.abc import Sequence
 from typing import Any
@@ -52,9 +53,16 @@ class TestAutomateWorker(unittest.TestCase):
         path, close = start_worker('calibre.web.automate.test_worker:slow_handler_for_test')
         try:
             responses: dict[int, Any] = {}
+            errors: dict[int, str] = {}
 
             def make(i: int) -> None:
-                responses[i] = make_request(path, SLOW_HANDLER_TIME)
+                # Exceptions in a thread are merely printed by the default
+                # threading excepthook, so record them or the test fails with
+                # a mystifying count mismatch and no sign of the actual error
+                try:
+                    responses[i] = make_request(path, SLOW_HANDLER_TIME)
+                except Exception:
+                    errors[i] = traceback.format_exc()
 
             start = time.monotonic()
             threads = [threading.Thread(target=make, args=(i,), name=f'WorkerRequest{i}') for i in range(num)]
@@ -66,6 +74,7 @@ class TestAutomateWorker(unittest.TestCase):
             elapsed = time.monotonic() - start
         finally:
             close()
+        self.assertFalse(errors, 'some requests raised: ' + '\n'.join(errors.values()))
         self.assertEqual(len(responses), num)
         for i, r in sorted(responses.items()):
             self.assertFalse(r.exception, f'request {i} failed: {r.traceback}')
