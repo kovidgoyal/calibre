@@ -355,6 +355,9 @@ class GameWidget(QWidget):
         a.triggered.connect(self.show_scene_image_popup)
         self.edit_image_prompt_action = a = QAction(QIcon.ic('edit_input.png'), _('&Edit prompt and regenerate image'), self)
         a.triggered.connect(self.edit_scene_image_prompt)
+        self.copy_turn_text_only_action = a = QAction(QIcon.ic('edit-copy.png'), _('Copy current turn &text to clipboard'), self)
+        a.triggered.connect(self.copy_current_turn_text_only)
+        sv.copy_turn_text_only_action = a
         self.copy_turn_action = a = QAction(QIcon.ic('edit-copy.png'), _('Copy current &turn to clipboard'), self)
         a.setShortcut(QKeySequence('Ctrl+Shift+C', QKeySequence.SequenceFormat.PortableText))
         a.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
@@ -690,6 +693,30 @@ class GameWidget(QWidget):
             self.status_bar.showMessage(_('Copied the text and scene picture of turn {} to the clipboard').format(tn), 5000)
         else:
             self.status_bar.showMessage(_('Copied the text of turn {} to the clipboard').format(tn), 5000)
+
+    def copy_current_turn_text_only(self) -> None:
+        state = self.state
+        tn = self.visible_turn_number()
+        if state is None or not tn:
+            return
+        t = state.turns[tn - 1]
+        text_parts: list[str] = []
+        html_parts: list[str] = []
+        if t.player_input:
+            text_parts.append(f'➤ {t.player_input}')
+            html_parts.append(f'<p><i>➤ {escape(t.player_input)}</i></p>')
+        text_parts.append(t.turn.narrative)
+        html_parts.append(response_to_html(t.turn.narrative, ContentType.markdown))
+        if tn == len(state.turns) and t.turn.quick_actions:
+            text_parts.append(_('Quick actions') + ':\n' + '\n'.join(f'• {quick_action_as_text(a)}' for a in t.turn.quick_actions))
+            html_parts.append(f'<h4>{_("Quick actions")}</h4>' + ''.join(f'<p>• {escape(a.text)}{quick_action_kind_html(a)}</p>' for a in t.turn.quick_actions))
+        md = QMimeData()
+        md.setText('\n\n'.join(text_parts))
+        md.setHtml(''.join(html_parts))
+        clipboard = qapplication_or_fail().clipboard()
+        assert clipboard is not None
+        clipboard.setMimeData(md)
+        self.status_bar.showMessage(_('Copied the text of turn {} to the clipboard').format(tn), 5000)
 
     def scroll_to_turn(self, turn_number: int) -> None:
         if not self.isVisible():

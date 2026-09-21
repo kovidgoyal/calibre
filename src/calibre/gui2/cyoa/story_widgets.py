@@ -234,6 +234,7 @@ class StoryView(TextDisplayMixin, MomentumScrollMixin, QTextBrowser):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.copy_turn_action: QAction | None = None
+        self.copy_turn_text_only_action: QAction | None = None
         self.setup_text_display()
 
     def wheelEvent(self, a0: QWheelEvent | None) -> None:  # ty: ignore[invalid-method-override]
@@ -246,9 +247,12 @@ class StoryView(TextDisplayMixin, MomentumScrollMixin, QTextBrowser):
         m = self.createStandardContextMenu(e.pos())
         if m is None:
             return
-        if self.copy_turn_action is not None:
+        if self.copy_turn_action is not None or self.copy_turn_text_only_action is not None:
             m.addSeparator()
-            m.addAction(self.copy_turn_action)
+            if self.copy_turn_text_only_action is not None:
+                m.addAction(self.copy_turn_text_only_action)
+            if self.copy_turn_action is not None:
+                m.addAction(self.copy_turn_action)
         m.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         m.exec(e.globalPos())
 
