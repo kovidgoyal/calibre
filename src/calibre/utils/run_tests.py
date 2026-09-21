@@ -570,7 +570,7 @@ class TestImports(unittest.TestCase):
     def test_import_of_all_python_modules(self):
 
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
-        exclude_modules = {'calibre.web.automate.browser'}
+        exclude_modules: set[str] = set()
         if not iswindows:
             exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
             exclude_packages |= {'calibre.utils.winreg', 'calibre.utils.windows'}
@@ -685,6 +685,9 @@ def find_tests(which_tests=None, exclude_tests=None):
 
         a(find_tests())
         from calibre.web.automate.test_camoufox import find_tests
+
+        a(find_tests())
+        from calibre.web.automate.test_recipes import find_tests
 
         a(find_tests())
     if ok('icu'):

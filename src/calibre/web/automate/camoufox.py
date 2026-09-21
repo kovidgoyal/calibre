@@ -47,6 +47,7 @@ import time
 import unicodedata
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import lru_cache
+from http import HTTPStatus
 from typing import Any, NamedTuple
 
 from calibre.constants import cache_dir, ismacos, iswindows
@@ -2407,12 +2408,22 @@ class Keyboard:
 # }}}
 
 
+class ResponseInfo(NamedTuple):
+    """What the server said when the page asked for something."""
+
+    status: int
+    status_text: str
+    headers: tuple[tuple[str, str], ...]
+    from_cache: bool
+
+
 class Resource(NamedTuple):
     """The bytes of something the page loaded, such as an image."""
 
     url: str
     content_type: str
     data: bytes
+    status: int = HTTPStatus.OK
 
 
 class Element:
@@ -2652,6 +2663,7 @@ class Page:
         self.request_urls: dict[str, str] = {}
         self.requests_by_url: dict[str, str] = {}
         self.content_types: dict[str, str] = {}
+        self.responses: dict[str, ResponseInfo] = {}
         # The size of the viewport, cached since every cursor movement needs it
         self.viewport_size: tuple[float, float] | None = None
         # Whether the browser has stopped acknowledging input events for this page
@@ -2706,9 +2718,13 @@ class Page:
             case 'Network.requestWillBeSent':
                 self.track_request(params['requestId'], params['url'])
             case 'Network.responseReceived':
-                for header in params.get('headers') or ():
-                    if header.get('name', '').lower() == 'content-type':
-                        self.content_types[params['requestId']] = header.get('value') or ''
+                headers = tuple((h.get('name') or '', h.get('value') or '') for h in params.get('headers') or ())
+                for name, value in headers:
+                    if name.lower() == 'content-type':
+                        self.content_types[params['requestId']] = value
+                self.responses[params['requestId']] = ResponseInfo(
+                    int(params.get('status') or 0), params.get('statusText') or '', headers, bool(params.get('fromCache'))
+                )
         self.events.dispatch(method, params)
 
     def track_request(self, request_id: str, url: str) -> None:
@@ -2716,6 +2732,7 @@ class Page:
             oldest = next(iter(self.request_urls))
             old_url = self.request_urls.pop(oldest)
             self.content_types.pop(oldest, None)
+            self.responses.pop(oldest, None)
             if self.requests_by_url.get(old_url) == oldest:
                 del self.requests_by_url[old_url]
         self.request_urls[request_id] = url
@@ -3216,6 +3233,15 @@ class Page:
             urls = tuple(x for x in urls if matches(x))
         return urls
 
+    def response_for(self, url: str) -> ResponseInfo | None:
+        """What the server said when this page requested url, if it is still known.
+
+        The record is dropped once the request ages out of the tracking done by
+        :meth:`track_request`, and is None for a URL the page never asked for.
+        """
+        request_id = self.requests_by_url.get(url)
+        return None if request_id is None else self.responses.get(request_id)
+
     async def get_resource(self, url: str, *, timeout: float = DEFAULT_TIMEOUT) -> Resource:
         """The bytes of a resource, such as an image, that this page loaded.
 
@@ -3231,13 +3257,16 @@ class Page:
             except ProtocolError:
                 result = {}
             if result.get('base64body') is not None and not result.get('evicted'):
-                return Resource(url, self.content_types.get(request_id, ''), base64.b64decode(result['base64body']))
+                response = self.responses.get(request_id)
+                status = HTTPStatus.OK if response is None else response.status
+                return Resource(url, self.content_types.get(request_id, ''), base64.b64decode(result['base64body']), status)
         result = await self.call(FETCH_JS, url, timeout=timeout)
         if not isinstance(result, dict):
             raise Error(f'Failed to fetch {url} from the page')
-        if not (200 <= int(result.get('status') or 0) < 300):
+        status = int(result.get('status') or 0)
+        if not (200 <= status < 300):
             raise Error(f'Fetching {url} from the page failed with HTTP status {result.get("status")}')
-        return Resource(url, result.get('contentType') or '', base64.b64decode(result.get('base64') or ''))
+        return Resource(url, result.get('contentType') or '', base64.b64decode(result.get('base64') or ''), status)
 
     async def screenshot(self, *, mime_type: str = 'image/png', quality: int = 0, full_page: bool = False) -> bytes:
         """A screenshot of the page as image data."""
@@ -3293,6 +3322,9 @@ class Browser:
         as it goes can react badly to a character that is only there for a moment.
     :param block_images: do not load images at all
     :param block_webrtc: disable WebRTC entirely
+    :param ignore_https_errors: load pages even when their TLS certificates do
+        not validate, needed by the news download system, which has to cope
+        with whatever certificates news sites happen to be serving
     :param enable_cache: keep previously loaded pages and requests around, using more memory
     :param proxy: a proxy to route all traffic through, as a dict with the keys
         ``type`` (one of http, https, socks, socks4), ``host``, ``port`` and
@@ -3315,6 +3347,7 @@ class Browser:
         typing_mistakes: float = 0.0,
         block_images: bool = False,
         block_webrtc: bool = False,
+        ignore_https_errors: bool = False,
         enable_cache: bool = True,
         proxy: Mapping[str, Any] | None = None,
         config: Mapping[str, Any] | None = None,
@@ -3333,6 +3366,7 @@ class Browser:
         self.typing_wpm = typing_wpm or DEFAULT_TYPING_WPM
         self.typing_mistakes = typing_mistakes
         self.block_images, self.block_webrtc, self.enable_cache = block_images, block_webrtc, enable_cache
+        self.ignore_https_errors = ignore_https_errors
         self.proxy, self.extra_config, self.allow_prerelease = proxy, config, allow_prerelease
         self.extra_user_prefs = firefox_user_prefs
         self.launch_timeout, self.keep_log = launch_timeout, keep_log
@@ -3433,6 +3467,8 @@ class Browser:
             raise Error(f'The camoufox browser failed to start: {err}\nBrowser log:\n{self.process.log_tail()}') from err
         result = await self.connection.send('Browser.createBrowserContext', {'removeOnDetach': True})
         self.browser_context_id = result['browserContextId']
+        if self.ignore_https_errors:
+            await self.set_ignore_https_errors(True)
         if self.proxy:
             await self.set_proxy(self.proxy)
         await self.new_page()
@@ -3520,6 +3556,10 @@ class Browser:
             if proxy.get(key):
                 params[key] = proxy[key]
         await self.connection.send('Browser.setContextProxy', params)
+
+    async def set_ignore_https_errors(self, ignore: bool = True) -> None:
+        """Stop refusing to load pages whose TLS certificates do not validate."""
+        await self.connection.send('Browser.setIgnoreHTTPSErrors', {'browserContextId': self.browser_context_id, 'ignoreHTTPSErrors': ignore})
 
     async def set_extra_headers(self, headers: Mapping[str, str]) -> None:
         await self.connection.send(

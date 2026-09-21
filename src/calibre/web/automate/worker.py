@@ -78,9 +78,15 @@ class SingleObjectProtocol(asyncio.Protocol):
             payload = {'exception': 'Complete message not received from client'}
             assert self.transport is not None
             self.transport.write(msgpack_dumps(payload))
-        return False  # Returning False closes the transport
+            return False  # Returning False closes the transport
+        # The client half closes its end of the socket as soon as it has
+        # finished writing its request, which is long before a slow handler has
+        # an answer, so the transport must be left open for
+        # _process_and_respond() to close once it has written the reply
+        return True
 
     async def _process_and_respond(self, data: bytearray) -> None:
+        payload: dict[str, Any] = {'exception': 'The request was abandoned before it could be answered'}
         try:
             data = msgpack_loads(data)
             self._buffer.clear()
@@ -91,6 +97,8 @@ class SingleObjectProtocol(asyncio.Protocol):
 
             payload = {'exception': str(e), 'traceback': traceback.format_exc()}
         finally:
+            # payload is bound before the try so that cancellation, which is
+            # not an Exception, still leaves the client with something to read
             assert self.transport is not None
             self.transport.write(msgpack_dumps(payload))
             self.transport.close()

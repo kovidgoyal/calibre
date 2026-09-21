@@ -6,6 +6,8 @@ import builtins
 import os
 import sys
 import tempfile
+import threading
+import time
 import unittest
 from collections.abc import Sequence
 from typing import Any
@@ -19,10 +21,53 @@ def print(*a: object, **kw: Any) -> None:  # noqa: ANN401
     builtins.print(*a, **kw)
 
 
+# Long enough that the client has certainly finished writing its request, and
+# so half closed its end of the socket, before the answer is ready
+SLOW_HANDLER_TIME = 1.5  # seconds
+
+
 class TestAutomateWorker(unittest.TestCase):
     def test_automate_worker(self) -> None:
         asyncio.run(name_collision(self))
         worker(self)
+
+    def test_automate_worker_slow_handler(self) -> None:
+        "A handler that takes its time still gets its answer back to the client"
+        path, close = start_worker('calibre.web.automate.test_worker:slow_handler_for_test')
+        try:
+            start = time.monotonic()
+            r = make_request(path, SLOW_HANDLER_TIME)
+            self.assertFalse(r.exception, r.traceback)
+            self.assertEqual(r.response, f'slept {SLOW_HANDLER_TIME}')
+            self.assertGreaterEqual(time.monotonic() - start, SLOW_HANDLER_TIME)
+        finally:
+            close()
+
+    def test_automate_worker_parallel_requests(self) -> None:
+        "Slow requests from several threads are served at the same time, not one after another"
+        num = 4
+        path, close = start_worker('calibre.web.automate.test_worker:slow_handler_for_test')
+        try:
+            responses: dict[int, Any] = {}
+
+            def make(i: int) -> None:
+                responses[i] = make_request(path, SLOW_HANDLER_TIME)
+
+            start = time.monotonic()
+            threads = [threading.Thread(target=make, args=(i,), name=f'WorkerRequest{i}') for i in range(num)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(timeout=60)
+                self.assertFalse(t.is_alive(), 'a request thread never finished')
+            elapsed = time.monotonic() - start
+        finally:
+            close()
+        self.assertEqual(len(responses), num)
+        for i, r in sorted(responses.items()):
+            self.assertFalse(r.exception, f'request {i} failed: {r.traceback}')
+            self.assertEqual(r.response, f'slept {SLOW_HANDLER_TIME}')
+        self.assertLess(elapsed, SLOW_HANDLER_TIME * num, 'the requests were served one after another')
 
 
 async def name_collision(self: TestAutomateWorker) -> None:
@@ -58,6 +103,11 @@ async def handler_for_test(*args: Any) -> dict[str, Any]:  # noqa: ANN401
         raise Exception(x)
     handler_items.append((input_data, x))
     return {'arg': x, 'delayed_setup_items': delayed_setup_items}
+
+
+async def slow_handler_for_test(x: Any) -> Any:  # noqa: ANN401
+    await asyncio.sleep(float(x))
+    return f'slept {x}'
 
 
 def finalize(x: Sequence[str] | None = None) -> None:

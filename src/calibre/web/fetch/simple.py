@@ -236,7 +236,17 @@ class RecursiveFetcher:
                 tag.extract()
         return self.preprocess_html_ext(soup)
 
-    def fetch_url(self, url):
+    def fetch_url(self, url, as_document=False):
+        """Download url.
+
+        :param as_document: True when url is a page in its own right rather
+            than an image or stylesheet belonging to the page last fetched.
+            Only browsers that advertise ``accepts_as_document`` are told,
+            since only they can do anything with the distinction. The camoufox
+            browser uses it to decide between navigating to the URL, so that
+            the site's scripts run, and taking the bytes out of the tab that
+            has already loaded them.
+        """
         data = None
         q = self.preloaded_urls.pop(url, None)
         if q is not None:
@@ -277,8 +287,9 @@ class RecursiveFetcher:
             time.sleep(delay - delta)
         url = canonicalize_url(url)
         open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+        kw = {'as_document': as_document} if getattr(self.browser, 'accepts_as_document', False) else {}
         try:
-            with closing(open_func(url, timeout=self.timeout)) as f:
+            with closing(open_func(url, timeout=self.timeout, **kw)) as f:
                 data = response(f.read() + f.read())
                 data.newurl = f.geturl()
         except URLError as err:
@@ -294,7 +305,7 @@ class RecursiveFetcher:
             if is_temp:  # Connection reset by peer or Name or service not known
                 self.log.debug('Temporary error, retrying in 1 second')
                 time.sleep(1)
-                with closing(open_func(url, timeout=self.timeout)) as f:
+                with closing(open_func(url, timeout=self.timeout, **kw)) as f:
                     data = response(f.read() + f.read())
                     data.newurl = f.geturl()
             else:
@@ -538,7 +549,7 @@ class RecursiveFetcher:
                     os.mkdir(linkdiskpath)
                 try:
                     self.current_dir = linkdiskpath
-                    dsrc = self.fetch_url(iurl)
+                    dsrc = self.fetch_url(iurl, as_document=True)
                     newbaseurl = dsrc.newurl
                     if len(dsrc) == 0 or len(re.compile(rb'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
                         raise ValueError(f'No content at URL {iurl!r}')

@@ -431,6 +431,14 @@ class BasicNewsRecipe(Recipe):
     #: to either 'webengine' which uses an actual Chromium browser to do the network requests or 'qt' which
     #: uses the Qt Networking backend. Both 'webengine' and 'qt' support HTTP/2, which mechanize does not and
     #: are thus harder to fingerprint for bot protection services.
+    #:
+    #: For a site that defeats all of those, use 'camoufox', which downloads and drives a real Firefox based
+    #: browser built to hide the fact that it is automated. It is by far the heaviest of the four: it downloads
+    #: the browser on first use, warms it up by visiting a few commonly browsed sites before starting on your
+    #: feeds, and actually navigates to every article, running its scripts, rather than just requesting it.
+    #: In exchange, the articles are fetched exactly as a person browsing the site would fetch them, and their
+    #: images come out of the browser without being downloaded a second time. Note that it ignores any user
+    #: agent you set, since it uses one that matches the rest of the fingerprint it presents.
     browser_type = 'mechanize'
 
     #: Set to False if you do not want to use gzipped transfers with the mechanize browser.
@@ -573,6 +581,17 @@ class BasicNewsRecipe(Recipe):
             ua = getattr(self, 'last_used_user_agent', None) or self.calibre_most_common_ua or random_user_agent(allow_ie=False)
             kwargs['user_agent'] = self.last_used_user_agent = ua
         self.log('Using user agent:', kwargs['user_agent'])
+        if self.browser_type == 'camoufox':
+            from calibre.web.automate.recipes import Browser as CamoufoxBrowser
+
+            return CamoufoxBrowser(
+                user_agent=kwargs['user_agent'],
+                verify_ssl_certificates=kwargs.get('verify_ssl_certificates', False),
+                # A tab per download thread, so that the images of an article
+                # are taken from the tab that rendered it
+                max_tabs=self.simultaneous_downloads,
+                warmup_excluded_domains=self.warmup_excluded_domains(),
+            )
         if self.browser_type != 'mechanize':
             from calibre.scraper.qt import Browser, WebEngineBrowser
 
@@ -584,6 +603,24 @@ class BasicNewsRecipe(Recipe):
         if self.handle_gzip:
             br.set_handle_gzip(True)
         return br
+
+    def warmup_excluded_domains(self):
+        """
+        The domains the 'camoufox' browser must stay away from while warming
+        itself up, so that the first time it is seen by the site being
+        downloaded from is as part of the download proper. By default these
+        are the domains of any statically declared feeds.
+        """
+        ans = set()
+        for feed in self.feeds or ():
+            url = feed[1] if isinstance(feed, (tuple, list)) else feed
+            try:
+                hostname = urlparse(url).hostname
+            except Exception:
+                continue
+            if hostname:
+                ans.add(hostname)
+        return ans
 
     def clone_browser(self, br):
         """

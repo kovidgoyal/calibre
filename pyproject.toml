@@ -155,9 +155,9 @@ extend-select = ["ANN"]
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 "!{src/calibre/ai/**/*.py,src/calibre/web/automate/**/*.py}" = ['ANN']
-# This module wraps a browser, whose operations can all block indefinitely on
+# These modules wrap a browser, whose operations can all block indefinitely on
 # the network, so every one of them takes an explicit timeout
-"src/calibre/web/automate/camoufox.py" = ['ASYNC109']
+"src/calibre/web/automate/{camoufox,recipes}.py" = ['ASYNC109']
 
 [tool.ruff.lint.isort]
 detect-same-package = true
