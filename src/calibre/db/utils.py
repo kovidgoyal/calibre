@@ -215,7 +215,7 @@ class ThumbnailCache:
                         return None
 
                 invalidate = {record(x) for x in raw.splitlines()}
-        items = []
+        items = {}
         try:
             for entry in entries:
                 try:
@@ -227,13 +227,25 @@ class ThumbnailCache:
                     continue
                 key = (uuid, book_id)
                 path = os.path.join(self.location, entry)
-                if self.thumbnail_size == thumbnail_size and key not in invalidate:
-                    items.append((key, Entry(path, size, timestamp, thumbnail_size)))
-                    self.total_size += size
-                else:
+                if self.thumbnail_size != thumbnail_size or key in invalidate:
                     self._do_delete(path)
+                    continue
+                e = Entry(path, size, timestamp, thumbnail_size)
+                # Caches written by older versions of calibre can contain more
+                # than one file for a book. Keep only the most recent one,
+                # otherwise which of them is used is decided by the order in
+                # which the filesystem happens to list them.
+                if (prev := items.get(key)) is not None:
+                    if prev.timestamp >= e.timestamp:
+                        self._do_delete(path)
+                        continue
+                    self._do_delete(prev.path)
+                    self.total_size -= prev.size
+                items[key] = e
+                self.total_size += size
         except OSError as err:
             self.log('Failed to read thumbnail cache dir:', as_unicode(err))
+        items = tuple(items.items())
 
         self.items = OrderedDict(sorted(items, key=lambda x: order.get(x[0], 0)))
         self._apply_size()
@@ -295,19 +307,36 @@ class ThumbnailCache:
                 return True
         return False
 
-    def insert(self, book_id, timestamp, data):
+    def insert(self, book_id, timestamp, data, thumbnail_size=None):
+        """
+        Add data to the cache. thumbnail_size is the size the data was actually
+        rendered for, it must be specified by callers that render thumbnails
+        asynchronously, since the size of this cache can change while a render
+        is in flight. Data rendered for some other size is discarded, rather
+        than being stored under the current size, where nothing would ever
+        invalidate it.
+        """
         if self.max_size < len(data):
             return
         with self.lock:
             if not hasattr(self, 'total_size'):
                 self._load_index()
             self._invalidate_sizes()
+            if thumbnail_size is not None and tuple(thumbnail_size) != self.thumbnail_size:
+                return
             ts = (f'{timestamp:.2f}').replace('.00', '')
             path = f'{self.group_id}{os.sep}{book_id % 100}{os.sep}{book_id}-{ts}-{len(data)}-{self.thumbnail_size[0]}x{self.thumbnail_size[1]}'
             path = os.path.join(self.location, path)
             key = (self.group_id, book_id)
             e = self.items.pop(key, None)
             self.total_size -= getattr(e, 'size', 0)
+            if e is not None and e.path != path:
+                # The file name encodes the timestamp and size of the data, so
+                # replacing an entry does not necessarily overwrite its file.
+                # Delete it, otherwise it is leaked and, worse, re-appears as a
+                # duplicate entry for this book the next time the index is
+                # loaded from disk.
+                self._do_delete(e.path)
             try:
                 with open(path, 'wb') as f:
                     f.write(data)

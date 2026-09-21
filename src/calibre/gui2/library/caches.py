@@ -257,7 +257,7 @@ class ThumbnailRenderer(QObject):
             has_cover, cover_as_bytes, timestamp = db.cover_or_cache(book_id, 0)
             if has_cover:
                 thumbnail, thumbnail_as_bytes = self.make_thumbnail(cover_as_bytes, width, height)
-                tc.insert(book_id, timestamp, thumbnail_as_bytes)
+                tc.insert(book_id, timestamp, thumbnail_as_bytes, (width, height))
         else:
             # A cover is in the cache. Check whether it is up to date.
             has_cover, cover_as_bytes, timestamp = db.cover_or_cache(book_id, timestamp)
@@ -271,7 +271,7 @@ class ThumbnailRenderer(QObject):
                             return self.fetch_cover_from_cache(book_id, width, height)
                 else:
                     thumbnail, thumbnail_as_bytes = self.make_thumbnail(cover_as_bytes, width, height)
-                    tc.insert(book_id, timestamp, thumbnail_as_bytes)
+                    tc.insert(book_id, timestamp, thumbnail_as_bytes, (width, height))
             else:
                 # We found a cached cover for a book without a cover. This can
                 # happen in older version of calibre that can reuse book_ids
@@ -335,10 +335,14 @@ class ThumbnailRenderer(QObject):
             return
         self.ignore_render_requests.set()
         try:
-            self.disk_cache.set_thumbnail_size(width, height)
-            self.ram_cache.clear()
+            # Wait for renders for the old size to finish before changing the
+            # size, so that they are not written to the disk cache under the
+            # new size. insert() guards against this as well, since the join
+            # can time out.
             if self.render_thread is not None:
                 self.join_with_timeout()
+            self.disk_cache.set_thumbnail_size(width, height)
+            self.ram_cache.clear()
         finally:
             self.ignore_render_requests.clear()
 
@@ -554,6 +558,16 @@ def run_test(self, t: ThumbnailRendererForTest):
     ae(0, len(t.ram_cache))
     self.assertIsNone(t.cached_or_none(1))
     ac(1, Qt.GlobalColor.red)
+
+    # A render that was in flight when the thumbnail size changed must not be
+    # written to the disk cache under the new size, where nothing would ever
+    # invalidate it.
+    t.invalidate((1,))
+    t.fetch_cover_from_cache(1, 5, 5)
+    self.assertIsNone(t.disk_cache[1][0], 'thumbnail rendered for the old size was cached')
+    self.assertIsNone(t.cached_or_none(1))
+    ac(1, Qt.GlobalColor.red)
+
     legacy2 = self.init_legacy(self.clone_library(legacy.library_path))
     db = legacy2.new_api
     db.backend.library_id = 'legacy2'

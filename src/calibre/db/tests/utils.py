@@ -78,4 +78,38 @@ class UtilsTest(BaseTest):
         self.assertEqual(len(c), 0)
         self.assertEqual(tuple(walk(c.location)), (os.path.join(c.location, 'version'),))
 
+        # Replacing an entry must not leave the file of the old entry behind,
+        # it would re-appear as a duplicate entry for the book on restart.
+        c = self.init_tc(name='2')
+        c.insert(1, 1, b'x' * 100)
+        old_path = c.items[c.group_id, 1].path
+        c.insert(1, 2, b'y' * 200)
+        self.assertFalse(os.path.exists(old_path), 'insert() leaked the file of the entry it replaced')
+        self.assertEqual(200, c.total_size)
+        c.shutdown()
+        c = self.init_tc(name='2')
+        self.assertEqual((b'y' * 200, 2), c[1])
+        self.assertEqual(200, c.total_size, 'size of leaked file counted after restart')
+
+        # A duplicate left behind by an older version of calibre must resolve
+        # to the most recent of the two, not to whichever the filesystem
+        # happens to list last.
+        stale = old_path
+        with open(stale, 'wb') as f:
+            f.write(b'x' * 100)
+        c.shutdown()
+        c = self.init_tc(name='2')
+        self.assertEqual((b'y' * 200, 2), c[1], 'stale duplicate entry used after restart')
+        self.assertFalse(os.path.exists(stale), 'stale duplicate entry not deleted')
+        self.assertEqual(200, c.total_size)
+
+        # A thumbnail rendered for a size other than the current one must be
+        # discarded rather than stored under the current size, where nothing
+        # would ever invalidate it.
+        c = self.init_tc(name='3')
+        c.insert(1, 1, b'x' * 100, (10, 11))
+        self.assertIsNone(c[1][0], 'thumbnail rendered for the wrong size was cached')
+        c.insert(1, 1, b'x' * 100, c.thumbnail_size)
+        self.assertEqual(b'x' * 100, c[1][0])
+
     # }}}
