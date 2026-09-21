@@ -13,6 +13,7 @@ import unittest
 from collections import Counter
 from unittest.mock import patch
 from urllib.error import URLError
+from urllib.parse import urlparse
 from urllib.request import Request
 
 from calibre.web.automate import browser as browser_module
@@ -139,25 +140,43 @@ class Server:
 class TestRecipeWarmupUrls(unittest.TestCase):
     """The choice of sites to warm up on, which needs no browser."""
 
+    # The selection is random, so one draw of it proves little: a bad draw
+    # happens only every few runs, which on CI means an occasional failure
+    # rather than a reproducible one
+    num_draws = 64
+
     def test_recipes_warmup_urls(self) -> None:
-        w = Warmup(min_num=2, max_num=3)
-        self.assertGreaterEqual(len(w.urls), 2)
-        self.assertLessEqual(len(w.urls), 3)
-        self.assertEqual(len(set(w.urls)), len(w.urls), 'the same site was warmed up on twice')
+        for _ in range(self.num_draws):
+            w = Warmup(min_num=2, max_num=3)
+            self.assertGreaterEqual(len(w.urls), 2)
+            self.assertLessEqual(len(w.urls), 3)
+            self.assertEqual(len(set(w.urls)), len(w.urls), f'the same site was warmed up on twice: {w.urls}')
 
-        w = Warmup('https://example.com/forced', min_num=1, max_num=1)
-        self.assertIn('https://example.com/forced', w.urls)
-        self.assertEqual(len(w.urls), 2)
+            w = Warmup('https://example.com/forced', min_num=1, max_num=1)
+            self.assertIn('https://example.com/forced', w.urls)
+            self.assertEqual(len(w.urls), 2)
 
-        # The site about to be downloaded from must not be part of the warmup
-        w = Warmup(min_num=3, max_num=3, excluded_domains=('bbc.com', 'reddit.com'))
-        for url in w.urls:
-            self.assertNotIn('bbc.com', url)
-            self.assertNotIn('reddit.com', url)
+            # Asking for more sites than there are gets all of them, and the
+            # sites that contribute several pages must contribute a different
+            # page each time
+            pages_per_host = Counter(urlparse(u).hostname for u in Warmup(min_num=99, max_num=99).urls)
+            for host in ('www.foxnews.com', 'www.bbc.com', 'en.wikipedia.org', 'www.reddit.com'):
+                self.assertEqual(pages_per_host[host], 2, f'{host} was warmed up on with the same page twice')
 
-        # Excluding everything must not ask for more sites than are left
-        every_domain = ('amazon.com', 'x.com', 'youtube.com', 'foxnews.com', 'bbc.com', 'wikipedia.org', 'reddit.com')
-        self.assertEqual(Warmup(min_num=3, max_num=3, excluded_domains=every_domain).urls, ())
+            # A forced URL that is also one of the built-in sites is visited once
+            w = Warmup('https://x.com', min_num=10, max_num=10)
+            self.assertEqual(w.urls.count('https://x.com'), 1, f'a forced URL was warmed up on twice: {w.urls}')
+            self.assertEqual(len(set(w.urls)), len(w.urls), f'the same site was warmed up on twice: {w.urls}')
+
+            # The site about to be downloaded from must not be part of the warmup
+            w = Warmup(min_num=3, max_num=3, excluded_domains=('bbc.com', 'reddit.com'))
+            for url in w.urls:
+                self.assertNotIn('bbc.com', url)
+                self.assertNotIn('reddit.com', url)
+
+            # Excluding everything must not ask for more sites than are left
+            every_domain = ('amazon.com', 'x.com', 'youtube.com', 'foxnews.com', 'bbc.com', 'wikipedia.org', 'reddit.com')
+            self.assertEqual(Warmup(min_num=3, max_num=3, excluded_domains=every_domain).urls, ())
 
 
 @unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')

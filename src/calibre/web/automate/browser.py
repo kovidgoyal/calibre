@@ -73,10 +73,12 @@ class Warmup:
     """
 
     def __init__(self, *forced_urls: str, min_num: int = 2, max_num: int = 3, excluded_domains: Iterable[str] = ()) -> None:
-        foxes = tuple(f'https://www.foxnews.com/{x}' for x in random.choices(fox_news_topics, k=2))
-        bbc = tuple(f'https://www.bbc.com/{x}' for x in random.choices(bbc_topics, k=2))
-        wiki = tuple(f'https://en.wikipedia.org/wiki/{x}' for x in random.choices(wikipedia_topics, k=2))
-        reddit = tuple(f'https://www.reddit.com/r/{x}' for x in random.choices(subreddits, k=2))
+        # sample() rather than choices() as the latter picks with replacement,
+        # which means the same page of a site can be visited twice
+        foxes = tuple(f'https://www.foxnews.com/{x}' for x in random.sample(fox_news_topics, k=2))
+        bbc = tuple(f'https://www.bbc.com/{x}' for x in random.sample(bbc_topics, k=2))
+        wiki = tuple(f'https://en.wikipedia.org/wiki/{x}' for x in random.sample(wikipedia_topics, k=2))
+        reddit = tuple(f'https://www.reddit.com/r/{x}' for x in random.sample(subreddits, k=2))
         urls = (
             (
                 'https://www.amazon.com/gp/css/order-history?ref_=nav_orders_first',
@@ -101,7 +103,9 @@ class Warmup:
 
             urls = tuple(filter(is_not_excluded, urls))
         num = min(random.randint(min_num, max_num), len(urls))
-        self.urls = tuple(random.sample(urls, k=num)) + forced_urls
+        # dict.fromkeys() so that a forced URL that is also one of the built-in
+        # sites is not visited twice
+        self.urls = tuple(dict.fromkeys(random.sample(urls, k=num) + list(forced_urls)))
 
     async def visit(self, page: Page, url: str) -> None:
         """Load url and behave, briefly, like someone looking at it."""
