@@ -134,15 +134,6 @@ class TestICU(unittest.TestCase):
         self.ae((0, 13), icu.primary_no_punc_find('typographers', 'typographer’s'))
         self.ae((0, 7), icu.primary_no_punc_find('abcd', 'a\u00adb\u200cc\u200dd'))
         self.ae((0, 5), icu.primary_no_punc_find('abcd', 'ab cd'))
-        # test the fast path for ASCII text gives the same results as ICU
-        self.assertIsNone(icu.ascii_primary_no_punc_matcher('peña'))
-        self.assertIsNone(icu.ascii_primary_no_punc_matcher('-'))
-        texts = ('ab cd', 'AB-CD', "O'Brien, Flann", 'obrien', 'c++ in 21 days', 'c in 21 days', 'a$b', 'a_b', '50% off', 'x\ty', '', 'Sci-Fi & Fantasy #1')
-        for q in ('abcd', 'ab cd', "o'brien", 'c++', '$', 'a b', '50%', '#1', 'sci fi', 'xy', 'z', 'fi&fa'):
-            m = icu.ascii_primary_no_punc_matcher(q)
-            self.assertIsNotNone(m)
-            for text in texts:
-                self.ae(bool(icu.primary_no_punc_contains(q, text)), m(text), f'Fast path differs from ICU for {q!r} in {text!r}')
         # test find all
         m = []
         haystack = 'a𝄞ShuffleX'
@@ -161,6 +152,121 @@ class TestICU(unittest.TestCase):
         self.ae(c.find('a', 'abc a bc'), (0, 1))
         self.ae(c.find('a', 'abc a bc', True), (4, 1))
         self.ae(c.find('pena', 'a peñaabc peña', True), (10, 4))
+
+    def test_ascii_search_fast_path(self):
+        "Test that the ASCII fast path for contains searches agrees with ICU"
+
+        def check(q, texts):
+            m = icu.ascii_primary_no_punc_matcher(q)
+            self.assertIsNotNone(m, f'No fast path for the ASCII query: {q!r}')
+            for text in texts:
+                self.ae(bool(icu.primary_no_punc_contains(q, text)), m(text), f'Fast path differs from ICU for {q!r} in {text!r}')
+
+        # queries for which there must be no fast path
+        for q in ('peña', 'typographer’s', '\U0001f431'):  # not ASCII
+            self.assertIsNone(icu.ascii_primary_no_punc_matcher(q))
+        for q in ('', '-', ' ', '\t', '...', '\0', ' - '):  # nothing left after dropping ignored chars
+            self.assertIsNone(icu.ascii_primary_no_punc_matcher(q))
+
+        texts = (
+            '',
+            'ab cd',
+            'AB-CD',
+            'abcd',
+            "O'Brien, Flann",
+            'obrien',
+            'c++ in 21 days',
+            'c in 21 days',
+            'a$b',
+            'a_b',
+            '50% off',
+            'x\ty',
+            'Sci-Fi & Fantasy #1',
+            # characters the collator does not ignore
+            'a+b',
+            'a=b',
+            'a<b>c',
+            'a^b`c|d~e',
+            # control characters, which the collator ignores
+            'a\0b',
+            '\0abcd\0',
+            'a\x01b\x02c',
+            'ab\ncd',
+            'a\x7fb',
+        )
+        for q in (
+            'abcd',
+            'ab cd',
+            "o'brien",
+            'c++',
+            '$',
+            'a b',
+            '50%',
+            '#1',
+            'sci fi',
+            'xy',
+            'z',
+            'fi&fa',
+            'a+b',
+            'a=b',
+            'a<b>c',
+            '^',
+            'a b c d',
+            'ab',
+            'A\0B',
+            'a\x01b',
+            'ab cd ',
+        ):
+            check(q, texts)
+
+        # a randomised differential test against ICU
+        import random
+
+        rnd = random.Random(0xC411B7E)
+        alphabet = 'abABxy019 -\'.$+&#/\t\0\x01~=|`^<>%!,;:()[]{}?@_*"\\'
+        for i in range(5000):
+            q = ''.join(rnd.choice(alphabet) for _ in range(rnd.randint(1, 5)))
+            m = icu.ascii_primary_no_punc_matcher(q)
+            if m is None:
+                continue
+            text = ''.join(rnd.choice(alphabet) for _ in range(rnd.randint(0, 8)))
+            self.ae(bool(icu.primary_no_punc_contains(q, text)), m(text), f'Fast path differs from ICU for {q!r} in {text!r}')
+
+    def test_ascii_search_fast_path_locales(self):
+        "Test that the ASCII fast path is disabled for locales where it does not apply"
+        try:
+            # ch is a contraction in Czech and Slovak, and i/I do not compare
+            # equal at primary strength in Turkish and Azerbaijani
+            for locale in ('cs', 'sk', 'tr', 'az'):
+                icu.change_locale(locale)
+                self.assertIsNone(icu.ascii_primary_no_punc_matcher('ch'), f'The ASCII fast path must be disabled for the locale: {locale}')
+            # whatever the locale, the fast path must agree with ICU
+            for locale in ('en', 'de', 'fr', 'es', 'cs', 'tr', 'ja', 'ru'):
+                icu.change_locale(locale)
+                for q in ('ch', 'i', 'ii', 'ae', 'oe', 'ss', 'aa', 'x'):
+                    m = icu.ascii_primary_no_punc_matcher(q)
+                    if m is None:
+                        continue
+                    for text in ('ch', 'CH', 'I', 'i', 'II', 'ae', 'Æ', 'oe', 'ss', 'ß', 'aa', 'å', 'x', 'chi', 'a-i'):
+                        if not text.isascii():
+                            continue
+                        self.ae(
+                            bool(icu.primary_no_punc_contains(q, text)),
+                            m(text),
+                            f'Fast path differs from ICU for {q!r} in {text!r} in the locale: {locale}',
+                        )
+            # cached matchers must not survive a locale change
+            icu.change_locale('en')
+            self.assertIsNotNone(icu.ascii_primary_no_punc_matcher('ch'))
+            icu.change_locale('cs')
+            self.assertIsNone(icu.ascii_primary_no_punc_matcher('ch'))
+        finally:
+            icu.change_locale('en')
+
+        # the matcher cache must not grow without bound
+        for i in range(256):
+            icu.ascii_primary_no_punc_matcher(f'query{i}')
+        self.assertLessEqual(len(icu._ascii_no_punc_matchers), 128)
 
     def test_collation_order(self):
         "Testing collation ordering"

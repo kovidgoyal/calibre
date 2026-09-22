@@ -62,13 +62,16 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
     else:
         internal_match_ok = False
     if matchkind == CONTAINS_MATCH and not case_sensitive and use_primary_find_in_search:
-        # Avoid the ICU functions, which are slow in larger libraries, for ASCII only text
+        # This is the hot path when searching, so avoid the ICU functions,
+        # which are slow in larger libraries, for ASCII only text
         ascii_matcher = ascii_primary_no_punc_matcher(query)
-        for t in value:
-            if ascii_matcher is not None and t.isascii():
-                if ascii_matcher(t):
+        if ascii_matcher is None:
+            for t in value:
+                if primary_no_punc_contains(query, icu_lower(t)):
                     return True
-            elif primary_no_punc_contains(query, icu_lower(t)):
+            return False
+        for t in value:
+            if ascii_matcher(t) if t.isascii() else primary_no_punc_contains(query, icu_lower(t)):
                 return True
         return False
     for t in value:
@@ -97,10 +100,8 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
             if primary_contains(query, t):
                 return True
         elif matchkind == CONTAINS_MATCH:
-            if not case_sensitive and use_primary_find_in_search:
-                if primary_no_punc_contains(query, t):
-                    return True
-            elif query in t:
+            # The case insensitive primary match is handled by the fast path above
+            if query in t:
                 return True
     return False
 

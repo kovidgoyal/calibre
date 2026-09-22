@@ -252,7 +252,8 @@ def _build_ascii_no_punc_table():
         if any(len(c) > 1 and c.isascii() for c in contractions()):
             return None
         func = primary_collator_without_punctuation().contains
-        chars = tuple(map(chr, range(1, 128)))
+        # NULL must be included, the collator treats it as ignorable
+        chars = tuple(map(chr, range(128)))
         ignored = frozenset(c for c in chars if func('ab', f'a{c}b') and func('xy', f'x{c}y'))
         significant = tuple(c for c in chars if c not in ignored)
         for a in significant:
@@ -284,7 +285,7 @@ def ascii_primary_no_punc_matcher(query):
 
 
 def _ascii_primary_no_punc_matcher(query):
-    if not query.isascii() or '\0' in query:
+    if not query.isascii():
         return None
     collator()  # sets _locale
     try:

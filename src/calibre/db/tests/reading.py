@@ -632,6 +632,45 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_contains_match(self):  # {{{
+        "Test that the ASCII fast path in _match() matches plain ICU behaviour"
+        from calibre.db.search import CONTAINS_MATCH, _match
+        from calibre.utils.icu import lower as icu_lower
+        from calibre.utils.icu import primary_no_punc_contains
+
+        def icu_match(query, value):
+            # what _match() did before the ASCII fast path was added
+            return any(primary_no_punc_contains(query, icu_lower(t)) for t in value)
+
+        values = (
+            ('The Hobbit',),
+            ('Gravity’s Raiñbow',),
+            ("O'Brien, Flann", 'Flann O’Brien'),
+            ('C++ in 21 Days',),
+            ('Sci-Fi & Fantasy #1',),
+            ('',),
+            (),
+            ('ascii only', 'nön ascii'),
+        )
+        for query in ('hobbit', 'gravitys rainbow', "o'brien", 'obrien', 'c++', 'scifi', '#1', 'raiñbow', 'ñ', '', '-', 'z'):
+            query = icu_lower(query)
+            for value in values:
+                self.assertEqual(
+                    icu_match(query, value),
+                    _match(query, value, CONTAINS_MATCH),
+                    f'_match() differs from ICU for {query!r} in {value!r}',
+                )
+
+        # case sensitive and non primary searches must not use the fast path
+        self.assertTrue(_match('hobbit', ('The Hobbit',), CONTAINS_MATCH, case_sensitive=False))
+        self.assertFalse(_match('hobbit', ('The Hobbit',), CONTAINS_MATCH, case_sensitive=True))
+        self.assertTrue(_match('Hobbit', ('The Hobbit',), CONTAINS_MATCH, case_sensitive=True))
+        self.assertTrue(_match('the hobbit', ('The Hobbit',), CONTAINS_MATCH, use_primary_find_in_search=False))
+        self.assertFalse(_match('thehobbit', ('The Hobbit',), CONTAINS_MATCH, use_primary_find_in_search=False))
+        self.assertTrue(_match('thehobbit', ('The Hobbit',), CONTAINS_MATCH, use_primary_find_in_search=True))
+
+    # }}}
+
     def test_search_caching(self):  # {{{
         "Test caching of searches"
         from calibre.db.search import LRUCache
