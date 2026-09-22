@@ -73,7 +73,9 @@ class Barrons(BasicNewsRecipe):
     description = (
         "Barron's is an American weekly magazine/newspaper published by Dow Jones & Company. Founded in 1921 as a sister "
         "publication to The Wall Street Journal, Barron's covers U.S. financial information, market developments, and "
-        'relevant statistics.'
+        'relevant statistics. Note that barrons.com serves the body of every article in the magazine to subscribers only, '
+        'so what this recipe can fetch is the cover, the contents and the headline, byline and opening paragraph of each '
+        'article, rather than the articles themselves.'
     )
     language = 'en_US'
     encoding = 'utf-8'

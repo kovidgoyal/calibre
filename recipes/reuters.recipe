@@ -4,6 +4,7 @@ import json
 import time
 from datetime import datetime, timedelta
 
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -18,7 +19,8 @@ class Reuters(BasicNewsRecipe):
     description = (
         'Reuters, the news and media division of Thomson Reuters, is the world’s largest multimedia news provider, '
         'reaching billions of people worldwide every day. Reuters provides business, financial, national and international '
-        'news to professionals via desktop terminals, the world’s media organizations, industry events and directly to consumers.'
+        'news to professionals via desktop terminals, the world’s media organizations, industry events and directly to consumers. '
+        'Uses the camoufox browser, which is downloaded on first use, as reuters.com blocks every lighter way of fetching its pages.'
     )
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Reuters_logo_2024.svg'
     cover_url = 'https://yt3.googleusercontent.com/ytc/AIdro_mk43b9eQwN15ZBDyMPDaElxvw4V-oUS9XDUvVnYB3gA9yA=s1024'
@@ -31,6 +33,17 @@ class Reuters(BasicNewsRecipe):
     resolve_internal_links = True
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
+
+    # reuters.com is behind an anti-bot service that answers every lighter way
+    # of asking for a page, the mobile API included, with a 401 and an
+    # interstitial, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
+    # No delay between requests, deliberately: any delay at all makes calibre
+    # download on a single thread, and a browser that navigates to every
+    # article is slow enough that that would take hours. Looking like a real
+    # browser, not pacing, is what gets this recipe through, and each download
+    # thread gets a tab of its own to do it in.
+    delay = 0
 
     extra_css = '''
         .label, .auth { font-size:small; color:#202020; }
@@ -167,12 +180,14 @@ class Reuters(BasicNewsRecipe):
         return '<html><body><div>' + body + '</div></body></html>'
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = (
-            'ReutersNews/7.11.0.1742843009 Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36'
-        )
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [('cookie', 'reuters-geo={"country":"-"; "region":"-"}=')]
-        return br
+        # Reuters tailors, and in some regions withholds, its coverage based on
+        # where it thinks the reader is. This is the same opt out of that as
+        # the mobile app sends, set as a cookie rather than as a raw Cookie
+        # header, which with this browser would replace the cookies the site
+        # itself sets, the anti-bot service's among them.
+        br.set_cookie('reuters-geo', '{"country":"-","region":"-"}', domain='.reuters.com')
+        return retry_bot_checks(br)
 
     def print_version(self, url):
         return url.replace('https://www.reuters.com', 'https://www.reuters.com/mobile/v1') + '?outputType=json'
