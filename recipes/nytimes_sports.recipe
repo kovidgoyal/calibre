@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from __future__ import with_statement
-
 __license__ = 'GPL 3'
 __copyright__ = 'zotzo'
 __docformat__ = 'restructuredtext en'
 '''
+The sports desk of the New York Times publishes on The Athletic, which the
+paper owns and serves under nytimes.com/athletic, so this recipe reads the
+league sections there.
+
+It used to read a per-sport blog each:
+
 http://fifthdown.blogs.nytimes.com/
-http://offthedribble.blogs.nytimes.com/
 http://thequad.blogs.nytimes.com/
 http://slapshot.blogs.nytimes.com/
 http://goal.blogs.nytimes.com/
@@ -16,40 +19,268 @@ http://bats.blogs.nytimes.com/
 http://straightsets.blogs.nytimes.com/
 http://formulaone.blogs.nytimes.com/
 http://onpar.blogs.nytimes.com/
+
+Those blogs were shut down years ago. Two of the feeds are now answered with an
+HTTP 410 and the rest redirect to feeds on rss.nytimes.com that have not been
+updated in months, which is why they were replaced.
 '''
 
+import json
+import re
+from datetime import datetime, timezone
+from xml.sax.saxutils import escape, quoteattr
+
+from calibre import strftime
+from calibre.utils.date import local_tz
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe
+
+# The league sections to download, which are the sports the blogs this recipe
+# used to read covered. Comment out the ones you are not interested in, or add
+# one of the other sections listed at https://www.nytimes.com/athletic/sitemap/
+SECTIONS = [
+    ('N.F.L.', 'nfl'),
+    ('College Football', 'college-football'),
+    ('M.L.B.', 'mlb'),
+    ('N.H.L.', 'nhl'),
+    ('Soccer', 'football'),
+    ('Tennis', 'tennis'),
+    ('Golf', 'golf'),
+    ('Formula 1', 'formula-1'),
+]
+
+# An article of The Athletic, whose URL carries its id and publication date:
+# https://www.nytimes.com/athletic/7585935/2026/09/21/nba-under-radar-moves-peyton-watson/
+# Anything else a section page links to, its own sub-sections, live blogs and
+# interactive graphics among them, has a URL of a different shape.
+ARTICLE_URL_PAT = re.compile(r'^https://www\.nytimes\.com/athletic/\d+/(\d{4})/(\d{2})/(\d{2})/[^/]+/$')
+
+# The chrome around a section's feed, which links to articles of its own: the
+# site wide league menu, which is the same on every section page and so is full
+# of other sports, and a row of editor's picks for this one. Taking those would
+# put an article about the Premier League into the N.F.L. section, so only the
+# feed itself is read.
+CHROME_TAGS = frozenset({'nav', 'header', 'footer', 'aside'})
+
+
+def article_urls(soup):
+    """Every article a section's feed links to, in the order they appear.
+
+    The feed is built by scripts rather than served as markup, so this reads the
+    rendered page. Beyond which element holds the feed, only the shape of an
+    article URL is relied on, that being the one thing about the page that does
+    not change with every redesign of it.
+    """
+    ans = []
+    seen = set()
+    for a in (soup.find('main') or soup).findAll('a', href=True):
+        url = a['href'].partition('?')[0].partition('#')[0]
+        match = ARTICLE_URL_PAT.match(url)
+        if match is None or url in seen:
+            continue
+        if any(p.name in CHROME_TAGS for p in a.parents):
+            continue
+        seen.add(url)
+        ans.append((url, match, card_title(a)))
+    return ans
+
+
+def card_title(a):
+    """The headline of the card the anchor a wraps, as best it can be had.
+
+    The cards come in several shapes: some have the headline in the alt text of
+    their image and the summary in a paragraph, others have no image and the
+    headline as the text of the anchor itself. Whichever this is, the title is
+    replaced by the article's own once it has been downloaded, in
+    :meth:`NYTimesSports.populate_article_metadata`, so a wrong guess here only
+    shows up in the log.
+    """
+    # data-nimg is on the images the site lays out, which excludes the inline
+    # icons the byline of a card is decorated with
+    img = a.find('img', attrs={'alt': True, 'data-nimg': True})
+    if img is not None and img['alt'].strip():
+        return img['alt'].strip()
+    for tag in (a.find('p'), a):
+        if tag is not None:
+            text = ' '.join(tag.get_text(' ', strip=True).split())
+            if text:
+                return text
+    return ''
+
+
+def published_on(match):
+    """The publication date in an article's URL, as a UTC timestamp.
+
+    The URL carries the day but not the time of day, so this is midnight. It is
+    only used to decide whether an article is older than oldest_article, and to
+    show the date in the index, both of which it is accurate enough for.
+    """
+    year, month, day = (int(x) for x in match.groups())
+    return datetime(year, month, day, tzinfo=timezone.utc).timestamp()
+
+
+def next_data_of(soup, url):
+    script_tag = soup.find('script', id='__NEXT_DATA__')
+    if script_tag is None:
+        raise ValueError(f'No __NEXT_DATA__ in the page at {url}, the site layout has probably changed')
+    return json.loads(script_tag.string)
+
+
+def byline_of(article):
+    """The names of an article's authors, without the links to their pages."""
+    linkable = article.get('byline_linkable') or {}
+    if linkable.get('raw_string'):
+        return linkable['raw_string']
+    names = []
+    for entry in article.get('authors') or ():
+        name = (entry.get('author') or {}).get('name')
+        if name and name not in names:
+            names.append(name)
+    return ', '.join(names)
+
+
+def lead_image_of(article):
+    """The article's lead image, at the largest size on offer."""
+    url = article.get('image_uri_full') or article.get('image_uri')
+    if not url:
+        return ''
+    alt = article.get('image_alt_text') or ''
+    ans = f'<div><img src={quoteattr(url)} alt={quoteattr(alt)}></div>'
+    caption = article.get('image_caption') or ''
+    credit = article.get('image_credit') or ''
+    if caption or credit:
+        ans += f'<div class="cap">{escape(caption)}'
+        if credit:
+            ans += f'<span class="cred"> {escape(credit)}</span>'
+        ans += '</div>'
+    return ans
+
+
+def article_html(article):
+    """An article of The Athletic as a page of its own.
+
+    The body already is HTML, since The Athletic's editors write it as such, so
+    only the furniture around it has to be built.
+    """
+    title = article.get('title') or ''
+    parts = [f'<html><head><title>{escape(title)}</title></head><body><article>']
+    if article.get('primary_tag'):
+        parts.append(f'<div class="lbl">{escape(article["primary_tag"])}</div>')
+    parts.append(f'<h1>{escape(title)}</h1>')
+    if article.get('excerpt'):
+        parts.append(f'<p class="sum"><i>{escape(article["excerpt"])}</i></p>')
+    if byline := byline_of(article):
+        parts.append(f'<div class="byl">By {escape(byline)}</div>')
+    if article.get('published_at'):
+        # Milliseconds since the epoch
+        when = datetime.fromtimestamp(article['published_at'] / 1000, tz=local_tz)
+        parts.append(f'<div class="time">{when.strftime("%b %d, %Y at %I:%M %p")}</div>')
+    parts.append(lead_image_of(article))
+    parts.append(article.get('article_body') or '')
+    parts.append('</article></body></html>')
+    return ''.join(parts)
 
 
 class NYTimesSports(BasicNewsRecipe):
     title = 'New York Times Sports Beat'
     language = 'en_US'
     __author__ = 'rylsfan'
-    description = 'Indepth sports from the New York Times'
+    description = (
+        'Indepth sports from the New York Times, whose sports desk publishes on The Athletic. Uses the'
+        ' camoufox browser, which is downloaded on first use, as nytimes.com blocks every lighter way'
+        ' of fetching its pages.'
+    )
     publisher = 'The New York Times'
     category = 'Sports'
     oldest_article = 3
     max_articles_per_feed = 25
     use_embedded_content = False
     no_stylesheets = True
-    delay = 1
+    remove_empty_feeds = True
+    # A story that matters to two leagues is on both of their section pages
+    ignore_duplicate_articles = {'url'}
 
-    feeds = [
-        ('The Fifth Down', 'https://fifthdown.blogs.nytimes.com/feed/'),
-        ('The Quad', 'https://thequad.blogs.nytimes.com/feed/'),
-        ('Slap Shot', 'https://slapshot.blogs.nytimes.com/feed/'),
-        ('Goal', 'https://goal.blogs.nytimes.com/feed/'),
-        ('Bats', 'https://bats.blogs.nytimes.com/feed/'),
-        ('Straight Sets', 'https://straightsets.blogs.nytimes.com/feed/'),
-        ('Formula One', 'https://formulaone.blogs.nytimes.com/feed/'),
-        ('On Par', 'https://onpar.blogs.nytimes.com/feed/'),
+    # nytimes.com refuses every other browser, and answers the first request
+    # from a new one with a bot check, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
+    # No delay between requests, deliberately: any delay at all makes calibre
+    # download on a single thread, and a browser that navigates to every
+    # article is slow enough that the download then takes far longer than it
+    # needs to. Pacing is not what keeps this recipe out of trouble anyway,
+    # looking like a real browser is, and each of the download threads gets a
+    # tab of its own to do it in.
+    delay = 0
+
+    extra_css = '''
+        .byl, .time { font-size:small; color:#202020; }
+        .cap, .wp-caption-text, .inline-credits { font-size:small; text-align:center; }
+        .cred { font-style:italic; font-size:small; }
+        .sum { color:#202020; }
+        em, blockquote { color: #202020; }
+        .lbl { font-size:small; color:#404040; }
+        img { display:block; margin:0 auto; }
+    '''
+
+    remove_tags = [
+        # <ignore> holds the styles, scripts and markup of the promos for other
+        # articles that The Athletic's editing tools put into a body
+        dict(name=['ignore', 'script', 'style']),
+        # An empty placeholder that a script fills with a video player
+        dict(attrs={'data-ath-video-stream': True}),
     ]
 
-    def preprocess_raw_html(self, raw_html, url):
-        if not hasattr(self, 'nyt_parser'):
-            from calibre.live import load_module
+    def get_browser(self, *args, **kwargs):
+        return retry_bot_checks(BasicNewsRecipe.get_browser(self, *args, **kwargs))
 
-            m = load_module('calibre.web.site_parsers.nytimes')
-            self.nyt_parser = m
-        html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
-        return html
+    def parse_index(self):
+        feeds = []
+        for section, slug in SECTIONS:
+            url = f'https://www.nytimes.com/athletic/{slug}/'
+            self.log('Downloading section index:', url)
+            articles = []
+            for article_url, match, title in article_urls(self.index_to_soup(url)):
+                timestamp = published_on(match)
+                articles.append({
+                    'title': title or article_url,
+                    'url': article_url,
+                    'timestamp': timestamp,
+                    'date': strftime(' [%a, %d %b %Y]', datetime.fromtimestamp(timestamp, tz=local_tz).timetuple()),
+                })
+            self.log('Section:', section)
+            if articles:
+                feeds.append((section, articles))
+                for a in articles:
+                    self.log('\t', a['title'], a['url'])
+            else:
+                self.log('  No articles found in section:', section)
+            if self.test and len(feeds) >= self.test[0]:
+                break
+        if not feeds:
+            raise ValueError('Found no articles in any section, the site layout has probably changed')
+        return feeds
+
+    def preprocess_raw_html(self, raw_html, url):
+        article = (next_data_of(self.index_to_soup(raw_html), url).get('props') or {}).get('pageProps', {}).get('article')
+        if not article:
+            raise ValueError(f'The __NEXT_DATA__ of the page at {url} does not contain an article')
+        if article.get('is_teaser'):
+            self.log.warn(f'{url} was served as a teaser, only the opening of it will be in the output')
+        return article_html(article)
+
+    def populate_article_metadata(self, article, soup, first):
+        # The section pages only carry the headline as it is worded on a card,
+        # which for some of the card shapes is a teaser rather than the
+        # headline, so the article's own wording of it replaces that here
+        if not first:
+            return
+        if (h1 := soup.find('h1')) is not None:
+            if title := ' '.join(h1.get_text(' ', strip=True).split()):
+                article.title = title
+        if (byl := soup.find(attrs={'class': 'byl'})) is not None:
+            author = ' '.join(byl.get_text(' ', strip=True).split())
+            author = author[3:] if author.startswith('By ') else author
+            if author:
+                article.author = author
+        if (summary := soup.find(attrs={'class': 'sum'})) is not None:
+            if text := ' '.join(summary.get_text(' ', strip=True).split()):
+                article.summary = article.text_summary = text

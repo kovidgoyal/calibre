@@ -2,13 +2,12 @@
 import json
 import time
 from datetime import datetime, timedelta
-from functools import wraps
-from urllib.error import URLError
 
 from html5_parser import parse
 from lxml import etree
 
 from calibre.utils.date import local_tz
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe
 
 # The Economist serves the full text of an article to the readers of its mobile
@@ -20,53 +19,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 # camoufox permits and the only thing that is internally consistent.
 APP_USER_AGENT_MARKER = ' Liskov'
 
-# economist.com is behind a bot check that answers a request from a browser it
-# has not scored yet with an interstitial page. That page arrives as an HTTP 403
-# while its scripts, still running in the tab, do the scoring and then reload
-# the page, so a request that gets one is simply made again, by which time the
-# check has normally been passed once and for all for the whole browser.
-BOT_CHECK_STATUSES = frozenset({403, 429})
-BOT_CHECK_RETRIES = 4
-BOT_CHECK_DELAY = 5  # seconds
-
 
 def safe_dict(data, *names):
     ans = data
     for x in names:
         ans = ans.get(x) or {}
     return ans
-
-
-def bot_check_retrier(fetch):
-    """Wrap one of the browser's fetching methods to wait out the bot check."""
-
-    @wraps(fetch)
-    def retrying(*args, **kwargs):
-        for attempt in range(BOT_CHECK_RETRIES):
-            try:
-                return fetch(*args, **kwargs)
-            except URLError as err:
-                last = attempt + 1 >= BOT_CHECK_RETRIES
-                if last or getattr(err, 'code', None) not in BOT_CHECK_STATUSES:
-                    raise
-                time.sleep(BOT_CHECK_DELAY)
-
-    return retrying
-
-
-def retry_bot_checks(br):
-    """Make br retry the requests that the bot check answers with an interstitial.
-
-    Wrapping the methods on the instance rather than subclassing because the
-    camoufox browser's own ``clone_browser()`` hands back a plain browser of its
-    own class, so every clone has to be wrapped again anyway, which
-    :meth:`Economist.clone_browser` does.
-    """
-    if not getattr(br, 'retries_bot_checks', False):
-        for name in ('open', 'open_novisit'):
-            setattr(br, name, bot_check_retrier(getattr(br, name)))
-        br.retries_bot_checks = True
-    return br
 
 
 def process_web_list(li_node):
@@ -241,8 +199,9 @@ class Economist(BasicNewsRecipe):
 
     resolve_internal_links = True
 
-    # economist.com refuses every other browser, see the module level comments
-    # on the bot check and on the user agent
+    # economist.com refuses every other browser, and answers the first request
+    # from a new one with a bot check, see calibre.web.automate.bot_check and
+    # the module level comment on the user agent
     browser_type = 'camoufox'
     # No delay between requests, deliberately: any delay at all makes calibre
     # download on a single thread, and a browser that navigates to every article
@@ -276,11 +235,6 @@ class Economist(BasicNewsRecipe):
         br.addheaders.append(('User-Agent', ua))
         self.log('Using user agent:', ua)
         return retry_bot_checks(br)
-
-    def clone_browser(self, br):
-        # The clone is a browser of camoufox's own class, so it has to be taught
-        # about the bot check again
-        return retry_bot_checks(BasicNewsRecipe.clone_browser(self, br))
 
     def canonicalize_internal_url(self, url, is_link=True):
         if url.endswith('/print'):

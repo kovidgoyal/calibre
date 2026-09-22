@@ -7,6 +7,7 @@ import json
 from pprint import pprint
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe
 from polyglot.functools import lru_cache
 
@@ -29,13 +30,20 @@ def parser_module():
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title = 'New York Times Book Review'
     language = 'en_US'
-    description = 'The New York Times Sunday Book Review'
+    description = (
+        'The New York Times Sunday Book Review. Uses the camoufox browser, which is downloaded on'
+        ' first use, as nytimes.com blocks every lighter way of fetching its pages.'
+    )
     __author__ = 'Kovid Goyal'
 
     no_stylesheets = True
     no_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
+
+    # nytimes.com refuses every other browser, and answers the first request
+    # from a new one with a bot check, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
 
     extra_css = '''
         .byl, .time { font-size:small; color:#202020; }
@@ -102,9 +110,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         return feeds
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        return br
+        return retry_bot_checks(BasicNewsRecipe.get_browser(self, *args, **kwargs))
 
     def preprocess_html(self, soup):
         w = self.recipe_specific_options.get('res')

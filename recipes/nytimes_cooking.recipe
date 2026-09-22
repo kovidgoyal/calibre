@@ -13,6 +13,7 @@ class NYTCooking(BasicNewsRecipe):
     max_articles_per_feed = 30
     remove_attributes = ['style']
     no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
     keep_only_tags = [
         prefixed_classes('pagecontent_recipe-wrap__'),
     ]
@@ -25,20 +26,27 @@ class NYTCooking(BasicNewsRecipe):
     ]
 
     def parse_index(self):
-        url = 'https://cooking.nytimes.com/topics/what-to-cook-this-week'
-        soup = self.index_to_soup(url)
+        index_url = 'https://cooking.nytimes.com/topics/what-to-cook-this-week'
+        soup = self.index_to_soup(index_url)
 
-        articles = soup.find_all('div', class_='card-info-wrapper')
         feed = []
-
-        for i in articles:
-            article = {}
-            article['url'] = i.find('a')['href']
-            if article['url'].startswith('/'):
-                article['url'] = 'https://cooking.nytimes.com' + article['url']
-            article['title'] = i.find('h3').text.strip()
-            author = i.find('p', class_='card-byline')
-            article['author'] = author.text if author is not None else 'Unknown'
-            feed.append(article)
+        for card in soup.findAll(**prefixed_classes('recipecard_recipeCard__')):
+            link = card.find('a', href=True)
+            title = card.find('h3')
+            if link is None or title is None:
+                # The carousels hold the odd card that advertises a collection
+                # rather than a recipe, and those have neither
+                continue
+            url = link['href']
+            if url.startswith('/'):
+                url = 'https://cooking.nytimes.com' + url
+            author = card.find(**prefixed_classes('recipecard_byline__'))
+            feed.append({
+                'url': url,
+                'title': title.text.strip(),
+                'author': author.text.strip() if author is not None else 'Unknown',
+            })
+        if not feed:
+            raise ValueError(f'Found no recipes on {index_url}, the site layout has probably changed')
 
         return [('Recipes', feed)]

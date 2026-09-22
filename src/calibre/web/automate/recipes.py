@@ -316,11 +316,29 @@ async def fetch_document(session: Session, page: Page, url: str, timeout: float)
     status = response.status if response is not None else int(HTTPStatus.OK)
     reason = response.status_text if response is not None else ''
     headers = list(response.headers) if response is not None else []
+    if status == HTTPStatus.NOT_MODIFIED:
+        # The browser revalidated a document it already had and was told to use
+        # its own copy, which it did, so the tab is showing the document even
+        # though the status code on its own reads as a failure. This is routine
+        # for a recipe that retries a request the site answered with a bot
+        # check, since by then the browser has the page from the attempt that
+        # the check's own scripts reloaded. A 304 carries neither a body nor a
+        # content type, so the rendered document in the tab is both all there
+        # is to hand back and the only thing the status says anything about.
+        status, reason, headers = int(HTTPStatus.OK), '', []
     if not (200 <= status < 300) and status:
         return error_result(f'HTTP {status} {reason}'.strip(), status=status, worth_retry=status in RETRY_STATUSES, url=final_url)
     if content_type_of(headers) not in RENDERED_CONTENT_TYPES and headers:
         # Something the browser does not render as a document, such as the JSON
-        # an API returns. Hand back the bytes the server actually sent.
+        # an API returns or the XML of a feed. Hand back the bytes the server
+        # actually sent.
+        #
+        # The tab is left holding something that is not an HTML document, which
+        # has no sub-resources for a later fetch_resource() to take out of it
+        # and, being a bare XML document, cannot even host the <img> used to
+        # ask for one. So the session is recorded as not working on a document
+        # at all and whatever it asks for next is navigated to instead.
+        session.document_url = ''
         resource = await page.get_resource(final_url, timeout=timeout)
         return result_from_response(final_url, status, reason, headers, resource.data)
     html = await page.call(DOCUMENT_HTML_JS, timeout=timeout)
@@ -349,7 +367,13 @@ async def fetch_resource(page: Page, url: str, timeout: float) -> dict[str, Any]
         status = response.status if response is not None else 0
         return error_result(str(err), status=status, worth_retry=not status or status in RETRY_STATUSES, url=url)
     headers = [('Content-Type', resource.content_type)] if resource.content_type else []
-    return result_from_response(url, resource.status, '', headers, resource.data)
+    status = resource.status
+    if status == HTTPStatus.NOT_MODIFIED and resource.data:
+        # Revalidated out of the browser's cache, which happens for an image
+        # two articles share. The bytes came from the browser rather than from
+        # the wire, so having them is what makes this a success.
+        status = int(HTTPStatus.OK)
+    return result_from_response(url, status, '', headers, resource.data)
 
 
 async def do_fetch(state: State, request: Mapping[str, Any]) -> dict[str, Any]:

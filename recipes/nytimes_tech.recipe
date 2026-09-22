@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe
 
 use_wayback_machine = False
@@ -8,7 +9,10 @@ use_wayback_machine = False
 class NytTech(BasicNewsRecipe):
     title = 'New York Times Technology Beat'
     __author__ = 'unkn0wn'
-    description = 'The latest in technology - Gadgetwise'
+    description = (
+        'The latest in technology - Gadgetwise. Uses the camoufox browser, which is downloaded on'
+        ' first use, as nytimes.com blocks every lighter way of fetching its pages.'
+    )
     oldest_article = 14  # days
     encoding = 'utf-8'
     use_embedded_content = False
@@ -17,6 +21,10 @@ class NytTech(BasicNewsRecipe):
     resolve_internal_links = True
     ignore_duplicate_articles = {'title', 'url'}
     masthead_url = 'https://static01.nytimes.com/newsgraphics/2015-12-23-masthead-2016/b15c3d81d3d7b59065fff9a3f3afe85aa2e2dff5/_assets/nyt-logo.png'
+
+    # nytimes.com refuses every other browser, and answers the first request
+    # from a new one with a bot check, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
 
     feeds = [
         'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
@@ -98,9 +106,7 @@ class NytTech(BasicNewsRecipe):
         return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        return br
+        return retry_bot_checks(BasicNewsRecipe.get_browser(self, *args, **kwargs))
 
     def preprocess_html(self, soup):
         w = self.recipe_specific_options.get('res')

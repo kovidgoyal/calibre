@@ -9,8 +9,15 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 18  # needed for live updates
+module_version = 19  # needed for live updates
 pprint
+
+
+def safe_dict(data, *names):
+    ans = data
+    for x in names:
+        ans = ans.get(x) or {}
+    return ans
 
 
 def parse_image(i):
@@ -205,16 +212,36 @@ def clean_js_json(text):
     return text
 
 
+# The keys of window.__preloadedData under which an ordinary article's own data
+# is found. NYTimes used to put it under initialData and now puts it under
+# loaderData, but both keys are always present, with the unused one empty, so
+# the article is looked for under each in turn rather than guessed at from
+# anything else on the page.
+ARTICLE_DATA_KEYS = ('loaderData', 'initialData')
+
+
+def article_data(data):
+    """The body bearing article of a page, or None if it has none.
+
+    A live blog has no article of its own, its posts live in the Apollo cache
+    under initialState instead, so returning None is how the caller is told to
+    look there.
+    """
+    for key in ARTICLE_DATA_KEYS:
+        article = safe_dict(data, key, 'data').get('article') or {}
+        if article.get('sprinkledBody'):
+            return article
+    return None
+
+
 def json_to_html(raw):
     cleaned = clean_js_json(raw)
     data = json.JSONDecoder(strict=False).raw_decode(cleaned)[0]
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
-    try:
-        data = data['initialData']['data']
-    except TypeError:
-        data = data['initialState']
-        return live_json_to_html(data)
-    content = data['article']['sprinkledBody']['content']
+    article = article_data(data)
+    if article is None:
+        return live_json_to_html(data['initialState'])
+    content = article['sprinkledBody']['content']
     return '\n'.join(article_parse(content))
 
 

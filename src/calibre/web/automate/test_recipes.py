@@ -18,6 +18,7 @@ from urllib.request import Request
 
 from calibre.web.automate import browser as browser_module
 from calibre.web.automate import recipes
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.automate.browser import Warmup
 from calibre.web.automate.test_camoufox import installed_camoufox
 
@@ -38,6 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 TEST_SVG = '''<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="red"/></svg>'''
 TEST_CSS = '''#headline { color: red; }'''
+# A feed, which is XML the browser does not render as a document
+TEST_FEED = '''<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>A Feed</title>
+<item><title>An Article</title><link>article.html</link></item></channel></rss>'''
+# The validator of the one page that is served with caching headers, so that
+# loading it a second time is answered with a 304 rather than with the page
+CACHEABLE_ETAG = '"a-headline"'
+CACHEABLE_PATH = '/cacheable.html'
 # A page that declares, and is served as, an encoding that is not utf-8
 LATIN1_PAGE = '''<!DOCTYPE html><html><head><meta charset="iso-8859-1"><title>Caf\xe9</title></head>
 <body><p id="word">na\xefve caf\xe9</p></body></html>'''
@@ -67,8 +75,10 @@ class Server:
             def end_headers(self) -> None:
                 # The tests share a browser, so without this a page one of them
                 # loads is served to the next one out of the cache and the
-                # request counts stop meaning anything
-                self.send_header('Cache-Control', 'no-store')
+                # request counts stop meaning anything. The one page that is
+                # about revalidation sends caching headers of its own instead.
+                if self.path.partition('?')[0] != CACHEABLE_PATH:
+                    self.send_header('Cache-Control', 'no-store')
                 super().end_headers()
 
             def count(self) -> str:
@@ -94,6 +104,23 @@ class Server:
                         self.reply(200, 'image/svg+xml', body.encode())
                     case '/api.json':
                         self.reply(200, 'application/json', json.dumps({'articles': ['one', 'two']}).encode())
+                    case '/feed.xml':
+                        self.reply(200, 'application/xml', TEST_FEED.encode())
+                    case _ if self.path.partition('?')[0] == CACHEABLE_PATH:
+                        if self.headers.get('If-None-Match') == CACHEABLE_ETAG:
+                            self.send_response(304)
+                            self.send_header('ETag', CACHEABLE_ETAG)
+                            self.send_header('Cache-Control', 'no-cache')
+                            self.end_headers()
+                            return
+                        body = ARTICLE_PAGE.encode('utf-8')
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'text/html')
+                        self.send_header('Content-Length', str(len(body)))
+                        self.send_header('ETag', CACHEABLE_ETAG)
+                        self.send_header('Cache-Control', 'no-cache')
+                        self.end_headers()
+                        self.wfile.write(body)
                     case '/missing':
                         self.reply(404, 'text/html', b'<html><body>no such thing</body></html>')
                     case '/busy':
@@ -135,6 +162,80 @@ class Server:
         import shutil
 
         shutil.rmtree(self.dir, ignore_errors=True)
+
+
+class FakeBrowser:
+    """The little of a browser that retry_bot_checks() touches."""
+
+    def __init__(self, statuses: list[int | None]) -> None:
+        # What each successive request fails with, None meaning it succeeds
+        self.statuses = list(statuses)
+        self.attempts = 0
+        self.clones: list[FakeBrowser] = []
+
+    def open(self, url: str) -> str:
+        self.attempts += 1
+        status = self.statuses.pop(0) if self.statuses else None
+        if status is None:
+            return f'the page at {url}'
+        err = URLError(f'HTTP {status}')
+        setattr(err, 'code', status)
+        raise err
+
+    open_novisit = open
+
+    def clone_browser(self) -> FakeBrowser:
+        # A real browser hands back one of its own class, knowing nothing of
+        # any wrapping done to the instance it was cloned from
+        ans = FakeBrowser(self.statuses)
+        self.clones.append(ans)
+        return ans
+
+
+class TestRecipeBotCheck(unittest.TestCase):
+    """Retrying the interstitial a bot check answers a request with."""
+
+    def test_recipes_bot_check_retried(self) -> None:
+        "A request the bot check answers with an interstitial is made again"
+        br = retry_bot_checks(FakeBrowser([403, 403]), delay=0)
+        self.assertEqual(br.open('u'), 'the page at u')
+        self.assertEqual(br.attempts, 3)
+
+    def test_recipes_bot_check_other_errors(self) -> None:
+        "An error that is not a bot check is not retried, and neither is the last one"
+        br = retry_bot_checks(FakeBrowser([404]), delay=0)
+        with self.assertRaises(URLError) as ctx:
+            br.open('u')
+        self.assertEqual(getattr(ctx.exception, 'code', None), 404)
+        self.assertEqual(br.attempts, 1, 'a 404 was retried')
+
+        br = retry_bot_checks(FakeBrowser([403] * 10), retries=3, delay=0)
+        with self.assertRaises(URLError) as ctx:
+            br.open('u')
+        self.assertEqual(getattr(ctx.exception, 'code', None), 403, 'the last failure was not handed back as it stood')
+        self.assertEqual(br.attempts, 3)
+
+    def test_recipes_bot_check_survives_cloning(self) -> None:
+        "Clones retry too, which is what the download threads rely on"
+        br = retry_bot_checks(FakeBrowser([]), delay=0)
+        clone = br.clone_browser()
+        clone.statuses = [403]
+        self.assertEqual(clone.open_novisit('u'), 'the page at u')
+        self.assertEqual(clone.attempts, 2)
+        # Recipes clone per article, and a tab limit can make a clone of a clone
+        grandchild = clone.clone_browser()
+        grandchild.statuses = [429]
+        self.assertEqual(grandchild.open('u'), 'the page at u')
+        self.assertEqual(grandchild.attempts, 2)
+
+    def test_recipes_bot_check_is_idempotent(self) -> None:
+        "Wrapping a browser that is already wrapped leaves it alone"
+        br = retry_bot_checks(FakeBrowser([403]), delay=0)
+        opener = br.open
+        self.assertIs(retry_bot_checks(br, delay=0), br)
+        self.assertIs(br.open, opener, 'the browser was wrapped a second time')
+        self.assertEqual(br.open('u'), 'the page at u')
+        self.assertEqual(br.attempts, 2, 'the request was retried twice over')
 
 
 class TestRecipeWarmupUrls(unittest.TestCase):
@@ -297,6 +398,31 @@ class TestRecipeBrowser(unittest.TestCase):
             self.assertEqual(json.loads(response.read()), {'articles': ['one', 'two']})
         br.release()
 
+    def test_recipes_non_html_leaves_no_document_behind(self) -> None:
+        "After the tab loads a feed, the next thing asked for is navigated to rather than taken out of it"
+        br = self.shared_browser().clone_browser()
+        with br.open(self.server.base + 'feed.xml') as response:
+            self.assertIn(b'<rss', response.read())
+        # A bare XML document has no sub-resources to take anything out of and
+        # cannot host the <img> that asking for one would use, so the session
+        # must not be left thinking it is working on a document
+        with br.open_novisit(self.server.base + 'article.html') as response:
+            self.assertIn('added-by-script', response.read().decode('utf-8'))
+        br.release()
+
+    def test_recipes_not_modified(self) -> None:
+        "A navigation the browser satisfies out of its own cache is a success, not a 304 failure"
+        br = self.shared_browser().clone_browser()
+        for _ in range(2):
+            # The second time round the browser revalidates and is told to use
+            # the copy it has, which is what a recipe retrying a request the
+            # site answered with a bot check runs into
+            with br.open(self.server.base + CACHEABLE_PATH.lstrip('/')) as response:
+                self.assertEqual(response.status, 200)
+                self.assertIn('The Headline', response.read().decode('utf-8'))
+        self.assertEqual(self.server.count_for(CACHEABLE_PATH), 2, 'the page was not revalidated, so nothing was tested')
+        br.release()
+
     def test_recipes_redirect(self) -> None:
         "The URL a redirect lands on is what is reported back"
         br = self.shared_browser().clone_browser()
@@ -424,7 +550,7 @@ class TestRecipeBrowser(unittest.TestCase):
 
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestRecipeWarmupUrls, TestRecipeBrowser):
+    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeBrowser):
         ans.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 
