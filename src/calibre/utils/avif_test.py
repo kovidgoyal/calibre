@@ -60,7 +60,6 @@ TRANSPARENT = (255, 255, 255, 0)
 
 
 class TestAVIF(unittest.TestCase):
-
     def test_avif_header_detection(self):
         for data in (STILL_AVIF, ANIMATION_AVIF, ROTATED_AVIF):
             self.assertEqual('avif', what(None, data))
@@ -73,6 +72,7 @@ class TestAVIF(unittest.TestCase):
         from qt.core import QImageReader
 
         from calibre_extensions import avif
+
         self.assertTrue(avif.is_avif(STILL_AVIF))
         self.assertFalse(avif.is_avif(NOT_AN_IMAGE))
         fmts = {bytes(x).decode('utf-8') for x in QImageReader.supportedImageFormats()}
@@ -80,6 +80,7 @@ class TestAVIF(unittest.TestCase):
 
     def test_reading_avif_images(self):
         from calibre.utils.img import image_and_format_from_data
+
         img, fmt = image_and_format_from_data(STILL_AVIF)
         self.assertEqual('avif', fmt)
         self.assertEqual((8, 8), (img.width(), img.height()))
@@ -91,12 +92,14 @@ class TestAVIF(unittest.TestCase):
 
     def test_reading_avif_images_applies_transforms(self):
         from calibre.utils.img import image_from_data
+
         img = image_from_data(ROTATED_AVIF)
         self.assertEqual((2, 4), (img.width(), img.height()))
         self.assertEqual([[GREEN, WHITE], [GREEN, WHITE], [RED, BLUE], [RED, BLUE]], pixels(img))
 
     def test_reading_avif_animations(self):
         from qt.core import QBuffer, QByteArray, QImageReader, QIODevice
+
         ba = QByteArray(ANIMATION_AVIF)  # must outlive buf
         buf = QBuffer(ba)
         buf.open(QIODevice.OpenModeFlag.ReadOnly)
@@ -119,6 +122,7 @@ class TestAVIF(unittest.TestCase):
 
     def test_reading_corrupted_avif_images(self):
         from calibre.utils.img import NotImage, image_from_data
+
         for data in (STILL_AVIF[:200], STILL_AVIF[:32] + bytes(64), STILL_AVIF[:12]):
             self.assertRaises(NotImage, image_from_data, data)
 
@@ -129,4 +133,5 @@ def find_tests():
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli
+
     run_cli(find_tests(), verbosity=4)

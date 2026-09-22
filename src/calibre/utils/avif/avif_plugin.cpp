@@ -25,7 +25,8 @@
 // byte major brand, a four byte minor version and then the compatible brands.
 static const qint64 PEEK_SIZE = 144;
 
-bool is_avif(const char *data, size_t len) {
+bool
+is_avif(const char *data, size_t len) {
     avifROData d = {reinterpret_cast<const uint8_t *>(data), len};
     return avifPeekCompatibleFileType(&d) == AVIF_TRUE;
 }
@@ -41,23 +42,26 @@ AvifHandler::~AvifHandler() {
     }
 }
 
-bool AvifHandler::can_read_from(QIODevice *device) {
+bool
+AvifHandler::can_read_from(QIODevice *device) {
     if (!device) return false;
     const QByteArray header = device->peek(PEEK_SIZE);
     return is_avif(header.constData(), static_cast<size_t>(header.size()));
 }
 
-bool AvifHandler::canRead() const {
-    if (decoder) return next_frame < decoder->imageCount;  // already parsed, an image sequence may have more frames
+bool
+AvifHandler::canRead() const {
+    if (decoder) return next_frame < decoder->imageCount; // already parsed, an image sequence may have more frames
     if (!can_read_from(device())) return false;
     setFormat("avif");
     return true;
 }
 
-bool AvifHandler::parse() const {
+bool
+AvifHandler::parse() const {
     if (decoder) return true;
     if (parse_failed) return false;
-    parse_failed = true;  // cleared only on success below
+    parse_failed = true; // cleared only on success below
     QIODevice *dev = device();
     if (!dev) return false;
     // libavif needs random access to the entire file, so slurp it. The data
@@ -85,7 +89,8 @@ bool AvifHandler::parse() const {
 // Apply the container level transformations, in the order mandated by
 // ISO/IEC 23008-12. The clean aperture (clap) transform is deliberately not
 // applied, matching what most other AVIF decoders do.
-static void apply_transforms(QImage &img, const avifImage *image) {
+static void
+apply_transforms(QImage &img, const avifImage *image) {
     if (image->transformFlags & AVIF_TRANSFORM_IROT) {
         const int angle = image->irot.angle & 3;
         // irot specifies an anti-clockwise angle, QTransform::rotate() is
@@ -98,13 +103,15 @@ static void apply_transforms(QImage &img, const avifImage *image) {
     }
 }
 
-static QImage::Format qt_format_for(const avifDecoder *decoder) {
+static QImage::Format
+qt_format_for(const avifDecoder *decoder) {
     const bool has_alpha = decoder->alphaPresent == AVIF_TRUE;
     if (decoder->image->depth > 8) return has_alpha ? QImage::Format_RGBA64 : QImage::Format_RGBX64;
     return has_alpha ? QImage::Format_RGBA8888 : QImage::Format_RGBX8888;
 }
 
-bool AvifHandler::read(QImage *image) {
+bool
+AvifHandler::read(QImage *image) {
     if (!parse()) return false;
     if (next_frame >= decoder->imageCount) return false;
     if (avifDecoderNthImage(decoder, static_cast<uint32_t>(next_frame)) != AVIF_RESULT_OK) return false;
@@ -112,7 +119,7 @@ bool AvifHandler::read(QImage *image) {
     const avifImage *im = decoder->image;
 
     QImage ans(static_cast<int>(im->width), static_cast<int>(im->height), qt_format_for(decoder));
-    if (ans.isNull()) return false;  // out of memory or absurd dimensions
+    if (ans.isNull()) return false; // out of memory or absurd dimensions
 
     avifRGBImage rgb;
     avifRGBImageSetDefaults(&rgb, im);
@@ -120,7 +127,7 @@ bool AvifHandler::read(QImage *image) {
     // regardless of the endianness of the platform
     rgb.format = AVIF_RGB_FORMAT_RGBA;
     rgb.depth = im->depth > 8 ? 16 : 8;
-    rgb.alphaPremultiplied = AVIF_FALSE;  // the Format_RGBA* Qt formats are un-premultiplied
+    rgb.alphaPremultiplied = AVIF_FALSE; // the Format_RGBA* Qt formats are un-premultiplied
     // Note that ignoreAlpha is deliberately left off even for images with no
     // alpha plane, so that libavif fills in opaque alpha rather than leaving
     // the uninitialized bytes of the unused channel of the Format_RGBX*
@@ -139,7 +146,8 @@ bool AvifHandler::read(QImage *image) {
     return true;
 }
 
-QVariant AvifHandler::option(ImageOption option) const {
+QVariant
+AvifHandler::option(ImageOption option) const {
     switch (option) {
         case Size: {
             if (!parse()) return QVariant();
@@ -154,33 +162,42 @@ QVariant AvifHandler::option(ImageOption option) const {
         case Animation:
             if (!parse()) return QVariant();
             return decoder->imageCount > 1;
-        default:
-            break;
+        default: break;
     }
     return QVariant();
 }
 
-bool AvifHandler::supportsOption(ImageOption option) const {
+bool
+AvifHandler::supportsOption(ImageOption option) const {
     return option == Size || option == ImageFormat || option == Animation;
 }
 
-int AvifHandler::imageCount() const {
+int
+AvifHandler::imageCount() const {
     if (!parse()) return 0;
     return decoder->imageCount;
 }
 
-int AvifHandler::currentImageNumber() const { return next_frame; }
+int
+AvifHandler::currentImageNumber() const {
+    return next_frame;
+}
 
-bool AvifHandler::jumpToImage(int image_number) {
+bool
+AvifHandler::jumpToImage(int image_number) {
     if (!parse()) return false;
     if (image_number < 0 || image_number >= decoder->imageCount) return false;
     next_frame = image_number;
     return true;
 }
 
-bool AvifHandler::jumpToNextImage() { return jumpToImage(next_frame + 1); }
+bool
+AvifHandler::jumpToNextImage() {
+    return jumpToImage(next_frame + 1);
+}
 
-int AvifHandler::nextImageDelay() const {
+int
+AvifHandler::nextImageDelay() const {
     if (!parse()) return 0;
     // The time to wait before showing the next frame is the duration of the
     // frame that was read most recently
@@ -190,17 +207,16 @@ int AvifHandler::nextImageDelay() const {
     return static_cast<int>(timing.duration * 1000.0);
 }
 
-int AvifHandler::loopCount() const {
+int
+AvifHandler::loopCount() const {
     if (!parse() || decoder->imageCount < 2) return -1;
     // Qt uses -1 to mean loop forever, or that the count is unknown, while
     // libavif uses a repetition count, i.e. the number of times to repeat
     // after the first playthrough
     switch (decoder->repetitionCount) {
         case AVIF_REPETITION_COUNT_INFINITE:
-        case AVIF_REPETITION_COUNT_UNKNOWN:
-            return -1;
-        default:
-            return decoder->repetitionCount;
+        case AVIF_REPETITION_COUNT_UNKNOWN: return -1;
+        default: return decoder->repetitionCount;
     }
 }
 
@@ -208,14 +224,16 @@ int AvifHandler::loopCount() const {
 
 // AvifPlugin {{{
 
-QImageIOPlugin::Capabilities AvifPlugin::capabilities(QIODevice *device, const QByteArray &format) const {
+QImageIOPlugin::Capabilities
+AvifPlugin::capabilities(QIODevice *device, const QByteArray &format) const {
     if (format == "avif") return Capabilities(CanRead);
     if (!format.isEmpty()) return Capabilities();
     if (device && device->isReadable() && AvifHandler::can_read_from(device)) return Capabilities(CanRead);
     return Capabilities();
 }
 
-QImageIOHandler *AvifPlugin::create(QIODevice *device, const QByteArray &format) const {
+QImageIOHandler *
+AvifPlugin::create(QIODevice *device, const QByteArray &format) const {
     QImageIOHandler *handler = new AvifHandler();
     handler->setDevice(device);
     handler->setFormat(format.isEmpty() ? QByteArray("avif") : format);
@@ -226,6 +244,9 @@ QImageIOHandler *AvifPlugin::create(QIODevice *device, const QByteArray &format)
 // the calibre_extensions.avif module is imported
 Q_IMPORT_PLUGIN(AvifPlugin)
 
-bool register_avif_image_format() { return QImageReader::supportedImageFormats().contains(QByteArray("avif")); }
+bool
+register_avif_image_format() {
+    return QImageReader::supportedImageFormats().contains(QByteArray("avif"));
+}
 
 // }}}
