@@ -288,11 +288,11 @@
     },
 
     {
-        "name": "libyuv 1.52.1",
+        "name": "libyuv 0.0.1959.20260817",
         "unix": {
-            "file_extension": "tar.gz",
-            "hash": "sha256:66d511b9e6e334c0e62279eb234fbfb2b3110b1479c09b95b44c7afca8cff9e7",
-            "urls": ["https://dist.libuv.org/dist/v{version}/libuv-v{version}.{file_extension}"]
+            "file_extension": "tar.xz",
+            "hash": "sha256:db1396e32fcc135d49ecf66816e4ed6dbd454cf441a8e09a48867c73a0ed4fba",
+            "urls": ["https://mirror.aarnet.edu.au/ubuntu/pool/main/liby/libyuv/libyuv_{version}.orig.{file_extension}"]
         }
     },
 
