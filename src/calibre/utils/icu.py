@@ -93,6 +93,8 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
 def change_locale(locale=None):
     global _locale
     _locale = locale
+    _ascii_no_punc_tables.clear()
+    _ascii_no_punc_matchers.clear()
     try:
         thread_local_collator_cache.cache.clear()
     except AttributeError:
@@ -237,6 +239,70 @@ primary_no_punc_find = make_two_arg_func(primary_collator_without_punctuation, '
 contains = make_two_arg_func(collator, 'contains')
 primary_contains = make_two_arg_func(primary_collator, 'contains')
 primary_no_punc_contains = make_two_arg_func(primary_collator_without_punctuation, 'contains')
+_ascii_no_punc_tables = {}
+_ascii_no_punc_matchers = {}
+
+
+def _build_ascii_no_punc_table():
+    # Use the collator itself to find out which ASCII characters it ignores
+    # and verify that for ASCII text it otherwise behaves as a simple case
+    # insensitive comparison, which is not true for all locales, for example,
+    # those with contractions such as ch or special casing such as Turkish i.
+    try:
+        if any(len(c) > 1 and c.isascii() for c in contractions()):
+            return None
+        func = primary_collator_without_punctuation().contains
+        chars = tuple(map(chr, range(1, 128)))
+        ignored = frozenset(c for c in chars if func('ab', f'a{c}b') and func('xy', f'x{c}y'))
+        significant = tuple(c for c in chars if c not in ignored)
+        for a in significant:
+            if not func(a, a):
+                return None
+            for b in significant:
+                if func(a, b) != (a.lower() == b.lower()):
+                    return None
+    except Exception:
+        return None
+    return {ord(c): None for c in ignored}
+
+
+def ascii_primary_no_punc_matcher(query):
+    """
+    Return a function f(text) that gives the same result as
+    primary_no_punc_contains(query, text) but is much faster. It must be
+    called only with text for which text.isascii() is True. Returns None if no
+    such function exists for this query and the current locale.
+    """
+    try:
+        return _ascii_no_punc_matchers[query]
+    except KeyError:
+        pass
+    if len(_ascii_no_punc_matchers) > 64:
+        _ascii_no_punc_matchers.clear()
+    ans = _ascii_no_punc_matchers[query] = _ascii_primary_no_punc_matcher(query)
+    return ans
+
+
+def _ascii_primary_no_punc_matcher(query):
+    if not query.isascii() or '\0' in query:
+        return None
+    collator()  # sets _locale
+    try:
+        table = _ascii_no_punc_tables[_locale]
+    except KeyError:
+        table = _ascii_no_punc_tables[_locale] = _build_ascii_no_punc_table()
+    if table is None:
+        return None
+    q = query.lower().translate(table)
+    if not q:
+        return None
+
+    def matcher(text):
+        return q in text.lower().translate(table)
+
+    return matcher
+
+
 startswith = make_two_arg_func(collator, 'startswith')
 primary_startswith = make_two_arg_func(primary_collator, 'startswith')
 safe_chr = _icu.chr

@@ -134,6 +134,15 @@ class TestICU(unittest.TestCase):
         self.ae((0, 13), icu.primary_no_punc_find('typographers', 'typographer’s'))
         self.ae((0, 7), icu.primary_no_punc_find('abcd', 'a\u00adb\u200cc\u200dd'))
         self.ae((0, 5), icu.primary_no_punc_find('abcd', 'ab cd'))
+        # test the fast path for ASCII text gives the same results as ICU
+        self.assertIsNone(icu.ascii_primary_no_punc_matcher('peña'))
+        self.assertIsNone(icu.ascii_primary_no_punc_matcher('-'))
+        texts = ('ab cd', 'AB-CD', "O'Brien, Flann", 'obrien', 'c++ in 21 days', 'c in 21 days', 'a$b', 'a_b', '50% off', 'x\ty', '', 'Sci-Fi & Fantasy #1')
+        for q in ('abcd', 'ab cd', "o'brien", 'c++', '$', 'a b', '50%', '#1', 'sci fi', 'xy', 'z', 'fi&fa'):
+            m = icu.ascii_primary_no_punc_matcher(q)
+            self.assertIsNotNone(m)
+            for text in texts:
+                self.ae(bool(icu.primary_no_punc_contains(q, text)), m(text), f'Fast path differs from ICU for {q!r} in {text!r}')
         # test find all
         m = []
         haystack = 'a𝄞ShuffleX'
