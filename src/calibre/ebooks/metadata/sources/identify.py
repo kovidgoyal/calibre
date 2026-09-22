@@ -583,7 +583,7 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
                 except Exception:
                     import traceback
 
-                    traceback.format_exc()
+                    traceback.print_exc()
                     continue
                 add(name, k, val, url)
     for plugin in all_metadata_plugins():
