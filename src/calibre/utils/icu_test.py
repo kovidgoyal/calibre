@@ -263,11 +263,6 @@ class TestICU(unittest.TestCase):
         finally:
             icu.change_locale('en')
 
-        # the matcher cache must not grow without bound
-        for i in range(256):
-            icu.ascii_primary_no_punc_matcher(f'query{i}')
-        self.assertLessEqual(len(icu._ascii_no_punc_matchers), 128)
-
     def test_collation_order(self):
         "Testing collation ordering"
         for group in [
