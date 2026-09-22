@@ -288,6 +288,33 @@
     },
 
     {
+        "name": "libyuv 1.52.1",
+        "unix": {
+            "file_extension": "tar.gz",
+            "hash": "sha256:66d511b9e6e334c0e62279eb234fbfb2b3110b1479c09b95b44c7afca8cff9e7",
+            "urls": ["https://dist.libuv.org/dist/v{version}/libuv-v{version}.{file_extension}"]
+        }
+    },
+
+    {
+        "name": "dav1d 1.5.4",
+        "unix": {
+            "file_extension": "tar.gz",
+            "hash": "md5:af9b8fdb97f436a76b73425ed16b6239",
+            "urls": ["https://code.videolan.org/videolan/dav1d/-/archive/{version}/dav1d-{version}.{file_extension}"]
+        }
+    },
+
+    {
+        "name": "libavif 1.0.4",
+        "unix": {
+            "file_extension": "tar.gz",
+            "hash": "md5:8c786fd21f8757ace8cc011401e4d420",
+            "urls": ["https://github.com/AOMediaCodec/libavif/archive/v{version}/libavif-{version}.{file_extension}"]
+        }
+    },
+
+    {
         "name": "freetype 2.14.1",
         "os": "macos,windows",
         "unix": {

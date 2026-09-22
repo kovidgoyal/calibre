@@ -509,8 +509,8 @@ class Freeze:
 
     @flush
     def add_imaging_libs(self):
-        print('\nAdding libjpeg, libpng, libwebp, optipng and mozjpeg')
-        for x in ('jpeg.8', 'png16.16', 'webp.7', 'webpmux.3', 'webpdemux.2', 'sharpyuv.0'):
+        print('\nAdding imaging libraries')
+        for x in ('jpeg.8', 'png16.16', 'webp.7', 'webpmux.3', 'webpdemux.2', 'sharpyuv.0', 'libyuv.1', 'libdav1d.7', 'libavif.16'):
             self.install_dylib(join(PREFIX, 'lib', 'lib%s.dylib' % x))
         for x in 'optipng', 'JxrDecApp', 'cwebp':
             self.install_dylib(join(PREFIX, 'bin', x), set_id=False, dest=self.helpers_dir)
