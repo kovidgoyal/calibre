@@ -2,7 +2,6 @@
 
 """E-book management software"""
 
-import gc
 import os
 import re
 import sys
@@ -10,7 +9,6 @@ import time
 import warnings
 from functools import lru_cache, partial
 from math import floor
-from types import TracebackType
 
 from polyglot.builtins import hasenv
 
@@ -622,25 +620,6 @@ def fsync(fileobj):
             import traceback
 
             traceback.print_exc()
-
-
-class stop_gc:
-    def __init__(self):
-        self._enabled = False
-
-    def __enter__(self) -> None:
-        self._enabled = gc.isenabled()
-        gc.disable()
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> bool | None:
-        if self._enabled:
-            gc.enable()
-        self._enabled = False
 
 
 class TimedPrint:

@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, cast
 
 import apsw
 
-from calibre import as_unicode, force_unicode, prints, stop_gc
+from calibre import as_unicode, force_unicode, prints
 from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
@@ -74,6 +74,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
+from calibre.utils.stop_gc import stop_gc
 from polyglot.builtins import cmp, reraise
 
 if iswindows:
@@ -1746,7 +1747,7 @@ class DB:
         # garbage. Their number grows with the size of the library, and with
         # the cyclic garbage collector enabled it repeatedly traverses all of
         # them, which is slow in larger libraries.
-        with self.conn, stop_gc():  # Use a single transaction, to ensure nothing modifies the db while we are reading
+        with self.conn, stop_gc:  # Use a single transaction, to ensure nothing modifies the db while we are reading
             books_columns = tuple(t for t in self.tables.values() if isinstance(t, OneToOneTable) and t.is_books_table_column)
             already_read = frozenset(books_columns) if read_books_table_columns(self, books_columns) else frozenset()
             for table in self.tables.values():

@@ -5,11 +5,11 @@ import gc
 import io
 import unittest
 
-from calibre import stop_gc
 from calibre.constants import islinux, iswindows
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
 from calibre.utils.icu import lower
+from calibre.utils.stop_gc import stop_gc
 
 
 class ProgressCallback:
@@ -172,7 +172,7 @@ class TestDeviceInteraction(unittest.TestCase):
     def measure_memory_usage(self, repetitions, func, *args, **kwargs):
         from calibre.utils.mem import memory
 
-        with stop_gc():
+        with stop_gc:
             start_mem = memory()
             for i in range(repetitions):
                 func(*args, **kwargs)

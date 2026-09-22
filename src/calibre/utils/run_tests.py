@@ -833,6 +833,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.utils.zipfile import find_tests
 
         a(find_tests())
+        from calibre.utils.stop_gc import find_tests
+
+        a(find_tests())
     if ok('dbcli'):
         from calibre.db.cli.tests import find_tests
 
