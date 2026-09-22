@@ -186,6 +186,9 @@ if iswindows:
     piper_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
     piper_lib_dirs = [sw_lib_dir]
     piper_libs = ['espeak-ng', 'onnxruntime']
+    libavif_inc_dirs = [sw_inc_dir]
+    libavif_lib_dirs = [sw_lib_dir]
+    libavif_libs = ['avif']
 elif ismacos:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     sw_inc_dir = os.path.join(sw, 'include')
@@ -205,6 +208,9 @@ elif ismacos:
     piper_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
     piper_lib_dirs = [sw_lib_dir]
     piper_libs = ['espeak-ng', 'onnxruntime']
+    libavif_inc_dirs = [sw_inc_dir]
+    libavif_lib_dirs = [sw_lib_dir]
+    libavif_libs = ['avif']
 else:
     freetype_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR', '/usr/include/freetype2')
     freetype_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
@@ -223,6 +229,9 @@ else:
     piper_inc_dirs = pkgconfig_include_dirs('espeak-ng', '', '/usr/include') + pkgconfig_include_dirs('libonnxruntime', '', '/usr/include/onnxruntime')
     piper_lib_dirs = pkgconfig_lib_dirs('espeak-ng', '', '/usr/lib') + pkgconfig_lib_dirs('libonnxruntime', '', '/usr/lib')
     piper_libs = pkgconfig_libs('espeak-ng', '', 'espeak-ng') + pkgconfig_libs('libonnxruntime', '', 'onnxruntime')
+    libavif_inc_dirs = pkgconfig_include_dirs('libavif', 'LIBAVIF_INC_DIR', '/usr/include')
+    libavif_lib_dirs = pkgconfig_lib_dirs('libavif', 'LIBAVIF_LIB_DIR', '/usr/lib')
+    libavif_libs = pkgconfig_libs('libavif', '', 'avif')
     for x in ('libavcodec', 'libavformat', 'libavdevice', 'libavfilter', 'libavutil', 'libpostproc', 'libswresample', 'libswscale'):
         for inc in pkgconfig_include_dirs(x, '', '/usr/include'):
             if inc and inc not in ffmpeg_inc_dirs:

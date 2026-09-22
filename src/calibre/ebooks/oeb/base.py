@@ -407,13 +407,14 @@ JPEG_MIME = types_map['.jpeg']
 PNG_MIME = types_map['.png']
 SVG_MIME = types_map['.svg']
 WEBP_MIME = types_map['.webp']
+AVIF_MIME = types_map['.avif']
 BINARY_MIME = 'application/octet-stream'
 
 XHTML_CSS_NAMESPACE = f'@namespace "{XHTML_NS}";\n'
 
 OEB_STYLES = {CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'}
 OEB_DOCS = {XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'}
-OEB_RASTER_IMAGES = {GIF_MIME, JPEG_MIME, PNG_MIME, WEBP_MIME}
+OEB_RASTER_IMAGES = {GIF_MIME, JPEG_MIME, PNG_MIME, WEBP_MIME, AVIF_MIME}
 OEB_IMAGES = {GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME}
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'

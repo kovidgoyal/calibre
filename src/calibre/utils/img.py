@@ -19,6 +19,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
 from calibre.utils.resources import get_image_path as I
+from calibre_extensions import avif as _avif_plugin  # noqa: F401  registers the AVIF image format with Qt
 from calibre_extensions import imageops
 
 

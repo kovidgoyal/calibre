@@ -765,6 +765,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.ebooks.html.input import find_tests
 
         a(find_tests())
+        from calibre.utils.avif_test import find_tests
+
+        a(find_tests())
         from calibre.ebooks.metadata.test_author_sort import find_tests
 
         a(find_tests())

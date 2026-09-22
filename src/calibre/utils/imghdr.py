@@ -194,6 +194,26 @@ def webp(h):
 
 
 @test
+def avif(h):
+    """AVIF (still images and image sequences), which is ISOBMFF based, like HEIF"""
+    if h[4:8] != b'ftyp':
+        return None
+    try:
+        box_size = unpack(b'>L', h[:4])[0]
+    except error:
+        return None
+    # The major brand is at offset 8 and the compatible brands follow the
+    # (four byte) minor version at offset 16
+    brands = [h[8:12].tobytes()]
+    for pos in range(16, min(box_size, len(h)) - 3, 4):
+        brands.append(h[pos : pos + 4].tobytes())
+    for brand in brands:
+        if brand in (b'avif', b'avis'):
+            return 'avif'
+    return None
+
+
+@test
 def rgb(h):
     """SGI image library"""
     if h[:2] == b'\001\332':

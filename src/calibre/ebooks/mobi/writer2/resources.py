@@ -13,6 +13,10 @@ from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
 
+# Image formats calibre can read but that no MOBI/AZW3 viewer can display, so
+# they are converted to PNG before being added to the book
+UNSUPPORTED_IMAGE_TYPES = frozenset({'image/webp', 'image/avif'})
+
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa: E501
 
 
@@ -164,8 +168,8 @@ class Resources:
         for item in self.oeb.manifest.values():
             if item.media_type not in OEB_RASTER_IMAGES:
                 continue
-            if item.media_type.lower() == 'image/webp':
-                self.convert_webp(item)
+            if item.media_type.lower() in UNSUPPORTED_IMAGE_TYPES:
+                self.convert_unsupported_image(item)
             try:
                 data = self.process_image(item.data)
             except Exception:
@@ -205,12 +209,12 @@ class Resources:
                     self.item_map[item.href] = len(self.records)
                     self.has_fonts = True
 
-    def convert_webp(self, item):
+    def convert_unsupported_image(self, item):
         from calibre.utils.img import image_and_format_from_data, image_to_data
 
         img, fmt = image_and_format_from_data(item.data)
-        if fmt == 'webp' and not img.isNull():
-            self.log.info(f'Converting WebP image {item.href} to PNG')
+        if f'image/{fmt}' in UNSUPPORTED_IMAGE_TYPES and not img.isNull():
+            self.log.info(f'Converting {fmt.upper()} image {item.href} to PNG')
             item.data = image_to_data(img, fmt='PNG')
             item.media_type = 'image/png'
 

@@ -744,6 +744,8 @@ headers = {sorted(ext.headers)}
 sources = {sorted(ext.sources)}
 exceptions = {needs_exceptions}
 include-dirs = {ext.inc_dirs}
+libraries = {ext.libraries}
+library-dirs = {ext.lib_dirs}
 qmake-QT = {ext.qt_modules}
 sip-file = {os.path.basename(sipf)!r}
 ''')

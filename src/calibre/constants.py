@@ -267,6 +267,7 @@ class ExtensionsImporter:
             'ffmpeg',
             'freetype',
             'imageops',
+            'avif',
             'hunspell',
             '_patiencediff_c',
             'bzzdec',

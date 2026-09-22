@@ -197,6 +197,16 @@
         "inc_dirs": "calibre/utils/imageops"
     },
     {
+        "name": "avif",
+        "sources": "calibre/utils/avif/avif_plugin.cpp",
+        "headers": "calibre/utils/avif/avif_plugin.h",
+        "sip_files": "calibre/utils/avif/avif.sip",
+        "libraries": "!libavif_libs",
+        "lib_dirs": "!libavif_lib_dirs",
+        "inc_dirs": "calibre/utils/avif !libavif_inc_dirs",
+		"qt_modules": ["-widgets"]
+    },
+    {
         "name": "winutil",
         "only": "windows",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
