@@ -45,6 +45,7 @@ from calibre.db.tables import (
     RatingTable,
     SizeTable,
     UUIDTable,
+    read_books_table_columns,
 )
 from calibre.db.utils import atomic_write
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
@@ -1746,7 +1747,11 @@ class DB:
         # the cyclic garbage collector enabled it repeatedly traverses all of
         # them, which is slow in larger libraries.
         with self.conn, stop_gc():  # Use a single transaction, to ensure nothing modifies the db while we are reading
+            books_columns = tuple(t for t in self.tables.values() if isinstance(t, OneToOneTable) and t.is_books_table_column)
+            already_read = frozenset(books_columns) if read_books_table_columns(self, books_columns) else frozenset()
             for table in self.tables.values():
+                if table in already_read:
+                    continue
                 try:
                     table.read(self)
                 except Exception:

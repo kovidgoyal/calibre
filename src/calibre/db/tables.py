@@ -116,6 +116,16 @@ class OneToOneTable(Table):
             us = self.unserialize
             self.book_col_map = {book_id: us(val) for book_id, val in query}
 
+    @property
+    def is_books_table_column(self):
+        return self.metadata.get('table') == 'books' and bool(self.metadata.get('column'))
+
+    def read_from_column_data(self, book_ids, vals):
+        """Same as read() except the data is supplied by read_books_table_columns()"""
+        if self.unserialize is not None:
+            vals = map(self.unserialize, vals)
+        self.book_col_map = dict(zip(book_ids, vals))
+
     def remove_books(self, book_ids, db):
         clean = set()
         for book_id in book_ids:
@@ -123,6 +133,31 @@ class OneToOneTable(Table):
             if val is not null:
                 clean.add(val)
         return clean
+
+
+def read_books_table_columns(db, tables):
+    """
+    Read all the specified tables, which must be columns in the books table,
+    using a single scan of the books table rather than one scan per column,
+    which is faster in larger libraries. Returns False if the tables must
+    be read individually instead.
+    """
+    tables = tuple(tables)
+    if len(tables) < 2:
+        return False
+    try:
+        rows = db.execute('SELECT id, {} FROM books'.format(', '.join(t.metadata['column'] for t in tables))).fetchall()
+    except UnicodeDecodeError:
+        # The db is damaged, the individual reads work around that
+        return False
+    if rows:
+        book_ids, *columns = zip(*rows)
+    else:
+        book_ids, columns = (), [()] * len(tables)
+    del rows
+    for table, vals in zip(tables, columns):
+        table.read_from_column_data(book_ids, vals)
+    return True
 
 
 class PathTable(OneToOneTable):
@@ -147,6 +182,10 @@ class SizeTable(OneToOneTable):
 class UUIDTable(OneToOneTable):
     def read(self, db):
         OneToOneTable.read(self, db)
+        self.uuid_to_id_map = {v: k for k, v in self.book_col_map.items()}
+
+    def read_from_column_data(self, book_ids, vals):
+        OneToOneTable.read_from_column_data(self, book_ids, vals)
         self.uuid_to_id_map = {v: k for k, v in self.book_col_map.items()}
 
     def update_uuid_cache(self, book_id_val_map):
