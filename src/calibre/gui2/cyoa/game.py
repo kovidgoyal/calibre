@@ -60,9 +60,11 @@ from calibre.ai.cyoa import (
     PROTAGONIST_ID,
     AIProvider,
     GameState,
+    InvalidAIResponse,
     NonPlayerCharacter,
     PlayerCharacter,
     QuickAction,
+    adopt_turn,
     apply_character_edits,
     deserialize_game,
     next_turn,
@@ -176,6 +178,11 @@ class GameWidget(QWidget):
         # What the in-flight turn generation was asked for, so that it can be
         # retried if the turn times out or fails.
         self.turn_request: tuple[str, bool] | None = None
+        # Set when the player edits the world while a turn is being written.
+        # That turn is played on a copy of the game state taken before the
+        # edits, so simply adopting the copy when the turn arrives would
+        # throw them away, see state_with_turn().
+        self.world_edited_during_turn = False
         # Set while the dialog asking what to do about a turn that has taken
         # too long is open. The turn is still in flight, so a result that
         # arrives during that dialog's nested event loop is stashed in
@@ -1065,6 +1072,9 @@ class GameWidget(QWidget):
         # Play the turn on a copy so that rewinding/loading while the AI is
         # generating cannot corrupt the current game state.
         snapshot = deserialize_game(serialize_game(self.state))
+        # The copy is of the world as it stands now, so any edit of it from
+        # here on is one the copy does not have, see state_with_turn().
+        self.world_edited_during_turn = False
         self.turn_call = next(self.turn_counter)
         self.turn_request = (player_input, interesting_event)
         self.streamed_narrative = ''
@@ -1156,7 +1166,7 @@ class GameWidget(QWidget):
                 self.request_turn(player_input, interesting_event)
             return
         chapter_before = self.state.current_chapter if self.state is not None else -1
-        self.state = snapshot
+        self.state = state = self.state_with_turn(snapshot)
         self.session_cost += res.cost
         was_streaming = bool(self.streamed_narrative)
         self.streamed_narrative = ''
@@ -1171,7 +1181,7 @@ class GameWidget(QWidget):
         # rest of the story leaves the view, nor when the AI did not stream
         # its prose, as then the turn has not been seen at all yet.
         anchor_y = None
-        if was_streaming and self.streaming_turn_start >= 0 and snapshot.current_chapter == chapter_before:
+        if was_streaming and self.streaming_turn_start >= 0 and state.current_chapter == chapter_before:
             anchor_y = self.story_y_of_position(self.streaming_turn_start)
         self.prompt_edit.clear()
         self.prompt_edit.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -1180,8 +1190,35 @@ class GameWidget(QWidget):
         if anchor_y is not None and self.turn_positions:
             self.scroll_position_to_y(self.turn_positions[-1][0], anchor_y)
         if self.images_enabled:
-            self.request_image(len(snapshot.turns))
+            self.request_image(len(state.turns))
         self._notify_turn_ready()
+
+    def state_with_turn(self, snapshot: GameState) -> GameState:
+        # The game state to play on now that the turn written on snapshot, the
+        # copy of the game state the turn was played on, has arrived. Normally
+        # that copy simply becomes the game. When the player edited the world
+        # while the AI was writing, however, the copy predates their edits, so
+        # adopting it would silently discard them and every later turn, and
+        # the picture generated for it, would go back to describing the
+        # characters as they were before the edit. So the turn the AI wrote is
+        # moved onto the edited state instead, with its summary re-derived
+        # from the edited story memory, see calibre.ai.cyoa.adopt_turn().
+        state = self.state
+        if state is None or not self.world_edited_during_turn:
+            return snapshot
+        self.world_edited_during_turn = False
+        # Rewinding or loading a game discards the turn in flight, see
+        # cancel_pending_ai_calls(), so the edited state holds exactly the
+        # turns the copy was made from, plus nothing.
+        if len(snapshot.turns) != len(state.turns) + 1:
+            return snapshot
+        try:
+            adopt_turn(state, snapshot.turns[-1])
+        except InvalidAIResponse:
+            # The edited story memory cannot carry the turn, so the turn wins
+            # over the edits: it is what the player has just read.
+            return snapshot
+        return state
 
     def _notify_turn_ready(self) -> None:
         w = self.window()
@@ -1457,6 +1494,11 @@ class GameWidget(QWidget):
         # built from the game state every turn, so the prose already written
         # keeps the style it was written in.
         state.style = d.updated_style
+        if self.turn_call > -1:
+            # The turn the AI is writing is played on a copy of the game state
+            # taken before these edits, so it must not simply replace the
+            # state they were made on, see state_with_turn().
+            self.world_edited_during_turn = True
         # The saved world the game started from is only its template, so it is
         # deliberately left alone: the edited characters and their portraits
         # belong to this game and are stored with it.

@@ -1508,6 +1508,25 @@ def next_turn(
     return res._replace(data=turn)
 
 
+def adopt_turn(state: GameState, record: TurnRecord) -> None:
+    # Add to state a turn that was played on a copy of state, taken before
+    # state was edited, which is what the game does when the player edits the
+    # world while the AI is writing a turn, see next_turn(). The turn itself
+    # is what the AI wrote and the player has already read, so it is kept
+    # exactly as it is; only the summary it leaves the story at is re-derived,
+    # from the summary of state rather than from the summary of the copy, as
+    # the AI sends only what the turn changed and everything else is carried
+    # over from the summary it is merged into, see updated_summary(). That is
+    # what keeps an edit made while the turn was being written, of a character
+    # description for instance, from being undone by the turn arriving.
+    # Raises InvalidAIResponse when the edited summary cannot carry the turn.
+    summary = updated_summary(record.turn.summary_update, state.current_summary)
+    chapter = state.current_chapter
+    if state.turns and record.turn.starts_new_chapter:
+        chapter += 1
+    state.turns.append(record._replace(summary=summary, chapter=chapter))
+
+
 # }}}
 
 
@@ -2235,6 +2254,59 @@ def find_tests() -> TestSuite:  # {{{
             apply_character_edits(state, {'nobody': marlo._replace(id='nobody')})
             apply_character_edits(state, {})
             self.ae(before, state.turns)
+
+        def test_ai_cyoa_turn_adopted_onto_edited_state(self) -> None:
+            # A turn is played on a copy of the game state, so that rewinding
+            # or loading while the AI is writing cannot corrupt the game, see
+            # GameWidget.request_turn(). An edit of the world made while a
+            # turn is being written is therefore made on a state that turn
+            # knows nothing about, and it must survive the turn arriving:
+            # otherwise the story, and the pictures generated for every later
+            # turn, go back to the characters as they were before the edit.
+            world = make_world()._replace(npcs=(NonPlayerCharacter('Marlo', 'a mist-runner', 'He grew up in the tunnels.', 'guides'),))
+            state = start_game('brief', world)
+            fake = FakePlugin([ok(make_turn('One.', 'one')), ok(make_turn('Two.', 'two', starts_new_chapter=True, chapter_title='Part II'))])
+            next_turn(state, '', fake)
+            # The game asks for the next turn, which is played on a copy.
+            snapshot = deserialize_game(serialize_game(state))
+            # While the AI writes it the player edits the cast, as the game
+            # does when the Edit world dialog is accepted, see
+            # GameWidget.edit_world().
+            player = PlayerCharacter('Ada', 'a silver haired engineer', 'She built the mist engines.')
+            marlo = {c.id: c for c in state.current_summary.characters}['marlo']
+            apply_character_edits(state, {'marlo': marlo._replace(description='a scarred mist-runner')}, player=player)
+            chars = list(state.world.characters)
+            chars[state.character_index] = player
+            state.world = state.world._replace(characters=tuple(chars))
+            # The turn the AI wrote arrives and is moved onto the edited state.
+            next_turn(snapshot, 'go on', fake)
+            adopt_turn(state, snapshot.turns[-1])
+            self.ae(len(state.turns), 2)
+            self.ae(state.turns[-1].turn, snapshot.turns[-1].turn, 'the turn the AI wrote must be kept exactly as it is')
+            self.ae(state.current_chapter, 1, 'a turn that starts a new chapter must still start one')
+            self.ae(state.current_summary.major_events, ('one', 'two'), 'the turn must still update the story memory')
+            cast = {c.id: c for c in state.current_summary.characters}
+            self.ae(cast['marlo'].description, 'a scarred mist-runner', 'an edit made while the turn was being written must survive it')
+            self.ae(cast[PROTAGONIST_ID].description, 'a silver haired engineer')
+            self.ae(cast[PROTAGONIST_ID].current_state, 'lost in the mist', 'the turn must still update the state of the characters')
+            # So the AI, and through its scene descriptions the image AI, is
+            # told who the characters now are from the next turn onwards.
+            fake = FakePlugin([ok(make_turn('Three.'))])
+            next_turn(state, 'on', fake)
+            prompt, schema, instructions, use_model = fake.calls[0]
+            self.assertIn('a scarred mist-runner', prompt)
+            self.assertIn('a silver haired engineer', prompt)
+            self.assertIn('a silver haired engineer', instructions)
+            self.assertNotIn('a stubborn engineer', prompt + instructions)
+            # An edit that leaves the story memory unusable is reported
+            # rather than quietly producing a game the AI cannot continue.
+            t = state.turns[-1]
+            state.turns[-1] = t._replace(summary=t.summary._replace(world=''))
+            fake = FakePlugin([ok(make_turn('Four.'))])
+            snapshot = deserialize_game(serialize_game(state))
+            snapshot.turns[-1] = t
+            next_turn(snapshot, 'on', fake)
+            self.assertRaises(InvalidAIResponse, adopt_turn, state, snapshot.turns[-1])
 
         def test_ai_cyoa_serialization(self) -> None:
             style = StoryStyle(art_style='anime', pace='short', tone='comedic', narration='third-past')
