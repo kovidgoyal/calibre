@@ -5,6 +5,7 @@
 import codecs
 import sys
 import threading
+from functools import lru_cache
 from typing import Literal, overload
 
 from calibre.utils.config_base import prefs, tweaks
@@ -94,7 +95,7 @@ def change_locale(locale=None):
     global _locale
     _locale = locale
     _ascii_no_punc_tables.clear()
-    _ascii_no_punc_matchers.clear()
+    ascii_primary_no_punc_matcher.cache_clear()
     try:
         thread_local_collator_cache.cache.clear()
     except AttributeError:
@@ -240,7 +241,6 @@ contains = make_two_arg_func(collator, 'contains')
 primary_contains = make_two_arg_func(primary_collator, 'contains')
 primary_no_punc_contains = make_two_arg_func(primary_collator_without_punctuation, 'contains')
 _ascii_no_punc_tables = {}
-_ascii_no_punc_matchers = {}
 
 
 def _build_ascii_no_punc_table():
@@ -267,6 +267,7 @@ def _build_ascii_no_punc_table():
     return {ord(c): None for c in ignored}
 
 
+@lru_cache(maxsize=64)
 def ascii_primary_no_punc_matcher(query):
     """
     Return a function f(text) that gives the same result as
@@ -274,17 +275,6 @@ def ascii_primary_no_punc_matcher(query):
     called only with text for which text.isascii() is True. Returns None if no
     such function exists for this query and the current locale.
     """
-    try:
-        return _ascii_no_punc_matchers[query]
-    except KeyError:
-        pass
-    if len(_ascii_no_punc_matchers) > 64:
-        _ascii_no_punc_matchers.clear()
-    ans = _ascii_no_punc_matchers[query] = _ascii_primary_no_punc_matcher(query)
-    return ans
-
-
-def _ascii_primary_no_punc_matcher(query):
     if not query.isascii():
         return None
     collator()  # sets _locale
