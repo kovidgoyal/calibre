@@ -480,20 +480,20 @@ class ReadingTest(BaseTest):
     def test_categories_cache(self):  # {{{
         "Test the cache of computed categories used to speed up the Tag browser"
         from calibre.db.cache import cache_api
-        from calibre.db.categories import CATEGORY_NEUTRAL_WRITES
+        from calibre.db.categories import CATEGORY_QUIET_WRITES
 
-        # A name wrongly listed as category neutral means the Tag browser
-        # displays stale data, so check that the list contains only write APIs
-        # and that the writes that obviously do change the categories are absent
+        # A name wrongly listed as quiet means the Tag browser displays stale
+        # data, so check that the list contains only write APIs and that the
+        # writes that obviously do change the categories are absent
         write_apis = {name for name, is_write in cache_api.items() if is_write}
         self.assertEqual(
             set(),
-            CATEGORY_NEUTRAL_WRITES - write_apis,
-            'These names in CATEGORY_NEUTRAL_WRITES are not write APIs, so listing them has no effect',
+            CATEGORY_QUIET_WRITES - write_apis,
+            'These names in CATEGORY_QUIET_WRITES are not write APIs, so listing them has no effect',
         )
         self.assertEqual(
             set(),
-            CATEGORY_NEUTRAL_WRITES
+            CATEGORY_QUIET_WRITES
             & {
                 'add_books',
                 'create_custom_column',
@@ -507,7 +507,7 @@ class ReadingTest(BaseTest):
                 'set_pref',
                 'set_sort_for_authors',
             },
-            'These writes change the categories, they must not be listed as category neutral',
+            'These writes change the categories, they must not be listed as quiet',
         )
 
         cache = self.init_cache(self.library_path)
@@ -563,7 +563,7 @@ class ReadingTest(BaseTest):
         cache.set_field('tags', {1: ['A.E']})
         self.assertNotEqual(before, cc.fingerprint(fm), 'Editing tags must invalidate the Tag browser')
 
-        # A write that is not known to be category neutral invalidates everything
+        # A write that is not listed as quiet invalidates everything
         before = cc.fingerprint(fm)
         cache.set_pref('some-pref', 'some-value')
         self.assertNotEqual(before, cc.fingerprint(fm))

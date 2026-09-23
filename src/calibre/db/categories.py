@@ -208,14 +208,16 @@ category_sort_keys[False]['name'] = sort_key_for_name
 
 # Caching of computed categories {{{
 
-# Cache API methods that take the write lock but cannot change any of the data
-# the categories are computed from, and so do not need to invalidate the whole
-# cache. set_field and set_metadata are the two exceptions: they do change that
-# data, but every change they make goes through set_field(), which reports the
-# changed field itself, so only the affected categories need to be recomputed.
-# A name wrongly present in this set means the Tag browser silently displays
-# stale data, so ReadingTest.test_categories_cache() guards it.
-CATEGORY_NEUTRAL_WRITES = frozenset((
+# Cache API methods that take the write lock but must not invalidate the whole
+# cache of computed categories, so they use the quiet write lock instead. Most
+# of them are here because they cannot change any of the data the categories
+# are computed from. set_field and set_metadata are the two exceptions: they do
+# change that data, but every change they make goes through set_field(), which
+# reports the changed field itself, so only the categories that depend on that
+# field need to be recomputed. A name wrongly present in this set means the Tag
+# browser silently displays stale data, so it is guarded by
+# ReadingTest.test_categories_cache().
+CATEGORY_QUIET_WRITES = frozenset((
     'set_field',
     'set_metadata',
     'mark_as_dirty',

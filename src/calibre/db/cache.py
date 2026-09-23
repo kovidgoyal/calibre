@@ -26,7 +26,7 @@ from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
-from calibre.db.categories import CATEGORY_NEUTRAL_WRITES, CategoriesCache, CategoriesInvalidatingLock, get_categories
+from calibre.db.categories import CATEGORY_QUIET_WRITES, CategoriesCache, CategoriesInvalidatingLock, get_categories
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
@@ -171,8 +171,8 @@ class Cache:
         self.fields = {}
         self.composites = {}
         self.read_lock, self.write_lock = create_locks()
-        # Writes that cannot change the data used to build the Tag browser
-        # categories use the quiet lock, all others invalidate cached categories
+        # Writes listed in CATEGORY_QUIET_WRITES use the quiet lock, all others
+        # invalidate the cache of computed categories when they take the lock
         self.categories_cache = CategoriesCache()
         self.quiet_write_lock = self.write_lock
         self.write_lock = CategoriesInvalidatingLock(self.write_lock, self.categories_cache)
@@ -198,7 +198,7 @@ class Cache:
                 # Wrap it in a lock
                 lock = self.read_lock
                 if is_write_api:
-                    lock = self.quiet_write_lock if name in CATEGORY_NEUTRAL_WRITES else self.write_lock
+                    lock = self.quiet_write_lock if name in CATEGORY_QUIET_WRITES else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
 
         self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
