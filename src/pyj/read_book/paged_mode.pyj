@@ -31,7 +31,7 @@ from read_book.cfi import (
     at_current as cfi_at_current, at_point as cfi_at_point,
     scroll_to as cfi_scroll_to
 )
-from read_book.globals import current_book, current_spine_item, get_boss, rtl_page_progression
+from read_book.globals import current_spine_item, get_boss, rtl_page_progression
 from read_book.settings import opts
 from read_book.viewport import scroll_viewport, line_height, rem_size, get_unit_size_in_pixels
 from utils import (
@@ -658,30 +658,17 @@ def current_cfi():
     return ans
 
 
-def _one_screen_progress_frac():
-    # Content fits on one screen, so there is no in-file scroll position.
-    # Returning 1 makes the last file of a book report 100%, but for every
-    # earlier file it made footer "Progress" jump to the end of that file.
-    # CHM/HTML books are mostly one-screen spine items, so the percentage then
-    # looked like "which file" instead of position in the book.
-    csi = current_spine_item()
-    spine = current_book()?.manifest?.spine
-    if csi and spine and spine.length and csi.index < spine.length - 1:
-        return 0
-    return 1
-
-
 def progress_frac(frac):
     # The current scroll position as a fraction between 0 and 1
     if in_paged_mode():
         limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
         if limit <= 0:
-            return _one_screen_progress_frac()
+            return 1  # ensures that if the book ends with a single page file the last shown percentage is 100%
         return current_scroll_offset() / limit
     # In flow mode, we scroll in the block direction, so use that
     limit = scroll_viewport.document_block_size() - scroll_viewport.block_size()
     if limit <= 0:
-        return _one_screen_progress_frac()
+        return 1
     return Math.max(0, Math.min(scroll_viewport.block_pos() / limit, 1))
 
 

@@ -193,6 +193,13 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
+def format_file_pages(pos):
+    counts = pos.page_counts
+    if counts and counts.total > 0:
+        return f'{counts.current + 1} / {counts.total}'
+    return format_pos(pos.file_progress_frac, pos.chapter_length) or '1 / 1'
+
+
 def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, page_list, book_time, chapter_time, pos, override, view_mode):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
@@ -212,9 +219,11 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
         percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'
         n = pos.spine_count or 0
-        idx = pos.spine_index
-        if n > 1 and idx > -1:
-            text = _('{0}% of book ({1}/{2})').format(percent, idx + 1, n)
+        if n > 1:
+            file_pages = format_file_pages(pos)
+            book_pages = format_pos(pos.progress_frac, pos.book_length)
+            if file_pages and book_pages:
+                text = _('{0} of file · {1} of book').format(file_pages, book_pages)
         force_display_even_if_overflowed = True
     elif field is 'title':
         text = metadata.title or _('Untitled')
