@@ -214,67 +214,10 @@ category_sort_keys[False]['name'] = sort_key_for_name
 # are computed from. set_field and set_metadata are the two exceptions: they do
 # change that data, but every change they make goes through set_field(), which
 # reports the changed field itself, so only the categories that depend on that
-# field need to be recomputed. A name wrongly present in this set means the Tag
-# browser silently displays stale data, so it is guarded by
-# ReadingTest.test_categories_cache().
-CATEGORY_QUIET_WRITES = frozenset((
-    'set_field',
-    'set_metadata',
-    'mark_as_dirty',
-    'commit_dirty_cache',
-    'check_dirtied_annotations',
-    'clear_dirtied',
-    'write_backup',
-    'dump_metadata',
-    'set_cover',
-    'add_cover_cache',
-    'remove_cover_cache',
-    'compress_covers',
-    'update_last_modified',
-    'update_path',
-    'fts_start_measuring_rate',
-    'fts_unindex',
-    'queue_next_fts_job',
-    'commit_fts_result',
-    'reindex_fts_book',
-    'set_fts_num_of_workers',
-    'set_fts_speed',
-    'fts_search',
-    'mark_for_pages_recount',
-    'queue_pages_scan',
-    'set_pages',
-    'add_listener',
-    'remove_listener',
-    'set_conversion_options',
-    'delete_conversion_options',
-    'set_last_read_position',
-    'add_custom_book_data',
-    'delete_custom_book_data',
-    'delete_annotations',
-    'update_annotations',
-    'restore_annotations',
-    'set_annotations_for_book',
-    'merge_annotations_for_book',
-    'save_annotations_list',
-    'reindex_annotations',
-    'set_notes_for',
-    'add_notes_resource',
-    'unretire_note_for',
-    'import_note',
-    'search_notes',
-    'add_extra_files',
-    'rename_extra_files',
-    'merge_extra_files',
-    'remove_extra_files',
-    'clear_extra_files_cache',
-    'clear_caches',
-    'clear_composite_caches',
-    'clear_search_caches',
-    'clear_link_map_cache',
-    'initialize_template_cache',
-    'embed_metadata',
-    'refresh_ondevice',
-))
+# field need to be recomputed. Use cache.quiet_write decorator to populate this
+# set. A function wrongly present in this set means the Tag browser silently
+# displays stale data, so it is guarded by ReadingTest.test_categories_cache().
+CATEGORY_QUIET_WRITES = set()
 
 
 class CategoriesCache:
