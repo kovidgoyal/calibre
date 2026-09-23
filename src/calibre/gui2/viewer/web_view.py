@@ -43,6 +43,7 @@ from calibre.gui2 import choose_images, config, error_dialog, qapplication_or_fa
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
 from calibre.gui2.viewer.config import get_session_pref, load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
+from calibre.gui2.webengine import SelectPopupFixer
 from calibre.srv.code import get_translations_data
 from calibre.utils.filenames import make_long_path_useable, path_from_root
 from calibre.utils.localization import _, localize_user_manual_link
@@ -624,6 +625,7 @@ class WebView(QWebEngineView):
         focus_proxy = self.focusProxy()
         assert focus_proxy is not None
         focus_proxy.installEventFilter(self)
+        self.select_popup_fixer = SelectPopupFixer(self)
 
     def eventFilter(self, a0, a1):
         match a1.type():
@@ -635,7 +637,7 @@ class WebView(QWebEngineView):
                         self.pinch_accumulated_value += a1.value()
                         return True
                     case Qt.NativeGestureType.EndNativeGesture:
-                        if abs(getattr(self, 'pinch_accumulated_value', 0)) > 0.05:
+                        if abs(self.pinch_accumulated_value) > 0.05:
                             out = self.pinch_accumulated_value > 0
                             self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
         return super().eventFilter(a0, a1)
