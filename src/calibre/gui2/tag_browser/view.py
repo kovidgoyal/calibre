@@ -1828,6 +1828,18 @@ class TagsView(QTreeView):  # {{{
         # Let other marked listeners run before we do the recount
         QTimer.singleShot(0, self.recount)
 
+    def skip_recount(self):
+        """
+        True if nothing the Tag browser displays can have changed since the tree
+        was last built, so that rebuilding it would be a no-op.
+        """
+        if not self._model.categories_unchanged_since_last_build():
+            return False
+        # Re-arm database_changed(), which only emits refresh_required once per
+        # processed refresh. recount() does this for us when we do recount.
+        self.refresh_signal_processed = True
+        return True
+
     def recount_if_categories_changed(self):
         """
         Used for the queued refresh after a database change. The change may
@@ -1835,7 +1847,7 @@ class TagsView(QTreeView):  # {{{
         example by the book count changing, in which case nothing displayed
         can have changed since the tree was built.
         """
-        if self._model.categories_unchanged_since_last_build():
+        if self.skip_recount():
             return
         self.recount()
 
@@ -1845,7 +1857,7 @@ class TagsView(QTreeView):  # {{{
         since it was last built, for example after editing only titles or
         comments.
         """
-        if self._model.categories_unchanged_since_last_build():
+        if self.skip_recount():
             return
         self.recount_with_position_based_index()
 

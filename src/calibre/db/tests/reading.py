@@ -477,6 +477,106 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_categories_cache(self):  # {{{
+        "Test the cache of computed categories used to speed up the Tag browser"
+        from calibre.db.cache import cache_api
+        from calibre.db.categories import CATEGORY_NEUTRAL_WRITES
+
+        # A name wrongly listed as category neutral means the Tag browser
+        # displays stale data, so check that the list contains only write APIs
+        # and that the writes that obviously do change the categories are absent
+        write_apis = {name for name, is_write in cache_api.items() if is_write}
+        self.assertEqual(
+            set(),
+            CATEGORY_NEUTRAL_WRITES - write_apis,
+            'These names in CATEGORY_NEUTRAL_WRITES are not write APIs, so listing them has no effect',
+        )
+        self.assertEqual(
+            set(),
+            CATEGORY_NEUTRAL_WRITES
+            & {
+                'add_books',
+                'create_custom_column',
+                'delete_custom_column',
+                'merge_book_metadata',
+                'reload_from_db',
+                'remove_books',
+                'remove_items',
+                'rename_items',
+                'set_link_map',
+                'set_pref',
+                'set_sort_for_authors',
+            },
+            'These writes change the categories, they must not be listed as category neutral',
+        )
+
+        cache = self.init_cache(self.library_path)
+        cc = cache.categories_cache
+
+        def names(category, **kw):
+            return [(t.name, t.original_name, t.count) for t in cache.get_categories(**kw)[category]]
+
+        # A cached category must not be affected by changes made to the Tag
+        # objects handed out for it, as the Tag browser modifies them when
+        # building its tree for hierarchical categories
+        cache.set_pref('categories_using_hierarchy', ['tags'])
+        cache.set_field('tags', {1: ['A.B', 'A.C'], 2: ['A.B']})
+        expected = names('tags')
+        self.assertEqual([('A.B', 'A.B', 2), ('A.C', 'A.C', 1)], expected)
+        for i in range(3):
+            tags = cache.get_categories()['tags']
+            self.assertEqual(expected, [(t.name, t.original_name, t.count) for t in tags])
+            for tag in tags:  # what the Tag browser does to a hierarchical item
+                tag.original_name, tag.name = tag.name, tag.name.rpartition('.')[2]
+                tag.is_hierarchical = '5state'
+                tag.state = 1
+                tag.avg_rating = None
+                tag.id_set = tag.id_set | {1000 + i}
+
+        # A cached category must be recomputed once its own field changes
+        cache.set_field('tags', {2: ['A.D']})
+        self.assertEqual([('A.B', 'A.B', 1), ('A.C', 'A.C', 1), ('A.D', 'A.D', 1)], names('tags'))
+
+        # Categories restricted to a set of books must not be cached, as the
+        # cache is keyed only on the category
+        self.assertEqual([('A.D', 'A.D', 1)], names('tags', book_ids=(2,)))
+        self.assertEqual([('A.B', 'A.B', 1), ('A.C', 'A.C', 1), ('A.D', 'A.D', 1)], names('tags'))
+
+        # The value of a composite category is computed from a template that can
+        # reference any field, so while one is present an edit to any field at
+        # all must be taken to change what the Tag browser shows. The test
+        # library has the composite category #comp_tags.
+        fm = cache.field_metadata
+        before = cc.fingerprint(fm)
+        cache.set_field('comments', {1: 'a new comment'})
+        self.assertNotEqual(before, cc.fingerprint(fm), 'A composite category must make every field relevant')
+
+        # Without a composite category only the fields the categories are built
+        # from matter
+        cache.delete_custom_column(label='comp_tags')
+        cache = self.init_cache(self.library_path)
+        cc, fm = cache.categories_cache, cache.field_metadata
+        cache.set_field('tags', {1: ['A.B', 'A.C']})
+        before = cc.fingerprint(fm)
+        cache.set_field('comments', {1: 'another new comment'})
+        self.assertEqual(before, cc.fingerprint(fm), 'Editing comments must not invalidate the Tag browser')
+        cache.set_field('tags', {1: ['A.E']})
+        self.assertNotEqual(before, cc.fingerprint(fm), 'Editing tags must invalidate the Tag browser')
+
+        # A write that is not known to be category neutral invalidates everything
+        before = cc.fingerprint(fm)
+        cache.set_pref('some-pref', 'some-value')
+        self.assertNotEqual(before, cc.fingerprint(fm))
+
+        # When a Virtual library is in use, which books it matches, and so the
+        # item counts, can change because of an edit to any field at all
+        before, before_all = cc.fingerprint(fm), cc.fingerprint(fm, all_fields=True)
+        cache.set_field('title', {1: 'A brand new title'})
+        self.assertEqual(before, cc.fingerprint(fm), 'Editing a title must not invalidate the Tag browser')
+        self.assertNotEqual(before_all, cc.fingerprint(fm, all_fields=True), 'Editing a title must invalidate a Virtual library')
+
+    # }}}
+
     def test_get_formats(self):  # {{{
         "Test reading ebook formats using the format() method"
         from calibre.db.cache import NoSuchFormat

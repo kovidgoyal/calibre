@@ -428,6 +428,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     def __init__(self, parent, prefs=gprefs):
         QAbstractItemModel.__init__(self, parent)
         self.use_position_based_index_on_next_recount = False
+        self.last_build_fingerprint = None
         self.prefs = prefs
         self.node_map = {}
         self.category_nodes = []
@@ -641,6 +642,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
+        # Take the fingerprint before building, so that a write that happens in
+        # another thread while we build is not counted as already displayed
+        fingerprint = self.current_build_fingerprint()
         self.reset_notes_and_link_maps()
         for node in self.node_map.values():
             node.break_cycles()
@@ -650,19 +654,21 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.hierarchical_categories = {}
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self._rebuild_node_tree(state_map=state_map)
-        self.last_build_fingerprint = self.current_build_fingerprint()
+        self.last_build_fingerprint = fingerprint
 
     def current_build_fingerprint(self):
         db = self.db
         if db is None:
             return None
-        cache = getattr(db.new_api, 'categories_cache', None)
-        if cache is None:
-            return None
+        base_restriction = db.data.get_base_restriction()
+        search_restriction = db.data.get_search_restriction()
+        # Which books a Virtual library matches can depend on any field, so
+        # when one is in use a change to any field can change the item counts
+        all_fields = bool(base_restriction or search_restriction)
         return (
-            cache.fingerprint(db.field_metadata),
-            db.data.get_base_restriction(),
-            db.data.get_search_restriction(),
+            db.new_api.categories_cache.fingerprint(db.field_metadata, all_fields=all_fields),
+            base_restriction,
+            search_restriction,
             config['sort_tags_by'],
             self.collapse_model,
             self.filter_categories_by,
@@ -671,7 +677,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     def categories_unchanged_since_last_build(self):
         """True if nothing the Tag browser displays can have changed since the tree was last built"""
         fp = self.current_build_fingerprint()
-        return fp is not None and fp == getattr(self, 'last_build_fingerprint', None)
+        return fp is not None and fp == self.last_build_fingerprint
 
     def _rebuild_node_tree(self, state_map):
         # Note that _get_category_nodes can indirectly change the

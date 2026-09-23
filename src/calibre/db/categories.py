@@ -209,9 +209,12 @@ category_sort_keys[False]['name'] = sort_key_for_name
 # Caching of computed categories {{{
 
 # Cache API methods that take the write lock but cannot change any of the data
-# the categories are computed from. set_field and set_metadata are here
-# because set_field() reports the changed field itself, which allows only the
-# affected categories to be recomputed.
+# the categories are computed from, and so do not need to invalidate the whole
+# cache. set_field and set_metadata are the two exceptions: they do change that
+# data, but every change they make goes through set_field(), which reports the
+# changed field itself, so only the affected categories need to be recomputed.
+# A name wrongly present in this set means the Tag browser silently displays
+# stale data, so ReadingTest.test_categories_cache() guards it.
 CATEGORY_NEUTRAL_WRITES = frozenset((
     'set_field',
     'set_metadata',
@@ -277,6 +280,23 @@ class CategoriesCache:
     Caches the sorted list of Tag objects for each category when categories are
     computed for all books. An entry is valid as long as neither the global
     version nor the versions of the fields it depends on have changed.
+
+    Consumers of get_categories() freely modify the Tag objects they are given
+    (the Tag browser rewrites name and original_name while building the tree
+    for hierarchical categories, for example) and the same objects can be handed
+    to several threads at once, since get_categories() runs under the shared
+    lock. Cached entries are therefore kept pristine: set() stores copies and
+    get() returns copies, so the cached Tag objects are never reachable from
+    outside this class. The copies are shallow, which means id_set is shared,
+    so nothing may modify a Tag's id_set in place, it must be replaced instead.
+    The rating category is not cached at all as get_categories() merges the
+    id_sets of its items in place.
+
+    Entries are only discarded by invalidate_all(). The number of entries is
+    bounded by the number of categories times the number of distinct
+    (sort, first letter sort, hierarchical) combinations in use, which is small,
+    but each entry holds a full set of Tag objects, so a library with very many
+    items will retain them until the next write to the database.
     """
 
     def __init__(self):
@@ -291,10 +311,19 @@ class CategoriesCache:
     def field_changed(self, name):
         self.field_versions[name] = self.field_versions.get(name, 0) + 1
 
-    def fingerprint(self, field_metadata):
-        "Changes whenever any data the categories are computed from may have changed"
+    def fingerprint(self, field_metadata, all_fields=False):
+        """
+        Changes whenever any data the categories are computed from may have changed.
+
+        Only the fields the categories are built from are considered, unless
+        all_fields is True, which is needed when a change to any field at all
+        can change what is displayed, see has_composite_categories().
+        """
         fv = self.field_versions
-        relevant = {c for c, _, _ in find_categories(field_metadata)} | {'rating', 'languages', 'tags'}
+        if all_fields or has_composite_categories(field_metadata):
+            relevant = frozenset(fv)
+        else:
+            relevant = {c for c, _, _ in find_categories(field_metadata)} | {'rating', 'languages', 'tags'}
         return self.global_version, tuple(sorted((f, fv[f]) for f in relevant if f in fv))
 
     def version_for(self, *field_names):
@@ -305,30 +334,40 @@ class CategoriesCache:
         entry = self.entries.get(key)
         if entry is None or entry[0] != version:
             return None
-        tags, avg_ratings = entry[1], entry[2]
-        # Undo any changes made to the Tag objects by previous users
-        for tag, avg in zip(tags, avg_ratings):
-            tag.avg_rating = avg
-            tag.state = 0
-            tag.is_hierarchical = ''
-        return list(tags)
+        return [copy.copy(tag) for tag in entry[1]]
 
     def set(self, key, version, tags):
-        self.entries[key] = version, tuple(tags), tuple(t.avg_rating for t in tags)
+        self.entries[key] = version, tuple(copy.copy(tag) for tag in tags)
+
+
+def has_composite_categories(field_metadata):
+    """
+    True if any category is a composite column. The value of a composite column
+    is computed from a template that can reference any field, so a change to any
+    field at all can change such a category.
+    """
+    return any(is_composite for _, _, is_composite in find_categories(field_metadata))
 
 
 class CategoriesInvalidatingLock(RWLockWrapper):
     """Wrapper for the exclusive lock that invalidates all cached categories when the lock is acquired"""
 
     def __init__(self, lock, categories_cache):
+        # Subclass RWLockWrapper so that this is a drop-in replacement for the
+        # lock it wraps, but delegate to the wrapped lock rather than to
+        # RWLockWrapper, so that DebugRWLockWrapper keeps working
         super().__init__(lock._shlock, lock._is_shared)
-        self._categories_cache = categories_cache
+        self._lock, self._categories_cache = lock, categories_cache
 
     def acquire(self):
-        super().acquire()
+        self._lock.acquire()
         self._categories_cache.invalidate_all()
 
+    def release(self, *args):
+        self._lock.release()
+
     __enter__ = acquire
+    __exit__ = release
 
 
 # }}}
@@ -359,7 +398,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
 
     bids = None
     uncollapsed_categories = () if uncollapsed_categories is None else uncollapsed_categories
-    cache = getattr(dbcache, 'categories_cache', None)
+    cache = dbcache.categories_cache
 
     for category, is_multiple, is_composite in find_categories(fm):
         fl_sort = False if category in uncollapsed_categories else bool(first_letter_sort)
@@ -382,7 +421,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
                 if sort_on == 'name':
                     sort_on, reverse = 'rating', True
             # The rating category is tiny and is modified below, so is not cached
-            use_cache = cache is not None and book_ids is None and category != 'rating'
+            use_cache = book_ids is None and category != 'rating'
             if use_cache:
                 rating_field = category if dt == 'rating' else 'rating'
                 cache_key = category, sort_on, reverse, fl_sort, category in hierarchical_categories
