@@ -349,6 +349,6 @@ def legacy_book(ctx, rd, book_id, library_id):
             raise BookNotFound(book_id, db)
         mi = db.get_metadata(book_id, get_cover=False)
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(db.last_modified()))
-    html_str = render_legacy_book_details(ctx, mi, library_id)
+    html_str = render_legacy_book_details(ctx, rd, mi, library_id)
     rd.outheaders.set('Content-Type', 'text/html; charset=UTF-8', replace_all=True)
     return html_str.encode('utf-8')

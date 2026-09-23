@@ -1,6 +1,9 @@
 from html import escape
+from urllib.parse import urlencode
 
+from calibre.ebooks.metadata import rating_to_stars
 from calibre.library.comments import sanitize_comments_html
+from calibre.srv.content import book_filename
 from calibre.utils.date import dt_as_local, is_date_undefined, strftime
 
 
@@ -10,17 +13,30 @@ def safe_date(dt, fmt='%d %b %Y'):
     return strftime(fmt, t=dt_as_local(dt).timetuple())
 
 
-def render_legacy_book_details(ctx, mi, library_id):
+def exact_match_query(field, value):
+    # Same quoting rules as the tag browser, see search_expression_for_item() in search.pyj
+    value = value.replace('"', r'\"')
+    if value.startswith('.'):
+        value = '.' + value
+    return f'{field}:"={value}"'
+
+
+def search_link(ctx, library_id, text, query):
+    url = ctx.url_for('/mobile') + '?' + urlencode({'library_id': library_id, 'search': query})
+    return f'<a href="{escape(url)}">{escape(text)}</a>'
+
+
+def render_legacy_book_details(ctx, rd, mi, library_id):
     book_id = mi.id
 
     title = escape(mi.title or 'Unknown')
 
     series = ''
     if mi.series:
-        series = f'{escape(mi.series)}' + (f' [{mi.series_index}]' if mi.series_index is not None else '')
+        series = mi.series + (f' [{mi.series_index}]' if mi.series_index is not None else '')
 
     tags = mi.tags or []
-    tags_html = ', '.join(f'<a href="/mobile?library_id={library_id}&search=tags:%22%3D{escape(tag)}%22">{escape(tag)}</a>' for tag in tags)
+    tags_html = ', '.join(search_link(ctx, library_id, tag, exact_match_query('tags', tag)) for tag in tags)
 
     comments = mi.comments or ''
 
@@ -32,7 +48,11 @@ def render_legacy_book_details(ctx, mi, library_id):
             if not fmt or fmt.lower().startswith('original_'):
                 continue
 
-            url = ctx.url_for('/legacy/get', what=fmt, book_id=book_id, library_id=library_id)
+            # The filename must be the last component of the URL as many older
+            # e-ink browsers ignore the Content-Disposition header and name the
+            # downloaded file based on the URL. See
+            # https://www.mobileread.com/forums/showthread.php?t=375414
+            url = ctx.url_for('/legacy/get', what=fmt, book_id=book_id, library_id=library_id, filename=book_filename(rd, book_id, mi, fmt))
             fmt = escape(fmt)
             links.append(f'<a href="{url}" class="download-button" download="{title}.{fmt.lower()}">Download {fmt}</a>')
 
@@ -45,17 +65,13 @@ def render_legacy_book_details(ctx, mi, library_id):
 
     # Authors
     if mi.authors:
-        author_links = []
-        for author in mi.authors:
-            search_url = f'/mobile?library_id={library_id}&search=authors:%22%3D{escape(author)}%22'
-            author_links.append(f'<a href="{search_url}">{escape(author)}</a>')
+        author_links = [search_link(ctx, library_id, author, exact_match_query('authors', author)) for author in mi.authors]
         metadata_rows.append(f'<tr><td>Authors</td><td>{" ".join(author_links)}</td></tr>')
 
     # Series
     if series:
-        series_name = escape(mi.series)
-        search_url = f'/mobile?library_id={library_id}&search=series:%22%3D{series_name}%22'
-        metadata_rows.append(f'<tr><td>Series</td><td><a href="{search_url}">{series}</a></td></tr>')
+        link = search_link(ctx, library_id, series, exact_match_query('series', mi.series))
+        metadata_rows.append(f'<tr><td>Series</td><td>{link}</td></tr>')
 
     # Tags
     if tags:
@@ -65,25 +81,20 @@ def render_legacy_book_details(ctx, mi, library_id):
         metadata_rows.append(f'<tr><td>Publisher</td><td>{escape(mi.publisher)}</td></tr>')
 
     if mi.pubdate:
-        date_str = safe_date(mi.pubdate)
-        search_url = f'/mobile?library_id={library_id}&search=pubdate:%22%3D{mi.pubdate.isoformat()}%22'
-        metadata_rows.append(f'<tr><td>Published</td><td><a href="{search_url}">{date_str}</a></td></tr>')
+        link = search_link(ctx, library_id, safe_date(mi.pubdate), f'pubdate:"={mi.pubdate.isoformat()}"')
+        metadata_rows.append(f'<tr><td>Published</td><td>{link}</td></tr>')
 
     if mi.timestamp:
-        date_str = safe_date(mi.timestamp)
-        search_url = f'/mobile?library_id={library_id}&search=timestamp:%22%3D{mi.timestamp.isoformat()}%22'
-        metadata_rows.append(f'<tr><td>Date</td><td><a href="{search_url}">{date_str}</a></td></tr>')
+        link = search_link(ctx, library_id, safe_date(mi.timestamp), f'timestamp:"={mi.timestamp.isoformat()}"')
+        metadata_rows.append(f'<tr><td>Date</td><td>{link}</td></tr>')
 
     if mi.rating and mi.rating > 0:
-        stars = '★' * round(mi.rating)
-        search_url = f'/mobile?library_id={library_id}&search=rating:%22%3D{int(mi.rating)}%22'
-        metadata_rows.append(f'<tr><td>Rating</td><td><a href="{search_url}">{stars}</a></td></tr>')
+        # Ratings are stored on a 0-10 scale but are searched for on the 0-5 star scale
+        link = search_link(ctx, library_id, rating_to_stars(mi.rating, True), f'rating:{mi.rating / 2:g}')
+        metadata_rows.append(f'<tr><td>Rating</td><td>{link}</td></tr>')
 
     if mi.languages:
-        lang_links = []
-        for lang in mi.languages:
-            search_url = f'/mobile?library_id={library_id}&search=languages:%22%3D{lang}%22'
-            lang_links.append(f'<a href="{escape(search_url)}">{escape(lang)}</a>')
+        lang_links = [search_link(ctx, library_id, lang, exact_match_query('languages', lang)) for lang in mi.languages]
         metadata_rows.append(f'<tr><td>Languages</td><td>{", ".join(lang_links)}</td></tr>')
 
     # Identifiers
@@ -101,14 +112,6 @@ def render_legacy_book_details(ctx, mi, library_id):
                 display = f'{key}: {value}'
             id_links.append(f'<a href="{escape(url)}" target="_blank">{escape(display)}</a>')
         metadata_rows.append(f'<tr><td>Identifiers</td><td>{", ".join(id_links)}</td></tr>')
-
-    if mi.formats:
-        fmt_links = []
-        for fmt in mi.formats:
-            if not fmt or fmt.lower().startswith('original_'):
-                continue
-            fmt_links.append(f'<a href="javascript:void(0)" data-format="{fmt}" data-book-id="{book_id}">{fmt}</a>')
-        metadata_rows.append(f'<tr><td>Formats</td><td>{", ".join(fmt_links)}</td></tr>')
 
     metadata_table = '<table class="metadata">' + ''.join(metadata_rows) + '</table>' if metadata_rows else ''
 
