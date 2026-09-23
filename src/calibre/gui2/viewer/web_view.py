@@ -635,7 +635,7 @@ class WebView(QWebEngineView):
                         self.pinch_accumulated_value += a1.value()
                         return True
                     case Qt.NativeGestureType.EndNativeGesture:
-                        if abs(self.pinch_accumulated_value) > 0.05:
+                        if abs(getattr(self, 'pinch_accumulated_value', 0)) > 0.05:
                             out = self.pinch_accumulated_value > 0
                             self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
         return super().eventFilter(a0, a1)
