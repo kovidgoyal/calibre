@@ -16,6 +16,7 @@ from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import Request
 
+from calibre.utils.avif_test import STILL_AVIF
 from calibre.web.automate import browser as browser_module
 from calibre.web.automate import recipes
 from calibre.web.automate.bot_check import retry_bot_checks
@@ -28,6 +29,7 @@ ARTICLE_PAGE = '''<!DOCTYPE html><html><head><title>An Article</title>
 <h1 id="headline">The Headline</h1>
 <p class="body">Some words.</p>
 <img id="pic" src="pic.svg" alt="a picture">
+<img id="avif-pic" src="pic.avif" alt="a picture in a format only a browser fetches">
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const d = document.createElement('div');
@@ -59,6 +61,9 @@ class Server:
         for name, data in (
             ('article.html', ARTICLE_PAGE.encode('utf-8')),
             ('pic.svg', TEST_SVG.encode('utf-8')),
+            # A format the browser only ever asks for when its own Accept
+            # header for images is left alone
+            ('pic.avif', STILL_AVIF),
             ('style.css', TEST_CSS.encode('utf-8')),
             ('latin1.html', LATIN1_PAGE.encode('iso-8859-1')),
         ):
@@ -102,6 +107,9 @@ class Server:
                         accept = self.headers.get('Accept') or ''
                         body = f'<svg xmlns="http://www.w3.org/2000/svg"><desc>{accept}</desc></svg>'
                         self.reply(200, 'image/svg+xml', body.encode())
+                    case '/pic.avif':
+                        # mimetypes does not know this one on every platform
+                        self.reply(200, 'image/avif', STILL_AVIF)
                     case '/api.json':
                         self.reply(200, 'application/json', json.dumps({'articles': ['one', 'two']}).encode())
                     case '/feed.xml':
@@ -374,14 +382,16 @@ class TestRecipeBrowser(unittest.TestCase):
         br.release()
 
     def test_recipes_image_accept_header(self) -> None:
-        "Images are asked for in a format calibre can actually decode"
+        "The browser's own Accept header for images is left alone"
         br = self.shared_browser().clone_browser()
         br.open(self.server.base + 'article.html').close()
         with br.open_novisit(self.server.base + 'accept-probe.svg') as response:
             accept = response.read().decode('utf-8').partition('<desc>')[2].partition('</desc>')[0]
-        self.assertIn('image/webp', accept)
-        # Left alone the browser asks for, and gets, AVIF, which calibre cannot read
-        self.assertNotIn('avif', accept)
+        # calibre reads AVIF, via the image format plugin in
+        # calibre.utils.avif, so there is no reason to talk the sites that
+        # serve it out of doing so: asking for anything less than what the
+        # browser asks for by itself is one more thing to tell us apart by
+        self.assertIn('image/avif', accept)
         br.release()
 
     def test_recipes_first_request_is_a_document(self) -> None:

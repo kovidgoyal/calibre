@@ -71,12 +71,6 @@ BROWSER_PREFS = {
     # Without this a navigation to a JSON document renders the browser's own
     # JSON viewer, whose markup is not what a recipe reading an API asked for
     'devtools.jsonview.enabled': False,
-    # Left to itself the browser asks for, and news sites happily serve, AVIF,
-    # which calibre cannot decode, so the images would all be thrown away
-    # further down the conversion pipeline. This is what Firefox itself sent
-    # before it gained AVIF support, so it is not a header a site has never
-    # seen, and webp is both smaller than jpeg and readable by calibre.
-    'image.http.accept': 'image/webp,*/*',
 }
 
 
