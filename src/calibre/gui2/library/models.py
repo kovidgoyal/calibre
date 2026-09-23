@@ -352,9 +352,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.alignment_map.pop(colname, None)
             if alignment != 'left':
                 self.alignment_map[colname] = alignment
-            col = self.column_map.index(colname)
-            for row in range(self.rowCount(QModelIndex())):
-                self.dataChanged.emit(self.index(row, col), self.index(row, col))
+            self.column_changed(colname)
 
     def change_column_font(self, colname, font_type):
         if colname in self.column_map and font_type in ('normal', 'bold', 'italic', 'bi'):
@@ -368,9 +366,14 @@ class BooksModel(QAbstractTableModel):  # {{{
                 self.styled_columns[colname] = getattr(self, f'{font_type}_font')
                 old[colname] = font_type
             db.set_pref('styled_columns', old)
-            col = self.column_map.index(colname)
-            for row in range(self.rowCount(QModelIndex())):
-                self.dataChanged.emit(self.index(row, col), self.index(row, col))
+            self.column_changed(colname)
+
+    def column_changed(self, colname):
+        """Notify views that the display of every cell in the column has changed, with a single signal"""
+        col = self.column_map.index(colname)
+        num_rows = self.rowCount(QModelIndex())
+        if num_rows > 0:
+            self.dataChanged.emit(self.index(0, col), self.index(num_rows - 1, col))
 
     def is_custom_column(self, cc_label):
         try:
