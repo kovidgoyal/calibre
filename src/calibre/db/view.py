@@ -503,18 +503,16 @@ class View:
         return [self._real_map_filtered_id_to_row[id_] for id_ in ids if id_ in self._real_map_filtered_id_to_row] or None
 
     def remove(self, book_id):
-        try:
-            self._map = tuple(bid for bid in self._map if bid != book_id)
-        except ValueError:
-            pass
-        try:
-            self._map_filtered = tuple(bid for bid in self._map_filtered if bid != book_id)
-        except ValueError:
-            pass
+        self.books_deleted((book_id,))
 
     def books_deleted(self, ids):
-        for book_id in ids:
-            self.remove(book_id)
+        # Rebuild the maps once for all the removed books. Doing it per book
+        # makes deleting many books take time quadratic in the library size.
+        ids = frozenset(ids)
+        if not ids:
+            return
+        self._map = tuple(bid for bid in self._map if bid not in ids)
+        self._map_filtered = tuple(bid for bid in self._map_filtered if bid not in ids)
 
     def books_added(self, ids):
         ids = tuple(ids)
