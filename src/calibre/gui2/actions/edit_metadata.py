@@ -542,7 +542,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         current = self.gui.library_view.currentIndex()
         self.gui.refresh_cover_browser()
         m.current_changed(current, previous or current)
-        self.gui.tags_view.recount_with_position_based_index()
+        self.gui.tags_view.recount_after_metadata_edit()
         qv = get_quickview_action_plugin()
         if qv:
             qv.refresh_quickview(current)

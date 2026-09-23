@@ -5,6 +5,7 @@ import copy
 from collections import OrderedDict
 from functools import partial
 
+from calibre.db.locking import RWLockWrapper
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.config_base import prefs, tweaks
 from calibre.utils.icu import collation_order, sort_key
@@ -205,6 +206,134 @@ category_sort_keys[True]['name'] = sort_key_for_name_and_first_letter
 category_sort_keys[False]['name'] = sort_key_for_name
 
 
+# Caching of computed categories {{{
+
+# Cache API methods that take the write lock but cannot change any of the data
+# the categories are computed from. set_field and set_metadata are here
+# because set_field() reports the changed field itself, which allows only the
+# affected categories to be recomputed.
+CATEGORY_NEUTRAL_WRITES = frozenset((
+    'set_field',
+    'set_metadata',
+    'mark_as_dirty',
+    'commit_dirty_cache',
+    'check_dirtied_annotations',
+    'clear_dirtied',
+    'write_backup',
+    'dump_metadata',
+    'set_cover',
+    'add_cover_cache',
+    'remove_cover_cache',
+    'compress_covers',
+    'update_last_modified',
+    'update_path',
+    'fts_start_measuring_rate',
+    'fts_unindex',
+    'queue_next_fts_job',
+    'commit_fts_result',
+    'reindex_fts_book',
+    'set_fts_num_of_workers',
+    'set_fts_speed',
+    'fts_search',
+    'mark_for_pages_recount',
+    'queue_pages_scan',
+    'set_pages',
+    'add_listener',
+    'remove_listener',
+    'set_conversion_options',
+    'delete_conversion_options',
+    'set_last_read_position',
+    'add_custom_book_data',
+    'delete_custom_book_data',
+    'delete_annotations',
+    'update_annotations',
+    'restore_annotations',
+    'set_annotations_for_book',
+    'merge_annotations_for_book',
+    'save_annotations_list',
+    'reindex_annotations',
+    'set_notes_for',
+    'add_notes_resource',
+    'unretire_note_for',
+    'import_note',
+    'search_notes',
+    'add_extra_files',
+    'rename_extra_files',
+    'merge_extra_files',
+    'remove_extra_files',
+    'clear_extra_files_cache',
+    'clear_caches',
+    'clear_composite_caches',
+    'clear_search_caches',
+    'clear_link_map_cache',
+    'initialize_template_cache',
+    'embed_metadata',
+    'refresh_ondevice',
+))
+
+
+class CategoriesCache:
+    """
+    Caches the sorted list of Tag objects for each category when categories are
+    computed for all books. An entry is valid as long as neither the global
+    version nor the versions of the fields it depends on have changed.
+    """
+
+    def __init__(self):
+        self.global_version = 0
+        self.field_versions = {}
+        self.entries = {}
+
+    def invalidate_all(self):
+        self.global_version += 1
+        self.entries.clear()
+
+    def field_changed(self, name):
+        self.field_versions[name] = self.field_versions.get(name, 0) + 1
+
+    def fingerprint(self, field_metadata):
+        "Changes whenever any data the categories are computed from may have changed"
+        fv = self.field_versions
+        relevant = {c for c, _, _ in find_categories(field_metadata)} | {'rating', 'languages', 'tags'}
+        return self.global_version, tuple(sorted((f, fv[f]) for f in relevant if f in fv))
+
+    def version_for(self, *field_names):
+        fv = self.field_versions
+        return (self.global_version,) + tuple(fv.get(n, 0) for n in field_names)
+
+    def get(self, key, version):
+        entry = self.entries.get(key)
+        if entry is None or entry[0] != version:
+            return None
+        tags, avg_ratings = entry[1], entry[2]
+        # Undo any changes made to the Tag objects by previous users
+        for tag, avg in zip(tags, avg_ratings):
+            tag.avg_rating = avg
+            tag.state = 0
+            tag.is_hierarchical = ''
+        return list(tags)
+
+    def set(self, key, version, tags):
+        self.entries[key] = version, tuple(tags), tuple(t.avg_rating for t in tags)
+
+
+class CategoriesInvalidatingLock(RWLockWrapper):
+    """Wrapper for the exclusive lock that invalidates all cached categories when the lock is acquired"""
+
+    def __init__(self, lock, categories_cache):
+        super().__init__(lock._shlock, lock._is_shared)
+        self._categories_cache = categories_cache
+
+    def acquire(self):
+        super().acquire()
+        self._categories_cache.invalidate_all()
+
+    __enter__ = acquire
+
+
+# }}}
+
+
 # Various parts of calibre depend on the order of fields in the returned
 # dict being in the default display order: standard fields, custom in alpha order,
 # user categories, then saved searches. This works because the backend adds
@@ -230,11 +359,13 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
 
     bids = None
     uncollapsed_categories = () if uncollapsed_categories is None else uncollapsed_categories
+    cache = getattr(dbcache, 'categories_cache', None)
 
     for category, is_multiple, is_composite in find_categories(fm):
         fl_sort = False if category in uncollapsed_categories else bool(first_letter_sort)
         tag_class = create_tag_class(category, fm)
         sort_on, reverse = sort, False
+        use_cache = False
         if is_composite:
             if bids is None:
                 bids = dbcache._all_book_ids() if book_ids is None else book_ids
@@ -250,6 +381,16 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
                     brm = dbcache.fields[category].book_value_map
                 if sort_on == 'name':
                     sort_on, reverse = 'rating', True
+            # The rating category is tiny and is modified below, so is not cached
+            use_cache = cache is not None and book_ids is None and category != 'rating'
+            if use_cache:
+                rating_field = category if dt == 'rating' else 'rating'
+                cache_key = category, sort_on, reverse, fl_sort, category in hierarchical_categories
+                cache_version = cache.version_for(category, rating_field, 'languages')
+                cats = cache.get(cache_key, cache_version)
+                if cats is not None:
+                    categories[category] = cats
+                    continue
             cats = dbcache.fields[category].get_categories(tag_class, brm, lang_map, book_ids)
             if category != 'authors' and dt == 'text' and cat['is_multiple'] and cat['display'].get('is_names', False):
                 for item in cats:
@@ -258,6 +399,8 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
             key=partial(category_sort_keys[fl_sort][sort_on], hierarchical_categories=hierarchical_categories),
             reverse=reverse,
         )
+        if use_cache:
+            cache.set(cache_key, cache_version, cats)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that

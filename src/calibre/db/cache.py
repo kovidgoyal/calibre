@@ -26,7 +26,7 @@ from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
-from calibre.db.categories import get_categories
+from calibre.db.categories import CATEGORY_NEUTRAL_WRITES, CategoriesCache, CategoriesInvalidatingLock, get_categories
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
@@ -171,6 +171,11 @@ class Cache:
         self.fields = {}
         self.composites = {}
         self.read_lock, self.write_lock = create_locks()
+        # Writes that cannot change the data used to build the Tag browser
+        # categories use the quiet lock, all others invalidate cached categories
+        self.categories_cache = CategoriesCache()
+        self.quiet_write_lock = self.write_lock
+        self.write_lock = CategoriesInvalidatingLock(self.write_lock, self.categories_cache)
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
@@ -191,7 +196,9 @@ class Cache:
             if (is_write_api := cache_api.get(name)) is not None:
                 func = getattr(self, name)
                 # Wrap it in a lock
-                lock = self.write_lock if is_write_api else self.read_lock
+                lock = self.read_lock
+                if is_write_api:
+                    lock = self.quiet_write_lock if name in CATEGORY_NEUTRAL_WRITES else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
 
         self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
@@ -354,6 +361,7 @@ class Cache:
 
     @write_api
     def reload_from_db(self, clear_caches=True):
+        self.categories_cache.invalidate_all()
         if clear_caches:
             self._clear_caches()
         with self.backend.conn:  # Prevent other processes, such as calibredb from interrupting the reload by locking the db
@@ -598,7 +606,7 @@ class Cache:
                     return False
                 path = self._format_abspath(book_id, fmt)
             if not path or not is_fmt_extractable(fmt):
-                with self.write_lock:
+                with self.quiet_write_lock:
                     self.backend.remove_dirty_fts(book_id, fmt)
                     self._update_fts_indexing_numbers()
                 return True
@@ -613,7 +621,7 @@ class Cache:
                     sz += len(chunk)
                     h.update(chunk)
                     pt.write(chunk)
-            with self.write_lock:
+            with self.quiet_write_lock:
                 queued = self.backend.queue_fts_job(book_id, fmt, pt.name, sz, h.hexdigest(), start_time)
                 if not queued:  # means a dirtied book was removed from the dirty list because the text has not changed
                     self._update_fts_indexing_numbers(monotonic() - start_time)
@@ -1274,7 +1282,7 @@ class Cache:
                 ans = self.backend.format_metadata(book_id, fmt, name, path)
                 self.format_metadata_cache[book_id][fmt] = ans
         if update_db and 'size' in ans:
-            with self.write_lock:
+            with self.quiet_write_lock:
                 max_size = self.fields['formats'].table.update_fmt(book_id, fmt, name, ans['size'], self.backend)
                 self.fields['size'].table.update_sizes({book_id: max_size})
 
@@ -1976,6 +1984,7 @@ class Cache:
                     simap[k] = sid
             book_id_to_val_map = bimap
 
+        self.categories_cache.field_changed(name)
         dirtied = f.writer.set_books(book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
 
         if is_series and simap:

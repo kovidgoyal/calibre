@@ -650,6 +650,28 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.hierarchical_categories = {}
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self._rebuild_node_tree(state_map=state_map)
+        self.last_build_fingerprint = self.current_build_fingerprint()
+
+    def current_build_fingerprint(self):
+        db = self.db
+        if db is None:
+            return None
+        cache = getattr(db.new_api, 'categories_cache', None)
+        if cache is None:
+            return None
+        return (
+            cache.fingerprint(db.field_metadata),
+            db.data.get_base_restriction(),
+            db.data.get_search_restriction(),
+            config['sort_tags_by'],
+            self.collapse_model,
+            self.filter_categories_by,
+        )
+
+    def categories_unchanged_since_last_build(self):
+        """True if nothing the Tag browser displays can have changed since the tree was last built"""
+        fp = self.current_build_fingerprint()
+        return fp is not None and fp == getattr(self, 'last_build_fingerprint', None)
 
     def _rebuild_node_tree(self, state_map):
         # Note that _get_category_nodes can indirectly change the
