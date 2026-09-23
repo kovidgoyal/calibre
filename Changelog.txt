@@ -14,7 +14,7 @@
 #
 # :: bug fixes
 #
-# - title
+# - E-book viewer: Footer Progress mixed current-file position with whole-book position for multi-file books such as CHM
 #
 # :: improved recipes
 # - title

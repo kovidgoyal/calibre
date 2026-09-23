@@ -536,7 +536,10 @@ class IframeBoss:
         if self.length_before is None:
             return 0
         frac = progress_frac()
-        ans = (self.length_before + (file_length * frac)) / self.book.manifest.spine_length
+        spine_length = self.book.manifest.spine_length or 0
+        if spine_length <= 0:
+            return frac
+        ans = (self.length_before + (file_length * frac)) / spine_length
         return ans
 
     def get_current_cfi(self, data):
@@ -597,6 +600,8 @@ class IframeBoss:
             self.update_toc_position()
 
     def no_latency_onscroll(self):
+        if not self.content_ready or self.length_before is None:
+            return
         pf = self.calculate_progress_frac()
         fpf = progress_frac()
         self.send_message(

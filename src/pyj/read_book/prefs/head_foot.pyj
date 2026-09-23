@@ -211,6 +211,10 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
     elif field is 'progress':
         percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'
+        n = pos.spine_count or 0
+        idx = pos.spine_index
+        if n > 1 and idx > -1:
+            text = _('{0}% of book ({1}/{2})').format(percent, idx + 1, n)
         force_display_even_if_overflowed = True
     elif field is 'title':
         text = metadata.title or _('Untitled')

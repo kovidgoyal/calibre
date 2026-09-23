@@ -1349,6 +1349,8 @@ class View:
             'file_progress_frac': self.current_file_progress_frac,
             'cfi': self.currently_showing?.bookpos,
             'page_counts': self.current_page_counts,
+            'spine_index': self.currently_showing?.spine_index,
+            'spine_count': (self.book.manifest.spine.length if self.book?.manifest?.spine else 0),
         }
         return pos
 
