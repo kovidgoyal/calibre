@@ -450,7 +450,7 @@ class TagsView(QTreeView):  # {{{
         if not self.made_connections:
             self.clicked.connect(self.toggle_on_mouse_click)
             self.customContextMenuRequested.connect(self.show_context_menu)
-            self.refresh_required.connect(self.recount, type=Qt.ConnectionType.QueuedConnection)
+            self.refresh_required.connect(self.recount_if_categories_changed, type=Qt.ConnectionType.QueuedConnection)
             sort_menu.triggered.connect(self.sort_changed)
             self.alter_tb.match_menu.triggered.connect(self.match_changed)
             self.made_connections = True
@@ -1827,6 +1827,27 @@ class TagsView(QTreeView):  # {{{
     def recount_on_mark_change(self, *args):
         # Let other marked listeners run before we do the recount
         QTimer.singleShot(0, self.recount)
+
+    def recount_if_categories_changed(self):
+        """
+        Used for the queued refresh after a database change. The change may
+        already have been handled by a recount triggered synchronously, for
+        example by the book count changing, in which case nothing displayed
+        can have changed since the tree was built.
+        """
+        if self._model.categories_unchanged_since_last_build():
+            return
+        self.recount()
+
+    def recount_after_metadata_edit(self):
+        """
+        Recount unless nothing that the Tag browser displays can have changed
+        since it was last built, for example after editing only titles or
+        comments.
+        """
+        if self._model.categories_unchanged_since_last_build():
+            return
+        self.recount_with_position_based_index()
 
     def recount_with_position_based_index(self):
         self._model.use_position_based_index_on_next_recount = True
