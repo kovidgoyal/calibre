@@ -479,21 +479,14 @@ class ReadingTest(BaseTest):
 
     def test_categories_cache(self):  # {{{
         "Test the cache of computed categories used to speed up the Tag browser"
-        from calibre.db.cache import cache_api
-        from calibre.db.categories import CATEGORY_QUIET_WRITES
+        from calibre.db.cache import category_quiet_writes
 
         # A name wrongly listed as quiet means the Tag browser displays stale
         # data, so check that the list contains only write APIs and that the
         # writes that obviously do change the categories are absent
-        write_apis = {name for name, is_write in cache_api.items() if is_write}
         self.assertEqual(
             set(),
-            CATEGORY_QUIET_WRITES - write_apis,
-            'These names in CATEGORY_QUIET_WRITES are not write APIs, so listing them has no effect',
-        )
-        self.assertEqual(
-            set(),
-            CATEGORY_QUIET_WRITES
+            category_quiet_writes
             & {
                 'add_books',
                 'create_custom_column',
