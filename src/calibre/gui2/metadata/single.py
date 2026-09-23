@@ -552,7 +552,7 @@ class MetadataSingleDialogBase(QDialog):
         ext = self.formats_manager.get_selected_format()
         if ext is None:
             return
-        if ext in ('pdf', 'cbz', 'cbr'):
+        if ext in ('pdf', 'cbz', 'cbr', 'djvu', 'djv'):
             return self.choose_cover_from_pages(ext)
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)

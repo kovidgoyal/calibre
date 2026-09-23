@@ -75,6 +75,10 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
                     pattern=pattern,
                 )
                 mi.smart_update(newmi)
+                # For a PDF/DjVu pair prefer the PDF cover, regardless of the
+                # compressed image size used by smart_update's usual heuristic.
+                if ext == 'pdf' and {'djvu', 'djv'}.intersection(extensions) and newmi.cover_data and newmi.cover_data[1]:
+                    mi.cover_data = newmi.cover_data
             except Exception:
                 continue
             if getattr(mi, 'application_id', None) is not None:

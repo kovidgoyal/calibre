@@ -327,6 +327,17 @@ class PDBMetadataReader(MetadataReaderPlugin):
         return get_metadata(stream)
 
 
+class DJVUMetadataReader(MetadataReaderPlugin):
+    name = 'Read DJVU metadata'
+    file_types = {'djvu', 'djv'}
+    description = _('Read metadata from %s files') % 'DJVU'
+
+    def get_metadata(self, stream, type):
+        from calibre.ebooks.metadata.djvu import get_metadata
+
+        return get_metadata(stream, cover=not self.quick)
+
+
 class PDFMetadataReader(MetadataReaderPlugin):
     name = 'Read PDF metadata'
     file_types = {'pdf'}
@@ -672,7 +683,10 @@ plugins += [
     SNBInput,
     DOCXInput,
 ]
+from calibre.ebooks.conversion.plugins.djvu_output import DJVUOutput
+
 plugins += [
+    DJVUOutput,
     EPUBOutput,
     KEPUBOutput,
     DOCXOutput,

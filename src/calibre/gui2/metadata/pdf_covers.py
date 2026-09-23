@@ -62,7 +62,9 @@ class PDFCovers(QDialog):
         self.pdfpath = pdfpath
         self.ext = os.path.splitext(pdfpath)[1][1:].lower()
         self.is_pdf = self.ext == 'pdf'
-        self.stack = WaitLayout(_('Rendering {} pages, please wait...').format('PDF' if self.is_pdf else _('comic book')), parent=self)
+        self.is_djvu = self.ext in ('djvu', 'djv')
+        kind = 'PDF' if self.is_pdf else 'DJVU' if self.is_djvu else _('comic book')
+        self.stack = WaitLayout(_('Rendering {} pages, please wait...').format(kind), parent=self)
         self.container = self.stack.after
 
         l = QVBoxLayout(self.container)
@@ -121,6 +123,10 @@ class PDFCovers(QDialog):
             os.mkdir(self.current_tdir)
             if self.is_pdf:
                 page_images(self.pdfpath, self.current_tdir, first=self.first, last=self.first + PAGES_PER_RENDER - 1)
+            elif self.is_djvu:
+                from calibre.ebooks.metadata.djvu import page_images as djvu_page_images
+
+                djvu_page_images(self.pdfpath, self.current_tdir, first=self.first, last=self.first + PAGES_PER_RENDER - 1)
             else:
                 get_comic_images(self.pdfpath, self.current_tdir, first=self.first, last=self.first + PAGES_PER_RENDER - 1)
         except Exception as e:

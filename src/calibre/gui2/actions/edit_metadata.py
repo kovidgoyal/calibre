@@ -1001,7 +1001,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         fmt = fmt.lower()
         cdata = None
         db = self.gui.current_db.new_api
-        if fmt in ('pdf', 'cbz', 'cbr'):
+        if fmt in ('pdf', 'cbz', 'cbr', 'djvu', 'djv'):
             path = db.format_abspath(book_id, fmt)
             if path is None:
                 return error_dialog(

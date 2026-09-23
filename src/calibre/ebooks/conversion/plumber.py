@@ -1191,6 +1191,16 @@ class Plumber:
         """
         # Setup baseline option values
         self.setup_options()
+        if not self.for_regex_wizard and (
+            (self.input_fmt == 'pdf' and self.output_fmt == 'djvu')
+            or (self.input_fmt in ('djvu', 'djv') and self.output_fmt == 'pdf')
+        ):
+            from calibre.ebooks.djvu.convert import convert_document
+
+            convert_document(self.input, self.output, self.input_fmt, self.ui_reporter, self.log)
+            return
+        if self.output_fmt == 'djvu':
+            raise ValueError('DJVU output currently supports PDF input only')
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
         if self.for_regex_wizard and hasattr(self.opts, 'no_process'):
