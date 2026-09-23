@@ -14,7 +14,7 @@
 #
 # :: bug fixes
 #
-# - E-book viewer: Footer Progress mixed current-file and whole-book position for multi-file books such as CHM; show page position in the current file and in the book
+# - E-book viewer: Footer Progress mixed current-file and whole-book position for multi-file books such as CHM; show file index, current-file percent, and book percent
 #
 # :: improved recipes
 # - title
