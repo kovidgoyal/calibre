@@ -26,7 +26,7 @@ from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
-from calibre.db.categories import CATEGORY_QUIET_WRITES, CategoriesCache, CategoriesInvalidatingLock, get_categories
+from calibre.db.categories import CategoriesCache, CategoriesInvalidatingLock, get_categories
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
@@ -62,6 +62,7 @@ class ExtraFile(NamedTuple):
 
 
 cache_api: dict[str, bool | None] = {}
+category_quiet_writes: set[str] = set()
 
 
 def api[T: types.FunctionType](f: T) -> T:
@@ -80,8 +81,16 @@ def write_api[T: types.FunctionType](f: T) -> T:
 
 
 def quiet_write_api[T: types.FunctionType](f: T) -> T:
+    # Cache API methods that take the write lock but must not invalidate the whole
+    # cache of computed categories, so they use the quiet write lock instead, generaly
+    # when they cannot change any of the data the categories are computed from.
+    # set_field and set_metadata are the two exceptions: they do change that data,
+    # but every change they make goes through set_field(), which reports the changed
+    # field itself, so only the categories that depend on that field need to be
+    # recomputed. A function wrongly decorated means the Tag browser silently
+    # displays stale data, so it is guarded by ReadingTest.test_categories_cache().
     write_api(f)
-    CATEGORY_QUIET_WRITES.add(f.__name__)
+    category_quiet_writes.add(f.__name__)
     return f
 
 
@@ -177,7 +186,7 @@ class Cache:
         self.fields = {}
         self.composites = {}
         self.read_lock, self.write_lock = create_locks()
-        # Writes listed in CATEGORY_QUIET_WRITES use the quiet lock, all others
+        # Writes listed in category_quiet_writes use the quiet lock, all others
         # invalidate the cache of computed categories when they take the lock
         self.categories_cache = CategoriesCache()
         self.quiet_write_lock = self.write_lock
@@ -204,7 +213,7 @@ class Cache:
                 # Wrap it in a lock
                 lock = self.read_lock
                 if is_write_api:
-                    lock = self.quiet_write_lock if name in CATEGORY_QUIET_WRITES else self.write_lock
+                    lock = self.quiet_write_lock if name in category_quiet_writes else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
 
         self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())

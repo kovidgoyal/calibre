@@ -207,19 +207,6 @@ category_sort_keys[False]['name'] = sort_key_for_name
 
 
 # Caching of computed categories {{{
-
-# Cache API methods that take the write lock but must not invalidate the whole
-# cache of computed categories, so they use the quiet write lock instead. Most
-# of them are here because they cannot change any of the data the categories
-# are computed from. set_field and set_metadata are the two exceptions: they do
-# change that data, but every change they make goes through set_field(), which
-# reports the changed field itself, so only the categories that depend on that
-# field need to be recomputed. Use cache.quiet_write decorator to populate this
-# set. A function wrongly present in this set means the Tag browser silently
-# displays stale data, so it is guarded by ReadingTest.test_categories_cache().
-CATEGORY_QUIET_WRITES = set()
-
-
 class CategoriesCache:
     """
     Caches the sorted list of Tag objects for each category when categories are
