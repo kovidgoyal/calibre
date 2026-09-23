@@ -51,9 +51,11 @@ class CYOAMainWindow(MainWindow):
         self.world = cw = CreateWorldWidget(self)
         cw.game_start_requested.connect(self.start_new_game)
         cw.saved_game_load_requested.connect(self.resume_saved_game)
+        cw.game_return_requested.connect(self.return_to_game)
         s.addWidget(cw)
         self.game = g = GameWidget(self)
         g.game_abandoned.connect(self.abandon_game)
+        g.restart_requested.connect(self.restart_game)
         s.addWidget(g)
         self.show_appropriate_page()
 
@@ -108,6 +110,18 @@ class CYOAMainWindow(MainWindow):
     def abandon_game(self) -> None:
         data.set_current_game('')
         self.show_appropriate_page()
+
+    def restart_game(self) -> None:
+        # The current game stays current until the player starts the new one,
+        # so that they can change their mind and go back to it, see
+        # return_to_game().
+        if self.game.state is None:
+            return
+        self.world.load_world_for_restart(self.game.state, self.game.portraits)
+        self.stack.setCurrentWidget(self.world)
+
+    def return_to_game(self) -> None:
+        self.stack.setCurrentWidget(self.game)
 
     def message_from_other_instance(self, msg: bytes) -> None:
         # Another process was started to play the game. Since there can be

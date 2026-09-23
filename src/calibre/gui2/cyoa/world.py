@@ -9,7 +9,7 @@
 # characters fit the world as the player settled on it.
 
 from base64 import standard_b64decode, standard_b64encode
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from itertools import count
 from threading import Thread
 from typing import NamedTuple
@@ -46,6 +46,7 @@ from calibre.ai.cyoa import (
     TONES,
     ArtStyle,
     CharacterState,
+    GameState,
     GeneratedCast,
     GeneratedWorld,
     Narration,
@@ -241,6 +242,20 @@ def padded_portraits(portraits: Sequence[dict[str, str] | None], num_characters:
     return ans
 
 
+def fill_portraits(
+    portraits: list[dict[str, str] | None],
+    characters: Sequence[PlayerCharacter | NonPlayerCharacter],
+    saved_characters: Sequence[PlayerCharacter | NonPlayerCharacter],
+    saved_portraits: Sequence[dict[str, str] | None],
+) -> None:
+    # Fill in the missing portraits, aligned with characters, from those of a
+    # saved world, matching the characters by name.
+    by_name = {c.name: p for c, p in zip(saved_characters, saved_portraits) if p}
+    for i, c in enumerate(characters):
+        if portraits[i] is None:
+            portraits[i] = by_name.get(c.name)
+
+
 class PortraitResult(NamedTuple):
     # The outcome of generating one character portrait, in the form stored in
     # saved worlds: {'mime': mime type, 'data': base64 encoded image data}.
@@ -424,6 +439,9 @@ class WorldEditWidget(QWidget):
         # not been saved yet. It identifies the entry to update when saving,
         # so that renaming a world does not orphan it and its portraits.
         self.world_id = ''
+        # Set when the world is that of a game in progress being restarted,
+        # in which case the Back button returns to that game, see load().
+        self.restarting = False
         # The cast of the world: the characters the player can choose to play
         # as and the other characters that live in the world, which the player
         # can edit as well. Both are empty until the cast has been generated
@@ -506,7 +524,6 @@ class WorldEditWidget(QWidget):
 
         h = QHBoxLayout()
         self.back_button = bb = QPushButton(QIcon.ic('back.png'), _('&Back'), wp)
-        bb.setToolTip('<p>' + _('Go back and generate a different world'))
         bb.clicked.connect(self.back_requested)
         h.addWidget(bb)
         self.save_button = sb = QPushButton(QIcon.ic('save.png'), _('&Save world for later'), wp)
@@ -584,9 +601,17 @@ class WorldEditWidget(QWidget):
         portraits: Sequence[dict[str, str] | None] = (),
         world_id: str = '',
         npc_portraits: Sequence[dict[str, str] | None] = (),
+        restarting: bool = False,
     ) -> None:
         self.brief = brief
         self.world_id = world_id
+        self.restarting = restarting
+        if restarting:
+            self.back_button.setText(_('&Back to game'))
+            self.back_button.setToolTip('<p>' + _('Return to the game you are playing without restarting it'))
+        else:
+            self.back_button.setText(_('&Back'))
+            self.back_button.setToolTip('<p>' + _('Go back and generate a different world'))
         self.images_enabled = data.images_enabled()
         self.cancel_portrait_generation()
         for name, key in style._asdict().items():
@@ -941,6 +966,7 @@ class CreateWorldWidget(QWidget):
     #  the portraits of the characters of the world, keyed by character id)
     game_start_requested = pyqtSignal(object, int, str, object, object)
     saved_game_load_requested = pyqtSignal(str)  # the name of the saved game to resume instead of creating a new world
+    game_return_requested = pyqtSignal()  # go back to the game in progress without restarting it, see load_world_for_restart()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -1028,7 +1054,7 @@ class CreateWorldWidget(QWidget):
 
         self.world_edit = we = WorldEditWidget(self)
         we.start_requested.connect(self.on_start_requested)
-        we.back_requested.connect(self.show_brief_page)
+        we.back_requested.connect(self.on_back_requested)
         we.cast_requested.connect(self.generate_cast_for_world)
         s.addWidget(we)
 
@@ -1129,6 +1155,45 @@ class CreateWorldWidget(QWidget):
             pass
         self.populate_saved_worlds_list()
         self.right_stack.setCurrentWidget(self.generate_page)
+
+    def load_world_for_restart(self, state: GameState, portraits: Mapping[str, dict[str, str]]) -> None:
+        # Show the world of a game in progress, as it has been edited while
+        # playing, so that the player can change it and its characters before
+        # starting the adventure over. The game itself is left alone until they
+        # actually start playing, see on_start_requested().
+        world = state.world
+        playable: list[dict[str, str] | None] = [None] * len(world.characters)
+        playable[state.character_index] = portraits.get(PROTAGONIST_ID)
+        npcs = [portraits.get(cid) for cid in npc_character_ids(world.npcs)]
+        # The game has portraits only of the characters in it, those of the
+        # other playable characters are in the saved world it was started
+        # from, if it is still there, matched by name as the cast may have
+        # been edited since.
+        idx = data.saved_world_index_with_title(world.title)
+        if idx > -1:
+            entry = data.saved_worlds()[idx]
+            try:
+                saved = data.world_from_saved(entry)
+            except Exception:
+                saved = None  # corrupted entry, it has no portraits to offer
+            if saved is not None:
+                fill_portraits(playable, world.characters, saved.characters, data.portraits_from_saved(entry, len(saved.characters)))
+                fill_portraits(npcs, world.npcs, saved.npcs, data.npc_portraits_from_saved(entry, len(saved.npcs)))
+        self.current_call_number = -1  # cancels any in-flight generation
+        self.wait_stack.stop()
+        self.current_brief = state.brief
+        we = self.world_edit
+        we.load(state.brief, world, state.style, playable, npc_portraits=npcs, restarting=True)
+        we.char_list.setCurrentRow(state.character_index)
+        we.show_status('')
+        self.stack.setCurrentWidget(we)
+
+    def on_back_requested(self) -> None:
+        if self.world_edit.restarting:
+            self.world_edit.cancel_portrait_generation()
+            self.game_return_requested.emit()
+        else:
+            self.show_brief_page()
 
     def show_brief_page(self) -> None:
         self.current_call_number = -1  # cancels any in-flight generation
@@ -1238,6 +1303,12 @@ class CreateWorldWidget(QWidget):
         # of the characters the game starts with are handed to it, and it
         # stores its own copies of them from then on.
         we = self.world_edit
+        if we.restarting and not question_dialog(
+            self,
+            _('Are you sure?'),
+            _('Start the adventure over? The game you are playing will be replaced and any unsaved progress will be lost.'),
+        ):
+            return
         playable, npcs = we.playable_portraits, we.npc_portraits
         we.world_id = data.add_saved_world(we.brief, world, we.current_style, playable, we.world_id, npcs)
         portraits: dict[str, dict[str, str]] = {}

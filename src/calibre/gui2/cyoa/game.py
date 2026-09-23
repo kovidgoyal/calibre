@@ -6,10 +6,10 @@
 # box below it to enter the action to take. A picture of the scene currently
 # scrolled into view is shown on the right, when an image AI is configured.
 # The game is auto-saved after every turn; the toolbar allows saving under a
-# name of the player's choosing, loading such saves, rewinding, editing the
-# world (its characters and the story memory the AI is given) and starting
-# over in a new world, while a checkbox in the scene panel turns scene
-# images on/off.
+# name of the player's choosing, loading such saves, rewinding or restarting,
+# editing the world (its characters and the story memory the AI is given) and
+# starting over in a new world, while a checkbox in the scene panel turns
+# scene images on/off.
 
 from bisect import bisect_right
 from collections.abc import Callable
@@ -26,10 +26,10 @@ from qt.core import (
     QCursor,
     QDialog,
     QDialogButtonBox,
+    QFormLayout,
     QHBoxLayout,
     QIcon,
     QImage,
-    QInputDialog,
     QKeySequence,
     QLabel,
     QMenu,
@@ -146,8 +146,110 @@ class SceneImageResult(NamedTuple):
     error_details: str = ''
 
 
+class BackToTurnDialog(Dialog):
+    # Asks for the earlier turn to go back to, either as a number of turns to
+    # go back by or as the number of the turn itself. The two boxes are kept
+    # in step, so whichever the player changed last decides the turn. Also
+    # offers restarting the adventure, see restart_chosen.
+
+    def __init__(self, num_turns: int, parent: QWidget | None = None) -> None:
+        self.num_turns = num_turns
+        # Set when the player asks to restart the adventure rather than to go
+        # back to an earlier turn.
+        self.restart_chosen = False
+        super().__init__(_('Back to turn'), 'cyoa-back-to-turn', parent)
+
+    def setup_ui(self) -> None:
+        l = QVBoxLayout(self)
+        can_go_back = self.num_turns > 1
+        if can_go_back:
+            msg = _(
+                'The adventure is at turn {}. Go back to an earlier turn, discarding all the turns after it.'
+                ' Any unsaved progress will be lost. Use the Save button to keep the game as it is now.'
+            ).format(self.num_turns)
+        else:
+            msg = _('There are no earlier turns to go back to.')
+        la = QLabel(msg, self)
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+        f = QFormLayout()
+        max_back = max(1, self.num_turns - 1)
+        self.back_by = sb = QSpinBox(self)
+        sb.setRange(1, max_back)
+        sb.setToolTip('<p>' + _('How many turns to go back from the current turn'))
+        f.addRow(_('Number of turns to go &back:'), sb)
+        self.turn_number = tn = QSpinBox(self)
+        tn.setRange(1, max_back)
+        tn.setValue(max_back)
+        tn.setToolTip('<p>' + _('The number of the turn to go back to'))
+        f.addRow(_('Or go to turn &number:'), tn)
+        sb.valueChanged.connect(self.back_by_changed)
+        tn.valueChanged.connect(self.turn_number_changed)
+        l.addLayout(f)
+        self.summary_label = sl = QLabel(self)
+        sl.setWordWrap(True)
+        l.addWidget(sl)
+        l.addStretch()
+
+        ok = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+        if ok is not None:
+            ok.setText(_('&Go back'))
+            ok.setIcon(QIcon.ic('edit-undo.png'))
+            ok.setEnabled(can_go_back)
+        rb = self.bb.addButton(_('&Restart…'), QDialogButtonBox.ButtonRole.ActionRole)
+        if rb is not None:
+            rb.setIcon(QIcon.ic('restart.png'))
+            rb.setToolTip(
+                '<p>'
+                + _(
+                    'Start the adventure over from the beginning. You are first taken to the world editing screen,'
+                    ' to change the world and its characters, if you like, before actually restarting.'
+                )
+            )
+            rb.clicked.connect(self.restart)
+        l.addWidget(self.bb)
+        for w in (sb, tn):
+            w.setEnabled(can_go_back)
+        self.update_summary()
+        (sb if can_go_back else self.bb).setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def back_by_changed(self, num: int) -> None:
+        self.turn_number.blockSignals(True)
+        self.turn_number.setValue(self.num_turns - num)
+        self.turn_number.blockSignals(False)
+        self.update_summary()
+
+    def turn_number_changed(self, turn: int) -> None:
+        self.back_by.blockSignals(True)
+        self.back_by.setValue(self.num_turns - turn)
+        self.back_by.blockSignals(False)
+        self.update_summary()
+
+    def update_summary(self) -> None:
+        if self.num_turns < 2:
+            self.summary_label.setText('')
+            return
+        num = self.num_turns - self.target_turn
+        self.summary_label.setText(
+            ngettext('Go back to turn {0}, discarding {1} turn.', 'Go back to turn {0}, discarding {1} turns.', num).format(self.target_turn, num)
+        )
+
+    @property
+    def target_turn(self) -> int:
+        return self.turn_number.value()
+
+    def restart(self) -> None:
+        self.restart_chosen = True
+        self.accept()
+
+
 class GameWidget(QWidget):
     game_abandoned = pyqtSignal()
+    # The player wants to start the adventure over, after changing the world
+    # and its characters, if they like. The game is left as it is until they
+    # actually start the new one.
+    restart_requested = pyqtSignal()
 
     turn_result_received = pyqtSignal(int, object, object)  # (call_number, GameState the turn was played on, StructuredOutputResult)
     turn_narrative_received = pyqtSignal(int, str)  # (call_number, the next fragment of the prose of the turn being written)
@@ -254,11 +356,10 @@ class GameWidget(QWidget):
 
         self.save_action = toolbar_action('save.png', _('Save'), _('Save this game under a name of your choosing'), self.save_game_as)
         self.load_action = toolbar_action('document_open.png', _('Load'), _('Load a previously saved game, replacing the current game'), self.load_saved_game)
-        self.restart_action = toolbar_action('restart.png', _('Restart'), _('Restart the adventure from the first turn'), self.restart_game)
         self.back_action = toolbar_action(
             'edit-undo.png',
             _('Back to turn'),
-            _('Go back to an earlier turn, discarding all turns after it. Press {} to go back one turn').format('Alt+Left'),
+            _('Go back to an earlier turn, discarding all turns after it, or restart the adventure. Press {} to go back one turn').format('Alt+Left'),
             self.back_to_turn,
         )
         self.read_action = toolbar_action('view.png', _('Read'), _('Read the story so far, chapter by chapter, as a book'), self.read_story)
@@ -1398,25 +1499,17 @@ class GameWidget(QWidget):
         self.autosave()
         self.refresh_ui()
 
-    def restart_game(self) -> None:
-        state = self.state
-        if state is None or len(state.turns) < 2:
-            self.status_bar.showMessage(_('The adventure is already at its first turn.'), 5000)
-            return
-        if question_dialog(
-            self, _('Are you sure?'), _('Restart the adventure from the first turn? All later turns are discarded and any unsaved progress will be lost.')
-        ):
-            self.rewind_to_turn(1)
-
     def back_to_turn(self) -> None:
         state = self.state
-        if state is None or len(state.turns) < 2:
-            self.status_bar.showMessage(_('There are no earlier turns to go back to.'), 5000)
+        if state is None:
             return
-        max_back = len(state.turns) - 1
-        num, ok = QInputDialog.getInt(self, _('Back to turn'), _('Number of turns to go back (1 to {}):').format(max_back), 1, 1, max_back)
-        if ok:
-            self.go_back(num)
+        d = BackToTurnDialog(len(state.turns), self)
+        if d.exec() != Dialog.DialogCode.Accepted:
+            return
+        if d.restart_chosen:
+            self.restart_requested.emit()
+        else:
+            self.rewind_to_turn(d.target_turn)
 
     def go_back(self, num_turns: int = 1) -> None:
         state = self.state
@@ -1614,6 +1707,7 @@ if __name__ == '__main__':
     # calibre config directory.
     w.load_game('', start_game('a foggy city', world))
     w.game_abandoned.connect(lambda: print('game abandoned'))
+    w.restart_requested.connect(lambda: print('restart requested'))
     w.resize(1000, 720)
     w.show()
     app.exec()
