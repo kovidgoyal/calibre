@@ -76,6 +76,7 @@ DEVICE_METADATA_FIELDS = frozenset((
 ))
 
 CALIBRE_METADATA_FIELDS = frozenset((
+    'library_path',  # Relative placement inside the library
     'application_id',  # An application id, currently set to the db_id.
     'db_id',  # the calibre primary key of the item.
     'formats',  # list of formats (extensions) for this book

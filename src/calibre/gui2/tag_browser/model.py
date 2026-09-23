@@ -1583,6 +1583,14 @@ class TagsModel(QAbstractItemModel):  # {{{
             # Migrate the tweak to the new pref. First, make sure the order is valid
             self.row_map = self.get_ordered_categories(pref_data_override=[[k, None] for k in self.row_map])
             gcn_db.new_api.set_pref('tag_browser_category_order', self.row_map)
+        # Move the field introduced by this fork once, preserving subsequent
+        # manual category ordering and the relative order of other categories.
+        if not gcn_db.new_api.pref('library_path_category_order_migrated', False):
+            if 'library_path' in self.row_map and 'identifiers' in self.row_map:
+                self.row_map.remove('library_path')
+                self.row_map.insert(self.row_map.index('identifiers') + 1, 'library_path')
+                gcn_db.new_api.set_pref('tag_browser_category_order', self.row_map)
+                gcn_db.new_api.set_pref('library_path_category_order_migrated', True)
         return data
 
     def set_categories_filter(self, txt):

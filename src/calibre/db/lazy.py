@@ -320,7 +320,7 @@ getters = {
     'link_maps': link_maps_getter,
 }
 
-for field in ('comments', 'publisher', 'identifiers', 'series', 'rating'):
+for field in ('comments', 'publisher', 'library_path', 'identifiers', 'series', 'rating'):
     getters[field] = simple_getter(field)
 
 for field in ('author_sort_map',):

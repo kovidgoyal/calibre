@@ -41,6 +41,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import error_dialog, is_dark_theme, qapplication_or_fail, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.library.coloring import color_row_key
+from calibre.library.field_metadata import library_path_label
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import device_prefs, prefs, tweaks
@@ -233,6 +234,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             'pubdate': _('Published'),
             'rating': _('Rating'),
             'publisher': _('Publisher'),
+            'library_path': library_path_label(),
             'tags': _('Tags'),
             'series': ngettext('Series', 'Series', 1),
             'last_modified': _('Modified'),
@@ -255,6 +257,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             'authors',
             'rating',
             'publisher',
+            'library_path',
             'tags',
             'series',
             'timestamp',
@@ -1568,6 +1571,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                                 db.set_series_index(id, ni)
                     if val:
                         books_to_refresh |= db.set_series(id, val, allow_case_change=True)
+            elif column == 'library_path':
+                books_to_refresh |= db.new_api.set_field('library_path', {id: val})
             elif column == 'timestamp':
                 if not isinstance(val, QDateTime) or not val.isValid():
                     return False

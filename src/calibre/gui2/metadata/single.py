@@ -50,6 +50,7 @@ from calibre.gui2.metadata.basic_widgets import (
     FormatsManager,
     IdentifiersEdit,
     LanguagesEdit,
+    LibraryPathEdit,
     PubdateEdit,
     PublisherEdit,
     RatingEdit,
@@ -333,6 +334,8 @@ class MetadataSingleDialogBase(QDialog):
         self.publisher_editor_button.setToolTip(_('Open the Manage Publishers editor'))
         self.publisher_editor_button.setIcon(QIcon.ic('chapters.png'))
         self.publisher_editor_button.clicked.connect(self.publisher_editor)
+        self.library_path = LibraryPathEdit(self)
+        self.basic_metadata_widgets.append(self.library_path)
         self.publisher = PublisherEdit(self)
         self.publisher.editor_requested.connect(self.publisher_editor)
         self.basic_metadata_widgets.append(self.publisher)
@@ -1001,10 +1004,12 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         create_row2(6, self.publisher, self.publisher.clear_button, front_button=self.publisher_editor_button)
         sto(self.publisher.clear_button, self.languages)
         create_row2(7, self.languages)
+        sto(self.languages, self.library_path)
+        create_row2(8, self.library_path, self.library_path.clear_button)
         spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        middle_l.addItem(spc_two, 9, 0, 1, 3)
-        middle_l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
-        middle_l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
+        middle_l.addItem(spc_two, 10, 0, 1, 3)
+        middle_l.addWidget(self.fetch_metadata_button, 11, 0, 1, 2)
+        middle_l.addWidget(self.config_metadata_button, 11, 2, 1, 1)
 
         gb2 = QGroupBox(_('Co&mments'), self)
         gb2_l = QVBoxLayout(gb2)
@@ -1123,14 +1128,15 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         create_row(9, self.publisher, self.languages, button=self.publisher.clear_button, icon='trash.png')
         create_row(10, self.languages, self.timestamp)
         create_row(11, self.timestamp, self.identifiers, button=self.timestamp.clear_button, icon='trash.png')
-        create_row(12, self.identifiers, self.comments, button=self.clear_identifiers_button, icon='trash.png')
+        create_row(12, self.identifiers, self.library_path, button=self.clear_identifiers_button, icon='trash.png')
+        create_row(13, self.library_path, self.comments, button=self.library_path.clear_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
         sto(self.manage_authors_button, self.series_editor_button)
         sto(self.series_editor_button, self.tags_editor_button)
         sto(self.tags_editor_button, self.publisher_editor_button)
         sto(self.publisher_editor_button, self.paste_isbn_button)
-        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding), 13, 1, 1, 1)
+        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding), 14, 1, 1, 1)
 
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
@@ -1279,14 +1285,15 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         create_row(9, self.publisher, self.languages, button=self.publisher.clear_button, icon='trash.png')
         create_row(10, self.languages, self.timestamp)
         create_row(11, self.timestamp, self.identifiers, button=self.timestamp.clear_button, icon='trash.png')
-        create_row(12, self.identifiers, self.comments, button=self.clear_identifiers_button, icon='trash.png')
+        create_row(12, self.identifiers, self.library_path, button=self.clear_identifiers_button, icon='trash.png')
+        create_row(13, self.library_path, self.comments, button=self.library_path.clear_button, icon='trash.png')
         sto(self.clear_identifiers_button, self.swap_title_author_button)
         sto(self.swap_title_author_button, self.manage_authors_button)
         sto(self.manage_authors_button, self.series_editor_button)
         sto(self.series_editor_button, self.tags_editor_button)
         sto(self.tags_editor_button, self.publisher_editor_button)
         sto(self.publisher_editor_button, self.paste_isbn_button)
-        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding), 13, 1, 1, 1)
+        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding), 14, 1, 1, 1)
 
         # Custom metadata in col 1
         w = getattr(self, 'custom_metadata_widgets_parent', None)

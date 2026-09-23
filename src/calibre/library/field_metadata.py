@@ -16,6 +16,7 @@ category_icon_map = {
     'series': 'series.png',
     'formats': 'book.png',
     'publisher': 'publisher.png',
+    'library_path': 'folder.png',
     'rating': 'rating.png',
     'news': 'news.png',
     'tags': 'tags.png',
@@ -28,6 +29,11 @@ category_icon_map = {
 }
 
 # Builtin metadata {{{
+
+
+def library_path_label():
+    from calibre.utils.localization import get_lang
+    return 'Путь размещения' if get_lang().startswith('ru') else _('Library placement path')
 
 
 def _builtin_field_metadata():
@@ -181,6 +187,16 @@ def _builtin_field_metadata():
                 'is_custom': False,
                 'is_category': True,
                 'is_csp': True,
+            },
+        ),
+        (
+            'library_path',
+            {
+                'table': 'library_paths', 'column': 'name', 'link_column': 'library_path',
+                'category_sort': 'name', 'datatype': 'text', 'is_multiple': {},
+                'kind': 'field', 'name': library_path_label(),
+                'search_terms': ['library_path', '#library_path'],
+                'is_custom': False, 'is_category': True, 'is_csp': False,
             },
         ),
         (
@@ -742,7 +758,9 @@ class FieldMetadata:
             'is_editable': is_editable,
         }
         self._tb_custom_fields[key] = self._tb_cats[key]
-        self._add_search_terms_to_map(key, [key])
+        terms = [key]
+        self._tb_cats[key]['search_terms'] = terms
+        self._add_search_terms_to_map(key, terms)
         self.custom_label_to_key_map[label] = key
         if datatype == 'series':
             key += '_index'

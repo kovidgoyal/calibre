@@ -404,6 +404,7 @@ class Cache:
         mi.author_sort = self._field_for('author_sort', book_id, default_value=_('Unknown'))
         mi.author_sort_map = aus
         mi.comments = self._field_for('comments', book_id)
+        mi.library_path = self._field_for('library_path', book_id)
         mi.publisher = self._field_for('publisher', book_id)
         n = utcnow()
         mi.timestamp = self._field_for('timestamp', book_id, default_value=n)
@@ -1969,7 +1970,24 @@ class Cache:
         """
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
-        update_path = name in {'title', 'authors'}
+        update_path = name in {'title', 'authors'} or (name == 'library_path' and self._has_folder_field())
+        if name == 'library_path' and self._has_folder_field():
+            from calibre.db.folder import normalize_folder
+
+            book_id_to_val_map = {bid: normalize_folder(val) for bid, val in book_id_to_val_map.items()}
+            # Validate the whole batch before writing any metadata.
+            for bid, folder in book_id_to_val_map.items():
+                self.backend.construct_path_name(
+                    bid, self._field_for('title', bid),
+                    (self._field_for('authors', bid) or (_('Unknown'),))[0], folder)
+        elif update_path and self._has_folder_field():
+            for bid, val in book_id_to_val_map.items():
+                folder = self._field_for('library_path', bid)
+                title = val if name == 'title' else self._field_for('title', bid)
+                authors = val if name == 'authors' else self._field_for('authors', bid)
+                if isinstance(authors, str):
+                    authors = string_to_authors(authors)
+                self.backend.construct_path_name(bid, title or _('Unknown'), (authors or (_('Unknown'),))[0], folder)
         if update_path and iswindows:
             paths = (x for x in (self._get_book_path(book_id, sep='/', unsafe=True) for book_id in book_id_to_val_map) if x)
             self.backend.windows_check_if_files_in_use(paths)
@@ -2115,6 +2133,10 @@ class Cache:
 
     # }}}
 
+    def _has_folder_field(self):
+        field = self.fields.get('library_path')
+        return field is not None and field.metadata['datatype'] == 'text' and not field.metadata['is_multiple']
+
     @quiet_write_api
     def update_path(self, book_ids, mark_as_dirtied=True):
         for book_id in book_ids:
@@ -2123,7 +2145,8 @@ class Cache:
                 author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
             except IndexError:
                 author = _('Unknown')
-            self.backend.update_path(book_id, title, author, self.fields['path'], self.fields['formats'])
+            folder = self._field_for('library_path', book_id) if self._has_folder_field() else None
+            self.backend.update_path(book_id, title, author, self.fields['path'], self.fields['formats'], folder=folder)
             self.format_metadata_cache.pop(book_id, None)
             if mark_as_dirtied:
                 self._mark_as_dirty(book_ids)
@@ -2332,6 +2355,12 @@ class Cache:
             set_field('authors', authors)
             authors_changed = True
 
+        folder = mi.get('library_path')
+        if folder is None:
+            folder = mi.get('#library_path')
+        if folder is not None and (force_changes or folder):
+            set_field('library_path', folder)
+            path_changed = True
         if path_changed:
             self._update_path({book_id})
 
@@ -2778,6 +2807,20 @@ class Cache:
         :param restrict_to_book_ids: An optional set of book ids for which the rename is to be performed, defaults to all books.
         """
         f = self.fields[field]
+        if field == 'library_path' and self._has_folder_field():
+            changes = {}
+            for item_id, value in item_id_to_new_name_map.items():
+                books = f.books_for(item_id)
+                if restrict_to_book_ids is not None:
+                    books = books & frozenset(restrict_to_book_ids)
+                changes.update(dict.fromkeys(books, value))
+            affected = self._set_field(field, changes)
+            from calibre.db.folder import normalize_folder
+
+            id_map = {item_id: self._get_item_id(field, normalize_folder(value))
+                      for item_id, value in item_id_to_new_name_map.items()}
+            self.event_dispatcher(EventType.items_renamed, field, affected, id_map)
+            return affected, id_map
         affected_books = set()
         try:
             sv = f.metadata['is_multiple']['ui_to_list']
@@ -2884,6 +2927,13 @@ class Cache:
         Returns the set of affected book ids. ``restrict_to_book_ids`` is an
         optional set of books ids. If specified the items will only be removed
         from those books."""
+        if field == 'library_path' and self._has_folder_field():
+            books = set().union(*(self.fields[field].books_for(item_id) for item_id in item_ids))
+            if restrict_to_book_ids is not None:
+                books.intersection_update(restrict_to_book_ids)
+            affected = self._set_field(field, dict.fromkeys(books, None))
+            self.event_dispatcher(EventType.items_removed, field, affected, item_ids)
+            return affected
         field = self.fields[field]
         if restrict_to_book_ids is not None and not isinstance(restrict_to_book_ids, (MutableSet, Set)):
             restrict_to_book_ids = frozenset(restrict_to_book_ids)

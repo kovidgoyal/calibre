@@ -2072,6 +2072,53 @@ class ISBNDialog(QDialog):  # {{{
 # }}}
 
 
+class LibraryPathEdit(EditWithComplete, ToMetadataMixinComboBox):
+    from calibre.library.field_metadata import library_path_label
+    LABEL = library_path_label() + ':'
+    FIELD_NAME = 'library_path'
+    data_changed = pyqtSignal()
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.set_separator(None)
+        self.currentTextChanged.connect(self.data_changed)
+        self.setToolTip('electronics/books')
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon.ic('trash.png'))
+        self.clear_button.clicked.connect(self.clearEditText)
+        self.books_to_refresh = set()
+
+    @property
+    def current_val(self):
+        return self.currentText().strip()
+
+    @current_val.setter
+    def current_val(self, val):
+        self.set_edit_text(val or '')
+
+    @property
+    def changed(self):
+        return self.current_val != self.original_val
+
+    def initialize(self, db, id_):
+        self.books_to_refresh = set()
+        self.update_items_cache(db.new_api.all_field_names('library_path'))
+        self.current_val = db.new_api.field_for('library_path', id_)
+        self.original_val = self.current_val
+
+    def validate_for_commit(self):
+        from calibre.db.folder import normalize_folder
+        try:
+            normalize_folder(self.current_val)
+        except ValueError as err:
+            return self.LABEL.rstrip(':'), str(err), ''
+        return None, None, None
+
+    def commit(self, db, id_):
+        self.books_to_refresh |= db.new_api.set_field('library_path', {id_: self.current_val})
+        return True
+
+
 class PublisherEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
     LABEL = _('&Publisher:')
     FIELD_NAME = 'publisher'

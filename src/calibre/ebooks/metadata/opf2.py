@@ -613,6 +613,7 @@ class OPF:  # {{{
     comments = MetadataField('description')
     category = MetadataField('type')
     rights = MetadataField('rights')
+    library_path = MetadataField('library_path', is_dc=False)
     series = MetadataField('series', is_dc=False)
     if tweaks['use_series_auto_increment_tweak_when_importing']:
         series_index = MetadataField('series_index', is_dc=False, formatter=float, none_is=None)
@@ -709,7 +710,11 @@ class OPF:  # {{{
         finally:
             self.manifest, self.spine, self.guide, self.toc = manifest, spine, guide, toc
         for n, v in self._user_metadata_.items():
-            ans.set_user_metadata(n, v)
+            if n == '#library_path' and v.get('datatype') == 'text' and not v.get('is_multiple'):
+                if ans.library_path is None:
+                    ans.library_path = v.get('#value#')
+            else:
+                ans.set_user_metadata(n, v)
 
         ans.set_identifiers(self.get_identifiers())
         ans.link_maps = self.link_maps
@@ -1359,6 +1364,7 @@ class OPF:  # {{{
             'author_sort',
             'title_sort',
             'publisher',
+            'library_path',
             'series',
             'series_index',
             'rating',
@@ -1579,6 +1585,8 @@ class OPFCreator(Metadata):
         if self.tags:
             for tag in self.tags:
                 a(DC_ELEM('subject', tag))
+        if self.library_path:
+            a(CAL_ELEM('calibre:library_path', self.library_path))
         if self.series:
             a(CAL_ELEM('calibre:series', self.series))
             if self.series_index is not None:
@@ -1737,6 +1745,8 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
     if not mi.is_null('link_maps'):
         meta('link_maps', dump_dict(mi.link_maps))
+    if mi.library_path:
+        meta('library_path', mi.library_path)
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:

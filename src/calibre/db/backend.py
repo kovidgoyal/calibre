@@ -581,6 +581,8 @@ class DB:
         # Initialize_prefs must be called before initialize_custom_columns because
         # icc can set a pref.
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
+        from calibre.db.folder import initialize_library_paths
+        initialize_library_paths(self)
         self.initialize_custom_columns()
         self.initialize_tables()
         self.set_user_template_functions(compile_user_template_functions(self.prefs.get('user_template_functions', [])))
@@ -995,7 +997,7 @@ class DB:
                 metadata['column'] = col
             tables[col] = (PathTable if col == 'path' else UUIDTable if col == 'uuid' else OneToOneTable)(col, metadata)
 
-        for col in ('series', 'publisher'):
+        for col in ('series', 'publisher', 'library_path'):
             tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())
 
         for col in ('authors', 'tags', 'formats', 'identifiers', 'languages', 'rating'):
@@ -1033,6 +1035,7 @@ class DB:
             'identifiers': 20,
             'languages': 21,
             'pages': 22,
+            'library_path': 23,
         }
 
         for k, v in self.FIELD_MAP.items():
@@ -1650,7 +1653,7 @@ class DB:
         if self.is_deletable(path):
             rmtree_with_retry(path)
 
-    def construct_path_name(self, book_id, title, author):
+    def construct_path_name(self, book_id, title, author, folder=None):
         """
         Construct the directory name for this book based on its metadata.
         """
@@ -1669,7 +1672,21 @@ class DB:
             author = ascii_filename(_('Unknown'))
         if author.upper() in WINDOWS_RESERVED_NAMES:
             author += 'w'
-        return f'{author}/{title}{book_id}'
+        path = f'{author}/{title}{book_id}'
+        if folder:
+            from calibre.db.folder import normalize_folder
+
+            prefix = normalize_folder(folder)
+            if prefix:
+                path = f'{prefix}/{path}'
+                root = os.path.normcase(os.path.realpath(self.library_path))
+                target = os.path.normcase(os.path.realpath(os.path.join(self.library_path, *path.split('/'))))
+                if os.path.commonpath((root, target)) != root:
+                    raise ValueError('Folder must remain inside the library')
+                # Reserve room for the existing format filename and extension.
+                if iswindows and len(self.library_path) + len(path) + 2 * self.PATH_LIMIT + 16 > 259:
+                    raise ValueError('Folder path is too long for this library')
+        return path
 
     def construct_file_name(self, book_id, title, author, extlen):
         """
@@ -2105,9 +2122,9 @@ class DB:
 
         return size, fname
 
-    def update_path(self, book_id, title, author, path_field, formats_field):
+    def update_path(self, book_id, title, author, path_field, formats_field, folder=None):
         current_path = path_field.for_book(book_id, default_value='')
-        path = self.construct_path_name(book_id, title, author)
+        path = self.construct_path_name(book_id, title, author, folder)
         formats = formats_field.for_book(book_id, default_value=())
         try:
             extlen = max(len(fmt) for fmt in formats) + 1
@@ -2204,9 +2221,7 @@ class DB:
                 delete_source=True,
                 transform_destination_filename=transform_format_filenames,
             )
-            parent = os.path.dirname(spath)
-            with suppress(OSError):
-                remove_dir_if_empty(parent, ignore_metadata_caches=True)
+            self.remove_empty_book_parents(spath)
         else:
             os.makedirs(tpath)
         update_paths_in_db()
@@ -2562,6 +2577,21 @@ class DB:
                     files.append(TrashEntry(book_id, ttitle, (metadata.get('authors') or au)[0], '', mtime, tuple(formats)))
         return books, files
 
+    def remove_empty_book_parents(self, book_path):
+        root = os.path.normcase(os.path.realpath(self.library_path))
+        parent = os.path.dirname(book_path)
+        while True:
+            resolved = os.path.normcase(os.path.realpath(parent))
+            if resolved == root or os.path.commonpath((root, resolved)) != root:
+                break
+            try:
+                remove_dir_if_empty(parent, ignore_metadata_caches=True)
+            except OSError:
+                break
+            if os.path.exists(parent):
+                break
+            parent = os.path.dirname(parent)
+
     def remove_books(self, path_map, permanent=False):
         self.ensure_trash_dir()
         self.executemany('DELETE FROM books WHERE id=?', [(x,) for x in path_map])
@@ -2571,9 +2601,9 @@ class DB:
                 path = os.path.abspath(os.path.join(self.library_path, path))
                 if os.path.exists(path) and self.is_deletable(path):
                     self.rmtree(path) if permanent else self.move_book_to_trash(book_id, path)
-                    parent_paths.add(os.path.dirname(path))
+                    parent_paths.add(path)
         for path in parent_paths:
-            remove_dir_if_empty(path, ignore_metadata_caches=True)
+            self.remove_empty_book_parents(path)
 
     def add_custom_data(self, name, val_map, delete_first):
         if delete_first:

@@ -9,6 +9,7 @@ from typing import cast
 
 import regex
 from qt.core import (
+    QCheckBox,
     QComboBox,
     QCompleter,
     QDateTime,
@@ -56,7 +57,7 @@ Settings = namedtuple(
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
     'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality '
-    'tag_map_rules author_map_rules publisher_map_rules series_map_rules',
+    'tag_map_rules author_map_rules publisher_map_rules series_map_rules library_path',
 )
 
 null = object()
@@ -112,6 +113,7 @@ class MyBlockingBusy(QDialog):  # {{{
             args.cover_action in {'remove', 'generate', 'trim', 'clone', 'ai_generate'},
             args.restore_original,
             args.rating != -1,
+            args.library_path is not None,
             args.clear_pub,
             bool(args.pub),
             args.clear_series,
@@ -472,6 +474,11 @@ class MyBlockingBusy(QDialog):  # {{{
             cache.set_field('rating', {bid: args.rating for bid in self.ids})
             self.progress_finished_cur_step.emit()
 
+        if args.library_path is not None:
+            self.progress_next_step_range.emit(0)
+            cache.set_field('library_path', dict.fromkeys(self.ids, args.library_path))
+            self.progress_finished_cur_step.emit()
+
         if args.clear_pub:
             self.progress_next_step_range.emit(0)
             cache.set_field('publisher', {bid: '' for bid in self.ids})
@@ -653,6 +660,17 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, model, starting_tab, refresh_books):
         QDialog.__init__(self, window)
         self.setupUi(self)
+        from calibre.library.field_metadata import library_path_label
+        self.library_path = QLineEdit(self)
+        self.library_path.setPlaceholderText('electronics/books')
+        self.apply_library_path = QCheckBox(_('Apply'), self)
+        self.library_path.textChanged.connect(lambda: self.apply_library_path.setChecked(True))
+        row = self.gridLayout.rowCount()
+        label = QLabel(library_path_label() + ':', self)
+        label.setBuddy(self.library_path)
+        self.gridLayout.addWidget(label, row, 0)
+        self.gridLayout.addWidget(self.library_path, row, 1)
+        self.gridLayout.addWidget(self.apply_library_path, row, 2)
         setup_status_actions(cast(LineEditIndicatorsProtocol, self.test_result))
         self.series.set_sort_func(title_sort)
         self.model = model
@@ -1579,6 +1597,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.author_map_rules,
             self.publisher_map_rules,
             self.series_map_rules,
+            self.library_path.text().strip() if self.apply_library_path.isChecked() else None,
         )
         if DEBUG:
             print('Running bulk metadata operation with settings:')

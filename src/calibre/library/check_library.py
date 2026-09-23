@@ -103,7 +103,31 @@ class CheckLibrary:
         self.ignore_ext = frozenset('.' + e for e in extension_ignores)
 
         lib = self.src_library_path
-        for auth_dir in os.listdir(lib):
+        # Category directories are ancestors of the stored author directories.
+        # Do not report them as invalid titles (or offer to delete them).
+        author_dirs = {os.path.dirname(path) for path in self.all_dbpaths}
+        prefix_dirs = set()
+        for author_dir in author_dirs:
+            parent = os.path.dirname(author_dir)
+            while parent:
+                prefix_dirs.add(parent)
+                parent = os.path.dirname(parent)
+
+        def author_directories(base=''):
+            for name in os.listdir(os.path.join(lib, base)):
+                if self.ignore_name(name) or (not base and name in IGNORE_AT_TOP_LEVEL):
+                    continue
+                relative = os.path.join(base, name)
+                if relative in self.all_dbpaths:
+                    continue
+                if relative in prefix_dirs and os.path.isdir(os.path.join(lib, relative)):
+                    yield from author_directories(relative)
+                    if relative in author_dirs:
+                        yield relative
+                else:
+                    yield relative
+
+        for auth_dir in author_directories():
             if self.ignore_name(auth_dir) or auth_dir in IGNORE_AT_TOP_LEVEL:
                 continue
             auth_path = os.path.join(lib, auth_dir)
@@ -120,6 +144,8 @@ class CheckLibrary:
                         continue
                     title_path = os.path.join(auth_path, title_dir)
                     db_path = os.path.join(auth_dir, title_dir)
+                    if db_path in prefix_dirs or db_path in author_dirs:
+                        continue
                     m = self.db_id_regexp.search(title_dir)
                     # Second check: title must have an ID and must be a directory
                     if m is None or not os.path.isdir(title_path):
