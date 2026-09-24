@@ -5,7 +5,7 @@ import locale
 import os
 import sys
 from collections import namedtuple
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableMapping
 from contextlib import contextmanager
 from functools import lru_cache
 
@@ -536,10 +536,11 @@ def bin_install_dir() -> str:
     return os.path.join(base, dname)
 
 
-@contextmanager
-def sanitize_env_vars():
-    """Unset various environment variables that calibre uses. This
-    is needed to prevent library conflicts when launching external utilities."""
+def sanitize_env_vars_in(env: MutableMapping[str, str]) -> dict[str, str]:
+    """Remove the paths into the calibre bundle from various environment
+    variables in env, modifying it in place. This is needed to prevent library
+    conflicts when launching external utilities. Returns the original values
+    of the variables that were changed."""
 
     if islinux and isfrozen:
         env_vars = {
@@ -548,33 +549,40 @@ def sanitize_env_vars():
         }
     elif iswindows:
         env_vars = {'OPENSSL_MODULES': None, 'QTWEBENGINE_DISABLE_SANDBOX': None}
-        if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
+        if env.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
             env_vars['SSL_CERT_DIR'] = None
     elif ismacos:
         env_vars = {k: None for k in ('FONTCONFIG_FILE FONTCONFIG_PATH OPENSSL_ENGINES OPENSSL_MODULES').split()}
-        if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
+        if env.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
             env_vars['SSL_CERT_DIR'] = None
     else:
         env_vars = {}
 
-    originals = {x: os.environ.get(x, '') for x in env_vars}
-    changed = {x: False for x in env_vars}
+    changed = {}
     for var, suffix in env_vars.items():
-        paths = [x for x in originals[var].split(os.pathsep) if x]
+        orig = env.get(var, '')
+        paths = [x for x in orig.split(os.pathsep) if x]
         npaths = [] if suffix is None else [x for x in paths if x != (getattr(sys, 'frozen_path') + suffix)]
         if len(npaths) < len(paths):
             if npaths:
-                os.environ[var] = os.pathsep.join(npaths)
+                env[var] = os.pathsep.join(npaths)
             else:
-                del os.environ[var]
-            changed[var] = True
+                del env[var]
+            changed[var] = orig
+    return changed
 
+
+@contextmanager
+def sanitize_env_vars():
+    """Unset various environment variables that calibre uses. This
+    is needed to prevent library conflicts when launching external utilities."""
+
+    changed = sanitize_env_vars_in(os.environ)
     try:
         yield
     finally:
-        for var, orig in originals.items():
-            if changed[var]:
-                if orig:
-                    os.environ[var] = orig
-                elif var in os.environ:
-                    del os.environ[var]
+        for var, orig in changed.items():
+            if orig:
+                os.environ[var] = orig
+            elif var in os.environ:
+                del os.environ[var]

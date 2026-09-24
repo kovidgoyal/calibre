@@ -50,7 +50,7 @@ from functools import lru_cache
 from http import HTTPStatus
 from typing import Any, NamedTuple
 
-from calibre.constants import cache_dir, ismacos, iswindows
+from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_in
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.safe_atexit import remove_folder_atexit
 from calibre.web.automate.download_deps import browserforge_data, camoufox_installer, camoufox_resource_dir, debug
@@ -3416,6 +3416,8 @@ class Browser:
 
     def build_environment(self, resource_dir: str) -> dict[str, str]:
         env = dict(os.environ)
+        # The browser must not load the libraries of the calibre bundle
+        sanitize_env_vars_in(env)
         env.update(config_environment(self.config))
         if not iswindows and not ismacos:
             # Only Linux needs to be told where the bundled fonts are, on the
