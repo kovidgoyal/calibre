@@ -1,12 +1,22 @@
 #!/usr/bin/env python
-"""
+'''
 https://www.economist.com/the-world-in-brief
-"""
+'''
 
 import re
 
 from calibre.ebooks.BeautifulSoup import Tag
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.automate.bot_check import retry_bot_checks
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+# The Economist serves the full text of an article to the readers of its mobile
+# app and only the opening paragraph to everybody else, and tells the two apart
+# by a marker that the app's webview appends to its user agent. Camoufox insists
+# on a user agent that matches the rest of the fingerprint it presents, so the
+# marker is appended to whatever that user agent turns out to be rather than
+# replacing it with one of our own invention, which is both the only thing
+# camoufox permits and the only thing that is internally consistent.
+APP_USER_AGENT_MARKER = ' Liskov'
 
 
 def new_tag(soup, name, attrs=()):
@@ -24,14 +34,17 @@ class Espresso(BasicNewsRecipe):
         'Espresso is a rich, full-flavoured shot of daily global analysis '
         'from the editors of The Economist to get you up to speed, fast. '
         'Maximise your understanding of the most significant business, '
-        'economic, political and cultural developments globally.'
+        'economic, political and cultural developments globally. Uses the '
+        'camoufox browser, which is downloaded on first use, as economist.com '
+        'blocks every lighter way of fetching its pages.'
     )
-    cover_url = 'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
+    cover_url = (
+        'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
+    )
     no_stylesheets = True
     remove_attributes = ['height', 'width']
     use_embedded_content = False
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
-    browser_type = 'webengine'
 
     extra_css = '''
         h1 { text-align:center; }
@@ -45,12 +58,46 @@ class Espresso(BasicNewsRecipe):
 
     remove_tags = [
         dict(attrs={'data-testid': 'twib-page-navigation-bar'}),
-        dict(attrs={'class': lambda c: c and 'adComponent' in (' '.join(c) if isinstance(c, list) else c)}),
-        dict(attrs={'class': lambda c: c and 'teaser' in (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'adComponent' in
+                    (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'teaser' in
+                    (' '.join(c) if isinstance(c, list) else c)}),
         dict(name='time'),
         dict(attrs={'data-testid': 'progress-bar'}),
         dict(attrs={'data-testid': 'rule-standard'}),
     ]
+
+    # economist.com refuses every other browser, and answers the first request
+    # from a new one with a bot check, see calibre.web.automate.bot_check and
+    # the module level comment on the user agent
+    browser_type = 'camoufox'
+    # No delay between requests, deliberately: any delay at all makes calibre
+    # download on a single thread, and a browser that navigates to every article
+    # is slow enough that an edition then takes well over an hour. Pacing is not
+    # what keeps this recipe out of trouble anyway, looking like a real browser
+    # is, and each of the download threads gets a tab of its own to do it in.
+    delay = 0
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        ua = br.user_agent()
+        if not ua:
+            raise ValueError(
+                'The camoufox browser did not report a user agent, '
+                'so the app marker cannot be appended to it'
+            )
+        ua += APP_USER_AGENT_MARKER
+        # Extra headers are a property of the whole browser, so this marks the
+        # requests of every tab. It is done here rather than when the browser is
+        # created so that the warmup visits to other sites are made with the
+        # browser's own user agent.
+        br.addheaders = [
+            (name, value) for name, value in br.addheaders
+            if name.lower() != 'user-agent'
+        ]
+        br.addheaders.append(('User-Agent', ua))
+        self.log('Using user agent:', ua)
+        return retry_bot_checks(br)
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.economist.com/the-world-in-brief')
@@ -131,9 +178,3 @@ class Espresso(BasicNewsRecipe):
                 audio.decompose()
 
         return soup
-
-    def get_browser(self, *args, **kwargs):
-        from calibre.utils.random_ua import common_english_word_ua
-
-        kwargs['user_agent'] = common_english_word_ua()
-        return BasicNewsRecipe.get_browser(self, *args, **kwargs)
