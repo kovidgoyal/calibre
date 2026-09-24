@@ -14,6 +14,7 @@ from qt.core import (
     QIcon,
     QInputDialog,
     QItemSelectionModel,
+    QKeySequence,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -21,6 +22,7 @@ from qt.core import (
     QMenu,
     QPalette,
     QPushButton,
+    QShortcut,
     QSize,
     QStaticText,
     QStyle,
@@ -39,7 +41,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
-from calibre.utils.localization import _, localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link, ngettext
 
 tag_maps = JSONConfig('tag-map-rules')
 
@@ -255,6 +257,17 @@ DATA_ROLE = Qt.ItemDataRole.UserRole
 RENDER_ROLE = DATA_ROLE + 1
 
 
+def rule_search_values(value):
+    if isinstance(value, dict):
+        for child in value.values():
+            yield from rule_search_values(child)
+    elif isinstance(value, (list, tuple)):
+        for child in value:
+            yield from rule_search_values(child)
+    elif isinstance(value, str):
+        yield value
+
+
 class RuleItem(QListWidgetItem):
     @staticmethod
     def text_from_rule(rule, parent):
@@ -328,6 +341,32 @@ class Rules(QWidget):
         self.remove_button = b = QPushButton(QIcon.ic('minus.png'), _('&Remove rule(s)'), self)
         b.clicked.connect(self.remove_rules)
         h.addWidget(b)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        la = QLabel(_('&Find rule:'))
+        h.addWidget(la)
+        self.search_edit = e = QLineEdit(self)
+        la.setBuddy(e)
+        e.setClearButtonEnabled(True)
+        e.textChanged.connect(self.search_changed)
+        e.returnPressed.connect(self.find_next_rule)
+        previous_shortcut = QShortcut(QKeySequence('Shift+Return'), e, self.find_previous_rule)
+        previous_shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
+        h.addWidget(e)
+        self.previous_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('arrow-up.png'))
+        b.setToolTip(_('Find previous matching rule'))
+        b.setAccessibleName(_('Find previous matching rule'))
+        b.clicked.connect(self.find_previous_rule)
+        h.addWidget(b)
+        self.next_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('arrow-down.png'))
+        b.setToolTip(_('Find next matching rule'))
+        b.setAccessibleName(_('Find next matching rule'))
+        b.clicked.connect(self.find_next_rule)
+        h.addWidget(b)
+        self.search_status = la = QLabel(self)
+        h.addWidget(la)
         self.h3 = h = QHBoxLayout()
         l.addLayout(h)
         self.rule_list = r = QListWidget(self)
@@ -353,6 +392,60 @@ class Rules(QWidget):
         b.setIcon(QIcon.ic('arrow-down.png')), b.setToolTip(_('Move current rule down'))
         b.clicked.connect(self.move_down)
         l.addStretch(10), l.addWidget(b)
+        self.changed.connect(self.update_search)
+        self.update_search()
+
+    def matching_rows(self):
+        term = self.search_edit.text().casefold()
+        if not term:
+            return ()
+        return tuple(
+            row
+            for row in range(self.rule_list.count())
+            if any(term in value.casefold() for value in rule_search_values(self.rule_list.item(row).data(DATA_ROLE)))
+        )
+
+    def search_changed(self):
+        matches = self.update_search()
+        if matches:
+            self.select_search_row(matches[0])
+
+    def update_search(self):
+        term = self.search_edit.text()
+        matches = self.matching_rows()
+        enabled = bool(matches)
+        self.previous_button.setEnabled(enabled)
+        self.next_button.setEnabled(enabled)
+        if not term:
+            self.search_status.setText('')
+        elif matches:
+            self.search_status.setText(ngettext('%d matching rule', '%d matching rules', len(matches)) % len(matches))
+        else:
+            self.search_status.setText(_('No matching rules'))
+        return matches
+
+    def select_search_row(self, row):
+        self.rule_list.setCurrentRow(row)
+        item = self.rule_list.item(row)
+        assert item is not None
+        self.rule_list.scrollToItem(item)
+
+    def find_rule(self, direction):
+        matches = self.matching_rows()
+        if not matches:
+            return
+        current = self.rule_list.currentRow()
+        if direction > 0:
+            row = next((row for row in matches if row > current), matches[0])
+        else:
+            row = next((row for row in reversed(matches) if row < current), matches[-1])
+        self.select_search_row(row)
+
+    def find_next_rule(self):
+        self.find_rule(1)
+
+    def find_previous_rule(self):
+        self.find_rule(-1)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -424,6 +517,7 @@ class Rules(QWidget):
         for rule in rules or ():
             if self.ACTION_KEY in rule and 'match_type' in rule and 'query' in rule:
                 self.RuleItemClass(rule, self.rule_list)
+        self.update_search()
 
 
 class Tester(Dialog):
