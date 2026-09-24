@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-'''
-https://www.economist.com/the-world-in-brief
-'''
+# https://www.economist.com/the-world-in-brief
 
 import re
 
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.automate.bot_check import retry_bot_checks
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
 
 # The Economist serves the full text of an article to the readers of its mobile
 # app and only the opening paragraph to everybody else, and tells the two apart
@@ -38,9 +36,7 @@ class Espresso(BasicNewsRecipe):
         'camoufox browser, which is downloaded on first use, as economist.com '
         'blocks every lighter way of fetching its pages.'
     )
-    cover_url = (
-        'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
-    )
+    cover_url = 'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
     no_stylesheets = True
     remove_attributes = ['height', 'width']
     use_embedded_content = False
@@ -58,10 +54,8 @@ class Espresso(BasicNewsRecipe):
 
     remove_tags = [
         dict(attrs={'data-testid': 'twib-page-navigation-bar'}),
-        dict(attrs={'class': lambda c: c and 'adComponent' in
-                    (' '.join(c) if isinstance(c, list) else c)}),
-        dict(attrs={'class': lambda c: c and 'teaser' in
-                    (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'adComponent' in (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'teaser' in (' '.join(c) if isinstance(c, list) else c)}),
         dict(name='time'),
         dict(attrs={'data-testid': 'progress-bar'}),
         dict(attrs={'data-testid': 'rule-standard'}),
@@ -82,19 +76,13 @@ class Espresso(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         ua = br.user_agent()
         if not ua:
-            raise ValueError(
-                'The camoufox browser did not report a user agent, '
-                'so the app marker cannot be appended to it'
-            )
+            raise ValueError('The camoufox browser did not report a user agent, so the app marker cannot be appended to it')
         ua += APP_USER_AGENT_MARKER
         # Extra headers are a property of the whole browser, so this marks the
         # requests of every tab. It is done here rather than when the browser is
         # created so that the warmup visits to other sites are made with the
         # browser's own user agent.
-        br.addheaders = [
-            (name, value) for name, value in br.addheaders
-            if name.lower() != 'user-agent'
-        ]
+        br.addheaders = [(name, value) for name, value in br.addheaders if name.lower() != 'user-agent']
         br.addheaders.append(('User-Agent', ua))
         self.log('Using user agent:', ua)
         return retry_bot_checks(br)
