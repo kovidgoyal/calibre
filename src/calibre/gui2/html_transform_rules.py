@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterator
+from typing import Any
+
 from qt.core import QComboBox, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QPushButton, QScrollArea, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import prepare_string_for_xml
@@ -276,6 +279,14 @@ class RuleEditDialog(RuleEditDialogBase):  # {{{
 
 
 class RuleItem(RuleItemBase):  # {{{
+    @staticmethod
+    def search_values_from_rule(rule: dict[str, Any]) -> Iterator[str]:
+        if isinstance(val := rule.get('query'), str):
+            yield val
+        for action in rule.get('actions') or ():
+            if isinstance(val := action.get('data'), str):
+                yield val
+
     @staticmethod
     def text_from_rule(rule, parent):
         try:

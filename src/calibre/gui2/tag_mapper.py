@@ -3,6 +3,7 @@
 
 import textwrap
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator, Sequence
 from typing import TYPE_CHECKING, Any
 
 from qt.core import (
@@ -14,7 +15,6 @@ from qt.core import (
     QIcon,
     QInputDialog,
     QItemSelectionModel,
-    QKeySequence,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -22,12 +22,12 @@ from qt.core import (
     QMenu,
     QPalette,
     QPushButton,
-    QShortcut,
     QSize,
     QStaticText,
     QStyle,
     QStyledItemDelegate,
     Qt,
+    QTextDocumentFragment,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -41,6 +41,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
+from calibre.utils.icu import primary_contains
 from calibre.utils.localization import _, localize_user_manual_link, ngettext
 
 tag_maps = JSONConfig('tag-map-rules')
@@ -257,18 +258,38 @@ DATA_ROLE = Qt.ItemDataRole.UserRole
 RENDER_ROLE = DATA_ROLE + 1
 
 
-def rule_search_values(value):
-    if isinstance(value, dict):
-        for child in value.values():
-            yield from rule_search_values(child)
-    elif isinstance(value, (list, tuple)):
-        for child in value:
-            yield from rule_search_values(child)
-    elif isinstance(value, str):
-        yield value
+def rows_matching(rows: Iterable[Iterable[str]], term: str) -> tuple[int, ...]:
+    if not term:
+        return ()
+    return tuple(i for i, texts in enumerate(rows) if any(primary_contains(term, text) for text in texts))
+
+
+def next_match(matches: Sequence[int], current: int, forward: bool = True) -> int:
+    if forward:
+        return next((row for row in matches if row > current), matches[0])
+    return next((row for row in reversed(matches) if row < current), matches[-1])
+
+
+class RuleSearchEdit(QLineEdit):
+    # Handle Enter here, as QLineEdit passes it on to the dialog, which would accept it
+    find_requested = pyqtSignal(bool)
+
+    def keyPressEvent(self, a0):
+        if a0 is not None and a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            a0.accept()
+            self.find_requested.emit(not a0.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+            return
+        super().keyPressEvent(a0)
 
 
 class RuleItem(QListWidgetItem):
+    @staticmethod
+    def search_values_from_rule(rule: dict[str, Any]) -> Iterator[str]:
+        # The user entered values, which may be elided in the rendered text
+        for key in ('query', 'replace'):
+            if isinstance(val := rule.get(key), str):
+                yield val
+
     @staticmethod
     def text_from_rule(rule, parent):
         query = rule['query']
@@ -345,13 +366,12 @@ class Rules(QWidget):
         l.addLayout(h)
         la = QLabel(_('&Find rule:'))
         h.addWidget(la)
-        self.search_edit = e = QLineEdit(self)
+        self.search_edit = e = RuleSearchEdit(self)
         la.setBuddy(e)
         e.setClearButtonEnabled(True)
-        e.textChanged.connect(self.search_changed)
-        e.returnPressed.connect(self.find_next_rule)
-        previous_shortcut = QShortcut(QKeySequence('Shift+Return'), e, self.find_previous_rule)
-        previous_shortcut.setContext(Qt.ShortcutContext.WidgetShortcut)
+        e.setPlaceholderText(_('Press Enter to find the next matching rule'))
+        e.textChanged.connect(self.update_search)
+        e.find_requested.connect(self.find_rule)
         h.addWidget(e)
         self.previous_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('arrow-up.png'))
@@ -395,22 +415,15 @@ class Rules(QWidget):
         self.changed.connect(self.update_search)
         self.update_search()
 
-    def matching_rows(self):
-        term = self.search_edit.text().casefold()
-        if not term:
-            return ()
-        return tuple(
-            row
-            for row in range(self.rule_list.count())
-            if any(term in value.casefold() for value in rule_search_values(self.rule_list.item(row).data(DATA_ROLE)))
-        )
+    def search_texts(self, item: QListWidgetItem) -> Iterator[str]:
+        yield QTextDocumentFragment.fromHtml(item.data(RENDER_ROLE) or '').toPlainText()
+        yield from self.RuleItemClass.search_values_from_rule(item.data(DATA_ROLE))
 
-    def search_changed(self):
-        matches = self.update_search()
-        if matches:
-            self.select_search_row(matches[0])
+    def matching_rows(self) -> tuple[int, ...]:
+        items = (self.rule_list.item(row) for row in range(self.rule_list.count()))
+        return rows_matching((self.search_texts(item) for item in items if item is not None), self.search_edit.text())
 
-    def update_search(self):
+    def update_search(self) -> None:
         term = self.search_edit.text()
         matches = self.matching_rows()
         enabled = bool(matches)
@@ -422,30 +435,22 @@ class Rules(QWidget):
             self.search_status.setText(ngettext('%d matching rule', '%d matching rules', len(matches)) % len(matches))
         else:
             self.search_status.setText(_('No matching rules'))
-        return matches
 
-    def select_search_row(self, row):
+    def find_rule(self, forward: bool = True) -> None:
+        matches = self.matching_rows()
+        if not matches:
+            return
+        row = next_match(matches, self.rule_list.currentRow(), forward)
         self.rule_list.setCurrentRow(row)
         item = self.rule_list.item(row)
         assert item is not None
         self.rule_list.scrollToItem(item)
 
-    def find_rule(self, direction):
-        matches = self.matching_rows()
-        if not matches:
-            return
-        current = self.rule_list.currentRow()
-        if direction > 0:
-            row = next((row for row in matches if row > current), matches[0])
-        else:
-            row = next((row for row in reversed(matches) if row < current), matches[-1])
-        self.select_search_row(row)
+    def find_next_rule(self) -> None:
+        self.find_rule(True)
 
-    def find_next_rule(self):
-        self.find_rule(1)
-
-    def find_previous_rule(self):
-        self.find_rule(-1)
+    def find_previous_rule(self) -> None:
+        self.find_rule(False)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -695,6 +700,31 @@ class RulesDialog(Dialog, SaveLoadMixin):
         ans = super().sizeHint()
         ans.setWidth(ans.width() + 100)
         return ans
+
+
+def find_tests():
+    import unittest
+
+    class TestRuleSearch(unittest.TestCase):
+        def test_rows_matching(self):
+            rows = (('Remove the tag, if it is one of: fiction', 'fiction'), ('Replace', 'science', 'Sci-Fi'), (), ('Café',))
+            self.assertEqual(rows_matching(rows, ''), ())
+            self.assertEqual(rows_matching(rows, 'SCI'), (1,))
+            self.assertEqual(rows_matching(rows, 'fiction'), (0,))
+            self.assertEqual(rows_matching(rows, 'cafe'), (3,))
+            self.assertEqual(rows_matching(rows, 'absent'), ())
+
+        def test_next_match(self):
+            matches = (1, 3, 5)
+            self.assertEqual(next_match(matches, -1), 1)
+            self.assertEqual(next_match(matches, 1), 3)
+            self.assertEqual(next_match(matches, 2), 3)
+            self.assertEqual(next_match(matches, 5), 1)
+            self.assertEqual(next_match(matches, 3, forward=False), 1)
+            self.assertEqual(next_match(matches, 1, forward=False), 5)
+            self.assertEqual(next_match(matches, -1, forward=False), 5)
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestRuleSearch)
 
 
 if TYPE_CHECKING:

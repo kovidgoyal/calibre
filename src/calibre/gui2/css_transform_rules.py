@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterator
+from typing import Any
+
 from qt.core import QComboBox, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QMenu, QPushButton, QSize, QTextCursor, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ebooks.css_transform_rules import (
@@ -175,6 +178,12 @@ class RuleEditDialog(RuleEditDialogBase):  # {{{
 
 
 class RuleItem(RuleItemBase):  # {{{
+    @staticmethod
+    def search_values_from_rule(rule: dict[str, Any]) -> Iterator[str]:
+        for key in ('property', 'query', 'action_data'):
+            if isinstance(val := rule.get(key), str):
+                yield val
+
     @staticmethod
     def text_from_rule(rule, parent):
         try:
