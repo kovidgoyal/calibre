@@ -497,6 +497,11 @@ class Camoufox(Installer):
 camoufox_installer = Camoufox()
 
 
+# Linux distro maintainers can patch these two functions to have calibre uses a
+# distro provided camoufox instead, though that is not a good idea, since
+# camoufox needs to be kept up to date to defeat evolving bot detection
+
+
 def camoufox_binary(allow_prerelease: bool = False) -> str:
     """Return the full path to the camoufox browser executable, downloading it if needed.
 
