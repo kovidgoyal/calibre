@@ -212,7 +212,10 @@ def in_book(code):
 
 @test
 def book_storage_install_in_iframe():
-    in_book('window.book_storage_test_originals = {l: Object.getOwnPropertyDescriptor(window, "localStorage"), s: Object.getOwnPropertyDescriptor(window, "sessionStorage")}; return null')
+    in_book(
+    'window.book_storage_test_originals = ' +
+    '{l: Object.getOwnPropertyDescriptor(window, "localStorage"),' +
+    's: Object.getOwnPropertyDescriptor(window, "sessionStorage")}; return null')
     sent = []
     try:
         ibs = IframeBookStorage(def (book_key, entry): sent.push([book_key, entry]);)
