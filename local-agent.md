@@ -27,9 +27,9 @@ This is a multi-language repository. Adhere strictly to the idiomatic styling, p
 You must always use the following custom scripts to build, verify, and test changes. Do not use generic toolchains such as `pytest`. 
 
 ### 🛠️ Build Commands
-Execute this command to compile all modules and check for syntax or type errors:
+Execute these commands to compile all modules and check for syntax or type errors:
 ```bash
-./setup.py build
+./setup.py build && ./setup.py rapydscript
 ```
 
 ### 🧪 Test Commands
