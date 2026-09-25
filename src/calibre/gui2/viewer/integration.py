@@ -3,8 +3,10 @@
 
 import os
 import re
+import sys
 from datetime import datetime
 
+from calibre.db.book_storage import BookStorageEntry
 from calibre.db.constants import EBOOK_VIEWER_DEVICE, EBOOK_VIEWER_USER
 
 
@@ -143,5 +145,94 @@ def save_annotations_list_to_library(book_library_details, alist, sync_annots_us
                     epoch=epoch,
                     pos_frac=last_read_data['pos_frac'],
                 )
+    finally:
+        conn.close()
+
+
+def load_book_storage_from_library(book_library_details, user_type='local', user='viewer') -> BookStorageEntry | None:
+    import apsw
+
+    from calibre.db.backend import Connection, book_storage_for_book, database_has_book_storage_support
+
+    dbpath = book_library_details['dbpath']
+    try:
+        conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READONLY)
+    except apsw.Error as err:
+        print(f'Failed to open {dbpath} to read book storage with error: {err}', file=sys.stderr)
+        return None
+    try:
+        conn.setbusytimeout(Connection.BUSY_TIMEOUT)
+        cursor = conn.cursor()
+        if not database_has_book_storage_support(cursor):
+            return None
+        return book_storage_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], user_type=user_type, user=user)
+    finally:
+        conn.close()
+
+
+def send_book_storage_msg_to_calibre(entry: BookStorageEntry, sync_annots_user: str, library_id: str, book_id: int, book_fmt: str) -> bool:
+    import json
+
+    from calibre.gui2.listener import send_message_in_process
+
+    packet = json.dumps({
+        'entry': entry,
+        'sync_annots_user': sync_annots_user,
+        'library_id': library_id,
+        'book_id': book_id,
+        'book_fmt': book_fmt,
+    })
+    try:
+        send_message_in_process('save-book-storage:' + packet)
+        return True
+    except Exception:
+        return False
+
+
+def save_book_storage_in_gui(library_broker, msg: str) -> bool:
+    import json
+
+    from calibre.db.book_storage import validate_book_storage
+
+    data = json.loads(msg)
+    entry = validate_book_storage(data['entry'])
+    db = library_broker.get(data['library_id'])
+    if not db:
+        return False
+    db = db.new_api
+    book_id, fmt = int(data['book_id']), data['book_fmt'].upper()
+    with db.write_lock:
+        if not db._has_format(book_id, fmt):
+            return False
+        db._save_book_storage(book_id, fmt, data['sync_annots_user'], entry)
+    return True
+
+
+def save_book_storage_to_library(book_library_details, entry: BookStorageEntry, sync_annots_user: str = '', calibre_data=None) -> None:
+    calibre_data = calibre_data or {}
+    if (
+        (lid := calibre_data.get('library_id'))
+        and (bid := calibre_data.get('book_id'))
+        and send_book_storage_msg_to_calibre(entry, sync_annots_user, lid, bid, calibre_data['book_fmt'])
+    ):
+        return
+
+    import apsw
+
+    from calibre.db.backend import Connection, database_has_book_storage_support, save_book_storage_to_cursor
+
+    dbpath = book_library_details['dbpath']
+    try:
+        conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READWRITE)
+    except apsw.Error as err:
+        print(f'Failed to open {dbpath} to save book storage with error: {err}', file=sys.stderr)
+        return
+    try:
+        conn.setbusytimeout(Connection.BUSY_TIMEOUT)
+        if not database_has_book_storage_support(conn.cursor()):
+            print(f'Not saving book storage to {dbpath} as it was last opened by an older version of calibre', file=sys.stderr)
+            return
+        with conn:
+            save_book_storage_to_cursor(conn.cursor(), entry, sync_annots_user, book_library_details['book_id'], book_library_details['fmt'])
     finally:
         conn.close()

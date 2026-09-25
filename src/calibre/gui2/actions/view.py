@@ -132,6 +132,7 @@ class ViewAction(InterfaceAction):
 
     def calibre_book_data(self, book_id, fmt):
         from calibre.db.annotations import merge_annotations
+        from calibre.db.book_storage import newest_book_storage
         from calibre.gui2.viewer.config import get_session_pref, vprefs
 
         vprefs.refresh()
@@ -142,11 +143,15 @@ class ViewAction(InterfaceAction):
             other_annotations_map = db.annotations_map_for_book(book_id, fmt, user_type='web', user=sync_annots_user)
             if other_annotations_map:
                 merge_annotations(other_annotations_map, annotations_map, merge_last_read=False)
+        book_storage = db.book_storage_for_book(book_id, fmt)
+        if sync_annots_user:
+            book_storage = newest_book_storage(book_storage, db.book_storage_for_book(book_id, fmt, user_type='web', user=sync_annots_user))
         return {
             'book_id': book_id,
             'uuid': db.field_for('uuid', book_id),
             'fmt': fmt.upper(),
             'annotations_map': annotations_map,
+            'book_storage': book_storage,
             'library_id': getattr(self.gui.current_db.new_api, 'server_library_id', None),
             'calibre_pid': os.getpid(),
         }

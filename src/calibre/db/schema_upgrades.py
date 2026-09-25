@@ -6,6 +6,20 @@ import os
 from calibre import prints
 from calibre.utils.date import DEFAULT_DATE, isoformat
 
+# Keep in sync with resources/metadata_sqlite.sql
+BOOK_STORAGE_SCHEMA = '''
+CREATE TABLE book_storage ( id INTEGER PRIMARY KEY,
+    book INTEGER NOT NULL,
+    format TEXT NOT NULL COLLATE NOCASE,
+    user_type TEXT NOT NULL,
+    user TEXT NOT NULL,
+    timestamp REAL NOT NULL,
+    data TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(book, format, user_type, user),
+    FOREIGN KEY (book) REFERENCES books(id) ON DELETE CASCADE
+);
+'''
+
 
 class SchemaUpgrade:
     def __init__(self, db, library_path, field_metadata):
@@ -893,3 +907,8 @@ CREATE TRIGGER fkc_annot_update
         for x in {'flags', 'isbn', 'lccn'} & columns:
             statements.append(f'ALTER TABLE books DROP COLUMN {x};')
         self.db.execute('\n'.join(statements))
+
+    def upgrade_version_27(self):
+        "Create the book_storage table used for per book localStorage in the viewers"
+        assert self.db is not None
+        self.db.execute(BOOK_STORAGE_SCHEMA)

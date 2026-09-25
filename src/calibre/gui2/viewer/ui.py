@@ -39,12 +39,14 @@ from calibre import prints
 from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
+from calibre.db.book_storage import InvalidBookStorage, validate_book_storage
 from calibre.gui2 import add_to_recent_docs, choose_files, error_dialog, qapplication_or_fail, sanitize_env_vars
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
 from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
+from calibre.gui2.viewer.book_storage import BookStorageSaveWorker, load_book_storage
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.config import delete_all_reading_rates, get_session_pref, load_reading_rates, save_reading_rates, vprefs
 from calibre.gui2.viewer.convert_book import prepare_book
@@ -112,6 +114,7 @@ class EbookViewer(MainWindow):
         get_boss(self)
 
         self.annotations_saver = None
+        self.book_storage_saver: BookStorageSaveWorker | None = None
         self.last_read_pos_saver = None
         self.calibre_book_data_for_first_book = calibre_book_data
         self.shutting_down = self.close_forced = self.shutdown_done = False
@@ -229,6 +232,7 @@ class EbookViewer(MainWindow):
         self.web_view.highlights_changed.connect(self.highlights_changed)
         self.web_view.update_reading_rates.connect(self.update_reading_rates)
         self.web_view.reset_reading_rates.connect(self.reset_reading_rates)
+        self.web_view.book_storage_changed.connect(self.book_storage_changed)
         self.web_view.edit_book.connect(self.edit_book)
         self.web_view.content_file_changed.connect(self.content_file_changed)
 
@@ -693,7 +697,8 @@ class EbookViewer(MainWindow):
         self.current_book_data = data
         get_current_book_data(self.current_book_data)
         self.current_book_data['annotations_map'] = defaultdict(list)
-        self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
+        self.current_book_data['path_key'] = path_key(data['pathtoebook'])
+        self.current_book_data['annotations_path_key'] = self.current_book_data['path_key'] + '.json'
         self.load_book_data(cbd)
         self.update_window_title()
         initial_cfi = self.initial_cfi_for_current_book()
@@ -728,6 +733,7 @@ class EbookViewer(MainWindow):
             highlights=highlights,
             current_book_data=self.current_book_data,
             reading_rates=rates,
+            book_storage=self.current_book_data['book_storage'],
         )
         performance_monitor('webview loading requested')
 
@@ -741,6 +747,12 @@ class EbookViewer(MainWindow):
             self.current_book_data['calibre_book_fmt'] = calibre_book_data['fmt']
             self.current_book_data['calibre_library_id'] = calibre_book_data['library_id']
         self.load_book_annotations(calibre_book_data)
+        self.current_book_data['book_storage'] = load_book_storage(
+            self.current_book_data['path_key'],
+            self.current_book_data['book_library_details'],
+            get_session_pref('sync_annots_user', default=''),
+            calibre_book_data,
+        )
         path = os.path.join(self.current_book_data['base'], 'calibre-book-manifest.json')
         with open(path, 'rb') as f:
             raw = f.read()
@@ -827,6 +839,28 @@ class EbookViewer(MainWindow):
             self.current_book_data,
             in_book_file and get_session_pref('save_annotations_in_ebook', default=True),
             get_session_pref('sync_annots_user', default=''),
+        )
+
+    def book_storage_changed(self, pathtoebook, entry):
+        if not self.current_book_data or pathtoebook != self.current_book_data.get('pathtoebook'):
+            # A change made just before a different book was opened
+            return
+        try:
+            entry = validate_book_storage(entry)
+        except InvalidBookStorage as err:
+            print(f'Ignoring invalid book storage from the book: {err}', file=sys.stderr)
+            return
+        self.current_book_data['book_storage'] = entry
+        if self.book_storage_saver is None:
+            self.book_storage_saver = BookStorageSaveWorker()
+            self.book_storage_saver.start()
+        cbd = self.current_book_data
+        self.book_storage_saver.save(
+            entry,
+            cbd['path_key'],
+            cbd['book_library_details'],
+            get_session_pref('sync_annots_user', default=''),
+            {'library_id': cbd.get('calibre_library_id'), 'book_id': cbd.get('calibre_book_id'), 'book_fmt': cbd.get('calibre_book_fmt')},
         )
 
     def update_reading_rates(self, rates):
@@ -934,6 +968,9 @@ class EbookViewer(MainWindow):
             if self.annotations_saver is not None:
                 self.annotations_saver.shutdown()
                 self.annotations_saver = None
+            if self.book_storage_saver is not None:
+                self.book_storage_saver.shutdown()
+                self.book_storage_saver = None
             if self.last_read_pos_saver is not None:
                 self.last_read_pos_saver.shutdown()
                 self.last_read_pos_saver = None

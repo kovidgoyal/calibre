@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from dom import clear
 from iframe_comm import IframeClient
+from read_book.book_storage import IframeBookStorage
 from read_book.globals import runtime, current_spine_item, set_current_spine_item
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
@@ -197,6 +198,9 @@ class PopupIframeBoss:
             'display': self.display,
         }
         self.comm = IframeClient(handlers, 'popup-iframe')
+        self.book_storage = IframeBookStorage(def (book_key, entry):
+            self.comm.send_message('book_storage_changed', {'book_key': book_key, 'entry': entry})
+        )
         self.blob_url_map = {}
         self.name = None
         self.frag = None
@@ -230,6 +234,7 @@ class PopupIframeBoss:
 
     def display(self, data):
         self.book = data.book
+        self.book_storage.update_from_parent(self.book.key, data.book_storage)
         self.name = data.name
         self.frag = data.frag
         self.link_attr = 'data-' + self.book.manifest.link_uid

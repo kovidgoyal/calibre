@@ -1,0 +1,296 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from uuid import short_uuid
+
+from session import get_interface_data
+from utils import username_key
+
+# Maximum size of the stored data, in UTF-16 code units, same as the
+# implementation in calibre.db.book_storage
+MAX_BOOK_STORAGE_SIZE = 1024 * 1024
+
+
+def empty_data():
+    # Use an object with no prototype so that keys such as __proto__ are
+    # stored as normal keys
+    return Object.create(None)
+
+
+def copy_data(data):
+    ans = empty_data()
+    if data:
+        for key in Object.keys(data):
+            ans[key] = data[key]
+    return ans
+
+
+def storage_size(data):
+    ans = 0
+    for key in Object.keys(data):
+        ans += key.length + data[key].length
+    return ans
+
+
+def new_book_storage_entry(data, timestamp):
+    if timestamp is undefined or timestamp is None:
+        timestamp = Date.now() / 1000
+    return {'timestamp': timestamp, 'data': copy_data(data)}
+
+
+def is_valid_book_storage(entry):
+    if not entry or jstype(entry) is not 'object':
+        return False
+    ts = entry.timestamp
+    if jstype(ts) is not 'number' or not Number.isFinite(ts) or ts < 0:
+        return False
+    data = entry.data
+    if not data or jstype(data) is not 'object' or Array.isArray(data):
+        return False
+    for key in Object.keys(data):
+        if jstype(data[key]) is not 'string':
+            return False
+    return storage_size(data) <= MAX_BOOK_STORAGE_SIZE
+
+
+def newest_book_storage(a, b):
+    # Return the newer of two entries, ignoring missing or invalid entries.
+    # On ties the first entry wins.
+    a_ok, b_ok = is_valid_book_storage(a), is_valid_book_storage(b)
+    if a_ok and b_ok:
+        return b if b.timestamp > a.timestamp else a
+    if a_ok:
+        return a
+    if b_ok:
+        return b
+    return None
+
+
+# Parent side, storage for the current user is stored in the book object {{{
+
+
+def current_user_key():
+    return username_key(get_interface_data().username)
+
+
+def get_book_storage(book):
+    if book and book.book_storage:
+        entry = book.book_storage[current_user_key()]
+        if is_valid_book_storage(entry):
+            return entry
+    return None
+
+
+def set_book_storage(book, entry):
+    if not Object.prototype.hasOwnProperty.call(book, 'book_storage'):
+        # Not enumerable so that the storage is not saved as part of the
+        # book record in IndexedDB, as it is stored separately to avoid
+        # concurrent updates of the book record overwriting it
+        Object.defineProperty(book, 'book_storage', {'value': {}, 'writable': True, 'configurable': True, 'enumerable': False})
+    book.book_storage[current_user_key()] = entry
+
+# }}}
+
+
+# Iframe side {{{
+
+# The storage implementation that is installed into the window that displays
+# the book. It must be plain JavaScript as it is injected as a <script> into
+# the main world of the book's window. In the desktop viewer, calibre's code
+# runs in an isolated world, so replacing window.localStorage from calibre's
+# code would not affect scripts in the book. The two worlds communicate via
+# events on target, whose details are JSON strings. Keep the size calculation
+# in sync with storage_size() above.
+install_book_storage_shim = v"""function install_book_storage_shim(win, target, set_event, change_event, max_size) {
+    'use strict';
+    function empty() { return Object.create(null); }
+    function has(data, key) { return Object.prototype.hasOwnProperty.call(data, key); }
+    function copy(data) {
+        var ans = empty();
+        if (data) Object.keys(data).forEach(function(k) { ans[k] = data[k]; });
+        return ans;
+    }
+    function size_of(data) {
+        var ans = 0;
+        Object.keys(data).forEach(function(k) { ans += k.length + data[k].length; });
+        return ans;
+    }
+
+    function Store(persistent) {
+        this.persistent = persistent;
+        this.replace(null);
+    }
+    Store.prototype.replace = function(entry) {
+        this.timestamp = entry ? entry.timestamp : 0;
+        this.data = copy(entry ? entry.data : null);
+        this.size = size_of(this.data);
+    };
+    Store.prototype.keys = function() { return Object.keys(this.data); };
+    Store.prototype.get = function(key) {
+        key = String(key);
+        return has(this.data, key) ? this.data[key] : null;
+    };
+    Store.prototype.set = function(key, value) {
+        key = String(key); value = String(value);
+        var old = this.get(key);
+        if (old === value) return;
+        var new_size = this.size + value.length + (old === null ? key.length : -old.length);
+        if (new_size > max_size) throw new DOMException(
+            'Setting the value of ' + key + ' exceeded the book storage quota of ' + max_size, 'QuotaExceededError');
+        this.data[key] = value;
+        this.size = new_size;
+        this.changed();
+    };
+    Store.prototype.remove = function(key) {
+        key = String(key);
+        if (has(this.data, key)) {
+            this.size -= key.length + this.data[key].length;
+            delete this.data[key];
+            this.changed();
+        }
+    };
+    Store.prototype.clear = function() {
+        if (this.keys().length) {
+            this.data = empty();
+            this.size = 0;
+            this.changed();
+        }
+    };
+    Store.prototype.changed = function() {
+        // Ensure timestamps are strictly increasing even if the clock goes
+        // backwards so that the parent always accepts the change
+        this.timestamp = Math.max(Date.now() / 1000, this.timestamp + 0.001);
+        if (this.persistent) target.dispatchEvent(new CustomEvent(change_event, {
+            detail: JSON.stringify({book_key: book_key, entry: {timestamp: this.timestamp, data: this.data}})}));
+    };
+
+    function make_proxy(store) {
+        // An object that behaves like a Web Storage object, including
+        // property style access to keys
+        var methods = {
+            getItem: function(key) { return store.get(key); },
+            setItem: function(key, value) { store.set(key, value); },
+            removeItem: function(key) { store.remove(key); },
+            clear: function() { store.clear(); },
+            key: function(n) {
+                var keys = store.keys();
+                n = Math.trunc(Number(n)) || 0;
+                return (n >= 0 && n < keys.length) ? keys[n] : null;
+            },
+        };
+        function is_special(prop) { return prop === 'length' || has(methods, prop); }
+        var proto = win.Storage ? win.Storage.prototype : Object.prototype;
+        return new Proxy(Object.create(proto), {
+            get: function(t, prop) {
+                if (typeof prop === 'symbol') return prop === Symbol.toStringTag ? 'Storage' : Reflect.get(t, prop);
+                if (prop === 'length') return store.keys().length;
+                if (has(methods, prop)) return methods[prop];
+                if (has(store.data, prop)) return store.data[prop];
+                return Reflect.get(t, prop);
+            },
+            set: function(t, prop, value) {
+                if (typeof prop === 'symbol' || is_special(prop)) return false;
+                store.set(prop, value);
+                return true;
+            },
+            deleteProperty: function(t, prop) {
+                if (typeof prop !== 'symbol') store.remove(prop);
+                return true;
+            },
+            has: function(t, prop) {
+                if (typeof prop !== 'symbol' && (is_special(prop) || has(store.data, prop))) return true;
+                return Reflect.has(t, prop);
+            },
+            ownKeys: function() { return store.keys(); },
+            getOwnPropertyDescriptor: function(t, prop) {
+                if (typeof prop !== 'symbol' && has(store.data, prop)) {
+                    return {value: store.data[prop], writable: true, enumerable: true, configurable: true};
+                }
+                return undefined;
+            },
+            defineProperty: function(t, prop, descriptor) {
+                if (typeof prop === 'symbol' || is_special(prop) || !has(descriptor, 'value')) return false;
+                store.set(prop, descriptor.value);
+                return true;
+            },
+        });
+    }
+
+    var local = new Store(true), session = new Store(false), book_key = null;
+    target.addEventListener(set_event, function(ev) {
+        var msg = JSON.parse(ev.detail);
+        if (msg.book_key !== book_key) {
+            // sessionStorage is not persisted and is reset only when the book changes
+            book_key = msg.book_key;
+            local.replace(msg.entry);
+            session.replace(null);
+        } else if (msg.force || (msg.entry && msg.entry.timestamp > local.timestamp)) {
+            // The copy of the storage here may be newer than the copy in the
+            // parent, since changes are sent to the parent asynchronously
+            local.replace(msg.entry);
+        }
+    });
+    [['localStorage', local], ['sessionStorage', session]].forEach(function(x) {
+        Object.defineProperty(win, x[0], {value: make_proxy(x[1]), configurable: true, enumerable: true, writable: false});
+    });
+}"""
+
+
+def inject_main_world_script(src):
+    s = document.createElement('script')
+    s.textContent = src
+    (document.head or document.documentElement).appendChild(s)
+    s.remove()
+
+
+class IframeBookStorage:
+    # Manages the storage for a window that displays book content. Changes
+    # are coalesced and sent to the parent using send_change(book_key, entry)
+
+    def __init__(self, send_change):
+        self.send_change = send_change
+        self.pending_change = None
+        self.book_key = None
+        suffix = short_uuid()
+        self.set_event = 'calibre-book-storage-set-' + suffix
+        self.change_event = 'calibre-book-storage-change-' + suffix
+        document.addEventListener(self.change_event, self.on_change)
+        args = [JSON.stringify(self.set_event), JSON.stringify(self.change_event), MAX_BOOK_STORAGE_SIZE]
+        inject_main_world_script(f'({install_book_storage_shim.toString()})(window, document, {args.join(", ")});')
+
+    def send_to_shim(self, entry, force):
+        if not is_valid_book_storage(entry):
+            entry = None
+        detail = JSON.stringify({'book_key': self.book_key, 'entry': entry, 'force': force})
+        document.dispatchEvent(CustomEvent(self.set_event, {'detail': detail}))
+
+    def update_from_parent(self, book_key, entry):
+        self.book_key = JSON.stringify(book_key)
+        self.send_to_shim(entry, False)
+
+    def replace(self, entry):
+        # Replace the storage, for example, when the user clears it,
+        # discarding any pending changes
+        self.pending_change = None
+        self.send_to_shim(entry or new_book_storage_entry(None, 0), True)
+
+    def on_change(self, ev):
+        try:
+            msg = JSON.parse(ev.detail)
+        except Exception:
+            print('Ignoring invalid book storage change event')
+            return
+        if msg.book_key is not self.book_key or not is_valid_book_storage(msg.entry):
+            print('Ignoring invalid book storage change')
+            return
+        if self.pending_change is None:
+            window.setTimeout(self.flush, 0)
+        self.pending_change = msg
+
+    def flush(self):
+        msg, self.pending_change = self.pending_change, None
+        if msg is not None:
+            self.send_change(msg.book_key, msg.entry)
+
+            # }}}

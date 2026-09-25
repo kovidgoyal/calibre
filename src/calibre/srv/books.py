@@ -12,8 +12,9 @@ from threading import Lock, RLock
 
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
+from calibre.db.book_storage import validate_book_storage
 from calibre.ebooks.metadata import authors_to_string
-from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound
 from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
@@ -172,6 +173,7 @@ def book_manifest(ctx, rd, book_id, fmt):
                 user = rd.username or None
                 ans['last_read_positions'] = db.get_last_read_positions(book_id, fmt, user) if user else []
                 ans['annotations_map'] = db.annotations_map_for_book(book_id, fmt, user_type='web', user=user or '*')
+                ans['book_storage'] = db.book_storage_for_book(book_id, fmt, user_type='web', user=user) if user else None
                 return ans
             except OSError as e:
                 if e.errno != errno.ENOENT:
@@ -299,6 +301,47 @@ def update_annotations(ctx, rd, library_id, book_id, fmt):
             alist.extend(val)
     db.merge_annotations_for_book(book_id, fmt, alist, user_type='web', user=user)
     return b''
+
+
+@endpoint('/book-get-storage/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, postprocess=json)
+def get_book_storage(ctx, rd, library_id, book_id, fmt):
+    """
+    Get the per book storage (localStorage for scripts in the book) for the
+    current user. Returns null if there is no storage or the user is not logged
+    in, as storage is not saved on the server for anonymous users.
+    """
+    db = get_db(ctx, rd, library_id)
+    if not ctx.has_id(rd, db, book_id):
+        raise BookNotFound(book_id, db)
+    if not rd.username:
+        return None
+    return db.book_storage_for_book(book_id, fmt, user_type='web', user=rd.username)
+
+
+@endpoint(
+    '/book-set-storage/{library_id}/{book_id}/{+fmt}',
+    types={'book_id': int},
+    methods=('POST',),
+    needs_db_write=True,
+    postprocess=json,
+)
+def set_book_storage(ctx, rd, library_id, book_id, fmt):
+    """
+    Set the per book storage for the current user, unless the storage on the
+    server is newer. Returns the storage on the server after the update. The
+    POST body must be a JSON object of the form: {"timestamp": seconds since
+    epoch, "data": {key: value}}. Only available to logged in users.
+    """
+    db = get_db(ctx, rd, library_id)
+    if not ctx.has_id(rd, db, book_id):
+        raise BookNotFound(book_id, db)
+    if not rd.username:
+        raise HTTPForbidden('Book storage is only available to logged in users')
+    try:
+        entry = validate_book_storage(jsonlib.load(rd.request_body_file))
+    except ValueError as err:
+        raise HTTPBadRequest(f'Invalid book storage: {err}')
+    return db.update_book_storage_for_book(book_id, fmt, entry, user_type='web', user=rd.username)
 
 
 mathjax_lock = Lock()

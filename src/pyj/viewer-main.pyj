@@ -15,6 +15,7 @@ from date import format_date
 from dom import get_widget_css, set_css
 from modals import create_modal_container
 from qt import from_python, to_python
+from read_book.book_storage import is_valid_book_storage, set_book_storage
 from read_book.db import new_book
 from read_book.footnotes import main as footnotes_main
 from read_book.globals import (
@@ -135,7 +136,7 @@ def show_error(title, msg, details):
     to_python.show_error(title, msg, details)
 
 
-def manifest_received(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url, end_type, xhr, ev):
+def manifest_received(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url, book_storage, end_type, xhr, ev):
     nonlocal book
     end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'load':
@@ -149,6 +150,8 @@ def manifest_received(key, initial_position, pathtoebook, highlights, book_url, 
         book.calibre_book_url = book_url
         book.calibre_book_in_library_url = book_in_library_url
         book.saved_reading_rates = reading_rates
+        if is_valid_book_storage(book_storage):
+            set_book_storage(book, book_storage)
         book.is_complete = True
         v'delete book.manifest["metadata"]'
         v'delete book.manifest["last_read_positions"]'
@@ -304,10 +307,10 @@ def redraw_tts_bar(pos):
 
 @from_python
 @no_prune
-def start_book_load(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url):
+def start_book_load(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url, book_storage):
     xhr = ajax(
         'manifest',
-        manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url),
+        manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url, book_storage),
         ok_code=0
     )
     xhr.responseType = 'json'
@@ -576,6 +579,8 @@ if window is window.top:
         to_python.update_reading_rates(rates)
     ui_operations.reset_reading_rates = def ():
         to_python.reset_reading_rates()
+    ui_operations.book_storage_changed = def (book, entry):
+        to_python.book_storage_changed(book.manifest.pathtoebook, entry)
     document.addEventListener('focusin', def (ev):
         elem = ev.target
         if elem and (elem.isContentEditable or (elem.nodeName is 'TEXTAREA' or elem.nodeName is 'INPUT')):

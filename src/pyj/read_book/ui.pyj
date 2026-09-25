@@ -15,6 +15,7 @@ from book_list.ui import show_panel
 from dom import clear
 from image_popup import show_image
 from modals import create_simple_dialog_markup, error_dialog
+from read_book.book_storage import get_book_storage, is_valid_book_storage, newest_book_storage, set_book_storage
 from read_book.db import get_db
 from read_book.globals import ui_operations
 from read_book.tts import Client
@@ -61,6 +62,7 @@ class ReadUI:
         self.unsynced_amap = None
         self.unsynced_indicator_active = False
         self.unsynced_indicator_timer = None
+        self.book_storage_upload_timer = None
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         window.addEventListener('online', self._on_network_restored.bind(self))
         window.addEventListener('message', self.message_from_other_window.bind(self))
@@ -86,6 +88,7 @@ class ReadUI:
         ui_operations.toggle_toc = self.toggle_toc.bind(self)
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.annots_changed = self.annots_changed.bind(self)
+        ui_operations.book_storage_changed = self.book_storage_changed.bind(self)
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
         ui_operations.has_unsynced_changes = self.has_unsynced_changes.bind(self)
         ui_operations.upload_pending_annotations = self.upload_pending_annotations.bind(self)
@@ -413,6 +416,74 @@ class ReadUI:
             callback(True)
         )
 
+    def book_storage_changed(self, book, entry):
+        self.db.save_book_storage(book)
+        self.schedule_book_storage_upload(book)
+
+    def schedule_book_storage_upload(self, book):
+        # Storage is only saved on the server for logged in users, since all
+        # anonymous users share the same account. Uploads are debounced as
+        # scripts in books can change storage frequently.
+        if not get_interface_data().username:
+            return
+        if self.book_storage_upload_timer is not None:
+            window.clearTimeout(self.book_storage_upload_timer)
+        self.book_storage_upload_timer = window.setTimeout(self.upload_book_storage.bind(self, book), 1000)
+
+    def upload_book_storage(self, book):
+        self.book_storage_upload_timer = None
+        entry = get_book_storage(book)
+        if not entry:
+            return
+        library_id, book_id, fmt = book.key
+
+        def done(end_type, xhr, ev):
+            if end_type is 'load':
+                try:
+                    server_entry = JSON.parse(xhr.responseText)
+                except Exception:
+                    print('Server returned invalid book storage:', xhr.responseText)
+                    return
+                self.book_storage_synced(book, server_entry, False)
+            elif end_type is not 'abort':
+                print('Failed to upload book storage to server:', xhr.error_html)
+
+        ajax_send(f'book-set-storage/{library_id}/{book_id}/{fmt}', entry, done)
+
+    def sync_book_storage(self, book):
+        if not get_interface_data().username:
+            return
+        library_id, book_id, fmt = book.key
+
+        def done(end_type, xhr, ev):
+            if end_type is not 'load':
+                if end_type is not 'abort':
+                    print('Failed to get book storage from server:', xhr.error_html)
+                return
+            try:
+                server_entry = JSON.parse(xhr.responseText)
+            except Exception:
+                print('Server returned invalid book storage:', xhr.responseText)
+                return
+            self.book_storage_synced(book, server_entry, True)
+
+        ajax(f'book-get-storage/{library_id}/{book_id}/{fmt}', done).send()
+
+    def book_storage_synced(self, book, server_entry, upload_if_newer):
+        local = get_book_storage(book)
+        newest = newest_book_storage(local, server_entry)
+        if not newest:
+            return
+        if newest is local:
+            if upload_if_newer and (not is_valid_book_storage(server_entry) or server_entry.timestamp < local.timestamp):
+                # Changes made while offline
+                self.schedule_book_storage_upload(book)
+            return
+        set_book_storage(book, newest)
+        self.db.save_book_storage(book)
+        if self.view.book is book:
+            self.view.replace_book_storage(newest)
+
     def _on_network_restored(self):
         self.upload_pending_annotations(def (ok): None;)
 
@@ -733,10 +804,12 @@ class ReadUI:
             start_download(fname)
 
     def display_book(self, book):
-        if book.manifest.has_maths:
-            self.ensure_maths(self.display_book_stage2.bind(self, book))
-        else:
-            self.display_book_stage2(book)
+        self.db.load_book_storage(book, def ():
+            if book.manifest.has_maths:
+                self.ensure_maths(self.display_book_stage2.bind(self, book))
+            else:
+                self.display_book_stage2(book)
+        )
 
     def display_book_stage2(self, book):
         self.current_metadata = book.metadata
@@ -745,6 +818,7 @@ class ReadUI:
         self.view.display_book(book)
         if window.navigator.onLine:
             self.upload_pending_annotations(def (ok): None;)
+            self.sync_book_storage(book)
 
     def apply_url_state(self, current_query):
         same = True

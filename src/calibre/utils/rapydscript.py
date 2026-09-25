@@ -538,7 +538,8 @@ def run_rapydscript_tests():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'test.pyj')
     with open(fname, 'rb') as f:
-        result = compile_fast(f.read(), fname)
+        # Tests are registered via decorators, which tree shaking would remove
+        result = compile_fast(f.read(), fname, tree_shaking=False)
 
     class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         def __init__(self, parent=None):
@@ -576,7 +577,9 @@ def run_rapydscript_tests():
             profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
             QWebEnginePage.__init__(self, profile, None)
             self.titleChanged.connect(self.title_changed)
-            secure_webengine(self)
+            # Allow JavaScript in the main world, as in the viewer, so that
+            # tests can run code the way scripts in books are run
+            secure_webengine(self, for_viewer=True)
             self.setHtml('<p>initialize', QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}/index.html'))
             self.working = True
 

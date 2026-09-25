@@ -375,6 +375,70 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
+    def test_book_storage(self):  # {{{
+        "Test the per book storage endpoints"
+        from http.client import BAD_REQUEST
+
+        ae = self.assertEqual
+
+        with self.create_server() as server:
+            # Storage is not saved on the server for anonymous users
+            db = server.handler.router.ctx.library_broker.get(None)
+            lid = db.server_library_id
+            conn = server.connect()
+            r, data = make_request(conn, f'/book-get-storage/{lid}/1/FMT1', prefix='')
+            ae((r.status, data), (OK, b'null'))
+            r, data = make_request(conn, f'/book-set-storage/{lid}/1/FMT1', prefix='', method='POST', data=b'{"timestamp": 1, "data": {}}')
+            ae(r.status, FORBIDDEN)
+            self.assertIsNone(db.book_storage_for_book(1, 'FMT1', user_type='web', user='*'))
+
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            server.handler.ctx.user_manager.add_user('other', 'test')
+            server.handler.ctx.user_manager.add_user('ro', 'test', readonly=True)
+            db = server.handler.router.ctx.library_broker.get(None)
+            lid = db.server_library_id
+            conn = server.connect()
+
+            def get(book_id=1, fmt='FMT1', username='12', status=OK):
+                r, data = make_request(conn, f'/book-get-storage/{lid}/{book_id}/{fmt}', prefix='', username=username, password='test')
+                ae(r.status, status)
+                return None if data == b'null' else data
+
+            def put(entry, book_id=1, fmt='FMT1', username='12', status=OK):
+                raw = entry if isinstance(entry, bytes) else json.dumps(entry).encode('utf-8')
+                r, data = make_request(conn, f'/book-set-storage/{lid}/{book_id}/{fmt}', prefix='', username=username, password='test', method='POST', data=raw)
+                ae(r.status, status)
+                return data
+
+            self.assertIsNone(get())
+            e1 = {'timestamp': 10.0, 'data': {'key': 'value', 'ü': '\U0001f600'}}
+            ae(put(e1), e1)
+            ae(get(), e1)
+            ae(db.book_storage_for_book(1, 'FMT1', user_type='web', user='12'), e1)
+            # Storage is per user, book and format
+            self.assertIsNone(get(username='other'))
+            self.assertIsNone(get(book_id=2))
+            self.assertIsNone(get(fmt='FMT2'))
+            # Older entries do not overwrite newer ones
+            ae(put({'timestamp': 5, 'data': {'old': 'x'}}), e1)
+            ae(get(), e1)
+            e2 = {'timestamp': 11.0, 'data': {}}
+            ae(put(e2), e2)
+            ae(get(), e2)
+            # Invalid data is rejected
+            put(b'not json', status=BAD_REQUEST)
+            put({'timestamp': 20, 'data': {'a': 1}}, status=BAD_REQUEST)
+            put({'data': {}}, status=BAD_REQUEST)
+            ae(get(), e2)
+            # Read only users cannot write
+            put({'timestamp': 30, 'data': {}}, username='ro', status=FORBIDDEN)
+            # Non-existent books
+            get(book_id=1000, status=NOT_FOUND)
+            put(e1, book_id=1000, status=NOT_FOUND)
+
+    # }}}
+
     def test_srv_add_book(self):  # {{{
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.ctx.user_manager.add_user('12', 'test')

@@ -17,6 +17,7 @@ from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
 from dom import clear, ensure_id, set_css, svgicon
 from modals import error_dialog, question_dialog
+from read_book.book_storage import get_book_storage
 from read_book.bookmarks import create_bookmarks_panel
 from read_book.chrome import apply_viewer_chrome_colors, viewer_chrome_colors
 from read_book.globals import is_dark_theme, runtime, ui_operations
@@ -334,6 +335,18 @@ class MainOverlay:  # {{{
                 reload_actions.appendChild(ac(_('Edit book'), _('Edit this book'), self.overlay.view.edit_book, 'edit'))
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
+        book_storage = get_book_storage(self.overlay.view?.book)
+        if book_storage and Object.keys(book_storage.data).length:
+            reload_actions.appendChild(ac(
+                _('Clear book storage'), _('Clear the data stored by scripts in this book'), def ():
+                    question_dialog(
+                        _('Are you sure?'), _('Are you sure you want to clear all data stored by scripts in this book?'),
+                        def (yes):
+                            if yes:
+                                self.overlay.hide()
+                                self.overlay.view.clear_book_storage()
+                    )
+                , 'eraser'))
 
         bookmarks_action = ac(_('Bookmarks'), _('Browse all bookmarks'), self.overlay.show_bookmarks, 'bookmark')
         highlights_action = ac(

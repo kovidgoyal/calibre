@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
 from iframe_comm import create_wrapped_iframe
+from read_book.book_storage import get_book_storage
 from read_book.globals import runtime, ui_operations, is_dark_theme
 from read_book.resources import load_resources
 
@@ -56,6 +57,7 @@ class ContentPopupOverlay:
             'print': self.on_print,
             'link_activated': self.on_link_activated,
             'close_requested': self.on_close_requested,
+            'book_storage_changed': self.view.on_book_storage_changed,
         }
         iframe_kw = {
             'seamless': True, 'sandbox': 'allow-scripts', 'style': 'width: 100%; max-height: 70vh'
@@ -181,7 +183,8 @@ class ContentPopupOverlay:
     def show_footnote_item_stage2(self, resource_data):
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.view.book, name=self.current_footnote_data.name,
-            frag=self.current_footnote_data.frag, settings=self.view.currently_showing.settings)
+            frag=self.current_footnote_data.frag, settings=self.view.currently_showing.settings,
+            book_storage=get_book_storage(self.view.book))
 
     def on_content_loaded(self, data):
         self.iframe.style.height = f'{data.height}px'

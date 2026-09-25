@@ -720,6 +720,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.gui2.viewer.annotations import find_tests
 
         a(find_tests())
+        from calibre.gui2.viewer.book_storage import find_tests
+
+        a(find_tests())
         from calibre.gui2.library.test_annotations import find_tests
 
         a(find_tests())

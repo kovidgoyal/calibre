@@ -1019,6 +1019,16 @@ class Main(
                     det_msg=traceback.format_exc(),
                     show=True,
                 )
+        elif msg.startswith('save-book-storage:'):
+            from calibre.gui2.viewer.integration import save_book_storage_in_gui
+
+            try:
+                if not save_book_storage_in_gui(self.library_broker, msg[len('save-book-storage:') :]):
+                    print('Failed to update book storage for book from viewer, book or library not found.', file=sys.stderr)
+            except Exception:
+                import traceback
+
+                traceback.print_exc()
         elif msg.startswith('bookedited:'):
             parts = msg.split(':')[1:]
             try:

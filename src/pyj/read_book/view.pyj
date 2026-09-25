@@ -16,6 +16,7 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import create_wrapped_iframe
 from modals import error_dialog, warning_dialog
 from read_book.annotations import AnnotationsManager
+from read_book.book_storage import get_book_storage, is_valid_book_storage, new_book_storage_entry, set_book_storage
 from read_book.bookmarks import create_new_bookmark
 from read_book.content_popup import ContentPopupOverlay
 from read_book.globals import (
@@ -246,6 +247,7 @@ class View:
                 if ui_operations.autoscroll_state_changed:
                     ui_operations.autoscroll_state_changed(self.autoscroll_active)
             ,
+            'book_storage_changed': self.on_book_storage_changed,
             'bump_font_size': self.bump_font_size,
             'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
@@ -1482,7 +1484,44 @@ class View:
             settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
             is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
             highlights=self.annotations_manager.highlights_for_currently_showing(),
+            book_storage=get_book_storage(self.book),
         )
+
+    def on_book_storage_changed(self, data):
+        # Changes made by scripts in the book to its localStorage
+        entry = data.entry
+        if not self.book or data.book_key is not JSON.stringify(self.book.key):
+            # A change made just before a different book was opened
+            return
+        if not is_valid_book_storage(entry):
+            print('Ignoring invalid book storage change from iframe')
+            return
+        current = get_book_storage(self.book)
+        if current and current.timestamp >= entry.timestamp:
+            return
+        set_book_storage(self.book, entry)
+        if ui_operations.book_storage_changed:
+            ui_operations.book_storage_changed(self.book, entry)
+
+    def replace_book_storage(self, entry):
+        # Replace the storage for the current book, for example, when it is
+        # cleared by the user or a newer version is synced from the server
+        if not self.book or not is_valid_book_storage(entry):
+            return
+        set_book_storage(self.book, entry)
+        if self.iframe_wrapper.ready:
+            self.iframe_wrapper.send_message('replace_book_storage', entry=entry)
+
+    def clear_book_storage(self):
+        if not self.book:
+            return
+        entry = new_book_storage_entry()
+        current = get_book_storage(self.book)
+        if current and current.timestamp >= entry.timestamp:
+            entry.timestamp = current.timestamp + 0.001
+        self.replace_book_storage(entry)
+        if ui_operations.book_storage_changed:
+            ui_operations.book_storage_changed(self.book, entry)
 
     def on_content_loaded(self, data):
         for x in self.modal_overlays:

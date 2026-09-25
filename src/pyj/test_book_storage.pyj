@@ -1,0 +1,256 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.book_storage import (
+    MAX_BOOK_STORAGE_SIZE, IframeBookStorage, get_book_storage,
+    install_book_storage_shim, is_valid_book_storage, new_book_storage_entry,
+    newest_book_storage, set_book_storage
+)
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def assert_raises(func, name):
+    try:
+        func()
+    except Exception as e:
+        assert_equal(e.name, name)
+        return
+    raise AssertionError(f'{name} not raised')
+
+
+@test
+def book_storage_validity():
+    assert_true(is_valid_book_storage({'timestamp': 0, 'data': {}}))
+    assert_true(is_valid_book_storage({'timestamp': 1.5, 'data': {'a': 'b'}}))
+    for bad in [
+        None, 'x', [], {'data': {}}, {'timestamp': -1, 'data': {}}, {'timestamp': '1', 'data': {}},
+        {'timestamp': Number.NaN, 'data': {}}, {'timestamp': 1, 'data': []}, {'timestamp': 1, 'data': None},
+        {'timestamp': 1, 'data': {'a': 1}}, {'timestamp': 1, 'data': {'a': 'x'.repeat(MAX_BOOK_STORAGE_SIZE)}},
+    ]:
+        assert_false(is_valid_book_storage(bad), JSON.stringify(bad))
+    older, newer = new_book_storage_entry({'a': '1'}, 1), new_book_storage_entry({'a': '2'}, 2)
+    assert_true(newest_book_storage(older, newer) is newer)
+    assert_true(newest_book_storage(newer, older) is newer)
+    assert_true(newest_book_storage(None, older) is older)
+    assert_true(newest_book_storage(older, {'timestamp': 10}) is older)
+    assert_true(newest_book_storage(None, None) is None)
+    tie = new_book_storage_entry({}, 2)
+    assert_true(newest_book_storage(newer, tie) is newer)
+    # Entries are copies of the data
+    data = {'a': 'b'}
+    e = new_book_storage_entry(data)
+    data.a = 'c'
+    assert_equal(e.data.a, 'b')
+    assert_true(e.timestamp > 0)
+
+
+@test
+def book_storage_in_book_object():
+    book = {}
+    assert_true(get_book_storage(book) is None)
+    assert_true(get_book_storage(None) is None)
+    e = new_book_storage_entry({'a': 'b'}, 1)
+    set_book_storage(book, e)
+    assert_true(get_book_storage(book) is e)
+    assert_equal(Object.keys(book.book_storage).length, 1)
+    # The storage is not part of the book record saved in IndexedDB
+    assert_equal(Object.keys(book).length, 0)
+    assert_true(window.structuredClone(book).book_storage is undefined)
+    set_book_storage(book, new_book_storage_entry({'c': 'd'}, 2))
+    assert_equal(get_book_storage(book).data.c, 'd')
+    # Invalid entries are ignored
+    book.book_storage[Object.keys(book.book_storage)[0]] = {'timestamp': 'x', 'data': {}}
+    assert_true(get_book_storage(book) is None)
+
+
+class FakeShim:
+    # Calls the shim directly, installing it into a fake window
+
+    def __init__(self):
+        self.win = {'Storage': window.Storage}
+        self.target = document.createElement('div')
+        self.changes = []
+        self.target.addEventListener('change', def (ev):
+            self.changes.push(JSON.parse(ev.detail))
+        )
+        install_book_storage_shim(self.win, self.target, 'set', 'change', MAX_BOOK_STORAGE_SIZE)
+        self.ls = self.win.localStorage
+        self.ss = self.win.sessionStorage
+
+    def set(self, book_key, entry, force):
+        self.target.dispatchEvent(CustomEvent('set', {'detail': JSON.stringify({'book_key': book_key, 'entry': entry, 'force': force})}))
+
+
+@test
+def book_storage_operations():
+    f = FakeShim()
+    f.set('book1', None)
+    ls, changes = f.ls, f.changes
+    assert_true(ls.getItem('a') is None)
+    ls.setItem('a', 1)
+    assert_true(ls.getItem('a') is '1')
+    assert_equal(changes.length, 1)
+    assert_equal(changes[0].book_key, 'book1')
+    assert_equal(changes[0].entry.data, {'a': '1'})
+    # Setting the same value is not a change
+    ls.setItem('a', '1')
+    assert_equal(changes.length, 1)
+    # Timestamps strictly increase
+    ls.setItem('b', 'x')
+    assert_true(changes[1].entry.timestamp > changes[0].entry.timestamp)
+    # Keys that are special in JavaScript objects are stored normally
+    ls.setItem('__proto__', 'p')
+    ls.setItem('constructor', 'c')
+    assert_true(ls.getItem('__proto__') is 'p')
+    assert_true(ls.getItem('hasOwnProperty') is None)
+    ls.removeItem('__proto__')
+    ls.removeItem('constructor')
+    ls.removeItem('missing')
+    assert_equal(changes.length, 6)
+    ls.clear()
+    assert_equal(ls.length, 0)
+    assert_equal(changes[changes.length - 1].entry.data, {})
+    count = changes.length
+    ls.clear()
+    assert_equal(changes.length, count)
+    # Quota, measured in UTF-16 code units
+    ls.setItem('big', 'x'.repeat(MAX_BOOK_STORAGE_SIZE - 3))
+    assert_raises(def (): ls.setItem('y', 'z');, 'QuotaExceededError')
+    assert_true(ls.getItem('y') is None)
+    # Replacing a value with a smaller one is allowed
+    ls.setItem('big', 'x')
+    ls.setItem('y', 'z')
+    assert_equal(ls.length, 2)
+    # sessionStorage works but changes to it are not persisted
+    count = changes.length
+    f.ss.setItem('s', 't')
+    assert_true(f.ss.getItem('s') is 't')
+    assert_equal(changes.length, count)
+
+
+@test
+def book_storage_update_from_parent():
+    f = FakeShim()
+    ls = f.ls
+    f.set('book1', {'timestamp': 10, 'data': {'a': 'b'}})
+    assert_true(ls.getItem('a') is 'b')
+    f.ss.setItem('s', '1')
+    ls.setItem('c', 'd')
+    # An older copy from the parent for the same book does not replace local changes
+    f.set('book1', {'timestamp': 10, 'data': {'a': 'b'}})
+    assert_true(ls.getItem('c') is 'd')
+    assert_true(f.ss.getItem('s') is '1')
+    # A newer copy does
+    newer = f.changes[0].entry.timestamp + 1
+    f.set('book1', {'timestamp': newer, 'data': {'x': 'y'}})
+    assert_equal(Object.keys(ls), ['x'])
+    # Forced replacement, for example when the user clears the storage
+    f.set('book1', {'timestamp': 0, 'data': {}}, True)
+    assert_equal(ls.length, 0)
+    # A different book always replaces the storage and resets sessionStorage
+    f.set('book2', {'timestamp': 1, 'data': {'other': 'book'}})
+    assert_equal(Object.keys(ls), ['other'])
+    assert_true(f.ss.getItem('s') is None)
+    f.set('book3', None)
+    assert_equal(ls.length, 0)
+
+
+@test
+def book_storage_proxy():
+    f = FakeShim()
+    f.set('book1', None)
+    ls = f.ls
+    assert_equal(ls.length, 0)
+    assert_true(ls.getItem('a') is None)
+    assert_true(ls.a is undefined)
+    ls.setItem('a', 'b')
+    assert_true(ls.getItem('a') is 'b')
+    assert_true(ls.a is 'b')
+    assert_true(ls['a'] is 'b')
+    assert_equal(ls.length, 1)
+    assert_true(ls.key(0) is 'a')
+    assert_true(ls.key(1) is None)
+    assert_true(ls.key(-1) is None)
+    # Property style access
+    ls.c = 3
+    assert_true(ls.getItem('c') is '3')
+    assert_true(v"'c' in ls")
+    assert_false(v"'missing' in ls")
+    assert_true(v"'getItem' in ls")
+    assert_equal(Object.keys(ls), ['a', 'c'])
+    assert_equal(JSON.stringify(ls), '{"a":"b","c":"3"}')
+    v'delete ls.c'
+    assert_true(ls.getItem('c') is None)
+    # Methods cannot be overwritten, but keys with their names can be stored
+    ls.setItem('getItem', 'x')
+    assert_true(jstype(ls.getItem) is 'function')
+    assert_true(ls.getItem('getItem') is 'x')
+    ls.removeItem('getItem')
+    assert_equal(ls.length, 1)
+    assert_true(Object.prototype.toString.call(ls) is '[object Storage]')
+    if window.Storage:
+        assert_true(v'ls instanceof Storage')
+    ls.clear()
+    assert_equal(ls.length, 0)
+    assert_raises(def (): ls.setItem('a', 'x'.repeat(MAX_BOOK_STORAGE_SIZE));, 'QuotaExceededError')
+    assert_equal(ls.length, 0)
+
+
+def in_book(code):
+    # Run code in the main world of the page, where scripts from books run,
+    # and return its JSON serializable result. The tests themselves may run
+    # in an isolated world, as calibre's code does in the desktop viewer.
+    s = document.createElement('script')
+    s.textContent = 'var r = (function() { ' + code + ' })(); document.documentElement.dataset.bookStorageTest = r === undefined ? "" : JSON.stringify(r)'
+    document.documentElement.appendChild(s)
+    s.remove()
+    ans = document.documentElement.dataset.bookStorageTest
+    v'delete document.documentElement.dataset.bookStorageTest'
+    return JSON.parse(ans) if ans else undefined
+
+
+@test
+def book_storage_install_in_iframe():
+    in_book('window.book_storage_test_originals = {l: Object.getOwnPropertyDescriptor(window, "localStorage"), s: Object.getOwnPropertyDescriptor(window, "sessionStorage")}; return null')
+    sent = []
+    try:
+        ibs = IframeBookStorage(def (book_key, entry): sent.push([book_key, entry]);)
+        ibs.update_from_parent(['lib', 1, 'EPUB'], {'timestamp': 1, 'data': {'saved': 'value'}})
+        # The storage is installed by a script injected into the page
+        assert_equal(in_book('return localStorage.getItem("saved")'), 'value')
+        in_book('localStorage.setItem("a", "1"); localStorage.a = "2"; sessionStorage.setItem("s", "1")')
+        # Changes are coalesced and sent asynchronously
+        assert_equal(sent.length, 0)
+        ibs.flush()
+        assert_equal(sent.length, 1)
+        assert_equal(sent[0][0], JSON.stringify(['lib', 1, 'EPUB']))
+        assert_equal(sent[0][1].data, {'saved': 'value', 'a': '2'})
+        ibs.flush()
+        assert_equal(sent.length, 1)
+        # sessionStorage is not persisted but survives displaying another
+        # file from the same book
+        ibs.update_from_parent(['lib', 1, 'EPUB'], sent[0][1])
+        assert_equal(in_book('return [sessionStorage.getItem("s"), localStorage.getItem("a")]'), ['1', '2'])
+        # Both are reset for a different book
+        ibs.update_from_parent(['lib', 2, 'EPUB'], None)
+        assert_equal(in_book('return [sessionStorage.getItem("s"), localStorage.getItem("a"), localStorage.length]'), [None, None, 0])
+        # Replacing storage, for example when the user clears it, discards pending changes
+        in_book('localStorage.setItem("pending", "1")')
+        ibs.replace(new_book_storage_entry({}, 100))
+        ibs.flush()
+        assert_equal(sent.length, 1)
+        assert_equal(in_book('return localStorage.length'), 0)
+        # Invalid entries from the parent are treated as empty storage
+        ibs.update_from_parent(['lib', 3, 'EPUB'], {'timestamp': 1, 'data': {'a': 1}})
+        assert_equal(in_book('return localStorage.length'), 0)
+        # Quota errors are reported to the book
+        assert_equal(in_book(f'try {{ localStorage.setItem("a", "x".repeat({MAX_BOOK_STORAGE_SIZE})) }} catch (e) {{ return e.name }}'), 'QuotaExceededError')
+        # Change events for a different book are ignored
+        ibs.on_change({'detail': JSON.stringify({'book_key': 'x', 'entry': new_book_storage_entry({'a': 'b'})})})
+        ibs.flush()
+        assert_equal(sent.length, 1)
+    finally:
+        in_book('var o = window.book_storage_test_originals; delete window.book_storage_test_originals;'
+                ' if (o.l) Object.defineProperty(window, "localStorage", o.l); else delete window.localStorage;'
+                ' if (o.s) Object.defineProperty(window, "sessionStorage", o.s); else delete window.sessionStorage; return null')

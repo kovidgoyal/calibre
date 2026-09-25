@@ -26,6 +26,7 @@ from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
+from calibre.db.book_storage import BookStorageEntry
 from calibre.db.categories import CategoriesCache, CategoriesInvalidatingLock, get_categories
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import NoSuchBook, NoSuchFormat
@@ -4047,6 +4048,36 @@ class Cache:
         self.backend.save_annotations_list(book_id, book_fmt, sync_annots_user, alist)
 
     _save_annotations_list = save_annotations_list
+
+    @read_api
+    def book_storage_for_book(self, book_id: int, fmt: str, user_type: str = 'local', user: str = 'viewer') -> BookStorageEntry | None:
+        """
+        Return the per book storage (used for localStorage in the viewers) for
+        the specified book_id, format, user_type and user or None if no storage
+        exists. The storage is a dict of the form: {'timestamp': seconds since
+        epoch, 'data': {key: value}}.
+        """
+        return self.backend.book_storage_for_book(book_id, fmt, user_type, user)
+
+    _book_storage_for_book = book_storage_for_book
+
+    @quiet_write_api
+    def update_book_storage_for_book(self, book_id: int, fmt: str, entry: BookStorageEntry, user_type: str = 'local', user: str = 'viewer') -> BookStorageEntry:
+        """
+        Set the per book storage for the specified book_id, format, user_type
+        and user, unless the existing storage is newer than entry. Returns the
+        storage in effect after the update. Clear the storage by passing an
+        entry with empty data.
+        """
+        return self.backend.update_book_storage_for_book(book_id, fmt, entry, user_type, user)
+
+    _update_book_storage_for_book = update_book_storage_for_book
+
+    @quiet_write_api
+    def save_book_storage(self, book_id: int, book_fmt: str, sync_annots_user: str, entry: BookStorageEntry) -> None:
+        self.backend.save_book_storage(book_id, book_fmt, sync_annots_user, entry)
+
+    _save_book_storage = save_book_storage
 
     @quiet_write_api
     def reindex_annotations(self):

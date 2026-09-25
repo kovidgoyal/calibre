@@ -18,6 +18,7 @@ from range_utils import (
     wrap_text_in_range
 )
 from read_book.anchor_visibility import ensure_page_list_target_is_displayed, invalidate_anchor_position_cache
+from read_book.book_storage import IframeBookStorage
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import first_tts_word_after_viewport_start, reset_find_caches, select_search_result, select_tts_mark, tts_data
@@ -192,9 +193,13 @@ class IframeBoss:
             'hints': self.hints_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
+            'replace_book_storage': self.replace_book_storage,
             'clear_selection': def (): window.getSelection().removeAllRanges();,
         }
         self.comm = IframeClient(handlers, 'main-iframe')
+        self.book_storage = IframeBookStorage(def (book_key, entry):
+            self.send_message('book_storage_changed', book_key=book_key, entry=entry)
+        )
         self.last_window_ypos = 0
         self.length_before = None
 
@@ -281,6 +286,7 @@ class IframeBoss:
         set_toc_anchor_map()
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
+        self.book_storage.update_from_parent(self.book.key, data.book_storage)
         self.smil_map = data.smil_map
         self.smil_anchor_map, self.smil_par_list = flatten_smil_map(self.smil_map)
         self.link_attr = 'data-' + self.book.manifest.link_uid
@@ -334,6 +340,9 @@ class IframeBoss:
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
         self.highlights_to_apply = data.highlights
         unserialize_html(root_data, self.content_loaded, None, data.name)
+
+    def replace_book_storage(self, data):
+        self.book_storage.replace(data.entry)
 
     def on_scroll_to_frac(self, data):
         self.to_scroll_fraction(data.frac, False)

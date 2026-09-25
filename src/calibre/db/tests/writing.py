@@ -919,6 +919,92 @@ class WritingTest(BaseTest):
 
     # }}}
 
+    def test_book_storage(self):  # {{{
+        "Test per book storage used for localStorage in the viewers"
+        from calibre.db.book_storage import (
+            MAX_BOOK_STORAGE_SIZE,
+            InvalidBookStorage,
+            book_storage_size,
+            new_book_storage_entry,
+            newest_book_storage,
+            validate_book_storage,
+        )
+
+        ae = self.assertEqual
+        # Validation
+        e = validate_book_storage({'timestamp': 1, 'data': {'a': 'b'}})
+        ae(e, {'timestamp': 1.0, 'data': {'a': 'b'}})
+        self.assertIsInstance(e['timestamp'], float)
+        for bad in (
+            None,
+            [],
+            {'data': {}},
+            {'timestamp': -1, 'data': {}},
+            {'timestamp': True, 'data': {}},
+            {'timestamp': '1', 'data': {}},
+            {'timestamp': 1, 'data': []},
+            {'timestamp': 1, 'data': {'a': 1}},
+            {'timestamp': 1, 'data': {'a': None}},
+            {'timestamp': 1, 'data': {'a': 'x' * MAX_BOOK_STORAGE_SIZE}},
+        ):
+            with self.assertRaises(InvalidBookStorage, msg=repr(bad)):
+                validate_book_storage(bad)
+        # Size is measured in UTF-16 code units, as in JavaScript
+        ae(book_storage_size({'ab': 'c\U0001f600'}), 5)
+        validate_book_storage({'timestamp': 1, 'data': {'a': 'x' * (MAX_BOOK_STORAGE_SIZE - 1)}})
+        # Newest
+        old, new = new_book_storage_entry({'a': '1'}, 1), new_book_storage_entry({'a': '2'}, 2)
+        ae(newest_book_storage(old, None, new), new)
+        ae(newest_book_storage(new, old), new)
+        self.assertIsNone(newest_book_storage(None, None))
+        tie = new_book_storage_entry({'a': '3'}, 2)
+        self.assertIs(newest_book_storage(new, tie), new)
+
+        # Upgrading a library from before book storage existed
+        library_path = self.cloned_library
+        cache = self.init_cache(library_path)
+        cache.backend.execute('DROP TABLE book_storage; PRAGMA user_version=27')
+        cache.close()
+        cache = self.init_cache(library_path)
+        ae(cache.backend.user_version, 28)
+        self.assertIsNone(cache.book_storage_for_book(1, 'FMT1'))
+        e1 = new_book_storage_entry({'k': 'v', 'unicode': 'ünïcødé \U0001f600', '__proto__': 'x'}, 10)
+        ae(cache.update_book_storage_for_book(1, 'fmt1', e1), e1)
+        ae(cache.book_storage_for_book(1, 'FMT1'), e1)
+        # Storage is per format, per user and per book
+        self.assertIsNone(cache.book_storage_for_book(1, 'FMT2'))
+        self.assertIsNone(cache.book_storage_for_book(2, 'FMT1'))
+        self.assertIsNone(cache.book_storage_for_book(1, 'FMT1', user_type='web', user='x'))
+        # Older entries do not replace newer ones
+        e0 = new_book_storage_entry({'old': 'data'}, 5)
+        ae(cache.update_book_storage_for_book(1, 'FMT1', e0), e1)
+        ae(cache.book_storage_for_book(1, 'FMT1'), e1)
+        # Clearing is represented by an entry with empty data
+        e2 = new_book_storage_entry({}, 11)
+        ae(cache.update_book_storage_for_book(1, 'FMT1', e2), e2)
+        ae(cache.book_storage_for_book(1, 'FMT1'), e2)
+        # Saving from the viewer also saves to the sync user
+        e3 = new_book_storage_entry({'synced': '1'}, 12)
+        cache.save_book_storage(1, 'FMT1', 'webuser', e3)
+        ae(cache.book_storage_for_book(1, 'FMT1'), e3)
+        ae(cache.book_storage_for_book(1, 'FMT1', user_type='web', user='webuser'), e3)
+        cache.save_book_storage(2, 'FMT1', '', e3)
+        ae(cache.book_storage_for_book(2, 'FMT1'), e3)
+        self.assertIsNone(cache.book_storage_for_book(2, 'FMT1', user_type='web', user=''))
+        # Invalid data in the database is ignored
+        cache.backend.execute("UPDATE book_storage SET data='not json' WHERE book=2")
+        self.assertIsNone(cache.book_storage_for_book(2, 'FMT1'))
+        # Storage survives reopening the library
+        cache.close()
+        cache = self.init_cache(library_path)
+        ae(cache.book_storage_for_book(1, 'FMT1'), e3)
+        # Storage is removed when the book is deleted
+        cache.remove_books((1,), permanent=True)
+        ae(cache.backend.execute('SELECT COUNT(*) FROM book_storage WHERE book=1').fetchone()[0], 0)
+        self.assertIsNone(cache.book_storage_for_book(1, 'FMT1'))
+
+    # }}}
+
     def test_annotations(self):  # {{{
         "Test handling of annotations"
         from calibre.utils.date import EPOCH, utcnow

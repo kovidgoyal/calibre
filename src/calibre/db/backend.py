@@ -22,6 +22,7 @@ from calibre import as_unicode, force_unicode, prints
 from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
+from calibre.db.book_storage import BookStorageEntry, InvalidBookStorage, validate_book_storage
 from calibre.db.constants import (
     BOOK_ID_PATH_TEMPLATE,
     COVER_FILE_NAME,
@@ -400,6 +401,47 @@ def save_last_read_position_to_cursor(cursor, book_id, fmt, user='_', device='_'
             'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
             (book_id, fmt.upper(), user, device),
         )
+
+
+# }}}
+
+
+# Book storage {{{
+def database_has_book_storage_support(cursor) -> bool:
+    return next(cursor.execute('pragma user_version;'))[0] > 27
+
+
+def book_storage_for_book(cursor, book_id: int, fmt: str, user_type: str = 'local', user: str = 'viewer') -> BookStorageEntry | None:
+    for timestamp, data in cursor.execute(
+        'SELECT timestamp, data FROM book_storage WHERE book=? AND format=? AND user_type=? AND user=?',
+        (book_id, fmt.upper(), user_type, user),
+    ):
+        try:
+            return validate_book_storage({'timestamp': timestamp, 'data': json.loads(data)})
+        except (ValueError, InvalidBookStorage) as err:
+            prints(f'Ignoring invalid book storage for book: {book_id} format: {fmt} with error: {err}', file=sys.stderr)
+    return None
+
+
+def update_book_storage_for_book(cursor, book_id: int, fmt: str, entry: BookStorageEntry, user_type: str = 'local', user: str = 'viewer') -> BookStorageEntry:
+    """
+    Store entry unless the existing storage for the book is newer. Returns
+    whichever entry is stored after the update.
+    """
+    existing = book_storage_for_book(cursor, book_id, fmt, user_type, user)
+    if existing is not None and existing['timestamp'] > entry['timestamp']:
+        return existing
+    cursor.execute(
+        'INSERT OR REPLACE INTO book_storage (book, format, user_type, user, timestamp, data) VALUES (?, ?, ?, ?, ?, ?)',
+        (book_id, fmt.upper(), user_type, user, entry['timestamp'], json.dumps(entry['data'], ensure_ascii=False)),
+    )
+    return entry
+
+
+def save_book_storage_to_cursor(cursor, entry: BookStorageEntry, sync_annots_user: str, book_id: int, book_fmt: str) -> None:
+    update_book_storage_for_book(cursor, book_id, book_fmt, entry)
+    if sync_annots_user:
+        update_book_storage_for_book(cursor, book_id, book_fmt, entry, user_type='web', user=sync_annots_user)
 
 
 # }}}
@@ -2630,6 +2672,17 @@ class DB:
         conn = self.conn
         with conn:
             save_annotations_list_to_cursor(conn.cursor(), alist, sync_annots_user, book_id, book_fmt)
+
+    def book_storage_for_book(self, book_id: int, fmt: str, user_type: str, user: str) -> BookStorageEntry | None:
+        return book_storage_for_book(self.conn, book_id, fmt, user_type, user)
+
+    def update_book_storage_for_book(self, book_id: int, fmt: str, entry: BookStorageEntry, user_type: str, user: str) -> BookStorageEntry:
+        with self.conn:
+            return update_book_storage_for_book(self.conn.cursor(), book_id, fmt, entry, user_type, user)
+
+    def save_book_storage(self, book_id: int, book_fmt: str, sync_annots_user: str, entry: BookStorageEntry) -> None:
+        with self.conn:
+            save_book_storage_to_cursor(self.conn.cursor(), entry, sync_annots_user, book_id, book_fmt)
 
     def search_annotations(
         self,

@@ -61,6 +61,16 @@ BEGIN
     INSERT INTO books_pages_link(book) VALUES(NEW.id);
 END;
 CREATE INDEX books_pages_link_pidx ON books_pages_link (needs_scan);
+CREATE TABLE book_storage ( id INTEGER PRIMARY KEY,
+    book INTEGER NOT NULL,
+    format TEXT NOT NULL COLLATE NOCASE,
+    user_type TEXT NOT NULL,
+    user TEXT NOT NULL,
+    timestamp REAL NOT NULL,
+    data TEXT NOT NULL DEFAULT '{}',
+    UNIQUE(book, format, user_type, user),
+    FOREIGN KEY (book) REFERENCES books(id) ON DELETE CASCADE
+);
 
 CREATE TABLE books_tags_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
@@ -650,4 +660,4 @@ CREATE TRIGGER series_update_trg
         END;
 -- Set application id to "cali" as a big endian number
 PRAGMA application_id = 0x63616c69;
-pragma user_version=27;
+pragma user_version=28;
