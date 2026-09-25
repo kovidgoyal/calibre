@@ -39,6 +39,9 @@ class Unavailable(Exception):
 
 
 def rasterize_svg(data=None, sizes=(), width=0, height=0, print=None, fmt='PNG', as_qimage=False):
+    from calibre.gui2 import must_use_qt
+
+    must_use_qt()
     if data is None:
         data = test_svg()
     svg = QSvgRenderer(QByteArray(data))
@@ -73,9 +76,6 @@ class SVGRasterizer:
     def __init__(self, base_css='', save_svg_originals=False):
         self.base_css = base_css
         self.save_svg_originals = save_svg_originals
-        from calibre.gui2 import must_use_qt
-
-        must_use_qt()
 
     @classmethod
     def config(cls, cfg):
@@ -206,6 +206,11 @@ class SVGRasterizer:
         height = style['height']
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
+        # Qt is needed only when there is actually an SVG image to rasterize, so
+        # that converting books without any does not create a QApplication
+        from calibre.gui2 import must_use_qt
+
+        must_use_qt()
         data = QByteArray(svgitem.bytes_representation)
         svg = QSvgRenderer(data)
         size = svg.defaultSize()

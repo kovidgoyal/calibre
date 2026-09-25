@@ -18,11 +18,20 @@ from calibre.utils.shared_file import share_open
 from polyglot.binary import as_base64_bytes, from_hex_unicode
 
 
-def setUpModule():
-    # Needed for cover generation
-    from calibre.gui2 import ensure_app, load_builtin_fonts
+def run_generated_cover_checks() -> list[str]:
+    # Runs in a worker process, see ContentTest.test_generated_cover()
+    import unittest
 
+    from calibre.gui2 import ensure_app, load_builtin_fonts
+    from calibre.utils.run_tests import init_env
+
+    init_env()
+    # The QApplication must be created in the main thread, not in the server
+    # thread that generates the cover
     ensure_app(), load_builtin_fonts()
+    result = unittest.TestResult()
+    ContentTest('generated_cover_checks').run(result)
+    return [tb for test, tb in result.errors + result.failures]
 
 
 class ContentTest(LibraryBaseTest):
@@ -72,6 +81,26 @@ class ContentTest(LibraryBaseTest):
             test('images/lt.png', '/icon/lt.png?sz=16', sz=16)
 
     # }}}
+
+    def test_generated_cover(self):
+        "Test serving of auto generated covers"
+        # Generating covers needs a QApplication, which tests must not create
+        # in the test process, so run the checks in a worker process
+        from calibre.utils.ipc.simple_worker import fork_job
+
+        errors = fork_job('calibre.srv.tests.content', 'run_generated_cover_checks', no_output=True)['result']
+        if errors:
+            self.fail('\n'.join(errors))
+
+    def generated_cover_checks(self):
+        with self.create_server() as server:
+            conn = server.connect()
+            conn.request('GET', '/get/cover/3')  # book 3 has no cover
+            r = conn.getresponse()
+            data = r.read()
+            self.ae(r.status, http.client.OK)
+            self.ae(r.getheader('Content-Type'), 'image/jpeg')
+            self.ae(identify(data)[0], 'jpeg')
 
     def test_get(self):  # {{{
         "Test /get"
@@ -158,8 +187,6 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, http.client.OK)
             self.ae(data, db.cover(1))
             self.ae(r.getheader('Used-Cache'), 'yes')
-            r, data = get('cover', 3)
-            self.ae(r.status, http.client.OK)  # Auto generated cover
             r, data = get('thumb', 1)
             self.ae(r.status, http.client.OK)
             self.ae(identify(data), ('jpeg', 60, 60))

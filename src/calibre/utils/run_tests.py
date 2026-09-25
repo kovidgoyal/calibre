@@ -22,6 +22,8 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 
 # Below this many tests, skip worker processes and run in-process instead.
 _PARALLEL_MIN = 32
+# Seconds a worker process has to exit after it has reported all its results.
+_WORKER_EXIT_TIMEOUT = 30
 
 # ANSI colours – only when stdout is a real terminal.
 _IS_TTY: bool = sys.stdout.isatty()
@@ -188,6 +190,7 @@ class PipeTestResult(unittest.TestResult):
         super().__init__()
         self._out = open(write_fd, 'w', buffering=1, closefd=True)
         self._start: dict[str, float] = {}
+        self._qapplication_reported = False
 
     def _emit(self, record: dict) -> None:
         try:
@@ -204,7 +207,30 @@ class PipeTestResult(unittest.TestResult):
     def _elapsed(self, test: unittest.TestCase) -> float:
         return monotonic() - self._start.pop(test.id(), monotonic())
 
+    def _qapplication_created(self) -> bool:
+        # Tests must not create a QApplication, as it outlives the test that
+        # created it and can deadlock the worker process at exit. Only the
+        # first test after which one exists is failed, as it exists for all
+        # later tests as well.
+        if self._qapplication_reported:
+            return False
+        qt = sys.modules.get('qt.core')
+        if qt is None or qt.QCoreApplication.instance() is None:
+            return False
+        self._qapplication_reported = True
+        return True
+
     def addSuccess(self, test: unittest.TestCase) -> None:
+        if self._qapplication_created():
+            try:
+                raise AssertionError(
+                    'This test created a QApplication, which tests must not do as it can hang the test process at exit.'
+                    ' Run the code that needs Qt in a worker process instead, for example, with'
+                    ' calibre.utils.ipc.simple_worker.fork_job()'
+                )
+            except AssertionError:
+                self.addFailure(test, sys.exc_info())
+            return
         super().addSuccess(test)
         self._emit({'e': 'ok', 'id': test.id(), 't': self._elapsed(test)})
 
@@ -245,6 +271,11 @@ def _worker_entry(write_fd_or_handle: int) -> None:
         write_fd = msvcrt.open_osfhandle(write_fd_or_handle, os.O_WRONLY)
     else:
         write_fd = write_fd_or_handle
+        import faulthandler
+        import signal
+
+        # Allow the master to get tracebacks from workers that hang, see _reap_worker()
+        faulthandler.register(signal.SIGUSR1, all_threads=True)
     os.set_inheritable(write_fd, False)
     debug(False)
     inp = sys.stdin.read()
@@ -282,6 +313,31 @@ def _chunk_round_robin(tests: list, num_workers: int) -> list[list]:
     for i, t in enumerate(rest):
         chunks[i % num_workers].append(t)
     return [c for c in chunks if c]
+
+
+def _reap_worker(proc, deadline: float) -> tuple[int, bool]:
+    """
+    Wait for a worker process to exit, until *deadline*. A worker that is
+    still running at the deadline is hung, typically in some library's cleanup
+    code at exit, so it is asked to dump the tracebacks of its threads into its
+    output and then killed. Returns (exit code, whether the worker hung).
+    """
+    import subprocess
+
+    try:
+        return proc.wait(max(0, deadline - monotonic())), False
+    except subprocess.TimeoutExpired:
+        pass
+    if not iswindows:
+        import signal
+
+        proc.send_signal(signal.SIGUSR1)
+        try:
+            proc.wait(1)
+        except subprocess.TimeoutExpired:
+            pass
+    proc.kill()
+    return proc.wait(), True
 
 
 def _start_worker(idx: int, chunk: list, worker_cmd: list[str] | None = None) -> tuple:
@@ -513,14 +569,21 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
         _print_status(completed, total, start_time, len(failures) + len(errors))
 
-    # Reap worker processes; report crashes.
+    # Reap worker processes; report crashes and hangs.
+    hung_workers = 0
     try:
+        exit_deadline = monotonic() + _WORKER_EXIT_TIMEOUT
         for proc, output_path in workers:
-            rc = proc.wait()
+            rc, hung = _reap_worker(proc, exit_deadline)
             if rc != 0:
                 with open(output_path, 'rb') as f:
                     output = f.read().decode(errors='replace')
-                print(f'\n{_c(_RD, f"Worker process crashed (exit code {rc})")}', flush=True)
+                if hung:
+                    hung_workers += 1
+                    msg = f'Worker process (pid {proc.pid}) failed to exit within {_WORKER_EXIT_TIMEOUT} seconds of completing its tests and was killed'
+                else:
+                    msg = f'Worker process crashed (exit code {rc})'
+                print(f'\n{_c(_RD, msg)}', flush=True)
                 if output.strip():
                     print(output, flush=True)
     finally:
@@ -536,7 +599,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     elapsed = monotonic() - start_time
     lost_ids = [t.id() for t in all_tests if t.id() not in times]
     _print_summary(failures, errors, skips, ok_count, xfail_count, times, total, elapsed, lost_ids)
-    return 1 if len(failures) + len(errors) + len(lost_ids) else 0
+    return 1 if len(failures) + len(errors) + len(lost_ids) + hung_workers else 0
 
 
 # ─── Test discovery ───────────────────────────────────────────────────────────

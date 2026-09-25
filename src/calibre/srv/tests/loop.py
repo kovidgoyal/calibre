@@ -221,6 +221,33 @@ class LoopTest(BaseTest):
     @skipIf(not has_preactivated_support, 'pre_activated_socket not available')
     def test_socket_activation(self):
         "Test socket activation"
+        # Pre-activated sockets must be fd 3, which may be in use in this
+        # process, for instance by the DBus connection of a QApplication created
+        # by another test. Closing it breaks that connection and hangs the
+        # process at exit, so run the test in a child process.
+        import traceback
+        import warnings
+
+        r, w = os.pipe()
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)  # fork() in a multi-threaded process
+            pid = os.fork()
+        if pid == 0:
+            os.close(r)
+            rc = 0
+            try:
+                self.run_socket_activation_test()
+            except BaseException:
+                os.write(w, traceback.format_exc().encode('utf-8', 'replace'))
+                rc = 1
+            os._exit(rc)
+        os.close(w)
+        with open(r, 'rb') as f:
+            output = f.read().decode('utf-8', 'replace')
+        status = os.waitpid(pid, 0)[1]
+        self.assertEqual(os.waitstatus_to_exitcode(status), 0, output)
+
+    def run_socket_activation_test(self):
         os.closerange(3, 4)  # Ensure the socket gets fileno == 3
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         s.bind(('localhost', 0))

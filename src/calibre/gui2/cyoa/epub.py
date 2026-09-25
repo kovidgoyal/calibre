@@ -507,8 +507,13 @@ def find_tests() -> TestSuite:  # {{{
         ae = unittest.TestCase.assertEqual
 
         def export(self, state: GameState, tdir: str, **kw: object) -> EpubContainer:
+            # The book is written in a worker process, as generating its cover
+            # needs a QApplication and tests must not create one in the test
+            # process: it outlives the test and can deadlock the process at exit.
+            from calibre.utils.ipc.simple_worker import fork_job
+
             path = os.path.join(tdir, 'book.epub')
-            story_to_epub(state, path, **kw)  # ty: ignore[invalid-argument-type]
+            fork_job('calibre.gui2.cyoa.epub', 'story_to_epub', args=(state, path), kwargs=kw, no_output=True)
             ans = get_container(path, log=DevNull())
             assert isinstance(ans, EpubContainer)
             return ans

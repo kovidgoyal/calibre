@@ -50,6 +50,9 @@ To test changes to recipes for news download, you can run them as:
 ebook-convert recipes/filename.recipe output.epub --test
 ```
 
+When writing tests if the test needs a QApplication, it must run in a worker
+process.
+
 ## Verification Pipeline
 Before declaring a task complete, you must follow this exact verification lifecycle:
 1. Run the local **Build Command** to guarantee zero compilation or compilation-stage type errors.
