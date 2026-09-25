@@ -1539,7 +1539,7 @@ class KOBOTOUCH(KOBO):
     )
     # icon        = 'devices/kobotouch.jpg'
 
-    supported_dbversion = 220
+    supported_dbversion = 222
     min_supported_dbversion = 53
     min_dbversion_series = 65
     min_dbversion_externalid = 65
