@@ -21,6 +21,7 @@ from calibre.web.automate import browser as browser_module
 from calibre.web.automate import recipes
 from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.automate.browser import Warmup
+from calibre.web.automate.download_deps import Install
 from calibre.web.automate.test_camoufox import installed_camoufox
 
 ARTICLE_PAGE = '''<!DOCTYPE html><html><head><title>An Article</title>
@@ -294,6 +295,7 @@ class TestRecipeBrowser(unittest.TestCase):
 
     server: Server
     browser: recipes.Browser | None
+    install: Install
 
     # Every one of these needs a browser, which is slow to start and heavy to
     # run, so the parallel test runner keeps them to a few of its workers
@@ -301,6 +303,11 @@ class TestRecipeBrowser(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        install = installed_camoufox()
+        if install is None:
+            raise unittest.SkipTest('the camoufox browser is not installed')
+        # Given to every browser so that none of them installs or updates it
+        cls.install = install
         cls.server = Server()
         # One browser for all of them, started on first use. Warming up visits
         # real web sites, which a test must not do.
@@ -318,7 +325,7 @@ class TestRecipeBrowser(unittest.TestCase):
     @classmethod
     def shared_browser(cls) -> recipes.Browser:
         if cls.browser is None:
-            cls.browser = recipes.Browser(warmup=False, max_tabs=6)
+            cls.browser = recipes.Browser(warmup=False, max_tabs=6, install=cls.install)
         return cls.browser
 
     def setUp(self) -> None:
@@ -516,7 +523,7 @@ class TestRecipeBrowser(unittest.TestCase):
 
     def test_recipes_tab_limit(self) -> None:
         "More sessions than tabs still works, the idle ones are closed and put back"
-        br = recipes.Browser(warmup=False, max_tabs=2)
+        br = recipes.Browser(warmup=False, max_tabs=2, install=self.install)
         try:
             clones = [br.clone_browser() for _ in range(4)]
             for clone in clones:
@@ -540,7 +547,7 @@ class TestRecipeBrowser(unittest.TestCase):
         self.assertEqual(warmup.urls, urls)
 
         async def main() -> None:
-            browser = browser_module.Browser(headless=True, warmup=warmup)
+            browser = browser_module.Browser(headless=True, warmup=warmup, install=self.install)
             try:
                 await browser.launch()
             finally:

@@ -41,6 +41,7 @@ from urllib.parse import urlencode, urlparse
 from urllib.request import Request
 
 from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, Page, TimeoutExceeded, debug, remove_profile_dir
+from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
 
 # The recipe thread pool defaults to five threads and a tab costs real memory,
@@ -409,12 +410,16 @@ async def setup_browser(input_data: Mapping[str, Any]) -> None:
     if input_data.get('warmup', True):
         warmup = Warmup(excluded_domains=input_data.get('warmup_excluded_domains') or ())
         debug(f'Warming up camoufox on: {", ".join(warmup.urls)}')
+    install = None
+    if (install_data := input_data.get('install')) is not None:
+        install = Install(*install_data)
     browser = Browser(
         headless=bool(input_data.get('headless', True)),
         warmup=warmup,
         block_images=bool(input_data.get('block_images', False)),
         ignore_https_errors=not input_data.get('verify_ssl_certificates', False),
         firefox_user_prefs=BROWSER_PREFS,
+        install=install,
     )
     started = time.monotonic()
     await browser.launch()
@@ -610,6 +615,8 @@ class Browser:
     :param block_images: do not load images at all, for a recipe that does not
         want them
     :param start_worker: launch the browser now rather than on first use
+    :param install: an existing install of the browser to use as is, rather
+        than installing or updating it as needed
     """
 
     # Read by RecursiveFetcher, which knows which of the URLs it asks for are
@@ -629,6 +636,7 @@ class Browser:
         max_tabs: int = DEFAULT_MAX_TABS,
         block_images: bool = False,
         start_worker: bool = False,
+        install: Install | None = None,
     ) -> None:
         self.addheaders: list[tuple[str, str]] = list(headers)
         self.session_id = secrets.token_hex(16)
@@ -640,6 +648,7 @@ class Browser:
             'max_tabs': max_tabs,
             'block_images': block_images,
             'verify_ssl_certificates': verify_ssl_certificates,
+            'install': None if install is None else list(install),
         })
         atexit.register(shutdown_worker, weakref.ref(self.worker))
         if user_agent:

@@ -21,7 +21,7 @@ from unittest.mock import patch
 
 from calibre.constants import iswindows
 from calibre.web.automate import camoufox
-from calibre.web.automate.download_deps import camoufox_installer, camoufox_resource_dir
+from calibre.web.automate.download_deps import Install, camoufox_installer, camoufox_resource_dir
 
 TEST_PAGE = '''<!DOCTYPE html><html><head><title>Test Page</title></head><body>
 <h1 id="title">Hello</h1>
@@ -119,7 +119,7 @@ SELECT_ALL_MODIFIERS, SELECT_ALL_KEY = camoufox.parse_chord(camoufox.SELECT_ALL_
 SELECT_ALL_FLAG = {'Control': 'ctrl', 'Meta': 'meta'}[SELECT_ALL_MODIFIERS[-1]]
 
 
-def installed_camoufox() -> tuple[str, str] | None:
+def installed_camoufox() -> Install | None:
     """The camoufox install, but only if it is already present, so that running
     the test suite never downloads hundreds of megabytes."""
     try:
@@ -131,7 +131,7 @@ def installed_camoufox() -> tuple[str, str] | None:
         binary = camoufox_installer.payload_path(camoufox_installer.version_dir(version))
     except Exception:
         return None
-    return binary, version
+    return Install(binary, version)
 
 
 class TestCamoufoxConfig(unittest.TestCase):
@@ -827,6 +827,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
     server: Server
     loop: asyncio.AbstractEventLoop
     browser: camoufox.Browser | None
+    install: Install
 
     # These tests each drive a real browser, which is slow to start and heavy
     # to run, so the parallel test runner keeps them to a few of its worker
@@ -837,6 +838,13 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        install = installed_camoufox()
+        if install is None:
+            raise unittest.SkipTest('the camoufox browser is not installed')
+        # Every browser is given the existing install, as otherwise launching
+        # one would apply any pending update to it, downloading hundreds of
+        # megabytes while holding a lock every other browser test waits on
+        cls.install = install
         cls.server = Server()
         # Starting a browser and cleaning up after it costs well over a second,
         # which is longer than most of these tests take, so the ones that need
@@ -865,7 +873,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
         started with particular options."""
 
         async def main() -> object:
-            async with camoufox.Browser(headless=True, **kw) as browser:  # type: ignore[arg-type]
+            async with camoufox.Browser(headless=True, install=self.install, **kw) as browser:  # type: ignore[arg-type]
                 self.profile_dir = browser.profile_dir
                 return await coro(browser)
 
@@ -889,7 +897,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 # the test suite quick. Their timing is scaled rather than
                 # removed, so what a page sees is still the uneven rhythm of a
                 # hand, see typing_interval() and human_trajectory().
-                browser = camoufox.Browser(headless=True, typing_wpm=TEST_TYPING_WPM, humanize=TEST_MAX_MOVE_TIME)
+                browser = camoufox.Browser(headless=True, typing_wpm=TEST_TYPING_WPM, humanize=TEST_MAX_MOVE_TIME, install=cls.install)
                 await browser.launch()
                 cls.browser = browser
             browser = cls.browser

@@ -53,7 +53,7 @@ from typing import Any, NamedTuple
 from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_in
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.safe_atexit import remove_folder_atexit
-from calibre.web.automate.download_deps import browserforge_data, camoufox_installer, camoufox_resource_dir, debug
+from calibre.web.automate.download_deps import Install, browserforge_data, camoufox_installer, camoufox_resource_dir, debug
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,
@@ -3332,6 +3332,9 @@ class Browser:
     :param config: camoufox config properties that override the generated ones
     :param firefox_user_prefs: Firefox preferences to set
     :param allow_prerelease: use pre-release builds of the browser
+    :param install: an existing install of the browser to use as is. By default
+        the browser is installed, or updated, as needed, which can mean
+        downloading hundreds of megabytes before it starts.
     """
 
     def __init__(
@@ -3353,6 +3356,7 @@ class Browser:
         config: Mapping[str, Any] | None = None,
         firefox_user_prefs: Mapping[str, Any] | None = None,
         allow_prerelease: bool = False,
+        install: Install | None = None,
         launch_timeout: float = LAUNCH_TIMEOUT,
         keep_log: bool = False,
     ) -> None:
@@ -3368,6 +3372,7 @@ class Browser:
         self.block_images, self.block_webrtc, self.enable_cache = block_images, block_webrtc, enable_cache
         self.ignore_https_errors = ignore_https_errors
         self.proxy, self.extra_config, self.allow_prerelease = proxy, config, allow_prerelease
+        self.install = install
         self.extra_user_prefs = firefox_user_prefs
         self.launch_timeout, self.keep_log = launch_timeout, keep_log
         self.connection = Connection()
@@ -3432,7 +3437,8 @@ class Browser:
         if self.process is not None:
             raise Error('This browser has already been launched')
         loop = asyncio.get_running_loop()
-        install = await loop.run_in_executor(None, lambda: camoufox_installer(allow_prerelease=self.allow_prerelease))
+        if (install := self.install) is None:
+            install = await loop.run_in_executor(None, lambda: camoufox_installer(allow_prerelease=self.allow_prerelease))
         binary, self.version = install.path, install.version
         resource_dir = camoufox_resource_dir(binary)
         self.config = await loop.run_in_executor(
