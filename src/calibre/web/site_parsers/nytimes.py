@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 19  # needed for live updates
+module_version = 20  # needed for live updates
 pprint
 
 
@@ -195,6 +195,7 @@ def parse_types(x):
         'EmailSignupBlock',
         'Dropzone',
         'AudioBlock',
+        'CommentsBlock',
     }:
         yield ''.join(parse_cnt(x))
 
