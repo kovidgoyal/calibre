@@ -8,6 +8,7 @@ from operator import itemgetter
 
 from css_parser.css import CSSRule, CSSStyleDeclaration
 from css_selectors import Select, SelectorError, SelectorSyntaxError, parse
+from css_selectors.parser import tokenize
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, css_text
@@ -343,14 +344,14 @@ def filter_sheet(sheet, properties=()):
 def transform_inline_styles(container, name, transform_sheet, transform_style):
     root = container.parsed(name)
     changed = False
-    for style in root.xpath('//*[local-name()="style"]'):
+    for style in root.xpath('//*[local-name()="style"]') if transform_sheet is not None else ():
         if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
             sheet = container.parse_css(style.text)
             if transform_sheet(sheet):
                 changed = True
                 style.text = force_unicode(sheet.cssText, 'utf-8')
                 pretty_script_or_style(container, style)
-    for elem in root.xpath('//*[@style]'):
+    for elem in root.xpath('//*[@style]') if transform_style is not None else ():
         text = elem.get('style', None)
         if text:
             style = container.parse_css(text, is_declaration=True)
@@ -433,6 +434,67 @@ def classes_in_rule_list(css_rules):
         elif hasattr(rule, 'cssRules'):
             classes |= classes_in_rule_list(rule.cssRules)
     return classes
+
+
+def rename_ids_in_selector(text: str, id_map: dict[str, str]) -> str:
+    """Return the selector text with the ids in id_map renamed, in both #id
+    and [id="..."] selectors. The new ids must be valid CSS identifiers."""
+    try:
+        tokens = tuple(tokenize(text))
+    except SelectorSyntaxError:
+        return text
+
+    def skip_space(i: int, step: int = 1) -> int:
+        while 0 <= i < len(tokens) and tokens[i].type == 'S':
+            i += step
+        return i
+
+    replacements: list[tuple[int, int, str]] = []
+    for i, tok in enumerate(tokens):
+        if tok.type == 'HASH':
+            nid = id_map.get(tok.value)
+            if nid is not None:
+                replacements.append((tok.pos, tokens[i + 1].pos, '#' + nid))
+        elif tok.type == 'IDENT' and tok.value.lower() == 'id':
+            prev = skip_space(i - 1, -1)
+            if prev < 0 or not tokens[prev].is_delim('['):
+                continue
+            j = skip_space(i + 1)
+            if not tokens[j].is_delim('='):
+                continue
+            j = skip_space(j + 1)
+            val = tokens[j]
+            if val.type in ('STRING', 'IDENT'):
+                nid = id_map.get(val.value)
+                if nid is not None:
+                    replacements.append((val.pos, tokens[j + 1].pos, f'"{nid}"'))
+    for start, end, repl in reversed(replacements):
+        text = text[:start] + repl + text[end:]
+    return text
+
+
+def rename_ids_in_rule_list(css_rules, id_map: dict[str, str]) -> bool:
+    changed = False
+    for rule in css_rules:
+        if rule.type == rule.STYLE_RULE:
+            q = rename_ids_in_selector(rule.selectorText, id_map)
+            if q != rule.selectorText:
+                rule.selectorText = q
+                changed = True
+        elif hasattr(rule, 'cssRules'):
+            changed = rename_ids_in_rule_list(rule.cssRules, id_map) or changed
+    return changed
+
+
+def rename_ids_in_css(container, id_map: dict[str, str], names=()) -> bool:
+    """
+    Rename id selectors in all CSS rules in the book, both in stylesheets and
+    in <style> tags.
+
+    :param id_map: A mapping of {old_id: new_id}. The new ids must be valid CSS identifiers.
+    :param names: The files in which to rename. Defaults to all HTML and CSS files in the book.
+    """
+    return transform_css(container, transform_sheet=lambda sheet: rename_ids_in_rule_list(sheet.cssRules, id_map), names=names)
 
 
 def iter_declarations(sheet_or_rule):

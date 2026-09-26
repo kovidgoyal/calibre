@@ -282,6 +282,51 @@ class Structure(BaseTest):
         sentences = mark_sentences_in_html(parse('<p lang="en">Hello, <span lang="fr">world!'))
         self.assertEqual(tuple(s.lang for s in sentences), ('eng', 'fra'))
 
+    def test_invalid_id_fix(self):
+        from calibre.ebooks.oeb.polish.check.main import fix_errors
+        from calibre.ebooks.oeb.polish.check.parsing import InvalidId, check_ids, make_valid_id
+        from calibre.ebooks.oeb.polish.css import rename_ids_in_selector
+
+        self.assertEqual(make_valid_id('_x', set()), 'id_x')
+        self.assertEqual(make_valid_id('1 a', {'id1_a'}), 'id1_a-2')
+        self.assertEqual(make_valid_id('a\u00e9', set()), 'a_')
+        id_map = {'_x': 'id_x'}
+        for selector, expected in {
+            '#_x': '#id_x',
+            'p#_x:hover > #_y': 'p#id_x:hover > #_y',
+            '#\\5f x, #_xy': '#id_x, #_xy',
+            ':not(#_x)': ':not(#id_x)',
+            '[id="_x"], [ id = _x ], [id~="_x"], [data-a="_x"]': '[id="id_x"], [ id = "id_x" ], [id~="_x"], [data-a="_x"]',
+            '#_x.c /* c */ i': '#id_x.c /* c */ i',
+        }.items():
+            self.assertEqual(rename_ids_in_selector(selector, id_map), expected)
+
+        def html(body, head=''):
+            return f'''<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="style.css"/>{head}</head><body>{body}</body></html>'''
+
+        c = self.create_epub([
+            cmi('a.html', html('<p id="_x">a</p><a href="#_x">l</a><a href="b.html#_x">l</a>', '<style>#_x { margin: 0 }</style>')),
+            cmi('b.html', html('<p id="_x">b</p><a href="a.html#_x">l</a>')),
+            cmi('c.html', html('<p id="id_x">c</p><p style="color: red">x</p>')),
+            cmi('style.css', '#_x { color: red }\n@media screen { p#_x, [id="_x"] { font-weight: bold } }\n#id_x { color: blue }'),
+        ])
+        errors = [e for e in check_ids(c) if isinstance(e, InvalidId)]
+        self.assertEqual(len(errors), 2)
+        self.assertTrue(fix_errors(c, errors))
+        self.assertFalse([e for e in check_ids(c) if isinstance(e, InvalidId)])
+        nid = 'id_x-2'
+        for name in 'ab':
+            root = c.parsed(f'{name}.html')
+            self.assertEqual(root.xpath('//*[local-name()="p"]/@id'), [nid])
+        self.assertEqual(c.parsed('c.html').xpath('//*[local-name()="p"]/@id'), ['id_x'])
+        self.assertEqual(c.parsed('a.html').xpath('//*[local-name()="a"]/@href'), [f'#{nid}', f'b.html#{nid}'])
+        self.assertEqual(c.parsed('b.html').xpath('//*[local-name()="a"]/@href'), [f'a.html#{nid}'])
+        self.assertIn(f'#{nid}', c.parsed('a.html').xpath('//*[local-name()="style"]')[0].text)
+        sheet = c.parsed('style.css')
+        self.assertEqual(sheet.cssRules[0].selectorText, f'#{nid}')
+        self.assertEqual(sheet.cssRules[1].cssRules[0].selectorText, f'p#{nid}, [id="{nid}"]')
+        self.assertEqual(sheet.cssRules[2].selectorText, '#id_x')
+
 
 def find_tests():
     import unittest

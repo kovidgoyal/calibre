@@ -330,34 +330,68 @@ class DuplicateId(BaseError):
         return True
 
 
+def make_valid_id(eid: str, taken: set[str]) -> str:
+    # The generated id is also a valid CSS identifier so it can be used in
+    # selectors without escaping
+    base = re.sub(r'[^a-zA-Z0-9_-]', '_', eid)
+    if re.match(r'[a-zA-Z]', base) is None:
+        base = 'id' + base
+    ans, num = base, 1
+    while ans in taken:
+        num += 1
+        ans = f'{base}-{num}'
+    return ans
+
+
 class InvalidId(BaseError):
     level = WARN
-    INDIVIDUAL_FIX = _('Replace this id with a randomly generated valid id')
+    INDIVIDUAL_FIX = _('Replace this id with a valid id')
 
     def __init__(self, name, line, eid):
         BaseError.__init__(self, _('Invalid id: %s') % eid, name, line)
-        self.HELP = _(
-            'The id {0} is not a valid id. IDs must start with a letter ([A-Za-z]) and may be'
-            ' followed by any number of letters, digits ([0-9]), hyphens ("-"), underscores ("_")'
-            ', colons (":"), and periods ("."). This is to ensure maximum compatibility'
-            ' with a wide range of devices.'
-        ).format(eid)
+        self.HELP = (
+            _(
+                'The id {0} is not a valid id. IDs must start with a letter ([A-Za-z]) and may be'
+                ' followed by any number of letters, digits ([0-9]), hyphens ("-"), underscores ("_")'
+                ', colons (":"), and periods ("."). This is to ensure maximum compatibility'
+                ' with a wide range of devices.'
+            ).format(eid)
+            + ' '
+            + _(
+                'Fixing this will replace the id in all HTML files that use it, along with'
+                ' links and CSS selectors that refer to it. References in JavaScript are not updated.'
+            )
+        )
         self.invalid_id = eid
 
     def __call__(self, container):
-        from calibre.ebooks.oeb.base import uuid_id
+        from calibre.ebooks.oeb.polish.css import rename_ids_in_css
         from calibre.ebooks.oeb.polish.replace import replace_ids
 
-        newid = uuid_id()
-        changed = False
-        elems = (e for e in container.parsed(self.name).xpath('//*[@id]') if e.get('id') == self.invalid_id)
-        for e in elems:
-            e.set('id', newid)
-            changed = True
-            container.dirty(self.name)
-        if changed:
-            replace_ids(container, {self.name: {self.invalid_id: newid}})
-        return changed
+        # IDs in HTML files can be targeted by stylesheets shared between
+        # files, so rename the id in all HTML files, ensuring the renamed
+        # CSS selectors continue to match everywhere.
+        is_html = container.mime_map.get(self.name) in OEB_DOCS
+        names = [name for name, mt in container.mime_map.items() if mt in OEB_DOCS] if is_html else [self.name]
+        taken = set()
+        elems_map = {}
+        for name in names:
+            for e in container.parsed(name).xpath('//*[@id]'):
+                eid = e.get('id')
+                taken.add(eid)
+                if eid == self.invalid_id:
+                    elems_map.setdefault(name, []).append(e)
+        if not elems_map:
+            return False
+        newid = make_valid_id(self.invalid_id, taken)
+        for name, elems in elems_map.items():
+            for e in elems:
+                e.set('id', newid)
+            container.dirty(name)
+        replace_ids(container, {name: {self.invalid_id: newid} for name in elems_map})
+        if is_html:
+            rename_ids_in_css(container, {self.invalid_id: newid})
+        return True
 
 
 class BareTextInBody(BaseError):
