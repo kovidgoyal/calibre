@@ -2,8 +2,7 @@
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-
-use_wayback_machine = False
+from calibre.web.automate.bot_check import retry_bot_checks
 
 
 class NytFeeds(BasicNewsRecipe):
@@ -11,7 +10,9 @@ class NytFeeds(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = (
         'The New York Times is dedicated to helping people understand the world through '
-        'on-the-ground, expert and deeply reported independent journalism. Feeds based recipe.'
+        'on-the-ground, expert and deeply reported independent journalism. Feeds based recipe. '
+        'Uses the camoufox browser, which is downloaded on first use, as nytimes.com blocks '
+        'every lighter way of fetching its pages.'
     )
     oldest_article = 1
     encoding = 'utf-8'
@@ -125,24 +126,16 @@ class NytFeeds(BasicNewsRecipe):
             return self.nyt_parser.download_url(url, browser())
         return self.index_to_soup(url, raw=True)
 
-    articles_are_obfuscated = use_wayback_machine
-
-    if use_wayback_machine:
-
-        def get_obfuscated_article(self, url):
-            from calibre.ptempfile import PersistentTemporaryFile
-
-            with PersistentTemporaryFile() as tf:
-                tf.write(self.get_nyt_page(url))
-            return tf.name
-
     def preprocess_raw_html(self, raw_html, url):
         return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
 
+    # nytimes.com refuses every other browser, and answers the first request
+    # from a new one with a bot check, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
+
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        return br
+        return retry_bot_checks(BasicNewsRecipe.get_browser(self, *args, **kwargs))
+
 
     def preprocess_html(self, soup):
         w = self.recipe_specific_options.get('res')
