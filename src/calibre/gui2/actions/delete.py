@@ -36,27 +36,50 @@ class MultiDeleter(QObject):  # {{{
         self.pd.setModal(True)
         self.pd.show()
 
+    # Books are deleted in chunks because deleting them one at a time makes
+    # the time taken grow with the size of the library for every book
+    chunk_size = 100
+
+    def title_for(self, book_id):
+        try:
+            return self.model.db.title(book_id, index_is_id=True) or f'id:{book_id}'
+        except Exception:
+            return f'id:{book_id}'
+
     def delete_one(self):
         if not self.ids:
             self.cleanup()
             return
-        id_ = self.ids.pop()
-        title = f'id:{id_}'
+        chunk = [self.ids.pop() for _ in range(min(self.chunk_size, len(self.ids)))]
+        db = self.model.db
         try:
-            title_ = self.model.db.title(id_, index_is_id=True)
-            if title_:
-                title = title_
-            self.model.db.delete_book(id_, notify=False, commit=False, permanent=False)
-            self.deleted_ids.append(id_)
+            db.new_api.remove_books(chunk, permanent=False)
         except Exception:
+            # Delete them one at a time so that one failure does not prevent
+            # the rest of the chunk from being deleted, and we know which
+            # book failed
             import traceback
 
-            self.failures.append((id_, title, traceback.format_exc()))
+            deleted = []
+            for book_id in chunk:
+                try:
+                    db.new_api.remove_books((book_id,), permanent=False)
+                except Exception:
+                    self.failures.append((book_id, self.title_for(book_id), traceback.format_exc()))
+                else:
+                    deleted.append(book_id)
+        else:
+            deleted = chunk
+        if deleted:
+            db.data.books_deleted(tuple(deleted))
+            self.deleted_ids.extend(deleted)
         single_shot(self.delete_one)
         pd = self.pd
         assert pd is not None
-        pd.value += 1
-        pd.set_msg(_('Deleted') + ' ' + title)
+        pd.value += len(chunk)
+        # Books are deleted in chunks, so the name of a single book is no
+        # longer a useful description of what is happening
+        pd.set_msg(_('Deleted {0} of {1} books').format(pd.value, pd.max))
 
     def cleanup(self):
         pd = self.pd
