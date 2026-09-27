@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import re
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.web.automate.bot_check import retry_bot_checks
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NytFeeds(BasicNewsRecipe):
@@ -77,7 +77,7 @@ class NytFeeds(BasicNewsRecipe):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         d = self.recipe_specific_options.get('days')
         if d and isinstance(d, str):
-            self.oldest_article = float(d)
+            self.oldest_article = float(d)  # type: ignore
         r = self.recipe_specific_options.get('rev')
         if r and isinstance(r, str):
             if r.lower() == 'yes':
@@ -120,7 +120,7 @@ class NytFeeds(BasicNewsRecipe):
         return ans
 
     def get_nyt_page(self, url, skip_wayback=False):
-        if use_wayback_machine and not skip_wayback:
+        if not skip_wayback:
             from calibre import browser
 
             return self.nyt_parser.download_url(url, browser())
@@ -135,7 +135,6 @@ class NytFeeds(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         return retry_bot_checks(BasicNewsRecipe.get_browser(self, *args, **kwargs))
-
 
     def preprocess_html(self, soup):
         w = self.recipe_specific_options.get('res')
