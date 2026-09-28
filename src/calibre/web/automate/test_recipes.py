@@ -23,7 +23,7 @@ from calibre.web.automate import recipes
 from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.automate.browser import Warmup
 from calibre.web.automate.download_deps import Install
-from calibre.web.automate.test_camoufox import installed_camoufox
+from calibre.web.automate.test_camoufox import TEST_MAX_MOVE_TIME, TEST_TYPING_WPM, installed_camoufox
 
 ARTICLE_PAGE = '''<!DOCTYPE html><html><head><title>An Article</title>
 <link rel="stylesheet" type="text/css" href="style.css">
@@ -411,7 +411,10 @@ class TestRecipeBrowser(unittest.TestCase):
     @classmethod
     def shared_browser(cls) -> recipes.Browser:
         if cls.browser is None:
-            cls.browser = recipes.Browser(warmup=False, max_tabs=6, install=cls.install)
+            # Typing into forms, and moving the cursor to their fields, at the
+            # pace of a hand takes seconds per field, so it is sped up, as for
+            # the tests of the browser itself
+            cls.browser = recipes.Browser(warmup=False, max_tabs=6, install=cls.install, typing_wpm=TEST_TYPING_WPM, max_move_time=TEST_MAX_MOVE_TIME)
         return cls.browser
 
     def setUp(self) -> None:
@@ -607,30 +610,36 @@ class TestRecipeBrowser(unittest.TestCase):
         br.release()
 
     def test_recipes_submit_form_failures(self) -> None:
-        "A field that is not there, or a site that never gets to where it should, is an error"
+        "A field that is not there, or cannot be typed into, or a page that is not there, is an error"
         br = self.shared_browser().clone_browser()
         with self.assertRaises(URLError) as ctx:
-            br.submit_form(self.server.base + 'login.html', {'#no-such-field': 'x'}, submit='#go', timeout=3)
+            br.submit_form(self.server.base + 'login.html', {'#no-such-field': 'x'}, submit='#go', timeout=1)
         self.assertIn('timed out', str(ctx.exception))
         # Something that cannot be typed into, and an error that does not give
         # away what was being typed, which is usually a password
         with self.assertRaises(URLError) as ctx:
-            br.submit_form(self.server.base + 'login-rerender.html', {'#not-a-field': LOGIN_PASSWORD}, submit='#go', timeout=20)
+            br.submit_form(self.server.base + 'login-rerender.html', {'#not-a-field': LOGIN_PASSWORD}, submit='#go', timeout=10)
         self.assertIn('could not type into #not-a-field', str(ctx.exception))
         self.assertNotIn(LOGIN_PASSWORD, str(ctx.exception))
-        # A wrong password is answered with the login page again, never the welcome page
+        with self.assertRaises(URLError) as ctx:
+            br.submit_form(self.server.base + 'missing', {'#user': 'x'})
+        self.assertEqual(getattr(ctx.exception, 'code', None), 404)
+        br.release()
+
+    def test_recipes_submit_form_wrong_password(self) -> None:
+        "A wrong password is answered with the login page again, never the welcome page"
+        # A test of its own, since it can only fail by timing out, so that the
+        # parallel test runner can wait for it alongside the other failures
+        br = self.shared_browser().clone_browser()
         with self.assertRaises(URLError) as ctx:
             br.submit_form(
                 self.server.base + 'login.html',
                 {'#user': 'reader', '#pass': 'wrong'},
                 submit='#go',
                 wait_for_url=self.server.base + 'welcome',
-                timeout=8,
+                timeout=6,
             )
-        self.assertIn(f'had not arrived at {self.server.base}welcome 8 seconds after', str(ctx.exception))
-        with self.assertRaises(URLError) as ctx:
-            br.submit_form(self.server.base + 'missing', {'#user': 'x'})
-        self.assertEqual(getattr(ctx.exception, 'code', None), 404)
+        self.assertIn(f'had not arrived at {self.server.base}welcome 6 seconds after', str(ctx.exception))
         br.release()
 
     def test_recipes_parallel_downloads(self) -> None:

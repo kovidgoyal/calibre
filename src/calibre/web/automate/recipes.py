@@ -533,6 +533,8 @@ async def setup_browser(input_data: Mapping[str, Any]) -> None:
         ignore_https_errors=not input_data.get('verify_ssl_certificates', False),
         firefox_user_prefs=BROWSER_PREFS,
         install=install,
+        typing_wpm=float(input_data.get('typing_wpm') or 0),
+        humanize=float(input_data.get('max_move_time') or 0) or False,
     )
     started = time.monotonic()
     await browser.launch()
@@ -745,6 +747,10 @@ class Browser:
     :param start_worker: launch the browser now rather than on first use
     :param install: an existing install of the browser to use as is, rather
         than installing or updating it as needed
+    :param typing_wpm: how fast to type into forms, in words per minute, the
+        default, 0, means a moderately quick human typist
+    :param max_move_time: the longest, in seconds, a cursor movement may take,
+        the default, 0, means as long as a human hand would take
     """
 
     # Read by RecursiveFetcher, which knows which of the URLs it asks for are
@@ -765,6 +771,8 @@ class Browser:
         block_images: bool = False,
         start_worker: bool = False,
         install: Install | None = None,
+        typing_wpm: float = 0,
+        max_move_time: float = 0,
     ) -> None:
         self.addheaders: list[tuple[str, str]] = list(headers)
         self.session_id = secrets.token_hex(16)
@@ -777,6 +785,8 @@ class Browser:
             'block_images': block_images,
             'verify_ssl_certificates': verify_ssl_certificates,
             'install': None if install is None else list(install),
+            'typing_wpm': typing_wpm,
+            'max_move_time': max_move_time,
         })
         atexit.register(shutdown_worker, weakref.ref(self.worker))
         if user_agent:
