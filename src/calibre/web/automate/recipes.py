@@ -40,7 +40,7 @@ from urllib.error import URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request
 
-from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, Page, TimeoutExceeded, debug, remove_profile_dir
+from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, InputWedged, Page, TimeoutExceeded, debug, remove_profile_dir
 from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
 
@@ -50,6 +50,12 @@ DEFAULT_MAX_TABS = 5
 # How long to go on waiting for the DOM of a page whose load event never
 # arrived, usually because some tracker or advert is still spinning
 DOM_READY_GRACE = 10.0  # seconds
+# How often to look again at where a submitted form has got to
+FORM_POLL_INTERVAL = 0.25  # seconds
+# How many times to type into a form field that did not end up holding what
+# was typed, and how long to let the page settle before looking
+FILL_ATTEMPTS = 3
+FILL_RETRY_DELAY = 0.5  # seconds
 # Statuses that mean the server was busy rather than that the URL is wrong, so
 # that RecursiveFetcher knows to try once more
 RETRY_STATUSES = frozenset({
@@ -305,6 +311,12 @@ async def fetch_document(session: Session, page: Page, url: str, timeout: float)
         # still perfectly usable as long as its DOM has been built
         debug(f'{url} did not finish loading within {timeout} seconds, using it as it stands')
         await page.wait_for_dom_ready(DOM_READY_GRACE)
+    return await rendered_document(session, page, url, timeout)
+
+
+async def rendered_document(session: Session, page: Page, url: str, timeout: float) -> dict[str, Any]:
+    """Hand back the document the session's tab is showing, which it navigated
+    to on the way to url."""
     final_url = await page.current_url()
     session.document_url = final_url
     response = page.response_for(final_url) or page.response_for(page.url) or page.response_for(url)
@@ -396,6 +408,107 @@ async def do_fetch(state: State, request: Mapping[str, Any]) -> dict[str, Any]:
         return await fetch_resource(page, url, timeout)
 
 
+async def fill_field(page: Page, selector: str, value: str, remaining: Callable[[], float]) -> bool:
+    """Type value into the field matching selector, returning whether it took.
+
+    A form built with a JavaScript framework is liable to render its fields
+    again just after the page has loaded, replacing the element that was
+    clicked on, so that what is typed goes nowhere, or clearing what was typed
+    into it. Either way typing it again, into what is there now, is what works,
+    and looking at what the field holds afterwards is the only way to know.
+    """
+    for attempt in range(FILL_ATTEMPTS):
+        if attempt:
+            await asyncio.sleep(min(FILL_RETRY_DELAY, remaining()))
+        try:
+            await page.fill(selector, value, timeout=remaining())
+            await asyncio.sleep(min(FILL_RETRY_DELAY, remaining()))
+            element = await page.find(selector)
+            if element is None:
+                continue
+            try:
+                if await element.value() == value:
+                    return True
+            finally:
+                await element.dispose()
+        except TimeoutExceeded, InputWedged:
+            raise
+        except Error as err:
+            # Not the message itself, which quotes what was being typed
+            debug(f'Typing into {selector} failed with {type(err).__name__}, attempt {attempt + 1} of {FILL_ATTEMPTS}')
+    return False
+
+
+async def submit_form(session: Session, page: Page, request: Mapping[str, Any]) -> dict[str, Any]:
+    """Fill in and submit the form on a page, the way a person would.
+
+    Each value is typed into its field rather than assigned to it, since the
+    forms that need a browser at all, login forms in particular, are built with
+    JavaScript frameworks that only notice input arriving as key presses, and
+    the form is submitted by clicking its button. What the site answers with is
+    then waited for: the first navigation, or if the form hands the browser on
+    through a series of redirects, as a single sign on service does, the first
+    one that arrives at a URL starting with wait_for_url.
+    """
+    url = str(request['url'])
+    timeout = float(request.get('timeout') or DEFAULT_TIMEOUT)
+    fields = [(str(selector), str(value)) for selector, value in request.get('fields') or ()]
+    submit = str(request.get('submit') or '')
+    wait_for_url = str(request.get('wait_for_url') or '')
+    deadline = time.monotonic() + timeout
+
+    def remaining() -> float:
+        return max(deadline - time.monotonic(), 0)
+
+    loaded = await fetch_document(session, page, url, timeout)
+    if loaded.get('error'):
+        return loaded
+    # Neither the values nor anything derived from them is ever logged, since
+    # what goes into a login form is a password
+    try:
+        for selector, value in fields:
+            if not await fill_field(page, selector, value, remaining):
+                return error_result(f'Submitting the form at {url} failed: could not type into {selector}', url=page.url)
+        form_context = context = await page.wait_for_execution_context(remaining())
+        if submit:
+            await page.click(submit, timeout=remaining())
+        else:
+            await page.press(fields[-1][0], 'Enter', timeout=remaining())
+
+        def arrived() -> bool:
+            return context != form_context and (not wait_for_url or page.url.startswith(wait_for_url))
+
+        # The URL of the page and its JavaScript context are reported by events
+        # of their own, in no particular order, so rather than waiting for a
+        # context and then looking at the URL, which can still be that of the
+        # page before, both are looked at again every time anything arrives
+        while not arrived():
+            try:
+                context = await page.wait_for_new_execution_context(context, min(remaining(), FORM_POLL_INTERVAL))
+            except TimeoutExceeded:
+                if not remaining():
+                    where = f'arrived at {wait_for_url}' if wait_for_url else 'gone anywhere'
+                    raise TimeoutExceeded(f'the browser had not {where} {timeout:g} seconds after the form was submitted, it is at {page.url}')
+        try:
+            await page.wait_for_load(timeout=remaining())
+        except TimeoutExceeded:
+            await page.wait_for_dom_ready(DOM_READY_GRACE)
+    except TimeoutExceeded as err:
+        return error_result(f'Submitting the form at {url} timed out: {err}', url=page.url)
+    except Error as err:
+        return error_result(f'Submitting the form at {url} failed: {err}', url=page.url)
+    return await rendered_document(session, page, page.url, remaining() or DOM_READY_GRACE)
+
+
+async def do_submit_form(state: State, request: Mapping[str, Any]) -> dict[str, Any]:
+    timeout = float(request.get('timeout') or DEFAULT_TIMEOUT)
+    session = await state.session_for(str(request['session']))
+    async with session.lock:
+        session.last_used = time.monotonic()
+        page = await state.page_for(session, timeout)
+        return await submit_form(session, page, request)
+
+
 def origin_of(url: str) -> str:
     parts = urlparse(url)
     return f'{parts.scheme}://{parts.netloc}/' if parts.scheme and parts.netloc else url
@@ -435,6 +548,9 @@ async def handle_request(input_data: Mapping[str, Any], request: Mapping[str, An
         case 'fetch':
             await state.apply_headers([(str(n), str(v)) for n, v in request.get('extra_headers') or ()])
             return await do_fetch(state, request)
+        case 'submit_form':
+            await state.apply_headers([(str(n), str(v)) for n, v in request.get('extra_headers') or ()])
+            return await do_submit_form(state, request)
         case 'release':
             await state.release(str(request['session']))
             return True
@@ -593,6 +709,18 @@ class Worker:
                 close_worker()
 
 
+def response_from_result(result: Mapping[str, Any]) -> Response:
+    """Turn what the worker answered a request with into a Response, raising
+    the URLError, with the HTTP status as its code, of a failed one."""
+    if result.get('error'):
+        err = URLError(result['error'])
+        setattr(err, 'worth_retry', bool(result.get('worth_retry')))
+        if result.get('status'):
+            setattr(err, 'code', int(result['status']))
+        raise err
+    return Response(result)
+
+
 def shutdown_worker(ref: weakref.ReferenceType[Worker]) -> None:
     worker = ref()
     if worker is not None:
@@ -714,13 +842,7 @@ class Browser:
             'timeout': timeout,
             'as_document': as_document,
         })
-        if result.get('error'):
-            err = URLError(result['error'])
-            setattr(err, 'worth_retry', bool(result.get('worth_retry')))
-            if result.get('status'):
-                setattr(err, 'code', int(result['status']))
-            raise err
-        return Response(result)
+        return response_from_result(result)
 
     def open(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = True) -> Response:  # noqa: ANN401
         """Load a URL the way a person clicking a link would.
@@ -743,6 +865,51 @@ class Browser:
 
     def is_method_ok(self, method: str) -> bool:
         return True
+
+    def submit_form(
+        self,
+        url: str,
+        fields: Mapping[str, str],
+        submit: str = '',
+        wait_for_url: str = '',
+        timeout: float | None = None,
+    ) -> Response:
+        """Fill in and submit the form on the page at url, typically to log in.
+
+        :param fields: maps the CSS selector of each field to the value to type
+            into it, in the order they are to be filled in
+        :param submit: the CSS selector of the button that submits the form, if
+            not given Enter is pressed in the last field instead
+        :param wait_for_url: when submitting the form leads through a series of
+            pages, as logging in with a single sign on service does, the prefix
+            of the URL of the page it ends up on, otherwise the first page the
+            browser navigates to is the one handed back
+        :param timeout: for the whole thing, from loading the page to the site
+            answering the form
+
+        The page is loaded in this browser's tab, each value is typed into its
+        field the way a person would type it and the submit button is clicked,
+        which is what the forms built with JavaScript frameworks, which is to
+        say most login forms, need in order to notice the values at all. Any
+        cookies the site sets in answer are, as always, shared by every tab.
+
+        Hands back the page the browser ends up on, like :meth:`open`, and
+        raises a :class:`URLError` if a field or the submit button never
+        appears or the site never answers.
+        """
+        if not fields and not submit:
+            raise ValueError('Submitting a form needs either fields to fill in or a button to click')
+        result = self.worker.request({
+            'action': 'submit_form',
+            'session': self.session_id,
+            'url': url,
+            'fields': [(str(selector), str(value)) for selector, value in fields.items()],
+            'submit': submit,
+            'wait_for_url': wait_for_url,
+            'extra_headers': self.addheaders,
+            'timeout': timeout,
+        })
+        return response_from_result(result)
 
     # }}}
 

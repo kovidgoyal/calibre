@@ -11,9 +11,10 @@ import tempfile
 import threading
 import unittest
 from collections import Counter
+from http.cookies import SimpleCookie
 from unittest.mock import patch
 from urllib.error import URLError
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 from urllib.request import Request
 
 from calibre.utils.avif_test import STILL_AVIF
@@ -53,6 +54,60 @@ CACHEABLE_PATH = '/cacheable.html'
 LATIN1_PAGE = '''<!DOCTYPE html><html><head><meta charset="iso-8859-1"><title>Caf\xe9</title></head>
 <body><p id="word">na\xefve caf\xe9</p></body></html>'''
 
+# The only password the test login form accepts, with characters a keyboard
+# only types with shift held down
+LOGIN_PASSWORD = 'Se-cret!2'
+# A login form of the kind built with a JavaScript framework: the button stays
+# disabled until the fields have seen input events, so values assigned to them
+# from a script would never get it submitted. The site answers by setting a
+# cookie and handing the browser on, the way a single sign on service does,
+# through a redirect and then a page that navigates on from a script.
+LOGIN_PAGE = '''<!DOCTYPE html><html><head><title>Log in</title></head><body>
+<form id="login" method="post" action="/login">
+<input type="hidden" name="next" value="/hop.html">
+<input id="user" name="user" type="text">
+<input id="pass" name="pass" type="password">
+<button id="go" type="submit" disabled>Log in</button>
+</form>
+<script>
+const fields = [document.getElementById('user'), document.getElementById('pass')];
+for (const f of fields) f.addEventListener('input', () => {
+    document.getElementById('go').disabled = !fields.every(x => x.value);
+});
+</script>
+</body></html>'''
+# A form submitted by pressing Enter, whose answer is final. It still needs a
+# submit button, since a browser only submits a form with more than one field
+# in it from the keyboard when the form has a button that could have done so.
+LOGIN_ENTER_PAGE = '''<!DOCTYPE html><html><head><title>Log in</title></head><body>
+<form method="post" action="/login">
+<input type="hidden" name="next" value="/welcome">
+<input id="user" name="user" type="text">
+<input id="pass" name="pass" type="password">
+<button type="submit">Log in</button>
+</form></body></html>'''
+# A form rendered a second time, into new elements, as the forms of JavaScript
+# frameworks are liable to be just after the page loads, which loses whatever
+# was typed into the fields before it happened. Done on the first key press,
+# so that it is sure to catch the typing half way through.
+LOGIN_RERENDER_PAGE = '''<!DOCTYPE html><html><head><title>Log in</title></head><body>
+<form id="login" method="post" action="/login"></form>
+<p id="not-a-field">Not somewhere text can be typed</p>
+<script>
+const render = () => { document.getElementById('login').innerHTML = `
+<input type="hidden" name="next" value="/welcome">
+<input id="user" name="user" type="text">
+<input id="pass" name="pass" type="password">
+<button id="go" type="submit">Log in</button>`; };
+render();
+document.getElementById('login').addEventListener('input', render, {once: true});
+</script>
+</body></html>'''
+HOP_PAGE = '''<!DOCTYPE html><html><head><title>Logging in</title></head><body>
+<p>One moment</p>
+<script>setTimeout(() => location.replace('/welcome'), 300);</script>
+</body></html>'''
+
 
 class Server:
     """Serves the test pages over HTTP and counts what is asked for."""
@@ -67,6 +122,10 @@ class Server:
             ('pic.avif', STILL_AVIF),
             ('style.css', TEST_CSS.encode('utf-8')),
             ('latin1.html', LATIN1_PAGE.encode('iso-8859-1')),
+            ('login.html', LOGIN_PAGE.encode('utf-8')),
+            ('login-enter.html', LOGIN_ENTER_PAGE.encode('utf-8')),
+            ('hop.html', HOP_PAGE.encode('utf-8')),
+            ('login-rerender.html', LOGIN_RERENDER_PAGE.encode('utf-8')),
         ):
             with open(os.path.join(self.dir, name), 'wb') as f:
                 f.write(data)
@@ -138,6 +197,11 @@ class Server:
                         self.send_response(302)
                         self.send_header('Location', '/article.html')
                         self.end_headers()
+                    case '/welcome':
+                        # Who the cookie the login set says is logged in
+                        cookies = SimpleCookie(self.headers.get('Cookie') or '')
+                        user = cookies['login'].value if 'login' in cookies else 'nobody'
+                        self.reply(200, 'text/html', f'<html><body><p id="who">{user}</p></body></html>'.encode())
                     case '/latin1.html':
                         with open(os.path.join(server.dir, 'latin1.html'), 'rb') as f:
                             self.reply(200, 'text/html; charset=iso-8859-1', f.read())
@@ -145,8 +209,17 @@ class Server:
                         super().do_GET()
 
             def do_POST(self) -> None:
-                self.count()
+                path = self.count()
                 body = self.rfile.read(int(self.headers.get('Content-Length') or 0))
+                if path == '/login':
+                    form = parse_qs(body.decode('utf-8'))
+                    ok = form.get('pass') == [LOGIN_PASSWORD]
+                    self.send_response(302)
+                    if ok:
+                        self.send_header('Set-Cookie', f'login={form["user"][0]}; Path=/')
+                    self.send_header('Location', form['next'][0] if ok else '/login.html')
+                    self.end_headers()
+                    return
                 payload = {'body': body.decode('utf-8', 'replace'), 'header': self.headers.get('X-Recipe-Test') or ''}
                 self.reply(200, 'application/json', json.dumps(payload).encode())
 
@@ -287,6 +360,19 @@ class TestRecipeWarmupUrls(unittest.TestCase):
             # Excluding everything must not ask for more sites than are left
             every_domain = ('amazon.com', 'x.com', 'youtube.com', 'foxnews.com', 'bbc.com', 'wikipedia.org', 'reddit.com')
             self.assertEqual(Warmup(min_num=3, max_num=3, excluded_domains=every_domain).urls, ())
+
+
+class TestRecipeSubmitFormArguments(unittest.TestCase):
+    """What submit_form() refuses before it gets as far as the browser."""
+
+    def test_recipes_submit_form_needs_something_to_do(self) -> None:
+        br = recipes.Browser(warmup=False)
+        try:
+            with self.assertRaises(ValueError):
+                br.submit_form('http://example.com/login', {})
+            self.assertFalse(br.worker.path, 'the browser was started for a request that was refused')
+        finally:
+            br.shutdown()
 
 
 @unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
@@ -484,6 +570,69 @@ class TestRecipeBrowser(unittest.TestCase):
             self.assertEqual(json.loads(response.read()), {'body': 'hello=world', 'header': 'yes'})
         br.release()
 
+    def test_recipes_submit_form(self) -> None:
+        "A login form is typed into and submitted, and followed to where it ends up"
+        br = self.shared_browser().clone_browser()
+        with br.submit_form(
+            self.server.base + 'login.html',
+            {'#user': 'reader', '#pass': LOGIN_PASSWORD},
+            submit='#go',
+            wait_for_url=self.server.base + 'welcome',
+        ) as response:
+            self.assertEqual(response.geturl(), self.server.base + 'welcome')
+            self.assertIn('<p id="who">reader</p>', response.read().decode('utf-8'))
+        self.assertIn('login', {c['name'] for c in br.cookies()}, 'the cookie the login set is not in the browser')
+        # Cookies are shared, so another tab is logged in as well
+        other = self.shared_browser().clone_browser()
+        with other.open(self.server.base + 'welcome') as response:
+            self.assertIn('<p id="who">reader</p>', response.read().decode('utf-8'))
+        other.release()
+        br.release()
+
+    def test_recipes_submit_form_with_enter(self) -> None:
+        "Without a button to click, Enter is pressed, and the first page arrived at is handed back"
+        br = self.shared_browser().clone_browser()
+        with br.submit_form(self.server.base + 'login-enter.html', {'#user': 'enterer', '#pass': LOGIN_PASSWORD}) as response:
+            self.assertEqual(response.geturl(), self.server.base + 'welcome')
+            self.assertIn('<p id="who">enterer</p>', response.read().decode('utf-8'))
+        br.release()
+
+    def test_recipes_submit_form_rerendered(self) -> None:
+        "A field that is rendered again while it is being typed into is typed into again"
+        br = self.shared_browser().clone_browser()
+        with br.submit_form(
+            self.server.base + 'login-rerender.html', {'#user': 'patient', '#pass': LOGIN_PASSWORD}, submit='#go', wait_for_url=self.server.base + 'welcome'
+        ) as response:
+            self.assertIn('<p id="who">patient</p>', response.read().decode('utf-8'))
+        br.release()
+
+    def test_recipes_submit_form_failures(self) -> None:
+        "A field that is not there, or a site that never gets to where it should, is an error"
+        br = self.shared_browser().clone_browser()
+        with self.assertRaises(URLError) as ctx:
+            br.submit_form(self.server.base + 'login.html', {'#no-such-field': 'x'}, submit='#go', timeout=3)
+        self.assertIn('timed out', str(ctx.exception))
+        # Something that cannot be typed into, and an error that does not give
+        # away what was being typed, which is usually a password
+        with self.assertRaises(URLError) as ctx:
+            br.submit_form(self.server.base + 'login-rerender.html', {'#not-a-field': LOGIN_PASSWORD}, submit='#go', timeout=20)
+        self.assertIn('could not type into #not-a-field', str(ctx.exception))
+        self.assertNotIn(LOGIN_PASSWORD, str(ctx.exception))
+        # A wrong password is answered with the login page again, never the welcome page
+        with self.assertRaises(URLError) as ctx:
+            br.submit_form(
+                self.server.base + 'login.html',
+                {'#user': 'reader', '#pass': 'wrong'},
+                submit='#go',
+                wait_for_url=self.server.base + 'welcome',
+                timeout=8,
+            )
+        self.assertIn(f'had not arrived at {self.server.base}welcome 8 seconds after', str(ctx.exception))
+        with self.assertRaises(URLError) as ctx:
+            br.submit_form(self.server.base + 'missing', {'#user': 'x'})
+        self.assertEqual(getattr(ctx.exception, 'code', None), 404)
+        br.release()
+
     def test_recipes_parallel_downloads(self) -> None:
         "Every download thread gets a tab of its own and they run at the same time"
         shared = self.shared_browser()
@@ -567,7 +716,7 @@ class TestRecipeBrowser(unittest.TestCase):
 
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeBrowser):
+    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeSubmitFormArguments, TestRecipeBrowser):
         ans.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 

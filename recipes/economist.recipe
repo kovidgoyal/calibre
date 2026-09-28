@@ -2,6 +2,7 @@
 import json
 import time
 from datetime import datetime, timedelta
+from urllib.error import URLError
 
 from html5_parser import parse
 from lxml import etree
@@ -10,14 +11,17 @@ from calibre.utils.date import local_tz
 from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe
 
-# The Economist serves the full text of an article to the readers of its mobile
-# app and only the opening paragraph to everybody else, and tells the two apart
-# by a marker that the app's webview appends to its user agent. Camoufox insists
-# on a user agent that matches the rest of the fingerprint it presents, so the
-# marker is appended to whatever that user agent turns out to be rather than
-# replacing it with one of our own invention, which is both the only thing
-# camoufox permits and the only thing that is internally consistent.
-APP_USER_AGENT_MARKER = ' Liskov'
+# Logging in goes through a single sign on service, whose form is built with a
+# JavaScript framework and so has to be typed into. It hands the browser back to
+# the site once the password has been accepted, and not at all otherwise.
+LOGIN_URL = 'https://www.economist.com/api/auth/login'
+LOGIN_FIELDS = ('input[name=username]', 'input[name=password]')
+# The button stays disabled until the fields have been filled in
+LOGIN_SUBMIT = 'button[type=submit]:enabled'
+LOGGED_IN_URL = 'https://www.economist.com/'
+LOGIN_TIMEOUT = 120  # seconds, typing like a person takes a while
+# Set by the site once it knows who is logged in
+SUBSCRIBER_COOKIE = 'state-is-subscriber'
 
 
 def safe_dict(data, *names):
@@ -189,9 +193,11 @@ class Economist(BasicNewsRecipe):
 
     __author__ = 'Kovid Goyal, unkn0wn'
     description = (
-        'Global news and current affairs from a European perspective. Uses the camoufox browser, which'
-        ' is downloaded on first use, as economist.com blocks every lighter way of fetching its pages.'
+        'Global news and current affairs from a European perspective. Needs a subscription to The Economist.'
+        ' Uses the camoufox browser, which is downloaded on first use, as economist.com blocks every lighter'
+        ' way of fetching its pages.'
     )
+    needs_subscription = True
     extra_css = '''
         em { color:#202020; }
         img {display:block; margin:0 auto;}
@@ -200,8 +206,8 @@ class Economist(BasicNewsRecipe):
     resolve_internal_links = True
 
     # economist.com refuses every other browser, and answers the first request
-    # from a new one with a bot check, see calibre.web.automate.bot_check and
-    # the module level comment on the user agent
+    # from a new one with a bot check, see calibre.web.automate.bot_check. Its
+    # login form also has to be typed into, see the module level comment on it.
     browser_type = 'camoufox'
     # No delay between requests, deliberately: any delay at all makes calibre
     # download on a single thread, and a browser that navigates to every article
@@ -222,19 +228,40 @@ class Economist(BasicNewsRecipe):
     }
 
     def get_browser(self, *args, **kwargs):
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        ua = br.user_agent()
-        if not ua:
-            raise ValueError('The camoufox browser did not report a user agent, so the app marker cannot be appended to it')
-        ua += APP_USER_AGENT_MARKER
-        # Extra headers are a property of the whole browser, so this marks the
-        # requests of every tab. It is done here rather than when the browser is
-        # created so that the warmup visits to other sites are made with the
-        # browser's own user agent.
-        br.addheaders = [(name, value) for name, value in br.addheaders if name.lower() != 'user-agent']
-        br.addheaders.append(('User-Agent', ua))
-        self.log('Using user agent:', ua)
-        return retry_bot_checks(br)
+        br = retry_bot_checks(BasicNewsRecipe.get_browser(self, *args, **kwargs))
+        self.economist_login(br)
+        return br
+
+    def economist_login(self, br):
+        """Log br in, failing unless the account has a subscription.
+
+        The cookies a login sets are shared by every tab of the browser, so the
+        download threads, whose browsers are clones of this one, are logged in
+        as well.
+        """
+        # An ordinary page first, so that the bot check, which the form
+        # submission does not wait out, has been passed by the time of the login
+        br.open(LOGGED_IN_URL).close()
+        try:
+            br.submit_form(
+                LOGIN_URL,
+                dict(zip(LOGIN_FIELDS, (self.username, self.password))),
+                submit=LOGIN_SUBMIT,
+                wait_for_url=LOGGED_IN_URL,
+                timeout=LOGIN_TIMEOUT,
+            ).close()
+        except URLError as err:
+            raise ValueError(f'Failed to log in to economist.com, check your username and password. The error was: {err}') from err
+        cookies = {c['name']: c['value'] for c in br.cookies() if c.get('domain', '').endswith('economist.com')}
+        if SUBSCRIBER_COOKIE not in cookies:
+            raise ValueError(f'Logging in to economist.com did not work, it did not say whether {self.username} is a subscriber')
+        if cookies[SUBSCRIBER_COOKIE] != 'true':
+            # An account without one gets only the opening paragraph of all
+            # but a few articles a month
+            raise ValueError(
+                f'The economist.com account {self.username} does not have a subscription. A subscription to The Economist is required to download it.'
+            )
+        self.log('Logged in to economist.com as a subscriber')
 
     def canonicalize_internal_url(self, url, is_link=True):
         if url.endswith('/print'):
