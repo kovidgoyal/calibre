@@ -612,6 +612,10 @@ class TestRecipeBrowser(unittest.TestCase):
     def test_recipes_submit_form_failures(self) -> None:
         "A field that is not there, or cannot be typed into, or a page that is not there, is an error"
         br = self.shared_browser().clone_browser()
+        # Create the tab, and load the page, beforehand, since both count
+        # against the timeout and on a slow machine can take longer than it,
+        # failing with an error of their own rather than a timed out form
+        br.open(self.server.base + 'login.html').close()
         with self.assertRaises(URLError) as ctx:
             br.submit_form(self.server.base + 'login.html', {'#no-such-field': 'x'}, submit='#go', timeout=1)
         self.assertIn('timed out', str(ctx.exception))
