@@ -661,7 +661,10 @@ def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element:
 
     page_url = rc.url_for('/opds/navcatalog', which=which)
     up_url = rc.url_for('/opds')
-    which = from_hex_unicode(which)
+    try:
+        which = from_hex_unicode(which)
+    except ValueError:
+        raise HTTPNotFound('Not found')
     type_ = which[0]
     which = which[1:]
     if type_ == 'O':
@@ -684,7 +687,10 @@ def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> e
     page_url = rc.url_for('/opds/category', which=which, category=category)
     up_url = rc.url_for('/opds/navcatalog', which=category)
 
-    which, category = from_hex_unicode(which), from_hex_unicode(category)
+    try:
+        which, category = from_hex_unicode(which), from_hex_unicode(category)
+    except ValueError:
+        raise HTTPNotFound('Not found')
     type_ = which[0]
     which = which[1:]
     if type_ == 'I':
@@ -736,13 +742,19 @@ def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str)
     categories = rc.get_categories()
     page_url = rc.url_for('/opds/categorygroup', category=category, which=which)
 
-    category = from_hex_unicode(category)
+    try:
+        category = from_hex_unicode(category)
+    except ValueError:
+        raise HTTPNotFound('Not found')
     if category not in categories:
         raise HTTPNotFound(f'Category {which!r} not found')
     category_meta = rc.db.field_metadata
     meta = category_meta.get(category, {})
     category_name = meta.get('name', which)
-    which = from_hex_unicode(which)
+    try:
+        which = from_hex_unicode(which)
+    except ValueError:
+        raise HTTPNotFound('Not found')
     feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
     owhich = as_hex_unicode('N' + category)
     up_url = rc.url_for('/opds/navcatalog', which=owhich)
