@@ -15,6 +15,21 @@ from calibre.utils.icu import upper as icu_upper
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
 
+def slots_copier(slots):
+    """
+    Return a __copy__ method that copies the given slots directly. Tags are
+    copied in bulk by CategoriesCache and copy.copy() is slow for a class with
+    __slots__, as it goes through the pickle protocol. The method is generated
+    from the slots so that it can never get out of sync with them.
+    """
+    lines = ['def __copy__(self):', '    ans = self.__class__.__new__(self.__class__)']
+    lines += [f'    ans.{k} = self.{k}' for k in slots]
+    lines.append('    return ans')
+    namespace = {}
+    exec('\n'.join(lines), namespace)
+    return namespace['__copy__']
+
+
 class Tag:
     __slots__ = (
         'avg_rating',
@@ -33,6 +48,7 @@ class Tag:
         'state',
         'use_sort_as_name',
     )
+    __copy__ = slots_copier(__slots__)
 
     def __init__(
         self,
@@ -71,28 +87,6 @@ class Tag:
 
     def __str__(self):
         return self.string_representation
-
-    def __copy__(self):
-        # Tags are copied in bulk by CategoriesCache and copy.copy() is slow
-        # for a class with __slots__, as it goes through the pickle protocol
-        cls = self.__class__
-        ans = cls.__new__(cls)
-        ans.avg_rating = self.avg_rating
-        ans.category = self.category
-        ans.count = self.count
-        ans.id = self.id
-        ans.id_set = self.id_set
-        ans.is_editable = self.is_editable
-        ans.is_hierarchical = self.is_hierarchical
-        ans.is_searchable = self.is_searchable
-        ans.name = self.name
-        ans.original_categories = self.original_categories
-        ans.original_name = self.original_name
-        ans.search_expression = self.search_expression
-        ans.sort = self.sort
-        ans.state = self.state
-        ans.use_sort_as_name = self.use_sort_as_name
-        return ans
 
     def __repr__(self):
         return str(self)

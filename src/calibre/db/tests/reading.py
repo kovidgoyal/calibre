@@ -506,6 +506,20 @@ class ReadingTest(BaseTest):
         cache = self.init_cache(self.library_path)
         cc = cache.categories_cache
 
+        # The cache hands out shallow copies of its Tag objects, which must
+        # have every slot of the original
+        import copy
+
+        from calibre.db.categories import Tag
+
+        tag = Tag('x')
+        for i, k in enumerate(Tag.__slots__):
+            setattr(tag, k, (k, i))
+        c = copy.copy(tag)
+        self.assertIsNot(tag, c)
+        for k in Tag.__slots__:
+            self.assertIs(getattr(tag, k), getattr(c, k), f'Copying a Tag does not copy {k}')
+
         def names(category, **kw):
             return [(t.name, t.original_name, t.count) for t in cache.get_categories(**kw)[category]]
 
