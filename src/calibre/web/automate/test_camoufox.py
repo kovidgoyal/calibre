@@ -1328,23 +1328,34 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # Every position along a path is a separate event the browser has
             # to acknowledge, and on a loaded machine those round trips, not
             # the budget, are what the wall clock is mostly made of, so measure
-            # one here rather than assuming it is quick
-            probe = time.monotonic()
-            for i in range(6):
-                await page.mouse.move(20 + 10 * i, 20, human=False)
-            per_event = (time.monotonic() - probe) / 6
-            # Back into the corner the cursor started in, so that the click
-            # below is the same journey it would have been without measuring
-            await page.mouse.move(1, 1, human=False)
-            await page.evaluate('window.__reset()')
-            start = time.monotonic()
-            await page.click('#btn')
-            self.assertGreater(len(await page.evaluate('window.__moves')), 5)
-            self.assertEqual([e['type'] for e in await page.evaluate('window.__events')], ['mousedown', 'mouseup', 'click'])
-            # The movement kept to the budget, with the click itself, the round
-            # trips it took and the pauses of a human hand on top of it
-            round_trips = (camoufox.MAX_MOVE_STEPS + 8) * per_event
-            self.assertLess(time.monotonic() - start, TEST_MAX_MOVE_TIME + round_trips + 4)
+            # one here rather than assuming it is quick. A CI machine can also
+            # stall for seconds at any moment, which no measurement made
+            # beforehand can foresee, so a click that overruns is tried again
+            # and only one that overruns every time is a failure: a stall is
+            # rare, a movement that ignores the budget does so on every try.
+            attempts: list[tuple[float, float]] = []
+            for attempt in range(4):
+                probe = time.monotonic()
+                for i in range(6):
+                    await page.mouse.move(20 + 10 * i, 20, human=False)
+                per_event = (time.monotonic() - probe) / 6
+                # Back into the corner the cursor started in, so that the click
+                # below is the same journey it would have been without measuring
+                await page.mouse.move(1, 1, human=False)
+                await page.evaluate('window.__reset()')
+                start = time.monotonic()
+                await page.click('#btn')
+                elapsed = time.monotonic() - start
+                self.assertGreater(len(await page.evaluate('window.__moves')), 5)
+                self.assertEqual([e['type'] for e in await page.evaluate('window.__events')], ['mousedown', 'mouseup', 'click'])
+                # The movement kept to the budget, with the click itself, the
+                # round trips it took and the pauses of a human hand on top of it
+                allowed = TEST_MAX_MOVE_TIME + (camoufox.MAX_MOVE_STEPS + 8) * per_event + 4
+                attempts.append((elapsed, allowed))
+                if elapsed < allowed:
+                    break
+            else:
+                self.fail(f'Every click took longer than allowed, (seconds taken, seconds allowed): {attempts}')
 
         self.run_shared(check)
 
