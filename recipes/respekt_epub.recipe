@@ -1,0 +1,179 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+__license__ = 'GPL v3'
+__copyright__ = '2026'
+'''
+respekt.cz - downloads the latest weekly issue as a ready-made EPUB.
+
+Requires a respekt.cz account with an active subscription.
+
+Flow (as used by the website itself):
+  1. POST /api/login {email, password}           -> session cookie
+  2. GET  /archiv/<year>                         -> __NEXT_DATA__ with the list of issues
+  3. GET  /api/downloadEPub?issueId=<issue uuid> -> the EPUB ("Stáhnout EPUB" button)
+
+The EPUB is unpacked into the recipe's working directory, calibre then finds
+its OPF and converts it like any other recipe output.
+'''
+
+import glob
+import io
+import json
+import os
+import re
+from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe, DownloadDenied, LoginFailed
+from mechanize import Request
+
+BASE = 'https://www.respekt.cz'
+
+
+class Respekt(BasicNewsRecipe):
+    title = 'Respekt Magazine — EPUB'
+    __author__ = 'Vector Rilke'
+    description = 'Český týdeník Respekt - poslední vydání jako EPUB (vyžaduje předplatné)'
+    language = 'cs'
+    publisher = 'Economia, a.s.'
+    category = 'news, politics, Czech Republic'
+    publication_type = 'magazine'
+    encoding = 'utf-8'
+    needs_subscription = True
+    reverse_article_order = False
+
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Issue to download, e.g. 2026/39',
+            'long': 'By default the latest weekly issue is downloaded. Set this to YEAR/NUMBER to get an older one.',
+            'default': '',
+        },
+    }
+
+    # ------------------------------------------------------------------ helpers
+
+    def _post_json(self, br, path, payload):
+        req = Request(
+            BASE + path,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Referer': BASE + '/uzivatel/prihlaseni',
+            },
+        )
+        return br.open_novisit(req).read()
+
+    def _issues_for_year(self, year):
+        raw = self.browser.open_novisit(f'{BASE}/archiv/{year}').read().decode('utf-8')
+        m = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', raw, re.S)
+        if not m:
+            raise ValueError(f'Could not find issue list on {BASE}/archiv/{year} - has the site changed?')
+        return json.loads(m.group(1))['props']['pageProps'].get('listIssue') or []
+
+    @staticmethod
+    def _cover_url(issue):
+        # coverPhoto url is https://pub-xxx.r2.dev/<id>.jpg; the site serves a
+        # resized version of it through i.respekt.cz (used by the issue page)
+        url = ((issue.get('coverPhoto') or {}).get('image') or {}).get('url')
+        if not url:
+            return None
+        return 'https://i.respekt.cz/' + url.split('://', 1)[-1] + '?width=2048'
+
+    def _set_cover(self, issue):
+        # The recipe does not use calibre's own download machinery, so
+        # get_cover_url() is never called. Instead point the unpacked EPUB's OPF
+        # at the cover of the issue.
+        url = self._cover_url(issue)
+        opfs = glob.glob('**/*.opf', recursive=True)
+        if not url or not opfs:
+            return
+        try:
+            data = self.browser.open_novisit(url).read()
+            if not data:
+                return
+            from lxml import etree
+
+            opf_path = opfs[0]
+            opf_dir = os.path.dirname(os.path.abspath(opf_path))
+            with open(os.path.join(opf_dir, 'respekt_cover.jpg'), 'wb') as f:
+                f.write(data)
+
+            tree = etree.parse(opf_path)
+            ns = {'o': 'http://www.idpf.org/2007/opf'}
+            root = tree.getroot()
+            metadata = root.find('o:metadata', ns)
+            manifest = root.find('o:manifest', ns)
+            for m in metadata.findall('o:meta[@name="cover"]', ns):
+                metadata.remove(m)
+            for item in manifest.findall('o:item', ns):
+                props = (item.get('properties') or '').split()
+                if 'cover-image' in props:
+                    props.remove('cover-image')
+                    if props:
+                        item.set('properties', ' '.join(props))
+                    else:
+                        del item.attrib['properties']
+            for item in manifest.findall('o:item[@id="respekt-cover"]', ns):
+                manifest.remove(item)
+            etree.SubElement(
+                manifest, '{%s}item' % ns['o'], id='respekt-cover', href='respekt_cover.jpg', **{'media-type': 'image/jpeg', 'properties': 'cover-image'}
+            )
+            etree.SubElement(metadata, '{%s}meta' % ns['o'], name='cover', content='respekt-cover')
+            tree.write(opf_path, xml_declaration=True, encoding='utf-8')
+        except Exception:
+            self.log.exception('Failed to set the cover of the issue, keeping the cover from the EPUB')
+
+    def _find_issue(self):
+        wanted = (self.recipe_specific_options.get('issue') or '').strip()
+        if wanted:
+            m = re.fullmatch(r'(\d{4})/(\d+)', wanted)
+            if not m:
+                raise ValueError(f'Invalid issue "{wanted}", expected YEAR/NUMBER, e.g. 2026/39')
+            year, number = int(m.group(1)), int(m.group(2))
+            for issue in self._issues_for_year(year):
+                if issue['year'] == year and issue['issue'] == number and issue.get('kind') == 'weekly':
+                    return issue
+            raise ValueError(f'Issue {wanted} not found in the archive')
+
+        # Latest weekly issue. Early in January the new year's archive may still be
+        # empty, so fall back to the previous year.
+        year = date.today().year
+        for y in (year, year - 1):
+            weeklies = [i for i in self._issues_for_year(y) if i.get('kind') == 'weekly']
+            if weeklies:
+                return max(weeklies, key=lambda i: (i['year'], i['issue']))
+        raise ValueError('No weekly issue found in the archive')
+
+    # ------------------------------------------------------------------ calibre hooks
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        try:
+            resp = json.loads(self._post_json(br, '/api/login', {'email': self.username, 'password': self.password}))
+        except Exception as e:
+            # The API answers wrong credentials with HTTP 400 {"success": false}
+            if getattr(e, 'code', None) == 400:
+                resp = {'success': False}
+            else:
+                raise
+        if not resp.get('success'):
+            raise LoginFailed('Přihlášení na respekt.cz se nezdařilo, zkontrolujte e-mail a heslo.')
+        return br
+
+    def download(self):
+        issue = self._find_issue()
+        label = f"{issue['year']}/{issue['issue']}"
+        self.log(f"Downloading Respekt {label}: {issue.get('title', '')}")
+
+        raw = self.browser.open_novisit(f"{BASE}/api/downloadEPub?issueId={issue['id']}").read()
+        # Without a valid subscription the site redirects to the login page (HTML)
+        if not raw.startswith(b'PK'):
+            raise DownloadDenied(f'Vydání {label} se nepodařilo stáhnout. Máte aktivní předplatné, které zahrnuje EPUB?')
+
+        from calibre.utils.zipfile import ZipFile
+
+        with ZipFile(io.BytesIO(raw)) as zf:
+            zf.extractall()
+
+        self._set_cover(issue)
+        return 'index.html'
