@@ -5,6 +5,7 @@ import os
 from io import BytesIO
 
 from calibre.srv.changes import formats_added
+from calibre.srv.utils import is_recipe_fmt
 from calibre.utils.localization import _
 
 readonly = False
@@ -14,7 +15,7 @@ version = 0  # change this if you change signature of implementation()
 def implementation(db, notify_changes, book_id, data, fmt, replace):
     is_remote = notify_changes is not None
     if is_remote:
-        if fmt.lower() in ('recipe', 'original_recipe'):
+        if is_recipe_fmt(fmt):
             raise ValueError('Cannot use the add format interface to add recipe files, as they allow code execution')
         data = BytesIO(data[1])
     relpath = ''

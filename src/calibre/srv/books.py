@@ -19,7 +19,7 @@ from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_db, get_library_data
+from calibre.srv.utils import get_db, get_library_data, is_recipe_fmt
 from calibre.utils.filenames import path_from_root, rmtree
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
@@ -151,6 +151,8 @@ def job_done(job):
 def book_manifest(ctx, rd, book_id, fmt):
     db, library_id = get_library_data(ctx, rd)[:2]
     force_reload = rd.query.get('force_reload') == '1'
+    if is_recipe_fmt(fmt):
+        raise HTTPForbidden('Viewing recipe files is not allowed, as they allow code execution')
     if plugin_for_input_format(fmt) is None:
         raise HTTPNotFound(f'The format {fmt.upper()} cannot be viewed')
     if not ctx.has_id(rd, db, book_id):

@@ -441,6 +441,13 @@ class Accumulator:  # {{{
 # }}}
 
 
+def is_recipe_fmt(fmt: str) -> bool:
+    # Recipes are python source code, so they must never be accepted from or
+    # processed on behalf of remote clients as they allow code execution
+    fmt = fmt.lower().lstrip('.').removeprefix('original_')
+    return fmt in ('recipe', 'downloaded_recipe')
+
+
 def get_db(ctx, rd, library_id):
     db = ctx.get_library(rd, library_id)
     if db is None:

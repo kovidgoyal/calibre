@@ -285,6 +285,57 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
+    def test_recipe_formats_forbidden(self):  # {{{
+        "Test that recipe formats cannot be added, converted or viewed remotely"
+        from calibre.srv.utils import is_recipe_fmt
+        from calibre.utils.serialize import MSGPACK_MIME, msgpack_dumps
+
+        for fmt in ('recipe', 'RECIPE', 'original_recipe', 'downloaded_recipe', 'DOWNLOADED_RECIPE', 'original_downloaded_recipe', '.downloaded_recipe'):
+            self.assertTrue(is_recipe_fmt(fmt), fmt)
+        for fmt in ('epub', 'original_epub', 'recipes', 'zip'):
+            self.assertFalse(is_recipe_fmt(fmt), fmt)
+
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            db = server.handler.router.ctx.library_broker.get(None)
+            auth = {'Authorization': 'Basic ' + as_base64_bytes('12:test').decode()}
+            conn = server.connect()
+
+            def request(path, body, content_type='application/json'):
+                conn.request('POST', path, body=body, headers={'Content-Type': content_type, **auth})
+                r = conn.getresponse()
+                return r.status, r.read()
+
+            for fmt in ('recipe', 'original_recipe', 'downloaded_recipe', 'original_downloaded_recipe'):
+                data = json.dumps({
+                    'changes': {'added_formats': [{'ext': fmt, 'data_url': 'data:application/octet-stream;base64,' + as_base64_bytes(b'x').decode()}]},
+                    'loaded_book_ids': [1],
+                }).encode('utf-8')
+                status, _ = request('/cdb/set-fields/1', data)
+                self.ae(status, http.client.FORBIDDEN, fmt)
+
+                status, raw = request('/cdb/cmd/add_format/0', msgpack_dumps((1, ('x.' + fmt, b'x'), fmt.upper(), True)), MSGPACK_MIME)
+                self.ae(status, http.client.OK, fmt)
+                self.assertIn('err', json.loads(raw), fmt)
+                self.assertNotIn(fmt.upper(), db.formats(1), fmt)
+
+            # Recipe formats that are already in the library must not be
+            # converted or viewed by remote clients
+            db.add_format(1, 'DOWNLOADED_RECIPE', BytesIO(b'x'), run_hooks=False)
+            data = json.dumps({'input_fmt': 'downloaded_recipe', 'output_fmt': 'epub', 'options': {}}).encode('utf-8')
+            status, _ = request('/conversion/start/1', data)
+            self.ae(status, http.client.FORBIDDEN)
+            conn.request('GET', '/conversion/book-data/1?input_fmt=downloaded_recipe', headers=auth)
+            r = conn.getresponse()
+            self.ae(r.status, http.client.OK)
+            self.assertNotIn('DOWNLOADED_RECIPE', json.loads(r.read())['input_formats'])
+            conn.request('GET', '/book-manifest/1/DOWNLOADED_RECIPE', headers=auth)
+            r = conn.getresponse()
+            r.read()
+            self.ae(r.status, http.client.FORBIDDEN)
+
+    # }}}
+
     def test_html_as_json(self):  # {{{
         from calibre.ebooks.oeb.parse_utils import html5_parse
         from calibre.srv.render_book import html_as_json

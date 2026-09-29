@@ -14,8 +14,8 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.metadata.book.serialize import read_cover, serialize_cover
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ptempfile import TemporaryDirectory
-from calibre.srv.cdb import is_recipe_fmt
 from calibre.srv.changes import books_added, formats_added
+from calibre.srv.utils import is_recipe_fmt
 from calibre.utils.localization import _, canonicalize_lang
 from calibre.utils.short_uuid import uuid4
 

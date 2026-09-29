@@ -10,9 +10,9 @@ from threading import Lock
 from calibre.customize.ui import input_profiles, output_profiles, run_plugins_on_postconvert
 from calibre.db.errors import NoSuchBook
 from calibre.srv.changes import formats_added
-from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.errors import BookNotFound, HTTPForbidden, HTTPNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_library_data
+from calibre.srv.utils import get_library_data, is_recipe_fmt
 from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import share_open
@@ -206,6 +206,8 @@ def start_conversion(ctx, rd, book_id):
         raise BookNotFound(book_id, db)
     data = stdlib_json.loads(rd.request_body_file.read())
     input_fmt = data['input_fmt']
+    if is_recipe_fmt(input_fmt):
+        raise HTTPForbidden('Converting recipe files is not allowed, as they allow code execution')
     job_id = queue_job(ctx, rd, library_id, db, input_fmt, book_id, data)
     return job_id
 
@@ -341,6 +343,7 @@ def conversion_data(ctx, rd, book_id):
     except NoSupportedInputFormats:
         input_formats = []
     else:
+        input_formats = [x for x in input_formats if not is_recipe_fmt(x)]
         if rd.query.get('input_fmt') and rd.query.get('input_fmt').lower() in input_formats:
             input_format = rd.query.get('input_fmt').lower()
         if input_format in input_formats:
