@@ -325,6 +325,11 @@ class ContentTest(LibraryBaseTest):
             data = json.dumps({'input_fmt': 'downloaded_recipe', 'output_fmt': 'epub', 'options': {}}).encode('utf-8')
             status, _ = request('/conversion/start/1', data)
             self.ae(status, http.client.FORBIDDEN)
+            for path in ('/conversion/start/1', '/conversion/status/1'):
+                conn.request('GET', path, headers=auth)
+                r = conn.getresponse()
+                r.read()
+                self.ae(r.status, http.client.METHOD_NOT_ALLOWED, path)
             conn.request('GET', '/conversion/book-data/1?input_fmt=downloaded_recipe', headers=auth)
             r = conn.getresponse()
             self.ae(r.status, http.client.OK)

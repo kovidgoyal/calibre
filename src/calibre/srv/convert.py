@@ -17,7 +17,7 @@ from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import share_open
 
-receive_data_methods = {'GET', 'POST'}
+receive_data_methods = {'POST'}
 conversion_jobs = {}
 cache_lock = Lock()
 

@@ -21,7 +21,7 @@ from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import from_base64_bytes
 
-receive_data_methods = {'GET', 'POST'}
+receive_data_methods = {'POST'}
 
 
 @endpoint('/cdb/cmd/{which}/{version=0}', postprocess=msgpack_or_json, methods=receive_data_methods, cache_control='no-cache')

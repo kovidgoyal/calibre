@@ -6,7 +6,7 @@ import os
 from base64 import standard_b64encode
 from compression import zlib
 from functools import partial
-from http.client import FORBIDDEN, NOT_FOUND, OK
+from http.client import FORBIDDEN, METHOD_NOT_ALLOWED, NOT_FOUND, OK
 from io import BytesIO
 from urllib.parse import quote, urlencode
 
@@ -325,9 +325,10 @@ class ContentTest(LibraryBaseTest):
             )
 
             # cdb.py
-            r(url_for('/cdb/cmd', which='list'), status=FORBIDDEN)
-            r(url_for('/cdb/add-book', job_id=1, add_duplicates='n', filename='test.epub'), status=FORBIDDEN)
-            r(url_for('/cdb/delete-books', book_ids='1'), status=FORBIDDEN)
+            r(url_for('/cdb/cmd', which='list'), status=FORBIDDEN, method='POST')
+            r(url_for('/cdb/add-book', job_id=1, add_duplicates='n', filename='test.epub'), status=FORBIDDEN, method='POST')
+            r(url_for('/cdb/delete-books', book_ids='1'), status=FORBIDDEN, method='POST')
+            r(url_for('/cdb/delete-books', book_ids='1'), status=METHOD_NOT_ALLOWED)
 
             # code.py
             def sr(path, **k):
