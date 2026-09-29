@@ -23,8 +23,9 @@ import os
 import re
 from datetime import date
 
-from calibre.web.feeds.news import BasicNewsRecipe, DownloadDenied, LoginFailed
 from mechanize import Request
+
+from calibre.web.feeds.news import BasicNewsRecipe, DownloadDenied, LoginFailed
 
 BASE = 'https://www.respekt.cz'
 
@@ -103,6 +104,7 @@ class Respekt(BasicNewsRecipe):
             root = tree.getroot()
             metadata = root.find('o:metadata', ns)
             manifest = root.find('o:manifest', ns)
+            assert metadata is not None and manifest is not None
             for m in metadata.findall('o:meta[@name="cover"]', ns):
                 metadata.remove(m)
             for item in manifest.findall('o:item', ns):
@@ -117,14 +119,14 @@ class Respekt(BasicNewsRecipe):
                 manifest.remove(item)
             etree.SubElement(
                 manifest, '{%s}item' % ns['o'], id='respekt-cover', href='respekt_cover.jpg', **{'media-type': 'image/jpeg', 'properties': 'cover-image'}
-            )
+            )  # type: ignore
             etree.SubElement(metadata, '{%s}meta' % ns['o'], name='cover', content='respekt-cover')
             tree.write(opf_path, xml_declaration=True, encoding='utf-8')
         except Exception:
             self.log.exception('Failed to set the cover of the issue, keeping the cover from the EPUB')
 
     def _find_issue(self):
-        wanted = (self.recipe_specific_options.get('issue') or '').strip()
+        wanted = (self.recipe_specific_options.get('issue') or '').strip()  # type: ignore
         if wanted:
             m = re.fullmatch(r'(\d{4})/(\d+)', wanted)
             if not m:
