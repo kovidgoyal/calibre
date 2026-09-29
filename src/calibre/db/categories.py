@@ -72,6 +72,28 @@ class Tag:
     def __str__(self):
         return self.string_representation
 
+    def __copy__(self):
+        # Tags are copied in bulk by CategoriesCache and copy.copy() is slow
+        # for a class with __slots__, as it goes through the pickle protocol
+        cls = self.__class__
+        ans = cls.__new__(cls)
+        ans.avg_rating = self.avg_rating
+        ans.category = self.category
+        ans.count = self.count
+        ans.id = self.id
+        ans.id_set = self.id_set
+        ans.is_editable = self.is_editable
+        ans.is_hierarchical = self.is_hierarchical
+        ans.is_searchable = self.is_searchable
+        ans.name = self.name
+        ans.original_categories = self.original_categories
+        ans.original_name = self.original_name
+        ans.search_expression = self.search_expression
+        ans.sort = self.sort
+        ans.state = self.state
+        ans.use_sort_as_name = self.use_sort_as_name
+        return ans
+
     def __repr__(self):
         return str(self)
 
