@@ -219,7 +219,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     if added_formats:
         for data in added_formats:
             try:
-                fmt = data['ext'].upper()
+                fmt = sanitize_file_name(data['ext']).upper()
             except Exception:
                 raise HTTPBadRequest('Format has no extension')
             if fmt:
