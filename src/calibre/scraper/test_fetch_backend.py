@@ -128,6 +128,12 @@ class TestFetchBackend(unittest.TestCase):
                 raise AssertionError('Expected timeout not raised')
             self.dont_send_body = False
             self.dont_send_response = False
+            # Qt's per connection channel retry budget for transparently
+            # resending requests when the server closes the connection is only
+            # reset by a successful request. The timeout above exhausts it, so
+            # do a successful request to restore it, otherwise a single dropped
+            # connection in the following requests causes a RemoteHostClosedError
+            get()
 
         def header(name, *expected):
             name = name.lower()
