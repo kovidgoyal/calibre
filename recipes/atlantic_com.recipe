@@ -5,6 +5,7 @@ import json
 from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre.web.feeds.news import prefixed_classes as prefix_classes
 
@@ -76,15 +77,29 @@ def extract_html(soup):
 class TheAtlantic(BasicNewsRecipe):
     if web_version:
         title = 'TheAtlantic.com'
-        description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
+        description = (
+            'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine.'
+            ' Uses the camoufox browser, which is downloaded on first use, as theatlantic.com blocks every lighter way of fetching its pages.'
+        )
     else:
         title = 'The Atlantic'
-        description = 'Current affairs and politics focussed on the US'
+        description = (
+            'Current affairs and politics focussed on the US.'
+            ' Uses the camoufox browser, which is downloaded on first use, as theatlantic.com blocks every lighter way of fetching its pages.'
+        )
         INDEX = 'https://www.theatlantic.com/magazine/'
 
     __author__ = 'Kovid Goyal'
     language = 'en'
     encoding = 'utf-8'
+
+    # theatlantic.com answers every lighter way of fetching its pages with a
+    # 403, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
+    # No delay between requests, deliberately: any delay at all makes calibre
+    # download on a single thread, and each download thread gets a tab of its
+    # own in this browser.
+    delay = 0
 
     compress_news_images = True
     scale_news_images_to_device = True
@@ -127,10 +142,10 @@ class TheAtlantic(BasicNewsRecipe):
         }
     '''
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         br.set_cookie('inEuropeanUnion', '0', '.theatlantic.com')
-        return br
+        return retry_bot_checks(br)
 
     def preprocess_raw_html(self, raw_html, url):
         try:
