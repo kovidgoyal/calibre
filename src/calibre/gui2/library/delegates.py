@@ -26,6 +26,7 @@ from qt.core import (
     QLocale,
     QMenu,
     QPalette,
+    QPixmap,
     QSize,
     QSpinBox,
     QStyle,
@@ -67,6 +68,44 @@ class StyledItemDelegate(QStyledItemDelegate):
 
     is_editable_with_tab = True  # sub-classes set to False is needed
     ignore_kb_mods_on_edit = False
+    nuke_option_data = False
+
+    def icon_only_alignment(self, index):
+        # Return the horizontal alignment to use when painting a cell that has
+        # an icon but no text, or None to use the default Qt painting, which
+        # always puts the icon on the left.
+        try:
+            align = Qt.AlignmentFlag(int(index.data(Qt.ItemDataRole.TextAlignmentRole) or 0))
+        except TypeError, ValueError:
+            return None
+        align &= Qt.AlignmentFlag.AlignHorizontal_Mask
+        if align & (Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignRight):
+            return align
+        return None
+
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        if self.nuke_option_data:
+            option.icon = QIcon()
+            option.text = ''
+            option.features &= ~QStyleOptionViewItem.ViewItemFeature.HasDisplay & ~QStyleOptionViewItem.ViewItemFeature.HasDecoration
+
+    def paint(self, painter, option, index):
+        text, icon = index.data(Qt.ItemDataRole.DisplayRole), index.data(Qt.ItemDataRole.DecorationRole)
+        if text or not isinstance(icon, QPixmap) or icon.isNull() or (align := self.icon_only_alignment(index)) is None:
+            return super().paint(painter, option, index)
+        # Paint the background, selection, etc. without the icon, then paint
+        # the icon ourselves so that it respects the column alignment
+        self.nuke_option_data = True
+        try:
+            super().paint(painter, option, index)
+        finally:
+            self.nuke_option_data = False
+        style = option.styleObject.style() if option.styleObject else qapplication_or_fail().style()
+        assert style is not None
+        margin = style.pixelMetric(QStyle.PixelMetric.PM_FocusFrameHMargin, None, option.widget) + 1
+        rect = option.rect.adjusted(margin, 0, -margin, 0)
+        style.drawItemPixmap(painter, rect, align | Qt.AlignmentFlag.AlignVCenter, icon)
 
     def createEditor(self, parent, option, index):
         e = self.create_editor(parent, option, index)
@@ -842,7 +881,6 @@ class CcBoolDelegate(StyledItemDelegate):  # {{{
         """
         Delegate for custom_column bool data.
         """
-        self.nuke_option_data = False
         StyledItemDelegate.__init__(self, parent)
 
     def create_editor(self, parent, option, index):
@@ -876,24 +914,9 @@ class CcBoolDelegate(StyledItemDelegate):  # {{{
             val = 2 if val is None or check_key_modifier(Qt.KeyboardModifier.ControlModifier) else 1 if not val else 0
         editor.setCurrentIndex(val)
 
-    def initStyleOption(self, option, index):
-        ret = super().initStyleOption(option, index)
-        if self.nuke_option_data:
-            option.icon = QIcon()
-            option.text = ''
-            option.features &= ~QStyleOptionViewItem.ViewItemFeature.HasDisplay & ~QStyleOptionViewItem.ViewItemFeature.HasDecoration
-        return ret
-
-    def paint(self, painter, option, index):
-        text, icon = index.data(Qt.ItemDataRole.DisplayRole), index.data(Qt.ItemDataRole.DecorationRole)
-        if (not text and not icon) or text or not icon:
-            return super().paint(painter, option, index)
-        self.nuke_option_data = True
-        super().paint(painter, option, index)
-        self.nuke_option_data = False
-        style = option.styleObject.style() if option.styleObject else qapplication_or_fail().style()
-        assert style is not None
-        style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignCenter, icon)
+    def icon_only_alignment(self, index):
+        # Checkmark icons in bool columns are always centered
+        return Qt.AlignmentFlag.AlignHCenter
 
 
 # }}}
