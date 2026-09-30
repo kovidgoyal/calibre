@@ -635,6 +635,10 @@ class TestRecipeBrowser(unittest.TestCase):
         # A test of its own, since it can only fail by timing out, so that the
         # parallel test runner can wait for it alongside the other failures
         br = self.shared_browser().clone_browser()
+        # Create the tab, and load the page, beforehand, since both count
+        # against the timeout and on a slow machine can use up all of it,
+        # failing with an error of their own before the form is ever submitted
+        br.open(self.server.base + 'login.html').close()
         with self.assertRaises(URLError) as ctx:
             br.submit_form(
                 self.server.base + 'login.html',
