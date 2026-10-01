@@ -35,10 +35,7 @@ def text(tag):
 class PoetryMagazine(BasicNewsRecipe):
     title = 'Poetry Magazine'
     __author__ = 'flurbs'
-    description = (
-        'Poetry, published by the Poetry Foundation since 1912, is a monthly magazine '
-        'of contemporary poetry, translations and prose about poetry.'
-    )
+    description = 'Poetry, published by the Poetry Foundation since 1912, is a monthly magazine of contemporary poetry, translations and prose about poetry.'
     publisher = 'Poetry Foundation'
     category = 'magazine, poetry, literature'
     language = 'en'
@@ -100,7 +97,8 @@ class PoetryMagazine(BasicNewsRecipe):
                 continue
             for a in soup.findAll('a', href=ISSUE_RE):
                 url = absurl(a['href'].rstrip('/'))
-                issues[int(ISSUE_RE.search(url).group(1))] = url
+                if m := ISSUE_RE.search(url):
+                    issues[int(m.group(1))] = url
             if issues:
                 break
         return [issues[k] for k in sorted(issues, reverse=True)]
@@ -149,7 +147,7 @@ class PoetryMagazine(BasicNewsRecipe):
         opt = self.recipe_specific_options.get('issue') or ''
         opt = opt.strip().rstrip('/') if isinstance(opt, str) else ''
         if ISSUE_RE.search(opt):
-            candidates = [absurl(opt[opt.find('/poetrymagazine/'):])]
+            candidates = [absurl(opt[opt.find('/poetrymagazine/') :])]
         else:
             candidates = self.issue_urls()
             if opt:
