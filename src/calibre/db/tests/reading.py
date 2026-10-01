@@ -584,6 +584,130 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_incremental_categories(self):  # {{{
+        "Test refreshing only the changed items of a cached category"
+        import random
+        from unittest.mock import patch
+
+        from calibre.db import categories
+        from calibre.db.categories import insert_changed_items
+
+        # Inserting into a sorted list must refuse items with equal sort keys,
+        # whose order would not match the order of a full recompute
+        cats = [1, 3, 5]
+        self.assertTrue(insert_changed_items(cats, [4, 0, 6], lambda x: x))
+        self.assertEqual([0, 1, 3, 4, 5, 6], cats)
+        self.assertFalse(insert_changed_items([1, 3, 5], [3], lambda x: x))
+        self.assertFalse(insert_changed_items([1, 3, 5], [2, 2], lambda x: x))
+
+        cache = self.init_cache(self.library_path)
+        cc = cache.categories_cache
+        book_ids = sorted(cache.all_book_ids())
+        combos = tuple((sort, fl) for sort in ('name', 'popularity', 'rating') for fl in (False, True))
+        cache.set_pref('categories_using_hierarchy', ['tags'])
+
+        def snapshot(sort, fl):
+            return {
+                category: [(t.name, t.id, t.count, t.avg_rating, t.sort, frozenset(t.id_set)) for t in tags]
+                for category, tags in cache.get_categories(sort=sort, first_letter_sort=fl).items()
+            }
+
+        def current():
+            return {c: snapshot(*c) for c in combos}
+
+        def check(msg):
+            # Compare the categories, refreshed from the out of date entries,
+            # with the categories computed from scratch, which leaves every
+            # combination of sorts cached again
+            got = current()
+            cc.invalidate_all()
+            expected = current()
+            for c in combos:
+                for category, tags in expected[c].items():
+                    self.assertEqual(tags, got[c][category], f'{msg}: {category} sorted by {c} differs from a full recompute')
+
+        insertions = []
+
+        def counting_insert(*args):
+            insertions.append(insert_changed_items(*args))
+            return insertions[-1]
+
+        with patch.object(categories, 'insert_changed_items', counting_insert):
+            current()
+
+            # Random edits of the fields categories are built from or depend on
+            rng = random.Random(1)
+            names = ('Alpha', 'beta', 'Gamma', 'delta', 'Eps.x', 'Eps.y', 'a', 'A b')
+            values = {
+                'tags': lambda: rng.sample(names, rng.randint(0, 3)) if rng.random() < 0.8 else [rng.choice(names).upper()],
+                '#tags': lambda: rng.sample(names, rng.randint(0, 3)),
+                'authors': lambda: rng.sample(names, rng.randint(1, 2)),
+                'series': lambda: rng.choice(names + (None,)),
+                'publisher': lambda: rng.choice(names + (None,)),
+                'rating': lambda: rng.choice((None, 2, 4, 6, 8, 10)),
+                '#rating': lambda: rng.choice((None, 2, 4, 6, 8, 10)),
+                'languages': lambda: rng.sample(('eng', 'fra', 'deu'), rng.randint(0, 2)),
+            }
+            for i in range(60):
+                field = rng.choice(sorted(values))
+                cache.set_field(field, {book_id: values[field]() for book_id in rng.sample(book_ids, rng.randint(1, len(book_ids)))})
+                if rng.random() < 0.5:  # check after several edits too
+                    check(f'Edit {i} of {field}')
+            self.assertIn(True, insertions, 'Categories were never refreshed incrementally')
+
+            # Distinct authors with the same author sort have equal sort keys
+            # and so require a full recompute
+            cache.set_field('authors', {1: ['John Smith']})
+            current()
+            del insertions[:]
+            cache.set_field('authors', {2: ['Smith, John']})
+            check('Authors with equal sort keys')
+            self.assertIn(False, insertions)
+
+            # A change too old to be remembered requires a full recompute
+            version = cc.field_versions['tags']
+            for i in range(cc.MAX_CHANGES + 1):
+                cache.set_field('tags', {1: [f'tag{i}']})
+            self.assertIsNone(cc.changes_since('tags', version))
+            self.assertIsNotNone(cc.changes_since('tags', version + 1))
+            check('Too many changes')
+
+            # More changed items than can be refreshed are not even remembered
+            cc.MAX_INCREMENTAL_ITEMS = 2
+            try:
+                del insertions[:]
+                cache.set_field('tags', {1: ['x1', 'x2', 'x3']})
+                self.assertIsNone(cc.changes['tags'][-1][1])
+                check('Too many changed items')
+                self.assertNotIn(True, insertions)
+            finally:
+                del cc.MAX_INCREMENTAL_ITEMS
+
+            # Fields without items cannot be categories, so the ids of what
+            # changed in them are not remembered
+            cache.set_field('comments', {1: 'a comment'})
+            self.assertEqual((cc.field_versions['comments'], None, None), cc.changes['comments'][-1])
+
+            # A write that fails may have changed the in memory tables, so the
+            # categories must be recomputed afterwards
+            current()
+            executemany = cache.backend.executemany
+
+            def failing_executemany(sql, *args):
+                if sql.startswith('INSERT INTO books_tags_link'):
+                    raise OSError('Simulated failure')
+                return executemany(sql, *args)
+
+            cache.backend.executemany = failing_executemany
+            try:
+                with self.assertRaises(OSError):
+                    cache.set_field('tags', {1: ['A tag from a failed write']})
+            finally:
+                cache.backend.executemany = executemany
+            check('Failed write')
+
+    # }}}
+
     def test_get_formats(self):  # {{{
         "Test reading ebook formats using the format() method"
         from calibre.db.cache import NoSuchFormat

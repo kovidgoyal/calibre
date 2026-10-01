@@ -2002,11 +2002,23 @@ class Cache:
 
         # Report which items of the field the write affects, both the ones the
         # books had before it and the ones they have after it, so that the
-        # cached categories can be refreshed without recomputing every item
-        touched_items = items_of_books(f, book_id_to_val_map)
-        dirtied = f.writer.set_books(book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
-        touched_items |= items_of_books(f, book_id_to_val_map)
-        self.categories_cache.field_changed(name, touched_items, book_id_to_val_map)
+        # cached categories can be refreshed without recomputing every item.
+        # Only fields with items can be categories, or be depended on by them.
+        touched_items = items_of_books(f.table.book_col_map, book_id_to_val_map) if f.is_many else None
+        try:
+            dirtied = f.writer.set_books(book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
+        except Exception:
+            # The in memory tables may have been changed before the failure, so
+            # the cached categories must not be refreshed incrementally
+            self.categories_cache.field_changed(name)
+            raise
+        if f.is_many:
+            items_of_books(f.table.book_col_map, book_id_to_val_map, touched_items)
+            # A case change also affects the books of the renamed item, which
+            # are in dirtied
+            self.categories_cache.field_changed(name, touched_items, dirtied | book_id_to_val_map.keys())
+        else:
+            self.categories_cache.field_changed(name)
 
         if is_series and simap:
             sf = self.fields[f.name + '_index']
