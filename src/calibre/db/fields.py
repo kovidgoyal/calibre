@@ -162,14 +162,21 @@ class Field:
         """
         raise NotImplementedError()
 
-    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
+    def category_items(self, item_ids=None):
+        """The (item id, book ids) pairs to build categories from: all of them, or only those of item_ids"""
+        cbm = self.table.col_book_map
+        if item_ids is None:
+            return cbm.items()
+        return ((i, cbm[i]) for i in item_ids if i in cbm)
+
+    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None, item_ids=None):
         ans = []
         if not self.is_many:
             return ans
 
         id_map = self.table.id_map
         sort_fn = getattr(self, 'category_sort_value', None)
-        for item_id, item_book_ids in self.table.col_book_map.items():
+        for item_id, item_book_ids in self.category_items(item_ids):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
@@ -634,10 +641,10 @@ class IdentifiersField(ManyToManyField):
             if val:
                 yield val, {book_id}
 
-    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
+    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None, item_ids=None):
         ans = []
 
-        for id_key, item_book_ids in self.table.col_book_map.items():
+        for id_key, item_book_ids in self.category_items(item_ids):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
@@ -687,10 +694,10 @@ class FormatsField(ManyToManyField):
         for val, book_ids in val_map.items():
             yield val, book_ids
 
-    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
+    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None, item_ids=None):
         ans = []
 
-        for fmt, item_book_ids in self.table.col_book_map.items():
+        for fmt, item_book_ids in self.category_items(item_ids):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:

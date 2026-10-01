@@ -27,7 +27,7 @@ from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, 
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
 from calibre.db.book_storage import BookStorageEntry
-from calibre.db.categories import CategoriesCache, CategoriesInvalidatingLock, get_categories
+from calibre.db.categories import CategoriesCache, CategoriesInvalidatingLock, get_categories, items_of_books
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
@@ -2000,8 +2000,13 @@ class Cache:
                     simap[k] = sid
             book_id_to_val_map = bimap
 
-        self.categories_cache.field_changed(name)
+        # Report which items of the field the write affects, both the ones the
+        # books had before it and the ones they have after it, so that the
+        # cached categories can be refreshed without recomputing every item
+        touched_items = items_of_books(f, book_id_to_val_map)
         dirtied = f.writer.set_books(book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
+        touched_items |= items_of_books(f, book_id_to_val_map)
+        self.categories_cache.field_changed(name, touched_items, book_id_to_val_map)
 
         if is_series and simap:
             sf = self.fields[f.name + '_index']

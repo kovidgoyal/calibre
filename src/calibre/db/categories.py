@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
+from bisect import bisect_left
 from collections import OrderedDict
 from functools import partial
 
@@ -247,17 +248,58 @@ class CategoriesCache:
     items will retain them until the next write to the database.
     """
 
+    # Above this many changed items a category is recomputed from scratch
+    MAX_INCREMENTAL_ITEMS = 500
+    # How many changes are remembered per field, which bounds how far out of
+    # date an entry can be and still be refreshed incrementally
+    MAX_CHANGES = 64
+
     def __init__(self):
         self.global_version = 0
         self.field_versions = {}
         self.entries = {}
+        # field name -> list of (version, changed item ids, changed book ids),
+        # either of which is None when the changed ids are not known
+        self.changes = {}
 
     def invalidate_all(self):
         self.global_version += 1
         self.entries.clear()
+        self.changes.clear()
 
-    def field_changed(self, name):
-        self.field_versions[name] = self.field_versions.get(name, 0) + 1
+    def field_changed(self, name, item_ids=None, book_ids=None):
+        version = self.field_versions[name] = self.field_versions.get(name, 0) + 1
+        changes = self.changes.setdefault(name, [])
+        changes.append((
+            version,
+            None if item_ids is None else frozenset(item_ids),
+            None if book_ids is None else frozenset(book_ids),
+        ))
+        if len(changes) > self.MAX_CHANGES:
+            del changes[: -self.MAX_CHANGES]
+
+    def changes_since(self, name, version):
+        """
+        The (item ids, book ids) changed in the field name since version, or
+        None if they are not known, which happens when a change did not report
+        them or is too old to still be remembered.
+        """
+        current = self.field_versions.get(name, 0)
+        if current == version:
+            return frozenset(), frozenset()
+        items, books = set(), set()
+        expected = version + 1
+        for changed_version, item_ids, book_ids in self.changes.get(name, ()):
+            if changed_version < expected:
+                continue
+            if changed_version != expected or item_ids is None or book_ids is None:
+                return None
+            items |= item_ids
+            books |= book_ids
+            expected += 1
+        if expected != current + 1:
+            return None
+        return items, books
 
     def fingerprint(self, field_metadata, all_fields=False):
         """
@@ -284,8 +326,78 @@ class CategoriesCache:
             return None
         return [copy.copy(tag) for tag in entry[1]]
 
+    def get_stale(self, key, field_names, book_col_map):
+        """
+        For an entry that is out of date, return (tags, item ids), where the
+        item ids are those that must be recomputed to bring the tags up to
+        date, or None when the category must be recomputed from scratch.
+
+        field_names is the category followed by the other fields its items
+        depend on, and book_col_map maps a book id to the ids of its items in
+        the category, so that a change to a book can be turned into the items
+        it affects.
+        """
+        entry = self.entries.get(key)
+        if entry is None or entry[0][0] != self.global_version:
+            return None
+        item_ids = set()
+        for i, name in enumerate(field_names):
+            changed = self.changes_since(name, entry[0][i + 1])
+            if changed is None:
+                return None
+            changed_items, changed_books = changed
+            if i == 0:
+                item_ids |= changed_items
+            for book_id in changed_books:
+                items = book_col_map.get(book_id)
+                if items is None:
+                    continue
+                if isinstance(items, (tuple, list, set, frozenset, dict)):
+                    item_ids.update(items)
+                else:
+                    item_ids.add(items)
+            if len(item_ids) > self.MAX_INCREMENTAL_ITEMS:
+                return None
+        return [copy.copy(tag) for tag in entry[1]], item_ids
+
     def set(self, key, version, tags):
         self.entries[key] = version, tuple(copy.copy(tag) for tag in tags)
+
+
+def insert_changed_items(cats, changed, key):
+    """
+    Insert the recomputed items of a category into the sorted list of the items
+    that did not change. Returns False, having left cats unusable, if any of
+    the items being inserted has the same sort key as another item, because the
+    order of equal items would then depend on the order in which they happen to
+    be inserted, while it must match the order a full recompute produces.
+    """
+    keys = [key(item) for item in changed]
+    if len(set(keys)) != len(keys):
+        return False
+    for item, item_key in zip(changed, keys):
+        pos = bisect_left(cats, item_key, key=key)
+        if (pos < len(cats) and key(cats[pos]) == item_key) or (pos and key(cats[pos - 1]) == item_key):
+            return False
+        cats.insert(pos, item)
+    return True
+
+
+def items_of_books(field, book_ids):
+    """The ids of the items the specified books have in the specified field"""
+    book_col_map = getattr(field.table, 'book_col_map', None)
+    ans = set()
+    if book_col_map is None:
+        return ans
+    for book_id in book_ids:
+        items = book_col_map.get(book_id)
+        if items is None:
+            continue
+        if isinstance(items, (tuple, list, set, frozenset, dict)):
+            ans.update(items)
+        else:
+            ans.add(items)
+    return ans
 
 
 def has_composite_categories(field_metadata):
@@ -378,14 +490,35 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
                 if cats is not None:
                     categories[category] = cats
                     continue
-            cats = dbcache.fields[category].get_categories(tag_class, brm, lang_map, book_ids)
-            if category != 'authors' and dt == 'text' and cat['is_multiple'] and cat['display'].get('is_names', False):
+            field = dbcache.fields[category]
+            is_names = category != 'authors' and dt == 'text' and cat['is_multiple'] and cat['display'].get('is_names', False)
+            sort_key_func = partial(category_sort_keys[fl_sort][sort_on], hierarchical_categories=hierarchical_categories)
+            # When only a few items of the category have changed, recompute
+            # just those and put them back into the sorted list of the entry
+            # that is now out of date, instead of recomputing every item.
+            # insort() needs the list to be in ascending order, so a reversed
+            # category is always recomputed.
+            stale = None
+            if use_cache and not reverse:
+                stale = cache.get_stale(cache_key, (category, rating_field, 'languages'), field.table.book_col_map)
+            if stale is not None:
+                stale_tags, changed_item_ids = stale
+                # The items of categories such as formats have no id, their name identifies them
+                cats = [t for t in stale_tags if (t.name if t.id is None else t.id) not in changed_item_ids]
+                changed = field.get_categories(tag_class, brm, lang_map, book_ids, item_ids=changed_item_ids)
+                if is_names:
+                    for item in changed:
+                        item.sort = author_to_author_sort(item.sort)
+                if insert_changed_items(cats, changed, sort_key_func):
+                    cache.set(cache_key, cache_version, cats)
+                    categories[category] = cats
+                    continue
+                # Items with equal sort keys, recompute the whole category
+            cats = field.get_categories(tag_class, brm, lang_map, book_ids)
+            if is_names:
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        cats.sort(
-            key=partial(category_sort_keys[fl_sort][sort_on], hierarchical_categories=hierarchical_categories),
-            reverse=reverse,
-        )
+        cats.sort(key=partial(category_sort_keys[fl_sort][sort_on], hierarchical_categories=hierarchical_categories), reverse=reverse)
         if use_cache:
             cache.set(cache_key, cache_version, cats)
         categories[category] = cats
