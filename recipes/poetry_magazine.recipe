@@ -1,0 +1,264 @@
+#!/usr/bin/env python
+__license__ = 'GPL v3'
+
+'''
+poetryfoundation.org/poetrymagazine
+'''
+
+import re
+from xml.sax.saxutils import escape
+
+from calibre.utils.titlecase import titlecase
+from calibre.web.feeds.news import BasicNewsRecipe
+
+BASE = 'https://www.poetryfoundation.org'
+ISSUE_RE = re.compile(r'/poetrymagazine/issue/(\d+)/[a-z0-9-]+/?$')
+ENTRY_RE = re.compile(r'/poetrymagazine/(?:poems|articles)/\d+/')
+# Images are served through Cloudflare's resizer, e.g.
+# cdn.poetryfoundation.org/cdn-cgi/image/w=10,h=10,q=50,blur=3/content/images/x.jpg
+# The page HTML only has tiny blurred placeholders, so swap the options.
+RESIZE_RE = re.compile(r'/cdn-cgi/image/[^/]+/')
+
+
+def absurl(url):
+    if url.startswith('//'):
+        url = 'https:' + url
+    elif url.startswith('/'):
+        url = BASE + url
+    return url
+
+
+def text(tag):
+    return ' '.join(tag.get_text().split()) if tag is not None else ''
+
+
+class PoetryMagazine(BasicNewsRecipe):
+    title = 'Poetry Magazine'
+    __author__ = 'flurbs'
+    description = (
+        'Poetry, published by the Poetry Foundation since 1912, is a monthly magazine '
+        'of contemporary poetry, translations and prose about poetry.'
+    )
+    publisher = 'Poetry Foundation'
+    category = 'magazine, poetry, literature'
+    language = 'en'
+    publication_type = 'magazine'
+
+    # The website is free, but behind Cloudflare bot protection, which
+    # rejects the default mechanize browser with HTTP 403.
+    browser_type = 'webengine'
+
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    delay = 1
+    simultaneous_downloads = 1
+    oldest_article = 365
+    max_articles_per_feed = 200
+
+    extra_css = '''
+        .pm-kicker, .pm-date, .pm-source { font-size: small; color: #555; }
+        .pm-kicker { text-transform: uppercase; }
+        .pm-dek { font-style: italic; font-weight: normal; font-size: 1.1em; }
+        .pm-byline { font-style: italic; margin-bottom: 1.5em; }
+        .pm-poem { margin: 1.5em 0; }
+        .pm-poem div { margin: 0; }
+        .pm-source { margin-top: 2em; }
+        .pm-bio { margin-top: 2em; border-top: 1px solid #999; padding-top: 1em; font-size: 0.9em; }
+        .pm-issue-link { margin-top: 2em; text-align: center; font-size: small; }
+        img { max-width: 100%; height: auto; }
+    '''
+
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Issue to download',
+            'long': (
+                'The issue URL, for example '
+                'https://www.poetryfoundation.org/poetrymagazine/issue/1814943/september-2026, '
+                'or just its name, for example september-2026 or july-august-2026. '
+                'Leave blank to get the newest issue.'
+            ),
+        },
+    }
+
+    remove_tags = [
+        dict(name=['script', 'noscript', 'style', 'form', 'input', 'iframe', 'button', 'svg', 'aside']),
+    ]
+
+    # ------------------------------------------------------------------ index
+
+    def issue_urls(self):
+        # Issue pages are /poetrymagazine/issue/<id>/<month-year>, and a
+        # higher id means a newer issue. The archive lists all of them.
+        issues = {}
+        for page in (BASE + '/poetrymagazine/archive', BASE + '/poetrymagazine'):
+            try:
+                soup = self.index_to_soup(page)
+            except Exception as e:
+                self.log.warn('Could not load', page, ':', e)
+                continue
+            for a in soup.findAll('a', href=ISSUE_RE):
+                url = absurl(a['href'].rstrip('/'))
+                issues[int(ISSUE_RE.search(url).group(1))] = url
+            if issues:
+                break
+        return [issues[k] for k in sorted(issues, reverse=True)]
+
+    def issue_cover(self, soup):
+        h1 = soup.find('h1')
+        img = h1.find_previous('img', src=re.compile(r'cover', re.I)) if h1 is not None else None
+        if img is not None:
+            return RESIZE_RE.sub('/', img['src'])
+        og = soup.find('meta', attrs={'property': 'og:image', 'content': True})
+        return og['content'] if og is not None else None
+
+    def parse_issue(self, soup):
+        # The table of contents follows the "Table of Contents" heading. Each
+        # section is a block with a label span and a list of contributors,
+        # and each contributor has their own list of poems and prose.
+        toc = soup.find('h2', string=re.compile(r'^\s*Table of Contents\s*$'))
+        if toc is None:
+            return []
+        feeds, seen = [], set()
+        for block in toc.findNextSiblings('div'):
+            label = block.find('span', recursive=False)
+            section = text(label)
+            if section.isupper():
+                section = titlecase(section.lower())
+            articles = []
+            for group in block.findAll('li'):
+                names = [text(s) for s in group.findAll('span', recursive=False) if 'type-attribution' in (s.get('class') or [])]
+                if not names:
+                    continue
+                desc = '; '.join(names)
+                for a in group.findAll('a', href=ENTRY_RE):
+                    url = absurl(a['href'])
+                    if url in seen:
+                        continue
+                    seen.add(url)
+                    title = text(a)
+                    self.log('\t', title, '|', desc, '|', url)
+                    articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                # The editor's note sometimes sits in a block with no label.
+                feeds.append((section or 'Editor’s Note', articles))
+        return feeds
+
+    def parse_index(self):
+        opt = self.recipe_specific_options.get('issue') or ''
+        opt = opt.strip().rstrip('/') if isinstance(opt, str) else ''
+        if ISSUE_RE.search(opt):
+            candidates = [absurl(opt[opt.find('/poetrymagazine/'):])]
+        else:
+            candidates = self.issue_urls()
+            if opt:
+                # Only the name was given, find its id in the archive.
+                name = opt.rpartition('/')[-1].lower()
+                candidates = [u for u in candidates if u.endswith('/' + name)]
+                if not candidates:
+                    raise ValueError(f'Could not find the Poetry issue {opt!r} in the archive')
+
+        for url in candidates:
+            self.log('Trying issue', url)
+            soup = self.index_to_soup(url)
+            feeds = self.parse_issue(soup)
+            if not feeds:
+                self.log('\tNo poems online yet for', url, '- skipping')
+                continue
+            name = text(soup.find('h1'))
+            if name:
+                self.timefmt = ' [' + name + ']'
+                self.log('Issue:', name)
+            self.issue_url = url
+            self.cover_url = self.issue_cover(soup)
+            if self.cover_url:
+                self.log('Cover:', self.cover_url)
+            return feeds
+
+        raise ValueError('Could not find a Poetry issue with poems online')
+
+    def feeds2index(self, feeds):
+        html = BasicNewsRecipe.feeds2index(self, feeds)
+        url = getattr(self, 'issue_url', None)
+        if url:
+            link = '<p class="pm-issue-link"><a href="{}">This issue on poetryfoundation.org</a></p>'.format(escape(url, {'"': '&quot;'}))
+            html = html.replace(b'</body>', link.encode('utf-8') + b'</body>', 1)
+        return html
+
+    # --------------------------------------------------------------- articles
+
+    def preprocess_html(self, soup):
+        body = soup.find('body')
+        h1 = soup.find('h1')
+        if body is None or h1 is None:
+            return soup
+        article = h1.findParent('article')
+        if article is None:
+            return soup
+        header = h1.findParents('header')
+        header = header[-1] if header else None
+        poem = article.find(**{'class': lambda x: x and 'type-poem-text' in x.split()})
+        content = poem or article.find(**{'class': lambda x: x and 'rich-text' in x.split()})
+        if content is None:
+            return soup
+
+        new_body = soup.new_tag('body')
+
+        if header is not None:
+            kicker = header.find('p', **{'class': lambda x: x and 'type-eta' in x.split()})
+            if kicker is not None:
+                new_body.append(self.new_div(soup, 'pm-kicker', text(kicker)))
+        title = soup.new_tag('h1')
+        title.append(text(h1))
+        new_body.append(title)
+
+        if header is not None:
+            dek = header.find('h2')
+            if dek is not None and text(dek):
+                new_body.append(self.new_div(soup, 'pm-dek', text(dek)))
+            for div in header.findAll('div', string=None):
+                t = text(div)
+                if div.find('div') is None and re.match(r'(By|Translated By) ', t):
+                    new_body.append(self.new_div(soup, 'pm-byline', t))
+                elif div.find('div') is None and t.startswith('Originally Published'):
+                    new_body.append(self.new_div(soup, 'pm-date', t))
+
+        content = content.extract()
+        content['class'] = 'pm-poem' if poem is not None else 'pm-prose'
+        new_body.append(content)
+
+        # Poems end with "Source: Poetry (Month Year)", prose with a bio.
+        for div in article.findAll('div'):
+            t = text(div)
+            if div.find('div') is None and t.startswith('Source:'):
+                div['class'] = 'pm-source'
+                new_body.append(div.extract())
+                break
+        for bio in article.findAll('div', **{'class': lambda x: x and 'type-paragraph' in x.split()}):
+            for a in bio.findAll('a', string=re.compile(r'Read Full Biography')):
+                a.extract()
+            bio['class'] = 'pm-bio'
+            new_body.append(bio.extract())
+
+        body.replace_with(new_body)
+
+        for img in new_body.findAll('img'):
+            src = img.get('src') or ''
+            if '/cdn-cgi/image/' in src:
+                img['src'] = RESIZE_RE.sub('/cdn-cgi/image/w=1200,fit=scale-down/', src)
+            for attr in ('srcset', 'sizes', 'loading', 'width', 'height', 'onerror'):
+                if img.has_attr(attr):
+                    del img[attr]
+        return soup
+
+    def new_div(self, soup, cls, string):
+        div = soup.new_tag('div', attrs={'class': cls})
+        div.append(string)
+        return div
+
+    def populate_article_metadata(self, article, soup, first):
+        if not article.author:
+            byline = soup.find(**{'class': 'pm-byline'})
+            if byline is not None:
+                article.author = re.sub(r'^\s*By\s+', '', text(byline)).strip()
