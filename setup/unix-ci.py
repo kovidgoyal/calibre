@@ -242,8 +242,6 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2017-1000376',  # false match in the database
     # espeak
     'CVE-2023-4990',  # false match because we currently build with a specific commit pending release of espeak 1.53
-    'CVE-2026-2673',  # openssl fix not released
-    'CVE-2026-14456',  # openssl fix not released
 ]
 IGNORED_DEPENDENCY_PACKAGES = [
     'nodejs',  # only used at build time
