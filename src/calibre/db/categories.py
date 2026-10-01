@@ -326,6 +326,23 @@ class CategoriesCache:
             relevant = {c for c, _, _ in find_categories(field_metadata)} | {'rating', 'languages', 'tags'}
         return self.global_version, tuple(sorted((f, fv[f]) for f in relevant if f in fv))
 
+    def versions(self, field_metadata):
+        """
+        The current version of every category, for callers that keep what they
+        built from one and want to know whether it is still up to date. The
+        version of a composite category is None, as its value is computed from
+        a template that can reference any field, so it cannot be tracked.
+        """
+        ans = {}
+        for category, _, is_composite in find_categories(field_metadata):
+            if is_composite:
+                ans[category] = None
+            else:
+                datatype = field_metadata[category]['datatype']
+                rating_field = category if datatype == 'rating' else 'rating'
+                ans[category] = self.version_for(category, rating_field, 'languages')
+        return ans
+
     def version_for(self, *field_names):
         fv = self.field_versions
         return (self.global_version,) + tuple(fv.get(n, 0) for n in field_names)

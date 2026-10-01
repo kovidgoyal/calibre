@@ -645,16 +645,99 @@ class TagsModel(QAbstractItemModel):  # {{{
         # Take the fingerprint before building, so that a write that happens in
         # another thread while we build is not counted as already displayed
         fingerprint = self.current_build_fingerprint()
+        versions, signature = self.current_category_versions(), self.subtree_signature()
         self.reset_notes_and_link_maps()
-        for node in self.node_map.values():
-            node.break_cycles()
-        del node  # Clear reference to node in the current frame
-        self.node_map.clear()
+        # The sub-tree of a category whose items cannot have changed is kept
+        # instead of being built again, so only the nodes that are not part of
+        # the new tree have their cycles broken
+        old_node_map = self.node_map
+        self.reusable_subtrees = self.find_reusable_subtrees(versions, signature)
+        # A build that fails leaves the tree partly built, so its sub-trees
+        # must not be used again. The versions are recorded only on success.
+        self.last_category_versions = {}
+        self.node_map = {}
         self.category_nodes = []
         self.hierarchical_categories = {}
         self.root_item = self.create_node(icon_map=self.icon_state_map)
-        self._rebuild_node_tree(state_map=state_map)
+        try:
+            self._rebuild_node_tree(state_map=state_map)
+        finally:
+            self.reusable_subtrees = {}
+            new_node_map = self.node_map
+            for node_id, node in old_node_map.items():
+                if node_id not in new_node_map:
+                    node.break_cycles()
+            node = None  # Clear reference to node in the current frame
+            old_node_map.clear()
         self.last_build_fingerprint = fingerprint
+        self.last_category_versions, self.last_subtree_signature = versions, signature
+
+    def current_category_versions(self):
+        db = self.db
+        if db is None:
+            return {}
+        return db.new_api.categories_cache.versions(db.field_metadata)
+
+    def subtree_signature(self):
+        """Everything apart from the items themselves that changes how a category sub-tree is built"""
+        db = self.db
+        if db is None:
+            return None
+        return (
+            config['sort_tags_by'],
+            self.collapse_model,
+            self.filter_categories_by,
+            self.prefs['tags_browser_collapse_at'],
+            self.prefs['tags_browser_collapse_fl_at'],
+            tuple(db.prefs.get('tag_browser_dont_collapse', self.prefs['tag_browser_dont_collapse']) or ()),
+            tuple(self.icon_state_map),
+            tuple(sorted(db.new_api.pref('categories_using_hierarchy', ()))),
+            bool(db.data.get_base_restriction() or db.data.get_search_restriction()),
+        )
+
+    def find_reusable_subtrees(self, versions, signature):
+        """
+        The category nodes of the current tree whose sub-tree can be used again,
+        because neither their items nor the way they are displayed can have
+        changed since it was built.
+        """
+        ans = {}
+        root = getattr(self, 'root_item', None)
+        if root is None or signature is None or signature != getattr(self, 'last_subtree_signature', None):
+            return ans
+        if self.db is not None and (self.db.data.get_base_restriction() or self.db.data.get_search_restriction()):
+            # The items are restricted to the books of the Virtual library, and
+            # get_categories() does not cache them, so they are not tracked
+            return ans
+        last = getattr(self, 'last_category_versions', None) or {}
+        for node in getattr(root, 'children', ()):
+            key = node.category_key
+            # User categories and grouped search terms take their items from
+            # other categories, saved searches and news are not categories of
+            # items at all, and the rating category is modified in place
+            if not key or key.startswith('@') or key in ('search', 'news', 'rating'):
+                continue
+            version = versions.get(key)
+            if version is not None and last.get(key) == version:
+                ans[key] = node
+        return ans
+
+    def reuse_subtree(self, category, old, state_map):
+        """Move the sub-tree built for a category on an earlier build to its new category node"""
+        category.children = old.children
+        old.children = []
+        node_map = self.node_map
+        stack = list(category.children)
+        while stack:
+            node = stack.pop()
+            node_map[id(node)] = node
+            node.boxed = False
+            tag = node.tag
+            if node.type == TagTreeItem.TAG and tag is not None:
+                tag.state = state_map.get((tag.name, tag.category), 0)
+            stack.extend(node.children)
+        for child in category.children:
+            child.parent = category
 
     def current_build_fingerprint(self):
         db = self.db
@@ -1038,6 +1121,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         assert cnt_db is not None
         with cnt_db.new_api.safe_read_lock:  # needed as we read from book_value_map
             for category in self.category_nodes:
+                old = self.reusable_subtrees.pop(category.category_key, None)
+                if old is not None:
+                    self.reuse_subtree(category, old, state_map.get(category.category_key, {}))
+                    continue
                 process_one_node(
                     category,
                     collapse_model,
