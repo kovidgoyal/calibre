@@ -637,9 +637,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         # print()
         self._build_in_progress = True
         self.beginResetModel()
-        self._run_rebuild(state_map=state_map)
-        self.endResetModel()
-        self._build_in_progress = False
+        try:
+            self._run_rebuild(state_map=state_map)
+        finally:
+            self.endResetModel()
+            self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
         # Take the fingerprint before building, so that a write that happens in
