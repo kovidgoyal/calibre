@@ -292,12 +292,16 @@ def recalculate_toc_anchor_positions(tam, plam):
     return current_map
 
 
-def current_toc_anchor_map(tam, plam):
+def toc_anchor_map_is_current():
     current_map = toc_anchor_map()
-    if not (current_map and current_map.layout_mode is current_layout_mode()
-            and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
-        current_map = recalculate_toc_anchor_positions(tam, plam)
-    return current_map
+    return bool(current_map and current_map.layout_mode is current_layout_mode()
+            and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height())
+
+
+def current_toc_anchor_map(tam, plam):
+    if toc_anchor_map_is_current():
+        return toc_anchor_map()
+    return recalculate_toc_anchor_positions(tam, plam)
 
 
 def update_visible_toc_anchors(toc_anchor_map, page_list_anchor_map, recalculate):

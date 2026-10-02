@@ -91,7 +91,7 @@ from read_book.settings import (
 )
 from read_book.shortcuts import create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 from read_book.smil import flatten_smil_map, mark_smil_element, smil_element_at
-from read_book.toc import find_anchor_before_range, update_visible_toc_anchors
+from read_book.toc import find_anchor_before_range, toc_anchor_map_is_current, update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.touch import reset_handlers as reset_touch_handlers
 from read_book.viewport import scroll_viewport
@@ -153,6 +153,7 @@ class IframeBoss:
     def __init__(self):
         window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
+        self.last_toc_position = None
         self.last_search_at = -1001
         self.reference_mode_enabled = False
         self.replace_history_on_next_cfi_update = True
@@ -529,6 +530,7 @@ class IframeBoss:
             file_progress_frac=progress_frac(), page_counts=page_counts()
         )
         self.last_cfi = None
+        self.last_toc_position = None
         self.auto_scroll_action('resume')
         reset_touch_handlers()  # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
 
@@ -600,7 +602,12 @@ class IframeBoss:
             self.book.manifest.page_list_anchor_map,
             bool(recalculate_toc_anchor_positions)
         )
-        self.send_message('update_toc_position', visible_anchors=visible_anchors)
+        # This is called on every scroll event, so only send a message when
+        # the set of visible anchors has actually changed
+        serialized = JSON.stringify(visible_anchors)
+        if serialized is not self.last_toc_position:
+            self.last_toc_position = serialized
+            self.send_message('update_toc_position', visible_anchors=visible_anchors)
 
     def onscroll(self):
         if self.content_ready:
@@ -614,6 +621,10 @@ class IframeBoss:
         fpf = progress_frac()
         self.send_message(
             'update_progress_frac', progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
+        if toc_anchor_map_is_current():
+            # Only use cached anchor positions here as recalculating them is
+            # expensive, the debounced onscroll will take care of that
+            self.update_toc_position()
         sel = window.getSelection()
         if sel and not sel.isCollapsed:
             self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow', True))
