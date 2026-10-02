@@ -153,7 +153,15 @@ class KOBO(USBMS):
         ),
     ]
 
-    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['tags']), True, True, True, False, False, False]  # noqa: FLY002
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        ', '.join(['tags']),  # noqa: FLY002
+        True,
+        True,
+        True,
+        False,
+        False,
+        False,
+    ]
 
     OPT_COLLECTIONS = 0
     OPT_UPLOAD_COVERS = 1

@@ -326,7 +326,7 @@ class UploadUserManual(Command):  # {{{
 
         srcdir = self.j(manual_build_dir(), 'en', 'html') + '/'
         check_call(['rsync', '-zz', '-rl', '--info=progress2', srcdir, 'main:/srv/manual/'], shell=True)
-        check_call('ssh main chown -R http:http /srv/manual'.split())
+        check_call(['ssh', 'main', 'chown', '-R', 'http:http', '/srv/manual'])
 
 
 # }}}
