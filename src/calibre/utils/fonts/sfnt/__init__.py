@@ -3,6 +3,8 @@
 
 from datetime import datetime, timedelta
 
+from calibre.utils.date import utc_tz
+
 
 def align_block(raw, multiple=4, pad=b'\0'):
     """
@@ -31,10 +33,10 @@ class DateTimeProperty:
         self.name = name
 
     def __get__(self, obj, type=None):
-        return datetime(1904, 1, 1) + timedelta(seconds=getattr(obj, self.name))
+        return datetime(1904, 1, 1, tzinfo=utc_tz) + timedelta(seconds=getattr(obj, self.name))
 
     def __set__(self, obj, val):
-        td = val - datetime(1904, 1, 1)
+        td = val - datetime(1904, 1, 1, tzinfo=utc_tz)
         setattr(obj, self.name, int(td.total_seconds()))
 
 

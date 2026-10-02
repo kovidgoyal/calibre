@@ -346,5 +346,5 @@ class HTMLInput(InputFormatPlugin):
 
         nlink = self.added_resources[link]
         if frag:
-            nlink = '#'.join((nlink, frag))
+            nlink = f'{nlink}#{frag}'
         return nlink

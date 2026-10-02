@@ -153,7 +153,15 @@ class KOBO(USBMS):
         ),
     ]
 
-    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['tags']), True, True, True, False, False, False]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        ', '.join(['tags']),  # noqa: FLY002
+        True,
+        True,
+        True,
+        False,
+        False,
+        False,
+    ]
 
     OPT_COLLECTIONS = 0
     OPT_UPLOAD_COVERS = 1
@@ -2092,7 +2100,7 @@ class KOBOTOUCH(KOBO):
                         kobo_metadata.pubdate = parse_date(DateCreated, assume_utc=True)
                     except Exception:
                         try:
-                            kobo_metadata.pubdate = datetime.strptime(DateCreated, '%Y-%m-%dT%H:%M:%S.%fZ')
+                            kobo_metadata.pubdate = datetime.strptime(DateCreated, '%Y-%m-%dT%H:%M:%S.%fZ')  # noqa: DTZ007
                         except Exception:
                             debug_print(f"KoboTouch:update_booklist - Cannot convert date - DateCreated='{DateCreated}'")
 

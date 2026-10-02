@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, InvalidGenresSourceFieldException
 from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.date import as_local_time, format_date, is_date_undefined, utcfromtimestamp
+from calibre.utils.date import as_local_time, format_date, is_date_undefined, local_tz, utcfromtimestamp
 from calibre.utils.date import now as nowf
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
@@ -3417,8 +3417,8 @@ class CatalogBuilder:
         # Create an NCX article entry for each date range
         current_titles_list = []
         master_date_range_list = []
-        today = datetime.datetime.now()
-        today_time = datetime.datetime(today.year, today.month, today.day)
+        today = datetime.datetime.now(local_tz)
+        today_time = datetime.datetime(today.year, today.month, today.day, tzinfo=local_tz)
         for i, date in enumerate(self.DATE_RANGE):
             if i:
                 date_range = f'{self.DATE_RANGE[i - 1]} to {self.DATE_RANGE[i]} days ago'
@@ -3427,7 +3427,7 @@ class CatalogBuilder:
             date_range_limit = self.DATE_RANGE[i]
             assert self.books_by_date_range is not None
             for book in self.books_by_date_range:
-                book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
+                book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day, tzinfo=local_tz)
                 if (today_time - book_time).days <= date_range_limit:
                     # print('generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days))
                     current_titles_list.append(book['title'])
@@ -3523,8 +3523,8 @@ class CatalogBuilder:
         # Create an NCX article entry for each date range
         current_titles_list = []
         master_date_range_list = []
-        today = datetime.datetime.now()
-        today_time = datetime.datetime(today.year, today.month, today.day)
+        today = datetime.datetime.now(local_tz)
+        today_time = datetime.datetime(today.year, today.month, today.day, tzinfo=local_tz)
         for i, date in enumerate(self.DATE_RANGE):
             if i:
                 date_range = f'{self.DATE_RANGE[i - 1]} to {self.DATE_RANGE[i]} days ago'

@@ -42,6 +42,7 @@ from calibre.gui2 import choose_files, error_dialog, file_icon_provider, gprefs,
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.open_with import choose_program, edit_programs, populate_menu, run_program
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.date import local_tz
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file
@@ -172,7 +173,7 @@ class Files(QAbstractListModel):
         if role == Qt.ItemDataRole.DisplayRole:
             name = self.file_display_name(row)
             e = self.item_at(row)
-            date = datetime.fromtimestamp(e.stat_result.st_mtime)
+            date = datetime.fromtimestamp(e.stat_result.st_mtime, tz=local_tz)
             l2 = human_readable(e.stat_result.st_size) + date.strftime(' [%Y/%m/%d]')
             return name + '\n' + l2
         if role == Qt.ItemDataRole.DecorationRole:

@@ -56,7 +56,7 @@ class RenameFiles:  # {{{
             if replacement is not None:
                 nhref = replacement
                 if frag:
-                    nhref = '#'.join((nhref, frag))
+                    nhref = f'{nhref}#{frag}'
                 toc.href = nhref
 
         for x in toc:

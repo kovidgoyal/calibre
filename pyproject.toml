@@ -131,7 +131,7 @@ ignore = [
 select = [
     'E', 'F', 'I', 'W', 'INT',
     'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
-    'PLE', 'PLW', 'PLC', 'PLR', 'ASYNC', 'FURB',
+    'PL', 'ASYNC', 'FURB', 'FA', 'FLY', 'DTZ',
     'RUF',  # note: RUF can flag many unsolicited errors
     # preview rules
     'RUF051', 'RUF056',  # useless dict operation
@@ -143,12 +143,13 @@ select = [
     'E114', 'E115', 'E116', 'E261', 'E262', 'E265',  # comment formatting
     'E201', 'E202', 'E211', 'E251', 'E275',  # various whitespace
 ]
-unfixable = ['PIE794', 'ISC001']
+unfixable = ['PIE794', 'ISC']
 extend-select = ["ANN"]
 
 [tool.ruff.lint.per-file-ignores]
-"recipes/*" = ['UP', 'FURB188']
+"recipes/*" = ['UP', 'FURB188', 'FLY', 'DTZ']
 "setup/changelog.py" = ['ISC001']
+"setup/plugins_mirror.py" = ['DTZ']
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
 "src/calibre/ebooks/metadata/sources/*" = ['UP', 'FURB188']
 "src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']

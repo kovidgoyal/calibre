@@ -94,7 +94,7 @@ class AddRemoveTest(BaseTest):
         del cache
         # Test that the old interface also shows correct format data
         db = self.init_old()
-        ae(db.formats(3, index_is_id=True), ','.join(['FMT1', 'FMTX', 'REPL', 'REPL2']))
+        ae(db.formats(3, index_is_id=True), ','.join(['FMT1', 'FMTX', 'REPL', 'REPL2']))  # noqa: FLY002
         ae(db.format(3, 'FMT1', index_is_id=True), NF)
         ae(db.format(1, 'FMT1', index_is_id=True), NF)
 

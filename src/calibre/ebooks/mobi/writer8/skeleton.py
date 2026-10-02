@@ -432,7 +432,7 @@ class Chunker:
         def to_placeholder(aid):
             pos, fid, _ = aid_map[aid]
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
-            return ':off:'.join((pos, fid)).encode('utf-8')
+            return f'{pos}:off:{fid}'.encode('utf-8')
 
         placeholder_map = {as_bytes(k): to_placeholder(v) for k, v in self.placeholder_map.items()}
 

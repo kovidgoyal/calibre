@@ -51,7 +51,7 @@ class PALADIN(USBMS):
         _('Comma separated list of metadata fields to turn into collections on the device. Possibilities include: ') + 'series, tags, authors',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-        ', '.join(['series', 'tags']),
+        ', '.join(['series', 'tags']),  # noqa: FLY002
     ]
     OPT_COLLECTIONS = 0
 

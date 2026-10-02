@@ -11,9 +11,6 @@ from calibre.constants import ismacos, iswindows, preferred_encoding
 from calibre.utils.iso8601 import UNDEFINED_DATE, local_tz, utc_tz
 from calibre.utils.localization import lcdata
 
-_utc_tz = utc_tz
-_local_tz = local_tz
-
 # When parsing ambiguous dates that could be either dd-MM Or MM-dd use the
 # user's locale preferences
 if iswindows:
@@ -56,7 +53,7 @@ else:
         parse_date_day_first = False
 
 DEFAULT_DATE = datetime(2000, 1, 1, tzinfo=utc_tz)
-EPOCH = datetime(1970, 1, 1, tzinfo=_utc_tz)
+EPOCH = datetime(1970, 1, 1, tzinfo=utc_tz)
 
 
 def is_date_undefined(qt_or_dt):
@@ -104,14 +101,14 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         date_string = date_string.decode(preferred_encoding, 'replace')
     if default is None:
         func = utcnow if assume_utc else now
-        default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0, tzinfo=_utc_tz if assume_utc else _local_tz)
+        default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0, tzinfo=utc_tz if assume_utc else local_tz)
     if iso_pat().match(date_string) is not None:
         dt = parse(date_string, default=default)
     else:
         dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+        dt = dt.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
 def fix_only_date(val):
@@ -135,17 +132,15 @@ def parse_only_date(raw, assume_utc=True, as_utc=True):
 
 
 def strptime(val, fmt, assume_utc=False, as_utc=True):
-    dt = datetime.strptime(val, fmt)
+    dt = datetime.strptime(val, fmt)  # noqa: DTZ007
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+        dt = dt.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
 def dt_factory(time_t, assume_utc=False, as_utc=True):
-    dt = datetime(*(time_t[0:6]))
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+    dt = datetime(*(time_t[0:6]), tzinfo=utc_tz if assume_utc else local_tz)
+    return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
 def safeyear(x):
@@ -180,10 +175,10 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
         return ans.astimezone(utc_tz if as_utc else local_tz)
 
     try:
-        dt = datetime(safeyear(o.year()), o.month(), o.day()).replace(tzinfo=_local_tz)
+        dt = datetime(safeyear(o.year()), o.month(), o.day(), tzinfo=local_tz)
     except ValueError:
-        dt = datetime(safeyear(o.year()), o.month(), 1).replace(tzinfo=_local_tz)
-    return dt.astimezone(_utc_tz if as_utc else _local_tz)
+        dt = datetime(safeyear(o.year()), o.month(), 1, tzinfo=local_tz)
+    return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
 def qt_from_dt(d: datetime, assume_utc=False):
@@ -203,19 +198,19 @@ def qt_from_dt(d: datetime, assume_utc=False):
 
 
 def fromtimestamp(ctime, as_utc=True):
-    return datetime.fromtimestamp(ctime, _utc_tz if as_utc else _local_tz)
+    return datetime.fromtimestamp(ctime, utc_tz if as_utc else local_tz)
 
 
 def fromordinal(day, as_utc=True):
-    return datetime.fromordinal(day).replace(tzinfo=_utc_tz if as_utc else _local_tz)
+    return datetime.fromordinal(day).replace(tzinfo=utc_tz if as_utc else local_tz)
 
 
 def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     if not hasattr(date_time, 'tzinfo'):
         return date_time.isoformat()
     if date_time.tzinfo is None:
-        date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
+        date_time = date_time.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    date_time = date_time.astimezone(utc_tz if as_utc else local_tz)
     return date_time.isoformat(sep)
 
 
@@ -226,8 +221,8 @@ def internal_iso_format_string():
 def w3cdtf(date_time, assume_utc=False):
     if hasattr(date_time, 'tzinfo'):
         if date_time.tzinfo is None:
-            date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-        date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)  # ty: ignore[redundant-condition]
+            date_time = date_time.replace(tzinfo=utc_tz if assume_utc else local_tz)
+        date_time = date_time.astimezone(utc_tz if as_utc else local_tz)  # ty: ignore[redundant-condition]
     return str(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
@@ -235,8 +230,8 @@ def as_local_time(date_time, assume_utc=True):
     if not hasattr(date_time, 'tzinfo'):
         return date_time
     if date_time.tzinfo is None:
-        date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    return date_time.astimezone(_local_tz)
+        date_time = date_time.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    return date_time.astimezone(local_tz)
 
 
 def dt_as_local(dt):
@@ -249,21 +244,21 @@ def as_utc(date_time, assume_utc=True):
     if not hasattr(date_time, 'tzinfo'):
         return date_time
     if date_time.tzinfo is None:
-        date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-    return date_time.astimezone(_utc_tz)
+        date_time = date_time.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    return date_time.astimezone(utc_tz)
 
 
 def now():
-    return datetime.now(_local_tz)
+    return datetime.now(local_tz)
 
 
 def utcnow():
-    return datetime.now(_utc_tz)
+    return datetime.now(utc_tz)
 
 
 def utcfromtimestamp(stamp):
     try:
-        return datetime.fromtimestamp(stamp, _utc_tz)
+        return datetime.fromtimestamp(stamp, utc_tz)
     except Exception:
         # Raised if stamp is out of range for the platforms gmtime function
         # For example, this happens with negative values on windows
@@ -369,8 +364,8 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
-        dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
+            dt = dt.replace(tzinfo=utc_tz if assume_utc else local_tz)
+        dt = dt.astimezone(utc_tz if as_utc else local_tz)
 
     if format == 'iso':
         return isoformat(dt, assume_utc=assume_utc, as_utc=as_utc)
@@ -444,7 +439,7 @@ def clean_date_for_sort(dt, fmt=None):
 
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=_local_tz)
+            dt = dt.replace(tzinfo=local_tz)
         dt = as_local_time(dt)
 
     if fmt == 'iso':

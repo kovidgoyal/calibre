@@ -206,7 +206,7 @@ class DetectStructure:
                     href, frag = purl.path, purl.fragment
                     href = item.abshref(href)
                     if frag:
-                        href = '#'.join((href, frag))
+                        href = f'{href}#{frag}'
                     if not self.oeb.toc.has_href(href):
                         text = xml2text(a)
                         text = text[:100].strip()
@@ -236,7 +236,7 @@ class DetectStructure:
         text = text[:1000].strip()
         id = elem.get('id', f'calibre_toc_{counter}')
         elem.set('id', id)
-        href = '#'.join((item.href, id))
+        href = f'{item.href}#{id}'
         return text, href
 
     def add_leveled_toc_items(self):

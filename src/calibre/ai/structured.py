@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal, NamedTuple, Union, ge
 from urllib.error import HTTPError, URLError
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, StructuredOutputResult
+from calibre.utils.date import utc_tz
 
 if TYPE_CHECKING:
     from unittest.suite import TestSuite
@@ -991,7 +992,9 @@ def find_tests() -> TestSuite:
             from calibre.ai.ollama.backend import Model
             from calibre.ai.ollama.backend import structured_output_data as ollama_data
 
-            model = Model(name='llama3', id='llama3:latest', family='llama', families=(), modified_at=datetime.datetime(2025, 1, 1), can_think=False)
+            model = Model(
+                name='llama3', id='llama3:latest', family='llama', families=(), modified_at=datetime.datetime(2025, 1, 1, tzinfo=utc_tz), can_think=False
+            )
             d = ollama_data(messages_for_structured_output('extract'), model, ExampleBookInfo)
             self.ae(d['format'], strict_json_schema(ExampleBookInfo))
             self.ae(d['messages'], [{'role': 'user', 'content': 'extract'}])

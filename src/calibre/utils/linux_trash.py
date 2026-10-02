@@ -62,7 +62,7 @@ def info_for(src, topdir):
 
     info = '[Trash Info]\n'
     info += 'Path=' + uniquote(src) + '\n'
-    info += 'DeletionDate=' + format_date(datetime.now()) + '\n'
+    info += 'DeletionDate=' + format_date(datetime.now()) + '\n'  # noqa: DTZ005
     return info
 
 

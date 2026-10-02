@@ -193,7 +193,7 @@ del sort_languages, get_language
 
 epub_author = 'Kovid Goyal'
 epub_publisher = 'Kovid Goyal'
-epub_copyright = f'© {date.today().year} Kovid Goyal'
+epub_copyright = f'© {date.today().year} Kovid Goyal'  # noqa: DTZ011
 epub_description = 'Comprehensive documentation for calibre'
 epub_identifier = 'https://manual.calibre-ebook.com'
 epub_scheme = 'url'

@@ -163,7 +163,7 @@ class GoogleImages(Source):
         from base64 import standard_b64encode
         from datetime import date
 
-        template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))
+        template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))  # noqa: DTZ011
         br.set_simple_cookie('SOCS', standard_b64encode(template).decode('ascii').rstrip('='), '.google.com', path='/')
         # br.set_debug_http(True)
         raw = clean_ascii_chars(br.open(url).read().decode('utf-8'))

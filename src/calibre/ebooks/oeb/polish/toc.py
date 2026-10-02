@@ -598,7 +598,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
     head = etree.SubElement(ncx, NCX('head'))
     etree.SubElement(head, NCX('meta'), name='dtb:uid', content=str(uid))
     etree.SubElement(head, NCX('meta'), name='dtb:depth', content=str(toc.depth))
-    generator = ''.join(['calibre (', __version__, ')'])
+    generator = f'calibre ({__version__})'
     etree.SubElement(head, NCX('meta'), name='dtb:generator', content=generator)
     etree.SubElement(head, NCX('meta'), name='dtb:totalPageCount', content='0')
     etree.SubElement(head, NCX('meta'), name='dtb:maxPageNumber', content='0')

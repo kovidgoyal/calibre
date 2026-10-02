@@ -186,7 +186,7 @@ class ThumbnailCache:
                 return ()  # not a directory or no permission or whatever
 
         entries = (
-            '/'.join((parent, subdir, entry))
+            '/'.join((parent, subdir, entry))  # noqa: FLY002
             for parent in listdir(self.location)
             for subdir in listdir(self.location, parent)
             for entry in listdir(self.location, parent, subdir)
