@@ -119,6 +119,9 @@ def fix_only_date(val):
 
 
 def fix_tzinfo(dt, assume_utc=False, as_utc=True):
+    if not hasattr(dt, 'tzinfo'):
+        # not a datetime (str, None, date, ...), return unchanged
+        return dt
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=utc_tz if assume_utc else local_tz)
     return dt.astimezone(utc_tz if as_utc else local_tz)
@@ -206,6 +209,8 @@ def fromordinal(day, as_utc=True):
 
 
 def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
+    if not hasattr(date_time, 'tzinfo'):
+        return date_time.isoformat()
     date_time = fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=as_utc)
     return date_time.isoformat(sep)
 
