@@ -96,7 +96,7 @@ class PRST1(USBMS):
         ),
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-        ', '.join(['series', 'tags']),
+        ', '.join(['series', 'tags']),  # noqa: FLY002
         True,
         False,
         True,

@@ -107,7 +107,7 @@ class PRS505(USBMS):
             'wireless download.'
         ),
     ]
-    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['series', 'tags']), False, False, True, True]
+    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['series', 'tags']), False, False, True, True]  # noqa: FLY002
 
     OPT_COLLECTIONS = 0
     OPT_UPLOAD_COVERS = 1

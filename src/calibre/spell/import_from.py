@@ -166,7 +166,7 @@ def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
 
     def read_file(key):
         try:
-            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))
+            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))  # noqa: FLY002
             return rp.read()
         except Exception as err:
             if getattr(err, 'code', -1) != 404:
@@ -175,7 +175,7 @@ def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
             # sub-directory dictionaries and incorrectly make paths relative
             # to that directory instead of the root, for example:
             # https://github.com/LibreOffice/dictionaries/tree/master/ca
-            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, 'dictionaries', key)))
+            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, 'dictionaries', key)))  # noqa: FLY002
             return rp.read()
 
     return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)

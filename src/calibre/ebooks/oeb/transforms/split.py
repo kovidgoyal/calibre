@@ -481,7 +481,7 @@ class FlowSplitter:
                 if href == self.item.href:
                     nhref = self.anchor_map[frag or None]
                     if frag:
-                        nhref = '#'.join((nhref, frag))
+                        nhref = f'{nhref}#{frag}'
                     ref.href = nhref
 
         def fix_toc_entry(toc):
@@ -490,7 +490,7 @@ class FlowSplitter:
                 if href == self.item.href:
                     nhref = self.anchor_map[frag or None]
                     if frag:
-                        nhref = '#'.join((nhref, frag))
+                        nhref = f'{nhref}#{frag}'
                     toc.href = nhref
             for x in toc:
                 fix_toc_entry(x)
@@ -504,7 +504,7 @@ class FlowSplitter:
                 if href == self.item.href:
                     nhref = self.anchor_map[frag or None]
                     if frag:
-                        nhref = '#'.join((nhref, frag))
+                        nhref = f'{nhref}#{frag}'
                     page.href = nhref
 
         self.oeb.manifest.remove(self.item)

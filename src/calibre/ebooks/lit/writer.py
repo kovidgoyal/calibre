@@ -216,7 +216,7 @@ class ReBinary:
                     prefix = chr(2)
                     value = self.manifest.hrefs[path].id
                     if frag:
-                        value = '#'.join((value, frag))
+                        value = f'{value}#{frag}'
                 value = prefix + value
             elif attr in ('id', 'name'):
                 self.anchors.append((value, tag_offset))

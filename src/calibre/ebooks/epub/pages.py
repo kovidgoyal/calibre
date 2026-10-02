@@ -54,7 +54,7 @@ def add_page_map(opfpath, opts):
             id = elem.get('id', None)
             if id is None:
                 id = elem.attrib['id'] = next(idgen)
-            href = '#'.join((item.href, id))
+            href = f'{item.href}#{id}'
             oeb.pages.add(name, href)
     # writer = None  # DirWriter(version='2.0', page_map=True)
     # writer.dump(oeb, opfpath)

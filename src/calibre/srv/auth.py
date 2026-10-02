@@ -100,7 +100,7 @@ def synthesize_nonce(key_order, realm, secret, timestamp=None):
             # global counter
             timestamp = as_hex_unicode(struct.pack(b'!dH', float(monotonic()), nonce_counter))
     h = sha256_hex(key_order.format(timestamp, realm, secret))
-    nonce = ':'.join((timestamp, h))
+    nonce = f'{timestamp}:{h}'
     return nonce
 
 
@@ -170,7 +170,7 @@ class DigestAuth:  # {{{
         return self.H(a2)
 
     def request_digest(self, pw, data):
-        ha1 = self.H(':'.join((self.username, self.realm, pw)))
+        ha1 = self.H(f'{self.username}:{self.realm}:{pw}')
         ha2 = self.H_A2(data)
         # Request-Digest -- RFC 2617 3.2.2.1
         if self.qop:

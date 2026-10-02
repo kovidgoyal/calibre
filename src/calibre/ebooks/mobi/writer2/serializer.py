@@ -201,7 +201,7 @@ class Serializer:
         else:
             assert base is not None
             path = base.href
-        href = '#'.join((path, frag)) if frag else path
+        href = f'{path}#{frag}' if frag else path
         buf.write(b'filepos=')
         self.href_offsets[href].append(buf.tell())
         buf.write(b'0000000000')
@@ -310,7 +310,7 @@ class Serializer:
         # Previous layers take care of @name
         id_ = elem.attrib.pop('id', None)
         if id_:
-            href = '#'.join((item.href, id_))
+            href = f'{item.href}#{id_}'
             offset = self.anchor_offset or buf.tell()
             key = urlnormalize(href)
             # Only set this id_offset if it wasn't previously seen

@@ -317,7 +317,7 @@ def AumSortedConcatenate():
 
     def step(ctxt, ndx, author, sort, link):
         if author is not None:
-            ctxt[ndx] = ':::'.join((author, sort, link))
+            ctxt[ndx] = ':::'.join((author, sort, link))  # noqa: FLY002
 
     def finalize(ctxt):
         try:

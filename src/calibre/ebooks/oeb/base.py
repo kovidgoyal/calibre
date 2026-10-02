@@ -1268,7 +1268,7 @@ class Manifest:
             path, frag = urldefrag(href)
             if not path:
                 if frag:
-                    return '#'.join((self.href, frag))
+                    return f'{self.href}#{frag}'
                 else:
                     return self.href
             if '/' not in self.href:
@@ -2044,7 +2044,7 @@ class OEBBook:
                     id = elem.get(attr)
                     if not id:
                         continue
-                    href = '#'.join([base, id])
+                    href = f'{base}#{id}'
                     if href in hrefs:
                         playorder[href] = next
                         added = True
@@ -2066,7 +2066,7 @@ class OEBBook:
         head = etree.SubElement(ncx, NCX('head'))
         etree.SubElement(head, NCX('meta'), name='dtb:uid', content=str(self.uid))
         etree.SubElement(head, NCX('meta'), name='dtb:depth', content=str(self.toc.depth()))
-        generator = ''.join(['calibre (', __version__, ')'])
+        generator = f'calibre ({__version__})'
         etree.SubElement(head, NCX('meta'), name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'), name='dtb:totalPageCount', content=str(len(self.pages)))
         maxpnum = etree.SubElement(head, NCX('meta'), name='dtb:maxPageNumber', content='0')
@@ -2141,5 +2141,5 @@ def rel_href(base_href, href):
     relhref = (['..'] * (len(base) - index)) + target[index:]
     relhref = '/'.join(relhref)
     if frag:
-        relhref = '#'.join((relhref, frag))
+        relhref = f'{relhref}#{frag}'
     return relhref
