@@ -565,6 +565,9 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.hidden_categories = hidden_categories
 
         self.db = db
+        # The versions of the categories of a different library say nothing
+        # about whether the current sub-trees can be used again
+        self.last_category_versions = {}
         self._run_rebuild()
         self.endResetModel()
 
@@ -734,6 +737,12 @@ class TagsModel(QAbstractItemModel):  # {{{
             node = stack.pop()
             node_map[id(node)] = node
             node.boxed = False
+            # The icon rules or the preferences for showing icons can have
+            # changed, so the icon is computed again using the current ones
+            node.category_custom_icons = self.category_custom_icons
+            node.value_icons = self.value_icons
+            node.value_icon_cache = self.value_icon_cache
+            node.icon_state_map[0] = node.icon = None
             tag = node.tag
             if node.type == TagTreeItem.TAG and tag is not None:
                 tag.state = state_map.get((tag.name, tag.category), 0)
