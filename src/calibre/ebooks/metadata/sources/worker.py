@@ -32,11 +32,7 @@ def merge_result(oldmi, newmi, ensure_fields=None):
         fields |= plugin.touched_fields
 
     def is_equal(x, y):
-        if hasattr(x, 'tzinfo'):
-            x = as_utc(x)
-        if hasattr(y, 'tzinfo'):
-            y = as_utc(y)
-        return x == y
+        return as_utc(x) == as_utc(y)
 
     for f in fields:
         # Optimize so that set_metadata does not have to do extra work later

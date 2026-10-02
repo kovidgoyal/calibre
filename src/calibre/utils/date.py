@@ -206,8 +206,6 @@ def fromordinal(day, as_utc=True):
 
 
 def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
-    if not hasattr(date_time, 'tzinfo'):
-        return date_time.isoformat()
     date_time = fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=as_utc)
     return date_time.isoformat(sep)
 
@@ -217,14 +215,11 @@ def internal_iso_format_string():
 
 
 def w3cdtf(date_time, assume_utc=False):
-    if hasattr(date_time, 'tzinfo'):
-        date_time = fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=True)
+    date_time = fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=True)
     return str(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
 def as_local_time(date_time, assume_utc=True):
-    if not hasattr(date_time, 'tzinfo'):
-        return date_time
     return fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=False)
 
 
@@ -235,8 +230,6 @@ def dt_as_local(dt):
 
 
 def as_utc(date_time, assume_utc=True):
-    if not hasattr(date_time, 'tzinfo'):
-        return date_time
     return fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=True)
 
 
@@ -354,8 +347,7 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
     if not isinstance(dt, datetime):
         dt = datetime.combine(dt, dtime())
 
-    if hasattr(dt, 'tzinfo'):
-        dt = fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
+    dt = fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
 
     if format == 'iso':
         return isoformat(dt, assume_utc=assume_utc, as_utc=as_utc)
@@ -427,8 +419,7 @@ def clean_date_for_sort(dt, fmt=None):
     if not isinstance(dt, datetime):
         dt = datetime.combine(dt, dtime())
 
-    if hasattr(dt, 'tzinfo'):
-        dt = fix_tzinfo(dt, assume_utc=False, as_utc=False)
+    dt = fix_tzinfo(dt, assume_utc=False, as_utc=False)
 
     if fmt == 'iso':
         fmt = 'yyMdhms'
