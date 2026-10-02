@@ -132,16 +132,14 @@ def parse_only_date(raw, assume_utc=True, as_utc=True):
 
 
 def strptime(val, fmt, assume_utc=False, as_utc=True):
-    dt = datetime.strptime(val, fmt)
+    dt = datetime.strptime(val, fmt)  # noqa: DTZ007
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=utc_tz if assume_utc else local_tz)
     return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
 def dt_factory(time_t, assume_utc=False, as_utc=True):
-    dt = datetime(*(time_t[0:6]))
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    dt = datetime(*(time_t[0:6]), tzinfo=utc_tz if assume_utc else local_tz)
     return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
@@ -177,9 +175,9 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
         return ans.astimezone(utc_tz if as_utc else local_tz)
 
     try:
-        dt = datetime(safeyear(o.year()), o.month(), o.day()).replace(tzinfo=local_tz)
+        dt = datetime(safeyear(o.year()), o.month(), o.day(), tzinfo=local_tz)
     except ValueError:
-        dt = datetime(safeyear(o.year()), o.month(), 1).replace(tzinfo=local_tz)
+        dt = datetime(safeyear(o.year()), o.month(), 1, tzinfo=local_tz)
     return dt.astimezone(utc_tz if as_utc else local_tz)
 
 

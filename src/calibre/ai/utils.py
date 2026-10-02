@@ -22,6 +22,7 @@ from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, Ima
 from calibre.constants import __version__
 from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
+from calibre.utils.date import local_tz
 from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
@@ -67,8 +68,8 @@ def schedule_update_of_cached_data(path: str, url: str, headers: Sequence[tuple[
     mtime = 0
     with suppress(OSError):
         mtime = os.path.getmtime(path)
-    modtime = datetime.datetime.fromtimestamp(mtime)
-    current_time = datetime.datetime.now()
+    modtime = datetime.datetime.fromtimestamp(mtime, tz=local_tz)
+    current_time = datetime.datetime.now(local_tz)
     if current_time - modtime < datetime.timedelta(days=1):
         return
     Thread(daemon=True, name='AIDataDownload', target=update_cached_data, args=(path, url, headers)).start()

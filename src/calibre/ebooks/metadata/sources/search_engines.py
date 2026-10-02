@@ -386,7 +386,7 @@ def google_consent_cookies():
     b['name'], b['value'] = 'CONSENT', 'PENDING+987'
     yield b
     template = b'\x08\x01\x128\x08\x14\x12+boq_identityfrontenduiserver_20231107.05_p0\x1a\x05en-US \x03\x1a\x06\x08\x80\xf1\xca\xaa\x06'
-    template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))
+    template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))  # noqa: DTZ011
     b = base.copy()
     b['name'], b['value'] = 'SOCS', standard_b64encode(template).decode('ascii').rstrip('=')
     yield b

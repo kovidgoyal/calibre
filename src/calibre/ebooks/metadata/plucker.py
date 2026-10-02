@@ -10,6 +10,7 @@ from datetime import datetime
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.plucker.reader import DATATYPE_METADATA, MIBNUM_TO_NAME, SectionHeader
+from calibre.utils.date import local_tz
 from calibre.utils.localization import _
 
 
@@ -65,6 +66,6 @@ def get_metadata(stream, extract_cover=True):
     if author:
         author = author.replace('\0', '').decode(default_encoding, 'replace')
         mi.author = author.split(',')
-    mi.pubdate = datetime.fromtimestamp(pubdate)
+    mi.pubdate = datetime.fromtimestamp(pubdate, tz=local_tz)
 
     return mi

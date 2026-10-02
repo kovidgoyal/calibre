@@ -10,6 +10,7 @@ import sqlite3 as sqlite
 from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.utils.date import local_tz
 from calibre.utils.localization import _
 from calibre.utils.serialize import pickle_dumps, pickle_loads
 
@@ -87,7 +88,7 @@ class LibraryDatabase:
                 'tags': book[5],
                 'comments': book[7],
                 'rating': book[8],
-                'timestamp': datetime.datetime.strptime(book[6], '%Y-%m-%d %H:%M:%S'),
+                'timestamp': datetime.datetime.strptime(book[6], '%Y-%m-%d %H:%M:%S').replace(tzinfo=local_tz),
             }
             cover = {}
             query = conn.execute('select uncompressed_size, data from books_cover where id=?', (id,)).fetchone()

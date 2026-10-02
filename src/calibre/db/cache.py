@@ -46,7 +46,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import UNDEFINED_DATE, is_date_undefined, timestampfromdt, utcnow
+from calibre.utils.date import UNDEFINED_DATE, is_date_undefined, local_tz, timestampfromdt, utcnow
 from calibre.utils.date import now as nowf
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
@@ -4364,7 +4364,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
             with zipfile.ZipFile(stream) as zf:
                 for zi in zf.infolist():
                     tpath = zf.extract(zi, notes_dir, None)
-                    date_time = mktime(datetime(*zi.date_time).timetuple())
+                    date_time = mktime(datetime(*zi.date_time, tzinfo=local_tz).timetuple())
                     os.utime(tpath, (date_time, date_time))
     if abort is not None and abort.is_set():
         return
