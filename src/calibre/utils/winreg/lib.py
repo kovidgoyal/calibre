@@ -7,7 +7,7 @@ import datetime
 import numbers
 import struct
 
-from calibre.utils.date import local_tz
+from calibre.utils.date import utc_tz
 from calibre_extensions import winutil
 
 try:
@@ -277,7 +277,7 @@ def filetime_to_datettime(ft):
     timestamp = ft.dwHighDateTime
     timestamp <<= 32
     timestamp |= ft.dwLowDateTime
-    return datetime.datetime(1601, 1, 1, 0, 0, 0, tzinfo=local_tz) + datetime.timedelta(microseconds=timestamp / 10)
+    return datetime.datetime(1601, 1, 1, 0, 0, 0, tzinfo=utc_tz) + datetime.timedelta(microseconds=timestamp / 10)
 
 
 # }}}
