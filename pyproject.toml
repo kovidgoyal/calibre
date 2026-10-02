@@ -131,7 +131,7 @@ ignore = [
 select = [
     'E', 'F', 'I', 'W', 'INT',
     'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
-    'PL', 'ASYNC', 'FURB',
+    'PL', 'ASYNC', 'FURB', 'FA',
     'RUF',  # note: RUF can flag many unsolicited errors
     # preview rules
     'RUF051', 'RUF056',  # useless dict operation
