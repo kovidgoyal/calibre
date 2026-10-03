@@ -543,10 +543,15 @@ def create_margin_files(container):
 # Link handling {{{
 def add_anchors_markup(root, uuid, anchors):
     body = last_tag(root)
+    # column-span is needed so that the page break is honored when body is
+    # multi-column, otherwise the div ends up in a column alongside content,
+    # which is then lost when the anchors page is deleted.
+    # See https://bugs.launchpad.net/calibre/+bug/2142731
     div = body.makeelement(
         XHTML('div'),
         id=uuid,
-        style='display:block !important; page-break-before: always !important; break-before: always !important; white-space: pre-wrap !important',
+        style='display:block !important; page-break-before: always !important; break-before: always !important; white-space: pre-wrap !important;'
+        ' column-span: all !important',
     )
     div.text = '\n\n'
     body.append(div)
