@@ -4,7 +4,7 @@
 from qt.core import QApplication, QDialog, QFont, QFontDialog, QFontInfo
 
 from calibre.constants import ismacos, iswindows
-from calibre.gui2 import config, gprefs, icon_resource_manager, qapplication_or_fail
+from calibre.gui2 import config, gprefs, icon_resource_manager, qapplication_or_fail, question_dialog
 from calibre.gui2.preferences import LazyConfigWidgetBase, Setting, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.main_interface_ui import Ui_main_interface_tab as Ui_Form
 from calibre.gui2.widgets import BusyCursor
@@ -104,6 +104,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.opt_gui_layout.currentIndexChanged.connect(self.changed_signal)
         set_help_tips(self.opt_gui_layout, config.help('gui_layout'))
         self.button_adjust_colors.clicked.connect(self.adjust_colors)
+        self.reset_layout_button.clicked.connect(self.reset_layout)
 
     def lazy_initialize(self):
         font = gprefs['font']
@@ -122,6 +123,20 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         if d.exec() == QDialog.DialogCode.Accepted:
             d.apply_settings()
             self.changed_signal.emit()
+
+    def reset_layout(self):
+        if not question_dialog(
+            self,
+            _('Reset layout?'),
+            _(
+                'This will restore the layout of the main calibre window to the default, showing the Tag browser,'
+                ' book list, Book details and search bar with their default sizes. Are you sure?'
+            ),
+            skip_dialog_name='reset_main_window_layout',
+        ):
+            return
+        self.gui.iactions['Layout Actions'].reset_layout()
+        self.opt_gui_layout.setCurrentIndex(0 if self.gui.layout_container.is_wide else 1)
 
     def update_color_palette_state(self):
         if self.ui_style_available:

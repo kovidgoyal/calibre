@@ -8,6 +8,7 @@ from qt.core import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QIcon, QL
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
+from calibre.gui2.central import NarrowDesires, Visibility, WideDesires
 from calibre.gui2.geometry import _restore_geometry, delete_geometry, save_geometry
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
@@ -23,6 +24,17 @@ class Panel(Enum):
     COVER_BROWSER = 'cb'
     QUICKVIEW = 'qv'
     BOOKSHELF = 'bs'
+
+
+def default_layout_settings():
+    return {
+        'layout': 'wide',
+        'wide_visibility': Visibility().serialize(),
+        'narrow_visibility': Visibility().serialize(),
+        'wide_desires': WideDesires().serialize(),
+        'narrow_desires': NarrowDesires().serialize(),
+        'alternate_view': '',
+    }
 
 
 class SaveLayoutDialog(QDialog):
@@ -185,7 +197,24 @@ class LayoutActions(InterfaceAction):
         _restore_geometry(self.gui, gprefs, f'saved_layout_{name}')
         # Now the panel sizes inside the central widget
         layouts = gprefs['saved_layouts']
-        settings = layouts[name]
+        self.apply_settings(layouts[name])
+
+    def reset_layout(self):
+        """reset_layout()
+        Reset the layout of the main window to the calibre defaults: the wide
+        layout with the Tag browser, book list, Book details and search bar
+        visible and the default panel sizes. The window size is not changed.
+        """
+        # Quickview is a separate widget that must be closed via its button
+        self.set_visible(Panel.QUICKVIEW, False)
+        self.apply_settings(default_layout_settings())
+        self.gui.layout_container.update_button_states_from_visibility()
+        self.set_visible(Panel.SEARCH_BAR, True)
+
+    def apply_settings(self, settings):
+        """apply_settings()
+        Apply the specified GUI layout settings, as returned by :meth:`current_settings`.
+        """
         # Order is important here. change_layout() must be called before
         # unserializing the settings or panes like book details won't display
         # properly.
