@@ -782,8 +782,7 @@ class Indexer:  # {{{
             periodical.last_child_index = sec.index
 
         for sec, articles in normalized_sections:
-            for a in articles:
-                indices.append(a)
+            indices.extend(articles)
 
         return indices
 

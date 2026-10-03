@@ -39,8 +39,7 @@ class ObservatorulCultural(BasicNewsRecipe):
             categ = self.tag_to_string(categorie.find('dt'))
             for story in categorie.findAll('dd'):
                 title = []
-                for bucatele in story.findAll('a'):
-                    title.append(bucatele)
+                title.extend(story.findAll('a'))
                 if len(title) == 1:  # daca articolul nu are autor
                     stories.append({'title': self.tag_to_string(title[0]), 'url': title[0]['href'], 'date': '', 'author': ''})
                 else:  # daca articolul are autor len(title)=2
