@@ -972,7 +972,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('html')
 
     def s_office_master_styles(self, tag, attrs):
-        """ """
+        pass
 
     def s_office_presentation(self, tag, attrs):
         """For some odd reason, OpenOffice Impress doesn't define a default-style

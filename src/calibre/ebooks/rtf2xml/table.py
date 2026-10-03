@@ -486,7 +486,6 @@ class Table:
         #     self.__write_obj.write(line)
 
     def __end_row_func(self, line):
-        """ """
         if len(self.__state) > 1 and self.__state[-1] == 'in_row':
             self.__state.pop()
             self.__write_obj.write('mi<tg<close_____<row\n')

@@ -338,7 +338,6 @@ class Styles:
         self.__leader_found = 0
 
     def __tab_type_func(self, line):
-        """ """
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type

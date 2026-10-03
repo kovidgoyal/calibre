@@ -362,13 +362,11 @@ class ParagraphDef:
                     self.__att_val_dict[token] = line[20:-1]
 
     def __tab_stop_func(self, line):
-        """ """
         self.__att_val_dict['tabs'] += f'{self.__tab_type}:'
         self.__att_val_dict['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __tab_type_func(self, line):
-        """ """
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -377,7 +375,6 @@ class ParagraphDef:
             raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
-        """ """
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
             self.__att_val_dict['tabs'] += f'{leader}^'
@@ -386,7 +383,6 @@ class ParagraphDef:
             raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
-        """ """
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
         self.__att_val_dict['tabs'] += f'bar:{line[20:-1]};'
         self.__tab_type = 'left'

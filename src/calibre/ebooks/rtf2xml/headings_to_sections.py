@@ -21,8 +21,6 @@ from . import open_for_read, open_for_write
 
 
 class HeadingsToSections:
-    """ """
-
     def __init__(
         self,
         in_file,

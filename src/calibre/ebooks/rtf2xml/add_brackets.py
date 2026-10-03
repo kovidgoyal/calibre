@@ -197,7 +197,6 @@ class AddBrackets:
         return check_brack_obj.check_brackets()[0]
 
     def add_brackets(self):
-        """ """
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
