@@ -1,0 +1,45 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class WSWS_Modded(BasicNewsRecipe):
+    title = 'World Socialist'
+    __author__ = 'Paulb223'
+    language = 'en'
+    encoding = 'utf-8'
+    oldest_article = 2
+    max_articles_per_feed = 100
+
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['style', 'width', 'height']
+
+    remove_tags = [
+        dict(name=['link', 'meta', 'style', 'svg', 'input', 'source', 'noscript', 'button']),
+        dict(attrs={'class': lambda x: x and any(c in x for c in ['social', 'donate', 'share', 'related', 'topics', 'author-wrapper', 'media-tools', 'nav'])}),
+        dict(id=['menu', 'donate-region', 'bannerandheader']),
+        dict(name='div', attrs={'class': 'menu-container'}),
+    ]
+
+    remove_tags_after = [
+        dict(attrs={'class': lambda x: x and 'author-wrapper' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'related-articles' in x.split()}),
+    ]
+
+    feeds = [
+        ('WSWS News', 'http://www.wsws.org/rss/en.xml'),
+    ]
+
+    def get_browser(self, *a, **kw):
+        from calibre import random_user_agent
+
+        try:
+            ua = random_user_agent(allow_ie=False)
+        except Exception:
+            ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36'
+        kw['user_agent'] = ua
+        return BasicNewsRecipe.get_browser(self, *a, **kw)
+
+    def preprocess_html(self, soup):
+        for title in soup.findAll('h1'):
+            title.name = 'h2'
+        return soup
