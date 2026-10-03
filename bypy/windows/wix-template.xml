@@ -165,10 +165,19 @@
         Condition='REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE' />
     <CustomAction Id="ClearCalibreCaches" DllEntry="WixQuietExec" Execute="deferred" Impersonate="yes" Return="ignore" BinaryRef="Wix4UtilCA_X86" />
 
+    <!-- Remove the calibre program associations from the per-user registry
+        settings of the user running the uninstaller. Impersonated, skipped
+        during upgrades and run before RemoveFiles, for the same reasons as
+        ClearCalibreCaches above. -->
+    <SetProperty Id="UnregisterCalibreDefaultPrograms" Value="&quot;[APPLICATIONFOLDER]calibre-debug.exe&quot; --default-programs=unregister" Before="UnregisterCalibreDefaultPrograms" Sequence="execute"
+        Condition='REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE' />
+    <CustomAction Id="UnregisterCalibreDefaultPrograms" DllEntry="WixQuietExec" Execute="deferred" Impersonate="yes" Return="ignore" BinaryRef="Wix4UtilCA_X86" />
+
     <InstallExecuteSequence>
         <Custom Action="PreventDowngrading" After="FindRelatedProducts" Condition="NEWPRODUCTFOUND" />
         <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
         <Custom Action="ClearCalibreCaches" Before="RemoveFiles" Condition='REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE' />
+        <Custom Action="UnregisterCalibreDefaultPrograms" Before="ClearCalibreCaches" Condition='REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE' />
         <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
     <InstallUISequence>
