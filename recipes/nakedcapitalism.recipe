@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+import re
+from urllib.parse import quote
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -7,11 +10,33 @@ class NakedCapitalism(BasicNewsRecipe):
     title = 'Naked Capitalism'
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup = True
+    # auto_cleanup removes the comments section as "clutter", so it is disabled.
+    # Page chrome is stripped explicitly below instead, leaving the comments intact.
+    auto_cleanup = False
+    remove_tags = [
+        dict(name=['header', 'footer', 'nav', 'aside', 'form', 'noscript']),
+        dict(
+            attrs={
+                'class': [
+                    'sidebar',
+                    'widget-area',
+                    'site-header',
+                    'site-footer',
+                    'navigation',
+                    'post-navigation',
+                    'sharedaddy',
+                    'comment-respond',
+                    'jp-relatedposts',
+                ]
+            }
+        ),
+        dict(attrs={'id': ['sidebar', 'secondary', 'respond', 'masthead', 'colophon']}),
+    ]
 
     extra_css = '''
         body { font-family: serif !important; color: black !important; }
         p { display: block !important; margin-bottom: 1em !important; line-height: 1.4 !important; }
+        img { max-width: 100% !important; height: auto !important; display: block !important; margin: 10px auto !important; }
         div, article, section {
             width: auto !important;
             height: auto !important;
@@ -20,14 +45,72 @@ class NakedCapitalism(BasicNewsRecipe):
         }
     '''
 
+    # Render embedded tweets as a plain image using a screenshot service.
+    # Set to False to keep the tweet as a normal text blockquote instead.
+    tweets_as_images = True
+
+    def _best_image_url(self, img):
+        # 1. Largest candidate listed in srcset
+        srcset = img.get('srcset') or img.get('data-lazy-srcset') or img.get('data-srcset')
+        if srcset:
+            best, best_w = None, -1
+            for part in srcset.split(','):
+                bits = part.strip().split()
+                if not bits:
+                    continue
+                m = re.match(r'(\d+)w', bits[1]) if len(bits) > 1 else None
+                w = int(m.group(1)) if m else 0
+                if w > best_w:
+                    best, best_w = bits[0], w
+            if best:
+                return best.split('?')[0]
+        # 2. WordPress/Jetpack attribute pointing at the original upload
+        for attr in ('data-orig-file', 'data-large-file', 'data-full-url', 'data-lazy-src', 'data-src'):
+            if img.get(attr):
+                return img[attr].split('?')[0]
+        # 3. Strip the "-300x200" resize suffix and any ?resize= query
+        src = img.get('src')
+        if src:
+            src = src.split('?')[0]
+            return re.sub(r'-\d+x\d+(\.[A-Za-z]{3,4})$', r'\1', src)
+        return None
+
     def preprocess_html(self, soup):
-        for tag in soup.findAll(['script', 'style', 'iframe']):
+        # Tweets first, before scripts/iframes are removed
+        if self.tweets_as_images:
+            for bq in soup.findAll('blockquote'):
+                if 'twitter-tweet' not in (bq.get('class') or []):
+                    continue
+                tweet_id = None
+                for a in bq.findAll('a', href=True):
+                    m = re.search(r'/status(?:es)?/(\d+)', a['href'])
+                    if m:
+                        tweet_id = m.group(1)
+                if not tweet_id:
+                    continue
+                embed = 'https://platform.twitter.com/embed/Tweet.html?id=' + tweet_id
+                shot = (
+                    'https://api.microlink.io/?url=' + quote(embed, safe='') + '&screenshot=true&meta=false&embed=screenshot.url'
+                    '&viewport.width=550&viewport.height=450'
+                    '&viewport.deviceScaleFactor=2&waitUntil=networkidle2'
+                )
+                img = soup.new_tag('img', src=shot, alt=bq.get_text(' ', strip=True))
+                bq.replace_with(img)
+
+        # Full-resolution images
+        for img in soup.findAll('img'):
+            if 'api.microlink.io' in (img.get('src') or ''):
+                continue
+            url = self._best_image_url(img)
+            if url:
+                img['src'] = url
+
+        for tag in soup.findAll(['script', 'style', 'iframe', 'picture', 'source']):
             tag.decompose()
         for tag in soup.findAll(True):
-            if tag.has_attr('style'):
-                del tag['style']
-            if tag.has_attr('srcset'):
-                del tag['srcset']
+            for attr in ('style', 'srcset', 'sizes', 'width', 'height', 'data-lazy-srcset', 'data-srcset', 'data-lazy-src', 'data-src'):
+                if tag.has_attr(attr):
+                    del tag[attr]
         return soup
 
     def get_browser(self):
