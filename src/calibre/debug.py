@@ -210,7 +210,50 @@ as a shebang in scripts, like this:
             'Convert the specified KEPUB file to EPUB without doing a full conversion. This is what the Kobo driver does when importing files from the device.'
         ),
     )
+    parser.add_option(
+        '--clear-caches',
+        default=False,
+        action='store_true',
+        help=_('Clear the calibre cache folder and delete the downloaded Camoufox browser and browserforge data, if any.'),
+    )
     return parser
+
+
+def clear_caches() -> int:
+    import shutil
+
+    from calibre.constants import cache_dir
+    from calibre.web.automate.download_deps import browserforge_installer, camoufox_installer
+
+    failures: list[str] = []
+
+    def on_error(func: object, path: str, exc: BaseException) -> None:
+        failures.append(f'{path}: {exc}')
+
+    cdir = cache_dir()
+    # Remove the contents rather than the folder itself as the cache folder
+    # may be a symlink or a location chosen via CALIBRE_CACHE_DIRECTORY
+    for x in os.listdir(cdir):
+        path = os.path.join(cdir, x)
+        if os.path.isdir(path) and not os.path.islink(path):
+            shutil.rmtree(path, onexc=on_error)
+        else:
+            try:
+                os.remove(path)
+            except OSError as e:
+                on_error(os.remove, path, e)
+    print('Cleared the cache folder:', cdir)
+    for installer, desc in ((camoufox_installer, 'Camoufox browser'), (browserforge_installer, 'browserforge data')):
+        idir = installer.install_dir
+        if os.path.lexists(idir):
+            shutil.rmtree(idir, onexc=on_error)
+            print(f'Deleted the downloaded {desc}:', idir)
+    if failures:
+        print('Failed to delete some files:', file=sys.stderr)
+        for x in failures:
+            print(x, file=sys.stderr)
+        return 1
+    return 0
 
 
 def debug_device_driver():
@@ -412,6 +455,8 @@ def main(args=sys.argv):
         from calibre.utils.exim import run_importer
 
         run_importer()
+    elif opts.clear_caches:
+        return clear_caches()
     elif opts.kepubify:
         from calibre.ebooks.oeb.polish.kepubify import kepubify_main
 

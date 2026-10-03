@@ -258,8 +258,13 @@ class Installer:
     # Filesystem layout {{{
 
     @property
+    def install_dir(self) -> str:
+        """The directory containing all installed versions, which may not exist."""
+        return os.path.join(install_root(), self.name)
+
+    @property
     def base(self) -> str:
-        ans = os.path.join(install_root(), self.name)
+        ans = self.install_dir
         os.makedirs(ans, exist_ok=True)
         return ans
 
