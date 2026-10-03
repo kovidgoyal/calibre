@@ -156,9 +156,19 @@
     -->
     <CustomAction Id="OverwriteWixSetDefaultPerMachineFolder" Property="WixPerMachineFolder" Value="[APPLICATIONFOLDER]" Execute="immediate" />
 
+    <!-- Clear the calibre caches of the user running the uninstaller. The
+        action is impersonated so that it runs as that user rather than as
+        SYSTEM, since the caches are per-user. It is not run when this
+        version is being removed as part of an upgrade. It must run before
+        RemoveFiles as it uses calibre-debug.exe. -->
+    <SetProperty Id="ClearCalibreCaches" Value="&quot;[APPLICATIONFOLDER]calibre-debug.exe&quot; --clear-caches" Before="ClearCalibreCaches" Sequence="execute"
+        Condition='REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE' />
+    <CustomAction Id="ClearCalibreCaches" DllEntry="WixQuietExec" Execute="deferred" Impersonate="yes" Return="ignore" BinaryRef="Wix4UtilCA_X86" />
+
     <InstallExecuteSequence>
         <Custom Action="PreventDowngrading" After="FindRelatedProducts" Condition="NEWPRODUCTFOUND" />
         <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
+        <Custom Action="ClearCalibreCaches" Before="RemoveFiles" Condition='REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE' />
         <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
     <InstallUISequence>

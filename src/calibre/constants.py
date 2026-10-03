@@ -123,21 +123,24 @@ def is_debugging():
     return DEBUG
 
 
-def _get_cache_dir():
+def _get_cache_dir(create: bool = True) -> str:
     import errno
 
     assert config_dir is not None
     confcache = os.path.join(config_dir, 'caches')
-    try:
-        os.makedirs(confcache)
-    except OSError as err:
-        if err.errno != errno.EEXIST:
-            raise
+    if create:
+        try:
+            os.makedirs(confcache)
+        except OSError as err:
+            if err.errno != errno.EEXIST:
+                raise
     if isportable:
         return confcache
     ccd = os.getenv('CALIBRE_CACHE_DIRECTORY')
     if ccd is not None:
         ans = os.path.abspath(ccd)
+        if not create:
+            return ans
         try:
             os.makedirs(ans)
             return ans
@@ -160,11 +163,12 @@ def _get_cache_dir():
                 candidate = candidate.decode(filesystem_encoding)
             except ValueError:
                 candidate = confcache
-    try:
-        os.makedirs(candidate)
-    except OSError as err:
-        if err.errno != errno.EEXIST:
-            candidate = confcache
+    if create:
+        try:
+            os.makedirs(candidate)
+        except OSError as err:
+            if err.errno != errno.EEXIST:
+                candidate = confcache
     return candidate
 
 
@@ -174,6 +178,14 @@ def cache_dir() -> str:
         ans = os.path.realpath(_get_cache_dir())
         setattr(cache_dir, 'ans', ans)
     return ans
+
+
+def existing_cache_dir() -> str | None:
+    """Return the cache directory without creating it, or None if it does not exist."""
+    ans = getattr(cache_dir, 'ans', None)
+    if ans is None:
+        ans = os.path.realpath(_get_cache_dir(create=False))
+    return ans if os.path.isdir(ans) else None
 
 
 # plugins {{{

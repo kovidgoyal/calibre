@@ -222,7 +222,7 @@ as a shebang in scripts, like this:
 def clear_caches() -> int:
     import shutil
 
-    from calibre.constants import cache_dir
+    from calibre.constants import existing_cache_dir
     from calibre.web.automate.download_deps import browserforge_installer, camoufox_installer
 
     failures: list[str] = []
@@ -230,19 +230,21 @@ def clear_caches() -> int:
     def on_error(func: object, path: str, exc: BaseException) -> None:
         failures.append(f'{path}: {exc}')
 
-    cdir = cache_dir()
-    # Remove the contents rather than the folder itself as the cache folder
-    # may be a symlink or a location chosen via CALIBRE_CACHE_DIRECTORY
-    for x in os.listdir(cdir):
-        path = os.path.join(cdir, x)
-        if os.path.isdir(path) and not os.path.islink(path):
-            shutil.rmtree(path, onexc=on_error)
-        else:
-            try:
-                os.remove(path)
-            except OSError as e:
-                on_error(os.remove, path, e)
-    print('Cleared the cache folder:', cdir)
+    # Dont use cache_dir() as it creates the folder, which is undesirable when
+    # called from the uninstaller for a user that has never run calibre
+    if cdir := existing_cache_dir():
+        # Remove the contents rather than the folder itself as the cache folder
+        # may be a symlink or a location chosen via CALIBRE_CACHE_DIRECTORY
+        for x in os.listdir(cdir):
+            path = os.path.join(cdir, x)
+            if os.path.isdir(path) and not os.path.islink(path):
+                shutil.rmtree(path, onexc=on_error)
+            else:
+                try:
+                    os.remove(path)
+                except OSError as e:
+                    on_error(os.remove, path, e)
+        print('Cleared the cache folder:', cdir)
     for installer, desc in ((camoufox_installer, 'Camoufox browser'), (browserforge_installer, 'browserforge data')):
         idir = installer.install_dir
         if os.path.lexists(idir):

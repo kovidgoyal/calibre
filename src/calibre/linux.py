@@ -173,6 +173,63 @@ frozen_path = {frozen_path!r}
 if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 'calibre-mimetypes.xml')):
     frozen_path = None
 
+
+def clear_user_caches():
+    # The uninstaller is typically run as root via sudo, but the caches belong
+    # to the user, so run calibre-debug --clear-caches as that user, before
+    # the calibre files are removed.
+    candidates = [os.path.join(os.path.dirname(os.path.abspath(sys.argv[-1])), 'calibre-debug')]
+    if frozen_path:
+        candidates.insert(0, os.path.join(frozen_path, 'calibre-debug'))
+    exe = None
+    for x in candidates:
+        if os.access(x, os.X_OK):
+            exe = x
+            break
+    if exe is None:
+        print('WARNING: Could not find calibre-debug, not clearing the calibre caches')
+        return
+    uid = os.geteuid()
+    if uid == 0:
+        uid = int(os.environ.get('SUDO_UID') or os.environ.get('PKEXEC_UID') or 0)
+    import pwd
+    try:
+        pw = pwd.getpwuid(uid)
+    except KeyError:
+        print('WARNING: Unknown user id:', uid, 'not clearing the calibre caches')
+        return
+    # Ensure the cache locations are computed for the user rather than taken
+    # from the environment of whoever ran sudo
+    env = dict((k, v) for k, v in os.environ.items() if not k.startswith(('XDG_', 'CALIBRE_')))
+    env.update(dict(HOME=pw.pw_dir, USER=pw.pw_name, LOGNAME=pw.pw_name))
+    print('Clearing the calibre caches for the user:', pw.pw_name)
+    sys.stdout.flush(), sys.stderr.flush()
+    pid = os.fork()
+    if pid == 0:
+        try:
+            if uid != os.geteuid():
+                os.initgroups(pw.pw_name, pw.pw_gid)
+                os.setgid(pw.pw_gid)
+                os.setuid(pw.pw_uid)
+            try:
+                os.chdir(pw.pw_dir)
+            except OSError:
+                os.chdir('/')
+            os.execve(exe, [exe, '--clear-caches'], env)
+        except BaseException as e:
+            print('Failed to run', exe, 'as the user', pw.pw_name, 'with error:', e)
+            sys.stdout.flush()
+        os._exit(1)
+    status = os.waitpid(pid, 0)[1]
+    if not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0:
+        print('WARNING: Failed to clear some or all of the calibre caches')
+
+
+try:
+    clear_user_caches()
+except Exception as e:
+    print('WARNING: Failed to clear the calibre caches with error:', e)
+
 dummy_mime_path = tempfile.mkdtemp(prefix='mime-hack.')
 for f in {mime_resources!r}:
     # dummyfile
