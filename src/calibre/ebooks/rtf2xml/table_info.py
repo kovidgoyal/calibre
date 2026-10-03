@@ -56,7 +56,6 @@ class TableInfo:
         # self.__write_to = 'table_info.data'
 
     def insert_info(self):
-        """ """
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1

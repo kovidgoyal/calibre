@@ -28,7 +28,7 @@ from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, XHTML, XHTML_NS, 
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.utils.resources import get_path as P
 
-css_parser_log.setLevel(logging.WARN)
+css_parser_log.setLevel(logging.WARNING)
 
 _html_css_stylesheet = None
 

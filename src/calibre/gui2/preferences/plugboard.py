@@ -176,8 +176,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_format = txt
         self.check_if_writer_disabled(txt)
         devices = ['']
-        for d in fpb:
-            devices.append(d)
+        devices.extend(fpb)
         self.edit_device.clear()
         self.edit_device.addItems(devices)
 

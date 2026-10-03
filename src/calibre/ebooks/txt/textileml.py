@@ -296,11 +296,9 @@ class TextileMLizer(OEB2HTML):
                 self.style_embed.append('-')
                 self.style_strike = True
         if tag == 'br':
-            for i in reversed(self.style_embed):
-                text.append(i)
+            text.extend(reversed(self.style_embed))
             text.append('\n')
-            for i in self.style_embed:
-                text.append(i)
+            text.extend(self.style_embed)
             tags.append('')
             self.remove_space_after_newline = True
         if tag == 'blockquote':
