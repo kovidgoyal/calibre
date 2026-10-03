@@ -21,7 +21,7 @@ from unittest.mock import patch
 
 from calibre.constants import iswindows
 from calibre.web.automate import camoufox
-from calibre.web.automate.download_deps import Install, camoufox_installer, camoufox_resource_dir
+from calibre.web.automate.download_deps import Install, camoufox_install, camoufox_installer, camoufox_resource_dir, system_camoufox
 
 TEST_PAGE = '''<!DOCTYPE html><html><head><title>Test Page</title></head><body>
 <h1 id="title">Hello</h1>
@@ -123,6 +123,8 @@ def installed_camoufox() -> Install | None:
     """The camoufox install, but only if it is already present, so that running
     the test suite never downloads hundreds of megabytes."""
     try:
+        if system_camoufox() is not None:
+            return camoufox_install()
         metadata_path = camoufox_installer.metadata_path
         with open(metadata_path, 'rb') as f:
             version = json.loads(f.read())['version']

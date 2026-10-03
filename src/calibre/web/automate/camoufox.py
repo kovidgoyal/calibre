@@ -32,6 +32,7 @@ Typical usage::
 
 import asyncio
 import base64
+import hashlib
 import json
 import math
 import os
@@ -53,7 +54,7 @@ from typing import Any, NamedTuple
 from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_in
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.safe_atexit import remove_folder_atexit
-from calibre.web.automate.download_deps import Install, browserforge_data, camoufox_installer, camoufox_resource_dir, debug
+from calibre.web.automate.download_deps import Install, browserforge_data, camoufox_install, camoufox_resource_dir, debug
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,
@@ -415,11 +416,18 @@ def read_font_families(resource_dir: str, target_os: str) -> tuple[str, ...]:
     return tuple(sorted(ans))
 
 
+def install_cache_key(resource_dir: str, version: str) -> str:
+    """A key identifying the camoufox install in resource_dir, for naming cached
+    files derived from it. The version alone is not enough as there can be more
+    than one install of a version, for example, a system one and a downloaded one."""
+    return f'{version}-{hashlib.sha256(os.path.abspath(resource_dir).encode("utf-8")).hexdigest()[:12]}'
+
+
 @lru_cache(maxsize=4)
 def font_families(resource_dir: str, version: str, target_os: str) -> tuple[str, ...]:
     """Like read_font_families() but cached on disk, since parsing a few hundred
     font files takes a noticeable fraction of a second."""
-    cache_path = os.path.join(cache_dir(), f'camoufox-fonts-{version}.json')
+    cache_path = os.path.join(cache_dir(), f'camoufox-fonts-{install_cache_key(resource_dir, version)}.json')
     try:
         with open(cache_path, 'rb') as f:
             cached = json.loads(f.read())
@@ -482,7 +490,7 @@ def fontconfig_path(resource_dir: str, version: str, target_os: str) -> str:
     conf = conf.replace('<dir prefix="cwd">fonts</dir>', f'<dir>{fonts_dir}</dir>')
     base = os.path.join(cache_dir(), 'camoufox-fontconfig')
     os.makedirs(base, exist_ok=True)
-    ans = os.path.join(base, f'fonts-{version}-{target_os}.conf')
+    ans = os.path.join(base, f'fonts-{install_cache_key(resource_dir, version)}-{target_os}.conf')
     if not os.path.exists(ans):
         # Write atomically, several processes can be doing this at once
         fd, tmp = tempfile.mkstemp(dir=base, suffix='.conf')
@@ -3438,7 +3446,7 @@ class Browser:
             raise Error('This browser has already been launched')
         loop = asyncio.get_running_loop()
         if (install := self.install) is None:
-            install = await loop.run_in_executor(None, lambda: camoufox_installer(allow_prerelease=self.allow_prerelease))
+            install = await loop.run_in_executor(None, lambda: camoufox_install(allow_prerelease=self.allow_prerelease))
         binary, self.version = install.path, install.version
         resource_dir = camoufox_resource_dir(binary)
         self.config = await loop.run_in_executor(

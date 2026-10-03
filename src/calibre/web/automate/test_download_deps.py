@@ -56,13 +56,16 @@ class TestDownloadDeps(unittest.TestCase):
         self.tdir = tempfile.mkdtemp()
         self.original_install_root = dd.install_root
         self.original_download_file = dd.download_file
+        self.original_system_camoufox_config_path = dd.system_camoufox_config_path
         dd.install_root = lambda: self.tdir
+        dd.system_camoufox_config_path = lambda: os.path.join(self.tdir, dd.SYSTEM_CAMOUFOX_RESOURCE)
         self.installer = FakeInstaller()
         dd.download_file = self.installer.download_file
 
     def tearDown(self) -> None:
         dd.install_root = self.original_install_root
         dd.download_file = self.original_download_file
+        dd.system_camoufox_config_path = self.original_system_camoufox_config_path
         shutil.rmtree(self.tdir, ignore_errors=True)
 
     # Utilities {{{
@@ -316,6 +319,40 @@ class TestDownloadDeps(unittest.TestCase):
         binary = dd.camoufox_installer.payload_path(os.path.join(self.tdir, '152.0.4-beta.29'))
         self.assertTrue(os.path.basename(binary).startswith('camoufox'))
         self.assertEqual(os.path.basename(dd.camoufox_resource_dir(binary)), 'Resources' if dd.ismacos else '152.0.4-beta.29')
+
+    def test_download_deps_system_camoufox(self) -> None:
+        self.assertIsNone(dd.system_camoufox())
+        cdir = os.path.join(self.tdir, 'system', 'camoufox')
+        os.makedirs(cdir)
+        binary, resource_dir = os.path.join(cdir, 'camoufox-bin'), os.path.join(self.tdir, 'system', 'share')
+        os.makedirs(resource_dir)
+        spec_path = dd.system_camoufox_config_path()
+
+        def write_spec(spec: object) -> None:
+            with open(spec_path, 'w') as f:
+                json.dump(spec, f)
+
+        for bad in ([], {'binary': binary}, {'binary': binary, 'resource_dir': 1}):
+            write_spec(bad)
+            self.assertRaises(ValueError, dd.system_camoufox)
+        write_spec({'binary': binary, 'resource_dir': resource_dir})
+        sc = dd.system_camoufox()
+        self.assertEqual(sc, dd.SystemCamoufox(binary, resource_dir))
+        self.assertRaises(ValueError, dd.camoufox_install)  # no application.ini
+        with open(os.path.join(cdir, 'application.ini'), 'w') as f:
+            f.write('; A comment\n[App]\nVendor=Camoufox\nVersion=152.0.4-beta.31\n\n[Gecko]\nMinVersion=152.0.4\n')
+        self.assertEqual(dd.camoufox_install(), dd.Install(binary, '152.0.4-beta.31'))
+        self.assertEqual(dd.camoufox_binary(allow_prerelease=True), binary)
+        self.assertEqual(dd.camoufox_resource_dir(binary), resource_dir)
+        # An application.ini in the resource dir takes precedence
+        with open(os.path.join(resource_dir, 'application.ini'), 'w') as f:
+            f.write('[App]\nVersion=../bad\n')
+        self.assertRaises(ValueError, dd.camoufox_install)
+        with open(os.path.join(resource_dir, 'application.ini'), 'w') as f:
+            f.write('[App]\nVersion=153.0-beta.1\n')
+        self.assertEqual(dd.camoufox_install().version, '153.0-beta.1')
+        # Nothing must have been downloaded
+        self.assertFalse(os.path.exists(dd.camoufox_installer.install_dir))
 
     def test_download_deps_browserforge_patching(self) -> None:
         data_dir = os.path.join(self.tdir, 'bf-data')

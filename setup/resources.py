@@ -117,9 +117,39 @@ class RapydScript(Command):  # {{{
 class Resources(Command):  # {{{
     description = 'Compile various needed calibre resources'
     sub_commands = ['liberation_fonts', 'mathjax', 'rapydscript', 'hyphenation', 'piper_voices']
+    SYSTEM_CAMOUFOX_PATH = os.path.join(Command.RESOURCES, 'system-camoufox.json')
+
+    def add_options(self, parser):
+        parser.add_option(
+            '--system-camoufox',
+            default=None,
+            help='Make calibre use a system provided Camoufox browser instead of downloading it. Specify the path to the'
+            ' browser executable and the path to the directory containing its resources (fonts, fontconfig, properties.json,'
+            f' application.ini) separated by {os.pathsep!r}. For example: /usr/lib/camoufox/camoufox-bin{os.pathsep}/usr/lib/camoufox',
+        )
+
+    def write_system_camoufox(self, opts):
+        if not opts.system_camoufox:
+            return
+        parts = opts.system_camoufox.split(os.pathsep)
+        if len(parts) != 2 or not parts[0] or not parts[1]:
+            raise SystemExit(
+                f'--system-camoufox must specify both the path to the browser executable and the path to its resource dir separated by {os.pathsep!r}'
+            )
+        binary, resource_dir = parts
+        if not os.path.isabs(binary) or not os.path.isabs(resource_dir):
+            raise SystemExit('The paths to the system Camoufox browser and its resource dir must be absolute')
+        # The paths are those in the final install, which need not exist on the build machine
+        for path in (binary, resource_dir):
+            if not os.path.exists(path):
+                self.warn(f'{path} does not exist')
+        self.info('\tCreating ' + self.b(self.SYSTEM_CAMOUFOX_PATH))
+        dump_json({'binary': binary, 'resource_dir': resource_dir}, self.SYSTEM_CAMOUFOX_PATH)
 
     def run(self, opts):
         from calibre.utils.serialize import msgpack_dumps
+
+        self.write_system_camoufox(opts)
 
         scripts = {}
         for x in ('console', 'gui'):
@@ -243,7 +273,7 @@ class Resources(Command):  # {{{
             x = self.j(self.RESOURCES, x + '.pickle')
             if os.path.exists(x):
                 os.remove(x)
-        for x in ('builtin_recipes.xml', 'builtin_recipes.zip', 'template-functions.json', 'user-manual-translation-stats.json'):
+        for x in ('builtin_recipes.xml', 'builtin_recipes.zip', 'template-functions.json', 'user-manual-translation-stats.json', 'system-camoufox.json'):
             x = self.j(self.RESOURCES, x)
             if os.path.exists(x):
                 os.remove(x)

@@ -502,23 +502,87 @@ class Camoufox(Installer):
 camoufox_installer = Camoufox()
 
 
-# Linux distro maintainers can patch these two functions to have calibre uses a
-# distro provided camoufox instead, though that is not a good idea, since
+# Linux distro maintainers can have calibre use a distro provided camoufox
+# instead of downloading it, with: setup.py resources --system-camoufox, which
+# records the paths in the file below, though that is not a good idea, since
 # camoufox needs to be kept up to date to defeat evolving bot detection
+SYSTEM_CAMOUFOX_RESOURCE = 'system-camoufox.json'
+
+
+class SystemCamoufox(NamedTuple):
+    binary: str
+    resource_dir: str
+
+
+def system_camoufox_config_path() -> str:
+    """The path to the file specifying a system camoufox, which may not exist. Overridden in tests."""
+    from calibre.utils.resources import get_path
+
+    return get_path(SYSTEM_CAMOUFOX_RESOURCE, allow_user_override=False)
+
+
+def system_camoufox() -> SystemCamoufox | None:
+    """The system camoufox calibre was built to use, or None if it should download its own."""
+    path = system_camoufox_config_path()
+    try:
+        with open(path, 'rb') as f:
+            raw = f.read()
+    except FileNotFoundError:
+        return None
+    data = json.loads(raw)
+    if not isinstance(data, dict):
+        raise ValueError(f'The system camoufox specification in {path} is not a JSON object')
+    binary, resource_dir = data.get('binary'), data.get('resource_dir')
+    if not isinstance(binary, str) or not binary or not isinstance(resource_dir, str) or not resource_dir:
+        raise ValueError(f'The system camoufox specification in {path} does not specify both binary and resource_dir')
+    return SystemCamoufox(binary, resource_dir)
+
+
+def system_camoufox_version(sc: SystemCamoufox) -> str:
+    """Read the version of the system camoufox from the application.ini file that is part of every Firefox install."""
+    from configparser import ConfigParser
+
+    for d in (sc.resource_dir, os.path.dirname(sc.binary), os.path.dirname(os.path.realpath(sc.binary))):
+        path = os.path.join(d, 'application.ini')
+        try:
+            with open(path, encoding='utf-8') as f:
+                raw = f.read()
+        except FileNotFoundError:
+            continue
+        cp = ConfigParser(interpolation=None, strict=False)
+        cp.read_string(raw, source=path)
+        version = cp.get('App', 'Version', fallback='').strip()
+        if VERSION_PAT.fullmatch(version) is None:
+            raise ValueError(f'The camoufox application.ini file {path} does not contain a valid version: {version!r}')
+        return version
+    raise ValueError(f'Could not find the application.ini file for the system camoufox at {sc.binary} in {sc.resource_dir}')
+
+
+def camoufox_install(allow_prerelease: bool = False) -> Install:
+    """Return the camoufox install to use, downloading it if needed.
+
+    By default only stable camoufox releases are used, set allow_prerelease to
+    use the newest release, even if it is a pre-release. If calibre was built to
+    use a system camoufox, that is used instead and nothing is downloaded.
+    """
+    if (sc := system_camoufox()) is not None:
+        return Install(sc.binary, system_camoufox_version(sc))
+    return camoufox_installer(allow_prerelease=allow_prerelease)
 
 
 def camoufox_binary(allow_prerelease: bool = False) -> str:
     """Return the full path to the camoufox browser executable, downloading it if needed.
 
-    By default only stable camoufox releases are used, set allow_prerelease to
-    use the newest release, even if it is a pre-release.
+    See :func:`camoufox_install` for the meaning of allow_prerelease.
     """
-    return camoufox_installer(allow_prerelease=allow_prerelease).path
+    return camoufox_install(allow_prerelease=allow_prerelease).path
 
 
 def camoufox_resource_dir(binary_path: str) -> str:
     """The directory containing the resources (fonts, fontconfig, properties.json)
     that go with the camoufox executable at binary_path."""
+    if (sc := system_camoufox()) is not None and sc.binary == binary_path:
+        return sc.resource_dir
     ans = os.path.dirname(binary_path)
     if ismacos:  # binary_path is inside Camoufox.app/Contents/MacOS
         ans = os.path.join(os.path.dirname(ans), 'Resources')

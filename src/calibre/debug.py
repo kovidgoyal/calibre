@@ -214,7 +214,10 @@ as a shebang in scripts, like this:
         '--clear-caches',
         default=False,
         action='store_true',
-        help=_('Clear the calibre cache folder and delete the downloaded Camoufox browser and browserforge data, if any.'),
+        help=_(
+            'Clear the calibre cache folder and delete the downloaded Camoufox browser and browserforge data, if any.'
+            ' A Camoufox browser provided by the system is never deleted.'
+        ),
     )
     return parser
 
@@ -223,7 +226,7 @@ def clear_caches() -> int:
     import shutil
 
     from calibre.constants import existing_cache_dir
-    from calibre.web.automate.download_deps import browserforge_installer, camoufox_installer
+    from calibre.web.automate.download_deps import browserforge_installer, camoufox_installer, system_camoufox
 
     failures: list[str] = []
 
@@ -245,8 +248,26 @@ def clear_caches() -> int:
                 except OSError as e:
                     on_error(os.remove, path, e)
         print('Cleared the cache folder:', cdir)
+
+    def is_inside(path: str, parent: str) -> bool:
+        path, parent = os.path.realpath(path), os.path.realpath(parent)
+        return path == parent or path.startswith(parent + os.sep)
+
+    def contains_system_camoufox(idir: str) -> bool:
+        try:
+            sc = system_camoufox()
+        except Exception as e:
+            # Without knowing where the system camoufox is, it is not safe to
+            # delete anything that might be it
+            failures.append(f'Failed to read the system Camoufox specification with error: {e}')
+            return True
+        return sc is not None and (is_inside(sc.binary, idir) or is_inside(sc.resource_dir, idir))
+
     for installer, desc in ((camoufox_installer, 'Camoufox browser'), (browserforge_installer, 'browserforge data')):
         idir = installer.install_dir
+        if installer is camoufox_installer and contains_system_camoufox(idir):
+            print(f'Not deleting {idir} as it may contain the system Camoufox browser')
+            continue
         if os.path.lexists(idir):
             shutil.rmtree(idir, onexc=on_error)
             print(f'Deleted the downloaded {desc}:', idir)

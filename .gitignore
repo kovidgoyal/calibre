@@ -38,6 +38,7 @@
 /resources/mozilla-ca-certs
 /resources/user-agent-data.json
 /resources/piper-voices.json
+/resources/system-camoufox.json
 /icons/icns/*.icns
 /icons/icns/*.car
 /setup/installer/windows/calibre/build.log
