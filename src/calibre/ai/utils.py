@@ -579,6 +579,11 @@ def find_tests() -> TestSuite:
             self.assertAlmostEqual(cost, (10 * 5 + 20 * 10 + 1000 * 40) / 1e6)
             cost, currency = image_generation_cost('gpt-image-1-mini', usage)
             self.assertAlmostEqual(cost, (10 * 2 + 20 * 2.5 + 1000 * 8) / 1e6)
+            cost, currency = image_generation_cost('gpt-image-1.5', usage)
+            self.assertAlmostEqual(cost, (10 * 5 + 20 * 8 + 1000 * 32) / 1e6)
+            for model_id in ('gpt-image-2', 'gpt-image-2.5-sunburst'):
+                cost, currency = image_generation_cost(model_id, usage)
+                self.assertAlmostEqual(cost, (10 * 5 + 20 * 8 + 1000 * 30) / 1e6)
 
             d = {'data': [{'b64_json': base64.standard_b64encode(b'image bytes').decode()}], 'usage': usage}
             res = parse_image_response(d, 'gpt-image-1')

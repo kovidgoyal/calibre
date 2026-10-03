@@ -52,7 +52,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 5  # needed for live updates
+module_version = 6  # needed for live updates
 MODELS_URL = 'https://api.openai.com/v1/models'
 CHAT_URL = 'https://api.openai.com/v1/responses'
 IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations'
@@ -363,13 +363,25 @@ def model_choice_for_images() -> str:
     return max(candidates, key=attrgetter('created')).id
 
 
+def image_generation_prices(model_id: str) -> tuple[float, float, float]:
+    # See https://developers.openai.com/api/docs/pricing gpt-image models are
+    # priced in USD per million text input, image input and image output tokens.
+    # Assume unknown future models are priced like the newest current ones.
+    parts = model_id.split('-')
+    if 'mini' in parts:
+        return 2.0, 2.5, 8.0
+    version = parts[2] if len(parts) > 2 else ''
+    if version == '1':
+        return 5.0, 10.0, 40.0
+    if version == '1.5':
+        return 5.0, 8.0, 32.0
+    return 5.0, 8.0, 30.0
+
+
 def image_generation_cost(model_id: str, usage: dict[str, Any]) -> tuple[float, str]:
-    # See https://platform.openai.com/docs/pricing gpt-image models are priced
-    # per million text input, image input and image output tokens.
     if not usage:
         return 0, ''
-    is_mini = 'mini' in model_id.split('-')
-    text_price, image_price, output_price = (2.0, 2.5, 8.0) if is_mini else (5.0, 10.0, 40.0)
+    text_price, image_price, output_price = image_generation_prices(model_id)
     details = usage.get('input_tokens_details') or {}
     text_tokens = details.get('text_tokens', usage.get('input_tokens', 0))
     image_tokens = details.get('image_tokens', 0)

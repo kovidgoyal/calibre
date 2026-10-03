@@ -64,7 +64,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 4  # needed for live updates
+module_version = 5  # needed for live updates
 API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
@@ -130,8 +130,15 @@ def get_model_costs() -> dict[str, Pricing]:
     # https://ai.google.dev/gemini-api/docs/pricing
     search_new = Price(14 / 1e3, 5000)  # $14/1000 requests, 5000 free/month
     return {
-        # gemini-3.7-flash and gemini-3.6-flash have promotional pricing through 2026-12-31;
+        # gemini-3.8-flash, gemini-3.7-flash and gemini-3.6-flash have promotional pricing through 2026-12-31;
         # rates double on 2027-01-01.
+        'models/gemini-3.8-flash': Pricing(
+            input=Price(0.75 / 1e6),
+            output=Price(3.75 / 1e6),
+            caching=Price(0.075 / 1e6),
+            caching_storage=Price(0.5 / 1e6),
+            google_search=search_new,
+        ),
         'models/gemini-3.7-flash': Pricing(
             input=Price(0.75 / 1e6),
             output=Price(3.75 / 1e6),
@@ -172,6 +179,32 @@ def get_model_costs() -> dict[str, Pricing]:
             caching=Price(0.4 / 1e6, 200_000, 0.2 / 1e6),
             caching_storage=Price(4.5 / 1e6),
             google_search=search_new,
+        ),
+        'models/gemini-3-flash-preview': Pricing(
+            input=Price(0.5 / 1e6),
+            input_audio=Price(1 / 1e6),
+            output=Price(3 / 1e6),
+            caching=Price(0.05 / 1e6),
+            caching_storage=Price(1 / 1e6),
+            google_search=search_new,
+        ),
+        'models/gemini-3.1-flash-image': Pricing(
+            input=Price(0.5 / 1e6),
+            output=Price(60 / 1e6),  # roughly $0.067 per image at 1K resolution
+            caching=Price(0),
+            caching_storage=Price(0),
+        ),
+        'models/gemini-3.1-flash-lite-image': Pricing(
+            input=Price(0.25 / 1e6),
+            output=Price(30 / 1e6),  # roughly $0.0336 per image at 1K resolution
+            caching=Price(0),
+            caching_storage=Price(0),
+        ),
+        'models/gemini-3-pro-image': Pricing(
+            input=Price(2 / 1e6),
+            output=Price(120 / 1e6),  # roughly $0.134 per image at 1K/2K resolution
+            caching=Price(0),
+            caching_storage=Price(0),
         ),
         # Legacy 2.5-era models
         'models/gemini-2.5-pro': Pricing(

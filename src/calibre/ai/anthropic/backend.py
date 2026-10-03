@@ -47,7 +47,7 @@ from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cac
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 6  # needed for live updates
+module_version = 7  # needed for live updates
 API_VERSION = '2023-06-01'
 DEFAULT_API_BASE_URL = 'https://api.anthropic.com/v1'
 # Maximum number of times, and maximum total time in seconds, a single
@@ -151,7 +151,9 @@ def thinking_mode_for(family: str, version: float) -> tuple[ThinkingMode, bool]:
     # level.
     if family in ('fable', 'mythos'):
         return ThinkingMode.adaptive, False  # thinking is always on for these models
-    if version >= 4.6 or version == 0:
+    if version >= 5.5 or version == 0:
+        return ThinkingMode.adaptive, False  # disabling thinking is rejected from 5.5 onwards
+    if version >= 4.6:
         return ThinkingMode.adaptive, True
     if version >= 3.7:
         return ThinkingMode.budget, True
@@ -169,7 +171,7 @@ class Pricing(NamedTuple):
     @classmethod
     def per_million(cls, input_price: float, output_price: float, cache_read_multiplier: float = 0.1) -> Pricing:
         # Cache writes cost 1.25x the input token price by default.
-        # Cache reads cost cache_read_multiplier × input price (0.025x on Fable/Mythos 5.1+, 0.1x otherwise).
+        # Cache reads cost cache_read_multiplier × input price (0.025x on Fable/Mythos 5.1+, 0.05x on Opus 5.5, 0.1x otherwise).
         return Pricing(
             input_token=input_price / 1e6,
             output_token=output_price / 1e6,
@@ -289,9 +291,17 @@ def builtin_models() -> dict[str, Model]:
             pricing=Pricing.per_million(10, 50),
         ),
         Model.create(
+            'claude-opus-5-5',
+            'Claude Opus 5.5',
+            _('The flagship Claude model, combining high intelligence with reasonable cost.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(4, 20, cache_read_multiplier=0.05),
+        ),
+        Model.create(
             'claude-opus-5',
             'Claude Opus 5',
-            _('The flagship Claude model, combining high intelligence with reasonable cost.'),
+            _('An older generation of the flagship Claude Opus series of models.'),
             context_length=1_000_000,
             output_limit=128_000,
             pricing=Pricing.per_million(5, 25),
@@ -329,9 +339,17 @@ def builtin_models() -> dict[str, Model]:
             pricing=Pricing.per_million(5, 25),
         ),
         Model.create(
+            'claude-sonnet-5-5',
+            'Claude Sonnet 5.5',
+            _('A fast and capable model, well suited to most everyday tasks.'),
+            context_length=1_000_000,
+            output_limit=128_000,
+            pricing=Pricing.per_million(2, 10),
+        ),
+        Model.create(
             'claude-sonnet-5',
             'Claude Sonnet 5',
-            _('A fast and capable model, well suited to most everyday tasks.'),
+            _('An older generation of the fast and capable Claude Sonnet series of models.'),
             context_length=1_000_000,
             output_limit=128_000,
             pricing=Pricing.per_million(2, 10),
