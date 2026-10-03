@@ -192,6 +192,18 @@ class LayoutActions(InterfaceAction):
         self.gui.layout_container.change_layout(self.gui, settings['layout'] == 'wide')
         self.gui.layout_container.unserialize_settings(settings)
         self.gui.layout_container.relayout()
+        # The alternate views (cover grid, bookshelf) are not part of the
+        # central container settings. Layouts saved by older versions of
+        # calibre don't have this key, in which case leave the view unchanged.
+        alternate_view = settings.get('alternate_view')
+        if alternate_view is not None:
+            if alternate_view == 'grid':
+                self.set_visible(Panel.GRID_VIEW, True)
+            elif alternate_view == 'bookshelf':
+                self.set_visible(Panel.BOOKSHELF, True)
+            else:
+                self.set_visible(Panel.GRID_VIEW, False)
+                self.set_visible(Panel.BOOKSHELF, False)
 
     def save_current_layout(self):
         """save_current_layout()
@@ -209,7 +221,14 @@ class LayoutActions(InterfaceAction):
         :return: the current gui layout settings.
         """
 
-        return self.gui.layout_container.serialized_settings()
+        settings = self.gui.layout_container.serialized_settings()
+        if self.gui.grid_view_button.isChecked():
+            settings['alternate_view'] = 'grid'
+        elif self.gui.bookshelf_view_button.isChecked():
+            settings['alternate_view'] = 'bookshelf'
+        else:
+            settings['alternate_view'] = ''
+        return settings
 
     def save_named_layout(self, name, settings):
         """save_named_layout()
@@ -301,7 +320,7 @@ class LayoutActions(InterfaceAction):
             QUICKVIEW: 'qv'
             BOOKSHELF: 'bs'
         """
-        self._button_from_enum(name).isChecked()
+        return self._button_from_enum(name).isChecked()
 
     def hide_all(self):
         for name in self.gui.button_order:
