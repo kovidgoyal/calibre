@@ -1203,7 +1203,7 @@ class Plumber:
 
         import css_parser
 
-        css_parser.log.setLevel(logging.WARN)
+        css_parser.log.setLevel(logging.WARNING)
         get_types_map()  # Ensure the mimetypes module is initialized
 
         if self.opts.debug_pipeline is not None:

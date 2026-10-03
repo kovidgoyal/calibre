@@ -138,7 +138,7 @@ class HTMLInput(InputFormatPlugin):
         from calibre.utils.localization import canonicalize_lang
 
         self.opts = opts
-        css_parser.log.setLevel(logging.WARN)
+        css_parser.log.setLevel(logging.WARNING)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self, encoding=opts.input_encoding, populate=False)
         self.oeb = oeb

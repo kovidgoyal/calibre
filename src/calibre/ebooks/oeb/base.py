@@ -339,7 +339,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     """
     from css_parser import CSSParser, log, replaceUrls
 
-    log.setLevel(logging.WARN)
+    log.setLevel(logging.WARNING)
     log.raiseExceptions = False
 
     if resolve_base_href:
@@ -1102,7 +1102,7 @@ class Manifest:
             from css_parser import CSSParser, log, resolveImports
             from css_parser.css import CSSRule
 
-            log.setLevel(logging.WARN)
+            log.setLevel(logging.WARNING)
             log.raiseExceptions = False
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
