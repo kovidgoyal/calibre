@@ -2,14 +2,52 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2021, Alistair Francis <alistair@alistair23.me>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+import json
+import re
+from html import escape, unescape
 
-from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
+
+BASE = 'https://www.thesaturdaypaper.com.au'
 
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+def next_data(raw):
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', raw, flags=re.DOTALL)
+    if m is None:
+        raise ValueError('Could not find __NEXT_DATA__ in page')
+    return json.loads(m.group(1))['props']['pageProps']
+
+
+def strip_tags(html):
+    return unescape(re.sub(r'<[^>]+>', '', html or '')).strip()
+
+
+def rich_text(field):
+    # Drupal formatted text fields are dicts with value/processed keys
+    if isinstance(field, dict):
+        return field.get('processed') or field.get('value') or ''
+    return field or ''
+
+
+def image_url(img):
+    styles = img.get('image_style_uri') or {}
+    return styles.get('article_body') or styles.get('large') or (img.get('uri') or {}).get('url')
+
+
+def images_html(para):
+    ans = []
+    caption = strip_tags(rich_text(para.get('field_caption')))
+    credit = strip_tags(rich_text(para.get('field_image_credit')))
+    for img in para.get('field_images') or []:
+        url = image_url(img)
+        if not url:
+            continue
+        alt = ((img.get('resourceIdObjMeta') or {}).get('alt')) or ''
+        ans.append('<div class="img"><img src="{}" alt="{}"></div>'.format(escape(url), escape(alt)))
+    cap = ' '.join(x for x in (caption, credit) if x)
+    if ans and cap:
+        ans.append('<div class="caption">{}</div>'.format(escape(cap)))
+    return ''.join(ans)
 
 
 class SaturdayPaper(BasicNewsRecipe):
@@ -23,58 +61,78 @@ class SaturdayPaper(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
+    remove_empty_feeds = True
+    resolve_internal_links = True
 
-    keep_only_tags = [classes('article-page__content article__text article__image article-page__title article-page__image')]
-    remove_tags = [
-        classes(
-            'social-icons-article-top-container social-icons-article-bottom-container'
-            ' article-page__sidebar article-page__social__icons share-wrapper article-footer-container'
-        )
-    ]
-    remove_tags_after = [
-        {'name': 'div', 'class': 'end-matter'},
-    ]
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.thesaturdaypaper.com.au/editions/')
-        div = soup.find('div', attrs={'class': 'article__image'})
-        return div.img['src']
+    extra_css = '''
+        .sub { font-style: italic; color: #404040; }
+        .byline { font-size: small; font-weight: bold; }
+        .caption { font-size: small; text-align: center; color: #404040; }
+        .img { text-align: center; }
+    '''
 
     def parse_index(self):
-        feeds = [
-            ('News', 'https://www.thesaturdaypaper.com.au/news'),
-            ('Opinion', 'https://www.thesaturdaypaper.com.au/opinion'),
-            ('Culture', 'https://www.thesaturdaypaper.com.au/culture'),
-            ('Life', 'https://www.thesaturdaypaper.com.au/life'),
-            ('Food', 'https://www.thesaturdaypaper.com.au/food/latest'),
-            ('Puzzles', 'https://www.thesaturdaypaper.com.au/puzzles'),
-            ('Sport', 'https://www.thesaturdaypaper.com.au/sport'),
-        ]
+        raw = self.index_to_soup(BASE + '/current-edition', raw=True)
+        edition = next_data(raw.decode('utf-8'))['node']
+        self.timefmt = ' [{}]'.format(edition.get('title', ''))
+        cover = edition.get('field_image') or {}
+        self.cover_url = (cover.get('uri') or {}).get('url')
 
-        articles = []
-
-        for feed, link in feeds:
-            soup = self.index_to_soup(link)
-            news = []
-
-            for a in soup.findAll(**classes('article')):
-                title = a.find(class_='article__title')
-                title = self.tag_to_string(title)
-
-                url = a.find(class_='article__title_link')
-                if url is None:
+        feeds = []
+        for section in edition.get('field_main') or []:
+            section_title = (section.get('field_edition_section') or {}).get('name') or 'Articles'
+            articles = []
+            for a in section.get('field_articles') or []:
+                path = (a.get('path') or {}).get('alias')
+                if not path:
                     continue
-                url = url['href']
-                if url.startswith('/'):
-                    url = 'https://www.thesaturdaypaper.com.au' + url
+                title = strip_tags(a.get('title'))
+                url = BASE + path
+                desc = strip_tags(rich_text(a.get('field_subtitle')))
+                authors = ', '.join(c['title'] for c in a.get('field_contributor') or [] if c.get('title'))
+                if authors:
+                    desc = authors + (' | ' + desc if desc else '')
+                self.log('\t', title, 'at', url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                self.log(section_title, len(articles))
+                feeds.append((section_title, articles))
+        return feeds
 
-                desc = a.find(class_='article__text')
-                desc = self.tag_to_string(desc)
+    def preprocess_raw_html(self, raw, url):
+        node = next_data(raw)['node']
+        parts = ['<html><head><title>{}</title></head><body><article>'.format(escape(strip_tags(node.get('title'))))]
+        category = (node.get('field_category') or {}).get('name')
+        if category:
+            parts.append('<div class="byline">{}</div>'.format(escape(category)))
+        parts.append('<h1>{}</h1>'.format(rich_text(node.get('title'))))
+        sub = rich_text(node.get('field_subtitle'))
+        if sub:
+            parts.append('<p class="sub">{}</p>'.format(sub))
+        if node.get('field_book_author'):
+            parts.append('<p class="sub">{}</p>'.format(escape(node['field_book_author'])))
+        authors = ', '.join(c['title'] for c in node.get('field_contributor') or [] if c.get('title'))
+        if authors:
+            parts.append('<p class="byline">{}</p>'.format(escape(authors)))
 
-                self.log(title, ' at ', url)
+        for para in node.get('field_header') or []:
+            if para.get('type') == 'paragraph--images':
+                parts.append(images_html(para))
 
-                news.append({'title': title, 'url': url, 'description': desc})
+        for para in node.get('field_main') or []:
+            ptype = para.get('type')
+            if ptype == 'paragraph--text':
+                parts.append(rich_text(para.get('field_body')))
+            elif ptype == 'paragraph--images':
+                parts.append(images_html(para))
+            elif ptype == 'paragraph--related_article_insert':
+                continue  # inline link to some other article
+            else:
+                self.log.warn('Unhandled paragraph type', ptype, 'in', url)
 
-            articles.append((feed, news))
+        for field in ('field_ingredients', 'field_method'):
+            for item in node.get(field) or []:
+                parts.append(rich_text(item))
 
-        return articles
+        parts.append('</article></body></html>')
+        return ''.join(parts)
