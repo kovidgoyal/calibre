@@ -1,31 +1,23 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-__license__ = 'GPL v3'
-__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>, Rogelio Domínguez <rogelio.dominguez@gmail.com>'
-'''
-www.jornada.com.mx
-'''
-
 import re
+from html import escape
 
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-try:
-    from urllib.parse import parse_qs, urlparse, urlunparse
-except ImportError:
-    from urlparse import parse_qs, urlparse, urlunparse
+from lxml import html as lhtml
+
 from calibre import strftime
+from calibre.scraper.simple import read_url
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def _text_len(node):
+    return len(re.sub(r'\s+', ' ', node.text_content()).strip())
 
 
 class LaJornada_mx(BasicNewsRecipe):
     title = 'La Jornada (Mexico)'
-    __author__ = 'Darko Miletic/Rogelio Domínguez'
+    __author__ = 'Paulb223'
     description = 'Noticias del diario mexicano La Jornada'
     publisher = 'DEMOS, Desarrollo de Medios, S.A. de C.V.'
-    category = 'news, Mexico'
+    category = 'news'
     oldest_article = 2
     max_articles_per_feed = 200
     no_stylesheets = True
@@ -33,28 +25,30 @@ class LaJornada_mx(BasicNewsRecipe):
     use_embedded_content = False
     language = 'es_MX'
     remove_empty_feeds = True
-    cover_url = strftime('http://www.jornada.com.mx/%Y/%m/%d/portada.pdf')
-    masthead_url = 'http://www.jornada.com.mx/v7.0/imagenes/la-jornada-trans.png'
+    ignore_duplicate_articles = {'url'}
+    articles_are_obfuscated = True
+    simultaneous_downloads = 2
+    cover_url = strftime('https://www.jornada.com.mx/%Y/%m/%d/portada.pdf')
+    masthead_url = 'https://www.jornada.com.mx/v7.0/imagenes/la-jornada-trans.png'
     publication_type = 'newspaper'
     extra_css = '''
-                                body{font-family: "Times New Roman",serif }
-                                .cabeza{font-size: xx-large; font-weight: bold }
-                                .documentFirstHeading{font-size: xx-large; font-weight: bold }
-                                .credito-articulo{font-variant: small-caps; font-weight: bold }
-                                .foto{text-align: center}
-                                .pie-foto{font-size: 0.9em}
-                                .credito{font-weight: bold; margin-left: 1em}
-                                .credito-autor{font-variant: small-caps; font-weight: bold }
-                                .credito-titulo{text-align: right}
-                                .hemero{text-align: right; font-size: 0.9em; margin-bottom: 0.5em }
-                                .loc{font-weight: bold}
-                                .carton{text-align: center}
-                                .credit{font-weight: bold}
-                                .sumario{font-weight: bold; text-align: center}
-                                .text{margin-top: 1.4em}
-                                p.inicial{display: inline; font-size: xx-large; font-weight: bold}
-                                p.s-s{display: inline; text-indent: 0}
-                            '''
+                body{font-family: "Times New Roman",serif }
+                h1{font-size: xx-large; font-weight: bold }
+                .cabeza{font-size: xx-large; font-weight: bold }
+                .documentFirstHeading{font-size: xx-large; font-weight: bold }
+                .credito-articulo{font-variant: small-caps; font-weight: bold }
+                .foto{text-align: center}
+                .pie-foto{font-size: 0.9em}
+                .credito{font-weight: bold; margin-left: 1em}
+                .credito-autor{font-variant: small-caps; font-weight: bold }
+                .credito-titulo{text-align: right}
+                .hemero{text-align: right; font-size: 0.9em; margin-bottom: 0.5em }
+                .loc{font-weight: bold}
+                .carton{text-align: center}
+                .credit{font-weight: bold}
+                .sumario{font-weight: bold; text-align: center}
+                .text{margin-top: 1.4em}
+            '''
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
@@ -70,52 +64,130 @@ class LaJornada_mx(BasicNewsRecipe):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         d = self.recipe_specific_options.get('days')
         if d and isinstance(d, str):
-            self.oldest_article = float(d)
+            self.oldest_article = float(d)  # type: ignore
+        self.browser_storage = []
+        self.summaries = {}
 
-    preprocess_regexps = [
-        (
-            re.compile(r'<div class="inicial">(.*)</div><p class="s-s">', re.DOTALL | re.IGNORECASE),
-            lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">',
-        )
-    ]
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for art in feed.articles:
+                self.summaries[art.url] = (art.title or '', art.summary or art.text_summary or '')
+        return feeds
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['documentContent', 'cabeza', 'sumarios', 'credito-articulo', 'text', 'carton']}),
-        dict(name='div', attrs={'id': 'renderComments'}),
-    ]
-    remove_tags = [dict(name='div', attrs={'class': ['buttonbar', 'comment-cont']})]
+    def _fallback_page(self, url):
+        title, summary = self.summaries.get(url, ('', ''))
+        self.log.warn('Using feed summary only for', url)
+        return {
+            'data': '<html><head><meta charset="utf-8"><title>%s</title></head><body><h1>%s</h1><p>%s</p>'
+            '<p><i>(Texto completo no disponible.)</i></p></body></html>' % (escape(title), escape(title), escape(summary)),
+            'url': url,
+        }
+
+    def get_obfuscated_article(self, url):
+        try:
+            raw = read_url(self.browser_storage, url, timeout=90)
+        except Exception as e:
+            self.log.warn('Browser fetch failed for %s: %s' % (url, e))
+            return self._fallback_page(url)
+        low = raw[:4000].lower()
+        if len(raw) < 1500 or 'just a moment' in low or 'cf-chl' in low or 'access denied' in low:
+            self.log.warn('Blocked/challenge page for', url)
+            return self._fallback_page(url)
+        return {'data': raw, 'url': url}
 
     feeds = [
-        ('Opinion', 'http://www.jornada.com.mx/rss/opinion.xml'),
-        ('Cartones', 'http://www.jornada.com.mx/rss/cartones.xml'),
-        ('Politica', 'http://www.jornada.com.mx/rss/politica.xml'),
-        ('Economia', 'http://www.jornada.com.mx/rss/economia.xml'),
-        ('Mundo', 'http://www.jornada.com.mx/rss/mundo.xml'),
-        ('Estados', 'http://www.jornada.com.mx/rss/estados.xml'),
-        ('Capital', 'http://www.jornada.com.mx/rss/capital.xml'),
-        ('Sociedad y justicia', 'http://www.jornada.com.mx/rss/sociedad.xml'),
-        ('Ciencias', 'http://www.jornada.com.mx/rss/ciencias.xml'),
-        ('Cultura', 'http://www.jornada.com.mx/rss/cultura.xml'),
-        ('Gastronomia', 'http://www.jornada.com.mx/rss/gastronomia.xml'),
-        ('Espectaculos', 'http://www.jornada.com.mx/rss/espectaculos.xml'),
-        ('Deportes', 'http://www.jornada.com.mx/rss/deportes.xml'),
-        ('Ultimas noticias', 'http://www.jornada.com.mx/ultimas/news/RSS'),
+        ('Opinion', 'https://www.jornada.com.mx/rss/opinion.xml'),
+        ('Cartones', 'https://www.jornada.com.mx/rss/cartones.xml'),
+        ('Politica', 'https://www.jornada.com.mx/rss/politica.xml'),
+        ('Economia', 'https://www.jornada.com.mx/rss/economia.xml'),
+        ('Mundo', 'https://www.jornada.com.mx/rss/mundo.xml'),
+        ('Estados', 'https://www.jornada.com.mx/rss/estados.xml'),
+        ('Capital', 'https://www.jornada.com.mx/rss/capital.xml'),
+        ('Sociedad y justicia', 'https://www.jornada.com.mx/rss/sociedad.xml'),
+        ('Ciencias', 'https://www.jornada.com.mx/rss/ciencias.xml'),
+        ('Cultura', 'https://www.jornada.com.mx/rss/cultura.xml'),
+        ('Gastronomia', 'https://www.jornada.com.mx/rss/gastronomia.xml'),
+        ('Espectaculos', 'https://www.jornada.com.mx/rss/espectaculos.xml'),
+        ('Deportes', 'https://www.jornada.com.mx/rss/deportes.xml'),
     ]
+    content_xpaths = [
+        '//div[contains(concat(" ", normalize-space(@class), " "), " documentContent ")]',
+        '//*[@id="article-text"]',
+        '//*[@id="texto"]',
+        '//article',
+        '//div[contains(concat(" ", normalize-space(@class), " "), " article-text ")]',
+        '//div[contains(concat(" ", normalize-space(@class), " "), " text ")]',
+    ]
+    min_content_chars = 200
+
+    def _parse(self, raw_html):
+        try:
+            return lhtml.document_fromstring(raw_html)
+        except ValueError:
+            parser = lhtml.HTMLParser(encoding='utf-8')
+            return lhtml.document_fromstring(raw_html.encode('utf-8'), parser=parser)
+
+    def _find_content(self, root):
+        for xp in self.content_xpaths:
+            for node in root.xpath(xp):
+                if _text_len(node) >= self.min_content_chars:
+                    return node
+        best, best_score = None, 0
+        for node in root.xpath('//div|//section|//td|//main'):
+            score = sum(_text_len(p) for p in node.xpath('./p'))
+            if score > best_score:
+                best, best_score = node, score
+        if best is not None and best_score >= self.min_content_chars // 2:
+            return best
+        return None
+
+    def preprocess_raw_html(self, raw_html, url):
+        try:
+            root = self._parse(raw_html)
+        except Exception:
+            return raw_html
+
+        for bad in root.xpath('//script|//style|//noscript|//iframe|//form|//nav|//header|//footer'):
+            bad.drop_tree()
+
+        node = self._find_content(root)
+        if node is None:
+            return raw_html
+
+        title = ''
+        h1s = root.xpath('//h1')
+        for h in h1s:
+            t = h.text_content().strip()
+            if t:
+                title = t
+                break
+        if not title:
+            t = root.xpath('string(//title)').strip()
+            title = re.sub(r'^La Jornada:\s*', '', t)
+
+        heading = ''
+        if not node.xpath('.//h1'):
+            heading = '<h1>%s</h1>' % escape(title)
+
+        body = lhtml.tostring(node, encoding='unicode')
+        return '<html><head><meta charset="utf-8"><title>%s</title></head><body>%s%s</body></html>' % (escape(title), heading, body)
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
+        for item in soup.findAll(['button', 'input', 'select']):
+            item.extract()
         return soup
 
     def get_article_url(self, article):
-        # Get link to original article URL
-        rurl = article.get('guid', None)
-        if not rurl:
-            # Use the "link" attribute as failover
-            return article.get('link', None)
-        # Remove "partner" query param
-        u = urlparse(rurl)
-        query = parse_qs(u.query)
-        query.pop('partner', None)
-        u = u._replace(query=urlencode(query, True))
-        return urlunparse(u)
+        return article.get('link', None) or article.get('guid', None)
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
+            ('Accept-Language', 'es-MX,es;q=0.9,en;q=0.5'),
+            ('Referer', 'https://www.jornada.com.mx/'),
+        ]
+        return br
