@@ -26,6 +26,7 @@ mismatch_pat = re.compile(r'tag mismatch:.+?line (\d+).+?line \d+')
 
 
 class EmptyFile(BaseError):
+    RULE_NAME = _('Empty file')
     HELP = _('This file is empty, it contains nothing, you should probably remove it.')
     INDIVIDUAL_FIX = _('Remove this file')
 
@@ -167,6 +168,7 @@ class TooLarge(BaseError):
 
 
 class BadEntity(BaseError):
+    RULE_NAME = _('Invalid entity')
     HELP = _('This is an invalid (unrecognized) entity. Replace it with whatever text it is supposed to have represented.')
 
     def __init__(self, ent, name, lnum, col):
@@ -310,6 +312,7 @@ pos_pats = (re.compile(r'\[(\d+):(\d+)'), re.compile(r'(\d+), (\d+)\)'))
 
 
 class DuplicateId(BaseError):
+    RULE_NAME = _('Duplicate id')
     has_multiple_locations = True
 
     INDIVIDUAL_FIX = _('Remove the duplicate ids from all but the first element')
@@ -344,6 +347,7 @@ def make_valid_id(eid: str, taken: set[str]) -> str:
 
 
 class InvalidId(BaseError):
+    RULE_NAME = _('Invalid id')
     level = WARN
     INDIVIDUAL_FIX = _('Replace this id with a valid id')
 

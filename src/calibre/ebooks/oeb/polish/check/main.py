@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
+from collections.abc import Iterable
 from functools import partial
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.check.base import WARN, run_checkers
+from calibre.ebooks.oeb.polish.check.base import WARN, BaseError, run_checkers
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
 from calibre.ebooks.oeb.polish.check.links import check_link_destinations, check_links, check_mimetypes
@@ -28,8 +29,9 @@ XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {
 
 
 class CSSChecker:
-    def __init__(self):
+    def __init__(self, skipped_rules: frozenset[str] = frozenset()):
         self.jobs = []
+        self.skipped_rules = skipped_rules
 
     def create_job(self, name, raw, line_offset=0, is_declaration=False):
         from calibre.ebooks.oeb.polish.check.css import create_job
@@ -41,10 +43,14 @@ class CSSChecker:
 
         if not self.jobs:
             return ()
-        return check_css(self.jobs)
+        return check_css(self.jobs, self.skipped_rules)
 
 
-def run_checks(container):
+def remove_skipped(errors: Iterable[BaseError], skipped_rules: frozenset[str]) -> list[BaseError]:
+    return [e for e in errors if not e.can_be_skipped or e.rule_id not in skipped_rules]
+
+
+def run_checks(container, skipped_rules: frozenset[str] = frozenset()):
 
     errors = []
 
@@ -69,13 +75,14 @@ def run_checks(container):
     errors.extend(run_checkers(check_xml_parsing, xml_items))
     errors.extend(run_checkers(check_xml_parsing, html_items))
     errors.extend(run_checkers(check_raster_images, raster_images))
+    errors = remove_skipped(errors, skipped_rules)
 
     for err in errors:
         if err.level > WARN:
             return errors
 
     # css uses its own worker pool
-    css_checker = CSSChecker()
+    css_checker = CSSChecker(skipped_rules)
     for name, mt, raw in stylesheets:
         if not raw:
             errors.append(EmptyFile(name))
@@ -86,7 +93,7 @@ def run_checks(container):
     for name, mt, raw in html_items + xml_items:
         errors.extend(check_encoding_declarations(name, container))
 
-    css_checker = CSSChecker()
+    css_checker = CSSChecker(skipped_rules)
     for name, mt, raw in html_items:
         if not raw:
             continue
@@ -108,14 +115,14 @@ def run_checks(container):
     errors += check_markup(container)
     errors += check_opf(container)
 
-    return errors
+    return remove_skipped(errors, skipped_rules)
 
 
 CSSFix = namedtuple('CSSFix', 'original_css elem attribute')
 
 
-def fix_css(container):
-    from calibre.ebooks.oeb.polish.check.css import create_job, pool
+def fix_css(container, skipped_rules: frozenset[str] = frozenset()):
+    from calibre.ebooks.oeb.polish.check.css import create_job, pool, stylelint_rules_from_skipped_rules
 
     jobs = []
 
@@ -132,7 +139,7 @@ def fix_css(container):
                 raw = elem.get('style')
                 if raw:
                     jobs.append(create_job(name, raw, is_declaration=True, fix_data=CSSFix(raw, elem, 'style')))
-    results = pool.check_css([j.css for j in jobs], fix=True)
+    results = pool.check_css([j.css for j in jobs], fix=True, disabled_rules=stylelint_rules_from_skipped_rules(skipped_rules))
     changed = False
     for job, result in zip(jobs, results):
         if result['type'] == 'error':
@@ -154,7 +161,7 @@ def fix_css(container):
     return changed
 
 
-def fix_errors(container, errors):
+def fix_errors(container, errors, skipped_rules: frozenset[str] = frozenset()):
     # Fix parsing
     changed = False
     for name in {e.name for e in errors if getattr(e, 'is_parsing_error', False)}:
@@ -181,6 +188,6 @@ def fix_errors(container, errors):
                 # better to have a false positive than a false negative)
                 changed = True
     if has_fixable_css_errors:
-        if fix_css(container):
+        if fix_css(container, skipped_rules):
             changed = True
     return changed

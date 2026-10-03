@@ -13,6 +13,7 @@ from polyglot.builtins import error_message
 
 
 class InvalidImage(BaseError):
+    RULE_NAME = _('Invalid image')
     HELP = _('An invalid image is an image that could not be loaded, typically because it is corrupted. You should replace it with a good image or remove it.')
 
     def __init__(self, msg, *args, **kwargs):

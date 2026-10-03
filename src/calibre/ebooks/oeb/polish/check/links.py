@@ -23,16 +23,24 @@ class BadLink(BaseError):
     level = WARN
 
 
+class FolderLink(BadLink):
+    RULE_NAME = _('Link points to a folder')
+
+
 class InvalidCharInLink(BadLink):
+    RULE_NAME = _('Invalid character in link')
     HELP = _('Windows computers do not allow the : character in filenames. For maximum compatibility it is best to not use these in filenames/links to files.')
 
 
 class MalformedURL(BadLink):
+    RULE_NAME = _('Malformed URL')
     HELP = _('This URL could not be parsed.')
     level = ERROR
 
 
 class CaseMismatch(BadLink):
+    RULE_NAME = _('Case of link does not match case of file')
+
     def __init__(self, href, corrected_name, name, lnum, col):
         BadLink.__init__(self, _('The linked to resource {0} does not exist').format(href), name, line=lnum, col=col)
         self.HELP = _(
@@ -93,6 +101,7 @@ class BadDestinationFragment(BaseError):
 
 
 class FileLink(BadLink):
+    RULE_NAME = _('Link uses the file:// URL scheme')
     HELP = _(
         'This link uses the file:// URL scheme. This does not work with many e-book readers.'
         ' Remove the file:// prefix and make sure the link points to a file inside the book.'
@@ -100,6 +109,7 @@ class FileLink(BadLink):
 
 
 class LocalLink(BadLink):
+    RULE_NAME = _('Link points to a file outside the book')
     HELP = _(
         'This link points to a file outside the book. It will not work if the'
         ' book is read on any computer other than the one it was created on.'
@@ -108,10 +118,12 @@ class LocalLink(BadLink):
 
 
 class EmptyLink(BadLink):
+    RULE_NAME = _('Empty link')
     HELP = _('This link is empty. This is almost always a mistake. Either fill in the link destination or remove the link tag.')
 
 
 class UnreferencedResource(BadLink):
+    RULE_NAME = _('File is not referenced')
     HELP = _(
         'This file is included in the book but not referred to by any document in the spine.'
         ' This means that the file will not be viewable on most e-book readers. You should '
@@ -123,6 +135,7 @@ class UnreferencedResource(BadLink):
 
 
 class UnreferencedDoc(UnreferencedResource):
+    RULE_NAME = _('File is not in the spine')
     HELP = _('This file is not in the book spine. All content documents must be in the spine. You should probably add it to the spine.')
     INDIVIDUAL_FIX = _('Append this file to the spine')
 
@@ -142,6 +155,7 @@ class UnreferencedDoc(UnreferencedResource):
 
 
 class Unmanifested(BadLink):
+    RULE_NAME = _('File is not listed in the manifest')
     HELP = _(
         'This file is not listed in the book manifest. While not strictly necessary'
         ' it is good practice to list all files in the manifest. Either list this'
@@ -166,6 +180,8 @@ class Unmanifested(BadLink):
 
 
 class DanglingLink(BadLink):
+    RULE_NAME = _('Linked resource does not exist')
+
     def __init__(self, text, target_name, name, lnum, col):
         BadLink.__init__(self, text, name, lnum, col)
         self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML and CSS in the book') % target_name
@@ -176,6 +192,7 @@ class DanglingLink(BadLink):
 
 
 class Bookmarks(BadLink):
+    RULE_NAME = _('Bookmarks file present')
     HELP = _(
         'This file stores the bookmarks and last opened information from'
         ' the calibre E-book viewer. You can remove it if you do not'
@@ -194,6 +211,7 @@ class Bookmarks(BadLink):
 
 
 class MimetypeMismatch(BaseError):
+    RULE_NAME = _('MIME type does not match file extension')
     level = WARN
 
     def __init__(self, container, name, opf_mt, ext_mt):
@@ -348,7 +366,7 @@ def check_links(container):
                             # or the link is a directory
                             apath = container.name_to_abspath(tname)
                             if os.path.isdir(apath):
-                                a(BadLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
+                                a(FolderLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
                             else:
                                 a(CaseMismatch(href, actual_case_for_name(container, tname), name, lnum, col))
                     else:

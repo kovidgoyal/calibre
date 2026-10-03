@@ -6,6 +6,7 @@ import json
 import numbers
 import sys
 from collections import namedtuple
+from collections.abc import Iterable
 from itertools import repeat
 
 from qt.core import QApplication, QEventLoop, pyqtSignal, sip
@@ -19,24 +20,41 @@ from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import secure_webengine, setup_profile
 
+CSS_RULE_ID_PREFIX = 'css:'
 
-class CSSParseError(BaseError):
+
+class CSSBaseError(BaseError):
+    FIXABLE_CSS_ERROR = False
+    css_rule_id: str | None = None
+
+    @property
+    def rule_id(self) -> str:
+        if self.css_rule_id:
+            return CSS_RULE_ID_PREFIX + self.css_rule_id
+        return super().rule_id
+
+    @property
+    def rule_name(self) -> str:
+        if self.css_rule_id:
+            return f'CSS: {self.css_rule_id}'
+        return super().rule_name
+
+
+class CSSParseError(CSSBaseError):
     level = ERROR
     is_parsing_error = True
-    FIXABLE_CSS_ERROR = False
-    css_rule_id: str | None = None
 
 
-class CSSError(BaseError):
+class CSSError(CSSBaseError):
     level = ERROR
-    FIXABLE_CSS_ERROR = False
-    css_rule_id: str | None = None
 
 
-class CSSWarning(BaseError):
+class CSSWarning(CSSBaseError):
     level = WARN
-    FIXABLE_CSS_ERROR = False
-    css_rule_id: str | None = None
+
+
+def stylelint_rules_from_skipped_rules(skipped_rules: Iterable[str]) -> tuple[str, ...]:
+    return tuple(sorted(x[len(CSS_RULE_ID_PREFIX) :] for x in skipped_rules if x.startswith(CSS_RULE_ID_PREFIX)))
 
 
 def as_int_or_none(x):
@@ -144,19 +162,19 @@ class Worker(QWebEnginePage):
         except Exception:
             pass
 
-    def check_css(self, src, fix=False):
+    def check_css(self, src, fix=False, disabled_rules: tuple[str, ...] = ()):
         self.working = True
         self.runJavaScript(
-            f'window.check_css({json.dumps(src)}, {"true" if fix else "false"})',
+            f'window.check_css({json.dumps(src)}, {"true" if fix else "false"}, {json.dumps(disabled_rules)})',
             QWebEngineScript.ScriptWorldId.ApplicationWorld,
         )
 
-    def check_css_when_ready(self, src, fix=False):
+    def check_css_when_ready(self, src, fix=False, disabled_rules: tuple[str, ...] = ()):
         if self.ready:
-            self.check_css(src, fix)
+            self.check_css(src, fix, disabled_rules)
         else:
             self.working = True
-            self.pending = src, fix
+            self.pending = src, fix, disabled_rules
 
     def check_done(self, results):
         self.working = False
@@ -174,8 +192,9 @@ class Pool:
         w.work_done.connect(self.work_done)
         self.workers.append(w)
 
-    def check_css(self, css_sources, fix=False):
+    def check_css(self, css_sources, fix=False, disabled_rules: tuple[str, ...] = ()):
         self.doing_fix = fix
+        self.disabled_rules = disabled_rules
         self.pending = list(enumerate(css_sources))
         self.results = list(repeat(None, len(css_sources)))
         self.working = True
@@ -194,7 +213,7 @@ class Pool:
                 if not w.working:
                     idx, src = self.pending.pop()
                     w.result_idx = idx
-                    w.check_css_when_ready(src, self.doing_fix)
+                    w.check_css_when_ready(src, self.doing_fix, self.disabled_rules)
                     break
             else:
                 break
@@ -232,11 +251,11 @@ def create_job(name, css, line_offset=0, is_declaration=False, fix_data=None):
     return Job(name, css, line_offset, fix_data)
 
 
-def check_css(jobs):
+def check_css(jobs, skipped_rules: Iterable[str] = ()):
     errors = []
     if not jobs:
         return errors
-    results = pool.check_css([j.css for j in jobs])
+    results = pool.check_css([j.css for j in jobs], disabled_rules=stylelint_rules_from_skipped_rules(skipped_rules))
     for job, result in zip(jobs, results):
         if result['type'] == 'error':
             errors.append(

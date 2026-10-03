@@ -11,7 +11,23 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.localization import _
 
 
+class BadOPFRoot(BaseError):
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('The OPF does not have the correct root element'), name, lnum)
+        self.HELP = xml(_('The OPF must have the root element <package> in namespace {0}, like this: <package xmlns="{0}">')).format(OPF2_NS)
+
+
+class MissingOPFVersion(BaseError):
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('The OPF does not have a version'), name, lnum)
+        self.HELP = xml(
+            _('The <package> tag in the OPF must have a version attribute. This is usually version="2.0" for EPUB2 and AZW3 and version="3.0" for EPUB3')
+        )
+
+
 class MissingSection(BaseError):
+    RULE_NAME = _('Missing section in the OPF')
+
     def __init__(self, name, section_name):
         BaseError.__init__(self, _('The <%s> section is missing from the OPF') % section_name, name)
         self.HELP = xml(_('The <%s> section is required in the OPF file. You have to create one.') % section_name)
@@ -24,6 +40,8 @@ class EmptyID(BaseError):
 
 
 class IncorrectIdref(BaseError):
+    RULE_NAME = _('idref points to unknown id')
+
     def __init__(self, name, idref, lnum):
         BaseError.__init__(self, _('idref="%s" points to unknown id') % idref, name, lnum)
         self.HELP = xml(_('The idref="%s" points to an id that does not exist in the OPF') % idref)
@@ -54,6 +72,8 @@ class NookCover(BaseError):
 
 
 class IncorrectToc(BaseError):
+    RULE_NAME = _('Incorrect Table of Contents item')
+
     def __init__(self, name, lnum, bad_idref=None, bad_mimetype=None):
         if bad_idref is not None:
             msg = _('The item identified as the Table of Contents (%s) does not exist') % bad_idref
@@ -127,6 +147,7 @@ class EmptyNav(BaseError):
 
 
 class MissingHref(BaseError):
+    RULE_NAME = _('Item in manifest is missing')
     HELP = _('A file listed in the manifest is missing, you should either remove it from the manifest or add the missing file to the book.')
 
     def __init__(self, name, href, lnum):
@@ -168,6 +189,7 @@ class NonLinearItems(BaseError):
 
 
 class DuplicateHref(BaseError):
+    RULE_NAME = _('Duplicate item in manifest or spine')
     has_multiple_locations = True
 
     INDIVIDUAL_FIX = _('Remove all but the first duplicate item')
@@ -271,16 +293,10 @@ def check_opf(container):
     opf_version = container.opf_version_parsed
 
     if container.opf.tag != OPF('package'):
-        err = BaseError(_('The OPF does not have the correct root element'), container.opf_name, container.opf.sourceline)
-        err.HELP = xml(_('The OPF must have the root element <package> in namespace {0}, like this: <package xmlns="{0}">')).format(OPF2_NS)
-        errors.append(err)
+        errors.append(BadOPFRoot(container.opf_name, container.opf.sourceline))
 
     elif container.opf.get('version') is None and container.book_type == 'epub':
-        err = BaseError(_('The OPF does not have a version'), container.opf_name, container.opf.sourceline)
-        err.HELP = xml(
-            _('The <package> tag in the OPF must have a version attribute. This is usually version="2.0" for EPUB2 and AZW3 and version="3.0" for EPUB3')
-        )
-        errors.append(err)
+        errors.append(MissingOPFVersion(container.opf_name, container.opf.sourceline))
 
     for tag in ('metadata', 'manifest', 'spine'):
         if not container.opf_xpath('/opf:package/opf:' + tag):

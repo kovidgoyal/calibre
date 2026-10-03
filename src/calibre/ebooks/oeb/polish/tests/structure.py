@@ -282,6 +282,31 @@ class Structure(BaseTest):
         sentences = mark_sentences_in_html(parse('<p lang="en">Hello, <span lang="fr">world!'))
         self.assertEqual(tuple(s.lang for s in sentences), ('eng', 'fra'))
 
+    def test_check_skipped_rules(self):
+        from calibre.ebooks.oeb.polish.check.css import CSSError, CSSParseError, stylelint_rules_from_skipped_rules
+        from calibre.ebooks.oeb.polish.check.main import remove_skipped
+        from calibre.ebooks.oeb.polish.check.parsing import DuplicateId, InvalidId, XMLParseError, check_ids
+
+        c = self.create_epub([
+            cmi('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p id="1x">a</p><p id="d"/><p id="d"/></body></html>'),
+        ])
+        errors = check_ids(c)
+        self.assertEqual({type(e) for e in errors}, {InvalidId, DuplicateId})
+        self.assertEqual({e.rule_id for e in errors}, {'InvalidId', 'DuplicateId'})
+        self.assertEqual(next(e for e in errors if isinstance(e, InvalidId)).rule_name, InvalidId.RULE_NAME)
+        remaining = remove_skipped(errors, frozenset({'InvalidId'}))
+        self.assertEqual([type(e) for e in remaining], [DuplicateId])
+
+        css_err = CSSError('x', 'a.css')
+        css_err.css_rule_id = 'block-no-empty'
+        self.assertEqual(css_err.rule_id, 'css:block-no-empty')
+        self.assertEqual(stylelint_rules_from_skipped_rules({'css:block-no-empty', 'InvalidId', 'css:a'}), ('a', 'block-no-empty'))
+
+        # parse errors can never be skipped
+        parse_errors = [XMLParseError('x', 'a.html'), CSSParseError('x', 'a.css')]
+        self.assertFalse(any(e.can_be_skipped for e in parse_errors))
+        self.assertEqual(remove_skipped(parse_errors, frozenset(e.rule_id for e in parse_errors)), parse_errors)
+
     def test_invalid_id_fix(self):
         from calibre.ebooks.oeb.polish.check.main import fix_errors
         from calibre.ebooks.oeb.polish.check.parsing import InvalidId, check_ids, make_valid_id

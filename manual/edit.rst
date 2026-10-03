@@ -336,6 +336,13 @@ error, if the error can be fixed automatically. You can also double click the
 error to open the location of the error in an editor, so you can fix it
 yourself.
 
+If there is a type of problem you do not care about, click the
+:guilabel:`Skip problems of this type` link in the help for that error. All
+problems of that type will no longer be reported. When some types of problems
+are being skipped, an entry at the bottom of the list says so. Click it to see
+the list of skipped problem types and un-skip any of them. Errors that prevent
+the book from being parsed cannot be skipped.
+
 Some of the checks performed are:
 
     * Malformed HTML markup. Any HTML markup that does not parse as well-formed

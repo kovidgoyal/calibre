@@ -15,6 +15,7 @@ from calibre.utils.localization import _
 
 
 class InvalidFont(BaseError):
+    RULE_NAME = _('Invalid font')
     HELP = _('This font could not be processed. It most likely will not work in an e-book reader, either')
 
 
@@ -27,6 +28,7 @@ def fix_sheet(sheet, css_name, font_name):
 
 
 class NotEmbeddable(BaseError):
+    RULE_NAME = _('Font not allowed to be embedded')
     level = WARN
 
     def __init__(self, name, fs_type):
@@ -39,6 +41,7 @@ class NotEmbeddable(BaseError):
 
 
 class FontAliasing(BaseError):
+    RULE_NAME = _('CSS font-family name does not match actual font name')
     level = WARN
 
     def __init__(self, font_name, css_name, name, line):
