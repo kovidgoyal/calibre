@@ -1,5 +1,5 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2019 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the GPLv3 license
@@ -10,6 +10,18 @@
 "use strict";
     // wrap up long words that don't fit in the page
     document.body.style.overflowWrap = 'break-word';
+
+    // Propagate a vertical writing mode from body to the root element,
+    // otherwise body is an orthogonal flow inside the root and Chromium >= 134
+    // renders content from multiple pages overlapping each other when printing.
+    // See https://bugs.launchpad.net/calibre/+bug/2146979
+    // This is needed only for Qt 6.10.x it seems to be fixed in Qt 6.11 but is
+    // fairly harmless anyway, so kept around.
+    var root = document.documentElement;
+    var body_wm = window.getComputedStyle(document.body).writingMode;
+    if (body_wm !== 'horizontal-tb' && window.getComputedStyle(root).writingMode === 'horizontal-tb') {
+        root.style.writingMode = body_wm;
+    }
 
     var break_avoid_block_styles = {
         "run-in":1, "block":1, "table-row-group":1, "table-column":1, "table-column-group":1,
@@ -45,5 +57,3 @@
         }
     }
 })();
-
-
