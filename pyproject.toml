@@ -131,7 +131,7 @@ ignore = [
 select = [
     'E', 'F', 'I', 'W', 'INT',
     'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
-    'PL', 'ASYNC', 'FURB', 'FA', 'FLY', 'DTZ',
+    'PL', 'ASYNC', 'FURB', 'FA', 'FLY', 'DTZ', 'T1',
     'D419', 'N999',
     'RUF',  # note: RUF can flag many unsolicited errors
     # preview rules
@@ -156,6 +156,7 @@ extend-select = ["ANN"]
 "src/calibre/ebooks/metadata/sources/*" = ['UP', 'FURB188']
 "src/calibre/ebooks/{BeautifulSoup,rtf2xml/ParseRtf}.py" = ['N999']
 "src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']
+"src/calibre/{rpdb,utils/ipython}.py" = ['T1']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 "!{src/calibre/ai/**/*.py,src/calibre/web/automate/**/*.py}" = ['ANN']
