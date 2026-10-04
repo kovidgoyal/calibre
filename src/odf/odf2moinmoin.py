@@ -310,8 +310,6 @@ class ODF2MoinMoin:
         return ''
 
     def draw_image(self, node):
-        """ """
-
         link = node.getAttribute('xlink:href')
         if link and link[:2] == './':  # Indicates a sub-object, which isn't supported
             return f'{link}\n'

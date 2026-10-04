@@ -1,7 +1,5 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-""""""
-
 import struct
 
 from calibre.ebooks.lrf import LRFParseError

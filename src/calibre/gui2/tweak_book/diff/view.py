@@ -82,7 +82,7 @@ def beautify_text(raw, syntax):
         from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
 
         setup_css_parser_serialization(tprefs['editor_tab_stop_width'])
-        log.setLevel(logging.WARN)
+        log.setLevel(logging.WARNING)
         log.raiseExceptions = False
         parser = CSSParser(
             loglevel=logging.WARNING,
