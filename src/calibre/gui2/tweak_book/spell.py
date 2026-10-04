@@ -58,6 +58,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, editors, set_book_locale, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
+from calibre.gui2.widgets2 import FlowLayout
 from calibre.spell import DictionaryLocale
 from calibre.spell.break_iterator import split_into_words
 from calibre.spell.dictionary import (
@@ -1225,27 +1226,36 @@ class SpellCheck(Dialog):
         self.setLayout(l)
         self.stack = s = QStackedLayout()
         l.addLayout(s)
-        l.addWidget(self.bb)
+        # Use a flow layout for the action buttons rather than the button box
+        # so that they can wrap, allowing the dialog to be made narrow
+        h = QHBoxLayout()
+        l.addLayout(h)
+        self.action_buttons = ab = FlowLayout()
+        h.addLayout(ab, stretch=1)
+        h.addWidget(self.bb, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
-        b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
-        assert b is not None
+
+        def action_button(text):
+            b = QPushButton(text, self)
+            b.setAutoDefault(False)
+            ab.addWidget(b)
+            return b
+
+        b = action_button(_('&Refresh'))
         b.setToolTip('<p>' + _('Re-scan the book for words, useful if you have edited the book since opening this dialog'))
         b.setIcon(QIcon.ic('view-refresh.png'))
         connect_lambda(b.clicked, self, lambda self: self.refresh(change_request=None))
-        b = self.bb.addButton(_('&Undo last change'), QDialogButtonBox.ButtonRole.ActionRole)
-        assert b is not None
+        b = action_button(_('&Undo last change'))
         b.setToolTip('<p>' + _('Undo the last spell check word replacement, if any'))
         b.setIcon(QIcon.ic('edit-undo.png'))
         b.clicked.connect(self.undo_last_change)
-        b = self.exclude_button = self.bb.addButton('', QDialogButtonBox.ButtonRole.ActionRole)
-        assert b is not None
+        b = self.exclude_button = action_button('')
         b.setToolTip('<p>' + _('Exclude some files in the book from spell check'))
         b.setIcon(QIcon.ic('chapters.png'))
         b.clicked.connect(self.change_excluded_files)
         self.update_exclude_button()
-        b = self.save_words_button = self.bb.addButton(_('&Save words'), QDialogButtonBox.ButtonRole.ActionRole)
-        assert b is not None
+        b = self.save_words_button = action_button(_('&Save words'))
         b.setToolTip('<p>' + _('Save the currently displayed list of words in a CSV file'))
         b.setIcon(QIcon.ic('save.png'))
         b.clicked.connect(self.save_words)
@@ -1258,7 +1268,8 @@ class SpellCheck(Dialog):
         l.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter), l.addSpacing(10)
         la = QLabel(_('Checking, please wait...'))
         la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
-        l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter)
+        la.setWordWrap(True), la.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(la)
 
         self.main = m = QWidget(self)
         s.addWidget(m)
@@ -1268,7 +1279,7 @@ class SpellCheck(Dialog):
         t.textChanged.connect(self.do_filter)
         t.setClearButtonEnabled(True)
         l.addWidget(t)
-        h = QHBoxLayout()
+        h = FlowLayout()
         l.addLayout(h)
         h.addWidget(QLabel(_('Also hide words:')))
         any_hide_checked = False
@@ -1292,7 +1303,6 @@ class SpellCheck(Dialog):
         self.with_numbers = hw('with-numbers', _('with &numbers'), _('Hide words that contain numbers'))
         self.camel_case = hw('camel-case', _('ca&melCase'), _('Hide words in camelCase'))
         self.snake_case = hw('snake-case', _('sna&ke_case'), _('Hide words in snake_case'))
-        h.addStretch(10)
 
         h = QHBoxLayout()
         l.addLayout(h)
@@ -1345,7 +1355,7 @@ class SpellCheck(Dialog):
         )
         la.setWordWrap(True)
         self.initialize_user_dictionaries()
-        d.setMinimumContentsLength(25)
+        d.setMinimumContentsLength(15)
         l.addWidget(b), l.addWidget(d), l.addWidget(la)
         self.next_occurrence = b = QPushButton(_('Show &next occurrence'), self)
         b.setToolTip('<p>' + _('Show the next occurrence of the selected word in the editor, so you can edit it manually'))
@@ -1376,8 +1386,8 @@ class SpellCheck(Dialog):
         cs2.setToolTip(_('When filtering the list of words, be case sensitive'))
         cs2.setChecked(tprefs['spell_check_case_sensitive_search'])
         cs2.stateChanged.connect(self.search_type_changed)
-        self.hb = h = QHBoxLayout()
-        main_layout.addLayout(h), h.addWidget(cs), h.addWidget(cs2), h.addStretch(11)
+        self.hb = h = FlowLayout()
+        main_layout.addLayout(h), h.addWidget(cs), h.addWidget(cs2)
         self.action_next_word = a = QAction(self)
         a.setShortcut(QKeySequence(Qt.Key.Key_Down))
         a.triggered.connect(self.next_word)

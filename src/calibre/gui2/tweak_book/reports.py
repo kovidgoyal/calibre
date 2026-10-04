@@ -23,7 +23,6 @@ from qt.core import (
     QDialogButtonBox,
     QFont,
     QFontDatabase,
-    QHBoxLayout,
     QIcon,
     QLabel,
     QLineEdit,
@@ -62,6 +61,7 @@ from calibre.gui2 import choose_save_file, error_dialog, open_url, qapplication_
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.widgets2 import FlowLayout
 from calibre.utils.icu import numeric_sort_key, primary_contains
 from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang, ngettext
 from calibre.utils.unicode_names import character_name_from_code
@@ -1164,7 +1164,7 @@ class CSSWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
-        self.h = h = QHBoxLayout()
+        self.h = h = FlowLayout()
 
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
@@ -1191,16 +1191,14 @@ class CSSWidget(QWidget):
         b.setChecked(not m.sort_on_count)
         h.addWidget(b)
         b.toggled.connect(self.resort)
-        h.addStrut(20)
         self._sort_order = o = QComboBox(self)
         o.addItems([_('Ascending'), _('Descending')])
         o.setCurrentIndex(0 if self.read_state('sort-ascending', True) else 1)
         o.setEditable(False)
         o.currentIndexChanged.connect(self.resort)
         h.addWidget(o)
-        h.addStretch(10)
         self.summary = la = QLabel('\xa0')
-        h.addWidget(la)
+        l.addWidget(la)
 
     @property
     def sort_order(self):
@@ -1556,7 +1554,8 @@ class Reports(Dialog):
         l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter), l.addSpacing(10)
         la = QLabel(_('Gathering data, please wait...'))
         la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
-        l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter), l.addStretch(1)
+        la.setWordWrap(True), la.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(la), l.addStretch(1)
 
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.refresh_button = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
