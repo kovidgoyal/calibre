@@ -354,6 +354,27 @@ class TestDownloadDeps(unittest.TestCase):
         # Nothing must have been downloaded
         self.assertFalse(os.path.exists(dd.camoufox_installer.install_dir))
 
+    def test_download_deps_camoufox_font_lists(self) -> None:
+        urls: list[str] = []
+        response: object = {}
+
+        def download_json(url: str, headers: dict[str, str] | None = None, timeout: float = dd.NETWORK_TIMEOUT) -> object:
+            urls.append(url)
+            return response
+
+        original = dd.download_json
+        try:
+            dd.download_json = download_json
+            response = {'win': ['Segoe UI', 'Tahoma'], 'lin': ['Arimo']}
+            self.assertEqual(dd.camoufox_font_lists('156.0.1-beta.34'), response)
+            self.assertEqual(urls, ['https://raw.githubusercontent.com/daijro/camoufox/v156.0.1-beta.34/pythonlib/camoufox/fonts.json'])
+            for bad in ([], {'win': 'Segoe UI'}, {'win': ['Segoe UI', 1]}):
+                response = bad
+                self.assertRaises(ValueError, dd.camoufox_font_lists, '156.0.1-beta.34')
+            self.assertRaises(ValueError, dd.camoufox_font_lists, '../main')
+        finally:
+            dd.download_json = original
+
     def test_download_deps_browserforge_patching(self) -> None:
         data_dir = os.path.join(self.tdir, 'bf-data')
         os.mkdir(data_dir)

@@ -5,11 +5,13 @@ import asyncio
 import contextlib
 import functools
 import http.server
+import io
 import itertools
 import json
 import math
 import os
 import random
+import shutil
 import socketserver
 import struct
 import tempfile
@@ -19,7 +21,7 @@ import unittest
 from collections.abc import Awaitable, Callable, Iterator
 from unittest.mock import patch
 
-from calibre.constants import iswindows
+from calibre.constants import cache_dir, iswindows
 from calibre.web.automate import camoufox
 from calibre.web.automate.download_deps import Install, camoufox_install, camoufox_installer, camoufox_resource_dir, system_camoufox
 
@@ -244,14 +246,15 @@ class TestCamoufoxConfig(unittest.TestCase):
             self.assertIs(camoufox.value_has_type(value, expected), ok, f'{value!r} as {expected}')
 
     def test_random_font_subset(self) -> None:
-        families = ('Arimo', 'Cousine', 'Tinos', 'Twemoji Mozilla') + tuple(f'Noto Sans {i}' for i in range(50))
+        essential = ('DejaVu Sans', 'Liberation Serif', 'Noto Sans CJK JP')
+        families = ('Arimo', 'Cousine', 'Tinos', 'Twemoji Mozilla') + essential + tuple(f'Noto Sans {i}' for i in range(50))
         for _ in range(10):
             subset = camoufox.random_font_subset(families, 'linux')
             self.assertEqual(subset, sorted(subset))
             self.assertEqual(len(set(subset)), len(subset), 'the subset contains duplicates')
             for font in camoufox.MARKER_FONTS['linux']:
                 self.assertIn(font, subset, 'an OS marker font is missing')
-            for font in ('Arimo', 'Cousine', 'Tinos'):
+            for font in essential:
                 self.assertIn(font, subset, 'an essential font is missing')
             self.assertLess(len(subset), len(families), 'the subset is not actually a subset')
         # A marker font that the browser cannot render must never be claimed
@@ -447,6 +450,78 @@ class TestCamoufoxFonts(unittest.TestCase):
             self.assertIn(font, families, 'a Linux OS marker font is missing from the bundled fonts')
         # The second call must come from the on disk cache and agree
         self.assertEqual(families, camoufox.font_families(resource_dir, install[1], 'linux'))
+        # Newer macOS and Windows bundles have the fonts of every OS in one
+        # directory, of which only those for the target OS must be reported
+        self.assertNotIn('Segoe UI', families, 'a Windows font is reported for Linux')
+
+    def test_embedded_font_data(self) -> None:
+        for target_os in camoufox.OS_NAMES:
+            reportable = frozenset(camoufox.FALLBACK_REPORTABLE_FONTS[target_os])
+            self.assertGreater(len(reportable), 100)
+            for font in camoufox.MARKER_FONTS[target_os]:
+                self.assertIn(font, reportable, f'the {target_os} OS marker font {font} is missing from the fallback fonts')
+            missing = set(camoufox.ESSENTIAL_FONTS[target_os]) - reportable
+            self.assertFalse(missing, f'some essential {target_os} fonts are missing from the fallback fonts')
+
+    def test_reportable_font_families(self) -> None:
+        from calibre.utils.resources import get_path
+
+        def font(name: str) -> str:
+            return get_path(f'fonts/liberation/Liberation{name}-Regular.ttf', allow_user_override=False)
+
+        upstream = {'win': ['Liberation Sans', 'Not Bundled'], 'lin': ['Liberation Sans', 'Liberation Serif']}
+        calls: list[str] = []
+
+        def font_lists(version: str) -> dict[str, list[str]]:
+            calls.append(version)
+            return upstream
+
+        def failing_font_lists(version: str) -> dict[str, list[str]]:
+            raise OSError('no network')
+
+        with tempfile.TemporaryDirectory(prefix='camoufox-test-') as tdir:
+            fonts = os.path.join(tdir, 'fonts')
+            os.makedirs(fonts)
+            version = 'test-' + os.path.basename(tdir)
+            # Newer macOS and Windows bundles, all fonts directly in the fonts dir
+            for name in ('Sans', 'Serif', 'Mono'):
+                shutil.copy(font(name), fonts)
+            with patch.object(camoufox, 'camoufox_font_lists', font_lists):
+                self.assertEqual(camoufox.reportable_font_families(tdir, version, 'windows'), (('Liberation Sans',), True))
+                self.assertEqual(calls, [version])
+            # If the upstream lists are not available, use the fallback lists, without caching the result
+            cache_path = os.path.join(cache_dir(), f'camoufox-reportable-fonts-{camoufox.install_cache_key(tdir, version)}.json')
+            self.addCleanup(lambda: os.path.exists(cache_path) and os.remove(cache_path))
+            fallback = {'windows': ('Liberation Mono', 'Liberation Serif', 'Also Not Bundled')}
+            with (
+                patch.object(camoufox, 'camoufox_font_lists', failing_font_lists),
+                patch.object(camoufox, 'FALLBACK_REPORTABLE_FONTS', fallback),
+                contextlib.redirect_stderr(io.StringIO()),
+            ):
+                self.assertEqual(camoufox.reportable_font_families(tdir, version, 'windows'), (('Liberation Mono', 'Liberation Serif'), False))
+                self.assertEqual(camoufox.font_families(tdir, version, 'windows'), ('Liberation Mono', 'Liberation Serif'))
+            self.assertFalse(os.path.exists(cache_path), 'a non-definitive list of fonts was cached')
+            with patch.object(camoufox, 'camoufox_font_lists', font_lists):
+                self.assertEqual(camoufox.font_families(tdir, version, 'linux'), ('Liberation Sans', 'Liberation Serif'))
+            self.assertTrue(os.path.exists(cache_path), 'a definitive list of fonts was not cached')
+            # Newer Linux bundles, fonts in directories shared between OSes
+            for x in os.listdir(fonts):
+                os.remove(os.path.join(fonts, x))
+            for group, name in (('L', 'Sans'), ('W', 'Serif'), ('LW', 'Mono')):
+                os.mkdir(os.path.join(fonts, group))
+                shutil.copy(font(name), os.path.join(fonts, group))
+            with open(os.path.join(fonts, 'groups.json'), 'w') as f:
+                json.dump({'readBy': {'lin': ['L', 'LW'], 'win': ['LW', 'W']}}, f)
+            with patch.object(camoufox, 'camoufox_font_lists', font_lists):
+                self.assertEqual(camoufox.reportable_font_families(tdir, version, 'linux'), (('Liberation Sans',), True))
+            # Older bundles, a directory per OS, need no upstream lists
+            os.mkdir(os.path.join(fonts, 'linux'))
+            shutil.copy(font('Serif'), os.path.join(fonts, 'linux'))
+            shutil.rmtree(os.path.join(fonts, 'L'))
+            shutil.rmtree(os.path.join(fonts, 'LW'))
+            os.remove(os.path.join(fonts, 'groups.json'))
+            with patch.object(camoufox, 'camoufox_font_lists', failing_font_lists):
+                self.assertEqual(camoufox.reportable_font_families(tdir, version, 'linux'), (('Liberation Serif',), True))
 
     def test_fontconfig_generation(self) -> None:
         # Only the Linux camoufox bundle ships the fontconfig directories, as
@@ -468,6 +543,39 @@ class TestCamoufoxFonts(unittest.TestCase):
                 with self.assertRaises(camoufox.Error):  # no fonts.conf for this target OS
                     camoufox.fontconfig_path(tdir, version, 'linux')
 
+    def test_font_dirs(self) -> None:
+        with tempfile.TemporaryDirectory(prefix='camoufox-test-') as tdir:
+            fonts = os.path.join(tdir, 'fonts')
+            os.makedirs(fonts)
+            # Newer macOS and Windows bundles, all fonts directly in the fonts dir
+            self.assertEqual(camoufox.font_dirs(tdir, 'linux'), [])
+            # Older bundles, a directory per OS
+            for x in camoufox.OS_DIRS.values():
+                os.mkdir(os.path.join(fonts, x))
+            self.assertEqual(camoufox.font_dirs(tdir, 'linux'), [os.path.join(fonts, 'linux')])
+            # Newer Linux bundles, a directory per set of OSes, which take precedence
+            for g in ('L', 'LM', 'LMW', 'LW', 'M', 'MW', 'W'):
+                os.mkdir(os.path.join(fonts, g))
+            with open(os.path.join(fonts, 'groups.json'), 'w') as f:
+                json.dump({'readBy': {'lin': ['L', 'LM', 'LMW', 'LW', 'missing'], 'win': ['LMW', 'LW', 'MW', 'W']}}, f)
+            self.assertEqual(camoufox.font_dirs(tdir, 'linux'), [os.path.join(fonts, x) for x in ('L', 'LM', 'LMW', 'LW')])
+            self.assertEqual(camoufox.font_dirs(tdir, 'windows'), [os.path.join(fonts, x) for x in ('LMW', 'LW', 'MW', 'W')])
+            self.assertRaises(camoufox.Error, camoufox.font_dirs, tdir, 'macos')
+            os.makedirs(os.path.join(tdir, 'fontconfig', 'windows'))
+            with open(os.path.join(tdir, 'fontconfig', 'windows', 'fonts.conf'), 'w') as f:
+                f.write('<fontconfig><dir prefix="cwd">fonts</dir></fontconfig>')
+            path = camoufox.fontconfig_path(tdir, 'test-' + os.path.basename(tdir), 'windows')
+            self.addCleanup(os.remove, path)
+            with open(path) as f:
+                conf = f.read()
+            self.assertEqual(conf.count('<dir>'), 4)
+            for x in ('LMW', 'LW', 'MW', 'W'):
+                self.assertIn(f'<dir>{os.path.join(fonts, x)}</dir>', conf)
+            for bad in ('not json', '[]', '{"readBy": {"mac": "LM"}}'):
+                with open(os.path.join(fonts, 'groups.json'), 'w') as f:
+                    f.write(bad)
+                self.assertRaises(camoufox.Error, camoufox.font_dirs, tdir, 'macos')
+
     @unittest.skipIf(
         installed_camoufox() is None or camoufox.current_os() != 'linux',
         'the camoufox browser is not installed, or this is not Linux, and only the Linux bundle has fontconfig files',
@@ -480,7 +588,12 @@ class TestCamoufoxFonts(unittest.TestCase):
         with open(path) as f:
             conf = f.read()
         self.assertNotIn('prefix="cwd"', conf, 'the relative font dir was not made absolute')
-        self.assertIn(f'<dir>{os.path.join(resource_dir, "fonts")}</dir>', conf)
+        dirs = camoufox.font_dirs(resource_dir, 'windows')
+        self.assertTrue(dirs, 'the Linux bundle has no Windows specific font directories')
+        for d in dirs:
+            self.assertIn(f'<dir>{d}</dir>', conf)
+        # fontconfig scans recursively, so the parent dir would expose the fonts of every OS
+        self.assertNotIn(f'<dir>{os.path.join(resource_dir, "fonts")}</dir>', conf)
 
 
 class Server:

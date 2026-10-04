@@ -54,7 +54,8 @@ from typing import Any, NamedTuple
 from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_in
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.safe_atexit import remove_folder_atexit
-from calibre.web.automate.download_deps import Install, browserforge_data, camoufox_install, camoufox_resource_dir, debug
+from calibre.web.automate.camoufox_fonts import ESSENTIAL_FONTS, FALLBACK_REPORTABLE_FONTS
+from calibre.web.automate.download_deps import Install, browserforge_data, camoufox_font_lists, camoufox_install, camoufox_resource_dir, debug
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,
@@ -175,54 +176,6 @@ BROWSERFORGE_MAP: dict[str, Any] = {
         'chargingTime': 'battery:chargingTime',
         'dischargingTime': 'battery:dischargingTime',
     },
-}
-
-# Fonts that must always be present in the generated font subset, because a real
-# installation of the OS in question always has them
-ESSENTIAL_FONTS = {
-    'macos': (
-        'Arial',
-        'Helvetica',
-        'Times New Roman',
-        'Courier New',
-        'Verdana',
-        'Georgia',
-        'Trebuchet MS',
-        'Tahoma',
-        'Helvetica Neue',
-        'Lucida Grande',
-        'Menlo',
-        'Monaco',
-        'Geneva',
-        'PingFang HK',
-        'PingFang SC',
-        'PingFang TC',
-    ),
-    'windows': (
-        'Arial',
-        'Times New Roman',
-        'Courier New',
-        'Verdana',
-        'Georgia',
-        'Trebuchet MS',
-        'Tahoma',
-        'Segoe UI',
-        'Calibri',
-        'Cambria Math',
-        'Nirmala UI',
-        'Consolas',
-    ),
-    'linux': (
-        'Arimo',
-        'Cousine',
-        'Tinos',
-        'Twemoji Mozilla',
-        'Noto Sans Devanagari',
-        'Noto Sans JP',
-        'Noto Sans KR',
-        'Noto Sans SC',
-        'Noto Sans TC',
-    ),
 }
 
 # Fonts used by fingerprinting scripts to detect the OS. They must be present or
@@ -389,6 +342,35 @@ def font_families_in(path: str) -> set[str]:
     return ans
 
 
+def font_dirs(resource_dir: str, target_os: str) -> list[str]:
+    """The directories containing the fonts camoufox bundles for target_os.
+
+    Older camoufox bundles have a full copy of the fonts for each OS in
+    fonts/<os>. Newer Linux bundles store each font only once, in a directory
+    named for the set of OSes that use it, with fonts/groups.json recording
+    the directories each OS reads. Newer macOS and Windows bundles have all
+    fonts directly in the fonts directory, in which case the returned list is
+    empty.
+    """
+    base = os.path.join(resource_dir, 'fonts')
+    groups_path = os.path.join(base, 'groups.json')
+    try:
+        with open(groups_path, 'rb') as f:
+            raw = f.read()
+    except FileNotFoundError:
+        pass
+    else:
+        try:
+            groups = json.loads(raw)['readBy'][OS_ABBREV[target_os]]
+        except (ValueError, KeyError, TypeError) as e:
+            raise Error(f'The camoufox font groups file {groups_path} is invalid: {e}') from e
+        if not isinstance(groups, list) or not all(isinstance(g, str) for g in groups):
+            raise Error(f'The camoufox font groups file {groups_path} does not have a list of groups for {target_os}')
+        return [d for g in groups if os.path.isdir(d := os.path.join(base, g))]
+    d = os.path.join(base, OS_DIRS[target_os])
+    return [d] if os.path.isdir(d) else []
+
+
 def read_font_families(resource_dir: str, target_os: str) -> tuple[str, ...]:
     """The font families camoufox bundles for target_os.
 
@@ -398,9 +380,8 @@ def read_font_families(resource_dir: str, target_os: str) -> tuple[str, ...]:
     browser cannot actually render.
     """
     ans: set[str] = set()
-    base = os.path.join(resource_dir, 'fonts')
     # Fonts directly in the fonts dir, such as Twemoji, are shared by every OS
-    for d in (base, os.path.join(base, OS_DIRS[target_os])):
+    for d in [os.path.join(resource_dir, 'fonts')] + font_dirs(resource_dir, target_os):
         try:
             names = os.listdir(d)
         except OSError:
@@ -423,11 +404,36 @@ def install_cache_key(resource_dir: str, version: str) -> str:
     return f'{version}-{hashlib.sha256(os.path.abspath(resource_dir).encode("utf-8")).hexdigest()[:12]}'
 
 
+def reportable_font_families(resource_dir: str, version: str, target_os: str) -> tuple[tuple[str, ...], bool]:
+    """The font families from read_font_families() that a real target_os machine
+    can report, and whether the list is definitive.
+
+    Older camoufox bundles have the fonts for each OS in a directory of their
+    own. Newer bundles have the fonts of every OS in one directory on macOS and
+    Windows and many fonts shared between OSes on Linux, which includes
+    families a real target_os machine would never report, so these are
+    restricted to the families upstream camoufox reports for target_os. If
+    that list cannot be downloaded, a list embedded in calibre, which may be
+    for a different camoufox version, is used instead and the result is not
+    definitive.
+    """
+    ans = read_font_families(resource_dir, target_os)
+    if os.path.isdir(os.path.join(resource_dir, 'fonts', OS_DIRS[target_os])):
+        return ans, True
+    definitive = True
+    try:
+        reportable = frozenset(camoufox_font_lists(version)[OS_ABBREV[target_os]])
+    except Exception as e:
+        debug(f'Failed to get the list of fonts camoufox {version} reports for {target_os}, using the fallback list instead, with error: {e}')
+        reportable, definitive = frozenset(FALLBACK_REPORTABLE_FONTS[target_os]), False
+    return tuple(f for f in ans if f in reportable), definitive
+
+
 @lru_cache(maxsize=4)
 def font_families(resource_dir: str, version: str, target_os: str) -> tuple[str, ...]:
-    """Like read_font_families() but cached on disk, since parsing a few hundred
-    font files takes a noticeable fraction of a second."""
-    cache_path = os.path.join(cache_dir(), f'camoufox-fonts-{install_cache_key(resource_dir, version)}.json')
+    """Like reportable_font_families() but cached on disk, since parsing a few
+    hundred font files takes a noticeable fraction of a second."""
+    cache_path = os.path.join(cache_dir(), f'camoufox-reportable-fonts-{install_cache_key(resource_dir, version)}.json')
     try:
         with open(cache_path, 'rb') as f:
             cached = json.loads(f.read())
@@ -437,13 +443,14 @@ def font_families(resource_dir: str, version: str, target_os: str) -> tuple[str,
         cached = {}
     if not isinstance(cached, dict):
         cached = {}
-    ans = read_font_families(resource_dir, target_os)
-    cached[target_os] = list(ans)
-    try:
-        with open(cache_path, 'wb') as f:
-            f.write(json.dumps(cached).encode('utf-8'))
-    except OSError:
-        pass  # an unwritable cache dir is not fatal, we just pay to parse again
+    ans, definitive = reportable_font_families(resource_dir, version, target_os)
+    if definitive:  # otherwise try again the next time calibre is run
+        cached[target_os] = list(ans)
+        try:
+            with open(cache_path, 'wb') as f:
+                f.write(json.dumps(cached).encode('utf-8'))
+        except OSError:
+            pass  # an unwritable cache dir is not fatal, we just pay to parse again
     return ans
 
 
@@ -474,9 +481,10 @@ def fontconfig_path(resource_dir: str, version: str, target_os: str) -> str:
     to the ones camoufox bundles for target_os, and return its path.
 
     The bundled fonts.conf refers to the font directory relative to the current
-    working directory, which is of no use to us, so it is rewritten to use an
-    absolute path. Only needed on Linux, elsewhere camoufox restricts the fonts
-    itself.
+    working directory, which is of no use to us, so it is rewritten to use
+    absolute paths to only the font directories for target_os, as fontconfig
+    scans directories recursively. Only needed on Linux, elsewhere camoufox
+    restricts the fonts itself.
     """
     for name in ('fontconfig', 'fontconfigs'):  # renamed in camoufox v150
         src = os.path.join(resource_dir, name, OS_DIRS[target_os], 'fonts.conf')
@@ -486,12 +494,19 @@ def fontconfig_path(resource_dir: str, version: str, target_os: str) -> str:
         raise Error(f'The camoufox install in {resource_dir} has no fonts.conf for {target_os}')
     with open(src) as f:
         conf = f.read()
-    fonts_dir = os.path.join(resource_dir, 'fonts')
-    conf = conf.replace('<dir prefix="cwd">fonts</dir>', f'<dir>{fonts_dir}</dir>')
+    dirs = font_dirs(resource_dir, target_os) or [os.path.join(resource_dir, 'fonts')]
+    conf = conf.replace('<dir prefix="cwd">fonts</dir>', '\n\t'.join(f'<dir>{d}</dir>' for d in dirs))
     base = os.path.join(cache_dir(), 'camoufox-fontconfig')
     os.makedirs(base, exist_ok=True)
     ans = os.path.join(base, f'fonts-{install_cache_key(resource_dir, version)}-{target_os}.conf')
-    if not os.path.exists(ans):
+    try:
+        with open(ans) as f:
+            existing = f.read()
+    except FileNotFoundError:
+        existing = ''
+    # Compare contents rather than just checking existence, so that a file
+    # written by an older calibre is replaced
+    if existing != conf:
         # Write atomically, several processes can be doing this at once
         fd, tmp = tempfile.mkstemp(dir=base, suffix='.conf')
         try:

@@ -40,6 +40,7 @@ UPDATE_CHECK_INTERVAL = 24 * 3600  # seconds
 INSTALL_LOCK_TIMEOUT = 3600  # seconds, installing camoufox means downloading hundreds of megabytes
 METADATA_LOCK_TIMEOUT = 120  # seconds
 NETWORK_TIMEOUT = 120  # seconds
+FONT_LISTS_TIMEOUT = 20  # seconds
 
 METADATA_FILE_NAME = 'metadata.json'
 VERSION_PAT = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9._-]*')
@@ -91,13 +92,13 @@ def opener(user_agent: str = f'calibre {__version__}') -> OpenerDirector:
     return ans
 
 
-def download_data(url: str, headers: dict[str, str] | None = None) -> bytes:
-    with opener().open(Request(url, headers=headers or {}), timeout=NETWORK_TIMEOUT) as response:
+def download_data(url: str, headers: dict[str, str] | None = None, timeout: float = NETWORK_TIMEOUT) -> bytes:
+    with opener().open(Request(url, headers=headers or {}), timeout=timeout) as response:
         return response.read()
 
 
-def download_json(url: str, headers: dict[str, str] | None = None) -> Any:  # noqa: ANN401
-    return json.loads(download_data(url, headers))
+def download_json(url: str, headers: dict[str, str] | None = None, timeout: float = NETWORK_TIMEOUT) -> Any:  # noqa: ANN401
+    return json.loads(download_data(url, headers, timeout))
 
 
 def download_file(url: str, dest: str, expected_sha256: str = '') -> None:
@@ -587,6 +588,21 @@ def camoufox_resource_dir(binary_path: str) -> str:
     if ismacos:  # binary_path is inside Camoufox.app/Contents/MacOS
         ans = os.path.join(os.path.dirname(ans), 'Resources')
     return ans
+
+
+def camoufox_font_lists(version: str) -> dict[str, list[str]]:
+    """The font families upstream camoufox reports for each OS, keyed by win,
+    mac and lin, for the specified camoufox version. Downloaded from the
+    camoufox source repository, as newer camoufox bundles do not record which
+    fonts belong to which OS, except on Linux."""
+    if VERSION_PAT.fullmatch(version) is None:
+        raise ValueError(f'The version {version!r} of camoufox is not a valid version number')
+    url = f'https://raw.githubusercontent.com/{CAMOUFOX_REPO}/v{version}/pythonlib/camoufox/fonts.json'
+    # A short timeout as this is done when launching the browser
+    data = download_json(url, timeout=FONT_LISTS_TIMEOUT)
+    if not isinstance(data, dict) or not all(isinstance(families, list) and all(isinstance(f, str) for f in families) for families in data.values()):
+        raise ValueError(f'The camoufox font lists downloaded from {url} are not a mapping of OS names to lists of font families')
+    return data
 
 
 # }}}
