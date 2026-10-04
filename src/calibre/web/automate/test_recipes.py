@@ -375,6 +375,55 @@ class TestRecipeSubmitFormArguments(unittest.TestCase):
             br.shutdown()
 
 
+class TestRecipeFillField(unittest.TestCase):
+    """How filling in a field copes with the browser losing a keystroke."""
+
+    def test_recipes_fill_field_types_again_after_a_lost_key(self) -> None:
+        from calibre.web.automate.camoufox import InputLost, InputWedged
+
+        class FakeElement:
+            def __init__(self, page: FakePage) -> None:
+                self.page = page
+
+            async def value(self) -> str:
+                return self.page.value
+
+            async def dispose(self) -> None:
+                pass
+
+        class FakePage:
+            def __init__(self, failure: type[Exception], failures: int) -> None:
+                self.value, self.failure, self.failures, self.attempts = '', failure, failures, 0
+
+            async def fill(self, selector: str, value: str, timeout: float) -> None:  # noqa: ASYNC109
+                self.attempts += 1
+                if self.attempts <= self.failures:
+                    self.value = value[:1]
+                    raise self.failure('a keydown was not acknowledged')
+                self.value = value
+
+            async def find(self, selector: str) -> FakeElement:
+                return FakeElement(self)
+
+        def fill(page: FakePage) -> bool:
+            with patch.object(recipes, 'FILL_RETRY_DELAY', 0):
+                return asyncio.run(recipes.fill_field(page, '#user', 'reader', lambda: 10.0))  # type: ignore[arg-type]
+
+        # A key the browser was slow to answer does not stop the page being
+        # typed into, so it is typed again
+        page = FakePage(InputLost, 1)
+        self.assertTrue(fill(page))
+        self.assertEqual((page.attempts, page.value), (2, 'reader'))
+        page = FakePage(InputLost, recipes.FILL_ATTEMPTS)
+        self.assertFalse(fill(page))
+        self.assertEqual(page.attempts, recipes.FILL_ATTEMPTS)
+        # whereas a page that takes no more input is not
+        page = FakePage(InputWedged, 1)
+        with self.assertRaises(InputWedged):
+            fill(page)
+        self.assertEqual(page.attempts, 1)
+
+
 @unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
 class TestRecipeBrowser(unittest.TestCase):
     """Tests that drive the real browser. Skipped unless it is already installed."""
@@ -733,7 +782,7 @@ class TestRecipeBrowser(unittest.TestCase):
 
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeSubmitFormArguments, TestRecipeBrowser):
+    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeSubmitFormArguments, TestRecipeFillField, TestRecipeBrowser):
         ans.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 

@@ -114,14 +114,27 @@ class BrowserClosedError(Error):
 class InputWedged(Error):
     """The browser stopped acknowledging input events.
 
-    Every mouse, wheel and key event the browser is sent is dispatched from a
-    single queue shared by the whole browser process, and the browser works
-    through it one event at a time, answering each only once the page has seen
-    it. An event that never reaches the page is therefore never answered, and
-    worse, nothing behind it in the queue is ever dispatched either, so the page
-    can no longer be given input of any kind. Nothing here can undo that, the page has
-    to be abandoned, so once it happens further input events fail immediately
-    rather than waiting for a reply that will not come.
+    Every mouse and wheel event the browser is sent is dispatched from a single
+    queue shared by the whole browser process, which switches to the tab of
+    each event in turn, and the browser works through it one event at a time,
+    answering each only once the page has seen it. An event that never reaches
+    the page is therefore never answered, and worse, nothing behind it in the
+    queue is ever dispatched either, so the page can no longer be given input
+    of any kind. Nothing here can undo that, the page has to be abandoned, so
+    once it happens further input events fail immediately rather than waiting
+    for a reply that will not come.
+    """
+
+
+class InputLost(Error):
+    """The browser did not acknowledge a key event or an insertion of text in time.
+
+    Unlike mouse events, these are not dispatched from the queue described in
+    :class:`InputWedged`, they are handed straight to the process the page runs
+    in, each on its own, so one that is lost or answered late, as happens on a
+    heavily loaded machine, holds nothing else up and the page can go on being
+    given input. Whether the page saw the event is unknown, so whatever was
+    being typed has to be checked, and typed again if need be.
     """
 
 
@@ -2255,10 +2268,10 @@ class Keyboard:
     async def dispatch(self, event_type: str, info: KeyInfo, *, repeat: bool = False) -> None:
         """Send a single key event to the page.
 
-        Key events are dispatched from the same queue as mouse events and the
-        browser answers one only once the page has seen it, so an event the
-        page never sees is never answered and takes every later input event down
-        with it, see :meth:`Mouse.dispatch` and :class:`InputWedged`.
+        The browser answers a key event only once the page has seen it. Key
+        events do not go through the queue mouse events do, so one that has not
+        been answered within :data:`INPUT_TIMEOUT` is given up on, see
+        :class:`InputLost`, without writing the page off.
 
         The text the key produces is not sent: the browser works it out from the
         key itself, which is what makes the page see the same composition and
@@ -2272,10 +2285,8 @@ class Keyboard:
                 timeout=INPUT_TIMEOUT,
             )
         except TimeoutExceeded as err:
-            self.page.input_wedged = True
-            raise InputWedged(
-                f'The browser did not acknowledge a {event_type} for the {info.key} key within {INPUT_TIMEOUT} seconds,'
-                f' so this page can no longer be given input. {await self.page.input_diagnostics()}'
+            raise InputLost(
+                f'The browser did not acknowledge a {event_type} for the {info.key} key within {INPUT_TIMEOUT} seconds. {await self.page.input_diagnostics()}'
             ) from err
 
     async def down(self, key: str, *, repeat: bool = False) -> None:
@@ -2305,6 +2316,10 @@ class Keyboard:
             self.pressed.remove(info.key)
         try:
             await self.dispatch('keyup', info)
+        except InputLost:
+            # Holding on to the key would have every later press of it sent as
+            # an auto repeat, which a key the page never saw released is not
+            raise
         except BaseException:
             if was_held:
                 self.pressed.append(info.key)
@@ -2371,10 +2386,8 @@ class Keyboard:
         try:
             await self.page.send('Page.insertText', {'text': text}, timeout=INPUT_TIMEOUT)
         except TimeoutExceeded as err:
-            self.page.input_wedged = True
-            raise InputWedged(
-                f'The browser did not acknowledge the insertion of {text!r} within {INPUT_TIMEOUT} seconds,'
-                f' so this page can no longer be given input. {await self.page.input_diagnostics()}'
+            raise InputLost(
+                f'The browser did not acknowledge the insertion of {text!r} within {INPUT_TIMEOUT} seconds. {await self.page.input_diagnostics()}'
             ) from err
 
     async def insert_text(self, text: str) -> None:
@@ -2853,6 +2866,8 @@ class Page:
         # A movement onto the pixel the cursor is already on is discarded by
         # the browser without being dispatched, so probe with a different one
         probe = (1.0, 1.0) if (self.mouse.x, self.mouse.y) != (1.0, 1.0) else (2.0, 2.0)
+        # The probe moves the cursor somewhere the mouse does not know about
+        self.mouse.position_known = False
         try:
             await self.send(
                 'Page.dispatchMouseEvent',

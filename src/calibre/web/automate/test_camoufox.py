@@ -1461,6 +1461,35 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
         self.run_shared(check)
 
+    def test_key_that_is_not_acknowledged(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            await page.open(base + 'type.html')
+            await page.fill('#text', '')
+            # Key events do not wait behind the mouse events of the browser, so
+            # one that is answered late, as on a heavily loaded machine, is
+            # given up on without writing the page off
+            original = camoufox.INPUT_TIMEOUT
+            camoufox.INPUT_TIMEOUT = 0.000001
+            try:
+                with self.assertRaises(camoufox.InputLost) as ctx:
+                    await page.keyboard.press('x')
+                with self.assertRaises(camoufox.InputLost):
+                    await page.keyboard.insert_text('y')
+            finally:
+                camoufox.INPUT_TIMEOUT = original
+            self.assertNotIsInstance(ctx.exception, camoufox.InputWedged)
+            self.assertIn('still runs JavaScript', str(ctx.exception))
+            self.assertFalse(page.input_wedged)
+            self.assertFalse(page.keyboard.pressed, 'a key the page may never have seen released is still held down')
+            # so typing again, into what is there now, works
+            await page.fill('#text', 'typed again')
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'typed again')
+
+        self.run_shared(check)
+
     def test_clicking_with_humanize(self) -> None:
         base = self.server.base
 
