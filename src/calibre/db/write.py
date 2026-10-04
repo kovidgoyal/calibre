@@ -21,13 +21,20 @@ def sqlite_datetime(x):
     return isoformat(x, sep=' ') if isinstance(x, datetime) else x
 
 
-def single_text(x):
+def long_text(x):
     if x is None:
         return x
     if not isinstance(x, str):
         x = x.decode(preferred_encoding, 'replace')
     x = x.strip()
     return x or None
+
+
+def single_text(x):
+    x = long_text(x)
+    if x is None:
+        return x
+    return ' '.join(x.split())
 
 
 series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
@@ -156,7 +163,7 @@ def get_adapter(name, metadata):
     elif dt == 'bool':
         ans = adapt_bool
     elif dt == 'comments':
-        ans = single_text
+        ans = long_text
     elif dt == 'rating':
 
         def ans(x):
