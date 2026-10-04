@@ -527,6 +527,7 @@ def create_defs():
     defs['color_palette'] = 'system'
     defs['tag_browser_old_look'] = False
     defs['tag_browser_hide_empty_categories'] = False
+    defs['tag_browser_folders_first'] = False
     defs['tag_browser_always_autocollapse'] = False
     defs['tag_browser_restore_tree_expansion'] = False
     defs['tag_browser_allow_keyboard_focus'] = False

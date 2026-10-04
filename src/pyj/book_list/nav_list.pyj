@@ -143,6 +143,7 @@ def tags_cache_key():
         sd.get('collapse_at') + '',
         sd.get('dont_collapse') + '',
         sd.get('hide_empty_categories') + '',
+        sd.get('folders_first') + '',
     ])
 
 
@@ -784,7 +785,7 @@ def create_nav_list_panel(container_id):
         query = {'library_id': current_library_id(), 'vl': q.vl or '', 'date_group': group_mode}
         if q.search:
             query.search = q.search
-        for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
+        for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories folders_first'.split(' '):
             query[k] = sd.get(k) + ''
 
         def done(end_type, xhr, ev):

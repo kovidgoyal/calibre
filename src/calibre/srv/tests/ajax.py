@@ -29,6 +29,43 @@ def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=
     return r, data
 
 
+def gui_tag_browser_tags(library_path: str, folders_first_values: tuple[bool, ...]) -> list[list[tuple[str, list[str]]]]:
+    # Runs in a worker process, see ContentTest.test_tag_browser_folders_first()
+    from calibre.gui2 import config, ensure_app, gprefs
+    from calibre.gui2.tag_browser import model
+    from calibre.library import db as legacy_db
+    from calibre.utils.run_tests import init_env
+
+    init_env()
+    ensure_app()
+
+    class Prefs(dict):
+        # Use the defaults for everything not set here, without changing the
+        # preferences of the user running the tests
+        def __init__(self, fallback, **kw):
+            super().__init__(**kw)
+            self.fallback = fallback
+
+        def __missing__(self, key):
+            return self.fallback[key]
+
+    model.config = Prefs(config, sort_tags_by='name')
+    prefs = Prefs(gprefs, tags_browser_collapse_at=0, tag_browser_folders_first=False)
+    db = legacy_db(library_path)
+    m = model.TagsModel(None, prefs)
+    ans = []
+    try:
+        m.set_database(db)
+        for folders_first in folders_first_values:
+            prefs['tag_browser_folders_first'] = folders_first
+            m.reset_tag_browser()
+            tags = next(c for c in m.root_item.children if c.category_key == 'tags')
+            ans.append([(c.tag.name, [x.tag.name for x in c.children]) for c in tags.children])
+    finally:
+        db.close()
+    return ans
+
+
 class ContentTest(LibraryBaseTest):
     def test_ajax_book(self):  # {{{
         "Test /ajax/book"
@@ -139,6 +176,41 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, OK)
             with open(victim, 'rb') as f:
                 self.ae(f.read(), b'outside')
+
+    # }}}
+
+    def test_tag_browser_folders_first(self):  # {{{
+        "Test showing items that only contain sub-items first in the Tag browser"
+        from calibre.utils.ipc.simple_worker import fork_job
+
+        with self.create_server() as server:
+            db = server.handler.router.ctx.library_broker.get(None)
+            db.set_pref('categories_using_hierarchy', ['tags'])
+            # Yak and [X] have no books of their own, Alpha has books and sub-items
+            db.set_field('tags', {1: ['Zebra', '[X].a'], 2: ['[X].b', 'Alpha', 'Alpha.b'], 3: ['Yak.c']})
+            conn = server.connect()
+
+            def server_tags(**query):
+                query.update({'library_id': db.server_library_id, 'sort_tags_by': 'name'})
+                r, data = make_request(conn, '/interface-data/tag-browser?' + urlencode(query), prefix='')
+                self.ae(r.status, OK)
+                items = data['item_map']
+                tags = next(c for c in data['root']['children'] if items[c['id']].get('category') == 'tags')
+                return [(items[c['id']]['name'], [items[x['id']]['name'] for x in c['children']]) for c in tags['children']]
+
+            normal = [('[X]', ['a', 'b']), ('Alpha', ['b']), ('Yak', ['c']), ('Zebra', [])]
+            folders_first = [('[X]', ['a', 'b']), ('Yak', ['c']), ('Alpha', ['b']), ('Zebra', [])]
+            self.ae(server_tags(partition_method='disable'), normal)
+            self.ae(server_tags(partition_method='disable', folders_first='no'), normal)
+            self.ae(server_tags(partition_method='disable', folders_first='yes'), folders_first)
+            # Partitions are not moved, the folders are moved within them
+            r = server_tags(partition_method='first letter', collapse_at='2', folders_first='yes')
+            self.ae([x[0] for x in r], ['[', 'A', 'Y', 'Z'])
+
+            # The GUI Tag browser must give the same results, including when the
+            # setting is changed for an already built tree
+            res = fork_job('calibre.srv.tests.ajax', 'gui_tag_browser_tags', args=(self.library_path, (False, True, False)), no_output=True)['result']
+            self.ae(res, [normal, folders_first, normal])
 
     # }}}
 

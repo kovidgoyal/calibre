@@ -51,6 +51,7 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         r = self.register
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
+        r('tag_browser_folders_first', gprefs)
         r('tag_browser_always_autocollapse', gprefs)
         r('tag_browser_restore_tree_expansion', gprefs)
         r('tag_browser_show_tooltips', gprefs)

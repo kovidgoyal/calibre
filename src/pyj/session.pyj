@@ -29,6 +29,7 @@ all_settings = {
     'collapse_at': {'default': 25, 'category': 'tag_browser'},  # number of items at which sub-groups are created, 0 to disable
     'dont_collapse': {'default': '', 'category': 'tag_browser'},  # comma separated list of category names
     'hide_empty_categories': {'default': 'no', 'category': 'tag_browser'},
+    'folders_first': {'default': 'no', 'category': 'tag_browser'},  # show items that only contain sub-items first
     'partition_method': {'default': 'first letter', 'category': 'tag_browser'},  # other choices: 'disable', 'partition'
     'sort_tags_by': {'default': 'name', 'category': 'tag_browser'},  # other choices: popularity, rating
     # Book reader settings

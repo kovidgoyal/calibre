@@ -570,7 +570,7 @@ def refresh():
         state.currently_loading = None
     sd = get_session_data()
     query = {'library_id': current_library_id(), 'vl': current_virtual_library()}
-    for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
+    for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories folders_first'.split(' '):
         query[k] = sd.get(k) + ''
     xhr = ajax('interface-data/tag-browser', on_data_fetched, query=query, bypass_cache=False)
     xhr.send()
@@ -675,6 +675,15 @@ def get_prefs():
                         ' (a column, custom or standard) that has no items to show. For example, some'
                         ' categories might not have values when using Virtual libraries. Checking this'
                         ' box will cause these empty categories to be hidden.'),
+        },
+        {
+            'name': 'folders_first',
+            'text': _('Show items with only sub-items first'),
+            'from_storage': def (x): return x.toLowerCase() is 'yes';,
+            'to_storage': def (x): return 'yes' if x else 'no';,
+            'tooltip': _('When checked, items in hierarchical categories that have'
+                        ' no books of their own and only contain sub-items are shown before the other'
+                        ' items, like folders in a file manager, whatever the sort order.'),
         },
     ]
 

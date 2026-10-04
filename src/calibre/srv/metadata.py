@@ -245,7 +245,7 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db
 
 CategoriesSettings = namedtuple(
     'CategoriesSettings',
-    'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories',
+    'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories folders_first',
 )
 
 
@@ -318,6 +318,7 @@ def categories_settings(query, db, gst_container=GroupedSearchTerms):
         gst_container(db.pref('grouped_search_terms', {})),
         hidden_categories,
         query.get('hide_empty_categories') == 'yes',
+        query.get('folders_first') == 'yes',
     )
 
 
@@ -518,6 +519,7 @@ def process_category_node(
     collapse_nodes,
     intermediate_nodes,
     hierarchical_items,
+    folder_items,
     db,
 ):
     category = items[category_node['id']]['category']
@@ -628,6 +630,10 @@ def process_category_node(
                     item['is_hierarchical'] = 3 if tag.category == 'search' else 5
                     if tag.id_set is not None:
                         item['id_set'] |= tag.id_set
+                    if i == len(components) - 1:
+                        # An item with books of its own was merged into an
+                        # intermediate node
+                        folder_items.discard(node_id)
                     hierarchical_items.add(node_id)
                     hierarchical_tags.add(id(node_to_tag_map[node_parent['id']]))
                 else:
@@ -640,6 +646,7 @@ def process_category_node(
                             t.is_editable, t.is_searchable = False, category == 'search'
                             node_parent, item = create_tag_node(t, node_parent)
                             hierarchical_tags.add(id(t))
+                            folder_items.add(node_parent['id'])
                             intermediate_nodes[tag.category, original_name] = node_parent
                         else:
                             item = items[inode['id']]
@@ -665,10 +672,23 @@ def iternode_descendants(node):
         yield from iternode_descendants(child)
 
 
+def sort_folders_first(node, items, folder_items):
+    # The sort is stable, so the chosen sort order is kept among the folders
+    # and among the other items. Category nodes such as partitions and sub
+    # user categories are not moved.
+    node['children'].sort(key=lambda c: not items[c['id']].get('is_category', False) and c['id'] not in folder_items)
+    for child in node['children']:
+        if child['children']:
+            sort_folders_first(child, items, folder_items)
+
+
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map, db):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
     first, later, collapse_nodes, intermediate_nodes, hierarchical_items = [], [], [], {}, set()
+    # ids of the intermediate nodes of hierarchical items, that is, the ones
+    # that have no books of their own
+    folder_items = set()
     # User categories have to be processed after normal categories as they can
     # reference hierarchical nodes that were created only during processing of
     # normal categories
@@ -692,8 +712,13 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
                 collapse_nodes,
                 intermediate_nodes,
                 hierarchical_items,
+                folder_items,
                 db,
             )
+
+    if opts.folders_first and folder_items:
+        for cnode in root['children']:
+            sort_folders_first(cnode, items, folder_items)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
     # much use. Instead only update the ratings and counts based on id_set
@@ -812,6 +837,7 @@ def test_tag_browser(library_path=None):
         'tags_browser_partition_method': opts.collapse_model,
         'tag_browser_dont_collapse': opts.dont_collapse,
         'tag_browser_hide_empty_categories': opts.hide_empty_categories,
+        'tag_browser_folders_first': opts.folders_first,
     }
     app = Application([])
     m = TagsModel(None, prefs)

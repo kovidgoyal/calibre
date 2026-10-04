@@ -666,7 +666,7 @@ def tag_browser(ctx, rd):
     """
     Get the Tag Browser serialized as JSON
     Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
-              &collapse_at=25&dont_collapse=&hide_empty_categories=&vl=''
+              &collapse_at=25&dont_collapse=&hide_empty_categories=&folders_first=&vl=''
     """
     db, library_id = get_library_data(ctx, rd)[:2]
     opts = categories_settings(rd.query, db, gst_container=tuple)

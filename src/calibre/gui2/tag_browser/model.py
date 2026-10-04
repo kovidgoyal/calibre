@@ -48,6 +48,8 @@ class TagTreeItem:  # {{{
     icon_config_dir = ''
     file_icon_provider = None
     eval_formatter = EvalFormatter()
+    # True for hierarchical nodes that have no books of their own, only children
+    is_folder = False
 
     def __init__(
         self,
@@ -694,6 +696,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.filter_categories_by,
             self.prefs['tags_browser_collapse_at'],
             self.prefs['tags_browser_collapse_fl_at'],
+            self.prefs['tag_browser_folders_first'],
             tuple(db.prefs.get('tag_browser_dont_collapse', self.prefs['tag_browser_dont_collapse']) or ()),
             tuple(self.icon_state_map),
             tuple(sorted(db.new_api.pref('categories_using_hierarchy', ()))),
@@ -862,6 +865,10 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         eval_formatter = EvalFormatter()
         intermediate_nodes = {}
+        # ids of the Tag objects created for the intermediate components of
+        # hierarchical names, that is, the ones that have no books of their own
+        folder_tags = set()
+        folders_first = self.prefs['tag_browser_folders_first']
 
         if data is None:
             print('_create_node_tree: no data!')
@@ -887,6 +894,15 @@ class TagsModel(QAbstractItemModel):  # {{{
             if len(components) == 0 or '.'.join(components) != name:
                 components = [name]
             return components
+
+        def sort_folders_first(node):
+            # The sort is stable, so the chosen sort order is kept among the
+            # folders and among the other items. Category nodes such as
+            # partitions and sub user categories are not moved.
+            node.children.sort(key=lambda c: c.type == TagTreeItem.TAG and not c.is_folder)
+            for c in node.children:
+                if c.children:
+                    sort_folders_first(c)
 
         def process_one_node(category, collapse_model, book_rating_map, state_map):  # {{{
             collapse_letter = None
@@ -1084,6 +1100,11 @@ class TagsModel(QAbstractItemModel):  # {{{
                         if (comp, child_key) in child_map:
                             node_parent = child_map[(comp, child_key)]
                             t = node_parent.tag
+                            if i == len(components) - 1:
+                                # An item with books of its own was merged
+                                # into an intermediate node
+                                folder_tags.discard(id(t))
+                                node_parent.is_folder = False
                             t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
                             if tag.id_set is not None and t.id_set is not None:
                                 t.id_set = t.id_set | tag.id_set
@@ -1104,6 +1125,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                         t.is_searchable = t.is_editable = False
                                         t.search_expression = None
                                     intermediate_nodes[original_name, child_key] = t
+                                    folder_tags.add(id(t))
                             else:
                                 t = tag
                                 if not in_uc:
@@ -1112,6 +1134,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                             t.is_hierarchical = '5state' if t.category != 'search' else '3state'
                             t.name = comp
                             node_parent = self.create_node(parent=node_parent, data=t, is_gst=is_gst, tooltip=tt, icon_map=self.icon_state_map)
+                            if id(t) in folder_tags:
+                                node_parent.is_folder = True
                             child_map[(comp, child_key)] = node_parent
 
                         # Correct the average rating for the node
@@ -1122,6 +1146,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                                 total += rating / 2.0
                                 count += 1
                         node_parent.cached_average_rating = float(total) / count if total and count else 0
+            if folders_first:
+                sort_folders_first(category)
             return
 
         # }}}

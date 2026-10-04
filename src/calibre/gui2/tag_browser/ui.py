@@ -862,6 +862,17 @@ class TagBrowserWidget(QFrame):  # {{{
             group=_('Tag browser'),
         )
 
+        # Show items that only contain sub-items before other items
+        ac = l.m.add_action('folders_first_action', text='folders first')
+        ac.triggered.connect(self.toggle_folders_first)
+        parent.keyboard.register_shortcut(
+            'tag browser toggle folders first',
+            _('Toggle showing items with only sub-items first'),
+            default_keys=(),
+            action=ac,
+            group=_('Tag browser'),
+        )
+
         sb = l.m.add_action('sort_menu', icon=QIcon.ic('sort.png'), text=_('Sort by'))
         m = QMenu(l.m)
         sb.setMenu(m)
@@ -976,6 +987,11 @@ class TagBrowserWidget(QFrame):  # {{{
         ac.setText(_('Show empty categories (columns)') if p else _('Hide empty categories (columns)'))
         ac.setIcon(QIcon.ic('plus.png' if p else 'minus.png'))
 
+        ac = m.named_action('folders_first_action')
+        p = self.tags_view._model.prefs['tag_browser_folders_first']
+        ac.setText(_('Sort items with only sub-items normally') if p else _('Show items with only sub-items first'))
+        ac.setIcon(QIcon.ic('minus.png' if p else 'plus.png'))
+
     def filter_book_list(self):
         self.tags_view._model.set_in_tag_browser()
         self._parent.search.set_search_string('in_tag_browser:true')
@@ -998,6 +1014,10 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def toggle_show_empty_categories(self):
         self.tags_view._model.prefs['tag_browser_hide_empty_categories'] ^= True
+        self.tags_view.recount_with_position_based_index()
+
+    def toggle_folders_first(self):
+        self.tags_view._model.prefs['tag_browser_folders_first'] ^= True
         self.tags_view.recount_with_position_based_index()
 
     def save_state(self, gprefs_local=None):

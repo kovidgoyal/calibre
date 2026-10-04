@@ -242,6 +242,18 @@ An item is &quot;used&quot; when it is expanded, collapsed, or clicked.&lt;/p&gt
        </property>
       </widget>
      </item>
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="opt_tag_browser_folders_first">
+       <property name="toolTip">
+        <string>&lt;p&gt;When checked, items in hierarchical categories that have
+no books of their own and only contain sub-items are shown before the other
+items, like folders in a file manager, whatever the sort order.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Show items with only su&amp;b-items first</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="8" column="0" colspan="3">
