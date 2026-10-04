@@ -35,6 +35,7 @@ def create_item(region, label, style):
             opt(_('Series'), 'series'),
             sep(),
             opt(_('Top level section'), 'top-section'),
+            opt(_('Parent section'), 'parent-section'),
             opt(_('Current section'), 'section'),
             opt(_('View mode'), 'view-mode'),
             opt(_('View mode as icon'), 'view-mode-icon'),
@@ -193,7 +194,7 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
-def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, page_list, book_time, chapter_time, pos, override, view_mode):
+def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, current_toc_parent_node, page_list, book_time, chapter_time, pos, override, view_mode):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
@@ -228,6 +229,10 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
         text = current_toc_node.title if current_toc_node else ''
     elif field is 'top-section':
         text = current_toc_toplevel_node.title if current_toc_toplevel_node else ''
+        if not text:
+            text = current_toc_node.title if current_toc_node else ''
+    elif field is 'parent-section':
+        text = current_toc_parent_node.title if current_toc_parent_node else ''
         if not text:
             text = current_toc_node.title if current_toc_node else ''
     elif field is 'view-mode':

@@ -226,7 +226,7 @@ class View:
         self.current_status_message = ''
         self.unsynced_message = ''
         self.last_position_data = None
-        self.current_toc_node = self.current_toc_toplevel_node = None
+        self.current_toc_node = self.current_toc_toplevel_node = self.current_toc_parent_node = None
         self.current_toc_families = []
         self.report_cfi_callbacks = {}
         self.get_cfi_counter = 0
@@ -1397,6 +1397,7 @@ class View:
                 mi,
                 self.current_toc_node,
                 self.current_toc_toplevel_node,
+                self.current_toc_parent_node,
                 self.current_pagelist_items,
                 book_time,
                 chapter_time,
@@ -1450,8 +1451,9 @@ class View:
             first = self.current_toc_families[0]
             self.current_toc_node = first[-1]
             self.current_toc_toplevel_node = first[0]
+            self.current_toc_parent_node = first[-2] if first.length > 1 else None
         else:
-            self.current_toc_node = self.current_toc_toplevel_node = None
+            self.current_toc_node = self.current_toc_toplevel_node = self.current_toc_parent_node = None
         if runtime.is_standalone_viewer:
             r = []
             for fam in self.current_toc_families:
