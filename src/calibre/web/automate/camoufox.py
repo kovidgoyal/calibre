@@ -59,11 +59,16 @@ from calibre.web.automate.download_deps import Install, browserforge_data, camou
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,
-# see Mouse.dispatch, and an event the page never sees is never answered at
-# all, so the wait for one is kept short. An event that has not been
-# acknowledged within a few seconds never will be.
-INPUT_TIMEOUT = 5.0  # seconds, for a single input event
-INPUT_DIAGNOSTIC_TIMEOUT = 5.0  # seconds, for each question asked of a browser that stopped accepting input
+# see Mouse.dispatch. Older browsers never answer an event the page does not
+# see, newer ones give up on it themselves after five seconds and answer
+# anyway. Those five seconds start only once the browser has switched to the
+# tab and flushed its compositor, all of which waits behind the input events
+# of every other tab, so on a loaded machine an event that does arrive can be
+# answered well after five seconds. The wait for an answer is therefore
+# comfortably longer than the browser's own, so that an event which is merely
+# slow is not mistaken for one that is never going to be answered.
+INPUT_TIMEOUT = 20.0  # seconds, for a single input event
+INPUT_DIAGNOSTIC_TIMEOUT = INPUT_TIMEOUT  # seconds, for each question asked of a browser that stopped accepting input
 LAUNCH_TIMEOUT = 180.0  # seconds, the first launch has to create a fresh profile
 CLOSE_TIMEOUT = 20.0  # seconds to wait for the browser to exit before killing it
 PROFILE_REMOVE_TIMEOUT = 30.0  # seconds to keep trying to delete the profile directory, see remove_profile_dir()
@@ -1703,8 +1708,9 @@ class Mouse:
         whose grid is not necessarily the one this coordinate is measured on,
         so sending one risks an event that never arrives anywhere and a command
         that never completes, see :meth:`move_onto_pixel`. An event that has
-        not been answered within :data:`INPUT_TIMEOUT` never will be, and it
-        takes every later event down with it, see :class:`InputWedged`.
+        not been answered within :data:`INPUT_TIMEOUT`, which allows for the
+        browser's own deadline on a slow machine, is not going to be, and
+        it takes every later event down with it, see :class:`InputWedged`.
         """
         self.page.check_accepts_input()
         try:
@@ -2822,7 +2828,7 @@ class Page:
         except Exception as err:
             notes.append(f'A further mouse event was not acknowledged either ({err.__class__.__name__}), the input queue is stuck for good.')
         else:
-            notes.append('A further mouse event was acknowledged, so only the one event was lost.')
+            notes.append('A further mouse event was acknowledged, so only the one event was lost or answered late.')
         if (process := self.browser.process) is not None and (log := process.log_tail(10).strip()):
             notes.append(f'The tail of the browser log:\n{log}')
         return ' '.join(notes)
