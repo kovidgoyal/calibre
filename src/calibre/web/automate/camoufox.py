@@ -46,7 +46,8 @@ import tempfile
 import threading
 import time
 import unicodedata
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import AsyncIterator, Callable, Iterable, Mapping, Sequence
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from http import HTTPStatus
 from typing import Any, NamedTuple
@@ -62,11 +63,12 @@ DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # see Mouse.dispatch. Older browsers never answer an event the page does not
 # see, newer ones give up on it themselves after five seconds and answer
 # anyway. Those five seconds start only once the browser has switched to the
-# tab and flushed its compositor, all of which waits behind the input events
-# of every other tab, so on a loaded machine an event that does arrive can be
-# answered well after five seconds. The wait for an answer is therefore
-# comfortably longer than the browser's own, so that an event which is merely
-# slow is not mistaken for one that is never going to be answered.
+# tab and flushed its compositor, so on a loaded machine an event that does
+# arrive can be answered well after five seconds. The wait for an answer is
+# therefore comfortably longer than the browser's own, so that an event which
+# is merely slow is not mistaken for one that is never going to be answered.
+# It does not include waiting for the gestures of other pages, see
+# Mouse.gesture(), which would otherwise be dispatched in between.
 INPUT_TIMEOUT = 20.0  # seconds, for a single input event
 INPUT_DIAGNOSTIC_TIMEOUT = INPUT_TIMEOUT  # seconds, for each question asked of a browser that stopped accepting input
 LAUNCH_TIMEOUT = 180.0  # seconds, the first launch has to create a fresh profile
@@ -1700,6 +1702,34 @@ class Mouse:
         """The whole pixel the cursor is currently on."""
         return self.x, self.y
 
+    @asynccontextmanager
+    async def gesture(self) -> AsyncIterator[None]:
+        """Keep the mouse of every other page of the browser still until this is done.
+
+        The browser dispatches the mouse events of all its pages one at a time,
+        and before each one it brings the window of the page the event is for
+        to the front, see :class:`InputWedged`. Events for several pages that
+        are sent at the same time therefore switch windows on every single
+        event, which costs several times what the events themselves do and,
+        on a busy Windows machine, gets an event answered so late that it is
+        given up on. Each page moving and clicking in turn, a whole movement or
+        click at a time, is also what a single hand would do.
+
+        A task that is already in a gesture can start another inside it, so a
+        click is a single gesture that includes the movement to its target.
+        """
+        browser = self.page.browser
+        task = asyncio.current_task()
+        if task is not None and browser.mouse_lock_holder is task:
+            yield
+            return
+        async with browser.mouse_lock:
+            browser.mouse_lock_holder = task
+            try:
+                yield
+            finally:
+                browser.mouse_lock_holder = None
+
     async def dispatch(self, event_type: str, x: float, y: float, *, button: int = 0, click_count: int = 0, modifiers: int = 0) -> None:
         """Send a single mouse event to the page, at the whole pixel nearest to (x, y).
 
@@ -1767,23 +1797,24 @@ class Mouse:
             default, None, means the browser's, see :class:`Browser`.
         :param modifiers: the modifier keys to hold down, see :data:`MODIFIERS`
         """
-        self.page.check_accepts_input()
-        mask = modifier_mask(modifiers)
-        if human is None:
-            human = True
-        if max_time is None:
-            max_time = self.page.browser.max_move_time
-        width, height = await self.page.viewport()
-        x, y = clamp_to_viewport(x, y, width, height)
-        if human:
-            started = time.monotonic()
-            for px, py, at in human_trajectory((self.x, self.y), (x, y), max_time=max_time):
-                if (delay := started + at - time.monotonic()) > 0:
-                    await asyncio.sleep(delay)
-                await self.move_onto_pixel(*clamp_to_viewport(px, py, width, height), mask)
-        # The steps of a path that land on the pixel the cursor is already on
-        # are skipped, including the last one, so the journey is finished here
-        await self.move_onto_pixel(x, y, mask)
+        async with self.gesture():
+            self.page.check_accepts_input()
+            mask = modifier_mask(modifiers)
+            if human is None:
+                human = True
+            if max_time is None:
+                max_time = self.page.browser.max_move_time
+            width, height = await self.page.viewport()
+            x, y = clamp_to_viewport(x, y, width, height)
+            if human:
+                started = time.monotonic()
+                for px, py, at in human_trajectory((self.x, self.y), (x, y), max_time=max_time):
+                    if (delay := started + at - time.monotonic()) > 0:
+                        await asyncio.sleep(delay)
+                    await self.move_onto_pixel(*clamp_to_viewport(px, py, width, height), mask)
+            # The steps of a path that land on the pixel the cursor is already on
+            # are skipped, including the last one, so the journey is finished here
+            await self.move_onto_pixel(x, y, mask)
 
     async def down(self, button: str = 'left', *, click_count: int = 1, modifiers: Sequence[str] = ()) -> None:
         """Press a mouse button where the cursor currently is.
@@ -1795,25 +1826,27 @@ class Mouse:
         clear of the edges.
         """
         number, bit = mouse_button(button)
-        self.page.check_accepts_input()
-        await self.move_onto_pixel(*clamp_to_viewport(self.x, self.y, *await self.page.viewport()), modifier_mask(modifiers))
-        self.buttons |= bit
-        try:
-            await self.dispatch('mousedown', self.x, self.y, button=number, click_count=click_count, modifiers=modifier_mask(modifiers))
-        except BaseException:
-            self.buttons &= ~bit
-            raise
+        async with self.gesture():
+            self.page.check_accepts_input()
+            await self.move_onto_pixel(*clamp_to_viewport(self.x, self.y, *await self.page.viewport()), modifier_mask(modifiers))
+            self.buttons |= bit
+            try:
+                await self.dispatch('mousedown', self.x, self.y, button=number, click_count=click_count, modifiers=modifier_mask(modifiers))
+            except BaseException:
+                self.buttons &= ~bit
+                raise
 
     async def up(self, button: str = 'left', *, click_count: int = 1, modifiers: Sequence[str] = ()) -> None:
         """Release a mouse button where the cursor currently is."""
         number, bit = mouse_button(button)
-        self.page.check_accepts_input()
-        self.buttons &= ~bit
-        try:
-            await self.dispatch('mouseup', self.x, self.y, button=number, click_count=click_count, modifiers=modifier_mask(modifiers))
-        except BaseException:
-            self.buttons |= bit
-            raise
+        async with self.gesture():
+            self.page.check_accepts_input()
+            self.buttons &= ~bit
+            try:
+                await self.dispatch('mouseup', self.x, self.y, button=number, click_count=click_count, modifiers=modifier_mask(modifiers))
+            except BaseException:
+                self.buttons |= bit
+                raise
 
     async def click(
         self,
@@ -1838,15 +1871,16 @@ class Mouse:
         mouse_button(button)  # fail before moving if the button name is not valid
         if click_count < 1:
             raise ValueError(f'{click_count} is not a valid number of clicks')
-        await self.move(x, y, human=human, max_time=max_time, modifiers=modifiers)
-        # A hand comes to rest on its target before the finger presses
-        await asyncio.sleep(MOTION_RNG.uniform(*SETTLE_TIME))
-        for i in range(click_count):
-            if i:
-                await asyncio.sleep(MOTION_RNG.uniform(*DOUBLE_CLICK_INTERVAL))
-            await self.down(button, click_count=i + 1, modifiers=modifiers)
-            await asyncio.sleep(MOTION_RNG.uniform(*CLICK_DWELL) if delay is None else delay)
-            await self.up(button, click_count=i + 1, modifiers=modifiers)
+        async with self.gesture():
+            await self.move(x, y, human=human, max_time=max_time, modifiers=modifiers)
+            # A hand comes to rest on its target before the finger presses
+            await asyncio.sleep(MOTION_RNG.uniform(*SETTLE_TIME))
+            for i in range(click_count):
+                if i:
+                    await asyncio.sleep(MOTION_RNG.uniform(*DOUBLE_CLICK_INTERVAL))
+                await self.down(button, click_count=i + 1, modifiers=modifiers)
+                await asyncio.sleep(MOTION_RNG.uniform(*CLICK_DWELL) if delay is None else delay)
+                await self.up(button, click_count=i + 1, modifiers=modifiers)
 
 
 # }}}
@@ -3413,6 +3447,9 @@ class Browser:
         self.pages: dict[str, Page] = {}
         self.pending_pages: dict[str, asyncio.Future[Page]] = {}
         self.new_pages: list[Page] = []
+        # Held for the whole of a mouse gesture, and by which task, see Mouse.gesture()
+        self.mouse_lock = asyncio.Lock()
+        self.mouse_lock_holder: asyncio.Task[Any] | None = None
         self.closed = False
 
     def __repr__(self) -> str:

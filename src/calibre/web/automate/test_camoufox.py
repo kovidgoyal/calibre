@@ -18,7 +18,8 @@ import tempfile
 import threading
 import time
 import unittest
-from collections.abc import Awaitable, Callable, Iterator
+from collections.abc import Awaitable, Callable, Iterator, Mapping
+from typing import Any
 from unittest.mock import patch
 
 from calibre.constants import cache_dir, iswindows
@@ -777,6 +778,35 @@ class TestCamoufoxMouse(unittest.TestCase):
         for bad in (lambda: camoufox.mouse_button('sideways'), lambda: camoufox.modifier_mask(('hyper',))):
             with self.assertRaises(ValueError):
                 bad()
+
+    def test_gestures_do_not_interleave(self) -> None:
+        # The browser brings the window of a page to the front for every mouse
+        # event, so the gestures of pages sharing a browser must take turns
+        # rather than switch windows on every event
+        browser = camoufox.Browser()
+        sent: list[tuple[str, str]] = []
+
+        class RecordingPage(camoufox.Page):
+            async def send(self, method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # noqa: ASYNC109
+                sent.append((self.target_id, str((params or {}).get('type'))))
+                await asyncio.sleep(0)  # give the other page the chance to get in between
+                return {}
+
+        def make_page(target_id: str) -> camoufox.Page:
+            page = RecordingPage(browser, target_id, target_id)
+            page.viewport_size = (800.0, 600.0)
+            return page
+
+        async def run() -> None:
+            a, b = make_page('a'), make_page('b')
+            await asyncio.gather(a.mouse.click(400, 300, max_time=0.05), b.mouse.click(300, 200, max_time=0.05), a.mouse.move(100, 100, max_time=0.05))
+            self.assertIsNone(browser.mouse_lock_holder)
+            self.assertFalse(browser.mouse_lock.locked())
+
+        asyncio.run(run())
+        turns = [target for target, _ in itertools.groupby(sent, key=lambda x: x[0])]
+        self.assertEqual(turns, ['a', 'b', 'a'], f'the gestures were interleaved: {sent}')
+        self.assertEqual([kind for target, kind in sent if target == 'b'][-2:], ['mousedown', 'mouseup'])
 
 
 class TestCamoufoxKeyboard(unittest.TestCase):
