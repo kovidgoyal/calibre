@@ -194,7 +194,10 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
-def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, current_toc_parent_node, page_list, book_time, chapter_time, pos, override, view_mode):
+def render_head_foot(
+    div, which, region, metadata, current_toc_node, current_toc_toplevel_node, current_toc_parent_node,
+    page_list, book_time, chapter_time, pos, override, view_mode
+):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
