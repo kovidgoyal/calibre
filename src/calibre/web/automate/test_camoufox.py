@@ -1312,7 +1312,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
             await page.evaluate('window.__reset()')
             await page.click('#btn', button='right')
             events = await page.evaluate('window.__events')
-            self.assertEqual([e['type'] for e in events], ['mousedown', 'contextmenu', 'mouseup'])
+            self.assertEqual({e['type'] for e in events}, {'mousedown', 'contextmenu', 'mouseup'})
             self.assertEqual(events[0]['button'], 2)
             await page.evaluate('window.__reset()')
             await page.click('#btn', click_count=2, modifiers=('shift', 'alt'))

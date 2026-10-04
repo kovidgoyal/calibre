@@ -9,13 +9,13 @@ from zipfile import ZIP_STORED, ZipFile
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
-from calibre.ebooks.oeb.base import OEB_DOCS
+from calibre.ebooks.oeb.base import OEB_DOCS, barename
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import clean_opf, find_cover_image, find_cover_page, mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.create import create_book
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
+from calibre.ebooks.oeb.polish.toc import commit_nav_toc, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.toc import from_xpaths as toc_from_xpaths
-from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.ebooks.oeb.polish.utils import guess_type
 
@@ -125,6 +125,51 @@ class Structure(BaseTest):
         tfx('1223424', '1[22[3[4]]2[4]]')
         tfx('32123', '321[2[3]]')
         tfx('123123', '1[2[3]]1[2[3]]')
+
+    def test_nav_ids_preserved(self):
+        # Other files can link to ids in the nav, they must survive
+        # re-generation of the nav, see https://bugs.launchpad.net/bugs/2169441
+        body = b'<html xmlns="http://www.w3.org/1999/xhtml"><body><p id="top">x</p></body></html>'
+        c = self.create_epub([
+            cmi('a.html', body),
+            cmi('b.html', body),
+            cmi('c.html', body),
+            cmi(
+                'nav.html',
+                b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><body>'
+                b'<nav epub:type="toc"><h1 id="toch">Contents</h1><ol id="tocol">'
+                b'<li id="lia"><a id="ida" href="a.html">A</a></li>'
+                b'<li><a id="idb" href="b.html#top">B</a></li>'
+                b'<li><a id="idc" href="c.html">C</a></li>'
+                b'</ol></nav>'
+                b'<nav epub:type="landmarks"><ol><li><a id="lma" epub:type="bodymatter" href="a.html">Start</a></li></ol></nav>'
+                b'</body></html>',
+                'nav',
+            ),
+        ])
+        toc = get_toc(c)
+        toc.children[2].remove_from_parent()  # removed entry
+        toc.children[1].frag = None  # fragment removed during conversion
+        toc.children[1].title = 'Changed'
+        commit_nav_toc(c, toc, landmarks=get_landmarks(c))
+        root = c.parsed('nav.html')
+
+        def elem(eid):
+            ans = root.xpath(f'//*[@id="{eid}"]')
+            self.assertEqual(1, len(ans), eid)
+            return ans[0]
+
+        self.assertEqual(barename(elem('toch').tag), 'h1')
+        self.assertEqual(barename(elem('tocol').tag), 'ol')
+        self.assertEqual(barename(elem('lia').tag), 'li')
+        self.assertEqual(elem('ida').get('href'), 'a.html')
+        self.assertEqual(elem('idb').get('href'), 'b.html')
+        self.assertEqual(elem('lma').get('href'), 'a.html')
+        # No corresponding entry, so preserved as an empty anchor in the nav
+        e = elem('idc')
+        self.assertEqual(barename(e.tag), 'span')
+        self.assertEqual(barename(e.getparent().tag), 'nav')
+        self.assertFalse(e.text)
 
     def test_landmarks_detection(self):
         c = self.create_epub([cmi('xxx.html'), cmi('a.html')], guide=[('xxx.html#moo', 'x', 'XXX'), ('a.html', '', 'YYY')], ver=2)

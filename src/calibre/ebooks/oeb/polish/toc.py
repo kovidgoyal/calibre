@@ -5,6 +5,7 @@ import re
 from collections import Counter, OrderedDict
 from functools import partial
 from operator import itemgetter
+from typing import NamedTuple
 from urllib.parse import urlparse
 
 from lxml import etree
@@ -685,6 +686,98 @@ def ensure_single_nav_of_type(root, ntype='toc'):
     return nav
 
 
+class SavedNavId(NamedTuple):
+    eid: str
+    tag: str
+    dest: tuple[str, str] | None
+    text: str
+
+
+def nav_link_of(elem):
+    if elem.tag in (XHTML('a'), XHTML('span')):
+        return elem
+    if elem.tag == XHTML('li'):
+        for child in elem.iterchildren(XHTML('a'), XHTML('span')):
+            return child
+
+
+def nav_link_key(container, tocname, link):
+    if link is None:
+        return None, ''
+    dest = None
+    href = link.get('href')
+    if href:
+        name = container.href_to_name(href, tocname)
+        dest = (name or href.partition('#')[0]), href.partition('#')[2]
+    return dest, re.sub(r'\s+', ' ', xml2text(link)).strip()
+
+
+def save_nav_ids(container, root, tocname, ntype):
+    # The nav of the specified type is about to be re-generated, remember the
+    # ids inside it so that they can be restored, as other parts of the book
+    # may link to them, see https://bugs.launchpad.net/bugs/2169441
+    et = f'{{{EPUB_NS}}}type'
+    ans = []
+    for nav in root.iterdescendants(XHTML('nav')):
+        if nav.get(et) == ntype:
+            for elem in nav.iterdescendants(etree.Element):
+                if eid := elem.get('id'):
+                    dest, text = nav_link_key(container, tocname, nav_link_of(elem))
+                    ans.append(SavedNavId(eid, elem.tag, dest, text))
+    return ans
+
+
+def restore_nav_ids(container, root, tocname, nav, saved_ids):
+    if not saved_ids:
+        return
+    existing_ids = {x.get('id') for x in root.xpath('//*[@id]')}
+    candidates = {}
+    for elem in nav.iterdescendants(etree.Element):
+        if elem.get('id') is None:
+            candidates.setdefault(elem.tag, []).append(elem)
+    keys = {}
+
+    def key_for(elem):
+        if elem not in keys:
+            keys[elem] = nav_link_key(container, tocname, nav_link_of(elem))
+        return keys[elem]
+
+    def find_target(s):
+        elems = [e for e in candidates.get(s.tag, ()) if e.get('id') is None]
+        if s.tag not in (XHTML('a'), XHTML('span'), XHTML('li')):
+            return elems[0] if elems else None
+        # Match on the full destination, then only on the file (conversion
+        # can remove fragments pointing to the top of a file) and finally on
+        # the text of the entry.
+        matchers = []
+        if s.dest is not None:
+            matchers.append(lambda d, t: d == s.dest)
+            matchers.append(lambda d, t: d is not None and d[0] == s.dest[0])
+        if s.text:
+            matchers.append(lambda d, t: t == s.text)
+        for matches in matchers:
+            for e in elems:
+                if matches(*key_for(e)):
+                    return e
+
+    unmatched = []
+    for s in saved_ids:
+        if s.eid in existing_ids:
+            continue
+        target = find_target(s)
+        if target is None:
+            unmatched.append(s.eid)
+        else:
+            target.set('id', s.eid)
+        existing_ids.add(s.eid)
+    # Ids for which no corresponding entry exists are preserved as empty
+    # anchors at the start of the nav so that links to them remain valid.
+    for i, eid in enumerate(unmatched):
+        span = nav.makeelement(XHTML('span'))
+        span.set('id', eid)
+        nav.insert(i, span)
+
+
 def ensure_container_has_nav(container, lang=None, previous_nav=None):
     tocname = find_existing_nav_toc(container)
     if previous_nav is not None:
@@ -731,6 +824,7 @@ def create_nav_li(container, ol, entry, tocname):
 
 
 def set_landmarks(container, root, tocname, landmarks):
+    saved_ids = save_nav_ids(container, root, tocname, 'landmarks')
     nav = ensure_single_nav_of_type(root, 'landmarks')
     nav.set('hidden', '')
     ol = nav.makeelement(XHTML('ol'))
@@ -740,12 +834,15 @@ def set_landmarks(container, root, tocname, landmarks):
             a = create_nav_li(container, ol, entry, tocname)
             a.set(f'{{{EPUB_NS}}}type', entry['type'])
             a.text = entry['title'] or None
+    restore_nav_ids(container, root, tocname, nav, saved_ids)
     pretty_xml_tree(nav)
     collapse_li(nav)
 
 
 def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None):
     tocname, root = ensure_container_has_nav(container, lang=lang, previous_nav=previous_nav)
+    saved_ids = save_nav_ids(container, root, tocname, 'toc')
+    saved_page_list_ids = save_nav_ids(container, root, tocname, 'page-list')
     nav = ensure_single_nav_of_type(root, 'toc')
     if toc.toc_title:
         nav.append(nav.makeelement(XHTML('h1')))
@@ -776,6 +873,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
                 process_node(ol, child)
 
     process_node(rnode, toc)
+    restore_nav_ids(container, root, tocname, nav, saved_ids)
     pretty_xml_tree(nav)
 
     collapse_li(nav)
@@ -793,6 +891,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
             if container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
                 a = create_nav_li(container, ol, entry, tocname)
                 a.text = str(entry['pagenum'])
+        restore_nav_ids(container, root, tocname, nav, saved_page_list_ids)
         pretty_xml_tree(nav)
         collapse_li(nav)
     container.replace(tocname, root)
