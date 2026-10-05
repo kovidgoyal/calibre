@@ -1026,11 +1026,10 @@ class BooksView(TableView):  # {{{
         if not saved_history:
             return
         if self.is_library_view:
-            for col, order in reversed(self.cleanup_sort_history(saved_history, ignore_column_map=True)[:max_sort_levels]):
-                try:
-                    self.sort_by_named_field(col, order)
-                except KeyError:
-                    pass
+            # Sort by all the levels at once. Sorting by each of them in turn
+            # sorts the whole library and resets the view once per level, which
+            # is slow in larger libraries
+            self.multisort(self.cleanup_sort_history(saved_history, ignore_column_map=True)[:max_sort_levels])
         else:
             for col, order in reversed(self.cleanup_sort_history(saved_history)[:max_sort_levels]):
                 self.sort_by_column_and_order(self.column_map.index(col), order)
