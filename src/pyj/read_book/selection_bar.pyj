@@ -620,7 +620,7 @@ class SelectionBar:
             if k is 'delete' or k is 'd':
                 self.remove_highlight()
                 return
-            if k in '0123456789':
+            if k.length is 1 and k in '0123456789':
                 all = {x.key: x for x in all_styles()}
                 k = int(k)
                 if k is 0:
