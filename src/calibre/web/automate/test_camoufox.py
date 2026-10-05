@@ -808,6 +808,56 @@ class TestCamoufoxMouse(unittest.TestCase):
         self.assertEqual(turns, ['a', 'b', 'a'], f'the gestures were interleaved: {sent}')
         self.assertEqual([kind for target, kind in sent if target == 'b'][-2:], ['mousedown', 'mouseup'])
 
+    def test_input_waits_out_a_busy_browser(self) -> None:
+        # A whole browser starved of CPU answers nothing for a while, its
+        # JavaScript included, and then answers the input event as well, so
+        # the event is given up on only once the browser answers everything
+        # but it
+        browser = camoufox.Browser()
+
+        class BusyPage(camoufox.Page):
+            busy_until = 0.0  # until when the browser answers nothing at all
+            answers_input = True
+
+            async def answer(self, timeout: float, is_input: bool) -> None:  # noqa: ASYNC109
+                try:
+                    async with asyncio.timeout(timeout):
+                        await asyncio.sleep(max(self.busy_until - time.monotonic(), 0))
+                        if is_input and not self.answers_input:
+                            await asyncio.Event().wait()
+                except TimeoutError:
+                    raise camoufox.TimeoutExceeded('not answered')
+
+            async def send(self, method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # noqa: ASYNC109
+                await self.answer(timeout, is_input=True)
+                return {}
+
+            async def evaluate(self, expression: str, *, by_value: bool = True, timeout: float = camoufox.DEFAULT_TIMEOUT) -> int:  # noqa: ASYNC109
+                await self.answer(timeout, is_input=False)
+                return 1
+
+        def send(busy_for: float, answers_input: bool = True) -> float:
+            page = BusyPage(browser, 't', 't')
+            page.busy_until, page.answers_input = time.monotonic() + busy_for, answers_input
+            started = time.monotonic()
+            asyncio.run(page.send_input('Page.dispatchMouseEvent', {}))
+            return time.monotonic() - started
+
+        with patch.object(camoufox, 'INPUT_TIMEOUT', 0.05), patch.object(camoufox, 'DEFAULT_TIMEOUT', 1.0):
+            self.assertLess(send(0), 0.05)
+            # busy for several times as long as an event is waited on
+            self.assertGreaterEqual(send(0.3), 0.3)
+            # An event that is not answered once the browser answers everything
+            # else is given up on, busy or not
+            for busy_for in (0, 0.3):
+                started = time.monotonic()
+                with self.assertRaises(camoufox.TimeoutExceeded):
+                    send(busy_for, answers_input=False)
+                self.assertLess(time.monotonic() - started, 0.8)
+            # as is one in a browser that is busy for longer than any command is waited on
+            with self.assertRaises(camoufox.TimeoutExceeded):
+                send(5)
+
 
 class TestCamoufoxKeyboard(unittest.TestCase):
     """Tests for the keyboard layout and for planning human like typing. These
@@ -1424,6 +1474,27 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
         self.run_shared(check)
 
+    @contextlib.contextmanager
+    def answers_lost(self, page: camoufox.Page, *methods: str) -> Iterator[None]:
+        """Have the browser's answer to the next command sent with each of
+        methods, in order, never arrive, while the command itself still
+        reaches the browser. Waiting for input events is cut short, so that
+        an event is given up on almost at once."""
+        lost = list(methods)
+        send = page.send
+
+        async def send_losing_answer(method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # noqa: ASYNC109
+            if lost and lost[0] == method:
+                del lost[0]
+                await send(method, params, timeout)
+                await asyncio.sleep(timeout)
+                raise camoufox.TimeoutExceeded(f'{method} did not complete in {timeout} seconds')
+            return await send(method, params, timeout)
+
+        with patch.object(page, 'send', send_losing_answer), patch.object(camoufox, 'INPUT_TIMEOUT', 0.000001):
+            yield
+        self.assertFalse(lost, f'never sent: {lost}')
+
     def test_input_that_is_not_acknowledged(self) -> None:
         base = self.server.base
 
@@ -1434,13 +1505,8 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # An event the page never sees is never answered, so waiting for
             # one is given up on quickly and the page written off, since
             # nothing sent to it after that is dispatched either
-            original = camoufox.INPUT_TIMEOUT
-            camoufox.INPUT_TIMEOUT = 0.000001
-            try:
-                with self.assertRaises(camoufox.InputWedged) as ctx:
-                    await page.mouse.move(200, 200, human=False)
-            finally:
-                camoufox.INPUT_TIMEOUT = original
+            with self.answers_lost(page, 'Page.dispatchMouseEvent'), self.assertRaises(camoufox.InputWedged) as ctx:
+                await page.mouse.move(200, 200, human=False)
             # The failure says which half of the browser stopped answering
             self.assertIn('still runs JavaScript', str(ctx.exception))
             self.assertTrue(page.input_wedged)
@@ -1471,15 +1537,11 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # Key events do not wait behind the mouse events of the browser, so
             # one that is answered late, as on a heavily loaded machine, is
             # given up on without writing the page off
-            original = camoufox.INPUT_TIMEOUT
-            camoufox.INPUT_TIMEOUT = 0.000001
-            try:
+            with self.answers_lost(page, 'Page.dispatchKeyEvent', 'Page.insertText'):
                 with self.assertRaises(camoufox.InputLost) as ctx:
                     await page.keyboard.press('x')
                 with self.assertRaises(camoufox.InputLost):
                     await page.keyboard.insert_text('y')
-            finally:
-                camoufox.INPUT_TIMEOUT = original
             self.assertNotIsInstance(ctx.exception, camoufox.InputWedged)
             self.assertIn('still runs JavaScript', str(ctx.exception))
             self.assertFalse(page.input_wedged)

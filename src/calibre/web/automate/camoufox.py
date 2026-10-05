@@ -68,7 +68,8 @@ DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # therefore comfortably longer than the browser's own, so that an event which
 # is merely slow is not mistaken for one that is never going to be answered.
 # It does not include waiting for the gestures of other pages, see
-# Mouse.gesture(), which would otherwise be dispatched in between.
+# Mouse.gesture(), which would otherwise be dispatched in between, nor any
+# time the whole browser spends not answering anything, see Page.send_input().
 INPUT_TIMEOUT = 20.0  # seconds, for a single input event
 INPUT_DIAGNOSTIC_TIMEOUT = INPUT_TIMEOUT  # seconds, for each question asked of a browser that stopped accepting input
 LAUNCH_TIMEOUT = 180.0  # seconds, the first launch has to create a fresh profile
@@ -93,6 +94,13 @@ OS_ABBREV = {'windows': 'win', 'macos': 'mac', 'linux': 'lin'}
 
 def current_os() -> str:
     return 'windows' if iswindows else ('macos' if ismacos else 'linux')
+
+
+def discard_task(task: asyncio.Future[Any]) -> None:
+    """Cancel a task whose outcome is no longer wanted, without the exception it
+    may already have ended with being reported as never retrieved."""
+    task.cancel()
+    task.add_done_callback(lambda t: t.cancelled() or t.exception())
 
 
 class Error(Exception):
@@ -1286,8 +1294,11 @@ class Connection:
             async with asyncio.timeout(timeout):
                 message = await future
         except TimeoutError:
-            self.replies.pop(message_id, None)
             raise TimeoutExceeded(f'{method} did not complete in {timeout} seconds')
+        finally:
+            # Also when the wait is cancelled, so that a reply nobody wants any
+            # more is not waited for indefinitely
+            self.replies.pop(message_id, None)
         if (error := message.get('error')) is not None:
             raise ProtocolError(method, error.get('message') or 'Unknown error', error.get('data') or '')
         # A method with no return value produces a message with no result at all
@@ -1751,13 +1762,13 @@ class Mouse:
         whose grid is not necessarily the one this coordinate is measured on,
         so sending one risks an event that never arrives anywhere and a command
         that never completes, see :meth:`move_onto_pixel`. An event that has
-        not been answered within :data:`INPUT_TIMEOUT`, which allows for the
-        browser's own deadline on a slow machine, is not going to be, and
+        not been answered within :data:`INPUT_TIMEOUT` of the browser answering
+        everything else, see :meth:`Page.send_input`, is not going to be, and
         it takes every later event down with it, see :class:`InputWedged`.
         """
         self.page.check_accepts_input()
         try:
-            await self.page.send(
+            await self.page.send_input(
                 'Page.dispatchMouseEvent',
                 {
                     'type': event_type,
@@ -1768,7 +1779,6 @@ class Mouse:
                     'modifiers': modifiers,
                     'clickCount': click_count,
                 },
-                timeout=INPUT_TIMEOUT,
             )
         except TimeoutExceeded as err:
             self.position_known = False
@@ -2270,7 +2280,7 @@ class Keyboard:
 
         The browser answers a key event only once the page has seen it. Key
         events do not go through the queue mouse events do, so one that has not
-        been answered within :data:`INPUT_TIMEOUT` is given up on, see
+        been answered in time, see :meth:`Page.send_input`, is given up on, see
         :class:`InputLost`, without writing the page off.
 
         The text the key produces is not sent: the browser works it out from the
@@ -2279,10 +2289,9 @@ class Keyboard:
         """
         self.page.check_accepts_input()
         try:
-            await self.page.send(
+            await self.page.send_input(
                 'Page.dispatchKeyEvent',
                 {'type': event_type, 'key': info.key, 'code': info.code, 'keyCode': info.key_code, 'location': info.location, 'repeat': repeat},
-                timeout=INPUT_TIMEOUT,
             )
         except TimeoutExceeded as err:
             raise InputLost(
@@ -2384,7 +2393,7 @@ class Keyboard:
         """Insert text into the focused element without checking that there is one."""
         self.page.check_accepts_input()
         try:
-            await self.page.send('Page.insertText', {'text': text}, timeout=INPUT_TIMEOUT)
+            await self.page.send_input('Page.insertText', {'text': text})
         except TimeoutExceeded as err:
             raise InputLost(
                 f'The browser did not acknowledge the insertion of {text!r} within {INPUT_TIMEOUT} seconds. {await self.page.input_diagnostics()}'
@@ -2847,6 +2856,41 @@ class Page:
         """
         if self.input_wedged:
             raise InputWedged(f'{self} stopped acknowledging input events, no more input can be delivered to it')
+
+    async def send_input(self, method: str, params: Mapping[str, Any]) -> dict[str, Any]:
+        """Send an input event and wait for the browser to acknowledge it.
+
+        Raises :class:`TimeoutExceeded` once the event has gone unanswered for
+        :data:`INPUT_TIMEOUT` while the browser was answering other commands,
+        which is the sign of an event that is never going to be answered. The
+        whole browser, starved of CPU on a heavily loaded machine, can also go
+        tens of seconds without answering anything, the JavaScript of its pages
+        included, and then carry on as if nothing happened, answering the event
+        too. Such a stall is waited out for as long as any other command would
+        be, :data:`DEFAULT_TIMEOUT`, rather than being mistaken for an event
+        that was lost.
+        """
+        reply = asyncio.ensure_future(self.send(method, params, 2 * INPUT_TIMEOUT + DEFAULT_TIMEOUT))
+        try:
+            if not (await asyncio.wait((reply,), timeout=INPUT_TIMEOUT))[0]:
+                # Whether the browser is answering anything at all
+                probe = asyncio.ensure_future(self.evaluate('1', timeout=DEFAULT_TIMEOUT))
+                try:
+                    await asyncio.wait((reply, probe), return_when=asyncio.FIRST_COMPLETED)
+                finally:
+                    discard_task(probe)
+                if not reply.done():
+                    # The browser stayed busy for longer than any command is
+                    # waited on, or it is answering again and the event gets
+                    # the time it would have had, had it not been busy. An error
+                    # is an answer too, from a page that is navigating say.
+                    if (err := probe.exception()) is not None and (isinstance(err, (TimeoutExceeded, BrowserClosedError)) or not isinstance(err, Error)):
+                        raise err
+                    if not (await asyncio.wait((reply,), timeout=INPUT_TIMEOUT))[0]:
+                        raise TimeoutExceeded(f'{method} was not acknowledged within {INPUT_TIMEOUT} seconds of the browser answering other commands')
+            return reply.result()
+        finally:
+            discard_task(reply)
 
     async def input_diagnostics(self) -> str:
         """What can be discovered about a browser that stopped acknowledging input.
