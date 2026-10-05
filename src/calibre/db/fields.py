@@ -737,11 +737,17 @@ class SeriesField(ManyToOneField):
 
         sk_map = LazySeriesSortMap(self._default_sort_key, sk, self.table.id_map)
         bcmg = self.table.book_col_map.get
-        lang_map = {k: v[0] if v else None for k, v in lang_map.items()}
+        lmg = lang_map.get
+        default = self._default_sort_key
 
         def key(book_id):
-            lang = lang_map.get(book_id, None)
-            return sk_map(bcmg(book_id, None), lang)
+            item_id = bcmg(book_id)
+            if item_id is None:
+                # Most books have no series, and the language of a book is only
+                # needed to sort the name of the series it is in
+                return default
+            langs = lmg(book_id)
+            return sk_map(item_id, langs[0] if langs else None)
 
         return key
 
