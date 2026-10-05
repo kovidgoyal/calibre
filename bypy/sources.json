@@ -665,9 +665,9 @@
     },
 
     {
-        "name": "onnx 1.23.2",
+        "name": "onnx 1.29.0",
         "unix": {
-            "hash": "sha256:99bcf964ce4e869d823c99b2294562a9050cbfa8e76ec81c8683cb3c7e19c2b4",
+            "hash": "sha256:0f065cfd3816eaa4b709a057ea0e237ebc6463843af44a439e0d81af76d6620e",
             "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
