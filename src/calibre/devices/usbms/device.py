@@ -132,7 +132,7 @@ class Device(DeviceConfig, DevicePlugin):
             if isinstance(cls.VENDOR_ID, dict):
                 for vid, pid_map in cls.VENDOR_ID.items():
                     for pid, bcds in pid_map.items():
-                        if isinstance(bcds, int):
+                        if bcds is None or isinstance(bcds, int):
                             bcds = (bcds,)
                         for bcd in bcds:
                             return vid or 0, pid or 0, bcd or 0

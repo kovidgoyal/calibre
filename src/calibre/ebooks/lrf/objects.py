@@ -24,7 +24,7 @@ ruby_tags = {
 
 
 class LRFObject:
-    tag_map = {
+    tag_map: ClassVar[dict] = {
         0xF500: ['', ''],
         0xF502: ['infoLink', 'D'],
         0xF501: ['', ''],

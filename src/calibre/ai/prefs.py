@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import threading
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from copy import deepcopy
 from functools import lru_cache
@@ -34,7 +34,7 @@ _overrides = threading.local()
 
 
 @contextmanager
-def override_prefs_for_providers(overrides: dict[str, dict[str, Any]]) -> Iterator[None]:
+def override_prefs_for_providers(overrides: dict[str, dict[str, Any]]) -> Generator[None]:
     # Temporarily shadow stored provider preferences with the specified
     # per-provider values, in the calling thread only. Keys absent from the
     # override map fall through to the stored preferences, so that secrets

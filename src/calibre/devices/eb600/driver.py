@@ -12,6 +12,7 @@ Windows PNP strings:
 """
 
 import re
+from typing import ClassVar
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
@@ -28,8 +29,8 @@ class EB600(USBMS):
     FORMATS = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
     DRM_FORMATS = ['prc', 'mobi', 'html', 'pdf', 'txt']
 
-    VENDOR_ID = [0x1F85]
-    PRODUCT_ID = [0x1688]
+    VENDOR_ID: ClassVar[list[int]] = [0x1F85]
+    PRODUCT_ID: ClassVar[list[int]] = [0x1688]
     BCD = [0x110]
 
     VENDOR_NAME = ['NETRONIX', 'WOLDER', 'MD86371']

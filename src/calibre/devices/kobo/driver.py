@@ -15,6 +15,7 @@ import shutil
 import time
 from contextlib import suppress
 from datetime import datetime
+from typing import ClassVar
 
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG
@@ -94,7 +95,7 @@ class KOBO(USBMS):
     FORMATS = ['kepub', 'epub', 'pdf', 'txt', 'cbz', 'cbr']
     CAN_SET_METADATA = ['collections']
 
-    VENDOR_ID = [0x2237]
+    VENDOR_ID: ClassVar[list[int]] = [0x2237]
     BCD = [0x0110, 0x0323, 0x0326]
     ORIGINAL_PRODUCT_ID = [0x4165]
     WIFI_PRODUCT_ID = [0x4161, 0x4162]

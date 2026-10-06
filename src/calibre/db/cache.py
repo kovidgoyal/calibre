@@ -11,7 +11,7 @@ import traceback
 import types
 import weakref
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, MutableSet, Set
+from collections.abc import Callable, Generator, Iterable, MutableSet, Set
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partial, wraps
@@ -3810,7 +3810,7 @@ class Cache:
             poff += 1
 
         @contextmanager
-        def tempfile_for_export(which: str) -> Iterator[str]:
+        def tempfile_for_export(which: str) -> Generator[str]:
             import tempfile
 
             fd, ans = tempfile.mkstemp(suffix=f'-{which}.db', dir=exporter.base)

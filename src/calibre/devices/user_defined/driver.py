@@ -85,8 +85,9 @@ class USER_DEFINED(USBMS):
         try:
             e = self.settings().extra_customization
             if e[self.OPT_USB_VENDOR_ID]:
-                self.VENDOR_ID = int(e[self.OPT_USB_VENDOR_ID], 16)
-                self.PRODUCT_ID = int(e[self.OPT_USB_PRODUCT_ID], 16)
+                # Deliberately shadow the class level IDs on this instance only
+                self.VENDOR_ID = int(e[self.OPT_USB_VENDOR_ID], 16)  # ty: ignore[invalid-attribute-access]
+                self.PRODUCT_ID = int(e[self.OPT_USB_PRODUCT_ID], 16)  # ty: ignore[invalid-attribute-access]
                 self.BCD = [int(e[self.OPT_USB_REVISION_ID], 16)]
                 if e[self.OPT_USB_WINDOWS_MM_VEN_ID]:
                     self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_MM_VEN_ID])

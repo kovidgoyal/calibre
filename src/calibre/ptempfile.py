@@ -7,7 +7,7 @@ being closed.
 
 import os
 import tempfile
-from collections.abc import Buffer, Iterable, Iterator
+from collections.abc import Buffer, Generator, Iterable, Iterator
 from contextlib import contextmanager
 from typing import IO
 
@@ -112,7 +112,7 @@ def reset_base_dir():
 
 
 @contextmanager
-def override_base_dir(newval: str) -> Iterator[None]:
+def override_base_dir(newval: str) -> Generator[None]:
     global _base_dir
     before, _base_dir = _base_dir, newval
     try:

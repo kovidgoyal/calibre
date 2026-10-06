@@ -436,7 +436,7 @@ class CoverThumbnailCache(QObject):
 
 # Testing {{{
 class ThumbnailerForTest(Thumbnailer):
-    pixmap_class = QImage
+    pixmap_class = QImage  # ty: ignore[invalid-assignment] QImage stands in for QPixmap so tests can run without a GUI
 
     def __init__(self):
         self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied

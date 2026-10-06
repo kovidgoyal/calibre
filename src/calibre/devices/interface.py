@@ -54,7 +54,7 @@ class DevicePlugin(Plugin):
     type = _('Device interface')
 
     #: Ordered list of supported formats
-    FORMATS = ['lrf', 'rtf', 'pdf', 'txt']
+    FORMATS: ClassVar[list[str]] = ['lrf', 'rtf', 'pdf', 'txt']
     # If True, the config dialog will not show the formats box
     HIDE_FORMATS_CONFIG_BOX = False
 

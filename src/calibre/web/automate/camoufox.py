@@ -46,7 +46,7 @@ import tempfile
 import threading
 import time
 import unicodedata
-from collections.abc import AsyncIterator, Callable, Iterable, Mapping, Sequence
+from collections.abc import AsyncGenerator, Callable, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from http import HTTPStatus
@@ -1727,7 +1727,7 @@ class Mouse:
         return self.x, self.y
 
     @asynccontextmanager
-    async def gesture(self) -> AsyncIterator[None]:
+    async def gesture(self) -> AsyncGenerator[None]:
         """Keep the mouse of every other page of the browser still until this is done.
 
         The browser dispatches the mouse events of all its pages one at a time,
