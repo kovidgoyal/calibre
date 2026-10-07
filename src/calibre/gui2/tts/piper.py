@@ -318,6 +318,22 @@ class Piper(TTSBackend):
     def reload_after_configure(self) -> None:
         self.shutdown()
 
+    def execution_provider_for_voice(self, voice: Voice | None = None) -> str:
+        """
+        Return the name of the onnxruntime execution provider running the model
+        for the specified voice (the current voice by default), for example
+        CPUExecutionProvider. Returns the empty string if the model for the voice
+        is not currently loaded.
+        """
+        voice = voice or self._current_voice
+        gp = global_piper_instance_if_exists()
+        if voice is None or gp is None:
+            return ''
+        b = gp.current_backend()
+        if b is None or os.path.abspath(b.model_path) != os.path.abspath(paths_for_voice(voice)[0]):
+            return ''
+        return b.execution_provider
+
     @property
     def state(self) -> QTextToSpeech.State:
         return self._state

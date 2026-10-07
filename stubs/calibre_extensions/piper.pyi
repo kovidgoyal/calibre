@@ -30,3 +30,26 @@ def set_espeak_voice_by_name(name: str) -> None:
 def phonemize(text: str) -> list[tuple[str, str, bool]]:
     "phonemize(text) -> Convert the specified text into espeak-ng phonemes"
     pass
+
+def set_use_gpu(use_gpu: bool) -> None:
+    """set_use_gpu(use_gpu) -> Set whether hardware accelerated execution providers
+    (GPU, etc.) are used to run the model, falling back to the CPU if they fail. If a
+    voice is already loaded it is reloaded. Defaults to False. Must not be called
+    concurrently with other functions from this module.
+    """
+    pass
+
+def gpu_providers() -> tuple[str, ...]:
+    """gpu_providers() -> Return the hardware accelerated execution providers available
+    in this build of onnxruntime, in the order in which they are tried
+    """
+    pass
+
+def current_backend() -> tuple[str, str, int, int] | None:
+    """current_backend() -> Return (model_path, execution_provider_name,
+    num_nodes_on_provider, num_nodes) for the currently loaded model or None if no model
+    is loaded. The provider can change from a GPU provider to CPUExecutionProvider if
+    the GPU fails while synthesizing. Nodes the provider does not support run on the
+    CPU. The node counts are zero if onnxruntime is too old to report them.
+    """
+    pass

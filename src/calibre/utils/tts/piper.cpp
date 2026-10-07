@@ -16,10 +16,21 @@
 #include <algorithm>
 #include <limits>
 #include <chrono>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
 #ifdef _WIN32
 #define ORT_DLL_IMPORT
 #endif
 #include <onnxruntime_cxx_api.h>
+#include <onnxruntime_session_options_config_keys.h>
+// Querying which execution provider each node of the model is assigned to
+#define HAS_EP_ASSIGNMENT_INFO (ORT_API_VERSION >= 24)
+#if __has_include(<dml_provider_factory.h>)
+#include <dml_provider_factory.h>
+#define HAS_DML_HEADERS
+#endif
 
 #define CLAUSE_INTONATION_FULL_STOP 0x00000000
 #define CLAUSE_INTONATION_COMMA 0x00001000
@@ -35,7 +46,6 @@
 #define CLAUSE_EXCLAMATION (45 | CLAUSE_INTONATION_EXCLAMATION | CLAUSE_TYPE_SENTENCE)
 #define CLAUSE_COLON (30 | CLAUSE_INTONATION_FULL_STOP | CLAUSE_TYPE_CLAUSE)
 #define CLAUSE_SEMICOLON (30 | CLAUSE_INTONATION_COMMA | CLAUSE_TYPE_CLAUSE)
-static const bool USE_GPU = false;
 static const bool PRINT_TIMING_INFORMATION = false;
 
 typedef char32_t Phoneme;
@@ -57,72 +67,271 @@ static float current_noise_scale = 1;
 static float current_noise_w = 1;
 static float current_sentence_delay = 0;
 static bool current_normalize_volume = true;
+// The Env must outlive all sessions created with it
+static std::unique_ptr<Ort::Env> ort_env;
 std::unique_ptr<Ort::Session> session;
+static std::basic_string<ORTCHAR_T> current_model_path;
+// The execution provider used by session, empty when session uses only the CPU
+static std::string active_provider;
+// Number of nodes of the model run by the provider used by session and the
+// total number of nodes. Both are zero if this information is unavailable.
+struct NodeCounts {
+    size_t on_provider = 0, total = 0;
+};
+static NodeCounts active_node_counts;
+static bool use_gpu = false;
+// Providers that failed to load or run a model, these are not tried again
+// until set_use_gpu() is called
+static std::set<std::string> failed_providers;
 std::queue<std::vector<PhonemeId>> phoneme_id_queue;
 std::vector<float> chunk_samples;
 static struct {
     PyObject *func, *args;
 } normalize_data = {0};
 
-static const std::vector<std::string> &PRIORITY_ORDER = {
-#ifdef _WIN32
-    "DML",
-    "DmlExecutionProvider",
-    "DirectMLExecutionProvider",
-#endif
-#ifdef __APPLE__
-    "CoreML",
-    "CoreMLExecutionProvider",
-#endif
-    "ROCMExecutionProvider", // AMD GPU
-    "TensorRTExecutionProvider",
-    "CUDAExecutionProvider", // NVIDIA GPU
-    "OpenVINO",
-    "OpenVINOExecutionProvider", // Intel GPU and CPU
-    // The various CPU providers
-    "DnnlExecutionProvider", // CPU with AVX 512
-    "CPUExecutionProvider",  // the default, always available provider
-};
-
-static void
-sort_providers_by_priority(std::vector<std::string> &providers, const std::vector<std::string> &priority_order) {
-    // Build a priority map: provider name -> order index
-    std::unordered_map<std::string, size_t> priority_map;
-    for (size_t i = 0; i < priority_order.size(); ++i) { priority_map[priority_order[i]] = i; }
-
-    // Stable sort so original order is preserved for equal priority
-    std::stable_sort(providers.begin(), providers.end(), [&priority_map, &priority_order](const std::string &a, const std::string &b) {
-        auto it_a = priority_map.find(a);
-        auto it_b = priority_map.find(b);
-        size_t index_a = it_a != priority_map.end() ? it_a->second : priority_order.size();
-        size_t index_b = it_b != priority_map.end() ? it_b->second : priority_order.size();
-        return index_a < index_b;
-    });
+static long long
+now() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-static std::vector<std::string> available_providers;
+// Hardware accelerated execution providers in order of preference. Only
+// providers that append_execution_provider() knows how to add are listed.
+static const std::vector<std::string> PRIORITY_ORDER = {
+#ifdef _WIN32
+    "DmlExecutionProvider", // DirectML, any GPU on Windows
+#endif
+#ifdef __APPLE__
+    "CoreMLExecutionProvider",
+#endif
+    "MIGraphXExecutionProvider", // AMD GPU
+    "ROCMExecutionProvider",     // AMD GPU, removed from onnxruntime >= 1.23 in favor of MIGraphX
+    "TensorRTExecutionProvider",
+    "CUDAExecutionProvider",     // NVIDIA GPU
+    "OpenVINOExecutionProvider", // Intel GPU and CPU
+};
 
+static Ort::Env &
+get_ort_env() {
+    if (!ort_env) {
+        ort_env = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "piper");
+        ort_env->DisableTelemetryEvents();
+    }
+    return *ort_env;
+}
+
+// Return the accelerated providers present in this build of onnxruntime, in
+// priority order. Raises Ort::Exception on failure.
+static std::vector<std::string>
+accelerated_providers() {
+    std::vector<std::string> ans;
+    const std::vector<std::string> available = Ort::GetAvailableProviders();
+    for (const std::string &p : PRIORITY_ORDER) {
+        if (std::find(available.begin(), available.end(), p) != available.end()) ans.push_back(p);
+    }
+    return ans;
+}
+
+// Raises an exception if the provider cannot be added
 static void
-set_available_providers() {
-    static bool providers_set = false;
-    if (providers_set || !USE_GPU) return;
-    providers_set = true;
+append_execution_provider(Ort::SessionOptions &opts, const std::string &name) {
+    if (name == "CUDAExecutionProvider") {
+        Ort::CUDAProviderOptions o;
+        opts.AppendExecutionProvider_CUDA_V2(*o);
+    } else if (name == "TensorRTExecutionProvider") {
+        Ort::TensorRTProviderOptions o;
+        opts.AppendExecutionProvider_TensorRT_V2(*o);
+    } else if (name == "MIGraphXExecutionProvider") {
+        // This struct has no constructor, so set the documented defaults
+        OrtMIGraphXProviderOptions o{};
+        o.migraphx_mem_limit = SIZE_MAX;
+        opts.AppendExecutionProvider_MIGraphX(o);
+    } else if (name == "ROCMExecutionProvider") {
+        OrtROCMProviderOptions o;
+        opts.AppendExecutionProvider_ROCM(o);
+    } else if (name == "DmlExecutionProvider") {
+#ifdef HAS_DML_HEADERS
+        const OrtDmlApi *dml_api = nullptr;
+        Ort::ThrowOnError(Ort::GetApi().GetExecutionProviderApi("DML", ORT_API_VERSION, reinterpret_cast<const void **>(&dml_api)));
+        Ort::ThrowOnError(dml_api->SessionOptionsAppendExecutionProvider_DML(opts, 0));
+#else
+        throw std::runtime_error("calibre was built without the DirectML headers");
+#endif
+    } else if (name == "CoreMLExecutionProvider" || name == "OpenVINOExecutionProvider") {
+        // These are the only providers in PRIORITY_ORDER that the generic API supports
+        opts.AppendExecutionProvider(name, std::unordered_map<std::string, std::string>{});
+    } else {
+        throw std::runtime_error("Unsupported execution provider: " + name);
+    }
+}
+
+// Create a session that uses the specified provider, or only the CPU if
+// provider is empty. Raises an exception on failure.
+static std::unique_ptr<Ort::Session>
+create_session(const std::basic_string<ORTCHAR_T> &model_path, const std::string &provider) {
+    // The Env must exist before providers are appended as they use its logger
+    Ort::Env &env = get_ort_env();
     Ort::SessionOptions opts;
     opts.DisableCpuMemArena();
-    opts.DisableMemPattern();
+    opts.DisableMemPattern(); // required by DirectML
     opts.DisableProfiling();
-    Ort::Env ort_env{ORT_LOGGING_LEVEL_WARNING, "piper"};
-    ort_env.DisableTelemetryEvents();
+    opts.SetExecutionMode(ExecutionMode::ORT_SEQUENTIAL); // required by DirectML
+#if HAS_EP_ASSIGNMENT_INFO
+    opts.AddConfigEntry(kOrtSessionOptionsRecordEpGraphAssignmentInfo, "1");
+#endif
+    if (!provider.empty()) append_execution_provider(opts, provider);
+    return std::make_unique<Ort::Session>(env, model_path.c_str(), opts);
+}
 
-    for (const std::string &s : Ort::GetAvailableProviders()) {
-        if (s == "CPUExecutionProvider") continue;
-        std::unordered_map<std::string, std::string> provider_options;
-        try {
-            opts.AppendExecutionProvider(s, provider_options);
-            available_providers.push_back(s);
-        } catch (const Ort::Exception &e) {}
+// Count the nodes of the model assigned to the specified provider. Raises an
+// exception on failure.
+static NodeCounts
+count_nodes(const Ort::Session &s, const std::string &provider) {
+    NodeCounts ans;
+#if HAS_EP_ASSIGNMENT_INFO
+    for (const auto &subgraph : s.GetEpGraphAssignmentInfo()) {
+        const size_t n = subgraph.GetNodes().size();
+        ans.total += n;
+        if (subgraph.GetEpName() == provider) ans.on_provider += n;
     }
-    sort_providers_by_priority(available_providers, PRIORITY_ORDER);
+#endif
+    return ans;
+}
+
+// Run the model on a list of phoneme ids. Raises an exception on failure.
+static std::vector<Ort::Value>
+run_inference(Ort::Session &s, std::vector<PhonemeId> &ids) {
+    auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+    std::vector<Ort::Value> input_tensors;
+
+    // Allocate
+    std::vector<int64_t> phoneme_id_lengths{(int64_t)ids.size()};
+    std::vector<float> scales{current_noise_scale, current_length_scale, current_noise_w};
+
+    std::vector<int64_t> phoneme_ids_shape{1, (int64_t)ids.size()};
+    input_tensors.push_back(Ort::Value::CreateTensor<int64_t>(memoryInfo, ids.data(), ids.size(), phoneme_ids_shape.data(), phoneme_ids_shape.size()));
+
+    std::vector<int64_t> phoneme_id_lengths_shape{(int64_t)phoneme_id_lengths.size()};
+    input_tensors.push_back(
+        Ort::Value::CreateTensor<int64_t>(
+            memoryInfo, phoneme_id_lengths.data(), phoneme_id_lengths.size(), phoneme_id_lengths_shape.data(), phoneme_id_lengths_shape.size()));
+
+    std::vector<int64_t> scales_shape{(int64_t)scales.size()};
+    input_tensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, scales.data(), scales.size(), scales_shape.data(), scales_shape.size()));
+
+    // Add speaker id.
+    // NOTE: These must be kept outside the "if" below to avoid being
+    // deallocated.
+    std::vector<int64_t> speaker_id{(int64_t)0};
+    std::vector<int64_t> speaker_id_shape{(int64_t)speaker_id.size()};
+
+    if (current_num_speakers > 1) {
+        input_tensors.push_back(
+            Ort::Value::CreateTensor<int64_t>(memoryInfo, speaker_id.data(), speaker_id.size(), speaker_id_shape.data(), speaker_id_shape.size()));
+    }
+
+    // From export_onnx.py
+    std::array<const char *, 4> input_names = {"input", "input_lengths", "scales", "sid"};
+    std::array<const char *, 1> output_names = {"output"};
+
+    // Infer
+    Ort::RunOptions ro;
+    long long st;
+    if (PRINT_TIMING_INFORMATION) st = now();
+    std::vector<Ort::Value> ans = s.Run(ro, input_names.data(), input_tensors.data(), input_tensors.size(), output_names.data(), output_names.size());
+    if (PRINT_TIMING_INFORMATION) {
+        printf("model run time: %f\n", (now() - st) / 1e9);
+        fflush(stdout);
+    }
+    return ans;
+}
+
+struct LoadResult {
+    std::unique_ptr<Ort::Session> session;
+    std::string provider, error;
+    NodeCounts node_counts;
+    std::vector<std::pair<std::string, std::string>> provider_failures;
+};
+
+// Try each provider in turn, verifying it with a short inference, falling
+// back to only the CPU. Does not use any Python APIs so can be called without
+// the GIL.
+static LoadResult
+load_model(const std::basic_string<ORTCHAR_T> &model_path, const std::vector<std::string> &providers) {
+    LoadResult ans;
+    long long st;
+    if (PRINT_TIMING_INFORMATION) st = now();
+    for (const std::string &p : providers) {
+        try {
+            std::unique_ptr<Ort::Session> s = create_session(model_path, p);
+            // Providers silently leave nodes they do not support to the CPU,
+            // some, such as MIGraphX, leave the entire model to the CPU.
+            NodeCounts counts = count_nodes(*s, p);
+            if (counts.total > 0 && counts.on_provider == 0)
+                throw std::runtime_error("none of the operations in this model are supported by this execution provider");
+            std::vector<PhonemeId> ids{ID_BOS, ID_PAD, ID_EOS};
+            run_inference(*s, ids);
+            ans.session = std::move(s);
+            ans.provider = p;
+            ans.node_counts = counts;
+            break;
+        } catch (const std::exception &e) { ans.provider_failures.emplace_back(p, e.what()); }
+    }
+    if (!ans.session) {
+        try {
+            ans.session = create_session(model_path, "");
+            ans.node_counts = count_nodes(*ans.session, "CPUExecutionProvider");
+        } catch (const std::exception &e) {
+            ans.session.reset();
+            ans.error = e.what();
+        }
+    }
+    if (PRINT_TIMING_INFORMATION) {
+        printf("model loading time: %f\n", (now() - st) / 1e9);
+        fflush(stdout);
+    }
+    return ans;
+}
+
+static bool
+warn_about_provider_failure(const std::string &provider, const std::string &error) {
+    return PyErr_WarnFormat(
+               PyExc_RuntimeWarning, 1, "Failed to use the %s execution provider, falling back to CPU. Error: %s", provider.c_str(), error.c_str()) == 0;
+}
+
+// Load current_model_path into session using the current settings. Must be
+// called with the GIL held, returns false with a Python exception set on failure.
+static bool
+load_session() {
+    std::vector<std::string> providers;
+    if (use_gpu) {
+        try {
+            providers = accelerated_providers();
+        } catch (const std::exception &e) {
+            PyErr_Format(PyExc_OSError, "Failed to query onnxruntime for available execution providers: %s", e.what());
+            return false;
+        }
+        providers.erase(
+            std::remove_if(providers.begin(), providers.end(), [](const std::string &p) { return failed_providers.count(p) > 0; }), providers.end());
+    }
+    session.reset();
+    active_provider.clear();
+    active_node_counts = NodeCounts();
+    LoadResult r;
+    Py_BEGIN_ALLOW_THREADS;
+    r = load_model(current_model_path, providers);
+    Py_END_ALLOW_THREADS;
+    for (const auto &f : r.provider_failures) failed_providers.insert(f.first);
+    if (!r.session) {
+        PyErr_Format(PyExc_OSError, "Failed to load the piper model: %s", r.error.c_str());
+        return false;
+    }
+    session = std::move(r.session);
+    active_provider = r.provider;
+    active_node_counts = r.node_counts;
+    for (const auto &f : r.provider_failures) {
+        if (!warn_about_provider_failure(f.first, f.second)) return false;
+    }
+    return true;
 }
 
 static PyObject *
@@ -145,7 +354,6 @@ initialize(PyObject *self, PyObject *args) {
         if (!normalize_data.func) return NULL;
         normalize_data.args = Py_BuildValue("(ss)", "NFD", "");
         if (!normalize_data.args) return NULL;
-        set_available_providers();
     }
     Py_RETURN_NONE;
 }
@@ -224,11 +432,6 @@ phonemize(PyObject *self, PyObject *pytext) {
     return phonemes_and_terminators;
 }
 
-static long long
-now() {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-}
-
 static PyObject *
 set_voice(PyObject *self, PyObject *args) {
     PyObject *cfg;
@@ -281,35 +484,14 @@ set_voice(PyObject *self, PyObject *args) {
 #ifdef _WIN32
     wchar_t *model_path = PyUnicode_AsWideCharString(pymp, NULL);
     if (!model_path) return NULL;
+    current_model_path = model_path;
+    PyMem_Free(model_path);
 #else
     const char *model_path = PyUnicode_AsUTF8(pymp);
+    if (!model_path) return NULL;
+    current_model_path = model_path;
 #endif
-
-    // Load onnx model
-    Py_BEGIN_ALLOW_THREADS;
-    Ort::SessionOptions opts;
-    opts.DisableCpuMemArena();
-    opts.DisableMemPattern();
-    opts.DisableProfiling();
-    Ort::Env ort_env{ORT_LOGGING_LEVEL_WARNING, "piper"};
-    ort_env.DisableTelemetryEvents();
-    for (const auto &p : available_providers) {
-        std::unordered_map<std::string, std::string> provider_options;
-        opts.AppendExecutionProvider(p, provider_options);
-    }
-    session.reset();
-    long long st;
-    if (PRINT_TIMING_INFORMATION) st = now();
-    session = std::make_unique<Ort::Session>(Ort::Session(ort_env, model_path, opts));
-    if (PRINT_TIMING_INFORMATION) {
-        printf("model loading time: %f\n", (now() - st) / 1e9);
-        fflush(stdout);
-    }
-    Py_END_ALLOW_THREADS;
-
-#ifdef _WIN32
-    PyMem_Free(model_path);
-#endif
+    if (!load_session()) return NULL;
     Py_RETURN_NONE;
 }
 
@@ -399,58 +581,47 @@ next(PyObject *self, PyObject *args) {
     int as_16bit_samples = 1;
     if (!PyArg_ParseTuple(args, "|p", &as_16bit_samples)) return NULL;
     if (phoneme_id_queue.empty()) return Py_BuildValue("yiiO", "", 0, current_sample_rate, Py_True);
+    if (session.get() == NULL) {
+        PyErr_SetString(PyExc_Exception, "must call set_voice() first");
+        return NULL;
+    }
     std::vector<Ort::Value> output_tensors;
-    std::vector<Ort::Value> input_tensors;
+    std::unique_ptr<Ort::Session> cpu_session;
+    NodeCounts cpu_node_counts;
+    std::string error, provider_error;
+    const std::string provider = active_provider;
 
     Py_BEGIN_ALLOW_THREADS;
     // Process next list of phoneme ids
     auto next_ids = std::move(phoneme_id_queue.front());
     phoneme_id_queue.pop();
-
-    auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-
-    // Allocate
-    std::vector<int64_t> phoneme_id_lengths{(int64_t)next_ids.size()};
-    std::vector<float> scales{current_noise_scale, current_length_scale, current_noise_w};
-
-    std::vector<int64_t> phoneme_ids_shape{1, (int64_t)next_ids.size()};
-    input_tensors.push_back(
-        Ort::Value::CreateTensor<int64_t>(memoryInfo, next_ids.data(), next_ids.size(), phoneme_ids_shape.data(), phoneme_ids_shape.size()));
-
-    std::vector<int64_t> phoneme_id_lengths_shape{(int64_t)phoneme_id_lengths.size()};
-    input_tensors.push_back(
-        Ort::Value::CreateTensor<int64_t>(
-            memoryInfo, phoneme_id_lengths.data(), phoneme_id_lengths.size(), phoneme_id_lengths_shape.data(), phoneme_id_lengths_shape.size()));
-
-    std::vector<int64_t> scales_shape{(int64_t)scales.size()};
-    input_tensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, scales.data(), scales.size(), scales_shape.data(), scales_shape.size()));
-
-    // Add speaker id.
-    // NOTE: These must be kept outside the "if" below to avoid being
-    // deallocated.
-    std::vector<int64_t> speaker_id{(int64_t)0};
-    std::vector<int64_t> speaker_id_shape{(int64_t)speaker_id.size()};
-
-    if (current_num_speakers > 1) {
-        input_tensors.push_back(
-            Ort::Value::CreateTensor<int64_t>(memoryInfo, speaker_id.data(), speaker_id.size(), speaker_id_shape.data(), speaker_id_shape.size()));
-    }
-
-    // From export_onnx.py
-    std::array<const char *, 4> input_names = {"input", "input_lengths", "scales", "sid"};
-    std::array<const char *, 1> output_names = {"output"};
-
-    // Infer
-    Ort::RunOptions ro;
-    long long st;
-    if (PRINT_TIMING_INFORMATION) st = now();
-    output_tensors = session->Run(ro, input_names.data(), input_tensors.data(), input_tensors.size(), output_names.data(), output_names.size());
-    if (PRINT_TIMING_INFORMATION) {
-        printf("model run time: %f\n", (now() - st) / 1e9);
-        fflush(stdout);
+    try {
+        output_tensors = run_inference(*session, next_ids);
+    } catch (const std::exception &e) {
+        if (provider.empty()) error = e.what();
+        else {
+            // The accelerated provider failed at runtime, fall back to the CPU
+            provider_error = e.what();
+            try {
+                cpu_session = create_session(current_model_path, "");
+                cpu_node_counts = count_nodes(*cpu_session, "CPUExecutionProvider");
+                output_tensors = run_inference(*cpu_session, next_ids);
+            } catch (const std::exception &cpu_err) { error = cpu_err.what(); }
+        }
     }
     Py_END_ALLOW_THREADS;
 
+    if (!provider_error.empty()) {
+        failed_providers.insert(provider);
+        active_provider.clear();
+        active_node_counts = cpu_node_counts;
+        session = std::move(cpu_session);
+        if (!warn_about_provider_failure(provider, provider_error)) return NULL;
+    }
+    if (!error.empty()) {
+        PyErr_Format(PyExc_OSError, "Failed to run the piper model: %s", error.c_str());
+        return NULL;
+    }
     if ((output_tensors.size() != 1) || (!output_tensors.front().IsTensor())) {
         PyErr_SetString(PyExc_ValueError, "failed to infer audio data from list of phoneme ids");
         return NULL;
@@ -485,12 +656,12 @@ next(PyObject *self, PyObject *args) {
             Py_END_ALLOW_THREADS;
         }
     } else {
-        data = PyBytes_FromStringAndSize(NULL, sizeof(float) * (num_samples * num_of_silence_samples));
+        data = PyBytes_FromStringAndSize(NULL, sizeof(float) * (num_samples + num_of_silence_samples));
         if (data) {
             Py_BEGIN_ALLOW_THREADS;
             float *x = (float *)PyBytes_AS_STRING(data);
             for (int i = 0; i < num_samples; i++) x[i] = audio_tensor_data[i] / maxval;
-            memset(x + num_samples, 0, num_of_silence_samples * sizeof(int16_t));
+            memset(x + num_samples, 0, num_of_silence_samples * sizeof(float));
             Py_END_ALLOW_THREADS;
         }
     }
@@ -498,11 +669,58 @@ next(PyObject *self, PyObject *args) {
         ans = Py_BuildValue("OiiO", data, num_samples, current_sample_rate, phoneme_id_queue.empty() ? Py_True : Py_False);
         Py_DECREF(data);
     }
-
-    // Clean up
-    for (std::size_t i = 0; i < output_tensors.size(); i++) { Ort::detail::OrtRelease(output_tensors[i].release()); }
-    for (std::size_t i = 0; i < input_tensors.size(); i++) { Ort::detail::OrtRelease(input_tensors[i].release()); }
     return ans;
+}
+
+static PyObject *
+set_use_gpu(PyObject *self, PyObject *val) {
+    int q = PyObject_IsTrue(val);
+    if (q < 0) return NULL;
+    if (use_gpu == (q != 0)) Py_RETURN_NONE;
+    use_gpu = q != 0;
+    // Give previously failed providers another chance
+    failed_providers.clear();
+    if (session.get() != NULL && !load_session()) return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+gpu_providers(PyObject *self, PyObject *args) {
+    std::vector<std::string> providers;
+    try {
+        providers = accelerated_providers();
+    } catch (const std::exception &e) {
+        PyErr_Format(PyExc_OSError, "Failed to query onnxruntime for available execution providers: %s", e.what());
+        return NULL;
+    }
+    PyObject *ans = PyTuple_New(providers.size());
+    if (!ans) return NULL;
+    for (size_t i = 0; i < providers.size(); i++) {
+        PyObject *x = PyUnicode_FromString(providers[i].c_str());
+        if (!x) {
+            Py_DECREF(ans);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(ans, i, x);
+    }
+    return ans;
+}
+
+static PyObject *
+current_backend(PyObject *self, PyObject *args) {
+    if (session.get() == NULL) Py_RETURN_NONE;
+#ifdef _WIN32
+    PyObject *mp = PyUnicode_FromWideChar(current_model_path.c_str(), current_model_path.size());
+#else
+    PyObject *mp = PyUnicode_DecodeFSDefaultAndSize(current_model_path.c_str(), current_model_path.size());
+#endif
+    if (!mp) return NULL;
+    return Py_BuildValue(
+        "Nsnn",
+        mp,
+        active_provider.empty() ? "CPUExecutionProvider" : active_provider.c_str(),
+        (Py_ssize_t)active_node_counts.on_provider,
+        (Py_ssize_t)active_node_counts.total);
 }
 
 // Boilerplate {{{
@@ -523,6 +741,21 @@ static PyMethodDef methods[] = {
 
     {"set_espeak_voice_by_name", (PyCFunction)set_espeak_voice_by_name, METH_O, "set_espeak_voice_by_name(name) -> Set the voice to be used to phonemize text"},
     {"phonemize", (PyCFunction)phonemize, METH_O, "phonemize(text) -> Convert the specified text into espeak-ng phonemes"},
+    {"set_use_gpu",
+     (PyCFunction)set_use_gpu,
+     METH_O,
+     "set_use_gpu(use_gpu) -> Set whether hardware accelerated execution providers (GPU, etc.) are used to run the model, falling back to the CPU if they "
+     "fail. If a voice is already loaded it is reloaded. Defaults to False. Must not be called concurrently with other functions from this module."},
+    {"gpu_providers",
+     (PyCFunction)gpu_providers,
+     METH_NOARGS,
+     "gpu_providers() -> Return the hardware accelerated execution providers available in this build of onnxruntime, in the order in which they are tried"},
+    {"current_backend",
+     (PyCFunction)current_backend,
+     METH_NOARGS,
+     "current_backend() -> Return (model_path, execution_provider_name, num_nodes_on_provider, num_nodes) for the currently loaded model or None if no "
+     "model is loaded. The provider can change from a GPU provider to CPUExecutionProvider if the GPU fails while synthesizing. Nodes the provider does "
+     "not support run on the CPU. The node counts are zero if onnxruntime is too old to report them."},
     {NULL} /* Sentinel */
 };
 
@@ -544,6 +777,8 @@ cleanup_module(void *) {
     }
     current_phoneme_id_map.clear();
     session.reset();
+    active_provider.clear();
+    ort_env.reset();
     Py_CLEAR(normalize_data.func);
     Py_CLEAR(normalize_data.args);
 }

@@ -82,6 +82,25 @@ def set_voice(config_path: str, model_path: str, length_scale_multiplier: float 
     piper.set_voice(cfg, model_path)
 
 
+class Backend(NamedTuple):
+    model_path: str
+    # The onnxruntime execution provider running the model, for example
+    # CPUExecutionProvider or MIGraphXExecutionProvider
+    execution_provider: str
+    # Nodes of the model not supported by execution_provider run on the CPU.
+    # Both counts are zero if onnxruntime is too old to report them.
+    num_nodes_on_provider: int
+    num_nodes: int
+
+    @property
+    def uses_gpu(self) -> bool:
+        return self.execution_provider != 'CPUExecutionProvider'
+
+    @property
+    def fraction_on_provider(self) -> float | None:
+        return self.num_nodes_on_provider / self.num_nodes if self.num_nodes else None
+
+
 class SynthesisResult(NamedTuple):
     utterance_id: Any
     bytes_per_sample: int
@@ -99,6 +118,12 @@ def simple_test():
     piper.set_espeak_voice_by_name('en-us')
     if not piper.phonemize('simple test'):
         raise AssertionError('No phonemes returned by phonemize()')
+    if not isinstance(piper.gpu_providers(), tuple):
+        raise AssertionError('gpu_providers() did not return a tuple')
+    if piper.current_backend() is not None:
+        raise AssertionError('current_backend() is not None with no model loaded')
+    piper.set_use_gpu(True)
+    piper.set_use_gpu(False)
 
 
 ResultCallback = Callable[[SynthesisResult | None, Exception | None, str | None], None]
@@ -132,7 +157,7 @@ class Piper(Thread):
             voice_id, cmd = self.commands.get(True)
             if cmd is None:
                 break
-            if voice_id != self.voice_id:
+            if voice_id is not None and voice_id != self.voice_id:
                 continue
             try:
                 cmd()
@@ -164,6 +189,16 @@ class Piper(Thread):
 
     def _set_voice(self, cfg, model_path):
         piper.set_voice(cfg, model_path)
+
+    def set_use_gpu(self, use_gpu: bool) -> None:
+        # Not tied to a voice so that it is not discarded by cancel() or set_voice()
+        self.commands.put((None, partial(piper.set_use_gpu, use_gpu)))
+
+    def current_backend(self) -> Backend | None:
+        # Safe to call from any thread. Returns None while a model is being
+        # loaded or if no model has been loaded.
+        ans = piper.current_backend()
+        return None if ans is None else Backend(*ans)
 
     def cancel(self) -> None:
         self.increment_voice_id()
