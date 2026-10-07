@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+import hashlib
 import os
 import tempfile
 from contextlib import suppress
@@ -31,8 +32,10 @@ from calibre.utils.localization import _, ngettext
 class ProgressBar(QWidget):
     done = pyqtSignal(str)
 
-    def __init__(self, qurl: QUrl, path: str, nam: QNetworkAccessManager, text: str, parent: QWidget | None):
+    def __init__(self, qurl: QUrl, path: str, nam: QNetworkAccessManager, text: str, parent: QWidget | None, sha256: str = ''):
         super().__init__(parent)
+        self.expected_sha256 = sha256.lower()
+        self.hasher = hashlib.sha256()
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(text)
         la.setWordWrap(True)
@@ -65,7 +68,9 @@ class ProgressBar(QWidget):
         try:
             reply = self.reply
             assert reply is not None
-            self.file_obj.write(reply.readAll())
+            data = reply.readAll().data()
+            self.file_obj.write(data)
+            self.hasher.update(data)
         except Exception as e:
             self.on_over(_('Failed to write downloaded data with error: {}').format(e))
 
@@ -87,7 +92,11 @@ class ProgressBar(QWidget):
             reply = self.reply
             assert reply is not None
             code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
-            if code == 200:
+            if code == 200 and self.expected_sha256 and self.hasher.hexdigest() != self.expected_sha256:
+                with suppress(OSError):
+                    os.remove(self.file_obj.name)
+                err_msg = _('The downloaded data is corrupted, its checksum does not match')
+            elif code == 200:
                 os.replace(self.file_obj.name, self.path)
             else:
                 with suppress(OSError):
@@ -112,7 +121,14 @@ class ProgressBar(QWidget):
 
 
 class DownloadResources(QDialog):
-    def __init__(self, title: str, message: str, urls: dict[str, tuple[str, str]], parent: QWidget | None = None):
+    def __init__(
+        self,
+        title: str,
+        message: str,
+        urls: dict[str, tuple[str, str]],
+        parent: QWidget | None = None,
+        hashes: dict[str, str] | None = None,
+    ):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.l = l = QVBoxLayout(self)
@@ -133,7 +149,7 @@ class DownloadResources(QDialog):
         for url, (path, desc) in urls.items():
             qurl = QUrl(url)
             self.todo.add(qurl)
-            pb = ProgressBar(qurl, path, nam, desc, self)
+            pb = ProgressBar(qurl, path, nam, desc, self, sha256=(hashes or {}).get(url, ''))
             pb.done.connect(self.on_done, type=Qt.ConnectionType.QueuedConnection)
             central_l.addWidget(pb)
             self.bars.append(pb)
@@ -178,9 +194,22 @@ class DownloadResources(QDialog):
         super().reject()
 
 
-def download_resources(title: str, message: str, urls: dict[str, tuple[str, str]], parent: QWidget | None = None, headless: bool = False) -> bool:
+def download_resources(
+    title: str,
+    message: str,
+    urls: dict[str, tuple[str, str]],
+    parent: QWidget | None = None,
+    headless: bool = False,
+    hashes: dict[str, str] | None = None,
+) -> bool:
+    """
+    Download the specified URLs. urls maps each URL to the path it is saved to and a
+    description. hashes optionally maps URLs to the expected SHA-256 of their data,
+    data that does not match is not saved.
+    """
+    hashes = hashes or {}
     if not headless:
-        d = DownloadResources(title, message, urls, parent=parent)
+        d = DownloadResources(title, message, urls, parent=parent, hashes=hashes)
         return d.exec() == QDialog.DialogCode.Accepted
     from calibre import browser
 
@@ -190,8 +219,11 @@ def download_resources(title: str, message: str, urls: dict[str, tuple[str, str]
     for url, (path, name) in urls.items():
         print(_('Downloading {}...').format(name))
         data = br.open_novisit(url).read()
-        with open(path, 'wb') as f:
+        if (expected := hashes.get(url)) and hashlib.sha256(data).hexdigest() != expected.lower():
+            raise ValueError(f'The data downloaded from {url} is corrupted, its checksum does not match')
+        with open(path + '.part', 'wb') as f:
             f.write(data)
+        os.replace(path + '.part', path)
     return True
 
 

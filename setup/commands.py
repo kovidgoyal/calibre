@@ -26,6 +26,7 @@ __all__ = [
     'iso639',
     'iso3166',
     'iso_data',
+    'kokoro_voices',
     'liberation_fonts',
     'linux',
     'linux64',
@@ -102,6 +103,10 @@ hyphenation = Hyphenation()
 from setup.piper import PiperVoices
 
 piper_voices = PiperVoices()
+
+from setup.kokoro import KokoroVoices
+
+kokoro_voices = KokoroVoices()
 
 from setup.liberation import LiberationFonts
 

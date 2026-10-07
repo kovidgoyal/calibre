@@ -234,6 +234,12 @@ License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
+Files: src/calibre/utils/tts/kokoro.py
+Copyright: 2026, Kovid Goyal <kovid@kovidgoyal.net>, Portions based on misaki, Copyright hexgrad
+License: GPL-3 and Apache 2.0
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
 Files: setup/iso*
 Copyright: Various
 License: LGPL 2.1

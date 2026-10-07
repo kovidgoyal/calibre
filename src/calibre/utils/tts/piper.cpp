@@ -8,6 +8,8 @@
 
 #include <Python.h>
 #include <espeak-ng/speak_lib.h>
+#include <array>
+#include <cstring>
 #include <vector>
 #include <map>
 #include <memory>
@@ -59,6 +61,15 @@ typedef std::map<Phoneme, std::vector<PhonemeId>> PhonemeIdMap;
 const PhonemeId ID_PAD = 0; // interleaved
 const PhonemeId ID_BOS = 1; // beginning of sentence
 const PhonemeId ID_EOS = 2; // end of sentence
+// Kokoro models use the pad token at the start and end of every input and
+// accept at most this many other tokens
+const PhonemeId KOKORO_ID_PAD = 0;
+const size_t KOKORO_MAX_TOKENS = 510;
+// Number of floats in a Kokoro style vector. A voice consists of one style
+// vector per number of input tokens.
+const size_t KOKORO_STYLE_DIM = 256;
+
+enum class ModelType { Piper, Kokoro };
 
 static bool initialized = false, voice_set = false;
 PyObject *normalize_func = NULL;
@@ -71,6 +82,9 @@ static float current_noise_scale = 1;
 static float current_noise_w = 1;
 static float current_sentence_delay = 0;
 static bool current_normalize_volume = true;
+static ModelType current_model_type = ModelType::Piper;
+static float current_speed = 1;
+static std::vector<float> current_style;
 // The Env must outlive all sessions created with it
 static std::unique_ptr<Ort::Env> ort_env;
 std::unique_ptr<Ort::Session> session;
@@ -201,9 +215,9 @@ count_nodes(const Ort::Session &s, const std::string &provider) {
     return ans;
 }
 
-// Run the model on a list of phoneme ids. Raises an exception on failure.
+// Run a Piper model on a list of phoneme ids. Raises an exception on failure.
 static std::vector<Ort::Value>
-run_inference(Ort::Session &s, std::vector<PhonemeId> &ids) {
+run_piper_inference(Ort::Session &s, std::vector<PhonemeId> &ids) {
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
     std::vector<Ort::Value> input_tensors;
 
@@ -249,6 +263,62 @@ run_inference(Ort::Session &s, std::vector<PhonemeId> &ids) {
     return ans;
 }
 
+// Run a Kokoro model on a list of phoneme ids that start and end with
+// KOKORO_ID_PAD. Raises an exception on failure.
+static std::vector<Ort::Value>
+run_kokoro_inference(Ort::Session &s, std::vector<PhonemeId> &ids) {
+    auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+    const size_t num_rows = current_style.size() / KOKORO_STYLE_DIM;
+    if (!num_rows) throw std::runtime_error("No style vectors for the Kokoro voice");
+    // The style vector is chosen by the number of tokens excluding the padding
+    const size_t num_tokens = ids.size() > 2 ? ids.size() - 2 : 1;
+    const size_t row = std::min(num_tokens - 1, num_rows - 1);
+    std::vector<float> style(current_style.begin() + row * KOKORO_STYLE_DIM, current_style.begin() + (row + 1) * KOKORO_STYLE_DIM);
+    std::vector<float> speed{current_speed};
+
+    std::vector<Ort::Value> input_tensors;
+    std::vector<int64_t> ids_shape{1, (int64_t)ids.size()};
+    input_tensors.push_back(Ort::Value::CreateTensor<int64_t>(memoryInfo, ids.data(), ids.size(), ids_shape.data(), ids_shape.size()));
+    std::vector<int64_t> style_shape{1, (int64_t)KOKORO_STYLE_DIM};
+    input_tensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, style.data(), style.size(), style_shape.data(), style_shape.size()));
+    std::vector<int64_t> speed_shape{1};
+    input_tensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo, speed.data(), speed.size(), speed_shape.data(), speed_shape.size()));
+
+    std::array<const char *, 3> input_names = {"input_ids", "style", "speed"};
+    Ort::AllocatorWithDefaultOptions allocator;
+    Ort::AllocatedStringPtr output_name = s.GetOutputNameAllocated(0, allocator);
+    std::array<const char *, 1> output_names = {output_name.get()};
+
+    Ort::RunOptions ro;
+    long long st;
+    if (PRINT_TIMING_INFORMATION) st = now();
+    std::vector<Ort::Value> ans = s.Run(ro, input_names.data(), input_tensors.data(), input_tensors.size(), output_names.data(), output_names.size());
+    if (PRINT_TIMING_INFORMATION) {
+        printf("model run time: %f\n", (now() - st) / 1e9);
+        fflush(stdout);
+    }
+    return ans;
+}
+
+// Run the current model on a list of phoneme ids. Raises an exception on failure.
+static std::vector<Ort::Value>
+run_inference(Ort::Session &s, std::vector<PhonemeId> &ids) {
+    if (current_model_type == ModelType::Kokoro) return run_kokoro_inference(s, ids);
+    return run_piper_inference(s, ids);
+}
+
+// A short input used to check that a model works with an execution provider
+static std::vector<PhonemeId>
+warmup_ids() {
+    if (current_model_type == ModelType::Piper) return {ID_BOS, ID_PAD, ID_EOS};
+    std::vector<PhonemeId> ans{KOKORO_ID_PAD};
+    auto schwa = current_phoneme_id_map.find(U'\u0259');
+    if (schwa != current_phoneme_id_map.end() && !schwa->second.empty()) ans.push_back(schwa->second.front());
+    else if (!current_phoneme_id_map.empty() && !current_phoneme_id_map.begin()->second.empty()) ans.push_back(current_phoneme_id_map.begin()->second.front());
+    ans.push_back(KOKORO_ID_PAD);
+    return ans;
+}
+
 struct LoadResult {
     std::unique_ptr<Ort::Session> session;
     std::string provider, error;
@@ -272,7 +342,7 @@ load_model(const std::basic_string<ORTCHAR_T> &model_path, const std::vector<std
             NodeCounts counts = count_nodes(*s, p);
             if (counts.total > 0 && counts.on_provider == 0)
                 throw std::runtime_error("none of the operations in this model are supported by this execution provider");
-            std::vector<PhonemeId> ids{ID_BOS, ID_PAD, ID_EOS};
+            std::vector<PhonemeId> ids = warmup_ids();
             run_inference(*s, ids);
             ans.session = std::move(s);
             ans.provider = p;
@@ -326,7 +396,7 @@ load_session() {
     Py_END_ALLOW_THREADS;
     for (const auto &f : r.provider_failures) failed_providers.insert(f.first);
     if (!r.session) {
-        PyErr_Format(PyExc_OSError, "Failed to load the piper model: %s", r.error.c_str());
+        PyErr_Format(PyExc_OSError, "Failed to load the neural network model: %s", r.error.c_str());
         return false;
     }
     session = std::move(r.session);
@@ -396,11 +466,15 @@ categorize_terminator(int terminator) {
 }
 
 static PyObject *
-phonemize(PyObject *self, PyObject *pytext) {
-    if (!PyUnicode_Check(pytext)) {
-        PyErr_SetString(PyExc_TypeError, "text must be a unicode string");
+phonemize(PyObject *self, PyObject *args) {
+    PyObject *pytext;
+    int tie = 0;
+    if (!PyArg_ParseTuple(args, "U|C", &pytext, &tie)) return NULL;
+    if (tie < 0 || tie > 0xffff) {
+        PyErr_SetString(PyExc_ValueError, "the tie character must be in the Basic Multilingual Plane");
         return NULL;
     }
+    const int phoneme_mode = espeakPHONEMES_IPA | (tie ? (espeakPHONEMES_TIE | (tie << 8)) : 0);
     if (!initialized) {
         PyErr_SetString(PyExc_Exception, "must call initialize() first");
         return NULL;
@@ -417,7 +491,7 @@ phonemize(PyObject *self, PyObject *pytext) {
         int terminator = 0;
         const char *phonemes;
         Py_BEGIN_ALLOW_THREADS;
-        phonemes = espeak_TextToPhonemesWithTerminator((const void **)&text, espeakCHARS_UTF8, espeakPHONEMES_IPA, &terminator);
+        phonemes = espeak_TextToPhonemesWithTerminator((const void **)&text, espeakCHARS_UTF8, phoneme_mode, &terminator);
         Py_END_ALLOW_THREADS;
         // Categorize terminator
         const char *terminator_str = categorize_terminator(terminator);
@@ -464,7 +538,49 @@ set_voice(PyObject *self, PyObject *args) {
     G(noise_w, current_noise_w, (float)PyFloat_AsDouble);
     G(sentence_delay, current_sentence_delay, (float)PyFloat_AsDouble);
     G(normalize_volume, current_normalize_volume, PyObject_IsTrue);
+    G(speed, current_speed, (float)PyFloat_AsDouble);
 #undef G
+
+    PyObject *mt = PyObject_GetAttrString(cfg, "model_type");
+    if (!mt) return NULL;
+    const char *mts = PyUnicode_Check(mt) ? PyUnicode_AsUTF8(mt) : NULL;
+    if (!mts) {
+        Py_DECREF(mt);
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_TypeError, "model_type must be a string");
+        return NULL;
+    }
+    ModelType model_type;
+    if (strcmp(mts, "piper") == 0) model_type = ModelType::Piper;
+    else if (strcmp(mts, "kokoro") == 0) model_type = ModelType::Kokoro;
+    else {
+        PyErr_Format(PyExc_ValueError, "Unknown model type: %s", mts);
+        Py_DECREF(mt);
+        return NULL;
+    }
+    Py_DECREF(mt);
+
+    std::vector<float> style;
+    if (model_type == ModelType::Kokoro) {
+        PyObject *pystyle = PyObject_GetAttrString(cfg, "style");
+        if (!pystyle) return NULL;
+        Py_buffer buf;
+        if (PyObject_GetBuffer(pystyle, &buf, PyBUF_SIMPLE) != 0) {
+            Py_DECREF(pystyle);
+            return NULL;
+        }
+        const size_t row_size = KOKORO_STYLE_DIM * sizeof(float);
+        const size_t sz = (size_t)buf.len;
+        if (sz == 0 || sz % row_size != 0) {
+            PyBuffer_Release(&buf);
+            Py_DECREF(pystyle);
+            PyErr_Format(PyExc_ValueError, "Kokoro voice data has invalid size: %zu", sz);
+            return NULL;
+        }
+        style.resize(sz / sizeof(float));
+        memcpy(style.data(), buf.buf, sz);
+        PyBuffer_Release(&buf);
+        Py_DECREF(pystyle);
+    }
 
     PyObject *map = PyObject_GetAttrString(cfg, "phoneme_id_map");
     if (!map) return NULL;
@@ -486,16 +602,22 @@ set_voice(PyObject *self, PyObject *args) {
     if (PyErr_Occurred()) return NULL;
 
 #ifdef _WIN32
-    wchar_t *model_path = PyUnicode_AsWideCharString(pymp, NULL);
-    if (!model_path) return NULL;
-    current_model_path = model_path;
-    PyMem_Free(model_path);
+    wchar_t *model_path_buf = PyUnicode_AsWideCharString(pymp, NULL);
+    if (!model_path_buf) return NULL;
+    std::basic_string<ORTCHAR_T> model_path(model_path_buf);
+    PyMem_Free(model_path_buf);
 #else
-    const char *model_path = PyUnicode_AsUTF8(pymp);
-    if (!model_path) return NULL;
-    current_model_path = model_path;
+    const char *model_path_buf = PyUnicode_AsUTF8(pymp);
+    if (!model_path_buf) return NULL;
+    std::basic_string<ORTCHAR_T> model_path(model_path_buf);
 #endif
-    if (!load_session()) return NULL;
+    current_style = std::move(style);
+    // A Kokoro model is shared by all its voices, so switching between them
+    // does not require loading the model again
+    const bool needs_load = session.get() == NULL || model_path != current_model_path || model_type != current_model_type;
+    current_model_type = model_type;
+    current_model_path = model_path;
+    if (needs_load && !load_session()) return NULL;
     Py_RETURN_NONE;
 }
 
@@ -512,6 +634,10 @@ start(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "s", &text)) return NULL;
     if (!voice_set || session.get() == NULL) {
         PyErr_SetString(PyExc_Exception, "must call set_voice() first");
+        return NULL;
+    }
+    if (current_model_type != ModelType::Piper) {
+        PyErr_SetString(PyExc_Exception, "start() can only be used with Piper models, use start_phonemes() instead");
         return NULL;
     }
     // Clear state
@@ -581,6 +707,42 @@ start(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
+start_phonemes(PyObject *self, PyObject *pychunks) {
+    if (current_model_type != ModelType::Kokoro || session.get() == NULL) {
+        PyErr_SetString(PyExc_Exception, "must call set_voice() with a Kokoro model first");
+        return NULL;
+    }
+    PyObject *seq = PySequence_Fast(pychunks, "phonemes must be a sequence of strings");
+    if (!seq) return NULL;
+    std::queue<std::vector<PhonemeId>> q;
+    for (Py_ssize_t c = 0; c < PySequence_Fast_GET_SIZE(seq); c++) {
+        PyObject *chunk = PySequence_Fast_GET_ITEM(seq, c);
+        if (!PyUnicode_Check(chunk)) {
+            Py_DECREF(seq);
+            PyErr_SetString(PyExc_TypeError, "phonemes must be a sequence of strings");
+            return NULL;
+        }
+        std::vector<PhonemeId> ids{KOKORO_ID_PAD};
+        const int kind = PyUnicode_KIND(chunk);
+        const void *data = PyUnicode_DATA(chunk);
+        for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(chunk) && ids.size() <= KOKORO_MAX_TOKENS; i++) {
+            auto it = current_phoneme_id_map.find(PyUnicode_READ(kind, data, i));
+            if (it != current_phoneme_id_map.end()) {
+                for (auto id : it->second) ids.push_back(id);
+            }
+        }
+        if (ids.size() > KOKORO_MAX_TOKENS + 1) ids.resize(KOKORO_MAX_TOKENS + 1);
+        if (ids.size() < 2) continue; // no known phonemes
+        ids.push_back(KOKORO_ID_PAD);
+        q.emplace(std::move(ids));
+    }
+    Py_DECREF(seq);
+    phoneme_id_queue.swap(q);
+    chunk_samples.clear();
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 next(PyObject *self, PyObject *args) {
     int as_16bit_samples = 1;
     if (!PyArg_ParseTuple(args, "|p", &as_16bit_samples)) return NULL;
@@ -623,7 +785,7 @@ next(PyObject *self, PyObject *args) {
         if (!warn_about_provider_failure(provider, provider_error)) return NULL;
     }
     if (!error.empty()) {
-        PyErr_Format(PyExc_OSError, "Failed to run the piper model: %s", error.c_str());
+        PyErr_Format(PyExc_OSError, "Failed to run the neural network model: %s", error.c_str());
         return NULL;
     }
     if ((output_tensors.size() != 1) || (!output_tensors.front().IsTensor())) {
@@ -728,7 +890,7 @@ current_backend(PyObject *self, PyObject *args) {
 }
 
 // Boilerplate {{{
-static char doc[] = "Text to speech using the Piper TTS models";
+static char doc[] = "Text to speech using the Piper and Kokoro TTS models";
 static PyMethodDef methods[] = {
     {"initialize",
      (PyCFunction)initialize,
@@ -736,7 +898,16 @@ static PyMethodDef methods[] = {
      "initialize(espeak_data_dir) -> Initialize this module. Must be called once before using any other functions from this module. If espeak_data_dir is not "
      "specified or is the empty string the default data location is used."},
     {"set_voice", (PyCFunction)set_voice, METH_VARARGS, "set_voice(voice_config, model_path) -> Load the model in preparation for synthesis."},
-    {"start", (PyCFunction)start, METH_VARARGS, "start(text) -> Start synthesizing the specified text, call next() repeatedly to get the audiodata."},
+    {"start",
+     (PyCFunction)start,
+     METH_VARARGS,
+     "start(text) -> Start synthesizing the specified text with a Piper model, call next() repeatedly to get the audiodata."},
+    {"start_phonemes",
+     (PyCFunction)start_phonemes,
+     METH_O,
+     "start_phonemes(chunks) -> Start synthesizing the specified sequence of phoneme strings with a Kokoro model, each string is synthesized separately. "
+     "Phonemes not in the voice's phoneme id map are ignored and each string is truncated to 510 phonemes. Call next() repeatedly to get the audio "
+     "data."},
     {"next",
      (PyCFunction)next,
      METH_VARARGS,
@@ -744,7 +915,11 @@ static PyMethodDef methods[] = {
      "consisting of either native 16bit integer audio samples or native floats in the range [-1, 1]."},
 
     {"set_espeak_voice_by_name", (PyCFunction)set_espeak_voice_by_name, METH_O, "set_espeak_voice_by_name(name) -> Set the voice to be used to phonemize text"},
-    {"phonemize", (PyCFunction)phonemize, METH_O, "phonemize(text) -> Convert the specified text into espeak-ng phonemes"},
+    {"phonemize",
+     (PyCFunction)phonemize,
+     METH_VARARGS,
+     "phonemize(text, tie='') -> Convert the specified text into a list of (phonemes, terminator, is_end_of_sentence) clauses using espeak-ng. If "
+     "tie is specified, it is placed between the characters of multi-character phonemes."},
     {"set_use_gpu",
      (PyCFunction)set_use_gpu,
      METH_O,
@@ -791,6 +966,7 @@ cleanup_module(void *) {
         espeak_Terminate();
     }
     current_phoneme_id_map.clear();
+    current_style.clear();
     session.reset();
     active_provider.clear();
     ort_env.reset();

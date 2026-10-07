@@ -58,6 +58,11 @@ class Quality(Enum):
     def from_piper_quality(self, x: str) -> Quality:
         return {'x_low': Quality.ExtraLow, 'low': Quality.Low, 'medium': Quality.Medium, 'high': Quality.High}[x]
 
+    @classmethod
+    def from_kokoro_grade(self, x: str) -> Quality:
+        # Grades are school style letter grades such as B- or empty if unknown
+        return {'A': Quality.High, 'B': Quality.High, 'C': Quality.Medium, 'D': Quality.Low, 'F': Quality.ExtraLow}.get(x[:1], Quality.Medium)
+
     @property
     def localized_name(self) -> str:
         if self is Quality.Medium:
@@ -272,10 +277,11 @@ def available_engines() -> dict[str, EngineMetadata]:
     else:
         ans['piper'] = EngineMetadata(
             'piper',
-            _('The Piper Neural Engine'),
+            _('The Neural Engine (Kokoro and Piper voices)'),
             _(
-                'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
-                'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
+                'The neural engine can track the currently spoken sentence on screen. It uses neural networks '
+                'for natural sounding voices, Kokoro voices for the highest quality in a few languages and Piper voices for many more languages. '
+                'The neural networks are run locally on your computer, they are fairly resource intensive to run.'
             ),
             TrackingCapability.Sentence,
             can_change_pitch=False,

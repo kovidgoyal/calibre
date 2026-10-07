@@ -807,6 +807,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.spell.dictionary import find_tests
 
         a(find_tests())
+        from calibre.utils.tts.kokoro import find_tests
+
+        a(find_tests())
     if ok('ai'):
         from calibre.ai.utils import find_tests
 
