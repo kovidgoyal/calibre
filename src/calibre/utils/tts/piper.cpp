@@ -23,7 +23,11 @@
 #ifdef _WIN32
 #define ORT_DLL_IMPORT
 #endif
+// The OrtApi is initialized in exec_module() so that a mismatched
+// onnxruntime library is reported as an error instead of crashing
+#define ORT_API_MANUAL_INIT
 #include <onnxruntime_cxx_api.h>
+#undef ORT_API_MANUAL_INIT
 #include <onnxruntime_session_options_config_keys.h>
 // Querying which execution provider each node of the model is assigned to
 #define HAS_EP_ASSIGNMENT_INFO (ORT_API_VERSION >= 24)
@@ -761,6 +765,17 @@ static PyMethodDef methods[] = {
 
 static int
 exec_module(PyObject *mod) {
+    const OrtApiBase *base = OrtGetApiBase();
+    const OrtApi *api = base ? base->GetApi(ORT_API_VERSION) : NULL;
+    if (!api) {
+        PyErr_Format(
+            PyExc_ImportError,
+            "The loaded onnxruntime library (version: %s) does not support the API version %d this module was built with",
+            base ? base->GetVersionString() : "unknown",
+            ORT_API_VERSION);
+        return -1;
+    }
+    Ort::InitApi(api);
     return 0;
 }
 

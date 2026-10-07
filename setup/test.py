@@ -88,6 +88,9 @@ class Test(BaseTest):
             elif iswindows:
                 ffmpeg_dll_dir = os.path.join(SW, 'ffmpeg', 'bin')
                 os.add_dll_directory(ffmpeg_dll_dir)  # type: ignore
+                # onnxruntime.dll is in lib, without this Windows' own older
+                # onnxruntime.dll from System32 is loaded instead
+                os.add_dll_directory(os.path.join(SW, 'lib'))  # type: ignore
 
         from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
 
