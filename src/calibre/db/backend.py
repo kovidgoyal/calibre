@@ -1792,8 +1792,10 @@ class DB:
         with self.conn, stop_gc:  # Use a single transaction, to ensure nothing modifies the db while we are reading
             books_columns = tuple(t for t in self.tables.values() if isinstance(t, OneToOneTable) and t.is_books_table_column)
             already_read = frozenset(books_columns) if read_books_table_columns(self, books_columns) else frozenset()
+            # The size table takes its values from the formats table, so it is read last
+            size_table = self.tables.get('size')
             for table in self.tables.values():
-                if table in already_read:
+                if table in already_read or table is size_table:
                     continue
                 try:
                     table.read(self)
@@ -1803,6 +1805,8 @@ class DB:
 
                     pprint.pprint(table.metadata)
                     raise
+            if size_table is not None:
+                size_table.read(self)
 
     def find_path_for_book(self, book_id):
         q = BOOK_ID_PATH_TEMPLATE.format(book_id)

@@ -168,12 +168,16 @@ class PathTable(OneToOneTable):
 
 class SizeTable(OneToOneTable):
     def read(self, db):
-        # A single aggregate pass over data is much faster than running a
-        # correlated subquery for every book
-        query = db.execute(
-            'SELECT books.id, s.size FROM books LEFT JOIN (SELECT book, MAX(uncompressed_size) AS size FROM data GROUP BY book) AS s ON s.book=books.id'
-        )
-        self.book_col_map = dict(query)
+        # The size of a book is the largest of its format sizes, which the
+        # formats table has already read from the data table, so there is no
+        # need for a second pass over it. read_tables() reads this table last
+        # so that the formats table is always available here. Books with no
+        # formats get a size of None, as they did from the LEFT JOIN this
+        # replaces.
+        self.book_col_map = bcm = dict.fromkeys(db.tables['uuid'].book_col_map)
+        for book_id, fmt_sizes in db.tables['formats'].size_map.items():
+            if fmt_sizes:
+                bcm[book_id] = max(fmt_sizes.values())
 
     def update_sizes(self, size_map):
         self.book_col_map.update(size_map)
