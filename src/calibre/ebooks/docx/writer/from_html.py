@@ -84,8 +84,10 @@ class TextRun:
     def add_break(self, clear='none', bookmark=None):
         self.texts.append((None, clear, bookmark))
 
-    def add_image(self, drawing, bookmark=None, link=None):
-        self.texts.append((drawing, link, bookmark))
+    def add_image(self, drawing, bookmark=None, drawing_link=None):
+        # As for breaks, the second slot is overloaded, for drawings it holds
+        # the link to put on the drawing itself (used for floating images)
+        self.texts.append((drawing, drawing_link, bookmark))
 
     def serialize(self, p, links_manager, parent=None):
         makeelement = self.makeelement
@@ -115,7 +117,7 @@ class TextRun:
             if text is None:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
-                drawing_link = preserve_whitespace  # for drawings this slot holds the link of a floating image
+                drawing_link = preserve_whitespace
                 if drawing_link is not None:
                     links_manager.serialize_drawing_link(text, drawing_link)
                 r.append(text)
@@ -150,6 +152,10 @@ class TextRun:
         if len(self.texts) == 1 and self.texts[0][:2] == ('', False):
             return True
         return False
+
+    @property
+    def has_text(self):
+        return any(isinstance(text, str) for text, preserve_whitespace, bookmark in self.texts)
 
     @property
     def style_weight(self):
@@ -243,18 +249,27 @@ class Block:
             self.runs.append(run)
         run.add_break(clear=clear, bookmark=bookmark)
 
-    def add_image(self, drawing, bookmark=None, link=None):
+    def add_image(self, drawing, bookmark=None, link=None, floating=False):
         drawing_link = None
-        if link is not None and self.namespace.XPath('./wp:anchor')(drawing):
-            # Floating image, the link must go on the image itself, not on the run
+        if link is not None and floating:
+            # Floating image, the link must go on the image itself, not on the
+            # run. Insert it before any runs of the same link so as not to
+            # split the <w:hyperlink> of the surrounding text into two. At
+            # worst, this moves the floating image up to the line on which
+            # the link starts.
             link, drawing_link = None, link
-        if self.runs and link is self.runs[-1].link:
-            run = self.runs[-1]
+            pos = len(self.runs)
+            while pos > 0 and self.runs[pos - 1].link is drawing_link:
+                pos -= 1
+        else:
+            pos = len(self.runs)
+        if pos > 0 and link is self.runs[pos - 1].link:
+            run = self.runs[pos - 1]
         else:
             run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
             run.link = link
-            self.runs.append(run)
-        run.add_image(drawing, bookmark=bookmark, link=drawing_link)
+            self.runs.insert(pos, run)
+        run.add_image(drawing, bookmark=bookmark, drawing_link=drawing_link)
 
     def serialize(self, body):
         makeelement = self.namespace.makeelement
@@ -459,7 +474,10 @@ class Blocks:
         for block in self.all_blocks:
             count = Counter()
             for run in block.runs:
-                count[run.lang] += 1
+                # Runs containing only images have no language and must not
+                # influence the language of the block
+                if run.has_text:
+                    count[run.lang] += 1
             if count:
                 block.block_lang = bl = count.most_common(1)[0][0]
                 for run in block.runs:

@@ -92,11 +92,12 @@ class ImagesManager:
             rid = self.read_image(href).rid
         except AttributeError:
             return
-        drawing = self.create_image_markup(img, stylizer, href, as_block=as_block)
-        block.add_image(drawing, bookmark=bookmark, link=link)
+        drawing, floating = self.create_image_markup(img, stylizer, href, as_block=as_block)
+        block.add_image(drawing, bookmark=bookmark, link=link, floating=floating)
         return rid
 
-    def create_image_markup(self, html_img, stylizer, href, as_block=False):
+    def create_image_markup(self, html_img, stylizer, href, as_block=False) -> tuple[etree._Element, bool]:
+        """Return the <w:drawing> for the image and whether it is floating"""
         svg_rid = ''
         svghref = self.svg_rasterizer.svg_originals.get(href)
         if svghref:
@@ -171,7 +172,7 @@ class ImagesManager:
             else:
                 makeelement(parent, 'wp:wrapSquare', wrapText='bothSides')
         self.create_docx_image_markup(parent, name, html_img.get('alt') or name, img.rid, width, height, svg_rid=svg_rid)
-        return ans
+        return ans, floating is not None
 
     def create_docx_image_markup(self, parent, name, alt, img_rid, width, height, svg_rid=''):
         makeelement, namespaces = (

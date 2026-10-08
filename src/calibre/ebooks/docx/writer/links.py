@@ -6,7 +6,9 @@ import re
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from calibre.ebooks.oeb.base import urlquote
+from lxml import etree
+
+from calibre.ebooks.oeb.base import Manifest, urlquote
 from calibre.utils.filenames import ascii_text
 from calibre.utils.localization import __
 
@@ -61,6 +63,10 @@ def sanitize_bookmark_name(base):
     return re.sub(r'[^0-9a-zA-Z]', '_', ascii_text(base))[:32].rstrip('_')
 
 
+# (source item, href, title) of an <a> tag
+Link = tuple[Manifest.Item, str, str | None]
+
+
 class LinksManager:
     def __init__(self, namespace, document_relationships, log):
         self.namespace = namespace
@@ -97,8 +103,8 @@ class LinksManager:
         self.bmark_id += 1
         return self.bmark_id
 
-    def link_target(self, link):
-        """Return (bookmark, None) for internal links, (None, rid) for external links, None otherwise"""
+    def link_target(self, link: Link) -> tuple[str, bool] | None:
+        """Return (bookmark, False) for internal links, (rid, True) for external links, None otherwise"""
         item, url, tooltip = link
         purl = urlparse(url)
         href = purl.path
@@ -113,40 +119,42 @@ class LinksManager:
                     bmark = self.anchor_map[key]
                 else:
                     bmark = self.anchor_map[(href, self.top_anchor)]
-                return bmark, None
+                return bmark, False
             else:
                 self.log.warn(f'Ignoring internal hyperlink with href ({url}) pointing to unknown destination')
         if purl.scheme in {'http', 'https', 'ftp'}:
             if url not in self.external_links:
                 self.external_links[url] = self.document_relationships.add_relationship(url, self.namespace.names['LINKS'], target_mode='External')
-            return None, self.external_links[url]
+            return self.external_links[url], True
+        if purl.scheme:
+            self.log.warn(f'Ignoring hyperlink with href ({url}) with unsupported scheme')
         return None
 
-    def serialize_hyperlink(self, parent, link):
+    def serialize_hyperlink(self, parent: etree._Element, link: Link) -> etree._Element:
         target = self.link_target(link)
         if target is None:
             return parent
-        anchor, rid = target
-        kw = {'w_anchor': anchor} if rid is None else {'r_id': rid}
+        dest, is_external = target
+        kw = {'r_id': dest} if is_external else {'w_anchor': dest}
         tooltip = link[2]
         if tooltip:
             kw['w_tooltip'] = tooltip
         return self.namespace.makeelement(parent, 'w:hyperlink', **kw)
 
-    def serialize_drawing_link(self, drawing, link):
+    def serialize_drawing_link(self, drawing: etree._Element, link: Link) -> None:
         # Word ignores <w:hyperlink> around floating images, so link the image itself, the way Word does
         target = self.link_target(link)
         if target is None:
             return
-        anchor, rid = target
-        if rid is None:
-            rid = self.document_relationships.add_relationship('#' + anchor, self.namespace.names['LINKS'])
+        dest, is_external = target
+        rid = dest if is_external else self.document_relationships.add_relationship('#' + dest, self.namespace.names['LINKS'])
         kw = {'r_id': rid}
         tooltip = link[2]
         if tooltip:
             kw['tooltip'] = tooltip
-        for docpr in self.namespace.XPath('descendant::wp:docPr')(drawing):
-            docpr.insert(0, self.namespace.makeelement(docpr, 'a:hlinkClick', append=False, **kw))
+        # Word puts the link on both the drawing and the picture properties
+        for pr in self.namespace.XPath('descendant::wp:docPr | descendant::pic:cNvPr')(drawing):
+            pr.insert(0, self.namespace.makeelement(pr, 'a:hlinkClick', append=False, **kw))
 
     def process_toc_node(self, toc, level=0):
         href = toc.href
