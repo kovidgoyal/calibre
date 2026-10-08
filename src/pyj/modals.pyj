@@ -84,35 +84,34 @@ add_extra_css(def ():
         max_width='100%',
         box_sizing='border-box',
     )
+    std_box = '#modal-container .button-box:not(.button-box--wrap-chips)'
+    chips_box = '#modal-container .button-box.button-box--wrap-chips'
     style += build_rule(
         '#modal-container .button-box',
-        display='flex', justify_content='space-between', align_items='stretch',
+        display='flex', align_items='stretch',
         flex_wrap='wrap', gap='0.5rem',
         padding='1rem 0rem', min_width='0',
     )
+    # wrap-reverse and column-reverse put the last button, which is the
+    # primary action, on top when the buttons do not fit on one line
+    style += build_rule(std_box, justify_content='space-between', flex_wrap='wrap-reverse')
     style += build_rule(
-        '#modal-container .button-box > a.calibre-push-button',
-        flex='1 1 0', min_width='0', justify_content='center',
+        std_box + ' > a.calibre-push-button',
+        flex='1 1 auto', min_width='0', justify_content='center',
     )
-    style += build_rule(
-        '#modal-container .button-box > a.calibre-push-button:only-of-type',
-        flex='0 1 auto', margin_left='auto',
-    )
-    style += build_rule(
-        '#modal-container .button-box.button-box--wrap-chips',
-        justify_content='flex-start',
-    )
-    style += build_rule(
-        '#modal-container .button-box.button-box--wrap-chips > a.calibre-push-button',
-        flex='0 1 auto',
-    )
-    style += r'''
-@media (max-width: 420px) {
-  #modal-container .button-box:not(.button-box--wrap-chips) { flex-direction: column; }
-  #modal-container .button-box:not(.button-box--wrap-chips) > a.calibre-push-button { flex: 1 1 auto; }
-  #modal-container .button-box:not(.button-box--wrap-chips) > a.calibre-push-button:only-of-type { margin-left: 0; }
-}
-'''
+    # :only-of-type is a fallback for browsers that do not support :has()
+    style += '@media not all and (max-width: 420px) {\n'
+    for lone_button in [
+        std_box + ' > a.calibre-push-button:only-of-type',
+        std_box + ':not(:has(> a.calibre-push-button ~ a.calibre-push-button)) > a.calibre-push-button'
+    ]:
+        style += build_rule(lone_button, flex='0 1 auto', margin_left='auto')
+    style += '}\n'
+    style += '@media (max-width: 420px) {\n'
+    style += build_rule(std_box, flex_direction='column-reverse')
+    style += '}\n'
+    style += build_rule(chips_box, justify_content='flex-start')
+    style += build_rule(chips_box + ' > a.calibre-push-button', flex='0 1 auto')
     style += build_rule(
         '#modal-container > div > a:last-child',
         z_index='2',
