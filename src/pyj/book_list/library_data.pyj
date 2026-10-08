@@ -8,7 +8,7 @@ from ajax import absolute_path, ajax
 from book_list.globals import get_session_data
 from lru_cache import LRUCache
 from session import get_interface_data
-from utils import parse_url_params
+from utils import conditional_timeout, parse_url_params
 
 load_status = {'loading': True, 'ok': False, 'error_html': None, 'current_fetch': None, 'current_query': None, 'http_error_code': 0}
 library_data = {
@@ -356,6 +356,19 @@ def loaded_book_ids():
 
 def force_refresh_on_next_load():
     library_data.force_refresh = True
+
+
+def on_library_data_loaded(container_id, callback):
+    # Run callback(ok) once books-init, which on a warm start is still in
+    # flight when a panel from the URL is created, has finished, unless the
+    # panel was closed in the meantime
+    def check():
+        if load_status.loading:
+            conditional_timeout(container_id, 5, check)
+        else:
+            callback(load_status.ok)
+
+    check()
 
 
 def ensure_current_library_data():

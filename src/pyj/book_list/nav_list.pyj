@@ -12,7 +12,7 @@ from book_list.library_data import browse_field_for, url_books_query, thumbnail_
 from book_list.router import back, update_window_title
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
-from book_list.ui import set_panel_handler, show_panel
+from book_list.ui import library_data_panel, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, svgicon
 from session import get_interface_data
 from utils import parse_url_params
@@ -999,4 +999,6 @@ def create_nav_list_panel(container_id):
 
 
 def set_panel_handlers():
-    set_panel_handler('nav_list', create_nav_list_panel)
+    # The browse field names and kinds come from the library data. If loading
+    # it failed the panel still works, using the raw field names.
+    set_panel_handler('nav_list', library_data_panel(create_nav_list_panel, create_nav_list_panel))

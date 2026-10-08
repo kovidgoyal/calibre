@@ -20,7 +20,7 @@ from book_list.theme import (
     color_scheme, get_color, get_color_as_rgba
 )
 from book_list.top_bar import clear_buttons, create_top_bar, set_title
-from book_list.ui import query_as_href, set_panel_handler, show_panel
+from book_list.ui import library_data_panel, panel_is_shown, query_as_href, set_panel_handler, show_loading_panel, show_panel
 from book_list.views import search_query_for
 from date import format_date
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon, unique_id
@@ -1228,22 +1228,25 @@ def init(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
-def show_subsequent_panel(name, replace=False):
+def book_query():
+    # The book in the URL, except that book_id 0 means a random book, in which
+    # case use the one that was rendered
     q = parse_url_params()
-    q.book_id = (render_book.book_id or q.book_id) + ''
-    show_panel('book_details^' + name, query=q, replace=replace)
+    if not q.book_id or q.book_id is '0':
+        q.book_id = render_book.book_id + ''
+    return q
+
+
+def show_subsequent_panel(name, replace=False):
+    show_panel('book_details^' + name, query=book_query(), replace=replace)
 
 
 def edit_metadata():
-    q = parse_url_params()
-    q.book_id = (render_book.book_id or q.book_id) + ''
-    show_panel('edit_metadata', query=q, replace=False)
+    show_panel('edit_metadata', query=book_query(), replace=False)
 
 
 def convert_book():
-    q = parse_url_params()
-    q.book_id = (render_book.book_id or q.book_id) + ''
-    show_panel('convert_book', query=q, replace=False)
+    show_panel('convert_book', query=book_query(), replace=False)
 
 
 def create_more_actions_panel(container_id):
@@ -1395,10 +1398,7 @@ def files_added(check_existing, top_container_id, book_id, container_id, files):
         r.readAsDataURL(file)
 
 
-def upload_data_file(container_id):
-    if not render_book.book_id or not book_metadata(render_book.book_id):
-        return return_to_book_details()
-    book_id = render_book.book_id
+def upload_data_file(container_id, book_id):
     container = document.getElementById(container_id)
     clear(container)
     create_top_bar(container, title=_('Upload data files'), icon='back')
@@ -1472,11 +1472,7 @@ def data_file_deleted(container_id, book_id, relpath, end_type, xhr, ev):
     rebuild_data_files_list(container_id, book_id)
 
 
-def data_files(container_id):
-    if not render_book.book_id or not book_metadata(render_book.book_id):
-        return return_to_book_details()
-    book_id = render_book.book_id
-
+def data_files(container_id, book_id):
     container = document.getElementById(container_id)
     clear(container)
     create_top_bar(container, title=_('Manage data files'), icon='back')
@@ -1486,13 +1482,11 @@ def data_files(container_id):
     rebuild_data_files_list(container_id, book_id)
 
 
-def search_internet(container_id):
-    if not render_book.book_id or not book_metadata(render_book.book_id):
-        return return_to_book_details()
+def search_internet(container_id, book_id):
     container = document.getElementById(container_id)
     clear(container)
     create_top_bar(container, title=_('Search the internet'), icon='back')
-    mi = book_metadata(render_book.book_id)
+    mi = book_metadata(book_id)
     data = {'title': mi.title, 'author': mi.authors[0] if mi.authors else _('Unknown')}
     interface_data = get_interface_data()
 
@@ -1619,9 +1613,7 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
     )
 
 
-def copy_to_library(container_id):
-    if not render_book.book_id or not book_metadata(render_book.book_id):
-        return return_to_book_details()
+def copy_to_library(container_id, book_id):
     container = document.getElementById(container_id)
     clear(container)
     create_top_bar(container, title=_('Copy to library'), icon='back')
@@ -1636,7 +1628,7 @@ def copy_to_library(container_id):
     for library_id, library_name in libraries:
         if library_id is current_library_id():
             continue
-        items.push(create_item(library_name, action=do_copy_to_library.bind(None, render_book.book_id, library_id, library_name)))
+        items.push(create_item(library_name, action=do_copy_to_library.bind(None, book_id, library_id, library_name)))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
 # }}}
@@ -1646,10 +1638,29 @@ def delete_book():
     start_delete_book(current_library_id(), render_book.book_id, render_book.title or _('Unknown'))
 
 
+def book_panel(create_panel):
+    # Handler for a panel that acts on the book in the URL, whose metadata is
+    # not loaded yet when the page is reloaded. A random book (book_id 0) is
+    # left to book details to pick.
+    def create(container_id):
+        book_id = parse_url_params().book_id
+        if not book_id or book_id is '0':
+            return_to_book_details()
+        elif book_metadata(book_id):
+            create_panel(container_id, int(book_id))
+        else:
+            show_loading_panel(document.getElementById(container_id))
+            fetch_metadata(container_id, book_id, def (container_id, book_id):
+                if panel_is_shown(container_id):
+                    create_panel(container_id, book_id)
+            )
+    return library_data_panel(create, return_to_book_details)
+
+
 def set_panel_handlers():
     set_panel_handler('book_details', init)
     set_panel_handler('book_details^more_actions', create_more_actions_panel)
-    set_panel_handler('book_details^search_internet', search_internet)
-    set_panel_handler('book_details^copy_to_library', copy_to_library)
-    set_panel_handler('book_details^data_files', data_files)
-    set_panel_handler('book_details^upload_data_file', upload_data_file)
+    set_panel_handler('book_details^search_internet', book_panel(search_internet))
+    set_panel_handler('book_details^copy_to_library', book_panel(copy_to_library))
+    set_panel_handler('book_details^data_files', book_panel(data_files))
+    set_panel_handler('book_details^upload_data_file', book_panel(upload_data_file))
