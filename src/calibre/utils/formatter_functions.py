@@ -2621,8 +2621,8 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
                 d += self.calc_ops[mo[2]](int(mo[1]))
                 calc_spec = calc_spec[len(mo[0]) :]
             return format_date(d, fmt or 'iso')
-        except ValueError as e:
-            raise e
+        except ValueError:
+            raise
         except Exception as e:
             traceback.print_exc()
             raise ValueError(_('{0}: error: {1}').format('date_arithmetic', str(e)))
