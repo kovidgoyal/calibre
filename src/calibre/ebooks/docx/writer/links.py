@@ -97,20 +97,11 @@ class LinksManager:
         self.bmark_id += 1
         return self.bmark_id
 
-    def serialize_hyperlink(self, parent, link):
+    def link_target(self, link):
+        """Return (bookmark, None) for internal links, (None, rid) for external links, None otherwise"""
         item, url, tooltip = link
         purl = urlparse(url)
         href = purl.path
-
-        def make_link(parent, anchor=None, id=None, tooltip=None):
-            kw = {}
-            if anchor is not None:
-                kw['w_anchor'] = anchor
-            elif id is not None:
-                kw['r_id'] = id
-            if tooltip:
-                kw['w_tooltip'] = tooltip
-            return self.namespace.makeelement(parent, 'w:hyperlink', **kw)
 
         if not purl.scheme:
             href = item.abshref(href)
@@ -122,14 +113,40 @@ class LinksManager:
                     bmark = self.anchor_map[key]
                 else:
                     bmark = self.anchor_map[(href, self.top_anchor)]
-                return make_link(parent, anchor=bmark, tooltip=tooltip)
+                return bmark, None
             else:
                 self.log.warn(f'Ignoring internal hyperlink with href ({url}) pointing to unknown destination')
         if purl.scheme in {'http', 'https', 'ftp'}:
             if url not in self.external_links:
                 self.external_links[url] = self.document_relationships.add_relationship(url, self.namespace.names['LINKS'], target_mode='External')
-            return make_link(parent, id=self.external_links[url], tooltip=tooltip)
-        return parent
+            return None, self.external_links[url]
+        return None
+
+    def serialize_hyperlink(self, parent, link):
+        target = self.link_target(link)
+        if target is None:
+            return parent
+        anchor, rid = target
+        kw = {'w_anchor': anchor} if rid is None else {'r_id': rid}
+        tooltip = link[2]
+        if tooltip:
+            kw['w_tooltip'] = tooltip
+        return self.namespace.makeelement(parent, 'w:hyperlink', **kw)
+
+    def serialize_drawing_link(self, drawing, link):
+        # Word ignores <w:hyperlink> around floating images, so link the image itself, the way Word does
+        target = self.link_target(link)
+        if target is None:
+            return
+        anchor, rid = target
+        if rid is None:
+            rid = self.document_relationships.add_relationship('#' + anchor, self.namespace.names['LINKS'])
+        kw = {'r_id': rid}
+        tooltip = link[2]
+        if tooltip:
+            kw['tooltip'] = tooltip
+        for docpr in self.namespace.XPath('descendant::wp:docPr')(drawing):
+            docpr.insert(0, self.namespace.makeelement(docpr, 'a:hlinkClick', append=False, **kw))
 
     def process_toc_node(self, toc, level=0):
         href = toc.href
