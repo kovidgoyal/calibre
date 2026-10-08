@@ -166,6 +166,16 @@ class PathTable(OneToOneTable):
         db.execute('UPDATE books SET path=? WHERE id=?', (path, book_id))
 
 
+def sqlite_sort_key(val):
+    """Sort key matching the order SQLite uses when comparing values of
+    different storage classes: numbers < text < blobs"""
+    if isinstance(val, numbers.Number):
+        return 0, val
+    if isinstance(val, str):
+        return 1, val
+    return 2, bytes(val)
+
+
 class SizeTable(OneToOneTable):
     def read(self, db):
         # A single aggregate pass over data is much faster than running a
@@ -174,6 +184,19 @@ class SizeTable(OneToOneTable):
             'SELECT books.id, s.size FROM books LEFT JOIN (SELECT book, MAX(uncompressed_size) AS size FROM data GROUP BY book) AS s ON s.book=books.id'
         )
         self.book_col_map = dict(query)
+
+    def read_from_formats(self, book_ids, formats_table):
+        """Same as read() except the sizes are taken from the scan of the
+        data table done by formats_table.read(). Returns False if the formats
+        table has no sizes from a read, in which case read() must be used."""
+        max_sizes = formats_table.pop_max_sizes()
+        if max_sizes is None:
+            return False
+        # Iterate over book_ids rather than max_sizes so that books without
+        # formats get None and orphaned rows in data are ignored, as in read()
+        msg = max_sizes.get
+        self.book_col_map = {book_id: msg(book_id) for book_id in book_ids}
+        return True
 
     def update_sizes(self, size_map):
         self.book_col_map.update(size_map)
@@ -653,6 +676,7 @@ class AuthorsTable(ManyToManyTable):
 class FormatsTable(ManyToManyTable):
     do_clean_on_remove = False
     supports_notes = False
+    max_sizes = None
 
     def read_id_maps(self, db):
         pass
@@ -665,8 +689,22 @@ class FormatsTable(ManyToManyTable):
         self.size_map = sm = defaultdict(dict)
         self.col_book_map = cbm = defaultdict(set)
         bcm = defaultdict(list)
+        # The equivalent of SELECT book, MAX(uncompressed_size) FROM data
+        # GROUP BY book, computed here to avoid a second scan of data when
+        # reading the size table. It considers all rows, including those with
+        # a NULL format or with formats that differ only in case.
+        self.max_sizes = msz = {}
 
         for book, fmt, name, sz in db.execute('SELECT book, format, name, uncompressed_size FROM data'):
+            if sz is not None:
+                cur = msz.get(book)
+                try:
+                    if cur is None or sz > cur:
+                        msz[book] = sz
+                except TypeError:
+                    # damaged db with non-numeric sizes
+                    if sqlite_sort_key(sz) > sqlite_sort_key(cur):
+                        msz[book] = sz
             if fmt is not None:
                 fmt = fmt.upper()
                 cbm[fmt].add(book)
@@ -675,6 +713,13 @@ class FormatsTable(ManyToManyTable):
                 sm[book][fmt] = sz
 
         self.book_col_map = {k: tuple(sorted(v)) for k, v in bcm.items()}
+
+    def pop_max_sizes(self):
+        """Return the maximum size of the rows in data for each book, as seen
+        by the last read(). Only available once per read() as it is not kept
+        up to date by changes to formats."""
+        ans, self.max_sizes = self.max_sizes, None
+        return ans
 
     def remove_books(self, book_ids, db):
         clean = ManyToManyTable.remove_books(self, book_ids, db)

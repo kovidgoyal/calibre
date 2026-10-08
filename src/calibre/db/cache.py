@@ -383,9 +383,7 @@ class Cache:
         with self.backend.conn:  # Prevent other processes, such as calibredb from interrupting the reload by locking the db
             self.backend.prefs.load_from_db()
             self._search_api.saved_searches.load_from_db()
-            for field in self.fields.values():
-                if hasattr(field, 'table'):
-                    field.table.read(self.backend)  # Reread data from metadata.db
+            self.backend.read_tables()  # Reread data from metadata.db
 
     _reload_from_db = reload_from_db
 
@@ -2991,6 +2989,7 @@ class Cache:
     @write_api
     def refresh_format_cache(self):
         self.fields['formats'].table.read(self.backend)
+        self.fields['size'].table.read_from_formats(self.fields['uuid'].table.book_col_map, self.fields['formats'].table)
         self.format_metadata_cache.clear()
 
     _refresh_format_cache = refresh_format_cache

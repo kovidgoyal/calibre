@@ -758,6 +758,52 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_size_from_formats(self):  # {{{
+        "Test that sizes read from the scan of the data table match MAX(uncompressed_size)"
+        from calibre.db.tables import SizeTable
+        from calibre.ebooks.metadata.book.base import Metadata
+
+        cache = self.init_cache()
+        no_formats = cache.create_book_entry(Metadata('no formats'))
+        # Simulate a damaged or legacy db without the constraints on data
+        cache.backend.execute('''
+            ALTER TABLE data RENAME TO data_old;
+            CREATE TABLE data (id INTEGER PRIMARY KEY, book INTEGER, format TEXT, uncompressed_size INTEGER, name TEXT);
+            DROP TABLE data_old;
+        ''')
+        rows = (
+            (1, 'epub', 10),
+            (1, 'EPUB', 1),  # case duplicate with a smaller size after the larger one
+            (1, 'mobi', None),
+            (2, None, 7),  # NULL format
+            (3, 'a', 5),
+            (3, 'b', 'xyz'),  # text sorts after numbers in SQLite
+            (3, 'c', 'abc'),
+            (999, 'epub', 3),  # orphaned row
+        )
+        cache.backend.executemany('INSERT INTO data (book, format, uncompressed_size, name) VALUES (?,?,?,?)', [r + ('name',) for r in rows])
+        expected = {1: 10, 2: 7, 3: 'xyz', no_formats: None}
+
+        sql_table = SizeTable('size', cache.backend.tables['size'].metadata)
+        sql_table.read(cache.backend)
+        self.assertEqual(expected, sql_table.book_col_map)
+
+        cache.reload_from_db()
+        self.assertEqual(expected, cache.fields['size'].table.book_col_map)
+        self.assertIsNone(cache.fields['formats'].table.max_sizes)
+        cache.backend.execute('INSERT INTO data (book, format, uncompressed_size, name) VALUES (2, "pdf", 100, "x")')
+        cache.refresh_format_cache()
+        expected[2] = 100
+        self.assertEqual(expected, cache.fields['size'].table.book_col_map)
+
+        cache = self.init_cache(cache.backend.library_path)
+        self.assertEqual(expected, cache.fields['size'].table.book_col_map)
+        # The fallback to the SQL query when the formats table has not been read
+        self.assertFalse(cache.fields['size'].table.read_from_formats((1,), cache.fields['formats'].table))
+        self.assertEqual(expected, cache.fields['size'].table.book_col_map)
+
+    # }}}
+
     def test_by_year(self):
         "Test grouping of books by date fields"
         cache = self.init_cache()

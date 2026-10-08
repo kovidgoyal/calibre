@@ -1791,18 +1791,30 @@ class DB:
         # them, which is slow in larger libraries.
         with self.conn, stop_gc:  # Use a single transaction, to ensure nothing modifies the db while we are reading
             books_columns = tuple(t for t in self.tables.values() if isinstance(t, OneToOneTable) and t.is_books_table_column)
-            already_read = frozenset(books_columns) if read_books_table_columns(self, books_columns) else frozenset()
+            already_read = set(books_columns) if read_books_table_columns(self, books_columns) else set()
+            # The size table is read from the scan of the data table done by
+            # the formats table, so it must be read after it
+            size_table = self.tables['size']
+            already_read.add(size_table)
             for table in self.tables.values():
-                if table in already_read:
-                    continue
-                try:
-                    table.read(self)
-                except Exception:
-                    prints('Failed to read table:', table.name)
-                    import pprint
+                if table not in already_read:
+                    self._read_table(table, table.read, self)
+            self._read_table(size_table, self._read_size_table)
 
-                    pprint.pprint(table.metadata)
-                    raise
+    def _read_size_table(self):
+        size_table = self.tables['size']
+        if not size_table.read_from_formats(self.tables['uuid'].book_col_map, self.tables['formats']):
+            size_table.read(self)
+
+    def _read_table(self, table, read, *args):
+        try:
+            read(*args)
+        except Exception:
+            prints('Failed to read table:', table.name)
+            import pprint
+
+            pprint.pprint(table.metadata)
+            raise
 
     def find_path_for_book(self, book_id):
         q = BOOK_ID_PATH_TEMPLATE.format(book_id)
