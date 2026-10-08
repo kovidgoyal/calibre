@@ -34,16 +34,18 @@ class EngineSettingsWidget(QWidget):
 <p>Add an audio overlay to this book using Text-to-speech technology. Then users reading this book in a reader that supports
 audio overlays, such as the calibre viewer, will be able to hear the text read to them, if they wish.
 
-<p>You can mark different passages to be spoken by different voices as shown in the example below:
+<p>You can mark different passages to be spoken by different voices using the voice id, as shown in the example below.
+The id of a voice is shown in its tooltip in the list of voices.
 
-<div><code>&lt;p data-calibre-tts="{0}"&gt;This will be voiced by "{0}".&lt;/p&gt;</code></div>
-<div><code>&lt;p data-calibre-tts="{1}"&gt;This will be voiced by "{1}".&lt;/p&gt;</code></div>
+<div><code>&lt;p data-calibre-tts="{0}"&gt;This will be voiced by the Piper voice "{0}".&lt;/p&gt;</code></div>
+<div><code>&lt;p data-calibre-tts="{1}"&gt;This will be voiced by the Piper voice "{1}".&lt;/p&gt;</code></div>
+<div><code>&lt;p data-calibre-tts="{3}"&gt;This will be voiced by the Kokoro voice "{3}".&lt;/p&gt;</code></div>
 <div><code>&lt;p data-calibre-tts="{2}"&gt;This text will not be voiced at all.&lt;/p&gt;</code></div>
 
 <p style="font-size: small">Note that generating the Text-to-speech audio will be quite slow,
 at the rate of approximately one sentence per couple of seconds, depending on your computer's hardware,
 so consider leaving it to run overnight.
-''').format('cory', 'ryan', skip_name)
+''').format('en_US:ryan', 'en_GB:cori', skip_name, 'kokoro:af_heart')
         )
         self.save_settings = c.save_settings
 

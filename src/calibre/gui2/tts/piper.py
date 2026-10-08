@@ -650,7 +650,10 @@ class PiperEmbedded:
 
         lang = canonicalize_lang(lang or get_lang() or 'en')
         pv = self._embedded_settings.preferred_voices or {}
-        if voice_name and voice_name in self.human_voice_name_map:
+        if voice_name and voice_name in self._voice_name_map:
+            voice = self._voice_name_map[voice_name]
+        elif voice_name and voice_name in self.human_voice_name_map:
+            # Fallback for books marked up with display names, which are translated for Kokoro voices
             voice = self.human_voice_name_map[voice_name]
         elif (voice_name := pv.get(lang, '')) and voice_name in self._voice_name_map:
             voice = self._voice_name_map[voice_name]
@@ -704,7 +707,8 @@ class PiperEmbedded:
 
     def shutdown(self):
         if self._current_audio_rate != 0:
-            if (gp := global_piper_instance_if_exists()) is not None:
+            gp = global_piper_instance_if_exists()
+            if gp is not None:
                 gp.cancel()
             self._current_audio_rate = 0
 

@@ -252,7 +252,10 @@ class Voices(QTreeWidget):
             text = voice.short_text(engine_metadata)
             ans = QTreeWidgetItem(parent, [text])
             ans.setData(0, Qt.ItemDataRole.UserRole, voice)
-            ans.setToolTip(0, voice.tooltip(engine_metadata))
+            tt = voice.tooltip(engine_metadata)
+            if self.for_embedding and voice.name:
+                tt = '\n'.join(filter(None, (tt, _('Voice id: {}').format(voice.name))))
+            ans.setToolTip(0, tt)
             if self.for_embedding:
                 ans.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
                 ans.setCheckState(0, Qt.CheckState.Unchecked)
