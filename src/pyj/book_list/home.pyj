@@ -5,11 +5,11 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import absolute_path, ajax_send, ajax
+from ajax import ajax_send, ajax
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
 from book_list.library_data import (
-    all_libraries, last_virtual_library_for, sync_library_books
+    all_libraries, last_virtual_library_for, sync_library_books, thumbnail_url
 )
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
@@ -21,6 +21,7 @@ from utils import conditional_timeout, safe_set_inner_html, username_key
 from widgets import create_button
 
 CLASS_NAME = 'home-page'
+COVER_WIDTH, COVER_HEIGHT = 118, 177
 
 add_extra_css(def ():
     ans = ''
@@ -98,7 +99,7 @@ add_extra_css(def ():
         flex_shrink='1',
         flex_basis='auto',
         min_width='0',
-        width='min(118px, max(72px, calc((100% - 20px) / 3.15)))',
+        width=f'min({COVER_WIDTH}px, max(72px, calc((100% - 20px) / 3.15)))',
         max_width='100%',
         box_sizing='border-box',
     )
@@ -112,7 +113,7 @@ add_extra_css(def ():
     ans += build_rule(img_sel,
         width='100%',
         height='auto',
-        aspect_ratio='2 / 3',
+        aspect_ratio=f'{COVER_WIDTH} / {COVER_HEIGHT}',
         border_radius=f'{BORDER_RADIUS}px',
         display='block',
         object_fit='cover',
@@ -240,7 +241,7 @@ def show_recent_for_user(container_id):
         if item.cfi:
             q.bookpos = item.cfi
         rb = read_book.bind(None, item.library_id, item.book_id, item.format, q)
-        img = E.img(alt=item.tooltip, src=absolute_path(f'get/cover/{item.book_id}/{item.library_id}'))
+        img = E.img(alt=item.tooltip, src=thumbnail_url(item.book_id, COVER_WIDTH, COVER_HEIGHT, item.library_id))
         images.appendChild(E.div(
             E.a(title=item.tooltip, href='javascript:void(0)', img, onclick=rb)
         ))
@@ -311,7 +312,7 @@ def newly_added_received(newly_container_id, end_type, xhr, ev):
     for book_id in data.books:
         authors = data.authors[book_id].join(' & ')
         alt = _('{} by {}').format(data.titles[book_id], authors)
-        img = E.img(alt=alt, src=absolute_path(f'get/cover/{book_id}/{data.library_id}'))
+        img = E.img(alt=alt, src=thumbnail_url(book_id, COVER_WIDTH, COVER_HEIGHT, data.library_id))
         images.appendChild(E.div(
             E.a(img, href='javascript: void(0)', title=img.alt,
                 onclick=view_book_page.bind(None, data.library_id, book_id)

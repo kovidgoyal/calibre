@@ -300,10 +300,10 @@ def field_names_for(field, proceed):
         library_data.field_names[field].loading = True
 
 
-def thumbnail_url(book_id, width, height):
+def thumbnail_url(book_id, width, height, library_id=None):
     query = f'sz={Math.ceil(width * window.devicePixelRatio)}x{Math.ceil(height * window.devicePixelRatio)}'
     prefix = f'get/thumb/{book_id}'
-    lid = loaded_books_query().library_id or current_library_id()
+    lid = library_id or loaded_books_query().library_id or current_library_id()
     if lid:
         prefix += f'/{lid}'
     return absolute_path(f'{prefix}?{query}')

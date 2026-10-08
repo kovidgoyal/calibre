@@ -8,7 +8,7 @@ from gettext import gettext as _
 from ajax import ajax
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
-from book_list.library_data import browse_field_for, url_books_query, cover_url, current_library_id
+from book_list.library_data import browse_field_for, url_books_query, thumbnail_url, current_library_id
 from book_list.router import back, update_window_title
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
@@ -151,6 +151,7 @@ cached_names = {}
 series_cover_cache = {}
 series_cover_inflight = {}
 SERIES_COVER_CLASSES = ['covers-0', 'covers-1', 'covers-2', 'covers-3', 'covers-4', 'covers-5']
+SERIES_COVER_WIDTH, SERIES_COVER_HEIGHT = 112, 168
 
 
 def series_cover_key(library_id, series_name):
@@ -332,8 +333,8 @@ add_extra_css(def ():
         position='absolute',
         left='50%',
         bottom='12px',
-        width='112px',
-        height='168px',
+        width=f'{SERIES_COVER_WIDTH}px',
+        height=f'{SERIES_COVER_HEIGHT}px',
         object_fit='cover',
         border_radius='12px',
         border='var(--calibre-border-style-subtle)',
@@ -832,7 +833,7 @@ def create_nav_list_panel(container_id):
             ids = data.search_result?.book_ids or []
             urls = []
             for bid in ids.slice(0, 5):
-                urls.push(cover_url(bid))
+                urls.push(thumbnail_url(bid, SERIES_COVER_WIDTH, SERIES_COVER_HEIGHT, lid))
             series_cover_cache[key] = urls
             apply_series_covers(key, urls)
 
