@@ -54,7 +54,7 @@ def details_list_css():
         padding='0.85rem 1rem',
         border_radius='18px',
         border='var(--calibre-border-style-subtle)',
-        background='var(--calibre-surface-1)',
+        background='var(--calibre-color-surface-1)',
         box_shadow='0 16px 44px rgba(0,0,0,0.10)',
         text_decoration='none',
         min_width='0',
