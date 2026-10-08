@@ -222,6 +222,7 @@ def book_after(book_id, delta):
 
 def on_data_loaded(end_type, xhr, ev):
     load_status.current_fetch = None
+    load_status.current_query = None
 
     def bad_load(msg):
         load_status.ok = False

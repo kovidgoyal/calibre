@@ -529,7 +529,7 @@ def create_books_list(container):
     q = parse_url_params()
     page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
 
-    def go_to_offset(new_offset):
+    def go_to_offset(new_offset, on_done):
         new_offset = max(0, new_offset)
         qq = parse_url_params()
         qq.offset = str(new_offset)
@@ -539,6 +539,8 @@ def create_books_list(container):
             if not ok:
                 error_dialog(_('Could not load books'), _('Failed to load the requested page'))
             update_pager()
+            if on_done:
+                on_done()
         )
 
     def update_pager():
@@ -556,25 +558,32 @@ def create_books_list(container):
         else:
             single_page_count_el.textContent = ''
 
+    def scroll_to_book():
+        if document.getElementById(book_list_data.container_id) is not container:
+            return  # the book list was closed before the page loaded
+        book_id = parse_url_params().book_id
+        if book_id:
+            e = container.querySelector(f'.{ITEM_CLASS_NAME}[data-book-id="{book_id}"]')
+            if e and e.scrollIntoView:
+                e.scrollIntoView(True)
+                # Now scroll extra corresponding to top bar size
+                window.scrollBy(0, -container.offsetTop)
+                return
+        window.scrollTo(0, 0)
+
     update_pager()
-    initial_offset = max(0, parse_int(q.offset, 0))
-    if initial_offset:
-        go_to_offset(initial_offset)
     pager.appendChild(top_widget.container)
     populate_book_list_toolbar(top_widget.middle_row, True)
     top_widget.set_middle_row_visibility(top_widget.middle_row.children.length > 0)
 
-    q = parse_url_params()
-    scrolled = False
-    if q.book_id:
-        e = container.querySelector(f'.{ITEM_CLASS_NAME}[data-book-id="{q.book_id}"]')
-        if e and e.scrollIntoView:
-            e.scrollIntoView(True)
-            # Now scroll extra corresponding to top bar size
-            window.scrollBy(0, -container.offsetTop)
-            scrolled = True
-    if not scrolled:
+    initial_offset = max(0, parse_int(q.offset, 0))
+    if initial_offset:
+        # The book to scroll to is on the page at the offset, so scroll once
+        # that page has loaded
         window.scrollTo(0, 0)
+        go_to_offset(initial_offset, scroll_to_book)
+    else:
+        scroll_to_book()
     q = loaded_books_query()
     if not q.search and library_data.search_result.total_num < 1:
         book_list_div.appendChild(E.div(_('No books found'), style='margin: 1ex 0'))
