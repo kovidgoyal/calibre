@@ -557,6 +557,9 @@ def create_books_list(container):
             single_page_count_el.textContent = ''
 
     update_pager()
+    initial_offset = max(0, parse_int(q.offset, 0))
+    if initial_offset:
+        go_to_offset(initial_offset)
     pager.appendChild(top_widget.container)
     populate_book_list_toolbar(top_widget.middle_row, True)
     top_widget.set_middle_row_visibility(top_widget.middle_row.children.length > 0)
@@ -607,14 +610,6 @@ def check_for_books_loaded():
         return
     clear_book_list_inner(container)
     create_books_list(container)
-    # If the URL specifies an offset, show that page
-    q = parse_url_params()
-    desired_offset = max(0, parse_int(q.offset, 0))
-    if desired_offset:
-        page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
-        fetch_books_page(desired_offset, page_size, def (ok):
-            pass
-        )
     if library_data.search_result and jstype(library_data.search_result.num_books_without_search) is 'number':
         set_title_tooltip(this, _('Total number of books: {}').format(library_data.search_result.num_books_without_search))
 
