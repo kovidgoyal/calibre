@@ -134,7 +134,7 @@ select = [
     'PL', 'ASYNC', 'FURB', 'FA', 'FLY', 'DTZ', 'T1', 'LOG',
     'RUF',  # note: RUF can flag many unsolicited errors
     # from the ruff default rules set
-    'D419', 'N999', 'PTH124', 'PTH210', 'G1', 'G1', 'PERF101', 'PERF402',
+    'D419', 'N999', 'PTH124', 'PTH210', 'G1', 'G2', 'PERF101', 'PERF402',
     # preview rules
     'RUF051', 'RUF056',  # useless dict operation
     'RUF055',  # unnecessary regex
