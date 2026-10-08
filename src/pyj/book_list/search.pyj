@@ -700,9 +700,6 @@ def onkeydown(container_id, close_action, ev):
 
 
 def init(container_id):
-    if not library_data.sortable_fields:
-        show_panel('book_list', replace=True)
-        return
     container = document.getElementById(container_id)
     container.setAttribute('tabindex', '0')
     container.addEventListener('keydown', onkeydown.bind(None, container_id, back), {'passive': False, 'capture': True})

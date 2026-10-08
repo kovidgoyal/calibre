@@ -3,11 +3,13 @@
 from __python__ import hash_literals, bound_methods
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.constants import book_list_container_id
 from book_list.globals import get_current_query
-from book_list.library_data import current_library_id, current_virtual_library
-from book_list.router import push_state
+from book_list.library_data import current_library_id, current_virtual_library, on_library_data_loaded
+from book_list.router import is_reading_book, push_state
+from book_list.top_bar import create_top_bar
 from dom import ensure_id, clear
 from utils import encode_query_with_path
 
@@ -18,6 +20,35 @@ default_panel_handler = None
 
 def set_panel_handler(panel, handler):
     panel_handlers[panel] = handler
+
+
+def panel_is_shown(container_id):
+    # Library panels stay in the DOM, hidden, while the reader is open. They
+    # are recreated from the URL when it is closed.
+    return not is_reading_book() and bool(document.getElementById(container_id))
+
+
+def show_loading_panel(container):
+    create_top_bar(container, title='', icon='back')
+    container.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
+
+
+def library_data_panel(create_panel, on_failure):
+    # Handler for a panel that needs the library data, which is still loading
+    # when the panel is opened from the URL on a warm start
+    def handler(container_id):
+        container = document.getElementById(container_id)
+        show_loading_panel(container)
+        on_library_data_loaded(container_id, def (ok):
+            if not panel_is_shown(container_id):
+                return
+            clear(container)
+            if ok:
+                create_panel(container_id)
+            else:
+                on_failure(container_id)
+        )
+    return handler
 
 
 def set_default_panel_handler(handler):

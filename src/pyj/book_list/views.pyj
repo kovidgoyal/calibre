@@ -37,7 +37,7 @@ from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
 from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
-from book_list.ui import query_as_href, set_panel_handler, show_panel
+from book_list.ui import library_data_panel, query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import error_dialog
 from session import get_interface_data
@@ -657,9 +657,6 @@ def change_sort(field, order):
 
 
 def create_sort_panel(container_id):
-    if not library_data.sortable_fields:
-        show_panel('book_list', replace=True)
-        return
     container = document.getElementById(container_id)
     close_action, close_icon = back, 'close'
     if parse_url_params().close_action is 'home':
@@ -706,9 +703,6 @@ set_apply_search(def (query): search(query, True);)
 
 # Virtual libraries {{{
 def create_vl_panel(container_id):
-    if not library_data.sortable_fields:
-        show_panel('book_list', replace=True)
-        return
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Choose Virtual library…'), icon='back')
     items = []
@@ -731,9 +725,6 @@ def show_vl(vl_name, replace):
 
 # Modes {{{
 def create_mode_panel(container_id):
-    if not library_data.sortable_fields:
-        show_panel('book_list', replace=True)
-        return
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Choose book list mode…'), icon='back')
     items = []
@@ -757,21 +748,15 @@ def create_mode_panel(container_id):
 # }}}
 
 
-# Adding books {{{
-def create_add_panel(container_id):
-    if not library_data.sortable_fields:
-        show_panel('book_list', replace=True)
-        return
-    add_books_panel(container_id)
-
-# }}}
+def show_book_list(container_id):
+    show_panel('book_list', replace=True)  # shows why loading the books failed
 
 
 def set_panel_handlers():
     set_panel_handler('book_list', init)
-    set_panel_handler('book_list^add', create_add_panel)
-    set_panel_handler('book_list^sort', create_sort_panel)
-    set_panel_handler('book_list^vl', create_vl_panel)
-    set_panel_handler('book_list^search', init_search_panel)
+    set_panel_handler('book_list^add', library_data_panel(add_books_panel, show_book_list))
+    set_panel_handler('book_list^sort', library_data_panel(create_sort_panel, show_book_list))
+    set_panel_handler('book_list^vl', library_data_panel(create_vl_panel, show_book_list))
+    set_panel_handler('book_list^search', library_data_panel(init_search_panel, show_book_list))
     set_panel_handler('book_list^choose_mode', create_mode_panel)
     set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
