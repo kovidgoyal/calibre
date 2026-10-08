@@ -704,8 +704,7 @@ class PiperEmbedded:
 
     def shutdown(self):
         if self._current_audio_rate != 0:
-            gp = global_piper_instance_if_exists()
-            if gp is not None:
+            if (gp := global_piper_instance_if_exists()) is not None:
                 gp.cancel()
             self._current_audio_rate = 0
 
