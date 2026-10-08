@@ -133,7 +133,7 @@ add_extra_css(def ():
         & .cs-nav-bottom { margin-top: auto; padding-top: 0.25rem; }
         & .cs-nav-divider {
             height: 1px;
-            background: var(--cs-border);
+            background: var(--calibre-color-border);
             margin: 0.75rem 0.65rem;
             border-radius: 999px;
             opacity: 0.9;
