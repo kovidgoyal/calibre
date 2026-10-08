@@ -85,9 +85,9 @@ class QtTTSBackend(TTSBackend):
                         s['audioDevice'] = x
                         break
             if new_backend:
-                self.tts = QTextToSpeech(engine_name, cast(dict[str | None, Any], s), self)
+                self.tts = QTextToSpeech(engine_name, cast('dict[str | None, Any]', s), self)
             else:
-                self.tts.setEngine(engine_name, cast(dict[str | None, Any], s))
+                self.tts.setEngine(engine_name, cast('dict[str | None, Any]', s))
         else:
             if new_backend:
                 self.tts = QTextToSpeech(self)
@@ -99,7 +99,7 @@ class QtTTSBackend(TTSBackend):
                 for x in QMediaDevices.audioOutputs():
                     if bytes(x.id()) == settings.audio_device_id.id:
                         s['audioDevice'] = x
-                        self.tts = QTextToSpeech(engine_name, cast(dict[str | None, Any], s), self)
+                        self.tts = QTextToSpeech(engine_name, cast('dict[str | None, Any]', s), self)
                         break
         if new_backend:
             self.tts.sayingWord.connect(self._saying_word)

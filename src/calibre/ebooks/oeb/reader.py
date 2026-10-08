@@ -146,7 +146,7 @@ class OEBReader:
                 opf = safe_xml_fromstring(data)
                 self.logger.warn('OPF contains invalid tours section')
 
-        ns = namespace(cast(str, opf.tag))
+        ns = namespace(cast('str', opf.tag))
         if ns not in ('', OPF1_NS, OPF2_NS):
             raise OEBError(f'Invalid namespace {ns!r} for OPF document')
         opf = self._clean_opf(opf)

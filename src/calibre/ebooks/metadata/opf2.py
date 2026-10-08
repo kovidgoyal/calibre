@@ -1639,7 +1639,7 @@ class OPFCreator(Metadata):
             try:
                 opf_stream = sys.stdout.buffer
             except AttributeError:
-                opf_stream = cast(IO[bytes], sys.stdout)
+                opf_stream = cast('IO[bytes]', sys.stdout)
         opf_stream.write(raw)
         opf_stream.flush()
         if toc is not None and ncx_stream is not None:

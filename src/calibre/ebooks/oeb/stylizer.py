@@ -519,7 +519,7 @@ class Style:
         for name, val in cssdict.items():
             override = False
             if name in update_ip:
-                cast(set, current_ip).add(name)
+                cast('set', current_ip).add(name)
                 override = True
             elif name not in current_ip:
                 override = True

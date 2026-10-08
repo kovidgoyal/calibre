@@ -569,7 +569,7 @@ class KINDLE2(KINDLE):
 
     def amazon_cover_bug_cache_dir(self):
         # see https://www.mobileread.com/forums/showthread.php?t=329945
-        return os.path.join(cast(str, self._main_prefix), 'amazon-cover-bug')
+        return os.path.join(cast('str', self._main_prefix), 'amazon-cover-bug')
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)

@@ -1238,7 +1238,7 @@ def choose_files_and_remember_all_files(window, name, title, filters=[], select_
 
 
 def is_dark_theme():
-    app = cast(QApplication, QApplication.instance())
+    app = cast('QApplication', QApplication.instance())
     if app is not None:
         pal = app.palette()
         return pal.is_dark_theme()
@@ -1890,7 +1890,7 @@ def qapplication_or_fail() -> Application:
     ans = QApplication.instance()
     if ans is None:
         raise RuntimeError('No QApplication has been constructed')
-    return cast(Application, ans)
+    return cast('Application', ans)
 
 
 def destroy_app():

@@ -1419,7 +1419,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         # Insert blocks and fragments. Handle first block specially to avoid unwanted new block
         for idx, blk in enumerate(blocks):
-            blk_fmt = cast(QTextBlockFormat, blk['blockFormat'])
+            blk_fmt = cast('QTextBlockFormat', blk['blockFormat'])
             list_fmt = blk['listFormat']
 
             # Determine if original first block was partial (selection started mid-block).
@@ -1432,9 +1432,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if isinstance(list_fmt, QTextListFormat):
                 editcur.createList(list_fmt)
 
-            fragment_text = func(cast(str, blk['fragment_text']))
+            fragment_text = func(cast('str', blk['fragment_text']))
             # insert the fragments for this block, preserving char formats
-            for start_pos, length, ch_fmt in cast(list[tuple[int, int, QTextCharFormat]], blk['fragments']):
+            for start_pos, length, ch_fmt in cast('list[tuple[int, int, QTextCharFormat]]', blk['fragments']):
                 if start_pos >= len(fragment_text):
                     break
                 # Convert selected fragment text

@@ -61,7 +61,7 @@ class SpooledFile(SpooledTemporaryFile):  # {{{
         newfile = self._file = self._file_obj
         del self._TemporaryFileArgs  # type: ignore
 
-        newfile.write(cast(BytesIO, orig).getvalue())
+        newfile.write(cast('BytesIO', orig).getvalue())
         newfile.seek(orig.tell(), 0)
 
         self._rolled = True

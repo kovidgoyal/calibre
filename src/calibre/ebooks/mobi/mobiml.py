@@ -301,7 +301,7 @@ class MobiMLizer:
             if not href:
                 bstate.anchor = None
             elif pstate and pstate.href == href:
-                inline = cast(etree._Element, bstate.anchor)
+                inline = cast('etree._Element', bstate.anchor)
             else:
                 inline = etree.SubElement(inline, XHTML('a'), href=href)
                 bstate.anchor = inline

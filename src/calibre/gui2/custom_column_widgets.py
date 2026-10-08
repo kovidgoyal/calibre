@@ -106,7 +106,7 @@ class Base:
         self.signals_to_disconnect = []
         self.setup_ui(parent)
         description = get_tooltip(self.col_metadata)
-        widgets = cast(list[QWidget], self.widgets)
+        widgets = cast('list[QWidget]', self.widgets)
         try:
             widgets[0].setToolTip(description)
             widgets[1].setToolTip(description)
@@ -1132,7 +1132,7 @@ class BulkBase(Base):
             self.edit_tags_button = QToolButton(parent)
             self.edit_tags_button.setToolTip(_('Open Item editor'))
             self.edit_tags_button.setIcon(QIcon.ic('chapters.png'))
-            self.edit_tags_button.clicked.connect(cast(Any, add_edit_tags_button)[1])
+            self.edit_tags_button.clicked.connect(cast('Any', add_edit_tags_button)[1])
             l.insertWidget(1, self.edit_tags_button)
         l.insertStretch(2)
 

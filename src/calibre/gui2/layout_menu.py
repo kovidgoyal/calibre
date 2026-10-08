@@ -120,7 +120,7 @@ class LayoutMenuInner(QWidget):
             assert l is not None
             for b in buttons:
                 self.items.append(LayoutItem(b, self))
-                cast(QBoxLayout, l).addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
+                cast('QBoxLayout', l).addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
         self.current_item = None
         for x in self.items:
             x.update_tips()
@@ -202,7 +202,7 @@ class LayoutMenu(QWidget):
         r = parent.rect()
         y = r.height()
         if hasattr(parent, 'layout_button'):
-            lb = cast(QWidget, parent.layout_button)
+            lb = cast('QWidget', parent.layout_button)
             y = lb.mapTo(parent, lb.rect().topLeft()).y()
         self.inner.move(r.width() - self.inner.size().width(), y - self.inner.size().height())
         super().show()

@@ -30,7 +30,7 @@ def write_t4b(t4bfile, coverdata=None):
         x, y = cover.size
         t4bcover.paste(cover, ((96 - x) // 2, (144 - y) // 2))
 
-        pxs = cast(list, t4bcover.getdata())
+        pxs = cast('list', t4bcover.getdata())
         t4bfile.write(b't4bp')
         data = (16 * reduce_color(pxs[i]) + reduce_color(pxs[i + 1]) for i in range(0, len(pxs), 2))
         t4bfile.write(bytes(bytearray(data)))

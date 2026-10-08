@@ -319,7 +319,7 @@ def remove_kobo_markup_from_html(root):
 
 def serialize_html(root) -> bytes:
     escape_cdata(root)
-    ans = cast(str, etree.tostring(root, encoding='unicode', pretty_print=False, with_tail=False, xml_declaration=False))
+    ans = cast('str', etree.tostring(root, encoding='unicode', pretty_print=False, with_tail=False, xml_declaration=False))
     ans = ans.replace('\xa0', '&#160;')
     return b"<?xml version='1.0' encoding='utf-8'?>\n" + ans.encode('utf-8')
 

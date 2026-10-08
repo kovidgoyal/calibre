@@ -58,7 +58,7 @@ def atom(ctx: Context, rd: RequestData, endpoint: Callable, output: bytes | str 
 
 def format_tag_string(tags: list[str] | str, sep: str | None, joinval: str = ', ') -> str:
     if tags:
-        tlist = list(tags) if sep is None else [t.strip() for t in cast(str, tags).split(sep)]
+        tlist = list(tags) if sep is None else [t.strip() for t in cast('str', tags).split(sep)]
     else:
         tlist = []
     tlist.sort(key=sort_key)

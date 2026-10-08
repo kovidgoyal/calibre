@@ -653,7 +653,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, model, starting_tab, refresh_books):
         QDialog.__init__(self, window)
         self.setupUi(self)
-        setup_status_actions(cast(LineEditIndicatorsProtocol, self.test_result))
+        setup_status_actions(cast('LineEditIndicatorsProtocol', self.test_result))
         self.series.set_sort_func(title_sort)
         self.model = model
         self.db = model.db
@@ -1197,7 +1197,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if self.s_r_error is not None:
             tt = error_message(self.s_r_error)
             self.test_result.setText(tt)
-        update_status_actions(cast(LineEditIndicatorsProtocol, self.test_result), self.s_r_error is None, tt)
+        update_status_actions(cast('LineEditIndicatorsProtocol', self.test_result), self.s_r_error is None, tt)
         for i in range(self.s_r_number_of_books):
             getattr(self, f'book_{i + 1}_result').setText('')
 
