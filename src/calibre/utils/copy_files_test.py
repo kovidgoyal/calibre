@@ -88,6 +88,8 @@ class TestCopyFiles(unittest.TestCase):
         self.assertTrue(path_from_root(root, 'name:with-colon.txt').endswith('name:with-colon.txt'))
         with self.assertRaises(ValueError):
             path_from_root(root, 'name:with-colon.txt', reject_colon=True)
+        with self.assertRaises(ValueError):
+            path_from_root(root, 123)
 
     def test_pread_all(self):
         from calibre_extensions.speedup import pread_all

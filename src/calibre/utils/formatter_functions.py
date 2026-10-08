@@ -3085,7 +3085,7 @@ More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
                 return 'Yes'
             return ''
         if not isinstance(res, bool):
-            raise TypeError(_('check_yes_no requires the field be a Yes/No custom column'))
+            raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))  # noqa: TRY004
         if is_false == '1' and not res:
             return 'Yes'
         if is_true == '1' and res:

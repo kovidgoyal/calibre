@@ -43,7 +43,7 @@ def get_series(title, authors, timeout=60):
         raw = br.open_novisit(url, timeout=timeout).read()
     except URLError as e:
         if isinstance(e.reason, socket.timeout):
-            raise TypeError('KDL Server busy, try again later')
+            raise Exception('KDL Server busy, try again later')  # noqa: TRY004
         raise
     if 'see the full results' not in raw:
         return mi

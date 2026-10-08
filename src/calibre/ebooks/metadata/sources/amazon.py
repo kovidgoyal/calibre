@@ -134,7 +134,7 @@ def parse_details_page(url, log, timeout, browser, domain):
             else:
                 msg = 'Failed to make details query: %r' % url
                 log.exception(msg)
-                raise TypeError(f'Could not make details query for {url}')
+                raise ValueError(f'Could not make details query for {url}')  # noqa: TRY004
 
     oraw = raw
     if 'amazon.com.br' in url:
