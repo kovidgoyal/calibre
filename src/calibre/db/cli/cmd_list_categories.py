@@ -111,7 +111,7 @@ def do_list(fields, data, opts):
 
 class StdoutWriter:
     def __init__(self):
-        f: IO[bytes] = getattr(sys.stdout, 'buffer', cast(IO[bytes], sys.stdout))
+        f: IO[bytes] = getattr(sys.stdout, 'buffer', cast('IO[bytes]', sys.stdout))
         self.do_write: Callable[[bytes], int] = f.write
 
     def write(self, x):

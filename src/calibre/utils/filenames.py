@@ -670,7 +670,7 @@ def path_from_root(root: str, path: str, allow_root: bool = False, reject_colon:
     drive-qualified paths, traversal components, or paths outside root.
     """
     if not isinstance(path, str):
-        raise ValueError('path must be text')
+        raise TypeError('path must be text')
     if reject_colon and ':' in path:
         raise ValueError('colon not allowed in path')
     if not path:

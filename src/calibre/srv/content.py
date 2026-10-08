@@ -542,7 +542,7 @@ def set_note(ctx, rd, field, item_id, library_id):
     try:
         data = load_json_file(rd.request_body_file)
         if not isinstance(data, dict):
-            raise Exception('note data must be a dict')
+            raise TypeError('note data must be a dict')
         html, searchable_text, images = data['html'], data['searchable_text'], data['images']
     except Exception as err:
         raise HTTPBadRequest(f'Invalid query: {err}')
@@ -661,7 +661,7 @@ def remove_data_files(ctx, rd, book_id, library_id):
     try:
         relpaths = load_json_file(rd.request_body_file)
         if not isinstance(relpaths, list):
-            raise Exception('files to remove must be a list')
+            raise TypeError('files to remove must be a list')
     except Exception as err:
         raise HTTPBadRequest(f'Invalid query: {err}')
 

@@ -189,7 +189,7 @@ class Widget(QWidget):
         elif isinstance(g, RegexEdit):
             return g.regex or None
         else:
-            raise Exception(f"Can't get value from {type(g)}")
+            raise TypeError(f"Can't get value from {type(g)}")
 
     def gui_obj_changed(self, gui_obj, *args):
         self.changed_signal.emit()
@@ -219,7 +219,7 @@ class Widget(QWidget):
         elif isinstance(g, FontFamilyChooser):
             g.family_changed.connect(f)
         else:
-            raise Exception(f"Can't connect {type(g)}")
+            raise TypeError(f"Can't connect {type(g)}")
 
     def connect_gui_obj_handler(self, gui_obj, slot):
         raise NotImplementedError()

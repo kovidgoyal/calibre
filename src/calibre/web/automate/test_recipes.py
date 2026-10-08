@@ -728,7 +728,7 @@ class TestRecipeBrowser(unittest.TestCase):
         self.assertEqual(len(results), num)
         for i, result in sorted(results.items()):
             if isinstance(result, Exception):
-                raise AssertionError(f'download {i} failed: {result}') from result
+                raise AssertionError(f'download {i} failed: {result}') from result  # noqa: TRY004
             rendered, svg = result
             self.assertTrue(rendered, f'download {i} was not rendered')
             self.assertEqual(svg, TEST_SVG, f'download {i} got the wrong image')

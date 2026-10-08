@@ -508,7 +508,7 @@ class ConfigWidget(QWidget):
         return True
 
     def select_model(self, model_id: str, for_text: bool) -> None:
-        model_choice_target = cast(Model, self.sender())
+        model_choice_target = cast('Model', self.sender())
         caps = AICapabilities.text_to_text if for_text else AICapabilities.text_to_image
         d = ChooseModel(model_id, caps, self)
         if d.exec() == QDialog.DialogCode.Accepted:

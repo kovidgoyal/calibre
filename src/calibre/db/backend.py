@@ -465,12 +465,12 @@ class Connection(apsw.Connection):  # {{{
         encoding = next(self.execute('PRAGMA encoding'))[0]
         self.createcollation('PYNOCASE', partial(pynocase, encoding=encoding))
 
-        self.createscalarfunction('title_sort', cast(ScalarProtocol, title_sort))
-        self.createscalarfunction('author_to_author_sort', cast(ScalarProtocol, _author_to_author_sort), 1)
+        self.createscalarfunction('title_sort', cast('ScalarProtocol', title_sort))
+        self.createscalarfunction('author_to_author_sort', cast('ScalarProtocol', _author_to_author_sort), 1)
         self.createscalarfunction('uuid4', lambda *a: str(uuid.uuid4()), 0)
 
         # Dummy functions for dynamically created filters
-        self.createscalarfunction('books_list_filter', cast(ScalarProtocol, lambda x: 1), 1)
+        self.createscalarfunction('books_list_filter', cast('ScalarProtocol', lambda x: 1), 1)
         self.createcollation('icucollate', icu_collator)
 
         # Legacy aggregators (never used) but present for backwards compat
@@ -483,7 +483,7 @@ class Connection(apsw.Connection):  # {{{
 
     def create_dynamic_filter(self, name):
         f = DynamicFilter(name)
-        self.createscalarfunction(name, cast(ScalarProtocol, f), 1)
+        self.createscalarfunction(name, cast('ScalarProtocol', f), 1)
 
     def get(self, *args, **kw):
         ans = self.cursor().execute(*args)

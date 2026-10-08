@@ -84,7 +84,7 @@ class FontMetrics:
         the characters in string at the specified pixel_size and stretch factor.
         """
         if not isinstance(string, str):
-            raise ValueError('Must supply a unicode object')
+            raise TypeError('Must supply a unicode object')
         chars = tuple(map(ord, string))
         cmap = self.cmap.get_character_map(chars)
         glyph_ids = (cmap[c] for c in chars)

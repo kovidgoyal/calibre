@@ -93,7 +93,7 @@ class MobiWriter:
             self.indexer = Indexer(
                 self.serializer,
                 self.last_text_record_idx,
-                len(cast(bytes, self.records[self.last_text_record_idx])),
+                len(cast('bytes', self.records[self.last_text_record_idx])),
                 self.masthead_offset,
                 self.is_periodical,
                 self.opts,
@@ -473,7 +473,7 @@ class MobiWriter:
         offset = self.tell() + (8 * nrecords) + 2
         for i, record in enumerate(self.records):
             self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2 * i)[1:])
-            offset += len(cast(bytes, record))
+            offset += len(cast('bytes', record))
         self.write(b'\0\0')
 
     # }}}

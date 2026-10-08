@@ -353,7 +353,7 @@ class UtteranceAudioQueue(QIODevice):
     def readData(self, maxlen: int) -> bytes:
         if maxlen < 1:
             debug(f'Audio data sent to output: {maxlen=}')
-            return cast(bytes, QByteArray())
+            return cast('bytes', QByteArray())
         if maxlen >= len(self.current_audio_data):
             ans = self.current_audio_data
             self.current_audio_data = QByteArray()
@@ -361,7 +361,7 @@ class UtteranceAudioQueue(QIODevice):
             ans = self.current_audio_data.first(maxlen)
             self.current_audio_data = self.current_audio_data.last(len(self.current_audio_data) - maxlen)
         debug(f'Audio sent to output: {maxlen=} {len(ans)=}')
-        return cast(bytes, ans)
+        return cast('bytes', ans)
 
 
 def split_into_utterances(text: str, counter: count, lang: str = 'en'):

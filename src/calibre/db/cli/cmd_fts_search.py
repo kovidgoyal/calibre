@@ -55,7 +55,7 @@ def implementation(db, notify_changes, query, adata):
         ), metadata_cache
     except FTSQueryError as e:
         setattr(e, 'suppress_traceback', True)
-        raise e
+        raise
 
 
 def option_parser(get_parser, args):

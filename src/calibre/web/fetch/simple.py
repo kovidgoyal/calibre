@@ -309,7 +309,7 @@ class RecursiveFetcher:
                     data = response(f.read() + f.read())
                     data.newurl = f.geturl()
             else:
-                raise err
+                raise
         finally:
             self.last_fetch_at = time.monotonic()
         self.log.debug(f'Fetched {url} in {time.monotonic() - st:f} seconds')

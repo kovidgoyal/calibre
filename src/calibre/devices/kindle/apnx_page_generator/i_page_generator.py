@@ -24,9 +24,9 @@ class IPageGenerator(metaclass=ABCMeta):
             if result.number_of_pages > 0:
                 return result
             return self._generate_fallback(mobi_file_path, real_count)
-        except Exception as e:
+        except Exception:
             if self.__class__.__name__ == 'FastPageGenerator':
-                raise e
+                raise
             return self._generate_fallback(mobi_file_path, real_count)
 
     @abstractmethod

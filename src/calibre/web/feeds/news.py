@@ -858,7 +858,7 @@ class BasicNewsRecipe(Recipe):
             heading.text = extracted_title
             body.insert(0, heading)
 
-        raw_html = tostring(cast(HtmlElement, root), encoding='unicode')
+        raw_html = tostring(cast('HtmlElement', root), encoding='unicode')
 
         return raw_html
 

@@ -162,7 +162,7 @@ class ResourceCollection:  # {{{
 
     def append(self, resource):
         if not isinstance(resource, Resource):
-            raise ValueError('Can only append objects of type Resource')
+            raise TypeError('Can only append objects of type Resource')
         self._resources.append(resource)
 
     def remove(self, resource):
@@ -1639,7 +1639,7 @@ class OPFCreator(Metadata):
             try:
                 opf_stream = sys.stdout.buffer
             except AttributeError:
-                opf_stream = cast(IO[bytes], sys.stdout)
+                opf_stream = cast('IO[bytes]', sys.stdout)
         opf_stream.write(raw)
         opf_stream.flush()
         if toc is not None and ncx_stream is not None:

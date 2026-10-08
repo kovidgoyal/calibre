@@ -2296,7 +2296,7 @@ class Cache:
     @quiet_write_api
     def add_cover_cache(self, cover_cache):
         if not callable(cover_cache.invalidate):
-            raise ValueError('Cover caches must have an invalidate method')
+            raise TypeError('Cover caches must have an invalidate method')
         self.cover_caches.add(cover_cache)
 
     _add_cover_cache = add_cover_cache

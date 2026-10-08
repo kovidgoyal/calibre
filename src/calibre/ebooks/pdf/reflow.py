@@ -226,7 +226,7 @@ class Text(Element):
             self.color = self.font.color
             self.font_family = self.font.family
         else:
-            self.font = cast(Font, {})
+            self.font = cast('Font', {})
             self.font_size = 0.0
             self.font_size_em = 0.0
             # self.color = 0
@@ -448,7 +448,7 @@ class Paragraph(Text):
             self.color = self.font.color
             self.font_family = self.font.family
         else:
-            self.font = cast(Font, {})
+            self.font = cast('Font', {})
             self.font_size = 0
             # self.color = 0
 
@@ -1627,7 +1627,7 @@ class PDFDocument:
 
         # Create lines for pages and remove headers/footers etc.
         for page in self.pages:
-            page.document_font_stats = cast(FontSizeStats, self.font_size_stats)
+            page.document_font_stats = cast('FontSizeStats', self.font_size_stats)
             # This processes user-supplied regex for header/footer
             page.create_page_format(self.stats, self.opts)
 

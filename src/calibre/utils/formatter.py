@@ -990,7 +990,7 @@ class FormatterFuncsCaller:
                         _('Error in function {0} :: {1}').format(name, re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1))
                     )  # remove UserFunction.evaluate() | Builtin*.evaluate()
                     setattr(e, 'is_internal', True)
-                    raise e
+                    raise e  # noqa: TRY201
                 return rslt
 
             return call
@@ -1043,7 +1043,7 @@ class _Interpreter:
                 val = self.expr(p)
         except (BreakExecuted, ContinueExecuted) as e:
             e.set_value(val)
-            raise e
+            raise
         return val
 
     def do_node_with(self, prog):
@@ -1059,8 +1059,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter("'with': block value", v, line_number)
             return v
-        except (StopException, ValueError, ReturnExecuted) as e:
-            raise e
+        except StopException, ValueError, ReturnExecuted:
+            raise
         except Exception as e:
             self.error(_("Unhandled exception '{0}'").format(e), line_number)
         finally:
@@ -1112,8 +1112,8 @@ class _Interpreter:
                 self.break_reporter("'for' list value", '', line_number)
                 ret = ''
             return ret
-        except (StopException, ValueError, ReturnExecuted) as e:
-            raise e
+        except StopException, ValueError, ReturnExecuted:
+            raise
         except Exception as e:
             self.error(_("Unhandled exception '{0}'").format(e), line_number)
 
@@ -1163,8 +1163,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter("'for' block value", ret, line_number)
             return ret
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception as e:
             self.error(_("Unhandled exception '{0}'").format(e), line_number)
 
@@ -1332,8 +1332,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Unknown field '{0}'").format('internal parse error'), prog.line_number)
 
@@ -1481,8 +1481,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Error during string comparison: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1508,8 +1508,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Value used in comparison is not a number: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1524,8 +1524,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1540,8 +1540,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1561,8 +1561,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1578,8 +1578,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1589,8 +1589,8 @@ class _Interpreter:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except (StopException, ValueError) as e:
-            raise e
+        except StopException, ValueError:
+            raise
         except Exception:
             self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1602,15 +1602,12 @@ class _Interpreter:
     }
 
     def do_node_character(self, prog):
-        try:
-            key = self.expr(prog.expression)
-            ret = self.characters.get(key, None)
-            if ret is None:
-                self.error(_("Function {0}: invalid character name '{1}").format('character', key), prog.line_number)
-            if self.break_reporter:
-                self.break_reporter(prog.node_name, ret, prog.line_number)
-        except (StopException, ValueError) as e:
-            raise e
+        key = self.expr(prog.expression)
+        ret = self.characters.get(key, None)
+        if ret is None:
+            self.error(_("Function {0}: invalid character name '{1}").format('character', key), prog.line_number)
+        if self.break_reporter:
+            self.break_reporter(prog.node_name, ret, prog.line_number)
         return ret
 
     def do_node_print(self, prog):
@@ -1663,8 +1660,8 @@ class _Interpreter:
             if isinstance(prog, list):
                 return self.expression_list(prog)
             return self.NODE_OPS[prog.node_type](self, prog)
-        except (ValueError, ExecutionBase, StopException) as e:
-            raise e
+        except ValueError, ExecutionBase, StopException:
+            raise
         except Exception as e:
             if DEBUG:
                 traceback.print_exc()
@@ -1839,7 +1836,7 @@ class TemplateFormatter(string.Formatter):
 
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(ss.name, ss.lineno, type(e).__name__, str(e)))
         if not isinstance(rslt, str):
-            raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))
+            raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))  # noqa: TRY004
         return rslt
 
     def compile_python_template(self, template):

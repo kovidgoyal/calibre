@@ -451,7 +451,7 @@ def parse_game_file(raw: bytes, read_image: ImageReader, description: str) -> Lo
     except Exception as e:
         raise ValueError(f'Not a valid CYOA game file: {description}: {e}') from e
     if not isinstance(data, dict):
-        raise ValueError(f'Not a valid CYOA game file: {description}')
+        raise ValueError(f'Not a valid CYOA game file: {description}')  # noqa: TRY004
     version = data.get('version')
     if not isinstance(version, int) or version < 1:
         raise ValueError(f'Not a valid CYOA game file: {description}: {version!r} is not a game file version')

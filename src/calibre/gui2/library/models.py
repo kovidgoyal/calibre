@@ -1890,7 +1890,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             'inlibrary': ('in_library', lambda x: x or ''),
         }[cname]
         keygen = keygen if callable(keygen) else DeviceDBSortKeyGen(keygen[0], keygen[1], self.db)
-        keygen_fn = cast(Callable[[int], bytes | str], keygen)
+        keygen_fn = cast('Callable[[int], bytes | str]', keygen)
         self.map.sort(key=keygen_fn, reverse=descending)
         if len(self.map) == len(self.db):
             self.sorted_map = list(self.map)

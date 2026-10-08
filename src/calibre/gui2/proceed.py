@@ -184,7 +184,7 @@ class ProceedQuestion(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         for child in self.findChildren(QWidget):
             child.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setFocusProxy(cast(QWidget | None, self.parent()))
+        self.setFocusProxy(cast('QWidget | None', self.parent()))
         self.resize_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
 
@@ -358,7 +358,7 @@ class ProceedQuestion(QWidget):
         for child in self.findChildren(QWidget):
             child.update()
             if hasattr(child, 'viewport'):
-                vp = cast(QAbstractScrollArea, child).viewport()
+                vp = cast('QAbstractScrollArea', child).viewport()
                 if vp is not None:
                     vp.update()
 

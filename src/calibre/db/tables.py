@@ -324,7 +324,7 @@ class ManyToOneTable(Table):
             ans: dict[str, int | None] = {name: None for name in item_names}
             res: Iterable[tuple[str, int]] = db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', serialized_names)
             if self.unserialize is not None:
-                unserialize = cast(Callable[[str], str], self.unserialize)
+                unserialize = cast('Callable[[str], str]', self.unserialize)
                 res = ((unserialize(name), iid) for name, iid in res)
             ans.update(res)
             return ans

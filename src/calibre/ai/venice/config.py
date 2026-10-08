@@ -381,7 +381,7 @@ class ConfigWidget(QWidget):
         return True
 
     def select_model(self, model_id: str, for_text: bool) -> None:
-        model_choice_target = cast(Model, self.sender())
+        model_choice_target = cast('Model', self.sender())
         d = ChooseModel(model_id, for_text, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             model_choice_target.set(d.model_id, d.model_name)

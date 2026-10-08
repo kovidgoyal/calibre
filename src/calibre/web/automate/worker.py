@@ -61,7 +61,7 @@ class SingleObjectProtocol(asyncio.Protocol):
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         # asyncio.Protocol is always used with a bi-directional transport
-        self.transport = cast(asyncio.Transport, transport)
+        self.transport = cast('asyncio.Transport', transport)
 
     def data_received(self, data: bytes) -> None:
         self._buffer.extend(data)
@@ -156,8 +156,8 @@ async def start_server(
                 from asyncio import Transport
                 from asyncio.windows_events import ProactorEventLoop
 
-                wserver = await cast(ProactorEventLoop, loop).start_serving_pipe(protocol_factory, path)
-                server = cast(list[Transport], wserver)
+                wserver = await cast('ProactorEventLoop', loop).start_serving_pipe(protocol_factory, path)
+                server = cast('list[Transport]', wserver)
             else:
                 sock = None
                 if path.startswith('/'):
