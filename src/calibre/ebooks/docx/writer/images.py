@@ -83,7 +83,7 @@ class ImagesManager:
     def abshref(self, x: str) -> str:
         return x
 
-    def add_image(self, img, block, stylizer, bookmark=None, as_block=False):
+    def add_image(self, img, block, stylizer, bookmark=None, as_block=False, link=None):
         src = img.get('src')
         if not src:
             return
@@ -93,11 +93,10 @@ class ImagesManager:
         except AttributeError:
             return
         drawing = self.create_image_markup(img, stylizer, href, as_block=as_block)
-        block.add_image(drawing, bookmark=bookmark)
+        block.add_image(drawing, bookmark=bookmark, link=link)
         return rid
 
     def create_image_markup(self, html_img, stylizer, href, as_block=False):
-        # TODO: img inside a link (clickable image)
         svg_rid = ''
         svghref = self.svg_rasterizer.svg_originals.get(href)
         if svghref:

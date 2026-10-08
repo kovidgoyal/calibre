@@ -115,7 +115,7 @@ class TestHyperlinks(BaseTest):
         self.add_text(block, 'one', link, bookmark='bookmark')
         block.add_break()
         drawing = etree.Element(self.namespace.expand('w:drawing'))
-        block.add_image(drawing)
+        block.add_image(drawing, link=link)
         self.add_text(block, 'two', link, bold=True)
         block.serialize(self.body)
         self.assertEqual(len(self.xpath('./w:p/w:hyperlink')), 1)
@@ -129,6 +129,42 @@ class TestHyperlinks(BaseTest):
         run.serialize(p, self.links)
         self.assertEqual(self.xpath('./w:hyperlink/w:r/w:t/text()', p), ['legacy'])
 
+    def test_linked_images(self):
+        block, link = self.block(), self.link()
+        drawings = [etree.Element(self.namespace.expand('w:drawing')) for _ in range(3)]
+        self.add_text(block, 'text', link)
+        block.add_image(drawings[0])
+        block.add_image(drawings[1], link=link)
+        block.add_image(drawings[2], link=self.link())
+        block.serialize(self.body)
+        self.assertEqual(self.xpath('./w:p/w:r/w:drawing'), drawings[:1])
+        self.assertEqual([self.xpath('./w:r/w:drawing', h) for h in self.xpath('./w:p/w:hyperlink')], [[], drawings[1:2], drawings[2:]])
+
+    def test_linked_floating_images(self):
+        self.links.document_hrefs.add('test.html')
+        self.links.anchor_map[('test.html', 'target')] = 'Target'
+        block, link = self.block(), self.link(tooltip='Tip')
+
+        def drawing():
+            ans = self.namespace.makeelement(self.body, 'w:drawing', append=False)
+            self.namespace.makeelement(self.namespace.makeelement(ans, 'wp:anchor'), 'wp:docPr')
+            return ans
+
+        self.add_text(block, 'text', link)
+        block.add_image(drawing(), link=link)
+        block.add_image(drawing(), link=self.link('#target'))
+        block.add_image(drawing())
+        block.serialize(self.body)
+        # Word ignores <w:hyperlink> around floating images, the link must be on the image itself
+        self.assertEqual(self.xpath('./w:p/w:hyperlink/w:r/w:t/text()'), ['text'])
+        self.assertFalse(self.xpath('.//w:hyperlink//w:drawing'))
+        hlinks = self.xpath('.//wp:docPr/a:hlinkClick')
+        self.assertEqual(len(hlinks), 2)
+        external = self.relationships.get_relationship_id('https://example.com', self.namespace.names['LINKS'], 'External')
+        internal = self.relationships.get_relationship_id('#Target', self.namespace.names['LINKS'])
+        self.assertEqual([self.namespace.get(h, 'r:id') for h in hlinks], [external, internal])
+        self.assertEqual([h.get('tooltip') for h in hlinks], ['Tip', None])
+
     def test_html_docx_html_roundtrip(self):
         from calibre.ebooks.conversion.plumber import Plumber
 
@@ -138,6 +174,9 @@ class TestHyperlinks(BaseTest):
         <p>Nested: <a href="https://example.com">one<span lang="it"><b>due</b></span>three</a></p>
         <p>Internal: <a href="#target">go <b>there</b></a></p>
         <p id="target">Destination</p>
+        <p>Image: <a href="https://example.com"><img src="image.png" alt="image"/></a> after</p>
+        <p>Floats: <a href="https://example.com/float" title="Tip"><img src="image.png" style="float:right"/></a>
+        <a href="#target"><img src="image.png" style="float:left"/></a> around</p>
         <table><tr><td><p>Cell one: <a href="https://example.com">one<b>two</b></a></p></td>
         <td><p>Cell two: <a href="https://example.com">three<b>four</b></a></p></td></tr></table>
         </body></html>'''
@@ -145,14 +184,18 @@ class TestHyperlinks(BaseTest):
             base = Path(tdir)
             html, docx, htmlz = (base / name for name in ('input.html', 'output.docx', 'output.htmlz'))
             html.write_text(source, encoding='utf-8')
+            (base / 'image.png').write_bytes(I('blank.png', data=True, allow_user_override=False))
             plumber = Plumber(str(html), str(docx), DevNull())
             plumber.merge_ui_recommendations([('docx_no_toc', True, 3), ('docx_no_cover', True, 3)])
             plumber.run()
             with ZipFile(docx) as zf:
                 document = etree.fromstring(zf.read('word/document.xml'))
             paragraphs = {''.join(self.xpath('.//w:t/text()', p)).split(':')[0]: p for p in self.xpath('.//w:p', document)}
-            for label, count in (('Styled', 1), ('Adjacent', 2), ('Nested', 1), ('Internal', 1), ('Cell one', 1), ('Cell two', 1)):
+            for label, count in (('Styled', 1), ('Adjacent', 2), ('Nested', 1), ('Internal', 1), ('Cell one', 1), ('Cell two', 1), ('Image', 1)):
                 self.assertEqual(len(self.xpath('./w:hyperlink', paragraphs[label])), count, label)
+            self.assertEqual(len(self.xpath('./w:hyperlink/w:r/w:drawing', paragraphs['Image'])), 1)
+            self.assertFalse(self.xpath('//w:hyperlink//wp:anchor', document))
+            self.assertEqual(len(self.xpath('//wp:anchor/wp:docPr/a:hlinkClick', document)), 2)
             self.assertEqual(self.xpath('./w:hyperlink/w:r/w:t/text()', paragraphs['Styled']), ['oddities linktext ', '&', ' ampersands'])
             plumber = Plumber(str(docx), str(htmlz), DevNull())
             plumber.merge_ui_recommendations([('docx_inline_subsup', True, 3)])
@@ -160,8 +203,13 @@ class TestHyperlinks(BaseTest):
             with ZipFile(htmlz) as zf:
                 result = etree.fromstring(zf.read('index.html'))
             paragraphs = {''.join(p.itertext()).split(':')[0]: p for p in result.iter('p')}
-            for label, count in (('Styled', 1), ('Adjacent', 2), ('Nested', 1), ('Internal', 1), ('Cell one', 1), ('Cell two', 1)):
+            for label, count in (('Styled', 1), ('Adjacent', 2), ('Nested', 1), ('Internal', 1), ('Cell one', 1), ('Cell two', 1), ('Image', 1)):
                 self.assertEqual(len(paragraphs[label].xpath('.//a')), count, label)
+            self.assertEqual(len(paragraphs['Image'].xpath('.//a[@href="https://example.com"]//img')), 1)
+            self.assertEqual(len(result.xpath('//a[@href="https://example.com/float" and @title="Tip"]/img')), 1)
+            float_target = result.xpath('//a[starts-with(@href, "#")][img]/@href')
+            self.assertEqual(len(float_target), 1)
+            self.assertTrue(result.xpath('//*[@id=$target]', target=float_target[0][1:]))
             a = paragraphs['Styled'].find('a')
             assert a is not None
             self.assertEqual(''.join(a.itertext()), 'oddities linktext & ampersands')

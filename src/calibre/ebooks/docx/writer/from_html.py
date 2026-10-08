@@ -84,8 +84,8 @@ class TextRun:
     def add_break(self, clear='none', bookmark=None):
         self.texts.append((None, clear, bookmark))
 
-    def add_image(self, drawing, bookmark=None):
-        self.texts.append((drawing, None, bookmark))
+    def add_image(self, drawing, bookmark=None, link=None):
+        self.texts.append((drawing, link, bookmark))
 
     def serialize(self, p, links_manager, parent=None):
         makeelement = self.makeelement
@@ -115,6 +115,9 @@ class TextRun:
             if text is None:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
+                drawing_link = preserve_whitespace  # for drawings this slot holds the link of a floating image
+                if drawing_link is not None:
+                    links_manager.serialize_drawing_link(text, drawing_link)
                 r.append(text)
             elif text:
                 soft_hyphen_pat = self.soft_hyphen_pat
@@ -240,13 +243,18 @@ class Block:
             self.runs.append(run)
         run.add_break(clear=clear, bookmark=bookmark)
 
-    def add_image(self, drawing, bookmark=None):
-        if self.runs:
+    def add_image(self, drawing, bookmark=None, link=None):
+        drawing_link = None
+        if link is not None and self.namespace.XPath('./wp:anchor')(drawing):
+            # Floating image, the link must go on the image itself, not on the run
+            link, drawing_link = None, link
+        if self.runs and link is self.runs[-1].link:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
+            run.link = link
             self.runs.append(run)
-        run.add_image(drawing, bookmark=bookmark)
+        run.add_image(drawing, bookmark=bookmark, link=drawing_link)
 
     def serialize(self, body):
         makeelement = self.namespace.makeelement
@@ -632,7 +640,7 @@ class Convert:
         if anchor:
             block.bookmarks.add(self.bookmark_for_anchor(anchor, html_tag))
         if tagname == 'img':
-            self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
+            self.images_manager.add_image(html_tag, block, stylizer, as_block=True, link=self.current_link)
         else:
             text = html_tag.text
             is_list_item = tagname == 'li'
@@ -665,7 +673,7 @@ class Convert:
                 )
         elif tagname == 'img':
             block = self.create_block_from_parent(html_tag, stylizer)
-            self.images_manager.add_image(html_tag, block, stylizer, bookmark=bmark)
+            self.images_manager.add_image(html_tag, block, stylizer, bookmark=bmark, link=self.current_link)
         elif html_tag.text:
             block = self.create_block_from_parent(html_tag, stylizer)
             block.add_text(
