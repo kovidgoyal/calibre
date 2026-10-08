@@ -300,8 +300,12 @@ def field_names_for(field, proceed):
         library_data.field_names[field].loading = True
 
 
-def thumbnail_url(book_id, width, height, library_id=None):
+def thumbnail_url(book_id, width, height, library_id=None, fill=False):
+    # fill requests a thumbnail that covers the box rather than fitting inside
+    # it, use it for images displayed with object-fit: cover
     query = f'sz={Math.ceil(width * window.devicePixelRatio)}x{Math.ceil(height * window.devicePixelRatio)}'
+    if fill:
+        query += '&fill=1'
     prefix = f'get/thumb/{book_id}'
     lid = library_id or loaded_books_query().library_id or current_library_id()
     if lid:
@@ -385,8 +389,8 @@ class ThumbnailCache:
     def __init__(self, size=256):
         self.cache = LRUCache(size)
 
-    def get(self, book_id, width, height, callback):
-        url = thumbnail_url(book_id, width, height)
+    def get(self, book_id, width, height, callback, fill=False):
+        url = thumbnail_url(book_id, width, height, fill=fill)
         item = self.cache.get(url)
         if not item:
             img = new Image()

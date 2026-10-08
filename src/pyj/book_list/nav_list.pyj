@@ -833,7 +833,7 @@ def create_nav_list_panel(container_id):
             ids = data.search_result?.book_ids or []
             urls = []
             for bid in ids.slice(0, 5):
-                urls.push(thumbnail_url(bid, SERIES_COVER_WIDTH, SERIES_COVER_HEIGHT, lid))
+                urls.push(thumbnail_url(bid, SERIES_COVER_WIDTH, SERIES_COVER_HEIGHT, lid, fill=True))
             series_cover_cache[key] = urls
             apply_series_covers(key, urls)
 

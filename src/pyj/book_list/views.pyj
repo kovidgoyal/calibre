@@ -159,8 +159,8 @@ def on_book_click(book_id, evt):
     show_subsequent_panel('book_details', {'book_id': book_id})
 
 
-def create_image(book_id, max_width, max_height, on_load):
-    return thumbnail_cache.get(book_id, max_width, max_height, on_load)
+def create_image(book_id, max_width, max_height, on_load, fill=False):
+    return thumbnail_cache.get(book_id, max_width, max_height, on_load, fill=fill)
 
 
 def render_id(book_id):

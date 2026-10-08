@@ -201,7 +201,7 @@ def show_cover(blob, name, mt, book):
         img.src = window.URL.createObjectURL(blob)
 
 
-def create_image(book_idx, max_width, max_height, on_load):
+def create_image(book_idx, max_width, max_height, on_load, fill=False):
     img = new Image()
     img.onerror = def ():
         if this.src:

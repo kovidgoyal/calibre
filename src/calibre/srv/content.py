@@ -3,6 +3,7 @@
 
 import base64
 import errno
+import math
 import os
 import re
 from contextlib import suppress
@@ -143,7 +144,19 @@ def generated_cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, partial(write_generated_cover, db, book_id, width, height))
 
 
-def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
+def fill_box(width, height, bwidth, bheight):
+    """Return the size of the smallest box with the aspect ratio of the
+    image that completely covers a box of size bwidth x bheight. Images that
+    already fit inside such a box are left at their original size."""
+    if width < 1 or height < 1:
+        return width, height
+    s = max(bwidth / width, bheight / height)
+    if s >= 1:
+        return width, height
+    return math.ceil(width * s), math.ceil(height * s)
+
+
+def cover(ctx, rd, library_id, db, book_id, width=None, height=None, fill=False):
     mtime = db.cover_last_modified(book_id)
     if mtime is None:
         return generated_cover(ctx, rd, library_id, db, book_id, width, height)
@@ -155,12 +168,20 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
 
     else:
         prefix += f'-{width}x{height}'
+        if fill:
+            prefix += '-fill'
 
         def copy_func(dest):
             buf = BytesIO()
             db.copy_cover_to(book_id, buf)
             quality = min(99, max(50, tweaks['content_server_thumbnail_compression_quality']))
-            data = scale_image(buf.getvalue(), width=width, height=height, compression_quality=quality)[-1]
+            img, w, h = buf.getvalue(), width, height
+            if fill:
+                # Scale so the image covers the box rather than fits inside
+                # it, for clients that display it with object-fit: cover
+                img = image_from_data(img)
+                w, h = fill_box(img.width(), img.height(), width, height)
+            data = scale_image(img, width=w, height=h, compression_quality=quality)[-1]
             dest.write(data)
 
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
@@ -426,7 +447,8 @@ def get(ctx, rd, what, book_id, library_id):
                     w = h = int(sz)
                 except Exception:
                     pass
-            return cover(ctx, rd, library_id, db, book_id, width=w, height=h)
+            fill = rd.query.get('fill') == '1' and w is not None and h is not None
+            return cover(ctx, rd, library_id, db, book_id, width=w, height=h, fill=fill)
         elif what == 'cover':
             return cover(ctx, rd, library_id, db, book_id)
         elif what == 'opf':

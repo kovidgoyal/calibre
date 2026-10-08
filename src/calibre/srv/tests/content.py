@@ -201,6 +201,21 @@ class ContentTest(LibraryBaseTest):
             r, data = get('thumb', 1, q='sz=100x100')
             self.ae(r.status, http.client.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
+            # fill scales the cover to cover the box rather than fit inside it
+            r, data = get('thumb', 1, q='sz=50x100')
+            self.ae(r.status, http.client.OK)
+            self.ae(identify(data), ('jpeg', 50, 50))
+            r, data = get('thumb', 1, q='sz=50x100&fill=1')
+            self.ae(r.status, http.client.OK)
+            self.ae(identify(data), ('jpeg', 100, 100))
+            self.ae(r.getheader('Used-Cache'), 'no')
+            r, data = get('thumb', 1, q='sz=50x100&fill=1')
+            self.ae(r.getheader('Used-Cache'), 'yes')
+            from calibre.srv.content import fill_box
+
+            self.ae(fill_box(600, 200, 60, 100), (300, 100))
+            self.ae(fill_box(100, 600, 60, 100), (60, 360))
+            self.ae(fill_box(50, 70, 60, 100), (50, 70))
             change_cover(1, 1)
             r, data = get('thumb', 1, q='sz=100')
             self.ae(r.status, http.client.OK)
