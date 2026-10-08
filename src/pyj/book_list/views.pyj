@@ -758,5 +758,5 @@ def set_panel_handlers():
     set_panel_handler('book_list^sort', library_data_panel(create_sort_panel, show_book_list))
     set_panel_handler('book_list^vl', library_data_panel(create_vl_panel, show_book_list))
     set_panel_handler('book_list^search', library_data_panel(init_search_panel, show_book_list))
-    set_panel_handler('book_list^choose_mode', create_mode_panel)
+    set_panel_handler('book_list^choose_mode', library_data_panel(create_mode_panel, show_book_list))
     set_panel_handler('book_list^search^prefs', tb_config_panel_handler())

@@ -17,7 +17,7 @@ from book_list.comments_editor import (
 from book_list.globals import get_current_query, book_whose_metadata_is_being_edited
 from book_list.library_data import (
     book_metadata, cover_url, current_library_id, field_names_for, library_data,
-    load_status, loaded_book_ids, set_book_metadata
+    loaded_book_ids, on_library_data_loaded, set_book_metadata
 )
 from book_list.router import back, push_state, show_note
 from book_list.theme import get_color
@@ -28,7 +28,7 @@ from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
 from modals import error_dialog, question_dialog
 from session import get_interface_data
-from utils import conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
+from utils import fmt_sidx, parse_url_params, safe_set_inner_html
 from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
@@ -1507,14 +1507,13 @@ def create_edit_metadata(container):
         proceed_after_succesful_fetch_metadata(container_id, current_book_id)
 
 
-def check_for_books_loaded():
-    container = this
-    if load_status.loading:
-        conditional_timeout(container.id, 5, check_for_books_loaded)
+def on_books_loaded(container_id, ok):
+    container = document.getElementById(container_id)
+    if not container:
         return
     container = container.lastChild
     clear(container)
-    if not load_status.ok:
+    if not ok:
         report_load_failure(container)
         return
     create_edit_metadata(container)
@@ -1533,7 +1532,7 @@ def init(container_id):
     container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
     container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
-    conditional_timeout(container_id, 5, check_for_books_loaded)
+    on_library_data_loaded(on_books_loaded.bind(None, container_id))
 
 
 def init_select_item_for_edit_notes(container_id):
@@ -1544,7 +1543,7 @@ def init_select_item_for_edit_notes(container_id):
     container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
     container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
-    conditional_timeout(container_id, 5, check_for_books_loaded)
+    on_library_data_loaded(on_books_loaded.bind(None, container_id))
 
 
 def set_panel_handlers():

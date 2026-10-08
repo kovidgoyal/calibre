@@ -8,7 +8,7 @@ from ajax import absolute_path, ajax
 from book_list.globals import get_session_data
 from lru_cache import LRUCache
 from session import get_interface_data
-from utils import conditional_timeout, parse_url_params
+from utils import parse_url_params
 
 load_status = {'loading': True, 'ok': False, 'error_html': None, 'current_fetch': None, 'current_query': None, 'http_error_code': 0}
 library_data = {
@@ -20,6 +20,7 @@ library_data = {
     'available_browse_fields': [],
     'browse_fields': [],
 }
+library_data_waiters = []
 BROWSE_VISIBLE_FIELDS_SETTING = 'browse_visible_fields'
 
 
@@ -109,6 +110,7 @@ def update_library_data(data):
         last_virtual_library_for.vl = None
     refresh_sidebar_navigation()
     refresh_browse_field_settings()
+    notify_library_data_waiters()
 
 
 def configured_browse_fields():
@@ -229,6 +231,7 @@ def on_data_loaded(end_type, xhr, ev):
         load_status.loading = False
         load_status.error_html = msg or xhr.error_html
         load_status.http_error_code = xhr.status
+        notify_library_data_waiters()
 
     if end_type is 'load':
         data = JSON.parse(xhr.responseText)
@@ -358,17 +361,29 @@ def force_refresh_on_next_load():
     library_data.force_refresh = True
 
 
-def on_library_data_loaded(container_id, callback):
+def on_library_data_loaded(callback):
     # Run callback(ok) once books-init, which on a warm start is still in
-    # flight when a panel from the URL is created, has finished, unless the
-    # panel was closed in the meantime
-    def check():
-        if load_status.loading:
-            conditional_timeout(container_id, 5, check)
-        else:
-            callback(load_status.ok)
+    # flight when a panel from the URL is created, has finished. The callback
+    # must check that its panel still exists.
+    if load_status.loading:
+        library_data_waiters.push(callback)
+    else:
+        callback(load_status.ok)
 
-    check()
+
+def library_data_loaded_for_current_library():
+    # The fields and virtual libraries do not depend on the virtual library or
+    # sort, so panels that only need them do not have to wait for refetches
+    return library_data.for_library is current_library_id() and bool(library_data.sortable_fields)
+
+
+def notify_library_data_waiters():
+    waiters = library_data_waiters.splice(0)
+    for callback in waiters:
+        # Asynchronous so that loading has completely finished and an error
+        # in one callback does not prevent the others from running. Check the
+        # status again as a new fetch could have been started in between.
+        window.setTimeout(on_library_data_loaded.bind(None, callback), 0)
 
 
 def ensure_current_library_data():
