@@ -558,7 +558,7 @@ class Freeze:
             'icudata.78', 'icui18n.78', 'icuio.78', 'icuuc.78', 'hyphen.0', 'uchardet.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.16', 'z.1', 'unrar', 'lzma.5',
             'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
-            'crypto.3', 'ssl.3', 'iconv.2', 'espeak-ng.1', 'onnxruntime.1.30.0',  # 'ltdl.7'
+            'crypto.3', 'ssl.3', 'iconv.2', 'espeak-ng.1', 'onnxruntime.1',  # 'ltdl.7'
         ):
             x = 'lib%s.dylib' % x
             src = join(PREFIX, 'lib', x)
