@@ -106,6 +106,13 @@ add_extra_css(def ():
         '#modal-container .button-box.button-box--wrap-chips > a.calibre-push-button',
         flex='0 1 auto',
     )
+    style += r'''
+@media (max-width: 420px) {
+  #modal-container .button-box:not(.button-box--wrap-chips) { flex-direction: column; }
+  #modal-container .button-box:not(.button-box--wrap-chips) > a.calibre-push-button { flex: 1 1 auto; }
+  #modal-container .button-box:not(.button-box--wrap-chips) > a.calibre-push-button:only-of-type { margin-left: 0; }
+}
+'''
     style += build_rule(
         '#modal-container > div > a:last-child',
         z_index='2',
