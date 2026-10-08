@@ -31,7 +31,7 @@ sp_counter = 0
 CLASS_NAME = 'book-search-panel'
 add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
-    card_bg = 'var(--calibre-surface-1)'
+    card_bg = 'var(--calibre-color-surface-1)'
     card_border = 'var(--calibre-border-style-subtle)'
     style = build_rule(sel,
         padding='0.75rem 1rem 1rem 1rem',
