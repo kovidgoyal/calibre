@@ -126,14 +126,14 @@ ignore = [
     'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
     'PLE1205', 'PLW0602', 'PLW0603', 'PLW1510', 'PLW1641', 'PLW2901', 'PLC0415',
     'PLR0911', 'PLR0912', 'PLR0913', 'PLR0914', 'PLR0915', 'PLR0916', 'PLR0917', 'PLR1702', 'PLR1704', 'PLR2004', 'PLR6301',
-    'TC001', 'TC002', 'TC003',
+    'TC001', 'TC002', 'TC003', 'TRY002', 'TRY003', 'TRY004', 'TRY201', 'TRY300', 'TRY301', 'TRY400',
     'RUF059',  # unused unpacked variable
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',
     'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
     'PL', 'ASYNC', 'FURB', 'FA', 'FLY', 'DTZ', 'T1', 'LOG',
-    'TC',
+    'TC', 'TRY',
     'RUF',  # note: RUF can flag many unsolicited errors
     # from the ruff default rules set
     'D419', 'N999', 'PTH124', 'PTH210', 'G1', 'G2', 'PERF101', 'PERF402',

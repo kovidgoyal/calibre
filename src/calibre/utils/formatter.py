@@ -1602,15 +1602,12 @@ class _Interpreter:
     }
 
     def do_node_character(self, prog):
-        try:
-            key = self.expr(prog.expression)
-            ret = self.characters.get(key, None)
-            if ret is None:
-                self.error(_("Function {0}: invalid character name '{1}").format('character', key), prog.line_number)
-            if self.break_reporter:
-                self.break_reporter(prog.node_name, ret, prog.line_number)
-        except (StopException, ValueError) as e:
-            raise e
+        key = self.expr(prog.expression)
+        ret = self.characters.get(key, None)
+        if ret is None:
+            self.error(_("Function {0}: invalid character name '{1}").format('character', key), prog.line_number)
+        if self.break_reporter:
+            self.break_reporter(prog.node_name, ret, prog.line_number)
         return ret
 
     def do_node_print(self, prog):
