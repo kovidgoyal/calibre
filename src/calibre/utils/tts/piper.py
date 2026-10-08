@@ -185,6 +185,8 @@ class Piper(Thread):
         self.result_callback: ResultCallback = lambda *a: None
         # Converts text to phonemes for Kokoro voices, only used in the synthesis thread
         self.g2p: Callable[[str], list[str]] | None = None
+        # The lexicons used by self.g2p, only used in the synthesis thread
+        self.lexicon_paths: tuple[str, str] | None = None
         self.start()
 
     @property
@@ -234,8 +236,18 @@ class Piper(Thread):
         self.commands.put((vid, partial(self._set_voice, cfg, model_path)))
         return cfg.sample_rate
 
-    def _set_voice(self, cfg: VoiceConfig, model_path: str) -> None:
+    def _release_g2p(self, lexicon_paths: tuple[str, str] | None = None) -> None:
+        # Free the memory used by cached lexicons unless they are needed by
+        # the new voice
         self.g2p = None
+        if self.lexicon_paths != lexicon_paths:
+            from calibre.utils.tts.kokoro import load_lexicon
+
+            load_lexicon.cache_clear()
+            self.lexicon_paths = None
+
+    def _set_voice(self, cfg: VoiceConfig, model_path: str) -> None:
+        self._release_g2p()
         piper.set_voice(cfg, model_path)
 
     def set_kokoro_voice(
@@ -257,9 +269,10 @@ class Piper(Thread):
     def _set_kokoro_voice(self, voice: KokoroVoice, rate: float, sentence_delay: float) -> None:
         from calibre.utils.tts.kokoro import G2P
 
-        self.g2p = None
+        self._release_g2p(voice.lexicon_paths)
         piper.set_voice(create_kokoro_voice_config(voice, rate, sentence_delay), voice.model_path)
         self.g2p = G2P(voice.lang_code, voice.lexicon_paths)
+        self.lexicon_paths = voice.lexicon_paths
 
     def set_use_gpu(self, use_gpu: bool) -> None:
         # Not tied to a voice so that it is not discarded by cancel() or set_voice()

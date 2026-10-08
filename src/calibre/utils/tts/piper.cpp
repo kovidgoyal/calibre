@@ -476,14 +476,22 @@ categorize_terminator(int terminator) {
 
 static PyObject *
 phonemize(PyObject *self, PyObject *args) {
-    PyObject *pytext;
-    int tie = 0;
-    if (!PyArg_ParseTuple(args, "U|C", &pytext, &tie)) return NULL;
-    if (tie < 0 || tie > 0xffff) {
+    PyObject *pytext, *pytie = NULL;
+    if (!PyArg_ParseTuple(args, "U|U", &pytext, &pytie)) return NULL;
+    Py_UCS4 tie = 0;
+    if (pytie) {
+        const Py_ssize_t tie_len = PyUnicode_GET_LENGTH(pytie);
+        if (tie_len > 1) {
+            PyErr_SetString(PyExc_ValueError, "the tie must be a single character or the empty string");
+            return NULL;
+        }
+        if (tie_len == 1) tie = PyUnicode_READ_CHAR(pytie, 0);
+    }
+    if (tie > 0xffff) {
         PyErr_SetString(PyExc_ValueError, "the tie character must be in the Basic Multilingual Plane");
         return NULL;
     }
-    const int phoneme_mode = espeakPHONEMES_IPA | (tie ? (espeakPHONEMES_TIE | (tie << 8)) : 0);
+    const int phoneme_mode = espeakPHONEMES_IPA | (tie ? (espeakPHONEMES_TIE | ((int)tie << 8)) : 0);
     if (!initialized) {
         PyErr_SetString(PyExc_Exception, "must call initialize() first");
         return NULL;

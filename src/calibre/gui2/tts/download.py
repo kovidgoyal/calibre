@@ -221,9 +221,15 @@ def download_resources(
         data = br.open_novisit(url).read()
         if (expected := hashes.get(url)) and hashlib.sha256(data).hexdigest() != expected.lower():
             raise ValueError(f'The data downloaded from {url} is corrupted, its checksum does not match')
-        with open(path + '.part', 'wb') as f:
-            f.write(data)
-        os.replace(path + '.part', path)
+        part_path = path + '.part'
+        try:
+            with open(part_path, 'wb') as f:
+                f.write(data)
+            os.replace(part_path, path)
+        except BaseException:
+            with suppress(OSError):
+                os.remove(part_path)
+            raise
     return True
 
 

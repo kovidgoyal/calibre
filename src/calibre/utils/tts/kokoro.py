@@ -117,6 +117,9 @@ class EspeakG2P:
 # English {{{
 DIPHTHONGS = frozenset('AIOQWYʤʧ')
 SUBTOKEN_JUNKS = frozenset("',-._‘’/")
+# The maximum number of parts of a group of words that are looked up as a
+# single entry in the lexicon, entries such as non- have only two parts
+MAX_SPAN_PARTS = 8
 PUNCTS = frozenset(';:,.!?—…"“”')
 NON_QUOTE_PUNCTS = frozenset(p for p in PUNCTS if p not in '"“”')
 LEXICON_ORDS = frozenset((39, 45, *range(65, 91), *range(97, 123)))
@@ -189,6 +192,8 @@ def is_digit(text: str) -> bool:
 
 
 # Numbers as words {{{
+# Numbers with more digits than this are read digit by digit
+MAX_NUMBER_DIGITS = 15
 SMALL_NUMBERS = ('zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen').split()
 TENS = ('', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety')
 SCALES = ((10**12, 'trillion'), (10**9, 'billion'), (10**6, 'million'), (1000, 'thousand'))
@@ -487,12 +492,16 @@ class Lexicon:
         plain = word.replace(',', '')
         if not plain or not all(is_digit(c) or c == '.' for c in plain) or plain.count('.') > 1 or plain == '.':
             return None
+        whole, _, frac = plain.partition('.')
+        if len(whole) > MAX_NUMBER_DIGITS:
+            # Read very long numbers digit by digit, this also avoids the
+            # limit on the number of digits int() can convert
+            return prefix + [SMALL_NUMBERS[int(d)] for d in whole] + (['point'] + [SMALL_NUMBERS[int(d)] for d in frac] if frac else [])
         if is_digit(plain) and suffix in ORDINALS:
             return prefix + ordinal_words(int(plain))
         if not prefix and len(word) == 4 and not currency and is_digit(word):
             return year_words(int(word))
         if currency in CURRENCIES:
-            whole, _, frac = plain.partition('.')
             if len(frac) < 3:
                 unit, sub_unit = CURRENCIES[currency]
                 parts = [(int(whole) if whole else 0, unit), (int(frac.ljust(2, '0')) if frac else 0, sub_unit)]
@@ -699,10 +708,13 @@ class EnglishG2P:
 
     def resolve_group(self, group: list[Token], ctx: TokenContext, tag: str | None) -> tuple[str, TokenContext]:
         # Find the longest spans of the group that are in the lexicon, working
-        # from the end of the group, as done by misaki
+        # from the end of the group, as done by misaki. Spans are limited to
+        # MAX_SPAN_PARTS parts so that the time taken is linear in the size of
+        # the group, rather than cubic.
         texts = [tk.text for tk in group]
         phonemes: list[str | None] = [None] * len(texts)
-        left, right = 0, len(texts)
+        right = len(texts)
+        left = max(0, right - MAX_SPAN_PARTS)
         while left < right:
             merged = ''.join(texts[left:right])
             ps = None
@@ -715,7 +727,8 @@ class EnglishG2P:
                 for k in range(left + 1, right):
                     phonemes[k] = ''
                 ctx = self.token_context(ctx, ps, merged)
-                right, left = left, 0
+                right = left
+                left = max(0, right - MAX_SPAN_PARTS)
             elif left + 1 < right:
                 left += 1
             else:
@@ -727,7 +740,7 @@ class EnglishG2P:
                         text = ''.join(texts)
                         ps = self.fallback(text)
                         return ps, self.token_context(ctx, ps, text)
-                left = 0
+                left = max(0, right - MAX_SPAN_PARTS)
         text = ''.join(texts)
         resolved = [x or '' for x in phonemes]
         classes = {0 if c.isalpha() else (1 if is_digit(c) else 2) for c in text if c not in SUBTOKEN_JUNKS}
@@ -814,7 +827,9 @@ class EnglishG2P:
         return ans.replace('ɾ', 'T').replace('ʔ', 't')
 
 
-@lru_cache(2)
+# Only one lexicon is cached as they use a lot of memory and
+# the cache is cleared when the voice changes to one that does not use it
+@lru_cache(1)
 def load_lexicon(gold_path: str, silver_path: str, british: bool) -> Lexicon:
     with open(gold_path, 'rb') as f:
         golds: dict[str, LexiconValue] = json.load(f)
@@ -938,6 +953,10 @@ def find_tests():
             t('"hello"', '“həlˈO”')
             t('cat -- world', 'kˈæt — wˈɜɹld')
             t('Zyx', '<Zyx>')
+            # Long numbers are read digit by digit instead of failing in int()
+            self.assertEqual(g.lexicon.number_words('1' * 5000, ''), ['one'] * 5000)
+            self.assertEqual(g.lexicon.number_words('9' * 20 + '.5', '$'), ['nine'] * 20 + ['point', 'five'])
+            self.assertEqual(g.lexicon.number_words('1' * 16 + '.5', ''), ['one'] * 16 + ['point', 'five'])
 
         def test_kokoro_split_phonemes(self):
             vocab = {c: i for i, c in enumerate('abc ,.')}
@@ -969,8 +988,11 @@ def find_tests():
             from calibre.utils.tts.piper import espeak_data_dir
 
             piper.initialize(espeak_data_dir())
-            vocab = kokoro_metadata()['vocab']
             piper.set_espeak_voice_by_name('en-us')
+            self.assertEqual(piper.phonemize('my choice', ''), piper.phonemize('my choice'))
+            with self.assertRaises(ValueError):
+                piper.phonemize('my choice', '^^')
+            vocab = kokoro_metadata()['vocab']
             fallback = EspeakFallback(espeak_phonemizer, False)
             ps = fallback('Zyxwort')
             self.assertTrue(ps)
