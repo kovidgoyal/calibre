@@ -786,7 +786,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
         try:
             result = json.loads(result)
             if not isinstance(result, dict):
-                raise ValueError('Not a dict')
+                raise TypeError('Not a dict')
         except Exception:
             log.warn(f'Could not do page number mapping, got unexpected result: {result!r}')
         else:

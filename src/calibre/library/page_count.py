@@ -328,8 +328,7 @@ def test_page_count(self) -> None:
     with Server(max_jobs_per_worker=2) as s:
         for x in files:
             res = s.count_pages(x)
-            if not isinstance(res, int):
-                raise AssertionError(f'Counting pages for {x} failed with result: {res}')
+            self.assertIsInstance(res, int, f'Counting pages for {x} failed with result: {res}')
 
 
 def develop():

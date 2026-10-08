@@ -349,7 +349,7 @@ class OptionSet:
                 try:
                     options = json_loads(src)
                     if not isinstance(options, dict):
-                        raise Exception('options is not a dictionary')
+                        raise TypeError('options is not a dictionary')
                 except Exception as err:
                     try:
                         print(f'Failed to parse options string with error: {err}')

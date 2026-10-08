@@ -118,7 +118,7 @@ class FormatterFunctions:
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
-            raise ValueError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
+            raise TypeError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
         name = func_class.name
         if name in self._functions:
             raise ValueError(f'Name {name} already used')
@@ -129,7 +129,7 @@ class FormatterFunctions:
 
     def _register_function(self, func_class, replace=False):
         if not isinstance(func_class, FormatterFunction):
-            raise ValueError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
+            raise TypeError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
         name = func_class.name
         if not replace and name in self._functions:
             raise ValueError(f'Name {name} already used')
@@ -3085,7 +3085,7 @@ More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
                 return 'Yes'
             return ''
         if not isinstance(res, bool):
-            raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))
+            raise TypeError(_('check_yes_no requires the field be a Yes/No custom column'))
         if is_false == '1' and not res:
             return 'Yes'
         if is_true == '1' and res:

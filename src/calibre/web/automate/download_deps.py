@@ -532,7 +532,7 @@ def system_camoufox() -> SystemCamoufox | None:
         return None
     data = json.loads(raw)
     if not isinstance(data, dict):
-        raise ValueError(f'The system camoufox specification in {path} is not a JSON object')
+        raise ValueError(f'The system camoufox specification in {path} is not a JSON object')  # noqa: TRY004
     binary, resource_dir = data.get('binary'), data.get('resource_dir')
     if not isinstance(binary, str) or not binary or not isinstance(resource_dir, str) or not resource_dir:
         raise ValueError(f'The system camoufox specification in {path} does not specify both binary and resource_dir')

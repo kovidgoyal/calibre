@@ -164,7 +164,7 @@ def simple_test():
     if '^' not in piper.phonemize('my choice', '^')[0][0]:
         raise AssertionError('No tie characters returned by phonemize()')
     if not isinstance(piper.gpu_providers(), tuple):
-        raise AssertionError('gpu_providers() did not return a tuple')
+        raise AssertionError('gpu_providers() did not return a tuple')  # noqa: TRY004
     if piper.current_backend() is not None:
         raise AssertionError('current_backend() is not None with no model loaded')
     piper.set_use_gpu(True)

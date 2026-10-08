@@ -580,7 +580,7 @@ def set_session_data(ctx, rd):
         try:
             new_data = load_json_file(rd.request_body_file)
             if not isinstance(new_data, dict):
-                raise Exception('session data must be a dict')
+                raise TypeError('session data must be a dict')
         except Exception as err:
             raise HTTPBadRequest(f'Invalid data: {as_unicode(err)}')
         ud = ctx.user_manager.get_session_data(rd.username)

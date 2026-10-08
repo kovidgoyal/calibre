@@ -1836,7 +1836,7 @@ class TemplateFormatter(string.Formatter):
 
             raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(ss.name, ss.lineno, type(e).__name__, str(e)))
         if not isinstance(rslt, str):
-            raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))
+            raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))  # noqa: TRY004
         return rslt
 
     def compile_python_template(self, template):

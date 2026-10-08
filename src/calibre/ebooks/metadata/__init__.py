@@ -367,7 +367,7 @@ class ResourceCollection:
 
     def append(self, resource):
         if not isinstance(resource, Resource):
-            raise ValueError('Can only append objects of type Resource')
+            raise TypeError('Can only append objects of type Resource')
         self._resources.append(resource)
 
     def remove(self, resource):

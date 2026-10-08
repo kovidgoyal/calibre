@@ -55,7 +55,7 @@ class Function:
             self.func = func
             self.mod = None
         if not callable(self.func):
-            raise ValueError(f'{self.func!r} is not a function')
+            raise TypeError(f'{self.func!r} is not a function')
         self.file_order = getattr(self.func, 'file_order', None)
 
     def init_env(self, name=''):

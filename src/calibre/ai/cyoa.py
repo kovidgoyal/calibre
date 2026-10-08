@@ -727,7 +727,7 @@ def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
 def deserialize_game(raw: str) -> GameState:
     data = json.loads(raw)
     if not isinstance(data, dict) or not isinstance(data.get('game'), dict):
-        raise ValueError('Not a valid serialized CYOA game')
+        raise ValueError('Not a valid serialized CYOA game')  # noqa: TRY004
     version = data.get('version')
     if not isinstance(version, int) or version < 1:
         raise ValueError(f'Not a valid serialized CYOA game: {version!r} is not a serialization version')
