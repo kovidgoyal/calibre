@@ -147,6 +147,17 @@ def simple_test():
     if d and not os.path.exists(os.path.join(d, 'voices')):
         raise AssertionError(f'{d} does not contain espeak-ng data')
     piper.initialize(d)
+    # Some espeak-ng builds cannot resolve en-gb by name, ensure the language
+    # fallback selects the British voice rather than leaving no voice set.
+    piper.set_espeak_voice_by_name('en-gb')
+    if 'əʊ' not in piper.phonemize('hello')[0][0]:
+        raise AssertionError('Setting the en-gb espeak voice did not select a British English voice')
+    try:
+        piper.set_espeak_voice_by_name('nonexistent')
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('Setting a non-existent espeak voice did not raise an error')
     piper.set_espeak_voice_by_name('en-us')
     if not piper.phonemize('simple test'):
         raise AssertionError('No phonemes returned by phonemize()')

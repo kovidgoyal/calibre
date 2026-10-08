@@ -442,9 +442,18 @@ set_espeak_voice_by_name(PyObject *self, PyObject *pyname) {
         PyErr_SetString(PyExc_Exception, "must call initialize() first");
         return NULL;
     }
-    if (espeak_SetVoiceByName(PyUnicode_AsUTF8(pyname)) < 0) {
-        PyErr_Format(PyExc_ValueError, "failed to set espeak voice: %U", pyname);
-        return NULL;
+    const char *name = PyUnicode_AsUTF8(pyname);
+    if (!name) return NULL;
+    // Failure is signalled by any value other than EE_OK, including the
+    // positive EE_NOT_FOUND. Some espeak-ng builds do not resolve language
+    // codes such as en-gb by name, so fall back to matching by language.
+    if (espeak_SetVoiceByName(name) != EE_OK) {
+        espeak_VOICE spec = {0};
+        spec.languages = name;
+        if (espeak_SetVoiceByProperties(&spec) != EE_OK) {
+            PyErr_Format(PyExc_ValueError, "failed to set espeak voice: %U", pyname);
+            return NULL;
+        }
     }
     voice_set = true;
     Py_RETURN_NONE;
