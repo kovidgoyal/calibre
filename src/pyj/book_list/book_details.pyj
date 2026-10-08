@@ -1228,22 +1228,25 @@ def init(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
-def show_subsequent_panel(name, replace=False):
+def book_query():
+    # The book in the URL, except that book_id 0 means a random book, in which
+    # case use the one that was rendered
     q = parse_url_params()
-    q.book_id = (render_book.book_id or q.book_id) + ''
-    show_panel('book_details^' + name, query=q, replace=replace)
+    if not q.book_id or q.book_id is '0':
+        q.book_id = render_book.book_id + ''
+    return q
+
+
+def show_subsequent_panel(name, replace=False):
+    show_panel('book_details^' + name, query=book_query(), replace=replace)
 
 
 def edit_metadata():
-    q = parse_url_params()
-    q.book_id = (render_book.book_id or q.book_id) + ''
-    show_panel('edit_metadata', query=q, replace=False)
+    show_panel('edit_metadata', query=book_query(), replace=False)
 
 
 def convert_book():
-    q = parse_url_params()
-    q.book_id = (render_book.book_id or q.book_id) + ''
-    show_panel('convert_book', query=q, replace=False)
+    show_panel('convert_book', query=book_query(), replace=False)
 
 
 def create_more_actions_panel(container_id):
