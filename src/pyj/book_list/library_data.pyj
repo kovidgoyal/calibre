@@ -10,7 +10,7 @@ from lru_cache import LRUCache
 from session import get_interface_data
 from utils import parse_url_params
 
-load_status = {'loading': True, 'ok': False, 'error_html': None, 'current_fetch': None, 'http_error_code': 0}
+load_status = {'loading': True, 'ok': False, 'error_html': None, 'current_fetch': None, 'current_query': None, 'http_error_code': 0}
 library_data = {
     'metadata': {},
     'previous_book_ids': [],
@@ -252,6 +252,7 @@ def fetch_init_data():
     load_status.ok = False
     load_status.error_html = None
     load_status.http_error_code = 0
+    load_status.current_query = query
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
 
@@ -365,7 +366,7 @@ def ensure_current_library_data():
         matches = False
     else:
         q = url_books_query()
-        loaded = loaded_books_query()
+        loaded = load_status.current_query if load_status.current_fetch else loaded_books_query()
         matches = True
 
         for key in q:
