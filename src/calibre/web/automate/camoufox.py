@@ -816,6 +816,24 @@ class Process:
             return ''
 
 
+def startup_failure_message(err: Exception, log: str, binary: str, windows: bool = iswindows) -> str:
+    """The error message for a browser that failed to start, with a hint about the
+    likely cause when the browser exited before writing anything to its log."""
+    ans = f'The camoufox browser failed to start: {err}\nBrowser log:\n{log}'
+    if windows and isinstance(err, BrowserClosedError) and not log.strip():
+        # This is what happens when Windows cannot load the browser's DLLs, for
+        # example, xul.dll, which the browser reports with a "Couldn't load
+        # XPCOM" dialog. Almost always this is because security software has
+        # quarantined or blocked some of the files in the browser install.
+        ans += (
+            '\nThe browser exited without any output. This usually means that some of its files were'
+            ' quarantined or blocked by anti-virus software. Check your anti-virus software and add an'
+            f' exclusion for the folder: {os.path.dirname(binary)}'
+            ' then delete that folder so that the browser is downloaded again.'
+        )
+    return ans
+
+
 class PosixProcess(Process):
     def poll(self) -> int | None:
         if self.returncode is None:
@@ -3503,6 +3521,7 @@ class Browser:
         self.browser_context_id = ''
         self.config: dict[str, Any] = {}
         self.version = ''
+        self.binary = ''
         self.pages: dict[str, Page] = {}
         self.pending_pages: dict[str, asyncio.Future[Page]] = {}
         self.new_pages: list[Page] = []
@@ -3565,6 +3584,7 @@ class Browser:
         if (install := self.install) is None:
             install = await loop.run_in_executor(None, lambda: camoufox_install(allow_prerelease=self.allow_prerelease))
         binary, self.version = install.path, install.version
+        self.binary = binary
         resource_dir = camoufox_resource_dir(binary)
         self.config = await loop.run_in_executor(
             None,
@@ -3597,7 +3617,7 @@ class Browser:
             await self.connection.send('Browser.enable', {'attachToDefaultContext': False, 'userPrefs': prefs}, timeout=self.launch_timeout)
         except (TimeoutExceeded, BrowserClosedError) as err:
             assert self.process is not None
-            raise Error(f'The camoufox browser failed to start: {err}\nBrowser log:\n{self.process.log_tail()}') from err
+            raise Error(startup_failure_message(err, self.process.log_tail(), self.binary)) from err
         result = await self.connection.send('Browser.createBrowserContext', {'removeOnDetach': True})
         self.browser_context_id = result['browserContextId']
         if self.ignore_https_errors:

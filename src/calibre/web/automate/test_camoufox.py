@@ -333,6 +333,17 @@ class TestCamoufoxTransport(unittest.TestCase):
         self.assertEqual(deferred, [path])
         self.assertTrue(os.path.exists(path))
 
+    def test_startup_failure_message(self) -> None:
+        binary = os.path.join('dbin', 'camoufox', '1.0', 'camoufox.exe')
+        closed = camoufox.BrowserClosedError('The browser process exited')
+        msg = camoufox.startup_failure_message(closed, '\n', binary, windows=True)
+        self.assertIn('anti-virus', msg)
+        self.assertIn(os.path.dirname(binary), msg)
+        # No hint when the browser wrote something, timed out or is not on Windows
+        self.assertNotIn('anti-virus', camoufox.startup_failure_message(closed, 'some error\n', binary, windows=True))
+        self.assertNotIn('anti-virus', camoufox.startup_failure_message(camoufox.TimeoutExceeded('timed out'), '', binary, windows=True))
+        self.assertNotIn('anti-virus', camoufox.startup_failure_message(closed, '', binary, windows=False))
+
     def test_crt_handle_block(self) -> None:
         """The layout of the inherited file descriptor block handed to Windows.
 
