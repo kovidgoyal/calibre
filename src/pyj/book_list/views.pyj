@@ -37,7 +37,7 @@ from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
 from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
-from book_list.ui import library_data_panel, query_as_href, set_panel_handler, show_panel
+from book_list.ui import library_data_panel, panel_is_shown, query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import error_dialog
 from session import get_interface_data
@@ -254,10 +254,12 @@ def abort_get_more_books(no_update):
             update_fetching_status()
 
 
-def got_more_books(end_type, xhr, event):
+def got_more_books(container_id, end_type, xhr, event):
     if book_list_data.fetching_more_books is not xhr:
         return  # Fetching was aborted
     book_list_data.fetching_more_books = None
+    if not panel_is_shown(container_id):
+        return  # the book list was closed while these books were loading
     update_fetching_status()
     if end_type is 'load':
         try:
@@ -277,7 +279,7 @@ def get_more_books():
     for key in 'query', 'sort', 'sort_order', 'vl':
         data[key] = library_data.search_result[key]
     book_list_data.fetching_more_books = ajax_send(
-        'interface-data/more-books', data, got_more_books,
+        'interface-data/more-books', data, got_more_books.bind(None, book_list_data.container_id),
         query={'library_id': loaded_books_query().library_id}
     )
     update_fetching_status()
@@ -318,12 +320,17 @@ def fetch_books_page(new_offset, page_size, on_done):
             on_done(False)
         return
     abort_get_more_books(True)
+    container_id = book_list_data.container_id
     payload = {'offset': new_offset}
     for key in 'query', 'sort', 'sort_order', 'vl':
         payload[key] = sr[key]
     book_list_data.fetching_more_books = ajax_send(
         'interface-data/more-books', payload, def (end_type, xhr, event):
+            if book_list_data.fetching_more_books is not xhr:
+                return  # Fetching was aborted
             book_list_data.fetching_more_books = None
+            if not panel_is_shown(container_id):
+                return  # the book list was closed while this page was loading
             if end_type is 'load':
                 try:
                     data = JSON.parse(xhr.responseText)
