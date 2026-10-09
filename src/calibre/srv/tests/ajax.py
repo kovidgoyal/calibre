@@ -129,6 +129,36 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
+    def test_fts_actions_change_only_the_requested_library(self):  # {{{
+        other_library_path = self.mkdtemp()
+        self.create_db(other_library_path)
+        with self.create_server(libraries=(self.library_path, other_library_path), auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            ctx = server.handler.router.ctx
+            library_map = ctx.library_broker.library_map
+            other_library_id = next(library_id for library_id, name in library_map.items() if name == os.path.basename(other_library_path))
+            default_db = ctx.library_broker.get(None)
+            other_db = ctx.library_broker.get(other_library_id)
+            conn = server.connect()
+
+            def request(path, library_id, method='POST', data=None):
+                return make_request(
+                    conn, f'{path}?{urlencode({"library_id": library_id})}', username='12', password='test', prefix='', method=method, data=data
+                )[0].status
+
+            self.ae(request('/fts/indexing', other_library_id, data=b'true'), OK)
+            self.assertTrue(other_db.is_fts_enabled())
+            self.assertFalse(default_db.is_fts_enabled())
+            # A library that does not exist must not fall back to the default one
+            self.ae(request('/fts/indexing', 'no-such-library', data=b'true'), NOT_FOUND)
+            self.ae(request('/fts/reindex', 'no-such-library', data=b'"all"'), NOT_FOUND)
+            self.ae(request('/fts/disable', 'no-such-library', method='GET'), NOT_FOUND)
+            self.assertFalse(default_db.is_fts_enabled())
+            self.ae(request('/fts/disable', other_library_id, method='GET'), OK)
+            self.assertFalse(other_db.is_fts_enabled())
+
+    # }}}
+
     def test_data_file_paths_are_confined_to_book_dir(self):  # {{{
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.ctx.user_manager.add_user('12', 'test')
