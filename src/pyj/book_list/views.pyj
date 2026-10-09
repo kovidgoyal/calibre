@@ -258,9 +258,9 @@ def got_more_books(container_id, end_type, xhr, event):
     if book_list_data.fetching_more_books is not xhr:
         return  # Fetching was aborted
     book_list_data.fetching_more_books = None
+    update_fetching_status()
     if not panel_is_shown(container_id):
         return  # the book list was closed while these books were loading
-    update_fetching_status()
     if end_type is 'load':
         try:
             data = JSON.parse(xhr.responseText)

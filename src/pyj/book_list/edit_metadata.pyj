@@ -8,8 +8,7 @@ from gettext import gettext as _
 
 from ajax import ajax_send
 from book_list.book_details import (
-    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book,
-    report_load_failure
+    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book
 )
 from book_list.comments_editor import (
     create_comments_editor, focus_comments_editor, get_comments_html, set_comments_html
@@ -22,7 +21,7 @@ from book_list.library_data import (
 from book_list.router import back, push_state, show_note
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar, set_title
-from book_list.ui import panel_is_shown, set_panel_handler, show_panel
+from book_list.ui import panel_is_shown, report_load_failure, set_panel_handler, show_panel
 from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
@@ -1275,38 +1274,40 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 
 def changes_submitted(container_id, book_id, library_id, end_type, xhr, ev):
     nonlocal changes, has_changes
-    dirtied = parse_error = None
-    if end_type is 'load':
-        try:
-            dirtied = JSON.parse(xhr.responseText)
-        except Exception as err:
-            parse_error = err.toString()
-    cq = get_current_query()
-    if dirtied is not None and not cq.from_read_book:
-        for bid in dirtied:
-            set_book_metadata(bid, dirtied[bid], library_id)
-    if not panel_is_shown(container_id):
-        return  # the editor was closed, or hidden by the reader, while saving
+    # The submitted changes, has_changes was reset when they were submitted
     changes = {}
-    has_changes = False
+    # Errors are reported even if the editor was closed, so that the user
+    # does not think the changes were saved
     if end_type is 'abort':
-        on_close(container_id)
+        if panel_is_shown(container_id):
+            on_close(container_id)
         return
     if end_type is not 'load':
         error_dialog(_('Failed to update metadata on server'), _(
             'Updating metadata for the book: {} failed.').format(book_id), xhr.error_html)
         return
-    if dirtied is None:
-        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), parse_error)
+    try:
+        dirtied = JSON.parse(xhr.responseText)
+    except Exception as err:
+        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), err.toString())
         return
+    cq = get_current_query()
     if cq.from_read_book:
         window.parent.postMessage(
             {
-                'type': 'update_cached_book_metadata', 'library_id': cq.library_id,
-                'book_id': cq.book_id, 'metadata': dirtied[book_id], 'from_read_book': cq.from_read_book,
+                'type': 'update_cached_book_metadata', 'library_id': library_id,
+                'book_id': book_id, 'metadata': dirtied[book_id], 'from_read_book': cq.from_read_book,
             },
             document.location.protocol + '//' + document.location.host
         )
+    else:
+        for bid in dirtied:
+            set_book_metadata(bid, dirtied[bid], library_id)
+    if not panel_is_shown(container_id):
+        return  # the editor was closed, or hidden by the reader, while saving
+    # Do not reset has_changes before this, as it could belong to an editor
+    # opened since
+    has_changes = False
     on_close(container_id)
 
 

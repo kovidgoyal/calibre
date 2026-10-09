@@ -166,9 +166,13 @@ def push_state(query, replace=False, mode='book_list', call_handler=True):
 
 
 def show_substituted_library(library_id):
+    # The book, note, search, virtual library and sort in the URL are those of
+    # the requested library, so do not apply them to the substituted one, it
+    # could have a different book with the same id. Show its book list instead.
     if not is_reading_book():
-        q = parse_url_params()
-        q.library_id = library_id
+        q = {'library_id': library_id}
+        if parse_url_params().panel:
+            q.panel = 'book_list'
         push_state(q, replace=True)
 
 
