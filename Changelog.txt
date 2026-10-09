@@ -29,7 +29,7 @@
 
 - [major] Read aloud: Add the high quality Kokoro voices, which sound much more natural than the Piper voices, especially for English
 
-  To use them, select the Piper backend in the Read aloud configuration and choose one of the Kokoro voices. The voice will
+  To use them, select the Neural engine backend in the Read aloud configuration and choose one of the Kokoro voices. The voice will
   be automatically downloaded the first time it is used.
 
 - [major] News download: Support for downloading news from websites that block automated access by using the camoufox browser
@@ -52,7 +52,7 @@
 
 - [2169454] E-book viewer: Add an option to display the immediate parent ToC section in headers/footers
 
-- [2168471] E-book viewer: Allow e-books to store up to 1MB of data persistently
+- [2168471] E-book viewer: Allow e-books to store up to 1,048,576 UTF-16 code units of data persistently
 
 - [2148707] E-book viewer: Print to PDF: Allow specifying margins in metric units
 
