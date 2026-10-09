@@ -1275,6 +1275,18 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 
 def changes_submitted(container_id, book_id, library_id, end_type, xhr, ev):
     nonlocal changes, has_changes
+    dirtied = parse_error = None
+    if end_type is 'load':
+        try:
+            dirtied = JSON.parse(xhr.responseText)
+        except Exception as err:
+            parse_error = err.toString()
+    cq = get_current_query()
+    if dirtied is not None and not cq.from_read_book:
+        for bid in dirtied:
+            set_book_metadata(bid, dirtied[bid], library_id)
+    if not panel_is_shown(container_id):
+        return  # the editor was closed, or hidden by the reader, while saving
     changes = {}
     has_changes = False
     if end_type is 'abort':
@@ -1284,13 +1296,9 @@ def changes_submitted(container_id, book_id, library_id, end_type, xhr, ev):
         error_dialog(_('Failed to update metadata on server'), _(
             'Updating metadata for the book: {} failed.').format(book_id), xhr.error_html)
         return
-    try:
-        dirtied = JSON.parse(xhr.responseText)
-    except Exception as err:
-        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), err.toString())
+    if dirtied is None:
+        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), parse_error)
         return
-
-    cq = get_current_query()
     if cq.from_read_book:
         window.parent.postMessage(
             {
@@ -1299,9 +1307,6 @@ def changes_submitted(container_id, book_id, library_id, end_type, xhr, ev):
             },
             document.location.protocol + '//' + document.location.host
         )
-    else:
-        for bid in dirtied:
-            set_book_metadata(bid, dirtied[bid], library_id)
     on_close(container_id)
 
 
