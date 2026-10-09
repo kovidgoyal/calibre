@@ -1273,7 +1273,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 # }}}
 
 
-def changes_submitted(container_id, book_id, end_type, xhr, ev):
+def changes_submitted(container_id, book_id, library_id, end_type, xhr, ev):
     nonlocal changes, has_changes
     changes = {}
     has_changes = False
@@ -1301,7 +1301,7 @@ def changes_submitted(container_id, book_id, end_type, xhr, ev):
         )
     else:
         for bid in dirtied:
-            set_book_metadata(bid, dirtied[bid])
+            set_book_metadata(bid, dirtied[bid], library_id)
     on_close(container_id)
 
 
@@ -1365,10 +1365,11 @@ def submit_changes(container_id, book_id):
     data = {'changes': changes, 'loaded_book_ids': loaded_book_ids()}
     w = upload_status_widget()
     d.appendChild(w)
+    library_id = current_library_id()
     ajax_send(
-        f'cdb/set-fields/{book_id}/{current_library_id()}',
+        f'cdb/set-fields/{book_id}/{library_id}',
         data,
-        changes_submitted.bind(None, container_id, book_id),
+        changes_submitted.bind(None, container_id, book_id, library_id),
         on_progress.bind(None, container_id, book_id)
     )
 

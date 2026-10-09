@@ -1045,7 +1045,7 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
             return
         clear(c)
         book_id = int(data['id'])
-        set_book_metadata(book_id, data)
+        set_book_metadata(book_id, data, current_library_id())
         proceed(container_id, book_id)
     elif end_type is not 'abort':
         clear(c)

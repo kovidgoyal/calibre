@@ -368,8 +368,10 @@ def book_metadata(book_id):
     return library_data.metadata[book_id]
 
 
-def set_book_metadata(book_id, value):
-    library_data.metadata[book_id] = value
+def set_book_metadata(book_id, value, library_id):
+    # The cache only holds books from the loaded library
+    if library_id is library_data.for_library:
+        library_data.metadata[book_id] = value
 
 
 def loaded_book_ids():

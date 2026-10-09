@@ -9,7 +9,7 @@ from uuid import short_uuid
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
 from book_list.library_data import (
-    current_library_id, set_book_metadata, sync_library_books
+    set_book_metadata, sync_library_books
 )
 from book_list.router import home
 from book_list.theme import get_color
@@ -1079,13 +1079,12 @@ class Overlay:
                     self.hide_current_panel()
                     return
                 if data.type is 'update_cached_book_metadata' and data.metadata:
-                    if current_library_id() is data.library_id:
-                        mi = data.metadata
-                        book_id = int(data.book_id)
-                        set_book_metadata(book_id, mi)
-                        book = self.view.book
-                        if book and book.key[0] is data.library_id and book.key[1] is book_id:
-                            ui_operations.update_metadata(book, mi)
+                    mi = data.metadata
+                    book_id = int(data.book_id)
+                    set_book_metadata(book_id, mi, data.library_id)
+                    book = self.view.book
+                    if book and book.key[0] is data.library_id and book.key[1] is book_id:
+                        ui_operations.update_metadata(book, mi)
 
             if not runtime.is_standalone_viewer and lname:
                 container.lastChild.appendChild(E.div(
