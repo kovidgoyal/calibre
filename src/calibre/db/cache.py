@@ -2479,7 +2479,11 @@ class Cache:
             needs_close = True
             fmt = check_ebook_format(stream_or_path, fmt)
 
-        with self.write_lock:
+        # Adding a format can only change the formats category, which is
+        # reported below, so the whole cache of computed categories need not be
+        # thrown away. Adding books adds a format to every book it creates, so
+        # in larger libraries that cost is paid for every added book.
+        with self.quiet_write_lock:
             if not self._has_id(book_id):
                 raise NoSuchBook(book_id)
             fmt = (fmt or '').upper()
@@ -2506,10 +2510,16 @@ class Cache:
                     stream.close()
             del stream
 
-            max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
-            self.fields['size'].table.update_sizes({book_id: max_size})
-            self._update_last_modified((book_id,))
-            self._queue_pages_scan(book_id)
+            try:
+                max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
+                self.fields['size'].table.update_sizes({book_id: max_size})
+                self._update_last_modified((book_id,))
+                self._queue_pages_scan(book_id)
+            finally:
+                # Report the change even if something above failed part way
+                # through, since the formats table may already have changed and
+                # the quiet lock does not invalidate the cache for us
+                self.categories_cache.field_changed('formats', (fmt,), (book_id,))
             self.event_dispatcher(EventType.format_added, book_id, fmt)
 
         if run_hooks:
@@ -2656,7 +2666,8 @@ class Cache:
 
     _has_id = has_id
 
-    @write_api
+    # Sets all its fields through set_field(), which reports the changed items itself
+    @quiet_write_api
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None, apply_import_tags=True, preserve_uuid=False):
         if mi.tags:
             mi.tags = list(mi.tags)
