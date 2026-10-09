@@ -543,15 +543,25 @@ def create_margin_files(container):
 # Link handling {{{
 def add_anchors_markup(root, uuid, anchors):
     body = last_tag(root)
-    # column-span is needed so that the page break is honored when body is
-    # multi-column, otherwise the div ends up in a column alongside content,
-    # which is then lost when the anchors page is deleted.
+    # A separate column spanning element is used to force the page break, as
+    # when body is multi-column a page break on a non-spanning element only
+    # causes a column break, so the anchors end up in a column alongside
+    # content, which is then lost when the anchors page is deleted.
     # See https://bugs.launchpad.net/calibre/+bug/2142731
+    # The anchors themselves must not be inside the spanner as some versions
+    # of Chromium report the location of the spanner and its descendants as
+    # being on the first page, causing the anchors page to not be deleted.
+    # See https://bugs.launchpad.net/calibre/+bug/2170285
+    breaker = body.makeelement(
+        XHTML('div'),
+        style='display:block !important; page-break-before: always !important; break-before: always !important; column-span: all !important;'
+        ' height: 0 !important; margin: 0 !important; padding: 0 !important; border-width: 0 !important',
+    )
+    body.append(breaker)
     div = body.makeelement(
         XHTML('div'),
         id=uuid,
-        style='display:block !important; page-break-before: always !important; break-before: always !important; white-space: pre-wrap !important;'
-        ' column-span: all !important',
+        style='display:block !important; white-space: pre-wrap !important',
     )
     div.text = '\n\n'
     body.append(div)
