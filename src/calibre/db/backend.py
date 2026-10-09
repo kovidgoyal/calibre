@@ -3040,14 +3040,29 @@ class DB:
         self.conn  # Connect to the moved metadata.db
         progress(_('Completed'), total, total)
 
-    def _backup_database(self, path, name, extra_sql='', num_of_retries=10):
+    def _backup_database(self, path, name, extra_sql='', num_of_retries=10, busy_timeout=60):
         for retry_count in range(num_of_retries):
             try:
                 with closing(apsw.Connection(path)) as dest_db:
                     with dest_db.backup('main', self.conn, name) as b:
+                        busy_since = None
                         while not b.done:
-                            with suppress(apsw.BusyError):
+                            try:
                                 b.step(128)
+                            except apsw.BusyError as e:
+                                # Locks on some filesystems such as SMB/CIFS
+                                # shares never succeed, so dont retry forever
+                                now = time.monotonic()
+                                if busy_since is None:
+                                    busy_since = now
+                                elif now - busy_since > busy_timeout:
+                                    raise apsw.BusyError(
+                                        f'Could not lock the database at {path} for {busy_timeout} seconds.'
+                                        ' The filesystem it is on probably does not support file locking.'
+                                    ) from e
+                                time.sleep(0.05)
+                            else:
+                                busy_since = None
                     if extra_sql:
                         dest_db.cursor().execute(extra_sql)
                 return
@@ -3064,6 +3079,23 @@ class DB:
                 with suppress(OSError):
                     os.remove(path)
                 time.sleep(0.2)
+
+    @staticmethod
+    def can_use_sqlite_in(base: str) -> bool:
+        import tempfile
+
+        fd, path = tempfile.mkstemp(suffix='-lock-test.db', dir=base)
+        os.close(fd)
+        try:
+            with closing(apsw.Connection(path)) as conn:
+                conn.cursor().execute('BEGIN EXCLUSIVE; CREATE TABLE t(x); COMMIT;')
+        except apsw.Error as e:
+            prints(f'Cannot use SQLite databases in {base} with error: {as_unicode(e)}')
+            return False
+        finally:
+            with suppress(OSError):
+                os.remove(path)
+        return True
 
     def backup_database(self, path):
         self._backup_database(path, 'main', 'DELETE FROM metadata_dirtied; VACUUM;')

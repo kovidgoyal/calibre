@@ -3808,11 +3808,15 @@ class Cache:
                 progress(fname, poff, total)
             poff += 1
 
+        import tempfile
+
+        # SQLite cannot lock files on some filesystems, such as SMB/CIFS
+        # shares, in which case use the system temporary directory
+        tdir = exporter.base if self.backend.can_use_sqlite_in(exporter.base) else None
+
         @contextmanager
         def tempfile_for_export(which: str) -> Generator[str]:
-            import tempfile
-
-            fd, ans = tempfile.mkstemp(suffix=f'-{which}.db', dir=exporter.base)
+            fd, ans = tempfile.mkstemp(suffix=f'-{which}.db', dir=tdir)
             os.close(fd)
             try:
                 yield ans

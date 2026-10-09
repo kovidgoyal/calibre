@@ -437,6 +437,21 @@ class FilesystemTest(BaseTest):
                 apsw.Connection = orig_connection
             self.assertEqual(step_calls['count'], 1)
 
+    def test_backup_database_unlockable_destination(self):
+        import apsw
+
+        cache = self.init_cache()
+        backend = cache.backend
+        with TemporaryDirectory('backup_db') as tdir:
+            self.assertTrue(backend.can_use_sqlite_in(tdir))
+            self.assertFalse(os.listdir(tdir))
+            # Simulate a destination that can never be locked, as on SMB/CIFS shares
+            path = os.path.join(tdir, 'backup.db')
+            with closing(apsw.Connection(path)) as locker:
+                locker.cursor().execute('CREATE TABLE t(x); BEGIN EXCLUSIVE; INSERT INTO t VALUES (1);')
+                self.assertRaises(apsw.BusyError, backend._backup_database, path, 'main', busy_timeout=0.2)
+                locker.cursor().execute('ROLLBACK')
+
     def test_find_books_in_directory(self):
         from calibre.db.adding import compile_rule, find_books_in_directory
 
