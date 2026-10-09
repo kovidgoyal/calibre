@@ -8,7 +8,7 @@ from gettext import gettext as _
 from ajax import absolute_path, encode_query
 from book_list.constants import book_list_container_id, read_book_container_id, cs_top_bar_host_id
 from book_list.globals import get_current_query, get_session_data
-from book_list.library_data import current_library_id
+from book_list.library_data import current_library_id, set_substitute_url_library
 from dom import clear
 from modals import close_all_modals
 from read_book.globals import ui_operations
@@ -163,6 +163,16 @@ def push_state(query, replace=False, mode='book_list', call_handler=True):
         else:
             window.history.pushState(None, '', query)
     apply_url(not call_handler)
+
+
+def show_substituted_library(library_id):
+    if not is_reading_book():
+        q = parse_url_params()
+        q.library_id = library_id
+        push_state(q, replace=True)
+
+
+set_substitute_url_library(show_substituted_library)
 
 
 def on_pop_state(ev):

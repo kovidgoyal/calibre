@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from book_list.library_data import refresh_sidebar_navigation, update_library_data
+from book_list.library_data import book_metadata, refresh_sidebar_navigation, set_book_metadata, update_library_data
 from book_list.saved_virtual_libraries import save_saved_virtual_library, saved_virtual_library_item
 from book_list.sidebar import create_sidebar
 from test_book_list_helpers import with_empty_session
@@ -25,6 +25,18 @@ def empty_library_data(library_id='lib-a'):
         'categories_using_hierarchy': [],
         'browse_fields': [],
     }
+
+
+@test
+def book_metadata_cache_only_holds_the_loaded_library():
+    def run(sd):
+        update_library_data(empty_library_data('lib-a'))
+        set_book_metadata(1, {'title': 'a'}, 'lib-a')
+        set_book_metadata(2, {'title': 'b'}, 'lib-b')
+        assert_equal(book_metadata(1).title, 'a')
+        assert_false(book_metadata(2))
+
+    with_empty_session(run)
 
 
 @test

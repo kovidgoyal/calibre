@@ -6,8 +6,11 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.library_data import browse_field_settings, set_browse_fields
+from book_list.library_data import (
+    browse_field_settings, library_data_loaded_for_current_library, load_status, on_library_data_loaded, set_browse_fields
+)
 from book_list.prefs import create_prefs_widget
+from book_list.router import report_a_load_failure
 from book_list.search import get_prefs as get_tb_prefs
 from book_list.theme import apply_book_list_theme
 from book_list.top_bar import create_top_bar
@@ -252,10 +255,10 @@ def _highlight_dark_to_storage(color):
     return {'light': existing.light or DEFAULT_PRIMARY_HEX, 'dark': color}
 
 
-def create_browse_fields_widget(container):
+def create_browse_fields_widget(container, wait_for_library=True):
     def refresh():
         if container.isConnected:
-            create_browse_fields_widget(container)
+            create_browse_fields_widget(container, False)
         else:
             window.cs_refresh_browse_field_settings = None
 
@@ -265,6 +268,17 @@ def create_browse_fields_widget(container):
         container.classList.add('cs-prefs')
     except Exception:
         pass
+    if not library_data_loaded_for_current_library():
+        # The fields are those of the library in the URL, which is redrawn by
+        # refresh() once it has loaded. Redrawing never starts loading.
+        container.appendChild(E.div(_('Loading books from the calibre library, please wait...'), class_='browse-intro'))
+        if wait_for_library:
+            on_library_data_loaded(def (ok):
+                if not ok and container.isConnected:
+                    clear(container)
+                    report_a_load_failure(container, _('Failed to load books from calibre library, with error:'), load_status.error_html)
+            )
+        return
     container.appendChild(E.div(_('Control which categories are visible in the sidebar.'), class_='browse-intro'))
     outer = E.div(class_='list')
     container.appendChild(outer)

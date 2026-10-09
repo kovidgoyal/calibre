@@ -1010,10 +1010,9 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
     if current_fetch is None or current_fetch is not xhr:
         return  # Fetching was aborted
     current_fetch = None
-    c = document.getElementById(container_id)
-    if not c:
+    if not panel_is_shown(container_id):
         return
-    c = c.lastChild
+    c = document.getElementById(container_id).lastChild
     # Always cleanup transient loading UI so it never leaves layout artifacts
     # (e.g. empty lines) after the request completes or is aborted.
     try:
@@ -1046,7 +1045,7 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
             return
         clear(c)
         book_id = int(data['id'])
-        set_book_metadata(book_id, data)
+        set_book_metadata(book_id, data, current_library_id())
         proceed(container_id, book_id)
     elif end_type is not 'abort':
         clear(c)
@@ -1174,10 +1173,9 @@ def report_load_failure(container):
 
 
 def on_books_loaded(container_id, ok):
-    container = document.getElementById(container_id)
-    if not container:
+    if not panel_is_shown(container_id):
         return
-    container = container.lastChild
+    container = document.getElementById(container_id).lastChild
     clear(container)
     if not ok:
         report_load_failure(container)
@@ -1186,7 +1184,11 @@ def on_books_loaded(container_id, ok):
 
 
 def onkeydown(container_id, close_action, ev):
-    if render_book.book_id:
+    no_modifiers = not ev.ctrlKey and not ev.metaKey and not ev.shiftKey
+    if no_modifiers and ev.key is 'Escape':
+        ev.preventDefault(), ev.stopPropagation()
+        close_action()
+    elif render_book.book_id:
         if ev.ctrlKey:
             if ev.key is 'ArrowLeft':
                 next_book(render_book.book_id, -1)
@@ -1194,11 +1196,8 @@ def onkeydown(container_id, close_action, ev):
             elif ev.key is 'ArrowRight':
                 next_book(render_book.book_id, 1)
                 ev.preventDefault(), ev.stopPropagation()
-        elif not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
-            if ev.key is 'Escape':
-                ev.preventDefault(), ev.stopPropagation()
-                close_action()
-            elif ev.key is 'Delete':
+        elif no_modifiers:
+            if ev.key is 'Delete':
                 ev.preventDefault(), ev.stopPropagation()
                 delete_book()
             elif ev.key is 'v' or ev.key is 'V':
@@ -1210,6 +1209,9 @@ def onkeydown(container_id, close_action, ev):
 
 
 def init(container_id):
+    # Forget the previously shown book so that its keyboard shortcuts cannot
+    # act on it while this one loads
+    render_book.book_id = render_book.title = None
     container = document.getElementById(container_id)
     clear(container)
     close_action, close_icon = back, 'close'
@@ -1655,8 +1657,6 @@ def book_panel(create_panel):
             create_top_bar(container, title='', icon='back')
             container.appendChild(E.div(class_=CLASS_NAME))
             fetch_metadata(container_id, book_id, def (container_id, fetched_book_id):
-                if not panel_is_shown(container_id):
-                    return
                 if fetched_book_id is book_id:
                     create_panel(container_id, book_id)
                 else:

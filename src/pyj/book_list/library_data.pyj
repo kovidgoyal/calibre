@@ -21,7 +21,15 @@ library_data = {
     'browse_fields': [],
 }
 library_data_waiters = []
+substitute_url_library = None
 BROWSE_VISIBLE_FIELDS_SETTING = 'browse_visible_fields'
+
+
+def set_substitute_url_library(func):
+    # Called with the library to show instead of the one requested in the URL,
+    # when the server does not have that library
+    nonlocal substitute_url_library
+    substitute_url_library = func
 
 
 def current_library_id():
@@ -90,9 +98,12 @@ def update_library_data(data):
     load_status.error_html = None
     load_status.http_error_code = 0
     library_data.previous_book_ids = []
-    if library_data.for_library is not current_library_id():
+    # The library of the data, which is not the one in the URL if the user
+    # navigated to another library while it was loading
+    lid = data.search_result.library_id
+    if library_data.for_library is not lid:
         library_data.field_names = {}
-    library_data.for_library = current_library_id()
+    library_data.for_library = lid
     for key in (
         'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'
         ' bools_are_tristate book_details_vertical_categories fts_enabled fields_that_support_notes'
@@ -114,8 +125,9 @@ def update_library_data(data):
 
 
 def configured_browse_fields():
+    # Keyed by the library of the loaded fields, not the one in the URL
     by_library = get_session_data().get(BROWSE_VISIBLE_FIELDS_SETTING) or {}
-    return by_library[current_library_id()]
+    return by_library[library_data.for_library]
 
 
 def configured_browse_field_map():
@@ -139,7 +151,7 @@ def update_visible_browse_fields():
 
 def set_browse_fields(field_keys):
     by_library = get_session_data().get(BROWSE_VISIBLE_FIELDS_SETTING) or {}
-    by_library[current_library_id()] = field_keys
+    by_library[library_data.for_library] = field_keys
     get_session_data().set(BROWSE_VISIBLE_FIELDS_SETTING, by_library)
     update_visible_browse_fields()
     refresh_sidebar_navigation()
@@ -223,6 +235,7 @@ def book_after(book_id, delta):
 
 
 def on_data_loaded(end_type, xhr, ev):
+    requested_library_id = load_status.current_query?.library_id
     load_status.current_fetch = None
     load_status.current_query = None
 
@@ -238,10 +251,16 @@ def on_data_loaded(end_type, xhr, ev):
         if data.bad_restriction:
             bad_load(_('The library restriction for the current user is invalid: {}').format(data.bad_restriction))
         else:
+            served_library_id = data.search_result.library_id
+            substituted = requested_library_id is current_library_id() and requested_library_id is not served_library_id
             update_library_data(data)
             sd = get_session_data()
             q = loaded_books_query()
             sd.set_library_option(q.library_id, 'sort', q.sort)
+            if substituted:
+                # The server does not have the requested library, for example
+                # because it was removed, and used its default library
+                substitute_url_library(served_library_id)
     elif end_type is 'abort':
         pass
     else:
@@ -349,8 +368,10 @@ def book_metadata(book_id):
     return library_data.metadata[book_id]
 
 
-def set_book_metadata(book_id, value):
-    library_data.metadata[book_id] = value
+def set_book_metadata(book_id, value, library_id):
+    # The cache only holds books from the loaded library
+    if library_id is library_data.for_library:
+        library_data.metadata[book_id] = value
 
 
 def loaded_book_ids():
@@ -362,19 +383,37 @@ def force_refresh_on_next_load():
 
 
 def on_library_data_loaded(callback):
-    # Run callback(ok) once books-init, which on a warm start is still in
-    # flight when a panel from the URL is created, has finished. The callback
-    # must check that its panel still exists.
+    # Run callback(ok) once the data for the library in the URL has loaded. On
+    # a warm start books-init is still in flight when a panel from the URL is
+    # created, and a panel opened from a link can be for another library than
+    # the loaded one. Only the library is compared, so panels opened from a
+    # searched or sorted book list do not refetch. A failed load is retried, it
+    # may have been for another library. The callback must check that its
+    # panel still exists.
+    if requested_library_id() is not current_library_id() or not (load_status.loading or load_status.ok):
+        fetch_init_data()
+    wait_for_library_data(callback)
+
+
+def wait_for_library_data(callback):
     if load_status.loading:
         library_data_waiters.push(callback)
     else:
         callback(load_status.ok)
 
 
+def requested_library_id():
+    # The library being fetched, otherwise the library of the loaded data
+    return load_status.current_query.library_id if load_status.current_fetch else library_data.for_library
+
+
 def library_data_loaded_for_current_library():
     # The fields and virtual libraries do not depend on the virtual library or
-    # sort, so panels that only need them do not have to wait for refetches
-    return library_data.for_library is current_library_id() and bool(library_data.sortable_fields)
+    # sort, so panels that only need them do not have to wait for refetches.
+    # They do have to wait if the data is about to be replaced by another
+    # library's.
+    lid = current_library_id()
+    return library_data.for_library is lid and requested_library_id() is lid and bool(library_data.sortable_fields)
 
 
 def notify_library_data_waiters():
@@ -383,7 +422,7 @@ def notify_library_data_waiters():
         # Asynchronous so that loading has completely finished and an error
         # in one callback does not prevent the others from running. Check the
         # status again as a new fetch could have been started in between.
-        window.setTimeout(on_library_data_loaded.bind(None, callback), 0)
+        window.setTimeout(wait_for_library_data.bind(None, callback), 0)
 
 
 def ensure_current_library_data():

@@ -22,7 +22,7 @@ from book_list.library_data import (
 from book_list.router import back, push_state, show_note
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar, set_title
-from book_list.ui import set_panel_handler, show_panel
+from book_list.ui import panel_is_shown, set_panel_handler, show_panel
 from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
@@ -1273,8 +1273,20 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 # }}}
 
 
-def changes_submitted(container_id, book_id, end_type, xhr, ev):
+def changes_submitted(container_id, book_id, library_id, end_type, xhr, ev):
     nonlocal changes, has_changes
+    dirtied = parse_error = None
+    if end_type is 'load':
+        try:
+            dirtied = JSON.parse(xhr.responseText)
+        except Exception as err:
+            parse_error = err.toString()
+    cq = get_current_query()
+    if dirtied is not None and not cq.from_read_book:
+        for bid in dirtied:
+            set_book_metadata(bid, dirtied[bid], library_id)
+    if not panel_is_shown(container_id):
+        return  # the editor was closed, or hidden by the reader, while saving
     changes = {}
     has_changes = False
     if end_type is 'abort':
@@ -1284,13 +1296,9 @@ def changes_submitted(container_id, book_id, end_type, xhr, ev):
         error_dialog(_('Failed to update metadata on server'), _(
             'Updating metadata for the book: {} failed.').format(book_id), xhr.error_html)
         return
-    try:
-        dirtied = JSON.parse(xhr.responseText)
-    except Exception as err:
-        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), err.toString())
+    if dirtied is None:
+        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), parse_error)
         return
-
-    cq = get_current_query()
     if cq.from_read_book:
         window.parent.postMessage(
             {
@@ -1299,9 +1307,6 @@ def changes_submitted(container_id, book_id, end_type, xhr, ev):
             },
             document.location.protocol + '//' + document.location.host
         )
-    else:
-        for bid in dirtied:
-            set_book_metadata(bid, dirtied[bid])
     on_close(container_id)
 
 
@@ -1365,10 +1370,11 @@ def submit_changes(container_id, book_id):
     data = {'changes': changes, 'loaded_book_ids': loaded_book_ids()}
     w = upload_status_widget()
     d.appendChild(w)
+    library_id = current_library_id()
     ajax_send(
-        f'cdb/set-fields/{book_id}/{current_library_id()}',
+        f'cdb/set-fields/{book_id}/{library_id}',
         data,
-        changes_submitted.bind(None, container_id, book_id),
+        changes_submitted.bind(None, container_id, book_id, library_id),
         on_progress.bind(None, container_id, book_id)
     )
 
@@ -1508,10 +1514,9 @@ def create_edit_metadata(container):
 
 
 def on_books_loaded(container_id, ok):
-    container = document.getElementById(container_id)
-    if not container:
+    if not panel_is_shown(container_id):
         return
-    container = container.lastChild
+    container = document.getElementById(container_id).lastChild
     clear(container)
     if not ok:
         report_load_failure(container)
