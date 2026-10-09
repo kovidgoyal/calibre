@@ -23,6 +23,101 @@
 # - title by author
 # }}}
 
+{{{ 9.16.0 2026-10-09
+
+:: new features
+
+- [major] Read aloud: Add the high quality Kokoro voices, which sound much more natural than the Piper voices, especially for English
+
+  To use them, select the Piper backend in the Read aloud configuration and choose one of the Kokoro voices. The voice will
+  be automatically downloaded the first time it is used.
+
+- [major] News download: Support for downloading news from websites that block automated access by using the camoufox browser
+
+  Some news sites, such as The New York Times, The Economist and The Atlantic, block all lighter weight ways of
+  fetching their pages. Recipes for these sites now use the camoufox browser, which is automatically downloaded
+  the first time such a recipe is run. Recipe authors can use it by setting browser_type = 'camoufox' in their recipes.
+
+- PDF Input: Support for right-to-left text and better handling of multi-column pages
+
+- Add support for reading images in the AVIF format
+
+- [2144044] Tag browser: A new option to sort hierarchical tags that have only children but no actual books as folders, before all other tags at their level
+
+- [2120771] Edit book: Check book: Allow skipping of problems of a particular type
+
+- Edit book: ToC View: Indicate what ToC entries, if any, are in the file being currently edited
+
+- Edit book: Check book: When auto fixing invalid ids also update CSS selectors
+
+- [2169454] E-book viewer: Add an option to display the immediate parent ToC section in headers/footers
+
+- [2168471] E-book viewer: Allow e-books to store up to 1MB of data persistently
+
+- [2148707] E-book viewer: Print to PDF: Allow specifying margins in metric units
+
+- [2150408] Tag mapper and HTML/CSS transform rules: Add the ability to search the rules
+
+- [2167642] Allow removing individual entries from the search history dropdown
+
+- Add a button to Preferences->Look & feel->Main interface to reset the main window layout
+
+- Create your own Adventure: Allow exporting and importing saved games
+
+- Speed up various operations on large libraries, such as startup, deleting many books, sorting by series, searching and refreshing the Tag browser
+
+- [2168472] Kobo driver: Add support for newer firmware
+
+- Windows: Unregister calibre from default programs and clear its caches when uninstalling
+
+- DOCX Output: Make images inside links clickable
+
+:: bug fixes
+
+- [2169441] EPUB 3 to EPUB 3 conversions: Preserve ids on nav elements so links to them continue to work
+
+- [2142731] PDF Output: Fix some trailing content at the end of individual HTML files being lost when the files use multi column layout
+
+- [2146979] PDF Output: Fix a regression in 9.x that caused conversion of some books with vertical writing to not work correctly
+
+- [2167710] DOCX Output: Fix non-breaking spaces not being preserved
+
+
+- [2168996] FB2 metadata: Clear series, comments, etc. from the file when they are cleared in calibre
+
+- E-book viewer: Fix dark mode theme color overrides conflicting with e-book CSS when the book uses filters to change image colors in dark mode
+
+- [2169232] E-book viewer: Update the "Pages from paper edition" value faster
+
+- [2169575] E-book viewer: Fix an error when pressing ctrl+shift
+
+- [2136805] Layout actions: Fix saving/restoring layout not restoring which of the alternate book list visualisations is currently active
+
+- [2168620] Book list: Respect horizontal alignment setting for all icon only column types
+
+- Cover grid: Fix one cover being rendered too small in some circumstances
+
+- Content server: Various fixes for older browsers when using the book details page in the /mobile view
+
+- Content server: Various security hardening fixes
+
+:: improved recipes
+- The New York Times
+- The Economist (needs subscription)
+- The Atlantic
+- Reuters
+- Heise
+- La Jornada
+- Naked Capitalism
+- The Saturday Paper
+
+:: new recipes
+- World Socialist by Paulb223
+- Poetry Magazine by flurbs
+- The Believer by flurbs
+- Respekt by Vector Rilke
+}}}
+
 {{{ 9.15.0 2026-09-18
 
 :: new features
