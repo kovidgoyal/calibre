@@ -232,7 +232,8 @@ def chars_data(container, book_locale, *args):
         return nmap.get(name, len(nmap)), numeric_sort_key(name)
 
     for i, (codepoint, usage) in enumerate(cc.chars.items()):
-        yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), cc.counter[codepoint])
+        if c := safe_chr(codepoint):
+            yield Char(i, c, codepoint, sorted(usage, key=sort_key), cc.counter[codepoint])
 
 
 CSSRule = namedtuple('CSSRule', 'selector location')
