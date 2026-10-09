@@ -22,7 +22,7 @@ from book_list.library_data import (
 from book_list.router import back, push_state, show_note
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar, set_title
-from book_list.ui import set_panel_handler, show_panel
+from book_list.ui import panel_is_shown, set_panel_handler, show_panel
 from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
@@ -1508,10 +1508,9 @@ def create_edit_metadata(container):
 
 
 def on_books_loaded(container_id, ok):
-    container = document.getElementById(container_id)
-    if not container:
+    if not panel_is_shown(container_id):
         return
-    container = container.lastChild
+    container = document.getElementById(container_id).lastChild
     clear(container)
     if not ok:
         report_load_failure(container)

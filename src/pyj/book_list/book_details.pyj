@@ -1010,10 +1010,9 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
     if current_fetch is None or current_fetch is not xhr:
         return  # Fetching was aborted
     current_fetch = None
-    c = document.getElementById(container_id)
-    if not c:
+    if not panel_is_shown(container_id):
         return
-    c = c.lastChild
+    c = document.getElementById(container_id).lastChild
     # Always cleanup transient loading UI so it never leaves layout artifacts
     # (e.g. empty lines) after the request completes or is aborted.
     try:
@@ -1174,10 +1173,9 @@ def report_load_failure(container):
 
 
 def on_books_loaded(container_id, ok):
-    container = document.getElementById(container_id)
-    if not container:
+    if not panel_is_shown(container_id):
         return
-    container = container.lastChild
+    container = document.getElementById(container_id).lastChild
     clear(container)
     if not ok:
         report_load_failure(container)
@@ -1659,8 +1657,6 @@ def book_panel(create_panel):
             create_top_bar(container, title='', icon='back')
             container.appendChild(E.div(class_=CLASS_NAME))
             fetch_metadata(container_id, book_id, def (container_id, fetched_book_id):
-                if not panel_is_shown(container_id):
-                    return
                 if fetched_book_id is book_id:
                     create_panel(container_id, book_id)
                 else:
