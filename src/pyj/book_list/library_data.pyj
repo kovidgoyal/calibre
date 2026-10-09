@@ -90,9 +90,12 @@ def update_library_data(data):
     load_status.error_html = None
     load_status.http_error_code = 0
     library_data.previous_book_ids = []
-    if library_data.for_library is not current_library_id():
+    # The library of the data, which is not the one in the URL if the user
+    # navigated to another library while it was loading
+    lid = data.search_result.library_id
+    if library_data.for_library is not lid:
         library_data.field_names = {}
-    library_data.for_library = current_library_id()
+    library_data.for_library = lid
     for key in (
         'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'
         ' bools_are_tristate book_details_vertical_categories fts_enabled fields_that_support_notes'
