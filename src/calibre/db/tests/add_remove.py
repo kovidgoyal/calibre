@@ -162,6 +162,81 @@ class AddRemoveTest(BaseTest):
             table.update_sizes = orig
         check('a failure part way through adding a format')
 
+        # A failure inside update_fmt(), after the in memory tables changed but
+        # before the database did, must not leave the category stale either
+        from unittest.mock import patch
+
+        orig_execute = cache.backend.execute
+
+        def failing_execute(sql, *args, **kw):
+            if sql.startswith('INSERT OR REPLACE INTO data'):
+                raise RuntimeError('simulated failure while updating the formats table')
+            return orig_execute(sql, *args, **kw)
+
+        with patch.object(cache.backend, 'execute', failing_execute), self.assertRaises(RuntimeError):
+            cache.add_format(2, 'ZZZFAIL2', BytesIO(b'xxxx'))
+        check('a failure inside updating the formats table')
+
+    # }}}
+
+    def test_format_writes_report_changes(self):  # {{{
+        "Test that the quiet writes of formats and new books report everything they change"
+        from calibre.ebooks.metadata.book.base import Metadata
+
+        cache = self.init_cache()
+        cc = cache.categories_cache
+
+        def all_shown():
+            return {k: [(t.original_name or t.name, t.count) for t in v] for k, v in cache.get_categories().items()}
+
+        def check(label):
+            cached = all_shown()
+            cache.categories_cache.invalidate_all()
+            self.assertEqual(all_shown(), cached, f'the cached categories are stale after {label}')
+
+        all_shown()
+        global_version = cc.global_version
+
+        # Adding a format reports the size of the book, as a Virtual library can
+        # depend on it, and does not throw away every cached category
+        size_version = cc.field_versions.get('size', 0)
+        self.assertTrue(cache.add_format(1, 'ZZZNEW', BytesIO(b'xxxx')))
+        self.assertGreater(cc.field_versions.get('size', 0), size_version)
+        self.assertEqual(global_version, cc.global_version)
+        check('adding a format')
+
+        # Restoring a format from the trash behaves the same as adding it
+        cache.remove_formats({1: ['ZZZNEW']})
+        all_shown()
+        global_version, size_version = cc.global_version, cc.field_versions.get('size', 0)
+        cache.move_format_from_trash(1, 'ZZZNEW')
+        self.assertIn('ZZZNEW', cache.formats(1))
+        self.assertIn(('ZZZNEW', 1), [(t.name, t.count) for t in cache.get_categories()['formats']])
+        self.assertGreater(cc.field_versions.get('size', 0), size_version)
+        self.assertEqual(global_version, cc.global_version)
+        check('restoring a format from the trash')
+
+        # Creating a book reports the fields it writes directly, which a Virtual
+        # library can depend on
+        books_table_fields = ('size', 'sort', 'series_index', 'author_sort', 'uuid', 'cover')
+        # Links are only set for items that already exist
+        cache.set_field('authors', {2: ('Linked Author',)})
+        all_shown()
+        global_version, authors_version = cc.global_version, cc.field_versions.get('authors', 0)
+        before = {f: cc.field_versions.get(f, 0) for f in books_table_fields}
+        mi = Metadata('Linked book', authors=('Linked Author',))
+        mi.link_maps = {'authors': {'Linked Author': 'https://example.com/linked'}}
+        ids, duplicates = cache.add_books([(mi, {'ZZZNEW': BytesIO(b'yyyy')})])
+        self.assertEqual(1, len(ids))
+        self.assertEqual(global_version, cc.global_version)
+        for f in books_table_fields:
+            self.assertGreater(cc.field_versions.get(f, 0), before[f], f'creating a book did not report {f}')
+        self.assertEqual('https://example.com/linked', cache.get_link_map('authors').get('Linked Author'))
+        # Setting the link must force the whole authors category to be
+        # recomputed, set_field() alone would have reported only some items
+        self.assertIsNone(cc.changes_since('authors', authors_version)[0])
+        check('creating a book with links')
+
     # }}}
 
     def test_remove_formats(self):  # {{{

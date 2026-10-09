@@ -85,11 +85,14 @@ def quiet_write_api[T: types.FunctionType](f: T) -> T:
     # Cache API methods that take the write lock but must not invalidate the whole
     # cache of computed categories, so they use the quiet write lock instead, generaly
     # when they cannot change any of the data the categories are computed from.
-    # set_field and set_metadata are the two exceptions: they do change that data,
-    # but every change they make goes through set_field(), which reports the changed
-    # field itself, so only the categories that depend on that field need to be
-    # recomputed. A function wrongly decorated means the Tag browser silently
-    # displays stale data, so it is guarded by ReadingTest.test_categories_cache().
+    # set_field, set_metadata, create_book_entry and move_format_from_trash are the
+    # exceptions: they do change that data, but they report every change they make,
+    # set_field() itself and the others through set_field() or by calling
+    # categories_cache.field_changed() explicitly, so only the categories that
+    # depend on the changed fields need to be recomputed. add_format() is not a
+    # write API, but uses the quiet write lock directly in the same way. A function
+    # wrongly decorated means the Tag browser silently displays stale data, so it
+    # is guarded by ReadingTest.test_categories_cache().
     write_api(f)
     category_quiet_writes.add(f.__name__)
     return f
@@ -2459,6 +2462,24 @@ class Cache:
         size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name, mtime=mtime)
         return size, fname
 
+    def _record_format_added(self, book_id, fmt, fname, size):
+        # Updates the formats and size of the book for a format file that has
+        # been added and reports the change to the cache of computed
+        # categories, so that callers can use the quiet write lock.
+        try:
+            max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
+            self.fields['size'].table.update_sizes({book_id: max_size})
+        finally:
+            # Report the change even if something above failed part way
+            # through, since the tables may already have changed. Unlike in
+            # set_field() the changed items are known exactly even then: the
+            # only item of the formats category a book's format can affect is
+            # that format, and a full recompute would read the same in memory
+            # tables. Size is not a category, but which books a Virtual
+            # library matches can depend on it.
+            self.categories_cache.field_changed('formats', (fmt,), (book_id,))
+            self.categories_cache.field_changed('size', None, (book_id,))
+
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
         """
@@ -2479,10 +2500,13 @@ class Cache:
             needs_close = True
             fmt = check_ebook_format(stream_or_path, fmt)
 
-        # Adding a format can only change the formats category, which is
-        # reported below, so the whole cache of computed categories need not be
-        # thrown away. Adding books adds a format to every book it creates, so
-        # in larger libraries that cost is paid for every added book.
+        # Adding a format changes only the formats and size of the book, which
+        # _record_format_added() reports, so the whole cache of computed
+        # categories need not be thrown away. Adding books adds a format to
+        # every book it creates, so in larger libraries that cost would be paid
+        # for every added book. Since this is not a quiet_write_api function,
+        # ReadingTest.test_categories_cache() cannot check it, every write made
+        # under this lock must be reported explicitly.
         with self.quiet_write_lock:
             if not self._has_id(book_id):
                 raise NoSuchBook(book_id)
@@ -2510,16 +2534,9 @@ class Cache:
                     stream.close()
             del stream
 
-            try:
-                max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
-                self.fields['size'].table.update_sizes({book_id: max_size})
-                self._update_last_modified((book_id,))
-                self._queue_pages_scan(book_id)
-            finally:
-                # Report the change even if something above failed part way
-                # through, since the formats table may already have changed and
-                # the quiet lock does not invalidate the cache for us
-                self.categories_cache.field_changed('formats', (fmt,), (book_id,))
+            self._record_format_added(book_id, fmt, fname, size)
+            self._update_last_modified((book_id,))
+            self._queue_pages_scan(book_id)
             self.event_dispatcher(EventType.format_added, book_id, fmt)
 
         if run_hooks:
@@ -2666,7 +2683,8 @@ class Cache:
 
     _has_id = has_id
 
-    # Sets all its fields through set_field(), which reports the changed items itself
+    # Most fields are set through set_field(), which reports the changed items
+    # itself, everything else this changes is reported explicitly below
     @quiet_write_api
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None, apply_import_tags=True, preserve_uuid=False):
         if mi.tags:
@@ -2714,6 +2732,9 @@ class Cache:
             for field, link_map in lm.items():
                 if self._has_link_map(field):
                     self._set_link_map(field, link_map, only_set_if_no_existing_link=True)
+                    # The Tag browser displays the links of the items of a
+                    # category, so it must be rebuilt for this one
+                    self.categories_cache.field_changed(field)
         if preserve_uuid and mi.uuid:
             self._set_field('uuid', {book_id: mi.uuid})
         # Update the caches for fields from the books table
@@ -2725,6 +2746,10 @@ class Cache:
             elif field == 'uuid':
                 self.fields[field].table.uuid_to_id_map[val] = book_id
             self.fields[field].table.book_col_map[book_id] = val
+        # These are not categories, but which books a Virtual library matches
+        # can depend on them
+        for field in ('size', 'sort', 'series_index', 'author_sort', 'uuid', 'cover'):
+            self.categories_cache.field_changed(field, None, (book_id,))
 
         return book_id
 
@@ -3537,7 +3562,8 @@ class Cache:
 
     _copy_format_from_trash = copy_format_from_trash
 
-    @write_api
+    # Changes only the formats and size of the book, which _record_format_added() reports
+    @quiet_write_api
     def move_format_from_trash(self, book_id, fmt):
         """Undelete a format from the trash directory"""
         if not self._has_id(book_id):
@@ -3552,8 +3578,7 @@ class Cache:
             raise ValueError(f'No format {fmt} found in book {book_id}')
         size, fname = self._do_add_format(book_id, fmt, fpath, name)
         self.format_metadata_cache.pop(book_id, None)
-        max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
-        self.fields['size'].table.update_sizes({book_id: max_size})
+        self._record_format_added(book_id, fmt, fname, size)
         self._queue_pages_scan(book_id)
         self.event_dispatcher(EventType.format_added, book_id, fmt)
         self.backend.remove_trash_formats_dir_if_empty(book_id)
