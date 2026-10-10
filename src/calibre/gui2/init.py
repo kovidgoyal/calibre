@@ -34,6 +34,7 @@ from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.library.bookshelf_view import BookshelfView
+from calibre.gui2.library.series_grid import SeriesGridView
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
@@ -340,6 +341,12 @@ class GridViewButton(AlternateViewsButtons):  # {{{
 # }}}
 
 
+class SeriesGridViewButton(AlternateViewsButtons):
+    def __init__(self, gui):
+        super().__init__('series_grid', 'series_grid.png', _('Series grid'), 'series', gui,
+                         config_key='series grid view')
+
+
 class BookshelfViewButton(AlternateViewsButtons):  # {{{
     needs_group_by = True
 
@@ -611,9 +618,9 @@ class LayoutMixin:  # {{{
             for x in self.layout_buttons:
                 self.status_bar.removeWidget(x)
         if self.layout_container.is_wide:
-            self.button_order = 'sb', 'tb', 'cb', 'bs', 'gv', 'qv', 'bd'
+            self.button_order = 'sb', 'tb', 'cb', 'bs', 'gv', 'sg', 'qv', 'bd'
         else:
-            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'bs', 'qv'
+            self.button_order = 'sb', 'tb', 'bd', 'gv', 'sg', 'cb', 'bs', 'qv'
         self.layout_buttons = []
         s = self.style()
         assert s is not None
@@ -621,6 +628,8 @@ class LayoutMixin:  # {{{
         for x in self.button_order:
             if x == 'gv':
                 button = self.grid_view_button
+            elif x == 'sg':
+                button = self.series_grid_button
             elif x == 'bs':
                 button = self.bookshelf_view_button
             elif x == 'sb':
@@ -663,6 +672,9 @@ class LayoutMixin:  # {{{
         self.grid_view = GridView(self)
         self.grid_view.setObjectName('grid_view')
         av.add_view('grid', self.grid_view)
+        self.series_grid = SeriesGridView(self)
+        self.series_grid.setObjectName('series_grid')
+        av.add_view('series', self.series_grid)
         self.bookshelf_view = BookshelfView(self)
         self.bookshelf_view.setObjectName('bookshelf_view')
         av.add_view('bookshelf', self.bookshelf_view)
@@ -687,6 +699,7 @@ class LayoutMixin:  # {{{
         self.layout_container.tag_browser_button.toggled.connect(self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)
         self.status_bar = StatusBar(self)
         self.grid_view_button = GridViewButton(self)
+        self.series_grid_button = SeriesGridViewButton(self)
         self.bookshelf_view_button = BookshelfViewButton(self)
         self.search_bar_button = SearchBarButton(self)
         self.search_bar_button.toggled.connect(self.toggle_search_bar)
@@ -890,6 +903,7 @@ class LayoutMixin:  # {{{
         self.card_b_view.save_state()
         self.layout_container.write_settings()
         self.grid_view_button.save_state()
+        self.series_grid_button.save_state()
         self.bookshelf_view_button.save_state()
         self.search_bar_button.save_state()
 
@@ -899,6 +913,7 @@ class LayoutMixin:  # {{{
         self.book_details.change_layout(self.layout_container.is_wide)
         self.place_layout_buttons()
         self.grid_view_button.restore_state()
+        self.series_grid_button.restore_state()
         self.bookshelf_view_button.restore_state()
         self.search_bar_button.restore_state()
 

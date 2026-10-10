@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
-from qt.core import QApplication, QDialog, QFont, QFontDialog, QFontInfo
+from qt.core import QApplication, QCheckBox, QDialog, QFont, QFontDialog, QFontInfo
 
 from calibre.constants import ismacos, iswindows
 from calibre.gui2 import config, gprefs, icon_resource_manager, qapplication_or_fail, question_dialog
@@ -47,6 +47,14 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')],
         )
         r('book_list_tooltips', gprefs)
+        self.opt_show_missing_series_books = QCheckBox(_('Show missing series books in tooltips'), self)
+        self.opt_show_missing_series_books.setToolTip(_(
+            'Count missing positive integer volumes up to the highest owned volume, across the entire library.'
+            ' Also flag duplicate volume numbers and a potentially incomplete series containing only volume 1.'
+            ' Fractional volumes are ignored when counting missing books. The total series length is not inferred.'
+        ))
+        self.gridLayout_main_interface.addWidget(self.opt_show_missing_series_books, 8, 1)
+        r('show_missing_series_books', gprefs)
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
         r('show_layout_buttons', gprefs)

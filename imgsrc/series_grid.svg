@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs><linearGradient id="cover" x2="0%" y2="100%"><stop stop-color="#80c8fc"/><stop offset="1" stop-color="#2874ba"/></linearGradient></defs>
+<g stroke="#174774" stroke-width="2">
+<g transform="translate(4 4)"><rect x="12" y="12" width="40" height="44" rx="4" fill="#235c91"/><rect x="7" y="7" width="40" height="44" rx="4" fill="#509fdb"/><rect x="2" y="2" width="40" height="44" rx="4" fill="url(#cover)"/></g>
+<g transform="translate(66 4)"><rect x="12" y="12" width="40" height="44" rx="4" fill="#235c91"/><rect x="7" y="7" width="40" height="44" rx="4" fill="#509fdb"/><rect x="2" y="2" width="40" height="44" rx="4" fill="url(#cover)"/></g>
+<g transform="translate(4 66)"><rect x="12" y="12" width="40" height="44" rx="4" fill="#235c91"/><rect x="7" y="7" width="40" height="44" rx="4" fill="#509fdb"/><rect x="2" y="2" width="40" height="44" rx="4" fill="url(#cover)"/></g>
+<g transform="translate(66 66)"><rect x="12" y="12" width="40" height="44" rx="4" fill="#235c91"/><rect x="7" y="7" width="40" height="44" rx="4" fill="#509fdb"/><rect x="2" y="2" width="40" height="44" rx="4" fill="url(#cover)"/></g>
+</g></svg>
