@@ -261,7 +261,6 @@ class EPUB_MOBI(CatalogPlugin):
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
-        opts.creator = '{}, {} {}, {}'.format(strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
         opts.creator_sort_as = '{} {}'.format('calibre', strftime('%Y-%m-%d'))
         opts.connected_kindle = False
 
@@ -284,6 +283,10 @@ class EPUB_MOBI(CatalogPlugin):
         opts.description_clip = 380 if op.endswith('dx') or 'kindle' not in op else 100
         opts.author_clip = 100 if op.endswith('dx') or 'kindle' not in op else 60
         opts.output_profile = op
+        if opts.fmt == 'mobi' and op.startswith('kindle'):
+            opts.creator = '{}, {} {}, {}'.format(strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+        else:
+            opts.creator = 'calibre'
 
         opts.basename = 'Catalog'
         opts.cli_environment = not hasattr(opts, 'sync')
