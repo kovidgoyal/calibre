@@ -141,20 +141,35 @@ class ContentTest(LibraryBaseTest):
             other_db = ctx.library_broker.get(other_library_id)
             conn = server.connect()
 
-            def request(path, library_id, method='POST', data=None):
-                return make_request(
-                    conn, f'{path}?{urlencode({"library_id": library_id})}', username='12', password='test', prefix='', method=method, data=data
-                )[0].status
+            def request(path, library_id=None, method='POST', data=None, **query):
+                if library_id is not None:
+                    query['library_id'] = library_id
+                return make_request(conn, f'{path}?{urlencode(query)}', username='12', password='test', prefix='', method=method, data=data)[0].status
 
             self.ae(request('/fts/indexing', other_library_id, data=b'true'), OK)
             self.assertTrue(other_db.is_fts_enabled())
             self.assertFalse(default_db.is_fts_enabled())
+            self.ae(request('/fts/reindex', other_library_id, data=b'"all"'), OK)
+            self.ae(request('/fts/search', other_library_id, method='GET', query='x'), OK)
             # A library that does not exist must not fall back to the default one
             self.ae(request('/fts/indexing', 'no-such-library', data=b'true'), NOT_FOUND)
             self.ae(request('/fts/reindex', 'no-such-library', data=b'"all"'), NOT_FOUND)
-            self.ae(request('/fts/disable', 'no-such-library', method='GET'), NOT_FOUND)
+            self.ae(request('/fts/disable', 'no-such-library'), NOT_FOUND)
+            self.ae(request('/fts/search', 'no-such-library', method='GET', query='x'), NOT_FOUND)
+            self.ae(request('/fts/snippets/1', 'no-such-library', method='GET', query='x'), NOT_FOUND)
+            # Nor must any other endpoint that changes the database
+            self.ae(request('/conversion/start/1', 'no-such-library', data=b'{}'), NOT_FOUND)
             self.assertFalse(default_db.is_fts_enabled())
-            self.ae(request('/fts/disable', other_library_id, method='GET'), OK)
+            # Disabling destroys the index, so it must not be possible with GET
+            self.ae(request('/fts/disable', other_library_id, method='GET'), METHOD_NOT_ALLOWED)
+            self.assertTrue(other_db.is_fts_enabled())
+            self.ae(request('/fts/disable', other_library_id), OK)
+            self.assertFalse(other_db.is_fts_enabled())
+            # No library_id means the default library
+            self.ae(request('/fts/indexing', data=b'true'), OK)
+            self.assertTrue(default_db.is_fts_enabled())
+            self.ae(request('/fts/disable'), OK)
+            self.assertFalse(default_db.is_fts_enabled())
             self.assertFalse(other_db.is_fts_enabled())
 
     # }}}

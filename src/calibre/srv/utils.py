@@ -456,10 +456,12 @@ def get_db(ctx, rd, library_id):
 
 
 def get_library_data(ctx, rd, strict_library_id=False):
+    # Endpoints that change the database must never fall back to the default
+    # library when asked for one that does not exist
     library_id = rd.query.get('library_id')
     library_map, default_library = ctx.library_info(rd)
     if library_id not in library_map:
-        if strict_library_id and library_id:
+        if (strict_library_id or rd.needs_db_write) and library_id:
             raise HTTPNotFound(f'No library with id: {library_id}')
         library_id = default_library
     db = get_db(ctx, rd, library_id)

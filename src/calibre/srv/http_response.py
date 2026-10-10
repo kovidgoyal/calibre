@@ -232,6 +232,7 @@ class ETaggedFile:  # {{{
 class RequestData:  # {{{
     cookies = {}
     username = None
+    needs_db_write = False
 
     def __init__(
         self,

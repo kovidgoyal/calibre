@@ -37,6 +37,10 @@ def current_library_id():
     return q.library_id or get_interface_data().default_library_id
 
 
+def library_name(library_id):
+    return get_interface_data().library_map[library_id] or library_id
+
+
 def all_libraries():
     interface_data = get_interface_data()
     lids = sorted(interface_data.library_map, key=def (x): return interface_data.library_map[x];)
