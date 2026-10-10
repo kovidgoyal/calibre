@@ -409,7 +409,7 @@ class Guide(ResourceCollection):  # {{{
 
     def set_cover(self, path):
         for i in tuple(self):
-            if 'cover' in i.type.lower():
+            if 'cover' in (i.type or '').lower():
                 self.remove(i)
         for typ in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
             self.append(Guide.Reference(path, is_path=True))
@@ -1298,7 +1298,7 @@ class OPF:  # {{{
         if id is None:
             for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                 for item in self.guide:
-                    if item.type.lower() == t:
+                    if item.type and item.type.lower() == t:
                         self.create_manifest_item(item.href(), guess_type(path)[0])
 
     def get_metadata_element(self, name):

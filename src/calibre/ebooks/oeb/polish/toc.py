@@ -3,6 +3,7 @@
 
 import re
 from collections import Counter, OrderedDict
+from copy import deepcopy
 from functools import partial
 from operator import itemgetter
 from typing import NamedTuple
@@ -686,6 +687,14 @@ def ensure_single_nav_of_type(root, ntype='toc'):
     return nav
 
 
+NAV_HEADINGS = frozenset(XHTML(f'h{i}') for i in range(1, 7))
+
+
+def nav_tag_key(tag):
+    # The nav heading may be re-generated with a different level
+    return XHTML('h1') if tag in NAV_HEADINGS else tag
+
+
 class SavedNavId(NamedTuple):
     eid: str
     tag: str
@@ -727,6 +736,18 @@ def save_nav_ids(container, root, tocname, ntype):
     return ans
 
 
+def nav_heading(root, ntype):
+    et = f'{{{EPUB_NS}}}type'
+    for nav in root.iterdescendants(XHTML('nav')):
+        if nav.get(et) == ntype:
+            for h in nav.iterchildren(*NAV_HEADINGS):
+                if xml2text(h).strip():
+                    ans = deepcopy(h)
+                    ans.tail = None
+                    return ans
+            return None
+
+
 def restore_nav_ids(container, root, tocname, nav, saved_ids):
     if not saved_ids:
         return
@@ -734,7 +755,7 @@ def restore_nav_ids(container, root, tocname, nav, saved_ids):
     candidates = {}
     for elem in nav.iterdescendants(etree.Element):
         if elem.get('id') is None:
-            candidates.setdefault(elem.tag, []).append(elem)
+            candidates.setdefault(nav_tag_key(elem.tag), []).append(elem)
     keys = {}
 
     def key_for(elem):
@@ -743,7 +764,7 @@ def restore_nav_ids(container, root, tocname, nav, saved_ids):
         return keys[elem]
 
     def find_target(s):
-        elems = [e for e in candidates.get(s.tag, ()) if e.get('id') is None]
+        elems = [e for e in candidates.get(nav_tag_key(s.tag), ()) if e.get('id') is None]
         if s.tag not in (XHTML('a'), XHTML('span'), XHTML('li')):
             return elems[0] if elems else None
         # Match on the full destination, then only on the file (conversion
@@ -771,11 +792,14 @@ def restore_nav_ids(container, root, tocname, nav, saved_ids):
             target.set('id', s.eid)
         existing_ids.add(s.eid)
     # Ids for which no corresponding entry exists are preserved as empty
-    # anchors at the start of the nav so that links to them remain valid.
-    for i, eid in enumerate(unmatched):
+    # anchors just before the nav so that links to them remain valid. They
+    # cannot go inside the nav as its content model allows only a heading
+    # followed by a single <ol>, see https://bugs.launchpad.net/bugs/2170400
+    for eid in unmatched:
         span = nav.makeelement(XHTML('span'))
         span.set('id', eid)
-        nav.insert(i, span)
+        span.tail = '\n'
+        nav.addprevious(span)
 
 
 def ensure_container_has_nav(container, lang=None, previous_nav=None):
@@ -843,8 +867,13 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
     tocname, root = ensure_container_has_nav(container, lang=lang, previous_nav=previous_nav)
     saved_ids = save_nav_ids(container, root, tocname, 'toc')
     saved_page_list_ids = save_nav_ids(container, root, tocname, 'page-list')
+    # The ToC created by conversion has no title, so keep the heading from the
+    # nav of the input book
+    previous_heading = None if previous_nav is None or toc.toc_title else nav_heading(root, 'toc')
     nav = ensure_single_nav_of_type(root, 'toc')
-    if toc.toc_title:
+    if previous_heading is not None:
+        nav.append(previous_heading)
+    elif toc.toc_title:
         nav.append(nav.makeelement(XHTML('h1')))
         nav[-1].text = toc.toc_title
 
