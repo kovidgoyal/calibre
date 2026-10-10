@@ -378,6 +378,16 @@ special_styles = {
 # -----------------------------------------------------------------------------
 
 
+def positive_integer(val):
+    """Parse an ODF positiveInteger attribute value, returning None if it is
+    missing or invalid"""
+    if val and val.isascii() and val.isdigit():
+        ans = int(val)
+        if ans > 0:
+            return ans
+    return None
+
+
 class ODF2XHTML(handler.ContentHandler):
     """The ODF2XHTML parses an ODF file and produces XHTML"""
 
@@ -1337,6 +1347,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         list_class = f'{name}_{level}'
         tag_name = self.listtypes.get(list_class, 'ul')
         number_class = tag_name + list_class
+        style_start = self.list_starts.get(list_class, 1)
         if list_id:
             self.list_id_map[list_id] = number_class
         if continue_list:
@@ -1344,9 +1355,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 tglc = self.list_id_map[continue_list]
                 self.list_number_map[number_class] = self.list_number_map[tglc]
             else:
-                self.list_number_map.pop(number_class, None)
-        elif not continue_numbering:
-            self.list_number_map.pop(number_class, None)
+                self.list_number_map[number_class] = style_start
+        elif not continue_numbering or number_class not in self.list_number_map:
+            self.list_number_map[number_class] = style_start
         self.list_class_stack.append(number_class)
         attrs = {}
         if tag_name == 'ol' and self.list_number_map[number_class] != 1:
@@ -1379,14 +1390,11 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         number_class = self.list_class_stack[-1] if self.list_class_stack else None
         li_attrs = {}
         if number_class:
-            start_value = attrs.get((TEXTNS, 'start-value'))
-            if start_value and number_class.startswith('ol'):
-                try:
-                    self.list_number_map[number_class] = int(start_value)
-                except ValueError:
-                    pass
-                else:
-                    li_attrs['value'] = start_value
+            # Invalid (non positive integer) start values are ignored
+            start_value = positive_integer(attrs.get((TEXTNS, 'start-value')))
+            if start_value is not None and number_class.startswith('ol'):
+                self.list_number_map[number_class] = start_value
+                li_attrs['value'] = str(start_value)
             self.list_number_map[number_class] += 1
         self.opentag('li', li_attrs)
         self.purgedata()
@@ -1423,12 +1431,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         name = self.tagstack.stackparent()[(STYLENS, 'name')]
         level = attrs[(TEXTNS, 'level')]
         num_format = attrs.get((STYLENS, 'num-format'), '1')
-        start_value = attrs.get((TEXTNS, 'start-value'), '1')
+        start_value = positive_integer(attrs.get((TEXTNS, 'start-value')))
         list_class = f'{name}_{level}'
         self.prevstyle = self.currentstyle
         self.currentstyle = '.{}_{}'.format(name.replace('.', '_'), level)
-        if start_value != '1':
-            self.list_starts[self.currentstyle] = start_value
+        if start_value is not None and start_value != 1:
+            # Keyed the same way as list_class in s_text_list()
+            self.list_starts['{}_{}'.format(name.replace('.', '_'), level)] = start_value
         self.listtypes[list_class] = 'ol'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
