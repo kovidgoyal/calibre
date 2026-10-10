@@ -42,7 +42,7 @@ def py_compress_doc(data):
         ch = data[i : i + 1]
         och = ord(ch)
         i += 1
-        if ch == b' ' and (i + 1) < ldata:
+        if ch == b' ' and i < ldata:
             onch = ord(data[i : i + 1])
             if onch >= 0x40 and onch < 0x80:
                 out.write(pack('>B', onch ^ 0x80))
@@ -102,6 +102,23 @@ def find_tests():
             for test in tests:
                 x = compress_doc(test)
                 self.assertEqual(py_compress_doc(test), x)
+                self.assertEqual(decompress_doc(x), test)
+
+        def test_palmdoc_space_and_char_at_end(self):
+            # A space followed by a character in 0x40-0x7F is packed into a
+            # single byte, also when that character is the last byte of the input
+            for test, expected in [
+                (b' A', b'\xc1'),
+                (b' @', b'\xc0'),
+                (b' \x7f', b'\xff'),
+                (b' ?', b' ?'),  # not in 0x40-0x7F
+                (b' \x80', b' \x01\x80'),
+                (b' ', b' '),
+                (b'abc  A', b'abc \xc1'),
+            ]:
+                x = compress_doc(test)
+                self.assertEqual(x, expected, f'compress_doc({test!r})')
+                self.assertEqual(py_compress_doc(test), x, f'py_compress_doc({test!r})')
                 self.assertEqual(decompress_doc(x), test)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(Test)
