@@ -1377,9 +1377,18 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def s_text_list_item(self, tag, attrs):
         """Start list item"""
         number_class = self.list_class_stack[-1] if self.list_class_stack else None
+        li_attrs = {}
         if number_class:
+            start_value = attrs.get((TEXTNS, 'start-value'))
+            if start_value and number_class.startswith('ol'):
+                try:
+                    self.list_number_map[number_class] = int(start_value)
+                except ValueError:
+                    pass
+                else:
+                    li_attrs['value'] = start_value
             self.list_number_map[number_class] += 1
-        self.opentag('li')
+        self.opentag('li', li_attrs)
         self.purgedata()
 
     def e_text_list_item(self, tag, attrs):
