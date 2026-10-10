@@ -556,6 +556,11 @@ def create_defs():
     defs['cover_grid_cache_size_multiple'] = 5
     defs['cover_grid_disk_cache_size'] = 2500
     defs['cover_grid_show_title'] = False
+    defs['series_grid_show_standalone'] = False
+    defs['series_grid_animation'] = 'curl_horizontal'
+    defs['series_grid_stack_rendering'] = 'neat'
+    defs['series_grid_stack_size'] = 3
+    defs['series_grid_group_by'] = 'series'
     defs['cover_grid_text_flush_bottom'] = False
     defs['cover_corner_radius'] = 0
     defs['cover_corner_radius_unit'] = 'px'

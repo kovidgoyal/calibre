@@ -236,7 +236,10 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
             else:
                 if special_action is not None:
                     special_action(self.currentIndex())
-                gui.iactions['View'].view_triggered(self.currentIndex())
+                index = self.currentIndex()
+                if hasattr(self, 'action_index'):
+                    index = self.action_index(index)
+                gui.iactions['View'].view_triggered(index)
             gui.enter_key_pressed_in_book_list.emit(self)
             return True
     return False
@@ -555,6 +558,7 @@ class AlternateViews:
             return
         stack = self.stack
         assert stack is not None
+        previous_view = self.current_view
         stack.setCurrentIndex(self.stack_positions[key])
         self.current_view = view
         if view is not self.main_view:
@@ -566,6 +570,16 @@ class AlternateViews:
                 self.main_view.selectionModel().currentChanged.connect(self.main_current_changed)
                 self.main_view.selectionModel().selectionChanged.connect(self.main_selection_changed)
             view.setFocus(Qt.FocusReason.OtherFocusReason)
+        if hasattr(previous_view, 'sync_book_details') and not hasattr(view, 'sync_book_details'):
+            index = self.main_view.currentIndex()
+            if not index.isValid() and self.main_view.model().rowCount():
+                self.main_view.set_current_row(0, for_sync=True)
+                self.main_view.select_rows({0}, using_ids=False, change_current=False, scroll=False)
+                index = self.main_view.currentIndex()
+            if index.isValid():
+                self.main_view.model().current_changed(index, None)
+            else:
+                self.main_view.gui.book_details.show_data(None)
 
     def set_database(self, db, stage=0):
         for view in self.views.values():
@@ -580,11 +594,16 @@ class AlternateViews:
 
     @sync
     def slave_current_changed(self, current, *args):
-        self.main_view.set_current_row(current.row(), for_sync=True)
+        row = current.row()
+        if hasattr(self.current_view, 'source_row'):
+            row = self.current_view.source_row(row)
+        self.main_view.set_current_row(row, for_sync=True)
 
     @sync
     def slave_selection_changed(self, *args):
         rows = {r.row() for r in self.current_view.selectionModel().selectedIndexes()}
+        if hasattr(self.current_view, 'source_row'):
+            rows = {self.current_view.source_row(row) for row in rows}
         self.main_view.select_rows(rows, using_ids=False, change_current=False, scroll=False)
 
     @sync
@@ -621,6 +640,7 @@ class AlternateViews:
 
 
 class CoverDelegate(QStyledItemDelegate):
+    cache_class = CoverThumbnailCache
     MARGIN = 4
     TOP, LEFT, RIGHT, BOTTOM = object(), object(), object(), object()
 
@@ -690,7 +710,7 @@ class CoverDelegate(QStyledItemDelegate):
         if hasattr(self, 'cover_cache'):
             self.cover_cache.set_thumbnail_size(w, h)
         else:
-            self.cover_cache = CoverThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), parent=self, version=1)
+            self.cover_cache = self.cache_class(max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), parent=self, version=1)
 
     def calculate_spacing(self):
         _cs_p = self.parent()
@@ -730,7 +750,7 @@ class CoverDelegate(QStyledItemDelegate):
         m = index.model()
         db = m.db
         try:
-            book_id = db.id(index.row())
+            book_id = m.id(index)
         except ValueError, IndexError, KeyError:
             return
         if book_id in m.ids_to_highlight_set:
@@ -937,7 +957,7 @@ class CoverDelegate(QStyledItemDelegate):
             except AttributeError:
                 return False
             try:
-                book_id = db.id(index.row())
+                book_id = index.model().id(index)
             except ValueError, IndexError, KeyError:
                 return False
             db = db.new_api
@@ -985,6 +1005,7 @@ CoverTuple = namedtuple('CoverTuple', ['book_id', 'has_cover', 'cache_valid', 'c
 
 @setup_dnd_interface
 class GridView(MomentumScrollMixin, QListView):
+    delegate_class = CoverDelegate
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
 
@@ -1012,7 +1033,7 @@ class GridView(MomentumScrollMixin, QListView):
         self.setResizeMode(QListView.ResizeMode.Adjust)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        self.delegate = CoverDelegate(self)
+        self.delegate = self.delegate_class(self)
         self.delegate.animation.valueChanged.connect(self.animation_value_changed)
         self.delegate.animation.finished.connect(self.animation_done)
         self.delegate.cover_cache.rendered.connect(self.re_render)
