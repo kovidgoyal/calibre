@@ -374,6 +374,12 @@ def set_book_metadata(book_id, value, library_id):
         library_data.metadata[book_id] = value
 
 
+def set_fts_enabled(library_id, enabled):
+    # Only the data of the loaded library is held
+    if library_id is library_data.for_library:
+        library_data.fts_enabled = enabled
+
+
 def loaded_book_ids():
     return Object.keys(library_data.metadata)
 
