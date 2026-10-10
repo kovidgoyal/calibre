@@ -300,6 +300,55 @@ class TestDownloadDeps(unittest.TestCase):
         finally:
             dd.download_json = original
 
+    def test_download_deps_camoufox_emulated_arch(self) -> None:
+        def asset(build: str, arch: str) -> dict[str, Any]:
+            name = f'camoufox-152.0.4-{build}-win.{arch}.zip'
+            return {'name': name, 'browser_download_url': f'https://example.com/{name}'}
+
+        orig_json, orig_os, orig_arch = dd.download_json, dd.camoufox_os, dd.camoufox_arch
+        try:
+            # Windows on ARM falls back to x86_64 builds, preferring native builds of the same version
+            dd.camoufox_os, dd.camoufox_arch = (lambda: 'win'), (lambda: 'arm64')
+            self.assertEqual(dd.camoufox_archs(), ('arm64', 'x86_64'))
+            dd.download_json = lambda *a, **kw: [{'prerelease': False, 'assets': [asset('beta.29', 'x86_64'), asset('beta.29', 'i686')]}]
+            self.assertEqual(dd.camoufox_installer.latest_release().url, 'https://example.com/camoufox-152.0.4-beta.29-win.x86_64.zip')
+            dd.download_json = lambda *a, **kw: [
+                {'prerelease': False, 'assets': [asset('beta.30', 'x86_64'), asset('beta.29', 'arm64'), asset('beta.29', 'x86_64')]},
+            ]
+            self.assertEqual(dd.camoufox_installer.latest_release().version, '152.0.4-beta.30')
+            dd.download_json = lambda *a, **kw: [{'prerelease': False, 'assets': [asset('beta.29', 'x86_64'), asset('beta.29', 'arm64')]}]
+            self.assertEqual(dd.camoufox_installer.latest_release().url, 'https://example.com/camoufox-152.0.4-beta.29-win.arm64.zip')
+            # Other platforms have native builds and no fallbacks
+            for os_name, arch in (('lin', 'arm64'), ('mac', 'arm64'), ('mac', 'x86_64'), ('win', 'x86_64')):
+                dd.camoufox_os, dd.camoufox_arch = (lambda: os_name), (lambda: arch)
+                self.assertEqual(dd.camoufox_archs(), (arch,))
+        finally:
+            dd.download_json, dd.camoufox_os, dd.camoufox_arch = orig_json, orig_os, orig_arch
+
+    def test_download_deps_camoufox_32bit_linux(self) -> None:
+        orig_os, orig_machine, orig_32bit = dd.camoufox_os, dd.platform.machine, dd.is_32bit_userspace
+        try:
+            dd.camoufox_os = lambda: 'lin'
+            for machine, is_32bit, expected in (
+                ('x86_64', False, 'x86_64'),
+                ('aarch64', False, 'arm64'),
+                ('i686', True, ''),
+                ('i386', True, ''),
+                ('armv7l', True, ''),
+                ('armv6l', True, ''),
+                # 32-bit userspace on a 64-bit kernel
+                ('aarch64', True, ''),
+                ('x86_64', True, ''),
+            ):
+                dd.platform.machine, dd.is_32bit_userspace = (lambda: machine), (lambda: is_32bit)
+                if expected:
+                    self.assertEqual(dd.camoufox_arch(), expected)
+                else:
+                    with self.assertRaisesRegex(ValueError, '32-bit Linux'):
+                        dd.camoufox_arch()
+        finally:
+            dd.camoufox_os, dd.platform.machine, dd.is_32bit_userspace = orig_os, orig_machine, orig_32bit
+
     @unittest.skipIf(iswindows, 'UNIX file permissions are not used on Windows')
     def test_download_deps_camoufox_permissions(self) -> None:
         # Simulate a zip file created without any UNIX file permissions

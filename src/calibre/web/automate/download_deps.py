@@ -427,18 +427,40 @@ ARCH_MAP = {
     'i386': 'i686',
     'arm64': 'arm64',
     'aarch64': 'arm64',
-    'armv7l': 'arm64',
-    'armv6l': 'arm64',
-    'armv5l': 'arm64',
 }
+
+
+def is_32bit_userspace() -> bool:
+    # platform.machine() reports the kernel architecture, which can be 64-bit
+    # even when userspace is 32-bit, for example, on Raspberry Pi OS
+    return sys.maxsize <= 2**32
 
 
 def camoufox_arch() -> str:
     machine = platform.machine().lower()
+    if camoufox_os() == 'lin' and (is_32bit_userspace() or machine in ('i386', 'i686', 'x86') or machine.startswith('armv')):
+        raise ValueError(
+            'The camoufox browser is not available for 32-bit Linux systems, it needs a 64-bit (x86_64 or arm64) operating system.'
+            f' This system is {machine}, with a {"32" if is_32bit_userspace() else "64"}-bit userspace.'
+        )
     ans = ARCH_MAP.get(machine)
     if ans is None:
         raise ValueError(f'The CPU architecture {machine} is not supported by camoufox')
     return ans
+
+
+# Architectures to fall back to when there is no camoufox build for the native
+# architecture. Windows on ARM can run x86_64 binaries via emulation and
+# camoufox does not provide win.arm64 builds.
+CAMOUFOX_EMULATED_ARCHS: dict[tuple[str, str], tuple[str, ...]] = {
+    ('win', 'arm64'): ('x86_64',),
+}
+
+
+def camoufox_archs() -> tuple[str, ...]:
+    """The architectures whose camoufox builds can be used, in order of preference."""
+    native = camoufox_arch()
+    return (native,) + CAMOUFOX_EMULATED_ARCHS.get((camoufox_os(), native), ())
 
 
 # The path of the browser executable relative to the install directory
@@ -446,8 +468,9 @@ CAMOUFOX_LAUNCH_PATH = ('camoufox.exe',) if iswindows else (('Camoufox.app', 'Co
 
 
 @lru_cache(maxsize=2)
-def camoufox_asset_pattern() -> re.Pattern[str]:
-    return re.compile(rf'camoufox-(?P<version>[^-]+)-(?P<build>[^-]+)-{camoufox_os()}\.{camoufox_arch()}\.zip')
+def camoufox_asset_pattern(os_name: str, archs: tuple[str, ...]) -> re.Pattern[str]:
+    arch = '|'.join(map(re.escape, archs))
+    return re.compile(rf'camoufox-(?P<version>[^-]+)-(?P<build>[^-]+)-{re.escape(os_name)}\.(?P<arch>{arch})\.zip')
 
 
 class Camoufox(Installer):
@@ -455,10 +478,11 @@ class Camoufox(Installer):
         super().__init__('camoufox')
 
     def latest_release(self, allow_prerelease: bool = False, **kw: Any) -> Release:  # noqa: ANN401
-        pat = camoufox_asset_pattern()
+        os_name, archs = camoufox_os(), camoufox_archs()
+        pat = camoufox_asset_pattern(os_name, archs)
         releases = download_json(f'https://api.github.com/repos/{CAMOUFOX_REPO}/releases?per_page=50', github_api_headers())
         ans: Release | None = None
-        ans_key: tuple[int, ...] = ()
+        ans_key: tuple[tuple[int, ...], int] = ((), 0)
         for release in releases:
             if release.get('draft'):
                 continue
@@ -470,13 +494,14 @@ class Camoufox(Installer):
                 if not allow_prerelease and (release.get('prerelease') or build.split('.')[0].lower() == 'alpha'):
                     continue
                 version = m.group('version') + '-' + build
-                key = version_sort_key(version)
+                # Prefer the newest version and for the same version, the native architecture
+                key = version_sort_key(version), -archs.index(m.group('arch'))
                 if ans is None or key > ans_key:
                     # GitHub reports asset checksums as: sha256:hexdigest
                     sha256 = (asset.get('digest') or '').partition('sha256:')[2]
                     ans, ans_key = Release(version, asset['browser_download_url'], sha256), key
         if ans is None:
-            raise ValueError(f'No camoufox release for {camoufox_os()}.{camoufox_arch()} found in {CAMOUFOX_REPO}')
+            raise ValueError(f'No camoufox release for {" or ".join(f"{os_name}.{a}" for a in archs)} found in {CAMOUFOX_REPO}')
         return ans
 
     def unpack(self, downloaded_file: str, dest: str) -> None:
