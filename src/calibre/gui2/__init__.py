@@ -531,6 +531,7 @@ def create_defs():
     defs['tag_browser_always_autocollapse'] = False
     defs['tag_browser_restore_tree_expansion'] = False
     defs['tag_browser_allow_keyboard_focus'] = False
+    defs['show_missing_series_books'] = True
     defs['book_list_tooltips'] = True
     defs['show_layout_buttons'] = False
     # defs['show_sb_preference_button'] = False

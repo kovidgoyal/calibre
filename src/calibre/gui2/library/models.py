@@ -40,6 +40,7 @@ from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_autho
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import error_dialog, is_dark_theme, qapplication_or_fail, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
+from calibre.gui2.library.series_missing import missing_series_tooltip
 from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile
@@ -1206,7 +1207,11 @@ class BooksModel(QAbstractTableModel):  # {{{
                     if template:
                         global_vars = {'column_lookup_name': key, 'original_text': v}
                         mi = db.new_api.get_proxy_metadata(db.data.index_to_id(idx))
-                        return self.formatter.safe_format(template, {}, _('tooltip template error'), mi, global_vars=global_vars)
+                        v = self.formatter.safe_format(template, {}, _('tooltip template error'), mi, global_vars=global_vars)
+                    if key == 'title' and (warning := missing_series_tooltip(db.new_api, db.id(idx))):
+                        if not template:
+                            v = prepare_string_for_xml(v)
+                        v = f'<div>{v}<br><br>{warning}</div>'
                     return v
                 except Exception as e:
                     return str(e)

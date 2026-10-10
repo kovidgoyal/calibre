@@ -64,6 +64,7 @@ from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverThumbnailCache
 from calibre.gui2.library.models import BooksModel, themed_icon_name
+from calibre.gui2.library.series_missing import missing_series_tooltip
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
 from calibre.gui2.pin_columns import PinContainer
@@ -991,6 +992,8 @@ class CoverDelegate(QStyledItemDelegate):
                         tt = index.model().formatter.safe_format(template, {}, _('tooltip template error'), mi, global_vars=global_vars)
                     except Exception as e:
                         tt = str(e)
+                if warning := missing_series_tooltip(db, book_id):
+                    tt += '<br><br>' + warning
                 QToolTip.showText(event.globalPos(), tt, view)
                 return True
         return False
