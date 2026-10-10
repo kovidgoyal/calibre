@@ -134,7 +134,7 @@ class TagBrowserMixin:  # {{{
 
     def init_tag_browser_mixin(self: Main, db):
         m = self.library_view._model
-        m.count_changed_signal.connect(self.tags_view.recount_with_position_based_index)
+        m.count_changed_signal.connect(self.tags_view.recount_after_count_change)
         self.tags_view.set_database(db, self.alter_tb)
         self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tags_list_edit.connect(self.do_tags_list_edit)
