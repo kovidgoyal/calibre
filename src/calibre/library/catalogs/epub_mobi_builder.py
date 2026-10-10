@@ -3661,6 +3661,7 @@ class CatalogBuilder:
             xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <dc:title>{title}</dc:title>
         <dc:creator>{creator}</dc:creator>
+        <dc:date>{date}</dc:date>
         <dc:language>{lang}</dc:language>
         <meta name="calibre:publication_type" content="{pt}"/>
     </metadata>
@@ -3671,6 +3672,7 @@ class CatalogBuilder:
             '''.format(
             title=prepare_string_for_xml(self.opts.catalog_title),
             creator=prepare_string_for_xml(self.opts.creator),
+            date=strftime('%Y-%m-%d'),
             lang=prepare_string_for_xml(lang),
             pt='periodical:default' if self.generate_for_kindle_mobi else '',
         )
