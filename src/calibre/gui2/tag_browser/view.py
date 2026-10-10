@@ -1861,6 +1861,18 @@ class TagsView(QTreeView):  # {{{
             return
         self.recount_with_position_based_index()
 
+    def recount_after_count_change(self):
+        """
+        Used for the book count changing. More than one thing reports that for a
+        single change, for example adding books tells the book list model about
+        the new books and then tells it how many were added, so rebuild only if
+        something the Tag browser displays has actually changed since the tree
+        was last built.
+        """
+        if self.skip_recount():
+            return
+        self.recount_with_position_based_index()
+
     def recount_with_position_based_index(self):
         self._model.use_position_based_index_on_next_recount = True
         self.recount()
