@@ -52,24 +52,21 @@ class MultiDeleter(QObject):  # {{{
             return
         chunk = [self.ids.pop() for _ in range(min(self.chunk_size, len(self.ids)))]
         db = self.model.db
-        try:
-            db.new_api.remove_books(chunk, permanent=False)
-        except Exception:
-            # Delete them one at a time so that one failure does not prevent
-            # the rest of the chunk from being deleted, and we know which
-            # book failed
-            import traceback
+        # Remove the books one at a time so that we know exactly which book
+        # failed. Do not retry a book after a failure: a failed remove_books()
+        # call can leave the books that were earlier in that call partially
+        # removed (their files already in the trash), so calling it again for
+        # them would overwrite the trashed copies with empty folders.
+        import traceback
 
-            deleted = []
-            for book_id in chunk:
-                try:
-                    db.new_api.remove_books((book_id,), permanent=False)
-                except Exception:
-                    self.failures.append((book_id, self.title_for(book_id), traceback.format_exc()))
-                else:
-                    deleted.append(book_id)
-        else:
-            deleted = chunk
+        deleted = []
+        for book_id in chunk:
+            try:
+                db.new_api.remove_books((book_id,), permanent=False)
+            except Exception:
+                self.failures.append((book_id, self.title_for(book_id), traceback.format_exc()))
+            else:
+                deleted.append(book_id)
         if deleted:
             db.data.books_deleted(tuple(deleted))
             self.deleted_ids.extend(deleted)
