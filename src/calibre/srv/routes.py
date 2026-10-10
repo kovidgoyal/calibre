@@ -81,7 +81,7 @@ class types_dict(dict):
         ans._hash_val = hash(tuple(sorted(types.items())))
         return ans
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> int:  # ty: ignore[invalid-attribute-override]
         return self._hash_val
 
 

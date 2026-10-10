@@ -5,7 +5,7 @@ import os
 from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
-from typing import Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidget, pyqtSignal
 
@@ -335,10 +335,23 @@ def widget_parent(p: QObject) -> QWidget | None:
 class TTSBackend(QObject):
     saying = pyqtSignal(int, int)  # offset, length
     state_changed = pyqtSignal(QTextToSpeech.State)
-    available_voices: dict[str, tuple[Voice, ...]] = {}
-    engine_name: str = ''
-    default_output_module: str = ''
     filler_char: str = ' '
+
+    if TYPE_CHECKING:
+
+        @property
+        def available_voices(self) -> dict[str, tuple[Voice, ...]]: ...
+
+        @property
+        def engine_name(self) -> str: ...
+
+        @property
+        def default_output_module(self) -> str: ...
+
+    else:
+        available_voices: dict[str, tuple[Voice, ...]] = {}
+        engine_name: str = ''
+        default_output_module: str = ''
 
     def __init__(self, engine_name: str = '', parent: QObject | None = None):
         super().__init__(parent)

@@ -90,7 +90,7 @@ class StoryStyleEditor(QWidget):
             combo.setCurrentIndex(max(0, combo.findData(key)))
 
     @property
-    def style(self) -> StoryStyle:
+    def style(self) -> StoryStyle:  # ty: ignore[invalid-property-type-override]
         return self.current_style._replace(
             pace=str(self.pace_combo.currentData() or ''),
             tone=str(self.tone_combo.currentData() or ''),

@@ -135,8 +135,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         cancel_button = self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel)
         assert cancel_button is not None
         cancel_button.setText(_('&Cancel'))
-        self.buttonBox.accepted.connect(self.accepted)
-        self.buttonBox.rejected.connect(self.rejected)
+        self.buttonBox.accepted.connect(self.handle_accepted)
+        self.buttonBox.rejected.connect(self.handle_rejected)
         self.show_button_layout.setSpacing(0)
         self.show_button_layout.setContentsMargins(0, 0, 0, 0)
         self.apply_all_checkbox.setContentsMargins(0, 0, 0, 0)
@@ -657,7 +657,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     result_val: list[tuple[int, str, str, str, str]] = []
 
-    def accepted(self):
+    def handle_accepted(self):
         self.save_state()
         self.result_val = []
         for id_, v in self.authors.items():
@@ -665,7 +665,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             if orig != v:
                 self.result_val.append((id_, orig['name'], v['name'], v['sort'], v['link']))
 
-    def rejected(self):
+    def handle_rejected(self):
         self.notes_utilities.restore_all_notes()
         self.save_state()
 

@@ -123,7 +123,7 @@ class Placeholder(QLabel):
 
 class LayoutButton(QToolButton):
     on_action_trigger = pyqtSignal(bool)
-    shortcut: str | None
+    shortcut: str | None  # ty: ignore[invalid-attribute-override]
 
     def __init__(self, name: str, icon: str, label: str, central: CentralContainer, shortcut=None):
         super().__init__(central)
@@ -351,7 +351,7 @@ class Visibility:
 
 
 class CentralContainer(QWidget):
-    layout: Layout = Layout.wide
+    layout: Layout = Layout.wide  # ty: ignore[invalid-attribute-override]
 
     def __init__(self, parent=None, prefs_name='main_window_central_widget_state', separate_cover_browser=None, for_develop=False):
         self.separate_cover_browser = config['separate_cover_flow'] if separate_cover_browser is None else separate_cover_browser

@@ -416,8 +416,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         cancel_btn = self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel)
         assert cancel_btn is not None
         cancel_btn.setText(_('&Cancel'))
-        self.buttonBox.accepted.connect(self.accepted)
-        self.buttonBox.rejected.connect(self.rejected)
+        self.buttonBox.accepted.connect(self.handle_accepted)
+        self.buttonBox.rejected.connect(self.handle_rejected)
 
         self.search_box.initialize('tag_list_search_box_' + cat_name)
         le = self.search_box.lineEdit()
@@ -1218,7 +1218,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         super().save_geometry(gprefs, 'tag_list_editor_dialog_geometry')
 
-    def accepted(self):
+    def handle_accepted(self):
         for t in self.all_tags.values():
             if t['is_deleted']:
                 continue
@@ -1229,6 +1229,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.links[name] = self.current_links.get(t['key'], '')
         self.save_geometry()
 
-    def rejected(self):
+    def handle_rejected(self):
         self.notes_utilities.restore_all_notes()
         self.save_geometry()

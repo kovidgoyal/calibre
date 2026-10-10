@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -31,7 +31,11 @@ class MTPDeviceBase(DevicePlugin):
     description = _('Communicate with MTP devices')
     author = 'Kovid Goyal'
     version = (1, 0, 0)
-    prefs: dict[str, Any]
+
+    if TYPE_CHECKING:
+
+        @property
+        def prefs(self) -> dict[str, Any]: ...
 
     def __init__(self, *args, **kwargs):
         DevicePlugin.__init__(self, *args, **kwargs)

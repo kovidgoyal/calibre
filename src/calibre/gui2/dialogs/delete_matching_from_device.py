@@ -61,7 +61,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.setupUi(self)
 
         self.explanation.setText('<p>' + _('All checked books will be <b>permanently deleted</b> from your device. Please verify the list.') + '</p>')
-        self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.accepted.connect(self.handle_accepted)
         self.buttonBox.rejected.connect(self.rejected)
         self.table.cellClicked.connect(self.cell_clicked)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
@@ -105,7 +105,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         if col == 0:
             self.table.setCurrentCell(row, 1)
 
-    def accepted(self):
+    def handle_accepted(self):
         self.result_val = []
         for row in range(self.table.rowCount()):
             item_0 = self.table.item(row, 0)

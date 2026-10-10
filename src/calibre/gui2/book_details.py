@@ -1195,7 +1195,7 @@ class CoverView(QWidget):  # {{{
 class FormatAction(QAction):
     current_fmt: tuple[str | int, str] | None = None
     current_url: str | None = None
-    data: tuple[str | None, str | None, str | None] = None, None, None
+    data: tuple[str | None, str | None, str | None] = None, None, None  # ty: ignore[invalid-attribute-override]
 
 
 class BookInfo(HTMLDisplay):
