@@ -1734,8 +1734,9 @@ class BasicNewsRecipe(Recipe):
                             article_toc_entry.add_item(arelpath, entry['anchor'], entry['title'] or _('Unknown section'), play_order=po)
                     last = os.path.join(self.output_dir, (f'{adir}index.html').replace('/', os.sep))
                     for sp in a.sub_pages:
-                        prefix = os.path.commonprefix([opf_path, sp])
-                        relp = sp[len(prefix) :]
+                        # length of the character-wise common prefix of opf_path and sp
+                        plen = next((i for i, (x, y) in enumerate(zip(opf_path, sp)) if x != y), min(len(opf_path), len(sp)))
+                        relp = sp[plen:]
                         entries.append(relp.replace(os.sep, '/'))
                         last = sp
 

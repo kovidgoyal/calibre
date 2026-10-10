@@ -33,7 +33,7 @@ class Extract(ODF2XHTML):
         for name in zf.namelist():
             if name.startswith('Pictures') and name not in {'Pictures', 'Pictures/'}:
                 dest = os.path.abspath(os.path.join(base, name))
-                if os.path.commonprefix([base, dest]) != base:
+                if not dest.startswith(base):
                     continue
                 data = zf.read(name)
                 with open(dest, 'wb') as f:

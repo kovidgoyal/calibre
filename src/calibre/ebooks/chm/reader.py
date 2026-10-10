@@ -168,7 +168,7 @@ class CHMReader(CHMFile):
             fpath = path.partition(';')[0]  # fix file names with ";<junk>" at the end, see _reformat()
             fpath = fpath.replace('/', os.sep)
             lpath = os.path.abspath(os.path.join(output_dir, fpath))
-            if os.path.commonprefix((lpath, base)) != base:
+            if not lpath.startswith(base):
                 self.log.warn(f'{path!r} outside container, skipping')
                 continue
             try:

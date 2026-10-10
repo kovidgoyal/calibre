@@ -95,7 +95,7 @@ class Reader132(FormatReader):
         if not base.endswith(os.sep):
             base += os.sep
         ans = os.path.abspath(os.path.join(base, name))
-        if os.path.commonprefix([ans, base]) != base:
+        if not ans.startswith(base):
             ans = ''
         return ans
 
