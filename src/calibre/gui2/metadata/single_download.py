@@ -458,6 +458,10 @@ class IdentifyWorker(Thread):  # {{{
                     no_output=True,
                     abort=self.abort,
                 )
+                if res['result'] is None:
+                    # The download was aborted by the user, so there are no results
+                    self.results = []
+                    return
                 self.results, covers, caches, log_dump = res['result']
                 self.results = [OPF(BytesIO(r), basedir=os.getcwd(), populate_spine=False).to_book_metadata() for r in self.results]
                 for r, cov in zip(self.results, covers):
@@ -551,6 +555,8 @@ class IdentifyWidget(QWidget):  # {{{
         QTimer.singleShot(50, self.poll_results)
 
     def poll_results(self):
+        if self.abort.is_set():
+            return
         if self.worker.is_alive():
             QTimer.singleShot(50, self.poll_results)
         else:
@@ -648,7 +654,8 @@ class CoverWorker(Thread):  # {{{
                     no_output=True,
                     abort=self.abort,
                 )
-                self.log.append_dump(res['result'])
+                if res['result'] is not None:  # None when the download was aborted
+                    self.log.append_dump(res['result'])
             finally:
                 self.keep_going = False
                 t.join()
