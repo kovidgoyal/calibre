@@ -107,7 +107,7 @@ def add_quick_start_guide(library_view, refresh_cover_browser=None):
     mi = get_metadata(buf, 'epub')
     with PersistentTemporaryFile('.epub') as tmp:
         tmp.write(buf.getvalue())
-    library_view.model().add_books([tmp.name], ['epub'], [mi])
+    library_view.model().db.add_books([tmp.name], ['epub'], [mi])
     os.remove(tmp.name)
     library_view.model().books_added(1)
     if refresh_cover_browser is not None:

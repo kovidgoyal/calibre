@@ -273,7 +273,7 @@ class AutoAdder(QObject):
                     mi.authors = new_authors
                     mi.author_sort = gui.current_db.new_api.author_sort_from_authors(mi.authors)
             mi = [mi]
-            dups, ids = m.add_books(paths, [book_fmt], mi, add_duplicates=not gprefs['auto_add_check_for_duplicates'], return_ids=True)
+            dups, ids = gui.current_db.add_books(paths, [book_fmt], mi, add_duplicates=not gprefs['auto_add_check_for_duplicates'], return_ids=True)
             added_ids |= set(ids)
             num = len(ids)
             if dups:
@@ -307,7 +307,7 @@ class AutoAdder(QObject):
                     paths.extend(book_paths)
                     formats.extend([p.rpartition('.')[-1] for p in book_paths])
                     metadata.extend([mi for i in book_paths])
-                ids = m.add_books(paths, formats, metadata, add_duplicates=True, return_ids=True)[1]
+                ids = gui.current_db.add_books(paths, formats, metadata, add_duplicates=True, return_ids=True)[1]
                 added_ids |= set(ids)
                 num = len(ids)
                 count += num

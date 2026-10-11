@@ -148,7 +148,6 @@ class EbookDownload:
             book_id = db.create_book_entry(mi)
             db.new_api.add_format(book_id, ext.upper(), path)
         gui.library_view.model().books_added(1)
-        gui.library_view.model().count_changed()
 
     def _save_as(self, dfilename, save_loc):
         if not save_loc or not dfilename:
