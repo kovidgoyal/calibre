@@ -204,6 +204,16 @@ def test_rename_and_delete_custom_column(self: NotesTest):
     # old name should no longer have notes
     self.ae(cache.notes_for('#tags', tag_id), '')
 
+    # renaming twice before a restart must move the notes from the intermediate name
+    cache.set_custom_column_metadata(num, label='tags2')
+    cache.set_custom_column_metadata(num, label='tags3')
+    cache.close()
+    cache = self.init_cache(cache.backend.library_path)
+    self.ae(cache.notes_for('#tags3', tag_id), doc)
+    cache.set_custom_column_metadata(num, label='newtags')
+    cache.close()
+    cache = self.init_cache(cache.backend.library_path)
+
     # test deleting a custom column immediately removes its notes
     cache.delete_custom_column('newtags')
     self.ae(cache.notes_for('#newtags', tag_id), '')
