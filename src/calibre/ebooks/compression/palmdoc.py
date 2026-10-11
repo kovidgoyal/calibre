@@ -82,4 +82,26 @@ def find_tests():
                 self.assertEqual(py_compress_doc(test), x)
                 self.assertEqual(decompress_doc(x), test)
 
+        def test_palmdoc_compression_matches_reference(self):
+            # The match finder in the C implementation must find the same
+            # matches as the simple search in py_compress_doc, in particular
+            # for repeated data and for repeats near the maximum distance.
+            import random
+
+            rnd = random.Random(0)
+            tests = []
+            for alphabet in (2, 3, 4, 16, 200):
+                for size in (50, 500, 2500, 4096):
+                    tests.append(bytes(rnd.randrange(1, alphabet + 1) for _ in range(size)))
+            for gap in range(2040, 2056):
+                base = bytes(rnd.randrange(32, 127) for _ in range(12))
+                filler = bytes(rnd.randrange(128, 255) for _ in range(gap - 12))
+                tests.append(base + filler + base + b'tail')
+            tests.append(b'abcdefghij' * 700)
+            tests.append(b'\0' * 5000)
+            for test in tests:
+                x = compress_doc(test)
+                self.assertEqual(py_compress_doc(test), x)
+                self.assertEqual(decompress_doc(x), test)
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(Test)
