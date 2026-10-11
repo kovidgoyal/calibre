@@ -287,7 +287,7 @@ class CatalogBuilder:
             integer = int(index)
             fraction = index - integer
             series_index = f"{integer:04}{str(f'{fraction:0.4f}').lstrip('0')}"
-            fs = '{:<%d}~{!s}{!s}' % longest_author_sort  # noqa: UP031
+            fs = '{:<%d}~{!s} {!s}' % longest_author_sort  # noqa: UP031
             key = fs.format(capitalize(book['author_sort']), self.generate_sort_title(book['series']), series_index)
         return key
 
