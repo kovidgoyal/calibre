@@ -1049,6 +1049,11 @@ class WritingTest(BaseTest):
         cache.set_annotations_for_book(1, 'moo', annot_list)
         amap = cache.annotations_map_for_book(1, 'moo')
         self.assertEqual(3, len(cache.all_annotations_for_book(1)))
+        # an unreadable annotation is skipped, not replaced by the one before it
+        raw = cache.backend.get("SELECT annot_data FROM annotations WHERE book=1 AND annot_id='1'", all=False)
+        cache.backend.execute("UPDATE annotations SET annot_data='{' WHERE book=1 AND annot_id='1'")
+        self.assertEqual(['bookmark', 'highlight'], [x['annotation']['type'] for x in cache.all_annotations_for_book(1)])
+        cache.backend.execute("UPDATE annotations SET annot_data=? WHERE book=1 AND annot_id='1'", (raw,))
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
         self.assertFalse(cache.dirtied_cache)
         cache.check_dirtied_annotations()
