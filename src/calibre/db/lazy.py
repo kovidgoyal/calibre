@@ -173,14 +173,14 @@ def dt_getter(field):
 def item_getter(field, default_value=None, key=0):
     def func(dbref, book_id, cache):
         try:
-            return cache[field]
+            ret = cache[field]
         except KeyError:
             db = dbref()
             ret = cache[field] = db.field_for(field, book_id, default_value=default_value)
-            try:
-                return ret[key]
-            except IndexError, KeyError:
-                return default_value
+        try:
+            return ret[key]
+        except IndexError, KeyError:
+            return default_value
 
     return func
 
