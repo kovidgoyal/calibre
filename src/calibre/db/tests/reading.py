@@ -1133,6 +1133,25 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_proxy_metadata_repeated_access(self):  # {{{
+        "Test that repeated access to identifier and language attributes of ProxyMetadata is stable"
+        cache = self.init_cache()
+        cache.set_field('identifiers', {1: {'isbn': '9781234567897'}})
+        cache.set_field('languages', {1: ('eng', 'deu')})
+        pmi = cache.get_proxy_metadata(1)
+        self.assertEqual((pmi.isbn, pmi.isbn), ('9781234567897', '9781234567897'))
+        self.assertEqual((pmi.language, pmi.language), ('eng', 'eng'))
+        pmi = cache.get_proxy_metadata(1)
+        self.assertEqual((pmi.identifiers, pmi.isbn), ({'isbn': '9781234567897'}, '9781234567897'))
+        self.assertEqual((pmi.languages, pmi.language), (['eng', 'deu'], 'eng'))
+        cache.set_field('identifiers', {1: {}})
+        cache.set_field('languages', {1: ()})
+        pmi = cache.get_proxy_metadata(1)
+        self.assertEqual((pmi.isbn, pmi.isbn), (None, None))
+        self.assertEqual((pmi.language, pmi.language), ('und', 'und'))
+
+    # }}}
+
     def test_marked_field(self):  # {{{
         "Test the marked field"
         db = self.init_legacy()
