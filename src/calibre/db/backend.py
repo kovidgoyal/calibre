@@ -2862,7 +2862,7 @@ class DB:
             try:
                 annot = json.loads(data)
             except Exception:
-                pass
+                continue
             if not ignore_removed or not annot.get('removed'):
                 yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': annot}
 
