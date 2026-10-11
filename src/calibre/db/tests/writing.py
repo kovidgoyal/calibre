@@ -582,7 +582,12 @@ class WritingTest(BaseTest):
         self.assertEqual(cache.remove_items('#tags', (t,)), {1, 2})
 
         smap = cache.get_id_map('series')
+        # Book 2 has series index 1.0 already, so removing its series does not change anything else about it
+        self.assertEqual({1, 2}, cache.search('series:true'))
+        last_modified = cache.field_for('last_modified', 2)
         self.assertEqual(cache.remove_items('series', smap), {1, 2})
+        self.assertEqual(set(), cache.search('series:true'))
+        self.assertGreater(cache.field_for('last_modified', 2), last_modified)
         smap = cache.get_id_map('#series')
         s = {v: k for k, v in smap.items()}['My Series Two']
         self.assertEqual(cache.remove_items('#series', (s,)), {1})

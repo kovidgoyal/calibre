@@ -2746,6 +2746,10 @@ class Cache:
             elif field == 'uuid':
                 self.fields[field].table.uuid_to_id_map[val] = book_id
             self.fields[field].table.book_col_map[book_id] = val
+        # The composite columns and searches of the new book were evaluated by _set_metadata() before these values
+        # were in memory
+        self._clear_composite_caches((book_id,))
+        self._clear_search_caches((book_id,))
         # These are not categories, but which books a Virtual library matches
         # can depend on them
         for field in ('size', 'sort', 'series_index', 'author_sort', 'uuid', 'cover'):
@@ -2952,8 +2956,9 @@ class Cache:
         if affected_books:
             if hasattr(field, 'index_field'):
                 self._set_field(field.index_field.name, {bid: 1.0 for bid in affected_books})
-            else:
-                self._mark_as_dirty(affected_books)
+            # set_field() only marks as dirty the books whose series index changed, which updates their last modified
+            # time, the backup and the caches. All the books lose the series
+            self._mark_as_dirty(affected_books)
             self._clear_link_map_cache(affected_books)
         self.event_dispatcher(EventType.items_removed, field, affected_books, item_ids)
         return affected_books
