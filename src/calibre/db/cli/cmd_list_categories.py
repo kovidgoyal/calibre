@@ -105,7 +105,7 @@ def do_list(fields, data, opts):
             for i, field in enumerate(text):
                 ft = field[l] if l < len(field) else ''
                 filler = ' ' * (widths[i] - len(ft) - 1)
-                print(ft.encode('utf-8') + filler.encode('utf-8'), end=separator)
+                print(ft + filler, end=separator)
             print()
 
 

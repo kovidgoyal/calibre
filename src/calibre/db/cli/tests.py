@@ -7,8 +7,11 @@ Test the CLI of the calibre database management tool
 
 import csv
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
+from calibre.db.cli.cmd_list_categories import do_list
 from polyglot.io import PolyglotBytesIO
 
 
@@ -86,5 +89,19 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(parsed_result, [[self.check[1], data[0][0], data[0][1]]])
 
 
+class ListCategoriesTest(unittest.TestCase):
+    def test_list_output_is_text(self):
+        data = [{'category': 'Authors', 'tag_count': 3, 'divided': 10}]
+        out = StringIO()
+        with redirect_stdout(out):
+            do_list(['category', 'tag_count', 'divided'], data, None)
+        lines = out.getvalue().splitlines()
+        self.assertEqual(lines[1].split(), ['Authors', '3', '10'])
+
+
 def find_tests():
-    return unittest.defaultTestLoader.loadTestsFromTestCase(PrintCheckLibraryResultsTest)
+    loader = unittest.defaultTestLoader
+    return unittest.TestSuite((
+        loader.loadTestsFromTestCase(PrintCheckLibraryResultsTest),
+        loader.loadTestsFromTestCase(ListCategoriesTest),
+    ))
