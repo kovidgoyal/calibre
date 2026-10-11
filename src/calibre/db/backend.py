@@ -1483,7 +1483,7 @@ class DB:
             self.execute('UPDATE custom_columns SET name=? WHERE id=?', (name, num))
             changed = True
         if label is not None:
-            old_label = self.custom_column_num_to_label_map.get(num)
+            old_label = self.conn.get('SELECT label FROM custom_columns WHERE id=?', (num,), all=False)
             self.execute('UPDATE custom_columns SET label=? WHERE id=?', (label, num))
             changed = True
             if old_label is not None and old_label != label:
