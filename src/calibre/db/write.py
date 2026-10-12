@@ -151,7 +151,9 @@ def get_adapter(name, metadata):
             m = metadata['is_multiple']
             ans = partial(multiple_text, m['ui_to_list'], m['list_to_ui'])
         else:
-            ans = single_text
+            # The builtin comments field has datatype text but stores HTML,
+            # so its whitespace must be preserved
+            ans = long_text if name == 'comments' else single_text
     elif dt == 'series':
         ans = single_text
     elif dt == 'datetime':

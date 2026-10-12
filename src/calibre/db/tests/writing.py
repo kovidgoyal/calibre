@@ -136,6 +136,14 @@ class WritingTest(BaseTest):
 
         self.run_tests(tests)
         db = self.init_cache()
+        # Whitespace in comments must be preserved, single text fields are normalized
+        val = '<p>a\xa0\u2026 b</p>\n\n<p>c  d</p>'
+        db.set_field('comments', {1: val})
+        self.assertEqual(db.field_for('comments', 1), val)
+        db.set_field('#comments', {1: val})
+        self.assertEqual(db.field_for('#comments', 1), val)
+        db.set_field('title', {1: ' a\n  b '})
+        self.assertEqual(db.field_for('title', 1), 'a b')
         for val in (-1, -2, 0, 1, 2, None):
             db.set_field('pages', {1: val})
             self.assertEqual(db.field_for('pages', 1), val)
