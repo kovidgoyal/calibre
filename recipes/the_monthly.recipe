@@ -1,4 +1,6 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+import json
+
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class monthly(BasicNewsRecipe):
@@ -12,47 +14,67 @@ class monthly(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf-8'
     language = 'en_AU'
-    remove_attributes = ['height', 'width']
+    remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
+    remove_empty_feeds = True
 
     timefmt = ' [%B %Y]'
 
     extra_css = '''
-        .article-page__title {font-weight:bold; font-size:large;}
-        .article-page__author, .category, .caption {font-size:small; color:#404040;}
-        .article__summary, .author-details-bottom-wrapper, em {font-style:italic; color:#202020;}
+        [class*="_articles_field_contributors__"], [class*="_articles_category_date__"], figcaption {
+            font-size:small; color:#404040;
+        }
+        [class*="_articles_field_subtitle__"] {font-style:italic; color:#202020;}
     '''
-    keep_only_tags = [classes('article-page')]
+    keep_only_tags = [
+        prefixed_classes('_articles_article_header__ _articles_article_main__'),
+    ]
     remove_tags = [
-        classes(
-            'node-teaser-hidden article-page__social__icons sidebar-toc article-footer-container'
-            ' article-page__sidebar toc-list-container tm-promo-banner-article-p4-wrapper edition'
-        )
+        dict(name=['svg', 'button']),
+        prefixed_classes(
+            '_articles_share_row__ _articles_print_masthead__ _savedArticleActions_ _saveArticle_'
+            ' _articleRecommendationsRail_ paywall-fade last-free-article-div subscriber-push-end'
+        ),
     ]
 
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-zoom-src': True}):
+            img['src'] = img['data-zoom-src']
+        for img in soup.findAll('img', attrs={'src': lambda x: x and x.startswith('/sites/')}):
+            img['src'] = 'https://admin.themonthly.com.au' + img['src']
+        return soup
+
     def parse_index(self):
-        soup = self.index_to_soup('https://www.themonthly.com.au/latest-edition')
-        if cov := soup.find(**classes('article__edition-image')):
-            self.cover_url = cov.find('img')['src']
-            self.log(self.cover_url)
+        soup = self.index_to_soup('https://www.themonthly.com.au/current-issue')
+        if nd := soup.find('script', attrs={'id': '__NEXT_DATA__'}):
+            node = json.loads(nd.string)['props']['pageProps']['node']
+            self.timefmt = ' [' + node['title'] + ']'
+            if img := node.get('field_image'):
+                self.cover_url = 'https://admin.themonthly.com.au' + img['uri']['url']
+                self.log('Cover:', self.cover_url)
 
         feeds = []
-        main = soup.find(**classes('main'))
-        for art in main.findAll(**classes('article')):
-            if hr := art.find('a', attrs={'href': lambda x: x and x.startswith('/issue/')}):
-                url = 'https://www.themonthly.com.au' + hr['href']
-            elif hr := art.findParent('a', attrs={'href': lambda x: x and x.startswith('/issue/')}):
-                url = 'https://www.themonthly.com.au' + hr['href']
-            title = self.tag_to_string(art.find(**classes('article__title')))
-            desc = ''
-            if text := art.find(**classes('article__text')):
-                desc = self.tag_to_string(text)
-            if auth := art.find(**classes('article__author')):
-                desc = self.tag_to_string(auth) + ' | ' + desc
-            if cat := art.find(**classes('category')):
-                desc = self.tag_to_string(cat) + ' | ' + desc
-            if not title or not url:
+        for sec in soup.findAll('section', **prefixed_classes('_paragraphs_issue_section__')):
+            section = sec.get('id')
+            if not section:
                 continue
-            self.log(' ', title, '\n\t', url, '\n\t', desc)
-            feeds.append({'title': title, 'url': url, 'description': desc})
-        return [('The Monthly', feeds)]
+            self.log(section)
+            articles = []
+            for art in sec.findAll('article', **prefixed_classes('_paragraphs_article_teaser__')):
+                h = art.find(**prefixed_classes('_paragraphs_title__'))
+                if h is None or (a := h.find('a', href=True)) is None:
+                    continue
+                title = self.tag_to_string(h)
+                url = 'https://www.themonthly.com.au' + a['href']
+                desc = ''
+                if sub := art.find(**prefixed_classes('_paragraphs_subtitle__')):
+                    desc = self.tag_to_string(sub)
+                if auth := art.find(**prefixed_classes('_paragraphs_contributors__')):
+                    desc = self.tag_to_string(auth) + ' | ' + desc
+                if cat := art.find(**prefixed_classes('_paragraphs_topic__')):
+                    desc = self.tag_to_string(cat) + ' | ' + desc
+                self.log('\t', title, '\n\t\t', url, '\n\t\t', desc)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                feeds.append((section, articles))
+        return feeds
