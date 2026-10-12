@@ -60,6 +60,12 @@ def qhash(inputstr):
     return h
 
 
+def imageid_keep_ext_dot(ImageID):
+    # Replace all dots except the one before the file extension
+    stem, sep, ext = ImageID.rpartition('.')
+    return stem.replace('.', '_') + sep + ext if sep else ImageID
+
+
 def any_in(haystack, *needles):
     for n in needles:
         if n in haystack:
@@ -1559,6 +1565,8 @@ class KOBOTOUCH(KOBO):
     min_dbversion_seriesid = 136
     min_dbversion_bookstats = 168
     min_dbversion_real_bools = 188  # newer (tolino) 5.x fw uses 0 and 1 as boolean values
+    min_dbversion_tolino_imageid_keep_ext = 191  # tolino fw keeps the dot before the file extension in ImageID
+    max_dbversion_tolino_imageid_keep_ext = 207  # newer tolino fw keeps all dots in ImageID
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
@@ -2880,22 +2888,26 @@ class KOBOTOUCH(KOBO):
     def delete_images(self, ImageID, book_path):
         debug_print('KoboTouch:delete_images - ImageID=', ImageID)
         if ImageID is not None:
-            path = self.images_path(book_path, ImageID)
-            debug_print(f'KoboTouch:delete_images - path={path}')
+            for image_id in (ImageID,) + self.legacy_imageids(ImageID):
+                self._delete_images(image_id, book_path)
 
-            for ending in self.cover_file_endings().keys():
-                fpath = path + ending
-                fpath = self.normalize_path(fpath)
-                debug_print(f'KoboTouch:delete_images - fpath={fpath}')
+    def _delete_images(self, ImageID, book_path):
+        path = self.images_path(book_path, ImageID)
+        debug_print(f'KoboTouch:delete_images - path={path}')
 
-                if os.path.exists(fpath):
-                    debug_print('KoboTouch:delete_images - Image File Exists')
-                    os.unlink(fpath)
+        for ending in self.cover_file_endings().keys():
+            fpath = path + ending
+            fpath = self.normalize_path(fpath)
+            debug_print(f'KoboTouch:delete_images - fpath={fpath}')
 
-            try:
-                os.removedirs(os.path.dirname(path))
-            except Exception:
-                pass
+            if os.path.exists(fpath):
+                debug_print('KoboTouch:delete_images - Image File Exists')
+                os.unlink(fpath)
+
+        try:
+            os.removedirs(os.path.dirname(path))
+        except Exception:
+            pass
 
     def contentid_from_path(self, path, ContentType):
         show_debug = self.is_debugging_title(path) and True
@@ -3210,15 +3222,21 @@ class KOBOTOUCH(KOBO):
         ImageID = ContentID.replace('/', '_')
         ImageID = ImageID.replace(' ', '_')
         ImageID = ImageID.replace(':', '_')
-        if self.isTolinoDevice():
-            # Only replace "." with "_" for some dbversions
-            if 191 <= self.dbversion <= 207:
-                ImageID_split = ImageID.rsplit('.', 1)
-                ImageID_split[0] = ImageID_split[0].replace('.', '_')
-                ImageID = '.'.join(ImageID_split)
+        if self.isTolinoDevice() and self.dbversion > self.max_dbversion_tolino_imageid_keep_ext:
+            pass  # all dots are kept
+        elif self.isTolinoDevice() and self.dbversion >= self.min_dbversion_tolino_imageid_keep_ext:
+            ImageID = imageid_keep_ext_dot(ImageID)
         else:
             ImageID = ImageID.replace('.', '_')
         return ImageID
+
+    def legacy_imageids(self, ImageID):
+        # ImageIDs that older tolino firmware would have used for the same
+        # book, so that covers created before a firmware update can be removed
+        if not self.isTolinoDevice() or self.dbversion < self.min_dbversion_tolino_imageid_keep_ext:
+            return ()
+        candidates = (imageid_keep_ext_dot(ImageID), ImageID.replace('.', '_'))
+        return tuple(x for x in dict.fromkeys(candidates) if x != ImageID)
 
     def images_path(self, path, imageId=None):
         if self._card_a_prefix and os.path.abspath(path).startswith(os.path.abspath(self._card_a_prefix)) and self.supports_covers_on_sdcard():
