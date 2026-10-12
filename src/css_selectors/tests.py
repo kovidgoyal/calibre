@@ -69,6 +69,36 @@ c"></li>
 cde"><span id="foobar-span"></span></div>
 </body></html>
 '''
+    HTML_LEVEL4 = '''
+<html id="html"><body id="body">
+<div id="book">
+  <h1 id="chapter1" class="ChapterS">One</h1>
+  <h2 id="sub1" class="SubChapter">One A</h2>
+  <p id="p1" class="para">Text</p>
+  <p id="p2" class="para note">Text</p>
+  <h1 id="chapter2" class="ChapterS">Two</h1>
+  <p id="p3" class="para">Text</p>
+  <h1 id="chapter3" class="ChapterS">Three</h1>
+  <!-- comment -->
+  <h2 id="sub3" class="SubChapter">Three A</h2>
+  <section id="sec1">
+    <div id="sec1-div"><span id="sec1-span" class="hl">x</span></div>
+    <p id="sec1-p" class="para">y</p>
+  </section>
+  <section id="sec2">
+    <p id="sec2-p1" class="para">z</p>
+    <p id="sec2-p2" class="para note">w</p>
+    <p id="sec2-p3" class="para">v</p>
+    <p id="sec2-p4" class="para note">u</p>
+  </section>
+  <ul id="list">
+    <li id="li1" data-x="Alpha">a</li>
+    <li id="li2" data-x="beta gamma">b</li>
+    <li id="li3" data-x="ALPHA-one">c</li>
+  </ul>
+</div>
+</body></html>
+'''
     HTML_SHAKESPEARE = '''
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -493,6 +523,48 @@ by William Shakespeare
             'Negation[Element[div]:not(Class[Element[div].foo])]']
         assert parse_many('td ~ th') == [
             'CombinedSelector[Element[td] ~ Element[th]]']
+
+        # Level 4 selectors
+        self.ae(parse_many(':is(a, .b)', ':is( a , .b )', ':IS(a,.b)', ':is(a,/* x */.b)'), [
+            'Matching[Element[*]:is(Element[a], Class[Element[*].b])]'])
+        self.ae(parse_many(':where(a > b)'), [
+            'Matching[Element[*]:where(CombinedSelector[Element[a] > Element[b]])]'])
+        self.ae(parse_many('p:matches(.x)'), [
+            'Matching[Element[p]:matches(Class[Element[*].x])]'])
+        # :is() and :where() use forgiving selector lists
+        self.ae(parse_many(':is(a, 3x, ::before, b)', ':is(a, , b)', ':is(a, b,)', ':is(a, :before, b)'), [
+            'Matching[Element[*]:is(Element[a], Element[b])]'])
+        self.ae(parse_many(':is()', ':is( )'), ['Matching[Element[*]:is()]'])
+        self.ae(parse_many(':where(#)'), ['Matching[Element[*]:where()]'])
+        self.ae(parse_many(':not(a, .b c)'), [
+            'Negation[Element[*]:not(Element[a], '
+            'CombinedSelector[Class[Element[*].b] <followed> Element[c]])]'])
+        self.ae(parse_many(':not(:not(a))'), [
+            'Negation[Element[*]:not(Negation[Element[*]:not(Element[a])])]'])
+        self.ae(parse_many('div:has(> p, + span, a b, ~ i)', 'div:has(>p,+span,a b,~i)'), [
+            'Relation[Element[div]:has(RelativeSelector[> Element[p]], '
+            'RelativeSelector[+ Element[span]], '
+            'RelativeSelector[<followed> CombinedSelector[Element[a] <followed> Element[b]]], '
+            'RelativeSelector[~ Element[i]])]'])
+        self.ae(parse_many('.ChapterS:has(+ .SubChapter)', '.ChapterS:has(+.SubChapter)'), [
+            'Relation[Class[Element[*].ChapterS]:has(RelativeSelector[+ Class[Element[*].SubChapter]])]'])
+        self.ae(parse_many('li:nth-child(2n+1 of .a)', 'li:nth-child( 2n+1  OF  .a )'), [
+            "Function[Element[li]:nth-child(['2', 'n', '+1'] of Class[Element[*].a])]"])
+        self.ae(parse_many('li:nth-last-child(odd of .a, b > c)'), [
+            "Function[Element[li]:nth-last-child(['odd'] of Class[Element[*].a], "
+            'CombinedSelector[Element[b] > Element[c]])]'])
+        self.ae(parse_many('a[rel=tag i]', "a[rel='tag'I]", 'a[ rel = tag  i ]'), [
+            "Attrib[Element[a][rel = 'tag' i]]"])
+        self.ae(parse_many('a[rel=tag s]', 'a[rel="tag" S]'), [
+            "Attrib[Element[a][rel = 'tag' s]]"])
+        self.ae(parse_many(':is(div:has(> p), :nth-child(2 of :is(a, b))) ~ :not(c)'), [
+            'CombinedSelector[Matching[Element[*]:is('
+            'Relation[Element[div]:has(RelativeSelector[> Element[p]])], '
+            "Function[Element[*]:nth-child(['2'] of Matching[Element[*]:is(Element[a], Element[b])])])] "
+            '~ Negation[Element[*]:not(Element[c])]]'])
+        self.ae(parse_many(':is(a, b), :where(c)'), [
+            'Matching[Element[*]:is(Element[a], Element[b])]',
+            'Matching[Element[*]:where(Element[c])]'])
     # }}}
 
     def test_pseudo_elements(self):  # {{{
@@ -539,6 +611,9 @@ by William Shakespeare
             'Pseudo[Attrib[Class[Hash[Element[a]#b].c][href]]:empty]]',
             'selection'))
 
+        self.ae(parse_one(':is(a, b)::before'), ('Matching[Element[*]:is(Element[a], Element[b])]', 'before'))
+        self.ae(parse_one('p:has(> a):after'), ('Relation[Element[p]:has(RelativeSelector[> Element[a]])]', 'after'))
+
         parse_pseudo('foo:before, bar, baz:after') == [
             ('Element[foo]', 'before'),
             ('Element[bar]', None),
@@ -577,6 +652,24 @@ by William Shakespeare
 
         assert specificity('#lorem + foo#ipsum:first-child > bar:first-line'
             ) == (2, 1, 3)
+
+        # Level 4: :is(), :not() and :has() take the specificity of their most
+        # specific argument, :where() has zero specificity
+        self.ae(specificity(':is(#a, .b, c)'), (1, 0, 0))
+        self.ae(specificity(':matches(.a .b)'), (0, 2, 0))
+        self.ae(specificity(':is(c)'), (0, 0, 1))
+        self.ae(specificity(':is()'), (0, 0, 0))
+        self.ae(specificity(':where(#a, .b)'), (0, 0, 0))
+        self.ae(specificity('a:where(#a) .b'), (0, 1, 1))
+        self.ae(specificity(':not(#a, .b)'), (1, 0, 0))
+        self.ae(specificity(':not(a b, c)'), (0, 0, 2))
+        self.ae(specificity(':has(> #a, .b)'), (1, 0, 0))
+        self.ae(specificity('p:has(a b)'), (0, 0, 3))
+        self.ae(specificity('li:nth-child(2n)'), (0, 1, 1))
+        self.ae(specificity('li:nth-child(2n of .a, #b)'), (1, 1, 1))
+        self.ae(specificity('li:nth-last-child(2n of p)'), (0, 1, 2))
+        self.ae(specificity('[a=b i]'), (0, 1, 0))
+        self.ae(specificity('.ChapterS:has(+ .SubChapter)'), (0, 2, 0))
     # }}}
 
     def test_parse_errors(self):  # {{{
@@ -643,8 +736,37 @@ by William Shakespeare
             "Got pseudo-element ::before not at the end of a selector")
         assert get_error(':not(:before)') == (
             "Got pseudo-element ::before inside :not() at 12")
-        assert get_error(':not(:not(a))') == (
-            "Got nested :not()")
+        # Nested :not() is allowed in Level 4
+        self.ae(get_error(':not(:not(a))'), None)
+
+        # Level 4 selectors
+        self.ae(get_error(':is(a, b)'), None)
+        self.ae(get_error(':is()'), None)
+        self.ae(get_error(':where(3x, #)'), None)
+        self.ae(get_error(':is(a'), "Expected ')', got <EOF at 5>")
+        self.ae(get_error(':is(a, :not(b)'), "Expected ')', got <EOF at 14>")
+        self.ae(get_error(':not()'), "Expected selector, got <DELIM ')' at 5>")
+        self.ae(get_error(':not( )'), "Expected selector, got <DELIM ')' at 6>")
+        self.ae(get_error(':not(a,)'), "Expected selector, got <EOF at 7>")
+        self.ae(get_error(':not(a, 3x)'), "Expected selector, got <NUMBER '3' at 8>")
+        self.ae(get_error(':not(a:after)'), "Got pseudo-element ::after inside :not() at 12")
+        self.ae(get_error(':has()'), "Expected selector, got <DELIM ')' at 5>")
+        self.ae(get_error(':has(> > a)'), "Expected selector, got <DELIM '>' at 7>")
+        self.ae(get_error(':has(a >)'), "Expected selector, got <EOF at 8>")
+        self.ae(get_error(':has(::before)'), "Got pseudo-element ::before inside :has() at 13")
+        self.ae(get_error(':has(:has(a))'), 'Got nested :has()')
+        self.ae(get_error(':has(> :is(b, :has(a)))'), 'Got nested :has()')
+        self.ae(get_error(':has(:not(:has(a)))'), 'Got nested :has()')
+        self.ae(get_error(':is(:has(a))'), None)
+        self.ae(get_error('li:nth-child(of .a)'), "Expected an argument, got <IDENT 'of' at 13>")
+        self.ae(get_error('li:nth-child(2 of)'), "Expected selector, got <DELIM ')' at 17>")
+        self.ae(get_error('li:nth-child(2 of a,)'), "Expected selector, got <EOF at 20>")
+        self.ae(get_error('li:nth-child(2 .a)'), "Expected an argument, got <DELIM '.' at 15>")
+        self.ae(get_error('li:nth-child(2 of a::before)'), "Got pseudo-element ::before inside :nth-child() at 27")
+        self.ae(get_error('li:nth-child(2'), "Expected ')', got <EOF at 14>")
+        self.ae(get_error('[a=b x]'), "Expected ']', got <IDENT 'x' at 5>")
+        self.ae(get_error('[a=b i x]'), "Expected ']', got <IDENT 'x' at 7>")
+        self.ae(get_error('[a i]'), "Operator expected, got <IDENT 'i' at 3>")
     # }}}
 
     def test_select(self):  # {{{
@@ -741,8 +863,123 @@ by William Shakespeare
 
         self.assertRaises(ExpressionError, lambda : tuple(select('body:nth-child')))
 
+        # Level 4 selectors
+        self.ae(pcss('li:is(#first-li, .c)', 'li:where(#first-li, .c)', 'li:matches(#first-li, .c)'), [
+            'first-li', 'third-li', 'fourth-li'])
+        self.ae(pcss(':is(ol, map) > :first-child'), ['first-li', 'area-href'])
+        self.ae(pcss(':is(div p) > b', ':where(p) b'), ['p-b', 'p-b2'])
+        self.ae(pcss('li:is()', 'li:where()', 'li:is(3x)'), [])
+        self.ae(pcss('#outer-div > :not(a, p, map)'), ['first-ol', 'second-ol'])
+        self.ae(pcss('ol :not(:not(.c))', 'li:not(:not(.c))'), ['third-li', 'fourth-li'])
+        self.ae(pcss('div:not(div div)'), ['outer-div', 'foobar-div'])
+        self.ae(pcss('ol:has(> li)', 'ol:has(li)', 'ol:has(li div)', 'ol:has(> li > div)', 'ol:has(div, span)'), ['first-ol'])
+        self.ae(pcss('ol:has(> div)', 'ol:has(+ div)', 'map:has(li)'), [])
+        self.ae(pcss(':has(> #li-div)', 'li:has(*)'), ['second-li'])
+        self.ae(pcss('div:has(div)', ':has(+ #foobar-div)', '#outer-div:has(#fieldset input)'), ['outer-div'])
+        self.ae(pcss('div:has(span)'), ['foobar-div'])
+        self.ae(pcss('a:has(~ map)', 'a:has(~ ol ~ p)'), ['name-anchor', 'tag-anchor', 'nofollow-anchor'])
+        self.ae(pcss('li:has(+ li.c)'), ['second-li', 'third-li'])
+        self.ae(pcss('li:has(~ .c)'), ['first-li', 'second-li', 'third-li'])
+        self.ae(pcss('p:has(b + em)', 'p:has(> em + b)', 'p:has(> b ~ fieldset > input)'), ['paragraph'])
+        self.ae(pcss('p:has(> em + em)', 'p:has(> fieldset + b)'), [])
+        self.ae(pcss(':has(> b, > area)'), ['paragraph', None])
+        self.ae(pcss(':has(#p-b)'), ['html', None, 'outer-div', 'paragraph'])
+        self.ae(pcss('li:nth-child(2 of .c)', 'li:nth-last-child(1 of .c)'), ['fourth-li'])
+        self.ae(pcss('li:nth-child(odd of :not(.c))'), ['first-li', 'fifth-li', 'seventh-li'])
+        self.ae(pcss('li:nth-last-child(even of :not(.c))'), ['second-li', 'sixth-li'])
+        self.ae(pcss(':nth-child(1 of li)', 'li:nth-child(1 of li, div)'), ['first-li'])
+        self.ae(pcss(':nth-child(2 of div)'), ['foobar-div'])
+        self.ae(pcss('li:nth-child(n of .nonexistent)', 'li:nth-child(1 of div)'), [])
+        self.ae(pcss(':any-link', ':is(a, area, link):any-link', ':any-link[href]'), [
+            'link-href', 'tag-anchor', 'nofollow-anchor', 'area-href'])
+        self.ae(pcss(':scope', ':scope:has(body)'), ['html'])
+        self.ae(pcss('a[rel="TAG" i]', 'a[rel="tag" s]', 'a[rel=tag i]', "a[REL='TaG'I]"), ['tag-anchor'])
+        self.ae(pcss('a[rel="TAG"]', 'a[rel="TAG" s]'), [])
+        self.ae(pcss('[lang|="EN" i]', '[lang|="en-US" i]', '[lang|="en" i]'), ['second-li'])
+        self.ae(pcss('[lang|="e" i]', '[lang|="" i]'), [])
+        self.ae(pcss('a[href^="HTTP" i]'), ['tag-anchor', 'nofollow-anchor'])
+        self.ae(pcss('a[href$="ORG" i]'), ['nofollow-anchor'])
+        self.ae(pcss('a[href*="LOCALHOST" i]'), ['tag-anchor'])
+        self.ae(pcss('div[foobar~="BC" i]', 'div[foobar~="cDe" i]'), ['foobar-div'])
+        self.ae(pcss('[foobar~="" i]', '[foobar~="ab bc" i]', 'a[href*="" i]', 'a[href^="" i]', 'a[href$="" i]'), [])
+        # The XML parser normalizes the newline in the class of fourth-li to a space
+        self.ae(pcss('li[class="AB C" i]', 'li[class="ab c"]'), ['third-li', 'fourth-li'])
+        self.ae(pcss('[id=FIRST-LI i]', '[id="first-li" s]'), ['first-li'])
+
+        # Unsupported selectors are ignored in the forgiving selector lists of
+        # :is() and :where(), but not elsewhere
+        self.ae(pcss('li:is(:unknown, .c)', 'li:where(:unknown(1), .c)', 'li:is(::before, .c)'), ['third-li', 'fourth-li'])
+        self.assertRaises(ExpressionError, lambda : tuple(select('li:not(:unknown)')))
+        self.assertRaises(ExpressionError, lambda : tuple(select('li:has(:unknown)')))
+        self.assertRaises(ExpressionError, lambda : tuple(select('li:nth-child(1 of :unknown)')))
+
         select = Select(document, ignore_inappropriate_pseudo_classes=True)
         self.assertGreater(len(tuple(select('p:hover'))), 0)
+        self.assertGreater(len(tuple(select('p:focus-within'))), 0)
+        # Ignored pseudo-classes match everything, as for li:hover
+        self.ae(tuple(select('li:is(:hover, .c)')), tuple(select('li')))
+        self.ae(tuple(select('li:not(:hover)')), ())
+
+    def test_select_level4(self):
+        document = etree.fromstring(self.HTML_LEVEL4, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
+        select = Select(document)
+
+        def pcss(main, *selectors):
+            result = [elem.get('id') for elem in select(main)]
+            for selector in selectors:
+                self.ae([elem.get('id') for elem in select(selector)], result, selector)
+            return result
+
+        # Look-behind using :has(), the comment between chapter3 and sub3 must be ignored
+        self.ae(pcss('.ChapterS:has(+ .SubChapter)', '.ChapterS:has(+.SubChapter)', 'h1:has(+ h2)'), ['chapter1', 'chapter3'])
+        self.ae(pcss('.ChapterS:not(:has(+ .SubChapter))', 'h1:has(+ p)'), ['chapter2'])
+        self.ae(pcss('h1:has(~ section)', 'body > div:has(section) > h1'), ['chapter1', 'chapter2', 'chapter3'])
+        self.ae(pcss('h1:has(+ h2 + p)', 'h1:has(+ h2 + p.para ~ p.note)'), ['chapter1'])
+        self.ae(pcss('h1:has(+ h2 ~ section)'), ['chapter1', 'chapter3'])
+        self.ae(pcss('h1:has(+ h2 + section)'), ['chapter3'])
+        self.ae(pcss('section:has(span)', 'section:has(> div > span)', 'section:has(div span.hl)', 'section:has(> div span)',
+                     'section:has(p):has(span)', 'section:has(> div + p)'), ['sec1'])
+        self.ae(pcss('section:has(> span)', 'section:has(> p.note + p.note)', 'section:has(> p + div)', 'section:has(+ section + section)'), [])
+        self.ae(pcss('section:has(> p.note)', 'section:has(> p + p.note + p)', 'section:has(> .note ~ .note)', 'section:has(+ ul)'), ['sec2'])
+        self.ae(pcss('section:has(.note, .hl)', 'section:has(:is(.note, .hl))'), ['sec1', 'sec2'])
+        self.ae(pcss(':has(> .hl)'), ['sec1-div'])
+        self.ae(pcss('div:has(.hl)'), ['book', 'sec1-div'])
+        self.ae(pcss(':has(.hl)', ':has(span)'), ['html', 'body', 'book', 'sec1', 'sec1-div'])
+        self.ae(pcss('p:has(~ p.note)'), ['p1', 'sec2-p1', 'sec2-p2', 'sec2-p3'])
+        self.ae(pcss(':has(+ section)'), ['sub3', 'sec1'])
+        self.ae(pcss('ul:has(> li:nth-child(3))', 'ul:has(> li:nth-child(3 of [data-x]))'), ['list'])
+        self.ae(pcss(':has(> section) > h2'), ['sub1', 'sub3'])
+        self.ae(pcss('section:has(> p) p:has(+ p.note)'), ['sec2-p1', 'sec2-p3'])
+
+        self.ae(pcss('p:is(.note, #p3)'), ['p2', 'p3', 'sec2-p2', 'sec2-p4'])
+        self.ae(pcss(':is(section, ul) > :first-child'), ['sec1-div', 'sec2-p1', 'li1'])
+        self.ae(pcss(':where(section) p', 'section :is(p)', ':is(section p)'), ['sec1-p', 'sec2-p1', 'sec2-p2', 'sec2-p3', 'sec2-p4'])
+        self.ae(pcss('p:not(.note, section p)'), ['p1', 'p3'])
+        self.ae(pcss('p:not(:is(.note))', 'p:not(.note)'), ['p1', 'p3', 'sec1-p', 'sec2-p1', 'sec2-p3'])
+
+        self.ae(pcss('p:nth-child(2 of .note)'), ['sec2-p4'])
+        self.ae(pcss(':nth-child(1 of .note)'), ['p2', 'sec2-p2'])
+        self.ae(pcss(':nth-last-child(2 of .note)'), ['sec2-p2'])
+        self.ae(pcss(':nth-last-child(1 of .note)'), ['p2', 'sec2-p4'])
+        self.ae(pcss('p:nth-last-child(1 of .para)'), ['p3', 'sec1-p', 'sec2-p4'])
+        self.ae(pcss(':nth-child(odd of .para)', ':nth-child(2n+1 of p)'), ['p1', 'p3', 'sec1-p', 'sec2-p1', 'sec2-p3'])
+        self.ae(pcss('h1:nth-child(2 of h1)', '.ChapterS:nth-last-child(2 of h1)'), ['chapter2'])
+        self.ae(pcss(':nth-child(2 of h1, h2)'), ['sub1'])
+        self.ae(pcss(':nth-child(-n+2 of .ChapterS)'), ['chapter1', 'chapter2'])
+        self.ae(pcss('h1:nth-child(2 of .SubChapter)', 'li:nth-child(4 of li)'), [])
+
+        self.ae(pcss('li[data-x="alpha" i]', 'li[data-x="Alpha" s]', 'li[data-x="Alpha"]'), ['li1'])
+        self.ae(pcss('li[data-x="alpha"]', 'li[data-x="alpha" s]'), [])
+        self.ae(pcss('li[data-x|="alpha" i]', 'li[data-x^="ALP" i]', 'li[data-x*="PH" i]'), ['li1', 'li3'])
+        self.ae(pcss('li[data-x$="ONE" i]', 'li[data-x|="ALPHA" s]'), ['li3'])
+        self.ae(pcss('li[data-x~="GAMMA" i]', '[DATA-X="beta GAMMA" i]'), ['li2'])
+        self.ae(pcss('li[data-x~="" i]', 'li[data-x^="" i]', 'li[data-x~="beta gamma" i]'), [])
+        self.ae(pcss('[id="P1" i]'), ['p1'])
+        self.ae(pcss('[class~="NOTE" i]'), ['p2', 'sec2-p2', 'sec2-p4'])
+
+        # Restricting matches to a subtree
+        sec2 = next(select('#sec2'))
+        self.ae([e.get('id') for e in select('p:has(+ .note)', root=sec2)], ['sec2-p1', 'sec2-p3'])
 
     def test_select_shakespeare(self):
         document = html.document_fromstring(self.HTML_SHAKESPEARE)
@@ -797,6 +1034,39 @@ by William Shakespeare
         assert count('div[class*=sce]') == 1
         assert count('div[class|=dialog]') == 50  # ? Seems right
         assert count('div[class~=dialog]') == 51  # ? Seems right
+
+        # Level 4 selectors
+        self.ae(count(':is(div.character, div.dialog)'), 99)
+        self.ae(count('div:where(.character, .dialog)'), 99)
+        self.ae(count('div:not(.character, .dialog)'), 243 - 99)
+        self.ae(count('div:nth-child(n of .dialog)'), 51)
+        self.ae(count('div:nth-child(n of div)'), count('div'))
+        self.ae(count('div[CLASS=DIALOG i]'), 50)
+
+        # Check :has() against a brute force implementation
+        def brute_has(anchor_selector, relation, target_selector):
+            targets = frozenset(select(target_selector))
+            ans = 0
+            for anchor in select(anchor_selector):
+                if relation == ' ':
+                    candidates = anchor.iterdescendants('*')
+                elif relation == '>':
+                    candidates = anchor.iterchildren('*')
+                elif relation == '+':
+                    candidates = tuple(anchor.itersiblings('*'))[:1]
+                else:
+                    candidates = anchor.itersiblings('*')
+                if any(c in targets for c in candidates):
+                    ans += 1
+            return ans
+
+        for anchor, target in (('div', '.dialog'), ('div', '.direction'), ('div.dialog', 'div.dialog'), ('*', 'h3'), ('div', '#speech5')):
+            for relation in ' >+~':
+                expected = brute_has(anchor, relation, target)
+                rel = '' if relation == ' ' else relation
+                self.ae(count('%s:has(%s %s)' % (anchor, rel, target)), expected, (anchor, relation, target))
+        self.ae(count('div:has(> div.dialog > div.direction)'),
+                sum(1 for d in select('div') if any(c in frozenset(select('div.dialog:has(> div.direction)')) for c in d.iterchildren('*'))))
 
     # }}}
 

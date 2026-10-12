@@ -15,7 +15,7 @@ from lxml import etree
 
 from css_selectors.errors import ExpressionError
 from css_selectors.ordered_set import OrderedSet
-from css_selectors.parser import Element, FunctionalPseudoElement, ascii_lower, parse
+from css_selectors.parser import CombinedSelector, Element, FunctionalPseudoElement, ascii_lower, parse
 from polyglot.builtins import iteritems, itervalues
 
 PARSE_CACHE_SIZE = 200
@@ -88,7 +88,8 @@ def normalize_language_tag(tag):
 
 
 INAPPROPRIATE_PSEUDO_CLASSES = frozenset((
-    'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target'))
+    'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target',
+    'focus-within', 'focus-visible', 'target-within'))
 
 
 class Select:
@@ -97,7 +98,11 @@ class Select:
 
     This class implements CSS Level 3 selectors
     (http://www.w3.org/TR/css3-selectors) on an lxml tree, with caching for
-    performance. To use:
+    performance. It also implements the following CSS Level 4 selectors
+    (https://www.w3.org/TR/selectors-4/): :is(), :where(), :matches(),
+    :has(), :not() with selector lists, :nth-child(An+B of S),
+    :nth-last-child(An+B of S), :any-link, :scope and the attribute selector
+    case-sensitivity flags [attr=value i] and [attr=value s]. To use:
 
     >>> from css_selectors import Select
     >>> select = Select(root)  # Where root is an lxml document
@@ -290,17 +295,26 @@ class Select:
     def itersiblings(self, tag=None, preceding=False):
         return (self.root if tag is None else tag).itersiblings('*', preceding=preceding)
 
+    def iterancestors(self, tag=None):
+        return (self.root if tag is None else tag).iterancestors('*')
+
+    def getparent(self, tag=None):
+        return (self.root if tag is None else tag).getparent()
+
     def iteridtags(self):
         return get_compiled_xpath('//*[@id]')(self.root)
 
     def iterclasstags(self):
         return get_compiled_xpath('//*[@class]')(self.root)
 
-    def sibling_count(self, child, before=True, same_type=False):
-        ' Return the number of siblings before or after child or raise ValueError if child has no parent. '
+    def sibling_count(self, child, before=True, same_type=False, matching=None):
+        ''' Return the number of siblings before or after child or raise ValueError if child has no parent.
+        If matching is specified, only siblings in matching are counted. '''
         parent = child.getparent()
         if parent is None:
             raise ValueError('Child has no parent')
+        if matching is not None:
+            return sum(1 for sibling in self.itersiblings(child, preceding=before) if sibling in matching)
         if same_type:
             siblings = OrderedSet(child.itersiblings(preceding=before))
             return len(self.element_map[self.map_tag_name(child.tag)] & siblings)
@@ -412,20 +426,146 @@ def select_class(cache, selector):
 
 def select_negation(cache, selector):
     'Implement :not()'
-    exclude = frozenset(cache.iterparsedselector(selector.subselector))
+    exclude = selector_list_matches(cache, selector.selector_list)
     for item in cache.iterparsedselector(selector.selector):
         if item not in exclude:
             yield item
+
+
+def select_matching(cache, selector):
+    'Implement :is(), :where() and :matches()'
+    items = set()
+    for tree in selector.selector_list:
+        try:
+            matched = frozenset(cache.iterparsedselector(tree))
+        except ExpressionError:
+            # These pseudo-classes take a forgiving selector list, so
+            # unsupported selectors, such as unknown pseudo-classes, match
+            # nothing rather than invalidating the whole selector
+            continue
+        items |= matched
+    if items:
+        for item in cache.iterparsedselector(selector.selector):
+            if item in items:
+                yield item
+
+
+def select_relation(cache, selector):
+    'Implement :has()'
+    anchors = set()
+    for relative_selector in selector.selector_list:
+        anchors |= relative_selector_anchors(cache, relative_selector)
+    if anchors:
+        for item in cache.iterparsedselector(selector.selector):
+            if item in anchors:
+                yield item
+
+
+def selector_list_matches(cache, selector_list):
+    ' Return the set of all elements matched by any of the selectors in selector_list '
+    ans = set()
+    for tree in selector_list:
+        ans.update(cache.iterparsedselector(tree))
+    return ans
+
+
+def is_universal(tree):
+    return isinstance(tree, Element) and (tree.element or '*') == '*'
+
+
+def inverse_combinator_matches(cache, combinator, targets):
+    ''' Return the set of elements X such that some element in targets is
+    related to X by combinator, for example, for the child combinator,
+    this is the set of parents of targets. '''
+    ans = set()
+    if combinator == ' ':
+        for target in targets:
+            for ancestor in cache.iterancestors(target):
+                if ancestor in ans:
+                    # All further ancestors are already present
+                    break
+                ans.add(ancestor)
+    elif combinator == '>':
+        for target in targets:
+            parent = cache.getparent(target)
+            if parent is not None:
+                ans.add(parent)
+    elif combinator == '+':
+        for target in targets:
+            for sibling in cache.itersiblings(target, preceding=True):
+                ans.add(sibling)
+                break
+    elif combinator == '~':
+        for target in targets:
+            for sibling in cache.itersiblings(target, preceding=True):
+                if sibling in ans:
+                    # All further preceding siblings are already present
+                    break
+                ans.add(sibling)
+    else:
+        raise ExpressionError('Unknown combinator: %r' % combinator)
+    return ans
+
+
+def relative_selector_anchors(cache, relative_selector):
+    ''' Return the set of anchor elements that the relative selector (for
+    example, the "> a b" in :has(> a b)) matches. This works by matching the
+    compound selectors from right to left, at each stage computing the set of
+    elements that can start the remainder of the selector. '''
+    compounds = []
+    tree = relative_selector.selector
+    while isinstance(tree, CombinedSelector):
+        compounds.append((tree.combinator, tree.subselector))
+        tree = tree.selector
+    compounds.append((relative_selector.combinator, tree))
+    # compounds is now ordered right to left, each compound paired with the
+    # combinator to its left
+    targets = None
+    for combinator, compound in compounds:
+        if targets is None:
+            targets = set(cache.iterparsedselector(compound))
+        elif not is_universal(compound):
+            targets &= frozenset(cache.iterparsedselector(compound))
+        if not targets:
+            return set()
+        targets = inverse_combinator_matches(cache, combinator, targets)
+    return targets
 
 # Attribute selectors {{{
 
 
 def select_attrib(cache, selector):
-    operator = cache.attribute_operator_mapping[selector.operator]
-    items = frozenset(cache.dispatch_map[operator](cache, ascii_lower(selector.attrib), selector.value))
+    if selector.case_flag == 'i' and selector.operator != 'exists':
+        items = frozenset(select_attrib_case_insensitive(cache, selector.operator, ascii_lower(selector.attrib), selector.value))
+    else:
+        operator = cache.attribute_operator_mapping[selector.operator]
+        items = frozenset(cache.dispatch_map[operator](cache, ascii_lower(selector.attrib), selector.value))
     for item in cache.iterparsedselector(selector.selector):
         if item in items:
             yield item
+
+
+case_insensitive_attribute_matchers = {
+    '=': lambda val, value: val == value,
+    '~=': lambda val, value: is_non_whitespace(value) and value in val.split(),
+    '|=': lambda val, value: bool(value) and (val == value or val.startswith(value + '-')),
+    '^=': lambda val, value: bool(value) and val.startswith(value),
+    '$=': lambda val, value: bool(value) and val.endswith(value),
+    '*=': lambda val, value: bool(value) and value in val,
+}
+
+
+def select_attrib_case_insensitive(cache, operator, attrib, value):
+    ' Implement attribute selectors with the i flag, for example: [attr=value i] '
+    try:
+        matches = case_insensitive_attribute_matchers[operator]
+    except KeyError:
+        raise ExpressionError('Unknown attribute operator: %r' % operator)
+    value = ascii_lower(value)
+    for val, elem_set in iteritems(cache.attrib_map[attrib]):
+        if matches(ascii_lower(val), value):
+            for elem in elem_set:
+                yield elem
 
 
 def select_exists(cache, attrib, value=None):
@@ -489,7 +629,16 @@ def select_function(cache, function):
     except KeyError:
         raise ExpressionError(
             "The pseudo-class :%s() is unknown" % function.name)
-    if fname == 'lang':
+    if function.selector_list is not None:
+        if fname not in ('nth_child', 'nth_last_child'):
+            raise ExpressionError(
+                "The pseudo-class :%s() does not accept a selector list" % function.name)
+        of = frozenset(selector_list_matches(cache, function.selector_list))
+        if of:
+            for item in cache.iterparsedselector(function.selector):
+                if item in of and func(cache, function, item, of):
+                    yield item
+    elif fname == 'lang':
         items = frozenset(func(cache, function))
         for item in cache.iterparsedselector(function.selector):
             if item in items:
@@ -514,11 +663,11 @@ def select_lang(cache, function):
                     yield elem
 
 
-def select_nth_child(cache, function, elem):
+def select_nth_child(cache, function, elem, of=None):
     ' Implement :nth-child() '
     a, b = function.parsed_arguments
     try:
-        num = cache.sibling_count(elem) + 1
+        num = cache.sibling_count(elem, matching=of) + 1
     except ValueError:
         return False
     if a == 0:
@@ -527,11 +676,11 @@ def select_nth_child(cache, function, elem):
     return n.is_integer() and n > -1
 
 
-def select_nth_last_child(cache, function, elem):
+def select_nth_last_child(cache, function, elem, of=None):
     ' Implement :nth-last-child() '
     a, b = function.parsed_arguments
     try:
-        num = cache.sibling_count(elem, before=False) + 1
+        num = cache.sibling_count(elem, before=False, matching=of) + 1
     except ValueError:
         return False
     if a == 0:
@@ -614,7 +763,7 @@ def select_selector(cache, selector):
 
 def select_pseudo(cache, pseudo):
     func = get_func_for_pseudo(cache, pseudo.ident)
-    if func is select_root:
+    if func is select_root or func is select_scope:
         yield cache.root
         return
 
@@ -626,6 +775,17 @@ def select_pseudo(cache, pseudo):
 @pseudo_func
 def select_root(cache, elem):
     return elem is cache.root
+
+
+@pseudo_func
+def select_scope(cache, elem):
+    # When used in a stylesheet, :scope is the same as :root
+    return elem is cache.root
+
+
+@pseudo_func
+def select_any_link(cache, elem):
+    return cache.map_tag_name(elem.tag) in ('a', 'area', 'link') and elem.get('href') is not None
 
 
 @pseudo_func

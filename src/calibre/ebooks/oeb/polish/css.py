@@ -410,6 +410,9 @@ def _classes_in_selector(selector, classes):
         s = getattr(selector, attr, None)
         if s is not None:
             _classes_in_selector(s, classes)
+    # Selectors such as :is(), :not(), :has() and :nth-child(An+B of S)
+    for s in getattr(selector, 'selector_list', None) or ():
+        _classes_in_selector(s, classes)
     cn = getattr(selector, 'class_name', None)
     if cn is not None:
         classes.add(cn)

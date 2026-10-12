@@ -161,16 +161,21 @@ class Function:
     """
     Represents selector:name(expr)
     """
-    def __init__(self, selector, name, arguments):
+    def __init__(self, selector, name, arguments, selector_list=None):
         self.selector = selector
         self.name = ascii_lower(name)
         self.arguments = arguments
+        # The S in :nth-child(An+B of S), a list of selector trees, or None
+        self.selector_list = selector_list
         self._parsed_arguments = None
 
     def __repr__(self):
-        return '%s[%r:%s(%s)]' % (
+        of = ''
+        if self.selector_list is not None:
+            of = ' of %s' % ', '.join(map(repr, self.selector_list))
+        return '%s[%r:%s(%s%s)]' % (
             self.__class__.__name__, self.selector, self.name,
-            urepr([token.value for token in self.arguments]))
+            urepr([token.value for token in self.arguments]), of)
 
     def argument_types(self):
         return [token.type for token in self.arguments]
@@ -191,6 +196,9 @@ class Function:
     def specificity(self):
         a, b, c = self.selector.specificity()
         b += 1
+        if self.selector_list:
+            a2, b2, c2 = max_specificity(self.selector_list)
+            a, b, c = a + a2, b + b2, c + c2
         return a, b, c
 
 
@@ -213,23 +221,91 @@ class Pseudo:
         return a, b, c
 
 
+def max_specificity(selector_list):
+    return max((s.specificity() for s in selector_list), default=(0, 0, 0))
+
+
 class Negation:
 
     """
-    Represents selector:not(subselector)
+    Represents selector:not(selector_list)
     """
-    def __init__(self, selector, subselector):
+    def __init__(self, selector, selector_list):
         self.selector = selector
-        self.subselector = subselector
+        self.selector_list = selector_list
 
     def __repr__(self):
-        return '%s[%r:not(%r)]' % (
-            self.__class__.__name__, self.selector, self.subselector)
+        return '%s[%r:not(%s)]' % (
+            self.__class__.__name__, self.selector,
+            ', '.join(map(repr, self.selector_list)))
 
     def specificity(self):
         a1, b1, c1 = self.selector.specificity()
-        a2, b2, c2 = self.subselector.specificity()
+        a2, b2, c2 = max_specificity(self.selector_list)
         return a1 + a2, b1 + b2, c1 + c2
+
+
+class Matching:
+
+    """
+    Represents selector:is(selector_list), selector:where(selector_list)
+    and selector:matches(selector_list)
+    """
+    def __init__(self, selector, name, selector_list):
+        self.selector = selector
+        self.name = ascii_lower(name)
+        self.selector_list = selector_list
+
+    def __repr__(self):
+        return '%s[%r:%s(%s)]' % (
+            self.__class__.__name__, self.selector, self.name,
+            ', '.join(map(repr, self.selector_list)))
+
+    def specificity(self):
+        a1, b1, c1 = self.selector.specificity()
+        if self.name == 'where':
+            return a1, b1, c1
+        a2, b2, c2 = max_specificity(self.selector_list)
+        return a1 + a2, b1 + b2, c1 + c2
+
+
+class Relation:
+
+    """
+    Represents selector:has(selector_list) where selector_list is a list of
+    :class:`RelativeSelector`
+    """
+    def __init__(self, selector, selector_list):
+        self.selector = selector
+        self.selector_list = selector_list
+
+    def __repr__(self):
+        return '%s[%r:has(%s)]' % (
+            self.__class__.__name__, self.selector,
+            ', '.join(map(repr, self.selector_list)))
+
+    def specificity(self):
+        a1, b1, c1 = self.selector.specificity()
+        a2, b2, c2 = max_specificity(self.selector_list)
+        return a1 + a2, b1 + b2, c1 + c2
+
+
+class RelativeSelector:
+
+    """
+    Represents a selector relative to an anchor element, as used in :has(),
+    for example: ``> p`` or ``+ div span``
+    """
+    def __init__(self, combinator, selector):
+        self.combinator = combinator
+        self.selector = selector
+
+    def __repr__(self):
+        comb = '<followed>' if self.combinator == ' ' else self.combinator
+        return '%s[%s %r]' % (self.__class__.__name__, comb, self.selector)
+
+    def specificity(self):
+        return self.selector.specificity()
 
 
 class Attrib:
@@ -237,12 +313,15 @@ class Attrib:
     """
     Represents selector[namespace|attrib operator value]
     """
-    def __init__(self, selector, namespace, attrib, operator, value):
+    def __init__(self, selector, namespace, attrib, operator, value, case_flag=None):
         self.selector = selector
         self.namespace = namespace
         self.attrib = attrib
         self.operator = operator
         self.value = value
+        # 'i' for ASCII case-insensitive value matching, 's' for
+        # case-sensitive matching, None for the default
+        self.case_flag = case_flag
 
     def __repr__(self):
         if self.namespace:
@@ -253,9 +332,10 @@ class Attrib:
             return '%s[%r[%s]]' % (
                 self.__class__.__name__, self.selector, attrib)
         else:
-            return '%s[%r[%s %s %s]]' % (
+            flag = ' ' + self.case_flag if self.case_flag else ''
+            return '%s[%r[%s %s %s%s]]' % (
                 self.__class__.__name__, self.selector, attrib,
-                self.operator, urepr(self.value))
+                self.operator, urepr(self.value), flag)
 
     def specificity(self):
         a, b, c = self.selector.specificity()
@@ -418,7 +498,7 @@ special_pseudo_elements = (
     'first-line', 'first-letter', 'before', 'after')
 
 
-def parse_simple_selector(stream, inside_negation=False):
+def parse_simple_selector(stream):
     stream.skip_whitespace()
     selector_start = len(stream.used)
     peek = stream.peek()
@@ -440,8 +520,7 @@ def parse_simple_selector(stream, inside_negation=False):
     pseudo_element = None
     while 1:
         peek = stream.peek()
-        if peek.type in ('S', 'EOF') or peek.is_delim(',', '+', '>', '~') or (
-                inside_negation and peek == ('DELIM', ')')):
+        if peek.type in ('S', 'EOF') or peek.is_delim(',', '+', '>', '~'):
             break
         if pseudo_element:
             raise SelectorSyntaxError(
@@ -476,19 +555,22 @@ def parse_simple_selector(stream, inside_negation=False):
                 continue
             stream.next()
             stream.skip_whitespace()
-            if ident.lower() == 'not':
-                if inside_negation:
-                    raise SelectorSyntaxError('Got nested :not()')
-                argument, argument_pseudo_element = parse_simple_selector(
-                    stream, inside_negation=True)
-                next = stream.next()
-                if argument_pseudo_element:
-                    raise SelectorSyntaxError(
-                        'Got pseudo-element ::%s inside :not() at %s'
-                        % (argument_pseudo_element, next.pos))
-                if next != ('DELIM', ')'):
-                    raise SelectorSyntaxError("Expected ')', got %s" % (next,))
-                result = Negation(result, argument)
+            name = ascii_lower(ident)
+            if name == 'not':
+                result = Negation(result, parse_selector_list(
+                    stream, name))
+            elif name in matching_pseudo_classes:
+                result = Matching(result, name, parse_selector_list(
+                    stream, name, forgiving=True))
+            elif name == 'has':
+                selector_list = parse_selector_list(
+                    stream, name, relative=True)
+                for sel in selector_list:
+                    if contains_relation(sel):
+                        raise SelectorSyntaxError('Got nested :has()')
+                result = Relation(result, selector_list)
+            elif name in nth_child_pseudo_classes:
+                result = parse_nth_child(result, ident, stream)
             else:
                 result = Function(result, ident, parse_arguments(stream))
         else:
@@ -500,19 +582,156 @@ def parse_simple_selector(stream, inside_negation=False):
     return result, pseudo_element
 
 
+def is_argument_token(token):
+    return token.type in ('IDENT', 'STRING', 'NUMBER') or token in [
+        ('DELIM', '+'), ('DELIM', '-')]
+
+
 def parse_arguments(stream):
     arguments = []
     while 1:
         stream.skip_whitespace()
         next = stream.next()
-        if next.type in ('IDENT', 'STRING', 'NUMBER') or next in [
-                ('DELIM', '+'), ('DELIM', '-')]:
+        if is_argument_token(next):
             arguments.append(next)
         elif next == ('DELIM', ')'):
             return arguments
         else:
             raise SelectorSyntaxError(
                 "Expected an argument, got %s" % (next,))
+
+
+matching_pseudo_classes = frozenset(('is', 'where', 'matches'))
+nth_child_pseudo_classes = frozenset(('nth-child', 'nth-last-child'))
+
+
+def collect_function_tokens(stream):
+    """
+    Consume all tokens up to and including the ``)`` that closes the
+    functional pseudo-class whose ``(`` has already been consumed. Returns the
+    list of tokens inside the parentheses and the closing token.
+    """
+    depth = 0
+    tokens = []
+    while 1:
+        token = stream.next()
+        if token.type == 'EOF':
+            raise SelectorSyntaxError("Expected ')', got %s" % (token,))
+        if token == ('DELIM', '('):
+            depth += 1
+        elif token == ('DELIM', ')'):
+            if depth == 0:
+                return tokens, token
+            depth -= 1
+        tokens.append(token)
+
+
+def split_selector_list_tokens(tokens, end):
+    """
+    Split tokens on top-level commas. Returns a list of ``(tokens, end_pos)``
+    pairs where ``end_pos`` is the position of the token that terminates each
+    selector. Returns an empty list if there are only whitespace tokens.
+    """
+    if all(t.type == 'S' for t in tokens):
+        return []
+    ans = []
+    depth = 0
+    current = []
+    for token in tokens:
+        if token == ('DELIM', '('):
+            depth += 1
+        elif token == ('DELIM', ')'):
+            depth -= 1
+        elif depth == 0 and token == ('DELIM', ','):
+            ans.append((current, token.pos))
+            current = []
+            continue
+        current.append(token)
+    ans.append((current, end.pos))
+    return ans
+
+
+def parse_relative_selector(stream):
+    stream.skip_whitespace()
+    if stream.peek().is_delim('+', '>', '~'):
+        combinator = stream.next().value
+        stream.skip_whitespace()
+    else:
+        combinator = ' '
+    tree, pseudo_element = parse_selector(stream)
+    return RelativeSelector(combinator, tree), pseudo_element
+
+
+def parse_selector_list_tokens(tokens, end, name, relative=False, forgiving=False):
+    parse = parse_relative_selector if relative else parse_selector
+    selector_list = []
+    for chunk, end_pos in split_selector_list_tokens(tokens, end):
+        stream = TokenStream(chunk + [EOFToken(end_pos)])
+        try:
+            stream.skip_whitespace()
+            tree, pseudo_element = parse(stream)
+            if pseudo_element:
+                raise SelectorSyntaxError(
+                    'Got pseudo-element ::%s inside :%s() at %s'
+                    % (pseudo_element, name, end_pos))
+        except SelectorSyntaxError:
+            if forgiving:
+                # Invalid selectors are ignored in a forgiving selector list
+                continue
+            raise
+        selector_list.append(tree)
+    if not selector_list and not forgiving:
+        raise SelectorSyntaxError(
+            'Expected selector, got %s' % (end,))
+    return selector_list
+
+
+def parse_selector_list(stream, name, relative=False, forgiving=False):
+    """
+    Parse the comma separated list of selectors that is the argument of
+    :not(), :is(), :where(), :matches() and :has(). The opening parenthesis
+    must have already been consumed. Forgiving selector lists, as used by
+    :is() and :where() skip invalid selectors instead of raising an error.
+    """
+    tokens, end = collect_function_tokens(stream)
+    return parse_selector_list_tokens(tokens, end, name, relative, forgiving)
+
+
+def parse_nth_child(selector, ident, stream):
+    """ Parse :nth-child(An+B [of S]) and :nth-last-child(An+B [of S]) """
+    tokens, end = collect_function_tokens(stream)
+    arguments = []
+    selector_list = None
+    for i, token in enumerate(tokens):
+        if token.type == 'S':
+            continue
+        if token.type == 'IDENT' and ascii_lower(token.value) == 'of':
+            if not arguments:
+                raise SelectorSyntaxError(
+                    'Expected an argument, got %s' % (token,))
+            selector_list = parse_selector_list_tokens(
+                tokens[i+1:], end, ascii_lower(ident))
+            break
+        if not is_argument_token(token):
+            raise SelectorSyntaxError(
+                'Expected an argument, got %s' % (token,))
+        arguments.append(token)
+    return Function(selector, ident, arguments, selector_list)
+
+
+def iter_subtrees(tree):
+    for attr in ('selector', 'subselector'):
+        child = getattr(tree, attr, None)
+        if child is not None:
+            yield child
+    for child in getattr(tree, 'selector_list', None) or ():
+        yield child
+
+
+def contains_relation(tree):
+    if isinstance(tree, Relation):
+        return True
+    return any(contains_relation(child) for child in iter_subtrees(tree))
 
 
 def parse_attrib(selector, stream):
@@ -554,10 +773,15 @@ def parse_attrib(selector, stream):
             "Expected string or ident, got %s" % (value,))
     stream.skip_whitespace()
     next = stream.next()
+    case_flag = None
+    if next.type == 'IDENT' and ascii_lower(next.value) in ('i', 's'):
+        case_flag = ascii_lower(next.value)
+        stream.skip_whitespace()
+        next = stream.next()
     if next != ('DELIM', ']'):
         raise SelectorSyntaxError(
             "Expected ']', got %s" % (next,))
-    return Attrib(selector, namespace, attrib, op, value.value)
+    return Attrib(selector, namespace, attrib, op, value.value, case_flag)
 
 
 def parse_series(tokens):
