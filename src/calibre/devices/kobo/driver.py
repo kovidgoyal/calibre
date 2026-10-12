@@ -3210,10 +3210,12 @@ class KOBOTOUCH(KOBO):
         ImageID = ContentID.replace('/', '_')
         ImageID = ImageID.replace(' ', '_')
         ImageID = ImageID.replace(':', '_')
-        if self.isTolinoDevice() and self.dbversion >= 191:
-            ImageID_split = ImageID.rsplit('.', 1)
-            ImageID_split[0] = ImageID_split[0].replace('.', '_')
-            ImageID = '.'.join(ImageID_split)
+        if self.isTolinoDevice():
+            # Only replace "." with "_" for some dbversions
+            if 191 <= self.dbversion <= 207:
+                ImageID_split = ImageID.rsplit('.', 1)
+                ImageID_split[0] = ImageID_split[0].replace('.', '_')
+                ImageID = '.'.join(ImageID_split)
         else:
             ImageID = ImageID.replace('.', '_')
         return ImageID
