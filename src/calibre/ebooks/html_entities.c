@@ -81,6 +81,10 @@ is_xml_unsafe(uint32_t codepoint) {
     return codepoint == '<' || codepoint == '>' || codepoint == '&' || codepoint == '"' || codepoint == '\'';
 }
 
+// Largest number of bytes convert_entity() can write: four for a numeric
+// entity, or the UTF-8 length of the longest named entity value.
+#define MAX_ENTITY_OUTPUT 32
+
 static int
 convert_entity(const char *entity, const size_t elen, char *output, bool keep_xml_entities) {
     if (entity[0] == '#') {
@@ -98,57 +102,84 @@ convert_entity(const char *entity, const size_t elen, char *output, bool keep_xm
     const struct html_entity *s = in_word_set(entity, elen);
     if (!s) return -1;
     size_t ans = strlen(s->val);
+    if (ans > MAX_ENTITY_OUTPUT) return -1;
     if (keep_xml_entities && ans == 1 && is_xml_unsafe(s->val[0])) return -1;
     memcpy(output, s->val, ans);
     return ans;
 }
 
-static size_t
-add_entity(const char *entity, const size_t elen, char *output, bool keep_xml_entities) {
+typedef struct {
+    char *data;
+    size_t pos, capacity;
+} Output;
+
+// Decoding an entity can produce more bytes than the entity itself (for
+// example &nGt; is five bytes and decodes to six), so the output buffer must
+// be grown on demand rather than sized from the input.
+static bool
+ensure_space(Output *o, size_t extra) {
+    if (o->capacity - o->pos >= extra) return true;
+    size_t needed = o->pos + extra;
+    if (needed < o->pos) return false;
+    size_t new_capacity = o->capacity > SIZE_MAX / 2 ? SIZE_MAX : o->capacity * 2;
+    if (new_capacity < needed) new_capacity = needed;
+    char *d = realloc(o->data, new_capacity);
+    if (!d) return false;
+    o->data = d;
+    o->capacity = new_capacity;
+    return true;
+}
+
+static bool
+write_output(Output *o, const char *src, size_t sz) {
+    if (!ensure_space(o, sz)) return false;
+    memcpy(o->data + o->pos, src, sz);
+    o->pos += sz;
+    return true;
+}
+
+static bool
+add_entity(const char *entity, const size_t elen, Output *o, bool keep_xml_entities) {
+    char buf[MAX_ENTITY_OUTPUT];
     int ans;
-    if (elen > 64 || elen < 3 || (ans = convert_entity(entity + 1, elen - 2, output, keep_xml_entities)) < 0) {
-        memcpy(output, entity, elen);
-        return elen;
-    }
-    return ans;
+    if (elen > 64 || elen < 3 || (ans = convert_entity(entity + 1, elen - 2, buf, keep_xml_entities)) < 0) return write_output(o, entity, elen);
+    return write_output(o, buf, ans);
 }
 
 
-static size_t
-process_entity(const char *input, size_t input_sz, char *output, size_t *output_pos, bool keep_xml_entities) {
+static bool
+process_entity(const char *input, size_t input_sz, Output *o, size_t *consumed, bool keep_xml_entities) {
     size_t input_pos = 1; // ignore leading &
     while (input_pos < input_sz) {
         char ch = input[input_pos++];
         if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') || (ch == '#' && input_pos == 2))
             ;
         else if (ch == ';') {
-            *output_pos += add_entity(input, input_pos, output + *output_pos, keep_xml_entities);
-            return input_pos;
+            *consumed = input_pos;
+            return add_entity(input, input_pos, o, keep_xml_entities);
         } else break;
     }
-    memcpy(output + *output_pos, input, input_pos);
-    *output_pos += input_pos;
-    return input_pos;
+    *consumed = input_pos;
+    return write_output(o, input, input_pos);
 }
 
-static size_t
-replace(const char *input, size_t input_sz, char *output, int keep_xml_entities) {
-    size_t input_pos = 0, output_pos = 0;
+static bool
+replace(const char *input, size_t input_sz, Output *o, int keep_xml_entities) {
+    size_t input_pos = 0;
     while (input_pos < input_sz) {
         const char *p = (const char *)memchr(input + input_pos, '&', input_sz - input_pos);
         if (p) {
-            size_t before_amp = p - (input + input_pos);
-            memcpy(output + output_pos, input + input_pos, before_amp);
-            output_pos += before_amp;
+            size_t before_amp = p - (input + input_pos), consumed = 0;
+            if (!write_output(o, input + input_pos, before_amp)) return false;
             input_pos += before_amp;
-            input_pos += process_entity(p, input_sz - (p - input), output, &output_pos, keep_xml_entities);
+            if (!process_entity(p, input_sz - input_pos, o, &consumed, keep_xml_entities)) return false;
+            input_pos += consumed;
         } else {
-            memcpy(output + output_pos, input + input_pos, input_sz - input_pos);
-            output_pos += input_sz - input_pos;
+            if (!write_output(o, input + input_pos, input_sz - input_pos)) return false;
             input_pos = input_sz;
         }
     }
-    return output_pos;
+    return true;
 }
 
 static PyObject *
@@ -170,17 +201,22 @@ replace_all_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
         PyErr_SetString(PyExc_TypeError, "string must be unicode object or UTF-8 encoded bytes");
         return NULL;
     }
-    if (nargs > 1) keep_xml_entities = PyObject_IsTrue(args[1]);
-    char *output = malloc(input_sz + 1);
-    if (!output) { return PyErr_NoMemory(); }
-    size_t output_sz;
-    Py_BEGIN_ALLOW_THREADS output_sz = replace(input, input_sz, output, keep_xml_entities);
+    if (nargs > 1) {
+        keep_xml_entities = PyObject_IsTrue(args[1]);
+        if (keep_xml_entities < 0) return NULL;
+    }
+    // Room for a few expanding entities up front, the buffer grows if more are needed
+    Output o = {.capacity = (size_t)input_sz + 64};
+    o.data = malloc(o.capacity);
+    if (!o.data) { return PyErr_NoMemory(); }
+    bool ok;
+    Py_BEGIN_ALLOW_THREADS ok = replace(input, input_sz, &o, keep_xml_entities);
     Py_END_ALLOW_THREADS PyObject *retval;
-    if (PyErr_Occurred()) retval = NULL;
-    else if (!output_sz) retval = Py_NewRef(args[0]);
-    else if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(output, output_sz);
-    else retval = PyBytes_FromStringAndSize(output, output_sz);
-    free(output);
+    if (!ok) retval = PyErr_NoMemory();
+    else if (!o.pos) retval = Py_NewRef(args[0]);
+    else if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(o.data, o.pos);
+    else retval = PyBytes_FromStringAndSize(o.data, o.pos);
+    free(o.data);
     return retval;
 }
 
