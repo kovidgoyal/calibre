@@ -825,6 +825,7 @@ class TestCamoufoxMouse(unittest.TestCase):
         # the event is given up on only once the browser answers everything
         # but it
         browser = camoufox.Browser()
+        probes: list[str] = []
 
         class BusyPage(camoufox.Page):
             busy_until = 0.0  # until when the browser answers nothing at all
@@ -844,27 +845,37 @@ class TestCamoufoxMouse(unittest.TestCase):
                 return {}
 
             async def evaluate(self, expression: str, *, by_value: bool = True, timeout: float = camoufox.DEFAULT_TIMEOUT) -> int:  # noqa: ASYNC109
+                probes.append(expression)
                 await self.answer(timeout, is_input=False)
                 return 1
 
         def send(busy_for: float, answers_input: bool = True) -> float:
             page = BusyPage(browser, 't', 't')
             page.busy_until, page.answers_input = time.monotonic() + busy_for, answers_input
+            del probes[:]
             started = time.monotonic()
             asyncio.run(page.send_input('Page.dispatchMouseEvent', {}))
             return time.monotonic() - started
 
-        with patch.object(camoufox, 'INPUT_TIMEOUT', 0.05), patch.object(camoufox, 'DEFAULT_TIMEOUT', 1.0):
-            self.assertLess(send(0), 0.05)
+        # The timings asserted on are wall clock ones, so they leave a wide
+        # margin for a slow, heavily loaded CI machine
+        with patch.object(camoufox, 'INPUT_TIMEOUT', 0.05), patch.object(camoufox, 'DEFAULT_TIMEOUT', 2.0):
+            # An event answered promptly is never followed up on. Checked by
+            # what was asked of the browser rather than by how long it took, as
+            # the time taken is at the mercy of the machine.
+            send(0)
+            self.assertEqual(probes, [])
             # busy for several times as long as an event is waited on
             self.assertGreaterEqual(send(0.3), 0.3)
+            self.assertEqual(probes, ['1'])
             # An event that is not answered once the browser answers everything
             # else is given up on, busy or not
             for busy_for in (0, 0.3):
                 started = time.monotonic()
                 with self.assertRaises(camoufox.TimeoutExceeded):
                     send(busy_for, answers_input=False)
-                self.assertLess(time.monotonic() - started, 0.8)
+                # well short of DEFAULT_TIMEOUT, so not waited out as a stall
+                self.assertLess(time.monotonic() - started, 1.5)
             # as is one in a browser that is busy for longer than any command is waited on
             with self.assertRaises(camoufox.TimeoutExceeded):
                 send(5)
