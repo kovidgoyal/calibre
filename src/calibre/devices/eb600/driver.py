@@ -12,7 +12,6 @@ Windows PNP strings:
 """
 
 import re
-from typing import ClassVar
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
@@ -29,8 +28,10 @@ class EB600(USBMS):
     FORMATS = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
     DRM_FORMATS = ['prc', 'mobi', 'html', 'pdf', 'txt']
 
-    VENDOR_ID: ClassVar[list[int]] = [0x1F85]
-    PRODUCT_ID: ClassVar[list[int]] = [0x1688]
+    EB600_VENDOR_ID = [0x1F85]
+    EB600_PRODUCT_ID = [0x1688]
+    VENDOR_ID = EB600_VENDOR_ID
+    PRODUCT_ID = EB600_PRODUCT_ID
     BCD = [0x110]
 
     VENDOR_NAME = ['NETRONIX', 'WOLDER', 'MD86371']
@@ -57,10 +58,10 @@ class TOLINO(EB600):
     EPOS_PRODUCT_ID = [0x6053]
     VISION6_PRODUCT_ID = [0x8000]
     OTHER_TOLINO_PRODUCT_ID = [0x6033, 0x6052]
-    PRODUCT_ID = EB600.PRODUCT_ID + OTHER_TOLINO_PRODUCT_ID + EPOS_PRODUCT_ID + VISION6_PRODUCT_ID
+    PRODUCT_ID = EB600.EB600_PRODUCT_ID + OTHER_TOLINO_PRODUCT_ID + EPOS_PRODUCT_ID + VISION6_PRODUCT_ID
 
     KOBO_VENDOR_ID = [0x4173]  # Some newer Tolino devices have the Kobo Vendor ID. But, they still use different software.
-    VENDOR_ID = EB600.VENDOR_ID + KOBO_VENDOR_ID
+    VENDOR_ID = EB600.EB600_VENDOR_ID + KOBO_VENDOR_ID
     BCD = [0x226, 0x9999]
     VENDOR_NAME = ['DEUTSCHE', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO', 'FILE-CD_GADGET']

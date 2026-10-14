@@ -757,7 +757,7 @@ def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     elif im.mode == 'P':
         fmt = QImage.Format.Format_Indexed8
         palette = im.getpalette()
-        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]  # type: ignore
+        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
     elif im.mode == 'I;16':
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16

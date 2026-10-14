@@ -5,6 +5,7 @@ import itertools
 import operator
 from collections import Counter, OrderedDict
 from functools import partial
+from typing import cast
 
 from qt.core import (
     QAbstractItemView,
@@ -1819,11 +1820,14 @@ class BooksView(TableView):  # {{{
 
 class DeviceBooksView(BooksView):  # {{{
     is_library_view = False
-    _model: DeviceBooksModel
+
+    @property
+    def device_model(self) -> DeviceBooksModel:
+        return cast('DeviceBooksModel', self._model)
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel, use_edit_metadata_dialog=False)
-        self._model.resize_rows.connect(self.do_row_sizing, type=Qt.ConnectionType.QueuedConnection)
+        self.device_model.resize_rows.connect(self.do_row_sizing, type=Qt.ConnectionType.QueuedConnection)
         self.can_add_columns = False
         self.resize_on_select = False
         self.rating_delegate = None
@@ -1858,7 +1862,7 @@ class DeviceBooksView(BooksView):  # {{{
         return drag
 
     def contextMenuEvent(self, a0):
-        _cme_db = self._model.db
+        _cme_db = self.device_model.db
         assert _cme_db is not None
         _cme_sc = getattr(_cme_db, 'supports_collections', None)
         edit_collections = callable(_cme_sc) and _cme_sc() and prefs['manage_device_metadata'] == 'manual'
@@ -1881,15 +1885,15 @@ class DeviceBooksView(BooksView):  # {{{
             gprefs.set(name + ' books view state', state)
 
     def set_database(self, db):
-        self._model.set_database(db)
+        self.device_model.set_database(db)
         self.restore_state()
 
     def connect_dirtied_signal(self, slot):
-        self._model.booklist_dirtied.connect(slot)
+        self.device_model.booklist_dirtied.connect(slot)
 
     def connect_upload_collections_signal(self, func=None, oncard=None):
         assert func is not None
-        self._model.upload_collections.connect(partial(func, view=self, oncard=oncard))
+        self.device_model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
     def dropEvent(self, event=...):
         error_dialog(
@@ -1899,7 +1903,7 @@ class DeviceBooksView(BooksView):  # {{{
         ).exec()
 
     def set_editable(self, editable, supports_backloading):
-        self._model.set_editable(editable)
+        self.device_model.set_editable(editable)
         self.drag_allowed = supports_backloading
 
     def resort(self):

@@ -263,9 +263,10 @@ class LongText(Base):
 class Bool(Base):
     def setup_ui(self, parent):
         name = self.col_metadata['name']
-        self.widgets: list[QWidget] = [QLabel(label_string(name), parent)]
+        widgets: list[QWidget] = [QLabel(label_string(name), parent)]
+        self.widgets = widgets
         w = QWidget(parent)
-        self.widgets.append(w)
+        widgets.append(w)
 
         l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
@@ -414,9 +415,10 @@ class DateTimeEdit(DateTimeEditBase):
 class DateTime(Base):
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.widgets: list[QWidget] = [QLabel(label_string(cm['name']), parent)]
+        widgets: list[QWidget] = [QLabel(label_string(cm['name']), parent)]
+        self.widgets = widgets
         w = QWidget(parent)
-        self.widgets.append(w)
+        widgets.append(w)
         l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         w.setLayout(l)

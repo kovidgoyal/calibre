@@ -1308,7 +1308,7 @@ class DeviceMixin:  # {{{
         if cv is not self.library_view:
             row = cv.currentIndex().row()
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
-            view._model.deletion_done(job, job.failed)
+            view.device_model.deletion_done(job, job.failed)
         if job.failed:
             self.device_job_exception(job)
             return

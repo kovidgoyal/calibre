@@ -15,7 +15,6 @@ import shutil
 import time
 from contextlib import suppress
 from datetime import datetime
-from typing import ClassVar
 
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG
@@ -101,7 +100,8 @@ class KOBO(USBMS):
     FORMATS = ['kepub', 'epub', 'pdf', 'txt', 'cbz', 'cbr']
     CAN_SET_METADATA = ['collections']
 
-    VENDOR_ID: ClassVar[list[int]] = [0x2237]
+    KOBO_VENDOR_ID = [0x2237]
+    VENDOR_ID = KOBO_VENDOR_ID
     BCD = [0x0110, 0x0323, 0x0326]
     ORIGINAL_PRODUCT_ID = [0x4165]
     WIFI_PRODUCT_ID = [0x4161, 0x4162]
@@ -4189,7 +4189,7 @@ class KOBOTOUCH(KOBO):
     @classmethod
     def model_metadata(cls) -> tuple[ModelMetadata, ...]:
         def m(name, pid, man='Kobo') -> ModelMetadata:
-            return ModelMetadata(man, name, cls.VENDOR_ID[-1], pid[-1], cls.BCD[-1], cls)
+            return ModelMetadata(man, name, cls.KOBO_VENDOR_ID[-1], pid[-1], cls.BCD[-1], cls)
 
         return (
             m('Aura', cls.AURA_PRODUCT_ID),
