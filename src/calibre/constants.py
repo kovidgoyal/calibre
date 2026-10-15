@@ -280,6 +280,7 @@ class ExtensionsImporter:
             'freetype',
             'imageops',
             'avif',
+            'jxl',
             'hunspell',
             '_patiencediff_c',
             'bzzdec',

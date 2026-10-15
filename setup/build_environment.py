@@ -189,6 +189,9 @@ if iswindows:
     libavif_inc_dirs = [sw_inc_dir]
     libavif_lib_dirs = [sw_lib_dir]
     libavif_libs = ['avif']
+    libjxl_inc_dirs = [sw_inc_dir]
+    libjxl_lib_dirs = [sw_lib_dir]
+    libjxl_libs = ['jxl', 'jxl_threads', 'jxl_cms']
 elif ismacos:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     sw_inc_dir = os.path.join(sw, 'include')
@@ -211,6 +214,9 @@ elif ismacos:
     libavif_inc_dirs = [sw_inc_dir]
     libavif_lib_dirs = [sw_lib_dir]
     libavif_libs = ['avif']
+    libjxl_inc_dirs = [sw_inc_dir]
+    libjxl_lib_dirs = [sw_lib_dir]
+    libjxl_libs = ['jxl', 'jxl_threads', 'jxl_cms']
 else:
     freetype_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR', '/usr/include/freetype2')
     freetype_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
@@ -232,6 +238,9 @@ else:
     libavif_inc_dirs = pkgconfig_include_dirs('libavif', 'LIBAVIF_INC_DIR', '/usr/include')
     libavif_lib_dirs = pkgconfig_lib_dirs('libavif', 'LIBAVIF_LIB_DIR', '/usr/lib')
     libavif_libs = pkgconfig_libs('libavif', '', 'avif')
+    libjxl_inc_dirs = pkgconfig_include_dirs('libjxl', 'LIBJXL_INC_DIR', '/usr/include')
+    libjxl_lib_dirs = pkgconfig_lib_dirs('libjxl', 'LIBJXL_LIB_DIR', '/usr/lib')
+    libjxl_libs = pkgconfig_libs('libjxl', '', 'jxl') + pkgconfig_libs('libjxl_threads', '', 'jxl_threads') + pkgconfig_libs('libjxl_cms', '', 'jxl_cms')
     for x in ('libavcodec', 'libavformat', 'libavdevice', 'libavfilter', 'libavutil', 'libpostproc', 'libswresample', 'libswscale'):
         for inc in pkgconfig_include_dirs(x, '', '/usr/include'):
             if inc and inc not in ffmpeg_inc_dirs:

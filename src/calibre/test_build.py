@@ -610,7 +610,7 @@ def test():
 def test_qt_main():
     from unittest import TestCase
 
-    from qt.core import QFontDatabase, QImageReader, QNetworkAccessManager, QSslSocket
+    from qt.core import QFontDatabase, QImageReader, QImageWriter, QNetworkAccessManager, QSslSocket
 
     from calibre.utils.img import image_from_data, image_to_data, test
 
@@ -633,6 +633,10 @@ def test_qt_main():
     # AVIF comes from our own Qt image format plugin, which is registered with
     # Qt by importing calibre_extensions.avif, done by calibre.utils.img above
     self.assertIn('avif', fmts, f'The AVIF image format plugin was not loaded. Available plugins: {fmts}')
+    # Similarly for JPEG-XL, which can also be written
+    self.assertIn('jxl', fmts, f'The JPEG-XL image format plugin was not loaded. Available plugins: {fmts}')
+    wfmts = {x.data().decode('utf-8') for x in QImageWriter.supportedImageFormats()}
+    self.assertIn('jxl', wfmts, f'The JPEG-XL image format plugin cannot write images. Available plugins: {wfmts}')
     data = P('images/blank.png', allow_user_override=False, data=True)
     img = image_from_data(data)
     image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))

@@ -21,6 +21,7 @@ from calibre.utils.imghdr import what
 from calibre.utils.resources import get_image_path as I
 from calibre_extensions import avif as _avif_plugin  # noqa: F401  registers the AVIF image format with Qt
 from calibre_extensions import imageops
+from calibre_extensions import jxl as _jxl_plugin  # noqa: F401  registers the JPEG-XL image format with Qt
 
 
 # Utilities {{{
@@ -188,8 +189,9 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     """
     Serialize image to bytestring in the specified format.
 
-    :param compression_quality: is for JPEG and WEBP and goes from 0 to 100.
+    :param compression_quality: is for JPEG, WEBP and JXL and goes from 0 to 100.
                                 100 being lowest compression, highest image quality. For WEBP 100 means lossless with effort of 70.
+                                For JXL 100 means lossless.
     :param png_compression_level: is for PNG and goes from 0-9. 9 being highest compression.
     :param jpeg_optimized: Turns on the 'optimize' option for libjpeg which losslessly reduce file size
     :param jpeg_progressive: Turns on the 'progressive scan' option for libjpeg which allows JPEG images to be downloaded in streaming fashion
@@ -218,7 +220,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     elif fmt == 'PNG':
         cl = min(9, max(0, png_compression_level))
         w.setQuality(10 * (9 - cl))
-    elif fmt == 'WEBP':
+    elif fmt in ('WEBP', 'JXL'):
         w.setQuality(compression_quality)
     if not w.write(img):
         raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())

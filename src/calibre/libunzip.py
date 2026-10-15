@@ -63,7 +63,7 @@ def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)
             return name, zf.read(name)
 
 
-comic_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'}
+comic_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'jxl'}
 
 
 def name_ok(name):

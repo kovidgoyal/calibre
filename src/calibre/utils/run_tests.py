@@ -846,6 +846,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.utils.avif_test import find_tests
 
         a(find_tests())
+        from calibre.utils.jxl_test import find_tests
+
+        a(find_tests())
         from calibre.utils.imghdr_test import find_tests
 
         a(find_tests())

@@ -207,6 +207,16 @@
 		"qt_modules": ["-widgets"]
     },
     {
+        "name": "jxl",
+        "sources": "calibre/utils/jxl/jxl_plugin.cpp",
+        "headers": "calibre/utils/jxl/jxl_plugin.h",
+        "sip_files": "calibre/utils/jxl/jxl.sip",
+        "libraries": "!libjxl_libs",
+        "lib_dirs": "!libjxl_lib_dirs",
+        "inc_dirs": "calibre/utils/jxl !libjxl_inc_dirs",
+		"qt_modules": ["-widgets"]
+    },
+    {
         "name": "winutil",
         "only": "windows",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
