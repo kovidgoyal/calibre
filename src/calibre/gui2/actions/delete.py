@@ -64,7 +64,12 @@ class MultiDeleter(QObject):  # {{{
             try:
                 db.new_api.remove_books((book_id,), permanent=False)
             except Exception:
-                self.failures.append((book_id, self.title_for(book_id), traceback.format_exc()))
+                if db.new_api.has_id(book_id):
+                    self.failures.append((book_id, self.title_for(book_id), traceback.format_exc()))
+                else:
+                    # remove_books() raised after it removed the book from the library
+                    traceback.print_exc()
+                    deleted.append(book_id)
             else:
                 deleted.append(book_id)
         if deleted:
