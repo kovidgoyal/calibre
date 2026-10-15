@@ -3451,6 +3451,7 @@ class Cache:
     @write_api
     def saved_search_add(self, name, val):
         self._search_api.saved_searches.add(name, val)
+        self._clear_search_caches()
 
     _saved_search_add = saved_search_add
 
