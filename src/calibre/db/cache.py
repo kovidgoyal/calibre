@@ -3591,6 +3591,11 @@ class Cache:
         size, fname = self._do_add_format(book_id, fmt, fpath, name)
         self.format_metadata_cache.pop(book_id, None)
         self._record_format_added(book_id, fmt, fname, size)
+        # Composite columns (and searches) that use the formats of the book are stale now. Unlike add_format() this does not change the
+        # last modified time of the book
+        if self.composites:
+            self._clear_composite_caches((book_id,))
+        self._clear_search_caches((book_id,))
         self._queue_pages_scan(book_id)
         self.event_dispatcher(EventType.format_added, book_id, fmt)
         self.backend.remove_trash_formats_dir_if_empty(book_id)

@@ -1005,6 +1005,23 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_restore_format_from_trash_clears_caches(self):  # {{{
+        "Test that composite columns and cached searches are not stale after a format is restored from the trash"
+        cache = self.init_cache()
+        cache.create_custom_column('cfmt', 'CFMT', 'composite', False, display={'composite_template': '{formats}'})
+        cache.close()
+        cache = self.init_cache()
+        self.assertEqual('FMT1', cache.field_for('#cfmt', 2))
+        self.assertIn(2, cache.search('formats:FMT1'))
+        cache.remove_formats({2: ['FMT1']})
+        self.assertEqual('', cache.field_for('#cfmt', 2))
+        self.assertNotIn(2, cache.search('formats:FMT1'))
+        cache.move_format_from_trash(2, 'FMT1')
+        self.assertEqual('FMT1', cache.field_for('#cfmt', 2))
+        self.assertIn(2, cache.search('formats:FMT1'))
+
+    # }}}
+
     def test_composite_of_virtual_libraries(self):  # {{{
         "Test that a composite column showing the Virtual libraries is not stale after a book changes Virtual library"
         cache = self.init_cache()
