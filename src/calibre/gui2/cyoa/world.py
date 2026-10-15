@@ -9,7 +9,7 @@
 # characters fit the world as the player settled on it.
 
 from base64 import standard_b64decode, standard_b64encode
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from itertools import count
 from threading import Thread
 from typing import NamedTuple
@@ -229,6 +229,9 @@ def recommended_style(brief: str) -> StoryStyle:
 WORLD_GENERATION_MESSAGE = _('Creating your world, this can take a while…')
 BRIEF_ROLE = Qt.ItemDataRole.UserRole
 SAVED_WORLD_ROLE = Qt.ItemDataRole.UserRole + 1
+# The combined index of the character of an item in the cast list, see
+# WorldEditWidget.character_at(), -1 for the headers.
+CAST_INDEX_ROLE = Qt.ItemDataRole.UserRole + 2
 # Portraits are stored downscaled to fit this size and displayed at half of
 # it, keeping the saved world JSON reasonably small while looking sharp even
 # on high DPI screens.
@@ -541,26 +544,24 @@ class WorldEditWidget(QWidget):
 
         self.character_page = cp = QWidget(self)
         l = QVBoxLayout(cp)
-        la = QLabel(_('Choose the character you will play as. You can edit any of the characters of this world as you like.'))
+        la = QLabel(_('Check the character you will play as. Select any of the characters of this world to edit them as you like.'))
         la.setWordWrap(True)
         l.addWidget(la)
         h = QHBoxLayout()
         cast = QVBoxLayout()
-        chl = QLabel(_('&Play as:'))
-        self.char_list = cw = QListWidget(cp)
-        cw.setToolTip('<p>' + _('The characters you can play as. The one selected here is the one you will play.'))
-        chl.setBuddy(cw)
-        cw.currentRowChanged.connect(self.on_playable_character_changed)
-        cast.addWidget(chl), cast.addWidget(cw)
-        # The rest of the cast: characters the player will meet as the story
+        chl = QLabel(_('&Characters:'))
+        # The whole cast in a single list, so that only one character is ever
+        # selected, the one shown in the editor: the playable characters,
+        # one of which is checked as the one the player plays as, followed by
+        # the rest of the cast, characters the player will meet as the story
         # unfolds. They cannot be played as, but editing them shapes the world
         # the story is told in just as editing the playable characters does.
-        self.npc_label = nl = QLabel(_('&Other characters in this world:'))
-        self.npc_list = nw = QListWidget(cp)
-        nw.setToolTip('<p>' + _('The other characters that live in this world. You will meet them as the story unfolds.'))
-        nl.setBuddy(nw)
-        nw.currentRowChanged.connect(self.on_npc_changed)
-        cast.addWidget(nl), cast.addWidget(nw)
+        self.cast_list = cw = QListWidget(cp)
+        cw.setToolTip('<p>' + _('The characters of this world. Select one to edit it, check the one you will play as.'))
+        chl.setBuddy(cw)
+        cw.currentItemChanged.connect(self.on_cast_item_changed)
+        cw.itemChanged.connect(self.on_cast_item_check_changed)
+        cast.addWidget(chl), cast.addWidget(cw)
         h.addLayout(cast, stretch=1)
         self.character_editor = ce = CharacterEditor(cp)
         ce.portrait_refresh_requested.connect(self.regenerate_current_portrait)
@@ -641,18 +642,36 @@ class WorldEditWidget(QWidget):
         self.cast_source = self.world_edit.markdown if self.characters else ''
         self.portraits = padded_portraits(portraits, len(self.characters)) + padded_portraits(npc_portraits, len(self.npcs))
         self.portrait_styles = [portrait_style if p else '' for p in self.portraits]
-        for lw, names in ((self.char_list, [c.name for c in self.characters]), (self.npc_list, [c.name for c in self.npcs])):
-            lw.blockSignals(True)  # the rows are loaded into the editor by show_character() below
-            lw.clear()
-            for name in names:
-                lw.addItem(name)
-            lw.setCurrentRow(0 if names else -1)
-            lw.blockSignals(False)
-        has_npcs = bool(self.npcs)
-        self.npc_label.setVisible(has_npcs)
-        self.npc_list.setVisible(has_npcs)
+        lw = self.cast_list
+        lw.blockSignals(True)  # the current character is loaded into the editor by show_character() below
+        lw.clear()
+
+        def add_header(text: str) -> None:
+            # Headers can be neither selected nor reached with the keyboard
+            item = QListWidgetItem(text, lw)
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setData(CAST_INDEX_ROLE, -1)
+            f = item.font()
+            f.setBold(True)
+            item.setFont(f)
+
+        if self.characters:
+            add_header(_('Playable characters'))
+            for i, c in enumerate(self.characters):
+                item = QListWidgetItem(c.name, lw)
+                item.setData(CAST_INDEX_ROLE, i)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Checked if i == 0 else Qt.CheckState.Unchecked)
+                item.setToolTip('<p>' + _('Check to play as this character'))
+        if self.npcs:
+            add_header(_('Other characters in this world'))
+            for i, npc in enumerate(self.npcs):
+                item = QListWidgetItem(npc.name, lw)
+                item.setData(CAST_INDEX_ROLE, len(self.characters) + i)
+                item.setToolTip('<p>' + _('You will meet this character as the story unfolds'))
+        lw.blockSignals(False)
         self.update_next_button()
-        self.show_character(0 if self.characters else -1)
+        self.select_character(0 if self.characters else -1)
         self.update_start_button()
 
     def update_next_button(self) -> None:
@@ -721,12 +740,52 @@ class WorldEditWidget(QWidget):
         i = idx - len(self.characters)
         return self.npcs[i] if 0 <= i < len(self.npcs) else None
 
-    def list_and_row_for(self, idx: int) -> tuple[QListWidget, int]:
-        # The list the character at a combined index is shown in and their row
-        # in it, see character_at().
-        if idx < len(self.characters):
-            return self.char_list, idx
-        return self.npc_list, idx - len(self.characters)
+    def cast_items(self) -> Iterator[tuple[int, QListWidgetItem]]:
+        # The items of the characters in the cast list with their combined
+        # index, see character_at(), skipping the headers.
+        lw = self.cast_list
+        for row in range(lw.count()):
+            item = lw.item(row)
+            if item is None:
+                continue
+            idx = item.data(CAST_INDEX_ROLE)
+            if isinstance(idx, int) and idx > -1:
+                yield idx, item
+
+    def item_for(self, idx: int) -> QListWidgetItem | None:
+        for i, item in self.cast_items():
+            if i == idx:
+                return item
+        return None
+
+    def select_character(self, idx: int) -> None:
+        # Make the character at a combined index the current one in the cast
+        # list, which shows them in the editor.
+        if (item := self.item_for(idx)) is not None:
+            self.cast_list.setCurrentItem(item)
+        self.show_character(idx)
+
+    @property
+    def player_character_index(self) -> int:
+        # The index of the playable character checked as the one played as,
+        # -1 if there is none.
+        for idx, item in self.cast_items():
+            if idx < len(self.characters) and item.checkState() == Qt.CheckState.Checked:
+                return idx
+        return -1
+
+    def set_player_character(self, idx: int) -> None:
+        # Check the playable character at idx and uncheck all others, as
+        # only one character can be played as.
+        lw = self.cast_list
+        lw.blockSignals(True)
+        try:
+            for i, item in self.cast_items():
+                if i < len(self.characters):
+                    item.setCheckState(Qt.CheckState.Checked if i == idx else Qt.CheckState.Unchecked)
+        finally:
+            lw.blockSignals(False)
+        self.update_start_button()
 
     def commit_character_edits(self) -> None:
         idx = self.current_char_idx
@@ -737,19 +796,29 @@ class WorldEditWidget(QWidget):
             self.npcs[idx - len(self.characters)] = c = self.character_editor.non_player_character
         else:
             return
-        lw, row = self.list_and_row_for(idx)
-        item = lw.item(row)
+        item = self.item_for(idx)
         if item is not None and c.name:
+            lw = self.cast_list
+            lw.blockSignals(True)  # renaming is not a change of the checked character
             item.setText(c.name)
+            lw.blockSignals(False)
         self.update_start_button()
 
-    def on_playable_character_changed(self, row: int) -> None:
-        self.show_character(row)
-        self.update_start_button()
+    def on_cast_item_changed(self, current: QListWidgetItem | None, previous: QListWidgetItem | None) -> None:
+        idx = current.data(CAST_INDEX_ROLE) if current is not None else -1
+        if isinstance(idx, int) and idx > -1:
+            self.show_character(idx)
 
-    def on_npc_changed(self, row: int) -> None:
-        if row > -1:
-            self.show_character(len(self.characters) + row)
+    def on_cast_item_check_changed(self, item: QListWidgetItem) -> None:
+        # Checking a playable character makes them the one played as. Exactly
+        # one is always checked, so unchecking the checked one re-checks it.
+        idx = item.data(CAST_INDEX_ROLE)
+        if not isinstance(idx, int) or not (-1 < idx < len(self.characters)):
+            return
+        if item.checkState() == Qt.CheckState.Checked:
+            self.set_player_character(idx)
+        elif self.player_character_index < 0:
+            self.set_player_character(idx)
 
     def show_character(self, idx: int) -> None:
         # Show the character at a combined index in the editor, saving the
@@ -769,9 +838,9 @@ class WorldEditWidget(QWidget):
         self.update_portrait_display()
 
     def update_start_button(self) -> None:
-        # Naming the character on the button makes it clear which of the two
-        # lists of characters decides who the player plays as.
-        row = self.char_list.currentRow()
+        # Naming the character on the button makes it clear that the checked
+        # character, not the one being edited, is the one played as.
+        row = self.player_character_index
         name = self.characters[row].name if -1 < row < len(self.characters) else ''
         self.start_button.setText(_('Start &playing as {}').format(name) if name else _('Start &playing'))
 
@@ -944,9 +1013,9 @@ class WorldEditWidget(QWidget):
 
     def start_game(self) -> None:
         w = self.current_world
-        row = self.char_list.currentRow()
+        row = self.player_character_index
         if not w.characters or not (-1 < row < len(w.characters)):
-            return error_dialog(self, _('No character selected'), _('Select the character you will play as.'), show=True)
+            return error_dialog(self, _('No character selected'), _('Check the character you will play as.'), show=True)
         if not w.characters[row].name:
             return error_dialog(self, _('No character name'), _('The character you play as must have a name.'), show=True)
         # A character with no name can neither be referred to by the AI nor be
@@ -954,7 +1023,7 @@ class WorldEditWidget(QWidget):
         # them, see calibre.ai.cyoa.updated_characters().
         for i, npc in enumerate(w.npcs):
             if not npc.name:
-                self.npc_list.setCurrentRow(i)
+                self.select_character(len(w.characters) + i)
                 return error_dialog(self, _('No character name'), _('Every character of the world must have a name.'), show=True)
         self.start_requested.emit(w, row)
 
@@ -1184,7 +1253,8 @@ class CreateWorldWidget(QWidget):
         self.current_brief = state.brief
         we = self.world_edit
         we.load(state.brief, world, state.style, playable, npc_portraits=npcs, restarting=True)
-        we.char_list.setCurrentRow(state.character_index)
+        we.set_player_character(state.character_index)
+        we.select_character(state.character_index)
         we.show_status('')
         self.stack.setCurrentWidget(we)
 
