@@ -1417,7 +1417,7 @@ class DB:
                 self.notes.rename_field(self.conn, '#' + old_label, '#' + label)
         if is_editable is not None:
             self.execute('UPDATE custom_columns SET editable=? WHERE id=?', (bool(is_editable), num))
-            self.custom_column_num_map[num]['is_editable'] = bool(is_editable)
+            self.custom_column_num_map[num]['editable'] = bool(is_editable)
             changed = True
         if display is not None:
             self.execute('UPDATE custom_columns SET display=? WHERE id=?', (json.dumps(display), num))

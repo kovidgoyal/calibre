@@ -759,6 +759,19 @@ class WritingTest(BaseTest):
 
     # }}}
 
+    def test_set_custom_column_metadata_editable(self):  # {{{
+        "Test that making a custom column read-only takes effect immediately"
+        cache = self.init_cache()
+        cache.create_custom_column('ce', 'CE', 'text', False)
+        cache.close()
+        cache = self.init_cache()
+        num = cache.backend.custom_column_label_map['ce']['num']
+        self.assertTrue(cache.backend.custom_field_metadata(num=num)['editable'])
+        cache.set_custom_column_metadata(num, is_editable=False)
+        self.assertFalse(cache.backend.custom_field_metadata(num=num)['editable'])
+        cache.close()
+    # }}}
+
     def test_composite_cache(self):  # {{{
         "Test that the composite field cache is properly invalidated on writes"
         cache = self.init_cache()
