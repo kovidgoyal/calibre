@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+import errno
 import glob
 import os
-from contextlib import suppress
+import stat
+from contextlib import ExitStack, suppress
 from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
+from calibre.constants import get_umask, iswindows
 from calibre.db.constants import METADATA_FILE_NAME
 from calibre.db.tests.base import IMG, BaseTest
 from calibre.ptempfile import PersistentTemporaryFile
@@ -102,6 +105,57 @@ class AddRemoveTest(BaseTest):
         del db
 
     # }}}
+
+    def test_add_format_failure_preserves_existing(self):
+        from unittest.mock import patch
+
+        class FailingReader(BytesIO):
+            def read(self, size=-1):
+                if self.tell():
+                    raise OSError(errno.EIO, 'simulated source read failure')
+                return super().read(3)
+
+        def fail_copy(source, dest):
+            dest.write(b'partial')
+            raise OSError(errno.ENOSPC, 'simulated destination write failure')
+
+        cache = self.init_cache()
+        original = cache.format(1, 'FMT1')
+        for failure in ('read', 'write', 'replace'):
+            cache.add_format(1, 'FMT1', BytesIO(original), run_hooks=False)
+            path = cache.format_abspath(1, 'FMT1')
+            before_files = set(os.listdir(os.path.dirname(path)))
+            before_metadata = cache.format_metadata(1, 'FMT1')
+            before_size = cache.field_for('size', 1)
+            before_modified = cache.field_for('last_modified', 1)
+            with self.subTest(failure=failure):
+                with ExitStack() as faults:
+                    stream = BytesIO(b'replacement ebook')
+                    if failure == 'read':
+                        stream = FailingReader(b'replacement ebook')
+                    elif failure == 'write':
+                        faults.enter_context(patch('calibre.db.backend.shutil.copyfileobj', fail_copy))
+                    else:
+                        faults.enter_context(patch('calibre.db.backend.atomic_rename', side_effect=OSError(errno.EACCES, 'simulated replacement failure')))
+                    with self.assertRaises(OSError):
+                        cache.add_format(1, 'FMT1', stream, run_hooks=False)
+                self.assertEqual(original, cache.format(1, 'FMT1'))
+                self.assertEqual(before_metadata, cache.format_metadata(1, 'FMT1'))
+                self.assertEqual(before_size, cache.field_for('size', 1))
+                self.assertEqual(before_modified, cache.field_for('last_modified', 1))
+                self.assertEqual(before_files, set(os.listdir(os.path.dirname(path))))
+
+    def test_add_format_permissions(self):
+        if iswindows:
+            self.skipTest('POSIX file permissions')
+        cache = self.init_cache()
+        path = cache.format_abspath(1, 'FMT1')
+        os.chmod(path, 0o640)
+        cache.add_format(1, 'FMT1', BytesIO(b'replacement ebook'), run_hooks=False)
+        self.assertEqual(0o640, stat.S_IMODE(os.stat(path).st_mode))
+        cache.add_format(3, 'NEWFMT', BytesIO(b'new ebook'), run_hooks=False)
+        path = cache.format_abspath(3, 'NEWFMT')
+        self.assertEqual(0o666 & ~get_umask(), stat.S_IMODE(os.stat(path).st_mode))
 
     def test_add_format_categories(self):  # {{{
         "Test that adding a format keeps the cached formats category correct"

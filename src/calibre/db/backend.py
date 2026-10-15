@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, cast
 import apsw
 
 from calibre import as_unicode, force_unicode, prints
-from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
+from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, get_umask, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.book_storage import BookStorageEntry, InvalidBookStorage, validate_book_storage
@@ -2147,11 +2147,22 @@ class DB:
                     raise
             size = os.path.getsize(dest)
         elif not getattr(stream, 'name', False) or not samefile(dest, stream.name):
-            with open(dest, 'wb') as f:
-                shutil.copyfileobj(stream, f)
-                size = f.tell()
-            if mtime is not None:
-                os.utime(dest, (mtime, mtime))
+            # Do not truncate an existing format until the replacement has been
+            # completely written and closed. Keep the temporary file on the
+            # same filesystem so the final replacement is atomic.
+            with TemporaryFile(dir=path) as temp_path:
+                with open(temp_path, 'wb') as f:
+                    shutil.copyfileobj(stream, f)
+                    size = f.tell()
+                if not iswindows:
+                    try:
+                        mode = stat.S_IMODE(os.stat(dest).st_mode)
+                    except FileNotFoundError:
+                        mode = 0o666 & ~get_umask()
+                    os.chmod(temp_path, mode)
+                if mtime is not None:
+                    os.utime(temp_path, (mtime, mtime))
+                atomic_rename(temp_path, dest)
         elif os.path.exists(dest):
             size = os.path.getsize(dest)
             if mtime is not None:
