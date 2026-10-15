@@ -417,7 +417,14 @@ class Structure(BaseTest):
             return f'''<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="style.css"/>{head}</head><body>{body}</body></html>'''
 
         c = self.create_epub([
-            cmi('a.html', html('<p id="_x">a</p><a href="#_x">l</a><a href="b.html#_x">l</a>', '<style>#_x { margin: 0 }</style>')),
+            cmi(
+                'a.html',
+                html(
+                    '<p id="_x">a</p><a href="#_x">l</a><a href="b.html#_x">l</a>'
+                    '<div aria-labelledby="_x  _y" aria-describedby="_x"><label for="_x">l</label></div>',
+                    '<style>#_x { margin: 0 }</style>',
+                ),
+            ),
             cmi('b.html', html('<p id="_x">b</p><a href="a.html#_x">l</a>')),
             cmi('c.html', html('<p id="id_x">c</p><p style="color: red">x</p>')),
             cmi('style.css', '#_x { color: red }\n@media screen { p#_x, [id="_x"] { font-weight: bold } }\n#id_x { color: blue }'),
@@ -438,6 +445,44 @@ class Structure(BaseTest):
         self.assertEqual(sheet.cssRules[0].selectorText, f'#{nid}')
         self.assertEqual(sheet.cssRules[1].cssRules[0].selectorText, f'p#{nid}, [id="{nid}"]')
         self.assertEqual(sheet.cssRules[2].selectorText, '#id_x')
+        root = c.parsed('a.html')
+        self.assertEqual(root.xpath('//*/@aria-labelledby'), [f'{nid} _y'])
+        self.assertEqual(root.xpath('//*/@aria-describedby'), [nid])
+        self.assertEqual(root.xpath('//*/@for'), [nid])
+
+    def test_dangling_id_reference(self):
+        from calibre.ebooks.oeb.polish.check.main import fix_errors
+        from calibre.ebooks.oeb.polish.check.parsing import DanglingIdReference, check_ids
+
+        def html(body):
+            return f'<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>{body}</body></html>'
+
+        c = self.create_epub([
+            cmi(
+                'a.html',
+                html(
+                    '<h1 id="h">h</h1><section aria-labelledby="h x">s</section>\n<p aria-describedby="x">p</p>'
+                    '<table><tr><th id="c">c</th><td headers="c">1</td><td headers="y">2</td></tr></table>'
+                    '<label for="z">l</label><a href="#q" data-x="w">a</a>'
+                ),
+            ),
+            cmi('b.html', html('<p id="x">b</p>')),
+        ])
+
+        def dangling():
+            return {e.missing_id: e for e in check_ids(c) if isinstance(e, DanglingIdReference)}
+
+        errors = dangling()
+        self.assertEqual(set(errors), {'x', 'y', 'z'})
+        self.assertEqual(errors['x'].name, 'a.html')
+        self.assertEqual(len(errors['x'].all_locations), 2)
+        self.assertTrue(fix_errors(c, list(errors.values())))
+        self.assertFalse(dangling())
+        root = c.parsed('a.html')
+        self.assertEqual(root.xpath('//*/@aria-labelledby'), ['h'])
+        self.assertFalse(root.xpath('//*/@aria-describedby'))
+        self.assertEqual(root.xpath('//*/@headers'), ['c'])
+        self.assertFalse(root.xpath('//*/@for'))
 
 
 def find_tests():

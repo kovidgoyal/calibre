@@ -39,6 +39,7 @@ from calibre.ebooks.oeb.base import (
     Manifest,
     itercsslinks,
     iterlinks,
+    rewrite_idrefs,
     rewrite_links,
     serialize,
     urlquote,
@@ -463,7 +464,12 @@ class Container(ContainerBase):  # {{{
         callable that accepts a URL and returns the replaced URL. It must also
         have a 'replaced' attribute that is set to True if any actual
         replacement is done. Convenient ways of creating such callables are
-        using the :class:`LinkReplacer` and :class:`LinkRebaser` classes."""
+        using the :class:`LinkReplacer` and :class:`LinkRebaser` classes.
+
+        In HTML files, attributes that refer to elements in the same file by
+        id, such as aria-labelledby, are also replaced. Each id is passed to
+        replace_func as a URL of the form #id with file_type set to 'idref'
+        and is replaced only if replace_func returns a URL of the same form."""
         media_type = self.mime_map.get(name, guess_type(name))
         if name == self.opf_name:
             replace_func.file_type = 'opf'
@@ -471,7 +477,15 @@ class Container(ContainerBase):  # {{{
                 elem.set('href', replace_func(elem.get('href')))
         elif media_type.lower() in OEB_DOCS:
             replace_func.file_type = 'text'
-            rewrite_links(self.parsed(name), replace_func)
+            root = self.parsed(name)
+            rewrite_links(root, replace_func)
+            replace_func.file_type = 'idref'
+
+            def replace_idref(eid: str) -> str:
+                q = replace_func('#' + eid)
+                return q[1:] if q and q.startswith('#') and len(q) > 1 else eid
+
+            rewrite_idrefs(root, replace_idref)
         elif media_type.lower() in OEB_STYLES:
             replace_func.file_type = 'style'
             replaceUrls(self.parsed(name), replace_func)

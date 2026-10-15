@@ -8,7 +8,7 @@ from lxml.etree import XMLSyntaxError
 from calibre import human_readable, prepare_string_for_xml
 from calibre.ebooks.chardet import find_declared_encoding, replace_encoding_declarations
 from calibre.ebooks.html_entities import html5_entities
-from calibre.ebooks.oeb.base import OEB_DOCS, URL_SAFE, XHTML, XHTML_NS, urlquote
+from calibre.ebooks.oeb.base import OEB_DOCS, URL_SAFE, XHTML, XHTML_NS, iteridrefs, rewrite_idrefs, urlquote
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
@@ -363,7 +363,8 @@ class InvalidId(BaseError):
             + ' '
             + _(
                 'Fixing this will replace the id in all HTML files that use it, along with'
-                ' links and CSS selectors that refer to it. References in JavaScript are not updated.'
+                ' links, CSS selectors and attributes such as aria-labelledby that refer to it.'
+                ' References in JavaScript are not updated.'
             )
         )
         self.invalid_id = eid
@@ -396,6 +397,28 @@ class InvalidId(BaseError):
         if is_html:
             rename_ids_in_css(container, {self.invalid_id: newid})
         return True
+
+
+class DanglingIdReference(BaseError):
+    RULE_NAME = _('Reference to non-existent id')
+    has_multiple_locations = True
+    INDIVIDUAL_FIX = _('Remove the references to this id')
+
+    def __init__(self, name, eid, locs):
+        BaseError.__init__(self, _('Reference to non-existent id: %s') % eid, name)
+        self.HELP = _(
+            'The id {0} is referred to by attributes such as aria-labelledby or aria-describedby in {1},'
+            ' but no element in {1} has this id. Such attributes can only refer to elements in the same file.'
+            ' Either add the id to the element that should be referred to or remove the reference.'
+        ).format(eid, name)
+        self.all_locations = [(name, lnum, None) for lnum in sorted(locs)]
+        self.missing_id = eid
+
+    def __call__(self, container):
+        changed = rewrite_idrefs(container.parsed(self.name), lambda eid: None if eid == self.missing_id else eid)
+        if changed:
+            container.dirty(self.name)
+        return changed
 
 
 class BareTextInBody(BaseError):
@@ -461,6 +484,13 @@ def check_ids(container):
                 if eid and valid_id.match(eid) is None:
                     errors.append(InvalidId(name, elem.sourceline, eid))
             errors.extend(DuplicateId(name, eid, locs) for eid, locs in dups.items())
+            if mt in OEB_DOCS:
+                dangling = {}
+                for elem, attr, ids in iteridrefs(root):
+                    for eid in ids:
+                        if eid not in seen_ids:
+                            dangling.setdefault(eid, set()).add(elem.sourceline)
+                errors.extend(DanglingIdReference(name, eid, locs) for eid, locs in dangling.items())
     return errors
 
 

@@ -261,6 +261,17 @@ class ContainerTests(BaseTest):
 
         book = get_simple_book()
         c = get_container(book)
+        c.add_file(one, b'<p id="x" aria-labelledby="x">1</p>')
+        c.add_file(two, b'<p id="x">2</p><p aria-labelledby="x y" aria-describedby="x">3</p><label for="x">4</label>')
+        merge(c, 'text', (one, two), one)
+        root = c.parsed(one)
+        self.assertEqual(root.xpath('//*[@id]/@id'), ['x', 'x_1'])
+        self.assertEqual(root.xpath('//*/@aria-labelledby'), ['x', 'x_1 y'])
+        self.assertEqual(root.xpath('//*/@aria-describedby'), ['x_1'])
+        self.assertEqual(root.xpath('//*/@for'), ['x_1'])
+
+        book = get_simple_book()
+        c = get_container(book)
         merge(c, 'styles', ('stylesheet.css', 'page_styles.css'), 'stylesheet.css')
         self.check_links(c)
 

@@ -6,7 +6,7 @@ import os
 import re
 from urllib.parse import urlparse
 
-from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barename
+from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barename, rewrite_idrefs
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 from calibre.ebooks.oeb.polish.toc import node_from_loc
@@ -421,6 +421,7 @@ def merge_html(container, names, master, insert_page_breaks=False):
             q = a.get('href')[1:]
             if q in amap:
                 a.set('href', '#' + amap[q])
+        rewrite_idrefs(root, lambda eid: amap.get(eid, eid))
 
         for child in children:
             if isinstance(child, (str, bytes)):

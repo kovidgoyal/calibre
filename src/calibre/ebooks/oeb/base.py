@@ -10,6 +10,7 @@ import os
 import re
 import sys
 from collections import defaultdict
+from collections.abc import Callable, Iterator
 from functools import lru_cache
 from itertools import count
 from operator import attrgetter
@@ -390,6 +391,66 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             replaceUrls(stext, link_repl_func)
             repl = css_text(stext).replace('\n', ' ').replace('\r', ' ')
             el.set('style', repl)
+
+
+# Attributes whose values are space separated lists of ids of elements in the
+# same document
+IDREF_ATTRS = frozenset((
+    'aria-activedescendant',
+    'aria-controls',
+    'aria-describedby',
+    'aria-details',
+    'aria-errormessage',
+    'aria-flowto',
+    'aria-labelledby',
+    'aria-owns',
+))
+# Attributes that are lists of ids only on specific tags
+TAG_IDREF_ATTRS = {
+    'label': frozenset(('for',)),
+    'output': frozenset(('for',)),
+    'td': frozenset(('headers',)),
+    'th': frozenset(('headers',)),
+}
+
+
+def iteridrefs(root: etree._Element) -> Iterator[tuple[etree._Element, str, list[str]]]:
+    """
+    Iterate over all attributes in the document that refer to other elements
+    in the same document by id, such as aria-labelledby. Yields tuples of the
+    form (element, attribute name, list of ids).
+    """
+    for el in root.iter('*'):
+        attribs = el.attrib
+        attrs = IDREF_ATTRS.intersection(attribs)
+        tag = el.tag
+        extra = TAG_IDREF_ATTRS.get(barename(tag).lower()) if isinstance(tag, str) else None
+        if extra:
+            attrs |= extra.intersection(attribs)
+        for attr in sorted(attrs):
+            ids = attribs[attr].split()
+            if ids:
+                yield el, attr, ids
+
+
+def rewrite_idrefs(root: etree._Element, id_repl_func: Callable[[str], str | None]) -> bool:
+    """
+    Rewrite all ids in attributes that refer to other elements in the same
+    document by id, such as aria-labelledby. For each id
+    ``id_repl_func(id)`` is called and the return value replaces the id. If
+    it returns None or the empty string, the id is removed and if no ids
+    remain, so is the attribute. Returns True iff something was changed.
+    """
+    changed = False
+    for el, attr, ids in iteridrefs(root):
+        new_ids = [x for x in map(id_repl_func, ids) if x]
+        if new_ids != ids:
+            changed = True
+            if new_ids:
+                el.set(attr, ' '.join(new_ids))
+            else:
+                del el.attrib[attr]
+    return changed
 
 
 types_map = get_types_map()

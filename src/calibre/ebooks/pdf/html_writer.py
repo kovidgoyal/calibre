@@ -26,7 +26,7 @@ from qt.webengine import (
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__, ismacos, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
-from calibre.ebooks.oeb.base import XHTML, XPath
+from calibre.ebooks.oeb.base import XHTML, XPath, rewrite_idrefs
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -659,6 +659,7 @@ def make_anchors_unique(container: ContainerBase, log: Log) -> dict[str, str | N
             if key not in mapping:
                 new_id = mapping[key] = f'a{count}'
                 elem.set('id', new_id)
+        rewrite_idrefs(root, lambda eid: mapping.get((spine_name, eid), eid))
         body = last_tag(root)
         if not body.get('id'):
             count += 1
