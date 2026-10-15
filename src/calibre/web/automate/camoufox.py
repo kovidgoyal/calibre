@@ -3689,10 +3689,20 @@ class Browser:
             await page.open(url, wait=wait, timeout=timeout)
         return page
 
-    async def popup_pages(self) -> tuple[Page, ...]:
-        """Tabs the pages themselves opened, for example by a link with target=_blank."""
-        ans = tuple(self.new_pages)
-        self.new_pages.clear()
+    async def popup_pages(self, opener: Page | None = None) -> tuple[Page, ...]:
+        """Tabs the pages themselves opened, for example by a link with
+        target=_blank or one clicked with the new tab modifier held down.
+
+        Each tab is handed back once only. If opener is given only the tabs it
+        opened are handed back, the rest being left for whoever is driving the
+        tabs that opened them.
+        """
+        if opener is None:
+            ans = tuple(self.new_pages)
+            self.new_pages.clear()
+        else:
+            ans = tuple(p for p in self.new_pages if p.opener_id == opener.target_id)
+            self.new_pages[:] = [p for p in self.new_pages if p.opener_id != opener.target_id]
         return ans
 
     # Browser wide settings {{{

@@ -235,6 +235,11 @@ class Source(Plugin):
     #: ISBNs will be ignored
     prefer_results_with_isbn = True
 
+    #: If set to True this source uses the Camoufox browser shared by all
+    #: metadata downloads, see :mod:`calibre.web.automate.metadata`, which is
+    #: then started before metadata is downloaded, so that it is ready in time
+    uses_camoufox_worker = False
+
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self.running_a_test = False  # Set to True when using identify_test()

@@ -239,6 +239,9 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields, log=None, abor
     assert abort is not None
     assert log is not None
 
+    from calibre.web.automate.metadata import env_for_metadata_jobs
+
+    env = env_for_metadata_jobs()
     try:
         for ids in batches:
             if abort.is_set():
@@ -257,6 +260,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields, log=None, abor
                     abort=abort,
                     heartbeat=heartbeat,
                     no_output=True,
+                    env=env,
                 )
             except WorkerError as e:
                 if e.orig_tb:

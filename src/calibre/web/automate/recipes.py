@@ -40,7 +40,7 @@ from urllib.error import URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request
 
-from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, InputWedged, Page, TimeoutExceeded, debug, remove_profile_dir
+from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, InputWedged, Page, TimeoutExceeded, debug
 from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
 
@@ -567,30 +567,13 @@ async def handle_request(input_data: Mapping[str, Any], request: Mapping[str, An
 
 
 def finalize(input_data: Mapping[str, Any]) -> None:
-    """Shut the browser down when the worker's server stops.
-
-    This is called from inside the worker's event loop, so it cannot await
-    anything. It does not need to: closing the browser is blocking work from
-    beginning to end, which is why Browser.close() farms it out to a thread.
-    Skipping it would leave the browser process running once its parent exits.
-    """
+    """Shut the browser down when the worker's server stops."""
     global state
     current, state = state, None
-    if current is None:
-        return
-    browser = current.browser
-    process, browser.process = browser.process, None
-    with suppress(Exception):
-        if process is not None:
-            if not browser.closed:
-                with suppress(Exception):
-                    browser.connection.send_nowait('Browser.close')
-            browser.reap(process, browser.connection.transport)
-    browser.closed = True
-    profile_dir, browser.profile_dir = browser.profile_dir, ''
-    if profile_dir:
-        with suppress(Exception):
-            remove_profile_dir(profile_dir)
+    if current is not None:
+        from calibre.web.automate.browser import close_browser_from_loop
+
+        close_browser_from_loop(current.browser)
 
 
 # }}}

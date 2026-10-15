@@ -68,6 +68,13 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
 
+
+def metadata_job_env() -> dict[str, str]:
+    from calibre.web.automate.metadata import env_for_metadata_jobs
+
+    return env_for_metadata_jobs()
+
+
 # }}}
 
 
@@ -457,6 +464,7 @@ class IdentifyWorker(Thread):  # {{{
                     (self.title, self.authors, self.identifiers),
                     no_output=True,
                     abort=self.abort,
+                    env=metadata_job_env(),
                 )
                 if res['result'] is None:
                     # The download was aborted by the user, so there are no results
@@ -653,6 +661,7 @@ class CoverWorker(Thread):  # {{{
                     (self.title, self.authors, self.identifiers, self.caches, tdir),
                     no_output=True,
                     abort=self.abort,
+                    env=metadata_job_env(),
                 )
                 if res['result'] is not None:  # None when the download was aborted
                     self.log.append_dump(res['result'])

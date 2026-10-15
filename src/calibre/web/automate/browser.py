@@ -4,11 +4,12 @@
 import asyncio
 import random
 from collections.abc import Iterable
+from contextlib import suppress
 from typing import Any
 from urllib.parse import urlparse
 
 from calibre.web.automate.camoufox import Browser as CamoufoxBrowser
-from calibre.web.automate.camoufox import Error, Page, debug
+from calibre.web.automate.camoufox import Error, Page, debug, remove_profile_dir
 
 wikipedia_topics = (
     'Lists_of_deaths_by_year',
@@ -151,3 +152,26 @@ class Browser(CamoufoxBrowser):
         await super().launch()
         if self.warmup is not None:
             await self.warmup(self)
+
+
+def close_browser_from_loop(browser: CamoufoxBrowser) -> None:
+    """Shut browser down without awaiting anything.
+
+    For the finalizers of the worker processes, which are called from inside
+    the worker's event loop, so cannot await anything. They do not need to:
+    closing the browser is blocking work from beginning to end, which is why
+    :meth:`camoufox.Browser.close` farms it out to a thread. Skipping it would
+    leave the browser process running once its parent exits.
+    """
+    process, browser.process = browser.process, None
+    with suppress(Exception):
+        if process is not None:
+            if not browser.closed:
+                with suppress(Exception):
+                    browser.connection.send_nowait('Browser.close')
+            browser.reap(process, browser.connection.transport)
+    browser.closed = True
+    profile_dir, browser.profile_dir = browser.profile_dir, ''
+    if profile_dir:
+        with suppress(Exception):
+            remove_profile_dir(profile_dir)
