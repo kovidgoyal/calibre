@@ -1005,6 +1005,22 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_composite_of_virtual_libraries(self):  # {{{
+        "Test that a composite column showing the Virtual libraries is not stale after a book changes Virtual library"
+        cache = self.init_cache()
+        cache.create_custom_column('cvl', 'CVL', 'composite', False, display={'composite_template': '{virtual_libraries}'})
+        cache.close()
+        cache = self.init_cache()
+        cache.set_pref('virtual_libraries', {'VL Rated': 'rating:>=4', 'VL Tagged': 'tags:true'})
+        # Rendering the composite for the books computes their Virtual libraries while a cached search uses it
+        cache.search('#cvl:"~VL"')
+        for book_id in (1, 2, 3):
+            cache.field_for('#cvl', book_id)
+        cache.set_field('rating', {2: 10})
+        self.assertEqual('VL Rated, VL Tagged', cache.field_for('#cvl', 2))
+
+    # }}}
+
     def test_saved_search_add_clears_search_cache(self):  # {{{
         "Test that redefining a saved search does not leave stale cached searches"
         cache = self.init_cache()
