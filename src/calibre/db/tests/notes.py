@@ -247,6 +247,64 @@ def test_fts(self: NotesTest):
     self.ae(ids_for_search(' AND '.join(an.split()), ('authors',)), {('authors', authors[0])})
 
 
+def test_set_metadata_failure_keeps_note_files(self: NotesTest):
+    # A set_metadata() that fails after it removed the last use of a tag is rolled back, including the note of the tag, so the files
+    # of the note (backup and resources) must still be there
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    cache, notes = self.create_notes_db()
+    book_id = 1
+    cache.set_field('tags', {book_id: ['note tag', 'other tag']})
+    tag_id = cache.get_item_id('tags', 'note tag')
+    h = cache.add_notes_resource(b'resource for the note', 'r.jpg')
+    cache.set_notes_for('tags', tag_id, '<p>note</p>', resource_hashes=(h,))
+    backup = os.path.join(notes.backup_dir, 'tags', str(tag_id))
+    self.assertTrue(os.path.exists(backup))
+    self.assertTrue(os.path.exists(notes.path_for_resource(h)))
+    retired = os.listdir(notes.retired_dir)
+
+    mi = Metadata('Changed title', ['Changed Author'])
+    mi.tags = ['other tag']
+    mi.comments = 'changed comments'
+    orig = cache._set_field
+
+    def failing_set_field(name, *a, **kw):
+        if name == 'comments':
+            raise OSError('injected failure')
+        return orig(name, *a, **kw)
+
+    cache._set_field = failing_set_field
+    try:
+        self.assertRaises(OSError, cache.set_metadata, book_id, mi, set_title=False, set_authors=False)
+    finally:
+        del cache._set_field
+    self.ae(set(cache.field_for('tags', book_id)), {'note tag', 'other tag'})
+    self.ae(cache.notes_for('tags', tag_id), '<p>note</p>')
+    self.assertTrue(os.path.exists(backup), 'the backup file of the note was removed although the change was rolled back')
+    self.assertTrue(os.path.exists(notes.path_for_resource(h)), 'the resource of the note was removed although the change was rolled back')
+    self.ae(os.listdir(notes.retired_dir), retired)
+
+    # When it works the note is retired, with its files, once the change is committed
+    cache.set_metadata(book_id, mi, set_title=False, set_authors=False)
+    self.ae(cache.field_for('tags', book_id), ('other tag',))
+    self.assertFalse(os.path.exists(backup))
+    self.assertFalse(os.path.exists(notes.path_for_resource(h)))
+    self.ae(len(os.listdir(notes.retired_dir)), 1)
+
+    # Restoring the retired note by using the tag again must not remove the retired copy if the change is rolled back
+    retired = os.listdir(notes.retired_dir)
+    mi.tags = ['other tag', 'note tag']
+    cache._set_field = failing_set_field
+    try:
+        self.assertRaises(OSError, cache.set_metadata, book_id, mi, set_title=False, set_authors=False)
+    finally:
+        del cache._set_field
+    self.ae(os.listdir(notes.retired_dir), retired)
+    cache.set_metadata(book_id, mi, set_title=False, set_authors=False)
+    self.ae(cache.notes_for('tags', cache.get_item_id('tags', 'note tag')), '<p>note</p>')
+    self.ae(os.listdir(notes.retired_dir), [])
+
+
 class NotesTest(BaseTest):
     ae = BaseTest.assertEqual
 
@@ -260,3 +318,4 @@ class NotesTest(BaseTest):
         test_cache_api(self)
         test_notes_api(self)
         test_rename_and_delete_custom_column(self)
+        test_set_metadata_failure_keeps_note_files(self)

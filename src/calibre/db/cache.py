@@ -2387,7 +2387,9 @@ class Cache:
                 raise
 
         try:
-            with self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
+            # The files of the notes of items that are no longer used are removed only after the transaction was committed, a rollback
+            # cannot restore them
+            with self.backend.notes.deferred_file_operations(), self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
                 for field in ('rating', 'series_index', 'timestamp'):
                     val = getattr(mi, field)
                     if val is not None:
