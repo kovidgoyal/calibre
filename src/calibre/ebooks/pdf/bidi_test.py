@@ -231,6 +231,9 @@ class TestParseMarkup(unittest.TestCase):
             'a <a href="#x">link</a> b',
             'before <img src="x.png"/> after',
             'page <a id="p1"></a> anchor',
+            'a <a href="#x"><img src="x.png"/></a> b',
+            'a <b><br/></b> b',
+            'a <b><!-- c --></b> b',
             '<span style="font-size:1.2em">big</span>',
             '',
         ):
@@ -268,6 +271,7 @@ class TestParseMarkup(unittest.TestCase):
         self.assertEqual('a b', markup_to_text('a <img src="x.png"/>b'))
         self.assertEqual('a & b', markup_to_text('a &amp; b'))
         self.assertEqual('', markup_to_text('<a id="p1"></a>'))
+        self.assertEqual('a b', markup_to_text('a <a href="#x"><img src="x.png"/></a>b'))
 
 
 class TestFixMarkupLine(unittest.TestCase):

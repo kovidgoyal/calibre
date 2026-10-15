@@ -172,6 +172,9 @@ class Atom:
         # contents pointing at the right place.
         self.is_marker = is_marker
 
+    def markup(self) -> str:
+        return self.raw
+
 
 def is_link_target(elem) -> bool:
     "Is elem an anchor that exists only to be linked to, rather than content?"
