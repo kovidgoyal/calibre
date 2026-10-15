@@ -1391,6 +1391,17 @@ def setup_unix_signals(self):
     return original_handlers
 
 
+def webengine_args(disable_gpu: bool = False) -> list[str]:
+    # Prevent Qt WebEngine from searching for the Widevine CDM in the install
+    # locations of other browsers. We dont need DRM and on macOS 27 accessing
+    # ~/Library/Application Support/Google/Chrome causes a privacy prompt
+    # https://bugs.launchpad.net/calibre/+bug/2170887
+    ans = ['--webEngineArgs', '--widevine-path=' + os.path.join(os.path.abspath(os.sep), 'calibre-no-widevine-cdm')]
+    if disable_gpu:
+        ans.append('--disable-gpu')
+    return ans
+
+
 def setup_to_run_webengine():
     # Allow import of webengine after construction of QApplication on new enough PyQt
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
@@ -1446,8 +1457,7 @@ class Application(QApplication):
             args.extend(self.palette_manager.args_to_qt)
         # We disable GPU acceleration as it causes crashes/black screen in some Windows systems and
         # isnt really needed for performance for our use cases.
-        if not tweaks['qt_webengine_uses_gpu']:
-            args.extend(('--webEngineArgs', '--disable-gpu'))
+        args.extend(webengine_args(disable_gpu=not tweaks['qt_webengine_uses_gpu']))
         self.headless = headless
         from calibre_extensions import progress_indicator
 
@@ -1861,7 +1871,7 @@ def ensure_app(headless=True) -> QApplication:
                         os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless'),
                     ]
                     # WebEngine GPU not needed in headless mode
-                    args += ['--webEngineArgs', '--disable-gpu']
+                    args += webengine_args(disable_gpu=True)
                     if ismacos:
                         os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
                 if headless and iswindows:
