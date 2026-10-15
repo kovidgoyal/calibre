@@ -237,7 +237,9 @@ class Source(Plugin):
 
     #: If set to True this source uses the Camoufox browser shared by all
     #: metadata downloads, see :mod:`calibre.web.automate.metadata`, which is
-    #: then started before metadata is downloaded, so that it is ready in time
+    #: then started before metadata is downloaded, so that it is ready in time.
+    #: Such sources are also waited for longer after the first result from any
+    #: source arrives, since downloading with a browser is slow.
     uses_camoufox_worker = False
 
     def __init__(self, *args, **kwargs):

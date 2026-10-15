@@ -59,6 +59,18 @@ def is_worker_alive(workers):
     return False
 
 
+# Sources that download using the shared browser can take much longer than the
+# wait after the first result, since the first download of a session waits for
+# the browser to launch and warm up, so they get this long instead
+CAMOUFOX_WAIT_AFTER_FIRST_RESULT = 120  # seconds
+
+
+def wait_after_first_result(plugin, wait_time):
+    if getattr(plugin, 'uses_camoufox_worker', False):
+        return max(wait_time, CAMOUFOX_WAIT_AFTER_FIRST_RESULT)
+    return wait_time
+
+
 # }}}
 
 # Merge results from different sources {{{
@@ -416,7 +428,7 @@ def identify(
         if not is_worker_alive(workers):
             break
 
-        if first_result_at is not None and time.time() - first_result_at > wait_time:
+        if first_result_at is not None and all(time.time() - first_result_at > wait_after_first_result(w.plugin, wait_time) for w in workers if w.is_alive()):
             log.warn('Not waiting any longer for more results. Still running sources:')
             for worker in workers:
                 if worker.is_alive():
