@@ -2653,12 +2653,12 @@ class DB:
             remove_dir_if_empty(path, ignore_metadata_caches=True)
 
     def add_custom_data(self, name, val_map, delete_first):
-        if delete_first:
-            self.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
-        self.executemany(
-            'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
-            [(book_id, name, json.dumps(val, default=to_json)) for book_id, val in val_map.items()],
-        )
+        # Serialize before changing anything, and delete and insert in one transaction, so that a failure cannot lose the old data
+        rows = [(book_id, name, json.dumps(val, default=to_json)) for book_id, val in val_map.items()]
+        with self.conn:
+            if delete_first:
+                self.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
+            self.executemany('INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)', rows)
 
     def get_custom_book_data(self, name, book_ids, default=None):
         book_ids = frozenset(book_ids)

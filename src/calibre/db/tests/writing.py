@@ -932,6 +932,17 @@ class WritingTest(BaseTest):
 
     # }}}
 
+    def test_custom_book_data(self):  # {{{
+        "Test that a failed add_custom_book_data() with delete_first does not lose the old data"
+        cache = self.init_cache()
+        cache.add_custom_book_data('test', {1: {'a': 1}, 2: {'b': 2}})
+        self.assertRaises(TypeError, cache.add_custom_book_data, 'test', {1: {'a': object()}}, delete_first=True)
+        self.assertEqual(cache.get_custom_book_data('test', (1, 2)), {1: {'a': 1}, 2: {'b': 2}})
+        cache.add_custom_book_data('test', {3: {'c': 3}}, delete_first=True)
+        self.assertEqual(cache.get_custom_book_data('test', (1, 2, 3)), {3: {'c': 3}})
+
+    # }}}
+
     def test_book_storage(self):  # {{{
         "Test per book storage used for localStorage in the viewers"
         from calibre.db.book_storage import (
