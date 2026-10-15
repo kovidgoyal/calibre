@@ -512,7 +512,7 @@ class Freeze:
         print('\nAdding imaging libraries')
         for x in (
             'jpeg.8', 'png16.16', 'webp.7', 'webpmux.3', 'webpdemux.2', 'sharpyuv.0', 'yuv', 'dav1d.7', 'avif.16',
-            'hwy.1', 'hwy_contrib.1', 'jxl', 'jxl_cms', 'jxl_threads'
+            'hwy.1', 'hwy_contrib.1', 'jxl.0.12', 'jxl_cms.0.12', 'jxl_threads.0.12'
         ):
             self.install_dylib(join(PREFIX, 'lib', 'lib%s.dylib' % x))
         for x in 'optipng', 'JxrDecApp', 'cwebp':

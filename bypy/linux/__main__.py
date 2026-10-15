@@ -44,7 +44,7 @@ def binary_includes():
              ' icudata icui18n icuuc icuio stemmer gcrypt gpg-error uchardet graphite2 espeak-ng'
              ' brotlicommon brotlidec brotlienc zstd podofo ssl crypto deflate tiff onnxruntime'
              ' gobject-2.0 glib-2.0 gthread-2.0 gmodule-2.0 gio-2.0 dbus-glib-1 lcms2 dav1d avif'
-             ' hwy hwy_contrib jxl jxl_cms jxl_threads'
+             ' hwy hwy_contrib'
              ).split()
         )) + [
             # debian/ubuntu for for some typical stupid reason use libpcre.so.3
@@ -56,6 +56,7 @@ def binary_includes():
 
             get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'), get_dll_path('sqlite3', 0),
             get_dll_path('python' + py_ver, 2), get_dll_path('jbig', 2),
+            get_dll_path('jxl', 2), get_dll_path('jxl_cms', 2), get_dll_path('jxl_threads', 2),
 
             # We don't include libstdc++.so as the OpenGL dlls on the target
             # computer fail to load in the QPA xcb plugin if they were compiled
