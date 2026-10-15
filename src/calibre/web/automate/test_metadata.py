@@ -24,10 +24,12 @@ from calibre.web.automate.camoufox import Browser, Error, Event
 from calibre.web.automate.metadata import (
     ENV_VAR,
     FIND_LINK_JS,
+    GOOGLE_REJECT_JS,
     SELECT_OPTION_JS,
     AmazonHandler,
     BrowserFailed,
     Deadline,
+    GoogleImagesHandler,
     Link,
     SessionWorker,
     SourceHandler,
@@ -36,6 +38,7 @@ from calibre.web.automate.metadata import (
     amazon_department_value,
     amazon_page_kind,
     amazon_results,
+    google_page_kind,
     parse_html,
     run_in_browser,
 )
@@ -118,6 +121,49 @@ RESULTS = results_page(
     result_item('B00000000B', 'Advertised', '/Advertised/dp/B00000000B/ref=sr_8'),
 )
 
+GOOGLE_URL = 'https://www.google.com/search?as_st=y&udm=2&as_q=some+book'
+GOOGLE_IMAGES = (
+    ('doc1', 'https://example.com/cover1.jpg'),
+    ('doc2', 'https://example.com/cover2.jpg'),
+    # Social media, which is skipped
+    ('doc3', 'https://lookaside.instagram.com/seo/google_widget/crawler/?media_id=1'),
+    ('doc4', 'https://scontent-lhr8-1.xx.fbcdn.net/v/t39.30808-6/1_n.jpg'),
+    # Not only JPEG
+    ('doc5', 'https://example.com/cover5.png'),
+)
+GOOGLE_RESULTS = (
+    '<html><body>'
+    + ''.join(f'<div data-docid="{doc}"><img src="thumb.jpg"></div>' for doc, url in GOOGLE_IMAGES)
+    + '<script>var padding = "'
+    + 'x' * 100
+    + '"; var data = {'
+    + ', '.join(f'"{doc}": [1,[0,"{doc}",["https://encrypted-tbn0.gstatic.com/images?q={doc}",287,175],["{url}",1600,1000],0]]' for doc, url in GOOGLE_IMAGES)
+    + '};</script></body></html>'
+)
+
+
+def consent_form(set_eom: bool, label: str, display: str) -> str:
+    # The markup of the forms on consent.google.com/ml
+    fields = {'gl': 'AT', 'm': '0', 'app': '0', 'pc': 'srp', 'continue': GOOGLE_URL, 'hl': 'en', 'cm': '2', 'set_eom': 'true' if set_eom else 'false'}
+    if not set_eom:
+        fields.update(set_sc='true', set_aps='true')
+    return (
+        f'<form action="https://consent.google.com/save" method="POST" style="display:{display};">'
+        + ''.join(f'<input type="hidden" name="{k}" value="{v}">' for k, v in fields.items())
+        + f'<input type="submit" value="{label}" class="baseButtonGm3 filledButtonGm3 button searchButton" aria-label="{label}"/></form>'
+    )
+
+
+GOOGLE_CONSENT = (
+    '<html><body><h1>Before you continue to Google</h1>'
+    + consent_form(True, 'Alle ablehnen', 'inline')
+    + consent_form(False, 'Alle akzeptieren', 'inline')
+    + consent_form(False, 'Alle akzeptieren', 'block')
+    + consent_form(True, 'Alle ablehnen', 'block')
+    + '</body></html>'
+)
+GOOGLE_CAPTCHA = '<html><body><form id="captcha-form" action="index" method="post"><div id="recaptcha"></div></form></body></html>'
+
 DETAILS_PAGE = '''<html><head><link rel="canonical" href="https://www.amazon.com/{slug}/dp/{asin}"></head><body>
 <span id="productTitle">{title}</span>
 <div id="bylineInfo"><span class="author"><a class="a-link-normal" href="/e/a">{author}</a></span></div>
@@ -160,6 +206,14 @@ class FakeElement:
 
     async def dispose(self) -> None:
         self.disposed = True
+
+
+class FakeConsentButton(FakeElement):
+    async def click(self, modifiers: Sequence[str] = ()) -> None:
+        self.page.browser.log.append(('click-reject',))
+        if self.page.browser.consent_navigates:
+            # Back to the page asked for
+            asyncio.get_running_loop().call_soon(self.page.navigate, self.page.url)
 
 
 class FakePage:
@@ -220,6 +274,10 @@ class FakePage:
             if self.browser.links_missing:
                 return None
             return FakeElement(self, urljoin(self.url, href))
+        if js == GOOGLE_REJECT_JS:
+            self.browser.log.append(('reject',))
+            forms = parse_html(await self.html()).xpath(metadata.GOOGLE_REJECT_XPATH + '[descendant::button or descendant::input[@type="submit"]]')
+            return FakeConsentButton(self) if forms else None
         if js == SELECT_OPTION_JS:
             self.browser.log.append(('select', args[1]))
             return True
@@ -254,6 +312,15 @@ class FakeBrowser:
         self.popups_work = True
         self.links_missing = False
         self.unloadable: set[str] = set()
+        self.cookie_jar: list[dict[str, Any]] = []
+        self.consent_navigates = True
+
+    async def cookies(self) -> list[dict[str, Any]]:
+        return list(self.cookie_jar)
+
+    async def set_cookies(self, cookies: Sequence[Mapping[str, Any]]) -> None:
+        self.log.append(('set_cookies', tuple(c['name'] for c in cookies)))
+        self.cookie_jar.extend(dict(c) for c in cookies)
 
     def add_page(self, opener_id: str = '') -> FakePage:
         page = FakePage(self, f'tab-{len(self.pages)}', opener_id)
@@ -357,6 +424,16 @@ class TestPageAnalysis(unittest.TestCase):
     def test_metadata_page_kind(self) -> None:
         for html, kind in ((HOME_PAGE, 'ok'), (RESULTS, 'ok'), (CONTINUE_PAGE, 'continue'), (CAPTCHA_PAGE, 'captcha'), (CHALLENGE_PAGE, 'challenge')):
             self.assertEqual(amazon_page_kind(parse_html(html)), kind, html)
+
+    def test_metadata_google_page_kind(self) -> None:
+        self.assertEqual(google_page_kind(GOOGLE_URL, parse_html(GOOGLE_RESULTS)), 'ok')
+        self.assertEqual(google_page_kind(GOOGLE_URL, parse_html(GOOGLE_CAPTCHA)), 'captcha')
+        self.assertEqual(google_page_kind('https://www.google.com/sorry/index?continue=x', parse_html('<p>sorry</p>')), 'captcha')
+        self.assertEqual(google_page_kind('https://consent.google.com/ml?continue=x', parse_html('<p>cookies</p>')), 'consent')
+        # Asked in a dialog over the page asked for
+        self.assertEqual(google_page_kind(GOOGLE_URL, parse_html(GOOGLE_CONSENT)), 'consent')
+        self.assertEqual(google_page_kind(GOOGLE_URL, parse_html(GOOGLE_RESULTS.replace('</body>', GOOGLE_CONSENT[12:]))), 'ok')
+        self.assertEqual(google_page_kind(GOOGLE_URL, parse_html(GOOGLE_CONSENT.replace('value="true"', 'value="false"'))), 'ok')
 
     def test_metadata_department(self) -> None:
         root = parse_html(HOME_PAGE)
@@ -612,6 +689,60 @@ class TestHandlers(unittest.TestCase):
             self.assertTrue(reaper.cancelled())
 
         run(t())
+
+    def google_search(self, browser: FakeBrowser, *urls: str) -> list[dict[str, Any]]:
+        async def t() -> list[dict[str, Any]]:
+            state = fake_state(browser, (GoogleImagesHandler,))
+            return [await state.handle({'source': 'google_images', 'action': 'search', 'args': {'url': url}, 'deadline': time.time() + 30}) for url in urls]
+
+        return run(t())
+
+    def test_metadata_google_images_search(self) -> None:
+        other = GOOGLE_URL.replace('some+book', 'other+book')
+        browser = FakeBrowser({GOOGLE_URL: (GOOGLE_RESULTS,), other: (GOOGLE_RESULTS,)})
+        results = self.google_search(browser, GOOGLE_URL, other)
+        self.assertEqual(results, [{'url': GOOGLE_URL, 'html': GOOGLE_RESULTS}, {'url': other, 'html': GOOGLE_RESULTS}])
+        # Both searches in the one tab, the second with the first as its
+        # referrer, and the consent cookie set only once
+        self.assertEqual([x for x in browser.log if x[0] == 'open'], [('open', GOOGLE_URL, ''), ('open', other, GOOGLE_URL)])
+        self.assertEqual([x for x in browser.log if x[0] == 'set_cookies'], [('set_cookies', ('SOCS',))])
+        self.assertEqual(len(browser.pages), 1)
+        self.assertEqual(browser.cookie_jar[0]['domain'], '.google.com')
+
+    def test_metadata_google_images_consent(self) -> None:
+        browser = FakeBrowser({GOOGLE_URL: (GOOGLE_CONSENT, GOOGLE_RESULTS)})
+        result = self.google_search(browser, GOOGLE_URL)[0]
+        self.assertEqual(result, {'url': GOOGLE_URL, 'html': GOOGLE_RESULTS})
+        self.assertEqual([x[0] for x in browser.log if x[0] in ('open', 'reject', 'click-reject')], ['open', 'reject', 'click-reject'])
+
+        # Rejecting cookies in a dialog that does not navigate anywhere, so the
+        # search is loaded again
+        browser = FakeBrowser({GOOGLE_URL: (GOOGLE_CONSENT, GOOGLE_RESULTS)})
+        browser.consent_navigates = False
+        with patch.object(metadata, 'CONSENT_NAVIGATION_TIMEOUT', 0.05):
+            result = self.google_search(browser, GOOGLE_URL)[0]
+        self.assertEqual(result, {'url': GOOGLE_URL, 'html': GOOGLE_RESULTS})
+        self.assertEqual([x[0] for x in browser.log if x[0] in ('open', 'reject', 'click-reject')], ['open', 'reject', 'click-reject', 'open'])
+
+        # Asked again and again
+        browser = FakeBrowser({GOOGLE_URL: (GOOGLE_CONSENT,)})
+        result = self.google_search(browser, GOOGLE_URL)[0]
+        self.assertEqual(result['kind'], 'consent')
+        self.assertEqual(len([x for x in browser.log if x[0] == 'click-reject']), metadata.GOOGLE_MAX_CONSENTS)
+
+        # No button to reject cookies with
+        no_button = '<html><body><form action="https://consent.google.com/save"><input name="set_eom" value="true"></form></body></html>'
+        browser = FakeBrowser({GOOGLE_URL: (no_button,)})
+        result = self.google_search(browser, GOOGLE_URL)[0]
+        self.assertEqual(result['kind'], 'consent')
+        self.assertNotIn('click-reject', [x[0] for x in browser.log])
+
+    def test_metadata_google_images_blocked(self) -> None:
+        result = self.google_search(FakeBrowser({GOOGLE_URL: (GOOGLE_CAPTCHA,)}), GOOGLE_URL)[0]
+        self.assertEqual(result['kind'], 'captcha')
+        self.assertNotIn('html', result)
+        with self.assertRaises(ValueError):
+            self.google_search(FakeBrowser(), 'https://www.example.com/search?q=x')
 
 
 class TestQueueing(unittest.TestCase):
@@ -915,9 +1046,60 @@ class TestAmazonPlugin(unittest.TestCase):
         self.assertIsNone(self.plugin.parse_details_from_browser(self.log, {'url': 'x', 'html': '<title>404 - not here</title>'}, 'com', 30))
 
 
+class TestGoogleImagesPlugin(unittest.TestCase):
+    def setUp(self) -> None:
+        from calibre.ebooks.metadata.sources.google_images import GoogleImages
+        from calibre.utils.logging import GUILog
+
+        self.plugin = GoogleImages(None)
+        self.plugin._config_obj = {'max_covers': 5, 'size': 'svga'}
+        self.log = GUILog()
+
+    def image_urls(self) -> list[str]:
+        return self.plugin.get_image_urls('Some Book', 'An Author', self.log, ThreadingEvent(), 30)
+
+    def test_metadata_google_images_plugin(self) -> None:
+        calls: list[tuple[str, str, dict[str, Any]]] = []
+
+        def fake_run_in_browser(source: str, action: str, args: Mapping[str, Any], timeout: float = 0) -> dict[str, Any]:
+            calls.append((source, action, dict(args)))
+            return {'url': args['url'], 'html': GOOGLE_RESULTS}
+
+        with patch('calibre.web.automate.metadata.run_in_browser', fake_run_in_browser):
+            self.assertEqual(self.image_urls(), ['https://example.com/cover1.jpg', 'https://example.com/cover2.jpg', 'https://example.com/cover5.png'])
+        self.assertEqual(len(calls), 1)
+        source, action, args = calls[0]
+        self.assertEqual((source, action), ('google_images', 'search'))
+        self.assertTrue(args['url'].startswith('https://www.google.com/search?'), args['url'])
+        self.assertIn('as_q=Some+Book+An+Author', args['url'])
+        self.assertIn('&imgsz=svga&', args['url'])
+        self.assertTrue(args['url'].endswith('&imgar=t%7Cxt'), args['url'])
+        self.assertNotIn('tbs=', args['url'])
+        self.assertNotIn('as_filetype', args['url'])
+        self.plugin._config_obj['size'] = 'any'
+        self.assertNotIn('imgsz', self.plugin.search_url('Some Book', 'An Author'))
+
+    def test_metadata_google_images_plugin_errors(self) -> None:
+        def captcha(source: str, action: str, args: Mapping[str, Any], timeout: float = 0) -> dict[str, Any]:
+            return {'error': 'solve this', 'kind': 'captcha'}
+
+        with patch('calibre.web.automate.metadata.run_in_browser', captcha):
+            self.assertEqual(self.image_urls(), [])
+        self.assertIn('solve this', self.log.plain_text)
+
+        def broken(source: str, action: str, args: Mapping[str, Any], timeout: float = 0) -> dict[str, Any]:
+            raise BrowserFailed('no browser here')
+
+        fallback = patch.object(self.plugin, 'search_without_browser', return_value=GOOGLE_RESULTS)
+        with patch('calibre.web.automate.metadata.run_in_browser', broken), fallback as sw:
+            self.assertEqual(len(self.image_urls()), 3)
+            sw.assert_called_once()
+        self.assertIn('no browser here', self.log.plain_text)
+
+
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestPageAnalysis, TestTabPool, TestHandlers, TestQueueing, TestWorkerProcess, TestAmazonPlugin):
+    for cls in (TestPageAnalysis, TestTabPool, TestHandlers, TestQueueing, TestWorkerProcess, TestAmazonPlugin, TestGoogleImagesPlugin):
         ans.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 

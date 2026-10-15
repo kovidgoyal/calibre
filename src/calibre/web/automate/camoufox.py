@@ -1436,7 +1436,7 @@ WAIT_FOR_SELECTOR_JS = '''(selector, timeout, visible) => new Promise((resolve) 
         resolve(value);
     };
     observer = new MutationObserver(() => { const el = match(); if (el) done(el); });
-    observer.observe(document.documentElement, {childList: true, subtree: true, attributes: true});
+    observer.observe(document, {childList: true, subtree: true, attributes: true});
     timer = setTimeout(() => done(null), timeout);
     const again = match();
     if (again) done(again);

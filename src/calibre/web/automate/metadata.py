@@ -589,7 +589,159 @@ class AmazonHandler(SourceHandler):
 
 # }}}
 
-HANDLERS: tuple[type[SourceHandler], ...] = (AmazonHandler,)
+# Google Images {{{
+
+GOOGLE_SEARCH_HOST = 'www.google.com'
+# Whatever page Google answers with, the results, the CAPTCHA or the cookie
+# consent page, has one of these in it once it has loaded
+GOOGLE_PAGE_LOADED = 'div[data-docid], div[data-tbnid], #captcha-form, #recaptcha, form[action*="consent.google."]'
+GOOGLE_MAX_CONSENTS = 2
+# How long to wait for rejecting cookies to navigate back to the results,
+# which it may not do, see GoogleImagesHandler.reject_cookies()
+CONSENT_NAVIGATION_TIMEOUT = 10.0  # seconds
+# The form that rejects cookies on the page asking for them to be agreed to
+# posts to consent.google.com/save and is the one with set_eom=true, the one
+# that accepts them having set_eom=false. It is found that way, rather than by
+# the label of its button, as the label is in the language of the user. There
+# can be more than one such form, only one of which is visible, depending on
+# the size of the window.
+GOOGLE_REJECT_XPATH = '//form[contains(@action, "consent.google.") and contains(@action, "/save") and descendant::input[@name="set_eom" and @value="true"]]'
+GOOGLE_REJECT_JS = '''() => {
+    for (const form of document.querySelectorAll('form[action*="consent.google."]')) {
+        if (!form.getAttribute('action').includes('/save') || !form.querySelector('input[name="set_eom"][value="true"]')) continue;
+        for (const button of form.querySelectorAll('button, input[type="submit"]')) {
+            const rect = button.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0 && getComputedStyle(button).visibility !== 'hidden') return button;
+        }
+    }
+    return null;
+}'''
+
+
+def google_page_kind(url: str, root: _Element) -> str:
+    """What sort of page Google answered with: the page asked for (ok), the
+    CAPTCHA it puts in front of browsers it thinks are bots (captcha) or the
+    page asking for its use of cookies to be agreed to (consent).
+
+    A page with results is the page asked for, even if it also asks for cookies
+    to be agreed to, since what is wanted from it is there.
+    """
+    parsed = urlparse(url)
+    if (parsed.hostname or '').startswith('consent.google.'):
+        return 'consent'
+    if parsed.path.startswith('/sorry/') or root.xpath('//form[@id="captcha-form"] | //div[@id="recaptcha"]'):
+        return 'captcha'
+    if not root.xpath('//div[@data-docid or @data-tbnid]') and root.xpath(GOOGLE_REJECT_XPATH):
+        return 'consent'
+    return 'ok'
+
+
+def google_consent_cookie() -> dict[str, Any]:
+    """The cookie Google sets when its use of cookies is rejected, so that
+    browsers in places where it asks are not sent to the consent page. See
+    https://github.com/benbusby/whoogle-search/pull/1054"""
+    from base64 import standard_b64encode
+    from datetime import date
+
+    template = b'\x08\x01\x128\x08\x14\x12+boq_identityfrontenduiserver_20231107.05_p0\x1a\x05en-US \x03\x1a\x06\x08\x80\xf1\xca\xaa\x06'
+    template = template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))  # noqa: DTZ011
+    value = standard_b64encode(template).decode('ascii').rstrip('=')
+    return {'name': 'SOCS', 'value': value, 'domain': '.google.com', 'path': '/', 'secure': True}
+
+
+class GoogleImagesHandler(SourceHandler):
+    name = 'google_images'
+
+    async def handle(self, action: str, args: Mapping[str, Any], deadline: Deadline) -> dict[str, Any]:
+        try:
+            match action:
+                case 'search':
+                    return await self.search(args, deadline)
+        except Blocked as err:
+            return error_result(err.kind, str(err))
+        return await super().handle(action, args, deadline)
+
+    async def ensure_consent_cookie(self) -> None:
+        if not any(c.get('name') == 'SOCS' and str(c.get('domain') or '').endswith('google.com') for c in await self.browser.cookies()):
+            await self.browser.set_cookies([google_consent_cookie()])
+
+    async def search(self, args: Mapping[str, Any], deadline: Deadline) -> dict[str, Any]:
+        """Load the image search results page at url, built by the source as
+        it knows the search options, in the tab kept for searching Google and
+        hand back its HTML."""
+        url = str(args['url'])
+        parsed = urlparse(url)
+        if parsed.scheme != 'https' or parsed.hostname != GOOGLE_SEARCH_HOST:
+            raise ValueError(f'Not a Google search URL: {url}')
+        page = await self.search_page(GOOGLE_SEARCH_HOST, deadline)
+        referer = page.url if urlparse(page.url).hostname == GOOGLE_SEARCH_HOST else ''
+        await self.ensure_consent_cookie()
+        await page.open(url, wait='domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT), referer=referer)
+        html, kind = await self.read_page(page, url, deadline)
+        for attempt in range(GOOGLE_MAX_CONSENTS):
+            if kind != 'consent':
+                break
+            await self.reject_cookies(page, url, deadline)
+            html, kind = await self.read_page(page, url, deadline)
+        match kind:
+            case 'captcha':
+                raise Blocked(
+                    'captcha',
+                    'Google asked for a CAPTCHA to be solved, probably because too many searches were made. Wait for some time and try again.',
+                )
+            case 'consent':
+                raise Blocked('consent', 'Google keeps asking for its use of cookies to be agreed to, even after they were rejected')
+        return {'url': page.url, 'html': html}
+
+    async def read_page(self, page: Page, url: str, deadline: Deadline) -> tuple[str, str]:
+        """The HTML of the page Google answered with, once it has loaded, and
+        what sort of page it is, see google_page_kind()."""
+        try:
+            elem = await page.wait_for_selector(GOOGLE_PAGE_LOADED, timeout=deadline.remaining(FIELD_TIMEOUT))
+        except TimeoutExceeded:
+            # No results, which is not an error
+            debug(f'Google never showed any image results for: {url}')
+        else:
+            await elem.dispose()
+        # The first search of a session is reloaded by Google once it has
+        # checked for JavaScript, so the element can be from a page that is
+        # still loading, whose image URLs are in scripts near its end
+        await page.wait_for_load('domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
+        html = await page.html()
+        return html, google_page_kind(page.url, parse_html(html))
+
+    async def reject_cookies(self, page: Page, url: str, deadline: Deadline) -> None:
+        """Click the button that rejects cookies on the page asking for them
+        to be agreed to, which takes the browser on to the page asked for.
+
+        Should rejecting them not navigate anywhere, as it need not when Google
+        asks in a dialog over the page asked for, that page is loaded again,
+        now that there is a cookie saying they were rejected.
+        """
+        debug('Rejecting cookies on the Google consent page')
+        await self.settle(page, deadline)
+        button: Element | None = await page.call(GOOGLE_REJECT_JS, by_value=False)
+        if button is None:
+            raise Blocked('consent', 'Google asked for its use of cookies to be agreed to, but the button to reject them could not be found')
+        finished = page.navigation_finished()
+        try:
+            await button.click()
+            event = await wait_for(finished, deadline.remaining(CONSENT_NAVIGATION_TIMEOUT), 'rejecting cookies to load a page')
+        except TimeoutExceeded:
+            debug('Rejecting cookies did not load a page, loading the search results again')
+            await page.open(url, wait='domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
+            return
+        finally:
+            finished.cancel()
+            await button.dispose()
+        if event.method == 'Page.navigationAborted':
+            raise Error(f'Loading the page was aborted: {event.params.get("errorText")}')
+        await page.wait_for_load('domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
+
+
+# }}}
+
+HANDLERS: tuple[type[SourceHandler], ...] = (AmazonHandler, GoogleImagesHandler)
 
 
 class State:

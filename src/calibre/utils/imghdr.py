@@ -2,7 +2,9 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from struct import error, unpack
+from collections.abc import Iterator
+from struct import error, unpack, unpack_from
+from typing import IO
 
 from calibre.utils.speedups import ReadOnlyFileBuffer
 
@@ -62,7 +64,7 @@ def _identify(stream):
     stream.seek(pos)
     fmt = what(None, head)
 
-    if fmt in {'jpeg', 'gif', 'png', 'jpeg2000'}:
+    if fmt in {'jpeg', 'gif', 'png', 'jpeg2000', 'webp', 'avif'}:
         size = len(head)
         if fmt == 'png':
             # PNG
@@ -92,11 +94,24 @@ def _identify(stream):
                 height, width = unpack(b'>LL', head[48:56])
             except error:
                 return fmt, width, height
+        elif fmt == 'webp':
+            try:
+                width, height = webp_dimensions(head)
+            except error:
+                return fmt, width, height
+        elif fmt == 'avif':
+            pos = stream.tell()
+            try:
+                width, height = avif_dimensions(stream)
+            except Exception:
+                return fmt, width, height
+            finally:
+                stream.seek(pos)
     return fmt, width, height
 
 
 # ---------------------------------#
-# Subroutines per image file type #
+# Subroutines per image file type  #
 # ---------------------------------#
 
 _tests = []
@@ -211,6 +226,148 @@ def avif(h):
         if brand in (b'avif', b'avis'):
             return 'avif'
     return None
+
+
+def webp_dimensions(h: bytes) -> tuple[int, int]:
+    """The dimensions of a WebP image, from the header of its first chunk.
+    See https://developers.google.com/speed/webp/docs/riff_container"""
+    chunk = h[12:16]
+    if chunk == b'VP8 ':
+        # Lossy: a VP8 key frame, whose three byte frame tag is followed by a
+        # start code and then the dimensions in the low 14 bits of two
+        # little endian 16 bit numbers, the top two bits being for scaling
+        if h[23:26] != b'\x9d\x01\x2a':
+            return -1, -1
+        width, height = unpack(b'<HH', h[26:30])
+        return width & 0x3FFF, height & 0x3FFF
+    if chunk == b'VP8L':
+        # Lossless: a signature byte and then the width - 1 and height - 1 as
+        # 14 bit numbers packed into a little endian 32 bit one
+        if h[20:21] != b'\x2f':
+            return -1, -1
+        bits = unpack(b'<L', h[21:25])[0]
+        return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+    if chunk == b'VP8X':
+        # Extended: the canvas width - 1 and height - 1 as 24 bit little
+        # endian numbers, after a byte of flags and three reserved ones
+        if len(h) < 30:
+            raise error('Truncated WebP header')
+        return int.from_bytes(h[24:27], 'little') + 1, int.from_bytes(h[27:30], 'little') + 1
+    return -1, -1
+
+
+# The most of an AVIF file to read looking for its dimensions, which are in
+# the meta box, a few hundred bytes long and at the start of the file
+AVIF_MAX_META_SIZE = 1024 * 1024
+AVIF_MAX_TOP_LEVEL_BOXES = 32
+
+
+def isobmff_boxes(data: bytes, pos: int = 0, end: int = -1) -> Iterator[tuple[bytes, int, int]]:
+    """The type, start and end of the content of each box in data[pos:end]."""
+    end = len(data) if end < 0 else end
+    while pos + 8 <= end:
+        size, box_type = unpack(b'>L4s', data[pos : pos + 8])
+        start = pos + 8
+        if size == 1:
+            size = unpack(b'>Q', data[start : start + 8])[0]
+            start += 8
+        elif size == 0:
+            size = end - pos
+        if size < start - pos or pos + size > end:
+            raise ValueError(f'Invalid size for the ISOBMFF box: {box_type!r}')
+        yield box_type, start, pos + size
+        pos += size
+
+
+def read_avif_meta(stream: IO[bytes]) -> bytes:
+    """The content of the top level meta box of an AVIF file."""
+    for i in range(AVIF_MAX_TOP_LEVEL_BOXES):
+        header = stream.read(8)
+        if len(header) < 8:
+            break
+        size, box_type = unpack(b'>L4s', header)
+        header_size = 8
+        if size == 1:
+            size = unpack(b'>Q', stream.read(8))[0]
+            header_size = 16
+        if box_type == b'meta':
+            if size == 0 or size - header_size > AVIF_MAX_META_SIZE:
+                raise ValueError('The AVIF meta box is too large')
+            ans = stream.read(size - header_size)
+            if len(ans) != size - header_size:
+                raise ValueError('Truncated AVIF meta box')
+            return ans
+        if size < header_size:
+            break
+        stream.seek(size - header_size, os.SEEK_CUR)
+    raise ValueError('No meta box found in the AVIF file')
+
+
+def avif_dimensions(stream: IO[bytes]) -> tuple[int, int]:
+    """The dimensions of the primary image of an AVIF file, as displayed,
+    so swapped if it is rotated by 90 or 270 degrees.
+
+    They are in the ispe property of the primary image, as listed in the
+    ipma box, which refers to properties by their position in the ipco box,
+    starting from one. See ISO/IEC 23008-12 (HEIF), on which AVIF is based.
+    """
+    meta = read_avif_meta(stream)
+    primary = -1
+    properties: list[tuple[bytes, int, int]] = []
+    associations: dict[int, list[int]] = {}
+    # meta is a full box, so its children come after its version and flags
+    for box_type, start, end in isobmff_boxes(meta, 4):
+        if box_type == b'pitm':
+            # The item id is 16 bits in version 0 and 32 bits after that
+            primary = unpack_from(b'>H' if meta[start] == 0 else b'>L', meta, start + 4)[0]
+        elif box_type == b'iprp':
+            for child, cstart, cend in isobmff_boxes(meta, start, end):
+                if child == b'ipco':
+                    properties = list(isobmff_boxes(meta, cstart, cend))
+                elif child == b'ipma':
+                    version, flags = meta[cstart], int.from_bytes(meta[cstart + 1 : cstart + 4], 'big')
+                    pos = cstart + 4
+                    count = unpack(b'>L', meta[pos : pos + 4])[0]
+                    pos += 4
+                    for e in range(count):
+                        if version < 1:
+                            item = unpack(b'>H', meta[pos : pos + 2])[0]
+                            pos += 2
+                        else:
+                            item = unpack(b'>L', meta[pos : pos + 4])[0]
+                            pos += 4
+                        num = meta[pos]
+                        pos += 1
+                        indices = []
+                        for a in range(num):
+                            # The top bit of each is the essential flag
+                            if flags & 1:
+                                indices.append(unpack(b'>H', meta[pos : pos + 2])[0] & 0x7FFF)
+                                pos += 2
+                            else:
+                                indices.append(meta[pos] & 0x7F)
+                                pos += 1
+                        associations[item] = indices
+
+    def property_of(item: int, name: bytes) -> tuple[int, int] | None:
+        for index in associations.get(item, ()):
+            if 0 < index <= len(properties) and properties[index - 1][0] == name:
+                return properties[index - 1][1:]
+        return None
+
+    ispe = property_of(primary, b'ispe')
+    if ispe is None:
+        # No primary item or one without an ispe property of its own
+        ispe = next((p[1:] for p in properties if p[0] == b'ispe'), None)
+        if ispe is None:
+            raise ValueError('No ispe property found in the AVIF file')
+    # ispe is a full box, so the dimensions come after its version and flags
+    width, height = unpack(b'>LL', meta[ispe[0] + 4 : ispe[0] + 12])
+    irot = property_of(primary, b'irot')
+    # irot is the number of 90 degree anti-clockwise rotations
+    if irot is not None and meta[irot[0]] & 1:
+        width, height = height, width
+    return width, height
 
 
 @test
