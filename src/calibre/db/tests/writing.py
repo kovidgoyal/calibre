@@ -239,6 +239,13 @@ class WritingTest(BaseTest):
                 self.assertEqual(c.field_for('#series_index', i), val)
         del cache2
 
+        # Changing the series keeps the index of the book, also in the database
+        cache.set_field('#series_index', {1: 3})
+        for series, index in (('Other [3]', 3), ('Another', 3), ('Yet Another [7]', 7)):
+            cache.set_field('#series', {1: series})
+            for c in (cache, self.init_cache(cl)):
+                self.assertEqual(c.field_for('#series_index', 1), index)
+
     # }}}
 
     def test_many_many_basic(self):  # {{{

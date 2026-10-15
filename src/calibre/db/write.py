@@ -380,6 +380,12 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
             sql.format(table.link_table, m['link_column']),
             ((book_id, book_id, item_id) for book_id, item_id in updated.items()),
         )
+        if is_custom_series:
+            # The rows were inserted with index 1.0, make the in-memory index agree. Otherwise custom_series_index() skips writing
+            # the index when the new index equals the one the book had before the series was changed, leaving 1.0 in the database
+            index_map = field.index_field.table.book_col_map
+            for book_id in updated:
+                index_map[book_id] = 1.0
 
     # Remove no longer used items
     remove = {item_id: item_val for item_id, item_val in table.id_map.items() if not table.col_book_map.get(item_id, False)}
