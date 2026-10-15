@@ -1005,6 +1005,17 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_saved_search_add_clears_search_cache(self):  # {{{
+        "Test that redefining a saved search does not leave stale cached searches"
+        cache = self.init_cache()
+        cache.saved_search_add('Mine', 'tags:true')
+        self.assertEqual({1, 2}, cache.search('search:"=Mine"'))
+        cache.saved_search_add('Mine', 'series:true and rating:>=3')
+        self.assertEqual({1}, self.init_cache(cache.backend.library_path).search('search:"=Mine"'))
+        self.assertEqual({1}, cache.search('search:"=Mine"'))
+
+    # }}}
+
     def test_proxy_metadata(self):  # {{{
         "Test the ProxyMetadata object used for composite columns"
         from calibre.ebooks.metadata.book.base import STANDARD_METADATA_FIELDS
