@@ -249,7 +249,7 @@ class FormatterFunction:
         return self.__doc__getter__()
 
     @property
-    def __doc__(self):  # ty: ignore[invalid-property-type-override]
+    def __doc__(self):
         return self.__doc__getter__()
 
     @property
