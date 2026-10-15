@@ -103,6 +103,43 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
+    def test_add_file_failing_stream(self):  # {{{
+        "Test that a stream that fails when read does not destroy the existing format or extra file it was to replace"
+        cache = self.init_cache()
+
+        class FailingStream:
+            def __init__(self):
+                self.first = True
+
+            def read(self, size=-1):
+                if self.first:
+                    self.first = False
+                    return b'partial'
+                raise OSError('cannot read')
+
+        def folder_listing():
+            base = os.path.join(cache.backend.library_path, cache.field_for('path', 1))
+            return sorted(os.path.relpath(os.path.join(r, f), base) for r, _, files in os.walk(base) for f in files)
+
+        cache.add_extra_files(1, {'sub/extra.txt': BytesIO(b'old extra')})
+        old_format, files = cache.format(1, 'FMT1'), folder_listing()
+        size = cache.format_metadata(1, 'FMT1', allow_cache=False)['size']
+        self.assertRaises(OSError, cache.add_format, 1, 'FMT1', FailingStream(), run_hooks=False)
+        self.assertEqual(cache.format(1, 'FMT1'), old_format)
+        self.assertEqual(cache.format_metadata(1, 'FMT1', allow_cache=False)['size'], size)
+        self.assertEqual(folder_listing(), files, 'a temporary file was left behind or a file went missing')
+        self.assertRaises(OSError, cache.add_extra_files, 1, {'sub/extra.txt': FailingStream(), 'new/dir/file.txt': FailingStream()})
+        with open(os.path.join(cache.backend.library_path, cache.field_for('path', 1), 'sub', 'extra.txt'), 'rb') as f:
+            self.assertEqual(f.read(), b'old extra')
+        self.assertTrue(set(files) <= set(folder_listing()))
+        self.assertEqual([x for x in folder_listing() if x.endswith('.tmp')], [])
+        # A working replacement leaves no temporary file either
+        self.assertTrue(cache.add_format(1, 'FMT1', BytesIO(b'new data'), run_hooks=False))
+        self.assertEqual(cache.format(1, 'FMT1'), b'new data')
+        cache.add_extra_files(1, {'sub/extra.txt': BytesIO(b'new extra')})
+        self.assertEqual([x for x in folder_listing() if x.endswith('.tmp')], [])
+    # }}}
+
     def test_add_format_categories(self):  # {{{
         "Test that adding a format keeps the cached formats category correct"
         from io import BytesIO
