@@ -24,7 +24,15 @@ from unittest.mock import patch
 
 from calibre.constants import cache_dir, iswindows
 from calibre.web.automate import camoufox
-from calibre.web.automate.download_deps import Install, camoufox_install, camoufox_installer, camoufox_resource_dir, system_camoufox
+from calibre.web.automate.download_deps import (
+    VERSION_LOCK_SUFFIX,
+    Install,
+    VersionLock,
+    camoufox_install,
+    camoufox_installer,
+    camoufox_resource_dir,
+    system_camoufox,
+)
 
 TEST_PAGE = '''<!DOCTYPE html><html><head><title>Test Page</title></head><body>
 <h1 id="title">Hello</h1>
@@ -137,6 +145,35 @@ def installed_camoufox() -> Install | None:
     except Exception:
         return None
     return Install(binary, version)
+
+
+def install_lock_is_free(version_dir: str) -> bool:
+    """Whether nothing holds a VersionLock on the camoufox install in
+    version_dir. Unlike remove_version_if_unused() does not delete anything."""
+    import fcntl
+
+    with open(version_dir + VERSION_LOCK_SUFFIX, 'rb') as f:
+        try:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return False
+    return True
+
+
+def browser_worker_main(install_data: list[str]) -> None:
+    """Run a browser in a worker process until killed, for test_browser_exits_with_worker()."""
+    import sys
+
+    async def main() -> None:
+        browser = camoufox.Browser(headless=True, install=Install(*install_data))
+        await browser.launch()
+        if browser.process is None:
+            raise RuntimeError('The browser was launched without a process')
+        print('BROWSER_PID', browser.process.pid, flush=True)
+        await asyncio.get_running_loop().run_in_executor(None, sys.stdin.read)
+        await browser.close()
+
+    asyncio.run(main())
 
 
 class TestCamoufoxConfig(unittest.TestCase):
@@ -281,6 +318,30 @@ class TestCamoufoxTransport(unittest.TestCase):
         finally:
             camoufox.close_fd(read_fd)
             camoufox.close_fd(write_fd)
+
+    @unittest.skipIf(iswindows, 'on Windows the browser is in a job object that kills it along with us')
+    def test_spawn_inherits_fd(self) -> None:
+        """A lock given to the browser stays held until it exits, even if we
+        release ours, or crash, first."""
+        tdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tdir)
+        version_dir = os.path.join(tdir, 'version')
+        lock = VersionLock(version_dir)
+        # Echoes the command pipe to the response pipe, to check that passing
+        # the extra descriptor does not disturb them, then lingers
+        process = camoufox.spawn_posix(['/bin/sh', '-c', 'cat <&3 >&4; exec sleep 60'], dict(os.environ), os.path.join(tdir, 'log'), lock.fileno())
+        try:
+            os.write(process.write_fd, b'ping')
+            camoufox.close_fd(process.write_fd)
+            self.assertEqual(os.read(process.read_fd, 4), b'ping')
+            lock.release()
+            self.assertFalse(install_lock_is_free(version_dir))
+            process.kill()
+            self.assertIsNotNone(process.returncode)
+            self.assertTrue(install_lock_is_free(version_dir))
+        finally:
+            process.kill()
+            camoufox.close_fd(process.read_fd)
 
     def test_remove_profile_dir(self) -> None:
         """The profile directory is deleted even if it is briefly undeletable."""
@@ -1145,6 +1206,54 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 self.assertIs(await page.evaluate(f'document.fonts.check("12px \'{font}\'")'), True, f'the font {font} is not available')
 
         self.run_browser(check, target_os='windows', locale='en-US', window=(1280, 800))
+
+    def test_browser_holds_install_lock(self) -> None:
+        async def check(browser: camoufox.Browser) -> None:
+            if (lock := browser.install_lock) is None:
+                raise unittest.SkipTest('a system camoufox is never removed and so not locked')
+            # The browser is given a copy of the lock, see test_spawn_inherits_fd()
+            self.assertEqual(spawn.call_args.args[3], -1 if iswindows else lock.fileno())
+
+        with patch.object(camoufox, 'spawn', wraps=camoufox.spawn) as spawn:
+            self.run_browser(check)
+
+    @unittest.skipIf(iswindows, 'on Windows the browser is in a job object that kills it along with us')
+    def test_browser_exits_with_worker(self) -> None:
+        import signal
+
+        from calibre.utils.ipc.simple_worker import start_pipe_worker
+
+        p = start_pipe_worker(f'from calibre.web.automate.test_camoufox import browser_worker_main; browser_worker_main({list(self.install)!r})')
+        browser_pid = 0
+        try:
+            for line in p.stdout:
+                if line.startswith(b'BROWSER_PID '):
+                    browser_pid = int(line.split()[1])
+                    break
+            self.assertGreater(browser_pid, 0, 'the worker did not start the browser')
+            p.kill()
+            p.wait(10)
+
+            def browser_running() -> bool:
+                try:
+                    os.killpg(browser_pid, 0)
+                except ProcessLookupError:
+                    return False
+                return True
+
+            deadline = time.monotonic() + 30
+            while browser_running() and time.monotonic() < deadline:
+                time.sleep(0.05)
+            self.assertFalse(browser_running(), 'the browser outlived the worker that started it')
+        finally:
+            if p.poll() is None:
+                p.kill()
+                p.wait(10)
+            if browser_pid:
+                with contextlib.suppress(ProcessLookupError):
+                    os.killpg(browser_pid, signal.SIGKILL)
+            p.stdin.close()
+            p.stdout.close()
 
     def test_navigation_and_html(self) -> None:
         base = self.server.base

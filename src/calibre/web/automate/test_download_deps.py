@@ -174,6 +174,61 @@ class TestDownloadDeps(unittest.TestCase):
         i.check_for_update({})
         self.assertEqual(self.read_metadata()['update_available']['version'], '3.0')
 
+    def test_download_deps_versions_in_use(self) -> None:
+        i = self.installer
+        install, lock = i.use()
+        self.assertEqual(install.version, '1.0')
+        # Any number of users can hold a version at the same time
+        install2, lock2 = i.use()
+        self.assertEqual(install2, install)
+
+        # A version in use must survive an update, since a running browser can
+        # open files from it at any time
+        i.available = dd.Release('2.0', 'fake://2.0', '')
+        self.make_update_check_due()
+        i()
+        self.wait_for_update_check()
+        self.assertEqual(i().version, '2.0')
+        self.assertEqual(self.installed_versions(), {'1.0', '2.0'})
+        self.assertEqual(open(install.path).read(), '1.0')
+
+        # and must be removed only once all its users are done with it
+        lock.release()
+        i()
+        self.assertEqual(self.installed_versions(), {'1.0', '2.0'})
+        with lock2:
+            pass
+        lock.release()  # releasing twice must be harmless
+        i()
+        self.assertEqual(self.installed_versions(), {'2.0'})
+        self.assertFalse(os.path.exists(i.version_dir('1.0') + dd.VERSION_LOCK_SUFFIX))
+
+        # An install obtained earlier, as by another process, can be locked
+        install = i()
+        lock3 = i.lock_install(install)
+        self.assertIsNotNone(lock3)
+        self.assertIsNone(i.lock_install(dd.Install(os.path.join(self.tdir, 'elsewhere'), '2.0')))
+        self.assertIsNone(i.lock_install(dd.Install(i.payload_path(os.path.join(i.install_dir, '1.0')), '1.0')))
+        i.available = dd.Release('3.0', 'fake://3.0', '')
+        self.make_update_check_due()
+        i()
+        self.wait_for_update_check()
+        self.assertEqual(i().version, '3.0')
+        self.assertEqual(self.installed_versions(), {'2.0', '3.0'})
+        if lock3 is not None:
+            lock3.release()
+        i()
+        self.assertEqual(self.installed_versions(), {'3.0'})
+
+        # A version still in use that the metadata no longer refers to must be
+        # re-used rather than replaced from under its users
+        install, lock = i.use()
+        self.write_metadata({})
+        num_of_installs = i.num_of_installs
+        self.assertEqual(i().path, install.path)
+        self.assertEqual(i.num_of_installs, num_of_installs)
+        lock.release()
+
     def test_download_deps_failed_update(self) -> None:
         i = self.installer
         i()

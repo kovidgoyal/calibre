@@ -56,7 +56,16 @@ from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_i
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.safe_atexit import remove_folder_atexit
 from calibre.web.automate.camoufox_fonts import ESSENTIAL_FONTS, FALLBACK_REPORTABLE_FONTS
-from calibre.web.automate.download_deps import Install, browserforge_data, camoufox_font_lists, camoufox_install, camoufox_resource_dir, debug
+from calibre.web.automate.download_deps import (
+    Install,
+    VersionLock,
+    browserforge_data,
+    camoufox_font_lists,
+    camoufox_resource_dir,
+    debug,
+    lock_camoufox_install,
+    use_camoufox,
+)
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,
@@ -884,24 +893,39 @@ def reserve_high_fd(fd: int, minimum: int = 5) -> int:
             os.close(x)
 
 
-def spawn_posix(argv: Sequence[str], env: Mapping[str, str], log_path: str) -> PosixProcess:
-    """Start the browser with its command pipe on fd 3 and its response pipe on fd 4."""
+def spawn_posix(argv: Sequence[str], env: Mapping[str, str], log_path: str, inherit_fd: int = -1) -> PosixProcess:
+    """Start the browser with its command pipe on fd 3 and its response pipe on fd 4.
+
+    There is no need to arrange for the browser to be killed should we crash,
+    since it quits by itself when the command pipe is closed, which happens
+    when we exit, however that happens.
+
+    If inherit_fd is not negative, the browser gets a copy of it on fd 5, which
+    keeps any lock on the file it refers to held until the browser exits.
+    """
+    # Above all the descriptors set up in the child, so that none is
+    # overwritten before it has been copied to where it belongs
+    minimum = 6
     command_read, command_write = os.pipe()
     response_read, response_write = os.pipe()
-    command_read, response_write = reserve_high_fd(command_read), reserve_high_fd(response_write)
-    command_write, response_read = reserve_high_fd(command_write), reserve_high_fd(response_read)
-    log_fd = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    command_read, response_write = reserve_high_fd(command_read, minimum), reserve_high_fd(response_write, minimum)
+    command_write, response_read = reserve_high_fd(command_write, minimum), reserve_high_fd(response_read, minimum)
+    log_fd = reserve_high_fd(os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), minimum)
+    inherited = -1 if inherit_fd < 0 else reserve_high_fd(os.dup(inherit_fd), minimum)
+    file_actions = [
+        (os.POSIX_SPAWN_DUP2, command_read, 3),
+        (os.POSIX_SPAWN_DUP2, response_write, 4),
+        (os.POSIX_SPAWN_DUP2, log_fd, 1),
+        (os.POSIX_SPAWN_DUP2, log_fd, 2),
+    ]
+    if inherited > -1:
+        file_actions.append((os.POSIX_SPAWN_DUP2, inherited, 5))
     try:
         pid = os.posix_spawn(
             argv[0],
             list(argv),
             dict(env),
-            file_actions=[
-                (os.POSIX_SPAWN_DUP2, command_read, 3),
-                (os.POSIX_SPAWN_DUP2, response_write, 4),
-                (os.POSIX_SPAWN_DUP2, log_fd, 1),
-                (os.POSIX_SPAWN_DUP2, log_fd, 2),
-            ],
+            file_actions=file_actions,
             # Put the browser in its own process group so that, for example, a
             # Ctrl-C in a terminal does not kill it out from under us
             setpgroup=0,
@@ -911,8 +935,9 @@ def spawn_posix(argv: Sequence[str], env: Mapping[str, str], log_path: str) -> P
             os.close(fd)
         raise
     finally:
-        for fd in (command_read, response_write, log_fd):
-            os.close(fd)
+        for fd in (command_read, response_write, log_fd, inherited):
+            if fd > -1:
+                os.close(fd)
     return PosixProcess(pid, response_read, command_write, log_path)
 
 
@@ -1207,10 +1232,13 @@ if iswindows:  # {{{
 # }}}
 
 
-def spawn(argv: Sequence[str], env: Mapping[str, str], log_path: str) -> Process:
+def spawn(argv: Sequence[str], env: Mapping[str, str], log_path: str, inherit_fd: int = -1) -> Process:
+    """Start the browser. inherit_fd is only used on POSIX, see spawn_posix(). On
+    Windows the browser is in a job object that kills it when we exit, so it
+    can never outlive anything we hold."""
     if iswindows:
         return spawn_windows(argv, env, log_path)  # type: ignore[name-defined]
-    return spawn_posix(argv, env, log_path)
+    return spawn_posix(argv, env, log_path, inherit_fd)
 
 
 def remove_profile_dir(path: str, timeout: float = PROFILE_REMOVE_TIMEOUT) -> None:
@@ -3513,6 +3541,8 @@ class Browser:
         self.ignore_https_errors = ignore_https_errors
         self.proxy, self.extra_config, self.allow_prerelease = proxy, config, allow_prerelease
         self.install = install
+        # Stops an update removing the files of the install while the browser is running
+        self.install_lock: VersionLock | None = None
         self.extra_user_prefs = firefox_user_prefs
         self.launch_timeout, self.keep_log = launch_timeout, keep_log
         self.connection = Connection()
@@ -3581,30 +3611,36 @@ class Browser:
         if self.process is not None:
             raise Error('This browser has already been launched')
         loop = asyncio.get_running_loop()
-        if (install := self.install) is None:
-            install = await loop.run_in_executor(None, lambda: camoufox_install(allow_prerelease=self.allow_prerelease))
-        binary, self.version = install.path, install.version
-        self.binary = binary
-        resource_dir = camoufox_resource_dir(binary)
-        self.config = await loop.run_in_executor(
-            None,
-            lambda: generate_config(
-                resource_dir,
-                self.version,
-                target_os=self.target_os,
-                window=self.window,
-                fonts=self.fonts,
-                locale=self.locale,
-                extra=self.extra_config,
-            ),
-        )
-        self.profile_dir = tempfile.mkdtemp(prefix='camoufox-profile-')
-        log_path = os.path.join(self.profile_dir, 'browser-log.txt')
-        env = self.build_environment(resource_dir)
-        self.connection.root_handler = self.handle_event
-        self.connection.on_closed = self.connection_closed
+        if (given_install := self.install) is None:
+            install, self.install_lock = await loop.run_in_executor(None, lambda: use_camoufox(allow_prerelease=self.allow_prerelease))
+        else:
+            install = given_install
+            self.install_lock = await loop.run_in_executor(None, lambda: lock_camoufox_install(given_install))
         try:
-            self.process = await loop.run_in_executor(None, lambda: spawn(self.build_command_line(binary), env, log_path))
+            binary, self.version = install.path, install.version
+            self.binary = binary
+            resource_dir = camoufox_resource_dir(binary)
+            self.config = await loop.run_in_executor(
+                None,
+                lambda: generate_config(
+                    resource_dir,
+                    self.version,
+                    target_os=self.target_os,
+                    window=self.window,
+                    fonts=self.fonts,
+                    locale=self.locale,
+                    extra=self.extra_config,
+                ),
+            )
+            self.profile_dir = tempfile.mkdtemp(prefix='camoufox-profile-')
+            log_path = os.path.join(self.profile_dir, 'browser-log.txt')
+            env = self.build_environment(resource_dir)
+            self.connection.root_handler = self.handle_event
+            self.connection.on_closed = self.connection_closed
+            # The browser holds the lock on the install too, so that it stays
+            # held for as long as the browser runs, even if we crash
+            lock_fd = -1 if self.install_lock is None else self.install_lock.fileno()
+            self.process = await loop.run_in_executor(None, lambda: spawn(self.build_command_line(binary), env, log_path, lock_fd))
             self.connection.start(self.process, loop)
             await self.enable(loop)
         except BaseException:
@@ -3776,6 +3812,9 @@ class Browser:
                 pass
             transport = self.connection.transport
             await loop.run_in_executor(None, self.reap, process, transport)
+        install_lock, self.install_lock = self.install_lock, None
+        if install_lock is not None:
+            install_lock.release()
         self.closed = True
         self.pages.clear()
         if self.profile_dir and not self.keep_log:
