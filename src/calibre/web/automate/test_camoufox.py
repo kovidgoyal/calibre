@@ -328,12 +328,23 @@ class TestCamoufoxTransport(unittest.TestCase):
         version_dir = os.path.join(tdir, 'version')
         lock = VersionLock(version_dir)
         # Echoes the command pipe to the response pipe, to check that passing
-        # the extra descriptor does not disturb them, then lingers
-        process = camoufox.spawn_posix(['/bin/sh', '-c', 'cat <&3 >&4; exec sleep 60'], dict(os.environ), os.path.join(tdir, 'log'), lock.fileno())
+        # the extra descriptor does not disturb them, then lingers. A calibre
+        # worker rather than /bin/sh and cat, whose behavior with inherited
+        # descriptors differs between platforms, the echo failing on macOS.
+        from calibre.utils.ipc.launch import Worker
+
+        w = Worker({})
+        exe = w.executable
+        cmd = [exe] if isinstance(exe, str) else list(exe)
+        code = 'import os, time; os.fstat(5); os.write(4, os.read(3, 4)); time.sleep(60)'
+        log_path = os.path.join(tdir, 'log')
+        process = camoufox.spawn_posix(cmd + ['--pipe-worker', code], w.env, log_path, lock.fileno())
         try:
             os.write(process.write_fd, b'ping')
             camoufox.close_fd(process.write_fd)
-            self.assertEqual(os.read(process.read_fd, 4), b'ping')
+            if (echoed := os.read(process.read_fd, 4)) != b'ping':
+                with open(log_path, errors='replace') as f:
+                    self.fail(f'The child did not echo the command pipe, got {echoed!r}. Its output:\n{f.read()}')
             lock.release()
             self.assertFalse(install_lock_is_free(version_dir))
             process.kill()
