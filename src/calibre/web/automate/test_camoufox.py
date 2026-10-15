@@ -1222,8 +1222,10 @@ class TestCamoufoxBrowser(unittest.TestCase):
         async def check(browser: camoufox.Browser) -> None:
             if (lock := browser.install_lock) is None:
                 raise unittest.SkipTest('a system camoufox is never removed and so not locked')
-            # The browser is given a copy of the lock, see test_spawn_inherits_fd()
-            self.assertEqual(spawn.call_args.args[3], -1 if iswindows else lock.fileno())
+            # The browser is given a copy of the lock, see test_spawn_inherits_fd().
+            # spawn() ignores it on Windows, where the browser is in a job object
+            # that kills it along with us, so it cannot outlive our lock.
+            self.assertEqual(spawn.call_args.args[3], lock.fileno())
 
         with patch.object(camoufox, 'spawn', wraps=camoufox.spawn) as spawn:
             self.run_browser(check)
