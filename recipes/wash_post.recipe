@@ -72,21 +72,22 @@ class TheWashingtonPost(BasicNewsRecipe):
         ]
         return br
 
-    # Official feeds: https://www.washingtonpost.com/discussions/2018/10/12/washington-post-rss-feeds/
     feeds = [
-        ('Politics', 'http://feeds.washingtonpost.com/rss/politics'),
-        ('Opinions', 'http://feeds.washingtonpost.com/rss/opinions'),
-        ('Local', 'http://feeds.washingtonpost.com/rss/local'),
-        ('Sports', 'http://feeds.washingtonpost.com/rss/sports'),
-        ('Technology', 'http://feeds.washingtonpost.com/rss/business/technology'),
-        ('National', 'http://feeds.washingtonpost.com/rss/national'),
-        ('World', 'http://feeds.washingtonpost.com/rss/world'),
-        ('Business', 'http://feeds.washingtonpost.com/rss/business'),
-        ('Lifestyle', 'http://feeds.washingtonpost.com/rss/lifestyle'),
-        ('Entertainment', 'http://feeds.washingtonpost.com/rss/entertainment'),
-        # Undocumented feeds.
-        ('White House', 'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
-        ('Commanders', 'http://feeds.washingtonpost.com/rss/sports/redskins'),
+        (title, 'https://www.washingtonpost.com/arcio/rss/category/' + slug + '/')
+        for title, slug in (
+            ('Politics', 'politics'),
+            ('Opinions', 'opinions'),
+            ('Local', 'local'),
+            ('Sports', 'sports'),
+            ('Technology', 'technology'),
+            ('National', 'national'),
+            ('World', 'world'),
+            ('Business', 'business'),
+            ('Lifestyle', 'lifestyle'),
+            ('Entertainment', 'entertainment'),
+            ('White House', 'politics/white-house'),
+            ('Commanders', 'sports/redskins'),
+        )
     ]
 
     def preprocess_raw_html(self, raw, url):
