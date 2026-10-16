@@ -94,8 +94,12 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
 from calibre_extensions import avif as _avif_plugin  # noqa: F401  registers the AVIF image format with Qt
-from calibre_extensions import jxl as _jxl_plugin  # noqa: F401  registers the JPEG-XL image format with Qt
 from calibre_extensions.progress_indicator import icon_from_name, icon_from_paths, set_icon_theme
+
+try:
+    from calibre_extensions import jxl as _jxl_plugin  # noqa: F401  registers the JPEG-XL image format with Qt
+except ImportError:
+    pass  # for people running from source
 
 del pqc, geometry_for_restore_as_dict
 timed_print  # for plugin compat
