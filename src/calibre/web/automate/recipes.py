@@ -460,12 +460,14 @@ async def submit_form(session: Session, page: Page, request: Mapping[str, Any]) 
     def remaining() -> float:
         return max(deadline - time.monotonic(), 0)
 
-    loaded = await fetch_document(session, page, url, timeout)
-    if loaded.get('error'):
-        return loaded
     # Neither the values nor anything derived from them is ever logged, since
     # what goes into a login form is a password
     try:
+        # Loading the page counts against the timeout too, and on a slow
+        # machine can use all of it, which is just as much the form timing out
+        loaded = await fetch_document(session, page, url, timeout)
+        if loaded.get('error'):
+            return loaded
         for selector, value in fields:
             if not await fill_field(page, selector, value, remaining):
                 return error_result(f'Submitting the form at {url} failed: could not type into {selector}', url=page.url)
