@@ -332,9 +332,9 @@ def get_cli_docs():
         module = __import__(module, fromlist=[module.split('.')[-1]])
         if hasattr(module, 'option_parser'):
             try:
-                documented_cmds.append((cmd, getattr(module, 'option_parser')()))
+                documented_cmds.append((cmd, module.option_parser()))
             except TypeError:
-                documented_cmds.append((cmd, getattr(module, 'option_parser')(cmd)))
+                documented_cmds.append((cmd, module.option_parser(cmd)))
         else:
             undocumented_cmds.append(cmd)
     return documented_cmds, undocumented_cmds

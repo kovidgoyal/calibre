@@ -530,7 +530,7 @@ def rmtree_with_retry(path, sleep_time=1):
     except OSError as e:
         if e.errno == errno.ENOENT and not os.path.exists(path):
             return
-        if iswindows and getattr(e, 'winerror') == winutil.ERROR_SHARING_VIOLATION:
+        if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(sleep_time)  # In case something has temporarily locked a file
         shutil.rmtree(path)
 

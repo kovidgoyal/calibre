@@ -1028,7 +1028,7 @@ class DiffView(QWidget):  # {{{
             assert bar is not None
             self.bars.append(bar)
             setattr(bar, 'scroll_idx', len(self.bars) - 1)
-            connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(getattr(self.sender(), 'scroll_idx')))
+            connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(self.sender().scroll_idx))
         self.view.left.resized.connect(self.resized)
         handle1 = self.view.handle(1)
         assert isinstance(handle1, DiffSplitHandle)

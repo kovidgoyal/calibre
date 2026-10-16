@@ -212,7 +212,7 @@ def load_library(name, cdll):
     if ismacos:
         name += '.dylib'
         if hasattr(sys, 'frameworks_dir'):
-            return cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), name))
+            return cdll.LoadLibrary(os.path.join(sys.frameworks_dir, name))
         return cdll.LoadLibrary(name)
     return cdll.LoadLibrary(name + '.so')
 

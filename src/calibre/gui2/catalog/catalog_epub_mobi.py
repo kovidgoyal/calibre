@@ -221,7 +221,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         results = _('No genres will be excluded')
 
-        regex = str(getattr(self, 'exclude_genre').text()).strip()
+        regex = str(self.exclude_genre.text()).strip()
         if not regex:
             self.exclude_genre_results.clear()
             self.exclude_genre_results.setText(results)

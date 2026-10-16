@@ -948,7 +948,7 @@ class CharSelect(Dialog):
         e = QInputMethodEvent('', [])
         e.setCommitString(unicodedata.normalize('NFC', c))
         if hasattr(w, 'no_popup'):
-            oval = getattr(w, 'no_popup')
+            oval = w.no_popup
             setattr(w, 'no_popup', True)
         QApplication.sendEvent(w, e)
         if hasattr(w, 'no_popup'):

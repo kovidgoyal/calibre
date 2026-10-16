@@ -1287,7 +1287,7 @@ class Boss(QObject):
         if ret is True:
             ed = self.gui.central.current_editor
             if getattr(ed, 'has_line_numbers', False):
-                getattr(ed, 'editor').setFocus(Qt.FocusReason.OtherFocusReason)
+                ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
             else:
                 self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
@@ -1324,7 +1324,7 @@ class Boss(QObject):
         if ret is True:
             ed = self.gui.central.current_editor
             if getattr(ed, 'has_line_numbers', False):
-                getattr(ed, 'editor').setFocus(Qt.FocusReason.OtherFocusReason)
+                ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
             else:
                 self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
@@ -1342,7 +1342,7 @@ class Boss(QObject):
         if ret is True:
             ed = self.gui.central.current_editor
             if getattr(ed, 'has_line_numbers', False):
-                getattr(ed, 'editor').setFocus(Qt.FocusReason.OtherFocusReason)
+                ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def find_initial_text(self, text):
         from calibre.gui2.tweak_book.search import get_search_regex

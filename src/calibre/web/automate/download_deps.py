@@ -891,12 +891,12 @@ def patch_browserforge_data_files(data_dir: str) -> None:
             if headers is not None:
                 for getter in ('get_browser_helper_file', 'get_header_network', 'get_headers_order', 'get_input_network'):
                     setattr(headers, getter, getattr(apify_fingerprint_datapoints, getter))
-                header_generator = getattr(headers, 'HeaderGenerator')
+                header_generator = headers.HeaderGenerator
                 header_generator.input_generator_network = BayesianNetwork(paths['get_input_network'])
                 header_generator.header_generator_network = BayesianNetwork(paths['get_header_network'])
             if fingerprints is not None:
-                setattr(fingerprints, 'get_fingerprint_network', getattr(apify_fingerprint_datapoints, 'get_fingerprint_network'))
-                fingerprint_generator = getattr(fingerprints, 'FingerprintGenerator')
+                setattr(fingerprints, 'get_fingerprint_network', apify_fingerprint_datapoints.get_fingerprint_network)
+                fingerprint_generator = fingerprints.FingerprintGenerator
                 fingerprint_generator.fingerprint_generator_network = BayesianNetwork(paths['get_fingerprint_network'])
         _patched_data_dir = data_dir
 
