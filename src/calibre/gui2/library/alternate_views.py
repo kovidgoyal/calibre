@@ -1185,7 +1185,7 @@ class GridView(MomentumScrollMixin, QListView):
                                 Qt.AspectRatioMode.KeepAspectRatioByExpanding,
                                 Qt.TransformationMode.SmoothTransformation,
                             )
-                            setattr(self, '_scaled_texture_pixmap', sm)
+                            self._scaled_texture_pixmap = sm
                         pm = sm
                     painter.fillRect(r, QBrush(pm))
                 # Return False so the normal paint event (items) runs on top

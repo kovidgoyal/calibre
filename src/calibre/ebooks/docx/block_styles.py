@@ -195,9 +195,9 @@ def read_indent(parent, dest, XPath, get):
         if ti is not None:
             text_indent = '{:.3g}{}'.format(ti, 'em' if hc is not None or (h is None and flc is not None) else 'pt')
 
-    setattr(dest, 'margin_left', padding_left)
-    setattr(dest, 'margin_right', padding_right)
-    setattr(dest, 'text_indent', text_indent)
+    dest.margin_left = padding_left
+    dest.margin_right = padding_right
+    dest.text_indent = text_indent
 
 
 def read_justification(parent, dest, XPath, get):
@@ -212,7 +212,7 @@ def read_justification(parent, dest, XPath, get):
             ans = val
         elif val in {'start', 'end'}:
             ans = {'start': 'left'}.get(val, 'right')
-    setattr(dest, 'text_align', ans)
+    dest.text_align = ans
 
 
 def read_spacing(parent, dest, XPath, get):
@@ -234,9 +234,9 @@ def read_spacing(parent, dest, XPath, get):
             if lh is not None:
                 line_height = '{:.3g}{}'.format(lh, 'pt' if lr in {'exact', 'atLeast'} else '')
 
-    setattr(dest, 'margin_top', padding_top)
-    setattr(dest, 'margin_bottom', padding_bottom)
-    setattr(dest, 'line_height', line_height)
+    dest.margin_top = padding_top
+    dest.margin_bottom = padding_bottom
+    dest.line_height = line_height
 
 
 def read_shd(parent, dest, XPath, get):
@@ -245,7 +245,7 @@ def read_shd(parent, dest, XPath, get):
         val = get(shd, 'w:fill')
         if val:
             ans = simple_color(val, auto='transparent')
-    setattr(dest, 'background_color', ans)
+    dest.background_color = ans
 
 
 def read_numbering(parent, dest, XPath, get):
@@ -258,8 +258,8 @@ def read_numbering(parent, dest, XPath, get):
                 pass
         for num in XPath('./w:numId[@w:val]')(np):
             num_id = get(num, 'w:val')
-    setattr(dest, 'numbering_id', num_id)
-    setattr(dest, 'numbering_level', lvl)
+    dest.numbering_id = num_id
+    dest.numbering_level = lvl
 
 
 class Frame:
@@ -357,7 +357,7 @@ def read_frame(parent, dest, XPath, get):
     ans = inherit
     for fp in XPath('./w:framePr')(parent):
         ans = Frame(fp, XPath, get)
-    setattr(dest, 'frame', ans)
+    dest.frame = ans
 
 
 # }}}

@@ -56,7 +56,7 @@ def compile_recipe(src):
 
     for x in namespace.values():
         if isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not in basic_recipes:
-            setattr(x, 'calibre_most_common_ua', ua)
+            x.calibre_most_common_ua = ua
             return x
 
     return None

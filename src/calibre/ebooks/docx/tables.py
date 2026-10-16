@@ -35,14 +35,14 @@ def read_width(parent, dest, XPath, get):
     ans = inherit
     for tblW in XPath('./w:tblW')(parent):
         ans = _read_width(tblW, get)
-    setattr(dest, 'width', ans)
+    dest.width = ans
 
 
 def read_cell_width(parent, dest, XPath, get):
     ans = inherit
     for tblW in XPath('./w:tcW')(parent):
         ans = _read_width(tblW, get)
-    setattr(dest, 'width', ans)
+    dest.width = ans
 
 
 def read_padding(parent, dest, XPath, get):
@@ -68,29 +68,29 @@ def read_justification(parent, dest, XPath, get):
             left = 'auto'
         elif val == 'center':
             left = right = 'auto'
-    setattr(dest, 'margin_left', left)
-    setattr(dest, 'margin_right', right)
+    dest.margin_left = left
+    dest.margin_right = right
 
 
 def read_spacing(parent, dest, XPath, get):
     ans = inherit
     for cs in XPath('./w:tblCellSpacing')(parent):
         ans = _read_width(cs, get)
-    setattr(dest, 'spacing', ans)
+    dest.spacing = ans
 
 
 def read_float(parent, dest, XPath, get):
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
         ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.items()}
-    setattr(dest, 'float', ans)
+    dest.float = ans
 
 
 def read_indent(parent, dest, XPath, get):
     ans = inherit
     for cs in XPath('./w:tblInd')(parent):
         ans = _read_width(cs, get)
-    setattr(dest, 'indent', ans)
+    dest.indent = ans
 
 
 border_edges = ('left', 'top', 'right', 'bottom', 'insideH', 'insideV')
@@ -108,7 +108,7 @@ def read_height(parent, dest, XPath, get):
         if rule in {'auto', 'atLeast', 'exact'}:
             val = get(rh, 'w:val')
             ans = (rule, val)
-    setattr(dest, 'height', ans)
+    dest.height = ans
 
 
 def read_vertical_align(parent, dest, XPath, get):
@@ -116,7 +116,7 @@ def read_vertical_align(parent, dest, XPath, get):
     for va in XPath('./w:vAlign')(parent):
         val = get(va, 'w:val')
         ans = {'center': 'middle', 'top': 'top', 'bottom': 'bottom'}.get(val, 'middle')
-    setattr(dest, 'vertical_align', ans)
+    dest.vertical_align = ans
 
 
 def read_col_span(parent, dest, XPath, get):
@@ -126,7 +126,7 @@ def read_col_span(parent, dest, XPath, get):
             ans = int(get(gs, 'w:val'))
         except TypeError, ValueError:
             continue
-    setattr(dest, 'col_span', ans)
+    dest.col_span = ans
 
 
 def read_merge(parent, dest, XPath, get):
@@ -155,7 +155,7 @@ def read_look(parent, dest, XPath, get):
             ans = int(get(x, 'w:val'), 16)
         except ValueError, TypeError:
             continue
-    setattr(dest, 'look', ans)
+    dest.look = ans
 
 
 # }}}

@@ -287,9 +287,9 @@ class TXTInput(InputFormatPlugin):
             log.debug(f'Auto detected formatting as {options.formatting_type}')
 
         if options.formatting_type == 'heuristic':
-            setattr(options, 'enable_heuristics', True)
-            setattr(options, 'unwrap_lines', False)
-            setattr(options, 'smarten_punctuation', True)
+            options.enable_heuristics = True
+            options.unwrap_lines = False
+            options.smarten_punctuation = True
 
         # Reformat paragraphs to block formatting based on the detected type.
         # We don't check for block because the processor assumes block.

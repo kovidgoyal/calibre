@@ -50,9 +50,9 @@ def extract_book(pathtoebook, tdir, log=None, view_kepub=False, processed=False,
     plumber = Plumber(pathtoebook, tdir, log, view_kepub=view_kepub)
     plumber.setup_options()
     if pathtoebook.lower().endswith('.opf'):
-        setattr(plumber.opts, 'dont_package', True)
+        plumber.opts.dont_package = True
     if hasattr(plumber.opts, 'no_process'):
-        setattr(plumber.opts, 'no_process', True)
+        plumber.opts.no_process = True
 
     plumber.input_plugin.for_viewer = True
     with plumber.input_plugin, open(plumber.input, 'rb') as inf:

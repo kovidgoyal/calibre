@@ -574,7 +574,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ):
             fm = {'comment': 'comments', 'metadata_last_modified': 'last_modified'}.get(prop, prop)
             setattr(self, prop, functools.partial(self.get_property, loc=self.FIELD_MAP[fm]))
-        setattr(self, 'title_sort', functools.partial(self.get_property, loc=self.FIELD_MAP['sort']))
+        self.title_sort = functools.partial(self.get_property, loc=self.FIELD_MAP['sort'])
 
         d = self.conn.get('SELECT book FROM metadata_dirtied', all=True)
         with self.dirtied_lock:

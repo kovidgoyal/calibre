@@ -436,7 +436,7 @@ def oeb2html_inline_css(oeb_book, log, opts):
 
 def oeb2html_class_css(oeb_book, log, opts):
     izer = OEB2HTMLClassCSSizer(log)
-    setattr(opts, 'class_style', 'inline')
+    opts.class_style = 'inline'
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
     return html, images

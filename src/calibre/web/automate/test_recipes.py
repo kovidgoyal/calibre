@@ -261,7 +261,7 @@ class FakeBrowser:
         if status is None:
             return f'the page at {url}'
         err = URLError(f'HTTP {status}')
-        setattr(err, 'code', status)
+        err.code = status
         raise err
 
     open_novisit = open

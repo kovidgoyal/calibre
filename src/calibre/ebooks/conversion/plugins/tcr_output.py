@@ -35,10 +35,10 @@ class TCROutput(OutputFormatPlugin):
         else:
             out_stream = output_path
 
-        setattr(opts, 'flush_paras', False)
-        setattr(opts, 'max_line_length', 0)
-        setattr(opts, 'force_max_line_length', False)
-        setattr(opts, 'indent_paras', False)
+        opts.flush_paras = False
+        opts.max_line_length = 0
+        opts.force_max_line_length = False
+        opts.indent_paras = False
 
         writer = TXTMLizer(log)
         opts.use_alt_text_for_images = False

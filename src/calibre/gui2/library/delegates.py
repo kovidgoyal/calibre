@@ -110,7 +110,7 @@ class StyledItemDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         e = self.create_editor(parent, option, index)
         if e is not None and (book_id := index.data(Qt.ItemDataRole.UserRole)) and isinstance(book_id, int):
-            setattr(e, 'underlying_book_id', book_id)
+            e.underlying_book_id = book_id
         return e
 
     def setModelData(self, editor, model, index):

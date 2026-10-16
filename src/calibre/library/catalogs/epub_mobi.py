@@ -479,7 +479,7 @@ class EPUB_MOBI(CatalogPlugin):
             GENERATE_DEBUG_EPUB = False
             if GENERATE_DEBUG_EPUB:
                 catalog_debug_path = os.path.join(os.path.expanduser('~'), 'Desktop', 'Catalog debug')
-                setattr(opts, 'debug_pipeline', os.path.expanduser(catalog_debug_path))
+                opts.debug_pipeline = os.path.expanduser(catalog_debug_path)
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
