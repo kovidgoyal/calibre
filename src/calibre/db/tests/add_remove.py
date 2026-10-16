@@ -403,6 +403,35 @@ class AddRemoveTest(BaseTest):
         book_id = cache.create_book_entry(mi, preserve_uuid=True)
         self.assertEqual(mi.uuid, cache.field_for('uuid', book_id))
 
+        # A composite column rendered when the new book is added must use the series index assigned to it
+        cache.create_custom_column('cidx', 'CIDX', 'composite', False, display={'composite_template': '{series}:{series_index}'})
+        cache.close()
+        cache = self.init_cache()
+        cache.search('#cidx:true')
+        mi = Metadata('Created Two', authors=('Creator One',))
+        mi.series = 'A Series One'  # has books 1 (index 2) and 2 (index 1), so the new book gets index 3
+        book_id = cache.create_book_entry(mi)
+        self.assertEqual(3.0, cache.field_for('series_index', book_id))
+        self.assertEqual('A Series One:3', cache.field_for('#cidx', book_id))
+        self.assertIn(book_id, cache.search('#cidx:true'))
+        # The values from the books table are in memory before the metadata is set, so the caches need no second refresh
+        resynced = []
+        orig = cache._read_books_table_fields
+
+        def read_books_table_fields(book_id):
+            resynced.append(orig(book_id))
+            return resynced[-1]
+
+        cache._read_books_table_fields = read_books_table_fields
+        mi = Metadata('Created Three', authors=('Creator One',))
+        mi.series, mi.title_sort, mi.author_sort = 'A Series One', 'Three, Created', 'One, Creator'
+        book_id = cache.create_book_entry(mi, preserve_uuid=True)
+        self.assertEqual([True, False], resynced)
+        self.assertEqual('A Series One:4', cache.field_for('#cidx', book_id))
+        row = cache.backend.execute('SELECT sort, series_index, author_sort, uuid FROM books WHERE id=?', (book_id,))
+        self.assertEqual(next(row), tuple(cache.field_for(f, book_id) for f in ('sort', 'series_index', 'author_sort', 'uuid')))
+        self.assertEqual(book_id, cache.lookup_by_uuid(cache.field_for('uuid', book_id)))
+
     # }}}
 
     def test_add_books(self):  # {{{

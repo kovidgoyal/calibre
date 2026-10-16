@@ -2721,6 +2721,10 @@ class Cache:
             )
         book_id = self.backend.last_insert_rowid()
         self.event_dispatcher(EventType.book_created, book_id)
+        # Put the values the database assigned to the fields from the books table in memory before _set_metadata() renders the
+        # composite columns and refreshes the cached searches of the new book
+        self.fields['size'].table.book_col_map[book_id] = 0
+        self._read_books_table_fields(book_id)
 
         mi.timestamp = utcnow() if (mi.timestamp is None or is_date_undefined(mi.timestamp)) else mi.timestamp
         mi.pubdate = UNDEFINED_DATE if mi.pubdate is None else mi.pubdate
@@ -2737,15 +2741,11 @@ class Cache:
                     self.categories_cache.field_changed(field)
         if preserve_uuid and mi.uuid:
             self._set_field('uuid', {book_id: mi.uuid})
-        # Update the caches for fields from the books table
-        self.fields['size'].table.book_col_map[book_id] = 0
-        row = next(self.backend.execute('SELECT sort, series_index, author_sort, uuid, has_cover FROM books WHERE id=?', (book_id,)))
-        for field, val in zip(('sort', 'series_index', 'author_sort', 'uuid', 'cover'), row):
-            if field == 'cover':
-                val = bool(val)
-            elif field == 'uuid':
-                self.fields[field].table.uuid_to_id_map[val] = book_id
-            self.fields[field].table.book_col_map[book_id] = val
+        # The writes of _set_metadata() keep the in memory values up to date, this only catches values changed in the database
+        # behind their back, so the caches of the book are refreshed only if one of them is stale
+        if self._read_books_table_fields(book_id):
+            self._clear_composite_caches((book_id,))
+            self._clear_search_caches((book_id,))
         # These are not categories, but which books a Virtual library matches
         # can depend on them
         for field in ('size', 'sort', 'series_index', 'author_sort', 'uuid', 'cover'):
@@ -2754,6 +2754,23 @@ class Cache:
         return book_id
 
     _create_book_entry = create_book_entry
+
+    def _read_books_table_fields(self, book_id: int) -> bool:
+        # Copy the values of the fields stored in the books table into memory for a newly created book. Returns True if any
+        # in memory value was changed.
+        changed = False
+        row = next(self.backend.execute('SELECT sort, series_index, author_sort, uuid, has_cover FROM books WHERE id=?', (book_id,)))
+        for field, val in zip(('sort', 'series_index', 'author_sort', 'uuid', 'cover'), row):
+            table = self.fields[field].table
+            if field == 'cover':
+                val = bool(val)
+            if book_id in table.book_col_map and table.book_col_map[book_id] == val:
+                continue
+            if field == 'uuid':
+                table.update_uuid_cache({book_id: val})
+            table.book_col_map[book_id] = val
+            changed = True
+        return changed
 
     @api
     def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
@@ -2961,10 +2978,12 @@ class Cache:
             restrict_to_book_ids = frozenset(restrict_to_book_ids)
         affected_books = field.table.remove_items(item_ids, self.backend, restrict_to_book_ids=restrict_to_book_ids)
         if affected_books:
+            not_dirtied = affected_books
             if hasattr(field, 'index_field'):
-                self._set_field(field.index_field.name, {bid: 1.0 for bid in affected_books})
-            else:
-                self._mark_as_dirty(affected_books)
+                # set_field() marks as dirty only the books whose series index changed, but all of them lose the series
+                not_dirtied = affected_books - self._set_field(field.index_field.name, {bid: 1.0 for bid in affected_books})
+            if not_dirtied:
+                self._mark_as_dirty(not_dirtied)
             self._clear_link_map_cache(affected_books)
         self.event_dispatcher(EventType.items_removed, field, affected_books, item_ids)
         return affected_books
