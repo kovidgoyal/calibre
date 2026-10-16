@@ -155,6 +155,68 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
+    def test_add_extra_file_failure(self):  # {{{
+        "Test that a failure while writing an extra file does not destroy the existing file"
+        from calibre.constants import iswindows
+
+        class FailingStream(BytesIO):
+            def read(self, size=-1):
+                ans = super().read(4)
+                if not ans:
+                    raise OSError('simulated read failure')
+                return ans
+
+        cache = self.init_cache()
+        cache.add_extra_files(1, {'sub/extra.txt': BytesIO(b'old extra')})
+        book_dir = os.path.join(cache.backend.library_path, cache.field_for('path', 1))
+        path = os.path.join(book_dir, 'sub', 'extra.txt')
+        if not iswindows:
+            os.chmod(path, 0o640)
+
+        def listing():
+            return sorted(os.path.relpath(os.path.join(r, f), book_dir) for r, _, files in os.walk(book_dir) for f in files)
+
+        def read(path):
+            with open(path, 'rb') as f:
+                return f.read()
+
+        before = listing()
+        with self.assertRaises(OSError):
+            cache.add_extra_files(1, {'sub/extra.txt': FailingStream(b'new extra')})
+        self.assertEqual(b'old extra', read(path))
+        self.assertEqual(before, listing())
+        # A new file must not be left behind partially written
+        with self.assertRaises(OSError):
+            cache.add_extra_files(1, {'sub/new.txt': FailingStream(b'new extra')})
+        self.assertEqual(before, listing())
+        self.assertEqual(['sub/extra.txt'], [x.relpath for x in cache.list_extra_files(1)])
+
+        # A successful replace keeps the permissions of the existing file
+        cache.add_extra_files(1, {'sub/extra.txt': BytesIO(b'replaced')})
+        self.assertEqual(b'replaced', read(path))
+        self.assertEqual(before, listing())
+        if not iswindows:
+            self.assertEqual(0o640, os.stat(path).st_mode & 0o777)
+            # Hardlinks to an extra file must not be broken by a replace
+            link = os.path.join(self.mkdtemp(), 'link')
+            os.link(path, link)
+            cache.add_extra_files(1, {'sub/extra.txt': BytesIO(b'via link')})
+            self.assertEqual(b'via link', read(link))
+            self.assertTrue(os.path.samefile(path, link))
+            self.assertEqual(before, listing())
+
+        # Copying from a path keeps the timestamps of the source, as before
+        src = os.path.join(self.mkdtemp(), 'src.txt')
+        with open(src, 'wb') as f:
+            f.write(b'from path')
+        os.utime(src, (1000000000, 1000000000))
+        cache.add_extra_files(1, {'sub/extra.txt': src})
+        self.assertEqual(b'from path', read(path))
+        self.assertEqual(1000000000, int(os.stat(path).st_mtime))
+        self.assertEqual(before, listing())
+
+    # }}}
+
     def test_add_format_categories(self):  # {{{
         "Test that adding a format keeps the cached formats category correct"
         from io import BytesIO

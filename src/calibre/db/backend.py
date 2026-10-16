@@ -2467,20 +2467,16 @@ class DB:
                     dest = candidate
                     break
                 num += 1
+        ldest = make_long_path_useable(dest)
+        os.makedirs(os.path.dirname(ldest), exist_ok=True)
+        # Do not destroy an existing file if reading the source fails part way
         if isinstance(stream, str):
-            try:
-                shutil.copy2(make_long_path_useable(stream), make_long_path_useable(dest))
-            except FileNotFoundError:
-                os.makedirs(make_long_path_useable(os.path.dirname(dest)), exist_ok=True)
-                shutil.copy2(make_long_path_useable(stream), make_long_path_useable(dest))
+            src = make_long_path_useable(stream)
+            with open(src, 'rb') as f:
+                write_stream_to_format_file(f, ldest)
+            shutil.copystat(src, ldest)  # as shutil.copy2() does
         else:
-            try:
-                d = open(make_long_path_useable(dest), 'wb')
-            except FileNotFoundError:
-                os.makedirs(make_long_path_useable(os.path.dirname(dest)), exist_ok=True)
-                d = open(make_long_path_useable(dest), 'wb')
-            with d:
-                shutil.copyfileobj(stream, d)
+            write_stream_to_format_file(stream, ldest)
         return os.path.relpath(dest, bookdir).replace(os.sep, '/')
 
     def write_backup(self, path, raw):
