@@ -142,6 +142,25 @@ class TestHTTP(BaseTest):
         test('bytes=-5', (95, 99, 5))
         test('bytes=95-', (95, 99, 5))
         test('bytes=-200', (0, 99, 100))
+        # Only plain decimal digits are allowed
+        test('bytes=+1-2')
+        test('bytes=1_0-20')
+        test('bytes=--5')
+        test('bytes=-0')
+        test('bytes=5')
+        test('bytes=1--5')
+        # Non-overlapping ranges keep their order
+        test('bytes=50-60,0-9', (50, 60, 11), (0, 9, 10))
+        test('bytes=0-25,26-50', (0, 25, 26), (26, 50, 25))
+        # Overlapping ranges are coalesced
+        test('bytes=0-99,0-99,0-99', (0, 99, 100))
+        test('bytes=10-20,15-30,-5,0-1', (0, 1, 2), (10, 30, 21), (95, 99, 5))
+        test('bytes=' + ','.join(['0-'] * 50), (0, 99, 100))
+        # Too many ranges cause the header to be ignored
+        from calibre.srv.http_response import MAX_RANGES
+
+        test('bytes=' + ','.join(f'{i}-{i}' for i in range(MAX_RANGES)), *((i, i, 1) for i in range(MAX_RANGES)))
+        test('bytes=' + ','.join(f'{i}-{i}' for i in range(MAX_RANGES + 1)), None)
 
     # }}}
 
@@ -311,6 +330,16 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, http.client.REQUEST_ENTITY_TOO_LARGE)
 
+            # Chunk sizes must be plain hex digits, in particular negative
+            # sizes must not bypass the max request body size check
+            for bad_size in (b'-1', b'-200', b'+4', b'0x4', b'0_4', b' -0'):
+                conn = server.connect()
+                conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
+                conn.send(b'4\r\nbody\r\n' + bad_size + b'\r\n' + b'a' * 200 + b'\r\n0\r\n\r\n')
+                r = conn.getresponse()
+                self.ae(r.status, http.client.BAD_REQUEST, bad_size)
+                self.assertIn(b'not a valid chunk size', r.read())
+
             conn = server.connect()
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'3\r\nbody\r\n0\r\n\r\n')
@@ -474,6 +503,19 @@ class TestHTTP(BaseTest):
                 self.ae(clen, len(data))
                 buf = BytesIO(data)
                 self.ae(parse_multipart_byterange(buf, r.getheader('Content-Type')), [(0, fdata[:26]), (26, fdata[26:51])])
+
+                # Overlapping ranges must not amplify the response size
+                conn.request('GET', '/test', headers={'Range': 'bytes=' + ','.join(['0-'] * 50)})
+                r = conn.getresponse()
+                self.ae(r.status, http.client.PARTIAL_CONTENT)
+                self.ae(str(r.getheader('Content-Range')), f'bytes 0-{len(fdata) - 1}/{len(fdata)}')
+                self.ae(r.read(), fdata)
+
+                # Too many ranges cause the Range header to be ignored
+                conn.request('GET', '/test', headers={'Range': 'bytes=' + ','.join(f'{i}-{i}' for i in range(500))})
+                r = conn.getresponse()
+                self.ae(r.status, http.client.OK), self.ae(r.read(), fdata)
+                self.assertFalse(r.getheader('Content-Range'))
 
                 # Test sending of larger file
                 start_time = monotonic()

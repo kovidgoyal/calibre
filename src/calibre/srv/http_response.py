@@ -120,9 +120,21 @@ def preferred_lang(val, get_translator_for_lang):  # {{{
 # }}}
 
 
+MAX_RANGES = 64
+
+
+def parse_range_int(x: str) -> int | None:
+    # RFC 9110 only allows 1*DIGIT, int() is too lenient (signs, underscores,
+    # non-ASCII digits)
+    if x and x.isascii() and x.isdigit():
+        return int(x)
+    return None
+
+
 def get_ranges(headervalue, content_length):  # {{{
     """Return a list of ranges from the Range header. If this function returns
-    an empty list, it indicates no valid range was found."""
+    an empty list, it indicates no valid range was found. If it returns None the
+    Range header should be ignored and the full content sent."""
     if not headervalue:
         return None
 
@@ -134,32 +146,53 @@ def get_ranges(headervalue, content_length):  # {{{
     if bytesunit.strip() != 'bytes':
         return None
 
-    for brange in byteranges.split(','):
-        start, stop = (x.strip() for x in brange.split('-', 1))
+    branges = byteranges.split(',')
+    if len(branges) > MAX_RANGES:
+        # RFC 9110 allows ignoring a Range header with an excessive number of
+        # ranges, do so to prevent amplification attacks
+        return None
+
+    for brange in branges:
+        try:
+            start, stop = (x.strip() for x in brange.split('-', 1))
+        except ValueError:
+            continue
         if start:
-            if not stop:
-                stop = content_length - 1
-            try:
-                start, stop = int(start), int(stop)
-            except Exception:
+            istart = parse_range_int(start)
+            istop = parse_range_int(stop) if stop else content_length - 1
+            if istart is None or istop is None:
                 continue
-            if start >= content_length:
+            if istart >= content_length:
                 continue
-            if stop < start:
+            if istop < istart:
                 continue
-            stop = min(stop, content_length - 1)
-            result.append(Range(start, stop, stop - start + 1))
+            istop = min(istop, content_length - 1)
+            result.append(Range(istart, istop, istop - istart + 1))
         elif stop:
             # Negative subscript (last N bytes)
-            try:
-                stop = int(stop)
-            except Exception:
+            suffix_length = parse_range_int(stop)
+            if not suffix_length or content_length < 1:
                 continue
-            if stop > content_length:
+            if suffix_length > content_length:
                 result.append(Range(0, content_length - 1, content_length))
             else:
-                result.append(Range(content_length - stop, content_length - 1, stop))
+                result.append(Range(content_length - suffix_length, content_length - 1, suffix_length))
 
+    if len(result) > 1:
+        # Coalesce overlapping ranges, as allowed by RFC 9110, so that the
+        # response cannot be larger than the content plus the multipart
+        # overhead.
+        ordered = sorted(result, key=itemgetter(0))
+        merged = [ordered[0]]
+        for r in ordered[1:]:
+            prev = merged[-1]
+            if r.start <= prev.stop:
+                stop = max(prev.stop, r.stop)
+                merged[-1] = Range(prev.start, stop, stop - prev.start + 1)
+            else:
+                merged.append(r)
+        if len(merged) < len(result):
+            result = merged
     return result
 
 

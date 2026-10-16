@@ -18,6 +18,9 @@ from polyglot.urllib import unquote
 
 protocol_map = {(1, 0): HTTP1, (1, 1): HTTP11}
 quoted_slash = re.compile(rb'%2[fF]')
+# RFC 9112: chunk-size = 1*HEXDIG. Note that int(x, 16) is too lenient as it
+# also accepts signs, underscores, whitespace and a 0x prefix.
+chunk_size_pat = re.compile(rb'[0-9a-fA-F]+')
 HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
 
 # Parse URI {{{
@@ -422,10 +425,10 @@ class HTTPRequest(Connection):
         if line is None:
             return
         bytes_read[0] += len(line)
-        try:
-            chunk_size = int(line.strip(), 16)
-        except Exception:
-            return self.simple_response(http.client.BAD_REQUEST, f'{reprlib.repr(line.strip())} is not a valid chunk size')
+        raw_size = line.strip()
+        if chunk_size_pat.fullmatch(raw_size) is None:
+            return self.simple_response(http.client.BAD_REQUEST, f'{reprlib.repr(raw_size)} is not a valid chunk size')
+        chunk_size = int(raw_size, 16)
         if bytes_read[0] + chunk_size + 2 > self.max_request_body_size:
             return self.simple_response(
                 http.client.REQUEST_ENTITY_TOO_LARGE,
