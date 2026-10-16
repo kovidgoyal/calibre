@@ -323,11 +323,20 @@ class Cache:
     @quiet_write_api
     def clear_search_caches(self, book_ids=None):
         self.clear_search_cache_count += 1
-        self._search_api.update_or_clear(self, book_ids)
-        self.vls_for_books_cache = None
-        self.vls_for_books_lib_in_process = None
+        # Refreshing the cached searches renders the composite columns of the changed books, which must not use the old cache of
+        # the virtual libraries for {virtual_libraries}. Rendering refills that cache from searches not yet refreshed, so discard
+        # it again afterwards.
+        self._clear_vls_for_books_cache()
+        try:
+            self._search_api.update_or_clear(self, book_ids)
+        finally:
+            self._clear_vls_for_books_cache()
 
     _clear_search_caches = clear_search_caches
+
+    def _clear_vls_for_books_cache(self) -> None:
+        self.vls_for_books_cache = None
+        self.vls_for_books_lib_in_process = None
 
     @quiet_write_api
     def clear_extra_files_cache(self, book_id=None):
