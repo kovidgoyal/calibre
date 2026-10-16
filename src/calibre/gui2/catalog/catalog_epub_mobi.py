@@ -1358,7 +1358,7 @@ class PrefixRules(GenericRulesTable):
         data = self.create_blank_row_data()
         data['ordinal'] = row
         _prefix_item = self.item(row, int(self.COLUMNS['ENABLED']['ordinal']))
-        assert isinstance(_prefix_item, QCheckBox)
+        assert _prefix_item is not None
         data['enabled'] = _prefix_item.checkState() == Qt.CheckState.Checked
         _pfx_name_w = self.cellWidget(row, int(self.COLUMNS['NAME']['ordinal']))
         assert isinstance(_pfx_name_w, QLineEdit)
