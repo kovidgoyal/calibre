@@ -1,11 +1,56 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
-from calibre.srv.convert import FORBIDDEN_CLIENT_OPTIONS, get_conversion_options, sanitize_conversion_options
+from contextlib import closing
+from http.client import OK
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
+
+from calibre.srv.changes import FormatsAdded
+from calibre.srv.convert import FORBIDDEN_CLIENT_OPTIONS, JobStatus, conversion_jobs, get_conversion_options, sanitize_conversion_options
+from calibre.srv.tests.ajax import make_request
 from calibre.srv.tests.base import LibraryBaseTest
 
 
 class ConvertTest(LibraryBaseTest):
+    def test_conversion_status_notification(self):
+        "Notify the GUI only when a completed conversion adds a format to the library"
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            ctx = server.handler.router.ctx
+            ctx.user_manager.add_user('testuser', 'testpw')
+            db = ctx.library_broker.get(None)
+            book_id = 1
+            data = b'converted text'
+            with closing(server.connect()) as conn:
+                for ok in (False, True):
+                    with self.subTest(ok=ok), TemporaryDirectory() as tdir:
+                        job = JobStatus(1, book_id, tdir, db.server_library_id, '', {'output_fmt': 'TXT'})
+                        job.running = False
+                        job.ok = ok
+                        with open(job.output_path, 'wb') as f:
+                            f.write(data)
+                        with patch.dict(conversion_jobs, {job.job_id: job}), patch.object(ctx, '_notify_changes') as notify:
+                            r, result = make_request(
+                                conn,
+                                f'/conversion/status/{job.job_id}',
+                                prefix='',
+                                username='testuser',
+                                password='testpw',
+                                method='POST',
+                            )
+                            self.ae(r.status, OK)
+                            self.ae(result['ok'], ok)
+                            if ok:
+                                self.ae(db.format(book_id, 'TXT'), data)
+                                notify.assert_called_once()
+                                library_path, change = notify.call_args.args
+                                self.ae(library_path, db.backend.library_path)
+                                self.assertIsInstance(change, FormatsAdded)
+                                self.ae(change.formats_map, {book_id: ('txt',)})
+                            else:
+                                self.assertFalse(db.has_format(book_id, 'TXT'))
+                                notify.assert_not_called()
+
     def test_sanitize_conversion_options(self):
         "Client supplied conversion options must be restricted to the advertised, safe set"
         with self.create_server() as server:
