@@ -6,13 +6,13 @@ import shutil
 import tempfile
 import time
 import unittest
-from contextlib import closing
+from contextlib import ExitStack, closing
 from unittest.mock import patch
 
 from calibre import walk
 from calibre.constants import iswindows
 
-from .copy_files import SourceDeletionFailed, copy_tree, rename_files
+from .copy_files import SourceDeletionFailed, WindowsFileCopier, copy_tree, rename_files
 from .filenames import is_path_inside, nlinks_file, path_from_root
 
 if iswindows:
@@ -135,10 +135,18 @@ class TestCopyFiles(unittest.TestCase):
 
         self.reset()
         src, dest = self.s(), self.d()
-        with (
-            patch('calibre.utils.copy_files.shutil.rmtree', side_effect=OSError('simulated')),
-            patch('calibre.utils.copy_files.WINDOWS_SLEEP_FOR_RETRY_TIME', 0),
-        ):
+        with ExitStack() as stack:
+            stack.enter_context(patch('calibre.utils.copy_files.shutil.rmtree', side_effect=OSError('simulated')))
+            stack.enter_context(patch('calibre.utils.copy_files.WINDOWS_SLEEP_FOR_RETRY_TIME', 0))
+            if iswindows:
+                # On Windows the copier deletes the entire source tree via
+                # delete on close, so simulate that leaving the source behind
+                orig_close_all_handles = WindowsFileCopier.close_all_handles
+
+                def close_all_handles(self: WindowsFileCopier, delete_on_close: bool = False) -> None:
+                    orig_close_all_handles(self)
+
+                stack.enter_context(patch.object(WindowsFileCopier, 'close_all_handles', close_all_handles))
             self.assertRaises(SourceDeletionFailed, copy_tree, src, dest, delete_source=True)
         for name in ('one', 'sub/a'):
             with open(self.d(name)) as f:
