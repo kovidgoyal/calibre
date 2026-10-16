@@ -618,7 +618,8 @@ class RecursiveFetcher:
         return res
 
 
-def option_parser(usage=_('%prog URL\n\nWhere URL is for example: {}').format('https://google.com')):
+def option_parser(usage=None):
+    usage = usage or _('%prog URL\n\nWhere URL is for example: {}').format('https://google.com')
     parser = OptionParser(usage=usage)
     parser.add_option(
         '-d',

@@ -1197,7 +1197,7 @@ class BookCase(QObject):
 
     def invalidate(
         self,
-        layout_constraints: LayoutConstraints = LayoutConstraints(),
+        layout_constraints: LayoutConstraints | None = None,
         model: BooksModel | None = None,
         group_field_name: str = '',
         min_line_height: int = 0,
@@ -1210,7 +1210,7 @@ class BookCase(QObject):
             self.height = 0
             self.using_page_counts = False
             self.num_of_books_that_need_pages_counted = 0
-            self.layout_constraints = layout_constraints
+            self.layout_constraints = layout_constraints or LayoutConstraints()
             self.book_id_visual_order_map: dict[int, int] = {}
             self.book_ids_in_visual_order = []
             self.book_id_to_item_map: dict[int, ShelfItem] = {}

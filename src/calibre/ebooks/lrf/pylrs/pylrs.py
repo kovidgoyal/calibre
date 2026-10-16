@@ -964,7 +964,7 @@ class StyleDefault(LrsAttributes):
 
 
 class Style(LrsContainer, Delegator):
-    def __init__(self, styledefault=StyleDefault()):
+    def __init__(self, styledefault=None):
         LrsContainer.__init__(self, [PageStyle, TextStyle, BlockStyle])
         Delegator.__init__(self, [BookStyle(styledefault=styledefault)])
         self.bookStyle = self.delegates[0]
@@ -1018,10 +1018,10 @@ class Style(LrsContainer, Delegator):
 
 
 class BookStyle(LrsObject, LrsContainer):
-    def __init__(self, styledefault=StyleDefault()):
+    def __init__(self, styledefault=None):
         LrsObject.__init__(self, assignId=True)
         LrsContainer.__init__(self, [Font])
-        self.styledefault = styledefault
+        self.styledefault = styledefault or StyleDefault()
         self.booksetting = BookSetting()
         self.appendFont = self.append
 
@@ -2372,7 +2372,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
         y1='800',
         xsize='600',
         ysize='800',
-        blockStyle=BlockStyle(blockrule='block-fixed'),
+        blockStyle=None,
         alttext=None,
         **settings,
     ):
@@ -2382,7 +2382,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
         self.x0, self.y0, self.x1, self.y1 = int(x0), int(y0), int(x1), int(y1)
         self.xsize, self.ysize = int(xsize), int(ysize)
         self.setRefstream(refstream)
-        self.blockStyle = blockStyle
+        self.blockStyle = blockStyle or BlockStyle(blockrule='block-fixed')
         self.alttext = alttext
 
     def setRefstream(self, refstream):
