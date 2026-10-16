@@ -451,7 +451,6 @@ class Translations(POT):  # {{{
         skip_iso = {
             'si',
             'te',
-            'km',
             'en_GB',
             'en_AU',
             'en_CA',

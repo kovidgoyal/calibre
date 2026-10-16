@@ -484,8 +484,8 @@ def type_safe_sort_key_function(keyfunc=None):
             first_value = ans
         else:
             try:
-                ans < first_value
-                first_value < ans
+                ans < first_value  # noqa: B015
+                first_value < ans  # noqa: B015
             except TypeError:
                 ans = first_value
         return ans

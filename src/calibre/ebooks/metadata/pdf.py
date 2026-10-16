@@ -78,7 +78,7 @@ def read_info(outputdir, get_cover):
     except subprocess.CalledProcessError as e:
         prints(f'pdfinfo failed to read XML metadata with return code: {e.returncode}')
     else:
-        parts = re.split(rb'^Metadata:', raw, 1, flags=re.MULTILINE)
+        parts = re.split(rb'^Metadata:', raw, maxsplit=1, flags=re.MULTILINE)
         if len(parts) > 1:
             # old poppler < 0.47.0
             raw = parts[1].strip()

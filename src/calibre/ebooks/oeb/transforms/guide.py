@@ -57,7 +57,6 @@ class Clean:
                 'acknowledgements',
                 'bibliography',
                 'colophon',
-                'copyright-page',
                 'dedication',
                 'epigraph',
                 'foreword',

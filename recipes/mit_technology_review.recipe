@@ -76,7 +76,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         if script := soup.find('script', id='preload'):
             raw = script.contents[0]
             m = re.search(r'\"children\":\[{\"name\":\"magazine-hero\"', raw)
-            spl = re.split(r'(?=\{)', raw[m.start() :], 1)[1]
+            spl = re.split(r'(?=\{)', raw[m.start() :], maxsplit=1)[1]
             data = json.JSONDecoder().raw_decode(spl)[0]
             self.cover_url = data['children'][0]['config']['src'] + '?fit=572,786'
             self.timefmt = ' [' + data['config']['issueDate'] + ']'

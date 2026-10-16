@@ -987,7 +987,7 @@ class FormatterFuncsCaller:
                 except Exception as e:
                     # Change the error message to return the name used in the template
                     e = e.__class__(
-                        _('Error in function {0} :: {1}').format(name, re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1))
+                        _('Error in function {0} :: {1}').format(name, re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), count=1))
                     )  # remove UserFunction.evaluate() | Builtin*.evaluate()
                     setattr(e, 'is_internal', True)
                     raise e  # noqa: TRY201
