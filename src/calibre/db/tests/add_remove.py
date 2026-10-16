@@ -103,6 +103,58 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
+    def test_add_format_failure(self):  # {{{
+        "Test that a failure while writing a format does not destroy the existing file"
+        from calibre.constants import iswindows
+
+        class FailingStream(BytesIO):
+            def read(self, size=-1):
+                ans = super().read(4)
+                if not ans:
+                    raise OSError('simulated read failure')
+                return ans
+
+        cache = self.init_cache()
+        book_dir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
+        previous = cache.format(1, 'FMT1')
+        path = cache.format_abspath(1, 'FMT1')
+        if not iswindows:
+            os.chmod(path, 0o640)
+
+        def leftover_temp_files():
+            return [x for x in os.listdir(book_dir) if x.startswith('.calibre-format-')]
+
+        # Replacing an existing format
+        with self.assertRaises(OSError):
+            cache.add_format(1, 'FMT1', FailingStream(b'new data'), run_hooks=False)
+        self.assertEqual(previous, cache.format(1, 'FMT1'))
+        self.assertEqual([], leftover_temp_files())
+
+        # Adding a new format must not leave a partial file behind
+        before = set(os.listdir(book_dir))
+        with self.assertRaises(OSError):
+            cache.add_format(1, 'NEWFMT', FailingStream(b'new data'), run_hooks=False)
+        self.assertEqual(before, set(os.listdir(book_dir)))
+        self.assertNotIn('NEWFMT', cache.formats(1))
+
+        # A successful replace keeps the permissions of the existing file
+        self.assertTrue(cache.add_format(1, 'FMT1', BytesIO(b'replaced'), run_hooks=False))
+        self.assertEqual(b'replaced', cache.format(1, 'FMT1'))
+        self.assertEqual([], leftover_temp_files())
+        if not iswindows:
+            self.assertEqual(0o640, os.stat(path).st_mode & 0o777)
+
+            # Hardlinks to a format file must not be broken by a replace
+            link = os.path.join(self.mkdtemp(), 'link')
+            os.link(path, link)
+            self.assertTrue(cache.add_format(1, 'FMT1', BytesIO(b'via link'), run_hooks=False))
+            with open(link, 'rb') as f:
+                self.assertEqual(b'via link', f.read())
+            self.assertTrue(os.path.samefile(path, link))
+            self.assertEqual([], leftover_temp_files())
+
+    # }}}
+
     def test_add_format_categories(self):  # {{{
         "Test that adding a format keeps the cached formats category correct"
         from io import BytesIO

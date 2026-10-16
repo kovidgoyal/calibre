@@ -9,6 +9,7 @@ import os
 import shutil
 import stat
 import sys
+import tempfile
 import time
 import uuid
 from contextlib import closing, suppress
@@ -532,6 +533,78 @@ def rmtree_with_retry(path, sleep_time=1):
         if iswindows and getattr(e, 'winerror') == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(sleep_time)  # In case something has temporarily locked a file
         shutil.rmtree(path)
+
+
+def replace_with_retry(src: str, dest: str) -> None:
+    try:
+        os.replace(src, dest)
+    except OSError:
+        if iswindows:
+            time.sleep(1)  # In case something has temporarily locked the file
+            os.replace(src, dest)
+        else:
+            raise
+
+
+def prepare_replacement_for(dest: str, dest_stat: os.stat_result, tpath: str) -> bool:
+    """Give the file at tpath the same identity (permissions, ownership,
+    extended attributes/ACLs) as the existing file at dest so that it can be
+    renamed over dest. Returns False if that is not possible, in which case
+    dest must be overwritten in place instead."""
+    if not stat.S_ISREG(dest_stat.st_mode) or dest_stat.st_nlink > 1:
+        # dest is a symlink or hardlink, replacing it would break the link
+        return False
+    try:
+        shutil.copystat(dest, tpath)
+        os.utime(tpath)  # copystat copies the times of the old file as well
+        if not iswindows:
+            tstat = os.stat(tpath)
+            if (tstat.st_uid, tstat.st_gid) != (dest_stat.st_uid, dest_stat.st_gid):
+                os.chown(tpath, dest_stat.st_uid, dest_stat.st_gid)
+    except OSError:
+        return False
+    return True
+
+
+def write_stream_to_format_file(stream, dest: str) -> int:
+    """Write the contents of stream to dest, returning the number of bytes
+    written. If dest already exists, it is left unchanged if reading from
+    stream or writing the data fails."""
+    try:
+        dest_stat = os.lstat(dest)
+    except FileNotFoundError:
+        try:
+            with open(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
+                return f.tell()
+        except BaseException:
+            # Do not leave a partially written new file behind
+            with suppress(OSError):
+                os.remove(dest)
+            raise
+    try:
+        # No file extension so that a temp file orphaned by a crash is never
+        # mistaken for a book format, for example when restoring the database
+        fd, tpath = tempfile.mkstemp(prefix='.calibre-format-', dir=os.path.dirname(dest))
+    except OSError:
+        # Cannot create files in the book folder, fall back to overwriting the
+        # existing file in place
+        with open(dest, 'wb') as f:
+            shutil.copyfileobj(stream, f)
+            return f.tell()
+    try:
+        with open(fd, 'wb') as f:
+            shutil.copyfileobj(stream, f)
+            size = f.tell()
+        if prepare_replacement_for(dest, dest_stat, tpath):
+            replace_with_retry(tpath, dest)
+        else:
+            with open(tpath, 'rb') as src, open(dest, 'wb') as f:
+                shutil.copyfileobj(src, f)
+    finally:
+        with suppress(FileNotFoundError):
+            os.remove(tpath)
+    return size
 
 
 class DB:
@@ -2137,19 +2210,10 @@ class DB:
                         traceback.print_exc()
 
         if isinstance(stream, str) and stream:
-            try:
-                os.replace(stream, dest)
-            except OSError:
-                if iswindows:
-                    time.sleep(1)
-                    os.replace(stream, dest)
-                else:
-                    raise
+            replace_with_retry(stream, dest)
             size = os.path.getsize(dest)
         elif not getattr(stream, 'name', False) or not samefile(dest, stream.name):
-            with open(dest, 'wb') as f:
-                shutil.copyfileobj(stream, f)
-                size = f.tell()
+            size = write_stream_to_format_file(stream, dest)
             if mtime is not None:
                 os.utime(dest, (mtime, mtime))
         elif os.path.exists(dest):
