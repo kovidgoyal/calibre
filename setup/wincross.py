@@ -371,7 +371,7 @@ def create_include_symlinks(path, include_root, include_files):
                 fr = include_root
             else:
                 fr = lmatches[0]
-            symlink_transformed(os.path.join(fr, lspec), lambda n: os.path.basename(spec))
+            symlink_transformed(os.path.join(fr, lspec), lambda n: os.path.basename(spec))  # noqa: B023
 
 
 def setup(splat_dir, root_dir, arch):

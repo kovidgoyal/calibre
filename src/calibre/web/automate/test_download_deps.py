@@ -375,7 +375,7 @@ class TestDownloadDeps(unittest.TestCase):
             self.assertEqual(dd.camoufox_installer.latest_release().url, 'https://example.com/camoufox-152.0.4-beta.29-win.arm64.zip')
             # Other platforms have native builds and no fallbacks
             for os_name, arch in (('lin', 'arm64'), ('mac', 'arm64'), ('mac', 'x86_64'), ('win', 'x86_64')):
-                dd.camoufox_os, dd.camoufox_arch = (lambda: os_name), (lambda: arch)
+                dd.camoufox_os, dd.camoufox_arch = (lambda: os_name), (lambda: arch)  # noqa: B023
                 self.assertEqual(dd.camoufox_archs(), (arch,))
         finally:
             dd.download_json, dd.camoufox_os, dd.camoufox_arch = orig_json, orig_os, orig_arch
@@ -395,7 +395,7 @@ class TestDownloadDeps(unittest.TestCase):
                 ('aarch64', True, ''),
                 ('x86_64', True, ''),
             ):
-                dd.platform.machine, dd.is_32bit_userspace = (lambda: machine), (lambda: is_32bit)
+                dd.platform.machine, dd.is_32bit_userspace = (lambda: machine), (lambda: is_32bit)  # noqa: B023
                 if expected:
                     self.assertEqual(dd.camoufox_arch(), expected)
                 else:

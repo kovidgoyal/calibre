@@ -62,7 +62,7 @@ class ZAOBAO(BasicNewsRecipe):
                 'a',
                 attrs={
                     'class': 'article-type-link',
-                    'href': lambda x: x and x.startswith('/' + sec),
+                    'href': lambda x: x and x.startswith('/' + sec),  # noqa: B023
                 },
             ):
                 if a.find('img'):

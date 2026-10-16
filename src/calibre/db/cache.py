@@ -3753,7 +3753,10 @@ class Cache:
         ans = {}
 
         for book_id in book_ids:
-            proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
+
+            def get_metadata(book_id):
+                return pmm.get(book_id) or self._get_proxy_metadata(book_id)
+
             user_cat_vals = ans[book_id] = {}
             for ucat, categories in user_cats.items():
                 user_cat_vals[ucat] = res = []
@@ -3764,7 +3767,7 @@ class Cache:
                         continue
 
                     if field_obj.is_composite:
-                        v = field_obj.get_value_with_cache(book_id, lambda x: proxy_metadata)
+                        v = field_obj.get_value_with_cache(book_id, get_metadata)
                     else:
                         v = self._fast_field_for(field_obj, book_id)
 

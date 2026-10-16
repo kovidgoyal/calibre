@@ -483,7 +483,7 @@ def amazon_results(root: _Element, base_url: str, domain: str, max_results: int 
 
         def format_of(a: _Element) -> str:
             m = DP_PAT.search(a.get('href') or '')
-            return formats.get(m.group(1), '') if m is not None else ''
+            return formats.get(m.group(1), '') if m is not None else ''  # noqa: B023
 
         def is_audio(name: str, a: _Element) -> bool:
             href = (a.get('href') or '').lower()

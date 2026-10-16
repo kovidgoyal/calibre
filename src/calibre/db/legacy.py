@@ -1176,10 +1176,10 @@ for func, field in {
 }.items():
 
     def getter(field):
-        def func(self):
+        def f(self):
             return self.field_id_map(field)
 
-        return func
+        return f
 
     setattr(LibraryDatabase, func, getter(field))
 

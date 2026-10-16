@@ -717,7 +717,7 @@ class DiffSplit(QSplitter):  # {{{
                 v.images[top] = (img, w, lines)
 
                 def mapnum(x):
-                    return x if x <= top else x + delta
+                    return x if x <= top else x + delta  # noqa: B023
 
                 lnm = LineNumberMap()
                 lnm.max_width = v.line_number_map.max_width

@@ -659,7 +659,7 @@ def make_anchors_unique(container: ContainerBase, log: Log) -> dict[str, str | N
             if key not in mapping:
                 new_id = mapping[key] = f'a{count}'
                 elem.set('id', new_id)
-        rewrite_idrefs(root, lambda eid: mapping.get((spine_name, eid), eid))
+        rewrite_idrefs(root, lambda eid: mapping.get((spine_name, eid), eid))  # noqa: B023
         body = last_tag(root)
         if not body.get('id'):
             count += 1

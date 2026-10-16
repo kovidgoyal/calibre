@@ -122,7 +122,7 @@ class IdLinksEditor(Dialog):
         for r in range(self.table.rowCount()):
 
             def item(c):
-                _it = self.table.item(r, c)
+                _it = self.table.item(r, c)  # noqa: B023
                 assert _it is not None
                 return _it.text()
 

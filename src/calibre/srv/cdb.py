@@ -242,7 +242,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             rmap = reverse_lang_map_for_ui()
 
             def to_lang_code(x):
-                return rmap.get(x, canonicalize_lang(x))
+                return rmap.get(x, canonicalize_lang(x))  # noqa: B023
 
             if isinstance(value, str):
                 value = (value,)

@@ -84,7 +84,7 @@ class USAToday(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/story/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/story/' + sec + '/')}):  # noqa: B023
                 url = absurl(a['href'].split('?')[0])
                 if url == index + '/story/' + sec + '/':
                     continue

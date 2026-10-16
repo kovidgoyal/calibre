@@ -215,7 +215,7 @@ def mi_to_html(
             continue
 
         def value_list(sep, vals):
-            if field in vertical_fields:
+            if field in vertical_fields:  # noqa: B023
                 return '<br/>'.join(vals)
             return sep.join(vals)
 
