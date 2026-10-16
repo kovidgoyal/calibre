@@ -39,7 +39,6 @@ class TestDeviceInteraction(unittest.TestCase):
         cls.dev.open(cd, 'test_library')
         if cls.dev.free_space()[0] < 10 * (1024**2):
             return
-        cls.dev.filesystem_cache
         cls.storage = cls.dev.filesystem_cache.entries[0]
 
     @classmethod

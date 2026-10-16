@@ -1,3 +1,1 @@
-from time import monotonic
-
-monotonic
+from time import monotonic  # noqa: F401

@@ -276,7 +276,6 @@ class ChooseModel(Dialog):
         if ci.isValid():
             return ci.data(Qt.ItemDataRole.UserRole).id
         return ''
-        self.models.currentIndex().data(Qt.ItemDataRole.UserRole).id
 
     @model_id.setter
     def model_id(self, val: str) -> None:

@@ -963,8 +963,7 @@ class ReadingTest(BaseTest):
                 else:
                     self.miss_counter += 1
 
-            @property
-            def cc(self):
+            def clean_counts(self):
                 self.hit_counter = self.miss_counter = 0
 
             @property
@@ -977,11 +976,11 @@ class ReadingTest(BaseTest):
         ae = self.assertEqual
 
         def test(hit, result, *args, **kw):
-            c.cc
+            c.clean_counts()
             num = kw.get('num', 2)
             ae(cache.search(*args), result)
             ae(c.counts, (num, 0) if hit else (0, num))
-            c.cc
+            c.clean_counts()
 
         test(False, {3}, 'Unknown')
         test(True, {3}, 'Unknown')

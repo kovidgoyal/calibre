@@ -19,7 +19,7 @@ try:
 except OSError:
     os.chdir(os.path.expanduser('~'))
 
-from calibre.constants import (
+from calibre.constants import (  # noqa: F401
     __appname__,
     __author__,
     __version__,
@@ -40,11 +40,6 @@ initialize_calibre()
 from calibre.prints import prints
 from calibre.utils.icu import safe_chr
 from calibre.utils.resources import get_path as P
-
-if False:
-    # Prevent pyflakes from complaining
-    __appname__, islinux, __version__
-    isfrozen, __author__, isbsd, config_dir, plugins
 
 _mt_inited = False
 

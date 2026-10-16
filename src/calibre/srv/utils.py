@@ -18,14 +18,13 @@ from calibre.utils.localization import get_translator
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.binary import as_hex_unicode as encode_name
-from polyglot.binary import from_hex_unicode as decode_name
+from polyglot.binary import as_hex_unicode as encode_name  # noqa: F401
+from polyglot.binary import from_hex_unicode as decode_name  # noqa: F401
 from polyglot.builtins import as_unicode
 
 HTTP1 = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
-encode_name, decode_name
 
 
 def connection_header_tokens(value):

@@ -199,9 +199,7 @@ class BuildTest(unittest.TestCase):
         create_key_pair()
 
     def test_fonttools(self):
-        from fontTools.subset import main
-
-        main
+        from fontTools.subset import main  # noqa: F401
 
     def test_msgpack(self):
         from calibre.utils.date import utcnow
@@ -416,11 +414,8 @@ class BuildTest(unittest.TestCase):
             import _imaging  # type: ignore
             import _imagingft  # type: ignore
             import _imagingmath  # type: ignore
-
-            _imaging, _imagingmath, _imagingft
         except ImportError:
-            from PIL import _imaging, _imagingft, _imagingmath
-        _imaging, _imagingmath, _imagingft
+            from PIL import _imaging, _imagingft, _imagingmath  # noqa: F401
         from io import StringIO
 
         from PIL import features
@@ -526,16 +521,13 @@ class BuildTest(unittest.TestCase):
 
     def test_feedparser(self):
         # sgmllib is needed for feedparser parsing malformed feeds
-        import feedparser_sgmllib as sgmllib
+        import feedparser_sgmllib as sgmllib  # noqa: F401
 
-        from calibre.web.feeds.feedparser import parse  # type: ignore
-
-        sgmllib, parse
+        from calibre.web.feeds.feedparser import parse  # type: ignore  # noqa: F401
 
     def test_openssl(self):
         import ssl
 
-        ssl.PROTOCOL_TLS_CLIENT
         if ismacos or (iswindows and not is_ci):
             paths = ssl.get_default_verify_paths()
             capath = paths.capath

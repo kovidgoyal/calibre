@@ -11,7 +11,7 @@ from types import TracebackType
 from typing import Any
 
 from calibre.constants import CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows
-from calibre.utils.config_base import (
+from calibre.utils.config_base import (  # noqa: F401
     Config,
     ConfigInterface,
     ConfigProxy,
@@ -35,11 +35,6 @@ from calibre.utils.localization import _
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
 setattr(optparse, '_', _)
-
-if False:
-    # Make pyflakes happy
-    Config, ConfigProxy, Option, OptionValues, StringConfig, OptionSet
-    ConfigInterface, tweaks, plugin_dir, prefs, from_json, to_json, make_config_dir
 
 
 def check_config_write_access():

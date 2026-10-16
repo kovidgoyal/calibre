@@ -102,7 +102,7 @@ except ImportError:
     pass  # for people running from source
 
 del pqc, geometry_for_restore_as_dict
-timed_print  # for plugin compat
+timed_print  # noqa: B018 # for plugin compat
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY = 100  # 100 ms is threshold for human visual response
 
@@ -813,8 +813,6 @@ def _config():  # {{{
     # This option is no longer used. It remains for compatibility with upgrades
     # so the value can be migrated
     c.add_opt('tag_browser_hidden_categories', default=set(), help=_('Tag browser categories not to display'))
-
-    c.add_opt
     return ConfigProxy(c)
 
 
@@ -1219,9 +1217,7 @@ if has_windows_file_dialog_helper:
 elif has_linux_file_dialog_helper:
     choose_dir, choose_files, choose_save_file, choose_images = map(linux_native_dialog, 'dir files save_file images'.split())
 else:
-    from calibre.gui2.qt_file_dialogs import choose_dir, choose_files, choose_images, choose_save_file
-
-    choose_files, choose_images, choose_dir, choose_save_file
+    from calibre.gui2.qt_file_dialogs import choose_dir, choose_files, choose_images, choose_save_file  # noqa: F401
 
 
 def choose_files_and_remember_all_files(window, name, title, filters=[], select_only_single_file=False, default_dir='~'):
@@ -1639,10 +1635,8 @@ class Application(QApplication):
 
     def load_builtin_fonts(self, scan_for_fonts=False):
         if scan_for_fonts:
-            from calibre.utils.fonts.scanner import font_scanner
-
             # Start scanning the users computer for fonts
-            font_scanner
+            from calibre.utils.fonts.scanner import font_scanner  # noqa: F401
 
         load_builtin_fonts()
 

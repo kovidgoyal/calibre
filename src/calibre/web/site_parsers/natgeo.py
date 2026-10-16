@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 import json
-from pprint import pprint
+from pprint import pprint  # noqa: F401
 
 from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601
 
 module_version = 1  # needed for live updates
-pprint
 
 
 def extract_json(raw):

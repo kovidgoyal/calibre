@@ -572,8 +572,7 @@ def test_widget(category, name, gui=None, callback=None):
 def test_all():
     from qt.core import QApplication
 
-    app = QApplication([])
-    app
+    app = QApplication([])  # noqa: F841
     gui = init_gui()
     for plugin in preferences_plugins():
         test_widget(plugin.category, plugin.name, gui=gui)

@@ -223,8 +223,6 @@ def sendmail(
 def option_parser():
     try:
         from calibre.utils.config import OptionParser
-
-        OptionParser
     except ImportError:
         from optparse import OptionParser
     parser = OptionParser(
@@ -308,8 +306,6 @@ def compose_mail(from_, to, text, subject=None, attachment=None, attachment_name
     if attachment is not None:
         try:
             from calibre import guess_type
-
-            guess_type
         except ImportError:
             from mimetypes import guess_type
         attachment_data = attachment.read() if hasattr(attachment, 'read') else open(attachment, 'rb').read()

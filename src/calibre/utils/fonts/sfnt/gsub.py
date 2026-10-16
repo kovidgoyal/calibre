@@ -107,7 +107,7 @@ class ReverseChainSingleSubstitution(UnknownLookupSubTable):
         lookahead_offsets = data.unpack(f'{lookahead_count}H', single_special=False)
         backtrack_offsets = [data.start_pos + x for x in backtrack_offsets]
         lookahead_offsets = [data.start_pos + x for x in lookahead_offsets]
-        backtrack_offsets, lookahead_offsets  # TODO: Use these
+        backtrack_offsets, lookahead_offsets  # noqa: B018 # TODO: Use these
         count = data.unpack('H')
         self.substitutes = data.unpack(f'{count}H')
 

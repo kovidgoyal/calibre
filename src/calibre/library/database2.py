@@ -187,7 +187,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.is_case_sensitive = not iswindows and not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         SchemaUpgrade.__init__(self)
         # Guarantee that the library_id is set
-        self.library_id
+        self.library_id  # noqa: B018
 
         # if we are to copy the prefs and structure from some other DB, then
         # we need to do it before we call initialize_dynamic

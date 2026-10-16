@@ -85,6 +85,3 @@ class syrzdarmaRecipe(BasicNewsRecipe):
                     articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
             res.append((section[0], articles))
         return res
-
-        def image_url_processor(b, u):
-            None

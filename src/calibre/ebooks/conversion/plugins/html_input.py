@@ -341,7 +341,7 @@ class HTMLInput(InputFormatPlugin):
                 item.resolve_css_imports = False
                 item.override_css_fetch = lambda url: (None, '')
                 self.stylesheets_to_process.append(item)
-            item.data
+            item.data  # noqa: B018
             self.added_resources[link] = href
 
         nlink = self.added_resources[link]

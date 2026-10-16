@@ -226,8 +226,7 @@ def setup_device():
 def browse():
     from calibre.gui2 import Application
 
-    app = Application([])
-    app
+    app = Application([])  # noqa: F841
     dev = setup_device()
     d = Browser(dev.filesystem_cache)
     d.exec()
@@ -238,8 +237,7 @@ def browse():
 def ignored_folders():
     from calibre.gui2 import Application
 
-    app = Application([])
-    app
+    app = Application([])  # noqa: F841
     dev = setup_device()
     d = IgnoredFolders(dev)
     d.exec()

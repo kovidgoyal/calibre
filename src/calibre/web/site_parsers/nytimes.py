@@ -4,13 +4,12 @@
 import json
 import re
 import sys
-from pprint import pprint
+from pprint import pprint  # noqa: F401
 from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
 module_version = 20  # needed for live updates
-pprint
 
 
 def safe_dict(data, *names):

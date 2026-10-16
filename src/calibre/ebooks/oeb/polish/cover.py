@@ -473,8 +473,7 @@ def set_epub_cover(container, cover_path, report, options=None, image_callback=N
     updated = False
     log = container.log
 
-    possible_removals = set(clean_opf(container))
-    possible_removals
+    possible_removals = set(clean_opf(container))  # noqa: F841
     # TODO: Handle possible_removals and also iterate over links in the removed
     # pages and handle possibly removing stylesheets referred to by them.
 

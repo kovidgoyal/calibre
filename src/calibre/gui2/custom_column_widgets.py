@@ -1444,7 +1444,6 @@ class BulkSeries(BulkBase):
         self.series_start_number.valueChanged.connect(self.a_c_checkbox_changed)
         self.series_increment.valueChanged.connect(self.a_c_checkbox_changed)
         self.remove_series.stateChanged.connect(self.a_c_checkbox_changed)
-        self.main_widget
         self.ignore_change_signals = False
 
     def a_c_checkbox_changed(self):

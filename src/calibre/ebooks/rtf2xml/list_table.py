@@ -180,7 +180,6 @@ class ListTable:
         self.__all_lists[-1].append([])
         the_dict = {}
         self.__all_lists[-1][-1].append(the_dict)
-        self.__level_dict
 
     def __level_func(self, line):
         """

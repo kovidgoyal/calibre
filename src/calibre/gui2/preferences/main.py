@@ -550,7 +550,6 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
 
     app = Application([])
-    app
     gui = init_gui()
 
     p = Preferences(gui)

@@ -863,7 +863,6 @@ def main():
     import io
     from pprint import pprint
 
-    io
     dev = MTP_DEVICE(None)
     dev.startup()
     try:

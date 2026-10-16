@@ -502,7 +502,6 @@ if __name__ == '__main__':
     from calibre.gui2.preferences.main import init_gui
 
     app = Application([])
-    app
     gui = init_gui()
 
     s = SearchDialog(gui, query=' '.join(sys.argv[1:]))

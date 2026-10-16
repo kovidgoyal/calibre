@@ -13,7 +13,6 @@ from calibre_extensions import icu as _icu
 from polyglot.builtins import cmp
 
 _locale = None
-cmp
 
 _none = ''
 _none2 = b''

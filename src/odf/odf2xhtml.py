@@ -25,7 +25,7 @@ from xml.dom import Node
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
 
-from .namespaces import (
+from .namespaces import (  # noqa: F401
     ANIMNS,
     CHARTNS,
     CONFIGNS,
@@ -48,9 +48,6 @@ from .namespaces import (
     XLINKNS,
 )
 from .opendocument import load
-
-if False:  # Added by Kovid
-    DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS
 
 # Handling of styles
 #

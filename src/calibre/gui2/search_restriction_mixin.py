@@ -758,7 +758,6 @@ if __name__ == '__main__':
     from calibre.gui2.preferences import init_gui
 
     app = Application([])
-    app
     gui = init_gui()
     d = CreateVirtualLibrary(gui, [])
     d.exec()

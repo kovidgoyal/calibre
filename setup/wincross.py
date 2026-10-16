@@ -18,7 +18,6 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import partial
-from pprint import pprint
 from tempfile import TemporaryDirectory
 from urllib.parse import unquote
 from urllib.request import urlopen
@@ -429,5 +428,4 @@ def main(args=sys.argv[1:]):
 
 
 if __name__ == '__main__':
-    pprint
     main()

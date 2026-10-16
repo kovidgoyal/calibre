@@ -38,7 +38,7 @@ if islinux:
         from ctypes.util import find_library
 
         systemd = ctypes.CDLL(find_library('systemd'))
-        systemd.sd_listen_fds
+        systemd.sd_listen_fds  # noqa: B018
     except Exception:
         pass
     else:

@@ -158,8 +158,7 @@ class TestCopyFiles(unittest.TestCase):
             os.mkdir(self.s('lockdir'))
             open(self.s('lockdir/lockfile'), 'w').close()
             before = frozenset(walk(src))
-            with open(self.s('lockdir/lockfile')) as locked:
-                locked
+            with open(self.s('lockdir/lockfile')):
                 self.assertRaises(IOError, copy_tree, src, dest, delete_source=True)
                 self.ae(set(os.listdir(self.d())), {'sub', 'lockdir'})
                 self.assertFalse(tuple(walk(self.d())))

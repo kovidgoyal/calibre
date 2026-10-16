@@ -576,7 +576,6 @@ class PolishAction(InterfaceActionWithLibraryDrop):
 
 if __name__ == '__main__':
     app = QApplication([])
-    app
     from calibre.library import db
 
     d = Polish(db(), {1: {'EPUB'}, 2: {'AZW3'}})

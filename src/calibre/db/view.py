@@ -133,7 +133,6 @@ class View:
                     label = self.cache.backend.field_metadata.custom_field_prefix + label + '_index'
 
             fm = self.field_metadata[label]
-            fm
             if label == 'authors':
                 fmt = partial(format_is_multiple, repl='|')
             elif label in {'tags', 'languages', 'formats'}:

@@ -397,8 +397,7 @@ class FontFamilyChooser(QWidget):
 def test():
     from calibre.gui2 import Application
 
-    app = Application([])
-    app
+    app = Application([])  # noqa: F841
     d = QDialog()
     l = QVBoxLayout(d)
     l.addWidget(FontFamilyChooser(d))

@@ -192,7 +192,7 @@ class OEBReader:
         for item in list(self.oeb.manifest.values()):
             if item.media_type in check:
                 try:
-                    item.data
+                    item.data  # noqa: B018
                 except KeyboardInterrupt:
                     raise
                 except Exception:
