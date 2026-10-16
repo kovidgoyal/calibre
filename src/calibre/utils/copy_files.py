@@ -19,6 +19,10 @@ WINDOWS_SLEEP_FOR_RETRY_TIME = 2  # seconds
 WindowsFileId = tuple[int, int, int]
 
 
+class SourceDeletionFailed(OSError):
+    "Raised by copy_tree() when all files were copied successfully but deleting the source failed"
+
+
 class UnixFileCopier:
     def __init__(self, delete_all=False, allow_move=False):
         self.delete_all = delete_all
@@ -283,21 +287,30 @@ def copy_tree(
     copier = get_copier(delete_source)
     register_folder_recursively(src, copier, dest_dir, transform_destination_filename)
 
-    with copier:
-        copier.copy_all()
+    copied = False
+    try:
+        with copier:
+            copier.copy_all()
+            copied = True
 
-    if delete_source and os.path.exists(make_long_path_useable(src)):
-        try:
-            shutil.rmtree(make_long_path_useable(src))
-        except FileNotFoundError:
-            # some kind of delayed folder removal on handle close on Windows? Or exists() is succeeding but
-            # rmdir() is failing? Or something deleted the
-            # folder between the call to exists() and rmtree(). Windows is full
-            # of nanny programs that keep users safe from "themselves".
-            pass
-        except OSError:
-            if iswindows:
-                time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
+        if delete_source and os.path.exists(make_long_path_useable(src)):
+            try:
                 shutil.rmtree(make_long_path_useable(src))
-            else:
-                raise
+            except FileNotFoundError:
+                # some kind of delayed folder removal on handle close on Windows? Or exists() is succeeding but
+                # rmdir() is failing? Or something deleted the
+                # folder between the call to exists() and rmtree(). Windows is full
+                # of nanny programs that keep users safe from "themselves".
+                pass
+            except OSError:
+                if iswindows:
+                    time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
+                    shutil.rmtree(make_long_path_useable(src))
+                else:
+                    raise
+    except Exception as e:
+        if copied and delete_source:
+            # Let the caller know that dest is a complete copy, even though
+            # some files in src may have been deleted
+            raise SourceDeletionFailed(f'Copied {src!r} to {dest!r} but failed to delete the source: {e}') from e
+        raise

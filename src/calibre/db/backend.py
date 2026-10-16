@@ -54,7 +54,7 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.config import from_json, prefs, to_json, tweaks
-from calibre.utils.copy_files import copy_files, copy_tree, rename_files, windows_check_if_files_in_use
+from calibre.utils.copy_files import SourceDeletionFailed, copy_files, copy_tree, rename_files, windows_check_if_files_in_use
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
     ascii_filename,
@@ -2500,7 +2500,21 @@ class DB:
         dest = os.path.join(self.trash_dir, 'b', str(book_id))
         if os.path.exists(dest):
             rmtree_with_retry(dest)
-        copy_tree(book_dir_abspath, dest, delete_source=True)
+        try:
+            copy_tree(book_dir_abspath, dest, delete_source=True)
+        except SourceDeletionFailed:
+            raise  # dest is a complete copy of the book
+        except Exception:
+            # Nothing was deleted from the book folder, remove the incomplete
+            # copy so that it cannot be restored from the trash
+            try:
+                rmtree_with_retry(dest)
+            except Exception:
+                import traceback
+
+                prints(f'Failed to remove incomplete trash entry: {dest}')
+                traceback.print_exc()
+            raise
 
     def move_book_files_to_trash(self, book_id, format_abspaths, metadata):
         dest = os.path.join(self.trash_dir, 'f', str(book_id))
@@ -2617,17 +2631,37 @@ class DB:
         return books, files
 
     def remove_books(self, path_map, permanent=False):
+        """
+        Delete the folders of the specified books (or move them to the trash)
+        and remove the books from the database. A book whose folder could not be
+        deleted or moved is left in the database. Returns a map of book id to
+        error details for such books.
+        """
+        import traceback
+
         self.ensure_trash_dir()
-        self.executemany('DELETE FROM books WHERE id=?', [(x,) for x in path_map])
+        removed, failures = [], {}
         parent_paths = set()
         for book_id, path in path_map.items():
             if path:
                 path = os.path.abspath(os.path.join(self.library_path, path))
                 if os.path.exists(path) and self.is_deletable(path):
-                    self.rmtree(path) if permanent else self.move_book_to_trash(book_id, path)
+                    try:
+                        self.rmtree(path) if permanent else self.move_book_to_trash(book_id, path)
+                    except SourceDeletionFailed:
+                        # The book is safely in the trash, only some leftover
+                        # files could not be removed from the library folder
+                        prints(f'Book {book_id} was moved to the trash but some files were left behind in: {path}')
+                        traceback.print_exc()
+                    except Exception:
+                        failures[book_id] = traceback.format_exc()
+                        continue
                     parent_paths.add(os.path.dirname(path))
+            removed.append(book_id)
+        self.executemany('DELETE FROM books WHERE id=?', [(x,) for x in removed])
         for path in parent_paths:
             remove_dir_if_empty(path, ignore_metadata_caches=True)
+        return failures
 
     def add_custom_data(self, name, val_map, delete_first):
         if delete_first:

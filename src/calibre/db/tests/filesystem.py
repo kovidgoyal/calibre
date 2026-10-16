@@ -8,6 +8,7 @@ from contextlib import closing
 from io import BytesIO
 
 from calibre.constants import iswindows
+from calibre.db.errors import BooksNotRemoved
 from calibre.db.tests.base import BaseTest
 from calibre.ptempfile import TemporaryDirectory
 
@@ -215,9 +216,11 @@ class FilesystemTest(BaseTest):
         with open(fpath, 'rb') as f:
             with self.assertRaises(IOError):
                 cache.set_field('title', {1: 'Moved'})
-            with self.assertRaises(IOError):
+            with self.assertRaises(BooksNotRemoved):
                 cache.remove_books({1})
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
+        self.assertIn(1, self.init_cache(cl).all_book_ids(), 'Book was removed from the database despite file lock')
+        self.assertTrue(os.path.exists(fpath), 'Book file was removed despite file lock')
 
         # Test on folder with hardlinks
         from calibre.ptempfile import TemporaryDirectory

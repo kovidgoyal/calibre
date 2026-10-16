@@ -490,6 +490,80 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
+    def test_remove_books_failures(self):  # {{{
+        "Test that books whose files cannot be removed are left intact"
+        import shutil
+        from unittest.mock import patch
+
+        from calibre.db.errors import BooksNotRemoved
+        from calibre.utils.copy_files import SourceDeletionFailed, copy_tree
+
+        def trash_dir(cache, book_id):
+            return os.path.join(cache.backend.trash_dir, 'b', str(book_id))
+
+        # Copying into the trash fails: the book must be unchanged and no
+        # incomplete trash entry left behind
+        cache = self.init_cache(self.cloned_library)
+        fmtpath = cache.format_abspath(1, 'FMT1')
+        fmtdata = cache.format(1, 'FMT1')
+        bookdir = os.path.dirname(fmtpath)
+
+        def failing_copy(src, dest, delete_source=False):
+            if os.path.samefile(src, bookdir):
+                os.makedirs(dest, exist_ok=True)
+                open(os.path.join(dest, 'partial'), 'wb').close()
+                raise OSError('simulated copy failure')
+            return copy_tree(src, dest, delete_source=delete_source)
+
+        with patch('calibre.db.backend.copy_tree', failing_copy), self.assertRaises(BooksNotRemoved) as cm:
+            cache.remove_books((1, 2))
+        self.assertEqual(set(cm.exception.failures), {1})
+        self.assertEqual(cm.exception.removed, (2,))
+        self.assertIn('simulated copy failure', cm.exception.failures[1])
+        for c in (cache, self.init_cache(cache.backend.library_path)):
+            self.assertEqual(c.all_book_ids(), {1, 3})
+            self.assertEqual(c.format(1, 'FMT1'), fmtdata)
+        self.assertFalse(os.path.exists(trash_dir(cache, 1)))
+        self.assertTrue(os.path.exists(trash_dir(cache, 2)))
+        # Retrying must work
+        cache.remove_books((1,))
+        self.assertNotIn(1, cache.all_book_ids())
+        self.assertFalse(os.path.exists(bookdir))
+        self.assertEqual({b.book_id for b in cache.list_trash_entries()[0]}, {1, 2})
+        self.assertTrue(os.path.exists(os.path.join(trash_dir(cache, 1), os.path.basename(fmtpath))))
+
+        # Deleting the book folder after copying it into the trash fails: the
+        # book is safely in the trash so it must be removed
+        cache = self.init_cache(self.cloned_library)
+        bookdir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
+
+        def failing_delete(src, dest, delete_source=False):
+            copy_tree(src, dest)
+            if os.path.samefile(src, bookdir):
+                raise SourceDeletionFailed('simulated delete failure')
+            if delete_source:
+                shutil.rmtree(src)
+
+        with patch('calibre.db.backend.copy_tree', failing_delete):
+            cache.remove_books((1,))
+        for c in (cache, self.init_cache(cache.backend.library_path)):
+            self.assertNotIn(1, c.all_book_ids())
+        self.assertTrue(os.path.exists(os.path.join(trash_dir(cache, 1), os.path.basename(fmtpath))))
+
+        # A book whose folder is missing must not replace an existing trash
+        # entry with an empty folder
+        cache = self.init_cache(self.cloned_library)
+        bookdir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
+        cache.backend.ensure_trash_dir()
+        shutil.copytree(bookdir, trash_dir(cache, 1))
+        shutil.rmtree(bookdir)
+        cache.remove_books((1,))
+        self.assertNotIn(1, cache.all_book_ids())
+        self.assertFalse(os.path.exists(bookdir))
+        self.assertTrue(os.path.exists(os.path.join(trash_dir(cache, 1), os.path.basename(fmtpath))))
+
+    # }}}
+
     def test_original_fmt(self):  # {{{
         "Test management of original fmt"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue

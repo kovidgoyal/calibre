@@ -7,6 +7,7 @@ from functools import partial
 from qt.core import QDialog, QModelIndex, QObject, QTimer
 
 from calibre.constants import ismacos
+from calibre.db.errors import BooksNotRemoved
 from calibre.gui2 import Aborted, error_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -54,18 +55,19 @@ class MultiDeleter(QObject):  # {{{
         db = self.model.db
         try:
             db.new_api.remove_books(chunk, permanent=False)
+        except BooksNotRemoved as err:
+            # The books that failed are unchanged, all others were removed
+            deleted = list(err.removed)
+            for book_id, details in err.failures.items():
+                self.failures.append((book_id, self.title_for(book_id), details))
         except Exception:
-            # Delete them one at a time so that one failure does not prevent
-            # the rest of the chunk from being deleted, and we know which
-            # book failed
             import traceback
 
+            details = traceback.format_exc()
             deleted = []
             for book_id in chunk:
-                try:
-                    db.new_api.remove_books((book_id,), permanent=False)
-                except Exception:
-                    self.failures.append((book_id, self.title_for(book_id), traceback.format_exc()))
+                if db.new_api.has_id(book_id):
+                    self.failures.append((book_id, self.title_for(book_id), details))
                 else:
                     deleted.append(book_id)
         else:

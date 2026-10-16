@@ -7,11 +7,12 @@ import tempfile
 import time
 import unittest
 from contextlib import closing
+from unittest.mock import patch
 
 from calibre import walk
 from calibre.constants import iswindows
 
-from .copy_files import copy_tree, rename_files
+from .copy_files import SourceDeletionFailed, copy_tree, rename_files
 from .filenames import is_path_inside, nlinks_file, path_from_root
 
 if iswindows:
@@ -131,6 +132,17 @@ class TestCopyFiles(unittest.TestCase):
             self.ae(d.read(), 'src/sub/a')
         if not iswindows:
             self.ae(os.readlink(self.d('link.extra')), 'sub/a')
+
+        self.reset()
+        src, dest = self.s(), self.d()
+        with (
+            patch('calibre.utils.copy_files.shutil.rmtree', side_effect=OSError('simulated')),
+            patch('calibre.utils.copy_files.WINDOWS_SLEEP_FOR_RETRY_TIME', 0),
+        ):
+            self.assertRaises(SourceDeletionFailed, copy_tree, src, dest, delete_source=True)
+        for name in ('one', 'sub/a'):
+            with open(self.d(name)) as f:
+                self.ae(f.read(), f'src/{name}')
 
         self.reset()
         src, dest = self.s(), self.d()

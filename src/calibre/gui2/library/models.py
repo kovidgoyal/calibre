@@ -33,6 +33,7 @@ from qt.core import (
 
 from calibre import fit_image, human_readable, prepare_string_for_xml, strftime
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
+from calibre.db.errors import BooksNotRemoved
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
 from calibre.devices.interface import BookList
@@ -567,7 +568,12 @@ class BooksModel(QAbstractTableModel):  # {{{
     def delete_books_by_id(self, ids, permanent=False):
         db = self.db
         assert db is not None
-        db.new_api.remove_books(ids, permanent=permanent)
+        try:
+            db.new_api.remove_books(ids, permanent=permanent)
+        except BooksNotRemoved as err:
+            if err.removed:
+                self.ids_deleted(err.removed)
+            raise
         self.ids_deleted(ids)
 
     def ids_deleted(self, ids):

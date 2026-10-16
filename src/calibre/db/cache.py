@@ -29,7 +29,7 @@ from calibre.db.annotations import merge_annotations
 from calibre.db.book_storage import BookStorageEntry
 from calibre.db.categories import CategoriesCache, CategoriesInvalidatingLock, get_categories, items_of_books
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
-from calibre.db.errors import NoSuchBook, NoSuchFormat
+from calibre.db.errors import BooksNotRemoved, NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.db.listeners import EventDispatcher, EventType
@@ -2787,7 +2787,11 @@ class Cache:
     def remove_books(self, book_ids, permanent=False):
         """Remove the books specified by the book_ids from the database and delete
         their format files. If ``permanent`` is False, then the format files
-        are placed in the per-library trash directory."""
+        are placed in the per-library trash directory.
+
+        If the files of some books cannot be deleted or moved to the trash,
+        those books are left unchanged and :class:`BooksNotRemoved` is raised
+        after all the other books have been removed."""
         path_map = {}
         for book_id in book_ids:
             try:
@@ -2795,7 +2799,10 @@ class Cache:
             except Exception:
                 path = None
             path_map[book_id] = path
-            if not permanent and path:
+            # Only write metadata.opf into an existing folder, as creating the
+            # folder would cause any existing trash entry for this book to be
+            # replaced by a folder containing only metadata.opf
+            if not permanent and path and os.path.isdir(os.path.join(self.backend.library_path, path)):
                 # ensure metadata.opf is written and up-to-date so we can restore the book
                 try:
                     mi = self._metadata_as_object_for_dump(book_id)
@@ -2803,7 +2810,9 @@ class Cache:
                     self.backend.write_backup(path, raw)
                 except Exception:
                     traceback.print_exc()
-        self.backend.remove_books(path_map, permanent=permanent)
+        failures = self.backend.remove_books(path_map, permanent=permanent)
+        if failures:
+            book_ids = tuple(book_id for book_id in path_map if book_id not in failures)
         for field in self.fields.values():
             try:
                 table = field.table
@@ -2816,6 +2825,8 @@ class Cache:
         for cc in self.cover_caches:
             cc.invalidate(book_ids)
         self.event_dispatcher(EventType.books_removed, book_ids)
+        if failures:
+            raise BooksNotRemoved(failures, book_ids)
 
     _remove_books = remove_books
 
