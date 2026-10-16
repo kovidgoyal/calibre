@@ -1342,6 +1342,34 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
         self.run_shared(check)
 
+    def test_context_not_found(self) -> None:
+        base = self.server.base
+
+        async def check(browser: camoufox.Browser) -> None:
+            page = browser.page
+            await page.open(base + 'index.html')
+            real = page.execution_context
+            # Just after a navigation the browser can fail to find the context
+            # the events about the new document say is current, see
+            # Page.context_to_retry_in(), until it finds it again
+            page.contexts[page.main_frame] = 'id-no-such-context'
+            asyncio.get_running_loop().call_later(0.3, page.contexts.__setitem__, page.main_frame, real)
+            self.assertEqual(await page.evaluate('1 + 1', timeout=30), 2)
+            self.assertEqual(await page.call('(a, b) => a + b', 2, 3, timeout=30), 5)
+            # Or a navigation replaces it
+            page.contexts[page.main_frame] = 'id-no-such-context'
+            navigate = asyncio.create_task(navigate_after(page, 0.3, base + 'type.html'))
+            try:
+                self.assertTrue((await page.evaluate('location.href', timeout=30)).endswith('type.html'))
+            finally:
+                await navigate
+            # A context that is never found is an error once the time is up
+            page.contexts[page.main_frame] = 'id-no-such-context'
+            with self.assertRaises(camoufox.Error):
+                await page.evaluate('1 + 1', timeout=1)
+
+        self.run_shared(check)
+
     def test_waiting_for_load_states(self) -> None:
         base = self.server.base
 

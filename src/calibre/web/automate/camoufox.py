@@ -93,6 +93,12 @@ IN_PAGE_REPLY_GRACE = 5.0  # seconds added to the timeout of a call the page end
 # events announcing the new document do, so the state of the page at the time
 # cannot be used to tell this apart from a call that failed for another reason.
 CONTEXT_DESTROYED = 'execution context was destroyed'
+# What the browser says when it is sent a call for a world it does not know,
+# which, during a navigation, can be the world the events about it say is the
+# current one, see Page.send_in_context(). The call never ran, so unlike one cut
+# short by CONTEXT_DESTROYED it is safe to make again.
+CONTEXT_NOT_FOUND = 'failed to find execution context'
+CONTEXT_RETRY_DELAY = 0.1  # seconds to wait for a replacement before calling a context that was not found again
 
 # The OS names used by camoufox in its config, its bundled data directories and
 # its user agent strings, respectively
@@ -3024,6 +3030,40 @@ class Page:
         await wait_for(self.events.expect(is_a_new_context), timeout, 'a new JavaScript execution context')
         return self.execution_context
 
+    async def context_to_retry_in(self, not_found: str, timeout: float) -> str:
+        """The execution context to make a call again in, that failed because
+        the browser could not find the context not_found.
+
+        Seen on Windows just after a navigation had loaded its page: the
+        browser can, for a moment, not know a context that the events it sent
+        say is current, either because the events replacing it have yet to
+        arrive or because it is looking for it in a part of itself that does
+        not have it. So a replacement is waited for, briefly, and if none
+        arrives, not_found is tried again.
+        """
+        try:
+            return await self.wait_for_new_execution_context(not_found, min(timeout, CONTEXT_RETRY_DELAY))
+        except TimeoutExceeded:
+            return await self.wait_for_execution_context(max(timeout - CONTEXT_RETRY_DELAY, 0))
+
+    async def send_in_context(self, method: str, params: Mapping[str, Any], timeout: float) -> dict[str, Any]:
+        """Send a command that runs JavaScript in the execution context of the
+        main frame, making it again in the context there is by then, if the
+        browser could not find the one it was made in, see :data:`CONTEXT_NOT_FOUND`."""
+        deadline = time.monotonic() + timeout
+        context = await self.wait_for_execution_context(timeout)
+        reported = False
+        while True:
+            try:
+                return await self.send(method, {**params, 'executionContextId': context}, max(deadline - time.monotonic(), 0))
+            except ProtocolError as err:
+                if CONTEXT_NOT_FOUND not in err.message.lower() or time.monotonic() >= deadline:
+                    raise
+                if not reported:
+                    reported = True
+                    debug(f'{method} failed as {context} was not found, trying again')
+                context = await self.context_to_retry_in(context, max(deadline - time.monotonic(), 0))
+
     def unwrap(self, result: Mapping[str, Any], by_value: bool) -> Any:  # noqa: ANN401
         if (details := result.get('exceptionDetails')) is not None:
             raise JavaScriptError(details.get('text') or details.get('stack') or repr(details.get('value')))
@@ -3049,8 +3089,7 @@ class Page:
         ``(async () => (await fetch(url)).status)()`` works. When in doubt, wrap
         the expression in an async function.
         """
-        context = await self.wait_for_execution_context(timeout)
-        result = await self.send('Runtime.evaluate', {'executionContextId': context, 'expression': expression, 'returnByValue': by_value}, timeout)
+        result = await self.send_in_context('Runtime.evaluate', {'expression': expression, 'returnByValue': by_value}, timeout)
         return self.unwrap(result, by_value)
 
     async def call(self, function_declaration: str, *args: Any, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT) -> Any:  # noqa: ANN401
@@ -3066,13 +3105,13 @@ class Page:
     ) -> Any:  # noqa: ANN401
         """Pass context to run the function in a particular execution context,
         for a caller that needs to know which one its call was made in, see
-        :meth:`wait_for_selector`."""
-        context = context or await self.wait_for_execution_context(timeout)
-        result = await self.send(
-            'Runtime.callFunction',
-            {'executionContextId': context, 'functionDeclaration': function_declaration, 'args': list(args), 'returnByValue': by_value},
-            timeout,
-        )
+        :meth:`wait_for_selector`. Without one, the call is made in the
+        current context, see :meth:`send_in_context`."""
+        params = {'functionDeclaration': function_declaration, 'args': list(args), 'returnByValue': by_value}
+        if context:
+            result = await self.send('Runtime.callFunction', {**params, 'executionContextId': context}, timeout)
+        else:
+            result = await self.send_in_context('Runtime.callFunction', params, timeout)
         return self.unwrap(result, by_value)
 
     # }}}
@@ -3202,10 +3241,17 @@ class Page:
                 handle = await self.call_with_handles(WAIT_FOR_SELECTOR_JS, args, by_value=False, timeout=remaining + IN_PAGE_REPLY_GRACE, context=context)
             except ProtocolError as err:
                 # A navigation destroys the world the observer is running in,
-                # which fails the call rather than returning from it
-                if CONTEXT_DESTROYED not in err.message.lower() or time.monotonic() >= deadline:
+                # which fails the call rather than returning from it, or leaves
+                # the browser briefly unable to find it, see context_to_retry_in()
+                message = err.message.lower()
+                if time.monotonic() >= deadline:
                     raise
-                context = await self.wait_for_new_execution_context(context, max(deadline - time.monotonic(), 0))
+                if CONTEXT_DESTROYED in message:
+                    context = await self.wait_for_new_execution_context(context, max(deadline - time.monotonic(), 0))
+                elif CONTEXT_NOT_FOUND in message:
+                    context = await self.context_to_retry_in(context, max(deadline - time.monotonic(), 0))
+                else:
+                    raise
                 continue
             if isinstance(handle, Element):
                 return handle
