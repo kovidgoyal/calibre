@@ -261,8 +261,8 @@ def add_live_item(item, item_type, lines):
             a('<h5>' + x['subtitle'] + '</h5>')
             add_live_item({'value': x['text']}, 'text', lines)
     elif item_type == 'section':
-        for item in item['value']:
-            add_live_item(item, item['type'], lines)
+        for b in item['value']:
+            add_live_item(b, b['type'], lines)
     elif item_type == '':
         b = item
         if b.get('title'):

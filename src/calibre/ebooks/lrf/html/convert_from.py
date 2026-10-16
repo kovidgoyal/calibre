@@ -491,8 +491,8 @@ class HTMLConverter:
             if isinstance(cls, list):
                 cls = ' '.join(cls)
             cls = cls.lower()
-            for cls in cls.split():
-                for classname in ['.' + cls, tagname + '.' + cls]:
+            for c in cls.split():
+                for classname in ['.' + c, tagname + '.' + c]:
                     if classname in self.css:
                         prop.update(self.css[classname])
                     if classname in self.pseudo_css:

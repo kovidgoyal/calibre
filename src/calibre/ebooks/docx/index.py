@@ -130,7 +130,7 @@ def split_up_block(block, a, text, parts, ldict):
     a.text = parts[-1]
     parent = a.getparent()
     style = 'display:block; margin-left: %.3gem'
-    for i, prefix in enumerate(prefix):
+    for i, prefix in enumerate(prefix):  # noqa: B020
         m = 1.5 * i
         span = parent.makeelement('span', style=style % m)
         ldict[span] = i

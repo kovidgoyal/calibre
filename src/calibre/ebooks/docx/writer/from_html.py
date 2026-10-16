@@ -234,8 +234,8 @@ class Block:
         if ignore_leading_whitespace and not preserve_whitespace:
             text = text.lstrip(COLLAPSIBLE_WS)
         if preserve_whitespace or ws == 'pre-line':
-            for text in text.splitlines():
-                run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
+            for line in text.splitlines():
+                run.add_text(line, preserve_whitespace, bookmark=bookmark, link=link)
                 bookmark = None
                 run.add_break()
         else:

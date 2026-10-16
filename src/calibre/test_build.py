@@ -257,8 +257,8 @@ class BuildTest(unittest.TestCase):
                 au(v, 'getenv-' + k)
         t = time.localtime()
         fmt = '%Y%a%b%e%H%M'
-        for fmt in (fmt, fmt.encode('ascii')):
-            x = strftime(fmt, t)
+        for fm in (fmt, fmt.encode('ascii')):
+            x = strftime(fm, t)
             au(x, 'strftime')
         tdir = tempfile.mkdtemp(dir=winutil.temp_path())
         path = os.path.join(tdir, 'test-create-file.txt')

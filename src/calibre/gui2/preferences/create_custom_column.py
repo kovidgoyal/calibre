@@ -1150,8 +1150,8 @@ class CreateNewCustomColumn:
         if lookup_name in self.custcols:
             if not generate_unused_lookup_name:
                 return (self.Result.DUPLICATE_KEY, _('The custom column %s already exists') % lookup_name)
-            for suffix_number in range(suffix_number, 100000):
-                nk = f'{lookup_name}_{suffix_number}'
+            for suffix_count in range(suffix_number, 100000):
+                nk = f'{lookup_name}_{suffix_count}'
                 if nk not in self.custcols:
                     lookup_name = nk
                     break

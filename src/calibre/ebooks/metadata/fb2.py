@@ -471,8 +471,8 @@ def ensure_namespace(doc):
     # https://bugs.launchpad.net/bugs/1404701
     bare_tags = False
     for x in ('description', 'body'):
-        for x in doc.findall(x):
-            if '{' not in x.tag:
+        for z in doc.findall(x):
+            if '{' not in z.tag:
                 bare_tags = True
                 break
     if bare_tags:

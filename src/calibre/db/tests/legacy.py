@@ -626,9 +626,9 @@ class LegacyTest(BaseTest):
                     else:
                         compare_argspecs(argspec, nargspec, attr)
         finally:
-            for db in (ndb, db):
-                db.close()
-                db.break_cycles()
+            for idb in (ndb, db):
+                idb.close()
+                idb.break_cycles()
 
         if missing:
             pc = len(missing) / total

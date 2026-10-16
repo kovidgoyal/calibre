@@ -217,10 +217,10 @@ class StylizerRules:
             normalizer = normalizers.get(name, None)
             is_important = prop.priority == 'important'
             if normalizer is not None:
-                for name, val in normalizer(name, prop.propertyValue).items():
-                    style[name] = val
+                for key, val in normalizer(name, prop.propertyValue).items():
+                    style[key] = val
                     if is_important:
-                        style.important_properties.add(name)
+                        style.important_properties.add(key)
             elif name == 'text-align':
                 style['text-align'] = self._apply_text_align(prop.value)
                 if is_important:

@@ -307,8 +307,7 @@ class Sdist(Command):
             if not x.startswith('/resources/'):
                 continue
             x = x[1:]
-            p = x.strip().replace('/', os.sep)
-            for p in glob.glob(p):
+            for p in glob.glob(x.strip().replace('/', os.sep)):
                 d = self.j(tdir, os.path.dirname(p))
                 if not self.e(d):
                     os.makedirs(d)

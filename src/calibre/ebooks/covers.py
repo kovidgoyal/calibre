@@ -150,10 +150,10 @@ class Block:
             fm = QFontMetrics(font, img)
             self.leading = fm.leading()
             self.line_spacing = fm.lineSpacing()
-        for text in text.split('<br>') if text else ():
-            text, formats = parse_text_formatting(sanitize(text))
+        for line in text.split('<br>') if text else ():
+            line, formats = parse_text_formatting(sanitize(line))
             assert isinstance(font, QFont)
-            l = QTextLayout(unescape_formatting(text), font, img)
+            l = QTextLayout(unescape_formatting(line), font, img)
             l.setFormats(formats)
             to = QTextOption(align)
             to.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)

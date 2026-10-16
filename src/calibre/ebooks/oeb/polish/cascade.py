@@ -180,7 +180,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
     def process_sheet(sheet, sheet_name):
         if sheet_callback is not None:
             sheet_callback(sheet, sheet_name)
-        for rule, sheet_name, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type='STYLE_RULE'):
+        for rule, name_sheet, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type='STYLE_RULE'):
             for selector in rule.selectorList:
                 text = selector.selectorText
                 try:
@@ -189,7 +189,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
                     container.log.error(f'Ignoring CSS rule with invalid selector: {text!r} ({as_unicode(err)})')
                     continue
                 m = pseudo_pat.search(text)
-                style = normalize_style_declaration(rule.style, sheet_name)
+                style = normalize_style_declaration(rule.style, name_sheet)
                 if m is None:
                     for elem in matches:
                         style_map[elem].append(StyleDeclaration(specificity(rule_index, selector), style, None))
