@@ -21,7 +21,11 @@ from calibre.utils.imghdr import what
 from calibre.utils.resources import get_image_path as I
 from calibre_extensions import avif as _avif_plugin  # noqa: F401  registers the AVIF image format with Qt
 from calibre_extensions import imageops
-from calibre_extensions import jxl as _jxl_plugin  # noqa: F401  registers the JPEG-XL image format with Qt
+
+try:
+    from calibre_extensions import jxl as _jxl_plugin  # noqa: F401  registers the JPEG-XL image format with Qt
+except ImportError:
+    pass  # for people running from source
 
 
 # Utilities {{{
