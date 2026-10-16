@@ -570,8 +570,9 @@ class ODF2XHTML(handler.ContentHandler):
         if d != '':
             self.writeout(escape(d))
 
-    def opentag(self, tag, attrs={}, block=False):
+    def opentag(self, tag, attrs=None, block=False):
         """Create an open HTML tag"""
+        attrs = attrs or {}
         self.htmlstack.append((tag, attrs, block))
         a = []
         for key, val in attrs.items():
@@ -590,7 +591,8 @@ class ODF2XHTML(handler.ContentHandler):
         if block:
             self.writeout('\n')
 
-    def emptytag(self, tag, attrs={}):
+    def emptytag(self, tag, attrs=None):
+        attrs = attrs or {}
         a = []
         for key, val in attrs.items():
             a.append(f'''{key}={quoteattr(val)}''')

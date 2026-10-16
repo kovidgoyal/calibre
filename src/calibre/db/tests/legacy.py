@@ -18,7 +18,8 @@ from calibre.utils.localization import _
 
 
 class ET:
-    def __init__(self, func_name, args, kwargs={}, old=None, legacy=None):
+    def __init__(self, func_name, args, kwargs=None, old=None, legacy=None):
+        kwargs = kwargs or {}
         self.func_name = func_name
         self.args, self.kwargs = args, kwargs
         self.old, self.legacy = old, legacy

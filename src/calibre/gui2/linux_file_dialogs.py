@@ -197,12 +197,13 @@ def kdialog_choose_files(
     window,
     name,
     title,
-    filters=[],
+    filters=None,
     all_files=True,
     select_only_single_file=False,
     default_dir='~',
     no_save_dir=False,
 ):
+    filters = filters or []
     initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
     args = []
     if not select_only_single_file:
@@ -214,7 +215,8 @@ def kdialog_choose_files(
     return ans
 
 
-def kdialog_choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
+def kdialog_choose_save_file(window, name, title, filters=None, all_files=True, initial_path=None, initial_filename=None):
+    filters = filters or []
     if initial_path is not None:
         initial_dir = initial_path
     else:
@@ -287,12 +289,13 @@ def zenity_choose_files(
     window,
     name,
     title,
-    filters=[],
+    filters=None,
     all_files=True,
     select_only_single_file=False,
     default_dir='~',
     no_save_dir=False,
 ):
+    filters = filters or []
     initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
     args = ['--filename=' + os.path.join(initial_dir, '.fgdfg.gdfhjdhf*&^839')]
     args += zenity_filters(filters, all_files)
@@ -304,7 +307,8 @@ def zenity_choose_files(
     return ans
 
 
-def zenity_choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
+def zenity_choose_save_file(window, name, title, filters=None, all_files=True, initial_path=None, initial_filename=None):
+    filters = filters or []
     if initial_path is not None:
         initial_dir = initial_path
     else:

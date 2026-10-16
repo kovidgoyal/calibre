@@ -1137,11 +1137,12 @@ class CreateNewCustomColumn:
         column_heading,
         datatype,
         is_multiple,
-        display={},
+        display=None,
         generate_unused_lookup_name=False,
         freeze_lookup_name=True,
     ):
         """See the class documentation for more information."""
+        display = display or {}
         if self.restart_required:
             return (self.Result.MUST_RESTART, _('You must restart calibre before making any more changes'))
         if not lookup_name.startswith('#'):

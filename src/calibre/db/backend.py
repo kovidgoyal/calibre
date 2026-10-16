@@ -1498,9 +1498,10 @@ class DB:
         # Note: the caller is responsible for scheduling a metadata backup if necessary
         return changed
 
-    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):  # {{{
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):  # {{{
         import re
 
+        display = display or {}
         if not label:
             raise ValueError(_('No label was provided'))
         if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:

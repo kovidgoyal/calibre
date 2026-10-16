@@ -144,7 +144,8 @@ class LookupTable(SimpleListTable):
             self.mark_filtering_set = data.unpack('H')
 
 
-def ExtensionSubstitution(raw, offset, subtable_map={}):
+def ExtensionSubstitution(raw, offset, subtable_map=None):
+    subtable_map = subtable_map or {}
     data = Unpackable(raw, offset)
     subst_format, extension_lookup_type, offset = data.unpack('2HL')
     if subst_format != 1:

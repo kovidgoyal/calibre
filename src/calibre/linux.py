@@ -313,7 +313,8 @@ class ZshCompleter:  # {{{
                 self.dest = os.path.join(c, '_calibre')
                 break
 
-    def get_options(self, parser, cover_opts=('--cover',), opf_opts=('--opf',), file_map={}):
+    def get_options(self, parser, cover_opts=('--cover',), opf_opts=('--opf',), file_map=None):
+        file_map = file_map or {}
         if hasattr(parser, 'option_list'):
             options = parser.option_list
             for group in parser.option_groups:
@@ -359,7 +360,8 @@ class ZshCompleter:  # {{{
             help_txt = f'"[{h}]"'
             yield f'{exclude}{ostrings}{help_txt}{arg} '
 
-    def opts_and_exts(self, name, op, exts, cover_opts=('--cover',), opf_opts=('--opf',), file_map={}):
+    def opts_and_exts(self, name, op, exts, cover_opts=('--cover',), opf_opts=('--opf',), file_map=None):
+        file_map = file_map or {}
         if not self.dest:
             return
         exts = sorted({x.lower() for x in exts})
@@ -1151,7 +1153,8 @@ complete -F _'''
 pics = ['bmp', 'gif', 'jpeg', 'jpg', 'png']  # keep sorted alphabetically
 
 
-def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(), file_map={}):
+def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(), file_map=None):
+    file_map = file_map or {}
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
     exts = '|'.join(sorted(exts))

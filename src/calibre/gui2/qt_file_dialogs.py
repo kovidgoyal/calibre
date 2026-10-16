@@ -33,7 +33,7 @@ class FileDialog(QObject):
     def __init__(
         self,
         title=_('Choose files'),
-        filters=[],
+        filters=None,
         add_all_files_filter=True,
         parent=None,
         modal=True,
@@ -46,6 +46,7 @@ class FileDialog(QObject):
         from calibre.gui2 import dynamic, sanitize_env_vars
         from calibre.gui2.ui import get_gui
 
+        filters = filters or []
         gui = get_gui()
         adapt_menubar = gui.bars_manager.adapt_menu_bar_for_dialog if gui is not None else Dummy()
         QObject.__init__(self)
@@ -196,7 +197,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
         return dir[0]
 
 
-def choose_files(window, name, title, filters=[], all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
+def choose_files(window, name, title, filters=None, all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
     """
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory
@@ -208,6 +209,7 @@ def choose_files(window, name, title, filters=[], all_files=True, select_only_si
     :param all_files: If True add All files to filters.
     :param select_only_single_file: If True only one file can be selected
     """
+    filters = filters or []
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     fd = FileDialog(
         title=title,
@@ -225,7 +227,7 @@ def choose_files(window, name, title, filters=[], all_files=True, select_only_si
     return None
 
 
-def choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
+def choose_save_file(window, name, title, filters=None, all_files=True, initial_path=None, initial_filename=None):
     """
     Ask user to choose a file to save to. Can be a non-existent file.
     :param filters: list of allowable extensions. Each element of the list
@@ -236,6 +238,7 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     :param initial_path: The initially selected path (does not need to exist). Cannot be used with initial_filename.
     :param initial_filename: If specified, the initially selected path is this filename in the previously used directory. Cannot be used with initial_path.
     """
+    filters = filters or []
     kwargs = dict(
         title=title,
         name=name,

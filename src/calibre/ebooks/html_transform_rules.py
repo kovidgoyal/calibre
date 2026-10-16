@@ -558,7 +558,8 @@ def test(return_tests=False):  # {{{
                     ans.append(tag.get('id'))
                 return ans
 
-            def t(mt, query='', expected=[]):
+            def t(mt, query='', expected=None):
+                expected = expected or []
                 self.ae(expected, q(mt, query))
 
             t('*', expected=all_ids)

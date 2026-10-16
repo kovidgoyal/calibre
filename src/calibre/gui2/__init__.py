@@ -1220,7 +1220,8 @@ else:
     from calibre.gui2.qt_file_dialogs import choose_dir, choose_files, choose_images, choose_save_file  # noqa: F401
 
 
-def choose_files_and_remember_all_files(window, name, title, filters=[], select_only_single_file=False, default_dir='~'):
+def choose_files_and_remember_all_files(window, name, title, filters=None, select_only_single_file=False, default_dir='~'):
+    filters = filters or []
     pref_name = f'{name}-last-used-filter-spec-all-files'
     lufs = dynamic.get(pref_name, False)
     af = _('All files'), ['*']

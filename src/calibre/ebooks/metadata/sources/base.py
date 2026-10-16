@@ -540,7 +540,7 @@ class Source(Plugin):
         """
         return
 
-    def identify_results_keygen(self, title=None, authors=None, identifiers={}):
+    def identify_results_keygen(self, title=None, authors=None, identifiers=None):
         """
         Return a function that is used to generate a key that can sort Metadata
         objects by their relevance given a search query (title, authors,
@@ -552,13 +552,14 @@ class Source(Plugin):
         :class:`InternalMetadataCompareKeyGen`. Re-implement this function in
         your plugin if the default algorithm is not suitable.
         """
+        identifiers = identifiers or {}
 
         def keygen(mi):
             return InternalMetadataCompareKeyGen(mi, self, title, authors, identifiers)
 
         return keygen
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30):
+    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30):
         """
         Identify a book by its Title/Author/ISBN/etc.
 
@@ -596,9 +597,9 @@ class Source(Plugin):
                  of the error suitable for showing to the user
 
         """
-        return
+        pass
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
         '''
         Download a cover and put it into result_queue. The parameters all have
         the same meaning as for :meth:`identify`. Put (self, cover_data) into

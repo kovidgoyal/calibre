@@ -18,7 +18,9 @@ from polyglot.builtins import as_unicode
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
-    def __init__(self, accounts, subjects, aliases={}, tags={}):
+    def __init__(self, accounts, subjects, aliases=None, tags=None):
+        tags = tags or {}
+        aliases = aliases or {}
         QAbstractTableModel.__init__(self)
         self.accounts = accounts
         self.subjects = subjects

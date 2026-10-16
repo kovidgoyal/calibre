@@ -25,7 +25,8 @@ def split(src):
             return shlex.split(src + "'")
 
 
-def files_and_dirs(prefix, allowed_exts=[]):
+def files_and_dirs(prefix, allowed_exts=None):
+    allowed_exts = allowed_exts or []
     prefix = os.path.expanduser(prefix)
     for i in glob.iglob(prefix + '*'):
         _, ext = os.path.splitext(i)

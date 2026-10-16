@@ -483,7 +483,7 @@ def my_unichr(num):
 XML_ENTITIES = {'"': '&quot;', "'": '&apos;', '<': '&lt;', '>': '&gt;', '&': '&amp;'}
 
 
-def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={}):
+def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions=None):
     """
     :param match: A match object such that '&'+match.group(1)';' is the entity.
 
@@ -500,6 +500,7 @@ def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={})
     from calibre.ebooks.html_entities import entity_to_unicode_in_python
     from calibre_extensions.fast_html_entities import replace_all_entities
 
+    result_exceptions = result_exceptions or {}
     if not encoding and not exceptions and (not result_exceptions or result_exceptions is XML_ENTITIES):
         return replace_all_entities(match.group(), result_exceptions is XML_ENTITIES)
     return entity_to_unicode_in_python(match, exceptions, encoding, result_exceptions)

@@ -1422,12 +1422,13 @@ class Amazon(Source):
     def get_website_domain(self, domain):
         return {'uk': 'co.uk', 'jp': 'co.jp', 'br': 'com.br', 'au': 'com.au'}.get(domain, domain)
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
+    def create_query(self, log, title=None, authors=None, identifiers=None):  # {{{
         """
         The terms to search for, the Amazon department to search in, the
         domain of the Amazon store and whether the terms are an identifier.
         Raises SearchFailed if there is not enough metadata to search with.
         """
+        identifiers = identifiers or {}
         domain = self.domain
         idomain, asin = self.get_domain_and_asin(identifiers)
         if idomain is not None:
@@ -1531,7 +1532,7 @@ class Amazon(Source):
         abort,
         title=None,
         authors=None,  # {{{
-        identifiers={},
+        identifiers=None,
         timeout=60,
     ):
         """
@@ -1540,6 +1541,7 @@ class Amazon(Source):
         """
         from calibre.web.automate.metadata import BrowserFailed
 
+        identifiers = identifiers or {}
         testing = getattr(self, 'running_a_test', False)
         log('Server:', self.server)
         if not self.use_search_engine:
@@ -1795,10 +1797,11 @@ class Amazon(Source):
         abort,  # {{{
         title=None,
         authors=None,
-        identifiers={},
+        identifiers=None,
         timeout=60,
         get_best_cover=False,
     ):
+        identifiers = identifiers or {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')

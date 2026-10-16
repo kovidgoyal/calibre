@@ -405,10 +405,11 @@ class TagBrowserMixin:  # {{{
                 self.do_field_item_value_changed()
                 self.tags_view.recount()
 
-    def do_tag_item_delete(self: Main, category, item_id, orig_name, restrict_to_book_ids=None, children=[]):
+    def do_tag_item_delete(self: Main, category, item_id, orig_name, restrict_to_book_ids=None, children=None):
         """
         Delete an item from some category.
         """
+        children = children or []
         tag_names = []
         for child in children:
             if child.tag.is_editable:

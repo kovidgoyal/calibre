@@ -800,7 +800,8 @@ class CompleteLineEdit(EnLineEdit):  # {{{
     A QLineEdit that can complete parts of text separated by separator.
     """
 
-    def __init__(self, parent=None, complete_items=[], sep=',', space_before_sep=False):
+    def __init__(self, parent=None, complete_items=None, sep=',', space_before_sep=False):
+        complete_items = complete_items or []
         EnLineEdit.__init__(self, parent)
 
         self.separator = sep

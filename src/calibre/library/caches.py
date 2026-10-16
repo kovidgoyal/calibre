@@ -1201,7 +1201,7 @@ class ResultCache(SearchQueryParser):  # {{{
     def sort(self, field, ascending, subsort=False):
         self.multisort([(field, ascending)])
 
-    def multisort(self, fields=[], subsort=False, only_ids=None):
+    def multisort(self, fields=None, subsort=False, only_ids=None):
         """
         fields is a list of 2-tuple, each tuple is of the form
         (field_name, is_ascending)
@@ -1209,6 +1209,7 @@ class ResultCache(SearchQueryParser):  # {{{
         If only_ids is a list of ids, this function will sort that list instead
         of the internal mapping of ids.
         """
+        fields = fields or []
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
         field_meta = self.field_metadata
         assert field_meta is not None

@@ -425,8 +425,9 @@ class LibraryDatabase:
         """
         self.listeners.add(listener)
 
-    def notify(self, event, ids=[]):
+    def notify(self, event, ids=None):
         "Notify all listeners"
+        ids = ids or []
         for listener in self.listeners:
             try:
                 listener(event, ids)
@@ -756,10 +757,14 @@ class LibraryDatabase:
         if notify:
             self.notify('metadata', ids)
 
-    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+    def bulk_modify_tags(self, ids, add=None, remove=None, notify=False):
+        remove = remove or []
+        add = add or []
         self._do_bulk_modify('tags', ids, add, remove, notify)
 
-    def set_custom_bulk_multiple(self, ids, add=[], remove=[], label=None, num=None, notify=False):
+    def set_custom_bulk_multiple(self, ids, add=None, remove=None, label=None, num=None, notify=False):
+        remove = remove or []
+        add = add or []
         data = self.backend.custom_field_metadata(label, num)
         if not data['editable']:
             raise ValueError('Column {!r} is not editable'.format(data['label']))
@@ -958,7 +963,8 @@ class LibraryDatabase:
     def delete_custom_column(self, label=None, num=None):
         self.new_api.delete_custom_column(label, num)
 
-    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):
+        display = display or {}
         return self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True, update_last_modified=False):

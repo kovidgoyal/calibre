@@ -767,8 +767,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         """
         self.listeners.add(listener)
 
-    def notify(self, event, ids=[]):
+    def notify(self, event, ids=None):
         "Notify all listeners"
+        ids = ids or []
         for listener in self.listeners:
             try:
                 listener(event, ids)
@@ -3109,7 +3110,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', ids)
 
-    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+    def bulk_modify_tags(self, ids, add=None, remove=None, notify=False):
+        remove = remove or []
+        add = add or []
         add = self.cleanup_tags(add)
         remove = self.cleanup_tags(remove)
         remove = set(remove) - set(add)

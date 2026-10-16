@@ -372,10 +372,11 @@ def identify(
     abort,  # {{{
     title=None,
     authors=None,
-    identifiers={},
+    identifiers=None,
     timeout=30,
     allowed_plugins=None,
 ):
+    identifiers = identifiers or {}
     if title == _('Unknown'):
         title = None
     if authors == [_('Unknown')]:

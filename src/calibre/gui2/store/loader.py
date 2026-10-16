@@ -22,9 +22,10 @@ class VersionMismatch(ValueError):
         self.ver = ver
 
 
-def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
+def download_updates(ver_map=None, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
 
+    ver_map = ver_map or {}
     data = {k: str(v) for k, v in ver_map.items()}
     data['ver'] = '1'
     url = f'{server}/stores?{urlencode(data)}'

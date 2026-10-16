@@ -121,7 +121,8 @@ class SearchFilter(SearchQueryParser):
         'title',
     ]
 
-    def __init__(self, all_books=[]):
+    def __init__(self, all_books=None):
+        all_books = all_books or []
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set(all_books)
 

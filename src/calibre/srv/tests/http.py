@@ -69,7 +69,9 @@ class TestHTTP(BaseTest):
         "Test parsing of Accept-Encoding"
         from calibre.srv.http_response import acceptable_encoding
 
-        def test(name, val, ans, allowed={'gzip'}):
+        def test(name, val, ans, allowed=None):
+            if allowed is None:
+                allowed = {'gzip'}
             self.ae(acceptable_encoding(val, allowed), ans, name + ' failed')
 
         test('Empty field', '', None)

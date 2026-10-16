@@ -164,7 +164,8 @@ class Helper:
         return pydoc.help(*args, **kwds)
 
 
-def simple_repl(user_ns={}):
+def simple_repl(user_ns=None):
+    user_ns = user_ns or {}
     if iswindows:
         setup_pyreadline()
     else:

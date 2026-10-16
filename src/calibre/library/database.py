@@ -1331,11 +1331,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
 
-    def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
+    def add_books(self, paths, formats, metadata, uris=None, add_duplicates=True):
         """
         Add a book to the database. self.data and self.cache are not updated.
         @param paths: List of paths to book files of file-like objects
         """
+        uris = uris or []
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
         for path in paths:

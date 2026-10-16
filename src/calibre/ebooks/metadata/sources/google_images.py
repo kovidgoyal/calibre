@@ -137,7 +137,8 @@ class GoogleImages(Source):
         ),
     )
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
+        identifiers = identifiers or {}
         if not title:
             return
         timeout = max(60, timeout)  # Needs at least a minute

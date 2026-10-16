@@ -234,7 +234,7 @@ def fork_job(
     timeout=300,  # seconds
     cwd=None,
     priority='normal',
-    env={},
+    env=None,
     no_output=False,
     heartbeat=None,
     abort=None,
@@ -288,6 +288,7 @@ def fork_job(
     path to a file that contains the stdout and stderr of the worker process.
     If you set no_output=True, then this will not be present.
     """
+    env = env or {}
     return two_part_fork_job(env, priority, cwd)(
         mod_name,
         func_name,
@@ -301,7 +302,8 @@ def fork_job(
     )
 
 
-def offload_worker(env={}, priority='normal', cwd=None):
+def offload_worker(env=None, priority='normal', cwd=None):
+    env = env or {}
     conn, w = create_worker(env=env, priority=priority, cwd=cwd, func='offload')
     return OffloadWorker(conn, w)
 

@@ -538,7 +538,8 @@ class IdentifyWidget(QWidget):  # {{{
     def emit_book_selected(self, book):
         self.book_selected.emit(book, self.caches)
 
-    def start(self, title=None, authors=None, identifiers={}):
+    def start(self, title=None, authors=None, identifiers=None):
+        identifiers = identifiers or {}
         self.log.clear()
         self.log('Starting download')
         parts, simple_desc = [], ''
@@ -1278,7 +1279,8 @@ class FullFetch(QDialog):  # {{{
         else:
             QDialog.accept(self)
 
-    def start(self, title=None, authors=None, identifiers={}):
+    def start(self, title=None, authors=None, identifiers=None):
+        identifiers = identifiers or {}
         self.title, self.authors = title, authors
         self.identify_widget.start(title=title, authors=authors, identifiers=identifiers)
         return self.exec()

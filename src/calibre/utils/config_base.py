@@ -154,7 +154,7 @@ class Option:
     def __init__(
         self,
         name,
-        switches=[],
+        switches=None,
         help='',
         type=None,
         choices=None,
@@ -164,6 +164,7 @@ class Option:
         action=None,
         metavar=None,
     ):
+        switches = switches or []
         if choices:
             type = 'choice'
 
@@ -257,7 +258,7 @@ class OptionSet:
         if name in self.preferences:
             self.preferences.remove(name)
 
-    def add_opt(self, name, switches=[], help=None, type=None, choices=None, group=None, default=None, action=None, metavar=None):
+    def add_opt(self, name, switches=None, help=None, type=None, choices=None, group=None, default=None, action=None, metavar=None):
         """
         Add an option to this section.
 
@@ -277,6 +278,7 @@ class OptionSet:
                            `None, 'count'`. For choices and boolean options,
                            action is automatically set correctly.
         """
+        switches = switches or []
         pref = Option(
             name,
             switches=switches,

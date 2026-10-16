@@ -457,7 +457,8 @@ class AddAction(InterfaceAction):
                 ok += [x[0] for x in duplicates]
         return ok
 
-    def add_isbns(self, books, add_tags=[], check_for_existing=False):
+    def add_isbns(self, books, add_tags=None, check_for_existing=False):
+        add_tags = add_tags or []
         books = list(books)
         if check_for_existing:
             books = self.check_for_existing_isbns(books)

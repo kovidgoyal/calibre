@@ -130,7 +130,8 @@ class UnBinary:
     DOUBLE_ANGLE_RE = re.compile(rb'([<>])\1')
     EMPTY_ATOMS = ({}, {})
 
-    def __init__(self, bin, path, manifest={}, map=HTML_MAP, atoms=EMPTY_ATOMS):
+    def __init__(self, bin, path, manifest=None, map=HTML_MAP, atoms=EMPTY_ATOMS):
+        manifest = manifest or {}
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.is_html = map is HTML_MAP

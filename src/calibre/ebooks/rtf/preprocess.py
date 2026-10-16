@@ -103,7 +103,8 @@ class token8bitChar:
 
 
 class tokenUnicode:
-    def __init__(self, data, separator='', current_ucn=1, eqList=[]):
+    def __init__(self, data, separator='', current_ucn=1, eqList=None):
+        eqList = eqList or []
         self.data = data
         self.separator = separator
         self.current_ucn = current_ucn

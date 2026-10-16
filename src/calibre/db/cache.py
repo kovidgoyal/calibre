@@ -3316,7 +3316,8 @@ class Cache:
     _delete_custom_column = delete_custom_column
 
     @write_api
-    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):
+        display = display or {}
         return self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     _create_custom_column = create_custom_column

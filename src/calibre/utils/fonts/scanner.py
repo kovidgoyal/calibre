@@ -194,7 +194,10 @@ def build_families(cached_fonts, folders, family_attr='font-family'):
 class FontScanner(Thread):
     CACHE_VERSION = 2
 
-    def __init__(self, folders=[], allowed_extensions={'ttf', 'otf'}):
+    def __init__(self, folders=None, allowed_extensions=None):
+        if allowed_extensions is None:
+            allowed_extensions = {'ttf', 'otf'}
+        folders = folders or []
         super().__init__(daemon=True)
         self.folders = folders + font_dirs() + [os.path.join(config_dir, 'fonts'), P('fonts/liberation')]
         self.folders = [os.path.normcase(os.path.abspath(f)) for f in self.folders]
@@ -254,7 +257,7 @@ class FontScanner(Thread):
     def find_font_for_text(
         self,
         text,
-        allowed_families={'serif', 'sans-serif'},
+        allowed_families=None,
         preferred_families=('serif', 'sans-serif', 'monospace', 'cursive', 'fantasy'),
     ):
         '''
@@ -268,6 +271,8 @@ class FontScanner(Thread):
         '''
         from calibre.utils.fonts.utils import get_printable_characters, panose_to_css_generic_family, supports_text
 
+        if allowed_families is None:
+            allowed_families = {'serif', 'sans-serif'}
         if not isinstance(text, str):
             raise TypeError(f'{text!r} is not unicode')
         text = get_printable_characters(text)

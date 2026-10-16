@@ -205,7 +205,8 @@ def load_plugins_index():
 # Get metadata from plugin zip file {{{
 
 
-def convert_node(fields, x, names={}, import_data=None):
+def convert_node(fields, x, names=None, import_data=None):
+    names = names or {}
     name = x.__class__.__name__
 
     def conv(x):

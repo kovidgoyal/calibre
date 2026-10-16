@@ -38,13 +38,14 @@ if TYPE_CHECKING:
 # To make it possible to have <rubbish> in your text elements, it is necessary to escape the texts
 
 
-def _escape(data, entities={}):
+def _escape(data, entities=None):
     """Escape &, <, and > in a string of data.
 
     You can escape other strings of data by passing a dictionary as
     the optional entities parameter.  The keys and values must all be
     strings; each key will be replaced with its corresponding value.
     """
+    entities = entities or {}
     data = data.replace('&', '&amp;')
     data = data.replace('<', '&lt;')
     data = data.replace('>', '&gt;')
@@ -53,7 +54,7 @@ def _escape(data, entities={}):
     return data
 
 
-def _quoteattr(data, entities={}):
+def _quoteattr(data, entities=None):
     """Escape and quote an attribute value.
 
     Escape &, <, and > in a string of data, then quote it for use as
@@ -64,6 +65,7 @@ def _quoteattr(data, entities={}):
     the optional entities parameter.  The keys and values must all be
     strings; each key will be replaced with its corresponding value.
     """
+    entities = entities or {}
     entities['\n'] = '&#10;'
     entities['\r'] = '&#12;'
     data = _escape(data, entities)

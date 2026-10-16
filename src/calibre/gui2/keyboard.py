@@ -82,7 +82,7 @@ def keysequence_from_event(ev: QKeyEvent):  # {{{
 # }}}
 
 
-def finalize(shortcuts, custom_keys_map={}) -> dict[str, tuple[QKeySequence, ...]]:  # {{{
+def finalize(shortcuts, custom_keys_map=None) -> dict[str, tuple[QKeySequence, ...]]:  # {{{
     """
     Resolve conflicts and assign keys to every action in shortcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
@@ -90,6 +90,7 @@ def finalize(shortcuts, custom_keys_map={}) -> dict[str, tuple[QKeySequence, ...
     of unique names to resolved keys. Also sets the set_to_default member
     correctly for each shortcut.
     """
+    custom_keys_map = custom_keys_map or {}
     for unique_name, shortcut in shortcuts.items():
         shortcut['set_to_default'] = unique_name in custom_keys_map
     keys_map = defaultdict(list)

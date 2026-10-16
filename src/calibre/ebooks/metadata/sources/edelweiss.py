@@ -252,7 +252,8 @@ class Edelweiss(Source):
 
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):
+    def create_query(self, log, title=None, authors=None, identifiers=None):
+        identifiers = identifiers or {}
         try:
             from urllib.parse import urlencode
         except ImportError:
@@ -288,11 +289,12 @@ class Edelweiss(Source):
         abort,
         title=None,
         authors=None,  # {{{
-        identifiers={},
+        identifiers=None,
         timeout=30,
     ):
         import json
 
+        identifiers = identifiers or {}
         br = self.browser
         br.addheaders = [
             ('Referer', 'https://www.edelweiss.plus/'),
@@ -370,10 +372,11 @@ class Edelweiss(Source):
         abort,  # {{{
         title=None,
         authors=None,
-        identifiers={},
+        identifiers=None,
         timeout=30,
         get_best_cover=False,
     ):
+        identifiers = identifiers or {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')

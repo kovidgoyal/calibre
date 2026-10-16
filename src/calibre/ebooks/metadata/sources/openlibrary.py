@@ -22,7 +22,8 @@ class OpenLibrary(Source):
 
     OPENLIBRARY = 'https://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
+        identifiers = identifiers or {}
         if 'isbn' not in identifiers:
             return
         isbn = identifiers['isbn']

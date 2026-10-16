@@ -312,9 +312,10 @@ class LocalZipFile:
     def close(self):
         pass
 
-    def safe_replace(self, name, datastream, extra_replacements={}, add_missing=False):
+    def safe_replace(self, name, datastream, extra_replacements=None, add_missing=False):
         from calibre.utils.zipfile import ZipFile, ZipInfo
 
+        extra_replacements = extra_replacements or {}
         replacements = {name: datastream}
         replacements.update(extra_replacements)
         names = frozenset(list(replacements.keys()))

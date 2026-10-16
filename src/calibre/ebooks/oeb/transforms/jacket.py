@@ -288,13 +288,14 @@ def render_jacket(
     mi,
     output_profile,
     alt_title=_('Unknown'),
-    alt_tags=[],
+    alt_tags=None,
     alt_comments='',
     alt_publisher='',
     rescale_fonts=False,
     alt_authors=None,
     smarten_punctuation=False,
 ):
+    alt_tags = alt_tags or []
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
     template = P('jacket/template.xhtml', data=True).decode('utf-8')
 

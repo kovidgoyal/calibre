@@ -1525,7 +1525,9 @@ class OPFCreator(Metadata):
         M = ElementMaker(namespace=DNS, nsmap={'dc': DC11_NS, 'calibre': CALIBRE_NS, 'opf': OPF2_NS})
         DC = ElementMaker(namespace=DC11_NS)
 
-        def DC_ELEM(tag, text, dc_attrs={}, opf_attrs={}):
+        def DC_ELEM(tag, text, dc_attrs=None, opf_attrs=None):
+            opf_attrs = opf_attrs or {}
+            dc_attrs = dc_attrs or {}
             if text:
                 elem = getattr(DC, tag)(clean_ascii_chars(text), **dc_attrs)
             else:

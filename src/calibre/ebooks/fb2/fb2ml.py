@@ -392,7 +392,7 @@ class FB2MLizer:
             s_tags.append(tag)
         return s_out, s_tags
 
-    def dump_text(self, elem_tree, stylizer, page, tag_stack=[]):
+    def dump_text(self, elem_tree, stylizer, page, tag_stack=None):
         """
         This function is intended to be used in a recursive manner. dump_text will
         run though all elements in the elem_tree and call itself on each element.
@@ -408,6 +408,7 @@ class FB2MLizer:
         """
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
+        tag_stack = tag_stack or []
         elem = elem_tree
 
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.

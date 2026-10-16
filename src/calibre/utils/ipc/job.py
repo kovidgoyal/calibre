@@ -164,6 +164,8 @@ class BaseJob:
 
 
 class ParallelJob(BaseJob):
-    def __init__(self, name, description, done, args=[], kwargs={}):
+    def __init__(self, name, description, done, args=None, kwargs=None):
+        kwargs = kwargs or {}
+        args = args or []
         self.name, self.args, self.kwargs = name, args, kwargs
         BaseJob.__init__(self, description, done)

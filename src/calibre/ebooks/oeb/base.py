@@ -866,7 +866,9 @@ class Metadata:
             def __set__(self, obj, value):
                 obj.attrib[self.term_attr(obj)] = value
 
-        def __init__(self, term, value, attrib={}, nsmap={}, **kwargs):
+        def __init__(self, term, value, attrib=None, nsmap=None, **kwargs):
+            nsmap = nsmap or {}
+            attrib = attrib or {}
             self.attrib = attrib = dict(attrib)
             self.nsmap = nsmap = dict(nsmap)
             attrib.update(kwargs)
@@ -943,7 +945,8 @@ class Metadata:
         def __str__(self):
             return as_unicode(self.value)
 
-        def to_opf1(self, dcmeta=None, xmeta=None, nsrmap={}):
+        def to_opf1(self, dcmeta=None, xmeta=None, nsrmap=None):
+            nsrmap = nsrmap or {}
             attrib = {}
             for key, value in self.attrib.items():
                 if namespace(key) == OPF2_NS:
@@ -959,7 +962,8 @@ class Metadata:
                 elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
 
-        def to_opf2(self, parent=None, nsrmap={}):
+        def to_opf2(self, parent=None, nsrmap=None):
+            nsrmap = nsrmap or {}
             attrib = {}
             for key, value in self.attrib.items():
                 attrib[key] = prefixname(value, nsrmap)
@@ -980,8 +984,10 @@ class Metadata:
         self.items = defaultdict(list)
         self.primary_writing_mode = None
 
-    def add(self, term, value, attrib={}, nsmap={}, **kwargs):
+    def add(self, term, value, attrib=None, nsmap=None, **kwargs):
         """Add a new metadata item."""
+        nsmap = nsmap or {}
+        attrib = attrib or {}
         item = self.Item(term, value, attrib, nsmap, **kwargs)
         items = self.items[barename(item.term)]
         items.append(item)
