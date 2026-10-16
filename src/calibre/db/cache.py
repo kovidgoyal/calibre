@@ -2396,7 +2396,9 @@ class Cache:
                 raise
 
         try:
-            with self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
+            # Speed up set_metadata by not operating in autocommit mode. The files of notes changed by the transaction (for example
+            # the note of a tag that is no longer used is retired) are restored if it is rolled back.
+            with self.backend.notes.file_transaction(), self.backend.conn:
                 for field in ('rating', 'series_index', 'timestamp'):
                     val = getattr(mi, field)
                     if val is not None:

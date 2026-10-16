@@ -247,6 +247,103 @@ def test_fts(self: NotesTest):
     self.ae(ids_for_search(' AND '.join(an.split()), ('authors',)), {('authors', authors[0])})
 
 
+def test_rollback_restores_note_files(self: NotesTest):
+    # A set_metadata() that fails is rolled back, the files of notes it changed must be restored as well
+    from calibre.db.constants import NOTES_DB_NAME
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    cache, notes = self.create_notes_db()
+
+    def notes_files():
+        ans = {}
+        for dirpath, dirnames, filenames in os.walk(notes.notes_dir):
+            if dirpath == notes.notes_dir and 'staged' in dirnames:
+                dirnames.remove('staged')  # the undo log of the open transaction
+            for d in dirnames:
+                ans[os.path.relpath(os.path.join(dirpath, d), notes.notes_dir)] = None
+            for f in filenames:
+                path = os.path.join(dirpath, f)
+                rel = os.path.relpath(path, notes.notes_dir)
+                if not rel.startswith(NOTES_DB_NAME):
+                    with open(path, 'rb') as src:
+                        ans[rel] = src.read()
+        return ans
+
+    book_id = 1
+    cache.set_field('tags', {book_id: ['note tag', 'other tag']})
+    tag_id = cache.get_item_id('tags', 'note tag')
+    h = cache.add_notes_resource(b'resource for the note', 'r.jpg')
+    cache.set_notes_for('tags', tag_id, '<p>note</p>', resource_hashes=(h,))
+    backup = os.path.join(notes.backup_dir, 'tags', str(tag_id))
+    self.assertTrue(os.path.exists(backup))
+    self.assertTrue(os.path.exists(notes.path_for_resource(h)))
+
+    mi = Metadata('Changed title', ['Changed Author'])
+    mi.tags = ['other tag']
+    mi.comments = 'changed comments'
+    orig = cache._set_field
+
+    def failing_set_field(name, *a, **kw):
+        if name == 'comments':
+            raise OSError('injected failure')
+        return orig(name, *a, **kw)
+
+    def failing_set_metadata():
+        cache._set_field = failing_set_field
+        try:
+            self.assertRaises(OSError, cache.set_metadata, book_id, mi, set_title=False, set_authors=False)
+        finally:
+            del cache._set_field
+
+    # Removing the last use of the tag retires its note
+    before = notes_files()
+    failing_set_metadata()
+    self.ae(set(cache.field_for('tags', book_id)), {'note tag', 'other tag'})
+    self.ae(cache.notes_for('tags', tag_id), '<p>note</p>')
+    self.ae(before, notes_files())
+    cache.set_metadata(book_id, mi, set_title=False, set_authors=False)
+    self.ae(cache.field_for('tags', book_id), ('other tag',))
+    self.assertFalse(os.path.exists(backup))
+    self.assertFalse(os.path.exists(notes.path_for_resource(h)))
+    self.ae(len(os.listdir(notes.retired_dir)), 1)
+
+    # Using the tag again restores the retired note, writing its backup file and resources
+    mi.tags = ['other tag', 'note tag']
+    before = notes_files()
+    failing_set_metadata()
+    self.ae(cache.field_for('tags', book_id), ('other tag',))
+    self.ae(before, notes_files())
+    cache.set_metadata(book_id, mi, set_title=False, set_authors=False)
+    tag_id = cache.get_item_id('tags', 'note tag')
+    self.ae(cache.notes_for('tags', tag_id), '<p>note</p>')
+    self.ae(cache.get_notes_resource(h)['data'], b'resource for the note')
+    self.ae(os.listdir(notes.retired_dir), [])
+
+    # Retiring and restoring a note in the same transaction restores the current note
+    cache.set_notes_for('tags', tag_id, '<p>newer note</p>', resource_hashes=(h,))
+    with cache.write_lock, notes.file_transaction(), cache.backend.conn:
+        cache._set_field('tags', {book_id: ['other tag']})
+        cache._set_field('tags', {book_id: ['other tag', 'note tag']})
+    tag_id = cache.get_item_id('tags', 'note tag')
+    self.ae(cache.notes_for('tags', tag_id), '<p>newer note</p>')
+    self.ae(cache.get_notes_resource(h)['data'], b'resource for the note')
+
+    # A nested transaction that fails rolls back only its own changes
+    other_id = cache.get_item_id('tags', 'other tag')
+    before = notes_files()
+    with cache.write_lock, notes.file_transaction(), cache.backend.conn:
+        cache._set_notes_for('tags', other_id, '<p>other note</p>')
+        after_outer = notes_files()
+        with self.assertRaises(ValueError), notes.file_transaction(), cache.backend.conn:
+            cache._set_notes_for('tags', tag_id, '')
+            raise ValueError('injected failure')
+        self.ae(after_outer, notes_files())
+    self.ae(cache.notes_for('tags', other_id), '<p>other note</p>')
+    self.ae(cache.notes_for('tags', tag_id), '<p>newer note</p>')
+    self.assertNotEqual(before, notes_files())
+    self.assertFalse(os.path.exists(notes.staging_dir))
+
+
 class NotesTest(BaseTest):
     ae = BaseTest.assertEqual
 
@@ -260,3 +357,4 @@ class NotesTest(BaseTest):
         test_cache_api(self)
         test_notes_api(self)
         test_rename_and_delete_custom_column(self)
+        test_rollback_restores_note_files(self)
