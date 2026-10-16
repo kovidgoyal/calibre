@@ -781,6 +781,7 @@ class WritingTest(BaseTest):
         cache.set_custom_column_metadata(num, is_editable=False)
         self.assertFalse(cache.backend.custom_field_metadata(num=num)['editable'])
         cache.close()
+
     # }}}
 
     def test_composite_cache(self):  # {{{
