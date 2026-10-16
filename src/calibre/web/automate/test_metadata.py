@@ -805,10 +805,13 @@ class TestWorkerProcess(unittest.TestCase):
             with patch.dict(os.environ, {ENV_VAR: metadata.path_to_env(path)}):
                 self.assertEqual(run_in_browser('', 'launch', {})['module_version'], metadata.module_version)
                 errors: list[str] = []
+                # Requests to the same source are handled one at a time, so the
+                # recorder requests take at least 3 * delay in total
+                delay = 0.5
 
                 def record(i: int) -> None:
                     try:
-                        run_in_browser('recorder', 'record', {'id': i, 'delay': 0.2})
+                        run_in_browser('recorder', 'record', {'id': i, 'delay': delay})
                     except Exception as e:
                         errors.append(str(e))
 
@@ -821,11 +824,13 @@ class TestWorkerProcess(unittest.TestCase):
                     time.sleep(0.05)
                 # Another source is answered while those are being worked through
                 self.assertEqual(run_in_browser('other', 'record', {'id': 'other'}), {'id': 'other'})
-                self.assertLess(time.monotonic() - start, 0.5)
+                # Check the property directly rather than against a fixed time
+                # budget, which is fragile on slow CI machines
+                self.assertTrue(threads[-1].is_alive(), 'other source was held up by the recorder source')
                 for t in threads:
                     t.join(10)
                 self.assertFalse(errors)
-                self.assertGreaterEqual(time.monotonic() - start, 0.6)
+                self.assertGreaterEqual(time.monotonic() - start, 3 * delay)
                 self.assertEqual(run_in_browser('recorder', 'log', {})['handled'], [0, 1, 2])
                 with self.assertRaisesRegex(BrowserFailed, 'a handler failure'):
                     run_in_browser('recorder', 'raise', {})
