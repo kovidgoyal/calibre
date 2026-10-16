@@ -70,6 +70,11 @@ def find_tests():
     import unittest
 
     class Test(unittest.TestCase):
+        def check(self, data):
+            x = compress_doc(data)
+            self.assertEqual(py_compress_doc(data), x, f'len(data)={len(data)}')
+            self.assertEqual(decompress_doc(x), data)
+
         def test_palmdoc_compression(self):
             for test in [
                 b'abc\x03\x04\x05\x06ms',  # Test binary writing
@@ -78,9 +83,7 @@ def find_tests():
                 b'0123456789asd0123456789asd|yyzzxxffhhjjkk',
                 (b'ciewacnaq eiu743 r787q 0w%  ; sa fd\xef\ffdxosac wocjp acoiecowei owaic jociowapjcivcjpoivjporeivjpoavca; p9aw8743y6r74%$^$^%8 '),
             ]:
-                x = compress_doc(test)
-                self.assertEqual(py_compress_doc(test), x)
-                self.assertEqual(decompress_doc(x), test)
+                self.check(test)
 
         def test_palmdoc_compression_matches_reference(self):
             # The match finder in the C implementation must find the same
@@ -89,20 +92,28 @@ def find_tests():
             import random
 
             rnd = random.Random(0)
-            tests = []
             for alphabet in (2, 3, 4, 16, 200):
-                for size in (50, 500, 2500, 4096):
-                    tests.append(bytes(rnd.randrange(1, alphabet + 1) for _ in range(size)))
-            for gap in range(2040, 2056):
+                self.check(bytes(rnd.randrange(1, alphabet + 1) for _ in range(400)))
+            words = [bytes(rnd.randrange(97, 123) for _ in range(rnd.randrange(1, 9))) for _ in range(50)]
+            self.check(b' '.join(rnd.choice(words) for _ in range(150)))
+            self.check(bytes(rnd.randrange(0, 256) for _ in range(300)))
+            for gap in range(2045, 2050):  # repeat distance of 2047 is the maximum
                 base = bytes(rnd.randrange(32, 127) for _ in range(12))
                 filler = bytes(rnd.randrange(128, 255) for _ in range(gap - 12))
-                tests.append(base + filler + base + b'tail')
-            tests.append(b'abcdefghij' * 700)
-            tests.append(b'\0' * 5000)
-            for test in tests:
-                x = compress_doc(test)
-                self.assertEqual(py_compress_doc(test), x)
-                self.assertEqual(decompress_doc(x), test)
+                self.check(base + filler + base + b'tail')
+            self.check(b'abcdefghij' * 50)
+            self.check(b'\0' * 500)
+
+        def test_palmdoc_compression_edge_cases(self):
+            self.assertEqual(cPalmdoc.compress(b''), b'')
+            self.assertEqual(compress_doc(b''), b'')
+            for size in range(1, 25):  # around the 10 byte margins at either end
+                self.check(b'x' * size)
+                self.check(bytes(range(1, size + 1)))
+                self.check(b'ab ' * size)
+            # control and high bytes are written as binary runs of at most 8 bytes
+            self.check(bytes(range(1, 9)) * 3 + bytes(range(0x80, 0x100)) + b'end')
+            self.check(b'abc\x01' + b'\x80' * 20 + b'abc\x01' + b'\x80' * 20)
 
         def test_palmdoc_space_and_char_at_end(self):
             # A space followed by a character in 0x40-0x7F is packed into a

@@ -14,6 +14,7 @@
 #include <Python.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #define BUFFER 6000
 
@@ -118,19 +119,19 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
 #define HASH_BITS 16
 #define HASH_SIZE (1 << HASH_BITS)
 
-static inline unsigned int
+static inline uint32_t
 cpalmdoc_hash(const Byte *p) {
-    return (((unsigned int)p[0] << 16 | (unsigned int)p[1] << 8 | p[2]) * 2654435761u) >> (32 - HASH_BITS);
+    return (((uint32_t)p[0] << 16 | (uint32_t)p[1] << 8 | p[2]) * UINT32_C(2654435761)) >> (32 - HASH_BITS);
 }
 
 // Add positions [*indexed, pos) to the hash chains. head[h] is the nearest
 // indexed position with hash h and prev[p] the next nearest one after p,
-// both -1 at the end of the chain.
+// both -1 at the end of the chain. The caller must ensure that
+// MIN_MATCH_LEN bytes are available at every position below pos.
 static void
 cpalmdoc_index_positions(const buffer *b, int32_t *head, int32_t *prev, Py_ssize_t *indexed, Py_ssize_t pos) {
     for (; *indexed < pos; (*indexed)++) {
-        if (*indexed + MIN_MATCH_LEN > b->len) continue;
-        unsigned int h = cpalmdoc_hash(b->data + *indexed);
+        uint32_t h = cpalmdoc_hash(b->data + *indexed);
         prev[*indexed] = head[h];
         head[h] = (int32_t)*indexed;
     }
@@ -151,7 +152,7 @@ cpalmdoc_find_match(const buffer *b, const int32_t *head, const int32_t *prev, P
         if (d > MAX_MATCH_DIST) break;
         const Byte *cand = b->data + p;
         for (len = 0; len < MAX_MATCH_LEN && cand[len] == cur[len]; len++);
-        if (len > d) len = d;  // the match must end at or before pos
+        if (len > d) len = d; // the match must end at or before pos
         if (len > best) {
             best = len;
             *dist = d;
@@ -161,33 +162,33 @@ cpalmdoc_find_match(const buffer *b, const int32_t *head, const int32_t *prev, P
     return best >= MIN_MATCH_LEN ? best : 0;
 }
 
-
+// Compress b into output, returning the number of bytes written, or -1 with
+// a Python exception set on failure.
 static Py_ssize_t
 cpalmdoc_do_compress(buffer *b, char *output, Py_ssize_t output_len) {
     Py_ssize_t i = 0, j, chunk_len, dist = 0, indexed = 0;
     unsigned int compound;
     Byte c, n;
-    bool found;
     char *out_start = output, *end = output + output_len;
-    buffer temp;
+    Byte temp[8];
+    Py_ssize_t temp_len;
     int32_t *hash_head, *hash_prev;
-    temp.data = (Byte *)PyMem_Malloc(sizeof(Byte) * 8);
-    temp.len = 0;
-    if (temp.data == NULL) return 0;
-    // positions are stored as int32_t
-    hash_head = b->len > INT32_MAX ? NULL : (int32_t *)PyMem_Malloc(sizeof(int32_t) * (HASH_SIZE + b->len));
+    if (b->len > INT32_MAX) { // positions are stored as int32_t
+        PyErr_SetString(PyExc_OverflowError, "Input too large for palmdoc compression");
+        return -1;
+    }
+    hash_head = (int32_t *)PyMem_Malloc(sizeof(int32_t) * (HASH_SIZE + b->len));
     if (hash_head == NULL) {
-        PyMem_Free(temp.data);
         PyErr_NoMemory();
-        return 0;
+        return -1;
     }
     hash_prev = hash_head + HASH_SIZE;
-    for (j = 0; j < HASH_SIZE; j++) hash_head[j] = -1;
-#define NEED(n)                   \
-    if (output + n > end) {       \
-        PyMem_Free(temp.data);    \
-        PyMem_Free(hash_head);    \
-        return -1;                \
+    memset(hash_head, 0xff, sizeof(int32_t) * HASH_SIZE); // all -1
+#define NEED(n)                                                                            \
+    if (output + n > end) {                                                                \
+        PyMem_Free(hash_head);                                                             \
+        PyErr_SetString(PyExc_RuntimeError, "palmdoc compression output buffer overflow"); \
+        return -1;                                                                         \
     }
 #define WRITE(ch) *(output++) = ch;
 #define CHECK_WRITE(ch) \
@@ -198,18 +199,16 @@ cpalmdoc_do_compress(buffer *b, char *output, Py_ssize_t output_len) {
         c = b->data[i];
         // do repeats
         if (i > 10 && (b->len - i) > 10) {
-            found = false;
             cpalmdoc_index_positions(b, hash_head, hash_prev, &indexed, i);
             chunk_len = cpalmdoc_find_match(b, hash_head, hash_prev, i, &dist);
             if (chunk_len > 0) {
-                found = true;
                 compound = (unsigned int)((dist << 3) + chunk_len - 3);
                 NEED(2);
                 WRITE(CHAR(0x80 + (compound >> 8)));
                 WRITE(CHAR(compound & 0xFF));
                 i += chunk_len;
+                continue;
             }
-            if (found) continue;
         }
 
         // write single character
@@ -226,24 +225,23 @@ cpalmdoc_do_compress(buffer *b, char *output, Py_ssize_t output_len) {
             CHECK_WRITE(CHAR(c));
         } else { // Write binary data
             j = i;
-            temp.data[0] = c;
-            temp.len = 1;
-            while (j < b->len && temp.len < 8) {
+            temp[0] = c;
+            temp_len = 1;
+            while (j < b->len && temp_len < 8) {
                 c = b->data[j];
                 if (c == 0 || (c > 8 && c < 0x80)) break;
-                temp.data[temp.len++] = c;
+                temp[temp_len++] = c;
                 j++;
             }
-            i += temp.len - 1;
-            CHECK_WRITE((char)temp.len);
-            NEED(temp.len);
-            for (j = 0; j < temp.len; j++) { WRITE((char)temp.data[j]); }
+            i += temp_len - 1;
+            CHECK_WRITE((char)temp_len);
+            NEED(temp_len);
+            for (j = 0; j < temp_len; j++) { WRITE((char)temp[j]); }
         }
     }
 #undef NEED
 #undef WRITE
 #undef CHECK_WRITE
-    PyMem_Free(temp.data);
     PyMem_Free(hash_head);
     return output - out_start;
 }
@@ -266,9 +264,12 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     // compression results in a larger block
     Py_ssize_t output_len = (2 * b.len + 1);
     output = (char *)PyMem_Malloc(sizeof(char) * output_len);
-    if (output == NULL) return PyErr_NoMemory();
+    if (output == NULL) {
+        PyMem_Free(b.data);
+        return PyErr_NoMemory();
+    }
     j = cpalmdoc_do_compress(&b, output, output_len);
-    if (j != 0) ans = Py_BuildValue("y#", output, j);
+    if (j >= 0) ans = Py_BuildValue("y#", output, j);
     PyMem_Free(output);
     PyMem_Free(b.data);
     return ans;
