@@ -2167,13 +2167,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.drawRect(spine_rect.adjusted(gap, gap, -gap, -gap))
         painter.restore()
 
-    @lru_cache(maxsize=128)
+    @lru_cache(maxsize=128)  # noqa: B019
     def get_sized_font(self, sz: float = 9, for_divider: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
         font = QFont(self.divider_font if for_divider else self.spine_font)
         font.setPointSizeF(sz)
         return font, QFontMetricsF(font), QFontInfo(font)
 
-    @lru_cache(maxsize=4096)
+    @lru_cache(maxsize=4096)  # noqa: B019
     def get_text_metrics(
         self,
         first_line: str,

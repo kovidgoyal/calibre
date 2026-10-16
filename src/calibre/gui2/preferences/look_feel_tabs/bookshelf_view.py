@@ -3,7 +3,7 @@
 
 import os
 from contextlib import suppress
-from functools import lru_cache, partial
+from functools import partial
 
 from qt.core import QDialog, QDialogButtonBox, QFontInfo, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
@@ -341,7 +341,6 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
             template = f'{{{key}:width_from_pages()}}'
             self.opt_bookshelf_spine_size_template.setText(template)
 
-    @lru_cache(maxsize=2)
     def color_label_map(self) -> dict[str, str]:
         return {
             'text_color_for_light_background': _('Text on &light spine background'),

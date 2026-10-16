@@ -216,6 +216,7 @@ class Command:
         self.real_uid = os.environ.get('SUDO_UID', None)
         self.real_gid = os.environ.get('SUDO_GID', None)
         self.real_user = os.environ.get('SUDO_USER', None)
+        self._venv_instaled = False
 
     def pre_sub_commands(self, opts):
         pass
@@ -287,13 +288,15 @@ class Command:
     def clean(self):
         pass
 
-    @lru_cache(maxsize=2)
     def ensure_venv(self) -> None:
+        if self._venv_instaled:
+            return
         venv_dir = self.j(self.PROJECT_ROOT, '.venv')
         if not self.e(venv_dir):
             subprocess.check_call(['uv', 'venv'], cwd=self.PROJECT_ROOT)
         deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml', '--group', 'dev'], cwd=self.PROJECT_ROOT)
         subprocess.run(['uv', 'pip', 'sync', '-'], check=True, input=deps, cwd=self.PROJECT_ROOT)
+        self._venv_instaled = True
 
     @classmethod
     def newer(cls, targets, sources):

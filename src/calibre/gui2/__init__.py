@@ -147,7 +147,7 @@ class IconResourceManager:
         self.light_theme_name = self.user_light_theme_name or any_light or self.default_light_theme_name
         # self.dump_available_icon_resource_names()
 
-    @lru_cache(maxsize=4)
+    @lru_cache(maxsize=4)  # noqa: B019
     def user_icon_theme_metadata(self, which):
         path = self.user_theme_resource_file(which)
         if path not in self.registered_user_resource_files:
@@ -1640,11 +1640,11 @@ class Application(QApplication):
 
         load_builtin_fonts()
 
-    @lru_cache(maxsize=256)
+    @lru_cache(maxsize=256)  # noqa: B019
     def cached_qimage(self, name, device_pixel_ratio=0):
         return self.cached_qpixmap(name, device_pixel_ratio).toImage()
 
-    @lru_cache(maxsize=256)
+    @lru_cache(maxsize=256)  # noqa: B019
     def cached_qpixmap(self, name, device_pixel_ratio=0):
         # get the actual size of the image since QIcon does not tell us this for
         # icons loaded from a theme

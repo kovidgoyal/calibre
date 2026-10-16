@@ -445,6 +445,19 @@ jump = Jump()
 # Images {{{
 
 
+@lru_cache(maxsize=1024)
+def get_pixmap(thumbnail_height, entry, dpr):
+    entry_ok = entry.width > 0 and entry.height > 0
+    entry_ok |= entry.mime_type == 'image/svg+xml'
+    pmap = QPixmap(current_container().name_to_abspath(entry.name)) if entry_ok > 0 else QPixmap()
+    if not pmap.isNull():
+        pmap.setDevicePixelRatio(dpr)
+        scaled, width, height = fit_image(pmap.width(), pmap.height(), thumbnail_height, thumbnail_height)
+        if scaled:
+            pmap = pmap.scaled(width, height, transformMode=Qt.TransformationMode.SmoothTransformation)
+    return pmap
+
+
 class ImagesDelegate(QStyledItemDelegate):
     MARGIN = 5
 
@@ -510,17 +523,8 @@ class ImagesDelegate(QStyledItemDelegate):
         painter.drawText(rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, entry.basename)
         painter.restore()
 
-    @lru_cache(maxsize=1024)
     def pixmap(self, thumbnail_height, entry, dpr):
-        entry_ok = entry.width > 0 and entry.height > 0
-        entry_ok |= entry.mime_type == 'image/svg+xml'
-        pmap = QPixmap(current_container().name_to_abspath(entry.name)) if entry_ok > 0 else QPixmap()
-        if not pmap.isNull():
-            pmap.setDevicePixelRatio(dpr)
-            scaled, width, height = fit_image(pmap.width(), pmap.height(), thumbnail_height, thumbnail_height)
-            if scaled:
-                pmap = pmap.scaled(width, height, transformMode=Qt.TransformationMode.SmoothTransformation)
-        return pmap
+        return get_pixmap(thumbnail_height, entry, dpr)
 
 
 class ImagesModel(FileCollection):
@@ -604,7 +608,6 @@ class ImagesWidget(QWidget):
     def __call__(self, data):
         self.model(data)
         self.filter_edit.clear()
-        self.delegate.pixmap.cache_clear()
         self.files.resizeRowsToContents()
 
     def resize_to_contents(self, *args):
