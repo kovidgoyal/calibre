@@ -251,7 +251,7 @@ def conversion_status(ctx, rd, job_id):
             except NoSuchBook:
                 raise HTTPNotFound(f'book_id {job_status.book_id} not found in library')
             run_plugins_on_postconvert(db, job_status.book_id, fmt)
-            ctx.notify_changes(db.backend.library_path, formats_added({job_status.book_id: (fmt,)}))
+            ctx.notify_changes(db.backend.library_path, formats_added({job_status.book_id: (fmt.upper(),)}))
             ans['size'] = os.path.getsize(job_status.output_path)
             ans['fmt'] = fmt
         return ans

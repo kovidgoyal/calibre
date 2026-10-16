@@ -182,7 +182,7 @@ class TestServer(Thread):
 
 
 class LibraryServer(TestServer):
-    def __init__(self, library_path, libraries=(), plugins=(), **kwargs):
+    def __init__(self, library_path, libraries=(), plugins=(), notify_changes=None, **kwargs):
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.handler import Handler
         from calibre.srv.http_response import create_http_handler
@@ -192,7 +192,7 @@ class LibraryServer(TestServer):
         self.setup_defaults(kwargs)
         opts = Options(**kwargs)
         self.libraries = libraries or (library_path,)
-        self.handler = Handler(self.libraries, opts, testing=True)
+        self.handler = Handler(self.libraries, opts, testing=True, notify_changes=notify_changes)
         self.loop = ServerLoop(
             create_http_handler(self.handler.dispatch),
             opts=opts,

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
+import os
 from contextlib import closing
 from http.client import OK
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from calibre.srv.changes import FormatsAdded
 from calibre.srv.convert import FORBIDDEN_CLIENT_OPTIONS, JobStatus, conversion_jobs, get_conversion_options, sanitize_conversion_options
@@ -15,7 +16,8 @@ from calibre.srv.tests.base import LibraryBaseTest
 class ConvertTest(LibraryBaseTest):
     def test_conversion_status_notification(self):
         "Notify the GUI only when a completed conversion adds a format to the library"
-        with self.create_server(auth=True, auth_mode='basic') as server:
+        notify = Mock()
+        with self.create_server(auth=True, auth_mode='basic', notify_changes=notify) as server:
             ctx = server.handler.router.ctx
             ctx.user_manager.add_user('testuser', 'testpw')
             db = ctx.library_broker.get(None)
@@ -23,13 +25,17 @@ class ConvertTest(LibraryBaseTest):
             data = b'converted text'
             with closing(server.connect()) as conn:
                 for ok in (False, True):
+                    notify.reset_mock()
                     with self.subTest(ok=ok), TemporaryDirectory() as tdir:
-                        job = JobStatus(1, book_id, tdir, db.server_library_id, '', {'output_fmt': 'TXT'})
+                        # The endpoint deletes the job directory, so use a sub-directory of tdir
+                        jobdir = os.path.join(tdir, 'job')
+                        os.mkdir(jobdir)
+                        job = JobStatus(1, book_id, jobdir, db.server_library_id, '', {'output_fmt': 'TXT'})
                         job.running = False
                         job.ok = ok
                         with open(job.output_path, 'wb') as f:
                             f.write(data)
-                        with patch.dict(conversion_jobs, {job.job_id: job}), patch.object(ctx, '_notify_changes') as notify:
+                        with patch.dict(conversion_jobs, {job.job_id: job}):
                             r, result = make_request(
                                 conn,
                                 f'/conversion/status/{job.job_id}',
@@ -46,7 +52,7 @@ class ConvertTest(LibraryBaseTest):
                                 library_path, change = notify.call_args.args
                                 self.ae(library_path, db.backend.library_path)
                                 self.assertIsInstance(change, FormatsAdded)
-                                self.ae(change.formats_map, {book_id: ('txt',)})
+                                self.ae(change.formats_map, {book_id: ('TXT',)})
                             else:
                                 self.assertFalse(db.has_format(book_id, 'TXT'))
                                 notify.assert_not_called()
