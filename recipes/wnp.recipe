@@ -11,7 +11,7 @@ class WNP(BasicNewsRecipe):
     category = 'economy'
     language = 'pl'
     preprocess_regexps = [
-        (re.compile('Czytaj też:.*?</a>', re.DOTALL), lambda match: ''),  # noqa: RUF039
+        (re.compile(r'Czytaj też:.*?</a>', re.DOTALL), lambda match: ''),
         (re.compile(r'Czytaj więcej:.*?</a>', re.DOTALL), lambda match: ''),
     ]
     oldest_article = 8

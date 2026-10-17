@@ -22,7 +22,7 @@ class DziennikWschodni(BasicNewsRecipe):
 
     preprocess_regexps = [
         (re.compile(r'Czytaj:.*?</a>', re.DOTALL), lambda match: ''),
-        (re.compile('Przeczytaj także:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa: RUF039
+        (re.compile(r'Przeczytaj także:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),
         (re.compile(r'Przeczytaj również:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),
         (re.compile(r'Zobacz też:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),
     ]

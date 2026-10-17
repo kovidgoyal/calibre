@@ -569,12 +569,16 @@ def test_widget(category, name, gui=None, callback=None):
     show_config_widget(category, name, gui=gui, show_restart_msg=True, callback=callback)
 
 
-if __name__ == '__main__':
+def test_all():
     from qt.core import QApplication
 
-    app = QApplication([])
+    _app = QApplication([])
     gui = init_gui()
     for plugin in preferences_plugins():
         test_widget(plugin.category, plugin.name, gui=gui)
     gui.shutdown()
+
+
+if __name__ == '__main__':
+    test_all()
 # }}}

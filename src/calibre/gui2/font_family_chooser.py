@@ -394,12 +394,16 @@ class FontFamilyChooser(QWidget):
             self.font_family = d.font_family
 
 
-if __name__ == '__main__':
+def test():
     from calibre.gui2 import Application
 
-    app = Application([])
+    _app = Application([])
     d = QDialog()
     l = QVBoxLayout(d)
     l.addWidget(FontFamilyChooser(d))
     l.addWidget(QFontComboBox(d))
     d.exec()
+
+
+if __name__ == '__main__':
+    test()

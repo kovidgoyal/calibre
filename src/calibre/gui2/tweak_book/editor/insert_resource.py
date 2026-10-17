@@ -554,10 +554,10 @@ class NewBook(Dialog):  # {{{
 # }}}
 
 if __name__ == '__main__':
+    _app = QApplication([])
     from calibre.gui2.tweak_book import set_current_container
     from calibre.gui2.tweak_book.boss import get_container
 
-    app = QApplication([])
     set_current_container(get_container(sys.argv[-1]))
 
     d = InsertImage(for_browsing=True)
