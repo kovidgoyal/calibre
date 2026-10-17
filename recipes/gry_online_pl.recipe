@@ -36,7 +36,7 @@ class GryOnlinePl(BasicNewsRecipe):
                 'social-for-old-rec',
             ]
         }
-    ]  # noqa: E501
+    ]
     feeds = [('Newsy', 'http://www.gry-online.pl/rss/news.xml'), ('Teksty', 'http://www.gry-online.pl/rss/teksty.xml')]
 
     def append_page(self, soup, appendtag):

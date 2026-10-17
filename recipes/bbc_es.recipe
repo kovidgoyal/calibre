@@ -51,7 +51,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
                     'list li-relatedinternetlinks',
                 ]
             },
-        ),  # noqa: E501
+        ),
     ]
 
     feeds = [

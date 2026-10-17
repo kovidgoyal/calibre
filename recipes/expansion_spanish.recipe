@@ -51,7 +51,7 @@ class expansion_spanish(BasicNewsRecipe):
                     'sumario derecha',
                 ]
             },
-        ),  # noqa: E501
+        ),
         dict(name='ul', attrs={'class': ['bolos_desarrollo_noticia', 'not_logged']}),
         dict(name='span', attrs={'class': ['comentarios']}),
         dict(name='p', attrs={'class': ['cintillo_comentarios', 'cintillo_comentarios formulario']}),

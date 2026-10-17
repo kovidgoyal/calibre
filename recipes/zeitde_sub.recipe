@@ -124,13 +124,13 @@ class ZeitEPUBAbo(BasicNewsRecipe):
                 r'(?<=\d)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'
             ),
             lambda match: ' ',
-        ),  # noqa: E501
+        ),
         (
             re.compile(
                 r'(?<=\d\.)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'
             ),
             lambda match: ' ',
-        ),  # noqa: E501
+        ),
         # fix wrong spaces
         # at beginning of paragraphs
         (re.compile(r'(?<=<p class="absatz">[A-ZÄÖÜ]) (?=[a-zäöü\-])'), lambda match: ''),

@@ -8,7 +8,7 @@ class Gagadget(BasicNewsRecipe):
     title = 'Gagadget'
     # Russian
     description = (
-        'Gagadget.com - \u043d\u0435\u0441\u043a\u0443\u0447\u043d\u044b\u0439 \u0441\u0430\u0439\u0442 \u043e \u0442\u0435\u0445\u043d\u0438\u043a\u0435.'  # noqa: E501
+        'Gagadget.com - \u043d\u0435\u0441\u043a\u0443\u0447\u043d\u044b\u0439 \u0441\u0430\u0439\u0442 \u043e \u0442\u0435\u0445\u043d\u0438\u043a\u0435.'
     )
     __author__ = 'bugmen00t'
     publisher = 'Gagadget'

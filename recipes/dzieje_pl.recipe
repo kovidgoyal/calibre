@@ -39,7 +39,7 @@ class Dzieje(BasicNewsRecipe):
                             'field field-type-filefield field-field-zdjecieglownawyd',
                         ]
                     }
-                ):  # noqa: E501
+                ):
                     r.extract()
                 comments = pagetext.findAll(text=lambda text: isinstance(text, Comment))
                 # appendtag.insert(pos, pagetext)

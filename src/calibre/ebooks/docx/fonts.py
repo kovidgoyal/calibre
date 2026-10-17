@@ -352,7 +352,7 @@ SYMBOL_MAPS = {  # {{{
         '🗷',
         '🗹',
         ' ',
-    ),  # noqa: E501
+    ),
     'Wingdings 2': (
         ' ',
         ' ',
@@ -610,7 +610,7 @@ SYMBOL_MAPS = {  # {{{
         ' ',
         ' ',
         ' ',
-    ),  # noqa: E501
+    ),
     'Wingdings 3': (
         ' ',
         ' ',
@@ -868,7 +868,7 @@ SYMBOL_MAPS = {  # {{{
         ' ',
         ' ',
         ' ',
-    ),  # noqa: E501
+    ),
     'Webdings': (
         ' ',
         ' ',
@@ -1126,7 +1126,7 @@ SYMBOL_MAPS = {  # {{{
         '🌏',
         '🌎',
         '🕊',
-    ),  # noqa: E501
+    ),
     'Symbol': (
         ' ',
         ' ',
@@ -1384,7 +1384,7 @@ SYMBOL_MAPS = {  # {{{
         '⎫',
         '⎬',
         ' ',
-    ),  # noqa: E501
+    ),
 }  # }}}
 
 SYMBOL_FONT_NAMES = frozenset(n.lower() for n in SYMBOL_MAPS)

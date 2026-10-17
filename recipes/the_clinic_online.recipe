@@ -23,7 +23,7 @@ class AdvancedUserRecipe1313555075(BasicNewsRecipe):
     remove_tags = [
         dict(name='span', attrs={'class': 'relTags'}),
         dict(name='div', attrs={'class': 'articleActivity hdcol'}),
-        dict(name='div', attrs={'id': 'commentsSection'}),  # noqa: E501
+        dict(name='div', attrs={'id': 'commentsSection'}),
     ]
 
     feeds = [('The Clinic Online', 'http://www.theclinic.cl/feed/')]

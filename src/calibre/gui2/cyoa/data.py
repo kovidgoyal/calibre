@@ -136,7 +136,7 @@ class TextDisplaySettings(NamedTuple):
     max_line_width: int = DEFAULT_MAX_LINE_WIDTH  # in characters, zero means no limit
 
 
-def as_int(x: Any, default: int = 0) -> int:  # noqa: ANN401
+def as_int(x: Any, default: int = 0) -> int:
     # Values in the preferences file can be anything, it is user editable
     try:
         return int(x)
@@ -288,14 +288,14 @@ class SceneImage(NamedTuple):
     prompt: str = ''
 
 
-def validated_portrait(x: Any) -> dict[str, str] | None:  # noqa: ANN401
+def validated_portrait(x: Any) -> dict[str, str] | None:
     # A character portrait in stored form, or None when it is unusable.
     if isinstance(x, dict) and isinstance(mime := x.get('mime'), str) and isinstance(raw := x.get('data'), str) and mime and raw:
         return {'mime': mime, 'data': raw}
     return None
 
 
-def validated_portraits(x: Any) -> dict[str, dict[str, str]]:  # noqa: ANN401
+def validated_portraits(x: Any) -> dict[str, dict[str, str]]:
     # Character portraits keyed by character id, with unusable entries dropped.
     ans: dict[str, dict[str, str]] = {}
     if isinstance(x, dict):

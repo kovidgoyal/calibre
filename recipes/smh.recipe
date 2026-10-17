@@ -10,7 +10,7 @@ class Smh_au(BasicNewsRecipe):
     title = 'The Sydney Morning Herald'
     __author__ = 'Darko Miletic'
     description = (
-        'Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news.'  # noqa: E501
+        'Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news.'
     )
     publisher = 'Fairfax Digital'
     category = 'news, politics, Australia, Sydney'

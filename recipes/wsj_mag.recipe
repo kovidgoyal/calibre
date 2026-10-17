@@ -18,7 +18,7 @@ def get_article(article_id):
         'User-Agent': 'okhttp/4.10.0',
         'Accept-Encoding': 'gzip',
         'Cache-Control': 'no-cache',
-        'x-api-key': ('e05995ff442143255eb8381f72d4913bf7503d6c'),  # noqa: ISC001
+        'x-api-key': ('e05995ff442143255eb8381f72d4913bf7503d6c'),
     }
     br = browser()
     req = Request(
