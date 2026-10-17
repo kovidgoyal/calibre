@@ -34,7 +34,7 @@ def single_text(x):
     x = long_text(x)
     if x is None:
         return x
-    return ' '.join(x.split())
+    return ' '.join(x.splitlines())
 
 
 series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
