@@ -178,7 +178,7 @@ class TextureChooser(QDialog):
 
 
 if __name__ == '__main__':
-    app = QApplication([])  # noqa: F841
+    app = QApplication([])
     d = TextureChooser()
     d.exec()
     print(d.texture)

@@ -118,7 +118,7 @@ history_length(2000) #value of -1 means no limit
         import atexit
         import readline
 
-        import pyreadline.unicode_helper  # noqa: F401  # type: ignore
+        import pyreadline.unicode_helper  # type: ignore
         # Normally the codepage for pyreadline is set to be sys.stdout.encoding
         # if you need to change this uncomment the following line
         # pyreadline.unicode_helper.pyreadline_codepage="utf8"

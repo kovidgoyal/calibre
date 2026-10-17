@@ -38,7 +38,7 @@ class Adevarul(BasicNewsRecipe):
         dict(name='form', attrs={'id': 'bb-comment-create-form'}),
         dict(name='div', attrs={'id': 'mediatag'}),
         dict(name='div', attrs={'id': 'ft'}),
-        dict(name='div', attrs={'id': 'comment_wrapper'}),  # noqa: E501
+        dict(name='div', attrs={'id': 'comment_wrapper'}),
     ]
 
     remove_tags_after = [

@@ -12,10 +12,10 @@ class NaTemat(BasicNewsRecipe):
     category = 'news'
     language = 'pl'
     preprocess_regexps = [
-        (re.compile('Czytaj też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
-        (re.compile('Zobacz też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
-        (re.compile('Czytaj więcej\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
-        (re.compile('Czytaj również\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
+        (re.compile('Czytaj też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
+        (re.compile('Zobacz też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
+        (re.compile('Czytaj więcej\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
+        (re.compile('Czytaj również\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
     ]
     cover_url = 'http://blog.plona.pl/wp-content/uploads/2012/05/natemat.png'
     no_stylesheets = True

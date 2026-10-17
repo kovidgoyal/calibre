@@ -41,7 +41,7 @@ class PhilippineDailyInquirer(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'breadcrumbs'}),
         dict(name='div', attrs={'id': 'search_container'}),
         dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1143'}),
-        dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1147'}),  # noqa: E501
+        dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1147'}),
     ]
 
     conversion_options = {

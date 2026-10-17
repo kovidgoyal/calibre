@@ -1708,7 +1708,7 @@ class StoreArchiveOrgStore(StoreBase):
 class StoreBubokPublishingStore(StoreBase):
     name = 'Bubok Spain'
     description = (
-        'Bubok Publishing is a publisher, library and store of books of authors from all around the world. They have a big amount of books of a lot of topics'  # noqa: E501
+        'Bubok Publishing is a publisher, library and store of books of authors from all around the world. They have a big amount of books of a lot of topics'
     )
     actual_plugin = 'calibre.gui2.store.stores.bubok_publishing_plugin:BubokPublishingStore'
 
@@ -1720,7 +1720,7 @@ class StoreBubokPublishingStore(StoreBase):
 class StoreBubokPortugalStore(StoreBase):
     name = 'Bubok Portugal'
     description = (
-        'Bubok Publishing Portugal is a publisher, library and store of books of authors from Portugal. They have a big amount of books of a lot of topics'  # noqa: E501
+        'Bubok Publishing Portugal is a publisher, library and store of books of authors from Portugal. They have a big amount of books of a lot of topics'
     )
     actual_plugin = 'calibre.gui2.store.stores.bubok_portugal_plugin:BubokPortugalStore'
 

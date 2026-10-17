@@ -276,7 +276,7 @@ class Matches(QAbstractItemModel):
                 else:
                     return (
                         '<p>'
-                        + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.')  # noqa: E501
+                        + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.')
                         + '</p>'
                     )
             elif col == 4:

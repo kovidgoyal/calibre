@@ -46,7 +46,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
         ),
         dict(name='div', attrs={'class': ['boxed', 'description', 'lead', 'article-content', 'cuerpo estirar']}),
         dict(name='span', attrs={'class': ['photo-bar']}),
-        dict(name='ul', attrs={'class': ['article-author']}),  # noqa: E501
+        dict(name='ul', attrs={'class': ['article-author']}),
     ]
 
     remove_tags_before = dict(name='ul', attrs={'class': ['servicios-sub']})
@@ -99,7 +99,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
         ),
         dict(name='ul', attrs={'class': ['article-user-actions', 'stripped-list']}),
         dict(name='ul', attrs={'id': ['site-links']}),
-        dict(name='li', attrs={'class': ['puntuacion', 'enviar', 'compartir']}),  # noqa: E501
+        dict(name='li', attrs={'class': ['puntuacion', 'enviar', 'compartir']}),
     ]
 
     extra_css = '''

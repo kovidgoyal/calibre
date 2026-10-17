@@ -41,7 +41,7 @@ class DiarioSport(BasicNewsRecipe):
         dict(name='p', attrs={'class': ['masinformacion', 'hora']}),
         dict(name='a', attrs={'class': ["'link'"]}),
         dict(name='div', attrs={'class': ['addthis_toolbox addthis_default_style', 'firma', 'pretitularnoticia']}),
-        dict(name='form', attrs={'id': ['formularioDeBusquedaAvanzada']}),  # noqa: E501
+        dict(name='form', attrs={'id': ['formularioDeBusquedaAvanzada']}),
     ]
 
     def preprocess_html(self, soup):

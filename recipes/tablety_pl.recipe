@@ -18,7 +18,7 @@ class Tablety_pl(BasicNewsRecipe):
     preprocess_regexps = [
         (re.compile('<p><strong>Przeczytaj także.*?</a></strong></p>', re.DOTALL), lambda match: ''),  # noqa: RUF039
         (re.compile(r'<p><strong>Przeczytaj koniecznie.*?</a></strong></p>', re.DOTALL), lambda match: ''),
-    ]  # noqa: RUF039
+    ]
     keep_only_tags = [dict(attrs={'class': ['featured-image', 'article-content clearfix']})]
     remove_tags = [
         dict(attrs={'class': ['comments_icon', 'wp-polls', 'entry-comments', 'wp-polls-loading', 'ts-fab-wrapper', 'entry-footer', 'social-custom']})

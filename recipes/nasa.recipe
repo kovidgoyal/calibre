@@ -51,7 +51,7 @@ class NASA(BasicNewsRecipe):
             (
                 r'<body.*?((<div id="article_body">)|(<div id="st-page-maincontent">)|(<div id="containermain">)|(<p class="ap-story-p">)|(<!-- img_nav -->))',
                 lambda match: '<body><div>',
-            ),  # noqa: E501
+            ),
             # Remove any links/ads/comments/cruft from the end of the body
             # of the article.
             (

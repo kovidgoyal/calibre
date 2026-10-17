@@ -53,7 +53,7 @@ class Onemagazine(BasicNewsRecipe):
         dict(name='span', attrs={'class': ['photo']}),
         dict(name='div', attrs={'class': ['counter']}),
         dict(name='div', attrs={'class': ['carousel']}),
-        dict(name='div', attrs={'class': ['jcarousel-container jcarousel-container-horizontal']}),  # noqa: E501
+        dict(name='div', attrs={'class': ['jcarousel-container jcarousel-container-horizontal']}),
     ]
 
     remove_tags_after = [dict(name='table', attrs={'class': ['connect_widget_interactive_area']})]

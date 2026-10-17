@@ -39,7 +39,7 @@ class AdvancedUserRecipe1328535130(BasicNewsRecipe):
     no_stylesheets = True
     feeds = [('Onda Rock', 'http://www.ondarock.it/feed.php')]
     masthead_url = (
-        'http://api.ning.com/files/4ot8ampp*-rYQuwL2NoaHvVqcyu7VMyWyan12a9QMsJUWxk-q5V1-34wnD-Wj9B5qWjc1yPMLGiwQg8hZJxaySeaG2lx8hpV/2009_banner_ondarock.gif'  # noqa: E501
+        'http://api.ning.com/files/4ot8ampp*-rYQuwL2NoaHvVqcyu7VMyWyan12a9QMsJUWxk-q5V1-34wnD-Wj9B5qWjc1yPMLGiwQg8hZJxaySeaG2lx8hpV/2009_banner_ondarock.gif'
     )
 
     extra_css = '''

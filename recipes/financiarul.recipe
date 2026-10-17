@@ -34,7 +34,7 @@ class Financiarul(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'separator separatorTop'}),
         dict(name='div', attrs={'class': 'infoArticol infoArticolBottom'}),
         dict(name='ul', attrs={'class': ['related']}),
-        dict(name='div', attrs={'class': ['slot panel300 panelGri300 panelGri300s panelGri300sm']}),  # noqa: E501
+        dict(name='div', attrs={'class': ['slot panel300 panelGri300 panelGri300s panelGri300sm']}),
     ]
 
     remove_tags_after = [dict(name='ul', attrs={'class': ['related']})]

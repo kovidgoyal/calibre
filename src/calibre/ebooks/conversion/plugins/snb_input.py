@@ -20,7 +20,7 @@ def html_encode(s):
         .replace("'", '&apos;')
         .replace('\n', '<br/>')
         .replace(' ', '&nbsp;')
-    )  # noqa: E501
+    )
 
 
 class SNBInput(InputFormatPlugin):

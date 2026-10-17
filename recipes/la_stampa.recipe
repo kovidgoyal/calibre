@@ -50,7 +50,7 @@ class LaStampa(BasicNewsRecipe):
                     'ls-blog-list-1col',
                 ]
             }
-        ),  # noqa: E501
+        ),
         dict(name='div', attrs={'id': 'corpoarticolo'}),
     ]
 

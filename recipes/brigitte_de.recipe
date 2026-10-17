@@ -32,7 +32,7 @@ class AdvancedUserRecipe(BasicNewsRecipe):
                     'inCar',
                 ]
             }
-        ),  # noqa: E501
+        ),
         dict(id=['header', 'artTools', 'context', 'interact', 'footer-navigation', 'bwNet', 'copy', 'keyboardNavigationHint']),
         dict(name=['hjtrs', 'kud']),
     ]
