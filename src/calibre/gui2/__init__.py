@@ -1221,7 +1221,8 @@ else:
 
 
 def choose_files_and_remember_all_files(window, name, title, filters=None, select_only_single_file=False, default_dir='~'):
-    filters = filters or []
+    if filters is None:
+        filters = []
     pref_name = f'{name}-last-used-filter-spec-all-files'
     lufs = dynamic.get(pref_name, False)
     af = _('All files'), ['*']

@@ -3317,7 +3317,8 @@ class Cache:
 
     @write_api
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):
-        display = display or {}
+        if display is None:
+            display = {}
         return self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     _create_custom_column = create_custom_column
@@ -3754,10 +3755,7 @@ class Cache:
         ans = {}
 
         for book_id in book_ids:
-
-            def get_metadata(book_id):
-                return pmm.get(book_id) or self._get_proxy_metadata(book_id)
-
+            proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
             user_cat_vals = ans[book_id] = {}
             for ucat, categories in user_cats.items():
                 user_cat_vals[ucat] = res = []
@@ -3768,7 +3766,7 @@ class Cache:
                         continue
 
                     if field_obj.is_composite:
-                        v = field_obj.get_value_with_cache(book_id, get_metadata)
+                        v = field_obj.get_value_with_cache(book_id, lambda x: proxy_metadata)  # noqa: B023
                     else:
                         v = self._fast_field_for(field_obj, book_id)
 

@@ -2137,7 +2137,8 @@ html5_entities = {
 
 
 def entity_to_unicode_in_python(match, exceptions=(), encoding='cp1252', result_exceptions=None):
-    result_exceptions = result_exceptions or {}
+    if result_exceptions is None:
+        result_exceptions = {}
 
     def check(ch):
         return result_exceptions.get(ch, ch)

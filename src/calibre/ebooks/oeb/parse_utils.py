@@ -59,7 +59,8 @@ def merge_multiple_html_heads_and_bodies(root, log=None):
 
 
 def clone_element(elem, nsmap=None, in_context=True):
-    nsmap = nsmap or {}
+    if nsmap is None:
+        nsmap = {}
     if in_context:
         maker = elem.getroottree().getroot().makeelement
     else:

@@ -1336,7 +1336,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Add a book to the database. self.data and self.cache are not updated.
         @param paths: List of paths to book files of file-like objects
         """
-        uris = uris or []
+        if uris is None:
+            uris = []
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
         for path in paths:

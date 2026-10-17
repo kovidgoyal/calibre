@@ -164,7 +164,8 @@ class Option:
         action=None,
         metavar=None,
     ):
-        switches = switches or []
+        if switches is None:
+            switches = []
         if choices:
             type = 'choice'
 
@@ -278,7 +279,8 @@ class OptionSet:
                            `None, 'count'`. For choices and boolean options,
                            action is automatically set correctly.
         """
-        switches = switches or []
+        if switches is None:
+            switches = []
         pref = Option(
             name,
             switches=switches,

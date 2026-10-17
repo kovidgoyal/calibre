@@ -45,7 +45,8 @@ def _escape(data, entities=None):
     the optional entities parameter.  The keys and values must all be
     strings; each key will be replaced with its corresponding value.
     """
-    entities = entities or {}
+    if entities is None:
+        entities = {}
     data = data.replace('&', '&amp;')
     data = data.replace('<', '&lt;')
     data = data.replace('>', '&gt;')
@@ -65,7 +66,8 @@ def _quoteattr(data, entities=None):
     the optional entities parameter.  The keys and values must all be
     strings; each key will be replaced with its corresponding value.
     """
-    entities = entities or {}
+    if entities is None:
+        entities = {}
     entities['\n'] = '&#10;'
     entities['\r'] = '&#12;'
     data = _escape(data, entities)

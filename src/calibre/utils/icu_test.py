@@ -522,6 +522,10 @@ class TestICU(unittest.TestCase):
                 (51, 'smaller sentences'),
             ],
             'hello\u2029i love you': [(0, 'hello'), (6, 'i love you')],
+            'Hi. This is a considerably longer sentence that is well over the minimum length.': [
+                (0, 'Hi. This is a considerably longer sentence that is well'),
+                (56, 'over the minimum length'),
+            ],
         }.items():
             self.ae(expected, list(split_into_sentences_for_tts(sentence, max_sentence_length=40)))
 

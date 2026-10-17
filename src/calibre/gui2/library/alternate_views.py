@@ -102,7 +102,8 @@ def selection_for_rows(m: QAbstractItemModel, rows: Iterable[int]) -> QItemSelec
     # performance if a large number of rows has to be selected.
     sel = QItemSelection()
     for k, g in itertools.groupby(enumerate(sorted(rows)), lambda i_x: i_x[0] - i_x[1]):
-        smallest = largest = next(g)[1]
+        group = tuple(g)
+        smallest, largest = group[0][1], group[-1][1]
         sel.merge(QItemSelection(m.index(smallest, 0), m.index(largest, 0)), QItemSelectionModel.SelectionFlag.Select)
     return sel
 

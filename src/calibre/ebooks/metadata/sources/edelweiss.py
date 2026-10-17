@@ -253,7 +253,8 @@ class Edelweiss(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers=None):
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         try:
             from urllib.parse import urlencode
         except ImportError:
@@ -294,7 +295,8 @@ class Edelweiss(Source):
     ):
         import json
 
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         br = self.browser
         br.addheaders = [
             ('Referer', 'https://www.edelweiss.plus/'),
@@ -376,7 +378,8 @@ class Edelweiss(Source):
         timeout=30,
         get_best_cover=False,
     ):
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')

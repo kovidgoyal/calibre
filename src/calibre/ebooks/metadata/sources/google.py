@@ -248,7 +248,8 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, title=None, authors=None, identifiers=None, capitalize_isbn=False):  # {{{
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         try:
             from urllib.parse import urlencode
         except ImportError:
@@ -286,7 +287,8 @@ class GoogleBooks(Source):
     def download_cover(  # {{{
         self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False
     ):
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')
@@ -381,7 +383,8 @@ class GoogleBooks(Source):
         from calibre.utils.filenames import ascii_text
         from polyglot.urllib import urlparse
 
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         isbn = check_isbn(identifiers.get('isbn', None))
         q = []
         strip_punc_pat = regex.compile(r'[\p{C}|\p{M}|\p{P}|\p{S}|\p{Z}]+', regex.UNICODE)
@@ -488,7 +491,8 @@ class GoogleBooks(Source):
     ):
         from calibre.utils.xml_parse import safe_xml_fromstring
 
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         entry = XPath('//atom:entry')
         identifiers = identifiers.copy()
         br = self.browser

@@ -559,7 +559,8 @@ def test(return_tests=False):  # {{{
                 return ans
 
             def t(mt, query='', expected=None):
-                expected = expected or []
+                if expected is None:
+                    expected = []
                 self.ae(expected, q(mt, query))
 
             t('*', expected=all_ids)

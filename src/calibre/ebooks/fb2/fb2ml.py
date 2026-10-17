@@ -408,7 +408,8 @@ class FB2MLizer:
         """
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        tag_stack = tag_stack or []
+        if tag_stack is None:
+            tag_stack = []
         elem = elem_tree
 
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.

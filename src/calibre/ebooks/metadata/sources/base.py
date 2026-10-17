@@ -552,7 +552,8 @@ class Source(Plugin):
         :class:`InternalMetadataCompareKeyGen`. Re-implement this function in
         your plugin if the default algorithm is not suitable.
         """
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
 
         def keygen(mi):
             return InternalMetadataCompareKeyGen(mi, self, title, authors, identifiers)

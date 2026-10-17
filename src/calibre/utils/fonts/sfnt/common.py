@@ -145,7 +145,8 @@ class LookupTable(SimpleListTable):
 
 
 def ExtensionSubstitution(raw, offset, subtable_map=None):
-    subtable_map = subtable_map or {}
+    if subtable_map is None:
+        subtable_map = {}
     data = Unpackable(raw, offset)
     subst_format, extension_lookup_type, offset = data.unpack('2HL')
     if subst_format != 1:

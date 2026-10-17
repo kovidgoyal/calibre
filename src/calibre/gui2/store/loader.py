@@ -25,7 +25,8 @@ class VersionMismatch(ValueError):
 def download_updates(ver_map=None, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
 
-    ver_map = ver_map or {}
+    if ver_map is None:
+        ver_map = {}
     data = {k: str(v) for k, v in ver_map.items()}
     data['ver'] = '1'
     url = f'{server}/stores?{urlencode(data)}'

@@ -165,7 +165,8 @@ class Helper:
 
 
 def simple_repl(user_ns=None):
-    user_ns = user_ns or {}
+    if user_ns is None:
+        user_ns = {}
     if iswindows:
         setup_pyreadline()
     else:

@@ -206,7 +206,8 @@ def load_plugins_index():
 
 
 def convert_node(fields, x, names=None, import_data=None):
-    names = names or {}
+    if names is None:
+        names = {}
     name = x.__class__.__name__
 
     def conv(x):

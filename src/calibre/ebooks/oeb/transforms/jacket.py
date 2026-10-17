@@ -295,7 +295,8 @@ def render_jacket(
     alt_authors=None,
     smarten_punctuation=False,
 ):
-    alt_tags = alt_tags or []
+    if alt_tags is None:
+        alt_tags = []
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
     template = P('jacket/template.xhtml', data=True).decode('utf-8')
 

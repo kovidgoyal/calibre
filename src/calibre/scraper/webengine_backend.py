@@ -90,7 +90,8 @@ class DownloadRequest(QObject):
             f.write(mv)
 
     def as_result(self, r: dict | None = None) -> dict:
-        r = r or {}
+        if r is None:
+            r = {}
         if self.aborted_on_timeout:
             self.result['error'] = 'Timed out'
             self.result['worth_retry'] = True

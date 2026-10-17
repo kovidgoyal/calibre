@@ -458,7 +458,8 @@ class HTMLConverter:
         """
         Return a dictionary of style properties applicable to Tag tag.
         """
-        parent_css = parent_css or {}
+        if parent_css is None:
+            parent_css = {}
 
         def merge_parent_css(prop, pcss):
             # float should not be inherited according to the CSS spec
@@ -738,7 +739,8 @@ class HTMLConverter:
         # Need to make a copy of contents as when
         # extract is called on a child, it will
         # mess up the iteration.
-        ppcss = ppcss or {}
+        if ppcss is None:
+            ppcss = {}
         for c in copy.copy(ptag.contents):
             if isinstance(c, HTMLConverter.IGNORED_TAGS):
                 continue

@@ -1526,8 +1526,10 @@ class OPFCreator(Metadata):
         DC = ElementMaker(namespace=DC11_NS)
 
         def DC_ELEM(tag, text, dc_attrs=None, opf_attrs=None):
-            opf_attrs = opf_attrs or {}
-            dc_attrs = dc_attrs or {}
+            if opf_attrs is None:
+                opf_attrs = {}
+            if dc_attrs is None:
+                dc_attrs = {}
             if text:
                 elem = getattr(DC, tag)(clean_ascii_chars(text), **dc_attrs)
             else:

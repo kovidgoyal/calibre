@@ -766,7 +766,8 @@ class Main(MainWindow):
         )
 
         def sreg(name, text, action, overrides=None, keys=(), description=None, icon=None):
-            overrides = overrides or {}
+            if overrides is None:
+                overrides = {}
             return reg(
                 icon,
                 text,

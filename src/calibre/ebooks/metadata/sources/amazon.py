@@ -1428,7 +1428,8 @@ class Amazon(Source):
         domain of the Amazon store and whether the terms are an identifier.
         Raises SearchFailed if there is not enough metadata to search with.
         """
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         domain = self.domain
         idomain, asin = self.get_domain_and_asin(identifiers)
         if idomain is not None:
@@ -1541,7 +1542,8 @@ class Amazon(Source):
         """
         from calibre.web.automate.metadata import BrowserFailed
 
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         testing = getattr(self, 'running_a_test', False)
         log('Server:', self.server)
         if not self.use_search_engine:
@@ -1801,7 +1803,8 @@ class Amazon(Source):
         timeout=60,
         get_best_cover=False,
     ):
-        identifiers = identifiers or {}
+        if identifiers is None:
+            identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')

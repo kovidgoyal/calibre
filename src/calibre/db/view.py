@@ -314,7 +314,8 @@ class View:
         )
 
     def multisort(self, fields=None, subsort=False, only_ids=None):
-        fields = fields or []
+        if fields is None:
+            fields = []
         sorted_book_ids = self._do_sort(self._map if only_ids is None else only_ids, fields=fields, subsort=subsort)
         if only_ids is None:
             self._map = tuple(sorted_book_ids)

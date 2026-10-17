@@ -410,7 +410,8 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         return len(parent_item.children)
 
     def update_recipe_schedule(self, urn, schedule_type, schedule, add_title_tag=True, custom_tags=None):
-        custom_tags = custom_tags or []
+        if custom_tags is None:
+            custom_tags = []
         recipe = self.recipe_from_urn(urn)
         self.scheduler_config.schedule_recipe(recipe, schedule_type, schedule)
 

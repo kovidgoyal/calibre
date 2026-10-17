@@ -26,7 +26,8 @@ def split(src):
 
 
 def files_and_dirs(prefix, allowed_exts=None):
-    allowed_exts = allowed_exts or []
+    if allowed_exts is None:
+        allowed_exts = []
     prefix = os.path.expanduser(prefix)
     for i in glob.iglob(prefix + '*'):
         _, ext = os.path.splitext(i)

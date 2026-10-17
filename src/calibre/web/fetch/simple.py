@@ -130,8 +130,10 @@ class RecursiveFetcher:
     default_timeout = socket.getdefaulttimeout()  # Needed here as it is used in __del__
 
     def __init__(self, options, log, image_map=None, css_map=None, job_info=None):
-        css_map = css_map or {}
-        image_map = image_map or {}
+        if css_map is None:
+            css_map = {}
+        if image_map is None:
+            image_map = {}
         bd = options.dir
         if not isinstance(bd, str):
             bd = bd.decode(filesystem_encoding)
@@ -621,7 +623,8 @@ class RecursiveFetcher:
 
 
 def option_parser(usage=None):
-    usage = usage or _('%prog URL\n\nWhere URL is for example: {}').format('https://google.com')
+    if usage is None:
+        usage = _('%prog URL\n\nWhere URL is for example: {}').format('https://google.com')
     parser = OptionParser(usage=usage)
     parser.add_option(
         '-d',
@@ -710,7 +713,8 @@ def option_parser(usage=None):
 
 
 def create_fetcher(options, image_map=None, log=None):
-    image_map = image_map or {}
+    if image_map is None:
+        image_map = {}
     if log is None:
         log = Log(level=Log.DEBUG) if options.verbose else Log()
     return RecursiveFetcher(options, log, image_map={})

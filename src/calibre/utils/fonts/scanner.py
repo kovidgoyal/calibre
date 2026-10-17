@@ -197,7 +197,8 @@ class FontScanner(Thread):
     def __init__(self, folders=None, allowed_extensions=None):
         if allowed_extensions is None:
             allowed_extensions = {'ttf', 'otf'}
-        folders = folders or []
+        if folders is None:
+            folders = []
         super().__init__(daemon=True)
         self.folders = folders + font_dirs() + [os.path.join(config_dir, 'fonts'), P('fonts/liberation')]
         self.folders = [os.path.normcase(os.path.abspath(f)) for f in self.folders]

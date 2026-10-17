@@ -449,8 +449,10 @@ class CustomColumns:
         Fast algorithm for updating custom column is_multiple datatypes.
         Do not use with other custom column datatypes.
         """
-        remove = remove or []
-        add = add or []
+        if remove is None:
+            remove = []
+        if add is None:
+            add = []
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -679,7 +681,8 @@ class CustomColumns:
         return lines
 
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):
-        display = display or {}
+        if display is None:
+            display = {}
         if not label:
             raise ValueError(_('No label was provided'))
         if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:

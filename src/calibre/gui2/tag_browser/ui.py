@@ -409,7 +409,8 @@ class TagBrowserMixin:  # {{{
         """
         Delete an item from some category.
         """
-        children = children or []
+        if children is None:
+            children = []
         tag_names = []
         for child in children:
             if child.tag.is_editable:

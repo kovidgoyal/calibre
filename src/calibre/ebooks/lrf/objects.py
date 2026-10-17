@@ -686,7 +686,8 @@ class Text(LRFStream):
         refobj: object  # set for Plot tags only
 
         def __init__(self, name, attrs=None, self_closing=False):
-            attrs = attrs or {}
+            if attrs is None:
+                attrs = {}
             self.name = name
             self.attrs = attrs
             self.self_closing = self_closing

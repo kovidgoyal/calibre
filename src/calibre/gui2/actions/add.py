@@ -458,7 +458,8 @@ class AddAction(InterfaceAction):
         return ok
 
     def add_isbns(self, books, add_tags=None, check_for_existing=False):
-        add_tags = add_tags or []
+        if add_tags is None:
+            add_tags = []
         books = list(books)
         if check_for_existing:
             books = self.check_for_existing_isbns(books)

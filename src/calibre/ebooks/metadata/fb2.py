@@ -45,7 +45,8 @@ class Context:
         return etree.XPath(*args, namespaces=self.namespaces)
 
     def get_or_create(self, parent, tag, attribs=None, at_start=True):
-        attribs = attribs or {}
+        if attribs is None:
+            attribs = {}
         xpathstr = './fb:' + tag
         for n, v in attribs.items():
             xpathstr += f'[@{n}="{v}"]'
@@ -57,7 +58,8 @@ class Context:
         return ans
 
     def create_tag(self, parent, tag, attribs=None, at_start=True):
-        attribs = attribs or {}
+        if attribs is None:
+            attribs = {}
         ans = parent.makeelement(f'{{{self.fb_ns}}}{tag}')
         ans.attrib.update(attribs)
         if at_start:

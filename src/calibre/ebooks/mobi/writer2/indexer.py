@@ -240,7 +240,8 @@ class TBS:  # {{{
     """
 
     def __init__(self, data, is_periodical, first=False, section_map=None, after_first=False):
-        section_map = section_map or {}
+        if section_map is None:
+            section_map = {}
         self.section_map = section_map
 
         if is_periodical:

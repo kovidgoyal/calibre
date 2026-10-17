@@ -1142,7 +1142,8 @@ class CreateNewCustomColumn:
         freeze_lookup_name=True,
     ):
         """See the class documentation for more information."""
-        display = display or {}
+        if display is None:
+            display = {}
         if self.restart_required:
             return (self.Result.MUST_RESTART, _('You must restart calibre before making any more changes'))
         if not lookup_name.startswith('#'):
@@ -1154,7 +1155,7 @@ class CreateNewCustomColumn:
             for suffix_count in range(suffix_number, 100000):
                 nk = f'{lookup_name}_{suffix_count}'
                 if nk not in self.custcols:
-                    lookup_name = nk
+                    lookup_name, suffix_number = nk, suffix_count
                     break
         if column_heading:
             headings = {v['name'] for v in self.custcols.values()}

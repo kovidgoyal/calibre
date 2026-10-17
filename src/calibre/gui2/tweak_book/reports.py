@@ -608,6 +608,7 @@ class ImagesWidget(QWidget):
     def __call__(self, data):
         self.model(data)
         self.filter_edit.clear()
+        get_pixmap.cache_clear()
         self.files.resizeRowsToContents()
 
     def resize_to_contents(self, *args):

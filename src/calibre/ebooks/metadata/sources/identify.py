@@ -376,7 +376,8 @@ def identify(
     timeout=30,
     allowed_plugins=None,
 ):
-    identifiers = identifiers or {}
+    if identifiers is None:
+        identifiers = {}
     if title == _('Unknown'):
         title = None
     if authors == [_('Unknown')]:

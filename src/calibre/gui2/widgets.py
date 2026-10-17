@@ -801,7 +801,8 @@ class CompleteLineEdit(EnLineEdit):  # {{{
     """
 
     def __init__(self, parent=None, complete_items=None, sep=',', space_before_sep=False):
-        complete_items = complete_items or []
+        if complete_items is None:
+            complete_items = []
         EnLineEdit.__init__(self, parent)
 
         self.separator = sep

@@ -233,7 +233,8 @@ class SearchFilter(SearchQueryParser):
     ]
 
     def __init__(self, all_plugins=None):
-        all_plugins = all_plugins or []
+        if all_plugins is None:
+            all_plugins = []
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set(all_plugins)
 

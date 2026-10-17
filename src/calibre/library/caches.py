@@ -1209,7 +1209,8 @@ class ResultCache(SearchQueryParser):  # {{{
         If only_ids is a list of ids, this function will sort that list instead
         of the internal mapping of ids.
         """
-        fields = fields or []
+        if fields is None:
+            fields = []
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
         field_meta = self.field_metadata
         assert field_meta is not None

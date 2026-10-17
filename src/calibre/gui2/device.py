@@ -65,8 +65,10 @@ if TYPE_CHECKING:
 
 class DeviceJob(BaseJob):  # {{{
     def __init__(self, func, done, job_manager, args=None, kwargs=None, description=''):
-        kwargs = kwargs or {}
-        args = args or []
+        if kwargs is None:
+            kwargs = {}
+        if args is None:
+            args = []
         BaseJob.__init__(self, description)
         self.func = func
         self.callback_on_done = done
@@ -521,8 +523,10 @@ class DeviceManager(Thread):  # {{{
                 pass
 
     def create_job_step(self, func, done, description, to_job, args=None, kwargs=None):
-        kwargs = kwargs or {}
-        args = args or []
+        if kwargs is None:
+            kwargs = {}
+        if args is None:
+            args = []
         job = DeviceJob(func, done, self.job_manager, args=args, kwargs=kwargs, description=description)
         self.job_manager.add_job(job)
         if (done is None or isinstance(done, FunctionDispatcher)) and (to_job is not None and to_job == self.current_job):
@@ -532,8 +536,10 @@ class DeviceManager(Thread):  # {{{
         return job
 
     def create_job(self, func, done, description, args=None, kwargs=None):
-        kwargs = kwargs or {}
-        args = args or []
+        if kwargs is None:
+            kwargs = {}
+        if args is None:
+            args = []
         return self.create_job_step(func, done, description, None, args, kwargs)
 
     def has_card(self):

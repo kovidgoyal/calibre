@@ -3053,7 +3053,8 @@ class CatalogBuilder:
         return navPointTag
 
     def generate_ncx_subsection(self, navPointTag, section_id, section_text, content_src, cm_tags=None):
-        cm_tags = cm_tags or {}
+        if cm_tags is None:
+            cm_tags = {}
         navPointVolumeTag = makeelement('navPoint', navPointTag, id=section_id, playOrder=self.play_order)
         if self.generate_for_kindle_mobi:
             navPointVolumeTag.set('class', 'article')

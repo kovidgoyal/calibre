@@ -531,7 +531,8 @@ class EmailMixin:  # {{{
             d.exec()
 
     def email_sent(self: Main, job, remove=None):
-        remove = remove or []
+        if remove is None:
+            remove = []
         if job.failed:
             self.job_exception(job, dialog_title=_('Failed to email book'))
             return

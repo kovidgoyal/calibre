@@ -122,7 +122,8 @@ class SearchFilter(SearchQueryParser):
     ]
 
     def __init__(self, all_books=None):
-        all_books = all_books or []
+        if all_books is None:
+            all_books = []
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set(all_books)
 

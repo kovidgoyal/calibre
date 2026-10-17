@@ -95,7 +95,8 @@ class EbookDownload:
         abort=None,
         notifications=None,
     ):
-        tags = tags or []
+        if tags is None:
+            tags = []
         dfilename = ''
         try:
             dfilename = self._download(cookie_file, url, filename, save_loc, add_to_lib, create_browser)
@@ -171,7 +172,8 @@ def start_ebook_download(
     tags=None,
     create_browser=None,
 ):
-    tags = tags or []
+    if tags is None:
+        tags = []
     description = _('Downloading %s') % as_unicode(filename or url, errors='replace')
     job = ThreadedJob(
         'ebook_download',
@@ -188,7 +190,8 @@ def start_ebook_download(
 
 class EbookDownloadMixin:
     def download_ebook(self: Main, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=None, create_browser=None):
-        tags = tags or []
+        if tags is None:
+            tags = []
         if tags:
             if isinstance(tags, (str, bytes)):
                 tags = tags.split(',')

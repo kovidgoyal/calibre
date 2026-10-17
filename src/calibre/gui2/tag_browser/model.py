@@ -634,7 +634,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.link_map = self.notes_map = None
 
     def rebuild_node_tree(self, state_map=None):
-        state_map = state_map or {}
+        if state_map is None:
+            state_map = {}
         if self._build_in_progress:
             print('Tag browser build already in progress')
             traceback.print_stack()
@@ -652,7 +653,8 @@ class TagsModel(QAbstractItemModel):  # {{{
     def _run_rebuild(self, state_map=None):
         # Take the fingerprint before building, so that a write that happens in
         # another thread while we build is not counted as already displayed
-        state_map = state_map or {}
+        if state_map is None:
+            state_map = {}
         fingerprint = self.current_build_fingerprint()
         versions, signature = self.current_category_versions(), self.subtree_signature()
         self.reset_notes_and_link_maps()
@@ -2263,7 +2265,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             return None
         txt = lower(txt) if not equals_match else txt
         self.path_found = None
-        start_path = start_path or []
+        if start_path is None:
+            start_path = []
 
         if prefs['use_primary_find_in_search']:
 

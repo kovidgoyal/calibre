@@ -97,7 +97,8 @@ def run_download(log, results, abort, title=None, authors=None, identifiers=None
         (plugin, width, height, fmt, bytes)
 
     """
-    identifiers = identifiers or {}
+    if identifiers is None:
+        identifiers = {}
     if title == _('Unknown'):
         title = None
     if authors == [_('Unknown')]:
@@ -175,7 +176,8 @@ def download_cover(log, title=None, authors=None, identifiers=None, timeout=30):
 
     Returns None if no cover is found.
     '''
-    identifiers = identifiers or {}
+    if identifiers is None:
+        identifiers = {}
     rq = Queue()
     abort = Event()
 

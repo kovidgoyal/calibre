@@ -46,7 +46,8 @@ class FileDialog(QObject):
         from calibre.gui2 import dynamic, sanitize_env_vars
         from calibre.gui2.ui import get_gui
 
-        filters = filters or []
+        if filters is None:
+            filters = []
         gui = get_gui()
         adapt_menubar = gui.bars_manager.adapt_menu_bar_for_dialog if gui is not None else Dummy()
         QObject.__init__(self)
@@ -209,7 +210,8 @@ def choose_files(window, name, title, filters=None, all_files=True, select_only_
     :param all_files: If True add All files to filters.
     :param select_only_single_file: If True only one file can be selected
     """
-    filters = filters or []
+    if filters is None:
+        filters = []
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     fd = FileDialog(
         title=title,
@@ -238,7 +240,8 @@ def choose_save_file(window, name, title, filters=None, all_files=True, initial_
     :param initial_path: The initially selected path (does not need to exist). Cannot be used with initial_filename.
     :param initial_filename: If specified, the initially selected path is this filename in the previously used directory. Cannot be used with initial_path.
     """
-    filters = filters or []
+    if filters is None:
+        filters = []
     kwargs = dict(
         title=title,
         name=name,

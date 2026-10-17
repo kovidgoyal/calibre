@@ -288,7 +288,8 @@ def fork_job(
     path to a file that contains the stdout and stderr of the worker process.
     If you set no_output=True, then this will not be present.
     """
-    env = env or {}
+    if env is None:
+        env = {}
     return two_part_fork_job(env, priority, cwd)(
         mod_name,
         func_name,
@@ -303,7 +304,8 @@ def fork_job(
 
 
 def offload_worker(env=None, priority='normal', cwd=None):
-    env = env or {}
+    if env is None:
+        env = {}
     conn, w = create_worker(env=env, priority=priority, cwd=cwd, func='offload')
     return OffloadWorker(conn, w)
 

@@ -867,8 +867,10 @@ class Metadata:
                 obj.attrib[self.term_attr(obj)] = value
 
         def __init__(self, term, value, attrib=None, nsmap=None, **kwargs):
-            nsmap = nsmap or {}
-            attrib = attrib or {}
+            if nsmap is None:
+                nsmap = {}
+            if attrib is None:
+                attrib = {}
             self.attrib = attrib = dict(attrib)
             self.nsmap = nsmap = dict(nsmap)
             attrib.update(kwargs)
@@ -946,7 +948,8 @@ class Metadata:
             return as_unicode(self.value)
 
         def to_opf1(self, dcmeta=None, xmeta=None, nsrmap=None):
-            nsrmap = nsrmap or {}
+            if nsrmap is None:
+                nsrmap = {}
             attrib = {}
             for key, value in self.attrib.items():
                 if namespace(key) == OPF2_NS:
@@ -963,7 +966,8 @@ class Metadata:
             return elem
 
         def to_opf2(self, parent=None, nsrmap=None):
-            nsrmap = nsrmap or {}
+            if nsrmap is None:
+                nsrmap = {}
             attrib = {}
             for key, value in self.attrib.items():
                 attrib[key] = prefixname(value, nsrmap)
@@ -986,8 +990,10 @@ class Metadata:
 
     def add(self, term, value, attrib=None, nsmap=None, **kwargs):
         """Add a new metadata item."""
-        nsmap = nsmap or {}
-        attrib = attrib or {}
+        if nsmap is None:
+            nsmap = {}
+        if attrib is None:
+            attrib = {}
         item = self.Item(term, value, attrib, nsmap, **kwargs)
         items = self.items[barename(item.term)]
         items.append(item)

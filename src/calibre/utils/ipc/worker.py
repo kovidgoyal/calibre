@@ -90,7 +90,8 @@ def arbitrary(module_name, func_name, args, kwargs=None):
     function ``func_name``
     :param kwargs: A dictionary of keyword arguments to pass to func_name
     """
-    kwargs = kwargs or {}
+    if kwargs is None:
+        kwargs = {}
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
         from calibre.customize.ui import find_plugin  # noqa: F401
@@ -108,7 +109,8 @@ def arbitrary_n(module_name, func_name, args, kwargs=None, notification=lambda x
     completed and the second is a string with a message (it can be an empty
     string).
     '''
-    kwargs = kwargs or {}
+    if kwargs is None:
+        kwargs = {}
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
         from calibre.customize.ui import find_plugin  # noqa: F401

@@ -1149,7 +1149,8 @@ def evaluate(book, context):
             self.textbox.set_clicked_line_numbers(cln)
 
     def break_reporter(self, txt, val, locals_=None, line_number=0):
-        locals_ = locals_ or {}
+        if locals_ is None:
+            locals_ = {}
         sel_model = self.template_value.selectionModel()
         assert sel_model is not None
         l = sel_model.selectedRows()

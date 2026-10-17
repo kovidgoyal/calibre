@@ -143,7 +143,7 @@ def split_into_sentences_for_tts(
             continue
         for sentence_start, sentence_text in split_long_sentences(sentence, start, lang, limit=max_sentence_length):
             if pending_sentence:
-                sentence = pending_sentence + ' ' + sentence_text
+                sentence_text = pending_sentence + ' ' + sentence_text
                 sentence_start = pending_start
                 pending_start, pending_sentence = 0, ''
             yield sentence_start, sentence_text
