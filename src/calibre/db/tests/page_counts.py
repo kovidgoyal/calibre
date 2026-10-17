@@ -21,6 +21,42 @@ class PageCountTest(BaseTest):
     def test_page_count_refreshes_file_sizes(self):
         test_page_count_refreshes_file_sizes(self)
 
+    def test_page_count_deleted_book(self):
+        from threading import Event
+
+        from calibre.library.page_count import CHARS_PER_PAGE
+
+        db = self.init_cache()
+        worker = db.maintain_page_counts
+        counting, resume = Event(), Event()
+
+        def pause_count(fmt_file):
+            counting.set()
+            if not resume.wait(10):
+                raise TimeoutError('Page count worker was not released')
+
+        worker.count_callback = pause_count
+        txt_data = ('a ' * (2 * CHARS_PER_PAGE + 10)).encode()
+        try:
+            worker.tick_event.clear()
+            db.add_format(1, 'TXT', io.BytesIO(txt_data), replace=True)
+            self.assertTrue(counting.wait(10), 'Page count worker did not start counting')
+            db.remove_books({1}, permanent=True)
+            resume.set()
+            self.assertTrue(worker.tick_event.wait(10), 'Page count worker did not finish the deleted book')
+            self.assertTrue(worker.is_alive())
+            self.assertIsNone(db.get_pages(1))
+
+            # The same worker must still count and commit subsequent books.
+            worker.tick_event.clear()
+            db.add_format(2, 'TXT', io.BytesIO(txt_data), replace=True)
+            self.assertTrue(worker.tick_event.wait(10), 'Page count worker did not process the next book')
+            self.assertTrue(worker.is_alive())
+            self.ae(db.field_for('pages', 2), 3)
+            self.ae(db.pages_needs_scan((2,)), set())
+        finally:
+            resume.set()
+
     def test_page_count(self):
         from calibre.library.page_count import test_page_count
 
