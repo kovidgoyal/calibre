@@ -1470,6 +1470,7 @@ class Main(
             self.show_shutdown_message(_('Running database shutdown plugins. This could take a few seconds...'))
 
         self.grid_view.shutdown()
+        self.series_grid.shutdown()
         timed_print('Grid view shutdown')
         self.bookshelf_view.shutdown()
         timed_print('Bookshelf view shutdown')

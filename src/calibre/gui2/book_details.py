@@ -1736,6 +1736,19 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
     def show_data(self, data):
         from calibre.gui2.ui import get_gui
 
+        gui = get_gui()
+        if gui is not None and (view := getattr(gui, 'series_grid', None)) is not None:
+            av = gui.library_view.alternate_views
+            if av.current_view is view and not view.model().rowCount():
+                data = None
+        self.has_book_data = data is not None
+        self.book_info.setVisible(self.has_book_data)
+        if data is None:
+            self.last_data = {}
+            self.current_path = ''
+            self.book_info.setHtml('')
+            self.update_layout()
+            return
         if getattr(data, 'book_display_info_is_from_device', False) and (gui := get_gui()) and gui.current_view is gui.library_view:
             return
         try:
@@ -1748,7 +1761,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         self.update_layout()
 
     def update_layout(self):
-        self.cover_view.setVisible(gprefs['bd_show_cover'])
+        self.cover_view.setVisible(gprefs['bd_show_cover'] and getattr(self, 'has_book_data', True))
         self._layout.do_layout(self.rect())
         self.cover_view.update_tooltip(self.current_path)
 

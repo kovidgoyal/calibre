@@ -384,6 +384,7 @@ class ThumbnailRenderer(QObject):
 
 
 class CoverThumbnailCache(QObject):
+    renderer_class = ThumbnailRenderer
     rendered = pyqtSignal(int, object)
 
     def __init__(
@@ -397,7 +398,7 @@ class CoverThumbnailCache(QObject):
         parent: QObject | None = None,
     ):
         super().__init__(parent)
-        self.renderer = ThumbnailRenderer(
+        self.renderer = self.renderer_class(
             ThumbnailCache(max_size=max_size, thumbnail_size=thumbnail_size, name=name, version=version),
             RAMCache(limit=ram_limit),
             thumbnailer or Thumbnailer(),

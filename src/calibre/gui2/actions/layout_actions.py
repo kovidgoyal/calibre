@@ -20,7 +20,9 @@ class Panel(Enum):
     SEARCH_BAR = 'sb'
     TAG_BROWSER = 'tb'
     BOOK_DETAILS = 'bd'
-    GRID_VIEW = 'gv'
+    CLASSIC_GRID_VIEW = 'gv'
+    SERIES_GRID_VIEW = 'sg'
+    GRID_VIEW = CLASSIC_GRID_VIEW
     COVER_BROWSER = 'cb'
     QUICKVIEW = 'qv'
     BOOKSHELF = 'bs'
@@ -227,11 +229,14 @@ class LayoutActions(InterfaceAction):
         alternate_view = settings.get('alternate_view')
         if alternate_view is not None:
             if alternate_view == 'grid':
-                self.set_visible(Panel.GRID_VIEW, True)
+                self.set_visible(Panel.CLASSIC_GRID_VIEW, True)
+            elif alternate_view == 'series':
+                self.set_visible(Panel.SERIES_GRID_VIEW, True)
             elif alternate_view == 'bookshelf':
                 self.set_visible(Panel.BOOKSHELF, True)
             else:
-                self.set_visible(Panel.GRID_VIEW, False)
+                self.set_visible(Panel.CLASSIC_GRID_VIEW, False)
+                self.set_visible(Panel.SERIES_GRID_VIEW, False)
                 self.set_visible(Panel.BOOKSHELF, False)
 
     def save_current_layout(self):
@@ -253,6 +258,8 @@ class LayoutActions(InterfaceAction):
         settings = self.gui.layout_container.serialized_settings()
         if self.gui.grid_view_button.isChecked():
             settings['alternate_view'] = 'grid'
+        elif self.gui.series_grid_button.isChecked():
+            settings['alternate_view'] = 'series'
         elif self.gui.bookshelf_view_button.isChecked():
             settings['alternate_view'] = 'bookshelf'
         else:
