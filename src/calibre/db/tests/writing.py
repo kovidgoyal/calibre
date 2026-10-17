@@ -144,6 +144,13 @@ class WritingTest(BaseTest):
         self.assertEqual(db.field_for('#comments', 1), val)
         db.set_field('title', {1: ' a\n  b '})
         self.assertEqual(db.field_for('title', 1), 'a b')
+        # Non-breaking spaces must be preserved in normalized fields
+        db.set_field('title', {1: ' a\xa0\xa0b\n\n c d\t  e '})
+        self.assertEqual(db.field_for('title', 1), 'a\xa0\xa0b c d   e')
+        db.set_field('series', {1: 'x\xa0y  z'})
+        self.assertEqual(db.field_for('series', 1), 'x\xa0y z')
+        db.set_field('tags', {1: ('t\xa0a  g', ' u\tv ')})
+        self.assertEqual(db.field_for('tags', 1), ('t\xa0a g', 'u v'))
         for val in (-1, -2, 0, 1, 2, None):
             db.set_field('pages', {1: val})
             self.assertEqual(db.field_for('pages', 1), val)

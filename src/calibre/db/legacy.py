@@ -17,7 +17,7 @@ from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.errors import NoSuchFormat
 from calibre.db.view import View
-from calibre.db.write import clean_identifier, get_series_values
+from calibre.db.write import clean_identifier, get_series_values, normalize_whitespace
 from calibre.utils.date import utcnow
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.search_query_parser import set_saved_searches
@@ -26,7 +26,7 @@ from calibre.utils.search_query_parser import set_saved_searches
 def cleanup_tags(tags):
     tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
     tags = [x.decode(preferred_encoding, 'replace') if isinstance(x, bytes) else x for x in tags]
-    tags = [' '.join(x.split()) for x in tags]
+    tags = [normalize_whitespace(x) for x in tags]
     ans, seen = [], set()
     for tag in tags:
         if tag.lower() not in seen:

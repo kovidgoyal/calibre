@@ -50,6 +50,7 @@ from calibre.db.tables import (
     read_books_table_columns,
 )
 from calibre.db.utils import atomic_write
+from calibre.db.write import normalize_whitespace
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
@@ -1004,7 +1005,7 @@ class DB:
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y, str) else y for y in x]
-                return [' '.join(y.split()) for y in x]
+                return [normalize_whitespace(y) for y in x]
             else:
                 return x if x is None or isinstance(x, str) else x.decode(preferred_encoding, 'replace')
 

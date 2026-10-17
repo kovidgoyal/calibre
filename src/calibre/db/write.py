@@ -30,11 +30,25 @@ def long_text(x):
     return x or None
 
 
+# All whitespace except the non-breaking spaces: NO-BREAK SPACE, FIGURE SPACE
+# and NARROW NO-BREAK SPACE
+breaking_whitespace_pat = re.compile(r'[^\S\xa0\u2007\u202f]+')
+
+
+def normalize_whitespace(x: str) -> str:
+    """Collapse runs of whitespace into a single space, preserving non-breaking spaces"""
+    # isascii() is O(1) and str.split() is much faster than the regex, so
+    # only use the regex when there is actually a non-breaking space present
+    if x.isascii() or ('\xa0' not in x and '\u202f' not in x and '\u2007' not in x):
+        return ' '.join(x.split())
+    return breaking_whitespace_pat.sub(' ', x).strip(' ')
+
+
 def single_text(x):
     x = long_text(x)
     if x is None:
         return x
-    return ' '.join(x.split())
+    return normalize_whitespace(x)
 
 
 series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
@@ -66,7 +80,7 @@ def multiple_text(sep, ui_sep, x):
     ui_sep = ui_sep.strip()
     repsep = ',' if ui_sep == ';' else ';'
     x = (y.strip().replace(ui_sep, repsep) for y in x if y.strip())
-    return tuple(' '.join(y.split()) for y in x if y)
+    return tuple(normalize_whitespace(y) for y in x if y)
 
 
 def adapt_datetime(x):
