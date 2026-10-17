@@ -120,7 +120,10 @@ class MaintainPageCounts(Thread):
             self.log_failure(book_id, str(e), traceback.format_exc())
             pages = Pages(COUNT_FAILED, 0, '', 0, utcnow())
         if pages is not None and not self.shutdown_event.is_set():
-            db.set_pages(book_id, pages.pages, pages.algorithm, pages.format, pages.format_size)
+            with db.quiet_write_lock:
+                # The book may have been deleted while its pages were being counted.
+                if db._has_id(book_id):
+                    db._set_pages(book_id, pages.pages, pages.algorithm, pages.format, pages.format_size)
         return pages
 
     def sort_key(self, fmt: str) -> int:
