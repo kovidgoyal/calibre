@@ -12,6 +12,7 @@ import sys
 import time
 from collections.abc import Awaitable, Callable
 from functools import partial
+from threading import Thread
 from typing import IO, Any, NamedTuple, cast
 
 from calibre.constants import islinux, ismacos, iswindows
@@ -253,6 +254,37 @@ def main(*a: Any, **kw: Any) -> None:  # noqa: ANN401
     asyncio.run(async_main(*a, **kw))
 
 
+def relay_stderr(stream: IO[bytes]) -> None:
+    # Ignore errors writing to our stderr, there is nowhere to report them
+    try:
+        while data := os.read(stream.fileno(), 4096):
+            try:
+                sys.stderr.buffer.write(data)
+                sys.stderr.buffer.flush()
+            except OSError, AttributeError:
+                pass
+    except OSError:
+        pass  # the worker has exited
+
+
+def worker_stderr_kwargs() -> dict[str, int]:
+    """Keyword arguments to pass to start_pipe_worker() to give the worker a usable stderr.
+
+    The worker is created as a DETACHED_PROCESS on Windows, so if our stderr is a
+    console, the stderr handle the worker inherits is invalid there and writing
+    to it fails with EINVAL. Windows GUI apps also have no usable stderr. In
+    these cases, when running in debug mode pipe the worker's stderr and relay
+    it to ours, otherwise discard it. See also calibre.utils.ipc.pool.
+    """
+    import subprocess
+
+    from calibre.constants import DEBUG
+
+    if not iswindows or not (getattr(sys, 'gui_app', False) or getattr(sys.stderr, 'isatty', lambda: False)()):
+        return {}
+    return {'stderr': subprocess.PIPE if DEBUG else subprocess.DEVNULL}
+
+
 def start_worker(handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None) -> tuple[str, Callable[[], int]]:  # noqa: ANN401
     """
     Run the specified handler, delayed_setup and finalizer functions in a worker process, passing input_data (if not None)
@@ -291,7 +323,9 @@ def start_worker(handler: str = '', delayed_setup: str = '', finalizer: str = ''
         args.append('read_input_data=True')
     invoke = f'main({", ".join(args)})'
     command.append(invoke)
-    p = start_pipe_worker('\n'.join(command))
+    p = start_pipe_worker('\n'.join(command), **worker_stderr_kwargs())
+    if p.stderr is not None:
+        Thread(target=relay_stderr, args=(p.stderr,), name='AutomateWorkerStderr', daemon=True).start()
     if input_data is not None:
         stdin = json.dumps(input_data).encode()
         p.stdin.write(stdin)
