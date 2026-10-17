@@ -699,6 +699,9 @@ class EbookViewer(MainWindow):
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['path_key'] = path_key(data['pathtoebook'])
         self.current_book_data['annotations_path_key'] = self.current_book_data['path_key'] + '.json'
+        self.current_book_data['continuous_flow'] = bool(_web_view_module._book_parsed_manifest.get('continuous_flow'))
+        if self.current_book_data['continuous_flow']:
+            self.current_book_data['annotations_path_key'] = self.current_book_data['path_key'] + '.continuous.json'
         self.load_book_data(cbd)
         self.update_window_title()
         initial_cfi = self.initial_cfi_for_current_book()
@@ -766,6 +769,13 @@ class EbookViewer(MainWindow):
 
     def load_book_annotations(self, calibre_book_data=None):
         amap = self.current_book_data['annotations_map']
+        if self.current_book_data.get('continuous_flow'):
+            # Merging changes CFI addresses; do not mix them with original marks.
+            path = os.path.join(annotations_dir(), self.current_book_data['annotations_path_key'])
+            if os.path.exists(path):
+                with open(path, 'rb') as f:
+                    merge_annotations(parse_annotations(f.read()), amap)
+            return
         path = os.path.join(self.current_book_data['base'], 'calibre-book-annotations.json')
         if os.path.exists(path):
             with open(path, 'rb') as f:
