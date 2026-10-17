@@ -30,7 +30,7 @@ class Konflikty(BasicNewsRecipe):
             },
         ),
         dict(name='div', attrs={'id': 'disqus_thread'}),
-    ]  # noqa: E501
+    ]
 
     feeds = [('Konflikty Zbrojne', 'http://www.konflikty.pl/feed')]
 

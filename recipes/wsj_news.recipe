@@ -169,7 +169,7 @@ class WSJ(BasicNewsRecipe):
         br.addheaders += [
             ('Accept-Encoding', 'gzip'),
             ('cache-control', 'no-cache'),
-            ('x-api-key', ('eb2408cd27f8913d421fa3d5c3d07ccf034cb448')),  # noqa: ISC001
+            ('x-api-key', ('eb2408cd27f8913d421fa3d5c3d07ccf034cb448')),
         ]
         return br
 

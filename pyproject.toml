@@ -123,7 +123,7 @@ explicit-preview-rules = true
 ignore = [
     'E402', 'E741',
     'UP012', 'UP030', 'C413', 'C420', 'PIE790', 'ISC003', 'FURB122', 'FURB166', 'FURB167',
-    'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
+    'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031',
     'PLE1205', 'PLW0602', 'PLW0603', 'PLW1510', 'PLW1641', 'PLW2901', 'PLC0415',
     'PLR0911', 'PLR0912', 'PLR0913', 'PLR0914', 'PLR0915', 'PLR0916', 'PLR0917', 'PLR1702', 'PLR1704', 'PLR2004', 'PLR6301',
     'TC001', 'TC002', 'TC003', 'TRY002', 'TRY003', 'TRY300', 'TRY301', 'TRY400',
@@ -158,7 +158,6 @@ extend-select = ["ANN"]
 "setup/changelog.py" = ['ISC001']
 "setup/plugins_mirror.py" = ['DTZ']
 "setup/{file-hosting-bw,run-calibre-worker,*-ci}.py" = ['N999']
-"src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
 "src/calibre/ebooks/metadata/sources/*" = ['UP', 'FURB188']
 "src/calibre/ebooks/{BeautifulSoup,rtf2xml/ParseRtf}.py" = ['N999']
 "src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']

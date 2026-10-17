@@ -33,7 +33,7 @@ class TestICU(unittest.TestCase):
         french = '''dimanche lundi mardi janvier février mars déjà Meme deja même dejà bpef bœg Boef Mémé bœf boef bnef pêche pèché pêché pêche pêché'''.split()
         french_good = (
             '''bnef boef Boef bœf bœg bpef deja dejà déjà dimanche février janvier lundi mardi mars Meme Mémé même pèché pêche pêche pêché pêché'''.split()
-        )  # noqa: E501
+        )
 
         # Test corner cases
         sort_key = icu.sort_key

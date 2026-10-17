@@ -13,7 +13,7 @@ class WNP(BasicNewsRecipe):
     preprocess_regexps = [
         (re.compile('Czytaj też:.*?</a>', re.DOTALL), lambda match: ''),  # noqa: RUF039
         (re.compile(r'Czytaj więcej:.*?</a>', re.DOTALL), lambda match: ''),
-    ]  # noqa: RUF039
+    ]
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets = True

@@ -59,7 +59,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
                 ]
             },
         ),
-        dict(name='div', attrs={'id': ['evotos']}),  # noqa: E501
+        dict(name='div', attrs={'id': ['evotos']}),
     ]
 
     feeds = [

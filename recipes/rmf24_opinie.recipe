@@ -50,7 +50,7 @@ class RMF24_opinie(BasicNewsRecipe):
             (
                 r'embed embed(Left|Right|Center) articleEmbed(Audio|Wideo articleEmbedVideo|ArticleFull|ArticleTitle|ArticleListTitle|AlbumHorizontal)">',
                 lambda match: 'REMOVE">',
-            ),  # noqa: E501
+            ),
             (r'<a href="http://www.facebook.com/pages/RMF24pl/.*?>RMF24.pl</a> on Facebook</div>', lambda match: '</div>'),
         ]
     ]
