@@ -1176,6 +1176,29 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_proxy_format_metadata_cache(self):  # {{{
+        "Test that formats and format_metadata share cached results, including an empty result"
+        from unittest.mock import patch
+
+        cache = self.init_cache()
+        for book_id in (1, 3):
+            fmts = cache.formats(book_id, verify_formats=False)
+            format_metadata = {fmt: cache.format_metadata(book_id, fmt) for fmt in fmts}
+            expected = {'format_metadata': format_metadata, 'formats': sorted(format_metadata) or None}
+            for fields in (('format_metadata', 'formats'), ('formats', 'format_metadata')):
+                with self.subTest(book_id=book_id, first=fields[0]):
+                    pmi = cache.get_proxy_metadata(book_id)
+                    with (
+                        patch.object(cache, 'formats', wraps=cache.formats) as formats,
+                        patch.object(cache, 'format_metadata', wraps=cache.format_metadata) as metadata,
+                    ):
+                        for field in fields * 2:
+                            self.assertEqual(getattr(pmi, field), expected[field])
+                        self.assertEqual(formats.call_count, 1)
+                        self.assertEqual(metadata.call_count, len(fmts))
+
+    # }}}
+
     def test_proxy_metadata_repeated_access(self):  # {{{
         "Test that repeated access to identifier and language attributes of ProxyMetadata is stable"
         cache = self.init_cache()

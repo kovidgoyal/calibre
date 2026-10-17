@@ -196,6 +196,7 @@ def fmt_getter(field):
                 m = db.format_metadata(book_id, fmt)
                 if m:
                     format_metadata[fmt] = m
+            cache['format_metadata'] = format_metadata
         if field == 'formats':
             return sorted(format_metadata) or None
         return format_metadata
