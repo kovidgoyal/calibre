@@ -109,6 +109,9 @@ class SCMP(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     extra_css = 'blockquote, em { color: #202020; }'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/c/c3/SCMP_logo.svg'
+    # scmp.com is behind Cloudflare, which answers the mechanize browser
+    # with a 403, but lets HTTP/2 capable browsers through
+    browser_type = 'qt'
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.frontpages.com/china-newspapers/')
