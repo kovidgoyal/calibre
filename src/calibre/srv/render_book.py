@@ -40,6 +40,31 @@ RENDER_VERSION = 1
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa: E501
 
 
+def continuous_flow_enabled():
+    return os.environ.get('CALIBRE_EXPERIMENTAL_CONTINUOUS_FLOW') == '1'
+
+
+def merge_flow_spine(container, titlepage_name):
+    # Only the viewer's extracted copy is changed, never the source EPUB.
+    if container.opf_xpath('//opf:meta[@property="rendition:layout" and normalize-space(text())="pre-paginated"]'):
+        return False
+    if container.opf_xpath('//opf:itemref[contains(@properties, "rendition:layout-pre-paginated")]'):
+        return False
+    if any('smil' in mt for mt in container.mime_map.values()):
+        return False
+    spine = list(container.spine_names)
+    if any(not linear for name, linear in spine):
+        return False
+    names = [name for name, linear in spine if name != titlepage_name]
+    if len(names) < 2:
+        return False
+    from calibre.ebooks.oeb.polish.split import merge_html
+
+    merge_html(container, names, names[0], insert_page_breaks=False)
+    container.commit()
+    return True
+
+
 class Spineless(ValueError):
     pass
 
@@ -587,6 +612,12 @@ def process_exploded_book(
             with container.open(bm_file, 'rb') as f:
                 bookmark_data = f.read()
 
+    continuous_flow = False
+    prepare_continuous = continuous_flow_enabled() and not virtualize_resources and input_fmt.lower() == 'epub' and not is_comic
+    if prepare_continuous:
+        raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, book_metadata)
+        continuous_flow = merge_flow_spine(container, titlepage_name)
+
     # We do not add zero byte sized files as the IndexedDB API in the
     # browser has no good way to distinguish between zero byte files and
     # load failures.
@@ -599,7 +630,9 @@ def process_exploded_book(
                 excluded_names.add(name)
         else:
             excluded_names.add(name)
-    raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, book_metadata)
+
+    if not prepare_continuous:
+        raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, book_metadata)
 
     tocobj = get_toc(container, verify_destinations=False)
     page_list = tocobj.page_list or []
@@ -621,6 +654,7 @@ def process_exploded_book(
 
     book_render_data = {
         'version': RENDER_VERSION,
+        'continuous_flow': continuous_flow,
         'toc': toc,
         'book_format': book_fmt,
         'spine': spine,

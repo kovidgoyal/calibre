@@ -45,6 +45,24 @@ using the viewer :guilabel:`Preferences` under :guilabel:`Page layout` or by pre
 :kbd:`Ctrl+M` key.
 
 
+Experimental continuous flow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Starting the desktop viewer with the environment variable
+``CALIBRE_EXPERIMENTAL_CONTINUOUS_FLOW=1`` joins the linear content files of
+reflowable EPUBs in the extracted reading copy. In flow mode this avoids document
+replacement at chapter boundaries. The source EPUB is unchanged. The cover stays
+separate. Fixed-layout books, books with media overlays, and books with nonlinear
+spine items retain normal behavior.
+
+This is an experimental rendering mode. Reading positions and annotations are
+stored separately on this computer and are not embedded in the EPUB or synced to
+the library. Existing annotations are not imported because their CFI addresses
+refer to the original document structure. Combining chapters can change the
+appearance of books that use document-specific styles and can increase memory
+use for large books. Remove the environment variable to restore normal rendering
+and its original annotations.
+
 Bookmarks
 ^^^^^^^^^^^^
 

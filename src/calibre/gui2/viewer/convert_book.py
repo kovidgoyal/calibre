@@ -12,7 +12,7 @@ from itertools import count
 
 from calibre import walk
 from calibre.constants import cache_dir, iswindows
-from calibre.srv.render_book import RENDER_VERSION
+from calibre.srv.render_book import RENDER_VERSION, continuous_flow_enabled
 from calibre.utils.filenames import rmtree
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.lock import ExclusiveFile
@@ -38,7 +38,10 @@ def cache_lock():
 
 def book_hash(path, size, mtime):
     path = os.path.normcase(os.path.abspath(path))
-    raw = json.dumps((path, size, mtime, RENDER_VERSION, VIEWER_VERSION))
+    cache_key = (path, size, mtime, RENDER_VERSION, VIEWER_VERSION)
+    if continuous_flow_enabled():
+        cache_key += ('experimental-continuous-flow-v1',)
+    raw = json.dumps(cache_key)
     if not isinstance(raw, bytes):
         raw = raw.encode('utf-8')
     return as_unicode(sha1(raw).hexdigest())

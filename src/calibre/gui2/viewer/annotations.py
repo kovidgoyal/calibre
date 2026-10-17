@@ -117,12 +117,13 @@ class AnnotationsSaveWorker(Thread):
         ebp = current_book_data['pathtoebook']
         ext = ebp.rpartition('.')[-1].lower()
         can_save_in_book_file = ext in ('epub', 'kepub')
+        continuous = current_book_data.get('continuous_flow', False)
         self.queue.put({
             'annotations_list': alist,
             'annotations_path_key': current_book_data['annotations_path_key'],
-            'book_library_details': current_book_data['book_library_details'],
+            'book_library_details': None if continuous else current_book_data['book_library_details'],
             'pathtoebook': current_book_data['pathtoebook'],
-            'in_book_file': in_book_file and can_save_in_book_file,
+            'in_book_file': in_book_file and can_save_in_book_file and not continuous,
             'sync_annots_user': sync_annots_user,
             'calibre_data': {
                 'library_id': current_book_data.get('calibre_library_id'),
