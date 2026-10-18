@@ -12,6 +12,7 @@ from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
 from calibre.db.cli.cmd_list_categories import do_list
+from calibre.db.tests.base import BaseTest
 from polyglot.io import PolyglotBytesIO
 
 
@@ -99,9 +100,38 @@ class ListCategoriesTest(unittest.TestCase):
         self.assertEqual(lines[1].split(), ['Authors', '3', '10'])
 
 
+class SetCustomTest(BaseTest):
+    def test_set_custom_append_multiple_values(self):
+        from calibre.db.cli.cmd_set_custom import implementation
+
+        db = self.init_cache()
+        db.create_custom_column('append_tags', 'Append tags', 'text', True)
+        db.create_custom_column('append_names', 'Append names', 'text', True, display={'is_names': True})
+        db.close()
+        db = self.init_cache()
+        for column, separator, first, second in (
+            ('append_tags', ',', 'Alpha', 'Beta'),
+            ('append_names', '&', 'Doe, Jane', 'Smith, John'),
+        ):
+            field = '#' + column
+            for append, value, expected in (
+                (True, f'{first}{separator}{second}', ('Existing', first, second)),
+                (True, f' Existing {separator} {first}{separator}{first}{separator} ', ('Existing', first)),
+                (True, first, ('Existing', first)),
+                (True, '', ('Existing',)),
+                (False, f'{first}{separator}{second}', (first, second)),
+            ):
+                with self.subTest(column=column, append=append, value=value):
+                    db.set_field(field, {1: ('Existing',)})
+                    ok, msg = implementation(db, None, column, 1, value, append)
+                    self.assertTrue(ok, msg)
+                    self.assertEqual(db.field_for(field, 1), expected)
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
         loader.loadTestsFromTestCase(PrintCheckLibraryResultsTest),
         loader.loadTestsFromTestCase(ListCategoriesTest),
+        loader.loadTestsFromTestCase(SetCustomTest),
     ))
