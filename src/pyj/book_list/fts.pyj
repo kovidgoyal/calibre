@@ -488,7 +488,7 @@ def show_initial_results():
     results = current_fts_query.results
     left, total = results.indexing_status['left'], results.indexing_status['total']
     if left > 0:
-        pc = int(((total - left) / total) * 100)
+        pc = int(((total - left) / total) * 100) if total > 0 else 0
         container.appendChild(E.div(
             style='margin-top: 0.5ex',
             E.span(_('WARNING:'), style='color: red; font-weight: bold'), '\xa0',

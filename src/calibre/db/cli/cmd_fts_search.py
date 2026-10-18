@@ -19,7 +19,7 @@ def implementation(db, notify_changes, query, adata):
             _('Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it')
         )
     l, t = db.fts_indexing_progress()[:2]
-    if l / t > (1 - adata['threshold']):
+    if l > (1 - adata['threshold']) * t:
         raise NoTracebackException(_('{0} files out of {1} are not yet indexed, searching is disabled').format(l, t))
     if rto:
         if isinstance(rto, str):

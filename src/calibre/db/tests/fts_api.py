@@ -206,6 +206,18 @@ class FTSAPITest(BaseTest):
         cache.reindex_fts_book(2)
         self.ae(fts.all_currently_dirty(), [(2, 'ADDED')])
 
+    def test_fts_indexing_progress(self):
+        cache = self.init_cache()
+        self.libraries_to_close.append(cache)
+        # the cache fts jobs will index formats, changing the numbers, so disable it
+        cache.queue_next_fts_job = lambda *a: None
+        cache.enable_fts(start_pool=False)
+        self.ae(cache.fts_indexing_progress()[:2], (3, 3))
+        cache.remove_formats({2: ['FMT1']})
+        self.ae(cache.fts_indexing_progress()[:2], (2, 2))
+        cache.remove_books((1,))
+        self.ae(cache.fts_indexing_progress()[:2], (0, 0))
+
     def test_fts_to_text(self):
         from calibre.ebooks.oeb.polish.parsing import parse
 

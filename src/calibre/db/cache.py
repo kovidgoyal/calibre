@@ -571,9 +571,8 @@ class Cache:
     _fts_start_measuring_rate = fts_start_measuring_rate
 
     def _update_fts_indexing_numbers(self, job_time=None):
-        # this is called when new formats are added and when a format is
-        # indexed, but NOT when books or formats are deleted, so total may not
-        # be up to date.
+        # this is called when formats are added, removed or indexed and when
+        # books are removed
         nl = self.backend.fts.number_dirtied()
         nt = self.backend.get('SELECT COUNT(*) FROM main.data')[0][0] or 0
         if not nl:
@@ -2615,6 +2614,8 @@ class Cache:
         self._update_last_modified(tuple(formats_map))
         for book_id in formats_map:
             self._queue_pages_scan(book_id)
+        if self.backend.fts_enabled:
+            self._update_fts_indexing_numbers()
         self.event_dispatcher(EventType.formats_removed, formats_map)
         return removed_map
 
@@ -2856,6 +2857,8 @@ class Cache:
         self._clear_caches(book_ids=book_ids, template_cache=False, search_cache=False)
         for cc in self.cover_caches:
             cc.invalidate(book_ids)
+        if self.backend.fts_enabled:
+            self._update_fts_indexing_numbers()
         self.event_dispatcher(EventType.books_removed, book_ids)
         if failures:
             raise BooksNotRemoved(failures, book_ids)
