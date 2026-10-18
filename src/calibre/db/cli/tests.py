@@ -105,13 +105,9 @@ class SetCustomTest(BaseTest):
         from calibre.db.cli.cmd_set_custom import implementation
 
         db = self.init_cache()
-        db.create_custom_column('append_tags', 'Append tags', 'text', True)
-        db.create_custom_column('append_names', 'Append names', 'text', True, display={'is_names': True})
-        db.close()
-        db = self.init_cache()
         for column, separator, first, second in (
-            ('append_tags', ',', 'Alpha', 'Beta'),
-            ('append_names', '&', 'Doe, Jane', 'Smith, John'),
+            ('tags', ',', 'Alpha', 'Beta'),
+            ('authors', '&', 'Doe, Jane', 'Smith, John'),
         ):
             field = '#' + column
             for append, value, expected in (
