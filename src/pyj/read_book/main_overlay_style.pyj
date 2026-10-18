@@ -56,8 +56,8 @@ def main_overlay_css():
                         display='flex', align_items='center', cursor='pointer', padding='0.5ex 1rem',
                         appearance='none', margin='0', border='0', color='inherit',
                         background='transparent', font='inherit')
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':focus',
-                        outline=focus_outline)
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':focus-visible',
+                        outline=focus_outline, box_shadow='none')
     style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ' > svg:first-child', margin_right='0.5ex')
     style += build_rule('.' + MAIN_OVERLAY_FOOTER_SLOT_CLASS, padding='0.5ex 1rem')
     sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
@@ -72,8 +72,8 @@ def main_overlay_css():
                         display='flex', flex_wrap='wrap', align_items='center', cursor='pointer',
                         appearance='none', margin='0', padding='0.5em 1ex', border='0',
                         color='inherit', background='transparent', font='inherit', text_align='left')
-    style += build_rule(action_sel + ':focus',
-                        outline=focus_outline)
+    style += build_rule(action_sel + ':focus-visible',
+                        outline=focus_outline, box_shadow='none')
     style += build_rule(action_sel + ' > .' + MAIN_OVERLAY_ACTION_ICON_CLASS + ':first-child', margin_right='0.5ex')
     style += build_rule('.' + MAIN_OVERLAY_TEXT_ICON_CLASS, font_size='175%', font_weight='bold')
     style += build_rule(action_sel + ':hover, .' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':hover',

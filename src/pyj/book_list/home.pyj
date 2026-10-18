@@ -367,7 +367,7 @@ def change_password():
                 return
             ajax_send('users/change-pw', {'oldpw': oldpw, 'newpw': pw1}, on_complete)
             show_msg(_('Contacting server, please wait...'), True)
-            parent.lastChild.display = 'none'
+            parent.lastChild.style.display = 'none'
         parent.appendChild(
             E.div(class_='button-box',
                 create_button(_('Cancel'), None, close_modal),

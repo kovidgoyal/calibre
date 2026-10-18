@@ -338,7 +338,7 @@ add_extra_css(def ():
         object_fit='cover',
         border_radius='12px',
         border='var(--calibre-border-style-subtle)',
-        background_color='rgba(0,0,0,0.05)',
+        background_color='var(--calibre-color-placeholder-background)',
         box_shadow='0 12px 32px rgba(0,0,0,0.16)',
         transition='transform 200ms ease, box-shadow 200ms ease'
     )

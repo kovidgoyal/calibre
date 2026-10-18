@@ -146,7 +146,7 @@ add_extra_css(def ():
         border_radius='14px',
         overflow='hidden',
         border='var(--calibre-border-style-subtle)',
-        background='rgba(0,0,0,0.04)',
+        background='var(--calibre-color-placeholder-background)',
         box_shadow='0 10px 24px rgba(0,0,0,0.12)'
     )
     style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-preview img',

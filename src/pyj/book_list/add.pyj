@@ -111,7 +111,7 @@ add_extra_css(def ():
         border_radius='999px',
         overflow='hidden',
         border='none',
-        background_color='rgba(0,0,0,0.08)',
+        background_color='var(--calibre-color-progress-track)',
         accent_color='var(--calibre-color-primary)',
     )
     s += build_rule('.cs-upload-progress-label',

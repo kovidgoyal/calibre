@@ -118,7 +118,7 @@ DEFAULT_COLORS = {
     'window-foreground': c(DARK, DT_LIGHT),
     'window-error-foreground': c('#c00', '#ff6b6b'),
     'window-hover-foreground': c('#c00', '#ff6b6b'),
-    'window-success-foreground': c('green', '#5fbf5f'),
+    'window-success-foreground': c('#008000', '#5fbf5f'),
     'link-foreground': c('blue', '#6cb4ee'),
     'faded-text': c('#666', '#9a9a9a'),
     'border': c('rgba(0,0,0,0.12)', 'rgba(255,255,255,0.12)'),
@@ -131,6 +131,8 @@ DEFAULT_COLORS = {
     'faint-background': c('rgba(0,0,0,0.02)', 'rgba(255,255,255,0.03)'),
     'loading-overlay-background': c('rgba(255,255,255,0.55)', hex_as_rgba(DT_DARK, '0.55')),
     'rating-empty-star': c('rgba(0,0,0,0.18)', 'rgba(255,255,255,0.22)'),
+    'placeholder-background': c('rgba(0,0,0,0.05)', 'rgba(255,255,255,0.06)'),
+    'progress-track': c('rgba(0,0,0,0.08)', 'rgba(255,255,255,0.12)'),
     # Top bar specific colors
     'bar-background': c(DARK, DT_DARK_LIGHTER),
     'bar-foreground': c(LIGHT, DT_DARK_LIGTHER_CONTRAST),

@@ -37,7 +37,7 @@ add_extra_css(def ():
     css += ' }\n'
     css += '.calibre-image-popup a:hover { background: rgba(255,255,255,0.16); }\n'
     css += '.calibre-image-popup a:active { transform: scale(0.98); }\n'
-    css += '.calibre-image-popup a:focus { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\n'
+    css += '.calibre-image-popup a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\n'
     css += '.calibre-image-popup svg { width: 2.1ex; height: 2.1ex; }\n'
     css += '.calibre-image-popup.fit-to-window a.fit-to-window {'
     css += ' background: rgba(108,180,238,0.28);'

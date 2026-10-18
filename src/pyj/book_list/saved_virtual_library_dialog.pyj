@@ -138,10 +138,6 @@ add_extra_css(def (): return '''
         background: var(--calibre-color-primary-light);
         border-color: var(--calibre-color-border);
     }
-    & .vl-import-icon-btn:focus {
-        outline: none;
-        box-shadow: var(--calibre-focus-ring);
-    }
     & .vl-import-icon-overlay {
         position: absolute;
         inset: 0;

@@ -46,6 +46,8 @@ a {
     &:focus-visible { outline: none; box-shadow: var(--calibre-focus-ring); border-radius: 8px; }
 }
 
+button:focus-visible { outline: none; box-shadow: var(--calibre-focus-ring); }
+
 a.calibre-icon-button {
     display: inline-flex;
     align-items: center;
