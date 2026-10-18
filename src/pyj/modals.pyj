@@ -272,13 +272,15 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
         ),
         E.div(
             (html_container if is_html_msg else msg),
-            style='padding-top: 1em; margin-top: 1em; border-top: var(--calibre-border-style-subtle); min-width:0; overflow-wrap:anywhere; word-break:break-word',
+            style='padding-top: 1em; margin-top: 1em; border-top: var(--calibre-border-style-subtle);'
+            + ' min-width:0; overflow-wrap:anywhere; word-break:break-word',
         ),
         E.div(
             style='display: ' + ('block' if details else 'none'),
             show_details,
             E.div(details_container,
-                  style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: var(--calibre-border-style-subtle); padding-top: 1em'),
+                  style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em;'
+                  + ' border-top: var(--calibre-border-style-subtle); padding-top: 1em'),
         ),
     ))
 
