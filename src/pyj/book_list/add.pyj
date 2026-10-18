@@ -47,7 +47,7 @@ add_extra_css(def ():
         border_radius='14px',
         background_color='var(--calibre-color-primary-light)',
         color='inherit',
-        transition='background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease',
+        transition='background-color var(--cs-dur-fast) ease, border-color var(--cs-dur-fast) ease, box-shadow var(--cs-dur-fast) ease',
     )
     s += build_rule(sel + '.cs-upload-dropzone',
         min_height='min(72vh, 520px)',

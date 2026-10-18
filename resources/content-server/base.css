@@ -15,10 +15,22 @@
     /* Motion system */
     --cs-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
     --cs-ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --cs-dur-fast: 160ms;
+    --cs-dur-medium: 200ms;
     --cs-dur-1: 140ms;
     --cs-dur-2: 220ms;
     --cs-dur-3: 360ms;
     --cs-transition: var(--cs-dur-2) var(--cs-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --cs-dur-fast: 0ms;
+        --cs-dur-medium: 0ms;
+        --cs-dur-1: 0ms;
+        --cs-dur-2: 0ms;
+        --cs-dur-3: 0ms;
+    }
 }
 
 html, body { height: 100%; }
@@ -89,7 +101,7 @@ a.calibre-push-button {
     text-decoration: none;
     user-select: none;
     white-space: nowrap;
-    transition: background 160ms ease, box-shadow 160ms ease, border-color 160ms ease, color 160ms ease;
+    transition: background var(--cs-dur-fast) ease, box-shadow var(--cs-dur-fast) ease, border-color var(--cs-dur-fast) ease, color var(--cs-dur-fast) ease;
     max-width: 100%;
     overflow: hidden;
 

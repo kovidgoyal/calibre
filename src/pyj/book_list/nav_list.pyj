@@ -340,7 +340,7 @@ add_extra_css(def ():
         border='var(--calibre-border-style-subtle)',
         background_color='var(--calibre-color-placeholder-background)',
         box_shadow='0 12px 32px rgba(0,0,0,0.16)',
-        transition='transform 200ms ease, box-shadow 200ms ease'
+        transition='transform var(--cs-dur-medium) ease, box-shadow var(--cs-dur-medium) ease'
     )
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img:hover',
         box_shadow='0 26px 64px rgba(0,0,0,0.22)'
@@ -410,10 +410,10 @@ add_extra_css(def ():
         background_color=get_color('window-background'),
         opacity='0',
         pointer_events='none',
-        transition='opacity 160ms ease'
+        transition='opacity var(--cs-dur-fast) ease'
     )
     style += build_rule(sel + '.cs-list-content',
-        transition='opacity 160ms ease',
+        transition='opacity var(--cs-dur-fast) ease',
         will_change='opacity'
     )
     # Nav browse list: rating/count column absolutely positioned right. Row uses flex + align center so

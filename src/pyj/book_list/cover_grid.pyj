@@ -237,7 +237,7 @@ def cover_grid_css():
         position='relative',
         overflow='visible',
         box_sizing='border-box',
-        transition='background-color 160ms ease, width 0.2s ease',
+        transition='background-color var(--cs-dur-fast) ease, width var(--cs-dur-medium) ease',
         container_type='inline-size',
     )
     # No hover zoom; use highlight instead
@@ -253,7 +253,7 @@ def cover_grid_css():
         box_shadow='0 clamp(10px, 1.8vh, 14px) clamp(26px, 4.2vh, 48px) rgba(0,0,0,0.18)',
         border='var(--calibre-border-style-subtle)',
         background_color='var(--calibre-color-faint-background)',
-        transition='box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease'
+        transition='box-shadow var(--cs-dur-fast) ease, background-color var(--cs-dur-fast) ease, border-color var(--cs-dur-fast) ease'
     )
     ans += build_rule(f'{item_sel}:hover > .cs-cover-frame',
         background_color='var(--calibre-color-primary-light)',

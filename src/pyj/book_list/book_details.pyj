@@ -741,10 +741,10 @@ add_extra_css(def ():
         background_color='var(--calibre-color-loading-overlay-background)',
         opacity='0',
         pointer_events='none',
-        transition='opacity 160ms ease'
+        transition='opacity var(--cs-dur-fast) ease'
     )
     style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading .cs-bd-loading-overlay', opacity='1')
-    style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading .cs-bd-loading-content', opacity='0.45', transition='opacity 160ms ease')
+    style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading .cs-bd-loading-content', opacity='0.45', transition='opacity var(--cs-dur-fast) ease')
     style += r'''
 @keyframes cs_spin_bd { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .book-details-panel .cs-bd-loading-overlay svg { animation: cs_spin_bd 1.2s linear infinite; opacity: 0.85; }

@@ -42,7 +42,7 @@ def custom_list_css():
     ans += build_rule(f'{sel}:hover .custom-list-left > img', box_shadow='0 10px 24px rgba(0,0,0,0.14)')
     s = sel + ' .custom-list-left'
     ans += build_rule(s, margin_right='1em')
-    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS + 'px', transition='box-shadow 160ms ease')
+    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS + 'px', transition='box-shadow var(--cs-dur-fast) ease')
     sel += ' iframe'
     # To enable clicking anywhere on the item to load book details to work, we
     # have to set pointer-events: none

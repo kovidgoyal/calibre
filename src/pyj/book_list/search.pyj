@@ -124,7 +124,7 @@ add_extra_css(def ():
         cursor='pointer',
         overflow='hidden',
         user_select='none',
-        transition='background-color 160ms ease, border-color 160ms ease',
+        transition='background-color var(--cs-dur-fast) ease, border-color var(--cs-dur-fast) ease',
     )
     style += build_rule(sel + ' .cs-search-tag-row:hover',
         background_color='var(--calibre-color-primary-light)',

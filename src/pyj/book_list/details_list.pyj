@@ -90,7 +90,7 @@ def details_list_css():
         display='block',
         object_fit='cover',
         border='var(--calibre-border-style-subtle)',
-        transition='box-shadow 160ms ease'
+        transition='box-shadow var(--cs-dur-fast) ease'
     )
     s = sel + ' .details-list-right'
     ans += build_rule(s,
