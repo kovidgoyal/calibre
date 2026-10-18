@@ -91,6 +91,11 @@ def dark_theme_css_uses_shared_variables():
             '--calibre-color-bar-foreground': '#1d1d1d',
             '--calibre-color-button-start': '#ddd',
             '--calibre-color-button-end': '#666',
+            '--calibre-color-faded-text': '#9a9a9a',
+            '--calibre-color-window-error-foreground': '#ff6b6b',
+            '--calibre-color-faint-background': 'rgba(255,255,255,0.03)',
+            '--calibre-color-loading-overlay-background': 'rgba(45,45,45,0.55)',
+            '--calibre-color-rating-empty-star': 'rgba(255,255,255,0.22)',
         })
         assert_css_and_dom_use_variables(variables, css, style)
         assert_equal(style.colorScheme, 'dark')

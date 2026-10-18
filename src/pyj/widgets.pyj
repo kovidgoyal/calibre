@@ -431,7 +431,7 @@ def scroll_tree_item_into_view(item):
 # }}}
 
 add_extra_css(def ():
-    ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
+    ans = 'a:focus, button:focus { outline: none } a::-moz-focus-inner, button::-moz-focus-inner { border: 0 }\n'
     ans += (
         '.simple-link { cursor: pointer } .simple-link:hover { color: HC }'
         ' .simple-link:active { transform: scale(1.5) }\n'
