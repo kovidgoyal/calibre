@@ -12,6 +12,7 @@ from book_list.library_data import (
     all_libraries, last_virtual_library_for, sync_library_books, thumbnail_url
 )
 from book_list.router import open_book, update_window_title
+from book_list.theme import get_color
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, unique_id
@@ -329,20 +330,20 @@ def change_password():
         ids = unique_id(), unique_id(), unique_id()
         parent.appendChild(E.table(
             E.tr(
-                E.td(E.label(_('Current password:') + '\xa0', for_=ids[0])), set_css(E.td(E.input(type='password'), id=ids[0]), padding_bottom='1.5ex')
+                E.td(E.label(_('Current password:') + '\xa0', for_=ids[0])), set_css(E.td(E.input(type='password', id=ids[0])), padding_bottom='1.5ex')
             ),
             E.tr(
-                E.td(E.label(_('New password:') + '\xa0', for_=ids[1])), set_css(E.td(E.input(type='password'), id=ids[1]), padding_bottom='1.5ex')
+                E.td(E.label(_('New password:') + '\xa0', for_=ids[1])), set_css(E.td(E.input(type='password', id=ids[1])), padding_bottom='1.5ex')
             ),
             E.tr(
-                E.td(E.label(_('New password again:') + '\xa0', for_=ids[2])), set_css(E.td(E.input(type='password'), id=ids[2]), padding_bottom='1.5ex')
+                E.td(E.label(_('New password again:') + '\xa0', for_=ids[2])), set_css(E.td(E.input(type='password', id=ids[2])), padding_bottom='1.5ex')
             )
         ))
         parent.appendChild(E.div())
         def show_msg(html, is_info):
             msg = parent.firstChild.nextSibling
             safe_set_inner_html(msg, html)
-            msg.style.color = 'red' if not is_info else 'currentColor'
+            msg.style.color = get_color('window-error-foreground') if not is_info else 'currentColor'
         def on_complete(end_type, xhr, ev):
             if end_type is 'load':
                 clear(parent)

@@ -591,7 +591,7 @@ add_extra_css(def ():
         padding='1.1rem 1.1rem',
         border='var(--calibre-border-style-subtle)',
         border_radius='18px',
-        background_color='rgba(0,0,0,0.02)',
+        background_color='var(--calibre-color-faint-background)',
         box_shadow='0 10px 30px rgba(0,0,0,0.06)'
     )
     style += build_rule(sel + '.cs-bd-initial-loading-row',
@@ -615,7 +615,7 @@ add_extra_css(def ():
         padding='1rem',
         border='var(--calibre-border-style-subtle)',
         border_radius='18px',
-        background_color='rgba(0,0,0,0.02)',
+        background_color='var(--calibre-color-faint-background)',
         box_shadow='0 10px 30px rgba(0,0,0,0.06)'
     )
     style += build_rule(sel + '.cs-bd-cover',
@@ -678,7 +678,7 @@ add_extra_css(def ():
         padding='0.15rem 0.45rem',
         border_radius='999px',
         border='var(--calibre-border-style-subtle)',
-        background='rgba(0,0,0,0.02)',
+        background='var(--calibre-color-faint-background)',
         max_width='100%',
         white_space='nowrap',
         overflow='hidden',
@@ -738,7 +738,7 @@ add_extra_css(def ():
     style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading-overlay',
         position='absolute', left='0', top='0', right='0', bottom='0',
         display='flex', align_items='center', justify_content='center',
-        background_color='rgba(255,255,255,0.55)',
+        background_color='var(--calibre-color-loading-overlay-background)',
         opacity='0',
         pointer_events='none',
         transition='opacity 160ms ease'

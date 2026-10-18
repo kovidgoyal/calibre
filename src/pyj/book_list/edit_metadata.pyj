@@ -124,7 +124,7 @@ add_extra_css(def ():
         padding='0.6rem 0.75rem',
         border_radius='12px',
         border='var(--calibre-border-style-subtle)',
-        background_color='rgba(0,0,0,0.02)'
+        background_color='var(--calibre-color-faint-background)'
     )
     style += build_rule(sel + 'div[data-ctype="edit"] textarea',
         min_height='10rem',

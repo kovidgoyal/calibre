@@ -43,7 +43,7 @@ a {
 
     &:visited { color: var(--calibre-color-primary); opacity: 0.92; }
     &:hover { text-decoration: underline; }
-    &:focus { outline: none; box-shadow: var(--calibre-focus-ring); border-radius: 8px; }
+    &:focus-visible { outline: none; box-shadow: var(--calibre-focus-ring); border-radius: 8px; }
 }
 
 a.calibre-icon-button {

@@ -282,7 +282,8 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
     ))
 
 
-def create_simple_dialog(title, msg, details, icon, prefix, on_close=None, icon_color='red'):
+def create_simple_dialog(title, msg, details, icon, prefix, on_close=None, icon_color=None):
+    icon_color = icon_color or get_color('window-error-foreground')
     show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix, icon_color), on_close=on_close)
 
 
@@ -465,7 +466,7 @@ def warning_dialog(title, msg, details=None, on_close=None):
 
 
 def info_dialog(title, msg, details=None, on_close=None):
-    create_simple_dialog(title, msg, details, 'check', '', on_close, icon_color='green')
+    create_simple_dialog(title, msg, details, 'check', '', on_close, icon_color=get_color('window-success-foreground'))
 
 
 def progress_dialog(msg, on_close=None):
