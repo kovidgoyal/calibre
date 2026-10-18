@@ -242,7 +242,7 @@ add_extra_css(def ():
     )
     style += build_rule(sel + 'a.cs-tag-bubble:hover', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + 'a.cs-tag-bubble:active', transform='scale(0.99)')
-    style += build_rule(sel + 'a.cs-tag-bubble:focus', outline='none', box_shadow='var(--calibre-focus-ring)')
+    style += build_rule(sel + 'a.cs-tag-bubble:focus-visible', outline='none', box_shadow='var(--calibre-focus-ring)')
     style += build_rule(sel + 'a.cs-tag-bubble .cs-tag-meta', font_size='0.85em', opacity='0.78')
     style += build_rule(sel + '.cs-show-more-wrap',
         padding='0.25rem 1rem 1rem 1rem',
@@ -256,7 +256,7 @@ add_extra_css(def ():
         padding='0.55rem 0.9rem',
         border_radius='999px',
         border='var(--calibre-border-style-subtle)',
-        background_color='rgba(0,0,0,0.02)',
+        background_color='var(--calibre-color-faint-background)',
         color=get_color('window-foreground'),
         text_decoration='none',
         cursor='pointer',
@@ -273,7 +273,7 @@ add_extra_css(def ():
         user_select='none'
     )
     style += build_rule(sel + '.cs-rating-stars-base',
-        color='rgba(0,0,0,0.18)'
+        color='var(--calibre-color-rating-empty-star)'
     )
     style += build_rule(sel + '.cs-rating-stars-fill',
         position='absolute',

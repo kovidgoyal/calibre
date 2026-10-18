@@ -18,7 +18,7 @@ add_extra_css(def ():
         padding='0.6rem 0.75rem',
         border='var(--calibre-border-style-subtle)',
         border_radius='12px',
-        background_color='rgba(0,0,0,0.02)',
+        background_color='var(--calibre-color-faint-background)',
         font_style='normal',
         opacity='0.8'
     )

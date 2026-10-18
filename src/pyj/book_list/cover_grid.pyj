@@ -252,7 +252,7 @@ def cover_grid_css():
         border_radius=BORDER_RADIUS + 'px',
         box_shadow='0 clamp(10px, 1.8vh, 14px) clamp(26px, 4.2vh, 48px) rgba(0,0,0,0.18)',
         border='var(--calibre-border-style-subtle)',
-        background_color='rgba(0,0,0,0.02)',
+        background_color='var(--calibre-color-faint-background)',
         transition='box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease'
     )
     ans += build_rule(f'{item_sel}:hover > .cs-cover-frame',

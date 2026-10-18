@@ -92,7 +92,7 @@ add_extra_css(def ():
             }
             &:hover { background: var(--calibre-color-primary-light); }
             &:active { transform: none; opacity: 0.92; }
-            &:focus { outline: none; box-shadow: var(--calibre-focus-ring); }
+            &:focus-visible { outline: none; box-shadow: var(--calibre-focus-ring); }
             &.cs-nav-item:hover { background: var(--calibre-color-primary-light-2); }
             &[data-active="1"] {
                 background: var(--calibre-color-primary-light-2);
