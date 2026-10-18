@@ -57,12 +57,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if regex:
             try:
                 compile_regular_expression(regex)
-                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
+                self.regex.setStyleSheet('QLineEdit { background-color: rgba(0,255,0,20%); }')
                 return True
             except Exception:
-                self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(255,0,0,20%); }')
+                self.regex.setStyleSheet('QLineEdit { background-color: rgba(255,0,0,20%); }')
         else:
-            self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+            self.regex.setStyleSheet('')
             self.preview.setExtraSelections([])
 
         self.match_locs = []

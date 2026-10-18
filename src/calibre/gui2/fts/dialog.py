@@ -5,7 +5,7 @@ import os
 
 from qt.core import QAction, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, Qt, QVBoxLayout
 
-from calibre.gui2 import error_dialog, warning_dialog
+from calibre.gui2 import error_dialog, qapplication_or_fail, warning_dialog
 from calibre.gui2.fts.scan import ScanStatus
 from calibre.gui2.fts.search import ResultsPanel
 from calibre.gui2.fts.utils import get_db
@@ -36,8 +36,9 @@ class FTSDialog(Dialog):
 
     def setup_ui(self):
         l = QVBoxLayout(self)
+        red = '#ff6b6b' if qapplication_or_fail().is_dark_theme else 'red'
         self.fat_warning = fw = QLabel(
-            f'<span style="color:red; font-weight: bold">{_("WARNING")}:</span> '
+            f'<span style="color:{red}; font-weight: bold">{_("WARNING")}:</span> '
             + _("The calibre library is on a FAT drive, indexing more than a few hundred books won't work.")
             + f' <a href="xxx" style="text-decoration: none">{_("Learn more")}</a>'
         )
@@ -112,7 +113,7 @@ class FTSDialog(Dialog):
                     t = _('Indexing is almost complete') if q == '100%' else _('Indexing is only {} done').format(q)
                     ss = ''
                     if p < 0.9:
-                        ss = 'QLabel { color: red }'
+                        ss = 'QLabel { color: %s }' % ('#ff6b6b' if qapplication_or_fail().is_dark_theme else 'red')
                     self.indexing_label.setStyleSheet(ss)
                     self.indexing_label.setText(t)
                 else:
