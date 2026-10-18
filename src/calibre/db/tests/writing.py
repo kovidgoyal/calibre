@@ -161,6 +161,11 @@ class WritingTest(BaseTest):
         db.set_pages(1, 12, algorithm=1, format='test', format_size=13)
         a = db.get_pages(1)
         self.assertEqual(Pages(12, 1, 'test', 13, a.timestamp), a)
+        # setting pages for a non-existent book must be a no-op, not a FOREIGN KEY error
+        db.remove_books((1,), permanent=True)
+        db.set_pages(1, 7)
+        self.assertIsNone(db.get_pages(1))
+        self.assertNotIn(1, db.fields['pages'].table.book_col_map)
 
     # }}}
 

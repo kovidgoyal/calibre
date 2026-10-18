@@ -21,6 +21,9 @@ class PageCountTest(BaseTest):
     def test_page_count_refreshes_file_sizes(self):
         test_page_count_refreshes_file_sizes(self)
 
+    def test_page_count_deleted_book(self):
+        test_page_count_deleted_book(self)
+
     def test_page_count(self):
         from calibre.library.page_count import test_page_count
 
@@ -137,3 +140,44 @@ def test_page_count_refreshes_file_sizes(self: BaseTest) -> None:
     self.ae(2, len(counted))
     self.ae(db.pages_needs_scan(), set())
     self.ae(db.format_db_size(1, 'TXT'), len(new_data))
+
+
+def test_page_count_deleted_book(self: BaseTest) -> None:
+    from threading import Event
+
+    from calibre.library.page_count import CHARS_PER_PAGE
+
+    db = self.init_cache()
+    worker = db.maintain_page_counts
+    counting, resume = Event(), Event()
+    timed_out: list[str] = []
+
+    def pause_count(fmt_file: str) -> None:
+        counting.set()
+        if not resume.wait(10):
+            timed_out.append(fmt_file)
+
+    txt_data = ('a ' * (2 * CHARS_PER_PAGE + 10)).encode()
+    worker.count_callback = pause_count
+    try:
+        # delete the book while its pages are being counted
+        worker.tick_event.clear()
+        db.add_format(1, 'TXT', io.BytesIO(txt_data), replace=True)
+        self.assertTrue(counting.wait(10), 'Page count worker did not start counting')
+        db.remove_books((1,), permanent=True)
+        resume.set()
+        self.assertTrue(worker.tick_event.wait(10), 'Page count worker did not finish the deleted book')
+        self.assertFalse(timed_out)
+        self.assertTrue(worker.is_alive())
+        self.assertIsNone(db.get_pages(1))
+    finally:
+        resume.set()
+        worker.count_callback = lambda fmt_file: None
+
+    # the worker must still count subsequent books
+    worker.tick_event.clear()
+    db.add_format(2, 'TXT', io.BytesIO(txt_data), replace=True)
+    self.assertTrue(worker.tick_event.wait(10), 'Page count worker did not process the next book')
+    self.assertTrue(worker.is_alive())
+    self.ae(db.field_for('pages', 2), 3)
+    self.ae(db.pages_needs_scan((2,)), set())

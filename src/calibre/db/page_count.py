@@ -77,16 +77,25 @@ class MaintainPageCounts(Thread):
         with Server() as server, TemporaryDirectory() as tdir:
             self.tdir = tdir
             while not self.shutdown_event.is_set():
-                with suppress(apsw.ConnectionClosedError):
-                    try:
-                        book_id = g()
-                    except ShutDown:
-                        break
+                try:
+                    book_id = g()
+                except ShutDown:
+                    break
+                try:
                     if book_id:
                         self.count_book_and_commit(book_id, server)
                         self.flush_size_updates()
                     else:
                         self.do_backlog(server)
+                except apsw.ConnectionClosedError:
+                    pass  # the database is being closed
+                except Exception:
+                    # Do not let an unexpected error kill the worker, as then
+                    # page counts would silently stop being maintained
+                    import traceback
+
+                    traceback.print_exc()
+                finally:
                     self.tick_event.set()
 
     def do_backlog(self, server: Server) -> None:

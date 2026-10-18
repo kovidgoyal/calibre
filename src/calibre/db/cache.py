@@ -2132,7 +2132,11 @@ class Cache:
         format: str = '',
         format_size: int = 0,
     ) -> None:
-        "Set page count information for the specified book"
+        "Set page count information for the specified book. Does nothing if the book does not exist."
+        if not self._has_id(book_id):
+            # For example, the book was deleted while its pages were being
+            # counted in the background
+            return
         now = sqlite_datetime(utcnow())
         self.backend.execute(
             '''
