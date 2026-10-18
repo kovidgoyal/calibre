@@ -100,6 +100,37 @@ class ListCategoriesTest(unittest.TestCase):
         self.assertEqual(lines[1].split(), ['Authors', '3', '10'])
 
 
+class FTSSearchTest(BaseTest):
+    def test_fts_search_indexing_threshold(self):
+        from calibre.db.cli.cmd_fts_search import implementation
+        from calibre.db.errors import NoTracebackException
+
+        db = self.init_cache()
+        adata = {
+            'restrict_to': '',
+            'threshold': 0.9,
+            'include_snippets': False,
+            'use_stemming': True,
+            'start_marker': '',
+            'end_marker': '',
+        }
+        db.enable_fts(start_pool=False)
+        self.assertGreater(db.fts_indexing_progress()[0], 0)
+        with self.assertRaises(NoTracebackException):
+            implementation(db, None, 'test', adata)
+
+        db.enable_fts(False)
+        db.remove_formats({book_id: db.formats(book_id) for book_id in db.all_book_ids()})
+        db.enable_fts(start_pool=False)
+        for empty in (False, True):
+            if empty:
+                db.remove_books(db.all_book_ids(), permanent=True)
+            with self.subTest(empty=empty):
+                self.assertEqual(bool(db.all_book_ids()), not empty)
+                self.assertEqual(db.fts_indexing_progress()[:2], (0, 0))
+                self.assertEqual(implementation(db, None, 'test', adata), ((), {}))
+
+
 class SetCustomTest(BaseTest):
     def test_set_custom_append_multiple_values(self):
         from calibre.db.cli.cmd_set_custom import implementation
@@ -129,5 +160,6 @@ def find_tests():
     return unittest.TestSuite((
         loader.loadTestsFromTestCase(PrintCheckLibraryResultsTest),
         loader.loadTestsFromTestCase(ListCategoriesTest),
+        loader.loadTestsFromTestCase(FTSSearchTest),
         loader.loadTestsFromTestCase(SetCustomTest),
     ))
