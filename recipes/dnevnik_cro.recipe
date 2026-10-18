@@ -69,7 +69,7 @@ class DnevnikCro(BasicNewsRecipe):
             'frames',
             'rules',
             'border',
-        ]  # noqa: E501
+        ]
         for item in soup.body.findAll(name=['table', 'td', 'tr', 'th', 'caption', 'thead', 'tfoot', 'tbody', 'colgroup', 'col']):
             item.name = 'div'
             for attrib in attribs:

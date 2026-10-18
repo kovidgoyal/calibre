@@ -47,7 +47,7 @@ class Dziennik_pl(BasicNewsRecipe):
         dict(name='a', attrs={'class': ['komentarz', 'article_icon_addcommnent']}),
         dict(name='ins'),
         dict(name='br'),
-    ]  # noqa: E501
+    ]
     feeds = [
         ('Wszystko', 'http://rss.dziennik.pl/Dziennik-PL/'),
         ('Wiadomości', 'http://rss.dziennik.pl/Dziennik-Wiadomosci'),

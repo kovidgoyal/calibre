@@ -20,14 +20,14 @@ DML_ERRORS = {
     'DLL_NOT_INITIALIZED': (
         0x4003,
         'A DDEML function was called without first calling the DdeInitialize function, or an invalid instance identifier was passed to a DDEML function.',
-    ),  # noqa: E501
+    ),
     'DLL_USAGE': (
         0x4004,
         (
             'An application initialized as APPCLASS_MONITOR has attempted to perform a DDE transaction,'
             ' or an application initialized as APPCMD_CLIENTONLY has attempted to perform server transactions.'
         ),
-    ),  # noqa: E501
+    ),
     'EXECACKTIMEOUT': (0x4005, 'A request for a synchronous execute transaction has timed out.'),
     'INVALIDPARAMETER': (
         0x4006,
@@ -41,14 +41,14 @@ DML_ERRORS = {
             ' handle with a server-side function or vice versa.  The application used a freed data handle or string handle.'
             ' More than one instance of the application used the same object.'
         ),
-    ),  # noqa: E501
+    ),
     'LOW_MEMORY': (
         0x4007,
         (
             'A DDEML application has created a prolonged race condition (in which the server application outruns the client),'
             ' causing large amounts of memory to be consumed.'
         ),
-    ),  # noqa: E501
+    ),
     'MEMORY_ERROR': (0x4008, 'A memory allocation has failed.'),
     'NO_CONV_ESTABLISHED': (0x400A, "A client's attempt to establish a conversation has failed."),
     'NOTPROCESSED': (0x4009, 'A transaction has failed.'),
@@ -60,11 +60,11 @@ DML_ERRORS = {
             'An application instance with a synchronous transaction already in progress attempted to initiate'
             ' another synchronous transaction, or the DdeEnableCallback function was called from within a DDEML callback function.'
         ),
-    ),  # noqa: E501
+    ),
     'SERVER_DIED': (
         0x400E,
         'A server-side transaction was attempted on a conversation terminated by the client, or the server terminated before completing a transaction.',
-    ),  # noqa: E501
+    ),
     'SYS_ERROR': (0x400F, 'An internal error has occurred in the DDEML.'),
     'UNADVACKTIMEOUT': (0x4010, 'A request to end an advise transaction has timed out.'),
     'UNFOUND_QUEUE_ID': (
@@ -73,7 +73,7 @@ DML_ERRORS = {
             'An invalid transaction identifier was passed to a DDEML function.'
             ' Once the application has returned from an XTYP_XACT_COMPLETE callback, the transaction identifier for that callback function is no longer valid.'
         ),
-    ),  # noqa: E501
+    ),
 }
 DML_ERROR_TEXT = dict(DML_ERRORS.values())
 

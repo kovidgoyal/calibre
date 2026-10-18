@@ -109,7 +109,7 @@ if iswindows:
                 shutil.rmtree(x)
                 return
             except Exception:
-                import os  # noqa
+                import os
 
                 if os.path.exists(x):
                     # In case some other program has one of the files open.

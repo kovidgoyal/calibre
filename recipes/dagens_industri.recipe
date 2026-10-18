@@ -24,7 +24,7 @@ class AdvancedUserRecipe1311450855(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='h1', attrs={'id': 'ctl00_ExtraWideContentRegion_WideContentRegion_MainRegion_MainContentRegion_MainBodyRegion_headlineNormal'}),
         dict(name='div', attrs={'id': 'articleBody'}),
-    ]  # noqa: E501
+    ]
 
     remove_tags = [
         dict(name='div', attrs={'class': 'article-actions clear'}),
@@ -32,5 +32,5 @@ class AdvancedUserRecipe1311450855(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'header'}),
         dict(name='div', attrs={'class': 'content clear'}),
         dict(name='div', attrs={'id': 'articleAdvertisementDiv'}),
-        dict(name='ul', attrs={'class': 'action-list'}),  # noqa: E501
+        dict(name='ul', attrs={'class': 'action-list'}),
     ]

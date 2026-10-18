@@ -535,7 +535,7 @@ def main(args=sys.argv):
         attr = 'ebook_diff'
     else:
         attr = 'file_diff'
-    app = Application([])  # noqa: F841
+    app = Application([])
     d = Diff(show_as_window=True)
     func = getattr(d, attr)
     QTimer.singleShot(0, lambda: func(left, right))

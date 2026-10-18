@@ -399,7 +399,7 @@ def google_specialize_browser(br):
                 br.set_simple_cookie(c['name'], c['value'], c['domain'], path=c['path'])
             br.google_consent_cookie_added = True
     # google serves JS based pages without the right user agent
-    br.set_user_agent('Lynx/2.8.6rel.5 libwww-FM/2.14')  # noqa
+    br.set_user_agent('Lynx/2.8.6rel.5 libwww-FM/2.14')
     return br
 
 

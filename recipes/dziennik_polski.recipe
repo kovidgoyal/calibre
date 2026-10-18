@@ -39,7 +39,7 @@ class DziennikPolski24(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['picture']}),
         dict(name='div', attrs={'id': ['showContent']}),
         dict(name='div', attrs={'class': ['paging']}),
-        dict(name='div', attrs={'class': ['wykupTresc']}),  # noqa: E501
+        dict(name='div', attrs={'class': ['wykupTresc']}),
     ]
 
     remove_tags = []

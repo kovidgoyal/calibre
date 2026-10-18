@@ -5,7 +5,7 @@ class Warentest(BasicNewsRecipe):
     title = 'Warentest'
     language = 'de'
     description = (
-        'Stiftung Warentest is a German consumer organisation and foundation involved in investigating and comparing goods and services in an unbiased way'  # noqa: E501
+        'Stiftung Warentest is a German consumer organisation and foundation involved in investigating and comparing goods and services in an unbiased way'
     )
     __author__ = 'asdfdsfksd'
     needs_subscription = False

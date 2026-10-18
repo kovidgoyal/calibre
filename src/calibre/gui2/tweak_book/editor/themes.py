@@ -68,7 +68,7 @@ SLDX = {
     'blue': '0087ff',
     'cyan': '00afaf',
     'green': '5f8700',
-}  # noqa: E501
+}
 SLD = {
     'base03': '002b36',
     'base02': '073642',
@@ -86,7 +86,7 @@ SLD = {
     'blue': '268bd2',
     'cyan': '2aa198',
     'green': '859900',
-}  # noqa: E501
+}
 m = {f'base{n}': f'base{n:02}' for n in range(1, 4)}
 m.update({f'base{n:02}': f'base{n}' for n in range(1, 4)})
 SLL = {m.get(k, k): v for k, v in SLD.items()}

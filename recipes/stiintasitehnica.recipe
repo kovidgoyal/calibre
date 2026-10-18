@@ -35,7 +35,7 @@ class Stiintasitehnica(BasicNewsRecipe):
         dict(name='div', attrs={'id': ['pointer']}),
         dict(name='img', attrs={'class': ['nav-next', 'nav-prev']}),
         dict(name='table', attrs={'class': ['connect_widget_interactive_area']}),
-        dict(name='hr', attrs={'class': ['dotted']}),  # noqa: E501
+        dict(name='hr', attrs={'class': ['dotted']}),
     ]
 
     remove_tags_after = [dict(name='hr', attrs={'class': ['dotted']})]

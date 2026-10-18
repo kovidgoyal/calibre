@@ -160,7 +160,7 @@ class Matches(QAbstractItemModel):
                         '<p>'
                         + _('This store distributes e-books with DRM. It may have some titles without DRM, but you will need to check on a per title basis.')
                         + '</p>'
-                    )  # noqa: E501
+                    )
             elif col == 3:
                 return (
                     '<p>'
