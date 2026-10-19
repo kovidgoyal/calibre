@@ -208,7 +208,7 @@ class UpdateMixin:
             plt = ''
             if has_plugin_updates:
                 plt = ngettext(' and one plugin update', ' and {} plugin updates', number_of_plugin_updates).format(number_of_plugin_updates)
-            green = '#00b000' if qapplication_or_fail().is_dark_theme else 'green'
+            green = qapplication_or_fail().success_text_color
             msg = ('<span style="color:{}; font-weight: bold">{}: <a href="update:{}">{}{}</a></span>').format(
                 green, _('Update available'), version_url, calibre_version, plt
             )

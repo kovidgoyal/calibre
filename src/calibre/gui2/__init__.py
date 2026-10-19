@@ -1581,6 +1581,14 @@ class Application(QApplication):
     def emphasis_window_background_color(self):
         return (builtin_colors_dark if self.is_dark_theme else builtin_colors_light)['yellow']
 
+    @property
+    def error_text_color(self) -> str:
+        return '#ff6b6b' if self.is_dark_theme else 'red'
+
+    @property
+    def success_text_color(self) -> str:
+        return '#00b000' if self.is_dark_theme else 'green'
+
     @pyqtSlot(int, result='QIcon')
     def get_qt_standard_icon(self, standard_pixmap):
         return self.palette_manager.get_qt_standard_icon(standard_pixmap)

@@ -36,9 +36,8 @@ class FTSDialog(Dialog):
 
     def setup_ui(self):
         l = QVBoxLayout(self)
-        red = '#ff6b6b' if qapplication_or_fail().is_dark_theme else 'red'
         self.fat_warning = fw = QLabel(
-            f'<span style="color:{red}; font-weight: bold">{_("WARNING")}:</span> '
+            f'<span style="color:{qapplication_or_fail().error_text_color}; font-weight: bold">{_("WARNING")}:</span> '
             + _("The calibre library is on a FAT drive, indexing more than a few hundred books won't work.")
             + f' <a href="xxx" style="text-decoration: none">{_("Learn more")}</a>'
         )
@@ -113,7 +112,7 @@ class FTSDialog(Dialog):
                     t = _('Indexing is almost complete') if q == '100%' else _('Indexing is only {} done').format(q)
                     ss = ''
                     if p < 0.9:
-                        ss = 'QLabel { color: %s }' % ('#ff6b6b' if qapplication_or_fail().is_dark_theme else 'red')
+                        ss = f'QLabel {{ color: {qapplication_or_fail().error_text_color} }}'
                     self.indexing_label.setStyleSheet(ss)
                     self.indexing_label.setText(t)
                 else:

@@ -54,7 +54,7 @@ class ScanProgress(QWidget):
         l.addStretch(10)
         self.warn_label = la = QLabel(
             '<p><span style="color: {}">{}</span>: {}'.format(
-                '#ff6b6b' if qapplication_or_fail().is_dark_theme else 'red',
+                qapplication_or_fail().error_text_color,
                 _('WARNING'),
                 _('Not all the books in this library have been indexed yet. Searching will yield incomplete results.'),
             )

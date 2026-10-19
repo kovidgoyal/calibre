@@ -21,7 +21,6 @@ from qt.core import (
     QLabel,
     QLineEdit,
     QModelIndex,
-    QPalette,
     QSize,
     QSortFilterProxyModel,
     Qt,
@@ -436,7 +435,7 @@ class DisplayPluginModel(QAbstractTableModel):
         elif role == Qt.ItemDataRole.ForegroundRole:
             if col != 1:  # Never change colour of the donation column
                 if display_plugin.is_deprecated:
-                    return QBrush(qapplication_or_fail().palette().color(QPalette.ColorRole.Link))
+                    return qapplication_or_fail().palette().link()
                 if display_plugin.is_disabled():
                     return QBrush(Qt.GlobalColor.gray)
         return None

@@ -66,7 +66,7 @@ ALIGNMENT_MAP = {
 def render_pin(color=None, save_to=None):
     app = qapplication_or_fail()
     if color is None:
-        color = '#00b000' if app.is_dark_theme else 'green'
+        color = app.success_text_color
     svg = P('pin-template.svg', data=True).replace(b'fill:#f39509', ('fill:' + color).encode('utf-8'))
     pm = QPixmap()
     dpr = app.devicePixelRatio()
