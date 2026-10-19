@@ -76,6 +76,7 @@ def hide_popup(popup_id):
 class CompletionPopup:
     CLASS = 'popup-completion-items'
     CURRENT_ITEM_CLASS = 'popup-completion-current-item'
+    UPWARDS_CLASS = 'popup-completion-upwards'
 
     def __init__(self, parent=None, max_items=25, onselect=None):
         self.max_items = max_items
@@ -175,6 +176,7 @@ class CompletionPopup:
     def _show_at(self, x, y, width, upwards):
         self.is_upwards = upwards
         c = self.container
+        c.firstChild.classList.toggle(self.UPWARDS_CLASS, upwards)
         cs = c.style
         cs.left = x + 'px'
         cs.top = 'auto' if upwards else y + 'px'
@@ -224,9 +226,11 @@ add_extra_css(def ():
     sel = 'div.' + CompletionPopup.CLASS
     style = build_rule(
         sel, overflow='hidden', text_align='left',
-        background_color=get_color('window-background'), border='var(--calibre-border-style)',
-        border_radius='var(--calibre-radius-small)', box_shadow='0 4px 18px rgba(0,0,0,0.08)'
+        background_color=get_color('window-background'), border='var(--calibre-border-style-strong)',
+        border_radius='0 0 var(--calibre-radius-small) var(--calibre-radius-small)', box_shadow='var(--calibre-shadow-popup)'
     )
+    # The edge touching the associated widget stays square
+    style += build_rule(sel + '.' + CompletionPopup.UPWARDS_CLASS, border_radius='var(--calibre-radius-small) var(--calibre-radius-small) 0 0')
     sel += ' > div'
     style += build_rule(sel, cursor='pointer', padding='1ex 1rem', white_space='nowrap', text_overflow='ellipsis', overflow='hidden')
     sel += '.' + CompletionPopup.CURRENT_ITEM_CLASS

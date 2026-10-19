@@ -10,6 +10,9 @@
     --calibre-radius: 14px;
     --calibre-border-style: 1px solid var(--calibre-color-border);
     --calibre-border-style-subtle: 1px solid var(--calibre-color-border-subtle);
+    --calibre-border-style-strong: 1px solid var(--calibre-color-border-strong);
+    --calibre-shadow-small: 0 1px 3px var(--calibre-color-shadow);
+    --calibre-shadow-popup: 0 2px 14px var(--calibre-color-shadow);
     --calibre-focus-ring: 0 0 0 3px var(--calibre-color-primary-light-2);
 
     /* Motion system */

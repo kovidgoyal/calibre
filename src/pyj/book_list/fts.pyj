@@ -168,7 +168,7 @@ def build_search_page():
     container.appendChild(E.div(style='padding-top: 1ex; display: flex; width: 100%; align-items: center', svgicon('search'), E.span('\xa0'), restrict_bar))
 
     # Search help
-    container.appendChild(E.div(style='border-top: 1px currentColor solid; margin-top: 1ex', data_component='results'))
+    container.appendChild(E.div(style='border-top: var(--calibre-border-style); margin-top: 1ex', data_component='results'))
 
 
 def clear_to_waiting_for_results(msg):
@@ -452,7 +452,7 @@ def show_snippets(snippets):
             for x in snippets[book_id]:
                 f = ' '.join(x.formats)
                 e = E.div(E.code(
-                    style='border: solid 1px currentColor; border-radius: 6px; padding: 0 4px; font-size: smaller',
+                    style='border: var(--calibre-border-style-strong); border-radius: 6px; padding: 0 4px; font-size: smaller',
                     data_formats=f, f)
                 )
                 e.appendChild(E.span(' '))

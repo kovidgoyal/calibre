@@ -47,7 +47,7 @@ class ReadAloud:
         container.style.overflow = 'hidden'
         container.appendChild(E.div(id=self.bar_id))
         container.appendChild(E.style(
-            f'#{self.bar_id}.floating' + '{ border: solid 1px currentColor; border-radius: 5px; display: flex;' +
+            f'#{self.bar_id}.floating' + '{ border: var(--calibre-border-style-strong); border-radius: 5px; display: flex;' +
             ' flex-direction: column; margin: 1rem; }\n\n',
             f'#{self.bar_id}.docked' + '{ border-radius: 1em; height: 2em; padding:0.5em; display: flex; justify-content: center; align-items: center; }\n\n',
             f'#{self.bar_id}.speaking ' + '{ opacity: 0.5 }\n\n',

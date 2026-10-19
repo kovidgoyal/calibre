@@ -113,7 +113,7 @@ class Hints:
         c.appendChild(E.div(
             _('No links found. Press Esc to close'),
             style=f'position: absolute; margin: auto; top: 50%; left: 50%; background: {get_color("window-background")};' +
-                  ' padding: 1rem; border: solid 1px currentColor; border-radius: 4px; transform: translate(-50%, -50%);'
+                  ' padding: 1rem; border: var(--calibre-border-style-strong); border-radius: 4px; transform: translate(-50%, -50%);'
         ))
 
 

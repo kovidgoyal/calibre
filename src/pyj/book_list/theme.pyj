@@ -123,6 +123,9 @@ DEFAULT_COLORS = {
     'faded-text': c('#666', '#9a9a9a'),
     'border': c('rgba(0,0,0,0.12)', 'rgba(255,255,255,0.12)'),
     'border-subtle': c('rgba(0,0,0,0.08)', 'rgba(255,255,255,0.08)'),
+    'border-strong': c('rgba(0,0,0,0.24)', 'rgba(255,255,255,0.28)'),
+    # Shadows are invisible on dark backgrounds, so dark themes rely on border-strong for edges
+    'shadow': c('rgba(0,0,0,0.14)', 'rgba(0,0,0,0.5)'),
     'scrollbar-thumb': c('rgba(0,0,0,0.26)', 'rgba(255,255,255,0.34)'),
     'scrollbar-thumb-hover': c('rgba(0,0,0,0.38)', 'rgba(255,255,255,0.48)'),
     'surface-1': c(hex_as_rgba(LIGHT, '0.08'), hex_as_rgba(DT_DARK, '0.08')),
