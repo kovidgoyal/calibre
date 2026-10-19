@@ -102,7 +102,7 @@ add_extra_css(def ():
         background_color=get_color('window-background'),
         border='var(--calibre-border-style-subtle)',
         border_radius='16px',
-        box_shadow='0 24px 64px rgba(0,0,0,0.18)',
+        box_shadow='var(--calibre-shadow-dialog)',
         padding='1rem'
     )
     # Modal content styling: align with overall theme
@@ -147,7 +147,7 @@ add_extra_css(def ():
         overflow='hidden',
         border='var(--calibre-border-style-subtle)',
         background='var(--calibre-color-placeholder-background)',
-        box_shadow='0 10px 24px rgba(0,0,0,0.12)'
+        box_shadow='var(--calibre-shadow-cover)'
     )
     style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-preview img',
         width='100%',

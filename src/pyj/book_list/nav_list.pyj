@@ -339,11 +339,11 @@ add_extra_css(def ():
         border_radius='12px',
         border='var(--calibre-border-style-subtle)',
         background_color='var(--calibre-color-placeholder-background)',
-        box_shadow='0 12px 32px rgba(0,0,0,0.16)',
+        box_shadow='var(--calibre-shadow-cover)',
         transition='transform 200ms ease, box-shadow 200ms ease'
     )
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img:hover',
-        box_shadow='0 26px 64px rgba(0,0,0,0.22)'
+        box_shadow='var(--calibre-shadow-cover-lift)'
     )
     # Per-count sizing/positioning: odd stacks only (1 / 3 / 5).
     style += r'''

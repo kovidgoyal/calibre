@@ -11,8 +11,16 @@
     --calibre-border-style: 1px solid var(--calibre-color-border);
     --calibre-border-style-subtle: 1px solid var(--calibre-color-border-subtle);
     --calibre-border-style-strong: 1px solid var(--calibre-color-border-strong);
+    /* Elevation, the shadow colors are themed so they stay visible in dark mode */
+    --calibre-shadow-hairline: 0 1px 2px var(--calibre-color-shadow-faint);
     --calibre-shadow-small: 0 1px 3px var(--calibre-color-shadow);
+    --calibre-shadow-lift: 0 8px 20px var(--calibre-color-shadow-faint);
     --calibre-shadow-popup: 0 2px 14px var(--calibre-color-shadow);
+    --calibre-shadow-card: 0 12px 32px var(--calibre-color-shadow-faint);
+    --calibre-shadow-card-lift: 0 16px 44px var(--calibre-color-shadow);
+    --calibre-shadow-cover: 0 10px 26px var(--calibre-color-shadow);
+    --calibre-shadow-cover-lift: 0 18px 48px var(--calibre-color-shadow-strong);
+    --calibre-shadow-dialog: 0 16px 48px var(--calibre-color-shadow-strong);
     --calibre-focus-ring: 0 0 0 3px var(--calibre-color-primary-light-2);
 
     /* Motion system */
@@ -65,12 +73,12 @@ a.calibre-icon-button {
     }
     &:hover {
         background-color: var(--calibre-color-primary-light);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        box-shadow: var(--calibre-shadow-lift);
         text-decoration: none;
     }
     &:active {
         background-color: var(--calibre-color-primary-light-2);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        box-shadow: var(--calibre-shadow-lift);
     }
     &[aria-disabled="true"] {
         opacity: 0.5;
@@ -118,12 +126,12 @@ a.calibre-push-button {
     }
     &:hover {
         background-color: var(--calibre-color-primary-light);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        box-shadow: var(--calibre-shadow-lift);
         text-decoration: none;
     }
     &:active {
         background-color: var(--calibre-color-primary-light-2);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        box-shadow: var(--calibre-shadow-lift);
     }
     &[aria-disabled="true"] {
         opacity: 0.5;

@@ -101,7 +101,9 @@ def dark_theme_css_uses_shared_variables():
             '--calibre-color-loading-overlay-background': 'rgba(45,45,45,0.55)',
             '--calibre-color-rating-empty-star': 'rgba(255,255,255,0.22)',
             '--calibre-color-border-strong': 'rgba(255,255,255,0.28)',
+            '--calibre-color-shadow-faint': 'rgba(0,0,0,0.3)',
             '--calibre-color-shadow': 'rgba(0,0,0,0.5)',
+            '--calibre-color-shadow-strong': 'rgba(0,0,0,0.6)',
         })
         assert_css_and_dom_use_variables(variables, css, style)
         assert_equal(style.colorScheme, 'dark')

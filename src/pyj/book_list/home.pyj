@@ -57,7 +57,7 @@ add_extra_css(def ():
         border_radius='18px',
         border='var(--calibre-border-style-subtle)',
         background='var(--calibre-color-surface-1)',
-        box_shadow='0 16px 44px rgba(0,0,0,0.10)',
+        box_shadow='var(--calibre-shadow-card)',
         min_width='0',
         max_width='100%',
         box_sizing='border-box',
@@ -119,15 +119,15 @@ add_extra_css(def ():
         display='block',
         object_fit='cover',
         border='var(--calibre-border-style)',
-        box_shadow='0 10px 26px rgba(0,0,0,0.14)',
+        box_shadow='var(--calibre-shadow-cover)',
         transition='box-shadow 160ms ease, filter 160ms ease',
     )
     ans += build_rule(f'{img_sel}:hover',
-        box_shadow='0 16px 44px rgba(0,0,0,0.18), 0 0 0 4px var(--calibre-color-primary-light)',
+        box_shadow='var(--calibre-shadow-cover-lift), 0 0 0 4px var(--calibre-color-primary-light)',
         filter='brightness(1.03)'
     )
     ans += build_rule(f'{img_sel}:active',
-        box_shadow='0 12px 34px rgba(0,0,0,0.18), 0 0 0 4px var(--calibre-color-primary-light-2)',
+        box_shadow='var(--calibre-shadow-cover-lift), 0 0 0 4px var(--calibre-color-primary-light-2)',
         filter='brightness(1.01)'
     )
     return ans

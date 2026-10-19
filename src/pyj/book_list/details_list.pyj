@@ -55,7 +55,7 @@ def details_list_css():
         border_radius='18px',
         border='var(--calibre-border-style-subtle)',
         background='var(--calibre-color-surface-1)',
-        box_shadow='0 16px 44px rgba(0,0,0,0.10)',
+        box_shadow='var(--calibre-shadow-card)',
         text_decoration='none',
         min_width='0',
         max_width='100%',
@@ -67,13 +67,13 @@ def details_list_css():
     ans += build_rule(f'{sel} .{ITEM_CLASS}:hover',
         background_color='var(--calibre-color-primary-light)',
         border_color='var(--calibre-color-border)',
-        box_shadow='0 20px 56px rgba(0,0,0,0.12), 0 0 0 4px var(--calibre-color-primary-light)'
+        box_shadow='var(--calibre-shadow-card-lift), 0 0 0 4px var(--calibre-color-primary-light)'
     )
     ans += build_rule(f'{sel} .{ITEM_CLASS}:active',
         background_color='var(--calibre-color-primary-light-2)',
         transform='translateY(0.5px)'
     )
-    ans += build_rule(f'{sel} .{ITEM_CLASS}:hover .details-list-left > img', box_shadow='0 10px 24px rgba(0,0,0,0.14)')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:hover .details-list-left > img', box_shadow='var(--calibre-shadow-cover)')
     s = sel + ' .details-list-left'
     ans += build_rule(s,
         margin_right='1em',

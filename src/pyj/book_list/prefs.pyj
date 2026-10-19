@@ -59,7 +59,7 @@ add_extra_css(def ():
         border_radius='16px',
         border='var(--calibre-border-style-subtle)',
         background='linear-gradient(135deg, var(--calibre-color-surface-1) 0%, var(--calibre-color-surface-2) 100%)',
-        box_shadow='0 12px 32px rgba(0,0,0,0.08)',
+        box_shadow='var(--calibre-shadow-card)',
         min_width='0',
         max_width='100%',
         box_sizing='border-box',
@@ -67,7 +67,7 @@ add_extra_css(def ():
     )
     style += build_rule(sel + '.item:hover',
         border='var(--calibre-border-style)',
-        box_shadow='0 16px 44px rgba(0,0,0,0.10)'
+        box_shadow='var(--calibre-shadow-card-lift)'
     )
     style += build_rule(sel + '.item-main',
         display='flex',

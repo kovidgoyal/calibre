@@ -162,7 +162,7 @@ class ModalContainer:
             background_color=get_color('dialog-background'),
             color=get_color('dialog-foreground'),
             background_image=get_color('dialog-background-image'),
-            box_shadow='0 12px 40px rgba(0,0,0,0.2)',
+            box_shadow='var(--calibre-shadow-dialog)',
             border='var(--calibre-border-style)',
         )
 

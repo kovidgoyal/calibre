@@ -28,13 +28,13 @@ add_extra_css(def ():
         border='var(--calibre-border-style-subtle)',
         border_radius='14px',
         background_color=get_color('window-background'),
-        box_shadow='0 1px 2px rgba(0,0,0,0.06)',
+        box_shadow='var(--calibre-shadow-hairline)',
         cursor='pointer',
         overflow='hidden'
     )
     style += build_rule(sel + 'li:hover',
         background_color='var(--calibre-color-primary-light)',
-        box_shadow='0 8px 20px rgba(0,0,0,0.10)',
+        box_shadow='var(--calibre-shadow-lift)',
         transform='translateY(-1px)'
     )
     style += build_rule(sel + 'li:active', transform='translateY(0px)')

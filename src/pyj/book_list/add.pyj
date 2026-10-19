@@ -60,12 +60,12 @@ add_extra_css(def ():
         align_items='center',
         justify_content='center',
         cursor='pointer',
-        box_shadow='0 1px 2px rgba(0,0,0,0.04)',
+        box_shadow='var(--calibre-shadow-hairline)',
     )
     s += build_rule(sel + '.cs-upload-dropzone:hover',
         background_color='var(--calibre-color-primary-light-2)',
         border_color='var(--calibre-color-primary)',
-        box_shadow='0 4px 18px rgba(0,0,0,0.08)',
+        box_shadow='var(--calibre-shadow-popup)',
     )
     s += build_rule('.cs-upload-dropzone-msg',
         display='block',
@@ -92,7 +92,7 @@ add_extra_css(def ():
         border='var(--calibre-border-style-subtle)',
         border_radius='14px',
         background_color=get_color('window-background'),
-        box_shadow='0 2px 8px rgba(0,0,0,0.06)',
+        box_shadow='var(--calibre-shadow-hairline)',
     )
     s += build_rule(sel + '.cs-upload-job',
         margin_left='1rem',
