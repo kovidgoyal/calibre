@@ -51,7 +51,7 @@ class livelaw(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):  # noqa: B023
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):  # ruff: ignore[function-uses-loop-variable]
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue

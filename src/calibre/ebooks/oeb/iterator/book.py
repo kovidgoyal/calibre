@@ -113,9 +113,9 @@ class EbookIterator(BookmarksMixin):
 
                 def serialize(elem):
                     if elem.text:
-                        fragments.append(elem.text.lower())  # noqa: B023
+                        fragments.append(elem.text.lower())  # ruff: ignore[function-uses-loop-variable]
                     if elem.tail:
-                        fragments.append(elem.tail.lower())  # noqa: B023
+                        fragments.append(elem.tail.lower())  # ruff: ignore[function-uses-loop-variable]
                     for child in elem.iterchildren():
                         if hasattr(getattr(child, 'tag', None), 'rpartition') and child.tag.rpartition('}')[-1] not in {
                             'script',
@@ -124,7 +124,7 @@ class EbookIterator(BookmarksMixin):
                         }:
                             serialize(child)
                         elif getattr(child, 'tail', None):
-                            fragments.append(child.tail.lower())  # noqa: B023
+                            fragments.append(child.tail.lower())  # ruff: ignore[function-uses-loop-variable]
 
                 for body in root.xpath('//*[local-name() = "body"]'):
                     body.tail = None

@@ -1284,7 +1284,7 @@ def get_appdata():
             'description': (
                 _('calibre is the one stop solution to all your e-book needs.'),
                 _(
-                    'You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various e-book formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in Content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.'  # noqa: E501
+                    'You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various e-book formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in Content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.'  # ruff: ignore[line-too-long]
                 ),
             ),
             'screenshots': (
@@ -1313,7 +1313,7 @@ def get_appdata():
             'description': (
                 _('The calibre E-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
                 _(
-                    'It can edit books in both the EPUB and AZW3 (Kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'  # noqa: E501
+                    'It can edit books in both the EPUB and AZW3 (Kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'  # ruff: ignore[line-too-long]
                 ),
             ),
             'screenshots': (

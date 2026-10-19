@@ -36,7 +36,7 @@ class NoviList_hr(BasicNewsRecipe):
                                p{display: block}
                             '''
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True}
 

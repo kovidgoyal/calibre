@@ -870,7 +870,7 @@ class TestCamoufoxMouse(unittest.TestCase):
         sent: list[tuple[str, str]] = []
 
         class RecordingPage(camoufox.Page):
-            async def send(self, method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # noqa: ASYNC109
+            async def send(self, method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # ruff: ignore[async-function-with-timeout]
                 sent.append((self.target_id, str((params or {}).get('type'))))
                 await asyncio.sleep(0)  # give the other page the chance to get in between
                 return {}
@@ -903,7 +903,7 @@ class TestCamoufoxMouse(unittest.TestCase):
             busy_until = 0.0  # until when the browser answers nothing at all
             answers_input = True
 
-            async def answer(self, timeout: float, is_input: bool) -> None:  # noqa: ASYNC109
+            async def answer(self, timeout: float, is_input: bool) -> None:  # ruff: ignore[async-function-with-timeout]
                 try:
                     async with asyncio.timeout(timeout):
                         await asyncio.sleep(max(self.busy_until - time.monotonic(), 0))
@@ -912,11 +912,11 @@ class TestCamoufoxMouse(unittest.TestCase):
                 except TimeoutError:
                     raise camoufox.TimeoutExceeded('not answered')
 
-            async def send(self, method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # noqa: ASYNC109
+            async def send(self, method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # ruff: ignore[async-function-with-timeout]
                 await self.answer(timeout, is_input=True)
                 return {}
 
-            async def evaluate(self, expression: str, *, by_value: bool = True, timeout: float = camoufox.DEFAULT_TIMEOUT) -> int:  # noqa: ASYNC109
+            async def evaluate(self, expression: str, *, by_value: bool = True, timeout: float = camoufox.DEFAULT_TIMEOUT) -> int:  # ruff: ignore[async-function-with-timeout]
                 probes.append(expression)
                 await self.answer(timeout, is_input=False)
                 return 1
@@ -1655,7 +1655,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
         lost = list(methods)
         send = page.send
 
-        async def send_losing_answer(method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # noqa: ASYNC109
+        async def send_losing_answer(method: str, params: Mapping[str, Any] | None = None, timeout: float = camoufox.DEFAULT_TIMEOUT) -> dict[str, Any]:  # ruff: ignore[async-function-with-timeout]
             if lost and lost[0] == method:
                 del lost[0]
                 await send(method, params, timeout)

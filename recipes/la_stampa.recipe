@@ -25,7 +25,7 @@ class LaStampa(BasicNewsRecipe):
     conversion_options = {'linearize_tables': True}
     remove_attributes = ['colspan']
 
-    extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '  # noqa: E501
+    extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '  # ruff: ignore[line-too-long]
 
     def get_article_url(self, article):
         link = article.get('links')

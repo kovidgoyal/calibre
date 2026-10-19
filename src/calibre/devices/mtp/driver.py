@@ -26,7 +26,7 @@ from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
     from calibre.devices.mtp.windows.driver import MTP_DEVICE as BASE
-else:  # noqa
+else:  # ruff: ignore[collapsible-else-if]
     if iswindows:
         from calibre.devices.mtp.windows.driver import MTP_DEVICE as BASE
     else:

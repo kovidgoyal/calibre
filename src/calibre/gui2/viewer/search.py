@@ -175,7 +175,7 @@ class Search:
                 return False
         elif self.mode == 'regex':
             try:
-                self.regex  # noqa: B018
+                self.regex  # ruff: ignore[useless-expression]
             except Exception as e:
                 error_dialog(
                     gui,

@@ -421,7 +421,7 @@ def merge_html(container, names, master, insert_page_breaks=False):
             q = a.get('href')[1:]
             if q in amap:
                 a.set('href', '#' + amap[q])
-        rewrite_idrefs(root, lambda eid: amap.get(eid, eid))  # noqa: B023
+        rewrite_idrefs(root, lambda eid: amap.get(eid, eid))  # ruff: ignore[function-uses-loop-variable]
 
         for child in children:
             if isinstance(child, (str, bytes)):

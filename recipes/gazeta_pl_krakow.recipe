@@ -33,7 +33,7 @@ class gw_krakow(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     # rules for gazeta.pl
-    preprocess_regexps = [(re.compile('<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]  # ruff: ignore[unraw-re-pattern]
     keep_only_tags = [dict(id='gazeta_article')]
     remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(attrs={'class': ['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
     remove_tags_after = dict(id='gazeta_article_body')

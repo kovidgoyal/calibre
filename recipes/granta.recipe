@@ -54,7 +54,7 @@ def solve_captcha(captcha):
     # Parse into parts
     pattern = re.compile(
         r'(?P<first_component>[0-9]+)?'
-        '\\s*(?P<operator>[+×−])\\s*'  # noqa: RUF039
+        '\\s*(?P<operator>[+×−])\\s*'  # ruff: ignore[unraw-re-pattern]
         r'(?P<second_component>[0-9]+)'
         r'\s*(=)\s*'
         r'(?P<result>[0-9]+)?',

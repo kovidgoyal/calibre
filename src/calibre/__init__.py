@@ -19,7 +19,7 @@ try:
 except OSError:
     os.chdir(os.path.expanduser('~'))
 
-from calibre.constants import (  # noqa: F401
+from calibre.constants import (  # ruff: ignore[unused-import]
     __appname__,
     __author__,
     __version__,

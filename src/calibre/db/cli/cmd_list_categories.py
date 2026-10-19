@@ -89,7 +89,7 @@ def do_list(fields, data, opts):
 
     widths = list(base_widths)
     titles = map(
-        lambda x, y: '%-*s%s' % (x - len(separator), y, separator),  # noqa: UP031
+        lambda x, y: '%-*s%s' % (x - len(separator), y, separator),  # ruff: ignore[printf-string-formatting]
         widths,
         fields,
     )

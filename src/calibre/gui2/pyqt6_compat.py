@@ -74,7 +74,7 @@ def set_menu(self, menu):
 
 
 QAction.setMenu = set_menu
-QAction.menu = lambda self: progress_indicator.menu_for_action(self)  # noqa: PLW0108
+QAction.menu = lambda self: progress_indicator.menu_for_action(self)  # ruff: ignore[unnecessary-lambda]
 
 # Restore QModelIndex::child
 QModelIndex.child = lambda self, row, column: self.model().index(row, column, self)

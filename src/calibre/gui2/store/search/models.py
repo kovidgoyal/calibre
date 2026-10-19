@@ -261,7 +261,7 @@ class Matches(QAbstractItemModel):
                     return (
                         '<p>'
                         + _(
-                            'This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.'  # noqa: E501
+                            'This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.'  # ruff: ignore[line-too-long]
                         )
                         + '</p>'
                     )
@@ -269,7 +269,7 @@ class Matches(QAbstractItemModel):
                     return (
                         '<p>'
                         + _(
-                            'This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.'  # noqa: E501
+                            'This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.'  # ruff: ignore[line-too-long]
                         )
                         + '</p>'
                     )

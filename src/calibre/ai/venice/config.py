@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from calibre.ai.venice.backend import Model as AIModel
 
 
-def backend() -> Any:  # noqa: ANN401
+def backend() -> Any:  # ruff: ignore[any-type]
     for plugin in available_ai_provider_plugins():
         if plugin.name == VeniceAI.name:
             return plugin.builtin_live_module

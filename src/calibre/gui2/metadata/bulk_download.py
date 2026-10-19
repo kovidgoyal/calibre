@@ -97,7 +97,7 @@ class ConfirmDialog(QDialog):
         b = self.b = self.bb.addButton(_('&Configure download'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.setIcon(QIcon.ic('config.png'))
-        connect_lambda(b.clicked, self, lambda self: show_config(self))  # noqa: PLW0108
+        connect_lambda(b.clicked, self, lambda self: show_config(self))  # ruff: ignore[unnecessary-lambda]
         l.addWidget(self.bb, 1, 0, 1, 2)
         b = self.bb.addButton(_('Download &both'), QDialogButtonBox.ButtonRole.AcceptRole)
         assert b is not None

@@ -106,7 +106,7 @@ class DuplicatesQuestion(QDialog):
             def add_child(text):
                 c = QTreeWidgetItem([text], 1)
                 c.setFlags(Qt.ItemFlag.ItemIsEnabled)
-                item.addChild(c)  # noqa: B023
+                item.addChild(c)  # ruff: ignore[function-uses-loop-variable]
                 return c
 
             add_child(_('Already in calibre:')).setData(0, Qt.ItemDataRole.FontRole, itf)
@@ -116,7 +116,7 @@ class DuplicatesQuestion(QDialog):
                 author_text[book_id] = authors_to_string([a.replace('|', ',') for a in (db.authors(book_id, index_is_id=True) or '').split(',')])
 
             def key(x):
-                return primary_sort_key(str(author_text[x]))  # noqa: B023
+                return primary_sort_key(str(author_text[x]))  # ruff: ignore[function-uses-loop-variable]
 
             for book_id in sorted(matching_books, key=key):
                 add_child(

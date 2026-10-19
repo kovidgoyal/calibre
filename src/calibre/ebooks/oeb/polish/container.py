@@ -61,7 +61,7 @@ from calibre.utils.zipfile import ZipFile
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 OPF_NAMESPACES = {'opf': OPF2_NS, 'dc': DC11_NS}
 null = object()
-OEB_FONTS  # noqa: B018 # for plugin compat
+OEB_FONTS  # ruff: ignore[useless-expression] # for plugin compat
 
 
 class CSSPreProcessor(cssp):

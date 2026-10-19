@@ -10,7 +10,7 @@ def find_tests():
 
 if __name__ == '__main__':
     try:
-        import init_calibre  # noqa: F401
+        import init_calibre  # ruff: ignore[unused-import]
     except ImportError:
         pass
     run_tests(find_tests)

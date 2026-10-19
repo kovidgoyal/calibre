@@ -18,8 +18,8 @@ from calibre.utils.localization import get_translator
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.binary import as_hex_unicode as encode_name  # noqa: F401
-from polyglot.binary import from_hex_unicode as decode_name  # noqa: F401
+from polyglot.binary import as_hex_unicode as encode_name  # ruff: ignore[unused-import]
+from polyglot.binary import from_hex_unicode as decode_name  # ruff: ignore[unused-import]
 from polyglot.builtins import as_unicode
 
 HTTP1 = 'HTTP/1.0'

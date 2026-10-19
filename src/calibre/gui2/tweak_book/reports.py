@@ -1494,7 +1494,7 @@ class ReportsWidget(QWidget):
             st = time.time()
             widget = self.stack.widget(i)
             assert widget is not None
-            getattr(widget, '__call__')(data)  # noqa: B004
+            getattr(widget, '__call__')(data)  # ruff: ignore[unreliable-callable-check]
             if DEBUG:
                 report_item = self.reports.item(i)
                 assert report_item is not None

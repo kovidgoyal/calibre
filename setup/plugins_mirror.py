@@ -622,7 +622,7 @@ h1 { text-align: center }
 <div style="text-align:center"><a href="stats.html">Download counts for all plugins</a></div>
 %s
 </body>
-</html>''' % ('\n'.join(plugins))  # noqa: UP031
+</html>''' % ('\n'.join(plugins))  # ruff: ignore[printf-string-formatting]
     raw = index.encode('utf-8')
     try:
         with open('index.html', 'rb') as f:
@@ -656,7 +656,7 @@ h1 { text-align: center }
 </table>
 </body>
 </html>
-    ''' % ('\n'.join(pstats))  # noqa: UP031
+    ''' % ('\n'.join(pstats))  # ruff: ignore[printf-string-formatting]
     raw = stats.encode('utf-8')
     try:
         with open('stats.html', 'rb') as f:

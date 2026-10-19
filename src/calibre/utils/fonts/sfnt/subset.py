@@ -342,7 +342,7 @@ def main(args):
 
 if __name__ == '__main__':
     try:
-        import init_calibre  # noqa: F401  # type: ignore
+        import init_calibre  # ruff: ignore[unused-import]  # type: ignore
     except ImportError:
         pass
     import sys

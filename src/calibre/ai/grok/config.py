@@ -22,7 +22,7 @@ else:
 pref = partial(pref_for_provider, GrokAI.name)
 
 
-def backend() -> Any:  # noqa: ANN401
+def backend() -> Any:  # ruff: ignore[any-type]
     return plugin_for_name(GrokAI.name).builtin_live_module
 
 

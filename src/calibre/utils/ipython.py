@@ -172,14 +172,14 @@ def simple_repl(user_ns=None):
         setup_pyreadline()
     else:
         try:
-            import readline, rlcompleter  # noqa: I001, E401, F401
+            import readline, rlcompleter  # ruff: ignore[unsorted-imports, multiple-imports-on-one-line, unused-import]
 
             readline.parse_and_bind('tab: complete')
         except ImportError:
             pass
 
     user_ns = user_ns or {}
-    import sys, re  # noqa: I001, E401, F401
+    import sys, re  # ruff: ignore[unsorted-imports, multiple-imports-on-one-line, unused-import]
 
     for x in ('os', 'sys', 're'):
         user_ns[x] = user_ns.get(x, globals().get(x, locals().get(x)))

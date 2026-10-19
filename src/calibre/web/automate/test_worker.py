@@ -17,7 +17,7 @@ from calibre.constants import ismacos
 from calibre.web.automate.worker import make_request, start_server, start_worker
 
 
-def print(*a: object, **kw: Any) -> None:  # noqa: ANN401
+def print(*a: object, **kw: Any) -> None:  # ruff: ignore[any-type]
     kw['file'] = sys.stderr
     builtins.print(*a, **kw)
 
@@ -102,11 +102,11 @@ delayed_setup_items: list[Any] = []
 handler_items: list[tuple[Any, Any]] = []
 
 
-async def delayed_setup_for_test(x: Any = None) -> None:  # noqa: ANN401
+async def delayed_setup_for_test(x: Any = None) -> None:  # ruff: ignore[any-type]
     delayed_setup_items.append(x)
 
 
-async def handler_for_test(*args: Any) -> dict[str, Any]:  # noqa: ANN401
+async def handler_for_test(*args: Any) -> dict[str, Any]:  # ruff: ignore[any-type]
     if len(args) == 1:
         x, input_data = args[0], None
     else:
@@ -117,7 +117,7 @@ async def handler_for_test(*args: Any) -> dict[str, Any]:  # noqa: ANN401
     return {'arg': x, 'delayed_setup_items': delayed_setup_items}
 
 
-async def slow_handler_for_test(x: Any) -> Any:  # noqa: ANN401
+async def slow_handler_for_test(x: Any) -> Any:  # ruff: ignore[any-type]
     await asyncio.sleep(float(x))
     return f'slept {x}'
 

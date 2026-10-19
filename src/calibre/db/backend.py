@@ -319,7 +319,7 @@ def AumSortedConcatenate():
 
     def step(ctxt, ndx, author, sort, link):
         if author is not None:
-            ctxt[ndx] = ':::'.join((author, sort, link))  # noqa: FLY002
+            ctxt[ndx] = ':::'.join((author, sort, link))  # ruff: ignore[static-join-to-f-string]
 
     def finalize(ctxt):
         try:
@@ -674,7 +674,7 @@ class DB:
         SchemaUpgrade(self, self.library_path, self.field_metadata)
 
         # Guarantee that the library_id is set
-        self.library_id  # noqa: B018
+        self.library_id  # ruff: ignore[useless-expression]
 
         # Fix legacy triggers and columns
         self.execute('''
@@ -1675,7 +1675,7 @@ class DB:
     def reopen(self, force=True):
         self.close(force=force, unload_formatter_functions=False)
         self._conn = None
-        self.conn  # noqa: B018 # Connect to refresh
+        self.conn  # ruff: ignore[useless-expression] # Connect to refresh
         self.notes.reopen(self)
 
     def dump_and_restore(self, callback=None, sql=None):
@@ -3134,7 +3134,7 @@ class DB:
             os.rmdir(odir)
         except OSError:
             pass
-        self.conn  # noqa: B018 # Connect to the moved metadata.db
+        self.conn  # ruff: ignore[useless-expression] # Connect to the moved metadata.db
         progress(_('Completed'), total, total)
 
     def _backup_database(self, path, name, extra_sql='', num_of_retries=10, busy_timeout=60):

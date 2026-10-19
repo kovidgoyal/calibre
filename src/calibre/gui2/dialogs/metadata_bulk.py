@@ -1488,7 +1488,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         # Cache values from GUI so that Qt widgets are not used in
         # non GUI thread
         for w in getattr(self, 'custom_column_widgets', []):
-            w.gui_val  # noqa: B018
+            w.gui_val  # ruff: ignore[useless-expression]
 
         remove_all = self.remove_all_tags.isChecked()
         remove = []

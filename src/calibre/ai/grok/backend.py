@@ -74,7 +74,7 @@ DEFAULT_IMAGE_MODEL = 'grok-imagine-image-2.0'
 PRICE_UNIT_TO_USD = 1 / (100 * 1e8)
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(GrokAI.name, key, defval)
 
 

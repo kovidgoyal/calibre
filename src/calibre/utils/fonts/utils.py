@@ -167,7 +167,7 @@ def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     offset += 10
     range1, range2, range3, range4 = struct.unpack_from(b'>4L', os2_table, offset)
     offset += struct.calcsize(b'>4L')
-    vendor_id = os2_table[offset : offset + 4]  # noqa: F841
+    vendor_id = os2_table[offset : offset + 4]  # ruff: ignore[unused-variable]
     offset += 4
     (selection,) = struct.unpack_from(b'>H', os2_table, offset)
 

@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Blic(BasicNewsRecipe):
     title = 'Blic'
     __author__ = 'Darko Miletic'
-    description = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'  # noqa: E501
+    description = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'  # ruff: ignore[line-too-long]
     publisher = 'RINGIER d.o.o.'
     category = 'news, politics, Serbia'
     oldest_article = 2
@@ -38,7 +38,7 @@ class Blic(BasicNewsRecipe):
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True}
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
     remove_tags_before = dict(name='div', attrs={'id': 'article_info'})
     remove_tags = [dict(name=['object', 'link', 'meta', 'base', 'object', 'embed'])]
     remove_attributes = ['width', 'height', 'm_id', 'm_ext', 'mlg_id', 'poll_id', 'v_id']

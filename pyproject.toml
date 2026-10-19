@@ -92,7 +92,7 @@ requires = [
 ]
 [dependency-groups]
 dev = [
-    "ruff >= 0.15.21",
+    "ruff >= 0.16.0",
     "types-lxml >= 2026.2.16",
     "ty >= 0.0.59",
     "rapydscript-ng >= 0.8.5",
@@ -121,53 +121,150 @@ quote-style = 'preserve'
 [tool.ruff.lint]
 explicit-preview-rules = true
 ignore = [
-    'E402', 'E741',
-    'UP012', 'UP030', 'C413', 'C420', 'PIE790', 'ISC003', 'FURB122', 'FURB166', 'FURB167',
-    'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031',
-    'PLE1205', 'PLW0602', 'PLW0603', 'PLW1510', 'PLW1641', 'PLW2901', 'PLC0415',
-    'PLR0911', 'PLR0912', 'PLR0913', 'PLR0914', 'PLR0915', 'PLR0916', 'PLR0917', 'PLR1702', 'PLR1704', 'PLR2004', 'PLR6301',
-    'TC001', 'TC002', 'TC003', 'TRY002', 'TRY003', 'TRY300', 'TRY301', 'TRY400',
-    'B007', 'B009', 'B010', 'B904', 'B905', 'B911', 'B912',
-    'RUF059',  # unused unpacked variable
+    'ambiguous-unicode-character-comment',
+    'ambiguous-unicode-character-docstring',
+    'ambiguous-unicode-character-string',
+    'ambiguous-variable-name',
+    'batched-without-explicit-strict',
+    'collection-literal-concatenation',
+    'eq-without-hash',
+    'error-instead-of-exception',
+    'explicit-string-concatenation',
+    'for-loop-writes',
+    'format-literals',
+    'get-attr-with-constant',
+    'global-statement',
+    'global-variable-not-assigned',
+    'implicit-optional',
+    'import-outside-top-level',
+    'incorrectly-parenthesized-tuple-in-subscript',
+    'int-on-sliced-str',
+    'logging-too-many-args',
+    'magic-value-comparison',
+    'map-without-explicit-strict',
+    'module-import-not-at-top-of-file',
+    'mutable-class-default',
+    'no-self-use',
+    'raise-vanilla-args',
+    'raise-vanilla-class',
+    'raise-within-try',
+    'raise-without-from-inside-except',
+    'redefined-argument-from-local',
+    'redefined-loop-name',
+    'regex-flag-alias',
+    'set-attr-with-constant',
+    'subprocess-run-without-check',
+    'too-many-arguments',
+    'too-many-boolean-expressions',
+    'too-many-branches',
+    'too-many-locals',
+    'too-many-nested-blocks',
+    'too-many-positional-arguments',
+    'too-many-return-statements',
+    'too-many-statements',
+    'try-consider-else',
+    'typing-only-first-party-import',
+    'typing-only-standard-library-import',
+    'typing-only-third-party-import',
+    'unnecessary-call-around-sorted',
+    'unnecessary-dict-comprehension-for-iterable',
+    'unnecessary-encode-utf8',
+    'unnecessary-iterable-allocation-for-first-element',
+    'unnecessary-placeholder',
+    'unused-loop-control-variable',
+    'unused-unpacked-variable',
+    'zip-without-explicit-strict',
 ]
 select = [
-    'E', 'F', 'I', 'W', 'INT',
-    'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
-    'PL', 'ASYNC', 'FURB', 'FA', 'FLY', 'DTZ', 'T1', 'LOG',
-    'TC', 'TRY', 'B',
-    'RUF',  # note: RUF can flag many unsolicited errors
+    'E', 'W', # pycodestyle
+    'I',      # isort
+    'F',      # Pyflakes
+    'PL',     # Pylint
+    'RUF',    # Ruff
+    'YTT',    # flake8-2020
+    'ANN',    # flake8-annotations
+    'ASYNC',  # flake8-async
+    'B',      # flake8-bugbear
+    'C4',     # flake8-comprehensions
+    'DTZ',    # flake8-datetimez
+    'T1',     # flake8-debugger
+    'FA',     # flake8-future-annotations
+    'INT',    # flake8-gettext
+    'ISC',    # flake8-implicit-str-concat
+    'LOG',    # flake8-logging
+    'PIE',    # flake8-pie
+    'Q',      # flake8-quotes
+    'TID',    # flake8-tidy-imports
+    'TC',     # flake8-type-checking
+    'FURB',   # refurb
+    'FLY',    # flynt
+    'UP',     # pyupgrade
+    'TRY',    # tryceratops
     # from the ruff default rules set
-    'D419', 'N999', 'PTH124', 'PTH210', 'G1', 'G2', 'PERF101', 'PERF402',
+    'G1', 'G2', # flake8-logging-format
+    'empty-docstring',
+    'invalid-module-name',
+    'invalid-pathlib-with-suffix',
+    'manual-list-copy',
+    'py-path',
+    'unnecessary-list-cast',
+    # custom rules
+    'trailing-comma-on-bare-tuple',
+    'unnecessary-return-none',
     # preview rules
-    'RUF051', 'RUF056',  # useless dict operation
-    'RUF055',  # unnecessary regex
-    'RUF039',  # always use raw-string for regex
-    'RUF047',  # needless else
-    'E302', 'E303', 'E304', 'E305', 'W391',  # blank-line standard
-    'E111', 'E112', 'E113', 'E117',  # code indentation
-    'E114', 'E115', 'E116', 'E261', 'E262', 'E265',  # comment formatting
-    'E201', 'E202', 'E211', 'E251', 'E275',  # various whitespace
+    'if-key-in-dict-del',
+    'falsy-dict-get-fallback',
+    'unnecessary-regular-expression',
+    'unraw-re-pattern',
+    'needless-else',
+    ## blank-line standard
+    'blank-line-after-decorator',
+    'blank-lines-after-function-or-class',
+    'blank-lines-top-level',
+    'too-many-blank-lines',
+    'too-many-newlines-at-end-of-file',
+    ## code indentation
+    'indentation-with-invalid-multiple',
+    'no-indented-block',
+    'over-indented',
+    'unexpected-indentation',
+    ## comment formatting
+    'indentation-with-invalid-multiple-comment',
+    'no-indented-block-comment',
+    'no-space-after-block-comment',
+    'no-space-after-inline-comment',
+    'too-few-spaces-before-inline-comment',
+    'unexpected-indentation-comment',
+    ## various whitespace
+    'missing-whitespace-after-keyword',
+    'unexpected-spaces-around-keyword-parameter-equals',
+    'whitespace-after-open-bracket',
+    'whitespace-before-close-bracket',
+    'whitespace-before-parameters',
+    ## rules name
+    'noqa-comments',
+    'rule-codes-in-selectors',
+    'rule-codes-in-suppression-comments',
 ]
-unfixable = ['PIE794', 'ISC']
-extend-select = ["ANN"]
+unfixable = ['ISC', 'duplicate-class-field-definition']
 
 [tool.ruff.lint.per-file-ignores]
-"recipes/*" = ['UP', 'FURB188', 'FLY', 'DTZ']
-"recipes/nytimes*.recipe" = ['B020']
-"manual/plugin_examples/interface_demo/ui.py" = ['B018']
-"setup/changelog.py" = ['ISC001']
+"recipes/*" = ['UP', 'FLY', 'DTZ', 'slice-to-remove-prefix-or-suffix']
+"recipes/nytimes*.recipe" = ['loop-variable-overrides-iterator']
+"manual/plugin_examples/interface_demo/ui.py" = ['useless-expression']
+"setup/changelog.py" = ['single-line-implicit-string-concatenation']
 "setup/plugins_mirror.py" = ['DTZ']
-"setup/{file-hosting-bw,run-calibre-worker,*-ci}.py" = ['N999']
-"src/calibre/ebooks/metadata/sources/*" = ['UP', 'FURB188']
-"src/calibre/ebooks/{BeautifulSoup,rtf2xml/ParseRtf}.py" = ['N999']
-"src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']
+"setup/{file-hosting-bw,run-calibre-worker,*-ci}.py" = ['invalid-module-name']
+"src/calibre/ebooks/metadata/sources/*" = ['UP', 'slice-to-remove-prefix-or-suffix']
+"src/calibre/ebooks/{BeautifulSoup,rtf2xml/ParseRtf}.py" = ['invalid-module-name']
+"src/calibre/gui2/store/stores/*" = ['UP', 'slice-to-remove-prefix-or-suffix']
 "src/calibre/{rpdb,utils/ipython}.py" = ['T1']
-"src/qt/*.py" = ['I', 'E302']
+"src/qt/*.py" = ['I', 'blank-lines-top-level']
 "src/qt/*.pyi" = ['I']
 "!{src/calibre/ai/**/*.py,src/calibre/web/automate/**/*.py}" = ['ANN']
 # These modules wrap a browser, whose operations can all block indefinitely on
 # the network, so every one of them takes an explicit timeout
-"src/calibre/web/automate/{camoufox,recipes}.py" = ['ASYNC109']
+"src/calibre/web/automate/{camoufox,recipes}.py" = ['async-function-with-timeout']
 
 [tool.ruff.lint.isort]
 detect-same-package = true

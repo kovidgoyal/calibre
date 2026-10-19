@@ -43,7 +43,7 @@ class Nspm(BasicNewsRecipe):
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True}
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
     remove_tags = [dict(name=['link', 'script', 'meta', 'base', 'img'])]
     remove_attributes = ['width', 'height', 'lang', 'xmlns:fb', 'xmlns:og', 'vspace', 'hspace', 'type', 'start', 'size']
 

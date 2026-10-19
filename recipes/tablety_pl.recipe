@@ -16,7 +16,7 @@ class Tablety_pl(BasicNewsRecipe):
     oldest_article = 8
     max_articles_per_feed = 100
     preprocess_regexps = [
-        (re.compile('<p><strong>Przeczytaj także.*?</a></strong></p>', re.DOTALL), lambda match: ''),  # noqa: RUF039
+        (re.compile('<p><strong>Przeczytaj także.*?</a></strong></p>', re.DOTALL), lambda match: ''),  # ruff: ignore[unraw-re-pattern]
         (re.compile(r'<p><strong>Przeczytaj koniecznie.*?</a></strong></p>', re.DOTALL), lambda match: ''),
     ]
     keep_only_tags = [dict(attrs={'class': ['featured-image', 'article-content clearfix']})]

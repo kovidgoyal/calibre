@@ -39,7 +39,7 @@ class Vreme(BasicNewsRecipe):
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True}
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
     remove_tags_before = dict(attrs={'class': 'toc-heading'})
     remove_tags_after = dict(attrs={'class': 'footer'})
 

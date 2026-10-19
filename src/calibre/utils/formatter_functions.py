@@ -1820,7 +1820,7 @@ contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
             if format_string == 'to_number':
                 s = parse_date(val).timestamp()
             elif format_string.startswith('from_number'):
-                val = datetime.fromtimestamp(float(val))  # noqa: DTZ006
+                val = datetime.fromtimestamp(float(val))  # ruff: ignore[call-datetime-fromtimestamp]
                 f = format_string[12:]
                 s = format_date(val, f or 'iso')
             else:
@@ -1867,7 +1867,7 @@ format_date_field('#date_read', 'MMM dd, yyyy')
             elif format_string == 'to_number':
                 s = val.timestamp()
             elif format_string.startswith('from_number'):
-                val = datetime.fromtimestamp(float(val))  # noqa: DTZ006
+                val = datetime.fromtimestamp(float(val))  # ruff: ignore[call-datetime-fromtimestamp]
                 f = format_string[12:]
                 s = format_date(val, f or 'iso')
             else:
@@ -3085,7 +3085,7 @@ More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
                 return 'Yes'
             return ''
         if not isinstance(res, bool):
-            raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))  # noqa: TRY004
+            raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))  # ruff: ignore[type-check-without-type-error]
         if is_false == '1' and not res:
             return 'Yes'
         if is_true == '1' and res:
@@ -3565,7 +3565,7 @@ This function can be used only in the GUI and the content server.
                 if f.relpath == q:
                     val = f.stat_result.st_mtime
                     if format_string:
-                        return format_date(datetime.fromtimestamp(val), format_string)  # noqa: DTZ006
+                        return format_date(datetime.fromtimestamp(val), format_string)  # ruff: ignore[call-datetime-fromtimestamp]
                     return str(val)
             return str(1.0)
         except Exception as e:

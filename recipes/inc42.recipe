@@ -34,7 +34,7 @@ class inc42(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec + '/')}):  # noqa: B023
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec + '/')}):  # ruff: ignore[function-uses-loop-variable]
                 url = a['href']
                 if url == index + sec + '/':
                     continue
