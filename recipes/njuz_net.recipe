@@ -31,7 +31,7 @@ class NjuzNet(BasicNewsRecipe):
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
 
     keep_only_tags = [dict(attrs={'id': 'entryMeta'}), dict(attrs={'class': 'post'})]
 

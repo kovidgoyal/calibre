@@ -30,7 +30,7 @@ from book_list.library_data import (
     current_library_id, current_sorted_field, ensure_current_library_data, library_data, load_status,
     loaded_books_query, refresh_sidebar_navigation, thumbnail_cache, url_books_query
 )
-from book_list.router import back, home, push_state, update_window_title
+from book_list.router import back, home, push_state, report_a_load_failure, update_window_title
 from book_list.saved_virtual_libraries import save_saved_virtual_library
 from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
 from book_list.search import (
@@ -41,7 +41,7 @@ from book_list.ui import library_data_panel, panel_is_shown, query_as_href, set_
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import error_dialog
 from session import get_interface_data
-from utils import conditional_timeout, parse_url_params, safe_set_inner_html
+from utils import conditional_timeout, parse_url_params
 from widgets import create_button, create_pager_widget, create_spinner, enable_escape_key, create_select
 
 CLASS_NAME = 'book-list-container'
@@ -612,17 +612,7 @@ def check_for_books_loaded():
             ensure_current_library_data()
             conditional_timeout(container_id, 100, check_for_books_loaded)
             return
-        err = E.div()
-        safe_set_inner_html(err, load_status.error_html)
-        container.appendChild(E.div(
-            style='margin: 1ex 1em',
-            E.div(_('Failed to load books from calibre library, with error:')),
-            err,
-            E.div(
-                style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-                E.a(onclick=def (): home(replace=True);, href='javascript: void(0)', class_='blue-link', _('Go back to the home page')))
-            ),
-        )
+        report_a_load_failure(container, _('Failed to load books from calibre library, with error:'), load_status.error_html)
         return
     clear_book_list_inner(container)
     create_books_list(container)

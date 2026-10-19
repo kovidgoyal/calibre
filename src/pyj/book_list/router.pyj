@@ -10,7 +10,7 @@ from book_list.constants import book_list_container_id, read_book_container_id, 
 from book_list.globals import get_current_query, get_session_data
 from book_list.library_data import current_library_id, set_substitute_url_library
 from dom import clear
-from modals import close_all_modals
+from modals import SEPARATOR_CLASS, close_all_modals
 from read_book.globals import ui_operations
 from utils import (
     encode_query_with_path, parse_url_params, request_full_screen,
@@ -212,7 +212,7 @@ def report_a_load_failure(container, msg, error_html):
         E.div(msg),
         err,
         E.div(
-            style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
+            class_=SEPARATOR_CLASS,
             E.a(onclick=def (): home(replace=True);, href='javascript: void(0)', class_='blue-link', _('Go back to the home page')))
         ),
     )

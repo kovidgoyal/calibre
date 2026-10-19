@@ -11,6 +11,8 @@
     --calibre-border-style: 1px solid var(--calibre-color-border);
     --calibre-border-style-subtle: 1px solid var(--calibre-color-border-subtle);
     --calibre-border-style-strong: 1px solid var(--calibre-color-border-strong);
+    /* For the boundaries of controls, which need at least 3:1 contrast */
+    --calibre-border-style-control: 1px solid var(--calibre-color-border-control);
     /* Elevation, the shadow colors are themed so they stay visible in dark mode */
     --calibre-shadow-hairline: 0 1px 2px var(--calibre-color-shadow-faint);
     --calibre-shadow-small: 0 1px 3px var(--calibre-color-shadow);
@@ -193,12 +195,11 @@ input[type="checkbox"], input[type="radio"] {
 input[type="text"], input[type="number"], input[type="search"], input[type="url"] {
     padding: 0.55em 0.75em;
     border-radius: 999px;
-    border: var(--calibre-border-style-subtle);
+    border: var(--calibre-border-style-control);
     background-color: var(--calibre-color-surface-3);
     color: var(--calibre-color-window-foreground);
     box-sizing: border-box;
     &:hover {
-        border: var(--calibre-border-style);
         background-color: var(--calibre-color-primary-light);
     }
 }

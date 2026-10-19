@@ -75,7 +75,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
             section = b_sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(burl + b_sec + '/')}):  # noqa: B023
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(burl + b_sec + '/')}):  # ruff: ignore[function-uses-loop-variable]
                 url = a['href']
                 if url in {burl + b_sec + '/', burl + b_sec}:
                     continue
@@ -89,7 +89,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
             nsection = n_sec.capitalize()
             self.log(nsection)
             articles = []
-            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(nurl + n_sec + '/')}):  # noqa: B023
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(nurl + n_sec + '/')}):  # ruff: ignore[function-uses-loop-variable]
                 url = a['href']
                 if url in {nurl + n_sec + '/', nurl + n_sec}:
                     continue

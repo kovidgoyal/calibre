@@ -248,7 +248,7 @@ def set_disabled(name, val):
 def look_and_feel(container):
     def subhead(text):
         container.appendChild(E.div(
-            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex; max-width: 35em', E.b(sanitize_accelerator(text))))
+            style='border-bottom: var(--calibre-border-style-strong); margin-bottom: 1ex; max-width: 35em', E.b(sanitize_accelerator(text))))
 
     subhead(_('&Fonts'))
     add_listener('disable_font_rescaling', def (name):
@@ -410,7 +410,7 @@ def search_and_replace(container):
         c = container_for_option('search_replace')
         c.appendChild(E.div(
             class_='simple-group sr-instance',
-            style='border-bottom: solid 1px currentColor; margin-bottom: 1ex',
+            style='border-bottom: var(--calibre-border-style-strong); margin-bottom: 1ex',
             E.label(
                 E.span(_('Search:')), E.input(type='text', name='search')
             ),
@@ -845,7 +845,7 @@ def create_option_group(
     container.classList.add(CLASS_NAME)
     entry_points[group_name](container)
     container.appendChild(E.div(
-        style='margin-top: 2ex; padding-top: 2ex; border-top: solid 1px currentColor',
+        style='margin-top: 2ex; padding-top: 2ex; border-top: var(--calibre-border-style)',
         create_button(_('Done'), action=on_close),
         '\xa0\xa0',
         create_button(_('Restore defaults'), action=restore_defaults),

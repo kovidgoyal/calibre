@@ -178,7 +178,7 @@ class AumSortedConcatenate:
 
     def step(self, ndx, author, sort, link):
         if author is not None:
-            self.ans[ndx] = ':::'.join((author, sort, link))  # noqa: FLY002
+            self.ans[ndx] = ':::'.join((author, sort, link))  # ruff: ignore[static-join-to-f-string]
 
     def finalize(self):
         try:

@@ -17,7 +17,7 @@ from calibre.utils.imghdr import what
 # they are converted to PNG before being added to the book
 UNSUPPORTED_IMAGE_TYPES = frozenset({'image/webp', 'image/avif', 'image/jxl'})
 
-PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa: E501
+PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # ruff: ignore[line-too-long]
 
 
 def process_jpegs_for_amazon(data: bytes) -> bytes:

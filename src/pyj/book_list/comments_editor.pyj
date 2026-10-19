@@ -25,9 +25,6 @@ add_extra_css(def ():
     style += build_rule(sel, padding='0.5ex', margin_right='0.5ex', cursor='pointer')
     style += build_rule(sel + ':hover', color='var(--calibre-color-primary)')
     style += build_rule(sel + '.activated', color=get_color('window-background'), background=get_color('window-foreground'))
-    sel += '.sep'
-    style += build_rule(sel, border_left='solid 2px currentColor', cursor='auto')
-    style += build_rule(sel + ':hover', color='currentColor')
     return style
 )
 
@@ -593,7 +590,7 @@ class Editor:
 
 def create_editor(insert_image_files):
     iframe_kw = {
-        'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: solid 1px currentColor'
+        'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: var(--calibre-border-style-control)'
     }
     editor = Editor(iframe_kw, insert_image_files)
     iframe = editor.iframe_obj
@@ -630,11 +627,7 @@ def create_comments_editor(container, options):
     acmap = all_editor_actions()
 
     def add(toolbar, ac_name):
-        if ac_name:
-            if acmap[ac_name]:
-                add_action(toolbar, ac_name, acmap[ac_name], editor.id)
-            else:
-                toolbar.appendChild(E.div(class_='sep'))
+        add_action(toolbar, ac_name, acmap[ac_name], editor.id)
 
     for ac_name in 'undo redo select-all remove-format bold italic underline strikethrough'.split(' '):
         add(toolbar1, ac_name)

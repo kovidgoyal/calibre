@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Pescanik(BasicNewsRecipe):
     title = 'Peščanik'
     __author__ = 'Darko Miletic'
-    description = 'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'  # noqa: E501
+    description = 'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'  # ruff: ignore[line-too-long]
     publisher = 'Peščanik'
     category = 'news, politics, Serbia'
     oldest_article = 10
@@ -32,7 +32,7 @@ class Pescanik(BasicNewsRecipe):
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
     remove_tags = [dict(name=['object', 'link', 'meta', 'script', 'iframe', 'embed'])]
     keep_only_tags = [dict(attrs={'id': ['BlogTitle', 'BlogDate', 'BlogContent']})]
     feeds = [('Autori', 'http://pescanik.net/category/autori/feed/'), ('Prevodi', 'http://pescanik.net/category/prevodi/feed/')]

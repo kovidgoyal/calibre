@@ -54,7 +54,7 @@ def bot_check_retrier(fetch: Callable[..., Any], retries: int = BOT_CHECK_RETRIE
     """
 
     @wraps(fetch)
-    def retrying(*args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+    def retrying(*args: Any, **kwargs: Any) -> Any:  # ruff: ignore[any-type]
         for _ in range(retries - 1):
             try:
                 return fetch(*args, **kwargs)
@@ -83,7 +83,7 @@ def retry_bot_checks[B](br: B, retries: int = BOT_CHECK_RETRIES, delay: float = 
     if callable(clone):
 
         @wraps(clone)
-        def cloning(*args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+        def cloning(*args: Any, **kwargs: Any) -> Any:  # ruff: ignore[any-type]
             return retry_bot_checks(clone(*args, **kwargs), retries, delay)
 
         setattr(br, 'clone_browser', cloning)

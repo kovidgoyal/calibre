@@ -54,8 +54,8 @@ class MediaDaumRecipe(BasicNewsRecipe):
         (re.compile(r'<i>(<br[^>]*>[ \t\r\n]*)*', re.DOTALL | re.IGNORECASE), lambda match: '<i>'),
         (
             re.compile(
-                '(<br[^>]*>[ \t\r\n]*)*(\u25b6|\u25cf|\u261e|\u24d2|\\(c\\))*\\[[^\\]]*'  # noqa: RUF039
-                '(\u24d2|\\(c\\)|\uae30\uc0ac|\uc778\uae30[^\\]]*\ub274\uc2a4)[^\\]]*\\].*</div>',  # noqa: RUF039
+                '(<br[^>]*>[ \t\r\n]*)*(\u25b6|\u25cf|\u261e|\u24d2|\\(c\\))*\\[[^\\]]*'  # ruff: ignore[unraw-re-pattern]
+                '(\u24d2|\\(c\\)|\uae30\uc0ac|\uc778\uae30[^\\]]*\ub274\uc2a4)[^\\]]*\\].*</div>',  # ruff: ignore[unraw-re-pattern]
                 re.DOTALL | re.IGNORECASE,
             ),
             lambda match: '</div>',

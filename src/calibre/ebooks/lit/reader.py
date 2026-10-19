@@ -760,7 +760,7 @@ class LitFile:
                 content = self.decrypt(content)
                 control = control[csize:]
             elif guid == LZXCOMPRESS_GUID:
-                reset_table = self.get_file('/'.join(('::DataSpace/Storage', name, 'Transform', LZXCOMPRESS_GUID, 'InstanceData/ResetTable')))  # noqa: FLY002
+                reset_table = self.get_file('/'.join(('::DataSpace/Storage', name, 'Transform', LZXCOMPRESS_GUID, 'InstanceData/ResetTable')))  # ruff: ignore[static-join-to-f-string]
                 content = self.decompress(content, control, reset_table)
                 control = control[csize:]
             else:
@@ -834,7 +834,7 @@ class LitFile:
         return b''.join(result)
 
     def get_atoms(self, entry):
-        name = '/'.join(('/data', entry.internal, 'atom'))  # noqa: FLY002
+        name = '/'.join(('/data', entry.internal, 'atom'))  # ruff: ignore[static-join-to-f-string]
         if name not in self.entries:
             return {}, {}
         data = self.get_file(name)
@@ -883,7 +883,7 @@ class LitContainer:
         if entry is None:
             content = OPF_DECL + self._read_meta()
         elif 'spine' in entry.state:
-            internal = '/'.join(('/data', entry.internal, 'content'))  # noqa: FLY002
+            internal = '/'.join(('/data', entry.internal, 'content'))  # ruff: ignore[static-join-to-f-string]
             raw = self._litfile.get_file(internal)
             manifest = self._litfile.manifest
             atoms = self._litfile.get_atoms(entry)
@@ -894,7 +894,7 @@ class LitContainer:
             content = re.sub(pat, '', content)
             content = re.sub(r'<(/{0,1})form>', r'<\1div>', content)
         else:
-            internal = '/'.join(('/data', entry.internal))  # noqa: FLY002
+            internal = '/'.join(('/data', entry.internal))  # ruff: ignore[static-join-to-f-string]
             content = self._litfile.get_file(internal)
         return content
 

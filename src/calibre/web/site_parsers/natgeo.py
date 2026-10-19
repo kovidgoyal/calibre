@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import json
-from pprint import pprint  # noqa: F401
+from pprint import pprint  # ruff: ignore[unused-import]
 
 from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601

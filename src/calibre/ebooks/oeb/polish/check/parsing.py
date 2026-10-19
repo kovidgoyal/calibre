@@ -10,7 +10,7 @@ from calibre.ebooks.chardet import find_declared_encoding, replace_encoding_decl
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.base import OEB_DOCS, URL_SAFE, XHTML, XHTML_NS, iteridrefs, rewrite_idrefs, urlquote
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
-from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag  # noqa: F401
+from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag  # ruff: ignore[unused-import]
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring

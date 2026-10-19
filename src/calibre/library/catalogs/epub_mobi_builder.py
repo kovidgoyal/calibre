@@ -280,14 +280,14 @@ class CatalogBuilder:
          (str): sort key
         """
         if not book['series']:
-            fs = '{:<%d}!{!s}' % longest_author_sort  # noqa: UP031
+            fs = '{:<%d}!{!s}' % longest_author_sort  # ruff: ignore[printf-string-formatting]
             key = fs.format(capitalize(book['author_sort']), capitalize(book['title_sort']))
         else:
             index = book['series_index']
             integer = int(index)
             fraction = index - integer
             series_index = f"{integer:04}{str(f'{fraction:0.4f}').lstrip('0')}"
-            fs = '{:<%d}~{!s} {!s}' % longest_author_sort  # noqa: UP031
+            fs = '{:<%d}~{!s} {!s}' % longest_author_sort  # ruff: ignore[printf-string-formatting]
             key = fs.format(capitalize(book['author_sort']), self.generate_sort_title(book['series']), series_index)
         return key
 
@@ -795,7 +795,7 @@ class CatalogBuilder:
         if self.DEBUG and self.opts.verbose:
             tl = [i['title'] for i in books_by_author]
             lt = max(tl, key=len)
-            fs = '{:<6}{:<%d} {:<%d} {}' % (len(lt), len(las))  # noqa: UP031
+            fs = '{:<6}{:<%d} {:<%d} {}' % (len(lt), len(las))  # ruff: ignore[printf-string-formatting]
             print(fs.format('', 'Title', 'Author', 'Series'))
             for i in books_by_author:
                 print(fs.format('', i['title'], i['author_sort'], i['series']))

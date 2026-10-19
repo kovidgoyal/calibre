@@ -193,7 +193,7 @@ class Session:
 class State:
     """Everything the worker process owns, created once on first request."""
 
-    def __init__(self, browser: Any, max_tabs: int) -> None:  # noqa: ANN401
+    def __init__(self, browser: Any, max_tabs: int) -> None:  # ruff: ignore[any-type]
         self.browser = browser
         self.max_tabs = max(1, max_tabs)
         self.sessions: OrderedDict[str, Session] = OrderedDict()
@@ -544,7 +544,7 @@ async def setup_browser(input_data: Mapping[str, Any]) -> None:
     state = State(browser, int(input_data.get('max_tabs') or DEFAULT_MAX_TABS))
 
 
-async def handle_request(input_data: Mapping[str, Any], request: Mapping[str, Any]) -> Any:  # noqa: ANN401
+async def handle_request(input_data: Mapping[str, Any], request: Mapping[str, Any]) -> Any:  # ruff: ignore[any-type]
     """Handle one request from the recipe process."""
     assert state is not None
     action = str(request.get('action') or '')
@@ -602,10 +602,10 @@ class Response:
         self._headers = [(str(n), str(v)) for n, v in result.get('headers') or ()]
         self._data = BytesIO(result.get('data') or b'')
 
-    def read(self, *a: Any) -> bytes:  # noqa: ANN401
+    def read(self, *a: Any) -> bytes:  # ruff: ignore[any-type]
         return self._data.read(*a)
 
-    def seek(self, *a: Any) -> int:  # noqa: ANN401
+    def seek(self, *a: Any) -> int:  # ruff: ignore[any-type]
         return self._data.seek(*a)
 
     def tell(self) -> int:
@@ -622,7 +622,7 @@ class Response:
     code = status
 
     @property
-    def headers(self) -> Any:  # noqa: ANN401
+    def headers(self) -> Any:  # ruff: ignore[any-type]
         from email.message import EmailMessage
 
         ans = EmailMessage()
@@ -640,7 +640,7 @@ class Response:
     def geturl(self) -> str:
         return self.url
 
-    def getinfo(self) -> Any:  # noqa: ANN401
+    def getinfo(self) -> Any:  # ruff: ignore[any-type]
         return self.headers
 
     def close(self) -> None:
@@ -649,7 +649,7 @@ class Response:
     def __enter__(self) -> Response:
         return self
 
-    def __exit__(self, *a: Any) -> None:  # noqa: ANN401
+    def __exit__(self, *a: Any) -> None:  # ruff: ignore[any-type]
         self.close()
 
 
@@ -676,7 +676,7 @@ class Worker:
                 )
             return self.path
 
-    def request(self, payload: Mapping[str, Any]) -> Any:  # noqa: ANN401
+    def request(self, payload: Mapping[str, Any]) -> Any:  # ruff: ignore[any-type]
         # Deliberately not holding self.lock: every request gets a connection
         # of its own and the worker serves them concurrently, which is what
         # lets the recipe's download threads make progress in parallel
@@ -797,7 +797,7 @@ class Browser:
 
     # Fetching {{{
 
-    def _open(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = False) -> Response:  # noqa: ANN401
+    def _open(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = False) -> Response:  # ruff: ignore[any-type]
         method = 'POST' if data else 'GET'
         headers: list[tuple[str, str]] = []
         if isinstance(url_or_request, Request):
@@ -839,7 +839,7 @@ class Browser:
         })
         return response_from_result(result)
 
-    def open(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = True) -> Response:  # noqa: ANN401
+    def open(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = True) -> Response:  # ruff: ignore[any-type]
         """Load a URL the way a person clicking a link would.
 
         Unless as_document is False the page is navigated to in this browser's
@@ -847,7 +847,7 @@ class Browser:
         """
         return self._open(url_or_request, data, timeout, as_document)
 
-    def open_novisit(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = False) -> Response:  # noqa: ANN401
+    def open_novisit(self, url_or_request: Request | str, data: Any = None, timeout: float | None = None, as_document: bool = False) -> Response:  # ruff: ignore[any-type]
         """Get a URL without navigating to it.
 
         Used for the images and stylesheets of the document this browser last

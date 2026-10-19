@@ -1297,7 +1297,7 @@ class ReadingTest(BaseTest):
     def test_last_read_positions(self):  # {{{
         cache = self.init_cache(self.library_path)
         self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))
-        self.assertRaises(Exception, cache.set_last_read_position, 12, 'x', cfi='c')  # noqa: B017
+        self.assertRaises(Exception, cache.set_last_read_position, 12, 'x', cfi='c')  # ruff: ignore[assert-raises-exception]
         epoch = time()
         cache.set_last_read_position(1, 'EPUB', 'user', 'device', 'cFi', epoch, 0.3)
         self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))

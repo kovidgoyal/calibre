@@ -1,1 +1,1 @@
-from time import monotonic  # noqa: F401
+from time import monotonic  # ruff: ignore[unused-import]

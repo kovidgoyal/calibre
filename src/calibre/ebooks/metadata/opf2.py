@@ -324,7 +324,7 @@ class Spine(ResourceCollection):  # {{{
             if idref is not None:
                 path = path_map.get(idref)
                 if path and path not in seen:
-                    r = Spine.Item(lambda x: idref, path, is_path=True)  # noqa: B023
+                    r = Spine.Item(lambda x: idref, path, is_path=True)  # ruff: ignore[function-uses-loop-variable]
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
                     r.idref = idref
                     s.append(r)
@@ -356,7 +356,7 @@ class Spine(ResourceCollection):  # {{{
             path = self.manifest.path_for_id(id)
             if path is None:
                 raise ValueError('id %s not in manifest')
-            items.append(Spine.Item(lambda x: id, path, is_path=True))  # noqa: B023
+            items.append(Spine.Item(lambda x: id, path, is_path=True))  # ruff: ignore[function-uses-loop-variable]
         super().replace(start, end, items)
 
     def linear_items(self):

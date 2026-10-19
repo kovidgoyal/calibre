@@ -106,7 +106,7 @@ class Publish(Command):
         require_git_master()
         require_clean_git()
         require_hsm_for_signing()
-        version = tuple(map(int, __version__.split('.')))  # noqa: RUF048
+        version = tuple(map(int, __version__.split('.')))  # ruff: ignore[map-int-version-parsing]
         if version[2] > 99:
             raise SystemExit(f'The version number {__version__} indicates a preview release, did you mean to run ./setup.py publish_preview?')
         if 'PUBLISH_BUILD_DONE' not in os.environ:
@@ -137,7 +137,7 @@ class PublishPreview(Command):
     sub_commands = ['stage1', 'stage2', 'sdist']
 
     def pre_sub_commands(self, opts):
-        version = tuple(map(int, __version__.split('.')))  # noqa: RUF048
+        version = tuple(map(int, __version__.split('.')))  # ruff: ignore[map-int-version-parsing]
         if version[2] < 100:
             raise SystemExit('Must set calibre version to have patch level greater than 100')
         require_clean_git()

@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class WiComix(BasicNewsRecipe):
     title = 'Wicomix'
     __author__ = 'bugmen00t'
-    description = '\u0418\u043d\u0442\u0435\u0440\u0435\u0441\u043d\u043e \u043f\u0438\u0448\u0435\u043c \u043f\u0440\u043e \u043a\u043e\u043c\u0438\u043a\u0441\u044b \u0438 \u043c\u0430\u043d\u0433\u0443 \u0432 \u0420\u043e\u0441\u0441\u0438\u0438.'  # noqa: E501
+    description = '\u0418\u043d\u0442\u0435\u0440\u0435\u0441\u043d\u043e \u043f\u0438\u0448\u0435\u043c \u043f\u0440\u043e \u043a\u043e\u043c\u0438\u043a\u0441\u044b \u0438 \u043c\u0430\u043d\u0433\u0443 \u0432 \u0420\u043e\u0441\u0441\u0438\u0438.'  # ruff: ignore[line-too-long]
     publisher = '\u0421\u0435\u0440\u0433\u0435\u0439 \u041e\u0440\u0435\u0448\u043a\u0438\u043d'
     category = 'blog'
     cover_url = 'https://wicomix.files.wordpress.com/2016/03/10865972_581683525300298_6873875730458476144_o.jpg'

@@ -94,7 +94,7 @@ def arbitrary(module_name, func_name, args, kwargs=None):
         kwargs = {}
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
-        from calibre.customize.ui import find_plugin  # noqa: F401
+        from calibre.customize.ui import find_plugin  # ruff: ignore[unused-import]
     module = importlib.import_module(module_name)
     func = getattr(module, func_name)
     return func(*args, **kwargs)
@@ -113,7 +113,7 @@ def arbitrary_n(module_name, func_name, args, kwargs=None, notification=lambda x
         kwargs = {}
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
-        from calibre.customize.ui import find_plugin  # noqa: F401
+        from calibre.customize.ui import find_plugin  # ruff: ignore[unused-import]
     module = importlib.import_module(module_name)
     func = getattr(module, func_name)
     kwargs['notification'] = notification

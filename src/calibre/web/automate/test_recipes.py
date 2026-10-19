@@ -395,7 +395,7 @@ class TestRecipeFillField(unittest.TestCase):
             def __init__(self, failure: type[Exception], failures: int) -> None:
                 self.value, self.failure, self.failures, self.attempts = '', failure, failures, 0
 
-            async def fill(self, selector: str, value: str, timeout: float) -> None:  # noqa: ASYNC109
+            async def fill(self, selector: str, value: str, timeout: float) -> None:  # ruff: ignore[async-function-with-timeout]
                 self.attempts += 1
                 if self.attempts <= self.failures:
                     self.value = value[:1]
@@ -728,7 +728,7 @@ class TestRecipeBrowser(unittest.TestCase):
         self.assertEqual(len(results), num)
         for i, result in sorted(results.items()):
             if isinstance(result, Exception):
-                raise AssertionError(f'download {i} failed: {result}') from result  # noqa: TRY004
+                raise AssertionError(f'download {i} failed: {result}') from result  # ruff: ignore[type-check-without-type-error]
             rendered, svg = result
             self.assertTrue(rendered, f'download {i} was not rendered')
             self.assertEqual(svg, TEST_SVG, f'download {i} got the wrong image')

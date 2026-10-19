@@ -165,7 +165,7 @@ class Matches(QAbstractItemModel):
                 return (
                     '<p>'
                     + _(
-                        'This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.'  # noqa: E501
+                        'This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.'  # ruff: ignore[line-too-long]
                     )
                     % result.headquarters
                     + '</p>'
@@ -280,14 +280,14 @@ class SearchFilter(SearchQueryParser):
                 accessor = q[locvalue]
                 if query == 'true':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == True:  # noqa: E712
+                        if accessor(sr) == True:  # ruff: ignore[true-false-comparison]
                             matches.add(sr)
                     elif accessor(sr) is not None:
                         matches.add(sr)
                     continue
                 if query == 'false':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == False:  # noqa: E712
+                        if accessor(sr) == False:  # ruff: ignore[true-false-comparison]
                             matches.add(sr)
                     elif accessor(sr) is None:
                         matches.add(sr)

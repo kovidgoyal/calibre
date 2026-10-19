@@ -62,7 +62,7 @@ def library_icon_path(lib_name=''):
 class LibraryIcon:
     default_icon: QIcon | None = None
 
-    @lru_cache(maxsize=512)  # noqa: B019
+    @lru_cache(maxsize=512)  # ruff: ignore[cached-instance-method]
     def __call__(self, lib_name='') -> QIcon:
         q = library_icon_path(lib_name)
         if os.path.exists(q):

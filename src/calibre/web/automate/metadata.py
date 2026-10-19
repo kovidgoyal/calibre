@@ -483,7 +483,7 @@ def amazon_results(root: _Element, base_url: str, domain: str, max_results: int 
 
         def format_of(a: _Element) -> str:
             m = DP_PAT.search(a.get('href') or '')
-            return formats.get(m.group(1), '') if m is not None else ''  # noqa: B023
+            return formats.get(m.group(1), '') if m is not None else ''  # ruff: ignore[function-uses-loop-variable]
 
         def is_audio(name: str, a: _Element) -> bool:
             href = (a.get('href') or '').lower()
@@ -644,7 +644,7 @@ def google_consent_cookie() -> dict[str, Any]:
     from datetime import date
 
     template = b'\x08\x01\x128\x08\x14\x12+boq_identityfrontenduiserver_20231107.05_p0\x1a\x05en-US \x03\x1a\x06\x08\x80\xf1\xca\xaa\x06'
-    template = template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))  # noqa: DTZ011
+    template = template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))  # ruff: ignore[call-date-today]
     value = standard_b64encode(template).decode('ascii').rstrip('=')
     return {'name': 'SOCS', 'value': value, 'domain': '.google.com', 'path': '/', 'secure': True}
 

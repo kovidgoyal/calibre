@@ -1198,7 +1198,7 @@ class Plumber:
         self.flush()
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
-            from calibre.utils.fonts.scanner import font_scanner  # noqa: F401
+            from calibre.utils.fonts.scanner import font_scanner  # ruff: ignore[unused-import]
         import logging
 
         import css_parser

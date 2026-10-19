@@ -139,12 +139,12 @@ def parse_only_date(raw, assume_utc=True, as_utc=True):
 
 
 def strptime(val, fmt, assume_utc=False, as_utc=True):
-    dt = datetime.strptime(val, fmt)  # noqa: DTZ007
+    dt = datetime.strptime(val, fmt)  # ruff: ignore[call-datetime-strptime-without-zone]
     return fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
 
 
 def dt_factory(time_t, assume_utc=False, as_utc=True):
-    dt = datetime(*(time_t[0:6]))  # noqa: DTZ001
+    dt = datetime(*(time_t[0:6]))  # ruff: ignore[call-datetime-without-tzinfo]
     return fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
 
 

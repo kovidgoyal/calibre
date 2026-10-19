@@ -124,6 +124,7 @@ DEFAULT_COLORS = {
     'border': c('rgba(0,0,0,0.12)', 'rgba(255,255,255,0.12)'),
     'border-subtle': c('rgba(0,0,0,0.08)', 'rgba(255,255,255,0.08)'),
     'border-strong': c('rgba(0,0,0,0.24)', 'rgba(255,255,255,0.28)'),
+    'border-control': c('rgba(0,0,0,0.5)', 'rgba(255,255,255,0.45)'),
     # Shadows are barely visible on dark backgrounds, so dark themes rely on border-strong for edges
     'shadow-faint': c('rgba(0,0,0,0.08)', 'rgba(0,0,0,0.3)'),
     'shadow': c('rgba(0,0,0,0.14)', 'rgba(0,0,0,0.5)'),

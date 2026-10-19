@@ -15,7 +15,7 @@ from book_list.top_bar import create_top_bar
 from book_list.ui import show_panel
 from complete import create_search_bar
 from dom import clear, set_css, build_rule, svgicon, add_extra_css, ensure_id
-from modals import show_modal, create_custom_dialog
+from modals import SEPARATOR_CLASS, show_modal, create_custom_dialog
 from session import get_interface_data
 from utils import rating_to_stars, safe_set_inner_html, is_ios
 from widgets import create_button, create_spinner, Breadcrumbs
@@ -366,7 +366,7 @@ def menu_clicked(i):
         name = data.original_name or data.name or data.sort
         icon, fallback = icon_for_node(node)
         title = E.h2(
-            style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
+            style='display:flex; align-items: center; border-bottom: var(--calibre-border-style); font-weight:bold; font-size:' + get_font_size('title'),
             E.img(src=icon, onerror=show_fallback.bind(None, fallback), style='height:2ex; margin-right: 0.5rem'),
             E.span(name)
         )
@@ -409,7 +409,7 @@ def menu_clicked(i):
             li.addEventListener('click', hide_modal)
             ul.appendChild(li)
         f = E.form(
-                style='text-align:left; border-top: solid 1px currentColor; padding-top:1ex; margin-top:0.5ex; display:flex; align-items:center',
+                class_=SEPARATOR_CLASS, style='text-align:left; display:flex; align-items:center',
                 E.span(_('Add to the search expression with:')),
                 E.input(type='radio', name='expr_join', value='OR', checked=''),
                 E.span('\xa0OR\xa0'),
@@ -431,7 +431,7 @@ def menu_clicked(i):
         if data.avg_rating is not undefined:
             about_items.push(_('Average rating of books: {:.1f}').format(data.avg_rating))
         footer = E.div(
-            style='text-align:left; border-top: solid 1px currentColor; padding-top:1ex; margin-top:0.5ex;',
+            class_=SEPARATOR_CLASS, style='text-align:left',
         )
         if about_items.length:
             footer.appendChild(E.div(style='font-size: smaller', ' '.join(about_items)))

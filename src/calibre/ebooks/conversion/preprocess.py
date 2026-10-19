@@ -262,7 +262,7 @@ class Dehyphenator:
         if format == 'html':
             intextmatch = re.compile(
                 (
-                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # noqa: UP031
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # ruff: ignore[printf-string-formatting]
                     r'\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)'
                     r'?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<secondpart>[\w\d]+)'
                 )
@@ -271,13 +271,13 @@ class Dehyphenator:
         elif format == 'pdf':
             intextmatch = re.compile(
                 (
-                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|'  # noqa: UP031
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|'  # ruff: ignore[printf-string-formatting]
                     r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'
                 )
                 % length
             )
         elif format == 'txt':
-            intextmatch = re.compile(r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\w\d]+)' % length)  # noqa: UP031
+            intextmatch = re.compile(r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\w\d]+)' % length)  # ruff: ignore[printf-string-formatting]
         elif format == 'individual_words':
             intextmatch = re.compile(r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)
         elif format == 'html_cleanup':
@@ -532,13 +532,13 @@ class HTMLPreProcessor:
             if length:
                 # print('The pdf line length returned is ' + str(length))
                 # unwrap em/en dashes
-                end_rules.append((re.compile(r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))  # noqa: UP031
+                end_rules.append((re.compile(r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))  # ruff: ignore[printf-string-formatting]
                 end_rules.append(
                     # Un wrap using punctuation
                     (
                         re.compile(
                             (
-                                r'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]'  # noqa: UP031
+                                r'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]'  # ruff: ignore[printf-string-formatting]
                                 r'|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?'
                                 r'\s*[\w\d$(])'
                             )

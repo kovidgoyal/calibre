@@ -114,7 +114,7 @@ class FB2MLizer:
         metadata['title'] = self.oeb_book.metadata.title[0].value
         metadata['appname'] = __appname__
         metadata['version'] = __version__
-        metadata['date'] = f'{datetime.now().day}.{datetime.now().month}.{datetime.now().year}'  # noqa: DTZ005
+        metadata['date'] = f'{datetime.now().day}.{datetime.now().month}.{datetime.now().year}'  # ruff: ignore[call-datetime-now-without-tzinfo]
         if self.oeb_book.metadata.language:
             lc = lang_as_iso639_1(self.oeb_book.metadata.language[0].value)
             if not lc:

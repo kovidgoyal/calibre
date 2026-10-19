@@ -93,16 +93,16 @@ from calibre.utils.localization import _, bcp47_locale_name, install_qt_translat
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
-from calibre_extensions import avif as _avif_plugin  # noqa: F401  registers the AVIF image format with Qt
+from calibre_extensions import avif as _avif_plugin  # ruff: ignore[unused-import]  registers the AVIF image format with Qt
 from calibre_extensions.progress_indicator import icon_from_name, icon_from_paths, set_icon_theme
 
 try:
-    from calibre_extensions import jxl as _jxl_plugin  # noqa: F401  registers the JPEG-XL image format with Qt
+    from calibre_extensions import jxl as _jxl_plugin  # ruff: ignore[unused-import]  registers the JPEG-XL image format with Qt
 except ImportError:
     pass  # for people running from source
 
 del pqc, geometry_for_restore_as_dict
-timed_print  # noqa: B018 # for plugin compat
+timed_print  # ruff: ignore[useless-expression] # for plugin compat
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY = 100  # 100 ms is threshold for human visual response
 
@@ -147,7 +147,7 @@ class IconResourceManager:
         self.light_theme_name = self.user_light_theme_name or any_light or self.default_light_theme_name
         # self.dump_available_icon_resource_names()
 
-    @lru_cache(maxsize=4)  # noqa: B019
+    @lru_cache(maxsize=4)  # ruff: ignore[cached-instance-method]
     def user_icon_theme_metadata(self, which):
         path = self.user_theme_resource_file(which)
         if path not in self.registered_user_resource_files:
@@ -1217,7 +1217,7 @@ if has_windows_file_dialog_helper:
 elif has_linux_file_dialog_helper:
     choose_dir, choose_files, choose_save_file, choose_images = map(linux_native_dialog, 'dir files save_file images'.split())
 else:
-    from calibre.gui2.qt_file_dialogs import choose_dir, choose_files, choose_images, choose_save_file  # noqa: F401
+    from calibre.gui2.qt_file_dialogs import choose_dir, choose_files, choose_images, choose_save_file  # ruff: ignore[unused-import]
 
 
 def choose_files_and_remember_all_files(window, name, title, filters=None, select_only_single_file=False, default_dir='~'):
@@ -1646,15 +1646,15 @@ class Application(QApplication):
     def load_builtin_fonts(self, scan_for_fonts=False):
         if scan_for_fonts:
             # Start scanning the users computer for fonts
-            from calibre.utils.fonts.scanner import font_scanner  # noqa: F401
+            from calibre.utils.fonts.scanner import font_scanner  # ruff: ignore[unused-import]
 
         load_builtin_fonts()
 
-    @lru_cache(maxsize=256)  # noqa: B019
+    @lru_cache(maxsize=256)  # ruff: ignore[cached-instance-method]
     def cached_qimage(self, name, device_pixel_ratio=0):
         return self.cached_qpixmap(name, device_pixel_ratio).toImage()
 
-    @lru_cache(maxsize=256)  # noqa: B019
+    @lru_cache(maxsize=256)  # ruff: ignore[cached-instance-method]
     def cached_qpixmap(self, name, device_pixel_ratio=0):
         # get the actual size of the image since QIcon does not tell us this for
         # icons loaded from a theme

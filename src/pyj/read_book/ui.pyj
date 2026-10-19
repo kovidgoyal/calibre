@@ -14,7 +14,7 @@ from book_list.router import home, push_state, read_book_mode, update_window_tit
 from book_list.ui import show_panel
 from dom import clear
 from image_popup import show_image
-from modals import create_simple_dialog_markup, error_dialog
+from modals import SEPARATOR_CLASS, create_simple_dialog_markup, error_dialog
 from read_book.book_storage import get_book_storage, is_valid_book_storage, newest_book_storage, set_book_storage
 from read_book.db import get_db
 from read_book.globals import ui_operations
@@ -198,7 +198,7 @@ class ReadUI:
         create_simple_dialog_markup(title, _('Could not open {}. {}').format(book, msg), details, 'bug', '', None, dp)
         div.appendChild(dp)
         div.appendChild(E.div(
-            style='margin-top: 1ex; padding-top: 1ex; border-top: var(--calibre-border-style)',
+            class_=SEPARATOR_CLASS,
             _('Go back to:'), E.br(), E.br(),
             create_button(_('Home'), 'home', def (): home(True);),
         ))

@@ -45,7 +45,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     name = 'Oldie Online'
     series = 'The ' + name
     now = datetime.now().strftime(' %Y-%m')
-    title = series + now  # noqa: PIE794
+    title = series + now  # ruff: ignore[duplicate-class-field-definition]
     title_sort = name + now + ', The'
     conversion_options = {
         'authors': 'The Oldie',

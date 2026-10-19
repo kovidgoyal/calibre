@@ -42,9 +42,9 @@ NMAKE = RC = msvc = MT = win_inc = win_lib = win_cc = win_ld = None
     NMAKE = 'nmake.exe'
 
 src/calibre/customize/builtins.py
-    description = 'Bei uns finden Sie: Tausende deutschsprachige e-books; Alle e-books ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; e-books für viele Lesegeräte, PC, Mac und Smartphones; Viele Gratis e-books'  # noqa: E501
+    description = 'Bei uns finden Sie: Tausende deutschsprachige e-books; Alle e-books ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; e-books für viele Lesegeräte, PC, Mac und Smartphones; Viele Gratis e-books'  # ruff: ignore[line-too-long]
     description = 'E-booki wolne od DRM, 3 formaty w pakiecie, wysyłanie na Kindle'
-    description  = 'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'  # noqa: E501
+    description  = 'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'  # ruff: ignore[line-too-long]
 
 src/calibre/db/cli/cmd_export.py
         switch = '--dont-' + pref.replace('_', '-')
@@ -223,7 +223,7 @@ src/calibre/ebooks/metadata/topaz.py  # codespell:file-ignore ths
         return ths.getvalue().encode('iso-8859-1')
 
 src/calibre/ebooks/rtf*/**  # codespell:file-ignore pich,pard,tripple
-                    repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)  # noqa: UP031
+                    repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)  # ruff: ignore[printf-string-formatting]
                     block_start = r'{\par\pard\hyphpar '
                     text += r'\par\pard\plain\hyphpar}'
                 text += rf'{{\par\pard\hyphpar {txt2rtf(elem.tail)}}}'

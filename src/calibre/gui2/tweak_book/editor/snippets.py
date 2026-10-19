@@ -134,7 +134,7 @@ class TabStop(str):
     takes_selection: bool
     parent: TabStop | None
 
-    def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):  # noqa: PLW0211
+    def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):  # ruff: ignore[bad-staticmethod-argument]
         if raw.endswith('}'):
             unescape = escape_funcs()[1]
             num, default = raw[2:-1].partition(':')[0::2]
@@ -314,7 +314,7 @@ class Template(list):
     has_tab_stops: bool
     active_tab_stop: EditorTabStop | None
 
-    def __new__(self, tab_stops):  # noqa: PLW0211
+    def __new__(self, tab_stops):  # ruff: ignore[bad-staticmethod-argument]
         self = list.__new__(self)
         self.left_most_ts = self.right_most_ts = None
         self.extend(tab_stops)

@@ -989,11 +989,11 @@ class CaseItem:
 
 
 def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, int | Iterable[int]]]:
-    formatter = lambda x: x  # noqa: E731
+    formatter = lambda x: x  # ruff: ignore[lambda-assignment]
     fm = db.field_metadata
     sort_key = numeric_sort_key
-    get_books_in_group: Callable[[int], set[int]] | Callable[[tuple[int, int]], set[int]] = lambda group: db.books_for_field(field_name, group)  # noqa: E731
-    get_field_id_map: Callable[[], dict[int | tuple[int, int], str | tuple[int, int] | int]] = lambda: db.get_id_map(field_name)  # noqa: E731
+    get_books_in_group: Callable[[int], set[int]] | Callable[[tuple[int, int]], set[int]] = lambda group: db.books_for_field(field_name, group)  # ruff: ignore[lambda-assignment]
+    get_field_id_map: Callable[[], dict[int | tuple[int, int], str | tuple[int, int] | int]] = lambda: db.get_id_map(field_name)  # ruff: ignore[lambda-assignment]
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
     all_book_ids = frozenset(sort_map)
     ungrouped_name = all_groupings().get(field_name, _('Unknown'))
@@ -1015,15 +1015,15 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
                     return au
 
             sort_key = {au: gas(aid, au) for aid, au in field_id_map.items()}.__getitem__
-            get_field_id_map = lambda: field_id_map  # noqa: E731
+            get_field_id_map = lambda: field_id_map  # ruff: ignore[lambda-assignment]
             del gas
         case 'languages':
             lm = lang_map()
-            formatter = lambda x: lm.get(x, x)  # noqa: E731
-            sort_key = lambda x: numeric_sort_key(formatter(x))  # noqa: E731
+            formatter = lambda x: lm.get(x, x)  # ruff: ignore[lambda-assignment]
+            sort_key = lambda x: numeric_sort_key(formatter(x))  # ruff: ignore[lambda-assignment]
         case field_name if dt == 'rating':
             formatter = rating_to_stars
-            sort_key = lambda x: -x  # noqa: E731
+            sort_key = lambda x: -x  # ruff: ignore[lambda-assignment]
             ungrouped_name = _('Unrated')
         case field_name if dt == 'datetime':
             df = fm[field_name].get('display', {}).get('date_format') or 'dd MMM yyyy'
@@ -1031,15 +1031,15 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
                 lsys = QLocale.system().monthName
                 month_map = db.books_by_month(field=field_name, restrict_to_books=all_book_ids)
                 get_books_in_group = month_map.__getitem__
-                get_field_id_map = lambda: {x: x for x in month_map}  # noqa: E731
-                sort_key = lambda x: (-x[0], -x[1])  # noqa: E731
-                formatter = lambda x: f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}' if x[0] > UNDEFINED_DATE.year else ungrouped_name  # noqa: E731
+                get_field_id_map = lambda: {x: x for x in month_map}  # ruff: ignore[lambda-assignment]
+                sort_key = lambda x: (-x[0], -x[1])  # ruff: ignore[lambda-assignment]
+                formatter = lambda x: f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}' if x[0] > UNDEFINED_DATE.year else ungrouped_name  # ruff: ignore[lambda-assignment]
             else:
                 year_map = db.books_by_year(field=field_name, restrict_to_books=all_book_ids)
                 get_books_in_group = year_map.__getitem__
-                get_field_id_map = lambda: {x: x for x in year_map}  # noqa: E731
-                sort_key = lambda x: -x  # noqa: E731
-                formatter = lambda x: str(x) if x > UNDEFINED_DATE.year else ungrouped_name  # noqa: E731
+                get_field_id_map = lambda: {x: x for x in year_map}  # ruff: ignore[lambda-assignment]
+                sort_key = lambda x: -x  # ruff: ignore[lambda-assignment]
+                formatter = lambda x: str(x) if x > UNDEFINED_DATE.year else ungrouped_name  # ruff: ignore[lambda-assignment]
 
     field_id_map = get_field_id_map()
     yield '', len(field_id_map)
@@ -2167,13 +2167,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.drawRect(spine_rect.adjusted(gap, gap, -gap, -gap))
         painter.restore()
 
-    @lru_cache(maxsize=128)  # noqa: B019
+    @lru_cache(maxsize=128)  # ruff: ignore[cached-instance-method]
     def get_sized_font(self, sz: float = 9, for_divider: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
         font = QFont(self.divider_font if for_divider else self.spine_font)
         font.setPointSizeF(sz)
         return font, QFontMetricsF(font), QFontInfo(font)
 
-    @lru_cache(maxsize=4096)  # noqa: B019
+    @lru_cache(maxsize=4096)  # ruff: ignore[cached-instance-method]
     def get_text_metrics(
         self,
         first_line: str,

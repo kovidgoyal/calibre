@@ -210,7 +210,7 @@ def create_configuring_markup():
     tcell = 'display: table-cell; padding-top: 1em; padding-left: 1em'
 
     start_conv = E.div(
-        style='border-bottom: solid 1px currentColor; margin-bottom: 1em',
+        style='border-bottom: var(--calibre-border-style); margin-bottom: 1em',
         E.div(
             E.label(
                 style='display: table-row',

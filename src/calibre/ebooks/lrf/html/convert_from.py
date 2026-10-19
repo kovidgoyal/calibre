@@ -839,7 +839,7 @@ class HTMLConverter:
             ]:
                 src = src.replace(x, y)
 
-            valigner: Callable[..., object] = lambda x: x  # noqa: E731
+            valigner: Callable[..., object] = lambda x: x  # ruff: ignore[lambda-assignment]
             if 'vertical-align' in css:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):
