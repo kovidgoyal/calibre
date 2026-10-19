@@ -289,7 +289,7 @@ class SelectionBar:
             container.appendChild(h)
         container.appendChild(E.div(
             id=self.bar_id,
-            style='position: absolute; border: solid 1px currentColor; border-radius: 5px;'
+            style='position: absolute; border: var(--calibre-border-style-strong); border-radius: 5px;'
             'left: 0; top: 0; display: flex; flex-direction: column;'
         ))
 

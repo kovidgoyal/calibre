@@ -6,7 +6,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.details_list import sandbox_css, BORDER_RADIUS
+from book_list.details_list import BORDER_RADIUS, sandbox_css, show_missing_cover
 from book_list.library_data import library_data
 from date import format_date
 from dom import build_rule, clear, set_css, svgicon
@@ -290,20 +290,6 @@ def init(container):
     container.appendChild(E.div(class_=CUSTOM_LIST_CLASS))
 
 
-def on_img_load(img, load_type):
-    div = img.parentNode
-    if not div:
-        return
-    if load_type is not 'load':
-        clear(div)
-        div.appendChild(E.div(
-            E.h2(img.dataset.title, style='text-align:center; font-size:larger; font-weight: bold'),
-            E.div(_('by'), style='text-align: center'),
-            E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
-        ))
-        set_css(div, border='dashed 1px var(--calibre-color-border-strong)', border_radius=BORDER_RADIUS + 'px')
-
-
 def create_item(book_id, metadata, create_image, show_book_details, href):
     template = get_interface_data().custom_list_template or default_template()
     text_data = render_template_text(template, book_id, metadata)
@@ -326,7 +312,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
     if template.thumbnail:
         h = template.thumbnail_height
         w = int(0.75 * h)
-        img = create_image(book_id, w, h, on_img_load)
+        img = create_image(book_id, w, h, show_missing_cover)
         authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
         img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
         img.dataset.title, img.dataset.authors = metadata.title, authors

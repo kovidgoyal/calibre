@@ -409,7 +409,7 @@ def menu_clicked(i):
             li.addEventListener('click', hide_modal)
             ul.appendChild(li)
         f = E.form(
-                class_=SEPARATOR_CLASS, style='text-align:left; padding-top:1ex; margin-top:0.5ex; display:flex; align-items:center',
+                class_=SEPARATOR_CLASS, style='text-align:left; display:flex; align-items:center',
                 E.span(_('Add to the search expression with:')),
                 E.input(type='radio', name='expr_join', value='OR', checked=''),
                 E.span('\xa0OR\xa0'),
@@ -431,7 +431,7 @@ def menu_clicked(i):
         if data.avg_rating is not undefined:
             about_items.push(_('Average rating of books: {:.1f}').format(data.avg_rating))
         footer = E.div(
-            class_=SEPARATOR_CLASS, style='text-align:left; padding-top:1ex; margin-top:0.5ex;',
+            class_=SEPARATOR_CLASS, style='text-align:left',
         )
         if about_items.length:
             footer.appendChild(E.div(style='font-size: smaller', ' '.join(about_items)))

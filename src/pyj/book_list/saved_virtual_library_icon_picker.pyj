@@ -116,7 +116,7 @@ add_extra_css(def ():
         box_sizing='border-box',
         padding='0.5rem 0.65rem',
         border_radius='10px',
-        border='var(--calibre-border-style-subtle)',
+        border='var(--calibre-border-style-control)',
         background_color='var(--calibre-color-faint-background)',
         color=get_color('window-foreground'),
         font_size='1.1rem',

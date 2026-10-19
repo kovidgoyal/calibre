@@ -838,7 +838,7 @@ class ReadingStatsOverlay:  # {{{
         if max_time > 0:
             bars_row = E.div(
                 style='display: flex; align-items: flex-end; overflow-x: auto; '
-                    + f'border-bottom: 1px solid currentColor; min-height: {BAR_H + 4}px; padding-top: 4px')
+                    + f'border-bottom: var(--calibre-border-style-strong); min-height: {BAR_H + 4}px; padding-top: 4px')
             for i in range(bar_data.length):
                 bd = bar_data[i]
                 t = bd.t

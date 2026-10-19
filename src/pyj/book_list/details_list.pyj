@@ -247,7 +247,8 @@ def init(container):
     container.appendChild(E.div(class_=DETAILS_LIST_CLASS))
 
 
-def on_img_load(img, load_type):
+def show_missing_cover(img, load_type, border_radius=BORDER_RADIUS):
+    # Replace a cover that failed to load with the title and authors of the book
     div = img.parentNode
     if not div:
         return
@@ -258,7 +259,7 @@ def on_img_load(img, load_type):
             E.div(_('by'), style='text-align: center'),
             E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
         ))
-        set_css(div, border='dashed 1px var(--calibre-color-border-strong)', border_radius=BORDER_RADIUS + 'px')
+        set_css(div, border='dashed 1px var(--calibre-color-border-strong)', border_radius=border_radius + 'px')
 
 
 def sandbox_css():
@@ -272,7 +273,7 @@ def sandbox_css():
 
 def create_item(book_id, metadata, create_image, show_book_details, href):
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
-    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load, fill=True)
+    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, show_missing_cover, fill=True)
     img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
     img.dataset.title, img.dataset.authors = metadata.title, authors
     img_div = E.div(img, class_='details-list-left')
