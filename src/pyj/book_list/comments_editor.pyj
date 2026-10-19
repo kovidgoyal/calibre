@@ -26,7 +26,7 @@ add_extra_css(def ():
     style += build_rule(sel + ':hover', color='var(--calibre-color-primary)')
     style += build_rule(sel + '.activated', color=get_color('window-background'), background=get_color('window-foreground'))
     sel += '.sep'
-    style += build_rule(sel, border_left='solid 2px currentColor', cursor='auto')
+    style += build_rule(sel, border_left='solid 2px var(--calibre-color-border-strong)', cursor='auto')
     style += build_rule(sel + ':hover', color='currentColor')
     return style
 )
@@ -593,7 +593,7 @@ class Editor:
 
 def create_editor(insert_image_files):
     iframe_kw = {
-        'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: solid 1px currentColor'
+        'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: var(--calibre-border-style-strong)'
     }
     editor = Editor(iframe_kw, insert_image_files)
     iframe = editor.iframe_obj

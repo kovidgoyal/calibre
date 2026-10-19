@@ -86,7 +86,7 @@ add_extra_css(def ():
     style += build_rule(
         sel + '.rating-edit-container > li',
         margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem',
-        border='solid 1px currentColor', border_radius='1ex', cursor='pointer'
+        border='var(--calibre-border-style-strong)', border_radius='1ex', cursor='pointer'
     )
     style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
     # Floating editor modal (field editing)
@@ -647,7 +647,7 @@ def add_identifier(container_id, name, val):
         return
     b = create_button(_('Remove'), action=remove_identifier)
     c.appendChild(E.li(
-        style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor',
+        style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: var(--calibre-border-style)',
         E.table(
             style='width: 100%',
             E.tr(

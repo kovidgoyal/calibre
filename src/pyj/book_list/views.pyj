@@ -619,7 +619,7 @@ def check_for_books_loaded():
             E.div(_('Failed to load books from calibre library, with error:')),
             err,
             E.div(
-                style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
+                style='margin-top: 1em; border-top: var(--calibre-border-style); padding-top: 1ex;',
                 E.a(onclick=def (): home(replace=True);, href='javascript: void(0)', class_='blue-link', _('Go back to the home page')))
             ),
         )

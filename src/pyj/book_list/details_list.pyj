@@ -258,7 +258,7 @@ def on_img_load(img, load_type):
             E.div(_('by'), style='text-align: center'),
             E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
         ))
-        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS + 'px')
+        set_css(div, border='dashed 1px var(--calibre-color-border-strong)', border_radius=BORDER_RADIUS + 'px')
 
 
 def sandbox_css():
