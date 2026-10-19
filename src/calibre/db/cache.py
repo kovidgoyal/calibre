@@ -2282,7 +2282,9 @@ class Cache:
                 if remove_from_dirtied:
                     self._clear_dirtied(book_id, sequence)
             except Exception:
-                pass
+                if callback is not None:
+                    callback(book_id, mi, False)
+                continue
             if callback is not None:
                 callback(book_id, mi, True)
 

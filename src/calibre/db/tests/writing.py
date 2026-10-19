@@ -8,7 +8,7 @@ from io import BytesIO
 
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Pages
-from calibre.db.constants import RESOURCE_URL_SCHEME
+from calibre.db.constants import METADATA_FILE_NAME, RESOURCE_URL_SCHEME
 from calibre.db.tests.base import IMG, BaseTest
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -395,6 +395,37 @@ class WritingTest(BaseTest):
             c.nowf = onowf
 
     # }}}
+
+    def test_dump_metadata_write_failure(self):
+        from calibre.ebooks.metadata.opf2 import OPF
+
+        cache = self.init_cache()
+        cache.dump_metadata()
+        cache.set_field('title', {1: 'Changed first book', 2: 'Changed second book'})
+        backup_path = os.path.join(cache.backend.library_path, cache.field_for('path', 1), METADATA_FILE_NAME)
+        os.remove(backup_path)
+        os.mkdir(backup_path)
+
+        cache.dump_metadata(book_ids=(1, 2))
+        self.assertIn(1, cache.dirtied_cache)
+        self.assertNotIn(2, cache.dirtied_cache)
+        cache.mark_as_dirty({2})
+
+        events = []
+        cache.dump_metadata(book_ids=(1, 2), callback=lambda *args: events.append(args))
+        self.assertEqual(events[0], (2, True, False))
+        self.assertEqual([(book_id, ok) for book_id, mi, ok in events[1:]], [(1, False), (2, True)])
+        self.assertIn(1, cache.dirtied_cache)
+        self.assertNotIn(2, cache.dirtied_cache)
+        self.assertEqual(OPF(BytesIO(cache.read_backup(2))).title, 'Changed second book')
+
+        os.rmdir(backup_path)
+        events.clear()
+        cache.dump_metadata(book_ids=(1,), callback=lambda *args: events.append(args))
+        self.assertEqual(events[0], (1, True, False))
+        self.assertEqual([(book_id, ok) for book_id, mi, ok in events[1:]], [(1, True)])
+        self.assertNotIn(1, cache.dirtied_cache)
+        self.assertEqual(OPF(BytesIO(cache.read_backup(1))).title, 'Changed first book')
 
     def test_backup(self):  # {{{
         "Test the automatic backup of changed metadata"
