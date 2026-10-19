@@ -65,7 +65,7 @@ class Textile:
     rspn = r'(?:\/\d+)'
     a = rf'(?:{hlgn}|{vlgn})*'
     s = rf'(?:{cspn}|{rspn})*'
-    c = r'(?:{})*'.format('|'.join([clas, styl, lnge, hlgn]))  # noqa: FLY002
+    c = r'(?:{})*'.format('|'.join([clas, styl, lnge, hlgn]))  # ruff: ignore[static-join-to-f-string]
 
     pnct = r'[-!"#$%&()*+,/:;<=>?@\'\[\\\]\.^_`{|}~]'
     # urlch = r'[\w"$\-_.+!*\'(),";/?:@=&%#{}|\\^~\[\]`]'
@@ -841,7 +841,7 @@ class Textile:
         url = self.relURL(url)
         out = f'<a href="{self.encode_html(url)}"{atts}{self.rel}>{text}</a>'
         out = self.shelve(out)
-        return ''.join([pre, out, post])  # noqa: FLY002
+        return ''.join([pre, out, post])  # ruff: ignore[static-join-to-f-string]
 
     def span(self, text):
         '''

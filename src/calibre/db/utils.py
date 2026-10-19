@@ -186,7 +186,7 @@ class ThumbnailCache:
                 return ()  # not a directory or no permission or whatever
 
         entries = (
-            '/'.join((parent, subdir, entry))  # noqa: FLY002
+            '/'.join((parent, subdir, entry))  # ruff: ignore[static-join-to-f-string]
             for parent in listdir(self.location)
             for subdir in listdir(self.location, parent)
             for entry in listdir(self.location, parent, subdir)
@@ -484,8 +484,8 @@ def type_safe_sort_key_function(keyfunc=None):
             first_value = ans
         else:
             try:
-                ans < first_value  # noqa: B015
-                first_value < ans  # noqa: B015
+                ans < first_value  # ruff: ignore[useless-comparison]
+                first_value < ans  # ruff: ignore[useless-comparison]
             except TypeError:
                 ans = first_value
         return ans

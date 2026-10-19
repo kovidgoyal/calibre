@@ -582,7 +582,7 @@ def apply_character_edits(state: GameState, edits: Mapping[str, CharacterState],
 # Serialization for saving/loading games {{{
 
 
-def as_jsonable(value: Any, spec: TypeSpec) -> Any:  # noqa: ANN401
+def as_jsonable(value: Any, spec: TypeSpec) -> Any:  # ruff: ignore[any-type]
     # Convert an instance of a class with annotated fields into JSON
     # serializable form, the inverse of calibre.ai.structured.instantiate().
     if value is None:
@@ -640,7 +640,7 @@ def migrated_game_v1_to_v2(game: dict[str, Any]) -> dict[str, Any]:
     return game
 
 
-def migrated_character_v1_to_v2(character: Any, protagonist: str) -> Any:  # noqa: ANN401
+def migrated_character_v1_to_v2(character: Any, protagonist: str) -> Any:  # ruff: ignore[any-type]
     if not isinstance(character, dict) or character.get('id'):
         return character
     name = str(character.get('name') or '')
@@ -727,7 +727,7 @@ def migrated_game(game: dict[str, Any], version: int) -> dict[str, Any]:
 def deserialize_game(raw: str) -> GameState:
     data = json.loads(raw)
     if not isinstance(data, dict) or not isinstance(data.get('game'), dict):
-        raise ValueError('Not a valid serialized CYOA game')  # noqa: TRY004
+        raise ValueError('Not a valid serialized CYOA game')  # ruff: ignore[type-check-without-type-error]
     version = data.get('version')
     if not isinstance(version, int) or version < 1:
         raise ValueError(f'Not a valid serialized CYOA game: {version!r} is not a serialization version')
@@ -1534,7 +1534,7 @@ def develop(use_model: str = '') -> None:  # {{{
     # A minimal terminal driver to play the game against a real AI provider,
     # for development and debugging.
     # calibre-debug -c 'from calibre.ai.cyoa import *; develop()'
-    def unwrap(res: StructuredOutputResult) -> Any:  # noqa: ANN401
+    def unwrap(res: StructuredOutputResult) -> Any:  # ruff: ignore[any-type]
         if res.exception is not None:
             raise SystemExit(str(res.exception) + (': ' + res.error_details if res.error_details else ''))
         return res.data
@@ -1613,7 +1613,7 @@ def find_tests() -> TestSuite:  # {{{
             ),
         )
 
-    def make_update(*new_events: str, **kw: Any) -> SummaryUpdate:  # noqa: ANN401
+    def make_update(*new_events: str, **kw: Any) -> SummaryUpdate:  # ruff: ignore[any-type]
         # An update of the kind the AI sends every turn: what just happened
         # and the protagonist's new state, with everything else left unchanged.
         ans = SummaryUpdate(

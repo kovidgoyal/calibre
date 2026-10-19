@@ -11,7 +11,7 @@ from types import TracebackType
 from typing import Any
 
 from calibre.constants import CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows
-from calibre.utils.config_base import (  # noqa: F401
+from calibre.utils.config_base import (  # ruff: ignore[unused-import]
     Config,
     ConfigInterface,
     ConfigProxy,
@@ -68,7 +68,7 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
             opts = ' ' * self.current_indent + '{}\n'.format(colored(opts, fg='green'))
             indent_first = self.help_position
         else:  # start help on same line as opts
-            opts = ' ' * self.current_indent + '%-*s  ' % (  # noqa: UP031
+            opts = ' ' * self.current_indent + '%-*s  ' % (  # ruff: ignore[printf-string-formatting]
                 opt_width + len(colored('', fg='green')),
                 colored(opts, fg='green'),
             )

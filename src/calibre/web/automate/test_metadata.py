@@ -240,7 +240,7 @@ class FakePage:
         self.nav_waiters.append(ans)
         return ans
 
-    async def open(self, url: str, wait: str = 'load', timeout: float = 0, referer: str = '') -> None:  # noqa: ASYNC109
+    async def open(self, url: str, wait: str = 'load', timeout: float = 0, referer: str = '') -> None:  # ruff: ignore[async-function-with-timeout]
         self.browser.log.append(('open', url, referer))
         if url in self.browser.unloadable:
             raise Error(f'Cannot load {url}')
@@ -252,22 +252,22 @@ class FakePage:
             return f'<html><body><p id="url">{self.url}</p></body></html>'
         return pages[min(self.browser.visits[self.url], len(pages)) - 1]
 
-    async def wait_until_ready(self, timeout: float = 0) -> None:  # noqa: ASYNC109
+    async def wait_until_ready(self, timeout: float = 0) -> None:  # ruff: ignore[async-function-with-timeout]
         pass
 
-    async def wait_for_load(self, state: str = 'load', timeout: float = 0) -> None:  # noqa: ASYNC109
+    async def wait_for_load(self, state: str = 'load', timeout: float = 0) -> None:  # ruff: ignore[async-function-with-timeout]
         await asyncio.sleep(self.browser.load_time)
 
-    async def wait_for_execution_context(self, timeout: float = 0) -> int:  # noqa: ASYNC109
+    async def wait_for_execution_context(self, timeout: float = 0) -> int:  # ruff: ignore[async-function-with-timeout]
         return self.context
 
-    async def wait_for_new_execution_context(self, previous: int, timeout: float = 0) -> int:  # noqa: ASYNC109
+    async def wait_for_new_execution_context(self, previous: int, timeout: float = 0) -> int:  # ruff: ignore[async-function-with-timeout]
         if self.context == previous:
             # The bot check reloading the page once it is done
             self.navigate(self.url)
         return self.context
 
-    async def call(self, js: str, *args: Any, by_value: bool = True) -> Any:  # noqa: ANN401
+    async def call(self, js: str, *args: Any, by_value: bool = True) -> Any:  # ruff: ignore[any-type]
         if js == FIND_LINK_JS:
             selector, index, href = args
             self.browser.log.append(('find', selector, index, href))
@@ -283,10 +283,10 @@ class FakePage:
             return True
         raise AssertionError(f'Unexpected JavaScript: {js}')
 
-    async def wait_for_selector(self, css_selector: str, timeout: float = 0, visible: bool = False) -> FakeElement:  # noqa: ASYNC109
+    async def wait_for_selector(self, css_selector: str, timeout: float = 0, visible: bool = False) -> FakeElement:  # ruff: ignore[async-function-with-timeout]
         return FakeElement(self)
 
-    async def click(self, css_selector: str, timeout: float = 0) -> None:  # noqa: ASYNC109
+    async def click(self, css_selector: str, timeout: float = 0) -> None:  # ruff: ignore[async-function-with-timeout]
         self.browser.log.append(('click-selector', css_selector))
         # The continue shopping button leads back to the page asked for
         self.navigate(self.url)
@@ -329,7 +329,7 @@ class FakeBrowser:
         self.max_open_tabs = max(self.max_open_tabs, self.open_tabs)
         return page
 
-    async def new_page(self, timeout: float = 0) -> FakePage:  # noqa: ASYNC109
+    async def new_page(self, timeout: float = 0) -> FakePage:  # ruff: ignore[async-function-with-timeout]
         return self.add_page()
 
     def ctrl_click(self, opener: FakePage, url: str) -> None:
@@ -353,7 +353,7 @@ def fake_state(browser: FakeBrowser, handlers: Sequence[type[SourceHandler]] = (
     return State(cast('Browser', browser), handlers, max_detail_tabs)
 
 
-def search_args(**kw: Any) -> dict[str, Any]:  # noqa: ANN401
+def search_args(**kw: Any) -> dict[str, Any]:  # ruff: ignore[any-type]
     ans: dict[str, Any] = {'site': 'www.amazon.com', 'domain': 'com', 'query': 'audio first', 'department': 'stripbooks'}
     ans.update(kw)
     return ans
@@ -842,7 +842,7 @@ class TestWorkerProcess(unittest.TestCase):
     def test_metadata_session_worker(self) -> None:
         started: list[str] = []
 
-        def fake_start_worker(*args: Any, **kw: Any) -> tuple[str, Callable[[], int]]:  # noqa: ANN401
+        def fake_start_worker(*args: Any, **kw: Any) -> tuple[str, Callable[[], int]]:  # ruff: ignore[any-type]
             path, close = start_test_worker()
             started.append(path)
             return path, close
@@ -930,7 +930,7 @@ class TestAmazonPlugin(unittest.TestCase):
         url = url or f'{HOME}{title.replace(" ", "-")}/dp/{asin}'
         return {'url': url, 'html': DETAILS_PAGE.format(slug=title.replace(' ', '-'), asin=asin, title=title, author='Jane Author')}
 
-    def identify(self, **kw: Any) -> list[Any]:  # noqa: ANN401
+    def identify(self, **kw: Any) -> list[Any]:  # ruff: ignore[any-type]
         rq: Queue[Any] = Queue()
         self.plugin.identify(self.log, rq, ThreadingEvent(), timeout=30, **kw)
         ans = []

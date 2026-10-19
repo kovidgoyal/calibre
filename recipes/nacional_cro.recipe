@@ -37,11 +37,11 @@ class NacionalCro(BasicNewsRecipe):
     lang = 'hr-HR'
     direction = 'ltr'
 
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'  # noqa: E501
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'  # ruff: ignore[line-too-long]
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': lang, 'pretty_print': True}
 
-    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # ruff: ignore[unraw-re-pattern]
 
     remove_tags = [dict(name=['object', 'link', 'embed'])]
 

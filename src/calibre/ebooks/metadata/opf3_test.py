@@ -7,7 +7,7 @@ from io import BytesIO
 
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ebooks.metadata.opf3 import (  # noqa: F401
+from calibre.ebooks.metadata.opf3 import (  # ruff: ignore[unused-import]
     CALIBRE_PREFIX,
     Author,
     XPath,
@@ -57,10 +57,10 @@ from calibre.ebooks.metadata.opf3 import (  # noqa: F401
 )
 
 # This import is needed to prevent a test from running slowly
-from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa: F401
+from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # ruff: ignore[unused-import]
 from calibre.utils.xml_parse import safe_xml_fromstring
 
-TEMPLATE = f'''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: {CALIBRE_PREFIX}" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{{metadata}}</metadata><manifest>{{manifest}}</manifest></package>'''  # noqa: E501
+TEMPLATE = f'''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: {CALIBRE_PREFIX}" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{{metadata}}</metadata><manifest>{{manifest}}</manifest></package>'''  # ruff: ignore[line-too-long]
 default_refines = defaultdict(list)
 
 

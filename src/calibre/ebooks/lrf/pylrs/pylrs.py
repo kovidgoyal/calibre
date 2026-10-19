@@ -802,7 +802,7 @@ class DocInfo:
         self.thumbnail = None
         self.language = 'en'
         self.creator = None
-        self.creationdate = str(isoformat(date.today()))  # noqa: DTZ011
+        self.creationdate = str(isoformat(date.today()))  # ruff: ignore[call-date-today]
         self.producer = f'{__appname__} v{__version__}'
         self.numberofpages = '0'
 

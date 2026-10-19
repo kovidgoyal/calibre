@@ -60,7 +60,7 @@ MODELS_URL = 'https://openrouter.ai/api/v1/models'
 IMAGE_MODELS_URL = MODELS_URL + '?output_modalities=image'
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 

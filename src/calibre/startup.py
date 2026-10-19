@@ -197,7 +197,7 @@ def initialize_calibre():
 
     #
     # Setup resources
-    from calibre.utils import resources  # noqa: F401
+    from calibre.utils import resources  # ruff: ignore[unused-import]
 
     #
     # Setup translations
@@ -211,7 +211,7 @@ def initialize_calibre():
     # string.whitespace/printable, on windows especially, this causes problems.
     # Before the delay load optimizations, string was loaded before this point
     # anyway, so we preserve the old behavior explicitly.
-    import string  # noqa: F401
+    import string  # ruff: ignore[unused-import]
 
     try:
         locale.setlocale(locale.LC_ALL, '')  # set the locale to the user's default locale

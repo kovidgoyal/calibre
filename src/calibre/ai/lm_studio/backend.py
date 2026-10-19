@@ -31,7 +31,7 @@ from calibre.ai.utils import chat_with_error_handler, develop_text_chat, downloa
 module_version = 2
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(LMStudioAI.name, key, defval)
 
 

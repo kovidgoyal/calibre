@@ -10,7 +10,7 @@ class media2_pl(BasicNewsRecipe):
     title = 'Media2'
     __author__ = 'teepel <teepel44@gmail.com>'
     language = 'pl'
-    description = 'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'  # noqa: E501
+    description = 'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'  # ruff: ignore[line-too-long]
     masthead_url = 'http://media2.pl/res/logo/www.png'
     cover_url = 'http://media2.pl/res/logo/www.png'
     INDEX = 'http://media2.pl'

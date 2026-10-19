@@ -659,7 +659,7 @@ def make_anchors_unique(container: ContainerBase, log: Log) -> dict[str, str | N
             if key not in mapping:
                 new_id = mapping[key] = f'a{count}'
                 elem.set('id', new_id)
-        rewrite_idrefs(root, lambda eid: mapping.get((spine_name, eid), eid))  # noqa: B023
+        rewrite_idrefs(root, lambda eid: mapping.get((spine_name, eid), eid))  # ruff: ignore[function-uses-loop-variable]
         body = last_tag(root)
         if not body.get('id'):
             count += 1
@@ -827,7 +827,7 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
     .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
     .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
     .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
-    '''  # noqa: UP031
+    '''  # ruff: ignore[printf-string-formatting]
         % tuple(indents)
         + (opts.extra_css or '')
     )

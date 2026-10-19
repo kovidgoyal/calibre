@@ -7,7 +7,7 @@ class Konflikty(BasicNewsRecipe):
     __author__ = 'fenuks'
     cover_url = 'http://konflikty.pl/wp-content/uploads/2014/07/konflikty.pl-logo.png'
     language = 'pl'
-    description = 'Zbiór ciekawych artykułów historycznych, militarnych oraz recenzji książek, gier i filmów. Najświeższe informacje o lotnictwie, wojskach lądowych i polityce.'  # noqa: E501
+    description = 'Zbiór ciekawych artykułów historycznych, militarnych oraz recenzji książek, gier i filmów. Najświeższe informacje o lotnictwie, wojskach lądowych i polityce.'  # ruff: ignore[line-too-long]
     category = 'military, history'
     oldest_article = 7
     max_articles_per_feed = 100

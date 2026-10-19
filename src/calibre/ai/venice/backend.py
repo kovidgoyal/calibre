@@ -80,7 +80,7 @@ PIXEL_SIZES = {
 }
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(VeniceAI.name, key, defval)
 
 

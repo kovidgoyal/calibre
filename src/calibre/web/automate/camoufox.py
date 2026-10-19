@@ -595,7 +595,7 @@ def config_property_types(resource_dir: str) -> dict[str, str]:
         return {entry['property']: entry['type'] for entry in json.loads(f.read())}
 
 
-def value_has_type(value: Any, expected: str) -> bool:  # noqa: ANN401
+def value_has_type(value: Any, expected: str) -> bool:  # ruff: ignore[any-type]
     match expected:
         case 'str':
             return isinstance(value, str)
@@ -741,7 +741,7 @@ class Transport:
         self.reader.start()
         self.writer.start()
 
-    def call_in_loop(self, func: Callable[..., Any], *args: Any) -> None:  # noqa: ANN401
+    def call_in_loop(self, func: Callable[..., Any], *args: Any) -> None:  # ruff: ignore[any-type]
         try:
             self.loop.call_soon_threadsafe(func, *args)
         except RuntimeError:
@@ -1398,7 +1398,7 @@ class EventWaiter:
         self.waiters.clear()
 
 
-async def wait_for(future: asyncio.Future[Any], timeout: float, what: str) -> Any:  # noqa: ANN401
+async def wait_for(future: asyncio.Future[Any], timeout: float, what: str) -> Any:  # ruff: ignore[any-type]
     try:
         async with asyncio.timeout(timeout):
             return await future
@@ -2577,7 +2577,7 @@ class Element:
         if self.disposed:
             raise Error('This element handle has been disposed')
 
-    async def call(self, function_declaration: str, *args: Any, by_value: bool = True) -> Any:  # noqa: ANN401
+    async def call(self, function_declaration: str, *args: Any, by_value: bool = True) -> Any:  # ruff: ignore[any-type]
         """Call a JavaScript function with this element as its first argument."""
         self.check_alive()
         return await self.page.call_with_handles(function_declaration, [{'objectId': self.object_id}, *[{'value': a} for a in args]], by_value=by_value)
@@ -3064,7 +3064,7 @@ class Page:
                     debug(f'{method} failed as {context} was not found, trying again')
                 context = await self.context_to_retry_in(context, max(deadline - time.monotonic(), 0))
 
-    def unwrap(self, result: Mapping[str, Any], by_value: bool) -> Any:  # noqa: ANN401
+    def unwrap(self, result: Mapping[str, Any], by_value: bool) -> Any:  # ruff: ignore[any-type]
         if (details := result.get('exceptionDetails')) is not None:
             raise JavaScriptError(details.get('text') or details.get('stack') or repr(details.get('value')))
         obj = result.get('result') or {}
@@ -3076,7 +3076,7 @@ class Page:
             return {'Infinity': float('inf'), '-Infinity': float('-inf'), '-0': -0.0, 'NaN': float('nan')}[unserializable]
         return obj.get('value')
 
-    async def evaluate(self, expression: str, *, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT) -> Any:  # noqa: ANN401
+    async def evaluate(self, expression: str, *, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT) -> Any:  # ruff: ignore[any-type]
         """Evaluate a JavaScript expression in the page and return its value.
 
         Pass by_value=False to get an :class:`Element` handle back for
@@ -3092,7 +3092,7 @@ class Page:
         result = await self.send_in_context('Runtime.evaluate', {'expression': expression, 'returnByValue': by_value}, timeout)
         return self.unwrap(result, by_value)
 
-    async def call(self, function_declaration: str, *args: Any, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT) -> Any:  # noqa: ANN401
+    async def call(self, function_declaration: str, *args: Any, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT) -> Any:  # ruff: ignore[any-type]
         """Call a JavaScript function in the page, passing args to it.
 
         See :meth:`evaluate` for the caveat about functions that return a
@@ -3102,7 +3102,7 @@ class Page:
 
     async def call_with_handles(
         self, function_declaration: str, args: Sequence[Mapping[str, Any]], *, by_value: bool = True, timeout: float = DEFAULT_TIMEOUT, context: str = ''
-    ) -> Any:  # noqa: ANN401
+    ) -> Any:  # ruff: ignore[any-type]
         """Pass context to run the function in a particular execution context,
         for a caller that needs to know which one its call was made in, see
         :meth:`wait_for_selector`. Without one, the call is made in the
@@ -3613,7 +3613,7 @@ class Browser:
         await self.launch()
         return self
 
-    async def __aexit__(self, *args: Any) -> None:  # noqa: ANN401
+    async def __aexit__(self, *args: Any) -> None:  # ruff: ignore[any-type]
         await self.close()
 
     # Launching {{{

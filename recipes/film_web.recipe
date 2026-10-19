@@ -26,7 +26,7 @@ class FilmWebPl(BasicNewsRecipe):
     )
     preprocess_regexps = [
         (re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''),  # fix malformed HTML with 2 body tags...
-        (re.compile('(?:<sup>)?\\(kliknij\\,\\ aby powiększyć\\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
+        (re.compile('(?:<sup>)?\\(kliknij\\,\\ aby powiększyć\\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),  # ruff: ignore[unraw-re-pattern]
         (re.compile(type('')(r'(<br ?/?>\s*?<br ?/?>\s*?)+'), re.IGNORECASE), lambda m: '<br />'),
     ]
     remove_tags = [

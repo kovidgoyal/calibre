@@ -156,7 +156,7 @@ class CardData:
             self.doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl('card://thumb'), self.cover)
 
     def ensure_renderable(self, dpr) -> QTextDocument:
-        self.height  # noqa: B018
+        self.height  # ruff: ignore[useless-expression]
         assert self.doc is not None
         return self.doc
 

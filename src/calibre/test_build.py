@@ -117,8 +117,8 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(data, decompress(cdata))
 
     def test_html5lib(self):
-        import html5lib.html5parser  # noqa: F401
-        from html5lib import parse  # noqa: F401
+        import html5lib.html5parser  # ruff: ignore[unused-import]
+        from html5lib import parse  # ruff: ignore[unused-import]
 
     def test_html5_parser(self):
         from html5_parser import parse
@@ -199,7 +199,7 @@ class BuildTest(unittest.TestCase):
         create_key_pair()
 
     def test_fonttools(self):
-        from fontTools.subset import main  # noqa: F401
+        from fontTools.subset import main  # ruff: ignore[unused-import]
 
     def test_msgpack(self):
         from calibre.utils.date import utcnow
@@ -415,7 +415,7 @@ class BuildTest(unittest.TestCase):
             import _imagingft  # type: ignore
             import _imagingmath  # type: ignore
         except ImportError:
-            from PIL import _imaging, _imagingft, _imagingmath  # noqa: F401
+            from PIL import _imaging, _imagingft, _imagingmath  # ruff: ignore[unused-import]
         from io import StringIO
 
         from PIL import features
@@ -521,14 +521,14 @@ class BuildTest(unittest.TestCase):
 
     def test_feedparser(self):
         # sgmllib is needed for feedparser parsing malformed feeds
-        import feedparser_sgmllib as sgmllib  # noqa: F401
+        import feedparser_sgmllib as sgmllib  # ruff: ignore[unused-import]
 
-        from calibre.web.feeds.feedparser import parse  # type: ignore  # noqa: F401
+        from calibre.web.feeds.feedparser import parse  # type: ignore  # ruff: ignore[unused-import]
 
     def test_openssl(self):
         import ssl
 
-        ssl.PROTOCOL_TLS_CLIENT  # noqa: B018
+        ssl.PROTOCOL_TLS_CLIENT  # ruff: ignore[useless-expression]
         if ismacos or (iswindows and not is_ci):
             paths = ssl.get_default_verify_paths()
             capath = paths.capath

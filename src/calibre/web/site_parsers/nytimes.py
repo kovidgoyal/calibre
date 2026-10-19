@@ -4,7 +4,7 @@
 import json
 import re
 import sys
-from pprint import pprint  # noqa: F401
+from pprint import pprint  # ruff: ignore[unused-import]
 from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601

@@ -69,7 +69,7 @@ API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(GoogleAI.name, key, defval)
 
 

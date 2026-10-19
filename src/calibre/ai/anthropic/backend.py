@@ -64,7 +64,7 @@ PAUSE_TURN_TIME_LIMIT = 300
 WEB_SEARCH_TOOL = 'web_search_20250305'
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(AnthropicAI.name, key, defval)
 
 

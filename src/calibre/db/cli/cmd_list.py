@@ -238,7 +238,7 @@ def do_list(
 
     widths = list(base_widths)
     titles = map(
-        lambda x, y: '%-*s%s' % (x - len(separator), y, separator),  # noqa: UP031
+        lambda x, y: '%-*s%s' % (x - len(separator), y, separator),  # ruff: ignore[printf-string-formatting]
         widths,
         [template_title if v == 'template' else v for v in fields],
     )

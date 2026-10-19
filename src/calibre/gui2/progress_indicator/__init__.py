@@ -4,7 +4,7 @@
 from qt.core import QDialog, QIcon, QLabel, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre_extensions.progress_indicator import QProgressIndicator as ProgressIndicator
-from calibre_extensions.progress_indicator import SpinAnimator, draw_snake_spinner  # noqa: F401
+from calibre_extensions.progress_indicator import SpinAnimator, draw_snake_spinner  # ruff: ignore[unused-import]
 
 
 class WaitPanel(QWidget):

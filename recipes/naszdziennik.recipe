@@ -9,7 +9,7 @@ class naszdziennik(BasicNewsRecipe):
     title = 'Nasz Dziennik'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    description = 'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'  # noqa: E501
+    description = 'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'  # ruff: ignore[line-too-long]
     masthead_url = 'http://www.naszdziennik.pl/images/logo-male.png'
     max_articles_per_feed = 100
     remove_javascript = True

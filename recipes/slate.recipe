@@ -73,7 +73,7 @@ class Slate(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         ans = []
         dt = date.today().strftime('/%Y/')
-        for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(url + dt)}):  # noqa: B023
+        for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(url + dt)}):  # ruff: ignore[function-uses-loop-variable]
             url = a['href']
             head = a.find(
                 attrs={

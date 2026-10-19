@@ -86,11 +86,11 @@ def defaults_for_class(cls: type) -> dict[str, Any]:
     return {name: getattr(cls, name) for name in getattr(cls, '__annotations__', {}) if hasattr(cls, name)}
 
 
-def is_schema_class(t: Any) -> bool:  # noqa: ANN401
+def is_schema_class(t: Any) -> bool:  # ruff: ignore[any-type]
     return isinstance(t, type) and not issubclass(t, enum.Enum) and bool(getattr(t, '__annotations__', None))
 
 
-def spec_for_type(t: Any, path: str, seen: frozenset[type]) -> TypeSpec:  # noqa: ANN401
+def spec_for_type(t: Any, path: str, seen: frozenset[type]) -> TypeSpec:  # ruff: ignore[any-type]
     description = ''
     if get_origin(t) is Annotated:
         args = get_args(t)
@@ -302,7 +302,7 @@ def strip_code_fences(text: str) -> str:
     return text
 
 
-def instantiate(value: Any, spec: TypeSpec, path: str) -> Any:  # noqa: ANN401
+def instantiate(value: Any, spec: TypeSpec, path: str) -> Any:  # ruff: ignore[any-type]
     def type_error(expected: str) -> ValueError:
         return ValueError(f'{path}: expected {expected}, got {type(value).__name__}')
 
@@ -355,7 +355,7 @@ def instantiate(value: Any, spec: TypeSpec, path: str) -> Any:  # noqa: ANN401
     raise AssertionError(f'Unknown kind: {spec.kind}')  # pragma: no cover
 
 
-def parse_structured_response(text: str, schema: type) -> Any:  # noqa: ANN401
+def parse_structured_response(text: str, schema: type) -> Any:  # ruff: ignore[any-type]
     # Parse the text returned by an AI model as JSON and return an instance
     # of the schema class, raising ValueError if the response does not
     # conform to the schema.
@@ -717,7 +717,7 @@ def find_tests() -> TestSuite:
             self.assertIn('x: Array<string | null>;', typescript_interface(N))
 
         def test_ai_structured_unsupported_annotations(self) -> None:
-            def check(t: Any, msg: str) -> None:  # noqa: ANN401
+            def check(t: Any, msg: str) -> None:  # ruff: ignore[any-type]
                 class N(NamedTuple):
                     x: t
 
@@ -933,7 +933,7 @@ def find_tests() -> TestSuite:
             model = ab.Model.create('claude-sonnet-5', 'Claude Sonnet 5')
             orig_pref = ab.pref
 
-            def fake_pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+            def fake_pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
                 return 'low' if key == 'reasoning_strategy' else orig_pref(key, defval)
 
             from unittest.mock import patch

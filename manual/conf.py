@@ -21,9 +21,9 @@ from setup import __appname__, __version__
 
 sys.path.append(base)
 
-import custom  # noqa: F401
+import custom  # ruff: ignore[unused-import]
 
-import calibre.utils.img as cimg  # noqa: F401
+import calibre.utils.img as cimg  # ruff: ignore[unused-import]
 from calibre.utils.localization import localize_website_link
 
 del sys.path[0]
@@ -44,11 +44,11 @@ templates_path = ['templates']
 source_suffix = {'.rst': 'restructuredtext'}
 
 # The master toctree document.
-master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa: F821
+master_doc = 'index' if tags.has('online') else 'simple_index'  # ruff: ignore[undefined-name]
 # kill the warning about index/simple_index not being in a toctree
 exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index.rst']
 exclude_patterns.append('cli-options-header.rst')
-if tags.has('gettext'):  # noqa: F821
+if tags.has('gettext'):  # ruff: ignore[undefined-name]
     # Do not exclude anything as the strings must be translated. This will
     # generate a warning about the documents not being in a toctree, just ignore
     # it.
@@ -192,7 +192,7 @@ del sort_languages, get_language
 
 epub_author = 'Kovid Goyal'
 epub_publisher = 'Kovid Goyal'
-epub_copyright = f'© {date.today().year} Kovid Goyal'  # noqa: DTZ011
+epub_copyright = f'© {date.today().year} Kovid Goyal'  # ruff: ignore[call-date-today]
 epub_description = 'Comprehensive documentation for calibre'
 epub_identifier = 'https://manual.calibre-ebook.com'
 epub_scheme = 'url'
@@ -252,5 +252,5 @@ latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
     'papersize': 'letterpaper',
-    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),  # noqa: UP031
+    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),  # ruff: ignore[printf-string-formatting]
 }

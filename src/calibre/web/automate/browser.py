@@ -144,7 +144,7 @@ class Browser(CamoufoxBrowser):
     Any other keyword argument is passed through to :class:`camoufox.Browser`.
     """
 
-    def __init__(self, headless: bool = True, warmup: Warmup | None = None, **kw: Any) -> None:  # noqa: ANN401
+    def __init__(self, headless: bool = True, warmup: Warmup | None = None, **kw: Any) -> None:  # ruff: ignore[any-type]
         super().__init__(headless=headless, **kw)
         self.warmup = warmup
 

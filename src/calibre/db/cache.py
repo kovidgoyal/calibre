@@ -3773,7 +3773,7 @@ class Cache:
                         continue
 
                     if field_obj.is_composite:
-                        v = field_obj.get_value_with_cache(book_id, lambda x: proxy_metadata)  # noqa: B023
+                        v = field_obj.get_value_with_cache(book_id, lambda x: proxy_metadata)  # ruff: ignore[function-uses-loop-variable]
                     else:
                         v = self._fast_field_for(field_obj, book_id)
 

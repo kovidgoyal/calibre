@@ -46,7 +46,7 @@ def get_random_socket_path(name: str, random_suffix: str = '') -> str:
     return os.path.join(base_dir(), f'{name}.sock')
 
 
-def debug(*a: object, **kw: Any) -> None:  # noqa: ANN401
+def debug(*a: object, **kw: Any) -> None:  # ruff: ignore[any-type]
     kw['file'] = sys.stderr
     kw['flush'] = True
     print(*a, **kw)
@@ -107,7 +107,7 @@ class SingleObjectProtocol(asyncio.Protocol):
             self.transport.close()
 
 
-async def echo(x: Any) -> Any:  # noqa: ANN401
+async def echo(x: Any) -> Any:  # ruff: ignore[any-type]
     return x
 
 
@@ -194,12 +194,12 @@ async def no_setup() -> None:
 
 
 async def handler_with_setup(
-    x: Any,  # noqa: ANN401
+    x: Any,  # ruff: ignore[any-type]
     handler: Handler,
     setup: Callable[[], Awaitable[None]],
     setup_done: asyncio.Event,
     setup_lock: asyncio.Lock,
-) -> Any:  # noqa: ANN401
+) -> Any:  # ruff: ignore[any-type]
     if not setup_done.is_set():
         async with setup_lock:
             if not setup_done.is_set():
@@ -250,7 +250,7 @@ async def async_main(
         finalizer()
 
 
-def main(*a: Any, **kw: Any) -> None:  # noqa: ANN401
+def main(*a: Any, **kw: Any) -> None:  # ruff: ignore[any-type]
     asyncio.run(async_main(*a, **kw))
 
 
@@ -285,7 +285,7 @@ def worker_stderr_kwargs() -> dict[str, int]:
     return {'stderr': subprocess.PIPE if DEBUG else subprocess.DEVNULL}
 
 
-def start_worker(handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None) -> tuple[str, Callable[[], int]]:  # noqa: ANN401
+def start_worker(handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None) -> tuple[str, Callable[[], int]]:  # ruff: ignore[any-type]
     """
     Run the specified handler, delayed_setup and finalizer functions in a worker process, passing input_data (if not None)
     to each function as its first parameter.
@@ -392,7 +392,7 @@ def connect_to_named_pipe(worker_path: str, timeout: float = 120.0) -> IO[bytes]
                 raise
 
 
-def make_request(worker_path: str, data: Any = None) -> Response:  # noqa: ANN401
+def make_request(worker_path: str, data: Any = None) -> Response:  # ruff: ignore[any-type]
     "Make a request and get a response from the worker"
     data = msgpack_dumps(data)
     datalen = struct.pack('!I', len(data))

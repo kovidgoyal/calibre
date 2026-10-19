@@ -25,7 +25,7 @@ from xml.dom import Node
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
 
-from .namespaces import (  # noqa: F401
+from .namespaces import (  # ruff: ignore[unused-import]
     ANIMNS,
     CHARTNS,
     CONFIGNS,

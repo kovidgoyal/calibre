@@ -32,7 +32,7 @@ class Capital(BasicNewsRecipe):
             'http://www.capital.gr/articles/articlesrss.asp?catid=6',
         ),
         (
-            '\u039c\u03cc\u03bd\u03b9\u03bc\u03b5\u03c2 \u03c3\u03c4\u03ae\u03bb\u03b5\u03c2: \u03a0\u0399\u03a3\u03a9 \u0391\u03a0\u039f \u03a4\u0399\u03a3 \u0393\u03a1\u0391\u039c\u039c\u0395\u03a3',  # noqa: E501
+            '\u039c\u03cc\u03bd\u03b9\u03bc\u03b5\u03c2 \u03c3\u03c4\u03ae\u03bb\u03b5\u03c2: \u03a0\u0399\u03a3\u03a9 \u0391\u03a0\u039f \u03a4\u0399\u03a3 \u0393\u03a1\u0391\u039c\u039c\u0395\u03a3',  # ruff: ignore[line-too-long]
             'http://www.capital.gr/articles/articlesrss.asp?catid=8',
         ),
     ]

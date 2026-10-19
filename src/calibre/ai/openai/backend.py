@@ -59,7 +59,7 @@ IMAGE_GENERATIONS_URL = 'https://api.openai.com/v1/images/generations'
 IMAGE_EDITS_URL = 'https://api.openai.com/v1/images/edits'
 
 
-def pref(key: str, defval: Any = None) -> Any:  # noqa: ANN401
+def pref(key: str, defval: Any = None) -> Any:  # ruff: ignore[any-type]
     return pref_for_provider(OpenAI.name, key, defval)
 
 

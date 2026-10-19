@@ -796,7 +796,7 @@ class Convert:
                 def top_level_tag(x):
                     while True:
                         q = x.getparent()
-                        if q is parent or q is None:  # noqa: B023
+                        if q is parent or q is None:  # ruff: ignore[function-uses-loop-variable]
                             break
                         x = q
                     return x

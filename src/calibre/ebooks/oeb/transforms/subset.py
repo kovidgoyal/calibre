@@ -306,7 +306,7 @@ class SubsetFonts:
 
     def find_chars(self, elem, style):
         ans = set()
-        transform = lambda x: x  # noqa: E731
+        transform = lambda x: x  # ruff: ignore[lambda-assignment]
         tt = style.get('text-transform')
         if tt:
             if tt in ('uppercase', 'capitalize'):

@@ -126,7 +126,7 @@ def parse_details_page(url, log, timeout, browser, domain):
             else:
                 msg = 'Failed to make details query: %r' % url
                 log.exception(msg)
-                raise ValueError(f'Could not make details query for {url}')  # noqa: TRY004
+                raise ValueError(f'Could not make details query for {url}')  # ruff: ignore[type-check-without-type-error]
 
     try:
         return parse_details_raw(url, raw, log, domain)

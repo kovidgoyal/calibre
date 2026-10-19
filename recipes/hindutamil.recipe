@@ -48,7 +48,7 @@ class hindutamil(BasicNewsRecipe):
             section = sec[0]
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec[1] + '/')}):  # noqa: B023
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec[1] + '/')}):  # ruff: ignore[function-uses-loop-variable]
                 url = a['href']
                 if url in {index + sec[1] + '/', index + sec[1]}:
                     continue

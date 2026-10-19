@@ -23,4 +23,4 @@ class swiatczytnikow(BasicNewsRecipe):
 
     remove_tags = [dict(name='ul', attrs={'class': 'similar-posts'}), dict(name='div', attrs={'class': 'feedflare'})]
 
-    preprocess_regexps = [(re.compile('<h3>Czytaj dalej:</h3>'), lambda match: '')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('<h3>Czytaj dalej:</h3>'), lambda match: '')]  # ruff: ignore[unraw-re-pattern]

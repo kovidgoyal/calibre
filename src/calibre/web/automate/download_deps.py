@@ -109,7 +109,7 @@ def download_data(url: str, headers: dict[str, str] | None = None, timeout: floa
         return response.read()
 
 
-def download_json(url: str, headers: dict[str, str] | None = None, timeout: float = NETWORK_TIMEOUT) -> Any:  # noqa: ANN401
+def download_json(url: str, headers: dict[str, str] | None = None, timeout: float = NETWORK_TIMEOUT) -> Any:  # ruff: ignore[any-type]
     return json.loads(download_data(url, headers, timeout))
 
 
@@ -334,7 +334,7 @@ class Installer:
 
     # Implemented by subclasses {{{
 
-    def latest_release(self, **kw: Any) -> Release:  # noqa: ANN401
+    def latest_release(self, **kw: Any) -> Release:  # ruff: ignore[any-type]
         raise NotImplementedError('Must be implemented by subclass')
 
     def unpack(self, downloaded_file: str, dest: str) -> None:
@@ -471,7 +471,7 @@ class Installer:
         self.remove_unused_versions(version)
         return version, needs_update_check
 
-    def __call__(self, **kw: Any) -> Install:  # noqa: ANN401
+    def __call__(self, **kw: Any) -> Install:  # ruff: ignore[any-type]
         """Return the installed dependency, installing or updating it as needed.
 
         The returned install can be removed by an update at any time, use
@@ -483,7 +483,7 @@ class Installer:
             self.start_update_check(kw)
         return Install(self.payload_path(self.version_dir(version)), version)
 
-    def use(self, **kw: Any) -> tuple[Install, VersionLock]:  # noqa: ANN401
+    def use(self, **kw: Any) -> tuple[Install, VersionLock]:  # ruff: ignore[any-type]
         """Like calling this object, except that the returned install is not
         removed by updates until the returned lock is released."""
         with self.thread_lock, ExclusiveFile(self.metadata_path, timeout=INSTALL_LOCK_TIMEOUT) as f:
@@ -622,7 +622,7 @@ class Camoufox(Installer):
     def __init__(self) -> None:
         super().__init__('camoufox')
 
-    def latest_release(self, allow_prerelease: bool = False, **kw: Any) -> Release:  # noqa: ANN401
+    def latest_release(self, allow_prerelease: bool = False, **kw: Any) -> Release:  # ruff: ignore[any-type]
         os_name, archs = camoufox_os(), camoufox_archs()
         pat = camoufox_asset_pattern(os_name, archs)
         releases = download_json(f'https://api.github.com/repos/{CAMOUFOX_REPO}/releases?per_page=50', github_api_headers())
@@ -702,7 +702,7 @@ def system_camoufox() -> SystemCamoufox | None:
         return None
     data = json.loads(raw)
     if not isinstance(data, dict):
-        raise ValueError(f'The system camoufox specification in {path} is not a JSON object')  # noqa: TRY004
+        raise ValueError(f'The system camoufox specification in {path} is not a JSON object')  # ruff: ignore[type-check-without-type-error]
     binary, resource_dir = data.get('binary'), data.get('resource_dir')
     if not isinstance(binary, str) or not binary or not isinstance(resource_dir, str) or not resource_dir:
         raise ValueError(f'The system camoufox specification in {path} does not specify both binary and resource_dir')
@@ -800,7 +800,7 @@ class BrowserforgeData(Installer):
     def __init__(self) -> None:
         super().__init__('browserforge')
 
-    def latest_release(self, **kw: Any) -> Release:  # noqa: ANN401
+    def latest_release(self, **kw: Any) -> Release:  # ruff: ignore[any-type]
         # The data files are distributed as the apify_fingerprint_datapoints package
         name = BROWSERFORGE_DATA_PACKAGE.replace('_', '-')
         data = download_json(f'https://pypi.org/pypi/{name}/json')
