@@ -32,6 +32,22 @@
     --cs-transition: var(--cs-dur-2) var(--cs-ease);
 }
 
+/* Honor the OS reduce motion setting. This applies to every element, so it
+ * also covers rules that use literal durations or inline styles. Durations are
+ * made near zero rather than zero or none so that transitionend/animationend
+ * still fire for code that waits on them. Loading spinners are exempt, as they
+ * convey progress and do not move across the screen. */
+@media (prefers-reduced-motion: reduce) {
+    *:not(.spin, .cs-loading-overlay svg, .cs-bd-loading-overlay svg), *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 html, body { height: 100%; }
 body {
     margin: 0;
