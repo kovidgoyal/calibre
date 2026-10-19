@@ -2142,7 +2142,7 @@ if __name__ == '__main__':
             '-c',
             textwrap.dedent(
                 '''
-        import time, sys, init_calibre  # noqa: F401
+        import time, sys, init_calibre  # ruff: ignore[unused-import]
         st = time.time()
         import calibre.customize.builtins
         t = time.time() - st
