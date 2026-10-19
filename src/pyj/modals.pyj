@@ -167,8 +167,8 @@ class ModalContainer:
         set_css(div.firstChild.lastChild,
             font_size='1.5em', line_height='100%', cursor='pointer', position='absolute',
             right='-0.5em', top='-0.5em', width='1em', height='1em',
-            background_color=get_color('window-foreground'), color=get_color('window-background'), display='inline-box',
-            border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black',
+            background_color=get_color('window-foreground'), color=get_color('window-background'),
+            border_radius='50%', padding='4px', text_align='center', box_shadow='0 1px 3px rgba(0,0,0,0.3)',
             z_index='2',
         )
         # Content container style
@@ -272,13 +272,15 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
         ),
         E.div(
             (html_container if is_html_msg else msg),
-            style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0; overflow-wrap:anywhere; word-break:break-word',
+            style='padding-top: 1em; margin-top: 1em; border-top: var(--calibre-border-style-subtle);'
+            + ' min-width:0; overflow-wrap:anywhere; word-break:break-word',
         ),
         E.div(
             style='display: ' + ('block' if details else 'none'),
             show_details,
             E.div(details_container,
-                  style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'),
+                  style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em;'
+                  + ' border-top: var(--calibre-border-style-subtle); padding-top: 1em'),
         ),
     ))
 
@@ -294,7 +296,7 @@ def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown
             E.div(
                 style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word',
                 E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word'),
-                E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0'),
+                E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: var(--calibre-border-style-subtle); min-width:0'),
         ))
         content_generator_func(content_div, close_modal)
     show_modal(create_func, on_close=on_close, onkeydown=onkeydown)
