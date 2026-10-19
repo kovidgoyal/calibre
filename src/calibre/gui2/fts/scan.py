@@ -7,6 +7,7 @@ from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QL
 
 from calibre.db.listeners import EventType
 from calibre.db.utils import IndexingProgress
+from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.ui import get_gui
@@ -52,7 +53,8 @@ class ScanProgress(QWidget):
 
         l.addStretch(10)
         self.warn_label = la = QLabel(
-            '<p><span style="color: red">{}</span>: {}'.format(
+            '<p><span style="color: {}">{}</span>: {}'.format(
+                '#ff6b6b' if qapplication_or_fail().is_dark_theme else 'red',
                 _('WARNING'),
                 _('Not all the books in this library have been indexed yet. Searching will yield incomplete results.'),
             )

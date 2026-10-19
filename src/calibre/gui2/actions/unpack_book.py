@@ -122,8 +122,8 @@ class UnpackBook(QDialog):
         self.msg.setStyleSheet('''
         QLabel {
             text-align: center;
-            background-color: white;
-            color: black;
+            background-color: palette(base);
+            color: palette(text);
             border-width: 1px;
             border-style: solid;
             border-radius: 20px;

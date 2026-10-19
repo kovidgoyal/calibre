@@ -26,7 +26,8 @@ from qt.core import (
 )
 
 from calibre import sanitize_file_name
-from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, question_dialog
+from calibre.constants import builtin_colors_dark
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, qapplication_or_fail, question_dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -836,7 +837,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 else:
                     item.setText(tag)
                 if self.is_enumerated and str(item.text()) not in self.enum_permitted_values:
-                    item.setBackground(QColor('#FF2400'))
+                    item.setBackground(QColor(builtin_colors_dark['red'] if qapplication_or_fail().is_dark_theme else '#FF2400'))
                     item.setToolTip('<p>' + _("This is not one of this column's permitted values ({0})").format(', '.join(self.enum_permitted_values)) + '</p>')
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable)
                 table.setItem(row, VALUE_COLUMN, item)
