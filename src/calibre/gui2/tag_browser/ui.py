@@ -135,7 +135,10 @@ class TagBrowserMixin:  # {{{
     def init_tag_browser_mixin(self: Main, db):
         m = self.library_view._model
         m.count_changed_signal.connect(self.tags_view.recount_with_position_based_index)
-        self.tags_view.set_database(db, self.alter_tb)
+        # The tree is built once the saved layout has been restored, so that a
+        # hidden Tag browser costs nothing when a library is opened. See
+        # Main.initialize() and TagsView.build_tree_if_needed().
+        self.tags_view.set_database(db, self.alter_tb, build_tree=False)
         self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tags_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.edit_user_category.connect(self.do_edit_user_categories)

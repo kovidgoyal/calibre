@@ -453,6 +453,11 @@ class Main(
         self.layout_container.relayout()
         QTimer.singleShot(0, self.post_initialize_actions)
         self.read_settings()
+        # The Tag browser tree was not built when the database was set. Build it
+        # now if the restored layout has its pane open; if it is closed, showing
+        # the pane builds it.
+        if self.layout_container.tag_browser_button.isChecked():
+            self.tags_view.build_tree_if_needed()
 
         self.finalize_layout()
         self.bars_manager.start_animation()

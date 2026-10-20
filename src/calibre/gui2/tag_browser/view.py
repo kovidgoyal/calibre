@@ -411,6 +411,15 @@ class TagsView(QTreeView):  # {{{
         if to_what and not pv:
             self.recount()
 
+    def build_tree_if_needed(self):
+        """
+        Build the tree if building it was skipped when the database was set.
+        Called once the saved layout has been restored, for the case where the
+        pane turns out to be visible.
+        """
+        if not self._model.tree_is_built:
+            self.set_pane_is_visible(True)
+
     def get_state(self):
         state_map = {}
         expanded_categories = []
@@ -432,10 +441,12 @@ class TagsView(QTreeView):  # {{{
     def reread_collapse_parameters(self):
         self._model.reread_collapse_model(self.get_state()[1])
 
-    def set_database(self, db, alter_tb: AlterTagBrowser):
-        self._model.set_database(db)
+    def set_database(self, db, alter_tb: AlterTagBrowser, build_tree=True):
+        self._model.set_database(db, build_tree=build_tree)
         self.alter_tb = alter_tb
-        self.pane_is_visible = True  # because TagsModel.set_database did a recount
+        # True only when the tree was built just now. When it was not, showing
+        # the pane builds it, see set_pane_is_visible()
+        self.pane_is_visible = build_tree
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         pop = self.db.CATEGORY_SORTS.index(config['sort_tags_by'])

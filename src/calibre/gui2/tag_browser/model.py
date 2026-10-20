@@ -457,6 +457,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.collapse_model = 'disable'
         self.row_map = []
         self.db = None
+        self.tree_is_built = False
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
@@ -550,7 +551,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if rebuild:
             self.rebuild_node_tree(state_map)
 
-    def set_database(self, db, hidden_categories=None):
+    def set_database(self, db, hidden_categories=None, build_tree=True):
         self.beginResetModel()
         self.value_icons = self.prefs['tags_browser_value_icons']
         hidden_cats = db.new_api.pref('tag_browser_hidden_categories', None)
@@ -570,7 +571,13 @@ class TagsModel(QAbstractItemModel):  # {{{
         # The versions of the categories of a different library say nothing
         # about whether the current sub-trees can be used again
         self.last_category_versions = {}
-        self._run_rebuild()
+        if build_tree:
+            self._run_rebuild()
+        else:
+            # Building a tree that cannot be seen only makes opening a library
+            # slower, which is very noticeable in a large library. TagsView
+            # builds it when the pane is first shown.
+            self.tree_is_built = False
         self.endResetModel()
 
     def reset_tag_browser(self):
@@ -682,6 +689,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             old_node_map.clear()
         self.last_build_fingerprint = fingerprint
         self.last_category_versions, self.last_subtree_signature = versions, signature
+        self.tree_is_built = True
 
     def current_category_versions(self):
         db = self.db
