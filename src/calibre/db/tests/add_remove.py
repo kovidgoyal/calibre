@@ -863,6 +863,30 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
+    def test_copy_to_library_without_formats(self):  # {{{
+        from calibre.db.copy_to_library import copy_one_book
+
+        src_db = self.init_cache(self.cloned_library)
+        src_db.remove_formats({1: src_db.formats(1)})
+        self.assertFalse(src_db.formats(1))
+        data = b'extra data without an ebook format'
+        src_db.add_extra_files(1, {'data/notes.txt': BytesIO(data)})
+
+        for action in ('overwrite', 'ignore', 'new record'):
+            with self.subTest(automerge_action=action):
+                dest_db = self.init_cache(self.cloned_library)
+                book_ids = dest_db.all_book_ids()
+                rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action=action)
+                self.assertEqual(rdata['action'], 'automerge')
+                self.assertIsNone(rdata['new_book_id'])
+                self.assertEqual(dest_db.all_book_ids(), book_ids)
+                extra_files = {ef.relpath: ef.file_path for ef in dest_db.list_extra_files(1)}
+                self.assertIn('data/notes.txt', extra_files)
+                with open(extra_files['data/notes.txt'], 'rb') as f:
+                    self.assertEqual(f.read(), data)
+
+    # }}}
+
     def test_merging_extra_files(self):  # {{{
         db = self.init_cache()
 

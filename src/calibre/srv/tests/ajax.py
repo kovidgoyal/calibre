@@ -130,6 +130,50 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
+    def test_move_book_without_formats_preserves_extra_files(self):  # {{{
+        target_library_path = self.mkdtemp()
+        self.create_db(target_library_path)
+        with self.create_server(libraries=(self.library_path, target_library_path), auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            ctx = server.handler.router.ctx
+            library_map = ctx.library_broker.library_map
+            target_library_id = next(library_id for library_id, name in library_map.items() if name == os.path.basename(target_library_path))
+            source_db = ctx.library_broker.get(None)
+            target_db = ctx.library_broker.get(target_library_id)
+            target_book_ids = target_db.all_book_ids()
+            source_db.remove_formats({1: source_db.formats(1)})
+            self.assertFalse(source_db.formats(1))
+            data = b'extra data without an ebook format'
+            source_db.add_extra_files(1, {'data/notes.txt': BytesIO(data)})
+            source_file = next(ef.file_path for ef in source_db.list_extra_files(1) if ef.relpath == 'data/notes.txt')
+            r, response = make_request(
+                server.connect(),
+                f'/cdb/copy-to-library/{target_library_id}/{source_db.server_library_id}',
+                username='12',
+                password='test',
+                prefix='',
+                method='POST',
+                headers={'Content-Type': 'application/json'},
+                data=json.dumps({
+                    'book_ids': [1],
+                    'move': True,
+                    'duplicate_action': 'add_formats_to_existing',
+                    'automerge_action': 'overwrite',
+                }).encode('utf-8'),
+            )
+            self.ae(r.status, OK)
+            self.assertTrue(response['1']['ok'])
+            self.ae(response['1']['payload']['action'], 'automerge')
+            self.assertFalse(source_db.has_id(1))
+            self.assertFalse(os.path.exists(source_file))
+            self.ae(target_db.all_book_ids(), target_book_ids)
+            extra_files = {ef.relpath: ef.file_path for ef in target_db.list_extra_files(1)}
+            self.assertIn('data/notes.txt', extra_files)
+            with open(extra_files['data/notes.txt'], 'rb') as f:
+                self.ae(f.read(), data)
+
+    # }}}
+
     def test_fts_actions_change_only_the_requested_library(self):  # {{{
         other_library_path = self.mkdtemp()
         self.create_db(other_library_path)

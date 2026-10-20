@@ -19,7 +19,8 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
         for fmt, path in format_map.items():
             if newdb.add_format(identical_book, fmt, path, replace=replace, run_hooks=False):
                 at_least_one_format_added = True
-        if at_least_one_format_added and extra_file_map:
+        # Books without formats can still have extra data files to merge.
+        if (at_least_one_format_added or not format_map) and extra_file_map:
             newdb.add_extra_files(identical_book, extra_file_map, replace=False, auto_rename=True)
         if mi.cover_data and mi.cover_data[1] and not newdb.field_for('cover', identical_book):
             newdb.set_cover({identical_book: mi.cover_data[1]})
