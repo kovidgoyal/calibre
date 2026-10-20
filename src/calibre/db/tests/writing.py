@@ -396,7 +396,10 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_dump_metadata_write_failure(self):
+    def test_dump_metadata_write_failure(self):  # {{{
+        "Test that failures to write metadata backups are reported and leave books dirty"
+        from unittest.mock import patch
+
         from calibre.ebooks.metadata.opf2 import OPF
 
         cache = self.init_cache()
@@ -406,13 +409,17 @@ class WritingTest(BaseTest):
         os.remove(backup_path)
         os.mkdir(backup_path)
 
-        cache.dump_metadata(book_ids=(1, 2))
+        with patch('calibre.db.cache.prints') as prints, patch('calibre.db.cache.traceback.print_exc') as print_exc:
+            cache.dump_metadata(book_ids=(1, 2))
+        prints.assert_called_once_with('Failed to write backup metadata for id:', 1)
+        print_exc.assert_called_once_with()
         self.assertIn(1, cache.dirtied_cache)
         self.assertNotIn(2, cache.dirtied_cache)
         cache.mark_as_dirty({2})
 
         events = []
-        cache.dump_metadata(book_ids=(1, 2), callback=lambda *args: events.append(args))
+        with patch('calibre.db.cache.prints'), patch('calibre.db.cache.traceback.print_exc'):
+            cache.dump_metadata(book_ids=(1, 2), callback=lambda *args: events.append(args))
         self.assertEqual(events[0], (2, True, False))
         self.assertEqual([(book_id, ok) for book_id, mi, ok in events[1:]], [(1, False), (2, True)])
         self.assertIn(1, cache.dirtied_cache)
@@ -426,6 +433,8 @@ class WritingTest(BaseTest):
         self.assertEqual([(book_id, ok) for book_id, mi, ok in events[1:]], [(1, True)])
         self.assertNotIn(1, cache.dirtied_cache)
         self.assertEqual(OPF(BytesIO(cache.read_backup(1))).title, 'Changed first book')
+
+    # }}}
 
     def test_backup(self):  # {{{
         "Test the automatic backup of changed metadata"

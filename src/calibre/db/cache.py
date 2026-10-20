@@ -21,7 +21,7 @@ from threading import Lock
 from time import mktime, monotonic, time
 from typing import Any, NamedTuple
 
-from calibre import as_unicode, detect_ncpus
+from calibre import as_unicode, detect_ncpus, prints
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
@@ -2279,14 +2279,16 @@ class Cache:
             try:
                 raw = metadata_to_opf(mi)
                 self._write_backup(book_id, raw)
+            except Exception:
+                prints('Failed to write backup metadata for id:', book_id)
+                traceback.print_exc()
+                ok = False
+            else:
+                ok = True
                 if remove_from_dirtied:
                     self._clear_dirtied(book_id, sequence)
-            except Exception:
-                if callback is not None:
-                    callback(book_id, mi, False)
-                continue
             if callback is not None:
-                callback(book_id, mi, True)
+                callback(book_id, mi, ok)
 
     _dump_metadata = dump_metadata
 
