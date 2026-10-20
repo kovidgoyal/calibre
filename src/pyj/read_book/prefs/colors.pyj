@@ -28,7 +28,7 @@ add_extra_css(def ():
     sel = '#' + COLOR_LIST
     style = build_rule(sel, list_style_type='none', display='flex', flex_wrap='wrap')
     sel += ' > li'
-    style += build_rule(sel, padding='1ex 1rem', margin='1ex 0.5rem', border_radius='4px', cursor='pointer', border='solid 1px currentColor')
+    style += build_rule(sel, padding='1ex 1rem', margin='1ex 0.5rem', border_radius='4px', cursor='pointer', border='var(--calibre-border-style-strong)')
     style += build_rule(sel + ' svg', visibility='hidden')
     sel += '.current-color'
     style += build_rule(sel + ' svg', visibility='visible')
