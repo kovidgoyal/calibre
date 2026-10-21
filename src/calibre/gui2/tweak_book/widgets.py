@@ -360,7 +360,7 @@ class MultiSplit(Dialog):  # {{{
 
 class ImportForeign(Dialog):  # {{{
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Choose file to import'), 'import-foreign')
+        Dialog.__init__(self, _('Choose file to import'), 'import-foreign', parent=parent)
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
