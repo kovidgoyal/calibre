@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+import filecmp
+import os
+
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import prefs
 from calibre.utils.date import now
@@ -8,42 +11,52 @@ from calibre.utils.date import now
 source_removal_actions = frozenset({'add', 'automerge'})
 
 
+def merge_extra_files(newdb, book_id, extra_file_map):
+    # Files with content identical to an existing extra file are skipped, so
+    # that repeated copies do not accumulate merge conflict duplicates.
+    # Conflicting files are auto-renamed so that no data is ever discarded.
+    existing = newdb.list_extra_files(book_id)
+    to_add = {}
+    for relpath, path in extra_file_map.items():
+        size = os.path.getsize(path)
+        if not any(ef.stat_result.st_size == size and filecmp.cmp(path, ef.file_path, shallow=False) for ef in existing):
+            to_add[relpath] = path
+    if to_add:
+        newdb.add_extra_files(book_id, to_add, replace=False, auto_rename=True)
+
+
 def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
     seen_fmts = set()
+    for identical_book in identical_book_list:
+        seen_fmts |= {fmt.upper() for fmt in newdb.formats(identical_book)}
+    incoming_fmts = {fmt.upper() for fmt in format_map}
+    # If there is at least one duplicate format, create a new record and put
+    # the incoming formats and extra files into it. We should arguably put
+    # only the duplicate formats, but no real harm is done by having all
+    # formats
+    create_new_record = automerge_action == 'new record' and bool(incoming_fmts & seen_fmts)
     replace = automerge_action == 'overwrite'
     for identical_book in identical_book_list:
-        ib_fmts = newdb.formats(identical_book)
-        if ib_fmts:
-            seen_fmts |= {fmt.upper() for fmt in ib_fmts}
-        at_least_one_format_added = False
         for fmt, path in format_map.items():
-            if newdb.add_format(identical_book, fmt, path, replace=replace, run_hooks=False):
-                at_least_one_format_added = True
-        if at_least_one_format_added and extra_file_map:
-            newdb.add_extra_files(identical_book, extra_file_map, replace=False, auto_rename=True)
+            newdb.add_format(identical_book, fmt, path, replace=replace, run_hooks=False)
+        # Extra files are merged regardless of whether any formats were added,
+        # as otherwise they would be lost when moving books between libraries
+        if extra_file_map and not create_new_record:
+            merge_extra_files(newdb, identical_book, extra_file_map)
         if mi.cover_data and mi.cover_data[1] and not newdb.field_for('cover', identical_book):
             newdb.set_cover({identical_book: mi.cover_data[1]})
 
-    if automerge_action == 'new record':
-        incoming_fmts = {fmt.upper() for fmt in format_map}
-
-        if incoming_fmts.intersection(seen_fmts):
-            # There was at least one duplicate format
-            # so create a new record and put the
-            # incoming formats into it
-            # We should arguably put only the duplicate
-            # formats, but no real harm is done by having
-            # all formats
-            new_book_id = newdb.add_books(
-                [(mi, format_map)],
-                add_duplicates=True,
-                apply_import_tags=prefs['add_new_book_tags_when_importing_books'],
-                preserve_uuid=False,
-                run_hooks=False,
-            )[0][0]
-            if extra_file_map:
-                newdb.add_extra_files(new_book_id, extra_file_map)
-            return new_book_id
+    if create_new_record:
+        new_book_id = newdb.add_books(
+            [(mi, format_map)],
+            add_duplicates=True,
+            apply_import_tags=prefs['add_new_book_tags_when_importing_books'],
+            preserve_uuid=False,
+            run_hooks=False,
+        )[0][0]
+        if extra_file_map:
+            newdb.add_extra_files(new_book_id, extra_file_map)
+        return new_book_id
 
 
 def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action):

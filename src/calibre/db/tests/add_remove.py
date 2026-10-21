@@ -835,7 +835,19 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
-            assert_does_not_have_extra_files(new_book_id)
+            # extra files must be merged even when no formats are added
+            assert_has_extra_files(new_book_id)
+        # copying again must not create duplicate merge conflict files
+        copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='ignore')
+        for new_book_id in (1, 4, 5):
+            self.assertEqual({ef.relpath for ef in dest_db.list_extra_files(new_book_id)}, {'exf', 'sub/recurse'})
+        # conflicting files must be renamed, not discarded
+        with open(os.path.join(os.path.dirname(dest_db.format_abspath(1, '__COVER_INTERNAL__')), 'exf'), 'w') as f:
+            f.write('different')
+        copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='ignore')
+        self.assertEqual({ef.relpath for ef in dest_db.list_extra_files(1)}, {'exf', 'merge conflict/exf', 'sub/recurse'})
+        for new_book_id in (1, 4, 5):
+            clear_extra_files(new_book_id)
 
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='new record')
         self.assertEqual(rdata['action'], 'automerge')
@@ -860,6 +872,32 @@ class AddRemoveTest(BaseTest):
             self.assertEqual(('orig',), dest_db.field_for('tags', rdata['new_book_id']))
         finally:
             cache_mod.prefs, ctl_mod.prefs = orig_cache_prefs, orig_ctl_prefs
+
+    # }}}
+
+    def test_copy_to_library_without_formats(self):  # {{{
+        from calibre.db.copy_to_library import copy_one_book
+
+        actions = ('overwrite', 'ignore', 'new record')
+        dest_dbs = {action: self.init_cache(self.cloned_library) for action in actions}
+        src_db = self.init_cache()
+        src_db.remove_formats({1: src_db.formats(1)})
+        self.assertFalse(src_db.formats(1))
+        data = b'extra data without an ebook format'
+        src_db.add_extra_files(1, {'data/notes.txt': BytesIO(data)})
+
+        for action, dest_db in dest_dbs.items():
+            with self.subTest(automerge_action=action):
+                self.assertFalse(dest_db.list_extra_files(1))
+                book_ids = dest_db.all_book_ids()
+                rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action=action)
+                self.assertEqual(rdata['action'], 'automerge')
+                self.assertIsNone(rdata['new_book_id'])
+                self.assertEqual(dest_db.all_book_ids(), book_ids)
+                extra_files = {ef.relpath: ef.file_path for ef in dest_db.list_extra_files(1)}
+                self.assertEqual(set(extra_files), {'data/notes.txt'})
+                with open(extra_files['data/notes.txt'], 'rb') as f:
+                    self.assertEqual(f.read(), data)
 
     # }}}
 
