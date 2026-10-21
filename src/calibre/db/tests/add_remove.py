@@ -719,10 +719,37 @@ class AddRemoveTest(BaseTest):
         ae(raw, db.format(1, 'ORIGINAL_FMT1'))
         db.add_format(1, 'FMT1', BytesIO(b'replacedfmt'))
         self.assertNotEqual(db.format(1, 'FMT1'), db.format(1, 'ORIGINAL_FMT1'))
+        db.set_field('last_modified', {1: UNDEFINED_DATE})
         at(db.restore_original_format(1, 'ORIGINAL_FMT1'))
         ae(raw, db.format(1, 'FMT1'))
         af(db.has_format(1, 'ORIGINAL_FMT1'))
         ae(set(fmts), set(db.formats(1, verify_formats=False)))
+        ae(db.format_metadata(1, 'FMT1')['size'], len(raw))
+        ae(db.field_for('size', 1), max(len(raw), len(db.format(1, 'FMT2'))))
+        self.assertNotEqual(db.field_for('last_modified', 1), UNDEFINED_DATE)
+
+        # Restoring when the current format is missing
+        at(db.save_original_format(1, 'FMT1'))
+        db.remove_formats({1: ('FMT1',)})
+        af(db.has_format(1, 'FMT1'))
+        at(db.restore_original_format(1, 'ORIGINAL_FMT1'))
+        ae(raw, db.format(1, 'FMT1'))
+        af(db.has_format(1, 'ORIGINAL_FMT1'))
+        ae(set(fmts), set(db.formats(1)))
+
+        # A failed restore must not damage the current format
+        at(db.save_original_format(1, 'FMT1'))
+        db.add_format(1, 'FMT1', BytesIO(b'replacedfmt'))
+
+        def fail(*a):
+            raise OSError('simulated rename failure')
+
+        db.backend.rename_format_file = fail
+        with self.assertRaises(OSError):
+            db.restore_original_format(1, 'ORIGINAL_FMT1')
+        ae(db.format(1, 'FMT1'), b'replacedfmt')
+        ae(db.format(1, 'ORIGINAL_FMT1'), raw)
+        ae(db.format_metadata(1, 'FMT1')['size'], len(b'replacedfmt'))
 
     # }}}
 

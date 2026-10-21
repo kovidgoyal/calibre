@@ -1986,6 +1986,8 @@ class DB:
     def rename_format_file(self, book_id, src_fname, src_fmt, dest_fname, dest_fmt, path):
         src_path = self.format_abspath(book_id, src_fmt, src_fname, path)
         dest_path = self.format_abspath(book_id, dest_fmt, dest_fname, path)
+        if not dest_path:
+            dest_path = os.path.join(self.library_path, path, dest_fname + '.' + dest_fmt.lower())
         atomic_rename(src_path, dest_path)
         return os.path.getsize(dest_path)
 
