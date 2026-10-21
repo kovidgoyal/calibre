@@ -719,10 +719,71 @@ class AddRemoveTest(BaseTest):
         ae(raw, db.format(1, 'ORIGINAL_FMT1'))
         db.add_format(1, 'FMT1', BytesIO(b'replacedfmt'))
         self.assertNotEqual(db.format(1, 'FMT1'), db.format(1, 'ORIGINAL_FMT1'))
+        ae(db.format_metadata(1, 'FMT1')['size'], len(b'replacedfmt'))
+        fts = db.enable_fts(start_pool=False)
+        fts.clear_all_dirty()
         at(db.restore_original_format(1, 'ORIGINAL_FMT1'))
         ae(raw, db.format(1, 'FMT1'))
+        ae(db.format_metadata(1, 'FMT1')['size'], len(raw))
+        self.assertIn((1, 'FMT1'), fts.all_currently_dirty())
+        af(db.fts_job_queue.empty())
         af(db.has_format(1, 'ORIGINAL_FMT1'))
         ae(set(fmts), set(db.formats(1, verify_formats=False)))
+
+    # }}}
+
+    def test_original_fmt_restore_failure(self):  # {{{
+        from unittest.mock import patch
+
+        from calibre.db import backend
+
+        cache = self.init_cache()
+        original = cache.format(1, 'FMT1')
+        self.assertTrue(cache.save_original_format(1, 'FMT1'))
+        edited = b'current edited edition'
+        cache.add_format(1, 'FMT1', BytesIO(edited), run_hooks=False)
+        original_path = cache.format_abspath(1, 'ORIGINAL_FMT1')
+        atomic_rename = backend.atomic_rename
+
+        def fail_restore(source, destination):
+            if os.fspath(source) == original_path:
+                raise PermissionError('simulated original format rename failure')
+            return atomic_rename(source, destination)
+
+        def metadata():
+            return (
+                cache.format_metadata(1, 'FMT1', allow_cache=False),
+                cache.format_metadata(1, 'ORIGINAL_FMT1', allow_cache=False),
+                cache.field_for('size', 1),
+                cache.field_for('last_modified', 1),
+                cache.formats(1),
+            )
+
+        before = metadata()
+        with patch.object(backend, 'atomic_rename', fail_restore), self.assertRaises(PermissionError):
+            cache.restore_original_format(1, 'ORIGINAL_FMT1')
+        self.assertEqual(cache.format(1, 'FMT1'), edited)
+        self.assertEqual(cache.format(1, 'ORIGINAL_FMT1'), original)
+        self.assertEqual(metadata(), before)
+
+    # }}}
+
+    def test_original_fmt_missing_target(self):  # {{{
+        for remove_record in (True, False):
+            with self.subTest(remove_format_record=remove_record):
+                cache = self.init_cache(self.cloned_library)
+                original = cache.format(1, 'FMT1')
+                self.assertTrue(cache.save_original_format(1, 'FMT1'))
+                if remove_record:
+                    cache.remove_formats({1: ('FMT1',)})
+                else:
+                    os.remove(cache.format_abspath(1, 'FMT1'))
+                self.assertFalse(cache.has_format(1, 'FMT1'))
+                self.assertTrue(cache.restore_original_format(1, 'ORIGINAL_FMT1'))
+                self.assertEqual(cache.format(1, 'FMT1'), original)
+                self.assertEqual(cache.format_metadata(1, 'FMT1', allow_cache=False)['size'], len(original))
+                self.assertFalse(cache.has_format(1, 'ORIGINAL_FMT1'))
+                self.assertNotIn('ORIGINAL_FMT1', cache.formats(1, verify_formats=False))
 
     # }}}
 

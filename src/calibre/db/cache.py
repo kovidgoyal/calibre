@@ -1638,11 +1638,15 @@ class Cache:
         except Exception:
             return False
         if self.backend.is_format_accessible(book_id, original_fmt, ofmt_name, path):
-            self.add_format(book_id, fmt, BytesIO(), run_hooks=False)
+            # Preserve an existing format in case the rename fails.
+            if not self._has_format(book_id, fmt):
+                self.add_format(book_id, fmt, BytesIO(), run_hooks=False)
             fmt_name = self.fields['formats'].format_fname(book_id, fmt)
             file_size = self.backend.rename_format_file(book_id, ofmt_name, original_fmt, fmt_name, fmt, path)
+            self.format_metadata_cache[book_id].pop(fmt, None)
             self.fields['formats'].table.update_fmt(book_id, fmt, fmt_name, file_size, self.backend)
             self._remove_formats({book_id: (original_fmt,)})
+            self._queue_next_fts_job()
             return True
         return False
 
