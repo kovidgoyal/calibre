@@ -92,10 +92,10 @@ class ScientificAmerican(BasicNewsRecipe):
             issue = d
         else:
             fp_soup = self.index_to_soup('https://www.scientificamerican.com')
-            curr_issue_link = fp_soup.find(**prefixed_classes('latest_issue_links-'))
+            curr_issue_link = fp_soup.select_one('a[href*="/issue/sa/"]')
             if not curr_issue_link:
                 self.abort_recipe_processing('Unable to find issue link')
-            issue = 'https://www.scientificamerican.com' + curr_issue_link.a['href']
+            issue = 'https://www.scientificamerican.com' + curr_issue_link.get('href', '')
 
         soup = self.index_to_soup(issue)
         script = soup.find('script', id='__DATA__')
