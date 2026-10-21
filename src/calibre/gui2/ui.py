@@ -1348,6 +1348,9 @@ class Main(
     def read_settings(self):
         self.restore_geometry(gprefs, 'calibre_main_window_geometry', get_legacy_saved_geometry=lambda: config['main_window_geometry'])
         self.read_layout_settings()
+        # The Tag browser tree is built only if its pane is visible, which is
+        # known only now. It must be built before its expansion is restored.
+        self.tb_widget.set_pane_is_visible(self.layout_container.tag_browser_button.isChecked())
         self._restore_tb_expansion_state()
 
     def write_settings(self):

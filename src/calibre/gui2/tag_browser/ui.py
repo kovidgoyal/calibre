@@ -595,6 +595,7 @@ class TagBrowserMixin:  # {{{
         - 'toggle' to invert its visibility
         - 'is_visible' returns True if the category is currently visible, False otherwise
         """
+        self.tags_view._model.ensure_tree_built()
         if category not in self.tags_view._model.categories:
             raise ValueError(_('change_tb_category_visibility: category %s does not exist') % category)
         cats = self.tags_view.hidden_categories

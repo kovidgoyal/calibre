@@ -21,7 +21,9 @@ class TBPartitionedFields(DisplayedFields):
         self.gui = get_gui(fail_if_absent=True)
 
     def filter_user_categories(self, tv):
-        cats = tv.model().categories
+        model = tv.model()
+        model.ensure_tree_built()
+        cats = model.categories
         answer = {}
         filtered = set()
         for key, name in cats.items():

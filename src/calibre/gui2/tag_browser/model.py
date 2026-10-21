@@ -456,7 +456,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.filter_categories_by = None
         self.collapse_model = 'disable'
         self.row_map = []
+        self.categories = OrderedDict()
+        self.hierarchical_categories = {}
         self.db = None
+        self.tree_is_built = False
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
@@ -547,10 +550,14 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.collapse_model = 'disable'
         else:
             self.collapse_model = self.prefs['tags_browser_partition_method']
-        if rebuild:
+        if rebuild and self.tree_is_built:
             self.rebuild_node_tree(state_map)
 
-    def set_database(self, db, hidden_categories=None):
+    def set_database(self, db, hidden_categories=None, build_tree=True):
+        """
+        Use build_tree=False to not build the tree, for example because it is
+        not visible. ensure_tree_built() builds it.
+        """
         self.beginResetModel()
         self.value_icons = self.prefs['tags_browser_value_icons']
         hidden_cats = db.new_api.pref('tag_browser_hidden_categories', None)
@@ -570,7 +577,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         # The versions of the categories of a different library say nothing
         # about whether the current sub-trees can be used again
         self.last_category_versions = {}
-        self._run_rebuild()
+        if build_tree:
+            self._run_rebuild()
+        else:
+            self._clear_tree()
         self.endResetModel()
 
     def reset_tag_browser(self):
@@ -585,7 +595,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         for cat in hidden_cats:
             if cat in db.field_metadata:
                 self.hidden_categories.add(cat)
-        self._run_rebuild()
+        if self.tree_is_built:
+            self._run_rebuild()
         self.endResetModel()
 
     def _cached_notes_map(self, category):
@@ -682,6 +693,30 @@ class TagsModel(QAbstractItemModel):  # {{{
             old_node_map.clear()
         self.last_build_fingerprint = fingerprint
         self.last_category_versions, self.last_subtree_signature = versions, signature
+        self.tree_is_built = True
+
+    def _clear_tree(self):
+        old_node_map = self.node_map
+        self.node_map = {}
+        self.category_nodes = []
+        self.categories = OrderedDict()
+        self.row_map = []
+        self.hierarchical_categories = {}
+        self.root_item = self.create_node(icon_map=self.icon_state_map)
+        for node in old_node_map.values():
+            node.break_cycles()
+        old_node_map.clear()
+        self.reset_notes_and_link_maps()
+        self.last_build_fingerprint = None
+        self.tree_is_built = False
+
+    def ensure_tree_built(self):
+        """
+        Build the tree if it has not been built, see set_database(). Use before
+        using the tree, categories or nodes from outside the Tag browser.
+        """
+        if not self.tree_is_built:
+            self.rebuild_node_tree()
 
     def current_category_versions(self):
         db = self.db

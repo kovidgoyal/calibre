@@ -25,6 +25,7 @@ class TBDisplayedFields(DisplayedFields):
         tv = self.gui.tags_view
         model = tv.model()
         assert isinstance(model, TagsModel)
+        model.ensure_tree_built()
         cat_ord = model.get_ordered_categories(use_defaults=use_defaults, pref_data_override=pref_data_override)
         if use_defaults:
             hc = []
