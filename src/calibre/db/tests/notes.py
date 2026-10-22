@@ -14,7 +14,8 @@ from calibre.utils.resources import get_image_path
 def test_notes_restore(self: NotesTest):
     from calibre.db.restore import Restore
 
-    library_path = self.cloned_library
+    # Restore creates a sibling temporary library. Avoid the extra clone directory to stay within Windows path limits.
+    library_path = self.library_path
     cache = self.init_cache(library_path)
     book_ids = sorted(cache.all_book_ids())
     cache.set_field('tags', {bid: () for bid in book_ids})
