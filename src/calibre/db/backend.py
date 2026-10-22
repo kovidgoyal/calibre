@@ -1305,7 +1305,7 @@ class DB:
             self.notes.export_non_db_data(zf)
 
     def restore_notes(self, report_progress):
-        self.notes.restore(self.conn, self.tables, report_progress)
+        return self.notes.restore(self.conn, self.tables, report_progress)
 
     def import_note(self, field, item_id, html, basedir, ctime, mtime):
         id_val = self.tables[field].id_map[item_id]

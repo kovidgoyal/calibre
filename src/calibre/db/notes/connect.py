@@ -307,18 +307,30 @@ class Notes:
             destdir = make_long_path_useable(self.path_to_retired_dir_for_item(field_name, item_id, item_value))
             self.makedirs(destdir)
             self.move_file(path, os.path.join(destdir, DOC_NAME))
-            nif_path = os.path.join(destdir, 'note_id')
-            self.prepare_write(nif_path)
-            with open(nif_path, 'w') as nif:
-                nif.write(str(note_id))
-            for rhash, rname in resources:
-                rpath = make_long_path_useable(self.path_for_resource(rhash))
-                if os.path.exists(rpath):
-                    rdest = os.path.join(destdir, 'res-' + rname)
-                    self.prepare_write(rdest)
-                    with suppress(shutil.SameFileError):
-                        copyfile_using_links(rpath, rdest, dest_is_dir=False)
+            self.add_retired_metadata(destdir, resources, note_id)
             self.trim_retired_dir()
+
+    def retire_backup_data(self, field_name, item_value, raw, resources):
+        destdir = make_long_path_useable(self.path_to_retired_dir_for_item(field_name, None, item_value))
+        self.makedirs(destdir)
+        doc_path = os.path.join(destdir, DOC_NAME)
+        self.prepare_write(doc_path)
+        with open(doc_path, 'wb') as f:
+            f.write(raw)
+        self.add_retired_metadata(destdir, resources, -1)
+
+    def add_retired_metadata(self, destdir, resources, note_id):
+        nif_path = os.path.join(destdir, 'note_id')
+        self.prepare_write(nif_path)
+        with open(nif_path, 'w') as nif:
+            nif.write(str(note_id))
+        for rhash, rname in resources:
+            rpath = make_long_path_useable(self.path_for_resource(rhash))
+            if os.path.exists(rpath):
+                rdest = os.path.join(destdir, 'res-' + rname)
+                self.prepare_write(rdest)
+                with suppress(shutil.SameFileError):
+                    copyfile_using_links(rpath, rdest, dest_is_dir=False)
 
     def unretire(self, conn, field_name, item_id, item_value) -> int:
         srcdir = make_long_path_useable(self.path_to_retired_dir_for_item(field_name, item_id, item_value))
@@ -666,7 +678,7 @@ class Notes:
         conn.execute('VACUUM notes_db')
 
     def restore(self, conn, tables, report_progress):
-        resources = {}
+        resource_names = {}
         errors = []
         for subdir in os.listdir(make_long_path_useable(self.resources_dir)):
             try:
@@ -679,7 +691,7 @@ class Notes:
                     name = 'unnamed'
                     with suppress(OSError), open(make_long_path_useable(name_path)) as n:
                         name = json.loads(n.read())['name']
-                    resources[rf.replace('-', ':', 1)] = name
+                    resource_names[rf.replace('-', ':', 1)] = name
         items = {}
         for f in os.listdir(make_long_path_useable(self.backup_dir)):
             if f in self.allowed_fields:
@@ -687,21 +699,25 @@ class Notes:
                 for x in os.listdir(make_long_path_useable(os.path.join(self.backup_dir, f))):
                     with suppress(Exception):
                         items[f].append(int(x))
-        known_resources = frozenset(resources)
-        conn.executemany('INSERT OR REPLACE INTO notes_db.resources (hash,name) VALUES (?,?)', tuple(resources.items()))
+        known_resources = frozenset(resource_names)
+        conn.executemany('INSERT OR REPLACE INTO notes_db.resources (hash,name) VALUES (?,?)', tuple(resource_names.items()))
         i, total = 0, sum(len(x) for x in items.values())
         report_progress(None, total)
-        for field, entries in items.items():
-            table = tables[field]
-            rmap = {v: k for k, v in table.id_map.items()}
-            for old_item_id in entries:
-                i += 1
+
+        # The backups are named by item id and the ids in the restored database can be different, so read all the
+        # backups and remove them before restoring any notes, otherwise set_note() could overwrite unread backups and
+        # obsolete backups would be restored again by the next rebuild.
+        entries = []
+        for field, item_ids in items.items():
+            for old_item_id in item_ids:
+                path = os.path.join(self.backup_dir, field, str(old_item_id))
                 try:
-                    with open(make_long_path_useable(os.path.join(self.backup_dir, field, str(old_item_id))), 'rb') as f:
+                    with open(make_long_path_useable(path), 'rb') as f:
                         raw = f.read()
                         st = os.stat(f.fileno())
                 except OSError as e:
                     errors.append(_('Failed to read from document for {path} with error: {error}').format(path=f'{field}:{old_item_id}', error=e))
+                    i += 1
                     report_progress('', i)
                     continue
                 parts = raw.split(SEP, 3)
@@ -713,23 +729,32 @@ class Notes:
                         old_item_val = searchable_text.split('\n', 1)[0]
                 except Exception as err:
                     errors.append(_('Failed to parse document for: {0} with error: {1}').format(old_item_id, err))
+                    i += 1
                     report_progress('', i)
                     continue
-                item_id = rmap.get(old_item_val)
-                if item_id is None:
-                    errors.append(
-                        _('The item {old_item_val} does not exist in the {field} column in the restored database, could not restore its notes').format(
-                            old_item_val=old_item_val, field=field
-                        )
-                    )
-                    report_progress('', i)
-                    continue
+                entries.append((field, path, raw, st, doc, searchable_text, frozenset(res.splitlines()), old_item_val))
+        for entry in entries:
+            remove_with_retry(entry[1])
+        # If there are multiple backups for an item, as left behind by older versions of calibre, the newest one wins
+        entries.sort(key=lambda entry: entry[3].st_mtime)
+
+        rmaps = {field: {v: k for k, v in tables[field].id_map.items()} for field in items}
+        for field, path, raw, st, doc, searchable_text, resources, old_item_val in entries:
+            i += 1
+            missing_resources = resources - known_resources
+            resources &= known_resources
+            item_id = rmaps[field].get(old_item_val)
+            if item_id is None:
+                errors.append(
+                    _(
+                        'The item {old_item_val} does not exist in the {field} column in the restored database, its notes'
+                        ' will be restored if the item is created again'
+                    ).format(old_item_val=old_item_val, field=field)
+                )
+            else:
                 report_progress(old_item_val, i)
-                resources = frozenset(res.splitlines())
-                missing_resources = resources - known_resources
                 if missing_resources:
                     errors.append(_('Some resources for {} were missing').format(old_item_val))
-                resources &= known_resources
                 try:
                     self.set_note(
                         conn,
@@ -742,8 +767,16 @@ class Notes:
                         ctime=getattr(st, 'st_birthtime', st.st_ctime),  # type: ignore
                         mtime=st.st_mtime,
                     )
+                    continue
                 except Exception as e:
                     errors.append(_('Failed to set note for {path} with error: {error}').format(path=old_item_val, error=e))
+            # Keep the notes that could not be restored as retired notes, so that they are restored when an item with
+            # the same name is created
+            try:
+                self.retire_backup_data(field, old_item_val, raw, tuple((h, resource_names[h]) for h in resources))
+            except Exception as e:
+                errors.append(_('Failed to preserve the notes for {path} with error: {error}').format(path=old_item_val, error=e))
+            report_progress('', i)
         return errors
 
     def export_note(self, conn, field_name, item_id):
