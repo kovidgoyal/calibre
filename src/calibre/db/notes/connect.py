@@ -665,7 +665,7 @@ class Notes:
     def vacuum(self, conn):
         conn.execute('VACUUM notes_db')
 
-    def restore(self, conn, tables, report_progress):
+    def restore(self, conn, tables, backup_dir: str, report_progress):
         resources = {}
         errors = []
         for subdir in os.listdir(make_long_path_useable(self.resources_dir)):
@@ -681,10 +681,10 @@ class Notes:
                         name = json.loads(n.read())['name']
                     resources[rf.replace('-', ':', 1)] = name
         items = {}
-        for f in os.listdir(make_long_path_useable(self.backup_dir)):
+        for f in os.listdir(make_long_path_useable(backup_dir)):
             if f in self.allowed_fields:
                 items[f] = []
-                for x in os.listdir(make_long_path_useable(os.path.join(self.backup_dir, f))):
+                for x in os.listdir(make_long_path_useable(os.path.join(backup_dir, f))):
                     with suppress(Exception):
                         items[f].append(int(x))
         known_resources = frozenset(resources)
@@ -697,7 +697,7 @@ class Notes:
             for old_item_id in entries:
                 i += 1
                 try:
-                    with open(make_long_path_useable(os.path.join(self.backup_dir, field, str(old_item_id))), 'rb') as f:
+                    with open(make_long_path_useable(os.path.join(backup_dir, field, str(old_item_id))), 'rb') as f:
                         raw = f.read()
                         st = os.stat(f.fileno())
                 except OSError as e:

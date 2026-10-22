@@ -7,19 +7,62 @@ import tempfile
 import time
 from operator import itemgetter
 
+from calibre.db.restore import Restore
 from calibre.db.tests.base import BaseTest
 from calibre.utils.resources import get_image_path
 
 
 def test_notes_restore(self: NotesTest):
-    cache, notes = self.create_notes_db()
-    authors = sorted(cache.all_field_ids('authors'))
-    doc = 'simple notes for an author'
-    h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
-    h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
-    cache.set_notes_for('authors', authors[0], doc, resource_hashes=(h1, h2))
-    doc2 = 'simple notes for an author2'
-    cache.set_notes_for('authors', authors[1], doc2, resource_hashes=(h2,))
+    for creation_order, expected_ids in (
+        ((1, 2), {'Alpha': 1, 'Beta': 2}),
+        ((2, 1), {'Alpha': 2, 'Beta': 1}),
+        ((3, 2, 1), {'Alpha': 3, 'Beta': 2}),
+    ):
+        with self.subTest(creation_order=creation_order):
+            cache, _ = self.create_notes_db()
+            library_path = cache.backend.library_path
+            cache.set_field('tags', {bid: [] for bid in cache.all_book_ids()})
+            tags = {1: 'Alpha', 2: 'Beta', 3: 'No notes'}
+            # Restore visits books in ID order. Also cover an old note ID absent from the rebuilt backups.
+            for bid in creation_order:
+                cache.set_field('tags', {bid: [tags[bid]]})
+            before_ids = {tag: cache.get_item_id('tags', tag) for tag in expected_ids}
+            self.ae(before_ids, expected_ids)
+            shared = cache.add_notes_resource(b'shared resource', 'shared.png')
+            resource_data = {shared: b'shared resource'}
+            docs, resource_hashes = {}, {}
+            for tag, item_id in before_ids.items():
+                docs[tag] = f'<p>Unique note for {tag}</p>'
+                data = f'Resource for {tag}'.encode('utf-8')
+                rhash = cache.add_notes_resource(data, f'{tag}.png')
+                resource_data[rhash] = data
+                resource_hashes[tag] = frozenset({shared, rhash})
+                cache.set_notes_for('tags', item_id, docs[tag], resource_hashes=resource_hashes[tag])
+            cache.mark_as_dirty(cache.all_book_ids())
+            cache.dump_metadata()
+            cache.backend.prefs.write_serialized(library_path)
+
+            # Editing a restored note must not overwrite another note's backup on the next rebuild.
+            for attempt in range(2):
+                cache.close()
+                self.objects_to_close.remove(cache)
+                restorer = Restore(library_path)
+                restorer.run()
+                self.assertIsNone(restorer.tb, restorer.tb)
+                self.ae(restorer.successes, 3)
+                cache = self.init_cache(library_path)
+                after_ids = {tag: cache.get_item_id('tags', tag) for tag in before_ids}
+                self.ae(after_ids, {'Alpha': 1, 'Beta': 2})
+                for tag, item_id in after_ids.items():
+                    self.ae(cache.notes_for('tags', item_id), docs[tag])
+                    self.ae(cache.notes_resources_used_by('tags', item_id), resource_hashes[tag])
+                for rhash, data in resource_data.items():
+                    resource = cache.get_notes_resource(rhash)
+                    assert resource is not None
+                    self.ae(resource['data'], data)
+                if attempt == 0:
+                    docs['Alpha'] = '<p>Updated after the first restore</p>'
+                    cache.set_notes_for('tags', after_ids['Alpha'], docs['Alpha'], resource_hashes=resource_hashes['Alpha'])
 
 
 def test_notes_api(self: NotesTest):
@@ -358,3 +401,6 @@ class NotesTest(BaseTest):
         test_notes_api(self)
         test_rename_and_delete_custom_column(self)
         test_rollback_restores_note_files(self)
+
+    def test_notes_restore(self):
+        test_notes_restore(self)

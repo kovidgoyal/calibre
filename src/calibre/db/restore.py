@@ -287,6 +287,10 @@ class Restore(Thread):
             os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
         db = Restorer(self.library_path)
         with closing(db), db.new_api.write_lock:
+            # Rebuilt item IDs can differ, so keep the input backups separate from the new backups.
+            notes_backup = os.path.join(self.library_path, 'notes-backup')
+            os.rename(os.path.join(notes_dest, 'backup'), notes_backup)
+            os.mkdir(os.path.join(notes_dest, 'backup'))
             with db.new_api:
                 for i, book in enumerate(self.books):
                     try:
@@ -308,7 +312,7 @@ class Restore(Thread):
                 for field, lmap in self.link_maps.items():
                     with suppress(Exception):
                         db.set_link_map(field, {k: v[0] for k, v in lmap.items()})
-            self.notes_errors = db.backend.restore_notes(self.progress_callback)
+            self.notes_errors = db.backend.restore_notes(notes_backup, self.progress_callback)
 
     def replace_db(self):
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
