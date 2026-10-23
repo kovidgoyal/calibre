@@ -455,6 +455,8 @@ class ContentTest(LibraryBaseTest):
             for q in 'books-init init get-books'.split():
                 ae(sr('/interface-data/' + q), {1, 2})
             ae(sr('/interface-data/get-books?vl=1'), {1})
+            for q in 'books-init init'.split():
+                ae(set(ok(url_for('/interface-data/' + q) + '?extra_books=1,3')['metadata']), {'1', '2'})
             ok(url_for('/interface-data/book-metadata', book_id=1))
             nf(url_for('/interface-data/book-metadata', book_id=3))
 

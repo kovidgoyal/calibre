@@ -457,6 +457,10 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
             extra_books = {int(x) for x in rd.query.get('extra_books', '').split(',')}
         except Exception:
             extra_books = ()
+        if extra_books:
+            # Do not return metadata for books hidden by the user's library restriction
+            allowed_book_ids = ctx.allowed_book_ids(rd, db)
+            extra_books = {book_id for book_id in extra_books if book_id in allowed_book_ids}
         for coll in (ans['search_result']['book_ids'], extra_books):
             for book_id in coll:
                 if book_id not in mdata:
