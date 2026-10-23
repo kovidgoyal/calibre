@@ -60,6 +60,14 @@ def set_quit():
     builtins.exit = _sitebuiltins.Quitter('exit', eof)
 
 
+def exit_code(ret: object) -> int:
+    # Entry points may return None or arbitrary non-numeric objects, only
+    # integers (including bools) are meaningful as process exit codes
+    if isinstance(ret, int):
+        return int(ret)
+    return 0
+
+
 def main():
     sys.meta_path.insert(0, PydImporter())
     os.add_dll_directory(os.path.abspath(os.path.join(sys.app_dir, 'app', 'bin')))
@@ -80,7 +88,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        ret = main()
     except Exception:
         if sys.gui_app and sys.excepthook == sys.__excepthook__:
             import traceback
@@ -90,3 +98,4 @@ if __name__ == '__main__':
                 f"Unhandled exception running {sys.calibre_basename}",
                 traceback.format_exc())
         raise
+    sys.exit(exit_code(ret))

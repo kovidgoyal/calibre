@@ -23,6 +23,14 @@ def set_quit():
     builtins.exit = _sitebuiltins.Quitter('exit', eof)
 
 
+def exit_code(ret: object) -> int:
+    # Entry points may return None or arbitrary non-numeric objects, only
+    # integers (including bools) are meaningful as process exit codes
+    if isinstance(ret, int):
+        return int(ret)
+    return 0
+
+
 def main():
     sys.argv[0] = sys.calibre_basename
     set_helper()
@@ -39,4 +47,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(exit_code(main()))
