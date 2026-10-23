@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+import sys
+
 from calibre import prints
 from calibre.db.restore import Restore
 from calibre.utils.localization import _
@@ -28,6 +30,9 @@ WARNING: This command completely regenerates your database. You will lose
 all saved searches, user categories, plugboards, stored per-book conversion
 settings, and custom recipes. Restored metadata will only be as accurate as
 what is found in the OPF files.
+
+The exit status is 0 if the restore succeeded, 1 if it failed completely and
+2 if the database was restored but some books or other data could not be.
     '''
         )
     )
@@ -62,14 +67,16 @@ def main(opts, args, dbctx):
     r.join()
 
     if r.tb is not None:
-        prints('Restoring database failed with error:')
-        prints(r.tb)
-    else:
-        prints('Restoring database succeeded')
-        prints('old database saved as', r.olddb)
-        if r.errors_occurred:
-            name = 'calibre_db_restore_report.txt'
-            open('calibre_db_restore_report.txt', 'wb').write(r.report.encode('utf-8'))
-            prints('Some errors occurred. A detailed report was saved to', name)
+        prints('Restoring database failed with error:', file=sys.stderr)
+        prints(r.tb, file=sys.stderr)
+        return 1
 
+    prints('Restoring database succeeded')
+    prints('old database saved as', r.olddb)
+    if r.errors_occurred:
+        name = 'calibre_db_restore_report.txt'
+        with open(name, 'wb') as f:
+            f.write(r.report.encode('utf-8'))
+        prints('Some errors occurred. A detailed report was saved to', name, file=sys.stderr)
+        return 2
     return 0
