@@ -22,21 +22,10 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#ifdef _WIN32
-#define ORT_DLL_IMPORT
-#endif
-// The OrtApi is initialized in exec_module() so that a mismatched
-// onnxruntime library is reported as an error instead of crashing
-#define ORT_API_MANUAL_INIT
-#include <onnxruntime_cxx_api.h>
-#undef ORT_API_MANUAL_INIT
-#include <onnxruntime_session_options_config_keys.h>
-// Querying which execution provider each node of the model is assigned to
-#define HAS_EP_ASSIGNMENT_INFO (ORT_API_VERSION >= 24)
-#if __has_include(<dml_provider_factory.h>)
-#include <dml_provider_factory.h>
-#define HAS_DML_HEADERS
-#endif
+#include "../onnx_common.h"
+
+using calibre_ort::NodeCounts;
+using calibre_ort::OrtPath;
 
 #define CLAUSE_INTONATION_FULL_STOP 0x00000000
 #define CLAUSE_INTONATION_COMMA 0x00001000
@@ -88,14 +77,11 @@ static std::vector<float> current_style;
 // The Env must outlive all sessions created with it
 static std::unique_ptr<Ort::Env> ort_env;
 std::unique_ptr<Ort::Session> session;
-static std::basic_string<ORTCHAR_T> current_model_path;
+static OrtPath current_model_path;
 // The execution provider used by session, empty when session uses only the CPU
 static std::string active_provider;
 // Number of nodes of the model run by the provider used by session and the
 // total number of nodes. Both are zero if this information is unavailable.
-struct NodeCounts {
-    size_t on_provider = 0, total = 0;
-};
 static NodeCounts active_node_counts;
 static bool use_gpu = false;
 // Providers that failed to load or run a model, these are not tried again
@@ -112,22 +98,6 @@ now() {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-// Hardware accelerated execution providers in order of preference. Only
-// providers that append_execution_provider() knows how to add are listed.
-static const std::vector<std::string> PRIORITY_ORDER = {
-#ifdef _WIN32
-    "DmlExecutionProvider", // DirectML, any GPU on Windows
-#endif
-#ifdef __APPLE__
-    "CoreMLExecutionProvider",
-#endif
-    "MIGraphXExecutionProvider", // AMD GPU
-    "ROCMExecutionProvider",     // AMD GPU, removed from onnxruntime >= 1.23 in favor of MIGraphX
-    "TensorRTExecutionProvider",
-    "CUDAExecutionProvider",     // NVIDIA GPU
-    "OpenVINOExecutionProvider", // Intel GPU and CPU
-};
-
 static Ort::Env &
 get_ort_env() {
     if (!ort_env) {
@@ -137,82 +107,16 @@ get_ort_env() {
     return *ort_env;
 }
 
-// Return the accelerated providers present in this build of onnxruntime, in
-// priority order. Raises Ort::Exception on failure.
-static std::vector<std::string>
-accelerated_providers() {
-    std::vector<std::string> ans;
-    const std::vector<std::string> available = Ort::GetAvailableProviders();
-    for (const std::string &p : PRIORITY_ORDER) {
-        if (std::find(available.begin(), available.end(), p) != available.end()) ans.push_back(p);
-    }
-    return ans;
-}
-
-// Raises an exception if the provider cannot be added
-static void
-append_execution_provider(Ort::SessionOptions &opts, const std::string &name) {
-    if (name == "CUDAExecutionProvider") {
-        Ort::CUDAProviderOptions o;
-        opts.AppendExecutionProvider_CUDA_V2(*o);
-    } else if (name == "TensorRTExecutionProvider") {
-        Ort::TensorRTProviderOptions o;
-        opts.AppendExecutionProvider_TensorRT_V2(*o);
-    } else if (name == "MIGraphXExecutionProvider") {
-        // This struct has no constructor, so set the documented defaults
-        OrtMIGraphXProviderOptions o{};
-        o.migraphx_mem_limit = SIZE_MAX;
-        opts.AppendExecutionProvider_MIGraphX(o);
-    } else if (name == "ROCMExecutionProvider") {
-        OrtROCMProviderOptions o;
-        opts.AppendExecutionProvider_ROCM(o);
-    } else if (name == "DmlExecutionProvider") {
-#ifdef HAS_DML_HEADERS
-        const OrtDmlApi *dml_api = nullptr;
-        Ort::ThrowOnError(Ort::GetApi().GetExecutionProviderApi("DML", ORT_API_VERSION, reinterpret_cast<const void **>(&dml_api)));
-        Ort::ThrowOnError(dml_api->SessionOptionsAppendExecutionProvider_DML(opts, 0));
-#else
-        throw std::runtime_error("calibre was built without the DirectML headers");
-#endif
-    } else if (name == "CoreMLExecutionProvider" || name == "OpenVINOExecutionProvider") {
-        // These are the only providers in PRIORITY_ORDER that the generic API supports
-        opts.AppendExecutionProvider(name, std::unordered_map<std::string, std::string>{});
-    } else {
-        throw std::runtime_error("Unsupported execution provider: " + name);
-    }
-}
-
 // Create a session that uses the specified provider, or only the CPU if
 // provider is empty. Raises an exception on failure.
 static std::unique_ptr<Ort::Session>
-create_session(const std::basic_string<ORTCHAR_T> &model_path, const std::string &provider) {
+create_session(const OrtPath &model_path, const std::string &provider) {
     // The Env must exist before providers are appended as they use its logger
     Ort::Env &env = get_ort_env();
     Ort::SessionOptions opts;
     opts.DisableCpuMemArena();
-    opts.DisableMemPattern(); // required by DirectML
-    opts.DisableProfiling();
-    opts.SetExecutionMode(ExecutionMode::ORT_SEQUENTIAL); // required by DirectML
-#if HAS_EP_ASSIGNMENT_INFO
-    opts.AddConfigEntry(kOrtSessionOptionsRecordEpGraphAssignmentInfo, "1");
-#endif
-    if (!provider.empty()) append_execution_provider(opts, provider);
+    calibre_ort::configure_session_options(opts, provider);
     return std::make_unique<Ort::Session>(env, model_path.c_str(), opts);
-}
-
-// Count the nodes of the model assigned to the specified provider. Raises an
-// exception on failure.
-static NodeCounts
-count_nodes(const Ort::Session &s, const std::string &provider) {
-    NodeCounts ans;
-#if HAS_EP_ASSIGNMENT_INFO
-    for (const auto &subgraph : s.GetEpGraphAssignmentInfo()) {
-        const size_t n = subgraph.GetNodes().size();
-        ans.total += n;
-        if (subgraph.GetEpName() == provider) ans.on_provider += n;
-    }
-#endif
-    return ans;
 }
 
 // Run a Piper model on a list of phoneme ids. Raises an exception on failure.
@@ -330,7 +234,7 @@ struct LoadResult {
 // back to only the CPU. Does not use any Python APIs so can be called without
 // the GIL.
 static LoadResult
-load_model(const std::basic_string<ORTCHAR_T> &model_path, const std::vector<std::string> &providers) {
+load_model(const OrtPath &model_path, const std::vector<std::string> &providers) {
     LoadResult ans;
     long long st;
     if (PRINT_TIMING_INFORMATION) st = now();
@@ -339,7 +243,7 @@ load_model(const std::basic_string<ORTCHAR_T> &model_path, const std::vector<std
             std::unique_ptr<Ort::Session> s = create_session(model_path, p);
             // Providers silently leave nodes they do not support to the CPU,
             // some, such as MIGraphX, leave the entire model to the CPU.
-            NodeCounts counts = count_nodes(*s, p);
+            NodeCounts counts = calibre_ort::count_nodes(*s, p);
             if (counts.total > 0 && counts.on_provider == 0)
                 throw std::runtime_error("none of the operations in this model are supported by this execution provider");
             std::vector<PhonemeId> ids = warmup_ids();
@@ -353,7 +257,7 @@ load_model(const std::basic_string<ORTCHAR_T> &model_path, const std::vector<std
     if (!ans.session) {
         try {
             ans.session = create_session(model_path, "");
-            ans.node_counts = count_nodes(*ans.session, "CPUExecutionProvider");
+            ans.node_counts = calibre_ort::count_nodes(*ans.session, "CPUExecutionProvider");
         } catch (const std::exception &e) {
             ans.session.reset();
             ans.error = e.what();
@@ -379,7 +283,7 @@ load_session() {
     std::vector<std::string> providers;
     if (use_gpu) {
         try {
-            providers = accelerated_providers();
+            providers = calibre_ort::accelerated_providers();
         } catch (const std::exception &e) {
             PyErr_Format(PyExc_OSError, "Failed to query onnxruntime for available execution providers: %s", e.what());
             return false;
@@ -618,16 +522,8 @@ set_voice(PyObject *self, PyObject *args) {
     Py_CLEAR(map);
     if (PyErr_Occurred()) return NULL;
 
-#ifdef _WIN32
-    wchar_t *model_path_buf = PyUnicode_AsWideCharString(pymp, NULL);
-    if (!model_path_buf) return NULL;
-    std::basic_string<ORTCHAR_T> model_path(model_path_buf);
-    PyMem_Free(model_path_buf);
-#else
-    const char *model_path_buf = PyUnicode_AsUTF8(pymp);
-    if (!model_path_buf) return NULL;
-    std::basic_string<ORTCHAR_T> model_path(model_path_buf);
-#endif
+    OrtPath model_path;
+    if (!calibre_ort::path_from_python(pymp, model_path)) return NULL;
     current_style = std::move(style);
     // A Kokoro model is shared by all its voices, so switching between them
     // does not require loading the model again
@@ -787,7 +683,7 @@ next(PyObject *self, PyObject *args) {
             provider_error = e.what();
             try {
                 cpu_session = create_session(current_model_path, "");
-                cpu_node_counts = count_nodes(*cpu_session, "CPUExecutionProvider");
+                cpu_node_counts = calibre_ort::count_nodes(*cpu_session, "CPUExecutionProvider");
                 output_tensors = run_inference(*cpu_session, next_ids);
             } catch (const std::exception &cpu_err) { error = cpu_err.what(); }
         }
@@ -871,7 +767,7 @@ static PyObject *
 gpu_providers(PyObject *self, PyObject *args) {
     std::vector<std::string> providers;
     try {
-        providers = accelerated_providers();
+        providers = calibre_ort::accelerated_providers();
     } catch (const std::exception &e) {
         PyErr_Format(PyExc_OSError, "Failed to query onnxruntime for available execution providers: %s", e.what());
         return NULL;
@@ -892,11 +788,7 @@ gpu_providers(PyObject *self, PyObject *args) {
 static PyObject *
 current_backend(PyObject *self, PyObject *args) {
     if (session.get() == NULL) Py_RETURN_NONE;
-#ifdef _WIN32
-    PyObject *mp = PyUnicode_FromWideChar(current_model_path.c_str(), current_model_path.size());
-#else
-    PyObject *mp = PyUnicode_DecodeFSDefaultAndSize(current_model_path.c_str(), current_model_path.size());
-#endif
+    PyObject *mp = calibre_ort::path_to_python(current_model_path);
     if (!mp) return NULL;
     return Py_BuildValue(
         "Nsnn",
@@ -957,18 +849,7 @@ static PyMethodDef methods[] = {
 
 static int
 exec_module(PyObject *mod) {
-    const OrtApiBase *base = OrtGetApiBase();
-    const OrtApi *api = base ? base->GetApi(ORT_API_VERSION) : NULL;
-    if (!api) {
-        PyErr_Format(
-            PyExc_ImportError,
-            "The loaded onnxruntime library (version: %s) does not support the API version %d this module was built with",
-            base ? base->GetVersionString() : "unknown",
-            ORT_API_VERSION);
-        return -1;
-    }
-    Ort::InitApi(api);
-    return 0;
+    return calibre_ort::init_ort_api() ? 0 : -1;
 }
 
 static PyModuleDef_Slot slots[] = {{Py_mod_exec, (void *)exec_module}, {0, NULL}};

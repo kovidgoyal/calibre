@@ -171,6 +171,14 @@ class BuildTest(unittest.TestCase):
 
         simple_test()
 
+    def test_seq2seq(self):
+        from calibre_extensions.seq2seq import Seq2SeqModel, gpu_providers, onnxruntime_version
+
+        self.assertTrue(onnxruntime_version())
+        self.assertIsInstance(gpu_providers(), tuple)
+        with self.assertRaises(OSError):
+            Seq2SeqModel('/nonexistent/encoder.onnx', '/nonexistent/decoder.onnx')
+
     def test_zeroconf(self):
         import ifaddr
         import zeroconf as z

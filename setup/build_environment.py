@@ -156,6 +156,7 @@ uchardet_inc_dirs, uchardet_lib_dirs, uchardet_libs = [], [], ['uchardet']
 openssl_inc_dirs, openssl_lib_dirs = [], []
 
 piper_inc_dirs, piper_lib_dirs, piper_libs = [], [], []
+onnx_inc_dirs, onnx_lib_dirs, onnx_libs = [], [], []
 
 ICU = sw = ''
 
@@ -186,6 +187,9 @@ if iswindows:
     piper_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
     piper_lib_dirs = [sw_lib_dir]
     piper_libs = ['espeak-ng', 'onnxruntime']
+    onnx_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
+    onnx_lib_dirs = [sw_lib_dir]
+    onnx_libs = ['onnxruntime']
     libavif_inc_dirs = [sw_inc_dir]
     libavif_lib_dirs = [sw_lib_dir]
     libavif_libs = ['avif']
@@ -211,6 +215,9 @@ elif ismacos:
     piper_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
     piper_lib_dirs = [sw_lib_dir]
     piper_libs = ['espeak-ng', 'onnxruntime']
+    onnx_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
+    onnx_lib_dirs = [sw_lib_dir]
+    onnx_libs = ['onnxruntime']
     libavif_inc_dirs = [sw_inc_dir]
     libavif_lib_dirs = [sw_lib_dir]
     libavif_libs = ['avif']
@@ -235,6 +242,9 @@ else:
     piper_inc_dirs = pkgconfig_include_dirs('espeak-ng', '', '/usr/include') + pkgconfig_include_dirs('libonnxruntime', '', '/usr/include/onnxruntime')
     piper_lib_dirs = pkgconfig_lib_dirs('espeak-ng', '', '/usr/lib') + pkgconfig_lib_dirs('libonnxruntime', '', '/usr/lib')
     piper_libs = pkgconfig_libs('espeak-ng', '', 'espeak-ng') + pkgconfig_libs('libonnxruntime', '', 'onnxruntime')
+    onnx_inc_dirs = pkgconfig_include_dirs('libonnxruntime', '', '/usr/include/onnxruntime')
+    onnx_lib_dirs = pkgconfig_lib_dirs('libonnxruntime', '', '/usr/lib')
+    onnx_libs = pkgconfig_libs('libonnxruntime', '', 'onnxruntime')
     libavif_inc_dirs = pkgconfig_include_dirs('libavif', 'LIBAVIF_INC_DIR', '/usr/include')
     libavif_lib_dirs = pkgconfig_lib_dirs('libavif', 'LIBAVIF_LIB_DIR', '/usr/lib')
     libavif_libs = pkgconfig_libs('libavif', '', 'avif')

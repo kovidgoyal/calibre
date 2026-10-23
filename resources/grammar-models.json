@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "defaults": {
+    "check": {
+      "en": "gec-t5-small"
+    },
+    "suggest": {
+      "en": "coedit-large"
+    }
+  },
+  "models": {
+    "gec-t5-small": {
+      "name": "GEC T5 small",
+      "description": "A small, fast model for detecting and correcting grammatical errors in English",
+      "source": "https://huggingface.co/Unbabel/gec-t5_small",
+      "license": "Apache-2.0 (the model was trained on the cLang-8 dataset, which is licensed for non-commercial use only)",
+      "attribution": "Unbabel, based on \"A Simple Recipe for Multilingual Grammatical Error Correction\" by Rothe et al.",
+      "languages": [
+        "en"
+      ],
+      "prompts": {
+        "check": "gec: "
+      },
+      "max_length": 256,
+      "auto_gpu": false,
+      "decoder_start_token_id": 0,
+      "eos_token_id": 1,
+      "pad_token_id": 0,
+      "variants": {
+        "cpu": {
+          "encoder": {
+            "url": "https://huggingface.co/TonyRaju/gec-t5-small-coedit-onnx-int8/resolve/1b76cab579f033f1da0e6c98557beeab5d33dd5b/encoder_model.onnx",
+            "sha256": "19d8dfa93feda7791e101382d3159d427ca18b0dff1e901133ff0a5c2004569d",
+            "size": 35510133
+          },
+          "decoder": {
+            "url": "https://huggingface.co/TonyRaju/gec-t5-small-coedit-onnx-int8/resolve/1b76cab579f033f1da0e6c98557beeab5d33dd5b/decoder_model.onnx",
+            "sha256": "b1affe3d212b97750432487b462f360a56d0bb87199b8c214659fab5b1936b2e",
+            "size": 58417531
+          },
+          "decoder_with_past": {
+            "url": "https://huggingface.co/TonyRaju/gec-t5-small-coedit-onnx-int8/resolve/1b76cab579f033f1da0e6c98557beeab5d33dd5b/decoder_with_past_model.onnx",
+            "sha256": "c7fa63bf198de6c14699e8ad2390f7ef20fba65f518e8dbe5eff78cfca385f82",
+            "size": 55245124
+          },
+          "tokenizer": {
+            "url": "https://huggingface.co/TonyRaju/gec-t5-small-coedit-onnx-int8/resolve/1b76cab579f033f1da0e6c98557beeab5d33dd5b/tokenizer.json",
+            "sha256": "5a1e6d0393c72d2c17483eddef327a7090c9a51989f8f2ebc52d5322dcbcacac",
+            "size": 2422434
+          }
+        },
+        "gpu": {
+          "encoder": {
+            "url": "https://huggingface.co/JonaWhisper/jonawhisper-gec-t5-small-onnx/resolve/240e0e34d7638690212367d9ecfcd501c9327cc9/encoder_model.onnx",
+            "sha256": "1c792e61a27fcff8e88ea0b3f92f2d4e20a29e28ecbdb1bf2f71810767c8c918",
+            "size": 141410256
+          },
+          "decoder": {
+            "url": "https://huggingface.co/JonaWhisper/jonawhisper-gec-t5-small-onnx/resolve/240e0e34d7638690212367d9ecfcd501c9327cc9/decoder_model.onnx",
+            "sha256": "6f10c71fc1aba056632c4b3c7020064a3c917ac0e5497c949b1b04dcfe4616a4",
+            "size": 232488063
+          },
+          "tokenizer": {
+            "url": "https://huggingface.co/JonaWhisper/jonawhisper-gec-t5-small-onnx/resolve/240e0e34d7638690212367d9ecfcd501c9327cc9/tokenizer.json",
+            "sha256": "5a1e6d0393c72d2c17483eddef327a7090c9a51989f8f2ebc52d5322dcbcacac",
+            "size": 2422434
+          },
+          "decoder_with_past": null
+        }
+      }
+    },
+    "coedit-large": {
+      "name": "CoEdIT large",
+      "description": "A large model for rewriting English sentences to fix grammar, or make them more fluent, clearer, simpler or more formal",
+      "source": "https://huggingface.co/grammarly/coedit-large",
+      "license": "CC-BY-NC-4.0 (non-commercial use only)",
+      "attribution": "Grammarly, from \"CoEdIT: Text Editing by Task-Specific Instruction Tuning\" by Raheja et al.",
+      "languages": [
+        "en"
+      ],
+      "prompts": {
+        "check": "Fix grammatical errors in this sentence: ",
+        "grammar": "Fix grammatical errors in this sentence: ",
+        "fluency": "Make this sentence fluent: ",
+        "clarity": "Make this sentence clearer: ",
+        "simplify": "Write a simpler version for the sentence: ",
+        "formal": "Make the sentence more formal: ",
+        "paraphrase": "Paraphrase this sentence: "
+      },
+      "max_length": 256,
+      "auto_gpu": true,
+      "decoder_start_token_id": 0,
+      "eos_token_id": 1,
+      "pad_token_id": 0,
+      "variants": {
+        "cpu": {
+          "encoder": {
+            "url": "https://huggingface.co/rayliuca/coedit-large-onnx-quantized/resolve/df89602e624c29e2bfc9e411a122c4c2088f1517/encoder_model_quantized.onnx",
+            "sha256": "5c1c4b4782c974924d12e3473ffdd775f71a1640821fa1d65e3539856e5e381c",
+            "size": 342154360
+          },
+          "decoder": {
+            "url": "https://huggingface.co/rayliuca/coedit-large-onnx-quantized/resolve/df89602e624c29e2bfc9e411a122c4c2088f1517/decoder_model_quantized.onnx",
+            "sha256": "941c3800d9e1be3ab7b4f268ae7e9755a8eb82b282f7be30e8859ffcc75fa54e",
+            "size": 476496151
+          },
+          "decoder_with_past": {
+            "url": "https://huggingface.co/rayliuca/coedit-large-onnx-quantized/resolve/df89602e624c29e2bfc9e411a122c4c2088f1517/decoder_with_past_model_quantized.onnx",
+            "sha256": "f168a49454e520df8646e76320a976d2da0601eda2d0ad5bfd4eb3270d030241",
+            "size": 426022544
+          },
+          "tokenizer": {
+            "url": "https://huggingface.co/rayliuca/coedit-large-onnx-quantized/resolve/df89602e624c29e2bfc9e411a122c4c2088f1517/tokenizer.json",
+            "sha256": "8c3804f01b141a4f28649b2ff899f7eb3bedad28fd898f8c38b7dbc70db700bf",
+            "size": 2422332
+          }
+        },
+        "gpu": {
+          "encoder": {
+            "url": "https://huggingface.co/imrahamed/coedit-large-webgpu-onnx/resolve/0ca35bb9227094c329ee4e30f5de0dce597dfa20/onnx/encoder_model.onnx",
+            "sha256": "bc7d5ce263326f556e378ae9ef88451061d3a964780039c922913af3df480985",
+            "size": 1365024349
+          },
+          "decoder": {
+            "url": "https://huggingface.co/imrahamed/coedit-large-webgpu-onnx/resolve/0ca35bb9227094c329ee4e30f5de0dce597dfa20/onnx/decoder_model_merged.onnx",
+            "sha256": "986569ad02e54e956438e589a94d9456563a9d440c035d12fe1faa2cbac56b9f",
+            "size": 1899937453
+          },
+          "tokenizer": {
+            "url": "https://huggingface.co/imrahamed/coedit-large-webgpu-onnx/resolve/0ca35bb9227094c329ee4e30f5de0dce597dfa20/tokenizer.json",
+            "sha256": "8c3804f01b141a4f28649b2ff899f7eb3bedad28fd898f8c38b7dbc70db700bf",
+            "size": 2422332
+          },
+          "decoder_with_past": null
+        }
+      }
+    }
+  }
+}

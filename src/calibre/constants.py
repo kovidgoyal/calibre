@@ -273,6 +273,7 @@ class ExtensionsImporter:
             'icu',
             'speedup',
             'piper',
+            'seq2seq',
             'html_as_json',
             'fast_css_transform',
             'translator',

@@ -138,10 +138,20 @@
     {
         "name": "piper",
         "sources": "calibre/utils/tts/piper.cpp",
+        "headers": "calibre/utils/onnx_common.h",
 		"needs_c++": "17",
         "libraries": "!piper_libs",
         "lib_dirs": "!piper_lib_dirs",
         "inc_dirs": "!piper_inc_dirs"
+    },
+    {
+        "name": "seq2seq",
+        "sources": "calibre/utils/grammar/seq2seq.cpp",
+        "headers": "calibre/utils/onnx_common.h",
+        "needs_c++": "17",
+        "libraries": "!onnx_libs",
+        "lib_dirs": "!onnx_lib_dirs",
+        "inc_dirs": "!onnx_inc_dirs"
     },
     {
         "name": "html_as_json",
