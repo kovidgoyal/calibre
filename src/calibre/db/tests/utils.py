@@ -28,6 +28,32 @@ class UtilsTest(BaseTest):
             total += sz
         return total
 
+    def test_thumbnail_cache_invalidate_before_load(self):
+        c = self.init_tc()
+        self.basic_fill(c)
+        c.set_group_id('other')
+        self.basic_fill(c)
+        c.shutdown()
+
+        c = self.init_tc()
+        c.invalidate((1, 2))
+        c.invalidate(())
+        c.invalidate((3,))
+        c.set_group_id('other')
+        c.invalidate((1,))
+        self.assertFalse(hasattr(c, 'total_size'), 'invalidate loaded the index')
+
+        for group, invalidated in (('group', (1, 2, 3)), ('other', (1,))):
+            c.set_group_id(group)
+            for book_id in range(1, 6):
+                with self.subTest(group=group, book_id=book_id):
+                    if book_id in invalidated:
+                        self.assertEqual(c[book_id], (None, None))
+                    else:
+                        self.assertEqual(c[book_id], ((f'{book_id}' * (book_id * 1000)).encode('ascii'), book_id))
+        self.assertEqual(len(c), 6)
+        self.assertEqual(c.current_size, 23000)
+
     def test_thumbnail_cache(self):  # {{{
         "Test the operation of the thumbnail cache"
         c = self.init_tc()
