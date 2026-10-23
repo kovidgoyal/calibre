@@ -293,7 +293,7 @@ class Command:
             return
         venv_dir = self.j(self.PROJECT_ROOT, '.venv')
         if not self.e(venv_dir):
-            subprocess.check_call(['uv', 'venv'], cwd=self.PROJECT_ROOT)
+            subprocess.check_call(['uv', 'venv', '--relocatable'], cwd=self.PROJECT_ROOT)
         deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml', '--group', 'dev'], cwd=self.PROJECT_ROOT)
         subprocess.run(['uv', 'pip', 'sync', '-'], check=True, input=deps, cwd=self.PROJECT_ROOT)
         self._venv_instaled = True
