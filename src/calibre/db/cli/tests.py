@@ -191,19 +191,11 @@ class RestoreDatabaseTest(BaseTest):
             f.write(b'not an opf')
 
     def run_restore(self):
-        from calibre.db.cli.cmd_restore_database import main, option_parser
-        from calibre.db.cli.main import get_parser
+        from calibre.db.cli.main import main
 
-        library_path = self.library_path
-
-        class DBCtx:
-            def __init__(self):
-                self.library_path = library_path
-
-        opts, args = option_parser(get_parser, []).parse_args(['--really-do-it'])
-        with redirect_stdout(StringIO()) as out, redirect_stderr(StringIO()) as err:
-            ret = main(opts, args, DBCtx())
-        return ret, out.getvalue(), err.getvalue()
+        with redirect_stdout(StringIO()) as out, redirect_stderr(StringIO()) as err, self.assertRaises(SystemExit) as status:
+            main(['calibredb', 'restore_database', '--really-do-it', '--with-library', self.library_path])
+        return status.exception.code, out.getvalue(), err.getvalue()
 
     def restored_titles(self):
         cache = self.init_cache()

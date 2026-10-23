@@ -271,7 +271,7 @@ def main(args=sys.argv):
     parser = option_parser_for(cmd, args[1:])()
     opts, args = parser.parse_args(args)
     with DBCtx(opts, parser) as dbctx:
-        return run_cmd(cmd, opts, args[1:], dbctx)
+        raise SystemExit(run_cmd(cmd, opts, args[1:], dbctx))
 
 
 if __name__ == '__main__':
