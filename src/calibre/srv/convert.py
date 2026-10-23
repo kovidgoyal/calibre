@@ -3,6 +3,7 @@
 
 import json as stdlib_json
 import os
+import reprlib
 import shutil
 import tempfile
 from threading import Lock
@@ -205,15 +206,29 @@ def start_conversion(ctx, rd, book_id):
     db, library_id = get_library_data(ctx, rd)[:2]
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
-    data = stdlib_json.loads(rd.request_body_file.read())
-    input_fmt = data['input_fmt']
+    try:
+        data = stdlib_json.loads(rd.request_body_file.read())
+    except ValueError as err:
+        raise HTTPBadRequest(f'Invalid conversion request: {err}')
+    if not isinstance(data, dict):
+        raise HTTPBadRequest('Invalid conversion request: must be a JSON object')
+    if not isinstance(data.setdefault('options', {}), dict):
+        raise HTTPBadRequest('Invalid conversion request: options must be a JSON object')
+    # input_fmt is used to build the path of the source file, so it must be
+    # one of the formats the book actually has, not an arbitrary string
+    input_fmt = data.get('input_fmt')
+    if not isinstance(input_fmt, str):
+        raise HTTPBadRequest(f'Unsupported input format: {reprlib.repr(input_fmt)}')
     if is_recipe_fmt(input_fmt):
         raise HTTPForbidden('Converting recipe files is not allowed, as they allow code execution')
+    input_fmt = data['input_fmt'] = input_fmt.upper()
+    if input_fmt not in db.formats(book_id):
+        raise HTTPBadRequest(f'Unsupported input format: {reprlib.repr(input_fmt)}')
     # output_fmt is used to build the path the worker writes to, so it must be
     # the name of an actual output format, not an arbitrary string
     output_fmt = data.get('output_fmt')
     if not isinstance(output_fmt, str) or output_fmt.lower() not in available_output_formats():
-        raise HTTPBadRequest(f'Unsupported output format: {output_fmt!r}')
+        raise HTTPBadRequest(f'Unsupported output format: {reprlib.repr(output_fmt)}')
     data['output_fmt'] = output_fmt.lower()
     job_id = queue_job(ctx, rd, library_id, db, input_fmt, book_id, data)
     return job_id
