@@ -406,7 +406,7 @@ class ThumbnailCache:
                     self._remove((self.group_id, book_id))
             elif os.path.exists(self.location):
                 try:
-                    raw = '\n'.join(f'{self.group_id} {book_id}' for book_id in book_ids)
+                    raw = ''.join(f'{self.group_id} {book_id}\n' for book_id in book_ids)
                     with open(os.path.join(self.location, 'invalidate'), 'ab') as f:
                         f.write(raw.encode('ascii'))
                 except OSError as err:
