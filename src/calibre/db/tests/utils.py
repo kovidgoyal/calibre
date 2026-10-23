@@ -35,15 +35,21 @@ class UtilsTest(BaseTest):
         self.basic_fill(c)
         c.shutdown()
 
+        # Simulate a record left behind by an older version of calibre that
+        # did not terminate records with a newline
+        invalidate_path = os.path.join(self.tdir, '1', 'invalidate')
+        with open(invalidate_path, 'wb') as f:
+            f.write(b'group 4')
         c = self.init_tc()
         c.invalidate((1, 2))
         c.invalidate(())
         c.invalidate((3,))
         c.set_group_id('other')
         c.invalidate((1,))
-        self.assertFalse(hasattr(c, 'total_size'), 'invalidate loaded the index')
+        with open(invalidate_path, 'rb') as f:
+            self.assertEqual(f.read(), b'group 4\ngroup 1\ngroup 2\n\ngroup 3\n\nother 1\n', 'invalidate loaded the index')
 
-        for group, invalidated in (('group', (1, 2, 3)), ('other', (1,))):
+        for group, invalidated in (('group', (1, 2, 3, 4)), ('other', (1,))):
             c.set_group_id(group)
             for book_id in range(1, 6):
                 with self.subTest(group=group, book_id=book_id):
@@ -51,8 +57,9 @@ class UtilsTest(BaseTest):
                         self.assertEqual(c[book_id], (None, None))
                     else:
                         self.assertEqual(c[book_id], ((f'{book_id}' * (book_id * 1000)).encode('ascii'), book_id))
-        self.assertEqual(len(c), 6)
-        self.assertEqual(c.current_size, 23000)
+        self.assertFalse(os.path.exists(invalidate_path))
+        self.assertEqual(len(c), 5)
+        self.assertEqual(c.current_size, 19000)
 
     def test_thumbnail_cache(self):  # {{{
         "Test the operation of the thumbnail cache"

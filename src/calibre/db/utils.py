@@ -203,18 +203,17 @@ class ThumbnailCache:
             try:
                 os.remove(os.path.join(self.location, 'invalidate'))
             except OSError as err:
+                # Still apply the invalidations, it is better to regenerate a
+                # few thumbnails than to show stale ones
                 self.log('Failed to remove thumbnail invalidate data:', as_unicode(err))
-            else:
-
-                def record(line):
-                    try:
-                        uuid, book_id = line.partition(' ')[0::2]
-                        book_id = int(book_id)
-                        return uuid, book_id
-                    except Exception:
-                        return None
-
-                invalidate = {record(x) for x in raw.splitlines()}
+            for line in raw.splitlines():
+                if not line:
+                    continue
+                uuid, book_id = line.partition(' ')[0::2]
+                try:
+                    invalidate.add((uuid, int(book_id)))
+                except ValueError:
+                    self.log('Ignoring invalid thumbnail invalidate record:', repr(line))
         items = {}
         try:
             for entry in entries:
@@ -404,9 +403,12 @@ class ThumbnailCache:
             if hasattr(self, 'total_size'):
                 for book_id in book_ids:
                     self._remove((self.group_id, book_id))
-            elif os.path.exists(self.location):
+            elif book_ids and os.path.exists(self.location):
                 try:
-                    raw = ''.join(f'{self.group_id} {book_id}\n' for book_id in book_ids)
+                    # The leading newline ensures records are separated even
+                    # if the file was written by an older version of calibre
+                    # that did not terminate the last record with a newline
+                    raw = ''.join(f'\n{self.group_id} {book_id}' for book_id in book_ids) + '\n'
                     with open(os.path.join(self.location, 'invalidate'), 'ab') as f:
                         f.write(raw.encode('ascii'))
                 except OSError as err:
