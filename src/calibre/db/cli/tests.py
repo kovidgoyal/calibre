@@ -6,12 +6,14 @@ Test the CLI of the calibre database management tool
 """
 
 import csv
+import os
 import unittest
 from contextlib import redirect_stdout
 from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
 from calibre.db.cli.cmd_list_categories import do_list
+from calibre.db.cli.cmd_restore_database import main as restore_database
 from calibre.db.tests.base import BaseTest
 from polyglot.io import PolyglotBytesIO
 
@@ -158,6 +160,35 @@ class FTSSearchTest(BaseTest):
         self.assertEqual(self.run_fts_search(db, 'test'), '')
 
 
+class RestoreDatabaseTest(BaseTest):
+    def prepare_restore_database(self):
+        from types import SimpleNamespace
+
+        db = self.init_cache()
+        db.dump_metadata()
+        db.close()
+        self.objects_to_close.remove(db)
+        return SimpleNamespace(really_do_it=True), SimpleNamespace(library_path=self.library_path)
+
+    def test_restore_database_failure_exit_status(self):
+        # A directory at the backup path makes the real restore fail.
+        os.mkdir(os.path.join(self.library_path, 'metadata_pre_restore.db'))
+        opts, dbctx = self.prepare_restore_database()
+        with redirect_stdout(StringIO()) as out, self.assertRaises(SystemExit) as error:
+            restore_database(opts, [], dbctx)
+        self.assertEqual(error.exception.code, 1)
+        self.assertIn('Restoring database failed with error:', out.getvalue())
+        self.assertNotIn('Restoring database succeeded', out.getvalue())
+
+    def test_restore_database_success_exit_status(self):
+        opts, dbctx = self.prepare_restore_database()
+        with redirect_stdout(StringIO()) as out:
+            status = restore_database(opts, [], dbctx)
+        self.assertEqual(status, 0)
+        self.assertIn('Restoring database succeeded', out.getvalue())
+        self.assertTrue(os.path.isfile(os.path.join(self.library_path, 'metadata_pre_restore.db')))
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -165,4 +196,5 @@ def find_tests():
         loader.loadTestsFromTestCase(ListCategoriesTest),
         loader.loadTestsFromTestCase(SetCustomTest),
         loader.loadTestsFromTestCase(FTSSearchTest),
+        loader.loadTestsFromTestCase(RestoreDatabaseTest),
     ))

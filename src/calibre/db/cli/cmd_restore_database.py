@@ -64,6 +64,7 @@ def main(opts, args, dbctx):
     if r.tb is not None:
         prints('Restoring database failed with error:')
         prints(r.tb)
+        raise SystemExit(1)
     else:
         prints('Restoring database succeeded')
         prints('old database saved as', r.olddb)
