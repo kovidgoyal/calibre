@@ -55,7 +55,7 @@
 
 - Amazon and Google Images metadata sources: Get them working again using camoufox
 
-- Various robustness and edge case improvements int he database backed around data files, notes and formats
+- Various robustness and edge case improvements in the database backed around data files, notes and formats
 
 - Fix various stale cached values for composite columns and searches after changing series, restoring formats from the trash and redefining saved searches
 
