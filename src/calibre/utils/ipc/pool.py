@@ -3,10 +3,10 @@
 
 import os
 import sys
-from collections import namedtuple
 from multiprocessing.connection import Pipe
 from queue import Queue
 from threading import Thread
+from typing import Any, NamedTuple
 
 from calibre import as_unicode, detect_ncpus, prints
 from calibre.constants import DEBUG, iswindows
@@ -15,11 +15,37 @@ from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
 
-Job = namedtuple('Job', 'id module func args kwargs')
-Result = namedtuple('Result', 'value err traceback')
-WorkerResult = namedtuple('WorkerResult', 'id result is_terminal_failure worker')
-TerminalFailure = namedtuple('TerminalFailure', 'message tb job_id')
-File = namedtuple('File', 'name')
+
+class Job(NamedTuple):
+    id: int
+    module: str
+    func: str
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
+
+
+class Result(NamedTuple):
+    value: Any | None
+    err: str | None
+    traceback: str | None
+
+
+class WorkerResult(NamedTuple):
+    id: int
+    result: Result
+    is_terminal_failure: bool
+    worker: Worker | None
+
+
+class TerminalFailure(NamedTuple):
+    message: str
+    tb: str
+    job_id: int | None
+
+
+class File(NamedTuple):
+    name: str
+
 
 MAX_SIZE = 30 * 1024 * 1024  # max size of data to send over the connection (old versions of windows cannot handle arbitrary data lengths)
 

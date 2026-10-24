@@ -3,18 +3,32 @@
 
 import os
 import time
-from collections import deque, namedtuple
+from collections import deque
+from collections.abc import Callable
 from functools import partial
 from itertools import count
 from queue import Empty, Queue
 from threading import Event, RLock, Thread
+from typing import Any, NamedTuple
 
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.monotonic import monotonic
 
-StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
-DoneEvent = namedtuple('DoneEvent', 'job_id')
+
+class StartEvent(NamedTuple):
+    job_id: int
+    name: str
+    module: str
+    function: str
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
+    callback: Callable[[], None] | None
+    data: Any | None
+
+
+class DoneEvent(NamedTuple):
+    job_id: int
 
 
 class Job(Thread):

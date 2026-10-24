@@ -280,7 +280,7 @@ class LoopTest(BaseTest):
         "Test the jobs manager"
         from calibre.srv.jobs import JobsManager
 
-        O = namedtuple('O', 'max_jobs max_job_time')
+        O = namedtuple('O', 'max_jobs max_job_time')  # ruff: ignore[collections-named-tuple]
 
         class FakeLog(list):
             def error(self, *args):

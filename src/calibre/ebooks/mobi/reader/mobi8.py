@@ -4,8 +4,8 @@
 import os
 import re
 import struct
-from collections import namedtuple
 from itertools import repeat
+from typing import Any, NamedTuple
 from urllib.parse import urldefrag
 from uuid import uuid4
 
@@ -23,11 +23,45 @@ from calibre.ebooks.oeb.base import XHTML, XPath, xml2text
 from calibre.ebooks.oeb.parse_utils import parse_html
 from polyglot.builtins import as_unicode
 
-Part = namedtuple('Part', 'num type filename start end aid')
 
-Elem = namedtuple('Elem', 'insert_pos toc_text file_number sequence_number start_pos length')
+class File(NamedTuple):
+    file_number: int
+    name: str
+    divtbl_count: int
+    start_position: int
+    length: int
 
-FlowInfo = namedtuple('FlowInfo', 'type format dir fname')
+
+class Elem(NamedTuple):
+    insert_pos: int
+    toc_text: str
+    file_number: int
+    sequence_number: int
+    start_pos: int
+    length: int
+
+
+class Part(NamedTuple):
+    num: int | None
+    type: str | None
+    filename: str | None
+    start: int | None
+    end: int | None
+    aid: str | None
+
+
+class FlowInfo(NamedTuple):
+    type: str | None
+    format: str | None
+    dir: str | None
+    fname: str | None
+
+
+class Item(NamedTuple):
+    type: str
+    title: str
+    pos_fid: Any
+
 
 # locate beginning and ending positions of tag with specific aid attribute
 
@@ -123,8 +157,6 @@ class Mobi8Reader:
         self.files = []
         if self.header.skelidx != NULL_INDEX:
             table = read_index(self.kf8_sections, self.header.skelidx, self.header.codec)[0]
-            File = namedtuple('File', 'file_number name divtbl_count start_position length')
-
             for i, text in enumerate(table):
                 tag_map = table[text]
                 self.files.append(File(i, text, tag_map[1][0], tag_map[6][0], tag_map[6][1]))
@@ -140,8 +172,6 @@ class Mobi8Reader:
         self.guide = []
         if self.header.othidx != NULL_INDEX:
             table, cncx = read_index(self.kf8_sections, self.header.othidx, self.header.codec)
-            Item = namedtuple('Item', 'type title pos_fid')
-
             for i, ref_type in enumerate(table):
                 tag_map = table[ref_type]
                 # ref_type, ref_title, div/frag number

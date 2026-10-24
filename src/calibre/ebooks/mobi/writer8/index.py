@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
-from collections import namedtuple
 from io import BytesIO
 from struct import pack
+from typing import NamedTuple
 
 from calibre.ebooks.mobi.utils import CNCX, align_block, encint
 from calibre.ebooks.mobi.writer8.header import Header
 
-TagMeta_ = namedtuple('TagMeta_', 'name number values_per_entry bitmask end_flag')
+
+class TagMeta_(NamedTuple):
+    name: str
+    number: int
+    values_per_entry: int
+    bitmask: int
+    end_flag: int
 
 
 def TagMeta(x):

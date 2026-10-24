@@ -7,9 +7,10 @@ import re
 import sys
 import time
 import uuid
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from hashlib import sha256
 from threading import Thread
+from typing import NamedTuple
 
 from qt.core import (
     QCursor,
@@ -77,8 +78,13 @@ def is_float(x):
 
 
 def dock_defs():
-    Dock = namedtuple('Dock', 'name title initial_area allowed_areas')
     ans = {}
+
+    class Dock(NamedTuple):
+        name: str
+        title: str
+        initial_area: Qt.DockWidgetArea
+        allowed_areas: Qt.DockWidgetArea
 
     def d(title, name, area, allowed=Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea):
         ans[name] = Dock(name + '-dock', title, area, allowed)

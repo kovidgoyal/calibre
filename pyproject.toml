@@ -208,7 +208,6 @@ ignore = [
     'ambiguous-variable-name',
     'batched-without-explicit-strict',
     'collection-literal-concatenation',
-    'collections-named-tuple',
     'docstring-in-stub',
     'eq-without-hash',
     'error-instead-of-exception',

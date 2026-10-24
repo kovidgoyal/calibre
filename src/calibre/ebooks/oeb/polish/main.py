@@ -4,8 +4,8 @@
 import re
 import sys
 import time
-from collections import namedtuple
 from functools import partial
+from typing import NamedTuple
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import set_cover
@@ -22,22 +22,25 @@ from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.utils.localization import _, ngettext
 from calibre.utils.logging import Log
 
-ALL_OPTS = {
-    'embed': False,
-    'subset': False,
-    'opf': None,
-    'cover': None,
-    'jacket': False,
-    'remove_jacket': False,
-    'smarten_punctuation': False,
-    'remove_unused_css': False,
-    'remove_unused_images': False,
-    'compress_images': False,
-    'upgrade_book': False,
-    'add_soft_hyphens': False,
-    'remove_soft_hyphens': False,
-    'download_external_resources': False,
-}
+
+class Opts(NamedTuple):
+    embed: bool = False
+    subset: bool = False
+    opf: str | None = None
+    cover: str | None = None
+    jacket: bool = False
+    remove_jacket: bool = False
+    smarten_punctuation: bool = False
+    remove_unused_css: bool = False
+    remove_unused_images: bool = False
+    compress_images: bool = False
+    upgrade_book: bool = False
+    add_soft_hyphens: bool = False
+    remove_soft_hyphens: bool = False
+    download_external_resources: bool = False
+
+
+ALL_OPTS = Opts._field_defaults.copy()
 
 CUSTOMIZATION = {
     'remove_unused_classes': False,
@@ -332,10 +335,7 @@ def gui_polish(data):
     if not data.pop('do_cover'):
         data.pop('cover', None)
     file_map = {x: x for x in files}
-    opts = ALL_OPTS.copy()
-    opts.update(data)
-    O = namedtuple('O', ' '.join(ALL_OPTS))
-    opts = O(**opts)
+    opts = Opts(**data)
     log = Log(level=Log.DEBUG)
     report = []
     polish(file_map, opts, log, report.append)
@@ -347,10 +347,7 @@ def gui_polish(data):
 
 
 def tweak_polish(container, actions, customization=None):
-    opts = ALL_OPTS.copy()
-    opts.update(actions)
-    O = namedtuple('O', ' '.join(ALL_OPTS))
-    opts = O(**opts)
+    opts = Opts(**actions)
     report = []
     changed = polish_one(container, opts, report.append, customization=customization)
     return report, changed
@@ -412,8 +409,7 @@ def main(args=None):
     for k, v in popts.items():
         popts[k] = getattr(opts, k, None)
 
-    O = namedtuple('O', ' '.join(popts))
-    popts = O(**popts)
+    popts = Opts(**popts)
     report = []
     if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):
         parser.print_help()

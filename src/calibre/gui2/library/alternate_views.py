@@ -5,7 +5,6 @@ import itertools
 import math
 import os
 import weakref
-from collections import namedtuple
 from collections.abc import Iterable
 from functools import wraps
 from textwrap import wrap
@@ -977,7 +976,14 @@ class CoverDelegate(QStyledItemDelegate):
 
 # }}}
 
-CoverTuple = namedtuple('CoverTuple', ['book_id', 'has_cover', 'cache_valid', 'cdata', 'timestamp'])
+
+class CoverTuple(NamedTuple):
+    book_id: int
+    has_cover: bool
+    cache_valid: bool
+    cdata: str
+    timestamp: int
+
 
 # The View {{{
 

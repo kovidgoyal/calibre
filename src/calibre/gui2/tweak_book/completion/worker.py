@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
 from multiprocessing.connection import Pipe
 from queue import Queue
 from threading import Event, RLock, Thread
+from typing import NamedTuple
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book.completion.basic import Request
@@ -178,7 +178,11 @@ def run_main(control_fd, data_fd, func):
         func(control_conn, data_conn)
 
 
-Result = namedtuple('Result', 'request_id ans traceback query')
+class Result(NamedTuple):
+    request_id: str
+    ans: tuple[dict, str] | None
+    traceback: str | None
+    query: str
 
 
 def main(control_conn, data_conn):

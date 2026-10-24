@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from calibre.utils.localization import canonicalize_lang, load_iso3166
 
-DictionaryLocale = namedtuple('DictionaryLocale', 'langcode countrycode')
+
+class DictionaryLocale(NamedTuple):
+    langcode: str
+    countrycode: str | None
 
 
 def get_codes():

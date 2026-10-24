@@ -9,10 +9,10 @@ import os
 import re
 import sys
 import time
-from collections import namedtuple
 from contextlib import contextmanager
 from functools import partial
 from threading import Lock
+from typing import NamedTuple
 
 try:
     from urllib.parse import parse_qs, quote, quote_plus, urlencode, urlparse
@@ -37,7 +37,11 @@ webcache = {}
 webcache_lock = Lock()
 prints = partial(safe_print, file=sys.stderr)
 
-Result = namedtuple('Result', 'url title cached_url')
+
+class Result(NamedTuple):
+    url: str
+    title: str
+    cached_url: str | None
 
 
 @contextmanager

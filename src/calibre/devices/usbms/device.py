@@ -12,9 +12,9 @@ import re
 import subprocess
 import sys
 import time
-from collections import namedtuple
 from contextlib import suppress
 from itertools import repeat
+from typing import NamedTuple
 
 from calibre import prints
 from calibre.constants import is_debugging, isfreebsd, islinux, ismacos, iswindows
@@ -67,6 +67,15 @@ class USBDevice:
         m = osx_sanitize_name_pat.sub('_', (self.manufacturer or ''))
         p = osx_sanitize_name_pat.sub('_', (self.product or ''))
         return m == man and p == prod
+
+
+class _USBDevice(NamedTuple):
+    vendor_id: int | None
+    product_id: int | None
+    bcd: int | None
+    manufacturer: str
+    product: str
+    serial: str
 
 
 class Device(DeviceConfig, DevicePlugin):
@@ -262,7 +271,7 @@ class Device(DeviceConfig, DevicePlugin):
                     data = get_usb_info(usbdevice, debug=debug)
                 except Exception:
                     data = {}
-            dev = usb_info_cache[usbdevice] = namedtuple('USBDevice', 'vendor_id product_id bcd manufacturer product serial')(
+            dev = usb_info_cache[usbdevice] = _USBDevice(
                 usbdevice.vendor_id,
                 usbdevice.product_id,
                 usbdevice.bcd,
