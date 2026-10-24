@@ -35,7 +35,7 @@ from contextlib import suppress
 from http import HTTPStatus
 from io import BytesIO
 from threading import RLock
-from typing import Any
+from typing import Any, Self
 from urllib.error import URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request
@@ -646,7 +646,7 @@ class Response:
     def close(self) -> None:
         self._data.close()
 
-    def __enter__(self) -> Response:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *a: object) -> None:

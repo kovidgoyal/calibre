@@ -12,7 +12,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import IO, TYPE_CHECKING, Any, Concatenate, Literal, Protocol
+from typing import IO, TYPE_CHECKING, Any, Concatenate, Literal, Protocol, Self
 from urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
@@ -76,7 +76,7 @@ PostProcessFunc = Callable[[Context, RequestData, 'RouteFunction', Any], bytes |
 class types_dict(dict):
     _hash_val: int
 
-    def __new__(cls, types: dict[str, type]) -> types_dict:
+    def __new__(cls, types: dict[str, type]) -> Self:
         ans = super().__new__(cls, types)
         ans._hash_val = hash(tuple(sorted(types.items())))
         return ans

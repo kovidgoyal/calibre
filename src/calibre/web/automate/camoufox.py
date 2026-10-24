@@ -50,7 +50,7 @@ from collections.abc import AsyncGenerator, Callable, Iterable, Mapping, Sequenc
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from http import HTTPStatus
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Self
 
 from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_in
 from calibre.utils.filenames import make_long_path_useable
@@ -3609,7 +3609,7 @@ class Browser:
     def __repr__(self) -> str:
         return f'<Camoufox Browser {self.version}{" (closed)" if self.closed else ""}>'
 
-    async def __aenter__(self) -> Browser:
+    async def __aenter__(self) -> Self:
         await self.launch()
         return self
 

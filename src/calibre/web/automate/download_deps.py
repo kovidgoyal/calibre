@@ -31,7 +31,7 @@ from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 from threading import Lock, Thread
-from typing import IO, Any, NamedTuple
+from typing import IO, Any, NamedTuple, Self
 from urllib.request import OpenerDirector, ProxyHandler, Request, build_opener
 
 from calibre import get_proxies
@@ -288,7 +288,7 @@ class VersionLock:
         if f is not None:
             f.close()
 
-    def __enter__(self) -> VersionLock:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args: object) -> None:
