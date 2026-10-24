@@ -154,6 +154,13 @@ select = [
     'manual-list-copy',
     'py-path',
     'unnecessary-list-cast',
+    ## flake8-pytest-style (PT)
+    'pytest-raises-without-exception',
+    'pytest-duplicate-parametrize-test-cases',
+    'pytest-deprecated-yield-fixture',
+    'pytest-erroneous-use-fixtures-on-fixture',
+    'pytest-use-fixtures-without-parameters',
+    'pytest-warns-with-multiple-statements',
     # custom rules
     'trailing-comma-on-bare-tuple',
     'unnecessary-return-none',
