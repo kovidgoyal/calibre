@@ -199,7 +199,7 @@ class Search:
         from collections import namedtuple
 
         s = ('text', 'mode', 'case_sensitive', 'backwards')
-        return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))
+        return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))  # ruff: ignore[collections-named-tuple]
 
 
 class SearchFinished:
@@ -261,7 +261,7 @@ class SearchResult:
         from collections import namedtuple
 
         s = self.__slots__[:-1]
-        return str(namedtuple('SearchResult', s)(*tuple(getattr(self, x) for x in s)))
+        return str(namedtuple('SearchResult', s)(*tuple(getattr(self, x) for x in s)))  # ruff: ignore[collections-named-tuple]
 
 
 @cache

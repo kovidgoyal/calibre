@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from qt.core import (
     QBrush,
@@ -253,7 +253,13 @@ def read_color(col):
         pass
 
 
-Highlight = namedtuple('Highlight', 'fg bg bold italic underline underline_color')
+class Highlight(NamedTuple):
+    fg: QBrush | None
+    bg: QBrush | None
+    bold: bool
+    italic: bool
+    underline: str | None
+    underline_color: QBrush | None
 
 
 def read_theme(raw):

@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from functools import partial
 from itertools import count
 from operator import itemgetter
+from typing import NamedTuple
 
 from css_parser.css import CSSRule, CSSStyleSheet, Property
 from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
@@ -95,8 +96,18 @@ def iterrules(
     importing.discard(sheet_name)
 
 
-StyleDeclaration = namedtuple('StyleDeclaration', 'index declaration pseudo_element')
-Specificity = namedtuple('Specificity', 'is_style num_id num_class num_elem rule_index')
+class StyleDeclaration(NamedTuple):
+    index: Specificity
+    declaration: dict[str, Specificity]
+    pseudo_element: str | None
+
+
+class Specificity(NamedTuple):
+    is_style: int
+    num_id: int
+    num_class: int
+    num_elem: int
+    rule_index: int
 
 
 def specificity(rule_index, selector, is_style=0):

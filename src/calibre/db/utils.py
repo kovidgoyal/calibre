@@ -7,10 +7,11 @@ import re
 import shutil
 import sys
 import tempfile
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from contextlib import suppress
 from locale import localeconv
 from threading import RLock
+from typing import NamedTuple
 
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
@@ -104,7 +105,11 @@ def find_identical_books(mi, data):
     return {book_id for book_id in ans if lang_matches(book_id)}
 
 
-Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
+class Entry(NamedTuple):
+    path: str
+    size: int
+    timestamp: float
+    thumbnail_size: tuple[int, int]
 
 
 class CacheError(Exception):
@@ -229,7 +234,7 @@ class ThumbnailCache:
                 if self.thumbnail_size != thumbnail_size or key in invalidate:
                     self._do_delete(path)
                     continue
-                e = Entry(path, size, timestamp, thumbnail_size)
+                e = Entry(path, size, timestamp, thumbnail_size)  # ty: ignore[invalid-argument-type]
                 # Caches written by older versions of calibre can contain more
                 # than one file for a book. Keep only the most recent one,
                 # otherwise which of them is used is decided by the order in

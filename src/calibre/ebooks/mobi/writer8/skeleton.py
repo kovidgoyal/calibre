@@ -2,8 +2,8 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
-from collections import namedtuple
 from functools import partial
+from typing import NamedTuple
 from xml.sax.saxutils import escape
 
 from lxml import etree
@@ -152,6 +152,10 @@ class Chunk:
 class Skeleton:
     start_pos: int
 
+    class Metric(NamedTuple):
+        start: int
+        end: int
+
     def __init__(self, file_number, item, root, chunks):
         self.file_number, self.item = file_number, item
         self.chunks = chunks
@@ -169,14 +173,13 @@ class Skeleton:
         return raw
 
     def calculate_metrics(self, root):
-        Metric = namedtuple('Metric', 'start end')
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
             raw = close_self_closing_tags(tostring(tag, with_tail=True))
             start_length = len(raw.partition(b'>')[0]) + len(text) + 1
             end_length = len(raw.rpartition(b'<')[-1]) + 1
-            self.metrics[tag.get('aid')] = Metric(start_length, end_length)
+            self.metrics[tag.get('aid')] = Skeleton.Metric(start_length, end_length)
 
     def calculate_insert_positions(self):
         pos = self.body_offset
@@ -204,6 +207,21 @@ class Skeleton:
 
 
 class Chunker:
+    class Skel(NamedTuple):
+        file_number: str
+        name: str
+        chunk_count: int
+        start_pos: int
+        length: int
+
+    class Chunk(NamedTuple):
+        insert_pos: int
+        selector: str
+        file_number: int
+        sequence_number: int
+        start_pos: int
+        length: int
+
     def __init__(self, oeb, data_func, placeholder_map):
         self.oeb, self.log = oeb, oeb.log
         self.data = data_func
@@ -382,19 +400,17 @@ class Chunker:
         return ans
 
     def create_tables(self):
-        Skel = namedtuple('Skel', 'file_number name chunk_count start_pos length')
         sp = 0
         for s in self.skeletons:
             s.start_pos = sp
             sp += len(s)
-        self.skel_table = [Skel(s.file_number, f'SKEL{s.file_number:010}', len(s.chunks), s.start_pos, len(s.skeleton)) for s in self.skeletons]
+        self.skel_table = [Chunker.Skel(s.file_number, f'SKEL{s.file_number:010}', len(s.chunks), s.start_pos, len(s.skeleton)) for s in self.skeletons]
 
-        Chunk = namedtuple('Chunk', 'insert_pos selector file_number sequence_number start_pos length')
         num = 0
         for skel in self.skeletons:
             cp = 0
             for chunk in skel.chunks:
-                self.chunk_table.append(Chunk(chunk.insert_pos + skel.start_pos, chunk.selector, skel.file_number, num, cp, len(chunk.raw)))
+                self.chunk_table.append(Chunker.Chunk(chunk.insert_pos + skel.start_pos, chunk.selector, skel.file_number, num, cp, len(chunk.raw)))
                 cp += len(chunk.raw)
                 num += 1
 

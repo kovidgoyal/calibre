@@ -8,10 +8,10 @@ import re
 import sys
 import time
 import traceback
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from collections.abc import Callable
 from itertools import groupby
-from typing import cast
+from typing import NamedTuple, cast
 
 from qt.core import (
     QAbstractTableModel,
@@ -52,7 +52,12 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from calibre_extensions.imageops import load_from_data_without_gil
 
-Counts = namedtuple('Counts', 'library_total total current')
+
+class Counts(NamedTuple):
+    library_total: int
+    total: int
+    current: int
+
 
 TIME_FMT = '%d %b %Y'
 

@@ -3,8 +3,9 @@
 
 import os
 import weakref
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from functools import partial
+from typing import NamedTuple
 
 from qt.core import (
     QAction,
@@ -50,7 +51,13 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
 
-Widgets = namedtuple('Widgets', 'new old label button')
+
+class Widgets(NamedTuple):
+    new: QWidget
+    old: QWidget
+    label: QLabel
+    button: RightClickButton
+
 
 # Widgets {{{
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from threading import Event
+from typing import NamedTuple
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -19,7 +20,13 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
 from calibre.utils.matcher import Matcher
 
-Request = namedtuple('Request', 'id type data query')
+
+class Request(NamedTuple):
+    id: str | None
+    type: str
+    data: str | None
+    query: str | None
+
 
 names_cache = {}
 file_cache = {}

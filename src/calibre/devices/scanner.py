@@ -8,8 +8,8 @@ manner.
 import os
 import sys
 import time
-from collections import namedtuple
 from threading import Lock
+from typing import NamedTuple
 
 from calibre import as_unicode, prints
 from calibre.constants import isfreebsd, islinux, ismacos, isnetbsd, iswindows
@@ -35,7 +35,13 @@ if iswindows:
             return False
 
 
-_USBDevice = namedtuple('_USBDevice', 'vendor_id product_id bcd manufacturer product serial')
+class _USBDevice(NamedTuple):
+    vendor_id: int
+    product_id: int
+    bcd: int
+    manufacturer: str | None
+    product: str | None
+    serial: str | None
 
 
 class USBDevice(_USBDevice):

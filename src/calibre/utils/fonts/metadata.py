@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
 from io import BytesIO
+from typing import NamedTuple
 
 from calibre.utils.fonts.utils import get_font_characteristics, get_font_names_from_ttlib_names_table
 
@@ -11,14 +11,27 @@ class UnsupportedFont(ValueError):
     pass
 
 
-FontCharacteristics = namedtuple(
-    'FontCharacteristics',
-    'weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, os2_version',
-)
-FontNames = namedtuple(
-    'FontNames',
-    'family_name, subfamily_name, full_name, preferred_family_name, preferred_subfamily_name, wws_family_name, wws_subfamily_name',
-)
+class FontCharacteristics(NamedTuple):
+    weight: int
+    is_italic: bool
+    is_bold: bool
+    is_regular: bool
+    fs_type: int
+    panose: tuple
+    width: int
+    is_oblique: bool
+    is_wws: bool
+    os2_version: int
+
+
+class FontNames(NamedTuple):
+    family_name: str | None
+    subfamily_name: str | None
+    full_name: str | None
+    preferred_family_name: str | None
+    preferred_subfamily_name: str | None
+    wws_family_name: str | None
+    wws_subfamily_name: str | None
 
 
 class FontMetadata:

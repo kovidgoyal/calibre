@@ -5,9 +5,9 @@ import operator
 import pprint
 import time
 import traceback
-from collections import namedtuple
 from functools import partial
 from threading import RLock
+from typing import NamedTuple
 
 from calibre import as_unicode, force_unicode, prints
 from calibre.constants import islinux, ismacos
@@ -16,7 +16,17 @@ from calibre.devices.mtp.base import MTPDeviceBase, debug, synchronous
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.localization import _
 
-MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id bcd serial manufacturer product')
+
+class MTPDevice(NamedTuple):
+    busnum: int
+    devnum: int
+    vendor_id: int
+    product_id: int
+    bcd: int
+    serial: str | None
+    manufacturer: str | None
+    product: str | None
+
 
 null = object()
 

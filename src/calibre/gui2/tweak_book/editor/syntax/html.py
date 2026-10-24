@@ -2,8 +2,8 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-from collections import namedtuple
 from functools import partial
+from typing import NamedTuple
 
 from qt.core import QFont, QTextBlockUserData, QTextCharFormat, QVariant
 
@@ -51,10 +51,32 @@ DQ_VAL = 9
 CDATA = 10
 CSS = 11
 
-TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
-TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
-NonTagBoundary = namedtuple('NonTagBoundary', 'offset is_start type')
-Attr = namedtuple('Attr', 'offset type data')
+
+class TagStart(NamedTuple):
+    offset: int
+    prefix: str
+    name: str
+    closing: bool
+    is_start: bool
+
+
+class TagEnd(NamedTuple):
+    offset: int
+    self_closing: bool
+    is_start: bool
+
+
+class NonTagBoundary(NamedTuple):
+    offset: int
+    is_start: bool
+    type: int
+
+
+class Attr(NamedTuple):
+    offset: int
+    type: object
+    data: str | object
+
 
 LINK_ATTRS = frozenset(('href', 'src', 'poster', 'xlink:href'))
 

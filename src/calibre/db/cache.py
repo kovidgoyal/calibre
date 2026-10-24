@@ -11,7 +11,8 @@ import traceback
 import types
 import weakref
 from collections import defaultdict
-from collections.abc import Callable, Generator, Iterable, MutableSet, Set
+from collections.abc import Callable, Generator, Iterable, MutableSet
+from collections.abc import Set as AbstractSet
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partial, wraps
@@ -2907,7 +2908,7 @@ class Cache:
 
         if restrict_to_book_ids is not None:
             # We have a VL. Only change the item name for those books
-            if not isinstance(restrict_to_book_ids, (Set, MutableSet)):
+            if not isinstance(restrict_to_book_ids, (AbstractSet, MutableSet)):
                 restrict_to_book_ids = frozenset(restrict_to_book_ids)
             id_map = {}
             default_process_map = {}
@@ -3006,7 +3007,7 @@ class Cache:
         optional set of books ids. If specified the items will only be removed
         from those books."""
         field = self.fields[field]
-        if restrict_to_book_ids is not None and not isinstance(restrict_to_book_ids, (MutableSet, Set)):
+        if restrict_to_book_ids is not None and not isinstance(restrict_to_book_ids, (MutableSet, AbstractSet)):
             restrict_to_book_ids = frozenset(restrict_to_book_ids)
         affected_books = field.table.remove_items(item_ids, self.backend, restrict_to_book_ids=restrict_to_book_ids)
         if affected_books:

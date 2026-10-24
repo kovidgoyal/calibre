@@ -3,9 +3,9 @@
 
 import os
 import re
-from collections import namedtuple
 from functools import partial
 from operator import attrgetter
+from typing import NamedTuple
 
 from calibre import guess_type, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
@@ -129,6 +129,12 @@ class IndexEntry:
             self.end_anchor = None
 
 
+class IndexElement(NamedTuple):
+    entry: IndexEntry
+    start_anchor: int | None
+    end_anchor: int | None
+
+
 def create_indexing_data(spine, toc):
     if not toc:
         return
@@ -137,12 +143,10 @@ def create_indexing_data(spine, toc):
     index_entries.sort(key=attrgetter('sort_key'))
     [i.find_end(index_entries) for i in index_entries]
 
-    ie = namedtuple('ie', 'entry start_anchor end_anchor')
-
     for spine_pos, spine_item in enumerate(spine):
         for i in index_entries:
             if i.end_spine_pos < spine_pos or i.spine_pos > spine_pos:
                 continue  # Does not touch this file
             start = i.anchor if i.spine_pos == spine_pos else None
             end = i.end_anchor if i.spine_pos == spine_pos else None
-            spine_item.index_entries.append(ie(i, start, end))
+            spine_item.index_entries.append(IndexElement(i, start, end))
