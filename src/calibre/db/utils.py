@@ -285,7 +285,10 @@ class ThumbnailCache:
     def shutdown(self):
         with self.lock:
             if (items := getattr(self, 'items', None)) is not None:
-                del self.items
+                # Return to the unloaded state so that the index is re-loaded
+                # if the cache is used after shutdown, for example by a render
+                # thread that was in flight when shutdown was called
+                del self.items, self.total_size
                 try:
                     data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in items)
                     with open(os.path.join(self.location, 'order'), 'wb') as f:

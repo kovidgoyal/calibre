@@ -61,6 +61,22 @@ class UtilsTest(BaseTest):
         self.assertEqual(len(c), 5)
         self.assertEqual(c.current_size, 19000)
 
+    def test_thumbnail_cache_use_after_shutdown(self):
+        c = self.init_tc()
+        self.basic_fill(c)
+        c.shutdown()
+        self.assertEqual(c[1], (b'1' * 1000, 1))
+        c.insert(6, 6, b'6' * 100)
+        c.shutdown()
+        c.invalidate((2,))
+        self.assertEqual(c[2], (None, None))
+        self.assertEqual(c[6], (b'6' * 100, 6))
+        c.shutdown()
+        c.shutdown()
+        c = self.init_tc()
+        self.assertEqual(len(c), 5)
+        self.assertEqual(c.current_size, 13100)
+
     def test_thumbnail_cache(self):  # {{{
         "Test the operation of the thumbnail cache"
         c = self.init_tc()
