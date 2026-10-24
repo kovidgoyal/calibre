@@ -54,7 +54,7 @@ dependencies = [
 	"PyQt6_WebEngine == 6.10.0",
 	"MacFSEvents == 0.8.4; sys_platform == 'darwin'",
 	"xxhash == 3.6.0",
-    "tzdata == 2026.4",
+    "tzdata == 2026.5",
     "tzlocal == 5.4.4",
 	"pystache == 0.6.8",
 
