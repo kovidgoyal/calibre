@@ -457,7 +457,7 @@ def _print_summary(
         _stat('SKIP', len(skips), _YL),
     ]
     if xfail_count:
-        parts.append(_c(_DM, f'XFAIL/XPASS: {xfail_count}'))
+        parts.append(_c(_DM, f'XFAIL: {xfail_count}'))
     if lost:
         parts.append(_c(_RD, f'LOST (worker crash?): {lost}'))
     print('  '.join(parts))
@@ -488,7 +488,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     spawning workers outweighs the benefit; in that case the suite is run
     in the current process instead.
 
-    Returns the number of failures + errors (0 means all passed).
+    Returns 0 on success and 1 on test or worker failure.
     """
 
     all_tests = sorted(itertests(suite), key=lambda t: t.id())
@@ -564,22 +564,24 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
                     errors.append((tid, event.get('msg', '')))
                 elif e == 'skip':
                     skips.append((tid, event.get('msg', '')))
-                elif e in ('xf', 'xp'):
+                elif e == 'xf':
                     xfail_count += 1
+                elif e == 'xp':
+                    failures.append((tid, 'Unexpected success'))
 
         _print_status(completed, total, start_time, len(failures) + len(errors))
 
     # Reap worker processes; report crashes and hangs.
-    hung_workers = 0
+    failed_workers = 0
     try:
         exit_deadline = monotonic() + _WORKER_EXIT_TIMEOUT
         for proc, output_path in workers:
             rc, hung = _reap_worker(proc, exit_deadline)
             if rc != 0:
+                failed_workers += 1
                 with open(output_path, 'rb') as f:
                     output = f.read().decode(errors='replace')
                 if hung:
-                    hung_workers += 1
                     msg = f'Worker process (pid {proc.pid}) failed to exit within {_WORKER_EXIT_TIMEOUT} seconds of completing its tests and was killed'
                 else:
                     msg = f'Worker process crashed (exit code {rc})'
@@ -599,7 +601,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     elapsed = monotonic() - start_time
     lost_ids = [t.id() for t in all_tests if t.id() not in times]
     _print_summary(failures, errors, skips, ok_count, xfail_count, times, total, elapsed, lost_ids)
-    return 1 if len(failures) + len(errors) + len(lost_ids) + hung_workers else 0
+    return 1 if len(failures) + len(errors) + len(lost_ids) + failed_workers else 0
 
 
 # ─── Test discovery ───────────────────────────────────────────────────────────
@@ -921,6 +923,9 @@ def find_tests(which_tests=None, exclude_tests=None):
 
         a(find_tests())
         from calibre.utils.stop_gc import find_tests
+
+        a(find_tests())
+        from calibre.utils.test_run_tests import find_tests
 
         a(find_tests())
     if ok('dbcli'):
