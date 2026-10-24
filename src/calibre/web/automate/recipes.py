@@ -649,7 +649,7 @@ class Response:
     def __enter__(self) -> Response:
         return self
 
-    def __exit__(self, *a: Any) -> None:  # ruff: ignore[any-type]
+    def __exit__(self, *a: object) -> None:
         self.close()
 
 

@@ -3613,7 +3613,7 @@ class Browser:
         await self.launch()
         return self
 
-    async def __aexit__(self, *args: Any) -> None:  # ruff: ignore[any-type]
+    async def __aexit__(self, *args: object) -> None:
         await self.close()
 
     # Launching {{{

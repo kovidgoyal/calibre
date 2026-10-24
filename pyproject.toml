@@ -138,6 +138,7 @@ select = [
     'ISC',    # flake8-implicit-str-concat
     'LOG',    # flake8-logging
     'PIE',    # flake8-pie
+    'PYI',    # flake8-pyi
     'Q',      # flake8-quotes
     'TID',    # flake8-tidy-imports
     'TC',     # flake8-type-checking
@@ -207,6 +208,8 @@ ignore = [
     'ambiguous-variable-name',
     'batched-without-explicit-strict',
     'collection-literal-concatenation',
+    'collections-named-tuple',
+    'docstring-in-stub',
     'eq-without-hash',
     'error-instead-of-exception',
     'explicit-string-concatenation',
@@ -225,14 +228,18 @@ ignore = [
     'module-import-not-at-top-of-file',
     'mutable-class-default',
     'no-self-use',
+    'pass-statement-stub-body',
     'raise-vanilla-args',
     'raise-vanilla-class',
     'raise-within-try',
     'raise-without-from-inside-except',
     'redefined-argument-from-local',
     'redefined-loop-name',
+    'redundant-numeric-union',
     'regex-flag-alias',
     'set-attr-with-constant',
+    'str-or-repr-defined-in-stub',
+    'stub-body-multiple-statements',
     'subprocess-run-without-check',
     'too-many-arguments',
     'too-many-boolean-expressions',
