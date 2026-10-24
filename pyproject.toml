@@ -120,6 +120,79 @@ quote-style = 'preserve'
 
 [tool.ruff.lint]
 explicit-preview-rules = true
+select = [
+    'E', 'W', # pycodestyle
+    'I',      # isort
+    'F',      # Pyflakes
+    'PL',     # Pylint
+    'RUF',    # Ruff
+    'YTT',    # flake8-2020
+    'ANN',    # flake8-annotations
+    'ASYNC',  # flake8-async
+    'B',      # flake8-bugbear
+    'C4',     # flake8-comprehensions
+    'DTZ',    # flake8-datetimez
+    'T1',     # flake8-debugger
+    'FA',     # flake8-future-annotations
+    'INT',    # flake8-gettext
+    'ISC',    # flake8-implicit-str-concat
+    'LOG',    # flake8-logging
+    'PIE',    # flake8-pie
+    'Q',      # flake8-quotes
+    'TID',    # flake8-tidy-imports
+    'TC',     # flake8-type-checking
+    'FURB',   # refurb
+    'FLY',    # flynt
+    'UP',     # pyupgrade
+    'TRY',    # tryceratops
+    # from the ruff default rules set
+    'G1', 'G2', # flake8-logging-format
+    'empty-docstring',
+    'invalid-mock-access',
+    'invalid-module-name',
+    'invalid-pathlib-with-suffix',
+    'manual-list-copy',
+    'py-path',
+    'unnecessary-list-cast',
+    # custom rules
+    'trailing-comma-on-bare-tuple',
+    'unnecessary-return-none',
+    # preview rules
+    'if-key-in-dict-del',
+    'falsy-dict-get-fallback',
+    'unnecessary-regular-expression',
+    'unraw-re-pattern',
+    'needless-else',
+    ## blank-line standard
+    'blank-line-after-decorator',
+    'blank-lines-after-function-or-class',
+    'blank-lines-top-level',
+    'too-many-blank-lines',
+    'too-many-newlines-at-end-of-file',
+    ## code indentation
+    'indentation-with-invalid-multiple',
+    'no-indented-block',
+    'over-indented',
+    'unexpected-indentation',
+    ## comment formatting
+    'indentation-with-invalid-multiple-comment',
+    'no-indented-block-comment',
+    'no-space-after-block-comment',
+    'no-space-after-inline-comment',
+    'too-few-spaces-before-inline-comment',
+    'unexpected-indentation-comment',
+    ## various whitespace
+    'missing-whitespace-after-keyword',
+    'unexpected-spaces-around-keyword-parameter-equals',
+    'whitespace-after-open-bracket',
+    'whitespace-before-close-bracket',
+    'whitespace-before-parameters',
+    ## rules name
+    'noqa-comments',
+    'rule-codes-in-selectors',
+    'rule-codes-in-suppression-comments',
+]
+unfixable = ['ISC', 'duplicate-class-field-definition']
 ignore = [
     'ambiguous-unicode-character-comment',
     'ambiguous-unicode-character-docstring',
@@ -175,78 +248,6 @@ ignore = [
     'unused-unpacked-variable',
     'zip-without-explicit-strict',
 ]
-select = [
-    'E', 'W', # pycodestyle
-    'I',      # isort
-    'F',      # Pyflakes
-    'PL',     # Pylint
-    'RUF',    # Ruff
-    'YTT',    # flake8-2020
-    'ANN',    # flake8-annotations
-    'ASYNC',  # flake8-async
-    'B',      # flake8-bugbear
-    'C4',     # flake8-comprehensions
-    'DTZ',    # flake8-datetimez
-    'T1',     # flake8-debugger
-    'FA',     # flake8-future-annotations
-    'INT',    # flake8-gettext
-    'ISC',    # flake8-implicit-str-concat
-    'LOG',    # flake8-logging
-    'PIE',    # flake8-pie
-    'Q',      # flake8-quotes
-    'TID',    # flake8-tidy-imports
-    'TC',     # flake8-type-checking
-    'FURB',   # refurb
-    'FLY',    # flynt
-    'UP',     # pyupgrade
-    'TRY',    # tryceratops
-    # from the ruff default rules set
-    'G1', 'G2', # flake8-logging-format
-    'empty-docstring',
-    'invalid-module-name',
-    'invalid-pathlib-with-suffix',
-    'manual-list-copy',
-    'py-path',
-    'unnecessary-list-cast',
-    # custom rules
-    'trailing-comma-on-bare-tuple',
-    'unnecessary-return-none',
-    # preview rules
-    'if-key-in-dict-del',
-    'falsy-dict-get-fallback',
-    'unnecessary-regular-expression',
-    'unraw-re-pattern',
-    'needless-else',
-    ## blank-line standard
-    'blank-line-after-decorator',
-    'blank-lines-after-function-or-class',
-    'blank-lines-top-level',
-    'too-many-blank-lines',
-    'too-many-newlines-at-end-of-file',
-    ## code indentation
-    'indentation-with-invalid-multiple',
-    'no-indented-block',
-    'over-indented',
-    'unexpected-indentation',
-    ## comment formatting
-    'indentation-with-invalid-multiple-comment',
-    'no-indented-block-comment',
-    'no-space-after-block-comment',
-    'no-space-after-inline-comment',
-    'too-few-spaces-before-inline-comment',
-    'unexpected-indentation-comment',
-    ## various whitespace
-    'missing-whitespace-after-keyword',
-    'unexpected-spaces-around-keyword-parameter-equals',
-    'whitespace-after-open-bracket',
-    'whitespace-before-close-bracket',
-    'whitespace-before-parameters',
-    ## rules name
-    'noqa-comments',
-    'rule-codes-in-selectors',
-    'rule-codes-in-suppression-comments',
-]
-unfixable = ['ISC', 'duplicate-class-field-definition']
 
 [tool.ruff.lint.per-file-ignores]
 "recipes/*" = ['UP', 'FLY', 'DTZ', 'slice-to-remove-prefix-or-suffix']
