@@ -130,13 +130,13 @@ def split_up_block(block, a, text, parts, ldict):
     a.text = parts[-1]
     parent = a.getparent()
     style = 'display:block; margin-left: %.3gem'
-    for i, prefix in enumerate(prefix):  # ruff: ignore[loop-variable-overrides-iterator]
+    for i, x in enumerate(prefix):
         m = 1.5 * i
         span = parent.makeelement('span', style=style % m)
         ldict[span] = i
         parent.append(span)
-        span.text = prefix
-    span = parent.makeelement('span', style=style % ((i + 1) * 1.5))
+        span.text = x
+    span = parent.makeelement('span', style=style % (len(prefix) * 1.5))
     parent.append(span)
     span.append(a)
     ldict[span] = len(prefix)
@@ -216,6 +216,8 @@ def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict):
     if len(next_path) == (nind + 1):
         nextent = next_block[nind]
         add_link(prev_block[pind], nextent, ldict)
+        # Everything in next has now been merged into prev
+        next_block.getparent().remove(next_block)
         return
 
     nind = nind + 1
