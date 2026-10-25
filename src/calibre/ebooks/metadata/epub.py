@@ -169,7 +169,7 @@ class OCFZipReader(OCFReader):
         try:
             self.archive.getinfo(path)
             return True
-        except KeyError:
+        except KeyError, ValueError:
             return False
 
 
@@ -338,3 +338,46 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             os.remove(replacements[cpath].name)
     except Exception:
         pass
+
+
+def find_tests():
+    import unittest
+
+    from calibre.utils.zipfile import ZIP_DEFLATED, ZIP_STORED
+
+    class TestEPUBMetadata(unittest.TestCase):
+        def test_epub_missing_rootfiles(self):
+            opf = b'''<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="id">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:identifier id="id">test-id</dc:identifier><dc:title>Recovery test</dc:title>
+<dc:creator>Test Author</dc:creator><dc:language>en</dc:language>
+</metadata><manifest/><spine/></package>'''
+            for compression in (ZIP_STORED, ZIP_DEFLATED):
+                for paths in (
+                    ('OPS/content.opf',),
+                    ('missing.opf', 'OPS/content.opf'),
+                    ('OPS/content.opf', 'missing.opf'),
+                ):
+                    rootfiles = ''.join(f'<rootfile full-path="{path}" media-type="{OPF.MIMETYPE}"/>' for path in paths)
+                    container = (
+                        f'<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0"><rootfiles>{rootfiles}</rootfiles></container>'
+                    )
+                    stream = io.BytesIO()
+                    with ZipFile(stream, 'w') as zf:
+                        zf.writestr('mimetype', OCF.MIMETYPE, compression=ZIP_STORED)
+                        zf.writestr(OCF.CONTAINER_PATH, container, compression=compression)
+                        zf.writestr('OPS/content.opf', opf, compression=compression)
+                        central_directory_offset = stream.tell()
+                    raw = stream.getvalue()
+                    for damaged in (False, True):
+                        with self.subTest(compression=compression, paths=paths, damaged=damaged):
+                            # Keep local headers and data intact while removing the central directory.
+                            stream = io.BytesIO(raw[:central_directory_offset] if damaged else raw)
+                            reader = get_zip_reader(stream)
+                            self.assertIsInstance(reader.archive, LocalZipFile if damaged else ZipFile)
+                            self.assertEqual(reader.opf_path, 'OPS/content.opf')
+                            mi = get_metadata(stream, extract_cover=False)
+                            self.assertEqual(mi.title, 'Recovery test')
+                            self.assertEqual(mi.authors, ['Test Author'])
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestEPUBMetadata)
