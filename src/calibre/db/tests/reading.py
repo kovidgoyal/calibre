@@ -10,6 +10,7 @@ from time import time
 from calibre.db.tests.base import BaseTest
 from calibre.utils.date import utc_tz
 from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.search_query_parser import ParseException
 
 
 def p(x):
@@ -411,6 +412,23 @@ class ReadingTest(BaseTest):
         )
         # Test date search
         self.assertEqual(cache.search('template:{pubdate}#@#:d:<2001-09-01"'), {1, 3})
+        # Test that the precision of a date search comes from the fields
+        # present in the query, not from the separators used
+        self.assertEqual(cache.search('pubdate:"6 Oct 2001"'), {2})
+        self.assertEqual(cache.search('pubdate:"6 Oct 2001 10am"'), {2})
+        self.assertEqual(cache.search('pubdate:6.Oct.2001'), {2})
+        self.assertEqual(cache.search('pubdate:6Oct2001'), {2})
+        self.assertEqual(cache.search('pubdate:"October 2001"'), {2})
+        self.assertEqual(cache.search('pubdate:"October 2001 10am"'), {2})
+        self.assertEqual(cache.search('pubdate:">Feb 6, 2001"'), {2, 3})
+        self.assertEqual(cache.search('pubdate:"<=June 2001"'), {1, 3})
+        self.assertEqual(cache.search('pubdate:"2001 AD"'), {1, 2, 3})
+        self.assertEqual(cache.search('pubdate:2001-06'), {3})
+        self.assertEqual(cache.search('pubdate:>2001-02-06'), {2, 3})
+        self.assertEqual(cache.search('pubdate:10.2001'), {2})
+        self.assertEqual(cache.search('pubdate:2001.10'), {2})
+        self.assertEqual(cache.search('pubdate:<6.2001'), {1})
+        self.assertRaises(ParseException, cache.search, 'pubdate:13.2001')
         # Test boolean search
         self.assertEqual(cache.search('template:{series}#@#:b:true'), {1, 2})
         self.assertEqual(cache.search('template:{series}#@#:b:false'), {3})

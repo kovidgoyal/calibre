@@ -6,7 +6,7 @@ import unicodedata
 import weakref
 from collections import OrderedDict, deque
 from collections.abc import Callable
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import partial
 
 import regex
@@ -14,7 +14,7 @@ import regex
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.db.utils import force_to_bool
 from calibre.utils.config_base import prefs
-from calibre.utils.date import UNDEFINED_DATE, dt_as_local, now, parse_date
+from calibre.utils.date import UNDEFINED_DATE, dt_as_local, local_tz, now, parse_date
 from calibre.utils.icu import ascii_primary_no_punc_matcher, primary_contains, primary_no_punc_contains, sort_key
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, canonicalize_lang, lang_map
@@ -123,6 +123,19 @@ class DateSearch:  # {{{
         self.local_yesterday = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
         self.local_thismonth = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
         self.daysago_pat = regex.compile(r'({}|daysago|_daysago)$'.format(_('daysago')), flags=regex.UNICODE | regex.VERSION1)
+        # dateutil reads month.year and year.month as decimal numbers
+        self.dotted_month_year_pat = regex.compile(r'(?:\d{1,2}\.\d{4}|\d{4}\.\d{1,2})')
+
+    def specified_field_count(self, query):
+        # Parse with two defaults that differ in every field, any field that
+        # comes out the same in both was present in the query. The defaults
+        # are in leap years and in months with 31 days so that every valid
+        # day and month in the query can be combined with them.
+        a = parse_date(query, as_utc=False, default=datetime(2000, 1, 1, tzinfo=local_tz))
+        b = parse_date(query, as_utc=False, default=datetime(2004, 3, 2, tzinfo=local_tz))
+        if a.month != b.month:
+            return 1
+        return 2 if a.day != b.day else 3
 
     def eq(self, dbdate, query, field_count):
         if dbdate.year == query.year:
@@ -212,14 +225,13 @@ class DateSearch:  # {{{
                     raise ParseException(_('Number conversion error: {0}').format(num))
                 field_count = 3
             else:
+                if self.dotted_month_year_pat.fullmatch(query) is not None:
+                    query = query.replace('.', '-')
                 try:
                     qd = parse_date(query, as_utc=False)
+                    field_count = self.specified_field_count(query)
                 except Exception:
                     raise ParseException(_('Date conversion error: {0}').format(query))
-                if '-' in query:
-                    field_count = query.count('-') + 1
-                else:
-                    field_count = query.count('/') + 1
 
         for v, book_ids in field_iter():
             if isinstance(v, (str, bytes)):
