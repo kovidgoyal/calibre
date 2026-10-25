@@ -159,6 +159,57 @@ class FTSSearchTest(BaseTest):
         self.assertEqual(self.run_fts_search(db, 'test'), '')
 
 
+class NotesTest(BaseTest):
+    def run_notes(self, db, *args, is_remote=False):
+        from calibre.db.cli.cmd_notes import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            option_parser = None
+
+            def run(self, name, *args):
+                return implementation(db, None, *args)
+
+        dbctx = DBCtx()
+        dbctx.is_remote = is_remote
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, dbctx)
+        return out.getvalue()
+
+    def test_notes(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(self.run_notes(db, 'list'), '')
+        path = os.path.join(self.library_path, 'note.html')
+        with open(path, 'w') as f:
+            f.write('<p>A <b>great</b> author</p>')
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                self.run_notes(db, 'set', 'authors', 'author one', path, is_remote=is_remote)
+                self.assertIn('<b>great</b>', db.notes_for('authors', db.get_item_id('authors', 'Author One')))
+                self.assertEqual(self.run_notes(db, 'show', 'authors', 'Author One').strip(), 'A **great** author')
+        html = self.run_notes(db, 'show', '--as-html', 'authors', 'Author One')
+        self.assertIn('<b>great</b>', html)
+        db.import_note('tags', db.get_item_id('tags', 'Tag One'), html.encode(), path_is_data=True)
+        self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\ntags: Tag One\n')
+        self.assertEqual(self.run_notes(db, 'list', 'tags'), 'tags: Tag One\n')
+        self.run_notes(db, 'remove', 'tags', 'Tag One')
+        self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\n')
+        self.assertEqual(self.run_notes(db, 'show', 'tags', 'Tag One'), '\n')
+        for args, msg in (
+            (('show', 'authors', 'Nobody'), 'No item named Nobody'),
+            (('show', 'title', 'Title One'), 'does not support notes'),
+            (('list', 'rating'), 'does not support notes'),
+            (('frob',), 'not recognized'),
+            (('show', 'authors'), 'must specify a field'),
+            (('set', 'authors', 'Author One'), 'must specify the file'),
+            ((), 'must specify an action'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_notes(db, *args)
+
+
 class RestoreDatabaseTest(BaseTest):
     REPORT_NAME = 'calibre_db_restore_report.txt'
 
@@ -257,5 +308,6 @@ def find_tests():
         loader.loadTestsFromTestCase(ListCategoriesTest),
         loader.loadTestsFromTestCase(SetCustomTest),
         loader.loadTestsFromTestCase(FTSSearchTest),
+        loader.loadTestsFromTestCase(NotesTest),
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
     ))
