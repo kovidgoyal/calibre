@@ -376,8 +376,13 @@ class NumericSearch:  # {{{
             except Exception:
                 raise ParseException(_('Non-numeric value in query: {0}').format(query))
             if dt == 'half-rating':
-                q = round(q * 2)
-                cast = int
+                try:
+                    q = round(q * 2)
+                    cast = int
+                except ValueError, OverflowError:
+                    # nan or inf cannot be rounded, compare them as floats so
+                    # that nan matches nothing and inf compares as expected
+                    q *= 2
 
         qfalse = query == 'false'
         for val, book_ids in field_iter():
@@ -883,15 +888,23 @@ class Parser(SearchQueryParser):  # {{{
             float_query = float(query)
         except ValueError:
             float_query = None
-        # Only whole numbers can match int columns and only whole or half stars
-        # can match ratings, which are stored as twice the number of stars.
-        # Truncating would cause 3.7 to match 3 stars and 1.5 to match 1.
-        int_query = rating_query = None
+        # Only whole numbers can match int columns. Ratings are stored as twice
+        # the number of stars and are matched the same way num_search() does
+        # for queries that specify the field: half star columns round to the
+        # nearest half star, other columns only match whole stars.
+        int_query = half_rating_query = None
         if float_query is not None:
-            if float_query.is_integer():
-                int_query = int(float_query)
-            if (float_query * 2).is_integer():
-                rating_query = int(float_query * 2)
+            try:
+                # Parse directly to avoid losing precision for large values
+                int_query = int(query)
+            except ValueError:
+                if float_query.is_integer():
+                    int_query = int(float_query)
+            try:
+                half_rating_query = round(float_query * 2)
+            except ValueError, OverflowError:
+                # nan or inf cannot match any rating
+                half_rating_query = None
 
         for location in locations:
             current_candidates -= matches
@@ -913,9 +926,14 @@ class Parser(SearchQueryParser):  # {{{
 
             dt = field_metadata.get(location, {}).get('datatype', None)
             if dt == 'rating':
-                if rating_query is not None:
+                if field_metadata[location]['display'].get('allow_half_stars'):
+                    if half_rating_query is not None:
+                        for val, book_ids in self.field_iter(location, current_candidates):
+                            if val == half_rating_query:
+                                matches |= book_ids
+                elif int_query is not None:
                     for val, book_ids in self.field_iter(location, current_candidates):
-                        if val == rating_query:
+                        if val is not None and val // 2 == int_query:
                             matches |= book_ids
                 continue
 

@@ -398,12 +398,23 @@ class ReadingTest(BaseTest):
         self.assertEqual(cache.search('#rating:1.5'), {1})
         self.assertEqual(cache.search('#rating:>4'), {3})
         self.assertEqual(cache.search('#rating:2'), {2})
-        # Unqualified numbers must not be truncated to match ratings and ints
+        self.assertEqual(cache.search('#rating:nan'), set())
+        self.assertEqual(cache.search('#rating:inf'), set())
+        self.assertEqual(cache.search('#rating:<inf'), {1, 2, 3})
+        self.assertEqual(cache.search('#rating:>1e400'), set())
+        # Unqualified numbers must match ratings the same way as qualified ones
         self.assertEqual(cache.search('1.5'), {1})
         self.assertEqual(cache.search('4.5'), {3})
-        self.assertEqual(cache.search('2'), {1, 2})
-        self.assertEqual(cache.search('2.2'), set())
-        self.assertEqual(cache.search('0.4'), set())
+        self.assertEqual(cache.search('2'), {1, 2, 3})
+        self.assertEqual(cache.search('2.2'), {2})
+        self.assertEqual(cache.search('0.2'), set())
+        self.assertEqual(cache.search('nan'), set())
+        self.assertEqual(cache.search('1e400'), set())
+        for q in ('1.3', '1.5', '2', '2.2', '2.5', '4.5', '4.6'):
+            # Whole star columns reject non-integer qualified queries
+            expected = cache.search('rating:' + q) if q.isdigit() else set()
+            expected |= cache.search('#rating:' + q)
+            self.assertEqual(cache.search(q), expected, q)
 
         # template searches
         # Test text search
