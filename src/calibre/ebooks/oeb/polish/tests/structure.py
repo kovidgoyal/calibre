@@ -213,15 +213,20 @@ class Structure(BaseTest):
         guide = [('nav.html', 'toc', 'Table of Contents'), ('a.html', 'text', 'Start')]
 
         def convert(landmarks):
-            c = self.create_epub([
-                cmi('a.html', body),
-                cmi('b.html', body),
-                cmi(
-                    'nav.html',
-                    b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><body>'
-                    b'<nav epub:type="toc"><ol><li><a href="a.html">A</a></li></ol></nav>' + landmarks + b'</body></html>',
-                ),
-            ], spine=('a.html', 'b.html'), guide=guide, ver=2)
+            c = self.create_epub(
+                [
+                    cmi('a.html', body),
+                    cmi('b.html', body),
+                    cmi(
+                        'nav.html',
+                        b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><body>'
+                        b'<nav epub:type="toc"><ol><li><a href="a.html">A</a></li></ol></nav>' + landmarks + b'</body></html>',
+                    ),
+                ],
+                spine=('a.html', 'b.html'),
+                guide=guide,
+                ver=2,
+            )
             create_nav(c, get_toc(c), get_landmarks(c), previous_nav=('nav.html', c.parsed('nav.html')))
             root = c.parsed('nav.html')
             return root, [(a.get(f'{{{EPUB_NS}}}type'), a.get('href')) for a in XPath('//h:nav[@epub:type="landmarks"]//h:a')(root)]
