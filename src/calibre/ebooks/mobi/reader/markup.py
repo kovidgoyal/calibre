@@ -8,9 +8,7 @@ from calibre.ebooks.chardet import strip_encoding_declarations
 
 
 def _rewrite_kindle_embed_font_urls(css, resource_map, log):
-    pattern = re.compile(
-        r'''url\(\s*(['"]?)kindle:embed:([0-9|A-V]+)(?:\?mime=[^'")\s]*)?\1\s*\)''', re.IGNORECASE
-    )
+    pattern = re.compile(r'''url\(\s*(['"]?)kindle:embed:([0-9|A-V]+)(?:\?mime=[^'")\s]*)?\1\s*\)''', re.IGNORECASE)
 
     def replace(match):
         num = int(match.group(2), 32)
