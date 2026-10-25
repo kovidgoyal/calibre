@@ -279,7 +279,7 @@ def test_parse_fields(return_tests=False):
             from lxml import html
 
             entries = ('A:Ab', 'A:Dogs', 'A:Dogs', 'A:Y:Ab')
-            body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}<br/></a></p>' for i, t in enumerate(entries)) + '</div>')
+            body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}</a></p>' for i, t in enumerate(entries)) + '</div>')
             # Blocks are passed in reverse order
             polish_index_markup(None, list(body)[::-1])
             self.assertEqual(len(body), 1, 'blocks for the same top level entry not merged')
@@ -298,13 +298,16 @@ def test_parse_fields(return_tests=False):
 
             self.assertEqual({a.get('href'): entry_for_link(a) for a in body.iter('a')}, {f'#{i}': t for i, t in enumerate(entries)})
             self.assertEqual([s.text for s in body[0]], ['A', None, None, 'Y', None])
+            # Each entry ends with a line break, with references to the same entry on one line
+            self.assertEqual([s[-1].tag for s in body[0]], ['br'] * 5)
+            self.assertEqual(len(body[0][2].xpath('descendant::br')), 1)
 
         def test_polish_index_markup_edge_cases(self):
             from lxml import html
 
             def polish(*entries):
                 # entries are (entry text, extra markup after the link), in sorted order
-                body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}<br/></a>{extra}</p>' for i, (t, extra) in enumerate(entries)) + '</div>')
+                body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}</a>{extra}</p>' for i, (t, extra) in enumerate(entries)) + '</div>')
                 polish_index_markup(None, list(body)[::-1])
                 self.assertEqual({a.get('href') for a in body.iter('a')}, {f'#{i}' for i in range(len(entries))}, 'links lost')
                 return body

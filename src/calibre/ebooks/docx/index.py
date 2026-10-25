@@ -57,7 +57,6 @@ def make_block(expand, style, parent, pos):
 
 def add_xe(xe, t, expand):
     run = t.getparent()
-    idx = run.index(t)
     t.text = xe.get('text') or ' '
     pt = xe.get('page-number-text', None)
 
@@ -69,8 +68,6 @@ def add_xe(xe, t, expand):
         t2.set(expand('xml:space'), 'preserve')
         t2.text = f' [{pt}]'
         r.append(t2)
-    # put separate entries on separate lines
-    run.insert(idx + 1, run.makeelement(expand('w:br')))
     return xe['anchor'], run
 
 
@@ -260,9 +257,6 @@ def polish_index_markup(index, blocks):
         containers[block] = a.getparent()
         split_up_block(containers[block], a, parts, ldict, tdict)
 
-        for br in block.xpath('descendant::br'):
-            br.tail = None
-
     # We want a single block for each main entry
     blocks = [b for b in blocks if b in path_map]
     if not blocks:
@@ -277,3 +271,10 @@ def polish_index_markup(index, blocks):
                 block.getparent().remove(block)
         else:
             prev_block = block
+
+    # Put separate entries on separate lines. The spans are display:block but
+    # adjacent spans with the same style are merged later in the conversion.
+    for block in blocks:
+        if block.getparent() is not None:
+            for span in containers[block]:
+                span.append(span.makeelement('br'))
