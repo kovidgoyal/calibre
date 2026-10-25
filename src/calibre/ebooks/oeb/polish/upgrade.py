@@ -146,6 +146,11 @@ def create_nav(container, toc, landmarks, previous_nav=None):
             entry['type'] = guide_epubtype_map.get(entry['type'].lower())
             if entry['type'] == 'cover' and container.mime_map.get(entry['dest'], '').lower() in OEB_DOCS:
                 container.apply_unique_properties(entry['dest'], 'calibre:title-page')
+        # The nav of an EPUB 3 input book already has landmarks, keep them
+        # rather than replacing them with ones generated from the guide, see
+        # https://bugs.launchpad.net/bugs/2172176
+        if previous_nav is not None and xpath(previous_nav[1], '//h:nav[@epub:type="landmarks"]//h:a[@href]'):
+            landmarks = None
     commit_nav_toc(container, toc, lang=lang, landmarks=landmarks, previous_nav=previous_nav)
 
 

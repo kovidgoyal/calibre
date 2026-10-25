@@ -9,7 +9,7 @@ from zipfile import ZIP_STORED, ZipFile
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
-from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, XHTML, barename, xml2text
+from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, XHTML, XPath, barename, xml2text
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import clean_opf, find_cover_image, find_cover_page, mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.create import create_book
@@ -197,6 +197,41 @@ class Structure(BaseTest):
         self.assertEqual(xml2text(elem('hd-toc')).strip(), 'CONTENTS')
         self.assertEqual(barename(elem('hd-toc').getparent().tag), 'nav')
         self.assertEqual(1, len(root.xpath('//*[@class="special"]')))
+
+    def test_existing_landmarks_preserved(self):
+        # Converting an EPUB 3 book must keep the landmarks from its nav
+        # rather than replacing them with ones generated from the guide, see
+        # https://bugs.launchpad.net/bugs/2172176
+        from calibre.ebooks.oeb.polish.upgrade import create_nav
+
+        body = b'<html xmlns="http://www.w3.org/1999/xhtml"><body><p>x</p></body></html>'
+        landmarks = (
+            b'<nav epub:type="landmarks" hidden="hidden"><h1 id="lmh">Guide</h1><ol>'
+            b'<li><a epub:type="toc" href="a.html">Contents</a></li>'
+            b'<li><a epub:type="bodymatter" href="b.html">Start</a></li></ol></nav>'
+        )
+        guide = [('nav.html', 'toc', 'Table of Contents'), ('a.html', 'text', 'Start')]
+
+        def convert(landmarks):
+            c = self.create_epub([
+                cmi('a.html', body),
+                cmi('b.html', body),
+                cmi(
+                    'nav.html',
+                    b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><body>'
+                    b'<nav epub:type="toc"><ol><li><a href="a.html">A</a></li></ol></nav>' + landmarks + b'</body></html>',
+                ),
+            ], spine=('a.html', 'b.html'), guide=guide, ver=2)
+            create_nav(c, get_toc(c), get_landmarks(c), previous_nav=('nav.html', c.parsed('nav.html')))
+            root = c.parsed('nav.html')
+            return root, [(a.get(f'{{{EPUB_NS}}}type'), a.get('href')) for a in XPath('//h:nav[@epub:type="landmarks"]//h:a')(root)]
+
+        root, lm = convert(landmarks)
+        self.assertEqual([('toc', 'a.html'), ('bodymatter', 'b.html')], lm)
+        self.assertEqual('Guide', xml2text(root.xpath('//*[@id="lmh"]')[0]).strip())
+        # A nav without landmarks gets them generated from the guide
+        root, lm = convert(b'')
+        self.assertEqual([('toc', 'nav.html'), ('bodymatter', 'a.html')], lm)
 
     def test_guide_reference_without_type(self):
         # Guide references with no type must not cause a crash, see
