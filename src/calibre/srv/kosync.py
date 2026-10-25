@@ -46,14 +46,14 @@ def authorized_user(ctx, rd) -> str | None:
         return username
     # Count failures towards the same bans as other logins, so that passwords
     # cannot be guessed via these endpoints
-    if (ac := getattr(ctx, 'auth_controller', None)) is not None:
-        ac.ban_list.failed(rd.remote_addr)
+    if ctx.auth_controller is not None:
+        ctx.auth_controller.ban_list.failed(rd.remote_addr)
     return None
 
 
 def check_user(ctx, rd):
     # Return the authorized username or an error response
-    if (ac := getattr(ctx, 'auth_controller', None)) is not None and ac.ban_list.is_banned(rd.remote_addr):
+    if ctx.auth_controller is not None and ctx.auth_controller.ban_list.is_banned(rd.remote_addr):
         return None, error(rd, TOO_MANY_ATTEMPTS)
     username = authorized_user(ctx, rd)
     if username is None:

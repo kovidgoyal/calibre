@@ -24,6 +24,7 @@ class Context:
     log = None
     url_for: UrlForCallable = lambda route, **kwargs: ''
     jobs_manager = None
+    auth_controller: AuthController | None = None
     CATEGORY_CACHE_SIZE = 25
     SEARCH_CACHE_SIZE = 100
 
