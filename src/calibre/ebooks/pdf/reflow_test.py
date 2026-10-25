@@ -12,10 +12,12 @@ fragments, is what tells a real gutter apart from the wide spacing of a
 justified line, which does not line up from one row to the next.
 """
 
+import os
 import random
 import unittest
 
-from calibre.ebooks.pdf.reflow import Page
+from calibre.ebooks.pdf.reflow import Image, Page, PDFDocument
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import logical_to_visual
 
 
@@ -337,6 +339,100 @@ class TestRightToLeftColumns(unittest.TestCase):
         self.assertEqual(f'{LEFT_LINE} 0', texts_of(page)[0])
 
 
+class TestPageBoundaries(unittest.TestCase):
+    """
+    Pages are joined together into a single flow of text, with page numbers
+    removed and paragraphs that continue onto the next page merged.
+    """
+
+    BODY = 'Some ordinary text that fills up most of the width of a line'
+
+    def convert(self, pages):
+        """
+        Convert a document whose pages are lists of (left, top, width, text,
+        font) fragments, returning the generated HTML.
+        """
+        from calibre.utils.logging import default_log
+
+        parts = ['<pdf2xml>']
+        for num, fragments in enumerate(pages, start=1):
+            parts.append(f'<page number="{num}" top="0" left="0" height="1349" width="1800">')
+            if num == 1:
+                parts.append('<fontspec id="0" size="24" family="Body" color="#000000"/>')
+                parts.append('<fontspec id="1" size="31" family="Heading" color="#000000"/>')
+                parts.append('<fontspec id="2" size="21" family="Caption" color="#000000"/>')
+            for left, top, width, text, font in fragments:
+                parts.append(f'<text top="{top}" left="{left}" width="{width}" height="29" font="{font}">{text}</text>')
+            parts.append('</page>')
+        parts.append('</pdf2xml>')
+        opts = Opts()
+        opts.pdf_header_skip = opts.pdf_footer_skip = -1
+        with TemporaryDirectory() as tdir:
+            cwd = os.getcwd()
+            os.chdir(tdir)
+            try:
+                PDFDocument(''.join(parts).encode('utf-8'), opts, default_log)
+                with open('index.html', encoding='utf-8') as f:
+                    return f.read()
+            finally:
+                os.chdir(cwd)
+
+    def text_page(self, num, heading='', page_number=True):
+        # Vary the text so that it is not mistaken for a header or footer
+        words = 'alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu'.split()
+        ans = [(337, 132, 800, heading, 1)] if heading else []
+        ans += [(337, 223 + i * 35, 1100, f'{self.BODY} {words[num % len(words)]} {words[i]}.', 0) for i in range(12)]
+        if page_number:
+            ans.append((892, 1212, 15 * len(str(num)), str(num), 0))
+        return ans
+
+    def test_bare_page_numbers_are_removed(self):
+        html = self.convert([self.text_page(i + 2) for i in range(6)])
+        self.assertIn(f'{self.BODY} gamma alpha.', html)
+        for i in range(6):
+            self.assertNotIn(f'>{i + 2}<', html)
+
+    def test_caption_is_not_merged_with_next_page(self):
+        # A centred image caption at the bottom of one page followed by a
+        # heading at the top of the next must remain separate paragraphs, even
+        # though the caption ends with whitespace
+        pages = [self.text_page(i, page_number=False) for i in range(6)]
+        pages[2] = [(659, 1045, 480, 'Caption of the image, 2026. ', 2)]
+        pages[3] = self.text_page(3, heading='The heading after the caption', page_number=False)
+        paras = [p for p in self.convert(pages).splitlines() if p.startswith('<p')]
+        self.assertEqual(1, len([p for p in paras if 'Caption of the image' in p]))
+        for p in paras:
+            if 'Caption of the image' in p:
+                self.assertNotIn('The heading after the caption', p)
+
+
+class TestImages(unittest.TestCase):
+    """
+    The size of an image in the PDF is only meaningful relative to the page, and
+    readers must be able to shrink it to fit the screen without distorting it.
+    """
+
+    def html(self, width, height, page_width=1800, page_height=1349):
+        from calibre.utils.logging import default_log
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        img = safe_xml_fromstring(f'<image top="10" left="10" width="{width}" height="{height}" src="x.jpg"/>')
+        return Image(img, page_width, page_height, Opts(), default_log, iter(range(10))).to_html()
+
+    def test_size_is_not_fixed(self):
+        html = self.html(1313, 984)
+        self.assertNotIn('width=', html)
+        self.assertNotIn('height', html)
+
+    def test_small_image_keeps_its_size_relative_to_the_page(self):
+        self.assertIn('style="max-width:20%"', self.html(360, 200))
+
+    def test_large_image_can_fill_the_screen(self):
+        # Fills the height of a landscape page but not its width
+        self.assertIn('style="max-width:100%"', self.html(721, 900))
+        self.assertIn('style="max-width:100%"', self.html(1313, 300))
+
+
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromNames([
         f'{__name__}.{x.__name__}'
@@ -346,6 +442,8 @@ def find_tests():
             TestSpanningElements,
             TestTables,
             TestRightToLeftColumns,
+            TestPageBoundaries,
+            TestImages,
         )
     ])
 

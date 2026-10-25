@@ -167,11 +167,12 @@ class DocStats:
 
 
 class Image(Element):
-    def __init__(self, img, opts, log, idc):
+    def __init__(self, img, page_width, page_height, opts, log, idc):
         Element.__init__(self)
         self.opts, self.log = opts, log
         self.id = next(idc)
         self.top, self.left, self.width, self.height = map(float, map(img.get, ('top', 'left', 'width', 'height')))
+        self.page_width, self.page_height = page_width, page_height
         self.src = img.get('src')
         self.bottom = self.top + self.height
         self.right = self.left + self.width
@@ -179,7 +180,18 @@ class Image(Element):
         self.align = 'L'
 
     def to_html(self):
-        return f'<img src="{self.src}" alt="" width="{int(self.width)}px" height="{int(self.height)}px"/>'
+        # The size of the image in the PDF is in the units of the PDF page, so
+        # it is only meaningful relative to the width of the page. Fixing both
+        # the width and height distorts the image when the reader has to shrink
+        # it to fit the screen, so limit only the width and let the height
+        # follow from the aspect ratio of the image. Images that take up a
+        # large part of the page are allowed to fill the width of the screen,
+        # as otherwise an image filling the height of a landscape page would
+        # come out tiny.
+        percent = 100
+        if self.page_width > 0 and self.page_height > 0 and self.width < self.page_width / 2 and self.height < self.page_height / 2:
+            percent = max(1, round(100 * self.width / self.page_width))
+        return f'<img src="{self.src}" alt="" style="max-width:{percent}%"/>'
 
     def dump(self, f):
         f.write(self.to_html())
@@ -850,7 +862,7 @@ class Page:
         # These can be interspersed with text
         if not self.opts.no_images:
             for img in page.xpath('descendant::image'):
-                self.imgs.append(Image(img, self.opts, self.log, idc))
+                self.imgs.append(Image(img, self.width, self.height, self.opts, self.log, idc))
 
         self.textwidth = self.right_margin - self.left_margin
 
@@ -1954,8 +1966,8 @@ class PDFDocument:
         foot_match2 = [0] * LINE_SCAN_COUNT
         foot_page = 0
         foot_skip = 0
-        # xxx nn xxx nn  or nn xxx  or just roman numerals
-        pagenum_text = r'(.*\d+\s+\w+\s+\d+.*)|(\s*\d+\s+.*)|(^\s*[ivxlcIVXLC]+\s*$)'
+        # xxx nn xxx nn  or nn xxx  or just a number or roman numerals
+        pagenum_text = r'(.*\d+\s+\w+\s+\d+.*)|(\s*\d+\s+.*)|(^\s*(\d+|[ivxlcIVXLC]+)\s*$)'
         # For line ending nn, is the preceding text constant
         fixed_text = r'(^.+[^0-9])\d+\s*$'
         fixed_head = ''
@@ -2142,6 +2154,9 @@ class PDFDocument:
                             and merged_text.tag == 'p'
                             and 'href=' not in merged_text.raw
                             and merged_text.left < stats_left_min + merged_text.average_character_width
+                            # Centered text such as an image caption or a heading is not part of a paragraph
+                            and last_line.align != 'C'
+                            and merged_text.align != 'C'
                             and not last_spare > merged_len
                             and not ('"float:right"' in last_line.raw and '"float:right"' in merged_text.raw)
                             and not adjacent_quotes(last_line.text_as_string, merged_text.text_as_string)
@@ -2177,7 +2192,7 @@ class PDFDocument:
                                 and (len(self.pages[pind + 1].texts) == 0 or self.pages[pind + 1].texts[0].top > self.pages[pind + 1].imgs[0].top)
                             ):
                                 page.page_break_after = True
-                    elif re.match(r'.*[a-z, ]$', last_line.text_as_string) is not None or last_line.final_width > page.width * self.opts.unwrap_factor:
+                    elif re.match(r'.*[a-z,]\s*$', last_line.text_as_string) is not None or last_line.final_width > page.width * self.opts.unwrap_factor:
                         candidate = page
                 else:
                     candidate = None
