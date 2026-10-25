@@ -28,8 +28,8 @@ class Elem(NamedTuple):
 
 
 class GuideRef(NamedTuple):
-    title: str
     type: str
+    title: str
     pos_fid: tuple[int, int]
 
 

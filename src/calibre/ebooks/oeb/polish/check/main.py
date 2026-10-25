@@ -3,9 +3,7 @@
 
 from collections.abc import Iterable
 from functools import partial
-from typing import NamedTuple
-
-from lxml.etree import Element
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError, run_checkers
@@ -26,6 +24,9 @@ from calibre.ebooks.oeb.polish.check.parsing import (
 from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.utils import guess_type
 from polyglot.builtins import as_unicode
+
+if TYPE_CHECKING:
+    from lxml.etree import Element
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {'application/oebps-page-map+xml'}
 

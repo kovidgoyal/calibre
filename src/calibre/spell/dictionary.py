@@ -10,7 +10,7 @@ import sys
 from collections import defaultdict
 from functools import partial
 from itertools import chain
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre import prints
 from calibre.constants import config_dir, filesystem_encoding, iswindows
@@ -20,7 +20,9 @@ from calibre.utils.icu import capitalize
 from calibre.utils.localization import _, get_lang, get_system_locale
 from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
-from calibre_extensions import hunspell
+
+if TYPE_CHECKING:
+    from calibre_extensions import hunspell
 
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
@@ -209,6 +211,8 @@ def get_dictionary(locale, exact_match=False):
 
 
 def load_dictionary(dictionary):
+    from calibre_extensions import hunspell
+
     def fix_path(path):
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)

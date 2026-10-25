@@ -7,7 +7,7 @@ import numbers
 import sys
 from collections.abc import Iterable
 from itertools import repeat
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QApplication, QEventLoop, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript
@@ -15,11 +15,13 @@ from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript
 from calibre import detect_ncpus as cpu_count
 from calibre import prints
 from calibre.ebooks.oeb.polish.check.base import ERROR, WARN, BaseError
-from calibre.ebooks.oeb.polish.check.main import CSSFix
 from calibre.gui2 import must_use_qt
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import secure_webengine, setup_profile
+
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.check.main import CSSFix
 
 CSS_RULE_ID_PREFIX = 'css:'
 
