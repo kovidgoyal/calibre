@@ -40,6 +40,7 @@ COMMANDS = (
     'search',
     'fts_index',
     'fts_search',
+    'notes',
 )
 
 
