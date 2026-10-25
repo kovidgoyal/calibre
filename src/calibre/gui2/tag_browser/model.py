@@ -1867,6 +1867,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                 return True
             if val in sd_db.saved_search_names():
                 return self.show_error_after_event_loop_tick(_('Duplicate search name'), _('The saved search name %s is already used.') % val)
+            if '"' in val:
+                return self.show_error_after_event_loop_tick(_('Invalid search name'), _('Saved search names cannot contain " (quote) characters.'))
             self.use_position_based_index_on_next_recount = True
             sd_db.saved_search_rename(str(item.data(role) or ''), val)
             item.tag.name = val

@@ -62,6 +62,8 @@ def main(opts, args, dbctx):
     elif args[0] == 'add':
         if len(args) < 3:
             raise SystemExit(_('Error: You must specify a name and a search string'))
+        if '"' in args[1]:
+            raise SystemExit(_('Error: Saved search names cannot contain " (quote) characters'))
         dbctx.run('saved_searches', 'add', args[1], args[2])
         prints(args[1], _('added'))
     elif args[0] == 'remove':

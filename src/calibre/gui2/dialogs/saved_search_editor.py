@@ -66,6 +66,8 @@ class AddSavedSearch(Dialog):
         name = self.sname.text().strip()
         if not name:
             return error_dialog(self, _('No search name'), _('You must specify a name for the Saved search'), show=True)
+        if '"' in name:
+            return error_dialog(self, _('Invalid search name'), _('Saved search names cannot contain " (quote) characters.'), show=True)
         expression = self.search.toPlainText().strip()
         if not expression:
             return error_dialog(
