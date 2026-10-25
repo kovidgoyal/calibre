@@ -7,12 +7,14 @@ Test the CLI of the calibre database management tool
 
 import csv
 import os
+import shutil
 import unittest
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout, suppress
 from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
 from calibre.db.cli.cmd_list_categories import do_list
+from calibre.db.constants import NOTES_DB_NAME, NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from polyglot.io import PolyglotBytesIO
 
@@ -220,6 +222,29 @@ class RestoreDatabaseTest(BaseTest):
         self.assertFalse(os.path.exists(self.report_path()))
         self.assertTrue(os.path.exists(os.path.join(self.library_path, 'metadata_pre_restore.db')))
         self.assertEqual(self.restored_titles(), self.titles)
+
+    def restore_without_notes(self, with_preferences):
+        if with_preferences:
+            cache = self.init_cache()
+            cache.saved_search_add('Restored search', 'title:test')
+            cache.backend.prefs.write_serialized(self.library_path)
+            cache.close()
+            self.objects_to_close.remove(cache)
+        else:
+            with suppress(FileNotFoundError):
+                os.remove(os.path.join(self.library_path, 'metadata_db_prefs_backup.json'))
+        notes_path = os.path.join(self.library_path, NOTES_DIR_NAME)
+        shutil.rmtree(notes_path)
+        self.test_restore_succeeded()
+        self.assertTrue(os.path.isfile(os.path.join(notes_path, NOTES_DB_NAME)))
+        if with_preferences:
+            self.assertEqual(self.init_cache().saved_search_lookup('Restored search'), 'title:test')
+
+    def test_restore_without_notes(self):
+        self.restore_without_notes(with_preferences=False)
+
+    def test_restore_without_notes_with_preferences(self):
+        self.restore_without_notes(with_preferences=True)
 
     def test_restore_partially_failed(self):
         bad_id = min(self.titles)
