@@ -466,14 +466,21 @@ The syntax for searching for dates is::
 If the date is ambiguous then the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
-strings ``yesterday`` and ``thismonth`` (or the translated equivalent in the current language) also work.
-In addition, the string ``daysago`` (also translated) can be used to compare to a date some number of days ago.
-For example::
+strings ``yesterday``, ``thismonth``, ``lastmonth``, ``thisyear`` and ``lastyear`` (or the translated equivalent in
+the current language) also work. In addition, the strings ``daysago``, ``monthsago`` and ``yearsago`` (also
+translated) can be used to compare to a date some number of days, months or years ago. Searches using
+``thismonth``, ``lastmonth`` and ``monthsago`` compare only the year and month, while those using ``thisyear``,
+``lastyear`` and ``yearsago`` compare only the year. For example::
 
     date:>10daysago
     date:<=45daysago
+    pubdate:lastmonth Will find all books published last month
+    date:>=3monthsago Will find all books added to calibre in the last three calendar months, including this month
+    pubdate:<10yearsago Will find all books published before the year ten years ago
 
-To avoid potential problems with translated strings when using a non-English version of calibre, the strings ``_today``, ``_yesterday``, ``_thismonth``, and ``_daysago`` are always available. They are not translated.
+To avoid potential problems with translated strings when using a non-English version of calibre, the strings
+``_today``, ``_yesterday``, ``_thismonth``, ``_lastmonth``, ``_thisyear``, ``_lastyear``, ``_daysago``,
+``_monthsago`` and ``_yearsago`` are always available. They are not translated.
 
 *Searching dates and numeric values with relational comparisons*
 

@@ -271,7 +271,14 @@ def create_date_tab(self, db):
     dcl.append(h)
     self.sel_human = a(QRadioButton('', w))
     self.date_human = dh = a(QComboBox(w))
-    for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:
+    for val, text in [
+        ('today', _('Today')),
+        ('yesterday', _('Yesterday')),
+        ('thismonth', _('This month')),
+        ('lastmonth', _('Last month')),
+        ('thisyear', _('This year')),
+        ('lastyear', _('Last year')),
+    ]:
         dh.addItem(text, val)
     connect_lambda(self.date_year.valueChanged, self, lambda self: self.sel_date.setChecked(True))
     connect_lambda(self.date_month.currentIndexChanged, self, lambda self: self.sel_date.setChecked(True))
