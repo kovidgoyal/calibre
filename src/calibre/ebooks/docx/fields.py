@@ -299,6 +299,36 @@ def test_parse_fields(return_tests=False):
             self.assertEqual({a.get('href'): entry_for_link(a) for a in body.iter('a')}, {f'#{i}': t for i, t in enumerate(entries)})
             self.assertEqual([s.text for s in body[0]], ['A', None, None, 'Y', None])
 
+        def test_polish_index_markup_edge_cases(self):
+            from lxml import html
+
+            def polish(*entries):
+                # entries are (entry text, extra markup after the link), in sorted order
+                body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}<br/></a>{extra}</p>' for i, (t, extra) in enumerate(entries)) + '</div>')
+                polish_index_markup(None, list(body)[::-1])
+                self.assertEqual({a.get('href') for a in body.iter('a')}, {f'#{i}' for i in range(len(entries))}, 'links lost')
+                return body
+
+            # Entry with a trailing colon has no sub-entries
+            body = polish(('B:x', ''), ('B:', ''))
+            self.assertEqual(len(body), 1)
+            self.assertEqual([s.text_content() for s in body[0]], ['B', 'x'])
+            # Page number text stays with its link
+            body = polish(('C', '<span> [See D]</span>'), ('C', '<span> [See E]</span>'), ('D', ''))
+            self.assertEqual(len(body), 2)
+            self.assertEqual([s.text_content() for s in body[0]], ['C [See D], C [See E]'])
+            # Sub-entries still match an entry that has page number text
+            body = polish(('A:Dogs', '<span> [See Cats]</span>'), ('A:Dogs:X', ''))
+            self.assertEqual(len(body), 1)
+            self.assertEqual([s.text_content() for s in body[0]], ['A', 'Dogs [See Cats]', 'X'])
+            # Entries with no text other than colons
+            body = polish((':', ''), (':', ''), ('Z', ''))
+            self.assertEqual(len(body), 2)
+            # Blocks without links are left alone
+            body = html.fromstring('<div><p>X</p><p><a href="#1">X</a></p></div>')
+            polish_index_markup(None, list(body)[::-1])
+            self.assertEqual(len(body), 2)
+
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseFields)
     if return_tests:
         return suite
