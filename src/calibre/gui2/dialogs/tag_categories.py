@@ -1,7 +1,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import defaultdict, namedtuple
-from typing import cast
+from collections import defaultdict
+from typing import NamedTuple, cast
 
 from qt.core import QApplication, QDialog, QIcon, QListWidgetItem, Qt
 
@@ -33,8 +33,13 @@ class TagCategories(QDialog, Ui_TagCategories):
         'languages': QIcon.ic('languages.png'),
     }
 
-    ItemTuple = namedtuple('ItemTuple', 'v k')
-    CategoryNameTuple = namedtuple('CategoryNameTuple', 'n k')
+    class ItemTuple(NamedTuple):
+        v: str
+        k: str
+
+    class CategoryNameTuple(NamedTuple):
+        n: str
+        k: str
 
     def __init__(self, window, db, on_category=None, book_ids=None):
         QDialog.__init__(self, window)

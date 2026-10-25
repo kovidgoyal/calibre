@@ -4,16 +4,23 @@
 import errno
 import numbers
 import os
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from functools import partial
 from itertools import zip_longest
 from operator import attrgetter
+from typing import Any, NamedTuple
 
 from calibre.constants import config_dir
 from calibre.utils.localization import _
 from calibre.utils.lock import ExclusiveFile
 
-Option = namedtuple('Option', 'name default longdoc shortdoc choices')
+
+class Option(NamedTuple):
+    name: str
+    default: Any | None
+    longdoc: str | None
+    shortdoc: str
+    choices: list[str] | None
 
 
 class Choices(frozenset):

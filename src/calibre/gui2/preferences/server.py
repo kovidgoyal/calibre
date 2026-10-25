@@ -240,8 +240,8 @@ class Choices(QComboBox):
         QComboBox.__init__(self)
         self.setEditable(False)
         opt = options[name]
-        self.choices = opt.choices
-        self.addItems(opt.choices)
+        self.choices: list[str] = opt.choices  # ty: ignore[invalid-assignment]
+        self.addItems(self.choices)
         self.currentIndexChanged.connect(self.changed_signal.emit)
         init_opt(self, opt, layout)
 
@@ -442,8 +442,8 @@ class MainTab(QWidget):  # {{{
         self.change_auth_desc()
 
     def restore_defaults(self):
-        self.opt_auth.setChecked(options['auth'].default)
-        self.opt_port.setValue(options['port'].default)
+        self.opt_auth.setChecked(options['auth'].default)  # ty: ignore[invalid-argument-type]
+        self.opt_port.setValue(options['port'].default)  # ty: ignore[invalid-argument-type]
 
     def update_button_state(self):
         from calibre.gui2.ui import get_gui

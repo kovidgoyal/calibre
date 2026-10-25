@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
 from collections.abc import Iterable
 from functools import partial
+from typing import NamedTuple
+
+from lxml.etree import Element
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError, run_checkers
@@ -118,7 +120,10 @@ def run_checks(container, skipped_rules: frozenset[str] = frozenset()):
     return remove_skipped(errors, skipped_rules)
 
 
-CSSFix = namedtuple('CSSFix', 'original_css elem attribute')
+class CSSFix(NamedTuple):
+    original_css: str
+    elem: Element | None
+    attribute: str
 
 
 def fix_css(container, skipped_rules: frozenset[str] = frozenset()):

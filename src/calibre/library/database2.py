@@ -19,7 +19,8 @@ import threading
 import time
 import traceback
 import uuid
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+from typing import NamedTuple
 
 from calibre import force_unicode, prints
 from calibre.constants import filesystem_encoding, iswindows, preferred_encoding
@@ -57,7 +58,11 @@ from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30 * 1024 * 1024
 
-ProxyMetadata = namedtuple('ProxyMetadata', 'book_size ondevice_col db_approx_formats')
+
+class ProxyMetadata(NamedTuple):
+    book_size: int
+    ondevice_col: str
+    db_approx_formats: FormatsList | None
 
 
 class DBPrefsWrapper:

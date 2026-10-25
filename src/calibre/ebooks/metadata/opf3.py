@@ -3,10 +3,11 @@
 
 import json
 import re
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from contextlib import suppress
 from functools import wraps
 from operator import attrgetter
+from typing import NamedTuple
 
 from lxml import etree
 
@@ -444,7 +445,11 @@ def set_languages(root, prefixes, refines, languages):
 
 # Creator/Contributor {{{
 
-Author = namedtuple('Author', 'name sort seq', defaults=(0,))
+
+class Author(NamedTuple):
+    name: str
+    sort: str | None
+    seq: int = 0
 
 
 def is_relators_role(props, q):

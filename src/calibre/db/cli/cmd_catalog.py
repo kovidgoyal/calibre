@@ -25,10 +25,7 @@ def option_parser(get_parser, args):  # {{{
         plugin = plugin_for_catalog_format(fmt)
         p = parser.add_option_group(_('{} OPTIONS').format(fmt.upper()))
         for option in plugin.cli_options:
-            if option.action:
-                p.add_option(option.option, default=option.default, dest=option.dest, action=option.action, help=option.help)
-            else:
-                p.add_option(option.option, default=option.default, dest=option.dest, help=option.help)
+            p.add_option(option.option, default=option.default, dest=option.dest, action=option.action, help=option.help)
 
     # Entry point
     parser = get_parser(

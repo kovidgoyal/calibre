@@ -2,8 +2,8 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
-from collections import namedtuple
 from struct import unpack_from
+from typing import NamedTuple
 
 from calibre.utils.wmf import create_bmp_from_dib, to_png
 
@@ -23,13 +23,29 @@ RECORD_TYPES = {
 }
 RECORD_RMAP = {v: k for k, v in RECORD_TYPES.items()}
 
+
 # See http://msdn.microsoft.com/en-us/library/cc230601.aspx
-StretchDiBits = namedtuple(
-    'StretchDiBits',
-    'left top right bottom x_dest y_dest x_src y_src cx_src'
-    ' cy_src bmp_hdr_offset bmp_header_size bmp_bits_offset'
-    ' bmp_bits_size usage op dest_width dest_height',
-)
+class StretchDiBits(NamedTuple):
+    left: int
+    top: int
+    right: int
+    bottom: int
+    x_dest: int
+    y_dest: int
+    x_src: int
+    y_src: int
+    cx_src: int
+    cy_src: int
+    bmp_hdr_offset: int
+    bmp_header_size: int
+    bmp_bits_offset: int
+    bmp_bits_size: int
+    usage: int
+    op: int
+    dest_width: int
+    dest_height: int
+
+
 # }}}
 
 

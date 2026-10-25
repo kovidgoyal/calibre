@@ -4,17 +4,14 @@
 import datetime
 import os
 import time
-from collections import namedtuple
 
 from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import DummyReporter, OptionRecommendation
 from calibre.library import current_library_name
-from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
+from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, Option
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang, get_lang
-
-Option = namedtuple('Option', 'option, default, dest, action, help')
 
 
 class EPUB_MOBI(CatalogPlugin):

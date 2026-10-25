@@ -5,8 +5,9 @@ import os
 import posixpath
 import time
 import types
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from itertools import chain
+from typing import NamedTuple
 
 from css_selectors import Select, SelectorError
 
@@ -18,7 +19,14 @@ from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
 
-File = namedtuple('File', 'name dir basename size category word_count')
+
+class File(NamedTuple):
+    name: str
+    dir: str
+    basename: str
+    size: int
+    category: str
+    word_count: int
 
 
 def get_category(name, mt):
@@ -72,9 +80,21 @@ def files_data(container, *args):
         )
 
 
-Image = namedtuple('Image', 'name mime_type usage size basename id width height')
+class Image(NamedTuple):
+    name: str
+    mime_type: str
+    usage: list[str]
+    size: int
+    basename: str
+    id: int
+    width: int
+    height: int
 
-LinkLocation = namedtuple('LinkLocation', 'name line_number text_on_line')
+
+class LinkLocation(NamedTuple):
+    name: str
+    line_number: int | None
+    text_on_line: str | None
 
 
 def sort_locations(container, locations):
@@ -158,8 +178,21 @@ def create_anchor_map(root, pat, name):
     return ans
 
 
-Anchor = namedtuple('Anchor', 'id location text')
-L = namedtuple('L', 'location text is_external href path_ok anchor_ok anchor ok')
+class Anchor(NamedTuple):
+    id: str | None
+    location: LinkLocation | None
+    text: str | None
+
+
+class LinkItem(NamedTuple):
+    location: str
+    text: str
+    is_external: bool
+    href: str
+    path_ok: bool
+    anchor_ok: bool
+    anchor: Anchor
+    ok: bool | None
 
 
 def Link(location, text, is_external, href, path_ok, anchor_ok, anchor):
@@ -167,7 +200,7 @@ def Link(location, text, is_external, href, path_ok, anchor_ok, anchor):
         ok = None
     else:
         ok = path_ok and anchor_ok
-    return L(location, text, is_external, href, path_ok, anchor_ok, anchor, ok)
+    return LinkItem(location, text, is_external, href, path_ok, anchor_ok, anchor, ok)
 
 
 def links_data(container, *args):
@@ -211,7 +244,12 @@ def links_data(container, *args):
         yield link
 
 
-Word = namedtuple('Word', 'id word locale usage')
+class Word(NamedTuple):
+    id: int
+    word: str
+    locale: str
+    usage: list[str]
+
 
 file_words_counts = None
 
@@ -221,7 +259,12 @@ def words_data(container, book_locale, *args):
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.items())))
 
 
-Char = namedtuple('Char', 'id char codepoint usage count')
+class Char(NamedTuple):
+    id: int
+    char: str
+    codepoint: int
+    usage: list[str]
+    count: int
 
 
 def chars_data(container, book_locale, *args):
@@ -236,15 +279,54 @@ def chars_data(container, book_locale, *args):
             yield Char(i, c, codepoint, sorted(usage, key=sort_key), cc.counter[codepoint])
 
 
-CSSRule = namedtuple('CSSRule', 'selector location')
-RuleLocation = namedtuple('RuleLocation', 'file_name line column')
-MatchLocation = namedtuple('MatchLocation', 'tag sourceline')
-CSSEntry = namedtuple('CSSEntry', 'rule count matched_files sort_key')
-CSSFileMatch = namedtuple('CSSFileMatch', 'file_name locations sort_key')
+class CSSRule(NamedTuple):
+    selector: str
+    location: RuleLocation
 
-ClassEntry = namedtuple('ClassEntry', 'cls num_of_matches matched_files sort_key')
-ClassFileMatch = namedtuple('ClassFileMatch', 'file_name class_elements sort_key')
-ClassElement = namedtuple('ClassElement', 'name line_number text_on_line tag matched_rules')
+
+class RuleLocation(NamedTuple):
+    file_name: str
+    line: int
+    column: int
+
+
+class MatchLocation(NamedTuple):
+    tag: str
+    sourceline: int
+
+
+class CSSEntry(NamedTuple):
+    rule: str
+    count: int
+    matched_files: tuple[CSSFileMatch, ...]
+    sort_key: bytes
+
+
+class CSSFileMatch(NamedTuple):
+    file_name: str
+    locations: tuple[str, ...]
+    sort_key: bytes
+
+
+class ClassEntry(NamedTuple):
+    cls: str
+    num_of_matches: int
+    matched_files: tuple[ClassFileMatch, ...]
+    sort_key: bytes
+
+
+class ClassFileMatch(NamedTuple):
+    file_name: str
+    class_elements: tuple[ClassElement, ...]
+    sort_key: bytes
+
+
+class ClassElement(NamedTuple):
+    name: str
+    line_number: int
+    text_on_line: str | None
+    tag: str
+    matched_rules: tuple[MatchLocation, ...]
 
 
 def css_data(container, book_locale, result_data, *args):

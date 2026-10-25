@@ -3,18 +3,15 @@
 
 import os
 import re
-from collections import namedtuple
 
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import DummyReporter
-from calibre.library.catalogs import FIELDS
+from calibre.library.catalogs import FIELDS, Option
 from calibre.utils.localization import _
 
 
 class CSV_XML(CatalogPlugin):
     "CSV/XML catalog generator"
-
-    Option = namedtuple('Option', 'option, default, dest, action, help')
 
     name = 'Catalog_CSV_XML'
     description = _('CSV/XML catalog generator')

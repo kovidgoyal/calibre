@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from operator import itemgetter
+from typing import NamedTuple
 
 from lxml import etree
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QSpinBox, Qt, QToolButton
@@ -12,7 +13,10 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 
-Group = namedtuple('Group', 'title feeds')
+
+class Group(NamedTuple):
+    title: str
+    feeds: tuple[str, ...]
 
 
 def uniq(vals, kmap=lambda x: x):

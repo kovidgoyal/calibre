@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+from datetime import datetime
 from io import BytesIO
 from threading import Thread
-from typing import cast
+from typing import NamedTuple, cast
 
 import regex
 from qt.core import (
@@ -50,16 +51,47 @@ from calibre.utils.localization import _, ngettext
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message
 
-Settings = namedtuple(
-    'Settings',
-    'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
-    'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
-    'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
-    'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality '
-    'tag_map_rules author_map_rules publisher_map_rules series_map_rules',
-)
-
 null = object()
+
+
+class Settings(NamedTuple):
+    remove_all: bool
+    remove: list[str]
+    add: list[str]
+    au: str
+    aus: str
+    do_aus: bool
+    rating: int
+    pub: str
+    do_series: bool
+    do_autonumber: bool
+    do_swap_ta: bool
+    do_remove_conv: bool
+    do_auto_author: bool
+    series: str
+    do_series_restart: bool
+    series_start_value: float
+    series_increment: float
+    do_title_case: bool
+    cover_action: str | None
+    clear_series: bool
+    clear_pub: bool
+    pubdate: datetime | None
+    adddate: datetime | None
+    do_title_sort: bool
+    languages: list[str]
+    clear_languages: bool
+    restore_original: bool
+    comments: str | object
+    generate_cover_settings: dict | None
+    read_file_metadata: bool
+    casing_algorithm: str
+    do_compress_cover: bool
+    compress_cover_quality: int
+    tag_map_rules: tuple[str, ...]
+    author_map_rules: tuple[str, ...]
+    publisher_map_rules: tuple[str, ...]
+    series_map_rules: tuple[str, ...]
 
 
 class Caser(LineEditECM):

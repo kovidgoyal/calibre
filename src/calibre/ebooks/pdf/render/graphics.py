@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
 from math import sqrt
+from typing import NamedTuple
 
 from qt.core import QBrush, QImage, QPaintEngine, QPen, QPointF, Qt, QTransform
 
@@ -37,7 +37,11 @@ def convert_path(path):  # {{{
 
 # }}}
 
-Brush = namedtuple('Brush', 'origin brush color')
+
+class Brush(NamedTuple):
+    origin: QPointF
+    brush: LinearGradientPattern | TexturePattern | QtPattern | None
+    color: tuple[float, float, float] | None
 
 
 class TilingPattern(Stream):
@@ -215,7 +219,7 @@ class Graphics:
         do_fill = True
 
         matrix = QTransform.fromTranslate(brush_origin.x(), brush_origin.y()) * pdf_system * qt_system.inverted()[0]
-        vals = list(brush.color().getRgbF())
+        vals = brush.color().getRgbF()
         self.brushobj = None
 
         if style <= Qt.BrushStyle.DiagCrossPattern:

@@ -3,10 +3,11 @@
 
 import copy
 import logging
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from functools import partial
 from io import BytesIO
 from struct import pack
+from typing import NamedTuple
 
 import css_parser
 from css_parser.css import CSSRule
@@ -30,6 +31,17 @@ XML_DOCS = OEB_DOCS | {SVG_MIME}
 # References to record numbers in KF8 are stored as base-32 encoded integers,
 # with 4 digits
 to_ref = partial(to_base, base=32, min_num_digits=4)
+
+
+class GuideRef(NamedTuple):
+    title: str
+    type: str
+    pos_fid: tuple[int, int]
+
+
+class FDST(NamedTuple):
+    start: int
+    end: int
 
 
 class KF8Writer:
@@ -356,7 +368,6 @@ class KF8Writer:
             self.first_non_text_record_idx += 1
 
     def create_fdst_records(self):
-        FDST = namedtuple('FDST', 'start end')
         entries = []
         self.fdst_table = []
         for i, flow in enumerate(self.flows):
@@ -460,7 +471,6 @@ class KF8Writer:
         self.start_offset = None
         self.guide_table = []
         self.guide_records = []
-        GuideRef = namedtuple('GuideRef', 'title type pos_fid')
         for ref in self.oeb.guide.values():
             href, frag = ref.href.partition('#')[0::2]
             aid = self.id_map.get((href, frag), None)

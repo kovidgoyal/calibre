@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
 from itertools import count
+from typing import NamedTuple
 
 from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
+
+
+class TocItem(NamedTuple):
+    text: str
+    anchor: str
+    indent: float
 
 
 def from_headings(body, log, namespace, num_levels=3):
@@ -93,7 +99,6 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
     XPath, get, ancestor = namespace.XPath, namespace.get, namespace.ancestor
     toc_level = None
     level = 0
-    TI = namedtuple('TI', 'text anchor indent')
     toc = []
     for tag in XPath('//*[(@w:fldCharType and name()="w:fldChar") or name()="w:hyperlink" or name()="w:instrText"]')(docx):
         n = tag.tag.rpartition('}')[-1]
@@ -122,7 +127,7 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
                         ml = 0
                     if ps.text_align in {'center', 'right'}:
                         ml = 0
-                    toc.append(TI(txt, href[1:], ml))
+                    toc.append(TocItem(txt, href[1:], ml))
     if toc:
         log('Found Word Table of Contents, using it to generate the Table of Contents')
         return structure_toc(toc)

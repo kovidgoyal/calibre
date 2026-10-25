@@ -175,7 +175,7 @@ class TestAuth(BaseTest):
         from calibre.srv.opts import Options
 
         opts = Options(userdb=':memory:')
-        Data = namedtuple('Data', 'username')
+        Data = namedtuple('Data', 'username')  # ruff: ignore[collections-named-tuple]
         with TemporaryDirectory() as base:
             l1, l2, l3 = (os.path.join(base, 'l' + x) for x in '123')
             for l in (l1, l2, l3):

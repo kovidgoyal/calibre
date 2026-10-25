@@ -3,13 +3,16 @@
 
 import copy
 import sys
-from collections import namedtuple
+from typing import NamedTuple
 
 from qt.core import QLinearGradient, QPointF, sip
 
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name
 
-Stop = namedtuple('Stop', 't color')
+
+class Stop(NamedTuple):
+    t: float
+    color: tuple[float, float, float, float]
 
 
 class LinearGradientPattern(Dictionary):

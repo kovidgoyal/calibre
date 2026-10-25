@@ -5,7 +5,7 @@ import errno
 import os
 import re
 import string
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from ctypes import (
     POINTER,
     WINFUNCTYPE,
@@ -31,6 +31,7 @@ from ctypes import c_uint64 as QWORD
 from ctypes.wintypes import BOOL, BYTE, DWORD, HANDLE, HWND, LPCWSTR, LPWSTR, UINT, ULONG, USHORT, WORD
 from operator import itemgetter
 from pprint import pformat, pprint
+from typing import NamedTuple
 
 from calibre import as_unicode, prints
 
@@ -100,7 +101,11 @@ USB_INTERFACE_DESCRIPTOR_TYPE = 4
 USB_REQUEST_GET_DESCRIPTOR = 0x06
 MAXIMUM_USB_STRING_LENGTH = 255
 
-StorageDeviceNumber = namedtuple('StorageDeviceNumber', 'type number partition_number')
+
+class StorageDeviceNumber(NamedTuple):
+    type: int
+    number: int
+    partition_number: int
 
 
 class STORAGE_DEVICE_NUMBER(Structure):
@@ -796,7 +801,13 @@ def get_volume_pathnames(volume_id, buf=None):
 
 # def scan_usb_devices(): {{{
 
-_USBDevice = namedtuple('_USBDevice', 'vendor_id product_id bcd devid devinst')
+
+class _USBDevice(NamedTuple):
+    vendor_id: int | None
+    product_id: int | None
+    bcd: int | None
+    devid: str
+    devinst: int
 
 
 class USBDevice(_USBDevice):

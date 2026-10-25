@@ -7,9 +7,9 @@ import json
 import os
 import signal
 import sys
-from collections import namedtuple
 from functools import lru_cache
 from itertools import count, repeat
+from typing import NamedTuple
 from urllib.parse import urlparse
 
 from html5_parser import parse
@@ -520,8 +520,17 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
 
 # Margin groups {{{
 
-Margins = namedtuple('Margins', 'left top right bottom')
-MarginFile = namedtuple('MarginFile', 'name margins')
+
+class Margins(NamedTuple):
+    left: float | None
+    top: float | None
+    right: float | None
+    bottom: float | None
+
+
+class MarginFile(NamedTuple):
+    name: str
+    margins: Margins
 
 
 def dict_to_margins(val, d=None):

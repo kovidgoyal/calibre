@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import Any, NamedTuple
+
 FIELDS = [
     'all',
     'title',
@@ -43,6 +45,14 @@ TEMPLATE_ALLOWED_FIELDS = [
     'title',
     'uuid',
 ]
+
+
+class Option(NamedTuple):
+    option: str
+    default: Any = None
+    dest: str | None = None
+    action: str | None = None
+    help: str | None = None
 
 
 class AuthorSortMismatchException(Exception):

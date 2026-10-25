@@ -2,9 +2,9 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import ctypes
-from collections import namedtuple
 from contextlib import contextmanager
 from ctypes import windll, wintypes
+from typing import NamedTuple
 
 # Wraps (part of) the IPHelper API, useful to enumerate the network routes and
 # adapters on the local machine
@@ -320,7 +320,14 @@ def _get_adapters():
             addresses = None
 
 
-Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status transmit_speed receive_speed')
+class Adapter(NamedTuple):
+    name: str
+    if_index: bool
+    if_index6: bool
+    friendly_name: str
+    status: str
+    transmit_speed: int
+    receive_speed: int
 
 
 def adapters():
@@ -348,7 +355,13 @@ def adapters():
     return ans
 
 
-Route = namedtuple('Route', 'destination gateway netmask interface metric flags')
+class Route(NamedTuple):
+    destination: str
+    gateway: str
+    netmask: str
+    interface: str | None
+    metric: int
+    flags: int
 
 
 def routes():
