@@ -125,15 +125,19 @@ class DateSearch:  # {{{
             ('>', self.gt),
             ('<', self.lt),
         ))
+        # NOTE: The following strings are keywords used in date searches, such
+        # as date:thismonth or date:>3daysago. Their translations must be
+        # single words without spaces.
         self.local_today = {'_today', 'today', icu_lower(_('today'))}
         self.local_yesterday = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
         self.local_thismonth = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
         self.local_lastmonth = {'_lastmonth', 'lastmonth', icu_lower(_('lastmonth'))}
         self.local_thisyear = {'_thisyear', 'thisyear', icu_lower(_('thisyear'))}
         self.local_lastyear = {'_lastyear', 'lastyear', icu_lower(_('lastyear'))}
-        self.daysago_pat = regex.compile(r'({}|daysago|_daysago)$'.format(_('daysago')), flags=regex.UNICODE | regex.VERSION1)
-        self.monthsago_pat = regex.compile(r'({}|monthsago|_monthsago)$'.format(_('monthsago')), flags=regex.UNICODE | regex.VERSION1)
-        self.yearsago_pat = regex.compile(r'({}|yearsago|_yearsago)$'.format(_('yearsago')), flags=regex.UNICODE | regex.VERSION1)
+        self.ago_pats = tuple(
+            (regex.compile(rf'({regex.escape(local)}|{unit}|_{unit})$', flags=regex.UNICODE | regex.VERSION1), unit)
+            for local, unit in ((_('daysago'), 'daysago'), (_('monthsago'), 'monthsago'), (_('yearsago'), 'yearsago'))
+        )
         # dateutil reads month.year and year.month as decimal numbers
         self.dotted_month_year_pat = regex.compile(r'(?:\d{1,2}\.\d{4}|\d{4}\.\d{1,2})')
 
@@ -236,18 +240,25 @@ class DateSearch:  # {{{
             qd = months_ago(now(), 12)
             field_count = 1
         else:
-            for pat, ago, field_count in (
-                (self.daysago_pat, lambda num: now() - timedelta(num), 3),
-                (self.monthsago_pat, lambda num: months_ago(now(), num), 2),
-                (self.yearsago_pat, lambda num: months_ago(now(), 12 * num), 1),
-            ):
+            m = unit = None
+            for pat, unit in self.ago_pats:
                 if (m := pat.search(query)) is not None:
-                    num = query[: -len(m.group(1))]
-                    try:
-                        qd = ago(int(num))
-                    except Exception:
-                        raise ParseException(_('Number conversion error: {0}').format(num))
                     break
+            if m is not None:
+                num = query[: -len(m.group(1))]
+                try:
+                    num = int(num)
+                except ValueError:
+                    raise ParseException(_('Number conversion error: {0}').format(num))
+                try:
+                    if unit == 'daysago':
+                        qd, field_count = now() - timedelta(num), 3
+                    elif unit == 'monthsago':
+                        qd, field_count = months_ago(now(), num), 2
+                    else:
+                        qd, field_count = months_ago(now(), 12 * num), 1
+                except ValueError, OverflowError:
+                    raise ParseException(_('Date out of range: {0}').format(query))
             else:
                 if self.dotted_month_year_pat.fullmatch(query) is not None:
                     query = query.replace('.', '-')

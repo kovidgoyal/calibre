@@ -436,28 +436,32 @@ class ReadingTest(BaseTest):
         old_pubdates = {i: cache.field_for('pubdate', i) for i in (1, 2, 3)}
         today = now()
         dates = {i: months_ago(today, m).replace(day=15, hour=12) for i, m in ((1, 0), (2, 1), (3, 14))}
-        cache.set_field('pubdate', dates)
 
         def ids_where(pred):
             return {i for i, d in dates.items() if pred(d)}
 
-        self.assertEqual(cache.search('pubdate:thismonth'), {1})
-        self.assertEqual(cache.search('pubdate:lastmonth'), {2})
-        self.assertEqual(cache.search('pubdate:_lastmonth'), {2})
-        self.assertEqual(cache.search('pubdate:1monthsago'), {2})
-        self.assertEqual(cache.search('pubdate:>=1monthsago'), {1, 2})
-        self.assertEqual(cache.search('pubdate:2_monthsago'), set())
-        self.assertEqual(cache.search('pubdate:14monthsago'), {3})
-        self.assertEqual(cache.search('pubdate:<13monthsago'), {3})
-        self.assertEqual(cache.search('pubdate:thisyear'), ids_where(lambda d: d.year == today.year))
-        self.assertEqual(cache.search('pubdate:_thisyear'), ids_where(lambda d: d.year == today.year))
-        self.assertEqual(cache.search('pubdate:lastyear'), ids_where(lambda d: d.year == today.year - 1))
-        self.assertEqual(cache.search('pubdate:1yearsago'), ids_where(lambda d: d.year == today.year - 1))
-        self.assertEqual(cache.search('pubdate:<1_yearsago'), ids_where(lambda d: d.year < today.year - 1))
-        self.assertEqual(cache.search('pubdate:>=0yearsago'), ids_where(lambda d: d.year == today.year))
-        self.assertRaises(ParseException, cache.search, 'pubdate:xmonthsago')
-        self.assertRaises(ParseException, cache.search, 'pubdate:99999yearsago')
-        cache.set_field('pubdate', old_pubdates)
+        cache.set_field('pubdate', dates)
+        try:
+            self.assertEqual(cache.search('pubdate:thismonth'), {1})
+            self.assertEqual(cache.search('pubdate:lastmonth'), {2})
+            self.assertEqual(cache.search('pubdate:_lastmonth'), {2})
+            self.assertEqual(cache.search('pubdate:1monthsago'), {2})
+            self.assertEqual(cache.search('pubdate:>=1monthsago'), {1, 2})
+            self.assertEqual(cache.search('pubdate:2_monthsago'), set())
+            self.assertEqual(cache.search('pubdate:14monthsago'), {3})
+            self.assertEqual(cache.search('pubdate:<13monthsago'), {3})
+            self.assertEqual(cache.search('pubdate:thisyear'), ids_where(lambda d: d.year == today.year))
+            self.assertEqual(cache.search('pubdate:_thisyear'), ids_where(lambda d: d.year == today.year))
+            self.assertEqual(cache.search('pubdate:lastyear'), ids_where(lambda d: d.year == today.year - 1))
+            self.assertEqual(cache.search('pubdate:1yearsago'), ids_where(lambda d: d.year == today.year - 1))
+            self.assertEqual(cache.search('pubdate:<1_yearsago'), ids_where(lambda d: d.year < today.year - 1))
+            self.assertEqual(cache.search('pubdate:>=0yearsago'), ids_where(lambda d: d.year == today.year))
+            self.assertRaises(ParseException, cache.search, 'pubdate:xmonthsago')
+            self.assertRaises(ParseException, cache.search, 'pubdate:99999yearsago')
+            self.assertRaisesRegex(ParseException, 'out of range', cache.search, 'pubdate:99999monthsago')
+            self.assertRaisesRegex(ParseException, 'out of range', cache.search, 'pubdate:9999999999daysago')
+        finally:
+            cache.set_field('pubdate', old_pubdates)
         # Test boolean search
         self.assertEqual(cache.search('template:{series}#@#:b:true'), {1, 2})
         self.assertEqual(cache.search('template:{series}#@#:b:false'), {3})
