@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, softwaregames1
 
+import os
 import sys
 
 from calibre import prints
+from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.html2text import html2text
 from calibre.utils.localization import _
 
 readonly = False
@@ -23,7 +26,18 @@ def item_id_for(db, field, item_name):
     return item_id, ''
 
 
+def import_note_data(db, field, item_id, html):
+    # Import from an empty directory so that relative and file: image URLs in
+    # the HTML cannot be used to read arbitrary files into the note
+    with TemporaryDirectory() as tdir:
+        path = os.path.join(tdir, 'note.html')
+        with open(path, 'wb') as f:
+            f.write(html.encode('utf-8') if isinstance(html, str) else html)
+        db.import_note(field, item_id, path)
+
+
 def implementation(db, notify_changes, action, *args):
+    is_remote = notify_changes is not None
     if action == 'list':
         field = args[0] if args else None
         with db.safe_read_lock:
@@ -44,18 +58,16 @@ def implementation(db, notify_changes, action, *args):
         as_html = args[2]
         if as_html:
             return True, db.export_note(field, item_id)
-        data = db.notes_data_for(field, item_id)
-        if not data:
-            return True, ''
-        # The searchable text starts with the item name, remove it
-        text = data['searchable_text']
-        name = db.get_id_map(field)[item_id]
-        if text.startswith(name + '\n'):
-            text = text[len(name) + 1 :]
-        return True, text
+        doc = db.notes_for(field, item_id)
+        return True, html2text(doc, default_image_alt=' ') if doc else ''
     if action == 'set':
         html_or_path, is_path = args[2:4]
-        db.import_note(field, item_id, html_or_path, path_is_data=not is_path)
+        if is_path:
+            if is_remote:
+                return False, _('Cannot import notes from files on the server, send the HTML instead')
+            db.import_note(field, item_id, html_or_path)
+        else:
+            import_note_data(db, field, item_id, html_or_path)
         return True, ''
     if action == 'remove':
         db.set_notes_for(field, item_id, '')
@@ -78,14 +90,15 @@ List the items that have notes, optionally only those in the specified field:
 
 %prog notes list [FIELD]
 
-Print the note for an item as plain text, or with --as-html as an HTML
-document with any images embedded, suitable for use with set:
+Print the note for an item as Markdown formatted text, or with --as-html as
+an HTML document with any images embedded, suitable for use with set:
 
 %prog notes show FIELD ITEM
 
 Replace the note for an item with the contents of an HTML file. Use - to
-read the HTML from standard input. When using a local library, images
-referenced in the file are added to the note:
+read the HTML from standard input. Images embedded as data: URLs are always
+added to the note. When using a local library and reading from a file, images
+referenced by paths relative to the file are added as well:
 
 %prog notes set FIELD ITEM FILE
 
@@ -99,7 +112,7 @@ Remove the note for an item:
         '--as-html',
         default=False,
         action='store_true',
-        help=_('When showing a note, output it as HTML instead of plain text'),
+        help=_('When showing a note, output it as HTML instead of Markdown formatted text'),
     )
     return parser
 
@@ -116,25 +129,36 @@ def main(opts, args, dbctx):
         raise SystemExit(_('Error: You must specify an action, one of: (list|show|set|remove)'))
     action, args = args[0], args[1:]
     if action == 'list':
-        for field, item_name in run(dbctx, 'list', *args[:1]):
+        if len(args) > 1:
+            raise SystemExit(_('Error: You can specify at most one field to list'))
+        for field, item_name in run(dbctx, 'list', *args):
             prints(f'{field}: {item_name}')
         return 0
     if action not in ('show', 'set', 'remove'):
         raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|show|set|remove)').format(action))
     if len(args) < 2:
         raise SystemExit(_('Error: You must specify a field and the name of an item'))
+    if action == 'set' and len(args) < 3:
+        raise SystemExit(_('Error: You must specify the file to read the note from'))
+    if len(args) > (3 if action == 'set' else 2):
+        raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
     field, item_name = args[:2]
     if action == 'show':
-        prints(run(dbctx, 'show', field, item_name, opts.as_html))
+        text = run(dbctx, 'show', field, item_name, opts.as_html)
+        if text:
+            prints(text)
     elif action == 'set':
-        if len(args) < 3:
-            raise SystemExit(_('Error: You must specify the file to read the note from'))
         path = args[2]
         if path == '-':
             run(dbctx, 'set', field, item_name, sys.stdin.buffer.read(), False)
-        elif dbctx.is_remote:
+            return 0
+        try:
             with open(path, 'rb') as f:
-                run(dbctx, 'set', field, item_name, f.read(), False)
+                data = f.read() if dbctx.is_remote else b''
+        except OSError as err:
+            raise SystemExit(_('Error: Failed to read the note from {0} with error: {1}').format(path, err))
+        if dbctx.is_remote:
+            run(dbctx, 'set', field, item_name, data, False)
         else:
             run(dbctx, 'set', field, item_name, path, True)
     else:

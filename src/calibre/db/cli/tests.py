@@ -169,11 +169,13 @@ class NotesTest(BaseTest):
         class DBCtx:
             option_parser = None
 
+            def __init__(self, is_remote: bool):
+                self.is_remote = is_remote
+
             def run(self, name, *args):
                 return implementation(db, None, *args)
 
-        dbctx = DBCtx()
-        dbctx.is_remote = is_remote
+        dbctx = DBCtx(is_remote)
         opts, args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
             main(opts, args, dbctx)
@@ -198,7 +200,8 @@ class NotesTest(BaseTest):
         self.assertEqual(self.run_notes(db, 'list', 'tags'), 'tags: Tag One\n')
         self.run_notes(db, 'remove', 'tags', 'Tag One')
         self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\n')
-        self.assertEqual(self.run_notes(db, 'show', 'tags', 'Tag One'), '\n')
+        self.assertEqual(self.run_notes(db, 'show', 'tags', 'Tag One'), '')
+        self.assertEqual(self.run_notes(db, 'show', '--as-html', 'tags', 'Tag One'), '')
         for args, msg in (
             (('show', 'authors', 'Nobody'), 'No item named Nobody'),
             (('show', 'title', 'Title One'), 'does not support notes'),
@@ -206,10 +209,52 @@ class NotesTest(BaseTest):
             (('frob',), 'not recognized'),
             (('show', 'authors'), 'must specify a field'),
             (('set', 'authors', 'Author One'), 'must specify the file'),
+            (('set', 'authors', 'Author One', os.path.join(self.library_path, 'missing.html')), 'Failed to read the note'),
+            (('set', 'authors', 'Author One', path, 'extra'), 'Too many arguments'),
+            (('show', 'authors', 'Author One', 'extra'), 'Too many arguments'),
+            (('list', 'authors', 'tags'), 'at most one field'),
             ((), 'must specify an action'),
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_notes(db, *args)
+
+    def test_notes_server_side_import(self):
+        from calibre.db.cli.cmd_notes import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        img = os.path.join(self.library_path, 'image.png')
+        with open(img, 'wb') as f:
+            f.write(b'\x89PNG\r\n\x1a\n')
+        path = os.path.join(self.library_path, 'note.html')
+        with open(path, 'w') as f:
+            f.write('<p>secret</p><img src="image.png">')
+        author_id = db.get_item_id('authors', 'Author One')
+
+        def notify_changes(*a):
+            pass
+
+        # Paths must never be read on the server
+        ok, err = implementation(db, notify_changes, 'set', 'authors', 'Author One', path, True)
+        self.assertFalse(ok)
+        self.assertIn('Cannot import notes from files on the server', err)
+        self.assertFalse(db.notes_for('authors', author_id))
+        # Images referenced by file paths in HTML data must not be imported,
+        # not even from the calibre temp directory of the server
+        from calibre.ptempfile import base_dir
+
+        tmp_img = os.path.join(base_dir(), 'notes-test-image.png')
+        shutil.copyfile(img, tmp_img)
+        self.addCleanup(os.remove, tmp_img)
+        for src in (img, 'file://' + img.replace(os.sep, '/'), 'image.png', tmp_img, 'notes-test-image.png'):
+            with self.subTest(src=src):
+                ok, err = implementation(db, notify_changes, 'set', 'authors', 'Author One', f'<p>x</p><img src="{src}">'.encode(), False)
+                self.assertTrue(ok)
+                self.assertFalse(db.notes_data_for('authors', author_id)['resource_hashes'])
+        # Locally, images relative to the HTML file are imported
+        ok, err = implementation(db, None, 'set', 'authors', 'Author One', path, True)
+        self.assertTrue(ok)
+        self.assertEqual(len(db.notes_data_for('authors', author_id)['resource_hashes']), 1)
 
 
 class RestoreDatabaseTest(BaseTest):
