@@ -9,7 +9,7 @@ import csv
 import os
 import shutil
 import unittest
-from contextlib import redirect_stderr, redirect_stdout, suppress
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
@@ -214,7 +214,7 @@ class RestoreDatabaseTest(BaseTest):
     def report_path(self):
         return os.path.join(self.cwd, self.REPORT_NAME)
 
-    def test_restore_succeeded(self):
+    def assert_restore_succeeded(self):
         ret, out, err = self.run_restore()
         self.assertEqual(ret, 0, err)
         self.assertIn('Restoring database succeeded', out)
@@ -222,6 +222,9 @@ class RestoreDatabaseTest(BaseTest):
         self.assertFalse(os.path.exists(self.report_path()))
         self.assertTrue(os.path.exists(os.path.join(self.library_path, 'metadata_pre_restore.db')))
         self.assertEqual(self.restored_titles(), self.titles)
+
+    def test_restore_succeeded(self):
+        self.assert_restore_succeeded()
 
     def restore_without_notes(self, with_preferences):
         if with_preferences:
@@ -231,11 +234,10 @@ class RestoreDatabaseTest(BaseTest):
             cache.close()
             self.objects_to_close.remove(cache)
         else:
-            with suppress(FileNotFoundError):
-                os.remove(os.path.join(self.library_path, 'metadata_db_prefs_backup.json'))
+            self.assertFalse(os.path.exists(os.path.join(self.library_path, 'metadata_db_prefs_backup.json')))
         notes_path = os.path.join(self.library_path, NOTES_DIR_NAME)
         shutil.rmtree(notes_path)
-        self.test_restore_succeeded()
+        self.assert_restore_succeeded()
         self.assertTrue(os.path.isfile(os.path.join(notes_path, NOTES_DB_NAME)))
         if with_preferences:
             self.assertEqual(self.init_cache().saved_search_lookup('Restored search'), 'title:test')
