@@ -275,6 +275,30 @@ def test_parse_fields(return_tests=False):
             ae(r'', {})
             ae(r'\b \c 1', {'bookmark': None, 'columns-per-page': '1'})
 
+        def test_polish_index_markup(self):
+            from lxml import html
+
+            entries = ('A:Ab', 'A:Dogs', 'A:Dogs', 'A:Y:Ab')
+            body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}<br/></a></p>' for i, t in enumerate(entries)) + '</div>')
+            # Blocks are passed in reverse order
+            polish_index_markup(None, list(body)[::-1])
+            self.assertEqual(len(body), 1, 'blocks for the same top level entry not merged')
+
+            def entry_for_link(a):
+                # The text of the entry a link is under and of its parent entries
+                span = a.getparent()
+                level = float(span.get('style').rpartition(' ')[2][:-2])
+                ans = [a.text]
+                for s in span.itersiblings(preceding=True):
+                    slevel = float(s.get('style').rpartition(' ')[2][:-2])
+                    if slevel < level:
+                        ans.insert(0, s.text)
+                        level = slevel
+                return ':'.join(ans)
+
+            self.assertEqual({a.get('href'): entry_for_link(a) for a in body.iter('a')}, {f'#{i}': t for i, t in enumerate(entries)})
+            self.assertEqual([s.text for s in body[0]], ['A', None, None, 'Y', None])
+
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseFields)
     if return_tests:
         return suite
