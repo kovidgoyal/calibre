@@ -6,9 +6,10 @@ import numbers
 import os
 import socket
 import struct
-from collections import deque, namedtuple
+from collections import deque
 from functools import partial
 from hashlib import sha1
+from typing import NamedTuple
 
 from calibre.srv.tests.base import BaseTest, TestServer, is_ci, retry
 from calibre.srv.web_socket import (
@@ -41,7 +42,11 @@ Sec-WebSocket-Version: 13\r
     + '\r\n'
 )
 
-Frame = namedtuple('Frame', 'fin opcode payload')
+
+class Frame(NamedTuple):
+    fin: bool
+    opcode: int
+    payload: bytes
 
 
 class WSClient:

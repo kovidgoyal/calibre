@@ -3,13 +3,12 @@
 
 import os
 import re
-from collections import namedtuple
 from collections.abc import Callable
 from contextlib import suppress
 from functools import lru_cache, partial
 from math import ceil
 from time import monotonic
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from qt.core import (
     QAction,
@@ -73,7 +72,11 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes
 
-InternetSearch = namedtuple('InternetSearch', 'author where')
+
+class InternetSearch(NamedTuple):
+    author: str | None
+    where: str
+
 
 if TYPE_CHECKING:
     from calibre.gui2.dialogs.book_info import BookInfo as DialogBookInfo

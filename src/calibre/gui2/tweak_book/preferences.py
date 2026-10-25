@@ -2,11 +2,12 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
-from collections import namedtuple
+from collections.abc import Callable
 from copy import copy, deepcopy
 from functools import partial
 from itertools import product
 from operator import attrgetter, methodcaller
+from typing import Any, NamedTuple
 
 from qt.core import (
     QAbstractItemView,
@@ -57,11 +58,18 @@ from calibre.utils.localization import _, get_lang, ngettext
 class BasicSettings(QWidget):  # {{{
     changed_signal = pyqtSignal()
 
+    class Setting(NamedTuple):
+        name: str
+        prefs: dict[str, Any]
+        widget: QWidget
+        getter: Callable
+        setter: Callable
+        initial_value: Any
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.settings = {}
         self._prevent_changed = False
-        self.Setting = namedtuple('Setting', 'name prefs widget getter setter initial_value')
 
     def __call__(self, name, widget=None, getter=None, setter=None, prefs=None):
         prefs = prefs or tprefs

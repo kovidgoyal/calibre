@@ -6,10 +6,10 @@ import os
 import shutil
 import time
 import traceback
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from io import BytesIO
 from queue import Empty
-from typing import cast
+from typing import NamedTuple, cast
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -28,7 +28,10 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import _
 
-BookId = namedtuple('BookId', 'title authors')
+
+class BookId(NamedTuple):
+    title: str
+    authors: tuple[str, ...]
 
 
 def ensure_unique_components(data):  # {{{

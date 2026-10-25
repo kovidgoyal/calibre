@@ -9,6 +9,7 @@ from contextlib import closing, suppress
 from math import ceil
 from multiprocessing import Pipe
 from operator import itemgetter
+from typing import Self
 
 from lxml import etree
 
@@ -263,7 +264,7 @@ class Server:
             self.shutdown_worker()
             raise
 
-    def __enter__(self) -> Server:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *a) -> None:

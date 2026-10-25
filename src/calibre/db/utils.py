@@ -7,10 +7,11 @@ import re
 import shutil
 import sys
 import tempfile
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from contextlib import suppress
 from locale import localeconv
 from threading import RLock
+from typing import NamedTuple
 
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
@@ -104,7 +105,11 @@ def find_identical_books(mi, data):
     return {book_id for book_id in ans if lang_matches(book_id)}
 
 
-Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
+class Entry(NamedTuple):
+    path: str
+    size: int
+    timestamp: float
+    thumbnail_size: tuple[int, int]
 
 
 class CacheError(Exception):
@@ -132,6 +137,7 @@ class ThumbnailCache:
         self.group_id = 'group'
         self.thumbnail_size = thumbnail_size
         self.size_changed = False
+        self.closed = False
         self.lock = RLock()
         self.min_disk_cache = min_disk_cache
         self.log = self.fail_on_error if test_mode else self._log
@@ -229,7 +235,7 @@ class ThumbnailCache:
                 if self.thumbnail_size != thumbnail_size or key in invalidate:
                     self._do_delete(path)
                     continue
-                e = Entry(path, size, timestamp, thumbnail_size)
+                e = Entry(path, size, timestamp, thumbnail_size)  # ty: ignore[invalid-argument-type]
                 # Caches written by older versions of calibre can contain more
                 # than one file for a book. Keep only the most recent one,
                 # otherwise which of them is used is decided by the order in
@@ -248,6 +254,18 @@ class ThumbnailCache:
 
         self.items = OrderedDict(sorted(items, key=lambda x: order.get(x[0], 0)))
         self._apply_size()
+
+    def _ensure_loaded(self) -> bool:
+        """
+        Load the index if it is not already loaded. Returns False if the cache
+        has been shutdown, in which case the index must not be used. Must be
+        called with the lock held.
+        """
+        if self.closed:
+            return False
+        if not hasattr(self, 'total_size'):
+            self._load_index()
+        return True
 
     def _invalidate_sizes(self):
         if self.size_changed:
@@ -283,12 +301,17 @@ class ThumbnailCache:
         return order
 
     def shutdown(self):
+        """
+        Save the cache order to disk and unload the index. After this, lookups
+        and inserts are no-ops, invalidations are recorded on disk to be
+        applied the next time the cache is loaded. This is needed as other
+        threads, such as cover renderers, can still be using the cache.
+        """
         with self.lock:
+            self.closed = True
             if (items := getattr(self, 'items', None)) is not None:
-                # Return to the unloaded state so that the index is re-loaded
-                # if the cache is used after shutdown, for example by a render
-                # thread that was in flight when shutdown was called
-                del self.items, self.total_size
+                del self.items
+                del self.total_size
                 try:
                     data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in items)
                     with open(os.path.join(self.location, 'order'), 'wb') as f:
@@ -321,8 +344,8 @@ class ThumbnailCache:
         if self.max_size < len(data):
             return
         with self.lock:
-            if not hasattr(self, 'total_size'):
-                self._load_index()
+            if not self._ensure_loaded():
+                return
             self._invalidate_sizes()
             if thumbnail_size is not None and tuple(thumbnail_size) != self.thumbnail_size:
                 return
@@ -361,24 +384,16 @@ class ThumbnailCache:
 
     def __len__(self):
         with self.lock:
-            try:
-                return len(self.items)
-            except AttributeError:
-                self._load_index()
-                return len(self.items)
+            return len(self.items) if self._ensure_loaded() else 0
 
     def __contains__(self, book_id):
         with self.lock:
-            try:
-                return (self.group_id, book_id) in self.items
-            except AttributeError:
-                self._load_index()
-                return (self.group_id, book_id) in self.items
+            return self._ensure_loaded() and (self.group_id, book_id) in self.items
 
     def __getitem__(self, book_id):
         with self.lock:
-            if not hasattr(self, 'total_size'):
-                self._load_index()
+            if not self._ensure_loaded():
+                return None, None
             self._invalidate_sizes()
             key = (self.group_id, book_id)
             entry = self.items.pop(key, None)
@@ -420,18 +435,17 @@ class ThumbnailCache:
     @property
     def current_size(self):
         with self.lock:
-            if not hasattr(self, 'total_size'):
-                self._load_index()
-            return self.total_size
+            return self.total_size if self._ensure_loaded() else 0
 
     def empty(self):
         with self.lock:
+            if self.closed:
+                return
             try:
                 os.remove(os.path.join(self.location, 'order'))
             except OSError:
                 pass
-            if not hasattr(self, 'total_size'):
-                self._load_index()
+            self._ensure_loaded()
             for entry in self.items.values():
                 self._do_delete(entry.path)
             self.total_size = 0

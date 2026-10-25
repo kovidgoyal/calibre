@@ -3,11 +3,12 @@
 
 import re
 import unicodedata
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from difflib import SequenceMatcher
 from functools import partial
 from itertools import chain
 from math import ceil
+from typing import NamedTuple
 
 import regex
 from qt.core import (
@@ -57,7 +58,13 @@ from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes
 
-Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
+
+class Change(NamedTuple):
+    ltop: int
+    lbot: int
+    rtop: int
+    rbot: int
+    kind: str
 
 
 def beautify_text(raw, syntax):

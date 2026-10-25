@@ -132,6 +132,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     no_stylesheets = True
     scale_news_images = 1600, 1200
     ignore_duplicate_articles = {'url'}
+    browser_type = 'camoufox'
     # simultaneous_downloads = 1
 
     def image_url_processor(self, baseurl, url):

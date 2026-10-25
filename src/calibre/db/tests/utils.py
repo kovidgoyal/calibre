@@ -62,20 +62,55 @@ class UtilsTest(BaseTest):
         self.assertEqual(c.current_size, 19000)
 
     def test_thumbnail_cache_use_after_shutdown(self):
+        # Cover renderers can still be using the cache after it is shutdown,
+        # this must neither fail nor resurrect the cache
         c = self.init_tc()
         self.basic_fill(c)
+        order = tuple(c.items)
         c.shutdown()
-        self.assertEqual(c[1], (b'1' * 1000, 1))
-        c.insert(6, 6, b'6' * 100)
-        c.shutdown()
+        order_path = os.path.join(self.tdir, '1', 'order')
+        with open(order_path, 'rb') as f:
+            saved_order = f.read()
+        self.assertEqual(c[1], (None, None))
+        c.insert(6, 6, b'x' * 100)
+        self.assertNotIn(1, c)
+        self.assertEqual(len(c), 0)
+        self.assertEqual(c.current_size, 0)
+        c.empty()
         c.invalidate((2,))
-        self.assertEqual(c[2], (None, None))
-        self.assertEqual(c[6], (b'6' * 100, 6))
         c.shutdown()
-        c.shutdown()
+        self.assertFalse(hasattr(c, 'items'), 'index loaded after shutdown')
+        with open(order_path, 'rb') as f:
+            self.assertEqual(saved_order, f.read(), 'order changed after shutdown')
+
+        # Invalidations made after shutdown are applied on the next load
         c = self.init_tc()
-        self.assertEqual(len(c), 5)
-        self.assertEqual(c.current_size, 13100)
+        self.assertEqual(c[2], (None, None))
+        self.assertEqual(tuple(k for k in order if k[1] != 2), tuple(c.items))
+        self.assertEqual(len(c), 4)
+        self.assertNotIn(6, c)
+
+        # Concurrent use from another thread while shutting down
+        from threading import Event, Thread
+
+        stop, errors = Event(), []
+
+        def worker():
+            try:
+                while not stop.is_set():
+                    c[3]
+                    c.insert(7, 7, b'y' * 100)
+            except Exception as e:
+                errors.append(e)
+
+        t = Thread(target=worker, daemon=True)
+        t.start()
+        c.shutdown()
+        stop.set()
+        t.join(5)
+        self.assertFalse(t.is_alive())
+        self.assertEqual(errors, [])
+        self.assertFalse(hasattr(c, 'items'), 'index loaded after shutdown')
 
     def test_thumbnail_cache(self):  # {{{
         "Test the operation of the thumbnail cache"

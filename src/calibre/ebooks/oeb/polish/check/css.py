@@ -5,9 +5,9 @@ import atexit
 import json
 import numbers
 import sys
-from collections import namedtuple
 from collections.abc import Iterable
 from itertools import repeat
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QApplication, QEventLoop, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript
@@ -19,6 +19,9 @@ from calibre.gui2 import must_use_qt
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import secure_webengine, setup_profile
+
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.check.main import CSSFix
 
 CSS_RULE_ID_PREFIX = 'css:'
 
@@ -238,7 +241,13 @@ class Pool:
 pool = Pool()
 shutdown = pool.shutdown
 atexit.register(shutdown)
-Job = namedtuple('Job', 'name css line_offset fix_data')
+
+
+class Job(NamedTuple):
+    name: str | None
+    css: str | None
+    line_offset: int
+    fix_data: CSSFix | None
 
 
 def create_job(name, css, line_offset=0, is_declaration=False, fix_data=None):

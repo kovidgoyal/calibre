@@ -22,12 +22,12 @@ import tempfile
 import time
 import zipfile
 import zlib
-from collections import namedtuple
 from contextlib import closing
 from datetime import datetime
 from email.utils import parsedate
 from functools import partial
 from multiprocessing.pool import ThreadPool
+from typing import NamedTuple
 from xml.sax.saxutils import escape, quoteattr
 
 try:
@@ -57,8 +57,18 @@ PLUGINS = 'plugins.json.bz2'
 INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 # INDEX = 'file:///t/raw.html'
 
-IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id category')
 socket.setdefaulttimeout(30)
+
+
+class IndexEntry(NamedTuple):
+    name: str
+    url: str
+    donate: str | None
+    history: bool
+    uninstall: tuple[str, ...] | None
+    deprecated: bool
+    thread_id: str | None
+    category: str
 
 
 def read(url, get_info=False):  # {{{
@@ -245,7 +255,9 @@ def convert_node(fields, x, names=None, import_data=None):
     raise TypeError(f'Unknown datatype {x} for fields: {fields}')
 
 
-Alias = namedtuple('Alias', 'name asname')
+class Alias(NamedTuple):
+    name: str
+    asname: str | None
 
 
 class Module:

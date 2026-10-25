@@ -2,17 +2,30 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import struct
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
+from typing import NamedTuple
 
 from calibre.ebooks.mobi.utils import count_set_bits, decint, decode_string
 
-TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
-PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
 INDEX_HEADER_FIELDS = (
     ('len', 'nul1', 'type', 'gen', 'start', 'count', 'code', 'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx')
     + tuple(f'unknown{i}' for i in range(27))
     + ('ocnt', 'oentries', 'ordt1', 'ordt2', 'tagx')
 )
+
+
+class TagX(NamedTuple):
+    tag: int
+    num_of_values: int
+    bitmask: int
+    eof: int
+
+
+class PTagX(NamedTuple):
+    tag: TagX
+    value_count: int
+    value_bytes: int
+    num_of_values: int
 
 
 class InvalidFile(ValueError):
@@ -167,7 +180,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
                     mask >>= 1
                     value >>= 1
                 value_count = value
-            ptags.append(PTagX(x.tag, value_count, value_bytes, x.num_of_values))
+            ptags.append(PTagX(x.tag, value_count, value_bytes, x.num_of_values))  # ty: ignore[invalid-argument-type]
 
     for x in ptags:
         values = []

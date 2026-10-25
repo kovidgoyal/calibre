@@ -2,9 +2,10 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections import namedtuple
+from collections.abc import Callable
 from functools import partial
 from io import BytesIO
+from typing import NamedTuple
 
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Pages
@@ -18,6 +19,12 @@ from calibre.utils.localization import _
 
 class WritingTest(BaseTest):
     # Utils {{{
+    class Test(NamedTuple):
+        name: str
+        vals: tuple
+        getter: Callable
+        setter: Callable
+
     def create_getter(self, name, getter=None):
         if getter is None:
             if name.endswith('_index'):
@@ -55,8 +62,7 @@ class WritingTest(BaseTest):
         return ans
 
     def create_test(self, name, vals, getter=None, setter=None):
-        T = namedtuple('Test', 'name vals getter setter')
-        return T(name, vals, self.create_getter(name, getter), self.create_setter(name, setter))
+        return WritingTest.Test(name, vals, self.create_getter(name, getter), self.create_setter(name, setter))
 
     def run_tests(self, tests):
         results = {}

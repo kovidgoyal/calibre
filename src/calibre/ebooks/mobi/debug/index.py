@@ -2,17 +2,49 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import struct
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
+from typing import NamedTuple
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record, parse_indx_header, parse_tagx_section
 from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
 
-File = namedtuple('File', 'file_number name divtbl_count start_position length')
 
-Elem = namedtuple('Elem', 'insert_pos toc_text file_number sequence_number start_pos length')
+class File(NamedTuple):
+    file_number: int
+    name: str
+    divtbl_count: int
+    start_position: int
+    length: int
 
-GuideRef = namedtuple('GuideRef', 'type title pos_fid')
+
+class Elem(NamedTuple):
+    insert_pos: int
+    toc_text: str
+    file_number: int
+    sequence_number: int
+    start_pos: int
+    length: int
+
+
+class GuideRef(NamedTuple):
+    type: str
+    title: str
+    pos_fid: tuple[int, int]
+
+
+class NCXEntry(NamedTuple):
+    index: int
+    start: int
+    length: int
+    depth: int
+    parent: int | None
+    first_child: int | None
+    last_child: int | None
+    title: str
+    pos_fid: int
+    kind: str | None
+
 
 INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('indices', 'tagx_block_size', 'tagx_block')
 FIELD_NAMES = {
@@ -199,8 +231,6 @@ class NCXIndex(Index):
         self.records = []
 
         if self.table is not None:
-            NCXEntry = namedtuple('NCXEntry', 'index start length depth parent first_child last_child title pos_fid kind')
-
             for num, x in enumerate(self.table.items()):
                 text, tag_map = x
                 e: dict = default_entry.copy()

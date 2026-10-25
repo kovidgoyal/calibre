@@ -4,7 +4,8 @@
 import copy
 import os
 import traceback
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
+from typing import NamedTuple
 
 from qt.core import QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt, pyqtSignal
 
@@ -402,7 +403,10 @@ class TagTreeItem:  # {{{
     # }}}
 
 
-FL_Interval = namedtuple('FL_Interval', ('first_chr', 'last_chr', 'length'))
+class FL_Interval(NamedTuple):
+    first_chr: str
+    last_chr: str
+    length: int
 
 
 def rename_only_in_vl_question(parent):

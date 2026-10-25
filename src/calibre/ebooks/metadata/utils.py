@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.base import OPF
@@ -11,7 +11,11 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 
-OPFVersion = namedtuple('OPFVersion', 'major minor patch')
+
+class OPFVersion(NamedTuple):
+    major: int
+    minor: int
+    patch: int
 
 
 def parse_opf_version(raw):

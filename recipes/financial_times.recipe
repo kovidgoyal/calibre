@@ -6,7 +6,7 @@ from urllib.parse import quote
 
 from html5_parser import parse
 
-from calibre import browser
+from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -14,7 +14,11 @@ class ft(BasicNewsRecipe):
     title = 'Financial Times'
     language = 'en_GB'
     __author__ = 'Kovid Goyal, unkn0wn'
-    description = 'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority, integrity and accuracy.'
+    description = (
+        'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority,'
+        ' integrity and accuracy. Uses the camoufox browser, which is downloaded on first use, as ft.com blocks every lighter'
+        ' way of fetching its pages.'
+    )
     oldest_article = 1.15
     max_articles_per_feed = 50
     no_stylesheets = True
@@ -24,8 +28,13 @@ class ft(BasicNewsRecipe):
     resolve_internal_links = True
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
-    simultaneous_downloads = 1
-    delay = 1
+    # ft.com answers every lighter way of fetching its articles with a 403,
+    # see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
+    # No delay between requests, deliberately: any delay at all makes calibre
+    # download on a single thread, and a browser that navigates to every
+    # article is slow enough that that would take a very long time.
+    delay = 0
 
     extra_css = '''
         .article-info__time-byline {font-size:small; font-weight:bold; }
@@ -83,17 +92,11 @@ class ft(BasicNewsRecipe):
     #     return br
 
     def get_browser(self, *args, **kwargs):
-        return self
-
-    def clone_browser(self, *args, **kwargs):
-        return self.get_browser()
-
-    def open_novisit(self, *args, **kwargs):
-        br = browser(user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0')
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        # ft.com serves the full article only to visitors arriving from a search
+        # engine, everyone else gets the paywall
         br.addheaders += [('Referer', 'https://www.google.com/')]
-        return br.open_novisit(*args, **kwargs)
-
-    open = open_novisit
+        return retry_bot_checks(br)
 
     feeds = [
         ('FirstFT', 'https://www.ft.com/firstft?format=rss'),
@@ -118,11 +121,16 @@ class ft(BasicNewsRecipe):
             return raw
         self.log('**no article content')
         m = re.search(r'type="application/ld\+json">[^<]+?"@type":"NewsArticle"', raw)
+        if m is None:
+            self.abort_article('No article data found in page')
         raw = raw[m.start() :]
         raw = raw.split('>', 1)[1]
         # with open('/t/raw.json', 'w') as f:
         #     f.write(raw)
         data = json.JSONDecoder().raw_decode(raw)[0]
+        if 'articleBody' not in data:
+            # Some articles are behind a hard paywall regardless of referrer
+            self.abort_article('Article is behind the paywall')
         title = data['headline']
         body = data['articleBody']
         body = body.replace('\n\n', '<p>')

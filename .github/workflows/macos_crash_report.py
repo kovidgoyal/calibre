@@ -4,15 +4,24 @@
 import json
 import posixpath
 import sys
-from collections import namedtuple
 from collections.abc import Mapping
 from datetime import datetime
 from enum import Enum
 from functools import cached_property
-from typing import IO
+from typing import IO, NamedTuple
 
-Frame = namedtuple('Frame', 'image_name image_base image_offset symbol symbol_offset')
-Register = namedtuple('Register', 'name value')
+
+class Frame(NamedTuple):
+    image_name: str | None
+    image_base: int | None
+    symbol: str | None
+    image_offset: int | None
+    symbol_offset: int | None
+
+
+class Register(NamedTuple):
+    name: str
+    value: int
 
 
 def surround(x: str, start: int, end: int) -> str:

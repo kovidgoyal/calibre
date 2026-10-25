@@ -9,6 +9,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 from itertools import chain
 from math import atan2, ceil, cos, sin, sqrt
+from typing import NamedTuple
 
 from qt.core import (
     QBrush,
@@ -66,7 +67,7 @@ authors = list_re(authors, ' &amp; ', '(.+)', '<b>\1');
 authors = re(authors, ' &amp; ', '<br>');
 re(authors, '&amp;&amp;', '&amp;')
 '''
-Prefs = namedtuple('Prefs', ' '.join(sorted(cprefs.defaults)))
+Prefs = namedtuple('Prefs', ' '.join(sorted(cprefs.defaults)))  # ruff: ignore[collections-named-tuple]
 
 _use_roman = None
 
@@ -85,8 +86,11 @@ def set_use_roman(val):
 
 # }}}
 
+
 # Draw text {{{
-Point = namedtuple('Point', 'x y')
+class Point(NamedTuple):
+    x: float
+    y: float
 
 
 def parse_text_formatting(text):
@@ -312,8 +316,13 @@ def format_text(mi, prefs):
 
 # }}}
 
+
 # Colors {{{
-ColorTheme = namedtuple('ColorTheme', 'color1 color2 contrast_color1 contrast_color2')
+class ColorTheme(NamedTuple):
+    color1: QColor
+    color2: QColor
+    contrast_color1: QColor
+    contrast_color2: QColor
 
 
 def to_theme(x):

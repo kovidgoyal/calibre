@@ -10,15 +10,20 @@ import os
 import shlex
 import subprocess
 import sys
-from collections import namedtuple
 from contextlib import closing
 from functools import partial
 from multiprocessing.pool import ThreadPool as Pool
 from threading import Thread
+from typing import NamedTuple
 
 from polyglot.builtins import as_bytes
 
-Job = namedtuple('Job', 'cmd human_text cwd')
+
+class Job(NamedTuple):
+    cmd: list[str]
+    human_text: str | None
+    cwd: str | None
+
 
 cpu_count = min(16, max(1, os.cpu_count()))
 

@@ -7,26 +7,47 @@ import os
 import re
 import shutil
 import sys
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from functools import partial
 from itertools import chain
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre import prints
 from calibre.constants import config_dir, filesystem_encoding, iswindows
-from calibre.spell import parse_lang_code
+from calibre.spell import DictionaryLocale, parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import _, get_lang, get_system_locale
 from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 
-Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
-LoadedDictionary = namedtuple('LoadedDictionary', 'primary_locale locales obj builtin name id')
+if TYPE_CHECKING:
+    from calibre_extensions import hunspell
+
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}
 dprefs.defaults['user_dictionaries'] = [{'name': _('Default'), 'is_active': True, 'words': []}]
 not_present = object()
+
+
+class Dictionary(NamedTuple):
+    primary_locale: DictionaryLocale
+    locales: frozenset[DictionaryLocale]
+    dicpath: str
+    affpath: str
+    builtin: bool
+    name: str | None
+    id: str | None
+
+
+class LoadedDictionary(NamedTuple):
+    primary_locale: DictionaryLocale
+    locales: frozenset[DictionaryLocale]
+    obj: hunspell.Dictionary
+    builtin: bool
+    name: str | None
+    id: str | None
 
 
 class UserDictionary:

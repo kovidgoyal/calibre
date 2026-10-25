@@ -430,6 +430,7 @@ def _print_summary(
     skips: list[tuple[str, str]],
     ok_count: int,
     xfail_count: int,
+    unexpected_successes: list[tuple[str, str]],
     times: dict[str, float],
     total: int,
     elapsed: float,
@@ -439,6 +440,7 @@ def _print_summary(
     for label, colour, items in (
         ('FAIL', _RD, failures),
         ('ERROR', _BD + _RD, errors),
+        ('UNEXPECTED SUCCESS', _RD, unexpected_successes),
     ):
         for tid, msg in items:
             print(f'\n{_c(_BD, "=" * 70)}\n{_c(colour, label + ": " + tid)}\n{_c(_DM, "-" * 70)}')
@@ -457,7 +459,9 @@ def _print_summary(
         _stat('SKIP', len(skips), _YL),
     ]
     if xfail_count:
-        parts.append(_c(_DM, f'XFAIL/XPASS: {xfail_count}'))
+        parts.append(_c(_DM, f'XFAIL: {xfail_count}'))
+    if unexpected_successes:
+        parts.append(_c(_RD, f'XPASS: {len(unexpected_successes)}'))
     if lost:
         parts.append(_c(_RD, f'LOST (worker crash?): {lost}'))
     print('  '.join(parts))
@@ -488,7 +492,10 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     spawning workers outweighs the benefit; in that case the suite is run
     in the current process instead.
 
-    Returns the number of failures + errors (0 means all passed).
+    Returns 0 if all tests passed and 1 otherwise. As with
+    unittest.TestResult.wasSuccessful(), unexpected successes count as
+    failures. Workers that crash after reporting all their tests do not cause
+    a failure, but workers that hang do.
     """
 
     all_tests = sorted(itertests(suite), key=lambda t: t.id())
@@ -536,6 +543,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
     times: dict[str, float] = {}
     ok_count = 0
     xfail_count = 0
+    unexpected_successes: list[tuple[str, str]] = []
     completed = 0
     done_workers = 0
     start_time = monotonic()
@@ -544,7 +552,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
         try:
             event = ev_queue.get(timeout=0.25)
         except queue.Empty:
-            _print_status(completed, total, start_time, len(failures) + len(errors))
+            _print_status(completed, total, start_time, len(failures) + len(errors) + len(unexpected_successes))
             continue
 
         if event is None:
@@ -564,10 +572,15 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
                     errors.append((tid, event.get('msg', '')))
                 elif e == 'skip':
                     skips.append((tid, event.get('msg', '')))
-                elif e in ('xf', 'xp'):
+                elif e == 'xf':
                     xfail_count += 1
+                elif e == 'xp':
+                    unexpected_successes.append((
+                        tid,
+                        'Test is marked as an expected failure but passed. If it is fixed, remove the @expectedFailure decorator.',
+                    ))
 
-        _print_status(completed, total, start_time, len(failures) + len(errors))
+        _print_status(completed, total, start_time, len(failures) + len(errors) + len(unexpected_successes))
 
     # Reap worker processes; report crashes and hangs.
     hung_workers = 0
@@ -598,8 +611,8 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
     elapsed = monotonic() - start_time
     lost_ids = [t.id() for t in all_tests if t.id() not in times]
-    _print_summary(failures, errors, skips, ok_count, xfail_count, times, total, elapsed, lost_ids)
-    return 1 if len(failures) + len(errors) + len(lost_ids) + hung_workers else 0
+    _print_summary(failures, errors, skips, ok_count, xfail_count, unexpected_successes, times, total, elapsed, lost_ids)
+    return 1 if len(failures) + len(errors) + len(unexpected_successes) + len(lost_ids) + hung_workers else 0
 
 
 # ─── Test discovery ───────────────────────────────────────────────────────────

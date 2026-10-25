@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from calibre.ebooks.docx.writer.styles import border_edges
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb
@@ -12,7 +12,14 @@ class Dummy:
     pass
 
 
-Border = namedtuple('Border', 'css_style style width color level')
+class Border(NamedTuple):
+    css_style: str
+    style: str
+    width: int
+    color: str | None
+    level: int
+
+
 border_style_weight = {x: 100 - i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
 
 
