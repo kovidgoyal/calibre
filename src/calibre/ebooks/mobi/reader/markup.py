@@ -7,6 +7,24 @@ import re
 from calibre.ebooks.chardet import strip_encoding_declarations
 
 
+def _rewrite_kindle_embed_font_urls(css, resource_map, log):
+    pattern = re.compile(
+        r'''url\(\s*(['"]?)kindle:embed:([0-9|A-V]+)(?:\?mime=[^'")\s]*)?\1\s*\)''', re.IGNORECASE
+    )
+
+    def replace(match):
+        num = int(match.group(2), 32)
+        href = resource_map[num - 1]
+        if href is None:
+            log.warn(f'Referenced font {num} was not recognized as a valid font in {match.group(0)}')
+            return match.group(0)
+        if href.endswith('.failed'):
+            return f'url("failed-{href}")'
+        return f'url("../{href}")'
+
+    return pattern.sub(replace, css)
+
+
 def update_internal_links(mobi8_reader, log):
     # need to update all links that are internal which
     # are based on positions within the xhtml files **BEFORE**
@@ -112,7 +130,6 @@ def update_flow_links(mobi8_reader, resource_map, log):
 
     url_pattern = re.compile(r'''(url\(.*?\))''', re.IGNORECASE)
     url_img_index_pattern = re.compile(r'''kindle:embed:([0-9|A-V]+)\?mime=image/[^\)]*''', re.IGNORECASE)
-    font_index_pattern = re.compile(r'''kindle:embed:([0-9|A-V]+)''', re.IGNORECASE)
     url_css_index_pattern = re.compile(r'''kindle:flow:([0-9|A-V]+)\?mime=text/css[^\)]*''', re.IGNORECASE)
 
     def flow_as_unicode(flow):
@@ -163,17 +180,9 @@ def update_flow_links(mobi8_reader, resource_map, log):
                 else:
                     log.warn(f'Referenced image {num} was not recognized as a valid image in {tag}')
 
-            # process links to fonts
-            for m in font_index_pattern.finditer(tag):
-                num = int(m.group(1), 32)
-                href = resource_map[num - 1]
-                if href is None:
-                    log.warn(f'Referenced font {num} was not recognized as a valid font in {tag}')
-                else:
-                    replacement = f'"{"../" + href}"'
-                    if href.endswith('.failed'):
-                        replacement = f'"{"failed-" + href}"'
-                    tag = font_index_pattern.sub(replacement, tag, 1)
+            # Replace the entire Kindle-only font URL, including its MIME
+            # query and any surrounding quote, with a valid local CSS URL.
+            tag = _rewrite_kindle_embed_font_urls(tag, resource_map, log)
 
             # process links to other css pieces
             for m in url_css_index_pattern.finditer(tag):
