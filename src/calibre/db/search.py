@@ -123,6 +123,7 @@ class DateSearch:  # {{{
         self.local_yesterday = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
         self.local_thismonth = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
         self.daysago_pat = regex.compile(r'({}|daysago|_daysago)$'.format(_('daysago')), flags=regex.UNICODE | regex.VERSION1)
+        self.date_parts_pat = regex.compile(r'[.,\s]+')
 
     def eq(self, dbdate, query, field_count):
         if dbdate.year == query.year:
@@ -218,8 +219,19 @@ class DateSearch:  # {{{
                     raise ParseException(_('Date conversion error: {0}').format(query))
                 if '-' in query:
                     field_count = query.count('-') + 1
-                else:
+                elif '/' in query:
                     field_count = query.count('/') + 1
+                else:
+                    # Dates such as 15.01.2020, "15 Jan, 2020" or "January 2020".
+                    # Two numbers alone, such as 2020.01, are not parsed as a
+                    # year and month, so use only the year for them.
+                    num_parts = len(self.date_parts_pat.split(query.strip(' .,')))
+                    if num_parts >= 3:
+                        field_count = 3
+                    elif num_parts == 2 and regex.search(r'[^\W\d_]', query) is not None:
+                        field_count = 2
+                    else:
+                        field_count = 1
 
         for v, book_ids in field_iter():
             if isinstance(v, (str, bytes)):

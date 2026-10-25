@@ -411,6 +411,11 @@ class ReadingTest(BaseTest):
         )
         # Test date search
         self.assertEqual(cache.search('template:{pubdate}#@#:d:<2001-09-01"'), {1, 3})
+        # Test that dates without - or / compare more than just the year
+        self.assertEqual(cache.search('pubdate:"6 Oct 2001"'), {2})
+        self.assertEqual(cache.search('pubdate:"October 2001"'), {2})
+        self.assertEqual(cache.search('pubdate:">Feb 6, 2001"'), {2, 3})
+        self.assertEqual(cache.search('pubdate:"<=June 2001"'), {1, 3})
         # Test boolean search
         self.assertEqual(cache.search('template:{series}#@#:b:true'), {1, 2})
         self.assertEqual(cache.search('template:{series}#@#:b:false'), {3})
