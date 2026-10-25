@@ -629,9 +629,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.blockSignals(False)
 
     def check_for_no_items(self):
-        view = self.view
-        assert view is not None
-        if not self.is_closed and view.model().count() == 0:
+        if (view := self.view) and not self.is_closed and view.model().count() == 0:
             self.indicate_no_items()
 
     def indicate_no_items(self):
