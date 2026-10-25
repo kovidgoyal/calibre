@@ -248,6 +248,24 @@ Once you are done, you can run the server as::
 
 It will use the user accounts you created in the previous step.
 
+Syncing reading progress with KOReader
+-----------------------------------------
+
+The Content server can act as a progress sync server for the `KOReader
+<https://koreader.rocks>`_ e-book reader, so that devices running KOReader
+can sync your reading position in books with each other. In KOReader, go to
+:guilabel:`Tools->Progress sync->Custom sync server` and enter the address of
+the Content server followed by ``/kosync``, for example::
+
+    http://192.168.1.2:8080/kosync
+
+If you are `Using a URL prefix`_, include it before ``/kosync``.
+Then use :guilabel:`Login` with the username and password of a user account on
+the Content server. Accounts cannot be created from KOReader, they are managed
+by calibre as described above. If user accounts are not enabled on the server,
+any username and password can be used. The reading positions of each user are
+stored separately in the user database of the server.
+
 
 Integrating the calibre Content server into other servers
 ------------------------------------------------------------

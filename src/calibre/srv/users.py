@@ -123,6 +123,29 @@ class UserManager:
 
                         PRAGMA user_version=1;
                         ''')
+                        uv = 1
+                    if uv == 1:
+                        # Reading positions synced by KOReader devices, see kosync.py
+                        c.execute('''
+                        CREATE TABLE kosync_progress (
+                            user TEXT NOT NULL,
+                            document TEXT NOT NULL,
+                            progress TEXT NOT NULL,
+                            percentage REAL NOT NULL,
+                            device TEXT NOT NULL,
+                            device_id TEXT,
+                            timestamp INTEGER NOT NULL,
+                            metadata TEXT NOT NULL DEFAULT "{}",
+                            PRIMARY KEY (user, document)
+                        );
+
+                        CREATE TRIGGER kosync_progress_delete_user AFTER DELETE ON users
+                        BEGIN
+                            DELETE FROM kosync_progress WHERE user=OLD.name;
+                        END;
+
+                        PRAGMA user_version=2;
+                        ''')
                     c.close()
         return self._conn
 
@@ -276,3 +299,33 @@ class UserManager:
             md = self.misc_data(username)
             md['allow_change_password_via_http'] = allow
             self.conn.cursor().execute('UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))
+
+    def kosync_progress(self, username: str, document: str) -> dict | None:
+        "Return the reading position synced by KOReader for the specified document or None"
+        with self.lock:
+            for progress, percentage, device, device_id, timestamp in self.conn.cursor().execute(
+                'SELECT progress,percentage,device,device_id,timestamp FROM kosync_progress WHERE user=? AND document=?', (username, document)
+            ):
+                ans = {'document': document, 'progress': progress, 'percentage': percentage, 'device': device, 'timestamp': timestamp}
+                if device_id is not None:
+                    ans['device_id'] = device_id
+                return ans
+
+    def set_kosync_progress(
+        self,
+        username: str,
+        document: str,
+        progress: str,
+        percentage: float,
+        device: str,
+        device_id: str | None,
+        timestamp: int,
+        metadata: dict | None = None,
+    ) -> None:
+        "Store the reading position synced by KOReader for the specified document"
+        with self.lock:
+            self.conn.cursor().execute(
+                'INSERT OR REPLACE INTO kosync_progress (user, document, progress, percentage, device, device_id, timestamp, metadata)'
+                ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                (username, document, progress, percentage, device, device_id, timestamp, as_json(metadata or {})),
+            )
