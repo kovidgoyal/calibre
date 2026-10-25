@@ -109,6 +109,12 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
 # }}}
 
 
+def months_ago(dt, num):
+    """Return the first day of the month that is num months before the month of dt"""
+    year, month = divmod(dt.year * 12 + dt.month - 1 - num, 12)
+    return dt.replace(year=year, month=month + 1, day=1)
+
+
 class DateSearch:  # {{{
     def __init__(self):
         self.operators = OrderedDict((
@@ -122,7 +128,12 @@ class DateSearch:  # {{{
         self.local_today = {'_today', 'today', icu_lower(_('today'))}
         self.local_yesterday = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
         self.local_thismonth = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
+        self.local_lastmonth = {'_lastmonth', 'lastmonth', icu_lower(_('lastmonth'))}
+        self.local_thisyear = {'_thisyear', 'thisyear', icu_lower(_('thisyear'))}
+        self.local_lastyear = {'_lastyear', 'lastyear', icu_lower(_('lastyear'))}
         self.daysago_pat = regex.compile(r'({}|daysago|_daysago)$'.format(_('daysago')), flags=regex.UNICODE | regex.VERSION1)
+        self.monthsago_pat = regex.compile(r'({}|monthsago|_monthsago)$'.format(_('monthsago')), flags=regex.UNICODE | regex.VERSION1)
+        self.yearsago_pat = regex.compile(r'({}|yearsago|_yearsago)$'.format(_('yearsago')), flags=regex.UNICODE | regex.VERSION1)
         # dateutil reads month.year and year.month as decimal numbers
         self.dotted_month_year_pat = regex.compile(r'(?:\d{1,2}\.\d{4}|\d{4}\.\d{1,2})')
 
@@ -215,15 +226,28 @@ class DateSearch:  # {{{
         elif query in self.local_thismonth:
             qd = now()
             field_count = 2
+        elif query in self.local_lastmonth:
+            qd = months_ago(now(), 1)
+            field_count = 2
+        elif query in self.local_thisyear:
+            qd = now()
+            field_count = 1
+        elif query in self.local_lastyear:
+            qd = months_ago(now(), 12)
+            field_count = 1
         else:
-            m = self.daysago_pat.search(query)
-            if m is not None:
-                num = query[: -len(m.group(1))]
-                try:
-                    qd = now() - timedelta(int(num))
-                except Exception:
-                    raise ParseException(_('Number conversion error: {0}').format(num))
-                field_count = 3
+            for pat, ago, field_count in (
+                (self.daysago_pat, lambda num: now() - timedelta(num), 3),
+                (self.monthsago_pat, lambda num: months_ago(now(), num), 2),
+                (self.yearsago_pat, lambda num: months_ago(now(), 12 * num), 1),
+            ):
+                if (m := pat.search(query)) is not None:
+                    num = query[: -len(m.group(1))]
+                    try:
+                        qd = ago(int(num))
+                    except Exception:
+                        raise ParseException(_('Number conversion error: {0}').format(num))
+                    break
             else:
                 if self.dotted_month_year_pat.fullmatch(query) is not None:
                     query = query.replace('.', '-')
