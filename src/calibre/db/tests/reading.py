@@ -398,6 +398,12 @@ class ReadingTest(BaseTest):
         self.assertEqual(cache.search('#rating:1.5'), {1})
         self.assertEqual(cache.search('#rating:>4'), {3})
         self.assertEqual(cache.search('#rating:2'), {2})
+        # Unqualified numbers must not be truncated to match ratings and ints
+        self.assertEqual(cache.search('1.5'), {1})
+        self.assertEqual(cache.search('4.5'), {3})
+        self.assertEqual(cache.search('2'), {1, 2})
+        self.assertEqual(cache.search('2.2'), set())
+        self.assertEqual(cache.search('0.4'), set())
 
         # template searches
         # Test text search
