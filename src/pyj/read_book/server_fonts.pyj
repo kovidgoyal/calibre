@@ -1,0 +1,89 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, softwaregames1
+from __python__ import bound_methods, hash_literals
+
+from ajax import ajax
+
+# Fonts installed on the computer running calibre, downloaded for use in the
+# browser viewer. Fonts are downloaded once per session and sent to the book
+# iframe, which cannot fetch them itself as it has an opaque origin.
+
+loaded_fonts = {}
+pending_callbacks = {}
+
+
+def font_url(path, family):
+    return path + encodeURIComponent(family)
+
+
+def load_server_font(family, callback):
+    # Calls callback with {'family': name, 'faces': [{'blob', 'weight', 'style', 'stretch'}]}
+    # or None if the font could not be loaded
+    if not family:
+        callback(None)
+        return
+    if loaded_fonts[family]:
+        callback(loaded_fonts[family])
+        return
+    if pending_callbacks[family]:
+        pending_callbacks[family].push(callback)
+        return
+    pending_callbacks[family] = [callback]
+    faces = []
+
+    def done(font):
+        if font:
+            loaded_fonts[family] = font
+        callbacks = pending_callbacks[family]
+        v'delete pending_callbacks[family]'
+        for cb in callbacks:
+            cb(font)
+
+    def got_faces(end_type, xhr, ev):
+        if end_type is not 'load':
+            print(f'Failed to load the faces of the font {family}: {xhr.error_html}')
+            done(None)
+            return
+        try:
+            data = JSON.parse(xhr.responseText)
+        except Exception:
+            print(f'Unparseable data received for the faces of the font {family}')
+            done(None)
+            return
+        remaining = data.faces.length
+        if not remaining:
+            done(None)
+            return
+
+        def got_face(face, end_type, xhr, ev):
+            nonlocal remaining
+            if end_type is 'load':
+                faces.push({'blob': xhr.response, 'weight': face['font-weight'], 'style': face['font-style'], 'stretch': face['font-stretch']})
+            else:
+                print(f'Failed to load a face of the font {family}: {xhr.error_html}')
+            remaining -= 1
+            if remaining <= 0:
+                done({'family': data.family, 'faces': faces} if faces.length else None)
+
+        for face in data.faces:
+            # Allow the browser to cache the font files, they are served with ETags
+            xhr = ajax(font_url(f'reader-font-file/{face.index}/', family), got_face.bind(None, face), bypass_cache=False)
+            xhr.responseType = 'blob'
+            xhr.send()
+
+    ajax(font_url('reader-font-faces/', family), got_faces).send()
+
+
+def get_server_font_families(callback):
+    # Calls callback with the list of font families or None and an error message
+    ajax('reader-fonts', def (end_type, xhr, ev):
+        if end_type is not 'load':
+            callback(None, xhr.error_html)
+            return
+        try:
+            families = JSON.parse(xhr.responseText).families
+        except Exception:
+            callback(None, 'Unparseable data received')
+            return
+        callback(families, '')
+    ).send()

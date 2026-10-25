@@ -108,8 +108,8 @@ class Prefs:
         ci(_('Selection behavior'), 'selection', _('Control how the viewer selects text'))
         ci(_('Touch behavior'), 'touch', _('Customize what various touchscreen gestures do'))
         ci(_('Keyboard shortcuts'), 'keyboard', _('Customize the keyboard shortcuts'))
+        ci(_('Fonts'), 'fonts', _('Font choices'))
         if runtime.is_standalone_viewer:
-            ci(_('Fonts'), 'fonts', _('Font choices'))
             ci(_('Miscellaneous'), 'misc', _('Window size, last read position, toolbar, etc.'))
         build_list(c, items)
 

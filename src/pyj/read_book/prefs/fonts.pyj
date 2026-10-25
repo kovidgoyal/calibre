@@ -6,11 +6,12 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from dom import svgicon
+from dom import clear, svgicon
 from dom import unique_id
 from read_book.globals import runtime
 from read_book.prefs.font_size import MAX_FONT_SIZE, MIN_FONT_SIZE
 from read_book.prefs.utils import create_button_box
+from read_book.server_fonts import get_server_font_families
 
 CONTAINER = unique_id('standalone-font-settings')
 DEFAULT_STANDARD_FONT = 'serif'
@@ -68,6 +69,9 @@ def zoom_step_size(settings):
 
 def restore_defaults():
     container = get_container()
+    if not runtime.is_standalone_viewer:
+        container.querySelector('[name=server_font_family]').value = ''
+        return
     for q in ('serif_family', 'sans_family', 'mono_family'):
         container.querySelector(f'[name={q}]').value = ''
     container.querySelector('[name=zoom_step_size]').value = DEFAULT_ZOOM_STEP_SIZE + ''
@@ -79,7 +83,51 @@ def get_container():
     return document.getElementById(CONTAINER)
 
 
+def create_server_fonts_panel(container, apply_func, cancel_func):
+    # The browser viewer can only use fonts installed on the device it is
+    # running on, so allow downloading a font from the computer running calibre
+    current = get_session_data().get('server_font_family') or ''
+    select = E.select(name='server_font_family')
+    select.appendChild(E.option(_('— Default font —'), value=''))
+    if current:
+        select.appendChild(E.option(current, selected='selected'))
+    select.disabled = True
+    status = E.div(_('Loading the list of fonts, please wait...'), style='margin-top: 1rem; font-style: italic')
+    container.appendChild(E.div(
+        id=CONTAINER, style='margin: 1rem',
+        E.div(_(
+            'Choose a font installed on the computer running calibre. It is used for text'
+            ' that has no font specified by the book. To use it for all text, add a rule'
+            ' such as the following in the Styles section:'
+        )),
+        E.pre(style='white-space: pre-wrap; margin-top: 1ex', 'body * { font-family: "Font name" !important }'),
+        E.div(style='margin-top: 1rem', E.label(_('Font') + ':\xa0', E.div(select, E.span(svgicon('angle-down')), data_component='select'))),
+        status,
+    ))
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+    def got_families(families, err):
+        if err:
+            status.textContent = _('Failed to load the list of fonts from the server')
+            print(err)
+            return
+        clear(select)
+        select.appendChild(E.option(_('— Default font —'), value=''))
+        if current and current not in families:
+            # The font is no longer on the server, keep the setting unless it is changed
+            families = [current].concat(families)
+        for family in families:
+            select.appendChild(E.option(family))
+        select.value = current
+        select.disabled = False
+        status.style.display = 'none'
+
+    get_server_font_families(got_families)
+
+
 def create_fonts_panel(container, apply_func, cancel_func):
+    if not runtime.is_standalone_viewer:
+        return create_server_fonts_panel(container, apply_func, cancel_func)
     container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
     container = container.lastChild
     container.append(E.div(_('Choose fonts to use for un-styled text:'), style='margin-top: 1rem'))
@@ -111,6 +159,12 @@ develop = create_fonts_panel
 def commit_fonts(onchange):
     sd = get_session_data()
     container = get_container()
+    if not runtime.is_standalone_viewer:
+        select = container.querySelector('[name=server_font_family]')
+        if not select.disabled and select.value is not (sd.get('server_font_family') or ''):
+            sd.set('server_font_family', select.value)
+            onchange()
+        return
     vals = {}
     zss = parseInt(container.querySelector('[name=zoom_step_size]').value)
     if zss is not DEFAULT_ZOOM_STEP_SIZE:

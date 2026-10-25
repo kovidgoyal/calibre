@@ -186,6 +186,40 @@ ns_count = 0
 hide_tooltips = False
 
 
+# A font from the computer running calibre, used as the default font in the
+# browser viewer
+server_font = {'family': '', 'css': '', 'urls': []}
+
+
+def css_string(text):
+    return '"' + text.replace(/[\\"]/g, '\\$&').replace(/[\n\r\f]/g, ' ') + '"'
+
+
+def set_server_font(font):
+    family = font.family if font else ''
+    if family is server_font.family:
+        return
+    for url in server_font.urls:
+        window.URL.revokeObjectURL(url)
+    server_font.family, server_font.css, server_font.urls = family, '', []
+    if font:
+        rules = []
+        for face in font.faces:
+            url = window.URL.createObjectURL(face.blob)
+            server_font.urls.push(url)
+            rules.push(
+                f'@font-face {{ font-family: {css_string(family)}; src: url({url});'
+                f' font-weight: {face.weight}; font-style: {face.style}; font-stretch: {face.stretch} }}')
+        server_font.css = rules.join('\n')
+
+
+def default_stylesheet():
+    family = window.default_font_family or 'sans-serif'
+    if server_font.family:
+        family = css_string(server_font.family) + ', ' + family
+    return server_font.css + f'\nhtml {{ font-family: {family} }}'
+
+
 def get_prefix(ns):
     nonlocal ns_count
     ans = ns_rmap[ns]
@@ -302,7 +336,7 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     if not runtime.is_standalone_viewer:
         # for the standalone viewer the default font family is set
         # in the viewer settings
-        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or 'sans-serif')))
+        document.head.appendChild(E.style(type='text/css', default_stylesheet()))
 
     load_required = set()
     proceeded = False
@@ -382,7 +416,7 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
     if not runtime.is_standalone_viewer:
         # for the standalone viewer the default font family is set
         # in the viewer settings
-        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or 'sans-serif')))
+        document.head.appendChild(E.style(type='text/css', default_stylesheet()))
     load_required = set()
     proceeded = False
     hang_timeout = 5

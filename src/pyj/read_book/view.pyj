@@ -42,6 +42,7 @@ from read_book.resources import load_resources
 from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay
 from read_book.selection_bar import SelectionBar
+from read_book.server_fonts import load_server_font
 from read_book.shortcuts import create_shortcut_map
 from read_book.smil import get_smil_audio_map
 from read_book.timers import Timers
@@ -1464,11 +1465,15 @@ class View:
         self.update_header_footer()
 
     def show_spine_item(self, resource_data):
-        self.pending_load = resource_data
-        if self.iframe_wrapper.ready:
-            self.do_pending_load()
-        else:
-            self.iframe_wrapper.init()
+        family = None if runtime.is_standalone_viewer else get_session_data().get('server_font_family')
+        load_server_font(family, def (font):
+            self.currently_showing.server_font = font
+            self.pending_load = resource_data
+            if self.iframe_wrapper.ready:
+                self.do_pending_load()
+            else:
+                self.iframe_wrapper.init()
+        )
 
     def show_spine_item_stage2(self, resource_data):
         # We cannot encrypt this message because the resource data contains
@@ -1487,7 +1492,7 @@ class View:
             settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
             is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
             highlights=self.annotations_manager.highlights_for_currently_showing(),
-            book_storage=get_book_storage(self.book),
+            book_storage=get_book_storage(self.book), server_font=self.currently_showing.server_font or None,
         )
 
     def on_book_storage_changed(self, data):

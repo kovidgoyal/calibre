@@ -67,6 +67,7 @@ all_settings = {
     'scroll_auto_boundary_delay': {'default': 5, 'category': 'read_book', 'is_local': True},
     'scroll_mouse_boundary_delay': {'default': 0.5, 'category': 'read_book', 'is_local': True},
     'scroll_stop_boundaries': {'default': False, 'category': 'read_book', 'is_local': True},
+    'server_font_family': {'default': '', 'category': 'read_book'},
     'standalone_font_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
     'standalone_misc_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
     'standalone_recently_opened': {'default': [], 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},

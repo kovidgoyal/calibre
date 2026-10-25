@@ -78,7 +78,7 @@ from read_book.paged_mode import scroll_to_extend_annotation as paged_annotation
 from read_book.paged_mode import scroll_to_fraction as paged_scroll_to_fraction
 from read_book.paged_mode import start_drag_scroll as start_drag_scroll_paged
 from read_book.referencing import elem_for_ref, end_reference_mode, start_reference_mode
-from read_book.resources import finalize_resources, unserialize_html
+from read_book.resources import finalize_resources, set_server_font, unserialize_html
 from read_book.settings import (
     apply_colors,
     apply_font_size,
@@ -339,6 +339,7 @@ class IframeBoss:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
+        set_server_font(data.server_font)
         self.highlights_to_apply = data.highlights
         unserialize_html(root_data, self.content_loaded, None, data.name)
 
