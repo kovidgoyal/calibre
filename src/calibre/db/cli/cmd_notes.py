@@ -96,9 +96,10 @@ an HTML document with any images embedded, suitable for use with set:
 %prog notes show FIELD ITEM
 
 Replace the note for an item with the contents of an HTML file. Use - to
-read the HTML from standard input. Images embedded as data: URLs are always
-added to the note. When using a local library and reading from a file, images
-referenced by paths relative to the file are added as well:
+read the HTML from standard input. Images embedded as base64-encoded data:
+URLs are added to the note for both local and remote libraries. When using a
+local library and reading from a file, images referenced by paths relative to
+the file are added as well:
 
 %prog notes set FIELD ITEM FILE
 
