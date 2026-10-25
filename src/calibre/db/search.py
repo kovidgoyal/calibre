@@ -880,19 +880,18 @@ class Parser(SearchQueryParser):  # {{{
         current_candidates = set(candidates)
 
         try:
-            rating_query = int(float(query)) * 2
-        except Exception:
-            rating_query = None
-
-        try:
-            int_query = int(float(query))
-        except Exception:
-            int_query = None
-
-        try:
             float_query = float(query)
-        except Exception:
+        except ValueError:
             float_query = None
+        # Only whole numbers can match int columns and only whole or half stars
+        # can match ratings, which are stored as twice the number of stars.
+        # Truncating would cause 3.7 to match 3 stars and 1.5 to match 1.
+        int_query = rating_query = None
+        if float_query is not None:
+            if float_query.is_integer():
+                int_query = int(float_query)
+            if (float_query * 2).is_integer():
+                rating_query = int(float_query * 2)
 
         for location in locations:
             current_candidates -= matches
