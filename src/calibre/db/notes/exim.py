@@ -3,7 +3,7 @@
 
 import base64
 import os
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, unquote_to_bytes, urlparse
 
 from html5_parser import parse
 from lxml import html
@@ -68,7 +68,8 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, st
                 continue
             mt = mt.partition(';')[0].strip()
             try:
-                d = base64.standard_b64decode(payload)
+                # Percent decode before base64 decoding as per https://fetch.spec.whatwg.org/#data-url-processor
+                d = base64.standard_b64decode(unquote_to_bytes(payload))
             except Exception:
                 continue
             ar(img, d, img.get('data-filename') or ('image' + (guess_extension(mt, strict=False) or '.bin')))
