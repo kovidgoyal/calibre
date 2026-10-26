@@ -24,6 +24,7 @@ class Context:
     log = None
     url_for: UrlForCallable = lambda route, **kwargs: ''
     jobs_manager = None
+    auth_controller: AuthController | None = None
     CATEGORY_CACHE_SIZE = 25
     SEARCH_CACHE_SIZE = 100
 
@@ -192,7 +193,7 @@ class Context:
             return old[1]
 
 
-SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert', 'fts')
+SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert', 'fts', 'kosync')
 
 
 class Handler:
@@ -208,6 +209,8 @@ class Handler:
                 ban_time_in_minutes=opts.ban_for,
                 ban_after=opts.ban_after,
             )
+        # Endpoints that do their own authentication use this to share its bans
+        ctx.auth_controller = self.auth_controller
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in SRV_MODULES:
             module = import_module('calibre.srv.' + module)
