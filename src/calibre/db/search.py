@@ -66,10 +66,8 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
         # which are slow in larger libraries, for ASCII only text
         ascii_matcher = ascii_primary_no_punc_matcher(query)
         if ascii_matcher is None:
-            for t in value:
-                if primary_no_punc_contains(query, icu_lower(t)):
-                    return True
-            return False
+            return any(primary_no_punc_contains(query, icu_lower(t)) for t in value)
+        # ruff: ignore[reimplemented-builtin]
         for t in value:
             if ascii_matcher(t) if t.isascii() else primary_no_punc_contains(query, icu_lower(t)):
                 return True

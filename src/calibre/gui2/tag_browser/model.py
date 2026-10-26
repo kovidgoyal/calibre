@@ -2336,6 +2336,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             if (equals_match and final_equals(name, txt)) or (not equals_match and final_contains(txt, name)):
                 self.path_found = path
                 return True
+            # ruff: ignore[reimplemented-builtin]
             for i, c in enumerate(tag_item.children):
                 if process_tag(depth + 1, self.createIndex(i, 0, c), c, start_path):
                     return True

@@ -148,6 +148,7 @@ def has_only_blocks(x):
         return False
     if x.text and not isspace(x.text):
         return False
+    # ruff: ignore[reimplemented-builtin]
     for child in x:
         if not isblock(child) or (child.tail and not isspace(child.tail)):
             return False

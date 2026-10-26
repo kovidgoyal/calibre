@@ -153,10 +153,7 @@ class Browser:
 
         def has_header(x: str) -> bool:
             x = x.lower()
-            for h, v in headers:
-                if h.lower() == x:
-                    return True
-            return False
+            return any(h.lower() == x for h, v in headers)
 
         if isinstance(data, dict):
             headers.append(('Content-Type', 'application/x-www-form-urlencoded'))

@@ -40,10 +40,7 @@ def lang_for_elem(elem, parent_lang):
 def has_text(elem):
     if elem.text and elem.text.strip():
         return True
-    for child in elem:
-        if child.tail and child.tail.strip():
-            return True
-    return False
+    return any(child.tail and child.tail.strip() for child in elem)
 
 
 class Chunk(NamedTuple):

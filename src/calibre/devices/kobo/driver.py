@@ -66,10 +66,7 @@ def imageid_keep_ext_dot(ImageID):
 
 
 def any_in(haystack, *needles):
-    for n in needles:
-        if n in haystack:
-            return True
-    return False
+    return any(n in haystack for n in needles)
 
 
 GENERIC_GUI_NAME = 'Kobo eReader'

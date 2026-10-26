@@ -318,10 +318,7 @@ class Block:
     def is_empty(self):
         if self.force_not_empty:
             return False
-        for run in self.runs:
-            if not run.is_empty():
-                return False
-        return True
+        return all(run.is_empty() for run in self.runs)
 
 
 class Blocks:

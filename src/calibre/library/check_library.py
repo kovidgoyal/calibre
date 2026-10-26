@@ -93,10 +93,7 @@ class CheckLibrary:
         return self.failed_folders
 
     def ignore_name(self, filename):
-        for filespec in self.ignore_names:
-            if fnmatch.fnmatch(filename, filespec):
-                return True
-        return False
+        return any(fnmatch.fnmatch(filename, filespec) for filespec in self.ignore_names)
 
     def scan_library(self, name_ignores, extension_ignores):
         self.ignore_names = frozenset(name_ignores)

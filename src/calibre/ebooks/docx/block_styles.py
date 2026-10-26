@@ -340,10 +340,7 @@ class Frame:
         return ans
 
     def __eq__(self, other):
-        for x in self.all_attributes:
-            if getattr(other, x, inherit) != getattr(self, x):
-                return False
-        return True
+        return all(getattr(other, x, inherit) == getattr(self, x) for x in self.all_attributes)
 
     def __ne__(self, other):
         return not self.__eq__(other)

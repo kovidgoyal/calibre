@@ -257,10 +257,7 @@ class LrsContainer:
             for child in self.contents:
                 if child.has_text():
                     return True
-        for item in self.contents:
-            if isinstance(item, (Plot, ImageBlock, Canvas, CR)):
-                return True
-        return False
+        return any(isinstance(item, (Plot, ImageBlock, Canvas, CR)) for item in self.contents)
 
     def append_to(self, parent):
         """
@@ -1579,10 +1576,7 @@ class LrsSimpleChar1:
     parent: LrsContainer | None
 
     def isEmpty(self):
-        for content in self.contents:
-            if not content.isEmpty():
-                return False
-        return True
+        return all(content.isEmpty() for content in self.contents)
 
     def hasFollowingContent(self):
         foundSelf = False

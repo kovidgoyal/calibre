@@ -598,10 +598,7 @@ class Container(ContainerBase):  # {{{
         if not name:
             return False
         name = name.lower()
-        for q in self.name_path_map:
-            if q.lower() == name:
-                return True
-        return False
+        return any(q.lower() == name for q in self.name_path_map)
 
     def relpath(self, path, base=None):
         """Convert an absolute path (with OS separators) to a path relative to
