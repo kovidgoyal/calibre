@@ -969,7 +969,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
             category_child_map = {}
             fm = pn_db.field_metadata[key]
-            clear_rating = True if key not in self.categories_with_ratings and not fm['is_custom'] and not fm['kind'] == 'user' else False
+            clear_rating = True if key not in self.categories_with_ratings and not fm['is_custom'] and fm['kind'] != 'user' else False
             in_uc = fm['kind'] == 'user' and not is_gst
             tt = key if in_uc else None
 
