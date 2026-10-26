@@ -454,3 +454,36 @@ class NotesTest(BaseTest):
                 resources = cache.notes_resources_used_by('authors', author_id)
                 self.ae(len(resources), 1)
                 self.ae(cache.get_notes_resource(next(iter(resources)))['name'], name)
+
+    def test_notes_import_percent_encoded_data_url_images(self):
+        from base64 import standard_b64encode
+        from urllib.parse import quote
+
+        from html5_parser import parse
+
+        cache, _ = self.create_notes_db()
+        author_id = min(cache.all_field_ids('authors'))
+        image = get_image_path('book.png', data=True)
+        payload = standard_b64encode(image).decode('ascii')
+        for char in '+/=':
+            self.assertIn(char, payload)
+        for encoding, encoded_payload in (
+            ('plus', payload.replace('+', '%2B')),
+            ('slash', payload.replace('/', '%2F')),
+            ('padding', payload.replace('=', '%3D')),
+            ('reserved', quote(payload, safe='')),
+            ('lowercase escapes', payload.replace('+', '%2b').replace('/', '%2f').replace('=', '%3d')),
+            ('all characters', ''.join(f'%{ord(char):02X}' for char in payload)),
+            ('whitespace', '%0A' + quote(payload, safe='') + '%0D%0A'),
+        ):
+            with self.subTest(encoding=encoding):
+                cache.set_notes_for('authors', author_id, '')
+                doc = f'<p>Embedded image<img src="data:image/png;charset=utf-8;base64,{encoded_payload}"></p>'
+                cache.import_note('authors', author_id, doc, path_is_data=True)
+                resources = cache.notes_resources_used_by('authors', author_id)
+                self.ae(len(resources), 1)
+                resource = cache.get_notes_resource(next(iter(resources)))
+                self.assertTrue(resource['data'] == image, 'Imported image bytes differ from the original')
+                self.ae(resource['name'], 'image.png')
+                exported = parse(cache.export_note('authors', author_id))
+                self.ae(exported.xpath('//img/@src'), [f'data:image/png;base64,{payload}'])
