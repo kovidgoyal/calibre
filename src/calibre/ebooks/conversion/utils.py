@@ -607,11 +607,7 @@ class HeuristicProcessor:
         lines = self.linereg.findall(html)
         if len(lines) > 1:
             self.log.debug('There are ' + str(len(blanklines)) + ' blank lines. ' + str(float(len(blanklines)) / float(len(lines))) + ' percent blank')
-
-            if float(len(blanklines)) / float(len(lines)) > 0.40:
-                return True
-            else:
-                return False
+            return float(len(blanklines)) / float(len(lines)) > 0.4
 
     def cleanup_required(self):
         for option in ['unwrap_lines', 'markup_chapter_headings', 'format_scene_breaks', 'delete_blank_paragraphs']:

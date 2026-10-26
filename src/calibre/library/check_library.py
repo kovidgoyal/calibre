@@ -180,9 +180,7 @@ class CheckLibrary:
             return False
         ext = ext[1:].lower()
         ext = ext.removeprefix('original_')
-        if ext in EBOOK_EXTENSIONS:
-            return True
-        return False
+        return ext in EBOOK_EXTENSIONS
 
     def process_book(self, lib, book_info):
         db_path, title_dir, book_id = book_info

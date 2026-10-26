@@ -139,9 +139,7 @@ BLOCK_TAGS = frozenset(map(XHTML, NON_NAMESPACED_BLOCK_TAGS))
 def isblock(x):
     if callable(x.tag) or not x.tag:
         return True
-    if x.tag in BLOCK_TAGS:
-        return True
-    return False
+    return x.tag in BLOCK_TAGS
 
 
 def has_only_blocks(x):

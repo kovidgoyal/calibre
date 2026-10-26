@@ -787,9 +787,7 @@ class DeviceManager(Thread):  # {{{
         self._call_request(name, 'set_option', opt_string, opt_value)
 
     def is_running(self, name):
-        if self._call_request(name, 'is_running'):
-            return True
-        return False
+        return bool(self._call_request(name, 'is_running'))
 
     def is_enabled(self, name):
         try:

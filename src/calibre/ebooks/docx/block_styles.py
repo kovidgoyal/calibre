@@ -19,14 +19,10 @@ class Inherit:
         return other is not self
 
     def __ge__(self, other):
-        if self is other:
-            return True
         return True
 
     def __le__(self, other):
-        if self is other:
-            return True
-        return False
+        return self is other
 
 
 inherit = Inherit()
