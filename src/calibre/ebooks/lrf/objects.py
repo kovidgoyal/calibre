@@ -170,7 +170,7 @@ class LRFStream(LRFObject):
                 key = l % key + 0xF
             else:
                 key = 0
-            if l > 0x400 and (isinstance(self, ImageStream) or isinstance(self, Font) or isinstance(self, SoundStream)):
+            if l > 0x400 and (isinstance(self, (ImageStream, Font, SoundStream))):
                 l = 0x400
             self.stream = self.descramble_buffer(self.stream, l, key)
         if self.stream_flags & 0x100 != 0:
