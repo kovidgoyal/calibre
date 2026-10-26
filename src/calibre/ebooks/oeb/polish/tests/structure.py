@@ -484,6 +484,31 @@ class Structure(BaseTest):
         self.assertEqual(root.xpath('//*/@headers'), ['c'])
         self.assertFalse(root.xpath('//*/@for'))
 
+    def test_epub_output_language(self):
+        from calibre.ebooks.oeb.polish.tests.base import build_book
+
+        src = os.path.join(self.tdir, 'index.html')
+        with open(src, 'w') as f:
+            f.write('<html><body><p>one</p></body></html>')
+        for ver, args, expected in (
+            ('2', ['--language=fra'], (None, 'fr')),
+            ('3', ['--language=fra'], ('fr', 'fr')),
+            ('3', ['--language=pt-BR'], ('pt-BR', 'pt-BR')),
+        ):
+            with self.subTest(ver=ver, args=args):
+                dest = os.path.join(self.tdir, f'book{ver}.epub')
+                build_book(src, dest, args=['--epub-version', ver] + args)
+                c = get_container(dest, tdir=os.path.join(self.tdir, f'container{next(counter)}'), tweak_mode=True)
+                langs = {}
+                for name, linear in c.spine_names:
+                    root = c.parsed(name)
+                    langs[name] = root.get('lang'), root.get('{http://www.w3.org/XML/1998/namespace}lang')
+                # The generated title page is in English
+                self.assertEqual(langs.pop('titlepage.xhtml'), ('en' if ver == '3' else None, 'en'))
+                self.assertTrue(langs)
+                for name, val in langs.items():
+                    self.assertEqual(val, expected, name)
+
 
 def find_tests():
     import unittest
