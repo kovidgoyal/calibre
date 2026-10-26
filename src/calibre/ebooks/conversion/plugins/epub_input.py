@@ -382,6 +382,46 @@ class EPUBInput(InputFormatPlugin):
                 unkepubify_container(container)
                 container.commit()
 
+    def landmarks_to_guide(self, root, nav_path, opf, log):
+        # The rest of the conversion pipeline uses only the OPF guide, so
+        # replace guide entries with the landmarks from the EPUB 3 nav. Landmark
+        # types with no equivalent guide type use custom guide types, see
+        # https://bugs.launchpad.net/bugs/2172176
+        from lxml import etree
+
+        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, urlquote, urlunquote
+        from calibre.ebooks.oeb.polish.upgrade import guide_type_for_epubtype
+
+        et = f'{{{EPUB_NS}}}type'
+        base = os.path.relpath(os.path.dirname(os.path.abspath(nav_path))).replace(os.sep, '/')
+        nav_href = urlquote(os.path.basename(nav_path))
+        seen: dict[str, int] = {}
+        for nav in root.iterdescendants(XHTML('nav')):
+            if nav.get(et) != 'landmarks':
+                continue
+            for a in nav.iterdescendants(XHTML('a')):
+                href, epubtypes = a.get('href'), (a.get(et) or '').split()
+                if not href or not epubtypes:
+                    continue
+                gtype = guide_type_for_epubtype(epubtypes[0])
+                # The cover is handled by rationalize_cover3()
+                if gtype == 'cover' or gtype in seen:
+                    continue
+                path, frag = href.partition('#')[::2]
+                path = posixpath.normpath(posixpath.join(base, path or nav_href))
+                if path == getattr(self, 'removed_cover', None):
+                    continue
+                if not os.path.isfile(urlunquote(path)):
+                    log.warn(f'Ignoring landmark of type {gtype} pointing to missing file: {href}')
+                    continue
+                seen[gtype] = len(seen)
+                title = etree.tostring(a, method='text', encoding='unicode', with_tail=False).strip()
+                self.set_guide_type(opf, gtype, f'{path}#{frag}' if frag else path, title)
+        # Put the landmarks first, in their original order
+        refs = sorted((r for r in opf.iterguide() if r.get('type') in seen), key=lambda r: seen[r.get('type')])
+        for i, r in enumerate(refs):
+            r.getparent().insert(i, r)
+
     def convert_epub3_nav(self, nav_path, opf, log, opts):
         from tempfile import NamedTemporaryFile
 
@@ -397,6 +437,7 @@ class EPUBInput(InputFormatPlugin):
             raw = f.read()
         raw = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]
         root = parse(raw, log=log)
+        self.landmarks_to_guide(root, nav_path, opf, log)
         ncx = safe_xml_fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
         navmap = ncx[0]
         et = f'{{{EPUB_NS}}}type'

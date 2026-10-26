@@ -198,6 +198,76 @@ class Structure(BaseTest):
         self.assertEqual(barename(elem('hd-toc').getparent().tag), 'nav')
         self.assertEqual(1, len(root.xpath('//*[@class="special"]')))
 
+    def test_landmarks_preserved_by_conversion(self):
+        # EPUB input must replace guide entries with the landmarks from the
+        # nav so that conversion to any output format uses them, see
+        # https://bugs.launchpad.net/bugs/2172176
+        from types import SimpleNamespace
+
+        from calibre import CurrentDir
+        from calibre.customize.ui import plugin_for_input_format
+        from calibre.ebooks.conversion.plumber import Plumber
+        from calibre.ebooks.metadata.opf2 import OPF
+        from calibre.ebooks.oeb.transforms.guide import CUSTOM_GUIDE_TYPE_PREFIX
+        from calibre.utils.logging import DevNull
+
+        body = '<html xmlns="http://www.w3.org/1999/xhtml"><body><h1 id="h">{}</h1><p>x</p></body></html>'
+        nav = (
+            b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><body>'
+            b'<nav epub:type="toc" id="toc"><ol><li><a href="a.html">A</a></li><li><a href="b.html">B</a></li></ol></nav>'
+            b'<nav epub:type="landmarks"><ol>'
+            b'<li><a epub:type="toc" href="#toc">Contents</a></li>'
+            b'<li><a epub:type="seriespage" href="b.html">Series</a></li>'
+            b'<li><a epub:type="bodymatter" href="c.html#h">Start</a></li>'
+            b'<li><a epub:type="index" href="missing.html">Index</a></li>'
+            b'<li><a epub:type="bodymatter" href="d.html">Duplicate</a></li>'
+            b'</ol></nav></body></html>'
+        )
+        epub = create_epub(
+            [*(cmi(f'{x}.html', body.format(x)) for x in 'abcd'), cmi('nav.html', nav, 'nav')],
+            spine=('a.html', 'b.html', 'c.html', 'd.html'),
+            guide=[('b.html', 'text', 'Old start'), ('d.html', 'index', 'Index'), ('a.html', 'other.chapter', 'Chapter')],
+        )
+        src = os.path.join(self.tdir, 'landmarks.epub')
+        with open(src, 'wb') as f:
+            f.write(epub.getvalue())
+
+        tdir = os.path.join(self.tdir, 'epub-input')
+        os.mkdir(tdir)
+        with CurrentDir(tdir), open(src, 'rb') as f:
+            opf = plugin_for_input_format('epub').convert(f, SimpleNamespace(), 'epub', DevNull(), {})
+            guide = {r.get('type'): (r.get('href'), r.get('title')) for r in OPF(opf, tdir).iterguide()}
+        self.assertEqual(
+            {
+                'toc': ('nav.html#toc', 'Contents'),
+                # Landmark types with no equivalent guide type use custom types
+                CUSTOM_GUIDE_TYPE_PREFIX + 'seriespage': ('b.html', 'Series'),
+                'text': ('c.html#h', 'Start'),
+                # Guide entries for types not in the landmarks are kept
+                'index': ('d.html', 'Index'),
+                'other.chapter': ('a.html', 'Chapter'),
+            },
+            guide,
+        )
+
+        # The landmarks survive conversion to EPUB 3
+        out = os.path.join(self.tdir, 'landmarks-out.epub')
+        plumber = Plumber(src, out, DevNull())
+        plumber.merge_ui_recommendations([('epub_version', '3', 3), ('no_default_epub_cover', True, 3)])
+        plumber.run()
+        c = get_container(out, tdir=os.path.join(self.tdir, 'landmarks-out'))
+        landmarks = [(e['type'], e['dest'], e['frag'], e['title']) for e in get_landmarks(c)]
+        self.assertEqual(
+            [
+                ('toc', 'nav.html', 'toc', 'Contents'),
+                ('seriespage', 'b.html', '', 'Series'),
+                ('bodymatter', 'c.html', 'h', 'Start'),
+                # Guide types not kept by conversion are dropped
+                ('index', 'd.html', '', 'Index'),
+            ],
+            landmarks,
+        )
+
     def test_guide_reference_without_type(self):
         # Guide references with no type must not cause a crash, see
         # https://bugs.launchpad.net/bugs/2170400

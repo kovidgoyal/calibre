@@ -11,6 +11,7 @@ from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
 from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
+from calibre.ebooks.oeb.transforms.guide import CUSTOM_GUIDE_TYPE_PREFIX, KNOWN_GUIDE_TYPES
 from calibre.utils.localization import _
 from calibre.utils.short_uuid import uuid4
 
@@ -135,6 +136,19 @@ guide_epubtype_map = {
     'other.volume': 'volume',
     'other.warning': 'warning',
 }
+epubtype_guide_map = {v: k for k, v in guide_epubtype_map.items() if v}
+
+
+def epubtype_for_guide_type(gtype: str) -> str | None:
+    if gtype.lower().startswith(CUSTOM_GUIDE_TYPE_PREFIX):
+        return gtype[len(CUSTOM_GUIDE_TYPE_PREFIX) :] or None
+    return guide_epubtype_map.get(gtype.lower())
+
+
+def guide_type_for_epubtype(epubtype: str) -> str:
+    # Conversion keeps only known guide types, so use a custom type for the rest
+    gtype = epubtype_guide_map.get(epubtype)
+    return gtype if gtype in KNOWN_GUIDE_TYPES else (CUSTOM_GUIDE_TYPE_PREFIX + epubtype)
 
 
 def create_nav(container, toc, landmarks, previous_nav=None):
@@ -143,7 +157,7 @@ def create_nav(container, toc, landmarks, previous_nav=None):
         lang = None
     if landmarks:
         for entry in landmarks:
-            entry['type'] = guide_epubtype_map.get(entry['type'].lower())
+            entry['type'] = epubtype_for_guide_type(entry['type'])
             if entry['type'] == 'cover' and container.mime_map.get(entry['dest'], '').lower() in OEB_DOCS:
                 container.apply_unique_properties(entry['dest'], 'calibre:title-page')
     commit_nav_toc(container, toc, lang=lang, landmarks=landmarks, previous_nav=previous_nav)
