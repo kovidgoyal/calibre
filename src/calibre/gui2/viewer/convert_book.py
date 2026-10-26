@@ -68,16 +68,31 @@ def robust_rmtree(x):
     return False
 
 
-def robust_rename(a, b):
-    retries = 20 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
-    for i in range(retries):
+def is_transient_windows_lock_error(e: OSError) -> bool:
+    # Antivirus/file sync software holding a file open inside a directory
+    # causes renaming the directory to fail with ERROR_ACCESS_DENIED rather
+    # than ERROR_SHARING_VIOLATION
+    return iswindows and getattr(e, 'winerror', None) in (winutil.ERROR_SHARING_VIOLATION, winutil.ERROR_LOCK_VIOLATION, winutil.ERROR_ACCESS_DENIED)
+
+
+def robust_rename(a: str, b: str) -> OSError | None:
+    "Rename a to b, returning None on success or the last error on failure"
+    # retry on windows to get around the idiotic mandatory file locking, for
+    # up to about 15 seconds as on-access antivirus scanning of large books can take a while
+    delays = (0.1,) * 5 + (0.25,) * 4 + (0.5,) * 4 + (1,) * 11 if iswindows else ()
+    for delay in delays:
         try:
             os.rename(a, b)
-            return True
+            return None
         except OSError as e:
-            if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
-                time.sleep(0.1)
-    return False
+            if not is_transient_windows_lock_error(e):
+                return e
+            time.sleep(delay)
+    try:
+        os.rename(a, b)
+    except OSError as e:
+        return e
+    return None
 
 
 def clear_temp(temp_path):
@@ -267,11 +282,11 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
         metadata = metadata3
         instances = entries2.setdefault(key, [])
         os.rmdir(ans)
-        if not robust_rename(src_path, ans):
+        if (err := robust_rename(src_path, ans)) is not None:
             raise Exception(
                 f'Failed to rename: "{src_path}" to "{ans}" probably some software such as an antivirus or file sync program'
-                ' running on your computer has locked the files'
-            )
+                f' running on your computer has locked the files. Error: {err}'
+            ) from err
 
         instance['status'] = 'finished'
         for q in instances:
