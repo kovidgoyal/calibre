@@ -244,7 +244,7 @@ def _extractall(f, path=None, file_info=None):
         parts = tuple(x for x in fname.split('/') if x not in {'', os.path.pardir, os.path.curdir})
         if not parts:
             continue
-        if header.uncompressed_size == 0:
+        if fname.endswith('/'):
             # Directory
             f.seek(f.tell() + seekval)
             if path is not None:
@@ -373,6 +373,71 @@ class LocalZipFile:
             zipstream.truncate()
             shutil.copyfileobj(temp, zipstream)
             zipstream.flush()
+
+
+def find_tests():
+    import unittest
+    from io import BytesIO
+    from tempfile import TemporaryDirectory
+
+    from calibre.utils.zipfile import BadZipfile, ZipFile
+
+    class TestLocalUnzip(unittest.TestCase):
+        files = {'empty.txt': b'', 'nested/empty.txt': b'', 'following.txt': b'content'}
+
+        def make_archive(self, compression):
+            stream = BytesIO()
+            with ZipFile(stream, 'w') as zf:
+                zf.writestr('empty-dir/', b'', compression=compression)
+                for name, data in self.files.items():
+                    zf.writestr(name, data, compression=compression)
+                local_headers_end = stream.tell()
+            # Discard the central directory to exercise recovery from local headers.
+            stream.truncate(local_headers_end)
+            stream.seek(0)
+            with self.assertRaises(BadZipfile):
+                ZipFile(stream)
+            stream.seek(0)
+            return stream
+
+        def test_local_unzip_read_empty_files(self):
+            for compression in (ZIP_STORED, ZIP_DEFLATED):
+                with self.subTest(compression=compression):
+                    zf = LocalZipFile(self.make_archive(compression))
+                    self.assertEqual(set(zf.file_info), set(self.files))
+                    for name, data in self.files.items():
+                        self.assertEqual(zf.getinfo(name).uncompressed_size, len(data))
+                        self.assertEqual(zf.read(name), data)
+
+        def test_local_unzip_extract_empty_files(self):
+            for compression in (ZIP_STORED, ZIP_DEFLATED):
+                for use_local_zip_file in (False, True):
+                    with self.subTest(compression=compression, use_local_zip_file=use_local_zip_file), TemporaryDirectory() as tdir:
+                        stream = self.make_archive(compression)
+                        if use_local_zip_file:
+                            LocalZipFile(stream).extractall(tdir)
+                        else:
+                            extractall(stream, tdir)
+                        self.assertTrue(os.path.isdir(os.path.join(tdir, 'empty-dir')))
+                        for name, data in self.files.items():
+                            path = os.path.join(tdir, *name.split('/'))
+                            self.assertTrue(os.path.isfile(path), name)
+                            with open(path, 'rb') as f:
+                                self.assertEqual(f.read(), data)
+
+        def test_local_unzip_safe_replace_empty_files(self):
+            for compression in (ZIP_STORED, ZIP_DEFLATED):
+                for name, data in (('following.txt', b'replaced'), ('empty.txt', b'no longer empty')):
+                    with self.subTest(compression=compression, name=name):
+                        stream = self.make_archive(compression)
+                        LocalZipFile(stream).safe_replace(name, BytesIO(data))
+                        stream.seek(0)
+                        with ZipFile(stream) as zf:
+                            self.assertEqual(set(zf.namelist()), set(self.files))
+                            for filename, expected in (self.files | {name: data}).items():
+                                self.assertEqual(zf.read(filename), expected)
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestLocalUnzip)
 
 
 if __name__ == '__main__':
