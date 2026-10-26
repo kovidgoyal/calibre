@@ -3,9 +3,10 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 from uuid import short_uuid
 
+from ajax import ajax_send
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
 from book_list.library_data import (
@@ -149,6 +150,107 @@ class DeleteBook:  # {{{
         )
 
     def cancel(self):
+        self.overlay.hide_current_panel()
+# }}}
+
+
+class EndOfBook:  # {{{
+    # Shown when the user tries to go past the end of the book
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+        book = overlay.view.book
+        self.book = book
+        self.rating = int(book.metadata.rating or 0)
+        self.saving = False
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        apply_viewer_chrome_colors(container)
+        title = self.book.metadata.title or _('Unknown')
+        stars = E.div(class_='end-of-book-rating', style='display: flex; justify-content: center; margin: 1rem 0; font-size: 2rem')
+        for i in range(1, 6):
+            stars.appendChild(E.a(
+                svgicon('star'), data_stars=str(i), title=ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i),
+                style='cursor: pointer; margin: 0 0.2em', onclick=self.set_rating.bind(None, i * 2)))
+        container.appendChild(E.div(
+            style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
+            tabindex='0',
+            E.div(style='margin:1ex 1em; max-width: 80%; text-align: center',
+                E.h2(_('You have reached the end of {}').format(title)),
+                E.div(_('Rate this book:'), style='margin-top: 1rem'),
+                stars,
+                E.div(class_='end-of-book-status', style='min-height: 1.5em'),
+                E.div(style='display:flex; justify-content:center; flex-wrap: wrap; margin-top:1rem',
+                    create_button(_('Remove from downloaded books'), 'trash', action=self.remove_book),
+                    E.span('\xa0'),
+                    create_button(_('Close'), action=self.close, highlight=True),
+                )
+            ),
+            onkeyup=def (ev):
+                if ev.key is 'Escape':
+                    ev.stopPropagation(), ev.preventDefault()
+                    self.close()
+        ))
+        self.update_stars()
+        window.setTimeout(self.focus_me, 0)
+
+    def focus_me(self):
+        c = document.getElementById(self.container_id)
+        if c:
+            c.lastChild.focus()
+
+    def on_container_click(self, evt):
+        pass  # Don't allow panel to be closed by a click, as the stars are clicked to rate
+
+    def update_stars(self):
+        c = document.getElementById(self.container_id)
+        if not c:
+            return
+        for a in c.querySelectorAll('.end-of-book-rating > a'):
+            a.style.opacity = '1' if int(a.dataset.stars) * 2 <= self.rating else '0.3'
+
+    def set_status(self, text):
+        c = document.getElementById(self.container_id)
+        if c:
+            c.querySelector('.end-of-book-status').textContent = text
+
+    def set_rating(self, rating):
+        if self.saving or rating is self.rating:
+            return
+        library_id, book_id = self.book.key[0], self.book.key[1]
+        self.saving = True
+        self.set_status(_('Saving rating, please wait...'))
+        data = {'changes': {'rating': rating}, 'loaded_book_ids': [book_id]}
+        ajax_send(f'cdb/set-fields/{book_id}/{library_id}', data, self.rating_saved.bind(None, rating))
+
+    def rating_saved(self, rating, end_type, xhr, ev):
+        self.saving = False
+        if end_type is 'abort':
+            return
+        if end_type is not 'load':
+            self.set_status('')
+            error_dialog(_('Failed to rate book'), _('Could not save the rating for this book on the server.'), xhr.error_html)
+            return
+        try:
+            dirtied = JSON.parse(xhr.responseText)
+        except Exception as err:
+            self.set_status('')
+            error_dialog(_('Failed to rate book'), _('Server returned an invalid response'), err.toString())
+            return
+        self.rating = rating
+        library_id, book_id = self.book.key[0], self.book.key[1]
+        mi = dirtied[book_id]
+        if mi:
+            set_book_metadata(book_id, mi, library_id)
+            ui_operations.update_metadata(self.book, mi)
+        self.update_stars()
+        self.set_status(_('Rating saved'))
+
+    def remove_book(self):
+        self.overlay.delete_book()
+
+    def close(self):
         self.overlay.hide_current_panel()
 # }}}
 
@@ -1001,6 +1103,11 @@ class Overlay:
     def delete_book(self):
         self.hide_current_panel()
         self.panels = [DeleteBook(self)]
+        self.show_current_panel()
+
+    def show_end_of_book(self):
+        self.hide_current_panel()
+        self.panels = [EndOfBook(self)]
         self.show_current_panel()
 
     def reload_book(self):
