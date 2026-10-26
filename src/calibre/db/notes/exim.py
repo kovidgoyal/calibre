@@ -60,7 +60,7 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, st
     for img in root.xpath('//img[@src]'):
         src = img.attrib.pop('src')
         img.set('data-pre-import-src', src)
-        if src.startswith('data:'):
+        if src[:5].lower() == 'data:':
             d = src.split(':', 1)[-1]
             menc, payload = d.partition(',')[::2]
             mt, sep, enc = menc.rpartition(';')
@@ -69,7 +69,11 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, st
             mt = mt.partition(';')[0].strip()
             try:
                 # Percent decode before base64 decoding as per https://fetch.spec.whatwg.org/#data-url-processor
-                d = base64.standard_b64decode(unquote_to_bytes(payload))
+                payload = unquote_to_bytes(payload).translate(None, b' \t\n\r\f')
+                # Unpadded base64 is valid, but do not repair malformed existing padding.
+                if not payload.endswith(b'='):
+                    payload += b'=' * (-len(payload) % 4)
+                d = base64.b64decode(payload, validate=True)
             except Exception:
                 continue
             ar(img, d, img.get('data-filename') or ('image' + (guess_extension(mt, strict=False) or '.bin')))
