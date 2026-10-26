@@ -421,7 +421,13 @@ class NotesTest(BaseTest):
         author_id = min(cache.all_field_ids('authors'))
         image = get_image_path('lt.png', data=True)
         payload = standard_b64encode(image).decode('ascii')
-        for metadata in ('image/png;base64', 'image/png;charset=utf-8;base64', 'image/png;charset=utf-8;name=example.png;base64'):
+        for metadata in (
+            'image/png;base64',
+            'image/png;BASE64',
+            'image/png; base64',
+            'image/png;charset=utf-8;base64',
+            'image/png;charset=utf-8;name=example.png;base64',
+        ):
             for filename in ('', 'example.png'):
                 with self.subTest(metadata=metadata, filename=filename):
                     cache.set_notes_for('authors', author_id, '')
@@ -441,3 +447,10 @@ class NotesTest(BaseTest):
                     exported = parse(cache.export_note('authors', author_id))
                     self.ae(exported.xpath('//img/@data-filename'), [filename or 'image.png'])
                     self.ae(exported.xpath('//img/@src'), [f'data:image/png;base64,{payload}'])
+        for metadata, name in (('application/x-unknown;a=b;base64', 'image.bin'), (';base64', 'image.bin')):
+            with self.subTest(metadata=metadata):
+                cache.set_notes_for('authors', author_id, '')
+                cache.import_note('authors', author_id, f'<p><img src="data:{metadata},{payload}"></p>', path_is_data=True)
+                resources = cache.notes_resources_used_by('authors', author_id)
+                self.ae(len(resources), 1)
+                self.ae(cache.get_notes_resource(next(iter(resources)))['name'], name)

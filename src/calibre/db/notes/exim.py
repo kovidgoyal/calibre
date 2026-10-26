@@ -63,14 +63,15 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, st
         if src.startswith('data:'):
             d = src.split(':', 1)[-1]
             menc, payload = d.partition(',')[::2]
-            mt = menc.partition(';')[0]
-            if not menc.endswith(';base64'):
+            mt, sep, enc = menc.rpartition(';')
+            if not sep or enc.strip().lower() != 'base64':
                 continue
+            mt = mt.partition(';')[0].strip()
             try:
                 d = base64.standard_b64decode(payload)
             except Exception:
                 continue
-            ar(img, d, img.get('data-filename') or ('image' + guess_extension(mt, strict=False)))
+            ar(img, d, img.get('data-filename') or ('image' + (guess_extension(mt, strict=False) or '.bin')))
             continue
         try:
             purl = urlparse(src)
