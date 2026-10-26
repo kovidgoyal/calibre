@@ -425,10 +425,12 @@ class NotesTest(BaseTest):
         for char in '+/=':
             self.assertIn(char, payload, 'Test image must exercise all base64 special characters')
 
-        def check(metadata, filename='', encoded_payload=payload):
+        def check(metadata, filename='', encoded_payload=None, url_scheme='data'):
             cache.set_notes_for('authors', author_id, '')
+            if encoded_payload is None:
+                encoded_payload = payload
             attr = f' data-filename="{filename}"' if filename else ''
-            doc = f'<p>Embedded image<img src="data:{metadata},{encoded_payload}"{attr}></p>'
+            doc = f'<p>Embedded image<img src="{url_scheme}:{metadata},{encoded_payload}"{attr}></p>'
             note_id = cache.import_note('authors', author_id, doc, path_is_data=True)
             self.assertGreater(note_id, 0)
             resources = cache.notes_resources_used_by('authors', author_id)
@@ -474,3 +476,22 @@ class NotesTest(BaseTest):
                 resources = cache.notes_resources_used_by('authors', author_id)
                 self.ae(len(resources), 1)
                 self.ae(cache.get_notes_resource(next(iter(resources)))['name'], name)
+        for image_name, padding in (('book.png', 2), ('catalog.png', 1), ('lt.png', 0)):
+            cache, _ = self.create_notes_db()
+            author_id = min(cache.all_field_ids('authors'))
+            image = get_image_path(image_name, data=True)
+            payload = standard_b64encode(image).decode('ascii')
+            self.ae(len(payload) - len(payload.rstrip('=')), padding)
+            for url_scheme in ('data', 'DATA', 'DaTa'):
+                for encoding, encoded_payload in (
+                    ('padded', payload),
+                    ('unpadded', payload.rstrip('=')),
+                    ('unpadded with escaped whitespace', '%09%0A%0C%0D%20' + quote(payload.rstrip('='), safe='') + '%0D%0A'),
+                ):
+                    with self.subTest(image=image_name, url_scheme=url_scheme, encoding=encoding):
+                        check('image/png;base64', encoded_payload=encoded_payload, url_scheme=url_scheme)
+        for encoded_payload in ('a', 'YQ=', 'YQ===', 'YWFh=', 'Y!Q', 'YQ%0B', 'YQ%C2%A0'):
+            with self.subTest(invalid_payload=encoded_payload):
+                cache.set_notes_for('authors', author_id, '')
+                cache.import_note('authors', author_id, f'<p><img src="data:image/png;base64,{encoded_payload}"></p>', path_is_data=True)
+                self.assertFalse(cache.notes_resources_used_by('authors', author_id))
