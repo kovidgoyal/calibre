@@ -18,9 +18,8 @@ SUMMARY_PROPERTY = 'schema:accessibilitySummary'
 
 
 def html_names(container):
-    for name, mt in container.mime_map.items():
-        if mt in OEB_DOCS:
-            yield name
+    # Sorted so that problems are reported in the same order on every system
+    return sorted(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
 
 
 def is_decorative(img):
