@@ -95,6 +95,7 @@ class ReadUI:
         ui_operations.wait_for_messages_from = self.wait_for_messages_from.bind(self)
         ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
         ui_operations.update_metadata = self.update_metadata.bind(self)
+        ui_operations.mark_end_of_book_shown = self.mark_end_of_book_shown.bind(self)
         ui_operations.close_book = self.close_book.bind(self)
         ui_operations.copy_image = self.copy_image.bind(self)
         ui_operations.view_image = self.view_image.bind(self)
@@ -839,6 +840,9 @@ class ReadUI:
 
     def update_metadata(self, book, metadata):
         self.db.update_metadata(book, metadata)
+
+    def mark_end_of_book_shown(self, book):
+        self.db.mark_end_of_book_shown(book)
 
     def wait_for_messages_from(self, w, callback):
         self.windows_to_listen_for_messages_from.push([w, callback])

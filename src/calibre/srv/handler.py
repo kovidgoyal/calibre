@@ -126,6 +126,21 @@ class Context:
         if self.user_manager.is_readonly(request_data.username):
             raise HTTPForbidden(f'The user {request_data.username} does not have permission to make changes')
 
+    def metadata_writable_library_ids(self, request_data, library_ids):
+        # The libraries in which the user can change book metadata, see the
+        # checks in check_for_write_access() and cdb_set_fields()
+        if request_data.username:
+            if self.user_manager.is_readonly(request_data.username):
+                return []
+        elif not request_data.is_trusted_ip:
+            return []
+        ans = []
+        for library_id in library_ids:
+            library_path = self.library_broker.path_for_library_id(library_id)
+            if library_path and not self.user_manager.library_restriction(request_data.username, library_path):
+                ans.append(library_id)
+        return ans
+
     def get_effective_book_ids(self, db, request_data, vl, report_parse_errors=False):
         try:
             return db.books_in_virtual_library(vl, self.restriction_for(request_data, db))

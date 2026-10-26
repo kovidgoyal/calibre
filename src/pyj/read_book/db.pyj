@@ -69,6 +69,7 @@ def new_book(key, metadata):
         'last_read_position': {},
         'saved_reading_rates': {},
         'annotations_map': {},
+        'end_of_book_shown': {},
     }
 
 
@@ -374,6 +375,13 @@ class DB:
             for key in Object.keys(new_metadata):
                 book.metadata[key] = new_metadata[key]
             self.do_op(['books'], book, _('Failed to write to the books database'), def (): None;, op='put')
+
+    def mark_end_of_book_shown(self, book):
+        unkey = username_key(get_interface_data().username)
+        if not book.end_of_book_shown:
+            book.end_of_book_shown = {}
+        book.end_of_book_shown[unkey] = True
+        self.do_op(['books'], book, _('Failed to write to the books database'), def (): None;, op='put')
 
     def save_reading_rates(self, book, rates):
         book.saved_reading_rates = rates

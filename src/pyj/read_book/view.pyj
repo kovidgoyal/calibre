@@ -348,7 +348,6 @@ class View:
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
-        self.end_of_book_shown = False
         self.selection_bar = SelectionBar(self)
         self.read_aloud = ReadAloud(self)
         self.read_audio_ebook = ReadAudioEbook(self)
@@ -983,7 +982,6 @@ class View:
                 self.content_popup_overlay.reset()
             self.clear_book_resource_caches()
             self.timers.start_book(book)
-            self.end_of_book_shown = False
             self.search_overlay.clear_caches(book)
         unkey = username_key(get_interface_data().username)
         self.book = current_book.book = book
@@ -1277,10 +1275,17 @@ class View:
 
     def on_end_of_book(self):
         # Called when the user tries to go past the end of the book. Offer to
-        # rate the book and remove it from local storage, once per opened book.
-        if runtime.is_standalone_viewer or self.end_of_book_shown or not self.book or self.overlay.is_visible:
+        # rate the book and remove it from local storage, once per book.
+        if runtime.is_standalone_viewer or not self.book or not ui_operations.mark_end_of_book_shown:
             return
-        self.end_of_book_shown = True
+        if self.overlay.is_visible or self.search_overlay.is_visible or self.content_popup_overlay.is_visible:
+            return
+        if not get_session_data().get('end_of_book_popup'):
+            return
+        unkey = username_key(get_interface_data().username)
+        if self.book.end_of_book_shown and self.book.end_of_book_shown[unkey]:
+            return
+        ui_operations.mark_end_of_book_shown(self.book)
         self.overlay.show_end_of_book()
 
     def on_next_section(self, data):

@@ -222,6 +222,7 @@ def basic_interface_data(ctx, rd):
         'default_author_link': resolve_default_author_link(get_gpref('default_author_link')),
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
+    ans['metadata_writable_library_ids'] = ctx.metadata_writable_library_ids(rd, ans['library_map'])
     if ans['username']:
         ans['recently_read_by_user'] = tuple(
             x for x in last_read_cache().get_recently_read(ans['username']) if x['library_id'] in ans['library_map'] and book_exists(x, ctx, rd)

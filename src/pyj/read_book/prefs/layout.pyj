@@ -36,6 +36,7 @@ def restore_defaults():
         container.querySelector(f'#{READ_MODE} input[data-name={name}]').checked = defaults.read_mode is name
     if not runtime.is_standalone_viewer:
         container.querySelector(f'#{FS_MODE} input[value={defaults.fullscreen_when_opening}]').checked = True
+        container.querySelector('input[name=end_of_book_popup]').checked = defaults.end_of_book_popup
     for name in 'portrait landscape'.split(' '):
         container.querySelector('input[name={}]'.format(name)).value = str(defaults.columns_per_screen[name])
     for which in 'width height'.split(' '):
@@ -115,6 +116,9 @@ def create_layout_panel(container, apply_func, cancel_func):
                 E.label(E.input(type='radio', name=name, value='never', checked=val is 'never'), _('Never')),
             )
         ))
+        container.appendChild(E.div(style='margin: 1ex 2rem; display: flex;',
+            E.label(E.input(type='checkbox', name='end_of_book_popup', checked=sd.get('end_of_book_popup')),
+                _('Offer to rate and remove the book when reaching its end'))))
 
     container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
 
@@ -146,6 +150,10 @@ def commit_layout(onchange, container):
         if cfs is not fs:
             was_changed = True
             sd.set('fullscreen_when_opening', cfs)
+        # Does not affect the display of the book, so was_changed is not set
+        end_of_book_popup = element(CONTAINER, 'input[name=end_of_book_popup]').checked
+        if end_of_book_popup is not sd.get('end_of_book_popup'):
+            sd.set('end_of_book_popup', end_of_book_popup)
     cps = sd.get('columns_per_screen')
     cps = {'portrait': cps.portrait, 'landscape': cps.landscape}
     for which in ('portrait', 'landscape'):
