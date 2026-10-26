@@ -259,6 +259,9 @@ def conversion_status(ctx, rd, job_id):
         del conversion_jobs[job_id]
 
     try:
+        # Access to the book may have been revoked while the job was running
+        if not ctx.has_id(rd, db, job_status.book_id):
+            raise BookNotFound(job_status.book_id, db)
         ans = {
             'running': False,
             'ok': job_status.ok,
