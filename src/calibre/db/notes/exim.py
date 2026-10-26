@@ -68,6 +68,7 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, st
                 continue
             mt = mt.partition(';')[0].strip()
             try:
+                # Percent decode before base64 decoding as per https://fetch.spec.whatwg.org/#data-url-processor
                 d = base64.standard_b64decode(unquote_to_bytes(payload))
             except Exception:
                 continue
