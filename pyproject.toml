@@ -165,6 +165,7 @@ select = [
     ## flake8-simplify
     'double-negation',
     'duplicate-isinstance-call',
+    'enumerate-for-loop',
     'expr-and-false',
     'expr-and-not-expr',
     'expr-or-not-expr',

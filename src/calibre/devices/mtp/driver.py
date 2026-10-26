@@ -554,12 +554,12 @@ class MTP_DEVICE(BASE):
 
         ans = []
         self.report_progress(0, _('Transferring books to device...'))
-        i, total = 0, len(files)
+        total = len(files)
 
         routing = dict(self.get_pref('rules'))
 
         assert metadata is not None
-        for infile, fname, mi in zip(files, names, metadata):
+        for i, (infile, fname, mi) in enumerate(zip(files, names, metadata), 1):
             path = self.create_upload_path(prefix, mi, fname, routing)
             if path and self.is_folder_ignored(storage, path):
                 raise MTPInvalidSendPathError('/'.join(path))
@@ -595,7 +595,6 @@ class MTP_DEVICE(BASE):
                 if close:
                     stream.close()
             ans.append((mtp_file, bl_idx))
-            i += 1
             self.report_progress(i / total, _('Transferred %s to device') % mi.title)
 
         self.report_progress(1, _('Transfer to device finished...'))
@@ -752,9 +751,9 @@ class MTP_DEVICE(BASE):
         debug('add_books_to_metadata() called')
         from calibre.devices.mtp.books import Book
 
-        i, total = 0, len(mtp_files)
+        total = len(mtp_files)
         self.report_progress(0, _('Adding books to device metadata listing...'))
-        for x, mi in zip(mtp_files, metadata):
+        for i, (x, mi) in enumerate(zip(mtp_files, metadata), 1):
             mtp_file, bl_idx = x
             bl = booklists[bl_idx]
             book = Book(mtp_file.storage_id, '/'.join(mtp_file.mtp_relpath), other=mi)
@@ -763,7 +762,6 @@ class MTP_DEVICE(BASE):
                 book.size = mtp_file.size
                 book.datetime = mtp_file.last_modified.timetuple()
                 book.path = mtp_file.mtp_id_path
-            i += 1
             self.report_progress(i / total, _('Added %s') % mi.title)
 
         self.report_progress(1, _('Adding complete'))

@@ -8,13 +8,11 @@ class CheckEncoding:
         self.__bug_handler = bug_handler
 
     def __get_position_error(self, line, encoding, line_num):
-        char_position = 0
-        for char in line:
-            char_position += 1
+        for pos, char in enumerate(line, 1):
             try:
                 char.decode(encoding)
             except ValueError as msg:
-                sys.stderr.write(f'line: {line_num} char: {char_position}\n{msg!s}\n')
+                sys.stderr.write(f'line: {line_num} char: {pos}\n{msg!s}\n')
 
     def check_encoding(self, path, encoding='us-ascii', verbose=True):
         line_num = 0

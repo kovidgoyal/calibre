@@ -1436,7 +1436,6 @@ class CatalogBuilder:
         # Loop through books_by_author
         # Each author/books group goes in an openingTag div (first) or
         # a runningTag div (subsequent)
-        book_count = 0
         current_author = ''
         current_letter = ''
         current_series = None
@@ -1445,7 +1444,6 @@ class CatalogBuilder:
         sort_equivalents = self.establish_equivalencies(self.books_by_author, key='author_sort')
 
         for idx, book in enumerate(self.books_by_author):
-            book_count += 1
             if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
                 # Start a new letter with Index letter
                 if divOpeningTag is not None:
