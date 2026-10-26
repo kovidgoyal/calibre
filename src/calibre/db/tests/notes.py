@@ -409,3 +409,35 @@ class NotesTest(BaseTest):
 
     def test_notes_restore(self):
         test_notes_restore(self)
+
+    def test_notes_import_data_url_images(self):
+        from base64 import standard_b64encode
+
+        from html5_parser import parse
+
+        from calibre.db.constants import RESOURCE_URL_SCHEME
+
+        cache, _ = self.create_notes_db()
+        author_id = min(cache.all_field_ids('authors'))
+        image = get_image_path('lt.png', data=True)
+        payload = standard_b64encode(image).decode('ascii')
+        for metadata in ('image/png;base64', 'image/png;charset=utf-8;base64', 'image/png;charset=utf-8;name=example.png;base64'):
+            for filename in ('', 'example.png'):
+                with self.subTest(metadata=metadata, filename=filename):
+                    cache.set_notes_for('authors', author_id, '')
+                    attr = f' data-filename="{filename}"' if filename else ''
+                    doc = f'<p>Embedded image<img src="data:{metadata},{payload}"{attr}></p>'
+                    note_id = cache.import_note('authors', author_id, doc, path_is_data=True)
+                    self.assertGreater(note_id, 0)
+                    resources = cache.notes_resources_used_by('authors', author_id)
+                    self.ae(len(resources), 1)
+                    rhash = next(iter(resources))
+                    resource = cache.get_notes_resource(rhash)
+                    self.ae(resource['data'], image)
+                    self.ae(resource['name'], filename or 'image.png')
+                    scheme, digest = rhash.split(':', 1)
+                    root = parse(cache.notes_for('authors', author_id))
+                    self.ae(root.xpath('//img/@src'), [f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}'])
+                    exported = parse(cache.export_note('authors', author_id))
+                    self.ae(exported.xpath('//img/@data-filename'), [filename or 'image.png'])
+                    self.ae(exported.xpath('//img/@src'), [f'data:image/png;base64,{payload}'])
