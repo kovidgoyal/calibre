@@ -135,7 +135,6 @@ class UserManager:
                             device TEXT NOT NULL,
                             device_id TEXT,
                             timestamp INTEGER NOT NULL,
-                            metadata TEXT NOT NULL DEFAULT "{}",
                             PRIMARY KEY (user, document)
                         );
 
@@ -320,12 +319,10 @@ class UserManager:
         device: str,
         device_id: str | None,
         timestamp: int,
-        metadata: dict | None = None,
     ) -> None:
         "Store the reading position synced by KOReader for the specified document"
         with self.lock:
             self.conn.cursor().execute(
-                'INSERT OR REPLACE INTO kosync_progress (user, document, progress, percentage, device, device_id, timestamp, metadata)'
-                ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                (username, document, progress, percentage, device, device_id, timestamp, as_json(metadata or {})),
+                'INSERT OR REPLACE INTO kosync_progress (user, document, progress, percentage, device, device_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (username, document, progress, percentage, device, device_id, timestamp),
             )

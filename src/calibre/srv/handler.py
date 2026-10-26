@@ -209,7 +209,7 @@ class Handler:
                 ban_time_in_minutes=opts.ban_for,
                 ban_after=opts.ban_after,
             )
-        # Endpoints that do their own authentication use this to share its bans
+        # Endpoints that do their own authentication use this for its ban list
         ctx.auth_controller = self.auth_controller
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in SRV_MODULES:

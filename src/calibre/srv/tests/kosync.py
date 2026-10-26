@@ -84,11 +84,30 @@ class KOSyncTest(LibraryBaseTest):
                 ({'document': 'doc', 'percentage': 0.1, 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': 'x', 'percentage': 'half', 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': 'x', 'percentage': 0.1}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': 'nan', 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': float('nan'), 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': 'inf', 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': 10**400, 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': {'a': 1}, 'percentage': 0.1, 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': True, 'percentage': 0.1, 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x' * 5000, 'percentage': 0.1, 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': 0.1, 'device': ['d']}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': 0.1, 'device': 'd', 'device_id': 1}, 2003),
+                ({'document': 'd' * 5000, 'progress': 'x', 'percentage': 0.1, 'device': 'd'}, 2003),
                 (['doc'], 2003),
             ):
                 with self.subTest(body=body):
                     status, data = self.request(conn, '/syncs/progress', 'PUT', data=body, **alice)
                     self.ae((status, data['code']), (403, code))
+            # Non-ASCII keys are rejected, not a server error
+            self.ae(self.request(conn, '/users/auth', user='alice', key='\xe9')[0], 401)
+            self.ae(self.request(conn, '/users/auth', user='alice', key='\xe9'.encode('utf-8'))[0], 401)
+
+            # Readonly users cannot store progress
+            um.set_readonly('bob', True)
+            status, data = self.request(conn, '/syncs/progress', 'PUT', data={'document': 'pdf_1', 'progress': 1, 'percentage': 0.1, 'device': 'd'}, **bob)
+            self.ae((status, data['code']), (403, 2001))
+            self.ae(self.request(conn, '/syncs/progress/pdf_1', **bob)[1]['progress'], '17')
 
             # Removing a user removes their progress
             um.remove_user('alice')
@@ -103,12 +122,23 @@ class KOSyncTest(LibraryBaseTest):
             conn = server.connect()
             for i in range(2):
                 self.ae(self.request(conn, '/users/auth', user='alice', key=key_for(f'guess{i}'))[0], 401)
-            # Banned, even with the correct key and for normal logins
+            # Banned, even with the correct key
             status, data = self.request(conn, '/users/auth', user='alice', key=key_for('secret'))
             self.ae((status, data['code']), (403, 2001))
             self.ae(self.request(conn, '/syncs/progress/doc', user='alice', key=key_for('secret'))[0], 403)
-            r, _ = make_request(conn, '/console-print', prefix='', username='alice', password='secret', method='POST', data=b'x')
-            self.ae(r.status, 403)
+            # Normal logins are not banned by failed sync logins
+            r, _ = make_request(conn, '/library-info', username='alice', password='secret')
+            self.ae(r.status, 200)
+
+        with self.create_server(auth=True, auth_mode='basic', ban_for=1, ban_after=2) as server:
+            server.handler.ctx.user_manager.add_user('alice', 'secret')
+            conn = server.connect()
+            for i in range(2):
+                r, _ = make_request(conn, '/library-info', username='alice', password=f'guess{i}')
+                self.ae(r.status, 401)
+            # Bans from normal logins apply to sync logins
+            status, data = self.request(conn, '/users/auth', user='alice', key=key_for('secret'))
+            self.ae((status, data['code']), (403, 2001))
 
     def test_kosync_without_auth(self):
         with self.create_server() as server:
@@ -116,7 +146,13 @@ class KOSyncTest(LibraryBaseTest):
             creds = {'user': 'anyone', 'key': key_for('anything')}
             self.ae(self.request(conn, '/users/auth', **creds), (200, {'authorized': 'OK'}))
             self.ae(self.request(conn, '/users/auth')[0], 401)
+            # Anonymous users can only make changes from trusted IP addresses
             progress = {'document': 'doc', 'progress': 'p', 'percentage': 0.1, 'device': 'd'}
+            status, data = self.request(conn, '/syncs/progress', 'PUT', data=progress, **creds)
+            self.ae((status, data['code']), (403, 2001))
+            self.ae(self.request(conn, '/syncs/progress/doc', **creds), (200, {}))
+        with self.create_server(local_write=True) as server:
+            conn = server.connect()
             self.ae(self.request(conn, '/syncs/progress', 'PUT', data=progress, **creds)[0], 200)
             self.ae(self.request(conn, '/syncs/progress/doc', **creds)[1]['progress'], 'p')
 

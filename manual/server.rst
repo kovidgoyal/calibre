@@ -262,9 +262,14 @@ the Content server followed by ``/kosync``, for example::
 If you are `Using a URL prefix`_, include it before ``/kosync``.
 Then use :guilabel:`Login` with the username and password of a user account on
 the Content server. Accounts cannot be created from KOReader, they are managed
-by calibre as described above. If user accounts are not enabled on the server,
-any username and password can be used. The reading positions of each user are
-stored separately in the user database of the server.
+by calibre as described above. Users that are only allowed read access cannot
+sync their reading positions. If user accounts are not enabled on the server,
+any username and password can be used, but reading positions can only be synced
+from devices that are allowed to make changes without authentication, see the
+:guilabel:`Allow un-authenticated local connections to make changes` and
+:guilabel:`Allow un-authenticated connections from specific IP addresses to make changes`
+options. The reading positions of each
+user are stored separately in the user database of the server.
 
 
 Integrating the calibre Content server into other servers
