@@ -1377,7 +1377,7 @@ class DeviceMixin:  # {{{
                     formats.append((
                         f,
                         _('%(num)i of %(total)i books') % dict(num=format_count[f], total=len(rows)),
-                        True if f in aval_out_formats else False,
+                        f in aval_out_formats,
                     ))
                 elif f in aval_out_formats:
                     formats.append((f, _('0 of %i books') % len(rows), True))

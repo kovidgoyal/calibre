@@ -4247,7 +4247,7 @@ This function can be used only in the GUI.
         sort_spec = []
         for i in range(0, len(args), 2):
             sort_by = args[i]
-            asc = True if args[i + 1] == '1' else False
+            asc = args[i + 1] == '1'
             sort_spec.append((sort_by, asc))
         bids = g.current_db.new_api.multisort(sort_spec, bids)
         return ', '.join([str(b) for b in bids])
@@ -4425,7 +4425,7 @@ class FormatterUserFunction(FormatterFunction):
         # Keep this for external code compatibility. Set it to True if we have a
         # python template function, otherwise false. This might break something
         # if the code depends on stored templates being in GPM.
-        self.is_python = True if object_type is StoredObjectType.PythonFunction else False
+        self.is_python = object_type is StoredObjectType.PythonFunction
 
     def to_pref(self):
         return [self.name, self.doc, self.arg_count, self.program_text]

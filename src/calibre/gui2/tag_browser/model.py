@@ -969,7 +969,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
             category_child_map = {}
             fm = pn_db.field_metadata[key]
-            clear_rating = True if key not in self.categories_with_ratings and not fm['is_custom'] and fm['kind'] != 'user' else False
+            clear_rating = key not in self.categories_with_ratings and not fm['is_custom'] and fm['kind'] != 'user'
             in_uc = fm['kind'] == 'user' and not is_gst
             tt = key if in_uc else None
 
@@ -978,7 +978,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 # in ICU's 'ordinal' for the first letter. In this case, the
                 # first letter can actually be more than one letter long.
                 fl_collapse_when = self.prefs['tags_browser_collapse_fl_at']
-                fl_collapse = True if fl_collapse_when > 1 else False
+                fl_collapse = fl_collapse_when > 1
                 intervals = []
                 cl_list = [None] * len(data[key])
                 last_ordnum = 0

@@ -170,6 +170,8 @@ select = [
     'expr-or-not-expr',
     'expr-or-true',
     'if-else-block-instead-of-dict-get',
+    'if-expr-with-false-true',
+    'if-expr-with-true-false',
     'negate-equal-op',
     'negate-not-equal-op',
     'return-in-try-except-finally',

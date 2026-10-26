@@ -37,7 +37,7 @@ def binary_property(parent, name, XPath, get):
     if not vals:
         return inherit
     val = get(vals[0], 'w:val', 'on')
-    return True if val in {'on', '1', 'true'} else False
+    return val in {'on', '1', 'true'}
 
 
 def simple_color(col, auto='currentColor'):
