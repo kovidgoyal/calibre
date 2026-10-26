@@ -158,16 +158,19 @@ def update_progress(ctx, rd, username):
         percentage = float(data.get('percentage'))
     except TypeError, ValueError, OverflowError:
         percentage = math.nan
-    if not math.isfinite(percentage) or not valid_string(progress) or not valid_string(device):
+    # KOReader sends the fraction of the document read
+    if not 0 <= percentage <= 1 or not valid_string(progress) or not valid_string(device):
         return error(rd, INVALID_REQUEST)
     if device_id is not None and not valid_string(device_id):
         return error(rd, INVALID_REQUEST)
     timestamp = int(time.time())
-    ctx.user_manager.set_kosync_progress(username, document, progress, percentage, device, device_id, timestamp)
+    if not ctx.user_manager.set_kosync_progress(username, document, progress, percentage, device, device_id, timestamp, anonymous=not ctx.opts.auth):
+        # The user was removed after authenticating
+        return error(rd, UNAUTHORIZED)
     return {'document': document, 'timestamp': timestamp}
 
 
 def get_progress(ctx, rd, username, document):
     if not document or ':' in document:
         return error(rd, DOCUMENT_MISSING)
-    return ctx.user_manager.kosync_progress(username, document) or {}
+    return ctx.user_manager.kosync_progress(username, document, anonymous=not ctx.opts.auth) or {}

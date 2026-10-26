@@ -88,6 +88,8 @@ class KOSyncTest(LibraryBaseTest):
                 ({'document': 'doc', 'progress': 'x', 'percentage': float('nan'), 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': 'x', 'percentage': 'inf', 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': 'x', 'percentage': 10**400, 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': 1.5, 'device': 'd'}, 2003),
+                ({'document': 'doc', 'progress': 'x', 'percentage': -0.1, 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': {'a': 1}, 'percentage': 0.1, 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': True, 'percentage': 0.1, 'device': 'd'}, 2003),
                 ({'document': 'doc', 'progress': 'x' * 5000, 'percentage': 0.1, 'device': 'd'}, 2003),
@@ -152,9 +154,64 @@ class KOSyncTest(LibraryBaseTest):
             self.ae((status, data['code']), (403, 2001))
             self.ae(self.request(conn, '/syncs/progress/doc', **creds), (200, {}))
         with self.create_server(local_write=True) as server:
+            um = server.handler.ctx.user_manager
+            um.add_user('anyone', 'secret')
             conn = server.connect()
             self.ae(self.request(conn, '/syncs/progress', 'PUT', data=progress, **creds)[0], 200)
             self.ae(self.request(conn, '/syncs/progress/doc', **creds)[1]['progress'], 'p')
+            # Positions synced without authentication are separate from those of users
+            self.ae(um.kosync_progress('anyone', 'doc', anonymous=True)['progress'], 'p')
+            self.assertIsNone(um.kosync_progress('anyone', 'doc'))
+
+    def test_kosync_storage(self):
+        import apsw
+
+        from calibre.srv.users import UserManager
+
+        with tempfile.TemporaryDirectory() as tdir:
+            path = os.path.join(tdir, 'users.sqlite')
+            um = UserManager(path)
+            um.add_user('alice', 'secret')
+            um.add_user('bob', 'secret')
+
+            def positions(username, anonymous=False):
+                return {d: p['progress'] for d in ('d0', 'd1', 'd2', 'd3') if (p := um.kosync_progress(username, d, anonymous=anonymous))}
+
+            # Users and anonymous positions are separate even for the same name
+            self.assertTrue(um.set_kosync_progress('alice', 'd0', 'user', 0.5, 'dev', None, 1))
+            self.assertTrue(um.set_kosync_progress('alice', 'd0', 'anon', 0.5, 'dev', None, 1, anonymous=True))
+            self.ae(positions('alice'), {'d0': 'user'})
+            self.ae(positions('alice', anonymous=True), {'d0': 'anon'})
+            # Positions cannot be stored for users that do not exist
+            self.assertFalse(um.set_kosync_progress('nobody', 'd0', 'p', 0.5, 'dev', None, 1))
+            self.assertTrue(um.set_kosync_progress('nobody', 'd0', 'p', 0.5, 'dev', None, 1, anonymous=True))
+
+            # Only the most recently synced documents are kept, per user
+            um.kosync_max_documents = 2
+            self.assertTrue(um.set_kosync_progress('alice', 'd1', 'user', 0.5, 'dev', None, 2))
+            self.assertTrue(um.set_kosync_progress('bob', 'd1', 'user', 0.5, 'dev', None, 2))
+            # Updating a document makes it the most recent, even with the same timestamp
+            self.assertTrue(um.set_kosync_progress('alice', 'd0', 'user2', 0.5, 'dev', None, 2))
+            self.assertTrue(um.set_kosync_progress('alice', 'd2', 'user', 0.5, 'dev', None, 2))
+            self.ae(positions('alice'), {'d0': 'user2', 'd2': 'user'})
+            self.ae(positions('bob'), {'d1': 'user'})
+            # and in total for anonymous positions
+            self.assertTrue(um.set_kosync_progress('other', 'd3', 'p', 0.5, 'dev', None, 3, anonymous=True))
+            self.ae(positions('alice', anonymous=True), {})
+            self.ae(positions('nobody', anonymous=True), {'d0': 'p'})
+            self.ae(positions('other', anonymous=True), {'d3': 'p'})
+
+            # Positions are removed with their user, so a new user cannot get them, even if the id is reused
+            um.remove_user('bob')
+            um.add_user('bob', 'secret')
+            self.ae(positions('bob'), {})
+            # Also when deleted by versions of calibre that do not enable foreign keys
+            um.conn.close()
+            conn = apsw.Connection(path)
+            conn.cursor().execute("DELETE FROM users WHERE name='alice'")
+            self.ae(next(conn.cursor().execute('SELECT count(*) FROM kosync_progress'))[0], 0)
+            self.ae(next(conn.cursor().execute('SELECT count(*) FROM kosync_anonymous_progress'))[0], 2)
+            conn.close()
 
     def test_kosync_schema_upgrade(self):
         import apsw
@@ -180,4 +237,5 @@ class KOSyncTest(LibraryBaseTest):
             um.set_kosync_progress('old', 'doc', 'p', 0.5, 'dev', None, 1)
             self.ae(um.kosync_progress('old', 'doc'), {'document': 'doc', 'progress': 'p', 'percentage': 0.5, 'device': 'dev', 'timestamp': 1})
             self.ae(next(um.conn.cursor().execute('PRAGMA user_version'))[0], 2)
+            self.ae(next(um.conn.cursor().execute('PRAGMA foreign_keys'))[0], 1)
             um.conn.close()
