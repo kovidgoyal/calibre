@@ -151,6 +151,7 @@ class TestHTTP(BaseTest):
         test('bytes=-0')
         test('bytes=5')
         test('bytes=1--5')
+        test('bytes=' + '9' * 5000 + '-')
         # Non-overlapping ranges keep their order
         test('bytes=50-60,0-9', (50, 60, 11), (0, 9, 10))
         test('bytes=0-25,26-50', (0, 25, 26), (26, 50, 25))
@@ -481,6 +482,7 @@ class TestHTTP(BaseTest):
                 r = conn.getresponse()
                 self.ae(r.status, http.client.REQUESTED_RANGE_NOT_SATISFIABLE)
                 self.ae(str(r.getheader('Content-Range')), f'bytes */{len(fdata)}')
+                self.ae(r.read(), b'')
 
                 conn.request('GET', '/test', headers={'Range': 'bytes=25-50', 'If-Range': etag})
                 r = conn.getresponse()
@@ -496,6 +498,13 @@ class TestHTTP(BaseTest):
                 self.ae(r.status, http.client.OK), self.ae(r.read(), fdata)
                 self.assertFalse(r.getheader('Content-Range'))
                 self.ae(int(r.getheader('Content-Length')), len(fdata))
+
+                # A numeric range beyond Python's integer digit limit must not
+                # turn an otherwise valid request into a server error.
+                conn.request('GET', '/test', headers={'Range': 'bytes=0-0,' + '9' * 5000 + '-'})
+                r = conn.getresponse()
+                self.ae(r.status, http.client.PARTIAL_CONTENT)
+                self.ae(r.read(), fdata[:1])
 
                 conn.request('GET', '/test', headers={'Range': 'bytes=0-25,26-50'})
                 r = conn.getresponse()

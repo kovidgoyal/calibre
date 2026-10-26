@@ -131,7 +131,12 @@ def parse_range_int(x: str) -> int | None:
     # RFC 9110 only allows 1*DIGIT, int() is too lenient (signs, underscores,
     # non-ASCII digits)
     if x and x.isascii() and x.isdigit():
-        return int(x)
+        try:
+            return int(x)
+        except ValueError:
+            # Python limits decimal integer conversions to a configurable
+            # number of digits. Treat oversized values as invalid ranges.
+            pass
     return None
 
 
@@ -560,6 +565,7 @@ class HTTPConnection(HTTPRequest):
         buf = [
             f'{self.response_protocol} {http.client.REQUESTED_RANGE_NOT_SATISFIABLE} {http.client.responses[http.client.REQUESTED_RANGE_NOT_SATISFIABLE]}',
             'Date: ' + http_date(),
+            'Content-Length: 0',
             f'Content-Range: bytes */{content_length}',
         ]
         response_data = header_list_to_file(buf)
