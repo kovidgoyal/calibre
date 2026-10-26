@@ -58,7 +58,7 @@ class ESPN(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        if False and self.username and self.password:
+        if False and self.username and self.password:  # ruff: ignore[expr-and-false]
             # ESPN has changed to a JS based login system, can't be bothered
             # revering it
             br.set_handle_refresh(False)

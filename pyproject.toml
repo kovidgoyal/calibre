@@ -165,8 +165,10 @@ select = [
     ## flake8-simplify
     'double-negation',
     'duplicate-isinstance-call',
+    'expr-and-false',
     'expr-and-not-expr',
     'expr-or-not-expr',
+    'expr-or-true',
     'if-else-block-instead-of-dict-get',
     'return-in-try-except-finally',
     'zip-dict-keys-and-values',

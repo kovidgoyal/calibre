@@ -2491,7 +2491,7 @@ class KOBOTOUCH(KOBO):
         #      (len(bl_cache), len(bl), need_sync))
         # Bypassing the KOBO sync_booklists as that does things we don't need to do
         # Also forcing sync to see if this solves issues with updating shelves and matching books.
-        if need_sync or True:  # self.count_found_in_bl != len(bl) or need_sync:
+        if True or need_sync:  # self.count_found_in_bl != len(bl) or need_sync:  # ruff: ignore[expr-or-true]
             debug_print('KoboTouch:books - about to sync_booklists')
             if oncard == 'cardb':
                 USBMS.sync_booklists(self, (None, None, bl))
@@ -4891,7 +4891,7 @@ class KOBOTOUCH(KOBO):
         return is_debugging
 
     def dump_bookshelves(self, connection):
-        if not (DEBUG and self.supports_bookshelves and False):
+        if not (DEBUG and self.supports_bookshelves and False):  # ruff: ignore[expr-and-false]
             return
 
         debug_print('KoboTouch:dump_bookshelves - start')

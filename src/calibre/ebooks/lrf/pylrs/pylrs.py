@@ -701,7 +701,7 @@ class TableOfContents:
         if textBlock.parent is None:
             raise LrsError('TOC text block must be already appended to a page')
 
-        if False and textBlock.parent.parent is None:
+        if False and textBlock.parent.parent is None:  # ruff: ignore[expr-and-false]
             raise LrsError('TOC destination page must be already appended to a book')
 
         if not hasattr(textBlock.parent, 'objId'):

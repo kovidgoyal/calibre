@@ -249,7 +249,7 @@ class PluginWidget(QWidget, Ui_Form):
                 else:
                     results = _truncated_results(excluded_tags)
         finally:
-            if False and self.DEBUG:
+            if False and self.DEBUG:  # ruff: ignore[expr-and-false]
                 print(f'exclude_genre_changed(): {results}')
             self.exclude_genre_results.clear()
             self.exclude_genre_results.setText(results)
@@ -551,7 +551,7 @@ class PluginWidget(QWidget, Ui_Form):
         except Exception:
             opts_dict['output_profile'] = ['default']
 
-        if False and self.DEBUG:
+        if False and self.DEBUG:  # ruff: ignore[expr-and-false]
             print('opts_dict')
             for opt in sorted(opts_dict.keys(), key=sort_key):
                 print(f' {opt}: {opts_dict[opt]!r}')

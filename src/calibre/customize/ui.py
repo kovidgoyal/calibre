@@ -915,7 +915,7 @@ def initialize_plugins(perf=False):
             _initialized_plugins.append(plugin)
         except Exception:
             print('Failed to initialize plugin:', repr(zfp), file=sys.stderr)
-            if DEBUG or True:
+            if True or DEBUG:  # ruff: ignore[expr-or-true]
                 traceback.print_exc()
     # Prevent a custom plugin from overriding stdout/stderr as this breaks
     # ipython
