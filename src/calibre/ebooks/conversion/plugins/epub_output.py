@@ -170,15 +170,9 @@ class EPUBOutput(OutputFormatPlugin):
     # }}}
 
     def html_language(self) -> str | None:
-        # The language of the book as a BCP 47 language tag, for use in the
-        # lang attributes of HTML files. A language guessed from the calibre
-        # interface language is not used, as it is likely to be wrong.
-        from calibre.utils.localization import lang_as_bcp47
+        from calibre.ebooks.oeb.transforms.cover import CoverManager
 
-        for lang in self.oeb.metadata.language:
-            if not lang.is_fallback and (ans := lang_as_bcp47(str(lang))):
-                return ans
-        return None
+        return CoverManager.book_language(self.oeb)
 
     def set_html_languages(self):
         # Screen readers and text-to-speech need the language of the text.

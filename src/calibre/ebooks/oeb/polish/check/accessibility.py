@@ -7,7 +7,8 @@
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.base import OEB_DOCS, SVG, XHTML, XML
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
-from calibre.utils.localization import _, lang_as_bcp47, ngettext
+from calibre.ebooks.oeb.polish.opf import get_book_language_tag
+from calibre.utils.localization import _, ngettext
 
 HEADINGS = {XHTML(f'h{i}'): i for i in range(1, 7)}
 IMG = XHTML('img')
@@ -42,13 +43,6 @@ def images_without_alt(root):
 
 def has_language(root):
     return bool(root.get('lang') or root.get(XML('lang')))
-
-
-def book_language(container) -> str | None:
-    for elem in container.opf_xpath('//dc:language'):
-        if ans := lang_as_bcp47(elem.text or ''):
-            return ans
-    return None
 
 
 class MissingAltText(BaseError):
@@ -181,7 +175,7 @@ def check_accessibility(container):
             errors.append(SkippedHeadingLevel(name, skipped))
     is_epub3 = container.opf_version_parsed.major > 2
     if missing_lang:
-        errors.append(MissingLanguage(missing_lang, book_language(container), is_epub3))
+        errors.append(MissingLanguage(missing_lang, get_book_language_tag(container), is_epub3))
 
     if is_epub3:
         existing = existing_properties(container)

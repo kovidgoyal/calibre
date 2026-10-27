@@ -387,27 +387,49 @@ class Structure(BaseTest):
         self.assertEqual('a.html', find_cover_page(c))
         self.assertEqual('a.html', next(c.spine_names)[0])
 
-    def test_svg_cover_title(self):
-        from calibre.ebooks.oeb.polish.check.accessibility import MissingAltText, check_accessibility
+    def test_cover_page_metadata(self):
+        from calibre.ebooks.oeb.polish.check.accessibility import MissingAltText, MissingLanguage, check_accessibility
         from calibre.ebooks.oeb.polish.cover import set_cover
         from calibre.ebooks.oeb.transforms.cover import CoverManager
         from calibre.utils.resources import get_image_path
 
-        # The title of the book is the text alternative of the SVG cover image
-        title = 'Tom & Jerry <100%>'
-        self.assertEqual(CoverManager.fill_title('<title>__title__</title> %s', title) % 'x', '<title>Tom &amp; Jerry &lt;100%&gt;</title> x')
-        self.assertEqual(CoverManager.fill_title('<title>__title__</title>', ' '), '<title>Cover</title>')
-        c = self.create_epub([cmi('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>a</p></body></html>')])
-        metadata = c.opf_xpath('//opf:metadata')[0]
-        dc_title = metadata.makeelement('{http://purl.org/dc/elements/1.1/}title')
-        dc_title.text = title
-        metadata.append(dc_title)
-        c.dirty(c.opf_name)
-        set_cover(c, get_image_path('lt.png'), options={'no_svg': False})
-        titlepage = find_cover_page(c)
-        root = c.parsed(titlepage)
-        self.assertEqual(root.xpath('//*[local-name()="svg"]/*[local-name()="title"]/text()'), [title])
-        self.assertNotIn(titlepage, {e.name for e in check_accessibility(c) if isinstance(e, MissingAltText)})
+        # The title of the book is the text alternative of the cover image and
+        # the language of the book is the language of the cover page
+        title = 'Tom & Jerry "<100%>"'
+        fill = CoverManager.fill_metadata
+        self.assertEqual(
+            fill('<html__lang__><img alt="__title__" src="%s"/></html>', title, 'de-AT') % 'x',
+            '<html xml:lang="de-AT"><img alt="Tom &amp; Jerry &quot;&lt;100%&gt;&quot;" src="x"/></html>',
+        )
+        self.assertEqual(fill('<html__lang__><title>__title__</title></html>', ' ', None), '<html><title>Cover</title></html>')
+
+        def cover_page(ver, no_svg, lang):
+            c = self.create_epub([cmi('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>a</p></body></html>')], ver=ver)
+            metadata = c.opf_xpath('//opf:metadata')[0]
+            for tag, val in (('title', title), ('language', lang)):
+                if val:
+                    e = metadata.makeelement('{http://purl.org/dc/elements/1.1/}' + tag)
+                    e.text = val
+                    metadata.append(e)
+            c.dirty(c.opf_name)
+            set_cover(c, get_image_path('lt.png'), options={'no_svg': no_svg})
+            titlepage = find_cover_page(c)
+            problems = {type(e) for e in check_accessibility(c) if titlepage in {loc[0] for loc in e.all_locations or ((e.name,),)}}
+            return c.parsed(titlepage), problems
+
+        for ver, no_svg in ((2, False), (3, False), (2, True), (3, True)):
+            root, problems = cover_page(ver, no_svg, 'eng')
+            self.assertFalse(problems, (ver, no_svg))
+            self.assertEqual(root.xpath('//*[local-name()="title"]/text()'), [title] if no_svg else [title, title])
+            if no_svg:
+                self.assertEqual(root.xpath('//*[local-name()="img"]/@alt'), [title])
+            # The lang attribute is not valid in EPUB 2
+            self.assertEqual((root.get('{http://www.w3.org/XML/1998/namespace}lang'), root.get('lang')), ('en', 'en' if ver == 3 else None))
+        # Without a book language the cover page does not claim to be in English
+        root, problems = cover_page(3, False, None)
+        self.assertFalse(root.get('{http://www.w3.org/XML/1998/namespace}lang') or root.get('lang'))
+        self.assertEqual(problems, {MissingLanguage})
+        self.assertNotIn(MissingAltText, problems)
 
     def test_mark_sentences(self):
         from html5_parser import parse
@@ -647,8 +669,8 @@ class Structure(BaseTest):
                 for name, linear in c.spine_names:
                     root = c.parsed(name)
                     langs[name] = root.get('lang'), root.get(XML('lang'))
-                # The generated title page is in English
-                self.assertEqual(langs.pop('titlepage.xhtml'), ('en' if ver == '3' else None, 'en'))
+                # The generated title page is in the language of the book
+                self.assertEqual(langs.pop('titlepage.xhtml'), ('fr', 'fr') if src == de_html else expected)
                 self.assertTrue(langs)
                 for name, val in langs.items():
                     self.assertEqual(val, expected, name)

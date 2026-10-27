@@ -5,17 +5,18 @@ import textwrap
 
 from calibre import guess_type, prepare_string_for_xml
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import lang_as_bcp47
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote
 
 
 class CoverManager:
     SVG_TEMPLATE = textwrap.dedent('''\
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        <html xmlns="http://www.w3.org/1999/xhtml"__lang__>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
                 <meta name="calibre:cover" content="true" />
-                <title>Cover</title>
+                <title>__title__</title>
                 <style type="text/css" title="override_css">
                     @page {padding: 0pt; margin:0pt}
                     body { text-align: center; padding:0pt; margin: 0pt; }
@@ -36,11 +37,11 @@ class CoverManager:
         ''')
 
     NONSVG_TEMPLATE = textwrap.dedent('''\
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        <html xmlns="http://www.w3.org/1999/xhtml"__lang__>
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
                 <meta name="calibre:cover" content="true" />
-                <title>Cover</title>
+                <title>__title__</title>
                 <style type="text/css" title="override_css">
                     @page {padding: 0pt; margin:0pt}
                     body { text-align: center; padding:0pt; margin: 0pt }
@@ -50,17 +51,32 @@ class CoverManager:
             </head>
             <body>
                 <div>
-                    <img src="%s" alt="cover" __style__ />
+                    <img src="%s" alt="__title__" __style__ />
                 </div>
             </body>
         </html>
     ''')
 
     @staticmethod
-    def fill_title(template: str, title: str) -> str:
-        # The title of the SVG image is its text alternative for screen
-        # readers. The template is later used with %, so escape that too.
-        return template.replace('__title__', prepare_string_for_xml(title.strip() or 'Cover').replace('%', '%%'))
+    def fill_metadata(template: str, title: str, lang: str | None) -> str:
+        # The title of the book is the text alternative of the cover image for
+        # screen readers, and the language of the book is the language of the
+        # page. The template is later used with %, so escape that too.
+        def escape(x: str) -> str:
+            return prepare_string_for_xml(x, True).replace('%', '%%')
+
+        template = template.replace('__title__', escape(title.strip() or 'Cover'))
+        return template.replace('__lang__', f' xml:lang="{escape(lang)}"' if lang else '')
+
+    @staticmethod
+    def book_language(oeb) -> str | None:
+        # The language of the book as a BCP 47 language tag, for use in the
+        # lang attributes of HTML files. A language guessed from the calibre
+        # interface language is not used, as it is likely to be wrong.
+        for lang in oeb.metadata.language:
+            if not lang.is_fallback and (ans := lang_as_bcp47(str(lang))):
+                return ans
+        return None
 
     def __init__(self, no_default_cover=False, no_svg_cover=False, preserve_aspect_ratio=False, fixed_size=None):
         self.no_default_cover = no_default_cover
@@ -145,11 +161,11 @@ class CoverManager:
             self.svg_template = self.svg_template.replace('__viewbox__', f'0 0 {width} {height}')
             self.svg_template = self.svg_template.replace('__width__', str(width))
             self.svg_template = self.svg_template.replace('__height__', str(height))
-            self.svg_template = self.fill_title(self.svg_template, str(self.oeb.metadata.title[0]) if self.oeb.metadata.title else '')
 
             if href is not None:
                 templ = self.non_svg_template if self.no_svg_cover else self.svg_template
-                tp = templ % unquote(href)
+                title = str(self.oeb.metadata.title[0]) if self.oeb.metadata.title else ''
+                tp = self.fill_metadata(templ, title, self.book_language(self.oeb)) % unquote(href)
                 id, href = m.generate('titlepage', 'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0], data=safe_xml_fromstring(tp))
         else:
