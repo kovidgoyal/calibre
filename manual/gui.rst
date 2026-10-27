@@ -88,7 +88,7 @@ Edit metadata
     #. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     #. **Copy metadata**: Copy metadata for the current book onto the system clipboard
     #. **Paste metadata**: Paste metadata from the system clipboard onto the currently selected books
-    #. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
+    #. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first. Its menu also has a **Find duplicate books** tool that finds books that are in the library more than once, either with the same title and authors or with the same identifier, such as ISBN, and shows them in the book list, marked by group, so that they can be merged or deleted.
     #. **Manage data files**: Manage the extra data files associated with the selected books.
 
 For more details, see :ref:`metadata`.

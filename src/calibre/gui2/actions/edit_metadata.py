@@ -81,6 +81,8 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             triggered=partial(self.merge_books, merge_only_formats=True),
             shortcut='Alt+Shift+M',
         )
+        mb.addSeparator()
+        cm2('find duplicates', _('Find duplicate books'), icon='search.png', triggered=self.find_duplicates)
         self.merge_menu = mb
         md.addSeparator()
         self.action_copy = cm('copy', _('Copy metadata'), icon='edit-copy.png', triggered=self.copy_metadata)
@@ -668,6 +670,23 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.gui.library_view.set_current_row(row)
             if covers_replaced:
                 self.gui.refresh_cover_browser()
+
+    def find_duplicates(self):
+        from calibre.gui2.dialogs.find_duplicates import FindDuplicates
+
+        view = self.gui.library_view
+        db = view.model().db
+        d = FindDuplicates(db.new_api, db.data.index_to_id_map(), parent=self.gui)
+        if d.exec() != QDialog.DialogCode.Accepted or not d.groups:
+            return
+        # Mark each group with its own label, so that sorting on the marks
+        # keeps the books in a group together
+        width = len(str(len(d.groups)))
+        db.data.set_marked_ids({book_id: f'duplicate_{i:0{width}}' for i, group in enumerate(d.groups, 1) for book_id in group})
+        self.gui.search.set_search_string('marked:true')
+        view.sort_by_named_field('marked', True)
+        if d.selected_book_ids:
+            view.select_rows(d.selected_book_ids)
 
     def merge_books(self, safe_merge=False, merge_only_formats=False):
         """

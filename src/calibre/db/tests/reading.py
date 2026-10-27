@@ -1362,6 +1362,38 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_find_duplicates(self):  # {{{
+        from calibre.db.duplicates import find_duplicates, identifier_types
+        from calibre.ebooks.metadata.book.base import Metadata
+
+        cache = self.init_cache(self.library_path)
+        cache.remove_books(cache.all_book_ids())
+
+        def add(title, authors, languages=(), **identifiers):
+            mi = Metadata(title, list(authors))
+            mi.languages = list(languages)
+            mi.set_identifiers(identifiers)
+            return cache.create_book_entry(mi)
+
+        a1 = add('The Lighthouse', ['Ann Author'], isbn='0-306-40615-2')
+        a2 = add('the lighthouse', ['ann author'], ['eng'], isbn='978-0-306-40615-7')
+        a3 = add('The Lighthouse', ['Ann Author'])
+        b1 = add('Second Book', ['Ann Author', 'Bob Writer'], ['fra'])
+        b2 = add('Second book', ['Bob Writer', 'Ann Author'], ['deu'])
+        b3 = add('Second Book', ['Bob Writer', 'Ann Author'], ['fra'], isbn='9780306406157')
+        add('Second Book', ['Bob Writer'])
+        add('Something else', ['Ann Author'], goodreads='1')
+
+        self.assertEqual(find_duplicates(cache), [(a1, a2, a3), (b1, b3)])
+        self.assertEqual(find_duplicates(cache, different_languages_are_different=False), [(a1, a2, a3), (b1, b2, b3)])
+        self.assertEqual(find_duplicates(cache, book_ids=(a1, a3, b1, b2)), [(a1, a3)])
+        # ISBN-10 and ISBN-13 forms of the same ISBN match
+        self.assertEqual(find_duplicates(cache, identifier='isbn'), [(a1, a2, b3)])
+        self.assertEqual(find_duplicates(cache, identifier='goodreads'), [])
+        self.assertEqual(identifier_types(cache), ['isbn', 'goodreads'])
+
+    # }}}
+
     def test_last_read_positions(self):  # {{{
         cache = self.init_cache(self.library_path)
         self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))
