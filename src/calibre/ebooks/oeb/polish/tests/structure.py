@@ -727,6 +727,20 @@ class Structure(BaseTest):
         self.assertEqual(set(found), {MissingAccessibilityMetadata})
         self.assertEqual(found[MissingAccessibilityMetadata][0].missing, ['schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature'])
 
+        # SVG images need a title or label, nested <svg> elements are part of the outer image
+        svgs = (
+            '<svg xmlns="http://www.w3.org/2000/svg"><image href="i.png"/></svg>\n'
+            '<svg xmlns="http://www.w3.org/2000/svg"><title>A circle</title><circle r="1"/></svg>\n'
+            '<svg xmlns="http://www.w3.org/2000/svg" aria-label="A circle"><circle r="1"/></svg>\n'
+            '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle r="1"/></svg>\n'
+            '<svg xmlns="http://www.w3.org/2000/svg"><title> </title><svg><title>Inner</title></svg></svg>\n'
+            '<svg xmlns="http://www.w3.org/2000/svg"><title>Outer</title><svg><circle r="1"/></svg></svg>\n'
+            '<img src="i.png"/>'
+        )
+        c = self.create_epub([cmi('a.html', html(svgs))])
+        alt = errors(c)[MissingAltText]
+        self.assertEqual([[loc[1] for loc in e.all_locations] for e in alt], [[1, 5, 7]])
+
         # The accessibility checks are opt-in
         c = self.create_epub([cmi('a.html', html('<p>a</p>', lang=''))])
         self.assertFalse({type(e) for e in run_checks(c)} & set(found))

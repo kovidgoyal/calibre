@@ -5,12 +5,13 @@
 # specification and WCAG, see https://www.w3.org/TR/epub-a11y-11/
 
 from calibre import prepare_string_for_xml as xml
-from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XML
+from calibre.ebooks.oeb.base import OEB_DOCS, SVG, XHTML, XML
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.utils.localization import _, lang_as_bcp47, ngettext
 
 HEADINGS = {XHTML(f'h{i}'): i for i in range(1, 7)}
 IMG = XHTML('img')
+SVG_ROOT, SVG_TITLE = SVG('svg'), SVG('title')
 ACCESSIBILITY_PROPERTIES = ('schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature', 'schema:accessibilityHazard')
 SUMMARY_PROPERTY = 'schema:accessibilitySummary'
 
@@ -24,8 +25,19 @@ def is_decorative(img):
     return img.get('role') in ('presentation', 'none') or img.get('aria-hidden') == 'true'
 
 
+def svg_has_text_alternative(svg):
+    if (svg.get('aria-label') or '').strip() or (svg.get('aria-labelledby') or '').strip():
+        return True
+    return any((title.text or '').strip() for title in svg.iterchildren(SVG_TITLE))
+
+
 def images_without_alt(root):
-    return [img for img in root.iter(IMG) if img.get('alt') is None and not is_decorative(img)]
+    ans = [img for img in root.iter(IMG) if img.get('alt') is None and not is_decorative(img)]
+    # Only outermost <svg> elements, as nested ones are part of the same image
+    ans.extend(
+        svg for svg in root.iter(SVG_ROOT) if next(svg.iterancestors(SVG_ROOT), None) is None and not is_decorative(svg) and not svg_has_text_alternative(svg)
+    )
+    return sorted(ans, key=lambda x: x.sourceline)
 
 
 def has_language(root):
@@ -47,7 +59,8 @@ class MissingAltText(BaseError):
         _(
             'Images should have alternative text, specified with the alt attribute, that describes them for'
             ' readers who cannot see them, such as people using screen readers. For images that are purely'
-            ' decorative, use an empty alt attribute, like this: alt=""'
+            ' decorative, use an empty alt attribute, like this: alt="". For SVG images, add a <title> element'
+            ' as the first child of the <svg> element, or for decorative SVG images, the attribute aria-hidden="true".'
         )
     )
 
