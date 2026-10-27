@@ -18,6 +18,7 @@ from calibre.ebooks.oeb.iterator.spine import SpineItem, create_indexing_data
 from calibre.ebooks.oeb.transforms.cover import CoverManager
 from calibre.ptempfile import PersistentTemporaryDirectory, remove_dir
 from calibre.utils.config import DynamicConfig
+from calibre.utils.localization import lang_as_bcp47
 from calibre.utils.logging import default_log
 from calibre.utils.tdir_in_cache import tdir_in_cache
 
@@ -197,7 +198,9 @@ class EbookIterator(BookmarksMixin):
         if cover and self.ebook_ext in {'lit', 'mobi', 'prc', 'opf', 'fb2', 'azw', 'azw3', 'docx', 'htmlz'}:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
             rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
-            chtml = (TITLEPAGE % prepare_string_for_xml(rcpath, True)).encode('utf-8')
+            langs = () if self.opf.languages_are_fallback else self.mi.languages
+            lang = next(filter(None, map(lang_as_bcp47, langs)), None)
+            chtml = (CoverManager.fill_metadata(TITLEPAGE, self.mi.title or '', lang) % prepare_string_for_xml(rcpath, True)).encode('utf-8')
             with open(cfile, 'wb') as f:
                 f.write(chtml)
             self.spine[0:0] = [Spiny(cfile, mime_type='application/xhtml+xml')]

@@ -17,7 +17,7 @@ def get_metadata(stream):
     mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)
     try:
-        if not stream.read(14) == MAGIC:
+        if stream.read(14) != MAGIC:
             print("Couldn't read RB header from file", file=sys.stderr)
             return mi
         stream.read(10)

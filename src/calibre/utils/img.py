@@ -919,7 +919,7 @@ if __name__ == '__main__':  # {{{
         if '=' in k:
             n, v = k.partition('=')[::2]
             if v in ('True', 'False'):
-                v = True if v == 'True' else False
+                v = v == 'True'
             try:
                 v = int(v)
             except Exception:

@@ -326,10 +326,7 @@ class RecursiveFetcher:
         return res
 
     def is_link_ok(self, url):
-        for i in self.__class__.LINK_FILTER:
-            if i.search(url):
-                return False
-        return True
+        return all(not i.search(url) for i in self.__class__.LINK_FILTER)
 
     def is_link_wanted(self, url, tag):
         try:
@@ -343,10 +340,7 @@ class RecursiveFetcher:
                 if f.search(url):
                     return False
         if self.match_regexps:
-            for m in self.match_regexps:
-                if m.search(url):
-                    return True
-            return False
+            return any(m.search(url) for m in self.match_regexps)
         return True
 
     def process_stylesheets(self, soup, baseurl):

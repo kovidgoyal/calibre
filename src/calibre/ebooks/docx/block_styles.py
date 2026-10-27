@@ -19,14 +19,10 @@ class Inherit:
         return other is not self
 
     def __ge__(self, other):
-        if self is other:
-            return True
         return True
 
     def __le__(self, other):
-        if self is other:
-            return True
-        return False
+        return self is other
 
 
 inherit = Inherit()
@@ -37,7 +33,7 @@ def binary_property(parent, name, XPath, get):
     if not vals:
         return inherit
     val = get(vals[0], 'w:val', 'on')
-    return True if val in {'on', '1', 'true'} else False
+    return val in {'on', '1', 'true'}
 
 
 def simple_color(col, auto='currentColor'):
@@ -344,10 +340,7 @@ class Frame:
         return ans
 
     def __eq__(self, other):
-        for x in self.all_attributes:
-            if getattr(other, x, inherit) != getattr(self, x):
-                return False
-        return True
+        return all(getattr(other, x, inherit) == getattr(self, x) for x in self.all_attributes)
 
     def __ne__(self, other):
         return not self.__eq__(other)

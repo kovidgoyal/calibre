@@ -62,10 +62,7 @@ class Worker(Thread):
 
 
 def is_worker_alive(workers):
-    for w in workers:
-        if w.is_alive():
-            return True
-    return False
+    return any(w.is_alive() for w in workers)
 
 
 def process_result(log, result):

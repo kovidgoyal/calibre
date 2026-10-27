@@ -1,3 +1,4 @@
+from types import NotImplementedType
 from typing import Any
 
 class Token:
@@ -17,6 +18,16 @@ class Token:
 
 def tokenize_flat(css_source: str, ignore_comments: bool) -> list[Token]:
     "tokenize_flat(css_source, ignore_comments)\n\n Convert CSS source into a flat list of tokens"
+    pass
+
+def parse_color_string(css_string: str) -> tuple[float, float, float, float] | str | NotImplementedType | None:
+    """parse_color_string(css_string)\n\nParse a CSS string as a color value. Returns an (r, g, b, a) tuple,
+    'currentColor', None or NotImplemented if the python implementation must be used."""
+    pass
+
+def parse_css4_color_string(css_string: str) -> tuple[float, float, float, float] | str | None:
+    """parse_css4_color_string(css_string)\n\nParse a CSS Color Level 4 string as a color value. Returns an (r, g, b, a) tuple
+    in the sRGB color space, 'currentColor' or None."""
     pass
 
 def init(

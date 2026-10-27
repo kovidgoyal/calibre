@@ -119,7 +119,7 @@ def sony_metadata(oeb):
 
     toc = oeb.toc
 
-    if False and toc.depth() < 3:
+    if False and toc.depth() < 3:  # ruff: ignore[expr-and-false]
         # Single section periodical
         # Disabled since I prefer the current behavior
         from calibre.ebooks.oeb.base import TOC

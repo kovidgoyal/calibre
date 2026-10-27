@@ -69,9 +69,7 @@ def filter_words(word):
     if not word:
         return False
     p = patterns()
-    if p.digit_pat.match(word) is not None:
-        return False
-    return True
+    return p.digit_pat.match(word) is None
 
 
 def get_words(text, lang):

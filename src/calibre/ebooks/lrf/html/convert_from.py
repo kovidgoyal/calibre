@@ -1412,10 +1412,7 @@ class HTMLConverter:
         fill_out_properties(text_properties, self.book.defaultTextStyle.attrs)
 
         def properties_different(dict1, dict2):
-            for key in dict1.keys():
-                if dict1[key] != dict2[key]:
-                    return True
-            return False
+            return any(dict1[key] != dict2[key] for key in dict1.keys())
 
         if (
             properties_different(self.current_block.blockStyle.attrs, block_properties)

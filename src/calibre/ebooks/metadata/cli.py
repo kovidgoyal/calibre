@@ -290,7 +290,7 @@ def main(args=sys.argv):
 
         opf = OPFCreator(os.getcwd(), mi)
         with open(opts.to_opf, 'wb') as f:
-            opf.render(f)
+            opf.render(f, mark_fallback_language=False)
         prints(_('OPF created in'), opts.to_opf)
 
     if opts.get_cover is not None:

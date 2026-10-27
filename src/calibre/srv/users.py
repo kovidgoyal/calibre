@@ -93,12 +93,16 @@ def connect(path, exc_class=ValueError):
 
 class UserManager:
     lock = RLock()
+    # The maximum number of documents for which KOReader reading positions are kept per user
+    kosync_max_documents = 10000
 
     @property
     def conn(self):
         with self.lock:
             if self._conn is None:
                 self._conn = connect(self.path)
+                # Has no effect inside a transaction, so must be set here
+                self._conn.cursor().execute('PRAGMA foreign_keys=ON')
                 with self._conn:
                     c = self._conn.cursor()
                     uv = next(c.execute('PRAGMA user_version'))[0]
@@ -122,6 +126,46 @@ class UserManager:
                         );
 
                         PRAGMA user_version=1;
+                        ''')
+                        uv = 1
+                    if uv == 1:
+                        # Reading positions synced by KOReader devices, see
+                        # kosync.py. Positions of users are keyed by their id
+                        # so that they cannot be confused with positions
+                        # stored when authentication is disabled, which are
+                        # keyed by whatever username KOReader sends and so are
+                        # stored separately. The trigger removes the positions
+                        # of deleted users even when foreign keys are not
+                        # enabled, as by older versions of calibre.
+                        c.execute('''
+                        CREATE TABLE kosync_progress (
+                            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                            document TEXT NOT NULL,
+                            progress TEXT NOT NULL,
+                            percentage REAL NOT NULL,
+                            device TEXT NOT NULL,
+                            device_id TEXT,
+                            timestamp INTEGER NOT NULL,
+                            PRIMARY KEY (user_id, document)
+                        );
+
+                        CREATE TRIGGER kosync_progress_delete_user AFTER DELETE ON users
+                        BEGIN
+                            DELETE FROM kosync_progress WHERE user_id=OLD.id;
+                        END;
+
+                        CREATE TABLE kosync_anonymous_progress (
+                            user TEXT NOT NULL,
+                            document TEXT NOT NULL,
+                            progress TEXT NOT NULL,
+                            percentage REAL NOT NULL,
+                            device TEXT NOT NULL,
+                            device_id TEXT,
+                            timestamp INTEGER NOT NULL,
+                            PRIMARY KEY (user, document)
+                        );
+
+                        PRAGMA user_version=2;
                         ''')
                     c.close()
         return self._conn
@@ -276,3 +320,69 @@ class UserManager:
             md = self.misc_data(username)
             md['allow_change_password_via_http'] = allow
             self.conn.cursor().execute('UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))
+
+    def kosync_progress(self, username: str, document: str, anonymous: bool = False) -> dict | None:
+        """
+        Return the reading position synced by KOReader for the specified document or None. Positions
+        stored with anonymous=True, when authentication is disabled, are separate from those of users.
+        """
+        if anonymous:
+            sql = 'SELECT progress,percentage,device,device_id,timestamp FROM kosync_anonymous_progress WHERE user=? AND document=?'
+        else:
+            sql = (
+                'SELECT p.progress,p.percentage,p.device,p.device_id,p.timestamp FROM kosync_progress p'
+                ' JOIN users u ON p.user_id=u.id WHERE u.name=? AND p.document=?'
+            )
+        with self.lock:
+            for progress, percentage, device, device_id, timestamp in self.conn.cursor().execute(sql, (username, document)):
+                ans = {'document': document, 'progress': progress, 'percentage': percentage, 'device': device, 'timestamp': timestamp}
+                if device_id is not None:
+                    ans['device_id'] = device_id
+                return ans
+        return None
+
+    def set_kosync_progress(
+        self,
+        username: str,
+        document: str,
+        progress: str,
+        percentage: float,
+        device: str,
+        device_id: str | None,
+        timestamp: int,
+        anonymous: bool = False,
+    ) -> bool:
+        """
+        Store the reading position synced by KOReader for the specified document. Returns False if
+        the user does not exist. Only the kosync_max_documents most recently synced documents are
+        kept per user and in total for anonymous=True.
+        """
+        values = (document, progress, percentage, device, device_id, timestamp)
+        with self.lock, self.conn:
+            c = self.conn.cursor()
+            if anonymous:
+                table, where, key = 'kosync_anonymous_progress', '', ()
+                c.execute(
+                    'INSERT OR REPLACE INTO kosync_anonymous_progress (user, document, progress, percentage, device, device_id, timestamp)'
+                    ' VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    (username,) + values,
+                )
+            else:
+                for (user_id,) in c.execute('SELECT id FROM users WHERE name=?', (username,)):
+                    break
+                else:
+                    return False
+                table, where, key = 'kosync_progress', ' WHERE user_id=?', (user_id,)
+                c.execute(
+                    'INSERT OR REPLACE INTO kosync_progress (user_id, document, progress, percentage, device, device_id, timestamp)'
+                    ' VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    key + values,
+                )
+            (count,) = next(c.execute(f'SELECT count(*) FROM {table}{where}', key))
+            if count > self.kosync_max_documents:
+                # Discard the least recently synced documents, replaced rows get a new rowid
+                c.execute(
+                    f'DELETE FROM {table} WHERE rowid IN (SELECT rowid FROM {table}{where} ORDER BY timestamp, rowid LIMIT ?)',
+                    key + (count - self.kosync_max_documents,),
+                )
+        return True

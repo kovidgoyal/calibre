@@ -61,6 +61,13 @@ CONTINUE_PAGE = '''<html><body><h4>Click the button below to continue shopping</
 CAPTCHA_PAGE = '''<html><body><form method="get" action="/errors/validateCaptcha">
 <img src="https://images-na.ssl-images-amazon.com/captcha/abc/Captcha_xyz.jpg">
 <input id="captchacharacters" name="field-keywords" type="text"><button type="submit">Continue</button></form></body></html>'''
+CHECKPOINT_PAGE = '''<html><body><p>To continue, please click the "Continue shopping" button below.</p>
+<form method="POST" action="/checkpoint/validate" id="checkpointForm"><input type="hidden" name="token" value="v1.x">
+<button type="submit" class="a-button-text" name="continueClick" value="true">Continue shopping</button></form></body></html>'''
+CHECKPOINT_BOX_PAGE = '''<html><body><p>Check the box to continue.</p>
+<form method="POST" action="/checkpoint/validate" id="checkpointForm"><input type="hidden" name="token" value="v1.x">
+<label for="continueCheck"><input type="checkbox" id="continueCheck" name="continueCheck" value="true"><span>I am human</span></label>
+<button type="submit" class="a-button-text" disabled>Continue shopping</button></form></body></html>'''
 CHALLENGE_PAGE = '''<html><head><script src="https://abc.token.awswaf.com/abc/challenge.js"></script></head>
 <body><div id="challenge-container"></div></body></html>'''
 
@@ -288,8 +295,11 @@ class FakePage:
 
     async def click(self, css_selector: str, timeout: float = 0) -> None:  # ruff: ignore[async-function-with-timeout]
         self.browser.log.append(('click-selector', css_selector))
-        # The continue shopping button leads back to the page asked for
-        self.navigate(self.url)
+        if css_selector == metadata.AMAZON_CHECKPOINT_BOX:
+            return
+        # The continue shopping button leads back to the page asked for, or
+        # sometimes somewhere else
+        self.navigate(self.browser.continue_to or self.url)
 
     async def evaluate(self, expression: str) -> int:
         return 0
@@ -314,6 +324,7 @@ class FakeBrowser:
         self.unloadable: set[str] = set()
         self.cookie_jar: list[dict[str, Any]] = []
         self.consent_navigates = True
+        self.continue_to = ''
 
     async def cookies(self) -> list[dict[str, Any]]:
         return list(self.cookie_jar)
@@ -422,7 +433,15 @@ def start_test_worker() -> tuple[str, Callable[[], int]]:
 
 class TestPageAnalysis(unittest.TestCase):
     def test_metadata_page_kind(self) -> None:
-        for html, kind in ((HOME_PAGE, 'ok'), (RESULTS, 'ok'), (CONTINUE_PAGE, 'continue'), (CAPTCHA_PAGE, 'captcha'), (CHALLENGE_PAGE, 'challenge')):
+        for html, kind in (
+            (HOME_PAGE, 'ok'),
+            (RESULTS, 'ok'),
+            (CONTINUE_PAGE, 'continue'),
+            (CAPTCHA_PAGE, 'captcha'),
+            (CHALLENGE_PAGE, 'challenge'),
+            (CHECKPOINT_PAGE, 'checkpoint'),
+            (CHECKPOINT_BOX_PAGE, 'checkpoint'),
+        ):
             self.assertEqual(amazon_page_kind(parse_html(html)), kind, html)
 
     def test_metadata_google_page_kind(self) -> None:
@@ -570,6 +589,47 @@ class TestHandlers(unittest.TestCase):
         browser = FakeBrowser(amazon_site(home=(CONTINUE_PAGE,)))
         result = self.search(browser)[0]
         self.assertEqual(result['kind'], 'blocked')
+
+        browser = FakeBrowser(amazon_site(home=(CHECKPOINT_PAGE, CHECKPOINT_BOX_PAGE, HOME_PAGE)))
+        result = self.search(browser)[0]
+        self.assertNotIn('error', result)
+        self.assertEqual(len(result['details']), 3)
+        # The box is ticked only on the page that has one
+        self.assertEqual(
+            [x[1] for x in browser.log if x[0] == 'click-selector'],
+            [metadata.AMAZON_CHECKPOINT_SUBMIT, metadata.AMAZON_CHECKPOINT_BOX, metadata.AMAZON_CHECKPOINT_SUBMIT],
+        )
+
+    def details(self, browser: FakeBrowser, urls: Sequence[str]) -> dict[str, Any]:
+        async def t() -> dict[str, Any]:
+            return await fake_state(browser).handle({'source': 'amazon', 'action': 'details', 'args': {'urls': list(urls)}, 'deadline': time.time() + 30})
+
+        return run(t())
+
+    def test_metadata_amazon_details_interstitials(self) -> None:
+        url, other = f'{HOME}dp/B000000001', f'{HOME}dp/B000000002'
+        details = '<html><body><p id="url">{}</p></body></html>'
+        browser = FakeBrowser({url: (CHECKPOINT_BOX_PAGE, details.format(url)), other: (CONTINUE_PAGE, details.format(other))})
+        result = self.details(browser, (url, other))
+        self.assertEqual([(d['url'], d['html']) for d in result['details']], [(url, details.format(url)), (other, details.format(other))])
+        self.assertEqual(Counter(x[1] for x in browser.log if x[0] == 'click-selector')[metadata.AMAZON_CHECKPOINT_BOX], 1)
+
+        # Getting past the checkpoint ends up on the home page, so the page
+        # asked for is loaded again
+        browser = FakeBrowser({url: (CHECKPOINT_PAGE, details.format(url)), HOME: (HOME_PAGE,)})
+        browser.continue_to = HOME
+        result = self.details(browser, (url,))
+        self.assertEqual([(d['url'], d['html']) for d in result['details']], [(url, details.format(url))])
+        self.assertEqual([x[1] for x in browser.log if x[0] == 'open'], [url, url])
+
+        # Amazon insisting on a sign in is an error
+        signin = f'{HOME}ap/signin?openid.return_to=x'
+        browser = FakeBrowser({url: (CHECKPOINT_PAGE,), signin: ('<html><body><form name="signIn"></form></body></html>',)})
+        browser.continue_to = signin
+        d = self.details(browser, (url,))['details'][0]
+        self.assertEqual(d['url'], url)
+        self.assertIn('sign in', d['error'])
+        self.assertTrue(all(p.closed for p in browser.pages))
 
     def test_metadata_amazon_results_html(self) -> None:
         result = self.search(FakeBrowser(amazon_site()), search_args(include_results_html=True))[0]

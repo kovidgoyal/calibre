@@ -342,9 +342,7 @@ class Template(list):
         if not self.has_tab_stops:
             return False
         pos = cursor.position()
-        if self.left_most_position <= pos <= self.right_most_position:
-            return True
-        return False
+        return self.left_most_position <= pos <= self.right_most_position
 
     def jump_to_next(self, editor):
         if self.active_tab_stop is None:

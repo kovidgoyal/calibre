@@ -58,10 +58,7 @@ def detect_desktop_environment():
 
 def is_executable_present(name):
     PATH = os.getenv('PATH') or ''
-    for path in PATH.split(os.pathsep):
-        if os.access(os.path.join(path, name), os.X_OK):
-            return True
-    return False
+    return any(os.access(os.path.join(path, name), os.X_OK) for path in PATH.split(os.pathsep))
 
 
 def process_path(x):

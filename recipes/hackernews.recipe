@@ -180,9 +180,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         return self.temp_files[-1].name
 
     def is_link_wanted(self, url, tag):
-        if url.endswith('.pdf'):
-            return False
-        return True
+        return not url.endswith('.pdf')
 
     def prettyify_url(self, url):
         return urlparse(url).hostname

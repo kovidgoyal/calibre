@@ -928,6 +928,9 @@ class Metadata:
                 OPF('meta'),
             ],
         )
+        # True for a language that was guessed from the calibre interface
+        # language, rather than specified by the book or the user
+        is_fallback = False
 
         def __getitem__(self, key):
             return self.attrib[key]
@@ -1755,16 +1758,10 @@ class TOC:
         return base + 1
 
     def has_href(self, href):
-        for x in self.iter():
-            if x.href == href:
-                return True
-        return False
+        return any(x.href == href for x in self.iter())
 
     def has_text(self, text):
-        for x in self.iter():
-            if x.title and x.title.lower() == text.lower():
-                return True
-        return False
+        return any(x.title and x.title.lower() == text.lower() for x in self.iter())
 
     def iterdescendants(self, breadth_first=False):
         """Iterate over all descendant nodes in depth-first order."""

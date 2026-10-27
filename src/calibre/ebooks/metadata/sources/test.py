@@ -119,9 +119,7 @@ def pubdate_test(year, month, day):
 
     def test(mi):
         p = mi.pubdate
-        if p is not None and p.year == year and p.month == month and p.day == day:
-            return True
-        return False
+        return p is not None and p.year == year and p.month == month and p.day == day
 
     return test
 

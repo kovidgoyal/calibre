@@ -225,10 +225,7 @@ class MTP_DEVICE(MTPDeviceBase):
             if s.get('rw', False):
                 has_rw_storage = True
                 break
-        if not has_rw_storage:
-            return False
-
-        return True
+        return has_rw_storage
 
     def _filesystem_callback(self, fs_map, obj, level):
         name = obj.get('name', '')

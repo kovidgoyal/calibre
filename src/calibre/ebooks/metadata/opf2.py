@@ -624,6 +624,7 @@ class OPF:  # {{{
     timestamp = MetadataField('timestamp', is_dc=False, formatter=parse_date, renderer=isoformat)
     user_categories = MetadataField('user_categories', is_dc=False, formatter=json.loads, renderer=dump_dict)
     link_maps = LinkMapsField()
+    fallback_language = MetadataField('fallback_language', is_dc=False)
 
     def __init__(
         self,
@@ -1151,6 +1152,13 @@ class OPF:  # {{{
             self.set_text(l, 'und')
 
     @property
+    def languages_are_fallback(self) -> bool:
+        # True if the language was guessed from the interface language when
+        # creating this OPF for conversion, see mark_fallback_language
+        fl = self.fallback_language
+        return bool(fl) and self.languages == [canonicalize_lang(fl)]
+
+    @property
     def raw_languages(self):
         for match in self.languages_path(self.metadata):
             t = self.get_text(match)
@@ -1491,7 +1499,15 @@ class OPFCreator(Metadata):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
 
-    def render(self, opf_stream: IO[bytes] | None = None, ncx_stream=None, ncx_manifest_entry=None, encoding=None, process_guide=None):
+    def render(
+        self,
+        opf_stream: IO[bytes] | None = None,
+        ncx_stream=None,
+        ncx_manifest_entry=None,
+        encoding=None,
+        process_guide=None,
+        mark_fallback_language: bool = True,
+    ):
         if encoding is None:
             encoding = 'utf-8'
         toc = getattr(self, 'toc', None)
@@ -1570,6 +1586,9 @@ class OPFCreator(Metadata):
         langs = self.languages
         if not langs or langs == ['und']:
             langs = [get_lang().replace('_', '-').partition('-')[0]]
+            if mark_fallback_language:
+                # Let conversion know that the language is a guess, see OPF.languages_are_fallback
+                a(CAL_ELEM('calibre:fallback_language', langs[0]))
         for lang in langs:
             a(DC_ELEM('language', lang))
         if self.comments:
@@ -1651,7 +1670,7 @@ class OPFCreator(Metadata):
             ncx_stream.flush()
 
 
-def metadata_to_opf(mi, as_string=True, default_lang=None):
+def metadata_to_opf(mi, as_string=True, default_lang=None, mark_fallback_language=False):
     import textwrap
 
     from lxml import etree
@@ -1667,9 +1686,12 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     if not mi.book_producer:
         mi.book_producer = __appname__ + f' ({__version__}) ' + '[https://calibre-ebook.com]'
 
+    fallback_language = None
     if not mi.languages:
         lang = get_lang().replace('_', '-').partition('-')[0] if default_lang is None else default_lang
         mi.languages = [lang]
+        if default_lang is None and mark_fallback_language:
+            fallback_language = lang
 
     root = safe_xml_fromstring(
         textwrap.dedent(
@@ -1755,6 +1777,9 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         meta('title_sort', mi.title_sort)
     if mi.user_categories:
         meta('user_categories', dump_dict(mi.user_categories))
+    if fallback_language:
+        # Let conversion know that the language is a guess, see OPF.languages_are_fallback
+        meta('fallback_language', fallback_language)
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
     all_annotations = getattr(mi, 'all_annotations', None)

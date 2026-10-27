@@ -423,7 +423,7 @@ class MobiMLizer:
         if bstate.content and style['page-break-before'] in PAGE_BREAKS:
             bstate.pbreak = True
         istate.fsize = self.mobimlize_font(style['font-size'])
-        istate.italic = True if style['font-style'] == 'italic' else False
+        istate.italic = style['font-style'] == 'italic'
         weight = style['font-weight']
         istate.bold = weight in ('bold', 'bolder') or asfloat(weight) > 400
         istate.preserve = style['white-space'] == 'pre'

@@ -53,6 +53,7 @@ def format_prompt_template(template: str, **kwargs: str) -> str:
 class Action(ActionData):
     @property
     def uses_selected_text(self) -> bool:
+        # ruff: ignore[reimplemented-builtin]
         for _x, fname, _x, _x in string.Formatter().parse(self.prompt_template):
             if fname == 'selected':
                 return True

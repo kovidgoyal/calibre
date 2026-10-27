@@ -123,7 +123,7 @@ class ScriptListTable(ListTable):
 class FeatureTable(IndexTable):
     def read_extra_header(self, data):
         self.feature_params = data.unpack('H')
-        if False and self.feature_params != 0:
+        if False and self.feature_params != 0:  # ruff: ignore[expr-and-false]
             # Source code pro sets this to non NULL
             raise UnsupportedFont(f'This FeatureTable has non NULL FeatureParams: 0x{self.feature_params:x}')
 

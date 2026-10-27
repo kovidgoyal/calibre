@@ -10,7 +10,7 @@ class UnsmartenPunctuation:
 
     def unsmarten(self, root):
         for x in self.html_tags(root):
-            if not barename(x.tag) == 'pre':
+            if barename(x.tag) != 'pre':
                 if getattr(x, 'text', None):
                     x.text = unsmarten_text(x.text)
                 if getattr(x, 'tail', None) and x.tail:

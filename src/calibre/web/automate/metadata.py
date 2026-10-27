@@ -9,7 +9,7 @@ browser, for the sources whose websites block anything that is not a browser.
 # These two are read by calibre.live, which updates the server half of this
 # module from the calibre website, so that changes to the websites it drives
 # can be kept up with without needing a new calibre release
-module_version = 1
+module_version = 2
 minimum_calibre_version = (9, 17, 0)
 
 import asyncio
@@ -344,9 +344,17 @@ class SourceHandler:
                     raise TimeoutError(f'{link.url} never started loading')
                 await asyncio.sleep(POPUP_POLL_INTERVAL)
             await tab.wait_for_load('domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
-            return {'url': tab.url, 'html': await tab.html()}
-        except (Error, TimeoutError) as err:
+            # Getting past interstitials can change the URL of the tab
+            html = await self.loaded_html(tab, link, deadline)
+            return {'url': tab.url, 'html': html}
+        except (Error, TimeoutError, Blocked) as err:
             return {'url': link.url, 'error': f'Failed to load {link.url}: {err}'}
+
+    async def loaded_html(self, tab: Page, link: Link, deadline: Deadline) -> str:
+        """The HTML of a page opened in a tab of its own, once it has loaded.
+        Overridden by sources that need to get past pages the website puts in
+        front of the one asked for."""
+        return await tab.html()
 
 
 FIND_LINK_JS = '''(selector, index, href) => {
@@ -375,6 +383,12 @@ def parse_html(html: str) -> _Element:
 AMAZON_SEARCH_BOX = '#twotabsearchtextbox, #nav-search-bar-form input[name="field-keywords"]'
 AMAZON_DEPARTMENT = '#searchDropdownBox'
 AMAZON_CONTINUE = 'form[action*="validateCaptcha"] button, form[action*="validateCaptcha"] input[type="submit"]'
+# The checkpoint page sometimes has a box to tick that enables its button
+AMAZON_CHECKPOINT_FORM = 'form[action*="/checkpoint/validate"]'
+AMAZON_CHECKPOINT_BOX_XPATH = '//form[contains(@action, "/checkpoint/validate")]/descendant::input[@type="checkbox"]'
+AMAZON_CHECKPOINT_BOX = f'{AMAZON_CHECKPOINT_FORM} input[type="checkbox"]'
+AMAZON_CHECKPOINT_SUBMIT = f'{AMAZON_CHECKPOINT_FORM} button[type="submit"]:not([disabled]), {AMAZON_CHECKPOINT_FORM} input[type="submit"]:not([disabled])'
+AMAZON_SIGNIN_PATH = '/ap/'
 AMAZON_MAX_INTERSTITIALS = 4
 ASIN_PAT = re.compile(r'^[A-Z0-9]{10}$')
 DP_PAT = re.compile(r'/dp/([A-Z0-9]{10})(?:[/?]|$)')
@@ -386,11 +400,15 @@ AUDIO_FORMAT_WORDS = ('audio', 'audible', 'hörbuch', 'hörbücher', 'luisterboe
 def amazon_page_kind(root: _Element) -> str:
     """What sort of page Amazon answered with: the page asked for (ok), a
     CAPTCHA (captcha), the JavaScript challenge that works out whether it is
-    talking to a browser and then reloads the page (challenge) or the page with
+    talking to a browser and then reloads the page (challenge), the page with
     only a button to click that Amazon puts in front of browsers it is not sure
-    about (continue)."""
+    about (continue) or the page at /checkpoint/continue that is much the same,
+    with a button to click, sometimes only once an "I am human" box has been
+    ticked (checkpoint)."""
     if root.xpath('//div[@id="challenge-container"] | //script[contains(@src, ".awswaf.com/")]'):
         return 'challenge'
+    if root.xpath('//form[contains(@action, "/checkpoint/validate")]'):
+        return 'checkpoint'
     forms = root.xpath('//form[contains(@action, "validateCaptcha")]')
     if not forms:
         return 'ok'
@@ -401,6 +419,13 @@ def amazon_page_kind(root: _Element) -> str:
         ):
             return 'captcha'
     return 'continue'
+
+
+def amazon_page_is_detour(url: str) -> bool:
+    """Whether url is somewhere getting past an interstitial can end up
+    instead of at the page that was asked for: the home page or signing in."""
+    path = urlparse(url).path
+    return path in ('', '/') or path.startswith(AMAZON_SIGNIN_PATH)
 
 
 def amazon_department_value(root: _Element, alias: str) -> str:
@@ -524,12 +549,27 @@ class AmazonHandler(SourceHandler):
             return error_result(err.kind, str(err))
         return await super().handle(action, args, deadline)
 
-    async def check_page(self, page: Page, deadline: Deadline) -> _Element:
-        """Get past the interstitials, if any, and hand back the parsed page."""
+    async def loaded_html(self, tab: Page, link: Link, deadline: Deadline) -> str:
+        # Amazon puts its interstitials in front of details pages too
+        html = (await self.check_page(tab, deadline))[0]
+        if amazon_page_is_detour(tab.url) and not amazon_page_is_detour(link.url):
+            # Getting past an interstitial can land on the home page, or on the
+            # sign in page, rather than on the page asked for, so ask again
+            debug(f'Ended up on {tab.url} rather than the page asked for, loading {link.url} again')
+            await tab.open(link.url, wait='domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
+            html = (await self.check_page(tab, deadline))[0]
+            if urlparse(tab.url).path.startswith(AMAZON_SIGNIN_PATH):
+                raise Blocked('signin', 'Amazon is asking for a sign in, probably because too many books were downloaded. Wait for some time and try again.')
+        return html
+
+    async def check_page(self, page: Page, deadline: Deadline) -> tuple[str, _Element]:
+        """Get past the interstitials, if any, and hand back the HTML of the
+        page and the page parsed."""
         for attempt in range(AMAZON_MAX_INTERSTITIALS + 1):
             context = await page.wait_for_execution_context(deadline.remaining(PAGE_TIMEOUT))
             try:
-                root = parse_html(await page.html())
+                html = await page.html()
+                root = parse_html(html)
             except Error:
                 # The page navigated away while being read
                 await page.wait_for_new_execution_context(context, deadline.remaining(PAGE_TIMEOUT))
@@ -538,7 +578,7 @@ class AmazonHandler(SourceHandler):
             kind = amazon_page_kind(root)
             match kind:
                 case 'ok':
-                    return root
+                    return html, root
                 case 'captcha':
                     raise Blocked(
                         'captcha',
@@ -554,6 +594,14 @@ class AmazonHandler(SourceHandler):
                     debug('Clicking past the Amazon continue shopping page')
                     await self.settle(page, deadline)
                     await self.submit_and_wait(page, lambda: page.click(AMAZON_CONTINUE, timeout=deadline.remaining(FIELD_TIMEOUT)), deadline)
+                case 'checkpoint':
+                    debug('Clicking past the Amazon checkpoint page')
+                    await self.settle(page, deadline)
+                    if root.xpath(AMAZON_CHECKPOINT_BOX_XPATH):
+                        await page.click(AMAZON_CHECKPOINT_BOX, timeout=deadline.remaining(FIELD_TIMEOUT))
+                    # Ticking the box is what enables the button, which the
+                    # selector matches only once it is enabled
+                    await self.submit_and_wait(page, lambda: page.click(AMAZON_CHECKPOINT_SUBMIT, timeout=deadline.remaining(FIELD_TIMEOUT)), deadline)
         raise Blocked('blocked', 'Amazon keeps answering with pages that are not the one asked for')
 
     async def search(self, args: Mapping[str, Any], deadline: Deadline) -> dict[str, Any]:
@@ -565,7 +613,7 @@ class AmazonHandler(SourceHandler):
         page = await self.search_page(site, deadline)
         if urlparse(page.url).hostname != site:
             await page.open(f'https://{site}/', wait='domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
-        root = await self.check_page(page, deadline)
+        root = (await self.check_page(page, deadline))[1]
         await self.settle(page, deadline)
         if value := amazon_department_value(root, str(args.get('department') or 'aps')):
             await page.call(SELECT_OPTION_JS, AMAZON_DEPARTMENT, value)
@@ -576,7 +624,7 @@ class AmazonHandler(SourceHandler):
         finally:
             await box.dispose()
         await self.submit_and_wait(page, lambda: page.keyboard.press('Enter'), deadline)
-        root = await self.check_page(page, deadline)
+        root = (await self.check_page(page, deadline))[1]
         await self.settle(page, deadline)
         links = amazon_results(root, page.url, domain, int(args.get('max_results') or 5), bool(args.get('prefer_kindle')))
         ans: dict[str, Any] = {'results_url': page.url, 'details': await self.open_in_tabs(page, links, deadline)}

@@ -179,10 +179,7 @@ class DeleteInfo:
                 self.__write_cb = False
                 return True
             return False
-        elif line[0:2] == 'cw':
-            return True
-        else:
-            return False
+        return line[0:2] == 'cw'
 
     def delete_info(self):
         """Main method for handling other methods. Read one line at

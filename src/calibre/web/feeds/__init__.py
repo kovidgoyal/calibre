@@ -263,10 +263,7 @@ class Feed:
         return length > 2000 * len(self)
 
     def has_article(self, article):
-        for a in self:
-            if a.is_same_as(article):
-                return True
-        return False
+        return any(a.is_same_as(article) for a in self)
 
     def find(self, article):
         for i, a in enumerate(self):

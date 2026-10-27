@@ -409,3 +409,89 @@ class NotesTest(BaseTest):
 
     def test_notes_restore(self):
         test_notes_restore(self)
+
+    def test_notes_import_data_url_images(self):
+        from base64 import standard_b64encode
+        from urllib.parse import quote
+
+        from html5_parser import parse
+
+        from calibre.db.constants import RESOURCE_URL_SCHEME
+
+        cache, _ = self.create_notes_db()
+        author_id = min(cache.all_field_ids('authors'))
+        image = get_image_path('book.png', data=True)
+        payload = standard_b64encode(image).decode('ascii')
+        for char in '+/=':
+            self.assertIn(char, payload, 'Test image must exercise all base64 special characters')
+
+        def check(metadata, filename='', encoded_payload=None, url_scheme='data'):
+            cache.set_notes_for('authors', author_id, '')
+            if encoded_payload is None:
+                encoded_payload = payload
+            attr = f' data-filename="{filename}"' if filename else ''
+            doc = f'<p>Embedded image<img src="{url_scheme}:{metadata},{encoded_payload}"{attr}></p>'
+            note_id = cache.import_note('authors', author_id, doc, path_is_data=True)
+            self.assertGreater(note_id, 0)
+            resources = cache.notes_resources_used_by('authors', author_id)
+            self.ae(len(resources), 1)
+            rhash = next(iter(resources))
+            resource = cache.get_notes_resource(rhash)
+            # Avoid assertEqual here as a mismatch would dump the entire image
+            self.assertTrue(resource['data'] == image, 'Imported image bytes differ from the original')
+            self.ae(resource['name'], filename or 'image.png')
+            scheme, digest = rhash.split(':', 1)
+            root = parse(cache.notes_for('authors', author_id))
+            self.ae(root.xpath('//img/@src'), [f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}'])
+            exported = parse(cache.export_note('authors', author_id))
+            self.ae(exported.xpath('//img/@data-filename'), [filename or 'image.png'])
+            self.ae(exported.xpath('//img/@src'), [f'data:image/png;base64,{payload}'])
+
+        for metadata in (
+            'image/png;base64',
+            'image/png;BASE64',
+            'image/png; base64',
+            'image/png;charset=utf-8;base64',
+            'image/png;charset=utf-8;name=example.png;base64',
+        ):
+            for filename in ('', 'example.png'):
+                with self.subTest(metadata=metadata, filename=filename):
+                    check(metadata, filename)
+        # Percent escapes in the payload must be decoded before base64 decoding
+        for encoding, encoded_payload in (
+            ('plus', payload.replace('+', '%2B')),
+            ('slash', payload.replace('/', '%2F')),
+            ('padding', payload.replace('=', '%3D')),
+            ('reserved', quote(payload, safe='')),
+            ('lowercase escapes', payload.replace('+', '%2b').replace('/', '%2f').replace('=', '%3d')),
+            ('all characters', ''.join(f'%{ord(char):02X}' for char in payload)),
+            ('whitespace', '%0A' + quote(payload, safe='') + '%0D%0A'),
+        ):
+            with self.subTest(encoding=encoding):
+                check('image/png;charset=utf-8;base64', encoded_payload=encoded_payload)
+        for metadata, name in (('application/x-unknown;a=b;base64', 'image.bin'), (';base64', 'image.bin')):
+            with self.subTest(metadata=metadata):
+                cache.set_notes_for('authors', author_id, '')
+                cache.import_note('authors', author_id, f'<p><img src="data:{metadata},{payload}"></p>', path_is_data=True)
+                resources = cache.notes_resources_used_by('authors', author_id)
+                self.ae(len(resources), 1)
+                self.ae(cache.get_notes_resource(next(iter(resources)))['name'], name)
+        for image_name, padding in (('book.png', 2), ('catalog.png', 1), ('lt.png', 0)):
+            cache, _ = self.create_notes_db()
+            author_id = min(cache.all_field_ids('authors'))
+            image = get_image_path(image_name, data=True)
+            payload = standard_b64encode(image).decode('ascii')
+            self.ae(len(payload) - len(payload.rstrip('=')), padding)
+            for url_scheme in ('data', 'DATA', 'DaTa'):
+                for encoding, encoded_payload in (
+                    ('padded', payload),
+                    ('unpadded', payload.rstrip('=')),
+                    ('unpadded with escaped whitespace', '%09%0A%0C%0D%20' + quote(payload.rstrip('='), safe='') + '%0D%0A'),
+                ):
+                    with self.subTest(image=image_name, url_scheme=url_scheme, encoding=encoding):
+                        check('image/png;base64', encoded_payload=encoded_payload, url_scheme=url_scheme)
+        for encoded_payload in ('a', 'YQ=', 'YQ===', 'YWFh=', 'Y!Q', 'YQ%0B', 'YQ%C2%A0'):
+            with self.subTest(invalid_payload=encoded_payload):
+                cache.set_notes_for('authors', author_id, '')
+                cache.import_note('authors', author_id, f'<p><img src="data:image/png;base64,{encoded_payload}"></p>', path_is_data=True)
+                self.assertFalse(cache.notes_resources_used_by('authors', author_id))

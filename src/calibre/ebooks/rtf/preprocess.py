@@ -217,7 +217,7 @@ class RtfTokenParser:
                                 j = j + len(self.tokens[i].data)
                                 i = i + 1
                                 continue
-                        if isinstance(self.tokens[i], token8bitChar) or isinstance(self.tokens[i], tokenBinN):
+                        if isinstance(self.tokens[i], (token8bitChar, tokenBinN)):
                             replace.append(self.tokens[i])
                             i = i + 1
                             j = j + 1

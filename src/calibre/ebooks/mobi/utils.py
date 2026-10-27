@@ -8,7 +8,7 @@ from collections import OrderedDict
 from compression import zlib
 from io import BytesIO
 
-from tinycss.color3 import parse_color_string
+from tinycss.color4 import parse_color_string
 
 from calibre.ebooks import normalize
 from calibre.utils.img import image_from_data, image_to_data, png_data_to_gif_data, resize_image, save_cover_data_to, scale_image
@@ -357,7 +357,7 @@ def detect_periodical(toc, log=None):
     Detect if the TOC object toc contains a periodical that conforms to the
     structure required by kindlegen to generate a periodical.
     """
-    if toc.count() < 1 or not toc[0].klass == 'periodical':
+    if toc.count() < 1 or toc[0].klass != 'periodical':
         return False
     for node in toc.iterdescendants():
         if node.depth() == 1 and node.klass != 'article':
@@ -628,11 +628,32 @@ def is_guide_ref_start(ref):
 
 def convert_color_for_font_tag(val):
     rgba = parse_color_string(str(val or ''))
-    if rgba is None or rgba == 'currentColor':
+    if not isinstance(rgba, tuple):  # not a color or currentColor
         return str(val)
+    # The channels are already in 0..1, round rather than truncate as colors
+    # converted from other color spaces are not exact multiples of 1/255
+    return '#' + ''.join(f'{int(x * 255 + 0.5):02x}' for x in rgba[:3])
 
-    def clamp(x):
-        return min(x, max(0, x), 1)
 
-    rgb = map(clamp, rgba[:3])
-    return '#' + ''.join(f'{int(x * 255):02x}' for x in rgb)
+def find_tests():
+    import unittest
+
+    class TestConvertColor(unittest.TestCase):
+        def test_convert_color_for_font_tag(self):
+            ae = self.assertEqual
+            cc = convert_color_for_font_tag
+            ae('currentColor', cc('currentColor'))
+            ae('inherit', cc('inherit'))
+            ae('#ff0000', cc('red'))
+            ae('#001122', cc('#012'))
+            ae('#1a334d', cc('rgb(10%, 20%, 30%)'))
+            ae('#00ff00', cc('rgb(-51, 306, 0)'))
+            # CSS Color Level 4
+            ae('#ff0000', cc('#ff000080'))
+            ae('#ff0000', cc('rgb(255 0 0 / 50%)'))
+            ae('#663399', cc('rebeccapurple'))
+            ae('#ffffff', cc('lab(100 0 0)'))
+            ae('#ff0000', cc('oklch(0.628 0.2577 29.23)'))
+            ae('rgb(var(--x))', cc('rgb(var(--x))'))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestConvertColor)

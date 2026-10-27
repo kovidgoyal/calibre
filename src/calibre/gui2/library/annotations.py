@@ -1704,18 +1704,16 @@ class Restrictions(QWidget):
             is_dark = is_dark_theme()
             model = tb.model()
             assert isinstance(model, QStandardItemModel)
-            highlight_color_row = 1
             all_styles = self.annotation_style_cache.get(db.library_id)
             if all_styles is None:
                 all_styles = self.annotation_style_cache[db.library_id] = db.all_annotation_styles()
-            for style_name, style in all_styles.items():
+            for highlight_color_row, (style_name, style) in enumerate(all_styles.items(), 1):
                 item = QStandardItem(highlight_style_title(style_name, style))
                 item.setData({'type': 'highlight', 'style': style}, Qt.ItemDataRole.UserRole)
                 dec = decoration_for_style(self.palette(), style, self.icon_size, dpr, is_dark)
                 if dec:
                     item.setData(dec, Qt.ItemDataRole.DecorationRole)
                 model.insertRow(highlight_row + highlight_color_row, item)
-                highlight_color_row += 1
 
         tb.blockSignals(False)
         tb_is_visible = tb.count() > 2

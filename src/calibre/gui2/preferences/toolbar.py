@@ -104,10 +104,7 @@ class BaseModel(QAbstractListModel):
         return ans
 
     def has_action(self, name):
-        for a in self._data:
-            if a.name == name:
-                return True
-        return False
+        return any(a.name == name for a in self._data)
 
 
 class AllModel(BaseModel):

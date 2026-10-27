@@ -172,10 +172,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def highlightEmptyLine(self, text, cursor, bf):
         textAscii = str(text.replace('\u2029', '\n'))
-        if textAscii.strip():
-            return False
-        else:
-            return True
+        return not textAscii.strip()
 
     def highlightHorizontalLine(self, text, cursor, bf):
         found = False

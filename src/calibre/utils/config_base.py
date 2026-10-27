@@ -216,10 +216,7 @@ class OptionSet:
     def has_option(self, name_or_option_object):
         if name_or_option_object in self.preferences:
             return True
-        for p in self.preferences:
-            if p.name == name_or_option_object:
-                return True
-        return False
+        return any(p.name == name_or_option_object for p in self.preferences)
 
     def get_option(self, name_or_option_object):
         idx = self.preferences.index(name_or_option_object)

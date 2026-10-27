@@ -1162,7 +1162,7 @@ class BooksView(TableView):  # {{{
             try:
                 for c, d in tweaks['sort_columns_at_startup']:
                     if not isinstance(d, bool):
-                        d = True if d == 0 else False
+                        d = d == 0
                     sh.append((c, d))
             except Exception:
                 # Ignore invalid tweak values as users seem to often get them

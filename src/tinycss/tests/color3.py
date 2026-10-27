@@ -5,7 +5,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.color3 import hsl_to_rgb, parse_color_string
+import random
+
+from tinycss.color3 import COLOR_KEYWORDS, c_parse_color_string, hsl_to_rgb, parse_color_string, py_parse_color_string
 from tinycss.tests import BaseTest
 
 
@@ -155,15 +157,45 @@ class TestColor3(BaseTest):
 
             ('cmyk(0, 0, 0, 0)', None),
         ]:
-            result = parse_color_string(css_source)
-            if isinstance(result, tuple):
-                for got, expected in zip(result, expected_result):
-                    # Compensate for floating point errors:
-                    self.assertLess(abs(got - expected), 1e-10)
-                for i, attr in enumerate(['red', 'green', 'blue', 'alpha']):
-                    self.ae(getattr(result, attr), result[i])
-            else:
-                self.ae(result, expected_result)
+            for parse in (parse_color_string, py_parse_color_string):
+                result = parse(css_source)
+                if isinstance(result, tuple):
+                    for got, expected in zip(result, expected_result):
+                        # Compensate for floating point errors:
+                        self.assertLess(abs(got - expected), 1e-10)
+                    for i, attr in enumerate(['red', 'green', 'blue', 'alpha']):
+                        self.ae(getattr(result, attr), result[i])
+                else:
+                    self.ae(result, expected_result)
+
+    def test_c_color_parsing(self):
+        self.assertIsNotNone(c_parse_color_string, 'C color parser not loaded')
+        # Inputs the C parser leaves to the python implementation
+        for css_source in ('r\\65 d', 'r\u00e9d', '/* x', 'rgb(1, 2, 3', 'rgb(1, 2, 99999999999999999999)'):
+            self.assertIs(c_parse_color_string(css_source), NotImplemented, css_source)
+        self.assertRaises(TypeError, c_parse_color_string, b'red')
+
+        def same(a, b):
+            if isinstance(a, tuple) and isinstance(b, tuple):
+                return all(abs(x - y) < 1e-12 for x, y in zip(a, b))
+            return a == b
+
+        atoms = (
+            'rgb(', 'rgba(', 'hsl(', 'HSLa(', 'url(', ')', '(', ',', ' ', '\t', '\n', '/*', '*/', '/* x */', '1', '255', '-3', '+4',
+            '.5', '1.', '37.5', '%', 'deg', 'e3', '#', 'f', 'fff', 'abc', 'g', '-', '_', 'red', 'Transparent', 'currentColor', '"', ';',
+            '.', '0', '99999999999999999999', '\x0b', '\xa0', '\\', '\u00e9', '{',
+        )
+        rnd = random.Random(1)
+        cases = list(COLOR_KEYWORDS) + [k.upper() for k in COLOR_KEYWORDS]
+        cases += [''.join(rnd.choice(atoms) for _ in range(rnd.randint(1, 10))) for _ in range(20000)]
+        args = ('1', '-20', '+300', '50%', '12.5%', '.5', '0.25', '-0.5', '1e2', '5px', '%', 'x', ' 7 ', '/**/3/**/')
+        for fn in ('rgb', 'rgba', 'hsl', 'hsla'):
+            for _ in range(2000):
+                a = ','.join(rnd.choice(args) for _ in range(rnd.randint(0, 5)))
+                cases.append(f'{rnd.choice(("", " ", "/**/"))}{fn}({a}){rnd.choice(("", " ", "/**/", ")", " x"))}')
+        for css_source in cases:
+            c, py = parse_color_string(css_source), py_parse_color_string(css_source)
+            self.assertTrue(same(c, py), f'{css_source!r}: {c} != {py}')
 
     def test_hsl(self):
         for hsl, expected_rgb in [

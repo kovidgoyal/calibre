@@ -351,10 +351,7 @@ class Plugins(Mapping):
     def __contains__(self, name):
         from importlib.resources import files
 
-        for x in files('calibre_extensions').iterdir():
-            if x.name == name:
-                return True
-        return False
+        return any(x.name == name for x in files('calibre_extensions').iterdir())
 
     def __getitem__(self, name):
         from importlib import import_module

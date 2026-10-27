@@ -103,10 +103,7 @@ def create_link_replacer(container, link_uid, changed, present_names):
 def check_for_maths(root):
     for x in root.iterdescendants('{*}math'):
         return True
-    for s in root.iterdescendants(XHTML('script')):
-        if s.get('type') == 'text/x-mathjax-config':
-            return True
-    return False
+    return any(s.get('type') == 'text/x-mathjax-config' for s in root.iterdescendants(XHTML('script')))
 
 
 def has_ancestor(elem, q):

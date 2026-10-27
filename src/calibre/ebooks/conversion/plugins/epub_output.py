@@ -169,6 +169,23 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
+    def html_language(self) -> str | None:
+        from calibre.ebooks.oeb.transforms.cover import CoverManager
+
+        return CoverManager.book_language(self.oeb)
+
+    def set_html_languages(self):
+        # Screen readers and text-to-speech need the language of the text.
+        # For EPUB 3 the lang attribute is added when upgrading.
+        from calibre.ebooks.oeb.base import XML
+
+        if not (book_lang := self.html_language()):
+            return
+        for x in self.oeb.spine:
+            root = x.data
+            if not root.get(XML('lang')) and not root.get('lang'):
+                root.set(XML('lang'), book_lang)
+
     def upshift_markup(self):  # {{{
         "Upgrade markup to comply with XHTML 1.1 where possible"
         from calibre.ebooks.oeb.base import XML, XPath
@@ -246,6 +263,7 @@ class EPUBOutput(OutputFormatPlugin):
             preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio,
         )
         cm(self.oeb, self.opts, self.log)
+        self.set_html_languages()
 
         self.workaround_sony_quirks()
 

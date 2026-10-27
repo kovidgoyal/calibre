@@ -1095,10 +1095,7 @@ class SavedSearches(QWidget):
     def has_focus(self):
         if self.hasFocus():
             return True
-        for child in self.findChildren(QWidget):
-            if child.hasFocus():
-                return True
-        return False
+        return any(child.hasFocus() for child in self.findChildren(QWidget))
 
     def trigger_action(self, action, overrides=None):
         b = self.action_button_map.get(action)

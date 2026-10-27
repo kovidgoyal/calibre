@@ -93,14 +93,12 @@ class OverrideTable:
         if current_table_id is None and self.__run_level > 3:
             msg = 'This override does not appear to have a list-table-id\n'
             raise Exception(msg)
-        counter = 0
-        for list in self.__list_of_lists:
+        for counter, list in enumerate(self.__list_of_lists):
             info_dict = list[0]
             old_table_id = info_dict.get('list-table-id')
             if old_table_id == current_table_id:
                 self.__list_of_lists[counter][0]['list-id'].append(list_id)
                 break
-            counter += 1
 
     def __parse_lines(self, line):
         """

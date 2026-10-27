@@ -110,7 +110,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             c = 0
             for item in row:
                 rowwidths[c] = max(rowwidths[c], len(item))
-                c += 1
+                c += 1  # ruff: ignore[enumerate-for-loop]
         return rowwidths
 
     output = PolyglotStringIO()
