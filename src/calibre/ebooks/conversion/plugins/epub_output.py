@@ -169,30 +169,34 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def html_language(self):
+    def html_language(self) -> str | None:
         # The language of the book as a BCP 47 language tag, for use in the
-        # lang attributes of HTML files
+        # lang attributes of HTML files. A language guessed from the calibre
+        # interface language is not used, as it is likely to be wrong.
         from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
         for lang in self.oeb.metadata.language:
-            raw = str(lang).strip().replace('_', '-')
-            code = canonicalize_lang(raw)
-            if code and code != 'und':
+            if lang.is_fallback:
+                continue
+            primary, *subtags = str(lang).strip().replace('_', '-').split('-')
+            # canonicalize_lang() also accepts language names, which are not valid in tags
+            code = canonicalize_lang(primary) if primary.isalpha() and len(primary) in (2, 3) else None
+            if code and code not in ('und', 'mul', 'zxx'):
                 # Three letter codes that have a two letter equivalent are not valid language tags
-                return (lang_as_iso639_1(code) or code) if raw.lower() == code else raw
+                return '-'.join([lang_as_iso639_1(code) or code, *subtags])
+        return None
 
     def set_html_languages(self):
-        # Screen readers and text-to-speech need the language of the text
+        # Screen readers and text-to-speech need the language of the text.
+        # For EPUB 3 the lang attribute is added when upgrading.
         from calibre.ebooks.oeb.base import XML
 
-        book_lang = self.html_language()
+        if not (book_lang := self.html_language()):
+            return
         for x in self.oeb.spine:
             root = x.data
-            if book_lang and not root.get(XML('lang')) and not root.get('lang'):
+            if not root.get(XML('lang')) and not root.get('lang'):
                 root.set(XML('lang'), book_lang)
-            if self.opts.epub_version == '3' and root.get(XML('lang')) and not root.get('lang'):
-                # The lang attribute is not valid in XHTML 1.1, so only use it for EPUB 3
-                root.set('lang', root.get(XML('lang')))
 
     def upshift_markup(self):  # {{{
         "Upgrade markup to comply with XHTML 1.1 where possible"

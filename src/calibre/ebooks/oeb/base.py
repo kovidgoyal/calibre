@@ -928,6 +928,9 @@ class Metadata:
                 OPF('meta'),
             ],
         )
+        # True for a language that was guessed from the calibre interface
+        # language, rather than specified by the book or the user
+        is_fallback = False
 
         def __getitem__(self, key):
             return self.attrib[key]

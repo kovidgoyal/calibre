@@ -173,7 +173,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     cover_path = cover_file.name if cover_copied else None
     mi = db.get_metadata(book_id)
     mi.application_id = mi.uuid
-    raw = metadata_to_opf(mi)
+    raw = metadata_to_opf(mi, mark_fallback_language=True)
     with tempfile.NamedTemporaryFile(prefix='', suffix='.opf', dir=tdir, delete=False) as opf_file:
         opf_file.write(raw)
     recs = GuiRecommendations()

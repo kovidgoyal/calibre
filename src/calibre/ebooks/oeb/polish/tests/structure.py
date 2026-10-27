@@ -555,33 +555,92 @@ class Structure(BaseTest):
         self.assertFalse(root.xpath('//*/@for'))
 
     def test_epub_output_language(self):
-        from types import SimpleNamespace
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from unittest.mock import patch
 
         from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
-        from calibre.ebooks.oeb.base import XML
-        from calibre.ebooks.oeb.parse_utils import parse_html
+        from calibre.ebooks.metadata.opf2 import metadata_to_opf
+        from calibre.ebooks.oeb.base import XML, OEBBook
+        from calibre.ebooks.oeb.polish.tests.base import build_book
+        from calibre.utils.logging import DevNull
+        from calibre.utils.resources import get_image_path
 
-        def html(lang=None):
-            attr = f' xml:lang="{lang}"' if lang else ''
-            return parse_html(f'<html xmlns="http://www.w3.org/1999/xhtml"{attr}><head/><body><p>one</p></body></html>')
+        def html_language(*langs, fallback=False):
+            plugin = EPUBOutput(None)
+            plugin.oeb = OEBBook(DevNull())
+            for lang in langs:
+                plugin.oeb.metadata.add('language', lang).is_fallback = fallback
+            return plugin.html_language()
 
-        for ver, langs, expected in (
-            ('2', ['fra'], (None, 'fr')),
-            ('3', ['fra'], ('fr', 'fr')),
-            ('3', ['pt-BR'], ('pt-BR', 'pt-BR')),
-            ('3', ['pt_BR'], ('pt-BR', 'pt-BR')),
-            ('3', ['und', 'de'], ('de', 'de')),
-            ('2', [], (None, None)),
+        for langs, expected in (
+            (('fra',), 'fr'),
+            (('eng',), 'en'),
+            (('pt-BR',), 'pt-BR'),
+            (('pt_BR',), 'pt-BR'),
+            (('eng-US',), 'en-US'),
+            (('und', 'de'), 'de'),
+            (('mul',), None),
+            (('French',), None),
+            ((), None),
         ):
-            with self.subTest(ver=ver, langs=langs):
-                # The second file mimics the generated title page, which is in English
-                spine = [SimpleNamespace(data=html()), SimpleNamespace(data=html('en'))]
-                plugin = EPUBOutput(None)
-                plugin.oeb = SimpleNamespace(metadata=SimpleNamespace(language=langs), spine=spine)
-                plugin.opts = SimpleNamespace(epub_version=ver)
-                plugin.set_html_languages()
-                actual = [(x.data.get('lang'), x.data.get(XML('lang'))) for x in spine]
-                self.assertEqual(actual, [expected, ('en' if ver == '3' else None, 'en')])
+            self.assertEqual(html_language(*langs), expected, langs)
+        self.assertIsNone(html_language('fra', fallback=True))
+
+        def write(name, raw):
+            path = os.path.join(self.tdir, name)
+            with open(path, 'w') as f:
+                f.write(raw)
+            return path
+
+        html = write('index.html', '<html><body><p>one</p></body></html>')
+        de_html = write('de.html', '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de"><body><p>eins</p></body></html>')
+        rtf = write('index.rtf', r'{\rtf1 one}')
+        # The metadata from the library, as written by the GUI for conversion
+        with patch.dict(os.environ, {'CALIBRE_OVERRIDE_LANG': 'de'}):
+            library_opf = write('library.opf', metadata_to_opf(Metadata('T'), mark_fallback_language=True).decode('utf-8'))
+            # Metadata backups and other OPF files must not have the marker
+            self.assertNotIn(b'calibre:fallback_language', metadata_to_opf(Metadata('T')))
+        for src, ver, args, expected in (
+            (html, '2', ['--language=fra'], (None, 'fr')),
+            (html, '3', ['--language=fra'], ('fr', 'fr')),
+            (html, '3', ['--language=pt-BR'], ('pt-BR', 'pt-BR')),
+            (de_html, '3', ['--language=fra'], ('de', 'de')),
+            # The language guessed from the interface language must not be used
+            (html, '3', [], (None, None)),
+            (rtf, '3', [], (None, None)),
+            (html, '3', ['--read-metadata-from-opf', library_opf], (None, None)),
+        ):
+            with self.subTest(src=os.path.basename(src), ver=ver, args=args):
+                n = next(counter)
+                dest = os.path.join(self.tdir, f'{n}.epub')
+                # Specify a cover, as generating the default cover needs a QApplication
+                with patch.dict(os.environ, {'CALIBRE_OVERRIDE_LANG': 'de'}), redirect_stdout(StringIO()):
+                    build_book(src, dest, args=['--epub-version', ver, '--cover', get_image_path('lt.png'), *args])
+                c = get_container(dest, tdir=os.path.join(self.tdir, f'container{n}'), tweak_mode=True)
+                if '--language=' not in ''.join(args):
+                    self.assertEqual(c.opf_xpath('//dc:language/text()'), ['de'])
+                self.assertFalse(c.opf_xpath('//opf:meta[@name="calibre:fallback_language"]'))
+                langs = {}
+                for name, linear in c.spine_names:
+                    root = c.parsed(name)
+                    langs[name] = root.get('lang'), root.get(XML('lang'))
+                # The generated title page is in English
+                self.assertEqual(langs.pop('titlepage.xhtml'), ('en' if ver == '3' else None, 'en'))
+                self.assertTrue(langs)
+                for name, val in langs.items():
+                    self.assertEqual(val, expected, name)
+
+        # The marker for the guessed language is only for conversion
+        from calibre.ebooks.metadata.cli import main as ebook_meta
+
+        opf = os.path.join(self.tdir, 'meta.opf')
+        with patch.dict(os.environ, {'CALIBRE_OVERRIDE_LANG': 'de'}), patch('calibre.ebooks.metadata.cli.prints'):
+            ebook_meta(['ebook-meta', rtf, '--to-opf', opf])
+        with open(opf, 'rb') as f:
+            raw = f.read()
+        self.assertIn(b'<dc:language>de</dc:language>', raw)
+        self.assertNotIn(b'calibre:fallback_language', raw)
 
 
 def find_tests():

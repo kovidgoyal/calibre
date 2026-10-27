@@ -6,7 +6,7 @@ import sys
 from calibre.ebooks.conversion.plugins.epub_input import ADOBE_OBFUSCATION, IDPF_OBFUSCATION
 from calibre.ebooks.metadata.opf3 import XPath
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
-from calibre.ebooks.oeb.base import DC, EPUB_NS, OEB_DOCS, xpath
+from calibre.ebooks.oeb.base import DC, EPUB_NS, OEB_DOCS, XML, xpath
 from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
 from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
@@ -90,6 +90,19 @@ def collect_properties(container):
             add_properties(item, *tuple(properties))
 
 
+def add_lang_attributes(container):
+    # The lang attribute is not valid in the XHTML 1.1 used by EPUB 2, so
+    # files may only have xml:lang, add lang as well for software that only
+    # looks at it
+    for name, mt in container.mime_map.items():
+        if mt.lower() not in OEB_DOCS:
+            continue
+        root = container.parsed(name)
+        if (lang := root.get(XML('lang'))) and not root.get('lang'):
+            root.set('lang', lang)
+            container.dirty(name)
+
+
 guide_epubtype_map = {
     'acknowledgements': 'acknowledgments',
     'other.afterword': 'afterword',
@@ -166,6 +179,7 @@ def create_nav(container, toc, landmarks, previous_nav=None):
 def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True):
     upgrade_metadata(container.opf)
     collect_properties(container)
+    add_lang_attributes(container)
     toc = get_toc(container)
     toc_name = find_existing_ncx_toc(container)
     if toc_name and remove_ncx:
