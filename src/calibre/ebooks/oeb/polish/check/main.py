@@ -54,7 +54,7 @@ def remove_skipped(errors: Iterable[BaseError], skipped_rules: frozenset[str]) -
     return [e for e in errors if not e.can_be_skipped or e.rule_id not in skipped_rules]
 
 
-def run_checks(container, skipped_rules: frozenset[str] = frozenset()):
+def run_checks(container, skipped_rules: frozenset[str] = frozenset(), accessibility: bool = False):
 
     errors = []
 
@@ -118,7 +118,8 @@ def run_checks(container, skipped_rules: frozenset[str] = frozenset()):
     errors += check_filenames(container)
     errors += check_markup(container)
     errors += check_opf(container)
-    errors += check_accessibility(container)
+    if accessibility:
+        errors += check_accessibility(container)
 
     return remove_skipped(errors, skipped_rules)
 

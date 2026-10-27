@@ -129,6 +129,7 @@ d['check_external_link_anchors'] = True
 d['remove_ncx'] = True
 d['html_transform_scope'] = 'current'
 d['check_book_skipped_rules'] = {}
+d['check_book_accessibility'] = False
 del d
 
 ucase_map = {l: string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}

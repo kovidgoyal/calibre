@@ -377,8 +377,9 @@ Some of the checks performed are:
       alternative text, HTML files that do not specify their language and
       headings that skip levels are reported. For EPUB 3 books, missing
       accessibility metadata is also reported. The language of the HTML files
-      and the accessibility metadata that can be determined from the contents
-      of the book can be added automatically.
+      can be set automatically to the language of the book. These checks are
+      only run if you turn on the :guilabel:`Check for accessibility problems`
+      option below the list of problems.
 
 Adding a cover
 ^^^^^^^^^^^^^^^

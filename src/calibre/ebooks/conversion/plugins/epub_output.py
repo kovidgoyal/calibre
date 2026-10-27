@@ -173,17 +173,11 @@ class EPUBOutput(OutputFormatPlugin):
         # The language of the book as a BCP 47 language tag, for use in the
         # lang attributes of HTML files. A language guessed from the calibre
         # interface language is not used, as it is likely to be wrong.
-        from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+        from calibre.utils.localization import lang_as_bcp47
 
         for lang in self.oeb.metadata.language:
-            if lang.is_fallback:
-                continue
-            primary, *subtags = str(lang).strip().replace('_', '-').split('-')
-            # canonicalize_lang() also accepts language names, which are not valid in tags
-            code = canonicalize_lang(primary) if primary.isalpha() and len(primary) in (2, 3) else None
-            if code and code not in ('und', 'mul', 'zxx'):
-                # Three letter codes that have a two letter equivalent are not valid language tags
-                return '-'.join([lang_as_iso639_1(code) or code, *subtags])
+            if not lang.is_fallback and (ans := lang_as_bcp47(str(lang))):
+                return ans
         return None
 
     def set_html_languages(self):
