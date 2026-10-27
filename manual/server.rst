@@ -279,6 +279,20 @@ recognized as the same book. If reading positions do not sync, set
 :guilabel:`Document matching method` in the KOReader progress sync settings to
 :guilabel:`Filename` on all devices and keep the file names of books the same.
 
+Streaming comics page by page
+-------------------------------
+
+The Content server provides an OPDS catalog of your books at the address of
+the server followed by ``/opds``, which can be used to browse and download
+books in OPDS reader applications. For comics in the CBZ, CBR or CB7 formats,
+the catalog also supports the `OPDS Page Streaming Extension
+<https://github.com/anansi-project/opds-pse>`_, which lets applications that
+support it, such as KOReader and Panels, read comics page by page, without
+having to download the whole comic first. Pages are in the same order as
+when converting the comic with calibre. In KOReader, add the catalog in the
+OPDS catalog browser and choose to stream a comic, instead of downloading
+it.
+
 
 Integrating the calibre Content server into other servers
 ------------------------------------------------------------

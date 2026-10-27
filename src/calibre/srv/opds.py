@@ -27,7 +27,7 @@ from calibre.srv.http_request import parse_uri
 from calibre.srv.http_response import RequestData
 from calibre.srv.opts import Options
 from calibre.srv.routes import endpoint
-from calibre.srv.utils import MultiDict, Offsets, get_library_data, http_date
+from calibre.srv.utils import MultiDict, Offsets, get_db, get_library_data, http_date
 from calibre.utils.config import prefs
 from calibre.utils.date import as_utc, is_date_undefined, timestampfromdt
 from calibre.utils.icu import sort_key
@@ -67,12 +67,15 @@ def format_tag_string(tags: list[str] | str, sep: str | None, joinval: str = ', 
 
 # Vocabulary for building OPDS feeds {{{
 DC_NS: str = 'http://purl.org/dc/terms/'
+# The OPDS Page Streaming Extension, https://github.com/anansi-project/opds-pse
+PSE_NS: str = 'http://vaemendis.net/opds-pse/ns'
 E: ElementMaker[etree.Element] = ElementMaker(
     namespace='http://www.w3.org/2005/Atom',
     nsmap={
         None: 'http://www.w3.org/2005/Atom',
         'dc': DC_NS,
         'opds': 'http://opds-spec.org/2010/catalog',
+        'pse': PSE_NS,
     },
 )
 
@@ -234,6 +237,29 @@ def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestCont
     )
 
 
+def PSE_LINK(book_id: int, formats: list[str], request_context: RequestContext) -> etree.Element | None:
+    # Lets clients such as KOReader stream comics page by page, without
+    # downloading the whole book
+    from calibre.srv.comic_pages import COMIC_FORMATS, page_names
+
+    available = {fmt.upper() for fmt in formats}
+    for fmt in COMIC_FORMATS:
+        if fmt in available:
+            break
+    else:
+        return None
+    try:
+        count = len(page_names(request_context.db.format_abspath(book_id, fmt)))
+    except Exception:
+        return None
+    if not count:
+        return None
+    href = request_context.ctx.url_for('/opds/pse', book_id=book_id, fmt=fmt.lower(), library_id=request_context.library_id)
+    link = E.link(type='image/jpeg', href=href + '?page={pageNumber}&width={maxWidth}', rel='http://vaemendis.net/opds-pse/stream')
+    link.set(f'{{{PSE_NS}}}count', str(count))
+    return link
+
+
 def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
     field_metadata = request_context.db.field_metadata
     mi = request_context.db.get_metadata(book_id)
@@ -294,6 +320,8 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
                     link.set('length', str(ffm['size']))
                     link.set('mtime', ffm['mtime'].isoformat())
                 ans.append(link)
+        if (link := PSE_LINK(book_id, mi.formats, request_context)) is not None:
+            ans.append(link)
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel='http://opds-spec.org/cover'))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel='http://opds-spec.org/thumbnail'))
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel='http://opds-spec.org/image'))
@@ -798,3 +826,40 @@ def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element:
         raise HTTPNotFound(f'Search: {query!r} not understood')
     page_url = rc.url_for('/opds/search', query=query)
     return get_acquisition_feed(rc, ids, offset, page_url, rc.url_for('/opds'), 'calibre-search:' + query)
+
+
+@endpoint('/opds/pse/{book_id}/{fmt}/{library_id=None}', types={'book_id': int})
+def opds_pse(ctx: Context, rd: RequestData, book_id: int, fmt: str, library_id: str | None) -> bytes:
+    """
+    Get a single page of a comic book as a JPEG image, for the OPDS Page
+    Streaming Extension. The page is specified with the page query parameter,
+    starting at zero, and the maximum width of the image with the width
+    query parameter.
+    """
+    from calibre.srv.comic_pages import COMIC_FORMATS, page_as_jpeg, page_names, read_page
+
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id!r} not found')
+    fmt = fmt.upper()
+    with db.safe_read_lock:
+        if not ctx.has_id(rd, db, book_id):
+            raise HTTPNotFound(f'Book with id {book_id!r} does not exist')
+        path = db.format_abspath(book_id, fmt) if fmt in COMIC_FORMATS else None
+    if not path:
+        raise HTTPNotFound(f'Book with id {book_id!r} has no {fmt} comic')
+    try:
+        page = int(rd.query.get('page', ''))
+    except Exception:
+        raise HTTPNotFound('No page number specified')
+    try:
+        max_width = max(0, int(rd.query.get('width', 0)))
+    except Exception:
+        max_width = 0  # The client did not replace {maxWidth}
+    names = page_names(path)
+    if not 0 <= page < len(names):
+        raise HTTPNotFound(f'Page {page} does not exist')
+    data = page_as_jpeg(read_page(path, names[page]), max_width)
+    rd.outheaders['Content-Type'] = 'image/jpeg'
+    rd.outheaders['Cache-Control'] = 'private, max-age=3600'
+    return data
