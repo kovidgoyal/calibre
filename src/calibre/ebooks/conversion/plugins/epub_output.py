@@ -169,6 +169,31 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
+    def html_language(self):
+        # The language of the book as a BCP 47 language tag, for use in the
+        # lang attributes of HTML files
+        from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+
+        for lang in self.oeb.metadata.language:
+            raw = str(lang).strip().replace('_', '-')
+            code = canonicalize_lang(raw)
+            if code and code != 'und':
+                # Three letter codes that have a two letter equivalent are not valid language tags
+                return (lang_as_iso639_1(code) or code) if raw.lower() == code else raw
+
+    def set_html_languages(self):
+        # Screen readers and text-to-speech need the language of the text
+        from calibre.ebooks.oeb.base import XML
+
+        book_lang = self.html_language()
+        for x in self.oeb.spine:
+            root = x.data
+            if book_lang and not root.get(XML('lang')) and not root.get('lang'):
+                root.set(XML('lang'), book_lang)
+            if self.opts.epub_version == '3' and root.get(XML('lang')) and not root.get('lang'):
+                # The lang attribute is not valid in XHTML 1.1, so only use it for EPUB 3
+                root.set('lang', root.get(XML('lang')))
+
     def upshift_markup(self):  # {{{
         "Upgrade markup to comply with XHTML 1.1 where possible"
         from calibre.ebooks.oeb.base import XML, XPath
@@ -246,6 +271,7 @@ class EPUBOutput(OutputFormatPlugin):
             preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio,
         )
         cm(self.oeb, self.opts, self.log)
+        self.set_html_languages()
 
         self.workaround_sony_quirks()
 

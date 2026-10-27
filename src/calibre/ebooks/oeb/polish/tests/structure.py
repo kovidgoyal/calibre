@@ -554,6 +554,35 @@ class Structure(BaseTest):
         self.assertEqual(root.xpath('//*/@headers'), ['c'])
         self.assertFalse(root.xpath('//*/@for'))
 
+    def test_epub_output_language(self):
+        from types import SimpleNamespace
+
+        from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
+        from calibre.ebooks.oeb.base import XML
+        from calibre.ebooks.oeb.parse_utils import parse_html
+
+        def html(lang=None):
+            attr = f' xml:lang="{lang}"' if lang else ''
+            return parse_html(f'<html xmlns="http://www.w3.org/1999/xhtml"{attr}><head/><body><p>one</p></body></html>')
+
+        for ver, langs, expected in (
+            ('2', ['fra'], (None, 'fr')),
+            ('3', ['fra'], ('fr', 'fr')),
+            ('3', ['pt-BR'], ('pt-BR', 'pt-BR')),
+            ('3', ['pt_BR'], ('pt-BR', 'pt-BR')),
+            ('3', ['und', 'de'], ('de', 'de')),
+            ('2', [], (None, None)),
+        ):
+            with self.subTest(ver=ver, langs=langs):
+                # The second file mimics the generated title page, which is in English
+                spine = [SimpleNamespace(data=html()), SimpleNamespace(data=html('en'))]
+                plugin = EPUBOutput(None)
+                plugin.oeb = SimpleNamespace(metadata=SimpleNamespace(language=langs), spine=spine)
+                plugin.opts = SimpleNamespace(epub_version=ver)
+                plugin.set_html_languages()
+                actual = [(x.data.get('lang'), x.data.get(XML('lang'))) for x in spine]
+                self.assertEqual(actual, [expected, ('en' if ver == '3' else None, 'en')])
+
 
 def find_tests():
     import unittest
