@@ -173,7 +173,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     cover_path = cover_file.name if cover_copied else None
     mi = db.get_metadata(book_id)
     mi.application_id = mi.uuid
-    raw = metadata_to_opf(mi)
+    raw = metadata_to_opf(mi, mark_fallback_language=True)
     with tempfile.NamedTemporaryFile(prefix='', suffix='.opf', dir=tdir, delete=False) as opf_file:
         opf_file.write(raw)
     recs = GuiRecommendations()
@@ -259,6 +259,9 @@ def conversion_status(ctx, rd, job_id):
         del conversion_jobs[job_id]
 
     try:
+        # Access to the book may have been revoked while the job was running
+        if not ctx.has_id(rd, db, job_status.book_id):
+            raise BookNotFound(job_status.book_id, db)
         ans = {
             'running': False,
             'ok': job_status.ok,

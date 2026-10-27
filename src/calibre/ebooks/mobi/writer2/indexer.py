@@ -353,7 +353,7 @@ class TBS:  # {{{
                 extra = {}
                 if num > 1:
                     extra[0b0100] = num
-                if False and i == 0 and next_sec is not None:
+                if False and i == 0 and next_sec is not None:  # ruff: ignore[expr-and-false]
                     # Write offset to next section from start of record
                     # I can't figure out exactly when Kindlegen decides to
                     # write this so I have disabled it for now.

@@ -1055,8 +1055,7 @@ class TOCView(QWidget):  # {{{
                 doc_root = ebook.parsed(spine_name)
             except Exception:
                 continue
-            pos = 0
-            for elem in doc_root.iter('*'):
+            for pos, elem in enumerate(doc_root.iter('*')):
                 elem_id = elem.get('id')
                 if elem_id and (spine_name, elem_id) not in frag_positions:
                     frag_positions[(spine_name, elem_id)] = pos
@@ -1065,7 +1064,6 @@ class TOCView(QWidget):  # {{{
                     name_attr = elem.get('name')
                     if name_attr and (spine_name, name_attr) not in frag_positions:
                         frag_positions[(spine_name, name_attr)] = pos
-                pos += 1
 
         def sort_key(item):
             toc = item.data(0, Qt.ItemDataRole.UserRole)

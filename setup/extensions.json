@@ -57,7 +57,8 @@
     },
     {
         "name": "tokenizer",
-        "sources": "tinycss/tokenizer.c"
+        "headers": "tinycss/color.h",
+        "sources": "tinycss/tokenizer.c tinycss/color.c"
     },
     {
         "name": "_patiencediff_c",

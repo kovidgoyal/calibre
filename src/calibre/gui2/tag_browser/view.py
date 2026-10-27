@@ -124,7 +124,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         lr.setRight(lr.right() * 2)
         text_rec = painter.boundingRect(lr, flags, text)
         hover = option.state & QStyle.StateFlag.State_MouseOver
-        is_search = True if item.type == TagTreeItem.TAG and item.tag.category == 'search' else False
+        is_search = item.type == TagTreeItem.TAG and item.tag.category == 'search'
         pen = painter.pen()
         pen.setColor(self.text_color(hover, option.palette))
         painter.setPen(pen)
@@ -1879,7 +1879,7 @@ class TagsView(QTreeView):  # {{{
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
-        item_is_expanded = True if ci.isValid() and self.isExpanded(ci) else False
+        item_is_expanded = ci.isValid() and self.isExpanded(ci)
         use_pos = self._model.use_position_based_index_on_next_recount
         self._model.use_position_based_index_on_next_recount = False
         if use_pos:

@@ -1098,6 +1098,9 @@ class Plumber:
             with open(self.opts.read_metadata_from_opf, 'rb') as stream:
                 opf = OPF(stream, os.path.dirname(self.opts.read_metadata_from_opf))
             mi = opf.to_book_metadata()
+            if opf.languages_are_fallback:
+                # Use the language of the book instead of a guess
+                mi.languages = []
         self.opts_to_mi(mi)
         if mi.cover:
             if mi.cover.startswith('http:') or mi.cover.startswith('https:'):

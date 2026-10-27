@@ -176,10 +176,7 @@ class DOCXStyle:
         return self._hash
 
     def __eq__(self, other):
-        for x in self.ALL_PROPS:
-            if getattr(self, x) != getattr(other, x, None):
-                return False
-        return True
+        return all(getattr(self, x) == getattr(other, x, None) for x in self.ALL_PROPS)
 
     def __ne__(self, other):
         return not self == other

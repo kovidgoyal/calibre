@@ -147,10 +147,11 @@ class HTMLInput(InputFormatPlugin):
         meta_info_to_oeb_metadata(mi, metadata, log)
         if not metadata.language:
             l = canonicalize_lang(getattr(opts, 'language', None))
-            if not l:
+            is_fallback = not l
+            if is_fallback:
                 oeb.logger.warn('Language not specified')
                 l = get_lang().replace('_', '-')
-            metadata.add('language', l)
+            metadata.add('language', l).is_fallback = is_fallback
         if not metadata.creator:
             a = getattr(opts, 'authors', None)
             if a:

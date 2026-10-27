@@ -19,12 +19,12 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
 
-def create_opf_file(db, book_id, opf_file=None):
+def create_opf_file(db, book_id, opf_file=None, for_conversion=False):
     mi = db.get_metadata(book_id, index_is_id=True)
     old_cover = mi.cover
     mi.cover = None
     mi.application_id = mi.uuid
-    raw = metadata_to_opf(mi)
+    raw = metadata_to_opf(mi, mark_fallback_language=for_conversion)
     mi.cover = old_cover
     if opf_file is None:
         opf_file = PersistentTemporaryFile('.opf')
@@ -282,7 +282,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.user_mi = self.get_metadata()
         self.cover_file = self.opf_file = None
         if self.db is not None:
-            self.mi, self.opf_file = create_opf_file(self.db, self.book_id)
+            self.mi, self.opf_file = create_opf_file(self.db, self.book_id, for_conversion=True)
             cover = self.db.cover(self.book_id, index_is_id=True)
             if cover:
                 cf = PersistentTemporaryFile('.jpeg')

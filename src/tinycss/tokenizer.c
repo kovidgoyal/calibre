@@ -9,6 +9,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <structmember.h>
+#include "color.h"
 
 // Token type definition {{{
 typedef struct {
@@ -590,6 +591,18 @@ error:
 
 static PyMethodDef tokenizer_methods[] = {
     {"tokenize_flat", tokenize_flat, METH_VARARGS, "tokenize_flat(css_source, ignore_comments)\n\n Convert CSS source into a flat list of tokens"},
+
+    {"parse_color_string",
+     tinycss_parse_color_string,
+     METH_O,
+     "parse_color_string(css_string)\n\nParse a CSS string as a color value. Returns an (r, g, b, a) tuple, 'currentColor', None or NotImplemented if the "
+     "python implementation must be used."},
+
+    {"parse_css4_color_string",
+     tinycss_parse_css4_color_string,
+     METH_O,
+     "parse_css4_color_string(css_string)\n\nParse a CSS Color Level 4 string as a color value. Returns an (r, g, b, a) tuple in the sRGB color space, "
+     "'currentColor' or None."},
 
     {"init", tokenize_init, METH_VARARGS, "init()\n\nInitialize the module."},
 

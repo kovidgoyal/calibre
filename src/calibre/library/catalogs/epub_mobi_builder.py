@@ -162,8 +162,8 @@ class CatalogBuilder:
         self.catalog_path = PersistentTemporaryDirectory('_epub_mobi_catalog', prefix='')
         self.content_dir = os.path.join(self.catalog_path, 'content')
         self.excluded_tags = self.get_excluded_tags()
-        self.generate_for_kindle_azw3 = True if (_opts.fmt == 'azw3' and _opts.output_profile and _opts.output_profile.startswith('kindle')) else False
-        self.generate_for_kindle_mobi = True if (_opts.fmt == 'mobi' and _opts.output_profile and _opts.output_profile.startswith('kindle')) else False
+        self.generate_for_kindle_azw3 = bool(_opts.fmt == 'azw3' and _opts.output_profile and _opts.output_profile.startswith('kindle'))
+        self.generate_for_kindle_mobi = bool(_opts.fmt == 'mobi' and _opts.output_profile and _opts.output_profile.startswith('kindle'))
 
         self.all_series = set()
         self.authors: list[tuple[str, str, int]] | None = None
@@ -1436,7 +1436,6 @@ class CatalogBuilder:
         # Loop through books_by_author
         # Each author/books group goes in an openingTag div (first) or
         # a runningTag div (subsequent)
-        book_count = 0
         current_author = ''
         current_letter = ''
         current_series = None
@@ -1445,7 +1444,6 @@ class CatalogBuilder:
         sort_equivalents = self.establish_equivalencies(self.books_by_author, key='author_sort')
 
         for idx, book in enumerate(self.books_by_author):
-            book_count += 1
             if self.letter_or_symbol(sort_equivalents[idx]) != current_letter:
                 # Start a new letter with Index letter
                 if divOpeningTag is not None:
@@ -2177,7 +2175,7 @@ class CatalogBuilder:
 
                 # Write the genre book list as an article
                 outfile = f'{self.content_dir}/Genre_{genre}.html'
-                titles_spanned = self.generate_html_by_genre(genre, True if index == 0 else False, genre_tag_set[genre], outfile)
+                titles_spanned = self.generate_html_by_genre(genre, index == 0, genre_tag_set[genre], outfile)
 
                 tag_file = f'content/Genre_{genre}.html'
                 master_genre_list.append({

@@ -279,9 +279,11 @@ class Restore(Thread):
         notes_dest = os.path.join(self.library_path, NOTES_DIR_NAME)
         if os.path.exists(notes_dest):  # created by load_preferences()
             shutil.rmtree(notes_dest)
-        shutil.copytree(os.path.join(self.src_library_path, NOTES_DIR_NAME), notes_dest)
-        with suppress(FileNotFoundError):
-            os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
+        notes_src = os.path.join(self.src_library_path, NOTES_DIR_NAME)
+        if os.path.exists(notes_src):  # if missing, Restorer creates a fresh notes store
+            shutil.copytree(notes_src, notes_dest)
+            with suppress(FileNotFoundError):
+                os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
         db = Restorer(self.library_path)
         with closing(db), db.new_api.write_lock:
             with db.new_api:
@@ -339,6 +341,8 @@ class Restore(Thread):
             shutil.move(new_notes_path, temp)
         try:
             shutil.rmtree(old_notes_path)
+        except FileNotFoundError:
+            pass
         except OSError:
             if not iswindows:
                 raise

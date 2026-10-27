@@ -3,10 +3,11 @@
 
 import re
 
-from qt.core import QTextBlockUserData
+from qt.core import QColor, QTextBlockUserData, QTextCharFormat
+from tinycss.color4 import parse_color_string
 
-from calibre.gui2.tweak_book import verify_link
-from calibre.gui2.tweak_book.editor import CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
+from calibre.gui2.tweak_book import tprefs, verify_link
+from calibre.gui2.tweak_book.editor import COLOR_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.utils.localization import _
 
@@ -25,12 +26,16 @@ sheet_tokens = [
 ]
 
 URL_TOKEN = 'url'
+COLOR_FUNCTION_TOKEN = 'colorfunction'
+COLOR_NAME_TOKEN = 'colorname'
+COLOR_HEX_TOKEN = 'hexnumber'
 
 content_tokens = [
     (re.compile(k), v, n)
     for k, v, n in [
         (r'url\(.*?\)', 'string', URL_TOKEN),
         (r'@\S+', 'preproc', 'at-rule'),
+        (r'(?i)(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([^()]*\)', 'identifier', COLOR_FUNCTION_TOKEN),
         (
             (
                 r'(azimuth|background-attachment|background-color|'
@@ -97,7 +102,7 @@ content_tokens = [
         ),
         (
             (
-                r'(indigo|gold|firebrick|indianred|yellow|darkolivegreen|'
+                r'(?i)(indigo|gold|firebrick|indianred|yellow|darkolivegreen|'
                 r'darkseagreen|mediumvioletred|mediumorchid|chartreuse|'
                 r'mediumslateblue|black|springgreen|crimson|lightsalmon|brown|'
                 r'turquoise|olivedrab|cyan|silver|skyblue|gray|darkturquoise|'
@@ -121,13 +126,13 @@ content_tokens = [
                 r'paleturquoise|palegoldenrod|whitesmoke|darkorchid|salmon|'
                 r'lightslategray|lawngreen|lightgreen|tomato|hotpink|'
                 r'lightyellow|lavenderblush|linen|mediumaquamarine|green|'
-                r'blueviolet|peachpuff)\b'
+                r'blueviolet|peachpuff|rebeccapurple)\b'
             ),
             'colorname',
-            'colorname',
+            COLOR_NAME_TOKEN,
         ),
         (r'\!important', 'preproc', 'important'),
-        (r'\#[a-zA-Z0-9]{1,6}', 'number', 'hexnumber'),
+        (r'\#[a-zA-Z0-9]{1,8}', 'number', COLOR_HEX_TOKEN),
         (r'[\.-]?[0-9]*[\.]?[0-9]+(em|px|pt|pc|in|mm|cm|ex|q|rem)\b', 'number', 'dimension'),
         (r'[\.-]?[0-9]*[\.]?[0-9]+%(?=$|[ \n\t\f\r;}{()\[\]])', 'number', 'dimension'),
         (r'-?[0-9]+', 'number', 'number'),
@@ -136,6 +141,71 @@ content_tokens = [
         (r'[a-zA-Z_][a-zA-Z0-9_]*', 'identifier', 'ident'),
     ]
 ]
+# Used to highlight the individual parts of a color function such as rgb() or color(display-p3 1 0.5 0 / 50%)
+color_function_part_pat = re.compile(
+    r'([ \n\t\r\f]+)|(/\*.*?\*/)|([+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:%|[a-zA-Z]+)?)|([a-zA-Z_-][a-zA-Z0-9_-]*)|([()])|(.)',
+    flags=re.DOTALL,
+)
+color_function_part_formats = (None, 'comment', 'number', 'keyword', 'bracket', 'operator')
+nmchar_pat = re.compile(r'[a-zA-Z0-9_-]')
+
+
+class ColorFormats:
+    """Creates and caches the formats used to preview colors in the editor"""
+
+    max_cache_size = 4096
+
+    def __init__(self, editor_bg: QColor, mode: str | None):
+        self.editor_bg = editor_bg
+        self.mode = mode
+        self.cache: dict[tuple[str | None, tuple[float, ...]], QTextCharFormat] = {}
+
+    def __call__(self, base_name: str | None, base: QTextCharFormat | None, rgba: tuple[float, ...]) -> QTextCharFormat:
+        key = base_name, rgba
+        ans = self.cache.get(key)
+        if ans is None:
+            if len(self.cache) >= self.max_cache_size:
+                self.cache.clear()
+            ans = self.cache[key] = self.create(base, rgba)
+        return ans
+
+    def create(self, base: QTextCharFormat | None, rgba: tuple[float, ...]) -> QTextCharFormat:
+        r, g, b, a = (min(1.0, max(0.0, x)) for x in rgba)
+        color = QColor.fromRgbF(r, g, b, a)
+        ans = syntax_text_char_format() if base is None else syntax_text_char_format(base)
+        ans.setProperty(COLOR_PROPERTY, color)
+        if self.mode == 'underline':
+            ans.setUnderlineStyle(QTextCharFormat.UnderlineStyle.SingleUnderline)
+            ans.setUnderlineColor(color)
+        elif self.mode == 'background':
+            ans.setBackground(color)
+            # Pick a text color that contrasts with the color as it is
+            # actually rendered, that is, blended with the editor background
+            bg = self.editor_bg
+            br, bgg, bb = (a * c + (1 - a) * e for c, e in zip((r, g, b), (bg.redF(), bg.greenF(), bg.blueF())))
+            luminance = 0.299 * br + 0.587 * bgg + 0.114 * bb
+            ans.setForeground(QColor(0, 0, 0) if luminance > 0.5 else QColor(255, 255, 255))
+        return ans
+
+
+def color_formats(text, start, end, token_name, fmt, formats):
+    """Return formats that preview the color in text[start:end] or None if it is not a color"""
+    if end < len(text) and nmchar_pat.match(text, end) is not None:
+        # A longer identifier, for example: #ffffff00
+        return None
+    rgba = parse_color_string(text[start:end])
+    if not isinstance(rgba, tuple):  # not a color or currentColor
+        return None
+    cf = formats['color_formats']
+    if token_name is not COLOR_FUNCTION_TOKEN:
+        return [(end - start, cf(fmt, formats[fmt], rgba))]
+    ans = []
+    for m in color_function_part_pat.finditer(text, start, end):
+        # Every alternative in the pattern is a group so lastindex is never None
+        base = color_function_part_formats[(m.lastindex or len(color_function_part_formats)) - 1]
+        ans.append((m.end() - m.start(), cf(base, None if base is None else formats[base], rgba)))
+    return ans
+
 
 NORMAL = 0
 IN_COMMENT_NORMAL = 1
@@ -242,6 +312,13 @@ def content(state, text, i, formats, user_data):
                     main = main[1:-1]
                     h = 'bad_link' if verify_link(main, user_data.doc_name) is False else 'link'
                 return [(len(prefix), formats[fmt]), (len(main), formats[h]), (len(suffix), formats[fmt])]
+            if name is COLOR_FUNCTION_TOKEN or name is COLOR_NAME_TOKEN or name is COLOR_HEX_TOKEN:
+                ans = color_formats(text, i, m.end(), name, fmt, formats)
+                if ans is not None:
+                    return ans
+                if name is COLOR_FUNCTION_TOKEN:
+                    # Not a valid color, highlight the parts individually
+                    continue
             return [(len(m.group()), formats[fmt])]
 
     return [(len(text) - i, formats['unknown-normal'])]
@@ -312,6 +389,9 @@ def create_formats(highlighter):
     f.setProperty(CSS_PROPERTY, True)
     formats['keyword'] = f = syntax_text_char_format(theme['Keyword'])
     f.setProperty(CSS_PROPERTY, True)
+    normal = theme.get('Normal')
+    editor_bg = normal.background().color() if normal is not None and normal.hasProperty(QTextCharFormat.Property.BackgroundBrush) else QColor(255, 255, 255)
+    formats['color_formats'] = ColorFormats(editor_bg, tprefs['editor_css_color_preview'])
     return formats
 
 

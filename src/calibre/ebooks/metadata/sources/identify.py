@@ -53,10 +53,7 @@ class Worker(Thread):
 
 
 def is_worker_alive(workers):
-    for w in workers:
-        if w.is_alive():
-            return True
-    return False
+    return any(w.is_alive() for w in workers)
 
 
 # Sources that download using the shared browser can take much longer than the
@@ -114,10 +111,7 @@ class ISBNMerge:
 
     def pool_has_result_from_same_source(self, pool, result):
         results = pool[1]
-        for r in results:
-            if r.identify_plugin is result.identify_plugin:
-                return True
-        return False
+        return any(r.identify_plugin is result.identify_plugin for r in results)
 
     def add_result(self, result):
         isbn = result.isbn

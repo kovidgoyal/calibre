@@ -178,7 +178,7 @@ class Formatter(TemplateFormatter):
                 return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
-                if isinstance(val, list) or isinstance(val, FormatsList):
+                if isinstance(val, (list, FormatsList)):
                     val = ','.join(val)
                 return val.replace('/', '_').replace('\\', '_')
             return ''

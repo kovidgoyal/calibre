@@ -46,7 +46,7 @@ class ElMundo(BasicNewsRecipe):
 
     conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    remove_tags = [dict(attrs={'class': lambda x: x and ('aside-tools' or 'publicidad') in x.split()})]
+    remove_tags = [dict(attrs={'class': lambda x: x and ('aside-tools' or 'publicidad') in x.split()})]  # ruff: ignore[expr-or-true]
 
     feeds = [
         ('Portada', 'http://estaticos.elmundo.es/elmundo/rss/portada.xml'),

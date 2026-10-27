@@ -356,13 +356,11 @@ class MakeLists:
         # some RTF use 0 indexed list. Don't know what to do?
         if id == '0':
             return
-        the_index = 0
-        for list in self.__list_of_lists:
+        for the_index, list in enumerate(self.__list_of_lists):
             the_dict = list[0]
             id_in_list = the_dict.get('list-id')
             if id in id_in_list:
                 return the_index
-            the_index += 1
         if self.__run_level > 0:
             sys.stderr.write(f'Module is make_lists.py\nMethod is __get_index_of_list\nThe main list does not appear to have a matching id for {id} \n')
             # sys.stderr.write(repr(self.__list_of_lists))

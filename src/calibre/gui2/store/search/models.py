@@ -173,9 +173,7 @@ class Matches(QAbstractItemModel):
         mod_query = re.sub(r'\s', '', mod_query)
         # If mod_query and query are the same then there were no filter modifiers
         # so this isn't a filterable query.
-        if mod_query == query:
-            return False
-        return True
+        return mod_query != query
 
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)

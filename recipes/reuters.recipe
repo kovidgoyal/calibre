@@ -128,7 +128,7 @@ class Reuters(BasicNewsRecipe):
         body = ''
 
         for det in json.loads(raw):
-            if not det.get('type', '') == 'article_detail':
+            if det.get('type', '') != 'article_detail':
                 continue
             data = det['data']['article']
             body += '<h1>' + data['title'] + '</h1>'

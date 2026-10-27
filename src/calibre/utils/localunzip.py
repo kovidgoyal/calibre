@@ -26,6 +26,13 @@ ZIP_STORED, ZIP_DEFLATED = 0, 8
 DATA_DESCRIPTOR_SIG = pack(b'<L', 0x08074B50)
 
 
+class NoSuchFile(KeyError, ValueError):
+    # Subclass KeyError for compatibility with ZipFile and ValueError for
+    # backwards compatibility with existing code
+    def __str__(self) -> str:
+        return str(self.args[0]) if self.args else ''
+
+
 class LocalHeader(NamedTuple):
     signature: int
     min_version: int
@@ -298,7 +305,7 @@ class LocalZipFile:
     def _get_file_info(self, name):
         fi = self.file_info.get(name)
         if fi is None:
-            raise ValueError(f'This ZIP container has no file named: {name}')
+            raise NoSuchFile(f'This ZIP container has no file named: {name}')
         return fi
 
     def open(self, name, spool_size=5 * 1024 * 1024):

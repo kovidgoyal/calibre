@@ -242,10 +242,7 @@ class BIBTEX(CatalogPlugin):
             for field in ['title', 'authors', 'publisher']:
                 if entry[field] is None or len(entry[field]) == 0:
                     return False
-            if entry['pubdate'] is None:
-                return False
-            else:
-                return True
+            return entry['pubdate'] is not None
 
         def make_bibtex_citation(entry, template_citation, bibtexclass):
 

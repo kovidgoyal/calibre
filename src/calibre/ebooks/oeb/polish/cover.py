@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 
-from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XLINK, XPath, xml2text
+from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XLINK, XML, XPath, xml2text
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders, replace_links
 from calibre.utils.imghdr import identify
 from calibre.utils.localization import _
@@ -334,6 +334,7 @@ def clean_opf(container):
 
 def create_epub_cover(container, cover_path, existing_image, options=None):
     from calibre.ebooks.conversion.config import load_defaults
+    from calibre.ebooks.oeb.polish.opf import get_book_language_tag
     from calibre.ebooks.oeb.transforms.cover import CoverManager
 
     try:
@@ -390,6 +391,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         templ = templ.replace('__viewbox__', f'0 0 {width} {height}')
         templ = templ.replace('__width__', str(width))
         templ = templ.replace('__height__', str(height))
+    templ = CoverManager.fill_metadata(templ, container.mi.title or '', get_book_language_tag(container))
     folder = recommended_folders[tname]
     if folder:
         tname = folder + '/' + tname
@@ -437,6 +439,11 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         container.apply_unique_properties(titlepage, 'calibre:title-page')
         if has_svg:
             container.add_properties(titlepage, 'svg')
+        # The template only has xml:lang as lang is not valid in EPUB 2
+        root = container.parsed(titlepage)
+        if (lang := root.get(XML('lang'))) and not root.get('lang'):
+            root.set('lang', lang)
+            container.dirty(titlepage)
 
     return raster_cover, titlepage
 

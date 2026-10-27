@@ -224,6 +224,7 @@ class Polish(QDialog):  # {{{
 
     @property
     def something_selected(self):
+        # ruff: ignore[reimplemented-builtin]
         for action in self.all_actions:
             if getattr(self, 'opt_' + action).isChecked():
                 return True

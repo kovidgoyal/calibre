@@ -47,10 +47,7 @@ class AirdropAction(InterfaceActionWithLibraryDrop):
             return error_dialog(self.gui, _('Cannot AirDrop'), _('The selected books have no files to share'), show=True)
 
         def all_have_format(f: str) -> bool:
-            for q in formats.values():
-                if f not in q:
-                    return False
-            return True
+            return all(f in q for q in formats.values())
 
         common_formats = {f for f in all_fmts if all_have_format(f)}
         if not common_formats:

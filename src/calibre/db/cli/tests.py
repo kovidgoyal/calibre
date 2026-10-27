@@ -7,12 +7,14 @@ Test the CLI of the calibre database management tool
 
 import csv
 import os
+import shutil
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
 from calibre.db.cli.cmd_list_categories import do_list
+from calibre.db.constants import NOTES_DB_NAME, NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from polyglot.io import PolyglotBytesIO
 
@@ -159,6 +161,102 @@ class FTSSearchTest(BaseTest):
         self.assertEqual(self.run_fts_search(db, 'test'), '')
 
 
+class NotesTest(BaseTest):
+    def run_notes(self, db, *args, is_remote=False):
+        from calibre.db.cli.cmd_notes import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            option_parser = None
+
+            def __init__(self, is_remote: bool):
+                self.is_remote = is_remote
+
+            def run(self, name, *args):
+                return implementation(db, None, *args)
+
+        dbctx = DBCtx(is_remote)
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, dbctx)
+        return out.getvalue()
+
+    def test_notes(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(self.run_notes(db, 'list'), '')
+        path = os.path.join(self.library_path, 'note.html')
+        with open(path, 'w') as f:
+            f.write('<p>A <b>great</b> author</p>')
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                self.run_notes(db, 'set', 'authors', 'author one', path, is_remote=is_remote)
+                self.assertIn('<b>great</b>', db.notes_for('authors', db.get_item_id('authors', 'Author One')))
+                self.assertEqual(self.run_notes(db, 'show', 'authors', 'Author One').strip(), 'A **great** author')
+        html = self.run_notes(db, 'show', '--as-html', 'authors', 'Author One')
+        self.assertIn('<b>great</b>', html)
+        db.import_note('tags', db.get_item_id('tags', 'Tag One'), html.encode(), path_is_data=True)
+        self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\ntags: Tag One\n')
+        self.assertEqual(self.run_notes(db, 'list', 'tags'), 'tags: Tag One\n')
+        self.run_notes(db, 'remove', 'tags', 'Tag One')
+        self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\n')
+        self.assertEqual(self.run_notes(db, 'show', 'tags', 'Tag One'), '')
+        self.assertEqual(self.run_notes(db, 'show', '--as-html', 'tags', 'Tag One'), '')
+        for args, msg in (
+            (('show', 'authors', 'Nobody'), 'No item named Nobody'),
+            (('show', 'title', 'Title One'), 'does not support notes'),
+            (('list', 'rating'), 'does not support notes'),
+            (('frob',), 'not recognized'),
+            (('show', 'authors'), 'must specify a field'),
+            (('set', 'authors', 'Author One'), 'must specify the file'),
+            (('set', 'authors', 'Author One', os.path.join(self.library_path, 'missing.html')), 'Failed to read the note'),
+            (('set', 'authors', 'Author One', path, 'extra'), 'Too many arguments'),
+            (('show', 'authors', 'Author One', 'extra'), 'Too many arguments'),
+            (('list', 'authors', 'tags'), 'at most one field'),
+            ((), 'must specify an action'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_notes(db, *args)
+
+    def test_notes_server_side_import(self):
+        from calibre.db.cli.cmd_notes import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        img = os.path.join(self.library_path, 'image.png')
+        with open(img, 'wb') as f:
+            f.write(b'\x89PNG\r\n\x1a\n')
+        path = os.path.join(self.library_path, 'note.html')
+        with open(path, 'w') as f:
+            f.write('<p>secret</p><img src="image.png">')
+        author_id = db.get_item_id('authors', 'Author One')
+
+        def notify_changes(*a):
+            pass
+
+        # Paths must never be read on the server
+        ok, err = implementation(db, notify_changes, 'set', 'authors', 'Author One', path, True)
+        self.assertFalse(ok)
+        self.assertIn('Cannot import notes from files on the server', err)
+        self.assertFalse(db.notes_for('authors', author_id))
+        # Images referenced by file paths in HTML data must not be imported,
+        # not even from the calibre temp directory of the server
+        from calibre.ptempfile import base_dir
+
+        tmp_img = os.path.join(base_dir(), 'notes-test-image.png')
+        shutil.copyfile(img, tmp_img)
+        self.addCleanup(os.remove, tmp_img)
+        for src in (img, 'file://' + img.replace(os.sep, '/'), 'image.png', tmp_img, 'notes-test-image.png'):
+            with self.subTest(src=src):
+                ok, err = implementation(db, notify_changes, 'set', 'authors', 'Author One', f'<p>x</p><img src="{src}">'.encode(), False)
+                self.assertTrue(ok)
+                self.assertFalse(db.notes_data_for('authors', author_id)['resource_hashes'])
+        # Locally, images relative to the HTML file are imported
+        ok, err = implementation(db, None, 'set', 'authors', 'Author One', path, True)
+        self.assertTrue(ok)
+        self.assertEqual(len(db.notes_data_for('authors', author_id)['resource_hashes']), 1)
+
+
 class RestoreDatabaseTest(BaseTest):
     REPORT_NAME = 'calibre_db_restore_report.txt'
 
@@ -212,7 +310,7 @@ class RestoreDatabaseTest(BaseTest):
     def report_path(self):
         return os.path.join(self.cwd, self.REPORT_NAME)
 
-    def test_restore_succeeded(self):
+    def assert_restore_succeeded(self):
         ret, out, err = self.run_restore()
         self.assertEqual(ret, 0, err)
         self.assertIn('Restoring database succeeded', out)
@@ -220,6 +318,31 @@ class RestoreDatabaseTest(BaseTest):
         self.assertFalse(os.path.exists(self.report_path()))
         self.assertTrue(os.path.exists(os.path.join(self.library_path, 'metadata_pre_restore.db')))
         self.assertEqual(self.restored_titles(), self.titles)
+
+    def test_restore_succeeded(self):
+        self.assert_restore_succeeded()
+
+    def restore_without_notes(self, with_preferences):
+        if with_preferences:
+            cache = self.init_cache()
+            cache.saved_search_add('Restored search', 'title:test')
+            cache.backend.prefs.write_serialized(self.library_path)
+            cache.close()
+            self.objects_to_close.remove(cache)
+        else:
+            self.assertFalse(os.path.exists(os.path.join(self.library_path, 'metadata_db_prefs_backup.json')))
+        notes_path = os.path.join(self.library_path, NOTES_DIR_NAME)
+        shutil.rmtree(notes_path)
+        self.assert_restore_succeeded()
+        self.assertTrue(os.path.isfile(os.path.join(notes_path, NOTES_DB_NAME)))
+        if with_preferences:
+            self.assertEqual(self.init_cache().saved_search_lookup('Restored search'), 'title:test')
+
+    def test_restore_without_notes(self):
+        self.restore_without_notes(with_preferences=False)
+
+    def test_restore_without_notes_with_preferences(self):
+        self.restore_without_notes(with_preferences=True)
 
     def test_restore_partially_failed(self):
         bad_id = min(self.titles)
@@ -250,6 +373,96 @@ class RestoreDatabaseTest(BaseTest):
         self.assertEqual(self.restored_titles(), self.all_titles)
 
 
+class ItemsTest(BaseTest):
+    def run_items(self, db, *args):
+        from calibre.db.cli.cmd_items import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            def run(self, name, *args):
+                return implementation(db, None, *args)
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_items(self):
+        from calibre.db.cli.cmd_items import supported_fields
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(supported_fields(db), {'authors', 'tags', 'series', 'publisher', '#authors', '#tags', '#series'})
+
+        # Rename, matching case insensitively
+        self.assertEqual(self.run_items(db, 'rename', 'publisher', 'publisher one', 'Pub'), 'One book changed\n')
+        self.assertEqual(db.field_for('publisher', 2), 'Pub')
+        # Renaming to an existing item merges them
+        self.assertEqual(self.run_items(db, 'rename', 'tags', 'Tag Two', 'Tag One'), 'One book changed\n')
+        self.assertEqual(db.field_for('tags', 2), ('Tag One',))
+        self.assertIsNone(db.get_item_id('tags', 'Tag Two'))
+        # Renaming to several values for multiple value fields
+        self.run_items(db, 'rename', '#tags', 'My Tag Two', 'A, B')
+        self.assertEqual(db.field_for('#tags', 2), ('My Tag One', 'A', 'B'))
+        self.run_items(db, 'rename', 'authors', 'Author One', 'Writer')
+        self.assertEqual(db.field_for('authors', 1), ('Author Two', 'Writer'))
+        self.assertEqual(db.field_for('author_sort', 2), 'Writer')
+        # Restricting to the books matching a search
+        self.assertEqual(self.run_items(db, 'rename', '--search', 'id:1', 'series', 'A Series One', 'Other'), 'One book changed\n')
+        self.assertEqual((db.field_for('series', 1), db.field_for('series', 2)), ('Other', 'A Series One'))
+
+        # Remove
+        self.assertEqual(self.run_items(db, 'remove', '-s', 'id:1', 'tags', 'tag one'), 'One book changed\n')
+        self.assertEqual((db.field_for('tags', 1), db.field_for('tags', 2)), (('News',), ('Tag One',)))
+        self.assertEqual(self.run_items(db, 'remove', 'tags', 'News', 'Tag One'), '2 books changed\n')
+        self.assertEqual(db.all_field_names('tags'), set())
+        self.run_items(db, 'remove', '#series', 'My Series One')
+        self.assertIsNone(db.field_for('#series', 2))
+
+        for args, msg in (
+            (('rename', 'tags', 'Nothing', 'X'), 'No item named Nothing'),
+            (('remove', 'publisher', 'Pub', 'Nothing'), 'No item named Nothing'),
+            (('rename', 'title', 'Title One', 'X'), 'not supported'),
+            (('remove', 'formats', 'FMT1'), 'not supported'),
+            (('remove', '#enum', 'One'), 'not supported'),
+            (('remove', 'authors', 'Writer'), 'cannot be removed'),
+            (('rename', 'publisher', 'Pub', ' '), 'must not be empty'),
+            (('rename', 'publisher', 'Pub'), 'must specify a field'),
+            (('rename', 'publisher', 'Pub', 'X', 'Y'), 'must specify a field'),
+            (('remove', 'publisher'), 'must specify a field'),
+            (('frob',), 'not recognized'),
+            ((), 'must specify an action'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_items(db, *args)
+        # Nothing was changed by the failed commands
+        self.assertEqual(db.field_for('publisher', 2), 'Pub')
+        self.assertEqual(db.field_for('authors', 2), ('Writer',))
+
+    def test_items_remote(self):
+        from calibre.db.cli.cmd_items import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        changes = []
+        # Templates in search expressions must not be evaluated for remote clients
+        ok, msg = implementation(db, changes.append, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
+        self.assertFalse(ok)
+        self.assertIn('Templates are not allowed', msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'Tag One'))
+        self.assertFalse(changes)
+        ok, msg = implementation(db, None, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
+        self.assertTrue(ok, msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
+        ok, msg = implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'title:"=Title Two" and (')
+        self.assertFalse(ok)
+        self.assertIn('Failed to parse search query', msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
+        self.assertTrue(implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'id:1')[0])
+        self.assertEqual(db.field_for('tags', 1), ('X',))
+        self.assertEqual(len(changes), 1)
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -257,5 +470,7 @@ def find_tests():
         loader.loadTestsFromTestCase(ListCategoriesTest),
         loader.loadTestsFromTestCase(SetCustomTest),
         loader.loadTestsFromTestCase(FTSSearchTest),
+        loader.loadTestsFromTestCase(NotesTest),
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
+        loader.loadTestsFromTestCase(ItemsTest),
     ))

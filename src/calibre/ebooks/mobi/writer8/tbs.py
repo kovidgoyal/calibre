@@ -137,7 +137,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
             extra = {}
             if entries[-1].action == 'spans':
                 extra[0b1] = 0
-            elif False and (
+            elif False and (  # ruff: ignore[expr-and-false]
                 entries[-1].length_offset < entries[-1].text_record_length
                 and entries[-1].action == 'completes'
                 and entries[-1].length_offset != max_length_offset

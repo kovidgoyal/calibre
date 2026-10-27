@@ -194,13 +194,11 @@ class ParseOptions:
             Check to see that the options contain no arguments.
         """
         highest = 0
-        counter = 0
         found_options = 0
-        for item in self.__system_string:
+        for counter, item in enumerate(self.__system_string):
             if item[0] == '-':
                 highest = counter
                 found_options = 1
-            counter += 1
         if found_options:
             just_options = self.__system_string[: highest + 1]
             arguments = self.__system_string[highest + 1 :]

@@ -21,10 +21,7 @@ Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
 def touch_supported():
     if 'CALIBRE_NO_TOUCH' in os.environ:
         return False
-    for dev in QInputDevice.devices():
-        if dev.type() == QInputDevice.DeviceType.TouchScreen:
-            return True
-    return False
+    return any(dev.type() == QInputDevice.DeviceType.TouchScreen for dev in QInputDevice.devices())
 
 
 class TouchPoint:

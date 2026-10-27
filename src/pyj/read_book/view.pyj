@@ -1270,7 +1270,23 @@ class View:
         return True
 
     def on_next_spine_item(self, data):
-        self.show_next_spine_item(data.previous)
+        if not self.show_next_spine_item(data.previous) and not data.previous:
+            self.on_end_of_book()
+
+    def on_end_of_book(self):
+        # Called when the user tries to go past the end of the book. Offer to
+        # rate the book and remove it from local storage, once per book.
+        if runtime.is_standalone_viewer or not self.book or not ui_operations.mark_end_of_book_shown:
+            return
+        if self.overlay.is_visible or self.search_overlay.is_visible or self.content_popup_overlay.is_visible:
+            return
+        if not get_session_data().get('end_of_book_popup'):
+            return
+        unkey = username_key(get_interface_data().username)
+        if self.book.end_of_book_shown and self.book.end_of_book_shown[unkey]:
+            return
+        ui_operations.mark_end_of_book_shown(self.book)
+        self.overlay.show_end_of_book()
 
     def on_next_section(self, data):
         toc_node = get_next_section(data.forward)

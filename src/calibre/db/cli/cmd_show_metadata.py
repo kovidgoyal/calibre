@@ -42,7 +42,7 @@ def main(opts, args, dbctx):
         raise SystemExit(f'Id #{book_id} is not present in database.')
     if opts.as_opf:
         mi = OPFCreator(os.getcwd(), mi)
-        mi.render()
+        mi.render(mark_fallback_language=False)
     else:
         prints(str(mi))
 

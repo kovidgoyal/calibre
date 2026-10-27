@@ -222,6 +222,18 @@ class EditorSettings(BasicSettings):  # {{{
         assert isinstance(lf, QLabel)
         lf.setBuddy(theme)
 
+        cp = self.choices_widget(
+            'editor_css_color_preview',
+            {'none': _('No preview'), 'underline': _('Underline in the color'), 'background': _('Background in the color')},
+            'underline',
+            'none',
+        )
+        cp.setToolTip(
+            '<p>'
+            + _('How to show a preview of colors such as red, #ff0000 or rgb(255, 0, 0) in CSS. Hovering the mouse over a color always shows a swatch of it.')
+        )
+        l.addRow(_('CSS color pre&view:'), cp)
+
         tw = self('editor_tab_stop_width')
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
         l.addRow(_('W&idth of tabs:'), tw)

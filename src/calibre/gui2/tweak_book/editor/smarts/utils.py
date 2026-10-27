@@ -44,18 +44,12 @@ def get_leading_whitespace_on_block(editor, previous=False):
 
 def no_modifiers(ev, *args):
     mods = ev.modifiers()
-    for mod_mask in args:
-        if mods & mod_mask:
-            return False
-    return True
+    return all(not mods & mod_mask for mod_mask in args)
 
 
 def test_modifiers(ev, *args):
     mods = ev.modifiers()
-    for mod_mask in args:
-        if not mods & mod_mask:
-            return False
-    return True
+    return all(mods & mod_mask for mod_mask in args)
 
 
 def smart_home(editor, ev):

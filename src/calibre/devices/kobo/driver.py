@@ -66,10 +66,7 @@ def imageid_keep_ext_dot(ImageID):
 
 
 def any_in(haystack, *needles):
-    for n in needles:
-        if n in haystack:
-            return True
-    return False
+    return any(n in haystack for n in needles)
 
 
 GENERIC_GUI_NAME = 'Kobo eReader'
@@ -932,7 +929,7 @@ class KOBO(USBMS):
             datelastread = None
             current_ReadStatus = 0
 
-        if not ReadStatus == current_ReadStatus:
+        if ReadStatus != current_ReadStatus:
             if ReadStatus == 0:
                 datelastread = None
             else:
@@ -2471,7 +2468,7 @@ class KOBOTOUCH(KOBO):
 
             cursor.close()
 
-            if not prefs['manage_device_metadata'] == 'on_connect':
+            if prefs['manage_device_metadata'] != 'on_connect':
                 self.dump_bookshelves(connection)
             else:
                 debug_print('KoboTouch:books - automatically managing metadata')
@@ -2491,7 +2488,7 @@ class KOBOTOUCH(KOBO):
         #      (len(bl_cache), len(bl), need_sync))
         # Bypassing the KOBO sync_booklists as that does things we don't need to do
         # Also forcing sync to see if this solves issues with updating shelves and matching books.
-        if need_sync or True:  # self.count_found_in_bl != len(bl) or need_sync:
+        if True or need_sync:  # self.count_found_in_bl != len(bl) or need_sync:  # ruff: ignore[expr-or-true]
             debug_print('KoboTouch:books - about to sync_booklists')
             if oncard == 'cardb':
                 USBMS.sync_booklists(self, (None, None, bl))
@@ -3159,7 +3156,7 @@ class KOBOTOUCH(KOBO):
                                 debug_print(f'KoboTouch:update_device_database_collections - about to remove a book from shelves book.title={book.title}')
                             self.remove_book_from_device_bookshelves(connection, book)
                             book.device_collections.extend(book.kobo_collections)
-                if not prefs['manage_device_metadata'] == 'manual' and delete_empty_collections:
+                if prefs['manage_device_metadata'] != 'manual' and delete_empty_collections:
                     debug_print('KoboTouch:update_device_database_collections - about to clear empty bookshelves')
                     self.delete_empty_bookshelves(connection)
                 debug_print(f'KoboTouch:update_device_database_collections - Number of series set={self.series_set} Number of books={books_in_library}')
@@ -3906,8 +3903,8 @@ class KOBOTOUCH(KOBO):
             new_series = None
             new_series_number = None
 
-        series_changed = not (new_series == kobo_metadata.series)
-        series_number_changed = not (new_series_number == book.kobo_series_number)
+        series_changed = new_series != kobo_metadata.series
+        series_number_changed = new_series_number != book.kobo_series_number
         if show_debug:
             debug_print(f'KoboTouch:set_core_metadata new_series="{new_series}"')
             debug_print(f'KoboTouch:set_core_metadata new_series_number="{new_series_number}"')
@@ -3957,34 +3954,34 @@ class KOBOTOUCH(KOBO):
                 debug_print(f"KoboTouch:set_core_metadata templates being used - pb='{pb}'")
             book.template_to_attribute(book, pb)
 
-            if not (newmi.title == kobo_metadata.title):
+            if newmi.title != kobo_metadata.title:
                 update_values.append(newmi.title)
                 set_clause.append('Title')
 
-            if not (authors_to_string(newmi.authors) == authors_to_string(kobo_metadata.authors)):
+            if authors_to_string(newmi.authors) != authors_to_string(kobo_metadata.authors):
                 update_values.append(authors_to_string(newmi.authors))
                 set_clause.append('Attribution')
 
-            if not (newmi.publisher == kobo_metadata.publisher):
+            if newmi.publisher != kobo_metadata.publisher:
                 update_values.append(newmi.publisher)
                 set_clause.append('Publisher')
 
-            if not (newmi.pubdate == kobo_metadata.pubdate):
+            if newmi.pubdate != kobo_metadata.pubdate:
                 pubdate_string = strftime(self.TIMESTAMP_STRING, newmi.pubdate) if newmi.pubdate else None
                 update_values.append(pubdate_string)
                 set_clause.append('DateCreated')
 
-            if not (newmi.comments == kobo_metadata.comments):
+            if newmi.comments != kobo_metadata.comments:
                 update_values.append(newmi.comments)
                 set_clause.append('Description')
 
-            if not (newmi.isbn == kobo_metadata.isbn):
+            if newmi.isbn != kobo_metadata.isbn:
                 update_values.append(newmi.isbn)
                 set_clause.append('ISBN')
 
             library_language = normalize_languages(kobo_metadata.languages, newmi.languages)
             library_language = library_language[0] if library_language is not None and len(library_language) > 0 else None
-            if not (library_language == kobo_metadata.language):
+            if library_language != kobo_metadata.language:
                 update_values.append(library_language)
                 set_clause.append('Language')
 
@@ -4880,7 +4877,7 @@ class KOBOTOUCH(KOBO):
             return False
         # debug_print("KoboTouch:is_debugging - title=", title)
 
-        if not self.debugging_title and not self.debugging_title == '':
+        if not self.debugging_title and self.debugging_title != '':
             self.debugging_title = self.get_debugging_title()
         try:
             is_debugging = (len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0) or len(title) == 0
@@ -4891,7 +4888,7 @@ class KOBOTOUCH(KOBO):
         return is_debugging
 
     def dump_bookshelves(self, connection):
-        if not (DEBUG and self.supports_bookshelves and False):
+        if not (DEBUG and self.supports_bookshelves and False):  # ruff: ignore[expr-and-false]
             return
 
         debug_print('KoboTouch:dump_bookshelves - start')

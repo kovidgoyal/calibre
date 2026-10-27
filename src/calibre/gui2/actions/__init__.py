@@ -482,14 +482,10 @@ class InterfaceActionWithLibraryDrop(InterfaceAction):
     mimetype_for_drop = 'application/calibre+from_library'
 
     def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat(self.mimetype_for_drop):
-            return True
-        return False
+        return mime_data.hasFormat(self.mimetype_for_drop)
 
     def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat(self.mimetype_for_drop):
-            return True
-        return False
+        return mime_data.hasFormat(self.mimetype_for_drop)
 
     def drop_event(self, event, mime_data):
         if mime_data.hasFormat(self.mimetype_for_drop):

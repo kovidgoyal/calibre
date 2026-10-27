@@ -6,6 +6,7 @@ import sys
 from qt.core import (
     QAbstractItemView,
     QApplication,
+    QCheckBox,
     QIcon,
     QListWidget,
     QListWidgetItem,
@@ -15,6 +16,8 @@ from qt.core import (
     QStyledItemDelegate,
     Qt,
     QTextBrowser,
+    QVBoxLayout,
+    QWidget,
     pyqtSignal,
 )
 
@@ -95,7 +98,10 @@ class Check(QSplitter):
         QSplitter.__init__(self, parent)
         self.setChildrenCollapsible(False)
 
-        self.items = i = QListWidget(self)
+        self.list_container = lc = QWidget(self)
+        ll = QVBoxLayout(lc)
+        ll.setContentsMargins(0, 0, 0, 0)
+        self.items = i = QListWidget(lc)
         i.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         i.customContextMenuRequested.connect(self.context_menu)
         self.items.setSpacing(3)
@@ -104,7 +110,19 @@ class Check(QSplitter):
         self.items.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.delegate = Delegate(self.items)
         self.items.setItemDelegate(self.delegate)
-        self.addWidget(i)
+        ll.addWidget(i)
+        self.check_accessibility = ca = QCheckBox(_('Check for &accessibility problems'), lc)
+        ca.setToolTip(
+            '<p>'
+            + _(
+                'Also check for accessibility problems, such as images without alternative text, HTML files that do'
+                ' not specify their language and missing accessibility metadata.'
+            )
+        )
+        ca.setChecked(tprefs['check_book_accessibility'])
+        ca.toggled.connect(self.check_accessibility_toggled)
+        ll.addWidget(ca)
+        self.addWidget(lc)
         self.help = h = QTextBrowser(self)
         h.anchorClicked.connect(self.link_clicked)
         h.setOpenLinks(False)
@@ -116,6 +134,10 @@ class Check(QSplitter):
         state = tprefs.get('check-book-splitter-state', None)
         if state is not None:
             self.restoreState(state)
+
+    def check_accessibility_toggled(self, checked: bool) -> None:
+        tprefs['check_book_accessibility'] = checked
+        self.check_requested.emit()
 
     def clear_at_startup(self):
         self.clear_help(_('Check has not been run'))
@@ -374,7 +396,7 @@ class Check(QSplitter):
         with BusyCursor():
             self.show_busy()
             QApplication.processEvents()
-            errors = run_checks(container, frozenset(skipped_rules()))
+            errors = run_checks(container, frozenset(skipped_rules()), tprefs['check_book_accessibility'])
             self.hide_busy()
 
         for err in sorted(errors, key=lambda e: (100 - e.level, e.name)):

@@ -115,6 +115,7 @@ def media_ok(raw):
         return mq.negated ^ matched
 
     try:
+        # ruff: ignore[reimplemented-builtin]
         for mq in CSSMedia3Parser().parse_stylesheet(f'@media {raw} {{}}').rules[0].media:
             if query_ok(mq):
                 return True
@@ -253,10 +254,7 @@ class StylizerRules:
             return False
         if len(self.stylesheets) != len(stylesheets):
             return False
-        for index, stylesheet in enumerate(self.stylesheets):
-            if stylesheet != stylesheets[index]:
-                return False
-        return True
+        return all(stylesheet == stylesheets[index] for index, stylesheet in enumerate(self.stylesheets))
 
 
 class Stylizer:

@@ -191,6 +191,33 @@ class ConvertTest(LibraryBaseTest):
                     self.assertFalse(default_db.has_format(book_id, 'TXT'))
                     self.assertNotIn(job.job_id, conversion_jobs)
 
+    def test_conversion_status_rechecks_book_access(self):
+        "A conversion job cannot be completed if access to its book was revoked after it was started"
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            ctx = server.handler.router.ctx
+            db = ctx.library_broker.get(None)
+            lname = os.path.basename(db.backend.library_path)
+            ctx.user_manager.add_user('owner', 'pw', restriction={'library_restrictions': {lname: 'id:1'}})
+            server.handler.set_jobs_manager(Mock())
+            book_id = 1
+
+            with closing(server.connect()) as conn, TemporaryDirectory() as tdir:
+                jobdir = os.path.join(tdir, 'job')
+                os.mkdir(jobdir)
+                job = JobStatus(7, book_id, jobdir, db.server_library_id, '', {'output_fmt': 'TXT'}, username='owner')
+                job.running = False
+                job.ok = True
+                with open(job.output_path, 'wb') as f:
+                    f.write(b'converted text')
+                with patch.dict(conversion_jobs, {job.job_id: job}):
+                    ctx.user_manager.update_user_restrictions('owner', {'library_restrictions': {lname: 'id:2'}})
+                    r, result = make_request(conn, f'/conversion/status/{job.job_id}', prefix='', username='owner', password='pw', method='POST')
+                    self.ae(r.status, NOT_FOUND)
+                    self.assertFalse(db.has_format(book_id, 'TXT'))
+                    # The stale job is consumed and its files removed
+                    self.assertNotIn(job.job_id, conversion_jobs)
+                    self.assertFalse(os.path.exists(jobdir))
+
     def test_sanitize_conversion_options(self):
         "Client supplied conversion options must be restricted to the advertised, safe set"
         with self.create_server() as server:

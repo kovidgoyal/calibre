@@ -36,10 +36,7 @@ def needs_recompile(obj, srcs):
         obj_mtime = os.stat(obj).st_mtime
     except OSError:
         return True
-    for src in srcs:
-        if os.stat(src).st_mtime > obj_mtime:
-            return True
-    return False
+    return any(os.stat(src).st_mtime > obj_mtime for src in srcs)
 
 
 def build_book(src, dest, args=()):

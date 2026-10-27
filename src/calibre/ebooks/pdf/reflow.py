@@ -309,9 +309,8 @@ class Text(Element):
         # Need to check for </span> <span... as well
         # This test does not work in its present form
         # The matches can lose data, so force test to fail
-        if (
+        if False and (  # ruff: ignore[expr-and-false]
             self.font_size_em == other.font_size_em
-            and False
             and self.font.id == other.font.id
             and self.raw.startswith(r'<span style="font-size:')
             and other.raw.startswith(r'<span style="font-size:')
@@ -1979,7 +1978,7 @@ class PDFDocument:
         # so maybe should merge first 2 lines if same top
         # Ditto last 2 lines
         # Maybe should do more than 2 parts
-        for page in self.pages:
+        for page_idx, page in enumerate(self.pages):
             if self.opts.pdf_header_skip < 0 and len(page.texts) > 0:
                 # There is something at the top of the page
                 for head_ind in range(LINE_SCAN_COUNT):
@@ -1993,12 +1992,12 @@ class PDFDocument:
                     elif head_text[head_ind] == t:
                         head_match[head_ind] += 1
                         if head_page == 0:
-                            head_page = page.number
+                            head_page = page_idx
                     elif re.match(pagenum_text, t) is not None:
                         # Look for page count of format 'n xxx n'
                         head_match1[head_ind] += 1
                         if head_page == 0:
-                            head_page = page.number
+                            head_page = page_idx
                     else:
                         # Look for text of format 'constant nn'
                         f = re.match(fixed_text, t)
@@ -2008,7 +2007,7 @@ class PDFDocument:
                             elif fixed_head == f.group(1):
                                 head_match2[head_ind] += 1
                                 if head_page == 0:
-                                    head_page = page.number
+                                    head_page = page_idx
 
             if self.opts.pdf_footer_skip < 0 and len(page.texts) > 0:
                 # There is something at the bottom of the page
@@ -2023,12 +2022,12 @@ class PDFDocument:
                     elif foot_text[foot_ind] == t:
                         foot_match[foot_ind] += 1
                         if foot_page == 0:
-                            foot_page = page.number
+                            foot_page = page_idx
                     elif re.match(pagenum_text, t) is not None:
                         # Look for page count of format 'n xxx n'
                         foot_match1[foot_ind] += 1
                         if foot_page == 0:
-                            foot_page = page.number
+                            foot_page = page_idx
                     else:
                         # Look for text of format 'constant nn'
                         f = re.match(fixed_text, t)
@@ -2038,7 +2037,7 @@ class PDFDocument:
                             elif fixed_foot == f.group(1):
                                 foot_match2[foot_ind] += 1
                                 if foot_page == 0:
-                                    foot_page = page.number
+                                    foot_page = page_idx
 
             pages_to_scan -= 1
             if pages_to_scan < 1:
@@ -2056,7 +2055,7 @@ class PDFDocument:
         for i in range(LINE_SCAN_COUNT):
             if head_match[i] > pages_to_scan or head_match1[i] > pages_to_scan or head_match2[i] > pages_to_scan:
                 head_ind = i  # Remember the last matching line
-        if self.pages[head_page].texts and (
+        if len(self.pages[head_page].texts) > head_ind and (
             head_match[head_ind] > pages_to_scan or head_match1[head_ind] > pages_to_scan or head_match2[head_ind] > pages_to_scan
         ):
             t = self.pages[head_page].texts[head_ind]
@@ -2066,10 +2065,8 @@ class PDFDocument:
         for i in range(LINE_SCAN_COUNT):
             if foot_match[i] > pages_to_scan or foot_match1[i] > pages_to_scan or foot_match2[i] > pages_to_scan:
                 foot_ind = i  # Remember the last matching line
-        if (
-            foot_page < len(self.pages)
-            and self.pages[foot_page].texts
-            and (foot_match[foot_ind] > pages_to_scan or foot_match1[foot_ind] > pages_to_scan or foot_match2[foot_ind] > pages_to_scan)
+        if len(self.pages[foot_page].texts) > foot_ind and (
+            foot_match[foot_ind] > pages_to_scan or foot_match1[foot_ind] > pages_to_scan or foot_match2[foot_ind] > pages_to_scan
         ):
             t = self.pages[foot_page].texts[-foot_ind - 1]
             foot_skip = t.top - 1

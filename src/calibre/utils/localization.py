@@ -630,6 +630,19 @@ def lang_as_iso639_1(name_or_code):
         return iso639['3to2'].get(code, None)
 
 
+def lang_as_bcp47(raw: str) -> str | None:
+    # Convert a language as found in book metadata to a BCP 47 language tag,
+    # for use in lang attributes. Returns None for languages that are not
+    # actual languages, such as und.
+    primary, *subtags = raw.strip().replace('_', '-').split('-')
+    # canonicalize_lang() also accepts language names, which are not valid in tags
+    code = canonicalize_lang(primary) if primary.isalpha() and len(primary) in (2, 3) else None
+    if code and code not in ('und', 'mul', 'zxx'):
+        # Three letter codes that have a two letter equivalent are not valid language tags
+        return '-'.join([lang_as_iso639_1(code) or code, *subtags])
+    return None
+
+
 _udc = None
 
 

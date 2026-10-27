@@ -6,6 +6,7 @@ import os
 import re
 import textwrap
 import unicodedata
+from base64 import standard_b64encode
 from contextlib import suppress
 
 import regex
@@ -14,16 +15,22 @@ from qt.core import (
     QColorDialog,
     QFont,
     QFontDatabase,
+    QFontMetrics,
+    QImage,
     QKeySequence,
     QPainter,
     QPalette,
     QPlainTextEdit,
+    QPoint,
     QRect,
+    QRectF,
     QSize,
     Qt,
     QTextCursor,
     QTextEdit,
     QTextFormat,
+    QTextLayout,
+    QTextLine,
     QTimer,
     QToolTip,
     QWidget,
@@ -36,7 +43,15 @@ from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import CONTAINER_DND_MIMETYPE, TOP, current_container, tprefs
 from calibre.gui2.tweak_book.completion.popup import CompletionPopup
-from calibre.gui2.tweak_book.editor import CLASS_ATTRIBUTE_PROPERTY, LINK_PROPERTY, SPELL_LOCALE_PROPERTY, SPELL_PROPERTY, SYNTAX_PROPERTY, store_locale
+from calibre.gui2.tweak_book.editor import (
+    CLASS_ATTRIBUTE_PROPERTY,
+    COLOR_PROPERTY,
+    LINK_PROPERTY,
+    SPELL_LOCALE_PROPERTY,
+    SPELL_PROPERTY,
+    SYNTAX_PROPERTY,
+    store_locale,
+)
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.snippets import SnippetManager
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
@@ -830,27 +845,84 @@ class TextEdit(PlainTextEdit):
             if r.start <= pos <= r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
+    def syntax_range_for_point(self, pos: QPoint) -> QTextLayout.FormatRange | None:
+        # Return the syntax range containing the character under pos, which is
+        # in viewport co-ordinates. Unlike cursorForPosition() this does not
+        # snap to the nearest character boundary, which would match the range
+        # of the preceding character when pos is in the left half of a character.
+        block = self.cursorForPosition(pos).block()
+        if not block.isValid():
+            return None
+        layout = block.layout()
+        assert layout is not None
+        top_left = self.blockBoundingGeometry(block).translated(self.contentOffset()).topLeft()
+        y = pos.y() - top_left.y()
+        for i in range(layout.lineCount()):
+            line = layout.lineAt(i)
+            if line.y() <= y < line.y() + line.height():
+                idx = line.xToCursor(pos.x() - top_left.x(), QTextLine.CursorPosition.CursorOnCharacter)
+                for r in layout.formats():
+                    if r.start <= idx < r.start + r.length and r.format.property(SYNTAX_PROPERTY):
+                        return r
+                break
+        return None
+
     def show_tooltip(self, ev):
-        c = self.cursorForPosition(ev.pos())
-        fmt_range = self.syntax_range_for_cursor(c)
+        # ToolTip events are propagated from the viewport to the editor, so
+        # ev.pos() is in editor co-ordinates
+        vp = self.viewport()
+        assert vp is not None
+        fmt_range = self.syntax_range_for_point(vp.mapFrom(self, ev.pos()))
         fmt = getattr(fmt_range, 'format', None)
         if fmt is not None:
-            tt = str(fmt.toolTip())
+            color = fmt.property(COLOR_PROPERTY)
+            tt = self.color_tooltip(color) if isinstance(color, QColor) else textwrap.fill(str(fmt.toolTip()))
             if tt:
                 QToolTip.setFont(self.tooltip_font)
                 QToolTip.setPalette(self.tooltip_palette)
-                QToolTip.showText(ev.globalPos(), textwrap.fill(tt))
+                QToolTip.showText(ev.globalPos(), tt, self)
                 return
         QToolTip.hideText()
         ev.ignore()
 
+    def color_tooltip(self, color: QColor) -> str:
+        fm = QFontMetrics(self.tooltip_font)
+        sz = 3 * fm.height()
+        dpr = self.devicePixelRatioF()
+        img = QImage(int(sz * dpr), int(sz * dpr), QImage.Format.Format_ARGB32_Premultiplied)
+        img.setDevicePixelRatio(dpr)
+        swatch = QRectF(0, 0, sz, sz)
+        p = QPainter(img)
+        if color.alpha() < 255:
+            # Checkerboard so that the transparency of the color is visible
+            p.fillRect(swatch, QColor(255, 255, 255))
+            cell = sz / 4
+            for row in range(4):
+                for col in range(row % 2, 4, 2):
+                    p.fillRect(QRectF(col * cell, row * cell, cell, cell), QColor(204, 204, 204))
+        p.fillRect(swatch, color)
+        p.setPen(self.tooltip_palette.color(QPalette.ColorRole.ToolTipText))
+        p.drawRect(swatch.adjusted(0, 0, -1 / dpr, -1 / dpr))
+        p.end()
+        data = standard_b64encode(image_to_data(img, fmt='PNG')).decode('ascii')
+        r, g, b, a = color.red(), color.green(), color.blue(), color.alphaF()
+        h, sl, li = max(0, color.hslHue()), round(color.hslSaturationF() * 100), round(color.lightnessF() * 100)
+        if a < 1:
+            alpha = f'{a:.3g}'
+            lines = (f'#{r:02x}{g:02x}{b:02x}{color.alpha():02x}', f'rgba({r}, {g}, {b}, {alpha})', f'hsla({h}, {sl}%, {li}%, {alpha})')
+        else:
+            lines = (color.name(QColor.NameFormat.HexRgb), f'rgb({r}, {g}, {b})', f'hsl({h}, {sl}%, {li}%)')
+        return (
+            f'<table cellspacing="0" cellpadding="0"><tr><td><img width="{sz}" height="{sz}" src="data:image/png;base64,{data}"></td>'
+            f'<td style="padding-left: 1ex; white-space: pre">{"<br>".join(lines)}</td></tr></table>'
+        )
+
     # }}}
 
     def link_for_position(self, pos):
-        c = self.cursorForPosition(pos)
-        r = self.syntax_range_for_cursor(c)
+        r = self.syntax_range_for_point(pos)
         if r is not None and r.format.property(LINK_PROPERTY):
-            return self.text_for_range(c.block(), r)
+            return self.text_for_range(self.cursorForPosition(pos).block(), r)
 
     def select_class_name_at_cursor(self, cursor):
         valid = re.compile(r'^[\w_-]+$', flags=re.UNICODE)
@@ -882,9 +954,9 @@ class TextEdit(PlainTextEdit):
         return self.selected_text_from_cursor(cursor)
 
     def class_for_position(self, pos):
-        c = self.cursorForPosition(pos)
-        r = self.syntax_range_for_cursor(c)
+        r = self.syntax_range_for_point(pos)
         if r is not None and r.format.property(CLASS_ATTRIBUTE_PROPERTY):
+            c = self.cursorForPosition(pos)
             class_name = self.select_class_name_at_cursor(c)
             if class_name:
                 tags = self.current_tag(for_position_sync=False, cursor=c)

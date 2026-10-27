@@ -272,10 +272,10 @@
     },
 
     {
-        "name": "libtiff 4.7.1",
+        "name": "libtiff 4.7.2",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:b92017489bdc1db3a4c97191aa4b75366673cb746de0dce5d7a749d5954681ba",
+            "hash": "sha256:4996f0c4f93094719b1ca5c6279b20e588773ba8a247533e486416fb662ddb88",
             "urls": ["http://download.osgeo.org/libtiff/tiff-{version}.{file_extension}"]
         }
     },

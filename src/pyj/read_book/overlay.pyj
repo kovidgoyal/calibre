@@ -3,13 +3,14 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 from uuid import short_uuid
 
+from ajax import ajax, ajax_send
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
 from book_list.library_data import (
-    set_book_metadata, sync_library_books
+    library_data, set_book_metadata, sync_library_books
 )
 from book_list.router import home
 from book_list.theme import get_color
@@ -39,7 +40,7 @@ from read_book.prefs.main import create_prefs_panel
 from read_book.profiles import create_profiles_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
-from session import session_defaults, get_device_uuid
+from session import get_interface_data, session_defaults, get_device_uuid
 from utils import (
     default_context_menu_should_be_allowed, full_screen_element,
     full_screen_supported, is_ios, safe_set_inner_html
@@ -149,6 +150,175 @@ class DeleteBook:  # {{{
         )
 
     def cancel(self):
+        self.overlay.hide_current_panel()
+# }}}
+
+
+class EndOfBook:  # {{{
+    # Shown when the user tries to go past the end of the book
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+        book = overlay.view.book
+        self.book = book
+        self.library_id, self.book_id = book.key[0], book.key[1]
+        self.rating = int(book.metadata.rating or 0)
+        self.saving = False
+        self.refresh_request = None
+        wl = get_interface_data().metadata_writable_library_ids
+        # Assume the library is writable if the server did not tell us
+        self.can_rate = not Array.isArray(wl) or wl.indexOf(self.library_id) > -1
+        fm = library_data.field_metadata if library_data.for_library is self.library_id else None
+        self.allow_half_stars = bool(fm?.rating?.display?.allow_half_stars)
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        apply_viewer_chrome_colors(container)
+        title = self.book.metadata.title or _('Unknown')
+        rating_area = E.div()
+        if self.can_rate:
+            stars = E.div(class_='end-of-book-rating', style='display: flex; justify-content: center; margin: 1rem 0; font-size: 2rem')
+            for i in range(1, 6):
+                half = svgicon('star-half')
+                half.style.position = 'absolute'
+                half.style.left = '0'
+                stars.appendChild(E.a(
+                    svgicon('star'), half, data_stars=str(i), href='javascript: void(0)',
+                    title=ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i),
+                    style='position: relative; margin: 0 0.2em; color: currentColor', onclick=self.star_clicked.bind(None, i)))
+            rating_area.appendChild(E.div(_('Rate this book:'), style='margin-top: 1rem'))
+            rating_area.appendChild(stars)
+            rating_area.appendChild(E.div(class_='end-of-book-status', style='min-height: 1.5em'))
+        container.appendChild(E.div(
+            style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
+            tabindex='0',
+            E.div(style='margin:1ex 1em; max-width: 80%; text-align: center',
+                E.h2(_('You have reached the end of {}').format(title)),
+                rating_area,
+                E.div(style='display:flex; justify-content:center; flex-wrap: wrap; margin-top:1rem',
+                    create_button(_('Remove from downloaded books'), 'trash', action=self.remove_book),
+                    E.span('\xa0'),
+                    create_button(_('Close'), action=self.close, highlight=True),
+                )
+            ),
+            onkeyup=def (ev):
+                if ev.key is 'Escape':
+                    ev.stopPropagation(), ev.preventDefault()
+                    self.close()
+        ))
+        self.update_stars()
+        if self.can_rate and not self.refresh_request:
+            self.refresh_rating()
+        window.setTimeout(self.focus_me, 0)
+
+    def focus_me(self):
+        c = document.getElementById(self.container_id)
+        if c:
+            c.lastChild.focus()
+
+    def on_container_click(self, evt):
+        pass  # Don't allow panel to be closed by a click, as the stars are clicked to rate
+
+    def on_hide(self):
+        if self.refresh_request:
+            self.refresh_request.abort()
+
+    def refresh_rating(self):
+        # The rating in the downloaded copy of the metadata may be out of date
+        self.refresh_request = ajax(
+            f'interface-data/book-metadata/{self.book_id}', self.on_refreshed, query={'library_id': self.library_id})
+        self.refresh_request.send()
+
+    def on_refreshed(self, end_type, xhr, ev):
+        if end_type is 'abort':
+            return
+        if end_type is not 'load':
+            # Not an error, the book can be read offline, so the cached
+            # rating is used instead
+            print('Failed to refresh metadata for the book at its end:', end_type, xhr.error_html)
+            return
+        try:
+            mi = JSON.parse(xhr.responseText)
+        except Exception as err:
+            print('Server returned invalid book metadata:', err)
+            return
+        if self.saving:
+            return
+        self.update_cached_metadata(mi)
+        self.update_stars()
+
+    def update_cached_metadata(self, mi):
+        self.rating = int(mi.rating or 0)
+        set_book_metadata(self.book_id, mi, self.library_id)
+        if not self.rating and self.book.metadata:
+            # The server omits empty fields, so remove the old rating
+            v'delete self.book.metadata.rating'
+        ui_operations.update_metadata(self.book, mi)
+
+    def update_stars(self):
+        c = document.getElementById(self.container_id)
+        if not c:
+            return
+        for a in c.querySelectorAll('.end-of-book-rating > a'):
+            full = int(a.dataset.stars) * 2
+            a.firstChild.style.opacity = '1' if full <= self.rating else '0.3'
+            a.lastChild.style.display = 'inline' if full - 1 is self.rating else 'none'
+
+    def set_status(self, text):
+        c = document.getElementById(self.container_id)
+        if c:
+            c.querySelector('.end-of-book-status').textContent = text
+
+    def star_clicked(self, stars, ev):
+        rating = stars * 2
+        if self.allow_half_stars and ev.detail > 0:
+            # Clicking the left half of a star gives a half star rating,
+            # ev.detail is zero when the star is activated with the keyboard
+            r = ev.currentTarget.getBoundingClientRect()
+            if ev.clientX < r.left + r.width / 2:
+                rating -= 1
+        if rating is self.rating:
+            rating = 0  # Clicking the current rating clears it
+        self.set_rating(rating)
+
+    def set_rating(self, rating):
+        if self.saving:
+            return
+        if self.refresh_request:
+            self.refresh_request.abort()
+        self.saving = True
+        self.set_status(_('Saving rating, please wait...'))
+        data = {'changes': {'rating': rating}, 'loaded_book_ids': [self.book_id]}
+        ajax_send(f'cdb/set-fields/{self.book_id}/{self.library_id}', data, self.rating_saved)
+
+    def rating_saved(self, end_type, xhr, ev):
+        self.saving = False
+        self.set_status('')
+        if end_type is 'abort':
+            return
+        if end_type is not 'load':
+            error_dialog(_('Failed to rate book'), _('Could not save the rating for this book on the server.'), xhr.error_html)
+            return
+        try:
+            dirtied = JSON.parse(xhr.responseText)
+        except Exception as err:
+            error_dialog(_('Failed to rate book'), _('Server returned an invalid response'), err.toString())
+            return
+        mi = dirtied[self.book_id]
+        if not mi:
+            error_dialog(_('Failed to rate book'), _('Server did not return the updated metadata for this book'))
+            return
+        self.update_cached_metadata(mi)
+        self.update_stars()
+        self.set_status(_('Rating saved') if self.rating else _('Rating removed'))
+
+    def remove_book(self):
+        # Show the confirmation on top of this panel, so that canceling it
+        # returns here
+        self.overlay.panels.push(DeleteBook(self.overlay))
+        self.overlay.show_current_panel()
+
+    def close(self):
         self.overlay.hide_current_panel()
 # }}}
 
@@ -1001,6 +1171,11 @@ class Overlay:
     def delete_book(self):
         self.hide_current_panel()
         self.panels = [DeleteBook(self)]
+        self.show_current_panel()
+
+    def show_end_of_book(self):
+        self.hide_current_panel()
+        self.panels = [EndOfBook(self)]
         self.show_current_panel()
 
     def reload_book(self):

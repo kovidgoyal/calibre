@@ -90,12 +90,10 @@ def before_count(root, tag, limit=10):
     body = root.xpath('//body[1]')
     if not body:
         return limit
-    ans = 0
-    for elem in body[0].iterdescendants():
+    for ans, elem in enumerate(body[0].iterdescendants()):
         if elem is tag:
             return ans
-        ans += 1
-        if ans > limit:
+        if ans >= limit:
             return limit
 
 
