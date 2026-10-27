@@ -6,6 +6,7 @@ import os
 import re
 import textwrap
 import unicodedata
+from base64 import standard_b64encode
 from contextlib import suppress
 
 import regex
@@ -14,11 +15,14 @@ from qt.core import (
     QColorDialog,
     QFont,
     QFontDatabase,
+    QFontMetrics,
+    QImage,
     QKeySequence,
     QPainter,
     QPalette,
     QPlainTextEdit,
     QRect,
+    QRectF,
     QSize,
     Qt,
     QTextCursor,
@@ -36,7 +40,15 @@ from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import CONTAINER_DND_MIMETYPE, TOP, current_container, tprefs
 from calibre.gui2.tweak_book.completion.popup import CompletionPopup
-from calibre.gui2.tweak_book.editor import CLASS_ATTRIBUTE_PROPERTY, LINK_PROPERTY, SPELL_LOCALE_PROPERTY, SPELL_PROPERTY, SYNTAX_PROPERTY, store_locale
+from calibre.gui2.tweak_book.editor import (
+    CLASS_ATTRIBUTE_PROPERTY,
+    COLOR_PROPERTY,
+    LINK_PROPERTY,
+    SPELL_LOCALE_PROPERTY,
+    SPELL_PROPERTY,
+    SYNTAX_PROPERTY,
+    store_locale,
+)
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.snippets import SnippetManager
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
@@ -835,14 +847,47 @@ class TextEdit(PlainTextEdit):
         fmt_range = self.syntax_range_for_cursor(c)
         fmt = getattr(fmt_range, 'format', None)
         if fmt is not None:
-            tt = str(fmt.toolTip())
+            color = fmt.property(COLOR_PROPERTY)
+            tt = self.color_tooltip(color) if isinstance(color, QColor) else textwrap.fill(str(fmt.toolTip()))
             if tt:
                 QToolTip.setFont(self.tooltip_font)
                 QToolTip.setPalette(self.tooltip_palette)
-                QToolTip.showText(ev.globalPos(), textwrap.fill(tt))
+                QToolTip.showText(ev.globalPos(), tt, self)
                 return
         QToolTip.hideText()
         ev.ignore()
+
+    def color_tooltip(self, color: QColor) -> str:
+        fm = QFontMetrics(self.tooltip_font)
+        sz = 3 * fm.height()
+        dpr = self.devicePixelRatioF()
+        img = QImage(int(sz * dpr), int(sz * dpr), QImage.Format.Format_ARGB32_Premultiplied)
+        img.setDevicePixelRatio(dpr)
+        swatch = QRectF(0, 0, sz, sz)
+        p = QPainter(img)
+        if color.alpha() < 255:
+            # Checkerboard so that the transparency of the color is visible
+            p.fillRect(swatch, QColor(255, 255, 255))
+            cell = sz / 4
+            for row in range(4):
+                for col in range(row % 2, 4, 2):
+                    p.fillRect(QRectF(col * cell, row * cell, cell, cell), QColor(204, 204, 204))
+        p.fillRect(swatch, color)
+        p.setPen(self.tooltip_palette.color(QPalette.ColorRole.ToolTipText))
+        p.drawRect(swatch.adjusted(0, 0, -1 / dpr, -1 / dpr))
+        p.end()
+        data = standard_b64encode(image_to_data(img, fmt='PNG')).decode('ascii')
+        r, g, b, a = color.red(), color.green(), color.blue(), color.alphaF()
+        h, sl, li = max(0, color.hslHue()), round(color.hslSaturationF() * 100), round(color.lightnessF() * 100)
+        if a < 1:
+            alpha = f'{a:.3g}'
+            lines = (f'#{r:02x}{g:02x}{b:02x}{color.alpha():02x}', f'rgba({r}, {g}, {b}, {alpha})', f'hsla({h}, {sl}%, {li}%, {alpha})')
+        else:
+            lines = (color.name(QColor.NameFormat.HexRgb), f'rgb({r}, {g}, {b})', f'hsl({h}, {sl}%, {li}%)')
+        return (
+            f'<table cellspacing="0" cellpadding="0"><tr><td><img width="{sz}" height="{sz}" src="data:image/png;base64,{data}"></td>'
+            f'<td style="padding-left: 1ex; white-space: pre">{"<br>".join(lines)}</td></tr></table>'
+        )
 
     # }}}
 

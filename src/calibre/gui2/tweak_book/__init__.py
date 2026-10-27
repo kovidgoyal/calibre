@@ -18,6 +18,7 @@ d['editor_line_wrap'] = True
 d['editor_tab_stop_width'] = 2
 d['editor_cursor_width'] = 1
 d['editor_show_char_under_cursor'] = True
+d['editor_css_color_preview'] = 'underline'
 d['replace_entities_as_typed'] = True
 d['preview_refresh_time'] = 2
 d['choose_tweak_fmt'] = True

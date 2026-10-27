@@ -781,6 +781,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.ebooks.mobi.writer2.resources import find_tests
 
         a(find_tests())
+        from calibre.ebooks.mobi.utils import find_tests
+
+        a(find_tests())
         from calibre.ebooks.mobi.reader.markup import find_tests
 
         a(find_tests())
