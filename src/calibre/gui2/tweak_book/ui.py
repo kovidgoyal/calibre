@@ -600,6 +600,14 @@ class Main(MainWindow):
             _('Arrange into folders'),
         )
         self.action_set_semantics = treg('tags.png', _('Set &semantics'), self.boss.set_semantics, 'set-semantics', (), _('Set semantics'))
+        self.action_accessibility_metadata = treg(
+            'metadata.png',
+            _('Accessibilit&y metadata'),
+            self.boss.edit_accessibility_metadata,
+            'accessibility-metadata',
+            (),
+            _('Edit the accessibility metadata of the book'),
+        )
         self.action_filter_css = treg(
             'filter.png',
             _('&Filter style information'),
@@ -1035,6 +1043,7 @@ class Main(MainWindow):
         e.addAction(self.action_rationalize_folders)
         e.addAction(self.action_add_cover)
         e.addAction(self.action_set_semantics)
+        e.addAction(self.action_accessibility_metadata)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
         er = e.addMenu(QIcon.ic('external-link.png'), _('External &links'))

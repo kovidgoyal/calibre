@@ -503,6 +503,21 @@ table of contents, etc. Simply choose the type of semantic information you want
 to specify and then select the location in the book the link should point to.
 This tool can be accessed via :guilabel:`Tools->Set semantics`.
 
+Editing accessibility metadata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+EPUB 3 books can describe how accessible they are with accessibility metadata,
+as required by the `EPUB Accessibility
+<https://www.w3.org/TR/epub-a11y-11/>`_ specification. Reading systems and
+online stores show this information to readers. This tool lets you set it: a
+short summary of the accessibility of the book, the ways the content is
+presented (text, images, audio, etc.), which of these are enough to understand
+all of the content, accessibility features such as alternative text for images
+or a page list, whether the book contains hazards such as flashing content, and
+the accessibility standard the book conforms to. Only claim what is actually
+true of the book. The tool can be accessed via :guilabel:`Tools->Accessibility
+metadata`.
+
 Filtering style information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

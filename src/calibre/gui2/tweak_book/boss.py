@@ -1226,6 +1226,28 @@ class Boss(QObject):
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
 
+    def edit_accessibility_metadata(self):
+        if not self.ensure_book(_('You must open a book before trying to edit its accessibility metadata.')):
+            return
+        self.commit_all_editors_to_container()
+        c = current_container()
+        if c.book_type != 'epub' or c.opf_version_parsed.major < 3:
+            return error_dialog(
+                self.gui,
+                _('Not supported'),
+                _('Accessibility metadata is only supported for EPUB 3 books. You can convert this book to EPUB 3 using Tools->Upgrade book internals.'),
+                show=True,
+            )
+        from calibre.gui2.tweak_book.accessibility_metadata import AccessibilityMetadata
+
+        d = AccessibilityMetadata(c, parent=self.gui)
+        if d.exec() == QDialog.DialogCode.Accepted and d.changes:
+            from calibre.ebooks.oeb.polish.accessibility_metadata import set_accessibility_metadata
+
+            self.add_savepoint(_('Before: Accessibility metadata'))
+            set_accessibility_metadata(current_container(), d.changes)
+            self.apply_container_update_to_gui()
+
     def filter_css(self):
         self.commit_all_editors_to_container()
         c = current_container()

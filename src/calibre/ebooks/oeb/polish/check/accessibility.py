@@ -135,7 +135,7 @@ class MissingAccessibilityMetadata(BaseError):
             _(
                 'Accessibility metadata tells readers, reading systems and online stores about the accessibility'
                 ' of the book. The EPUB Accessibility specification calls for these properties, which are missing: {0}.'
-                ' Add them to the OPF, one value per tag, like this: {1}'
+                ' Add them with Tools->Accessibility metadata, or to the OPF directly, one value per tag, like this: {1}'
             ).format(', '.join(missing), '<meta property="schema:accessMode">textual</meta>')
         )
 
@@ -150,7 +150,7 @@ class MissingAccessibilitySummary(BaseError):
             _(
                 'The accessibility summary is a short description of the accessibility of the book for readers,'
                 ' for example: "This publication has a table of contents and all images have alternative text."'
-                ' Add it to the OPF like this: {}'
+                ' Add it with Tools->Accessibility metadata, or to the OPF directly, like this: {}'
             ).format(f'<meta property="{SUMMARY_PROPERTY}">…</meta>')
         )
 

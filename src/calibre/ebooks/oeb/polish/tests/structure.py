@@ -800,6 +800,57 @@ class Structure(BaseTest):
         root = c.parsed('a.html')
         self.assertEqual((root.get('lang'), root.get('{http://www.w3.org/XML/1998/namespace}lang')), (None, 'en'))
 
+    def test_accessibility_metadata(self):
+        from calibre.ebooks.oeb.polish.accessibility_metadata import (
+            ABSENT,
+            ACCESS_MODE,
+            FEATURE,
+            HAZARD,
+            PRESENT,
+            SUMMARY,
+            UNKNOWN,
+            hazard_states,
+            hazard_values,
+            read_accessibility_metadata,
+            set_accessibility_metadata,
+        )
+
+        def states(flashing, motion, sound):
+            return {'flashing': flashing, 'motionSimulation': motion, 'sound': sound}
+
+        for values, expected in (
+            ([], states(UNKNOWN, UNKNOWN, UNKNOWN)),
+            (['unknown'], states(UNKNOWN, UNKNOWN, UNKNOWN)),
+            (['none'], states(ABSENT, ABSENT, ABSENT)),
+            (['noFlashingHazard', 'sound'], states(ABSENT, UNKNOWN, PRESENT)),
+        ):
+            self.assertEqual(hazard_states(values), expected)
+            self.assertEqual(hazard_states(hazard_values(expected)), expected)
+        self.assertEqual(hazard_values(states(ABSENT, ABSENT, ABSENT)), ['none'])
+        self.assertEqual(hazard_values(states(UNKNOWN, UNKNOWN, UNKNOWN)), ['unknown'])
+        self.assertEqual(hazard_values(states(PRESENT, ABSENT, UNKNOWN)), ['flashing', 'noMotionSimulationHazard'])
+
+        c = self.create_epub([('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body><p>x</p></body></html>', None)])
+        opf = c.open(c.opf_name, 'rb').read().decode()
+        md = read_accessibility_metadata(c)
+        self.assertFalse(any(md.values()))
+        self.assertTrue(set_accessibility_metadata(c, {ACCESS_MODE: ['textual'], FEATURE: ['tableOfContents', ' readingOrder '], SUMMARY: ['A  summary']}))
+        md = read_accessibility_metadata(c)
+        self.assertEqual(md[ACCESS_MODE], ['textual'])
+        self.assertEqual(md[FEATURE], ['tableOfContents', 'readingOrder'])
+        self.assertEqual(md[SUMMARY], ['A summary'])
+        self.assertIn(c.opf_name, c.dirtied)
+        c.commit_item(c.opf_name)
+        self.assertNotEqual(c.open(c.opf_name, 'rb').read().decode(), opf)
+        # Unchanged values do not modify the OPF and other properties are kept
+        self.assertFalse(set_accessibility_metadata(c, {ACCESS_MODE: ['textual']}))
+        self.assertTrue(set_accessibility_metadata(c, {ACCESS_MODE: ['textual', 'visual'], HAZARD: ['none'], FEATURE: []}))
+        md = read_accessibility_metadata(c)
+        self.assertEqual(md[ACCESS_MODE], ['textual', 'visual'])
+        self.assertEqual(md[HAZARD], ['none'])
+        self.assertEqual(md[FEATURE], [])
+        self.assertEqual(md[SUMMARY], ['A summary'])
+
 
 def find_tests():
     import unittest
