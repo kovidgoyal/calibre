@@ -41,6 +41,7 @@ COMMANDS = (
     'fts_index',
     'fts_search',
     'notes',
+    'items',
 )
 
 

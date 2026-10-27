@@ -373,6 +373,96 @@ class RestoreDatabaseTest(BaseTest):
         self.assertEqual(self.restored_titles(), self.all_titles)
 
 
+class ItemsTest(BaseTest):
+    def run_items(self, db, *args):
+        from calibre.db.cli.cmd_items import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            def run(self, name, *args):
+                return implementation(db, None, *args)
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_items(self):
+        from calibre.db.cli.cmd_items import supported_fields
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(supported_fields(db), {'authors', 'tags', 'series', 'publisher', '#authors', '#tags', '#series'})
+
+        # Rename, matching case insensitively
+        self.assertEqual(self.run_items(db, 'rename', 'publisher', 'publisher one', 'Pub'), 'One book changed\n')
+        self.assertEqual(db.field_for('publisher', 2), 'Pub')
+        # Renaming to an existing item merges them
+        self.assertEqual(self.run_items(db, 'rename', 'tags', 'Tag Two', 'Tag One'), 'One book changed\n')
+        self.assertEqual(db.field_for('tags', 2), ('Tag One',))
+        self.assertIsNone(db.get_item_id('tags', 'Tag Two'))
+        # Renaming to several values for multiple value fields
+        self.run_items(db, 'rename', '#tags', 'My Tag Two', 'A, B')
+        self.assertEqual(db.field_for('#tags', 2), ('My Tag One', 'A', 'B'))
+        self.run_items(db, 'rename', 'authors', 'Author One', 'Writer')
+        self.assertEqual(db.field_for('authors', 1), ('Author Two', 'Writer'))
+        self.assertEqual(db.field_for('author_sort', 2), 'Writer')
+        # Restricting to the books matching a search
+        self.assertEqual(self.run_items(db, 'rename', '--search', 'id:1', 'series', 'A Series One', 'Other'), 'One book changed\n')
+        self.assertEqual((db.field_for('series', 1), db.field_for('series', 2)), ('Other', 'A Series One'))
+
+        # Remove
+        self.assertEqual(self.run_items(db, 'remove', '-s', 'id:1', 'tags', 'tag one'), 'One book changed\n')
+        self.assertEqual((db.field_for('tags', 1), db.field_for('tags', 2)), (('News',), ('Tag One',)))
+        self.assertEqual(self.run_items(db, 'remove', 'tags', 'News', 'Tag One'), '2 books changed\n')
+        self.assertEqual(db.all_field_names('tags'), set())
+        self.run_items(db, 'remove', '#series', 'My Series One')
+        self.assertIsNone(db.field_for('#series', 2))
+
+        for args, msg in (
+            (('rename', 'tags', 'Nothing', 'X'), 'No item named Nothing'),
+            (('remove', 'publisher', 'Pub', 'Nothing'), 'No item named Nothing'),
+            (('rename', 'title', 'Title One', 'X'), 'not supported'),
+            (('remove', 'formats', 'FMT1'), 'not supported'),
+            (('remove', '#enum', 'One'), 'not supported'),
+            (('remove', 'authors', 'Writer'), 'cannot be removed'),
+            (('rename', 'publisher', 'Pub', ' '), 'must not be empty'),
+            (('rename', 'publisher', 'Pub'), 'must specify a field'),
+            (('rename', 'publisher', 'Pub', 'X', 'Y'), 'must specify a field'),
+            (('remove', 'publisher'), 'must specify a field'),
+            (('frob',), 'not recognized'),
+            ((), 'must specify an action'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_items(db, *args)
+        # Nothing was changed by the failed commands
+        self.assertEqual(db.field_for('publisher', 2), 'Pub')
+        self.assertEqual(db.field_for('authors', 2), ('Writer',))
+
+    def test_items_remote(self):
+        from calibre.db.cli.cmd_items import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        changes = []
+        # Templates in search expressions must not be evaluated for remote clients
+        ok, msg = implementation(db, changes.append, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
+        self.assertFalse(ok)
+        self.assertIn('Templates are not allowed', msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'Tag One'))
+        self.assertFalse(changes)
+        ok, msg = implementation(db, None, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
+        self.assertTrue(ok, msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
+        ok, msg = implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'title:"=Title Two" and (')
+        self.assertFalse(ok)
+        self.assertIn('Failed to parse search query', msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
+        self.assertTrue(implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'id:1')[0])
+        self.assertEqual(db.field_for('tags', 1), ('X',))
+        self.assertEqual(len(changes), 1)
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -382,4 +472,5 @@ def find_tests():
         loader.loadTestsFromTestCase(FTSSearchTest),
         loader.loadTestsFromTestCase(NotesTest),
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
+        loader.loadTestsFromTestCase(ItemsTest),
     ))
