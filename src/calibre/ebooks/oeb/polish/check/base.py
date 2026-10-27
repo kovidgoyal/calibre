@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from contextlib import closing
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from multiprocessing.pool import ThreadPool
 
 from calibre import detect_ncpus as cpu_count
 
@@ -60,10 +59,11 @@ def worker(func, args):
 
 
 def run_checkers(func, args_list):
-    num = cpu_count()
-    pool = ThreadPool(num)
+    # Use concurrent.futures rather than multiprocessing.pool.ThreadPool as the
+    # latter needs the multiprocessing resource tracker process for its
+    # semaphores, which breaks if that process is not running
     ans = []
-    with closing(pool):
+    with ThreadPoolExecutor(max_workers=cpu_count()) as pool:
         for result, tb in pool.map(partial(worker, func), args_list):
             if tb is not None:
                 raise Exception(f'Failed to run worker: \n{tb}')
