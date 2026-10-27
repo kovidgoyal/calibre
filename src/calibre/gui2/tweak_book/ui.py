@@ -600,6 +600,14 @@ class Main(MainWindow):
             _('Arrange into folders'),
         )
         self.action_set_semantics = treg('tags.png', _('Set &semantics'), self.boss.set_semantics, 'set-semantics', (), _('Set semantics'))
+        self.action_alt_text = treg(
+            'view-image.png',
+            _('&Image descriptions'),
+            self.boss.edit_alt_text,
+            'edit-alt-text',
+            (),
+            _('Describe images with alternative text'),
+        )
         self.action_filter_css = treg(
             'filter.png',
             _('&Filter style information'),
@@ -1035,6 +1043,7 @@ class Main(MainWindow):
         e.addAction(self.action_rationalize_folders)
         e.addAction(self.action_add_cover)
         e.addAction(self.action_set_semantics)
+        e.addAction(self.action_alt_text)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
         er = e.addMenu(QIcon.ic('external-link.png'), _('External &links'))

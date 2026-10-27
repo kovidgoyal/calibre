@@ -1226,6 +1226,22 @@ class Boss(QObject):
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
 
+    def edit_alt_text(self):
+        if not self.ensure_book(_('You must open a book before trying to describe its images.')):
+            return
+        self.commit_all_editors_to_container()
+        from calibre.gui2.tweak_book.alt_text import AltTextDialog
+
+        d = AltTextDialog(current_container(), parent=self.gui)
+        if not d.uses:
+            return info_dialog(self.gui, _('No images'), _('This book does not contain any images.'), show=True)
+        if d.exec() == QDialog.DialogCode.Accepted and d.changes:
+            from calibre.ebooks.oeb.polish.alt_text import set_alt_text
+
+            self.add_savepoint(_('Before: Image descriptions'))
+            set_alt_text(current_container(), d.changes)
+            self.apply_container_update_to_gui()
+
     def filter_css(self):
         self.commit_all_editors_to_container()
         c = current_container()

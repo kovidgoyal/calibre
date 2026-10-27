@@ -484,6 +484,36 @@ class Structure(BaseTest):
         self.assertEqual(root.xpath('//*/@headers'), ['c'])
         self.assertFalse(root.xpath('//*/@for'))
 
+    def test_alt_text(self):
+        from calibre.ebooks.oeb.polish.alt_text import image_uses, set_alt_text
+
+        a = (
+            '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body>'
+            '<figure><img src="i.png"/><figcaption>A  caption</figcaption></figure>'
+            '<p>Some text <img src="i.png" alt=""/> more text</p>'
+            '<img src="missing.png" alt="old"/></body></html>'
+        )
+        b = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body><div><img src="i.png" alt=" keep  this "/></div></body></html>'
+        c = self.create_epub([('b.html', b, None), ('a.html', a, None), ('i.png', b'', None)], spine=('b.html', 'a.html'))
+        uses = image_uses(c)
+        self.assertEqual(
+            [(u.html_name, u.index, u.image_name, u.alt) for u in uses],
+            [
+                ('b.html', 0, 'i.png', ' keep  this '),
+                ('a.html', 0, 'i.png', None),
+                ('a.html', 1, 'i.png', ''),
+                ('a.html', 2, None, 'old'),
+            ],
+        )
+        self.assertEqual(uses[1].context, 'A caption')
+        self.assertEqual(uses[2].context, 'Some text more text')
+        self.assertEqual(uses[0].context, '')
+        changed = set_alt_text(c, {('a.html', 0): 'A picture', ('a.html', 1): '', ('a.html', 2): None})
+        self.assertEqual(changed, {'a.html'})
+        self.assertEqual([u.alt for u in image_uses(c)], [' keep  this ', 'A picture', '', None])
+        self.assertIn('a.html', c.dirtied)
+        self.assertNotIn('b.html', c.dirtied)
+
 
 def find_tests():
     import unittest

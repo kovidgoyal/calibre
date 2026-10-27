@@ -493,6 +493,20 @@ table of contents, etc. Simply choose the type of semantic information you want
 to specify and then select the location in the book the link should point to.
 This tool can be accessed via :guilabel:`Tools->Set semantics`.
 
+Describing images
+^^^^^^^^^^^^^^^^^
+
+Images should have a description, called *alternative text*, for readers who
+cannot see them, such as people using screen readers. This tool lists every
+image in the book, in reading order, along with its current description, so you
+can add or change descriptions for all of them in one place. Selecting an image
+shows a larger preview along with the text near the image in the book, to help
+you describe it. Images that are purely decorative, such as ornaments and scene
+separators, should be marked as :guilabel:`Decorative` so that screen readers
+skip them. If the same image is used in several places, you can use the
+:guilabel:`Use for all uses of this image` button to copy its description to
+all of them. The tool can be accessed via :guilabel:`Tools->Image descriptions`.
+
 Filtering style information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
