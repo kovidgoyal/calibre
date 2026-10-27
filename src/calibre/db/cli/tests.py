@@ -373,18 +373,6 @@ class RestoreDatabaseTest(BaseTest):
         self.assertEqual(self.restored_titles(), self.all_titles)
 
 
-def find_tests():
-    loader = unittest.defaultTestLoader
-    return unittest.TestSuite((
-        loader.loadTestsFromTestCase(PrintCheckLibraryResultsTest),
-        loader.loadTestsFromTestCase(ListCategoriesTest),
-        loader.loadTestsFromTestCase(SetCustomTest),
-        loader.loadTestsFromTestCase(FTSSearchTest),
-        loader.loadTestsFromTestCase(NotesTest),
-        loader.loadTestsFromTestCase(RestoreDatabaseTest),
-    ))
-
-
 class ItemsTest(BaseTest):
     def run_items(self, db, *args):
         from calibre.db.cli.cmd_items import implementation, main, option_parser
@@ -450,3 +438,39 @@ class ItemsTest(BaseTest):
         # Nothing was changed by the failed commands
         self.assertEqual(db.field_for('publisher', 2), 'Pub')
         self.assertEqual(db.field_for('authors', 2), ('Writer',))
+
+    def test_items_remote(self):
+        from calibre.db.cli.cmd_items import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        changes = []
+        # Templates in search expressions must not be evaluated for remote clients
+        ok, msg = implementation(db, changes.append, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
+        self.assertFalse(ok)
+        self.assertIn('Templates are not allowed', msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'Tag One'))
+        self.assertFalse(changes)
+        ok, msg = implementation(db, None, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
+        self.assertTrue(ok, msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
+        ok, msg = implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'title:"=Title Two" and (')
+        self.assertFalse(ok)
+        self.assertIn('Failed to parse search query', msg)
+        self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
+        self.assertTrue(implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'id:1')[0])
+        self.assertEqual(db.field_for('tags', 1), ('X',))
+        self.assertEqual(len(changes), 1)
+
+
+def find_tests():
+    loader = unittest.defaultTestLoader
+    return unittest.TestSuite((
+        loader.loadTestsFromTestCase(PrintCheckLibraryResultsTest),
+        loader.loadTestsFromTestCase(ListCategoriesTest),
+        loader.loadTestsFromTestCase(SetCustomTest),
+        loader.loadTestsFromTestCase(FTSSearchTest),
+        loader.loadTestsFromTestCase(NotesTest),
+        loader.loadTestsFromTestCase(RestoreDatabaseTest),
+        loader.loadTestsFromTestCase(ItemsTest),
+    ))
