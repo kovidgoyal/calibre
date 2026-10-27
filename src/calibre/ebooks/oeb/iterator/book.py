@@ -197,7 +197,7 @@ class EbookIterator(BookmarksMixin):
         if cover and self.ebook_ext in {'lit', 'mobi', 'prc', 'opf', 'fb2', 'azw', 'azw3', 'docx', 'htmlz'}:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
             rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
-            chtml = (TITLEPAGE % prepare_string_for_xml(rcpath, True)).encode('utf-8')
+            chtml = (CoverManager.fill_title(TITLEPAGE, self.mi.title or '') % prepare_string_for_xml(rcpath, True)).encode('utf-8')
             with open(cfile, 'wb') as f:
                 f.write(chtml)
             self.spine[0:0] = [Spiny(cfile, mime_type='application/xhtml+xml')]

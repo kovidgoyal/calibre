@@ -390,6 +390,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         templ = templ.replace('__viewbox__', f'0 0 {width} {height}')
         templ = templ.replace('__width__', str(width))
         templ = templ.replace('__height__', str(height))
+    templ = CoverManager.fill_title(templ, container.mi.title or '')
     folder = recommended_folders[tname]
     if folder:
         tname = folder + '/' + tname

@@ -3,7 +3,7 @@
 
 import textwrap
 
-from calibre import guess_type
+from calibre import guess_type, prepare_string_for_xml
 from calibre.utils.imghdr import identify
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote
@@ -27,6 +27,7 @@ class CoverManager:
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                         width="100%%" height="100%%" viewBox="__viewbox__"
                         preserveAspectRatio="__ar__">
+                        <title>__title__</title>
                         <image width="__width__" height="__height__" xlink:href="%s"/>
                     </svg>
                 </div>
@@ -54,6 +55,12 @@ class CoverManager:
             </body>
         </html>
     ''')
+
+    @staticmethod
+    def fill_title(template: str, title: str) -> str:
+        # The title of the SVG image is its text alternative for screen
+        # readers. The template is later used with %, so escape that too.
+        return template.replace('__title__', prepare_string_for_xml(title.strip() or 'Cover').replace('%', '%%'))
 
     def __init__(self, no_default_cover=False, no_svg_cover=False, preserve_aspect_ratio=False, fixed_size=None):
         self.no_default_cover = no_default_cover
@@ -138,6 +145,7 @@ class CoverManager:
             self.svg_template = self.svg_template.replace('__viewbox__', f'0 0 {width} {height}')
             self.svg_template = self.svg_template.replace('__width__', str(width))
             self.svg_template = self.svg_template.replace('__height__', str(height))
+            self.svg_template = self.fill_title(self.svg_template, str(self.oeb.metadata.title[0]) if self.oeb.metadata.title else '')
 
             if href is not None:
                 templ = self.non_svg_template if self.no_svg_cover else self.svg_template

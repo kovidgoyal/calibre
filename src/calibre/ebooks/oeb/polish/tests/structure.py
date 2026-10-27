@@ -387,6 +387,28 @@ class Structure(BaseTest):
         self.assertEqual('a.html', find_cover_page(c))
         self.assertEqual('a.html', next(c.spine_names)[0])
 
+    def test_svg_cover_title(self):
+        from calibre.ebooks.oeb.polish.check.accessibility import MissingAltText, check_accessibility
+        from calibre.ebooks.oeb.polish.cover import set_cover
+        from calibre.ebooks.oeb.transforms.cover import CoverManager
+        from calibre.utils.resources import get_image_path
+
+        # The title of the book is the text alternative of the SVG cover image
+        title = 'Tom & Jerry <100%>'
+        self.assertEqual(CoverManager.fill_title('<title>__title__</title> %s', title) % 'x', '<title>Tom &amp; Jerry &lt;100%&gt;</title> x')
+        self.assertEqual(CoverManager.fill_title('<title>__title__</title>', ' '), '<title>Cover</title>')
+        c = self.create_epub([cmi('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>a</p></body></html>')])
+        metadata = c.opf_xpath('//opf:metadata')[0]
+        dc_title = metadata.makeelement('{http://purl.org/dc/elements/1.1/}title')
+        dc_title.text = title
+        metadata.append(dc_title)
+        c.dirty(c.opf_name)
+        set_cover(c, get_image_path('lt.png'), options={'no_svg': False})
+        titlepage = find_cover_page(c)
+        root = c.parsed(titlepage)
+        self.assertEqual(root.xpath('//*[local-name()="svg"]/*[local-name()="title"]/text()'), [title])
+        self.assertNotIn(titlepage, {e.name for e in check_accessibility(c) if isinstance(e, MissingAltText)})
+
     def test_mark_sentences(self):
         from html5_parser import parse
         from lxml import html
