@@ -179,10 +179,7 @@ class DevicePlugin(Plugin):
     def test_bcd(self, bcdDevice, bcd):
         if bcd is None or len(bcd) == 0:
             return True
-        for c in bcd:
-            if c == bcdDevice:
-                return True
-        return False
+        return any(c == bcdDevice for c in bcd)
 
     def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
         """

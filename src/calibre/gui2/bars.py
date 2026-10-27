@@ -764,10 +764,7 @@ class BarsManager(QObject):
 
     @property
     def showing_donate(self):
-        for b in self.bars:
-            if b.isVisible() and b.showing_donate:
-                return True
-        return False
+        return any(b.isVisible() and b.showing_donate for b in self.bars)
 
     def start_animation(self):
         for b in self.bars:

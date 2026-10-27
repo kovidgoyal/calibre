@@ -555,8 +555,8 @@ class BookInfo(QDialog, DropMixin):
             # changed
             return
         if self.dialog_number == DialogNumbers.Slaved:
-            self.previous_button.setEnabled(False if row == 0 else True)
-            self.next_button.setEnabled(False if row == view.model().rowCount(QModelIndex()) - 1 else True)
+            self.previous_button.setEnabled(row != 0)
+            self.next_button.setEnabled(row != view.model().rowCount(QModelIndex()) - 1)
             self.setWindowTitle(mi.title + ' ' + _('(the current book)'))
         elif self.library_id is not None:
             self.setWindowTitle(mi.title + ' ' + _('(from {})').format(self.library_id))

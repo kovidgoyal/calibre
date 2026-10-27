@@ -548,7 +548,7 @@ def process_category_node(
     category_is_hierarchical = (
         category in opts.using_hierarchy and opts.sort_by == 'name' and category not in {'authors', 'publisher', 'news', 'formats', 'rating'}
     )
-    clear_rating = category not in categories_with_ratings and not fm['is_custom'] and not fm['kind'] == 'user'
+    clear_rating = category not in categories_with_ratings and not fm['is_custom'] and fm['kind'] != 'user'
     collapsible = collapse_model != 'disable' and cat_len > opts.collapse_at
     partitioned = collapse_model == 'partition'
     cl_list = build_first_letter_list(category_items) if collapsible and collapse_model == 'first letter' else ()

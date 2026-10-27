@@ -993,10 +993,7 @@ def get_storage_number_map_alt(debug=False):
 
 
 def is_usb_device_connected(vendor_id, product_id):  # {{{
-    for usbdev in iterusbdevices():
-        if usbdev.vendor_id == vendor_id and usbdev.product_id == product_id:
-            return True
-    return False
+    return any(usbdev.vendor_id == vendor_id and usbdev.product_id == product_id for usbdev in iterusbdevices())
 
 
 # }}}

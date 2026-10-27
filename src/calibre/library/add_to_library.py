@@ -89,10 +89,7 @@ class FormatCollection:  # {{{
     def matches(self, other):
         if not self.hashes.intersection(other.hashes):
             return False
-        for fmt in self:
-            if self.hash_map[fmt] != other.hash_map.get(fmt, False):
-                return False
-        return True
+        return all(self.hash_map[fmt] == other.hash_map.get(fmt, False) for fmt in self)
 
     def merge(self, other):
         for fmt in list(other):

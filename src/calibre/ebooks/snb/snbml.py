@@ -180,7 +180,7 @@ class SNBMLizer:
                         short_lines.append(line[:space])
                         line = line[space + 1 :]
                     # Space was not found.
-                    elif False and self.opts.force_max_line_length:
+                    elif False and self.opts.force_max_line_length:  # ruff: ignore[expr-and-false]
                         # Force breaking at max_lenght.
                         short_lines.append(line[:max_length])
                         line = line[max_length:]

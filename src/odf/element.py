@@ -124,10 +124,7 @@ class Node(xml.dom.Node):
         """Tells whether this element has any children; text nodes,
         subelements, whatever.
         """
-        if self.childNodes:
-            return True
-        else:
-            return False
+        return bool(self.childNodes)
 
     def _get_childNodes(self):
         return self.childNodes

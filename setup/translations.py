@@ -472,7 +472,7 @@ class Translations(POT):  # {{{
         }
 
         def handle_stats(f, data):
-            if False and data['uniqified']:
+            if False and data['uniqified']:  # ruff: ignore[expr-and-false]
                 print(f'{data["uniqified"]:3d} non-unique language name translations in {os.path.basename(f)}', file=sys.stderr)
 
         with tempfile.TemporaryDirectory() as tdir:

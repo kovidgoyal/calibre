@@ -592,10 +592,7 @@ def set_file_type_metadata(stream, mi, ftype, report_error=None):
 
 def can_set_metadata(ftype):
     ftype = ftype.lower().strip()
-    for plugin in _metadata_writers.get(ftype, ()):
-        if not is_disabled(plugin):
-            return True
-    return False
+    return any(not is_disabled(plugin) for plugin in _metadata_writers.get(ftype, ()))
 
 
 # }}}
@@ -915,7 +912,7 @@ def initialize_plugins(perf=False):
             _initialized_plugins.append(plugin)
         except Exception:
             print('Failed to initialize plugin:', repr(zfp), file=sys.stderr)
-            if DEBUG or True:
+            if True or DEBUG:  # ruff: ignore[expr-or-true]
                 traceback.print_exc()
     # Prevent a custom plugin from overriding stdout/stderr as this breaks
     # ipython

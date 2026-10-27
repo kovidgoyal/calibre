@@ -93,10 +93,7 @@ class CheckLibrary:
         return self.failed_folders
 
     def ignore_name(self, filename):
-        for filespec in self.ignore_names:
-            if fnmatch.fnmatch(filename, filespec):
-                return True
-        return False
+        return any(fnmatch.fnmatch(filename, filespec) for filespec in self.ignore_names)
 
     def scan_library(self, name_ignores, extension_ignores):
         self.ignore_names = frozenset(name_ignores)
@@ -180,9 +177,7 @@ class CheckLibrary:
             return False
         ext = ext[1:].lower()
         ext = ext.removeprefix('original_')
-        if ext in EBOOK_EXTENSIONS:
-            return True
-        return False
+        return ext in EBOOK_EXTENSIONS
 
     def process_book(self, lib, book_info):
         db_path, title_dir, book_id = book_info

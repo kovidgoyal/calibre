@@ -191,7 +191,7 @@ class MobiWriter:
         metadata = self.oeb.metadata
         bt = 0x002
         if self.primary_index_record_idx is not None:
-            if False and self.indexer.is_flat_periodical:
+            if False and self.indexer.is_flat_periodical:  # ruff: ignore[expr-and-false]
                 # Disabled as setting this to 0x102 causes the Kindle to not
                 # auto archive the issues
                 bt = 0x102

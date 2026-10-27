@@ -65,10 +65,7 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             return self.recipe_model.custom_recipe_collection[row].get('id')
 
     def has_title(self, title):
-        for x in self.recipe_model.custom_recipe_collection:
-            if x.get('title', False) == title:
-                return True
-        return False
+        return any(x.get('title', False) == title for x in self.recipe_model.custom_recipe_collection)
 
     def script(self, index):
         row = index.row()

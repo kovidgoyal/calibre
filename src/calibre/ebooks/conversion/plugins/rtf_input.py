@@ -123,16 +123,14 @@ class RTFInput(InputFormatPlugin):
         hex_pat = re.compile(rb'[^a-fA-F0-9]')
         encs = [hex_pat.sub(b'', pict) for pict in picts]
 
-        count = 0
         imap = {}
-        for enc in encs:
+        for count, enc in enumerate(encs, 1):
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = unhexlify(enc)
             fmt = what(None, data)
             if fmt is None:
                 fmt = 'wmf'
-            count += 1
             name = f'{count:04}.{fmt}'
             with open(name, 'wb') as f:
                 f.write(data)

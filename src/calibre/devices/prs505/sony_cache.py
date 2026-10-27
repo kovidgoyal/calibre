@@ -386,7 +386,7 @@ class XMLCache:
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
-            ext_root = self.ext_roots[i] if i in self.ext_roots else None
+            ext_root = self.ext_roots.get(i, None)
             ext_lpath_map = None
             if ext_root is not None:
                 ext_lpath_map = self.build_lpath_map(ext_root)

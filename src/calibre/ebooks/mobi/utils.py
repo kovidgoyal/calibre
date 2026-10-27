@@ -357,7 +357,7 @@ def detect_periodical(toc, log=None):
     Detect if the TOC object toc contains a periodical that conforms to the
     structure required by kindlegen to generate a periodical.
     """
-    if toc.count() < 1 or not toc[0].klass == 'periodical':
+    if toc.count() < 1 or toc[0].klass != 'periodical':
         return False
     for node in toc.iterdescendants():
         if node.depth() == 1 and node.klass != 'article':

@@ -91,9 +91,7 @@ class FOLDER_DEVICE(USBMS):
 
     def open(self, connected_device, library_uuid):
         self.current_library_uuid = library_uuid
-        if not self._main_prefix:
-            return False
-        return True
+        return bool(self._main_prefix)
 
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress

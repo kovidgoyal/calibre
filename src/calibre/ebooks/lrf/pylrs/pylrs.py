@@ -257,10 +257,7 @@ class LrsContainer:
             for child in self.contents:
                 if child.has_text():
                     return True
-        for item in self.contents:
-            if isinstance(item, (Plot, ImageBlock, Canvas, CR)):
-                return True
-        return False
+        return any(isinstance(item, (Plot, ImageBlock, Canvas, CR)) for item in self.contents)
 
     def append_to(self, parent):
         """
@@ -701,7 +698,7 @@ class TableOfContents:
         if textBlock.parent is None:
             raise LrsError('TOC text block must be already appended to a page')
 
-        if False and textBlock.parent.parent is None:
+        if False and textBlock.parent.parent is None:  # ruff: ignore[expr-and-false]
             raise LrsError('TOC destination page must be already appended to a book')
 
         if not hasattr(textBlock.parent, 'objId'):
@@ -1579,10 +1576,7 @@ class LrsSimpleChar1:
     parent: LrsContainer | None
 
     def isEmpty(self):
-        for content in self.contents:
-            if not content.isEmpty():
-                return False
-        return True
+        return all(content.isEmpty() for content in self.contents)
 
     def hasFollowingContent(self):
         foundSelf = False

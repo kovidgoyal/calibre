@@ -134,10 +134,7 @@ class ProxyModels(QSortFilterProxyModel):
             m = self.source_model.all_models[source_row]
         except IndexError:
             return False
-        for f in self.filters:
-            if not f(m):
-                return False
-        return True
+        return all(f(m) for f in self.filters)
 
     def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
         return left.data(self.sortRole()) < right.data(self.sortRole())

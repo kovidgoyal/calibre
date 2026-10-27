@@ -309,9 +309,8 @@ class Text(Element):
         # Need to check for </span> <span... as well
         # This test does not work in its present form
         # The matches can lose data, so force test to fail
-        if (
+        if False and (  # ruff: ignore[expr-and-false]
             self.font_size_em == other.font_size_em
-            and False
             and self.font.id == other.font.id
             and self.raw.startswith(r'<span style="font-size:')
             and other.raw.startswith(r'<span style="font-size:')

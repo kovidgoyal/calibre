@@ -257,7 +257,7 @@ class SVGRasterizer:
             self.oeb.metadata.clear('cover')
             return
         cover = self.oeb.manifest.ids[str(covers[0])]
-        if not cover.media_type == SVG_MIME:
+        if cover.media_type != SVG_MIME:
             return
         width = (self.profile.width / 72) * self.profile.dpi
         height = (self.profile.height / 72) * self.profile.dpi
