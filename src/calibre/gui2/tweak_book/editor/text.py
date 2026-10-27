@@ -21,6 +21,7 @@ from qt.core import (
     QPainter,
     QPalette,
     QPlainTextEdit,
+    QPoint,
     QRect,
     QRectF,
     QSize,
@@ -28,6 +29,8 @@ from qt.core import (
     QTextCursor,
     QTextEdit,
     QTextFormat,
+    QTextLayout,
+    QTextLine,
     QTimer,
     QToolTip,
     QWidget,
@@ -842,9 +845,34 @@ class TextEdit(PlainTextEdit):
             if r.start <= pos <= r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
+    def syntax_range_for_point(self, pos: QPoint) -> QTextLayout.FormatRange | None:
+        # Return the syntax range containing the character under pos, which is
+        # in viewport co-ordinates. Unlike cursorForPosition() this does not
+        # snap to the nearest character boundary, which would match the range
+        # of the preceding character when pos is in the left half of a character.
+        block = self.cursorForPosition(pos).block()
+        if not block.isValid():
+            return None
+        layout = block.layout()
+        assert layout is not None
+        top_left = self.blockBoundingGeometry(block).translated(self.contentOffset()).topLeft()
+        y = pos.y() - top_left.y()
+        for i in range(layout.lineCount()):
+            line = layout.lineAt(i)
+            if line.y() <= y < line.y() + line.height():
+                idx = line.xToCursor(pos.x() - top_left.x(), QTextLine.CursorPosition.CursorOnCharacter)
+                for r in layout.formats():
+                    if r.start <= idx < r.start + r.length and r.format.property(SYNTAX_PROPERTY):
+                        return r
+                break
+        return None
+
     def show_tooltip(self, ev):
-        c = self.cursorForPosition(ev.pos())
-        fmt_range = self.syntax_range_for_cursor(c)
+        # ToolTip events are propagated from the viewport to the editor, so
+        # ev.pos() is in editor co-ordinates
+        vp = self.viewport()
+        assert vp is not None
+        fmt_range = self.syntax_range_for_point(vp.mapFrom(self, ev.pos()))
         fmt = getattr(fmt_range, 'format', None)
         if fmt is not None:
             color = fmt.property(COLOR_PROPERTY)
@@ -892,10 +920,9 @@ class TextEdit(PlainTextEdit):
     # }}}
 
     def link_for_position(self, pos):
-        c = self.cursorForPosition(pos)
-        r = self.syntax_range_for_cursor(c)
+        r = self.syntax_range_for_point(pos)
         if r is not None and r.format.property(LINK_PROPERTY):
-            return self.text_for_range(c.block(), r)
+            return self.text_for_range(self.cursorForPosition(pos).block(), r)
 
     def select_class_name_at_cursor(self, cursor):
         valid = re.compile(r'^[\w_-]+$', flags=re.UNICODE)
@@ -927,9 +954,9 @@ class TextEdit(PlainTextEdit):
         return self.selected_text_from_cursor(cursor)
 
     def class_for_position(self, pos):
-        c = self.cursorForPosition(pos)
-        r = self.syntax_range_for_cursor(c)
+        r = self.syntax_range_for_point(pos)
         if r is not None and r.format.property(CLASS_ATTRIBUTE_PROPERTY):
+            c = self.cursorForPosition(pos)
             class_name = self.select_class_name_at_cursor(c)
             if class_name:
                 tags = self.current_tag(for_position_sync=False, cursor=c)

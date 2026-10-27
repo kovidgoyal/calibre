@@ -678,7 +678,8 @@ class Editor(QMainWindow):
         c = self.editor.cursorForPosition(pos)
         origc = QTextCursor(c)
         current_cursor = self.editor.textCursor()
-        r = origr = self.editor.syntax_range_for_cursor(c)
+        r = self.editor.syntax_range_for_cursor(c)
+        origr = self.editor.syntax_range_for_point(pos)
         if (r is None or not r.format.property(SPELL_PROPERTY)) and c.positionInBlock() > 0 and not current_cursor.hasSelection():
             c.setPosition(c.position() - 1)
             r = self.editor.syntax_range_for_cursor(c)
