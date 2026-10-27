@@ -372,6 +372,14 @@ Some of the checks performed are:
     * Various compatibility checks for known problems that can cause the book
       to malfunction on reader devices.
 
+    * Accessibility problems, based on the `EPUB Accessibility
+      <https://www.w3.org/TR/epub-a11y-11/>`_ specification. Images without
+      alternative text, HTML files that do not specify their language and
+      headings that skip levels are reported. For EPUB 3 books, missing
+      accessibility metadata is also reported. The language of the HTML files
+      and the accessibility metadata that can be determined from the contents
+      of the book can be added automatically.
+
 Adding a cover
 ^^^^^^^^^^^^^^^
 

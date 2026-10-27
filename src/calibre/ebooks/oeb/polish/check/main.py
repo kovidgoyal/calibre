@@ -6,6 +6,7 @@ from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.polish.check.accessibility import check_accessibility
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError, run_checkers
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
@@ -117,6 +118,7 @@ def run_checks(container, skipped_rules: frozenset[str] = frozenset()):
     errors += check_filenames(container)
     errors += check_markup(container)
     errors += check_opf(container)
+    errors += check_accessibility(container)
 
     return remove_skipped(errors, skipped_rules)
 

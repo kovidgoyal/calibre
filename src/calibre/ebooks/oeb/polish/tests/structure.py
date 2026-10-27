@@ -642,6 +642,103 @@ class Structure(BaseTest):
         self.assertIn(b'<dc:language>de</dc:language>', raw)
         self.assertNotIn(b'calibre:fallback_language', raw)
 
+    def test_accessibility_checks(self):
+        from calibre.ebooks.oeb.polish.check.accessibility import (
+            ACCESSIBILITY_PROPERTIES,
+            MissingAccessibilityMetadata,
+            MissingAccessibilitySummary,
+            MissingAltText,
+            MissingLanguage,
+            SkippedHeadingLevel,
+            check_accessibility,
+        )
+        from calibre.ebooks.oeb.polish.check.main import fix_errors
+
+        def html(body, lang=' lang="en"'):
+            return f'<html xmlns="http://www.w3.org/1999/xhtml"{lang}><head><title>t</title></head><body>{body}</body></html>'
+
+        def errors(c):
+            ans = {}
+            for e in check_accessibility(c):
+                ans.setdefault(type(e), []).append(e)
+            return ans
+
+        c = self.create_epub([
+            cmi(
+                'a.html',
+                html(
+                    '<h1>a</h1>\n<h3>skipped</h3>\n<h4>ok</h4>\n<h2>ok</h2>\n<h5>skipped</h5>'
+                    '<img src="i.png"/>\n<img src="i.png" alt=""/><img src="i.png" role="presentation"/>\n<img src="i.png"/>',
+                    lang='',
+                ),
+            ),
+            cmi('b.html', html('<h2>b</h2><img src="i.png" alt="An image"/>')),
+            cmi('c.html', html('<p>c</p>', lang=' xml:lang="en"')),
+            cmi('d.html', html('<p>d</p>', lang='')),
+            cmi('i.png', b'\x89PNG\r\n\x1a\n'),
+        ])
+        found = errors(c)
+        self.assertEqual(set(found), {MissingAltText, SkippedHeadingLevel, MissingLanguage, MissingAccessibilityMetadata, MissingAccessibilitySummary})
+        alt = found[MissingAltText]
+        self.assertEqual([(e.name, [loc[1] for loc in e.all_locations]) for e in alt], [('a.html', [5, 7])])
+        self.assertEqual([[loc[1] for loc in e.all_locations] for e in found[SkippedHeadingLevel]], [[2, 5]])
+        lang = found[MissingLanguage][0]
+        self.assertEqual([loc[0] for loc in lang.all_locations], ['a.html', 'd.html'])
+        # Without a book language the missing language cannot be fixed
+        self.assertFalse(lang.INDIVIDUAL_FIX)
+        self.assertEqual(found[MissingAccessibilityMetadata][0].missing, list(ACCESSIBILITY_PROPERTIES))
+
+        # Set the book language and fix
+        metadata = c.opf_xpath('//opf:metadata')[0]
+        dc_lang = metadata.makeelement('{http://purl.org/dc/elements/1.1/}language')
+        dc_lang.text = 'de-AT'
+        metadata.append(dc_lang)
+        found = errors(c)
+        self.assertTrue(found[MissingLanguage][0].INDIVIDUAL_FIX)
+        self.assertTrue(fix_errors(c, found[MissingLanguage] + found[MissingAccessibilityMetadata]))
+        for name in ('a.html', 'd.html'):
+            root = c.parsed(name)
+            self.assertEqual((root.get('lang'), root.get('{http://www.w3.org/XML/1998/namespace}lang')), ('de-AT', 'de-AT'))
+        self.assertEqual(c.parsed('b.html').get('{http://www.w3.org/XML/1998/namespace}lang'), None)
+
+        def props():
+            ans = {}
+            for m in c.opf_xpath('//opf:meta[@property]'):
+                ans.setdefault(m.get('property'), []).append(m.text)
+            return ans
+
+        self.assertEqual(
+            props(),
+            {
+                'schema:accessMode': ['textual', 'visual'],
+                'schema:accessModeSufficient': ['textual,visual'],
+                'schema:accessibilityFeature': ['structuralNavigation'],
+                'schema:accessibilityHazard': ['unknown'],
+            },
+        )
+        self.assertEqual(set(errors(c)), {MissingAltText, SkippedHeadingLevel, MissingAccessibilitySummary})
+
+        # Existing metadata is kept and only missing properties are added
+        c = self.create_epub([cmi('a.html', html('<p>a</p><img src="i.png" alt="x"/>')), cmi('i.png', b'\x89PNG\r\n\x1a\n')])
+        metadata = c.opf_xpath('//opf:metadata')[0]
+        for prop, val in (('schema:accessibilityHazard', 'none'), ('schema:accessibilitySummary', 'Accessible')):
+            meta = metadata.makeelement('{http://www.idpf.org/2007/opf}meta', property=prop)
+            meta.text = val
+            metadata.append(meta)
+        found = errors(c)
+        self.assertEqual(set(found), {MissingAccessibilityMetadata})
+        self.assertEqual(found[MissingAccessibilityMetadata][0].missing, ['schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature'])
+        fix_errors(c, found[MissingAccessibilityMetadata])
+        p = props()
+        self.assertEqual(p['schema:accessibilityHazard'], ['none'])
+        self.assertEqual(p['schema:accessModeSufficient'], ['textual', 'textual,visual'])
+        self.assertEqual(p['schema:accessibilityFeature'], ['alternativeText'])
+        self.assertFalse(errors(c))
+
+        # EPUB 2 books do not use the EPUB 3 accessibility metadata
+        c = self.create_epub([cmi('a.html', html('<p>a</p>'))], ver=2)
+        self.assertFalse(errors(c))
+
 
 def find_tests():
     import unittest
