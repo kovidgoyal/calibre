@@ -877,6 +877,9 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.ebooks.metadata.test_author_sort import find_tests
 
         a(find_tests())
+        from calibre.ebooks.metadata.test_isbn_finder import find_tests
+
+        a(find_tests())
         from calibre.ebooks.metadata.tag_mapper import find_tests
 
         a(find_tests())

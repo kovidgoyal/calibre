@@ -86,6 +86,7 @@ Edit metadata
     #. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular e-book formats from a book.
     #. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simultaneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     #. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
+    #. **Find ISBN in book text**: Finds the ISBN of the selected books in their text, usually on the copyright page, for books that do not have an ISBN yet. This is done on your computer, without connecting to the internet. Having the ISBN makes downloading the correct metadata and cover much more reliable.
     #. **Copy metadata**: Copy metadata for the current book onto the system clipboard
     #. **Paste metadata**: Paste metadata from the system clipboard onto the currently selected books
     #. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.

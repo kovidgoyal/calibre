@@ -15,7 +15,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2 import Dispatcher, error_dialog, gprefs, qapplication_or_fail, question_dialog
+from calibre.gui2 import Dispatcher, error_dialog, gprefs, info_dialog, qapplication_or_fail, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -61,6 +61,12 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             icon='download-metadata.png',
             triggered=partial(self.download_metadata, ids=None),
             shortcut='Ctrl+D',
+        )
+        cm(
+            'find isbn',
+            _('Find ISBN in book text'),
+            icon='identifiers.png',
+            triggered=self.find_isbns,
         )
         self.metadata_menu = md
 
@@ -252,6 +258,75 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         self.refresh_books_after_metadata_edit(book_ids)
 
     # Download metadata {{{
+    def find_isbns(self):
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        if not rows:
+            return error_dialog(self.gui, _('Cannot find ISBN'), _('No books selected'), show=True)
+        from calibre.db.fts.text import is_fmt_extractable
+        from calibre.utils.config import prefs
+
+        db = self.gui.current_db.new_api
+        order = {fmt.upper(): i for i, fmt in enumerate(prefs['input_format_order'])}
+        books, has_isbn, unreadable = [], 0, 0
+        for book_id in map(self.gui.library_view.model().id, rows):
+            if db.field_for('identifiers', book_id).get('isbn'):
+                has_isbn += 1
+                continue
+            fmts = sorted((f for f in db.formats(book_id) if is_fmt_extractable(f)), key=lambda f: order.get(f.upper(), len(order)))
+            path = db.format_abspath(book_id, fmts[0]) if fmts else None
+            if path:
+                books.append((book_id, path))
+            else:
+                unreadable += 1
+        skipped = []
+        if has_isbn:
+            skipped.append(ngettext('One book already has an ISBN.', '{} books already have an ISBN.', has_isbn).format(has_isbn))
+        if unreadable:
+            skipped.append(
+                ngettext('One book has no format that text can be read from.', '{} books have no format that text can be read from.', unreadable).format(
+                    unreadable
+                )
+            )
+        if not books:
+            return info_dialog(self.gui, _('No books to search'), ' '.join(skipped), show=True)
+        self.gui.job_manager.run_job(
+            Dispatcher(partial(self.isbns_found, skipped)),
+            'arbitrary_n',
+            args=['calibre.ebooks.metadata.isbn_finder', 'find_isbns', (books,)],
+            description=ngettext('Find ISBN in one book', 'Find ISBNs in {} books', len(books)).format(len(books)),
+        )
+        self.gui.status_bar.show_message(_('Finding ISBNs in the text of the books...'), 3000)
+
+    def isbns_found(self, skipped, job):
+        if job.failed:
+            return self.gui.job_exception(job, dialog_title=_('Failed to find ISBNs'))
+        db = self.gui.current_db.new_api
+        updates = {}
+        for book_id, isbn in job.result.items():
+            # Do not change books deleted or given an ISBN while searching
+            if isbn and db.has_id(book_id):
+                identifiers = db.field_for('identifiers', book_id)
+                if not identifiers.get('isbn'):
+                    identifiers['isbn'] = isbn
+                    updates[book_id] = identifiers
+        if updates:
+            db.set_field('identifiers', updates)
+            self.gui.library_view.model().refresh_ids(list(updates))
+        not_found = len(job.result) - len(updates)
+        msg = [ngettext('Found the ISBN of one book.', 'Found the ISBNs of {} books.', len(updates)).format(len(updates))]
+        if not_found:
+            msg.append(ngettext('No ISBN was found in one book.', 'No ISBN was found in {} books.', not_found).format(not_found))
+        msg += skipped
+        msg = ' '.join(msg)
+        if updates and question_dialog(
+            self.gui,
+            _('ISBNs found'),
+            msg + '<p>' + _('Download metadata and covers for the books with new ISBNs now?'),
+        ):
+            self.download_metadata(ids=list(updates))
+        elif not updates:
+            info_dialog(self.gui, _('No ISBNs found'), msg, show=True)
+
     def download_metadata(self, ids=None, ensure_fields=None):
         if ids is None:
             rows = self.gui.library_view.selectionModel().selectedRows()
