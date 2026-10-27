@@ -91,10 +91,10 @@ def before_count(root, tag, limit=10):
     if not body:
         return limit
     for ans, elem in enumerate(body[0].iterdescendants()):
-        if ans > limit:
-            return limit
         if elem is tag:
             return ans
+        if ans >= limit:
+            return limit
 
 
 def wrap_contents(tag_name, elem):

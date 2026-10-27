@@ -162,8 +162,8 @@ class CatalogBuilder:
         self.catalog_path = PersistentTemporaryDirectory('_epub_mobi_catalog', prefix='')
         self.content_dir = os.path.join(self.catalog_path, 'content')
         self.excluded_tags = self.get_excluded_tags()
-        self.generate_for_kindle_azw3 = _opts.fmt == 'azw3' and _opts.output_profile and _opts.output_profile.startswith('kindle')
-        self.generate_for_kindle_mobi = _opts.fmt == 'mobi' and _opts.output_profile and _opts.output_profile.startswith('kindle')
+        self.generate_for_kindle_azw3 = bool(_opts.fmt == 'azw3' and _opts.output_profile and _opts.output_profile.startswith('kindle'))
+        self.generate_for_kindle_mobi = bool(_opts.fmt == 'mobi' and _opts.output_profile and _opts.output_profile.startswith('kindle'))
 
         self.all_series = set()
         self.authors: list[tuple[str, str, int]] | None = None
