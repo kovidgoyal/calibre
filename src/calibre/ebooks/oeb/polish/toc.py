@@ -684,6 +684,12 @@ def ensure_single_nav_of_type(root, ntype='toc'):
         nav = root.makeelement(XHTML('nav'))
         first_child(root, XHTML('body')).append(nav)
     nav.set(f'{{{EPUB_NS}}}type', ntype)
+    # Screen readers use the role rather than the epub:type, a role set by
+    # the author is kept. The landmarks nav has no corresponding role.
+    from calibre.ebooks.oeb.polish.check.accessibility import ROLE_FOR_EPUB_TYPE
+
+    if (x := ROLE_FOR_EPUB_TYPE.get(ntype)) is not None and not (nav.get('role') or '').strip():
+        nav.set('role', x[0])
     return nav
 
 
