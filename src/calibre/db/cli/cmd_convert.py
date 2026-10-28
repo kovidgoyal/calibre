@@ -94,7 +94,10 @@ def print_worker_log(path, log):
     if path and os.path.exists(path):
         with open(path, 'rb') as f:
             raw = f.read().decode('utf-8', 'replace').strip()
-        os.remove(path)
+        try:
+            os.remove(path)
+        except OSError:
+            pass  # On Windows the worker process can still have the log open
         if raw:
             log(raw)
 
