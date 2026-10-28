@@ -3,7 +3,10 @@
 
 store_version = 1  # Needed for dynamic plugin loading
 
+from collections.abc import Iterator
 from urllib.parse import urlencode
+
+from lxml import etree
 
 from calibre import browser
 from calibre.gui2 import open_url
@@ -22,14 +25,14 @@ def absurl(href: str) -> str:
     return href
 
 
-def text_of(elems) -> str:
+def text_of(elems: list[etree._Element]) -> str:
     return ' '.join(' '.join(''.join(e.itertext()) for e in elems).split())
 
 
-def search(query, max_results=10, timeout=60, write_raw_to=None):
+def search(query: str, max_results: int = 10, timeout: int = 60, write_raw_to: str | None = None) -> Iterator[SearchResult]:
     from html5_parser import parse
 
-    url = BASE_URL + '/ebooks?' + urlencode({'query': query, 'per-page': max(1, min(max_results, MAX_PER_PAGE))})
+    url = BASE_URL + '/ebooks?' + urlencode({'query': query, 'per-page': MAX_PER_PAGE})
     br = browser()
     raw = br.open(url, timeout=timeout).read()
     if write_raw_to is not None:
@@ -43,7 +46,8 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
             break
         covers = li.xpath('./div[@class="thumbnail-container"]//img/@src')
         links = li.xpath('./p[not(@class)]/a[@href]')
-        # Books that are wanted or in progress have no cover and cannot be downloaded
+        # Books that are wanted or in progress have no cover and cannot be
+        # downloaded, so a full page is requested to have enough left over
         if not covers or not links:
             continue
         counter -= 1
@@ -61,7 +65,10 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
 
 
 class StandardEbooksStore(StorePlugin):
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
+        # The Get books search dialog passes the query as UTF-8 encoded bytes
+        if isinstance(query, bytes):
+            query = query.decode('utf-8', 'replace')
         yield from search(query, max_results, timeout)
 
     def open(self, gui=None, parent=None, detail_item=None, external=False):
