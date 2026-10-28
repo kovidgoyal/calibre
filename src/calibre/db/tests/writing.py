@@ -1205,6 +1205,19 @@ class WritingTest(BaseTest):
         amap = cache.annotations_map_for_book(1, 'moo')
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
 
+        # Test merged highlights are sorted by position in the book
+        from calibre.db.annotations import merge_annot_lists
+
+        def hl(uuid, spine_index, start_cfi):
+            return {'type': 'highlight', 'uuid': uuid, 'spine_index': spine_index, 'start_cfi': start_cfi, 'timestamp': utcnow().isoformat()}
+
+        merged = merge_annot_lists(
+            [hl('c', 2, '/4/2/1:0'), hl('a', 0, '/4/8/1:10')],
+            [hl('d', None, '/2/1:0'), hl('b', 1, '/4/2/1:5'), hl('a2', 0, '/4/8/1:2')],
+            'highlight',
+        )
+        self.assertEqual(['a2', 'a', 'b', 'c', 'd'], [x['uuid'] for x in merged])
+
     # }}}
 
     def test_changed_events(self):  # {{{
