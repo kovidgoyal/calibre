@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
+import errno
 import numbers
 import os
 import re
@@ -406,8 +407,12 @@ def retry_on_fail(func, *args, count=10, sleep_time=0.2):
             raise
         except OSError as e:
             # Windows stupidly gives us an ACCESS_DENIED rather than a
-            # ERROR_SHARING_VIOLATION if the file is open
-            if not iswindows or i > count - 2 or getattr(e, 'winerror', -1) not in (ERROR_SHARING_VIOLATION, ACCESS_DENIED):
+            # ERROR_SHARING_VIOLATION if the file is open. open() goes via the
+            # CRT and so sets only errno (EACCES), not winerror, for instance
+            # when the file is being replaced by another process.
+            winerror = getattr(e, 'winerror', None)
+            retryable = winerror in (ERROR_SHARING_VIOLATION, ACCESS_DENIED) or (winerror is None and e.errno == errno.EACCES)
+            if not iswindows or i > count - 2 or not retryable:
                 raise
             # Try the operation repeatedly in case something like a virus
             # scanner has opened one of the files (I love windows)
