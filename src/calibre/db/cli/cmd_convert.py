@@ -80,6 +80,25 @@ def user_recommendations(input_path, output_path, args, log):
     ]
 
 
+def run_conversion(input_path, output_path, recommendations):
+    "Run in a worker process to convert the book"
+    from calibre.ebooks.conversion.plumber import Plumber
+    from calibre.utils.logging import Log
+
+    plumber = Plumber(input_path, output_path, Log(), override_input_metadata=True)
+    plumber.merge_ui_recommendations(recommendations)
+    plumber.run()
+
+
+def print_worker_log(path, log):
+    if path and os.path.exists(path):
+        with open(path, 'rb') as f:
+            raw = f.read().decode('utf-8', 'replace').strip()
+        os.remove(path)
+        if raw:
+            log(raw)
+
+
 def convert(ldb, book_id, output_format, input_format=None, use_saved_settings=True, convert_args=(), log=None):
     "Convert the book to output_format, as is done by the Convert books action in the GUI, adding the result to the book"
     from tempfile import TemporaryDirectory
@@ -87,9 +106,9 @@ def convert(ldb, book_id, output_format, input_format=None, use_saved_settings=T
     from calibre.customize.conversion import OptionRecommendation
     from calibre.customize.ui import plugin_for_output_format, run_plugins_on_postconvert
     from calibre.ebooks.conversion.config import GuiRecommendations, get_input_format_for_book, load_specifics
-    from calibre.ebooks.conversion.plumber import Plumber
     from calibre.ebooks.metadata.opf2 import metadata_to_opf
     from calibre.utils.config import tweaks
+    from calibre.utils.ipc.simple_worker import WorkerError, fork_job
     from calibre.utils.logging import Log
 
     db = ldb.new_api
@@ -130,9 +149,14 @@ def convert(ldb, book_id, output_format, input_format=None, use_saved_settings=T
                 f.write(cover)
             lrecs.append(('cover', cover_path, OptionRecommendation.HIGH))
 
-        plumber = Plumber(input_path, output_path, log, override_input_metadata=True)
-        plumber.merge_ui_recommendations(lrecs)
-        plumber.run()
+        # Conversion is run in a worker process, as in the GUI, since it can
+        # need a QApplication
+        try:
+            res = fork_job('calibre.db.cli.cmd_convert', 'run_conversion', (input_path, output_path, lrecs), heartbeat=lambda: True)
+        except WorkerError as e:
+            print_worker_log(e.log_path, log)
+            raise Exception(_('Conversion failed: {}').format(e.orig_tb or e))
+        print_worker_log(res.get('stdout_stderr'), log)
         if os.path.getsize(output_path) < 1:
             raise Exception(_('Empty output file, probably the conversion process crashed'))
         if same_format and tweaks['save_original_format']:
