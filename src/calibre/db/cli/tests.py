@@ -736,7 +736,7 @@ class TrashTest(BaseTest):
 
 
 class VirtualLibrariesTest(BaseTest):
-    def run_vls(self, db, *args, is_remote=False):
+    def run_vls(self, db, *args, is_remote=False, changes=None):
         from calibre.db.cli.cmd_virtual_libraries import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
@@ -745,7 +745,8 @@ class VirtualLibrariesTest(BaseTest):
             def run(self, name, *args):
                 if is_remote:
                     # Results are sent over the network by the Content server
-                    return msgpack_loads(msgpack_dumps(implementation(db, lambda *a: None, *msgpack_loads(msgpack_dumps(args)))))
+                    notify_changes = (changes if changes is not None else []).append
+                    return msgpack_loads(msgpack_dumps(implementation(db, notify_changes, *msgpack_loads(msgpack_dumps(args)))))
                 return implementation(db, None, *args)
 
         opts, args = option_parser(get_parser, []).parse_args(list(args))
@@ -796,11 +797,56 @@ class VirtualLibrariesTest(BaseTest):
             (('rename', 'Two books', ' '), 'must not be empty'),
             (('remove',), 'names of the Virtual libraries'),
             (('remove', 'Two books', 'Nothing'), 'No Virtual libraries named: Nothing'),
+            (('add', '*x', 'id:1'), 'cannot begin with'),
+            (('rename', 'Two books', '*x'), 'cannot begin with'),
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_vls(db, *args)
         # Nothing is removed if any of the names do not exist
         self.assertEqual(db.pref('virtual_libraries'), {'Two books': 'id:1 or id:2'})
+
+    def test_virtual_libraries_edge_cases(self):
+        from calibre.srv.changes import VirtualLibrariesChanged
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        changes = []
+        tpl = 'template:"program: 1#@#:t:1"'
+        self.run_vls(db, 'add', 'A', 'id:1')
+        self.run_vls(db, 'add', 'B', 'id:2')
+
+        # Templates are detected even where searching would not reach them, as they are evaluated later with templates allowed
+        db.saved_search_add('local_tpl', tpl)
+        for expr in ('id:9999 and ' + tpl, 'search:local_tpl'):
+            with self.subTest(expr=expr), self.assertRaisesRegex(SystemExit, 'Templates are not allowed'):
+                self.run_vls(db, 'add', 'T', expr, is_remote=True, changes=changes)
+        self.assertNotIn('T', db.pref('virtual_libraries'))
+
+        # A replaced search that uses the Virtual library itself is recursive
+        with self.assertRaisesRegex(SystemExit, 'Failed to parse search query'):
+            self.run_vls(db, 'add', '--replace', 'A', 'vl:A or id:3')
+        self.assertEqual(db.pref('virtual_libraries'), {'A': 'id:1', 'B': 'id:2'})
+        self.assertEqual(db.search('vl:A'), {1})
+        self.assertFalse(changes)
+
+        # Renaming to the same name does nothing, renaming updates the Virtual library used on startup
+        self.run_vls(db, 'rename', 'A', 'A', is_remote=True, changes=changes)
+        db.set_pref('virtual_lib_on_startup', 'A')
+        self.run_vls(db, 'rename', 'A', 'C', is_remote=True, changes=changes)
+        self.assertEqual(db.pref('virtual_libraries'), {'C': 'id:1', 'B': 'id:2'})
+        self.assertEqual(db.pref('virtual_lib_on_startup'), 'C')
+
+        # Repeated names are removed once
+        self.assertEqual(self.run_vls(db, 'remove', 'C', 'C', is_remote=True, changes=changes), 'One Virtual library removed\n')
+        self.assertEqual(db.pref('virtual_libraries'), {'B': 'id:2'})
+        self.assertEqual(db.pref('virtual_lib_on_startup'), '')
+
+        self.run_vls(db, 'add', '--replace', 'B', 'id:3', is_remote=True, changes=changes)
+        self.assertTrue(all(isinstance(c, VirtualLibrariesChanged) for c in changes))
+        self.assertEqual(
+            [(set(c.added), set(c.removed), c.renamed) for c in changes],
+            [(set(), set(), (('A', 'C'),)), (set(), {'C'}, ()), ({'B'}, set(), ())],
+        )
 
 
 def find_tests():

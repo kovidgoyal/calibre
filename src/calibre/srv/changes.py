@@ -60,9 +60,21 @@ class SavedSearchesChanged(ChangeEvent):
         return f'{self.__class__.__name__}(added={sorted(map(str, self.added))}, removed={sorted(map(str, self.removed))})'
 
 
+class VirtualLibrariesChanged(ChangeEvent):
+    def __init__(self, added=(), removed=(), renamed=()):
+        ChangeEvent.__init__(self)
+        self.added = frozenset(added)
+        self.removed = frozenset(removed)
+        self.renamed = tuple(renamed)  # (old_name, new_name) pairs, in the order they were renamed
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(added={sorted(map(str, self.added))}, removed={sorted(map(str, self.removed))}, renamed={list(self.renamed)})'
+
+
 books_added = BooksAdded
 formats_added = FormatsAdded
 formats_removed = FormatsRemoved
 books_deleted = BooksDeleted
 metadata = MetadataChanged
 saved_searches = SavedSearchesChanged
+virtual_libraries = VirtualLibrariesChanged

@@ -619,6 +619,21 @@ class SearchRestrictionMixin:
             self.apply_virtual_library('')
         self.rebuild_vl_tabs()
 
+    def virtual_libraries_changed(self: Main, renamed=()):
+        "Update the GUI after the Virtual libraries were changed, for example, by calibredb through the Content server"
+        db = self.current_db
+        name = orig_name = db.data.get_base_restriction_name()
+        if name and name != self.search_based_vl_name:
+            for old, new in renamed:
+                if name == old:
+                    name = new
+            virt_libs = db.new_api.pref('virtual_libraries', {})
+            if name not in virt_libs:
+                self.apply_virtual_library('', update_tabs=False)
+            elif name != orig_name or virt_libs[name] != db.data.get_base_restriction():
+                self.apply_virtual_library(name, update_tabs=False)
+        self.rebuild_vl_tabs()
+
     def _trim_restriction_name(self: Main, name):
         name = name.strip()
         if len(name) < MAX_VIRTUAL_LIBRARY_NAME_LENGTH or name.endswith('…'):

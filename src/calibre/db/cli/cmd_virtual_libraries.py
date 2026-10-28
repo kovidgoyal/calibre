@@ -4,6 +4,7 @@
 import json
 
 from calibre import prints
+from calibre.srv.changes import virtual_libraries
 from calibre.utils.localization import _, ngettext
 
 readonly = False
@@ -15,44 +16,72 @@ def implementation(db, notify_changes, action, *args):
     from calibre.utils.search_query_parser import ParseException
 
     is_remote = notify_changes is not None
-    with db.write_lock:
-        vls = db._pref('virtual_libraries', {})
-        if action == 'list':
+
+    def parse_error(expr, e):
+        return False, _('Failed to parse search query: ({0}) with error: {1}').format(expr, e)
+
+    if action == 'list':
+        with db.safe_read_lock:
             ans = {}
-            for name, expr in vls.items():
+            for name, expr in db._pref('virtual_libraries', {}).items():
                 try:
                     count = len(db._search(expr, allow_templates=not is_remote))
                 except ParseException:
                     count = None
                 ans[name] = (expr, count)
             return True, ans
+    with db.write_lock:
+        # Change a copy, so the cached preference is unchanged if anything fails
+        orig_vls = db._pref('virtual_libraries', {})
+        vls = dict(orig_vls)
         if action == 'add':
             name, expr, replace = args
             if name in vls and not replace:
                 return False, _('A Virtual library named {} already exists').format(name)
             try:
-                count = len(db._search(expr, allow_templates=not is_remote))
+                # Virtual libraries are evaluated with templates allowed, so remote clients must not be able to store
+                # templates in them. Searching is not enough to check that, as it skips templates in parts of the
+                # search that match no books.
+                if is_remote and db._search_uses_templates(expr):
+                    return False, _('Templates are not allowed in search expressions')
             except ParseException as e:
-                return False, _('Failed to parse search query: ({0}) with error: {1}').format(expr, e)
+                return parse_error(expr, e)
             vls[name] = expr
             db._set_pref('virtual_libraries', vls)
+            try:
+                # Search once the Virtual library is stored, to catch searches that use it
+                count = len(db._search(expr, allow_templates=not is_remote))
+            except ParseException as e:
+                db._set_pref('virtual_libraries', orig_vls)
+                return parse_error(expr, e)
+            if is_remote:
+                notify_changes(virtual_libraries(added=(name,)))
             return True, count
         if action == 'rename':
             old, new = args
             if old not in vls:
                 return False, _('No Virtual library named: {}').format(old)
+            if new == old:
+                return True, None
             if new in vls:
                 return False, _('A Virtual library named {} already exists').format(new)
-            vls[new] = vls.pop(old)
-            db._set_pref('virtual_libraries', vls)
+            db._set_pref('virtual_libraries', {(new if k == old else k): v for k, v in vls.items()})
+            if db._pref('virtual_lib_on_startup') == old:
+                db._set_pref('virtual_lib_on_startup', new)
+            if is_remote:
+                notify_changes(virtual_libraries(renamed=((old, new),)))
             return True, None
         if action == 'remove':
-            names = args[0]
+            names = tuple(dict.fromkeys(args))
             if missing := [x for x in names if x not in vls]:
                 return False, _('No Virtual libraries named: {}').format(', '.join(missing))
             for name in names:
                 del vls[name]
             db._set_pref('virtual_libraries', vls)
+            if db._pref('virtual_lib_on_startup') in names:
+                db._set_pref('virtual_lib_on_startup', '')
+            if is_remote:
+                notify_changes(virtual_libraries(removed=names))
             return True, len(names)
     return False, _('Unknown action: {}').format(action)
 
@@ -107,6 +136,12 @@ def run(dbctx, *args):
     return ans
 
 
+def check_name(name: str) -> None:
+    # Names starting with * are used by the GUI for temporary Virtual libraries made from the current search
+    if name.startswith('*'):
+        raise SystemExit(_('Error: A Virtual library name cannot begin with "*"'))
+
+
 def main(opts, args, dbctx):
     from calibre.utils.icu import sort_key
 
@@ -131,6 +166,7 @@ def main(opts, args, dbctx):
         name, expr = args[0].strip(), args[1].strip()
         if not name or not expr:
             raise SystemExit(_('Error: The name and search expression must not be empty'))
+        check_name(name)
         count = run(dbctx, 'add', name, expr, opts.replace)
         prints(ngettext('Virtual library {0} added, with one book', 'Virtual library {0} added, with {1} books', count).format(name, count))
         return 0
@@ -140,10 +176,11 @@ def main(opts, args, dbctx):
         new = args[1].strip()
         if not new:
             raise SystemExit(_('Error: The new name must not be empty'))
+        check_name(new)
         run(dbctx, 'rename', args[0], new)
         return 0
     if not args:
         raise SystemExit(_('Error: You must specify the names of the Virtual libraries to remove'))
-    count = run(dbctx, 'remove', args)
+    count = run(dbctx, 'remove', *args)
     prints(ngettext('One Virtual library removed', '{} Virtual libraries removed', count).format(count))
     return 0
