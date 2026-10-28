@@ -5,6 +5,7 @@ import ast
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -175,7 +176,7 @@ def initialize_constants():
     return calibre_constants
 
 
-def run(*args, **extra_env):
+def worker_environ(**extra_env):
     env = os.environ.copy()
     env.update(worker_env)
     env.update(extra_env)
@@ -183,7 +184,42 @@ def run(*args, **extra_env):
     env['LD_LIBRARY_PATH'] = LIBDIR
     env['SIP_BIN'] = os.path.join(PREFIX, 'bin', 'sip')
     env['QMAKE'] = os.path.join(PREFIX, 'qt', 'bin', 'qmake')
-    return subprocess.call(list(args), env=env, cwd=CALIBRE_DIR)
+    return env
+
+
+def run(*args, **extra_env):
+    return subprocess.call(list(args), env=worker_environ(**extra_env), cwd=CALIBRE_DIR)
+
+
+def copy_langtool_resources(dest):
+    '''
+    Copy the data files langtool needs at runtime (rules, the precompiled
+    .ltrt rule tables and the package manifest) into dest, using the freezing
+    support in langtool. The files must be real files, not frozen, as the rule
+    tables are memory mapped. Returns the list of copied files as paths
+    relative to dest, which are also the paths relative to the langtool
+    package directory. At runtime, LANGTOOL_RESOURCE_DIR is set to point to
+    dest by site.py.
+    '''
+    script = 'import json, sys; from langtool.freeze import copy_resources; json.dump(copy_resources(sys.argv[-1]), sys.stdout)'
+    try:
+        raw = subprocess.check_output([PYTHON, '-c', script, dest], env=worker_environ(), cwd=CALIBRE_DIR)
+    except subprocess.CalledProcessError as err:
+        raise SystemExit(f'Copying langtool resources to {dest} failed with return code: {err.returncode}')
+    copied = json.loads(raw)
+    if not any(x.endswith('.ltrt') for x in copied):
+        raise SystemExit(f'No precompiled langtool rule tables found, copied files: {copied}')
+    return copied
+
+
+def remove_langtool_resources(package_dir, copied):
+    ' Remove the langtool data files copied by copy_langtool_resources() from the langtool package in package_dir so they are not frozen '
+    for top in {x.split('/')[0] for x in copied}:
+        path = os.path.join(package_dir, top)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            os.remove(path)
 
 
 def build_c_extensions(ext_dir, args):

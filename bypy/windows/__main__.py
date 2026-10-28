@@ -130,6 +130,7 @@ def freeze(env, ext_dir, incdir):
     if os.path.exists(tgt):
         shutil.rmtree(tgt)
     shutil.copytree(j(env.src_root, 'resources'), tgt)
+    langtool_resources = iv['copy_langtool_resources'](j(tgt, 'langtool'))
 
     printf('\tAdding misc binary deps')
 
@@ -214,6 +215,8 @@ def freeze(env, ext_dir, incdir):
             shutil.copy(x, j(sp_dir, b(x)))
 
     ext_map.update(cleanup_site_packages(sp_dir))
+    # The langtool data files are in resources/langtool, they must not be frozen
+    iv['remove_langtool_resources'](j(sp_dir, 'langtool'), langtool_resources)
     for x in os.listdir(sp_dir):
         os.rename(j(sp_dir, x), j(env.lib_dir, x))
     os.rmdir(sp_dir)

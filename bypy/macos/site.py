@@ -13,6 +13,13 @@ def nuke_stdout():
     detach(os.devnull)
 
 
+def setup_langtool():
+    # The langtool data files, including the precompiled rule tables, are
+    # placed in resources/langtool by the freeze scripts, as they must be real
+    # files, not frozen
+    os.environ['LANGTOOL_RESOURCE_DIR'] = os.path.join(sys.resources_location, 'langtool')
+
+
 def set_helper():
     builtins.help = _sitebuiltins._Helper()
 
@@ -33,6 +40,7 @@ def exit_code(ret: object) -> int:
 
 def main():
     sys.argv[0] = sys.calibre_basename
+    setup_langtool()
     set_helper()
     set_quit()
     mod = __import__(sys.calibre_module, fromlist=[1])

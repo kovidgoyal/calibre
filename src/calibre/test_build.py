@@ -13,7 +13,7 @@ import sys
 import time
 import unittest
 
-from calibre.constants import islinux, ismacos, iswindows, plugins_loc
+from calibre.constants import isfrozen, islinux, ismacos, iswindows, plugins_loc
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
@@ -72,6 +72,26 @@ class BuildTest(unittest.TestCase):
 
         self.assertEqual(regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b'), [('a', 'b'), ('A', 'B')])
         self.assertEqual(regex.escape('a b', literal_spaces=True), 'a b')
+
+    def test_langtool(self):
+        import langtool
+        from langtool._base import speedups
+        from langtool.patterns.static import tables_for
+
+        self.assertIsNotNone(speedups, 'The langtool C extension is not available')
+        if isfrozen:
+            self.assertEqual(os.path.normcase(langtool.get_resource_dir()), os.path.normcase(os.path.join(getattr(sys, 'resources_location'), 'langtool')))
+        codes = tuple(langtool.static_rules_status())
+        self.assertIn('en', codes, 'langtool was built without static rule tables')
+        for code in codes:
+            tables = tables_for(code)
+            if tables is not None:
+                self.assertTrue(tables.regex_programs_usable(), f'The langtool rule tables for {code} were built with a different version of regex')
+        bad = {k: v for k, v in langtool.static_rules_status().items() if v != 'ok'}
+        self.assertFalse(bad, f'Some langtool static rule tables are not usable: {bad}')
+        # Loading the rules does not need any downloaded dictionaries
+        tool = langtool.LanguageTool('en-US', download=False)
+        self.assertGreater(len(tool.rules()), 1000)
 
     def test_hunspell(self):
         from calibre.spell.dictionary import build_test

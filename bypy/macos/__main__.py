@@ -246,6 +246,7 @@ class Freeze:
     def add_resources(self):
         shutil.copytree('resources', join(self.resources_dir,
                                                   'resources'))
+        iv['copy_langtool_resources'](join(self.resources_dir, 'resources', 'langtool'))
 
     @flush
     def strip_files(self):

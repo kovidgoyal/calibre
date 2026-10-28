@@ -50,6 +50,13 @@ def run_entry_point():
     return getattr(pmod, func)()
 
 
+def setup_langtool():
+    # The langtool data files, including the precompiled rule tables, are
+    # placed in resources/langtool by the freeze scripts, as they must be real
+    # files, not frozen
+    os.environ['LANGTOOL_RESOURCE_DIR'] = os.path.join(sys.resources_location, 'langtool')
+
+
 def set_helper():
     builtins.help = _sitebuiltins._Helper()
 
@@ -82,6 +89,7 @@ def main():
 
     set_helper()
     set_quit()
+    setup_langtool()
 
     return run_entry_point()
 
