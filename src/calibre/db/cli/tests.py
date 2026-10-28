@@ -463,6 +463,92 @@ class ItemsTest(BaseTest):
         self.assertEqual(len(changes), 1)
 
 
+class AnnotationsTest(BaseTest):
+    def run_annotations(self, db, *args, is_remote=False):
+        import json
+
+        from calibre.db.cli.cmd_annotations import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            def run(self, name, *args):
+                ans = implementation(db, print if is_remote else None, *args)
+                # Remote results are sent as JSON
+                return json.loads(json.dumps(ans)) if is_remote else ans
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_annotations(self):
+        import json
+
+        from calibre.utils.date import EPOCH, utcnow
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+
+        def a(**kw):
+            ts = utcnow()
+            kw['timestamp'] = ts.isoformat()
+            return kw, (ts - EPOCH).total_seconds()
+
+        db.set_annotations_for_book(
+            1,
+            'EPUB',
+            [
+                a(type='highlight', highlighted_text='second', uuid='2', spine_index=2, start_cfi='/4/2/1:0', toc_family_titles=['Chapter 2'], notes='A note'),
+                a(type='highlight', highlighted_text='first', uuid='1', spine_index=1, start_cfi='/4/8/1:0', toc_family_titles=['Chapter 1']),
+                a(type='bookmark', title='A bookmark', pos_type='epubcfi', pos='epubcfi(/6/2!/4/2)'),
+                a(type='highlight', highlighted_text='removed', uuid='3', removed=True),
+            ],
+        )
+        db.set_annotations_for_book(2, 'EPUB', [a(type='bookmark', title='Other book', pos_type='epubcfi', pos='epubcfi(/6/2!/4/2)')])
+        ids = {x['annotation'].get('highlighted_text') or x['annotation']['title']: x['id'] for x in db.all_annotations(ignore_removed=True)}
+
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                lines = self.run_annotations(db, 'list', is_remote=is_remote).splitlines()
+                self.assertEqual(len(lines), 4)
+                self.assertIn(f"{ids['first']}\tTitle Two\thighlight\tfirst", lines)
+                self.assertEqual(
+                    self.run_annotations(db, 'list', '-s', 'id:2', is_remote=is_remote).splitlines(),
+                    [f"{ids['Other book']}\tTitle One\tbookmark\tOther book"],
+                )
+                self.assertEqual(len(self.run_annotations(db, 'list', '-t', 'bookmark', is_remote=is_remote).splitlines()), 2)
+
+                # Highlights are in the order they appear in the book, under their chapters
+                text = self.run_annotations(db, 'export', '-f', 'markdown', '-s', 'id:1', is_remote=is_remote)
+                self.assertTrue(text.startswith('# Title Two\n\n## Chapter 1\n\nfirst\n*'), text)
+                self.assertLess(text.index('first'), text.index('second'))
+                self.assertLess(text.index('second'), text.index('A bookmark'))
+                self.assertIn('A note', text)
+                self.assertNotIn('removed', text)
+                text = self.run_annotations(db, 'export', is_remote=is_remote)
+                self.assertIn('# Title One', text)
+                self.assertIn('───', text)
+                data = json.loads(self.run_annotations(db, 'export', '-f', 'json', '-t', 'highlight', is_remote=is_remote))
+                self.assertEqual(data['type'], 'calibre_annotation_collection')
+                exported = {(x['book_id'], x['format'], x['highlighted_text']) for x in data['annotations']}
+                self.assertEqual(exported, {(1, 'EPUB', 'first'), (1, 'EPUB', 'second')})
+
+        self.assertEqual(self.run_annotations(db, 'remove', str(ids['first']), str(ids['Other book']), is_remote=True), '2 annotations removed\n')
+        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 2)
+        for args, msg in (
+            (('remove', str(ids['first'])), 'No annotations with the ids'),
+            (('remove', 'x'), 'must be numbers'),
+            (('remove',), 'must specify the ids'),
+            (('list', '-s', 'title:"=Title One" and ('), 'Failed to parse search query'),
+            (('list', 'extra'), 'Too many arguments'),
+            (('frob',), 'not recognized'),
+            ((), 'must specify an action'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_annotations(db, *args)
+        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 2)
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -473,4 +559,5 @@ def find_tests():
         loader.loadTestsFromTestCase(NotesTest),
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
         loader.loadTestsFromTestCase(ItemsTest),
+        loader.loadTestsFromTestCase(AnnotationsTest),
     ))
