@@ -464,15 +464,17 @@ class ItemsTest(BaseTest):
 
 
 class AnnotationsTest(BaseTest):
-    def run_annotations(self, db, *args, is_remote=False):
+    def run_annotations(self, db, *args, is_remote=False, changes=None):
         import json
 
         from calibre.db.cli.cmd_annotations import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
+        notify_changes = (changes if changes is not None else []).append if is_remote else None
+
         class DBCtx:
             def run(self, name, *args):
-                ans = implementation(db, print if is_remote else None, *args)
+                ans = implementation(db, notify_changes, *args)
                 # Remote results are sent as JSON
                 return json.loads(json.dumps(ans)) if is_remote else ans
 
@@ -501,6 +503,7 @@ class AnnotationsTest(BaseTest):
                 a(type='highlight', highlighted_text='second', uuid='2', spine_index=2, start_cfi='/4/2/1:0', toc_family_titles=['Chapter 2'], notes='A note'),
                 a(type='highlight', highlighted_text='first', uuid='1', spine_index=1, start_cfi='/4/8/1:0', toc_family_titles=['Chapter 1']),
                 a(type='bookmark', title='A bookmark', pos_type='epubcfi', pos='epubcfi(/6/2!/4/2)'),
+                a(type='bookmark', title='No position\x1b[31m', pos_type='epubcfi'),
                 a(type='highlight', highlighted_text='removed', uuid='3', removed=True),
             ],
         )
@@ -510,19 +513,24 @@ class AnnotationsTest(BaseTest):
         for is_remote in (False, True):
             with self.subTest(is_remote=is_remote):
                 lines = self.run_annotations(db, 'list', is_remote=is_remote).splitlines()
-                self.assertEqual(len(lines), 4)
-                self.assertIn(f"{ids['first']}\tTitle Two\thighlight\tfirst", lines)
+                self.assertEqual(len(lines), 5)
+                self.assertIn(f"{ids['first']}\tTitle Two\thighlight\tEPUB\tlocal:viewer\tfirst", lines)
+                # Control characters are not sent to the terminal
+                self.assertIn(f"{ids['No position\x1b[31m']}\tTitle Two\tbookmark\tEPUB\tlocal:viewer\tNo position[31m", lines)
                 self.assertEqual(
                     self.run_annotations(db, 'list', '-s', 'id:2', is_remote=is_remote).splitlines(),
-                    [f"{ids['Other book']}\tTitle One\tbookmark\tOther book"],
+                    [f"{ids['Other book']}\tTitle One\tbookmark\tEPUB\tlocal:viewer\tOther book"],
                 )
-                self.assertEqual(len(self.run_annotations(db, 'list', '-t', 'bookmark', is_remote=is_remote).splitlines()), 2)
+                self.assertEqual(len(self.run_annotations(db, 'list', '-t', 'bookmark', is_remote=is_remote).splitlines()), 3)
 
                 # Highlights are in the order they appear in the book, under their chapters
                 text = self.run_annotations(db, 'export', '-f', 'markdown', '-s', 'id:1', is_remote=is_remote)
                 self.assertTrue(text.startswith('# Title Two\n\n## Chapter 1\n\nfirst\n*'), text)
                 self.assertLess(text.index('first'), text.index('second'))
                 self.assertLess(text.index('second'), text.index('A bookmark'))
+                # Bookmarks have no chapter, so they must not appear under the chapter of the last highlight
+                self.assertLess(text.index('## Unknown chapter'), text.index('A bookmark'))
+                self.assertNotIn('\x1b', text)
                 self.assertIn('A note', text)
                 self.assertNotIn('removed', text)
                 text = self.run_annotations(db, 'export', is_remote=is_remote)
@@ -533,10 +541,15 @@ class AnnotationsTest(BaseTest):
                 exported = {(x['book_id'], x['format'], x['highlighted_text']) for x in data['annotations']}
                 self.assertEqual(exported, {(1, 'EPUB', 'first'), (1, 'EPUB', 'second')})
 
-        self.assertEqual(self.run_annotations(db, 'remove', str(ids['first']), str(ids['Other book']), is_remote=True), '2 annotations removed\n')
-        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 2)
+        changes = []
+        self.assertEqual(
+            self.run_annotations(db, 'remove', str(ids['first']), str(ids['Other book']), is_remote=True, changes=changes), '2 annotations removed\n'
+        )
+        self.assertEqual([c.book_ids for c in changes], [frozenset((1, 2))])
+        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
         for args, msg in (
             (('remove', str(ids['first'])), 'No annotations with the ids'),
+            (('remove', '-t', 'bookmark', str(ids['second'])), 'cannot be used with remove'),
             (('remove', 'x'), 'must be numbers'),
             (('remove',), 'must specify the ids'),
             (('list', '-s', 'title:"=Title One" and ('), 'Failed to parse search query'),
@@ -546,7 +559,7 @@ class AnnotationsTest(BaseTest):
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_annotations(db, *args)
-        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 2)
+        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
 
 
 def find_tests():

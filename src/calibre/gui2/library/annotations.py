@@ -43,6 +43,7 @@ from qt.core import (
 
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
+from calibre.db.annotations import ChapterGroup as ChapterGroupBase
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
@@ -65,29 +66,6 @@ def render_timestamp(ts):
 
 
 # rendering {{{
-def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
-    lines.append(hl['highlighted_text'])
-    date = render_timestamp(hl['timestamp'])
-    if as_markdown and link_prefix:
-        cfi = hl['start_cfi']
-        spine_index = (1 + hl['spine_index']) * 2
-        link = (link_prefix + quote(f'epubcfi(/{spine_index}{cfi})')).replace(')', '%29')
-        date = f'[{date}]({link})'
-    if as_markdown:
-        date = f'*{date}*'
-    lines.append(date)
-    notes = hl.get('notes')
-    if notes:
-        lines.append('')
-        lines.append(notes)
-    lines.append('')
-    if as_markdown:
-        lines.append('-' * 20)
-    else:
-        lines.append('───')
-    lines.append('')
-
-
 def get_annotation_style_classes(style):
     stype = style.get('type')
     skind = style.get('kind')
@@ -140,21 +118,6 @@ def render_highlight_as_html(hl, lines, link_prefix=None):
     lines.append('<hr>')
 
 
-def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
-    lines.append(b['title'])
-    date = render_timestamp(b['timestamp'])
-    if as_markdown and link_prefix and b['pos_type'] == 'epubcfi':
-        link = (link_prefix + quote(b['pos'])).replace(')', '%29')
-        date = f'[{date}]({link})'
-    lines.append(date)
-    lines.append('')
-    if as_markdown:
-        lines.append('-' * 20)
-    else:
-        lines.append('───')
-    lines.append('')
-
-
 def render_bookmark_as_html(b, lines, link_prefix=None):
     lines.append('<div class="calibre-annotation calibre-bookmark">')
     lines.append(f'<strong>{prepare_string_for_xml(b.get("title", ""))}</strong><br>')
@@ -180,39 +143,9 @@ def color_contrasting(hex_color):
     return '#{:02x}{:02x}{:02x}'.format(*contrasting_rgb)
 
 
-class ChapterGroup:
-    def __init__(self, title='', level=0):
-        self.title = title
-        self.subgroups = {}
-        self.annotations = []
-        self.level = level
-
-    def add_annot(self, a):
-        titles = a.get('toc_family_titles', (_('Unknown chapter'),))
-        node = self
-        for title in titles:
-            node = node.group_for_title(title)
-        node.annotations.append(a)
-
-    def group_for_title(self, title):
-        ans = self.subgroups.get(title)
-        if ans is None:
-            ans = ChapterGroup(title, self.level + 1)
-            self.subgroups[title] = ans
-        return ans
-
-    def render_as_text(self, lines, as_markdown, link_prefix):
-        if self.title:
-            lines.append('#' * self.level + ' ' + self.title)
-            lines.append('')
-        for hl in self.annotations:
-            atype = hl.get('type', 'highlight')
-            if atype == 'bookmark':
-                render_bookmark_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
-            else:
-                render_highlight_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
-        for sg in self.subgroups.values():
-            sg.render_as_text(lines, as_markdown, link_prefix)
+class ChapterGroup(ChapterGroupBase):
+    def render_timestamp(self, ts):
+        return render_timestamp(ts)
 
     def _collect_outline_and_colors(self, outline_headings, heading_id_counts, used_colors, used_decorations):
         if self.title:

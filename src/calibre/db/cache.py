@@ -4108,6 +4108,16 @@ class Cache:
 
     _search_annotations = search_annotations
 
+    @read_api
+    def book_ids_for_annotations(self, annot_ids, ignore_removed=False):
+        """
+        Return a map of annotation id to book id for those of the specified annotation ids that exist.
+        `ignore_removed` controls whether removed (deleted) annotations are also returned.
+        """
+        return self.backend.book_ids_for_annotations(annot_ids, ignore_removed)
+
+    _book_ids_for_annotations = book_ids_for_annotations
+
     @quiet_write_api
     def delete_annotations(self, annot_ids):
         """
