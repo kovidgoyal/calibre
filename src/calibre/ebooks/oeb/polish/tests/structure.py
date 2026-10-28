@@ -9,7 +9,7 @@ from zipfile import ZIP_STORED, ZipFile
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
-from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, XHTML, barename, xml2text
+from calibre.ebooks.oeb.base import EPUB, EPUB_NS, OEB_DOCS, XHTML, barename, xml2text
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import clean_opf, find_cover_image, find_cover_page, mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.create import create_book
@@ -856,6 +856,27 @@ class Structure(BaseTest):
         # The role attribute is not valid in the XHTML 1.1 used by EPUB 2
         c = self.create_epub([cmi('a.html', html('<section epub:type="chapter">c</section>'))], ver=2)
         self.assertFalse(missing(c))
+
+        # The navs calibre creates have the roles, except for landmarks, which
+        # has none, and roles set by the author are kept
+        from calibre.ebooks.oeb.polish.toc import TOC
+
+        def navs(c):
+            name = next(iter(c.manifest_items_with_property('nav')))
+            return name, {nav.get(EPUB('type')): nav for nav in c.parsed(name).iterdescendants(XHTML('nav'))}
+
+        toc = TOC()
+        toc.add('A', 'a.html')
+        toc.page_list = [{'dest': 'a.html', 'frag': None, 'pagenum': 1}]
+        c = self.create_epub([cmi('a.html', html('<p>a</p>'))])
+        commit_nav_toc(c, toc, landmarks=[{'dest': 'a.html', 'frag': None, 'type': 'bodymatter', 'title': 'Start'}])
+        name, nav_map = navs(c)
+        self.assertEqual({k: v.get('role') for k, v in nav_map.items()}, {'toc': 'doc-toc', 'page-list': 'doc-pagelist', 'landmarks': None})
+        self.assertFalse(missing(c))
+        nav_map['toc'].set('role', 'navigation')
+        c.dirty(name)
+        commit_nav_toc(c, toc)
+        self.assertEqual(navs(c)[1]['toc'].get('role'), 'navigation')
 
     def test_accessibility_tool_language(self):
         from calibre.ebooks.oeb.polish.accessibility import (
