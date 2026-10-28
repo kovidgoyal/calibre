@@ -4,6 +4,7 @@
 import time
 import traceback
 from collections.abc import Iterator
+from dataclasses import replace
 from operator import attrgetter
 
 from qt.core import (
@@ -51,13 +52,24 @@ def time_spec(mtime: float) -> str:
         return _('{} days ago').format(int(delta) // 86400)
 
 
+def entry_text(entry: TrashEntry) -> str:
+    text = entry.title + '\n' + entry.author + '\n' + _('Deleted: {when}').format(when=time_spec(entry.mtime))
+    if entry.formats:
+        text += '\n' + ', '.join(sorted(entry.formats))
+    if not entry.restorable:
+        text += '\n' + _('Cannot be restored as the book no longer exists')
+    return text
+
+
 class TrashItemDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         super().__init__(parent)
         self.pixmap_cache = {}
 
     def sizeHint(self, option, index):
-        return QSize(THUMBNAIL_SIZE[0] + MARGIN_SIZE + 256, THUMBNAIL_SIZE[1] + MARGIN_SIZE)
+        entry: TrashEntry = index.data(Qt.ItemDataRole.UserRole)
+        text_height = (entry_text(entry).count('\n') + 1) * option.fontMetrics.lineSpacing()
+        return QSize(THUMBNAIL_SIZE[0] + MARGIN_SIZE + 256, max(THUMBNAIL_SIZE[1], text_height) + MARGIN_SIZE)
 
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
@@ -69,9 +81,7 @@ class TrashItemDelegate(QStyledItemDelegate):
             c = p.color(group, QPalette.ColorRole.HighlightedText)
             painter.setPen(c)
 
-        text = entry.title + '\n' + entry.author + '\n' + _('Deleted: {when}').format(when=time_spec(entry.mtime))
-        if entry.formats:
-            text += '\n' + ', '.join(sorted(entry.formats))
+        text = entry_text(entry)
         r = QRectF(option.rect)
         if entry.cover_path:
             par = self.parent()
@@ -184,6 +194,7 @@ class TrashView(Dialog):
         self.books.restore_item.connect(self.restore_item)
         self.formats = TrashList(formats, self, False)
         self.formats.restore_item.connect(self.restore_item)
+        self.books_restored.connect(self.mark_formats_restorable)
 
         self.tabs = t = QTabWidget(self)
         l.addWidget(t)
@@ -211,10 +222,14 @@ class TrashView(Dialog):
 
         h = QHBoxLayout()
         l.addWidget(self.bb)
-        self.restore_button = b = self.bb.addButton(_('&Restore selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        b = self.bb.addButton(_('&Restore selected'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
+        self.restore_button = b
         b.clicked.connect(self.restore_selected)
         b.setIcon(QIcon.ic('edit-undo.png'))
+        self.books.itemSelectionChanged.connect(self.update_restore_button)
+        self.formats.itemSelectionChanged.connect(self.update_restore_button)
+        t.currentChanged.connect(self.update_restore_button)
         self.delete_button = b = self.bb.addButton(_('Permanently &delete selected'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.setToolTip(_('Remove the selected entries from the trash bin, thereby deleting them permanently'))
@@ -240,6 +255,33 @@ class TrashView(Dialog):
         self.books.clear()
         self.formats.clear()
         self.update_titles()
+
+    def update_restore_button(self):
+        cw = self.tabs.currentWidget()
+        assert isinstance(cw, TrashList)
+        entries = tuple(cw.selected_entries)
+        self.restore_button.setEnabled(not entries or any(e.restorable for e in entries))
+
+    def mark_formats_restorable(self, book_ids):
+        # Removed formats of a book become restorable once the book itself is restored
+        for row in range(self.formats.count()):
+            item = self.formats.item(row)
+            assert item is not None
+            entry: TrashEntry = item.data(Qt.ItemDataRole.UserRole)
+            if not entry.restorable and entry.book_id in book_ids:
+                # Use a new object so that the view notices the change and re-layouts the item
+                cover_path = self.db.format_abspath(entry.book_id, '__COVER_INTERNAL__') or ''
+                item.setData(Qt.ItemDataRole.UserRole, replace(entry, restorable=True, cover_path=cover_path))
+        self.update_restore_button()
+
+    def show_not_restorable(self, entries: list[TrashEntry]):
+        error_dialog(
+            self,
+            _('Cannot restore formats'),
+            _('Some formats cannot be restored as the books they belonged to no longer exist. You can still save them to disk by right clicking on them.'),
+            det_msg='\n'.join(e.title for e in entries),
+            show=True,
+        )
 
     def update_titles(self):
         self.tabs.setTabText(0, _('&Books ({})').format(self.books.count()))
@@ -281,6 +323,9 @@ class TrashView(Dialog):
             self.db.move_book_from_trash(entry.book_id)
             self.books_restored.emit({entry.book_id})
         else:
+            if not entry.restorable:
+                self.show_not_restorable([entry])
+                return
             self.formats_restored.add(entry.book_id)
             for fmt in entry.formats:
                 self.db.move_format_from_trash(entry.book_id, fmt)
@@ -289,6 +334,13 @@ class TrashView(Dialog):
     def restore_selected(self):
         is_books = self.books_tab_is_selected
         done = set()
+        not_restorable = []
+        if not is_books:
+            for i in self.formats.selectedItems():
+                entry: TrashEntry = i.data(Qt.ItemDataRole.UserRole)
+                if not entry.restorable:
+                    not_restorable.append(entry)
+                    i.setSelected(False)
 
         def f(entry):
             if is_books:
@@ -304,6 +356,8 @@ class TrashView(Dialog):
             self.books_restored.emit(done)
         self.remove_entries(ok)
         self.show_failures(failed, _('restore'))
+        if not_restorable:
+            self.show_not_restorable(not_restorable)
 
     def remove_entries(self, remove):
         w = self.tabs.currentWidget()
@@ -311,6 +365,7 @@ class TrashView(Dialog):
         for i in remove:
             w.takeItem(w.row(i))
         self.update_titles()
+        self.update_restore_button()
 
     def delete_selected(self):
         category = 'b' if self.books_tab_is_selected else 'f'

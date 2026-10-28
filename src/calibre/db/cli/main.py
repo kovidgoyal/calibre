@@ -43,6 +43,8 @@ COMMANDS = (
     'notes',
     'items',
     'virtual_libraries',
+    'annotations',
+    'trash',
 )
 
 

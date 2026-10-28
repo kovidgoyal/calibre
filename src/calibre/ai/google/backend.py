@@ -64,7 +64,7 @@ from calibre.ai.utils import (
 from calibre.constants import cache_dir
 from calibre.utils.localization import _
 
-module_version = 5  # needed for live updates
+module_version = 6  # needed for live updates
 API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 MODELS_URL = f'{API_BASE_URL}/models?pageSize=500'
 
@@ -347,22 +347,29 @@ def gemini_models(version: float = 0) -> dict[str, Model]:
             fm = models.setdefault(m.family, {})
             fm.setdefault(m.family_version, []).append(m)
 
-    gemini = models['gemini']
-    version = version or max(gemini)
-    ans = {}
-    for m in gemini[version]:
-        if m.name_parts[-1] == 'pro':
-            ans['high'] = m
-        elif m.name_parts[-1] == 'flash':
-            ans['medium'] = m
-        elif m.name_parts[-2:] == ('flash', 'lite'):
-            ans['low'] = m
+    gemini = models.get('gemini', {})
+    # Use the newest version that has a model for each tier, as newer
+    # versions often have only some tiers released as stable models
+    versions = (version,) if version else sorted(gemini, reverse=True)
+    ans: dict[str, Model] = {}
+    for v in versions:
+        for m in gemini.get(v, ()):
+            if m.name_parts[-1] == 'pro':
+                ans.setdefault('high', m)
+            elif m.name_parts[-1] == 'flash':
+                ans.setdefault('medium', m)
+            elif m.name_parts[-2:] == ('flash', 'lite'):
+                ans.setdefault('low', m)
     return ans
 
 
 def model_choice_for_text() -> Model:
     m = gemini_models()
-    return m.get(pref('model_choice_strategy', 'medium')) or m['medium']
+    strategy = pref('model_choice_strategy', 'medium')
+    for q in (strategy, 'medium', 'high', 'low'):
+        if q in m:
+            return m[q]
+    raise ValueError(_('No suitable Gemini models found'))
 
 
 def model_choices_for_images(need_editing: bool) -> tuple[Model, ...]:

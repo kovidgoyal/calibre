@@ -3609,11 +3609,11 @@ class Cache:
     @read_api
     def list_trash_entries(self):
         books, formats = self.backend.list_trash_entries()
-        ff = []
         for e in formats:
             if self._has_id(e.book_id):
-                ff.append(e)
                 e.cover_path = self.format_abspath(e.book_id, '__COVER_INTERNAL__')
+            else:
+                e.restorable = False
         return books, formats
 
     _list_trash_entries = list_trash_entries
@@ -4107,6 +4107,16 @@ class Cache:
         )
 
     _search_annotations = search_annotations
+
+    @read_api
+    def book_ids_for_annotations(self, annot_ids, ignore_removed=False):
+        """
+        Return a map of annotation id to book id for those of the specified annotation ids that exist.
+        `ignore_removed` controls whether removed (deleted) annotations are also returned.
+        """
+        return self.backend.book_ids_for_annotations(annot_ids, ignore_removed)
+
+    _book_ids_for_annotations = book_ids_for_annotations
 
     @quiet_write_api
     def delete_annotations(self, annot_ids):

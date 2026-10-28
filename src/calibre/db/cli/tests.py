@@ -470,6 +470,113 @@ class VirtualLibrariesTest(BaseTest):
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
+class AnnotationsTest(BaseTest):
+    def run_annotations(self, db, *args, is_remote=False, changes=None):
+        import json
+
+        from calibre.db.cli.cmd_annotations import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        notify_changes = (changes if changes is not None else []).append if is_remote else None
+
+        class DBCtx:
+            def run(self, name, *args):
+                ans = implementation(db, notify_changes, *args)
+                # Remote results are sent as JSON
+                return json.loads(json.dumps(ans)) if is_remote else ans
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_annotations(self):
+        import json
+
+        from calibre.utils.date import EPOCH, utcnow
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+
+        def a(**kw):
+            ts = utcnow()
+            kw['timestamp'] = ts.isoformat()
+            return kw, (ts - EPOCH).total_seconds()
+
+        db.set_annotations_for_book(
+            1,
+            'EPUB',
+            [
+                a(type='highlight', highlighted_text='second', uuid='2', spine_index=2, start_cfi='/4/2/1:0', toc_family_titles=['Chapter 2'], notes='A note'),
+                a(type='highlight', highlighted_text='first', uuid='1', spine_index=1, start_cfi='/4/8/1:0', toc_family_titles=['Chapter 1']),
+                a(type='bookmark', title='A bookmark', pos_type='epubcfi', pos='epubcfi(/6/2!/4/2)'),
+                a(type='bookmark', title='No position\x1b[31m', pos_type='epubcfi'),
+                a(type='highlight', highlighted_text='removed', uuid='3', removed=True),
+            ],
+        )
+        db.set_annotations_for_book(2, 'EPUB', [a(type='bookmark', title='Other book', pos_type='epubcfi', pos='epubcfi(/6/2!/4/2)')])
+        ids = {x['annotation'].get('highlighted_text') or x['annotation']['title']: x['id'] for x in db.all_annotations(ignore_removed=True)}
+
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                lines = self.run_annotations(db, 'list', is_remote=is_remote).splitlines()
+                self.assertEqual(len(lines), 5)
+                self.assertIn(f"{ids['first']}\tTitle Two\thighlight\tEPUB\tlocal:viewer\tfirst", lines)
+                # Control characters are not sent to the terminal
+                self.assertIn(f"{ids['No position\x1b[31m']}\tTitle Two\tbookmark\tEPUB\tlocal:viewer\tNo position[31m", lines)
+                self.assertEqual(
+                    self.run_annotations(db, 'list', '-s', 'id:2', is_remote=is_remote).splitlines(),
+                    [f"{ids['Other book']}\tTitle One\tbookmark\tEPUB\tlocal:viewer\tOther book"],
+                )
+                self.assertEqual(len(self.run_annotations(db, 'list', '-t', 'bookmark', is_remote=is_remote).splitlines()), 3)
+
+                # Highlights are in the order they appear in the book, under their chapters
+                text = self.run_annotations(db, 'export', '-f', 'markdown', '-s', 'id:1', is_remote=is_remote)
+                self.assertTrue(text.startswith('# Title Two\n\n## Chapter 1\n\nfirst\n*'), text)
+                self.assertLess(text.index('first'), text.index('second'))
+                self.assertLess(text.index('second'), text.index('A bookmark'))
+                # Bookmarks have no chapter, so they must not appear under the chapter of the last highlight
+                self.assertLess(text.index('## Unknown chapter'), text.index('A bookmark'))
+                self.assertNotIn('\x1b', text)
+                self.assertIn('A note', text)
+                self.assertNotIn('removed', text)
+                text = self.run_annotations(db, 'export', is_remote=is_remote)
+                self.assertIn('# Title One', text)
+                self.assertIn('───', text)
+                data = json.loads(self.run_annotations(db, 'export', '-f', 'json', '-t', 'highlight', is_remote=is_remote))
+                self.assertEqual(data['type'], 'calibre_annotation_collection')
+                exported = {(x['book_id'], x['format'], x['highlighted_text']) for x in data['annotations']}
+                self.assertEqual(exported, {(1, 'EPUB', 'first'), (1, 'EPUB', 'second')})
+
+        changes = []
+        self.assertEqual(
+            self.run_annotations(db, 'remove', str(ids['first']), str(ids['Other book']), is_remote=True, changes=changes), '2 annotations removed\n'
+        )
+        self.assertEqual([c.book_ids for c in changes], [frozenset((1, 2))])
+        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
+        for args, msg in (
+            (('remove', str(ids['first'])), 'No annotations with the ids'),
+            (('remove', '-t', 'bookmark', str(ids['second'])), 'cannot be used with remove'),
+            (('remove', 'x'), 'must be numbers'),
+            (('remove',), 'must specify the ids'),
+            (('list', '-s', 'title:"=Title One" and ('), 'Failed to parse search query'),
+            (('list', 'extra'), 'Too many arguments'),
+            (('frob',), 'not recognized'),
+            ((), 'must specify an action'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_annotations(db, *args)
+        self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
+
+
+class TrashTest(BaseTest):
+    def run_trash(self, db, *args, is_remote=False):
+        from calibre.db.cli.cmd_trash import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
+        changes = []
+
         class DBCtx:
             def run(self, name, *args):
                 if is_remote:
@@ -530,6 +637,134 @@ class VirtualLibrariesTest(BaseTest):
                 self.run_vls(db, *args)
         # Nothing is removed if any of the names do not exist
         self.assertEqual(db.pref('virtual_libraries'), {'Two books': 'id:1 or id:2'})
+                    return msgpack_loads(msgpack_dumps(implementation(db, changes.append, *msgpack_loads(msgpack_dumps(args)))))
+                return implementation(db, None, *args)
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        self.changes = changes
+        try:
+            with redirect_stdout(StringIO()) as out:
+                main(opts, args, DBCtx())
+        finally:
+            self.last_output = out.getvalue()
+        return self.last_output
+
+    def test_trash(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(self.run_trash(db, 'list'), '')
+        titles = {i: db.field_for('title', i) for i in db.all_book_ids()}
+        fmts = db.formats(1)
+        # The trash is listed using the metadata backups of the books, as in a real library
+        db.mark_as_dirty(db.all_book_ids())
+        db.dump_metadata()
+        db.remove_books((2, 3))
+        db.remove_formats({1: fmts})
+
+        out = self.run_trash(db, 'list')
+        self.assertIn('Books:\n', out)
+        self.assertIn(f'2\t{titles[2]}\t', out)
+        self.assertIn(f'1\t{titles[1]}\t', out.partition('Formats:')[2])
+        self.assertIn(', '.join(sorted(fmts)), out.partition('Formats:')[2])
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                listed = json.loads(self.run_trash(db, 'list', '--for-machine', is_remote=is_remote))
+                self.assertEqual({x['id'] for x in listed['books']}, {2, 3})
+                self.assertEqual([(x['id'], sorted(x['formats'])) for x in listed['formats']], [(1, sorted(fmts))])
+                self.assertEqual(listed['books'][0]['title'], titles[listed['books'][0]['id']])
+
+        # Restore books, through the server too
+        self.assertEqual(self.run_trash(db, 'restore', '2', is_remote=True), 'One book restored\n')
+        self.assertEqual([type(c).__name__ for c in self.changes], ['BooksAdded'])
+        self.assertTrue(db.has_id(2))
+        self.assertEqual(db.field_for('title', 2), titles[2])
+        # Restore formats
+        self.assertEqual(self.run_trash(db, '--formats', 'restore', '1', is_remote=True), 'The formats of one book restored\n')
+        self.assertEqual(set(db.formats(1)), set(fmts))
+        self.assertEqual(self.changes[0].formats_map, {1: sorted(fmts)})
+        books, formats = db.list_trash_entries()
+        self.assertEqual(({e.book_id for e in books}, formats), ({3}, []))
+
+        for args, msg in (
+            ((), 'must specify an action'),
+            (('frob',), 'not recognized'),
+            (('list', '1'), 'Too many arguments'),
+            (('empty', '1'), 'Too many arguments'),
+            (('restore',), 'ids of the books'),
+            (('restore', 'x'), 'must be numbers'),
+            (('restore', '3,1'), 'No entries in the .+ for the books: 1$'),
+            (('delete', '--formats', '3'), 'No entries in the .+ for the books: 3$'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_trash(db, *args)
+        # Nothing is restored if any of the books are not in the trash
+        self.assertFalse(db.has_id(3))
+
+        self.assertEqual(self.run_trash(db, 'delete', '3'), 'One entry permanently deleted\n')
+        self.assertEqual(db.list_trash_entries(), ([], []))
+        db.remove_books((2,))
+        self.assertIn('emptied', self.run_trash(db, 'empty'))
+        self.assertEqual(db.list_trash_entries(), ([], []))
+
+    def test_trash_failures(self):
+        from unittest.mock import patch
+
+        from calibre.db.cli.cmd_trash import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        db.mark_as_dirty(db.all_book_ids())
+        db.dump_metadata()
+        fmts = sorted(db.formats(1))
+        self.assertGreater(len(fmts), 1)
+        db.remove_formats({1: fmts, 2: db.formats(2)})
+        db.remove_books((2,))
+
+        self.assertEqual(implementation(db, None, 'frob'), (False, 'Unknown action: frob'))
+        with self.assertRaisesRegex(SystemExit, 'cannot be used'):
+            self.run_trash(db, 'list', '--formats')
+
+        # The removed formats of a book that no longer exists cannot be restored
+        out = self.run_trash(db, 'list')
+        self.assertIn('(not restorable)', [line for line in out.splitlines() if line.startswith('2\t')][-1])
+        self.assertNotIn('(not restorable)', [line for line in out.splitlines() if line.startswith('1\t')][-1])
+        listed = json.loads(self.run_trash(db, 'list', '--for-machine'))
+        self.assertEqual({x['id']: x['restorable'] for x in listed['formats']}, {1: True, 2: False})
+        with self.assertRaisesRegex(SystemExit, '2: The book no longer exists'):
+            self.run_trash(db, 'restore', '--formats', '2')
+        self.assertIn('The formats of 0 books restored', self.last_output)
+
+        # A book whose formats are only partly restored is not counted as restored, the restored formats are notified
+        orig = db.move_format_from_trash
+
+        def fail_second(book_id, fmt):
+            if fmt == fmts[1]:
+                raise ValueError('failed')
+            return orig(book_id, fmt)
+
+        with patch.object(db, 'move_format_from_trash', side_effect=fail_second):
+            with self.assertRaisesRegex(SystemExit, 'Failed to restore:\n1: failed'):
+                self.run_trash(db, 'restore', '--formats', '1', is_remote=True)
+        self.assertIn('The formats of 0 books restored', self.last_output)
+        self.assertEqual(self.changes[0].formats_map, {1: [fmts[0]]})
+        self.assertEqual(db.formats(1), (fmts[0],))
+
+        # Deleting continues past failures
+        db.remove_books((3,))
+        orig_delete = db.delete_trash_entry
+
+        def fail_delete(book_id, category):
+            if book_id == 2:
+                raise OSError('failed')
+            return orig_delete(book_id, category)
+
+        with patch.object(db, 'delete_trash_entry', side_effect=fail_delete):
+            with self.assertRaisesRegex(SystemExit, 'Failed to delete:\n2: failed'):
+                self.run_trash(db, 'delete', '2,3')
+        self.assertEqual(self.last_output, 'One entry permanently deleted\n')
+        self.assertEqual([e.book_id for e in db.list_trash_entries()[0]], [2])
+        self.assertEqual(self.run_trash(db, 'delete', '--formats', '1,2'), '2 entries permanently deleted\n')
+        self.assertEqual(db.list_trash_entries()[1], [])
 
 
 def find_tests():
@@ -543,4 +778,6 @@ def find_tests():
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
         loader.loadTestsFromTestCase(ItemsTest),
         loader.loadTestsFromTestCase(VirtualLibrariesTest),
+        loader.loadTestsFromTestCase(AnnotationsTest),
+        loader.loadTestsFromTestCase(TrashTest),
     ))

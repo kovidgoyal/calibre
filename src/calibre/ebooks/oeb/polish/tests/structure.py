@@ -9,12 +9,12 @@ from zipfile import ZIP_STORED, ZipFile
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
-from calibre.ebooks.oeb.base import EPUB_NS, OEB_DOCS, XHTML, barename, xml2text
+from calibre.ebooks.oeb.base import EPUB, EPUB_NS, OEB_DOCS, XHTML, barename, xml2text
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import clean_opf, find_cover_image, find_cover_page, mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.create import create_book
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
-from calibre.ebooks.oeb.polish.toc import commit_nav_toc, get_landmarks, get_toc
+from calibre.ebooks.oeb.polish.toc import TOC, commit_nav_toc, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.toc import from_xpaths as toc_from_xpaths
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -856,6 +856,35 @@ class Structure(BaseTest):
         # The role attribute is not valid in the XHTML 1.1 used by EPUB 2
         c = self.create_epub([cmi('a.html', html('<section epub:type="chapter">c</section>'))], ver=2)
         self.assertFalse(missing(c))
+
+        # The navs calibre creates have the roles, except for landmarks, which
+        # has none, and roles set by the author are kept, unless they remove
+        # the semantics of the nav
+
+        def navs(c):
+            name = next(iter(c.manifest_items_with_property('nav')))
+            all_navs = tuple(c.parsed(name).iterdescendants(XHTML('nav')))
+            ans = {nav.get(EPUB('type')): nav for nav in all_navs}
+            self.assertEqual(len(ans), len(all_navs), 'There are multiple navs of the same type')
+            return name, ans
+
+        toc = TOC()
+        toc.add('A', 'a.html')
+        toc.page_list = [{'dest': 'a.html', 'frag': None, 'pagenum': 1}]
+        c = self.create_epub([cmi('a.html', html('<p>a</p>'))])
+        commit_nav_toc(c, toc, landmarks=[{'dest': 'a.html', 'frag': None, 'type': 'bodymatter', 'title': 'Start'}])
+        name, nav_map = navs(c)
+        self.assertEqual({k: v.get('role') for k, v in nav_map.items()}, {'toc': 'doc-toc', 'page-list': 'doc-pagelist', 'landmarks': None})
+        self.assertFalse(missing(c))
+        nav_map['toc'].set('role', 'navigation')
+        c.dirty(name)
+        commit_nav_toc(c, toc)
+        name, nav_map = navs(c)
+        self.assertEqual(nav_map['toc'].get('role'), 'navigation')
+        nav_map['toc'].set('role', 'none')
+        c.dirty(name)
+        commit_nav_toc(c, toc)
+        self.assertEqual(navs(c)[1]['toc'].get('role'), 'doc-toc')
 
     def test_accessibility_tool_language(self):
         from calibre.ebooks.oeb.polish.accessibility import (

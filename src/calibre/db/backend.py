@@ -2867,6 +2867,23 @@ class DB:
             if not ignore_removed or not annot.get('removed'):
                 yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': annot}
 
+    def book_ids_for_annotations(self, annot_ids, ignore_removed=False):
+        ans = {}
+        annot_ids = tuple(annot_ids)
+        for i in range(0, len(annot_ids), 500):
+            chunk = annot_ids[i : i + 500]
+            q = 'SELECT id, book, annot_data FROM annotations WHERE id IN ({})'.format(','.join('?' * len(chunk)))
+            for annot_id, book_id, data in self.execute(q, chunk):
+                if ignore_removed:
+                    try:
+                        removed = json.loads(data).get('removed')
+                    except Exception:
+                        removed = False  # corrupted annotations can still be deleted
+                    if removed:
+                        continue
+                ans[annot_id] = book_id
+        return ans
+
     def delete_annotations(self, annot_ids):
         replacements = []
         removals = []

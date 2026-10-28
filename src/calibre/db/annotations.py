@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+import sys
 from collections import defaultdict
+from collections.abc import Callable
 from itertools import chain
+from typing import Self
+from urllib.parse import quote
 
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
-from calibre.utils.date import EPOCH
+from calibre.utils.date import EPOCH, format_date
 from calibre.utils.iso8601 import parse_iso8601
+from calibre.utils.localization import _
 
-no_cfi_sort_key = cfi_sort_key('/99999999')
+no_cfi = '/99999999'
+no_cfi_sort_key = cfi_sort_key(no_cfi)
 
 
 def unicode_normalize(text):
@@ -20,15 +26,20 @@ def unicode_normalize(text):
 
 
 def bookmark_sort_key(b):
-    if b.get('pos_type') == 'epubcfi':
-        return cfi_sort_key(b['pos'], only_path=False)
+    if b.get('pos_type') == 'epubcfi' and (pos := b.get('pos')):
+        return cfi_sort_key(pos, only_path=False)
     return no_cfi_sort_key
 
 
 def highlight_sort_key(hl):
     cfi = hl.get('start_cfi')
     if cfi:
-        return cfi_sort_key(cfi, only_path=False)
+        if cfi.startswith('epubcfi('):
+            return cfi_sort_key(cfi, only_path=False)
+        # The CFI of a highlight is relative to its spine item, so prefix the
+        # spine index, as is done in the viewer
+        si = hl.get('spine_index')
+        return cfi_sort_key((no_cfi if si is None else f'/{si}') + cfi)
     return no_cfi_sort_key
 
 
@@ -143,3 +154,100 @@ def annot_db_data(annot):
         if notes:
             text += '\n\x1f\n' + notes
     return aid, unicode_normalize(text)
+
+
+# Rendering as text {{{
+
+
+def format_annotation_timestamp(ts: str) -> str:
+    "Format the ISO 8601 timestamp of an annotation in the local timezone"
+    try:
+        return format_date(parse_iso8601(ts, assume_utc=True), 'yyyy-MM-dd hh:mm')
+    except ValueError as err:
+        print(f'Invalid annotation timestamp: {ts!r} with error: {err}', file=sys.stderr)
+        return ts
+
+
+def render_highlight_as_text(
+    hl: dict, lines: list[str], render_timestamp: Callable[[str], str], as_markdown: bool = False, link_prefix: str | None = None
+) -> None:
+    lines.append(hl['highlighted_text'])
+    date = render_timestamp(hl['timestamp'])
+    if as_markdown and link_prefix:
+        cfi = hl['start_cfi']
+        spine_index = (1 + hl['spine_index']) * 2
+        link = (link_prefix + quote(f'epubcfi(/{spine_index}{cfi})')).replace(')', '%29')
+        date = f'[{date}]({link})'
+    if as_markdown:
+        date = f'*{date}*'
+    lines.append(date)
+    notes = hl.get('notes')
+    if notes:
+        lines.append('')
+        lines.append(notes)
+    lines.append('')
+    if as_markdown:
+        lines.append('-' * 20)
+    else:
+        lines.append('───')
+    lines.append('')
+
+
+def render_bookmark_as_text(
+    b: dict, lines: list[str], render_timestamp: Callable[[str], str], as_markdown: bool = False, link_prefix: str | None = None
+) -> None:
+    lines.append(b['title'])
+    date = render_timestamp(b['timestamp'])
+    if as_markdown and link_prefix and b['pos_type'] == 'epubcfi':
+        link = (link_prefix + quote(b['pos'])).replace(')', '%29')
+        date = f'[{date}]({link})'
+    lines.append(date)
+    lines.append('')
+    if as_markdown:
+        lines.append('-' * 20)
+    else:
+        lines.append('───')
+    lines.append('')
+
+
+class ChapterGroup:
+    "Group annotations by the chapters they are in, for export"
+
+    def __init__(self, title: str = '', level: int = 0):
+        self.title = title
+        self.subgroups: dict[str, Self] = {}
+        self.annotations: list[dict] = []
+        self.level = level
+
+    def render_timestamp(self, ts: str) -> str:
+        return format_annotation_timestamp(ts)
+
+    def add_annot(self, a: dict) -> None:
+        titles = a.get('toc_family_titles', (_('Unknown chapter'),))
+        node = self
+        for title in titles:
+            node = node.group_for_title(title)
+        node.annotations.append(a)
+
+    def group_for_title(self, title: str) -> Self:
+        ans = self.subgroups.get(title)
+        if ans is None:
+            ans = self.__class__(title, self.level + 1)
+            self.subgroups[title] = ans
+        return ans
+
+    def render_as_text(self, lines: list[str], as_markdown: bool, link_prefix: str | None) -> None:
+        if self.title:
+            lines.append('#' * self.level + ' ' + self.title)
+            lines.append('')
+        for hl in self.annotations:
+            atype = hl.get('type', 'highlight')
+            if atype == 'bookmark':
+                render_bookmark_as_text(hl, lines, self.render_timestamp, as_markdown=as_markdown, link_prefix=link_prefix)
+            else:
+                render_highlight_as_text(hl, lines, self.render_timestamp, as_markdown=as_markdown, link_prefix=link_prefix)
+        for sg in self.subgroups.values():
+            sg.render_as_text(lines, as_markdown, link_prefix)
+
+
+# }}}

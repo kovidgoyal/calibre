@@ -630,6 +630,31 @@ class AddRemoveTest(BaseTest):
             cache.move_format_from_trash(1, fmt)
         self.assertEqual(all_formats, cache.formats(1))
         self.assertFalse(os.listdir(os.path.join(cache.backend.trash_dir, 'f')))
+        self.assertTrue(f[0].restorable)
+
+        # removed formats of a deleted book are listed but not restorable,
+        # until the book is restored
+        cache.remove_formats({1: all_formats})
+        cache.remove_books((1,))
+        b, f = cache.list_trash_entries()
+        self.assertEqual([e.book_id for e in b], [1])
+        self.assertEqual([(e.book_id, e.restorable, e.cover_path) for e in f], [(1, False, '')])
+        self.assertRaises(ValueError, cache.move_format_from_trash, 1, all_formats[0])
+        cache.move_book_from_trash(1)
+        b, f = cache.list_trash_entries()
+        self.assertEqual([(e.book_id, e.restorable) for e in f], [(1, True)])
+        for fmt in all_formats:
+            cache.move_format_from_trash(1, fmt)
+        self.assertEqual(set(all_formats), set(cache.formats(1)))
+
+        # removed formats of a permanently deleted book can still be saved
+        cache.remove_formats({1: all_formats})
+        cache.remove_books((1,), permanent=True)
+        b, f = cache.list_trash_entries()
+        self.assertEqual([(e.book_id, e.restorable) for e in f], [(1, False)])
+        dest = os.path.join(self.mkdtemp(), 'saved_format')
+        cache.copy_format_from_trash(1, all_formats[0], dest)
+        self.assertTrue(os.path.exists(dest))
 
     # }}}
 
