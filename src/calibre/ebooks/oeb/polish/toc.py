@@ -14,6 +14,7 @@ from lxml.builder import ElementMaker
 
 from calibre import __version__
 from calibre.ebooks.oeb.base import EPUB_NS, NCX, NCX_NS, OEB_DOCS, XHTML, XHTML_NS, XML, XML_NS, XPath, serialize, uuid_id, xml2text
+from calibre.ebooks.oeb.polish.accessibility import role_for
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.opf import get_book_language, set_guide_item
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
@@ -684,13 +685,15 @@ def ensure_single_nav_of_type(root, ntype='toc'):
         nav = root.makeelement(XHTML('nav'))
         first_child(root, XHTML('body')).append(nav)
     nav.set(f'{{{EPUB_NS}}}type', ntype)
-    # Screen readers use the role rather than the epub:type, a role set by
-    # the author is kept. The landmarks nav has no corresponding role.
-    from calibre.ebooks.oeb.polish.check.accessibility import ROLE_FOR_EPUB_TYPE
-
-    if (x := ROLE_FOR_EPUB_TYPE.get(ntype)) is not None and not (nav.get('role') or '').strip():
-        nav.set('role', x[0])
     return nav
+
+
+def set_nav_role(nav):
+    # Screen readers use the role rather than the epub:type. A role set by the
+    # author is kept, unless it removes the semantics of the nav, as calibre
+    # has just generated its contents.
+    if (nav.get('role') or '').strip() in ('', 'none', 'presentation') and (role := role_for(nav)):
+        nav.set('role', role)
 
 
 NAV_HEADINGS = frozenset(XHTML(f'h{i}') for i in range(1, 7))
@@ -877,6 +880,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
     # nav of the input book
     previous_heading = None if previous_nav is None or toc.toc_title else nav_heading(root, 'toc')
     nav = ensure_single_nav_of_type(root, 'toc')
+    set_nav_role(nav)
     if previous_heading is not None:
         nav.append(previous_heading)
     elif toc.toc_title:
@@ -919,6 +923,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
 
     if toc.page_list:
         nav = ensure_single_nav_of_type(root, 'page-list')
+        set_nav_role(nav)
         nav.set('hidden', '')
         ol = nav.makeelement(XHTML('ol'))
         nav.append(ol)

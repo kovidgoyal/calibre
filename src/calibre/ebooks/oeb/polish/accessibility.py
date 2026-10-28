@@ -9,7 +9,7 @@
 from typing import NamedTuple
 
 from calibre.ebooks.metadata.utils import normalize_languages
-from calibre.ebooks.oeb.base import DC, OEB_DOCS, OPF, XHTML, XML
+from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, XHTML, XML
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import canonicalize_lang
@@ -284,6 +284,78 @@ def set_accessibility_metadata(container: Container, metadata: dict[str, list[st
     if changed:
         container.dirty(container.opf_name)
     return changed
+
+
+# }}}
+
+
+# ARIA roles {{{
+
+EPUB_TYPE = EPUB('type')
+
+
+def _roles():
+    # The epub:type values that have a corresponding role, from the EPUB Type
+    # to ARIA Role Authoring Guide, see
+    # https://www.w3.org/TR/epub-aria-authoring-11/ and the elements the roles
+    # are allowed on, from ARIA in HTML, see https://www.w3.org/TR/html-aria/
+    # Only the DPUB-ARIA roles are used, the WAI-ARIA roles such as list and
+    # table change the nature of the element and so need more care than can be
+    # taken automatically. The deprecated doc-biblioentry and doc-endnote roles
+    # are not used, and neither is doc-cover, which is for images, not the
+    # cover type.
+    allowed_on = {
+        'section': (
+            'abstract acknowledgments afterword appendix bibliography chapter colophon conclusion credit credits dedication'
+            ' endnotes epigraph epilogue errata foreword glossary index introduction notice page-list part preface prologue'
+            ' pullquote qna toc'
+        ),
+        'aside': 'dedication footnote glossary pullquote tip',
+        'footer': 'footnote',
+        'nav': 'index page-list toc',
+        'hr': 'pagebreak',
+        'a': 'backlink biblioref glossref noteref',
+    } | {f'h{i}': 'subtitle' for i in range(1, 7)}
+    ans = {}
+    for tag, epub_types in allowed_on.items():
+        for epub_type in epub_types.split():
+            ans.setdefault(epub_type, set()).add(XHTML(tag))
+    return {epub_type: ('doc-' + epub_type.replace('-', ''), frozenset(tags)) for epub_type, tags in ans.items()}
+
+
+ROLE_FOR_EPUB_TYPE = _roles()
+# Elements that accept any role, from ARIA in HTML. Not included are <a> with
+# a href, <figure> with a <figcaption> and table cells and rows, which accept
+# any role only in some circumstances
+ACCEPTS_ANY_ROLE = frozenset(
+    map(
+        XHTML,
+        (
+            'abbr address b bdi bdo blockquote canvas cite code data del dfn div em hgroup i ins kbd mark output p pre q'
+            ' rp rt ruby s samp small span strong sub sup table tbody tfoot thead time u var'
+        ).split(),
+    )
+)
+A, FIGURE, FIGCAPTION = XHTML('a'), XHTML('figure'), XHTML('figcaption')
+
+
+def accepts_any_role(elem) -> bool:
+    if elem.tag in ACCEPTS_ANY_ROLE:
+        return True
+    if elem.tag == A:
+        return elem.get('href') is None
+    if elem.tag == FIGURE:
+        return next(elem.iterchildren(FIGCAPTION), None) is None
+    return False
+
+
+def role_for(elem) -> str | None:
+    # The role for the first epub:type of the element that has one valid on it
+    for epub_type in (elem.get(EPUB_TYPE) or '').split():
+        x = ROLE_FOR_EPUB_TYPE.get(epub_type)
+        if x is not None and (elem.tag in x[1] or accepts_any_role(elem)):
+            return x[0]
+    return None
 
 
 # }}}
