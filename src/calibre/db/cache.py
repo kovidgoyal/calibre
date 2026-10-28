@@ -3609,11 +3609,11 @@ class Cache:
     @read_api
     def list_trash_entries(self):
         books, formats = self.backend.list_trash_entries()
-        ff = []
         for e in formats:
             if self._has_id(e.book_id):
-                ff.append(e)
                 e.cover_path = self.format_abspath(e.book_id, '__COVER_INTERNAL__')
+            else:
+                e.restorable = False
         return books, formats
 
     _list_trash_entries = list_trash_entries

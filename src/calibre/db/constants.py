@@ -30,6 +30,8 @@ class TrashEntry:
     cover_path: str
     mtime: float
     formats: Sequence[str] = ()
+    # False for removed formats whose book no longer exists, these can only be saved or deleted
+    restorable: bool = True
 
 
 class Pages(NamedTuple):
