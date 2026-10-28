@@ -6,6 +6,7 @@ Test the CLI of the calibre database management tool
 """
 
 import csv
+import json
 import os
 import shutil
 import unittest
@@ -463,6 +464,85 @@ class ItemsTest(BaseTest):
         self.assertEqual(len(changes), 1)
 
 
+class TrashTest(BaseTest):
+    def run_trash(self, db, *args, is_remote=False):
+        from calibre.db.cli.cmd_trash import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
+        changes = []
+
+        class DBCtx:
+            def run(self, name, *args):
+                if is_remote:
+                    # Results are sent over the network by the Content server
+                    return msgpack_loads(msgpack_dumps(implementation(db, changes.append, *msgpack_loads(msgpack_dumps(args)))))
+                return implementation(db, None, *args)
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        self.changes = changes
+        return out.getvalue()
+
+    def test_trash(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(self.run_trash(db, 'list'), '')
+        titles = {i: db.field_for('title', i) for i in db.all_book_ids()}
+        fmts = db.formats(1)
+        # The trash is listed using the metadata backups of the books, as in a real library
+        db.mark_as_dirty(db.all_book_ids())
+        db.dump_metadata()
+        db.remove_books((2, 3))
+        db.remove_formats({1: fmts})
+
+        out = self.run_trash(db, 'list')
+        self.assertIn('Books:\n', out)
+        self.assertIn(f'2\t{titles[2]}\t', out)
+        self.assertIn(f'1\t{titles[1]}\t', out.partition('Formats:')[2])
+        self.assertIn(', '.join(sorted(fmts)), out.partition('Formats:')[2])
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                listed = json.loads(self.run_trash(db, 'list', '--for-machine', is_remote=is_remote))
+                self.assertEqual({x['id'] for x in listed['books']}, {2, 3})
+                self.assertEqual([(x['id'], sorted(x['formats'])) for x in listed['formats']], [(1, sorted(fmts))])
+                self.assertEqual(listed['books'][0]['title'], titles[listed['books'][0]['id']])
+
+        # Restore books, through the server too
+        self.assertEqual(self.run_trash(db, 'restore', '2', is_remote=True), 'One book restored\n')
+        self.assertEqual([type(c).__name__ for c in self.changes], ['BooksAdded'])
+        self.assertTrue(db.has_id(2))
+        self.assertEqual(db.field_for('title', 2), titles[2])
+        # Restore formats
+        self.assertEqual(self.run_trash(db, '--formats', 'restore', '1', is_remote=True), 'The formats of one book restored\n')
+        self.assertEqual(set(db.formats(1)), set(fmts))
+        self.assertEqual(self.changes[0].formats_map, {1: sorted(fmts)})
+        books, formats = db.list_trash_entries()
+        self.assertEqual(({e.book_id for e in books}, formats), ({3}, []))
+
+        for args, msg in (
+            ((), 'must specify an action'),
+            (('frob',), 'not recognized'),
+            (('list', '1'), 'Too many arguments'),
+            (('empty', '1'), 'Too many arguments'),
+            (('restore',), 'ids of the books'),
+            (('restore', 'x'), 'must be numbers'),
+            (('restore', '3,1'), 'No entries in the .+ for the books: 1$'),
+            (('delete', '--formats', '3'), 'No entries in the .+ for the books: 3$'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_trash(db, *args)
+        # Nothing is restored if any of the books are not in the trash
+        self.assertFalse(db.has_id(3))
+
+        self.assertEqual(self.run_trash(db, 'delete', '3'), 'One entry permanently deleted\n')
+        self.assertEqual(db.list_trash_entries(), ([], []))
+        db.remove_books((2,))
+        self.assertIn('emptied', self.run_trash(db, 'empty'))
+        self.assertEqual(db.list_trash_entries(), ([], []))
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -473,4 +553,5 @@ def find_tests():
         loader.loadTestsFromTestCase(NotesTest),
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
         loader.loadTestsFromTestCase(ItemsTest),
+        loader.loadTestsFromTestCase(TrashTest),
     ))
