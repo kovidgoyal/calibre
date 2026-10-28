@@ -376,9 +376,12 @@ Some of the checks performed are:
       <https://www.w3.org/TR/epub-a11y-11/>`_ specification. Images,
       including SVG images, without alternative text, HTML files that do not
       specify their language and headings that skip levels are reported. For
-      EPUB 3 books, missing accessibility metadata is also reported. The
-      language of the HTML files can be set automatically to the language of
-      the book. These checks are only run if you turn on the
+      EPUB 3 books, missing accessibility metadata and elements whose
+      ``epub:type`` has a corresponding ARIA role, such as ``doc-noteref`` for
+      ``noteref``, but that do not have a ``role`` attribute, are also
+      reported. Screen readers use the ``role`` attribute, not ``epub:type``.
+      The language of the HTML files can be set automatically to the language
+      of the book and the missing roles can be added automatically. These checks are only run if you turn on the
       :guilabel:`Check for accessibility problems` option below the list of
       problems.
 
