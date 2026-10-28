@@ -106,20 +106,10 @@ def render_timestamp(ts: str) -> str:
 
 def sorted_by_position(annots: list[dict]) -> list[dict]:
     "Sort the annotations of a book in the order they appear in it, highlights before bookmarks"
-    from calibre.db.annotations import bookmark_sort_key, no_cfi_sort_key
-    from calibre.ebooks.epub.cfi.parse import cfi_sort_key
-
-    def hl_key(hl):
-        # The CFI of highlights is relative to the file in the spine they are
-        # in, so make it a full CFI, as for the links when exporting from the
-        # Browse annotations tool
-        cfi, spine_index = hl.get('start_cfi'), hl.get('spine_index')
-        if cfi and isinstance(spine_index, int):
-            return cfi_sort_key(f'epubcfi(/{(spine_index + 1) * 2}{cfi})', only_path=False)
-        return no_cfi_sort_key
+    from calibre.db.annotations import bookmark_sort_key, highlight_sort_key
 
     ans = []
-    for atype, key in (('highlight', hl_key), ('bookmark', bookmark_sort_key)):
+    for atype, key in (('highlight', highlight_sort_key), ('bookmark', bookmark_sort_key)):
         of_type = [a for a in annots if a['annotation']['type'] == atype]
         try:
             of_type.sort(key=lambda a: key(a['annotation']))
