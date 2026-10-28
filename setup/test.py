@@ -69,6 +69,12 @@ class Test(BaseTest):
             help='The name of an individual test to be excluded from the test run. Can be specified more than once for multiple tests.',
         )
         parser.add_option(
+            '--list',
+            action='store_true',
+            default=False,
+            help='Print the list of available tests and exit. Also support --test-group and --exclude-test-module.',
+        )
+        parser.add_option(
             '--worker',
             default=None,
             help='Python code to eval inside a worker process (used internally by the parallel test runner).',
@@ -92,13 +98,17 @@ class Test(BaseTest):
                 # onnxruntime.dll from System32 is loaded instead
                 os.add_dll_directory(os.path.join(SW, 'lib'))  # type: ignore
 
-        from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
+        from calibre.utils.run_tests import filter_tests_by_name, find_tests, itertests, remove_tests_by_name, run_cli
 
         if opts.worker is not None:
             eval(compile(opts.worker, '<worker>', 'exec'))
             raise SystemExit(0)
 
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
+        if opts.list:
+            print(*itertests(tests), sep='\n')
+            raise SystemExit(0)
+
         only = []
         if opts.test_name:
             only += list(opts.test_name)
