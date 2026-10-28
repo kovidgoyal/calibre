@@ -42,6 +42,7 @@ COMMANDS = (
     'fts_search',
     'notes',
     'items',
+    'virtual_libraries',
 )
 
 
