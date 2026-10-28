@@ -579,10 +579,13 @@ class TrashTest(BaseTest):
                 return implementation(db, None, *args)
 
         opts, args = option_parser(get_parser, []).parse_args(list(args))
-        with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())
         self.changes = changes
-        return out.getvalue()
+        try:
+            with redirect_stdout(StringIO()) as out:
+                main(opts, args, DBCtx())
+        finally:
+            self.last_output = out.getvalue()
+        return self.last_output
 
     def test_trash(self):
         db = self.init_cache()
@@ -640,6 +643,66 @@ class TrashTest(BaseTest):
         db.remove_books((2,))
         self.assertIn('emptied', self.run_trash(db, 'empty'))
         self.assertEqual(db.list_trash_entries(), ([], []))
+
+    def test_trash_failures(self):
+        from unittest.mock import patch
+
+        from calibre.db.cli.cmd_trash import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        db.mark_as_dirty(db.all_book_ids())
+        db.dump_metadata()
+        fmts = sorted(db.formats(1))
+        self.assertGreater(len(fmts), 1)
+        db.remove_formats({1: fmts, 2: db.formats(2)})
+        db.remove_books((2,))
+
+        self.assertEqual(implementation(db, None, 'frob'), (False, 'Unknown action: frob'))
+        with self.assertRaisesRegex(SystemExit, 'cannot be used'):
+            self.run_trash(db, 'list', '--formats')
+
+        # The removed formats of a book that no longer exists cannot be restored
+        out = self.run_trash(db, 'list')
+        self.assertIn('(not restorable)', [line for line in out.splitlines() if line.startswith('2\t')][-1])
+        self.assertNotIn('(not restorable)', [line for line in out.splitlines() if line.startswith('1\t')][-1])
+        listed = json.loads(self.run_trash(db, 'list', '--for-machine'))
+        self.assertEqual({x['id']: x['restorable'] for x in listed['formats']}, {1: True, 2: False})
+        with self.assertRaisesRegex(SystemExit, '2: The book no longer exists'):
+            self.run_trash(db, 'restore', '--formats', '2')
+        self.assertIn('The formats of 0 books restored', self.last_output)
+
+        # A book whose formats are only partly restored is not counted as restored, the restored formats are notified
+        orig = db.move_format_from_trash
+
+        def fail_second(book_id, fmt):
+            if fmt == fmts[1]:
+                raise ValueError('failed')
+            return orig(book_id, fmt)
+
+        with patch.object(db, 'move_format_from_trash', side_effect=fail_second):
+            with self.assertRaisesRegex(SystemExit, 'Failed to restore:\n1: failed'):
+                self.run_trash(db, 'restore', '--formats', '1', is_remote=True)
+        self.assertIn('The formats of 0 books restored', self.last_output)
+        self.assertEqual(self.changes[0].formats_map, {1: [fmts[0]]})
+        self.assertEqual(db.formats(1), (fmts[0],))
+
+        # Deleting continues past failures
+        db.remove_books((3,))
+        orig_delete = db.delete_trash_entry
+
+        def fail_delete(book_id, category):
+            if book_id == 2:
+                raise OSError('failed')
+            return orig_delete(book_id, category)
+
+        with patch.object(db, 'delete_trash_entry', side_effect=fail_delete):
+            with self.assertRaisesRegex(SystemExit, 'Failed to delete:\n2: failed'):
+                self.run_trash(db, 'delete', '2,3')
+        self.assertEqual(self.last_output, 'One entry permanently deleted\n')
+        self.assertEqual([e.book_id for e in db.list_trash_entries()[0]], [2])
+        self.assertEqual(self.run_trash(db, 'delete', '--formats', '1,2'), '2 entries permanently deleted\n')
+        self.assertEqual(db.list_trash_entries()[1], [])
 
 
 def find_tests():
