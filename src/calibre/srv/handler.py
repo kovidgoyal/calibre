@@ -208,7 +208,7 @@ class Context:
             return old[1]
 
 
-SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert', 'fts', 'kosync')
+SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'opds2', 'users_api', 'convert', 'fts', 'kosync')
 
 
 class Handler:
