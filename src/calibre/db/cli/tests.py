@@ -735,6 +735,74 @@ class TrashTest(BaseTest):
         self.assertEqual(db.list_trash_entries()[1], [])
 
 
+class VirtualLibrariesTest(BaseTest):
+    def run_vls(self, db, *args, is_remote=False):
+        from calibre.db.cli.cmd_virtual_libraries import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
+        class DBCtx:
+            def run(self, name, *args):
+                if is_remote:
+                    # Results are sent over the network by the Content server
+                    return msgpack_loads(msgpack_dumps(implementation(db, lambda *a: None, *msgpack_loads(msgpack_dumps(args)))))
+                return implementation(db, None, *args)
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_virtual_libraries(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        self.assertEqual(self.run_vls(db), '')
+        self.assertEqual(self.run_vls(db, 'add', 'One', 'title:"=Title One"'), 'Virtual library One added, with one book\n')
+        self.assertEqual(self.run_vls(db, 'add', 'Both', 'id:1 or id:2', is_remote=True), 'Virtual library Both added, with 2 books\n')
+        self.assertEqual(db.pref('virtual_libraries'), {'One': 'title:"=Title One"', 'Both': 'id:1 or id:2'})
+        self.assertEqual(db.search('vl:Both'), {1, 2})
+        self.assertEqual(self.run_vls(db, 'list'), 'Both\tid:1 or id:2\t2\nOne\ttitle:"=Title One"\t1\n')
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                listed = json.loads(self.run_vls(db, 'list', '--for-machine', is_remote=is_remote))
+                self.assertEqual(listed, [{'name': 'Both', 'search': 'id:1 or id:2', 'count': 2}, {'name': 'One', 'search': 'title:"=Title One"', 'count': 1}])
+
+        with self.assertRaisesRegex(SystemExit, 'already exists'):
+            self.run_vls(db, 'add', 'One', 'id:3')
+        self.run_vls(db, 'add', '--replace', 'One', 'id:3')
+        self.assertEqual(db.search('vl:One'), {3})
+
+        # Templates are not allowed for remote clients
+        db.set_pref('virtual_libraries', dict(db.pref('virtual_libraries'), T='template:"program: 1"#@#:t:1'))
+        self.assertIn('T\ttemplate:"program: 1"#@#:t:1\tinvalid search', self.run_vls(db, 'list', is_remote=True))
+        with self.assertRaisesRegex(SystemExit, 'Templates are not allowed'):
+            self.run_vls(db, 'add', 'T2', 'template:"program: 1"#@#:t:1', is_remote=True)
+
+        self.run_vls(db, 'rename', 'Both', 'Two books')
+        self.assertEqual(set(db.pref('virtual_libraries')), {'One', 'Two books', 'T'})
+        self.assertEqual(db.search('vl:"Two books"'), {1, 2})
+        self.assertEqual(self.run_vls(db, 'remove', 'One', 'T', is_remote=True), '2 Virtual libraries removed\n')
+        self.assertEqual(db.pref('virtual_libraries'), {'Two books': 'id:1 or id:2'})
+
+        for args, msg in (
+            (('frob',), 'not recognized'),
+            (('list', 'x'), 'Too many arguments'),
+            (('add', 'x'), 'name and a search expression'),
+            (('add', ' ', 'id:1'), 'must not be empty'),
+            (('add', 'Bad', '(id:1'), 'Failed to parse search query'),
+            (('add', 'Two books', 'id:1'), 'already exists'),
+            (('rename', 'x'), 'its new name'),
+            (('rename', 'Nothing', 'x'), 'No Virtual library named: Nothing'),
+            (('rename', 'Two books', ' '), 'must not be empty'),
+            (('remove',), 'names of the Virtual libraries'),
+            (('remove', 'Two books', 'Nothing'), 'No Virtual libraries named: Nothing'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_vls(db, *args)
+        # Nothing is removed if any of the names do not exist
+        self.assertEqual(db.pref('virtual_libraries'), {'Two books': 'id:1 or id:2'})
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -748,4 +816,5 @@ def find_tests():
         loader.loadTestsFromTestCase(AnnotationsTest),
         loader.loadTestsFromTestCase(SavedSearchesTest),
         loader.loadTestsFromTestCase(TrashTest),
+        loader.loadTestsFromTestCase(VirtualLibrariesTest),
     ))
