@@ -133,7 +133,8 @@ def init_test(tdir_name):
 
 
 def dump_log(lf):
-    prints(open(lf, 'rb').read().decode('utf-8'))
+    with open(lf, 'rb') as f:
+        prints(f.read().decode('utf-8'))
 
 
 def test_identify(tests):  # {{{

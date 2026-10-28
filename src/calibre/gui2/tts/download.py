@@ -47,7 +47,7 @@ class ProgressBar(QWidget):
         self.qurl = qurl
         self.desc = text
         self.path = path
-        self.file_obj = tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(self.path), delete=False)
+        self.file_obj = tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(self.path), delete=False)  # ruff: ignore[open-file-with-context-handler]
         req = QNetworkRequest(qurl)
         fi = QFileInfo(self.path)
         if fi.exists():

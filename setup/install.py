@@ -303,18 +303,19 @@ class Sdist(Command):
         self.info('\tRunning git export...')
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
-        for x in open('.gitignore'):
-            if not x.startswith('/resources/'):
-                continue
-            x = x[1:]
-            for p in glob.glob(x.strip().replace('/', os.sep)):
-                d = self.j(tdir, os.path.dirname(p))
-                if not self.e(d):
-                    os.makedirs(d)
-                if os.path.isdir(p):
-                    shutil.copytree(p, self.j(tdir, p))
-                else:
-                    shutil.copy2(p, d)
+        with open('.gitignore') as f:
+            for x in f:
+                if not x.startswith('/resources/'):
+                    continue
+                x = x[1:]
+                for p in glob.glob(x.strip().replace('/', os.sep)):
+                    d = self.j(tdir, os.path.dirname(p))
+                    if not self.e(d):
+                        os.makedirs(d)
+                    if os.path.isdir(p):
+                        shutil.copytree(p, self.j(tdir, p))
+                    else:
+                        shutil.copy2(p, d)
         for x in os.walk(os.path.join(self.SRC, 'calibre')):
             for f in x[-1]:
                 if not f.endswith('_ui.py'):

@@ -174,7 +174,8 @@ def cabinets_in_msi(path):
 
 def download(dest_dir, manifest_version=17, manifest_type='release', manifest_path='', crt_variant='desktop', arch='x86_64'):
     if manifest_path:
-        manifest = open(manifest_path, 'rb').read()
+        with open(manifest_path, 'rb') as f:
+            manifest = f.read()
     else:
         url = f'https://aka.ms/vs/{manifest_version}/{manifest_type}/channel'
         print('Downloading top-level manifest from', url)

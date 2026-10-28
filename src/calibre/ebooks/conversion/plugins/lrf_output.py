@@ -174,7 +174,8 @@ class LRFOutput(OutputFormatPlugin):
             )
             book.append(_page)
 
-        book.renderLrf(open(opts.output, 'wb'))
+        with open(opts.output, 'wb') as f:
+            book.renderLrf(f)
 
     def flatten_toc(self):
         from calibre.ebooks.oeb.base import TOC

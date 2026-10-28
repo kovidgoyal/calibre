@@ -188,7 +188,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
                 ioreg = 'IOREG Output\n' + ioreg
                 out(' ')
                 if ioreg_to_tmp:
-                    open('/tmp/ioreg.txt', 'w').write(ioreg)
+                    with open('/tmp/ioreg.txt', 'w') as f:
+                        f.write(ioreg)
                     out("Don't forget to send the contents of /tmp/ioreg.txt")
                     out('You can open it with the command: open /tmp/ioreg.txt')
                 else:

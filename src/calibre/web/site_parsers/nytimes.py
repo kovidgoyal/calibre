@@ -348,7 +348,8 @@ def download_url(url=None, br=None):
 
 if __name__ == '__main__':
     f = sys.argv[-1]
-    raw = open(f).read()
+    with open(f) as r:
+        raw = r.read()
     if f.endswith('.html'):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
 

@@ -242,8 +242,8 @@ class POT(Command):  # {{{
         with tempfile.NamedTemporaryFile() as fl:
             fl.write('\n'.join(files).encode('utf-8'))
             fl.flush()
-            out = tempfile.NamedTemporaryFile(suffix='.pot', delete=False)
-            out.close()
+            with tempfile.NamedTemporaryFile(suffix='.pot', delete=False) as out:
+                pass
             self.info('Creating translations template...')
             subprocess.check_call([
                 'xgettext',
@@ -409,7 +409,8 @@ class Translations(POT):  # {{{
             items.append((src, dest, data))
 
         for src, dest, data in items:
-            self.write_cache(open(dest, 'rb').read(), hashmap[keyfunc(src)], keyfunc(src))
+            with open(dest, 'rb') as f:
+                self.write_cache(f.read(), hashmap[keyfunc(src)], keyfunc(src))
             stats_cache(src, data)
             if handle_stats is not None:
                 handle_stats(src, data)
@@ -417,7 +418,8 @@ class Translations(POT):  # {{{
     def compile_main_translations(self):
         l = {}
         lc_dataf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py')
-        exec(compile(open(lc_dataf, 'rb').read(), lc_dataf, 'exec'), l, l)
+        with open(lc_dataf, 'rb') as f:
+            exec(compile(f.read(), lc_dataf, 'exec'), l, l)
         lcdata = {k: dict(v) for k, v in l['data']}
         self.info('Compiling main UI translation files...')
         from calibre.utils.localization import locale_fallbacks

@@ -78,10 +78,8 @@ class EbookConvert:
         self.previous = words[-2 if prefix else -1]
         from calibre.utils.serialize import msgpack_loads
 
-        self.cache = msgpack_loads(
-            open(os.path.join(getattr(sys, 'resources_location'), 'ebook-convert-complete.calibre_msgpack'), 'rb').read(),
-            use_list=False,
-        )
+        with open(os.path.join(getattr(sys, 'resources_location'), 'ebook-convert-complete.calibre_msgpack'), 'rb') as f:
+            self.cache = msgpack_loads(f.read(), use_list=False)
         self.complete(wc)
 
     def complete(self, wc):

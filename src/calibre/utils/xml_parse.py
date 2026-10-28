@@ -132,7 +132,8 @@ def develop():
     from calibre.ebooks.chardet import xml_to_unicode
 
     # print(etree.tostring(fs('<r/>')).decode())
-    data = xml_to_unicode(open(sys.argv[-1], 'rb').read(), strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)[0]
+    with open(sys.argv[-1], 'rb') as f:
+        data = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)[0]
     print(etree.tostring(safe_xml_fromstring(data)).decode())
 
 

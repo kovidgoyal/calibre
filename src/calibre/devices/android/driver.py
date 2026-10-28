@@ -561,7 +561,8 @@ class WEBOS(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(io.BytesIO(coverdata[2]))
         else:
-            coverdata = open(I('library.png'), 'rb').read()
+            with open(I('library.png'), 'rb') as f:
+                coverdata = f.read()
 
             cover = Image.new('RGB', (120, 160), 'black')
             im = Image.open(io.BytesIO(coverdata))
@@ -586,7 +587,8 @@ class WEBOS(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(io.BytesIO(coverdata[2]))
         else:
-            coverdata = open(I('library.png'), 'rb').read()
+            with open(I('library.png'), 'rb') as f:
+                coverdata = f.read()
 
             cover = Image.new('RGB', (52, 69), 'black')
             im = Image.open(io.BytesIO(coverdata))

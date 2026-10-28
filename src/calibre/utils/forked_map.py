@@ -52,7 +52,7 @@ class Worker:
 
     def __init__(self, pid: int, pipe_fd: int):
         self.pid = pid
-        self.pipe = open(pipe_fd, 'rb')
+        self.pipe = open(pipe_fd, 'rb')  # ruff: ignore[open-file-with-context-handler]
         self.unpickler = pickle.Unpickler(self.pipe)
 
     def __enter__(self) -> Self:

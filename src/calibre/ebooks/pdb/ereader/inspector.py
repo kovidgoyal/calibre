@@ -126,9 +126,8 @@ def main(args=sys.argv):
         print('Error: requires input file.')
         return 1
 
-    f = open(sys.argv[1], 'rb')
-
-    pheader = PdbHeaderReader(f)
+    with open(sys.argv[1], 'rb') as f:
+        pheader = PdbHeaderReader(f)
 
     pdb_header_info(pheader)
     ereader_header_info(pheader)

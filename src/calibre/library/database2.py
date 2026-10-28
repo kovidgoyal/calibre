@@ -59,6 +59,15 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30 * 1024 * 1024
 
 
+def open_with_retry(path, retry_pause):
+    try:
+        f = open(path, 'rb')  # ruff: ignore[open-file-with-context-handler]
+    except OSError:
+        time.sleep(retry_pause)
+        f = open(path, 'rb')  # ruff: ignore[open-file-with-context-handler]
+    return f
+
+
 class ProxyMetadata(NamedTuple):
     book_size: int
     ondevice_col: str
@@ -797,12 +806,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
-            try:
-                f = open(path, 'rb')
-            except OSError:
-                time.sleep(0.2)
-                f = open(path, 'rb')
-            with f:
+            with open_with_retry(path, 0.2) as f:
                 if as_path:
                     pt = PersistentTemporaryFile('_dbcover.jpg')
                     with pt:
@@ -1469,12 +1473,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
         elif os.access(path, os.R_OK):
-            try:
-                f = open(path, 'rb')
-            except OSError:
-                time.sleep(0.2)
-                f = open(path, 'rb')
-            with f:
+            with open_with_retry(path, 0.2) as f:
                 if hasattr(dest, 'write'):
                     shutil.copyfileobj(f, dest)
                     if hasattr(dest, 'flush'):
@@ -1542,10 +1541,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False, path=None, notify=True, replace=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        stream = open(npath, 'rb')
-        format = check_ebook_format(stream, format)
-        id = index if index_is_id else self.id(index)
-        retval = self.add_format(id, format, stream, replace=replace, index_is_id=True, path=path, notify=notify)
+        with open(npath, 'rb') as stream:
+            format = check_ebook_format(stream, format)
+            id = index if index_is_id else self.id(index)
+            retval = self.add_format(id, format, stream, replace=replace, index_is_id=True, path=path, notify=notify)
         run_plugins_on_postimport(self, id, format)
         return retval
 

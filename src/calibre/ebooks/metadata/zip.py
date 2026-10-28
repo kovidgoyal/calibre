@@ -40,7 +40,8 @@ def get_metadata(stream):
                 with TemporaryDirectory() as tdir:
                     with CurrentDir(tdir):
                         path = zf.extract(f)
-                        mi = get_metadata(open(path, 'rb'), stream_type)
+                        with open(path, 'rb') as f:
+                            mi = get_metadata(f, stream_type)
                         if stream_type == 'opf' and mi.application_id is None:
                             try:
                                 # zip archive opf files without an application_id were assumed not to have a cover

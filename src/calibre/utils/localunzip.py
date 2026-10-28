@@ -262,7 +262,7 @@ def _extractall(f, path=None, file_info=None):
                 os.makedirs(bdir)
             dest = os.path.join(path, *parts)
             try:
-                df = open(dest, 'wb')
+                df = open(dest, 'wb')  # ruff: ignore[open-file-with-context-handler]
             except OSError:
                 if is_reserved_filename(os.path.basename(dest)):
                     raise ValueError(f'This ZIP file contains a file with a reserved filename that cannot be processed on Windows: {os.path.basename(dest)}')

@@ -122,7 +122,7 @@ class Exporter:
 
     def new_part(self):
         self.commit_part()
-        self.current_part = open(os.path.join(self.base, f'part-{len(self.commited_parts) + 1:04d}{self.EXT}'), 'wb')
+        self.current_part = open(os.path.join(self.base, f'part-{len(self.commited_parts) + 1:04d}{self.EXT}'), 'wb')  # ruff: ignore[open-file-with-context-handler]
 
     def commit_part(self, is_last=False):
         if self.current_part is not None:

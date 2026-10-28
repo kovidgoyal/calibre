@@ -260,7 +260,8 @@ class AutoAdder(QObject):
             mi = os.path.join(tdir, 'metadata.opf')
             if not os.access(mi, os.R_OK):
                 continue
-            mi = OPF(open(mi, 'rb'), tdir, populate_spine=False).to_book_metadata()
+            with open(mi, 'rb') as f:
+                mi = OPF(f, tdir, populate_spine=False).to_book_metadata()
             if gprefs.get('tag_map_on_add_rules'):
                 from calibre.ebooks.metadata.tag_mapper import map_tags
 

@@ -363,7 +363,8 @@ class TXTInput(InputFormatPlugin):
             odi = options.debug_pipeline
             options.debug_pipeline = None
             # Generate oeb from html conversion.
-            oeb = html_input.convert(open(htmlfile, 'rb'), options, 'html', log, {})
+            with open(htmlfile, 'rb') as f:
+                oeb = html_input.convert(f, options, 'html', log, {})
             options.debug_pipeline = odi
         finally:
             for x in self.shifted_files:

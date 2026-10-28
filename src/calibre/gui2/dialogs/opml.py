@@ -149,7 +149,9 @@ class ImportOPML(QDialog):
 if __name__ == '__main__':
     import sys
 
-    for group in import_opml(open(sys.argv[-1], 'rb').read()):
+    with open(sys.argv[-1], 'rb') as f:
+        raw = f.read()
+    for group in import_opml(raw):
         print(group.title)
         for title, url in group.feeds:
             print(f'\t{title} - {url}')

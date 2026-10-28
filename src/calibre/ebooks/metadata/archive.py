@@ -314,7 +314,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
                 if fname in all_pages:
                     ext = os.path.splitext(fname)[1]
                     num = all_pages[fname]
-                    current = open(os.path.join(tdir, make_filename(num, ext)), 'wb')
+                    current = open(os.path.join(tdir, make_filename(num, ext)), 'wb')  # ruff: ignore[open-file-with-context-handler]
                     return True
                 return False
             if isinstance(x, bytes):

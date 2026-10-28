@@ -254,9 +254,10 @@ class Resources(Command):  # {{{
         dump_json(function_dict, dest)
         self.info('\tCreating user-manual-translation-stats.json')
         d = {}
-        for lc, stats in json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'))).items():
-            total = sum(stats.values())
-            d[lc] = stats['translated'] / float(total)
+        with open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json')) as f:
+            for lc, stats in json.load(f).items():
+                total = sum(stats.values())
+                d[lc] = stats['translated'] / float(total)
         dump_json(d, self.j(self.RESOURCES, 'user-manual-translation-stats.json'))
 
         src = self.j(self.SRC, '..', 'Changelog.txt')

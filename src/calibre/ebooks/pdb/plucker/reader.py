@@ -403,7 +403,8 @@ class Reader(FormatReader):
                         for col in row:
                             if col not in images:
                                 raise Exception(f'Image with uid: {col} missing.')
-                            w, h = identify(open(f'{col}.jpg', 'rb'))[1:]
+                            with open(f'{col}.jpg', 'rb') as f:
+                                w, h = identify(f)[1:]
                             row_width += w
                             col_height = max(col_height, h)
                         width = max(width, row_width)
@@ -416,7 +417,8 @@ class Reader(FormatReader):
                             x_off = 0
                             largest_height = 0
                             for col in row:
-                                im = image_from_data(open(f'{col}.jpg', 'rb').read())
+                                with open(f'{col}.jpg', 'rb') as f:
+                                    im = image_from_data(f.read())
                                 canvas.compose(im, x_off, y_off)
                                 w, h = im.width(), im.height()
                                 x_off += w
@@ -448,7 +450,8 @@ class Reader(FormatReader):
         except Exception:
             raise Exception('Could not determine home.html')
         # Generate oeb from html conversion.
-        oeb = html_input.convert(open(f'{home_html}.html', 'rb'), self.options, 'html', self.log, {})
+        with open(f'{home_html}.html', 'rb') as f:
+            oeb = html_input.convert(f, self.options, 'html', self.log, {})
         self.options.debug_pipeline = odi
 
         return oeb

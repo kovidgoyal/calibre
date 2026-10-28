@@ -877,10 +877,12 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             if isinstance(mi, tuple):
                 opf, cover = mi
                 if opf:
-                    mi = OPF(open(opf, 'rb'), basedir=os.path.dirname(opf), populate_spine=False).to_book_metadata()
+                    with open(opf, 'rb') as f:
+                        mi = OPF(f, basedir=os.path.dirname(opf), populate_spine=False).to_book_metadata()
                     self.apply_mi(i, mi)
                 if cover:
-                    self.gui.current_db.set_cover(i, open(cover, 'rb'), notify=False, commit=False)
+                    with open(cover, 'rb') as f:
+                        self.gui.current_db.set_cover(i, f, notify=False, commit=False)
                     self.applied_ids.add(i)
             else:
                 self.apply_mi(i, mi)

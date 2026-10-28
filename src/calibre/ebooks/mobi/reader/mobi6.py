@@ -316,7 +316,8 @@ class MobiReader:
         ncx = io.BytesIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
-        opf.render(open(self.created_opf_path, 'wb'), ncx, ncx_manifest_entry=ncx_manifest_entry)
+        with open(self.created_opf_path, 'wb') as f:
+            opf.render(f, ncx, ncx_manifest_entry=ncx_manifest_entry)
         ncx = ncx.getvalue()
         if ncx:
             ncx_path = os.path.join(os.path.dirname(htmlfile), 'toc.ncx')
@@ -331,7 +332,8 @@ class MobiReader:
             self.log.debug('Creating OPF...')
             ncx = io.BytesIO()
             opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
-            opf.render(open(os.path.splitext(htmlfile)[0] + '.opf', 'wb'), ncx, ncx_manifest_entry)
+            with open(os.path.splitext(htmlfile)[0] + '.opf', 'wb') as f:
+                opf.render(f, ncx, ncx_manifest_entry)
             ncx = ncx.getvalue()
             if ncx:
                 write_as_utf8(os.path.splitext(htmlfile)[0] + '.ncx', ncx)

@@ -383,7 +383,8 @@ def set_metadata(stream, mi):
 if __name__ == '__main__':
     if False:
         # Test get_metadata()
-        print(get_metadata(open(sys.argv[1], 'rb')))
+        with open(sys.argv[1], 'rb') as f:
+            print(get_metadata(f))
     else:
         # Test set_metadata()
         stream = io.BytesIO()

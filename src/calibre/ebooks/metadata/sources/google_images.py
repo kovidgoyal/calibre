@@ -213,7 +213,8 @@ class GoogleImages(Source):
 def test_raw():
     import sys
 
-    raw = open(sys.argv[-1]).read()
+    with open(sys.argv[-1]) as f:
+        raw = f.read()
     for x in parse_google_markup(raw):
         print(x)
 

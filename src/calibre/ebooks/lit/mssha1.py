@@ -328,7 +328,7 @@ if __name__ == '__main__':
         elif len(sys.argv) < 2:
             file = sys.stdin
         else:
-            file = open(sys.argv[1], 'rb')
+            file = open(sys.argv[1], 'rb')  # ruff: ignore[open-file-with-context-handler]
         context = new()
         data = file.read(16384)
         while data:

@@ -134,7 +134,8 @@ def migrate():
         lines.append('')
 
     for name in ('Changelog.yaml', 'Changelog.old.yaml'):
-        entries = safe_load(open(name).read())
+        with open(name) as f:
+            entries = safe_load(f.read())
         lines = []
         for entry in entries:
             lines.append('')

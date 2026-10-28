@@ -113,7 +113,8 @@ class DJVUFile:
 
 
 def main():
-    f = DJVUFile(open(sys.argv[-1], 'rb'))
+    with open(sys.argv[-1], 'rb') as r:
+        f = DJVUFile(r)
     print(f.get_text(sys.stdout))
 
 

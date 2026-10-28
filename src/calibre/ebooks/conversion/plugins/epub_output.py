@@ -366,7 +366,8 @@ class EPUBOutput(OutputFormatPlugin):
         os.remove(cxpath)
         encryption = None
         if encpath:
-            encryption = open(encpath, 'rb').read()
+            with open(encpath, 'rb') as f:
+                encryption = f.read()
             os.remove(encpath)
         return encryption
 

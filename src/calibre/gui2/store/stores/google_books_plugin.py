@@ -44,7 +44,8 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
         doc = parse_html(raw)
         if write_html_to is not None:
             praw = html.tostring(doc, encoding='utf-8')
-            open(write_html_to, 'wb').write(praw)
+            with open(write_html_to, 'wb') as f:
+                f.write(praw)
         for data in doc.xpath('//div[@id="rso"]/div'):
             if counter <= 0:
                 break

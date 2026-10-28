@@ -217,6 +217,9 @@ def wmf_unwrap(wmf_data, verbose=0):
 
 if __name__ == '__main__':
     wmf = WMF(verbose=4)
-    wmf(open(sys.argv[-1], 'rb'))
-    open('/t/test.bmp', 'wb').write(wmf.bitmaps[0])
-    open('/t/test.png', 'wb').write(wmf.to_png())
+    with open(sys.argv[-1], 'rb') as f:
+        wmf(f)
+    with open('/t/test.bmp', 'wb') as f:
+        f.write(wmf.bitmaps[0])
+    with open('/t/test.png', 'wb') as f:
+        f.write(wmf.to_png())

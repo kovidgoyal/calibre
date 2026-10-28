@@ -51,7 +51,8 @@ class CHMReader(CHMFile):
                 from calibre.ptempfile import PersistentTemporaryFile
 
                 with PersistentTemporaryFile(suffix='.chm') as t:
-                    t.write(open(input, 'rb').read())
+                    with open(input, 'rb') as f:
+                        t.write(f.read())
                 input = t.name
         if not self.LoadCHM(input):
             raise CHMError(f"Unable to open CHM file '{input}'")

@@ -922,7 +922,8 @@ if __name__ == '__main__':  # {{{
     from calibre.gui2.tweak_book.editor.widget import launch_editor
 
     if sys.argv[-1].endswith('.html'):
-        raw = open(sys.argv[-1], 'rb').read().decode('utf-8')
+        with open(sys.argv[-1], 'rb') as f:
+            raw = f.read().decode('utf-8')
     else:
         raw = '''\
 <!DOCTYPE html>

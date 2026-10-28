@@ -112,7 +112,8 @@ class TestDownloadDeps(unittest.TestCase):
         i = self.installer
         install = i()
         self.assertEqual(install.version, '1.0')
-        self.assertEqual(open(install.path).read(), '1.0')
+        with open(install.path) as f:
+            self.assertEqual(f.read(), '1.0')
         self.assertEqual(i.num_of_installs, 1)
         metadata = self.read_metadata()
         self.assertEqual(metadata['version'], '1.0')
@@ -154,7 +155,8 @@ class TestDownloadDeps(unittest.TestCase):
 
         install = i()
         self.assertEqual(install.version, '2.0')
-        self.assertEqual(open(install.path).read(), '2.0')
+        with open(install.path) as f:
+            self.assertEqual(f.read(), '2.0')
         self.assertEqual(self.read_metadata().get('update_available'), None)
         # The superseded version must be removed
         self.assertEqual(self.installed_versions(), {'2.0'})
@@ -190,7 +192,8 @@ class TestDownloadDeps(unittest.TestCase):
         self.wait_for_update_check()
         self.assertEqual(i().version, '2.0')
         self.assertEqual(self.installed_versions(), {'1.0', '2.0'})
-        self.assertEqual(open(install.path).read(), '1.0')
+        with open(install.path) as f:
+            self.assertEqual(f.read(), '1.0')
 
         # and must be removed only once all its users are done with it
         lock.release()
@@ -243,7 +246,8 @@ class TestDownloadDeps(unittest.TestCase):
             install = i()
         self.assertIn('Failed to update fake to 2.0', stderr.getvalue())
         self.assertEqual(install.version, '1.0')
-        self.assertEqual(open(install.path).read(), '1.0')
+        with open(install.path) as f:
+            self.assertEqual(f.read(), '1.0')
         # and must not be retried until a day has passed
         self.assertGreater(self.read_metadata()['update_available']['failed_at'], 0)
         self.assertEqual(i().version, '1.0')
@@ -284,9 +288,11 @@ class TestDownloadDeps(unittest.TestCase):
             zf.writestr(info, 'prog')
         dest = os.path.join(self.tdir, 'x')
         dd.extract_zip(src, dest)
-        self.assertEqual(open(os.path.join(dest, 'sub', 'data.txt')).read(), 'data')
+        with open(os.path.join(dest, 'sub', 'data.txt')) as f:
+            self.assertEqual(f.read(), 'data')
         prog = os.path.join(dest, 'sub', 'prog')
-        self.assertEqual(open(prog).read(), 'prog')
+        with open(prog) as f:
+            self.assertEqual(f.read(), 'prog')
         if not iswindows:
             self.assertEqual(stat.S_IMODE(os.stat(prog).st_mode), 0o755)
             self.assertFalse(os.stat(os.path.join(dest, 'sub', 'data.txt')).st_mode & 0o111)

@@ -51,7 +51,7 @@ class FakeResponse:
             setattr(ex, 'worth_retry', bool(res.get('worth_retry')))
             raise ex
         with suppress(FileNotFoundError):
-            self._data = open(res['output'], 'rb')
+            self._data = open(res['output'], 'rb')  # ruff: ignore[open-file-with-context-handler]
 
     def read(self, *a, **kw):
         self._wait()

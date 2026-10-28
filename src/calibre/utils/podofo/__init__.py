@@ -190,7 +190,8 @@ def get_page_count(path: str) -> int:
 
 
 def test_add_image_page(image='/t/t.jpg', dest='/t/t.pdf', **kw):
-    image_data = open(image, 'rb').read()
+    with open(image, 'rb') as f:
+        image_data = f.read()
     podofo = get_podofo()
     p = podofo.PDFDoc()
     add_image_page(p, image_data, **kw)

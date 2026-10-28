@@ -106,66 +106,64 @@ class CSV_XML(CatalogPlugin):
         fm = {x: db.field_metadata.get(x, {}) for x in fields}
 
         if self.fmt == 'csv':
-            outfile = open(path_to_output, 'w', encoding='utf8')
+            with open(path_to_output, 'w', encoding='utf8') as outfile:
+                # Write a UTF-8 BOM
+                outfile.write('\ufeff')
 
-            # Write a UTF-8 BOM
-            outfile.write('\ufeff')
+                # Output the field headers
+                outfile.write('{}\n'.format(','.join(fields)))
 
-            # Output the field headers
-            outfile.write('{}\n'.format(','.join(fields)))
+                # Output the entry fields
+                for entry in data:
+                    outstr = []
+                    for field in fields:
+                        m = fm.get(field, {})
+                        disp = m.get('display', {})
+                        if field.startswith('#'):
+                            item = db.get_field(entry['id'], field, index_is_id=True)
+                            if isinstance(item, (list, tuple)):
+                                sep = ' & ' if disp.get('is_names', False) else ', '
+                                item = sep.join(item)
+                        elif field == 'library_name':
+                            item = current_library
+                        elif field == 'title_sort':
+                            item = entry['sort']
+                        else:
+                            item = entry[field]
 
-            # Output the entry fields
-            for entry in data:
-                outstr = []
-                for field in fields:
-                    m = fm.get(field, {})
-                    disp = m.get('display', {})
-                    if field.startswith('#'):
-                        item = db.get_field(entry['id'], field, index_is_id=True)
-                        if isinstance(item, (list, tuple)):
-                            sep = ' & ' if disp.get('is_names', False) else ', '
-                            item = sep.join(item)
-                    elif field == 'library_name':
-                        item = current_library
-                    elif field == 'title_sort':
-                        item = entry['sort']
-                    else:
-                        item = entry[field]
+                        if item is None:
+                            outstr.append('""')
+                            continue
+                        elif field == 'formats':
+                            fmt_list = []
+                            for format in item:
+                                fmt_list.append(format.rpartition('.')[2].lower())
+                            item = ', '.join(fmt_list)
+                        elif field == 'authors':
+                            item = authors_to_string(item)
+                        elif field == 'tags':
+                            item = ', '.join(item)
+                        elif field == 'isbn':
+                            # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
+                            item = '{}'.format(re.sub(r'[^\dX-]', '', item))
+                        elif fm.get(field, {}).get('datatype') == 'datetime':
+                            item = isoformat(item, as_utc=False)
+                        elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
+                            item = f'{item / 2:.2g}'
 
-                    if item is None:
-                        outstr.append('""')
-                        continue
-                    elif field == 'formats':
-                        fmt_list = []
-                        for format in item:
-                            fmt_list.append(format.rpartition('.')[2].lower())
-                        item = ', '.join(fmt_list)
-                    elif field == 'authors':
-                        item = authors_to_string(item)
-                    elif field == 'tags':
-                        item = ', '.join(item)
-                    elif field == 'isbn':
-                        # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
-                        item = '{}'.format(re.sub(r'[^\dX-]', '', item))
-                    elif fm.get(field, {}).get('datatype') == 'datetime':
-                        item = isoformat(item, as_utc=False)
-                    elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
-                        item = f'{item / 2:.2g}'
+                        # Convert HTML to markdown text
+                        if isinstance(item, str):
+                            opening_tag = re.search(r'<(\w+)( |>)', item)
+                            if opening_tag:
+                                closing_tag = re.search(rf'</{opening_tag.group(1)}>$', item)
+                                if closing_tag:
+                                    item = html2text(item)
+                            item = item.replace('\r\n', ' ')
+                            item = item.replace('\n', ' ')
 
-                    # Convert HTML to markdown text
-                    if isinstance(item, str):
-                        opening_tag = re.search(r'<(\w+)( |>)', item)
-                        if opening_tag:
-                            closing_tag = re.search(rf'</{opening_tag.group(1)}>$', item)
-                            if closing_tag:
-                                item = html2text(item)
-                        item = item.replace('\r\n', ' ')
-                        item = item.replace('\n', ' ')
+                        outstr.append('"{}"'.format(str(item).replace('"', '""')))
 
-                    outstr.append('"{}"'.format(str(item).replace('"', '""')))
-
-                outfile.write(','.join(outstr) + '\n')
-            outfile.close()
+                    outfile.write(','.join(outstr) + '\n')
 
         elif self.fmt == 'xml':
             from lxml.builder import E

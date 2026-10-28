@@ -794,11 +794,11 @@ class ZipFile:
             self.filename = file
             modeDict = {'r': 'rb', 'w': 'wb', 'a': 'r+b'}
             try:
-                self.fp = open(file, modeDict[mode])
+                self.fp = open(file, modeDict[mode])  # ruff: ignore[open-file-with-context-handler]
             except OSError:
                 if mode == 'a':
                     mode = key = 'w'
-                    self.fp = open(file, modeDict[mode])
+                    self.fp = open(file, modeDict[mode])  # ruff: ignore[open-file-with-context-handler]
                 else:
                     raise
         else:
@@ -1242,12 +1242,12 @@ class ZipFile:
             return targetpath
 
         try:
-            target = open(targetpath, 'wb')
+            target = open(targetpath, 'wb')  # ruff: ignore[open-file-with-context-handler]
         except IsADirectoryError:
             return targetpath
         except OSError:
             targetpath = os.path.join(os.path.dirname(targetpath), sanitize_file_name(os.path.basename(targetpath)))
-            target = open(targetpath, 'wb')
+            target = open(targetpath, 'wb')  # ruff: ignore[open-file-with-context-handler]
 
         with target:
             if max(member.compress_size, member.file_size) > 256 * 1024 * 1024:

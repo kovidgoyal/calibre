@@ -104,5 +104,7 @@ if __name__ == '__main__':
     with open(sys.argv[-1], 'rb') as f:
         raw = f.read()
     emf = EMF(raw, verbose=4)
-    open('/t/test.bmp', 'wb').write(emf.bitmaps[0])
-    open('/t/test.png', 'wb').write(emf.to_png())
+    with open('/t/test.bmp', 'wb') as f:
+        f.write(emf.bitmaps[0])
+    with open('/t/test.png', 'wb') as f:
+        f.write(emf.to_png())

@@ -223,6 +223,7 @@ def upgrade_metadata(root):
 if __name__ == '__main__':
     import sys
 
-    root = parse_opf(open(sys.argv[-1], 'rb'))
+    with open(sys.argv[-1], 'rb') as f:
+        root = parse_opf(f)
     upgrade_metadata(root)
     print(etree.tostring(root))

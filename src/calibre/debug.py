@@ -293,7 +293,9 @@ def add_simple_plugin(path_to_plugin):
     import zipfile
 
     tdir = tempfile.mkdtemp()
-    open(os.path.join(tdir, 'custom_plugin.py'), 'wb').write(open(path_to_plugin, 'rb').read())
+    with open(os.path.join(tdir, 'custom_plugin.py'), 'wb') as w:
+        with open(path_to_plugin, 'rb') as r:
+            w.write(r.read())
     odir = os.getcwd()
     os.chdir(tdir)
     zf = zipfile.ZipFile('plugin.zip', 'w')

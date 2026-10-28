@@ -128,8 +128,8 @@ def finalize(x: Sequence[str] | None = None) -> None:
 
 
 def worker(self: TestAutomateWorker) -> None:
-    tf = tempfile.NamedTemporaryFile(delete=False)
-    tf.close()
+    with tempfile.NamedTemporaryFile(delete=False) as tf:
+        pass
     for input_data in (None, [tf.name]):
         path, close = start_worker(
             'calibre.web.automate.test_worker:handler_for_test',
