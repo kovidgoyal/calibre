@@ -43,6 +43,7 @@ COMMANDS = (
     'notes',
     'items',
     'annotations',
+    'trash',
 )
 
 
