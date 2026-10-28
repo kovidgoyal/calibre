@@ -1143,6 +1143,26 @@ class Search:
         finally:
             sqp.dbcache = sqp.lookup_saved_search = None
 
+    def query_uses_templates(self, dbcache, query: str) -> bool:
+        """Return True if the query, or any saved search or grouped search term it
+        uses, contains a template search. The query is not evaluated, so this works
+        regardless of which books match. Raises ParseException if the query, or
+        a saved search it uses, cannot be parsed."""
+        sqp = self.create_parser(dbcache)
+        try:
+            fm = dbcache.field_metadata
+            for location, _query in sqp.get_queried_fields(query):
+                # Resolve the location as Parser.get_matches() does
+                if len(location) > 2 and location.startswith('@') and location[1:] in sqp.grouped_search_terms:
+                    location = location[1:]
+                key = fm.search_term_to_field_key(icu_lower(location.strip()))
+                for loc in key if isinstance(key, list) else (key,):
+                    if fm.search_term_to_field_key(icu_lower(loc.strip())) == 'template':
+                        return True
+            return False
+        finally:
+            sqp.dbcache = sqp.lookup_saved_search = None
+
     def query_is_cacheable(self, sqp, dbcache, query):
         if query:
             for name, value in sqp.get_queried_fields(query):

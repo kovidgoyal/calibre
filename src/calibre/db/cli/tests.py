@@ -563,6 +563,36 @@ class AnnotationsTest(BaseTest):
         self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
 
 
+class SavedSearchesTest(BaseTest):
+    def test_saved_searches_remote(self):
+        from calibre.db.cli.cmd_saved_searches import implementation
+
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        changes = []
+        tpl = 'template:"program: 1#@#:t:1"'
+        # A Virtual library, created locally, that uses a saved search
+        implementation(db, None, 'add', 'foo', 'id:1')
+        db.set_pref('virtual_libraries', {'VL': 'search:foo'})
+        implementation(db, None, 'add', 'local_tpl', tpl)
+        # Remote clients must not be able to store templates, since the Virtual library is evaluated with templates allowed
+        for val in (tpl, 'id:9999 and ' + tpl, 'search:local_tpl'):
+            with self.subTest(val=val), self.assertRaisesRegex(ValueError, 'Templates are not allowed') as cm:
+                implementation(db, changes.append, 'add', 'foo', val)
+            self.assertTrue(getattr(cm.exception, 'suppress_traceback', False))
+        with self.assertRaisesRegex(ValueError, 'Failed to parse search query'):
+            implementation(db, changes.append, 'add', 'foo', '(id:1')
+        self.assertEqual(db.saved_search_lookup('foo'), 'id:1')
+        self.assertEqual(db.books_in_virtual_library('VL'), {1})
+        self.assertFalse(changes)
+        implementation(db, changes.append, 'add', 'foo', 'id:2')
+        self.assertEqual(db.books_in_virtual_library('VL'), {2})
+        self.assertEqual(len(changes), 1)
+        # Local clients are trusted
+        implementation(db, None, 'add', 'foo', tpl)
+        self.assertEqual(db.books_in_virtual_library('VL'), {1, 2, 3})
+
+
 class TrashTest(BaseTest):
     def run_trash(self, db, *args, is_remote=False):
         from calibre.db.cli.cmd_trash import implementation, main, option_parser
@@ -716,5 +746,6 @@ def find_tests():
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
         loader.loadTestsFromTestCase(ItemsTest),
         loader.loadTestsFromTestCase(AnnotationsTest),
+        loader.loadTestsFromTestCase(SavedSearchesTest),
         loader.loadTestsFromTestCase(TrashTest),
     ))

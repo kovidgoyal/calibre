@@ -1116,6 +1116,36 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_search_uses_templates(self):  # {{{
+        "Test detection of templates in search expressions without evaluating them"
+        from calibre.utils.search_query_parser import ParseException
+
+        cache = self.init_cache()
+        tpl = 'template:"program: 1#@#:t:1"'
+        cache.saved_search_add('tpl', tpl)
+        cache.saved_search_add('plain', 'tags:true')
+        cache.set_pref('grouped_search_terms', {'grp': ['title', 'template'], 'plaingrp': ['title', 'tags']})
+        for query, expected in (
+            ('tags:true', False),
+            ('search:plain or vl:x', False),
+            ('plaingrp:x', False),
+            ('title:template', False),
+            (tpl, True),
+            ('TEMPLATE:"program: 1#@#:t:1"', True),
+            # Matches no books, so evaluating it would never reach the template
+            (f'id:9999 and {tpl}', True),
+            ('not (tags:false or search:tpl)', True),
+            ('search:"=plain" and search:"=tpl"', True),
+            ('grp:"program: 1#@#:t:1"', True),
+        ):
+            with self.subTest(query=query):
+                self.assertIs(cache.search_uses_templates(query), expected)
+        for query in ('(tags:true', 'search:nonexistent'):
+            with self.subTest(query=query), self.assertRaises(ParseException):
+                cache.search_uses_templates(query)
+
+    # }}}
+
     def test_proxy_metadata(self):  # {{{
         "Test the ProxyMetadata object used for composite columns"
         from calibre.ebooks.metadata.book.base import STANDARD_METADATA_FIELDS

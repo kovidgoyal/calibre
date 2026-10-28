@@ -10,6 +10,21 @@ from calibre import prints
 from calibre.srv.changes import saved_searches
 
 
+def check_no_templates(db, query: str) -> None:
+    from calibre.utils.search_query_parser import ParseException
+
+    try:
+        uses_templates = db.search_uses_templates(query)
+    except ParseException as err:
+        e = ValueError(_('Failed to parse search query: ({0}) with error: {1}').format(query, err))
+        setattr(e, 'suppress_traceback', True)
+        raise e from err
+    if uses_templates:
+        e = ValueError(_('Templates are not allowed in search expressions'))
+        setattr(e, 'suppress_traceback', True)
+        raise e
+
+
 def implementation(db, notify_changes, action, *args):
     if action == 'list':
         with db.safe_read_lock:
@@ -17,6 +32,10 @@ def implementation(db, notify_changes, action, *args):
             return {n: db.saved_search_lookup(n) for n in names}
     if action == 'add':
         name, val = args
+        if notify_changes is not None:
+            # Saved searches are used in Virtual libraries and restrictions, which are evaluated with
+            # templates allowed, so remote clients must not be able to store templates in them
+            check_no_templates(db, val)
         db.saved_search_add(name, val)
         if notify_changes is not None:
             notify_changes(saved_searches(added=(name,)))

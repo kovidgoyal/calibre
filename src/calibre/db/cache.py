@@ -1890,6 +1890,21 @@ class Cache:
     _search = search
 
     @read_api
+    def search_uses_templates(self, query: str) -> bool:
+        """
+        Return True if the specified search query, or any saved search it uses,
+        contains a template search. The query is checked without being evaluated.
+        Use this to stop untrusted users from storing search expressions, such as saved
+        searches, containing templates, since stored expressions are later
+        evaluated with templates allowed, for example, in Virtual libraries.
+
+        Raises ParseException if the query cannot be parsed.
+        """
+        return self._search_api.query_uses_templates(self, query)
+
+    _search_uses_templates = search_uses_templates
+
+    @read_api
     def books_in_virtual_library(self, vl, search_restriction=None, virtual_fields=None):
         "Return the set of books in the specified virtual library"
         vl = self._pref('virtual_libraries', {}).get(vl) if vl else None
