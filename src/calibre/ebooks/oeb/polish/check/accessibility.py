@@ -5,7 +5,8 @@
 # specification and WCAG, see https://www.w3.org/TR/epub-a11y-11/
 
 from calibre import prepare_string_for_xml as xml
-from calibre.ebooks.oeb.base import EPUB, OEB_DOCS, SVG, XHTML, XML, XPath
+from calibre.ebooks.oeb.base import EPUB, OEB_DOCS, SVG, XHTML, XPath
+from calibre.ebooks.oeb.polish.accessibility import has_language, set_html_language
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
@@ -116,10 +117,6 @@ def elements_without_role(root):
             yield elem, role
 
 
-def has_language(root):
-    return bool(root.get('lang') or root.get(XML('lang')))
-
-
 class MissingAltText(BaseError):
     level = WARN
     has_multiple_locations = True
@@ -130,6 +127,7 @@ class MissingAltText(BaseError):
             ' readers who cannot see them, such as people using screen readers. For images that are purely'
             ' decorative, use an empty alt attribute, like this: alt="". For SVG images, add a <title> element'
             ' as the first child of the <svg> element, or for decorative SVG images, the attribute aria-hidden="true".'
+            ' The alternative text of all <img> images can be edited in one place with Tools->Accessibility.'
         )
     )
 
@@ -145,12 +143,12 @@ class MissingLanguage(BaseError):
     has_multiple_locations = True
     RULE_NAME = _('HTML file without a language')
 
-    def __init__(self, names, lang, is_epub3):
+    def __init__(self, names, lang):
         msg = ngettext('An HTML file does not specify its language', '{} HTML files do not specify their language', len(names))
         BaseError.__init__(self, msg.format(len(names)), names[0][0], names[0][1])
         self.all_locations = [(name, lnum, None) for name, lnum in names]
         self.names = [name for name, lnum in names]
-        self.lang, self.is_epub3 = lang, is_epub3
+        self.lang = lang
         help = _(
             'HTML files should specify the language of their text with the lang attribute on the <html> tag.'
             ' Screen readers and text-to-speech engines use it to pronounce the text correctly.'
@@ -158,21 +156,11 @@ class MissingLanguage(BaseError):
         if lang:
             self.INDIVIDUAL_FIX = xml(_('Set the language of these files to the language of the book: {}').format(lang))
         else:
-            help += ' ' + _('Set the language of the book in the metadata so that this can be fixed automatically.')
+            help += ' ' + _('Set the language of the book with Tools->Accessibility so that this can be fixed automatically.')
         self.HELP = xml(help)
 
     def __call__(self, container):
-        # The lang attribute is not valid in the XHTML 1.1 used by EPUB 2
-        attrs = ('lang', XML('lang')) if self.is_epub3 else (XML('lang'),)
-        changed = False
-        for name in self.names:
-            root = container.parsed(name)
-            if not has_language(root):
-                for attr in attrs:
-                    root.set(attr, self.lang)
-                container.dirty(name)
-                changed = True
-        return changed
+        return bool(set_html_language(container, self.names, self.lang))
 
 
 class SkippedHeadingLevel(BaseError):
@@ -244,7 +232,7 @@ class MissingAccessibilityMetadata(BaseError):
             _(
                 'Accessibility metadata tells readers, reading systems and online stores about the accessibility'
                 ' of the book. The EPUB Accessibility specification calls for these properties, which are missing: {0}.'
-                ' Add them to the OPF, one value per tag, like this: {1}'
+                ' Add them with Tools->Accessibility, or to the OPF directly, one value per tag, like this: {1}'
             ).format(', '.join(missing), '<meta property="schema:accessMode">textual</meta>')
         )
 
@@ -259,7 +247,7 @@ class MissingAccessibilitySummary(BaseError):
             _(
                 'The accessibility summary is a short description of the accessibility of the book for readers,'
                 ' for example: "This publication has a table of contents and all images have alternative text."'
-                ' Add it to the OPF like this: {}'
+                ' Add it with Tools->Accessibility, or to the OPF directly, like this: {}'
             ).format(f'<meta property="{SUMMARY_PROPERTY}">…</meta>')
         )
 
@@ -289,7 +277,7 @@ def check_accessibility(container):
             if lines:
                 errors.append(MissingRole(name, lines))
     if missing_lang:
-        errors.append(MissingLanguage(missing_lang, get_book_language_tag(container), is_epub3))
+        errors.append(MissingLanguage(missing_lang, get_book_language_tag(container)))
 
     if is_epub3:
         existing = existing_properties(container)

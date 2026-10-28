@@ -507,6 +507,47 @@ table of contents, etc. Simply choose the type of semantic information you want
 to specify and then select the location in the book the link should point to.
 This tool can be accessed via :guilabel:`Tools->Set semantics`.
 
+Making the book accessible
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This tool helps make the book accessible to readers with disabilities, such as
+people using screen readers. It can be accessed via
+:guilabel:`Tools->Accessibility` and has three tabs:
+
+:guilabel:`Language`
+    Set the languages of the book. Screen readers and text-to-speech engines
+    use the language to pronounce the text correctly. You can also set the
+    language of the HTML files in the book to the main language of the book,
+    either only for the files that do not specify a language or for all files.
+
+:guilabel:`Image descriptions`
+    Images should have a description, called *alternative text*, for readers
+    who cannot see them. This lists every image in the book, in reading order,
+    along with its current description, so you can add or change descriptions
+    for all of them in one place. Selecting an image shows a larger preview
+    along with the text near the image in the book, to help you describe it.
+    Images that are purely decorative, such as ornaments and scene separators,
+    should be marked as :guilabel:`Decorative` so that screen readers skip
+    them. If the same image is used in several places, you can use the
+    :guilabel:`Use for all uses of this image` button to copy its description
+    to all of them.
+
+:guilabel:`Accessibility metadata`
+    EPUB 3 books can describe how accessible they are with accessibility
+    metadata, as required by the `EPUB Accessibility
+    <https://www.w3.org/TR/epub-a11y-11/>`_ specification. Reading systems and
+    online stores show this information to readers. Here you can set a short
+    summary of the accessibility of the book, the ways the content is
+    presented (text, images, audio, etc.), which of these are enough to
+    understand all of the content, accessibility features such as alternative
+    text for images or a page list, whether the book contains hazards such as
+    flashing content, and the accessibility standard the book conforms to.
+    Only claim what is actually true of the book.
+
+Only the things you actually change are written to the book, and all the
+changes can be undone together with the :guilabel:`Revert to` checkpoint that
+is created.
+
 Filtering style information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

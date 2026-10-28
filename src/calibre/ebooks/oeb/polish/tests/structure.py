@@ -857,6 +857,134 @@ class Structure(BaseTest):
         c = self.create_epub([cmi('a.html', html('<section epub:type="chapter">c</section>'))], ver=2)
         self.assertFalse(missing(c))
 
+    def test_accessibility_tool_language(self):
+        from calibre.ebooks.oeb.polish.accessibility import (
+            HTML_LANGUAGE_ALL,
+            HTML_LANGUAGE_MISSING,
+            AccessibilityChanges,
+            apply_accessibility_changes,
+            book_languages,
+            html_files_without_language,
+            set_book_languages,
+        )
+
+        def html(lang=''):
+            return f'<html xmlns="http://www.w3.org/1999/xhtml"{lang}><head/><body><p>x</p></body></html>'
+
+        c = self.create_epub([('a.html', html(), None), ('b.html', html(' lang="fr" xml:lang="fr"'), None)])
+        self.assertEqual(book_languages(c), [])
+        self.assertEqual(html_files_without_language(c), ['a.html'])
+        self.assertTrue(AccessibilityChanges().is_empty)
+        self.assertFalse(set_book_languages(c, []))
+        self.assertTrue(set_book_languages(c, ['eng', 'fra']))
+        self.assertEqual(c.opf_xpath('//dc:language/text()'), ['en', 'fr'])
+        self.assertEqual(book_languages(c), ['eng', 'fra'])
+        # Country codes are kept
+        c.opf_xpath('//dc:language')[0].text = 'en-GB'
+        self.assertTrue(set_book_languages(c, ['fra', 'eng']))
+        self.assertEqual(c.opf_xpath('//dc:language/text()'), ['fr', 'en-GB'])
+        # dc:language is required
+        self.assertTrue(set_book_languages(c, []))
+        self.assertEqual(c.opf_xpath('//dc:language/text()'), ['und'])
+        self.assertEqual(book_languages(c), [])
+
+        def langs(c):
+            return [(c.parsed(n).get('lang'), c.parsed(n).get('{http://www.w3.org/XML/1998/namespace}lang')) for n in ('a.html', 'b.html')]
+
+        # Without a book language the HTML files cannot be set
+        self.assertFalse(apply_accessibility_changes(c, AccessibilityChanges(html_language=HTML_LANGUAGE_MISSING)))
+        self.assertTrue(apply_accessibility_changes(c, AccessibilityChanges(languages=['deu'], html_language=HTML_LANGUAGE_MISSING)))
+        self.assertEqual(langs(c), [('de', 'de'), ('fr', 'fr')])
+        self.assertTrue(apply_accessibility_changes(c, AccessibilityChanges(html_language=HTML_LANGUAGE_ALL)))
+        self.assertEqual(langs(c), [('de', 'de'), ('de', 'de')])
+        self.assertFalse(apply_accessibility_changes(c, AccessibilityChanges(languages=['deu'], html_language=HTML_LANGUAGE_ALL)))
+
+        # The lang attribute is not valid in the XHTML 1.1 used by EPUB 2
+        c = self.create_epub([('a.html', html(), None), ('b.html', html(' xml:lang="fr"'), None)], ver=2)
+        self.assertTrue(apply_accessibility_changes(c, AccessibilityChanges(languages=['eng'], html_language=HTML_LANGUAGE_MISSING)))
+        self.assertEqual(langs(c), [(None, 'en'), (None, 'fr')])
+
+    def test_accessibility_tool_alt_text(self):
+        from calibre.ebooks.oeb.polish.accessibility import image_uses, set_alt_text
+
+        a = (
+            '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body>'
+            '<figure><img src="i.png"/><figcaption>A  caption</figcaption></figure>'
+            '<p>Some text <img src="i.png" alt=""/> more text</p>'
+            '<img src="missing.png" alt="old"/></body></html>'
+        )
+        b = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body><div><img src="i.png" alt=" keep  this "/></div></body></html>'
+        c = self.create_epub([('b.html', b, None), ('a.html', a, None), ('i.png', b'', None)], spine=('b.html', 'a.html'))
+        uses = image_uses(c)
+        self.assertEqual(
+            [(u.html_name, u.index, u.image_name, u.alt) for u in uses],
+            [
+                ('b.html', 0, 'i.png', ' keep  this '),
+                ('a.html', 0, 'i.png', None),
+                ('a.html', 1, 'i.png', ''),
+                ('a.html', 2, None, 'old'),
+            ],
+        )
+        self.assertEqual(uses[1].context, 'A caption')
+        self.assertEqual(uses[2].context, 'Some text more text')
+        self.assertEqual(uses[0].context, '')
+        changed = set_alt_text(c, {('a.html', 0): 'A picture', ('a.html', 1): '', ('a.html', 2): None})
+        self.assertEqual(changed, {'a.html'})
+        self.assertEqual([u.alt for u in image_uses(c)], [' keep  this ', 'A picture', '', None])
+        self.assertIn('a.html', c.dirtied)
+        self.assertNotIn('b.html', c.dirtied)
+
+    def test_accessibility_tool_metadata(self):
+        from calibre.ebooks.oeb.polish.accessibility import (
+            ABSENT,
+            ACCESS_MODE,
+            FEATURE,
+            HAZARD,
+            PRESENT,
+            SUMMARY,
+            UNKNOWN,
+            hazard_states,
+            hazard_values,
+            read_accessibility_metadata,
+            set_accessibility_metadata,
+        )
+
+        def states(flashing, motion, sound):
+            return {'flashing': flashing, 'motionSimulation': motion, 'sound': sound}
+
+        for values, expected in (
+            ([], states(UNKNOWN, UNKNOWN, UNKNOWN)),
+            (['unknown'], states(UNKNOWN, UNKNOWN, UNKNOWN)),
+            (['none'], states(ABSENT, ABSENT, ABSENT)),
+            (['noFlashingHazard', 'sound'], states(ABSENT, UNKNOWN, PRESENT)),
+        ):
+            self.assertEqual(hazard_states(values), expected)
+            self.assertEqual(hazard_states(hazard_values(expected)), expected)
+        self.assertEqual(hazard_values(states(ABSENT, ABSENT, ABSENT)), ['none'])
+        self.assertEqual(hazard_values(states(UNKNOWN, UNKNOWN, UNKNOWN)), ['unknown'])
+        self.assertEqual(hazard_values(states(PRESENT, ABSENT, UNKNOWN)), ['flashing', 'noMotionSimulationHazard'])
+
+        c = self.create_epub([('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body><p>x</p></body></html>', None)])
+        opf = c.open(c.opf_name, 'rb').read().decode()
+        md = read_accessibility_metadata(c)
+        self.assertFalse(any(md.values()))
+        self.assertTrue(set_accessibility_metadata(c, {ACCESS_MODE: ['textual'], FEATURE: ['tableOfContents', ' readingOrder '], SUMMARY: ['A  summary']}))
+        md = read_accessibility_metadata(c)
+        self.assertEqual(md[ACCESS_MODE], ['textual'])
+        self.assertEqual(md[FEATURE], ['tableOfContents', 'readingOrder'])
+        self.assertEqual(md[SUMMARY], ['A summary'])
+        self.assertIn(c.opf_name, c.dirtied)
+        c.commit_item(c.opf_name)
+        self.assertNotEqual(c.open(c.opf_name, 'rb').read().decode(), opf)
+        # Unchanged values do not modify the OPF and other properties are kept
+        self.assertFalse(set_accessibility_metadata(c, {ACCESS_MODE: ['textual']}))
+        self.assertTrue(set_accessibility_metadata(c, {ACCESS_MODE: ['textual', 'visual'], HAZARD: ['none'], FEATURE: []}))
+        md = read_accessibility_metadata(c)
+        self.assertEqual(md[ACCESS_MODE], ['textual', 'visual'])
+        self.assertEqual(md[HAZARD], ['none'])
+        self.assertEqual(md[FEATURE], [])
+        self.assertEqual(md[SUMMARY], ['A summary'])
+
 
 def find_tests():
     import unittest
