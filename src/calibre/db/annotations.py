@@ -27,10 +27,12 @@ def bookmark_sort_key(b):
 
 
 def highlight_sort_key(hl):
-    # The CFI of a highlight is relative to its spine item, so prefix the spine
-    # index, as is done in the viewer
     cfi = hl.get('start_cfi')
     if cfi:
+        if cfi.startswith('epubcfi('):
+            return cfi_sort_key(cfi, only_path=False)
+        # The CFI of a highlight is relative to its spine item, so prefix the
+        # spine index, as is done in the viewer
         si = hl.get('spine_index')
         return cfi_sort_key((no_cfi if si is None else f'/{si}') + cfi)
     return no_cfi_sort_key
