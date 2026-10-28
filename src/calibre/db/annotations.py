@@ -8,7 +8,8 @@ from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from calibre.utils.date import EPOCH
 from calibre.utils.iso8601 import parse_iso8601
 
-no_cfi_sort_key = cfi_sort_key('/99999999')
+no_cfi = '/99999999'
+no_cfi_sort_key = cfi_sort_key(no_cfi)
 
 
 def unicode_normalize(text):
@@ -28,7 +29,12 @@ def bookmark_sort_key(b):
 def highlight_sort_key(hl):
     cfi = hl.get('start_cfi')
     if cfi:
-        return cfi_sort_key(cfi, only_path=False)
+        if cfi.startswith('epubcfi('):
+            return cfi_sort_key(cfi, only_path=False)
+        # The CFI of a highlight is relative to its spine item, so prefix the
+        # spine index, as is done in the viewer
+        si = hl.get('spine_index')
+        return cfi_sort_key((no_cfi if si is None else f'/{si}') + cfi)
     return no_cfi_sort_key
 
 
