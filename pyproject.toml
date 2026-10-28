@@ -24,6 +24,7 @@ dependencies = [
     "typing-extensions == 4.15.0",  # needed by beautifulsoup4
 	"beautifulsoup4 == 4.14.3",
 	"regex == 2025.11.3",
+    "kovidgoyal-langtool == 1.1.0",
 	"chardet == 5.2.0",
 	"msgpack == 1.2.1",
 	"Pygments == 2.20.0",
