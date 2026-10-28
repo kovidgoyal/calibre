@@ -42,6 +42,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.sqlite import IntegrityError, connect
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
+from calibre.utils import StreamOrPath
 from calibre.utils.config import from_json, prefs, to_json, tweaks
 from calibre.utils.date import UNDEFINED_DATE, parse_date, parse_only_date, utcfromtimestamp, utcnow
 from calibre.utils.date import now as nowf
@@ -3486,34 +3487,32 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         from calibre.ebooks.metadata.meta import get_metadata
 
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else open(path, 'rb')
-        stream.seek(0)
-        mi = get_metadata(stream, format, use_libprs_metadata=False, force_read_metadata=True)
-        # Force the author to calibre as the auto delete of old news checks for
-        # both the author==calibre and the tag News
-        mi.authors = ['calibre']
-        stream.seek(0)
-        if mi.series_index is None:
-            mi.series_index = self.get_next_series_num_for(mi.series)
-        mi.tags = [_('News')]
-        if arg['add_title_tag']:
-            mi.tags += [arg['title']]
-        if arg['custom_tags']:
-            mi.tags += arg['custom_tags']
-        obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)', (mi.title, mi.authors[0]))
-        id = obj.lastrowid
-        self.data.books_added([id], self)
-        self.set_path(id, index_is_id=True)
-        self.conn.commit()
-        if mi.pubdate is None:
-            mi.pubdate = utcnow()
-        if mi.timestamp is None:
-            mi.timestamp = utcnow()
-        self.set_metadata(id, mi)
+        with StreamOrPath(path, 'rb') as stream:
+            stream.seek(0)
+            mi = get_metadata(stream, format, use_libprs_metadata=False, force_read_metadata=True)
+            # Force the author to calibre as the auto delete of old news checks for
+            # both the author==calibre and the tag News
+            mi.authors = ['calibre']
+            stream.seek(0)
+            if mi.series_index is None:
+                mi.series_index = self.get_next_series_num_for(mi.series)
+            mi.tags = [_('News')]
+            if arg['add_title_tag']:
+                mi.tags += [arg['title']]
+            if arg['custom_tags']:
+                mi.tags += arg['custom_tags']
+            obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)', (mi.title, mi.authors[0]))
+            id = obj.lastrowid
+            self.data.books_added([id], self)
+            self.set_path(id, index_is_id=True)
+            self.conn.commit()
+            if mi.pubdate is None:
+                mi.pubdate = utcnow()
+            if mi.timestamp is None:
+                mi.timestamp = utcnow()
+            self.set_metadata(id, mi)
 
-        self.add_format(id, format, stream, index_is_id=True)
-        if not hasattr(path, 'read'):
-            stream.close()
+            self.add_format(id, format, stream, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self, [id])  # Needed to update format list and size
         return id

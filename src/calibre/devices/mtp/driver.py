@@ -19,6 +19,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.devices.mtp.filesystem_cache import FileOrFolder, convert_timestamp
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
+from calibre.utils import StreamOrPath
 from calibre.utils.filenames import shorten_components_to
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
@@ -564,36 +565,29 @@ class MTP_DEVICE(BASE):
             if path and self.is_folder_ignored(storage, path):
                 raise MTPInvalidSendPathError('/'.join(path))
             parent = self.ensure_parent(storage, path)
-            if hasattr(infile, 'read'):
-                pos = infile.tell()
-                infile.seek(0, 2)
-                sz = infile.tell()
-                infile.seek(pos)
-                stream = infile
-                close = False
-            else:
-                sz = os.path.getsize(infile)
-                stream = open(infile, 'rb')
-                close = True
-            relpath = parent.mtp_relpath + (path[-1].lower(),)
-            try:
-                mtp_file = self.put_file(parent, path[-1], stream, sz)
+            with StreamOrPath(infile, 'rb') as stream:
+                pos = stream.tell()
+                stream.seek(0, 2)
+                sz = stream.tell()
+                stream.seek(pos)
+                relpath = parent.mtp_relpath + (path[-1].lower(),)
                 try:
-                    self.upload_cover(parent, relpath, storage, mi, stream)
-                    # Upload the apnx file
-                    if self.is_kindle:
-                        from calibre.devices.kindle.driver import get_apnx_opts
+                    mtp_file = self.put_file(parent, path[-1], stream, sz)
+                    try:
+                        self.upload_cover(parent, relpath, storage, mi, stream)
+                        # Upload the apnx file
+                        if self.is_kindle:
+                            from calibre.devices.kindle.driver import get_apnx_opts
 
-                        apnx_opts = get_apnx_opts()
-                        if apnx_opts.send_apnx:
-                            self.upload_apnx(path, storage, mi, infile, apnx_opts)
-                except Exception:
-                    import traceback
+                            apnx_opts = get_apnx_opts()
+                            if apnx_opts.send_apnx:
+                                self.upload_apnx(path, storage, mi, infile, apnx_opts)
+                    except Exception:
+                        import traceback
 
                     traceback.print_exc()
-            finally:
-                if close:
-                    stream.close()
+                except Exception:
+                    pass
             ans.append((mtp_file, bl_idx))
             self.report_progress(i / total, _('Transferred %s to device') % mi.title)
 

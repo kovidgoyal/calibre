@@ -9,6 +9,7 @@ from calibre.constants import filesystem_encoding
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.metadata.opf2 import OPF
+from calibre.utils import StreamOrPath
 from calibre.utils.config import prefs
 from calibre.utils.localization import _
 
@@ -228,23 +229,20 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
 
 
 def opf_metadata(opfpath):
-    if hasattr(opfpath, 'read'):
-        f = opfpath
-        opfpath = getattr(f, 'name', os.getcwd())
-    else:
-        f = open(opfpath, 'rb')
     try:
-        opf = OPF(f, os.path.dirname(opfpath))
-        if opf.application_id is not None:
-            mi = opf.to_book_metadata()
-            if hasattr(opf, 'cover') and opf.cover:
-                cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
-                if os.access(cpath, os.R_OK):
-                    fmt = cpath.rpartition('.')[-1]
-                    with open(cpath, 'rb') as f:
-                        data = f.read()
-                    mi.cover_data = (fmt, data)
-            return mi
+        with StreamOrPath(opfpath, 'rb') as f:
+            opfpath = getattr(f, 'name', os.getcwd())
+            opf = OPF(f, os.path.dirname(opfpath))
+            if opf.application_id is not None:
+                mi = opf.to_book_metadata()
+                if hasattr(opf, 'cover') and opf.cover:
+                    cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
+                    if os.access(cpath, os.R_OK):
+                        fmt = cpath.rpartition('.')[-1]
+                        with open(cpath, 'rb') as f:
+                            data = f.read()
+                        mi.cover_data = (fmt, data)
+                return mi
     except Exception:
         import traceback
 

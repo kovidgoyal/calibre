@@ -14,6 +14,7 @@ import traceback
 from encodings import idna
 
 from calibre.constants import iswindows
+from calibre.utils import StreamOrPath
 from calibre.utils.localization import _
 from polyglot.builtins import as_unicode
 
@@ -308,7 +309,8 @@ def compose_mail(from_, to, text, subject=None, attachment=None, attachment_name
             from calibre import guess_type
         except ImportError:
             from mimetypes import guess_type
-        attachment_data = attachment.read() if hasattr(attachment, 'read') else open(attachment, 'rb').read()
+        with StreamOrPath(attachment, 'rb') as f:
+            attachment_data = f.read()
         attachment_type = guess_type(getattr(attachment, 'name', attachment))[0]
         if attachment_name is None:
             attachment_name = os.path.basename(getattr(attachment, 'name', attachment))

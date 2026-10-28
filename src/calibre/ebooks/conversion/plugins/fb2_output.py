@@ -1,8 +1,7 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-import os
-
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.utils import StreamOrPath
 from calibre.utils.localization import _
 
 
@@ -174,7 +173,6 @@ class FB2Output(OutputFormatPlugin):
     }
 
     def convert(self, oeb_book, output, input_plugin, opts, log):
-        output_path = output
         from calibre.ebooks.fb2.fb2ml import FB2MLizer
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
@@ -190,18 +188,7 @@ class FB2Output(OutputFormatPlugin):
         fb2mlizer = FB2MLizer(log)
         fb2_content = fb2mlizer.extract_content(oeb_book, opts)
 
-        close = False
-        if not hasattr(output_path, 'write'):
-            close = True
-            if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
-                os.makedirs(os.path.dirname(output_path))
-            out_stream = open(output_path, 'wb')
-        else:
-            out_stream = output_path
-
-        out_stream.seek(0)
-        out_stream.truncate()
-        out_stream.write(fb2_content.encode('utf-8', 'replace'))
-
-        if close:
-            out_stream.close()
+        with StreamOrPath(output, 'wb') as out_stream:
+            out_stream.seek(0)
+            out_stream.truncate()
+            out_stream.write(fb2_content.encode('utf-8', 'replace'))

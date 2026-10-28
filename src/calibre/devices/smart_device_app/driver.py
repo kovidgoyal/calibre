@@ -36,6 +36,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils import StreamOrPath
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.utils.filenames import shorten_components_to
@@ -737,44 +738,41 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # Write a file to the device as a series of binary strings.
     def _put_file(self, infile, lpath, book_metadata, this_book, total_books):
-        close_ = False
-        if not hasattr(infile, 'read'):
-            infile, close_ = open(infile, 'rb'), True
-        infile.seek(0, os.SEEK_END)
-        length = infile.tell()
-        book_metadata.size = length
-        infile.seek(0)
+        with StreamOrPath(infile, 'rb') as infile:
+            infile.seek(0, os.SEEK_END)
+            length = infile.tell()
+            book_metadata.size = length
+            infile.seek(0)
 
-        opcode, result = self._call_client(
-            'SEND_BOOK',
-            {
-                'lpath': lpath,
-                'length': length,
-                'metadata': book_metadata,
-                'thisBook': this_book,
-                'totalBooks': total_books,
-                'willStreamBooks': True,
-                'willStreamBinary': True,
-                'wantsSendOkToSendbook': self.can_send_ok_to_sendbook,
-                'canSupportLpathChanges': True,
-            },
-            print_debug_info=False,
-            wait_for_response=self.can_send_ok_to_sendbook,
-        )
-        if self.can_send_ok_to_sendbook:
-            if opcode == 'ERROR':
-                raise UserFeedback(
-                    msg=f'Sending book {lpath} to device failed',
-                    details=result.get('message', ''),
-                    level=UserFeedback.ERROR,
-                )
-                return
-            lpath = result.get('lpath', lpath)
-            book_metadata.lpath = lpath
-        self._set_known_metadata(book_metadata)
-        pos = 0
-        failed = False
-        with infile:
+            opcode, result = self._call_client(
+                'SEND_BOOK',
+                {
+                    'lpath': lpath,
+                    'length': length,
+                    'metadata': book_metadata,
+                    'thisBook': this_book,
+                    'totalBooks': total_books,
+                    'willStreamBooks': True,
+                    'willStreamBinary': True,
+                    'wantsSendOkToSendbook': self.can_send_ok_to_sendbook,
+                    'canSupportLpathChanges': True,
+                },
+                print_debug_info=False,
+                wait_for_response=self.can_send_ok_to_sendbook,
+            )
+            if self.can_send_ok_to_sendbook:
+                if opcode == 'ERROR':
+                    raise UserFeedback(
+                        msg=f'Sending book {lpath} to device failed',
+                        details=result.get('message', ''),
+                        level=UserFeedback.ERROR,
+                    )
+                    return
+                lpath = result.get('lpath', lpath)
+                book_metadata.lpath = lpath
+            self._set_known_metadata(book_metadata)
+            pos = 0
+            failed = False
             while True:
                 b = infile.read(self.max_book_packet_len)
                 blen = len(b)
@@ -783,8 +781,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._send_byte_string(self.device_socket, b)
                 pos += blen
         self.time = None
-        if close_:
-            infile.close()
         return (-1, None) if failed else (length, lpath)
 
     def _metadata_in_cache(self, uuid, ext_or_lpath, lastmod):

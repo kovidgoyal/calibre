@@ -21,6 +21,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.reader.headers import BookHeader
+from calibre.utils import StreamOrPath
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.img import AnimatedGIF, gif_data_to_png_data, save_cover_data_to
 from calibre.utils.imghdr import what
@@ -76,13 +77,10 @@ class MobiReader:
         self.left_margins = {}
         self.text_indents = {}
 
-        if hasattr(filename_or_stream, 'read'):
-            stream = filename_or_stream
+        with StreamOrPath(filename_or_stream, 'rb') as stream:
             stream.seek(0)
-        else:
-            stream = open(filename_or_stream, 'rb')
+            raw = stream.read()
 
-        raw = stream.read()
         if raw.startswith(b'TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
         if raw.startswith(b'\xeaDRMION\xee'):

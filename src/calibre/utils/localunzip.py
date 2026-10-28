@@ -17,6 +17,7 @@ from struct import calcsize, pack, unpack
 from typing import NamedTuple
 
 from calibre.ptempfile import SpooledTemporaryFile
+from calibre.utils import StreamOrPath
 
 HEADER_SIG = 0x04034B50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
@@ -280,20 +281,14 @@ def _extractall(f, path=None, file_info=None):
 
 
 def extractall(path_or_stream, path=None):
-    f = path_or_stream
-    close_at_end = False
-    if not hasattr(f, 'read'):
-        f = open(f, 'rb')
-        close_at_end = True
-    if path is None:
-        path = os.getcwd()
-    pos = f.tell()
-    try:
-        _extractall(f, path)
-    finally:
-        f.seek(pos)
-        if close_at_end:
-            f.close()
+    with StreamOrPath(path_or_stream, 'rb') as f:
+        if path is None:
+            path = os.getcwd()
+        pos = f.tell()
+        try:
+            _extractall(f, path)
+        finally:
+            f.seek(pos)
 
 
 class LocalZipFile:

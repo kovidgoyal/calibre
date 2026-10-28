@@ -5,7 +5,9 @@
 Miscelleaneous utilities.
 """
 
+import os
 from time import time
+from typing import IO
 
 from polyglot.builtins import as_bytes
 
@@ -65,3 +67,40 @@ def kill_parent_if_needed(parent_process_handle: int, timeout: float = 1.0, exit
             kernel32.TerminateProcess(parent_process_handle, exit_code)
     finally:
         kernel32.CloseHandle(parent_process_handle)
+
+
+class StreamOrPath:
+    """
+    Open a stream if a path is given, or wrap the stream object.
+
+    If used in a with statement, close the file at the exit only iff the source is a path,
+    else leave the source stream open and unchanged.
+    """
+
+    def __init__(self, stream_or_path: str | bytes | IO, mode: str, makedirs: bool = True, **kwargs):
+        self.src_obj = stream_or_path
+        if hasattr(stream_or_path, 'read') or hasattr(stream_or_path, 'write'):
+            self.stream_obj = stream_or_path
+        else:
+            if makedirs and any(m in mode for m in 'wxa'):
+                dirname = os.path.dirname(stream_or_path)
+                if not os.path.exists(dirname) and dirname != '':
+                    os.makedirs(dirname)
+            self.stream_obj = open(stream_or_path, mode, **kwargs)  # ruff: ignore[open-file-with-context-handler]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        src_obj = object.__getattribute__(self, 'src_obj')
+        if not hasattr(src_obj, 'read') and hasattr(src_obj, 'write'):
+            stream_obj = object.__getattribute__(self, 'stream_obj')
+            return stream_obj.__exit__(exc_type, exc_value, tb)
+
+    def __getattribute__(self, name):
+        if name in {'__init__', '__enter__', '__exit__'}:
+            return object.__getattribute__(self, name)
+        stream_obj = object.__getattribute__(self, 'stream_obj')
+        if hasattr(stream_obj, name):
+            return getattr(stream_obj, name)
+        return object.__getattribute__(self, name)

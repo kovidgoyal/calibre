@@ -4,6 +4,7 @@ import os
 
 from calibre import CurrentDir
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils import StreamOrPath
 from calibre.utils.zipfile import ZipFile
 
 
@@ -59,12 +60,9 @@ def get_metadata(stream):
 def zip_opf_metadata(opfpath, zf):
     from calibre.ebooks.metadata.opf2 import OPF
 
-    if hasattr(opfpath, 'read'):
-        f = opfpath
+    with StreamOrPath(opfpath, 'rb') as f:
         opfpath = getattr(f, 'name', os.getcwd())
-    else:
-        f = open(opfpath, 'rb')
-    opf = OPF(f, os.path.dirname(opfpath))
+        opf = OPF(f, os.path.dirname(opfpath))
     mi = opf.to_book_metadata()
     # This is broken, in that it only works for
     # when both the OPF file and the cover file are in the root of the

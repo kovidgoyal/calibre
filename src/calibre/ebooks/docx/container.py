@@ -13,6 +13,7 @@ from calibre.ebooks.docx.names import DOCXNamespace
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils import StreamOrPath
 from calibre.utils.localization import _, canonicalize_lang
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -90,16 +91,16 @@ def read_default_style_language(raw, mi, XPath):
 class DOCX:
     def __init__(self, path_or_stream, log=None, extract=True):
         self.docx_is_transitional = True
-        stream = path_or_stream if hasattr(path_or_stream, 'read') else open(path_or_stream, 'rb')
-        self.name = getattr(stream, 'name', None) or '<stream>'
-        self.log = log or default_log
-        if extract:
-            self.extract(stream)
-        else:
-            self.init_zipfile(stream)
-        self.read_content_types()
-        self.read_package_relationships()
-        self.namespace = DOCXNamespace(self.docx_is_transitional)
+        with StreamOrPath(path_or_stream, 'rb') as stream:
+            self.name = getattr(stream, 'name', None) or '<stream>'
+            self.log = log or default_log
+            if extract:
+                self.extract(stream)
+            else:
+                self.init_zipfile(stream)
+            self.read_content_types()
+            self.read_package_relationships()
+            self.namespace = DOCXNamespace(self.docx_is_transitional)
 
     def init_zipfile(self, stream):
         self.zipf = ZipFile(stream)
