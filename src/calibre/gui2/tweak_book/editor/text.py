@@ -72,6 +72,20 @@ def adjust_for_non_bmp_chars(raw: str, start: int, end: int) -> tuple[int, int]:
     return start, end
 
 
+def css_color_text(color: QColor, original: str) -> str:
+    """Serialize color as CSS, using the same notation as original where possible"""
+    r, g, b, a = color.red(), color.green(), color.blue(), color.alpha()
+    original = original.strip().lower()
+    if original.startswith('#') or (original[:1].isalpha() and '(' not in original):
+        # Hex or named color, use hex
+        return color.name(QColor.NameFormat.HexRgb) + ('' if a == 255 else f'{a:02x}')
+    alpha = f'{color.alphaF():.3g}'
+    if original.startswith('hsl'):
+        h, sl, li = max(0, color.hslHue()), round(color.hslSaturationF() * 100), round(color.lightnessF() * 100)
+        return f'hsl({h}, {sl}%, {li}%)' if a == 255 else f'hsla({h}, {sl}%, {li}%, {alpha})'
+    return f'rgb({r}, {g}, {b})' if a == 255 else f'rgba({r}, {g}, {b}, {alpha})'
+
+
 def get_highlighter(syntax):
     if syntax:
         try:
@@ -915,6 +929,7 @@ class TextEdit(PlainTextEdit):
         return (
             f'<table cellspacing="0" cellpadding="0"><tr><td><img width="{sz}" height="{sz}" src="data:image/png;base64,{data}"></td>'
             f'<td style="padding-left: 1ex; white-space: pre">{"<br>".join(lines)}</td></tr></table>'
+            f'<p>{prepare_string_for_xml(_("Hold down the Ctrl key and click to change this color"))}</p>'
         )
 
     # }}}
@@ -923,6 +938,45 @@ class TextEdit(PlainTextEdit):
         r = self.syntax_range_for_point(pos)
         if r is not None and r.format.property(LINK_PROPERTY):
             return self.text_for_range(self.cursorForPosition(pos).block(), r)
+
+    def color_range_for_position(self, pos: QPoint) -> tuple[int, int, QColor] | None:
+        # Return the absolute start and end positions and the color of the
+        # color value under pos. Color functions such as rgb() are made up of
+        # several adjacent ranges, so they are merged.
+        r = self.syntax_range_for_point(pos)
+        if r is None:
+            return None
+        color = r.format.property(COLOR_PROPERTY)
+        if not isinstance(color, QColor):
+            return None
+        block = self.cursorForPosition(pos).block()
+        layout = block.layout()
+        assert layout is not None
+        color_ranges = sorted((x.start, x.start + x.length) for x in layout.formats() if x.length > 0 and x.format.property(COLOR_PROPERTY) == color)
+        start, end = r.start, r.start + r.length
+        for s, e in reversed(color_ranges):
+            if s < start <= e:
+                start = s
+        for s, e in color_ranges:
+            if s <= end < e:
+                end = e
+        return block.position() + start, block.position() + end, color
+
+    def change_color(self, start: int, end: int, color: QColor, original: str) -> None:
+        c = self.textCursor()
+        c.setPosition(start)
+        c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
+        if self.selected_text_from_cursor(c) != original:
+            return  # text was changed in the meantime
+        ncolor = QColorDialog.getColor(color, self, _('Choose color'), QColorDialog.ColorDialogOption.ShowAlphaChannel)
+        if not ncolor.isValid() or ncolor.rgba() == color.rgba():
+            return
+        c.setPosition(start)
+        c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
+        if self.selected_text_from_cursor(c) != original:
+            return
+        c.insertText(css_color_text(ncolor, original))
+        self.setTextCursor(c)
 
     def select_class_name_at_cursor(self, cursor):
         valid = re.compile(r'^[\w_-]+$', flags=re.UNICODE)
@@ -977,6 +1031,17 @@ class TextEdit(PlainTextEdit):
             if class_data is not None:
                 e.accept()
                 self.class_clicked.emit(class_data)
+                return
+            color_data = self.color_range_for_position(e.pos())
+            if color_data is not None:
+                e.accept()
+                start, end, color = color_data
+                c = self.textCursor()
+                c.setPosition(start)
+                c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
+                original = self.selected_text_from_cursor(c)
+                # Show the dialog after the mouse press has been fully processed
+                QTimer.singleShot(0, lambda: self.change_color(start, end, color, original))
                 return
         return PlainTextEdit.mousePressEvent(self, e)
 

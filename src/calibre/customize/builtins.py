@@ -1780,6 +1780,26 @@ class StoreChitankaStore(StoreBase):
     formats = ['FB2', 'EPUB', 'TXT', 'SFB']
 
 
+class StoreDOABStore(StoreBase):
+    name = 'DOAB'
+    description = 'The Directory of Open Access Books, a directory of peer reviewed books that are free to read and share, from academic publishers.'
+    actual_plugin = 'calibre.gui2.store.stores.doab_plugin:DOABStore'
+
+    drm_free_only = True
+    headquarters = 'NL'
+    formats = ['EPUB', 'PDF']
+
+
+class StoreDOAJStore(StoreBase):
+    name = 'DOAJ'
+    description = 'The Directory of Open Access Journals, a directory of articles from peer reviewed journals that are free to read and share.'
+    actual_plugin = 'calibre.gui2.store.stores.doaj_plugin:DOAJStore'
+
+    drm_free_only = True
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+
+
 class StoreEbookNLStore(StoreBase):
     name = 'eBook.nl'
     description = 'De eBookwinkel van Nederland'
@@ -2002,6 +2022,16 @@ class StoreSmashwordsStore(StoreBase):
     affiliate = True
 
 
+class StoreStandardEbooksStore(StoreBase):
+    name = 'Standard Ebooks'
+    description = 'Free and carefully produced editions of public domain e-books, with modern typography and covers.'
+    actual_plugin = 'calibre.gui2.store.stores.standard_ebooks_plugin:StandardEbooksStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['AZW3', 'EPUB', 'KEPUB']
+
+
 class StoreSwiatEbookowStore(StoreBase):
     name = 'Świat Ebooków'
     author = 'Tomasz Długosz'
@@ -2074,6 +2104,8 @@ plugins += [
     StoreBeamEBooksDEStore,
     StoreBiblioStore,
     StoreChitankaStore,
+    StoreDOABStore,
+    StoreDOAJStore,
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
@@ -2094,6 +2126,7 @@ plugins += [
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
+    StoreStandardEbooksStore,
     StoreSwiatEbookowStore,
     StoreVirtualoStore,
     StoreWeightlessBooksStore,

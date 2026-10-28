@@ -1226,6 +1226,30 @@ class Boss(QObject):
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
 
+    def edit_accessibility(self):
+        if not self.ensure_book(_('You must open a book before trying to make it accessible.')):
+            return
+        self.commit_all_editors_to_container()
+        from calibre.gui2.tweak_book.accessibility import Accessibility
+
+        d = Accessibility(current_container(), parent=self.gui)
+        if d.exec() != QDialog.DialogCode.Accepted:
+            return
+        changes = d.changes
+        if changes.is_empty:
+            return
+        from calibre.ebooks.oeb.polish.accessibility import apply_accessibility_changes
+
+        self.add_savepoint(_('Before: Accessibility'))
+        c = current_container()
+        if not apply_accessibility_changes(c, changes):
+            self.rewind_savepoint()
+            return
+        if changes.languages is not None:
+            lang = c.opf_xpath('//dc:language/text()') or [self.current_metadata.language]
+            set_book_locale(lang[0])
+        self.apply_container_update_to_gui()
+
     def filter_css(self):
         self.commit_all_editors_to_container()
         c = current_container()
