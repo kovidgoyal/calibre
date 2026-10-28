@@ -3,6 +3,7 @@
 
 import datetime
 import hashlib
+import http.client
 from collections import OrderedDict
 from collections.abc import Callable
 from functools import lru_cache, partial
@@ -21,7 +22,7 @@ from calibre.db.categories import Tag
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.library.comments import comments_to_html
-from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound
+from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound, HTTPSimpleResponse
 from calibre.srv.handler import Context, UrlForCallable
 from calibre.srv.http_request import parse_uri
 from calibre.srv.http_response import RequestData
@@ -238,9 +239,11 @@ def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestCont
 
 
 def PSE_LINK(book_id: int, formats: list[str], request_context: RequestContext) -> etree.Element | None:
-    # Lets clients such as KOReader stream comics page by page, without
-    # downloading the whole book
-    from calibre.srv.comic_pages import COMIC_FORMATS, page_names
+    # Lets clients stream comics page by page, without downloading the whole
+    # book. The number of pages is not in the feed, as finding it means
+    # reading every comic in the feed, clients get it when they request a
+    # page, as specified by OPDS-PSE 1.3.
+    from calibre.srv.comic_pages import COMIC_FORMATS, DEFAULT_MEDIA_TYPE
 
     available = {fmt.upper() for fmt in formats}
     for fmt in COMIC_FORMATS:
@@ -248,16 +251,8 @@ def PSE_LINK(book_id: int, formats: list[str], request_context: RequestContext) 
             break
     else:
         return None
-    try:
-        count = len(page_names(request_context.db.format_abspath(book_id, fmt)))
-    except Exception:
-        return None
-    if not count:
-        return None
     href = request_context.ctx.url_for('/opds/pse', book_id=book_id, fmt=fmt.lower(), library_id=request_context.library_id)
-    link = E.link(type='image/jpeg', href=href + '?page={pageNumber}&width={maxWidth}', rel='http://vaemendis.net/opds-pse/stream')
-    link.set(f'{{{PSE_NS}}}count', str(count))
-    return link
+    return E.link(type=DEFAULT_MEDIA_TYPE, href=href + '?page={pageNumber}&width={maxWidth}', rel='http://vaemendis.net/opds-pse/stream')
 
 
 def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
@@ -831,12 +826,14 @@ def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element:
 @endpoint('/opds/pse/{book_id}/{fmt}/{library_id=None}', types={'book_id': int})
 def opds_pse(ctx: Context, rd: RequestData, book_id: int, fmt: str, library_id: str | None) -> bytes:
     """
-    Get a single page of a comic book as a JPEG image, for the OPDS Page
-    Streaming Extension. The page is specified with the page query parameter,
-    starting at zero, and the maximum width of the image with the width
-    query parameter.
+    Get a single page of a comic book as an image, for the OPDS Page Streaming
+    Extension. The page is specified with the page query parameter, starting
+    at zero, and the maximum width of the image with the width query
+    parameter. The image is in one of the formats in the Accept header of the
+    request, or JPEG if it does not list any image formats. The number of
+    pages is in the PSE-Page-Count header of the response.
     """
-    from calibre.srv.comic_pages import COMIC_FORMATS, page_as_jpeg, page_names, read_page
+    from calibre.srv.comic_pages import COMIC_FORMATS, NotAcceptable, page_for_client, page_names, read_page
 
     db = get_db(ctx, rd, library_id)
     if db is None:
@@ -859,7 +856,12 @@ def opds_pse(ctx: Context, rd: RequestData, book_id: int, fmt: str, library_id: 
     names = page_names(path)
     if not 0 <= page < len(names):
         raise HTTPNotFound(f'Page {page} does not exist')
-    data = page_as_jpeg(read_page(path, names[page]), max_width)
-    rd.outheaders['Content-Type'] = 'image/jpeg'
+    try:
+        data, media_type = page_for_client(read_page(path, names[page]), max_width, rd.inheaders.get('Accept'))
+    except NotAcceptable as e:
+        raise HTTPSimpleResponse(http.client.NOT_ACCEPTABLE, str(e))
+    rd.outheaders['Content-Type'] = media_type
+    rd.outheaders['PSE-Page-Count'] = str(len(names))
+    rd.outheaders['Vary'] = 'Accept'
     rd.outheaders['Cache-Control'] = 'private, max-age=3600'
     return data

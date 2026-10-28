@@ -285,13 +285,14 @@ Streaming comics page by page
 The Content server provides an OPDS catalog of your books at the address of
 the server followed by ``/opds``, which can be used to browse and download
 books in OPDS reader applications. For comics in the CBZ, CBR or CB7 formats,
-the catalog also supports the `OPDS Page Streaming Extension
+the catalog also supports version 1.3 of the `OPDS Page Streaming Extension
 <https://github.com/anansi-project/opds-pse>`_, which lets applications that
-support it, such as KOReader and Panels, read comics page by page, without
-having to download the whole comic first. Pages are in the same order as
-when converting the comic with calibre. In KOReader, add the catalog in the
-OPDS catalog browser and choose to stream a comic, instead of downloading
-it.
+support it read comics page by page, without having to download the whole
+comic first. Pages are in the same order as when converting the comic with
+calibre. They are sent in the image formats the application asks for, such
+as JPEG XL or AVIF, or as JPEG images if it does not ask for any. The number
+of pages of a comic is only read when it is opened, so that the catalog is
+not slowed down by comics.
 
 
 Integrating the calibre Content server into other servers
