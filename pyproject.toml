@@ -14,7 +14,7 @@ dependencies = [
 	"css-parser == 1.1.1",
 	"python-dateutil == 2.9.0",
 	"jeepney == 0.9.0",
-	"dnspython == 2.8.0",
+	"dnspython == 2.9.0",
 	"mechanize == 0.4.10",
 	"feedparser-sgmllib == 2.0.1",
 	"feedparser == 6.0.14",
