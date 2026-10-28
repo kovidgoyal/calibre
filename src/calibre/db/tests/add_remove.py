@@ -631,6 +631,19 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(all_formats, cache.formats(1))
         self.assertFalse(os.listdir(os.path.join(cache.backend.trash_dir, 'f')))
 
+        # removed formats of a deleted book are not listed, as they cannot be
+        # restored, until the book is restored
+        cache.remove_formats({1: all_formats})
+        cache.remove_books((1,))
+        b, f = cache.list_trash_entries()
+        self.assertEqual(([e.book_id for e in b], f), ([1], []))
+        cache.move_book_from_trash(1)
+        b, f = cache.list_trash_entries()
+        self.assertEqual(([e.book_id for e in f], set(f[0].formats)), ([1], set(all_formats)))
+        for fmt in all_formats:
+            cache.move_format_from_trash(1, fmt)
+        self.assertEqual(set(all_formats), set(cache.formats(1)))
+
     # }}}
 
     def test_remove_books_failures(self):  # {{{

@@ -3614,7 +3614,7 @@ class Cache:
             if self._has_id(e.book_id):
                 ff.append(e)
                 e.cover_path = self.format_abspath(e.book_id, '__COVER_INTERNAL__')
-        return books, formats
+        return books, ff
 
     _list_trash_entries = list_trash_entries
 
