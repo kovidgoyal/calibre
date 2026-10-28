@@ -26,7 +26,7 @@ dependencies = [
 	"regex == 2025.11.3",
     "kovidgoyal-langtool == 1.1.0",
 	"chardet == 5.2.0",
-	"msgpack == 1.2.1",
+	"msgpack == 1.2.3",
 	"Pygments == 2.20.0",
 	"pycryptodome == 3.23.0",
 	"apsw == 3.53.2.0",
