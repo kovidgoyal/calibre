@@ -5,7 +5,7 @@
 # specification and WCAG, see https://www.w3.org/TR/epub-a11y-11/
 
 from calibre import prepare_string_for_xml as xml
-from calibre.ebooks.oeb.base import OEB_DOCS, SVG, XHTML, XML
+from calibre.ebooks.oeb.base import EPUB, EPUB_NS, OEB_DOCS, SVG, XHTML, XML
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
@@ -15,6 +15,53 @@ IMG = XHTML('img')
 SVG_ROOT, SVG_TITLE = SVG('svg'), SVG('title')
 ACCESSIBILITY_PROPERTIES = ('schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature', 'schema:accessibilityHazard')
 SUMMARY_PROPERTY = 'schema:accessibilitySummary'
+EPUB_TYPE = EPUB('type')
+
+
+def _roles():
+    # The roles for epub:type values and the elements they are allowed on, from
+    # the EPUB Type to ARIA Role Authoring Guide, see
+    # https://www.w3.org/TR/epub-aria-authoring-11/ Only the DPUB-ARIA roles
+    # are used, the WAI-ARIA roles such as list and table change the nature of
+    # the element and so need more care than can be taken automatically. The
+    # deprecated doc-biblioentry and doc-endnote roles are not used, and
+    # neither is doc-cover, which is for images, not the cover type.
+    sectioning = ('section',)
+    links = ('a',)
+    ans = {}
+    for epub_type in (
+        'abstract acknowledgments afterword appendix bibliography chapter colophon conclusion credit credits'
+        ' dedication endnotes epilogue errata foreword glossary introduction notice part preface prologue qna'
+    ).split():
+        ans[epub_type] = f'doc-{epub_type}', sectioning
+    for epub_type in ('backlink', 'biblioref', 'glossref', 'noteref'):
+        ans[epub_type] = f'doc-{epub_type}', links
+    ans['epigraph'] = 'doc-epigraph', ()
+    ans['footnote'] = 'doc-footnote', ('aside', 'footer', 'header')
+    ans['index'] = 'doc-index', ('nav', 'section')
+    ans['page-list'] = 'doc-pagelist', ('nav', 'section')
+    ans['pagebreak'] = 'doc-pagebreak', ('hr',)
+    ans['pullquote'] = 'doc-pullquote', ('aside', 'section')
+    ans['subtitle'] = 'doc-subtitle', tuple(f'h{i}' for i in range(1, 7))
+    ans['tip'] = 'doc-tip', ('aside',)
+    ans['toc'] = 'doc-toc', ('nav', 'section')
+    return {k: (role, frozenset(map(XHTML, tags))) for k, (role, tags) in ans.items()}
+
+
+ROLE_FOR_EPUB_TYPE = _roles()
+# Elements that accept any role, from ARIA in HTML. Not included are <a> with
+# a href, <figure> with a <figcaption> and table cells and rows, which accept
+# any role only in some circumstances
+ACCEPTS_ANY_ROLE = frozenset(
+    map(
+        XHTML,
+        (
+            'abbr address b bdi bdo blockquote canvas cite code data del dfn div em hgroup i ins kbd mark output p pre q'
+            ' rp rt ruby s samp small span strong sub sup table tbody tfoot thead time u var'
+        ).split(),
+    )
+)
+A, FIGURE, FIGCAPTION = XHTML('a'), XHTML('figure'), XHTML('figcaption')
 
 
 def html_names(container):
@@ -39,6 +86,34 @@ def images_without_alt(root):
         svg for svg in root.iter(SVG_ROOT) if next(svg.iterancestors(SVG_ROOT), None) is None and not is_decorative(svg) and not svg_has_text_alternative(svg)
     )
     return sorted(ans, key=lambda x: x.sourceline)
+
+
+def accepts_any_role(elem) -> bool:
+    if elem.tag in ACCEPTS_ANY_ROLE:
+        return True
+    if elem.tag == A:
+        return elem.get('href') is None
+    if elem.tag == FIGURE:
+        return next(elem.iterchildren(FIGCAPTION), None) is None
+    return False
+
+
+def role_for(elem) -> str | None:
+    # The role for the first epub:type of the element that has one valid on it
+    for epub_type in (elem.get(EPUB_TYPE) or '').split():
+        x = ROLE_FOR_EPUB_TYPE.get(epub_type)
+        if x is not None and (elem.tag in x[1] or accepts_any_role(elem)):
+            return x[0]
+    return None
+
+
+def elements_without_role(root):
+    # Elements that have no role, but whose epub:type has a corresponding
+    # role. Elements that already have a role are left alone, even if it is
+    # different, as it was chosen by the author.
+    for elem in root.xpath('//*[@epub:type]', namespaces={'epub': EPUB_NS}):
+        if not (elem.get('role') or '').strip() and (role := role_for(elem)):
+            yield elem, role
 
 
 def has_language(root):
@@ -117,6 +192,40 @@ class SkippedHeadingLevel(BaseError):
         self.all_locations = [(name, lnum, None) for lnum in lines]
 
 
+class MissingRole(BaseError):
+    level = INFO
+    has_multiple_locations = True
+    RULE_NAME = _('Structural semantics without ARIA roles')
+    INDIVIDUAL_FIX = _('Add the matching ARIA roles')
+    HELP = xml(
+        _(
+            'The epub:type attribute is used by reading systems, but not by screen readers, which use the role'
+            ' attribute instead. For example, a link with epub:type="noteref" should also have role="doc-noteref" so'
+            ' that screen readers announce it as a link to a note. The automatic fix adds the role that corresponds to'
+            ' the epub:type, if it is allowed on that element.'
+        )
+    )
+
+    def __init__(self, name, lines):
+        BaseError.__init__(
+            self,
+            ngettext('An element has an epub:type but no ARIA role', '{} elements have an epub:type but no ARIA role', len(lines)).format(len(lines)),
+            name,
+            lines[0],
+        )
+        self.all_locations = [(name, lnum, None) for lnum in lines]
+
+    def __call__(self, container):
+        root = container.parsed(self.name)
+        changed = False
+        for elem, role in tuple(elements_without_role(root)):
+            elem.set('role', role)
+            changed = True
+        if changed:
+            container.dirty(self.name)
+        return changed
+
+
 def existing_properties(container):
     return {m.get('property') for m in container.opf_xpath('//opf:metadata/opf:meta[@property]') if (m.text or '').strip() and not m.get('refines')}
 
@@ -158,6 +267,7 @@ class MissingAccessibilitySummary(BaseError):
 def check_accessibility(container):
     errors = []
     missing_lang = []
+    is_epub3 = container.opf_version_parsed.major > 2
     for name in html_names(container):
         root = container.parsed(name)
         if not has_language(root):
@@ -173,7 +283,11 @@ def check_accessibility(container):
             prev = level
         if skipped:
             errors.append(SkippedHeadingLevel(name, skipped))
-    is_epub3 = container.opf_version_parsed.major > 2
+        # The role attribute is not valid in the XHTML 1.1 used by EPUB 2
+        if is_epub3:
+            lines = [elem.sourceline for elem, role in elements_without_role(root)]
+            if lines:
+                errors.append(MissingRole(name, lines))
     if missing_lang:
         errors.append(MissingLanguage(missing_lang, get_book_language_tag(container), is_epub3))
 

@@ -800,6 +800,56 @@ class Structure(BaseTest):
         root = c.parsed('a.html')
         self.assertEqual((root.get('lang'), root.get('{http://www.w3.org/XML/1998/namespace}lang')), (None, 'en'))
 
+    def test_aria_roles(self):
+        from calibre.ebooks.oeb.polish.check.accessibility import MissingRole, check_accessibility
+        from calibre.ebooks.oeb.polish.check.main import fix_errors
+
+        def html(body, body_type=''):
+            return (
+                '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en"><head><title>t</title></head>'
+                f'<body{body_type}>{body}</body></html>'
+            )
+
+        def missing(c):
+            return {e.name: [loc[1] for loc in e.all_locations] for e in check_accessibility(c) if isinstance(e, MissingRole)}
+
+        # Each line has an element whose role is checked, with the expected role
+        lines = (
+            ('<section epub:type="chapter"><h1>c</h1></section>', 'doc-chapter'),
+            ('<section epub:type="bodymatter chapter"><h1>c</h1></section>', 'doc-chapter'),
+            ('<div epub:type="z3998:poem epigraph">e</div>', 'doc-epigraph'),
+            ('<a href="#n" epub:type="noteref">1</a>', 'doc-noteref'),
+            ('<aside epub:type="footnote" id="n">n</aside>', 'doc-footnote'),
+            ('<span epub:type="pagebreak" id="p1" title="1"/>', 'doc-pagebreak'),
+            ('<hr epub:type="pagebreak" title="2"/>', 'doc-pagebreak'),
+            ('<a id="p3" epub:type="pagebreak" title="3"/>', 'doc-pagebreak'),
+            ('<h2 epub:type="subtitle">s</h2>', 'doc-subtitle'),
+            ('<figure epub:type="pullquote">q</figure>', 'doc-pullquote'),
+            ('<nav epub:type="toc"><ol><li><a href="a.html">a</a></li></ol></nav>', 'doc-toc'),
+            # Existing roles are left alone
+            ('<p epub:type="footnote" role="note">n</p>', 'note'),
+            # Types with no role and roles not allowed on the element
+            ('<section epub:type="titlepage">t</section>', None),
+            ('<section epub:type="cover">t</section>', None),
+            ('<ol epub:type="endnotes"><li epub:type="endnote">e</li></ol>', None),
+            ('<a href="#p" epub:type="pagebreak">4</a>', None),
+            ('<figure epub:type="pullquote"><figcaption>c</figcaption></figure>', None),
+            ('<li epub:type="footnote">n</li>', None),
+        )
+        c = self.create_epub([cmi('a.html', html('\n'.join(x[0] for x in lines), ' epub:type="chapter"')), cmi('b.html', html('<p>b</p>'))])
+        self.assertEqual(missing(c), {'a.html': [i + 1 for i, x in enumerate(lines) if x[1] not in (None, 'note')]})
+        errors = [e for e in check_accessibility(c) if isinstance(e, MissingRole)]
+        self.assertTrue(errors[0].INDIVIDUAL_FIX)
+        self.assertTrue(fix_errors(c, errors))
+        root = c.parsed('a.html')
+        self.assertIsNone(root[1].get('role'))
+        self.assertEqual([elem.get('role') for elem in root[1]], [x[1] for x in lines])
+        self.assertFalse(missing(c))
+
+        # The role attribute is not valid in the XHTML 1.1 used by EPUB 2
+        c = self.create_epub([cmi('a.html', html('<section epub:type="chapter">c</section>'))], ver=2)
+        self.assertFalse(missing(c))
+
 
 def find_tests():
     import unittest
