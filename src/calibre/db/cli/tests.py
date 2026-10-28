@@ -10,7 +10,7 @@ import os
 import shutil
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
-from io import StringIO
+from io import BytesIO, StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
 from calibre.db.cli.cmd_list_categories import do_list
@@ -463,6 +463,62 @@ class ItemsTest(BaseTest):
         self.assertEqual(len(changes), 1)
 
 
+class ConvertTest(BaseTest):
+    def run_convert(self, db, *args):
+        from calibre.db.cli.cmd_convert import main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            def __init__(self):
+                self.db = db
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out, redirect_stderr(StringIO()):
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_convert(self):
+        from calibre.db.cli.cmd_convert import user_recommendations
+        from calibre.db.legacy import LibraryDatabase
+        from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.utils.logging import DevNull
+
+        ldb = LibraryDatabase(self.library_path)
+        self.addCleanup(ldb.close)
+        db = ldb.new_api
+        db.set_field('title', {3: 'A Converted Book'})
+        db.add_format(3, 'TXT', BytesIO(b'Some text in a paragraph.\n\nAnother paragraph.'), run_hooks=False)
+
+        # Only the ebook-convert options that are specified are used
+        txt = os.path.join(self.library_path, 'a.txt')
+        open(txt, 'w').close()
+        recs = user_recommendations(txt, 'a.epub', ['--smarten-punctuation', '--epub-version', '3'], DevNull())
+        self.assertEqual({r[0]: r[1] for r in recs}, {'smarten_punctuation': True, 'epub_version': '3'})
+        self.assertEqual(user_recommendations(txt, 'a.epub', [], DevNull()), [])
+
+        out = self.run_convert(ldb, '3', 'epub', '--', '--epub-version', '3')
+        self.assertIn("epub_version: '3'", out)
+        self.assertEqual(out.splitlines()[-1], 'Converted book 3 from TXT to EPUB')
+        self.assertIn('EPUB', db.formats(3))
+        with db.format(3, 'EPUB', as_file=True) as f:
+            mi = get_metadata(f, 'epub')
+        # The metadata of the book in the library is used
+        self.assertEqual(mi.title, 'A Converted Book')
+
+        for args, msg in (
+            (('3',), 'book id and an output format'),
+            (('x', 'epub'), 'must be a number'),
+            (('99', 'epub'), 'No book with id'),
+            (('3', 'nosuch'), 'Cannot convert to the NOSUCH format'),
+            (('--input-format', 'pdf', '3', 'azw3'), 'does not have the PDF format'),
+            (('--dont-replace', '3', 'epub'), 'already has the EPUB format'),
+            (('3', 'azw3', '--', '--no-such-option'), ''),
+            (('3', 'azw3', '--', 'extra'), 'Extra arguments not understood'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_convert(ldb, *args)
+
+
 def find_tests():
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
@@ -473,4 +529,5 @@ def find_tests():
         loader.loadTestsFromTestCase(NotesTest),
         loader.loadTestsFromTestCase(RestoreDatabaseTest),
         loader.loadTestsFromTestCase(ItemsTest),
+        loader.loadTestsFromTestCase(ConvertTest),
     ))

@@ -441,13 +441,8 @@ def read_sr_patterns(path, log=None):
     return json.dumps(pats)
 
 
-def main(args=sys.argv):
-    log = Log()
-    parser, plumber = create_option_parser(args, log)
-    opts, leftover_args = parser.parse_args(args)
-    if len(leftover_args) > 3:
-        log.error('Extra arguments not understood:', ', '.join(leftover_args[3:]))
-        return 1
+def normalize_options(opts, log):
+    "Make paths absolute and read the files of rules specified by the options. Returns False if the rules are invalid."
     for x in ('read_metadata_from_opf', 'cover'):
         if getattr(opts, x, None) is not None:
             setattr(opts, x, abspath(getattr(opts, x)))
@@ -464,7 +459,7 @@ def main(args=sys.argv):
                     log.error('Failed to parse CSS transform rules')
                     log.error(title)
                     log.error(msg)
-                    return 1
+                    return False
     if opts.transform_html_rules:
         from calibre.ebooks.html_transform_rules import import_rules, validate_rule
 
@@ -476,7 +471,19 @@ def main(args=sys.argv):
                     log.error('Failed to parse HTML transform rules')
                     log.error(title)
                     log.error(msg)
-                    return 1
+                    return False
+    return True
+
+
+def main(args=sys.argv):
+    log = Log()
+    parser, plumber = create_option_parser(args, log)
+    opts, leftover_args = parser.parse_args(args)
+    if len(leftover_args) > 3:
+        log.error('Extra arguments not understood:', ', '.join(leftover_args[3:]))
+        return 1
+    if not normalize_options(opts, log):
+        return 1
 
     recommendations = [(n.dest, getattr(opts, n.dest), OptionRecommendation.HIGH) for n in parser.options_iter() if n.dest]
     plumber.merge_ui_recommendations(recommendations)
