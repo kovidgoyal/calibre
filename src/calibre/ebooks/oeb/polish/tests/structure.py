@@ -820,6 +820,10 @@ class Structure(BaseTest):
             ('<div epub:type="z3998:poem epigraph">e</div>', 'doc-epigraph'),
             ('<a href="#n" epub:type="noteref">1</a>', 'doc-noteref'),
             ('<aside epub:type="footnote" id="n">n</aside>', 'doc-footnote'),
+            ('<footer epub:type="footnote">n</footer>', 'doc-footnote'),
+            ('<aside epub:type="dedication">d</aside>', 'doc-dedication'),
+            ('<section epub:type="epigraph">e</section>', 'doc-epigraph'),
+            ('<nav epub:type="page-list"><ol><li><a href="a.html">1</a></li></ol></nav>', 'doc-pagelist'),
             ('<span epub:type="pagebreak" id="p1" title="1"/>', 'doc-pagebreak'),
             ('<hr epub:type="pagebreak" title="2"/>', 'doc-pagebreak'),
             ('<a id="p3" epub:type="pagebreak" title="3"/>', 'doc-pagebreak'),
@@ -835,6 +839,8 @@ class Structure(BaseTest):
             ('<a href="#p" epub:type="pagebreak">4</a>', None),
             ('<figure epub:type="pullquote"><figcaption>c</figcaption></figure>', None),
             ('<li epub:type="footnote">n</li>', None),
+            ('<header epub:type="footnote">n</header>', None),
+            ('<article epub:type="chapter">c</article>', None),
         )
         c = self.create_epub([cmi('a.html', html('\n'.join(x[0] for x in lines), ' epub:type="chapter"')), cmi('b.html', html('<p>b</p>'))])
         self.assertEqual(missing(c), {'a.html': [i + 1 for i, x in enumerate(lines) if x[1] not in (None, 'note')]})
@@ -845,6 +851,7 @@ class Structure(BaseTest):
         self.assertIsNone(root[1].get('role'))
         self.assertEqual([elem.get('role') for elem in root[1]], [x[1] for x in lines])
         self.assertFalse(missing(c))
+        self.assertFalse(errors[0](c))
 
         # The role attribute is not valid in the XHTML 1.1 used by EPUB 2
         c = self.create_epub([cmi('a.html', html('<section epub:type="chapter">c</section>'))], ver=2)

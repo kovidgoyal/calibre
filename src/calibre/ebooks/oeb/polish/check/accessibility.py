@@ -5,7 +5,7 @@
 # specification and WCAG, see https://www.w3.org/TR/epub-a11y-11/
 
 from calibre import prepare_string_for_xml as xml
-from calibre.ebooks.oeb.base import EPUB, EPUB_NS, OEB_DOCS, SVG, XHTML, XML
+from calibre.ebooks.oeb.base import EPUB, OEB_DOCS, SVG, XHTML, XML, XPath
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
@@ -16,36 +16,36 @@ SVG_ROOT, SVG_TITLE = SVG('svg'), SVG('title')
 ACCESSIBILITY_PROPERTIES = ('schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature', 'schema:accessibilityHazard')
 SUMMARY_PROPERTY = 'schema:accessibilitySummary'
 EPUB_TYPE = EPUB('type')
+WITH_EPUB_TYPE = XPath('//*[@epub:type]')
 
 
 def _roles():
-    # The roles for epub:type values and the elements they are allowed on, from
-    # the EPUB Type to ARIA Role Authoring Guide, see
-    # https://www.w3.org/TR/epub-aria-authoring-11/ Only the DPUB-ARIA roles
-    # are used, the WAI-ARIA roles such as list and table change the nature of
-    # the element and so need more care than can be taken automatically. The
-    # deprecated doc-biblioentry and doc-endnote roles are not used, and
-    # neither is doc-cover, which is for images, not the cover type.
-    sectioning = ('section',)
-    links = ('a',)
+    # The epub:type values that have a corresponding role, from the EPUB Type
+    # to ARIA Role Authoring Guide, see
+    # https://www.w3.org/TR/epub-aria-authoring-11/ and the elements the roles
+    # are allowed on, from ARIA in HTML, see https://www.w3.org/TR/html-aria/
+    # Only the DPUB-ARIA roles are used, the WAI-ARIA roles such as list and
+    # table change the nature of the element and so need more care than can be
+    # taken automatically. The deprecated doc-biblioentry and doc-endnote roles
+    # are not used, and neither is doc-cover, which is for images, not the
+    # cover type.
+    allowed_on = {
+        'section': (
+            'abstract acknowledgments afterword appendix bibliography chapter colophon conclusion credit credits dedication'
+            ' endnotes epigraph epilogue errata foreword glossary index introduction notice page-list part preface prologue'
+            ' pullquote qna toc'
+        ),
+        'aside': 'dedication footnote glossary pullquote tip',
+        'footer': 'footnote',
+        'nav': 'index page-list toc',
+        'hr': 'pagebreak',
+        'a': 'backlink biblioref glossref noteref',
+    } | {f'h{i}': 'subtitle' for i in range(1, 7)}
     ans = {}
-    for epub_type in (
-        'abstract acknowledgments afterword appendix bibliography chapter colophon conclusion credit credits'
-        ' dedication endnotes epilogue errata foreword glossary introduction notice part preface prologue qna'
-    ).split():
-        ans[epub_type] = f'doc-{epub_type}', sectioning
-    for epub_type in ('backlink', 'biblioref', 'glossref', 'noteref'):
-        ans[epub_type] = f'doc-{epub_type}', links
-    ans['epigraph'] = 'doc-epigraph', ()
-    ans['footnote'] = 'doc-footnote', ('aside', 'footer', 'header')
-    ans['index'] = 'doc-index', ('nav', 'section')
-    ans['page-list'] = 'doc-pagelist', ('nav', 'section')
-    ans['pagebreak'] = 'doc-pagebreak', ('hr',)
-    ans['pullquote'] = 'doc-pullquote', ('aside', 'section')
-    ans['subtitle'] = 'doc-subtitle', tuple(f'h{i}' for i in range(1, 7))
-    ans['tip'] = 'doc-tip', ('aside',)
-    ans['toc'] = 'doc-toc', ('nav', 'section')
-    return {k: (role, frozenset(map(XHTML, tags))) for k, (role, tags) in ans.items()}
+    for tag, epub_types in allowed_on.items():
+        for epub_type in epub_types.split():
+            ans.setdefault(epub_type, set()).add(XHTML(tag))
+    return {epub_type: ('doc-' + epub_type.replace('-', ''), frozenset(tags)) for epub_type, tags in ans.items()}
 
 
 ROLE_FOR_EPUB_TYPE = _roles()
@@ -111,7 +111,7 @@ def elements_without_role(root):
     # Elements that have no role, but whose epub:type has a corresponding
     # role. Elements that already have a role are left alone, even if it is
     # different, as it was chosen by the author.
-    for elem in root.xpath('//*[@epub:type]', namespaces={'epub': EPUB_NS}):
+    for elem in WITH_EPUB_TYPE(root):
         if not (elem.get('role') or '').strip() and (role := role_for(elem)):
             yield elem, role
 
@@ -199,8 +199,8 @@ class MissingRole(BaseError):
     INDIVIDUAL_FIX = _('Add the matching ARIA roles')
     HELP = xml(
         _(
-            'The epub:type attribute is used by reading systems, but not by screen readers, which use the role'
-            ' attribute instead. For example, a link with epub:type="noteref" should also have role="doc-noteref" so'
+            'The epub:type attribute is used by reading systems, but screen readers should not be relied on to'
+            ' understand it, they use the role attribute instead. For example, a link with epub:type="noteref" should also have role="doc-noteref" so'
             ' that screen readers announce it as a link to a note. The automatic fix adds the role that corresponds to'
             ' the epub:type, if it is allowed on that element.'
         )
@@ -218,7 +218,7 @@ class MissingRole(BaseError):
     def __call__(self, container):
         root = container.parsed(self.name)
         changed = False
-        for elem, role in tuple(elements_without_role(root)):
+        for elem, role in elements_without_role(root):
             elem.set('role', role)
             changed = True
         if changed:

@@ -379,9 +379,10 @@ Some of the checks performed are:
       EPUB 3 books, missing accessibility metadata and elements whose
       ``epub:type`` has a corresponding ARIA role, such as ``doc-noteref`` for
       ``noteref``, but that do not have a ``role`` attribute, are also
-      reported. Screen readers use the ``role`` attribute, not ``epub:type``.
-      The language of the HTML files can be set automatically to the language
-      of the book and the missing roles can be added automatically. These checks are only run if you turn on the
+      reported. Screen readers rely on the ``role`` attribute, not
+      ``epub:type``. The language of the HTML files can be set automatically
+      to the language of the book and the missing roles can be added
+      automatically. These checks are only run if you turn on the
       :guilabel:`Check for accessibility problems` option below the list of
       problems.
 
