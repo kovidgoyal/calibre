@@ -28,3 +28,7 @@ useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
 
 UV_TOOL_BIN_DIR=/usr/local/bin uv tool install rapydscript-ng
+
+# There is no arch package for langtool, its dependencies (lxml, regex) are
+# installed via pacman above
+pip install --break-system-packages --no-deps kovidgoyal-langtool
