@@ -91,7 +91,8 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False, che
             dat = icon_pixmap_adder_pat.sub(icon_pixmap_sub, dat)
             if not isinstance(dat, bytes):
                 dat = dat.encode('utf-8')
-            open(compiled_form, 'wb').write(dat)
+            with open(compiled_form, 'wb') as f:
+                f.write(dat)
             num += 1
     if num:
         info(f'Compiled {num} forms')

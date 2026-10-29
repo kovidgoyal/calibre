@@ -6,6 +6,7 @@ import sys
 from compression import bz2, zlib
 
 from calibre import guess_type
+from calibre.utils import StreamOrPath
 
 
 class FileStream:
@@ -209,86 +210,83 @@ class SNBFile:
         # required by the SNB file format
         self.files.sort(key=lambda x: x.fileName)
 
-        outputFile = open(outputFile, 'wb')
-        # File header part 1
-        vmbrp1 = struct.pack('>8siiii', SNBFile.MAGIC, SNBFile.REV80, SNBFile.REVA3, SNBFile.REVZ1, len(self.files))
+        with StreamOrPath(outputFile, 'wb') as outputFile:
+            # File header part 1
+            vmbrp1 = struct.pack('>8siiii', SNBFile.MAGIC, SNBFile.REV80, SNBFile.REVA3, SNBFile.REVZ1, len(self.files))
 
-        # Create VFAT & file stream
-        vfat = b''
-        fileNameTable = b''
-        plainStream = b''
-        binStream = b''
-        for f in self.files:
-            vfat += struct.pack('>iii', f.attr, len(fileNameTable), f.fileSize)
-            fileNameTable += f.fileName.encode('ascii', 'ignore') + b'\0'
+            # Create VFAT & file stream
+            vfat = b''
+            fileNameTable = b''
+            plainStream = b''
+            binStream = b''
+            for f in self.files:
+                vfat += struct.pack('>iii', f.attr, len(fileNameTable), f.fileSize)
+                fileNameTable += f.fileName.encode('ascii', 'ignore') + b'\0'
 
-            if f.attr & 0x41000000 == 0x41000000:
-                # Plain Files
-                f.contentOffset = len(plainStream)
-                plainStream += f.fileBody
-            elif f.attr & 0x01000000 == 0x01000000:
-                # Binary Files
-                f.contentOffset = len(binStream)
-                binStream += f.fileBody
-            else:
-                raise Exception(f'Unknown file type: {f.attr} {f.fileName}')
-        vfatCompressed = zlib.compress(vfat + fileNameTable)
+                if f.attr & 0x41000000 == 0x41000000:
+                    # Plain Files
+                    f.contentOffset = len(plainStream)
+                    plainStream += f.fileBody
+                elif f.attr & 0x01000000 == 0x01000000:
+                    # Binary Files
+                    f.contentOffset = len(binStream)
+                    binStream += f.fileBody
+                else:
+                    raise Exception(f'Unknown file type: {f.attr} {f.fileName}')
+            vfatCompressed = zlib.compress(vfat + fileNameTable)
 
-        # File header part 2
-        vmbrp2 = struct.pack('>iiiii', len(vfat + fileNameTable), len(vfatCompressed), len(binStream), len(plainStream), SNBFile.REVZ2)
-        # Write header
-        outputFile.write(vmbrp1 + vmbrp2)
-        # Write vfat
-        outputFile.write(vfatCompressed)
+            # File header part 2
+            vmbrp2 = struct.pack('>iiiii', len(vfat + fileNameTable), len(vfatCompressed), len(binStream), len(plainStream), SNBFile.REVZ2)
+            # Write header
+            outputFile.write(vmbrp1 + vmbrp2)
+            # Write vfat
+            outputFile.write(vfatCompressed)
 
-        # Generate block information
-        binBlockOffset = 0x2C + len(vfatCompressed)
-        plainBlockOffset = binBlockOffset + len(binStream)
+            # Generate block information
+            binBlockOffset = 0x2C + len(vfatCompressed)
+            plainBlockOffset = binBlockOffset + len(binStream)
 
-        binBlock = (len(binStream) + 0x8000 - 1) // 0x8000
-        # plainBlock = (len(plainStream) + 0x8000 - 1) // 0x8000
+            binBlock = (len(binStream) + 0x8000 - 1) // 0x8000
+            # plainBlock = (len(plainStream) + 0x8000 - 1) // 0x8000
 
-        offset = 0
-        tailBlock = b''
-        for i in range(binBlock):
-            tailBlock += struct.pack('>i', binBlockOffset + offset)
-            offset += 0x8000
-        tailRec = b''
-        for f in self.files:
-            t = 0
-            if f.IsBinary():
+            offset = 0
+            tailBlock = b''
+            for i in range(binBlock):
+                tailBlock += struct.pack('>i', binBlockOffset + offset)
+                offset += 0x8000
+            tailRec = b''
+            for f in self.files:
                 t = 0
-            else:
-                t = binBlock
-            tailRec += struct.pack('>ii', f.contentOffset // 0x8000 + t, f.contentOffset % 0x8000)
+                if f.IsBinary():
+                    t = 0
+                else:
+                    t = binBlock
+                tailRec += struct.pack('>ii', f.contentOffset // 0x8000 + t, f.contentOffset % 0x8000)
 
-        # Write binary stream
-        outputFile.write(binStream)
+            # Write binary stream
+            outputFile.write(binStream)
 
-        # Write plain stream
-        pos = 0
-        offset = 0
-        while pos < len(plainStream):
-            tailBlock += struct.pack('>i', plainBlockOffset + offset)
-            block = plainStream[pos : pos + 0x8000]
-            compressed = bz2.compress(block)
-            outputFile.write(compressed)
-            offset += len(compressed)
-            pos += 0x8000
+            # Write plain stream
+            pos = 0
+            offset = 0
+            while pos < len(plainStream):
+                tailBlock += struct.pack('>i', plainBlockOffset + offset)
+                block = plainStream[pos : pos + 0x8000]
+                compressed = bz2.compress(block)
+                outputFile.write(compressed)
+                offset += len(compressed)
+                pos += 0x8000
 
-        # Write tail block
-        compressedTail = zlib.compress(tailBlock + tailRec)
-        outputFile.write(compressedTail)
+            # Write tail block
+            compressedTail = zlib.compress(tailBlock + tailRec)
+            outputFile.write(compressedTail)
 
-        # Write tail pointer
-        veom = struct.pack('>ii', len(compressedTail), plainBlockOffset + offset)
-        outputFile.write(veom)
+            # Write tail pointer
+            veom = struct.pack('>ii', len(compressedTail), plainBlockOffset + offset)
+            outputFile.write(veom)
 
-        # Write file end mark
-        outputFile.write(SNBFile.MAGIC)
-
-        # Close
-        outputFile.close()
+            # Write file end mark
+            outputFile.write(SNBFile.MAGIC)
 
     def Dump(self):
         if self.fileName:

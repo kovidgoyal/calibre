@@ -194,9 +194,8 @@ class OpenDocument:
         if not filename:
             return xml.getvalue()
         else:
-            f = open(filename, 'wb')
-            f.write(xml.getvalue())
-            f.close()
+            with open(filename, 'wb') as f:
+                f.write(xml.getvalue())
 
     def xml(self):
         """Generates the full document as an XML file

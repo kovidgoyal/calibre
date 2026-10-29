@@ -92,7 +92,8 @@ def source_read_handler(app, docname, source):
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
         included_doc_name = m.group(1).lstrip('/')
-        ss = [open(included_doc_name, 'rb').read().decode('utf-8')]
+        with open(included_doc_name, 'rb') as f:
+            ss = [f.read().decode('utf-8')]
         source_read_handler(app, included_doc_name.partition('.')[0], ss)
         src = src[: m.start()] + ss[0] + src[m.end() :]
     source[0] = src
@@ -265,7 +266,10 @@ def update_cli_doc(name, raw, language):
     if isinstance(raw, bytes):
         raw = raw.decode('utf-8')
     path = f'generated/{language}/{name}.rst'
-    old_raw = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
+    old_raw = ''
+    if os.path.exists(path):
+        with open(path, encoding='utf-8') as f:
+            old_raw = f.read()
     if not os.path.exists(path) or old_raw != raw:
         import difflib
 
@@ -278,7 +282,8 @@ def update_cli_doc(name, raw, language):
         p = os.path.dirname(path)
         if p and not os.path.exists(p):
             os.makedirs(p)
-        open(path, 'wb').write(raw.encode('utf-8'))
+        with open(path, 'wb') as f:
+            f.write(raw.encode('utf-8'))
 
 
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):

@@ -18,7 +18,7 @@ from subprocess import check_call
 
 class ReadFileWithProgressReporting:  # {{{
     def __init__(self, path, mode='rb'):
-        self.fobj = open(path, mode)
+        self.fobj = open(path, mode)  # ruff: ignore[open-file-with-context-handler]
         self.fobj.seek(0, os.SEEK_END)
         self._total = self.fobj.tell()
         self.fobj.seek(0)

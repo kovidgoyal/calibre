@@ -720,7 +720,8 @@ def main(args=sys.argv):
         print()
         print('No lrf file specified')
         return 1
-    lrf = LRFMetaFile(open(args[1], 'r+b'))
+    with open(args[1], 'r+b') as f:
+        lrf = LRFMetaFile(f)
 
     if options.title:
         lrf.title = options.title

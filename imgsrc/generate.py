@@ -46,7 +46,8 @@ def iterfiles(only=()):
         name = os.path.relpath(src, base).rpartition('.')[0]
         if only and name not in only:
             continue
-        src_hashes[name] = h = hashlib.sha1(open(src, 'rb').read()).hexdigest()
+        with open(src, 'rb') as f:
+            src_hashes[name] = h = hashlib.sha1(f.read()).hexdigest()
         if not only and h == hashes.get(name):
             continue
         output_names = [n for n in [name] + duplicates.get(name, []) if n not in skip]

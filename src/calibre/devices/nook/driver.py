@@ -51,7 +51,8 @@ class NOOK(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(io.BytesIO(coverdata[2]))
         else:
-            coverdata = open(I('library.png'), 'rb').read()
+            with open(I('library.png'), 'rb') as f:
+                coverdata = f.read()
 
             cover = Image.new('RGB', (96, 144), 'black')
             im = Image.open(io.BytesIO(coverdata))

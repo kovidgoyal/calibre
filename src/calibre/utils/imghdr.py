@@ -6,6 +6,7 @@ from collections.abc import Iterator
 from struct import error, unpack, unpack_from
 from typing import IO
 
+from calibre.utils import StreamOrPath
 from calibre.utils.speedups import ReadOnlyFileBuffer
 
 ''' Recognize image file formats and sizes based on their first few bytes.'''
@@ -40,20 +41,11 @@ def identify(src):
     """Recognize file format and sizes. Returns format, width, height. width
     and height will be -1 if not found and fmt will be None if the image is not
     recognized."""
-    needs_close = False
 
-    if isinstance(src, str):
-        stream = open(src, 'rb')
-        needs_close = True
-    elif isinstance(src, bytes):
-        stream = ReadOnlyFileBuffer(src)
-    else:
-        stream = src
-    try:
+    if isinstance(src, bytes):
+        src = ReadOnlyFileBuffer(src)
+    with StreamOrPath(src, 'rb') as stream:  # ty: ignore[invalid-argument-type]
         return _identify(stream)
-    finally:
-        if needs_close:
-            stream.close()
 
 
 def _identify(stream):

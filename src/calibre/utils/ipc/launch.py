@@ -15,7 +15,7 @@ from polyglot.builtins import environ_item
 
 if iswindows:
     try:
-        windows_null_file = open(os.devnull, 'wb')
+        windows_null_file = open(os.devnull, 'wb')  # ruff: ignore[open-file-with-context-handler]
     except Exception:
         raise RuntimeError(
             'NUL file missing in windows. This indicates a'

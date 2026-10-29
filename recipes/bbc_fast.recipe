@@ -163,7 +163,8 @@ def parse_raw_html(html, abort_article):
 
 
 if __name__ == '__main__':
-    print(parse_raw_html(open('/t/raw.html').read(), print))
+    with open('/t/raw.html') as f:
+        print(parse_raw_html(f.read(), print))
 # }}}
 
 

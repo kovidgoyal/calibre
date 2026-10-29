@@ -59,8 +59,7 @@ def expected_hash():
 def extract_dicts(cache_path):
     dict_tarball = P('hyphenation/dictionaries.tar.xz', allow_user_override=False)
     with TemporaryDirectory(dir=cache_path) as tdir:
-        tf = tarfile.open(dict_tarball)
-        with tf:
+        with tarfile.open(dict_tarball) as tf:
             try:
                 tf.extractall(tdir, filter='data')
             except TypeError:

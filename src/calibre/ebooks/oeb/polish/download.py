@@ -112,9 +112,9 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
                 path = unquote(purl.path)
                 if iswindows and path.startswith('/'):
                     path = path[1:]
-                src = open(path, 'rb')
-                filename = os.path.basename(path)
-                sz = (src.seek(0, os.SEEK_END), src.tell(), src.seek(0))[1]
+                with open(path, 'rb') as src:
+                    filename = os.path.basename(path)
+                    sz = (src.seek(0, os.SEEK_END), src.tell(), src.seek(0))[1]
             elif purl.scheme == 'data':
                 prefix, payload = purl.path.split(',', 1)
                 parts = prefix.split(';')

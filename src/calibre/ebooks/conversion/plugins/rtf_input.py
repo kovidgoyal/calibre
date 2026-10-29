@@ -299,7 +299,8 @@ class RTFInput(InputFormatPlugin):
         opf = OPFCreator(os.getcwd(), mi)
         opf.create_manifest([('index.xhtml', None)])
         opf.create_spine(['index.xhtml'])
-        opf.render(open('metadata.opf', 'wb'))
+        with open('metadata.opf', 'wb') as f:
+            opf.render(f)
         return os.path.abspath('metadata.opf')
 
     def postprocess_book(self, oeb, opts, log):

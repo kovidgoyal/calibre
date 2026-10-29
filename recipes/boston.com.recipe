@@ -109,8 +109,9 @@ def parse_section(raw_html):
 
 def main():
     for sec in 'metro world'.split():
-        for item in parse_section(open('/t/{}.html'.format(sec)).read()):
-            print(item)
+        with open(f'/t/{sec}.html') as f:
+            for item in parse_section(f.read()):
+                print(item)
 
 
 # if __name__ == '__main__':

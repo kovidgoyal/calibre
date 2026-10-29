@@ -1537,8 +1537,8 @@ class BasicNewsRecipe(Recipe):
             with open(mpath, 'wb') as mfile:
                 mfile.write(mu.read())
         elif os.access(mu, os.R_OK):
-            with open(mpath, 'wb') as mfile:
-                mfile.write(open(mu, 'rb').read())
+            with open(mpath, 'wb') as mfile, open(mu, 'rb') as read:
+                mfile.write(read.read())
         else:
             with open(mpath, 'wb') as mfile, closing(self.browser.open(mu, timeout=self.timeout)) as r:
                 mfile.write(r.read())
@@ -1669,9 +1669,9 @@ class BasicNewsRecipe(Recipe):
         # Get cover
         cpath = getattr(self, 'cover_path', None)
         if cpath is None:
-            pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
-            if self.default_cover(pf):
-                cpath = pf.name
+            with open(os.path.join(dir, 'cover.jpg'), 'wb') as pf:
+                if self.default_cover(pf):
+                    cpath = pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)
@@ -2073,7 +2073,8 @@ class CalibrePeriodical(BasicNewsRecipe):
         from calibre.web.feeds.recipes import compile_recipe
 
         try:
-            recipe = compile_recipe(open(glob('*.recipe')[0], 'rb').read())
+            with open(glob('*.recipe')[0], 'rb') as f:
+                recipe = compile_recipe(f.read())
             self.conversion_options = recipe.conversion_options
         except Exception:
             self.log.exception('Failed to compile downloaded recipe')

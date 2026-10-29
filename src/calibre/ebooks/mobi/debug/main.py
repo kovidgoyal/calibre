@@ -8,13 +8,14 @@ import sys
 from calibre.ebooks.mobi.debug.headers import MOBIFile
 from calibre.ebooks.mobi.debug.mobi6 import inspect_mobi as inspect_mobi6
 from calibre.ebooks.mobi.debug.mobi8 import inspect_mobi as inspect_mobi8
+from calibre.utils import StreamOrPath
 
 
 def inspect_mobi(path_or_stream, ddir=None):  # {{{
-    stream = path_or_stream if hasattr(path_or_stream, 'read') else open(path_or_stream, 'rb')
-    f = MOBIFile(stream)
-    if ddir is None:
-        ddir = 'decompiled_' + os.path.splitext(os.path.basename(stream.name))[0]
+    with StreamOrPath(path_or_stream, 'rb') as stream:
+        f = MOBIFile(stream)
+        if ddir is None:
+            ddir = 'decompiled_' + os.path.splitext(os.path.basename(stream.name))[0]
     try:
         shutil.rmtree(ddir)
     except Exception:

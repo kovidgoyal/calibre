@@ -269,4 +269,5 @@ class SVGRasterizer:
 
 
 if __name__ == '__main__':
-    open('/t/test-svg-rasterization.png', 'wb').write(rasterize_svg())
+    with open('/t/test-svg-rasterization.png', 'wb') as f:
+        f.write(rasterize_svg())

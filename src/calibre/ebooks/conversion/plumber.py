@@ -1232,7 +1232,7 @@ class Plumber:
         accelerators = {}
 
         tdir = PersistentTemporaryDirectory('_plumber')
-        stream = self.input if self.input_fmt == 'recipe' else open(self.input, 'rb')
+        stream = self.input if self.input_fmt == 'recipe' else open(self.input, 'rb')  # ruff: ignore[open-file-with-context-handler]
         if self.input_fmt == 'recipe':
             self.opts.original_recipe_input_arg = self.original_input_arg
 

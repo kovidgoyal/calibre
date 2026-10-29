@@ -21,6 +21,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.reader.headers import BookHeader
+from calibre.utils import StreamOrPath
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.img import AnimatedGIF, gif_data_to_png_data, save_cover_data_to
 from calibre.utils.imghdr import what
@@ -76,13 +77,10 @@ class MobiReader:
         self.left_margins = {}
         self.text_indents = {}
 
-        if hasattr(filename_or_stream, 'read'):
-            stream = filename_or_stream
+        with StreamOrPath(filename_or_stream, 'rb') as stream:
             stream.seek(0)
-        else:
-            stream = open(filename_or_stream, 'rb')
+            raw = stream.read()
 
-        raw = stream.read()
         if raw.startswith(b'TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
         if raw.startswith(b'\xeaDRMION\xee'):
@@ -316,7 +314,8 @@ class MobiReader:
         ncx = io.BytesIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
-        opf.render(open(self.created_opf_path, 'wb'), ncx, ncx_manifest_entry=ncx_manifest_entry)
+        with open(self.created_opf_path, 'wb') as f:
+            opf.render(f, ncx, ncx_manifest_entry=ncx_manifest_entry)
         ncx = ncx.getvalue()
         if ncx:
             ncx_path = os.path.join(os.path.dirname(htmlfile), 'toc.ncx')
@@ -331,7 +330,8 @@ class MobiReader:
             self.log.debug('Creating OPF...')
             ncx = io.BytesIO()
             opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
-            opf.render(open(os.path.splitext(htmlfile)[0] + '.opf', 'wb'), ncx, ncx_manifest_entry)
+            with open(os.path.splitext(htmlfile)[0] + '.opf', 'wb') as f:
+                opf.render(f, ncx, ncx_manifest_entry)
             ncx = ncx.getvalue()
             if ncx:
                 write_as_utf8(os.path.splitext(htmlfile)[0] + '.ncx', ncx)

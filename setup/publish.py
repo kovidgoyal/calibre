@@ -184,7 +184,10 @@ class Manual(Command):
                 shutil.rmtree(d)
             os.makedirs(d)
         jobs = []
-        languages = opts.language or list(json.load(open(self.j(base, 'locale', 'completed.json'), 'rb')))
+        languages = opts.language
+        if not languages:
+            with open(self.j(base, 'locale', 'completed.json'), 'rb') as f:
+                languages = list(json.load(f))
         languages = set(languages) - {'en'}
         languages.discard('ta')  # Tamil translations break Sphinx
         languages = ['en'] + list(languages)

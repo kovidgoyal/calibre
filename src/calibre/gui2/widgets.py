@@ -1422,6 +1422,7 @@ if __name__ == '__main__':
     w = QTextEdit()
     s = PythonHighlighter(w)
     # w.setSyntaxHighlighter(s)
-    w.setText(open(__file__, 'rb').read().decode('utf-8'))
+    with open(__file__, 'rb') as f:
+        w.setText(f.read().decode('utf-8'))
     w.show()
     app.exec()

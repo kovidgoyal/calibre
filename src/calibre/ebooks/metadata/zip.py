@@ -4,6 +4,7 @@ import os
 
 from calibre import CurrentDir
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils import StreamOrPath
 from calibre.utils.zipfile import ZipFile
 
 
@@ -40,7 +41,8 @@ def get_metadata(stream):
                 with TemporaryDirectory() as tdir:
                     with CurrentDir(tdir):
                         path = zf.extract(f)
-                        mi = get_metadata(open(path, 'rb'), stream_type)
+                        with open(path, 'rb') as f:
+                            mi = get_metadata(f, stream_type)
                         if stream_type == 'opf' and mi.application_id is None:
                             try:
                                 # zip archive opf files without an application_id were assumed not to have a cover
@@ -58,12 +60,9 @@ def get_metadata(stream):
 def zip_opf_metadata(opfpath, zf):
     from calibre.ebooks.metadata.opf2 import OPF
 
-    if hasattr(opfpath, 'read'):
-        f = opfpath
+    with StreamOrPath(opfpath, 'rb') as f:
         opfpath = getattr(f, 'name', os.getcwd())
-    else:
-        f = open(opfpath, 'rb')
-    opf = OPF(f, os.path.dirname(opfpath))
+        opf = OPF(f, os.path.dirname(opfpath))
     mi = opf.to_book_metadata()
     # This is broken, in that it only works for
     # when both the OPF file and the cover file are in the root of the

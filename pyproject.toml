@@ -176,6 +176,7 @@ select = [
     'if-expr-with-true-false',
     'negate-equal-op',
     'negate-not-equal-op',
+    'open-file-with-context-handler',
     'reimplemented-builtin',
     'return-in-try-except-finally',
     'zip-dict-keys-and-values',

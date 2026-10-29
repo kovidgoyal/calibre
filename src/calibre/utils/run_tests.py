@@ -188,7 +188,7 @@ class PipeTestResult(unittest.TestResult):
 
     def __init__(self, write_fd: int) -> None:
         super().__init__()
-        self._out = open(write_fd, 'w', buffering=1, closefd=True)
+        self._out = open(write_fd, 'w', buffering=1, closefd=True)  # ruff: ignore[open-file-with-context-handler]
         self._start: dict[str, float] = {}
         self._qapplication_reported = False
 

@@ -439,7 +439,8 @@ def run_in_debug_mode():
     from calibre.debug import run_calibre_debug
 
     logpath = os.path.join(cache_dir(), 'calibre-debug-log.txt')
-    run_calibre_debug('--gui-debug', logpath, stdout=open(logpath, 'wb'), stderr=subprocess.STDOUT, stdin=open(os.devnull, 'rb'))
+    with open(logpath, 'wb') as log:
+        run_calibre_debug('--gui-debug', logpath, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
 
 
 def run_gui(opts, args, app, gui_debug=None):

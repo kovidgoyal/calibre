@@ -12,6 +12,7 @@ from typing import Any
 from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.utils import StreamOrPath
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
@@ -323,29 +324,26 @@ def add_news(cache, path, arg, dbapi=None):
     from calibre.utils.date import utcnow
 
     fmt = os.path.splitext(getattr(path, 'name', path))[1][1:].lower()
-    stream = path if hasattr(path, 'read') else open(path, 'rb')
-    stream.seek(0)
-    mi = get_metadata(stream, fmt, use_libprs_metadata=False, force_read_metadata=True)
-    # Force the author to calibre as the auto delete of old news checks for
-    # both the author==calibre and the tag News
-    mi.authors = ['calibre']
-    stream.seek(0)
-    with cache.write_lock:
-        if mi.series_index is None:
-            mi.series_index = cache._get_next_series_num_for(mi.series)
-        mi.tags = [_('News')]
-        if arg.get('add_title_tag'):
-            mi.tags += [arg['title']]
-        if arg.get('custom_tags'):
-            mi.tags += arg['custom_tags']
-        if mi.pubdate is None:
-            mi.pubdate = utcnow()
-        if mi.timestamp is None:
-            mi.timestamp = utcnow()
+    with StreamOrPath(path, 'rb') as stream:
+        stream.seek(0)
+        mi = get_metadata(stream, fmt, use_libprs_metadata=False, force_read_metadata=True)
+        # Force the author to calibre as the auto delete of old news checks for
+        # both the author==calibre and the tag News
+        mi.authors = ['calibre']
+        stream.seek(0)
+        with cache.write_lock:
+            if mi.series_index is None:
+                mi.series_index = cache._get_next_series_num_for(mi.series)
+            mi.tags = [_('News')]
+            if arg.get('add_title_tag'):
+                mi.tags += [arg['title']]
+            if arg.get('custom_tags'):
+                mi.tags += arg['custom_tags']
+            if mi.pubdate is None:
+                mi.pubdate = utcnow()
+            if mi.timestamp is None:
+                mi.timestamp = utcnow()
 
-        db_id = cache._create_book_entry(mi, apply_import_tags=False)
-    cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
-
-    if not hasattr(path, 'read'):
-        stream.close()
-    return db_id
+            db_id = cache._create_book_entry(mi, apply_import_tags=False)
+        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
+        return db_id

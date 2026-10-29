@@ -72,7 +72,8 @@ class Catalog(QDialog, Ui_Dialog):
                         compileUi(form, buf)
                         dat = buf.getvalue()
                         dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
-                        open(compiled_form, 'wb').write(dat.encode('utf-8'))
+                        with open(compiled_form, 'wb') as f:
+                            f.write(dat.encode('utf-8'))
 
                     # Import the dynamic PluginWidget() from .py file provided in plugin.zip
                     try:

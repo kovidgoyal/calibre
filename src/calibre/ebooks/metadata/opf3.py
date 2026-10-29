@@ -1244,4 +1244,5 @@ def set_metadata(
 if __name__ == '__main__':
     import sys
 
-    print(get_metadata(open(sys.argv[-1], 'rb')))
+    with open(sys.argv[-1], 'rb') as f:
+        print(get_metadata(f))

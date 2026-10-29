@@ -713,11 +713,12 @@ def update_stats():
         subprocess.check_call(['/usr/sbin/nginx', '-s', 'reopen'])
         atexit.register(os.remove, log)
     pat = re.compile(rb'GET /(\d+)(?:-deprecated){0,1}\.zip')
-    for line in open(log, 'rb'):
-        m = pat.search(line)
-        if m is not None:
-            plugin = m.group(1).decode('utf-8')
-            stats[plugin] = stats.get(plugin, 0) + 1
+    with open(log, 'rb') as f:
+        for line in f:
+            m = pat.search(line)
+            if m is not None:
+                plugin = m.group(1).decode('utf-8')
+                stats[plugin] = stats.get(plugin, 0) + 1
     data = json.dumps(stats, indent=2)
     if not isinstance(data, bytes):
         data = data.encode('utf-8')

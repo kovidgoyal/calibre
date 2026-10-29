@@ -66,6 +66,7 @@ DEFAULT_SOURCE_ENCODING = 'cp1252'  # default is us-windows character set
 DEFAULT_GENREADING = 'fs'  # default is yes to both lrf and lrs
 
 from calibre import __appname__, __version__, replace_entities
+from calibre.utils import StreamOrPath
 
 
 class LrsError(Exception):
@@ -584,23 +585,19 @@ class Book(Delegator):
             ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
 
     def renderLrs(self, lrsFile, encoding='UTF-8'):
-        if isinstance(lrsFile, (str, bytes)):
-            lrsFile = open(lrsFile, 'w', encoding=encoding)
-        self.render(lrsFile, outputEncodingName=encoding)
-        lrsFile.close()
+        with StreamOrPath(lrsFile, 'wt', encoding=encoding) as lrsFile:
+            self.render(lrsFile, outputEncodingName=encoding)
 
     def renderLrf(self, lrfFile):
         self.appendReferencedObjects(self)
-        if isinstance(lrfFile, (str, bytes)):
-            lrfFile = open(lrfFile, 'wb')
-        lrfWriter = LrfWriter(self.sourceencoding)
+        with StreamOrPath(lrfFile, 'wb') as lrfFile:
+            lrfWriter = LrfWriter(self.sourceencoding)
 
-        lrfWriter.optimizeTags = self.optimizeTags
-        lrfWriter.optimizeCompression = self.optimizeCompression
+            lrfWriter.optimizeTags = self.optimizeTags
+            lrfWriter.optimizeCompression = self.optimizeCompression
 
-        self.toLrf(lrfWriter)
-        lrfWriter.writeFile(lrfFile)
-        lrfFile.close()
+            self.toLrf(lrfWriter)
+            lrfWriter.writeFile(lrfFile)
 
     def toElement(self, se):
         root = Element('BBeBXylog', version='1.0')

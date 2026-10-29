@@ -10,6 +10,7 @@ import sqlite3 as sqlite
 from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.utils import StreamOrPath
 from calibre.utils.date import local_tz
 from calibre.utils.localization import _
 from calibre.utils.serialize import pickle_dumps, pickle_loads
@@ -1359,17 +1360,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             id = obj.lastrowid
             self.conn.commit()
             self.set_metadata(id, mi)
-            stream = path if hasattr(path, 'read') else open(path, 'rb')
-            stream.seek(0, 2)
-            usize = stream.tell()
-            stream.seek(0)
+            with StreamOrPath(path, 'rb') as stream:
+                stream.seek(0, 2)
+                usize = stream.tell()
+                stream.seek(0)
 
-            self.conn.execute(
-                'INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                (id, format, usize, sqlite.Binary(compress(stream.read()))),
-            )
-            if not hasattr(path, 'read'):
-                stream.close()
+                self.conn.execute(
+                    'INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                    (id, format, usize, sqlite.Binary(compress(stream.read()))),
+                )
         self.conn.commit()
         if duplicates:
             paths = tuple(duplicate[0] for duplicate in duplicates)

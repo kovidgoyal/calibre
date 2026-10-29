@@ -341,7 +341,7 @@ def main():
                 if os.path.isdir(outfile):
                     outfile = os.path.join(outfile, path[path.rfind('/') + 1 :])
                 try:
-                    outfile = open(outfile, 'wb')
+                    outfile = open(outfile, 'wb')  # ruff: ignore[open-file-with-context-handler]
                 except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
@@ -351,7 +351,7 @@ def main():
                 outfile.close()
             elif args[1].startswith('dev:'):
                 try:
-                    infile = open(args[0], 'rb')
+                    infile = open(args[0], 'rb')  # ruff: ignore[open-file-with-context-handler]
                 except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
@@ -406,7 +406,8 @@ def main():
             path = args[0]
             from calibre.ebooks.metadata.meta import get_metadata
 
-            mi = get_metadata(open(path, 'rb'), path.rpartition('.')[-1].lower())
+            with open(path, 'rb') as f:
+                mi = get_metadata(f, path.rpartition('.')[-1].lower())
             print(dev.upload_books([args[0]], [os.path.basename(args[0])], end_session=False, metadata=[mi]))
             dev.eject()
         else:

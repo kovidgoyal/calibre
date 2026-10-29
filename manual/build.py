@@ -52,7 +52,7 @@ def build_manual(language, base):
         os.chdir(latexdir)
 
         def run_cmd(cmd):
-            p = subprocess.Popen(cmd, stdout=open(os.devnull, 'wb'), stdin=subprocess.PIPE)
+            p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stdin=subprocess.PIPE)
             assert p.stdin is not None
             p.stdin.close()
             return p.wait()
@@ -107,7 +107,8 @@ if __name__ == '__main__':
         if 'ALL_USER_MANUAL_LANGUAGES' not in os.environ:
             import json
 
-            os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(json.load(open('locale/completed.json', 'rb')))
+            with open('locale/completed.json', 'rb') as f:
+                os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(json.load(f))
         sphinx_build(language, base, t='online', quiet=False)
         print('Manual built in', j(base, 'html'))
     else:

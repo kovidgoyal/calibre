@@ -5,6 +5,7 @@ import shutil
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
+from calibre.utils import StreamOrPath
 from calibre.utils.localization import _
 
 NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
@@ -140,21 +141,10 @@ class TXTOutput(OutputFormatPlugin):
         log.debug('\tReplacing newlines with selected type...')
         txt = specified_newlines(TxtNewlines(opts.newline).newline, txt)
 
-        close = False
-        if not hasattr(output_path, 'write'):
-            close = True
-            if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
-                os.makedirs(os.path.dirname(output_path))
-            out_stream = open(output_path, 'wb')
-        else:
-            out_stream = output_path
-
-        out_stream.seek(0)
-        out_stream.truncate()
-        out_stream.write(txt.encode(opts.txt_output_encoding, 'replace'))
-
-        if close:
-            out_stream.close()
+        with StreamOrPath(output_path, 'wb') as out_stream:
+            out_stream.seek(0)
+            out_stream.truncate()
+            out_stream.write(txt.encode(opts.txt_output_encoding, 'replace'))
 
 
 class TXTZOutput(TXTOutput):

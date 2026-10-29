@@ -167,7 +167,7 @@ else:
         from calibre.utils.ipc import eintr_retry_call
 
         path = singleinstance_path(name, per_user)
-        f = open(path, 'w')
+        f = open(path, 'w')  # ruff: ignore[open-file-with-context-handler]
         try:
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             return partial(_clean_lock_file, f)

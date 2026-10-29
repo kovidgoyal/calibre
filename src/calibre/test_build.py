@@ -299,7 +299,8 @@ class BuildTest(unittest.TestCase):
         self.assertTrue(winutil.supports_hardlinks(os.path.abspath(os.getcwd())[0] + ':\\'))
         sz = 23
         data = os.urandom(sz)
-        open(path, 'wb').write(data)
+        with open(path, 'wb') as f:
+            f.write(data)
         h = winutil.Handle(0, winutil.ModuleHandle, 'moo')
         r = repr(h)
         h2 = winutil.Handle(h.detach(), winutil.ModuleHandle, 'moo')
@@ -317,7 +318,8 @@ class BuildTest(unittest.TestCase):
         npath = path + '.2'
         winutil.create_hard_link(npath, path)
         h.close()
-        self.assertEqual(open(npath, 'rb').read(), data)
+        with open(npath, 'rb') as f:
+            self.assertEqual(f.read(), data)
         self.assertEqual(winutil.nlinks(path), 2)
         winutil.delete_file(path)
         self.assertEqual(winutil.nlinks(npath), 1)

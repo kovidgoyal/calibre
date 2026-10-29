@@ -608,6 +608,16 @@ def write_stream_to_format_file(stream, dest: str) -> int:
     return size
 
 
+def open_with_retry(path, retry_pause):
+    try:
+        f = open(path, 'rb')  # ruff: ignore[open-file-with-context-handler]
+    except OSError:
+        if iswindows:
+            time.sleep(retry_pause)
+        f = open(path, 'rb')  # ruff: ignore[open-file-with-context-handler]
+    return f
+
+
 class DB:
     PATH_LIMIT = 40 if iswindows else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
@@ -2022,13 +2032,7 @@ class DB:
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
         elif os.access(path, os.R_OK):
-            try:
-                f = open(path, 'rb')
-            except OSError:
-                if iswindows:
-                    time.sleep(0.2)
-                f = open(path, 'rb')
-            with f:
+            with open_with_retry(path, 0.2) as f:
                 if hasattr(dest, 'write'):
                     if report_file_size is not None:
                         f.seek(0, os.SEEK_END)
@@ -2058,13 +2062,7 @@ class DB:
             return False, None, None
         if abs(timestamp - stat.st_mtime) < 0.1:
             return True, None, None
-        try:
-            f = open(path, 'rb')
-        except OSError:
-            if iswindows:
-                time.sleep(0.2)
-        f = open(path, 'rb')
-        with f:
+        with open_with_retry(path, 0.2) as f:
             if as_what == 'pil_image':
                 from PIL import Image
 
@@ -2393,13 +2391,7 @@ class DB:
                     if yield_paths:
                         yield relpath, path, stat_result
                     else:
-                        try:
-                            src = open(path, 'rb')
-                        except OSError:
-                            if iswindows:
-                                time.sleep(1)
-                            src = open(path, 'rb')
-                        with src:
+                        with open_with_retry(path, 1) as src:
                             yield relpath, src, stat_result
 
     def remove_extra_files(self, book_path, relpaths, permanent):

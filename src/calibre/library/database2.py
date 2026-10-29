@@ -42,6 +42,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.sqlite import IntegrityError, connect
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
+from calibre.utils import StreamOrPath
 from calibre.utils.config import from_json, prefs, to_json, tweaks
 from calibre.utils.date import UNDEFINED_DATE, parse_date, parse_only_date, utcfromtimestamp, utcnow
 from calibre.utils.date import now as nowf
@@ -57,6 +58,15 @@ from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30 * 1024 * 1024
+
+
+def open_with_retry(path, retry_pause):
+    try:
+        f = open(path, 'rb')  # ruff: ignore[open-file-with-context-handler]
+    except OSError:
+        time.sleep(retry_pause)
+        f = open(path, 'rb')  # ruff: ignore[open-file-with-context-handler]
+    return f
 
 
 class ProxyMetadata(NamedTuple):
@@ -797,12 +807,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
-            try:
-                f = open(path, 'rb')
-            except OSError:
-                time.sleep(0.2)
-                f = open(path, 'rb')
-            with f:
+            with open_with_retry(path, 0.2) as f:
                 if as_path:
                     pt = PersistentTemporaryFile('_dbcover.jpg')
                     with pt:
@@ -1469,12 +1474,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
         elif os.access(path, os.R_OK):
-            try:
-                f = open(path, 'rb')
-            except OSError:
-                time.sleep(0.2)
-                f = open(path, 'rb')
-            with f:
+            with open_with_retry(path, 0.2) as f:
                 if hasattr(dest, 'write'):
                     shutil.copyfileobj(f, dest)
                     if hasattr(dest, 'flush'):
@@ -1542,10 +1542,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False, path=None, notify=True, replace=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        stream = open(npath, 'rb')
-        format = check_ebook_format(stream, format)
-        id = index if index_is_id else self.id(index)
-        retval = self.add_format(id, format, stream, replace=replace, index_is_id=True, path=path, notify=notify)
+        with open(npath, 'rb') as stream:
+            format = check_ebook_format(stream, format)
+            id = index if index_is_id else self.id(index)
+            retval = self.add_format(id, format, stream, replace=replace, index_is_id=True, path=path, notify=notify)
         run_plugins_on_postimport(self, id, format)
         return retval
 
@@ -3487,34 +3487,32 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         from calibre.ebooks.metadata.meta import get_metadata
 
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else open(path, 'rb')
-        stream.seek(0)
-        mi = get_metadata(stream, format, use_libprs_metadata=False, force_read_metadata=True)
-        # Force the author to calibre as the auto delete of old news checks for
-        # both the author==calibre and the tag News
-        mi.authors = ['calibre']
-        stream.seek(0)
-        if mi.series_index is None:
-            mi.series_index = self.get_next_series_num_for(mi.series)
-        mi.tags = [_('News')]
-        if arg['add_title_tag']:
-            mi.tags += [arg['title']]
-        if arg['custom_tags']:
-            mi.tags += arg['custom_tags']
-        obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)', (mi.title, mi.authors[0]))
-        id = obj.lastrowid
-        self.data.books_added([id], self)
-        self.set_path(id, index_is_id=True)
-        self.conn.commit()
-        if mi.pubdate is None:
-            mi.pubdate = utcnow()
-        if mi.timestamp is None:
-            mi.timestamp = utcnow()
-        self.set_metadata(id, mi)
+        with StreamOrPath(path, 'rb') as stream:
+            stream.seek(0)
+            mi = get_metadata(stream, format, use_libprs_metadata=False, force_read_metadata=True)
+            # Force the author to calibre as the auto delete of old news checks for
+            # both the author==calibre and the tag News
+            mi.authors = ['calibre']
+            stream.seek(0)
+            if mi.series_index is None:
+                mi.series_index = self.get_next_series_num_for(mi.series)
+            mi.tags = [_('News')]
+            if arg['add_title_tag']:
+                mi.tags += [arg['title']]
+            if arg['custom_tags']:
+                mi.tags += arg['custom_tags']
+            obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)', (mi.title, mi.authors[0]))
+            id = obj.lastrowid
+            self.data.books_added([id], self)
+            self.set_path(id, index_is_id=True)
+            self.conn.commit()
+            if mi.pubdate is None:
+                mi.pubdate = utcnow()
+            if mi.timestamp is None:
+                mi.timestamp = utcnow()
+            self.set_metadata(id, mi)
 
-        self.add_format(id, format, stream, index_is_id=True)
-        if not hasattr(path, 'read'):
-            stream.close()
+            self.add_format(id, format, stream, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self, [id])  # Needed to update format list and size
         return id

@@ -6,6 +6,7 @@ import time
 
 from calibre import fsync
 from calibre.devices.errors import PathError
+from calibre.utils import StreamOrPath
 from calibre.utils.filenames import case_preserving_open_file
 
 
@@ -45,30 +46,26 @@ class CLI:
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
-        close = False
-        if not hasattr(infile, 'read'):
-            infile, close = open(infile, 'rb'), True
-        infile.seek(0)
-        if os.path.isdir(path):
-            path = os.path.join(path, infile.name)
-        if not replace_file and os.path.exists(path):
-            raise PathError('File already exists: ' + path)
-        dest, actual_path = case_preserving_open_file(path)
-        with dest:
-            try:
-                shutil.copyfileobj(infile, dest)
-            except OSError:
-                print('WARNING: First attempt to send file to device failed')
-                time.sleep(0.2)
-                infile.seek(0)
-                dest.seek(0)
-                dest.truncate()
-                shutil.copyfileobj(infile, dest)
-            fsync(dest)
-            # if not check_transfer(infile, dest): raise Exception('Transfer failed')
-        if close:
-            infile.close()
-        return actual_path
+        with StreamOrPath(infile, 'rb') as infile:
+            infile.seek(0)
+            if os.path.isdir(path):
+                path = os.path.join(path, infile.name)
+            if not replace_file and os.path.exists(path):
+                raise PathError('File already exists: ' + path)
+            dest, actual_path = case_preserving_open_file(path)
+            with dest:
+                try:
+                    shutil.copyfileobj(infile, dest)
+                except OSError:
+                    print('WARNING: First attempt to send file to device failed')
+                    time.sleep(0.2)
+                    infile.seek(0)
+                    dest.seek(0)
+                    dest.truncate()
+                    shutil.copyfileobj(infile, dest)
+                fsync(dest)
+                # if not check_transfer(infile, dest): raise Exception('Transfer failed')
+            return actual_path
 
     def munge_path(self, path):
         main = self._main_prefix or ''

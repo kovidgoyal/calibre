@@ -123,7 +123,8 @@ def do_set_metadata(opts, mi, stream, stream_type):
     if from_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPF
 
-        opf_mi = OPF(open(from_opf, 'rb')).to_book_metadata()
+        with open(from_opf, 'rb') as f:
+            opf_mi = OPF(f).to_book_metadata()
         mi.smart_update(opf_mi)
 
     for pref in config().option_set.preferences:
@@ -170,7 +171,8 @@ def do_set_metadata(opts, mi, stream, stream_type):
 
     if getattr(opts, 'cover', None) is not None:
         ext = os.path.splitext(opts.cover)[1].replace('.', '').upper()
-        mi.cover_data = (ext, open(opts.cover, 'rb').read())
+        with open(opts.cover, 'rb') as f:
+            mi.cover_data = (ext, f.read())
 
     with force_identifiers:
         set_metadata(stream, mi, stream_type)

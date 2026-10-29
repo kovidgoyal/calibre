@@ -6,6 +6,7 @@ import shutil
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils import StreamOrPath
 from calibre.utils.localization import _
 
 
@@ -20,41 +21,23 @@ class PMLInput(InputFormatPlugin):
     def process_pml(self, pml_path, html_path, close_all=False):
         from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
 
-        pclose = False
-        hclose = False
-
-        if not hasattr(pml_path, 'read'):
-            pml_stream = open(pml_path, 'rb')
-            pclose = True
-        else:
-            pml_stream = pml_path
+        pml_stream = StreamOrPath(pml_path, 'rb')
+        html_stream = StreamOrPath(html_path, 'wb')
+        with pml_stream, html_stream:
             pml_stream.seek(0)
+            ienc = getattr(pml_stream, 'encoding', None)
+            if ienc is None:
+                ienc = 'cp1252'
+            enc_opt = getattr(self.options, 'input_encoding', None)
+            if enc_opt:
+                ienc = enc_opt
 
-        if not hasattr(html_path, 'write'):
-            html_stream = open(html_path, 'wb')
-            hclose = True
-        else:
-            html_stream = html_path
-
-        ienc = getattr(pml_stream, 'encoding', None)
-        if ienc is None:
-            ienc = 'cp1252'
-        enc_opt = getattr(self.options, 'input_encoding', None)
-        if enc_opt:
-            ienc = enc_opt
-
-        self.log.debug('Converting PML to HTML...')
-        hizer = PML_HTMLizer()
-        html = hizer.parse_pml(pml_stream.read().decode(ienc), html_path)
-        html = f'<html><head><title></title></head><body>{html}</body></html>'
-        html_stream.write(html.encode('utf-8', 'replace'))
-
-        if pclose:
-            pml_stream.close()
-        if hclose:
-            html_stream.close()
-
-        return hizer.get_toc()
+            self.log.debug('Converting PML to HTML...')
+            hizer = PML_HTMLizer()
+            html = hizer.parse_pml(pml_stream.read().decode(ienc), html_path)
+            html = f'<html><head><title></title></head><body>{html}</body></html>'
+            html_stream.write(html.encode('utf-8', 'replace'))
+            return hizer.get_toc()
 
     def get_images(self, stream=None, tdir: str | None = None, top_level=False):
         images = []

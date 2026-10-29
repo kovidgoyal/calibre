@@ -250,7 +250,7 @@ def remove_version_if_unused(version_dir: str) -> bool:
         remove_dir(version_dir)
         return True
     try:
-        f = open(lock_path, 'rb')
+        f = open(lock_path, 'rb')  # ruff: ignore[open-file-with-context-handler]
     except FileNotFoundError:
         remove_dir(version_dir)
         return True

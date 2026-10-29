@@ -145,7 +145,8 @@ class Main(MainWindow, Ui_MainWindow):
         )
         if files:
             file = files[0]
-            self.set_ebook(open(file, 'rb'))
+            with open(file, 'rb') as f:
+                self.set_ebook(f)
             self.render()
 
     def page_changed(self, num):
@@ -342,7 +343,7 @@ def main(args=sys.argv, logger=None):
         app = Application(args, override_program_name=override)
         app.setWindowIcon(QIcon.ic('viewer.png'))
         opts = normalize_settings(parser, opts)
-        stream = open(args[1], 'rb') if len(args) > 1 else None
+        stream = open(args[1], 'rb') if len(args) > 1 else None  # ruff: ignore[open-file-with-context-handler]
         main = file_renderer(stream, opts, logger=logger)
         main.set_exception_handler()
         main.show()

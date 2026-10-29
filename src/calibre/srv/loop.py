@@ -454,8 +454,8 @@ class ServerLoop:
             r, w = os.pipe()
             os.set_blocking(r, False)
             os.set_blocking(w, True)
-            self.control_in = open(w, 'wb')
-            self.control_out = open(r, 'rb')
+            self.control_in = open(w, 'wb')  # ruff: ignore[open-file-with-context-handler]
+            self.control_out = open(r, 'rb')  # ruff: ignore[open-file-with-context-handler]
 
     def close_control_connection(self):
         with suppress(Exception):

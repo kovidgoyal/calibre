@@ -299,7 +299,7 @@ class RotatingStream:
             self.stream = share_open(self.filename, 'a', newline='')
         else:
             # see https://bugs.python.org/issue27805
-            self.stream = open(os.open(self.filename, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC, mode=0o666), 'w')
+            self.stream = open(os.open(self.filename, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC, mode=0o666), 'w')  # ruff: ignore[open-file-with-context-handler]
         try:
             self.stream.tell()
         except OSError:

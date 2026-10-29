@@ -81,7 +81,7 @@ def set_metadata(stream, mi):
         if not cpath:
             cpath = 'cover.jpg'
         new_cover = _write_new_cover(new_cdata, cpath)
-        replacements[cpath] = open(new_cover.name, 'rb')
+        replacements[cpath] = open(new_cover.name, 'rb')  # ruff: ignore[open-file-with-context-handler]
         mi.cover = cpath
 
     # Update the metadata.

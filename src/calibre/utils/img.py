@@ -59,7 +59,7 @@ def load_jxr_data(data):
             f.write(data)
         cmd = [get_exe_path('JxrDecApp'), '-i', 'input.jxr', '-o', 'output.tif']
         creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
-        subprocess.Popen(cmd, cwd=tdir, stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT, creationflags=creationflags).wait()
+        subprocess.Popen(cmd, cwd=tdir, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, creationflags=creationflags).wait()
         i = QImage()
         if not i.load(os.path.join(tdir, 'output.tif')):
             raise NotImage('Failed to convert JPEG-XR image')
@@ -615,7 +615,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             assert p.stdout is not None
             assert p.stdin is not None
             stderr = p.stderr
-            src = input_data or open(file_path, 'rb')
+            src = input_data or open(file_path, 'rb')  # ruff: ignore[open-file-with-context-handler]
 
             def copy(src, dest):
                 try:
@@ -909,7 +909,8 @@ def test():  # {{{
 if __name__ == '__main__':  # {{{
     args = sys.argv[1:]
     infile = args.pop(0)
-    img = image_from_data(open(infile, 'rb').read())
+    with open(infile, 'rb') as f:
+        img = image_from_data(f.read())
     func = globals()[args[0]]
     kw = {}
     args.pop(0)

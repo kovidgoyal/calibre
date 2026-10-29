@@ -451,7 +451,7 @@ class LitFile:
         if hasattr(filename_or_stream, 'read'):
             self.stream = filename_or_stream
         else:
-            self.stream = open(filename_or_stream, 'rb')
+            self.stream = open(filename_or_stream, 'rb')  # ruff: ignore[open-file-with-context-handler]
         try:
             self.opf_path = os.path.splitext(os.path.basename(self.stream.name))[0] + '.opf'
         except AttributeError:
