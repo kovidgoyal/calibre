@@ -528,6 +528,35 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(c.get_paragraph_results('m1', ['bad dog. Next.']), {0: results[0]})
         c.close()
 
+    def test_grammar_cache_closes_corrupt_connection(self):
+        from calibre.utils.grammar import cache
+
+        path = os.path.join(self.tdir, 'corrupt.sqlite')
+        with open(path, 'wb') as f:
+            f.write(b'not a database' * 100)
+        connection_factory, remove = cache.apsw.Connection, os.remove
+        connections = []
+
+        def open_connection(path):
+            conn = connection_factory(path)
+            connections.append(conn)
+            self.addCleanup(conn.close)
+            return conn
+
+        def remove_closed_file(path):
+            # Windows does not allow deleting the cache while SQLite has it
+            # open. Check the ordering on other platforms as well.
+            for conn in connections:
+                with self.assertRaises(cache.apsw.ConnectionClosedError):
+                    conn.cursor()
+            remove(path)
+
+        with patch.object(cache.apsw, 'Connection', side_effect=open_connection), patch.object(cache.os, 'remove', side_effect=remove_closed_file):
+            c = ResultCache(path)
+        self.addCleanup(c.close)
+        self.assertEqual(len(connections), 2)
+        self.assertIsNotNone(c.conn)
+
     def test_grammar_gpu_decisions(self):
         from calibre.utils.grammar import backend, gpu
 

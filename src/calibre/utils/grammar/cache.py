@@ -165,12 +165,15 @@ class ResultCache:
     def open_db(self, path: str) -> apsw.Connection | None:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         for attempt in range(2):
+            conn = None
             try:
                 conn = apsw.Connection(path)
                 conn.setbusytimeout(2000)
                 conn.cursor().execute(creation_sql)
                 return conn
             except apsw.Error as e:
+                if conn is not None:
+                    conn.close()
                 if attempt == 0 and isinstance(e, (apsw.CorruptError, apsw.NotADBError)):
                     # Results can always be recomputed so discard a corrupted cache
                     for suffix in ('', '-wal', '-shm', '-journal'):
