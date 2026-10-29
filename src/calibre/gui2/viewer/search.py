@@ -112,16 +112,17 @@ def words_and_interval_for_near(expr, default_interval=60):
 
 
 class Search:
-    def __init__(self, text, mode, case_sensitive, backwards):
+    def __init__(self, text, mode, case_sensitive, backwards, chapter_id=None):
         self.text, self.mode = text, mode
         self.case_sensitive = case_sensitive
         self.backwards = backwards
+        self.chapter_id = chapter_id
         self._regex = self._nsd = None
 
     def __eq__(self, other):
         if not isinstance(other, Search):
             return False
-        return self.text == other.text and self.mode == other.mode and self.case_sensitive == other.case_sensitive
+        return self.text == other.text and self.mode == other.mode and self.case_sensitive == other.case_sensitive and self.chapter_id == other.chapter_id
 
     @property
     def regex_flags(self):
@@ -198,7 +199,7 @@ class Search:
     def __str__(self):
         from collections import namedtuple
 
-        s = ('text', 'mode', 'case_sensitive', 'backwards')
+        s = ('text', 'mode', 'case_sensitive', 'backwards', 'chapter_id')
         return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))  # ruff: ignore[collections-named-tuple]
 
 
@@ -212,6 +213,7 @@ class SearchResult:
         'after',
         'before',
         'file_name',
+        'from_offset',
         'index',
         'is_hidden',
         'offset',
@@ -223,13 +225,14 @@ class SearchResult:
         'toc_nodes',
     )
 
-    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num):
+    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num, from_offset=None):
         self.search_query = search_query
         self.q = q
         self.result_num = result_num
         self.before, self.text, self.after = before, text, after
         self.spine_idx, self.index = spine_idx, index
         self.file_name = name
+        self.from_offset = from_offset
         self.is_hidden = False
         self.offset = offset
         try:
@@ -242,7 +245,7 @@ class SearchResult:
 
     @property
     def for_js(self):
-        return {
+        ans = {
             'file_name': self.file_name,
             'spine_idx': self.spine_idx,
             'index': self.index,
@@ -253,9 +256,17 @@ class SearchResult:
             'q': self.q,
             'result_num': self.result_num,
         }
+        if self.from_offset is not None:
+            ans['from_offset'] = self.from_offset
+        return ans
 
     def is_result(self, result_from_js):
-        return result_from_js['spine_idx'] == self.spine_idx and self.index == result_from_js['index'] and result_from_js['q'] == self.q
+        return (
+            result_from_js['spine_idx'] == self.spine_idx
+            and self.index == result_from_js['index']
+            and result_from_js['q'] == self.q
+            and result_from_js.get('from_offset') == self.from_offset
+        )
 
     def __str__(self):
         from collections import namedtuple
@@ -330,11 +341,13 @@ def get_toc_data():
     spine = manifest.get('spine') or []
     spine_toc_map = {name: [] for name in spine}
     parent_map = {}
+    toc_nodes = []
 
     def process_node(node):
         items = spine_toc_map.get(node['dest'])
         if items is not None:
             items.append(node)
+            toc_nodes.append(node)
         children = node.get('children')
         if children:
             for child in children:
@@ -349,7 +362,42 @@ def get_toc_data():
         'spine_toc_map': spine_toc_map,
         'spine_idx_map': {name: idx for idx, name in enumerate(spine)},
         'parent_map': parent_map,
+        'toc_nodes': tuple(toc_nodes),
     }
+
+
+def chapter_search_range(chapter_id):
+    toc_data = get_toc_data()
+    nodes = toc_data['toc_nodes']
+
+    def position(node):
+        idx = toc_data['spine_idx_map'][node['dest']]
+        fragment = node.get('frag')
+        if not fragment:
+            return idx, 0
+        anchors = searchable_text_for_name(node['dest'])[1]
+        if fragment not in anchors:
+            return None
+        return idx, anchors[fragment]
+
+    for i, node in enumerate(nodes):
+        if node.get('id') == chapter_id:
+            start = position(node)
+            if start is None:
+                return None
+            end = len(toc_data['spine']), 0
+            for following in nodes[i + 1 :]:
+                parent = toc_data['parent_map'].get(id(following))
+                while parent is not None and parent is not node:
+                    parent = toc_data['parent_map'].get(id(parent))
+                if parent is node:
+                    continue
+                pos = position(following)
+                if pos is not None and pos > start:
+                    end = pos
+                    break
+            return start, end
+    return None
 
 
 class ToCOffsetMap:
@@ -423,8 +471,9 @@ def toc_nodes_for_search_result(sr):
     return tuple(tmap.toc_nodes_for_offset(sr.offset))
 
 
-def search_in_name(name, search_query, ctx_size=75):
-    raw = searchable_text_for_name(name)[0]
+def search_in_name(name, search_query, ctx_size=75, start_offset=0, end_offset=None):
+    full_text = searchable_text_for_name(name)[0]
+    raw = full_text[start_offset:end_offset]
 
     if search_query.mode == 'near':
         word_pats, full_pat = search_query.near_search_data
@@ -458,9 +507,57 @@ def search_in_name(name, search_query, ctx_size=75):
             primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
 
     for start, end in miter():
-        before = raw[max(0, start - ctx_size) : start]
-        after = raw[end : end + ctx_size]
-        yield before, raw[start:end], after, start
+        start, end = start + start_offset, end + start_offset
+        before = full_text[max(0, start - ctx_size) : start]
+        after = full_text[end : end + ctx_size]
+        yield before, full_text[start:end], after, start
+
+
+def search_in_book(search_query, current_name):
+    toc_data = get_toc_data()
+    spine = toc_data['spine']
+    spine_idx = toc_data['spine_idx_map'].get(current_name, -1)
+    if spine_idx < 0:
+        return
+    chapter_range = None
+    if search_query.chapter_id is not None:
+        chapter_range = chapter_search_range(search_query.chapter_id)
+        if chapter_range is None:
+            return
+    result_num = 0
+    for n in range(len(spine)):
+        idx = (spine_idx + n) % len(spine)
+        name = spine[idx]
+        start_offset, end_offset = 0, None
+        if chapter_range is not None:
+            start, end = chapter_range
+            if idx < start[0] or idx > end[0] or (idx == end[0] and end[1] == 0):
+                continue
+            start_offset = start[1] if idx == start[0] else 0
+            end_offset = end[1] if idx == end[0] else None
+        counter = Counter()
+        previous_offset = utf16_offset = 0
+        try:
+            for before, text, after, offset in search_in_name(name, search_query, start_offset=start_offset, end_offset=end_offset):
+                q = (before or '')[-15:] + text + (after or '')[:15]
+                match_index = counter[q]
+                counter[q] += 1
+                from_offset = None
+                if chapter_range is not None:
+                    # Use the existing offset-based lookup in the renderer. A
+                    # scoped regex/nearby search can have different matches to
+                    # a search of the entire file. JavaScript uses UTF-16 offsets.
+                    raw = searchable_text_for_name(name)[0]
+                    utf16_offset += len(raw[previous_offset:offset].encode('utf-16-le')) // 2
+                    previous_offset = offset
+                    from_offset = utf16_offset - min(15, len(before.encode('utf-16-le')) // 2)
+                    match_index = 0
+                result_num += 1
+                yield SearchResult(search_query, before, text, after, q, name, idx, match_index, offset, result_num, from_offset)
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
 
 
 class SearchInput(QWidget):  # {{{
@@ -822,6 +919,7 @@ class SearchPanel(QWidget):  # {{{
         self.discovery_counter = 0
         self.last_hidden_text_warning = None
         self.current_search = None
+        self.current_chapter_id = None
         self.anchor_cfi = None
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -833,6 +931,13 @@ class SearchPanel(QWidget):  # {{{
         si.cleared.connect(self.search_cleared)
         si.go_back.connect(self.go_back)
         l.addWidget(si)
+        self.search_scope = scope = QComboBox(self)
+        scope.addItem(_('Entire book'), False)
+        scope.addItem(_('Current chapter'), True)
+        scope.setAccessibleName(_('Search scope'))
+        scope.setToolTip(_('Search the entire book or the current table of contents section, including its subsections'))
+        scope.setEnabled(False)
+        l.addWidget(scope)
         self.results = r = Results(self)
         r.count_changed.connect(self.count_changed)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.ConnectionType.QueuedConnection)
@@ -861,7 +966,14 @@ class SearchPanel(QWidget):  # {{{
         self.results.clear_all_results()
         self.current_search = None
 
+    def set_current_toc_nodes(self, node_ids):
+        self.current_chapter_id = next(iter(node_ids), None)
+        self.search_scope.setEnabled(self.current_chapter_id is not None)
+        if self.current_chapter_id is None:
+            self.search_scope.setCurrentIndex(0)
+
     def start_search(self, search_query, current_name):
+        search_query.chapter_id = self.current_chapter_id if self.search_scope.currentData() else None
         if self.current_search is not None and search_query == self.current_search:
             self.find_next_requested(search_query.backwards)
             return
@@ -889,35 +1001,12 @@ class SearchPanel(QWidget):  # {{{
                 break
             search_query, current_name = x
             try:
-                manifest = get_manifest() or {}
-                spine = manifest.get('spine', ())
-                idx_map = {name: i for i, name in enumerate(spine)}
-                spine_idx = idx_map.get(current_name, -1)
+                for result in search_in_book(search_query, current_name):
+                    self.results_found.emit(result)
             except Exception:
                 import traceback
 
                 traceback.print_exc()
-                spine_idx = -1
-            if spine_idx < 0:
-                self.results_found.emit(SearchFinished(search_query))
-                continue
-            num_in_spine = len(spine)
-            result_num = 0
-            for n in range(num_in_spine):
-                idx = (spine_idx + n) % num_in_spine
-                name = spine[idx]
-                counter = Counter()
-                try:
-                    for i, result in enumerate(search_in_name(name, search_query)):
-                        before, text, after, offset = result
-                        q = (before or '')[-15:] + text + (after or '')[:15]
-                        result_num += 1
-                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset, result_num))
-                        counter[q] += 1
-                except Exception:
-                    import traceback
-
-                    traceback.print_exc()
             self.results_found.emit(SearchFinished(search_query))
 
     def on_result_found(self, result):
@@ -943,6 +1032,9 @@ class SearchPanel(QWidget):  # {{{
 
     def clear_searches(self):
         self.current_search = None
+        self.current_chapter_id = None
+        self.search_scope.setCurrentIndex(0)
+        self.search_scope.setEnabled(False)
         self.last_hidden_text_warning = None
         searchable_text_for_name.cache_clear()
         toc_offset_map_for_name.cache_clear()
@@ -991,3 +1083,142 @@ class SearchPanel(QWidget):  # {{{
 
 
 # }}}
+
+
+def find_tests():
+    import unittest
+    from unittest.mock import patch
+
+    class ViewerSearchTest(unittest.TestCase):
+        def setUp(self):
+            def node(node_id, name, fragment='', children=()):
+                return {'id': node_id, 'dest': name, 'frag': fragment, 'title': str(node_id), 'children': list(children)}
+
+            self.manifest = {
+                'spine': ['one.xhtml', 'two.xhtml', 'three.xhtml'],
+                'toc': node(
+                    0,
+                    None,
+                    children=(
+                        node(1, 'one.xhtml', 'one', (node(2, 'one.xhtml', 'sub'),)),
+                        node(3, 'two.xhtml', 'two'),
+                        node(4, 'two.xhtml', 'three'),
+                        node(5, 'three.xhtml'),
+                    ),
+                ),
+            }
+            self.paragraphs = {
+                'one.xhtml': [('preface needle. ', ''), ('Chapter one needle. ', 'one'), ('Subsection needle. ', 'sub')],
+                'two.xhtml': [('Continuation needle. ', ''), ('Chapter two needle. ', 'two'), ('Chapter three needle. ', 'three')],
+                'three.xhtml': [('Last chapter needle.', '')],
+            }
+
+            def data(name):
+                paragraphs = [{'n': 'p', 'x': text, 'a': [['id', anchor]] if anchor else []} for text, anchor in self.paragraphs[name]]
+                return json.dumps({'tree': {'c': [{'n': 'body', 'c': paragraphs}]}}), None
+
+            self.addCleanup(self.clear_caches)
+            self.clear_caches()
+            self.enterContext(patch(__name__ + '.get_manifest', return_value=self.manifest))
+            self.enterContext(patch(__name__ + '.get_data', side_effect=data))
+
+        def clear_caches(self):
+            searchable_text_for_name.cache_clear()
+            toc_offset_map_for_name.cache_clear()
+            get_toc_data.cache_clear()
+
+        def results(self, chapter_id=None, text='needle', mode='normal', case_sensitive=False, current_name='one.xhtml'):
+            return tuple(search_in_book(Search(text, mode, case_sensitive, False, chapter_id), current_name))
+
+        def test_viewer_search_chapter_boundaries(self):
+            self.assertEqual(len(self.results()), 7)
+            results = self.results(1)
+            self.assertEqual([(r.file_name, r.offset) for r in results], [('one.xhtml', 28), ('one.xhtml', 47), ('two.xhtml', 13)])
+            self.assertEqual(chapter_search_range(1), ((0, 16), (1, 21)))
+            self.assertEqual(len(self.results(2)), 2)
+            self.assertEqual([(r.file_name, r.offset) for r in self.results(3)], [('two.xhtml', 33)])
+            self.assertEqual([(r.file_name, r.offset) for r in self.results(4)], [('two.xhtml', 55)])
+            self.assertEqual([(r.file_name, r.offset) for r in self.results(5)], [('three.xhtml', 13)])
+            self.assertEqual({(r.file_name, r.offset) for r in self.results(1, current_name='two.xhtml')}, {(r.file_name, r.offset) for r in results})
+            self.assertEqual([r.result_num for r in results], [1, 2, 3])
+
+        def test_viewer_search_chapter_modes(self):
+            for mode, text, case_sensitive in (
+                ('normal', 'NEEDLE', False),
+                ('word', 'needle', False),
+                ('regex', 'need.e', True),
+                ('near', 'chapter needle', False),
+            ):
+                with self.subTest(mode=mode):
+                    results = self.results(3, text, mode, case_sensitive)
+                    self.assertEqual(len(results), 1)
+                    self.assertEqual(results[0].file_name, 'two.xhtml')
+            self.assertFalse(self.results(1, r'needle[\s\S]*?Chapter two needle', 'regex'))
+            self.assertFalse(self.results(1, 'absent'))
+
+        def test_viewer_search_without_chapter(self):
+            self.assertFalse(self.results(100))
+            self.assertFalse(self.results(current_name='missing.xhtml'))
+            self.manifest['toc']['children'][0]['frag'] = 'missing'
+            self.assertIsNone(chapter_search_range(1))
+            self.assertFalse(self.results(1))
+            self.assertEqual(len(self.results()), 7)
+            self.manifest['toc'] = None
+            self.clear_caches()
+            self.assertEqual(len(self.results()), 7)
+            self.assertFalse(self.results(1))
+
+        def test_viewer_search_chapter_match_index(self):
+            # Identical context before the chapter must not select the wrong
+            # occurrence. Offsets sent to JavaScript must account for non-BMP text.
+            segment = '😀' * 20 + 'needle' + 'y' * 20
+            self.paragraphs['one.xhtml'] = [(segment, ''), (segment, 'one'), (segment, 'sub')]
+            self.manifest['toc']['children'][0]['children'] = []
+            self.manifest['toc']['children'][1].update(dest='one.xhtml', frag='sub')
+            results = self.results(1)
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0].index, 0)
+            self.assertEqual(results[0].offset, len(segment) + 20)
+            self.assertEqual(results[0].for_js['from_offset'], 91)
+            self.assertTrue(results[0].is_result(results[0].for_js))
+            other = dict(results[0].for_js, from_offset=25)
+            self.assertFalse(results[0].is_result(other))
+
+        def test_viewer_search_scope(self):
+            from calibre.gui2 import ensure_app
+
+            ensure_app()
+            panel = SearchPanel()
+            self.addCleanup(panel.deleteLater)
+            self.assertFalse(panel.search_scope.isEnabled())
+            self.assertFalse(panel.search_scope.currentData())
+            panel.set_current_toc_nodes([1, 3])
+            self.assertTrue(panel.search_scope.isEnabled())
+            panel.search_scope.setCurrentIndex(1)
+            # Inspect the queued searches without starting the worker thread.
+            panel.searcher = object()
+            query = Search('needle', 'normal', False, False)
+            panel.start_search(query, 'one.xhtml')
+            self.assertIs(panel.search_tasks.get_nowait()[0], query)
+            self.assertEqual(query.chapter_id, 1)
+            panel.set_current_toc_nodes([3])
+            self.assertEqual(query.chapter_id, 1)
+            next_query = Search('needle', 'normal', False, False)
+            panel.start_search(next_query, 'two.xhtml')
+            self.assertIs(panel.search_tasks.get_nowait()[0], next_query)
+            self.assertNotEqual(query, next_query)
+            self.assertEqual(next_query.chapter_id, 3)
+            panel.search_scope.setCurrentIndex(0)
+            entire_book = Search('needle', 'normal', False, False)
+            panel.start_search(entire_book, 'two.xhtml')
+            self.assertIs(panel.search_tasks.get_nowait()[0], entire_book)
+            self.assertIsNone(entire_book.chapter_id)
+            panel.set_current_toc_nodes([])
+            self.assertFalse(panel.search_scope.isEnabled())
+            panel.set_current_toc_nodes([1])
+            panel.search_scope.setCurrentIndex(1)
+            panel.clear_searches()
+            self.assertFalse(panel.search_scope.isEnabled())
+            self.assertFalse(panel.search_scope.currentData())
+
+    return unittest.TestLoader().loadTestsFromTestCase(ViewerSearchTest)

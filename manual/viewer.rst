@@ -184,6 +184,14 @@ Available modes are:
    <regexp>`.
 
 
+In the desktop viewer, searches cover the :guilabel:`Entire book` by default.
+Choose :guilabel:`Current chapter` in the search panel to restrict results to the
+table of contents section at your current reading position, including its
+subsections. The section is captured when you start the search. Chapter search
+is unavailable when the viewer cannot identify a current table of contents
+section.
+
+
 Following links using only the keyboard
 -----------------------------------------------
 
