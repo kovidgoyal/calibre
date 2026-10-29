@@ -3,6 +3,7 @@
 
 import datetime
 import hashlib
+import json
 from collections import OrderedDict
 from collections.abc import Callable
 from functools import lru_cache, partial
@@ -44,9 +45,34 @@ class Group(NamedTuple):
     count: int
 
 
-def atom(ctx: Context, rd: RequestData, endpoint: Callable, output: bytes | str | etree.Element) -> bytes:
-    rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
+OPDS2_MIME: str = 'application/opds+json'
+
+
+def accepts_opds2(rd: RequestData) -> bool:
+    "Whether the client asked for OPDS 2.0 with the Accept header, see https://specs.opds.io/opds-2.0"
+    for header in rd.inheaders.get('Accept', all=True):
+        for media_range in header.split(','):
+            media_type, *params = (x.strip() for x in media_range.split(';'))
+            if media_type.lower() == OPDS2_MIME:
+                for param in params:
+                    name, _sep, val = param.partition('=')
+                    if name.strip().lower() == 'q':
+                        try:
+                            return float(val) > 0
+                        except ValueError:
+                            pass
+                return True
+    return False
+
+
+def atom(ctx: Context, rd: RequestData, endpoint: Callable, output: bytes | str | etree.Element | dict[str, Any]) -> bytes:
+    # The same URLs serve both OPDS 1 and OPDS 2.0 feeds, depending on the Accept header
+    rd.outheaders.set('Vary', 'Accept', replace_all=True)
     rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
+    if isinstance(output, dict):
+        rd.outheaders.set('Content-Type', OPDS2_MIME, replace_all=True)
+        return json.dumps(output, ensure_ascii=False).encode('utf-8')
+    rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 XML
     elif isinstance(output, str):
@@ -116,10 +142,14 @@ class CATALOG_LINK(NAVLINK):
     catalog_type = 'navigation'
 
 
+def search_url(url_for: Callable[..., str], template: str = '{searchTerms}') -> str:
+    return url_for('/opds/search', query='XXX').replace('XXX', template)
+
+
 def SEARCH_LINK(url_for: Callable[..., str], **kwargs: str) -> etree.Element:
     kwargs['rel'] = 'search'
     kwargs['title'] = 'Search'
-    kwargs['href'] = url_for('/opds/search', query='XXX').replace('XXX', '{searchTerms}')
+    kwargs['href'] = search_url(url_for)
     return LINK()(**kwargs)
 
 
@@ -133,8 +163,12 @@ def AUTHOR(name: str, uri: str | None = None) -> etree.Element:
 SUBTITLE: Callable[..., etree.Element] = E.subtitle
 
 
+def navcatalog_url(url_for: UrlForCallable, query: str) -> str:
+    return url_for('/opds/navcatalog', which=as_hex_unicode(query))
+
+
 def NAVCATALOG_ENTRY(url_for: UrlForCallable, updated: datetime.datetime, title: str, description: str, query: str) -> etree.Element:
-    href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
+    href = navcatalog_url(url_for, query)
     id_ = 'calibre-navcatalog:' + hashlib.sha1(as_bytes(href)).hexdigest()
     return E.entry(TITLE(title), ID(id_), UPDATED(updated), E.content(description, type='text'), CATALOG_LINK()(href=href))
 
@@ -188,6 +222,20 @@ def html_to_lxml(raw: str) -> etree.Element:
             return _html4_parse(raw)
 
 
+def catalog_entry_data(item: Tag, item_kind: str, request_context: RequestContext, catalog_name: str, add_kind: bool = False) -> tuple[str, str]:
+    "The title of a category item and the URL of its books"
+    iid = 'N' + item.name
+    if item.id is not None:
+        iid = 'I' + str(item.id)
+        iid += ':' + item_kind
+    href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
+    if item.use_sort_as_name:
+        name = item.sort
+    else:
+        name = item.name
+    return str(name) + ('' if not add_kind else f' ({item_kind})'), href
+
+
 def CATALOG_ENTRY(
     item: Tag,
     item_kind: str,
@@ -198,22 +246,14 @@ def CATALOG_ENTRY(
     add_kind: bool = False,
 ) -> etree.Element:
     id_ = 'calibre:category:' + item.name
-    iid = 'N' + item.name
-    if item.id is not None:
-        iid = 'I' + str(item.id)
-        iid += ':' + item_kind
-    href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
+    title, href = catalog_entry_data(item, item_kind, request_context, catalog_name, add_kind)
     link = CATALOG_LINK()(href=href)
     if ignore_count:
         count = ''
     else:
         count = ngettext('one book', '{} books', item.count).format(item.count)
-    if item.use_sort_as_name:
-        name = item.sort
-    else:
-        name = item.name
     return E.entry(
-        TITLE(str(name) + ('' if not add_kind else f' ({item_kind})')),
+        TITLE(title),
         ID(id_),
         UPDATED(updated),
         E.content(count, type='text'),
@@ -221,10 +261,13 @@ def CATALOG_ENTRY(
     )
 
 
+def category_group_url(item: Group, category: str, request_context: RequestContext) -> str:
+    return request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(item.text))
+
+
 def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestContext, updated: datetime.datetime) -> etree.Element:
     id_ = 'calibre:category-group:' + category + ':' + (item.text or '')
-    iid = item.text
-    link = CATALOG_LINK()(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
+    link = CATALOG_LINK()(href=category_group_url(item, category, request_context))
     return E.entry(
         TITLE(item.text),
         ID(id_),
@@ -234,9 +277,9 @@ def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestCont
     )
 
 
-def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
+def acquisition_extra(mi: Any, request_context: RequestContext) -> list[str]:
+    "The metadata of a book as HTML, to be shown as its description"
     field_metadata = request_context.db.field_metadata
-    mi = request_context.db.get_metadata(book_id)
     extra = []
     if (mi.rating or 0) > 0:
         rating = rating_to_stars(mi.rating)
@@ -264,6 +307,12 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)
+    return extra
+
+
+def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
+    mi = request_context.db.get_metadata(book_id)
+    extra = acquisition_extra(mi, request_context)
     ans = E.entry(
         TITLE(mi.title),
         E.author(E.name(authors_to_string(mi.authors))),
@@ -390,6 +439,17 @@ class TopLevel(Feed):  # {{{
 # }}}
 
 
+def pagination_links(offsets: Offsets, page_url: str, up_url: str) -> dict[str, str]:
+    ans = {'up_link': up_url}
+    ans['first_link'] = page_url
+    ans['last_link'] = page_url + f'&offset={offsets.last_offset}'
+    if offsets.offset > 0:
+        ans['previous_link'] = page_url + f'&offset={offsets.previous_offset}'
+    if offsets.next_offset > -1:
+        ans['next_link'] = page_url + f'&offset={offsets.next_offset}'
+    return ans
+
+
 class NavFeed(Feed):
     def __init__(
         self,
@@ -401,13 +461,7 @@ class NavFeed(Feed):
         up_url: str,
         title: str | None = None,
     ) -> None:
-        kwargs: dict[str, Any] = {'up_link': up_url}
-        kwargs['first_link'] = page_url
-        kwargs['last_link'] = page_url + f'&offset={offsets.last_offset}'
-        if offsets.offset > 0:
-            kwargs['previous_link'] = page_url + f'&offset={offsets.previous_offset}'
-        if offsets.next_offset > -1:
-            kwargs['next_link'] = page_url + f'&offset={offsets.next_offset}'
+        kwargs: dict[str, Any] = pagination_links(offsets, page_url, up_url)
         if title:
             kwargs['title'] = title
         Feed.__init__(self, id_, updated, request_context, **kwargs)
@@ -481,6 +535,132 @@ class CategoryGroupFeed(NavFeed):
             self.root.append(CATALOG_GROUP_ENTRY(item, which, request_context, updated))
 
 
+# OPDS 2.0 {{{
+# The same feeds as above, as JSON, see https://specs.opds.io/opds-2.0 They are
+# served at the same URLs, to clients that send Accept: application/opds+json
+
+
+def opds2_link(href: str, rel: str = '', title: str = '', **kwargs: Any) -> dict[str, Any]:
+    ans: dict[str, Any] = {'href': href, 'type': OPDS2_MIME}
+    if rel:
+        ans['rel'] = rel
+    if title:
+        ans['title'] = title
+    ans.update(kwargs)
+    return ans
+
+
+def opds2_feed(
+    request_context: RequestContext,
+    self_url: str,
+    title: str | None = None,
+    subtitle: str | None = None,
+    offsets: Offsets | None = None,
+    page_url: str = '',
+    up_url: str = '',
+) -> dict[str, Any]:
+    metadata = {'title': title or default_feed_title}
+    if subtitle:
+        metadata['subtitle'] = subtitle
+    links = [
+        opds2_link(self_url, rel='self'),
+        opds2_link(request_context.url_for('/opds'), rel='start'),
+        opds2_link(search_url(request_context.url_for, '{query}'), rel='search', templated=True),
+    ]
+    if offsets is not None:
+        for name, href in pagination_links(offsets, page_url, up_url).items():
+            rel = name.partition('_')[0]
+            links.append(opds2_link(href, rel=rel, title=rel_title_map().get(rel, '')))
+    return {'metadata': metadata, 'links': links}
+
+
+def opds2_self_url(page_url: str, offsets: Offsets) -> str:
+    return page_url + (f'&offset={offsets.offset}' if offsets.offset else '')
+
+
+def opds2_top_level(categories: list[tuple[str, str, str]], request_context: RequestContext, subtitle: str = _('Books in your library')) -> dict[str, Any]:
+    url_for = request_context.url_for
+    ans = opds2_feed(request_context, url_for('/opds'), subtitle=subtitle)
+    navigation = [opds2_link(navcatalog_url(url_for, q), title=_('By ') + title) for title, desc, q in categories]
+    for library_id, library_name in sorted(request_context.library_map.items(), key=lambda item: sort_key(item[1])):
+        navigation.append(opds2_link(url_for('/opds', library_id=library_id), title=_('Library:') + ' ' + library_name))
+    ans['navigation'] = navigation
+    return ans
+
+
+def opds2_category_feed(
+    items: list[Tag], which: str, request_context: RequestContext, offsets: Offsets, page_url: str, up_url: str, title: str | None = None
+) -> dict[str, Any]:
+    ans = opds2_feed(request_context, opds2_self_url(page_url, offsets), title=title, offsets=offsets, page_url=page_url, up_url=up_url)
+    navigation = []
+    for item in items:
+        item_kind = item.category or ''
+        item_title, href = catalog_entry_data(item, item_kind, request_context, which, add_kind=which != item_kind)
+        link = opds2_link(href, title=item_title)
+        if which != 'search':
+            link['properties'] = {'numberOfItems': item.count}
+        navigation.append(link)
+    ans['navigation'] = navigation
+    return ans
+
+
+def opds2_category_group_feed(
+    items: list[Group], which: str, request_context: RequestContext, offsets: Offsets, page_url: str, up_url: str, title: str | None = None
+) -> dict[str, Any]:
+    ans = opds2_feed(request_context, opds2_self_url(page_url, offsets), title=title, offsets=offsets, page_url=page_url, up_url=up_url)
+    ans['navigation'] = [
+        opds2_link(category_group_url(item, which, request_context), title=item.text, properties={'numberOfItems': item.count}) for item in items
+    ]
+    return ans
+
+
+def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str, Any]:
+    mi = request_context.db.get_metadata(book_id)
+    metadata: dict[str, Any] = {
+        '@type': 'http://schema.org/Book',
+        'title': mi.title,
+        'author': list(mi.authors),
+        'modified': as_utc(mi.last_modified).isoformat(),
+    }
+    if mi.uuid:
+        metadata['identifier'] = 'urn:uuid:' + mi.uuid
+    if mi.pubdate and not is_date_undefined(mi.pubdate):
+        metadata['published'] = mi.pubdate.isoformat()
+    if mi.languages:
+        metadata['language'] = list(mi.languages)
+    if mi.tags:
+        metadata['subject'] = sorted(mi.tags, key=sort_key)
+    if mi.series:
+        metadata['belongsTo'] = {'series': {'name': mi.series, 'position': mi.series_index}}
+    if extra := acquisition_extra(mi, request_context):
+        metadata['description'] = '\n'.join(extra)
+
+    def get(**kwargs: Any) -> str:
+        return request_context.ctx.url_for('/get', book_id=book_id, library_id=request_context.library_id, **kwargs)
+
+    links = []
+    for fmt in mi.formats or ():
+        fmt = fmt.lower()
+        if mt := guess_type('a.' + fmt)[0]:
+            links.append({'rel': 'http://opds-spec.org/acquisition', 'href': get(what=fmt), 'type': mt})
+    return {
+        'metadata': metadata,
+        'links': links,
+        'images': [{'href': get(what='cover'), 'type': 'image/jpeg'}, {'href': get(what='thumb'), 'type': 'image/jpeg'}],
+    }
+
+
+def opds2_acquisition_feed(
+    request_context: RequestContext, items: list[int], offsets: Offsets, page_url: str, up_url: str, title: str | None = None
+) -> dict[str, Any]:
+    ans = opds2_feed(request_context, opds2_self_url(page_url, offsets), title=title, offsets=offsets, page_url=page_url, up_url=up_url)
+    ans['publications'] = [opds2_publication(book_id, request_context) for book_id in items]
+    return ans
+
+
+# }}}
+
+
 class RequestContext:
     db: Cache
     library_id: str
@@ -488,10 +668,12 @@ class RequestContext:
     default_library: str
     ctx: Context
     rd: RequestData
+    is_opds2: bool
 
     def __init__(self, ctx: Context, rd: RequestData) -> None:
         self.db, self.library_id, self.library_map, self.default_library = get_library_data(ctx, rd)
         self.ctx, self.rd = ctx, rd
+        self.is_opds2 = accepts_opds2(rd)
 
     def url_for(self, route: str | None, **kwargs: Any) -> str:
         lid = kwargs.pop('library_id', self.library_id)
@@ -532,7 +714,7 @@ def get_acquisition_feed(
     sort_by: str = 'title',
     ascending: bool = True,
     feed_title: str | None = None,
-) -> etree.Element:
+) -> etree.Element | dict[str, Any]:
     if not ids:
         raise HTTPNotFound('No books found')
     with rc.db.safe_read_lock:
@@ -543,10 +725,12 @@ def get_acquisition_feed(
         items = items[offsets.offset : offsets.offset + max_items]
         lm = rc.last_modified()
         rc.outheaders['Last-Modified'] = http_date(timestampfromdt(lm))
+        if rc.is_opds2:
+            return opds2_acquisition_feed(rc, items, offsets, page_url, up_url, title=feed_title)
         return AcquisitionFeed(id_, lm, rc, items, offsets, page_url, up_url, title=feed_title).root
 
 
-def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element:
+def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, Any]:
     try:
         offset = int(offset)
     except Exception:
@@ -571,7 +755,7 @@ def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, of
     )
 
 
-def get_navcatalog(request_context: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element:
+def get_navcatalog(request_context: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, Any]:
     categories = request_context.get_categories()
     if which not in categories:
         raise HTTPNotFound(f'Category {which!r} not found')
@@ -591,7 +775,10 @@ def get_navcatalog(request_context: RequestContext, which: str, page_url: str, u
         max_items = request_context.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
         items = list(items)[offsets.offset : offsets.offset + max_items]
-        ans = CategoryFeed(items, which, id_, updated, request_context, offsets, page_url, up_url, title=feed_title)
+        if request_context.is_opds2:
+            ans = opds2_category_feed(items, which, request_context, offsets, page_url, up_url, title=feed_title)
+        else:
+            ans = CategoryFeed(items, which, id_, updated, request_context, offsets, page_url, up_url, title=feed_title).root
     else:
         starts = set()
         for x in items:
@@ -606,15 +793,18 @@ def get_navcatalog(request_context: RequestContext, which: str, page_url: str, u
         max_items = request_context.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
         items = items[offsets.offset : offsets.offset + max_items]
-        ans = CategoryGroupFeed(items, which, id_, updated, request_context, offsets, page_url, up_url, title=feed_title)
+        if request_context.is_opds2:
+            ans = opds2_category_group_feed(items, which, request_context, offsets, page_url, up_url, title=feed_title)
+        else:
+            ans = CategoryGroupFeed(items, which, id_, updated, request_context, offsets, page_url, up_url, title=feed_title).root
 
     request_context.outheaders['Last-Modified'] = http_date(timestampfromdt(updated))
 
-    return ans.root
+    return ans
 
 
 @endpoint('/opds', postprocess=atom)
-def opds(ctx: Context, rd: RequestData) -> etree.Element:
+def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, Any]:
     rc = RequestContext(ctx, rd)
     db = rc.db
     try:
@@ -648,11 +838,13 @@ def opds(ctx: Context, rd: RequestData) -> etree.Element:
         cats.append((meta['name'], meta['name'], 'N' + category))
     last_modified = db.last_modified()
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
+    if rc.is_opds2:
+        return opds2_top_level(cats, rc)
     return TopLevel(last_modified, cats, rc).root
 
 
 @endpoint('/opds/navcatalog/{which}', postprocess=atom)
-def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element:
+def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element | dict[str, Any]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -675,7 +867,7 @@ def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element:
 
 
 @endpoint('/opds/category/{category}/{which}', postprocess=atom)
-def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element:
+def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element | dict[str, Any]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -729,7 +921,7 @@ def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> e
 
 
 @endpoint('/opds/categorygroup/{category}/{which}', postprocess=atom)
-def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element:
+def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element | dict[str, Any]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -776,11 +968,13 @@ def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str)
 
     rc.outheaders['Last-Modified'] = http_date(timestampfromdt(updated))
 
+    if rc.is_opds2:
+        return opds2_category_feed(items, category, rc, offsets, page_url, up_url, title=feed_title)
     return CategoryFeed(items, category, id_, updated, rc, offsets, page_url, up_url, title=feed_title).root
 
 
 @endpoint('/opds/search/{query=""}', postprocess=atom)
-def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element:
+def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | dict[str, Any]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
