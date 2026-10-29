@@ -111,17 +111,42 @@ def words_and_interval_for_near(expr, default_interval=60):
     return words, interval
 
 
+class ChapterScope:
+    """
+    A chapter that a search is restricted to. spine_indices are the spine
+    items that can contain results attributed to the chapter, in spine order.
+    """
+
+    def __init__(self, node_id: int, title: str, spine_indices: tuple[int, ...]):
+        self.node_id, self.title, self.spine_indices = node_id, title, spine_indices
+
+    def __eq__(self, other):
+        return isinstance(other, ChapterScope) and self.node_id == other.node_id
+
+    def contains(self, toc_nodes) -> bool:
+        return any(node.get('id') == self.node_id for node in toc_nodes)
+
+
 class Search:
-    def __init__(self, text, mode, case_sensitive, backwards):
+    def __init__(self, text, mode, case_sensitive, backwards, scope='book'):
         self.text, self.mode = text, mode
         self.case_sensitive = case_sensitive
         self.backwards = backwards
+        self.scope = scope
+        # Resolved from the reading position when the search is started
+        self.chapter: ChapterScope | None = None
         self._regex = self._nsd = None
 
     def __eq__(self, other):
         if not isinstance(other, Search):
             return False
-        return self.text == other.text and self.mode == other.mode and self.case_sensitive == other.case_sensitive
+        return (
+            self.text == other.text
+            and self.mode == other.mode
+            and self.case_sensitive == other.case_sensitive
+            and self.scope == other.scope
+            and self.chapter == other.chapter
+        )
 
     @property
     def regex_flags(self):
@@ -198,7 +223,7 @@ class Search:
     def __str__(self):
         from collections import namedtuple
 
-        s = ('text', 'mode', 'case_sensitive', 'backwards')
+        s = ('text', 'mode', 'case_sensitive', 'backwards', 'scope')
         return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))  # ruff: ignore[collections-named-tuple]
 
 
@@ -326,15 +351,22 @@ def searchable_text_for_name(name):
 
 @lru_cache(maxsize=2)
 def get_toc_data():
-    manifest = get_manifest() or {}
+    return toc_data_from_manifest(get_manifest() or {})
+
+
+def toc_data_from_manifest(manifest):
     spine = manifest.get('spine') or []
     spine_toc_map = {name: [] for name in spine}
     parent_map = {}
+    id_map = {}
 
     def process_node(node):
-        items = spine_toc_map.get(node['dest'])
+        items = spine_toc_map.get(node.get('dest'))
         if items is not None:
             items.append(node)
+        node_id = node.get('id')
+        if node_id is not None:
+            id_map[node_id] = node
         children = node.get('children')
         if children:
             for child in children:
@@ -349,6 +381,7 @@ def get_toc_data():
         'spine_toc_map': spine_toc_map,
         'spine_idx_map': {name: idx for idx, name in enumerate(spine)},
         'parent_map': parent_map,
+        'id_map': id_map,
     }
 
 
@@ -423,6 +456,60 @@ def toc_nodes_for_search_result(sr):
     return tuple(tmap.toc_nodes_for_offset(sr.offset))
 
 
+def chapter_node_for_toc_node(toc_data, node_id):
+    """
+    Return the chapter containing the specified ToC node: its top level
+    ancestor. Single top level entries wrapping the whole book, such as an
+    entry for the book title, are not treated as chapters, their children are
+    used instead.
+    """
+    node = toc_data['id_map'].get(node_id)
+    if node is None:
+        return None
+    parent_map = toc_data['parent_map']
+    family = []
+    while node is not None:
+        family.append(node)
+        node = parent_map.get(id(node))
+    family.reverse()
+    family = family[1:]  # the root node is not a ToC entry
+    while len(family) > 1 and len(parent_map[id(family[0])].get('children') or ()) == 1:
+        del family[0]
+    return family[0] if family else None
+
+
+def spine_indices_for_chapter(toc_data, chapter_node):
+    """
+    Return the indices of the spine items that can contain search results
+    attributed to the chapter, in spine order. This mirrors the attribution in
+    toc_offset_map_for_name(): text in a spine item belongs to a ToC node in
+    that item or, before the first such node, to the last ToC node of the
+    nearest preceding spine item that has ToC nodes.
+    """
+    node_ids = set()
+    stack = [chapter_node]
+    while stack:
+        node = stack.pop()
+        node_ids.add(node.get('id'))
+        stack.extend(node.get('children') or ())
+    ans = []
+    previous_node = None
+    for idx, name in enumerate(toc_data['spine']):
+        nodes = toc_data['spine_toc_map'].get(name) or ()
+        if (previous_node is not None and previous_node.get('id') in node_ids) or any(n.get('id') in node_ids for n in nodes):
+            ans.append(idx)
+        if nodes:
+            previous_node = nodes[-1]
+    return tuple(ans)
+
+
+def chapter_scope_for_toc_node(toc_data, node_id) -> ChapterScope | None:
+    chapter_node = chapter_node_for_toc_node(toc_data, node_id)
+    if chapter_node is None or chapter_node.get('id') is None:
+        return None
+    return ChapterScope(chapter_node['id'], chapter_node.get('title') or _('Unknown'), spine_indices_for_chapter(toc_data, chapter_node))
+
+
 def search_in_name(name, search_query, ctx_size=75):
     raw = searchable_text_for_name(name)[0]
 
@@ -468,9 +555,10 @@ class SearchInput(QWidget):  # {{{
     cleared = pyqtSignal()
     go_back = pyqtSignal()
 
-    def __init__(self, parent=None, panel_name='search', show_return_button=True):
+    def __init__(self, parent=None, panel_name='search', show_return_button=True, show_scope=False):
         QWidget.__init__(self, parent)
         self.ignore_search_type_changes = False
+        self.show_scope = show_scope
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         h = QHBoxLayout()
@@ -546,6 +634,24 @@ class SearchInput(QWidget):  # {{{
         h.addWidget(rb)
         rb.setVisible(show_return_button)
 
+        self.search_scope = ss = QComboBox(self)
+        ss.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        ss.addItem(_('Entire book'), 'book')
+        ss.addItem(_('Current chapter'), 'chapter')
+        ss.setToolTip(
+            '<p>'
+            + _(
+                'Choose where to search: <ul>'
+                '<li><b>Entire book</b> will search the whole book.'
+                '<li><b>Current chapter</b> will search only the chapter you are reading, including its sub-sections, as defined'
+                ' by the top level entry in the Table of Contents that contains the current position.'
+            )
+        )
+        idx = ss.findData(vprefs.get(f'viewer-{self.panel_name}-scope', 'book') or 'book')
+        ss.setCurrentIndex(max(0, idx))
+        l.addWidget(ss)
+        ss.setVisible(show_scope)
+
     def history_saved(self, new_text, history):
         if new_text:
             sss = vprefs.get(f'saved-{self.panel_name}-settings') or {}
@@ -587,7 +693,8 @@ class SearchInput(QWidget):  # {{{
     def search_query(self, backwards=False):
         text = self.search_box.currentText()
         if text:
-            return Search(text, self.query_type.currentData() or 'normal', self.case_sensitive.isChecked(), backwards)
+            scope = (self.search_scope.currentData() or 'book') if self.show_scope else 'book'
+            return Search(text, self.query_type.currentData() or 'normal', self.case_sensitive.isChecked(), backwards, scope)
 
     def emit_search(self, backwards=False):
         boss = get_boss()
@@ -595,6 +702,8 @@ class SearchInput(QWidget):  # {{{
             return
         vprefs[f'viewer-{self.panel_name}-case-sensitive'] = self.case_sensitive.isChecked()
         vprefs[f'viewer-{self.panel_name}-mode'] = self.query_type.currentData()
+        if self.show_scope:
+            vprefs[f'viewer-{self.panel_name}-scope'] = self.search_scope.currentData()
         sq = self.search_query(backwards)
         if sq is not None:
             self.do_search.emit(sq)
@@ -823,9 +932,10 @@ class SearchPanel(QWidget):  # {{{
         self.last_hidden_text_warning = None
         self.current_search = None
         self.anchor_cfi = None
+        self.current_toc_leaves: tuple[int, ...] = ()
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        self.search_input = si = SearchInput(self)
+        self.search_input = si = SearchInput(self, show_scope=True)
         self.searcher = None
         self.search_tasks = Queue()
         self.results_found.connect(self.on_result_found, type=Qt.ConnectionType.QueuedConnection)
@@ -833,6 +943,11 @@ class SearchPanel(QWidget):  # {{{
         si.cleared.connect(self.search_cleared)
         si.go_back.connect(self.go_back)
         l.addWidget(si)
+        self.scope_label = la = QLabel(self)
+        la.setStyleSheet('QLabel { margin-left: 1ex }')
+        la.setWordWrap(True)
+        la.setVisible(False)
+        l.addWidget(la)
         self.results = r = Results(self)
         r.count_changed.connect(self.count_changed)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.ConnectionType.QueuedConnection)
@@ -860,8 +975,48 @@ class SearchPanel(QWidget):  # {{{
     def search_cleared(self):
         self.results.clear_all_results()
         self.current_search = None
+        self.scope_label.setVisible(False)
+
+    def update_current_toc_nodes(self, current_toc_leaves):
+        self.current_toc_leaves = tuple(current_toc_leaves or ())
+
+    def chapter_for_search(self, current_name) -> ChapterScope | None:
+        toc_data = get_toc_data()
+        cs = self.current_search
+        if cs is not None and cs.chapter is not None:
+            # Keep the chapter of the current search while the reader is in one
+            # of its files, which is always the case after jumping to one of its
+            # results, so that find next keeps stepping through those results.
+            # The visible ToC nodes cannot be used for this, as near the end of
+            # a chapter they are the nodes of the next chapter.
+            idx = toc_data['spine_idx_map'].get(current_name, -1)
+            if idx in cs.chapter.spine_indices:
+                return cs.chapter
+        for node_id in self.current_toc_leaves:
+            ans = chapter_scope_for_toc_node(toc_data, node_id)
+            if ans is not None:
+                return ans
+        return None
+
+    def update_scope_label(self, search_query):
+        if search_query.scope != 'chapter':
+            self.scope_label.setVisible(False)
+            return
+        if search_query.chapter is None:
+            self.scope_label.setText(_('The current position is not in a chapter of the Table of Contents, searching the entire book'))
+        else:
+            self.scope_label.setText(_('Searching in: {}').format(search_query.chapter.title))
+        self.scope_label.setVisible(True)
 
     def start_search(self, search_query, current_name):
+        if search_query.scope == 'chapter':
+            try:
+                search_query.chapter = self.chapter_for_search(current_name)
+            except Exception:
+                import traceback
+
+                traceback.print_exc()
+                search_query.chapter = None
         if self.current_search is not None and search_query == self.current_search:
             self.find_next_requested(search_query.backwards)
             return
@@ -875,6 +1030,7 @@ class SearchPanel(QWidget):  # {{{
         self.hidden_message.setVisible(False)
         self.spinner.start()
         self.current_search = search_query
+        self.update_scope_label(search_query)
         self.last_hidden_text_warning = None
         self.search_tasks.put((search_query, current_name))
         self.discovery_counter += 1
@@ -902,18 +1058,28 @@ class SearchPanel(QWidget):  # {{{
                 self.results_found.emit(SearchFinished(search_query))
                 continue
             num_in_spine = len(spine)
+            chapter = search_query.chapter
+            if chapter is None:
+                spine_indices = tuple((spine_idx + n) % num_in_spine for n in range(num_in_spine))
+            else:
+                spine_indices = tuple(i for i in chapter.spine_indices if i < num_in_spine)
             result_num = 0
-            for n in range(num_in_spine):
-                idx = (spine_idx + n) % num_in_spine
+            for idx in spine_indices:
                 name = spine[idx]
                 counter = Counter()
                 try:
                     for i, result in enumerate(search_in_name(name, search_query)):
                         before, text, after, offset = result
                         q = (before or '')[-15:] + text + (after or '')[:15]
-                        result_num += 1
-                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset, result_num))
+                        # The index counts every occurrence in the file, as that is
+                        # how the JS code locates the result, so it must be computed
+                        # before results outside the chapter are discarded
+                        sr = SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset, result_num + 1)
                         counter[q] += 1
+                        if chapter is not None and not chapter.contains(sr.toc_nodes):
+                            continue
+                        result_num += 1
+                        self.results_found.emit(sr)
                 except Exception:
                     import traceback
 
@@ -943,6 +1109,8 @@ class SearchPanel(QWidget):  # {{{
 
     def clear_searches(self):
         self.current_search = None
+        self.current_toc_leaves = ()
+        self.scope_label.setVisible(False)
         self.last_hidden_text_warning = None
         searchable_text_for_name.cache_clear()
         toc_offset_map_for_name.cache_clear()
@@ -974,9 +1142,12 @@ class SearchPanel(QWidget):  # {{{
         self.results.search_result_discovered(sr)
 
     def show_no_results_found(self):
-        msg = _('No matches were found for:')
         current_search = self.current_search
         assert current_search is not None
+        if current_search.chapter is None:
+            msg = _('No matches were found for:')
+        else:
+            msg = _('No matches were found in the chapter {} for:').format(f'<i>{escape(current_search.chapter.title)}</i>')
         warning_dialog(self, _('No matches found'), msg + f'  <b>{current_search.text}</b>', show=True)
 
     def keyPressEvent(self, a0):
@@ -991,3 +1162,60 @@ class SearchPanel(QWidget):  # {{{
 
 
 # }}}
+
+
+def find_tests():
+    import unittest
+
+    def toc_node(node_id, dest, *children, frag=None):
+        return {'id': node_id, 'title': f'node {node_id}', 'dest': dest, 'frag': frag, 'children': list(children)}
+
+    class SearchScopeTest(unittest.TestCase):
+        def test_chapter_node(self):
+            toc = toc_node(0, None, toc_node(1, 'a', toc_node(2, 'a', toc_node(3, 'b'))), toc_node(4, 'c'))
+            data = toc_data_from_manifest({'spine': ['a', 'b', 'c'], 'toc': toc})
+            cn = lambda node_id: (chapter_node_for_toc_node(data, node_id) or {}).get('id')  # ruff: ignore[lambda-assignment]
+            self.assertEqual(cn(3), 1)
+            self.assertEqual(cn(2), 1)
+            self.assertEqual(cn(1), 1)
+            self.assertEqual(cn(4), 4)
+            self.assertIsNone(cn(0))
+            self.assertIsNone(cn(99))
+            # A single top level entry wrapping the book is not a chapter
+            toc = toc_node(0, None, toc_node(1, 'a', toc_node(2, 'a', toc_node(3, 'b')), toc_node(4, 'c')))
+            data = toc_data_from_manifest({'spine': ['a', 'b', 'c'], 'toc': toc})
+            self.assertEqual(cn(3), 2)
+            self.assertEqual(cn(4), 4)
+            self.assertEqual(cn(1), 1)
+
+        def test_spine_indices_for_chapter(self):
+            # Chapter 1 spans a and b, c has no ToC entries and so belongs to
+            # chapter 1 as well, chapter 4 starts in the middle of d. f is
+            # included for chapter 4 as any text before the anchor of chapter 5
+            # belongs to chapter 4.
+            toc = toc_node(0, None, toc_node(1, 'a', toc_node(2, 'b')), toc_node(3, 'd', frag='x'), toc_node(4, 'd', frag='y'), toc_node(5, 'f', frag='z'))
+            data = toc_data_from_manifest({'spine': ['a', 'b', 'c', 'd', 'e', 'f'], 'toc': toc})
+            si = lambda node_id: spine_indices_for_chapter(data, data['id_map'][node_id])  # ruff: ignore[lambda-assignment]
+            self.assertEqual(si(1), (0, 1, 2, 3))
+            self.assertEqual(si(3), (3,))
+            self.assertEqual(si(4), (3, 4, 5))
+            self.assertEqual(si(5), (5,))
+            scope = chapter_scope_for_toc_node(data, 2)
+            assert scope is not None
+            self.assertEqual((scope.node_id, scope.spine_indices), (1, (0, 1, 2, 3)))
+            self.assertTrue(scope.contains((data['id_map'][1], data['id_map'][2])))
+            self.assertFalse(scope.contains((data['id_map'][3],)))
+            self.assertFalse(scope.contains(()))
+
+        def test_search_equality(self):
+            a, b = Search('x', 'normal', False, False, 'chapter'), Search('x', 'normal', False, True, 'chapter')
+            self.assertEqual(a, b)
+            a.chapter = ChapterScope(1, 'one', (0,))
+            self.assertNotEqual(a, b)
+            b.chapter = ChapterScope(1, 'one', (0, 1))
+            self.assertEqual(a, b)
+            b.chapter = ChapterScope(2, 'two', (0,))
+            self.assertNotEqual(a, b)
+            self.assertNotEqual(Search('x', 'normal', False, False), Search('x', 'normal', False, False, 'chapter'))
+
+    return unittest.TestLoader().loadTestsFromTestCase(SearchScopeTest)

@@ -183,6 +183,15 @@ Available modes are:
    To learn more about using regular expressions, see :doc:`the tutorial
    <regexp>`.
 
+By default, the whole book is searched. To search only the chapter you are
+reading, change :guilabel:`Entire book` to :guilabel:`Current chapter` in the
+box below the search mode box. The chapter is the top level entry in the
+:guilabel:`Table of Contents` that contains the current position, including all
+its sub-sections. If the book has a single top level entry containing all the
+others, such as one for the book title, its sub-entries are used as the
+chapters instead. If the book has no Table of Contents or the current position
+is before its first entry, the whole book is searched.
+
 
 Following links using only the keyboard
 -----------------------------------------------
