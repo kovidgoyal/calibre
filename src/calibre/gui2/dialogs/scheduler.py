@@ -52,7 +52,7 @@ from calibre.gui2 import config as gconf
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config import JSONConfig
-from calibre.utils.date import utcnow
+from calibre.utils.date import format_date, now, utcfromtimestamp, utcnow
 from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre.utils.network import internet_connected
 from calibre.web.feeds.recipes.model import RecipeModel
@@ -669,6 +669,26 @@ class Scheduler(QObject):
         self.news_menu.addAction(self.cac)
         self.news_menu.addSeparator()
         self.all_action = self.news_menu.addAction(QIcon.ic('download-metadata.png'), _('Download all scheduled news sources'), self.download_all_scheduled)
+        self.pause_menu = m = QMenu(_('Pause scheduled downloads'), self.news_menu)
+        self.news_menu.addMenu(m)
+        self.pause_status = QAction('', m)
+        self.pause_status.setEnabled(False)
+        m.addAction(self.pause_status)
+        m.addSeparator()
+        for title, duration in (
+            (_('Pause for one hour'), 'hour'),
+            (_('Pause until tomorrow'), 'tomorrow'),
+            (_('Pause until resumed'), 'indefinitely'),
+        ):
+            ac = QAction(title, m)
+            ac.triggered.connect(partial(self.pause_scheduled_downloads, duration))
+            m.addAction(ac)
+        m.addSeparator()
+        self.resume_action = QAction(_('Resume scheduled downloads'), m)
+        self.resume_action.triggered.connect(self.resume_scheduled_downloads)
+        m.addAction(self.resume_action)
+        self.news_menu.aboutToShow.connect(self.update_pause_menu)
+        self.update_pause_menu()
         self.recent_menu = m = QMenu(_('Redownload...'))
         m.addAction('dummy')
         m.aboutToShow.connect(self.populate_recent_menu)
@@ -679,6 +699,40 @@ class Scheduler(QObject):
         self.timer.timeout.connect(self.check)
         self.oldest = gconf['oldest_news']
         QTimer.singleShot(5 * 1000, self.oldest_check)
+
+    def scheduled_downloads_paused(self) -> bool:
+        # Zero means running, a negative value means paused until resumed, and
+        # positive values are UTC timestamps so the pause survives restarts.
+        until = sprefs().get('pause_until', 0)
+        return until < 0 or until > utcnow().timestamp()
+
+    def pause_scheduled_downloads(self, duration: str) -> None:
+        if duration == 'hour':
+            until = (utcnow() + timedelta(hours=1)).timestamp()
+        elif duration == 'tomorrow':
+            until = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
+        else:
+            until = -1
+        sprefs()['pause_until'] = until
+        self.update_pause_menu()
+
+    def resume_scheduled_downloads(self) -> None:
+        with suppress(KeyError):
+            del sprefs()['pause_until']
+        self.update_pause_menu()
+        self.check()
+
+    def update_pause_menu(self) -> None:
+        paused = self.scheduled_downloads_paused()
+        self.pause_menu.setTitle(_('Scheduled downloads paused') if paused else _('Pause scheduled downloads'))
+        self.resume_action.setEnabled(paused)
+        if not paused:
+            text = _('Scheduled downloads are active')
+        elif (until := sprefs().get('pause_until', 0)) < 0:
+            text = _('Paused until resumed')
+        else:
+            text = _('Paused until {}').format(format_date(utcfromtimestamp(until), 'yyyy-MM-dd hh:mm'))
+        self.pause_status.setText(text)
 
     def populate_recent_menu(self):
         m: QMenu = self.recent_menu
@@ -834,11 +888,149 @@ class Scheduler(QObject):
         return True
 
     def check(self):
+        if self.scheduled_downloads_paused():
+            return
         recipes = self.recipe_model.get_to_be_downloaded_recipes()
         for urn in recipes:
             if not self.download(urn):
                 # No internet connection, we will try again in a minute
                 break
+
+
+def run_news_pause_menu_checks() -> list[str]:
+    # Keep QApplication out of the test runner process.
+    import unittest
+
+    result = unittest.TestResult()
+    find_tests(menu_checks=True).run(result)
+    return [tb for test, tb in result.errors + result.failures]
+
+
+def find_tests(menu_checks=False):
+    import os
+    import tempfile
+    import unittest
+    from datetime import UTC, datetime
+    from unittest.mock import call, patch
+    from zoneinfo import ZoneInfo
+
+    class NewsPauseTest(unittest.TestCase):
+        def setUp(self):
+            tdir = self.enterContext(tempfile.TemporaryDirectory())
+            self.prefs = JSONConfig('scheduler', base_path=tdir)
+            self.prefs_factory = self.enterContext(patch(__name__ + '.sprefs', return_value=self.prefs))
+            self.clock = self.enterContext(patch(__name__ + '.utcnow', return_value=datetime(2026, 10, 29, 12, tzinfo=UTC)))
+            self.scheduler = Scheduler.__new__(Scheduler)
+            QObject.__init__(self.scheduler)
+            self.scheduler.lock = QRecursiveMutex()
+            self.scheduler.download_queue = set()
+            self.enterContext(patch.object(self.scheduler, 'update_pause_menu'))
+            self.check = self.enterContext(patch.object(self.scheduler, 'check'))
+            self.download = self.enterContext(patch.object(self.scheduler, 'download', return_value=True))
+            self.model = self.enterContext(patch.object(self.scheduler, 'recipe_model', create=True))
+            self.model.get_to_be_downloaded_recipes.return_value = ('recipe:one', 'recipe:two')
+
+        def test_news_pause_blocks_automatic_downloads(self):
+            self.scheduler.pause_scheduled_downloads('hour')
+            self.assertEqual(self.prefs['pause_until'], self.clock.return_value.timestamp() + 3600)
+            Scheduler.check(self.scheduler)
+            self.model.get_to_be_downloaded_recipes.assert_not_called()
+            self.download.assert_not_called()
+            self.clock.return_value += timedelta(hours=1)
+            Scheduler.check(self.scheduler)
+            self.model.get_to_be_downloaded_recipes.assert_called_once_with()
+            self.assertEqual(self.download.call_args_list, [call('recipe:one'), call('recipe:two')])
+
+        def test_news_pause_persists(self):
+            for duration in ('hour', 'indefinitely'):
+                with self.subTest(duration=duration):
+                    self.scheduler.pause_scheduled_downloads(duration)
+                    restored = JSONConfig('scheduler', base_path=os.path.dirname(self.prefs.file_path))
+                    self.prefs_factory.return_value = restored
+                    self.assertTrue(self.scheduler.scheduled_downloads_paused())
+                    self.clock.return_value += timedelta(days=365)
+                    self.assertEqual(self.scheduler.scheduled_downloads_paused(), duration == 'indefinitely')
+                    self.prefs_factory.return_value = self.prefs
+
+        def test_news_pause_until_tomorrow(self):
+            tz = ZoneInfo('America/New_York')
+            for current, tomorrow in (
+                (datetime(2026, 11, 1, 0, 30, tzinfo=tz), datetime(2026, 11, 2, tzinfo=tz)),
+                (datetime(2026, 12, 31, 23, 45, tzinfo=tz), datetime(2027, 1, 1, tzinfo=tz)),
+            ):
+                with self.subTest(current=current), patch(__name__ + '.now', return_value=current):
+                    self.clock.return_value = current.astimezone(UTC)
+                    self.scheduler.pause_scheduled_downloads('tomorrow')
+                    self.assertEqual(self.prefs['pause_until'], tomorrow.timestamp())
+
+        def test_news_pause_manual_downloads(self):
+            self.scheduler.pause_scheduled_downloads('indefinitely')
+            self.model.scheduled_urns.return_value = ('recipe:one', 'recipe:two')
+            self.scheduler.download_all_scheduled()
+            self.assertEqual(self.download.call_args_list, [call('recipe:one'), call('recipe:two')])
+            with patch.object(self.scheduler, 'has_internet_connection', return_value=True), patch.object(self.scheduler, 'do_download') as start:
+                self.assertTrue(Scheduler.download(self.scheduler, 'recipe:manual'))
+                start.assert_called_once_with('recipe:manual')
+            self.assertTrue(self.scheduler.scheduled_downloads_paused())
+
+        def test_news_pause_resume(self):
+            self.prefs['history'] = [{'urn': 'recipe:one', 'title': 'One'}]
+            self.scheduler.download_queue.add('recipe:running')
+            self.scheduler.pause_scheduled_downloads('indefinitely')
+            self.assertEqual(self.scheduler.download_queue, {'recipe:running'})
+            self.scheduler.resume_scheduled_downloads()
+            self.assertFalse(self.scheduler.scheduled_downloads_paused())
+            self.check.assert_called_once_with()
+            self.assertNotIn('pause_until', JSONConfig('scheduler', base_path=os.path.dirname(self.prefs.file_path)))
+            self.assertEqual(self.prefs['history'], [{'urn': 'recipe:one', 'title': 'One'}])
+
+        def test_news_pause_download_failure(self):
+            self.download.return_value = False
+            Scheduler.check(self.scheduler)
+            self.download.assert_called_once_with('recipe:one')
+
+        def test_news_pause_menu(self):
+            from calibre.utils.ipc.simple_worker import fork_job
+
+            errors = fork_job(__name__, 'run_news_pause_menu_checks', no_output=True)['result']
+            if errors:
+                self.fail('\n'.join(errors))
+
+        def pause_menu_checks(self):
+            from calibre.gui2 import ensure_app
+
+            ensure_app()
+            parent = QWidget()
+            self.addCleanup(parent.deleteLater)
+            scheduler = Scheduler(parent)
+            scheduler.timer.stop()
+            self.addCleanup(scheduler.news_menu.deleteLater)
+            self.assertFalse(scheduler.resume_action.isEnabled())
+            self.assertEqual(scheduler.pause_menu.title(), _('Pause scheduled downloads'))
+            scheduler.pause_menu.actions()[2].trigger()
+            self.assertTrue(scheduler.scheduled_downloads_paused())
+            self.assertTrue(scheduler.resume_action.isEnabled())
+            self.assertEqual(scheduler.pause_menu.title(), _('Scheduled downloads paused'))
+            self.assertIn(format_date(utcfromtimestamp(self.prefs['pause_until']), 'yyyy-MM-dd hh:mm'), scheduler.pause_status.text())
+            with patch.object(scheduler.recipe_model, 'scheduled_urns', return_value=('recipe:manual',)), patch.object(scheduler, 'download') as download:
+                assert scheduler.all_action is not None
+                scheduler.all_action.trigger()
+                download.assert_called_once_with('recipe:manual')
+            with patch.object(scheduler, 'check') as check:
+                scheduler.resume_action.trigger()
+                check.assert_called_once_with()
+            self.assertFalse(scheduler.resume_action.isEnabled())
+            scheduler.pause_menu.actions()[4].trigger()
+            self.assertEqual(self.prefs['pause_until'], -1)
+            self.assertEqual(scheduler.pause_status.text(), _('Paused until resumed'))
+            self.prefs['pause_until'] = self.clock.return_value.timestamp() - 1
+            scheduler.news_menu.aboutToShow.emit()
+            self.assertFalse(scheduler.resume_action.isEnabled())
+            self.assertEqual(scheduler.pause_menu.title(), _('Pause scheduled downloads'))
+
+    if menu_checks:
+        return unittest.TestSuite([NewsPauseTest('pause_menu_checks')])
+    return unittest.TestLoader().loadTestsFromTestCase(NewsPauseTest)
 
 
 if __name__ == '__main__':
