@@ -653,17 +653,22 @@ class TestGrammar(unittest.TestCase):
 
         sclient = InProcessSuggestionWorker(backend, cache)
         sresponses: list[SuggestResponse] = []
-        sdone = Event()
+        fdone, sdone = Event(), Event()
 
         def on_suggest(r: SuggestResponse) -> None:
             sresponses.append(r)
+            if r.done and r.request_id == first:
+                fdone.set()
             if r.done and r.request_id == second:
                 sdone.set()
 
-        second = -1
+        first = second = -1
         backend.block.clear()
         first = sclient.suggest('slow sentence', on_suggest, kinds=('fluency',))
         second = sclient.suggest('quick sentence', on_suggest, kinds=('fluency', 'formal'))
+        # Keep the backend blocked until the first request is done, as it can
+        # only finish by being cancelled, then let the second request run
+        self.assertTrue(fdone.wait(10))
         backend.block.set()
         self.assertTrue(sdone.wait(10))
         by_id: dict[int, list[SuggestResponse]] = {}
