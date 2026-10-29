@@ -1085,7 +1085,16 @@ class SearchPanel(QWidget):  # {{{
 # }}}
 
 
-def find_tests():
+def run_search_scope_checks() -> list[str]:
+    # QApplication must stay in this worker, outside the test runner process.
+    import unittest
+
+    result = unittest.TestResult()
+    find_tests(scope_checks=True).run(result)
+    return [tb for test, tb in result.errors + result.failures]
+
+
+def find_tests(scope_checks=False):
     import unittest
     from unittest.mock import patch
 
@@ -1185,6 +1194,13 @@ def find_tests():
             self.assertFalse(results[0].is_result(other))
 
         def test_viewer_search_scope(self):
+            from calibre.utils.ipc.simple_worker import fork_job
+
+            errors = fork_job(__name__, 'run_search_scope_checks', no_output=True)['result']
+            if errors:
+                self.fail('\n'.join(errors))
+
+        def search_scope_checks(self):
             from calibre.gui2 import ensure_app
 
             ensure_app()
@@ -1221,4 +1237,6 @@ def find_tests():
             self.assertFalse(panel.search_scope.isEnabled())
             self.assertFalse(panel.search_scope.currentData())
 
+    if scope_checks:
+        return unittest.TestSuite([ViewerSearchTest('search_scope_checks')])
     return unittest.TestLoader().loadTestsFromTestCase(ViewerSearchTest)
