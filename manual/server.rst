@@ -191,6 +191,27 @@ multiple devices and it will remember your last read position. If it does not
 you can force a sync by tapping in the top quarter and choosing
 :guilabel:`Sync`.
 
+Reading comics in OPDS applications
+------------------------------------
+
+Applications that support OPDS 2.0 and the `Readium Divina format
+<https://readium.org/webpub-manifest/profiles/divina>`_ can read CBZ comics one
+page at a time, without downloading the entire archive. Connect the application
+to the server's ``/opds`` catalog. OPDS 2.0 applications request the JSON catalog
+using ``Accept: application/opds+json``.
+
+Comic entries link to a Divina manifest. The server lists pages only when the
+application opens that manifest, using the same page order as calibre's comic
+conversion. Each page offers its original image format, including AVIF and
+JPEG XL, and alternate formats the server can produce. The application chooses
+an image format it supports from those links. JPEG is offered as the default
+for AVIF and JPEG XL pages when conversion is available.
+
+The normal username/password and library restrictions apply to manifests and
+page images. Complete archive downloads remain available. This feature supports
+CBZ archives; CBR and CB7 comics can still be downloaded as complete files.
+
+
 Browser support
 ------------------
 

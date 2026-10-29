@@ -47,6 +47,7 @@ class Group(NamedTuple):
 
 
 OPDS2_MIME: str = 'application/opds+json'
+DIVINA_MIME: str = 'application/divina+json'
 
 
 def accepts_opds2(rd: RequestData) -> bool:
@@ -626,8 +627,7 @@ def opds2_category_group_feed(
     return ans
 
 
-def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str, Any]:
-    mi = request_context.db.get_metadata(book_id)
+def opds2_metadata(mi: Metadata, request_context: RequestContext) -> dict[str, Any]:
     metadata: dict[str, Any] = {
         '@type': 'http://schema.org/Book',
         'title': mi.title,
@@ -647,6 +647,11 @@ def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str
         metadata['belongsTo'] = {'series': {'name': mi.series, 'position': mi.series_index}}
     if extra := acquisition_extra(mi, request_context):
         metadata['description'] = '\n'.join(extra)
+    return metadata
+
+
+def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str, Any]:
+    mi = request_context.db.get_metadata(book_id)
 
     def get(**kwargs: Any) -> str:
         return request_context.ctx.url_for('/get', book_id=book_id, library_id=request_context.library_id, **kwargs)
@@ -656,7 +661,15 @@ def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str
         fmt = fmt.lower()
         if mt := format_mime_type(fmt):
             links.append({'rel': 'http://opds-spec.org/acquisition', 'href': get(what=fmt), 'type': mt})
-    ans: dict[str, Any] = {'metadata': metadata, 'links': links}
+    if 'CBZ' in (mi.formats or ()):
+        # Only link to the manifest here. Listing a feed must not open archives
+        # to find page counts or image formats.
+        links.append({
+            'rel': 'http://opds-spec.org/acquisition',
+            'href': request_context.url_for('/comic-manifest', book_id=book_id),
+            'type': DIVINA_MIME,
+        })
+    ans: dict[str, Any] = {'metadata': opds2_metadata(mi, request_context), 'links': links}
     if mi.has_cover:
         ans['images'] = [{'href': get(what='cover'), 'type': 'image/jpeg'}, {'href': get(what='thumb'), 'type': 'image/jpeg'}]
     return ans
@@ -695,8 +708,8 @@ class RequestContext:
     rd: RequestData
     is_opds2: bool
 
-    def __init__(self, ctx: Context, rd: RequestData) -> None:
-        self.db, self.library_id, self.library_map, self.default_library = get_library_data(ctx, rd)
+    def __init__(self, ctx: Context, rd: RequestData, strict_library_id: bool = False) -> None:
+        self.db, self.library_id, self.library_map, self.default_library = get_library_data(ctx, rd, strict_library_id=strict_library_id)
         self.ctx, self.rd = ctx, rd
         self.is_opds2 = accepts_opds2(rd)
 
