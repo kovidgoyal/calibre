@@ -719,6 +719,181 @@ class TestGrammar(unittest.TestCase):
         issues = rc.check(text, 'en', RuleOptions(disabled_rules=('HE_VERB_AGR',), disabled_categories=('MISC',)))
         self.assertEqual([i.rule_id for i in issues], ['BASE_FORM'])
 
+    def test_grammar_markup_extraction(self):
+        from html import unescape
+
+        from calibre.utils.grammar.markup import PLACEHOLDER, extract_paragraphs
+
+        def texts(source: str, default_lang: str = '') -> list[str]:
+            return [p.text for p in extract_paragraphs(source, default_lang)]
+
+        def check_mapping(source: str) -> None:
+            # Every character of the text comes from the source
+            for p in extract_paragraphs(source):
+                self.assertEqual(len(p.text), len(p.source_starts))
+                self.assertEqual(len(p.text), len(p.source_ends))
+                self.assertEqual(len(p.text), len(p.segments))
+                for c, a, b in zip(p.text, p.source_starts, p.source_ends):
+                    raw = source[a:b]
+                    if c == ' ':
+                        self.assertFalse(unescape(raw).strip(), raw)
+                    elif c == '\n':
+                        self.assertTrue(raw.startswith('<br'), raw)
+                    elif c == PLACEHOLDER:
+                        self.assertTrue(raw.startswith('<'), raw)
+                    else:
+                        self.assertEqual(unescape(raw), c, raw)
+
+        # Blocks delimit paragraphs, inline elements are transparent and
+        # whitespace is collapsed
+        src = (
+            '<html><head><title>Title</title><style>p { x: y }</style></head><body>\n<h1>A  Title</h1>\n'
+            '<p>One <b>bold</b>\n   <i>it</i>al<span>ic</span>.</p><div>Before <p>Inside</p> after</div></body></html>'
+        )
+        self.assertEqual(texts(src), ['A Title', 'One bold italic.', 'Before', 'Inside', 'after'])
+        check_mapping(src)
+        # Character references are decoded, invisible characters dropped and
+        # line breaks kept
+        src = '<p>AT&amp;T&#x2019;s &copy; &lt;x&gt; hy­phen&shy;ation &nbsp;two<br/>line   <br>  three<br/></p>'
+        self.assertEqual(texts(src), ['AT&T’s © <x> hyphenation \xa0two\nline\nthree'])
+        check_mapping(src)
+        # Excluded elements, placeholders, ruby annotations and note references
+        src = (
+            '<body><p>Code: <code>f()</code>, math <math><mi>x</mi><math>y</math></math> end'
+            '<sup><a epub:type="noteref" href="#n1">1</a></sup>. <ruby>漢<rt>kan</rt></ruby></p>'
+            '<pre>not <b>checked</b></pre><script>if (a<b) x();</script><p>Last</p></body>'
+        )
+        self.assertEqual(texts(src), [f'Code: f(), math {PLACEHOLDER} end. 漢', 'Last'])
+        check_mapping(src)
+        p = extract_paragraphs(src)[0]
+        self.assertEqual([p.text[a:b] for a, b in p.ignore_ranges], ['f()', PLACEHOLDER])
+        # Languages
+        src = (
+            '<html lang="en"><body><p>Some <i lang="fr">je ne sais quoi</i> and <span lang="en-GB">colour</span>.</p>'
+            '<p xml:lang="de">Ein Satz.</p><p>Plain</p></body></html>'
+        )
+        ps = extract_paragraphs(src, 'es')
+        self.assertEqual([p.lang for p in ps], ['en', 'de', 'en'])
+        self.assertEqual([ps[0].text[a:b] for a, b in ps[0].ignore_ranges], ['je ne sais quoi'])
+        self.assertEqual([p.lang for p in extract_paragraphs('<p>x</p>', 'es')], ['es'])
+        # Malformed markup
+        src = '<html><head><title>x</title><body><p>Unclosed <i>italic <b>bold</p><p>Stray </span>end</i> tag < 3 &bogus; & more'
+        self.assertEqual(texts(src), ['Unclosed italic bold', 'Stray end tag < 3 &bogus; & more'])
+        check_mapping(src)
+        # Paragraphs without words are omitted
+        self.assertEqual(texts('<p>  </p><p>...</p><p>1</p>'), ['1'])
+        # Very long paragraphs are split at line breaks
+        line = 'This is a line of text. ' * 10
+        ps = texts('<p>' + '<br/>'.join([line] * 50) + '</p>')
+        self.assertGreater(len(ps), 1)
+        self.assertEqual('\n'.join(ps), '\n'.join([line.strip()] * 50))
+        # Non-BMP characters
+        src = '<p>An 😀 <b>emoji</b> 😀.</p>'
+        p = extract_paragraphs(src)[0]
+        self.assertEqual(p.text, 'An 😀 emoji 😀.')
+        check_mapping(src)
+        self.assertEqual([src[a:b] for a, b in p.source_ranges(0, len(p.text))], ['An 😀 ', 'emoji', ' 😀.'])
+
+    def test_grammar_markup_edits(self):
+        from calibre.utils.grammar.markup import EditNotPossible, SourceEdit, apply_source_edits, extract_paragraphs, source_edits, visible_issues
+
+        def edit(source: str, *edits: tuple[str, str], occurrence: int = 0) -> str:
+            p = extract_paragraphs(source)[0]
+            es = []
+            for old, new in edits:
+                start = p.text.index(old)
+                es.append(Edit(start, start + len(old), new))
+            ans = apply_source_edits(source, source_edits(p, es))
+            # The text of the edited source is the edited text
+            self.assertEqual(extract_paragraphs(ans)[0].text, apply_edits(p.text, es))
+            return ans
+
+        # Edits inside a single element keep the markup
+        self.assertEqual(edit('<p>She <i>go</i> to school.</p>', ('go', 'went')), '<p>She <i>went</i> to school.</p>')
+        self.assertEqual(edit('<p>We <span style="color:red">goes</span>.</p>', ('goes', 'go')), '<p>We <span style="color:red">go</span>.</p>')
+        # Formatting elements whose text is deleted are removed
+        self.assertEqual(edit('<p>Despite <b>of</b> the rain.</p>', ('Despite of', 'Despite')), '<p>Despite the rain.</p>')
+        self.assertEqual(edit('<p>Despite <b><i>of</i></b> the rain.</p>', ('Despite of', 'Despite')), '<p>Despite the rain.</p>')
+        # but not elements with an id or other content, or links
+        self.assertEqual(edit('<p>Despite <b id="x">of</b> the rain.</p>', ('Despite of', 'Despite')), '<p>Despite<b id="x"></b> the rain.</p>')
+        self.assertEqual(edit('<p>Despite <b>of<img src="x"/></b> the.</p>', ('Despite of', 'Despite')), '<p>Despite<b><img src="x"/></b> the.</p>')
+        self.assertEqual(edit('<p>Despite <a href="x">of</a> the.</p>', ('Despite of', 'Despite')), '<p>Despite<a href="x"></a> the.</p>')
+        # Only the changed characters are replaced, keeping markup on the rest of a word
+        self.assertEqual(edit('<p><b>Th</b>eir going.</p>', ('Their', 'They')), '<p><b>Th</b>ey going.</p>')
+        # Words are aligned, so each keeps its formatting
+        self.assertEqual(edit('<p>a <b>big</b> <i>red</i> car</p>', ('big red', 'small blue')), '<p>a <b>small</b> <i>blue</i> car</p>')
+        # Changes spanning elements put the new text in the first element
+        self.assertEqual(edit('<p>a <b>big</b> <i>red</i> car</p>', ('big red', 'blue')), '<p>a <b>blue</b> car</p>')
+        # Insertions at a boundary go into the preceding element
+        self.assertEqual(edit('<p><b>Yes</b> I know.</p>', ('Yes', 'Yes,')), '<p><b>Yes,</b> I know.</p>')
+        self.assertEqual(edit('<p>I have <i>dog</i>.</p>', ('dog', 'a dog')), '<p>I have a <i>dog</i>.</p>')
+        # Special characters are escaped and character references handled
+        self.assertEqual(edit('<p>AT&amp;T is <b>here</b>.</p>', ('here', 'big & <bold>')), '<p>AT&amp;T is <b>big &amp; &lt;bold&gt;</b>.</p>')
+        self.assertEqual(edit('<p>AT&amp;T inc.</p>', ('AT&T inc', 'AT&T Inc')), '<p>AT&amp;T Inc.</p>')
+        self.assertEqual(edit('<p>One\n    two  three.</p>', ('two three', 'two, three')), '<p>One\n    two,  three.</p>')
+        # Several edits at once, for example a rewritten sentence
+        self.assertEqual(
+            edit('<p>She <i>go</i> to <b>school</b> and buyed apple.</p>', ('go', 'went'), ('buyed', 'bought'), ('apple', 'apples')),
+            '<p>She <i>went</i> to <b>school</b> and bought apples.</p>',
+        )
+        self.assertEqual(edit('<p>An 😀 <b>emoji</b> 😀 here.</p>', ('emoji', 'emojis')), '<p>An 😀 <b>emojis</b> 😀 here.</p>')
+        # Text that must not be changed
+        src = '<p>Call <code>foo()</code> now, <i lang="fr">je sais</i> it<br/>works.</p>'
+        p = extract_paragraphs(src, 'en')[0]
+
+        def change(old: str, new: str) -> None:
+            start = p.text.index(old)
+            source_edits(p, (Edit(start, start + len(old), new),))
+
+        for old in ('foo', 'Call foo', 'sais', 'it\nworks'):
+            with self.assertRaises(EditNotPossible, msg=old):
+                change(old, 'x')
+        # Insertions next to unchangeable text go outside it
+        self.assertEqual(edit(src, ('foo() now', 'foo(), now')), src.replace('</code> now', '</code>, now'))
+        self.assertEqual(edit(src, ('Call', 'Call the')), src.replace('Call', 'Call the'))
+        issues = [bad_word_issue(5, 8), bad_word_issue(0, 4), bad_word_issue(15, 17)]
+        self.assertEqual(visible_issues(p, issues), [issues[1]])
+        with self.assertRaises(EditNotPossible):
+            apply_source_edits('abc', [SourceEdit(0, 2, 'x'), SourceEdit(1, 3, 'y')])
+
+    def test_grammar_markup_random_edits(self):
+        import random
+
+        from calibre.utils.grammar.markup import EditNotPossible, apply_source_edits, extract_paragraphs, source_edits
+
+        rng = random.Random(1234)
+        words = ['the', 'cat', 'sat', 'on', 'a', 'mat', 'AT&amp;T', 'café', '😀', 'don’t', 'big', 'red']
+        wrappers = ['<b>{}</b>', '<i>{}</i>', '<span style="color:red">{}</span>', '<b><i>{}</i></b>', '<a href="#x">{}</a>', '{}', '{}', '{}']
+        replacements = ['', 'x', 'new words', 'A & B', ',', ' ', 'the', 'Dog']
+        checked = 0
+        for trial in range(300):
+            parts = []
+            for i in range(rng.randint(3, 12)):
+                w = ' '.join(rng.choice(words) for j in range(rng.randint(1, 3)))
+                parts.append(rng.choice(wrappers).format(w))
+            source = '<p>' + rng.choice(['', '  ', '\n']).join(' '.join(parts).split(' ')) + '.</p>'
+            p = extract_paragraphs(source)[0]
+            n = len(p.text)
+            edits: list[Edit] = []
+            pos = 0
+            for k in range(rng.randint(1, 3)):
+                if pos >= n:
+                    break
+                start = rng.randint(pos, n - 1)
+                end = rng.randint(start, min(n, start + 15))
+                edits.append(Edit(start, end, rng.choice(replacements)))
+                pos = end + 1
+            try:
+                result = apply_source_edits(source, source_edits(p, edits))
+            except EditNotPossible:
+                continue
+            expected = ' '.join(apply_edits(p.text, edits).split())
+            after = extract_paragraphs(result)
+            actual = ' '.join(after[0].text.split()) if after else ''
+            self.assertEqual(actual, expected.strip(), f'{source!r} with {edits}')
+            checked += 1
+        self.assertGreater(checked, 250)
+
     def test_grammar_backend(self):
         from calibre.utils.grammar.models import is_downloaded
 
