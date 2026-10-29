@@ -5,12 +5,15 @@ import os
 import sys
 
 from calibre import prints
+from calibre.db import FTSQueryError
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.html2text import html2text
 from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
+CONTROL_CHARS = tuple(range(32)) + tuple(range(127, 160))
 
 
 def unsupported_field_error(db, field):
@@ -38,6 +41,25 @@ def import_note_data(db, field, item_id, html):
 
 def implementation(db, notify_changes, action, *args):
     is_remote = notify_changes is not None
+    if action == 'search':
+        query, field = args
+        # Searching notes needs an exclusive lock. Keep it until the item names
+        # are read as well, so that items cannot be renamed or removed in between.
+        with db.quiet_write_lock:
+            if field is not None and not db.field_supports_notes(field):
+                return False, unsupported_field_error(db, field)
+            try:
+                results = db._search_notes(
+                    query,
+                    restrict_to_fields=(field,) if field is not None else (),
+                    highlight_start='',
+                    highlight_end='',
+                    snippet_size=32,
+                )
+            except FTSQueryError as err:
+                return False, str(err)
+            ans = [(r['field'], db._get_item_name(r['field'], r['item_id']), r['text']) for r in results]
+        return True, ans
     if action == 'list':
         field = args[0] if args else None
         with db.safe_read_lock:
@@ -79,7 +101,7 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog notes [options] (list|show|set|remove)
+%prog notes [options] (list|search|show|set|remove)
 
 Manage the notes attached to items such as authors, series, tags and
 publishers. FIELD is the lookup name of the field, for example: authors,
@@ -89,6 +111,13 @@ example the name of an author. Items are matched case insensitively.
 List the items that have notes, optionally only those in the specified field:
 
 %prog notes list [FIELD]
+
+Search the text of notes using the same SQLite full text search syntax as
+the Browse notes tool in calibre. Print the field, item name and an excerpt
+for each match. Use --field to search only the notes in a particular field:
+
+%prog notes search "search expression"
+%prog notes search --field authors "search expression"
 
 Print the note for an item as Markdown formatted text, or with --as-html as
 an HTML document with any images embedded, suitable for use with set:
@@ -110,6 +139,11 @@ Remove the note for an item:
         )
     )
     parser.add_option(
+        '--field',
+        default=None,
+        help=_('When searching notes, restrict the search to this field, for example: authors, tags or #mycolumn'),
+    )
+    parser.add_option(
         '--as-html',
         default=False,
         action='store_true',
@@ -127,8 +161,20 @@ def run(dbctx, *args):
 
 def main(opts, args, dbctx):
     if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: (list|show|set|remove)'))
+        raise SystemExit(_('Error: You must specify an action, one of: (list|search|show|set|remove)'))
     action, args = args[0], args[1:]
+    if opts.field is not None and action != 'search':
+        raise SystemExit(_('Error: The --field option can only be used with search'))
+    if action == 'search':
+        if len(args) != 1 or not args[0].strip():
+            raise SystemExit(_('Error: You must specify one non-empty search expression'))
+        if opts.as_html:
+            raise SystemExit(_('Error: The --as-html option cannot be used with search'))
+        for field, item_name, text in run(dbctx, 'search', args[0], opts.field):
+            # Keep each result on one line and remove terminal control characters.
+            fields = [clean_ascii_chars(' '.join(x.split()), CONTROL_CHARS) for x in (field, item_name or '', text)]
+            prints('\t'.join(fields))
+        return 0
     if action == 'list':
         if len(args) > 1:
             raise SystemExit(_('Error: You can specify at most one field to list'))
@@ -136,7 +182,7 @@ def main(opts, args, dbctx):
             prints(f'{field}: {item_name}')
         return 0
     if action not in ('show', 'set', 'remove'):
-        raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|show|set|remove)').format(action))
+        raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|search|show|set|remove)').format(action))
     if len(args) < 2:
         raise SystemExit(_('Error: You must specify a field and the name of an item'))
     if action == 'set' and len(args) < 3:

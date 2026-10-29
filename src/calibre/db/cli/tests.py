@@ -11,6 +11,7 @@ import os
 import shutil
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from functools import partial
 from io import StringIO
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
@@ -174,7 +175,7 @@ class NotesTest(BaseTest):
                 self.is_remote = is_remote
 
             def run(self, name, *args):
-                return implementation(db, None, *args)
+                return implementation(db, (lambda *a: None) if self.is_remote else None, *args)
 
         dbctx = DBCtx(is_remote)
         opts, args = option_parser(get_parser, []).parse_args(list(args))
@@ -218,6 +219,52 @@ class NotesTest(BaseTest):
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_notes(db, *args)
+
+    def test_notes_search(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        author_id = db.get_item_id('authors', 'Author One')
+        tag_id = db.get_item_id('tags', 'Tag One')
+        db.set_notes_for('authors', author_id, '<p>Historical fiction from Poland</p>', searchable_text='Historical fiction from Poland')
+        db.set_notes_for('tags', tag_id, '<p>Historical fiction from France</p>', searchable_text='Historical fiction from France')
+        db.set_field('#tags', {1: ('Research One',)})
+        item_id = db.get_item_id('#tags', 'Research One')
+        db.set_notes_for('#tags', item_id, '<p>Historical fiction from Japan</p>', searchable_text='Historical fiction from Japan')
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                search = partial(self.run_notes, db, 'search', is_remote=is_remote)
+                lines = {tuple(line.split('\t')) for line in search('historical').splitlines()}
+                self.assertEqual(
+                    lines,
+                    {
+                        ('authors', 'Author One', 'Author One Historical fiction from Poland'),
+                        ('tags', 'Tag One', 'Tag One Historical fiction from France'),
+                        ('#tags', 'Research One', 'Research One Historical fiction from Japan'),
+                    },
+                )
+                self.assertEqual(search('--field', 'authors', 'historical'), 'authors\tAuthor One\tAuthor One Historical fiction from Poland\n')
+                self.assertEqual(search('--field', '#tags', 'historical'), '#tags\tResearch One\tResearch One Historical fiction from Japan\n')
+                self.assertEqual(search('historical AND Poland'), 'authors\tAuthor One\tAuthor One Historical fiction from Poland\n')
+                self.assertEqual(search('"fiction from"'), search('historical'))
+                self.assertEqual(search('unmatched'), '')
+                self.assertEqual(search('--field', 'series', 'historical'), '')
+                for args, msg in (
+                    ((), 'one non-empty search expression'),
+                    (('',), 'one non-empty search expression'),
+                    ((' ',), 'one non-empty search expression'),
+                    (('one', 'two'), 'one non-empty search expression'),
+                    (('"',), 'Failed to parse search query'),
+                    (('--field', 'title', 'historical'), 'does not support notes'),
+                    (('--field', '#missing', 'historical'), 'does not support notes'),
+                    (('--as-html', 'historical'), 'cannot be used with search'),
+                ):
+                    with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                        search(*args)
+        with self.assertRaisesRegex(SystemExit, 'only be used with search'):
+            self.run_notes(db, 'list', '--field', 'authors')
+        db.set_notes_for('authors', author_id, 'terminal', searchable_text='terminal\x1b[31m\x9b with\nnewlines\tand tabs')
+        output = self.run_notes(db, 'search', 'terminal')
+        self.assertEqual(output, 'authors\tAuthor One\tAuthor One terminal[31m with newlines and tabs\n')
 
     def test_notes_server_side_import(self):
         from calibre.db.cli.cmd_notes import implementation
