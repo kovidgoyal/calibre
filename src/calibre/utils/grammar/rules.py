@@ -12,11 +12,11 @@ import os
 from collections import OrderedDict
 from collections.abc import Callable, Sequence
 from functools import lru_cache
-from threading import Event, Lock
+from threading import Event, Lock, local
 from types import ModuleType
 from typing import Literal, NamedTuple, Protocol, cast
 
-from calibre.utils.grammar.models import DownloadAborted
+from calibre.utils.grammar.models import DownloadAborted, Readable
 
 # Increment when changes to this module change the results of checks, so that
 # cached results are discarded
@@ -102,9 +102,9 @@ class LTTool(Protocol):
     def disable_category(self, category_id: str) -> None: ...
 
 
-class LTSource(NamedTuple):
-    size: int
-    names: tuple[str, ...]
+class LTDownloadProgress(Protocol):
+    batch_received: int
+    batch_total: int
 
 
 # }}}
@@ -127,6 +127,8 @@ def get_langtool() -> ModuleType:
     with _configure_lock:
         if not _configured:
             langtool.set_cache_dir(langtool_cache_dir())
+            langtool.set_url_opener(open_url)
+            langtool.set_download_hook(download_hook)
             _configured = True
     return langtool
 
@@ -176,43 +178,32 @@ def code_for(lang: str | None) -> str:
 
 
 # Downloading {{{
-# TODO: Use the progress hook, url opener and downloads_needed()/is_ready() APIs
-# once they are available in langtool, instead of its internals
+
+# The progress callback of the download in progress in each thread
+_download_state = local()
 
 
-def resource_language(code: str) -> str:
-    lt = get_langtool()
-    rl = lt.get_language(code).definition.get('resource_language') or code
-    return str(rl).split('-')[0]
+def download_hook(p: LTDownloadProgress) -> None:
+    # Called by langtool, in the thread that downloads, for all downloads
+    progress = cast('Callable[[int, int], None] | None', getattr(_download_state, 'progress', None))
+    if progress is not None:
+        progress(p.batch_received, p.batch_total)
 
 
-def pending_downloads(lang: str | None) -> list[LTSource]:
-    from langtool import dictionaries
+def open_url(url: str) -> Readable:
+    from calibre import browser
 
-    get_langtool()
-    base = resource_language(code_for(lang))
-    sources: list[dict[str, object]] = dictionaries.manifest()['languages'].get(base) or []
-    cdir = str(dictionaries.cache_dir())
-    ans = []
-    for src in sources:
-        files = cast('list[dict[str, object]]', src['files'])
-        names = tuple(str(f['name']) for f in files)
-        if not all(os.path.exists(str(dictionaries.join_name(cdir, n))) for n in names):
-            ans.append(LTSource(int(cast('int', src['size'])), names))
-    return ans
+    return cast('Readable', browser().open_novisit(url, timeout=60))
 
 
 def download_size(lang: str | None) -> int:
     """The number of bytes that need to be downloaded before the language can be checked"""
-    return sum(s.size for s in pending_downloads(lang))
+    return int(get_langtool().download_size(code_for(lang)))
 
 
 def is_language_data_downloaded(lang: str | None) -> bool:
     """True if checking the language needs no downloads. Raises UnsupportedRulesLanguage for unsupported languages."""
-    from langtool import dictionaries
-
-    get_langtool()
-    return bool(dictionaries.is_available(resource_language(code_for(lang))))
+    return bool(get_langtool().is_ready(code_for(lang)))
 
 
 def download_language_data(lang: str | None, progress: Callable[[int, int], None] | None = None, abort: Event | None = None) -> None:
@@ -221,20 +212,17 @@ def download_language_data(lang: str | None, progress: Callable[[int, int], None
     (bytes received, total bytes to download). Raises DownloadAborted if abort
     is set during the download.
     """
+    from langtool import DownloadAborted as LTDownloadAborted
+
     lt = get_langtool()
     code = code_for(lang)
-    total = download_size(lang)
-    file_sizes: dict[str, int] = {}
-
-    def on_progress(url: str, received: int, file_total: int) -> None:
-        if abort is not None and abort.is_set():
-            # langtool removes the partially downloaded file when the callback raises
-            raise DownloadAborted(f'Download of {url} was aborted')
-        file_sizes[url] = received
-        if progress is not None:
-            progress(min(total, sum(file_sizes.values())), total)
-
-    lt.download_dictionaries(code, progress=on_progress)
+    _download_state.progress = progress
+    try:
+        lt.download_dictionaries(code, abort=abort)
+    except LTDownloadAborted as e:
+        raise DownloadAborted(str(e)) from e
+    finally:
+        _download_state.progress = None
 
 
 # }}}
