@@ -377,6 +377,10 @@ class Backend:
                 m = self.models[model_id] = LoadedModel(model_id, self.gpu_mode, self.num_threads)
             return m
 
+    def load(self, model_id: str) -> None:
+        """Load the model if it is not already loaded. Raises ModelNotDownloaded if it has not been downloaded."""
+        self.model(model_id)
+
     def unload(self, model_id: str = '') -> None:
         with self.lock:
             if model_id:
@@ -433,6 +437,31 @@ class Backend:
             return CheckResult(ps.original, True, (), ps.original, score)
         oe = ps.to_original(edits)
         return CheckResult(ps.original, False, oe, apply_edits(ps.original, oe), score)
+
+    def score_corrections(self, sentence: str, corrections: Sequence[str], lang: str | None = None, model_id: str = '') -> list[float | None]:
+        """
+        Return the log probability the checking model gives to correcting the
+        sentence into each of the corrections, higher is better. The score is
+        None for corrections that could not be scored because they are too
+        long.
+        """
+        lm = self.model(model_id or self.model_id_for('check', lang))
+        prompt = lm.md['prompts']['check']
+        ps = lm.prepare(sentence)
+        if not lm.fits(ps):
+            return [None] * len(corrections)
+        input_ids = lm.input_ids(prompt, ps.text)
+        ans: list[float | None] = []
+        for c in corrections:
+            target_ids = lm.tokenizer.encode_ids(c.strip())
+            if len(target_ids) > lm.md['max_length']:
+                ans.append(None)
+                continue
+            # Scored one at a time for the same reason as in check_sentences()
+            with lm.lock:
+                logprobs, best = lm.model.score([(input_ids, target_ids)])[0]
+            ans.append(sum(logprobs))
+        return ans
 
     def suggest(
         self,

@@ -2,8 +2,9 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 # A cache of the results of grammar checks and suggestions, so that unchanged
-# sentences are not checked again. Results are kept in memory and in an SQLite
-# database in the calibre cache directory, so they persist across restarts.
+# paragraphs and sentences are not checked again. Results are kept in memory
+# and in an SQLite database in the calibre cache directory, so they persist
+# across restarts.
 
 import hashlib
 import json
@@ -18,8 +19,10 @@ from typing import TypedDict
 
 import apsw
 
-from calibre.utils.grammar.backend import ALGORITHM_VERSION, CheckResult, Edit, Suggestion
+from calibre.utils.grammar.backend import ALGORITHM_VERSION, Edit, Suggestion
+from calibre.utils.grammar.checker import ParagraphResult
 from calibre.utils.grammar.models import variant_files
+from calibre.utils.grammar.rules import Issue, IssueSource
 
 DEFAULT_MAX_ENTRIES = 250_000
 DEFAULT_MEMORY_ENTRIES = 20_000
@@ -38,11 +41,24 @@ CREATE INDEX IF NOT EXISTS results_atime ON results (atime);
 '''
 
 
-class SerializedCheck(TypedDict):
-    correct: bool
-    edits: list[tuple[int, int, str]]
-    score: float
-    skipped: bool
+class SerializedIssue(TypedDict):
+    start: int
+    end: int
+    replacements: list[str]
+    message: str
+    short_message: str
+    rule_id: str
+    category: str
+    issue_type: str
+    url: str
+    source: str
+
+
+class SerializedParagraph(TypedDict):
+    sentences: list[tuple[int, int]]
+    issues: list[SerializedIssue]
+    deep_checked: bool
+    ranked: bool
 
 
 class SerializedSuggestion(TypedDict):
@@ -61,17 +77,58 @@ def cache_key(model_key: str, task: str, sentence: str) -> bytes:
     return hashlib.sha256(f'{model_key}\0{task}\0{sentence}'.encode('utf-8', 'surrogatepass')).digest()[:20]
 
 
-def serialize_check(r: CheckResult) -> str:
-    d: SerializedCheck = {'correct': r.correct, 'edits': [tuple(e) for e in r.edits], 'score': r.score, 'skipped': r.skipped}
+def serialize_paragraph(r: ParagraphResult) -> str:
+    d: SerializedParagraph = {
+        'sentences': [(s, e) for s, e in r.sentences],
+        'issues': [
+            {
+                'start': i.start,
+                'end': i.end,
+                'replacements': list(i.replacements),
+                'message': i.message,
+                'short_message': i.short_message,
+                'rule_id': i.rule_id,
+                'category': i.category,
+                'issue_type': i.issue_type,
+                'url': i.url,
+                'source': i.source,
+            }
+            for i in r.issues
+        ],
+        'deep_checked': r.deep_checked,
+        'ranked': r.ranked,
+    }
     return json.dumps(d, ensure_ascii=False)
 
 
-def deserialize_check(sentence: str, raw: str) -> CheckResult:
-    from calibre.utils.grammar.backend import apply_edits
-
-    d: SerializedCheck = json.loads(raw)
-    edits = tuple(Edit(int(s), int(e), str(r)) for s, e, r in d['edits'])
-    return CheckResult(sentence, bool(d['correct']), edits, apply_edits(sentence, edits), float(d['score']), bool(d['skipped']))
+def deserialize_paragraph(text: str, raw: str) -> ParagraphResult:
+    d: SerializedParagraph = json.loads(raw)
+    issues = []
+    for i in d['issues']:
+        source: IssueSource
+        match i['source']:
+            case 'rules':
+                source = 'rules'
+            case 'model':
+                source = 'model'
+            case x:
+                raise ValueError(f'Unknown issue source: {x}')
+        issues.append(
+            Issue(
+                int(i['start']),
+                int(i['end']),
+                tuple(str(x) for x in i['replacements']),
+                str(i['message']),
+                str(i['short_message']),
+                str(i['rule_id']),
+                str(i['category']),
+                str(i['issue_type']),
+                str(i['url']),
+                source,
+            )
+        )
+    sentences = tuple((int(s), int(e)) for s, e in d['sentences'])
+    return ParagraphResult(text, sentences, tuple(issues), bool(d['deep_checked']), bool(d['ranked']))
 
 
 def serialize_suggestions(suggestions: Sequence[Suggestion]) -> str:
@@ -212,23 +269,21 @@ class ResultCache:
                 self.puts_since_prune = 0
                 self.prune()
 
-    def get_check_results(self, model_key: str, sentences: Sequence[str]) -> dict[int, CheckResult]:
-        """Return a map of the index of each sentence that is in the cache to its result"""
-        keys = [cache_key(model_key, 'check', s) for s in sentences]
+    def get_paragraph_results(self, checker_key: str, paragraphs: Sequence[str]) -> dict[int, ParagraphResult]:
+        """Return a map of the index of each paragraph that is in the cache to its result"""
+        keys = [cache_key(checker_key, 'check', p) for p in paragraphs]
         found = self.get_many(keys)
-        ans: dict[int, CheckResult] = {}
-        for i, (s, k) in enumerate(zip(sentences, keys)):
+        ans: dict[int, ParagraphResult] = {}
+        for i, (p, k) in enumerate(zip(paragraphs, keys)):
             if (raw := found.get(k)) is not None:
                 try:
-                    ans[i] = deserialize_check(s, raw)
+                    ans[i] = deserialize_paragraph(p, raw)
                 except (ValueError, KeyError, TypeError) as e:
                     print(f'Ignoring invalid entry in the grammar results cache: {e}', file=sys.stderr)
         return ans
 
-    def set_check_results(self, model_key: str, results: Iterable[CheckResult]) -> None:
-        # Skipped results are not cached as they may succeed next time, for
-        # example, if they were skipped because they were aborted
-        self.set_many((cache_key(model_key, 'check', r.sentence), serialize_check(r)) for r in results if not r.skipped)
+    def set_paragraph_results(self, checker_key: str, results: Iterable[ParagraphResult]) -> None:
+        self.set_many((cache_key(checker_key, 'check', r.text), serialize_paragraph(r)) for r in results)
 
     def suggestions_task(self, kinds: Sequence[str], count: int, num_beams: int) -> str:
         return f'suggest:{",".join(kinds)}:{count}:{num_beams}'

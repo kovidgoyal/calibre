@@ -5,7 +5,7 @@
 # background. Checks and suggestions use separate workers so that slow
 # suggestions never delay checking. Requests and responses are sent over a
 # pair of pipes. Results are cached in the parent process, so unchanged
-# sentences are never sent to the worker.
+# paragraphs and sentences are never sent to the worker.
 
 import subprocess
 import sys
@@ -19,10 +19,19 @@ from threading import Lock, Thread
 from typing import NamedTuple, Protocol, Self
 
 from calibre.constants import iswindows
-from calibre.utils.grammar.backend import DEFAULT_ERROR_THRESHOLD, Backend, CheckResult, ModelNotDownloaded, Suggestion, SuggestionsAborted, UnsupportedLanguage
+from calibre.utils.grammar.backend import Backend, ModelNotDownloaded, Suggestion, SuggestionsAborted, UnsupportedLanguage
 from calibre.utils.grammar.cache import ResultCache, model_cache_key
+from calibre.utils.grammar.checker import CHECKER_VERSION, DEFAULT_CHECK_OPTIONS, Checker, CheckOptions, ParagraphResult
 from calibre.utils.grammar.gpu import DEFAULT_GPU_MODE, GpuMode
-from calibre.utils.grammar.models import Task, canonical_lang, default_model, suggestion_kinds
+from calibre.utils.grammar.models import Task, canonical_lang, default_model, is_usable, suggestion_kinds
+from calibre.utils.grammar.rules import (
+    RULES_VERSION,
+    LanguageDataNotDownloaded,
+    UnsupportedRulesLanguage,
+    code_for,
+    is_language_data_downloaded,
+    langtool_version,
+)
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
 
@@ -31,7 +40,7 @@ if iswindows:
 else:
     from multiprocessing.connection import Connection
 
-# Number of sentences checked between sending partial results to the parent,
+# Number of paragraphs checked between sending partial results to the parent,
 # also the granularity at which check requests can be cancelled
 CHECK_CHUNK_SIZE = 16
 
@@ -39,10 +48,9 @@ CHECK_CHUNK_SIZE = 16
 # Messages {{{
 class CheckRequest(NamedTuple):
     request_id: int
-    sentences: tuple[str, ...]
+    paragraphs: tuple[str, ...]
     lang: str
-    model_id: str
-    error_threshold: float
+    options: CheckOptions
 
 
 class SuggestRequest(NamedTuple):
@@ -68,8 +76,16 @@ Request = CheckRequest | SuggestRequest | CancelRequest | ShutdownRequest
 
 class CheckResults(NamedTuple):
     request_id: int
-    # Maps indices into the sentences of the request to results
-    results: dict[int, CheckResult]
+    # Maps indices into the paragraphs of the request to results
+    results: dict[int, ParagraphResult]
+
+
+class ModelMissing(NamedTuple):
+    # Sent when a deep check was requested but the checking model has not
+    # been downloaded, the check continues using only the rules
+    request_id: int
+    model_id: str
+    variant: str
 
 
 class SuggestResults(NamedTuple):
@@ -84,6 +100,9 @@ class RequestFailed(NamedTuple):
     # Set if the request failed because the model needs to be downloaded
     model_id: str = ''
     variant: str = ''
+    # Set to the langtool language code if the request failed because the
+    # data for checking the language needs to be downloaded
+    language_data: str = ''
 
 
 class RequestDone(NamedTuple):
@@ -91,15 +110,15 @@ class RequestDone(NamedTuple):
     cancelled: bool
 
 
-WorkerMessage = CheckResults | SuggestResults | RequestFailed | RequestDone
+WorkerMessage = CheckResults | ModelMissing | SuggestResults | RequestFailed | RequestDone
 # }}}
 
 
 # Worker process {{{
 class ServerBackend(Protocol):
-    def check_sentences(
-        self, sentences: Sequence[str], lang: str | None = None, model_id: str = '', error_threshold: float = DEFAULT_ERROR_THRESHOLD
-    ) -> list[CheckResult]: ...
+    def check_paragraphs(self, paragraphs: Sequence[str], lang: str | None = None, options: CheckOptions = DEFAULT_CHECK_OPTIONS) -> list[ParagraphResult]: ...
+
+    def missing_model(self, lang: str | None) -> ModelNotDownloaded | None: ...
 
     def suggest(
         self,
@@ -189,7 +208,9 @@ class Server:
             return self.suggest(req)
         except ModelNotDownloaded as e:
             return self.send(RequestFailed(req.request_id, str(e), '', e.model_id, e.variant))
-        except UnsupportedLanguage as e:
+        except LanguageDataNotDownloaded as e:
+            return self.send(RequestFailed(req.request_id, str(e), '', language_data=e.code))
+        except (UnsupportedLanguage, UnsupportedRulesLanguage) as e:
             return self.send(RequestFailed(req.request_id, str(e), ''))
         except SuggestionsAborted:
             return True
@@ -197,11 +218,14 @@ class Server:
             return self.send(RequestFailed(req.request_id, str(e), traceback.format_exc()))
 
     def check(self, req: CheckRequest) -> bool:
-        for start in range(0, len(req.sentences), CHECK_CHUNK_SIZE):
+        if req.options.deep and (e := self.backend.missing_model(req.lang)) is not None:
+            if not self.send(ModelMissing(req.request_id, e.model_id, e.variant)):
+                return False
+        for start in range(0, len(req.paragraphs), CHECK_CHUNK_SIZE):
             if self.is_cancelled(req.request_id):
                 break
-            chunk = req.sentences[start : start + CHECK_CHUNK_SIZE]
-            results = self.backend.check_sentences(chunk, req.lang, req.model_id, req.error_threshold)
+            chunk = req.paragraphs[start : start + CHECK_CHUNK_SIZE]
+            results = self.backend.check_paragraphs(chunk, req.lang, req.options)
             if not self.send(CheckResults(req.request_id, {start + i: r for i, r in enumerate(results)})):
                 return False
         return True
@@ -218,7 +242,7 @@ class Server:
 def worker_main(requests_fd: int, responses_fd: int, gpu_mode: GpuMode, num_threads: int) -> None:
     with Connection(requests_fd, True, False) as requests, Connection(responses_fd, False, True) as responses:
         with suppress(KeyboardInterrupt):
-            Server(requests, responses, Backend(gpu_mode, num_threads)).run()
+            Server(requests, responses, Checker(Backend(gpu_mode, num_threads))).run()
 
 
 # }}}
@@ -227,17 +251,23 @@ def worker_main(requests_fd: int, responses_fd: int, gpu_mode: GpuMode, num_thre
 # Client {{{
 class CheckResponse(NamedTuple):
     request_id: int
-    # Maps indices into the sentences passed to check() to results. Can be
+    # Maps indices into the paragraphs passed to check() to results. Can be
     # empty, for example, for the final response or when there is an error.
-    results: dict[int, CheckResult]
+    results: dict[int, ParagraphResult]
     # True for the last response to a request
     done: bool = False
     error: str = ''
     details: str = ''
-    # Set if the request failed because this model variant needs to be downloaded
+    # Set in a response with done=False if a deep check was requested but this
+    # model variant needs to be downloaded, the results are then only from the
+    # rules
     model_id: str = ''
     variant: str = ''
     cancelled: bool = False
+    # Set to the langtool language code if the request failed because the data
+    # for checking the language needs to be downloaded, see
+    # calibre.utils.grammar.rules.download_language_data()
+    language_data: str = ''
 
 
 class SuggestResponse(NamedTuple):
@@ -253,11 +283,15 @@ class SuggestResponse(NamedTuple):
 
 class PendingCheck(NamedTuple):
     callback: Callable[[CheckResponse], None]
-    model_key: str
+    checker_key: str
     # Maps indices in the request sent to the worker, to indices in the
-    # sentences passed to check(), as only uncached, unique sentences are sent
+    # paragraphs passed to check(), as only uncached, unique paragraphs are sent
     index_map: tuple[tuple[int, ...], ...]
-    sentences: tuple[str, ...]
+    paragraphs: tuple[str, ...]
+    # Whether the results are expected to be from a deep check and to have
+    # ranked replacements, results that are not are not cached
+    deep: bool
+    ranked: bool
 
 
 class PendingSuggest(NamedTuple):
@@ -374,7 +408,9 @@ class WorkerClient:
     def dispatch(self, msg: WorkerMessage) -> None:
         raise NotImplementedError()
 
-    def fail(self, request_id: int, p: PendingCheck | PendingSuggest, error: str, details: str = '', model_id: str = '', variant: str = '') -> None:
+    def fail(
+        self, request_id: int, p: PendingCheck | PendingSuggest, error: str, details: str = '', model_id: str = '', variant: str = '', language_data: str = ''
+    ) -> None:
         raise NotImplementedError()
 
     def model_key(self, lang: str | None, model_id: str) -> str:
@@ -414,48 +450,63 @@ class WorkerClient:
 
 
 class GrammarCheckWorker(WorkerClient):
-    """Check sentences for grammatical errors in a background process"""
+    """Check paragraphs for grammar, style and typography issues in a background process"""
 
     TASK = 'check'
     THREAD_NAME = 'GrammarCheckWorker'
 
+    def checker_key(self, lang: str | None, options: CheckOptions) -> tuple[str, bool, bool]:
+        """
+        Return the key for caching results and whether the results are
+        expected to be from a deep check and to have ranked replacements.
+        Raises UnsupportedRulesLanguage if the language is not supported.
+        """
+        parts = [f'rules:{CHECKER_VERSION}:{RULES_VERSION}:{langtool_version()}:{code_for(lang)}:{options.rules.cache_key}']
+        model_id = default_model('check', lang) or ''
+        deep = options.deep and bool(model_id)
+        ranked = options.rank and bool(model_id) and is_usable(model_id)
+        if deep:
+            # Results depend on the threshold so it is part of the cache key
+            parts.append(f'deep:{model_cache_key(model_id)}:{options.error_threshold}')
+        if ranked:
+            parts.append(f'rank:{model_cache_key(model_id)}')
+        return '\n'.join(parts), deep, ranked
+
     def check(
         self,
-        sentences: Sequence[str],
+        paragraphs: Sequence[str],
         callback: Callable[[CheckResponse], None],
         lang: str | None = None,
-        model_id: str = '',
-        error_threshold: float = DEFAULT_ERROR_THRESHOLD,
+        options: CheckOptions = DEFAULT_CHECK_OPTIONS,
     ) -> int:
         """
-        Check the specified sentences, returning the request id. callback is
+        Check the specified paragraphs, returning the request id. callback is
         called with the results as they become available, and finally with a
-        response that has done=True. Results for sentences that are in the cache
-        are delivered before this method returns.
+        response that has done=True. Results for paragraphs that are in the
+        cache are delivered before this method returns.
         """
         request_id = next(request_counter)
-        sentences = tuple(sentences)
+        paragraphs = tuple(paragraphs)
         try:
-            # Results depend on the threshold so it is part of the cache key
-            model_key = f'{self.model_key(lang, model_id)}:{error_threshold}'
-        except UnsupportedLanguage as e:
+            checker_key, deep, ranked = self.checker_key(lang, options)
+        except UnsupportedRulesLanguage as e:
             callback(CheckResponse(request_id, {}, done=True, error=str(e)))
             return request_id
-        cached = self.cache.get_check_results(model_key, sentences)
+        cached = self.cache.get_paragraph_results(checker_key, paragraphs)
         if cached:
             callback(CheckResponse(request_id, cached))
-        # Send only unique, uncached sentences to the worker
+        # Send only unique, uncached paragraphs to the worker
         unique: dict[str, list[int]] = {}
-        for i, s in enumerate(sentences):
+        for i, s in enumerate(paragraphs):
             if i not in cached:
                 unique.setdefault(s, []).append(i)
         if not unique:
             callback(CheckResponse(request_id, {}, done=True))
             return request_id
-        p = PendingCheck(callback, model_key, tuple(tuple(x) for x in unique.values()), sentences)
+        p = PendingCheck(callback, checker_key, tuple(tuple(x) for x in unique.values()), paragraphs, deep, ranked)
         with self.lock:
             self.pending[request_id] = p
-        req = CheckRequest(request_id, tuple(unique), lang or '', model_id, error_threshold)
+        req = CheckRequest(request_id, tuple(unique), lang or '', options)
         try:
             self.send(req)
         except (OSError, EOFError) as e:
@@ -468,20 +519,33 @@ class GrammarCheckWorker(WorkerClient):
         if not isinstance(p, PendingCheck):
             return
         if isinstance(msg, CheckResults):
-            self.cache.set_check_results(p.model_key, msg.results.values())
-            results: dict[int, CheckResult] = {}
+            self.cache.set_paragraph_results(p.checker_key, (r for r in msg.results.values() if r.deep_checked == p.deep and r.ranked == p.ranked))
+            results: dict[int, ParagraphResult] = {}
             for i, r in msg.results.items():
                 for orig in p.index_map[i]:
                     results[orig] = r
             p.callback(CheckResponse(msg.request_id, results))
+        elif isinstance(msg, ModelMissing):
+            p.callback(CheckResponse(msg.request_id, {}, model_id=msg.model_id, variant=msg.variant))
         elif isinstance(msg, RequestDone):
             p.callback(CheckResponse(msg.request_id, {}, done=True, cancelled=msg.cancelled))
         elif isinstance(msg, RequestFailed):
-            self.fail(msg.request_id, p, msg.error, msg.details, msg.model_id, msg.variant)
+            self.fail(msg.request_id, p, msg.error, msg.details, msg.model_id, msg.variant, msg.language_data)
 
-    def fail(self, request_id: int, p: PendingCheck | PendingSuggest, error: str, details: str = '', model_id: str = '', variant: str = '') -> None:
+    def fail(
+        self, request_id: int, p: PendingCheck | PendingSuggest, error: str, details: str = '', model_id: str = '', variant: str = '', language_data: str = ''
+    ) -> None:
         if isinstance(p, PendingCheck):
-            p.callback(CheckResponse(request_id, {}, done=True, error=error, details=details, model_id=model_id, variant=variant))
+            p.callback(CheckResponse(request_id, {}, done=True, error=error, details=details, model_id=model_id, variant=variant, language_data=language_data))
+
+
+def suggestion_filter_key(lang: str | None) -> str:
+    """Suggestions are filtered with the rules only if the data for the language has been downloaded, so this is part of the cache key"""
+    try:
+        ready = is_language_data_downloaded(lang)
+    except UnsupportedRulesLanguage:
+        return ''
+    return f':rules:{RULES_VERSION}:{langtool_version()}' if ready else ''
 
 
 class SuggestionWorker(WorkerClient):
@@ -512,7 +576,7 @@ class SuggestionWorker(WorkerClient):
         if cancel_previous:
             self.cancel_all()
         try:
-            model_key = self.model_key(lang, model_id)
+            model_key = self.model_key(lang, model_id) + suggestion_filter_key(lang)
             kinds = tuple(kinds) or suggestion_kinds(model_id or default_model('suggest', lang) or '')
         except (UnsupportedLanguage, KeyError) as e:
             callback(SuggestResponse(request_id, (), done=True, error=str(e)))
@@ -544,7 +608,9 @@ class SuggestionWorker(WorkerClient):
         elif isinstance(msg, RequestFailed):
             self.fail(msg.request_id, p, msg.error, msg.details, msg.model_id, msg.variant)
 
-    def fail(self, request_id: int, p: PendingCheck | PendingSuggest, error: str, details: str = '', model_id: str = '', variant: str = '') -> None:
+    def fail(
+        self, request_id: int, p: PendingCheck | PendingSuggest, error: str, details: str = '', model_id: str = '', variant: str = '', language_data: str = ''
+    ) -> None:
         if isinstance(p, PendingSuggest):
             p.callback(SuggestResponse(request_id, (), done=True, error=error, details=details, model_id=model_id, variant=variant))
 
@@ -556,7 +622,7 @@ def develop() -> None:
     import time
     from threading import Event
 
-    sentences = sys.argv[1:] or [
+    paragraphs = sys.argv[1:] or [
         'She go to school yesterday and buyed three apple.',
         'The quick brown fox jumps over the lazy dog.',
         'Despite of the rain, we goes outside.',
@@ -566,9 +632,11 @@ def develop() -> None:
 
     def on_check(r: CheckResponse) -> None:
         for i, res in sorted(r.results.items()):
-            print(f'{i}: correct={res.correct} {res.corrected}')
-        if r.error:
-            print('Error:', r.error, r.details, r.model_id, r.variant)
+            print(f'{i}: {res.text}')
+            for issue in res.issues:
+                print(f'    {res.text[issue.start : issue.end]!r} -> {list(issue.replacements[:4])} [{issue.source}:{issue.rule_id}]')
+        if r.error or r.model_id:
+            print('Error:', r.error, r.details, r.model_id, r.variant, r.language_data)
         if r.done:
             done.set()
 
@@ -577,7 +645,7 @@ def develop() -> None:
         for attempt in range(2):
             done.clear()
             st = time.perf_counter()
-            w.check(sentences, on_check)
+            w.check(paragraphs, on_check, options=CheckOptions(deep=True))
             done.wait()
             print(f'Attempt {attempt + 1} took {time.perf_counter() - st:.2f} seconds')
 
@@ -592,6 +660,6 @@ def develop() -> None:
     with SuggestionWorker(cache=cache, gpu_mode='off') as sw:
         done.clear()
         st = time.perf_counter()
-        sw.suggest(sentences[0], on_suggest, kinds=('fluency', 'formal'))
+        sw.suggest(paragraphs[0], on_suggest, kinds=('fluency', 'formal'))
         done.wait()
         print(f'Suggestions took {time.perf_counter() - st:.2f} seconds')

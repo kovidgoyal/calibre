@@ -187,6 +187,11 @@ def is_downloaded(model_id: str, variant: Variant) -> bool:
     return all(is_file_present(fd, path) for role, fd, path in iter_files(model_id, variant))
 
 
+def is_usable(model_id: str) -> bool:
+    """True if some variant of the model has been downloaded"""
+    return any(is_downloaded(model_id, v) for v in available_variants(model_id))
+
+
 def download_size(model_id: str, variant: Variant) -> int:
     """The number of bytes that need to be downloaded for the specified model variant"""
     return sum(fd['size'] for role, fd, path in iter_files(model_id, variant) if not is_file_present(fd, path))

@@ -15,8 +15,22 @@ from multiprocessing import Pipe
 from threading import Event, Thread
 from unittest.mock import patch
 
-from calibre.utils.grammar.backend import CheckResult, Edit, ModelNotDownloaded, Suggestion, SuggestionsAborted, apply_edits, compute_edits, fold, overlaps
+from calibre.utils.grammar.backend import (
+    DEFAULT_ERROR_THRESHOLD,
+    Backend,
+    CheckResult,
+    Edit,
+    ModelNotDownloaded,
+    Suggestion,
+    SuggestionsAborted,
+    apply_edits,
+    compute_edits,
+    fold,
+    overlaps,
+)
 from calibre.utils.grammar.cache import ResultCache
+from calibre.utils.grammar.checker import DEFAULT_CHECK_OPTIONS, Checker, CheckOptions, ParagraphResult
+from calibre.utils.grammar.rules import DEFAULT_RULE_OPTIONS, Issue, LanguageDataNotDownloaded, RuleChecker, RuleOptions, sentence_spans
 from calibre.utils.grammar.tokenizer import METASPACE, NormalizedText, PrecompiledCharsMap, TokenizerData, UnigramTokenizer, identity_spans
 from calibre.utils.grammar.worker import (
     CHECK_CHUNK_SIZE,
@@ -182,27 +196,35 @@ def make_tokenizer(vocab: Sequence[tuple[str, float]], charsmap: dict[str, str] 
     return UnigramTokenizer(data)
 
 
+def bad_word_issue(start: int, end: int, replacements: tuple[str, ...] = ('good', 'fine')) -> Issue:
+    return Issue(start, end, replacements, 'Bad word', '', 'BAD_WORD', 'MISC', 'grammar', '')
+
+
 class StubBackend:
-    """Stands in for Backend in the worker server, results depend only on the sentence"""
+    """Stands in for Checker in the worker server, results depend only on the paragraph"""
 
     def __init__(self) -> None:
         self.aborted = Event()
         self.block = Event()
         self.block.set()
+        self.model_missing = False
+        self.paragraphs_checked = 0
 
-    def check_sentences(self, sentences: Sequence[str], lang: str | None = None, model_id: str = '', error_threshold: float = 0.1) -> list[CheckResult]:
-        if any(s == 'NOT_DOWNLOADED' for s in sentences):
-            raise ModelNotDownloaded('gec-t5-small', 'cpu')
-        if any(s == 'CRASH' for s in sentences):
+    def check_paragraphs(self, paragraphs: Sequence[str], lang: str | None = None, options: CheckOptions = DEFAULT_CHECK_OPTIONS) -> list[ParagraphResult]:
+        if any(p == 'NOT_DOWNLOADED' for p in paragraphs):
+            raise LanguageDataNotDownloaded('en')
+        if any(p == 'CRASH' for p in paragraphs):
             raise RuntimeError('crash')
+        self.paragraphs_checked += len(paragraphs)
+        deep = options.deep and not self.model_missing
         ans = []
-        for s in sentences:
-            if 'bad' in s:
-                e = Edit(s.index('bad'), s.index('bad') + 3, 'good')
-                ans.append(CheckResult(s, False, (e,), apply_edits(s, (e,)), -1.0))
-            else:
-                ans.append(CheckResult(s, True, (), s, -0.1))
+        for p in paragraphs:
+            issues = tuple(bad_word_issue(m.start(), m.end()) for m in re.finditer(r'\bbad\b', p))
+            ans.append(ParagraphResult(p, ((0, len(p)),), issues, deep, False))
         return ans
+
+    def missing_model(self, lang: str | None) -> ModelNotDownloaded | None:
+        return ModelNotDownloaded('gec-t5-small', 'cpu') if self.model_missing else None
 
     def suggest(
         self,
@@ -222,6 +244,56 @@ class StubBackend:
 
     def abort(self) -> None:
         self.aborted.set()
+
+
+class StubRules(RuleChecker):
+    """Rules that flag the word bad, sentences end with a full stop"""
+
+    def check(self, text: str, lang: str | None = None, options: RuleOptions = DEFAULT_RULE_OPTIONS) -> list[Issue]:
+        return [bad_word_issue(m.start(), m.end()) for m in re.finditer(r'\bbad\b', text)]
+
+    def sentences(self, text: str, lang: str | None = None) -> list[tuple[int, int]]:
+        return sentence_spans(re.findall(r'[^.]*\.\s*|[^.]+$', text))
+
+
+class StubModelBackend(Backend):
+    """A checking model that prefers the word fine, corrects Teh to The, bad day to nice day and bad to awful"""
+
+    def __init__(self, downloaded: bool = True):
+        super().__init__(gpu_mode='off')
+        self.downloaded = downloaded
+
+    def load(self, model_id: str) -> None:
+        if not self.downloaded:
+            raise ModelNotDownloaded(model_id, 'cpu')
+
+    def score_corrections(self, sentence: str, corrections: Sequence[str], lang: str | None = None, model_id: str = '') -> list[float | None]:
+        return [0.0 if 'fine' in c else -1.0 for c in corrections]
+
+    def check_sentences(
+        self, sentences: Sequence[str], lang: str | None = None, model_id: str = '', error_threshold: float = DEFAULT_ERROR_THRESHOLD
+    ) -> list[CheckResult]:
+        ans = []
+        for s in sentences:
+            edits = [Edit(m.start(), m.end(), 'The') for m in re.finditer(r'Teh', s)]
+            if (i := s.find('bad day')) > -1:
+                edits.append(Edit(i, i + 7, 'nice day'))
+            elif (i := s.find('bad')) > -1:
+                edits.append(Edit(i, i + 3, 'awful'))
+            ans.append(CheckResult(s, not edits, tuple(edits), apply_edits(s, edits), -1.0))
+        return ans
+
+    def suggest(
+        self,
+        sentence: str,
+        lang: str | None = None,
+        kinds: Sequence[str] = (),
+        count: int = 1,
+        num_beams: int = 1,
+        model_id: str = '',
+        should_abort: Callable[[], bool] | None = None,
+    ) -> list[Suggestion]:
+        return [Suggestion('fluency', 'A bad sentence', -0.5, ()), Suggestion('formal', 'A good sentence', -0.6, ())]
 
 
 class InProcessWorker:
@@ -423,26 +495,25 @@ class TestGrammar(unittest.TestCase):
 
     def test_grammar_cache(self):
         path = os.path.join(self.tdir, 'cache.sqlite')
-        e = Edit(0, 3, 'Good')
-        results = [CheckResult('bad dog', False, (e,), 'Good dog', -1.5), CheckResult('ok', True, (), 'ok', -0.1)]
+        issues = (bad_word_issue(0, 3), Issue(4, 4, (), 'Missing', 'm', 'NEURAL_NETWORK', 'NEURAL_NETWORK', 'grammar', 'https://x.org', 'model'))
+        results = [ParagraphResult('bad dog. Next.', ((0, 8), (9, 14)), issues, True, True), ParagraphResult('ok', ((0, 2),), ())]
         suggestions = [Suggestion('fluency', 'A better sentence', -0.3, (Edit(2, 8, 'better'),))]
         for p in (None, path):
             c = ResultCache(p)
-            c.set_check_results('m1', results)
-            c.set_check_results('m1', [CheckResult('skipped', True, (), 'skipped', 0.0, skipped=True)])
+            c.set_paragraph_results('m1', results)
             c.set_suggestions('m1', 'A good sentence', ('fluency',), 1, 1, suggestions)
-            self.assertEqual(c.get_check_results('m1', ['ok', 'missing', 'bad dog', 'skipped']), {0: results[1], 2: results[0]})
-            self.assertEqual(c.get_check_results('m2', ['ok']), {})
+            self.assertEqual(c.get_paragraph_results('m1', ['ok', 'missing', 'bad dog. Next.']), {0: results[1], 2: results[0]})
+            self.assertEqual(c.get_paragraph_results('m2', ['ok']), {})
             self.assertEqual(c.get_suggestions('m1', 'A good sentence', ('fluency',), 1, 1), suggestions)
             self.assertIsNone(c.get_suggestions('m1', 'A good sentence', ('formal',), 1, 1))
             c.close()
         # Results persist and are read back from the database
         c = ResultCache(path, memory_entries=1)
-        self.assertEqual(c.get_check_results('m1', ['bad dog', 'ok']), {0: results[0], 1: results[1]})
+        self.assertEqual(c.get_paragraph_results('m1', ['bad dog. Next.', 'ok']), {0: results[0], 1: results[1]})
         c.close()
         # Pruning removes the least recently used entries
         c = ResultCache(path, max_entries=10)
-        c.set_check_results('m3', [CheckResult(f's{i}', True, (), f's{i}', 0.0) for i in range(30)])
+        c.set_paragraph_results('m3', [ParagraphResult(f's{i}', (), ()) for i in range(30)])
         c.prune()
         conn = c.conn
         assert conn is not None
@@ -453,8 +524,8 @@ class TestGrammar(unittest.TestCase):
             f.write(b'not a database' * 100)
         c = ResultCache(path)
         self.assertIsNotNone(c.conn)
-        c.set_check_results('m1', results[:1])
-        self.assertEqual(c.get_check_results('m1', ['bad dog']), {0: results[0]})
+        c.set_paragraph_results('m1', results[:1])
+        self.assertEqual(c.get_paragraph_results('m1', ['bad dog. Next.']), {0: results[0]})
         c.close()
 
     def test_grammar_gpu_decisions(self):
@@ -482,6 +553,8 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gpu.gpu_mode_from_string('nonsense'), gpu.DEFAULT_GPU_MODE)
 
     def test_grammar_worker_protocol(self):
+        from calibre.utils.grammar import worker
+
         cache = ResultCache(None)
         backend = StubBackend()
         client = InProcessCheckWorker(backend, cache)
@@ -493,32 +566,55 @@ class TestGrammar(unittest.TestCase):
             if r.done:
                 done.set()
 
-        def check(sentences: Sequence[str], lang: str | None = None) -> tuple[dict[int, CheckResult], CheckResponse]:
+        def check(
+            paragraphs: Sequence[str], lang: str | None = None, options: CheckOptions = DEFAULT_CHECK_OPTIONS
+        ) -> tuple[dict[int, ParagraphResult], CheckResponse]:
             responses.clear()
             done.clear()
-            client.check(sentences, on_check, lang)
+            client.check(paragraphs, on_check, lang, options)
             self.assertTrue(done.wait(10))
-            results: dict[int, CheckResult] = {}
+            results: dict[int, ParagraphResult] = {}
             for r in responses:
                 results.update(r.results)
             return results, responses[-1]
 
-        sentences = [f'sentence {i} is bad' if i % 3 == 0 else f'sentence {i}' for i in range(2 * CHECK_CHUNK_SIZE + 3)]
-        sentences.append(sentences[0])  # duplicates are checked only once
-        results, last = check(sentences)
-        self.assertEqual(set(results), set(range(len(sentences))))
-        self.assertFalse(results[0].correct)
-        self.assertEqual(results[0].corrected, 'sentence 0 is good')
-        self.assertTrue(results[1].correct)
-        self.assertEqual(results[len(sentences) - 1], results[0])
+        # The stub never ranks replacements, so make the client expect that
+        patcher = patch.object(worker, 'is_usable', lambda model_id: False)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        paragraphs = [f'paragraph {i} is bad' if i % 3 == 0 else f'paragraph {i}' for i in range(2 * CHECK_CHUNK_SIZE + 3)]
+        paragraphs.append(paragraphs[0])  # duplicates are checked only once
+        results, last = check(paragraphs)
+        self.assertEqual(set(results), set(range(len(paragraphs))))
+        self.assertEqual([(results[0].text[i.start : i.end], i.replacements[0]) for i in results[0].issues], [('bad', 'good')])
+        self.assertFalse(results[1].issues)
+        self.assertEqual(results[len(paragraphs) - 1], results[0])
         self.assertTrue(last.done)
         self.assertGreaterEqual(len(responses), 4)
+        self.assertEqual(backend.paragraphs_checked, len(paragraphs) - 1)
         # Everything is now cached, so the worker is not used
-        results, last = check(sentences)
-        self.assertEqual(len(results), len(sentences))
+        results, last = check(paragraphs)
+        self.assertEqual(len(results), len(paragraphs))
         self.assertEqual(len(responses), 2)
+        # Different options are cached separately
+        results, last = check(paragraphs[:2], options=CheckOptions(rules=RuleOptions(disabled_rules=('BAD_WORD',))))
+        self.assertEqual(backend.paragraphs_checked, len(paragraphs) + 1)
+        # A deep check without the model gives a notice and results that are not cached
+        backend.model_missing = True
+        results, last = check(['a deep check'], options=CheckOptions(deep=True))
+        self.assertEqual([(r.model_id, r.variant, r.done) for r in responses if r.model_id], [('gec-t5-small', 'cpu', False)])
+        self.assertFalse(results[0].deep_checked)
+        self.assertFalse(last.error)
+        results, last = check(['a deep check'], options=CheckOptions(deep=True))
+        self.assertEqual(backend.paragraphs_checked, len(paragraphs) + 3)
+        backend.model_missing = False
+        results, last = check(['a deep check'], options=CheckOptions(deep=True))
+        self.assertTrue(results[0].deep_checked)
+        results, last = check(['a deep check'], options=CheckOptions(deep=True))
+        self.assertEqual(backend.paragraphs_checked, len(paragraphs) + 4)
         results, last = check(['NOT_DOWNLOADED'])
-        self.assertEqual((last.model_id, last.variant), ('gec-t5-small', 'cpu'))
+        self.assertEqual(last.language_data, 'en')
+        self.assertTrue(last.done)
         results, last = check(['CRASH'])
         self.assertIn('crash', last.error)
         self.assertIn('RuntimeError', last.details)
@@ -553,6 +649,75 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(len(sresponses[0].suggestions), 2)
         self.assertTrue(sresponses[-1].done)
         sclient.shutdown()
+
+    def test_grammar_checker(self):
+        c = Checker(StubModelBackend(), StubRules())
+        r = c.check_paragraphs(['A bad dog. Teh end. A bad day.', '...'], 'en', CheckOptions(deep=True))
+        p = r[0]
+        self.assertTrue(p.deep_checked)
+        self.assertTrue(p.ranked)
+        self.assertEqual(p.sentences, ((0, 10), (11, 19), (20, 30)))
+        self.assertEqual(
+            [(p.text[i.start : i.end], i.replacements, i.source) for i in p.issues],
+            [
+                # Replacements are ranked and a correction by the model of the same text is added
+                ('bad', ('awful', 'fine', 'good'), 'rules'),
+                # The model finds an error the rules do not
+                ('Teh', ('The',), 'model'),
+                # A correction that overlaps an issue found by the rules is dropped
+                ('bad', ('fine', 'good'), 'rules'),
+            ],
+        )
+        self.assertEqual(r[1], ParagraphResult('...', (), (), True, True))
+        # Without the deep check or ranking
+        r = c.check_paragraphs(['A bad dog. Teh end.'], 'en', CheckOptions(rank=False))
+        self.assertEqual([(i.replacements, i.source) for i in r[0].issues], [(('good', 'fine'), 'rules')])
+        self.assertFalse(r[0].ranked or r[0].deep_checked)
+        # When the model is not downloaded, only the rules are used
+        c = Checker(StubModelBackend(downloaded=False), StubRules())
+        self.assertIsNotNone(c.missing_model('en'))
+        r = c.check_paragraphs(['A bad dog. Teh end.'], 'en', CheckOptions(deep=True))
+        self.assertEqual([(i.replacements, i.source) for i in r[0].issues], [(('good', 'fine'), 'rules')])
+        self.assertFalse(r[0].ranked or r[0].deep_checked)
+        # There is no model for other languages
+        c = Checker(StubModelBackend(), StubRules())
+        self.assertIsNone(c.missing_model('de'))
+        r = c.check_paragraphs(['A bad dog. Teh end.'], 'de', CheckOptions(deep=True))
+        self.assertFalse(r[0].ranked or r[0].deep_checked)
+        # Suggestions that introduce issues found by the rules are dropped
+        from calibre.utils.grammar import checker
+
+        with patch.object(checker, 'is_language_data_downloaded', lambda lang: True):
+            self.assertEqual([s.text for s in c.suggest('A sentence')], ['A good sentence'])
+            self.assertEqual([s.text for s in c.suggest('A bad sentence')], ['A bad sentence', 'A good sentence'])
+        with patch.object(checker, 'is_language_data_downloaded', lambda lang: False):
+            self.assertEqual(len(c.suggest('A sentence')), 2)
+
+    def test_grammar_rules(self):
+        from calibre.utils.grammar.rules import is_language_data_downloaded, langtool_code
+
+        self.assertEqual(langtool_code('en'), 'en')
+        self.assertEqual(langtool_code('en_GB'), 'en-GB')
+        self.assertEqual(langtool_code('eng'), 'en')
+        self.assertEqual(langtool_code('en-IN'), 'en')
+        self.assertEqual(langtool_code('pt-BR'), 'pt-BR')
+        self.assertEqual(langtool_code('pl'), 'pl-PL')
+        self.assertEqual(langtool_code('zh'), 'zh-CN')
+        self.assertEqual(langtool_code(None), 'en')
+        self.assertIsNone(langtool_code('xx'))
+        self.assertEqual(sentence_spans(['  One. ', 'Two.\n\n', '   ', 'Three']), [(2, 6), (7, 11), (16, 21)])
+        self.assertEqual(RuleOptions(('b', 'a', 'b')).cache_key, RuleOptions(('a', 'b')).cache_key)
+        if not is_language_data_downloaded('en'):
+            raise unittest.SkipTest('The langtool data for English is not downloaded')
+        rc = RuleChecker()
+        text = 'He go to school. I has a idea.'
+        issues = rc.check(text, 'en')
+        self.assertEqual([(text[i.start : i.end], i.rule_id) for i in issues], [('go', 'HE_VERB_AGR'), ('has', 'BASE_FORM'), ('a', 'EN_A_VS_AN')])
+        self.assertIn('goes', issues[0].replacements)
+        self.assertEqual(issues[0].issue_type, 'grammar')
+        self.assertEqual(rc.sentences(text, 'en'), [(0, 16), (17, 30)])
+        issues = rc.check(text, 'en', RuleOptions(disabled_rules=('HE_VERB_AGR',), disabled_categories=('MISC',)))
+        self.assertEqual([i.rule_id for i in issues], ['BASE_FORM'])
 
     def test_grammar_backend(self):
         from calibre.utils.grammar.models import is_downloaded
