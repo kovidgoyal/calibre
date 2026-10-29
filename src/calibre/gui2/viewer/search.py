@@ -1096,14 +1096,26 @@ def run_search_scope_checks() -> list[str]:
 
 def find_tests(scope_checks=False):
     import unittest
+    from typing import TypedDict
     from unittest.mock import patch
+
+    class TocNode(TypedDict):
+        id: int
+        dest: str | None
+        frag: str
+        title: str
+        children: list[TocNode]
+
+    class Manifest(TypedDict):
+        spine: list[str]
+        toc: TocNode | None
 
     class ViewerSearchTest(unittest.TestCase):
         def setUp(self):
-            def node(node_id, name, fragment='', children=()):
+            def node(node_id: int, name: str | None, fragment: str = '', children: tuple[TocNode, ...] = ()) -> TocNode:
                 return {'id': node_id, 'dest': name, 'frag': fragment, 'title': str(node_id), 'children': list(children)}
 
-            self.manifest = {
+            self.manifest: Manifest = {
                 'spine': ['one.xhtml', 'two.xhtml', 'three.xhtml'],
                 'toc': node(
                     0,
@@ -1168,7 +1180,9 @@ def find_tests(scope_checks=False):
         def test_viewer_search_without_chapter(self):
             self.assertFalse(self.results(100))
             self.assertFalse(self.results(current_name='missing.xhtml'))
-            self.manifest['toc']['children'][0]['frag'] = 'missing'
+            toc = self.manifest['toc']
+            assert toc is not None
+            toc['children'][0]['frag'] = 'missing'
             self.assertIsNone(chapter_search_range(1))
             self.assertFalse(self.results(1))
             self.assertEqual(len(self.results()), 7)
@@ -1182,8 +1196,10 @@ def find_tests(scope_checks=False):
             # occurrence. Offsets sent to JavaScript must account for non-BMP text.
             segment = '😀' * 20 + 'needle' + 'y' * 20
             self.paragraphs['one.xhtml'] = [(segment, ''), (segment, 'one'), (segment, 'sub')]
-            self.manifest['toc']['children'][0]['children'] = []
-            self.manifest['toc']['children'][1].update(dest='one.xhtml', frag='sub')
+            toc = self.manifest['toc']
+            assert toc is not None
+            toc['children'][0]['children'] = []
+            toc['children'][1].update(dest='one.xhtml', frag='sub')
             results = self.results(1)
             self.assertEqual(len(results), 1)
             self.assertEqual(results[0].index, 0)
@@ -1212,7 +1228,7 @@ def find_tests(scope_checks=False):
             self.assertTrue(panel.search_scope.isEnabled())
             panel.search_scope.setCurrentIndex(1)
             # Inspect the queued searches without starting the worker thread.
-            panel.searcher = object()
+            panel.searcher = Thread()
             query = Search('needle', 'normal', False, False)
             panel.start_search(query, 'one.xhtml')
             self.assertIs(panel.search_tasks.get_nowait()[0], query)
