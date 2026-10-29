@@ -409,7 +409,15 @@ def make_request(worker_path: str, data: Any = None) -> Response:  # ruff: ignor
                 f_write.write(datalen)
                 f_write.write(data)
                 f_write.flush()
-            s.shutdown(socket.SHUT_WR)
+            try:
+                s.shutdown(socket.SHUT_WR)
+            except OSError as err:
+                # The worker replies and closes as soon as it has the complete
+                # request, so for a fast handler it may already be gone, in
+                # which case macOS fails the half close with ENOTCONN, though
+                # the reply is still waiting to be read
+                if err.errno != errno.ENOTCONN:
+                    raise
             with s.makefile('rb') as f_read:
                 resdata = f_read.read()
     r = msgpack_loads(resdata)
