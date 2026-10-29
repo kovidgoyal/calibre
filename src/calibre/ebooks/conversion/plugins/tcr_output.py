@@ -24,7 +24,7 @@ class TCROutput(OutputFormatPlugin):
         from calibre.ebooks.compression.tcr import compress
         from calibre.ebooks.txt.txtml import TXTMLizer
 
-        with StreamOrPath(output, 'wb') as out_stream:
+        with StreamOrPath(output, 'wb', makedirs=True) as out_stream:
             opts.flush_paras = False
             opts.max_line_length = 0
             opts.force_max_line_length = False

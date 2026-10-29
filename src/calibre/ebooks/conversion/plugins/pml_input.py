@@ -21,9 +21,7 @@ class PMLInput(InputFormatPlugin):
     def process_pml(self, pml_path, html_path, close_all=False):
         from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
 
-        pml_stream = StreamOrPath(pml_path, 'rb')
-        html_stream = StreamOrPath(html_path, 'wb')
-        with pml_stream, html_stream:
+        with StreamOrPath(pml_path, 'rb') as pml_stream, StreamOrPath(html_path, 'wb') as html_stream:
             pml_stream.seek(0)
             ienc = getattr(pml_stream, 'encoding', None)
             if ienc is None:

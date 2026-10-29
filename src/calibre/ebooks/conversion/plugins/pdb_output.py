@@ -37,7 +37,7 @@ class PDBOutput(OutputFormatPlugin):
     }
 
     def convert(self, oeb_book, output, input_plugin, opts, log):
-        with StreamOrPath(output, 'wb') as out_stream:
+        with StreamOrPath(output, 'wb', makedirs=True) as out_stream:
             Writer = get_writer(opts.format)
             if Writer is None:
                 raise PDBError(f'No writer available for format {format}.')

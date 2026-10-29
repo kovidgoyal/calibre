@@ -720,63 +720,63 @@ def main(args=sys.argv):
         print()
         print('No lrf file specified')
         return 1
-    with open(args[1], 'r+b') as f:
-        lrf = LRFMetaFile(f)
+    with open(args[1], 'r+b') as lrf_stream:
+        lrf = LRFMetaFile(lrf_stream)
 
-    if options.title:
-        lrf.title = options.title
-    if options.title_reading is not None:
-        lrf.title_reading = options.title_reading
-    if options.author_reading is not None:
-        lrf.author_reading = options.author_reading
-    if options.author:
-        lrf.author = options.author
-    if options.publisher:
-        lrf.publisher = options.publisher
-    if options.classification:
-        lrf.classification = options.classification
-    if options.category:
-        lrf.category = options.category
-    if options.creator:
-        lrf.creator = options.creator
-    if options.producer:
-        lrf.producer = options.producer
-    if options.thumbnail:
-        path = os.path.expanduser(os.path.expandvars(options.thumbnail))
-        with open(path, 'rb') as f:
-            lrf.thumbnail = f.read()
-    if options.book_id is not None:
-        lrf.book_id = options.book_id
-    if options.comment:
-        path = os.path.expanduser(os.path.expandvars(options.comment))
-        with open(path, 'rb') as f:
-            lrf.free_text = f.read().decode('utf-8', 'replace')
-    if options.get_thumbnail:
-        t = lrf.thumbnail
-        td = 'None'
-        if t and len(t) > 0:
-            td = os.path.basename(args[1]) + '_thumbnail.' + lrf.thumbail_extension()
-            with open(td, 'wb') as f:
-                f.write(t)
+        if options.title:
+            lrf.title = options.title
+        if options.title_reading is not None:
+            lrf.title_reading = options.title_reading
+        if options.author_reading is not None:
+            lrf.author_reading = options.author_reading
+        if options.author:
+            lrf.author = options.author
+        if options.publisher:
+            lrf.publisher = options.publisher
+        if options.classification:
+            lrf.classification = options.classification
+        if options.category:
+            lrf.category = options.category
+        if options.creator:
+            lrf.creator = options.creator
+        if options.producer:
+            lrf.producer = options.producer
+        if options.thumbnail:
+            path = os.path.expanduser(os.path.expandvars(options.thumbnail))
+            with open(path, 'rb') as f:
+                lrf.thumbnail = f.read()
+        if options.book_id is not None:
+            lrf.book_id = options.book_id
+        if options.comment:
+            path = os.path.expanduser(os.path.expandvars(options.comment))
+            with open(path, 'rb') as f:
+                lrf.free_text = f.read().decode('utf-8', 'replace')
+        if options.get_thumbnail:
+            t = lrf.thumbnail
+            td = 'None'
+            if t and len(t) > 0:
+                td = os.path.basename(args[1]) + '_thumbnail.' + lrf.thumbail_extension()
+                with open(td, 'wb') as f:
+                    f.write(t)
 
-    fields = sorted(LRFMetaFile.__dict__.items())
-    for f in fields:
-        if 'XML' in str(f):
-            print(str(f[1]) + ':', lrf.__getattribute__(f[0]).encode('utf-8'))
-    if options.get_thumbnail:
-        print('Thumbnail:', td)
-    if options.get_cover:
-        try:
-            ext, data = lrf.get_cover()
-        except Exception:  # Fails on books created by LRFCreator 1.0
-            ext, data = None, None
-        if data:
-            cover = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.' + ext
-            with open(cover, 'wb') as f:
-                f.write(data)
-            print('Cover:', cover)
-        else:
-            print('Could not find cover in the LRF file')
+        fields = sorted(LRFMetaFile.__dict__.items())
+        for f in fields:
+            if 'XML' in str(f):
+                print(str(f[1]) + ':', lrf.__getattribute__(f[0]).encode('utf-8'))
+        if options.get_thumbnail:
+            print('Thumbnail:', td)
+        if options.get_cover:
+            try:
+                ext, data = lrf.get_cover()
+            except Exception:  # Fails on books created by LRFCreator 1.0
+                ext, data = None, None
+            if data:
+                cover = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.' + ext
+                with open(cover, 'wb') as f:
+                    f.write(data)
+                print('Cover:', cover)
+            else:
+                print('Could not find cover in the LRF file')
 
 
 if __name__ == '__main__':

@@ -141,7 +141,7 @@ class TXTOutput(OutputFormatPlugin):
         log.debug('\tReplacing newlines with selected type...')
         txt = specified_newlines(TxtNewlines(opts.newline).newline, txt)
 
-        with StreamOrPath(output_path, 'wb') as out_stream:
+        with StreamOrPath(output_path, 'wb', makedirs=True) as out_stream:
             out_stream.seek(0)
             out_stream.truncate()
             out_stream.write(txt.encode(opts.txt_output_encoding, 'replace'))

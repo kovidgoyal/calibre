@@ -91,16 +91,19 @@ def read_default_style_language(raw, mi, XPath):
 class DOCX:
     def __init__(self, path_or_stream, log=None, extract=True):
         self.docx_is_transitional = True
-        with StreamOrPath(path_or_stream, 'rb') as stream:
-            self.name = getattr(stream, 'name', None) or '<stream>'
-            self.log = log or default_log
-            if extract:
+        self.log = log or default_log
+        if extract:
+            with StreamOrPath(path_or_stream, 'rb') as stream:
+                self.name = getattr(stream, 'name', None) or '<stream>'
                 self.extract(stream)
-            else:
-                self.init_zipfile(stream)
-            self.read_content_types()
-            self.read_package_relationships()
-            self.namespace = DOCXNamespace(self.docx_is_transitional)
+        else:
+            # The zip file reads from the stream lazily, so it must remain open
+            stream = path_or_stream if hasattr(path_or_stream, 'read') else open(path_or_stream, 'rb')  # ruff: ignore[open-file-with-context-handler]
+            self.name = getattr(stream, 'name', None) or '<stream>'
+            self.init_zipfile(stream)
+        self.read_content_types()
+        self.read_package_relationships()
+        self.namespace = DOCXNamespace(self.docx_is_transitional)
 
     def init_zipfile(self, stream):
         self.zipf = ZipFile(stream)

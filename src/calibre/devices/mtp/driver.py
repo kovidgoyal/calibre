@@ -571,23 +571,20 @@ class MTP_DEVICE(BASE):
                 sz = stream.tell()
                 stream.seek(pos)
                 relpath = parent.mtp_relpath + (path[-1].lower(),)
+                mtp_file = self.put_file(parent, path[-1], stream, sz)
                 try:
-                    mtp_file = self.put_file(parent, path[-1], stream, sz)
-                    try:
-                        self.upload_cover(parent, relpath, storage, mi, stream)
-                        # Upload the apnx file
-                        if self.is_kindle:
-                            from calibre.devices.kindle.driver import get_apnx_opts
+                    self.upload_cover(parent, relpath, storage, mi, stream)
+                    # Upload the apnx file
+                    if self.is_kindle:
+                        from calibre.devices.kindle.driver import get_apnx_opts
 
-                            apnx_opts = get_apnx_opts()
-                            if apnx_opts.send_apnx:
-                                self.upload_apnx(path, storage, mi, infile, apnx_opts)
-                    except Exception:
-                        import traceback
+                        apnx_opts = get_apnx_opts()
+                        if apnx_opts.send_apnx:
+                            self.upload_apnx(path, storage, mi, infile, apnx_opts)
+                except Exception:
+                    import traceback
 
                     traceback.print_exc()
-                except Exception:
-                    pass
             ans.append((mtp_file, bl_idx))
             self.report_progress(i / total, _('Transferred %s to device') % mi.title)
 

@@ -145,8 +145,8 @@ class Main(MainWindow, Ui_MainWindow):
         )
         if files:
             file = files[0]
-            with open(file, 'rb') as f:
-                self.set_ebook(f)
+            # RenderWorker closes the stream after parsing
+            self.set_ebook(open(file, 'rb'))  # ruff: ignore[open-file-with-context-handler]
             self.render()
 
     def page_changed(self, num):

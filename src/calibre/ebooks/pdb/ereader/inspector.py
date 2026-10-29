@@ -129,9 +129,9 @@ def main(args=sys.argv):
     with open(sys.argv[1], 'rb') as f:
         pheader = PdbHeaderReader(f)
 
-    pdb_header_info(pheader)
-    ereader_header_info(pheader)
-    section_lengths(pheader)
+        pdb_header_info(pheader)
+        ereader_header_info(pheader)
+        section_lengths(pheader)
 
     return 0
 

@@ -16,7 +16,7 @@ class RTFOutput(OutputFormatPlugin):
         rtfmlitzer = RTFMLizer(log)
         content = rtfmlitzer.extract_content(oeb_book, opts)
 
-        with StreamOrPath(output, 'wb') as out_stream:
+        with StreamOrPath(output, 'wb', makedirs=True) as out_stream:
             out_stream.seek(0)
             out_stream.truncate()
             out_stream.write(content.encode('ascii', 'replace'))
