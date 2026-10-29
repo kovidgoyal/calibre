@@ -5,7 +5,6 @@ import json
 import re
 
 from calibre import prints
-from calibre.constants import trash_name
 from calibre.db.cli import integers_from_string
 from calibre.utils.localization import _, ngettext
 
@@ -73,7 +72,7 @@ def implementation(db, notify_changes, action, *args):
     books, formats = db.list_trash_entries()
     entries = {e.book_id: e for e in (formats if of_formats else books)}
     if missing := book_ids - set(entries):
-        return False, _('No entries in the {0} for the books: {1}').format(trash_name(), ', '.join(map(str, sorted(missing))))
+        return False, _('No entries in the trash bin for the books: {}').format(', '.join(map(str, sorted(missing))))
     entries = {book_id: entries[book_id] for book_id in book_ids}
     if action == 'delete':
         return True, delete_entries(db, entries, of_formats)
@@ -86,8 +85,8 @@ def option_parser(get_parser, args):
             '''\
 %prog trash [options] (list|restore|delete|empty) [ids]
 
-Manage the books and formats that have been removed and placed in the {0}.
-Entries in the {0} are permanently deleted automatically after some days.
+Manage the books and formats that have been removed and placed in the trash bin.
+Entries in the trash bin are permanently deleted automatically after some days.
 ids is a comma separated list of book ids, as for the remove command, for
 example: 23,34,57-85 (when specifying a range, the last number in the range is
 not included).
@@ -103,15 +102,15 @@ Restore removed books, or with --formats, the removed formats of books:
 
 %prog trash restore ids
 
-Permanently delete entries from the {0}:
+Permanently delete entries from the trash bin:
 
 %prog trash delete ids
 
-Permanently delete everything in the {0}:
+Permanently delete everything in the trash bin:
 
 %prog trash empty
 '''
-        ).format(trash_name())
+        )
     )
     parser.add_option(
         '--formats',
@@ -150,7 +149,7 @@ def main(opts, args, dbctx):
             raise SystemExit(_('Error: The --formats option cannot be used with the {} action').format(action))
         if action == 'empty':
             run(dbctx, 'empty')
-            prints(_('The {} has been emptied').format(trash_name()))
+            prints(_('The trash bin has been emptied'))
             return 0
         books, formats = run(dbctx, 'list')
         if opts.for_machine:

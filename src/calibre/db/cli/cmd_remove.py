@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from calibre.constants import trash_name
 from calibre.db.cli import integers_from_string
 from calibre.db.errors import BooksNotRemoved
 from calibre.srv.changes import books_deleted
@@ -34,7 +33,7 @@ list of id numbers (you can get id numbers by using the search command). For exa
 '''
         )
     )
-    p.add_option('--permanent', default=False, action='store_true', help=_('Do not use the {}').format(trash_name()))
+    p.add_option('--permanent', default=False, action='store_true', help=_('Do not use the trash bin'))
     return p
 
 
