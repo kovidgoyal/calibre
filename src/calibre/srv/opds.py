@@ -21,6 +21,7 @@ from calibre.db.cache import Cache
 from calibre.db.categories import Tag
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import comments_to_html
 from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound
 from calibre.srv.handler import Context, UrlForCallable
@@ -32,7 +33,7 @@ from calibre.srv.utils import MultiDict, Offsets, get_library_data, http_date
 from calibre.utils.config import prefs
 from calibre.utils.date import as_utc, is_date_undefined, timestampfromdt
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _, ngettext
+from calibre.utils.localization import _, lang_as_iso639_1, ngettext
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_hex_unicode, from_hex_unicode
@@ -49,20 +50,31 @@ OPDS2_MIME: str = 'application/opds+json'
 
 
 def accepts_opds2(rd: RequestData) -> bool:
-    "Whether the client asked for OPDS 2.0 with the Accept header, see https://specs.opds.io/opds-2.0"
+    """
+    Whether the client prefers OPDS 2.0 to OPDS 1 according to the Accept
+    header, see https://specs.opds.io/opds-2.0 OPDS 1 is the default, so OPDS
+    2.0 is used only when it has a higher quality value than Atom.
+    """
+    qualities = {OPDS2_MIME: 0.0, 'application/atom+xml': 0.0}
     for header in rd.inheaders.get('Accept', all=True):
         for media_range in header.split(','):
             media_type, *params = (x.strip() for x in media_range.split(';'))
-            if media_type.lower() == OPDS2_MIME:
-                for param in params:
-                    name, _sep, val = param.partition('=')
-                    if name.strip().lower() == 'q':
-                        try:
-                            return float(val) > 0
-                        except ValueError:
-                            pass
-                return True
-    return False
+            media_type = media_type.lower()
+            if media_type not in qualities:
+                continue
+            q = 1.0
+            for param in params:
+                name, _sep, val = param.partition('=')
+                if name.strip().lower() == 'q':
+                    try:
+                        q = float(val)
+                    except ValueError:
+                        q = 0.0
+                    if not 0 <= q <= 1:  # also rejects nan
+                        q = 0.0
+                    break
+            qualities[media_type] = max(qualities[media_type], q)
+    return qualities[OPDS2_MIME] > qualities['application/atom+xml']
 
 
 def atom(ctx: Context, rd: RequestData, endpoint: Callable, output: bytes | str | etree.Element | dict[str, Any]) -> bytes:
@@ -277,7 +289,7 @@ def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestCont
     )
 
 
-def acquisition_extra(mi: Any, request_context: RequestContext) -> list[str]:
+def acquisition_extra(mi: Metadata, request_context: RequestContext) -> list[str]:
     "The metadata of a book as HTML, to be shown as its description"
     field_metadata = request_context.db.field_metadata
     extra = []
@@ -287,7 +299,7 @@ def acquisition_extra(mi: Any, request_context: RequestContext) -> list[str]:
     if mi.tags:
         extra.append(_('TAGS: %s<br />') % xml(format_tag_string(mi.tags, None)))
     if mi.series:
-        extra.append(_('SERIES: %(series)s [%(sidx)s]<br />') % dict(series=xml(mi.series), sidx=fmt_sidx(float(mi.series_index))))
+        extra.append(_('SERIES: %(series)s [%(sidx)s]<br />') % dict(series=xml(mi.series), sidx=fmt_sidx(mi.series_index)))
     for key in filter(request_context.ctx.is_field_displayable, field_metadata.ignorable_field_keys()):
         name, val = mi.format_field(key)
         if val:
@@ -627,7 +639,8 @@ def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str
     if mi.pubdate and not is_date_undefined(mi.pubdate):
         metadata['published'] = mi.pubdate.isoformat()
     if mi.languages:
-        metadata['language'] = list(mi.languages)
+        # OPDS 2.0 uses BCP 47 language tags, which use the two letter code when there is one
+        metadata['language'] = [lang_as_iso639_1(x) or x for x in mi.languages]
     if mi.tags:
         metadata['subject'] = sorted(mi.tags, key=sort_key)
     if mi.series:
@@ -641,13 +654,25 @@ def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str
     links = []
     for fmt in mi.formats or ():
         fmt = fmt.lower()
-        if mt := guess_type('a.' + fmt)[0]:
+        if mt := format_mime_type(fmt):
             links.append({'rel': 'http://opds-spec.org/acquisition', 'href': get(what=fmt), 'type': mt})
-    return {
-        'metadata': metadata,
-        'links': links,
-        'images': [{'href': get(what='cover'), 'type': 'image/jpeg'}, {'href': get(what='thumb'), 'type': 'image/jpeg'}],
-    }
+    ans: dict[str, Any] = {'metadata': metadata, 'links': links}
+    if mi.has_cover:
+        ans['images'] = [{'href': get(what='cover'), 'type': 'image/jpeg'}, {'href': get(what='thumb'), 'type': 'image/jpeg'}]
+    return ans
+
+
+def format_mime_type(fmt: str) -> str | None:
+    return guess_type('a.' + fmt.lower())[0]
+
+
+def opds2_has_acquisition_links(rc: RequestContext, ids: frozenset[int]) -> frozenset[int]:
+    """
+    The books that have at least one format that can be downloaded, as OPDS 2.0
+    requires every publication to have an acquisition link
+    """
+    formats = rc.db.all_field_for('formats', ids, default_value=())
+    return frozenset(book_id for book_id, fmts in formats.items() if any(map(format_mime_type, fmts or ())))
 
 
 def opds2_acquisition_feed(
@@ -715,6 +740,8 @@ def get_acquisition_feed(
     ascending: bool = True,
     feed_title: str | None = None,
 ) -> etree.Element | dict[str, Any]:
+    if rc.is_opds2:
+        ids = opds2_has_acquisition_links(rc, ids)
     if not ids:
         raise HTTPNotFound('No books found')
     with rc.db.safe_read_lock:

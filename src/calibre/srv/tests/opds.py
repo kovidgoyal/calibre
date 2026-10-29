@@ -29,14 +29,35 @@ class OPDSTest(LibraryBaseTest):
             ('application/OPDS+JSON',): True,
             ('application/opds+json; charset=utf-8',): True,
             ('application/atom+xml;q=0.9, application/opds+json',): True,
-            ('application/atom+xml', 'application/opds+json;q=0.5'): True,
+            ('application/atom+xml;q=0.5', 'application/opds+json'): True,
+            ('application/opds+json, */*;q=0.8',): True,
+            # The client prefers OPDS 1, or has no preference
+            ('application/atom+xml', 'application/opds+json;q=0.5'): False,
+            ('application/atom+xml;profile=opds-catalog;q=1.0, application/opds+json;q=0.1',): False,
+            ('application/atom+xml, application/opds+json',): False,
             ('application/opds+json;q=0',): False,
             ('application/opds+json;q=0.0, application/atom+xml',): False,
             ('application/opds-publication+json',): False,
+            # Invalid quality values
+            ('application/opds+json;q=abc',): False,
+            ('application/opds+json;q=nan',): False,
+            ('application/opds+json;q=2',): False,
         }.items():
             self.ae(accepts_opds2(RequestData(*accept)), expected, f'Accept: {accept}')
 
     def test_opds2(self):
+        from calibre.db.cache import Cache
+        from calibre.db.legacy import create_backend
+
+        # Title One gets a format that can be downloaded and loses its cover,
+        # Unknown has no formats at all, so it is left out of OPDS 2.0 feeds
+        db = Cache(create_backend(self.library_path))
+        db.init()
+        with open(P('quick_start/eng.epub'), 'rb') as src:
+            db.add_format(2, 'EPUB', src, run_hooks=False)
+        db.set_cover({2: None})
+        db.close()
+
         with self.create_server(max_opds_items=1, max_opds_ungrouped_items=1) as server:
             conn = server.connect()
 
@@ -85,20 +106,26 @@ class OPDSTest(LibraryBaseTest):
             self.assertTrue(pub['metadata']['identifier'].startswith('urn:uuid:'))
             self.ae(pub['metadata']['subject'], ['Tag One', 'Tag Two'])
             self.assertIn('Tag One', pub['metadata']['description'])
-            self.ae(len(pub['images']), 2)
+            self.ae(pub['metadata']['language'], ['en'])
+            self.assertNotIn('images', pub)
 
             # Following the pagination links stays in OPDS 2.0
             page2, links2 = feed(links['next']['href'])
             pub = page2['publications'][0]
             self.ae(pub['metadata']['title'], 'Title Two')
+            self.ae(pub['metadata']['language'], ['de'])
+            self.ae(pub['metadata']['belongsTo'], {'series': {'name': 'A Series One', 'position': 2.0}})
+            self.ae(len(pub['images']), 2)
             self.ae(links2['previous']['href'], links['first']['href'] + '&offset=0')
+            # Unknown has no formats, so Title Two is the last page
+            self.assertNotIn('next', links2)
             acquisitions = {x['type']: x['href'] for x in pub['links'] if x['rel'] == 'http://opds-spec.org/acquisition'}
             self.ae(set(acquisitions), {'application/epub+zip'})
             r, data = request(acquisitions['application/epub+zip'], None)
             self.ae(r.status, OK)
             self.assertTrue(data.startswith(b'PK'))
             last, _ = feed(links['last']['href'])
-            self.ae(len(last['publications']), 1)
+            self.ae([x['metadata']['title'] for x in last['publications']], ['Title Two'])
 
             # Authors are grouped by first letter, as there are more than max_opds_ungrouped_items
             groups, _ = feed(nav['By Authors'])
@@ -115,3 +142,10 @@ class OPDSTest(LibraryBaseTest):
             self.ae([x['metadata']['title'] for x in results['publications']], ['Title One'])
             r, _ = request('/opds/search/' + quote('title:"=No such title"'))
             self.ae(r.status, NOT_FOUND)
+            # Books without formats are only in OPDS 1 feeds
+            url = '/opds/search/' + quote('title:"=Unknown"')
+            r, _ = request(url)
+            self.ae(r.status, NOT_FOUND)
+            r, data = request(url, None)
+            self.ae(r.status, OK)
+            self.assertIn(b'Unknown', data)
