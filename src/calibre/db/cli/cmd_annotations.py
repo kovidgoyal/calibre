@@ -4,15 +4,13 @@
 import json
 
 from calibre import prints
+from calibre.db.cli.utils import for_terminal
 from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
 ANNOTATION_TYPES = ('highlight', 'bookmark')
 EXPORT_FORMATS = ('text', 'markdown', 'json')
-# Control characters, other than tab and newline, that could be used to inject
-# escape sequences into the terminal
-CONTROL_CHARS = tuple(x for x in range(32) if x not in (9, 10)) + tuple(range(127, 160))
 
 
 def implementation(db, notify_changes, action, *args):
@@ -99,12 +97,6 @@ def run(dbctx, *args):
     if not ok:
         raise SystemExit(ans)
     return ans
-
-
-def for_terminal(text: str) -> str:
-    from calibre.utils.cleantext import clean_ascii_chars
-
-    return clean_ascii_chars(text, CONTROL_CHARS)
 
 
 def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool) -> str:

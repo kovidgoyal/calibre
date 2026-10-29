@@ -6,14 +6,13 @@ import sys
 
 from calibre import prints
 from calibre.db import FTSQueryError
+from calibre.db.cli.utils import for_terminal
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.html2text import html2text
 from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
-CONTROL_CHARS = tuple(range(32)) + tuple(range(127, 160))
 
 
 def unsupported_field_error(db, field):
@@ -172,8 +171,7 @@ def main(opts, args, dbctx):
             raise SystemExit(_('Error: The --as-html option cannot be used with search'))
         for field, item_name, text in run(dbctx, 'search', args[0], opts.field):
             # Keep each result on one line and remove terminal control characters.
-            fields = [clean_ascii_chars(' '.join(x.split()), CONTROL_CHARS) for x in (field, item_name or '', text)]
-            prints('\t'.join(fields))
+            prints(for_terminal('\t'.join(' '.join(x.split()) for x in (field, item_name or '', text))))
         return 0
     if action == 'list':
         if len(args) > 1:

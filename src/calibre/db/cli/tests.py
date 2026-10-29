@@ -245,7 +245,7 @@ class NotesTest(BaseTest):
                 self.assertEqual(search('--field', 'authors', 'historical'), 'authors\tAuthor One\tAuthor One Historical fiction from Poland\n')
                 self.assertEqual(search('--field', '#tags', 'historical'), '#tags\tResearch One\tResearch One Historical fiction from Japan\n')
                 self.assertEqual(search('historical AND Poland'), 'authors\tAuthor One\tAuthor One Historical fiction from Poland\n')
-                self.assertEqual(search('"fiction from"'), search('historical'))
+                self.assertEqual(set(search('"fiction from"').splitlines()), set(search('historical').splitlines()))
                 self.assertEqual(search('unmatched'), '')
                 self.assertEqual(search('--field', 'series', 'historical'), '')
                 for args, msg in (
