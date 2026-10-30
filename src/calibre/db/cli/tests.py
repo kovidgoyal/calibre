@@ -640,6 +640,138 @@ class SavedSearchesTest(BaseTest):
         self.assertEqual(db.books_in_virtual_library('VL'), {1, 2, 3})
 
 
+class DataFilesTest(BaseTest):
+    def run_data_files(self, db, *args, is_remote=False):
+        from calibre.db.cli.cmd_data_files import main, option_parser
+        from calibre.db.cli.main import get_parser
+        from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
+        class DBCtx:
+            def path(self, path):
+                if is_remote:
+                    with open(path, 'rb') as f:
+                        return path, f.read()
+                return path
+
+            def run(self, name, *args):
+                from calibre.db.cli import module_for_cmd
+
+                impl = module_for_cmd(name).implementation
+                if is_remote:
+                    return msgpack_loads(msgpack_dumps(impl(db, lambda changes: None, *msgpack_loads(msgpack_dumps(args)))))
+                return impl(db, None, *args)
+
+        ctx = DBCtx()
+        ctx.is_remote = is_remote
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            self.assertEqual(main(opts, args, ctx), 0)
+        return out.getvalue()
+
+    def test_data_files(self):
+        db = self.init_cache()
+        source, output = os.path.join(self.mkdtemp(), 'source.txt'), os.path.join(self.mkdtemp(), 'result.txt')
+        original = db.format(1, 'FMT1')
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+
+                def run(*args, is_remote=is_remote):
+                    return self.run_data_files(db, *args, is_remote=is_remote)
+
+                self.assertEqual(json.loads(run('list', '1', '--for-machine')), [])
+                with open(source, 'wb') as f:
+                    f.write(b'\0supplement\xff')
+                run('add', '1', source, '--name', '研究/source.txt')
+                listing = json.loads(run('list', '1', '--for-machine'))
+                self.assertEqual([(x['name'], x['size']) for x in listing], [('研究/source.txt', 12)])
+                self.assertGreater(listing[0]['mtime'], 0)
+                self.assertEqual(run('list', '1').split('\t')[:2], ['研究/source.txt', '12'])
+                run('get', '1', '研究/source.txt', '--output', output)
+                with open(output, 'rb') as f:
+                    self.assertEqual(f.read(), b'\0supplement\xff')
+                with self.assertRaisesRegex(SystemExit, 'already exists'):
+                    run('get', '1', '研究/source.txt', '--output', output)
+                with self.assertRaisesRegex(SystemExit, 'already exist'):
+                    run('add', '1', source, '--name', '研究/source.txt')
+                with open(source, 'wb') as f:
+                    f.write(b'new')
+                run('add', '1', source, '--name', '研究/source.txt', '--replace')
+                run('add', '1', source)
+                with self.assertRaisesRegex(SystemExit, 'already exist'):
+                    run('rename', '1', '研究/source.txt', 'source.txt')
+                run('rename', '1', '研究/source.txt', 'source.txt', '--replace')
+                run('rename', '1', 'source.txt', 'source.txt')
+                run('get', '1', 'source.txt', '--output', output, '--replace')
+                with open(output, 'rb') as f:
+                    self.assertEqual(f.read(), b'new')
+                with self.assertRaisesRegex(SystemExit, 'No data file'):
+                    run('get', '1', 'missing', '--output', output, '--replace')
+                with open(output, 'rb') as f:
+                    self.assertEqual(f.read(), b'new')
+                run('rename', '1', 'source.txt', 'sub/moved.txt')
+                run('remove', '1', 'sub/moved.txt', *(('--permanent',) if is_remote else ()))
+                self.assertEqual(json.loads(run('list', '1', '--for-machine')), [])
+                os.remove(output)
+        self.assertEqual(db.format(1, 'FMT1'), original)
+
+    def test_data_files_invalid_names(self):
+        from calibre.db.cli.cmd_data_files import implementation
+
+        db = self.init_cache()
+        source = os.path.join(self.mkdtemp(), 'source')
+        with open(source, 'wb') as f:
+            f.write(b'file')
+        self.run_data_files(db, 'add', '1', source)
+        for name in ('', '../cover.jpg', '/tmp/file', 'C:\\file', 'x/../../cover.jpg', 'x\\..\\cover.jpg', 'x:stream', 'x\0y', 'x//y'):
+            for action, args in (('add', (source, False)), ('get', (None,)), ('rename', ('new', False)), ('remove', (True,))):
+                with self.subTest(name=name, action=action):
+                    self.assertFalse(implementation(db, None, action, 1, name, *args)[0])
+            self.assertFalse(implementation(db, None, 'rename', 1, 'source', name, True)[0])
+        self.assertFalse(implementation(db, None, 'list', 999)[0])
+        self.assertFalse(implementation(db, None, 'unknown', 1)[0])
+        # Even a crafted remote request must not use a server pathname as
+        # the uploaded data, or use its get destination to write on the server.
+        dest = os.path.join(self.mkdtemp(), 'server-output')
+        self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'source', dest), (True, b'file'))
+        self.assertFalse(os.path.exists(dest))
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['source'])
+        self.assertTrue(implementation(db, lambda changes: None, 'add', 1, 'uploaded', (source, b'client bytes'), False)[0])
+        self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'uploaded', dest), (True, b'client bytes'))
+
+    def test_data_files_symlinks(self):
+        from calibre.db.cli.cmd_data_files import implementation
+
+        db = self.init_cache()
+        root = os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')
+        os.makedirs(root)
+        link = os.path.join(root, 'outside')
+        try:
+            os.symlink(os.path.dirname(root), link, target_is_directory=True)
+        except OSError, NotImplementedError:
+            self.skipTest('Creating symlinks is unavailable')
+        for action, args in (('add', (b'', True)), ('get', (None,)), ('remove', (True,))):
+            self.assertFalse(implementation(db, None, action, 1, 'outside/cover.jpg', *args)[0])
+        self.assertIsNotNone(db.cover(1))
+
+    def test_data_files_options(self):
+        db = self.init_cache()
+        for args in (
+            (),
+            ('unknown',),
+            ('list',),
+            ('list', 'one'),
+            ('list', '1', 'extra'),
+            ('get', '1', 'file'),
+            ('list', '1', '--replace'),
+            ('list', '1', '--permanent'),
+            ('list', '1', '--name', 'x'),
+            ('list', '1', '--output', 'x'),
+            ('remove', '1', 'x', '--for-machine'),
+        ):
+            with self.subTest(args=args), self.assertRaises(SystemExit):
+                self.run_data_files(db, *args)
+
+
 class TrashTest(BaseTest):
     def run_trash(self, db, *args, is_remote=False):
         from calibre.db.cli.cmd_trash import implementation, main, option_parser
@@ -909,5 +1041,6 @@ def find_tests():
         loader.loadTestsFromTestCase(AnnotationsTest),
         loader.loadTestsFromTestCase(SavedSearchesTest),
         loader.loadTestsFromTestCase(TrashTest),
+        loader.loadTestsFromTestCase(DataFilesTest),
         loader.loadTestsFromTestCase(VirtualLibrariesTest),
     ))
