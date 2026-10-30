@@ -6,6 +6,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import shutil
 import struct
 import sys
@@ -385,11 +386,15 @@ class Importer:
                 with open(path, 'rb') as f:
                     f.seek(0, os.SEEK_END)
                     size_of_part = f.tell()
+                    if size_of_part < tail_size:
+                        raise ValueError(f'The exported data in {name} is not valid, tail too small')
                     f.seek(-tail_size, os.SEEK_END)
                     raw = f.read()
                 if len(raw) != tail_size:
                     raise ValueError(f'The exported data in {name} is not valid, tail too small')
                 part_num, version, is_last = struct.unpack(Exporter.TAIL_FMT, raw)
+                if part_num < 1 or part_num in part_map:
+                    raise ValueError(f'The exported data in {name} has an invalid or duplicate part number: {part_num}')
                 if version > Exporter.VERSION:
                     raise ValueError(
                         f'The exported data in {name} is not valid, version ({version})'
@@ -409,6 +414,8 @@ class Importer:
             raise ValueError('The last part of this exported data set is missing')
         if len(nums) != nums[-1]:
             raise ValueError('There are some parts of the exported data set missing')
+        if any(part_map[num][1] for num in nums[:-1]):
+            raise ValueError('The exported data set has more than one last part')
         self.part_map, self.part_size_map = {}, {}
         for part_num, (path, is_last, size_of_part) in part_map.items():
             self.part_map[part_num] = path
@@ -416,11 +423,50 @@ class Importer:
         msf = struct.calcsize(Exporter.MDATA_SZ_FMT)
         offset = tail_size + msf
         with self.open_part(nums[-1]) as f:
+            if self.part_size_map[nums[-1]] < offset:
+                raise ValueError('The last part is too small to contain export metadata')
             f.seek(-offset, os.SEEK_END)
             (sz,) = struct.unpack(Exporter.MDATA_SZ_FMT, f.read(msf))
+            self.metadata_start = self.part_size_map[nums[-1]] - offset - sz
+            if self.metadata_start < 0:
+                raise ValueError('The export metadata size is larger than the last part')
             f.seek(-sz - offset, os.SEEK_END)
             self.metadata = json.loads(f.read(sz))
+            if not isinstance(self.metadata, dict) or not isinstance(self.metadata.get('file_metadata'), dict):
+                raise TypeError('The exported data has no valid file metadata')
             self.file_metadata = self.metadata['file_metadata']
+
+    def verify(self, progress=None):
+        """Read every exported file and return errors, without restoring data."""
+        errors, starts, limits, total_size = [], {}, {}, 0
+        last_part = max(self.part_map)
+        for num in sorted(self.part_map):
+            starts[num] = total_size
+            limits[num] = self.metadata_start if num == last_part else self.size_of_part(num)
+            total_size += limits[num]
+        for i, (key, entry) in enumerate(self.file_metadata.items(), 1):
+            if progress is not None:
+                progress(key, i, len(self.file_metadata))
+            try:
+                part, pos, size, digest, mtime = entry
+                if any(type(x) is not int for x in (part, pos, size)) or part not in starts or pos < 0 or size < 0:
+                    raise ValueError('Invalid file position or size')
+                if pos > limits[part] or starts[part] + pos + size > total_size:
+                    raise ValueError('File extends outside the exported data')
+                if not isinstance(digest, str) or re.fullmatch(r'[0-9a-f]{40}', digest) is None:
+                    raise ValueError('Invalid file checksum')
+                before = len(self.corrupted_files)
+                with self.start_file(key, key) as src:
+                    count = 0
+                    while chunk := src.read(1024 * 1024):
+                        count += len(chunk)
+                    if count != size:
+                        raise ValueError(f'Expected {size} bytes, read {count}')
+                if len(self.corrupted_files) != before:
+                    errors.append(f'{key}: Checksum mismatch')
+            except (OSError, ValueError, TypeError, KeyError, OverflowError) as err:
+                errors.append(f'{key}: {err}')
+        return errors
 
     def size_of_part(self, num):
         return self.part_size_map[num] - self.tail_size
@@ -590,6 +636,22 @@ def run_exporter(export_dir=None, args=None, check_known_libraries=True):
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=library_paths)
     else:
         raise SystemExit('No libraries selected for export')
+
+
+def run_verifier(export_dir):
+    try:
+        importer = Importer(os.path.abspath(os.path.expanduser(export_dir)))
+        errors = importer.verify(progress=cli_report)
+    except (OSError, ValueError, TypeError, KeyError, OverflowError, struct.error) as err:
+        prints(_('Verification failed: {}').format(err), file=sys.stderr)
+        return 1
+    if errors:
+        for err in errors:
+            prints(err, file=sys.stderr)
+        prints(_('Verification failed: {0} of {1} files have errors').format(len(errors), len(importer.file_metadata)), file=sys.stderr)
+        return 1
+    prints(_('Verified all {} exported files').format(len(importer.file_metadata)))
+    return 0
 
 
 def run_importer():

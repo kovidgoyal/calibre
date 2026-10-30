@@ -645,6 +645,15 @@ then import it on another computer. First let's see how to export the data:
     folder to your new computer and follow the instructions below to import the
     data.
 
+    You can check the exported data before importing it, without restoring any
+    files or changing your current libraries and settings, by running::
+
+        calibre-debug --verify-calibre-data /path/to/export/folder
+
+    This reads every exported file and verifies its stored checksum, reporting
+    damaged files or missing archive parts. The command returns a nonzero exit
+    status if verification fails, so it can also be used in backup scripts.
+
   * Install calibre on your new computer and run through the :guilabel:`Welcome wizard`, it
     does not matter what you do there, as you will be importing your old
     settings in the next step. You will now have an empty calibre, with just

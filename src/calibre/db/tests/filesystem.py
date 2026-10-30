@@ -297,8 +297,8 @@ class FilesystemTest(BaseTest):
         from calibre.db.cache import import_library
         from calibre.utils.exim import Exporter, Importer
 
-        with TemporaryDirectory('export_lib') as tdir:
-            for part_size in (8, 1, 1024):
+        for part_size in (8, 1, 1024):
+            with TemporaryDirectory('export_lib') as tdir:
                 exporter = Exporter(tdir, part_size=part_size + Exporter.tail_size())
                 files = {
                     'a': b'a' * 7,
@@ -331,6 +331,7 @@ class FilesystemTest(BaseTest):
                 cache.export_library('l', exporter)
                 exporter.commit()
                 importer = Importer(tdir)
+                self.assertFalse(importer.verify())
                 ic = import_library('l', importer, idir)
                 self.assertFalse(importer.corrupted_files)
                 self.assertEqual(cache.all_book_ids(), ic.all_book_ids())
@@ -360,6 +361,7 @@ class FilesystemTest(BaseTest):
             cache.export_library('l', exporter)
             exporter.commit()
             importer = Importer(tdir)
+            self.assertFalse(importer.verify())
             ic = import_library('l', importer, idir)
             self.assertFalse(importer.corrupted_files)
             self.assertEqual(ic.fts_search('exim')[0]['id'], 1)

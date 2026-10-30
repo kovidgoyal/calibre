@@ -157,6 +157,15 @@ as a shebang in scripts, like this:
     )
     parser.add_option('--import-calibre-data', default=False, action='store_true', help=_('Import previously exported calibre data'))
     parser.add_option(
+        '--verify-calibre-data',
+        default=None,
+        metavar='FOLDER',
+        help=_(
+            'Verify every file in a folder exported by calibre, without restoring it.'
+            ' Checks archive parts and file checksums. Returns a nonzero exit status on error'
+        ),
+    )
+    parser.add_option(
         '-s',
         '--shutdown-running-calibre',
         default=False,
@@ -476,6 +485,12 @@ def main(args=sys.argv):
         from calibre.utils.exim import run_exporter
 
         run_exporter(args=args, check_known_libraries=False)
+    elif opts.verify_calibre_data is not None:
+        from calibre.utils.exim import run_verifier
+
+        if len(args) != 1:
+            raise SystemExit(_('Specify only the exported data folder with --verify-calibre-data'))
+        return run_verifier(opts.verify_calibre_data)
     elif opts.import_calibre_data:
         from calibre.utils.exim import run_importer
 
