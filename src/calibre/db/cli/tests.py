@@ -839,6 +839,82 @@ class AnnotationsTest(BaseTest):
             self.assertEqual(self.run_annotations(db, 'import', '1', 'FMT1', '-'), '1 annotations imported\n')
         self.assertEqual(db.annotations_map_for_book(1, 'FMT1')['bookmark'][0]['title'], 'Imported')
 
+    def test_annotations_search(self):
+        from calibre.utils.date import EPOCH
+        from calibre.utils.iso8601 import parse_iso8601
+        from calibre.utils.localization import bcp47_locale_name
+        from calibre_extensions.sqlite_extension import set_ui_language
+
+        db = self.init_cache()
+        # Stemming follows the UI language. These fixtures use English words,
+        # regardless of the locale of the machine running the tests.
+        self.addCleanup(set_ui_language, bcp47_locale_name())
+        set_ui_language('en')
+        timestamp = '2026-01-01T00:00:00+00:00'
+
+        def a(**kw):
+            kw['timestamp'] = timestamp
+            return kw, (parse_iso8601(timestamp) - EPOCH).total_seconds()
+
+        db.set_annotations_for_book(
+            1,
+            'EPUB',
+            [
+                a(type='highlight', uuid='phrase', highlighted_text='The climate change discussion'),
+                a(type='highlight', uuid='notes', highlighted_text='A highlighted passage', notes='Private cobalt\x1b[31m note\ncontinued'),
+                a(type='highlight', uuid='stem', highlighted_text='She was running'),
+                a(type='highlight', uuid='snippet', highlighted_text=' '.join(['before'] * 80 + ['needle'] + ['after'] * 80)),
+                a(type='highlight', uuid='removed', highlighted_text='climate change', removed=True),
+                a(type='bookmark', title='Climate change bookmark', pos_type='epubcfi'),
+            ],
+        )
+        db.set_annotations_for_book(2, 'EPUB', [a(type='highlight', uuid='other', highlighted_text='climate science')])
+        changes = []
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+
+                def run(*args, is_remote=is_remote):
+                    return self.run_annotations(db, 'search', *args, is_remote=is_remote, changes=changes)
+
+                phrase = json.loads(run('"climate change"', '-f', 'json'))
+                self.assertEqual({a['annotation']['type'] for a in phrase}, {'bookmark', 'highlight'})
+                self.assertEqual({a['book_id'] for a in phrase}, {1})
+                self.assertEqual({a['title'] for a in phrase}, {'Title Two'})
+                self.assertTrue(all(a['id'] > 0 and a['format'] == 'EPUB' and a['user_type'] == 'local' and a['user'] == 'viewer' for a in phrase))
+                self.assertEqual(len(json.loads(run('climate', '-f', 'json'))), 3)
+                self.assertEqual(len(json.loads(run('climate', '-f', 'json', '-s', 'id:2'))), 1)
+                self.assertEqual(json.loads(run('climate', '-f', 'json', '-s', 'id:999')), [])
+                self.assertEqual(len(json.loads(run('climate', '-f', 'json', '-t', 'bookmark'))), 1)
+                self.assertEqual(len(json.loads(run('run', '-f', 'json'))), 1)
+                self.assertEqual(json.loads(run('run', '--no-stemming', '-f', 'json')), [])
+                self.assertEqual(run('missingword'), '')
+                snippet = json.loads(run('needle', '-f', 'json'))[0]
+                self.assertIn('needle', snippet['text'])
+                self.assertLess(len(snippet['text']), len(snippet['annotation']['highlighted_text']))
+                notes = run('cobalt').splitlines()
+                self.assertEqual(len(notes), 1)
+                self.assertEqual(len(notes[0].split('\t')), 6)
+                self.assertIn('cobalt', notes[0])
+                self.assertNotIn('\x1b', notes[0])
+                self.assertEqual(json.loads(run('cobalt', '-f', 'json'))[0]['annotation']['uuid'], 'notes')
+        self.assertFalse(changes)
+
+    def test_annotations_search_invalid(self):
+        db = self.init_cache()
+        for args, msg in (
+            (('search',), 'non-empty'),
+            (('search', ''), 'non-empty'),
+            (('search', ' '), 'non-empty'),
+            (('search', 'one', 'two'), 'non-empty'),
+            (('search', 'one', '-f', 'markdown'), 'text or json'),
+            (('search', '"unterminated'), 'Failed'),
+            (('search', 'word', '-s', '('), 'Failed to parse search query'),
+            (('list', '--no-stemming'), 'only be used with search'),
+        ):
+            for is_remote in (False, True):
+                with self.subTest(args=args, is_remote=is_remote), self.assertRaisesRegex(SystemExit, msg):
+                    self.run_annotations(db, *args, is_remote=is_remote)
+
 
 class SavedSearchesTest(BaseTest):
     def test_saved_searches_remote(self):
