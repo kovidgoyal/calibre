@@ -4,6 +4,7 @@
 import json
 
 from calibre import prints
+from calibre.db.cli.utils import args_to_action
 from calibre.srv.changes import virtual_libraries
 from calibre.utils.localization import _, ngettext
 
@@ -147,10 +148,7 @@ def check_name(name: str) -> None:
 def main(opts, args, dbctx):
     from calibre.utils.icu import sort_key
 
-    args = args or [ACTION_DEFAULT]
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action == 'list':
         if args:
             raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))

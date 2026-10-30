@@ -6,6 +6,7 @@ import re
 
 from calibre import prints
 from calibre.db.cli import integers_from_string
+from calibre.db.cli.utils import args_to_action, check_options_exclusion
 from calibre.utils.localization import _, ngettext
 
 readonly = False
@@ -137,16 +138,14 @@ def run(dbctx, *args):
 def main(opts, args, dbctx):
     from calibre.utils.date import as_local_time, utcfromtimestamp
 
-    if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: {}').format(', '.join(ACTIONS)))
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    action, args = args_to_action(args, ACTIONS)
+    check_options_exclusion(
+        action,
+        ('--formats', action in ('list', 'empty') and opts.formats),
+    )
     if action in ('list', 'empty'):
         if args:
             raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
-        if opts.formats:
-            raise SystemExit(_('Error: The --formats option cannot be used with the {} action').format(action))
         if action == 'empty':
             run(dbctx, 'empty')
             prints(_('The trash bin has been emptied'))

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, softwaregames1
 
+from calibre.db.cli.utils import args_to_action
 from calibre.db.tables import ManyToOneTable
 from calibre.srv.changes import metadata
 from calibre.utils.localization import _, ngettext
@@ -113,11 +114,7 @@ Remove one or more items from all books. Authors cannot be removed:
 
 
 def main(opts, args, dbctx):
-    if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: {}').format(', '.join(ACTIONS)))
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    action, args = args_to_action(args, ACTIONS)
     if action == 'rename':
         if len(args) != 3:
             raise SystemExit(_('Error: You must specify a field, the name of an item and its new name'))

@@ -6,7 +6,7 @@ import sys
 
 from calibre import prints
 from calibre.db import FTSQueryError
-from calibre.db.cli.utils import for_terminal
+from calibre.db.cli.utils import args_to_action, check_options_exclusion, for_terminal
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.html2text import html2text
 from calibre.utils.localization import _
@@ -162,17 +162,15 @@ def run(dbctx, *args):
 
 
 def main(opts, args, dbctx):
-    args = args or [ACTION_DEFAULT]
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
-    if opts.field is not None and action != 'search':
-        raise SystemExit(_('Error: The --field option can only be used with search'))
+    action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
+    check_options_exclusion(
+        action,
+        ('--field', action != 'search' and opts.field is not None, 'only with search'),
+        ('--as-html', action == 'search' and opts.as_html),
+    )
     if action == 'search':
         if len(args) != 1 or not args[0].strip():
             raise SystemExit(_('Error: You must specify one non-empty search expression'))
-        if opts.as_html:
-            raise SystemExit(_('Error: The --as-html option cannot be used with search'))
         for field, item_name, text in run(dbctx, 'search', args[0], opts.field):
             # Keep each result on one line and remove terminal control characters.
             prints(for_terminal('\t'.join(' '.join(x.split()) for x in (field, item_name or '', text))))
