@@ -134,7 +134,7 @@ def extract_calibre_cover(raw, base, log, root=''):
 
     soup = BeautifulSoup(raw)
     matches = soup.find(name=['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'font', 'br'])
-    images = soup.findAll('img', src=True)
+    images = soup.find_all('img', src=True)
     if matches is None and len(images) == 1 and images[0].get('alt', '').lower() == 'cover':
         img = images[0]
         img = os.path.join(base, *img['src'].split('/'))
@@ -146,11 +146,11 @@ def extract_calibre_cover(raw, base, log, root=''):
     if matches is None:
         body = soup.find('body')
         if body is not None:
-            text = ''.join(map(str, body.findAll(text=True)))
+            text = ''.join(map(str, body.find_all(string=True)))
             if text.strip():
                 # Body has text, abort
                 return
-            images = body.findAll('img', src=True)
+            images = body.find_all('img', src=True)
             if len(images) == 1:
                 img = os.path.join(base, *images[0]['src'].split('/'))
                 return return_raster_image(img, root or base)

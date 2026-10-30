@@ -183,6 +183,8 @@ class PipeTestResult(unittest.TestResult):
       'skip' – addSkip      (+ 'msg')
       'xf'   – addExpectedFailure (+ 'msg')
       'xp'   – addUnexpectedSuccess
+    Failing subtests are emitted as 'fail' or 'err' events, once per failing
+    subtest, with the id of their parent test.
     All events except 's' carry 't' (elapsed seconds as float).
     """
 
@@ -241,6 +243,16 @@ class PipeTestResult(unittest.TestResult):
     def addError(self, test: unittest.TestCase, err) -> None:
         super().addError(test, err)
         self._emit({'e': 'err', 'id': test.id(), 't': self._elapsed(test), 'msg': self._exc_info_to_string(err, test)})  # type: ignore
+
+    def addSubTest(self, test: unittest.TestCase, subtest: unittest.TestCase, err) -> None:
+        # unittest reports failing subtests only via this method, not via
+        # addFailure()/addError(), so they must be emitted here, otherwise the
+        # test is never reported back to the master
+        super().addSubTest(test, subtest, err)
+        if err is not None:
+            e = 'fail' if issubclass(err[0], test.failureException) else 'err'
+            elapsed = monotonic() - self._start.get(test.id(), monotonic())
+            self._emit({'e': e, 'id': test.id(), 't': elapsed, 'msg': f'{subtest.id()}\n{self._exc_info_to_string(err, test)}'})  # type: ignore
 
     def addSkip(self, test: unittest.TestCase, reason: str) -> None:
         super().addSkip(test, reason)
@@ -562,7 +574,8 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
             tid = event.get('id', '')
             t = float(event.get('t', 0.0))
             if e != 's':  # skip start events, they carry no result
-                completed += 1
+                if tid not in times:  # a test with failing subtests reports once per failure
+                    completed += 1
                 times[tid] = t
                 if e == 'ok':
                     ok_count += 1
