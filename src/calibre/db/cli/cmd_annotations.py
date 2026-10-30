@@ -9,20 +9,38 @@ from calibre.db.cli.utils import for_terminal
 from calibre.utils.localization import _
 
 readonly = False
-version = 0  # change this if you change signature of implementation()
+version = 1  # change this if you change signature of implementation()
 ANNOTATION_TYPES = ('highlight', 'bookmark')
 EXPORT_FORMATS = ('text', 'markdown', 'json')
+USER_TYPES = ('local', 'web')
+# The text fields of the annotations created by the viewers, other fields are
+# not imported
+TEXT_FIELDS = {
+    'highlight': ('highlighted_text', 'notes', 'start_cfi', 'end_cfi', 'spine_name'),
+    'bookmark': ('pos', 'pos_type'),
+}
 
 
-def annotations_to_import(data, fmt):
+def canonical_timestamp(ts: str) -> str:
+    # Annotations are merged by comparing their timestamps as strings, so use
+    # the UTC format created by the viewers, for example: 2026-01-01T00:00:00.000Z
     from calibre.utils.iso8601 import parse_iso8601
 
+    return parse_iso8601(ts, assume_utc=True).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+
+
+def annotations_to_import(data: object, fmt: str) -> tuple[list[dict], int]:
+    """
+    Validate the annotation collection, returning its annotations of the
+    specified format, ready to be merged, and the number of annotations of
+    other formats, which are skipped.
+    """
     if not isinstance(data, dict) or data.get('type') != 'calibre_annotation_collection' or type(data.get('version')) is not int or data['version'] != 1:
         raise ValueError(_('Not a supported calibre annotation collection'))
     annotations = data.get('annotations')
     if not isinstance(annotations, list):
         raise TypeError(_('The annotation collection must contain a list of annotations'))
-    book_ids, ans = set(), []
+    book_ids, users, ans, skipped = set(), set(), [], 0
     for i, a in enumerate(annotations, 1):
         try:
             if not isinstance(a, dict) or a.get('type') not in ANNOTATION_TYPES or a.get('removed'):
@@ -32,31 +50,57 @@ def annotations_to_import(data, fmt):
             book_ids.add(a['book_id'])
             if len(book_ids) > 1:
                 raise ValueError(_('The collection contains more than one book; export one book at a time'))
-            if not isinstance(a.get('format'), str) or a['format'].upper() != fmt:
-                raise ValueError(_('The source and destination formats must match'))
-            field = 'uuid' if a['type'] == 'highlight' else 'title'
-            if not isinstance(a.get(field), str) or (field == 'uuid' and not a[field]):
+            if not isinstance(a.get('format'), str) or not a['format']:
+                raise ValueError(_('Missing or invalid format'))
+            # Collections exported by older versions of calibre do not record
+            # the user
+            user_type, user = a.get('user_type'), a.get('user')
+            if (user_type, user) != (None, None) and (user_type not in USER_TYPES or not isinstance(user, str) or not user):
+                raise ValueError(_('Invalid annotation user'))
+            atype = a['type']
+            field = 'uuid' if atype == 'highlight' else 'title'
+            if not isinstance(a.get(field), str) or not a[field]:
                 raise ValueError(_('Missing or invalid annotation identity: {}').format(field))
             if not isinstance(a.get('timestamp'), str) or not a['timestamp']:
                 raise ValueError(_('Missing annotation timestamp'))
-            parse_iso8601(a['timestamp'], assume_utc=True)
-            for key in ('highlighted_text', 'notes', 'start_cfi', 'end_cfi', 'spine_name', 'pos', 'pos_type'):
-                if a.get(key) is not None and not isinstance(a[key], str):
-                    raise ValueError(_('Invalid annotation field: {}').format(key))
-            if a.get('spine_index') is not None and (type(a['spine_index']) is not int or a['spine_index'] < 0):
-                raise ValueError(_('Invalid spine index'))
-            if a.get('style') is not None and not isinstance(a['style'], dict):
-                raise ValueError(_('Invalid annotation style'))
-            if a.get('toc_family_titles') is not None and (
-                not isinstance(a['toc_family_titles'], list) or not all(isinstance(x, str) for x in a['toc_family_titles'])
-            ):
-                raise ValueError(_('Invalid annotation chapter titles'))
+            # Source book ids and formats are only used to validate the
+            # collection, they must never determine where annotations are
+            # stored in the target library. Only known fields are imported.
+            x = {'type': atype, field: a[field], 'timestamp': canonical_timestamp(a['timestamp'])}
+            for key in TEXT_FIELDS[atype]:
+                if (val := a.get(key)) is not None:
+                    if not isinstance(val, str):
+                        raise ValueError(_('Invalid annotation field: {}').format(key))
+                    x[key] = val
+            if atype == 'highlight':
+                if (val := a.get('spine_index')) is not None:
+                    if type(val) is not int or val < 0:
+                        raise ValueError(_('Invalid spine index'))
+                    x['spine_index'] = val
+                if (val := a.get('style')) is not None:
+                    if not isinstance(val, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in val.items()):
+                        raise ValueError(_('Invalid annotation style'))
+                    x['style'] = val
+                if (val := a.get('toc_family_titles')) is not None:
+                    if not isinstance(val, list) or not all(isinstance(t, str) for t in val):
+                        raise ValueError(_('Invalid annotation chapter titles'))
+                    x['toc_family_titles'] = val
         except (ValueError, TypeError, OverflowError) as err:
             raise ValueError(_('Invalid annotation {0}: {1}').format(i, err)) from err
-        # Source book ids are only used to detect mixed collections. They must
-        # never determine where annotations are stored in the target library.
-        ans.append({k: v for k, v in a.items() if k not in ('book_id', 'format')})
-    return ans
+        if a['format'].upper() != fmt:
+            skipped += 1
+            continue
+        if user_type is not None:
+            users.add((user_type, user))
+        ans.append(x)
+    if len(users) > 1:
+        raise ValueError(
+            _(
+                'The collection contains annotations from more than one user; export the annotations of one user'
+                ' at a time with the --user-type and --annotation-user options'
+            )
+        )
+    return ans, skipped
 
 
 def implementation(db, notify_changes, action, *args):
@@ -65,24 +109,31 @@ def implementation(db, notify_changes, action, *args):
     is_remote = notify_changes is not None
     if action == 'import':
         book_id, fmt, data, user_type, user = args
-        if user_type not in ('local', 'web') or not isinstance(user, str) or not user.strip():
+        if user_type not in USER_TYPES or not isinstance(user, str) or not user.strip() or (user_type == 'local' and user != 'viewer'):
             return False, _('Invalid annotation user')
         try:
-            annots = annotations_to_import(data, fmt)
+            annots, skipped = annotations_to_import(data, fmt)
         except (ValueError, TypeError) as err:
             return False, str(err)
+
+        def serialized(amap):
+            return {json.dumps(x, sort_keys=True) for values in amap.values() for x in values}
+
+        changed = 0
         with db.quiet_write_lock:
             if not db._has_id(book_id):
                 return False, _('No book with id: {}').format(book_id)
             if fmt not in db._formats(book_id):
                 return False, _('Book {0} has no {1} format').format(book_id, fmt)
             if annots:
+                before = serialized(db._annotations_map_for_book(book_id, fmt, user_type=user_type, user=user))
                 db._merge_annotations_for_book(book_id, fmt, annots, user_type=user_type, user=user)
-        if is_remote and annots:
+                changed = len(serialized(db._annotations_map_for_book(book_id, fmt, user_type=user_type, user=user)) - before)
+        if is_remote and changed:
             from calibre.srv.changes import metadata
 
             notify_changes(metadata((book_id,)))
-        return True, len(annots)
+        return True, {'imported': changed, 'unchanged': max(0, len(annots) - changed), 'skipped': skipped}
     if action == 'remove':
         annot_ids = {int(x) for x in args[0]}
         with db.quiet_write_lock:
@@ -97,7 +148,7 @@ def implementation(db, notify_changes, action, *args):
         return True, len(book_map)
     if action != 'get':
         return False, _('Unknown action: {}').format(action)
-    search, annotation_type = args[:2]
+    search, annotation_type, user_type, user = args
     book_ids = None
     if search:
         try:
@@ -106,6 +157,7 @@ def implementation(db, notify_changes, action, *args):
             return False, _('Failed to parse search query: ({0}) with error: {1}').format(search, e)
     with db.safe_read_lock:
         annots = db._all_annotations(annotation_type=annotation_type or None, ignore_removed=True, restrict_to_book_ids=book_ids)
+        annots = [a for a in annots if (not user_type or a['user_type'] == user_type) and (not user or a['user'] == user)]
         titles = {book_id: db._field_for('title', book_id) for book_id in {a['book_id'] for a in annots}}
     return True, (annots, titles)
 
@@ -131,9 +183,10 @@ button in the Browse annotations tool:
 
 Import a calibre annotation collection exported as JSON by this command or
 the Browse annotations tool. The collection must contain annotations from
-only one book and format. BOOK_ID is the destination book id, not the id
-stored in the file. FORMAT must match the source format and must exist in
-the destination book. Use the same edition of the book so positions match:
+only one book. BOOK_ID is the destination book id, not the id stored in the
+file. Only the annotations of the format FORMAT are imported, annotations of
+other formats are skipped. FORMAT must exist in the destination book. Use the
+same edition of the book so positions match:
 
 %prog annotations import BOOK_ID FORMAT FILE
 
@@ -143,9 +196,12 @@ the viewer's rules: highlights are matched by UUID and bookmarks by title,
 and the newer timestamp wins. Repeated imports do not create duplicates.
 Unrelated annotations and reading positions are preserved.
 
-By default import into the desktop viewer's local:viewer annotations.
-Use --user-type web --annotation-user USER to import into a Content server
-reader account instead. Both local and remote libraries are supported.
+By default annotations are imported into those of the calibre E-book viewer.
+Use --user-type web --annotation-user USER to import them into those of a
+Content server user instead. Exported collections record the user the
+annotations belong to, and if a collection contains annotations of more than
+one user, it is rejected. Use the --user-type and --annotation-user
+options when exporting, to export the annotations of a single user.
 
 Permanently remove the annotations with the specified ids, as shown by list:
 
@@ -155,14 +211,21 @@ Permanently remove the annotations with the specified ids, as shown by list:
     )
     parser.add_option(
         '--user-type',
-        default='local',
-        choices=('local', 'web'),
-        help=_('For import, select desktop viewer annotations (local) or Content server reader annotations (web). Default: %default'),
+        default=None,
+        choices=USER_TYPES,
+        help=_(
+            'Only list or export the annotations of the specified type of user. For import, the type of user to import the'
+            ' annotations for, the calibre E-book viewer (local) or a Content server user (web). Default for import is local.'
+        ),
     )
     parser.add_option(
         '--annotation-user',
         default=None,
-        help=_('For import, the owner of the annotations. Defaults to viewer for local annotations; required for web annotations'),
+        help=_(
+            'Only list or export the annotations of the specified user. For import, the Content server user to import the'
+            ' annotations for, required with --user-type web. Note that this can be any user, not just the one used to'
+            ' connect to a remote library.'
+        ),
     )
     parser.add_option(
         '-s',
@@ -219,8 +282,6 @@ def main(opts, args, dbctx):
     if not args:
         raise SystemExit(_('Error: You must specify an action, one of: (list|export|import|remove)'))
     action, args = args[0], args[1:]
-    if action != 'import' and (opts.user_type != 'local' or opts.annotation_user is not None):
-        raise SystemExit(_('Error: The --user-type and --annotation-user options can only be used with import'))
     if action == 'import':
         if opts.search or opts.type or opts.format != 'text':
             raise SystemExit(_('Error: The --search, --type and --format options cannot be used with import'))
@@ -230,8 +291,12 @@ def main(opts, args, dbctx):
             book_id = int(args[0])
         except ValueError:
             raise SystemExit(_('Error: The destination book id must be a number'))
-        if opts.user_type == 'web' and not opts.annotation_user:
+        user_type = opts.user_type or 'local'
+        if user_type == 'web' and not opts.annotation_user:
             raise SystemExit(_('Error: Specify --annotation-user for web annotations'))
+        user = opts.annotation_user or 'viewer'
+        if user_type == 'local' and user != 'viewer':
+            raise SystemExit(_('Error: Local annotations can only be imported for the calibre E-book viewer, use --user-type web for Content server users'))
         try:
             if args[2] == '-':
                 data = json.loads(sys.stdin.buffer.read().decode('utf-8-sig'))
@@ -240,12 +305,18 @@ def main(opts, args, dbctx):
                     data = json.load(f)
         except (OSError, ValueError) as err:
             raise SystemExit(_('Error: Failed to read annotation collection: {}').format(err))
-        count = run(dbctx, 'import', book_id, args[1].upper(), data, opts.user_type, opts.annotation_user if opts.annotation_user is not None else 'viewer')
-        prints(_('{} annotations imported').format(count))
+        counts = run(dbctx, 'import', book_id, args[1].upper(), data, user_type, user)
+        prints(_('{} annotations imported').format(counts['imported']))
+        if counts['unchanged']:
+            prints(_('{} annotations unchanged, as the library already has the same or newer versions').format(counts['unchanged']))
+        if counts['skipped']:
+            prints(_('{} annotations of other formats skipped').format(counts['skipped']))
         return 0
     if action == 'remove':
         if opts.search or opts.type:
             raise SystemExit(_('Error: The --search and --type options cannot be used with remove, specify the ids of the annotations instead'))
+        if opts.user_type or opts.annotation_user:
+            raise SystemExit(_('Error: The --user-type and --annotation-user options cannot be used with remove'))
         if not args:
             raise SystemExit(_('Error: You must specify the ids of the annotations to remove'))
         try:
@@ -259,7 +330,7 @@ def main(opts, args, dbctx):
         raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|export|import|remove)').format(action))
     if args:
         raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
-    annots, titles = run(dbctx, 'get', opts.search, opts.type)
+    annots, titles = run(dbctx, 'get', opts.search, opts.type, opts.user_type, opts.annotation_user)
     # Book ids are sent as strings when using a remote library
     titles = {int(k): v for k, v in titles.items()}
     if action == 'list':
@@ -273,7 +344,7 @@ def main(opts, args, dbctx):
         collection = []
         for a in annots:
             x = a['annotation'].copy()
-            x['book_id'], x['format'] = a['book_id'], a['format']
+            x['book_id'], x['format'], x['user_type'], x['user'] = a['book_id'], a['format'], a['user_type'], a['user']
             collection.append(x)
         data = json.dumps({'version': 1, 'type': 'calibre_annotation_collection', 'annotations': collection}, ensure_ascii=False, sort_keys=True, indent=2)
     else:

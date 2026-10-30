@@ -646,10 +646,10 @@ class AnnotationsTest(BaseTest):
                 reading_position = db.get_last_read_positions(book_id, 'FMT1')
                 db.set_annotations_for_book(book_id, 'FMT1', [a(type='bookmark', title='Web bookmark')], user_type='web', user='reader')
                 changes = []
-                for repeat in range(2):
+                for imported, unchanged in ((1, 1), (0, 2)):
                     self.assertEqual(
                         self.run_annotations(db, 'import', str(book_id), 'fmt1', path, is_remote=is_remote, changes=changes),
-                        '2 annotations imported\n',
+                        f'{imported} annotations imported\n{unchanged} annotations unchanged, as the library already has the same or newer versions\n',
                     )
                     amap = db.annotations_map_for_book(book_id, 'FMT1')
                     self.assertEqual({h['uuid']: h['highlighted_text'] for h in amap['highlight']}, {'shared': 'Newer', 'unrelated': 'Unrelated'})
@@ -657,7 +657,8 @@ class AnnotationsTest(BaseTest):
                     self.assertEqual(db.get_last_read_positions(book_id, 'FMT1'), reading_position)
                     self.assertEqual(db.annotations_map_for_book(book_id, 'FMT1', user_type='web', user='reader')['bookmark'][0]['title'], 'Web bookmark')
                     self.assertTrue(all('book_id' not in x and 'format' not in x for values in amap.values() for x in values))
-                self.assertEqual([c.book_ids for c in changes], [frozenset((book_id,))] * (2 if is_remote else 0))
+                # Only imports that change something are notified
+                self.assertEqual([c.book_ids for c in changes], [frozenset((book_id,))] * (1 if is_remote else 0))
                 self.run_annotations(db, 'import', str(book_id), 'FMT1', path, '--user-type', 'web', '--annotation-user', 'reader', is_remote=is_remote)
                 web = db.annotations_map_for_book(book_id, 'FMT1', user_type='web', user='reader')
                 self.assertEqual({b['title'] for b in web['bookmark']}, {'Bookmark', 'Web bookmark'})
@@ -689,8 +690,11 @@ class AnnotationsTest(BaseTest):
             {'timestamp': 'bad'},
             {'book_id': None},
             {'book_id': True},
-            {'format': 'PDF'},
             {'format': None},
+            {'user_type': 'web'},
+            {'user_type': 'other', 'user': 'x'},
+            {'title': '', 'type': 'bookmark'},
+            {'style': {'kind': ['color']}},
             {'removed': True},
             {'notes': []},
             {'spine_index': -1},
@@ -699,7 +703,12 @@ class AnnotationsTest(BaseTest):
             {'toc_family_titles': [2]},
         ):
             invalid.append(dict(collection, annotations=[annot, dict(annot, **patch)]))
-        invalid.extend((dict(collection, annotations=[annot, dict(annot, book_id=21)]), dict(collection, annotations=[annot, None])))
+        invalid.extend((
+            dict(collection, annotations=[annot, dict(annot, book_id=21)]),
+            dict(collection, annotations=[annot, None]),
+            # Annotations of different users must not be merged into one
+            dict(collection, annotations=[dict(annot, user_type='local', user='viewer'), dict(annot, user_type='web', user='reader')]),
+        ))
         for data in invalid:
             with self.subTest(data=data):
                 changes = []
@@ -712,17 +721,22 @@ class AnnotationsTest(BaseTest):
             (1, 'PDF', 'local', 'viewer'),
             (1, 'FMT1', 'other', 'viewer'),
             (1, 'FMT1', 'web', ''),
+            (1, 'FMT1', 'local', 'other'),
         ):
             self.assertFalse(implementation(db, None, 'import', book_id, fmt, deepcopy(collection), user_type, user)[0])
         changes = []
-        self.assertEqual(implementation(db, changes.append, 'import', 1, 'FMT1', dict(collection, annotations=[]), 'local', 'viewer'), (True, 0))
+        self.assertEqual(
+            implementation(db, changes.append, 'import', 1, 'FMT1', dict(collection, annotations=[]), 'local', 'viewer'),
+            (True, {'imported': 0, 'unchanged': 0, 'skipped': 0}),
+        )
         self.assertFalse(changes)
         for args, msg in (
             (('import',), 'Specify a destination'),
             (('import', 'x', 'FMT1', 'file'), 'must be a number'),
             (('import', '1', 'FMT1', 'file', '--user-type', 'web'), 'Specify --annotation-user'),
             (('import', '1', 'FMT1', 'file', '-s', 'id:1'), 'cannot be used with import'),
-            (('list', '--annotation-user', 'reader'), 'only be used with import'),
+            (('import', '1', 'FMT1', 'file', '--annotation-user', 'reader'), 'only be imported for the calibre E-book viewer'),
+            (('remove', '1', '--annotation-user', 'reader'), 'cannot be used with remove'),
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_annotations(db, *args)
@@ -731,6 +745,83 @@ class AnnotationsTest(BaseTest):
             f.write('not JSON')
         with self.assertRaisesRegex(SystemExit, 'Failed to read'):
             self.run_annotations(db, 'import', '1', 'FMT1', path)
+
+    def test_annotations_import_normalization(self):
+        from io import BytesIO
+
+        from calibre.db.cli.cmd_annotations import implementation
+        from calibre.utils.date import EPOCH
+        from calibre.utils.iso8601 import parse_iso8601
+
+        db = self.init_cache()
+        db.add_format(1, 'FMT1', BytesIO(b'book'), run_hooks=False)
+        newer = '2026-01-01T12:00:00.000Z'
+        db.set_annotations_for_book(
+            1, 'FMT1', [({'type': 'highlight', 'uuid': 'u', 'highlighted_text': 'Newer', 'timestamp': newer}, (parse_iso8601(newer) - EPOCH).total_seconds())]
+        )
+
+        def annot(**kw):
+            return dict({'type': 'highlight', 'book_id': 7, 'format': 'FMT1', 'timestamp': '2026-01-01T00:00:00Z'}, **kw)
+
+        collection = {
+            'version': 1,
+            'type': 'calibre_annotation_collection',
+            'annotations': [
+                # Older, even though it compares as newer as a string
+                annot(uuid='u', highlighted_text='Older', timestamp='2026-01-01T20:00:00+10:00'),
+                annot(uuid='naive', timestamp='2026-01-02T03:04:05.678912', unknown={'x': 1}, style={'kind': 'color', 'which': 'yellow'}),
+                annot(uuid='other-format', format='PDF'),
+            ],
+        }
+        self.assertEqual(implementation(db, None, 'import', 1, 'FMT1', collection, 'local', 'viewer'), (True, {'imported': 1, 'unchanged': 1, 'skipped': 1}))
+        hmap = {h['uuid']: h for h in db.annotations_map_for_book(1, 'FMT1')['highlight']}
+        self.assertEqual(set(hmap), {'u', 'naive'})
+        self.assertEqual(hmap['u']['highlighted_text'], 'Newer')
+        # Timestamps are stored in the UTC format used by the viewers and
+        # unknown fields are dropped
+        self.assertEqual(
+            hmap['naive'], {'type': 'highlight', 'uuid': 'naive', 'timestamp': '2026-01-02T03:04:05.678Z', 'style': {'kind': 'color', 'which': 'yellow'}}
+        )
+
+    def test_annotations_import_users(self):
+        from io import BytesIO
+
+        from calibre.utils.date import EPOCH
+        from calibre.utils.iso8601 import parse_iso8601
+
+        db = self.init_cache()
+        for book_id in (1, 2):
+            db.add_format(book_id, 'FMT1', BytesIO(b'book'), run_hooks=False)
+        db.add_format(1, 'FMT2', BytesIO(b'book'), run_hooks=False)
+        ts = '2026-01-01T00:00:00.000Z'
+
+        def bookmark(title):
+            return {'type': 'bookmark', 'title': title, 'timestamp': ts}, (parse_iso8601(ts) - EPOCH).total_seconds()
+
+        db.set_annotations_for_book(1, 'FMT1', [bookmark('local')])
+        db.set_annotations_for_book(1, 'FMT2', [bookmark('other format')])
+        db.set_annotations_for_book(1, 'FMT1', [bookmark('web')], user_type='web', user='reader')
+        tdir = self.mkdtemp()
+
+        def export(name, *args):
+            path = os.path.join(tdir, name)
+            with open(path, 'w') as f:
+                f.write(self.run_annotations(db, 'export', '-s', 'id:1', '-f', 'json', *args))
+            return path
+
+        path = export('all.json')
+        with self.assertRaisesRegex(SystemExit, 'more than one user'):
+            self.run_annotations(db, 'import', '2', 'FMT1', path)
+        self.assertEqual(db.annotations_map_for_book(2, 'FMT1'), {})
+        self.assertEqual(len(self.run_annotations(db, 'list', '--user-type', 'web').splitlines()), 1)
+        self.assertEqual(len(self.run_annotations(db, 'list', '--annotation-user', 'viewer').splitlines()), 2)
+        # Annotations of another user can be transferred, those of other formats are skipped
+        path = export('web.json', '--user-type', 'web', '--annotation-user', 'reader')
+        self.assertEqual(self.run_annotations(db, 'import', '2', 'FMT1', path), '1 annotations imported\n')
+        path = export('local.json', '--user-type', 'local')
+        self.assertEqual(self.run_annotations(db, 'import', '2', 'FMT1', path), '1 annotations imported\n1 annotations of other formats skipped\n')
+        self.assertEqual({b['title'] for b in db.annotations_map_for_book(2, 'FMT1')['bookmark']}, {'local', 'web'})
+        self.assertEqual(db.annotations_map_for_book(2, 'FMT1', user_type='web', user='reader'), {})
 
     def test_annotations_import_stdin(self):
         from io import BytesIO, TextIOWrapper

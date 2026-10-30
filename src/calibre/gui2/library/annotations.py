@@ -1485,7 +1485,7 @@ class ResultsList(QTreeWidget):
         for item in self.selectedItems():
             x = item.data(0, Qt.ItemDataRole.UserRole)
             ans = x['annotation'].copy()
-            for key in ('book_id', 'format'):
+            for key in ('book_id', 'format', 'user_type', 'user'):
                 ans[key] = x[key]
             yield ans
 

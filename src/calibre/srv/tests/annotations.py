@@ -48,8 +48,9 @@ class AnnotationsTest(LibraryBaseTest):
                 with self.subTest(user=user), self.assertRaises(SystemExit):
                     run('import', '1', 'TXT', path, user=user)
             self.ae(db.annotations_map_for_book(1, 'TXT'), {})
-            for repeat in range(2):
-                self.ae(run('import', '1', 'txt', path), '1 annotations imported\n')
+            unchanged = '1 annotations unchanged, as the library already has the same or newer versions\n'
+            for expected in ('1 annotations imported\n', '0 annotations imported\n' + unchanged):
+                self.ae(run('import', '1', 'txt', path), expected)
                 highlights = db.annotations_map_for_book(1, 'TXT')['highlight']
                 self.ae(len(highlights), 1)
                 self.ae(highlights[0]['highlighted_text'], '読書')
