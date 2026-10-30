@@ -12,7 +12,7 @@ from typing import NamedTuple
 from polyglot.builtins import environ_item, hasenv
 
 __appname__ = 'calibre'
-numeric_version = (9, 17, 0)
+numeric_version = (9, 17, 100)
 __version__ = '.'.join(map(str, numeric_version))
 git_version = None
 __author__ = 'Kovid Goyal <kovid@kovidgoyal.net>'
