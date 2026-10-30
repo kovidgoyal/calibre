@@ -277,6 +277,9 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
             dest.seek(0)
 
     cd = sanitize_content_disposition(rd.query.get('content_disposition', 'attachment'))
+    # Content-Type for this response is guessed from the filename when the
+    # response is sent, see http_response.py
+    add_sandbox_headers(rd, guess_type('x.' + fmt)[0] or '')
     rd.outheaders['Content-Disposition'] = (
         f'''{cd}; filename="{book_filename(rd, book_id, mi, fmt)}"; filename*=utf-8''{book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True)}'''
     )

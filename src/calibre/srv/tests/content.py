@@ -133,6 +133,20 @@ class ContentTest(LibraryBaseTest):
             self.ae(data, db.format(1, 'fmt1'))
             self.ae(r.getheader('Used-Cache'), 'yes')
 
+            # Test that scriptable formats served inline are sandboxed
+            db.add_format(1, 'HTML', BytesIO(b'<script>alert(1)</script>'), run_hooks=False)
+            for q in ('', 'content_disposition=inline'):
+                r, data = get('html', 1, q=q)
+                self.ae(r.status, http.client.OK)
+                self.assertTrue(r.getheader('Content-Type').startswith('text/html'))
+                self.ae(r.getheader('Content-Security-Policy'), 'sandbox allow-scripts allow-downloads')
+                self.ae(r.getheader('X-Content-Type-Options'), 'nosniff')
+            db.add_format(1, 'TXT', BytesIO(b'<script>alert(1)</script>'), run_hooks=False)
+            r, data = get('txt', 1, q='content_disposition=inline')
+            self.ae(r.status, http.client.OK)
+            self.assertIsNone(r.getheader('Content-Security-Policy'))
+            db.remove_formats({1: ('HTML', 'TXT')})
+
             # Test fetching of format with metadata update
             raw = P('quick_start/eng.epub', data=True)
             r, data = get('epub', 1)
