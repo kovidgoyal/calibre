@@ -5,6 +5,7 @@
 
 import hashlib
 import json
+import posixpath
 import zlib
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -25,7 +26,7 @@ from calibre.srv.routes import endpoint
 from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.utils.zipfile import BadZipfile, ZipFile
+from calibre.utils.zipfile import BadZipfile, ZipFile, ZipInfo
 
 DIVINA_PROFILE = 'https://readium.org/webpub-manifest/profiles/divina'
 IMAGE_TYPES = {
@@ -118,21 +119,42 @@ def comic_pages(archive: ZipFile) -> list[str]:
     return find_pages([x.filename for x in archive.infolist() if not x.filename.endswith('/')])
 
 
-def comic_is_right_to_left(archive: ZipFile) -> bool:
-    info = next((x for x in archive.infolist() if x.filename.lower() == 'comicinfo.xml'), None)
-    if info is None:
-        return False
+def comic_info_candidates(archive: ZipFile, pages: list[str]) -> list[ZipInfo]:
+    def normalize(name: str) -> str:
+        return name.replace('\\', '/').lstrip('/')
+
+    # ComicInfo.xml is normally in the root of the archive, but archives created
+    # by zipping a folder have it alongside the pages in that folder.
+    folder = posixpath.commonpath([posixpath.dirname(normalize(x)) for x in pages]) if pages else ''
+    names = {posixpath.join(d, 'comicinfo.xml').lower(): i for i, d in enumerate(dict.fromkeys((folder, '')))}
+    matches = [x for x in archive.infolist() if normalize(x.filename).lower() in names]
+    # Prefer the folder containing the pages, then exactly cased names, so the
+    # choice between differently cased copies does not depend on archive order.
+    matches.sort(key=lambda x: (names[normalize(x.filename).lower()], posixpath.basename(normalize(x.filename)) != 'ComicInfo.xml'))
+    return matches
+
+
+def read_comic_info(archive: ZipFile, info: ZipInfo) -> etree._Element | None:
     try:
         with archive.open(info) as f:
             raw = f.read(MAX_COMICINFO_SIZE + 1)
         if len(raw) > MAX_COMICINFO_SIZE:
-            return False
+            return None
         root = safe_xml_fromstring(raw, recover=False)
     except BadZipfile, RuntimeError, NotImplementedError, zlib.error, EOFError, etree.XMLSyntaxError:
         # ComicInfo is optional. Broken or unreadable metadata must not prevent
         # opening a comic whose page images can still be read.
-        return False
-    return root.tag == 'ComicInfo' and (root.findtext('Manga') or '').strip() == 'YesAndRightToLeft'
+        return None
+    # Match by local name, as some taggers declare a default namespace
+    return root if etree.QName(root).localname == 'ComicInfo' else None
+
+
+def comic_is_right_to_left(archive: ZipFile, pages: list[str]) -> bool:
+    for info in comic_info_candidates(archive, pages):
+        if (root := read_comic_info(archive, info)) is not None:
+            manga = next((x.text or '' for x in root if isinstance(x.tag, str) and etree.QName(x).localname == 'Manga'), '')
+            return manga.strip().lower() == 'yesandrighttoleft'
+    return False
 
 
 @endpoint('/comic-manifest/{book_id}', types={'book_id': int})
@@ -144,7 +166,7 @@ def comic_manifest(ctx: Context, rd: RequestData, book_id: int) -> StaticOutput:
         metadata = opds2_metadata(c.db.get_metadata(book_id), c)
         metadata.pop('@type', None)
         metadata.update(conformsTo=DIVINA_PROFILE, numberOfPages=len(names))
-        if comic_is_right_to_left(archive):
+        if comic_is_right_to_left(archive, names):
             metadata['readingProgression'] = 'rtl'
 
         assert ctx.url_for is not None

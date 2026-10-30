@@ -208,9 +208,12 @@ animated, are only offered in their original format. The application chooses
 an image format it supports from those links. JPEG is offered as the default
 for AVIF and JPEG XL pages when conversion is available.
 
-For manga, a ``ComicInfo.xml`` file in the root of the archive with
-``Manga`` set to ``YesAndRightToLeft`` tells the application to use right-to-left
-reading direction. Page images remain in their original order.
+For manga, a ``ComicInfo.xml`` file with ``Manga`` set to ``YesAndRightToLeft``
+tells the application to use right-to-left reading direction. The file can be
+in the root of the archive or in the folder containing the page images. Page
+images remain in their original order. The reading direction is only given in
+the comic manifest, not in OPDS feeds, as finding it requires opening the
+archive.
 
 The normal username/password and library restrictions apply to manifests and
 page images. Complete archive downloads remain available. This feature supports

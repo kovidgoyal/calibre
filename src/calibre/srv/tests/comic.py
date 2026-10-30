@@ -6,6 +6,7 @@ import os
 from base64 import standard_b64encode
 from http.client import NOT_FOUND, NOT_MODIFIED, OK, UNAUTHORIZED
 from io import BytesIO
+from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlencode, urlsplit
 from zipfile import ZipFile
@@ -32,41 +33,59 @@ def cbz(pages):
 class ComicTest(LibraryBaseTest):
     def test_comic_reading_direction(self):
         rtl = b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>'
+        no = b'<ComicInfo><Manga>No</Manga></ComicInfo>'
+
+        def is_rtl(*entries, pages=(('1.jpg', IMG),)):
+            with ComicZipFile(BytesIO(cbz([*pages, *entries]))) as archive:
+                return comic_is_right_to_left(archive, comic_pages(archive))
+
         for filename, data, expected in (
             ('ComicInfo.xml', rtl, True),
             ('COMICINFO.XML', rtl, True),
             ('ComicInfo.xml', b'<ComicInfo><Manga> YesAndRightToLeft </Manga></ComicInfo>', True),
+            ('ComicInfo.xml', b'<ComicInfo><Manga>yesandrighttoleft</Manga></ComicInfo>', True),
+            ('ComicInfo.xml', b'<ComicInfo xmlns="urn:x"><Manga>YesAndRightToLeft</Manga></ComicInfo>', True),
+            ('ComicInfo.xml', b'<ComicInfo><!-- c --><Manga>YesAndRightToLeft</Manga></ComicInfo>', True),
             ('folder/ComicInfo.xml', rtl, False),
             ('__MACOSX/ComicInfo.xml', rtl, False),
             ('ComicInfo.xml', b'<ComicInfo><Manga>Yes</Manga></ComicInfo>', False),
-            ('ComicInfo.xml', b'<ComicInfo><Manga>No</Manga></ComicInfo>', False),
+            ('ComicInfo.xml', no, False),
             ('ComicInfo.xml', b'<ComicInfo><Manga>Unknown</Manga></ComicInfo>', False),
             ('ComicInfo.xml', b'<ComicInfo/>', False),
             ('ComicInfo.xml', b'<Other><Manga>YesAndRightToLeft</Manga></Other>', False),
             ('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga>', False),
             ('ComicInfo.xml', b'not XML', False),
         ):
-            with self.subTest(filename=filename, data=data), ComicZipFile(BytesIO(cbz([(filename, data)]))) as archive:
-                self.ae(comic_is_right_to_left(archive), expected)
+            with self.subTest(filename=filename, data=data):
+                self.ae(is_rtl((filename, data)), expected)
+        # Archives created by zipping a folder have ComicInfo.xml next to the pages
+        title = (('Title/1.jpg', IMG), ('Title/2.jpg', IMG))
+        self.assertTrue(is_rtl(('Title/ComicInfo.xml', rtl), pages=title))
+        self.assertTrue(is_rtl(('ComicInfo.xml', rtl), pages=title))
+        self.assertFalse(is_rtl(('Other/ComicInfo.xml', rtl), pages=title))
+        self.assertTrue(is_rtl(('ComicInfo.xml', no), ('Title/ComicInfo.xml', rtl), pages=title))
+        self.assertTrue(is_rtl(('Title/ComicInfo.xml', b'not XML'), ('ComicInfo.xml', rtl), pages=title))
+        # Exactly cased names win and broken copies do not hide valid ones,
+        # whatever their order in the archive
+        for entries in ((('comicinfo.xml', no), ('ComicInfo.xml', rtl)), (('ComicInfo.xml', rtl), ('comicinfo.xml', no))):
+            self.assertTrue(is_rtl(*entries))
+        self.assertTrue(is_rtl(('ComicInfo.xml', b'not XML'), ('COMICINFO.XML', rtl)))
         with ComicZipFile(BytesIO(cbz([('ComicInfo.xml', rtl)]))) as archive:
             with patch('calibre.srv.comic.MAX_COMICINFO_SIZE', len(rtl)):
-                self.assertTrue(comic_is_right_to_left(archive))
+                self.assertTrue(comic_is_right_to_left(archive, []))
             with patch('calibre.srv.comic.MAX_COMICINFO_SIZE', len(rtl) - 1):
-                self.assertFalse(comic_is_right_to_left(archive))
+                self.assertFalse(comic_is_right_to_left(archive, []))
         # Resolving external entities must not read local files into metadata.
         path = os.path.join(self.mkdtemp(), 'direction.txt')
         with open(path, 'w') as f:
             f.write('YesAndRightToLeft')
-        from pathlib import Path
-
         xml = f'<!DOCTYPE ComicInfo [<!ENTITY direction SYSTEM "{Path(path).as_uri()}">]><ComicInfo><Manga>&direction;</Manga></ComicInfo>'.encode()
-        with ComicZipFile(BytesIO(cbz([('ComicInfo.xml', xml)]))) as archive:
-            self.assertFalse(comic_is_right_to_left(archive))
+        self.assertFalse(is_rtl(('ComicInfo.xml', xml)))
         encrypted = bytearray(cbz([('ComicInfo.xml', rtl)]))
         encrypted[6] |= 1
         encrypted[encrypted.index(b'PK\x01\x02') + 8] |= 1
         with ComicZipFile(BytesIO(encrypted)) as archive:
-            self.assertFalse(comic_is_right_to_left(archive))
+            self.assertFalse(comic_is_right_to_left(archive, []))
 
     def test_comic_manga_manifest(self):
         png = I('lt.png', data=True)
@@ -74,15 +93,19 @@ class ComicTest(LibraryBaseTest):
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
             conn = server.connect()
-            for metadata, expected in (
-                ([], None),
-                ([('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>')], 'rtl'),
-                ([('ComicInfo.xml', b'<ComicInfo><Manga>No</Manga></ComicInfo>')], None),
-                ([('ComicInfo.xml', b'not XML')], None),
-            ):
+            # Use a separate book for each case, rather than replacing the
+            # format, so the test does not depend on the download cache
+            # noticing a newer mtime.
+            cases = (
+                (1, [('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>')], 'rtl'),
+                (2, [], None),
+                (3, [('ComicInfo.xml', b'not XML')], None),
+            )
+            for book_id, metadata, expected in cases:
+                db.add_format(book_id, 'CBZ', BytesIO(cbz([*pages, *metadata])), run_hooks=False)
+            for book_id, metadata, expected in cases:
                 with self.subTest(metadata=metadata):
-                    db.add_format(1, 'CBZ', BytesIO(cbz([*pages, *metadata])), run_hooks=False)
-                    _, manifest = self.manifest(conn)
+                    _, manifest = self.manifest(conn, f'/comic-manifest/{book_id}')
                     self.ae(manifest['metadata'].get('readingProgression'), expected)
                     self.ae(manifest['metadata']['numberOfPages'], 2)
                     self.ae([x['type'] for x in manifest['readingOrder']], ['image/jpeg', 'image/png'])
@@ -140,7 +163,7 @@ class ComicTest(LibraryBaseTest):
                 self.ae(int(response.getheader('Content-Length')), len(expected))
 
     def test_comic_feed_is_lazy(self):
-        data = cbz([('1.jpg', IMG)])
+        data = cbz([('1.jpg', IMG), ('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>')])
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
             db.add_format(1, 'CBZ', BytesIO(data), run_hooks=False)
@@ -152,7 +175,10 @@ class ComicTest(LibraryBaseTest):
             self.ae(response.status, OK, raw)
             feed = json.loads(raw)
             comic = next(p for p in feed['publications'] if any(x['type'] == DIVINA_MIME for x in p['links']))
+            # Page count and reading direction need the archive, so they are
+            # only in the manifest
             self.assertNotIn('numberOfPages', comic['metadata'])
+            self.assertNotIn('readingProgression', comic['metadata'])
             self.ae(sum(x['type'] == DIVINA_MIME for p in feed['publications'] for x in p['links']), 1)
             link = next(x for x in comic['links'] if x['type'] == DIVINA_MIME)
             self.ae(link['rel'], 'http://opds-spec.org/acquisition')
