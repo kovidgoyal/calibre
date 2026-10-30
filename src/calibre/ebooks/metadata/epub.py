@@ -396,4 +396,36 @@ def find_tests():
                     with self.subTest(label, damaged=damaged), self.assertRaisesRegex(EPubException, msg):
                         get_zip_reader(stream)
 
+        def test_html_cover_images_confined_to_root(self):
+            from calibre.ebooks import extract_calibre_cover, extract_cover_from_embedded_svg
+            from calibre.ptempfile import TemporaryDirectory
+            from calibre.utils.logging import default_log
+
+            png = b'\x89PNG\r\n\x1a\n' + b'\0' * 32
+            with TemporaryDirectory() as tdir:
+                root = os.path.join(tdir, 'book')
+                text_dir = os.path.join(root, 'text')
+                os.makedirs(os.path.join(root, 'images'))
+                os.mkdir(text_dir)
+                for path in (os.path.join(tdir, 'secret.png'), os.path.join(root, 'images', 'cover.png')):
+                    with open(path, 'wb') as f:
+                        f.write(png)
+                outside = os.path.join(tdir, 'secret.png').replace(os.sep, '/')
+
+                def html(src):
+                    return f'<html><body><img src="{src}" alt="cover"/></body></html>'
+
+                def svg(src):
+                    return (
+                        '<html xmlns="http://www.w3.org/1999/xhtml"><body><svg xmlns="http://www.w3.org/2000/svg"'
+                        f' xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="{src}"/></svg></body></html>'
+                    )
+
+                for func, make in ((extract_calibre_cover, html), (extract_cover_from_embedded_svg, svg)):
+                    with self.subTest(func=func.__name__):
+                        self.assertEqual(func(make('../images/cover.png'), text_dir, default_log, root=root), png)
+                        self.assertIsNone(func(make('../../secret.png'), text_dir, default_log, root=root))
+                        self.assertIsNone(func(make(outside), text_dir, default_log, root=root))
+                        self.assertIsNone(func(make('../images/cover.png'), text_dir, default_log))
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestEPUBMetadata)

@@ -17,6 +17,7 @@ import uuid
 from contextlib import suppress
 from typing import IO, cast
 from urllib.parse import urlparse
+from xml.sax.saxutils import quoteattr
 
 from lxml import etree
 
@@ -213,7 +214,7 @@ class ManifestItem(Resource):  # {{{
         self.mime_type = val
 
     def __unicode__representation__(self):
-        return f'<item id="{self.id}" href="{self.href()}" media-type="{self.media_type}" />'
+        return f'<item id={quoteattr(str(self.id))} href={quoteattr(str(self.href()))} media-type={quoteattr(str(self.media_type))} />'
 
     __str__ = __unicode__representation__
 
@@ -391,9 +392,9 @@ class Guide(ResourceCollection):  # {{{
             return res
 
         def __repr__(self):
-            ans = f'<reference type="{self.type}" href="{self.href()}" '
+            ans = f'<reference type={quoteattr(str(self.type))} href={quoteattr(str(self.href()))} '
             if self.title:
-                ans += f'title="{self.title}" '
+                ans += f'title={quoteattr(self.title)} '
             return ans + '/>'
 
     @staticmethod
@@ -1695,19 +1696,26 @@ def metadata_to_opf(mi, as_string=True, default_lang=None, mark_fallback_languag
 
     root = safe_xml_fromstring(
         textwrap.dedent(
-            '''
+            f'''
     <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-            <dc:identifier opf:scheme="{a}" id="{a}_id">{id}</dc:identifier>
-            <dc:identifier opf:scheme="uuid" id="uuid_id">{uuid}</dc:identifier>
+            <dc:identifier opf:scheme="{__appname__}" id="{__appname__}_id"></dc:identifier>
+            <dc:identifier opf:scheme="uuid" id="uuid_id"></dc:identifier>
             </metadata>
         <guide/>
     </package>
-    '''.format(**dict(a=__appname__, id=mi.application_id, uuid=mi.uuid))
+    '''
         )
     )
     metadata = root[0]
     guide = root[1]
+    # Set the identifier values via lxml rather than string interpolation so
+    # that they are properly escaped
+    for elem, val in zip(metadata, (mi.application_id, mi.uuid)):
+        try:
+            elem.text = str(val)
+        except ValueError:
+            elem.text = clean_xml_chars(str(val))
     metadata[0].tail = '\n' + (' ' * 8)
 
     def factory(tag, text=None, sort=None, role=None, scheme=None, name=None, content=None):
@@ -1923,6 +1931,46 @@ def suite():
         def testSmartUpdate(self):
             self.opf.smart_update(MetaInformation(self.opf))
             self.testReading()
+
+        def test_opf_identifiers_are_escaped(self):
+            evil = 'x</dc:identifier><dc:title>injected</dc:title><dc:identifier>&amp;'
+            mi = MetaInformation('title', ['author'])
+            mi.uuid = evil
+            mi.application_id = evil + '1'
+            raw = metadata_to_opf(mi)
+            self.assertNotIn(b'<dc:title>injected', raw)
+            opf = OPF(io.BytesIO(raw), os.getcwd())
+            self.assertEqual(opf.title, 'title')
+            self.assertEqual(opf.application_id, evil + '1')
+            self.assertEqual(opf.to_book_metadata().uuid, evil)
+
+        def test_opf_cover_confined_to_opf_dir(self):
+            from calibre.ebooks.metadata.meta import opf_metadata
+            from calibre.ptempfile import TemporaryDirectory
+
+            with TemporaryDirectory() as tdir:
+                book_dir = os.path.join(tdir, 'book')
+                os.mkdir(book_dir)
+                for path, data in ((os.path.join(tdir, 'secret.png'), b'secret'), (os.path.join(book_dir, 'cover.png'), b'cover')):
+                    with open(path, 'wb') as f:
+                        f.write(data)
+
+                def read_cover(href):
+                    opf_path = os.path.join(book_dir, 'metadata.opf')
+                    with open(opf_path, 'wb') as f:
+                        f.write(
+                            f'''<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uuid_id">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+<dc:identifier opf:scheme="calibre" id="calibre_id">1</dc:identifier><dc:title>t</dc:title>
+</metadata><guide><reference type="cover" href="{href}"/></guide></package>'''.encode()
+                        )
+                    mi = opf_metadata(opf_path)
+                    self.assertIsNotNone(mi)
+                    return mi.cover_data[1]
+
+                self.assertEqual(read_cover('cover.png'), b'cover')
+                self.assertIsNone(read_cover('../secret.png'))
+                self.assertIsNone(read_cover(os.path.join(tdir, 'secret.png').replace(os.sep, '/')))
 
     return unittest.TestLoader().loadTestsFromTestCase(OPFTest)
 

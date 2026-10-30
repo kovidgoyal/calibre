@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.pdf import page_images
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import must_use_qt
 from calibre.gui_launch import setup_qt_logging
-from calibre.utils.filenames import atomic_rename
+from calibre.utils.filenames import atomic_rename, is_existing_subpath
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.webengine import secure_webengine, send_reply, setup_fake_protocol, setup_profile
@@ -60,7 +60,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if not rp:
             return self.fail_request(a0, QWebEngineUrlRequestJob.Error.UrlNotFound)
         resolved_path = os.path.abspath(os.path.join(self.root, rp.replace('/', os.sep)))
-        if not resolved_path.startswith(self.root):
+        if not is_existing_subpath(resolved_path, self.root):
             return self.fail_request(a0, QWebEngineUrlRequestJob.Error.UrlNotFound)
 
         try:

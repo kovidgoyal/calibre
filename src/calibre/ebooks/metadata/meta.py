@@ -11,6 +11,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.utils import StreamOrPath
 from calibre.utils.config import prefs
+from calibre.utils.filenames import is_existing_subpath
 from calibre.utils.localization import _
 
 # The priorities for loading metadata from different file types
@@ -236,8 +237,11 @@ def opf_metadata(opfpath):
             if opf.application_id is not None:
                 mi = opf.to_book_metadata()
                 if hasattr(opf, 'cover') and opf.cover:
-                    cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
-                    if os.access(cpath, os.R_OK):
+                    base = os.path.dirname(opfpath)
+                    cpath = os.path.join(base, opf.cover)
+                    # Only read covers inside the OPF's directory, to prevent
+                    # a malicious OPF from reading arbitrary files
+                    if is_existing_subpath(cpath, base) and os.access(cpath, os.R_OK):
                         fmt = cpath.rpartition('.')[-1]
                         with open(cpath, 'rb') as f:
                             data = f.read()
