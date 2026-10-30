@@ -861,7 +861,7 @@ class AnnotationsTest(BaseTest):
             'EPUB',
             [
                 a(type='highlight', uuid='phrase', highlighted_text='The climate change discussion'),
-                a(type='highlight', uuid='notes', highlighted_text='A highlighted passage', notes='Private cobalt\x1b[31m note\ncontinued'),
+                a(type='highlight', uuid='notes', highlighted_text='A highlighted passage', notes='Private cobalt\x1b[31m note\x9b\ncontinued'),
                 a(type='highlight', uuid='stem', highlighted_text='She was running'),
                 a(type='highlight', uuid='snippet', highlighted_text=' '.join(['before'] * 80 + ['needle'] + ['after'] * 80)),
                 a(type='highlight', uuid='removed', highlighted_text='climate change', removed=True),
@@ -896,7 +896,12 @@ class AnnotationsTest(BaseTest):
                 self.assertEqual(len(notes[0].split('\t')), 6)
                 self.assertIn('cobalt', notes[0])
                 self.assertNotIn('\x1b', notes[0])
-                self.assertEqual(json.loads(run('cobalt', '-f', 'json'))[0]['annotation']['uuid'], 'notes')
+                raw = run('cobalt', '-f', 'json')
+                self.assertNotIn('\x9b', raw)
+                notes = json.loads(raw)
+                self.assertEqual(notes[0]['annotation']['uuid'], 'notes')
+                self.assertIn('\x9b', notes[0]['annotation']['notes'])
+                self.assertNotIn('\x1f', notes[0]['text'])
         self.assertFalse(changes)
 
     def test_annotations_search_invalid(self):

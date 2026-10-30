@@ -14,6 +14,7 @@ version = 1  # change this if you change signature of implementation()
 ANNOTATION_TYPES = ('highlight', 'bookmark')
 EXPORT_FORMATS = ('text', 'markdown', 'json')
 USER_TYPES = ('local', 'web')
+C1_ESCAPES = {c: f'\\u{c:04x}' for c in range(127, 160)}
 # The text fields of the annotations created by the viewers, other fields are
 # not imported
 TEXT_FIELDS = {
@@ -174,6 +175,9 @@ def implementation(db, notify_changes, action, *args):
                 )
             except FTSQueryError as err:
                 return False, str(err)
+            # The highlighted text and notes are separated by \x1f in the
+            # full text search index
+            annots = [dict(a, text=(a['text'] or '').replace('\x1f', ' ')) for a in annots]
         else:
             annots = db._all_annotations(annotation_type=annotation_type or None, ignore_removed=True, restrict_to_book_ids=book_ids)
         annots = [a for a in annots if (not user_type or a['user_type'] == user_type) and (not user or a['user'] == user)]
@@ -198,8 +202,9 @@ Search highlighted text, annotation notes and bookmark titles using the same
 SQLite full text search syntax as the Browse annotations tool. Results are
 ordered by relevance and include annotation ids, book titles and matching
 excerpts. Use --search to restrict the books, --type to restrict the annotation
-type, --no-stemming to match exact word forms, or --format json for a JSON array
-of results including the annotation data and excerpts:
+type, --user-type and --annotation-user to restrict the user, --no-stemming to
+match exact word forms, or --format json for a JSON array of results including
+the annotation data and excerpts:
 
 %prog annotations search "search expression"
 
@@ -242,7 +247,7 @@ Permanently remove the annotations with the specified ids, as shown by list:
         default=None,
         choices=USER_TYPES,
         help=_(
-            'Only list or export the annotations of the specified type of user. For import, the type of user to import the'
+            'Only list, search or export the annotations of the specified type of user. For import, the type of user to import the'
             ' annotations for, the calibre E-book viewer (local) or a Content server user (web). Default for import is local.'
         ),
     )
@@ -250,7 +255,7 @@ Permanently remove the annotations with the specified ids, as shown by list:
         '--annotation-user',
         default=None,
         help=_(
-            'Only list or export the annotations of the specified user. For import, the Content server user to import the'
+            'Only list, search or export the annotations of the specified user. For import, the Content server user to import the'
             ' annotations for, required with --user-type web. Note that this can be any user, not just the one used to'
             ' connect to a remote library.'
         ),
@@ -279,6 +284,13 @@ Permanently remove the annotations with the specified ids, as shown by list:
         '--no-stemming', dest='use_stemming', default=True, action='store_false', help=_('For search, match exact word forms instead of word stems')
     )
     return parser
+
+
+def json_for_terminal(data: object) -> str:
+    # JSON only escapes C0 control characters, also escape DEL and the C1
+    # control characters, which some terminals interpret. They can only occur
+    # inside JSON strings, so escaping them keeps the JSON valid.
+    return json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2).translate(C1_ESCAPES)
 
 
 def run(dbctx, *args):
@@ -374,13 +386,13 @@ def main(opts, args, dbctx):
     # Book ids are sent as strings when using a remote library
     titles = {int(k): v for k, v in titles.items()}
     if action == 'search' and opts.format == 'json':
-        prints(json.dumps([dict(a, title=titles.get(a['book_id'], '')) for a in annots], ensure_ascii=False, indent=2))
+        prints(json_for_terminal([dict(a, title=titles.get(a['book_id'], '')) for a in annots]))
         return 0
     if action in ('list', 'search'):
         for a in annots if action == 'search' else sorted(annots, key=lambda a: a['id']):
-            text = ' '.join((a['text'] or '').split())
-            fields = (str(a['id']), titles.get(a['book_id'], ''), a['annotation']['type'], a['format'], f"{a['user_type']}:{a['user']}", text)
-            prints(for_terminal('\t'.join(' '.join(x.split()) for x in fields) if action == 'search' else '\t'.join(fields)))
+            fields = (str(a['id']), titles.get(a['book_id'], ''), a['annotation']['type'], a['format'], f"{a['user_type']}:{a['user']}", a['text'] or '')
+            # One annotation per line, with tab separated fields
+            prints(for_terminal('\t'.join(' '.join(x.split()) for x in fields)))
         return 0
     if opts.format == 'json':
         # The same calibre annotation collection as exported by the Browse annotations tool
@@ -389,7 +401,7 @@ def main(opts, args, dbctx):
             x = a['annotation'].copy()
             x['book_id'], x['format'], x['user_type'], x['user'] = a['book_id'], a['format'], a['user_type'], a['user']
             collection.append(x)
-        data = json.dumps({'version': 1, 'type': 'calibre_annotation_collection', 'annotations': collection}, ensure_ascii=False, sort_keys=True, indent=2)
+        data = json_for_terminal({'version': 1, 'type': 'calibre_annotation_collection', 'annotations': collection})
     else:
         data = for_terminal(render_as_text(annots, titles, opts.format == 'markdown'))
     if data:
