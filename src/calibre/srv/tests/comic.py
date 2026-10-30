@@ -14,7 +14,7 @@ from calibre.db.tests.base import IMG
 from calibre.srv.comic import DIVINA_PROFILE, comic_pages, convertible_types, page_types, readable_types
 from calibre.srv.opds import DIVINA_MIME, OPDS2_MIME
 from calibre.srv.tests.base import LibraryBaseTest
-from calibre.utils.avif_test import STILL_AVIF
+from calibre.utils.avif_test import NOT_AN_IMAGE, STILL_AVIF
 from calibre.utils.imghdr import identify
 from calibre.utils.jxl_test import STILL_JXL
 from calibre.utils.resources import get_image_path as I
@@ -162,6 +162,35 @@ class ComicTest(LibraryBaseTest):
             db.remove_formats({1: ('CBZ',)})
             self.ae(self.request(conn, '/comic-manifest/1')[0].status, NOT_FOUND)
             self.ae(self.request(conn, replacement['readingOrder'][0]['href'])[0].status, NOT_FOUND)
+
+    def test_comic_revision_survives_restart(self):
+        with self.create_server() as server:
+            db = server.handler.ctx.library_broker.get(None)
+            db.add_format(1, 'CBZ', BytesIO(cbz([('1.jpg', IMG)])), run_hooks=False)
+            _, manifest = self.manifest(server.connect())
+        # The download cache is recreated by a new server, page URLs must not
+        # depend on it
+        with self.create_server() as server:
+            response, raw = self.request(server.connect(), manifest['readingOrder'][0]['href'])
+            self.ae((response.status, raw), (OK, IMG))
+            self.assertIn('immutable', response.getheader('Cache-Control'))
+            response, raw = self.request(server.connect(), '/comic-page/1/0')
+            self.ae(response.status, OK)
+            self.assertNotIn('immutable', response.getheader('Cache-Control'))
+
+    def test_comic_unconvertible_pages(self):
+        self.ae(page_types('1.gif'), ('image/gif', ('image/gif',)))
+        with self.create_server() as server:
+            db = server.handler.ctx.library_broker.get(None)
+            db.add_format(1, 'CBZ', BytesIO(cbz([('1.png', NOT_AN_IMAGE), ('2.jpg', IMG)])), run_hooks=False)
+            conn = server.connect()
+            _, manifest = self.manifest(conn)
+            jpeg = next(x for x in manifest['readingOrder'][0]['alternate'] if x['type'] == 'image/jpeg')
+            self.ae(self.request(conn, jpeg['href'])[0].status, NOT_FOUND)
+            with patch('calibre.srv.comic.MAX_PAGE_SIZE', len(IMG) - 1):
+                self.ae(self.request(conn, manifest['readingOrder'][1]['href'])[0].status, NOT_FOUND)
+            with patch('calibre.srv.comic.MAX_PAGE_SIZE', len(IMG)):
+                self.ae(self.request(conn, manifest['readingOrder'][1]['href'])[0].status, OK)
 
     def test_comic_misnamed_images(self):
         png = I('lt.png', data=True)

@@ -203,7 +203,8 @@ using ``Accept: application/opds+json``.
 Comic entries link to a Divina manifest. The server lists pages only when the
 application opens that manifest, using the same page order as calibre's comic
 conversion. Each page offers its original image format, including AVIF and
-JPEG XL, and alternate formats the server can produce. The application chooses
+JPEG XL, and alternate formats the server can produce. GIF pages, which may be
+animated, are only offered in their original format. The application chooses
 an image format it supports from those links. JPEG is offered as the default
 for AVIF and JPEG XL pages when conversion is available.
 
