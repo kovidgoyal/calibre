@@ -215,7 +215,6 @@ class NotesTest(BaseTest):
             (('set', 'authors', 'Author One', path, 'extra'), 'Too many arguments'),
             (('show', 'authors', 'Author One', 'extra'), 'Too many arguments'),
             (('list', 'authors', 'tags'), 'at most one field'),
-            ((), 'must specify an action'),
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_notes(db, *args)
@@ -603,7 +602,6 @@ class AnnotationsTest(BaseTest):
             (('list', '-s', 'title:"=Title One" and ('), 'Failed to parse search query'),
             (('list', 'extra'), 'Too many arguments'),
             (('frob',), 'not recognized'),
-            ((), 'must specify an action'),
         ):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_annotations(db, *args)

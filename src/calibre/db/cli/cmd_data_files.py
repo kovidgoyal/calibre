@@ -16,11 +16,17 @@ from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
-ACTIONS = ('list', 'add', 'get', 'rename', 'remove')
+# Action with the argument numbers and their types
 # The types of the arguments of each action after the book id. The data for
 # add and the destination for get are checked separately as they differ for
 # local and remote libraries.
-ARG_TYPES = {'list': (), 'add': (str, object, bool), 'get': (str, object), 'rename': (str, str, bool), 'remove': (str, bool)}
+ACTIONS = {
+    'list': (1, ()),
+    'add': (2, (str, object, bool)),
+    'get': (2, (str, object)),
+    'rename': (3, (str, str, bool)),
+    'remove': (2, (str, bool)),
+}
 # Characters that are not allowed in file names on at least one supported
 # platform, : is rejected by path_from_root()
 INVALID_NAME_CHARS = frozenset('<>"|?*' + ''.join(map(chr, range(32))))
@@ -106,7 +112,7 @@ def implementation(db, notify_changes, action, book_id, *args):
         return False, _('Unknown action: {}').format(action)
     is_remote = notify_changes is not None
     # Remote requests can contain arbitrary data, so check it before use
-    types = ARG_TYPES[action]
+    types = ACTIONS[action][1]
     if not isinstance(book_id, int) or len(args) != len(types) or not all(isinstance(x, t) for x, t in zip(args, types)):
         return False, _('Invalid arguments for: {}').format(action)
     if is_remote and action == 'add' and not (isinstance(args[1], (list, tuple)) and len(args[1]) == 2 and isinstance(args[1][1], bytes)):
@@ -258,16 +264,18 @@ def download(dbctx, book_id, name, output, replace):
 
 
 def main(opts, args, dbctx):
-    if not args or args[0] not in ACTIONS:
-        raise SystemExit(_('You must specify an action, one of: {}').format(', '.join(ACTIONS)))
+    if not args:
+        raise SystemExit(_('Error: You must specify an action, one of: {}').format(', '.join(ACTIONS)))
     action, args = args[0], args[1:]
-    count = {'list': 1, 'add': 2, 'get': 2, 'rename': 3, 'remove': 2}[action]
+    if action not in ACTIONS:
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    count = ACTIONS[action][0]
     if len(args) != count:
-        raise SystemExit(_('Incorrect number of arguments for: {}').format(action))
+        raise SystemExit(_('Error: Incorrect number of arguments for: {}').format(action))
     try:
         book_id = int(args[0])
     except ValueError:
-        raise SystemExit(_('The book id must be a number'))
+        raise SystemExit(_('Error: The book id must be a number'))
     for option, invalid in (
         ('--for-machine', opts.for_machine and action != 'list'),
         ('--name', opts.name is not None and action != 'add'),
@@ -276,7 +284,7 @@ def main(opts, args, dbctx):
         ('--permanent', opts.permanent and action != 'remove'),
     ):
         if invalid:
-            raise SystemExit(_('The option {0} cannot be used with {1}').format(option, action))
+            raise SystemExit(_('Error: The option {0} cannot be used with {1}').format(option, action))
     if action == 'list':
         entries = run(dbctx, action, book_id)
         if opts.for_machine:
@@ -284,14 +292,14 @@ def main(opts, args, dbctx):
         else:
             for entry in entries:
                 prints('{}\t{}\t{}'.format(for_terminal(entry['name']).replace('\t', ' ').replace('\n', ' '), entry['size'], entry['mtime']))
-    elif action == 'add':
+    if action == 'add':
         run(dbctx, action, book_id, opts.name if opts.name is not None else os.path.basename(args[1]), dbctx.path(args[1]), opts.replace)
-    elif action == 'rename':
+    if action == 'rename':
         run(dbctx, action, book_id, args[1], args[2], opts.replace)
-    elif action == 'remove':
+    if action == 'remove':
         run(dbctx, action, book_id, args[1], opts.permanent)
-    else:
+    if action == 'get':
         if not opts.output:
-            raise SystemExit(_('You must specify --output for the get action'))
+            raise SystemExit(_('Error: You must specify --output for the get action'))
         download(dbctx, book_id, args[1], opts.output, opts.replace)
     return 0

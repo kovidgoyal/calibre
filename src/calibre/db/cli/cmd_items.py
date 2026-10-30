@@ -7,7 +7,7 @@ from calibre.utils.localization import _, ngettext
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
-
+ACTIONS = ('rename', 'remove')
 # Fields whose items are numbers, languages or other data that cannot be
 # meaningfully renamed or removed by name
 UNSUPPORTED_FIELDS = frozenset({'formats', 'identifiers', 'languages', 'rating'})
@@ -114,15 +114,15 @@ Remove one or more items from all books. Authors cannot be removed:
 
 def main(opts, args, dbctx):
     if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: (rename|remove)'))
+        raise SystemExit(_('Error: You must specify an action, one of: {}').format(', '.join(ACTIONS)))
     action, args = args[0], args[1:]
-    if action not in ('rename', 'remove'):
-        raise SystemExit(_('Error: Action {} not recognized, must be one of: (rename|remove)').format(action))
+    if action not in ACTIONS:
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
     if action == 'rename':
         if len(args) != 3:
             raise SystemExit(_('Error: You must specify a field, the name of an item and its new name'))
         field, item_names, new_name = args[0], args[1:2], args[2]
-    else:
+    if action == 'remove':
         if len(args) < 2:
             raise SystemExit(_('Error: You must specify a field and the names of one or more items'))
         field, item_names, new_name = args[0], args[1:], ''
