@@ -3,20 +3,27 @@
 
 import json
 import os
+import shutil
 import stat
 from io import BytesIO
-from tempfile import NamedTemporaryFile
 
 from calibre import as_unicode, prints
-from calibre.constants import get_umask
 from calibre.db.cli.utils import for_terminal
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
-from calibre.utils.filenames import is_path_inside, path_from_root
+from calibre.ptempfile import SpooledTemporaryFile
+from calibre.utils.filenames import is_path_inside, is_windows_reserved_filename, path_from_root
 from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
 ACTIONS = ('list', 'add', 'get', 'rename', 'remove')
+# The types of the arguments of each action after the book id. The data for
+# add and the destination for get are checked separately as they differ for
+# local and remote libraries.
+ARG_TYPES = {'list': (), 'add': (str, object, bool), 'get': (str, object), 'rename': (str, str, bool), 'remove': (str, bool)}
+# Characters that are not allowed in file names on at least one supported
+# platform, : is rejected by path_from_root()
+INVALID_NAME_CHARS = frozenset('<>"|?*' + ''.join(map(chr, range(32))))
 
 
 def data_root(db, book_id):
@@ -33,9 +40,14 @@ def resolves_inside(root, path):
 
 def data_files(db, book_id):
     # Map of names relative to data/ to ExtraFile, omitting symlinks that
-    # resolve to somewhere outside the data directory
+    # resolve to somewhere outside the data directory and anything that is not
+    # a regular file, such as FIFOs, which could block reads indefinitely
     root = data_root(db, book_id)
-    return {ef.relpath[len(DATA_DIR_NAME) + 1 :]: ef for ef in db._list_extra_files(book_id, pattern=DATA_FILE_PATTERN) if resolves_inside(root, ef.file_path)}
+    return {
+        ef.relpath[len(DATA_DIR_NAME) + 1 :]: ef
+        for ef in db._list_extra_files(book_id, pattern=DATA_FILE_PATTERN)
+        if stat.S_ISREG(ef.stat_result.st_mode) and resolves_inside(root, ef.file_path)
+    }
 
 
 def existing_data_file(db, book_id, name):
@@ -44,6 +56,10 @@ def existing_data_file(db, book_id, name):
     # separator.
     files = data_files(db, book_id)
     ef = files.get(name) or files.get(name.replace('\\', '/'))
+    if ef is None and not db.backend.is_case_sensitive:
+        # Names that differ only in case refer to the same file
+        key = name.replace('\\', '/').lower()
+        ef = next((x for n, x in files.items() if n.lower() == key), None)
     if ef is None:
         raise ValueError(_('No data file named: {}').format(name))
     if '\\' in ef.relpath:
@@ -55,8 +71,14 @@ def existing_data_file(db, book_id, name):
 def new_data_file(db, book_id, name):
     # Names are relative to data/, never to the book or library directory.
     try:
-        if '\0' in name:
-            raise ValueError('null bytes not allowed in path')
+        for component in name.replace('\\', '/').split('/'):
+            if INVALID_NAME_CHARS.intersection(component):
+                raise ValueError('invalid character in path')
+            if component.endswith(('.', ' ')) and component not in ('.', '..'):
+                # Windows silently strips these, changing the name
+                raise ValueError('path components cannot end with a period or space')
+            if is_windows_reserved_filename(component):
+                raise ValueError('reserved name not allowed in path')
         root = data_root(db, book_id)
         path = path_from_root(root, name, reject_colon=True, case_sensitive=db.backend.is_case_sensitive)
         if not resolves_inside(root, path):
@@ -66,10 +88,29 @@ def new_data_file(db, book_id, name):
     return DATA_DIR_NAME + '/' + name.replace('\\', '/')
 
 
+def remove_empty_parents(db, book_id, relpath):
+    # Remove directories left empty by moving a file out of them, but not the
+    # data directory itself
+    root = data_root(db, book_id)
+    parent = os.path.dirname(path_from_root(root, relpath[len(DATA_DIR_NAME) + 1 :]))
+    while is_path_inside(root, parent):
+        try:
+            os.rmdir(parent)
+        except OSError:
+            break
+        parent = os.path.dirname(parent)
+
+
 def implementation(db, notify_changes, action, book_id, *args):
     if action not in ACTIONS:
         return False, _('Unknown action: {}').format(action)
     is_remote = notify_changes is not None
+    # Remote requests can contain arbitrary data, so check it before use
+    types = ARG_TYPES[action]
+    if not isinstance(book_id, int) or len(args) != len(types) or not all(isinstance(x, t) for x, t in zip(args, types)):
+        return False, _('Invalid arguments for: {}').format(action)
+    if is_remote and action == 'add' and not (isinstance(args[1], (list, tuple)) and len(args[1]) == 2 and isinstance(args[1][1], bytes)):
+        return False, _('Invalid arguments for: {}').format(action)
     lock = db.quiet_write_lock if action in ('add', 'rename', 'remove') else db.safe_read_lock
     try:
         with lock:
@@ -106,12 +147,14 @@ def implementation(db, notify_changes, action, book_id, *args):
                     return True, None
                 if relpath not in db._rename_extra_files(book_id, {relpath: newpath}, replace=replace):
                     return False, _('Cannot rename data file (the destination may already exist): {}').format(new_name)
+                remove_empty_parents(db, book_id, relpath)
                 return True, None
             name, permanent = args
             relpath = existing_data_file(db, book_id, name)
             errors = db._remove_extra_files(book_id, (relpath,), permanent=permanent)
             if err := errors.get(relpath):
                 return False, str(err)
+            remove_empty_parents(db, book_id, relpath)
             return True, None
     except (OSError, ValueError) as err:
         return False, str(err)
@@ -154,6 +197,11 @@ Remove a file to the operating system's recycle bin. With --permanent, delete
 it permanently instead. For remote libraries this happens on the server:
 
 %prog data_files remove BOOK_ID NAME
+
+Directories left empty by rename and remove are deleted. With remote
+libraries, each file is transferred in a single request, so very large files
+need enough memory on both the client and the server, and uploads are limited
+by the maximum request size of the server.
 ''')
     )
     parser.add_option('--for-machine', action='store_true', default=False, help=_('Output the list of files as JSON'))
@@ -183,24 +231,16 @@ def download(dbctx, book_id, name, output, replace):
 
     try:
         if replace:
-            # Finish downloading before replacing the destination. In
+            # Finish downloading before writing to the destination. In
             # particular, a missing remote file must not truncate an existing
-            # local file. Temporary files are private, so give the result the
-            # permissions of the file it replaces, or the usual ones.
-            try:
-                mode = stat.S_IMODE(os.stat(output).st_mode)
-            except FileNotFoundError:
-                mode = 0o666 & ~get_umask()
-            path = None
-            try:
-                with NamedTemporaryFile(dir=os.path.dirname(output), delete=False) as dest:
-                    path = dest.name
-                    save_to(dest)
-                os.chmod(path, mode)
-                os.replace(path, output)
-            finally:
-                if path is not None and os.path.exists(path):
-                    os.remove(path)
+            # local file. Overwriting the destination rather than replacing it
+            # keeps its permissions, ownership and any symlinks, and fails if
+            # it is read-only, as with other programs.
+            with SpooledTemporaryFile(max_size=32 * 1024 * 1024) as buf:
+                save_to(buf)
+                buf.seek(0)
+                with open(output, 'wb') as dest:
+                    shutil.copyfileobj(buf, dest)
         else:
             # Create the output exclusively, so that a file created after any
             # earlier check is never replaced

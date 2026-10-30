@@ -51,37 +51,7 @@ class LocalHeader(NamedTuple):
 
 
 if hasattr(sys, 'getwindowsversion'):
-    windows_reserved_filenames = (
-        'CON',
-        'PRN',
-        'AUX',
-        'CLOCK$',
-        'NUL',
-        'COM0',
-        'COM1',
-        'COM2',
-        'COM3',
-        'COM4',
-        'COM5',
-        'COM6',
-        'COM7',
-        'COM8',
-        'COM9',
-        'LPT0',
-        'LPT1',
-        'LPT2',
-        'LPT3',
-        'LPT4',
-        'LPT5',
-        'LPT6',
-        'LPT7',
-        'LPT8',
-        'LPT9',
-    )
-
-    def is_reserved_filename(x):
-        base = x.partition('.')[0].upper()
-        return base in windows_reserved_filenames
+    from calibre.utils.filenames import is_windows_reserved_filename as is_reserved_filename
 
 else:
 

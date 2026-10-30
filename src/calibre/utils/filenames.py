@@ -647,6 +647,40 @@ def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile)
                 filecopyfunc(src, df)
 
 
+windows_reserved_filenames = frozenset((
+    'CON',
+    'PRN',
+    'AUX',
+    'CLOCK$',
+    'NUL',
+    'COM0',
+    'COM1',
+    'COM2',
+    'COM3',
+    'COM4',
+    'COM5',
+    'COM6',
+    'COM7',
+    'COM8',
+    'COM9',
+    'LPT0',
+    'LPT1',
+    'LPT2',
+    'LPT3',
+    'LPT4',
+    'LPT5',
+    'LPT6',
+    'LPT7',
+    'LPT8',
+    'LPT9',
+))
+
+
+def is_windows_reserved_filename(name: str) -> bool:
+    "Check if name refers to a device on Windows, regardless of the current platform"
+    return name.partition('.')[0].upper() in windows_reserved_filenames
+
+
 def _normalize_path_for_containment(path, case_sensitive=True):
     ans = os.path.abspath(path)
     return ans if case_sensitive else os.path.normcase(ans).lower()

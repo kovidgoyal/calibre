@@ -710,9 +710,12 @@ class DataFilesTest(BaseTest):
                     run('get', '1', 'missing', '--output', output, '--replace')
                 with open(output, 'rb') as f:
                     self.assertEqual(f.read(), b'new')
-                run('rename', '1', 'source.txt', 'sub/moved.txt')
-                run('remove', '1', 'sub/moved.txt', *(('--permanent',) if is_remote else ()))
+                run('rename', '1', 'source.txt', 'sub/deeper/moved.txt')
+                run('rename', '1', 'sub/deeper/moved.txt', 'sub/other/moved.txt')
+                run('remove', '1', 'sub/other/moved.txt', *(('--permanent',) if is_remote else ()))
                 self.assertEqual(json.loads(run('list', '1', '--for-machine')), [])
+                # Directories left empty are removed, but not data/ itself
+                self.assertEqual(os.listdir(os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')), [])
                 os.remove(output)
         self.assertEqual(db.format(1, 'FMT1'), original)
 
@@ -724,13 +727,55 @@ class DataFilesTest(BaseTest):
         with open(source, 'wb') as f:
             f.write(b'file')
         self.run_data_files(db, 'add', '1', source)
-        for name in ('', '../cover.jpg', '/tmp/file', 'C:\\file', 'x/../../cover.jpg', 'x\\..\\cover.jpg', 'x:stream', 'x\0y', 'x//y'):
+        for name in (
+            '',
+            '../cover.jpg',
+            '/tmp/file',
+            'C:\\file',
+            'x/../../cover.jpg',
+            'x\\..\\cover.jpg',
+            'x:stream',
+            'x\0y',
+            'x//y',
+            'x?y',
+            'x|y',
+            'x\ty',
+            'x<y>',
+            'CON',
+            'nul.txt',
+            'sub/Com1.txt',
+            'trailing.',
+            'trailing ',
+            'dir./x',
+        ):
             for action, args in (('add', (source, False)), ('get', (None,)), ('rename', ('new', False)), ('remove', (True,))):
                 with self.subTest(name=name, action=action):
                     self.assertFalse(implementation(db, None, action, 1, name, *args)[0])
             self.assertFalse(implementation(db, None, 'rename', 1, 'source', name, True)[0])
         self.assertFalse(implementation(db, None, 'list', 999)[0])
         self.assertFalse(implementation(db, None, 'unknown', 1)[0])
+        # Malformed remote requests are rejected with an error, not an exception
+        remote = lambda changes: None  # ruff: ignore[lambda-assignment]
+        for action, args in (
+            ('list', ('extra',)),
+            ('add', ('x', 'abc', False)),
+            ('add', ('x', {'a': 1}, False)),
+            ('add', ('x', ('a', 'b'), False)),
+            ('add', ('x', ('a', b'b'), 'yes')),
+            ('get', (5, None)),
+            ('get', (None, None)),
+            ('rename', ('source', ['a'], False)),
+            ('remove', ('source',)),
+            ('remove', ('source', None)),
+        ):
+            with self.subTest(action=action, args=args):
+                self.assertEqual(implementation(db, remote, action, 1, *args), (False, f'Invalid arguments for: {action}'))
+        self.assertFalse(implementation(db, remote, 'list', '1')[0])
+        # Names that are valid on some platforms are accepted
+        for name in ('a..b.txt', '.hidden', 'console.txt', 'COM10', 'x+y'):
+            with self.subTest(name=name):
+                self.assertTrue(implementation(db, remote, 'add', 1, name, (name, b'x'), False)[0])
+                self.assertTrue(implementation(db, remote, 'remove', 1, name, True)[0])
         # Even a crafted remote request must not use a server pathname as
         # the uploaded data, or use its get destination to write on the server.
         dest = os.path.join(self.mkdtemp(), 'server-output')
@@ -799,6 +844,19 @@ class DataFilesTest(BaseTest):
         with open(os.path.join(root, 'sub', 'x.txt'), 'wb') as f:
             f.write(b'sub')
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'sub\\x.txt', None), (True, b'sub'))
+        # Names differing only in case match on case-insensitive filesystems
+        self.assertFalse(implementation(db, lambda changes: None, 'get', 1, 'SUB/X.txt', None)[0])
+        db.backend.is_case_sensitive = False
+        try:
+            self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'SUB/X.txt', None), (True, b'sub'))
+        finally:
+            db.backend.is_case_sensitive = True
+        # Only regular files are listed, special files such as FIFOs could
+        # block reads indefinitely
+        if hasattr(os, 'mkfifo'):
+            os.mkfifo(os.path.join(root, 'fifo'))
+            self.assertNotIn('fifo', [x['name'] for x in implementation(db, None, 'list', 1)[1]])
+            self.assertFalse(implementation(db, lambda changes: None, 'get', 1, 'fifo', None)[0])
 
     def test_data_files_output(self):
         import stat
@@ -820,6 +878,22 @@ class DataFilesTest(BaseTest):
                     os.chmod(output, 0o640)
                     self.run_data_files(db, 'get', '1', 'source', '--output', output, '--replace', is_remote=is_remote)
                     self.assertEqual(stat.S_IMODE(os.stat(output).st_mode), 0o640)
+                    # Replacing writes through symlinks rather than replacing them
+                    link = os.path.join(tdir, 'link')
+                    os.symlink(output, link)
+                    with open(output, 'wb') as f:
+                        f.write(b'old')
+                    self.run_data_files(db, 'get', '1', 'source', '--output', link, '--replace', is_remote=is_remote)
+                    self.assertTrue(os.path.islink(link))
+                    with open(output, 'rb') as f:
+                        self.assertEqual(f.read(), b'file')
+                    os.remove(link)
+                    # Read-only outputs are not replaced
+                    os.chmod(output, 0o440)
+                    if not os.access(output, os.W_OK):  # not running as root
+                        with self.assertRaisesRegex(SystemExit, 'Failed to save'):
+                            self.run_data_files(db, 'get', '1', 'source', '--output', output, '--replace', is_remote=is_remote)
+                    os.chmod(output, 0o640)
                 # A missing data file does not leave an empty output behind
                 missing = os.path.join(tdir, 'missing')
                 with self.assertRaisesRegex(SystemExit, 'No data file'):
