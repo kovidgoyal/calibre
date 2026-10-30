@@ -1078,12 +1078,14 @@ class DataFilesTest(BaseTest):
             f.write(b'sub')
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'sub\\x.txt', None), (True, b'sub'))
         # Names differing only in case match on case-insensitive filesystems
-        self.assertFalse(implementation(db, lambda changes: None, 'get', 1, 'SUB/X.txt', None)[0])
-        db.backend.is_case_sensitive = False
+        orig_case_sensitive = db.backend.is_case_sensitive
         try:
+            db.backend.is_case_sensitive = True
+            self.assertFalse(implementation(db, lambda changes: None, 'get', 1, 'SUB/X.txt', None)[0])
+            db.backend.is_case_sensitive = False
             self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'SUB/X.txt', None), (True, b'sub'))
         finally:
-            db.backend.is_case_sensitive = True
+            db.backend.is_case_sensitive = orig_case_sensitive
         # Only regular files are listed, special files such as FIFOs could
         # block reads indefinitely
         if hasattr(os, 'mkfifo'):
