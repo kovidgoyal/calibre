@@ -11,7 +11,7 @@ from calibre.db.cli.main import DBCtx, get_parser
 from calibre.srv.tests.base import LibraryBaseTest
 
 
-class DataFilesTest(LibraryBaseTest):
+class DataFilesServerTest(LibraryBaseTest):
     def test_data_files_remote(self):
         other_path = self.mkdtemp()
         self.create_db(other_path)

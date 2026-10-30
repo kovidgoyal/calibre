@@ -647,6 +647,9 @@ class DataFilesTest(BaseTest):
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
         class DBCtx:
+            def __init__(self):
+                self.is_remote = is_remote
+
             def path(self, path):
                 if is_remote:
                     with open(path, 'rb') as f:
@@ -662,7 +665,6 @@ class DataFilesTest(BaseTest):
                 return impl(db, None, *args)
 
         ctx = DBCtx()
-        ctx.is_remote = is_remote
         opts, args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
             self.assertEqual(main(opts, args, ctx), 0)
@@ -752,6 +754,82 @@ class DataFilesTest(BaseTest):
         for action, args in (('add', (b'', True)), ('get', (None,)), ('remove', (True,))):
             self.assertFalse(implementation(db, None, action, 1, 'outside/cover.jpg', *args)[0])
         self.assertIsNotNone(db.cover(1))
+        # Symlinks that resolve outside the data directory are omitted from
+        # the listing rather than preventing listing other files
+        os.symlink(os.path.join(os.path.dirname(root), 'cover.jpg'), os.path.join(root, 'cover-link'))
+        with open(os.path.join(root, 'regular'), 'wb') as f:
+            f.write(b'x')
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['regular'])
+        self.assertFalse(implementation(db, None, 'get', 1, 'cover-link', None)[0])
+
+    def test_data_files_existing_names(self):
+        from calibre.db.cli.cmd_data_files import implementation
+
+        db = self.init_cache()
+        root = os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')
+        os.makedirs(root)
+        # Names that are not accepted for new files can still be managed
+        # if they exist, for example, created by other programs
+        try:
+            with open(os.path.join(root, 'Notes: one.txt'), 'wb') as f:
+                f.write(b'colon')
+        except OSError:
+            self.skipTest('Colons in filenames are unsupported')
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['Notes: one.txt'])
+        self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'Notes: one.txt', None), (True, b'colon'))
+        self.assertFalse(implementation(db, None, 'rename', 1, 'Notes: one.txt', 'Notes: two.txt', False)[0])
+        self.assertTrue(implementation(db, None, 'rename', 1, 'Notes: one.txt', 'notes.txt', False)[0])
+        self.assertFalse(implementation(db, None, 'rename', 1, 'notes.txt', 'Notes: one.txt', False)[0])
+        with open(os.path.join(root, 'Notes: one.txt'), 'wb') as f:
+            f.write(b'colon')
+        self.assertTrue(implementation(db, None, 'remove', 1, 'Notes: one.txt', True)[0])
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['notes.txt'])
+        # \ is a separator for the backend, so such names give a clear error
+        if os.sep == '/':
+            with open(os.path.join(root, 'a\\b.txt'), 'wb') as f:
+                f.write(b'x')
+            self.assertIn('a\\b.txt', [x['name'] for x in implementation(db, None, 'list', 1)[1]])
+            for action, args in (('get', (None,)), ('rename', ('c.txt', False)), ('remove', (True,))):
+                ok, msg = implementation(db, None, action, 1, 'a\\b.txt', *args)
+                self.assertFalse(ok)
+                self.assertIn('backslash', msg)
+            self.assertTrue(os.path.exists(os.path.join(root, 'a\\b.txt')))
+        # \ is accepted as a separator in names
+        os.mkdir(os.path.join(root, 'sub'))
+        with open(os.path.join(root, 'sub', 'x.txt'), 'wb') as f:
+            f.write(b'sub')
+        self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'sub\\x.txt', None), (True, b'sub'))
+
+    def test_data_files_output(self):
+        import stat
+
+        from calibre.constants import get_umask, iswindows
+
+        db = self.init_cache()
+        source = os.path.join(self.mkdtemp(), 'source')
+        with open(source, 'wb') as f:
+            f.write(b'file')
+        self.run_data_files(db, 'add', '1', source)
+        tdir = self.mkdtemp()
+        output = os.path.join(tdir, 'output')
+        for is_remote in (False, True):
+            with self.subTest(is_remote=is_remote):
+                self.run_data_files(db, 'get', '1', 'source', '--output', output, is_remote=is_remote)
+                if not iswindows:
+                    self.assertEqual(stat.S_IMODE(os.stat(output).st_mode), 0o666 & ~get_umask())
+                    os.chmod(output, 0o640)
+                    self.run_data_files(db, 'get', '1', 'source', '--output', output, '--replace', is_remote=is_remote)
+                    self.assertEqual(stat.S_IMODE(os.stat(output).st_mode), 0o640)
+                # A missing data file does not leave an empty output behind
+                missing = os.path.join(tdir, 'missing')
+                with self.assertRaisesRegex(SystemExit, 'No data file'):
+                    self.run_data_files(db, 'get', '1', 'nonexistent', '--output', missing, is_remote=is_remote)
+                self.assertFalse(os.path.exists(missing))
+                for args in ((os.path.join(tdir, 'nodir', 'x'),), (tdir, '--replace'), (os.path.join(tdir, 'nodir', 'x'), '--replace')):
+                    with self.assertRaises(SystemExit):
+                        self.run_data_files(db, 'get', '1', 'source', '--output', *args, is_remote=is_remote)
+                os.remove(output)
+        self.assertEqual(sorted(os.listdir(tdir)), [])
 
     def test_data_files_options(self):
         db = self.init_cache()
