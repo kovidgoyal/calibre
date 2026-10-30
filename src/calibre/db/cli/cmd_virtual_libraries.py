@@ -10,6 +10,7 @@ from calibre.utils.localization import _, ngettext
 readonly = False
 version = 0  # change this if you change signature of implementation()
 ACTIONS = ('list', 'add', 'rename', 'remove')
+ACTION_DEFAULT = 'list'
 
 
 def implementation(db, notify_changes, action, *args):
@@ -145,9 +146,10 @@ def check_name(name: str) -> None:
 def main(opts, args, dbctx):
     from calibre.utils.icu import sort_key
 
-    action, args = (args[0], args[1:]) if args else ('list', [])
+    args = args or [ACTION_DEFAULT]
+    action, args = args[0], args[1:]
     if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: ({1})').format(action, '|'.join(ACTIONS)))
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
     if action == 'list':
         if args:
             raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
@@ -159,7 +161,6 @@ def main(opts, args, dbctx):
             for n in names:
                 expr, count = vls[n]
                 prints(f'{n}\t{expr}\t{_("invalid search") if count is None else count}')
-        return 0
     if action == 'add':
         if len(args) != 2:
             raise SystemExit(_('Error: You must specify a name and a search expression'))
@@ -169,7 +170,6 @@ def main(opts, args, dbctx):
         check_name(name)
         count = run(dbctx, 'add', name, expr, opts.replace)
         prints(ngettext('Virtual library {0} added, with one book', 'Virtual library {0} added, with {1} books', count).format(name, count))
-        return 0
     if action == 'rename':
         if len(args) != 2:
             raise SystemExit(_('Error: You must specify the name of the Virtual library and its new name'))
@@ -178,9 +178,9 @@ def main(opts, args, dbctx):
             raise SystemExit(_('Error: The new name must not be empty'))
         check_name(new)
         run(dbctx, 'rename', args[0], new)
-        return 0
-    if not args:
-        raise SystemExit(_('Error: You must specify the names of the Virtual libraries to remove'))
-    count = run(dbctx, 'remove', *args)
-    prints(ngettext('One Virtual library removed', '{} Virtual libraries removed', count).format(count))
+    if action == 'remove':
+        if not args:
+            raise SystemExit(_('Error: You must specify the names of the Virtual libraries to remove'))
+        count = run(dbctx, 'remove', *args)
+        prints(ngettext('One Virtual library removed', '{} Virtual libraries removed', count).format(count))
     return 0

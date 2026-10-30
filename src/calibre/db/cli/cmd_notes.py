@@ -13,6 +13,8 @@ from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
+ACTIONS = ('list', 'search', 'show', 'set', 'remove')
+ACTION_DEFAULT = 'list'
 
 
 def unsupported_field_error(db, field):
@@ -159,9 +161,10 @@ def run(dbctx, *args):
 
 
 def main(opts, args, dbctx):
-    if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: (list|search|show|set|remove)'))
+    args = args or [ACTION_DEFAULT]
     action, args = args[0], args[1:]
+    if action not in ACTIONS:
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
     if opts.field is not None and action != 'search':
         raise SystemExit(_('Error: The --field option can only be used with search'))
     if action == 'search':
@@ -179,8 +182,6 @@ def main(opts, args, dbctx):
         for field, item_name in run(dbctx, 'list', *args):
             prints(f'{field}: {item_name}')
         return 0
-    if action not in ('show', 'set', 'remove'):
-        raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|search|show|set|remove)').format(action))
     if len(args) < 2:
         raise SystemExit(_('Error: You must specify a field and the name of an item'))
     if action == 'set' and len(args) < 3:
@@ -192,7 +193,7 @@ def main(opts, args, dbctx):
         text = run(dbctx, 'show', field, item_name, opts.as_html)
         if text:
             prints(text)
-    elif action == 'set':
+    if action == 'set':
         path = args[2]
         if path == '-':
             run(dbctx, 'set', field, item_name, sys.stdin.buffer.read(), False)
@@ -206,6 +207,6 @@ def main(opts, args, dbctx):
             run(dbctx, 'set', field, item_name, data, False)
         else:
             run(dbctx, 'set', field, item_name, path, True)
-    else:
+    if action == 'remove':
         run(dbctx, 'remove', field, item_name)
     return 0

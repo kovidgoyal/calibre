@@ -5,6 +5,8 @@ from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
+ACTIONS = ('list', 'add', 'remove')
+ACTION_DEFAULT = 'list'
 
 from calibre import prints
 from calibre.srv.changes import saved_searches
@@ -58,6 +60,10 @@ Manage the saved searches stored in this database.
 If you try to add a query with a name that already exists, it will be
 replaced.
 
+Syntax for listing:
+
+%prog saved_searches list
+
 Syntax for adding:
 
 %prog saved_searches add search_name search_expression
@@ -72,25 +78,25 @@ Syntax for removing:
 
 
 def main(opts, args, dbctx):
-    args = args or ['list']
-    if args[0] == 'list':
+    args = args or [ACTION_DEFAULT]
+    action, args = args[0], args[1:]
+    if action not in ACTIONS:
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    if action == 'list':
         for name, value in dbctx.run('saved_searches', 'list').items():
             prints(_('Name:'), name)
             prints(_('Search string:'), value)
             print()
-    elif args[0] == 'add':
-        if len(args) < 3:
-            raise SystemExit(_('Error: You must specify a name and a search string'))
-        if '"' in args[1]:
-            raise SystemExit(_('Error: Saved search names cannot contain " (quote) characters'))
-        dbctx.run('saved_searches', 'add', args[1], args[2])
-        prints(args[1], _('added'))
-    elif args[0] == 'remove':
+    if action == 'add':
         if len(args) < 2:
+            raise SystemExit(_('Error: You must specify a name and a search string'))
+        if '"' in args[0]:
+            raise SystemExit(_('Error: Saved search names cannot contain " (quote) characters'))
+        dbctx.run('saved_searches', 'add', args[0], args[1])
+        prints(args[0], _('added'))
+    if action == 'remove':
+        if len(args) < 1:
             raise SystemExit(_('Error: You must specify a name'))
-        dbctx.run('saved_searches', 'remove', args[1])
-        prints(args[1], _('removed'))
-    else:
-        raise SystemExit(_('Error: Action %s not recognized, must be one of: (add|remove|list)') % args[0])
-
+        dbctx.run('saved_searches', 'remove', args[0])
+        prints(args[0], _('removed'))
     return 0

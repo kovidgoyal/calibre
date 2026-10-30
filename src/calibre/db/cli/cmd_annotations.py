@@ -11,6 +11,8 @@ from calibre.utils.localization import _
 
 readonly = False
 version = 1  # change this if you change signature of implementation()
+ACTIONS = ('list', 'search', 'export', 'import', 'remove')
+ACTION_DEFAULT = 'list'
 ANNOTATION_TYPES = ('highlight', 'bookmark')
 EXPORT_FORMATS = ('text', 'markdown', 'json')
 USER_TYPES = ('local', 'web')
@@ -322,9 +324,10 @@ def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool
 
 
 def main(opts, args, dbctx):
-    if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: (list|search|export|import|remove)'))
+    args = args or [ACTION_DEFAULT]
     action, args = args[0], args[1:]
+    if action not in ACTIONS:
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
     if action != 'search' and not opts.use_stemming:
         raise SystemExit(_('Error: The --no-stemming option can only be used with search'))
     if action == 'import':
@@ -371,8 +374,6 @@ def main(opts, args, dbctx):
         count = run(dbctx, 'remove', annot_ids)
         prints(_('{} annotations removed').format(count))
         return 0
-    if action not in ('list', 'search', 'export'):
-        raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|search|export|import|remove)').format(action))
     if action == 'search':
         if len(args) != 1 or not args[0].strip():
             raise SystemExit(_('Error: You must specify one non-empty annotation search expression'))
@@ -389,21 +390,23 @@ def main(opts, args, dbctx):
         prints(json_for_terminal([dict(a, title=titles.get(a['book_id'], '')) for a in annots]))
         return 0
     if action in ('list', 'search'):
-        for a in annots if action == 'search' else sorted(annots, key=lambda a: a['id']):
+        if action == 'list':
+            annots = sorted(annots, key=lambda a: a['id'])
+        for a in annots:
             fields = (str(a['id']), titles.get(a['book_id'], ''), a['annotation']['type'], a['format'], f"{a['user_type']}:{a['user']}", a['text'] or '')
             # One annotation per line, with tab separated fields
             prints(for_terminal('\t'.join(' '.join(x.split()) for x in fields)))
-        return 0
-    if opts.format == 'json':
-        # The same calibre annotation collection as exported by the Browse annotations tool
-        collection = []
-        for a in annots:
-            x = a['annotation'].copy()
-            x['book_id'], x['format'], x['user_type'], x['user'] = a['book_id'], a['format'], a['user_type'], a['user']
-            collection.append(x)
-        data = json_for_terminal({'version': 1, 'type': 'calibre_annotation_collection', 'annotations': collection})
-    else:
-        data = for_terminal(render_as_text(annots, titles, opts.format == 'markdown'))
-    if data:
-        prints(data)
+    if action == 'export':
+        if opts.format == 'json':
+            # The same calibre annotation collection as exported by the Browse annotations tool
+            collection = []
+            for a in annots:
+                x = a['annotation'].copy()
+                x['book_id'], x['format'], x['user_type'], x['user'] = a['book_id'], a['format'], a['user_type'], a['user']
+                collection.append(x)
+            data = json_for_terminal({'version': 1, 'type': 'calibre_annotation_collection', 'annotations': collection})
+        else:
+            data = for_terminal(render_as_text(annots, titles, opts.format == 'markdown'))
+        if data:
+            prints(data)
     return 0

@@ -138,10 +138,10 @@ def main(opts, args, dbctx):
     from calibre.utils.date import as_local_time, utcfromtimestamp
 
     if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: ({})').format('|'.join(ACTIONS)))
+        raise SystemExit(_('Error: You must specify an action, one of: {}').format(', '.join(ACTIONS)))
     action, args = args[0], args[1:]
     if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: ({1})').format(action, '|'.join(ACTIONS)))
+        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
     if action in ('list', 'empty'):
         if args:
             raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
