@@ -4,6 +4,7 @@
 import json
 
 from calibre import prints
+from calibre.db import FTSQueryError
 from calibre.db.cli.utils import for_terminal
 from calibre.utils.localization import _
 
@@ -29,7 +30,7 @@ def implementation(db, notify_changes, action, *args):
 
             notify_changes(metadata(set(book_map.values())))
         return True, len(book_map)
-    if action != 'get':
+    if action not in ('get', 'search'):
         return False, _('Unknown action: {}').format(action)
     search, annotation_type = args[:2]
     book_ids = None
@@ -39,7 +40,25 @@ def implementation(db, notify_changes, action, *args):
         except ParseException as e:
             return False, _('Failed to parse search query: ({0}) with error: {1}').format(search, e)
     with db.safe_read_lock:
-        annots = db._all_annotations(annotation_type=annotation_type or None, ignore_removed=True, restrict_to_book_ids=book_ids)
+        if action == 'search':
+            query, use_stemming = args[2:]
+            if not isinstance(query, str) or not query.strip():
+                return False, _('You must specify a non-empty annotation search expression')
+            try:
+                annots = db._search_annotations(
+                    query,
+                    use_stemming=use_stemming,
+                    highlight_start='',
+                    highlight_end='',
+                    snippet_size=32,
+                    annotation_type=annotation_type or None,
+                    ignore_removed=True,
+                    restrict_to_book_ids=book_ids,
+                )
+            except FTSQueryError as err:
+                return False, str(err)
+        else:
+            annots = db._all_annotations(annotation_type=annotation_type or None, ignore_removed=True, restrict_to_book_ids=book_ids)
         titles = {book_id: db._field_for('title', book_id) for book_id in {a['book_id'] for a in annots}}
     return True, (annots, titles)
 
@@ -48,7 +67,7 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog annotations [options] (list|export|remove)
+%prog annotations [options] (list|search|export|remove)
 
 Manage the annotations, that is the highlights and bookmarks, of books, as
 created in the calibre E-book viewer or synced from other applications.
@@ -56,6 +75,15 @@ created in the calibre E-book viewer or synced from other applications.
 List the annotations, with their ids:
 
 %prog annotations list
+
+Search highlighted text, annotation notes and bookmark titles using the same
+SQLite full text search syntax as the Browse annotations tool. Results are
+ordered by relevance and include annotation ids, book titles and matching
+excerpts. Use --search to restrict the books, --type to restrict the annotation
+type, --no-stemming to match exact word forms, or --format json for a JSON array
+of results including the annotation data and excerpts:
+
+%prog annotations search "search expression"
 
 Export the annotations as plain text, Markdown or JSON, grouped by book. The
 JSON is the same calibre annotation collection as created by the Export
@@ -73,21 +101,24 @@ Permanently remove the annotations with the specified ids, as shown by list:
         '-s',
         '--search',
         default=None,
-        help=_('Only list or export the annotations of books matching the specified search query, for example: --search "series:Foundation"'),
+        help=_('Only list, search or export the annotations of books matching the specified book search query, for example: --search "series:Foundation"'),
     )
     parser.add_option(
         '-t',
         '--type',
         default=None,
         choices=ANNOTATION_TYPES,
-        help=_('Only list or export annotations of the specified type, one of: {}').format(', '.join(ANNOTATION_TYPES)),
+        help=_('Only list, search or export annotations of the specified type, one of: {}').format(', '.join(ANNOTATION_TYPES)),
     )
     parser.add_option(
         '-f',
         '--format',
         default='text',
         choices=EXPORT_FORMATS,
-        help=_('The format to export the annotations in, one of: {}. Default is: %default').format(', '.join(EXPORT_FORMATS)),
+        help=_('The export format, one of: {}. For search, text or json. Default is: %default').format(', '.join(EXPORT_FORMATS)),
+    )
+    parser.add_option(
+        '--no-stemming', dest='use_stemming', default=True, action='store_false', help=_('For search, match exact word forms instead of word stems')
     )
     return parser
 
@@ -122,8 +153,10 @@ def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool
 
 def main(opts, args, dbctx):
     if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: (list|export|remove)'))
+        raise SystemExit(_('Error: You must specify an action, one of: (list|search|export|remove)'))
     action, args = args[0], args[1:]
+    if action != 'search' and not opts.use_stemming:
+        raise SystemExit(_('Error: The --no-stemming option can only be used with search'))
     if action == 'remove':
         if opts.search or opts.type:
             raise SystemExit(_('Error: The --search and --type options cannot be used with remove, specify the ids of the annotations instead'))
@@ -136,18 +169,28 @@ def main(opts, args, dbctx):
         count = run(dbctx, 'remove', annot_ids)
         prints(_('{} annotations removed').format(count))
         return 0
-    if action not in ('list', 'export'):
-        raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|export|remove)').format(action))
-    if args:
+    if action not in ('list', 'search', 'export'):
+        raise SystemExit(_('Error: Action {} not recognized, must be one of: (list|search|export|remove)').format(action))
+    if action == 'search':
+        if len(args) != 1 or not args[0].strip():
+            raise SystemExit(_('Error: You must specify one non-empty annotation search expression'))
+        if opts.format not in ('text', 'json'):
+            raise SystemExit(_('Error: The search output format must be text or json'))
+        annots, titles = run(dbctx, 'search', opts.search, opts.type, args[0], opts.use_stemming)
+    elif args:
         raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
-    annots, titles = run(dbctx, 'get', opts.search, opts.type)
+    else:
+        annots, titles = run(dbctx, 'get', opts.search, opts.type)
     # Book ids are sent as strings when using a remote library
     titles = {int(k): v for k, v in titles.items()}
-    if action == 'list':
-        for a in sorted(annots, key=lambda a: a['id']):
+    if action == 'search' and opts.format == 'json':
+        prints(json.dumps([dict(a, title=titles.get(a['book_id'], '')) for a in annots], ensure_ascii=False, indent=2))
+        return 0
+    if action in ('list', 'search'):
+        for a in annots if action == 'search' else sorted(annots, key=lambda a: a['id']):
             text = ' '.join((a['text'] or '').split())
             fields = (str(a['id']), titles.get(a['book_id'], ''), a['annotation']['type'], a['format'], f"{a['user_type']}:{a['user']}", text)
-            prints(for_terminal('\t'.join(fields)))
+            prints(for_terminal('\t'.join(' '.join(x.split()) for x in fields) if action == 'search' else '\t'.join(fields)))
         return 0
     if opts.format == 'json':
         # The same calibre annotation collection as exported by the Browse annotations tool
