@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from calibre.db.cli.utils import args_to_action
 from calibre.utils.localization import _
 
 readonly = False
@@ -78,10 +79,7 @@ Syntax for removing:
 
 
 def main(opts, args, dbctx):
-    args = args or [ACTION_DEFAULT]
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action == 'list':
         for name, value in dbctx.run('saved_searches', 'list').items():
             prints(_('Name:'), name)

@@ -6,7 +6,7 @@ import sys
 
 from calibre import prints
 from calibre.db import FTSQueryError
-from calibre.db.cli.utils import for_terminal
+from calibre.db.cli.utils import args_to_action, check_options_exclusion, for_terminal
 from calibre.utils.localization import _
 
 readonly = False
@@ -324,15 +324,20 @@ def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool
 
 
 def main(opts, args, dbctx):
-    args = args or [ACTION_DEFAULT]
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
-    if action != 'search' and not opts.use_stemming:
-        raise SystemExit(_('Error: The --no-stemming option can only be used with search'))
+    action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
+    check_options_exclusion(
+        action,
+        ('--no-stemming', action != 'search' and not opts.use_stemming, 'only with search'),
+        ('--search', action == 'import' and opts.search),
+        ('--type', action == 'import' and opts.type),
+        ('--type', action == 'remove' and opts.type, 'specify the ids of the annotations instead'),
+        ('--search', action == 'remove' and opts.search, 'specify the ids of the annotations instead'),
+        ('--user-type', action == 'remove' and opts.user_type),
+        ('--annotation-user', action == 'remove' and opts.annotation_user),
+    )
     if action == 'import':
-        if opts.search or opts.type or opts.format != 'text':
-            raise SystemExit(_('Error: The --search, --type and --format options cannot be used with import'))
+        if opts.format != 'text':
+            raise SystemExit(_('Error: Only text are accepted as input format'))
         if len(args) != 3:
             raise SystemExit(_('Error: Specify a destination book id, format and annotation collection file'))
         try:
@@ -361,10 +366,6 @@ def main(opts, args, dbctx):
             prints(_('{} annotations of other formats skipped').format(counts['skipped']))
         return 0
     if action == 'remove':
-        if opts.search or opts.type:
-            raise SystemExit(_('Error: The --search and --type options cannot be used with remove, specify the ids of the annotations instead'))
-        if opts.user_type or opts.annotation_user:
-            raise SystemExit(_('Error: The --user-type and --annotation-user options cannot be used with remove'))
         if not args:
             raise SystemExit(_('Error: You must specify the ids of the annotations to remove'))
         try:

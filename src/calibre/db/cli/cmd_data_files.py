@@ -8,7 +8,7 @@ import stat
 from io import BytesIO
 
 from calibre import as_unicode, prints
-from calibre.db.cli.utils import for_terminal
+from calibre.db.cli.utils import args_to_action, check_options_exclusion, for_terminal
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.filenames import is_path_inside, is_windows_reserved_filename, path_from_root
@@ -261,26 +261,21 @@ def download(dbctx, book_id, name, output, replace):
 
 
 def main(opts, args, dbctx):
-    if not args:
-        raise SystemExit(_('Error: You must specify an action, one of: {}').format(', '.join(ACTIONS)))
-    action, args = args[0], args[1:]
-    if action not in ACTIONS:
-        raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
+    action, args = args_to_action(args, ACTIONS)
     if len(args) != ARG_COUNTS[action]:
         raise SystemExit(_('Error: Incorrect number of arguments for: {}').format(action))
     try:
         book_id = int(args[0])
     except ValueError:
         raise SystemExit(_('Error: The book id must be a number'))
-    for option, invalid in (
+    check_options_exclusion(
+        action,
         ('--for-machine', opts.for_machine and action != 'list'),
         ('--name', opts.name is not None and action != 'add'),
         ('--output', opts.output is not None and action != 'get'),
         ('--replace', opts.replace and action not in ('add', 'get', 'rename')),
         ('--permanent', opts.permanent and action != 'remove'),
-    ):
-        if invalid:
-            raise SystemExit(_('Error: The option {0} cannot be used with {1}').format(option, action))
+    )
     if action == 'list':
         entries = run(dbctx, action, book_id)
         if opts.for_machine:
