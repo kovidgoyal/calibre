@@ -3,6 +3,7 @@
 
 import json
 import os
+import time
 from base64 import standard_b64encode
 from http.client import NOT_FOUND, NOT_MODIFIED, OK, UNAUTHORIZED
 from io import BytesIO
@@ -28,6 +29,16 @@ def cbz(pages):
         for name, data in pages:
             archive.writestr(name, data)
     return buf.getvalue()
+
+
+def replace_cbz(db, book_id, data):
+    # The download cache only recopies a format whose mtime is newer than its
+    # cached copy, which a replacement made in the same filesystem timestamp
+    # tick would not be, so move the mtime of the replacement forward.
+    db.add_format(book_id, 'CBZ', BytesIO(data), run_hooks=False)
+    path = db.format_abspath(book_id, 'CBZ')
+    mtime = max(os.path.getmtime(path), time.time()) + 2
+    os.utime(path, (mtime, mtime))
 
 
 class ComicTest(LibraryBaseTest):
@@ -238,7 +249,7 @@ class ComicTest(LibraryBaseTest):
             with patch('calibre.srv.comic.image_to_data', side_effect=AssertionError('cached request transcoded')):
                 response, raw = self.request(conn, alternate['href'], headers={'If-None-Match': etag})
             self.ae((response.status, raw), (NOT_MODIFIED, b''))
-            db.add_format(1, 'CBZ', BytesIO(cbz([('1.jpg', IMG)])), run_hooks=False)
+            replace_cbz(db, 1, cbz([('1.jpg', IMG)]))
             replacement_response, replacement = self.manifest(conn)
             self.assertNotEqual(replacement_response.getheader('ETag'), manifest_response.getheader('ETag'))
             self.ae(replacement['metadata']['numberOfPages'], 1)
@@ -300,9 +311,9 @@ class ComicTest(LibraryBaseTest):
                 self.ae(self.request(conn, path)[0].status, NOT_FOUND, path)
             db.add_format(1, 'CBZ', BytesIO(b'not a zip archive'), run_hooks=False)
             self.ae(self.request(conn, '/comic-manifest/1')[0].status, NOT_FOUND)
-            db.add_format(1, 'CBZ', BytesIO(cbz([('notes.txt', b'not a page')])), run_hooks=False)
+            replace_cbz(db, 1, cbz([('notes.txt', b'not a page')]))
             self.ae(self.request(conn, '/comic-manifest/1')[0].status, NOT_FOUND)
-            db.add_format(1, 'CBZ', BytesIO(cbz([('1.jpg', IMG)])), run_hooks=False)
+            replace_cbz(db, 1, cbz([('1.jpg', IMG)]))
             for path in ('/comic-page/1/-1', '/comic-page/1/1', '/comic-page/1/x', '/comic-page/1/0?type=image/svg+xml'):
                 self.ae(self.request(conn, path)[0].status, NOT_FOUND, path)
             # A bad library id must not silently select the default library.
@@ -311,7 +322,7 @@ class ComicTest(LibraryBaseTest):
             encrypted = bytearray(cbz([('1.jpg', IMG)]))
             encrypted[6] |= 1  # The encryption flag in the local file header
             encrypted[encrypted.index(b'PK\x01\x02') + 8] |= 1  # And in the central directory
-            db.add_format(1, 'CBZ', BytesIO(encrypted), run_hooks=False)
+            replace_cbz(db, 1, bytes(encrypted))
             self.ae(self.request(conn, '/comic-page/1/0')[0].status, NOT_FOUND)
 
     def test_comic_permissions_and_libraries(self):
