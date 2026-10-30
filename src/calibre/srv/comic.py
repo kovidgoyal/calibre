@@ -12,6 +12,8 @@ from functools import lru_cache, partial
 from typing import TypedDict
 from urllib.parse import urlencode
 
+from lxml import etree
+
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.comic.input import find_pages
 from calibre.srv.content import create_file_copy
@@ -22,6 +24,7 @@ from calibre.srv.opds import DIVINA_MIME, RequestContext, opds2_metadata
 from calibre.srv.routes import endpoint
 from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile
 
 DIVINA_PROFILE = 'https://readium.org/webpub-manifest/profiles/divina'
@@ -38,6 +41,7 @@ WIDELY_SUPPORTED = frozenset(('image/jpeg', 'image/png', 'image/gif', 'image/web
 # Pages are read into memory to serve or transcode them. Refuse larger ones, as
 # the sizes in ZIP headers cannot be trusted to limit decompression.
 MAX_PAGE_SIZE = 128 * 1024 * 1024
+MAX_COMICINFO_SIZE = 1024 * 1024
 
 
 class Link(TypedDict):
@@ -114,6 +118,23 @@ def comic_pages(archive: ZipFile) -> list[str]:
     return find_pages([x.filename for x in archive.infolist() if not x.filename.endswith('/')])
 
 
+def comic_is_right_to_left(archive: ZipFile) -> bool:
+    info = next((x for x in archive.infolist() if x.filename.lower() == 'comicinfo.xml'), None)
+    if info is None:
+        return False
+    try:
+        with archive.open(info) as f:
+            raw = f.read(MAX_COMICINFO_SIZE + 1)
+        if len(raw) > MAX_COMICINFO_SIZE:
+            return False
+        root = safe_xml_fromstring(raw, recover=False)
+    except BadZipfile, RuntimeError, NotImplementedError, zlib.error, EOFError, etree.XMLSyntaxError:
+        # ComicInfo is optional. Broken or unreadable metadata must not prevent
+        # opening a comic whose page images can still be read.
+        return False
+    return root.tag == 'ComicInfo' and (root.findtext('Manga') or '').strip() == 'YesAndRightToLeft'
+
+
 @endpoint('/comic-manifest/{book_id}', types={'book_id': int})
 def comic_manifest(ctx: Context, rd: RequestData, book_id: int) -> StaticOutput:
     with open_comic(ctx, rd, book_id) as (c, archive, revision):
@@ -123,6 +144,8 @@ def comic_manifest(ctx: Context, rd: RequestData, book_id: int) -> StaticOutput:
         metadata = opds2_metadata(c.db.get_metadata(book_id), c)
         metadata.pop('@type', None)
         metadata.update(conformsTo=DIVINA_PROFILE, numberOfPages=len(names))
+        if comic_is_right_to_left(archive):
+            metadata['readingProgression'] = 'rtl'
 
         assert ctx.url_for is not None
 

@@ -11,13 +11,14 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 from zipfile import ZipFile
 
 from calibre.db.tests.base import IMG
-from calibre.srv.comic import DIVINA_PROFILE, comic_pages, convertible_types, page_types, readable_types
+from calibre.srv.comic import DIVINA_PROFILE, comic_is_right_to_left, comic_pages, convertible_types, page_types, readable_types
 from calibre.srv.opds import DIVINA_MIME, OPDS2_MIME
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.avif_test import NOT_AN_IMAGE, STILL_AVIF
 from calibre.utils.imghdr import identify
 from calibre.utils.jxl_test import STILL_JXL
 from calibre.utils.resources import get_image_path as I
+from calibre.utils.zipfile import ZipFile as ComicZipFile
 
 
 def cbz(pages):
@@ -29,6 +30,67 @@ def cbz(pages):
 
 
 class ComicTest(LibraryBaseTest):
+    def test_comic_reading_direction(self):
+        rtl = b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>'
+        for filename, data, expected in (
+            ('ComicInfo.xml', rtl, True),
+            ('COMICINFO.XML', rtl, True),
+            ('ComicInfo.xml', b'<ComicInfo><Manga> YesAndRightToLeft </Manga></ComicInfo>', True),
+            ('folder/ComicInfo.xml', rtl, False),
+            ('__MACOSX/ComicInfo.xml', rtl, False),
+            ('ComicInfo.xml', b'<ComicInfo><Manga>Yes</Manga></ComicInfo>', False),
+            ('ComicInfo.xml', b'<ComicInfo><Manga>No</Manga></ComicInfo>', False),
+            ('ComicInfo.xml', b'<ComicInfo><Manga>Unknown</Manga></ComicInfo>', False),
+            ('ComicInfo.xml', b'<ComicInfo/>', False),
+            ('ComicInfo.xml', b'<Other><Manga>YesAndRightToLeft</Manga></Other>', False),
+            ('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga>', False),
+            ('ComicInfo.xml', b'not XML', False),
+        ):
+            with self.subTest(filename=filename, data=data), ComicZipFile(BytesIO(cbz([(filename, data)]))) as archive:
+                self.ae(comic_is_right_to_left(archive), expected)
+        with ComicZipFile(BytesIO(cbz([('ComicInfo.xml', rtl)]))) as archive:
+            with patch('calibre.srv.comic.MAX_COMICINFO_SIZE', len(rtl)):
+                self.assertTrue(comic_is_right_to_left(archive))
+            with patch('calibre.srv.comic.MAX_COMICINFO_SIZE', len(rtl) - 1):
+                self.assertFalse(comic_is_right_to_left(archive))
+        # Resolving external entities must not read local files into metadata.
+        path = os.path.join(self.mkdtemp(), 'direction.txt')
+        with open(path, 'w') as f:
+            f.write('YesAndRightToLeft')
+        from pathlib import Path
+
+        xml = f'<!DOCTYPE ComicInfo [<!ENTITY direction SYSTEM "{Path(path).as_uri()}">]><ComicInfo><Manga>&direction;</Manga></ComicInfo>'.encode()
+        with ComicZipFile(BytesIO(cbz([('ComicInfo.xml', xml)]))) as archive:
+            self.assertFalse(comic_is_right_to_left(archive))
+        encrypted = bytearray(cbz([('ComicInfo.xml', rtl)]))
+        encrypted[6] |= 1
+        encrypted[encrypted.index(b'PK\x01\x02') + 8] |= 1
+        with ComicZipFile(BytesIO(encrypted)) as archive:
+            self.assertFalse(comic_is_right_to_left(archive))
+
+    def test_comic_manga_manifest(self):
+        png = I('lt.png', data=True)
+        pages = [('2.png', png), ('1.jpg', IMG)]
+        with self.create_server() as server:
+            db = server.handler.ctx.library_broker.get(None)
+            conn = server.connect()
+            for metadata, expected in (
+                ([], None),
+                ([('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>')], 'rtl'),
+                ([('ComicInfo.xml', b'<ComicInfo><Manga>No</Manga></ComicInfo>')], None),
+                ([('ComicInfo.xml', b'not XML')], None),
+            ):
+                with self.subTest(metadata=metadata):
+                    db.add_format(1, 'CBZ', BytesIO(cbz([*pages, *metadata])), run_hooks=False)
+                    _, manifest = self.manifest(conn)
+                    self.ae(manifest['metadata'].get('readingProgression'), expected)
+                    self.ae(manifest['metadata']['numberOfPages'], 2)
+                    self.ae([x['type'] for x in manifest['readingOrder']], ['image/jpeg', 'image/png'])
+                    for resource, data in zip(manifest['readingOrder'], (IMG, png)):
+                        response, raw = self.request(conn, resource['href'])
+                        self.ae(response.status, OK)
+                        self.ae(raw, data)
+
     def request(self, conn, url, *, user=None, accept=None, headers=None, method='GET'):
         headers = dict(headers or {})
         if user:
