@@ -260,7 +260,7 @@ class NotesTest(BaseTest):
                 ):
                     with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                         search(*args)
-        with self.assertRaisesRegex(SystemExit, 'only with search'):
+        with self.assertRaisesRegex(SystemExit, 'only be used with search'):
             self.run_notes(db, 'list', '--field', 'authors')
         db.set_notes_for('authors', author_id, 'terminal', searchable_text='terminal\x1b[31m\x9b with\nnewlines\tand tabs')
         output = self.run_notes(db, 'search', 'terminal')
@@ -914,7 +914,7 @@ class AnnotationsTest(BaseTest):
             (('search', 'one', '-f', 'markdown'), 'text or json'),
             (('search', '"unterminated'), 'Failed'),
             (('search', 'word', '-s', '('), 'Failed to parse search query'),
-            (('list', '--no-stemming'), 'only with search'),
+            (('list', '--no-stemming'), 'only be used with search'),
         ):
             for is_remote in (False, True):
                 with self.subTest(args=args, is_remote=is_remote), self.assertRaisesRegex(SystemExit, msg):
