@@ -45,6 +45,7 @@ COMMANDS = (
     'virtual_libraries',
     'annotations',
     'trash',
+    'data_files',
 )
 
 
