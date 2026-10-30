@@ -505,14 +505,20 @@ class Model {
 
 // Python wrapper {{{
 // The Env must outlive all sessions, which can be owned by Python objects
-// that are freed after the module, so it is never freed
-static std::unique_ptr<Ort::Env> ort_env;
+// that are freed after the module, so it is never freed. It must be a plain
+// pointer that is deliberately leaked, a static smart pointer would be
+// destroyed at process exit, after the static objects in the onnxruntime
+// library, causing a crash on macOS when the destructor locks an already
+// destroyed mutex.
+static Ort::Env *ort_env = nullptr;
 
+// Raises an exception on failure. Must be called with the GIL held.
 static Ort::Env &
 get_ort_env() {
     if (!ort_env) {
-        ort_env = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "seq2seq");
-        ort_env->DisableTelemetryEvents();
+        Ort::Env *env = new Ort::Env(ORT_LOGGING_LEVEL_WARNING, "seq2seq");
+        env->DisableTelemetryEvents();
+        ort_env = env;
     }
     return *ort_env;
 }
@@ -575,12 +581,19 @@ Seq2SeqModel_new(PyTypeObject *type, PyObject *args, PyObject *kw) {
     }
     Seq2SeqModel *self = (Seq2SeqModel *)type->tp_alloc(type, 0);
     if (!self) return NULL;
-    Ort::Env &env = get_ort_env();
+    Ort::Env *env;
+    try {
+        env = &get_ort_env();
+    } catch (const std::exception &e) {
+        Py_DECREF(self);
+        PyErr_Format(PyExc_OSError, "Failed to initialize onnxruntime: %s", e.what());
+        return NULL;
+    }
     std::string error;
     const std::string prov(provider);
     Py_BEGIN_ALLOW_THREADS;
     try {
-        self->model = new Model(env, encoder_path, decoder_path, decoder_with_past_path, prov, num_threads);
+        self->model = new Model(*env, encoder_path, decoder_path, decoder_with_past_path, prov, num_threads);
         self->model->decoder_start_token_id = start_id;
         self->model->eos_token_id = eos_id;
         self->model->pad_token_id = pad_id;
