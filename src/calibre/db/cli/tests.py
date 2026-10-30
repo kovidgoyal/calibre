@@ -820,6 +820,9 @@ class DataFilesTest(BaseTest):
                 f.write(b'colon')
         except OSError:
             self.skipTest('Colons in filenames are unsupported')
+        if os.listdir(root) != ['Notes: one.txt']:
+            # On NTFS, the colon creates an alternate data stream instead
+            self.skipTest('Colons in filenames are unsupported')
         self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['Notes: one.txt'])
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'Notes: one.txt', None), (True, b'colon'))
         self.assertFalse(implementation(db, None, 'rename', 1, 'Notes: one.txt', 'Notes: two.txt', False)[0])
