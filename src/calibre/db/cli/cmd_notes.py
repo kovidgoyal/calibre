@@ -102,14 +102,15 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog notes [options] (list|search|show|set|remove)
+%prog notes [options] [list|search|show|set|remove]
 
 Manage the notes attached to items such as authors, series, tags and
 publishers. FIELD is the lookup name of the field, for example: authors,
 series, tags, publisher or #mycolumn. ITEM is the name of the item, for
 example the name of an author. Items are matched case insensitively.
 
-List the items that have notes, optionally only those in the specified field:
+List the items that have notes, optionally only those in the specified field.
+This is the default action:
 
 %prog notes list [FIELD]
 
@@ -193,7 +194,7 @@ def main(opts, args, dbctx):
         text = run(dbctx, 'show', field, item_name, opts.as_html)
         if text:
             prints(text)
-    if action == 'set':
+    elif action == 'set':
         path = args[2]
         if path == '-':
             run(dbctx, 'set', field, item_name, sys.stdin.buffer.read(), False)
@@ -207,6 +208,6 @@ def main(opts, args, dbctx):
             run(dbctx, 'set', field, item_name, data, False)
         else:
             run(dbctx, 'set', field, item_name, path, True)
-    if action == 'remove':
+    else:
         run(dbctx, 'remove', field, item_name)
     return 0

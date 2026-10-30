@@ -91,13 +91,14 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog virtual_libraries [options] (list|add|rename|remove)
+%prog virtual_libraries [options] [list|add|rename|remove]
 
 Manage the Virtual libraries of this library. A Virtual library is a search
 that behaves as though the library contains only the books it matches. To list
 or search the books in a Virtual library, use: calibredb search 'vl:"name"'
 
-List the Virtual libraries, with their searches and number of books:
+List the Virtual libraries, with their searches and number of books. This is the
+default action:
 
 %prog virtual_libraries list
 
@@ -161,7 +162,7 @@ def main(opts, args, dbctx):
             for n in names:
                 expr, count = vls[n]
                 prints(f'{n}\t{expr}\t{_("invalid search") if count is None else count}')
-    if action == 'add':
+    elif action == 'add':
         if len(args) != 2:
             raise SystemExit(_('Error: You must specify a name and a search expression'))
         name, expr = args[0].strip(), args[1].strip()
@@ -170,7 +171,7 @@ def main(opts, args, dbctx):
         check_name(name)
         count = run(dbctx, 'add', name, expr, opts.replace)
         prints(ngettext('Virtual library {0} added, with one book', 'Virtual library {0} added, with {1} books', count).format(name, count))
-    if action == 'rename':
+    elif action == 'rename':
         if len(args) != 2:
             raise SystemExit(_('Error: You must specify the name of the Virtual library and its new name'))
         new = args[1].strip()
@@ -178,7 +179,7 @@ def main(opts, args, dbctx):
             raise SystemExit(_('Error: The new name must not be empty'))
         check_name(new)
         run(dbctx, 'rename', args[0], new)
-    if action == 'remove':
+    else:
         if not args:
             raise SystemExit(_('Error: You must specify the names of the Virtual libraries to remove'))
         count = run(dbctx, 'remove', *args)

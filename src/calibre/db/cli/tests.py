@@ -199,6 +199,7 @@ class NotesTest(BaseTest):
         self.assertIn('<b>great</b>', html)
         db.import_note('tags', db.get_item_id('tags', 'Tag One'), html.encode(), path_is_data=True)
         self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\ntags: Tag One\n')
+        self.assertEqual(self.run_notes(db), 'authors: Author One\ntags: Tag One\n')
         self.assertEqual(self.run_notes(db, 'list', 'tags'), 'tags: Tag One\n')
         self.run_notes(db, 'remove', 'tags', 'Tag One')
         self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\n')
@@ -594,6 +595,7 @@ class AnnotationsTest(BaseTest):
         )
         self.assertEqual([c.book_ids for c in changes], [frozenset((1, 2))])
         self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
+        self.assertEqual(self.run_annotations(db), self.run_annotations(db, 'list'))
         for args, msg in (
             (('remove', str(ids['first'])), 'No annotations with the ids'),
             (('remove', '-t', 'bookmark', str(ids['second'])), 'cannot be used with remove'),
@@ -948,6 +950,39 @@ class SavedSearchesTest(BaseTest):
         implementation(db, None, 'add', 'foo', tpl)
         self.assertEqual(db.books_in_virtual_library('VL'), {1, 2, 3})
 
+    def run_saved_searches(self, db, *args):
+        from calibre.db.cli.cmd_saved_searches import implementation, main, option_parser
+        from calibre.db.cli.main import get_parser
+
+        class DBCtx:
+            def run(self, name, *args):
+                return implementation(db, None, *args)
+
+        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        with redirect_stdout(StringIO()) as out:
+            main(opts, args, DBCtx())
+        return out.getvalue()
+
+    def test_saved_searches(self):
+        db = self.init_cache()
+        self.addCleanup(db.close)
+        initial = self.run_saved_searches(db, 'list')
+        self.assertEqual(self.run_saved_searches(db, 'add', 'one', 'id:1'), 'one added\n')
+        self.assertEqual(db.saved_search_lookup('one'), 'id:1')
+        self.assertIn('Name: one\nSearch string: id:1\n\n', self.run_saved_searches(db, 'list'))
+        self.assertEqual(self.run_saved_searches(db), self.run_saved_searches(db, 'list'))
+        self.assertEqual(self.run_saved_searches(db, 'remove', 'one'), 'one removed\n')
+        self.assertIsNone(db.saved_search_lookup('one'))
+        self.assertEqual(self.run_saved_searches(db), initial)
+        for args, msg in (
+            (('add', 'one'), 'must specify a name and a search string'),
+            (('add', 'a"b', 'id:1'), 'cannot contain'),
+            (('remove',), 'must specify a name'),
+            (('frob',), 'not recognized'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_saved_searches(db, *args)
+
 
 class DataFilesTest(BaseTest):
     def run_data_files(self, db, *args, is_remote=False):
@@ -1080,6 +1115,7 @@ class DataFilesTest(BaseTest):
             with self.subTest(action=action, args=args):
                 self.assertEqual(implementation(db, remote, action, 1, *args), (False, f'Invalid arguments for: {action}'))
         self.assertFalse(implementation(db, remote, 'list', '1')[0])
+        self.assertEqual(implementation(db, remote, ['list'], 1), (False, "Unknown action: ['list']"))
         # Names that are valid on some platforms are accepted
         for name in ('a..b.txt', '.hidden', 'console.txt', 'COM10', 'x+y'):
             with self.subTest(name=name):
@@ -1408,6 +1444,7 @@ class VirtualLibrariesTest(BaseTest):
         self.assertEqual(db.pref('virtual_libraries'), {'One': 'title:"=Title One"', 'Both': 'id:1 or id:2'})
         self.assertEqual(db.search('vl:Both'), {1, 2})
         self.assertEqual(self.run_vls(db, 'list'), 'Both\tid:1 or id:2\t2\nOne\ttitle:"=Title One"\t1\n')
+        self.assertEqual(self.run_vls(db), self.run_vls(db, 'list'))
         for is_remote in (False, True):
             with self.subTest(is_remote=is_remote):
                 listed = json.loads(self.run_vls(db, 'list', '--for-machine', is_remote=is_remote))

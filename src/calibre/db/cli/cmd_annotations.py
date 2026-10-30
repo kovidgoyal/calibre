@@ -191,12 +191,12 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog annotations [options] (list|search|export|import|remove)
+%prog annotations [options] [list|search|export|import|remove]
 
 Manage the annotations, that is the highlights and bookmarks, of books, as
 created in the calibre E-book viewer or synced from other applications.
 
-List the annotations, with their ids:
+List the annotations, with their ids. This is the default action:
 
 %prog annotations list
 
@@ -396,7 +396,7 @@ def main(opts, args, dbctx):
             fields = (str(a['id']), titles.get(a['book_id'], ''), a['annotation']['type'], a['format'], f"{a['user_type']}:{a['user']}", a['text'] or '')
             # One annotation per line, with tab separated fields
             prints(for_terminal('\t'.join(' '.join(x.split()) for x in fields)))
-    if action == 'export':
+    else:
         if opts.format == 'json':
             # The same calibre annotation collection as exported by the Browse annotations tool
             collection = []

@@ -122,7 +122,7 @@ def main(opts, args, dbctx):
         if len(args) != 3:
             raise SystemExit(_('Error: You must specify a field, the name of an item and its new name'))
         field, item_names, new_name = args[0], args[1:2], args[2]
-    if action == 'remove':
+    else:
         if len(args) < 2:
             raise SystemExit(_('Error: You must specify a field and the names of one or more items'))
         field, item_names, new_name = args[0], args[1:], ''

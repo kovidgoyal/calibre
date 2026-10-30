@@ -16,17 +16,13 @@ from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
-# Action with the argument numbers and their types
+ACTIONS = ('list', 'add', 'get', 'rename', 'remove')
+# The number of command line arguments of each action, including the book id
+ARG_COUNTS = {'list': 1, 'add': 2, 'get': 2, 'rename': 3, 'remove': 2}
 # The types of the arguments of each action after the book id. The data for
 # add and the destination for get are checked separately as they differ for
 # local and remote libraries.
-ACTIONS = {
-    'list': (1, ()),
-    'add': (2, (str, object, bool)),
-    'get': (2, (str, object)),
-    'rename': (3, (str, str, bool)),
-    'remove': (2, (str, bool)),
-}
+ARG_TYPES = {'list': (), 'add': (str, object, bool), 'get': (str, object), 'rename': (str, str, bool), 'remove': (str, bool)}
 # Characters that are not allowed in file names on at least one supported
 # platform, : is rejected by path_from_root()
 INVALID_NAME_CHARS = frozenset('<>"|?*' + ''.join(map(chr, range(32))))
@@ -108,11 +104,12 @@ def remove_empty_parents(db, book_id, relpath):
 
 
 def implementation(db, notify_changes, action, book_id, *args):
+    # action is not checked with a dict lookup as remote requests can send unhashable values
     if action not in ACTIONS:
         return False, _('Unknown action: {}').format(action)
     is_remote = notify_changes is not None
     # Remote requests can contain arbitrary data, so check it before use
-    types = ACTIONS[action][1]
+    types = ARG_TYPES[action]
     if not isinstance(book_id, int) or len(args) != len(types) or not all(isinstance(x, t) for x, t in zip(args, types)):
         return False, _('Invalid arguments for: {}').format(action)
     if is_remote and action == 'add' and not (isinstance(args[1], (list, tuple)) and len(args[1]) == 2 and isinstance(args[1][1], bytes)):
@@ -269,8 +266,7 @@ def main(opts, args, dbctx):
     action, args = args[0], args[1:]
     if action not in ACTIONS:
         raise SystemExit(_('Error: Action {0} not recognized, must be one of: {1}').format(action, ', '.join(ACTIONS)))
-    count = ACTIONS[action][0]
-    if len(args) != count:
+    if len(args) != ARG_COUNTS[action]:
         raise SystemExit(_('Error: Incorrect number of arguments for: {}').format(action))
     try:
         book_id = int(args[0])
@@ -292,13 +288,13 @@ def main(opts, args, dbctx):
         else:
             for entry in entries:
                 prints('{}\t{}\t{}'.format(for_terminal(entry['name']).replace('\t', ' ').replace('\n', ' '), entry['size'], entry['mtime']))
-    if action == 'add':
+    elif action == 'add':
         run(dbctx, action, book_id, opts.name if opts.name is not None else os.path.basename(args[1]), dbctx.path(args[1]), opts.replace)
-    if action == 'rename':
+    elif action == 'rename':
         run(dbctx, action, book_id, args[1], args[2], opts.replace)
-    if action == 'remove':
+    elif action == 'remove':
         run(dbctx, action, book_id, args[1], opts.permanent)
-    if action == 'get':
+    else:
         if not opts.output:
             raise SystemExit(_('Error: You must specify --output for the get action'))
         download(dbctx, book_id, args[1], opts.output, opts.replace)

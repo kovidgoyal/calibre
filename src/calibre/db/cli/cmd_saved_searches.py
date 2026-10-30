@@ -54,13 +54,13 @@ def option_parser(get_parser, args):
     parser = get_parser(
         _(
             '''\
-%prog saved_searches [options] (list|add|remove)
+%prog saved_searches [options] [list|add|remove]
 
 Manage the saved searches stored in this database.
 If you try to add a query with a name that already exists, it will be
 replaced.
 
-Syntax for listing:
+Syntax for listing, the default action:
 
 %prog saved_searches list
 
@@ -87,14 +87,14 @@ def main(opts, args, dbctx):
             prints(_('Name:'), name)
             prints(_('Search string:'), value)
             print()
-    if action == 'add':
+    elif action == 'add':
         if len(args) < 2:
             raise SystemExit(_('Error: You must specify a name and a search string'))
         if '"' in args[0]:
             raise SystemExit(_('Error: Saved search names cannot contain " (quote) characters'))
         dbctx.run('saved_searches', 'add', args[0], args[1])
         prints(args[0], _('added'))
-    if action == 'remove':
+    else:
         if len(args) < 1:
             raise SystemExit(_('Error: You must specify a name'))
         dbctx.run('saved_searches', 'remove', args[0])
