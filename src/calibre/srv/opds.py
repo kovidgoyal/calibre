@@ -17,13 +17,14 @@ from lxml.builder import ElementMaker
 from calibre import force_unicode, guess_type
 from calibre import prepare_string_for_xml as xml
 from calibre.constants import __appname__
+from calibre.db import FTSQueryError
 from calibre.db.cache import Cache
 from calibre.db.categories import Tag
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import comments_to_html
-from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound
+from calibre.srv.errors import HTTPBadRequest, HTTPInternalServerError, HTTPNotFound, HTTPPreconditionRequired, HTTPUnprocessableEntity
 from calibre.srv.handler import Context, UrlForCallable
 from calibre.srv.http_request import parse_uri
 from calibre.srv.http_response import RequestData
@@ -155,14 +156,17 @@ class CATALOG_LINK(NAVLINK):
     catalog_type = 'navigation'
 
 
-def search_url(url_for: Callable[..., str], template: str = '{searchTerms}') -> str:
-    return url_for('/opds/search', query='XXX').replace('XXX', template)
+def search_url(url_for: Callable[..., str], template: str = '{searchTerms}', full_text: bool = False) -> str:
+    ans = url_for('/opds/search', query='XXX').replace('XXX', template)
+    if full_text:
+        ans += ('&' if '?' in ans else '?') + 'full_text=y'
+    return ans
 
 
-def SEARCH_LINK(url_for: Callable[..., str], **kwargs: str) -> etree.Element:
+def SEARCH_LINK(url_for: Callable[..., str], full_text: bool = False, **kwargs: str) -> etree.Element:
     kwargs['rel'] = 'search'
-    kwargs['title'] = 'Search'
-    kwargs['href'] = search_url(url_for)
+    kwargs['title'] = _('Search book contents') if full_text else 'Search'
+    kwargs['href'] = search_url(url_for, full_text=full_text)
     return LINK()(**kwargs)
 
 
@@ -404,6 +408,8 @@ class Feed:  # {{{
             SEARCH_LINK(request_context.url_for),
             START_LINK()(href=request_context.url_for('/opds')),
         )
+        if request_context.db.is_fts_enabled():
+            self.root.append(SEARCH_LINK(request_context.url_for, full_text=True))
         if up_link:
             self.root.append(UP_LINK()(href=up_link))
         if first_link:
@@ -580,6 +586,15 @@ def opds2_feed(
         opds2_link(request_context.url_for('/opds'), rel='start'),
         opds2_link(search_url(request_context.url_for, '{query}'), rel='search', templated=True),
     ]
+    if request_context.db.is_fts_enabled():
+        links.append(
+            opds2_link(
+                search_url(request_context.url_for, '{query}', full_text=True),
+                rel='search',
+                templated=True,
+                title=_('Search book contents'),
+            )
+        )
     if offsets is not None:
         for name, href in pagination_links(offsets, page_url, up_url).items():
             rel = name.partition('_')[0]
@@ -1020,15 +1035,40 @@ def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | di
     except Exception:
         raise HTTPNotFound('Not found')
 
-    rc = RequestContext(ctx, rd)
+    mode = rd.query.get('full_text', 'n')
+    if mode not in ('y', 'n'):
+        raise HTTPBadRequest('full_text must be y or n')
+    full_text = mode == 'y'
+    rc = RequestContext(ctx, rd, strict_library_id=full_text)
     if query:
         path = parse_uri(rd.request_original_uri, parse_query=False, unquote_func=unquote_plus)[1]
         query = path[-1]
         if isinstance(query, bytes):
             query = query.decode('utf-8')
+    page_url = rc.url_for('/opds/search', query=query)
+    if full_text:
+        if not rc.db.is_fts_enabled():
+            raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
+        if not query.strip():
+            raise HTTPBadRequest('No full text search query specified')
+        try:
+            # Restrict before searching and do not fetch excerpts. Multiple
+            # matching formats of the same book produce only one publication.
+            ids = frozenset(x['book_id'] for x in rc.db.fts_search(query, return_text=False, restrict_to_book_ids=rc.allowed_book_ids()))
+        except FTSQueryError as err:
+            raise HTTPUnprocessableEntity(str(err))
+        page_url += '&full_text=y'
+        return get_acquisition_feed(
+            rc,
+            ids,
+            offset,
+            page_url,
+            rc.url_for('/opds'),
+            'calibre-full-text-search:' + query,
+            feed_title=default_feed_title + ' :: ' + _('Search book contents') + ': ' + query,
+        )
     try:
         ids = rc.search(query)
     except Exception:
         raise HTTPNotFound(f'Search: {query!r} not understood')
-    page_url = rc.url_for('/opds/search', query=query)
     return get_acquisition_feed(rc, ids, offset, page_url, rc.url_for('/opds'), 'calibre-search:' + query)
