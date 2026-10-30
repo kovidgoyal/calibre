@@ -609,6 +609,145 @@ class AnnotationsTest(BaseTest):
                 self.run_annotations(db, *args)
         self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
 
+    def test_annotations_import(self):
+        from io import BytesIO
+
+        from calibre.utils.date import EPOCH
+        from calibre.utils.iso8601 import parse_iso8601
+
+        db = self.init_cache()
+        for book_id in (1, 2, 3):
+            db.add_format(book_id, 'FMT1', BytesIO(b'book'), run_hooks=False)
+
+        def a(**kw):
+            kw.setdefault('timestamp', '2026-01-01T00:00:00+00:00')
+            return kw, (parse_iso8601(kw['timestamp']) - EPOCH).total_seconds()
+
+        db.set_annotations_for_book(
+            1,
+            'FMT1',
+            [
+                a(type='highlight', uuid='shared', highlighted_text='Original', start_cfi='/4/2:0', spine_index=0, notes='A note'),
+                a(type='bookmark', title='Bookmark', pos_type='epubcfi', pos='epubcfi(/6/2!/4/2)'),
+            ],
+        )
+        exported = self.run_annotations(db, 'export', '-s', 'id:1', '-f', 'json')
+        path = os.path.join(self.mkdtemp(), 'annotations.calibre_annotation_collection')
+        with open(path, 'w', encoding='utf-8-sig') as f:
+            f.write(exported)
+        for is_remote, book_id in ((False, 2), (True, 3)):
+            with self.subTest(is_remote=is_remote):
+                existing = [
+                    a(type='highlight', uuid='shared', highlighted_text='Newer', timestamp='2026-02-01T00:00:00+00:00'),
+                    a(type='highlight', uuid='unrelated', highlighted_text='Unrelated'),
+                ]
+                db.set_annotations_for_book(book_id, 'FMT1', existing)
+                db.set_last_read_position(book_id, 'FMT1', cfi='epubcfi(/6/2!/4/4)', pos_frac=0.5)
+                reading_position = db.get_last_read_positions(book_id, 'FMT1')
+                db.set_annotations_for_book(book_id, 'FMT1', [a(type='bookmark', title='Web bookmark')], user_type='web', user='reader')
+                changes = []
+                for repeat in range(2):
+                    self.assertEqual(
+                        self.run_annotations(db, 'import', str(book_id), 'fmt1', path, is_remote=is_remote, changes=changes),
+                        '2 annotations imported\n',
+                    )
+                    amap = db.annotations_map_for_book(book_id, 'FMT1')
+                    self.assertEqual({h['uuid']: h['highlighted_text'] for h in amap['highlight']}, {'shared': 'Newer', 'unrelated': 'Unrelated'})
+                    self.assertEqual([b['title'] for b in amap['bookmark']], ['Bookmark'])
+                    self.assertEqual(db.get_last_read_positions(book_id, 'FMT1'), reading_position)
+                    self.assertEqual(db.annotations_map_for_book(book_id, 'FMT1', user_type='web', user='reader')['bookmark'][0]['title'], 'Web bookmark')
+                    self.assertTrue(all('book_id' not in x and 'format' not in x for values in amap.values() for x in values))
+                self.assertEqual([c.book_ids for c in changes], [frozenset((book_id,))] * (2 if is_remote else 0))
+                self.run_annotations(db, 'import', str(book_id), 'FMT1', path, '--user-type', 'web', '--annotation-user', 'reader', is_remote=is_remote)
+                web = db.annotations_map_for_book(book_id, 'FMT1', user_type='web', user='reader')
+                self.assertEqual({b['title'] for b in web['bookmark']}, {'Bookmark', 'Web bookmark'})
+                self.assertEqual(web['highlight'][0]['notes'], 'A note')
+                # A newer deletion in the destination must not be resurrected
+                # by an older highlight in a backup.
+                db.set_annotations_for_book(book_id, 'FMT1', [a(type='highlight', uuid='shared', removed=True, timestamp='2026-03-01T00:00:00+00:00')])
+                self.run_annotations(db, 'import', str(book_id), 'FMT1', path, is_remote=is_remote)
+                shared = next(x for x in db.annotations_map_for_book(book_id, 'FMT1')['highlight'] if x['uuid'] == 'shared')
+                self.assertTrue(shared['removed'])
+        self.assertEqual(db.annotations_map_for_book(1, 'FMT1')['highlight'][0]['highlighted_text'], 'Original')
+
+    def test_annotations_import_invalid(self):
+        from copy import deepcopy
+        from io import BytesIO
+
+        from calibre.db.cli.cmd_annotations import implementation
+
+        db = self.init_cache()
+        db.add_format(1, 'FMT1', BytesIO(b'book'), run_hooks=False)
+        annot = {'type': 'highlight', 'uuid': 'new', 'highlighted_text': 'Text', 'timestamp': '2026-01-01T00:00:00+00:00', 'book_id': 20, 'format': 'FMT1'}
+        collection = {'version': 1, 'type': 'calibre_annotation_collection', 'annotations': [annot]}
+        invalid = [None, [], {}, dict(collection, version=2), dict(collection, version=True), dict(collection, annotations={})]
+        for patch in (
+            {'type': 'last-read'},
+            {'uuid': None},
+            {'uuid': ''},
+            {'timestamp': None},
+            {'timestamp': 'bad'},
+            {'book_id': None},
+            {'book_id': True},
+            {'format': 'PDF'},
+            {'format': None},
+            {'removed': True},
+            {'notes': []},
+            {'spine_index': -1},
+            {'spine_index': True},
+            {'style': 'bad'},
+            {'toc_family_titles': [2]},
+        ):
+            invalid.append(dict(collection, annotations=[annot, dict(annot, **patch)]))
+        invalid.extend((dict(collection, annotations=[annot, dict(annot, book_id=21)]), dict(collection, annotations=[annot, None])))
+        for data in invalid:
+            with self.subTest(data=data):
+                changes = []
+                ok, err = implementation(db, changes.append, 'import', 1, 'FMT1', deepcopy(data), 'local', 'viewer')
+                self.assertFalse(ok, err)
+                self.assertFalse(changes)
+                self.assertEqual(db.annotations_map_for_book(1, 'FMT1'), {})
+        for book_id, fmt, user_type, user in (
+            (999, 'FMT1', 'local', 'viewer'),
+            (1, 'PDF', 'local', 'viewer'),
+            (1, 'FMT1', 'other', 'viewer'),
+            (1, 'FMT1', 'web', ''),
+        ):
+            self.assertFalse(implementation(db, None, 'import', book_id, fmt, deepcopy(collection), user_type, user)[0])
+        changes = []
+        self.assertEqual(implementation(db, changes.append, 'import', 1, 'FMT1', dict(collection, annotations=[]), 'local', 'viewer'), (True, 0))
+        self.assertFalse(changes)
+        for args, msg in (
+            (('import',), 'Specify a destination'),
+            (('import', 'x', 'FMT1', 'file'), 'must be a number'),
+            (('import', '1', 'FMT1', 'file', '--user-type', 'web'), 'Specify --annotation-user'),
+            (('import', '1', 'FMT1', 'file', '-s', 'id:1'), 'cannot be used with import'),
+            (('list', '--annotation-user', 'reader'), 'only be used with import'),
+        ):
+            with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
+                self.run_annotations(db, *args)
+        path = os.path.join(self.mkdtemp(), 'bad.json')
+        with open(path, 'w') as f:
+            f.write('not JSON')
+        with self.assertRaisesRegex(SystemExit, 'Failed to read'):
+            self.run_annotations(db, 'import', '1', 'FMT1', path)
+
+    def test_annotations_import_stdin(self):
+        from io import BytesIO, TextIOWrapper
+        from unittest.mock import patch
+
+        db = self.init_cache()
+        data = json.dumps({
+            'version': 1,
+            'type': 'calibre_annotation_collection',
+            'annotations': [
+                {'type': 'bookmark', 'title': 'Imported', 'book_id': 22, 'format': 'FMT1', 'timestamp': '2026-01-01T00:00:00+00:00'},
+            ],
+        })
+        with TextIOWrapper(BytesIO(data.encode('utf-8-sig'))) as stream, patch('sys.stdin', stream):
+            self.assertEqual(self.run_annotations(db, 'import', '1', 'FMT1', '-'), '1 annotations imported\n')
+        self.assertEqual(db.annotations_map_for_book(1, 'FMT1')['bookmark'][0]['title'], 'Imported')
+
 
 class SavedSearchesTest(BaseTest):
     def test_saved_searches_remote(self):
