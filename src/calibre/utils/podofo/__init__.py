@@ -139,7 +139,8 @@ def get_outline(path: str | None = None) -> list[dict[str, object]]:
     with open(path, 'rb') as f:
         raw = f.read()
     p.load(raw)
-    return p.get_outline()['children']
+    outline = p.get_outline()
+    return [] if outline is None else outline['children']
 
 
 def get_image_count(path: str) -> int:

@@ -91,9 +91,10 @@ class SavedSearchQueries:
         self.save_queries()
 
     def rename(self, old_name: str | bytes, new_name: str | bytes) -> None:
-        self.queries[self.force_unicode(new_name)] = self.queries.get(self.force_unicode(old_name), None)  # ty: ignore[invalid-assignment]
-        self.queries.pop(self.force_unicode(old_name), False)
-        self.save_queries()
+        query = self.queries.pop(self.force_unicode(old_name), None)
+        if query is not None:
+            self.queries[self.force_unicode(new_name)] = query
+            self.save_queries()
 
     def set_all(self, smap: dict[str, str]) -> None:
         self.queries = smap

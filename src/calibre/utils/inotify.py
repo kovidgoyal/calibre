@@ -335,10 +335,10 @@ class INotifyTreeWatcher(INotify):
         if path is not None:
             if not self.ignore_event(path, name):
                 self.modified.add(os.path.join(path, name or ''))
-            if mask & self.CREATE:
+            if name and mask & self.CREATE:
                 # A new sub-directory might have been created, monitor it.
                 try:
-                    self.add_watch(os.path.join(path, name))  # ty: ignore[no-matching-overload]
+                    self.add_watch(os.path.join(path, name))
                 except OSError as e:
                     if e.errno == errno.ENOENT:
                         # Deleted before add_watch()

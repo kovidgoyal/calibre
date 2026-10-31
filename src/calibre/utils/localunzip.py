@@ -210,10 +210,12 @@ def _extractall(f: IO[bytes], path: str | None = None, file_info: dict[str | Non
         found = True
         # Sanitize path changing absolute to relative paths and removing .. and
         # .
-        fname = header.filename.replace(os.sep, '/')  # ty: ignore[unresolved-attribute]
+        fname = (header.filename or '').replace(os.sep, '/')
         fname = os.path.splitdrive(fname)[1]
         parts = tuple(x for x in fname.split('/') if x not in {'', os.path.pardir, os.path.curdir})
         if not parts:
+            # Skip over the data for this entry
+            f.seek(f.tell() + seekval)
             continue
         if header.uncompressed_size == 0:
             # Directory

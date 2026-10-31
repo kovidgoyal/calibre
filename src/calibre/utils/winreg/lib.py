@@ -160,8 +160,8 @@ def convert_to_registry_data(
 ) -> tuple[ctypes.Array[ctypes.c_wchar] | ctypes.Array[ctypes.c_char] | None, int, int]:
     if value is None:
         return None, winreg.REG_NONE, 0
-    if isinstance(value, (str, bytes)):
-        buf = ctypes.create_unicode_buffer(value)  # ty: ignore[invalid-argument-type]
+    if isinstance(value, str):
+        buf = ctypes.create_unicode_buffer(value)
         return buf, (winreg.REG_EXPAND_SZ if has_expansions else winreg.REG_SZ), len(buf) * 2
     if isinstance(value, (list, tuple)):
         buf = ctypes.create_unicode_buffer('\0'.join(map(str, value)) + '\0\0')

@@ -212,7 +212,9 @@ class OptionParser(optparse.OptionParser):
             if dest not in upper.__dict__:
                 continue
             opt = self.option_by_dest(dest)
-            if lower.__dict__[dest] != opt.default and upper.__dict__[dest] == opt.default:  # ty: ignore[unresolved-attribute]
+            if opt is None:
+                continue
+            if lower.__dict__[dest] != opt.default and upper.__dict__[dest] == opt.default:
                 upper.__dict__[dest] = lower.__dict__[dest]
 
     def add_option_group(self, *args: Any, **kwargs: Any) -> optparse.OptionGroup:  # ruff: ignore[any-type]

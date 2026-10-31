@@ -802,7 +802,7 @@ def msgfmt(po_data_as_string: str) -> str:
         return c.eval('RapydScript.msgfmt({}, {})'.format(json.dumps(po_data_as_string), json.dumps({'use_fuzzy': False})))
     cp = subprocess.run([rs, 'msgfmt'], input=po_data_as_string.encode(), capture_output=True)
     if cp.returncode != 0:
-        sys.stderr.write(cp.stderr)  # ty: ignore[no-matching-overload]
+        sys.stderr.write(cp.stderr.decode('utf-8', 'replace'))
         raise SystemExit(cp.returncode)
     return cp.stdout.decode().strip()
 

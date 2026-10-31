@@ -52,7 +52,7 @@ def test() -> None:
 
     s = socket.socket()
     orig = get_socket_inherit(s)
-    set_socket_inherit(s, orig ^ True)  # ty: ignore[unsupported-operator]
+    set_socket_inherit(s, not orig)
     if orig == get_socket_inherit(s):
         raise RuntimeError('Failed to change socket inheritance status')
     print('OK!')

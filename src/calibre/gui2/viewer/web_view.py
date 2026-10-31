@@ -199,7 +199,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
             data = b'[' + (_book_manifest or b'') + b',' + (_book_metadata or b'') + b']'
-            send_reply(a0, _book_manifest_mime, data)  # ty: ignore[invalid-argument-type]
+            send_reply(a0, _book_manifest_mime or 'application/json', data)
         elif name == 'reader-background':
             mt, data = background_image()
             send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)

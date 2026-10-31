@@ -817,7 +817,7 @@ class WordsModel(FileCollection):
             try:
                 return lsk_cache[loc]
             except KeyError:
-                lsk_cache[loc] = psk(calibre_langcode_to_name(canonicalize_lang(loc[0])) + (loc[1] or ''))  # ty: ignore[unsupported-operator]
+                lsk_cache[loc] = psk(calibre_langcode_to_name(canonicalize_lang(loc[0]) or loc[0] or '') + (loc[1] or ''))
             return lsk_cache[loc]
 
         self.sort_keys = tuple((psk(entry.word), locale_sort_key(entry.locale), len(entry.usage)) for entry in self.files)

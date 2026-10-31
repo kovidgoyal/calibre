@@ -651,9 +651,9 @@ class _Parser:
         arguments = []
         while not self.token_op_is(')'):
             a = self.top_expr()
-            if a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):  # ty: ignore[unresolved-attribute]
+            if not isinstance(a, Node) or a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
                 self.error(_('Parameters to a function must be variables or assignments'))
-            if a.node_type == Node.NODE_RVALUE:  # ty: ignore[unresolved-attribute]
+            if a.node_type == Node.NODE_RVALUE:
                 a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))  # ty: ignore[unresolved-attribute]
             arguments.append(a)
             if not self.token_op_is(','):
@@ -868,9 +868,9 @@ class _Parser:
                 new_args = []
                 for arg_list in arguments:
                     arg = arg_list[0]
-                    if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):  # ty: ignore[unresolved-attribute]
+                    if not isinstance(arg, Node) or arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
                         self.error(_("Parameters to '{0}' must be variables or assignments").format(id_))
-                    if arg.node_type == Node.NODE_RVALUE:  # ty: ignore[unresolved-attribute]
+                    if arg.node_type == Node.NODE_RVALUE:
                         arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))  # ty: ignore[unresolved-attribute]
                     new_args.append(arg)
                 if id_ == 'arguments':
@@ -1449,7 +1449,7 @@ class _Interpreter:
                 self.parent,
                 self.funcs,
                 self.parent.lex_scanner.scan(mo.group()[1:-1]),
-                local_functions=self.local_functions,  # ty: ignore[invalid-argument-type]
+                local_functions=set(self.local_functions),
             )
             return self.expr(p)
 
@@ -1718,7 +1718,7 @@ class _Interpreter:
         except Exception as e:
             if DEBUG:
                 traceback.print_exc()
-            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)), prog.line_number)  # ty: ignore[unresolved-attribute]
+            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)), getattr(prog, 'line_number', 0))
 
 
 @lru_cache(maxsize=2)
@@ -2180,7 +2180,7 @@ class EvalFormatter(TemplateFormatter):
     def get_value(self, key: int | str, args: Sequence[object], kwargs: Kwargs) -> str:
         if key == '':
             return ''
-        key = key.lower()  # ty: ignore[unresolved-attribute]
+        key = str(key).lower()
         return kwargs.get(key, _('No such variable {0}').format(key))  # ty: ignore[invalid-return-type]
 
 

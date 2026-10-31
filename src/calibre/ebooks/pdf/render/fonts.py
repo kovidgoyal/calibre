@@ -182,7 +182,7 @@ class Font:
                     )
                 )
         if self.is_otf:
-            self.font_stream.write(self.metrics.sfnt['CFF '].raw)
+            self.font_stream.write(self.metrics.sfnt[b'CFF '].raw)
         else:
             self.metrics.os2.zero_fstype()
             self.metrics.sfnt(self.font_stream)

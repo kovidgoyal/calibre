@@ -201,7 +201,7 @@ class Dict(ByteCode):
                         raise ValueError(f'Invalid argument {val} for operator: {op}')
                     for typ, v in zip(arg, val):
                         if typ == 'SID':
-                            val = strings(val)  # ty: ignore[invalid-argument-type]
+                            v = strings(v)
                         data.append(getattr(self, 'encode_' + str(typ))(v))
                 else:
                     if arg == 'SID':

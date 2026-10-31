@@ -95,10 +95,11 @@ class OffloadWorker:
             traceback.print_exc()
         finally:
             self.conn = None
-            try:
-                os.remove(self.worker.log_path)  # ty: ignore[invalid-argument-type]
-            except Exception:
-                pass
+            if self.worker.log_path:
+                try:
+                    os.remove(self.worker.log_path)
+                except Exception:
+                    pass
             self.kill_thread.start()
 
     def is_alive(self) -> bool:
@@ -230,9 +231,9 @@ def two_part_fork_job(env: dict[str, str] | None = None, priority: str = 'normal
             t = Thread(target=w.kill)
             t.daemon = True
             t.start()
-            if no_output:
+            if no_output and w.log_path:
                 try:
-                    os.remove(w.log_path)  # ty: ignore[invalid-argument-type]
+                    os.remove(w.log_path)
                 except Exception:
                     pass
         if not no_output:

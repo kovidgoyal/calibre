@@ -35,11 +35,11 @@ class Face:
         self.start_thread = threading.current_thread()
         self.face = face
         for x in ('family_name', 'style_name'):
-            val = getattr(self.face, x)
+            # The extension decodes the name as UTF-8 and raises if it is invalid
             try:
-                val = val.decode('utf-8')
-            except UnicodeDecodeError:
-                val = repr(val)
+                val = getattr(self.face, x)
+            except UnicodeDecodeError as e:
+                val = repr(e.object)
             setattr(self, x, val)
 
     @same_thread

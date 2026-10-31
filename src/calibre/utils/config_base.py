@@ -827,8 +827,15 @@ def read_custom_tweaks() -> dict[str, Any]:
             return ans
     old_tweaks_file = tf.rpartition('.')[0] + '.py'
     if os.path.exists(old_tweaks_file):
-        with open(old_tweaks_file) as f:
-            ans = make_unicode(parse_python_tweaks(old_tweaks_file))
+        with open(old_tweaks_file, 'rb') as f:
+            raw = f.read()
+        try:
+            ans = parse_python_tweaks(raw.decode('utf-8', 'replace'))
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
+            return {}
         ans = make_unicode(ans)
         write_custom_tweaks(ans)
     return ans

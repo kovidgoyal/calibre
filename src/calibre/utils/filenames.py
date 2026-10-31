@@ -620,10 +620,13 @@ def copyfile_using_links(path: str, dest: str, dest_is_dir: bool = True, filecop
         dest = os.path.join(dest, os.path.basename(path))
     hardlink = get_hardlink_function(path, dest)
     path, dest = make_long_path_useable(path), make_long_path_useable(dest)
-    try:
-        hardlink(path, dest)  # ty: ignore[call-non-callable]
-    except Exception:
-        filecopyfunc(path, dest)
+    if hardlink is not None:
+        try:
+            hardlink(path, dest)
+            return
+        except Exception:
+            pass
+    filecopyfunc(path, dest)
 
 
 def copytree_using_links(path: str, dest: str, dest_is_parent: bool = True, filecopyfunc: Callable[[str, str], object] = copyfile) -> None:
@@ -647,10 +650,13 @@ def copytree_using_links(path: str, dest: str, dest_is_parent: bool = True, file
                     raise
         for fname in filenames:
             src, df = os.path.join(dirpath, fname), os.path.join(dest_base, fname)
-            try:
-                hardlink(src, df)  # ty: ignore[call-non-callable]
-            except Exception:
-                filecopyfunc(src, df)
+            if hardlink is not None:
+                try:
+                    hardlink(src, df)
+                    continue
+                except Exception:
+                    pass
+            filecopyfunc(src, df)
 
 
 windows_reserved_filenames = frozenset((

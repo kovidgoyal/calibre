@@ -111,7 +111,7 @@ def no_errcheck(result: object, func: CFuncPtr, args: ErrCheckArgs) -> ErrCheckA
 
 def dde_error(instance: object) -> NoReturn:
     errcode = GetLastError(instance)
-    raise DDEError(DML_ERRORS.get(errcode, f'Unknown DDE error code: {errcode:x}'))
+    raise DDEError(DML_ERROR_TEXT.get(errcode, f'Unknown DDE error code: {errcode:x}'))
 
 
 def default_errcheck(result: object, func: CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
@@ -197,4 +197,4 @@ def send_dde_command(service: str, topic: str, command: bytes) -> None:
 
 
 if __name__ == '__main__':
-    send_dde_command('WinWord', 'System', '[REM_DDE_Direct][FileOpen("C:/cygwin64/home/kovid/demo.docx")]')  # ty: ignore[invalid-argument-type]
+    send_dde_command('WinWord', 'System', b'[REM_DDE_Direct][FileOpen("C:/cygwin64/home/kovid/demo.docx")]')

@@ -497,7 +497,9 @@ def verify_checksums(raw: bytes) -> None:
 
 def set_checksum_adjustment(f: BytesIO) -> None:
     offset = get_table(f.getvalue(), 'head')[2]
-    offset += 8  # ty: ignore[unsupported-operator]
+    if offset is None:
+        raise UnsupportedFont('Font has no head table')
+    offset += 8
     f.seek(offset)
     f.write(struct.pack(b'>I', 0))
     checksum = checksum_of_block(f.getvalue())
@@ -508,9 +510,11 @@ def set_checksum_adjustment(f: BytesIO) -> None:
 
 def set_table_checksum(f: BytesIO, name: str) -> None:
     table, table_index, table_offset, table_checksum = get_table(f.getvalue(), name)
-    checksum = checksum_of_block(table)  # ty: ignore[invalid-argument-type]
+    if table is None or table_index is None:
+        raise UnsupportedFont(f'Font has no {name} table')
+    checksum = checksum_of_block(table)
     if checksum != table_checksum:
-        f.seek(table_index + 4)  # ty: ignore[unsupported-operator]
+        f.seek(table_index + 4)
         f.write(struct.pack(b'>I', checksum))
 
 

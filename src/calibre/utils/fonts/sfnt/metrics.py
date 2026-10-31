@@ -38,7 +38,7 @@ class FontMetrics:
         self.post = self.sfnt[b'post']
         self.post.read_data()
         self.names = get_all_font_names(self.sfnt[b'name'].raw, raw_is_table=True)
-        self.is_otf = 'CFF ' in self.sfnt.tables
+        self.is_otf = b'CFF ' in self.sfnt.tables
         self._sig = hash(self.sfnt[b'name'].raw)
 
         # Metrics for embedding in PDF

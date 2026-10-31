@@ -2993,8 +2993,10 @@ then include them in the ``val_separator`` string.
         sort_data = mi.author_sort_map
         if not sort_data:
             return ''
-        names = [sort_data.get(n) for n in mi.authors if n.strip()]
-        return val_sep.join(n for n in names)  # ty: ignore[no-matching-overload]
+        from calibre.ebooks.metadata import author_to_author_sort
+
+        names = [sort_data.get(n) or author_to_author_sort(n) for n in mi.authors if n.strip()]
+        return val_sep.join(names)
 
 
 class BuiltinConnectedDeviceName(BuiltinFormatterFunction):

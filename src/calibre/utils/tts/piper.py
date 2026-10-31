@@ -68,10 +68,10 @@ def translate_voice_config(x: dict[str, Any]) -> VoiceConfig:
     for s, pids in x.get('phoneme_id_map', {}).items():
         if s:
             phoneme_id_map.setdefault(ord(s[0]), []).extend(map(int, pids))
-    inf = x.get('inference')
+    inf = x.get('inference') or {}
 
-    def g(d: dict[str, Any] | None, prop: str, defval: float) -> float:
-        ans = d.get(prop, VoiceConfig)  # ty: ignore[unresolved-attribute]
+    def g(d: dict[str, Any], prop: str, defval: float) -> float:
+        ans = d.get(prop, VoiceConfig)
         if ans is VoiceConfig:
             ans = defval
         return ans

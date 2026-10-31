@@ -1623,7 +1623,8 @@ class Boss(QObject):
                     '--args',
                 ]
             else:
-                cmd = [exe_path('ebook-edit')]
+                exe = exe_path('ebook-edit')
+                cmd = list(exe) if isinstance(exe, list) else [exe]
                 if islinux:
                     cmd.append('--detach')
             cmd.append(job.result)
@@ -1631,7 +1632,7 @@ class Boss(QObject):
             if ce:
                 cmd.append(ce)
             with sanitize_env_vars():
-                subprocess.Popen(cmd)  # ty: ignore[no-matching-overload]
+                subprocess.Popen(cmd)
         self.gui.show_status_message(msg, 5)
 
     def report_save_error(self, tb):

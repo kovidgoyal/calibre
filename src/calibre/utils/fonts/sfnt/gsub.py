@@ -169,4 +169,4 @@ class GSUBTable(UnknownTable):
                 glyphs = subtable.all_substitutions(ans)
                 if glyphs:
                     ans |= glyphs
-        return ans - {glyph_ids}
+        return ans - glyph_ids

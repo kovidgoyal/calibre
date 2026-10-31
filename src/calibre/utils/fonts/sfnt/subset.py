@@ -404,7 +404,7 @@ def all() -> None:
                 w = []
                 sf, old_stats, new_stats = subset(raw, {'a', 'b', 'c'}, (), w)
                 if w:
-                    warnings[font['full_name'] + ' ({})'.format(font['path'])] = w  # ty: ignore[unsupported-operator]
+                    warnings['{} ({})'.format(font['full_name'], font['path'])] = w
             except NoGlyphs:
                 print('No glyphs!')
                 continue
@@ -435,7 +435,8 @@ def all() -> None:
             print(name, path, err)
             print()
 
-    print(f'Average reduction to: {sum(averages) / len(averages):.1f}%')
+    if averages:
+        print(f'Average reduction to: {sum(averages) / len(averages):.1f}%')
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:', len(failed), 'Warnings:', len(warnings))
 
 

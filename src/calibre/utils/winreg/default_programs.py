@@ -220,6 +220,7 @@ def get_open_data(base: HKEY, prog_id: object) -> tuple[str | None, str | None, 
     except OSError as err:
         if err.winerror == winutil.ERROR_FILE_NOT_FOUND:
             return None, None, None
+        raise
     with k:
         cmd = cast('str | None', k.get(sub_key=r'shell\open\command'))
         if cmd:
@@ -288,10 +289,11 @@ def find_programs(extensions: Iterable[str]) -> list[dict[str, RegistryValue]]:
         except OSError as err:
             if err.winerror == winutil.ERROR_FILE_NOT_FOUND:
                 continue
+            raise
         for prog_id in k.values():
             if prog_id and prog_id not in seen_prog_ids:
                 seen_prog_ids.add(prog_id)
-                cmdline, icon_resource, friendly_name = get_open_data(base, prog_id)
+                cmdline, icon_resource, friendly_name = get_open_data(HKEY_LOCAL_MACHINE, prog_id)
                 if cmdline and cmdline not in seen_cmdlines:
                     seen_cmdlines.add(cmdline)
                     exe_name = None

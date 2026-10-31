@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Literal, Protocol, overload
 
 from calibre.utils.config_base import prefs, tweaks
 from calibre_extensions import icu as _icu
-from polyglot.builtins import cmp
 
 if TYPE_CHECKING:
     from collections import OrderedDict
@@ -209,18 +208,13 @@ def make_two_arg_func(
         try:
             return func(a, b)
         except TypeError:
+            # Decode with replacement so every function returns its usual type
             if isinstance(a, bytes):
-                try:
-                    a = a.decode(sys.getdefaultencoding())
-                except Exception:
-                    return cmp(a, b)
+                a = a.decode(sys.getdefaultencoding(), 'replace')
             elif a is None:
                 a = ''
             if isinstance(b, bytes):
-                try:
-                    b = b.decode(sys.getdefaultencoding())
-                except Exception:
-                    return cmp(a, b)
+                b = b.decode(sys.getdefaultencoding(), 'replace')
             elif b is None:
                 b = ''
             return func(a, b)

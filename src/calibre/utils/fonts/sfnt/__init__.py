@@ -52,8 +52,8 @@ class FixedProperty:
         val = getattr(obj, self.name)
         return val / 0x10000
 
-    def __set__(self, obj: object, val: float) -> int:
-        return round(val * (0x10000))
+    def __set__(self, obj: object, val: float) -> None:
+        setattr(obj, self.name, round(val * (0x10000)))
 
 
 def max_power_of_two(x: int) -> int:

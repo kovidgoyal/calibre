@@ -75,7 +75,10 @@ class RAR:
     def read(self, fname):
         from calibre.utils.unrar import extract_member
 
-        return extract_member(self.archive, match=None, name=fname)[1]  # ty: ignore[not-subscriptable]
+        res = extract_member(self.archive, match=None, name=fname)
+        if res is None:
+            raise KeyError(f'There is no file named {fname} in the archive')
+        return res[1]
 
 
 class SevenZip:

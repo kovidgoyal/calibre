@@ -184,7 +184,7 @@ def create_service(
             inet_aton(local_ip),
         ],
         port=port,
-        properties=properties,  # ty: ignore[invalid-argument-type]
+        properties=b'' if properties is None else properties,
         server=server_name,
     )
 

@@ -49,6 +49,7 @@ __date__ = '$Date: 2006/06/23 12:32:25 $'
 # standard library modules
 import queue
 import threading
+import time
 from collections.abc import Callable, Hashable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Unpack
 
@@ -293,7 +294,6 @@ def makeRequests(
 
 if __name__ == '__main__':
     import random
-    import time
 
     # the work the threads will have to do (rather trivial in our example)
     def do_something(data: int) -> float:
@@ -310,7 +310,7 @@ if __name__ == '__main__':
 
     # this will be called when an exception occurs within a thread
     def handle_exception(request: WorkRequest, exc_info: str) -> None:
-        print(f'Exception occurred in request #{request.requestID}: {exc_info[1]}')
+        print(f'Exception occurred in request #{request.requestID}: {exc_info}')
 
     # assemble the arguments for each job to a list...
     data = [random.randint(1, 10) for i in range(20)]

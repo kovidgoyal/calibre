@@ -37,7 +37,10 @@ def get_metadata(stream):
                 'azw1',
                 'azw3',
             }:
-                name, data = extract_member(stream, match=None, name=f)  # ty: ignore[not-iterable]
+                res = extract_member(stream, match=None, name=f)
+                if res is None:
+                    raise KeyError(f'There is no file named {f} in the archive')
+                name, data = res
                 stream = BytesIO(data)
                 stream.name = os.path.basename(name)
                 mi = get_metadata(stream, stream_type)

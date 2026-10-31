@@ -595,11 +595,13 @@ class ZipExtFile(io.BufferedIOBase):
         else:
             self._expected_crc = None
 
-    def readline(self, limit: int = -1) -> bytes:  # ty: ignore[invalid-method-override]
+    def readline(self, limit: int | None = -1) -> bytes:
         """Read and return a line from the stream.
 
         If limit is specified, at most limit bytes will be read.
         """
+        if limit is None:
+            limit = -1
 
         if not self._universal and limit < 0:
             # Shortcut common case - newline found in buffer.
@@ -687,11 +689,11 @@ class ZipExtFile(io.BufferedIOBase):
         if eof and self._running_crc != self._expected_crc:
             raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
 
-    def read1(self, size: int = -1, /) -> bytes:
+    def read1(self, size: int | None = -1, /) -> bytes:
         """Read up to size bytes with at most one read() system call."""
         n = size
         # Simplify algorithm (branching) by transforming negative n to large n.
-        if n < 0 or n is None:
+        if n is None or n < 0:
             n = self.MAX_N
 
         # Bytes available in read buffer.

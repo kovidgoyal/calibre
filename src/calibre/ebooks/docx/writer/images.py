@@ -77,13 +77,16 @@ class ImagesManager:
                 return
             try:
                 fmt, width, height = identify(item.data)
+                if fmt is None:
+                    raise ValueError('Unknown image format')
             except Exception:
                 self.log.warning(f'Replacing corrupted image with blank: {href}')
                 item.data = I('blank.png', data=True, allow_user_override=False)
                 fmt, width, height = identify(item.data)
+                fmt = fmt or 'png'
             image_fname = 'media/' + self.create_filename(href, fmt)
             image_rid = self.document_relationships.add_image(image_fname)
-            self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)  # ty: ignore[invalid-argument-type]
+            self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)
             item.unload_data_from_memory()
         return self.images[href]
 

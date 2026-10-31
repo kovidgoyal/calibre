@@ -815,8 +815,8 @@ def convert_PIL_image_to_pixmap(im: PILImage, device_pixel_ratio: float = 1.0) -
         colortable = [qRgba(i, i, i, 255) & 0xFFFFFFFF for i in range(256)]
     elif im.mode == 'P':
         fmt = QImage.Format.Format_Indexed8
-        palette = im.getpalette()
-        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]  # ty: ignore[not-subscriptable, invalid-argument-type]
+        palette = im.getpalette() or []
+        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
     elif im.mode == 'I;16':
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16
@@ -834,9 +834,9 @@ def convert_PIL_image_to_pixmap(im: PILImage, device_pixel_ratio: float = 1.0) -
     return QPixmap.fromImage(qimg)
 
 
-def read_xmp_from_pil_image(im: PILImage) -> str:
-    fmt = im.format.lower()  # ty: ignore[unresolved-attribute]
-    xml = ''
+def read_xmp_from_pil_image(im: PILImage) -> str | bytes:
+    fmt = (im.format or '').lower()
+    xml: str | bytes = ''
     if fmt == 'jpeg':
         for segment, content in im.applist:  # ty: ignore[unresolved-attribute]
             if segment == 'APP1':

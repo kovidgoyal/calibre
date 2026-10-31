@@ -259,7 +259,7 @@ class CSSFlattener:
                         href = item.href
                         break
             else:
-                fid, href = self.oeb.manifest.generate(id='font', href='fonts/{}.{}'.format(ascii_filename(font['full_name']).replace(' ', '-'), ext))  # ty: ignore[invalid-argument-type]
+                fid, href = self.oeb.manifest.generate(id='font', href='fonts/{}.{}'.format(ascii_filename(font['full_name'] or 'font').replace(' ', '-'), ext))
                 item = self.oeb.manifest.add(fid, href, guess_type('dummy.' + ext)[0], data=font_data)
                 item.unload_data_from_memory()
 

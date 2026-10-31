@@ -51,7 +51,7 @@ class Index(list):
 class Strings(Index):
     def __init__(self) -> None:
         Index.__init__(self)
-        self.added: dict[str | bytes, int] = {x: i for i, x in enumerate(cff_standard_strings)}
+        self.added: dict[str | bytes, int] = {x.encode('ascii'): i for i, x in enumerate(cff_standard_strings)}
 
     def __call__(self, x: str | bytes) -> int:
         ans = self.added.get(x, None)

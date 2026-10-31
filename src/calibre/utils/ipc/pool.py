@@ -223,8 +223,8 @@ class Pool(Thread):
         sys.stdout.flush()
         p.stdin.close()
         w = Worker(p, b, self.events, self.name)
-        if self.common_data != pickle_dumps(None):
-            w.set_common_data(self.common_data)  # ty: ignore[invalid-argument-type]
+        if self.common_data is not None and self.common_data != pickle_dumps(None):
+            w.set_common_data(self.common_data)
         return w
 
     def start_worker(self) -> bool | None:
