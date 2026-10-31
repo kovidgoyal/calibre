@@ -360,7 +360,7 @@ def add_catalog(cache: Cache, path: str, title: str, dbapi: LibraryDatabase | No
                     tags.append(_('Catalog'))
                 mi.tags = tags
                 cache._set_metadata(db_id, mi)
-        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run  # ty: ignore[invalid-argument-type]
+        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
 
     return db_id, new_book_added
 
@@ -391,5 +391,5 @@ def add_news(cache: Cache, path: str | IO[bytes], arg: Mapping[str, object], dba
                 mi.timestamp = utcnow()
 
             db_id = cache._create_book_entry(mi, apply_import_tags=False)
-        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run  # ty: ignore[invalid-argument-type]
+        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
         return db_id

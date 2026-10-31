@@ -582,13 +582,13 @@ class Connection(apsw.Connection):  # {{{
 
     def execute(self, statements: str, bindings: Bindings | None = None, *, can_cache: bool = True, prepare_flags: int = 0, explain: int = -1) -> apsw.Cursor:
         cursor = self.cursor()
-        return cursor.execute(statements, bindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
+        return cursor.execute(statements, bindings, can_cache=can_cache, prepare_flags=prepare_flags, explain=explain)
 
     def executemany(
         self, statements: str, sequenceofbindings: Iterable[Bindings], *, can_cache: bool = True, prepare_flags: int = 0, explain: int = -1
     ) -> apsw.Cursor:  # ty: ignore[invalid-return-type]
         with self:  # Disable autocommit mode, for performance
-            return self.cursor().executemany(statements, sequenceofbindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
+            return self.cursor().executemany(statements, sequenceofbindings, can_cache=can_cache, prepare_flags=prepare_flags, explain=explain)
 
 
 # }}}
@@ -1091,8 +1091,10 @@ class DB:
             if d['is_multiple']:
                 if x is None:
                     return []
-                if isinstance(x, (str, bytes)):
-                    x = x.split(d['multiple_seps']['ui_to_list'])  # ty: ignore[invalid-argument-type]
+                if isinstance(x, bytes):
+                    x = x.decode(preferred_encoding, 'replace')
+                if isinstance(x, str):
+                    x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y, str) else y for y in x]
                 return [normalize_whitespace(y) for y in x]
@@ -2099,10 +2101,12 @@ class DB:
 
     def rename_format_file(self, book_id: int, src_fname: str, src_fmt: str, dest_fname: str, dest_fmt: str, path: str) -> int:
         src_path = self.format_abspath(book_id, src_fmt, src_fname, path)
+        if src_path is None:
+            raise NoSuchFormat(f'Record {book_id} has no fmt: {src_fmt}')
         dest_path = self.format_abspath(book_id, dest_fmt, dest_fname, path)
         if not dest_path:
             dest_path = os.path.join(self.library_path, path, dest_fname + '.' + dest_fmt.lower())
-        atomic_rename(src_path, dest_path)  # ty: ignore[invalid-argument-type]
+        atomic_rename(src_path, dest_path)
         return os.path.getsize(dest_path)
 
     def remove_formats(self, remove_map: Mapping[int, Iterable[tuple[str, str, str]]], metadata_map: Mapping[int, JSONDict]) -> dict[int, set[str]]:
@@ -2343,11 +2347,13 @@ class DB:
 
                         traceback.print_exc()
 
-        if isinstance(stream, str) and stream:
+        if isinstance(stream, str):
+            if not stream:
+                raise ValueError(f'No file specified for the {fmt} format of book {book_id}')
             replace_with_retry(stream, dest)
             size = os.path.getsize(dest)
-        elif not getattr(stream, 'name', False) or not samefile(dest, stream.name):  # ty: ignore[unresolved-attribute]
-            size = write_stream_to_format_file(stream, dest)  # ty: ignore[invalid-argument-type]
+        elif not getattr(stream, 'name', False) or not samefile(dest, stream.name):
+            size = write_stream_to_format_file(stream, dest)
             if mtime is not None:
                 os.utime(dest, (mtime, mtime))
         elif os.path.exists(dest):

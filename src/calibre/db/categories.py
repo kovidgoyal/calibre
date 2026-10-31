@@ -101,7 +101,7 @@ class Tag:
         self.use_sort_as_name = use_sort_as_name
         self.category = category
         self.search_expression = search_expression
-        self.original_categories: set[str] | None = None
+        self.original_categories = original_categories
 
     @property
     def string_representation(self) -> str:

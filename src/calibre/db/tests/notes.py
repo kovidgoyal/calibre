@@ -135,6 +135,16 @@ def test_notes_api(self: NotesTest) -> None:
     cache.set_notes_for('authors', authors[0], '', resource_hashes=())
     self.ae(len(os.listdir(notes.retired_dir)), 1)
 
+    # test that trimming copes with broken retired entries, removing them first
+    good = os.listdir(notes.retired_dir)
+    os.mkdir(os.path.join(notes.retired_dir, 'broken'))
+    orig, notes.max_retired_items = notes.max_retired_items, 1
+    try:
+        notes.trim_retired_dir()
+    finally:
+        notes.max_retired_items = orig
+    self.ae(os.listdir(notes.retired_dir), good)
+
 
 def test_cache_api(self: NotesTest) -> None:
     cache, notes = self.create_notes_db()

@@ -2345,8 +2345,8 @@ class Cache:
             self.backend.update_path(book_id, title, author, self.fields['path'], self.fields['formats'])
             self.format_metadata_cache.pop(book_id, None)
             if mark_as_dirtied:
-                self._mark_as_dirty(book_ids)  # ty: ignore[invalid-argument-type]
-            self._clear_link_map_cache(book_ids)
+                self._mark_as_dirty({book_id})
+            self._clear_link_map_cache((book_id,))
 
     _update_path = update_path
 
@@ -2901,6 +2901,26 @@ class Cache:
 
     # Most fields are set through set_field(), which reports the changed items
     # itself, everything else this changes is reported explicitly below
+    @overload
+    def create_book_entry(
+        self,
+        mi: Metadata,
+        cover: bytes | None = None,
+        add_duplicates: Literal[True] = True,
+        force_id: int | None = None,
+        apply_import_tags: bool = True,
+        preserve_uuid: bool = False,
+    ) -> int: ...
+    @overload
+    def create_book_entry(
+        self,
+        mi: Metadata,
+        cover: bytes | None = None,
+        add_duplicates: bool = True,
+        force_id: int | None = None,
+        apply_import_tags: bool = True,
+        preserve_uuid: bool = False,
+    ) -> int | None: ...
     @quiet_write_api
     def create_book_entry(
         self,
@@ -4744,12 +4764,14 @@ def import_library(
         raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
+    aborted = False
     with cache.write_lock:
         format_data = {int(book_id): data for book_id, data in metadata['format_data'].items()}
         extra_files = {int(book_id): data for book_id, data in metadata.get('extra_files', {}).items()}
         for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
             if abort is not None and abort.is_set():
-                return
+                aborted = True
+                break
             title = cache._field_for('title', book_id)
             if progress is not None:
                 progress(title, i + poff, total)  # ty: ignore[invalid-argument-type]
@@ -4768,6 +4790,9 @@ def import_library(
                     path = cache._get_book_path(book_id)
                     cache.backend.add_extra_file(relpath, stream, path)  # ty: ignore[invalid-argument-type]
             cache.dump_metadata({book_id})
+    if aborted:
+        cache.close()
+        return
     if importer.corrupted_files:
         raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     if progress is not None:

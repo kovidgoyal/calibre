@@ -520,13 +520,15 @@ class Notes:
         extra = len(items) - self.max_retired_items
         if extra > 0:
 
-            def key(path: str) -> tuple[int, int] | None:
+            def key(path: str) -> tuple[int, int]:
                 path = os.path.join(path, 'note_id')
-                with suppress(OSError):
+                with suppress(OSError, ValueError):
                     with open(path) as f:
                         return os.stat(path, follow_symlinks=False).st_mtime_ns, int(f.read())
+                # Broken entries sort first so they are removed first
+                return 0, 0
 
-            items.sort(key=key)  # ty: ignore[no-matching-overload]
+            items.sort(key=key)
             for path in items[:extra]:
                 self.remove_file(path, is_dir=True)
 

@@ -44,9 +44,9 @@ if TYPE_CHECKING:
     type BookOnDeviceFunc = Callable[[int], Sequence[object] | None]
 
 
-def cleanup_tags(tags: Iterable[str]) -> list[str]:
-    tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
+def cleanup_tags(tags: Iterable[str | bytes]) -> list[str]:
     tags = [x.decode(preferred_encoding, 'replace') if isinstance(x, bytes) else x for x in tags]
+    tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
     tags = [normalize_whitespace(x) for x in tags]
     ans, seen = [], set()
     for tag in tags:
@@ -133,7 +133,7 @@ class ThreadSafePrefs(MutableMapping):
         db = self.db()
         assert db is not None
         prefs = db.backend.prefs
-        return prefs.__bool__()  # ty: ignore[unresolved-attribute]
+        return bool(prefs)
 
     def copy(self) -> dict[str, object]:
         db = self.db()
@@ -1279,7 +1279,7 @@ for field in (
             def func(self: LibraryDatabase, book_id: int, val: object, notify: bool = True, commit: bool = True, allow_case_change: bool = acc) -> set[int]:
                 ret = self.new_api.set_field(field, {book_id: val}, allow_case_change=allow_case_change)
                 if notify:
-                    self.notify([book_id])  # ty: ignore[invalid-argument-type]
+                    self.notify('metadata', [book_id])
                 return ret
 
         elif field == 'has_cover':
@@ -1296,7 +1296,7 @@ for field in (
                     return False if field == 'sort' else None
                 ret = self.new_api.set_field(field, {book_id: val})
                 if notify:
-                    self.notify([book_id])  # ty: ignore[invalid-argument-type]
+                    self.notify('metadata', [book_id])
                 return ret if field == 'languages' else retval
 
         return func

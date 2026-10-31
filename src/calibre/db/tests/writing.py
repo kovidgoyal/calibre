@@ -409,6 +409,13 @@ class WritingTest(BaseTest):
         finally:
             c.nowf = onowf
 
+        # update_path() is called with a tuple by set_cover() when the path is missing
+        cache.dump_metadata()
+        af(cache.dirtied_cache)
+        with cache.write_lock:
+            cache._update_path((1, 2))
+        ae(set(cache.dirtied_cache), {1, 2})
+
     # }}}
 
     def test_dump_metadata_write_failure(self) -> None:  # {{{

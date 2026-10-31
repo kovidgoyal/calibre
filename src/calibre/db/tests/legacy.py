@@ -1219,5 +1219,26 @@ class LegacyTest(BaseTest):
             ),
         )
         db.close()
+        # Renaming a non-existent search must not create one
+        ndb.saved_search_rename('xxx', 'yyy')
+        self.assertNotIn('yyy', ndb.saved_search_names())
+        # Renaming a search to its own name must not delete it
+        ndb.saved_search_rename('n', 'n')
+        self.assertEqual(ndb.saved_search_lookup('n'), 'm')
+
+    # }}}
+
+    def test_legacy_notifications_and_prefs(self) -> None:  # {{{
+        "Test that the legacy setters send metadata notifications and that prefs work in a boolean context"
+        from calibre.db.legacy import cleanup_tags
+
+        ndb = self.init_legacy(self.cloned_library)
+        events: list[tuple[str, list[int]]] = []
+        ndb.add_listener(lambda event, ids: events.append((event, list(ids))))
+        ndb.set_title(1, 'A new title')
+        ndb.set_publisher(2, 'A new publisher')
+        self.assertEqual(events, [('metadata', [1]), ('metadata', [2])])
+        self.assertTrue(ndb.prefs)
+        self.assertEqual(cleanup_tags([b'a,b', 'c', b'  ', 'C']), ['a;b', 'c'])
 
     # }}}

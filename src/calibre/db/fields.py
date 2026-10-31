@@ -405,11 +405,11 @@ class CompositeField(OneToOneField):
                 val_map[None].add(book_id)
         yield from val_map.items()
 
-    def iter_counts(self, candidates: Iterable[int], get_metadata: Callable[[int], Metadata] | None = None) -> Iterator[tuple[int, set[int]]]:
+    def iter_counts(self, candidates: Iterable[int], get_metadata: Callable[[int], Metadata]) -> Iterator[tuple[int, set[int]]]:
         val_map = defaultdict(set)
         splitter = self.splitter
         for book_id in candidates:
-            vals = self.get_value_with_cache(book_id, get_metadata)  # ty: ignore[invalid-argument-type]
+            vals = self.get_value_with_cache(book_id, get_metadata)
             if splitter:
                 length = len([vv.strip() for vv in vals.split(splitter) if vv.strip()])
             elif vals.strip():
@@ -693,6 +693,11 @@ class IdentifiersField(ManyToManyField):
         else:
             ids = default_value
         return ids
+
+    @property
+    def book_value_map(self) -> dict[int, dict[str, str]]:  # ty: ignore[invalid-property-type-override]
+        # Identifiers are stored as maps of type to value, not as links to an id_map
+        return {book_id: ids.copy() for book_id, ids in self.table.book_col_map.items()}
 
     def sort_keys_for_books(self, get_metadata: Callable[[int], Metadata], lang_map: Mapping[int, Sequence[str]]) -> Callable[[int], object]:
         "Sort by identifier keys"

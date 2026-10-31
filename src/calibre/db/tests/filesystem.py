@@ -7,6 +7,7 @@ import unittest
 from collections.abc import Callable, Iterable
 from contextlib import closing
 from io import BytesIO
+from threading import Event
 from typing import TYPE_CHECKING, Never, Self
 
 from calibre.constants import iswindows
@@ -348,6 +349,19 @@ class FilesystemTest(BaseTest):
                 bookdir = os.path.dirname(ic.format_abspath(1, '__COVER_INTERNAL__'))
                 self.assertEqual('exf', read(os.path.join(bookdir, 'exf')))
                 self.assertEqual('recurse', read(os.path.join(bookdir, 'sub', 'recurse')))
+                ic.close()
+        # Aborting while importing books returns None
+        with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
+            exporter = Exporter(tdir)
+            cache.export_library('l', exporter)
+            exporter.commit()
+            abort = Event()
+
+            def progress(name: str, i: int, total: int) -> None:
+                if name not in ('metadata.db', 'full-text-search.db'):
+                    abort.set()  # abort after the first book is imported
+
+            self.assertIsNone(import_library('l', Importer(tdir), idir, progress=progress, abort=abort))
         r1 = cache.add_notes_resource(b'res1', 'res.jpg', mtime=time.time() - 113)
         r2 = cache.add_notes_resource(b'res2', 'res.jpg', mtime=time.time() - 1115)
         cache.set_notes_for('authors', 2, 'some notes', resource_hashes=(r1, r2))

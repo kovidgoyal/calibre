@@ -1033,12 +1033,13 @@ class ReadingTest(BaseTest):
             hit_counter = 0
             miss_counter = 0
 
-            def get(self, key: str, default: set[int] | None = None) -> None:
+            def get(self, key: str, default: set[int] | None = None) -> set[int] | None:
                 ans = LRUCache.get(self, key, default=default)
                 if ans is not None:
                     self.hit_counter += 1
                 else:
                     self.miss_counter += 1
+                return ans
 
             def clean_counts(self) -> None:
                 self.hit_counter = self.miss_counter = 0
@@ -1056,7 +1057,8 @@ class ReadingTest(BaseTest):
             c.clean_counts()
             num = kw.get('num', 2)
             ae(cache.search(*args), result)
-            ae(c.counts, (num, 0) if hit else (0, num))
+            # A hit returns at the first lookup, a miss may do up to two lookups
+            ae(c.counts, (1, 0) if hit else (0, num))
             c.clean_counts()
 
         test(False, {3}, 'Unknown')
