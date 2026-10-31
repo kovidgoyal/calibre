@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from operator import attrgetter
 from typing import overload
@@ -55,7 +53,7 @@ class BooksModel(QAbstractItemModel):
     @overload
     def parent(self, child: QModelIndex) -> QModelIndex: ...
     @overload
-    def parent(self) -> 'QObject | None': ...
+    def parent(self) -> QObject | None: ...
     def parent(self, child: QModelIndex = QModelIndex()):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
@@ -106,7 +104,7 @@ class BooksModel(QAbstractItemModel):
         if not self.books:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.books.sort(key=lambda x: sort_key(type('')(self.data_as_text(x, column))), reverse=descending)
+        self.books.sort(key=lambda x: sort_key(str(self.data_as_text(x, column))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 

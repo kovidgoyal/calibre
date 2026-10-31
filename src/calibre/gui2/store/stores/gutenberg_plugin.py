@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 10  # Needed for dynamic plugin loading
 
@@ -27,7 +25,7 @@ def absurl(href):
 
 
 def search(query, max_results=10, timeout=60, write_raw_to=None):
-    url = 'https://www.gutenberg.org/ebooks/search/?query={}&submit_search=Search'.format(quote_plus(query))
+    url = f'https://www.gutenberg.org/ebooks/search/?query={quote_plus(query)}&submit_search=Search'
 
     counter = max_results
     br = browser()
@@ -87,8 +85,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
 
 class GutenbergStore(StorePlugin):
     def search(self, query, max_results=10, timeout=60):
-        for result in search(query, max_results, timeout):
-            yield result
+        yield from search(query, max_results, timeout)
 
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = detail_item or absurl('/')

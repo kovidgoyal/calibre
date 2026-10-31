@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 2  # Needed for dynamic plugin loading
 
@@ -76,10 +74,8 @@ def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://
                     # it previously just in case it's not specified here for some reason.
                     s.title = ''.join(ddata.xpath('./*[local-name() = "title"]//text()')).strip()
                     s.author = ', '.join(ddata.xpath('./*[local-name() = "author"]//text()')).strip()
-                    if s.author.startswith(','):
-                        s.author = s.author[1:]
-                    if s.author.endswith(','):
-                        s.author = s.author[:-1]
+                    s.author = s.author.removeprefix(',')
+                    s.author = s.author.removesuffix(',')
 
                     s.cover_url = ''.join(ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/thumbnail"][1]/@href')).strip()
 
@@ -104,8 +100,7 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
     web_url = 'http://manybooks.net'
 
     def search(self, query, max_results=10, timeout=60):
-        for r in search_manybooks(query, max_results=max_results, timeout=timeout, open_search_url=self.open_search_url):
-            yield r
+        yield from search_manybooks(query, max_results=max_results, timeout=timeout, open_search_url=self.open_search_url)
 
 
 if __name__ == '__main__':

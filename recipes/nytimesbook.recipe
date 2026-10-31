@@ -167,15 +167,15 @@ def parse_toc(soup):
             section_title = c['name']
             for k, v in c['collectionsPage'].items():
                 if k.startswith('stream'):
-                    for k, v in v.items():
-                        if k.startswith('edges'):
-                            for q in v:
+                    for sk, sv in v.items():
+                        if sk.startswith('edges'):
+                            for q in sv:
                                 r = q['node']['__ref']
                                 if r.startswith('Article:'):
                                     articles.append(article_map[r])
             if not articles:
-                for c in c['collectionsPage']['embeddedCollections']:
-                    for e in c['stream']['edges']:
+                for coll in c['collectionsPage']['embeddedCollections']:
+                    for e in coll['stream']['edges']:
                         for k, v in e.items():
                             if k.startswith('node'):
                                 articles.append(article_map[v['__ref']])

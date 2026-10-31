@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 17  # Needed for dynamic plugin loading
 
@@ -48,7 +46,7 @@ def search_amazon(
     uquery[field_keywords] = query
 
     def asbytes(x):
-        if isinstance(x, type('')):
+        if isinstance(x, str):
             x = x.encode('utf-8')
         return x
 
@@ -64,7 +62,7 @@ def search_amazon(
                 f.write(raw)
         doc = safe_html_fromstring(raw)
         for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
-            kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(KINDLE_EDITION)))
+            kformat = ''.join(result.xpath(f'.//a[contains(text(), "{KINDLE_EDITION}")]//text()'))
             # Even though we are searching digital-text only Amazon will still
             # put in results for non Kindle books (author pages). Se we need
             # to explicitly check if the item is a Kindle book and ignore it
@@ -107,8 +105,7 @@ class AmazonKindleStore(StorePlugin):
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        for result in search_amazon(query, max_results=max_results, timeout=timeout):
-            yield result
+        yield from search_amazon(query, max_results=max_results, timeout=timeout)
 
     def get_details(self, search_result, timeout=60):
         url = DETAILS_URL

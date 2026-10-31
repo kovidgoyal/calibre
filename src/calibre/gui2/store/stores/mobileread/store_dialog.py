@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from qt.core import QComboBox, QDialog, QIcon, Qt
 
@@ -26,7 +24,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.results_view.setModel(self._model)
         model = self.results_view.model()
         assert model is not None
-        self.total.setText('%s' % model.rowCount())
+        self.total.setText(str(model.rowCount()))
 
         self.search_button.clicked.connect(self.do_search)
         self.adv_search_button.clicked.connect(self.build_adv_search)
@@ -40,7 +38,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         _m = self.results_view.model()
         assert _m is not None
         assert isinstance(_m, BooksModel)
-        _m.search(type('')(self.search_query.text()))
+        _m.search(str(self.search_query.text()))
 
     def open_store(self, index):
         _m = self.results_view.model()
@@ -51,7 +49,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
             self.plugin.open(self, detail_item=result.detail_item)
 
     def update_book_total(self, total):
-        self.total.setText('%s' % total)
+        self.total.setText(str(total))
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)

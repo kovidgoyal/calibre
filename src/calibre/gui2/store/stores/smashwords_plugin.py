@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 7  # Needed for dynamic plugin loading
 
@@ -103,8 +101,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        for a in search(query, max_results=max_results, timeout=timeout):
-            yield a
+        yield from search(query, max_results=max_results, timeout=timeout)
 
     def get_details(self, search_result, timeout=60):
         url = 'https://www.smashwords.com/'

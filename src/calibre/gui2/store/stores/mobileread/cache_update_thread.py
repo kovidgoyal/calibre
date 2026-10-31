@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import time
 from contextlib import closing
@@ -18,7 +16,7 @@ from calibre.utils.xml_parse import safe_html_fromstring
 class CacheUpdateThread(Thread, QObject):
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
-    update_details = pyqtSignal(type(''))
+    update_details = pyqtSignal(str)
 
     def __init__(self, config, seralize_books_function, timeout):
         Thread.__init__(self)

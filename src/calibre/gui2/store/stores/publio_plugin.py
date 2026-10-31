@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2012-2017, Tomasz Długosz <tomek3d@gmail.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 10  # Needed for dynamic plugin loading
 
@@ -59,7 +57,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         page = 1
         while counter:
-            with closing(br.open('http://www.publio.pl/e-booki,strona{}.html?q={}'.format(page, quote(query)), timeout=timeout)) as f:
+            with closing(br.open(f'http://www.publio.pl/e-booki,strona{page}.html?q={quote(query)}', timeout=timeout)) as f:
                 doc = safe_html_fromstring(f.read())
                 for data in doc.xpath('//div[@class="products-list"]//div[@class="product-tile"]'):
                     if counter <= 0:

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011-2013, Roman Mukhin <ramses_ru at hotmail.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 3  # Needed for dynamic plugin loading
 
@@ -33,7 +31,7 @@ def parse_html(raw):
 
 
 def search(query, max_results=15, timeout=60):
-    url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % quote_plus(query)
+    url = f'http://www.ozon.ru/?context=search&text={quote_plus(query)}&store=1,0&group=div_book'
 
     counter = max_results
     br = browser()
@@ -69,8 +67,7 @@ class OzonRUStore(StorePlugin):
             d.exec()
 
     def search(self, query, max_results=15, timeout=60):
-        for s in search(query, max_results=max_results, timeout=timeout):
-            yield s
+        yield from search(query, max_results=max_results, timeout=timeout)
 
 
 def format_price_in_RUR(price):

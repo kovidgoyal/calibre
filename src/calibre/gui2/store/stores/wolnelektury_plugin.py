@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2012-2023, Tomasz Długosz <tomek3d@gmail.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 6  # Needed for dynamic plugin loading
 

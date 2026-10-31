@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2012, Alex Stanev <alex@stanev.org>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 3  # Needed for dynamic plugin loading
 
@@ -41,7 +39,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
             return
 
         # do keyword search
-        url = '{}/книги?query={}&search_by=0'.format(self.web_url, quote_plus(query))
+        url = f'{self.web_url}/книги?query={quote_plus(query)}&search_by=0'
         yield from self._do_search(url, max_results, timeout)
 
     def get_details(self, search_result, timeout=60):

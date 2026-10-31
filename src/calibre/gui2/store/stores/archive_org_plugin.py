@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 4  # Needed for dynamic plugin loading
 
@@ -13,8 +11,7 @@ SEARCH_URL = 'http://bookserver.archive.org/catalog/opensearch.xml'
 
 
 def search(query, max_results=10, timeout=60):
-    for result in open_search(SEARCH_URL, query, max_results=max_results, timeout=timeout):
-        yield result
+    yield from open_search(SEARCH_URL, query, max_results=max_results, timeout=timeout)
 
 
 class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):

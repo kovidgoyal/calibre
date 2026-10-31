@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 5  # Needed for dynamic plugin loading
 
@@ -26,10 +24,8 @@ except ImportError:
 
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):
-    url = 'https://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (
-        query.replace(' ', '-'),
-        quote_plus(query),
-    )
+    slug = query.replace(' ', '-')
+    url = f'https://www.barnesandnoble.com/s/{slug}?keyword={quote_plus(query)}&store=ebook&view=list'
 
     br = browser()
 

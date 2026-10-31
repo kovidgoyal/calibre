@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 16  # Needed for dynamic plugin loading
 
@@ -112,8 +110,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        for result in search_kobo(query, max_results=max_results, timeout=timeout):
-            yield result
+        yield from search_kobo(query, max_results=max_results, timeout=timeout)
 
     def get_details(self, search_result, timeout=60):
         raw = read_url(search_result.detail_item, timeout=timeout)

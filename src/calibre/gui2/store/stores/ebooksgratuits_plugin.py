@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2012, Florent FAYOLLE <florent.fayolle69@gmail.com>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 1  # Needed for dynamic plugin loading
 
@@ -19,7 +17,7 @@ class EbooksGratuitsStore(BasicStoreConfig, OpenSearchOPDSStore):
         return ascii_text(s)
 
     def search(self, query, max_results=10, timeout=60):
-        query = self.strip_accents(type('')(query))
+        query = self.strip_accents(str(query))
         for s in OpenSearchOPDSStore.search(self, query, max_results, timeout):
             if s.downloads:
                 s.drm = SearchResult.DRM_UNLOCKED
