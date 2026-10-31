@@ -532,6 +532,13 @@ people using screen readers. It can be accessed via
     :guilabel:`Use for all uses of this image` button to copy its description
     to all of them.
 
+    Inline SVG images are also listed. Nested SVGs are part of their outer
+    image. Descriptions are stored in an SVG title, or in an ARIA label if the
+    image already uses ARIA labeling. Editing a description supplied by
+    ``aria-labelledby`` replaces that reference with ``aria-label``, leaving
+    the referenced text unchanged. Marking an SVG as decorative hides it from
+    screen readers without deleting its existing description.
+
 :guilabel:`Accessibility metadata`
     EPUB 3 books can describe how accessible they are with accessibility
     metadata, as required by the `EPUB Accessibility
