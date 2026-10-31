@@ -446,6 +446,17 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(str(len(raw)), r.getheader('Calibre-Uncompressed-Length'))
             self.ae(r.status, http.client.OK), self.ae(zlib.decompress(r.read(), 16 + zlib.MAX_WBITS), raw)
+            # HTTP/1.0 has no chunked transfer encoding, so no gzip
+            conn = server.connect()
+            conn.send(b'GET /an_etagged_path HTTP/1.0\r\nAccept-Encoding: gzip\r\n\r\n')
+            conn._HTTPConnection__state = http.client._CS_REQ_SENT  # type: ignore
+            r = conn.getresponse()
+            self.ae(r.status, http.client.OK)
+            self.assertIsNone(r.getheader('Content-Encoding'))
+            self.assertIsNone(r.getheader('Transfer-Encoding'))
+            self.ae(r.getheader('Content-Length'), str(len(raw)))
+            self.ae(r.read(), raw)
+            conn.close()
 
             # Test dynamic etagged content
             num_calls = [0]

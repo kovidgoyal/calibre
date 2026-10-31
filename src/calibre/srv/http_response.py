@@ -631,7 +631,7 @@ class HTTPConnection(HTTPRequest):
             reraise(etype, e, tb)
 
         data, output = cast('tuple[RequestData, object]', result)
-        output = self.finalize_output(output, data, self.method is HTTP1)
+        output = self.finalize_output(output, data, self.response_protocol is HTTP1)
         if output is None:
             return
         outheaders = data.outheaders

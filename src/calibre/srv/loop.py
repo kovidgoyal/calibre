@@ -649,7 +649,7 @@ class ServerLoop:
             self.close(s, conn)
 
         for x, conn in close_needed:
-            self.close(s, conn)
+            self.close(x, conn)
 
         if readable:
             writable = []

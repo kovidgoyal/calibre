@@ -216,7 +216,7 @@ def web_search_link(db: Cache, book_id: int, field: str, item_val: str) -> tuple
     if field == 'authors':
         default_author_link = resolve_default_author_link(cast('str | None', get_gpref('default_author_link')))
         author_sort = db.author_sort_from_authors((item_val,))
-        url, tooltip = render_author_link(default_author_link, item_val, author_sort, db.field_for('title', book_id))
+        url, tooltip = render_author_link(default_author_link, item_val, db.field_for('title', book_id), author_sort)
     else:
         metadata = db.field_metadata.get(field)
         if metadata is None or not (template := metadata.get('display', {}).get('web_search_template')):
