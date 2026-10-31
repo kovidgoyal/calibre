@@ -13,6 +13,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from functools import partial
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
 from calibre.db.cli.cmd_list_categories import do_list
@@ -20,9 +21,13 @@ from calibre.db.constants import NOTES_DB_NAME, NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from polyglot.io import PolyglotBytesIO
 
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
+    from calibre.srv.changes import ChangeEvent
+
 
 class Checker:
-    def __init__(self, kw) -> None:
+    def __init__(self, kw: dict[str, object]) -> None:
         for k, v in kw.items():
             setattr(self, k, v)
 
@@ -130,26 +135,26 @@ class SetCustomTest(BaseTest):
 
 
 class FTSSearchTest(BaseTest):
-    def run_fts_search(self, db, *args):
+    def run_fts_search(self, db: Cache, *args: str) -> str:
         from calibre.db.cli.cmd_fts_search import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
         class DBCtx:
             option_parser = None
 
-            def run(self, name, *args):
-                return implementation(db, None, *args)
+            def run(self, name: str, *args: object) -> object:
+                return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())
+            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_fts_search_indexing_threshold(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         # the cache fts jobs will index formats, changing the numbers, so disable it
-        db.queue_next_fts_job = lambda *a: None
+        db.queue_next_fts_job = lambda *a: None  # ty: ignore[invalid-assignment]
         db.enable_fts(start_pool=False)
         with self.assertRaisesRegex(SystemExit, '3 files out of 3'):
             self.run_fts_search(db, 'test')
@@ -164,7 +169,7 @@ class FTSSearchTest(BaseTest):
 
 
 class NotesTest(BaseTest):
-    def run_notes(self, db, *args, is_remote=False):
+    def run_notes(self, db: Cache, *args: str, is_remote: bool = False) -> str:
         from calibre.db.cli.cmd_notes import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
@@ -174,13 +179,13 @@ class NotesTest(BaseTest):
             def __init__(self, is_remote: bool) -> None:
                 self.is_remote = is_remote
 
-            def run(self, name, *args):
-                return implementation(db, (lambda *a: None) if self.is_remote else None, *args)
+            def run(self, name: str, *args: object) -> object:
+                return implementation(db, (lambda *a: None) if self.is_remote else None, *args)  # ty: ignore[invalid-argument-type]
 
         dbctx = DBCtx(is_remote)
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, dbctx)
+            main(opts, args, dbctx)  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_notes(self) -> None:
@@ -193,11 +198,11 @@ class NotesTest(BaseTest):
         for is_remote in (False, True):
             with self.subTest(is_remote=is_remote):
                 self.run_notes(db, 'set', 'authors', 'author one', path, is_remote=is_remote)
-                self.assertIn('<b>great</b>', db.notes_for('authors', db.get_item_id('authors', 'Author One')))
+                self.assertIn('<b>great</b>', db.notes_for('authors', db.get_item_id('authors', 'Author One')))  # ty: ignore[invalid-argument-type]
                 self.assertEqual(self.run_notes(db, 'show', 'authors', 'Author One').strip(), 'A **great** author')
         html = self.run_notes(db, 'show', '--as-html', 'authors', 'Author One')
         self.assertIn('<b>great</b>', html)
-        db.import_note('tags', db.get_item_id('tags', 'Tag One'), html.encode(), path_is_data=True)
+        db.import_note('tags', db.get_item_id('tags', 'Tag One'), html.encode(), path_is_data=True)  # ty: ignore[invalid-argument-type]
         self.assertEqual(self.run_notes(db, 'list'), 'authors: Author One\ntags: Tag One\n')
         self.assertEqual(self.run_notes(db), 'authors: Author One\ntags: Tag One\n')
         self.assertEqual(self.run_notes(db, 'list', 'tags'), 'tags: Tag One\n')
@@ -225,11 +230,11 @@ class NotesTest(BaseTest):
         self.addCleanup(db.close)
         author_id = db.get_item_id('authors', 'Author One')
         tag_id = db.get_item_id('tags', 'Tag One')
-        db.set_notes_for('authors', author_id, '<p>Historical fiction from Poland</p>', searchable_text='Historical fiction from Poland')
-        db.set_notes_for('tags', tag_id, '<p>Historical fiction from France</p>', searchable_text='Historical fiction from France')
+        db.set_notes_for('authors', author_id, '<p>Historical fiction from Poland</p>', searchable_text='Historical fiction from Poland')  # ty: ignore[invalid-argument-type]
+        db.set_notes_for('tags', tag_id, '<p>Historical fiction from France</p>', searchable_text='Historical fiction from France')  # ty: ignore[invalid-argument-type]
         db.set_field('#tags', {1: ('Research One',)})
         item_id = db.get_item_id('#tags', 'Research One')
-        db.set_notes_for('#tags', item_id, '<p>Historical fiction from Japan</p>', searchable_text='Historical fiction from Japan')
+        db.set_notes_for('#tags', item_id, '<p>Historical fiction from Japan</p>', searchable_text='Historical fiction from Japan')  # ty: ignore[invalid-argument-type]
         for is_remote in (False, True):
             with self.subTest(is_remote=is_remote):
                 search = partial(self.run_notes, db, 'search', is_remote=is_remote)
@@ -262,7 +267,7 @@ class NotesTest(BaseTest):
                         search(*args)
         with self.assertRaisesRegex(SystemExit, 'only be used with search'):
             self.run_notes(db, 'list', '--field', 'authors')
-        db.set_notes_for('authors', author_id, 'terminal', searchable_text='terminal\x1b[31m\x9b with\nnewlines\tand tabs')
+        db.set_notes_for('authors', author_id, 'terminal', searchable_text='terminal\x1b[31m\x9b with\nnewlines\tand tabs')  # ty: ignore[invalid-argument-type]
         output = self.run_notes(db, 'search', 'terminal')
         self.assertEqual(output, 'authors\tAuthor One\tAuthor One terminal[31m with newlines and tabs\n')
 
@@ -279,14 +284,14 @@ class NotesTest(BaseTest):
             f.write('<p>secret</p><img src="image.png">')
         author_id = db.get_item_id('authors', 'Author One')
 
-        def notify_changes(*a) -> None:
+        def notify_changes(*a: object) -> None:
             pass
 
         # Paths must never be read on the server
         ok, err = implementation(db, notify_changes, 'set', 'authors', 'Author One', path, True)
         self.assertFalse(ok)
         self.assertIn('Cannot import notes from files on the server', err)
-        self.assertFalse(db.notes_for('authors', author_id))
+        self.assertFalse(db.notes_for('authors', author_id))  # ty: ignore[invalid-argument-type]
         # Images referenced by file paths in HTML data must not be imported,
         # not even from the calibre temp directory of the server
         from calibre.ptempfile import base_dir
@@ -298,11 +303,11 @@ class NotesTest(BaseTest):
             with self.subTest(src=src):
                 ok, err = implementation(db, notify_changes, 'set', 'authors', 'Author One', f'<p>x</p><img src="{src}">'.encode(), False)
                 self.assertTrue(ok)
-                self.assertFalse(db.notes_data_for('authors', author_id)['resource_hashes'])
+                self.assertFalse(db.notes_data_for('authors', author_id)['resource_hashes'])  # ty: ignore[invalid-argument-type, not-subscriptable]
         # Locally, images relative to the HTML file are imported
         ok, err = implementation(db, None, 'set', 'authors', 'Author One', path, True)
         self.assertTrue(ok)
-        self.assertEqual(len(db.notes_data_for('authors', author_id)['resource_hashes']), 1)
+        self.assertEqual(len(db.notes_data_for('authors', author_id)['resource_hashes']), 1)  # ty: ignore[invalid-argument-type, not-subscriptable]
 
 
 class RestoreDatabaseTest(BaseTest):
@@ -315,7 +320,7 @@ class RestoreDatabaseTest(BaseTest):
         # Only books that have a folder on disk can be restored
         self.book_dirs = {}
         for book_id in cache.all_book_ids():
-            book_dir = os.path.join(self.library_path, *cache.field_for('path', book_id).split('/'))
+            book_dir = os.path.join(self.library_path, *cache.field_for('path', book_id).split('/'))  # ty: ignore[unresolved-attribute]
             if os.path.exists(os.path.join(book_dir, 'metadata.opf')):
                 self.book_dirs[book_id] = book_dir
         self.assertGreater(len(self.book_dirs), 1)
@@ -332,11 +337,11 @@ class RestoreDatabaseTest(BaseTest):
         os.chdir(self.prev_cwd)
         super().tearDown()
 
-    def corrupt_opf(self, book_id) -> None:
+    def corrupt_opf(self, book_id: int) -> None:
         with open(os.path.join(self.book_dirs[book_id], 'metadata.opf'), 'wb') as f:
             f.write(b'not an opf')
 
-    def run_restore(self):
+    def run_restore(self) -> tuple[int, str, str]:
         from calibre.db.cli.cmd_restore_database import main, option_parser
         from calibre.db.cli.main import get_parser
 
@@ -348,14 +353,14 @@ class RestoreDatabaseTest(BaseTest):
 
         opts, args = option_parser(get_parser, []).parse_args(['--really-do-it'])
         with redirect_stdout(StringIO()) as out, redirect_stderr(StringIO()) as err:
-            ret = main(opts, args, DBCtx())
+            ret = main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         return ret, out.getvalue(), err.getvalue()
 
-    def restored_titles(self):
+    def restored_titles(self) -> dict[int, object]:
         cache = self.init_cache()
         return {book_id: cache.field_for('title', book_id) for book_id in cache.all_book_ids()}
 
-    def report_path(self):
+    def report_path(self) -> str:
         return os.path.join(self.cwd, self.REPORT_NAME)
 
     def assert_restore_succeeded(self) -> None:
@@ -370,7 +375,7 @@ class RestoreDatabaseTest(BaseTest):
     def test_restore_succeeded(self) -> None:
         self.assert_restore_succeeded()
 
-    def restore_without_notes(self, with_preferences) -> None:
+    def restore_without_notes(self, with_preferences: bool) -> None:
         if with_preferences:
             cache = self.init_cache()
             cache.saved_search_add('Restored search', 'title:test')
@@ -422,17 +427,17 @@ class RestoreDatabaseTest(BaseTest):
 
 
 class ItemsTest(BaseTest):
-    def run_items(self, db, *args):
+    def run_items(self, db: Cache, *args: str) -> str:
         from calibre.db.cli.cmd_items import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
         class DBCtx:
-            def run(self, name, *args):
-                return implementation(db, None, *args)
+            def run(self, name: str, *args: object) -> object:
+                return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())
+            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_items(self) -> None:
@@ -496,7 +501,7 @@ class ItemsTest(BaseTest):
         # Templates in search expressions must not be evaluated for remote clients
         ok, msg = implementation(db, changes.append, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
         self.assertFalse(ok)
-        self.assertIn('Templates are not allowed', msg)
+        self.assertIn('Templates are not allowed', msg)  # ty: ignore[invalid-argument-type]
         self.assertEqual(db.field_for('tags', 1), ('News', 'Tag One'))
         self.assertFalse(changes)
         ok, msg = implementation(db, None, 'rename', 'tags', ['Tag One'], 'X', 'template:"{title}#@#:t:Title Two"')
@@ -504,7 +509,7 @@ class ItemsTest(BaseTest):
         self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
         ok, msg = implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'title:"=Title Two" and (')
         self.assertFalse(ok)
-        self.assertIn('Failed to parse search query', msg)
+        self.assertIn('Failed to parse search query', msg)  # ty: ignore[invalid-argument-type]
         self.assertEqual(db.field_for('tags', 1), ('News', 'X'))
         self.assertTrue(implementation(db, changes.append, 'remove', 'tags', ['News'], '', 'id:1')[0])
         self.assertEqual(db.field_for('tags', 1), ('X',))
@@ -512,7 +517,7 @@ class ItemsTest(BaseTest):
 
 
 class AnnotationsTest(BaseTest):
-    def run_annotations(self, db, *args, is_remote=False, changes=None):
+    def run_annotations(self, db: Cache, *args: str, is_remote: bool = False, changes: list[ChangeEvent] | None = None) -> str:
         import json
 
         from calibre.db.cli.cmd_annotations import implementation, main, option_parser
@@ -521,14 +526,14 @@ class AnnotationsTest(BaseTest):
         notify_changes = (changes if changes is not None else []).append if is_remote else None
 
         class DBCtx:
-            def run(self, name, *args):
-                ans = implementation(db, notify_changes, *args)
+            def run(self, name: str, *args: object) -> object:
+                ans = implementation(db, notify_changes, *args)  # ty: ignore[invalid-argument-type]
                 # Remote results are sent as JSON
                 return json.loads(json.dumps(ans)) if is_remote else ans
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())
+            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_annotations(self) -> None:
@@ -539,7 +544,7 @@ class AnnotationsTest(BaseTest):
         db = self.init_cache()
         self.addCleanup(db.close)
 
-        def a(**kw):
+        def a(**kw: object) -> tuple[dict[str, object], float]:
             ts = utcnow()
             kw['timestamp'] = ts.isoformat()
             return kw, (ts - EPOCH).total_seconds()
@@ -619,9 +624,9 @@ class AnnotationsTest(BaseTest):
         for book_id in (1, 2, 3):
             db.add_format(book_id, 'FMT1', BytesIO(b'book'), run_hooks=False)
 
-        def a(**kw):
+        def a(**kw: object) -> tuple[dict[str, object], float]:
             kw.setdefault('timestamp', '2026-01-01T00:00:00+00:00')
-            return kw, (parse_iso8601(kw['timestamp']) - EPOCH).total_seconds()
+            return kw, (parse_iso8601(kw['timestamp']) - EPOCH).total_seconds()  # ty: ignore[invalid-argument-type]
 
         db.set_annotations_for_book(
             1,
@@ -760,7 +765,7 @@ class AnnotationsTest(BaseTest):
             1, 'FMT1', [({'type': 'highlight', 'uuid': 'u', 'highlighted_text': 'Newer', 'timestamp': newer}, (parse_iso8601(newer) - EPOCH).total_seconds())]
         )
 
-        def annot(**kw):
+        def annot(**kw: object) -> dict[str, object]:
             return dict({'type': 'highlight', 'book_id': 7, 'format': 'FMT1', 'timestamp': '2026-01-01T00:00:00Z'}, **kw)
 
         collection = {
@@ -795,7 +800,7 @@ class AnnotationsTest(BaseTest):
         db.add_format(1, 'FMT2', BytesIO(b'book'), run_hooks=False)
         ts = '2026-01-01T00:00:00.000Z'
 
-        def bookmark(title):
+        def bookmark(title: str) -> tuple[dict[str, str], float]:
             return {'type': 'bookmark', 'title': title, 'timestamp': ts}, (parse_iso8601(ts) - EPOCH).total_seconds()
 
         db.set_annotations_for_book(1, 'FMT1', [bookmark('local')])
@@ -803,7 +808,7 @@ class AnnotationsTest(BaseTest):
         db.set_annotations_for_book(1, 'FMT1', [bookmark('web')], user_type='web', user='reader')
         tdir = self.mkdtemp()
 
-        def export(name, *args):
+        def export(name: str, *args: str) -> str:
             path = os.path.join(tdir, name)
             with open(path, 'w') as f:
                 f.write(self.run_annotations(db, 'export', '-s', 'id:1', '-f', 'json', *args))
@@ -852,7 +857,7 @@ class AnnotationsTest(BaseTest):
         set_ui_language('en')
         timestamp = '2026-01-01T00:00:00+00:00'
 
-        def a(**kw):
+        def a(**kw: object) -> tuple[dict[str, object], float]:
             kw['timestamp'] = timestamp
             return kw, (parse_iso8601(timestamp) - EPOCH).total_seconds()
 
@@ -873,7 +878,7 @@ class AnnotationsTest(BaseTest):
         for is_remote in (False, True):
             with self.subTest(is_remote=is_remote):
 
-                def run(*args, is_remote=is_remote):
+                def run(*args: str, is_remote: bool = is_remote) -> str:
                     return self.run_annotations(db, 'search', *args, is_remote=is_remote, changes=changes)
 
                 phrase = json.loads(run('"climate change"', '-f', 'json'))
@@ -950,17 +955,17 @@ class SavedSearchesTest(BaseTest):
         implementation(db, None, 'add', 'foo', tpl)
         self.assertEqual(db.books_in_virtual_library('VL'), {1, 2, 3})
 
-    def run_saved_searches(self, db, *args):
+    def run_saved_searches(self, db: Cache, *args: str) -> str:
         from calibre.db.cli.cmd_saved_searches import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
         class DBCtx:
-            def run(self, name, *args):
-                return implementation(db, None, *args)
+            def run(self, name: str, *args: object) -> object:
+                return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())
+            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_saved_searches(self) -> None:
@@ -985,7 +990,7 @@ class SavedSearchesTest(BaseTest):
 
 
 class DataFilesTest(BaseTest):
-    def run_data_files(self, db, *args, is_remote=False):
+    def run_data_files(self, db: Cache, *args: str, is_remote: bool = False) -> str:
         from calibre.db.cli.cmd_data_files import main, option_parser
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
@@ -994,13 +999,13 @@ class DataFilesTest(BaseTest):
             def __init__(self) -> None:
                 self.is_remote = is_remote
 
-            def path(self, path):
+            def path(self, path: str) -> str | tuple[str, bytes]:
                 if is_remote:
                     with open(path, 'rb') as f:
                         return path, f.read()
                 return path
 
-            def run(self, name, *args):
+            def run(self, name: str, *args: object) -> object:
                 from calibre.db.cli import module_for_cmd
 
                 impl = module_for_cmd(name).implementation
@@ -1009,9 +1014,9 @@ class DataFilesTest(BaseTest):
                 return impl(db, None, *args)
 
         ctx = DBCtx()
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            self.assertEqual(main(opts, args, ctx), 0)
+            self.assertEqual(main(opts, args, ctx), 0)  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_data_files(self) -> None:
@@ -1021,7 +1026,7 @@ class DataFilesTest(BaseTest):
         for is_remote in (False, True):
             with self.subTest(is_remote=is_remote):
 
-                def run(*args, is_remote=is_remote):
+                def run(*args: str, is_remote: bool = is_remote) -> str:
                     return self.run_data_files(db, *args, is_remote=is_remote)
 
                 self.assertEqual(json.loads(run('list', '1', '--for-machine')), [])
@@ -1059,7 +1064,7 @@ class DataFilesTest(BaseTest):
                 run('remove', '1', 'sub/other/moved.txt', *(('--permanent',) if is_remote else ()))
                 self.assertEqual(json.loads(run('list', '1', '--for-machine')), [])
                 # Directories left empty are removed, but not data/ itself
-                self.assertEqual(os.listdir(os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')), [])
+                self.assertEqual(os.listdir(os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')), [])  # ty: ignore[no-matching-overload]
                 os.remove(output)
         self.assertEqual(db.format(1, 'FMT1'), original)
 
@@ -1114,8 +1119,8 @@ class DataFilesTest(BaseTest):
         ):
             with self.subTest(action=action, args=args):
                 self.assertEqual(implementation(db, remote, action, 1, *args), (False, f'Invalid arguments for: {action}'))
-        self.assertFalse(implementation(db, remote, 'list', '1')[0])
-        self.assertEqual(implementation(db, remote, ['list'], 1), (False, "Unknown action: ['list']"))
+        self.assertFalse(implementation(db, remote, 'list', '1')[0])  # ty: ignore[invalid-argument-type]
+        self.assertEqual(implementation(db, remote, ['list'], 1), (False, "Unknown action: ['list']"))  # ty: ignore[invalid-argument-type]
         # Names that are valid on some platforms are accepted
         for name in ('a..b.txt', '.hidden', 'console.txt', 'COM10', 'x+y'):
             with self.subTest(name=name):
@@ -1126,7 +1131,7 @@ class DataFilesTest(BaseTest):
         dest = os.path.join(self.mkdtemp(), 'server-output')
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'source', dest), (True, b'file'))
         self.assertFalse(os.path.exists(dest))
-        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['source'])
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['source'])  # ty: ignore[invalid-argument-type, not-iterable, not-subscriptable]
         self.assertTrue(implementation(db, lambda changes: None, 'add', 1, 'uploaded', (source, b'client bytes'), False)[0])
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'uploaded', dest), (True, b'client bytes'))
 
@@ -1134,7 +1139,7 @@ class DataFilesTest(BaseTest):
         from calibre.db.cli.cmd_data_files import implementation
 
         db = self.init_cache()
-        root = os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')
+        root = os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')  # ty: ignore[no-matching-overload]
         os.makedirs(root)
         link = os.path.join(root, 'outside')
         try:
@@ -1149,14 +1154,14 @@ class DataFilesTest(BaseTest):
         os.symlink(os.path.join(os.path.dirname(root), 'cover.jpg'), os.path.join(root, 'cover-link'))
         with open(os.path.join(root, 'regular'), 'wb') as f:
             f.write(b'x')
-        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['regular'])
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['regular'])  # ty: ignore[invalid-argument-type, not-iterable, not-subscriptable]
         self.assertFalse(implementation(db, None, 'get', 1, 'cover-link', None)[0])
 
     def test_data_files_existing_names(self) -> None:
         from calibre.db.cli.cmd_data_files import implementation
 
         db = self.init_cache()
-        root = os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')
+        root = os.path.join(db.backend.library_path, db.field_for('path', 1), 'data')  # ty: ignore[no-matching-overload]
         os.makedirs(root)
         # Names that are not accepted for new files can still be managed
         # if they exist, for example, created by other programs
@@ -1168,7 +1173,7 @@ class DataFilesTest(BaseTest):
         if os.listdir(root) != ['Notes: one.txt']:
             # On NTFS, the colon creates an alternate data stream instead
             self.skipTest('Colons in filenames are unsupported')
-        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['Notes: one.txt'])
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['Notes: one.txt'])  # ty: ignore[invalid-argument-type, not-iterable, not-subscriptable]
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'Notes: one.txt', None), (True, b'colon'))
         self.assertFalse(implementation(db, None, 'rename', 1, 'Notes: one.txt', 'Notes: two.txt', False)[0])
         self.assertTrue(implementation(db, None, 'rename', 1, 'Notes: one.txt', 'notes.txt', False)[0])
@@ -1176,16 +1181,16 @@ class DataFilesTest(BaseTest):
         with open(os.path.join(root, 'Notes: one.txt'), 'wb') as f:
             f.write(b'colon')
         self.assertTrue(implementation(db, None, 'remove', 1, 'Notes: one.txt', True)[0])
-        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['notes.txt'])
+        self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['notes.txt'])  # ty: ignore[invalid-argument-type, not-iterable, not-subscriptable]
         # \ is a separator for the backend, so such names give a clear error
         if os.sep == '/':
             with open(os.path.join(root, 'a\\b.txt'), 'wb') as f:
                 f.write(b'x')
-            self.assertIn('a\\b.txt', [x['name'] for x in implementation(db, None, 'list', 1)[1]])
+            self.assertIn('a\\b.txt', [x['name'] for x in implementation(db, None, 'list', 1)[1]])  # ty: ignore[invalid-argument-type, not-iterable, not-subscriptable]
             for action, args in (('get', (None,)), ('rename', ('c.txt', False)), ('remove', (True,))):
                 ok, msg = implementation(db, None, action, 1, 'a\\b.txt', *args)
                 self.assertFalse(ok)
-                self.assertIn('backslash', msg)
+                self.assertIn('backslash', msg)  # ty: ignore[invalid-argument-type]
             self.assertTrue(os.path.exists(os.path.join(root, 'a\\b.txt')))
         # \ is accepted as a separator in names
         os.mkdir(os.path.join(root, 'sub'))
@@ -1205,7 +1210,7 @@ class DataFilesTest(BaseTest):
         # block reads indefinitely
         if hasattr(os, 'mkfifo'):
             os.mkfifo(os.path.join(root, 'fifo'))
-            self.assertNotIn('fifo', [x['name'] for x in implementation(db, None, 'list', 1)[1]])
+            self.assertNotIn('fifo', [x['name'] for x in implementation(db, None, 'list', 1)[1]])  # ty: ignore[invalid-argument-type, not-iterable, not-subscriptable]
             self.assertFalse(implementation(db, lambda changes: None, 'get', 1, 'fifo', None)[0])
 
     def test_data_files_output(self) -> None:
@@ -1275,7 +1280,7 @@ class DataFilesTest(BaseTest):
 
 
 class TrashTest(BaseTest):
-    def run_trash(self, db, *args, is_remote=False):
+    def run_trash(self, db: Cache, *args: str, is_remote: bool = False) -> str:
         from calibre.db.cli.cmd_trash import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
@@ -1283,17 +1288,17 @@ class TrashTest(BaseTest):
         changes = []
 
         class DBCtx:
-            def run(self, name, *args):
+            def run(self, name: str, *args: object) -> object:
                 if is_remote:
                     # Results are sent over the network by the Content server
                     return msgpack_loads(msgpack_dumps(implementation(db, changes.append, *msgpack_loads(msgpack_dumps(args)))))
-                return implementation(db, None, *args)
+                return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         self.changes = changes
         try:
             with redirect_stdout(StringIO()) as out:
-                main(opts, args, DBCtx())
+                main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         finally:
             self.last_output = out.getvalue()
         return self.last_output
@@ -1386,7 +1391,7 @@ class TrashTest(BaseTest):
         # A book whose formats are only partly restored is not counted as restored, the restored formats are notified
         orig = db.move_format_from_trash
 
-        def fail_second(book_id, fmt):
+        def fail_second(book_id: int, fmt: str) -> None:
             if fmt == fmts[1]:
                 raise ValueError('failed')
             return orig(book_id, fmt)
@@ -1402,7 +1407,7 @@ class TrashTest(BaseTest):
         db.remove_books((3,))
         orig_delete = db.delete_trash_entry
 
-        def fail_delete(book_id, category):
+        def fail_delete(book_id: int, category: str) -> None:
             if book_id == 2:
                 raise OSError('failed')
             return orig_delete(book_id, category)
@@ -1417,22 +1422,22 @@ class TrashTest(BaseTest):
 
 
 class VirtualLibrariesTest(BaseTest):
-    def run_vls(self, db, *args, is_remote=False, changes=None):
+    def run_vls(self, db: Cache, *args: str, is_remote: bool = False, changes: list[ChangeEvent] | None = None) -> str:
         from calibre.db.cli.cmd_virtual_libraries import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
         class DBCtx:
-            def run(self, name, *args):
+            def run(self, name: str, *args: object) -> object:
                 if is_remote:
                     # Results are sent over the network by the Content server
                     notify_changes = (changes if changes is not None else []).append
                     return msgpack_loads(msgpack_dumps(implementation(db, notify_changes, *msgpack_loads(msgpack_dumps(args)))))
-                return implementation(db, None, *args)
+                return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))
+        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())
+            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
         return out.getvalue()
 
     def test_virtual_libraries(self) -> None:
@@ -1456,13 +1461,13 @@ class VirtualLibrariesTest(BaseTest):
         self.assertEqual(db.search('vl:One'), {3})
 
         # Templates are not allowed for remote clients
-        db.set_pref('virtual_libraries', dict(db.pref('virtual_libraries'), T='template:"program: 1"#@#:t:1'))
+        db.set_pref('virtual_libraries', dict(db.pref('virtual_libraries'), T='template:"program: 1"#@#:t:1'))  # ty: ignore[no-matching-overload]
         self.assertIn('T\ttemplate:"program: 1"#@#:t:1\tinvalid search', self.run_vls(db, 'list', is_remote=True))
         with self.assertRaisesRegex(SystemExit, 'Templates are not allowed'):
             self.run_vls(db, 'add', 'T2', 'template:"program: 1"#@#:t:1', is_remote=True)
 
         self.run_vls(db, 'rename', 'Both', 'Two books')
-        self.assertEqual(set(db.pref('virtual_libraries')), {'One', 'Two books', 'T'})
+        self.assertEqual(set(db.pref('virtual_libraries')), {'One', 'Two books', 'T'})  # ty: ignore[invalid-argument-type]
         self.assertEqual(db.search('vl:"Two books"'), {1, 2})
         self.assertEqual(self.run_vls(db, 'remove', 'One', 'T', is_remote=True), '2 Virtual libraries removed\n')
         self.assertEqual(db.pref('virtual_libraries'), {'Two books': 'id:1 or id:2'})
@@ -1502,7 +1507,7 @@ class VirtualLibrariesTest(BaseTest):
         for expr in ('id:9999 and ' + tpl, 'search:local_tpl'):
             with self.subTest(expr=expr), self.assertRaisesRegex(SystemExit, 'Templates are not allowed'):
                 self.run_vls(db, 'add', 'T', expr, is_remote=True, changes=changes)
-        self.assertNotIn('T', db.pref('virtual_libraries'))
+        self.assertNotIn('T', db.pref('virtual_libraries'))  # ty: ignore[invalid-argument-type]
 
         # A replaced search that uses the Virtual library itself is recursive
         with self.assertRaisesRegex(SystemExit, 'Failed to parse search query'):
@@ -1531,7 +1536,7 @@ class VirtualLibrariesTest(BaseTest):
         )
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     loader = unittest.defaultTestLoader
     return unittest.TestSuite((
         loader.loadTestsFromTestCase(PrintCheckLibraryResultsTest),

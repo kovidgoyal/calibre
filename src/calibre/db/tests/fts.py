@@ -5,6 +5,7 @@ import builtins
 import os
 import sys
 import tempfile
+from typing import TYPE_CHECKING
 
 from apsw import Connection
 
@@ -12,14 +13,19 @@ from calibre.constants import plugins
 from calibre.db.annotations import unicode_normalize
 from calibre.db.tests.base import BaseTest
 
+if TYPE_CHECKING:
+    import unittest
 
-def print(*args, **kwargs) -> None:
+    from apsw import Cursor
+
+
+def print(*args: object, **kwargs: object) -> None:
     kwargs['file'] = sys.__stdout__
     builtins.print(*args, **kwargs)
 
 
 class TestConn(Connection):
-    def __init__(self, remove_diacritics=True, language='en', stem_words=False) -> None:
+    def __init__(self, remove_diacritics: bool = True, language: str = 'en', stem_words: bool = False) -> None:
         from calibre_extensions.sqlite_extension import set_ui_language
 
         set_ui_language(language)
@@ -34,22 +40,22 @@ CREATE VIRTUAL TABLE fts_table USING fts5(t, tokenize = '{tok}unicode61 {options
 CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
 ''')
 
-    def execute(self, *a):
+    def execute(self, *a: str | tuple[str, ...]) -> Cursor:
         return self.cursor().execute(*a)
 
-    def insert_text(self, text) -> None:
+    def insert_text(self, text: str) -> None:
         self.execute('INSERT INTO fts_table(t) VALUES (?)', (unicode_normalize(text),))
 
-    def term_row_counts(self):
+    def term_row_counts(self) -> dict[str, int]:
         return dict(self.execute('SELECT term,doc FROM fts_row'))
 
-    def search(self, query, highlight_start='>', highlight_end='<', snippet_size=4):
+    def search(self, query: str, highlight_start: str = '>', highlight_end: str = '<', snippet_size: int = 4) -> list[tuple[str]]:
         snippet_size = max(1, min(snippet_size, 64))
         stmt = f"SELECT snippet(fts_table, 0, '{highlight_start}', '{highlight_end}', '…', {snippet_size}) FROM fts_table WHERE fts_table MATCH ? ORDER BY RANK"
         return list(self.execute(stmt, (unicode_normalize(query),)))
 
 
-def tokenize(text, flags=None, remove_diacritics=True):
+def tokenize(text: str, flags: int | None = None, remove_diacritics: bool = True) -> list[dict[str, str | int]]:
     from calibre_extensions.sqlite_extension import FTS5_TOKENIZE_DOCUMENT, tokenize
 
     if flags is None:
@@ -73,10 +79,10 @@ class FTSTest(BaseTest):
     def test_fts_tokenize(self) -> None:  # {{{
         from calibre_extensions.sqlite_extension import FTS5_TOKENIZE_DOCUMENT, FTS5_TOKENIZE_QUERY, set_ui_language
 
-        def t(x, s, e, f=0):
+        def t(x: str, s: int, e: int, f: int = 0) -> dict[str, str | int]:
             return {'text': x, 'start': s, 'end': e, 'flags': f}
 
-        def tt(text, *expected_tokens, for_query=False) -> None:
+        def tt(text: str, *expected_tokens: str, for_query: bool = False) -> None:
             flags = FTS5_TOKENIZE_QUERY if for_query else FTS5_TOKENIZE_DOCUMENT
             q = tuple(x['text'] for x in tokenize(text, flags=flags))
             self.ae(q, expected_tokens)
@@ -281,7 +287,8 @@ startxref
             self.assertEqual(extract_text(zip).strip(), 'Hello World')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
+
     import unittest
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(FTSTest)

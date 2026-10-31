@@ -11,7 +11,7 @@ class NoTracebackException(Exception):
 
 
 class NoSuchBook(KeyError):
-    def __init__(self, book_id) -> None:
+    def __init__(self, book_id: int) -> None:
         KeyError.__init__(self, f'No book with id: {book_id} in database')
         self.book_id = book_id
 

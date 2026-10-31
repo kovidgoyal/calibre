@@ -5,7 +5,7 @@ import sys
 from collections import defaultdict
 from collections.abc import Callable
 from itertools import chain
-from typing import Self
+from typing import TYPE_CHECKING, Self, overload
 from urllib.parse import quote
 
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
@@ -13,11 +13,20 @@ from calibre.utils.date import EPOCH, format_date
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
+    type CFISortKey = tuple[tuple[int, ...], tuple[float, tuple[float, ...], int]]
+
 no_cfi = '/99999999'
 no_cfi_sort_key = cfi_sort_key(no_cfi)
 
 
-def unicode_normalize(text):
+@overload
+def unicode_normalize(text: str) -> str: ...
+@overload
+def unicode_normalize(text: None) -> None: ...
+def unicode_normalize(text: str | None) -> str | None:
     if text:
         from unicodedata import normalize
 
@@ -25,13 +34,13 @@ def unicode_normalize(text):
     return text
 
 
-def bookmark_sort_key(b):
+def bookmark_sort_key(b: dict) -> CFISortKey:
     if b.get('pos_type') == 'epubcfi' and (pos := b.get('pos')):
         return cfi_sort_key(pos, only_path=False)
     return no_cfi_sort_key
 
 
-def highlight_sort_key(hl):
+def highlight_sort_key(hl: dict) -> CFISortKey:
     cfi = hl.get('start_cfi')
     if cfi:
         if cfi.startswith('epubcfi('):
@@ -43,7 +52,7 @@ def highlight_sort_key(hl):
     return no_cfi_sort_key
 
 
-def annotations_as_copied_list(annots_map):
+def annotations_as_copied_list(annots_map: dict[str, list[dict]]) -> Iterator[tuple[dict, float]]:
     for atype, annots in annots_map.items():
         for annot in annots:
             ts = (parse_iso8601(annot['timestamp'], assume_utc=True) - EPOCH).total_seconds()
@@ -52,19 +61,19 @@ def annotations_as_copied_list(annots_map):
             yield annot, ts
 
 
-def sort_annot_list_by_position_in_book(annots, annot_type) -> None:
+def sort_annot_list_by_position_in_book(annots: list[dict], annot_type: str) -> None:
     annots.sort(key={'bookmark': bookmark_sort_key, 'highlight': highlight_sort_key}[annot_type])
 
 
-def merge_annots_with_identical_field(a, b, field='title'):
-    title_groups = defaultdict(list)
+def merge_annots_with_identical_field(a: Sequence[dict], b: Sequence[dict], field: str = 'title') -> tuple[bool, list[dict]]:
+    title_groups: defaultdict[str, list[dict]] = defaultdict(list)
     for x in chain(a, b):
         title_groups[x[field]].append(x)
     for tg in title_groups.values():
         tg.sort(key=safe_timestamp_sort_key, reverse=True)
-    seen = set()
+    seen: set[str] = set()
     changed = False
-    ans = []
+    ans: list[dict] = []
     for x in chain(a, b):
         title = x[field]
         if title not in seen:
@@ -81,7 +90,7 @@ def merge_annots_with_identical_field(a, b, field='title'):
 merge_field_map = {'bookmark': 'title', 'highlight': 'uuid'}
 
 
-def merge_annot_lists(a, b, annot_type):
+def merge_annot_lists(a: list[dict], b: list[dict], annot_type: str) -> list[dict]:
     if not a:
         return list(b)
     if not b:
@@ -99,7 +108,7 @@ def merge_annot_lists(a, b, annot_type):
     return c
 
 
-def safe_timestamp_sort_key(x):
+def safe_timestamp_sort_key(x: dict) -> str:
     # ensure we return a string, so python 3 does not barf
     # also if the timestamp is a datetime instance convert it to
     # a string, since we expect it to always be a string
@@ -114,13 +123,13 @@ def safe_timestamp_sort_key(x):
     return ans
 
 
-def merge_annotations(annots, annots_map, merge_last_read=True) -> None:
+def merge_annotations(annots: Iterable[dict] | dict[str, list[dict]], annots_map: dict[str, list[dict]], merge_last_read: bool = True) -> None:
     # If you make changes to this algorithm also update the
     # implementation in read_book.annotations
     if isinstance(annots, dict):
         amap = annots
     else:
-        amap = defaultdict(list)
+        amap: dict[str, list[dict]] = defaultdict(list)
         for annot in annots:
             amap[annot['type']].append(annot)
 
@@ -142,7 +151,7 @@ def merge_annotations(annots, annots_map, merge_last_read=True) -> None:
         changed, annots_map[annot_type] = merge_annots_with_identical_field(a or [], b, field=field)
 
 
-def annot_db_data(annot):
+def annot_db_data(annot: dict) -> tuple[str | None, str | None]:
     aid = text = None
     atype = annot['type'].lower()
     if atype == 'bookmark':

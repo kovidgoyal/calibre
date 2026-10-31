@@ -4,16 +4,25 @@
 import datetime
 import os
 import unittest
+from collections.abc import Callable, Iterable
 from io import BytesIO
 from time import time
+from typing import TYPE_CHECKING
 
 from calibre.db.tests.base import BaseTest
 from calibre.utils.date import utc_tz
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.search_query_parser import ParseException
 
+if TYPE_CHECKING:
+    from apsw import Cursor
 
-def p(x):
+    from calibre.db.categories import Tag
+
+    type CategoriesSnapshot = dict[str, list[tuple[str, int | None, int, float, str | None, frozenset[int]]]]
+
+
+def p(x: str) -> datetime.datetime:
     return datetime.datetime.strptime(x, '%Y-%m-%d').replace(tzinfo=utc_tz)
 
 
@@ -454,7 +463,7 @@ class ReadingTest(BaseTest):
         today = now()
         dates = {i: months_ago(today, m).replace(day=15, hour=12) for i, m in ((1, 0), (2, 1), (3, 14))}
 
-        def ids_where(pred):
+        def ids_where(pred: Callable[[datetime.datetime], bool]) -> set[int]:
             return {i for i, d in dates.items() if pred(d)}
 
         cache.set_field('pubdate', dates)
@@ -506,7 +515,7 @@ class ReadingTest(BaseTest):
             'The set of old categories is not the same as the set of new categories',
         )
 
-        def compare_category(category, old, new) -> None:
+        def compare_category(category: str, old: Tag, new: Tag) -> None:
             for attr in (
                 'name',
                 'original_name',
@@ -588,7 +597,7 @@ class ReadingTest(BaseTest):
         for k in Tag.__slots__:
             self.assertIs(getattr(tag, k), getattr(c, k), f'Copying a Tag does not copy {k}')
 
-        def names(category, **kw):
+        def names(category: str, **kw: str | bool | tuple[int, ...]) -> list[tuple[str, str, int]]:
             return [(t.name, t.original_name, t.count) for t in cache.get_categories(**kw)[category]]
 
         # A cached category must not be affected by changes made to the Tag
@@ -674,16 +683,16 @@ class ReadingTest(BaseTest):
         combos = tuple((sort, fl) for sort in ('name', 'popularity', 'rating') for fl in (False, True))
         cache.set_pref('categories_using_hierarchy', ['tags'])
 
-        def snapshot(sort, fl):
+        def snapshot(sort: str, fl: bool) -> CategoriesSnapshot:
             return {
                 category: [(t.name, t.id, t.count, t.avg_rating, t.sort, frozenset(t.id_set)) for t in tags]
                 for category, tags in cache.get_categories(sort=sort, first_letter_sort=fl).items()
             }
 
-        def current():
+        def current() -> dict[tuple[str, bool], CategoriesSnapshot]:
             return {c: snapshot(*c) for c in combos}
 
-        def check(msg) -> None:
+        def check(msg: str) -> None:
             # Compare the categories, refreshed from the out of date entries,
             # with the categories computed from scratch, which leaves every
             # combination of sorts cached again
@@ -696,7 +705,7 @@ class ReadingTest(BaseTest):
 
         insertions = []
 
-        def counting_insert(*args):
+        def counting_insert(*args: object) -> bool:
             insertions.append(insert_changed_items(*args))
             return insertions[-1]
 
@@ -761,7 +770,7 @@ class ReadingTest(BaseTest):
             current()
             executemany = cache.backend.executemany
 
-            def failing_executemany(sql, *args):
+            def failing_executemany(sql: str, *args: object) -> Cursor:
                 if sql.startswith('INSERT INTO books_tags_link'):
                     raise OSError('Simulated failure')
                 return executemany(sql, *args)
@@ -983,7 +992,7 @@ class ReadingTest(BaseTest):
         from calibre.utils.icu import lower as icu_lower
         from calibre.utils.icu import primary_no_punc_contains
 
-        def icu_match(query, value):
+        def icu_match(query: str, value: Iterable[str]) -> bool:
             # what _match() did before the ASCII fast path was added
             return any(primary_no_punc_contains(query, icu_lower(t)) for t in value)
 
@@ -1024,7 +1033,7 @@ class ReadingTest(BaseTest):
             hit_counter = 0
             miss_counter = 0
 
-            def get(self, key, default=None) -> None:
+            def get(self, key: str, default: set[int] | None = None) -> None:
                 ans = LRUCache.get(self, key, default=default)
                 if ans is not None:
                     self.hit_counter += 1
@@ -1035,7 +1044,7 @@ class ReadingTest(BaseTest):
                 self.hit_counter = self.miss_counter = 0
 
             @property
-            def counts(self):
+            def counts(self) -> tuple[int, int]:
                 return self.hit_counter, self.miss_counter
 
         cache = self.init_cache()
@@ -1043,7 +1052,7 @@ class ReadingTest(BaseTest):
 
         ae = self.assertEqual
 
-        def test(hit, result, *args, **kw) -> None:
+        def test(hit: bool, result: set[int], *args: str, **kw: int) -> None:
             c.clean_counts()
             num = kw.get('num', 2)
             ae(cache.search(*args), result)
@@ -1159,12 +1168,12 @@ class ReadingTest(BaseTest):
             for field in STANDARD_METADATA_FIELDS | {'#series_index'}:
                 if field == 'formats':
 
-                    def f(x):
+                    def f(x: Iterable[str] | None) -> tuple[str, ...] | None:
                         return x if x is None else tuple(x)
 
                 else:
 
-                    def f(x):
+                    def f(x: object) -> object:
                         return x
 
                 self.assertEqual(
@@ -1178,7 +1187,7 @@ class ReadingTest(BaseTest):
                     f'Standard field format: {field} not the same for book {book_id}',
                 )
 
-                def f(x):
+                def f(x: object) -> object:
                     try:
                         x.pop('rec_index', None)
                     except Exception:
@@ -1438,7 +1447,7 @@ class ReadingTest(BaseTest):
         mi = db.get_metadata(2)
 
         # test reading_progress
-        def trp(expected, args='') -> None:
+        def trp(expected: str, args: str = '') -> None:
             self.assertEqual(expected, formatter.safe_format(f'{{id:reading_progress({args})}}', {}, 'TEMPLATE ERROR', mi))
 
         trp('25 / 100')
@@ -1561,7 +1570,8 @@ def evaluate(book, ctx):
         from calibre.utils.formatter import PythonTemplateContext
 
         class CustomContext(PythonTemplateContext):
-            def helper_function(self, arg):
+            def helper_function(self, arg: Iterable[str]) -> set[str]:
+
                 s = set(arg)
                 s.add('helper called')
                 return s

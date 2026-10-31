@@ -3,20 +3,39 @@
 
 import filecmp
 import os
+from typing import TYPE_CHECKING
 
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import prefs
 from calibre.utils.date import now
 
+if TYPE_CHECKING:
+    from collections.abc import Collection
+    from typing import TypedDict
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.db.utils import IdenticalBooksData
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    class CopyResult(TypedDict):
+        book_id: int
+        title: str
+        authors: list[str]
+        author: str
+        action: str
+        new_book_id: int | None
+
+
 source_removal_actions = frozenset({'add', 'automerge'})
 
 
-def merge_extra_files(newdb, book_id, extra_file_map) -> None:
+def merge_extra_files(newdb: Cache, book_id: int, extra_file_map: dict[str, str]) -> None:
     # Files with content identical to an existing extra file are skipped, so
     # that repeated copies do not accumulate merge conflict duplicates.
     # Conflicting files are auto-renamed so that no data is ever discarded.
     existing = newdb.list_extra_files(book_id)
-    to_add = {}
+    to_add: dict[str, str] = {}
     for relpath, path in extra_file_map.items():
         size = os.path.getsize(path)
         if not any(ef.stat_result.st_size == size and filecmp.cmp(path, ef.file_path, shallow=False) for ef in existing):
@@ -25,8 +44,16 @@ def merge_extra_files(newdb, book_id, extra_file_map) -> None:
         newdb.add_extra_files(book_id, to_add, replace=False, auto_rename=True)
 
 
-def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
-    seen_fmts = set()
+def automerge_book(
+    automerge_action: str,
+    book_id: int,
+    mi: Metadata,
+    identical_book_list: Collection[int],
+    newdb: Cache,
+    format_map: dict[str, str],
+    extra_file_map: dict[str, str],
+) -> int | None:
+    seen_fmts: set[str] = set()
     for identical_book in identical_book_list:
         seen_fmts |= {fmt.upper() for fmt in newdb.formats(identical_book)}
     incoming_fmts = {fmt.upper() for fmt in format_map}
@@ -44,7 +71,7 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
         if extra_file_map and not create_new_record:
             merge_extra_files(newdb, identical_book, extra_file_map)
         if mi.cover_data and mi.cover_data[1] and not newdb.field_for('cover', identical_book):
-            newdb.set_cover({identical_book: mi.cover_data[1]})
+            newdb.set_cover({identical_book: mi.cover_data[1]})  # ty: ignore[invalid-argument-type]
 
     if create_new_record:
         new_book_id = newdb.add_books(
@@ -59,12 +86,20 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
         return new_book_id
 
 
-def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action) -> None:
+def postprocess_copy(
+    book_id: int,
+    new_book_id: int | None,
+    new_authors: Collection[str],
+    db: Cache,
+    newdb: Cache,
+    identical_books_data: IdenticalBooksData | None,
+    duplicate_action: str,
+) -> None:
     if not new_book_id:
         return
     if new_authors:
         author_id_map = db.get_item_ids('authors', new_authors)
-        sort_map = {}
+        sort_map: dict[int, str] = {}
         for author, aid in author_id_map.items():
             if aid is not None:
                 adata = db.author_data((aid,)).get(aid)
@@ -88,34 +123,34 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
 
 
 def copy_one_book(
-    book_id,
-    src_db,
-    dest_db,
-    duplicate_action='add',
-    automerge_action='overwrite',
-    preserve_date=True,
-    identical_books_data=None,
-    preserve_uuid=False,
-):
+    book_id: int,
+    src_db: Cache | LibraryDatabase,
+    dest_db: Cache | LibraryDatabase,
+    duplicate_action: str = 'add',
+    automerge_action: str = 'overwrite',
+    preserve_date: bool = True,
+    identical_books_data: IdenticalBooksData | None = None,
+    preserve_uuid: bool = False,
+) -> CopyResult:
     db = src_db.new_api
     newdb = dest_db.new_api
     with db.safe_read_lock, newdb.write_lock:
         mi = db.get_metadata(book_id, get_cover=True, cover_as_data=True)
         if not preserve_date:
             mi.timestamp = now()
-        format_map = {}
+        format_map: dict[str, str] = {}
         fmts = list(db.formats(book_id, verify_formats=False))
-        extra_file_map = {}
+        extra_file_map: dict[str, str] = {}
         for ef in db.list_extra_files(book_id):
             extra_file_map[ef.relpath] = ef.file_path
         for fmt in fmts:
             path = db.format_abspath(book_id, fmt)
             if path:
                 format_map[fmt.upper()] = path
-        identical_book_list = set()
+        identical_book_list: set[int] = set()
         new_authors = {k for k, v in newdb.get_item_ids('authors', mi.authors).items() if v is None}
         new_book_id = None
-        return_data = {
+        return_data: CopyResult = {
             'book_id': book_id,
             'title': mi.title,
             'authors': mi.authors,

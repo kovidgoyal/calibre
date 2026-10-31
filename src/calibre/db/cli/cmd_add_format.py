@@ -3,34 +3,46 @@
 
 import os
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from calibre.srv.changes import formats_added
 from calibre.srv.utils import is_recipe_fmt
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, book_id, data, fmt, replace):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, book_id: int, data: str | tuple[str, bytes], fmt: str, replace: bool
+) -> bool:
     is_remote = notify_changes is not None
     if is_remote:
         if is_recipe_fmt(fmt):
             raise ValueError('Cannot use the add format interface to add recipe files, as they allow code execution')
-        data = BytesIO(data[1])
+        data = BytesIO(data[1])  # ty: ignore[invalid-assignment, invalid-argument-type]
     relpath = ''
     if fmt.startswith('.EXTRA_DATA_FILE:'):
         relpath = fmt[len('.EXTRA_DATA_FILE:') :]
     if relpath:
-        added = db.add_extra_files(book_id, {relpath: data}, replace=replace)[relpath]
+        added = db.add_extra_files(book_id, {relpath: data}, replace=replace)[relpath]  # ty: ignore[invalid-argument-type]
     else:
-        added = db.add_format(book_id, fmt, data, replace=replace)
+        added = db.add_format(book_id, fmt, data, replace=replace)  # ty: ignore[invalid-argument-type]
     if is_remote and added and not relpath:
         notify_changes(formats_added({book_id: (fmt,)}))
     return added
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -59,7 +71,7 @@ it is replaced, unless the do not replace option is specified.\
     return parser
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 2:
         raise SystemExit(_('You must specify an id and an e-book file'))
 

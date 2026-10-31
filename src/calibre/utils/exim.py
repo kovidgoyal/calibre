@@ -588,7 +588,7 @@ def import_data(
                 raise
         if not os.path.isdir(dest):
             raise ValueError(f'{dest} is not a directory')
-        import_library(library_key, importer, dest, progress=progress2, abort=abort).close()
+        import_library(library_key, importer, dest, progress=progress2, abort=abort).close()  # ty: ignore[unresolved-attribute]
         stats_key = os.path.abspath(dest).replace(os.sep, '/')
         library_usage_stats[stats_key] = importer.metadata['libraries'].get(library_key, 1)
     if progress1 is not None:

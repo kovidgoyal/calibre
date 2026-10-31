@@ -81,7 +81,7 @@ class ColumnTooltipsAction(InterfaceAction):
 
         db = get_gui(fail_if_absent=True).current_db.new_api
         fm = db.field_metadata.get(column)
-        col_name = fm['name']
+        col_name = fm['name']  # ty: ignore[not-subscriptable]
         d = ToolTipDialog(
             _('Tooltip for column {name}, row {row_num}').format(name=col_name, row_num=rows[0].row() + 1),
             prefs=db.backend.prefs,

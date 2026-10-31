@@ -5,12 +5,30 @@ import json
 import os
 import sys
 from textwrap import TextWrapper
+from typing import TYPE_CHECKING, cast
 
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from optparse import Values
+    from typing import TypedDict
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+    class ListResult(TypedDict):
+        book_ids: list[int]
+        data: dict[str, dict[int, object]]
+        metadata: dict[str, dict[str, object]]
+        fields: Sequence[str]
+
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -38,18 +56,27 @@ FIELDS = {
 }
 
 
-def formats(db, book_id):
+def formats(db: Cache, book_id: int) -> Iterator[str]:
     for fmt in db.formats(book_id, verify_formats=False):
         path = db.format_abspath(book_id, fmt)
         if path:
             yield path.replace(os.sep, '/')
 
 
-def cover(db, book_id):
+def cover(db: Cache, book_id: int) -> str | None:
     return db.format_abspath(book_id, '__COVER_INTERNAL__')
 
 
-def implementation(db, notify_changes, fields, sort_by, ascending, search_text, limit, template=None):
+def implementation(
+    db: Cache,
+    notify_changes: Callable[[ChangeEvent], None] | None,
+    fields: Sequence[str],
+    sort_by: str | None,
+    ascending: bool,
+    search_text: str | None,
+    limit: int,
+    template: str | None = None,
+) -> str | ListResult:
     is_remote = notify_changes is not None
     if is_remote:
         # templates allow arbitrary code execution via python templates. We
@@ -115,29 +142,29 @@ def implementation(db, notify_changes, fields, sort_by, ascending, search_text, 
                     data[field] = {k: cover(db, k) for k in book_ids}
                     continue
             data[field] = db.all_field_for(field, book_ids)
-    return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields': fields}
+    return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields': fields}  # ty: ignore[invalid-argument-type, invalid-return-type]
 
 
-def stringify(data, metadata, for_machine) -> None:
+def stringify(data: dict[str, dict[int, object]], metadata: dict[str, dict[str, object]], for_machine: bool) -> None:
     for field, m in metadata.items():
         if field == 'authors':
             data[field] = {k: authors_to_string(v) for k, v in data[field].items()}
         else:
             dt = m['datatype']
             if dt == 'datetime':
-                data[field] = {k: isoformat(v, as_utc=for_machine) if v else 'None' for k, v in data[field].items()}
+                data[field] = {k: isoformat(v, as_utc=for_machine) if v else 'None' for k, v in data[field].items()}  # ty: ignore[invalid-argument-type]
             elif not for_machine:
                 ism = m['is_multiple']
                 if ism:
                     if field == 'identifiers':
-                        data[field] = {k: ism['list_to_ui'].join(f'{key}:{val}' for key, val in v.items()) for k, v in data[field].items()}
+                        data[field] = {k: ism['list_to_ui'].join(f'{key}:{val}' for key, val in v.items()) for k, v in data[field].items()}  # ty: ignore[not-subscriptable, unresolved-attribute]
                     else:
-                        data[field] = {k: ism['list_to_ui'].join(v) for k, v in data[field].items()}
+                        data[field] = {k: ism['list_to_ui'].join(v) for k, v in data[field].items()}  # ty: ignore[not-subscriptable]
                         if field == 'formats':
-                            data[field] = {k: '[' + v + ']' for k, v in data[field].items()}
+                            data[field] = {k: '[' + v + ']' for k, v in data[field].items()}  # ty: ignore[unsupported-operator]
 
 
-def as_machine_data(book_ids, data, metadata):
+def as_machine_data(book_ids: Iterable[int], data: dict[str, dict[int, object]], metadata: dict[str, dict[str, object]]) -> Iterator[dict[str, object]]:
     for book_id in book_ids:
         ans = {'id': book_id}
         for field, val_map in data.items():
@@ -147,7 +174,9 @@ def as_machine_data(book_ids, data, metadata):
         yield ans
 
 
-def prepare_output_table(fields, book_ids, data, metadata):
+def prepare_output_table(
+    fields: Iterable[str], book_ids: Iterable[int], data: dict[str, dict[int, object]], metadata: dict[str, dict[str, object]]
+) -> list[list[str]]:
     ans = []
     for book_id in book_ids:
         row = []
@@ -162,20 +191,20 @@ def prepare_output_table(fields, book_ids, data, metadata):
 
 
 def do_list(
-    dbctx,
-    fields,
-    afields,
-    sort_by,
-    ascending,
-    search_text,
-    line_width,
-    separator,
-    prefix,
-    limit,
-    template,
-    template_file,
-    template_title,
-    for_machine=False,
+    dbctx: DBCtx,
+    fields: list[str],
+    afields: set[str],
+    sort_by: str | None,
+    ascending: bool,
+    search_text: str | None,
+    line_width: int,
+    separator: str,
+    prefix: str | None,
+    limit: int,
+    template: str | None,
+    template_file: str | None,
+    template_title: str,
+    for_machine: bool = False,
 ) -> None:
     if sort_by is None:
         ascending = True
@@ -187,14 +216,14 @@ def do_list(
                 template = f.read().decode('utf-8')
         if not template:
             raise SystemExit(_('You must provide a template'))
-        ans = dbctx.run('list', fields, sort_by, ascending, search_text, limit, template)
+        ans = cast('str | ListResult', dbctx.run('list', fields, sort_by, ascending, search_text, limit, template))
     else:
-        ans = dbctx.run('list', fields, sort_by, ascending, search_text, limit)
+        ans = cast('str | ListResult', dbctx.run('list', fields, sort_by, ascending, search_text, limit))
     try:
-        book_ids, data, metadata = ans['book_ids'], ans['data'], ans['metadata']
+        book_ids, data, metadata = ans['book_ids'], ans['data'], ans['metadata']  # ty: ignore[invalid-argument-type]
     except TypeError:
         raise SystemExit(ans)
-    fields = list(ans['fields'])
+    fields = list(ans['fields'])  # ty: ignore[invalid-argument-type]
     try:
         fields.remove('id')
     except ValueError:
@@ -271,7 +300,7 @@ def do_list(
                 sys.stdout.write(linesep.decode('utf-8'))
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -359,7 +388,7 @@ List the books available in the calibre database.
     return parser
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     afields = set(FIELDS) | {'id'}
     if opts.fields.strip():
         fields = [str(f.strip().lower()) for f in opts.fields.split(',')]

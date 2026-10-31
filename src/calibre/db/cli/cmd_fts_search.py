@@ -2,15 +2,42 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING, cast
 
 from calibre.db.errors import NoTracebackException
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+    from optparse import Values
+    from typing import TypedDict
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.db.fts.connect import FTSSearchResult
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+    class FTSSearchData(TypedDict):
+        start_marker: str
+        end_marker: str
+        use_stemming: bool
+        include_snippets: bool
+        restrict_to: str | Sequence[int]
+        threshold: float
+
+    class BookInfo(TypedDict):
+        title: str
+        authors: Sequence[str]
+
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, query, adata):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, query: str, adata: FTSSearchData
+) -> tuple[tuple[FTSSearchResult, ...], dict[int, BookInfo]]:
     rto = adata['restrict_to']
     restrict_to = None
     is_remote = notify_changes is not None
@@ -27,17 +54,17 @@ def implementation(db, notify_changes, query, adata):
         else:
             restrict_to = set(rto)
 
-    metadata_cache = {}
+    metadata_cache: dict[int, BookInfo] = {}
     include_snippets = adata['include_snippets']
 
-    def add_metadata(result):
-        result.pop('id', None)
+    def add_metadata(result: FTSSearchResult) -> FTSSearchResult:
+        result.pop('id', None)  # ty: ignore[invalid-argument-type]
         if not include_snippets:
-            result.pop('text', None)
+            result.pop('text', None)  # ty: ignore[invalid-argument-type]
         bid = result['book_id']
         if bid not in metadata_cache:
             with db.safe_read_lock:
-                metadata_cache[bid] = {'title': db._field_for('title', bid), 'authors': db._field_for('authors', bid)}
+                metadata_cache[bid] = {'title': db._field_for('title', bid), 'authors': db._field_for('authors', bid)}  # ty: ignore[invalid-assignment, invalid-argument-type]
         return result
 
     from calibre.db import FTSQueryError
@@ -58,7 +85,7 @@ def implementation(db, notify_changes, query, adata):
         raise
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -116,7 +143,7 @@ Do a full text search on the entire library or a subset of it.
     return parser
 
 
-def output_results_as_text(results, metadata_cache, include_snippets) -> None:
+def output_results_as_text(results: Iterable[FTSSearchResult], metadata_cache: Mapping[int, BookInfo], include_snippets: bool) -> None:
     from calibre.ebooks.metadata import authors_to_string
     from calibre.utils.terminal import geometry
 
@@ -158,7 +185,7 @@ def output_results_as_text(results, metadata_cache, include_snippets) -> None:
         print_result()
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 1:
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the search expression'))
@@ -175,22 +202,25 @@ def main(opts, args, dbctx) -> int:
     from calibre.db import FTSQueryError
 
     try:
-        results, metadata_cache = dbctx.run(
-            'fts_search',
-            search_expression,
-            {
-                'start_marker': opts.match_start_marker,
-                'end_marker': opts.match_end_marker,
-                'use_stemming': opts.use_stemming,
-                'include_snippets': opts.include_snippets,
-                'restrict_to': restrict_to,
-                'threshold': max(0, min(opts.indexing_threshold, 100)) / 100,
-            },
+        results, metadata_cache = cast(
+            'tuple[list[FTSSearchResult], dict[int, BookInfo]]',
+            dbctx.run(
+                'fts_search',
+                search_expression,
+                {
+                    'start_marker': opts.match_start_marker,
+                    'end_marker': opts.match_end_marker,
+                    'use_stemming': opts.use_stemming,
+                    'include_snippets': opts.include_snippets,
+                    'restrict_to': restrict_to,
+                    'threshold': max(0, min(opts.indexing_threshold, 100)) / 100,
+                },
+            ),
         )
         if opts.output_format == 'json':
             for r in results:
                 m = metadata_cache[r['book_id']]
-                r['title'], r['authors'] = m['title'], m['authors']
+                r['title'], r['authors'] = m['title'], m['authors']  # ty: ignore[invalid-key]
             import json
 
             print(json.dumps(results, sort_keys=True, indent='  '))

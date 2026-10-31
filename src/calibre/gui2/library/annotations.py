@@ -1079,7 +1079,7 @@ class Export(Dialog):  # {{{
                     root.add_annot(a)
                 link_prefix = link_prefix_func(book_id, a['format'], a) or None
 
-                lines.append('# ' + db.field_for('title', book_id))
+                lines.append('# ' + db.field_for('title', book_id))  # ty: ignore[unsupported-operator]
                 lines.append('')
                 root.render_as_text(lines, True, link_prefix)
                 lines.append('')
@@ -1096,7 +1096,7 @@ class Export(Dialog):  # {{{
             for book_id, group in bid_groups.items():
                 lp = link_prefix_func(book_id, group[-1]['format'], group[-1]) or None
                 book_title = db.field_for('title', book_id)
-                book_group = root.group_for_title(book_title)
+                book_group = root.group_for_title(book_title)  # ty: ignore[invalid-argument-type]
                 for a in group:
                     book_group.add_annot(dict(a, _link_prefix=lp))
             return root.render_as_html()
@@ -1112,7 +1112,7 @@ class Export(Dialog):  # {{{
                 root.add_annot(a)
             link_prefix = link_prefix_func(book_id, a['format'], a) or None
 
-            lines.append('# ' + db.field_for('title', book_id))
+            lines.append('# ' + db.field_for('title', book_id))  # ty: ignore[unsupported-operator]
             lines.append('')
             root.render_as_text(lines, as_markdown, link_prefix)
             lines.append('')

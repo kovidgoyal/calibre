@@ -993,7 +993,7 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
     fm = db.field_metadata
     sort_key = numeric_sort_key
     get_books_in_group: Callable[[int], set[int]] | Callable[[tuple[int, int]], set[int]] = lambda group: db.books_for_field(field_name, group)  # ruff: ignore[lambda-assignment]
-    get_field_id_map: Callable[[], dict[int | tuple[int, int], str | tuple[int, int] | int]] = lambda: db.get_id_map(field_name)  # ruff: ignore[lambda-assignment]
+    get_field_id_map: Callable[[], dict[int | tuple[int, int], str | tuple[int, int] | int]] = lambda: db.get_id_map(field_name)  # ruff: ignore[lambda-assignment]  # ty: ignore[invalid-assignment]
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
     all_book_ids = frozenset(sort_map)
     ungrouped_name = all_groupings().get(field_name, _('Unknown'))
@@ -1015,7 +1015,7 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
                     return au
 
             sort_key = {au: gas(aid, au) for aid, au in field_id_map.items()}.__getitem__
-            get_field_id_map = lambda: field_id_map  # ruff: ignore[lambda-assignment]
+            get_field_id_map = lambda: field_id_map  # ruff: ignore[lambda-assignment]  # ty: ignore[invalid-assignment]
             del gas
         case 'languages':
             lm = lang_map()
@@ -1044,7 +1044,7 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
     field_id_map = get_field_id_map()
     yield '', len(field_id_map)
     seen = set()
-    for group in sorted(field_id_map, key=lambda fid: sort_key(field_id_map[fid])):
+    for group in sorted(field_id_map, key=lambda fid: sort_key(field_id_map[fid])):  # ty: ignore[invalid-argument-type]
         books_in_group = (get_books_in_group(group) & all_book_ids) - seen  # type: ignore
         if books_in_group:
             seen |= books_in_group
@@ -1083,12 +1083,12 @@ def get_spine_width(
     match spine_size_template:
         case '{pages}' | 'pages':
             pages = db.field_for('pages', book_id, 0)
-            if pages > 0:
-                ans = linear(width_from_pages(pages))
+            if pages > 0:  # ty: ignore[unsupported-operator]
+                ans = linear(width_from_pages(pages))  # ty: ignore[invalid-argument-type]
             else:
-                ans = linear(width_from_size(db.field_for('size', book_id, 0)))
+                ans = linear(width_from_size(db.field_for('size', book_id, 0)))  # ty: ignore[invalid-argument-type]
         case '{size}' | 'size':
-            ans = linear(width_from_size(db.field_for('size', book_id, 0)))
+            ans = linear(width_from_size(db.field_for('size', book_id, 0)))  # ty: ignore[invalid-argument-type]
         case '{random}' | 'random':
             # range: 0.25-0.75
             ans = linear((25 + (random_from_id(book_id, limit=51))) / 100)
@@ -1101,7 +1101,7 @@ def get_spine_width(
             if ans < 0:
                 with suppress(Exception):
                     mi = db.get_proxy_metadata(book_id)
-                    rslt = mi.formatter.safe_format(spine_size_template, mi, 'template error', mi, template_cache=template_cache)
+                    rslt = mi.formatter.safe_format(spine_size_template, mi, 'template error', mi, template_cache=template_cache)  # ty: ignore[invalid-argument-type]
                     ans = linear(float(rslt))
     if ans <= 0:
         ans = lc.default_spine_width
@@ -1730,13 +1730,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return ''
         match template:
             case '{title}':
-                return db.field_for('title', book_id)
+                return db.field_for('title', book_id)  # ty: ignore[invalid-return-type]
             case '{author_sort}':
-                return db.field_for('author_sort', book_id)
+                return db.field_for('author_sort', book_id)  # ty: ignore[invalid-return-type]
             case '{author}' | '{authors}':
                 return authors_to_string(db.field_for('authors', book_id))
             case '{sort}' | '{title_sort}':
-                return db.field_for('sort', book_id)
+                return db.field_for('sort', book_id)  # ty: ignore[invalid-return-type]
         mi = db.get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(template, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=m.bookshelf_template_cache)
         return rslt or ''

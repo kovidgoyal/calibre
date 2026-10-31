@@ -391,7 +391,7 @@ class EmailMixin:  # {{{
             for to, (ids, nooutput) in bad_recipients.items():
                 msg = _('This recipient has no valid formats defined') if nooutput else _('These books have no suitable input formats for conversion')
                 det_msg.append(f'{to} - {msg}')
-                det_msg.extend('\t' + titles[bid] for bid in ids)
+                det_msg.extend('\t' + titles[bid] for bid in ids)  # ty: ignore[unsupported-operator]
                 det_msg.append('\n')
             warning_dialog(
                 self,

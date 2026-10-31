@@ -624,7 +624,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     continue
                 k = parts[:1]
                 v = parts[1:]
-                if keyq and not _match(keyq, k, keyq_mkind, use_primary_find_in_search=pref_use_primary_find_in_search):
+                if keyq and not _match(keyq, k, keyq_mkind, use_primary_find_in_search=pref_use_primary_find_in_search):  # ty: ignore[invalid-argument-type]
                     continue
                 if valq:
                     if valq == 'true':

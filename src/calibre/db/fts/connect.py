@@ -8,6 +8,7 @@ import sys
 from contextlib import suppress
 from itertools import count
 from threading import Lock
+from typing import TYPE_CHECKING
 
 import apsw
 
@@ -18,20 +19,40 @@ from calibre.utils.date import EPOCH, utcnow
 from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Generator
+    from typing import TextIO, TypedDict, Unpack
+    from weakref import ref
 
-def print(*args, **kwargs) -> None:
+    from calibre.db.backend import Connection
+    from calibre.db.cache import Cache
+
+    class PrintKwargs(TypedDict, total=False):
+        sep: str | None
+        end: str | None
+        file: TextIO | None
+        flush: bool
+
+    class FTSSearchResult(TypedDict):
+        id: int
+        book_id: int
+        format: str
+        text: str
+
+
+def print(*args: object, **kwargs: Unpack[PrintKwargs]) -> None:
     kwargs['file'] = sys.__stdout__
     builtins.print(*args, **kwargs)
 
 
 class FTS:
-    def __init__(self, dbref) -> None:
+    def __init__(self, dbref: ref[Cache]) -> None:
         self.dbref = dbref
         self.pool = Pool(dbref)
         self.init_lock = Lock()
         self.temp_table_counter = count()
 
-    def initialize(self, conn) -> None:
+    def initialize(self, conn: Connection) -> None:
         needs_dirty = False
         with self.init_lock:
             if conn.fts_dbpath is None:
@@ -49,7 +70,7 @@ class FTS:
         if needs_dirty:
             self.dirty_existing()
 
-    def get_connection(self):
+    def get_connection(self) -> Connection:
         db = self.dbref()
         if db is None:
             raise RuntimeError('db has been garbage collected')
@@ -64,13 +85,13 @@ class FTS:
             SELECT book, format FROM main.data;
         ''')
 
-    def number_dirtied(self):
+    def number_dirtied(self) -> int:
         conn = self.get_connection()
-        return conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]
+        return conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]  # ty: ignore[invalid-return-type]
 
-    def all_currently_dirty(self):
+    def all_currently_dirty(self) -> list[tuple[int, str]]:
         conn = self.get_connection()
-        return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)
+        return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)  # ty: ignore[invalid-return-type]
 
     def clear_all_dirty(self) -> None:
         conn = self.get_connection()
@@ -80,23 +101,23 @@ class FTS:
         conn = self.get_connection()
         conn.execute('VACUUM fts_db')
 
-    def remove_dirty(self, book_id, fmt) -> None:
+    def remove_dirty(self, book_id: int, fmt: str) -> None:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt.upper()))
 
-    def dirty_book(self, book_id, *fmts) -> None:
+    def dirty_book(self, book_id: int, *fmts: str) -> None:
         conn = self.get_connection()
         for fmt in fmts:
             conn.execute('INSERT OR IGNORE INTO fts_db.dirtied_formats (book, format) VALUES (?, ?)', (book_id, fmt.upper()))
 
-    def unindex(self, book_id, fmt=None) -> None:
+    def unindex(self, book_id: int, fmt: str | None = None) -> None:
         conn = self.get_connection()
         if fmt is None:
             conn.execute('DELETE FROM books_text WHERE book=?', (book_id,))
         else:
             conn.execute('DELETE FROM books_text WHERE book=? AND format=?', (book_id, fmt.upper()))
 
-    def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash='', err_msg='') -> None:
+    def add_text(self, book_id: int, fmt: str, text: str, text_hash: str = '', fmt_size: int = 0, fmt_hash: str = '', err_msg: str = '') -> None:
         conn = self.get_connection()
         ts = (utcnow() - EPOCH).total_seconds()
         fmt = fmt.upper()
@@ -115,13 +136,13 @@ class FTS:
         else:
             conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt))
 
-    def get_next_fts_job(self):
+    def get_next_fts_job(self) -> tuple[int, str] | tuple[None, None]:
         conn = self.get_connection()
         for book_id, fmt in conn.get('SELECT book,format FROM fts_db.dirtied_formats WHERE in_progress=FALSE ORDER BY id'):
-            return book_id, fmt
+            return book_id, fmt  # ty: ignore[invalid-return-type]
         return None, None
 
-    def commit_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg='') -> None:
+    def commit_result(self, book_id: int, fmt: str, fmt_size: int, fmt_hash: str, text: str, err_msg: str = '') -> None:
         conn = self.get_connection()
         text_hash = ''
         if text:
@@ -131,7 +152,7 @@ class FTS:
                 break
         self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash, err_msg)
 
-    def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time) -> bool:
+    def queue_job(self, book_id: int, fmt: str, path: str, fmt_size: int, fmt_hash: str, start_time: float) -> bool:
         conn = self.get_connection()
         fmt = fmt.upper()
         for x in conn.get(
@@ -150,20 +171,20 @@ class FTS:
 
     def search(
         self,
-        fts_engine_query,
-        use_stemming,
-        highlight_start,
-        highlight_end,
-        snippet_size,
-        restrict_to_book_ids,
-        return_text=True,
-        process_each_result=None,
-    ):
+        fts_engine_query: str,
+        use_stemming: bool,
+        highlight_start: str | None,
+        highlight_end: str | None,
+        snippet_size: int | None,
+        restrict_to_book_ids: Collection[int] | None,
+        return_text: bool = True,
+        process_each_result: Callable[[FTSSearchResult], FTSSearchResult] | None = None,
+    ) -> Generator[FTSSearchResult, bool | None]:
         if restrict_to_book_ids is not None and not restrict_to_book_ids:
             return
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'books_fts' + ('_stemmed' if use_stemming else '')
-        data = []
+        data: list[str] = []
         if return_text:
             text = 'books_text.searchable_text'
             if highlight_start is not None and highlight_end is not None:
@@ -197,7 +218,7 @@ class FTS:
             query += f'; DROP TABLE temp.{temp_table_name}'
         try:
             for record in conn.execute(query, tuple(data)):
-                result = {
+                result: FTSSearchResult = {
                     'id': record[0],
                     'book_id': record[1],
                     'format': record[2],

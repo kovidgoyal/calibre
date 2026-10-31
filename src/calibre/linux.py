@@ -534,7 +534,7 @@ _ebook_edit() {{
         for command in COMMANDS:
             p = option_parser_for(command)()
             parsers[command] = p
-            lines = [x.strip().partition('.')[0] for x in p.usage.splitlines() if x.strip() and not x.strip().startswith('%prog')]
+            lines = [x.strip().partition('.')[0] for x in p.usage.splitlines() if x.strip() and not x.strip().startswith('%prog')]  # ty: ignore[unresolved-attribute]
             descs[command] = lines[0]
 
         w = polyglot_write(f)

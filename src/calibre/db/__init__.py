@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Container, Sequence
+
+    from calibre.db.legacy import LibraryDatabase
 
 SPOOL_SIZE = 30 * 1024 * 1024
 
@@ -9,13 +16,13 @@ import numbers
 
 
 class FTSQueryError(ValueError):
-    def __init__(self, query, sql_statement, apsw_error) -> None:
+    def __init__(self, query: str, sql_statement: str, apsw_error: Exception) -> None:
         ValueError.__init__(self, f'Failed to parse search query: {query} with error: {apsw_error}')
         self.query = query
         self.sql_statement = sql_statement
 
 
-def _get_next_series_num_for_list(series_indices, unwrap=True):
+def _get_next_series_num_for_list(series_indices: Sequence[float] | Sequence[Sequence[float]], unwrap: bool = True) -> float:
     from math import ceil, floor
 
     from calibre.utils.config_base import tweaks
@@ -25,7 +32,8 @@ def _get_next_series_num_for_list(series_indices, unwrap=True):
             return float(tweaks['series_index_auto_increment'])
         return 1.0
     if unwrap:
-        series_indices = [x[0] for x in series_indices]
+        series_indices = [x[0] for x in cast('Sequence[Sequence[float]]', series_indices)]
+    series_indices = cast('Sequence[float]', series_indices)
     if tweaks['series_index_auto_increment'] == 'next':
         return floor(series_indices[-1]) + 1
     if tweaks['series_index_auto_increment'] == 'first_free':
@@ -48,7 +56,7 @@ def _get_next_series_num_for_list(series_indices, unwrap=True):
     return 1.0
 
 
-def _get_series_values(val):
+def _get_series_values(val: str) -> tuple[str, float | None]:
     import re
 
     series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
@@ -65,7 +73,13 @@ def _get_series_values(val):
     return val, None
 
 
-def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, convert_to_local_tz=True):
+def get_data_as_dict(
+    self: LibraryDatabase,
+    prefix: str | None = None,
+    authors_as_string: bool = False,
+    ids: Container[object] | None = None,
+    convert_to_local_tz: bool = True,
+) -> list[dict[str | int, object]]:
     """
     Return all metadata stored in the database as a dict. Includes paths to
     the cover and each format.
@@ -128,18 +142,18 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
         x['isbn'] = isbn or ''
         if not x['authors']:
             x['authors'] = _('Unknown')
-        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
+        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]  # ty: ignore[unresolved-attribute]
         if authors_as_string:
             x['authors'] = authors_to_string(x['authors'])
-        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
-        path = os.path.join(prefix, self.path(record[self.FIELD_MAP['id']], index_is_id=True))
+        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []  # ty: ignore[unresolved-attribute]
+        path = os.path.join(prefix, self.path(record[self.FIELD_MAP['id']], index_is_id=True))  # ty: ignore[invalid-argument-type]
         x['cover'] = os.path.join(path, 'cover.jpg')
         if not record[self.FIELD_MAP['cover']]:
             x['cover'] = None
-        formats = self.formats(record[self.FIELD_MAP['id']], index_is_id=True)
+        formats = self.formats(record[self.FIELD_MAP['id']], index_is_id=True)  # ty: ignore[invalid-argument-type]
         if formats:
             for fmt in formats.split(','):
-                path = self.format_abspath(x['id'], fmt, index_is_id=True)
+                path = self.format_abspath(x['id'], fmt, index_is_id=True)  # ty: ignore[invalid-argument-type]
                 if path is None:
                     continue
                 if prefix != self.library_path:

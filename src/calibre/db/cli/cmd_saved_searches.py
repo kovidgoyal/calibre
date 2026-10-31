@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from calibre.db.cli.utils import args_to_action
 from calibre.utils.localization import _
 
@@ -12,8 +14,17 @@ ACTION_DEFAULT = 'list'
 from calibre import prints
 from calibre.srv.changes import saved_searches
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
 
-def check_no_templates(db, query: str) -> None:
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+
+def check_no_templates(db: Cache, query: str) -> None:
     from calibre.utils.search_query_parser import ParseException
 
     try:
@@ -28,13 +39,13 @@ def check_no_templates(db, query: str) -> None:
         raise e
 
 
-def implementation(db, notify_changes, action, *args):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, *args: object) -> dict[str, str | None] | None:
     if action == 'list':
         with db.safe_read_lock:
             names = db.saved_search_names()
             return {n: db.saved_search_lookup(n) for n in names}
     if action == 'add':
-        name, val = args
+        name, val = cast('tuple[str, str]', args)
         if notify_changes is not None:
             # Saved searches are used in Virtual libraries and restrictions, which are evaluated with
             # templates allowed, so remote clients must not be able to store templates in them
@@ -44,14 +55,14 @@ def implementation(db, notify_changes, action, *args):
             notify_changes(saved_searches(added=(name,)))
         return
     if action == 'remove':
-        name = args[0]
+        name = cast('str', args[0])
         db.saved_search_delete(name)
         if notify_changes is not None:
             notify_changes(saved_searches(removed=(name,)))
         return
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -78,10 +89,10 @@ Syntax for removing:
     return parser
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action == 'list':
-        for name, value in dbctx.run('saved_searches', 'list').items():
+        for name, value in cast('dict[str, str | None]', dbctx.run('saved_searches', 'list')).items():
             prints(_('Name:'), name)
             prints(_('Search string:'), value)
             print()

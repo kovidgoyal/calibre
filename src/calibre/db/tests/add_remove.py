@@ -3,11 +3,12 @@
 
 import glob
 import os
+from collections.abc import Callable
 from contextlib import suppress
 from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import Never
+from typing import TYPE_CHECKING, Never
 
 from calibre.db.constants import METADATA_FILE_NAME
 from calibre.db.tests.base import IMG, BaseTest
@@ -16,9 +17,14 @@ from calibre.utils.date import UNDEFINED_DATE, now, utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.resources import get_image_path
 
+if TYPE_CHECKING:
+    from apsw import Cursor
 
-def import_test(replacement_data, replacement_fmt=None):
-    def func(path, fmt):
+    from calibre.db.cache import Cache
+
+
+def import_test(replacement_data: bytes, replacement_fmt: str | None = None) -> Callable[[str, str], str]:
+    def func(path: str, fmt: str) -> str:
         if not path.endswith('.' + fmt.lower()):
             raise AssertionError('path extension does not match format')
         ext = (replacement_fmt or fmt).lower()
@@ -109,7 +115,7 @@ class AddRemoveTest(BaseTest):
         from calibre.constants import iswindows
 
         class FailingStream(BytesIO):
-            def read(self, size=-1):
+            def read(self, size: int | None = -1) -> bytes:
                 ans = super().read(4)
                 if not ans:
                     raise OSError('simulated read failure')
@@ -122,7 +128,7 @@ class AddRemoveTest(BaseTest):
         if not iswindows:
             os.chmod(path, 0o640)
 
-        def leftover_temp_files():
+        def leftover_temp_files() -> list[str]:
             return [x for x in os.listdir(book_dir) if x.startswith('.calibre-format-')]
 
         # Replacing an existing format
@@ -161,7 +167,7 @@ class AddRemoveTest(BaseTest):
         from calibre.constants import iswindows
 
         class FailingStream(BytesIO):
-            def read(self, size=-1):
+            def read(self, size: int | None = -1) -> bytes:
                 ans = super().read(4)
                 if not ans:
                     raise OSError('simulated read failure')
@@ -174,10 +180,10 @@ class AddRemoveTest(BaseTest):
         if not iswindows:
             os.chmod(path, 0o640)
 
-        def listing():
+        def listing() -> list[str]:
             return sorted(os.path.relpath(os.path.join(r, f), book_dir) for r, _, files in os.walk(book_dir) for f in files)
 
-        def read(path):
+        def read(path: str) -> bytes:
             with open(path, 'rb') as f:
                 return f.read()
 
@@ -224,10 +230,10 @@ class AddRemoveTest(BaseTest):
 
         cache = self.init_cache()
 
-        def shown():
+        def shown() -> set[tuple[str, int]]:
             return {(t.original_name or t.name, t.count) for t in cache.get_categories()['formats']}
 
-        def check(label) -> None:
+        def check(label: str) -> None:
             cached = shown()
             # Throw the cache away and compute the category again, which is what
             # the cached value must have agreed with
@@ -266,7 +272,7 @@ class AddRemoveTest(BaseTest):
         table = cache.fields['size'].table
         orig = table.update_sizes
 
-        def raise_error(size_map) -> Never:
+        def raise_error(size_map: dict[int, int]) -> Never:
             raise RuntimeError('simulated failure after the formats table changed')
 
         table.update_sizes = raise_error
@@ -283,7 +289,7 @@ class AddRemoveTest(BaseTest):
 
         orig_execute = cache.backend.execute
 
-        def failing_execute(sql, *args, **kw):
+        def failing_execute(sql: str, *args: object, **kw: object) -> Cursor:
             if sql.startswith('INSERT OR REPLACE INTO data'):
                 raise RuntimeError('simulated failure while updating the formats table')
             return orig_execute(sql, *args, **kw)
@@ -301,10 +307,10 @@ class AddRemoveTest(BaseTest):
         cache = self.init_cache()
         cc = cache.categories_cache
 
-        def all_shown():
+        def all_shown() -> dict[str, list[tuple[str, int]]]:
             return {k: [(t.original_name or t.name, t.count) for t in v] for k, v in cache.get_categories().items()}
 
-        def check(label) -> None:
+        def check(label: str) -> None:
             cached = all_shown()
             cache.categories_cache.invalidate_all()
             self.assertEqual(all_shown(), cached, f'the cached categories are stale after {label}')
@@ -410,7 +416,7 @@ class AddRemoveTest(BaseTest):
         book_id = cache.create_book_entry(mi)
         self.assertIsNot(book_id, None)
 
-        def do_test(cache, book_id) -> None:
+        def do_test(cache: Cache, book_id: int) -> None:
             for field in (
                 'path',
                 'uuid',
@@ -481,7 +487,7 @@ class AddRemoveTest(BaseTest):
         resynced = []
         orig = cache._read_books_table_fields
 
-        def read_books_table_fields(book_id):
+        def read_books_table_fields(book_id: int) -> bool:
             resynced.append(orig(book_id))
             return resynced[-1]
 
@@ -667,7 +673,7 @@ class AddRemoveTest(BaseTest):
         from calibre.db.errors import BooksNotRemoved
         from calibre.utils.copy_files import SourceDeletionFailed, copy_tree
 
-        def trash_dir(cache, book_id):
+        def trash_dir(cache: Cache, book_id: int) -> str:
             return os.path.join(cache.backend.trash_dir, 'b', str(book_id))
 
         # Copying into the trash fails: the book must be unchanged and no
@@ -677,7 +683,7 @@ class AddRemoveTest(BaseTest):
         fmtdata = cache.format(1, 'FMT1')
         bookdir = os.path.dirname(fmtpath)
 
-        def failing_copy(src, dest, delete_source=False):
+        def failing_copy(src: str, dest: str, delete_source: bool = False) -> None:
             if os.path.samefile(src, bookdir):
                 os.makedirs(dest, exist_ok=True)
                 open(os.path.join(dest, 'partial'), 'wb').close()
@@ -706,7 +712,7 @@ class AddRemoveTest(BaseTest):
         cache = self.init_cache(self.cloned_library)
         bookdir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
 
-        def failing_delete(src, dest, delete_source=False) -> None:
+        def failing_delete(src: str, dest: str, delete_source: bool = False) -> None:
             copy_tree(src, dest)
             if os.path.samefile(src, bookdir):
                 raise SourceDeletionFailed('simulated delete failure')
@@ -767,7 +773,7 @@ class AddRemoveTest(BaseTest):
         at(db.save_original_format(1, 'FMT1'))
         db.add_format(1, 'FMT1', BytesIO(b'replacedfmt'))
 
-        def fail(*a) -> Never:
+        def fail(*a: object) -> Never:
             raise OSError('simulated rename failure')
 
         db.backend.rename_format_file = fail
@@ -804,11 +810,11 @@ class AddRemoveTest(BaseTest):
         src_db = self.init_cache()
         dest_db = self.init_cache(self.cloned_library)
 
-        def read(x, mode='r'):
+        def read(x: str, mode: str = 'r') -> str | bytes:
             with open(x, mode) as f:
                 return f.read()
 
-        def a(**kw):
+        def a(**kw: object) -> tuple[dict[str, object], float]:
             ts = utcnow()
             kw['timestamp'] = utcnow().isoformat()
             return kw, (ts - EPOCH).total_seconds()
@@ -826,7 +832,7 @@ class AddRemoveTest(BaseTest):
         with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
             f.write('recurse')
 
-        def make_rdata(book_id=1, new_book_id=None, action='add'):
+        def make_rdata(book_id: int = 1, new_book_id: int | None = None, action: str = 'add') -> dict[str, object]:
             return {
                 'title': src_db.field_for('title', book_id),
                 'authors': list(src_db.field_for('authors', book_id)),
@@ -836,20 +842,20 @@ class AddRemoveTest(BaseTest):
                 'action': action,
             }
 
-        def compare_field(field, func=self.assertEqual) -> None:
+        def compare_field(field: str, func: Callable[[object, object], None] = self.assertEqual) -> None:
             func(src_db.field_for(field, rdata['book_id']), dest_db.field_for(field, rdata['new_book_id']))
 
-        def assert_has_extra_files(book_id) -> None:
+        def assert_has_extra_files(book_id: int) -> None:
             bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
             self.assertEqual('exf', read(os.path.join(bookdir, 'exf')))
             self.assertEqual('recurse', read(os.path.join(bookdir, 'sub', 'recurse')))
 
-        def assert_does_not_have_extra_files(book_id) -> None:
+        def assert_does_not_have_extra_files(book_id: int) -> None:
             bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
             self.assertFalse(os.path.exists(os.path.join(bookdir, 'exf')))
             self.assertFalse(os.path.exists(os.path.join(bookdir, 'sub', 'recurse')))
 
-        def clear_extra_files(book_id) -> None:
+        def clear_extra_files(book_id: int) -> None:
             for ef in dest_db.list_extra_files(book_id):
                 os.remove(ef.file_path)
 
@@ -957,10 +963,11 @@ class AddRemoveTest(BaseTest):
     def test_merging_extra_files(self) -> None:  # {{{
         db = self.init_cache()
 
-        def add_extra(book_id, relpath) -> None:
+        def add_extra(book_id: int, relpath: str) -> None:
             db.add_extra_files(book_id, {relpath: BytesIO(f'{book_id}:{relpath}'.encode())})
 
-        def extra_files_for(book_id):
+        def extra_files_for(book_id: int) -> dict[str, str]:
+
             ans = {}
             for ef in db.list_extra_files(book_id):
                 with open(ef.file_path) as f:

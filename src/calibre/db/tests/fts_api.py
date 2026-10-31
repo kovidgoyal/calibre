@@ -7,14 +7,21 @@ import shutil
 import sys
 import time
 from io import BytesIO, StringIO
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 from zipfile import ZipFile
 
 from calibre.db.fts.text import html_to_text
 from calibre.db.tests.base import BaseTest
 
+if TYPE_CHECKING:
+    import unittest
 
-def print(*args, **kwargs) -> None:
+    from calibre.db.cache import Cache
+    from calibre.db.fts.connect import FTS
+
+
+def print(*args: object, **kwargs: object) -> None:
     kwargs['file'] = sys.__stdout__
     builtins.print(*args, **kwargs)
 
@@ -41,7 +48,7 @@ class FTSAPITest(BaseTest):
         Cache.fts_indexing_sleep_time = self.orig_sleep_time
         set_ui_language('en')
 
-    def new_library(self):
+    def new_library(self) -> Cache:
         if os.path.exists(self.library_path):
             try:
                 shutil.rmtree(self.library_path)
@@ -54,13 +61,13 @@ class FTSAPITest(BaseTest):
         self.libraries_to_close.append(ans)
         return ans
 
-    def wait_for_fts_to_finish(self, fts, timeout=30) -> None:
+    def wait_for_fts_to_finish(self, fts: FTS, timeout: float = 30) -> None:
         import apsw
 
         if fts.pool.initialized:
             st = time.monotonic()
 
-            def all_currently_dirty():
+            def all_currently_dirty() -> list[tuple[int, str]] | bool:
                 try:
                     return fts.all_currently_dirty()
                 except apsw.ThreadingViolationError:
@@ -69,10 +76,10 @@ class FTSAPITest(BaseTest):
             while all_currently_dirty() and time.monotonic() - st < timeout:
                 fts.pool.supervisor_thread.join(0.01)
 
-    def text_records(self, fts):
+    def text_records(self, fts: FTS) -> tuple[dict[str, object], ...]:
         return fts.get_connection().get_dict('SELECT * FROM fts_db.books_text')
 
-    def make_txtz(self, txt, **extra):
+    def make_txtz(self, txt: bytes, **extra: str | bytes) -> BytesIO:
         buf = BytesIO()
         with ZipFile(buf, mode='w') as zf:
             zf.writestr('index.txt', txt)
@@ -89,10 +96,10 @@ class FTSAPITest(BaseTest):
         cache.add_format(1, 'TXT', BytesIO(b'a test text'))
         self.wait_for_fts_to_finish(fts)
 
-        def q(rec, **kw) -> None:
+        def q(rec: dict[str, object], **kw: object) -> None:
             self.ae({x: rec[x] for x in kw}, kw)
 
-        def check(**kw) -> None:
+        def check(**kw: object) -> None:
             tr = self.text_records(fts)
             self.ae(len(tr), 1)
             q(tr[0], **kw)
@@ -232,7 +239,8 @@ class FTSAPITest(BaseTest):
         self.ae(tuple(html_to_text(root)), ('first_para\n\nsecond_para\n\nsome italic text\n\nnested\n\nblocks',))
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
+
     import unittest
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(FTSAPITest)

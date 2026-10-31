@@ -542,8 +542,8 @@ class SearchRestrictionMixin:
                 self.search_based_vl_name = self._trim_restriction_name('*' + txt)
                 db.data.set_base_restriction_name(self.search_based_vl_name)
         elif library == self.search_based_vl_name:
-            db.data.set_base_restriction(self.search_based_vl)
-            db.data.set_base_restriction_name(self.search_based_vl_name)
+            db.data.set_base_restriction(self.search_based_vl)  # ty: ignore[invalid-argument-type]
+            db.data.set_base_restriction_name(self.search_based_vl_name)  # ty: ignore[invalid-argument-type]
         elif library in virt_libs:
             db.data.set_base_restriction(virt_libs[library])
             db.data.set_base_restriction_name(library)

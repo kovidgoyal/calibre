@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from calibre.db.backend import Connection
 
 
 class SchemaUpgrade:
-    def __init__(self, conn, triggers_sql) -> None:
-        self.conn = conn
+    def __init__(self, conn: Connection, triggers_sql: str) -> None:
+        self.conn: Connection | None = conn
         conn.execute('BEGIN EXCLUSIVE TRANSACTION')
         try:
             if self.user_version == 0:
@@ -29,11 +34,11 @@ class SchemaUpgrade:
         self.conn = None
 
     @property
-    def user_version(self):
+    def user_version(self) -> int:
         assert self.conn is not None
-        return self.conn.get('PRAGMA notes_db.user_version', all=False) or 0
+        return self.conn.get('PRAGMA notes_db.user_version', all=False) or 0  # ty: ignore[invalid-return-type]
 
     @user_version.setter
-    def user_version(self, val) -> None:
+    def user_version(self, val: int) -> None:
         assert self.conn is not None
         self.conn.execute(f'PRAGMA notes_db.user_version={val}')

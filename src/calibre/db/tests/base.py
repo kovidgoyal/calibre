@@ -6,11 +6,19 @@ import os
 import shutil
 import tempfile
 import unittest
+from collections.abc import Container
 from functools import partial
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from calibre.constants import iswindows
 from calibre.utils.resources import get_image_path as I
+
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.database2 import LibraryDatabase2
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
@@ -52,7 +60,7 @@ class BaseTest(unittest.TestCase):
                     time.sleep(1)
                     shutil.rmtree(x)
 
-    def create_db(self, library_path):
+    def create_db(self, library_path: str) -> str:
         from calibre.library.database2 import LibraryDatabase2
 
         if LibraryDatabase2.exists_at(library_path):
@@ -69,7 +77,7 @@ class BaseTest(unittest.TestCase):
         db.conn.close()
         return dest
 
-    def init_cache(self, library_path=None):
+    def init_cache(self, library_path: str | None = None) -> Cache:
         from calibre.db.backend import DB
         from calibre.db.cache import Cache
 
@@ -79,26 +87,26 @@ class BaseTest(unittest.TestCase):
         self.objects_to_close.append(cache)
         return cache
 
-    def mkdtemp(self):
+    def mkdtemp(self) -> str:
         ans = tempfile.mkdtemp(prefix='db_test_')
         self.paths_to_remove.append(ans)
         return ans
 
-    def init_old(self, library_path=None):
+    def init_old(self, library_path: str | None = None) -> LibraryDatabase2:
         from calibre.library.database2 import LibraryDatabase2
 
         ans = LibraryDatabase2(library_path or self.library_path)
         self.objects_to_close.append(ans)
         return ans
 
-    def init_legacy(self, library_path=None):
+    def init_legacy(self, library_path: str | None = None) -> LibraryDatabase:
         from calibre.db.legacy import LibraryDatabase
 
         ans = LibraryDatabase(library_path or self.library_path)
         self.objects_to_close.append(ans)
         return ans
 
-    def clone_library(self, library_path):
+    def clone_library(self, library_path: str) -> str:
         if not hasattr(self, 'clone_dir'):
             self.clone_dir = tempfile.mkdtemp()
             self.paths_to_remove.append(self.clone_dir)
@@ -109,10 +117,10 @@ class BaseTest(unittest.TestCase):
         return dest
 
     @property
-    def cloned_library(self):
+    def cloned_library(self) -> str:
         return self.clone_library(self.library_path)
 
-    def compare_metadata(self, mi1, mi2, exclude=()) -> None:
+    def compare_metadata(self, mi1: Metadata, mi2: Metadata, exclude: Container[str] = ()) -> None:
         allfk1 = mi1.all_field_keys()
         allfk2 = mi2.all_field_keys()
         self.assertEqual(allfk1, allfk2)

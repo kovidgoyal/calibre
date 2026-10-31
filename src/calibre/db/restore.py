@@ -11,7 +11,7 @@ from collections.abc import Callable
 from contextlib import closing, suppress
 from operator import itemgetter
 from threading import Thread
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, iswindows
@@ -23,10 +23,26 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import utcfromtimestamp
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from datetime import datetime
+    from typing import TypedDict
+
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    class RestoreBook(TypedDict):
+        mi: Metadata
+        timestamp: float
+        formats: list[tuple[str, int, str]]
+        id: int
+        dirpath: str
+        path: str
+        annotations: tuple[dict, ...]
+
+
 NON_EBOOK_EXTENSIONS = frozenset(('jpg', 'jpeg', 'gif', 'png', 'bmp', 'opf', 'swp', 'swo'))
 
 
-def read_opf(dirpath, read_annotations=True):
+def read_opf(dirpath: str, read_annotations: bool = True) -> tuple[Metadata, float, tuple[dict, ...]]:
     opf = os.path.join(dirpath, METADATA_FILE_NAME)
     parsed_opf = OPF(opf, basedir=dirpath)
     mi = parsed_opf.to_book_metadata()
@@ -35,7 +51,7 @@ def read_opf(dirpath, read_annotations=True):
     return mi, timestamp, annotations
 
 
-def is_ebook_file(filename) -> bool:
+def is_ebook_file(filename: str) -> bool:
     ext = os.path.splitext(filename)[1]
     if not ext:
         return False
@@ -47,7 +63,13 @@ def is_ebook_file(filename) -> bool:
 
 
 class Restorer(Cache):
-    def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y: True) -> None:
+    def __init__(
+        self,
+        library_path: str,
+        default_prefs: dict[str, object] | None = None,
+        restore_all_prefs: bool = False,
+        progress_callback: Callable[[str | None, int], object] = lambda x, y: True,
+    ) -> None:
         backend = DB(
             library_path,
             default_prefs=default_prefs,
@@ -60,35 +82,35 @@ class Restorer(Cache):
             setattr(self, '_' + x, self.no_op)
         self.init()
 
-    def no_op(self, *args, **kwargs) -> None:
+    def no_op(self, *args: object, **kwargs: object) -> None:
         pass
 
 
 class Restore(Thread):
-    def __init__(self, library_path, progress_callback: Callable[..., Any] | None = None) -> None:
+    def __init__(self, library_path: str | bytes, progress_callback: Callable[..., Any] | None = None) -> None:
         super().__init__()
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
         self.progress_callback: Callable[..., Any] = progress_callback if callable(progress_callback) else (lambda x, y: x)
-        self.dirs = []
-        self.failed_dirs = []
-        self.books = []
+        self.dirs: list[tuple[str, list[str], list[str], str]] = []
+        self.failed_dirs: list[tuple[str, str]] = []
+        self.books: list[RestoreBook] = []
         self.conflicting_custom_cols = {}
-        self.failed_restores = []
-        self.mismatched_dirs = []
-        self.notes_errors = []
+        self.failed_restores: list[tuple[RestoreBook, str]] = []
+        self.mismatched_dirs: list[str] = []
+        self.notes_errors: list[str] = []
         self.successes = 0
-        self.tb = None
-        self.link_maps = {}
+        self.tb: str | None = None
+        self.link_maps: dict[str, dict[str, tuple[str, datetime]]] = {}
 
     @property
-    def errors_occurred(self):
+    def errors_occurred(self) -> list[tuple[str, str]] | list[str] | dict[str, list[list[object]]] | list[tuple[RestoreBook, str]]:
         return self.failed_dirs or self.mismatched_dirs or self.conflicting_custom_cols or self.failed_restores or self.notes_errors
 
     @property
-    def report(self):
+    def report(self) -> str:
         ans = ''
         failures = list(self.failed_dirs) + [(x['dirpath'], tb) for x, tb in self.failed_restores]
         if failures:
@@ -196,16 +218,16 @@ class Restore(Thread):
                 traceback.print_exc()
             self.progress_callback(_('Processed') + ' ' + dirpath, i + 1)
 
-    def process_dir(self, dirpath, dirnames, filenames, book_id) -> None:
+    def process_dir(self, dirpath: str, dirnames: list[str], filenames: list[str], book_id: str | int) -> None:
         book_id = int(book_id)
 
-        def safe_mtime(path):
+        def safe_mtime(path: str) -> float:
             with suppress(OSError):
                 return os.path.getmtime(path)
             return sys.maxsize
 
         filenames.sort(key=lambda f: safe_mtime(os.path.join(dirpath, f)))
-        fmt_map = {}
+        fmt_map: dict[str, str] = {}
         fmts, formats, sizes, names = [], [], [], []
         for x in filenames:
             if is_ebook_file(x):
@@ -268,7 +290,7 @@ class Restore(Thread):
         self.progress_callback(None, len(self.custom_columns))
         if len(self.custom_columns):
             for i, args in enumerate(self.custom_columns.values()):
-                db.create_custom_column(*args)
+                db.create_custom_column(*args)  # ty: ignore[invalid-argument-type]
                 self.progress_callback(_('Creating custom column ') + str(args[0]), i + 1)
         db.close()
 

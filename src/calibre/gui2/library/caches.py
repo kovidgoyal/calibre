@@ -366,7 +366,7 @@ class ThumbnailRenderer(QObject):
             self.disk_cache.invalidate((book_id,))
             self.request_render(book_id)
         else:
-            img = self.unserialize_thumbnail(book_id, thumbnail_as_bytes)
+            img = self.unserialize_thumbnail(book_id, thumbnail_as_bytes)  # ty: ignore[invalid-argument-type]
             if img.isNull():  # failed to unserialize, re-render
                 self.disk_cache.invalidate((book_id,))
                 self.request_render(book_id)

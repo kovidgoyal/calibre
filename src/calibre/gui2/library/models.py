@@ -481,7 +481,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     def start_metadata_backup(self):
         from calibre.db.backup import MetadataBackup
 
-        self.metadata_backup = MetadataBackup(self.db)
+        self.metadata_backup = MetadataBackup(self.db)  # ty: ignore[invalid-argument-type]
         self.metadata_backup.start()
 
     def stop_metadata_backup(self):

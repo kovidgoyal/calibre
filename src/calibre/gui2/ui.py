@@ -866,7 +866,7 @@ class Main(
                 nonlocal item_id, item_val
                 db = self.current_db.new_api
                 if item_id is None:
-                    item_id = db.get_item_id(field, item_val)
+                    item_id = db.get_item_id(field, item_val)  # ty: ignore[invalid-argument-type]
                     if item_id is None:
                         prints('The item named:', item_val, 'was not found', file=sys.stderr)
                         return

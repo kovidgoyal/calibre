@@ -4,22 +4,35 @@
 import csv
 import io
 import sys
+from typing import TYPE_CHECKING
 
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
 from calibre.library.check_library import CHECKS, CheckLibrary
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+    from typing import NoReturn
+
+    from _typeshed import SupportsWrite
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 no_remote = True
 
 
-def implementation(db, notify_changes, *args):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, *args: object) -> NoReturn:
     raise NotImplementedError()
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -59,7 +72,9 @@ Perform some checks on the filesystem representing a library. Reports are {0}
     return parser
 
 
-def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout) -> None:
+def _print_check_library_results(
+    checker: object, check: tuple[str, str, *tuple[bool, ...]], as_csv: bool = False, out: SupportsWrite[str] = sys.stdout
+) -> None:
     attr = check[0]
     list = getattr(checker, attr, None)
     if list is None:
@@ -78,7 +93,7 @@ def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout) -
             print(f'    {i[0]:<40.40} -{i[1]:<40.40}', file=out)
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if opts.report is None:
         checks = CHECKS
     else:

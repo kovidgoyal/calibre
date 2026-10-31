@@ -6,6 +6,7 @@ import os
 import shutil
 import stat
 from io import BytesIO
+from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode, prints
 from calibre.db.cli.utils import args_to_action, check_options_exclusion, for_terminal
@@ -13,6 +14,24 @@ from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.filenames import is_path_inside, is_windows_reserved_filename, path_from_root
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+    from typing import TypedDict
+
+    from _typeshed import SupportsWrite
+
+    from calibre.db.cache import Cache, ExtraFile
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+    class DataFileEntry(TypedDict):
+        name: str
+        size: int
+        mtime: float
+
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -28,19 +47,19 @@ ARG_TYPES = {'list': (), 'add': (str, object, bool), 'get': (str, object), 'rena
 INVALID_NAME_CHARS = frozenset('<>"|?*' + ''.join(map(chr, range(32))))
 
 
-def data_root(db, book_id):
-    book_dir = os.path.join(db.backend.library_path, db._field_for('path', book_id))
+def data_root(db: Cache, book_id: int) -> str:
+    book_dir = os.path.join(db.backend.library_path, db._field_for('path', book_id))  # ty: ignore[no-matching-overload]
     root = os.path.join(book_dir, DATA_DIR_NAME)
     if not is_path_inside(os.path.realpath(book_dir), os.path.realpath(root)):
         raise ValueError(_('The data directory of the book with id {} is outside the book directory').format(book_id))
     return root
 
 
-def resolves_inside(root, path):
+def resolves_inside(root: str, path: str) -> bool:
     return is_path_inside(os.path.realpath(root), os.path.realpath(path))
 
 
-def data_files(db, book_id):
+def data_files(db: Cache, book_id: int) -> dict[str, ExtraFile]:
     # Map of names relative to data/ to ExtraFile, omitting symlinks that
     # resolve to somewhere outside the data directory and anything that is not
     # a regular file, such as FIFOs, which could block reads indefinitely
@@ -52,7 +71,7 @@ def data_files(db, book_id):
     }
 
 
-def existing_data_file(db, book_id, name):
+def existing_data_file(db: Cache, book_id: int, name: str) -> str:
     # Look for the exact name first, so that existing files can be used even
     # if their names would not be accepted for new files, then with \ as a
     # separator.
@@ -70,7 +89,7 @@ def existing_data_file(db, book_id, name):
     return ef.relpath
 
 
-def new_data_file(db, book_id, name):
+def new_data_file(db: Cache, book_id: int, name: str) -> str:
     # Names are relative to data/, never to the book or library directory.
     try:
         for component in name.replace('\\', '/').split('/'):
@@ -90,7 +109,7 @@ def new_data_file(db, book_id, name):
     return DATA_DIR_NAME + '/' + name.replace('\\', '/')
 
 
-def remove_empty_parents(db, book_id, relpath) -> None:
+def remove_empty_parents(db: Cache, book_id: int, relpath: str) -> None:
     # Remove directories left empty by moving a file out of them, but not the
     # data directory itself
     root = data_root(db, book_id)
@@ -103,7 +122,9 @@ def remove_empty_parents(db, book_id, relpath) -> None:
         parent = os.path.dirname(parent)
 
 
-def implementation(db, notify_changes, action, book_id, *args):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, book_id: int, *args: object
+) -> tuple[bool, str | list[DataFileEntry] | bytes | None]:
     # action is not checked with a dict lookup as remote requests can send unhashable values
     if action not in ACTIONS:
         return False, _('Unknown action: {}').format(action)
@@ -124,26 +145,26 @@ def implementation(db, notify_changes, action, book_id, *args):
                     {'name': name, 'size': ef.stat_result.st_size, 'mtime': ef.stat_result.st_mtime} for name, ef in sorted(data_files(db, book_id).items())
                 ]
             if action == 'add':
-                name, data, replace = args
+                name, data, replace = cast('tuple[str, str | tuple[str, bytes], bool]', args)
                 relpath = new_data_file(db, book_id, name)
                 if is_remote:
                     # The data is always uploaded by the client, never a
                     # path on the server
-                    data = BytesIO(data[1])
-                if not db._add_extra_files(book_id, {relpath: data}, replace=replace)[relpath]:
+                    data = BytesIO(data[1])  # ty: ignore[invalid-argument-type]
+                if not db._add_extra_files(book_id, {relpath: data}, replace=replace)[relpath]:  # ty: ignore[invalid-argument-type]
                     return False, _('Cannot add data file (it may already exist): {}').format(name)
                 return True, None
             if action == 'get':
-                name, dest = args
+                name, dest = cast('tuple[str, str | None]', args)
                 relpath = existing_data_file(db, book_id, name)
                 # A remote destination is always on the client, never a path
                 # for the server to write to. Local copies need no buffering.
                 if is_remote:
                     dest = BytesIO()
-                db._copy_extra_file_to(book_id, relpath, dest)
-                return True, dest.getvalue() if is_remote else None
+                db._copy_extra_file_to(book_id, relpath, dest)  # ty: ignore[invalid-argument-type]
+                return True, dest.getvalue() if is_remote else None  # ty: ignore[unresolved-attribute]
             if action == 'rename':
-                name, new_name, replace = args
+                name, new_name, replace = cast('tuple[str, str, bool]', args)
                 relpath = existing_data_file(db, book_id, name)
                 newpath = new_data_file(db, book_id, new_name)
                 if newpath == relpath:
@@ -152,7 +173,7 @@ def implementation(db, notify_changes, action, book_id, *args):
                     return False, _('Cannot rename data file (the destination may already exist): {}').format(new_name)
                 remove_empty_parents(db, book_id, relpath)
                 return True, None
-            name, permanent = args
+            name, permanent = cast('tuple[str, bool]', args)
             relpath = existing_data_file(db, book_id, name)
             errors = db._remove_extra_files(book_id, (relpath,), permanent=permanent)
             if err := errors.get(relpath):
@@ -163,7 +184,7 @@ def implementation(db, notify_changes, action, book_id, *args):
         return False, str(err)
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _('''\
 %prog data_files [options] (list|add|get|rename|remove) BOOK_ID ...
@@ -215,20 +236,20 @@ by the maximum request size of the server.
     return parser
 
 
-def run(dbctx, *args):
-    ok, ans = dbctx.run('data_files', *args)
+def run(dbctx: DBCtx, *args: object) -> object:
+    ok, ans = cast('tuple[bool, object]', dbctx.run('data_files', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
 
 
-def download(dbctx, book_id, name, output, replace) -> None:
+def download(dbctx: DBCtx, book_id: int, name: str, output: str, replace: bool) -> None:
     output = os.path.abspath(output)
     if os.path.isdir(output):
         raise SystemExit(_('The output must be a file, not a directory: {}').format(output))
 
-    def save_to(dest) -> None:
-        data = run(dbctx, 'get', book_id, name, None if dbctx.is_remote else dest)
+    def save_to(dest: SupportsWrite[bytes]) -> None:
+        data = cast('bytes', run(dbctx, 'get', book_id, name, None if dbctx.is_remote else dest))
         if dbctx.is_remote:
             dest.write(data)
 
@@ -260,7 +281,7 @@ def download(dbctx, book_id, name, output, replace) -> None:
         raise SystemExit(_('Failed to save to {0} with error: {1}').format(output, as_unicode(err)))
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     action, args = args_to_action(args, ACTIONS)
     if len(args) != ARG_COUNTS[action]:
         raise SystemExit(_('Error: Incorrect number of arguments for: {}').format(action))
@@ -277,7 +298,7 @@ def main(opts, args, dbctx) -> int:
         ('--permanent', opts.permanent and action != 'remove'),
     )
     if action == 'list':
-        entries = run(dbctx, action, book_id)
+        entries = cast('list[DataFileEntry]', run(dbctx, action, book_id))
         if opts.for_machine:
             prints(json.dumps(entries, ensure_ascii=False, indent=2))
         else:

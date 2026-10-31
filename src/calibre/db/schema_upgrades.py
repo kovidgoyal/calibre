@@ -2,9 +2,14 @@
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from calibre import prints
 from calibre.utils.date import DEFAULT_DATE, isoformat
+
+if TYPE_CHECKING:
+    from calibre.db.backend import DB
+    from calibre.library.field_metadata import FieldMetadata
 
 # Keep in sync with resources/metadata_sqlite.sql
 BOOK_STORAGE_SCHEMA = '''
@@ -22,11 +27,11 @@ CREATE TABLE book_storage ( id INTEGER PRIMARY KEY,
 
 
 class SchemaUpgrade:
-    def __init__(self, db, library_path, field_metadata) -> None:
+    def __init__(self, db: DB, library_path: str, field_metadata: FieldMetadata) -> None:
         db.execute('BEGIN EXCLUSIVE TRANSACTION')
-        self.db = db
+        self.db: DB | None = db
         self.library_path = library_path
-        self.field_metadata = field_metadata
+        self.field_metadata: FieldMetadata | None = field_metadata
         # Upgrade database
         try:
             while True:
@@ -258,7 +263,7 @@ class SchemaUpgrade:
         "Add Tag Browser views"
         assert self.db is not None
 
-        def create_tag_browser_view(table_name, column_name) -> None:
+        def create_tag_browser_view(table_name: str, column_name: str) -> None:
             assert self.db is not None
             self.db.execute(f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
@@ -300,7 +305,7 @@ class SchemaUpgrade:
         assert self.db is not None
         assert self.field_metadata is not None
 
-        def create_tag_browser_view(table_name, column_name, view_column_name) -> None:
+        def create_tag_browser_view(table_name: str, column_name: str, view_column_name: str) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -334,7 +339,7 @@ class SchemaUpgrade:
         assert self.db is not None
         assert self.field_metadata is not None
 
-        def create_std_tag_browser_view(table_name, column_name, view_column_name, sort_column_name) -> None:
+        def create_std_tag_browser_view(table_name: str, column_name: str, view_column_name: str, sort_column_name: str) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -365,7 +370,7 @@ class SchemaUpgrade:
             assert self.db is not None
             self.db.execute(script)
 
-        def create_cust_tag_browser_view(table_name, link_table_name) -> None:
+        def create_cust_tag_browser_view(table_name: str, link_table_name: str) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -413,9 +418,9 @@ class SchemaUpgrade:
         db_tables = self.db.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
                                      ORDER BY name''')
-        tables = []
+        tables: list[str] = []
         for (table,) in db_tables:
-            tables.append(table)
+            tables.append(table)  # ty: ignore[invalid-argument-type]
         for table in tables:
             link_table = f'books_{table}_link'
             if table.startswith('custom_column_') and link_table in tables:
@@ -453,13 +458,13 @@ class SchemaUpgrade:
         self.db.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
         data = self.db.get('SELECT id,path FROM books', all=True)
 
-        def has_cover(path):
+        def has_cover(path: str | None) -> bool:
             if path:
                 path = os.path.join(self.library_path, path.replace('/', os.sep), 'cover.jpg')
                 return os.path.exists(path)
             return False
 
-        ids = [(x[0],) for x in data if has_cover(x[1])]
+        ids = [(x[0],) for x in data if has_cover(x[1])]  # ty: ignore[invalid-argument-type]
         self.db.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
 
     def upgrade_version_15(self) -> None:
@@ -633,12 +638,12 @@ class SchemaUpgrade:
                 if id_ in existing:
                     id_ = max(existing) + 1000
                 id_ = str(id_)
-                fname = custom_recipe_filename(id_, title)
+                fname = custom_recipe_filename(id_, title)  # ty: ignore[invalid-argument-type]
                 custom_recipes[id_] = (title, fname)
                 if isinstance(script, str):
                     script = script.encode('utf-8')
                 with open(os.path.join(bdir, fname), 'wb') as f:
-                    f.write(script)
+                    f.write(script)  # ty: ignore[invalid-argument-type]
 
     def upgrade_version_20(self) -> None:
         """

@@ -222,7 +222,7 @@ class ResultsList(QTreeWidget):
         assert not isinstance(fields_with_notes, bool)
         field_map = {f: {'title': fm[f].get('name') or f, 'matches': []} for f in fields_with_notes}
         for result in results:
-            field_map[result['field']]['matches'].append(result)
+            field_map[result['field']]['matches'].append(result)  # ty: ignore[unresolved-attribute]
         for field, entry in field_map.items():
             if not entry['matches']:
                 continue
@@ -237,7 +237,7 @@ class ResultsList(QTreeWidget):
             for result in entry['matches']:
                 item = QTreeWidgetItem(section, [' '], 2)
                 self.item_map.append(item)
-                self.fi_map[(field, result['item_id'])] = item
+                self.fi_map[(field, result['item_id'])] = item  # ty: ignore[invalid-argument-type]
                 item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
                 item.setData(0, Qt.ItemDataRole.UserRole, result)
                 item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)

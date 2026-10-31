@@ -17,10 +17,10 @@ class UtilsTest(BaseTest):
     def tearDown(self) -> None:
         shutil.rmtree(self.tdir)
 
-    def init_tc(self, name='1', max_size=1):
+    def init_tc(self, name: str = '1', max_size: float = 1) -> ThumbnailCache:
         return ThumbnailCache(name=name, location=self.tdir, max_size=max_size, test_mode=True)
 
-    def basic_fill(self, c, num=5):
+    def basic_fill(self, c: ThumbnailCache, num: int = 5) -> int:
         total = 0
         for i in range(1, num + 1):
             sz = i * 1000

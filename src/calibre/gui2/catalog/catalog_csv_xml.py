@@ -18,8 +18,8 @@ def get_saved_field_data(name, all_fields):
         sort_order = gprefs.get(name + '_db_fields_sort_order', {})
         fields = frozenset(gprefs.get(name + '_db_fields', all_fields))
     else:
-        sort_order = val['sort_order']
-        fields = frozenset(val['fields'])
+        sort_order = val['sort_order']  # ty: ignore[not-subscriptable]
+        fields = frozenset(val['fields'])  # ty: ignore[not-subscriptable]
     return sort_order, fields
 
 

@@ -4,23 +4,27 @@
 import os
 import time
 import unittest
+from collections.abc import Callable, Iterable
 from contextlib import closing
 from io import BytesIO
-from typing import Never
+from typing import TYPE_CHECKING, Never, Self
 
 from calibre.constants import iswindows
 from calibre.db.errors import BooksNotRemoved
 from calibre.db.tests.base import BaseTest
 from calibre.ptempfile import TemporaryDirectory
 
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
 
-def read(x, mode='r'):
+
+def read(x: str, mode: str = 'r') -> str | bytes:
     with open(x, mode) as f:
         return f.read()
 
 
 class FilesystemTest(BaseTest):
-    def get_filesystem_data(self, cache, book_id):
+    def get_filesystem_data(self, cache: Cache, book_id: int) -> dict[str, bytes]:
         fmts = cache.field_for('formats', book_id)
         ans = {}
         for fmt in fmts:
@@ -85,14 +89,14 @@ class FilesystemTest(BaseTest):
                 f.write('a.fmt1')
             initial_side_data = side_data()
 
-        def side_data(book_id=1):
+        def side_data(book_id: int = 1) -> dict[str, str | bytes]:
             bookdir = os.path.dirname(cache.format_abspath(book_id, '__COVER_INTERNAL__'))
             return {
                 'a.side': read(os.path.join(bookdir, 'a.side')),
                 'a.fmt1': read(os.path.join(bookdir, 'subdir', 'a.fmt1')),
             }
 
-        def check_that_filesystem_and_db_entries_match(book_id) -> None:
+        def check_that_filesystem_and_db_entries_match(book_id: int) -> None:
             bookdir = os.path.dirname(cache.format_abspath(book_id, '__COVER_INTERNAL__'))
             if iswindows:
                 from calibre_extensions import winutil
@@ -156,7 +160,7 @@ class FilesystemTest(BaseTest):
         cache = self.init_cache(cl)
         cache.add_extra_files(1, {'a': BytesIO(b'aaa'), 'b': BytesIO(b'bbb')})
 
-        def relpaths():
+        def relpaths() -> set[str]:
             return {e.relpath for e in cache.list_extra_files(1)}
 
         self.assertEqual(relpaths(), {'a', 'b'})
@@ -191,7 +195,7 @@ class FilesystemTest(BaseTest):
         self.assertEqual(cache.rename_extra_files(1, {'safe': bad_relpath}), set())
         self.assertEqual(read(victim, 'rb'), b'outside')
 
-        def listed(pattern):
+        def listed(pattern: str) -> set[str]:
             return {e.relpath for e in cache.list_extra_files(1, use_cache=False, pattern=pattern)}
 
         self.assertEqual(listed('data/**/*'), {'data/inside'})
@@ -384,21 +388,21 @@ class FilesystemTest(BaseTest):
         orig_connection = apsw.Connection
 
         class FlakyBackup:
-            def __init__(self, real) -> None:
+            def __init__(self, real: apsw.Backup) -> None:
                 self.real = real
 
-            def __enter__(self):
+            def __enter__(self) -> Self:
                 self.real.__enter__()
                 return self
 
-            def __exit__(self, *a):
+            def __exit__(self, *a: object) -> bool:
                 return self.real.__exit__(*a)
 
             @property
-            def done(self):
+            def done(self) -> bool:
                 return self.real.done
 
-            def step(self, npages):
+            def step(self, npages: int) -> bool:
                 step_calls['count'] += 1
                 if step_calls['count'] == 1:
                     e = apsw.IOError('not an error')
@@ -407,7 +411,7 @@ class FilesystemTest(BaseTest):
                 return self.real.step(npages)
 
         class FlakyConnection(orig_connection):
-            def backup(self, *a, **kw):
+            def backup(self, *a: object, **kw: object) -> FlakyBackup:
                 return FlakyBackup(super().backup(*a, **kw))
 
         with TemporaryDirectory('backup_db') as tdir:
@@ -423,14 +427,14 @@ class FilesystemTest(BaseTest):
 
         # A non-transient I/O error must not be retried
         class FatalBackup(FlakyBackup):
-            def step(self, npages) -> Never:
+            def step(self, npages: int) -> Never:
                 step_calls['count'] += 1
                 e = apsw.IOError('disk I/O error')
                 e.extendedresult = apsw.SQLITE_IOERR_WRITE
                 raise e
 
         class FatalConnection(orig_connection):
-            def backup(self, *a, **kw):
+            def backup(self, *a: object, **kw: object) -> FatalBackup:
                 return FatalBackup(super().backup(*a, **kw))
 
         with TemporaryDirectory('backup_db') as tdir:
@@ -461,17 +465,18 @@ class FilesystemTest(BaseTest):
     def test_find_books_in_directory(self) -> None:
         from calibre.db.adding import compile_rule, find_books_in_directory
 
-        def strip(files):
+        def strip(files: Iterable[str]) -> frozenset[str]:
             return frozenset({os.path.basename(x) for x in files})
 
-        def q(one, two) -> None:
+        def q(one: Iterable[Iterable[str]], two: Iterable[Iterable[str]]) -> None:
             one, two = {strip(a) for a in one}, {strip(b) for b in two}
             self.assertEqual(one, two)
 
-        def r(action='ignore', match_type='startswith', query=''):
+        def r(action: str = 'ignore', match_type: str = 'startswith', query: str = '') -> dict[str, str]:
             return {'action': action, 'match_type': match_type, 'query': query}
 
-        def c(*rules):
+        def c(*rules: dict[str, str]) -> tuple[tuple[Callable[[str], bool], bool], ...]:
+
             return tuple(map(compile_rule, rules))
 
         files = ['added.epub', 'ignored.md', 'non-book.other']

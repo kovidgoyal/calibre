@@ -4,12 +4,16 @@
 import random
 import time
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from calibre.db.locking import LockingError, RWLockWrapper, SHLock
 from calibre.db.tests.base import BaseTest
 
+if TYPE_CHECKING:
+    import unittest
 
-def wait_for(period) -> None:
+
+def wait_for(period: float) -> None:
     # time.sleep() is not useful for very small values on windows because the
     # default timer has a resolutions of about 16ms see
     # https://stackoverflow.com/questions/40594587/why-time-sleep-is-so-slow-in-windows
@@ -103,7 +107,7 @@ class TestLock(BaseTest):
         lock = SHLock()
         self.assertRaises(LockingError, lock.release)
 
-        def get_lock(shared) -> None:
+        def get_lock(shared: bool) -> None:
             lock.acquire(shared=shared)
             time.sleep(1)
             lock.release()
@@ -121,7 +125,7 @@ class TestLock(BaseTest):
     def test_acquire(self) -> None:
         lock = SHLock()
 
-        def get_lock(shared) -> None:
+        def get_lock(shared: bool) -> None:
             lock.acquire(shared=shared)
             time.sleep(1)
             lock.release()
@@ -192,7 +196,8 @@ class TestLock(BaseTest):
         self.assertFalse(lock.is_exclusive)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
+
     import unittest
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestLock)

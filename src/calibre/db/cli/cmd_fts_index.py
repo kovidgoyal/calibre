@@ -2,15 +2,38 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre.db.errors import NoTracebackException
 from calibre.db.listeners import EventType
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+    from typing import TypedDict, Unpack
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+    class FTSJobData(TypedDict, total=False):
+        items: Sequence[tuple[int, *tuple[str, ...]]]
+        measure_state: bool
+        speed: str
+
+    class FTSStatus(TypedDict, total=False):
+        enabled: bool
+        left: int
+        total: int
+        rate: float | None
+
+
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, action, adata=None):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, adata: FTSJobData | None = None) -> FTSStatus | None:
     if action == 'status':
         if db.is_fts_enabled():
             l, t, r = db.fts_indexing_progress()
@@ -53,7 +76,7 @@ def implementation(db, notify_changes, action, adata=None):
         return {'left': l, 'total': t, 'rate': r}
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -94,16 +117,16 @@ Control the Full text search indexing process.
     return parser
 
 
-def run_job(dbctx, which, **data):
+def run_job(dbctx: DBCtx, which: str, **data: Unpack[FTSJobData]) -> FTSStatus:
     try:
-        return dbctx.run('fts_index', which, data)
+        return cast('FTSStatus', dbctx.run('fts_index', which, data))
     except Exception as e:
         if getattr(e, 'suppress_traceback', False):
             raise SystemExit(str(e))
         raise
 
 
-def show_progress(left, total, rate) -> None:
+def show_progress(left: int, total: int, rate: float | None) -> None:
     from calibre.db.utils import IndexingProgress
 
     ip = IndexingProgress()
@@ -115,7 +138,7 @@ def show_progress(left, total, rate) -> None:
     )
 
 
-def remote_wait_for_completion(dbctx, indexing_speed) -> None:
+def remote_wait_for_completion(dbctx: DBCtx, indexing_speed: str) -> None:
     import time
 
     s = run_job(dbctx, 'wait', speed=indexing_speed, measure_state=True)
@@ -129,12 +152,12 @@ def remote_wait_for_completion(dbctx, indexing_speed) -> None:
         run_job(dbctx, 'wait', speed='slow', measure_state=False)
 
 
-def local_wait_for_completion(db, indexing_speed) -> None:
+def local_wait_for_completion(db: Cache, indexing_speed: str) -> None:
     from queue import Queue
 
     q = Queue()
 
-    def notifier(event_type, library_id, event_data) -> None:
+    def notifier(event_type: EventType, library_id: str, event_data: tuple[object, ...]) -> None:
         if event_type is EventType.indexing_progress_changed:
             q.put(event_data)
 
@@ -149,7 +172,7 @@ def local_wait_for_completion(db, indexing_speed) -> None:
     print()
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 1:
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the indexing action'))
@@ -184,7 +207,7 @@ def main(opts, args, dbctx) -> int:
                 else:
                     return 0
 
-        def to_spec(x):
+        def to_spec(x: str) -> tuple[int, *tuple[str, ...]]:
             parts = x.split(':', 1)
             book_id = int(parts[0])
             if len(parts) == 1:

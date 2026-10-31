@@ -4,13 +4,15 @@
 import os
 import sys
 import traceback
+from collections.abc import Generator
 from contextlib import contextmanager
-from threading import Condition, Lock, current_thread
+from threading import Condition, Lock, Thread, current_thread
 from time import monotonic
+from types import TracebackType
 
 
 @contextmanager
-def try_lock(lock):
+def try_lock(lock: Lock) -> Generator[bool]:
     got_lock = lock.acquire(blocking=False)
     try:
         yield got_lock
@@ -22,7 +24,7 @@ def try_lock(lock):
 class LockingError(RuntimeError):
     is_locking_error = True
 
-    def __init__(self, msg, extra=None) -> None:
+    def __init__(self, msg: str, extra: str | None = None) -> None:
         RuntimeError.__init__(self, msg)
         self.locking_debug_msg = extra
 
@@ -31,7 +33,7 @@ class DowngradeLockError(LockingError):
     pass
 
 
-def create_locks():
+def create_locks() -> tuple[RWLockWrapper, RWLockWrapper]:
     """
     Return a pair of locks: (read_lock, write_lock)
 
@@ -73,20 +75,20 @@ class SHLock:  # {{{
         # number of locks and _shared_owners maps each owning thread to
         # the number of locks is holds.
         self.is_shared = 0
-        self._shared_owners = {}
+        self._shared_owners: dict[Thread, int] = {}
         # When an exclusive lock is held, is_exclusive will give the number
         # of locks held and _exclusive_owner will give the owning thread
         self.is_exclusive = 0
-        self._exclusive_owner = None
+        self._exclusive_owner: Thread | None = None
         # When someone is forced to wait for a lock, they add themselves
         # to one of these queues along with a "waiter" condition that
         # is used to wake them up.
-        self._shared_queue = []
-        self._exclusive_queue = []
+        self._shared_queue: list[tuple[Thread, Condition]] = []
+        self._exclusive_queue: list[tuple[Thread, Condition]] = []
         # This is for recycling waiter objects.
-        self._free_waiters = []
+        self._free_waiters: list[Condition] = []
 
-    def acquire(self, blocking=True, shared=False):
+    def acquire(self, blocking: bool = True, shared: bool = False) -> bool:
         """
         Acquire the lock in shared or exclusive mode.
 
@@ -100,7 +102,7 @@ class SHLock:  # {{{
                 return self._acquire_exclusive(blocking)
             assert not (self.is_shared and self.is_exclusive)
 
-    def owns_lock(self):
+    def owns_lock(self) -> bool:
         me = current_thread()
         with self._lock:
             return self._exclusive_owner is me or me in self._shared_owners
@@ -117,7 +119,7 @@ class SHLock:  # {{{
                     raise LockingError('release() called on unheld lock')
                 self.is_exclusive -= 1
                 if not self.is_exclusive:
-                    self._exclusive_owner = None
+                    self._exclusive_owner: Thread | None = None
                     # If there are waiting shared locks, issue them
                     # all and them wake everyone up.
                     if self._shared_queue:
@@ -154,7 +156,7 @@ class SHLock:  # {{{
             else:
                 raise LockingError('release() called on unheld lock')
 
-    def _acquire_shared(self, blocking=True) -> bool:
+    def _acquire_shared(self, blocking: bool = True) -> bool:
         me = current_thread()
         # Each case: acquiring a lock we already hold.
         if self.is_shared and me in self._shared_owners:
@@ -180,7 +182,7 @@ class SHLock:  # {{{
             self._shared_owners[me] = 1
         return True
 
-    def _acquire_exclusive(self, blocking=True) -> bool:
+    def _acquire_exclusive(self, blocking: bool = True) -> bool:
         me = current_thread()
         # Each case: acquiring a lock we already hold.
         if self._exclusive_owner is me:
@@ -206,13 +208,13 @@ class SHLock:  # {{{
             self.is_exclusive += 1
         return True
 
-    def _take_waiter(self):
+    def _take_waiter(self) -> Condition:
         try:
             return self._free_waiters.pop()
         except IndexError:
             return Condition(self._lock)
 
-    def _return_waiter(self, waiter) -> None:
+    def _return_waiter(self, waiter: Condition) -> None:
         self._free_waiters.append(waiter)
 
 
@@ -220,26 +222,26 @@ class SHLock:  # {{{
 
 
 class RWLockWrapper:
-    def __init__(self, shlock, is_shared=True) -> None:
+    def __init__(self, shlock: SHLock, is_shared: bool = True) -> None:
         self._shlock = shlock
         self._is_shared = is_shared
 
     def acquire(self) -> None:
         self._shlock.acquire(shared=self._is_shared)
 
-    def release(self, *args) -> None:
+    def release(self, *args: type[BaseException] | BaseException | TracebackType | None) -> None:
         self._shlock.release()
 
     __enter__ = acquire
     __exit__ = release
 
-    def owns_lock(self):
+    def owns_lock(self) -> bool:
         return self._shlock.owns_lock()
 
 
 class DebugRWLockWrapper(RWLockWrapper):
-    def __init__(self, *args, **kwargs) -> None:
-        RWLockWrapper.__init__(self, *args, **kwargs)
+    def __init__(self, shlock: SHLock, is_shared: bool = True) -> None:
+        RWLockWrapper.__init__(self, shlock, is_shared)
         self.print_lock = Lock()
         self.st = monotonic()
 
@@ -257,7 +259,7 @@ class DebugRWLockWrapper(RWLockWrapper):
             print(f'acquire done at {at:.4f}: thread id:', tid, file=sys.stderr)
             print('_' * 120, file=sys.stderr)
 
-    def release(self, *args) -> None:
+    def release(self, *args: type[BaseException] | BaseException | TracebackType | None) -> None:
         t = current_thread()
         tid = f'{os.getpid()} - {t.name} - {t.native_id}'
         at = monotonic() - self.st
@@ -284,11 +286,11 @@ class DebugRWLockWrapper(RWLockWrapper):
 
 
 class SafeReadLock:
-    def __init__(self, read_lock) -> None:
+    def __init__(self, read_lock: RWLockWrapper) -> None:
         self.read_lock = read_lock
         self.acquired = False
 
-    def acquire(self):
+    def acquire(self) -> SafeReadLock:
         try:
             self.read_lock.acquire()
         except DowngradeLockError:
@@ -297,7 +299,7 @@ class SafeReadLock:
             self.acquired = True
         return self
 
-    def release(self, *args) -> None:
+    def release(self, *args: type[BaseException] | BaseException | TracebackType | None) -> None:
         if self.acquired:
             self.read_lock.release()
         self.acquired = False

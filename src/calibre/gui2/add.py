@@ -483,7 +483,7 @@ class Adder(QObject):
             return
 
         if self.add_formats_to_existing:
-            identical_book_ids = find_identical_books(mi, self.find_identical_books_data)
+            identical_book_ids = find_identical_books(mi, self.find_identical_books_data)  # ty: ignore[invalid-argument-type]
             if identical_book_ids:
                 try:
                     self.merge_books(mi, cover_path, paths, identical_book_ids)

@@ -3669,7 +3669,7 @@ This function works only in the GUI and the content server.
                         root.tag = 'div'
                         # Expand all the resources in the note
                         root = expand_note_resources(root, db.get_notes_resource)
-                        note = html.tostring(root, encoding='unicode')
+                        note = html.tostring(root, encoding='unicode')  # ty: ignore[no-matching-overload]
             return '' if note is None else note
         except Exception as e:
             traceback.print_exc()

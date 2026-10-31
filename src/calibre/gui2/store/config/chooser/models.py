@@ -308,7 +308,7 @@ class SearchFilter(SearchQueryParser):
                         vals = str(accessor(sr)).split(',')
                     else:
                         vals = [accessor(sr)]
-                    if _match(query, vals, m, use_primary_find_in_search=upf):
+                    if _match(query, vals, m, use_primary_find_in_search=upf):  # ty: ignore[invalid-argument-type]
                         matches.add(sr)
                         break
                 except ValueError:  # Unicode errors

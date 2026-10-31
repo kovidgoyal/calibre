@@ -44,7 +44,7 @@ def test_page_count_in_db(self: BaseTest) -> None:
     db = self.init_cache()
 
     # test schema upgrade marked all books as needing scan
-    def status():
+    def status() -> set[tuple[int, int]]:
         return set(db.backend.execute('SELECT pages,needs_scan FROM books_pages_link'))
 
     self.ae(status(), {(0, 1)})
@@ -59,7 +59,7 @@ def test_page_count_in_db(self: BaseTest) -> None:
     self.ae(db.field_for('pages', 1), -1)
 
     # test that adding a format queues
-    def add_format(fmt, data) -> None:
+    def add_format(fmt: str, data: bytes) -> None:
         db.maintain_page_counts.tick_event.clear()
         db.add_format(1, fmt, io.BytesIO(data), replace=True)
         db.maintain_page_counts.tick_event.wait()

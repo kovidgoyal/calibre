@@ -10,12 +10,12 @@ from calibre.db.legacy import LibraryDatabase
 db = None
 
 
-def initdb(path) -> None:
+def initdb(path: str) -> None:
     global db
     db = LibraryDatabase(os.path.expanduser(path))
 
 
-def show_stats(path) -> None:
+def show_stats(path: str) -> None:
     from pstats import Stats
 
     s = Stats(path)

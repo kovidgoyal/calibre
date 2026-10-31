@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING, cast
 
 from calibre import prints
 from calibre.ebooks.metadata.book.base import field_from_string
@@ -10,16 +11,27 @@ from calibre.ebooks.metadata.opf import get_metadata
 from calibre.srv.changes import metadata
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.field_metadata import FieldMetadata
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, action, *args):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, *args: object) -> FieldMetadata | Metadata | None:
     is_remote = notify_changes is not None
     if action == 'field_metadata':
         return db.field_metadata
     if action == 'opf':
-        book_id, mi = args
+        book_id, mi = cast('tuple[int, Metadata]', args)
         with db.write_lock:
             if not db.has_id(book_id):
                 return
@@ -28,7 +40,7 @@ def implementation(db, notify_changes, action, *args):
                 notify_changes(metadata(changed_ids))
             return db.get_metadata(book_id)
     if action == 'fields':
-        book_id, fvals = args
+        book_id, fvals = cast('tuple[int, Sequence[tuple[str, object]]]', args)
         with db.write_lock:
             if not db.has_id(book_id):
                 return
@@ -42,7 +54,7 @@ def implementation(db, notify_changes, action, *args):
                             mi.series_index = val  # extra has no effect for the builtin series field
                 elif field == 'cover':
                     if is_remote:
-                        mi.cover_data = None, val[1]
+                        mi.cover_data = None, val[1]  # ty: ignore[not-subscriptable]
                     else:
                         mi.cover = val
                         read_cover(mi)
@@ -54,7 +66,7 @@ def implementation(db, notify_changes, action, *args):
             return db.get_metadata(book_id)
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''
@@ -94,8 +106,8 @@ is no need to specify an OPF file.
     return parser
 
 
-def get_fields(dbctx):
-    fm = dbctx.run('set_metadata', 'field_metadata')
+def get_fields(dbctx: DBCtx) -> Iterator[tuple[str, dict[str, object]]]:
+    fm = cast('FieldMetadata', dbctx.run('set_metadata', 'field_metadata'))
     for key in sorted(fm.all_field_keys()):
         m = fm[key]
         if key not in {'formats', 'series_sort', 'ondevice', 'path', 'last_modified'} and m['is_editable'] and m['name']:
@@ -110,7 +122,7 @@ def get_fields(dbctx):
     yield 'cover', c
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if opts.list_fields:
         ans = get_fields(dbctx)
         prints('{:<40}'.format(_('Title')), _('Field name'), '\n')
@@ -118,7 +130,7 @@ def main(opts, args, dbctx) -> int:
             prints('{:<40}'.format(m['name']), key)
         return 0
 
-    def verify_int(x) -> bool | None:
+    def verify_int(x: str) -> bool | None:
         try:
             int(x)
             return True
@@ -139,7 +151,7 @@ def main(opts, args, dbctx) -> int:
             mi = get_metadata(stream)[0]
         if mi.cover:
             mi.cover = os.path.join(os.path.dirname(opf), os.path.relpath(mi.cover, os.getcwd()))
-        final_mi = dbctx.run('set_metadata', 'opf', book_id, read_cover(mi))
+        final_mi = cast('Metadata | None', dbctx.run('set_metadata', 'opf', book_id, read_cover(mi)))
         if not final_mi:
             raise SystemExit(_('No book with id: %s in the database') % book_id)
 
@@ -164,12 +176,12 @@ def main(opts, args, dbctx) -> int:
         ):
             if field.endswith('_index'):
                 try:
-                    val = float(val)
+                    val = float(val)  # ty: ignore[invalid-argument-type]
                 except Exception:
                     raise SystemExit(_('The value {!r} is not a valid series index').format(val))
             fvals.append((field, val))
 
-        final_mi = dbctx.run('set_metadata', 'fields', book_id, fvals)
+        final_mi = cast('Metadata | None', dbctx.run('set_metadata', 'fields', book_id, fvals))
         if not final_mi:
             raise SystemExit(_('No book with id: %s in the database') % book_id)
 

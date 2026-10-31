@@ -1,31 +1,45 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+import annotationlib
 import inspect
 import numbers
 import reprlib
 import time
+from collections.abc import Callable, Iterable, Sequence
 from functools import partial
 from io import BytesIO
 from operator import itemgetter
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre.db.constants import NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from calibre.library.field_metadata import fm_as_dict
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.library.database2 import LibraryDatabase2
+
 # Utils {{{
 
 
 class ET:
-    def __init__(self, func_name, args, kwargs=None, old=None, legacy=None) -> None:
+    def __init__(
+        self,
+        func_name: str,
+        args: Sequence[object],
+        kwargs: dict[str, object] | None = None,
+        old: LibraryDatabase2 | None = None,
+        legacy: LibraryDatabase | None = None,
+    ) -> None:
         if kwargs is None:
             kwargs = {}
         self.func_name = func_name
         self.args, self.kwargs = args, kwargs
         self.old, self.legacy = old, legacy
 
-    def __call__(self, test):
+    def __call__(self, test: BaseTest) -> object:
         old = self.old or test.init_old(test.cloned_library)
         legacy = self.legacy or test.init_legacy(test.cloned_library)
         oldres = getattr(old, self.func_name)(*self.args, **self.kwargs)
@@ -39,14 +53,28 @@ class ET:
         return newres
 
 
-def get_defaults(spec):
-    num = len(spec.defaults or ())
+class ArgSpec(NamedTuple):
+    args: list[str]
+    defaults: tuple[object, ...]
+
+
+def getargspec(func: Callable[..., object]) -> ArgSpec:
+    # Unlike inspect.getfullargspec() this does not evaluate annotations, so
+    # it works with annotations that are only importable when type checking
+    sig = inspect.signature(func, follow_wrapped=False, annotation_format=annotationlib.Format.FORWARDREF)
+    P = inspect.Parameter
+    params = [p for p in sig.parameters.values() if p.kind in (P.POSITIONAL_ONLY, P.POSITIONAL_OR_KEYWORD)]
+    return ArgSpec([p.name for p in params], tuple(p.default for p in params if p.default is not P.empty))
+
+
+def get_defaults(spec: ArgSpec) -> dict[str, object]:
+    num = len(spec.defaults)
     if not num:
         return {}
     return dict(zip(spec.args[-num:], spec.defaults))
 
 
-def compare_argspecs(old, new, attr) -> None:
+def compare_argspecs(old: ArgSpec, new: ArgSpec, attr: str) -> None:
     # We don't compare the names of the non-keyword arguments as they are often
     # different and they don't affect the usage of the API.
 
@@ -55,7 +83,7 @@ def compare_argspecs(old, new, attr) -> None:
         raise AssertionError(f'The argspec for {attr} does not match. {old!r} != {new!r}')
 
 
-def run_funcs(self, db, ndb, funcs) -> None:
+def run_funcs(self: BaseTest, db: LibraryDatabase2, ndb: LibraryDatabase, funcs: Iterable[Sequence[object]]) -> None:
     for func in funcs:
         meth, args = func[0], func[1:]
         if callable(meth):
@@ -77,7 +105,7 @@ def run_funcs(self, db, ndb, funcs) -> None:
                 meth = meth[1:]
             else:
 
-                def fmt(x):
+                def fmt(x: object) -> object:
                     return x
 
             res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
@@ -93,7 +121,7 @@ class LegacyTest(BaseTest):
     def test_library_wide_properties(self) -> None:  # {{{
         "Test library wide properties"
 
-        def to_unicode(x):
+        def to_unicode(x: object) -> object:
             if isinstance(x, bytes):
                 return x.decode('utf-8')
             if isinstance(x, dict):
@@ -102,7 +130,7 @@ class LegacyTest(BaseTest):
                 return {k.decode('utf-8') if isinstance(k, bytes) else k: to_unicode(v) for k, v in x.items() if k != 'rec_index'}
             return x
 
-        def get_props(db):
+        def get_props(db: LibraryDatabase2 | LibraryDatabase) -> object:
             props = (
                 'user_version',
                 'is_second_db',
@@ -133,7 +161,7 @@ class LegacyTest(BaseTest):
     def test_get_property(self) -> None:  # {{{
         "Test the get_property interface for reading data"
 
-        def get_values(db):
+        def get_values(db: LibraryDatabase2 | LibraryDatabase) -> dict[str, tuple[object, ...] | None]:
             ans = {}
             for label, loc in db.FIELD_MAP.items():
                 if isinstance(label, numbers.Integral):
@@ -333,12 +361,12 @@ class LegacyTest(BaseTest):
                 meth = meth[1:]
             elif meth == 'get_authors_with_ids':
 
-                def fmt(val):
+                def fmt(val: Iterable[Sequence[object]]) -> dict[object, tuple[object, ...]]:
                     return {x[0]: tuple(x[1:]) for x in val}
 
             else:
 
-                def fmt(x):
+                def fmt(x: object) -> object:
                     return x
 
             for a in args:
@@ -348,7 +376,9 @@ class LegacyTest(BaseTest):
                     f'The method: {meth}() returned different results for argument {a}',
                 )
 
-        def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
+        # get_top_level_move_items is broken in the old db on case-insensitive file systems
+        def f(x: set[str], y: dict[str, str]) -> tuple[set[str], dict[str, str]]:
+
             x.discard('metadata_db_prefs_backup.json')
             y.pop('full-text-search.db', None)
             x.discard(NOTES_DIR_NAME)
@@ -386,7 +416,8 @@ class LegacyTest(BaseTest):
         all_ids = ndb.new_api.all_book_ids()
         op1 = {'xx': 'yy'}
 
-        def decode(x):
+        def decode(x: object) -> object:
+
             if isinstance(x, bytes):
                 x = x.decode('utf-8')
             return x
@@ -621,8 +652,8 @@ class LegacyTest(BaseTest):
                 obj, nobj = getattr(db, attr), getattr(ndb, attr)
                 if attr not in SKIP_ARGSPEC:
                     try:
-                        argspec = inspect.getfullargspec(obj)
-                        nargspec = inspect.getfullargspec(nobj)
+                        argspec = getargspec(obj)
+                        nargspec = getargspec(nobj)
                     except TypeError, ValueError:
                         pass
                     else:

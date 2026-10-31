@@ -1,16 +1,27 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.db.cli import integers_from_string
 from calibre.db.errors import BooksNotRemoved
 from calibre.srv.changes import books_deleted
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, ids, permanent) -> None:
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, ids: Collection[int], permanent: bool) -> None:
     try:
         db.remove_books(ids, permanent=permanent)
     except BooksNotRemoved as err:
@@ -21,7 +32,7 @@ def implementation(db, notify_changes, ids, permanent) -> None:
         notify_changes(books_deleted(ids))
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     p = get_parser(
         _(
             '''\
@@ -37,7 +48,7 @@ list of id numbers (you can get id numbers by using the search command). For exa
     return p
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 1:
         raise SystemExit(_('You must specify at least one book to remove'))
 

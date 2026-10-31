@@ -88,7 +88,7 @@ class TagTreeItem:  # {{{
             self.category_key = category_key or ''
             self.temporary = temporary
             self.tag = Tag(
-                data,
+                data,  # ty: ignore[invalid-argument-type]
                 category=category_key,
                 is_editable=category_key not in ['news', 'search', 'identifiers', 'languages'],
                 is_searchable=category_key != 'search',
@@ -323,7 +323,7 @@ class TagTreeItem:  # {{{
                     from calibre.gui2.ui import get_gui
 
                     db = get_gui(fail_if_absent=True).current_db.new_api
-                    link = None if not db.has_link_map(tag.category) else db.get_link_map(tag.category).get(tag.original_name)
+                    link = None if not db.has_link_map(tag.category) else db.get_link_map(tag.category).get(tag.original_name)  # ty: ignore[invalid-argument-type]
                     if link:
                         tt.append(_('Link: %s') % link)
                 return '\n'.join(tt)

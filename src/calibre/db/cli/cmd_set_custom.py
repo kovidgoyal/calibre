@@ -1,16 +1,27 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from calibre import prints
 from calibre.db import _get_series_values
 from calibre.srv.changes import metadata
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, col, book_id, val, append):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, col: str, book_id: int, val: str, append: bool) -> tuple[bool, str]:
     is_remote = notify_changes is not None
     field = db.field_metadata.custom_field_prefix + col
     with db.write_lock:
@@ -28,9 +39,9 @@ def implementation(db, notify_changes, col, book_id, val, append):
             msg = _('Data set to: {} [{}]').format(db.field_for(field, book_id), db.field_for(field + '_index', book_id))
         else:
             if append and fm['is_multiple']:
-                val = list(db.field_for(field, book_id)) + val.split(fm['is_multiple']['ui_to_list'])
+                val = list(db.field_for(field, book_id)) + val.split(fm['is_multiple']['ui_to_list'])  # ty: ignore[invalid-assignment, invalid-argument-type]
             db.set_field(field, {book_id: val})
-            val = db.field_for(field, book_id)
+            val = db.field_for(field, book_id)  # ty: ignore[invalid-assignment]
             if isinstance(val, (tuple, list)):
                 val = fm['is_multiple']['list_to_ui'].join(val)
             msg = _('Data set to: {}').format(val)
@@ -39,7 +50,7 @@ def implementation(db, notify_changes, col, book_id, val, append):
     return True, msg
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -63,10 +74,10 @@ command.
     return parser
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 3:
         raise SystemExit(_('Error: You must specify a field name, id and value'))
-    ok, msg = dbctx.run('set_custom', args[0], int(args[1]), args[2], opts.append)
+    ok, msg = cast('tuple[bool, str]', dbctx.run('set_custom', args[0], int(args[1]), args[2], opts.append))
     if ok:
         prints(msg)
     else:

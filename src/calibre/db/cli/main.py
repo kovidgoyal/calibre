@@ -5,6 +5,7 @@ import http.client
 import json
 import os
 import sys
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode, urlparse, urlunparse
 
 from calibre import browser, prints
@@ -15,6 +16,14 @@ from calibre.utils.config import OptionParser, prefs
 from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from calibre.utils.serialize import MSGPACK_MIME
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+    from types import ModuleType
+    from typing import Self
+
+    from mechanize import HTTPError
 
 COMMANDS = (
     'list',
@@ -49,15 +58,15 @@ COMMANDS = (
 )
 
 
-def option_parser_for(cmd, args=()):
+def option_parser_for(cmd: str, args: Sequence[str] = ()) -> Callable[[], OptionParser]:
 
-    def cmd_option_parser():
+    def cmd_option_parser() -> OptionParser:
         return module_for_cmd(cmd).option_parser(get_parser, args)
 
     return cmd_option_parser
 
 
-def run_cmd(cmd, opts, args, dbctx):
+def run_cmd(cmd: str, opts: Values, args: list[str], dbctx: DBCtx) -> int:
     m = module_for_cmd(cmd)
     if dbctx.is_remote and getattr(m, 'no_remote', False):
         raise SystemExit(_('The {} command is not supported with remote (server based) libraries').format(cmd))
@@ -65,7 +74,7 @@ def run_cmd(cmd, opts, args, dbctx):
     return ret
 
 
-def get_parser(usage):
+def get_parser(usage: str) -> OptionParser:
     parser = OptionParser(usage)
     go = parser.add_option_group(_('GLOBAL OPTIONS'))
     go.is_global_options = True  # ty: ignore[unresolved-attribute]
@@ -111,7 +120,7 @@ def get_parser(usage):
     return parser
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     return get_parser(
         _(
             '''\
@@ -129,7 +138,7 @@ For help on an individual command: %%prog command --help
     )
 
 
-def read_credentials(opts):
+def read_credentials(opts: Values) -> tuple[str | None, str | None]:
     username = opts.username
     pw = opts.password
     if pw:
@@ -144,11 +153,11 @@ def read_credentials(opts):
 
 
 class DBCtx:
-    def __init__(self, opts, option_parser) -> None:
+    def __init__(self, opts: Values, option_parser: OptionParser) -> None:
         self.option_parser = option_parser
         self.library_path = opts.library_path or prefs['library_path']
         self.timeout = opts.timeout
-        self.url = None
+        self.url: str | None = None
         if self.library_path is None:
             raise SystemExit('No saved library path, either run the GUI or use the --with-library option')
         if self.library_path.partition(':')[0] in ('http', 'https'):
@@ -178,35 +187,35 @@ class DBCtx:
                         ' See the documentation of the {} option for details.'
                     ).format('calibre-server' + ext, '--with-library')
                 )
-            self._db = None
+            self._db: LibraryDatabase | None = None
             self.is_remote = False
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *a):
+    def __exit__(self, *a: object) -> None:
         if not self.is_remote and self._db is not None:
             self._db.close()
 
     @property
-    def db(self):
+    def db(self) -> LibraryDatabase:
         if self._db is None:
             self._db = LibraryDatabase(self.library_path)
         return self._db
 
-    def path(self, path):
+    def path(self, path: str) -> str | tuple[str, bytes]:
         if self.is_remote:
             with open(path, 'rb') as f:
                 return path, f.read()
         return path
 
-    def run(self, name, *args):
+    def run(self, name: str, *args: object) -> object:
         m = module_for_cmd(name)
         if self.is_remote:
             return self.remote_run(name, m, *args)
         return m.implementation(self.db.new_api, None, *args)
 
-    def interpret_http_error(self, err) -> None:
+    def interpret_http_error(self, err: HTTPError) -> None:
         if err.code == http.client.UNAUTHORIZED:
             if self.has_credentials:
                 raise SystemExit('The username/password combination is incorrect')
@@ -216,7 +225,7 @@ class DBCtx:
         if err.code == http.client.NOT_FOUND:
             raise SystemExit(err.reason)
 
-    def remote_run(self, name, m, *args):
+    def remote_run(self, name: str, m: ModuleType, *args: object) -> object:
         from mechanize import HTTPError, Request
 
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
@@ -254,7 +263,7 @@ class DBCtx:
             prints(lid)
 
 
-def main(args=sys.argv):
+def main(args: list[str] = sys.argv) -> int:
     parser = option_parser()
     if len(args) < 2:
         parser.print_help()

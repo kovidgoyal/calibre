@@ -9,17 +9,23 @@ from contextlib import suppress
 from queue import Queue
 from threading import Event, Thread
 from time import monotonic
+from typing import TYPE_CHECKING
 
 from calibre import detect_ncpus, human_readable
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from weakref import ref
+
+    from calibre.db.cache import Cache
 
 check_for_work = object()
 quit = object()
 
 
 class Job:
-    def __init__(self, book_id, fmt, path, fmt_size, fmt_hash, start_time) -> None:
+    def __init__(self, book_id: int, fmt: str, path: str, fmt_size: int, fmt_hash: str, start_time: float) -> None:
         self.book_id = book_id
         self.fmt = fmt
         self.fmt_size = fmt_size
@@ -29,7 +35,7 @@ class Job:
 
 
 class Result:
-    def __init__(self, job, err_msg='') -> None:
+    def __init__(self, job: Job, err_msg: str = '') -> None:
         self.book_id = job.book_id
         self.fmt = job.fmt
         self.fmt_size = job.fmt_size
@@ -52,7 +58,7 @@ class Worker(Thread):
     max_duration = 30  # minutes
     poll_interval = 0.1  # seconds
 
-    def __init__(self, jobs_queue, supervise_queue) -> None:
+    def __init__(self, jobs_queue: Queue[Job | object], supervise_queue: Queue[Result | object]) -> None:
         super().__init__(name='FTSWorker', daemon=True)
         self.currently_working = False
         self.jobs_queue = jobs_queue
@@ -67,18 +73,18 @@ class Worker(Thread):
                 break
             self.working = True
             try:
-                res = self.run_job(x)
+                res = self.run_job(x)  # ty: ignore[invalid-argument-type]
                 if res is not None and self.keep_going:
                     self.supervise_queue.put(res)
             except Exception:
                 tb = traceback.format_exc()
                 traceback.print_exc()
                 if self.keep_going:
-                    self.supervise_queue.put(Result(x, tb))
+                    self.supervise_queue.put(Result(x, tb))  # ty: ignore[invalid-argument-type]
             finally:
                 self.working = False
 
-    def run_job(self, job):
+    def run_job(self, job: Job) -> Result | None:
         time_limit = monotonic() + (self.max_duration * 60)
         txtpath = job.path + '.txt'
         errpath = job.path + '.error'
@@ -118,11 +124,11 @@ class Worker(Thread):
 
 
 class Pool:
-    def __init__(self, dbref) -> None:
+    def __init__(self, dbref: ref[Cache]) -> None:
         self.max_workers = 1
-        self.jobs_queue = Queue()
-        self.supervise_queue = Queue()
-        self.workers = []
+        self.jobs_queue: Queue[Job | object] = Queue()
+        self.supervise_queue: Queue[Result | object] = Queue()
+        self.workers: list[Worker] = []
         self.initialized = Event()
         self.dbref = dbref
         self.keep_going = True
@@ -142,7 +148,7 @@ class Pool:
         while len(self.workers) < self.max_workers:
             self.workers.append(self.create_worker())
 
-    def create_worker(self):
+    def create_worker(self) -> Worker:
         w = Worker(self.jobs_queue, self.supervise_queue)
         w.start()
         return w
@@ -156,11 +162,11 @@ class Pool:
 
     # external API {{{
     @property
-    def num_of_workers(self):
+    def num_of_workers(self) -> int:
         return len(self.workers)
 
     @num_of_workers.setter
-    def num_of_workers(self, num) -> None:
+    def num_of_workers(self, num: int) -> None:
         self.initialize()
         self.prune_dead_workers()
         num = min(max(1, num), detect_ncpus())
@@ -172,19 +178,19 @@ class Pool:
                 self.shrink_workers()
 
     @property
-    def num_of_idle_workers(self):
+    def num_of_idle_workers(self) -> int:
         return sum(0 if w.working else 1 for w in self.workers)
 
     def check_for_work(self) -> None:
         self.initialize()
         self.supervise_queue.put(check_for_work)
 
-    def add_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time) -> None:
+    def add_job(self, book_id: int, fmt: str, path: str, fmt_size: int, fmt_hash: str, start_time: float) -> None:
         self.initialize()
         job = Job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
         self.jobs_queue.put(job)
 
-    def commit_result(self, result) -> None:
+    def commit_result(self, result: Result) -> None:
         text = result.text
         err_msg = ''
         if not result.ok:

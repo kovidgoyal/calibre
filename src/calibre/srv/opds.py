@@ -6,6 +6,7 @@ import hashlib
 import json
 from collections import OrderedDict
 from collections.abc import Callable
+from collections.abc import Set as AbstractSet
 from functools import lru_cache, partial
 from typing import Any, NamedTuple, cast
 from urllib.parse import urlencode
@@ -699,7 +700,7 @@ def format_mime_type(fmt: str) -> str | None:
     return guess_type('a.' + fmt.lower())[0]
 
 
-def opds2_has_acquisition_links(rc: RequestContext, ids: frozenset[int]) -> frozenset[int]:
+def opds2_has_acquisition_links(rc: RequestContext, ids: AbstractSet[int]) -> frozenset[int]:
     """
     The books that have at least one format that can be downloaded, as OPDS 2.0
     requires every publication to have an acquisition link
@@ -778,7 +779,7 @@ class RequestContext:
 
 def get_acquisition_feed(
     rc: RequestContext,
-    ids: frozenset[int],
+    ids: AbstractSet[int],
     offset: int,
     page_url: str,
     up_url: str,

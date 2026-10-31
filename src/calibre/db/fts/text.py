@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import unicodedata
+from typing import TYPE_CHECKING
 
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks.conversion.archives import ARCHIVE_FMTS, unarchive
@@ -16,6 +17,13 @@ from calibre.ebooks.oeb.polish.utils import BLOCK_TAG_NAMES
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.logging import default_log
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from lxml.etree import _Element
+
+    from calibre.customize.conversion import InputFormatPlugin
+
 
 class SimpleContainer(ContainerBase):
     tweak_mode = True
@@ -24,7 +32,7 @@ class SimpleContainer(ContainerBase):
 skipped_tags = frozenset({'style', 'title', 'script', 'head', 'img', 'svg', 'math', 'rt', 'rp', 'rtc'})
 
 
-def tag_to_text(tag):
+def tag_to_text(tag: _Element) -> Iterator[str]:
     if tag.text:
         yield tag.text
     for child in tag:
@@ -40,20 +48,20 @@ def tag_to_text(tag):
         yield tag.tail
 
 
-def html_to_text(root):
+def html_to_text(root: _Element) -> Iterator[str]:
     pat = re.compile(r'\n{3,}')
     for body in root.xpath('h:body', namespaces=XPNSMAP):
         body.tail = ''
         yield pat.sub(r'\n\n', ''.join(tag_to_text(body)).strip())
 
 
-def to_text(container, name):
+def to_text(container: ContainerBase, name: str) -> Iterator[str]:
     root = container.parsed(name)
     if hasattr(root, 'xpath'):
         yield from html_to_text(root)
 
 
-def is_fmt_ok(input_fmt):
+def is_fmt_ok(input_fmt: str) -> InputFormatPlugin | bool:
     input_fmt = input_fmt.upper()
     input_plugin = plugin_for_input_format(input_fmt)
     if not input_plugin:
@@ -64,7 +72,7 @@ def is_fmt_ok(input_fmt):
     return input_plugin
 
 
-def pdftotext(path):
+def pdftotext(path: str) -> str:
     import subprocess
 
     from calibre.ebooks.pdf.pdftohtml import PDFTOTEXT, popen
@@ -102,7 +110,7 @@ def is_fmt_extractable(input_fmt: str) -> bool:
     return input_fmt.lower() in ARCHIVE_FMTS
 
 
-def extract_text(pathtoebook):
+def extract_text(pathtoebook: str) -> str:
     input_fmt = pathtoebook.rpartition('.')[-1].upper()
     ans = ''
     input_plugin = is_fmt_ok(input_fmt)
@@ -115,7 +123,7 @@ def extract_text(pathtoebook):
             ans = pdftotext(pathtoebook)
         else:
             tdir = exit_stack.enter_context(TemporaryDirectory())
-            texts = []
+            texts: list[str] = []
             book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=default_log)
             input_plugin = plugin_for_input_format(input_fmt)
             is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
@@ -128,7 +136,7 @@ def extract_text(pathtoebook):
         return unicodedata.normalize('NFC', ans).replace('\u00ad', '')
 
 
-def main(pathtoebook) -> None:
+def main(pathtoebook: str) -> None:
     text = extract_text(pathtoebook)
     with open(pathtoebook + '.txt', 'wb') as f:
         f.write(text.encode('utf-8'))

@@ -1126,7 +1126,7 @@ class DeviceMixin:  # {{{
                         return
                 else:
                     title_sorts = db.all_field_for('sort', books_on_device)
-                    titles = sorted(db.all_field_for('title', books_on_device).items(), key=lambda x: title_sorts[x[0]])
+                    titles = sorted(db.all_field_for('title', books_on_device).items(), key=lambda x: title_sorts[x[0]])  # ty: ignore[no-matching-overload]
                     details = '\n'.join(title for book_id, title in titles)
                     if not question_dialog(
                         self,

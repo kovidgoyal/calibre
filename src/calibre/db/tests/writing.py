@@ -2,10 +2,10 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from functools import partial
 from io import BytesIO
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre.db.backend import FTSQueryError
 from calibre.db.cache import Pages
@@ -16,6 +16,15 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    import datetime
+
+    from calibre.db.listeners import EventType
+    from calibre.library.database2 import LibraryDatabase2
+
+    type Getter = Callable[[LibraryDatabase2], Callable[[int], object]]
+    type Setter = Callable[[LibraryDatabase2], Callable[[int, object], object]]
+
 
 class WritingTest(BaseTest):
     # Utils {{{
@@ -25,46 +34,46 @@ class WritingTest(BaseTest):
         getter: Callable
         setter: Callable
 
-    def create_getter(self, name, getter=None):
+    def create_getter(self, name: str, getter: str | Getter | None = None) -> Getter:
         if getter is None:
             if name.endswith('_index'):
 
-                def ans(db):
+                def ans(db: LibraryDatabase2) -> Callable[[int], object]:
                     return partial(db.get_custom_extra, index_is_id=True, label=name[1:].replace('_index', ''))
 
             else:
 
-                def ans(db):
+                def ans(db: LibraryDatabase2) -> Callable[[int], object]:
                     return partial(db.get_custom, label=name[1:], index_is_id=True)
 
         elif callable(getter):
             return getter
         else:
 
-            def ans(db):
+            def ans(db: LibraryDatabase2) -> Callable[[int], object]:
                 return partial(getattr(db, getter), index_is_id=True)
 
         return ans
 
-    def create_setter(self, name, setter=None):
+    def create_setter(self, name: str, setter: str | Setter | None = None) -> Setter:
         if setter is None:
 
-            def ans(db):
+            def ans(db: LibraryDatabase2) -> Callable[[int, object], object]:
                 return partial(db.set_custom, label=name[1:], commit=True)
 
         elif callable(setter):
             return setter
         else:
 
-            def ans(db):
+            def ans(db: LibraryDatabase2) -> Callable[[int, object], object]:
                 return partial(getattr(db, setter), commit=True)
 
         return ans
 
-    def create_test(self, name, vals, getter=None, setter=None):
+    def create_test(self, name: str, vals: tuple[object, ...], getter: str | Getter | None = None, setter: str | Setter | None = None) -> WritingTest.Test:
         return WritingTest.Test(name, vals, self.create_getter(name, getter), self.create_setter(name, setter))
 
-    def run_tests(self, tests) -> None:
+    def run_tests(self, tests: Iterable[WritingTest.Test]) -> None:
         results = {}
         for test in tests:
             results[test] = []
@@ -474,7 +483,7 @@ class WritingTest(BaseTest):
 
         book_ids = (1, 2, 3)
 
-        def read_all_formats():
+        def read_all_formats() -> dict[int, dict[str, bytes]]:
             fbefore = {}
             for book_id in book_ids:
                 ff = fbefore[book_id] = {}
@@ -482,7 +491,7 @@ class WritingTest(BaseTest):
                     ff[fmt] = cache.format(book_id, fmt)
             return fbefore
 
-        def read_all_extra_files(book_id=1):
+        def read_all_extra_files(book_id: int = 1) -> dict[str, bytes]:
             ans = {}
             bp = cache.get_book_path(book_id, sep='/')
             for relpath, fobj, stat_result in cache.backend.iter_extra_files(book_id, bp, cache.fields['formats']):
@@ -653,7 +662,7 @@ class WritingTest(BaseTest):
         modified = []
         orig = cache._update_last_modified
 
-        def update_last_modified(book_ids, now=None) -> None:
+        def update_last_modified(book_ids: Iterable[int], now: datetime.datetime | None = None) -> None:
             modified.extend(book_ids)
             orig(book_ids, now=now)
 
@@ -1129,7 +1138,7 @@ class WritingTest(BaseTest):
         cache.dump_metadata()
         self.assertFalse(cache.dirtied_cache)
 
-        def a(**kw):
+        def a(**kw: object) -> tuple[dict[str, object], float]:
             ts = utcnow()
             kw['timestamp'] = utcnow().isoformat()
             return kw, (ts - EPOCH).total_seconds()
@@ -1140,7 +1149,7 @@ class WritingTest(BaseTest):
             a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed again'),
         ]
 
-        def map_as_list(amap):
+        def map_as_list(amap: dict[str, list[dict[str, object]]]) -> list[dict[str, object]]:
             ans = []
             for items in amap.values():
                 ans.extend(items)
@@ -1208,7 +1217,7 @@ class WritingTest(BaseTest):
         # Test merged highlights are sorted by position in the book
         from calibre.db.annotations import merge_annot_lists
 
-        def hl(uuid, spine_index, start_cfi):
+        def hl(uuid: str, spine_index: int | None, start_cfi: str) -> dict[str, str | int | None]:
             return {'type': 'highlight', 'uuid': uuid, 'spine_index': spine_index, 'start_cfi': start_cfi, 'timestamp': utcnow().isoformat()}
 
         merged = merge_annot_lists(
@@ -1221,7 +1230,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_changed_events(self) -> None:  # {{{
-        def ae(l, r) -> None:
+        def ae(l: object, r: object) -> None:
             # We need to sleep a bit to allow events to happen on its thread
             import time
 
@@ -1240,7 +1249,8 @@ class WritingTest(BaseTest):
 
         event_set = set()
 
-        def event_func(t, library_id, *args) -> None:
+        def event_func(t: EventType, library_id: str, *args: tuple[object, ...]) -> None:
+
             nonlocal event_set, ae
             event_set.update(args[0][1])
 

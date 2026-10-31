@@ -3,27 +3,41 @@
 
 import json
 import re
+from typing import TYPE_CHECKING, cast
 
 from calibre import prints
 from calibre.db.cli import integers_from_string
 from calibre.db.cli.utils import args_to_action
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.db.constants import TrashEntry
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+    # book_id, title, author, mtime, formats, restorable
+    type TrashListEntry = tuple[int, str, str, float, list[str], bool]
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 ACTIONS = ('list', 'restore', 'delete', 'empty')
 
 
-def list_entries(db):
+def list_entries(db: Cache) -> tuple[list[TrashListEntry], list[TrashListEntry]]:
     books, formats = db.list_trash_entries()
 
-    def as_list(entries):
+    def as_list(entries: Iterable[TrashEntry]) -> list[TrashListEntry]:
         return [(e.book_id, e.title, e.author, e.mtime, sorted(e.formats), e.restorable) for e in sorted(entries, key=lambda e: -e.mtime)]
 
     return as_list(books), as_list(formats)
 
 
-def delete_entries(db, entries, of_formats):
+def delete_entries(db: Cache, entries: Iterable[int], of_formats: bool) -> tuple[int, list[str]]:
     count, errors = 0, []
     for book_id in sorted(entries):
         try:
@@ -35,7 +49,7 @@ def delete_entries(db, entries, of_formats):
     return count, errors
 
 
-def restore_entries(db, notify_changes, entries, of_formats):
+def restore_entries(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, entries: dict[int, TrashEntry], of_formats: bool) -> tuple[int, list[str]]:
     from calibre.srv.changes import books_added, formats_added
 
     # done is what has actually been restored, for notifying the Content server, count is the number of entries restored completely
@@ -61,7 +75,9 @@ def restore_entries(db, notify_changes, entries, of_formats):
     return count, errors
 
 
-def implementation(db, notify_changes, action, *args):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, *args: object
+) -> tuple[bool, str | tuple[list[TrashListEntry], list[TrashListEntry]] | tuple[int, list[str]] | None]:
     if action not in ACTIONS:
         return False, _('Unknown action: {}').format(action)
     if action == 'empty':
@@ -69,7 +85,7 @@ def implementation(db, notify_changes, action, *args):
         return True, None
     if action == 'list':
         return True, list_entries(db)
-    book_ids, of_formats = set(args[0]), args[1]
+    book_ids, of_formats = set(cast('Iterable[int]', args[0])), cast('bool', args[1])
     books, formats = db.list_trash_entries()
     entries = {e.book_id: e for e in (formats if of_formats else books)}
     if missing := book_ids - set(entries):
@@ -80,7 +96,7 @@ def implementation(db, notify_changes, action, *args):
     return True, restore_entries(db, notify_changes, entries, of_formats)
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -128,14 +144,14 @@ Permanently delete everything in the trash bin:
     return parser
 
 
-def run(dbctx, *args):
-    ok, ans = dbctx.run('trash', *args)
+def run(dbctx: DBCtx, *args: object) -> object:
+    ok, ans = cast('tuple[bool, object]', dbctx.run('trash', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     from calibre.utils.date import as_local_time, utcfromtimestamp
 
     action, args = args_to_action(args, ACTIONS)
@@ -148,10 +164,10 @@ def main(opts, args, dbctx) -> int:
             run(dbctx, 'empty')
             prints(_('The trash bin has been emptied'))
             return 0
-        books, formats = run(dbctx, 'list')
+        books, formats = cast('tuple[list[TrashListEntry], list[TrashListEntry]]', run(dbctx, 'list'))
         if opts.for_machine:
 
-            def as_dicts(entries):
+            def as_dicts(entries: Iterable[TrashListEntry]) -> list[dict[str, object]]:
                 return [
                     {'id': i, 'title': t, 'author': a, 'removed': utcfromtimestamp(m).isoformat(), 'formats': f, 'restorable': r}
                     for i, t, a, m, f, r in entries
@@ -160,10 +176,10 @@ def main(opts, args, dbctx) -> int:
             prints(json.dumps({'books': as_dicts(books), 'formats': as_dicts(formats)}, ensure_ascii=False, indent=2))
             return 0
 
-        def date(m):
+        def date(m: float) -> str:
             return as_local_time(utcfromtimestamp(m)).strftime('%Y-%m-%d %H:%M')
 
-        def clean(x):
+        def clean(x: str) -> str:
             # Tabs and newlines in titles or authors would break the columns
             return re.sub(r'\s+', ' ', x)
 
@@ -185,7 +201,7 @@ def main(opts, args, dbctx) -> int:
             book_ids |= set(integers_from_string(arg))
     except ValueError:
         raise SystemExit(_('Error: Book ids must be numbers'))
-    count, errors = run(dbctx, action, sorted(book_ids), opts.formats)
+    count, errors = cast('tuple[int, list[str]]', run(dbctx, action, sorted(book_ids), opts.formats))
     if action == 'delete':
         prints(ngettext('One entry permanently deleted', '{} entries permanently deleted', count).format(count))
         failed = _('Failed to delete:')

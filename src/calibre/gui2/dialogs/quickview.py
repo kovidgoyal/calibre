@@ -935,7 +935,7 @@ def get_qv_field_list(fm, use_defaults=False):
         src = db.prefs.defaults
     else:
         src = db.prefs
-    fieldlist = list(src['qv_display_fields'])
+    fieldlist = list(src['qv_display_fields'])  # ty: ignore[invalid-argument-type]
     names = frozenset(x[0] for x in fieldlist)
     for field in fm.displayable_field_keys():
         if field != 'comments' and fm[field]['datatype'] != 'comments' and field not in names:

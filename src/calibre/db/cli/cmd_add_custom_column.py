@@ -2,10 +2,21 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
+from typing import TYPE_CHECKING
 
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+    from typing import NoReturn
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -24,11 +35,11 @@ CUSTOM_DATA_TYPES = frozenset((
 ))
 
 
-def implementation(db, notify_changes, *args):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, *args: object) -> NoReturn:
     raise NotImplementedError()
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -75,12 +86,12 @@ datatype is one of: {0}
     return parser
 
 
-def do_add_custom_column(db, label, name, datatype, is_multiple, display) -> None:
+def do_add_custom_column(db: LibraryDatabase, label: str, name: str, datatype: str, is_multiple: bool, display: dict[str, object]) -> None:
     num = db.create_custom_column(label, name, datatype, is_multiple, display=display)
     prints(f'Custom column created with id: {num}')
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 3:
         raise SystemExit(_('You must specify label, name and datatype'))
     do_add_custom_column(dbctx.db, args[0], args[1], args[2], opts.is_multiple, json.loads(opts.display))

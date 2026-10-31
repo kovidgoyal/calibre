@@ -2,11 +2,21 @@
 # License: GPLv3 Copyright: 2026, softwaregames1
 
 import json
+from typing import TYPE_CHECKING, cast
 
 from calibre import prints
 from calibre.db.cli.utils import args_to_action
 from calibre.srv.changes import virtual_libraries
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -14,12 +24,14 @@ ACTIONS = ('list', 'add', 'rename', 'remove')
 ACTION_DEFAULT = 'list'
 
 
-def implementation(db, notify_changes, action, *args):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, *args: object
+) -> tuple[bool, str | dict[str, tuple[str, int | None]] | int | None]:
     from calibre.utils.search_query_parser import ParseException
 
     is_remote = notify_changes is not None
 
-    def parse_error(expr, e):
+    def parse_error(expr: str, e: Exception) -> tuple[bool, str]:
         return False, _('Failed to parse search query: ({0}) with error: {1}').format(expr, e)
 
     if action == 'list':
@@ -37,7 +49,7 @@ def implementation(db, notify_changes, action, *args):
         orig_vls = db._pref('virtual_libraries', {})
         vls = dict(orig_vls)
         if action == 'add':
-            name, expr, replace = args
+            name, expr, replace = cast('tuple[str, str, bool]', args)
             if name in vls and not replace:
                 return False, _('A Virtual library named {} already exists').format(name)
             try:
@@ -60,7 +72,7 @@ def implementation(db, notify_changes, action, *args):
                 notify_changes(virtual_libraries(added=(name,)))
             return True, count
         if action == 'rename':
-            old, new = args
+            old, new = cast('tuple[str, str]', args)
             if old not in vls:
                 return False, _('No Virtual library named: {}').format(old)
             if new == old:
@@ -74,7 +86,7 @@ def implementation(db, notify_changes, action, *args):
                 notify_changes(virtual_libraries(renamed=((old, new),)))
             return True, None
         if action == 'remove':
-            names = tuple(dict.fromkeys(args))
+            names = tuple(dict.fromkeys(cast('tuple[str, ...]', args)))
             if missing := [x for x in names if x not in vls]:
                 return False, _('No Virtual libraries named: {}').format(', '.join(missing))
             for name in names:
@@ -88,7 +100,7 @@ def implementation(db, notify_changes, action, *args):
     return False, _('Unknown action: {}').format(action)
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -132,8 +144,8 @@ Remove Virtual libraries, the books in them are not changed:
     return parser
 
 
-def run(dbctx, *args):
-    ok, ans = dbctx.run('virtual_libraries', *args)
+def run(dbctx: DBCtx, *args: object) -> object:
+    ok, ans = cast('tuple[bool, object]', dbctx.run('virtual_libraries', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
@@ -145,14 +157,14 @@ def check_name(name: str) -> None:
         raise SystemExit(_('Error: A Virtual library name cannot begin with "*"'))
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     from calibre.utils.icu import sort_key
 
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action == 'list':
         if args:
             raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
-        vls = run(dbctx, 'list')
+        vls = cast('dict[str, tuple[str, int | None]]', run(dbctx, 'list'))
         names = sorted(vls, key=sort_key)
         if opts.for_machine:
             prints(json.dumps([{'name': n, 'search': vls[n][0], 'count': vls[n][1]} for n in names], ensure_ascii=False, indent=2))
@@ -167,7 +179,7 @@ def main(opts, args, dbctx) -> int:
         if not name or not expr:
             raise SystemExit(_('Error: The name and search expression must not be empty'))
         check_name(name)
-        count = run(dbctx, 'add', name, expr, opts.replace)
+        count = cast('int', run(dbctx, 'add', name, expr, opts.replace))
         prints(ngettext('Virtual library {0} added, with one book', 'Virtual library {0} added, with {1} books', count).format(name, count))
     elif action == 'rename':
         if len(args) != 2:
@@ -180,6 +192,6 @@ def main(opts, args, dbctx) -> int:
     else:
         if not args:
             raise SystemExit(_('Error: You must specify the names of the Virtual libraries to remove'))
-        count = run(dbctx, 'remove', *args)
+        count = cast('int', run(dbctx, 'remove', *args))
         prints(ngettext('One Virtual library removed', '{} Virtual libraries removed', count).format(count))
     return 0

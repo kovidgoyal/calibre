@@ -2,21 +2,32 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
+from typing import TYPE_CHECKING
 
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+    from typing import NoReturn
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
 no_remote = True
 
 
-def implementation(db, notify_changes, *args):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, *args: object) -> NoReturn:
     raise NotImplementedError()
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -31,14 +42,14 @@ columns with the custom_columns command.
     return parser
 
 
-def input_unicode(prompt):
+def input_unicode(prompt: str) -> str:
     ans = input(prompt)
     if isinstance(ans, bytes):
         ans = ans.decode(sys.stdin.encoding)
     return ans
 
 
-def do_remove_custom_column(db, label, force) -> None:
+def do_remove_custom_column(db: LibraryDatabase, label: str, force: bool) -> None:
     if not force:
         q = input_unicode(_('You will lose all data in the column: %s. Are you sure (y/n)? ') % label)
         if q.lower().strip() != _('y'):
@@ -50,7 +61,7 @@ def do_remove_custom_column(db, label, force) -> None:
     prints(f'Column {label!r} removed.')
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     if len(args) < 1:
         raise SystemExit(_('Error: You must specify a column label'))
 

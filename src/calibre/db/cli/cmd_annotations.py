@@ -3,11 +3,22 @@
 
 import json
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre import prints
 from calibre.db import FTSQueryError
 from calibre.db.cli.utils import args_to_action, for_terminal
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+    from optparse import Values
+
+    from calibre.db.backend import JSONDict
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
 
 readonly = False
 version = 1  # change this if you change signature of implementation()
@@ -107,12 +118,14 @@ def annotations_to_import(data: object, fmt: str) -> tuple[list[dict], int]:
     return ans, skipped
 
 
-def implementation(db, notify_changes, action, *args):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, *args: object
+) -> tuple[bool, str | int | dict[str, int] | tuple[list[JSONDict], dict[int, object]]]:
     from calibre.utils.search_query_parser import ParseException
 
     is_remote = notify_changes is not None
     if action == 'import':
-        book_id, fmt, data, user_type, user = args
+        book_id, fmt, data, user_type, user = cast('tuple[int, str, object, str, str]', args)
         if user_type not in USER_TYPES or not isinstance(user, str) or not user.strip() or (user_type == 'local' and user != 'viewer'):
             return False, _('Invalid annotation user')
         try:
@@ -120,7 +133,7 @@ def implementation(db, notify_changes, action, *args):
         except (ValueError, TypeError) as err:
             return False, str(err)
 
-        def serialized(amap):
+        def serialized(amap: dict[str, list[JSONDict]]) -> set[str]:
             return {json.dumps(x, sort_keys=True) for values in amap.values() for x in values}
 
         changed = 0
@@ -139,7 +152,7 @@ def implementation(db, notify_changes, action, *args):
             notify_changes(metadata((book_id,)))
         return True, {'imported': changed, 'unchanged': max(0, len(annots) - changed), 'skipped': skipped}
     if action == 'remove':
-        annot_ids = {int(x) for x in args[0]}
+        annot_ids = {int(x) for x in cast('Iterable[int]', args[0])}
         with db.quiet_write_lock:
             book_map = db._book_ids_for_annotations(annot_ids, ignore_removed=True)
             if missing := annot_ids - set(book_map):
@@ -152,7 +165,7 @@ def implementation(db, notify_changes, action, *args):
         return True, len(book_map)
     if action not in ('get', 'search'):
         return False, _('Unknown action: {}').format(action)
-    search, annotation_type, user_type, user = args[:4]
+    search, annotation_type, user_type, user = cast('tuple[str | None, str | None, str | None, str | None]', args[:4])
     book_ids = None
     if search:
         try:
@@ -161,7 +174,7 @@ def implementation(db, notify_changes, action, *args):
             return False, _('Failed to parse search query: ({0}) with error: {1}').format(search, e)
     with db.safe_read_lock:
         if action == 'search':
-            query, use_stemming = args[4:]
+            query, use_stemming = cast('tuple[object, bool]', args[4:])
             if not isinstance(query, str) or not query.strip():
                 return False, _('You must specify a non-empty annotation search expression')
             try:
@@ -183,11 +196,11 @@ def implementation(db, notify_changes, action, *args):
         else:
             annots = db._all_annotations(annotation_type=annotation_type or None, ignore_removed=True, restrict_to_book_ids=book_ids)
         annots = [a for a in annots if (not user_type or a['user_type'] == user_type) and (not user or a['user'] == user)]
-        titles = {book_id: db._field_for('title', book_id) for book_id in {a['book_id'] for a in annots}}
-    return True, (annots, titles)
+        titles = {book_id: db._field_for('title', book_id) for book_id in {a['book_id'] for a in annots}}  # ty: ignore[no-matching-overload]
+    return True, (annots, titles)  # ty: ignore[invalid-return-type]
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -295,8 +308,8 @@ def json_for_terminal(data: object) -> str:
     return json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2).translate(C1_ESCAPES)
 
 
-def run(dbctx, *args):
-    ok, ans = dbctx.run('annotations', *args)
+def run(dbctx: DBCtx, *args: object) -> object:
+    ok, ans = cast('tuple[bool, object]', dbctx.run('annotations', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
@@ -323,7 +336,7 @@ def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool
     return '\n'.join(lines).strip()
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action != 'search' and not opts.use_stemming:
         raise SystemExit(_('Error: The --no-stemming option can only be used with search'))
@@ -350,7 +363,7 @@ def main(opts, args, dbctx) -> int:
                     data = json.load(f)
         except (OSError, ValueError) as err:
             raise SystemExit(_('Error: Failed to read annotation collection: {}').format(err))
-        counts = run(dbctx, 'import', book_id, args[1].upper(), data, user_type, user)
+        counts = cast('dict[str, int]', run(dbctx, 'import', book_id, args[1].upper(), data, user_type, user))
         prints(_('{} annotations imported').format(counts['imported']))
         if counts['unchanged']:
             prints(_('{} annotations unchanged, as the library already has the same or newer versions').format(counts['unchanged']))
@@ -376,11 +389,14 @@ def main(opts, args, dbctx) -> int:
             raise SystemExit(_('Error: You must specify one non-empty annotation search expression'))
         if opts.format not in ('text', 'json'):
             raise SystemExit(_('Error: The search output format must be text or json'))
-        annots, titles = run(dbctx, 'search', opts.search, opts.type, opts.user_type, opts.annotation_user, args[0], opts.use_stemming)
+        annots, titles = cast(
+            'tuple[list[JSONDict], dict[int | str, str]]',
+            run(dbctx, 'search', opts.search, opts.type, opts.user_type, opts.annotation_user, args[0], opts.use_stemming),
+        )
     elif args:
         raise SystemExit(_('Error: Too many arguments: {}').format(' '.join(args)))
     else:
-        annots, titles = run(dbctx, 'get', opts.search, opts.type, opts.user_type, opts.annotation_user)
+        annots, titles = cast('tuple[list[JSONDict], dict[int | str, str]]', run(dbctx, 'get', opts.search, opts.type, opts.user_type, opts.annotation_user))
     # Book ids are sent as strings when using a remote library
     titles = {int(k): v for k, v in titles.items()}
     if action == 'search' and opts.format == 'json':

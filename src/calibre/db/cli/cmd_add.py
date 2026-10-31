@@ -5,7 +5,7 @@ import os
 import sys
 from contextlib import contextmanager
 from optparse import OptionGroup, OptionValueError
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from calibre import prints
 from calibre.db.adding import cdb_find_in_dir, cdb_recursive_find, compile_rule, create_format_map, run_import_plugins, run_import_plugins_before_metadata
@@ -19,15 +19,27 @@ from calibre.srv.utils import is_recipe_fmt
 from calibre.utils.localization import _, canonicalize_lang
 from calibre.utils.short_uuid import uuid4
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
+    from optparse import Option, Values
+    from typing import IO
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.main import DBCtx
+    from calibre.db.utils import IdenticalBooksData
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def empty(db, notify_changes, is_remote, args):
+def empty(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, is_remote: bool, args: Sequence[Metadata]) -> tuple[list[int], bool]:
     mi = args[0]
     ids, duplicates = db.add_books([(mi, {})])
     if is_remote:
-        notify_changes(books_added(ids))
+        notify_changes(books_added(ids))  # ty: ignore[call-non-callable]
     db.dump_metadata(book_ids=ids)
     return ids, bool(duplicates)
 
@@ -35,7 +47,7 @@ def empty(db, notify_changes, is_remote, args):
 _cache: tuple[tuple[str, str], Any] = (('', ''), None)
 
 
-def cached_identical_book_data(db, request_id: str):
+def cached_identical_book_data(db: Cache, request_id: str) -> IdenticalBooksData:
     global _cache
     key = db.library_id, request_id
     if _cache[0] != key:
@@ -43,7 +55,16 @@ def cached_identical_book_data(db, request_id: str):
     return _cache[1]
 
 
-def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_duplicates, oautomerge):
+def do_adding(
+    db: Cache,
+    request_id: str,
+    notify_changes: Callable[[ChangeEvent], None] | None,
+    is_remote: bool,
+    mi: Metadata,
+    format_map: dict[str, str],
+    add_duplicates: bool,
+    oautomerge: str,
+) -> tuple[set[int], set[int], list[tuple[Metadata, Mapping[str, str | IO[bytes]]]]]:
     identical_book_list, added_ids, updated_ids = set(), set(), set()
     duplicates = []
     identical_books_data = None
@@ -52,7 +73,7 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
             if is_recipe_fmt(fmt):
                 raise ValueError('Cannot use the add interface to add recipe files, as they allow code execution')
 
-    def add_format(book_id, fmt) -> None:
+    def add_format(book_id: int, fmt: str) -> None:
         db.add_format(book_id, fmt, format_map[fmt], replace=True, run_hooks=False)
         updated_ids.add(book_id)
 
@@ -105,14 +126,35 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
             db.update_data_for_find_identical_books(book_id, identical_books_data)
 
     if is_remote:
-        notify_changes(books_added(added_ids))
+        notify_changes(books_added(added_ids))  # ty: ignore[call-non-callable]
         if updated_ids:
-            notify_changes(formats_added({book_id: tuple(format_map) for book_id in updated_ids}))
+            notify_changes(formats_added({book_id: tuple(format_map) for book_id in updated_ids}))  # ty: ignore[call-non-callable]
     db.dump_metadata(book_ids=added_ids | updated_ids)
     return added_ids, updated_ids, duplicates
 
 
-def book(db, notify_changes, is_remote, args):
+def book(
+    db: Cache,
+    notify_changes: Callable[[ChangeEvent], None] | None,
+    is_remote: bool,
+    args: tuple[
+        str | tuple[str, bytes],
+        str,
+        str,
+        bool,
+        str | None,
+        list[str],
+        str | None,
+        list[str],
+        str | None,
+        float,
+        tuple[str | None, bytes] | None,
+        dict[str, str],
+        list[str],
+        str,
+        str,
+    ],
+) -> tuple[set[int], set[int], bool, str]:
     (
         data,
         fname,
@@ -135,11 +177,11 @@ def book(db, notify_changes, is_remote, args):
             # sanitise to avoid path traversal
             fname = fname.replace('/', '').replace('\\', '')
             with open(os.path.join(tdir, fname), 'wb') as f:
-                f.write(data[1])
+                f.write(data[1])  # ty: ignore[invalid-argument-type]
             path = f.name
         else:
             path = data
-        path = run_import_plugins([path])[0]
+        path = run_import_plugins([path])[0]  # ty: ignore[invalid-argument-type]
         fmt = os.path.splitext(path)[1]
         fmt = (fmt[1:] if fmt else None) or 'unknown'
         with open(path, 'rb') as stream:
@@ -170,7 +212,12 @@ def book(db, notify_changes, is_remote, args):
     return added_ids, updated_ids, bool(duplicates), mi.title
 
 
-def format_group(db, notify_changes, is_remote, args):
+def format_group(
+    db: Cache,
+    notify_changes: Callable[[ChangeEvent], None] | None,
+    is_remote: bool,
+    args: tuple[Sequence[str] | Sequence[tuple[str, bytes]], bool, str, str, bytes | None],
+) -> tuple[str | None, set[int], set[int], bool]:
     formats, add_duplicates, oautomerge, request_id, cover_data = args
     with add_ctx(), TemporaryDirectory('add-multiple') as tdir, run_import_plugins_before_metadata(tdir):
         updated_ids = {}
@@ -178,11 +225,11 @@ def format_group(db, notify_changes, is_remote, args):
             paths = []
             for name, data in formats:
                 with open(os.path.join(tdir, os.path.basename(name.replace('\\', os.sep))), 'wb') as f:
-                    f.write(data)
+                    f.write(data)  # ty: ignore[invalid-argument-type]
                 paths.append(f.name)
         else:
             paths = list(formats)
-        paths = run_import_plugins(paths)
+        paths = run_import_plugins(paths)  # ty: ignore[invalid-argument-type]
         mi = metadata_from_formats(paths)
         if mi.title is None:
             return None, set(), set(), False
@@ -193,13 +240,26 @@ def format_group(db, notify_changes, is_remote, args):
         return mi.title, set(added_ids), set(updated_ids), bool(duplicates)
 
 
-def implementation(db, notify_changes, action, *args):
+def implementation(
+    db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, action: str, *args: object
+) -> tuple[list[int], bool] | tuple[set[int], set[int], bool, str] | tuple[str | None, set[int], set[int], bool]:
     is_remote = notify_changes is not None
     func = globals()[action]
     return func(db, notify_changes, is_remote, args)
 
 
-def do_add_empty(dbctx, title, authors, isbn, tags, series, series_index, cover, identifiers, languages) -> None:
+def do_add_empty(
+    dbctx: DBCtx,
+    title: str | None,
+    authors: list[str],
+    isbn: str | None,
+    tags: list[str],
+    series: str | None,
+    series_index: float,
+    cover: str | None,
+    identifiers: dict[str, str],
+    languages: list[str],
+) -> None:
     mi = MetaInformation(None)
     if title is not None:
         mi.title = title
@@ -217,34 +277,34 @@ def do_add_empty(dbctx, title, authors, isbn, tags, series, series_index, cover,
         mi.cover = cover
     if languages:
         mi.languages = languages
-    ids, duplicates = dbctx.run('add', 'empty', read_cover(mi))
+    ids, duplicates = cast('tuple[list[int], bool]', dbctx.run('add', 'empty', read_cover(mi)))
     prints(_('Added book ids: %s') % ','.join(map(str, ids)))
 
 
 @contextmanager
-def add_ctx():
+def add_ctx() -> Generator[None]:
     orig = sys.stdout
     yield
     sys.stdout = orig
 
 
 def do_add(
-    dbctx,
-    paths,
-    one_book_per_directory,
-    recurse,
-    add_duplicates,
-    otitle,
-    oauthors,
-    oisbn,
-    otags,
-    oseries,
-    oseries_index,
-    ocover,
-    oidentifiers,
-    olanguages,
-    compiled_rules,
-    oautomerge,
+    dbctx: DBCtx,
+    paths: Iterable[str],
+    one_book_per_directory: bool,
+    recurse: bool,
+    add_duplicates: bool,
+    otitle: str | None,
+    oauthors: list[str],
+    oisbn: str | None,
+    otags: list[str],
+    oseries: str | None,
+    oseries_index: float,
+    ocover: str | None,
+    oidentifiers: dict[str, str],
+    olanguages: list[str],
+    compiled_rules: Sequence[tuple[Callable[[str], bool], bool]],
+    oautomerge: str,
 ) -> None:
     request_id = uuid4()
     with add_ctx():
@@ -264,24 +324,27 @@ def do_add(
             fmt = fmt[1:] if fmt else None
             if not fmt:
                 continue
-            aids, mids, dups, book_title = dbctx.run(
-                'add',
-                'book',
-                dbctx.path(book),
-                os.path.basename(book),
-                fmt,
-                add_duplicates,
-                otitle,
-                oauthors,
-                oisbn,
-                otags,
-                oseries,
-                oseries_index,
-                serialize_cover(ocover) if ocover else None,
-                oidentifiers,
-                olanguages,
-                oautomerge,
-                request_id,
+            aids, mids, dups, book_title = cast(
+                'tuple[Iterable[int], Iterable[int], bool, str]',
+                dbctx.run(
+                    'add',
+                    'book',
+                    dbctx.path(book),
+                    os.path.basename(book),
+                    fmt,
+                    add_duplicates,
+                    otitle,
+                    oauthors,
+                    oisbn,
+                    otags,
+                    oseries,
+                    oseries_index,
+                    serialize_cover(ocover) if ocover else None,
+                    oidentifiers,
+                    olanguages,
+                    oautomerge,
+                    request_id,
+                ),
             )
             added_ids |= set(aids)
             merged_ids |= set(mids)
@@ -307,14 +370,17 @@ def do_add(
                                 except OSError:
                                     pass
 
-                book_title, ids, mids, dups = dbctx.run(
-                    'add',
-                    'format_group',
-                    tuple(map(dbctx.path, formats)),
-                    add_duplicates,
-                    oautomerge,
-                    request_id,
-                    cover_data,
+                book_title, ids, mids, dups = cast(
+                    'tuple[str | None, Iterable[int], Iterable[int], bool]',
+                    dbctx.run(
+                        'add',
+                        'format_group',
+                        tuple(map(dbctx.path, formats)),
+                        add_duplicates,
+                        oautomerge,
+                        request_id,
+                        cover_data,
+                    ),
                 )
                 if book_title is not None:
                     added_ids |= set(ids)
@@ -344,7 +410,7 @@ def do_add(
             prints(_('Merged book ids: %s') % (', '.join(map(str, merged_ids))))
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -405,10 +471,10 @@ the folder related options below.
         _('Options to control the adding of books from folders. By default only files that have extensions of known e-book file types are added.'),
     )
 
-    def filter_pat(option, opt, value, parser, action) -> None:
+    def filter_pat(option: Option, opt: str, value: str, parser: OptionParser, action: str) -> None:
         rule = {'match_type': 'glob', 'query': value, 'action': action}
         try:
-            getattr(parser.values, option.dest).append(compile_rule(rule))
+            getattr(parser.values, option.dest).append(compile_rule(rule))  # ty: ignore[invalid-argument-type]
         except Exception:
             raise OptionValueError(f'{value!r} is not a valid filename pattern')
 
@@ -421,7 +487,7 @@ the folder related options below.
     )
     g.add_option('-r', '--recurse', action='store_true', default=False, help=_('Process folders recursively'))
 
-    def fadd(opt, action, help) -> None:
+    def fadd(opt: str, action: str, help: str) -> None:
         g.add_option(
             opt,
             action='callback',
@@ -456,7 +522,7 @@ the folder related options below.
     return parser
 
 
-def main(opts, args, dbctx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
     aut = string_to_authors(opts.authors) if opts.authors else []
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]

@@ -13,11 +13,11 @@ CONTROL_CHARS = tuple(x for x in range(32) if x not in (9, 10)) + tuple(range(12
 control_chars_table = dict.fromkeys(CONTROL_CHARS)
 
 
-def chr_width(x):
+def chr_width(x: str) -> int:
     return 1 + eaw(x).startswith('W')
 
 
-def str_width(x):
+def str_width(x: str) -> int:
     return sum(map(chr_width, x))
 
 

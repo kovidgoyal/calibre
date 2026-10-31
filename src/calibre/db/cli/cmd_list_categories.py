@@ -5,21 +5,32 @@ import csv
 import sys
 from collections.abc import Callable
 from textwrap import TextWrapper
-from typing import IO, cast
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre import prints
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from optparse import Values
+
+    from calibre.db.cache import Cache
+    from calibre.db.categories import Tag
+    from calibre.db.cli.main import DBCtx
+    from calibre.library.field_metadata import FieldMetadata
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
 readonly = True
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes):
+def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None) -> tuple[dict[str, list[Tag]], FieldMetadata]:
     return db.get_categories(), db.field_metadata
 
 
-def option_parser(get_parser, args):
+def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:
     parser = get_parser(
         _(
             '''\
@@ -62,7 +73,7 @@ information is the equivalent of what is shown in the Tag browser.
     return parser
 
 
-def do_list(fields, data, opts) -> None:
+def do_list(fields: Sequence[str], data: Sequence[Mapping[str, object]], opts: Values | None) -> None:
     from calibre.utils.terminal import ColoredStream, geometry
 
     separator = ' '
@@ -114,11 +125,11 @@ class StdoutWriter:
         f: IO[bytes] = getattr(sys.stdout, 'buffer', cast('IO[bytes]', sys.stdout))
         self.do_write: Callable[[bytes], int] = f.write
 
-    def write(self, x) -> None:
+    def write(self, x: str | bytes) -> None:
         self.do_write(as_bytes(x))
 
 
-def do_csv(fields, data, opts) -> None:
+def do_csv(fields: Sequence[str], data: Sequence[Mapping[str, object]], opts: Values) -> None:
     csv_print = csv.writer(StdoutWriter(), opts.dialect)
     csv_print.writerow(fields)
     for d in data:
@@ -126,19 +137,19 @@ def do_csv(fields, data, opts) -> None:
         csv_print.writerow(row)
 
 
-def main(opts, args, dbctx) -> int:
-    category_data, field_metadata = dbctx.run('list_categories')
+def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+    category_data, field_metadata = cast('tuple[dict[str, list[Tag]], FieldMetadata]', dbctx.run('list_categories'))
     data = []
     report_on = [c.strip() for c in opts.report.split(',') if c.strip()]
 
-    def category_metadata(k):
+    def category_metadata(k: str) -> dict[str, object] | None:
         return field_metadata.get(k)
 
-    categories = [k for k in category_data.keys() if category_metadata(k)['kind'] not in ['user', 'search'] and (not report_on or k in report_on)]
+    categories = [k for k in category_data.keys() if category_metadata(k)['kind'] not in ['user', 'search'] and (not report_on or k in report_on)]  # ty: ignore[not-subscriptable]
 
     categories.sort(key=lambda x: x if x[0] != '#' else x[1:])
 
-    def fmtr(v):
+    def fmtr(v: float | None) -> str:
         v = v or 0
         ans = f'{v:.1f}'
         ans = ans.removesuffix('.0')
@@ -146,7 +157,7 @@ def main(opts, args, dbctx) -> int:
 
     if not opts.item_count:
         for category in categories:
-            is_rating = category_metadata(category)['datatype'] == 'rating'
+            is_rating = category_metadata(category)['datatype'] == 'rating'  # ty: ignore[not-subscriptable]
             for tag in category_data[category]:
                 if is_rating:
                     tag.name = str(len(tag.name))

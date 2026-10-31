@@ -6,6 +6,7 @@ import os
 import shutil
 import struct
 import unittest
+from collections.abc import Callable
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, StringIO
 from pathlib import Path
@@ -21,19 +22,19 @@ class VerifyExportTest(unittest.TestCase):
         self.addCleanup(self.folder.cleanup)
         self.path = self.folder.name
 
-    def export(self, files=None, part_size=32):
+    def export(self, files: dict[str, bytes] | None = None, part_size: int = 32) -> Importer:
         exporter = Exporter(self.path, part_size=part_size + Exporter.tail_size())
         for key, data in (files or {'first': b'a' * 45, 'second': b'b' * 37, 'empty': b''}).items():
             exporter.add_file(BytesIO(data), key)
         exporter.commit()
         return Importer(self.path)
 
-    def run_verifier(self):
+    def run_verifier(self) -> tuple[int, str, str]:
         with redirect_stdout(StringIO()) as out, redirect_stderr(StringIO()) as err:
             status = run_verifier(self.path)
         return status, out.getvalue(), err.getvalue()
 
-    def rewrite_metadata(self, change) -> None:
+    def rewrite_metadata(self, change: Callable[[dict[str, object]], None]) -> None:
         importer = Importer(self.path)
         path = importer.part_map[max(importer.part_map)]
         metadata = importer.metadata
@@ -171,7 +172,8 @@ class VerifyExportTest(unittest.TestCase):
 
         read, sizes = FileSource.read, []
 
-        def bounded_read(src, size=None):
+        def bounded_read(src: FileSource, size: int | None = None) -> bytes:
+
             self.assertIsNotNone(size)
             self.assertLessEqual(size, 1024 * 1024)
             sizes.append(size)
