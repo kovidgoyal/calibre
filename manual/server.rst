@@ -191,6 +191,26 @@ multiple devices and it will remember your last read position. If it does not
 you can force a sync by tapping in the top quarter and choosing
 :guilabel:`Sync`.
 
+Searching book contents in OPDS applications
+---------------------------------------------
+
+When full text indexing is enabled for a library, its OPDS catalog offers an
+catalog entry titled :guilabel:`Search book contents`. Open this entry and use
+the application's search control to find books by words and phrases inside
+them, using calibre's existing full text index. Each feed has a single search
+link, so clients do not have to choose between multiple search links. Results
+contain the normal book information and download links. A book is listed once
+even if more than one of its formats matches. Only books available to the
+current user are searched.
+
+The original search continues to search book metadata. Content search uses
+the same SQLite full text query syntax as calibre's full text search window.
+It searches the text indexed so far; books still waiting to be indexed will
+not appear yet. The content search entry is absent when indexing is disabled.
+Both OPDS 1 and OPDS 2 catalogs support content search, through the normal
+search URL with ``full_text=y`` added to its query parameters.
+
+
 Reading comics in OPDS applications
 ------------------------------------
 
