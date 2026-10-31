@@ -195,9 +195,10 @@ Searching book contents in OPDS applications
 ---------------------------------------------
 
 When full text indexing is enabled for a library, its OPDS catalog offers an
-additional search link titled :guilabel:`Search book contents`. Applications
-that support choosing between search links can use it to find books by words
-and phrases inside them, using calibre's existing full text index. Results
+catalog entry titled :guilabel:`Search book contents`. Open this entry and use
+the application's search control to find books by words and phrases inside
+them, using calibre's existing full text index. Each feed has a single search
+link, so clients do not have to choose between multiple search links. Results
 contain the normal book information and download links. A book is listed once
 even if more than one of its formats matches. Only books available to the
 current user are searched.
@@ -205,7 +206,7 @@ current user are searched.
 The original search continues to search book metadata. Content search uses
 the same SQLite full text query syntax as calibre's full text search window.
 It searches the text indexed so far; books still waiting to be indexed will
-not appear yet. The content search link is absent when indexing is disabled.
+not appear yet. The content search entry is absent when indexing is disabled.
 Both OPDS 1 and OPDS 2 catalogs support content search, through the normal
 search URL with ``full_text=y`` added to its query parameters.
 

@@ -7,6 +7,7 @@ from base64 import standard_b64encode
 from http.client import BAD_REQUEST, NOT_FOUND, OK, PRECONDITION_REQUIRED, UNAUTHORIZED, UNPROCESSABLE_ENTITY
 from io import BytesIO
 from time import monotonic
+from unittest.mock import patch
 from urllib.parse import parse_qs, quote, urlencode, urlsplit
 
 from lxml import etree
@@ -54,9 +55,18 @@ class OPDSFullTextTest(LibraryBaseTest):
                     response, raw = self.request(conn, '/calibre/opds', accept)
                     self.ae(response.status, OK)
                     links = self.search_links(raw, accept)
-                    self.ae(len(links), 2)
+                    self.ae(len(links), 1)
+                    metadata_link = links[0]
+                    if accept == OPDS2_MIME:
+                        catalog = next(x['href'] for x in json.loads(raw)['navigation'] if x['title'] == 'Search book contents')
+                    else:
+                        catalog = etree.fromstring(raw).xpath('a:entry[a:title="Search book contents"]/a:link/@href', namespaces=NS)[0]
+                    response, raw = self.request(conn, catalog, accept)
+                    self.ae(response.status, OK)
+                    content_links = self.search_links(raw, accept)
+                    self.ae(len(content_links), 1)
+                    links = [metadata_link, content_links[0]]
                     self.assertNotIn('full_text', links[0]['href'])
-                    self.ae(links[1]['title'], 'Search book contents')
                     self.assertIn('library_id', parse_qs(urlsplit(links[1]['href']).query))
                     url = links[1]['href'].replace(variable, quote('nebula', safe=''))
                     response, raw = self.request(conn, url, accept)
@@ -128,6 +138,11 @@ class OPDSFullTextTest(LibraryBaseTest):
             ctx.user_manager.add_user('empty', 'test', restriction={'library_restrictions': {os.path.basename(self.library_path): 'id:999'}})
             ctx.user_manager.add_user('one-library', 'test', restriction={'allowed_library_names': [os.path.basename(self.library_path)]})
             conn = server.connect()
+            with patch.object(db, 'fts_search', wraps=db.fts_search) as search:
+                self.ae(self.request(conn, '/opds/search/nebula?full_text=y', user='owner')[0].status, OK)
+                self.assertIsNone(search.call_args.kwargs['restrict_to_book_ids'])
+                self.ae(self.request(conn, '/opds/search/nebula?full_text=y', user='limited')[0].status, OK)
+                self.ae(search.call_args.kwargs['restrict_to_book_ids'], frozenset((1,)))
             for accept in (OPDS2_MIME, 'application/atom+xml'):
                 self.ae(self.request(conn, '/opds/search/nebula?full_text=y', accept)[0].status, UNAUTHORIZED)
                 self.ae(self.request(conn, '/opds/search/secretword?full_text=y', accept, 'owner')[0].status, OK)
