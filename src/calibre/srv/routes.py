@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import annotationlib
 import http.client
 import inspect
 import json as jsonlib
@@ -109,6 +110,18 @@ class RouteFunction:
         return self.f(ctx, rd, *path_segments)
 
 
+def positional_args(f: Callable[..., object]) -> tuple[list[str], int]:
+    """Return the names of the positional arguments of f and how many of them
+    have default values. Equivalent to the args and defaults of
+    inspect.getfullargspec(), except that annotations are not evaluated, as
+    they can refer to names imported only when type checking."""
+    if inspect.ismethod(f):
+        f = f.__func__
+    sig = inspect.signature(f, follow_wrapped=False, annotation_format=annotationlib.Format.FORWARDREF)
+    params = [p for p in sig.parameters.values() if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+    return [p.name for p in params], sum(1 for p in params if p.default is not p.empty)
+
+
 def endpoint[**P](
     route: str,
     methods: frozenset[str] | set[str] | tuple[str, ...] = default_methods,
@@ -146,13 +159,13 @@ def endpoint[**P](
             ok_code=ok_code,
             needs_db_write=needs_db_write,
         )
-        argspec = inspect.getfullargspec(f)
-        if len(argspec.args) < 2:
+        args = positional_args(f)[0]
+        if len(args) < 2:
             raise TypeError(f'The endpoint {r!r} must take at least two arguments')
         ans.__doc__ = (
             textwrap.dedent(f.__doc__ or '')
             + '\n\n'
-            + ((f':type {argspec.args[0]}: calibre.srv.handler.Context\n') + (f':type {argspec.args[1]}: calibre.srv.http_response.RequestData\n'))
+            + ((f':type {args[0]}: calibre.srv.handler.Context\n') + (f':type {args[1]}: calibre.srv.http_response.RequestData\n'))
         )
         return ans
 
@@ -212,10 +225,10 @@ class Route:
         self.names = [n for n, m in matchers if n is not None]
         self.all_names = frozenset(self.names)
         self.required_names = self.all_names - frozenset(self.defaults)
-        argspec = inspect.getfullargspec(self.endpoint.f)
-        if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
+        args, num_defaults = positional_args(self.endpoint.f)
+        if len(self.names) + 2 != len(args) - num_defaults:
             raise route_error(f'Function {self.endpoint.f} must take {len(self.names) + 2} non-default arguments')
-        if argspec.args[2 : len(self.names) + 2] != self.names:
+        if args[2 : len(self.names) + 2] != self.names:
             raise route_error("Function's argument names do not match the variable names in the route")
         if not frozenset(self.type_checkers).issubset(frozenset(self.names)):
             raise route_error(f'There exist type checkers that do not correspond to route variables: {set(self.type_checkers) - set(self.names)!r}')
