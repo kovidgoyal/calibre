@@ -530,6 +530,16 @@ class ContentTest(LibraryBaseTest):
             ae(r.status, FORBIDDEN)
             self.assertIsNone(db.book_storage_for_book(1, 'FMT1', user_type='web', user='*'))
 
+        with self.create_server(local_write=True) as server:
+            # Last read positions are not saved for anonymous users, even with write access
+            db = server.handler.router.ctx.library_broker.get(None)
+            lid = db.server_library_id
+            conn = server.connect()
+            pos = b'{"device": "d", "cfi": "epubcfi(/2/4)", "pos_frac": 0.1}'
+            r, data = make_request(conn, f'/book-set-last-read-position/{lid}/1/FMT1', prefix='', method='POST', data=pos)
+            ae(r.status, FORBIDDEN)
+            ae(db.get_last_read_positions(1, 'FMT1'), ())
+
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.ctx.user_manager.add_user('12', 'test')
             server.handler.ctx.user_manager.add_user('other', 'test')

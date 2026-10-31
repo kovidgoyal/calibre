@@ -165,10 +165,12 @@ def sanitize_conversion_options(ctx: Context, db: Cache, input_fmt: str, output_
     ans = {}
     for name, val in client_options.items():
         if name in FORBIDDEN_CLIENT_OPTIONS:
-            ctx.log.warn(f'Ignoring conversion option {name!r} from client: not allowed via the network API')  # ty: ignore[unresolved-attribute]
+            if ctx.log is not None:
+                ctx.log.warn(f'Ignoring conversion option {name!r} from client: not allowed via the network API')
             continue
         if name not in allowed:
-            ctx.log.warn(f'Ignoring conversion option {name!r} from client: not exposed by the conversion API')  # ty: ignore[unresolved-attribute]
+            if ctx.log is not None:
+                ctx.log.warn(f'Ignoring conversion option {name!r} from client: not exposed by the conversion API')
             continue
         ans[name] = val
     return ans

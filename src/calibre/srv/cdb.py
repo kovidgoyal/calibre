@@ -6,7 +6,7 @@ import shutil
 import time
 from functools import partial
 from io import BytesIO
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from calibre import as_unicode, sanitize_file_name
 from calibre.db.cli import module_for_cmd
@@ -16,7 +16,7 @@ from calibre.srv.changes import books_added, books_deleted, metadata
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden, HTTPNotFound
 from calibre.srv.metadata import book_as_json
 from calibre.srv.routes import endpoint, json, msgpack_or_json
-from calibre.srv.utils import get_db, get_library_data, is_recipe_fmt
+from calibre.srv.utils import get_db, get_library_data, header_as_str, is_recipe_fmt
 from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, reverse_lang_map_for_ui
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
@@ -46,9 +46,7 @@ def cdb_run(ctx: Context, rd: RequestData, which: str, version: int) -> dict[str
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')
     raw = rd.read()
-    # Content-Type is not always decoded, but is used as str here
-    ct = cast('list[str]', rd.inheaders.get('Content-Type', all=True))
-    ct = {x.lower().partition(';')[0] for x in ct}
+    ct = {header_as_str(x).lower().partition(';')[0] for x in rd.inheaders.get('Content-Type', all=True)}
     try:
         if MSGPACK_MIME in ct:
             args = msgpack_loads(raw)
@@ -173,9 +171,7 @@ def cdb_set_cover(ctx: Context, rd: RequestData, book_id: int, library_id: str |
 
 def load_payload_data(rd: RequestData) -> dict:
     raw = rd.read()
-    # Content-Type is not always decoded, but is used as str here
-    ct = cast('list[str]', rd.inheaders.get('Content-Type', all=True))
-    ct = {x.lower().partition(';')[0] for x in ct}
+    ct = {header_as_str(x).lower().partition(';')[0] for x in rd.inheaders.get('Content-Type', all=True)}
     try:
         if MSGPACK_MIME in ct:
             return msgpack_loads(raw)

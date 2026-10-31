@@ -809,6 +809,9 @@ class Main(
         if action == 'switch-library':
             library_id = decode_library_id(posixpath.basename(path))
             library_path = self.library_broker.path_for_library_id(library_id)
+            if library_path is None:
+                prints('Ignoring unknown library id', library_id, file=sys.stderr)
+                return
             if not db_matches(self.current_db, library_id, library_path):
                 self.library_moved(library_path)
         elif action == 'switch-library-by-path':

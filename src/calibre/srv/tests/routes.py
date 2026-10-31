@@ -39,7 +39,7 @@ class TestRouter(BaseTest):
             self.ae(correct_case_of_last_path_component(os.path.join(tdir, 'test')), path)
             self.ae(correct_case_of_last_path_component(os.path.join(tdir, 'Test')), path)
             db = MockDB(tdir)
-            self.assertTrue(db_matches(db, db.server_library_id, None))
+            self.assertTrue(db_matches(db, db.server_library_id, os.path.join(tdir, 'other')))
             self.assertTrue(db_matches(db, db.server_library_id.upper(), tdir))
 
     def test_route_construction(self) -> None:

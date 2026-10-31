@@ -825,7 +825,8 @@ class HTTPConnection(HTTPRequest):
         compressible = (
             compressible
             and request.status_code == http.client.OK
-            and (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size)  # ty: ignore[unsupported-operator]
+            # Only output of known length is compressed, generated output is sent as is
+            and (opts.compress_min_size > -1 and output.content_length is not None and output.content_length >= opts.compress_min_size)
             and acceptable_encoding(cast('str', request.inheaders.get('Accept-Encoding', '')))  # a decoded header
             and not is_http1
         )

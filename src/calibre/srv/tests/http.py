@@ -458,6 +458,15 @@ class TestHTTP(BaseTest):
             self.ae(r.read(), raw)
             conn.close()
 
+            # Test generated output, which has no known length
+            server.change_handler(lambda _conn: (x for x in (b'gen', b'erated')))
+            conn = server.connect()
+            conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding': 'gzip'})
+            r = conn.getresponse()
+            self.ae(r.status, http.client.OK)
+            self.ae(r.getheader('Transfer-Encoding'), 'chunked')
+            self.ae(r.read(), b'generated')
+
             # Test dynamic etagged content
             num_calls = [0]
 

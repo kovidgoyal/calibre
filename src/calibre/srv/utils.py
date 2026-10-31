@@ -42,6 +42,12 @@ def connection_header_tokens(value: str) -> set[str]:
     return {x.strip().lower() for x in value.split(',') if x.strip()}
 
 
+def header_as_str(value: str | bytes) -> str:
+    """Return the value of a request header as str. The values of headers that
+    the parser does not decode are bytes if they are not valid UTF-8."""
+    return value if isinstance(value, str) else value.decode('utf-8', 'replace')
+
+
 def http_date(timeval: float | None = None) -> str:
     return str(formatdate(timeval=timeval, usegmt=True))
 
@@ -207,16 +213,8 @@ def parse_http_list(header_val: str) -> Iterator[str]:
     middle.  Neither commas nor quotes count if they are escaped.
     Only double-quotes count, not single-quotes.
     """
-    if isinstance(header_val, bytes):
-        # Only str works, as iterating over bytes yields ints, which cannot be
-        # appended to part
-        slash, dquote, comma = b'\\",'
-        empty: str = b''  # ty: ignore[invalid-assignment]
-    else:
-        slash, dquote, comma = '\\",'
-        empty = ''
-
-    part = empty
+    slash, dquote, comma = '\\",'
+    part = ''
     escape = quote = False
     for cur in header_val:
         if escape:
@@ -234,7 +232,7 @@ def parse_http_list(header_val: str) -> Iterator[str]:
 
         if cur == comma:
             yield part.strip()
-            part = empty
+            part = ''
             continue
 
         if cur == dquote:
@@ -251,9 +249,9 @@ def parse_http_dict(header_val: str | None) -> dict[str, str]:
     if not header_val:
         return {}
     ans: dict[str, str] = {}
-    sep, dquote = b'="' if isinstance(header_val, bytes) else '="'
+    sep, dquote = '="'
     for item in parse_http_list(header_val):
-        k, v = item.partition(sep)[::2]  # ty: ignore[no-matching-overload]
+        k, v = item.partition(sep)[::2]
         if k:
             if v.startswith(dquote) and v.endswith(dquote):
                 v = v[1:-1]

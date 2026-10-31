@@ -36,5 +36,6 @@ def change_pw(ctx: Context, rd: RequestData) -> str:
         ctx.user_manager.change_password(user, newpw)
     except Exception as err:
         raise HTTPBadRequest(as_unicode(err))
-    ctx.log.warn('Changed password for user', user)  # ty: ignore[unresolved-attribute]
+    if ctx.log is not None:
+        ctx.log.warn('Changed password for user', user)
     return f'password for {user} changed'

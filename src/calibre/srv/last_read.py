@@ -68,7 +68,7 @@ class LastReadCache:
         cursor = self.conn.cursor()
         return cursor.execute(sql, bindings)
 
-    def add_last_read_position(self, library_id: str, book_id: int, fmt: str, user: str, cfi: str, pos_frac: float, tooltip: str) -> int | None:
+    def add_last_read_position(self, library_id: str, book_id: int, fmt: str, user: str, cfi: str | None, pos_frac: float, tooltip: str) -> int | None:
         with lock, self.conn:
             if not cfi:
                 self.execute(

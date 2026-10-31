@@ -51,7 +51,7 @@ def ban_key(rd: RequestData) -> str:
     # logins, so that a device retrying with a stale password in the background
     # does not lock out everyone sharing its IP address, such as all users of a
     # reverse proxy
-    return 'kosync:' + rd.remote_addr  # ty: ignore[unsupported-operator]
+    return f'kosync:{rd.remote_addr}'
 
 
 def log_warning(ctx: Context, msg: str) -> None:

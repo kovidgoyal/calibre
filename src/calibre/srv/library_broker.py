@@ -91,12 +91,12 @@ def correct_case_of_last_path_component(original_path: str) -> str:
     return os.path.join(prefix, basename)
 
 
-def db_matches(db: LoadedDB, library_id: str, library_path: str | None) -> bool:
+def db_matches(db: LoadedDB, library_id: str, library_path: str) -> bool:
     db = db.new_api
     if getattr(db, 'server_library_id', object()) == library_id:
         return True
     dbpath = db.dbpath
-    return samefile(dbpath, os.path.join(library_path, os.path.basename(dbpath)))  # ty: ignore[no-matching-overload]
+    return samefile(dbpath, os.path.join(library_path, os.path.basename(dbpath)))
 
 
 class LibraryBroker:
@@ -237,7 +237,8 @@ class GuiLibraryBroker(LibraryBroker):
         with self:
             self.listening_for_db_events = True
             for db in self.loaded_dbs.values():
-                db.new_api.add_listener(gui_on_db_event)  # ty: ignore[unresolved-attribute]
+                if db is not None:  # None if the library failed to load
+                    db.new_api.add_listener(gui_on_db_event)
 
     def on_db_event(self, event_type: EventType, library_id: str, event_data: tuple[object, ...]) -> None:
         from calibre.gui2.ui import get_gui

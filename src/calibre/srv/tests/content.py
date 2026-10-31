@@ -136,6 +136,10 @@ class ContentTest(LibraryBaseTest):
             r, data = get('fmt1', 1)
             self.ae(data, db.format(1, 'fmt1'))
             self.ae(r.getheader('Used-Cache'), 'yes')
+            # A User-Agent that is not valid UTF-8 must not cause a server error
+            conn.request('GET', f'/legacy/get/fmt1/1/{db.server_library_id}', headers={'User-Agent': b'Kindle/3\xff'})
+            r = conn.getresponse()
+            self.ae(r.status, http.client.OK), self.ae(r.read(), db.format(1, 'fmt1'))
 
             # Test that scriptable formats served inline are sandboxed
             db.add_format(1, 'HTML', BytesIO(b'<script>alert(1)</script>'), run_hooks=False)
@@ -351,6 +355,12 @@ class ContentTest(LibraryBaseTest):
                 self.ae(status, http.client.OK, fmt)
                 self.assertIn('err', json.loads(raw), fmt)
                 self.assertNotIn(fmt.upper(), db.formats(1), fmt)
+
+            # A Content-Type that is not valid UTF-8 is a bad request, not a server error
+            conn.request('POST', '/cdb/cmd/list/0', body=b'x', headers={'Content-Type': b'application/json\xff', **auth})
+            r = conn.getresponse()
+            r.read()
+            self.ae(r.status, http.client.BAD_REQUEST)
 
             # Recipe formats that are already in the library must not be
             # converted or viewed by remote clients

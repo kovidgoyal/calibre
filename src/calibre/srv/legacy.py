@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
-from typing import TYPE_CHECKING, Never, cast
+from typing import TYPE_CHECKING, Never
 from urllib.parse import urlencode
 
 from lxml.html import tostring
@@ -16,7 +16,7 @@ from calibre.srv.content import book_filename, get
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPRedirect
 from calibre.srv.legacy_book_details import render_legacy_book_details
 from calibre.srv.routes import endpoint
-from calibre.srv.utils import get_library_data, http_date
+from calibre.srv.utils import get_library_data, header_as_str, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
 from calibre.utils.localization import _
@@ -332,7 +332,7 @@ def browse(ctx: Context, rd: RequestData, rest: str) -> bytes:
         return html(
             ctx,
             rd,
-            endpoint,  # ty: ignore[invalid-argument-type]
+            browse,
             E.html(
                 E.head(
                     ET.XML('<meta http-equiv="refresh" content="0;url=' + redirect + '"/>'),
@@ -353,8 +353,7 @@ def stanza(ctx: Context, rd: RequestData, rest: str) -> Never:
 def legacy_get(ctx: Context, rd: RequestData, what: str, book_id: str, library_id: str, filename: str) -> object:
     # See https://www.mobileread.com/forums/showthread.php?p=3531644 for why
     # this is needed for Kobo browsers
-    # User-Agent is not always decoded, but is used as str here
-    ua = cast('str', rd.inheaders.get('User-Agent', ''))
+    ua = header_as_str(rd.inheaders.get('User-Agent', ''))
     is_old_kindle = 'Kindle/3' in ua
     ans = get(ctx, rd, what, book_id, library_id)
     if is_old_kindle:

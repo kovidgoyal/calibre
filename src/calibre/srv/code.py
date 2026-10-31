@@ -135,10 +135,15 @@ def console_print(ctx: Context, rd: RequestData) -> str:
     if not getattr(rd.opts, 'allow_console_print', False):
         raise HTTPForbidden('console printing is not allowed')
     with print_lock:
-        print(rd.remote_addr, end=' ')
-        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
-        shutil.copyfileobj(rd.request_body_file, stdout)  # ty: ignore[invalid-argument-type]
-        stdout.flush()
+        # Flush so that the address is output before the data written to the underlying buffer
+        print(rd.remote_addr, end=' ', flush=True)
+        stdout = getattr(sys.stdout, 'buffer', None)
+        if stdout is None:  # stdout has been replaced by a text only stream
+            sys.stdout.write(rd.request_body_file.read().decode('utf-8', 'replace'))
+            sys.stdout.flush()
+        else:
+            shutil.copyfileobj(rd.request_body_file, stdout)
+            stdout.flush()
     return ''
 
 

@@ -148,6 +148,13 @@ class KOSyncTest(LibraryBaseTest):
             status, data = self.request(conn, '/users/auth', user='alice', key=key_for('secret'))
             self.ae((status, data['code']), (403, 2001))
 
+        from types import SimpleNamespace
+
+        from calibre.srv.kosync import ban_key
+
+        # The remote address is None when the peer address of the socket is unavailable
+        self.assertTrue(ban_key(SimpleNamespace(remote_addr=None)).startswith('kosync:'))
+
     def test_kosync_without_auth(self) -> None:
         with self.create_server() as server:
             conn = server.connect()

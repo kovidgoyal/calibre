@@ -890,7 +890,7 @@ def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, object]:
     try:
         categories = rc.get_categories(report_parse_errors=True)
     except ParseException as p:
-        raise HTTPInternalServerError(p.msg)  # ty: ignore[invalid-argument-type]
+        raise HTTPInternalServerError(str(p.msg))
 
     category_meta = db.field_metadata
     cats = [

@@ -197,10 +197,6 @@ class WSTestServer(TestServer):
 
         self.loop.handler = create_http_handler(websocket_handler=handler())
 
-    @property
-    def ws_handler(self) -> WebSocketHandler | None:
-        return self.loop.handler.websocket_handler
-
     def connect(self) -> WSClient:
         return WSClient(self.address[1])
 

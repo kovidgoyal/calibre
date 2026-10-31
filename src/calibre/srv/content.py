@@ -27,7 +27,7 @@ from calibre.library.save_to_disk import find_plugboard
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPNotFound
 from calibre.srv.metadata import encode_stat_result
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_db, get_use_roman, http_date
+from calibre.srv.utils import get_db, get_use_roman, header_as_str, http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
 from calibre.utils.filenames import ascii_filename, atomic_rename, make_long_path_useable, path_from_root
@@ -259,8 +259,7 @@ def book_filename(rd: RequestData, book_id: int, mi: Metadata, fmt: str | None, 
     ext = (fmt or '').lower()
     fname = f'{title[:30]} - {au[:30]}_{book_id}.{ext}'
     fname = fname_for_content_disposition(fname, as_encoded_unicode)
-    # User-Agent is not always decoded by the parser, pre-existing assumption that it is a str
-    if ext == 'kepub' and 'Kobo Touch' in cast('str', rd.inheaders.get('User-Agent', '')):
+    if ext == 'kepub' and 'Kobo Touch' in header_as_str(rd.inheaders.get('User-Agent', '')):
         fname = fname.replace('!', '_')
         fname += '.epub'
     return fname

@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from calibre.srv.jobs import Job
 
 cache_lock = RLock()
-queued_jobs: dict[str, int | None] = {}
+queued_jobs: dict[str, int] = {}
 failed_jobs: dict[str, tuple[bool | None, str | None]] = {}
 
 
@@ -101,7 +101,11 @@ def queue_job(ctx: Context, copy_format_to: Callable[[IO[bytes]], object], bhash
         job_done_callback=job_done,
         job_data=(bhash, pathtoebook, tdir),
     )
-    queued_jobs[bhash] = job_id
+    if job_id is None:  # the server is shutting down
+        safe_remove(pathtoebook)
+        safe_remove(tdir, False)
+    else:
+        queued_jobs[bhash] = job_id
     return job_id
 
 
@@ -195,7 +199,8 @@ def book_manifest(ctx: Context, rd: RequestData, book_id: int, fmt: str) -> dict
             job_id = queued_jobs.get(bhash)
             if job_id is None:
                 job_id = queue_job(ctx, partial(db.copy_format_to, book_id, fmt), bhash, fmt, book_id, size, mtime)
-    status, result, tb, aborted = ctx.job_status(job_id)  # ty: ignore[invalid-argument-type]
+    # job_id is None when the server is shutting down
+    status, result, tb, aborted = (None, None, None, None) if job_id is None else ctx.job_status(job_id)
     return {'aborted': aborted, 'traceback': tb, 'job_status': status, 'job_id': job_id}
 
 
@@ -246,21 +251,22 @@ def get_last_read_position(ctx: Context, rd: RequestData, library_id: str, which
 @endpoint('/book-set-last-read-position/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',), needs_db_write=True)
 def set_last_read_position(ctx: Context, rd: RequestData, library_id: str, book_id: int, fmt: str) -> bytes:
     db = get_db(ctx, rd, library_id)
-    user = rd.username or None
+    user = rd.username
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
+    if not user:
+        raise HTTPForbidden('Last read positions are only saved for logged in users')
     try:
         data = jsonlib.load(rd.request_body_file)
         device, cfi, pos_frac = data['device'], data['cfi'], data['pos_frac']
     except Exception:
         raise HTTPNotFound('Invalid data')
     cfi = cfi or None
-    db.set_last_read_position(book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)  # ty: ignore[invalid-argument-type]
-    if user:
-        with db.safe_read_lock:
-            tt = db._field_for('title', book_id)
-            tt += ' ' + _('by') + ' ' + authors_to_string(db._field_for('authors', book_id))
-        last_read_cache().add_last_read_position(library_id, book_id, fmt, user, cfi, pos_frac, tt)  # ty: ignore[invalid-argument-type]
+    db.set_last_read_position(book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)
+    with db.safe_read_lock:
+        tt = db._field_for('title', book_id)
+        tt += ' ' + _('by') + ' ' + authors_to_string(db._field_for('authors', book_id))
+    last_read_cache().add_last_read_position(library_id, book_id, fmt, user, cfi, pos_frac, tt)
     rd.outheaders['Content-type'] = 'text/plain'
     return b''
 
