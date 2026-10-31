@@ -1115,10 +1115,10 @@ class BasicNewsRecipe(Recipe):
 
     def _postprocess_html(self, soup: Soup, first_fetch: bool, job_info: tuple[str, int, int, int] | None) -> Soup:
         if self.no_stylesheets:
-            for link in soup.findAll('link'):
-                if (link.get('type') or 'text/css').lower() == 'text/css' and 'stylesheet' in (link.get('rel') or ('stylesheet',)):
+            for link in soup.find_all('link'):
+                if (cast('str | None', link.get('type')) or 'text/css').lower() == 'text/css' and 'stylesheet' in (link.get('rel') or ('stylesheet',)):
                     link.extract()
-            for style in soup.findAll('style'):
+            for style in soup.find_all('style'):
                 style.extract()
         head = soup.find('head')
         if not head:
@@ -1150,7 +1150,7 @@ class BasicNewsRecipe(Recipe):
                 # the soup breaks find()
                 soup = BeautifulSoup(soup.decode_contents())
         if self.remove_javascript:
-            for script in list(soup.findAll('script')):
+            for script in list(soup.find_all('script')):
                 script.extract()
             for o in soup.find_all(onload=True):
                 del o['onload']
@@ -1159,7 +1159,7 @@ class BasicNewsRecipe(Recipe):
             for x in soup.find_all(attrs={attr: True}):
                 del x[attr]
         for bad_tag in list(
-            soup.findAll([
+            soup.find_all([
                 'base',
                 'iframe',
                 'canvas',
@@ -1187,7 +1187,7 @@ class BasicNewsRecipe(Recipe):
         ans = self.postprocess_html(soup, first_fetch)
 
         # Nuke HTML5 tags
-        for x in ans.findAll(['article', 'aside', 'header', 'footer', 'nav', 'figcaption', 'figure', 'section']):
+        for x in ans.find_all(['article', 'aside', 'header', 'footer', 'nav', 'figcaption', 'figure', 'section']):
             if x.get('class'):
                 x.get_attribute_list('class').append(f'calibre-nuked-tag-{x.name}')
             else:
@@ -1970,13 +1970,13 @@ class BasicNewsRecipe(Recipe):
         viewed in Adobe Digital Editions, call this method from within
         :meth:`postprocess_html`.
         """
-        for item in soup.findAll('img'):
+        for item in soup.find_all('img'):
             for attrib in ['height', 'width', 'border', 'align', 'style']:
                 try:
                     del item[attrib]
                 except KeyError:
                     pass
-            oldParent = item.parent
+            oldParent = cast('Tag', item.parent)
             myIndex = oldParent.contents.index(item)
             item.extract()
             divtag = soup.new_tag('div')

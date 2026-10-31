@@ -15,7 +15,7 @@ import time
 import traceback
 from base64 import standard_b64decode
 from http.client import responses
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, cast
 from urllib.error import URLError
 from urllib.parse import quote, urljoin, urlparse, urlsplit, urlunparse, urlunsplit
 from urllib.request import url2pathname, urlopen
@@ -94,8 +94,8 @@ def basename(url: str) -> str:
 
 
 def save_soup(soup: Soup, target: str) -> None:
-    for meta in soup.findAll('meta', content=True):  # ty: ignore[unknown-argument]
-        if 'charset' in meta['content'].lower():
+    for meta in soup.find_all('meta', content=True):
+        if 'charset' in cast('str', meta['content']).lower():
             meta.extract()
     for meta in soup.find_all('meta', charset=True):
         meta.extract()
@@ -106,9 +106,9 @@ def save_soup(soup: Soup, target: str) -> None:
 
     selfdir = os.path.dirname(target)
 
-    for tag in soup.findAll(['img', 'link', 'a']):
+    for tag in soup.find_all(['img', 'link', 'a']):
         for key in ('src', 'href'):
-            path = tag.get(key, None)
+            path = cast('str | None', tag.get(key, None))
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = unicode_path(relpath(path, selfdir).replace(os.sep, '/'))
 
@@ -226,7 +226,7 @@ class RecursiveFetcher:
                 if isinstance(self.keep_only_tags, dict):
                     self.keep_only_tags = [self.keep_only_tags]
                 for spec in self.keep_only_tags:
-                    for tag in soup.find('body').findAll(**spec):
+                    for tag in soup.find('body').find_all(**spec):
                         body.insert(len(body.contents), tag)
                 soup.find('body').replaceWith(body)
             except AttributeError:  # soup has no body element
@@ -254,7 +254,7 @@ class RecursiveFetcher:
                 remove_beyond(tag, 'previousSibling')
 
         for kwds in self.remove_tags:
-            for tag in soup.findAll(**kwds):
+            for tag in soup.find_all(**kwds):
                 tag.extract()
         return self.preprocess_html_ext(soup)
 
@@ -365,15 +365,15 @@ class RecursiveFetcher:
         diskpath = unicode_path(os.path.join(self.current_dir, 'stylesheets'))
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
-        for c, tag in enumerate(soup.findAll(name=['link', 'style'])):  # ty: ignore[missing-argument, unknown-argument]
+        for c, tag in enumerate(soup.find_all(name=['link', 'style'])):
             try:
-                mtype = tag['type']
+                mtype = cast('str', tag['type'])
             except KeyError:
                 mtype = 'text/css' if tag.name.lower() == 'style' else ''
             if mtype.lower() != 'text/css':
                 continue
             if tag.has_attr('href'):
-                iurl = tag['href']
+                iurl = cast('str', tag['href'])
                 if not urlsplit(iurl).scheme:
                     iurl = urljoin(baseurl, iurl, False)
                 found_cached = False
@@ -395,7 +395,7 @@ class RecursiveFetcher:
                     x.write(data)
                 tag['href'] = stylepath
             else:
-                for ns in tag.findAll(text=True):
+                for ns in tag.find_all(text=True):
                     src = str(ns)
                     m = self.__class__.CSS_IMPORT_PATTERN.search(src)
                     if m:
@@ -430,8 +430,8 @@ class RecursiveFetcher:
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
         c = 0
-        for tag in soup.findAll('img', src=True):  # ty: ignore[unknown-argument]
-            iurl = tag['src']
+        for tag in soup.find_all('img', src=True):
+            iurl = cast('str', tag['src'])
             if iurl.startswith('data:'):
                 try:
                     data = urlopen(iurl).read()
@@ -605,7 +605,7 @@ class RecursiveFetcher:
                         self.log.debug('Recursion limit reached. Skipping links in', iurl)
 
                     if newbaseurl and not newbaseurl.startswith('/'):
-                        for atag in soup.findAll('a', href=lambda x: x and x.startswith('/')):  # ty: ignore[unknown-argument]
+                        for atag in soup.find_all('a', href=lambda x: x and x.startswith('/')):  # ty: ignore[no-matching-overload]
                             atag['href'] = urljoin(newbaseurl, atag['href'], True)
                     if callable(self.postprocess_html_ext):
                         soup = self.postprocess_html_ext(
