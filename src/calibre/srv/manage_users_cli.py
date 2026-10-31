@@ -15,7 +15,7 @@ def create_subcommand_parser(name, usage):
     return parser
 
 
-def add(user_manager, args):
+def add(user_manager, args) -> None:
     p = create_subcommand_parser(
         'add',
         _('username [password]')
@@ -38,7 +38,7 @@ is not specified on the command line, it will be read from STDIN.
     user_manager.add_user(username, pw, readonly=opts.readonly)
 
 
-def remove(user_manager, args):
+def remove(user_manager, args) -> None:
     p = create_subcommand_parser(
         'remove',
         _('username')
@@ -55,7 +55,7 @@ Remove the user account with the specified username.
     user_manager.remove_user(username)
 
 
-def list_users(user_manager, args):
+def list_users(user_manager, args) -> None:
     p = create_subcommand_parser(
         'list',
         '\n\n'
@@ -68,7 +68,7 @@ List all usernames.
         print(name)
 
 
-def change_set_password(user_manager, args):
+def change_set_password(user_manager, args) -> None:
     p = create_subcommand_parser(
         'change_set_password',
         _('username set|reset|toggle|show')
@@ -98,7 +98,7 @@ own password, toggle flips the value and show prints out the current value. \
     user_manager.set_allowed_to_change_password_via_http(username, val)
 
 
-def change_readonly(user_manager, args):
+def change_readonly(user_manager, args) -> None:
     p = create_subcommand_parser(
         'readonly',
         _('username set|reset|toggle|show')
@@ -128,7 +128,7 @@ changes, toggle flips the value and show prints out the current value. \
     user_manager.set_readonly(username, val)
 
 
-def change_libraries(user_manager, args):
+def change_libraries(user_manager, args) -> None:
     p = create_subcommand_parser(
         'libraries',
         _('[options] username [library_name ...]')
@@ -207,7 +207,7 @@ Manage the libraries the specified user account is restricted to.
         user_manager.update_user_restrictions(username, r)
 
 
-def chpass(user_manager, args):
+def chpass(user_manager, args) -> None:
     p = create_subcommand_parser(
         'chpass',
         _('username [password]')
@@ -254,7 +254,7 @@ def main(user_manager, args):
     raise SystemExit(1)
 
 
-def manage_users_cli(path=None, args=()):
+def manage_users_cli(path=None, args=()) -> None:
     from calibre.srv.users import UserManager
 
     m = UserManager(path)
@@ -335,29 +335,29 @@ def manage_users_cli(path=None, args=()):
                 return one
             prints(msg)
 
-    def add_user():
+    def add_user() -> None:
         username = get_valid(_('Enter the username'), m.validate_username)
         pw = get_pass(username)
         m.add_user(username, pw)
         prints(_('User %s added successfully!') % username)
 
-    def remove_user():
+    def remove_user() -> None:
         un = get_valid_user()
         if get_input((_('Are you sure you want to remove the user %s?') % un) + ' [y/n]:') != 'y':
             raise SystemExit(0)
         m.remove_user(un)
         prints(_('User %s successfully removed!') % un)
 
-    def change_password(username):
+    def change_password(username) -> None:
         pw = get_pass(username)
         m.change_password(username, pw)
         prints(_('Password for %s successfully changed!') % username)
 
-    def show_password(username):
+    def show_password(username) -> None:
         pw = m.get(username)
         prints(_('Current password for {0} is: {1}').format(username, pw))
 
-    def change_readonly(username):
+    def change_readonly(username) -> None:
         readonly = m.is_readonly(username)
         if readonly:
             q = _('Allow {} to make changes (i.e. grant write access)')
@@ -366,7 +366,7 @@ def manage_users_cli(path=None, args=()):
         if get_input(q.format(username) + '? [y/n]:').lower() == 'y':
             m.set_readonly(username, not readonly)
 
-    def change_set_password(username):
+    def change_set_password(username) -> None:
         allowed = m.is_allowed_to_change_password_via_http(username)
         if allowed:
             q = _('Prevent {} from changing their own password via the web')
@@ -375,7 +375,7 @@ def manage_users_cli(path=None, args=()):
         if get_input(q.format(username) + '? [y/n]:').lower() == 'y':
             m.set_allowed_to_change_password_via_http(username, not allowed)
 
-    def change_restriction(username):
+    def change_restriction(username) -> None:
         r = m.restrictions(username)
         if r is None:
             raise SystemExit(f'The user {username} does not exist')
@@ -443,7 +443,7 @@ def manage_users_cli(path=None, args=()):
             prints(t.format(', '.join(names)))
             m.update_user_restrictions(username, {w: names})
 
-    def edit_user(username=None):
+    def edit_user(username=None) -> None:
         username = username or get_valid_user()
         c = choice(
             choices=[
@@ -469,7 +469,7 @@ def manage_users_cli(path=None, args=()):
         }[c](username)
         actions.append(lambda: edit_user(username=username))
 
-    def toplevel():
+    def toplevel() -> None:
         {0: add_user, 1: edit_user, 2: remove_user, 3: lambda: None}[
             choice(choices=[_('Add a new user'), _('Edit an existing user'), _('Remove a user'), _('Cancel')])
         ]()

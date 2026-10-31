@@ -5,27 +5,27 @@
 class ChangeEvent:
     book_ids: frozenset
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{}(book_ids={})'.format(self.__class__.__name__, ','.join(sorted(map(str, self.book_ids))))
 
 
 class BooksAdded(ChangeEvent):
-    def __init__(self, book_ids):
+    def __init__(self, book_ids) -> None:
         ChangeEvent.__init__(self)
         self.book_ids = frozenset(book_ids)
 
 
 class BooksDeleted(ChangeEvent):
-    def __init__(self, book_ids):
+    def __init__(self, book_ids) -> None:
         ChangeEvent.__init__(self)
         self.book_ids = frozenset(book_ids)
 
 
 class FormatsAdded(ChangeEvent):
-    def __init__(self, formats_map):
+    def __init__(self, formats_map) -> None:
         ChangeEvent.__init__(self)
         self.formats_map = formats_map
 
@@ -35,7 +35,7 @@ class FormatsAdded(ChangeEvent):
 
 
 class FormatsRemoved(ChangeEvent):
-    def __init__(self, formats_map):
+    def __init__(self, formats_map) -> None:
         ChangeEvent.__init__(self)
         self.formats_map = formats_map
 
@@ -45,29 +45,29 @@ class FormatsRemoved(ChangeEvent):
 
 
 class MetadataChanged(ChangeEvent):
-    def __init__(self, book_ids):
+    def __init__(self, book_ids) -> None:
         ChangeEvent.__init__(self)
         self.book_ids = frozenset(book_ids)
 
 
 class SavedSearchesChanged(ChangeEvent):
-    def __init__(self, added=(), removed=()):
+    def __init__(self, added=(), removed=()) -> None:
         ChangeEvent.__init__(self)
         self.added = frozenset(added)
         self.removed = frozenset(removed)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}(added={sorted(map(str, self.added))}, removed={sorted(map(str, self.removed))})'
 
 
 class VirtualLibrariesChanged(ChangeEvent):
-    def __init__(self, added=(), removed=(), renamed=()):
+    def __init__(self, added=(), removed=(), renamed=()) -> None:
         ChangeEvent.__init__(self)
         self.added = frozenset(added)
         self.removed = frozenset(removed)
         self.renamed = tuple(renamed)  # (old_name, new_name) pairs, in the order they were renamed
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}(added={sorted(map(str, self.added))}, removed={sorted(map(str, self.removed))}, renamed={list(self.renamed)})'
 
 

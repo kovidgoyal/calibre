@@ -162,7 +162,7 @@ def endpoint[**P](
 class Route:
     var_pat = None
 
-    def __init__(self, endpoint_: RouteFunction):
+    def __init__(self, endpoint_: RouteFunction) -> None:
         if self.var_pat is None:
             Route.var_pat = self.var_pat = re.compile(r'{(.+?)}')
         self.endpoint = endpoint_
@@ -270,14 +270,14 @@ class Route:
         route = self.var_pat.sub(lambda m: '{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.endpoint.route
 
     __unicode__ = __repr__ = __str__
 
 
 class Router:
-    def __init__(self, endpoints=None, ctx=None, url_prefix=None, auth_controller=None):
+    def __init__(self, endpoints=None, ctx=None, url_prefix=None, auth_controller=None) -> None:
         self.routes: dict[str, Route] = {}
         self.url_prefix = (url_prefix or '').rstrip('/')
         self.strip_path = None
@@ -294,7 +294,7 @@ class Router:
             self.load_routes(endpoints)
             self.finalize()
 
-    def add(self, endpoint):
+    def add(self, endpoint) -> None:
         if endpoint in self.endpoints:
             return
         key = endpoint.route_key
@@ -303,7 +303,7 @@ class Router:
         self.routes[key] = Route(endpoint)
         self.endpoints.add(endpoint)
 
-    def load_routes(self, items):
+    def load_routes(self, items) -> None:
         for item in items:
             if getattr(item, 'is_endpoint', False) is True:
                 self.add(item)
@@ -311,7 +311,7 @@ class Router:
     def __iter__(self):
         yield from self.routes.values()
 
-    def finalize(self):
+    def finalize(self) -> None:
         try:
             lsz = max(len(r.matchers) for r in self)
         except ValueError:
@@ -337,7 +337,7 @@ class Router:
                     return route.endpoint, args
         raise HTTPNotFound()
 
-    def read_cookies(self, data):
+    def read_cookies(self, data) -> None:
         data.cookies = c = {}
 
         for cval in data.inheaders.get('Cookie', all=True):

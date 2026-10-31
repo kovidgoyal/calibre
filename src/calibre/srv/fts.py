@@ -75,7 +75,7 @@ def fts_search(ctx, rd):
 
 
 @endpoint('/fts/disable', needs_db_write=True, methods=('POST',))
-def fts_disable(ctx, rd):
+def fts_disable(ctx, rd) -> str:
     db = get_library_data(ctx, rd)[0]
     if db.is_fts_enabled():
         db.enable_fts(enabled=False)
@@ -83,7 +83,7 @@ def fts_disable(ctx, rd):
 
 
 @endpoint('/fts/reindex', needs_db_write=True, methods=('POST',))
-def fts_reindex(ctx, rd):
+def fts_reindex(ctx, rd) -> str:
     db = get_library_data(ctx, rd)[0]
     if not db.is_fts_enabled():
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
@@ -101,7 +101,7 @@ def fts_reindex(ctx, rd):
 
 
 @endpoint('/fts/indexing', needs_db_write=True, methods=('POST',))
-def fts_indexing(ctx, rd):
+def fts_indexing(ctx, rd) -> str:
     data = rd.request_body_file.read()
     try:
         enable = stdlib_json.loads(data)

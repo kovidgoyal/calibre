@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 @endpoint('/users/change-pw', methods={'POST'})
-def change_pw(ctx, rd):
+def change_pw(ctx, rd) -> str:
     user = rd.username or None
     if user is None:
         raise HTTPForbidden('Anonymous users are not allowed to change passwords')

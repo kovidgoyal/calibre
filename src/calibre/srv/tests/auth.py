@@ -23,22 +23,22 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 @endpoint('/open', auth_required=False)
-def noauth(ctx, data):
+def noauth(ctx, data) -> str:
     return 'open'
 
 
 @endpoint('/closed', auth_required=True)
-def auth(ctx, data):
+def auth(ctx, data) -> str:
     return 'closed'
 
 
 @endpoint('/android', auth_required=True, android_workaround=True)
-def android(ctx, data):
+def android(ctx, data) -> str:
     return 'android'
 
 
 @endpoint('/android2', auth_required=True, android_workaround=True)
-def android2(ctx, data):
+def android2(ctx, data) -> str:
     return 'android2'
 
 
@@ -103,7 +103,7 @@ def digest(
     pw = getattr(da, 'pw', pw)
 
     class Data:
-        def __init__(self):
+        def __init__(self) -> None:
             self.method = method
 
         def peek(self):
@@ -128,7 +128,7 @@ def digest(
 
 
 class TestAuth(BaseTest):
-    def test_basic_auth(self):  # {{{
+    def test_basic_auth(self) -> None:  # {{{
         "Test HTTP Basic auth"
         r = router(prefer_basic_auth=True)
         with TestServer(r.dispatch) as server:
@@ -169,7 +169,7 @@ class TestAuth(BaseTest):
 
     # }}}
 
-    def test_library_restrictions(self):  # {{{
+    def test_library_restrictions(self) -> None:  # {{{
         from calibre.db.legacy import create_backend
         from calibre.srv.handler import Handler
         from calibre.srv.opts import Options
@@ -208,7 +208,7 @@ class TestAuth(BaseTest):
 
     # }}}
 
-    def test_digest_auth(self):  # {{{
+    def test_digest_auth(self) -> None:  # {{{
         "Test HTTP Digest auth"
         from calibre.srv.http_request import normalize_header_name
         from calibre.srv.utils import parse_http_dict
@@ -287,7 +287,7 @@ class TestAuth(BaseTest):
             curl = shutil.which('curl')
             if curl and not (is_ci and ismacos):  # curl mysteriously returns b'' in CI with no errors
 
-                def docurl(data, *args):
+                def docurl(data, *args) -> None:
                     cmd = [curl, '--silent'] + list(args) + [f'http://localhost:{server.address[1]}/closed']
                     p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     stdout, stderr = p.communicate()
@@ -301,7 +301,7 @@ class TestAuth(BaseTest):
 
     # }}}
 
-    def test_fail_ban(self):  # {{{
+    def test_fail_ban(self) -> None:  # {{{
         ban_for = 0.5 / 60.0
         r = router(prefer_basic_auth=True, ban_for=ban_for, ban_after=2)
         with TestServer(r.dispatch) as server:
@@ -325,7 +325,7 @@ class TestAuth(BaseTest):
 
     # }}}
 
-    def test_android_auth_workaround(self):  # {{{
+    def test_android_auth_workaround(self) -> None:  # {{{
         "Test authentication workaround for Android"
         r = router()
         with TestServer(r.dispatch) as server:

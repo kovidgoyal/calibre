@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, calibre contributors
 
+from typing import Never
+
 from calibre.srv.routes import endpoint
 from calibre.srv.tests.base import BaseTest
 
 
 class TestContentServerPlugin(BaseTest):
-    def test_basic_endpoint_registration(self):
+    def test_basic_endpoint_registration(self) -> None:
         from calibre.customize import ContentServerPlugin
 
         class TestPlugin(ContentServerPlugin):
@@ -14,7 +16,7 @@ class TestContentServerPlugin(BaseTest):
 
             def content_server_endpoints(self):
                 @endpoint('/test-plugin/hello', auth_required=False)
-                def hello(ctx, rd):
+                def hello(ctx, rd) -> str:
                     return 'hello'
 
                 return [hello]
@@ -26,14 +28,14 @@ class TestContentServerPlugin(BaseTest):
         self.assertEqual(endpoints[0].route, '/test-plugin/hello')
         self.assertFalse(endpoints[0].auth_required)
 
-    def test_default_empty_endpoints(self):
+    def test_default_empty_endpoints(self) -> None:
         from calibre.customize import ContentServerPlugin
 
         plugin = ContentServerPlugin(None)
         endpoints = plugin.content_server_endpoints()
         self.assertEqual(len(list(endpoints)), 0)
 
-    def test_multiple_endpoints(self):
+    def test_multiple_endpoints(self) -> None:
         from calibre.customize import ContentServerPlugin
 
         class MultiPlugin(ContentServerPlugin):
@@ -41,15 +43,15 @@ class TestContentServerPlugin(BaseTest):
 
             def content_server_endpoints(self):
                 @endpoint('/multi/a')
-                def a(ctx, rd):
+                def a(ctx, rd) -> None:
                     pass
 
                 @endpoint('/multi/b', auth_required=False)
-                def b(ctx, rd):
+                def b(ctx, rd) -> None:
                     pass
 
                 @endpoint('/multi/{x}', types={'x': int})
-                def c(ctx, rd, x):
+                def c(ctx, rd, x) -> None:
                     pass
 
                 return [a, b, c]
@@ -69,19 +71,19 @@ class TestPluginDiscovery(BaseTest):
     in the test environment (calibre.srv.ajax -> calibre.ebooks.covers -> QtGui).
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         from calibre.customize.ui import _initialized_plugins, config
 
         self._orig_plugins = list(_initialized_plugins)
         self._orig_disabled = set(config['disabled_plugins'])
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         from calibre.customize.ui import _initialized_plugins, config
 
         _initialized_plugins[:] = self._orig_plugins
         config['disabled_plugins'] = self._orig_disabled
 
-    def _register_all_plugin_routes(self, router):
+    def _register_all_plugin_routes(self, router) -> None:
         from calibre.customize.ui import content_server_plugins
 
         for plugin in content_server_plugins():
@@ -91,7 +93,7 @@ class TestPluginDiscovery(BaseTest):
                 except ValueError:
                     pass
 
-    def test_plugin_routes_loaded(self):
+    def test_plugin_routes_loaded(self) -> None:
         from calibre.customize import ContentServerPlugin
         from calibre.customize.ui import _initialized_plugins
         from calibre.srv.routes import Router
@@ -101,7 +103,7 @@ class TestPluginDiscovery(BaseTest):
 
             def content_server_endpoints(self):
                 @endpoint('/test-route/ping', auth_required=False)
-                def ping(ctx, rd):
+                def ping(ctx, rd) -> str:
                     return 'pong'
 
                 return [ping]
@@ -117,7 +119,7 @@ class TestPluginDiscovery(BaseTest):
         self.assertFalse(ep.auth_required)
         _initialized_plugins.remove(plugin)
 
-    def test_disabled_plugin_skipped(self):
+    def test_disabled_plugin_skipped(self) -> None:
         from calibre.customize import ContentServerPlugin
         from calibre.customize.ui import _initialized_plugins, config
         from calibre.srv.routes import HTTPNotFound, Router
@@ -127,7 +129,7 @@ class TestPluginDiscovery(BaseTest):
 
             def content_server_endpoints(self):
                 @endpoint('/disabled-route/test', auth_required=False)
-                def test(ctx, rd):
+                def test(ctx, rd) -> str:
                     return 'test'
 
                 return [test]
@@ -143,13 +145,13 @@ class TestPluginDiscovery(BaseTest):
             router.find_route(path)
         _initialized_plugins.remove(plugin)
 
-    def test_plugin_conflict_does_not_override(self):
+    def test_plugin_conflict_does_not_override(self) -> None:
         from calibre.customize import ContentServerPlugin
         from calibre.customize.ui import _initialized_plugins
         from calibre.srv.routes import Router
 
         @endpoint('/test-route/ping', auth_required=False)
-        def original(ctx, rd):
+        def original(ctx, rd) -> str:
             return 'original'
 
         class OverridePlugin(ContentServerPlugin):
@@ -157,7 +159,7 @@ class TestPluginDiscovery(BaseTest):
 
             def content_server_endpoints(self):
                 @endpoint('/test-route/ping', auth_required=False)
-                def duplicate(ctx, rd):
+                def duplicate(ctx, rd) -> str:
                     return 'duplicate'
 
                 return [duplicate]
@@ -173,7 +175,7 @@ class TestPluginDiscovery(BaseTest):
         self.assertEqual(ep.__name__, 'original')
         _initialized_plugins.remove(plugin)
 
-    def test_broken_plugin_does_not_block_others(self):
+    def test_broken_plugin_does_not_block_others(self) -> None:
         from calibre.customize import ContentServerPlugin
         from calibre.customize.ui import _initialized_plugins
         from calibre.srv.routes import Router
@@ -183,7 +185,7 @@ class TestPluginDiscovery(BaseTest):
 
             def content_server_endpoints(self):
                 @endpoint('/good/hello', auth_required=False)
-                def hello(ctx, rd):
+                def hello(ctx, rd) -> str:
                     return 'hello'
 
                 return [hello]
@@ -191,7 +193,7 @@ class TestPluginDiscovery(BaseTest):
         class BrokenPlugin(ContentServerPlugin):
             name = 'Broken Plugin'
 
-            def content_server_endpoints(self):
+            def content_server_endpoints(self) -> Never:
                 raise RuntimeError('oops')
 
         good = GoodPlugin(None)

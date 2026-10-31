@@ -67,7 +67,7 @@ class BaseTest(SimpleTest):
 
 
 class LibraryBaseTest(BaseTest):
-    def setUp(self):
+    def setUp(self) -> None:
         from calibre.utils.recycle_bin import nuke_recycle
 
         nuke_recycle()
@@ -75,7 +75,7 @@ class LibraryBaseTest(BaseTest):
         self.objects_to_close = []
         self.create_db(self.library_path)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         from calibre.utils.recycle_bin import restore_recyle
 
         restore_recyle()
@@ -123,7 +123,7 @@ class LibraryBaseTest(BaseTest):
 class TestServer(Thread):
     daemon = True
 
-    def __init__(self, handler, plugins=(), **kwargs):
+    def __init__(self, handler, plugins=(), **kwargs) -> None:
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.http_response import create_http_handler
         from calibre.srv.loop import ServerLoop
@@ -138,13 +138,13 @@ class TestServer(Thread):
         )
         self.log = self.loop.log
 
-    def setup_defaults(self, kwargs):
+    def setup_defaults(self, kwargs) -> None:
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
         kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
         kwargs['port'] = kwargs.get('port', 0)
         kwargs['userdb'] = kwargs.get('userdb', ':memory:')
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.loop.serve_forever()
         except KeyboardInterrupt:
@@ -175,14 +175,14 @@ class TestServer(Thread):
         ans.connect()
         return ans
 
-    def change_handler(self, handler):
+    def change_handler(self, handler) -> None:
         from calibre.srv.http_response import create_http_handler
 
         self.loop.handler = create_http_handler(handler)
 
 
 class LibraryServer(TestServer):
-    def __init__(self, library_path, libraries=(), plugins=(), notify_changes=None, **kwargs):
+    def __init__(self, library_path, libraries=(), plugins=(), notify_changes=None, **kwargs) -> None:
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.handler import Handler
         from calibre.srv.http_response import create_http_handler

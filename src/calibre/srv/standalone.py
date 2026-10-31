@@ -25,7 +25,7 @@ from calibre_extensions import speedup
 from polyglot.builtins import error_message
 
 
-def daemonize():  # {{{
+def daemonize() -> None:  # {{{
     try:
         pid = os.fork()
         if pid > 0:
@@ -56,7 +56,7 @@ def daemonize():  # {{{
 
 
 class Server:
-    def __init__(self, libraries, opts):
+    def __init__(self, libraries, opts) -> None:
         log = access_log = None
         log_size = opts.max_log_size * 1024 * 1024
         if opts.log:
@@ -174,7 +174,7 @@ libraries that the main calibre program knows about will be used.
 option_parser = create_option_parser
 
 
-def ensure_single_instance():
+def ensure_single_instance() -> None:
     if 'CALIBRE_NO_SI_DANGER_DANGER' not in os.environ and not singleinstance('db'):
         ext = '.exe' if iswindows else ''
         raise SystemExit(

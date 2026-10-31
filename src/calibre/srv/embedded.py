@@ -34,7 +34,7 @@ def read_json(path):
 
 
 class _JsonFileFunction:
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         self.path = os.path.join(config_dir, filename)
 
     def __call__(self):
@@ -49,7 +49,7 @@ class Server:
     loop = current_thread = exception = None
     state_callback = start_failure_callback = None
 
-    def __init__(self, library_broker, notify_changes):
+    def __init__(self, library_broker, notify_changes) -> None:
         opts = server_config()
         lp, lap = log_paths()
         try:
@@ -82,7 +82,7 @@ class Server:
         assert self.handler.router.ctx is not None
         return self.handler.router.ctx.user_manager
 
-    def start(self):
+    def start(self) -> None:
         if self.current_thread is None:
             try:
                 self.loop = ServerLoop(
@@ -107,7 +107,7 @@ class Server:
             t.daemon = True
             t.start()
 
-    def serve_forever(self):
+    def serve_forever(self) -> None:
         self.exception = None
         from calibre.srv.content import reset_caches
 
@@ -141,12 +141,12 @@ class Server:
             except Exception:
                 pass
 
-    def stop(self):
+    def stop(self) -> None:
         if self.loop is not None:
             self.loop.stop()
             self.loop = None
 
-    def exit(self):
+    def exit(self) -> None:
         if self.current_thread is not None:
             self.stop()
             self.current_thread.join()

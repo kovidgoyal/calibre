@@ -29,7 +29,7 @@ lock = Lock()
 
 
 class LastReadCache:
-    def __init__(self, path='', limit=5):
+    def __init__(self, path='', limit=5) -> None:
         self.limit = limit
         self.conn = apsw.Connection(path or os.path.join(cache_dir(), 'srv-last-read.sqlite'))
         self.execute(creation_sql)

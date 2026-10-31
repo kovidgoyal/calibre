@@ -11,14 +11,14 @@ from calibre.utils.monotonic import monotonic
 class Worker(Thread):
     daemon = True
 
-    def __init__(self, log, notify_server, num, request_queue, result_queue):
+    def __init__(self, log, notify_server, num, request_queue, result_queue) -> None:
         self.request_queue, self.result_queue = request_queue, result_queue
         self.notify_server = notify_server
         self.log = log
         self.working = False
         Thread.__init__(self, name=f'ServerWorker{num}')
 
-    def run(self):
+    def run(self) -> None:
         while True:
             x = self.request_queue.get()
             if x is None:
@@ -38,26 +38,26 @@ class Worker(Thread):
             except Exception:
                 self.log.exception('ServerWorker failed to notify server on job completion')
 
-    def handle_error(self, job_id):
+    def handle_error(self, job_id) -> None:
         self.result_queue.put((job_id, False, sys.exc_info()))
 
 
 class ThreadPool:
-    def __init__(self, log, notify_server, count=10, queue_size=1000):
+    def __init__(self, log, notify_server, count=10, queue_size=1000) -> None:
         self.request_queue, self.result_queue = Queue(queue_size), Queue(queue_size)
         self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in range(count)]
 
-    def start(self):
+    def start(self) -> None:
         for w in self.workers:
             w.start()
 
-    def put_nowait(self, job_id, func):
+    def put_nowait(self, job_id, func) -> None:
         self.request_queue.put_nowait((job_id, func))
 
     def get_nowait(self):
         return self.result_queue.get_nowait()
 
-    def stop(self, wait_till):
+    def stop(self, wait_till) -> None:
         for w in self.workers:
             try:
                 self.request_queue.put_nowait(None)
@@ -80,13 +80,13 @@ class ThreadPool:
 
 
 class PluginThread(Thread):
-    def __init__(self, plugin, target, name):
+    def __init__(self, plugin, target, name) -> None:
         super().__init__(target=target, args=(plugin,), name=name, daemon=True)
         self.plugin = plugin
 
 
 class PluginPool:
-    def __init__(self, loop, plugins):
+    def __init__(self, loop, plugins) -> None:
         self.workers: list[PluginThread] = []
         self.loop = loop
         for plugin in plugins:
@@ -96,17 +96,17 @@ class PluginPool:
     def plugin_name(self, plugin):
         return plugin.__class__.__name__
 
-    def run_plugin(self, plugin):
+    def run_plugin(self, plugin) -> None:
         try:
             plugin.start(self.loop)
         except Exception:
             self.loop.log.exception('Failed to start plugin:', self.plugin_name(plugin))
 
-    def start(self):
+    def start(self) -> None:
         for w in self.workers:
             w.start()
 
-    def stop(self, wait_till):
+    def stop(self, wait_till) -> None:
         for w in self.workers:
             if w.is_alive():
                 try:

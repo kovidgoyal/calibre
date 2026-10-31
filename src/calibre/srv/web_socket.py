@@ -53,20 +53,20 @@ RESERVED_CLOSE_CODES = (
 
 
 class ReadFrame:  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         self.header_buf = bytearray(14)
         self.rbuf = bytearray(CHUNK_SIZE)
         self.empty = memoryview(b'')
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self.header_view = memoryview(self.header_buf)[:6]
         self.state = self.read_header
 
     def __call__(self, conn):
         return self.state(conn)
 
-    def read_header(self, conn):
+    def read_header(self, conn) -> None:
         num_bytes = conn.recv_into(self.header_view)
         if num_bytes == 0:
             return
@@ -111,7 +111,7 @@ class ReadFrame:  # {{{
         else:
             self.header_view = self.header_view[num_bytes:]
 
-    def finish_reading_header(self, conn):
+    def finish_reading_header(self, conn) -> None:
         num_bytes = conn.recv_into(self.header_view)
         if num_bytes == 0:
             return
@@ -120,7 +120,7 @@ class ReadFrame:  # {{{
         else:
             self.header_view = self.header_view[num_bytes:]
 
-    def process_header(self, conn):
+    def process_header(self, conn) -> None:
         if self.payload_length < 126:
             self.mask = memoryview(self.header_buf)[2:6]
         elif self.payload_length == 126:
@@ -142,7 +142,7 @@ class ReadFrame:  # {{{
             self.rview = memoryview(self.rbuf)
             self.state = self.read_payload
 
-    def read_packet(self, conn):
+    def read_packet(self, conn) -> None:
         num_bytes = conn.recv_into(self.rview)
         if num_bytes == 0:
             return
@@ -154,7 +154,7 @@ class ReadFrame:  # {{{
         else:
             self.rview = self.rview[num_bytes:]
 
-    def read_payload(self, conn):
+    def read_payload(self, conn) -> None:
         num_bytes = conn.recv_into(self.rview, min(len(self.rview), self.payload_length - self.bytes_received))
         if num_bytes == 0:
             return
@@ -200,7 +200,7 @@ def create_frame(fin, opcode, payload, mask=None, rsv=0):
 
 
 class MessageWriter:
-    def __init__(self, buf, mask=None, chunk_size=None):
+    def __init__(self, buf, mask=None, chunk_size=None) -> None:
         self.buf, self.data_type, self.mask = buf, BINARY, mask
         if isinstance(buf, str):
             self.buf, self.data_type = ReadOnlyFileBuffer(buf.encode('utf-8')), TEXT
@@ -235,14 +235,14 @@ conn_id = 0
 
 
 class UTF8Decoder:  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
     def __call__(self, data):
         ans, self.state, self.codep = utf8_decode(data, self.state, self.codep)
         return ans
 
-    def reset(self):
+    def reset(self) -> None:
         self.state = 0
         self.codep = 0
 
@@ -255,7 +255,7 @@ class WebSocketConnection(HTTPConnection):
     in_websocket_mode = False
     websocket_handler = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         global conn_id
         HTTPConnection.__init__(self, *args, **kwargs)
         self.sendq = Queue()
@@ -290,7 +290,7 @@ class WebSocketConnection(HTTPConnection):
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.set_state(WRITE, self.upgrade_connection_to_ws, ReadOnlyFileBuffer(response.encode('ascii')), inheaders)
 
-    def upgrade_connection_to_ws(self, buf, inheaders, event):
+    def upgrade_connection_to_ws(self, buf, inheaders, event) -> None:
         if self.write(buf):
             if self.websocket_handler is None:
                 self.websocket_handler = DummyHandler()
@@ -305,7 +305,7 @@ class WebSocketConnection(HTTPConnection):
             self.set_ws_state()
             self.end_send_optimization()
 
-    def set_ws_state(self):
+    def set_ws_state(self) -> None:
         if self.ws_close_sent or self.ws_close_received:
             if self.ws_close_sent:
                 if self.ws_close_received:
@@ -341,14 +341,14 @@ class WebSocketConnection(HTTPConnection):
             elif self.wait_for is RDWR:
                 self.wait_for = WRITE
 
-    def ws_duplex(self, event):
+    def ws_duplex(self, event) -> None:
         if event is READ:
             self.ws_read()
         elif event is WRITE:
             self.ws_write()
         self.set_ws_state()
 
-    def ws_read(self):
+    def ws_read(self) -> None:
         if self.ws_close_sent:
             # Drain mode: read and discard incoming data so the OS does not
             # send RST when we close.  Connection.recv() sets ready=False on
@@ -398,7 +398,7 @@ class WebSocketConnection(HTTPConnection):
             self.log.exception('Error in WebSockets data handler:')
             self.websocket_close(UNEXPECTED_ERROR, f'Unexpected error in handler: {as_unicode(err)!r}')
 
-    def ws_control_frame(self, opcode, data):
+    def ws_control_frame(self, opcode, data) -> None:
         if opcode in (PING, CLOSE):
             rcode = PONG if opcode == PING else CLOSE
             if opcode == CLOSE:
@@ -432,7 +432,7 @@ class WebSocketConnection(HTTPConnection):
                 self.log.exception('Error in PONG handler:')
         self.set_ws_state()
 
-    def websocket_close(self, code=NORMAL_CLOSE, reason=b''):
+    def websocket_close(self, code=NORMAL_CLOSE, reason=b'') -> None:
         if isinstance(reason, str):
             reason = reason.encode('utf-8')
         self.stop_reading = True
@@ -446,7 +446,7 @@ class WebSocketConnection(HTTPConnection):
             self.control_frames.append(f)
         self.set_ws_state()
 
-    def ws_write(self):
+    def ws_write(self) -> None:
         if self.ws_close_sent:
             return
         if self.send_buf is not None:
@@ -474,7 +474,7 @@ class WebSocketConnection(HTTPConnection):
             if self.send_buf is not None:
                 self.optimize_for_sending_packet()
 
-    def close(self):
+    def close(self) -> None:
         if self.in_websocket_mode:
             assert self.websocket_handler is not None
             try:
@@ -495,7 +495,7 @@ class WebSocketConnection(HTTPConnection):
 
     # }}}
 
-    def send_websocket_message(self, buf, wakeup=True):
+    def send_websocket_message(self, buf, wakeup=True) -> None:
         """Send a complete message. This class will take care of splitting it
         into appropriate frames automatically. `buf` must be a file like object."""
         self.sendq.put(MessageWriter(buf))
@@ -503,7 +503,7 @@ class WebSocketConnection(HTTPConnection):
         if wakeup:
             self.wakeup()
 
-    def send_websocket_frame(self, data, is_first=True, is_last=True):
+    def send_websocket_frame(self, data, is_first=True, is_last=True) -> None:
         """Useful for streaming handlers that want to break up messages into
         frames themselves. Note that these frames will be interleaved with
         control frames, so they should not be too large."""
@@ -513,7 +513,7 @@ class WebSocketConnection(HTTPConnection):
         with self.cf_lock:
             self.control_frames.append(ReadOnlyFileBuffer(frame))
 
-    def send_websocket_ping(self, data=b''):
+    def send_websocket_ping(self, data=b'') -> None:
         """Send a PING to the remote client, it should reply with a PONG which
         will be sent to the handle_websocket_pong callback in your handler."""
         if isinstance(data, str):
@@ -522,7 +522,7 @@ class WebSocketConnection(HTTPConnection):
         with self.cf_lock:
             self.control_frames.append(ReadOnlyFileBuffer(frame))
 
-    def handle_websocket_data(self, data, message_starting, message_finished):
+    def handle_websocket_data(self, data, message_starting, message_finished) -> None:
         '''Called when some data is received from the remote client. In
         general the data may not constitute a complete "message", use the
         message_starting and message_finished flags to re-assemble it into a
@@ -534,17 +534,17 @@ class WebSocketConnection(HTTPConnection):
 
 
 class DummyHandler:
-    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
+    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders) -> None:
         conn = connection_ref()
         conn.websocket_close(NORMAL_CLOSE, 'No WebSocket handler available')
 
-    def handle_websocket_data(self, connection_id, data, message_starting, message_finished):
+    def handle_websocket_data(self, connection_id, data, message_starting, message_finished) -> None:
         pass
 
-    def handle_websocket_pong(self, connection_id, data):
+    def handle_websocket_pong(self, connection_id, data) -> None:
         pass
 
-    def handle_websocket_close(self, connection_id):
+    def handle_websocket_close(self, connection_id) -> None:
         pass
 
 
@@ -554,7 +554,7 @@ class DummyHandler:
 
 
 class EchoHandler:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.ws_connections = {}
 
     def conn(self, cid):
@@ -563,20 +563,20 @@ class EchoHandler:
             ans = ans()
         return ans
 
-    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
+    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders) -> None:
         self.ws_connections[connection_id] = connection_ref
 
-    def handle_websocket_data(self, connection_id, data, message_starting, message_finished):
+    def handle_websocket_data(self, connection_id, data, message_starting, message_finished) -> None:
         self.conn(connection_id).send_websocket_frame(data, message_starting, message_finished)
 
-    def handle_websocket_pong(self, connection_id, data):
+    def handle_websocket_pong(self, connection_id, data) -> None:
         pass
 
-    def handle_websocket_close(self, connection_id):
+    def handle_websocket_close(self, connection_id) -> None:
         self.ws_connections.pop(connection_id, None)
 
 
-def run_echo_server():
+def run_echo_server() -> None:
     s = ServerLoop(create_http_handler(websocket_handler=EchoHandler()))
     with HandleInterrupt(s.wakeup):
         s.serve_forever()

@@ -163,12 +163,12 @@ class HTTPHeaderParser:
 
     __slots__ = ('finished', 'hdict', 'lines')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.hdict = MultiDict()
         self.lines = []
         self.finished = False
 
-    def push(self, *lines):
+    def push(self, *lines) -> None:
         for line in lines:
             self(line)
 
@@ -183,7 +183,7 @@ class HTTPHeaderParser:
                     raise
             return value
 
-        def commit():
+        def commit() -> None:
             if not self.lines:
                 return
             line = b' '.join(self.lines)
@@ -254,7 +254,7 @@ class HTTPRequest(Connection):
     static_cache = None
     translator_cache = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Connection.__init__(self, *args, **kwargs)
         self.max_header_line_size = int(1024 * self.opts.max_header_line_size)
         self.max_request_body_size = int(1024 * 1024 * self.opts.max_request_body_size)
@@ -289,7 +289,7 @@ class HTTPRequest(Connection):
             # read buffer is empty, fill it
             self.fill_read_buffer()
 
-    def connection_ready(self):
+    def connection_ready(self) -> None:
         "Become ready to read an HTTP request"
         self.method = self.request_line = None
         self.response_protocol = self.request_protocol = HTTP1
@@ -346,7 +346,7 @@ class HTTPRequest(Connection):
             force_unicode(getattr(self, 'request_line', 'WebSocketConnection'), 'utf-8'),
         )
 
-    def parse_header_line(self, parser, buf, event):
+    def parse_header_line(self, parser, buf, event) -> None:
         line = self.readline(buf)
         if line is None:
             return
@@ -403,11 +403,11 @@ class HTTPRequest(Connection):
 
         self.read_request_body(inheaders, request_content_length, chunked_read)
 
-    def write_continue(self, buf, inheaders, request_content_length, chunked_read, event):
+    def write_continue(self, buf, inheaders, request_content_length, chunked_read, event) -> None:
         if self.write(buf):
             self.read_request_body(inheaders, request_content_length, chunked_read)
 
-    def read_request_body(self, inheaders, request_content_length, chunked_read):
+    def read_request_body(self, inheaders, request_content_length, chunked_read) -> None:
         buf = SpooledTemporaryFile(prefix='rq-body-', max_size=DEFAULT_BUFFER_SIZE, dir=self.tdir)
         if chunked_read:
             self.set_state(READ, self.read_chunk_length, inheaders, Accumulator(), buf, [0])
@@ -416,7 +416,7 @@ class HTTPRequest(Connection):
         else:
             self.prepare_response(inheaders, BytesIO())
 
-    def sized_read(self, inheaders, buf, request_content_length, event):
+    def sized_read(self, inheaders, buf, request_content_length, event) -> None:
         if self.read(buf, request_content_length):
             self.prepare_response(inheaders, buf)
 
@@ -439,7 +439,7 @@ class HTTPRequest(Connection):
         else:
             self.set_state(READ, self.read_chunk, inheaders, buf, chunk_size, buf.tell() + chunk_size, bytes_read)
 
-    def read_chunk(self, inheaders, buf, chunk_size, end, bytes_read, event):
+    def read_chunk(self, inheaders, buf, chunk_size, end, bytes_read, event) -> None:
         if not self.read(buf, end):
             return
         bytes_read[0] += chunk_size
@@ -462,7 +462,7 @@ class HTTPRequest(Connection):
         else:
             self.set_state(READ, self.read_chunk_length, inheaders, Accumulator(), buf, bytes_read)
 
-    def handle_timeout(self):
+    def handle_timeout(self) -> bool:
         if not hasattr(self, 'response_protocol') or self.response_started:
             # Either connection is not ready or a response has already bee
             # started

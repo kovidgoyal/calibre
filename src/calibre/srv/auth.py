@@ -21,7 +21,7 @@ nonce_counter, nonce_counter_lock = 0, Lock()
 
 
 class BanList:
-    def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5):
+    def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5) -> None:
         self.interval = max(0, ban_time_in_minutes) * 60
         self.max_failures_before_ban = max(0, max_failures_before_ban)
         self._active = bool(self.interval and self.max_failures_before_ban)
@@ -41,7 +41,7 @@ class BanList:
             return False
         return monotonic() - previous_fail < self.interval
 
-    def failed(self, key):
+    def failed(self, key) -> None:
         if not self._active:
             return
         with self.lock:
@@ -123,7 +123,7 @@ class DigestAuth:  # {{{
     valid_algorithms = {'MD5', 'MD5-SESS'}
     valid_qops = {'auth', 'auth-int'}
 
-    def __init__(self, header_val):
+    def __init__(self, header_val) -> None:
         data = parse_http_dict(header_val)
         self.realm = data.get('realm')
         self.username = data.get('username')
@@ -248,7 +248,7 @@ class AuthController:
         log=None,
         ban_time_in_minutes=0,
         ban_after=5,
-    ):
+    ) -> None:
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
         self.ban_list = BanList(ban_time_in_minutes=ban_time_in_minutes, max_failures_before_ban=ban_after)
         self.log = log
@@ -276,7 +276,7 @@ class AuthController:
     def validate_android_cookie(self, path, cookie):
         return cookie and validate_nonce(self.key_order, cookie, path, self.secret) and not is_nonce_stale(cookie, self.max_age_seconds)
 
-    def do_http_auth(self, data, endpoint):
+    def do_http_auth(self, data, endpoint) -> None:
         ban_key = data.remote_addr
         if self.ban_list.is_banned(ban_key):
             raise HTTPForbidden('Too many login attempts', log=f'Too many login attempts from: {data.remote_addr}')

@@ -9,7 +9,7 @@ import zipfile
 from json import load as load_json_file
 from json import loads as json_loads
 from threading import Lock
-from typing import Any
+from typing import Any, Never
 
 from calibre import as_unicode
 from calibre.constants import in_develop_mode
@@ -58,7 +58,7 @@ def index_js_map(ctx, rd):
 
 
 @endpoint('/robots.txt', auth_required=False)
-def robots(ctx, rd):
+def robots(ctx, rd) -> bytes:
     return b'User-agent: *\nDisallow: /'
 
 
@@ -115,7 +115,7 @@ print_lock = Lock()
 
 
 @endpoint('/console-print', methods=('POST',))
-def console_print(ctx, rd):
+def console_print(ctx, rd) -> str:
     if not getattr(rd.opts, 'allow_console_print', False):
         raise HTTPForbidden('console printing is not allowed')
     with print_lock:
@@ -274,7 +274,7 @@ BROWSE_FIELD_DESCRIPTIONS = {
 BROWSE_IGNORED_CATEGORIES = frozenset({'identifiers', 'news', 'search'})
 
 
-def browse_field_kind(key, metadata):
+def browse_field_kind(key, metadata) -> str:
     if metadata is None or metadata.get('kind') != 'field':
         return ''
     if key == 'pubdate' or (metadata.get('is_custom') and metadata.get('datatype') == 'datetime'):
@@ -368,7 +368,7 @@ def category_browse_items(ctx, rd, db, field, vl):
         return ()
     ans, seen = [], set()
 
-    def walk(node):
+    def walk(node) -> None:
         for child in node.get('children', ()):
             item = item_map.get(child.get('id')) or {}
             name = item.get('name') or ''
@@ -576,7 +576,7 @@ def more_books(ctx, rd):
 
 
 @endpoint('/interface-data/set-session-data', postprocess=json, methods=POSTABLE)
-def set_session_data(ctx, rd):
+def set_session_data(ctx, rd) -> None:
     """
     Store session data persistently so that it is propagated automatically to
     new logged in clients
@@ -645,7 +645,7 @@ def book_metadata(ctx, rd, book_id):
 
 
 @endpoint('/web-search/{book_id}/{field}/{item_val}', postprocess=json)
-def web_search(ctx, rd, book_id, field, item_val):
+def web_search(ctx, rd, book_id, field, item_val) -> Never:
     """
     Redirect to a web search URL for the specified item.
     Optional: ?library_id=<default library>

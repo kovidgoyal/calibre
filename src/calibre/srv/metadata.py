@@ -41,7 +41,7 @@ empty_val = ((), '', {})
 passthrough_comment_types = {'long-text', 'short-text'}
 
 
-def add_field(field, db, book_id, ans, field_metadata):
+def add_field(field, db, book_id, ans, field_metadata) -> None:
     datatype = field_metadata.get('datatype')
     if datatype is not None:
         val = db._field_for(field, book_id)
@@ -201,7 +201,7 @@ def web_search_link(db, book_id: int, field: str, item_val: str) -> tuple[str, s
     return '', ''
 
 
-def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db):
+def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db) -> None:
     category = node['category']
     if category in ('search', 'formats') or category.startswith('@'):
         return
@@ -259,7 +259,7 @@ class CategoriesSettings(NamedTuple):
 class GroupedSearchTerms:
     __slots__ = ('hash', 'keys', 'vals')
 
-    def __init__(self, src):
+    def __init__(self, src) -> None:
         self.keys = frozenset(src)
         self.hash = hash(self.keys)
         # We don't need to store values since this is used as part of a key for
@@ -267,7 +267,7 @@ class GroupedSearchTerms:
         # for other reasons anyway (last_modified() will have changed on the
         # db)
 
-    def __contains__(self, val):
+    def __contains__(self, val) -> bool:
         return val in self.keys
 
     def __hash__(self):
@@ -528,7 +528,7 @@ def process_category_node(
     hierarchical_items,
     folder_items,
     db,
-):
+) -> None:
     category = items[category_node['id']]['category']
     if category not in category_data:
         # This can happen for user categories that are hierarchical and missing their parent.
@@ -679,7 +679,7 @@ def iternode_descendants(node):
         yield from iternode_descendants(child)
 
 
-def sort_folders_first(node, items, folder_items):
+def sort_folders_first(node, items, folder_items) -> None:
     # The sort is stable, so the chosen sort order is kept among the folders
     # and among the other items. Category nodes such as partitions and sub
     # user categories are not moved.
@@ -689,7 +689,7 @@ def sort_folders_first(node, items, folder_items):
             sort_folders_first(child, items, folder_items)
 
 
-def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map, db):
+def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map, db) -> None:
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
     first, later, collapse_nodes, intermediate_nodes, hierarchical_items = [], [], [], {}, set()
@@ -787,7 +787,7 @@ def dump_categories_tree(data):
     root, items = data['root'], data['item_map']
     ans, indent = [], '  '
 
-    def dump_node(node, level=0):
+    def dump_node(node, level=0) -> None:
         item = items[node['id']]
         rating = item.get('avg_rating', None) or 0
         if rating:
@@ -811,7 +811,7 @@ def dump_tags_model(m):
 
     ans, indent = [], '  '
 
-    def dump_node(index, level=-1):
+    def dump_node(index, level=-1) -> None:
         if level > -1:
             ans.append(indent * level + index.data(Qt.ItemDataRole.UserRole).dump_data())
         for i in range(m.rowCount(index)):
@@ -823,7 +823,7 @@ def dump_tags_model(m):
     return '\n'.join(ans)
 
 
-def test_tag_browser(library_path=None):
+def test_tag_browser(library_path=None) -> None:
     "Compare output of server and GUI tag browsers"
     from calibre.library import db
 

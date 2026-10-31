@@ -9,7 +9,7 @@ from functools import partial
 from itertools import count
 from queue import Empty, Queue
 from threading import Event, RLock, Thread
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Never
 
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
@@ -34,7 +34,7 @@ class DoneEvent(NamedTuple):
 class Job(Thread):
     daemon = True
 
-    def __init__(self, start_event, events_queue):
+    def __init__(self, start_event, events_queue) -> None:
         Thread.__init__(self, name=f'JobsMonitor{start_event.job_id}')
         self.abort_event = Event()
         self.events_queue = events_queue
@@ -56,7 +56,7 @@ class Job(Thread):
         self.wait_for_end = Event()
         self.start()
 
-    def run(self):
+    def run(self) -> None:
         func, self.func = self.func, None
         assert func is not None
         try:
@@ -81,7 +81,7 @@ class Job(Thread):
     def failed(self):
         return bool(self.traceback) or self.was_aborted
 
-    def remove_log(self):
+    def remove_log(self) -> None:
         lp, self.log_path = self.log_path, None
         if lp:
             try:
@@ -103,7 +103,7 @@ class Job(Thread):
 
 
 class JobsManager:
-    def __init__(self, opts, log):
+    def __init__(self, opts, log) -> None:
         mj = opts.max_jobs
         if mj < 1:
             mj = detect_ncpus()
@@ -146,12 +146,12 @@ class JobsManager:
                     return 'waiting', None, None, None
         return None, None, None, None
 
-    def abort_job(self, job_id):
+    def abort_job(self, job_id) -> None:
         job = self.jobs.get(job_id)
         if job is not None:
             job.abort_event.set()
 
-    def wait_for_running_job(self, job_id, timeout=None):
+    def wait_for_running_job(self, job_id, timeout=None) -> bool | None:
         job = self.jobs.get(job_id)
         if job is not None:
             job.wait_for_end.wait(timeout)
@@ -161,14 +161,14 @@ class JobsManager:
                 time.sleep(0.001)
             return True
 
-    def shutdown(self, timeout=5.0):
+    def shutdown(self, timeout=5.0) -> None:
         with self.lock:
             self.shutting_down = True
             for job in self.jobs.values():
                 job.abort_event.set()
             self.events.put(False)
 
-    def wait_for_shutdown(self, wait_till):
+    def wait_for_shutdown(self, wait_till) -> None:
         for job in self.jobs.values():
             delta = wait_till - monotonic()
             if delta > 0:
@@ -180,7 +180,7 @@ class JobsManager:
 
     # Internal API {{{
 
-    def run(self):
+    def run(self) -> None:
         while not self.shutting_down:
             if self.max_block is None:
                 ev = self.events.get()
@@ -201,7 +201,7 @@ class JobsManager:
             elif ev is False:
                 break
 
-    def start_waiting_jobs(self):
+    def start_waiting_jobs(self) -> None:
         with self.lock:
             while self.waiting_jobs and len(self.jobs) < self.max_jobs:
                 ev = self.waiting_jobs.popleft()
@@ -209,7 +209,7 @@ class JobsManager:
                 self.waiting_job_ids.discard(ev.job_id)
         self.update_max_block()
 
-    def update_max_block(self):
+    def update_max_block(self) -> None:
         with self.lock:
             mb = None
             now = monotonic()
@@ -225,7 +225,7 @@ class JobsManager:
                         mb = min(mb, delta)
             self.max_block = mb
 
-    def abort_hanging_jobs(self):
+    def abort_hanging_jobs(self) -> None:
         now = monotonic()
         found = False
         for job in self.jobs.values():
@@ -237,7 +237,7 @@ class JobsManager:
         if found:
             self.update_max_block()
 
-    def job_finished(self, job_id):
+    def job_finished(self, job_id) -> None:
         with self.lock:
             self.finished_jobs[job_id] = job = self.jobs.pop(job_id)
             if job.callback is not None:
@@ -254,7 +254,7 @@ class JobsManager:
         job.remove_log()
         self.start_waiting_jobs()
 
-    def prune_finished_jobs(self):
+    def prune_finished_jobs(self) -> None:
         with self.lock:
             remove = []
             now = monotonic()
@@ -272,5 +272,5 @@ def sleep_test(x):
     return x
 
 
-def error_test():
+def error_test() -> Never:
     raise Exception('a testing error')

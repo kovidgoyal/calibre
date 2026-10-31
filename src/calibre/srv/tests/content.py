@@ -35,12 +35,12 @@ def run_generated_cover_checks() -> list[str]:
 
 
 class ContentTest(LibraryBaseTest):
-    def test_static(self):  # {{{
+    def test_static(self) -> None:  # {{{
         "Test serving of static content"
         with self.create_server() as server:
             conn = server.connect()
 
-            def missing(url, body=b''):
+            def missing(url, body=b'') -> None:
                 conn.request('GET', url)
                 r = conn.getresponse()
                 self.ae(r.status, http.client.NOT_FOUND)
@@ -51,14 +51,14 @@ class ContentTest(LibraryBaseTest):
                 missing(f'/{prefix}/../out.html', b'Naughty, naughty!')
                 missing(f'/{prefix}/C:/out.html', b'Naughty, naughty!')
 
-            def test_response(r):
+            def test_response(r) -> None:
                 self.assertIn('max-age=', r.getheader('Cache-Control'))
                 self.assertIn('public', r.getheader('Cache-Control'))
                 self.assertIsNotNone(r.getheader('Expires'))
                 self.assertIsNotNone(r.getheader('ETag'))
                 self.assertIsNotNone(r.getheader('Content-Type'))
 
-            def test(src, url, sz=None):
+            def test(src, url, sz=None) -> None:
                 raw = P(src, data=True)
                 conn.request('GET', url)
                 r = conn.getresponse()
@@ -82,7 +82,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_generated_cover(self):
+    def test_generated_cover(self) -> None:
         "Test serving of auto generated covers"
         # Generating covers needs a QApplication, which tests must not create
         # in the test process, so run the checks in a worker process
@@ -92,7 +92,7 @@ class ContentTest(LibraryBaseTest):
         if errors:
             self.fail('\n'.join(errors))
 
-    def generated_cover_checks(self):
+    def generated_cover_checks(self) -> None:
         with self.create_server() as server:
             conn = server.connect()
             conn.request('GET', '/get/cover/3')  # book 3 has no cover
@@ -102,7 +102,7 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.getheader('Content-Type'), 'image/jpeg')
             self.ae(identify(data)[0], 'jpeg')
 
-    def test_get(self):  # {{{
+    def test_get(self) -> None:  # {{{
         "Test /get"
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
@@ -115,7 +115,7 @@ class ContentTest(LibraryBaseTest):
                 return r, r.read()
 
             # Test various invalid parameters
-            def bad(*args):
+            def bad(*args) -> None:
                 r, data = get(*args)
                 self.ae(r.status, http.client.NOT_FOUND)
 
@@ -184,7 +184,7 @@ class ContentTest(LibraryBaseTest):
                 c.DEBUG = orig
 
             # Test the serving of covers
-            def change_cover(count, book_id=2):
+            def change_cover(count, book_id=2) -> None:
                 cpath = db.format_abspath(book_id, '__COVER_INTERNAL__')
                 db.set_cover({2: I('lt.png', data=True)})
                 t = time.time() + 1 + count
@@ -286,7 +286,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_set_fields_languages(self):  # {{{
+    def test_set_fields_languages(self) -> None:  # {{{
         "Test /cdb/set-fields with a single language string"
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.ctx.user_manager.add_user('12', 'test')
@@ -314,7 +314,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_recipe_formats_forbidden(self):  # {{{
+    def test_recipe_formats_forbidden(self) -> None:  # {{{
         "Test that recipe formats cannot be added, converted or viewed remotely"
         from calibre.srv.utils import is_recipe_fmt
         from calibre.utils.serialize import MSGPACK_MIME, msgpack_dumps
@@ -370,11 +370,11 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_html_as_json(self):  # {{{
+    def test_html_as_json(self) -> None:  # {{{
         from calibre.ebooks.oeb.parse_utils import html5_parse
         from calibre.srv.render_book import html_as_json
 
-        def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)):
+        def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)) -> None:
             root = html5_parse(html)
             raw = html_as_json(root)
             # print(raw.decode('utf-8'))
@@ -398,7 +398,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_last_read_cache(self):  # {{{
+    def test_last_read_cache(self) -> None:  # {{{
         from calibre.srv.last_read import last_read_cache, path_cache
 
         path_cache.clear()

@@ -9,7 +9,7 @@ import socket
 from calibre.constants import islinux
 
 
-def pre_activated_socket():
+def pre_activated_socket() -> None:
     return None
 
 

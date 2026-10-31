@@ -8,6 +8,7 @@ import time
 from compression import zlib
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from typing import Never
 
 from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer, is_ci
@@ -17,11 +18,11 @@ from calibre.utils.resources import get_path as P
 
 
 class TestHTTP(BaseTest):
-    def test_header_parsing(self):  # {{{
+    def test_header_parsing(self) -> None:  # {{{
         "Test parsing of HTTP headers"
         from calibre.srv.http_request import HTTPHeaderParser
 
-        def test(name, *lines, **kwargs):
+        def test(name, *lines, **kwargs) -> None:
             p = HTTPHeaderParser()
             p.push(*lines)
             self.assertTrue(p.finished)
@@ -52,7 +53,7 @@ class TestHTTP(BaseTest):
 
         test('Empty values', b'Connection\r\n', b'\r\n', connection='')
 
-        def parse(*lines):
+        def parse(*lines) -> None:
             lines = list(lines)
             lines.append(b'\r\n')
             with self.assertRaises(ValueError, msg=str(lines)):
@@ -65,11 +66,11 @@ class TestHTTP(BaseTest):
 
     # }}}
 
-    def test_accept_encoding(self):  # {{{
+    def test_accept_encoding(self) -> None:  # {{{
         "Test parsing of Accept-Encoding"
         from calibre.srv.http_response import acceptable_encoding
 
-        def test(name, val, ans, allowed=None):
+        def test(name, val, ans, allowed=None) -> None:
             if allowed is None:
                 allowed = {'gzip'}
             self.ae(acceptable_encoding(val, allowed), ans, name + ' failed')
@@ -82,11 +83,11 @@ class TestHTTP(BaseTest):
 
     # }}}
 
-    def test_accept_language(self):  # {{{
+    def test_accept_language(self) -> None:  # {{{
         "Test parsing of Accept-Language"
         from calibre.srv.http_response import preferred_lang
 
-        def test(name, val, ans):
+        def test(name, val, ans) -> None:
             self.ae(preferred_lang(val, lambda x: (True, x, None)), ans, name + ' failed')
 
         test('Empty field', '', 'en')
@@ -101,7 +102,7 @@ class TestHTTP(BaseTest):
             time.sleep(3)
             self.do_accept_language()
 
-    def do_accept_language(self):
+    def do_accept_language(self) -> None:
         from calibre.utils.localization import get_translator
 
         def handler(data):
@@ -110,7 +111,7 @@ class TestHTTP(BaseTest):
         with TestServer(handler, timeout=1) as server:
             conn = server.connect()
 
-            def test(al, q):
+            def test(al, q) -> None:
                 conn.request('GET', '/', headers={'Accept-Language': al})
                 r = conn.getresponse()
                 self.ae(r.status, http.client.OK)
@@ -123,11 +124,11 @@ class TestHTTP(BaseTest):
 
     # }}}
 
-    def test_range_parsing(self):  # {{{
+    def test_range_parsing(self) -> None:  # {{{
         "Test parsing of Range header"
         from calibre.srv.http_response import get_ranges
 
-        def test(val, *args):
+        def test(val, *args) -> None:
             pval = get_ranges(val, 100)
             if len(args) == 1 and args[0] is None:
                 self.assertIsNone(pval, val)
@@ -175,7 +176,7 @@ class TestHTTP(BaseTest):
 
     # }}}
 
-    def test_http_basic(self):  # {{{
+    def test_http_basic(self) -> None:  # {{{
         "Test basic HTTP protocol conformance"
         try:
             self.do_http_basic()
@@ -184,12 +185,12 @@ class TestHTTP(BaseTest):
             time.sleep(3)
             self.do_http_basic()
 
-    def do_http_basic(self):
+    def do_http_basic(self) -> None:
         from calibre.srv.errors import HTTPNotFound, HTTPRedirect
 
         body = 'Requested resource not found'
 
-        def handler(_data):
+        def handler(_data) -> Never:
             raise HTTPNotFound(body)
 
         def raw_send(conn, raw):
@@ -250,7 +251,7 @@ class TestHTTP(BaseTest):
             self.ae(r.status, http.client.INTERNAL_SERVER_ERROR)
 
             # Test 301
-            def handler(_data):
+            def handler(_data) -> Never:
                 raise HTTPRedirect('/somewhere-else')
 
             server.change_handler(handler)
@@ -282,7 +283,7 @@ class TestHTTP(BaseTest):
             self.ae(r.status, http.client.OK)
             self.ae(r.read(), b'testbody')
 
-            def bad_request(raw, msg):
+            def bad_request(raw, msg) -> None:
                 conn = server.connect()
                 r = raw_send(conn, raw)
                 self.ae(r.status, http.client.BAD_REQUEST)
@@ -369,7 +370,7 @@ class TestHTTP(BaseTest):
             # Test closing
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
 
-            def assert_no_active_connections():
+            def assert_no_active_connections() -> None:
                 server.loop.wakeup()
                 num = 10
                 while num and server.loop.num_active_connections != 0:
@@ -407,7 +408,7 @@ class TestHTTP(BaseTest):
 
     # }}}
 
-    def test_http_response(self):  # {{{
+    def test_http_response(self) -> None:  # {{{
         "Test HTTP protocol responses"
         from calibre.srv.http_response import parse_multipart_byterange
 
@@ -446,7 +447,7 @@ class TestHTTP(BaseTest):
             # Test dynamic etagged content
             num_calls = [0]
 
-            def edfunc():
+            def edfunc() -> bytes:
                 num_calls[0] += 1
                 return b'data'
 
@@ -558,7 +559,7 @@ class TestHTTP(BaseTest):
 
     # }}}
 
-    def test_static_generation(self):  # {{{
+    def test_static_generation(self) -> None:  # {{{
         "Test static generation"
         nums = list(map(str, range(10)))
 

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from typing import Never
 from urllib.parse import urlencode
 
 from lxml.html import tostring
@@ -317,7 +318,7 @@ def browse(ctx, rd, rest):
 
 
 @endpoint('/stanza/{+rest=""}')
-def stanza(ctx, rd, rest):
+def stanza(ctx, rd, rest) -> Never:
     raise HTTPRedirect(ctx.url_for('/opds'))
 
 

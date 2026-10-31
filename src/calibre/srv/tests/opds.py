@@ -11,12 +11,12 @@ OPDS2 = 'application/opds+json'
 
 
 class OPDSTest(LibraryBaseTest):
-    def test_accept_header(self):
+    def test_accept_header(self) -> None:
         from calibre.srv.opds import accepts_opds2
         from calibre.srv.utils import MultiDict
 
         class RequestData:
-            def __init__(self, *accept):
+            def __init__(self, *accept) -> None:
                 self.inheaders = MultiDict()
                 for x in accept:
                     self.inheaders['Accept'] = x
@@ -45,7 +45,7 @@ class OPDSTest(LibraryBaseTest):
         }.items():
             self.ae(accepts_opds2(RequestData(*accept)), expected, f'Accept: {accept}')
 
-    def test_opds2(self):
+    def test_opds2(self) -> None:
         from calibre.db.cache import Cache
         from calibre.db.legacy import create_backend
 

@@ -8,7 +8,7 @@ from calibre.srv.tests.base import BaseTest
 
 
 class TestRouter(BaseTest):
-    def test_library_id_construction(self):
+    def test_library_id_construction(self) -> None:
         from calibre.srv.library_broker import correct_case_of_last_path_component, db_matches, library_id_from_path
 
         self.ae(library_id_from_path('as'), 'as')
@@ -20,7 +20,7 @@ class TestRouter(BaseTest):
             self.ae(library_id_from_path('X:' + os.sep), 'X')
 
         class MockDB:
-            def __init__(self, base):
+            def __init__(self, base) -> None:
                 self.new_api = self
                 self.server_library_id = 'lid'
                 self.dbpath = os.path.join(base, 'metadata.db')
@@ -34,7 +34,7 @@ class TestRouter(BaseTest):
             self.assertTrue(db_matches(db, db.server_library_id, None))
             self.assertTrue(db_matches(db, db.server_library_id.upper(), tdir))
 
-    def test_route_construction(self):
+    def test_route_construction(self) -> None:
         "Test route construction"
         from calibre.srv.routes import Route, RouteError, endpoint
 
@@ -47,7 +47,7 @@ class TestRouter(BaseTest):
         r = makeroute('/slash/')
         self.ae(r.endpoint.route, '/slash')
 
-        def emr(route):
+        def emr(route) -> None:
             self.assertRaises(RouteError, makeroute, route)
 
         emr('no_start')
@@ -59,7 +59,7 @@ class TestRouter(BaseTest):
         emr('/x/{a=1}')
         self.assertRaises(RouteError, makeroute, '/a/b', lambda c, d, b, a: None)
 
-    def test_route_finding(self):
+    def test_route_finding(self) -> None:
         "Test route finding"
         from calibre.srv.routes import HTTPNotFound, Router, endpoint
 
@@ -72,31 +72,31 @@ class TestRouter(BaseTest):
             return ep, args
 
         @endpoint('/')
-        def root(ctx, data):
+        def root(ctx, data) -> None:
             pass
 
         @endpoint('/defval/{a=1}')
-        def defval(ctx, data, a):
+        def defval(ctx, data, a) -> None:
             pass
 
         @endpoint('/varpath/{a}/{b}')
-        def varpath(ctx, data, a, b):
+        def varpath(ctx, data, a, b) -> None:
             pass
 
         @endpoint('/soak/{+rest}')
-        def soak(ctx, dest, rest):
+        def soak(ctx, dest, rest) -> None:
             pass
 
         @endpoint('/soak_opt/{+rest="xxx"}')
-        def soak_opt(ctx, dest, rest):
+        def soak_opt(ctx, dest, rest) -> None:
             pass
 
         @endpoint('/needs quoting/{x}')
-        def quoting(ctx, dest, x):
+        def quoting(ctx, dest, x) -> None:
             pass
 
         @endpoint('/get/{a}/{b=None}')
-        def get(ctx, dest, a, b):
+        def get(ctx, dest, a, b) -> None:
             pass
 
         for x in locals().values():

@@ -262,7 +262,7 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
 
 
 class ETaggedFile:  # {{{
-    def __init__(self, output, etag):
+    def __init__(self, output, etag) -> None:
         self.output, self.etag = output, etag
 
     def fileno(self):
@@ -295,7 +295,7 @@ class RequestData:  # {{{
         tdir,
         forwarded_for,
         request_original_uri=None,
-    ):
+    ) -> None:
 
         (
             self.method,
@@ -380,7 +380,7 @@ class RequestData:  # {{{
     def ngettext(self, singular, plural, n):
         return self.ngettext_func(singular, plural, n)
 
-    def set_translator(self, lang_code):
+    def set_translator(self, lang_code) -> None:
         if lang_code != self.lang_code:
             found, lang, t = self.get_translator(lang_code)
             self.lang_code = lang
@@ -395,7 +395,7 @@ class ReadableOutput:
     name: str | bytes | int | None = None
     ranges: Any = None
 
-    def __init__(self, output, etag=None, content_length=None):
+    def __init__(self, output, etag=None, content_length=None) -> None:
         self.src_file = output
         if content_length is None:
             self.src_file.seek(0, os.SEEK_END)
@@ -438,7 +438,7 @@ def dynamic_output(output, outheaders, etag=None):
 
 
 class ETaggedDynamicOutput:
-    def __init__(self, func, etag):
+    def __init__(self, func, etag) -> None:
         self.func, self.etag = func, etag
 
     def __call__(self):
@@ -448,7 +448,7 @@ class ETaggedDynamicOutput:
 class GeneratedOutput:
     ranges: Any = None
 
-    def __init__(self, output, etag=None):
+    def __init__(self, output, etag=None) -> None:
         self.output = output
         self.content_length = None
         self.etag = etag
@@ -456,7 +456,7 @@ class GeneratedOutput:
 
 
 class StaticOutput:
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         if isinstance(data, str):
             data = data.encode('utf-8')
         self.data = data
@@ -500,7 +500,7 @@ class HTTPConnection(HTTPRequest):
         buf.seek(pos + sent)
         return buf.tell() >= end
 
-    def simple_response(self, status_code, msg='', close_after_response=True, extra_headers=None):
+    def simple_response(self, status_code, msg='', close_after_response=True, extra_headers=None) -> None:
         if self.response_protocol is HTTP1:
             # HTTP/1.0 has no 413/414/303 codes
             status_code = {
@@ -562,7 +562,7 @@ class HTTPConnection(HTTPRequest):
         result = self.request_handler(data)
         return data, result
 
-    def send_range_not_satisfiable(self, content_length):
+    def send_range_not_satisfiable(self, content_length) -> None:
         buf = [
             f'{self.response_protocol} {http.client.REQUESTED_RANGE_NOT_SATISFIABLE} {http.client.responses[http.client.REQUESTED_RANGE_NOT_SATISFIABLE]}',
             'Date: ' + http_date(),
@@ -573,7 +573,7 @@ class HTTPConnection(HTTPRequest):
         self.log_access(status_code=http.client.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
         self.response_ready(response_data)
 
-    def send_not_modified(self, etag=None):
+    def send_not_modified(self, etag=None) -> None:
         buf = [
             f'{self.response_protocol} {http.client.NOT_MODIFIED} {http.client.responses[http.client.NOT_MODIFIED]}',
             'Content-Length: 0',
@@ -585,7 +585,7 @@ class HTTPConnection(HTTPRequest):
         self.log_access(status_code=http.client.NOT_MODIFIED, response_size=response_data.sz)
         self.response_ready(response_data)
 
-    def report_busy(self):
+    def report_busy(self) -> None:
         self.simple_response(http.client.SERVICE_UNAVAILABLE)
 
     def job_done(self, ok, result):
@@ -642,7 +642,7 @@ class HTTPConnection(HTTPRequest):
             self.log_access(status_code=data.status_code, response_size=sz, username=data.username)
         self.response_ready(response_data, output=output)
 
-    def log_access(self, status_code, response_size=None, username=None):
+    def log_access(self, status_code, response_size=None, username=None) -> None:
         if self.access_log is None:
             return
         if not self.opts.log_not_found and status_code == http.client.NOT_FOUND:
@@ -666,17 +666,17 @@ class HTTPConnection(HTTPRequest):
         )
         self.access_log(line)
 
-    def response_ready(self, header_file, output=None):
+    def response_ready(self, header_file, output=None) -> None:
         self.response_started = True
         self.optimize_for_sending_packet()
         self.use_sendfile = False
         self.set_state(WRITE, self.write_response_headers, header_file, output)
 
-    def write_response_headers(self, buf, output, event):
+    def write_response_headers(self, buf, output, event) -> None:
         if self.write(buf):
             self.write_response_body(output)
 
-    def write_response_body(self, output):
+    def write_response_body(self, output) -> None:
         if output is None or self.method == 'HEAD':
             self.reset_state()
             return
@@ -698,11 +698,11 @@ class HTTPConnection(HTTPRequest):
         else:
             raise TypeError(f'Unknown output type: {output!r}')
 
-    def write_buf(self, buf, event, end=None):
+    def write_buf(self, buf, event, end=None) -> None:
         if self.write(buf, end=end):
             self.reset_state()
 
-    def write_ranges(self, buf, ranges, event, first=False):
+    def write_ranges(self, buf, ranges, event, first=False) -> None:
         r, range_part = next(ranges)
         if r is None:
             # EOF range part
@@ -718,15 +718,15 @@ class HTTPConnection(HTTPRequest):
                 ranges,
             )
 
-    def write_range_part(self, part_buf, buf, end, ranges, event):
+    def write_range_part(self, part_buf, buf, end, ranges, event) -> None:
         if self.write(part_buf):
             self.set_state(WRITE, self.write_range, buf, end, ranges)
 
-    def write_range(self, buf, end, ranges, event):
+    def write_range(self, buf, end, ranges, event) -> None:
         if self.write(buf, end=end):
             self.set_state(WRITE, self.write_ranges, buf, ranges)
 
-    def write_iter(self, output, event):
+    def write_iter(self, output, event) -> None:
         chunk = next(output)
         if chunk is None:
             self.set_state(WRITE, self.write_chunk, ReadOnlyFileBuffer(b'0\r\n\r\n'), output, last=True)
@@ -739,20 +739,20 @@ class HTTPConnection(HTTPRequest):
             # Empty chunk, ignore it
             self.write_iter(output, event)
 
-    def write_chunk(self, buf, output, event, last=False):
+    def write_chunk(self, buf, output, event, last=False) -> None:
         if self.write(buf):
             if last:
                 self.reset_state()
             else:
                 self.set_state(WRITE, self.write_iter, output)
 
-    def reset_state(self):
+    def reset_state(self) -> None:
         ready = not self.close_after_response
         self.end_send_optimization()
         self.connection_ready()
         self.ready = ready
 
-    def report_unhandled_exception(self, e, formatted_traceback):
+    def report_unhandled_exception(self, e, formatted_traceback) -> None:
         self.simple_response(http.client.INTERNAL_SERVER_ERROR)
 
     def finalize_output(self, output, request, is_http1):
@@ -861,7 +861,7 @@ def create_http_handler(handler=None, websocket_handler=None):
     translator_cache = {}
     if handler is None:
 
-        def dummy_http_handler(data):
+        def dummy_http_handler(data) -> str:
             return 'Hello'
 
         handler = dummy_http_handler

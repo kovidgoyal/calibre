@@ -16,7 +16,7 @@ from calibre.srv.tests.base import LibraryBaseTest
 
 
 class ConvertTest(LibraryBaseTest):
-    def test_conversion_status_notification(self):
+    def test_conversion_status_notification(self) -> None:
         "Notify the GUI only when a completed conversion adds a format to the library"
         notify = Mock()
         with self.create_server(auth=True, auth_mode='basic', notify_changes=notify) as server:
@@ -59,7 +59,7 @@ class ConvertTest(LibraryBaseTest):
                                 self.assertFalse(db.has_format(book_id, 'TXT'))
                                 notify.assert_not_called()
 
-    def test_conversion_output_fmt_validated(self):
+    def test_conversion_output_fmt_validated(self) -> None:
         "output_fmt must be the name of an output format, as it is used to build the output path"
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.router.ctx.user_manager.add_user('testuser', 'testpw')
@@ -75,7 +75,7 @@ class ConvertTest(LibraryBaseTest):
                 r = start(json.dumps({'input_fmt': 'epub', 'output_fmt': 'x' * 100000, 'options': {}}).encode())
                 self.assertLess(len(r.reason) + int(r.getheader('Content-Length', 0)), 1000)
 
-    def test_conversion_input_fmt_validated(self):
+    def test_conversion_input_fmt_validated(self) -> None:
         "input_fmt must be a format the book has, as it is used to build the source file path"
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.router.ctx.user_manager.add_user('testuser', 'testpw')
@@ -99,7 +99,7 @@ class ConvertTest(LibraryBaseTest):
                     self.assertTrue(job.output_path.endswith('output.txt'))
                     job.cleanup()
 
-    def test_conversion_start_malformed_request(self):
+    def test_conversion_start_malformed_request(self) -> None:
         "A malformed conversion request must be rejected with a client error, not a server error"
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.router.ctx.user_manager.add_user('testuser', 'testpw')
@@ -108,7 +108,7 @@ class ConvertTest(LibraryBaseTest):
                     r, result = make_request(conn, '/conversion/start/1', prefix='', username='testuser', password='testpw', method='POST', data=data)
                     self.ae(r.status, BAD_REQUEST, f'data={data!r}')
 
-    def test_conversion_status_only_for_job_owner(self):
+    def test_conversion_status_only_for_job_owner(self) -> None:
         "Only the user that started a conversion job can query, abort or complete it"
         with self.create_server(auth=True, auth_mode='basic') as server:
             ctx = server.handler.router.ctx
@@ -147,7 +147,7 @@ class ConvertTest(LibraryBaseTest):
                     self.ae(db.format(book_id, 'TXT'), data)
                     self.assertNotIn(job.job_id, conversion_jobs)
 
-    def test_conversion_status_only_in_job_library(self):
+    def test_conversion_status_only_in_job_library(self) -> None:
         "A conversion job can only be queried, aborted or completed in the library it was started in"
         other_library_path = self.mkdtemp()
         self.create_db(other_library_path)
@@ -191,7 +191,7 @@ class ConvertTest(LibraryBaseTest):
                     self.assertFalse(default_db.has_format(book_id, 'TXT'))
                     self.assertNotIn(job.job_id, conversion_jobs)
 
-    def test_conversion_status_rechecks_book_access(self):
+    def test_conversion_status_rechecks_book_access(self) -> None:
         "A conversion job cannot be completed if access to its book was revoked after it was started"
         with self.create_server(auth=True, auth_mode='basic') as server:
             ctx = server.handler.router.ctx
@@ -218,7 +218,7 @@ class ConvertTest(LibraryBaseTest):
                     self.assertNotIn(job.job_id, conversion_jobs)
                     self.assertFalse(os.path.exists(jobdir))
 
-    def test_sanitize_conversion_options(self):
+    def test_sanitize_conversion_options(self) -> None:
         "Client supplied conversion options must be restricted to the advertised, safe set"
         with self.create_server() as server:
             ctx = server.handler.router.ctx

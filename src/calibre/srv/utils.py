@@ -36,7 +36,7 @@ def http_date(timeval=None):
 
 
 class MultiDict(dict):  # {{{
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         vals = dict.get(self, key, [])
         vals.append(val)
         dict.__setitem__(self, key, vals)
@@ -52,7 +52,7 @@ class MultiDict(dict):  # {{{
             dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
 
-    def update_from_listdict(self, ld):
+    def update_from_listdict(self, ld) -> None:
         for key, values in ld.items():
             for val in values:
                 self[key] = val
@@ -78,7 +78,7 @@ class MultiDict(dict):  # {{{
 
     itervalues = values
 
-    def set(self, key, val, replace_all=False):
+    def set(self, key, val, replace_all=False) -> None:
         if replace_all:
             dict.__setitem__(self, key, [val])
         else:
@@ -101,7 +101,7 @@ class MultiDict(dict):  # {{{
             return [] if all else default
         return ans if all else ans[-1]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{' + ', '.join(f'{reprlib.repr(k)}: {reprlib.repr(v)}' for k, v in self.items()) + '}'
 
     __str__ = __unicode__ = __repr__
@@ -150,12 +150,12 @@ socket_errors_socket_closed = error_codes(  # errors indicating a disconnected c
 socket_errors_nonblocking = error_codes('EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
 
-def start_cork(sock):
+def start_cork(sock) -> None:
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
 
 
-def stop_cork(sock):
+def stop_cork(sock) -> None:
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
@@ -288,13 +288,13 @@ class ServerLog(ThreadSafeLog):
 
 
 class RotatingStream:
-    def __init__(self, filename, max_size=None, history=5):
+    def __init__(self, filename, max_size=None, history=5) -> None:
         self.filename, self.history, self.max_size = filename, history, max_size
         if iswindows:
             self.filename = '\\\\?\\' + os.path.abspath(self.filename)
         self.set_output()
 
-    def set_output(self):
+    def set_output(self) -> None:
         if iswindows:
             self.stream = share_open(self.filename, 'a', newline='')
         else:
@@ -306,15 +306,15 @@ class RotatingStream:
             # Happens if filename is /dev/stdout for example
             self.max_size = None
 
-    def flush(self):
+    def flush(self) -> None:
         self.stream.flush()
 
-    def prints(self, level, *args, **kwargs):
+    def prints(self, level, *args, **kwargs) -> None:
         kwargs['file'] = self.stream
         prints(*args, **kwargs)
         self.rollover()
 
-    def rename(self, src, dest):
+    def rename(self, src, dest) -> None:
         try:
             if iswindows:
                 from calibre_extensions import winutil
@@ -326,7 +326,7 @@ class RotatingStream:
             if e.errno != errno.ENOENT:  # the source of the rename does not exist
                 raise
 
-    def rollover(self):
+    def rollover(self) -> None:
         if not self.max_size or self.stream.tell() <= self.max_size:
             return
         self.stream.close()
@@ -357,11 +357,11 @@ class RotatingStream:
 
 
 class RotatingLog(ServerLog):
-    def __init__(self, filename, max_size=None, history=5):
+    def __init__(self, filename, max_size=None, history=5) -> None:
         ServerLog.__init__(self)
         self.outputs = [RotatingStream(filename, max_size, history)]
 
-    def flush(self):
+    def flush(self) -> None:
         for o in self.outputs:
             o.flush()
 
@@ -375,7 +375,7 @@ class HandleInterrupt:  # {{{
     # use this special context manager. See the echo server example at the
     # bottom of srv/loop.py for how to use it.
 
-    def __init__(self, action):
+    def __init__(self, action) -> None:
         if not iswindows:
             return  # Interrupts work fine on POSIX
         self.action = action
@@ -391,7 +391,7 @@ class HandleInterrupt:  # {{{
         self.SetConsoleCtrlHandler.restype = BOOL
 
         @PHANDLER_ROUTINE
-        def handle(event):
+        def handle(event) -> int:
             if event == 0:  # CTRL_C_EVENT
                 if self.action is not None:
                     self.action()
@@ -422,11 +422,11 @@ class HandleInterrupt:  # {{{
 class Accumulator:  # {{{
     "Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._buf = []
         self.total_length = 0
 
-    def append(self, b):
+    def append(self, b) -> None:
         self._buf.append(b)
         self.total_length += len(b)
 
@@ -470,7 +470,7 @@ def get_library_data(ctx, rd, strict_library_id=False):
 class Offsets:
     "Calculate offsets for a paginated view"
 
-    def __init__(self, offset, delta, total):
+    def __init__(self, offset, delta, total) -> None:
         offset = max(offset, 0)
         if offset >= total:
             raise HTTPNotFound(f'Invalid offset: {offset!r}')

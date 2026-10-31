@@ -64,7 +64,7 @@ def book_hash(library_uuid, book_id, fmt, size, mtime):
 staging_cleaned = False
 
 
-def safe_remove(x, is_file=None):
+def safe_remove(x, is_file=None) -> None:
     if is_file is None:
         is_file = os.path.isfile(x)
     try:
@@ -99,7 +99,7 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id, size, mtime):
 last_final_clean_time = 0
 
 
-def clean_final(interval=24 * 60 * 60):
+def clean_final(interval=24 * 60 * 60) -> None:
     global last_final_clean_time
     now = time.time()
     if now - last_final_clean_time < interval:
@@ -116,7 +116,7 @@ def clean_final(interval=24 * 60 * 60):
             safe_remove(x)
 
 
-def rename_with_retry(a, b, sleep_time=1):
+def rename_with_retry(a, b, sleep_time=1) -> None:
     try:
         os.rename(a, b)
     except PermissionError:
@@ -127,7 +127,7 @@ def rename_with_retry(a, b, sleep_time=1):
             raise
 
 
-def job_done(job):
+def job_done(job) -> None:
     with cache_lock:
         bhash, pathtoebook, tdir = job.data
         queued_jobs.pop(bhash, None)
@@ -235,7 +235,7 @@ def get_last_read_position(ctx, rd, library_id, which):
 
 
 @endpoint('/book-set-last-read-position/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',), needs_db_write=True)
-def set_last_read_position(ctx, rd, library_id, book_id, fmt):
+def set_last_read_position(ctx, rd, library_id, book_id, fmt) -> bytes:
     db = get_db(ctx, rd, library_id)
     user = rd.username or None
     if not ctx.has_id(rd, db, book_id):
@@ -288,7 +288,7 @@ def get_annotations(ctx, rd, library_id, which):
     methods=('POST',),
     needs_db_write=True,
 )
-def update_annotations(ctx, rd, library_id, book_id, fmt):
+def update_annotations(ctx, rd, library_id, book_id, fmt) -> bytes:
     db = get_db(ctx, rd, library_id)
     user = rd.username or '*'
     if not ctx.has_id(rd, db, book_id):

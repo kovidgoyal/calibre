@@ -47,7 +47,7 @@ class ReadBuffer:  # {{{
 
     __slots__ = ('ba', 'buf', 'full_state', 'read_pos', 'write_pos')
 
-    def __init__(self, size=4096):
+    def __init__(self, size=4096) -> None:
         self.ba = bytearray(size)
         self.buf = memoryview(self.ba)
         self.read_pos = 0
@@ -146,7 +146,7 @@ def parse_trusted_ips(spec):
             raise BadIPSpec(_('{0} is not a valid IP address/network, with error: {1}').format(part, e))
 
 
-def is_ip_trusted(remote_addr, trusted_ips):
+def is_ip_trusted(remote_addr, trusted_ips) -> bool:
     remote_addr = getattr(remote_addr, 'ipv4_mapped', None) or remote_addr
     for tip in trusted_ips:
         if hasattr(tip, 'hosts'):
@@ -167,7 +167,7 @@ def is_local_address(addr: ipaddress.IPv4Address | ipaddress.IPv6Address | None)
 
 
 class Connection:  # {{{
-    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup):
+    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup) -> None:
         self.opts, self.pool, self.log, self.wakeup, self.access_log = opts, pool, log, wakeup, access_log
         try:
             self.remote_addr = addr[0]
@@ -198,7 +198,7 @@ class Connection:  # {{{
         self.last_activity = monotonic()
         self.ready = True
 
-    def optimize_for_sending_packet(self):
+    def optimize_for_sending_packet(self) -> None:
         start_cork(self.socket)
         self.orig_send_bufsize = self.send_bufsize = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)
         if self.send_bufsize < DESIRED_SEND_BUFFER_SIZE:
@@ -209,12 +209,12 @@ class Connection:  # {{{
             else:
                 self.send_bufsize = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)
 
-    def end_send_optimization(self):
+    def end_send_optimization(self) -> None:
         stop_cork(self.socket)
         if self.send_bufsize != self.orig_send_bufsize:
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, self.orig_send_bufsize)
 
-    def set_state(self, wait_for, func, *args, **kwargs):
+    def set_state(self, wait_for, func, *args, **kwargs) -> None:
         self.wait_for = wait_for
         if args or kwargs:
             pfunc = partial(func, *args, **kwargs)
@@ -222,7 +222,7 @@ class Connection:  # {{{
             func = pfunc
         self.handle_event = func
 
-    def do_ssl_handshake(self, event):
+    def do_ssl_handshake(self, event) -> None:
         try:
             self.socket._sslobj.do_handshake()
         except ssl.SSLWantReadError:
@@ -300,7 +300,7 @@ class Connection:  # {{{
                 return 0
             raise
 
-    def fill_read_buffer(self):
+    def fill_read_buffer(self) -> None:
         try:
             num = self.read_buffer.recv_from(self.socket)
             self.last_activity = monotonic()
@@ -318,7 +318,7 @@ class Connection:  # {{{
                 return
             raise
 
-    def drain_ssl_buffer(self):
+    def drain_ssl_buffer(self) -> None:
         try:
             self.read_buffer.recv_from(self.socket)
         except ssl.SSLWantReadError:
@@ -335,7 +335,7 @@ class Connection:  # {{{
                 return
             raise
 
-    def close(self):
+    def close(self) -> None:
         self.ready = False
         self.handle_event = None  # prevent reference cycles
         try:
@@ -347,7 +347,7 @@ class Connection:  # {{{
         except OSError:
             pass
 
-    def queue_job(self, func, *args):
+    def queue_job(self, func, *args) -> None:
         if args:
             func = partial(func, *args)
         try:
@@ -356,26 +356,26 @@ class Connection:  # {{{
             raise JobQueueFull()
         self.set_state(WAIT, self._job_done)
 
-    def _job_done(self, event):
+    def _job_done(self, event) -> None:
         self.job_done(*event)
 
     def job_done(self, ok, result):
         raise NotImplementedError()
 
     @property
-    def state_description(self):
+    def state_description(self) -> str:
         return ''
 
-    def report_unhandled_exception(self, e, formatted_traceback):
+    def report_unhandled_exception(self, e, formatted_traceback) -> None:
         pass
 
-    def report_busy(self):
+    def report_busy(self) -> None:
         pass
 
     def connection_ready(self):
         raise NotImplementedError()
 
-    def handle_timeout(self):
+    def handle_timeout(self) -> bool:
         return False
 
 
@@ -403,7 +403,7 @@ class ServerLoop:
         # A calibre logging object for access logging, by default no access
         # logging is performed
         access_log=None,
-    ):
+    ) -> None:
         self.ready = False
         self.handler = handler
         self.opts: Options = opts if opts is not None else Options()
@@ -447,7 +447,7 @@ class ServerLoop:
             # We do not allow client initiated SSL renegotiation
             return ssl.ALERT_DESCRIPTION_NO_RENEGOTIATION
 
-    def create_control_connection(self):
+    def create_control_connection(self) -> None:
         if iswindows:
             self.control_in, self.control_out = create_sock_pair()
         else:
@@ -457,13 +457,13 @@ class ServerLoop:
             self.control_in = open(w, 'wb')  # ruff: ignore[open-file-with-context-handler]
             self.control_out = open(r, 'rb')  # ruff: ignore[open-file-with-context-handler]
 
-    def close_control_connection(self):
+    def close_control_connection(self) -> None:
         with suppress(Exception):
             self.control_in.close()
         with suppress(Exception):
             self.control_out.close()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.__class__.__name__}({self.bind_address!r})'
 
     __repr__ = __str__
@@ -472,7 +472,7 @@ class ServerLoop:
     def num_active_connections(self):
         return len(self.connection_map)
 
-    def do_bind(self):
+    def do_bind(self) -> None:
         # Get the correct address family for our host (allows IPv6 addresses)
         host, port = self.bind_address
         assert host is not None
@@ -500,7 +500,7 @@ class ServerLoop:
         if not self.socket:  # ty: ignore[redundant-condition]
             raise OSError(msg)
 
-    def initialize_socket(self):
+    def initialize_socket(self) -> None:
         if self.pre_activated_socket is None:
             self.socket_was_preactivated = False
             try:
@@ -520,7 +520,7 @@ class ServerLoop:
             self.pre_activated_socket = None
             self.setup_socket()
 
-    def serve(self):
+    def serve(self) -> None:
         from calibre.utils.network import format_addr_for_url
 
         self.connection_map = {}
@@ -552,12 +552,12 @@ class ServerLoop:
                     self.log.exception('Error in ServerLoop.tick')
             self.shutdown()
 
-    def serve_forever(self):
+    def serve_forever(self) -> None:
         """Listen for incoming connections."""
         self.initialize_socket()
         self.serve()
 
-    def setup_socket(self):
+    def setup_socket(self) -> None:
         assert self.socket is not None
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -573,14 +573,14 @@ class ServerLoop:
                 pass
         self.socket.setblocking(False)
 
-    def bind(self, family, atype, proto=0):
+    def bind(self, family, atype, proto=0) -> None:
         """Create (or recreate) the actual socket object."""
         self.socket = socket.socket(family, atype, proto)
         set_socket_inherit(self.socket, False)
         self.setup_socket()
         self.socket.bind(self.bind_address)
 
-    def tick(self):
+    def tick(self) -> None:
         now = monotonic()
         read_needed, write_needed, readable, remove, close_needed = [], [], [], [], []
         has_ssl = self.ssl_context is not None
@@ -679,17 +679,17 @@ class ServerLoop:
                         self.log.error(f'Error in SSL handshake, terminating connection: {as_unicode(e)}')
                         self.close(s, conn)
 
-    def write_to_control(self, what):
+    def write_to_control(self, what) -> None:
         if iswindows:
             self.control_in.sendall(what)
         else:
             self.control_in.write(what)
             self.control_in.flush()
 
-    def wakeup(self):
+    def wakeup(self) -> None:
         self.write_to_control(WAKEUP)
 
-    def job_completed(self):
+    def job_completed(self) -> None:
         self.write_to_control(JOB_DONE)
 
     def dispatch_job_results(self):
@@ -702,7 +702,7 @@ class ServerLoop:
             if conn is not None:
                 yield s, conn, (ok, result)
 
-    def close(self, s, conn):
+    def close(self, s, conn) -> None:
         self.connection_map.pop(s, None)
         conn.close()
 
@@ -766,11 +766,11 @@ class ServerLoop:
         except OSError:
             return None, None
 
-    def stop(self):
+    def stop(self) -> None:
         self.ready = False
         self.wakeup()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.jobs_manager.shutdown()
         with suppress(socket.error):
             if getattr(self, 'socket', None):
@@ -790,11 +790,11 @@ class ServerLoop:
 class EchoLine(Connection):  # {{{
     bye_after_echo = False
 
-    def connection_ready(self):
+    def connection_ready(self) -> None:
         self.rbuf = BytesIO()
         self.set_state(READ, self.read_line)
 
-    def read_line(self, event):
+    def read_line(self, event) -> None:
         data = self.recv(1)
         if data:
             self.rbuf.write(data)
@@ -806,7 +806,7 @@ class EchoLine(Connection):  # {{{
                 self.set_state(WRITE, self.echo)
                 self.rbuf.seek(0)
 
-    def echo(self, event):
+    def echo(self, event) -> None:
         pos = self.rbuf.tell()
         self.rbuf.seek(0, os.SEEK_END)
         left = self.rbuf.tell() - pos
@@ -824,7 +824,7 @@ class EchoLine(Connection):  # {{{
 # }}}
 
 
-def main():
+def main() -> None:
     print('Starting Echo server')
     s = ServerLoop(EchoLine)
     with HandleInterrupt(s.stop):

@@ -43,7 +43,7 @@ def gui_tag_browser_tags(library_path: str, folders_first_values: tuple[bool, ..
     class Prefs(dict):
         # Use the defaults for everything not set here, without changing the
         # preferences of the user running the tests
-        def __init__(self, fallback, **kw):
+        def __init__(self, fallback, **kw) -> None:
             super().__init__(**kw)
             self.fallback = fallback
 
@@ -68,7 +68,7 @@ def gui_tag_browser_tags(library_path: str, folders_first_values: tuple[bool, ..
 
 
 class ContentTest(LibraryBaseTest):
-    def test_ajax_book(self):  # {{{
+    def test_ajax_book(self) -> None:  # {{{
         "Test /ajax/book"
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
@@ -92,7 +92,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_move_duplicate_to_library(self):  # {{{
+    def test_move_duplicate_to_library(self) -> None:  # {{{
         "Test that ignored duplicates are not removed when moving to another library"
         target_library_path = self.mkdtemp()
         self.create_db(target_library_path)
@@ -130,7 +130,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_fts_actions_change_only_the_requested_library(self):  # {{{
+    def test_fts_actions_change_only_the_requested_library(self) -> None:  # {{{
         other_library_path = self.mkdtemp()
         self.create_db(other_library_path)
         with self.create_server(libraries=(self.library_path, other_library_path), auth=True, auth_mode='basic') as server:
@@ -175,7 +175,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_data_file_paths_are_confined_to_book_dir(self):  # {{{
+    def test_data_file_paths_are_confined_to_book_dir(self) -> None:  # {{{
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.ctx.user_manager.add_user('12', 'test')
             db = server.handler.router.ctx.library_broker.get(None)
@@ -225,7 +225,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_tag_browser_folders_first(self):  # {{{
+    def test_tag_browser_folders_first(self) -> None:  # {{{
         "Test showing items that only contain sub-items first in the Tag browser"
         from calibre.utils.ipc.simple_worker import fork_job
 
@@ -260,7 +260,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_ajax_categories(self):  # {{{
+    def test_ajax_categories(self) -> None:  # {{{
         "Test /ajax/categories and /ajax/search"
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
@@ -293,7 +293,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_interface_data_browse_fields(self):  # {{{
+    def test_interface_data_browse_fields(self) -> None:  # {{{
         "Test /interface-data browse field data"
         with self.create_server() as server:
             from calibre.gui2 import gprefs
@@ -382,7 +382,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_srv_restrictions(self):  # {{{
+    def test_srv_restrictions(self) -> None:  # {{{
         "Test that virtual lib. + search restriction works on all end points"
         with self.create_server(auth=True, auth_mode='basic') as server:
             db = server.handler.router.ctx.library_broker.get(None)
@@ -496,7 +496,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_book_storage(self):  # {{{
+    def test_book_storage(self) -> None:  # {{{
         "Test the per book storage endpoints"
         from http.client import BAD_REQUEST
 
@@ -560,7 +560,7 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
-    def test_srv_add_book(self):  # {{{
+    def test_srv_add_book(self) -> None:  # {{{
         with self.create_server(auth=True, auth_mode='basic') as server:
             server.handler.ctx.user_manager.add_user('12', 'test')
             server.handler.ctx.user_manager.add_user('ro', 'test', readonly=True)

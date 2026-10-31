@@ -13,7 +13,7 @@ def safe_date(dt, fmt='%d %b %Y'):
     return strftime(fmt, t=dt_as_local(dt).timetuple())
 
 
-def exact_match_query(field, value):
+def exact_match_query(field, value) -> str:
     # Same quoting rules as the tag browser, see search_expression_for_item() in search.pyj
     value = value.replace('"', r'\"')
     if value.startswith('.'):
@@ -21,12 +21,12 @@ def exact_match_query(field, value):
     return f'{field}:"={value}"'
 
 
-def search_link(ctx, library_id, text, query):
+def search_link(ctx, library_id, text, query) -> str:
     url = ctx.url_for('/mobile') + '?' + urlencode({'library_id': library_id, 'search': query})
     return f'<a href="{escape(url)}">{escape(text)}</a>'
 
 
-def render_legacy_book_details(ctx, rd, mi, library_id):
+def render_legacy_book_details(ctx, rd, mi, library_id) -> str:
     book_id = mi.id
 
     title = escape(mi.title or 'Unknown')

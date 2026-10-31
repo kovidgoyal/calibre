@@ -170,7 +170,7 @@ class UserManager:
                     c.close()
         return self._conn
 
-    def __init__(self, path=None):
+    def __init__(self, path=None) -> None:
         self.path = os.path.join(config_dir, 'server-users.sqlite') if path is None else path
         self._conn = None
 
@@ -180,7 +180,7 @@ class UserManager:
                 return load_json(data)
         return {}
 
-    def set_session_data(self, username, data):
+    def set_session_data(self, username, data) -> None:
         with self.lock:
             conn = self.conn
             c = conn.cursor()
@@ -206,7 +206,7 @@ class UserManager:
     def validate_password(self, pw):
         return validate_password(pw)
 
-    def add_user(self, username, pw, restriction=None, readonly=False, allow_change_password_via_http=True):
+    def add_user(self, username, pw, restriction=None, readonly=False, allow_change_password_via_http=True) -> None:
         with self.lock:
             msg = self.validate_username(username) or self.validate_password(pw)
             if msg is not None:
@@ -237,7 +237,7 @@ class UserManager:
         return ans
 
     @user_data.setter
-    def user_data(self, users):
+    def user_data(self, users) -> None:
         with self.lock, self.conn:
             c = self.conn.cursor()
             remove = self.all_user_names - set(users)
@@ -254,7 +254,7 @@ class UserManager:
                 )
             self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         pass  # legacy compat
 
     def is_readonly(self, username):
@@ -263,11 +263,11 @@ class UserManager:
                 return readonly == 'y'
             return False
 
-    def set_readonly(self, username, value):
+    def set_readonly(self, username, value) -> None:
         with self.lock:
             self.conn.cursor().execute('UPDATE users SET readonly=? WHERE name=?', ('y' if value else 'n', username))
 
-    def change_password(self, username, pw):
+    def change_password(self, username, pw) -> None:
         with self.lock:
             msg = self.validate_password(pw)
             if msg is not None:
@@ -293,7 +293,7 @@ class UserManager:
 
         return {n for n in all_library_names if check(n)}
 
-    def update_user_restrictions(self, username, restrictions):
+    def update_user_restrictions(self, username, restrictions) -> None:
         if not isinstance(restrictions, dict):
             raise TypeError('restrictions must be a dict')
         with self.lock:

@@ -27,7 +27,7 @@ class OPDSFullTextTest(LibraryBaseTest):
         response = conn.getresponse()
         return response, response.read()
 
-    def index(self, db):
+    def index(self, db) -> None:
         # Exercise the real FTS database with deterministic extracted text,
         # without starting background format-extraction workers.
         db.enable_fts(start_pool=False)
@@ -45,7 +45,7 @@ class OPDSFullTextTest(LibraryBaseTest):
             return [x for x in json.loads(raw)['links'] if x.get('rel') == 'search']
         return [dict(x.attrib) for x in etree.fromstring(raw).xpath('a:link[@rel="search"]', namespaces=NS)]
 
-    def test_opds_full_text(self):
+    def test_opds_full_text(self) -> None:
         with self.create_server(max_opds_items=1, url_prefix='/calibre') as server:
             db = server.handler.ctx.library_broker.get(None)
             self.index(db)
@@ -101,7 +101,7 @@ class OPDSFullTextTest(LibraryBaseTest):
                     phrase_url = links[1]['href'].replace(variable, quote('"stellar dust"', safe=''))
                     self.ae(self.request(conn, phrase_url, accept)[0].status, OK)
 
-    def test_opds_full_text_errors(self):
+    def test_opds_full_text_errors(self) -> None:
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
             conn = server.connect()
@@ -132,7 +132,7 @@ class OPDSFullTextTest(LibraryBaseTest):
             db.enable_fts(False)
             self.ae(len(self.search_links(self.request(conn, '/opds')[1], OPDS2_MIME)), 1)
 
-    def test_opds_full_text_permissions(self):
+    def test_opds_full_text_permissions(self) -> None:
         other_path = self.mkdtemp()
         self.create_db(other_path)
         with self.create_server(libraries=(self.library_path, other_path), auth=True, auth_mode='basic', max_opds_items=1) as server:

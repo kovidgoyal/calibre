@@ -12,7 +12,7 @@ from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
 
 
-def gui_on_db_event(event_type, library_id, event_data):
+def gui_on_db_event(event_type, library_id, event_data) -> None:
     from calibre.gui2.ui import get_gui
 
     gui = get_gui()
@@ -90,7 +90,7 @@ def db_matches(db, library_id, library_path):
 
 
 class LibraryBroker:
-    def __init__(self, libraries):
+    def __init__(self, libraries) -> None:
         self.lock = Lock()
         self.lmap = OrderedDict()
         self.library_name_map = {}
@@ -140,7 +140,7 @@ class LibraryBroker:
         library_path = self.original_path_map.get(library_path, library_path)
         return init_library(library_path, is_default_library)
 
-    def close(self):
+    def close(self) -> None:
         with self:
             for db in self.loaded_dbs.values():
                 getattr(db, 'close', lambda: None)()
@@ -197,7 +197,7 @@ def path_for_db(db):
 
 
 class GuiLibraryBroker(LibraryBroker):
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         from calibre.gui2 import gprefs
 
         self.last_used_times: defaultdict[str | None, float] = defaultdict(lambda: float(-EXPIRED_AGE))
@@ -219,13 +219,13 @@ class GuiLibraryBroker(LibraryBroker):
         finally:
             self.last_used_times[library_id or self.default_library] = monotonic()
 
-    def start_listening_for_db_events(self):
+    def start_listening_for_db_events(self) -> None:
         with self:
             self.listening_for_db_events = True
             for db in self.loaded_dbs.values():
                 db.new_api.add_listener(gui_on_db_event)
 
-    def on_db_event(self, event_type, library_id, event_data):
+    def on_db_event(self, event_type, library_id, event_data) -> None:
         from calibre.gui2.ui import get_gui
 
         gui = get_gui()
@@ -269,7 +269,7 @@ class GuiLibraryBroker(LibraryBroker):
                 set_global_state(db)
                 return db
 
-    def gui_library_changed(self, db, olddb=None):
+    def gui_library_changed(self, db, olddb=None) -> None:
         # Must be called with lock held
         original_path = path_for_db(db)
         newloc = canonicalize_path(original_path)
@@ -300,7 +300,7 @@ class GuiLibraryBroker(LibraryBroker):
                 return samefile(library_path, self.lmap[self.gui_library_id])
             return False
 
-    def _prune_loaded_dbs(self):
+    def _prune_loaded_dbs(self) -> None:
         now = monotonic()
         for library_id in tuple(self.loaded_dbs):
             if library_id != self.gui_library_id and now - self.last_used_times[library_id] > EXPIRED_AGE:
@@ -309,11 +309,11 @@ class GuiLibraryBroker(LibraryBroker):
                     db.close()
                     db.break_cycles()
 
-    def prune_loaded_dbs(self):
+    def prune_loaded_dbs(self) -> None:
         with self:
             self._prune_loaded_dbs()
 
-    def unload_library(self, library_path):
+    def unload_library(self, library_path) -> None:
         with self:
             path = canonicalize_path(library_path)
             for library_id, q in self.lmap.items():
@@ -326,7 +326,7 @@ class GuiLibraryBroker(LibraryBroker):
                 db.close()
                 db.break_cycles()
 
-    def remove_library(self, path):
+    def remove_library(self, path) -> None:
         with self:
             path = canonicalize_path(path)
             for library_id, q in self.lmap.items():

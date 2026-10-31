@@ -106,7 +106,7 @@ def check_for_maths(root):
     return any(s.get('type') == 'text/x-mathjax-config' for s in root.iterdescendants(XHTML('script')))
 
 
-def has_ancestor(elem, q):
+def has_ancestor(elem, q) -> bool:
     while elem is not None:
         elem = elem.getparent()
         if elem is q:
@@ -133,7 +133,7 @@ def toc_anchor_map(toc):
     ans = defaultdict(list)
     seen_map = defaultdict(set)
 
-    def process_node(node):
+    def process_node(node) -> None:
         name = node['dest']
         if name and node['id'] not in seen_map[name]:
             ans[name].append({'id': node['id'], 'frag': node['frag']})
@@ -241,7 +241,7 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
     return raster_cover_name, titlepage_name
 
 
-def transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names, present_names):
+def transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names, present_names) -> None:
     changed = False
     link_replacer = None
     if virtualize_resources:
@@ -265,7 +265,7 @@ def transform_style_sheet(container, name, link_uid, virtualize_resources, virtu
             f.write(raw.encode('utf-8'))
 
 
-def transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names, present_names):
+def transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names, present_names) -> None:
     if not virtualize_resources:
         return
     link_replacer = create_link_replacer(container, link_uid, set(), present_names)
@@ -309,7 +309,7 @@ def parse_smil_time(x):
     return seconds
 
 
-def transform_smil(container, name, link_uid, virtualize_resources, virtualized_names, smil_map, present_names):
+def transform_smil(container, name, link_uid, virtualize_resources, virtualized_names, smil_map, present_names) -> None:
     root = container.parsed(name)
     text_tag, audio_tag = SMIL('text'), SMIL('audio')
     body_tag, seq_tag, par_tag = SMIL('body'), SMIL('seq'), SMIL('par')
@@ -342,7 +342,7 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
                         ans['end'] = parse_smil_time(e)
         return ans
 
-    def process_seq(seq_xml_element, tref, parent_seq=None):
+    def process_seq(seq_xml_element, tref, parent_seq=None) -> None:
         target = container.href_to_name(tref, name)
         seq = {'textref': [target, tref.partition('#')[2]], 'par': [], 'seq': []}
         t = seq_xml_element.get(type_attr)
@@ -403,7 +403,7 @@ def transform_inline_styles(container, name, transform_sheet, transform_style):
     return changed
 
 
-def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names, present_names):
+def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names, present_names) -> None:
     link_xpath = XPath('//h:*[@href and (self::h:a or self::h:area)]')
     svg_link_xpath = XPath('//svg:a')
     img_xpath = XPath('//h:img[@src]')
@@ -451,7 +451,7 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
         virtualize_html(container, name, link_uid, link_to_map, virtualized_names, present_names)
     else:
 
-        def handle_link(a, attr='href'):
+        def handle_link(a, attr='href') -> None:
             href = a.get(attr)
             if href:
                 href = link_replacer(name, href)
@@ -495,7 +495,7 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names, p
     root = container.parsed(name)
     rewrite_links(root, partial(link_replacer, name))
 
-    def handle_link(a, attr='href'):
+    def handle_link(a, attr='href') -> None:
         href = a.get(attr) or ''
         if href.startswith(link_uid):
             a.set(attr, 'javascript:void(0)')
@@ -653,7 +653,7 @@ def process_exploded_book(
     html_data = {}
     virtualized_names = set()
 
-    def merge_ltm(dest, src):
+    def merge_ltm(dest, src) -> None:
         for k, v in src.items():
             if k in dest:
                 dest[k] |= v
@@ -662,7 +662,7 @@ def process_exploded_book(
 
     final_smil_map = {}
 
-    def merge_smil_map(smil_map):
+    def merge_smil_map(smil_map) -> None:
         for n in smil_map.pop(__smil_file_names__):
             excluded_names.add(n)
         for n, d in smil_map.items():
@@ -734,7 +734,7 @@ known_tags = ('img', 'script', 'link', 'image', 'style')
 discarded_tags = ('meta', 'base')
 
 
-def ensure_body(root):
+def ensure_body(root) -> None:
     # Make sure we have only a single <body>
     bodies = list(root.iterchildren(XHTML('body')))
     if len(bodies) != 1:
@@ -765,7 +765,7 @@ def html_as_json(root):
     return serialize(root, Comment)
 
 
-def serialize_datetimes(d):
+def serialize_datetimes(d) -> None:
     for k in tuple(d):
         v = d[k]
         if isinstance(v, datetime):
@@ -806,7 +806,7 @@ def render(
     extract_annotations=False,
     virtualize_resources=True,
     max_workers=0,
-):
+) -> None:
     pathtoebook = os.path.abspath(pathtoebook)
     mi = None
     if serialize_metadata:
@@ -855,7 +855,7 @@ def render_for_viewer(path, out_dir, book_hash):
     )
 
 
-def viewer_main():
+def viewer_main() -> None:
     stdin = getattr(sys.stdin, 'buffer', sys.stdin)
     args = msgpack_loads(stdin.read())
     render_for_viewer(*args)
@@ -969,7 +969,7 @@ def quicklook_service(path_to_socket: str) -> None:
 
 
 class Profiler:
-    def __init__(self):
+    def __init__(self) -> None:
         import cProfile
 
         self.profile = cProfile.Profile()
@@ -995,7 +995,7 @@ def profile():
         return render(path, tdir, serialize_metadata=True, extract_annotations=True, virtualize_resources=False, max_workers=1)
 
 
-def develop(max_workers=1, wait_for_input=True):
+def develop(max_workers=1, wait_for_input=True) -> None:
     from calibre.ptempfile import TemporaryDirectory
 
     path = sys.argv[-1]

@@ -13,7 +13,7 @@ from calibre.utils.date import utcnow
 
 
 class AnnotationsTest(LibraryBaseTest):
-    def test_annotations_import_remote(self):
+    def test_annotations_import_remote(self) -> None:
         with self.create_server(auth=True, auth_mode='basic', listen_on='127.0.0.1', url_prefix='/calibre') as server:
             ctx = server.handler.ctx
             ctx.user_manager.add_user('owner', 'test')
@@ -64,7 +64,7 @@ class AnnotationsTest(LibraryBaseTest):
             self.ae(len(db.annotations_map_for_book(1, 'TXT', user_type='web', user='owner')['highlight']), 1)
             self.ae(len(db.annotations_map_for_book(1, 'TXT')['highlight']), 1)
 
-    def test_annotations_search_remote(self):
+    def test_annotations_search_remote(self) -> None:
         other_path = self.mkdtemp()
         self.create_db(other_path)
         with self.create_server(

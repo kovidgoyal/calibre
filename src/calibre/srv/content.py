@@ -48,7 +48,7 @@ lock = Lock()
 rename_counter = 0
 
 
-def reset_caches():
+def reset_caches() -> None:
     pass
 
 
@@ -122,7 +122,7 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mt, extra_etag_data)
 
 
-def write_generated_cover(db, book_id, width, height, destf):
+def write_generated_cover(db, book_id, width, height, destf) -> None:
     mi = db.get_metadata(book_id)
     set_use_roman(get_use_roman())
     if height is None:
@@ -163,7 +163,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None, fill=False)
     prefix = 'cover'
     if width is None and height is None:
 
-        def copy_func(dest):
+        def copy_func(dest) -> None:
             db.copy_cover_to(book_id, dest)
 
     else:
@@ -171,7 +171,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None, fill=False)
         if fill:
             prefix += '-fill'
 
-        def copy_func(dest):
+        def copy_func(dest) -> None:
             buf = BytesIO()
             db.copy_cover_to(book_id, buf)
             quality = min(99, max(50, tweaks['content_server_thumbnail_compression_quality']))
@@ -265,7 +265,7 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
     else:
         mi = db.get_proxy_metadata(book_id)
 
-    def copy_func(dest):
+    def copy_func(dest) -> None:
         db.copy_format_to(book_id, fmt, dest)
         if update_metadata:
             if not mi.cover_data or not mi.cover_data[-1]:
@@ -398,7 +398,7 @@ def get_all_reader_profiles(ctx, rd):
 
 
 @endpoint('/reader-profiles/save', methods={'POST'}, postprocess=json)
-def save_reader_profile(ctx, rd):
+def save_reader_profile(ctx, rd) -> bool:
     try:
         data = load_json_file(rd.request_body_file)
         name, profile = data['name'], data['profile']
@@ -492,7 +492,7 @@ def _get_note(ctx, rd, db, field, item_id, library_id):
 
         html = note_data['doc']
 
-        def r(x):
+        def r(x) -> str:
             scheme, digest = x.split(':', 1)
             return f'{scheme}/{digest}'
 

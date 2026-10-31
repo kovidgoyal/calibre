@@ -8,15 +8,15 @@ from calibre_extensions.fast_css_transform import parse_css_number, transform_pr
 
 
 class TestTransform(SimpleTest):
-    def test_number_parsing(self):
+    def test_number_parsing(self) -> None:
         for x in '.314 -.314 0.314 0 2 +2 -1 1e2 -3.14E+2 2e-2'.split():
             self.ae(parse_css_number(x), ast.literal_eval(x))
         self.ae(parse_css_number('2em'), 2)
         self.ae(parse_css_number('.3em'), 0.3)
         self.ae(parse_css_number('3x3'), 3)
 
-    def test_basic_css_transforms(self):
-        def d(src, expected, is_declaration=True, url_callback=None):
+    def test_basic_css_transforms(self) -> None:
+        def d(src, expected, is_declaration=True, url_callback=None) -> None:
             self.ae(transform_properties(src, is_declaration=is_declaration, url_callback=url_callback), expected)
 
         def upper_case(val):

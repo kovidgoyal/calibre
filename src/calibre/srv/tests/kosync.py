@@ -28,7 +28,7 @@ class KOSyncTest(LibraryBaseTest):
         r = conn.getresponse()
         return r.status, json.loads(r.read())
 
-    def test_kosync(self):
+    def test_kosync(self) -> None:
         with self.create_server(auth=True, auth_mode='basic') as server:
             um = server.handler.ctx.user_manager
             um.add_user('alice', 'secret')
@@ -116,7 +116,7 @@ class KOSyncTest(LibraryBaseTest):
             um.add_user('alice', 'secret')
             self.ae(self.request(conn, '/syncs/progress/0123abcdef', **alice), (200, {}))
 
-    def test_kosync_bans(self):
+    def test_kosync_bans(self) -> None:
         from calibre.srv.tests.ajax import make_request
 
         with self.create_server(auth=True, auth_mode='basic', ban_for=1, ban_after=2) as server:
@@ -142,7 +142,7 @@ class KOSyncTest(LibraryBaseTest):
             status, data = self.request(conn, '/users/auth', user='alice', key=key_for('secret'))
             self.ae((status, data['code']), (403, 2001))
 
-    def test_kosync_without_auth(self):
+    def test_kosync_without_auth(self) -> None:
         with self.create_server() as server:
             conn = server.connect()
             creds = {'user': 'anyone', 'key': key_for('anything')}
@@ -163,7 +163,7 @@ class KOSyncTest(LibraryBaseTest):
             self.ae(um.kosync_progress('anyone', 'doc', anonymous=True)['progress'], 'p')
             self.assertIsNone(um.kosync_progress('anyone', 'doc'))
 
-    def test_kosync_storage(self):
+    def test_kosync_storage(self) -> None:
         import apsw
 
         from calibre.srv.users import UserManager
@@ -213,7 +213,7 @@ class KOSyncTest(LibraryBaseTest):
             self.ae(next(conn.cursor().execute('SELECT count(*) FROM kosync_anonymous_progress'))[0], 2)
             conn.close()
 
-    def test_kosync_schema_upgrade(self):
+    def test_kosync_schema_upgrade(self) -> None:
         import apsw
 
         from calibre.srv.users import UserManager

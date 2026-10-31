@@ -39,7 +39,7 @@ FORBIDDEN_CLIENT_OPTIONS = frozenset({
 
 
 class JobStatus:
-    def __init__(self, job_id, book_id, tdir, library_id, pathtoebook, conversion_data, username=None):
+    def __init__(self, job_id, book_id, tdir, library_id, pathtoebook, conversion_data, username=None) -> None:
         self.job_id = job_id
         self.username = username
         self.log = self.traceback = ''
@@ -54,7 +54,7 @@ class JobStatus:
         self.last_check_at = monotonic()
         self.was_aborted = False
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         safe_delete_tree(self.tdir)
         self.log = self.traceback = ''
 
@@ -74,7 +74,7 @@ class JobStatus:
         return 0, ''
 
 
-def expire_old_jobs():
+def expire_old_jobs() -> None:
     now = monotonic()
     with cache_lock:
         remove = [job_id for job_id, job_status in conversion_jobs.items() if now - job_status.last_check_at >= 360]
@@ -83,21 +83,21 @@ def expire_old_jobs():
             job_status.cleanup()
 
 
-def safe_delete_file(path):
+def safe_delete_file(path) -> None:
     try:
         os.remove(path)
     except OSError:
         pass
 
 
-def safe_delete_tree(path):
+def safe_delete_tree(path) -> None:
     try:
         shutil.rmtree(path, ignore_errors=True)
     except OSError:
         pass
 
 
-def job_done(job):
+def job_done(job) -> None:
     with cache_lock:
         try:
             job_status = conversion_jobs[job.job_id]
@@ -112,7 +112,7 @@ def job_done(job):
     safe_delete_file(job_status.pathtoebook)
 
 
-def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
+def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs) -> None:
     from calibre.customize.conversion import OptionRecommendation
     from calibre.ebooks.conversion.plumber import Plumber
     from calibre.utils.logging import Log
@@ -129,7 +129,7 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
     os.chdir(os.path.dirname(path_to_ebook))
     status_file = share_open('status', 'wb')
 
-    def notification(percent, msg=''):
+    def notification(percent, msg='') -> None:
         status_file.write(f'{percent}:{msg}|||\n'.encode())
         status_file.flush()
 
@@ -306,7 +306,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
         'output_ui_data': plumber.output_plugin.ui_data,
     }
 
-    def merge_group(group_name, option_names):
+    def merge_group(group_name, option_names) -> None:
         if not group_name or group_name in ('debug', 'metadata'):
             return
         defs = load_defaults(group_name)

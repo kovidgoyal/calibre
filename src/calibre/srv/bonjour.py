@@ -5,7 +5,7 @@ from threading import Event
 
 
 class BonJour:  # {{{
-    def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True, wait_for_stop=True):
+    def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True, wait_for_stop=True) -> None:
         self.service_name = name
         self.wait_for_stop = wait_for_stop
         self.service_type = service_type
@@ -17,7 +17,7 @@ class BonJour:  # {{{
         self.stopped = Event()
         self.services = []
 
-    def start(self, loop):
+    def start(self, loop) -> None:
         from calibre.utils.mdns import publish, unpublish, verify_ip_address
 
         ip_address, port = loop.bound_address[:2]

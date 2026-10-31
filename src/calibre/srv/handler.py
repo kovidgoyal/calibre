@@ -28,7 +28,7 @@ class Context:
     CATEGORY_CACHE_SIZE = 25
     SEARCH_CACHE_SIZE = 100
 
-    def __init__(self, libraries, opts, testing=False, notify_changes=None):
+    def __init__(self, libraries, opts, testing=False, notify_changes=None) -> None:
         self.opts = opts
         self.library_broker = libraries if isinstance(libraries, LibraryBroker) else LibraryBroker(libraries)
         self.testing = testing
@@ -38,7 +38,7 @@ class Context:
         self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
         self._notify_changes = notify_changes
 
-    def notify_changes(self, library_path, change_event):
+    def notify_changes(self, library_path, change_event) -> None:
         if self._notify_changes is not None:
             self._notify_changes(library_path, change_event)
 
@@ -59,10 +59,10 @@ class Context:
             return False
         return field not in self.ignored_fields
 
-    def init_session(self, endpoint, data):
+    def init_session(self, endpoint, data) -> None:
         pass
 
-    def finalize_session(self, endpoint, data, output):
+    def finalize_session(self, endpoint, data, output) -> None:
         pass
 
     def get_library(self, request_data, library_id=None):
@@ -118,7 +118,7 @@ class Context:
             ans = db.all_book_ids()
         return ans
 
-    def check_for_write_access(self, request_data):
+    def check_for_write_access(self, request_data) -> None:
         if not request_data.username:
             if request_data.is_trusted_ip:
                 return
@@ -212,7 +212,7 @@ SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'use
 
 
 class Handler:
-    def __init__(self, libraries, opts, testing=False, notify_changes=None):
+    def __init__(self, libraries, opts, testing=False, notify_changes=None) -> None:
         ctx = Context(libraries, opts, testing=testing, notify_changes=notify_changes)
         self.auth_controller = None
         if opts.auth:
@@ -236,7 +236,7 @@ class Handler:
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch
 
-    def _load_content_server_plugin_routes(self):
+    def _load_content_server_plugin_routes(self) -> None:
         from calibre.customize.ui import content_server_plugins
 
         for plugin in content_server_plugins():
@@ -252,17 +252,17 @@ class Handler:
                     # Plugins do not override existing routes.
                     pass
 
-    def set_log(self, log):
+    def set_log(self, log) -> None:
         assert self.router.ctx is not None
         self.router.ctx.log = log
         if self.auth_controller is not None:
             self.auth_controller.log = log
 
-    def set_jobs_manager(self, jobs_manager):
+    def set_jobs_manager(self, jobs_manager) -> None:
         assert self.router.ctx is not None
         self.router.ctx.jobs_manager = jobs_manager
 
-    def close(self):
+    def close(self) -> None:
         assert self.router is not None
         assert self.router.ctx is not None
         self.router.ctx.library_broker.close()

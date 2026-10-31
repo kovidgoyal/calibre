@@ -31,7 +31,7 @@ def cbz(pages):
     return buf.getvalue()
 
 
-def replace_cbz(db, book_id, data):
+def replace_cbz(db, book_id, data) -> None:
     # The download cache only recopies a format whose mtime is newer than its
     # cached copy, which a replacement made in the same filesystem timestamp
     # tick would not be, so move the mtime of the replacement forward.
@@ -42,7 +42,7 @@ def replace_cbz(db, book_id, data):
 
 
 class ComicTest(LibraryBaseTest):
-    def test_comic_reading_direction(self):
+    def test_comic_reading_direction(self) -> None:
         rtl = b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>'
         no = b'<ComicInfo><Manga>No</Manga></ComicInfo>'
 
@@ -98,7 +98,7 @@ class ComicTest(LibraryBaseTest):
         with ComicZipFile(BytesIO(encrypted)) as archive:
             self.assertFalse(comic_is_right_to_left(archive, []))
 
-    def test_comic_manga_manifest(self):
+    def test_comic_manga_manifest(self) -> None:
         png = I('lt.png', data=True)
         pages = [('2.png', png), ('1.jpg', IMG)]
         with self.create_server() as server:
@@ -141,7 +141,7 @@ class ComicTest(LibraryBaseTest):
         self.ae(response.getheader('Content-Type'), DIVINA_MIME)
         return response, json.loads(raw)
 
-    def test_comic_page_order(self):
+    def test_comic_page_order(self) -> None:
         pages = [('z/10.jpg', IMG), ('z/2.png', b'png'), ('z/1.JPG', IMG), ('__MACOSX/z/._0.jpg', IMG), ('notes.txt', b'text')]
         with ZipFile(BytesIO(cbz(pages))) as archive:
             self.ae(comic_pages(archive), ['z/1.JPG', 'z/2.png', 'z/10.jpg'])
@@ -149,7 +149,7 @@ class ComicTest(LibraryBaseTest):
         with ZipFile(BytesIO(cbz([('a/z/1.jpg', IMG), ('b/2.jpg', IMG)]))) as archive:
             self.ae(comic_pages(archive), ['a/z/1.jpg', 'b/2.jpg'])
 
-    def test_comic_manifest_and_pages(self):
+    def test_comic_manifest_and_pages(self) -> None:
         png = I('lt.png', data=True)
         data = cbz([('本/page10.png', png), ('本/page2.jpg', IMG), ('本/page1.png', png), ('notes.txt', b'text')])
         with self.create_server() as server:
@@ -173,7 +173,7 @@ class ComicTest(LibraryBaseTest):
                 self.ae(raw, b'')
                 self.ae(int(response.getheader('Content-Length')), len(expected))
 
-    def test_comic_feed_is_lazy(self):
+    def test_comic_feed_is_lazy(self) -> None:
         data = cbz([('1.jpg', IMG), ('ComicInfo.xml', b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>')])
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
@@ -202,7 +202,7 @@ class ComicTest(LibraryBaseTest):
             self.ae(response.status, OK)
             self.assertNotIn(DIVINA_MIME.encode(), raw)
 
-    def test_comic_image_alternates(self):
+    def test_comic_image_alternates(self) -> None:
         pages = [('1.png', I('lt.png', data=True)), ('2.avif', STILL_AVIF), ('3.jxl', STILL_JXL)]
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
@@ -231,7 +231,7 @@ class ComicTest(LibraryBaseTest):
                 self.ae(page_types('1.jxl'), ('image/jxl', ('image/jxl',)))
             self.assertIn('image/avif', readable_types())
 
-    def test_comic_cache_and_replacement(self):
+    def test_comic_cache_and_replacement(self) -> None:
         png = I('lt.png', data=True)
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
@@ -262,7 +262,7 @@ class ComicTest(LibraryBaseTest):
             self.ae(self.request(conn, '/comic-manifest/1')[0].status, NOT_FOUND)
             self.ae(self.request(conn, replacement['readingOrder'][0]['href'])[0].status, NOT_FOUND)
 
-    def test_comic_revision_survives_restart(self):
+    def test_comic_revision_survives_restart(self) -> None:
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
             db.add_format(1, 'CBZ', BytesIO(cbz([('1.jpg', IMG)])), run_hooks=False)
@@ -277,7 +277,7 @@ class ComicTest(LibraryBaseTest):
             self.ae(response.status, OK)
             self.assertNotIn('immutable', response.getheader('Cache-Control'))
 
-    def test_comic_unconvertible_pages(self):
+    def test_comic_unconvertible_pages(self) -> None:
         self.ae(page_types('1.gif'), ('image/gif', ('image/gif',)))
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
@@ -291,7 +291,7 @@ class ComicTest(LibraryBaseTest):
             with patch('calibre.srv.comic.MAX_PAGE_SIZE', len(IMG)):
                 self.ae(self.request(conn, manifest['readingOrder'][1]['href'])[0].status, OK)
 
-    def test_comic_misnamed_images(self):
+    def test_comic_misnamed_images(self) -> None:
         png = I('lt.png', data=True)
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
@@ -303,7 +303,7 @@ class ComicTest(LibraryBaseTest):
             self.ae(identify(raw), ('jpeg', *identify(png)[1:]))
             self.ae(self.request(conn, manifest['readingOrder'][1]['href'])[0].status, NOT_FOUND)
 
-    def test_comic_invalid_requests(self):
+    def test_comic_invalid_requests(self) -> None:
         with self.create_server() as server:
             db = server.handler.ctx.library_broker.get(None)
             conn = server.connect()
@@ -325,7 +325,7 @@ class ComicTest(LibraryBaseTest):
             replace_cbz(db, 1, bytes(encrypted))
             self.ae(self.request(conn, '/comic-page/1/0')[0].status, NOT_FOUND)
 
-    def test_comic_permissions_and_libraries(self):
+    def test_comic_permissions_and_libraries(self) -> None:
         other_path = self.mkdtemp()
         self.create_db(other_path)
         with self.create_server(libraries=(self.library_path, other_path), auth=True, auth_mode='basic', url_prefix='/calibre') as server:

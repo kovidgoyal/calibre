@@ -12,7 +12,7 @@ from calibre.srv.tests.base import LibraryBaseTest
 
 
 class DataFilesServerTest(LibraryBaseTest):
-    def test_data_files_remote(self):
+    def test_data_files_remote(self) -> None:
         other_path = self.mkdtemp()
         self.create_db(other_path)
         with self.create_server(

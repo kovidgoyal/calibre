@@ -285,7 +285,7 @@ class Options:
     displayed_fields: str | None
     book_list_mode: str
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         for opt in options.values():
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
 
@@ -299,11 +299,11 @@ def opt_to_cli_help(opt):
     return ans
 
 
-def bool_callback(option, opt_str, value, parser, *args, **kwargs):
+def bool_callback(option, opt_str, value, parser, *args, **kwargs) -> None:
     setattr(parser.values, option.dest, opt_str.startswith('--enable-'))
 
 
-def boolean_option(add_option, opt):
+def boolean_option(add_option, opt) -> None:
     name = opt.name.replace('_', '-')
     help = opt_to_cli_help(opt)
     help += '\n' + (_('By default, this option is enabled.') if opt.default else _('By default, this option is disabled.'))
@@ -366,7 +366,7 @@ def parse_config_file(path=DEFAULT_CONFIG):
     return Options(**ans)
 
 
-def write_config_file(opts, path=DEFAULT_CONFIG):
+def write_config_file(opts, path=DEFAULT_CONFIG) -> None:
     changed = {name: getattr(opts, name) for name in options if getattr(opts, name) != options[name].default}
     lines = []
     for name in sorted(changed):
@@ -391,7 +391,7 @@ def server_config(refresh=False):
     return _server_config_cache
 
 
-def change_settings(**kwds):
+def change_settings(**kwds) -> None:
     global _server_config_cache
     new_opts: dict[str, object] = {}
     opts = server_config()

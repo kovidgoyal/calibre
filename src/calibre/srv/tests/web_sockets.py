@@ -50,7 +50,7 @@ class Frame(NamedTuple):
 
 
 class WSClient:
-    def __init__(self, port, timeout=5):
+    def __init__(self, port, timeout=5) -> None:
         self.timeout = timeout
         self.socket = socket.create_connection(('localhost', port), timeout)
         set_socket_inherit(self.socket, False)
@@ -61,7 +61,7 @@ class WSClient:
         self.mask = memoryview(os.urandom(4))
         self.frames = []
 
-    def read_upgrade_response(self):
+    def read_upgrade_response(self) -> None:
         from calibre.srv.http_request import read_headers
 
         st = monotonic()
@@ -162,11 +162,11 @@ class WSClient:
                 break
             self.socket.sendall(frame.getvalue())
 
-    def write_frame(self, fin=1, opcode=CLOSE, payload=b'', rsv=0, mask=True):
+    def write_frame(self, fin=1, opcode=CLOSE, payload=b'', rsv=0, mask=True) -> None:
         frame = create_frame(fin, opcode, payload, rsv=(rsv << 4), mask=self.mask if mask else None)
         self.socket.sendall(frame)
 
-    def write_close(self, code, reason=b''):
+    def write_close(self, code, reason=b'') -> None:
         if isinstance(reason, str):
             reason = reason.encode('utf-8')
         self.write_frame(1, CLOSE, struct.pack(b'!H', code) + reason)
@@ -179,7 +179,7 @@ class WSClient:
 
 
 class WSTestServer(TestServer):
-    def __init__(self, handler):
+    def __init__(self, handler) -> None:
         TestServer.__init__(self, None, shutdown_timeout=5)
         from calibre.srv.http_response import create_http_handler
 
@@ -203,7 +203,7 @@ class WebSocketTest(BaseTest):
         send_close=True,
         close_reason=b'NORMAL CLOSE',
         ignore_send_failures=False,
-    ):
+    ) -> None:
         with server.connect() as client:
             for msg in msgs:
                 try:
@@ -242,7 +242,7 @@ class WebSocketTest(BaseTest):
             self.ae(close_code, struct.unpack_from(b'!H', control_frames[-1][1], 0)[0])
 
     @retry(max_attempts=3 if is_ci else 1, delay=1)
-    def test_websocket_basic(self):
+    def test_websocket_basic(self) -> None:
         "Test basic interaction with the websocket server"
         from calibre.srv.web_socket import EchoHandler
 
@@ -427,7 +427,7 @@ class WebSocketTest(BaseTest):
             for code in (0, 999, 1004, 1005, 1006, 1012, 1013, 1014, 1015, 1016, 1100, 2000, 2999):
                 simple_test([(CLOSE, struct.pack(b'!H', code))], send_close=False, close_code=PROTOCOL_ERROR)
 
-    def test_websocket_perf(self):
+    def test_websocket_perf(self) -> None:
         from calibre.srv.web_socket import EchoHandler
 
         with WSTestServer(EchoHandler) as server:
