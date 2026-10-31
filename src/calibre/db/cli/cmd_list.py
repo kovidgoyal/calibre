@@ -118,7 +118,7 @@ def implementation(db, notify_changes, fields, sort_by, ascending, search_text, 
     return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields': fields}
 
 
-def stringify(data, metadata, for_machine):
+def stringify(data, metadata, for_machine) -> None:
     for field, m in metadata.items():
         if field == 'authors':
             data[field] = {k: authors_to_string(v) for k, v in data[field].items()}
@@ -176,7 +176,7 @@ def do_list(
     template_file,
     template_title,
     for_machine=False,
-):
+) -> None:
     if sort_by is None:
         ascending = True
     if dbctx.is_remote and (template or template_file):
@@ -359,7 +359,7 @@ List the books available in the calibre database.
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     afields = set(FIELDS) | {'id'}
     if opts.fields.strip():
         fields = [str(f.strip().lower()) for f in opts.fields.split(',')]

@@ -46,7 +46,7 @@ separated by hyphens. For example: %prog embed_metadata 1 2 10-15 23'''
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     ids = set()
     for arg in args:
         if arg == 'all':
@@ -57,7 +57,7 @@ def main(opts, args, dbctx):
     if ids is None:
         ids = dbctx.run('embed_metadata', None, None)
 
-    def progress(i, title):
+    def progress(i, title) -> None:
         prints(_('Processed {0} ({1} of {2})').format(title, i, len(ids)))
 
     for i, book_id in enumerate(ids):

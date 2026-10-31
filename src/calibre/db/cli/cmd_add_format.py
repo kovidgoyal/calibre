@@ -59,7 +59,7 @@ it is replaced, unless the do not replace option is specified.\
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 2:
         raise SystemExit(_('You must specify an id and an e-book file'))
 

@@ -128,7 +128,7 @@ class ThumbnailCache:
         test_mode=False,  # Used for testing
         min_disk_cache=0,  # If the size is set less than or equal to this value, the cache is disabled.
         version=0,  # Increase this if the cache content format might have changed.
-    ):
+    ) -> None:
         self.version = version
         self.location = os.path.join(location or cache_dir(), name)
         if max_size <= min_disk_cache:
@@ -150,13 +150,13 @@ class ThumbnailCache:
         msg = ' '.join(args)
         raise CacheError(msg)
 
-    def _do_delete(self, path):
+    def _do_delete(self, path) -> None:
         try:
             os.remove(path)
         except OSError as err:
             self.log('Failed to delete cached thumbnail file:', as_unicode(err))
 
-    def _load_index(self):
+    def _load_index(self) -> None:
         """
         Load the index, automatically removing incorrectly sized thumbnails and
         pruning to fit max_size
@@ -267,7 +267,7 @@ class ThumbnailCache:
             self._load_index()
         return True
 
-    def _invalidate_sizes(self):
+    def _invalidate_sizes(self) -> None:
         if self.size_changed:
             size = self.thumbnail_size
             remove = tuple(key for key, entry in self.items.items() if size != entry.thumbnail_size)
@@ -275,13 +275,13 @@ class ThumbnailCache:
                 self._remove(key)
             self.size_changed = False
 
-    def _remove(self, key):
+    def _remove(self, key) -> None:
         entry = self.items.pop(key, None)
         if entry is not None:
             self._do_delete(entry.path)
             self.total_size -= entry.size
 
-    def _apply_size(self):
+    def _apply_size(self) -> None:
         while self.total_size > self.max_size and self.items:
             entry = self.items.popitem(last=False)[1]
             self._do_delete(entry.path)
@@ -300,7 +300,7 @@ class ThumbnailCache:
                 self.log('Failed to load thumbnail cache order:', as_unicode(err))
         return order
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """
         Save the cache order to disk and unload the index. After this, lookups
         and inserts are no-ops, invalidations are recorded on disk to be
@@ -319,11 +319,11 @@ class ThumbnailCache:
                 except OSError as err:
                     self.log('Failed to save thumbnail cache order:', as_unicode(err))
 
-    def set_group_id(self, group_id):
+    def set_group_id(self, group_id) -> None:
         with self.lock:
             self.group_id = group_id
 
-    def set_thumbnail_size(self, width, height):
+    def set_thumbnail_size(self, width, height) -> bool:
         new_size = (width, height)
         with self.lock:
             if new_size != self.thumbnail_size:
@@ -382,11 +382,11 @@ class ThumbnailCache:
             self.total_size += len(data)
             self._apply_size()
 
-    def __len__(self):
+    def __len__(self) -> int:
         with self.lock:
             return len(self.items) if self._ensure_loaded() else 0
 
-    def __contains__(self, book_id):
+    def __contains__(self, book_id) -> bool:
         with self.lock:
             return self._ensure_loaded() and (self.group_id, book_id) in self.items
 
@@ -416,7 +416,7 @@ class ThumbnailCache:
                 return None, None
             return data, entry.timestamp
 
-    def invalidate(self, book_ids):
+    def invalidate(self, book_ids) -> None:
         with self.lock:
             if hasattr(self, 'total_size'):
                 for book_id in book_ids:
@@ -437,7 +437,7 @@ class ThumbnailCache:
         with self.lock:
             return self.total_size if self._ensure_loaded() else 0
 
-    def empty(self):
+    def empty(self) -> None:
         with self.lock:
             if self.closed:
                 return
@@ -454,7 +454,7 @@ class ThumbnailCache:
     def __hash__(self):
         return id(self)
 
-    def set_size(self, size_in_mb):
+    def set_size(self, size_in_mb) -> None:
         if size_in_mb <= self.min_disk_cache:
             size_in_mb = 0
         size_in_mb = max(0, size_in_mb)
@@ -537,13 +537,13 @@ def human_readable_interval(secs):
 
 
 class IndexingProgress:
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'IndexingProgress(left={self.left}, total={self.total}, rate={self.indexing_rate})'
 
-    def reset(self):
+    def reset(self) -> None:
         self.left = self.total = -1
         self.indexing_rate = None
 
@@ -554,7 +554,7 @@ class IndexingProgress:
         return changed
 
     @property
-    def complete(self):
+    def complete(self) -> bool:
         return not self.left or not self.total
 
     @property

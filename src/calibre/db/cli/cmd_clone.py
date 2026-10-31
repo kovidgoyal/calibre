@@ -32,7 +32,7 @@ all books, then simply use your filesystem tools to copy the library folder.
     )
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         raise SystemExit(_('Error: You must specify the path to the cloned library'))
     prefs, library_path = dbctx.run('clone')

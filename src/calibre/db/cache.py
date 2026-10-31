@@ -127,7 +127,7 @@ def run_import_plugins(path_or_stream, fmt):
     return run_plugins_on_import(path, fmt)
 
 
-def _add_newbook_tag(mi):
+def _add_newbook_tag(mi) -> None:
     tags = prefs['new_book_tags']
     if tags:
         for tag in [t.strip() for t in tags]:
@@ -138,7 +138,7 @@ def _add_newbook_tag(mi):
                     mi.tags.append(tag)
 
 
-def _add_default_custom_column_values(mi, fm):
+def _add_default_custom_column_values(mi, fm) -> None:
     cols = fm.custom_field_metadata(include_composites=False)
     for cc, col in cols.items():
         dv = col['display'].get('default_value', None)
@@ -178,7 +178,7 @@ class Cache:
     fts_indexing_sleep_time: float = 4  # seconds
     server_library_id: str = ''
 
-    def __init__(self, backend, library_database_instance=None):
+    def __init__(self, backend, library_database_instance=None) -> None:
         self.shutting_down = False
         self.is_doing_rebuild_or_vacuum = False
         self.backend = backend
@@ -258,13 +258,13 @@ class Cache:
         return SafeReadLock(self.read_lock)
 
     @write_api
-    def ensure_has_search_category(self, fail_on_existing=True):
+    def ensure_has_search_category(self, fail_on_existing=True) -> None:
         if len(self._search_api.saved_searches.names()) > 0:
             self.field_metadata.add_search_category(label='search', name=_('Saved searches'), fail_on_existing=fail_on_existing)
 
     _ensure_has_search_category = ensure_has_search_category
 
-    def _initialize_dynamic_categories(self):
+    def _initialize_dynamic_categories(self) -> None:
         # Reconstruct the user categories, putting them into field_metadata
         fm = self.field_metadata
         fm.remove_dynamic_categories()
@@ -293,7 +293,7 @@ class Cache:
         self._refresh_search_locations()
 
     @write_api
-    def initialize_dynamic(self):
+    def initialize_dynamic(self) -> None:
         self.backend.dirty_books_with_dirtied_annotations()
         self.dirtied_cache = {x: i for i, x in enumerate(self.backend.dirtied_books())}
         if self.dirtied_cache:
@@ -303,26 +303,26 @@ class Cache:
     _initialize_dynamic = initialize_dynamic
 
     @quiet_write_api
-    def initialize_template_cache(self):
+    def initialize_template_cache(self) -> None:
         self.formatter_template_cache = {}
 
     _initialize_template_cache = initialize_template_cache
 
     @write_api
-    def set_user_template_functions(self, user_template_functions):
+    def set_user_template_functions(self, user_template_functions) -> None:
         self.backend.set_user_template_functions(user_template_functions)
 
     _set_user_template_functions = set_user_template_functions
 
     @quiet_write_api
-    def clear_composite_caches(self, book_ids=None):
+    def clear_composite_caches(self, book_ids=None) -> None:
         for field in self.composites.values():
             field.clear_caches(book_ids=book_ids)
 
     _clear_composite_caches = clear_composite_caches
 
     @quiet_write_api
-    def clear_search_caches(self, book_ids=None):
+    def clear_search_caches(self, book_ids=None) -> None:
         self.clear_search_cache_count += 1
         # Refreshing the cached searches renders the composite columns of the changed books, which must not use the old cache of
         # the virtual libraries for {virtual_libraries}. Rendering refills that cache from searches not yet refreshed, so discard
@@ -340,7 +340,7 @@ class Cache:
         self.vls_for_books_lib_in_process = None
 
     @quiet_write_api
-    def clear_extra_files_cache(self, book_id=None):
+    def clear_extra_files_cache(self, book_id=None) -> None:
         if book_id is None:
             self.extra_files_cache = {}
         else:
@@ -361,7 +361,7 @@ class Cache:
         self.backend.__exit__(exc_type, exc_value, tb)
 
     @quiet_write_api
-    def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
+    def clear_caches(self, book_ids=None, template_cache=True, search_cache=True) -> None:
         if template_cache:
             self._initialize_template_cache()  # Clear the formatter template cache
         for field in self.fields.values():
@@ -379,7 +379,7 @@ class Cache:
     _clear_caches = clear_caches
 
     @quiet_write_api
-    def clear_link_map_cache(self, book_ids=None):
+    def clear_link_map_cache(self, book_ids=None) -> None:
         if book_ids is None:
             self.link_maps_cache = {}
         else:
@@ -389,7 +389,7 @@ class Cache:
     _clear_link_map_cache = clear_link_map_cache
 
     @write_api
-    def reload_from_db(self, clear_caches=True):
+    def reload_from_db(self, clear_caches=True) -> None:
         self.categories_cache.invalidate_all()
         if clear_caches:
             self._clear_caches()
@@ -491,7 +491,7 @@ class Cache:
     # }}}
 
     @api
-    def init(self):
+    def init(self) -> None:
         """
         Initialize this cache with data from the backend.
         """
@@ -543,7 +543,7 @@ class Cache:
             self.start_fts_pool()
         return fts
 
-    def start_fts_pool(self):
+    def start_fts_pool(self) -> None:
         from threading import Event, Thread
 
         self.fts_dispatch_stop_event = Event()
@@ -565,13 +565,13 @@ class Cache:
     _is_fts_enabled = is_fts_enabled
 
     @quiet_write_api
-    def fts_start_measuring_rate(self, measure=True):
+    def fts_start_measuring_rate(self, measure=True) -> None:
         self.fts_measuring_rate = monotonic() if measure else None
         self.fts_num_done_since_start = 0
 
     _fts_start_measuring_rate = fts_start_measuring_rate
 
-    def _update_fts_indexing_numbers(self, job_time=None):
+    def _update_fts_indexing_numbers(self, job_time=None) -> None:
         # this is called when formats are added, removed or indexed and when
         # books are removed
         nl = self.backend.fts.number_dirtied()
@@ -610,13 +610,13 @@ class Cache:
     _enable_fts = enable_fts
 
     @quiet_write_api
-    def fts_unindex(self, book_id, fmt=None):
+    def fts_unindex(self, book_id, fmt=None) -> None:
         self.backend.fts_unindex(book_id, fmt=fmt)
 
     _fts_unindex = fts_unindex
 
     @staticmethod
-    def dispatch_fts_jobs(queue, stop_dispatch, dbref):
+    def dispatch_fts_jobs(queue, stop_dispatch, dbref) -> None:
         from .fts.text import is_fmt_extractable
 
         def do_one():
@@ -653,7 +653,7 @@ class Cache:
                     self._update_fts_indexing_numbers(monotonic() - start_time)
                 return self.backend.fts_has_idle_workers
 
-        def loop_while_more_available():
+        def loop_while_more_available() -> None:
             self = dbref()
             if not self or not self.backend.fts_enabled:
                 return
@@ -677,7 +677,7 @@ class Cache:
             loop_while_more_available()
 
     @quiet_write_api
-    def queue_next_fts_job(self):
+    def queue_next_fts_job(self) -> None:
         if not self.backend.fts_enabled:
             return
         self.fts_job_queue.put(True)
@@ -694,7 +694,7 @@ class Cache:
     _commit_fts_result = commit_fts_result
 
     @quiet_write_api
-    def reindex_fts_book(self, book_id, *fmts):
+    def reindex_fts_book(self, book_id, *fmts) -> None:
         if not self.is_fts_enabled():
             return
         if not fmts:
@@ -721,7 +721,7 @@ class Cache:
     _reindex_fts = reindex_fts
 
     @quiet_write_api
-    def set_fts_num_of_workers(self, num):
+    def set_fts_num_of_workers(self, num) -> bool:
         existing = self.backend.fts_num_of_workers
         if num != existing:
             self.backend.fts_num_of_workers = num
@@ -944,7 +944,7 @@ class Cache:
     # Cache Layer API {{{
 
     @quiet_write_api
-    def add_listener(self, event_callback_function, check_already_added=False):
+    def add_listener(self, event_callback_function, check_already_added=False) -> bool:
         """
         Register a callback function that will be called after certain actions are
         taken on this database. The function must take three arguments:
@@ -959,7 +959,7 @@ class Cache:
     _add_listener = add_listener
 
     @quiet_write_api
-    def remove_listener(self, event_callback_function):
+    def remove_listener(self, event_callback_function) -> None:
         self.event_dispatcher.remove_listener(event_callback_function)
 
     _remove_listener = remove_listener
@@ -1370,7 +1370,7 @@ class Cache:
     _pref = pref
 
     @write_api
-    def set_pref(self, name, val, namespace=None):
+    def set_pref(self, name, val, namespace=None) -> None:
         "Set the specified preference to the specified value. See also :meth:`pref`."
         if namespace is not None:
             self.backend.prefs.set_namespaced(namespace, name, val)
@@ -1526,7 +1526,7 @@ class Cache:
     _copy_cover_to = copy_cover_to
 
     @quiet_write_api
-    def compress_covers(self, book_ids, jpeg_quality=100, progress_callback=None):
+    def compress_covers(self, book_ids, jpeg_quality=100, progress_callback=None) -> None:
         """
         Compress the cover images for the specified books. A compression quality of 100
         will perform lossless compression, otherwise lossy compression.
@@ -1627,7 +1627,7 @@ class Cache:
     _save_original_format = save_original_format
 
     @write_api
-    def restore_original_format(self, book_id, original_fmt):
+    def restore_original_format(self, book_id, original_fmt) -> bool:
         """Restore the specified format from the previously saved
         ORIGINAL_FORMAT, if any. Return True on success. The ORIGINAL_FORMAT is
         deleted after a successful restore."""
@@ -1834,7 +1834,7 @@ class Cache:
         class SortKey:
             __slots__ = 'book_id', 'sort_key'
 
-            def __init__(self, book_id):
+            def __init__(self, book_id) -> None:
                 self.book_id = book_id
                 # Calculate only the first sub-sort key since that will always be used
                 self.sort_key = [key(book_id) if i == 0 else Lazy for i, key in enumerate(sort_key_funcs)]
@@ -1951,7 +1951,7 @@ class Cache:
     _get_categories = get_categories
 
     @quiet_write_api
-    def update_last_modified(self, book_ids, now=None):
+    def update_last_modified(self, book_ids, now=None) -> None:
         if book_ids:
             if now is None:
                 now = nowf()
@@ -1964,7 +1964,7 @@ class Cache:
     _update_last_modified = update_last_modified
 
     @quiet_write_api
-    def mark_as_dirty(self, book_ids):
+    def mark_as_dirty(self, book_ids) -> None:
         self._update_last_modified(book_ids)
         already_dirtied = set(self.dirtied_cache).intersection(book_ids)
         new_dirtied = book_ids - already_dirtied
@@ -1981,14 +1981,14 @@ class Cache:
     _mark_as_dirty = mark_as_dirty
 
     @quiet_write_api
-    def commit_dirty_cache(self):
+    def commit_dirty_cache(self) -> None:
         if self.dirtied_cache:
             self.backend.dirty_books(self.dirtied_cache)
 
     _commit_dirty_cache = commit_dirty_cache
 
     @quiet_write_api
-    def check_dirtied_annotations(self):
+    def check_dirtied_annotations(self) -> None:
         if not self.backend.dirty_books_with_dirtied_annotations():
             return
         book_ids = set(self.backend.dirtied_books())
@@ -2182,7 +2182,7 @@ class Cache:
     # }}}
 
     @quiet_write_api
-    def update_path(self, book_ids, mark_as_dirtied=True):
+    def update_path(self, book_ids, mark_as_dirtied=True) -> None:
         for book_id in book_ids:
             title = self._field_for('title', book_id, default_value=_('Unknown'))
             try:
@@ -2236,7 +2236,7 @@ class Cache:
     _get_metadata_for_dump = get_metadata_for_dump
 
     @quiet_write_api
-    def clear_dirtied(self, book_id, sequence):
+    def clear_dirtied(self, book_id, sequence) -> None:
         # Clear the dirtied indicator for the books. This is used when fetching
         # metadata, creating an OPF, and writing a file are separated into steps.
         # The last step is clearing the indicator
@@ -2248,7 +2248,7 @@ class Cache:
     _clear_dirtied = clear_dirtied
 
     @quiet_write_api
-    def write_backup(self, book_id, raw):
+    def write_backup(self, book_id, raw) -> None:
         try:
             path = self._get_book_path(book_id)
         except Exception:
@@ -2281,7 +2281,7 @@ class Cache:
     _read_backup = read_backup
 
     @quiet_write_api
-    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, callback=None):
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, callback=None) -> None:
         # Write metadata for each record to an individual OPF file. If callback
         # is not None, it is called once at the start with the number of book_ids
         # being processed. And once for every book_id, with arguments (book_id,
@@ -2339,7 +2339,7 @@ class Cache:
     _set_cover = set_cover
 
     @quiet_write_api
-    def add_cover_cache(self, cover_cache):
+    def add_cover_cache(self, cover_cache) -> None:
         if not callable(cover_cache.invalidate):
             raise TypeError('Cover caches must have an invalidate method')
         self.cover_caches.add(cover_cache)
@@ -2347,7 +2347,7 @@ class Cache:
     _add_cover_cache = add_cover_cache
 
     @quiet_write_api
-    def remove_cover_cache(self, cover_cache):
+    def remove_cover_cache(self, cover_cache) -> None:
         self.cover_caches.discard(cover_cache)
 
     _remove_cover_cache = remove_cover_cache
@@ -2384,7 +2384,7 @@ class Cache:
         except AttributeError, TypeError:
             pass
 
-        def set_field(name, val):
+        def set_field(name, val) -> None:
             dirtied.update(self._set_field(name, {book_id: val}, do_path_update=False, allow_case_change=allow_case_change))
 
         path_changed = False
@@ -2405,7 +2405,7 @@ class Cache:
         if path_changed:
             self._update_path({book_id})
 
-        def protected_set_field(name, val):
+        def protected_set_field(name, val) -> None:
             try:
                 set_field(name, val)
             except Exception:
@@ -2506,7 +2506,7 @@ class Cache:
         size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name, mtime=mtime)
         return size, fname
 
-    def _record_format_added(self, book_id, fmt, fname, size):
+    def _record_format_added(self, book_id, fmt, fname, size) -> None:
         # Updates the formats and size of the book for a format file that has
         # been added and reports the change to the cache of computed
         # categories, so that callers can use the quiet write lock.
@@ -2525,7 +2525,7 @@ class Cache:
             self.categories_cache.field_changed('size', None, (book_id,))
 
     @api
-    def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
+    def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None) -> bool:
         """
         Add a format to the specified book. Return True if the format was added successfully.
 
@@ -2706,7 +2706,7 @@ class Cache:
     _data_for_has_book = data_for_has_book
 
     @read_api
-    def has_book(self, mi):
+    def has_book(self, mi) -> bool:
         """Return True iff the database contains an entry with the same title
         as the passed in Metadata object. The comparison is case-insensitive.
         See also :meth:`data_for_has_book`."""
@@ -2847,7 +2847,7 @@ class Cache:
     _add_books = add_books
 
     @write_api
-    def remove_books(self, book_ids, permanent=False):
+    def remove_books(self, book_ids, permanent=False) -> None:
         """Remove the books specified by the book_ids from the database and delete
         their format files. If ``permanent`` is False, then the format files
         are placed in the per-library trash directory.
@@ -3039,7 +3039,7 @@ class Cache:
     _remove_items = remove_items
 
     @quiet_write_api
-    def add_custom_book_data(self, name, val_map, delete_first=False):
+    def add_custom_book_data(self, name, val_map, delete_first=False) -> None:
         """Add data for name where val_map is a map of book_ids to values. If
         delete_first is True, all previously stored data for name will be
         removed."""
@@ -3061,7 +3061,7 @@ class Cache:
     _get_custom_book_data = get_custom_book_data
 
     @quiet_write_api
-    def delete_custom_book_data(self, name, book_ids=()):
+    def delete_custom_book_data(self, name, book_ids=()) -> None:
         """Delete data for name. By default deletes all data, if you only want
         to delete data for some book ids, pass in a list of book ids."""
         self.backend.delete_custom_book_data(name, book_ids)
@@ -3101,7 +3101,7 @@ class Cache:
     _set_conversion_options = set_conversion_options
 
     @write_api
-    def refresh_format_cache(self):
+    def refresh_format_cache(self) -> None:
         self.fields['formats'].table.read(self.backend)
         self.fields['size'].table.read_from_formats(self.fields['uuid'].table.book_col_map, self.fields['formats'].table)
         self.format_metadata_cache.clear()
@@ -3109,7 +3109,7 @@ class Cache:
     _refresh_format_cache = refresh_format_cache
 
     @quiet_write_api
-    def refresh_ondevice(self):
+    def refresh_ondevice(self) -> None:
         self.fields['ondevice'].clear_caches()
         self.clear_search_caches()
         self.clear_composite_caches()
@@ -3280,7 +3280,7 @@ class Cache:
             return cached
         links = {}
 
-        def add_links_for_field(f):
+        def add_links_for_field(f) -> None:
             field_ids = self._field_ids_for(f, book_id)
             if field_ids:
                 table = self.fields[f].table
@@ -3347,7 +3347,7 @@ class Cache:
     _lookup_by_uuid = lookup_by_uuid
 
     @write_api
-    def delete_custom_column(self, label=None, num=None):
+    def delete_custom_column(self, label=None, num=None) -> None:
         self.backend.delete_custom_column(label, num)
 
     _delete_custom_column = delete_custom_column
@@ -3417,7 +3417,7 @@ class Cache:
     _data_for_find_identical_books = data_for_find_identical_books
 
     @read_api
-    def update_data_for_find_identical_books(self, book_id, data):
+    def update_data_for_find_identical_books(self, book_id, data) -> None:
         author_map, author_book_map, title_map, lang_map = data
         title_map[book_id] = self._field_for('title', book_id)
         lang_map[book_id] = self._field_for('languages', book_id)
@@ -3482,8 +3482,8 @@ class Cache:
     _get_top_level_move_items = get_top_level_move_items
 
     @write_api
-    def move_library_to(self, newloc, progress=None, abort=None):
-        def progress_callback(item_name, item_count, total):
+    def move_library_to(self, newloc, progress=None, abort=None) -> None:
+        def progress_callback(item_name, item_count, total) -> None:
             try:
                 if progress is not None:
                     progress(item_name, item_count, total)
@@ -3508,41 +3508,41 @@ class Cache:
     _saved_search_lookup = saved_search_lookup
 
     @write_api
-    def saved_search_set_all(self, smap):
+    def saved_search_set_all(self, smap) -> None:
         self._search_api.saved_searches.set_all(smap)
         self._clear_search_caches()
 
     _saved_search_set_all = saved_search_set_all
 
     @write_api
-    def saved_search_delete(self, name):
+    def saved_search_delete(self, name) -> None:
         self._search_api.saved_searches.delete(name)
         self._clear_search_caches()
 
     _saved_search_delete = saved_search_delete
 
     @write_api
-    def saved_search_add(self, name, val):
+    def saved_search_add(self, name, val) -> None:
         self._search_api.saved_searches.add(name, val)
         self._clear_search_caches()
 
     _saved_search_add = saved_search_add
 
     @write_api
-    def saved_search_rename(self, old_name, new_name):
+    def saved_search_rename(self, old_name, new_name) -> None:
         self._search_api.saved_searches.rename(old_name, new_name)
         self._clear_search_caches()
 
     _saved_search_rename = saved_search_rename
 
     @write_api
-    def change_search_locations(self, newlocs):
+    def change_search_locations(self, newlocs) -> None:
         self._search_api.change_locations(newlocs)
 
     _change_search_locations = change_search_locations
 
     @write_api
-    def refresh_search_locations(self):
+    def refresh_search_locations(self) -> None:
         self._search_api.change_locations(self.field_metadata.get_search_terms())
 
     _refresh_search_locations = refresh_search_locations
@@ -3554,7 +3554,7 @@ class Cache:
     _dump_and_restore = dump_and_restore
 
     @write_api
-    def vacuum(self, include_fts_db=False, include_notes_db=True, rebuild_annotations_fts=False):
+    def vacuum(self, include_fts_db=False, include_notes_db=True, rebuild_annotations_fts=False) -> None:
         self.is_doing_rebuild_or_vacuum = True
         try:
             self.backend.vacuum(include_fts_db, include_notes_db, rebuild_annotations_fts)
@@ -3563,10 +3563,10 @@ class Cache:
 
     _vacuum = vacuum
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
-    def _shutdown_fts(self, stage=1):
+    def _shutdown_fts(self, stage=1) -> None:
         if stage == 1:
             self.backend.shutdown_fts()
             if self.fts_queue_thread is not None:
@@ -3583,7 +3583,7 @@ class Cache:
         self.backend.join_fts()
 
     @api
-    def close(self):
+    def close(self) -> None:
         with self.write_lock:
             if hasattr(self, 'close_called'):
                 return
@@ -3616,7 +3616,7 @@ class Cache:
         return self.backend.is_closed
 
     @write_api
-    def clear_trash_bin(self):
+    def clear_trash_bin(self) -> None:
         self.backend.clear_trash_dir()
 
     _clear_trash_bin = clear_trash_bin
@@ -3634,7 +3634,7 @@ class Cache:
     _list_trash_entries = list_trash_entries
 
     @read_api
-    def copy_format_from_trash(self, book_id, fmt, dest):
+    def copy_format_from_trash(self, book_id, fmt, dest) -> None:
         fmt = fmt.upper()
         fpath = self.backend.path_for_trash_format(book_id, fmt)
         if not fpath:
@@ -3645,7 +3645,7 @@ class Cache:
 
     # Changes only the formats and size of the book, which _record_format_added() reports
     @quiet_write_api
-    def move_format_from_trash(self, book_id, fmt):
+    def move_format_from_trash(self, book_id, fmt) -> None:
         """Undelete a format from the trash directory"""
         if not self._has_id(book_id):
             raise ValueError(f'A book with the id {book_id} does not exist')
@@ -3672,13 +3672,13 @@ class Cache:
     _move_format_from_trash = move_format_from_trash
 
     @read_api
-    def copy_book_from_trash(self, book_id, dest: str):
+    def copy_book_from_trash(self, book_id, dest: str) -> None:
         self.backend.copy_book_from_trash(book_id, dest)
 
     _copy_book_from_trash = copy_book_from_trash
 
     @write_api
-    def move_book_from_trash(self, book_id):
+    def move_book_from_trash(self, book_id) -> None:
         """Undelete a book from the trash directory"""
         if self._has_id(book_id):
             raise ValueError(f'A book with the id {book_id} already exists')
@@ -3703,21 +3703,21 @@ class Cache:
     _move_book_from_trash = move_book_from_trash
 
     @write_api
-    def delete_trash_entry(self, book_id, category):
+    def delete_trash_entry(self, book_id, category) -> None:
         "Delete an entry from the trash. Here category is 'b' for books and 'f' for formats."
         self.backend.delete_trash_entry(book_id, category)
 
     _delete_trash_entry = delete_trash_entry
 
     @write_api
-    def expire_old_trash(self):
+    def expire_old_trash(self) -> None:
         "Expire entries from the trash that are too old"
         self.backend.expire_old_trash()
 
     _expire_old_trash = expire_old_trash
 
     @write_api
-    def restore_book(self, book_id, mi, last_modified, path, formats, annotations=()):
+    def restore_book(self, book_id, mi, last_modified, path, formats, annotations=()) -> None:
         """Restore the book entry in the database for a book that already exists on the filesystem"""
         cover, mi.cover = mi.cover, None
         self._create_book_entry(mi, add_duplicates=True, force_id=book_id, apply_import_tags=False, preserve_uuid=True)
@@ -3817,7 +3817,7 @@ class Cache:
     _user_categories_for_books = user_categories_for_books
 
     @quiet_write_api
-    def embed_metadata(self, book_ids, only_fmts=None, report_error=None, report_progress=None):
+    def embed_metadata(self, book_ids, only_fmts=None, report_error=None, report_progress=None) -> None:
         """Update metadata in all formats of the specified book_ids to current metadata in the database."""
         field = self.fields['formats']
         from calibre.customize.ui import apply_null_metadata
@@ -3907,13 +3907,13 @@ class Cache:
     _get_last_read_positions = get_last_read_positions
 
     @quiet_write_api
-    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0) -> None:
         self.backend.set_last_read_position(book_id, fmt, user, device, cfi, epoch, pos_frac)
 
     _set_last_read_position = set_last_read_position
 
     @write_api  # doesn't need write access but sqlite does require only a single thread to access the db during backup
-    def export_library(self, library_key, exporter, progress=None, abort=None):
+    def export_library(self, library_key, exporter, progress=None, abort=None) -> None:
         from polyglot.binary import as_hex_unicode
 
         key_prefix = as_hex_unicode(library_key)
@@ -3924,7 +3924,7 @@ class Cache:
             total += 1
         poff = 0
 
-        def report_progress(fname):
+        def report_progress(fname) -> None:
             nonlocal poff
             if progress is not None:
                 progress(fname, poff, total)
@@ -4134,7 +4134,7 @@ class Cache:
     _book_ids_for_annotations = book_ids_for_annotations
 
     @quiet_write_api
-    def delete_annotations(self, annot_ids):
+    def delete_annotations(self, annot_ids) -> None:
         """
         Delete annotations with the specified ids.
         """
@@ -4143,7 +4143,7 @@ class Cache:
     _delete_annotations = delete_annotations
 
     @quiet_write_api
-    def update_annotations(self, annot_id_map):
+    def update_annotations(self, annot_id_map) -> None:
         """
         Update annotations.
         """
@@ -4152,7 +4152,7 @@ class Cache:
     _update_annotations = update_annotations
 
     @quiet_write_api
-    def restore_annotations(self, book_id, annotations):
+    def restore_annotations(self, book_id, annotations) -> None:
         from calibre.utils.date import EPOCH
         from calibre.utils.iso8601 import parse_iso8601
 
@@ -4168,7 +4168,7 @@ class Cache:
     _restore_annotations = restore_annotations
 
     @quiet_write_api
-    def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+    def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer') -> None:
         """
         Set all annotations for the specified book_id, fmt, user_type and user.
         """
@@ -4177,7 +4177,7 @@ class Cache:
     _set_annotations_for_book = set_annotations_for_book
 
     @quiet_write_api
-    def merge_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+    def merge_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer') -> None:
         """
         Merge the specified annotations into the existing annotations for book_id, fm, user_type, and user.
         """
@@ -4232,7 +4232,7 @@ class Cache:
     _save_book_storage = save_book_storage
 
     @quiet_write_api
-    def reindex_annotations(self):
+    def reindex_annotations(self) -> None:
         self.backend.reindex_annotations()
 
     _reindex_annotations = reindex_annotations
@@ -4330,14 +4330,14 @@ class Cache:
     _list_extra_files = list_extra_files
 
     @read_api
-    def copy_extra_file_to(self, book_id, relpath, stream_or_path):
+    def copy_extra_file_to(self, book_id, relpath, stream_or_path) -> None:
         path = self._get_book_path(book_id)
         self.backend.copy_extra_file_to(book_id, path, relpath, stream_or_path)
 
     _copy_extra_file_to = copy_extra_file_to
 
     @write_api
-    def merge_book_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False):
+    def merge_book_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False) -> None:
         dest_mi = self.get_metadata(dest_id)
         merged_identifiers = self._field_for('identifiers', dest_id) or {}
         orig_dest_comments = dest_mi.comments
@@ -4466,7 +4466,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     total = metadata['total']
     poff = 0
 
-    def report_progress(fname):
+    def report_progress(fname) -> None:
         nonlocal poff
         if progress is not None:
             progress(fname, poff, total)

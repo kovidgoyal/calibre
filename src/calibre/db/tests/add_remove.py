@@ -7,6 +7,7 @@ from contextlib import suppress
 from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from typing import Never
 
 from calibre.db.constants import METADATA_FILE_NAME
 from calibre.db.tests.base import IMG, BaseTest
@@ -29,7 +30,7 @@ def import_test(replacement_data, replacement_fmt=None):
 
 
 class AddRemoveTest(BaseTest):
-    def test_add_format(self):  # {{{
+    def test_add_format(self) -> None:  # {{{
         "Test adding formats to an existing book record"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
 
@@ -103,7 +104,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_add_format_failure(self):  # {{{
+    def test_add_format_failure(self) -> None:  # {{{
         "Test that a failure while writing a format does not destroy the existing file"
         from calibre.constants import iswindows
 
@@ -155,7 +156,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_add_extra_file_failure(self):  # {{{
+    def test_add_extra_file_failure(self) -> None:  # {{{
         "Test that a failure while writing an extra file does not destroy the existing file"
         from calibre.constants import iswindows
 
@@ -217,7 +218,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_add_format_categories(self):  # {{{
+    def test_add_format_categories(self) -> None:  # {{{
         "Test that adding a format keeps the cached formats category correct"
         from io import BytesIO
 
@@ -226,7 +227,7 @@ class AddRemoveTest(BaseTest):
         def shown():
             return {(t.original_name or t.name, t.count) for t in cache.get_categories()['formats']}
 
-        def check(label):
+        def check(label) -> None:
             cached = shown()
             # Throw the cache away and compute the category again, which is what
             # the cached value must have agreed with
@@ -265,7 +266,7 @@ class AddRemoveTest(BaseTest):
         table = cache.fields['size'].table
         orig = table.update_sizes
 
-        def raise_error(size_map):
+        def raise_error(size_map) -> Never:
             raise RuntimeError('simulated failure after the formats table changed')
 
         table.update_sizes = raise_error
@@ -293,7 +294,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_format_writes_report_changes(self):  # {{{
+    def test_format_writes_report_changes(self) -> None:  # {{{
         "Test that the quiet writes of formats and new books report everything they change"
         from calibre.ebooks.metadata.book.base import Metadata
 
@@ -303,7 +304,7 @@ class AddRemoveTest(BaseTest):
         def all_shown():
             return {k: [(t.original_name or t.name, t.count) for t in v] for k, v in cache.get_categories().items()}
 
-        def check(label):
+        def check(label) -> None:
             cached = all_shown()
             cache.categories_cache.invalidate_all()
             self.assertEqual(all_shown(), cached, f'the cached categories are stale after {label}')
@@ -353,7 +354,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_remove_formats(self):  # {{{
+    def test_remove_formats(self) -> None:  # {{{
         "Test removal of formats from book records"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
 
@@ -396,7 +397,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_create_book_entry(self):  # {{{
+    def test_create_book_entry(self) -> None:  # {{{
         "Test the creation of new book entries"
         from calibre.ebooks.metadata.book.base import Metadata
 
@@ -409,7 +410,7 @@ class AddRemoveTest(BaseTest):
         book_id = cache.create_book_entry(mi)
         self.assertIsNot(book_id, None)
 
-        def do_test(cache, book_id):
+        def do_test(cache, book_id) -> None:
             for field in (
                 'path',
                 'uuid',
@@ -496,7 +497,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_add_books(self):  # {{{
+    def test_add_books(self) -> None:  # {{{
         "Test the adding of new books"
         from calibre.ebooks.metadata.book.base import Metadata
 
@@ -514,7 +515,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_remove_books(self):  # {{{
+    def test_remove_books(self) -> None:  # {{{
         "Test removal of books"
         cl = self.cloned_library
         cl2 = self.cloned_library
@@ -658,7 +659,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_remove_books_failures(self):  # {{{
+    def test_remove_books_failures(self) -> None:  # {{{
         "Test that books whose files cannot be removed are left intact"
         import shutil
         from unittest.mock import patch
@@ -705,7 +706,7 @@ class AddRemoveTest(BaseTest):
         cache = self.init_cache(self.cloned_library)
         bookdir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
 
-        def failing_delete(src, dest, delete_source=False):
+        def failing_delete(src, dest, delete_source=False) -> None:
             copy_tree(src, dest)
             if os.path.samefile(src, bookdir):
                 raise SourceDeletionFailed('simulated delete failure')
@@ -732,7 +733,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_original_fmt(self):  # {{{
+    def test_original_fmt(self) -> None:  # {{{
         "Test management of original fmt"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
         db = self.init_cache()
@@ -766,7 +767,7 @@ class AddRemoveTest(BaseTest):
         at(db.save_original_format(1, 'FMT1'))
         db.add_format(1, 'FMT1', BytesIO(b'replacedfmt'))
 
-        def fail(*a):
+        def fail(*a) -> Never:
             raise OSError('simulated rename failure')
 
         db.backend.rename_format_file = fail
@@ -778,7 +779,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_format_orphan(self):  # {{{
+    def test_format_orphan(self) -> None:  # {{{
         "Test that adding formats does not create orphans if the file name algorithm changes"
         cache = self.init_cache()
         path = cache.format_abspath(1, 'FMT1')
@@ -795,7 +796,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_copy_to_library(self):  # {{{
+    def test_copy_to_library(self) -> None:  # {{{
         from calibre.db.copy_to_library import copy_one_book
         from calibre.ebooks.metadata import authors_to_string
         from calibre.utils.date import EPOCH, utcnow
@@ -835,20 +836,20 @@ class AddRemoveTest(BaseTest):
                 'action': action,
             }
 
-        def compare_field(field, func=self.assertEqual):
+        def compare_field(field, func=self.assertEqual) -> None:
             func(src_db.field_for(field, rdata['book_id']), dest_db.field_for(field, rdata['new_book_id']))
 
-        def assert_has_extra_files(book_id):
+        def assert_has_extra_files(book_id) -> None:
             bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
             self.assertEqual('exf', read(os.path.join(bookdir, 'exf')))
             self.assertEqual('recurse', read(os.path.join(bookdir, 'sub', 'recurse')))
 
-        def assert_does_not_have_extra_files(book_id):
+        def assert_does_not_have_extra_files(book_id) -> None:
             bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
             self.assertFalse(os.path.exists(os.path.join(bookdir, 'exf')))
             self.assertFalse(os.path.exists(os.path.join(bookdir, 'sub', 'recurse')))
 
-        def clear_extra_files(book_id):
+        def clear_extra_files(book_id) -> None:
             for ef in dest_db.list_extra_files(book_id):
                 os.remove(ef.file_path)
 
@@ -927,7 +928,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_copy_to_library_without_formats(self):  # {{{
+    def test_copy_to_library_without_formats(self) -> None:  # {{{
         from calibre.db.copy_to_library import copy_one_book
 
         actions = ('overwrite', 'ignore', 'new record')
@@ -953,10 +954,10 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_merging_extra_files(self):  # {{{
+    def test_merging_extra_files(self) -> None:  # {{{
         db = self.init_cache()
 
-        def add_extra(book_id, relpath):
+        def add_extra(book_id, relpath) -> None:
             db.add_extra_files(book_id, {relpath: BytesIO(f'{book_id}:{relpath}'.encode())})
 
         def extra_files_for(book_id):
@@ -994,7 +995,7 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
-    def test_custom_column_defaults(self):  # {{{
+    def test_custom_column_defaults(self) -> None:  # {{{
         "Test that custom column defaults are applied correctly when adding books"
         from calibre.ebooks.metadata.book.base import Metadata
 

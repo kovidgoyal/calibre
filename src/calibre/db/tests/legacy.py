@@ -18,7 +18,7 @@ from calibre.utils.localization import _
 
 
 class ET:
-    def __init__(self, func_name, args, kwargs=None, old=None, legacy=None):
+    def __init__(self, func_name, args, kwargs=None, old=None, legacy=None) -> None:
         if kwargs is None:
             kwargs = {}
         self.func_name = func_name
@@ -46,7 +46,7 @@ def get_defaults(spec):
     return dict(zip(spec.args[-num:], spec.defaults))
 
 
-def compare_argspecs(old, new, attr):
+def compare_argspecs(old, new, attr) -> None:
     # We don't compare the names of the non-keyword arguments as they are often
     # different and they don't affect the usage of the API.
 
@@ -55,7 +55,7 @@ def compare_argspecs(old, new, attr):
         raise AssertionError(f'The argspec for {attr} does not match. {old!r} != {new!r}')
 
 
-def run_funcs(self, db, ndb, funcs):
+def run_funcs(self, db, ndb, funcs) -> None:
     for func in funcs:
         meth, args = func[0], func[1:]
         if callable(meth):
@@ -90,7 +90,7 @@ def run_funcs(self, db, ndb, funcs):
 class LegacyTest(BaseTest):
     """Test the emulation of the legacy interface."""
 
-    def test_library_wide_properties(self):  # {{{
+    def test_library_wide_properties(self) -> None:  # {{{
         "Test library wide properties"
 
         def to_unicode(x):
@@ -130,7 +130,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_get_property(self):  # {{{
+    def test_get_property(self) -> None:  # {{{
         "Test the get_property interface for reading data"
 
         def get_values(db):
@@ -166,7 +166,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_refresh(self):  # {{{
+    def test_refresh(self) -> None:  # {{{
         "Test refreshing the view after a change to metadata.db"
         db = self.init_legacy()
         db2 = self.init_legacy()
@@ -182,7 +182,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_getters(self):  # {{{
+    def test_legacy_getters(self) -> None:  # {{{
         "Test various functions to get individual bits of metadata"
         old = self.init_old()
         getters = (
@@ -221,7 +221,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_direct(self):  # {{{
+    def test_legacy_direct(self) -> None:  # {{{
         "Test read-only methods that are directly equivalent in the old and new interface"
         from datetime import timedelta
 
@@ -379,7 +379,7 @@ class LegacyTest(BaseTest):
         db.close()
         # }}}
 
-    def test_legacy_conversion_options(self):  # {{{
+    def test_legacy_conversion_options(self) -> None:  # {{{
         "Test conversion options API"
         ndb = self.init_legacy()
         db = self.init_old()
@@ -410,7 +410,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_delete_using(self):  # {{{
+    def test_legacy_delete_using(self) -> None:  # {{{
         "Test delete_using() API"
         ndb = self.init_legacy()
         db = self.init_old()
@@ -441,7 +441,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_adding_books(self):  # {{{
+    def test_legacy_adding_books(self) -> None:  # {{{
         "Test various adding/deleting books methods"
         import sqlite3
 
@@ -532,7 +532,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_coverage(self):  # {{{
+    def test_legacy_coverage(self) -> None:  # {{{
         "Check that the emulation of the legacy interface is (almost) total"
         cl = self.cloned_library
         db = self.init_old(cl)
@@ -638,7 +638,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_custom_data(self):  # {{{
+    def test_legacy_custom_data(self) -> None:  # {{{
         "Test the API for custom data storage"
         legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
         for name in ('name1', 'name2', 'name3'):
@@ -671,7 +671,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_setters(self):  # {{{
+    def test_legacy_setters(self) -> None:  # {{{
         "Test methods that are directly equivalent in the old and new interface"
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.utils.date import now
@@ -969,7 +969,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_custom(self):  # {{{
+    def test_legacy_custom(self) -> None:  # {{{
         "Test the legacy API for custom columns"
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
@@ -1164,7 +1164,7 @@ class LegacyTest(BaseTest):
 
     # }}}
 
-    def test_legacy_saved_search(self):  # {{{
+    def test_legacy_saved_search(self) -> None:  # {{{
         "Test legacy saved search API"
         db, ndb = self.init_old(), self.init_legacy()
         run_funcs(

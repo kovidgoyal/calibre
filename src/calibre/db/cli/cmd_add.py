@@ -52,11 +52,11 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
             if is_recipe_fmt(fmt):
                 raise ValueError('Cannot use the add interface to add recipe files, as they allow code execution')
 
-    def add_format(book_id, fmt):
+    def add_format(book_id, fmt) -> None:
         db.add_format(book_id, fmt, format_map[fmt], replace=True, run_hooks=False)
         updated_ids.add(book_id)
 
-    def add_book():
+    def add_book() -> None:
         nonlocal added_ids
         added_ids_, duplicates_ = db.add_books([(mi, format_map)], add_duplicates=True, run_hooks=False)
         added_ids |= set(added_ids_)
@@ -199,7 +199,7 @@ def implementation(db, notify_changes, action, *args):
     return func(db, notify_changes, is_remote, args)
 
 
-def do_add_empty(dbctx, title, authors, isbn, tags, series, series_index, cover, identifiers, languages):
+def do_add_empty(dbctx, title, authors, isbn, tags, series, series_index, cover, identifiers, languages) -> None:
     mi = MetaInformation(None)
     if title is not None:
         mi.title = title
@@ -245,7 +245,7 @@ def do_add(
     olanguages,
     compiled_rules,
     oautomerge,
-):
+) -> None:
     request_id = uuid4()
     with add_ctx():
         files, dirs = [], []
@@ -405,7 +405,7 @@ the folder related options below.
         _('Options to control the adding of books from folders. By default only files that have extensions of known e-book file types are added.'),
     )
 
-    def filter_pat(option, opt, value, parser, action):
+    def filter_pat(option, opt, value, parser, action) -> None:
         rule = {'match_type': 'glob', 'query': value, 'action': action}
         try:
             getattr(parser.values, option.dest).append(compile_rule(rule))
@@ -421,7 +421,7 @@ the folder related options below.
     )
     g.add_option('-r', '--recurse', action='store_true', default=False, help=_('Process folders recursively'))
 
-    def fadd(opt, action, help):
+    def fadd(opt, action, help) -> None:
         g.add_option(
             opt,
             action='callback',
@@ -456,7 +456,7 @@ the folder related options below.
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     aut = string_to_authors(opts.authors) if opts.authors else []
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]

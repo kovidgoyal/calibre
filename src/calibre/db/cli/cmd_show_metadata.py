@@ -33,7 +33,7 @@ id is an id number from the search command.
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         raise SystemExit(_('You must specify an id'))
     book_id = int(args[0])

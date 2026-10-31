@@ -22,7 +22,7 @@ def try_lock(lock):
 class LockingError(RuntimeError):
     is_locking_error = True
 
-    def __init__(self, msg, extra=None):
+    def __init__(self, msg, extra=None) -> None:
         RuntimeError.__init__(self, msg)
         self.locking_debug_msg = extra
 
@@ -67,7 +67,7 @@ class SHLock:  # {{{
     Based on code from: https://github.com/rfk/threading2
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = Lock()
         # When a shared lock is held, is_shared will give the cumulative
         # number of locks and _shared_owners maps each owning thread to
@@ -105,7 +105,7 @@ class SHLock:  # {{{
         with self._lock:
             return self._exclusive_owner is me or me in self._shared_owners
 
-    def release(self):
+    def release(self) -> None:
         """Release the lock."""
         # This decrements the appropriate lock counters, and if the lock
         # becomes free, it looks for a queued thread to hand it off to.
@@ -154,7 +154,7 @@ class SHLock:  # {{{
             else:
                 raise LockingError('release() called on unheld lock')
 
-    def _acquire_shared(self, blocking=True):
+    def _acquire_shared(self, blocking=True) -> bool:
         me = current_thread()
         # Each case: acquiring a lock we already hold.
         if self.is_shared and me in self._shared_owners:
@@ -180,7 +180,7 @@ class SHLock:  # {{{
             self._shared_owners[me] = 1
         return True
 
-    def _acquire_exclusive(self, blocking=True):
+    def _acquire_exclusive(self, blocking=True) -> bool:
         me = current_thread()
         # Each case: acquiring a lock we already hold.
         if self._exclusive_owner is me:
@@ -212,7 +212,7 @@ class SHLock:  # {{{
         except IndexError:
             return Condition(self._lock)
 
-    def _return_waiter(self, waiter):
+    def _return_waiter(self, waiter) -> None:
         self._free_waiters.append(waiter)
 
 
@@ -220,14 +220,14 @@ class SHLock:  # {{{
 
 
 class RWLockWrapper:
-    def __init__(self, shlock, is_shared=True):
+    def __init__(self, shlock, is_shared=True) -> None:
         self._shlock = shlock
         self._is_shared = is_shared
 
-    def acquire(self):
+    def acquire(self) -> None:
         self._shlock.acquire(shared=self._is_shared)
 
-    def release(self, *args):
+    def release(self, *args) -> None:
         self._shlock.release()
 
     __enter__ = acquire
@@ -238,12 +238,12 @@ class RWLockWrapper:
 
 
 class DebugRWLockWrapper(RWLockWrapper):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         RWLockWrapper.__init__(self, *args, **kwargs)
         self.print_lock = Lock()
         self.st = monotonic()
 
-    def acquire(self):
+    def acquire(self) -> None:
         t = current_thread()
         tid = f'{os.getpid()} - {t.name} - {t.native_id}'
         at = monotonic() - self.st
@@ -257,7 +257,7 @@ class DebugRWLockWrapper(RWLockWrapper):
             print(f'acquire done at {at:.4f}: thread id:', tid, file=sys.stderr)
             print('_' * 120, file=sys.stderr)
 
-    def release(self, *args):
+    def release(self, *args) -> None:
         t = current_thread()
         tid = f'{os.getpid()} - {t.name} - {t.native_id}'
         at = monotonic() - self.st
@@ -284,7 +284,7 @@ class DebugRWLockWrapper(RWLockWrapper):
 
 
 class SafeReadLock:
-    def __init__(self, read_lock):
+    def __init__(self, read_lock) -> None:
         self.read_lock = read_lock
         self.acquired = False
 
@@ -297,7 +297,7 @@ class SafeReadLock:
             self.acquired = True
         return self
 
-    def release(self, *args):
+    def release(self, *args) -> None:
         if self.acquired:
             self.read_lock.release()
         self.acquired = False

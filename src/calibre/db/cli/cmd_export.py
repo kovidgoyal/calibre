@@ -91,13 +91,13 @@ You can get id numbers from the search command.
 class DBProxy:
     # Proxy to allow do_save_book_to_disk() to work with remote database
 
-    def __init__(self, dbctx):
+    def __init__(self, dbctx) -> None:
         self.dbctx = dbctx
 
     def cover(self, book_id):
         return self.dbctx.run('export', 'cover', book_id)
 
-    def copy_format_to(self, book_id, fmt, path):
+    def copy_format_to(self, book_id, fmt, path) -> None:
         fdata = self.dbctx.run('export', 'fmt', book_id, fmt, path)
         if self.dbctx.is_remote:
             if fdata is None:
@@ -105,7 +105,7 @@ class DBProxy:
             with open(path, 'wb') as f:
                 f.write(fdata)
 
-    def copy_extra_file_to(self, book_id, relpath, path):
+    def copy_extra_file_to(self, book_id, relpath, path) -> None:
         fdata = self.dbctx.run('export', 'extra_file', book_id, relpath, path)
         if self.dbctx.is_remote:
             if fdata is None:
@@ -122,7 +122,7 @@ def export(opts, dbctx, book_id, dest, dbproxy, length, first):
     return do_save_book_to_disk(dbproxy, book_id, mi, plugboards, formats, dest, opts, length, extra_files)
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1 and not opts.all:
         raise SystemExit(_('You must specify some ids or the %s option') % '--all')
     if opts.all:

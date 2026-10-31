@@ -103,7 +103,7 @@ def run_job(dbctx, which, **data):
         raise
 
 
-def show_progress(left, total, rate):
+def show_progress(left, total, rate) -> None:
     from calibre.db.utils import IndexingProgress
 
     ip = IndexingProgress()
@@ -115,7 +115,7 @@ def show_progress(left, total, rate):
     )
 
 
-def remote_wait_for_completion(dbctx, indexing_speed):
+def remote_wait_for_completion(dbctx, indexing_speed) -> None:
     import time
 
     s = run_job(dbctx, 'wait', speed=indexing_speed, measure_state=True)
@@ -129,12 +129,12 @@ def remote_wait_for_completion(dbctx, indexing_speed):
         run_job(dbctx, 'wait', speed='slow', measure_state=False)
 
 
-def local_wait_for_completion(db, indexing_speed):
+def local_wait_for_completion(db, indexing_speed) -> None:
     from queue import Queue
 
     q = Queue()
 
-    def notifier(event_type, library_id, event_data):
+    def notifier(event_type, library_id, event_data) -> None:
         if event_type is EventType.indexing_progress_changed:
             q.put(event_data)
 
@@ -149,7 +149,7 @@ def local_wait_for_completion(db, indexing_speed):
     print()
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the indexing action'))

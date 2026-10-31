@@ -64,7 +64,7 @@ class WritingTest(BaseTest):
     def create_test(self, name, vals, getter=None, setter=None):
         return WritingTest.Test(name, vals, self.create_getter(name, getter), self.create_setter(name, setter))
 
-    def run_tests(self, tests):
+    def run_tests(self, tests) -> None:
         results = {}
         for test in tests:
             results[test] = []
@@ -103,7 +103,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_one_one(self):  # {{{
+    def test_one_one(self) -> None:  # {{{
         "Test setting of values in one-one fields"
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
@@ -175,7 +175,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_many_one_basic(self):  # {{{
+    def test_many_one_basic(self) -> None:  # {{{
         "Test the different code paths for writing to a many-one field"
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -266,7 +266,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_many_many_basic(self):  # {{{
+    def test_many_many_basic(self) -> None:  # {{{
         "Test the different code paths for writing to a many-many field"
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -369,7 +369,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_dirtied(self):  # {{{
+    def test_dirtied(self) -> None:  # {{{
         "Test the setting of the dirtied flag and the last_modified column"
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -402,7 +402,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_dump_metadata_write_failure(self):  # {{{
+    def test_dump_metadata_write_failure(self) -> None:  # {{{
         "Test that failures to write metadata backups are reported and leave books dirty"
         from unittest.mock import patch
 
@@ -442,7 +442,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_backup(self):  # {{{
+    def test_backup(self) -> None:  # {{{
         "Test the automatic backup of changed metadata"
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -531,7 +531,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_set_cover(self):  # {{{
+    def test_set_cover(self) -> None:  # {{{
         "Test setting of cover"
         cache = self.init_cache()
         ae = self.assertEqual
@@ -556,7 +556,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_set_metadata(self):  # {{{
+    def test_set_metadata(self) -> None:  # {{{
         "Test setting of metadata"
         ae = self.assertEqual
         cache = self.init_cache(self.cloned_library)
@@ -619,7 +619,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_conversion_options(self):  # {{{
+    def test_conversion_options(self) -> None:  # {{{
         "Test saving of conversion options"
         cache = self.init_cache()
         all_ids = cache.all_book_ids()
@@ -637,7 +637,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_remove_items(self):  # {{{
+    def test_remove_items(self) -> None:  # {{{
         "Test removal of many-(many,one) items"
         cache = self.init_cache()
         tmap = cache.get_id_map('tags')
@@ -653,7 +653,7 @@ class WritingTest(BaseTest):
         modified = []
         orig = cache._update_last_modified
 
-        def update_last_modified(book_ids, now=None):
+        def update_last_modified(book_ids, now=None) -> None:
             modified.extend(book_ids)
             orig(book_ids, now=now)
 
@@ -713,7 +713,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_rename_items(self):  # {{{
+    def test_rename_items(self) -> None:  # {{{
         "Test renaming of many-(many,one) items"
         # Test renaming authors removes folders with junk in them
         cl = self.cloned_library
@@ -828,7 +828,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_set_custom_column_metadata_editable(self):  # {{{
+    def test_set_custom_column_metadata_editable(self) -> None:  # {{{
         "Test that making a custom column read-only takes effect immediately"
         cache = self.init_cache()
         cache.create_custom_column('ce', 'CE', 'text', False)
@@ -842,7 +842,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_composite_cache(self):  # {{{
+    def test_composite_cache(self) -> None:  # {{{
         "Test that the composite field cache is properly invalidated on writes"
         cache = self.init_cache()
         cache.create_custom_column(
@@ -857,7 +857,7 @@ class WritingTest(BaseTest):
         all_book_ids = cache.all_book_ids()
         current = {}
 
-        def test_invalidate():
+        def test_invalidate() -> None:
             nonlocal current
             nc = {bid: cache.field_for('#tc', bid) for bid in all_book_ids}
             self.assertNotEqual(current, nc)
@@ -889,7 +889,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_dump_and_restore(self):  # {{{
+    def test_dump_and_restore(self) -> None:  # {{{
         "Test roundtripping the db through SQL"
         try:
             from apsw import shell
@@ -914,7 +914,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_set_author_data(self):  # {{{
+    def test_set_author_data(self) -> None:  # {{{
         cache = self.init_cache()
         adata = cache.author_data()
         ldata = {aid: str(aid) for aid in adata}
@@ -941,7 +941,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_fix_case_duplicates(self):  # {{{
+    def test_fix_case_duplicates(self) -> None:  # {{{
         "Test fixing of databases that have items in is_many fields that differ only by case"
         ae = self.assertEqual
         cache = self.init_cache()
@@ -1000,7 +1000,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_preferences(self):  # {{{
+    def test_preferences(self) -> None:  # {{{
         "Test getting and setting of preferences, especially with mutable objects"
         cache = self.init_cache()
         changes = []
@@ -1022,7 +1022,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_custom_book_data(self):  # {{{
+    def test_custom_book_data(self) -> None:  # {{{
         "Test that a failed add_custom_book_data() with delete_first does not lose the old data"
         cache = self.init_cache()
         cache.add_custom_book_data('test', {1: {'a': 1}, 2: {'b': 2}})
@@ -1033,7 +1033,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_book_storage(self):  # {{{
+    def test_book_storage(self) -> None:  # {{{
         "Test per book storage used for localStorage in the viewers"
         from calibre.db.book_storage import (
             MAX_BOOK_STORAGE_SIZE,
@@ -1119,7 +1119,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_annotations(self):  # {{{
+    def test_annotations(self) -> None:  # {{{
         "Test handling of annotations"
         from calibre.utils.date import EPOCH, utcnow
 
@@ -1220,8 +1220,8 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_changed_events(self):  # {{{
-        def ae(l, r):
+    def test_changed_events(self) -> None:  # {{{
+        def ae(l, r) -> None:
             # We need to sleep a bit to allow events to happen on its thread
             import time
 
@@ -1240,7 +1240,7 @@ class WritingTest(BaseTest):
 
         event_set = set()
 
-        def event_func(t, library_id, *args):
+        def event_func(t, library_id, *args) -> None:
             nonlocal event_set, ae
             event_set.update(args[0][1])
 
@@ -1302,7 +1302,7 @@ class WritingTest(BaseTest):
         ae(cache.field_for('series_index', 1), 2.0)
         ae(cache.field_for('series_index', 2), 3.5)
 
-    def test_link_maps(self):
+    def test_link_maps(self) -> None:
         cache = self.init_cache()
 
         # Add two tags

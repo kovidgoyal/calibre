@@ -36,11 +36,11 @@ class MutableBase:
     _values: Any
 
     @resolved
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._values)
 
     @resolved
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self._values)
 
     @resolved
@@ -48,7 +48,7 @@ class MutableBase:
         return str(self._values)
 
     @resolved
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._values)
 
     @resolved
@@ -56,7 +56,7 @@ class MutableBase:
         return iter(self._values)
 
     @resolved
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self._values
 
     @resolved
@@ -64,21 +64,21 @@ class MutableBase:
         return self._values[fmt]
 
     @resolved
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         self._values[key] = val
 
     @resolved
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         del self._values[key]
 
 
 class FormatMetadata(MutableBase, MutableMapping):
-    def __init__(self, db, id_, formats):
+    def __init__(self, db, id_, formats) -> None:
         self._dbwref = weakref.ref(db)
         self._id = id_
         self._formats = formats
 
-    def _resolve(self):
+    def _resolve(self) -> None:
         db = self._dbwref()
         assert db is not None
         self._values = {}
@@ -90,15 +90,15 @@ class FormatMetadata(MutableBase, MutableMapping):
 
 
 class FormatsList(MutableBase, MutableSequence):
-    def __init__(self, formats, format_metadata):
+    def __init__(self, formats, format_metadata) -> None:
         self._formats = formats
         self._format_metadata = format_metadata
 
-    def _resolve(self):
+    def _resolve(self) -> None:
         self._values = [f for f in self._formats if f in self._format_metadata]
 
     @resolved
-    def insert(self, idx, val):
+    def insert(self, idx, val) -> None:
         self._values.insert(idx, val)
 
 
@@ -338,7 +338,7 @@ for field in ('formats', 'format_metadata'):
 
 
 class ProxyMetadata(Metadata):
-    def __init__(self, db, book_id, formatter=None):
+    def __init__(self, db, book_id, formatter=None) -> None:
         sa(self, 'template_cache', db.formatter_template_cache)
         if formatter is None:
             formatter = SafeFormat()
@@ -384,7 +384,7 @@ class ProxyMetadata(Metadata):
         except KeyError:
             raise AttributeError(f'Metadata object has no attribute named: {field!r}')
 
-    def __setattr__(self, field, val, extra=None):
+    def __setattr__(self, field, val, extra=None) -> None:
         cache = ga(self, '_cache')
         cache[field] = val
         if extra is not None:
@@ -405,7 +405,7 @@ class ProxyMetadata(Metadata):
     def has_key(self, key):
         return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')
 
-    def deepcopy(self, class_generator=lambda: Metadata(None)):
+    def deepcopy(self, class_generator=lambda: Metadata(None)) -> None:
         self._unimplemented_exception('deepcopy', add_txt=False)
 
     def deepcopy_metadata(self):
@@ -422,17 +422,17 @@ class ProxyMetadata(Metadata):
                 return default
         raise AttributeError('Metadata object has no attribute named: ' + repr(field))
 
-    def set(self, *args, **kwargs):
+    def set(self, *args, **kwargs) -> None:
         self._unimplemented_exception('set', add_txt=True)
 
     def get_identifiers(self):
         res = self.get('identifiers')
         return {} if res is None else res
 
-    def set_identifiers(self, identifiers):
+    def set_identifiers(self, identifiers) -> None:
         self._unimplemented_exception('set_identifiers', add_txt=True)
 
-    def set_identifier(self, typ, val):
+    def set_identifier(self, typ, val) -> None:
         self._unimplemented_exception('set_identifier', add_txt=True)
 
     def has_identifier(self, typ):
@@ -448,7 +448,7 @@ class ProxyMetadata(Metadata):
         um = ga(self, '_user_metadata')
         return ALL_METADATA_FIELDS.union(frozenset(um.all_field_keys()))
 
-    def all_non_none_fields(self):
+    def all_non_none_fields(self) -> None:
         self._unimplemented_exception('all_non_none_fields', add_txt=False)
 
     # This version can return custom column metadata while the Metadata version
@@ -486,19 +486,19 @@ class ProxyMetadata(Metadata):
                 ans = deepcopy(ans)
             return ans
 
-    def set_all_user_metadata(self, metadata):
+    def set_all_user_metadata(self, metadata) -> None:
         self._unimplemented_exception('set_all_user_metadata', add_txt=True)
 
-    def set_user_metadata(self, field, metadata):
+    def set_user_metadata(self, field, metadata) -> None:
         self._unimplemented_exception('set_user_metadata', add_txt=True)
 
-    def remove_stale_user_metadata(self, other_mi):
+    def remove_stale_user_metadata(self, other_mi) -> None:
         self._unimplemented_exception('remove_stale_user_metadata', add_txt=True)
 
-    def template_to_attribute(self, other, ops):
+    def template_to_attribute(self, other, ops) -> None:
         self._unimplemented_exception('template_to_attribute', add_txt=True)
 
-    def smart_update(self, *args, **kwargs):
+    def smart_update(self, *args, **kwargs) -> None:
         self._unimplemented_exception('smart_update', add_txt=True)
 
     # The rest of the methods in Metadata can be used as is.

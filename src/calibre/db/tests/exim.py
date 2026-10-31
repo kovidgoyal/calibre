@@ -16,7 +16,7 @@ from calibre.utils.exim import Exporter, Importer, run_verifier
 
 
 class VerifyExportTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.folder = TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
         self.path = self.folder.name
@@ -33,7 +33,7 @@ class VerifyExportTest(unittest.TestCase):
             status = run_verifier(self.path)
         return status, out.getvalue(), err.getvalue()
 
-    def rewrite_metadata(self, change):
+    def rewrite_metadata(self, change) -> None:
         importer = Importer(self.path)
         path = importer.part_map[max(importer.part_map)]
         metadata = importer.metadata
@@ -46,7 +46,7 @@ class VerifyExportTest(unittest.TestCase):
         with open(path, 'wb') as f:
             f.write(prefix + raw + struct.pack(Exporter.MDATA_SZ_FMT, len(raw)) + tail)
 
-    def test_verify_export(self):
+    def test_verify_export(self) -> None:
         importer = self.export()
         before = {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in Path(self.path).iterdir()}
         progress = []
@@ -60,7 +60,7 @@ class VerifyExportTest(unittest.TestCase):
         after = {p.name: (p.read_bytes(), p.stat().st_mtime_ns) for p in Path(self.path).iterdir()}
         self.assertEqual(before, after)
 
-    def test_verify_corrupt_files(self):
+    def test_verify_corrupt_files(self) -> None:
         importer = self.export()
         for key in ('first', 'second'):
             part, pos, size, digest, mtime = importer.file_metadata[key]
@@ -76,7 +76,7 @@ class VerifyExportTest(unittest.TestCase):
         self.assertIn('second: Checksum mismatch', err)
         self.assertIn('with 2 errors', err)
 
-    def test_verify_configuration(self):
+    def test_verify_configuration(self) -> None:
         with TemporaryDirectory() as config:
             Path(config, 'plugins').mkdir()
             Path(config, 'settings.json').write_bytes(b'{"setting": true}')
@@ -94,7 +94,7 @@ class VerifyExportTest(unittest.TestCase):
             self.assertEqual(Importer(self.path).verify(), [f'{key}: Checksum mismatch'])
             self.assertEqual(Path(config, 'plugins', 'sample.zip').read_bytes(), b'plugin bytes')
 
-    def test_verify_invalid_parts(self):
+    def test_verify_invalid_parts(self) -> None:
         importer = self.export()
         for num in (1, 2, max(importer.part_map)):
             path = importer.part_map[num]
@@ -122,7 +122,7 @@ class VerifyExportTest(unittest.TestCase):
             f.write(original[:2])
         self.assertIn('tail too small', self.run_verifier()[2])
 
-    def test_verify_invalid_metadata(self):
+    def test_verify_invalid_metadata(self) -> None:
         importer = self.export()
         last = Path(importer.part_map[max(importer.part_map)])
         original = last.read_bytes()
@@ -150,7 +150,7 @@ class VerifyExportTest(unittest.TestCase):
         self.assertIn('valid file metadata', self.run_verifier()[2])
         last.write_bytes(original)
 
-    def test_verify_missing_referenced_files(self):
+    def test_verify_missing_referenced_files(self) -> None:
         self.export()
         self.rewrite_metadata(
             lambda metadata: metadata.update({
@@ -165,7 +165,7 @@ class VerifyExportTest(unittest.TestCase):
         self.assertIn('Invalid export metadata: No metadata for the library: nolib', errors)
         self.assertEqual(self.run_verifier()[0], 1)
 
-    def test_verify_bounded_reads_and_cli(self):
+    def test_verify_bounded_reads_and_cli(self) -> None:
         importer = self.export({'large': b'x' * (3 * 1024 * 1024), 'zero': b''}, part_size=2 * 1024 * 1024)
         from calibre.utils.exim import FileSource
 
@@ -191,7 +191,7 @@ class VerifyExportTest(unittest.TestCase):
         Path(self.path, '._ignored.calibre-data').write_bytes(b'not an export')
         self.assertEqual(self.run_verifier()[0], 0)
 
-    def test_verify_empty_export(self):
+    def test_verify_empty_export(self) -> None:
         self.assertEqual(self.run_verifier()[0], 1)
         exporter = Exporter(self.path)
         exporter.commit()

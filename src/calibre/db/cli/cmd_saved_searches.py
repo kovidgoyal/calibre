@@ -78,7 +78,7 @@ Syntax for removing:
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action == 'list':
         for name, value in dbctx.run('saved_searches', 'list').items():

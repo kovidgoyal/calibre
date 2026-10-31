@@ -8,7 +8,7 @@ readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, book_id, fmt):
+def implementation(db, notify_changes, book_id, fmt) -> None:
     is_remote = notify_changes is not None
     fmt_map = {book_id: (fmt,)}
     db.remove_formats(fmt_map)
@@ -31,7 +31,7 @@ do nothing.
     )
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 2:
         raise SystemExit(_('You must specify an id and a format'))
         return 1

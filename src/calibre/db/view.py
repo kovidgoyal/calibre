@@ -22,7 +22,7 @@ def sanitize_sort_field_name(field_metadata, field):
 
 
 class MarkedVirtualField:
-    def __init__(self, marked_ids):
+    def __init__(self, marked_ids) -> None:
         self.marked_ids = marked_ids
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
@@ -35,7 +35,7 @@ class MarkedVirtualField:
 
 
 class InTagBrowserVirtualField:
-    def __init__(self, _ids):
+    def __init__(self, _ids) -> None:
         self._ids = _ids
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
@@ -61,7 +61,7 @@ class InTagBrowserVirtualField:
 
 
 class TableRow:
-    def __init__(self, book_id, view):
+    def __init__(self, book_id, view) -> None:
         self.book_id = book_id
         self.view = weakref.ref(view)
         self.column_count = view.column_count
@@ -74,7 +74,7 @@ class TableRow:
         else:
             return view._field_getters[obj](self.book_id)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.column_count
 
     def __iter__(self):
@@ -100,7 +100,7 @@ class View:
     """A table view of the database, with rows and columns. Also supports
     filtering and sorting."""
 
-    def __init__(self, cache):
+    def __init__(self, cache) -> None:
         self.cache = cache
         self.marked_ids = {}
         self.tag_browser_ids = None
@@ -158,10 +158,10 @@ class View:
         self.full_map_is_sorted = True
         self.sort_history = [('id', True)]
 
-    def add_marked_listener(self, func):
+    def add_marked_listener(self, func) -> None:
         self.marked_listeners[id(func)] = weakref.ref(func)
 
-    def add_to_sort_history(self, items):
+    def add_to_sort_history(self, items) -> None:
         self.sort_history = uniq((list(items) + list(self.sort_history)), operator.itemgetter(0))[: tweaks['maximum_resort_levels']]
 
     def count(self):
@@ -179,7 +179,7 @@ class View:
         return self._real_map_filtered
 
     @_map_filtered.setter
-    def _map_filtered(self, v):
+    def _map_filtered(self, v) -> None:
         self._real_map_filtered = v
         self._real_map_filtered_id_to_row = {id_: row for row, id_ in enumerate(self._map_filtered)}
 
@@ -198,7 +198,7 @@ class View:
     def __getitem__(self, row):
         return TableRow(self._map_filtered[row], self)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._map_filtered)
 
     def __iter__(self):
@@ -313,7 +313,7 @@ class View:
             },
         )
 
-    def multisort(self, fields=None, subsort=False, only_ids=None):
+    def multisort(self, fields=None, subsort=False, only_ids=None) -> None:
         if fields is None:
             fields = []
         sorted_book_ids = self._do_sort(self._map if only_ids is None else only_ids, fields=fields, subsort=subsort)
@@ -409,25 +409,25 @@ class View:
     def get_search_restriction(self):
         return self.search_restriction
 
-    def set_search_restriction(self, s):
+    def set_search_restriction(self, s) -> None:
         self.search_restriction = s
 
     def get_base_restriction(self):
         return self.base_restriction
 
-    def set_base_restriction(self, s):
+    def set_base_restriction(self, s) -> None:
         self.base_restriction = s
 
     def get_base_restriction_name(self):
         return self.base_restriction_name
 
-    def set_base_restriction_name(self, s):
+    def set_base_restriction_name(self, s) -> None:
         self.base_restriction_name = s
 
     def get_search_restriction_name(self):
         return self.search_restriction_name
 
-    def set_search_restriction_name(self, s):
+    def set_search_restriction_name(self, s) -> None:
         self.search_restriction_name = s
 
     def search_restriction_applied(self):
@@ -436,16 +436,16 @@ class View:
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
-    def change_search_locations(self, newlocs):
+    def change_search_locations(self, newlocs) -> None:
         self.cache.change_search_locations(newlocs)
 
-    def set_in_tag_browser(self, id_set):
+    def set_in_tag_browser(self, id_set) -> None:
         self.tag_browser_ids = id_set
 
     def get_in_tag_browser(self):
         return self.tag_browser_ids
 
-    def set_marked_ids(self, id_dict):
+    def set_marked_ids(self, id_dict) -> None:
         '''
         ids in id_dict are "marked". They can be searched for by
         using the search term ``marked:true``. Pass in an empty dictionary or
@@ -476,16 +476,16 @@ class View:
             if func is not None:
                 func(old_marked_ids, cmids)
 
-    def toggle_marked_ids(self, book_ids):
+    def toggle_marked_ids(self, book_ids) -> None:
         book_ids = set(book_ids)
         mids = set(self.marked_ids)
         common = mids.intersection(book_ids)
         self.set_marked_ids((mids | book_ids) - common)
 
-    def add_marked_ids(self, book_ids):
+    def add_marked_ids(self, book_ids) -> None:
         self.set_marked_ids(set(self.marked_ids) | set(book_ids))
 
-    def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
+    def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True) -> None:
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
         self.full_map_is_sorted = True
@@ -503,10 +503,10 @@ class View:
         # those out while keeping the valid ones.
         return [self._real_map_filtered_id_to_row[id_] for id_ in ids if id_ in self._real_map_filtered_id_to_row] or None
 
-    def remove(self, book_id):
+    def remove(self, book_id) -> None:
         self.books_deleted((book_id,))
 
-    def books_deleted(self, ids):
+    def books_deleted(self, ids) -> None:
         # Rebuild the maps once for all the removed books. Doing it per book
         # makes deleting many books take time quadratic in the library size.
         ids = frozenset(ids)
@@ -515,7 +515,7 @@ class View:
         self._map = tuple(bid for bid in self._map if bid not in ids)
         self._map_filtered = tuple(bid for bid in self._map_filtered if bid not in ids)
 
-    def books_added(self, ids):
+    def books_added(self, ids) -> None:
         ids = tuple(ids)
         self._map = ids + self._map
         self._map_filtered = ids + self._map_filtered

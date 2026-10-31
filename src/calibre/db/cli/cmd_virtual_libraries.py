@@ -145,7 +145,7 @@ def check_name(name: str) -> None:
         raise SystemExit(_('Error: A Virtual library name cannot begin with "*"'))
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     from calibre.utils.icu import sort_key
 
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)

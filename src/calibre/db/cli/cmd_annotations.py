@@ -323,7 +323,7 @@ def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool
     return '\n'.join(lines).strip()
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action != 'search' and not opts.use_stemming:
         raise SystemExit(_('Error: The --no-stemming option can only be used with search'))

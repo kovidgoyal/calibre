@@ -107,14 +107,14 @@ WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM
 class DynamicFilter:  # {{{
     "No longer used, present for legacy compatibility"
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.ids = frozenset()
 
     def __call__(self, id_):
         return int(id_ in self.ids)
 
-    def change(self, ids):
+    def change(self, ids) -> None:
         self.ids = frozenset(ids)
 
 
@@ -124,14 +124,14 @@ class DynamicFilter:  # {{{
 class DBPrefs(dict):  # {{{
     "Store preferences as key:value pairs in the db"
 
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         dict.__init__(self)
         self.db = db
         self.defaults = {}
         self.disable_setting = False
         self.load_from_db()
 
-    def load_from_db(self):
+    def load_from_db(self) -> None:
         self.clear()
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
             try:
@@ -160,11 +160,11 @@ class DBPrefs(dict):  # {{{
         except KeyError:
             return self.defaults[key]
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         dict.__delitem__(self, key)
         self.db.execute('DELETE FROM preferences WHERE key=?', (key,))
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         if not self.disable_setting:
             raw = self.to_raw(val)
             do_set = False
@@ -182,7 +182,7 @@ class DBPrefs(dict):  # {{{
             if do_set:
                 dict.__setitem__(self, key, val)
 
-    def set(self, key, val):
+    def set(self, key, val) -> None:
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
@@ -192,7 +192,7 @@ class DBPrefs(dict):  # {{{
         except KeyError:
             return default
 
-    def set_namespaced(self, namespace, key, val):
+    def set_namespaced(self, namespace, key, val) -> None:
         if ':' in key:
             raise KeyError('Colons are not allowed in keys')
         if ':' in namespace:
@@ -200,7 +200,7 @@ class DBPrefs(dict):  # {{{
         key = f'namespaced:{namespace}:{key}'
         self[key] = val
 
-    def write_serialized(self, library_path):
+    def write_serialized(self, library_path) -> None:
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
             data = json.dumps(self, indent=2, default=to_json)
@@ -257,7 +257,7 @@ def icu_collator(s1, s2):
 def Concatenate(sep=','):
     """String concatenation aggregator for sqlite"""
 
-    def step(ctxt, value):
+    def step(ctxt, value) -> None:
         if value is not None:
             ctxt.append(value)
 
@@ -278,7 +278,7 @@ def Concatenate(sep=','):
 def SortedConcatenate(sep=','):
     """String concatenation aggregator for sqlite, sorted by supplied index"""
 
-    def step(ctxt, ndx, value):
+    def step(ctxt, ndx, value) -> None:
         if value is not None:
             ctxt[ndx] = value
 
@@ -299,7 +299,7 @@ def SortedConcatenate(sep=','):
 def IdentifiersConcat():
     """String concatenation aggregator for the identifiers map"""
 
-    def step(ctxt, key, val):
+    def step(ctxt, key, val) -> None:
         ctxt.append(f'{key}:{val}')
 
     def finalize(ctxt):
@@ -317,7 +317,7 @@ def IdentifiersConcat():
 def AumSortedConcatenate():
     """String concatenation aggregator for the author sort map"""
 
-    def step(ctxt, ndx, author, sort, link):
+    def step(ctxt, ndx, author, sort, link) -> None:
         if author is not None:
             ctxt[ndx] = ':::'.join((author, sort, link))  # ruff: ignore[static-join-to-f-string]
 
@@ -354,7 +354,7 @@ def annotations_for_book(cursor, book_id, fmt, user_type='local', user='viewer')
             pass
 
 
-def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='local', user='viewer'):
+def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='local', user='viewer') -> None:
     data = []
     fmt = fmt.upper()
     for annot, timestamp_in_secs in annots_list:
@@ -372,7 +372,7 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
     )
 
 
-def save_annotations_list_to_cursor(cursor, alist, sync_annots_user, book_id, book_fmt):
+def save_annotations_list_to_cursor(cursor, alist, sync_annots_user, book_id, book_fmt) -> None:
     from calibre.db.annotations import annotations_as_copied_list, merge_annotations
 
     book_fmt = book_fmt.upper()
@@ -392,7 +392,7 @@ def save_annotations_list_to_cursor(cursor, alist, sync_annots_user, book_id, bo
         save_annotations_for_book(cursor, book_id, book_fmt, alist, user_type='web', user=sync_annots_user)
 
 
-def save_last_read_position_to_cursor(cursor, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+def save_last_read_position_to_cursor(cursor, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0) -> None:
     if cfi:
         cursor.execute(
             'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
@@ -452,7 +452,7 @@ def save_book_storage_to_cursor(cursor, entry: BookStorageEntry, sync_annots_use
 class Connection(apsw.Connection):  # {{{
     BUSY_TIMEOUT = 10000  # milliseconds
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         from calibre.utils.localization import bcp47_locale_name
         from calibre_extensions.sqlite_extension import set_ui_language
 
@@ -483,7 +483,7 @@ class Connection(apsw.Connection):  # {{{
         self.createaggregatefunction('concat', Concatenate, 1)
         self.createaggregatefunction('aum_sortconcat', AumSortedConcatenate, 4)
 
-    def create_dynamic_filter(self, name):
+    def create_dynamic_filter(self, name) -> None:
         f = DynamicFilter(name)
         self.createscalarfunction(name, cast('ScalarProtocol', f), 1)
 
@@ -521,11 +521,11 @@ class Connection(apsw.Connection):  # {{{
 # }}}
 
 
-def set_global_state(backend):
+def set_global_state(backend) -> None:
     load_user_template_functions(backend.library_id, (), precompiled_user_functions=backend.get_user_template_functions())
 
 
-def rmtree_with_retry(path, sleep_time=1):
+def rmtree_with_retry(path, sleep_time=1) -> None:
     try:
         shutil.rmtree(path)
     except OSError as e:
@@ -633,7 +633,7 @@ class DB:
         progress_callback=lambda x, y: True,
         load_user_formatter_functions=True,
         temp_db_path=None,
-    ):
+    ) -> None:
         self.is_closed = False
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
@@ -734,12 +734,12 @@ class DB:
     def get_user_template_functions(self):
         return self._user_template_functions
 
-    def set_user_template_functions(self, user_formatter_functions):
+    def set_user_template_functions(self, user_formatter_functions) -> None:
         self._user_template_functions = user_formatter_functions
         self._template_functions = formatter_functions().get_builtins_and_aliases().copy()
         self._template_functions.update(user_formatter_functions)
 
-    def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
+    def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback) -> None:  # {{{
         self.prefs = DBPrefs(self)
 
         if default_prefs is not None and not self._exists:
@@ -851,7 +851,7 @@ class DB:
                 self.prefs['column_color_rules'] += old_rules
 
         # Migrate saved search and user categories to db preference scheme
-        def migrate_preference(key, default):
+        def migrate_preference(key, default) -> None:
             oldval = prefs[key]
             if oldval != default:
                 self.prefs[key] = oldval
@@ -916,7 +916,7 @@ class DB:
 
     # }}}
 
-    def initialize_custom_columns(self):  # {{{
+    def initialize_custom_columns(self) -> None:  # {{{
         self.custom_columns_deleted = False
         self.deleted_fields = []
         with self.conn:
@@ -1096,7 +1096,7 @@ class DB:
 
     # }}}
 
-    def initialize_tables(self):  # {{{
+    def initialize_tables(self) -> None:  # {{{
         tables = self.tables = {}
         for col in (
             'title',
@@ -1208,23 +1208,23 @@ class DB:
 
     # }}}
 
-    def initialize_notes(self):
+    def initialize_notes(self) -> None:
         from .notes.connect import Notes
 
         self.notes = Notes(self)
 
-    def clear_notes_for_category_items(self, field_name, item_map):
+    def clear_notes_for_category_items(self, field_name, item_map) -> None:
         for item_id, item_val in item_map.items():
             self.notes.set_note(self.conn, field_name, item_id, item_val or '')
 
-    def delete_category_items(self, field_name, table_name, item_map, link_table_name='', link_col_name=''):
+    def delete_category_items(self, field_name, table_name, item_map, link_table_name='', link_col_name='') -> None:
         self.clear_notes_for_category_items(field_name, item_map)
         bindings = tuple((x,) for x in item_map)
         if link_table_name and link_col_name:
             self.executemany(f'DELETE FROM {link_table_name} WHERE {link_col_name}=?', bindings)
         self.executemany(f'DELETE FROM {table_name} WHERE id=?', bindings)
 
-    def rename_category_item(self, field_name, table_name, link_table_name, link_col_name, old_item_id, new_item_id, new_item_value):
+    def rename_category_item(self, field_name, table_name, link_table_name, link_col_name, old_item_id, new_item_id, new_item_value) -> None:
         self.notes.rename_note(self.conn, field_name, old_item_id, new_item_id, new_item_value or '')
         # For custom series this means that the series index can
         # potentially have duplicates/be incorrect, but there is no way to
@@ -1294,7 +1294,7 @@ class DB:
             limit,
         )
 
-    def export_notes_data(self, outfile):
+    def export_notes_data(self, outfile) -> None:
         import zipfile
 
         with zipfile.ZipFile(outfile, mode='w') as zf:
@@ -1360,7 +1360,7 @@ class DB:
         return self.fts.pool.num_of_workers
 
     @fts_num_of_workers.setter
-    def fts_num_of_workers(self, num):
+    def fts_num_of_workers(self, num) -> None:
         if self.fts_enabled:
             assert self.fts is not None
             self.fts.pool.num_of_workers = num
@@ -1369,7 +1369,7 @@ class DB:
         assert self.fts is not None
         return self.fts.get_next_fts_job()
 
-    def reindex_fts(self):
+    def reindex_fts(self) -> None:
         if self.conn.fts_dbpath:
             self.conn.execute('DETACH fts_db')
             os.remove(self.conn.fts_dbpath)
@@ -1387,7 +1387,7 @@ class DB:
         if self.fts is not None:
             return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
 
-    def fts_unindex(self, book_id, fmt=None):
+    def fts_unindex(self, book_id, fmt=None) -> None:
         assert self.fts is not None
         self.fts.unindex(book_id, fmt=fmt)
 
@@ -1418,12 +1418,12 @@ class DB:
             process_each_result,
         )
 
-    def shutdown_fts(self):
+    def shutdown_fts(self) -> None:
         if self.fts_enabled:
             assert self.fts is not None
             self.fts.shutdown()
 
-    def join_fts(self):
+    def join_fts(self) -> None:
         if self.fts:
             self.fts.pool.join()
             self.fts = None
@@ -1663,12 +1663,12 @@ class DB:
 
     # }}}
 
-    def delete_custom_column(self, label=None, num=None):
+    def delete_custom_column(self, label=None, num=None) -> None:
         data = self.custom_field_metadata(label, num)
         self.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
         self.notes.delete_field(self.conn, '#' + data['label'])
 
-    def close(self, force=True, unload_formatter_functions=True):
+    def close(self, force=True, unload_formatter_functions=True) -> None:
         if getattr(self, '_conn', None) is not None:
             if self.prefs['expire_old_trash_after'] == 0:
                 self.expire_old_trash(0)
@@ -1682,13 +1682,13 @@ class DB:
             del self._conn
             self.is_closed = True
 
-    def reopen(self, force=True):
+    def reopen(self, force=True) -> None:
         self.close(force=force, unload_formatter_functions=False)
         self._conn = None
         self.conn  # ruff: ignore[useless-expression] # Connect to refresh
         self.notes.reopen(self)
 
-    def dump_and_restore(self, callback=None, sql=None):
+    def dump_and_restore(self, callback=None, sql=None) -> None:
         from apsw import Shell  # type: ignore
 
         if callback is None:
@@ -1721,7 +1721,7 @@ class DB:
                 finally:
                     self.reopen()
 
-    def vacuum(self, include_fts_db, include_notes_db, rebuild_annotations_fts):
+    def vacuum(self, include_fts_db, include_notes_db, rebuild_annotations_fts) -> None:
         self.execute('VACUUM')
         if rebuild_annotations_fts:
             self.execute('INSERT INTO annotations_fts(annotations_fts) VALUES("rebuild");')
@@ -1738,10 +1738,10 @@ class DB:
         return self.conn.get('PRAGMA user_version;', all=False)
 
     @user_version.setter
-    def user_version(self, val):
+    def user_version(self, val) -> None:
         self.execute(f'PRAGMA user_version={int(val)}')
 
-    def initialize_database(self):
+    def initialize_database(self) -> None:
         metadata_sqlite = P('metadata_sqlite.sql', data=True, allow_user_override=False).decode('utf-8')
         with self.conn:
             self.conn.cursor().execute(metadata_sqlite)
@@ -1774,11 +1774,11 @@ class DB:
     def is_deletable(self, path):
         return path and not self.normpath(self.library_path).startswith(self.normpath(path))
 
-    def rmtree(self, path):
+    def rmtree(self, path) -> None:
         if self.is_deletable(path):
             rmtree_with_retry(path)
 
-    def construct_path_name(self, book_id, title, author):
+    def construct_path_name(self, book_id, title, author) -> str:
         """
         Construct the directory name for this book based on its metadata.
         """
@@ -1852,7 +1852,7 @@ class DB:
         return self._library_id_
 
     @library_id.setter
-    def library_id(self, val):
+    def library_id(self, val) -> None:
         self._library_id_ = str(val)
         self.execute(
             '''
@@ -1866,7 +1866,7 @@ class DB:
         """Return last modified time as a UTC datetime object"""
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
-    def read_tables(self):
+    def read_tables(self) -> None:
         """
         Read all data from the db into the python in-memory tables
         """
@@ -1887,12 +1887,12 @@ class DB:
                     self._read_table(table, table.read, self)
             self._read_table(size_table, self._read_size_table)
 
-    def _read_size_table(self):
+    def _read_size_table(self) -> None:
         size_table = self.tables['size']
         if not size_table.read_from_formats(self.tables['uuid'].book_col_map, self.tables['formats']):
             size_table.read(self)
 
-    def _read_table(self, table, read, *args):
+    def _read_table(self, table, read, *args) -> None:
         try:
             read(*args)
         except Exception:
@@ -2023,7 +2023,7 @@ class DB:
         except OSError:
             pass  # Cover doesn't exist
 
-    def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
+    def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None) -> bool:
         path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
         if windows_atomic_move is not None:
             if not isinstance(dest, (str, bytes)):
@@ -2080,11 +2080,11 @@ class DB:
             return None
         return stat.st_mtime
 
-    def compress_covers(self, path_map, jpeg_quality, progress_callback):
+    def compress_covers(self, path_map, jpeg_quality, progress_callback) -> None:
         cpath_map = {}
         if not progress_callback:
 
-            def progress_callback(book_id, old_sz, new_sz):
+            def progress_callback(book_id, old_sz, new_sz) -> None:
                 return None
 
         for book_id, path in path_map.items():
@@ -2099,7 +2099,7 @@ class DB:
 
         compress_covers(cpath_map, jpeg_quality, progress_callback)
 
-    def set_cover(self, book_id, path, data, no_processing=False):
+    def set_cover(self, book_id, path, data, no_processing=False) -> None:
         path = os.path.abspath(os.path.join(self.library_path, path))
         if not os.path.exists(path):
             os.makedirs(path)
@@ -2131,7 +2131,7 @@ class DB:
                     time.sleep(0.2)
                 save_cover_data_to(data, path)
 
-    def copy_format_to(self, book_id, fmt, fname, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
+    def copy_format_to(self, book_id, fmt, fname, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None) -> bool:
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is None:
             return False
@@ -2175,7 +2175,7 @@ class DB:
                 shutil.copyfile(path, make_long_path_useable(dest))
         return True
 
-    def windows_check_if_files_in_use(self, paths):
+    def windows_check_if_files_in_use(self, paths) -> None:
         """
         Raises an EACCES IOError if any of the files in the specified folders
         are opened in another program on windows.
@@ -2226,7 +2226,7 @@ class DB:
 
         return size, fname
 
-    def update_path(self, book_id, title, author, path_field, formats_field):
+    def update_path(self, book_id, title, author, path_field, formats_field) -> None:
         current_path = path_field.for_book(book_id, default_value='')
         path = self.construct_path_name(book_id, title, author)
         formats = formats_field.for_book(book_id, default_value=())
@@ -2256,7 +2256,7 @@ class DB:
                     rename_files(rename_map)
             return changed
 
-        def update_paths_in_db():
+        def update_paths_in_db() -> None:
             with self.conn:
                 for fmt in formats:
                     formats_field.table.set_fname(book_id, fmt, fname, self)
@@ -2332,7 +2332,7 @@ class DB:
             os.makedirs(tpath)
         update_paths_in_db()
 
-    def copy_extra_file_to(self, book_id, book_path, relpath, stream_or_path):
+    def copy_extra_file_to(self, book_id, book_path, relpath, stream_or_path) -> None:
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
         try:
             extra_file_path = path_from_root(full_book_path, relpath, case_sensitive=self.is_case_sensitive)
@@ -2425,7 +2425,7 @@ class DB:
                 errors[relpath] = e
         return errors
 
-    def rename_extra_file(self, relpath, newrelpath, book_path, replace=True):
+    def rename_extra_file(self, relpath, newrelpath, book_path, replace=True) -> bool:
         bookdir = os.path.join(self.library_path, book_path)
         try:
             src = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
@@ -2476,7 +2476,7 @@ class DB:
             write_stream_to_format_file(stream, ldest)
         return os.path.relpath(dest, bookdir).replace(os.sep, '/')
 
-    def write_backup(self, path, raw):
+    def write_backup(self, path, raw) -> None:
         path = os.path.abspath(os.path.join(self.library_path, path, METADATA_FILE_NAME))
         try:
             with open(path, 'wb') as f:
@@ -2504,13 +2504,13 @@ class DB:
     def trash_dir(self):
         return os.path.abspath(os.path.join(self.library_path, TRASH_DIR_NAME))
 
-    def clear_trash_dir(self):
+    def clear_trash_dir(self) -> None:
         tdir = self.trash_dir
         if os.path.exists(tdir):
             self.rmtree(tdir)
             self.ensure_trash_dir()
 
-    def ensure_trash_dir(self, during_init=False):
+    def ensure_trash_dir(self, during_init=False) -> None:
         tdir = self.trash_dir
         os.makedirs(os.path.join(tdir, 'b'), exist_ok=True)
         os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
@@ -2521,13 +2521,13 @@ class DB:
         if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash(during_init=during_init)
 
-    def delete_trash_entry(self, book_id, category):
+    def delete_trash_entry(self, book_id, category) -> None:
         self.ensure_trash_dir()
         path = os.path.join(self.trash_dir, category, str(book_id))
         if os.path.exists(path):
             self.rmtree(path)
 
-    def expire_old_trash(self, expire_age_in_seconds=-1, during_init=False):
+    def expire_old_trash(self, expire_age_in_seconds=-1, during_init=False) -> None:
         if expire_age_in_seconds < 0:
             expire_age_in_seconds = max(1 * 24 * 3600, float(self.prefs['expire_old_trash_after']))
         self.last_expired_trash_at = now = time.time()
@@ -2553,7 +2553,7 @@ class DB:
 
                 traceback.print_exc()
 
-    def move_book_to_trash(self, book_id, book_dir_abspath):
+    def move_book_to_trash(self, book_id, book_dir_abspath) -> None:
         dest = os.path.join(self.trash_dir, 'b', str(book_id))
         if os.path.exists(dest):
             rmtree_with_retry(dest)
@@ -2573,7 +2573,7 @@ class DB:
                 traceback.print_exc()
             raise
 
-    def move_book_files_to_trash(self, book_id, format_abspaths, metadata):
+    def move_book_files_to_trash(self, book_id, format_abspaths, metadata) -> None:
         dest = os.path.join(self.trash_dir, 'f', str(book_id))
         if not os.path.exists(dest):
             os.makedirs(dest)
@@ -2602,14 +2602,14 @@ class DB:
                 formats.append((ext[1:].upper(), size, fname))
         return mi, annotations, formats
 
-    def move_book_from_trash(self, book_id, path):
+    def move_book_from_trash(self, book_id, path) -> None:
         bdir = os.path.join(self.trash_dir, 'b', str(book_id))
         if not os.path.isdir(bdir):
             raise ValueError(f'The book {book_id} not present in the trash folder')
         dest = os.path.abspath(os.path.join(self.library_path, path))
         copy_tree(bdir, dest, delete_source=True)
 
-    def copy_book_from_trash(self, book_id, dest):
+    def copy_book_from_trash(self, book_id, dest) -> None:
         bdir = os.path.join(self.trash_dir, 'b', str(book_id))
         if not os.path.isdir(bdir):
             raise ValueError(f'The book {book_id} not present in the trash folder')
@@ -2624,7 +2624,7 @@ class DB:
             path = ''
         return path
 
-    def remove_trash_formats_dir_if_empty(self, book_id):
+    def remove_trash_formats_dir_if_empty(self, book_id) -> None:
         bdir = os.path.join(self.trash_dir, 'f', str(book_id))
         if os.path.isdir(bdir) and len(os.listdir(bdir)) <= 1:  # don't count metadata.json
             self.rmtree(bdir)
@@ -2720,7 +2720,7 @@ class DB:
             remove_dir_if_empty(path, ignore_metadata_caches=True)
         return failures
 
-    def add_custom_data(self, name, val_map, delete_first):
+    def add_custom_data(self, name, val_map, delete_first) -> None:
         # Serialize before changing anything, and delete and insert in one transaction, so that a failure cannot lose the old data
         rows = [(book_id, name, json.dumps(val, default=to_json)) for book_id, val in val_map.items()]
         with self.conn:
@@ -2749,7 +2749,7 @@ class DB:
                 ans[book_id] = val
         return ans
 
-    def delete_custom_book_data(self, name, book_ids):
+    def delete_custom_book_data(self, name, book_ids) -> None:
         if book_ids:
             self.executemany('DELETE FROM books_plugin_data WHERE book=? AND name=?', [(book_id, name) for book_id in book_ids])
         else:
@@ -2759,10 +2759,10 @@ class DB:
         for (book_id,) in self.execute('SELECT book FROM metadata_dirtied'):
             yield book_id
 
-    def dirty_books(self, book_ids):
+    def dirty_books(self, book_ids) -> None:
         self.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', ((x,) for x in book_ids))
 
-    def mark_book_as_clean(self, book_id):
+    def mark_book_as_clean(self, book_id) -> None:
         self.execute('DELETE FROM metadata_dirtied WHERE book=?', (book_id,))
 
     def get_ids_for_custom_book_data(self, name):
@@ -2771,7 +2771,7 @@ class DB:
     def annotations_for_book(self, book_id, fmt, user_type, user):
         yield from annotations_for_book(self.conn, book_id, fmt, user_type, user)
 
-    def save_annotations_list(self, book_id, book_fmt, sync_annots_user, alist):
+    def save_annotations_list(self, book_id, book_fmt, sync_annots_user, alist) -> None:
         conn = self.conn
         with conn:
             save_annotations_list_to_cursor(conn.cursor(), alist, sync_annots_user, book_id, book_fmt)
@@ -2876,7 +2876,7 @@ class DB:
                 ans[annot_id] = book_id
         return ans
 
-    def delete_annotations(self, annot_ids):
+    def delete_annotations(self, annot_ids) -> None:
         replacements = []
         removals = []
         now = utcnow()
@@ -2902,7 +2902,7 @@ class DB:
         if removals:
             self.executemany('DELETE FROM annotations WHERE id=?', removals)
 
-    def update_annotations(self, annot_id_map):
+    def update_annotations(self, annot_id_map) -> None:
         now = utcnow()
         ts = now.isoformat()
         timestamp = (now - EPOCH).total_seconds()
@@ -3006,7 +3006,7 @@ class DB:
             pass
         return ans
 
-    def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+    def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer') -> None:
         try:
             with self.conn:  # Disable autocommit mode, for performance
                 save_annotations_for_book(self.conn.cursor(), book_id, fmt, annots_list, user_type, user)
@@ -3038,7 +3038,7 @@ class DB:
             return count
         return 0
 
-    def reindex_annotations(self):
+    def reindex_annotations(self) -> None:
         self.execute(
             '''
             INSERT INTO {0}({0}) VALUES('rebuild');
@@ -3046,7 +3046,7 @@ class DB:
         '''.format('annotations_fts', 'annotations_fts_stemmed')
         )
 
-    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0) -> None:
         save_last_read_position_to_cursor(self.conn.cursor(), book_id, fmt, user, device, cfi, epoch, pos_frac)
 
     def conversion_options(self, book_id, fmt):
@@ -3057,7 +3057,7 @@ class DB:
                 except Exception:
                     pass
 
-    def has_conversion_options(self, ids, fmt='PIPE'):
+    def has_conversion_options(self, ids, fmt='PIPE') -> bool:
         ids = frozenset(ids)
         with self.conn:
             self.execute('DROP TABLE IF EXISTS conversion_options_temp; CREATE TEMP TABLE conversion_options_temp (id INTEGER PRIMARY KEY);')
@@ -3069,10 +3069,10 @@ class DB:
                 return True
             return False
 
-    def delete_conversion_options(self, book_ids, fmt):
+    def delete_conversion_options(self, book_ids, fmt) -> None:
         self.executemany('DELETE FROM conversion_options WHERE book=? AND format=?', [(book_id, fmt.upper()) for book_id in book_ids])
 
-    def set_conversion_options(self, options, fmt):
+    def set_conversion_options(self, options, fmt) -> None:
         def map_data(x):
             if not isinstance(x, (str, bytes)):
                 x = str(x)
@@ -3096,7 +3096,7 @@ class DB:
         items = items.intersection(paths)
         return items, path_map
 
-    def move_library_to(self, all_paths, newloc, progress=(lambda item_name, item_count, total: None), abort=None):
+    def move_library_to(self, all_paths, newloc, progress=(lambda item_name, item_count, total: None), abort=None) -> None:
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         old_dirs, old_files = set(), set()
@@ -3148,7 +3148,7 @@ class DB:
         self.conn  # ruff: ignore[useless-expression] # Connect to the moved metadata.db
         progress(_('Completed'), total, total)
 
-    def _backup_database(self, path, name, extra_sql='', num_of_retries=10, busy_timeout=60):
+    def _backup_database(self, path, name, extra_sql='', num_of_retries=10, busy_timeout=60) -> None:
         for retry_count in range(num_of_retries):
             try:
                 with closing(apsw.Connection(path)) as dest_db:
@@ -3205,13 +3205,13 @@ class DB:
                 os.remove(path)
         return True
 
-    def backup_database(self, path):
+    def backup_database(self, path) -> None:
         self._backup_database(path, 'main', 'DELETE FROM metadata_dirtied; VACUUM;')
 
-    def backup_fts_database(self, path):
+    def backup_fts_database(self, path) -> None:
         self._backup_database(path, 'fts_db')
 
-    def backup_notes_database(self, path):
+    def backup_notes_database(self, path) -> None:
         self._backup_database(path, 'notes_db')
 
     def size_stats(self):

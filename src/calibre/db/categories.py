@@ -66,7 +66,7 @@ class Tag:
         is_searchable=True,
         use_sort_as_name=False,
         original_categories=None,
-    ):
+    ) -> None:
         self.name = self.original_name = name
         self.id = id
         self.count = count
@@ -83,13 +83,13 @@ class Tag:
         self.original_categories = None
 
     @property
-    def string_representation(self):
+    def string_representation(self) -> str:
         return f'{self.name}:{self.count}:{self.id}:{self.state}:{self.category}:{self.original_categories}'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.string_representation
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
     __calibre_serializable__ = True
@@ -151,7 +151,7 @@ def clean_user_categories(dbcache):
     return new_cats
 
 
-def is_standard_category(key):
+def is_standard_category(key) -> bool:
     return not (key.startswith('@') or key == 'search')
 
 
@@ -256,7 +256,7 @@ class CategoriesCache:
     # date an entry can be and still be refreshed incrementally
     MAX_CHANGES = 64
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.global_version = 0
         self.field_versions = {}
         self.entries = {}
@@ -264,12 +264,12 @@ class CategoriesCache:
         # either of which is None when the changed ids are not known
         self.changes = {}
 
-    def invalidate_all(self):
+    def invalidate_all(self) -> None:
         self.global_version += 1
         self.entries.clear()
         self.changes.clear()
 
-    def field_changed(self, name, item_ids=None, book_ids=None):
+    def field_changed(self, name, item_ids=None, book_ids=None) -> None:
         """
         Record a change to the field name. item_ids are the ids of the items of
         the field the change affected and book_ids the books it affected, either
@@ -390,7 +390,7 @@ class CategoriesCache:
                 return None
         return entry[1], item_ids
 
-    def set(self, key, version, tags, copy_tags=True):
+    def set(self, key, version, tags, copy_tags=True) -> None:
         """
         Store tags for key. Pass copy_tags=False only when no Tag object in tags
         can be reached by anything outside this class.
@@ -398,7 +398,7 @@ class CategoriesCache:
         self.entries[key] = version, tuple(copy.copy(tag) for tag in tags) if copy_tags else tuple(tags)
 
 
-def insert_changed_items(cats, changed, key):
+def insert_changed_items(cats, changed, key) -> bool:
     """
     Insert the recomputed items of a category into the list, sorted in
     ascending order, of the items that did not change. Returns False, having
@@ -450,18 +450,18 @@ def has_composite_categories(field_metadata):
 class CategoriesInvalidatingLock(RWLockWrapper):
     """Wrapper for the exclusive lock that invalidates all cached categories when the lock is acquired"""
 
-    def __init__(self, lock, categories_cache):
+    def __init__(self, lock, categories_cache) -> None:
         # Subclass RWLockWrapper so that this is a drop-in replacement for the
         # lock it wraps, but delegate to the wrapped lock rather than to
         # RWLockWrapper, so that DebugRWLockWrapper keeps working
         super().__init__(lock._shlock, lock._is_shared)
         self._lock, self._categories_cache = lock, categories_cache
 
-    def acquire(self):
+    def acquire(self) -> None:
         self._lock.acquire()
         self._categories_cache.invalidate_all()
 
-    def release(self, *args):
+    def release(self, *args) -> None:
         self._lock.release()
 
     __enter__ = acquire

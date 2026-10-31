@@ -63,7 +63,7 @@ command.
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 3:
         raise SystemExit(_('Error: You must specify a field name, id and value'))
     ok, msg = dbctx.run('set_custom', args[0], int(args[1]), args[2], opts.append)

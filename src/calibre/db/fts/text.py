@@ -128,7 +128,7 @@ def extract_text(pathtoebook):
         return unicodedata.normalize('NFC', ans).replace('\u00ad', '')
 
 
-def main(pathtoebook):
+def main(pathtoebook) -> None:
     text = extract_text(pathtoebook)
     with open(pathtoebook + '.txt', 'wb') as f:
         f.write(text.encode('utf-8'))

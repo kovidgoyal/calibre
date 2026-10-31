@@ -13,13 +13,13 @@ from calibre.db.annotations import unicode_normalize
 from calibre.db.tests.base import BaseTest
 
 
-def print(*args, **kwargs):
+def print(*args, **kwargs) -> None:
     kwargs['file'] = sys.__stdout__
     builtins.print(*args, **kwargs)
 
 
 class TestConn(Connection):
-    def __init__(self, remove_diacritics=True, language='en', stem_words=False):
+    def __init__(self, remove_diacritics=True, language='en', stem_words=False) -> None:
         from calibre_extensions.sqlite_extension import set_ui_language
 
         set_ui_language(language)
@@ -37,7 +37,7 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
     def execute(self, *a):
         return self.cursor().execute(*a)
 
-    def insert_text(self, text):
+    def insert_text(self, text) -> None:
         self.execute('INSERT INTO fts_table(t) VALUES (?)', (unicode_normalize(text),))
 
     def term_row_counts(self):
@@ -60,23 +60,23 @@ def tokenize(text, flags=None, remove_diacritics=True):
 class FTSTest(BaseTest):
     ae = BaseTest.assertEqual
 
-    def setUp(self):
+    def setUp(self) -> None:
         from calibre_extensions.sqlite_extension import set_ui_language
 
         set_ui_language('en')
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         from calibre_extensions.sqlite_extension import set_ui_language
 
         set_ui_language('en')
 
-    def test_fts_tokenize(self):  # {{{
+    def test_fts_tokenize(self) -> None:  # {{{
         from calibre_extensions.sqlite_extension import FTS5_TOKENIZE_DOCUMENT, FTS5_TOKENIZE_QUERY, set_ui_language
 
         def t(x, s, e, f=0):
             return {'text': x, 'start': s, 'end': e, 'flags': f}
 
-        def tt(text, *expected_tokens, for_query=False):
+        def tt(text, *expected_tokens, for_query=False) -> None:
             flags = FTS5_TOKENIZE_QUERY if for_query else FTS5_TOKENIZE_DOCUMENT
             q = tuple(x['text'] for x in tokenize(text, flags=flags))
             self.ae(q, expected_tokens)
@@ -103,7 +103,7 @@ class FTSTest(BaseTest):
 
     # }}}
 
-    def test_fts_basic(self):  # {{{
+    def test_fts_basic(self) -> None:  # {{{
         conn = TestConn()
         conn.insert_text('two words, and a period. With another.')
         conn.insert_text('and another re-init')
@@ -142,7 +142,7 @@ class FTSTest(BaseTest):
 
     # }}}
 
-    def test_fts_stemming(self):  # {{{
+    def test_fts_stemming(self) -> None:  # {{{
         from calibre_extensions.sqlite_extension import stem
 
         self.ae(stem('run'), 'run')
@@ -182,7 +182,7 @@ class FTSTest(BaseTest):
 
     # }}}
 
-    def test_fts_query_syntax(self):  # {{{
+    def test_fts_query_syntax(self) -> None:  # {{{
         conn = TestConn()
         conn.insert_text('one two three')
         for q in ('"one two three"', 'one + two + three', '"one two" + three'):
@@ -206,7 +206,7 @@ class FTSTest(BaseTest):
 
     # }}}
 
-    def test_fts_indexing(self):
+    def test_fts_indexing(self) -> None:
         pdf_data = '''\
 %PDF-1.1
 %¥±ë
@@ -287,7 +287,7 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(FTSTest)
 
 
-def run_tests():
+def run_tests() -> None:
     from calibre.utils.run_tests import run_tests
 
     run_tests(find_tests)

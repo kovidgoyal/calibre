@@ -59,7 +59,7 @@ Perform some checks on the filesystem representing a library. Reports are {0}
     return parser
 
 
-def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
+def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout) -> None:
     attr = check[0]
     list = getattr(checker, attr, None)
     if list is None:
@@ -78,7 +78,7 @@ def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
             print(f'    {i[0]:<40.40} -{i[1]:<40.40}', file=out)
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if opts.report is None:
         checks = CHECKS
     else:

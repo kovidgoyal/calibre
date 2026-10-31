@@ -28,7 +28,7 @@ List available custom columns. Shows column labels and ids.
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     for col, data in dbctx.run('custom_columns').items():
         if opts.details:
             prints(col)

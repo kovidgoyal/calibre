@@ -66,7 +66,7 @@ def compile_rule(rule):
     ans = func
     if mt.startswith('not_'):
 
-        def ans(filename):
+        def ans(filename) -> bool:
             return not func(filename)
 
     return ans, rule['action'] == 'add'

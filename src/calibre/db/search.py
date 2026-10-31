@@ -114,7 +114,7 @@ def months_ago(dt, num):
 
 
 class DateSearch:  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         self.operators = OrderedDict((
             ('!=', self.ne),
             ('>=', self.ge),
@@ -139,7 +139,7 @@ class DateSearch:  # {{{
         # dateutil reads month.year and year.month as decimal numbers
         self.dotted_month_year_pat = regex.compile(r'(?:\d{1,2}\.\d{4}|\d{4}\.\d{1,2})')
 
-    def specified_field_count(self, query):
+    def specified_field_count(self, query) -> int:
         # Parse with two defaults that differ in every field, any field that
         # comes out the same in both was present in the query. The defaults
         # are in leap years and in months with 31 days so that every valid
@@ -160,7 +160,7 @@ class DateSearch:  # {{{
                 return dbdate.day == query.day
         return False
 
-    def ne(self, *args):
+    def ne(self, *args) -> bool:
         return not self.eq(*args)
 
     def gt(self, dbdate, query, field_count):
@@ -172,7 +172,7 @@ class DateSearch:  # {{{
             return field_count == 3 and dbdate.month == query.month and dbdate.day > query.day
         return False
 
-    def le(self, *args):
+    def le(self, *args) -> bool:
         return not self.gt(*args)
 
     def lt(self, dbdate, query, field_count):
@@ -184,7 +184,7 @@ class DateSearch:  # {{{
             return field_count == 3 and dbdate.month == query.month and dbdate.day < query.day
         return False
 
-    def ge(self, *args):
+    def ge(self, *args) -> bool:
         return not self.lt(*args)
 
     def __call__(self, query, field_iter):
@@ -279,7 +279,7 @@ class DateSearch:  # {{{
 
 
 class NumericSearch:  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         self.operators = OrderedDict((
             ('!=', operator.ne),
             ('>=', operator.ge),
@@ -306,7 +306,7 @@ class NumericSearch:  # {{{
 
             else:
 
-                def valcheck(x):
+                def valcheck(x) -> bool:
                     return True
 
             found = set()
@@ -318,7 +318,7 @@ class NumericSearch:  # {{{
         if query == 'false':
             if location == 'cover':
 
-                def relop(x, y):
+                def relop(x, y) -> bool:
                     return not bool(x)
 
             else:
@@ -413,7 +413,7 @@ def local_forms(x: str) -> set[str]:
 
 
 class BooleanSearch:  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         local_no = local_forms(_('No')) | local_forms(_('no'))
         local_yes = local_forms(_('Yes')) | local_forms(_('yes'))
         local_unchecked = local_forms(_('unchecked'))
@@ -519,7 +519,7 @@ class SavedSearchQueries:  # {{{
     queries = {}
     opt_name = ''
 
-    def __init__(self, db, _opt_name):
+    def __init__(self, db, _opt_name) -> None:
         self.opt_name = _opt_name
         try:
             self._db = weakref.ref(db)
@@ -528,7 +528,7 @@ class SavedSearchQueries:  # {{{
             self._db = lambda: None
         self.load_from_db()
 
-    def load_from_db(self):
+    def load_from_db(self) -> None:
         db = self.db
         if db is not None:
             self.queries = db._pref(self.opt_name, default={})
@@ -544,7 +544,7 @@ class SavedSearchQueries:  # {{{
             x = x.decode(preferred_encoding, 'replace')
         return x
 
-    def add(self, name, value):
+    def add(self, name, value) -> None:
         db = self.db
         if db is not None:
             self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
@@ -557,20 +557,20 @@ class SavedSearchQueries:  # {{{
                 return q
         return None
 
-    def delete(self, name):
+    def delete(self, name) -> None:
         db = self.db
         if db is not None:
             self.queries.pop(self.force_unicode(name), False)
             db._set_pref(self.opt_name, self.queries)
 
-    def rename(self, old_name, new_name):
+    def rename(self, old_name, new_name) -> None:
         db = self.db
         if db is not None:
             self.queries[self.force_unicode(new_name)] = self.queries.get(self.force_unicode(old_name), None)
             self.queries.pop(self.force_unicode(old_name), False)
             db._set_pref(self.opt_name, self.queries)
 
-    def set_all(self, smap):
+    def set_all(self, smap) -> None:
         db = self.db
         if db is not None:
             self.queries = smap
@@ -600,7 +600,7 @@ class Parser(SearchQueryParser):  # {{{
         lookup_saved_search,
         parse_cache,
         allow_templates=True,
-    ):
+    ) -> None:
         self.allow_templates = allow_templates
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
@@ -997,17 +997,17 @@ class Parser(SearchQueryParser):  # {{{
 class LRUCache:  # {{{
     "A simple Least-Recently-Used cache"
 
-    def __init__(self, limit=50):
+    def __init__(self, limit=50) -> None:
         self.item_map = {}
         self.age_map = deque()
         self.limit = limit
 
-    def _move_up(self, key):
+    def _move_up(self, key) -> None:
         if key != self.age_map[-1]:
             self.age_map.remove(key)
             self.age_map.append(key)
 
-    def add(self, key, val):
+    def add(self, key, val) -> None:
         if key in self.item_map:
             self._move_up(key)
             return
@@ -1026,21 +1026,21 @@ class LRUCache:  # {{{
             self._move_up(key)
         return ans
 
-    def clear(self):
+    def clear(self) -> None:
         self.item_map.clear()
         self.age_map.clear()
 
-    def pop(self, key, default=None):
+    def pop(self, key, default=None) -> None:
         self.item_map.pop(key, default)
         try:
             self.age_map.remove(key)
         except ValueError:
             pass
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.item_map
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.age_map)
 
     def __getitem__(self, key):
@@ -1056,7 +1056,7 @@ class LRUCache:  # {{{
 class Search:
     MAX_CACHE_UPDATE = 50
 
-    def __init__(self, db, opt_name, all_search_locations=()):
+    def __init__(self, db, opt_name, all_search_locations=()) -> None:
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
@@ -1069,19 +1069,19 @@ class Search:
     def get_saved_searches(self):
         return self.saved_searches
 
-    def change_locations(self, newlocs):
+    def change_locations(self, newlocs) -> None:
         if frozenset(newlocs) != frozenset(self.all_search_locations):
             self.clear_caches()
             self.parse_cache.clear()
         self.all_search_locations = newlocs
 
-    def update_or_clear(self, dbcache, book_ids=None):
+    def update_or_clear(self, dbcache, book_ids=None) -> None:
         if book_ids and (len(book_ids) * len(self.cache)) <= self.MAX_CACHE_UPDATE:
             self.update_caches(dbcache, book_ids)
         else:
             self.clear_caches()
 
-    def clear_caches(self):
+    def clear_caches(self) -> None:
         self.cache.clear()
 
     def update_caches(self, dbcache, book_ids):
@@ -1091,12 +1091,12 @@ class Search:
         finally:
             sqp.dbcache = sqp.lookup_saved_search = None
 
-    def discard_books(self, book_ids):
+    def discard_books(self, book_ids) -> None:
         book_ids = set(book_ids)
         for query, result in self.cache:
             result.difference_update(book_ids)
 
-    def _update_caches(self, sqp, book_ids):
+    def _update_caches(self, sqp, book_ids) -> None:
         book_ids = sqp.all_book_ids = set(book_ids)
         remove = set()
         for query, result in tuple(self.cache):
@@ -1163,7 +1163,7 @@ class Search:
         finally:
             sqp.dbcache = sqp.lookup_saved_search = None
 
-    def query_is_cacheable(self, sqp, dbcache, query):
+    def query_is_cacheable(self, sqp, dbcache, query) -> bool:
         if query:
             for name, value in sqp.get_queried_fields(query):
                 if name == 'template':

@@ -11,10 +11,10 @@ from calibre.db.utils import ThumbnailCache
 
 
 class UtilsTest(BaseTest):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tdir = tempfile.mkdtemp(prefix='db_test_')
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.tdir)
 
     def init_tc(self, name='1', max_size=1):
@@ -28,7 +28,7 @@ class UtilsTest(BaseTest):
             total += sz
         return total
 
-    def test_thumbnail_cache_invalidate_before_load(self):
+    def test_thumbnail_cache_invalidate_before_load(self) -> None:
         c = self.init_tc()
         self.basic_fill(c)
         c.set_group_id('other')
@@ -61,7 +61,7 @@ class UtilsTest(BaseTest):
         self.assertEqual(len(c), 5)
         self.assertEqual(c.current_size, 19000)
 
-    def test_thumbnail_cache_use_after_shutdown(self):
+    def test_thumbnail_cache_use_after_shutdown(self) -> None:
         # Cover renderers can still be using the cache after it is shutdown,
         # this must neither fail nor resurrect the cache
         c = self.init_tc()
@@ -95,7 +95,7 @@ class UtilsTest(BaseTest):
 
         stop, errors = Event(), []
 
-        def worker():
+        def worker() -> None:
             try:
                 while not stop.is_set():
                     c[3]
@@ -112,7 +112,7 @@ class UtilsTest(BaseTest):
         self.assertEqual(errors, [])
         self.assertFalse(hasattr(c, 'items'), 'index loaded after shutdown')
 
-    def test_thumbnail_cache(self):  # {{{
+    def test_thumbnail_cache(self) -> None:  # {{{
         "Test the operation of the thumbnail cache"
         c = self.init_tc()
         self.assertFalse(hasattr(c, 'total_size'), 'index read on initialization')

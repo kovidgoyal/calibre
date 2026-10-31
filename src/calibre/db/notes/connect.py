@@ -48,7 +48,7 @@ def hash_key(key: str) -> str:
     return xxhash.xxh3_64_hexdigest(key.encode('utf-8'))
 
 
-def remove_with_retry(x, is_dir=False):
+def remove_with_retry(x, is_dir=False) -> None:
     x = make_long_path_useable(x)
     f = shutil.rmtree if is_dir else os.remove
     try:
@@ -106,7 +106,7 @@ class FileTransaction:
 class Notes:
     max_retired_items = 256
 
-    def __init__(self, backend):
+    def __init__(self, backend) -> None:
         self.temp_table_counter = count()
         self.file_txn: FileTransaction | None = None
         conn = backend.get_connection()
@@ -141,7 +141,7 @@ class Notes:
         for cat in backend.deleted_fields:
             self.delete_field(conn, cat)
 
-    def reopen(self, backend):
+    def reopen(self, backend) -> None:
         conn = backend.get_connection()
         conn.notes_dbpath = os.path.join(self.notes_dir, NOTES_DB_NAME)
         conn.execute('ATTACH DATABASE ? AS notes_db', (conn.notes_dbpath,))
@@ -160,14 +160,14 @@ class Notes:
         self.allowed_fields = frozenset(self.allowed_fields)
         SchemaUpgrade(conn, '\n'.join(triggers))
 
-    def rename_field(self, conn, old_field_name, new_field_name):
+    def rename_field(self, conn, old_field_name, new_field_name) -> None:
         conn.execute('UPDATE notes_db.notes SET colname=? WHERE colname=?', (new_field_name, old_field_name))
         old_backup = make_long_path_useable(os.path.join(self.backup_dir, old_field_name))
         new_backup = make_long_path_useable(os.path.join(self.backup_dir, new_field_name))
         if os.path.exists(old_backup) and not os.path.exists(new_backup):
             os.rename(old_backup, new_backup)
 
-    def delete_field(self, conn, field_name):
+    def delete_field(self, conn, field_name) -> None:
         note_ids = conn.get('SELECT id from notes_db.notes WHERE colname=?', (field_name,))
         if note_ids:
             conn.execute(
@@ -243,7 +243,7 @@ class Notes:
         if self.file_txn is not None:
             self.file_txn.moved(src, dest)
 
-    def remove_unreferenced_resources(self, conn):
+    def remove_unreferenced_resources(self, conn) -> None:
         found = False
         for (rhash,) in conn.get('SELECT hash FROM notes_db.resources WHERE hash NOT IN (SELECT resource FROM notes_db.notes_resources_link)'):
             found = True
@@ -257,7 +257,7 @@ class Notes:
         # Can't use colons in filenames on windows safely
         return os.path.join(self.resources_dir, prefix, f'{hashalg}-{digest}')
 
-    def remove_resources(self, conn, note_id, resources_to_potentially_remove, delete_from_link_table=True):
+    def remove_resources(self, conn, note_id, resources_to_potentially_remove, delete_from_link_table=True) -> None:
         if not isinstance(resources_to_potentially_remove, tuple):
             resources_to_potentially_remove = tuple(resources_to_potentially_remove)
         if delete_from_link_table:
@@ -284,7 +284,7 @@ class Notes:
             for (h,) in conn.execute('SELECT resource from notes_db.notes_resources_link WHERE note=?', (note_id,)):
                 yield h
 
-    def set_backup_for(self, field_name, item_id, item_value, marked_up_text, searchable_text, resource_hashes):
+    def set_backup_for(self, field_name, item_id, item_value, marked_up_text, searchable_text, resource_hashes) -> None:
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         self.makedirs(os.path.dirname(path))
         self.prepare_write(path)
@@ -301,7 +301,7 @@ class Notes:
         key = icu_lower(item_value or '')
         return os.path.join(self.retired_dir, hash_key(f'{field_name} {key}'))
 
-    def retire_entry(self, field_name, item_id, item_value, resources, note_id):
+    def retire_entry(self, field_name, item_id, item_value, resources, note_id) -> None:
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         if os.path.exists(path):
             destdir = make_long_path_useable(self.path_to_retired_dir_for_item(field_name, item_id, item_value))
@@ -310,7 +310,7 @@ class Notes:
             self.add_retired_metadata(destdir, resources, note_id)
             self.trim_retired_dir()
 
-    def retire_backup_data(self, field_name, item_value, raw, resources):
+    def retire_backup_data(self, field_name, item_value, raw, resources) -> None:
         destdir = make_long_path_useable(self.path_to_retired_dir_for_item(field_name, None, item_value))
         self.makedirs(destdir)
         doc_path = os.path.join(destdir, DOC_NAME)
@@ -319,7 +319,7 @@ class Notes:
             f.write(raw)
         self.add_retired_metadata(destdir, resources, -1)
 
-    def add_retired_metadata(self, destdir, resources, note_id):
+    def add_retired_metadata(self, destdir, resources, note_id) -> None:
         nif_path = os.path.join(destdir, 'note_id')
         self.prepare_write(nif_path)
         with open(nif_path, 'w') as nif:
@@ -363,7 +363,7 @@ class Notes:
             self.remove_file(srcdir, is_dir=True)
         return note_id
 
-    def remove_retired_entry(self, field_name, item_id, item_value):
+    def remove_retired_entry(self, field_name, item_id, item_value) -> None:
         srcdir = self.path_to_retired_dir_for_item(field_name, item_id, item_value)
         self.remove_file(srcdir, is_dir=True)
 
@@ -470,7 +470,7 @@ class Notes:
             ans[field_name].add(note_id)
         return ans
 
-    def rename_note(self, conn, field_name, old_item_id, new_item_id, new_item_value):
+    def rename_note(self, conn, field_name, old_item_id, new_item_id, new_item_value) -> None:
         note_id = self.note_id_for(conn, field_name, old_item_id)
         if note_id is None:
             return
@@ -490,7 +490,7 @@ class Notes:
             old_note['searchable_text'],
         )
 
-    def trim_retired_dir(self):
+    def trim_retired_dir(self) -> None:
         items = []
         for d in os.scandir(make_long_path_useable(self.retired_dir)):
             items.append(d.path)
@@ -659,10 +659,10 @@ class Notes:
         except apsw.SQLError as e:
             raise FTSQueryError(fts_engine_query, query, e) from e
 
-    def export_non_db_data(self, zf):
+    def export_non_db_data(self, zf) -> None:
         import zipfile
 
-        def add_dir(which):
+        def add_dir(which) -> None:
             for dirpath, _x, filenames in os.walk(make_long_path_useable(which)):
                 for f in filenames:
                     path = os.path.join(dirpath, f)
@@ -674,7 +674,7 @@ class Notes:
         add_dir(self.backup_dir)
         add_dir(self.resources_dir)
 
-    def vacuum(self, conn):
+    def vacuum(self, conn) -> None:
         conn.execute('VACUUM notes_db')
 
     def restore(self, conn, tables, report_progress):

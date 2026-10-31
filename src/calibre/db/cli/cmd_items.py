@@ -113,7 +113,7 @@ Remove one or more items from all books. Authors cannot be removed:
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     action, args = args_to_action(args, ACTIONS)
     if action == 'rename':
         if len(args) != 3:

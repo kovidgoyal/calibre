@@ -21,7 +21,7 @@ class BaseTest(unittest.TestCase):
     longMessage = True
     maxDiff = None
 
-    def setUp(self):
+    def setUp(self) -> None:
         from calibre.utils.recycle_bin import nuke_recycle
 
         nuke_recycle()
@@ -30,7 +30,7 @@ class BaseTest(unittest.TestCase):
         self.library_path = self.mkdtemp()
         self.create_db(self.library_path)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         from calibre.utils.recycle_bin import restore_recyle
 
         restore_recyle()
@@ -112,7 +112,7 @@ class BaseTest(unittest.TestCase):
     def cloned_library(self):
         return self.clone_library(self.library_path)
 
-    def compare_metadata(self, mi1, mi2, exclude=()):
+    def compare_metadata(self, mi1, mi2, exclude=()) -> None:
         allfk1 = mi1.all_field_keys()
         allfk2 = mi2.all_field_keys()
         self.assertEqual(allfk1, allfk2)

@@ -51,7 +51,7 @@ null = object()
 class Table:
     supports_notes = False
 
-    def __init__(self, name, metadata, link_table=None):
+    def __init__(self, name, metadata, link_table=None) -> None:
         self.name, self.metadata = name, metadata
         self.sort_alpha = metadata.get('is_multiple', False) and metadata.get('display', {}).get('sort_alpha', False)
         dt = metadata['datatype']
@@ -70,10 +70,10 @@ class Table:
     def remove_books(self, book_ids, db):
         return set()
 
-    def fix_link_table(self, db):
+    def fix_link_table(self, db) -> None:
         pass
 
-    def fix_case_duplicates(self, db):
+    def fix_case_duplicates(self, db) -> None:
         """If this table contains entries that differ only by case, then merge
         those entries. This can happen in databases created with old versions
         of calibre and non-ascii values, since sqlite's NOCASE only works with
@@ -86,7 +86,7 @@ class VirtualTable(Table):
     A dummy table used for fields that only exist in memory like ondevice
     """
 
-    def __init__(self, name, table_type=ONE_ONE, datatype='text'):
+    def __init__(self, name, table_type=ONE_ONE, datatype='text') -> None:
         metadata = {'datatype': datatype, 'table': name}
         self.table_type = table_type
         Table.__init__(self, name, metadata)
@@ -101,7 +101,7 @@ class OneToOneTable(Table):
 
     table_type = ONE_ONE
 
-    def read(self, db):
+    def read(self, db) -> None:
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
         query = db.execute('SELECT {}, {} FROM {}'.format(idcol, self.metadata['column'], self.metadata['table']))
         if self.unserialize is None:
@@ -120,7 +120,7 @@ class OneToOneTable(Table):
     def is_books_table_column(self):
         return self.metadata.get('table') == 'books' and bool(self.metadata.get('column'))
 
-    def read_from_column_data(self, book_ids, vals):
+    def read_from_column_data(self, book_ids, vals) -> None:
         """Same as read() except the data is supplied by read_books_table_columns()"""
         if self.unserialize is not None:
             vals = map(self.unserialize, vals)
@@ -135,7 +135,7 @@ class OneToOneTable(Table):
         return clean
 
 
-def read_books_table_columns(db, tables):
+def read_books_table_columns(db, tables) -> bool:
     """
     Read all the specified tables, which must be columns in the books table,
     using a single scan of the books table rather than one scan per column,
@@ -161,7 +161,7 @@ def read_books_table_columns(db, tables):
 
 
 class PathTable(OneToOneTable):
-    def set_path(self, book_id, path, db):
+    def set_path(self, book_id, path, db) -> None:
         self.book_col_map[book_id] = path
         db.execute('UPDATE books SET path=? WHERE id=?', (path, book_id))
 
@@ -177,7 +177,7 @@ def sqlite_sort_key(val):
 
 
 class SizeTable(OneToOneTable):
-    def read(self, db):
+    def read(self, db) -> None:
         # A single aggregate pass over data is much faster than running a
         # correlated subquery for every book
         query = db.execute(
@@ -185,7 +185,7 @@ class SizeTable(OneToOneTable):
         )
         self.book_col_map = dict(query)
 
-    def read_from_formats(self, book_ids, formats_table):
+    def read_from_formats(self, book_ids, formats_table) -> bool:
         """Same as read() except the sizes are taken from the scan of the
         data table done by formats_table.read(). Returns False if the formats
         table has no sizes from a read, in which case read() must be used."""
@@ -198,20 +198,20 @@ class SizeTable(OneToOneTable):
         self.book_col_map = {book_id: msg(book_id) for book_id in book_ids}
         return True
 
-    def update_sizes(self, size_map):
+    def update_sizes(self, size_map) -> None:
         self.book_col_map.update(size_map)
 
 
 class UUIDTable(OneToOneTable):
-    def read(self, db):
+    def read(self, db) -> None:
         OneToOneTable.read(self, db)
         self.uuid_to_id_map = {v: k for k, v in self.book_col_map.items()}
 
-    def read_from_column_data(self, book_ids, vals):
+    def read_from_column_data(self, book_ids, vals) -> None:
         OneToOneTable.read_from_column_data(self, book_ids, vals)
         self.uuid_to_id_map = {v: k for k, v in self.book_col_map.items()}
 
-    def update_uuid_cache(self, book_id_val_map):
+    def update_uuid_cache(self, book_id_val_map) -> None:
         for book_id, uuid in book_id_val_map.items():
             self.uuid_to_id_map.pop(self.book_col_map.get(book_id, None), None)  # discard old uuid
             self.uuid_to_id_map[uuid] = book_id
@@ -230,7 +230,7 @@ class UUIDTable(OneToOneTable):
 
 
 class CompositeTable(OneToOneTable):
-    def read(self, db):
+    def read(self, db) -> None:
         self.book_col_map = {}
         d = self.metadata['display']
         self.composite_template = ['composite_template']
@@ -254,7 +254,7 @@ class ManyToOneTable(Table):
     table_type = MANY_ONE
     supports_notes = True
 
-    def read(self, db):
+    def read(self, db) -> None:
         self.id_map = {}
         self.link_map = {}
         self.col_book_map = defaultdict(set)
@@ -262,21 +262,21 @@ class ManyToOneTable(Table):
         self.read_id_maps(db)
         self.read_maps(db)
 
-    def read_id_maps(self, db):
+    def read_id_maps(self, db) -> None:
         query = db.execute('SELECT id, {}, link FROM {}'.format(self.metadata['column'], self.metadata['table']))
         us = identity if self.unserialize is None else self.unserialize
         for id_, val, link in query:
             self.id_map[id_] = us(val)
             self.link_map[id_] = link
 
-    def read_maps(self, db):
+    def read_maps(self, db) -> None:
         cbm = self.col_book_map
         bcm = self.book_col_map
         for book, item_id in db.execute('SELECT book, {} FROM {}'.format(self.metadata['link_column'], self.link_table)):
             cbm[item_id].add(book)
             bcm[book] = item_id
 
-    def fix_link_table(self, db):
+    def fix_link_table(self, db) -> None:
         linked_item_ids = set(self.book_col_map.values())
         extra_item_ids = linked_item_ids - set(self.id_map)
         if extra_item_ids:
@@ -289,7 +289,7 @@ class ManyToOneTable(Table):
                 tuple((x,) for x in extra_item_ids),
             )
 
-    def fix_case_duplicates(self, db):
+    def fix_case_duplicates(self, db) -> None:
         case_map = defaultdict(set)
         for item_id, val in self.id_map.items():
             case_map[icu_lower(val)].add(item_id)
@@ -437,7 +437,7 @@ class ManyToOneTable(Table):
 class RatingTable(ManyToOneTable):
     supports_notes = False
 
-    def read_id_maps(self, db):
+    def read_id_maps(self, db) -> None:
         ManyToOneTable.read_id_maps(self, db)
         # Ensure there are no records with rating=0 in the table. These should
         # be represented as rating:None instead.
@@ -462,7 +462,7 @@ class ManyToManyTable(ManyToOneTable):
     selectq = 'SELECT book, {0} FROM {1} ORDER BY id'
     do_clean_on_remove = True
 
-    def read_maps(self, db):
+    def read_maps(self, db) -> None:
         bcm = defaultdict(list)
         cbm = self.col_book_map
         for book, item_id in db.execute(self.selectq.format(self.metadata['link_column'], self.link_table)):
@@ -471,7 +471,7 @@ class ManyToManyTable(ManyToOneTable):
 
         self.book_col_map = {k: tuple(v) for k, v in bcm.items()}
 
-    def fix_link_table(self, db):
+    def fix_link_table(self, db) -> None:
         linked_item_ids = {item_id for item_ids in self.book_col_map.values() for item_id in item_ids}
         extra_item_ids = linked_item_ids - set(self.id_map)
         if extra_item_ids:
@@ -582,7 +582,7 @@ class ManyToManyTable(ManyToOneTable):
             db.rename_category_item(self.name, table, self.link_table, lcol, item_id, existing_item, self.id_map[new_id])
         return affected_books, new_id
 
-    def fix_case_duplicates(self, db):
+    def fix_case_duplicates(self, db) -> None:
         from calibre.db.write import uniq
 
         case_map = defaultdict(set)
@@ -626,7 +626,7 @@ class ManyToManyTable(ManyToOneTable):
 
 
 class AuthorsTable(ManyToManyTable):
-    def read_id_maps(self, db):
+    def read_id_maps(self, db) -> None:
         self.link_map = lm = {}
         self.asort_map = sm = {}
         self.id_map = im = {}
@@ -678,13 +678,13 @@ class FormatsTable(ManyToManyTable):
     supports_notes = False
     max_sizes = None
 
-    def read_id_maps(self, db):
+    def read_id_maps(self, db) -> None:
         pass
 
-    def fix_case_duplicates(self, db):
+    def fix_case_duplicates(self, db) -> None:
         pass
 
-    def read_maps(self, db):
+    def read_maps(self, db) -> None:
         self.fname_map = fnm = defaultdict(dict)
         self.size_map = sm = defaultdict(dict)
         self.col_book_map = cbm = defaultdict(set)
@@ -728,7 +728,7 @@ class FormatsTable(ManyToManyTable):
             self.size_map.pop(book_id, None)
         return clean
 
-    def set_fname(self, book_id, fmt, fname, db):
+    def set_fname(self, book_id, fmt, fname, db) -> None:
         self.fname_map[book_id][fmt] = fname
         db.execute('UPDATE data SET name=? WHERE book=? AND format=?', (fname, book_id, fmt))
 
@@ -787,13 +787,13 @@ class FormatsTable(ManyToManyTable):
 class IdentifiersTable(ManyToManyTable):
     supports_notes = False
 
-    def read_id_maps(self, db):
+    def read_id_maps(self, db) -> None:
         pass
 
-    def fix_case_duplicates(self, db):
+    def fix_case_duplicates(self, db) -> None:
         pass
 
-    def read_maps(self, db):
+    def read_maps(self, db) -> None:
         self.book_col_map = defaultdict(dict)
         self.col_book_map = defaultdict(set)
         for book, typ, val in db.execute('SELECT book, type, val FROM identifiers'):

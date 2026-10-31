@@ -11,7 +11,7 @@ from calibre.utils.date import now
 source_removal_actions = frozenset({'add', 'automerge'})
 
 
-def merge_extra_files(newdb, book_id, extra_file_map):
+def merge_extra_files(newdb, book_id, extra_file_map) -> None:
     # Files with content identical to an existing extra file are skipped, so
     # that repeated copies do not accumulate merge conflict duplicates.
     # Conflicting files are auto-renamed so that no data is ever discarded.
@@ -59,7 +59,7 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
         return new_book_id
 
 
-def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action):
+def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_books_data, duplicate_action) -> None:
     if not new_book_id:
         return
     if new_authors:

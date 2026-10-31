@@ -38,7 +38,7 @@ def input_unicode(prompt):
     return ans
 
 
-def do_remove_custom_column(db, label, force):
+def do_remove_custom_column(db, label, force) -> None:
     if not force:
         q = input_unicode(_('You will lose all data in the column: %s. Are you sure (y/n)? ') % label)
         if q.lower().strip() != _('y'):
@@ -50,7 +50,7 @@ def do_remove_custom_column(db, label, force):
     prints(f'Column {label!r} removed.')
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         raise SystemExit(_('Error: You must specify a column label'))
 

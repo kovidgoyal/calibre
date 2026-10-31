@@ -116,7 +116,7 @@ Do a full text search on the entire library or a subset of it.
     return parser
 
 
-def output_results_as_text(results, metadata_cache, include_snippets):
+def output_results_as_text(results, metadata_cache, include_snippets) -> None:
     from calibre.ebooks.metadata import authors_to_string
     from calibre.utils.terminal import geometry
 
@@ -138,7 +138,7 @@ def output_results_as_text(results, metadata_cache, include_snippets):
     current_formats = []
     pat = re.compile(r'\s+')
 
-    def print_result():
+    def print_result() -> None:
         m = metadata_cache[current_id]
         print(_('{0} by {1}').format(m['title'], authors_to_string(m['authors'])))
         print(f'Book id: {current_id} Formats: {", ".join(current_formats)}')
@@ -158,7 +158,7 @@ def output_results_as_text(results, metadata_cache, include_snippets):
         print_result()
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the search expression'))

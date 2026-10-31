@@ -10,12 +10,12 @@ from calibre.db.legacy import LibraryDatabase
 db = None
 
 
-def initdb(path):
+def initdb(path) -> None:
     global db
     db = LibraryDatabase(os.path.expanduser(path))
 
 
-def show_stats(path):
+def show_stats(path) -> None:
     from pstats import Stats
 
     s = Stats(path)
@@ -23,7 +23,7 @@ def show_stats(path):
     s.print_stats(30)
 
 
-def main():
+def main() -> None:
     stats = os.path.join(gettempdir(), 'read_db.stats')
     pr = cProfile.Profile()
     initdb('~/test library')

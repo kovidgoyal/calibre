@@ -9,7 +9,7 @@ import numbers
 
 
 class FTSQueryError(ValueError):
-    def __init__(self, query, sql_statement, apsw_error):
+    def __init__(self, query, sql_statement, apsw_error) -> None:
         ValueError.__init__(self, f'Failed to parse search query: {query} with error: {apsw_error}')
         self.query = query
         self.sql_statement = sql_statement

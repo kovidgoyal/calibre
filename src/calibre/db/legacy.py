@@ -55,13 +55,13 @@ def create_backend(
     )
 
 
-def set_global_state(db):
+def set_global_state(db) -> None:
     backend_set_global_state(db.backend)
     set_saved_searches(db, 'saved_searches')
 
 
 class ThreadSafePrefs(MutableMapping):
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = weakref.ref(db)
 
     def has_setting(self, key):
@@ -76,21 +76,21 @@ class ThreadSafePrefs(MutableMapping):
         prefs = db.backend.prefs
         return prefs.__getitem__(key)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         db = self.db()
         assert db is not None
         with db.write_lock:
             prefs = db.backend.prefs
             prefs.__delitem__(key)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         db = self.db()
         assert db is not None
         with db.write_lock:
             prefs = db.backend.prefs
             prefs.__setitem__(key, val)
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         db = self.db()
         assert db is not None
         prefs = db.backend.prefs
@@ -102,13 +102,13 @@ class ThreadSafePrefs(MutableMapping):
         prefs = db.backend.prefs
         return prefs.__iter__()
 
-    def __len__(self):
+    def __len__(self) -> int:
         db = self.db()
         assert db is not None
         prefs = db.backend.prefs
         return prefs.__len__()
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         db = self.db()
         assert db is not None
         prefs = db.backend.prefs
@@ -159,7 +159,7 @@ class ThreadSafePrefs(MutableMapping):
         return prefs.disable_setting
 
     @disable_setting.setter
-    def disable_setting(self, val):
+    def disable_setting(self, val) -> None:
         db = self.db()
         assert db is not None
         prefs = db.backend.prefs
@@ -171,7 +171,7 @@ class ThreadSafePrefs(MutableMapping):
         prefs = db.backend.prefs
         return prefs.get(key, default)
 
-    def set(self, key, val):
+    def set(self, key, val) -> None:
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
@@ -187,7 +187,7 @@ class ThreadSafePrefs(MutableMapping):
             prefs = db.backend.prefs
             return prefs.set_namespaced(namespace, key, val)
 
-    def write_serialized(self, library_path):
+    def write_serialized(self, library_path) -> None:
         db = self.db()
         assert db is not None
         prefs = db.backend.prefs
@@ -277,12 +277,12 @@ class LibraryDatabase:
         restore_all_prefs=False,
         row_factory=False,
         temp_db_path=None,
-    ):
+    ) -> None:
 
         self.is_second_db = is_second_db
         if progress_callback is None:
 
-            def progress_callback(x, y):
+            def progress_callback(x, y) -> bool:
                 return True
 
         self.listeners = set()
@@ -320,11 +320,11 @@ class LibraryDatabase:
         if not self.is_second_db:
             set_saved_searches(self, 'saved_searches')
 
-    def close(self):
+    def close(self) -> None:
         if hasattr(self, 'new_api'):
             self.new_api.close()
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         if hasattr(self, 'backend'):
             delattr(self.backend, 'field_metadata')
             self.data.cache.backend = None
@@ -365,7 +365,7 @@ class LibraryDatabase:
     def last_modified(self):
         return self.new_api.last_modified()
 
-    def check_if_modified(self):
+    def check_if_modified(self) -> None:
         if self.last_modified() > self.last_update_check:
             self.backend.reopen()
             self.new_api.reload_from_db()
@@ -388,14 +388,14 @@ class LibraryDatabase:
     def formatter_template_cache(self):
         return self.data.cache.formatter_template_cache
 
-    def initialize_template_cache(self):
+    def initialize_template_cache(self) -> None:
         self.data.cache.initialize_template_cache()
 
     def all_ids(self):
         "All book ids in the db. This can no longer be a generator because of db locking."
         return tuple(self.new_api.all_book_ids())
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         with self.new_api.safe_read_lock:
             return not bool(self.new_api.fields['title'].table.book_col_map)
 
@@ -411,21 +411,21 @@ class LibraryDatabase:
         except ValueError:
             return []
 
-    def refresh(self, field=None, ascending=True):
+    def refresh(self, field=None, ascending=True) -> None:
         self.data.refresh(field=field, ascending=ascending)
 
     def get_id_from_uuid(self, uuid):
         if uuid:
             return self.new_api.lookup_by_uuid(uuid)
 
-    def add_listener(self, listener):
+    def add_listener(self, listener) -> None:
         """
         Add a listener. Will be called on change events with two arguments.
         Event name and list of affected ids.
         """
         self.listeners.add(listener)
 
-    def notify(self, event, ids=None):
+    def notify(self, event, ids=None) -> None:
         "Notify all listeners"
         if ids is None:
             ids = []
@@ -542,10 +542,10 @@ class LibraryDatabase:
     # }}}
 
     # Custom data {{{
-    def add_custom_book_data(self, book_id, name, val):
+    def add_custom_book_data(self, book_id, name, val) -> None:
         self.new_api.add_custom_book_data(name, {book_id: val})
 
-    def add_multiple_custom_book_data(self, name, val_map, delete_first=False):
+    def add_multiple_custom_book_data(self, name, val_map, delete_first=False) -> None:
         self.new_api.add_custom_book_data(name, val_map, delete_first=delete_first)
 
     def get_custom_book_data(self, book_id, name, default=None):
@@ -554,10 +554,10 @@ class LibraryDatabase:
     def get_all_custom_book_data(self, name, default=None):
         return self.new_api.get_custom_book_data(name, default=default)
 
-    def delete_custom_book_data(self, book_id, name):
+    def delete_custom_book_data(self, book_id, name) -> None:
         self.new_api.delete_custom_book_data(name, book_ids=(book_id,))
 
-    def delete_all_custom_book_data(self, name):
+    def delete_all_custom_book_data(self, name) -> None:
         self.new_api.delete_custom_book_data(name)
 
     def get_ids_for_custom_book_data(self, name):
@@ -565,7 +565,7 @@ class LibraryDatabase:
 
     # }}}
 
-    def sort(self, field, ascending, subsort=False):
+    def sort(self, field, ascending, subsort=False) -> None:
         self.multisort([(field, ascending)])
 
     def get_field(self, index, key, default=None, index_is_id=False):
@@ -589,19 +589,19 @@ class LibraryDatabase:
         book_id = index if index_is_id else self.id(index)
         return self.new_api.copy_format_to(book_id, fmt, dest, use_hardlink=use_hardlink)
 
-    def delete_book(self, book_id, notify=True, commit=True, permanent=False, do_clean=True):
+    def delete_book(self, book_id, notify=True, commit=True, permanent=False, do_clean=True) -> None:
         self.new_api.remove_books((book_id,), permanent=permanent)
         self.data.books_deleted((book_id,))
         if notify:
             self.notify('delete', [book_id])
 
-    def dirtied(self, book_ids, commit=True):
+    def dirtied(self, book_ids, commit=True) -> None:
         self.new_api.mark_as_dirty(frozenset(book_ids) if book_ids is not None else book_ids)
 
     def dirty_queue_length(self):
         return self.new_api.dirty_queue_length()
 
-    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True, callback=None):
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True, callback=None) -> None:
         self.new_api.dump_metadata(book_ids=book_ids, remove_from_dirtied=remove_from_dirtied, callback=callback)
 
     def authors_sort_strings(self, index, index_is_id=False):
@@ -618,12 +618,12 @@ class LibraryDatabase:
             adata = self.new_api._author_data(authors)
             return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
 
-    def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
+    def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False) -> None:
         changed_books = self.new_api.set_sort_for_authors({old_id: new_sort})
         if notify:
             self.notify('metadata', list(changed_books))
 
-    def set_link_field_for_author(self, aid, link, commit=True, notify=False):
+    def set_link_field_for_author(self, aid, link, commit=True, notify=False) -> None:
         changed_books = self.new_api.set_link_for_authors({aid: link})
         if notify:
             self.notify('metadata', list(changed_books))
@@ -635,7 +635,7 @@ class LibraryDatabase:
     def book_on_device_string(self, book_id):
         return self.new_api.field_for('ondevice', book_id)
 
-    def set_book_on_device_func(self, func):
+    def set_book_on_device_func(self, func) -> None:
         self.new_api.fields['ondevice'].set_book_on_device_func(func)
 
     @property
@@ -667,7 +667,7 @@ class LibraryDatabase:
                         break
         return ans
 
-    def set_conversion_options(self, book_id, fmt, options):
+    def set_conversion_options(self, book_id, fmt, options) -> None:
         self.new_api.set_conversion_options({book_id: options}, fmt=fmt)
 
     def conversion_options(self, book_id, fmt):
@@ -676,7 +676,7 @@ class LibraryDatabase:
     def has_conversion_options(self, ids, format='PIPE'):
         return self.new_api.has_conversion_options(ids, fmt=format)
 
-    def delete_conversion_options(self, book_id, fmt, commit=True):
+    def delete_conversion_options(self, book_id, fmt, commit=True) -> None:
         self.new_api.delete_conversion_options((book_id,), fmt=fmt)
 
     def set(self, index, field, val, allow_case_change=False):
@@ -686,7 +686,7 @@ class LibraryDatabase:
         finally:
             self.notify('metadata', [book_id])
 
-    def set_identifier(self, book_id, typ, val, notify=True, commit=True):
+    def set_identifier(self, book_id, typ, val, notify=True, commit=True) -> None:
         with self.new_api.write_lock:
             identifiers = self.new_api._field_for('identifiers', book_id)
             typ, val = clean_identifier(typ, val)
@@ -695,7 +695,7 @@ class LibraryDatabase:
                 self.new_api._set_field('identifiers', {book_id: identifiers})
         self.notify('metadata', [book_id])
 
-    def set_isbn(self, book_id, isbn, notify=True, commit=True):
+    def set_isbn(self, book_id, isbn, notify=True, commit=True) -> None:
         self.set_identifier(book_id, 'isbn', isbn, notify=notify, commit=commit)
 
     def set_tags(self, book_id, tags, append=False, notify=True, commit=True, allow_case_change=False):
@@ -720,7 +720,7 @@ class LibraryDatabase:
         commit=True,
         force_changes=False,
         notify=True,
-    ):
+    ) -> None:
         self.new_api.set_metadata(
             book_id,
             mi,
@@ -732,12 +732,12 @@ class LibraryDatabase:
         if notify:
             self.notify('metadata', [book_id])
 
-    def remove_all_tags(self, ids, notify=False, commit=True):
+    def remove_all_tags(self, ids, notify=False, commit=True) -> None:
         self.new_api.set_field('tags', {book_id: () for book_id in ids})
         if notify:
             self.notify('metadata', ids)
 
-    def _do_bulk_modify(self, field, ids, add, remove, notify):
+    def _do_bulk_modify(self, field, ids, add, remove, notify) -> None:
         add = cleanup_tags(add)
         remove = cleanup_tags(remove)
         remove = set(remove) - set(add)
@@ -758,14 +758,14 @@ class LibraryDatabase:
         if notify:
             self.notify('metadata', ids)
 
-    def bulk_modify_tags(self, ids, add=None, remove=None, notify=False):
+    def bulk_modify_tags(self, ids, add=None, remove=None, notify=False) -> None:
         if remove is None:
             remove = []
         if add is None:
             add = []
         self._do_bulk_modify('tags', ids, add, remove, notify)
 
-    def set_custom_bulk_multiple(self, ids, add=None, remove=None, label=None, num=None, notify=False):
+    def set_custom_bulk_multiple(self, ids, add=None, remove=None, label=None, num=None, notify=False) -> None:
         if remove is None:
             remove = []
         if add is None:
@@ -778,16 +778,16 @@ class LibraryDatabase:
         field = self.custom_field_name(label, num)
         self._do_bulk_modify(field, ids, add, remove, notify)
 
-    def unapply_tags(self, book_id, tags, notify=True):
+    def unapply_tags(self, book_id, tags, notify=True) -> None:
         self.bulk_modify_tags((book_id,), remove=tags, notify=notify)
 
     def is_tag_used(self, tag):
         return icu_lower(tag) in {icu_lower(x) for x in self.new_api.all_field_names('tags')}
 
-    def delete_tag(self, tag):
+    def delete_tag(self, tag) -> None:
         self.delete_tags((tag,))
 
-    def delete_tags(self, tags):
+    def delete_tags(self, tags) -> None:
         with self.new_api.write_lock:
             tag_map = {icu_lower(v): k for k, v in self.new_api._get_id_map('tags').items()}
             tag_ids = (tag_map.get(icu_lower(tag), None) for tag in tags)
@@ -835,10 +835,10 @@ class LibraryDatabase:
         book_id = index if index_is_id else self.id(index)
         return self.new_api.has_format(book_id, fmt)
 
-    def refresh_format_cache(self):
+    def refresh_format_cache(self) -> None:
         self.new_api.refresh_format_cache()
 
-    def refresh_ondevice(self):
+    def refresh_ondevice(self) -> None:
         self.new_api.refresh_ondevice()
 
     def tags_older_than(self, tag, delta, must_have_tag=None, must_have_authors=None):
@@ -852,7 +852,7 @@ class LibraryDatabase:
         book_id = index if index_is_id else self.id(index)
         return self.new_api.get_metadata(book_id, get_cover=get_cover, get_user_categories=get_user_categories, cover_as_data=cover_as_data)
 
-    def rename_series(self, old_id, new_name, change_index=True):
+    def rename_series(self, old_id, new_name, change_index=True) -> None:
         self.new_api.rename_items('series', {old_id: new_name}, change_index=change_index)
 
     def get_custom(self, index, label=None, num=None, index_is_id=False):
@@ -890,10 +890,10 @@ class LibraryDatabase:
         existing_tags = self.all_custom(label=label, num=num)
         return icu_lower(item) in {icu_lower(t) for t in existing_tags}
 
-    def delete_custom_item_using_id(self, item_id, label=None, num=None):
+    def delete_custom_item_using_id(self, item_id, label=None, num=None) -> None:
         self.new_api.remove_items(self.custom_field_name(label, num), (item_id,))
 
-    def rename_custom_item(self, old_id, new_name, label=None, num=None):
+    def rename_custom_item(self, old_id, new_name, label=None, num=None) -> None:
         self.new_api.rename_items(self.custom_field_name(label, num), {old_id: new_name}, change_index=False)
 
     def delete_item_from_multiple(self, item, label=None, num=None):
@@ -965,7 +965,7 @@ class LibraryDatabase:
         if notify:
             self.notify('metadata', list(ids))
 
-    def delete_custom_column(self, label=None, num=None):
+    def delete_custom_column(self, label=None, num=None) -> None:
         self.new_api.delete_custom_column(label, num)
 
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):
@@ -973,7 +973,7 @@ class LibraryDatabase:
             display = {}
         return self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
-    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True, update_last_modified=False):
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True, update_last_modified=False) -> None:
         changed = self.new_api.set_custom_column_metadata(
             num,
             name=name,
@@ -985,12 +985,12 @@ class LibraryDatabase:
         if changed and notify:
             self.notify('metadata', [])
 
-    def remove_cover(self, book_id, notify=True, commit=True):
+    def remove_cover(self, book_id, notify=True, commit=True) -> None:
         self.new_api.set_cover({book_id: None})
         if notify:
             self.notify('cover', [book_id])
 
-    def set_cover(self, book_id, data, notify=True, commit=True):
+    def set_cover(self, book_id, data, notify=True, commit=True) -> None:
         self.new_api.set_cover({book_id: data})
         if notify:
             self.notify('cover', [book_id])
@@ -1011,7 +1011,7 @@ class LibraryDatabase:
             self.notify('metadata', [book_id])
         return ret
 
-    def remove_format(self, index, fmt, index_is_id=False, notify=True, commit=True, db_only=False):
+    def remove_format(self, index, fmt, index_is_id=False, notify=True, commit=True, db_only=False) -> None:
         book_id = index if index_is_id else self.id(index)
         self.new_api.remove_formats({book_id: (fmt,)}, db_only=db_only)
         if notify:
@@ -1129,7 +1129,7 @@ for field in (
 
         elif field == 'has_cover':
 
-            def func(self, book_id, val):
+            def func(self, book_id, val) -> None:
                 self.new_api.set_field('cover', {book_id: bool(val)})
 
         else:
@@ -1229,7 +1229,7 @@ for field in ('publisher', 'series', 'tag'):
     def getter(field):
         fname = 'tags' if field == 'tag' else field
 
-        def func(self, item_id):
+        def func(self, item_id) -> None:
             self.new_api.remove_items(fname, (item_id,))
 
         return func

@@ -35,7 +35,7 @@ def read_opf(dirpath, read_annotations=True):
     return mi, timestamp, annotations
 
 
-def is_ebook_file(filename):
+def is_ebook_file(filename) -> bool:
     ext = os.path.splitext(filename)[1]
     if not ext:
         return False
@@ -47,7 +47,7 @@ def is_ebook_file(filename):
 
 
 class Restorer(Cache):
-    def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y: True):
+    def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y: True) -> None:
         backend = DB(
             library_path,
             default_prefs=default_prefs,
@@ -60,12 +60,12 @@ class Restorer(Cache):
             setattr(self, '_' + x, self.no_op)
         self.init()
 
-    def no_op(self, *args, **kwargs):
+    def no_op(self, *args, **kwargs) -> None:
         pass
 
 
 class Restore(Thread):
-    def __init__(self, library_path, progress_callback: Callable[..., Any] | None = None):
+    def __init__(self, library_path, progress_callback: Callable[..., Any] | None = None) -> None:
         super().__init__()
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
@@ -120,7 +120,7 @@ class Restore(Thread):
                 ans += '\t' + x
         return ans
 
-    def run(self):
+    def run(self) -> None:
         try:
             basedir = os.path.dirname(self.src_library_path)
             try:
@@ -153,7 +153,7 @@ class Restore(Thread):
             for book, tb in self.failed_restores:
                 self.tb += f'\n\n-------------\nFailed to restore: {book["path"]}\n{tb}'
 
-    def load_preferences(self):
+    def load_preferences(self) -> bool:
         self.progress_callback(None, 1)
         self.progress_callback(_('Starting restoring preferences and column metadata'), 0)
         prefs_path = os.path.join(self.src_library_path, 'metadata_db_prefs_backup.json')
@@ -176,7 +176,7 @@ class Restore(Thread):
             self.progress_callback(_('Restoring preferences and column metadata failed'), 0)
         return False
 
-    def scan_library(self):
+    def scan_library(self) -> None:
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):
             with suppress(ValueError):
                 dirnames.remove(TRASH_DIR_NAME)
@@ -196,7 +196,7 @@ class Restore(Thread):
                 traceback.print_exc()
             self.progress_callback(_('Processed') + ' ' + dirpath, i + 1)
 
-    def process_dir(self, dirpath, dirnames, filenames, book_id):
+    def process_dir(self, dirpath, dirnames, filenames, book_id) -> None:
         book_id = int(book_id)
 
         def safe_mtime(path):
@@ -240,7 +240,7 @@ class Restore(Thread):
                 if existing_link is None or (existing_link != link and timestamp < mi.timestamp):
                     dest[item] = link, mi.timestamp
 
-    def create_cc_metadata(self):
+    def create_cc_metadata(self) -> None:
         self.books.sort(key=itemgetter('timestamp'))
         self.custom_columns = {}
         fields = ('label', 'name', 'datatype', 'is_multiple', 'is_editable', 'display')
@@ -272,7 +272,7 @@ class Restore(Thread):
                 self.progress_callback(_('Creating custom column ') + str(args[0]), i + 1)
         db.close()
 
-    def restore_books(self):
+    def restore_books(self) -> None:
         self.progress_callback(None, len(self.books))
         self.books.sort(key=itemgetter('id'))
 
@@ -309,7 +309,7 @@ class Restore(Thread):
                         db.set_link_map(field, {k: v[0] for k, v in lmap.items()})
             self.notes_errors = db.backend.restore_notes(self.progress_callback)
 
-    def replace_db(self):
+    def replace_db(self) -> None:
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
         ndbpath = os.path.join(self.library_path, 'metadata.db')
         sleep_time = 30 if iswindows else 0

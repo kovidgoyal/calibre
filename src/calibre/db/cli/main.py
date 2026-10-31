@@ -144,7 +144,7 @@ def read_credentials(opts):
 
 
 class DBCtx:
-    def __init__(self, opts, option_parser):
+    def __init__(self, opts, option_parser) -> None:
         self.option_parser = option_parser
         self.library_path = opts.library_path or prefs['library_path']
         self.timeout = opts.timeout
@@ -206,7 +206,7 @@ class DBCtx:
             return self.remote_run(name, m, *args)
         return m.implementation(self.db.new_api, None, *args)
 
-    def interpret_http_error(self, err):
+    def interpret_http_error(self, err) -> None:
         if err.code == http.client.UNAUTHORIZED:
             if self.has_credentials:
                 raise SystemExit('The username/password combination is incorrect')
@@ -238,7 +238,7 @@ class DBCtx:
             raise SystemExit(ans['err'])
         return ans['result']
 
-    def list_libraries(self):
+    def list_libraries(self) -> None:
         from mechanize import HTTPError
 
         assert self.url is not None

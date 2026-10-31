@@ -110,7 +110,7 @@ def get_fields(dbctx):
     yield 'cover', c
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if opts.list_fields:
         ans = get_fields(dbctx)
         prints('{:<40}'.format(_('Title')), _('Field name'), '\n')
@@ -118,7 +118,7 @@ def main(opts, args, dbctx):
             prints('{:<40}'.format(m['name']), key)
         return 0
 
-    def verify_int(x):
+    def verify_int(x) -> bool | None:
         try:
             int(x)
             return True

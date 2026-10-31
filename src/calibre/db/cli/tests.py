@@ -22,7 +22,7 @@ from polyglot.io import PolyglotBytesIO
 
 
 class Checker:
-    def __init__(self, kw):
+    def __init__(self, kw) -> None:
         for k, v in kw.items():
             setattr(self, k, v)
 
@@ -34,7 +34,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
 
     check = ('dummy_check', 'Dummy Check')
 
-    def test_prints_nothing_if_no_errors(self):
+    def test_prints_nothing_if_no_errors(self) -> None:
         stdout = PolyglotBytesIO()
         checker = Checker(dict.fromkeys(self.check))
         _print_check_library_results(checker, self.check, as_csv=False, out=stdout)
@@ -42,7 +42,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         _print_check_library_results(checker, self.check, as_csv=True, out=stdout)
         self.assertEqual(stdout.getvalue(), b'')
 
-    def test_human_readable_output(self):
+    def test_human_readable_output(self) -> None:
         """
         Basic check of the human-readable output.
 
@@ -66,7 +66,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
 
         self.assertEqual(result[-1], '')
 
-    def test_basic_csv_output(self):
+    def test_basic_csv_output(self) -> None:
         """
         Test simple csv output
         """
@@ -80,7 +80,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         parsed_result = [l for l in csv.reader(result) if l]
         self.assertEqual(parsed_result, [[self.check[1], data[0][0], data[0][1]]])
 
-    def test_escaped_csv_output(self):
+    def test_escaped_csv_output(self) -> None:
         """
         Test more complex csv output
         """
@@ -96,7 +96,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
 
 
 class ListCategoriesTest(unittest.TestCase):
-    def test_list_output_is_text(self):
+    def test_list_output_is_text(self) -> None:
         data = [{'category': 'Authors', 'tag_count': 3, 'divided': 10}]
         out = StringIO()
         with redirect_stdout(out):
@@ -106,7 +106,7 @@ class ListCategoriesTest(unittest.TestCase):
 
 
 class SetCustomTest(BaseTest):
-    def test_set_custom_append_multiple_values(self):
+    def test_set_custom_append_multiple_values(self) -> None:
         from calibre.db.cli.cmd_set_custom import implementation
 
         db = self.init_cache()
@@ -145,7 +145,7 @@ class FTSSearchTest(BaseTest):
             main(opts, args, DBCtx())
         return out.getvalue()
 
-    def test_fts_search_indexing_threshold(self):
+    def test_fts_search_indexing_threshold(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         # the cache fts jobs will index formats, changing the numbers, so disable it
@@ -171,7 +171,7 @@ class NotesTest(BaseTest):
         class DBCtx:
             option_parser = None
 
-            def __init__(self, is_remote: bool):
+            def __init__(self, is_remote: bool) -> None:
                 self.is_remote = is_remote
 
             def run(self, name, *args):
@@ -183,7 +183,7 @@ class NotesTest(BaseTest):
             main(opts, args, dbctx)
         return out.getvalue()
 
-    def test_notes(self):
+    def test_notes(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         self.assertEqual(self.run_notes(db, 'list'), '')
@@ -220,7 +220,7 @@ class NotesTest(BaseTest):
             with self.subTest(args=args), self.assertRaisesRegex(SystemExit, msg):
                 self.run_notes(db, *args)
 
-    def test_notes_search(self):
+    def test_notes_search(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         author_id = db.get_item_id('authors', 'Author One')
@@ -266,7 +266,7 @@ class NotesTest(BaseTest):
         output = self.run_notes(db, 'search', 'terminal')
         self.assertEqual(output, 'authors\tAuthor One\tAuthor One terminal[31m with newlines and tabs\n')
 
-    def test_notes_server_side_import(self):
+    def test_notes_server_side_import(self) -> None:
         from calibre.db.cli.cmd_notes import implementation
 
         db = self.init_cache()
@@ -279,7 +279,7 @@ class NotesTest(BaseTest):
             f.write('<p>secret</p><img src="image.png">')
         author_id = db.get_item_id('authors', 'Author One')
 
-        def notify_changes(*a):
+        def notify_changes(*a) -> None:
             pass
 
         # Paths must never be read on the server
@@ -308,7 +308,7 @@ class NotesTest(BaseTest):
 class RestoreDatabaseTest(BaseTest):
     REPORT_NAME = 'calibre_db_restore_report.txt'
 
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
         cache = self.init_cache()
         cache.dump_metadata()
@@ -328,11 +328,11 @@ class RestoreDatabaseTest(BaseTest):
         self.prev_cwd = os.getcwd()
         os.chdir(self.cwd)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         os.chdir(self.prev_cwd)
         super().tearDown()
 
-    def corrupt_opf(self, book_id):
+    def corrupt_opf(self, book_id) -> None:
         with open(os.path.join(self.book_dirs[book_id], 'metadata.opf'), 'wb') as f:
             f.write(b'not an opf')
 
@@ -343,7 +343,7 @@ class RestoreDatabaseTest(BaseTest):
         library_path = self.library_path
 
         class DBCtx:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.library_path = library_path
 
         opts, args = option_parser(get_parser, []).parse_args(['--really-do-it'])
@@ -358,7 +358,7 @@ class RestoreDatabaseTest(BaseTest):
     def report_path(self):
         return os.path.join(self.cwd, self.REPORT_NAME)
 
-    def assert_restore_succeeded(self):
+    def assert_restore_succeeded(self) -> None:
         ret, out, err = self.run_restore()
         self.assertEqual(ret, 0, err)
         self.assertIn('Restoring database succeeded', out)
@@ -367,10 +367,10 @@ class RestoreDatabaseTest(BaseTest):
         self.assertTrue(os.path.exists(os.path.join(self.library_path, 'metadata_pre_restore.db')))
         self.assertEqual(self.restored_titles(), self.titles)
 
-    def test_restore_succeeded(self):
+    def test_restore_succeeded(self) -> None:
         self.assert_restore_succeeded()
 
-    def restore_without_notes(self, with_preferences):
+    def restore_without_notes(self, with_preferences) -> None:
         if with_preferences:
             cache = self.init_cache()
             cache.saved_search_add('Restored search', 'title:test')
@@ -386,13 +386,13 @@ class RestoreDatabaseTest(BaseTest):
         if with_preferences:
             self.assertEqual(self.init_cache().saved_search_lookup('Restored search'), 'title:test')
 
-    def test_restore_without_notes(self):
+    def test_restore_without_notes(self) -> None:
         self.restore_without_notes(with_preferences=False)
 
-    def test_restore_without_notes_with_preferences(self):
+    def test_restore_without_notes_with_preferences(self) -> None:
         self.restore_without_notes(with_preferences=True)
 
-    def test_restore_partially_failed(self):
+    def test_restore_partially_failed(self) -> None:
         bad_id = min(self.titles)
         self.corrupt_opf(bad_id)
         ret, out, err = self.run_restore()
@@ -405,7 +405,7 @@ class RestoreDatabaseTest(BaseTest):
         del expected[bad_id]
         self.assertEqual(self.restored_titles(), expected)
 
-    def test_restore_failed(self):
+    def test_restore_failed(self) -> None:
         for book_id in self.titles:
             self.corrupt_opf(book_id)
         ret, out, err = self.run_restore()
@@ -435,7 +435,7 @@ class ItemsTest(BaseTest):
             main(opts, args, DBCtx())
         return out.getvalue()
 
-    def test_items(self):
+    def test_items(self) -> None:
         from calibre.db.cli.cmd_items import supported_fields
 
         db = self.init_cache()
@@ -487,7 +487,7 @@ class ItemsTest(BaseTest):
         self.assertEqual(db.field_for('publisher', 2), 'Pub')
         self.assertEqual(db.field_for('authors', 2), ('Writer',))
 
-    def test_items_remote(self):
+    def test_items_remote(self) -> None:
         from calibre.db.cli.cmd_items import implementation
 
         db = self.init_cache()
@@ -531,7 +531,7 @@ class AnnotationsTest(BaseTest):
             main(opts, args, DBCtx())
         return out.getvalue()
 
-    def test_annotations(self):
+    def test_annotations(self) -> None:
         import json
 
         from calibre.utils.date import EPOCH, utcnow
@@ -609,7 +609,7 @@ class AnnotationsTest(BaseTest):
                 self.run_annotations(db, *args)
         self.assertEqual(len(self.run_annotations(db, 'list').splitlines()), 3)
 
-    def test_annotations_import(self):
+    def test_annotations_import(self) -> None:
         from io import BytesIO
 
         from calibre.utils.date import EPOCH
@@ -671,7 +671,7 @@ class AnnotationsTest(BaseTest):
                 self.assertTrue(shared['removed'])
         self.assertEqual(db.annotations_map_for_book(1, 'FMT1')['highlight'][0]['highlighted_text'], 'Original')
 
-    def test_annotations_import_invalid(self):
+    def test_annotations_import_invalid(self) -> None:
         from copy import deepcopy
         from io import BytesIO
 
@@ -746,7 +746,7 @@ class AnnotationsTest(BaseTest):
         with self.assertRaisesRegex(SystemExit, 'Failed to read'):
             self.run_annotations(db, 'import', '1', 'FMT1', path)
 
-    def test_annotations_import_normalization(self):
+    def test_annotations_import_normalization(self) -> None:
         from io import BytesIO
 
         from calibre.db.cli.cmd_annotations import implementation
@@ -783,7 +783,7 @@ class AnnotationsTest(BaseTest):
             hmap['naive'], {'type': 'highlight', 'uuid': 'naive', 'timestamp': '2026-01-02T03:04:05.678Z', 'style': {'kind': 'color', 'which': 'yellow'}}
         )
 
-    def test_annotations_import_users(self):
+    def test_annotations_import_users(self) -> None:
         from io import BytesIO
 
         from calibre.utils.date import EPOCH
@@ -823,7 +823,7 @@ class AnnotationsTest(BaseTest):
         self.assertEqual({b['title'] for b in db.annotations_map_for_book(2, 'FMT1')['bookmark']}, {'local', 'web'})
         self.assertEqual(db.annotations_map_for_book(2, 'FMT1', user_type='web', user='reader'), {})
 
-    def test_annotations_import_stdin(self):
+    def test_annotations_import_stdin(self) -> None:
         from io import BytesIO, TextIOWrapper
         from unittest.mock import patch
 
@@ -839,7 +839,7 @@ class AnnotationsTest(BaseTest):
             self.assertEqual(self.run_annotations(db, 'import', '1', 'FMT1', '-'), '1 annotations imported\n')
         self.assertEqual(db.annotations_map_for_book(1, 'FMT1')['bookmark'][0]['title'], 'Imported')
 
-    def test_annotations_search(self):
+    def test_annotations_search(self) -> None:
         from calibre.utils.date import EPOCH
         from calibre.utils.iso8601 import parse_iso8601
         from calibre.utils.localization import bcp47_locale_name
@@ -904,7 +904,7 @@ class AnnotationsTest(BaseTest):
                 self.assertNotIn('\x1f', notes[0]['text'])
         self.assertFalse(changes)
 
-    def test_annotations_search_invalid(self):
+    def test_annotations_search_invalid(self) -> None:
         db = self.init_cache()
         for args, msg in (
             (('search',), 'non-empty'),
@@ -922,7 +922,7 @@ class AnnotationsTest(BaseTest):
 
 
 class SavedSearchesTest(BaseTest):
-    def test_saved_searches_remote(self):
+    def test_saved_searches_remote(self) -> None:
         from calibre.db.cli.cmd_saved_searches import implementation
 
         db = self.init_cache()
@@ -963,7 +963,7 @@ class SavedSearchesTest(BaseTest):
             main(opts, args, DBCtx())
         return out.getvalue()
 
-    def test_saved_searches(self):
+    def test_saved_searches(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         initial = self.run_saved_searches(db, 'list')
@@ -991,7 +991,7 @@ class DataFilesTest(BaseTest):
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
         class DBCtx:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.is_remote = is_remote
 
             def path(self, path):
@@ -1014,7 +1014,7 @@ class DataFilesTest(BaseTest):
             self.assertEqual(main(opts, args, ctx), 0)
         return out.getvalue()
 
-    def test_data_files(self):
+    def test_data_files(self) -> None:
         db = self.init_cache()
         source, output = os.path.join(self.mkdtemp(), 'source.txt'), os.path.join(self.mkdtemp(), 'result.txt')
         original = db.format(1, 'FMT1')
@@ -1063,7 +1063,7 @@ class DataFilesTest(BaseTest):
                 os.remove(output)
         self.assertEqual(db.format(1, 'FMT1'), original)
 
-    def test_data_files_invalid_names(self):
+    def test_data_files_invalid_names(self) -> None:
         from calibre.db.cli.cmd_data_files import implementation
 
         db = self.init_cache()
@@ -1130,7 +1130,7 @@ class DataFilesTest(BaseTest):
         self.assertTrue(implementation(db, lambda changes: None, 'add', 1, 'uploaded', (source, b'client bytes'), False)[0])
         self.assertEqual(implementation(db, lambda changes: None, 'get', 1, 'uploaded', dest), (True, b'client bytes'))
 
-    def test_data_files_symlinks(self):
+    def test_data_files_symlinks(self) -> None:
         from calibre.db.cli.cmd_data_files import implementation
 
         db = self.init_cache()
@@ -1152,7 +1152,7 @@ class DataFilesTest(BaseTest):
         self.assertEqual([x['name'] for x in implementation(db, None, 'list', 1)[1]], ['regular'])
         self.assertFalse(implementation(db, None, 'get', 1, 'cover-link', None)[0])
 
-    def test_data_files_existing_names(self):
+    def test_data_files_existing_names(self) -> None:
         from calibre.db.cli.cmd_data_files import implementation
 
         db = self.init_cache()
@@ -1208,7 +1208,7 @@ class DataFilesTest(BaseTest):
             self.assertNotIn('fifo', [x['name'] for x in implementation(db, None, 'list', 1)[1]])
             self.assertFalse(implementation(db, lambda changes: None, 'get', 1, 'fifo', None)[0])
 
-    def test_data_files_output(self):
+    def test_data_files_output(self) -> None:
         import stat
 
         from calibre.constants import get_umask, iswindows
@@ -1255,7 +1255,7 @@ class DataFilesTest(BaseTest):
                 os.remove(output)
         self.assertEqual(sorted(os.listdir(tdir)), [])
 
-    def test_data_files_options(self):
+    def test_data_files_options(self) -> None:
         db = self.init_cache()
         for args in (
             (),
@@ -1298,7 +1298,7 @@ class TrashTest(BaseTest):
             self.last_output = out.getvalue()
         return self.last_output
 
-    def test_trash(self):
+    def test_trash(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         self.assertEqual(self.run_trash(db, 'list'), '')
@@ -1355,7 +1355,7 @@ class TrashTest(BaseTest):
         self.assertIn('emptied', self.run_trash(db, 'empty'))
         self.assertEqual(db.list_trash_entries(), ([], []))
 
-    def test_trash_failures(self):
+    def test_trash_failures(self) -> None:
         from unittest.mock import patch
 
         from calibre.db.cli.cmd_trash import implementation
@@ -1435,7 +1435,7 @@ class VirtualLibrariesTest(BaseTest):
             main(opts, args, DBCtx())
         return out.getvalue()
 
-    def test_virtual_libraries(self):
+    def test_virtual_libraries(self) -> None:
         db = self.init_cache()
         self.addCleanup(db.close)
         self.assertEqual(self.run_vls(db), '')
@@ -1487,7 +1487,7 @@ class VirtualLibrariesTest(BaseTest):
         # Nothing is removed if any of the names do not exist
         self.assertEqual(db.pref('virtual_libraries'), {'Two books': 'id:1 or id:2'})
 
-    def test_virtual_libraries_edge_cases(self):
+    def test_virtual_libraries_edge_cases(self) -> None:
         from calibre.srv.changes import VirtualLibrariesChanged
 
         db = self.init_cache()

@@ -48,7 +48,7 @@ def IDENTITY(x):
 
 
 class InvalidLinkTable(Exception):
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         Exception.__init__(self, name)
         self.field_name = name
 
@@ -58,7 +58,7 @@ class Field:
     is_many_many = False
     is_composite = False
 
-    def __init__(self, name, table, bools_are_tristate, get_template_functions, db_weakref):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions, db_weakref) -> None:
         self.name, self.table = name, table
         dt = self.metadata['datatype']
         self.db_weakref = db_weakref  # this can be an instance of either Cache or LibraryDatabase
@@ -235,7 +235,7 @@ class CompositeField(OneToOneField):
     is_composite = True
     SIZE_SUFFIX_MAP = {suffix: i for i, suffix in enumerate(('', 'K', 'M', 'G', 'T', 'P', 'E'))}
 
-    def __init__(self, name, table, bools_are_tristate, get_template_functions, db_weakref):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions, db_weakref) -> None:
         super().__init__(name, table, bools_are_tristate, get_template_functions, db_weakref)
 
         self._render_cache = {}
@@ -322,7 +322,7 @@ class CompositeField(OneToOneField):
             return self.__render_composite(book_id, mi, formatter, template_cache)
         return ans
 
-    def clear_caches(self, book_ids=None):
+    def clear_caches(self, book_ids=None) -> None:
         with self._lock:
             if book_ids is None:
                 self._render_cache.clear()
@@ -405,7 +405,7 @@ class CompositeField(OneToOneField):
 
 
 class OnDeviceField(OneToOneField):
-    def __init__(self, name, table, bools_are_tristate, get_template_functions, db_weakref):
+    def __init__(self, name, table, bools_are_tristate, get_template_functions, db_weakref) -> None:
         self.name = name
         self.db_weakref = db_weakref
         self.book_on_device_func = None
@@ -430,7 +430,7 @@ class OnDeviceField(OneToOneField):
     def metadata(self):
         return self._metadata
 
-    def clear_caches(self, book_ids=None):
+    def clear_caches(self, book_ids=None) -> None:
         with self._lock:
             if book_ids is None:
                 self.cache.clear()
@@ -447,7 +447,7 @@ class OnDeviceField(OneToOneField):
                 self.cache[book_id] = ans
         return None if ans is null else ans
 
-    def set_book_on_device_func(self, func):
+    def set_book_on_device_func(self, func) -> None:
         self.book_on_device_func = func
 
     def for_book(self, book_id, default_value=None):
@@ -480,7 +480,7 @@ class OnDeviceField(OneToOneField):
 class LazySortMap:
     __slots__ = ('cache', 'default_sort_key', 'id_map', 'sort_key_func')
 
-    def __init__(self, default_sort_key, sort_key_func, id_map):
+    def __init__(self, default_sort_key, sort_key_func, id_map) -> None:
         self.default_sort_key = default_sort_key
         self.sort_key_func = sort_key_func
         self.id_map = id_map
@@ -548,7 +548,7 @@ class ManyToManyField(Field):
     is_many = True
     is_many_many = True
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Field.__init__(self, *args, **kwargs)
 
     def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int | None]:
@@ -709,7 +709,7 @@ class FormatsField(ManyToManyField):
 class LazySeriesSortMap:
     __slots__ = ('cache', 'default_sort_key', 'id_map', 'sort_key_func')
 
-    def __init__(self, default_sort_key, sort_key_func, id_map):
+    def __init__(self, default_sort_key, sort_key_func, id_map) -> None:
         self.default_sort_key = default_sort_key
         self.sort_key_func = sort_key_func
         self.id_map = id_map

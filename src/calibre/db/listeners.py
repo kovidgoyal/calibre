@@ -51,14 +51,14 @@ class EventType(Enum):
 
 
 class EventDispatcher(Thread):
-    def __init__(self):
+    def __init__(self) -> None:
         Thread.__init__(self, name='DBListener', daemon=True)
         self.refs = []
         self.queue = Queue()
         self.activated = False
         self.library_id = ''
 
-    def add_listener(self, callback):
+    def add_listener(self, callback) -> None:
         # note that we intentionally leak dead weakrefs. To not do so would
         # require using a lock to serialize access to self.refs. Given that
         # currently the use case for listeners is register one and leave it
@@ -70,12 +70,12 @@ class EventDispatcher(Thread):
             self.activated = True
             self.start()
 
-    def remove_listener(self, callback):
+    def remove_listener(self, callback) -> None:
         ref = weakref.ref(callback)
         with suppress(ValueError):
             self.refs.remove(ref)
 
-    def __contains__(self, callback):
+    def __contains__(self, callback) -> bool:
         ref = weakref.ref(callback)
         return ref in self.refs
 
@@ -83,13 +83,13 @@ class EventDispatcher(Thread):
         if self.activated:
             self.queue.put((event_name, self.library_id, args))
 
-    def close(self):
+    def close(self) -> None:
         if self.activated:
             self.queue.put(None)
             self.join()
             self.refs = []
 
-    def run(self):
+    def run(self) -> None:
         while True:
             val = self.queue.get()
             if val is None:

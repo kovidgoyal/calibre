@@ -19,19 +19,19 @@ from .pool import Pool
 from .schema_upgrade import SchemaUpgrade
 
 
-def print(*args, **kwargs):
+def print(*args, **kwargs) -> None:
     kwargs['file'] = sys.__stdout__
     builtins.print(*args, **kwargs)
 
 
 class FTS:
-    def __init__(self, dbref):
+    def __init__(self, dbref) -> None:
         self.dbref = dbref
         self.pool = Pool(dbref)
         self.init_lock = Lock()
         self.temp_table_counter = count()
 
-    def initialize(self, conn):
+    def initialize(self, conn) -> None:
         needs_dirty = False
         with self.init_lock:
             if conn.fts_dbpath is None:
@@ -57,7 +57,7 @@ class FTS:
         self.initialize(ans)
         return ans
 
-    def dirty_existing(self):
+    def dirty_existing(self) -> None:
         conn = self.get_connection()
         conn.execute('''
             INSERT OR IGNORE INTO fts_db.dirtied_formats(book, format)
@@ -72,31 +72,31 @@ class FTS:
         conn = self.get_connection()
         return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)
 
-    def clear_all_dirty(self):
+    def clear_all_dirty(self) -> None:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats')
 
-    def vacuum(self):
+    def vacuum(self) -> None:
         conn = self.get_connection()
         conn.execute('VACUUM fts_db')
 
-    def remove_dirty(self, book_id, fmt):
+    def remove_dirty(self, book_id, fmt) -> None:
         conn = self.get_connection()
         conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt.upper()))
 
-    def dirty_book(self, book_id, *fmts):
+    def dirty_book(self, book_id, *fmts) -> None:
         conn = self.get_connection()
         for fmt in fmts:
             conn.execute('INSERT OR IGNORE INTO fts_db.dirtied_formats (book, format) VALUES (?, ?)', (book_id, fmt.upper()))
 
-    def unindex(self, book_id, fmt=None):
+    def unindex(self, book_id, fmt=None) -> None:
         conn = self.get_connection()
         if fmt is None:
             conn.execute('DELETE FROM books_text WHERE book=?', (book_id,))
         else:
             conn.execute('DELETE FROM books_text WHERE book=? AND format=?', (book_id, fmt.upper()))
 
-    def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash='', err_msg=''):
+    def add_text(self, book_id, fmt, text, text_hash='', fmt_size=0, fmt_hash='', err_msg='') -> None:
         conn = self.get_connection()
         ts = (utcnow() - EPOCH).total_seconds()
         fmt = fmt.upper()
@@ -121,7 +121,7 @@ class FTS:
             return book_id, fmt
         return None, None
 
-    def commit_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg=''):
+    def commit_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg='') -> None:
         conn = self.get_connection()
         text_hash = ''
         if text:
@@ -131,7 +131,7 @@ class FTS:
                 break
         self.add_text(book_id, fmt, text, text_hash, fmt_size, fmt_hash, err_msg)
 
-    def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
+    def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time) -> bool:
         conn = self.get_connection()
         fmt = fmt.upper()
         for x in conn.get(
@@ -211,5 +211,5 @@ class FTS:
         except apsw.SQLError as e:
             raise FTSQueryError(fts_engine_query, query, e) from e
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.pool.shutdown()

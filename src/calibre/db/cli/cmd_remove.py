@@ -10,7 +10,7 @@ readonly = False
 version = 0  # change this if you change signature of implementation()
 
 
-def implementation(db, notify_changes, ids, permanent):
+def implementation(db, notify_changes, ids, permanent) -> None:
     try:
         db.remove_books(ids, permanent=permanent)
     except BooksNotRemoved as err:
@@ -37,7 +37,7 @@ list of id numbers (you can get id numbers by using the search command). For exa
     return p
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         raise SystemExit(_('You must specify at least one book to remove'))
 

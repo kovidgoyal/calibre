@@ -11,7 +11,7 @@ class NoTracebackException(Exception):
 
 
 class NoSuchBook(KeyError):
-    def __init__(self, book_id):
+    def __init__(self, book_id) -> None:
         KeyError.__init__(self, f'No book with id: {book_id} in database')
         self.book_id = book_id
 
@@ -23,7 +23,7 @@ class BooksNotRemoved(Exception):
     the other books are removed.
     """
 
-    def __init__(self, failures: dict[int, str], removed: tuple[int, ...]):
+    def __init__(self, failures: dict[int, str], removed: tuple[int, ...]) -> None:
         msg = 'Failed to remove the books with ids: {}\n\n{}'.format(', '.join(map(str, failures)), '\n\n'.join(failures.values()))
         Exception.__init__(self, msg)
         self.failures = failures  # map of book id to error details

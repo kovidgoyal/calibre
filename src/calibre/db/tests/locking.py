@@ -9,7 +9,7 @@ from calibre.db.locking import LockingError, RWLockWrapper, SHLock
 from calibre.db.tests.base import BaseTest
 
 
-def wait_for(period):
+def wait_for(period) -> None:
     # time.sleep() is not useful for very small values on windows because the
     # default timer has a resolutions of about 16ms see
     # https://stackoverflow.com/questions/40594587/why-time-sleep-is-so-slow-in-windows
@@ -21,7 +21,7 @@ def wait_for(period):
 class TestLock(BaseTest):
     """Tests for db locking"""
 
-    def test_owns_locks(self):
+    def test_owns_locks(self) -> None:
         lock = SHLock()
         self.assertFalse(lock.owns_lock())
         lock.acquire(shared=True)
@@ -35,7 +35,7 @@ class TestLock(BaseTest):
 
         done = []
 
-        def test():
+        def test() -> None:
             if not lock.owns_lock():
                 done.append(True)
 
@@ -47,17 +47,17 @@ class TestLock(BaseTest):
         self.assertEqual(len(done), 1)
         lock.release()
 
-    def test_multithread_deadlock(self):
+    def test_multithread_deadlock(self) -> None:
         lock = SHLock()
 
-        def two_shared():
+        def two_shared() -> None:
             r = RWLockWrapper(lock)
             with r:
                 time.sleep(0.2)
                 with r:
                     pass
 
-        def one_exclusive():
+        def one_exclusive() -> None:
             time.sleep(0.1)
             w = RWLockWrapper(lock, is_shared=False)
             with w:
@@ -72,19 +72,19 @@ class TestLock(BaseTest):
         live = [t for t in threads if t.is_alive()]
         self.assertListEqual(live, [], 'ShLock hung')
 
-    def test_upgrade(self):
+    def test_upgrade(self) -> None:
         lock = SHLock()
         lock.acquire(shared=True)
         self.assertRaises(LockingError, lock.acquire, shared=False)
         lock.release()
 
-    def test_downgrade(self):
+    def test_downgrade(self) -> None:
         lock = SHLock()
         lock.acquire(shared=False)
         self.assertRaises(LockingError, lock.acquire, shared=True)
         lock.release()
 
-    def test_recursive(self):
+    def test_recursive(self) -> None:
         lock = SHLock()
         lock.acquire(shared=True)
         lock.acquire(shared=True)
@@ -99,11 +99,11 @@ class TestLock(BaseTest):
         lock.release()
         self.assertFalse(lock.is_exclusive)
 
-    def test_release(self):
+    def test_release(self) -> None:
         lock = SHLock()
         self.assertRaises(LockingError, lock.release)
 
-        def get_lock(shared):
+        def get_lock(shared) -> None:
             lock.acquire(shared=shared)
             time.sleep(1)
             lock.release()
@@ -118,10 +118,10 @@ class TestLock(BaseTest):
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
 
-    def test_acquire(self):
+    def test_acquire(self) -> None:
         lock = SHLock()
 
-        def get_lock(shared):
+        def get_lock(shared) -> None:
             lock.acquire(shared=shared)
             time.sleep(1)
             lock.release()
@@ -157,11 +157,11 @@ class TestLock(BaseTest):
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
 
-    def test_contention(self):
+    def test_contention(self) -> None:
         lock = SHLock()
         done = []
 
-        def lots_of_acquires():
+        def lots_of_acquires() -> None:
             for _ in range(1000):
                 shared = random.choice([True, False])
                 lock.acquire(shared=shared)
@@ -198,7 +198,7 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestLock)
 
 
-def run_tests():
+def run_tests() -> None:
     from calibre.utils.run_tests import run_tests
 
     run_tests(find_tests)

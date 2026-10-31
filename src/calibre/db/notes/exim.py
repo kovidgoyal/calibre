@@ -51,7 +51,7 @@ def import_note(shtml: str | bytes, basedir: str, add_resource) -> tuple[str, st
     root = parse_html(shtml)
     resources = set()
 
-    def ar(img, path_or_data, name):
+    def ar(img, path_or_data, name) -> None:
         rhash = add_resource(path_or_data, name)
         scheme, digest = rhash.split(':', 1)
         img.set('src', f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}')

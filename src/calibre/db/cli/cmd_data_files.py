@@ -90,7 +90,7 @@ def new_data_file(db, book_id, name):
     return DATA_DIR_NAME + '/' + name.replace('\\', '/')
 
 
-def remove_empty_parents(db, book_id, relpath):
+def remove_empty_parents(db, book_id, relpath) -> None:
     # Remove directories left empty by moving a file out of them, but not the
     # data directory itself
     root = data_root(db, book_id)
@@ -222,12 +222,12 @@ def run(dbctx, *args):
     return ans
 
 
-def download(dbctx, book_id, name, output, replace):
+def download(dbctx, book_id, name, output, replace) -> None:
     output = os.path.abspath(output)
     if os.path.isdir(output):
         raise SystemExit(_('The output must be a file, not a directory: {}').format(output))
 
-    def save_to(dest):
+    def save_to(dest) -> None:
         data = run(dbctx, 'get', book_id, name, None if dbctx.is_remote else dest)
         if dbctx.is_remote:
             dest.write(data)
@@ -260,7 +260,7 @@ def download(dbctx, book_id, name, output, replace):
         raise SystemExit(_('Failed to save to {0} with error: {1}').format(output, as_unicode(err)))
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     action, args = args_to_action(args, ACTIONS)
     if len(args) != ARG_COUNTS[action]:
         raise SystemExit(_('Error: Incorrect number of arguments for: {}').format(action))

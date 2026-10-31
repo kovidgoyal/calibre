@@ -30,7 +30,7 @@ def item_id_for(db, field, item_name):
     return item_id, ''
 
 
-def import_note_data(db, field, item_id, html):
+def import_note_data(db, field, item_id, html) -> None:
     # Import from an empty directory so that relative and file: image URLs in
     # the HTML cannot be used to read arbitrary files into the note
     with TemporaryDirectory() as tdir:
@@ -161,7 +161,7 @@ def run(dbctx, *args):
     return ans
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if opts.field is not None and action != 'search':
         raise SystemExit(_('Error: The --field option can only be used with search'))

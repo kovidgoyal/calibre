@@ -30,7 +30,7 @@ YIELD_TIME = 0.01
 
 
 class MaintainPageCounts(Thread):
-    def __init__(self, db_new_api: Cache):
+    def __init__(self, db_new_api: Cache) -> None:
         super().__init__(name='MaintainPageCounts', daemon=True)
         self.shutdown_event = Event()
         self.tick_event = Event()
@@ -54,7 +54,7 @@ class MaintainPageCounts(Thread):
             print(tb, file=f)
             print(file=f)
 
-    def queue_scan(self, book_id: int = 0):
+    def queue_scan(self, book_id: int = 0) -> None:
         self.queue.put(book_id)
 
     def shutdown(self) -> None:
@@ -68,7 +68,7 @@ class MaintainPageCounts(Thread):
         if current_thread().is_alive() and self.is_alive():
             self.join(timeout)
 
-    def run(self):
+    def run(self) -> None:
         self.all_input_formats = {f.upper() for f in all_input_formats()}
         self.sort_order = {fmt.upper(): i for i, fmt in enumerate(prefs['input_format_order'])}
         for i, fmt in enumerate(('PDF', 'CBZ', 'CBR', 'CB7', 'TXT', 'TEXT', 'MD', 'TEXTTILE', 'MARKDOWN', 'EPUB')):

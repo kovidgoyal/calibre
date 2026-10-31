@@ -52,7 +52,7 @@ def annotations_as_copied_list(annots_map):
             yield annot, ts
 
 
-def sort_annot_list_by_position_in_book(annots, annot_type):
+def sort_annot_list_by_position_in_book(annots, annot_type) -> None:
     annots.sort(key={'bookmark': bookmark_sort_key, 'highlight': highlight_sort_key}[annot_type])
 
 
@@ -114,7 +114,7 @@ def safe_timestamp_sort_key(x):
     return ans
 
 
-def merge_annotations(annots, annots_map, merge_last_read=True):
+def merge_annotations(annots, annots_map, merge_last_read=True) -> None:
     # If you make changes to this algorithm also update the
     # implementation in read_book.annotations
     if isinstance(annots, dict):
@@ -213,7 +213,7 @@ def render_bookmark_as_text(
 class ChapterGroup:
     "Group annotations by the chapters they are in, for export"
 
-    def __init__(self, title: str = '', level: int = 0):
+    def __init__(self, title: str = '', level: int = 0) -> None:
         self.title = title
         self.subgroups: dict[str, Self] = {}
         self.annotations: list[dict] = []

@@ -9,7 +9,7 @@ from calibre import detect_ncpus
 from calibre.utils.img import encode_jpeg, optimize_jpeg
 
 
-def compress_worker(input_queue, output_queue, jpeg_quality):
+def compress_worker(input_queue, output_queue, jpeg_quality) -> None:
     while True:
         task = input_queue.get()
         if task is None:
@@ -34,7 +34,7 @@ def compress_worker(input_queue, output_queue, jpeg_quality):
             output_queue.put((book_id, sz))
 
 
-def compress_covers(path_map, jpeg_quality, progress_callback):
+def compress_covers(path_map, jpeg_quality, progress_callback) -> None:
     input_queue = Queue()
     output_queue = Queue()
     num_workers = detect_ncpus()

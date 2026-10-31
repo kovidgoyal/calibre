@@ -6,6 +6,7 @@ import time
 import unittest
 from contextlib import closing
 from io import BytesIO
+from typing import Never
 
 from calibre.constants import iswindows
 from calibre.db.errors import BooksNotRemoved
@@ -31,7 +32,7 @@ class FilesystemTest(BaseTest):
             ans['cover'] = buf.getvalue()
         return ans
 
-    def test_metadata_move(self):
+    def test_metadata_move(self) -> None:
         "Test the moving of files when title/author change"
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -73,7 +74,7 @@ class FilesystemTest(BaseTest):
 
         initial_side_data = {}
 
-        def init_cache():
+        def init_cache() -> None:
             nonlocal cache, initial_side_data
             cache = self.init_cache(self.cloned_library)
             bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
@@ -91,7 +92,7 @@ class FilesystemTest(BaseTest):
                 'a.fmt1': read(os.path.join(bookdir, 'subdir', 'a.fmt1')),
             }
 
-        def check_that_filesystem_and_db_entries_match(book_id):
+        def check_that_filesystem_and_db_entries_match(book_id) -> None:
             bookdir = os.path.dirname(cache.format_abspath(book_id, '__COVER_INTERNAL__'))
             if iswindows:
                 from calibre_extensions import winutil
@@ -150,7 +151,7 @@ class FilesystemTest(BaseTest):
             if x.is_dir():
                 self.assertTrue(os.listdir(x.path))
 
-    def test_rename_of_extra_files(self):
+    def test_rename_of_extra_files(self) -> None:
         cl = self.cloned_library
         cache = self.init_cache(cl)
         cache.add_extra_files(1, {'a': BytesIO(b'aaa'), 'b': BytesIO(b'bbb')})
@@ -166,7 +167,7 @@ class FilesystemTest(BaseTest):
         self.assertEqual(cache.rename_extra_files(1, {'B': 'data/c'}), set())
         self.assertEqual(cache.rename_extra_files(1, {'B': 'data/c'}, replace=True), {'B'})
 
-    def test_extra_file_paths_are_confined_to_book_dir(self):
+    def test_extra_file_paths_are_confined_to_book_dir(self) -> None:
         cl = self.cloned_library
         cache = self.init_cache(cl)
         bookdir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
@@ -208,7 +209,7 @@ class FilesystemTest(BaseTest):
         self.assertEqual(read(victim, 'rb'), b'outside')
 
     @unittest.skipUnless(iswindows, 'Windows only')
-    def test_windows_atomic_move(self):
+    def test_windows_atomic_move(self) -> None:
         "Test book file open in another process when changing metadata"
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -242,7 +243,7 @@ class FilesystemTest(BaseTest):
             self.assertEqual(raw, read(os.path.join(tdir2, 'a'), 'rb'))
             self.assertEqual(raw, read(os.path.join(tdir2, 'b'), 'rb'))
 
-    def test_library_move(self):
+    def test_library_move(self) -> None:
         "Test moving of library"
         from calibre.ptempfile import TemporaryDirectory
 
@@ -264,7 +265,7 @@ class FilesystemTest(BaseTest):
             self.assertFalse(os.path.exists(odir))
             os.mkdir(odir)  # needed otherwise tearDown() fails
 
-    def test_long_filenames(self):
+    def test_long_filenames(self) -> None:
         "Test long file names"
         cache = self.init_cache()
         cache.set_field('title', {1: 'a' * 10000})
@@ -274,14 +275,14 @@ class FilesystemTest(BaseTest):
         fpath = cache.format_abspath(1, cache.formats(1)[0])
         self.assertLessEqual(len(fpath), len(cache.backend.library_path) + cache.backend.PATH_LIMIT * 4)
 
-    def test_reserved_names(self):
+    def test_reserved_names(self) -> None:
         "Test that folders are not created with a windows reserve name"
         cache = self.init_cache()
         cache.set_field('authors', {1: 'con'})
         p = cache.field_for('path', 1).replace(os.sep, '/').split('/')
         self.assertNotIn('con', p)
 
-    def test_fname_change(self):
+    def test_fname_change(self) -> None:
         "Test the changing of the filename but not the folder name"
         cache = self.init_cache()
         title = 'a' * 30 + 'bbb'
@@ -293,7 +294,7 @@ class FilesystemTest(BaseTest):
         fpath = cache.format_abspath(3, 'TXT')
         self.assertEqual(sorted([os.path.basename(fpath)]), sorted(os.listdir(os.path.dirname(fpath))))
 
-    def test_export_import(self):
+    def test_export_import(self) -> None:
         from calibre.db.cache import import_library
         from calibre.utils.exim import Exporter, Importer
 
@@ -374,7 +375,7 @@ class FilesystemTest(BaseTest):
             self.assertEqual(a, b)
             self.assertLess(abs(at - bt), 2)
 
-    def test_backup_database_retries_transient_ioerror(self):
+    def test_backup_database_retries_transient_ioerror(self) -> None:
         import apsw
 
         cache = self.init_cache()
@@ -383,7 +384,7 @@ class FilesystemTest(BaseTest):
         orig_connection = apsw.Connection
 
         class FlakyBackup:
-            def __init__(self, real):
+            def __init__(self, real) -> None:
                 self.real = real
 
             def __enter__(self):
@@ -422,7 +423,7 @@ class FilesystemTest(BaseTest):
 
         # A non-transient I/O error must not be retried
         class FatalBackup(FlakyBackup):
-            def step(self, npages):
+            def step(self, npages) -> Never:
                 step_calls['count'] += 1
                 e = apsw.IOError('disk I/O error')
                 e.extendedresult = apsw.SQLITE_IOERR_WRITE
@@ -442,7 +443,7 @@ class FilesystemTest(BaseTest):
                 apsw.Connection = orig_connection
             self.assertEqual(step_calls['count'], 1)
 
-    def test_backup_database_unlockable_destination(self):
+    def test_backup_database_unlockable_destination(self) -> None:
         import apsw
 
         cache = self.init_cache()
@@ -457,13 +458,13 @@ class FilesystemTest(BaseTest):
                 self.assertRaises(apsw.BusyError, backend._backup_database, path, 'main', busy_timeout=0.2)
                 locker.cursor().execute('ROLLBACK')
 
-    def test_find_books_in_directory(self):
+    def test_find_books_in_directory(self) -> None:
         from calibre.db.adding import compile_rule, find_books_in_directory
 
         def strip(files):
             return frozenset({os.path.basename(x) for x in files})
 
-        def q(one, two):
+        def q(one, two) -> None:
             one, two = {strip(a) for a in one}, {strip(b) for b in two}
             self.assertEqual(one, two)
 

@@ -38,7 +38,7 @@ automatically, every time metadata is changed.
 
 
 class BackupProgress:
-    def __init__(self):
+    def __init__(self) -> None:
         self.total = 0
         self.count = 0
 
@@ -53,7 +53,7 @@ class BackupProgress:
                 prints(f'{(self.count * 100) / float(self.total):.1f}% {book_id} failed')
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     db = dbctx.db
     book_ids = None
     if opts.all:

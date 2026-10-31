@@ -19,7 +19,7 @@ quit = object()
 
 
 class Job:
-    def __init__(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
+    def __init__(self, book_id, fmt, path, fmt_size, fmt_hash, start_time) -> None:
         self.book_id = book_id
         self.fmt = fmt
         self.fmt_size = fmt_size
@@ -29,7 +29,7 @@ class Job:
 
 
 class Result:
-    def __init__(self, job, err_msg=''):
+    def __init__(self, job, err_msg='') -> None:
         self.book_id = job.book_id
         self.fmt = job.fmt
         self.fmt_size = job.fmt_size
@@ -52,7 +52,7 @@ class Worker(Thread):
     max_duration = 30  # minutes
     poll_interval = 0.1  # seconds
 
-    def __init__(self, jobs_queue, supervise_queue):
+    def __init__(self, jobs_queue, supervise_queue) -> None:
         super().__init__(name='FTSWorker', daemon=True)
         self.currently_working = False
         self.jobs_queue = jobs_queue
@@ -60,7 +60,7 @@ class Worker(Thread):
         self.keep_going = True
         self.working = False
 
-    def run(self):
+    def run(self) -> None:
         while self.keep_going:
             x = self.jobs_queue.get()
             if x is quit:
@@ -118,7 +118,7 @@ class Worker(Thread):
 
 
 class Pool:
-    def __init__(self, dbref):
+    def __init__(self, dbref) -> None:
         self.max_workers = 1
         self.jobs_queue = Queue()
         self.supervise_queue = Queue()
@@ -127,17 +127,17 @@ class Pool:
         self.dbref = dbref
         self.keep_going = True
 
-    def initialize(self):
+    def initialize(self) -> None:
         if not self.initialized.is_set():
             self.supervisor_thread = Thread(name='FTSSupervisor', daemon=True, target=self.supervise)
             self.supervisor_thread.start()
             self.expand_workers()
             self.initialized.set()
 
-    def prune_dead_workers(self):
+    def prune_dead_workers(self) -> None:
         self.workers = [w for w in self.workers if w.is_alive()]
 
-    def expand_workers(self):
+    def expand_workers(self) -> None:
         self.prune_dead_workers()
         while len(self.workers) < self.max_workers:
             self.workers.append(self.create_worker())
@@ -147,7 +147,7 @@ class Pool:
         w.start()
         return w
 
-    def shrink_workers(self):
+    def shrink_workers(self) -> None:
         self.prune_dead_workers()
         extra = len(self.workers) - self.max_workers
         while extra > 0:
@@ -160,7 +160,7 @@ class Pool:
         return len(self.workers)
 
     @num_of_workers.setter
-    def num_of_workers(self, num):
+    def num_of_workers(self, num) -> None:
         self.initialize()
         self.prune_dead_workers()
         num = min(max(1, num), detect_ncpus())
@@ -175,16 +175,16 @@ class Pool:
     def num_of_idle_workers(self):
         return sum(0 if w.working else 1 for w in self.workers)
 
-    def check_for_work(self):
+    def check_for_work(self) -> None:
         self.initialize()
         self.supervise_queue.put(check_for_work)
 
-    def add_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
+    def add_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time) -> None:
         self.initialize()
         job = Job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
         self.jobs_queue.put(job)
 
-    def commit_result(self, result):
+    def commit_result(self, result) -> None:
         text = result.text
         err_msg = ''
         if not result.ok:
@@ -196,7 +196,7 @@ class Pool:
         if db is not None:
             db.commit_fts_result(result.book_id, result.fmt, result.fmt_size, result.fmt_hash, text, err_msg, result.start_time)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if self.initialized.is_set():
             self.keep_going = False
             for i in range(2):
@@ -207,7 +207,7 @@ class Pool:
                     self.jobs_queue.put(quit)
             self.initialized.clear()
 
-    def join(self):
+    def join(self) -> None:
         with suppress(AttributeError, PythonFinalizationError):
             self.supervisor_thread.join()
         for w in self.workers:
@@ -217,12 +217,12 @@ class Pool:
 
     # }}}
 
-    def do_check_for_work(self):
+    def do_check_for_work(self) -> None:
         db = self.dbref()
         if db is not None:
             db.queue_next_fts_job()
 
-    def supervise(self):
+    def supervise(self) -> None:
         while self.keep_going:
             x = self.supervise_queue.get()
             try:

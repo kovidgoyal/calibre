@@ -19,7 +19,7 @@ def implementation(db, notify_changes, ctx):
 
 def option_parser(get_parser, args):  # {{{
 
-    def add_plugin_parser_options(fmt, parser):
+    def add_plugin_parser_options(fmt, parser) -> None:
         # Fetch the extension-specific CLI options from the plugin
         # library.catalogs.<format>.py
         plugin = plugin_for_catalog_format(fmt)
@@ -85,7 +85,7 @@ see the different options, specify the name of the output file and then the
 # }}}
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         raise SystemExit(_('You must specify a catalog output file'))
     if opts.ids:

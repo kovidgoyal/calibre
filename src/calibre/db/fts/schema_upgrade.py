@@ -5,7 +5,7 @@ from calibre.utils.resources import get_path as P
 
 
 class SchemaUpgrade:
-    def __init__(self, conn):
+    def __init__(self, conn) -> None:
         self.conn = conn
         conn.execute('BEGIN EXCLUSIVE TRANSACTION')
         try:
@@ -35,6 +35,6 @@ class SchemaUpgrade:
         return self.conn.get('PRAGMA fts_db.user_version', all=False) or 0
 
     @user_version.setter
-    def user_version(self, val):
+    def user_version(self, val) -> None:
         assert self.conn is not None
         self.conn.execute(f'PRAGMA fts_db.user_version={val}')

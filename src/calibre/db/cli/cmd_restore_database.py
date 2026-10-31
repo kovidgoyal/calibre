@@ -48,7 +48,7 @@ The exit status is 0 if the restore succeeded, 1 if it failed completely and
 
 
 class Progress:
-    def __init__(self):
+    def __init__(self) -> None:
         self.total = 1
 
     def __call__(self, msg, step):
@@ -58,7 +58,7 @@ class Progress:
             prints(msg, '...', f'{int(100 * (step / self.total))}%')
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if not opts.really_do_it:
         raise SystemExit(_('You must provide the %s option to do a recovery') % '--really-do-it')
 

@@ -62,7 +62,7 @@ information is the equivalent of what is shown in the Tag browser.
     return parser
 
 
-def do_list(fields, data, opts):
+def do_list(fields, data, opts) -> None:
     from calibre.utils.terminal import ColoredStream, geometry
 
     separator = ' '
@@ -110,15 +110,15 @@ def do_list(fields, data, opts):
 
 
 class StdoutWriter:
-    def __init__(self):
+    def __init__(self) -> None:
         f: IO[bytes] = getattr(sys.stdout, 'buffer', cast('IO[bytes]', sys.stdout))
         self.do_write: Callable[[bytes], int] = f.write
 
-    def write(self, x):
+    def write(self, x) -> None:
         self.do_write(as_bytes(x))
 
 
-def do_csv(fields, data, opts):
+def do_csv(fields, data, opts) -> None:
     csv_print = csv.writer(StdoutWriter(), opts.dialect)
     csv_print.writerow(fields)
     for d in data:
@@ -126,7 +126,7 @@ def do_csv(fields, data, opts):
         csv_print.writerow(row)
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     category_data, field_metadata = dbctx.run('list_categories')
     data = []
     report_on = [c.strip() for c in opts.report.split(',') if c.strip()]

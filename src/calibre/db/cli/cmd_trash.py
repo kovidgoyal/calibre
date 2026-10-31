@@ -135,7 +135,7 @@ def run(dbctx, *args):
     return ans
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     from calibre.utils.date import as_local_time, utcfromtimestamp
 
     action, args = args_to_action(args, ACTIONS)

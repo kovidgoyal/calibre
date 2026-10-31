@@ -25,7 +25,7 @@ class MetadataBackup(Thread):
     thread.
     """
 
-    def __init__(self, db, interval=2, scheduling_interval=0.1):
+    def __init__(self, db, interval=2, scheduling_interval=0.1) -> None:
         super().__init__(name='MetadataBackup', daemon=True)
         self.daemon = True
         self._db = weakref.ref(getattr(db, 'new_api', db))
@@ -41,23 +41,22 @@ class MetadataBackup(Thread):
             raise Abort()
         return ans
 
-    def stop(self):
+    def stop(self) -> None:
         self.stop_running.set()
 
-    def wait(self, interval):
+    def wait(self, interval) -> None:
         if self.stop_running.wait(interval):
             raise Abort()
 
-    def run(self):
+    def run(self) -> None:
         while not self.stop_running.is_set():
             try:
-                if self.wait(self.interval):
-                    break
+                self.wait(self.interval)
                 self.do_one()
             except Abort:
                 break
 
-    def do_one(self):
+    def do_one(self) -> None:
         self.check_dirtied_annotations += 1
         if self.check_dirtied_annotations > 2:
             self.check_dirtied_annotations = 0
@@ -127,6 +126,6 @@ class MetadataBackup(Thread):
 
         self.db.clear_dirtied(book_id, sequence)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         # Legacy compatibility
         pass

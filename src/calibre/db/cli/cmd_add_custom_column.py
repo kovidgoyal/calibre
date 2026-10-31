@@ -75,12 +75,12 @@ datatype is one of: {0}
     return parser
 
 
-def do_add_custom_column(db, label, name, datatype, is_multiple, display):
+def do_add_custom_column(db, label, name, datatype, is_multiple, display) -> None:
     num = db.create_custom_column(label, name, datatype, is_multiple, display=display)
     prints(f'Custom column created with id: {num}')
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 3:
         raise SystemExit(_('You must specify label, name and datatype'))
     do_add_custom_column(dbctx.db, args[0], args[1], args[2], opts.is_multiple, json.loads(opts.display))

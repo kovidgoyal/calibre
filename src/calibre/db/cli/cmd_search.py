@@ -45,7 +45,7 @@ language, for example: %prog search {0}
     return parser
 
 
-def main(opts, args, dbctx):
+def main(opts, args, dbctx) -> int:
     if len(args) < 1:
         raise SystemExit(_('Error: You must specify the search expression'))
     q = ' '.join(args)

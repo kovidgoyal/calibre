@@ -299,7 +299,7 @@ def safe_lower(x):
         return x
 
 
-def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change, case_changes, val_map, is_authors=False):
+def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change, case_changes, val_map, is_authors=False) -> None:
     """Get the db id for the value val. If val does not exist in the db it is
     inserted into the db."""
     kval = kmap(val)
@@ -324,7 +324,7 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change, case_changes,
     val_map[val] = item_id
 
 
-def change_case(case_changes, dirtied, db, table, m, is_authors=False):
+def change_case(case_changes, dirtied, db, table, m, is_authors=False) -> None:
     if is_authors:
         vals = ((val.replace(',', '|'), item_id) for item_id, val in case_changes.items())
     else:
@@ -552,7 +552,7 @@ def dummy(book_id_val_map, *args):
 
 
 class Writer:
-    def __init__(self, field):
+    def __init__(self, field) -> None:
         self.adapter = get_adapter(field.name, field.metadata)
         self.name = field.name
         self.field = field
