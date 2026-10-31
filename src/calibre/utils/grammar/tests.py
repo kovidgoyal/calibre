@@ -15,6 +15,8 @@ from multiprocessing import Pipe
 from threading import Event, Thread
 from unittest.mock import patch
 
+import apsw
+
 from calibre.utils.grammar.backend import (
     DEFAULT_ERROR_THRESHOLD,
     Backend,
@@ -259,7 +261,7 @@ class StubRules(RuleChecker):
 class StubModelBackend(Backend):
     """A checking model that prefers the word fine, corrects Teh to The, bad day to nice day and bad to awful"""
 
-    def __init__(self, downloaded: bool = True):
+    def __init__(self, downloaded: bool = True) -> None:
         super().__init__(gpu_mode='off')
         self.downloaded = downloaded
 
@@ -299,7 +301,7 @@ class StubModelBackend(Backend):
 class InProcessWorker:
     """Run the worker server in a thread of this process, with a stub backend"""
 
-    def __init__(self, client: WorkerClient, backend: StubBackend):
+    def __init__(self, client: WorkerClient, backend: StubBackend) -> None:
         self.client, self.backend = client, backend
 
     def ensure_worker(self) -> Connection:
@@ -315,7 +317,7 @@ class InProcessWorker:
 
 
 class InProcessCheckWorker(GrammarCheckWorker):
-    def __init__(self, backend: StubBackend, cache: ResultCache):
+    def __init__(self, backend: StubBackend, cache: ResultCache) -> None:
         super().__init__(cache=cache)
         self.inprocess = InProcessWorker(self, backend)
 
@@ -327,7 +329,7 @@ class InProcessCheckWorker(GrammarCheckWorker):
 
 
 class InProcessSuggestionWorker(SuggestionWorker):
-    def __init__(self, backend: StubBackend, cache: ResultCache):
+    def __init__(self, backend: StubBackend, cache: ResultCache) -> None:
         super().__init__(cache=cache)
         self.inprocess = InProcessWorker(self, backend)
 
@@ -345,7 +347,7 @@ class TestGrammar(unittest.TestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.tdir, ignore_errors=True)
 
-    def test_grammar_unigram_tokenizer(self):
+    def test_grammar_unigram_tokenizer(self) -> None:
         t = make_tokenizer([(METASPACE, -2.0), (f'{METASPACE}hello', -1.0), ('lo', -3.0), (f'{METASPACE}hel', -3.0), ('w', -4.0), ('o', -4.0), ('r', -4.0)])
         tokens = t.encode('hello  wor')
         pieces = [t.id_to_piece[x.id] for x in tokens]
@@ -359,7 +361,7 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(t.decode(t.encode_ids('xyz hello')), ' hello')
         self.assertEqual(t.encode_ids(''), [t.eos_id])
 
-    def test_grammar_precompiled_charsmap(self):
+    def test_grammar_precompiled_charsmap(self) -> None:
         mapping = {'ﬁ': 'fi', 'Å': 'A', 'Å': 'Å', '\t': ' ', 'ab': 'X'}
         cm = PrecompiledCharsMap(build_charsmap(mapping))
         for src, dest in mapping.items():
@@ -377,7 +379,7 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual([t.id_to_piece[x.id] for x in tokens], [f'{METASPACE}fi', METASPACE, 'X'])
         self.assertEqual([(x.start, x.end) for x in tokens], [(0, 1), (4, 4), (4, 6)])
 
-    def test_grammar_reference_tokenization(self):
+    def test_grammar_reference_tokenization(self) -> None:
         from calibre.utils.grammar.models import is_downloaded, model_files
 
         if not is_downloaded('gec-t5-small', 'cpu'):
@@ -388,7 +390,7 @@ class TestGrammar(unittest.TestCase):
         for text, expected in T5_REFERENCE.items():
             self.assertEqual(t.encode_ids(text), expected, text)
 
-    def test_grammar_edits(self):
+    def test_grammar_edits(self) -> None:
         def edits(original: str, corrected: str, expected: str = '') -> list[tuple[str, str]]:
             nt = NormalizedText(original, identity_spans(original))
             ans = compute_edits(original, nt, corrected)
@@ -425,7 +427,7 @@ class TestGrammar(unittest.TestCase):
         e = compute_edits(original, nt, 'The fish is big.')
         self.assertEqual([(original[x.start : x.end], x.replacement) for x in e], [('are', 'is')])
 
-    def test_grammar_metadata(self):
+    def test_grammar_metadata(self) -> None:
         from calibre.utils.grammar.models import (
             FILE_ROLES,
             canonical_lang,
@@ -470,7 +472,7 @@ class TestGrammar(unittest.TestCase):
         fd = md['models']['gec-t5-small']['variants']['cpu']['tokenizer']
         self.assertEqual(file_path('gec-t5-small', fd), file_path('gec-t5-small', md['models']['gec-t5-small']['variants']['gpu']['tokenizer']))
 
-    def test_grammar_download(self):
+    def test_grammar_download(self) -> None:
         from calibre.utils.grammar.models import DownloadAborted, DownloadCorrupted, FileData, download_file
 
         data = os.urandom(3 * 1024 * 1024 + 17)
@@ -493,7 +495,7 @@ class TestGrammar(unittest.TestCase):
             download_file(fd, path, abort=abort, opener=lambda url: io.BytesIO(data))
         self.assertFalse(os.listdir(os.path.dirname(path)))
 
-    def test_grammar_cache(self):
+    def test_grammar_cache(self) -> None:
         path = os.path.join(self.tdir, 'cache.sqlite')
         issues = (bad_word_issue(0, 3), Issue(4, 4, (), 'Missing', 'm', 'NEURAL_NETWORK', 'NEURAL_NETWORK', 'grammar', 'https://x.org', 'model'))
         results = [ParagraphResult('bad dog. Next.', ((0, 8), (9, 14)), issues, True, True), ParagraphResult('ok', ((0, 2),), ())]
@@ -528,22 +530,22 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(c.get_paragraph_results('m1', ['bad dog. Next.']), {0: results[0]})
         c.close()
 
-    def test_grammar_cache_closes_corrupt_connection(self):
+    def test_grammar_cache_closes_corrupt_connection(self) -> None:
         from calibre.utils.grammar import cache
 
         path = os.path.join(self.tdir, 'corrupt.sqlite')
         with open(path, 'wb') as f:
             f.write(b'not a database' * 100)
         connection_factory, remove = cache.apsw.Connection, os.remove
-        connections = []
+        connections: list[apsw.Connection] = []
 
-        def open_connection(path):
+        def open_connection(path: str) -> apsw.Connection:
             conn = connection_factory(path)
             connections.append(conn)
             self.addCleanup(conn.close)
             return conn
 
-        def remove_closed_file(path):
+        def remove_closed_file(path: str) -> None:
             # Windows does not allow deleting the cache while SQLite has it
             # open. Check the ordering on other platforms as well.
             for conn in connections:
@@ -557,7 +559,7 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(len(connections), 2)
         self.assertIsNotNone(c.conn)
 
-    def test_grammar_gpu_decisions(self):
+    def test_grammar_gpu_decisions(self) -> None:
         from calibre.utils.grammar import backend, gpu
 
         with patch.object(gpu, 'decisions_path', lambda: os.path.join(self.tdir, 'gpu.json')), patch.object(gpu, 'onnxruntime_version', lambda: '1.0'):
@@ -581,7 +583,7 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gpu.gpu_mode_from_string('on'), 'on')
         self.assertEqual(gpu.gpu_mode_from_string('nonsense'), gpu.DEFAULT_GPU_MODE)
 
-    def test_grammar_worker_protocol(self):
+    def test_grammar_worker_protocol(self) -> None:
         from calibre.utils.grammar import worker
 
         cache = ResultCache(None)
@@ -684,7 +686,7 @@ class TestGrammar(unittest.TestCase):
         self.assertTrue(sresponses[-1].done)
         sclient.shutdown()
 
-    def test_grammar_checker(self):
+    def test_grammar_checker(self) -> None:
         c = Checker(StubModelBackend(), StubRules())
         r = c.check_paragraphs(['A bad dog. Teh end. A bad day.', '...'], 'en', CheckOptions(deep=True))
         p = r[0]
@@ -727,7 +729,7 @@ class TestGrammar(unittest.TestCase):
         with patch.object(checker, 'is_language_data_downloaded', lambda lang: False):
             self.assertEqual(len(c.suggest('A sentence')), 2)
 
-    def test_grammar_rules(self):
+    def test_grammar_rules(self) -> None:
         from calibre.utils.grammar.rules import is_language_data_downloaded, langtool_code
 
         self.assertEqual(langtool_code('en'), 'en')
@@ -753,7 +755,7 @@ class TestGrammar(unittest.TestCase):
         issues = rc.check(text, 'en', RuleOptions(disabled_rules=('HE_VERB_AGR',), disabled_categories=('MISC',)))
         self.assertEqual([i.rule_id for i in issues], ['BASE_FORM'])
 
-    def test_grammar_markup_extraction(self):
+    def test_grammar_markup_extraction(self) -> None:
         from html import unescape
 
         from calibre.utils.grammar.markup import PLACEHOLDER, extract_paragraphs
@@ -828,7 +830,7 @@ class TestGrammar(unittest.TestCase):
         check_mapping(src)
         self.assertEqual([src[a:b] for a, b in p.source_ranges(0, len(p.text))], ['An 😀 ', 'emoji', ' 😀.'])
 
-    def test_grammar_markup_edits(self):
+    def test_grammar_markup_edits(self) -> None:
         from calibre.utils.grammar.markup import EditNotPossible, SourceEdit, apply_source_edits, extract_paragraphs, source_edits, visible_issues
 
         def edit(source: str, *edits: tuple[str, str], occurrence: int = 0) -> str:
@@ -890,7 +892,7 @@ class TestGrammar(unittest.TestCase):
         with self.assertRaises(EditNotPossible):
             apply_source_edits('abc', [SourceEdit(0, 2, 'x'), SourceEdit(1, 3, 'y')])
 
-    def test_grammar_markup_random_edits(self):
+    def test_grammar_markup_random_edits(self) -> None:
         import random
 
         from calibre.utils.grammar.markup import EditNotPossible, apply_source_edits, extract_paragraphs, source_edits
@@ -928,7 +930,7 @@ class TestGrammar(unittest.TestCase):
             checked += 1
         self.assertGreater(checked, 250)
 
-    def test_grammar_backend(self):
+    def test_grammar_backend(self) -> None:
         from calibre.utils.grammar.models import is_downloaded
 
         if not is_downloaded('gec-t5-small', 'cpu'):

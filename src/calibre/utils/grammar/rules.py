@@ -68,13 +68,13 @@ DEFAULT_RULE_OPTIONS = RuleOptions()
 
 
 class LanguageDataNotDownloaded(Exception):
-    def __init__(self, code: str):
+    def __init__(self, code: str) -> None:
         self.code = code
         super().__init__(f'The data needed to check the language {code} has not been downloaded')
 
 
 class UnsupportedRulesLanguage(ValueError):
-    def __init__(self, lang: str):
+    def __init__(self, lang: str) -> None:
         self.lang = lang
         super().__init__(f'Grammar checking is not supported for the language: {lang}')
 

@@ -69,7 +69,7 @@ def identity_spans(text: str) -> list[tuple[int, int]]:
 
 
 class Replace:
-    def __init__(self, pattern: ReplacePattern, content: str):
+    def __init__(self, pattern: ReplacePattern, content: str) -> None:
         if 'Regex' in pattern:
             self.pat = re.compile(pattern['Regex'])
         elif 'String' in pattern:
@@ -105,7 +105,7 @@ class PrecompiledCharsMap:
     blob of NUL terminated replacement strings.
     """
 
-    def __init__(self, data: bytes):
+    def __init__(self, data: bytes) -> None:
         if len(data) < 4:
             raise ValueError('Precompiled charsmap is too short')
         (trie_size,) = struct.unpack_from('<I', data)
@@ -178,7 +178,7 @@ class PrecompiledCharsMap:
 
 
 class UnigramTokenizer:
-    def __init__(self, data: TokenizerData):
+    def __init__(self, data: TokenizerData) -> None:
         model = data['model']
         if model['type'] != 'Unigram':
             raise ValueError(f'Unsupported tokenizer model type: {model["type"]}')

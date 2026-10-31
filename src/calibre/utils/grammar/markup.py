@@ -140,7 +140,7 @@ def primary_language(lang: str) -> str:
 class OpenElement:
     __slots__ = ('end_tag', 'has_other_content', 'ignored_from', 'lang', 'name', 'paragraph', 'removable', 'start_tag', 'text_start')
 
-    def __init__(self, name: str, lang: str, start_tag: tuple[int, int], paragraph: int, text_start: int, removable: bool, ignored_from: int):
+    def __init__(self, name: str, lang: str, start_tag: tuple[int, int], paragraph: int, text_start: int, removable: bool, ignored_from: int) -> None:
         self.name, self.lang, self.start_tag = name, lang, start_tag
         self.paragraph, self.text_start = paragraph, text_start
         self.removable = removable
@@ -150,7 +150,7 @@ class OpenElement:
 
 
 class Extractor(HTMLParser):
-    def __init__(self, source: str, default_lang: str = ''):
+    def __init__(self, source: str, default_lang: str = '') -> None:
         super().__init__(convert_charrefs=False)
         self.source = source
         self.default_lang = default_lang

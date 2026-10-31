@@ -135,7 +135,7 @@ class ServerBackend(Protocol):
 
 
 class Server:
-    def __init__(self, requests: Connection, responses: Connection, backend: ServerBackend):
+    def __init__(self, requests: Connection, responses: Connection, backend: ServerBackend) -> None:
         self.requests, self.responses = requests, responses
         self.backend = backend
         self.queue: Queue[Request] = Queue()
@@ -317,7 +317,7 @@ class WorkerClient:
     TASK: Task = 'check'
     THREAD_NAME = 'GrammarWorker'
 
-    def __init__(self, gpu_mode: GpuMode = DEFAULT_GPU_MODE, num_threads: int = 0, priority: str = 'low', cache: ResultCache | None = None):
+    def __init__(self, gpu_mode: GpuMode = DEFAULT_GPU_MODE, num_threads: int = 0, priority: str = 'low', cache: ResultCache | None = None) -> None:
         self.gpu_mode = gpu_mode
         self.num_threads = num_threads
         self.priority = priority

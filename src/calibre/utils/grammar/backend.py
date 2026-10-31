@@ -93,7 +93,7 @@ class Suggestion(NamedTuple):
 
 
 class ModelNotDownloaded(Exception):
-    def __init__(self, model_id: str, variant: Variant):
+    def __init__(self, model_id: str, variant: Variant) -> None:
         self.model_id, self.variant = model_id, variant
         super().__init__(f'The {variant} variant of the grammar model {model_id} has not been downloaded')
 
@@ -103,7 +103,7 @@ class SuggestionsAborted(Exception):
 
 
 class UnsupportedLanguage(ValueError):
-    def __init__(self, task: Task, lang: str):
+    def __init__(self, task: Task, lang: str) -> None:
         self.task, self.lang = task, lang
         super().__init__(f'The language {lang} is not supported for: {task}')
 
@@ -259,7 +259,7 @@ def benchmark(model: Seq2SeqModel, tokenizer: UnigramTokenizer, md: ModelData) -
 
 
 class LoadedModel:
-    def __init__(self, model_id: str, gpu_mode: GpuMode = DEFAULT_GPU_MODE, num_threads: int = 0):
+    def __init__(self, model_id: str, gpu_mode: GpuMode = DEFAULT_GPU_MODE, num_threads: int = 0) -> None:
         self.model_id = model_id
         self.md = model_data(model_id)
         self.gpu_mode = gpu_mode
@@ -360,7 +360,7 @@ class Backend:
     language. Safe to use from multiple threads.
     """
 
-    def __init__(self, gpu_mode: GpuMode = DEFAULT_GPU_MODE, num_threads: int = 0):
+    def __init__(self, gpu_mode: GpuMode = DEFAULT_GPU_MODE, num_threads: int = 0) -> None:
         self.gpu_mode = gpu_mode
         self.num_threads = num_threads
         self.models: dict[str, LoadedModel] = {}

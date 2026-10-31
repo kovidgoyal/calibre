@@ -95,7 +95,7 @@ class Checker:
     from multiple threads.
     """
 
-    def __init__(self, backend: Backend | None = None, rules: RuleChecker | None = None):
+    def __init__(self, backend: Backend | None = None, rules: RuleChecker | None = None) -> None:
         self.backend = backend if backend is not None else Backend()
         self.rules = rules if rules is not None else RuleChecker()
 

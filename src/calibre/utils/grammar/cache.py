@@ -150,7 +150,7 @@ def default_cache_path() -> str:
 class ResultCache:
     """Thread safe cache of check results and suggestions. If path is None, only an in-memory cache is used."""
 
-    def __init__(self, path: str | None = '', max_entries: int = DEFAULT_MAX_ENTRIES, memory_entries: int = DEFAULT_MEMORY_ENTRIES):
+    def __init__(self, path: str | None = '', max_entries: int = DEFAULT_MAX_ENTRIES, memory_entries: int = DEFAULT_MEMORY_ENTRIES) -> None:
         self.max_entries = max_entries
         self.memory_entries = memory_entries
         self.memory: OrderedDict[bytes, str] = OrderedDict()
