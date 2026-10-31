@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from _typeshed import SupportsWrite
 
     from calibre.db.cache import Cache, ExtraFile
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -236,14 +236,14 @@ by the maximum request size of the server.
     return parser
 
 
-def run(dbctx: DBCtx, *args: object) -> object:
+def run(dbctx: DBContext, *args: object) -> object:
     ok, ans = cast('tuple[bool, object]', dbctx.run('data_files', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
 
 
-def download(dbctx: DBCtx, book_id: int, name: str, output: str, replace: bool) -> None:
+def download(dbctx: DBContext, book_id: int, name: str, output: str, replace: bool) -> None:
     output = os.path.abspath(output)
     if os.path.isdir(output):
         raise SystemExit(_('The output must be a file, not a directory: {}').format(output))
@@ -281,7 +281,7 @@ def download(dbctx: DBCtx, book_id: int, name: str, output: str, replace: bool) 
         raise SystemExit(_('Failed to save to {0} with error: {1}').format(output, as_unicode(err)))
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     action, args = args_to_action(args, ACTIONS)
     if len(args) != ARG_COUNTS[action]:
         raise SystemExit(_('Error: Incorrect number of arguments for: {}').format(action))

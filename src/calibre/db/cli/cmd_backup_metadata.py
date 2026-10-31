@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -66,7 +66,7 @@ class BackupProgress:
                 prints(f'{(self.count * 100) / float(self.total):.1f}% {book_id} failed')
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     db = dbctx.db
     book_ids = None
     if opts.all:

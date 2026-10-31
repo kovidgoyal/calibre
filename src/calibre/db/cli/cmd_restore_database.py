@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -69,7 +69,7 @@ class Progress:
             prints(msg, '...', f'{int(100 * (step / self.total))}%')
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if not opts.really_do_it:
         raise SystemExit(_('You must provide the %s option to do a recovery') % '--really-do-it')
 

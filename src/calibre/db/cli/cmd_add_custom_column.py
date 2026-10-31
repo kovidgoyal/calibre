@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -91,7 +91,7 @@ def do_add_custom_column(db: LibraryDatabase, label: str, name: str, datatype: s
     prints(f'Custom column created with id: {num}')
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 3:
         raise SystemExit(_('You must specify label, name and datatype'))
     do_add_custom_column(dbctx.db, args[0], args[1], args[2], opts.is_multiple, json.loads(opts.display))

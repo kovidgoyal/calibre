@@ -23,7 +23,34 @@ from polyglot.io import PolyglotBytesIO
 
 if TYPE_CHECKING:
     from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
     from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import OptionParser
+
+
+class StubDBCtx:
+    """Base class for stand-ins for :class:`calibre.db.cli.main.DBCtx`, used to
+    run commands in tests. Subclasses override whatever the command being tested uses."""
+
+    is_remote: bool = False
+    library_path: str = ''
+
+    @property
+    def option_parser(self) -> OptionParser:
+        raise NotImplementedError('This test does not provide an option parser')
+
+    @property
+    def db(self) -> LibraryDatabase:
+        raise NotImplementedError('This test does not provide a legacy database')
+
+    def path(self, path: str) -> str | tuple[str, bytes]:
+        if self.is_remote:
+            with open(path, 'rb') as f:
+                return path, f.read()
+        return path
+
+    def run(self, name: str, *args: object) -> object:
+        raise NotImplementedError(f'This test does not run the {name} command')
 
 
 class Checker:
@@ -139,15 +166,13 @@ class FTSSearchTest(BaseTest):
         from calibre.db.cli.cmd_fts_search import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
-        class DBCtx:
-            option_parser = None
-
+        class DBCtx(StubDBCtx):
             def run(self, name: str, *args: object) -> object:
                 return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+            main(opts, cmd_args, DBCtx())
         return out.getvalue()
 
     def test_fts_search_indexing_threshold(self) -> None:
@@ -173,9 +198,7 @@ class NotesTest(BaseTest):
         from calibre.db.cli.cmd_notes import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
-        class DBCtx:
-            option_parser = None
-
+        class DBCtx(StubDBCtx):
             def __init__(self, is_remote: bool) -> None:
                 self.is_remote = is_remote
 
@@ -183,9 +206,9 @@ class NotesTest(BaseTest):
                 return implementation(db, (lambda *a: None) if self.is_remote else None, *args)  # ty: ignore[invalid-argument-type]
 
         dbctx = DBCtx(is_remote)
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, dbctx)  # ty: ignore[invalid-argument-type]
+            main(opts, cmd_args, dbctx)
         return out.getvalue()
 
     def test_notes(self) -> None:
@@ -347,13 +370,13 @@ class RestoreDatabaseTest(BaseTest):
 
         library_path = self.library_path
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def __init__(self) -> None:
                 self.library_path = library_path
 
         opts, args = option_parser(get_parser, []).parse_args(['--really-do-it'])
         with redirect_stdout(StringIO()) as out, redirect_stderr(StringIO()) as err:
-            ret = main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+            ret = main(opts, args, DBCtx())
         return ret, out.getvalue(), err.getvalue()
 
     def restored_titles(self) -> dict[int, object]:
@@ -431,13 +454,13 @@ class ItemsTest(BaseTest):
         from calibre.db.cli.cmd_items import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def run(self, name: str, *args: object) -> object:
                 return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+            main(opts, cmd_args, DBCtx())
         return out.getvalue()
 
     def test_items(self) -> None:
@@ -525,15 +548,15 @@ class AnnotationsTest(BaseTest):
 
         notify_changes = (changes if changes is not None else []).append if is_remote else None
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def run(self, name: str, *args: object) -> object:
                 ans = implementation(db, notify_changes, *args)  # ty: ignore[invalid-argument-type]
                 # Remote results are sent as JSON
                 return json.loads(json.dumps(ans)) if is_remote else ans
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+            main(opts, cmd_args, DBCtx())
         return out.getvalue()
 
     def test_annotations(self) -> None:
@@ -959,13 +982,13 @@ class SavedSearchesTest(BaseTest):
         from calibre.db.cli.cmd_saved_searches import implementation, main, option_parser
         from calibre.db.cli.main import get_parser
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def run(self, name: str, *args: object) -> object:
                 return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+            main(opts, cmd_args, DBCtx())
         return out.getvalue()
 
     def test_saved_searches(self) -> None:
@@ -995,15 +1018,9 @@ class DataFilesTest(BaseTest):
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def __init__(self) -> None:
                 self.is_remote = is_remote
-
-            def path(self, path: str) -> str | tuple[str, bytes]:
-                if is_remote:
-                    with open(path, 'rb') as f:
-                        return path, f.read()
-                return path
 
             def run(self, name: str, *args: object) -> object:
                 from calibre.db.cli import module_for_cmd
@@ -1014,9 +1031,9 @@ class DataFilesTest(BaseTest):
                 return impl(db, None, *args)
 
         ctx = DBCtx()
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            self.assertEqual(main(opts, args, ctx), 0)  # ty: ignore[invalid-argument-type]
+            self.assertEqual(main(opts, cmd_args, ctx), 0)
         return out.getvalue()
 
     def test_data_files(self) -> None:
@@ -1287,18 +1304,18 @@ class TrashTest(BaseTest):
 
         changes = []
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def run(self, name: str, *args: object) -> object:
                 if is_remote:
                     # Results are sent over the network by the Content server
                     return msgpack_loads(msgpack_dumps(implementation(db, changes.append, *msgpack_loads(msgpack_dumps(args)))))
                 return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         self.changes = changes
         try:
             with redirect_stdout(StringIO()) as out:
-                main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+                main(opts, cmd_args, DBCtx())
         finally:
             self.last_output = out.getvalue()
         return self.last_output
@@ -1427,7 +1444,7 @@ class VirtualLibrariesTest(BaseTest):
         from calibre.db.cli.main import get_parser
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
-        class DBCtx:
+        class DBCtx(StubDBCtx):
             def run(self, name: str, *args: object) -> object:
                 if is_remote:
                     # Results are sent over the network by the Content server
@@ -1435,9 +1452,9 @@ class VirtualLibrariesTest(BaseTest):
                     return msgpack_loads(msgpack_dumps(implementation(db, notify_changes, *msgpack_loads(msgpack_dumps(args)))))
                 return implementation(db, None, *args)  # ty: ignore[invalid-argument-type]
 
-        opts, args = option_parser(get_parser, []).parse_args(list(args))  # ty: ignore[invalid-assignment]
+        opts, cmd_args = option_parser(get_parser, []).parse_args(list(args))
         with redirect_stdout(StringIO()) as out:
-            main(opts, args, DBCtx())  # ty: ignore[invalid-argument-type]
+            main(opts, cmd_args, DBCtx())
         return out.getvalue()
 
     def test_virtual_libraries(self) -> None:

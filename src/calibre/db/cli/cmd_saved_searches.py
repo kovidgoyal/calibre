@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -89,7 +89,7 @@ Syntax for removing:
     return parser
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action == 'list':
         for name, value in cast('dict[str, str | None]', dbctx.run('saved_searches', 'list')).items():

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -61,7 +61,7 @@ def do_remove_custom_column(db: LibraryDatabase, label: str, force: bool) -> Non
     prints(f'Column {label!r} removed.')
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 1:
         raise SystemExit(_('Error: You must specify a column label'))
 

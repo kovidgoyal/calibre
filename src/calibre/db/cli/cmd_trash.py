@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.db.constants import TrashEntry
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -144,14 +144,14 @@ Permanently delete everything in the trash bin:
     return parser
 
 
-def run(dbctx: DBCtx, *args: object) -> object:
+def run(dbctx: DBContext, *args: object) -> object:
     ok, ans = cast('tuple[bool, object]', dbctx.run('trash', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     from calibre.utils.date import as_local_time, utcfromtimestamp
 
     action, args = args_to_action(args, ACTIONS)

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from typing import TypedDict
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.db.fts.connect import FTSSearchResult
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -185,7 +185,7 @@ def output_results_as_text(results: Iterable[FTSSearchResult], metadata_cache: M
         print_result()
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 1:
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the search expression'))

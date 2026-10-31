@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.library.field_metadata import FieldMetadata
     from calibre.srv.changes import ChangeEvent
@@ -106,7 +106,7 @@ is no need to specify an OPF file.
     return parser
 
 
-def get_fields(dbctx: DBCtx) -> Iterator[tuple[str, dict[str, object]]]:
+def get_fields(dbctx: DBContext) -> Iterator[tuple[str, dict[str, object]]]:
     fm = cast('FieldMetadata', dbctx.run('set_metadata', 'field_metadata'))
     for key in sorted(fm.all_field_keys()):
         m = fm[key]
@@ -122,7 +122,7 @@ def get_fields(dbctx: DBCtx) -> Iterator[tuple[str, dict[str, object]]]:
     yield 'cover', c
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if opts.list_fields:
         ans = get_fields(dbctx)
         prints('{:<40}'.format(_('Title')), _('Field name'), '\n')

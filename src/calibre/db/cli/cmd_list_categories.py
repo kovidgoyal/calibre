@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
     from calibre.db.cache import Cache
     from calibre.db.categories import Tag
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.library.field_metadata import FieldMetadata
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -137,7 +137,7 @@ def do_csv(fields: Sequence[str], data: Sequence[Mapping[str, object]], opts: Va
         csv_print.writerow(row)
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     category_data, field_metadata = cast('tuple[dict[str, list[Tag]], FieldMetadata]', dbctx.run('list_categories'))
     data = []
     report_on = [c.strip() for c in opts.report.split(',') if c.strip()]

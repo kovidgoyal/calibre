@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
     from calibre.db.backend import CustomColumnData
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -39,7 +39,7 @@ List available custom columns. Shows column labels and ids.
     return parser
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     for col, data in cast('dict[str, CustomColumnData]', dbctx.run('custom_columns')).items():
         if opts.details:
             prints(col)

@@ -21,9 +21,25 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from optparse import Values
     from types import ModuleType
-    from typing import Self
+    from typing import Protocol, Self
 
     from mechanize import HTTPError
+
+    class DBContext(Protocol):
+        """The parts of DBCtx that the command implementations use, so that
+        tests can run commands with their own stand-in contexts"""
+
+        @property
+        def is_remote(self) -> bool: ...
+        @property
+        def library_path(self) -> str: ...
+        @property
+        def option_parser(self) -> OptionParser: ...
+        @property
+        def db(self) -> LibraryDatabase: ...
+        def path(self, path: str) -> str | tuple[str, bytes]: ...
+        def run(self, name: str, *args: object) -> object: ...
+
 
 COMMANDS = (
     'list',

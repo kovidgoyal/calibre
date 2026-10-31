@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from typing import IO
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.db.utils import IdenticalBooksData
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.srv.changes import ChangeEvent
@@ -249,7 +249,7 @@ def implementation(
 
 
 def do_add_empty(
-    dbctx: DBCtx,
+    dbctx: DBContext,
     title: str | None,
     authors: list[str],
     isbn: str | None,
@@ -289,7 +289,7 @@ def add_ctx() -> Generator[None]:
 
 
 def do_add(
-    dbctx: DBCtx,
+    dbctx: DBContext,
     paths: Iterable[str],
     one_book_per_directory: bool,
     recurse: bool,
@@ -522,7 +522,7 @@ the folder related options below.
     return parser
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     aut = string_to_authors(opts.authors) if opts.authors else []
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]

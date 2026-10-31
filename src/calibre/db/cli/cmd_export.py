@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -105,7 +105,7 @@ You can get id numbers from the search command.
 class DBProxy:
     # Proxy to allow do_save_book_to_disk() to work with remote database
 
-    def __init__(self, dbctx: DBCtx) -> None:
+    def __init__(self, dbctx: DBContext) -> None:
         self.dbctx = dbctx
 
     def cover(self, book_id: int) -> bytes | None:
@@ -128,7 +128,7 @@ class DBProxy:
                 f.write(fdata)
 
 
-def export(opts: Values, dbctx: DBCtx, book_id: int, dest: str, dbproxy: DBProxy, length: int, first: bool) -> tuple[bool, int, str]:
+def export(opts: Values, dbctx: DBContext, book_id: int, dest: str, dbproxy: DBProxy, length: int, first: bool) -> tuple[bool, int, str]:
     mi, plugboards, formats, library_id, template_funcs = cast(
         'tuple[Metadata, dict[str, object], list[str] | set[str], str, list[UserFunctionPref]]',
         dbctx.run('export', 'setup', book_id, opts.formats),
@@ -139,7 +139,7 @@ def export(opts: Values, dbctx: DBCtx, book_id: int, dest: str, dbproxy: DBProxy
     return do_save_book_to_disk(dbproxy, book_id, mi, plugboards, formats, dest, opts, length, extra_files)
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 1 and not opts.all:
         raise SystemExit(_('You must specify some ids or the %s option') % '--all')
     if opts.all:

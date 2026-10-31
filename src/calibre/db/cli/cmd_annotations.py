@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from calibre.db.backend import JSONDict
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -308,7 +308,7 @@ def json_for_terminal(data: object) -> str:
     return json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2).translate(C1_ESCAPES)
 
 
-def run(dbctx: DBCtx, *args: object) -> object:
+def run(dbctx: DBContext, *args: object) -> object:
     ok, ans = cast('tuple[bool, object]', dbctx.run('annotations', *args))
     if not ok:
         raise SystemExit(ans)
@@ -336,7 +336,7 @@ def render_as_text(annots: list[dict], titles: dict[int, str], as_markdown: bool
     return '\n'.join(lines).strip()
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if action != 'search' and not opts.use_stemming:
         raise SystemExit(_('Error: The --no-stemming option can only be used with search'))

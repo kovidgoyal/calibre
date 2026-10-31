@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -166,14 +166,14 @@ Remove the note for an item:
     return parser
 
 
-def run(dbctx: DBCtx, *args: object) -> object:
+def run(dbctx: DBContext, *args: object) -> object:
     ok, ans = cast('tuple[bool, object]', dbctx.run('notes', *args))
     if not ok:
         raise SystemExit(ans)
     return ans
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)
     if opts.field is not None and action != 'search':
         raise SystemExit(_('Error: The --field option can only be used with search'))

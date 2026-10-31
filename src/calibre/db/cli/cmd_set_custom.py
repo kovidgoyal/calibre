@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -74,7 +74,7 @@ command.
     return parser
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 3:
         raise SystemExit(_('Error: You must specify a field name, id and value'))
     ok, msg = cast('tuple[bool, str]', dbctx.run('set_custom', args[0], int(args[1]), args[2], opts.append))

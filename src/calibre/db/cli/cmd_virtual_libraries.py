@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -144,7 +144,7 @@ Remove Virtual libraries, the books in them are not changed:
     return parser
 
 
-def run(dbctx: DBCtx, *args: object) -> object:
+def run(dbctx: DBContext, *args: object) -> object:
     ok, ans = cast('tuple[bool, object]', dbctx.run('virtual_libraries', *args))
     if not ok:
         raise SystemExit(ans)
@@ -157,7 +157,7 @@ def check_name(name: str) -> None:
         raise SystemExit(_('Error: A Virtual library name cannot begin with "*"'))
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     from calibre.utils.icu import sort_key
 
     action, args = args_to_action(args, ACTIONS, default_action=ACTION_DEFAULT)

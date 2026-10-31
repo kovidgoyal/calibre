@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from typing import TypedDict, Unpack
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -117,7 +117,7 @@ Control the Full text search indexing process.
     return parser
 
 
-def run_job(dbctx: DBCtx, which: str, **data: Unpack[FTSJobData]) -> FTSStatus:
+def run_job(dbctx: DBContext, which: str, **data: Unpack[FTSJobData]) -> FTSStatus:
     try:
         return cast('FTSStatus', dbctx.run('fts_index', which, data))
     except Exception as e:
@@ -138,7 +138,7 @@ def show_progress(left: int, total: int, rate: float | None) -> None:
     )
 
 
-def remote_wait_for_completion(dbctx: DBCtx, indexing_speed: str) -> None:
+def remote_wait_for_completion(dbctx: DBContext, indexing_speed: str) -> None:
     import time
 
     s = run_job(dbctx, 'wait', speed=indexing_speed, measure_state=True)
@@ -172,7 +172,7 @@ def local_wait_for_completion(db: Cache, indexing_speed: str) -> None:
     print()
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 1:
         dbctx.option_parser.print_help()
         raise SystemExit(_('Error: You must specify the indexing action'))

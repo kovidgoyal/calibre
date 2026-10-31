@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -126,7 +126,7 @@ Remove one or more items from all books. Authors cannot be removed:
     return parser
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     action, args = args_to_action(args, ACTIONS)
     if action == 'rename':
         if len(args) != 3:

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from optparse import Values
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -42,7 +42,7 @@ all books, then simply use your filesystem tools to copy the library folder.
     )
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if len(args) < 1:
         raise SystemExit(_('Error: You must specify the path to the cloned library'))
     prefs, library_path = cast('tuple[dict[str, object], str]', dbctx.run('clone'))

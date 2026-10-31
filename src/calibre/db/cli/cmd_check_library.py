@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from _typeshed import SupportsWrite
 
     from calibre.db.cache import Cache
-    from calibre.db.cli.main import DBCtx
+    from calibre.db.cli.main import DBContext
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
 
@@ -93,7 +93,7 @@ def _print_check_library_results(
             print(f'    {i[0]:<40.40} -{i[1]:<40.40}', file=out)
 
 
-def main(opts: Values, args: list[str], dbctx: DBCtx) -> int:
+def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     if opts.report is None:
         checks = CHECKS
     else:
