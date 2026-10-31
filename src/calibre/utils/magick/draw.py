@@ -73,7 +73,7 @@ def save_cover_data_to(
     tweak is used.
 
     """
-    fmt = os.path.splitext(path)[1]
+    fmt = os.path.splitext(path)[1][1:]
     if isinstance(data, Image):
         data = data.img
     return _save_cover_data_to(
