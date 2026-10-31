@@ -830,7 +830,7 @@ class HTTPConnection(HTTPRequest):
             and acceptable_encoding(header_as_str(request.inheaders.get('Accept-Encoding', '')))
             and not is_http1
         )
-        accept_ranges = not compressible and output.accept_ranges is not None and request.status_code == http.client.OK and not is_http1
+        accept_ranges = not compressible and output.accept_ranges and request.status_code == http.client.OK and not is_http1
         # output.accept_ranges is True only for ReadableOutput, which always has a content_length
         content_length = output.content_length
         range_header = request.inheaders.get('Range')

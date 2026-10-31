@@ -482,6 +482,8 @@ class TestHTTP(BaseTest):
             etag = r.getheader('ETag')
             self.ae(etag, '"xxx"')
             self.ae(r.getheader('Content-Length'), '4')
+            # Range requests are not supported for dynamic output
+            self.assertIsNone(r.getheader('Accept-Ranges'))
             conn.request('GET', '/an_etagged_path', headers={'If-None-Match': etag})
             r = conn.getresponse()
             self.ae(r.status, http.client.NOT_MODIFIED)
