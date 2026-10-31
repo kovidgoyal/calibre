@@ -8,9 +8,10 @@ Generate UUID encoded using a user specified alphabet.
 import math
 import string
 import uuid as _uuid
+from collections.abc import Mapping, Sequence
 
 
-def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
+def num_to_string(number: int, alphabet: Sequence[str], alphabet_len: int, pad_to_length: int | None = None) -> str:
     ans = []
     number = max(0, number)
     while number:
@@ -21,7 +22,7 @@ def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
     return ''.join(ans)
 
 
-def string_to_num(string, alphabet_map, alphabet_len):
+def string_to_num(string: str, alphabet_map: Mapping[str, int], alphabet_len: int) -> int:
     ans = 0
     for char in reversed(string):
         ans = ans * alphabet_len + alphabet_map[char]
@@ -29,7 +30,7 @@ def string_to_num(string, alphabet_map, alphabet_len):
 
 
 class ShortUUID:
-    def __init__(self, alphabet=None):
+    def __init__(self, alphabet: str | None = None) -> None:
         # We do not include zero and one in the default alphabet as they can be
         # confused with the letters O and I in some fonts. And removing them
         # does not change the uuid_pad_len.
@@ -38,17 +39,17 @@ class ShortUUID:
         self.alphabet_map = {c: i for i, c in enumerate(self.alphabet)}
         self.uuid_pad_len = math.ceil(math.log(1 << 128, self.alphabet_len))
 
-    def uuid4(self, pad_to_length=None):
+    def uuid4(self, pad_to_length: int | None = None) -> str:
         if pad_to_length is None:
             pad_to_length = self.uuid_pad_len
         return num_to_string(_uuid.uuid4().int, self.alphabet, self.alphabet_len, pad_to_length)
 
-    def uuid5(self, namespace, name, pad_to_length=None):
+    def uuid5(self, namespace: _uuid.UUID, name: str | bytes, pad_to_length: int | None = None) -> str:
         if pad_to_length is None:
             pad_to_length = self.uuid_pad_len
         return num_to_string(_uuid.uuid5(namespace, name).int, self.alphabet, self.alphabet_len, pad_to_length)
 
-    def decode(self, encoded):
+    def decode(self, encoded: str) -> _uuid.UUID:
         return _uuid.UUID(int=string_to_num(encoded, self.alphabet_map, self.alphabet_len))
 
 

@@ -1723,7 +1723,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 cc_mtime = parse_date(book.get('_format_mtime_'), as_utc=True)
                 self._debug(book.title, 'cal_mtime', calibre_mtime, 'cc_mtime', cc_mtime)
                 if cc_mtime < calibre_mtime:
-                    book.set('_format_mtime_', isoformat(self.now))
+                    book.set('_format_mtime_', isoformat(self.now))  # ty: ignore[invalid-argument-type]
                     return posixpath.basename(book.lpath), False
         except Exception:
             self._debug('exception checking if must send format', book.title)

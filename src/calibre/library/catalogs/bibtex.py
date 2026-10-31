@@ -218,7 +218,7 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(f'volume = "{int(item)}"')
 
                 elif field == 'timestamp':
-                    bibtex_entry.append('timestamp = "{}"'.format(isoformat(item).partition('T')[0]))
+                    bibtex_entry.append('timestamp = "{}"'.format(isoformat(item).partition('T')[0]))  # ty: ignore[invalid-argument-type]
 
                 elif field == 'pubdate' and isinstance(item, _datetime):
                     bibtex_entry.append(f'year = "{item.year}"')

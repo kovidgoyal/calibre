@@ -14,7 +14,10 @@ import unicodedata
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import NamedTuple, TypedDict
+from typing import TYPE_CHECKING, NamedTuple, TypedDict
+
+if TYPE_CHECKING:
+    from unittest import TestSuite
 
 MAX_TOKENS = 510
 SAMPLE_RATE = 24000
@@ -101,7 +104,7 @@ class EspeakG2P:
         }.items()
     )
 
-    def __init__(self, phonemizer: Phonemizer):
+    def __init__(self, phonemizer: Phonemizer) -> None:
         self.phonemizer = phonemizer
 
     def __call__(self, text: str) -> str:
@@ -260,7 +263,7 @@ class CaseFoldingLexicon:
     # up by their capitalized or lowercase forms. Equivalent to
     # misaki's grow_dictionary() without the memory cost.
 
-    def __init__(self, d: dict[str, LexiconValue]):
+    def __init__(self, d: dict[str, LexiconValue]) -> None:
         self.d = d
 
     def get(self, word: str) -> LexiconValue | None:
@@ -288,7 +291,7 @@ class TokenContext:
 class Lexicon:
     cap_stresses = (0.5, 2)
 
-    def __init__(self, golds: dict[str, LexiconValue], silvers: dict[str, LexiconValue], british: bool):
+    def __init__(self, golds: dict[str, LexiconValue], silvers: dict[str, LexiconValue], british: bool) -> None:
         self.british = british
         self.golds = CaseFoldingLexicon(golds)
         self.silvers = CaseFoldingLexicon(silvers)
@@ -596,7 +599,7 @@ class EspeakFallback:
         key=lambda kv: -len(kv[0]),
     )
 
-    def __init__(self, phonemizer: Phonemizer, british: bool):
+    def __init__(self, phonemizer: Phonemizer, british: bool) -> None:
         self.phonemizer = phonemizer
         self.british = british
 
@@ -869,7 +872,7 @@ def split_phonemes(ps: str, vocab: dict[str, int], max_tokens: int = MAX_TOKENS)
 class G2P:
     # Converts text to a list of phoneme strings suitable for the model
 
-    def __init__(self, lang_code: str, lexicon_paths: tuple[str, str] | None = None, phonemizer: Phonemizer = espeak_phonemizer):
+    def __init__(self, lang_code: str, lexicon_paths: tuple[str, str] | None = None, phonemizer: Phonemizer = espeak_phonemizer) -> None:
         md = kokoro_metadata()
         self.vocab = md['vocab']
         lang = md['languages'][lang_code]
@@ -894,11 +897,11 @@ def speed_from_rate(rate: float) -> float:
     return min(3, 1 / m)
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
     class TestKokoro(unittest.TestCase):
-        def test_kokoro_number_words(self):
+        def test_kokoro_number_words(self) -> None:
             self.assertEqual(cardinal_words(1234), 'one thousand two hundred thirty four'.split())
             self.assertEqual(cardinal_words(-7), ['minus', 'seven'])
             self.assertEqual(ordinal_words(22), ['twenty', 'second'])
@@ -909,7 +912,7 @@ def find_tests():
             self.assertEqual(year_words(2005), 'two thousand five'.split())
             self.assertEqual(decimal_words('3.14'), 'three point one four'.split())
 
-        def test_kokoro_english_g2p(self):
+        def test_kokoro_english_g2p(self) -> None:
             golds: dict[str, LexiconValue] = {
                 'hello': 'həlˈO',
                 'world': 'wˈɜɹld',
@@ -958,14 +961,14 @@ def find_tests():
             self.assertEqual(g.lexicon.number_words('9' * 20 + '.5', '$'), ['nine'] * 20 + ['point', 'five'])
             self.assertEqual(g.lexicon.number_words('1' * 16 + '.5', ''), ['one'] * 16 + ['point', 'five'])
 
-        def test_kokoro_split_phonemes(self):
+        def test_kokoro_split_phonemes(self) -> None:
             vocab = {c: i for i, c in enumerate('abc ,.')}
             self.assertEqual(list(split_phonemes('ab, c. x', vocab, 100)), ['ab, c.'])
             self.assertEqual(list(split_phonemes('aaa, bbb. ccc', vocab, 10)), ['aaa, bbb.', 'ccc'])
             self.assertEqual(list(split_phonemes('aaaa, bbbb', vocab, 8)), ['aaaa,', 'bbbb'])
             self.assertEqual(list(split_phonemes('a' * 25, vocab, 10)), ['a' * 10, 'a' * 10, 'a' * 5])
 
-        def test_kokoro_metadata(self):
+        def test_kokoro_metadata(self) -> None:
             md = kokoro_metadata()
             self.assertTrue(md['model']['url'].startswith('https://'))
             self.assertEqual(len(md['model']['sha256']), 64)
@@ -980,7 +983,7 @@ def find_tests():
             for v in md['default_voices'].values():
                 self.assertIn(v, md['voices'])
 
-        def test_kokoro_espeak(self):
+        def test_kokoro_espeak(self) -> None:
             try:
                 from calibre_extensions import piper
             except ImportError:

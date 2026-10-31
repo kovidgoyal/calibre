@@ -6,16 +6,16 @@ from collections import defaultdict
 from calibre.utils.icu import ord_string
 
 
-def character_name_from_code(code):
+def character_name_from_code(code: int) -> str:
     from calibre_extensions.unicode_names import name_for_codepoint
 
     return name_for_codepoint(code) or f'U+{code:X}'
 
 
-_html_entities_cache: dict | None = None
+_html_entities_cache: dict[str, set[int]] | None = None
 
 
-def html_entities():
+def html_entities() -> dict[str, set[int]]:
     global _html_entities_cache
     if _html_entities_cache is None:
         from calibre.ebooks.html_entities import html5_entities
@@ -31,10 +31,10 @@ def html_entities():
     return _html_entities_cache
 
 
-_points_for_word_cache: dict = {}
+_points_for_word_cache: dict[str, frozenset[int]] = {}
 
 
-def points_for_word(w):
+def points_for_word(w: str) -> frozenset[int]:
     """Returns the set of all codepoints that contain ``word`` in their names"""
     w = w.lower()
     ans = _points_for_word_cache.get(w)

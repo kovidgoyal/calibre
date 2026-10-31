@@ -172,7 +172,7 @@ if iswindows:
 
     def run_program(entry, path, parent):
         cmdline = entry_to_cmdline(entry, path)
-        argv = winutil.parse_cmdline(cmdline)
+        argv = winutil.parse_cmdline(cmdline)  # ty: ignore[invalid-argument-type]
         exe = argv[0]
         rest = subprocess.list2cmdline(argv[1:])
         print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(exe), repr(rest))

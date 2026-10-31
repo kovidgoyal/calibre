@@ -9,13 +9,14 @@ import tempfile
 import time
 import unittest
 from threading import Thread
+from typing import Never
 
 from calibre.constants import cache_dir, iswindows
 from calibre.utils.lock import ExclusiveFile, create_single_instance_mutex, unix_open
 from calibre.utils.tdir_in_cache import clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in, unlock_file
 
 
-def FastFailEF(name):
+def FastFailEF(name: str) -> ExclusiveFile:
     return ExclusiveFile(name, sleep_time=0.01, timeout=0.05)
 
 
@@ -23,7 +24,7 @@ class Other(Thread):
     daemon = True
     locked = None
 
-    def run(self):
+    def run(self) -> None:
         try:
             with FastFailEF('testsp'):
                 self.locked = True
@@ -31,7 +32,7 @@ class Other(Thread):
             self.locked = False
 
 
-def run_worker(mod, func, **kw):
+def run_worker(mod: str, func: str, **kw: object) -> subprocess.Popen[bytes]:
     try:
         exe = [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
     except AttributeError:
@@ -45,14 +46,14 @@ def run_worker(mod, func, **kw):
 
 
 class IPCLockTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.cwd = os.getcwd()
         self.tdir = tempfile.mkdtemp()
         os.chdir(self.tdir)
         self.original_cache_dir = cache_dir()
         cache_dir.ans = self.tdir
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         cache_dir.ans = self.original_cache_dir
         os.chdir(self.cwd)
         for i in range(100):
@@ -62,7 +63,7 @@ class IPCLockTest(unittest.TestCase):
             except OSError:
                 time.sleep(0.1)
 
-    def test_exclusive_file_same_process(self):
+    def test_exclusive_file_same_process(self) -> None:
         fname = 'testsp'
         with ExclusiveFile(fname):
             ef = FastFailEF(fname)
@@ -76,7 +77,7 @@ class IPCLockTest(unittest.TestCase):
             with unix_open(fname) as f:
                 self.assertEqual(1, fcntl.fcntl(f.fileno(), fcntl.F_GETFD) & fcntl.FD_CLOEXEC)
 
-    def run_other_ef_op(self, clean_exit):
+    def run_other_ef_op(self, clean_exit: bool) -> None:
         child = run_worker('calibre.utils.test_lock', 'other1')
         try:
             while child.poll() is None:
@@ -98,13 +99,13 @@ class IPCLockTest(unittest.TestCase):
                 child.kill()
                 child.wait()
 
-    def test_exclusive_file_other_process_clean(self):
+    def test_exclusive_file_other_process_clean(self) -> None:
         self.run_other_ef_op(True)
 
-    def test_exclusive_file_other_process_kill(self):
+    def test_exclusive_file_other_process_kill(self) -> None:
         self.run_other_ef_op(False)
 
-    def test_single_instance(self):
+    def test_single_instance(self) -> None:
         release_mutex = create_single_instance_mutex('test')
         for i in range(5):
             child = run_worker('calibre.utils.test_lock', 'other2')
@@ -122,7 +123,7 @@ class IPCLockTest(unittest.TestCase):
         self.assertIsNotNone(release_mutex)
         release_mutex()
 
-    def test_tdir_in_cache_dir(self):
+    def test_tdir_in_cache_dir(self) -> None:
         child = run_worker('calibre.utils.test_lock', 'other4')
         tdirs = []
         while not tdirs:
@@ -144,7 +145,7 @@ class IPCLockTest(unittest.TestCase):
         self.assertEqual(os.listdir('t'), ['tdir-lock'])
 
 
-def other1():
+def other1() -> None:
     e = ExclusiveFile('test')
     with e:
         os.mkdir('ready')
@@ -152,7 +153,7 @@ def other1():
             time.sleep(0.02)
 
 
-def other2():
+def other2() -> Never:
     release_mutex = create_single_instance_mutex('test')
     if release_mutex is None:
         ret = 0
@@ -162,7 +163,7 @@ def other2():
     raise SystemExit(ret)
 
 
-def other3():
+def other3() -> None:
     release_mutex = create_single_instance_mutex('test')
     try:
         os.mkdir('ready')
@@ -172,23 +173,23 @@ def other3():
             release_mutex()
 
 
-def other4():
+def other4() -> None:
     cache_dir.ans = os.getcwd()
     tdir_in_cache('t')
     time.sleep(30)
 
 
-def other5():
+def other5() -> None:
     cache_dir.ans = os.getcwd()
     if not os.path.isdir(tdir_in_cache('t')):
         raise SystemExit(1)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(IPCLockTest)
 
 
-def run_tests():
+def run_tests() -> None:
     from calibre.utils.run_tests import run_tests
 
     run_tests(find_tests)

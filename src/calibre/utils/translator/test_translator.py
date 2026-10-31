@@ -11,7 +11,7 @@ from calibre_extensions.translator import Translator
 
 
 class TestTranslator(unittest.TestCase):
-    def test_translator(self):
+    def test_translator(self) -> None:
         test_translator(self, 'und', b'')
         with zipfile.ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
             for lang in available_translations():
@@ -59,5 +59,5 @@ def test_translator(self: TestTranslator, lang: str, data: bytes, q: str = 'mess
             self.assertEqual(og(context, msg), ng(context, msg), f'pgettext({context!r}, {msg!r}) not equal for language: {which}')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTranslator)

@@ -10,11 +10,12 @@ http://stackoverflow.com/questions/493174/is-there-a-way-to-convert-number-words
 '''
 
 import re
+from typing import Literal
 
-numwords = {}
+numwords: dict[str, tuple[int, int]] = {}
 
 
-def text2int(textnum):
+def text2int(textnum: str) -> int | Literal[False]:
     if not numwords:
         units = [
             'zero',

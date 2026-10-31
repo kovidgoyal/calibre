@@ -5,6 +5,7 @@
 # thanks from the fonttools project (BSD licensed).
 
 from collections import OrderedDict
+from collections.abc import Container, Iterable, Iterator, Mapping
 from struct import calcsize, pack, unpack_from
 
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
@@ -12,7 +13,7 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import read_bmp_prefix
 
 
-def split_range(start_code, end_code, cmap):  # {{{
+def split_range(start_code: int, end_code: int, cmap: Mapping[int, int]) -> tuple[list[int], list[int]]:  # {{{
     # Try to split a range of character codes into subranges with consecutive
     # glyph IDs in such a way that the cmap4 subtable can be stored "most"
     # efficiently.
@@ -94,7 +95,7 @@ def split_range(start_code, end_code, cmap):  # {{{
 # }}}
 
 
-def set_id_delta(index, start_code):  # {{{
+def set_id_delta(index: int, start_code: int) -> int:  # {{{
     # The lowest gid in glyphIndexArray, after subtracting id_delta, must be 1.
     # id_delta is a short, and must be between -32K and 32K
     # startCode can be between 0 and 64K-1, and the first glyph index can be between 1 and 64K-1
@@ -121,7 +122,7 @@ def set_id_delta(index, start_code):  # {{{
 
 
 class BMPTable:
-    def __init__(self, raw):
+    def __init__(self, raw: bytes) -> None:
         self.raw = raw
         (
             self.start_count,
@@ -133,7 +134,7 @@ class BMPTable:
             self.array_len,
         ) = read_bmp_prefix(raw, 0)
 
-    def get_glyph_ids(self, codes):
+    def get_glyph_ids(self, codes: Iterable[int]) -> Iterator[int]:
         for code in codes:
             found = False
             for i, ec in enumerate(self.end_count):
@@ -154,7 +155,7 @@ class BMPTable:
             if not found:
                 yield 0
 
-    def get_glyph_map(self, glyph_ids):
+    def get_glyph_map(self, glyph_ids: Container[int]) -> dict[int, int]:
         ans = {}
         for i, ec in enumerate(self.end_count):
             sc = self.start_count[i]
@@ -174,7 +175,7 @@ class BMPTable:
 
 
 class CmapTable(UnknownTable):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: bytes, **kwargs: bytes) -> None:
         super().__init__(*args, **kwargs)
 
         self.version, self.num_tables = unpack_from(b'>HH', self.raw)
@@ -203,7 +204,7 @@ class CmapTable(UnknownTable):
                 if platform == 3 and encoding == 1 and fmt == 4:
                     self.bmp_table = BMPTable(table)
 
-    def get_character_map(self, chars):
+    def get_character_map(self, chars: Iterable[int]) -> OrderedDict[int, int]:
         """
         Get a mapping of character codes to glyph ids in the font.
         """
@@ -216,7 +217,7 @@ class CmapTable(UnknownTable):
                 ans[chars[i]] = glyph_id
         return ans
 
-    def get_glyph_map(self, glyph_ids):
+    def get_glyph_map(self, glyph_ids: Iterable[int]) -> dict[int, int]:
         """
         Get a mapping of character codes to glyph ids for the specified glyph
         ids.
@@ -226,7 +227,7 @@ class CmapTable(UnknownTable):
         glyph_ids = frozenset(glyph_ids)
         return self.bmp_table.get_glyph_map(glyph_ids)
 
-    def set_character_map(self, cmap):
+    def set_character_map(self, cmap: Mapping[int, int]) -> None:
         self.version, self.num_tables = 0, 1
         fmt = b'>7H'
         codes = sorted(cmap)

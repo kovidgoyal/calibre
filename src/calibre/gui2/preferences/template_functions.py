@@ -644,7 +644,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         pref_value = []
         for name, cls in self.funcs.items():
             if name not in self.builtins:
-                pref_value.append(cls.to_pref())
+                pref_value.append(cls.to_pref())  # ty: ignore[unresolved-attribute]
         for v in self.st_funcs.values():
             pref_value.append(v.to_pref())
         self.db.new_api.set_pref('user_template_functions', pref_value)

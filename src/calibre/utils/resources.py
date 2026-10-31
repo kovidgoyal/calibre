@@ -4,6 +4,7 @@
 import builtins
 import os
 import sys
+from typing import Literal, overload
 
 from calibre import config_dir
 
@@ -11,11 +12,11 @@ user_dir = os.path.join(config_dir, 'resources')
 
 
 class PathResolver:
-    def __init__(self):
-        self.locations = [getattr(sys, 'resources_location')]
-        self.cache = {}
+    def __init__(self) -> None:
+        self.locations: list[str] = [getattr(sys, 'resources_location')]
+        self.cache: dict[tuple[str, bool], str] = {}
 
-        def suitable(path):
+        def suitable(path: str) -> bool | list[str]:
             try:
                 return os.path.exists(path) and os.path.isdir(path) and os.listdir(path)
             except Exception:
@@ -33,12 +34,12 @@ class PathResolver:
                 self.default_path = dev_path
                 self.using_develop_from = True
 
-        self.user_path = None
+        self.user_path: str | None = None
         if suitable(user_dir):
             self.locations.insert(0, user_dir)
             self.user_path = user_dir
 
-    def __call__(self, path, allow_user_override=True):
+    def __call__(self, path: str, allow_user_override: bool = True) -> str:
         path = path.replace(os.sep, '/')
         key = (path, allow_user_override)
         ans = self.cache.get(key, None)
@@ -58,7 +59,7 @@ class PathResolver:
 
         return ans
 
-    def set_data(self, path, data=None):
+    def set_data(self, path: str, data: bytes | None = None) -> None:
         self.cache.pop((path, True), None)
         fpath = os.path.join(user_dir, *path.split('/'))
         if data is None:
@@ -75,7 +76,13 @@ class PathResolver:
 _resolver = PathResolver()
 
 
-def get_path(path, data=False, allow_user_override=True):
+@overload
+def get_path(path: str, data: Literal[False] = False, allow_user_override: bool = True) -> str: ...
+@overload
+def get_path(path: str, data: Literal[True], allow_user_override: bool = True) -> bytes: ...
+@overload
+def get_path(path: str, data: bool, allow_user_override: bool = True) -> str | bytes: ...
+def get_path(path: str, data: bool = False, allow_user_override: bool = True) -> str | bytes:
     fpath = _resolver(path, allow_user_override=allow_user_override)
     if data:
         with open(fpath, 'rb') as f:
@@ -83,17 +90,23 @@ def get_path(path, data=False, allow_user_override=True):
     return fpath
 
 
-def get_image_path(path, data=False, allow_user_override=True):
+@overload
+def get_image_path(path: str, data: Literal[False] = False, allow_user_override: bool = True) -> str: ...
+@overload
+def get_image_path(path: str, data: Literal[True], allow_user_override: bool = True) -> bytes: ...
+@overload
+def get_image_path(path: str, data: bool, allow_user_override: bool = True) -> str | bytes: ...
+def get_image_path(path: str, data: bool = False, allow_user_override: bool = True) -> str | bytes:
     if not path:
         return get_path('images', allow_user_override=allow_user_override)
     return get_path('images/' + path, data=data, allow_user_override=allow_user_override)
 
 
-def set_data(path, data=None):
+def set_data(path: str, data: bytes | None = None) -> None:
     return _resolver.set_data(path, data)
 
 
-def get_user_path():
+def get_user_path() -> str | None:
     return _resolver.user_path
 
 

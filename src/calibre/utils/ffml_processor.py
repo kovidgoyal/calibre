@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from enum import IntEnum, auto, unique
+from typing import NoReturn, cast
 
 from calibre import prepare_string_for_xml
 from calibre.utils.localization import _
@@ -13,7 +14,7 @@ MARKUP_ERROR = '*' + _('Template documentation markup error') + '*:'
 @unique
 class NodeKinds(IntEnum):
     @staticmethod
-    def _generate_next_value_(name, start, count, last_values):
+    def _generate_next_value_(name: str, start: int, count: int, last_values: list[int]) -> int:
         return -(count + 1)
 
     DOCUMENT = auto()
@@ -37,63 +38,63 @@ class NodeKinds(IntEnum):
 class Node:
     _text: str
 
-    def __init__(self, node_kind: NodeKinds):
+    def __init__(self, node_kind: NodeKinds) -> None:
         self._node_kind = node_kind
-        self._children = []
+        self._children: list[Node] = []
 
     def node_kind(self) -> NodeKinds:
         return self._node_kind
 
-    def add_child(self, node):
+    def add_child(self, node: Node) -> None:
         self._children.append(node)
 
-    def children(self):
+    def children(self) -> list[Node]:
         return self._children
 
-    def text(self):
+    def text(self) -> str:
         return self._text
 
-    def escaped_text(self):
+    def escaped_text(self) -> str:
         return prepare_string_for_xml(self.text())
 
 
 class BlankLineNode(Node):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(NodeKinds.BLANK_LINE)
 
 
 class BoldTextNode(Node):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__(NodeKinds.BOLD_TEXT)
         self._text = text
 
 
 class CharacterNode(Node):
-    def __init__(self, character):
+    def __init__(self, character: str) -> None:
         super().__init__(NodeKinds.CHARACTER)
         self._text = character
 
 
 class CodeBlock(Node):
-    def __init__(self, code_text):
+    def __init__(self, code_text: str) -> None:
         super().__init__(NodeKinds.CODE_BLOCK)
         self._text = code_text
 
 
 class CodeText(Node):
-    def __init__(self, code_text):
+    def __init__(self, code_text: str) -> None:
         super().__init__(NodeKinds.CODE_TEXT)
         self._text = code_text
 
 
 class DocumentNode(Node):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(NodeKinds.DOCUMENT)
         self._children = []
 
 
 class EndSummaryNode(Node):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(NodeKinds.END_SUMMARY)
 
 
@@ -102,61 +103,61 @@ class ErrorTextNode(Node):
     This is for internal use only. There is no FFML support to generate this node.
     """
 
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__(NodeKinds.ERROR_TEXT)
         self._text = text
 
 
 class GuiLabelNode(Node):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__(NodeKinds.GUI_LABEL)
         self._text = text
 
 
 class ItalicTextNode(Node):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__(NodeKinds.ITALIC_TEXT)
         self._text = text
 
 
 class ListItemNode(Node):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(NodeKinds.LIST_ITEM)
 
 
 class ListNode(Node):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(NodeKinds.LIST)
 
 
 class RefNode(Node):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__(NodeKinds.REF)
         self._text = text
 
 
 class TextNode(Node):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__(NodeKinds.TEXT)
         self._text = text
 
 
 class UrlNode(Node):
-    def __init__(self, label, url):
+    def __init__(self, label: str, url: str) -> None:
         super().__init__(NodeKinds.URL)
         self._label = label
         self._url = url
 
-    def label(self):
+    def label(self) -> str:
         return self._label
 
-    def escaped_label(self):
+    def escaped_label(self) -> str:
         return prepare_string_for_xml(self._label)
 
-    def url(self):
+    def url(self) -> str:
         return self._url
 
-    def escaped_url(self):
+    def escaped_url(self) -> str:
         return prepare_string_for_xml(self._url)
 
 
@@ -178,7 +179,7 @@ class FFMLProcessor:
 
     # ====== API ======
 
-    def print_node_tree(self, node, indent=0):
+    def print_node_tree(self, node: Node, indent: int = 0) -> None:
         """
         Pretty print a Formatter Function Markup Language (FFML) parse tree.
 
@@ -197,13 +198,13 @@ class FFMLProcessor:
         ):
             print(f'{" " * indent}{node.node_kind().name}:{node.text()}')
         elif node.node_kind() == NodeKinds.URL:
-            print(f'{" " * indent}URL: label={node.label()}, URL={node.url()}')
+            print(f'{" " * indent}URL: label={cast("UrlNode", node).label()}, URL={cast("UrlNode", node).url()}')
         else:
             print(f'{" " * indent}{node.node_kind().name}')
         for n in node.children():
             self.print_node_tree(n, indent + 1)
 
-    def parse_document(self, doc, name, safe=True):
+    def parse_document(self, doc: str, name: str, safe: bool = True) -> Node:
         """
         Given a Formatter Function Markup Language (FFML) document, return
         a parse tree for that document.
@@ -217,14 +218,14 @@ class FFMLProcessor:
         :return:       a parse tree for the document
         """
 
-        def initialize(txt):
+        def initialize(txt: str) -> DocumentNode:
             self.input_line = 1
             self.input = txt
             self.input_pos = 0
             self.document_name = name
             return DocumentNode()
 
-        def add_exception_text(node, exc, orig_txt=None):
+        def add_exception_text(node: Node, exc: ValueError, orig_txt: str | None = None) -> Node:
             if node.children():
                 node.add_child(BlankLineNode())
             if orig_txt is None:
@@ -249,7 +250,7 @@ class FFMLProcessor:
         except ValueError as e:
             # Syntax error. Try the English doc if it exists
             if hasattr(doc, 'formatted_english'):
-                node = initialize(doc.formatted_english)
+                node = initialize(cast('str', doc.formatted_english))
                 try:
                     tree = self._parse_document(node)
                     # No exception. Add a text node with the error to the
@@ -261,7 +262,7 @@ class FFMLProcessor:
             # node with the error message and the offending text
             return add_exception_text(DocumentNode(), e, doc)
 
-    def tree_to_html(self, tree, depth=0):
+    def tree_to_html(self, tree: Node, depth: int = 0) -> str:
         """
         Given a Formatter Function Markup Language (FFML) parse tree, return
         a string containing the HTML for that tree.
@@ -302,13 +303,13 @@ class FFMLProcessor:
         elif tree.node_kind() == NodeKinds.REF:
             result += f'<a href="ffdoc:{tree.text()}">{tree.text()}</a></a>'
         elif tree.node_kind() == NodeKinds.URL:
-            result += f'<a href="{tree.escaped_url()}">{tree.escaped_label()}</a>'
+            result += f'<a href="{cast("UrlNode", tree).escaped_url()}">{cast("UrlNode", tree).escaped_label()}</a>'
         elif tree.node_kind() in (NodeKinds.DOCUMENT, NodeKinds.LIST_ITEM):
             for child in tree.children():
                 result += self.tree_to_html(child, depth=depth + 1)
         return result
 
-    def document_to_html(self, document, name, safe=True):
+    def document_to_html(self, document: str, name: str, safe: bool = True) -> str:
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in HTML format.
@@ -325,7 +326,7 @@ class FFMLProcessor:
         tree = self.parse_document(document, name, safe=safe)
         return self.tree_to_html(tree, 0)
 
-    def document_to_summary_html(self, document, name, safe=True):
+    def document_to_summary_html(self, document: str, name: str, safe: bool = True) -> str:
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in HTML format.
@@ -350,7 +351,7 @@ class FFMLProcessor:
         result = f'<a href="ffdoc:{fname}">{fname}</a>{result[paren:]}'
         return result
 
-    def tree_to_transifex(self, tree, depth=0):
+    def tree_to_transifex(self, tree: Node, depth: int = 0) -> str:
         """
         Given a Formatter Function Markup Language (FFML) parse tree, return a
         string containing an encoding suitable for transifex. Simplified
@@ -398,7 +399,7 @@ class FFMLProcessor:
         elif tree.node_kind() == NodeKinds.REF:
             result += f':ref:`{tree.text()}`'
         elif tree.node_kind() == NodeKinds.URL:
-            result += f'[URL href="{tree.url()}"]{tree.label()}[/URL]'
+            result += f'[URL href="{cast("UrlNode", tree).url()}"]{cast("UrlNode", tree).label()}[/URL]'
         elif tree.node_kind() == NodeKinds.LIST_ITEM:
             for child in tree.children():
                 result += self.tree_to_transifex(child, depth=depth + 1)
@@ -408,7 +409,7 @@ class FFMLProcessor:
                 result += self.tree_to_transifex(child, depth=depth + 1)
         return result
 
-    def document_to_transifex(self, document, name, safe=True):
+    def document_to_transifex(self, document: str, name: str, safe: bool = True) -> str:
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document suitable for transifex.
@@ -425,7 +426,7 @@ class FFMLProcessor:
         tree = self.parse_document(document, name, safe=safe)
         return self.tree_to_transifex(tree, 0)
 
-    def tree_to_rst(self, tree, indent, result=None):
+    def tree_to_rst(self, tree: Node, indent: int, result: str | None = None) -> str:
         """
         Given a Formatter Function Markup Language (FFML) parse tree, return
         a string containing the RST (sphinx reStructuredText) for that tree.
@@ -438,14 +439,14 @@ class FFMLProcessor:
         :return:       a string containing the RST text
         """
 
-        def indent_text(txt):
+        def indent_text(txt: str) -> None:
             nonlocal result
             if not result:
                 txt = txt.lstrip()
             elif result.endswith('\n'):
                 txt = txt.lstrip()
                 result += '  ' * indent
-            result += txt.replace('\n', '  ' * indent)
+            result += txt.replace('\n', '  ' * indent)  # ty: ignore[unsupported-operator]
 
         if result is None:
             result = '  ' * indent
@@ -485,13 +486,13 @@ class FFMLProcessor:
         elif tree.node_kind() == NodeKinds.TEXT:
             indent_text(tree.text())
         elif tree.node_kind() == NodeKinds.URL:
-            indent_text(f'`{tree.label()} <{tree.url()}>`_')
+            indent_text(f'`{cast("UrlNode", tree).label()} <{cast("UrlNode", tree).url()}>`_')
         elif tree.node_kind() in (NodeKinds.DOCUMENT, NodeKinds.LIST_ITEM):
             for child in tree.children():
                 result = self.tree_to_rst(child, indent, result=result)
         return result
 
-    def document_to_rst(self, document, name, indent=0, prefix=None, safe=True):
+    def document_to_rst(self, document: str, name: str, indent: int = 0, prefix: str | None = None, safe: bool = True) -> str:
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in RST (sphinx reStructuredText) format.
@@ -516,7 +517,7 @@ class FFMLProcessor:
             doc = prefix + doc.lstrip('  ' * indent)
         return doc
 
-    def document_to_summary_rst(self, document, name, indent=0, prefix=None, safe=True):
+    def document_to_summary_rst(self, document: str, name: str, indent: int = 0, prefix: str | None = None, safe: bool = True) -> str:
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in RST (sphinx reStructuredText) format.
@@ -577,46 +578,46 @@ class FFMLProcessor:
         NodeKinds.CHARACTER,
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.document = DocumentNode()
         self.input: str = ''
         self.input_pos: int = 0
         self.input_line: int = 0
         self.document_name: str = ''
 
-    def error(self, message):
+    def error(self, message: str) -> NoReturn:
         raise ValueError(f'{message} on line {self.input_line} in "{self.document_name}"')
 
-    def find(self, for_what, at_pos=-1):
+    def find(self, for_what: str, at_pos: int = -1) -> int:
         pos = at_pos if at_pos >= 0 else self.input_pos
         p = self.input.find(for_what, pos)
         return -1 if p < 0 else p - pos
 
-    def move_pos(self, to_where):
+    def move_pos(self, to_where: int) -> None:
         for c in self.input[self.input_pos : self.input_pos + to_where]:
             if c == '\n':
                 self.input_line += 1
         self.input_pos += to_where
 
-    def at_end(self):
+    def at_end(self) -> bool:
         return self.input_pos >= len(self.input)
 
-    def text_to(self, end):
+    def text_to(self, end: int) -> str:
         return self.input[self.input_pos : self.input_pos + end]
 
-    def text_contains_newline(self, txt):
+    def text_contains_newline(self, txt: str) -> bool:
         return '\n' in txt
 
-    def text_to_no_newline(self, end, block_name):
+    def text_to_no_newline(self, end: int, block_name: str) -> str:
         txt = self.input[self.input_pos : self.input_pos + end]
         if self.text_contains_newline(txt):
             self.error(f'Newline unexpected in {block_name}')
         return txt
 
-    def startswith(self, txt):
+    def startswith(self, txt: str) -> bool:
         return self.input.startswith(txt, self.input_pos)
 
-    def find_one_of(self, at_pos=-1):
+    def find_one_of(self, at_pos: int = -1) -> int:
         positions = []
         pos = at_pos if at_pos >= 0 else self.input_pos
         for s in self.keywords:
@@ -629,7 +630,7 @@ class FFMLProcessor:
             return min(positions)
         return len(self.input)
 
-    def get_bold_text(self):
+    def get_bold_text(self) -> BoldTextNode:
         self.move_pos(len('[B]'))
         end = self.find('[/B]')
         if end < 0:
@@ -638,13 +639,13 @@ class FFMLProcessor:
         self.move_pos(end + len('[/B]'))
         return node
 
-    def get_character(self):
+    def get_character(self) -> CharacterNode:
         self.move_pos(1)
         node = CharacterNode(self.text_to(1))
         self.move_pos(1)
         return node
 
-    def get_code_block(self):
+    def get_code_block(self) -> CodeBlock:
         self.move_pos(len('[CODE]'))
         if self.text_to(1) == '\n':
             self.move_pos(1)
@@ -657,7 +658,7 @@ class FFMLProcessor:
             self.move_pos(1)
         return node
 
-    def get_code_text(self):
+    def get_code_text(self) -> CodeText:
         self.move_pos(len('``'))
         end = self.find('``')
         if end < 0:
@@ -666,7 +667,7 @@ class FFMLProcessor:
         self.move_pos(end + len('``'))
         return node
 
-    def get_gui_label(self):
+    def get_gui_label(self) -> GuiLabelNode:
         self.move_pos(len(':guilabel:`'))
         end = self.find('`')
         if end < 0:
@@ -675,7 +676,7 @@ class FFMLProcessor:
         self.move_pos(end + len('`'))
         return node
 
-    def get_italic_text(self):
+    def get_italic_text(self) -> ItalicTextNode:
         self.move_pos(1)
         end = self.find('`')
         if end < 0:
@@ -684,7 +685,7 @@ class FFMLProcessor:
         self.move_pos(end + 1)
         return node
 
-    def get_list(self):
+    def get_list(self) -> ListNode:
         self.move_pos(len('[LIST]\n'))
         list_node = ListNode()
         while True:
@@ -700,7 +701,7 @@ class FFMLProcessor:
             self.move_pos(1)
         return list_node
 
-    def get_ref(self):
+    def get_ref(self) -> RefNode:
         self.move_pos(len(':ref:`'))
         end = self.find('`')
         if end < 0:
@@ -709,7 +710,7 @@ class FFMLProcessor:
         self.move_pos(end + len('`'))
         return node
 
-    def get_url(self):
+    def get_url(self) -> UrlNode:
         self.move_pos(len('[URL'))
         hp = self.find('href="')
         if hp < 0:
@@ -729,7 +730,7 @@ class FFMLProcessor:
         self.move_pos(lp + len('[/URL]'))
         return node
 
-    def _parse_document(self, parent):
+    def _parse_document[N: Node](self, parent: N) -> N:
         while True:
             p = self.find_one_of()
             if p > 0:

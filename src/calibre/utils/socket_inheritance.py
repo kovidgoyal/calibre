@@ -9,8 +9,13 @@ Code taken from https://mail.python.org/pipermail/python-dev/2007-June/073745.ht
 modified to make it work
 """
 
+from typing import TYPE_CHECKING
 
-def get_socket_inherit(s):
+if TYPE_CHECKING:
+    import socket
+
+
+def get_socket_inherit(s: socket.socket) -> bool | None:
     """
     Returns True if the socket has been set to allow inheritance across
     forks and execs to child processes, otherwise False
@@ -23,7 +28,7 @@ def get_socket_inherit(s):
         traceback.print_exc()
 
 
-def set_socket_inherit(s, inherit=False):
+def set_socket_inherit(s: socket.socket, inherit: bool = False) -> None:
     """
     Mark a socket as inheritable or non-inheritable to child processes.
 
@@ -42,12 +47,12 @@ def set_socket_inherit(s, inherit=False):
         traceback.print_exc()
 
 
-def test():
+def test() -> None:
     import socket
 
     s = socket.socket()
     orig = get_socket_inherit(s)
-    set_socket_inherit(s, orig ^ True)
+    set_socket_inherit(s, orig ^ True)  # ty: ignore[unsupported-operator]
     if orig == get_socket_inherit(s):
         raise RuntimeError('Failed to change socket inheritance status')
     print('OK!')

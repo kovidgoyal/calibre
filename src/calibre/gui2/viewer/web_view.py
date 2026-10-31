@@ -199,7 +199,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
             data = b'[' + (_book_manifest or b'') + b',' + (_book_metadata or b'') + b']'
-            send_reply(a0, _book_manifest_mime, data)
+            send_reply(a0, _book_manifest_mime, data)  # ty: ignore[invalid-argument-type]
         elif name == 'reader-background':
             mt, data = background_image()
             send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
@@ -253,8 +253,8 @@ window.calibre_translations_data = {translations_json};
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
-        s.setDefaultTextEncoding('utf-8')
-        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
+        s.setDefaultTextEncoding('utf-8')  # ty: ignore[unresolved-attribute]
+        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)  # ty: ignore[unresolved-attribute]
         setattr(create_profile, 'ans', ans)
     return ans
 

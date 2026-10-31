@@ -5,6 +5,7 @@ import atexit
 import os
 import sys
 from itertools import product
+from types import ModuleType
 
 from calibre import prints
 from calibre.constants import filesystem_encoding
@@ -13,11 +14,11 @@ from calibre.utils.resources import get_path as P
 
 
 class WinFonts:
-    def __init__(self, winfonts):
+    def __init__(self, winfonts: ModuleType) -> None:
         self.w = winfonts
         # Windows requires font files to be executable for them to be loaded,
         # so instead we use this hack.
-        self.app_font_families = {}
+        self.app_font_families: dict[str, dict[tuple[int, bool], str]] = {}
 
         for f in ('Serif', 'Sans', 'Mono'):
             base = 'fonts/liberation/Liberation%s-%s.ttf'
@@ -34,7 +35,7 @@ class WinFonts:
         # import pprint
         # pprint.pprint(self.app_font_families)
 
-    def font_families(self):
+    def font_families(self) -> list[str]:
         names = set()
         for font in self.w.enum_font_families():
             if (
@@ -47,16 +48,16 @@ class WinFonts:
                 names.add(font['name'])
         return sorted(names.union(frozenset(self.app_font_families)))
 
-    def get_normalized_name(self, is_italic, weight):
+    def get_normalized_name(self, is_italic: bool, weight: int) -> str:
         if is_italic:
             ft = 'bi' if weight == self.w.FW_BOLD else 'italic'
         else:
             ft = 'bold' if weight == self.w.FW_BOLD else 'normal'
         return ft
 
-    def fonts_for_family(self, family, normalize=True):
+    def fonts_for_family(self, family: str, normalize: bool = True) -> dict[str | tuple[int, int], tuple[str, str, bytes]]:
         family = str(family)
-        ans = {}
+        ans: dict[str | tuple[int, int], tuple[str, str, bytes]] = {}
         for weight, is_italic in product((self.w.FW_NORMAL, self.w.FW_BOLD), (False, True)):
             if family in self.app_font_families:
                 m = self.app_font_families[family]
@@ -103,7 +104,7 @@ class WinFonts:
                 name.encode('ascii')
             except ValueError:
                 try:
-                    sub_family_name.encode('ascii')
+                    sub_family_name.encode('ascii')  # ty: ignore[unresolved-attribute]
                     subf = sub_family_name
                 except Exception:
                     subf = ''
@@ -114,7 +115,7 @@ class WinFonts:
 
         return ans
 
-    def add_system_font(self, path):
+    def add_system_font(self, path: str | bytes) -> int:
         """
         WARNING: The file you are adding must have execute permissions or
         windows will fail to add it. (ls -l in cygwin to check)
@@ -127,17 +128,17 @@ class WinFonts:
             atexit.register(self.remove_system_font, path)
         return ret
 
-    def remove_system_font(self, path):
+    def remove_system_font(self, path: str) -> bool:
         return self.w.remove_system_font(path)
 
 
-def load_winfonts():
+def load_winfonts() -> WinFonts:
     from calibre_extensions import winfonts
 
     return WinFonts(winfonts)
 
 
-def test_ttf_reading():
+def test_ttf_reading() -> None:
     for arg in sys.argv[1:]:
         with open(arg, 'rb') as f:
             raw = f.read()
@@ -146,7 +147,7 @@ def test_ttf_reading():
         print()
 
 
-def test():
+def test() -> None:
     base = os.path.abspath(__file__)
     d = os.path.dirname
     pluginsd = os.path.join(d(d(d(base))), 'plugins')

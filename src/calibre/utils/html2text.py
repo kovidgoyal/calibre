@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    import unittest
 
-def html2text(html, single_line_break=True, default_image_alt=''):
+
+def html2text(html: str | bytes, single_line_break: bool = True, default_image_alt: str = '') -> str:
     import re
 
     from html2text import HTML2Text
@@ -23,11 +28,11 @@ def html2text(html, single_line_break=True, default_image_alt=''):
     return h2t.handle(html)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TestH2T(unittest.TestCase):
-        def test_html2text_behavior(self):
+        def test_html2text_behavior(self) -> None:
             for src, expected in {
                 '<u>test</U>': 'test\n',
                 '<i>test</i>': '*test*\n',

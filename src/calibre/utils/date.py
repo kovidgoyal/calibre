@@ -5,11 +5,18 @@ import re
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
 from datetime import time as dtime
 from functools import partial
+from typing import TYPE_CHECKING, overload
 
 from calibre import strftime
 from calibre.constants import ismacos, iswindows, preferred_encoding
 from calibre.utils.iso8601 import UNDEFINED_DATE, local_tz, utc_tz
 from calibre.utils.localization import lcdata
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from datetime import date, tzinfo
+
+    from qt.core import QDate, QDateTime
 
 # When parsing ambiguous dates that could be either dd-MM Or MM-dd use the
 # user's locale preferences
@@ -36,7 +43,7 @@ elif ismacos:
 else:
     try:
 
-        def first_index(raw, queries):
+        def first_index(raw: str, queries: Iterable[str]) -> int:
             for q in queries:
                 try:
                     return raw.index(str(q))
@@ -56,15 +63,15 @@ DEFAULT_DATE = datetime(2000, 1, 1, tzinfo=utc_tz)
 EPOCH = datetime(1970, 1, 1, tzinfo=utc_tz)
 
 
-def is_date_undefined(qt_or_dt):
+def is_date_undefined(qt_or_dt: date | QDate | QDateTime | None) -> bool:
     d = qt_or_dt
     if d is None:
         return True
     if hasattr(d, 'toString'):
         if hasattr(d, 'date'):
-            d = d.date()
+            d = d.date()  # ty: ignore[call-non-callable]
         try:
-            d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
+            d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)  # ty: ignore[call-non-callable]
         except ValueError:
             return True  # Undefined QDate
     return d.year < UNDEFINED_DATE.year or (d.year == UNDEFINED_DATE.year and d.month == UNDEFINED_DATE.month and d.day == UNDEFINED_DATE.day)
@@ -73,14 +80,14 @@ def is_date_undefined(qt_or_dt):
 _iso_pat = None
 
 
-def iso_pat():
+def iso_pat() -> re.Pattern[str]:
     global _iso_pat
     if _iso_pat is None:
         _iso_pat = re.compile(r'\d{4}[/.-]\d{1,2}[/.-]\d{1,2}')
     return _iso_pat
 
 
-def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
+def parse_date(date_string: str | bytes | None, assume_utc: bool = False, as_utc: bool = True, default: datetime | None = None) -> datetime:
     """
     Parse a date/time string into a timezone aware datetime object. The timezone
     is always either UTC or the local timezone.
@@ -109,7 +116,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     return fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
 
 
-def fix_only_date(val):
+def fix_only_date(val: datetime) -> datetime:
     n = val + timedelta(days=1)
     if n.month > val.month:
         val = val.replace(day=val.day - 1)
@@ -118,7 +125,11 @@ def fix_only_date(val):
     return val
 
 
-def fix_tzinfo(dt, assume_utc=False, as_utc=True):
+@overload
+def fix_tzinfo(dt: datetime, assume_utc: bool = False, as_utc: bool = True) -> datetime: ...
+@overload
+def fix_tzinfo[T](dt: T, assume_utc: bool = False, as_utc: bool = True) -> T: ...
+def fix_tzinfo(dt: datetime, assume_utc: bool = False, as_utc: bool = True) -> datetime:
     if not hasattr(dt, 'tzinfo'):
         # not a datetime (str, None, date, ...), return unchanged
         return dt
@@ -127,7 +138,7 @@ def fix_tzinfo(dt, assume_utc=False, as_utc=True):
     return dt.astimezone(utc_tz if as_utc else local_tz)
 
 
-def parse_only_date(raw, assume_utc=True, as_utc=True):
+def parse_only_date(raw: str | bytes | None, assume_utc: bool = True, as_utc: bool = True) -> datetime:
     """
     Parse a date string that contains no time information in a manner that
     guarantees that the month and year are always correct in all timezones, and
@@ -138,29 +149,29 @@ def parse_only_date(raw, assume_utc=True, as_utc=True):
     return fix_only_date(parse_date(raw, default=default, assume_utc=assume_utc, as_utc=as_utc))
 
 
-def strptime(val, fmt, assume_utc=False, as_utc=True):
+def strptime(val: str, fmt: str, assume_utc: bool = False, as_utc: bool = True) -> datetime:
     dt = datetime.strptime(val, fmt)  # ruff: ignore[call-datetime-strptime-without-zone]
     return fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
 
 
-def dt_factory(time_t, assume_utc=False, as_utc=True):
+def dt_factory(time_t: tuple[int, int, int, int, int, int, *tuple[int, ...]], assume_utc: bool = False, as_utc: bool = True) -> datetime:
     dt = datetime(*(time_t[0:6]))  # ruff: ignore[call-datetime-without-tzinfo]
     return fix_tzinfo(dt, assume_utc=assume_utc, as_utc=as_utc)
 
 
-def safeyear(x):
+def safeyear(x: int) -> int:
     return min(max(MINYEAR, x), MAXYEAR)
 
 
-def qt_to_dt(qdate_or_qdatetime, as_utc=True):
-    from qt.core import QDateTime, Qt
+def qt_to_dt(qdate_or_qdatetime: QDate | QDateTime | None, as_utc: bool = True) -> datetime:
+    from qt.core import QDateTime, Qt  # ruff: ignore[unused-import]
 
     o = qdate_or_qdatetime
     if o is None or is_date_undefined(qdate_or_qdatetime):
         return UNDEFINED_DATE
     if hasattr(o, 'toUTC'):  # QDateTime
 
-        def c(o: QDateTime, tz=utc_tz):
+        def c(o: QDateTime, tz: tzinfo = utc_tz) -> datetime:
             d, t = o.date(), o.time()
             try:
                 return datetime(safeyear(d.year()), d.month(), d.day(), t.hour(), t.minute(), t.second(), t.msec() * 1000, tz)
@@ -170,13 +181,13 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
         # DST causes differences in how python and Qt convert automatically from local to UTC, so convert explicitly ourselves
         # QDateTime::toUTC() and datetime.astimezone(utc_tz) give
         # different results for datetimes in the local_tz when DST is involved. Sigh.
-        spec = o.timeSpec()
+        spec = o.timeSpec()  # ty: ignore[unresolved-attribute]
         if spec == Qt.TimeSpec.LocalTime:
-            ans = c(o, local_tz)
+            ans = c(o, local_tz)  # ty: ignore[invalid-argument-type]
         elif spec == Qt.TimeSpec.UTC:
-            ans = c(o, utc_tz)
+            ans = c(o, utc_tz)  # ty: ignore[invalid-argument-type]
         else:
-            ans = c(o.toUTC(), utc_tz)
+            ans = c(o.toUTC(), utc_tz)  # ty: ignore[call-non-callable]
         return fix_tzinfo(ans, assume_utc=False, as_utc=as_utc)
 
     try:
@@ -186,7 +197,7 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     return fix_tzinfo(dt, assume_utc=False, as_utc=as_utc)
 
 
-def qt_from_dt(d: datetime, assume_utc=False):
+def qt_from_dt(d: datetime, assume_utc: bool = False) -> QDateTime:
     from qt.core import QDate, QDateTime, QTime
 
     if is_date_undefined(d):
@@ -200,53 +211,53 @@ def qt_from_dt(d: datetime, assume_utc=False):
     return ans
 
 
-def fromtimestamp(ctime, as_utc=True):
+def fromtimestamp(ctime: float, as_utc: bool = True) -> datetime:
     return datetime.fromtimestamp(ctime, utc_tz if as_utc else local_tz)
 
 
-def fromordinal(day, as_utc=True):
+def fromordinal(day: int, as_utc: bool = True) -> datetime:
     return datetime.fromordinal(day).replace(tzinfo=utc_tz if as_utc else local_tz)
 
 
-def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
+def isoformat(date_time: date, assume_utc: bool = False, as_utc: bool = True, sep: str = 'T') -> str:
     if not hasattr(date_time, 'tzinfo'):
         return date_time.isoformat()
     date_time = fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=as_utc)
-    return date_time.isoformat(sep)
+    return date_time.isoformat(sep)  # ty: ignore[too-many-positional-arguments]
 
 
-def internal_iso_format_string():
+def internal_iso_format_string() -> str:
     return 'yyyy-MM-ddThh:mm:ss'
 
 
-def w3cdtf(date_time, assume_utc=False):
+def w3cdtf(date_time: datetime, assume_utc: bool = False) -> str:
     date_time = fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=True)
     return str(date_time.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
-def as_local_time(date_time, assume_utc=True):
+def as_local_time[T](date_time: T, assume_utc: bool = True) -> T:
     return fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=False)
 
 
-def dt_as_local(dt):
+def dt_as_local(dt: datetime) -> datetime:
     if dt.tzinfo is local_tz:
         return dt
     return fix_tzinfo(dt, assume_utc=False, as_utc=False)
 
 
-def as_utc(date_time, assume_utc=True):
+def as_utc[T](date_time: T, assume_utc: bool = True) -> T:
     return fix_tzinfo(date_time, assume_utc=assume_utc, as_utc=True)
 
 
-def now():
+def now() -> datetime:
     return datetime.now(local_tz)
 
 
-def utcnow():
+def utcnow() -> datetime:
     return datetime.now(utc_tz)
 
 
-def utcfromtimestamp(stamp):
+def utcfromtimestamp(stamp: float) -> datetime:
     try:
         return datetime.fromtimestamp(stamp, utc_tz)
     except Exception:
@@ -262,14 +273,14 @@ def utcfromtimestamp(stamp):
     return utcnow()
 
 
-def timestampfromdt(dt, assume_utc=True):
+def timestampfromdt(dt: datetime, assume_utc: bool = True) -> float:
     return (as_utc(dt, assume_utc=assume_utc) - EPOCH).total_seconds()
 
 
 # Format date functions {{{
 
 
-def fd_format_hour(dt, ampm, hr):
+def fd_format_hour(dt: datetime, ampm: bool, hr: str) -> str:
     try:
         h = int(strftime('%I' if ampm else '%H', t=dt.timetuple()).strip())
     except Exception:
@@ -281,28 +292,28 @@ def fd_format_hour(dt, ampm, hr):
     return f'{h:02}'
 
 
-def fd_format_minute(dt, ampm, min):
+def fd_format_minute(dt: datetime, ampm: bool, min: str) -> str:
     l = len(min)
     if l == 1:
         return f'{dt.minute}'
     return f'{dt.minute:02}'
 
 
-def fd_format_second(dt, ampm, sec):
+def fd_format_second(dt: datetime, ampm: bool, sec: str) -> str:
     l = len(sec)
     if l == 1:
         return f'{dt.second}'
     return f'{dt.second:02}'
 
 
-def fd_format_ampm(dt, ampm, ap):
+def fd_format_ampm(dt: datetime, ampm: bool, ap: str) -> str:
     res = strftime('%p', t=dt.timetuple())
     if ap in ('aP', 'Ap'):
         return res
     return res.upper() if ap in ('A', 'AP') else res.lower()
 
 
-def fd_format_day(dt, ampm, dy):
+def fd_format_day(dt: datetime, ampm: bool, dy: str) -> str:
     l = len(dy)
     if l == 1:
         return f'{dt.day}'
@@ -311,7 +322,7 @@ def fd_format_day(dt, ampm, dy):
     return lcdata['abday' if l == 3 else 'day'][(dt.weekday() + 1) % 7]
 
 
-def fd_format_month(dt, ampm, mo):
+def fd_format_month(dt: datetime, ampm: bool, mo: str) -> str:
     l = len(mo)
     if l == 1:
         return f'{dt.month}'
@@ -320,7 +331,7 @@ def fd_format_month(dt, ampm, mo):
     return lcdata['abmon' if l == 3 else 'mon'][dt.month - 1]
 
 
-def fd_format_year(dt, ampm, yr):
+def fd_format_year(dt: datetime, ampm: bool, yr: str) -> str:
     if len(yr) == 2:
         return f'{dt.year % 100:02}'
     return f'{dt.year:04}'
@@ -338,14 +349,14 @@ fd_function_index = {
 }
 
 
-def fd_repl_func(dt, ampm, mo):
+def fd_repl_func(dt: datetime, ampm: bool, mo: re.Match[str]) -> str:
     s = mo.group(0)
     if not s:
         return ''
     return fd_function_index[s[0]](dt, ampm, s)
 
 
-def format_date(dt, format, assume_utc=False, as_utc=False):
+def format_date(dt: date, format: str | None, assume_utc: bool = False, as_utc: bool = False) -> str:
     """Return a date formatted as a string using a subset of Qt's formatting codes"""
     format = format or 'dd MMM yyyy'
 
@@ -369,32 +380,32 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 # Clean date functions {{{
 
 
-def cd_has_hour(tt, dt):
+def cd_has_hour(tt: dict[str, int], dt: datetime) -> str:
     tt['hour'] = dt.hour
     return ''
 
 
-def cd_has_minute(tt, dt):
+def cd_has_minute(tt: dict[str, int], dt: datetime) -> str:
     tt['min'] = dt.minute
     return ''
 
 
-def cd_has_second(tt, dt):
+def cd_has_second(tt: dict[str, int], dt: datetime) -> str:
     tt['sec'] = dt.second
     return ''
 
 
-def cd_has_day(tt, dt):
+def cd_has_day(tt: dict[str, int], dt: datetime) -> str:
     tt['day'] = dt.day
     return ''
 
 
-def cd_has_month(tt, dt):
+def cd_has_month(tt: dict[str, int], dt: datetime) -> str:
     tt['mon'] = dt.month
     return ''
 
 
-def cd_has_year(tt, dt):
+def cd_has_year(tt: dict[str, int], dt: datetime) -> str:
     tt['year'] = dt.year
     return ''
 
@@ -409,14 +420,14 @@ cd_function_index = {
 }
 
 
-def cd_repl_func(tt, dt, match_object):
+def cd_repl_func(tt: dict[str, int], dt: datetime, match_object: re.Match[str]) -> str:
     s = match_object.group(0)
     if not s:
         return ''
     return cd_function_index[s[0]](tt, dt)
 
 
-def clean_date_for_sort(dt, fmt=None):
+def clean_date_for_sort(dt: date, fmt: str | None = None) -> datetime:
     """Return dt with fields not in shown in format set to a default"""
     if not fmt:
         fmt = 'yyMd'
@@ -454,7 +465,7 @@ def clean_date_for_sort(dt, fmt=None):
 # }}}
 
 
-def replace_months(datestr, clang):
+def replace_months(datestr: str, clang: str) -> str:
     # Replace months by english equivalent for parse_date
     frtoen = {
         '[jJ]anvier': 'jan',

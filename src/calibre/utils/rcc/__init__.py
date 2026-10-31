@@ -12,7 +12,7 @@ from qt.core import QFile, QIODevice
 from calibre_extensions import rcc_backend
 
 
-def compile_qrc(output_path, *qrc_file_paths):
+def compile_qrc(output_path: str, *qrc_file_paths: str) -> None:
     rcc = rcc_backend.RCCResourceLibrary()
     err_device = QFile()
 
@@ -38,7 +38,7 @@ def compile_qrc(output_path, *qrc_file_paths):
         raise ValueError('Failed to write output')
 
 
-def index_theme(name, inherits=''):
+def index_theme(name: str, inherits: str = '') -> str:
     min_sz, sz, max_sz = 16, 128, 512
     lines = ['[Icon Theme]', f'Name={name}', 'Comment=Icons for calibre']
     if inherits:
@@ -50,7 +50,7 @@ def index_theme(name, inherits=''):
     return '\n'.join(lines)
 
 
-def safe_link(src, dest):
+def safe_link(src: str, dest: str) -> None:
     try:
         os.link(src, dest)
     except FileExistsError:
@@ -59,18 +59,18 @@ def safe_link(src, dest):
 
 
 def compile_icon_dir_as_themes(
-    path_to_dir,
-    output_path,
-    theme_name='calibre-default',
-    inherits='',
-    for_theme='any',
-    prefix='/icons',
-):
+    path_to_dir: str,
+    output_path: str,
+    theme_name: str = 'calibre-default',
+    inherits: str = '',
+    for_theme: str = 'any',
+    prefix: str = '/icons',
+) -> None:
     with tempfile.TemporaryDirectory(dir=path_to_dir) as tdir, open(os.path.join(tdir, 'icons.qrc'), 'w') as qrc:
         print('<RCC>', file=qrc)
         print(f'  <qresource prefix="{prefix}">', file=qrc)
 
-        def file(name):
+        def file(name: str) -> None:
             name = name.replace('\\', '/')
             print(f'    <file>{normpath(name)}</file>', file=qrc)
 
@@ -89,7 +89,7 @@ def compile_icon_dir_as_themes(
                 f.write(index_theme(q, inherits=theme_name))
                 file(f'{q}/index.theme')
 
-        def handle_image(image_path):
+        def handle_image(image_path: str) -> None:
             image_name = os.path.basename(image_path)
             rp = os.path.relpath(os.path.dirname(image_path), path_to_dir).replace('\\', '/').strip('/').replace('/', '__')
             if rp == '.':

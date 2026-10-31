@@ -9,7 +9,7 @@ from calibre.utils.localization import bcp47_locale_name, locale_fallbacks, sani
 class TestLocaleNames(unittest.TestCase):
     ae = unittest.TestCase.assertEqual
 
-    def test_sanitize_lang(self):
+    def test_sanitize_lang(self) -> None:
         for raw, expected in {
             'de_DE.utf8': 'de_DE',
             'de': 'de',
@@ -23,7 +23,7 @@ class TestLocaleNames(unittest.TestCase):
         }.items():
             self.ae(sanitize_lang(raw), expected, f'Failed for: {raw!r}')
 
-    def test_locale_fallbacks(self):
+    def test_locale_fallbacks(self) -> None:
         for raw, expected in {
             'de': ['de'],
             'pt_BR': ['pt_BR', 'pt'],
@@ -33,7 +33,7 @@ class TestLocaleNames(unittest.TestCase):
         }.items():
             self.ae(locale_fallbacks(raw), expected, f'Failed for: {raw!r}')
 
-    def test_bcp47_locale_name(self):
+    def test_bcp47_locale_name(self) -> None:
         for raw, expected in {
             'de_DE': 'de_DE',
             'sr': 'sr',
@@ -45,7 +45,7 @@ class TestLocaleNames(unittest.TestCase):
         }.items():
             self.ae(bcp47_locale_name(raw), expected, f'Failed for: {raw!r}')
 
-    def test_qt_understands_script_variants(self):
+    def test_qt_understands_script_variants(self) -> None:
         # Qt truncates a locale name at the @, so it must be given the script
         # as a subtag, otherwise sr@latin displays Cyrillic month names.
         try:
@@ -57,7 +57,7 @@ class TestLocaleNames(unittest.TestCase):
         self.ae(QLocale(bcp47_locale_name('sr')).bcp47Name(), 'sr')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestLocaleNames)
 
 

@@ -316,13 +316,13 @@ class Canvas(QWidget):
             return
         self.is_valid = False
         try:
-            fmt = identify(data)[0].encode('ascii')
+            fmt = identify(data)[0].encode('ascii')  # ty: ignore[unresolved-attribute]
         except Exception:
             fmt = b''
         self.original_image_format = fmt.decode('ascii').lower()
         self.selection_state.reset()
         self.original_image_data = data
-        self.current_image = i = self.original_image = QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data)
+        self.current_image = i = self.original_image = QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data)  # ty: ignore[no-matching-overload]
         self.is_valid = not i.isNull()
         self.current_scaled_pixmap = None
         self.update()
@@ -342,7 +342,7 @@ class Canvas(QWidget):
         fmt = self.original_image_format or 'JPEG'
         if fmt.lower() not in {x.data().decode('utf-8') for x in QImageWriter.supportedImageFormats()}:
             if fmt.lower() == 'gif':
-                data = image_to_data(self.current_image, fmt='PNG', png_compression_level=0)
+                data = image_to_data(self.current_image, fmt='PNG', png_compression_level=0)  # ty: ignore[invalid-argument-type]
                 from PIL import Image
 
                 i = Image.open(BytesIO(data))

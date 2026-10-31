@@ -11,11 +11,16 @@ import os
 import re
 import shlex
 import sys
+from collections.abc import Iterable, Iterator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from optparse import Option, OptionParser
 
 prints = print
 
 
-def split(src):
+def split(src: str) -> list[str]:
     try:
         return shlex.split(src)
     except ValueError:
@@ -25,7 +30,7 @@ def split(src):
             return shlex.split(src + "'")
 
 
-def files_and_dirs(prefix, allowed_exts=None):
+def files_and_dirs(prefix: str, allowed_exts: Iterable[str] | None = None) -> Iterator[str]:
     if allowed_exts is None:
         allowed_exts = []
     prefix = os.path.expanduser(prefix)
@@ -38,8 +43,8 @@ def files_and_dirs(prefix, allowed_exts=None):
             yield i + ' '
 
 
-def get_opts_from_parser(parser, prefix):
-    def do_opt(opt):
+def get_opts_from_parser(parser: OptionParser, prefix: str) -> Iterator[str]:
+    def do_opt(opt: Option) -> Iterator[str]:
         for x in opt._long_opts:
             if x.startswith(prefix):
                 yield x
@@ -56,7 +61,7 @@ def get_opts_from_parser(parser, prefix):
                 yield x + ' '
 
 
-def send(ans):
+def send(ans: Iterable[str]) -> None:
     pat = re.compile(r'([^0-9a-zA-Z_./-])')
     for x in sorted(set(ans)):
         x = pat.sub(lambda m: '\\' + m.group(1), x)
@@ -66,7 +71,7 @@ def send(ans):
 
 
 class EbookConvert:
-    def __init__(self, comp_line, pos):
+    def __init__(self, comp_line: str, pos: int) -> None:
         words = split(comp_line[:pos])
         char_before = comp_line[pos - 1]
         prefix = words[-1] if words[-1].endswith(char_before) else ''
@@ -82,7 +87,7 @@ class EbookConvert:
             self.cache = msgpack_loads(f.read(), use_list=False)
         self.complete(wc)
 
-    def complete(self, wc):
+    def complete(self, wc: int) -> None:
         if wc == 2:
             self.complete_input()
         elif wc == 3:
@@ -112,19 +117,19 @@ class EbookConvert:
                 ans += list(files_and_dirs(self.prefix, None))
             send(ans)
 
-    def complete_input(self):
+    def complete_input(self) -> None:
         ans = list(files_and_dirs(self.prefix, self.cache['input_fmts']))
         ans += [t for t in self.cache['input_recipes'] if t.startswith(self.prefix)]
         send(ans)
 
-    def complete_output(self):
+    def complete_output(self) -> None:
         fmts = self.cache['output']
         ans = list(files_and_dirs(self.prefix, fmts))
         ans += ['.' + x + ' ' for x in fmts if ('.' + x).startswith(self.prefix)]
         send(ans)
 
 
-def main(args=sys.argv):
+def main(args: list[str] = sys.argv) -> int:
     comp_line, pos = os.environ['COMP_LINE'], int(os.environ['COMP_POINT'])
     module = split(comp_line)[0].split(os.sep)[-1]
     if module == 'ebook-convert':

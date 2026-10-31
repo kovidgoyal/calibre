@@ -7,32 +7,39 @@ import os
 import re
 import traceback
 from collections import defaultdict
+from collections.abc import Callable, Sequence
 from contextlib import suppress
 from copy import deepcopy
 from functools import lru_cache, partial
 from types import TracebackType
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, overload
 
 from calibre.constants import CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows, preferred_encoding
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    import unittest
+    from optparse import OptionContainer
+
+    from calibre.utils.config import OptionParser
+
 plugin_dir = os.path.join(config_dir, 'plugins')
 
 
 class Prefs(Protocol):
-    def set(self, key: str, val: Any) -> None: ...
-    def get(self, key: str) -> Any: ...
-    def __getitem__(self, key: str) -> Any: ...
-    def __setitem__(self, key: str, val: Any) -> None: ...
+    def set(self, key: str, val: Any) -> None: ...  # ruff: ignore[any-type]
+    def get(self, key: str) -> Any: ...  # ruff: ignore[any-type]
+    def __getitem__(self, key: str) -> Any: ...  # ruff: ignore[any-type]
+    def __setitem__(self, key: str, val: Any) -> None: ...  # ruff: ignore[any-type]
     def __enter__(self) -> None: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None: ...
 
 
-def parse_old_style(src):
+def parse_old_style(src: str | bytes) -> dict[str, Any]:
     import pickle as cPickle
 
-    options = {'cPickle': cPickle}
+    options: dict[str, Any] = {'cPickle': cPickle}
     try:
         if not isinstance(src, str):
             src = src.decode('utf-8')
@@ -47,7 +54,7 @@ def parse_old_style(src):
     return options
 
 
-def to_json(obj):
+def to_json(obj: object) -> dict[str, object] | str | int:
     import datetime
 
     if isinstance(obj, bytearray):
@@ -63,21 +70,21 @@ def to_json(obj):
     if isinstance(obj, bytes):
         return obj.decode('utf-8')
     if hasattr(obj, 'toBase64'):  # QByteArray
-        return {'__class__': 'bytearray', '__value__': bytes(obj.toBase64()).decode('ascii')}
+        return {'__class__': 'bytearray', '__value__': bytes(obj.toBase64()).decode('ascii')}  # ty: ignore[call-non-callable]
     v = getattr(obj, 'value', None)
     if isinstance(v, int):  # Possibly an enum with integer values like all the Qt enums
         return v
     raise TypeError(repr(obj) + ' is not JSON serializable')
 
 
-def safe_to_json(obj):
+def safe_to_json(obj: object) -> dict[str, object] | str | int | None:
     try:
         return to_json(obj)
     except Exception:
         pass
 
 
-def from_json(obj):
+def from_json(obj: dict[str, Any]) -> object:
     custom = obj.get('__class__')
     if custom is not None:
         if custom == 'bytearray':
@@ -93,7 +100,7 @@ def from_json(obj):
     return obj
 
 
-def force_unicode(x):
+def force_unicode(x: bytes) -> str:
     try:
         return x.decode('mbcs' if iswindows else preferred_encoding)
     except UnicodeDecodeError:
@@ -103,7 +110,7 @@ def force_unicode(x):
             return x.decode('utf-8', 'replace')
 
 
-def force_unicode_recursive(obj):
+def force_unicode_recursive(obj: object) -> object:
     if isinstance(obj, bytes):
         return force_unicode(obj)
     if isinstance(obj, (list, tuple)):
@@ -113,7 +120,7 @@ def force_unicode_recursive(obj):
     return obj
 
 
-def json_dumps(obj, ignore_unserializable=False):
+def json_dumps(obj: object, ignore_unserializable: bool = False) -> bytes:
     import json
 
     try:
@@ -138,7 +145,7 @@ def json_dumps(obj, ignore_unserializable=False):
     return ans
 
 
-def json_loads(raw):
+def json_loads(raw: str | bytes | bytearray) -> Any:  # ruff: ignore[any-type]
     import json
 
     if isinstance(raw, bytes):
@@ -146,7 +153,7 @@ def json_loads(raw):
     return json.loads(raw, object_hook=from_json)
 
 
-def make_config_dir():
+def make_config_dir() -> None:
     if not os.path.exists(plugin_dir):
         os.makedirs(plugin_dir, mode=CONFIG_DIR_MODE)
 
@@ -154,17 +161,17 @@ def make_config_dir():
 class Option:
     def __init__(
         self,
-        name,
-        switches=None,
-        help='',
-        type=None,
-        choices=None,
-        check=None,
-        group=None,
-        default=None,
-        action=None,
-        metavar=None,
-    ):
+        name: str,
+        switches: list[str] | None = None,
+        help: str | None = '',
+        type: str | None = None,
+        choices: Sequence[str] | None = None,
+        check: Callable[..., object] | None = None,
+        group: str | None = None,
+        default: Any = None,  # ruff: ignore[any-type]
+        action: str | None = None,
+        metavar: str | None = None,
+    ) -> None:
         if switches is None:
             switches = []
         if choices:
@@ -187,54 +194,58 @@ class Option:
         self.action = action
         self.metavar = metavar
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.name == getattr(other, 'name', other)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'Option: ' + self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 
 class OptionValues:
-    def copy(self):
+    if TYPE_CHECKING:
+        # option values are set dynamically as attributes
+        def __getattr__(self, name: str) -> Any: ...  # ruff: ignore[any-type]
+
+    def copy(self) -> OptionValues:
         return deepcopy(self)
 
 
 class OptionSet:
     OVERRIDE_PAT = re.compile(r'#{3,100} Override Options #{15}(.*?)#{3,100} End Override #{3,100}', re.DOTALL | re.IGNORECASE)
 
-    def __init__(self, description=''):
+    def __init__(self, description: str = '') -> None:
         self.description = description
-        self.defaults = {}
-        self.preferences = []
-        self.group_list = []
-        self.groups = {}
-        self.set_buffer = {}
+        self.defaults: dict[str, Any] = {}
+        self.preferences: list[Option] = []
+        self.group_list: list[str] = []
+        self.groups: dict[str, str] = {}
+        self.set_buffer: dict[str, Any] = {}
         self.loads_pat = None
 
-    def has_option(self, name_or_option_object):
+    def has_option(self, name_or_option_object: str | Option) -> bool:
         if name_or_option_object in self.preferences:
             return True
         return any(p.name == name_or_option_object for p in self.preferences)
 
-    def get_option(self, name_or_option_object):
-        idx = self.preferences.index(name_or_option_object)
+    def get_option(self, name_or_option_object: str | Option) -> Option | None:
+        idx = self.preferences.index(name_or_option_object)  # ty: ignore[invalid-argument-type]
         if idx > -1:
             return self.preferences[idx]
         for p in self.preferences:
             if p.name == name_or_option_object:
                 return p
 
-    def add_group(self, name, description=''):
+    def add_group(self, name: str, description: str = '') -> Callable[..., None]:
         if name in self.group_list:
             raise ValueError(f'A group by the name {name} already exists in this set')
         self.groups[name] = description
         self.group_list.append(name)
         return partial(self.add_opt, group=name)
 
-    def update(self, other):
+    def update(self, other: OptionSet) -> None:
         for name in other.groups.keys():
             self.groups[name] = other.groups[name]
             if name not in self.group_list:
@@ -244,7 +255,7 @@ class OptionSet:
                 self.preferences.remove(pref)
             self.preferences.append(pref)
 
-    def smart_update(self, opts1, opts2):
+    def smart_update(self, opts1: object, opts2: object) -> None:
         """
         Updates the preference values in opts1 using only the non-default preference values in opts2.
         """
@@ -253,11 +264,22 @@ class OptionSet:
             if new != pref.default:
                 setattr(opts1, pref.name, new)
 
-    def remove_opt(self, name):
+    def remove_opt(self, name: str | Option) -> None:
         if name in self.preferences:
-            self.preferences.remove(name)
+            self.preferences.remove(name)  # ty: ignore[invalid-argument-type]
 
-    def add_opt(self, name, switches=None, help=None, type=None, choices=None, group=None, default=None, action=None, metavar=None):
+    def add_opt(
+        self,
+        name: str,
+        switches: list[str] | None = None,
+        help: str | None = None,
+        type: str | None = None,
+        choices: Sequence[str] | None = None,
+        group: str | None = None,
+        default: Any = None,  # ruff: ignore[any-type]
+        action: str | None = None,
+        metavar: str | None = None,
+    ) -> None:
         """
         Add an option to this section.
 
@@ -297,7 +319,7 @@ class OptionSet:
         self.preferences.append(pref)
         self.defaults[name] = default
 
-    def retranslate_help(self):
+    def retranslate_help(self) -> None:
         t = _
         for opt in self.preferences:
             if opt.help:
@@ -305,11 +327,11 @@ class OptionSet:
                 if opt.name == 'use_primary_find_in_search':
                     opt.help = opt.help.format('ñ')
 
-    def option_parser(self, user_defaults=None, usage='', gui_mode=False):
+    def option_parser(self, user_defaults: object = None, usage: str = '', gui_mode: bool = False) -> OptionParser:
         from calibre.utils.config import OptionParser
 
         parser = OptionParser(usage, gui_mode=gui_mode)
-        groups = defaultdict(lambda: parser)
+        groups: defaultdict[str | None, OptionContainer] = defaultdict(lambda: parser)
         for group, desc in self.groups.items():
             groups[group] = parser.add_option_group(group.upper(), desc)
 
@@ -331,17 +353,17 @@ class OptionSet:
                 default=getattr(user_defaults, pref.name, pref.default),
                 action=action,
             )
-            g.add_option(*pref.switches, **args)
+            g.add_option(*pref.switches, **args)  # ty: ignore[no-matching-overload]
 
         return parser
 
-    def get_override_section(self, src):
+    def get_override_section(self, src: str) -> str:
         match = self.OVERRIDE_PAT.search(src)
         if match:
             return match.group()
         return ''
 
-    def parse_string(self, src):
+    def parse_string(self, src: str | bytes | None) -> OptionValues:
         options = {}
         if src:
             is_old_style = (isinstance(src, bytes) and src.startswith(b'#')) or (isinstance(src, str) and src.startswith('#'))
@@ -367,13 +389,13 @@ class OptionSet:
 
         return opts
 
-    def serialize(self, opts, ignore_unserializable=False):
+    def serialize(self, opts: object, ignore_unserializable: bool = False) -> bytes:
         data = {pref.name: getattr(opts, pref.name, pref.default) for pref in self.preferences}
         return json_dumps(data, ignore_unserializable=ignore_unserializable)
 
 
 class ConfigInterface:
-    def __init__(self, description):
+    def __init__(self, description: str) -> None:
         self.option_set = OptionSet(description=description)
         self.add_opt = self.option_set.add_opt
         self.add_group = self.option_set.add_group
@@ -382,20 +404,20 @@ class ConfigInterface:
         self.get_option = self.option_set.get_option
         self.preferences = self.option_set.preferences
 
-    def update(self, other):
+    def update(self, other: ConfigInterface) -> None:
         self.option_set.update(other.option_set)
 
-    def option_parser(self, usage='', gui_mode=False):
+    def option_parser(self, usage: str = '', gui_mode: bool = False) -> OptionParser:
         return self.option_set.option_parser(user_defaults=self.parse(), usage=usage, gui_mode=gui_mode)
 
-    def smart_update(self, opts1, opts2):
+    def smart_update(self, opts1: object, opts2: object) -> None:
         self.option_set.smart_update(opts1, opts2)
 
     def parse(self) -> OptionValues:
         raise NotImplementedError()
 
 
-def retry_on_fail(func, *args, count=10, sleep_time=0.2):
+def retry_on_fail[T](func: Callable[..., T], *args: object, count: int = 10, sleep_time: float = 0.2) -> T | None:
     import time
 
     ERROR_SHARING_VIOLATION = 32
@@ -419,15 +441,15 @@ def retry_on_fail(func, *args, count=10, sleep_time=0.2):
             time.sleep(sleep_time)
 
 
-def read_data(file_path):
-    def r():
+def read_data(file_path: str) -> bytes:
+    def r() -> bytes:
         with open(file_path, 'rb') as f:
             return f.read()
 
-    return retry_on_fail(r)
+    return retry_on_fail(r)  # ty: ignore[invalid-return-type]
 
 
-def commit_data(file_path, data, permissions=0o666):
+def commit_data(file_path: str, data: bytes, permissions: int = 0o666) -> None:
     import tempfile
 
     bdir = os.path.dirname(file_path)
@@ -448,15 +470,15 @@ class Config(ConfigInterface):
     A file based configuration.
     """
 
-    def __init__(self, basename, description=''):
+    def __init__(self, basename: str, description: str = '') -> None:
         ConfigInterface.__init__(self, description)
         self.filename_base = basename
 
     @property
-    def config_file_path(self):
+    def config_file_path(self) -> str:
         return os.path.join(config_dir, self.filename_base + '.py.json')
 
-    def parse(self):
+    def parse(self) -> OptionValues:
         src = ''
         migrate = False
         path = self.config_file_path
@@ -484,7 +506,7 @@ class Config(ConfigInterface):
             commit_data(self.config_file_path, new_src)
         return ans
 
-    def set(self, name, val):
+    def set(self, name: str, val: object) -> None:
         if not self.option_set.has_option(name):
             raise ValueError(f'The option {name} is not defined.')
         if not os.path.exists(config_dir):
@@ -505,19 +527,19 @@ class StringConfig(ConfigInterface):
     A string based configuration
     """
 
-    def __init__(self, src, description=''):
+    def __init__(self, src: str | bytes, description: str = '') -> None:
         ConfigInterface.__init__(self, description)
         self.set_src(src)
 
-    def set_src(self, src):
+    def set_src(self, src: str | bytes) -> None:
         self.src = src
         if isinstance(self.src, bytes):
             self.src = self.src.decode('utf-8')
 
-    def parse(self):
+    def parse(self) -> OptionValues:
         return self.option_set.parse_string(self.src)
 
-    def set(self, name, val):
+    def set(self, name: str, val: object) -> None:
         if not self.option_set.has_option(name):
             raise ValueError(f'The option {name} is not defined.')
         opts = self.option_set.parse_string(self.src)
@@ -530,45 +552,53 @@ class ConfigProxy:
     A Proxy to minimize file reads for widely used config settings
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Config | StringConfig) -> None:
         self.__config = config
-        self.__opts = None
+        self.__opts: OptionValues | None = None
 
     @property
-    def defaults(self):
+    def defaults(self) -> dict[str, Any]:
         return self.__config.option_set.defaults
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.__opts = self.__config.parse()
 
-    def retranslate_help(self):
+    def retranslate_help(self) -> None:
         self.__config.option_set.retranslate_help()
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:  # ruff: ignore[any-type]
         return self.get(key)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: object) -> None:
         return self.set(key, val)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         self.set(key, self.defaults[key])
 
-    def get(self, key):
+    def get(self, key: str) -> Any:  # ruff: ignore[any-type]
         if self.__opts is None:
             self.refresh()
         return getattr(self.__opts, key)
 
-    def set(self, key, val):
+    def set(self, key: str, val: object) -> None:
         if self.__opts is None:
             self.refresh()
         setattr(self.__opts, key, val)
         return self.__config.set(key, val)
 
-    def help(self, key):
-        return self.__config.get_option(key).help
+    def help(self, key: str) -> str | None:
+        return self.__config.get_option(key).help  # ty: ignore[unresolved-attribute]
 
 
-def create_global_prefs(conf_obj=None):
+@overload
+def create_global_prefs(conf_obj: None = None) -> Config: ...
+
+
+@overload
+def create_global_prefs[C: ConfigInterface](conf_obj: C) -> C: ...
+
+
+def create_global_prefs(conf_obj: ConfigInterface | None = None) -> ConfigInterface:
     c = Config('global', 'calibre wide preferences') if conf_obj is None else conf_obj
     c.add_opt(
         'database_path',
@@ -707,11 +737,23 @@ if prefs['installation_uuid'] is None:
 # Read tweaks
 
 
-def tweaks_file():
+def tweaks_file() -> str:
     return os.path.join(config_dir, 'tweaks.json')
 
 
-def make_unicode(obj):
+@overload
+def make_unicode(obj: bytes) -> str: ...
+
+
+@overload
+def make_unicode(obj: dict[str, Any]) -> dict[str, Any]: ...
+
+
+@overload
+def make_unicode(obj: object) -> object: ...
+
+
+def make_unicode(obj: object) -> object:
     if isinstance(obj, bytes):
         try:
             return obj.decode('utf-8')
@@ -724,7 +766,7 @@ def make_unicode(obj):
     return obj
 
 
-def normalize_tweak(val):
+def normalize_tweak(val: object) -> object:
     if isinstance(val, (list, tuple)):
         return tuple(map(normalize_tweak, val))
     if isinstance(val, dict):
@@ -732,7 +774,7 @@ def normalize_tweak(val):
     return val
 
 
-def parse_python_tweaks(text: str) -> dict[str, object]:
+def parse_python_tweaks(text: str) -> dict[str, Any]:
     import ast
 
     ans = {}
@@ -752,7 +794,7 @@ def parse_python_tweaks(text: str) -> dict[str, object]:
     return ans
 
 
-def write_custom_tweaks(tweaks_dict):
+def write_custom_tweaks(tweaks_dict: dict[str, Any]) -> None:
     make_config_dir()
     tweaks_dict = make_unicode(tweaks_dict)
     changed_tweaks = {}
@@ -766,7 +808,7 @@ def write_custom_tweaks(tweaks_dict):
         f.write(raw)
 
 
-def read_custom_tweaks():
+def read_custom_tweaks() -> dict[str, Any]:
     make_config_dir()
     tf = tweaks_file()
     ans = {}
@@ -793,11 +835,11 @@ def read_custom_tweaks():
 
 
 @lru_cache
-def default_tweaks_raw():
+def default_tweaks_raw() -> str:
     return P('default_tweaks.py', data=True, allow_user_override=False).decode()
 
 
-def read_tweaks():
+def read_tweaks() -> dict[str, Any]:
     default_tweaks = parse_python_tweaks(default_tweaks_raw())
     try:
         custom_tweaks = read_custom_tweaks()
@@ -810,7 +852,7 @@ def read_tweaks():
 tweaks = read_tweaks()
 
 
-def migrate_tweaks_to_prefs():
+def migrate_tweaks_to_prefs() -> None:
     # This must happen after the tweaks are loaded
     # Migrate the numeric_collation tweak
     if 'numeric_collation' in tweaks:
@@ -827,29 +869,29 @@ def migrate_tweaks_to_prefs():
 migrate_tweaks_to_prefs()
 
 
-def reset_tweaks_to_default():
+def reset_tweaks_to_default() -> None:
     default_tweaks = parse_python_tweaks(default_tweaks_raw())
     tweaks.clear()
     tweaks.update(default_tweaks)
 
 
 class Tweak:
-    def __init__(self, name, value):
+    def __init__(self, name: str, value: object) -> None:
         self.name, self.value = name, value
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.origval = tweaks[self.name]
         tweaks[self.name] = self.value
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         tweaks[self.name] = self.origval
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TestTweakParsing(unittest.TestCase):
-        def test_tweak_parsing(self):
+        def test_tweak_parsing(self) -> None:
             for raw in (default_tweaks_raw(),):
                 expected, g = {}, {}
                 exec(raw, g, expected)

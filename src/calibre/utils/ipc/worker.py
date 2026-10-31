@@ -4,6 +4,7 @@
 import importlib
 import os
 import sys
+from collections.abc import Callable, Sequence
 from queue import Queue
 from threading import Thread
 from zipimport import ZipImportError
@@ -39,16 +40,16 @@ PARALLEL_FUNCS = {
 
 
 class Progress(Thread):
-    def __init__(self, conn):
+    def __init__(self, conn: Connection) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.conn = conn
         self.queue = Queue()
 
-    def __call__(self, percent, msg=''):
+    def __call__(self, percent: float, msg: str = '') -> None:
         self.queue.put((percent, msg))
 
-    def run(self):
+    def run(self) -> None:
         while True:
             x = self.queue.get()
             if x is None:
@@ -59,7 +60,7 @@ class Progress(Thread):
                 break
 
 
-def arbitrary(module_name, func_name, args, kwargs=None):
+def arbitrary(module_name: str, func_name: str, args: Sequence[object], kwargs: dict[str, object] | None = None) -> object:
     """
     An entry point that allows arbitrary functions to be run in a parallel
     process. useful for plugin developers that want to run jobs in a parallel
@@ -100,7 +101,13 @@ def arbitrary(module_name, func_name, args, kwargs=None):
     return func(*args, **kwargs)
 
 
-def arbitrary_n(module_name, func_name, args, kwargs=None, notification=lambda x, y: y):
+def arbitrary_n(
+    module_name: str,
+    func_name: str,
+    args: Sequence[object],
+    kwargs: dict[str, object] | None = None,
+    notification: Callable[[float, str], object] = lambda x, y: y,
+) -> object:
     '''
     Same as :func:`arbitrary` above, except that func_name must support a
     keyword argument "notification". This will be a function that accepts two
@@ -120,7 +127,7 @@ def arbitrary_n(module_name, func_name, args, kwargs=None, notification=lambda x
     return func(*args, **kwargs)
 
 
-def get_func(name):
+def get_func(name: str) -> tuple[Callable[..., object], str | None]:
     module_name, func, notification = PARALLEL_FUNCS[name]
     try:
         module = importlib.import_module(module_name)
@@ -135,7 +142,7 @@ def get_func(name):
     return func, notification
 
 
-def main():
+def main() -> int | None:
     if '__multiprocessing__' in sys.argv:
         idx = sys.argv.index('__multiprocessing__')
         payload = sys.argv[idx + 1]

@@ -648,7 +648,7 @@ class PiperEmbedded:
     def resolve_voice(self, lang: str, voice_name: str) -> Voice:
         from calibre.utils.localization import canonicalize_lang, get_lang
 
-        lang = canonicalize_lang(lang or get_lang() or 'en')
+        lang = canonicalize_lang(lang or get_lang() or 'en')  # ty: ignore[invalid-assignment]
         pv = self._embedded_settings.preferred_voices or {}
         if voice_name and voice_name in self._voice_name_map:
             voice = self._voice_name_map[voice_name]

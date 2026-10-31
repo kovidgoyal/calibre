@@ -1973,7 +1973,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
                         if url_pattern.startswith(('http:', 'https:')):
                             url_pattern = '(?:http|https):' + url_pattern.partition(':')[2]
                         new_id = re.compile(url_pattern)
-                        new_id = new_id.search(text).group('new_id')
+                        new_id = new_id.search(text).group('new_id')  # ty: ignore[unresolved-attribute]
                         if new_id:
                             vals = self.current_val
                             vals[key] = new_id

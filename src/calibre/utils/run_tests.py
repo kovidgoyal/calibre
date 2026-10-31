@@ -12,11 +12,31 @@ import sys
 import tempfile
 import threading
 import unittest
+from collections.abc import Callable, Collection, Iterable, Iterator
+from typing import TYPE_CHECKING, NoReturn, Protocol, TextIO
 
 from calibre.constants import debug, isbsd, islinux, ismacos, iswindows
 from calibre.utils.monotonic import monotonic
 from calibre.utils.serialize import msgpack_dumps
 from polyglot.binary import as_hex_unicode
+
+if TYPE_CHECKING:
+    from subprocess import Popen
+
+    from _typeshed import OptExcInfo
+
+    class _WritableStream(Protocol):
+        write: Callable[..., object]
+        writeln: Callable[..., object]
+
+    class _HasStream(Protocol):
+        stream: _WritableStream
+
+    class _BoundResultMethod(Protocol):
+        __self__: _HasStream
+
+        def __call__(self, *args: object, **kwargs: object) -> object: ...
+
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -42,9 +62,9 @@ def _c(code: str, text: str) -> str:
     return f'{code}{text}{_R}' if _USE_COLOR else text
 
 
-def no_endl(f):
+def no_endl(f: _BoundResultMethod) -> Callable[..., object]:
     @functools.wraps(f)
-    def func(*args, **kwargs):
+    def func(*args: object, **kwargs: object) -> object:
         self = f.__self__
         orig = self.stream.writeln
         self.stream.writeln = self.stream.write
@@ -57,19 +77,19 @@ def no_endl(f):
 
 
 class TestResult(unittest.TextTestResult):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.start_time = {}
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, **kwargs)  # ty: ignore[invalid-argument-type]
+        self.start_time: dict[unittest.TestCase, float] = {}
         for x in ('Success', 'Error', 'Failure', 'Skip', 'ExpectedFailure', 'UnexpectedSuccess'):
             x = 'add' + x
             setattr(self, x, no_endl(getattr(self, x)))
-        self.times = {}
+        self.times: dict[unittest.TestCase, float] = {}
 
-    def startTest(self, test):
+    def startTest(self, test: unittest.TestCase) -> None:
         self.start_time[test] = monotonic()
         return super().startTest(test)
 
-    def stopTest(self, test):
+    def stopTest(self, test: unittest.TestCase) -> None:
         orig = self.stream.writeln
         try:
             self.stream.writeln = self.stream.write  # type: ignore
@@ -81,7 +101,7 @@ class TestResult(unittest.TextTestResult):
             self.stream.writeln = orig  # type: ignore
             self.stream.writeln(f' [{elapsed:.1f} s]')
 
-    def stopTestRun(self):
+    def stopTestRun(self) -> None:
         super().stopTestRun()
         if self.wasSuccessful():
             tests = sorted(self.times, key=self.times.__getitem__, reverse=True)
@@ -90,7 +110,7 @@ class TestResult(unittest.TextTestResult):
                 self.stream.writeln('\nSlowest tests: {}'.format(' '.join(slowest)))
 
 
-def find_tests_in_package(package, excludes=('main.py',)):
+def find_tests_in_package(package: str, excludes: Iterable[str] = ('main.py',)) -> unittest.TestSuite:
     items = [path.name for path in importlib.resources.files(package).iterdir()]
     suits = []
     excludes = set(excludes) | {x + 'c' for x in excludes}
@@ -106,7 +126,7 @@ def find_tests_in_package(package, excludes=('main.py',)):
     return unittest.TestSuite(suits)
 
 
-def itertests(suite):
+def itertests(suite: unittest.TestSuite) -> Iterator[unittest.TestCase]:
     stack = [suite]
     while stack:
         suite = stack.pop()
@@ -119,7 +139,7 @@ def itertests(suite):
             yield test
 
 
-def init_env():
+def init_env() -> None:
     from calibre.ebooks.metadata.book.base import reset_field_metadata
     from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
     from calibre.utils.config_base import reset_tweaks_to_default
@@ -129,7 +149,7 @@ def init_env():
     setup_css_parser_serialization()
 
 
-def filter_tests(suite, test_ok):
+def filter_tests(suite: unittest.TestSuite, test_ok: Callable[[unittest.TestCase], bool]) -> unittest.TestSuite:
     ans = unittest.TestSuite()
     added = set()
     for test in itertests(suite):
@@ -139,28 +159,28 @@ def filter_tests(suite, test_ok):
     return ans
 
 
-def filter_tests_by_name(suite, *names):
-    names = {x if x.startswith('test_') else 'test_' + x for x in names}
+def filter_tests_by_name(suite: unittest.TestSuite, *names: str) -> unittest.TestSuite:
+    names = {x if x.startswith('test_') else 'test_' + x for x in names}  # ty: ignore[invalid-assignment]
 
-    def q(test):
+    def q(test: unittest.TestCase) -> bool:
         return test._testMethodName in names
 
     return filter_tests(suite, q)
 
 
-def remove_tests_by_name(suite, *names):
-    names = {x if x.startswith('test_') else 'test_' + x for x in names}
+def remove_tests_by_name(suite: unittest.TestSuite, *names: str) -> unittest.TestSuite:
+    names = {x if x.startswith('test_') else 'test_' + x for x in names}  # ty: ignore[invalid-assignment]
 
-    def q(test):
+    def q(test: unittest.TestCase) -> bool:
         return test._testMethodName not in names
 
     return filter_tests(suite, q)
 
 
-def filter_tests_by_module(suite, *names):
-    names = frozenset(names)
+def filter_tests_by_module(suite: unittest.TestSuite, *names: str) -> unittest.TestSuite:
+    names = frozenset(names)  # ty: ignore[invalid-assignment]
 
-    def q(test):
+    def q(test: unittest.TestCase) -> bool:
         m = test.__class__.__module__.rpartition('.')[-1]
         return m in names
 
@@ -236,21 +256,21 @@ class PipeTestResult(unittest.TestResult):
         super().addSuccess(test)
         self._emit({'e': 'ok', 'id': test.id(), 't': self._elapsed(test)})
 
-    def addFailure(self, test: unittest.TestCase, err) -> None:
+    def addFailure(self, test: unittest.TestCase, err: OptExcInfo) -> None:
         super().addFailure(test, err)
         self._emit({'e': 'fail', 'id': test.id(), 't': self._elapsed(test), 'msg': self._exc_info_to_string(err, test)})  # type: ignore
 
-    def addError(self, test: unittest.TestCase, err) -> None:
+    def addError(self, test: unittest.TestCase, err: OptExcInfo) -> None:
         super().addError(test, err)
         self._emit({'e': 'err', 'id': test.id(), 't': self._elapsed(test), 'msg': self._exc_info_to_string(err, test)})  # type: ignore
 
-    def addSubTest(self, test: unittest.TestCase, subtest: unittest.TestCase, err) -> None:
+    def addSubTest(self, test: unittest.TestCase, subtest: unittest.TestCase, err: OptExcInfo | None) -> None:
         # unittest reports failing subtests only via this method, not via
         # addFailure()/addError(), so they must be emitted here, otherwise the
         # test is never reported back to the master
         super().addSubTest(test, subtest, err)
         if err is not None:
-            e = 'fail' if issubclass(err[0], test.failureException) else 'err'
+            e = 'fail' if issubclass(err[0], test.failureException) else 'err'  # ty: ignore[invalid-argument-type]
             elapsed = monotonic() - self._start.get(test.id(), monotonic())
             self._emit({'e': e, 'id': test.id(), 't': elapsed, 'msg': f'{subtest.id()}\n{self._exc_info_to_string(err, test)}'})  # type: ignore
 
@@ -258,7 +278,7 @@ class PipeTestResult(unittest.TestResult):
         super().addSkip(test, reason)
         self._emit({'e': 'skip', 'id': test.id(), 't': self._elapsed(test), 'msg': reason})
 
-    def addExpectedFailure(self, test: unittest.TestCase, err) -> None:
+    def addExpectedFailure(self, test: unittest.TestCase, err: OptExcInfo) -> None:
         super().addExpectedFailure(test, err)
         self._emit({'e': 'xf', 'id': test.id(), 't': self._elapsed(test), 'msg': self._exc_info_to_string(err, test)})  # type: ignore
 
@@ -327,7 +347,7 @@ def _chunk_round_robin(tests: list, num_workers: int) -> list[list]:
     return [c for c in chunks if c]
 
 
-def _reap_worker(proc, deadline: float) -> tuple[int, bool]:
+def _reap_worker(proc: Popen[bytes], deadline: float) -> tuple[int, bool]:
     """
     Wait for a worker process to exit, until *deadline*. A worker that is
     still running at the deadline is hung, typically in some library's cleanup
@@ -533,7 +553,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
     ev_queue: queue.Queue[dict | None] = queue.Queue()
 
-    def _reader(pipe) -> None:
+    def _reader(pipe: TextIO) -> None:
         try:
             for line in pipe:
                 line = line.strip()
@@ -632,7 +652,7 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
 
 class TestImports(unittest.TestCase):
-    def base_check(self, base, exclude_packages, exclude_modules):
+    def base_check(self, base: str, exclude_packages: set[str], exclude_modules: set[str]) -> int:
         import importlib
 
         import_base = os.path.dirname(base)
@@ -656,7 +676,7 @@ class TestImports(unittest.TestCase):
                 count += 1
         return count
 
-    def test_import_of_all_python_modules(self):
+    def test_import_of_all_python_modules(self) -> None:
 
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
         exclude_modules: set[str] = set()
@@ -692,11 +712,11 @@ class TestImports(unittest.TestCase):
         del Markdown
 
 
-def find_tests(which_tests=None, exclude_tests=None):
+def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collection[str] | None = None) -> unittest.TestSuite:
     ans = []
     a = ans.append
 
-    def ok(x):
+    def ok(x: str) -> bool:
         return (not which_tests or x in which_tests) and (not exclude_tests or x not in exclude_tests)
 
     if ok('fork'):
@@ -976,7 +996,7 @@ def find_tests(which_tests=None, exclude_tests=None):
 # ─── Public entry points ──────────────────────────────────────────────────────
 
 
-def run_tests(find_tests_fn, verbosity=4):
+def run_tests(find_tests_fn: Callable[[], unittest.TestSuite], verbosity: int = 4) -> NoReturn:
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -998,7 +1018,7 @@ def run_tests(find_tests_fn, verbosity=4):
     run_cli(tests, verbosity, buffer=not args.name)
 
 
-def run_test(test_name, verbosity=4):
+def run_test(test_name: str, verbosity: int = 4) -> NoReturn:
     # calibre-debug -t test_name
     which_tests = None
     if test_name.startswith('@'):
@@ -1018,7 +1038,7 @@ def run_test(test_name, verbosity=4):
     run_cli(tests, verbosity, buffer=buffer)
 
 
-def run_cli(suite, verbosity=4, buffer=True, worker_cmd: list[str] | None = None):
+def run_cli(suite: unittest.TestSuite, verbosity: int = 4, buffer: bool = True, worker_cmd: list[str] | None = None) -> NoReturn:
     """
     Run *suite* and exit.
     When *buffer* is True (the default, used for full-suite runs) tests are

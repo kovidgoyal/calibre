@@ -241,7 +241,7 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
                 if key + '_index' in format_args:
                     format_args[key + '_index'] = fmt_sidx(format_args[key + '_index'])
             elif cm['datatype'] == 'datetime':
-                format_args[key] = strftime(timefmt, as_local_time(format_args[key]).timetuple())
+                format_args[key] = strftime(timefmt, as_local_time(format_args[key]).timetuple())  # ty: ignore[unresolved-attribute]
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
             elif cm['datatype'] == 'rating':

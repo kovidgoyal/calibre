@@ -1,17 +1,29 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Buffer, Callable
+from typing import TYPE_CHECKING, Any
+
 MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
 
+if TYPE_CHECKING:
+    from datetime import datetime
 
-def encoded(typ, data, ExtType):
+    import msgpack
+
+    from calibre.db.categories import Tag
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.field_metadata import FieldMetadata
+
+
+def encoded(typ: int, data: object, ExtType: type[msgpack.ExtType] | None) -> dict[str, object] | msgpack.ExtType:
     if ExtType is None:
         return {CANARY: typ, 'v': data}
     return ExtType(typ, msgpack_dumps(data))
 
 
-def create_encoder(for_json=False):
+def create_encoder(for_json: bool = False) -> Callable[[object], object]:
     from datetime import datetime
 
     ExtType = None
@@ -20,7 +32,7 @@ def create_encoder(for_json=False):
 
         ExtType = msgpack.ExtType
 
-    def encoder(obj):
+    def encoder(obj: object) -> object:
         if isinstance(obj, datetime):
             return encoded(0, str(obj.isoformat()), ExtType)
         if isinstance(obj, (set, frozenset)):
@@ -45,13 +57,13 @@ def create_encoder(for_json=False):
     return encoder
 
 
-def msgpack_dumps(obj):
+def msgpack_dumps(obj: object) -> bytes:
     import msgpack
 
     return msgpack.packb(obj, default=create_encoder(), use_bin_type=True)
 
 
-def json_dumps(data, **kw):
+def json_dumps(data: object, **kw: Any) -> bytes:  # ruff: ignore[any-type]
     import json
 
     kw['default'] = create_encoder(for_json=True)
@@ -62,7 +74,7 @@ def json_dumps(data, **kw):
     return ans
 
 
-def decode_metadata(x, for_json):
+def decode_metadata(x: dict[str, Any], for_json: bool) -> Metadata:
     from calibre.ebooks.metadata.book.serialize import metadata_from_dict
     from polyglot.binary import from_base64_bytes
 
@@ -72,19 +84,19 @@ def decode_metadata(x, for_json):
     return obj
 
 
-def decode_field_metadata(x, for_json):
+def decode_field_metadata(x: dict[str, Any], for_json: bool) -> FieldMetadata:
     from calibre.library.field_metadata import fm_from_dict
 
     return fm_from_dict(x)
 
 
-def decode_category_tag(x, for_json):
+def decode_category_tag(x: dict[str, Any], for_json: bool) -> Tag:
     from calibre.db.categories import Tag
 
     return Tag.from_dict(x)
 
 
-def decode_datetime(x, fj):
+def decode_datetime(x: str, fj: bool) -> datetime:
     from calibre.utils.iso8601 import parse_iso8601
 
     return parse_iso8601(x, assume_utc=True)
@@ -93,37 +105,37 @@ def decode_datetime(x, fj):
 decoders = (decode_datetime, lambda x, fj: set(x), decode_metadata, decode_field_metadata, decode_category_tag)
 
 
-def json_decoder(obj):
+def json_decoder(obj: dict[str, Any]) -> Any:  # ruff: ignore[any-type]
     typ = obj.get(CANARY)
     if typ is None:
         return obj
     return decoders[typ](obj['v'], True)
 
 
-def msgpack_decoder(code, data):
+def msgpack_decoder(code: int, data: bytes) -> Any:  # ruff: ignore[any-type]
     return decoders[code](msgpack_loads(data), False)
 
 
-def msgpack_loads(dump, use_list=True):
+def msgpack_loads(dump: Buffer | str, use_list: bool = True) -> Any:  # ruff: ignore[any-type]
     # use_list controls whether msgpack arrays are unpacked as lists or tuples
     import msgpack
 
     return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False, use_list=use_list, strict_map_key=False)
 
 
-def json_loads(data):
+def json_loads(data: str | bytes | bytearray) -> Any:  # ruff: ignore[any-type]
     import json
 
     return json.loads(data, object_hook=json_decoder)
 
 
-def pickle_dumps(data):
+def pickle_dumps(data: object) -> bytes:
     import pickle
 
     return pickle.dumps(data, -1)
 
 
-def pickle_loads(dump):
+def pickle_loads(dump: Buffer) -> Any:  # ruff: ignore[any-type]
     import pickle
 
     return pickle.loads(dump, encoding='utf-8')  # nosec: only used for calibre's own serialized data

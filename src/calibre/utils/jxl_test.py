@@ -4,8 +4,12 @@
 import struct
 import unittest
 from base64 import standard_b64decode as b64decode
+from typing import TYPE_CHECKING
 
 from calibre.utils.imghdr import what
+
+if TYPE_CHECKING:
+    from qt.core import QImage
 
 # An 8x8 image with four quadrants: red, green, blue and fully transparent
 # white, in that order. Losslessly encoded, so the decoded pixels must match
@@ -45,12 +49,12 @@ def split_into_parts(codestream: bytes, part_size: int = 3) -> bytes:
     return b''.join(ans)
 
 
-def pixels(img):
+def pixels(img: QImage) -> list[list[tuple[int | None, int | None, int | None, int | None]]]:
     "The pixels of img as a list of rows of (r, g, b, a) tuples"
     return [[img.pixelColor(x, y).getRgb() for x in range(img.width())] for y in range(img.height())]
 
 
-def pixels64(img):
+def pixels64(img: QImage) -> list[list[tuple[int, int, int, int]]]:
     "The pixels of img as a list of rows of 16 bit (r, g, b, a) tuples"
     ans = []
     for y in range(img.height()):
@@ -67,7 +71,7 @@ TRANSPARENT = (255, 255, 255, 0)
 STILL_PIXELS = [[(RED if x < 4 else GREEN) if y < 4 else (BLUE if x < 4 else TRANSPARENT) for x in range(8)] for y in range(8)]
 
 
-def encode(img, quality=100, fmt=b'jxl'):
+def encode(img: QImage, quality: int = 100, fmt: bytes = b'jxl') -> tuple[bytes, str]:
     "Encode img with QImageWriter, returning the encoded bytes and the error string if it failed"
     from qt.core import QBuffer, QByteArray, QImageWriter, QIODevice
 
@@ -84,7 +88,7 @@ def encode(img, quality=100, fmt=b'jxl'):
     return bytes(ba), ''
 
 
-def make_image(fmt, width=7, height=5):
+def make_image(fmt: QImage.Format, width: int = 7, height: int = 5) -> QImage:
     "An image with a different color for every pixel, with varying alpha if the format has alpha"
     from qt.core import QColor, QImage
 
@@ -99,7 +103,7 @@ def make_image(fmt, width=7, height=5):
 
 
 class TestJXL(unittest.TestCase):
-    def test_jxl_header_detection(self):
+    def test_jxl_header_detection(self) -> None:
         for data in (STILL_JXL, CONTAINER_JXL, ANIMATION_JXL, ROTATED_JXL, GRAY_JXL, GRAY_ALPHA_JXL, split_into_parts(STILL_JXL)):
             self.assertEqual('jxl', what(None, data))
         self.assertEqual('png', what(None, NOT_AN_IMAGE))
@@ -109,7 +113,7 @@ class TestJXL(unittest.TestCase):
         for i in range(32):
             what(None, CONTAINER_JXL[:i])
 
-    def test_jxl_plugin_is_registered_with_qt(self):
+    def test_jxl_plugin_is_registered_with_qt(self) -> None:
         from qt.core import QImageReader, QImageWriter
 
         from calibre_extensions import jxl
@@ -125,7 +129,7 @@ class TestJXL(unittest.TestCase):
         self.assertIn('jxl', fmts, f'The JPEG-XL image format plugin cannot write. Available plugins: {fmts}')
         self.assertIn('image/jxl', {bytes(x).decode('utf-8') for x in QImageReader.supportedMimeTypes()})
 
-    def test_reading_jxl_images(self):
+    def test_reading_jxl_images(self) -> None:
         from qt.core import QImage
 
         from calibre.utils.img import image_and_format_from_data
@@ -138,7 +142,7 @@ class TestJXL(unittest.TestCase):
             self.assertEqual(STILL_PIXELS, pixels(img))
             self.assertTrue(img.colorSpace().isValid())
 
-    def test_reading_jxl_images_applies_orientation(self):
+    def test_reading_jxl_images_applies_orientation(self) -> None:
         from qt.core import QBuffer, QByteArray, QImageReader, QIODevice, QSize
 
         from calibre.utils.img import image_from_data
@@ -154,7 +158,7 @@ class TestJXL(unittest.TestCase):
         finally:
             buf.close()
 
-    def test_reading_grayscale_jxl_images(self):
+    def test_reading_grayscale_jxl_images(self) -> None:
         from qt.core import QImage
 
         from calibre.utils.img import image_from_data
@@ -167,7 +171,7 @@ class TestJXL(unittest.TestCase):
         self.assertEqual(QImage.Format.Format_RGBA8888, img.format())
         self.assertEqual([[(100, 100, 100, 128)] * 3] * 2, pixels(img))
 
-    def test_reading_jxl_animations(self):
+    def test_reading_jxl_animations(self) -> None:
         from qt.core import QBuffer, QByteArray, QImageReader, QIODevice
 
         ba = QByteArray(ANIMATION_JXL)  # must outlive buf
@@ -199,13 +203,13 @@ class TestJXL(unittest.TestCase):
         finally:
             buf.close()
 
-    def test_reading_corrupted_jxl_images(self):
+    def test_reading_corrupted_jxl_images(self) -> None:
         from calibre.utils.img import NotImage, image_from_data
 
         for data in (STILL_JXL[:20], STILL_JXL[:2] + bytes(64), CONTAINER_JXL[:12], CONTAINER_JXL[:60], ROTATED_JXL[:-10]):
             self.assertRaises(NotImage, image_from_data, data)
 
-    def test_reading_damaged_jxl_images_is_safe(self):
+    def test_reading_damaged_jxl_images_is_safe(self) -> None:
         # Every truncation and a flip of every bit of the fixtures must fail
         # or produce some image, never crash
         from qt.core import QImage
@@ -218,7 +222,7 @@ class TestJXL(unittest.TestCase):
                     damaged[i] ^= 1 << bit
                     QImage.fromData(bytes(damaged), 'jxl')
 
-    def test_reading_respects_allocation_limit(self):
+    def test_reading_respects_allocation_limit(self) -> None:
         from qt.core import QBuffer, QByteArray, QImage, QImageReader, QIODevice
 
         img = QImage(1024, 1024, QImage.Format.Format_RGBA8888)
@@ -238,7 +242,7 @@ class TestJXL(unittest.TestCase):
             QImageReader.setAllocationLimit(before)
         self.assertEqual((1024, 1024), (QImage.fromData(data).width(), QImage.fromData(data).height()))
 
-    def test_writing_jxl_images_losslessly(self):
+    def test_writing_jxl_images_losslessly(self) -> None:
         from qt.core import QImage
 
         F = QImage.Format
@@ -265,7 +269,7 @@ class TestJXL(unittest.TestCase):
             else:
                 self.assertEqual(pixels(expected), pixels(img), f'Pixels for {src_fmt} differ')
 
-    def test_writing_jxl_images_lossily(self):
+    def test_writing_jxl_images_lossily(self) -> None:
         from qt.core import QColor, QImage
 
         src = QImage(64, 48, QImage.Format.Format_ARGB32)
@@ -276,13 +280,13 @@ class TestJXL(unittest.TestCase):
             img = QImage.fromData(data)
             self.assertEqual((64, 48), (img.width(), img.height()))
             for actual, expected in zip(img.pixelColor(10, 10).getRgb(), (200, 50, 30, 128)):
-                self.assertLess(abs(actual - expected), 8, f'Quality: {quality}')
+                self.assertLess(abs(actual - expected), 8, f'Quality: {quality}')  # ty: ignore[unsupported-operator]
         # The quality setting must actually be used
         src = make_image(QImage.Format.Format_RGB888, 64, 48)
         low, high = (len(encode(src, quality)[0]) for quality in (30, 95))
         self.assertLess(low, high)
 
-    def test_writing_jxl_images_preserves_color_space(self):
+    def test_writing_jxl_images_preserves_color_space(self) -> None:
         from qt.core import QColor, QColorSpace, QImage
 
         src = QImage(8, 8, QImage.Format.Format_RGB888)
@@ -301,9 +305,9 @@ class TestJXL(unittest.TestCase):
             # Whatever color space the pixels are in, they must be the same color
             actual = img.convertedToColorSpace(srgb).pixelColor(1, 1).getRgb()
             for a, e in zip(actual, expected):
-                self.assertLess(abs(a - e), 6, f'Quality: {quality} {actual} != {expected}')
+                self.assertLess(abs(a - e), 6, f'Quality: {quality} {actual} != {expected}')  # ty: ignore[unsupported-operator]
 
-    def test_writing_jxl_images_with_image_to_data(self):
+    def test_writing_jxl_images_with_image_to_data(self) -> None:
         from calibre.utils.img import image_from_data, image_to_data
 
         img = image_from_data(STILL_JXL)
@@ -313,7 +317,7 @@ class TestJXL(unittest.TestCase):
         data = image_to_data(img, compression_quality=80, fmt='jxl')
         self.assertEqual('jxl', what(None, data))
 
-    def test_writing_jxl_image_failures(self):
+    def test_writing_jxl_image_failures(self) -> None:
         from qt.core import QBuffer, QByteArray, QImage, QImageWriter, QIODevice
 
         _, err = encode(QImage())
@@ -327,7 +331,7 @@ class TestJXL(unittest.TestCase):
             buf.close()
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestJXL)
 
 

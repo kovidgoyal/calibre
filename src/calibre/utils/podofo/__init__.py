@@ -4,20 +4,34 @@
 import os
 import shutil
 import sys
+from collections.abc import Iterable
+from types import ModuleType
+from typing import IO, TYPE_CHECKING, Any, TypedDict, Unpack, cast
 
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 
+if TYPE_CHECKING:
+    import unittest
 
-def get_podofo():
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre_extensions.podofo import PDFDoc
+
+    class AddImagePageKwargs(TypedDict, total=False):
+        page_size: tuple[float, float, float, float] | None
+        page_num: int
+        preserve_aspect_ratio: bool
+
+
+def get_podofo() -> ModuleType:
     from calibre_extensions import podofo
 
     return podofo
 
 
-def prep(val):
+def prep(val: str | bytes | None) -> str:
     if not val:
         return ''
     if not isinstance(val, str):
@@ -25,7 +39,7 @@ def prep(val):
     return val.strip()
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     with TemporaryDirectory('_podofo_set_metadata') as tdir:
         with open(os.path.join(tdir, 'input.pdf'), 'wb') as f:
             shutil.copyfileobj(stream, f)
@@ -54,7 +68,7 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 
-def set_metadata_implementation(pdf_doc, title, authors, bkp, tags, xmp_packet):
+def set_metadata_implementation(pdf_doc: PDFDoc, title: str | None, authors: list[str], bkp: str | None, tags: Iterable[str], xmp_packet: bytes) -> bool:
     title = prep(title)
     touched = False
     if title and title != pdf_doc.title:
@@ -95,7 +109,7 @@ def set_metadata_implementation(pdf_doc, title, authors, bkp, tags, xmp_packet):
     return touched
 
 
-def set_metadata_(tdir, title, authors, bkp, tags, xmp_packet):
+def set_metadata_(tdir: str, title: str | None, authors: list[str], bkp: str | None, tags: Iterable[str], xmp_packet: bytes) -> bool:
     podofo = get_podofo()
     os.chdir(tdir)
     p = podofo.PDFDoc()
@@ -108,7 +122,7 @@ def set_metadata_(tdir, title, authors, bkp, tags, xmp_packet):
     return touched
 
 
-def get_xmp_metadata(path):
+def get_xmp_metadata(path: str) -> bytes | None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(path, 'rb') as f:
@@ -117,7 +131,7 @@ def get_xmp_metadata(path):
     return p.get_xmp_metadata()
 
 
-def get_outline(path=None):
+def get_outline(path: str | None = None) -> list[dict[str, object]]:
     if path is None:
         path = sys.argv[-1]
     podofo = get_podofo()
@@ -128,7 +142,7 @@ def get_outline(path=None):
     return p.get_outline()['children']
 
 
-def get_image_count(path):
+def get_image_count(path: str) -> int:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(path, 'rb') as f:
@@ -137,17 +151,17 @@ def get_image_count(path):
     return p.image_count()
 
 
-def list_fonts(pdf_doc):
+def list_fonts(pdf_doc: PDFDoc) -> dict[object, dict[str, object]]:
     fonts = pdf_doc.list_fonts()
     ref_map = {f['Reference']: f for f in fonts}
     return ref_map
 
 
-def remove_unused_fonts(pdf_doc):
+def remove_unused_fonts(pdf_doc: PDFDoc) -> int:
     return pdf_doc.remove_unused_fonts()
 
 
-def test_remove_unused_fonts(src):
+def test_remove_unused_fonts(src: str) -> None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     p.open(src)
@@ -157,11 +171,11 @@ def test_remove_unused_fonts(src):
     print('Modified pdf saved to:', dest)
 
 
-def dedup_type3_fonts(pdf_doc):
+def dedup_type3_fonts(pdf_doc: PDFDoc) -> int:
     return pdf_doc.dedup_type3_fonts()
 
 
-def test_dedup_type3_fonts(src):
+def test_dedup_type3_fonts(src: str) -> None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     p.open(src)
@@ -171,7 +185,13 @@ def test_dedup_type3_fonts(src):
     print(f'Modified pdf with {num} glyphs removed saved to:', dest)
 
 
-def add_image_page(pdf_doc, image_data, page_size=None, page_num=1, preserve_aspect_ratio=True):
+def add_image_page(
+    pdf_doc: PDFDoc,
+    image_data: bytes,
+    page_size: tuple[float, float, float, float] | None = None,
+    page_num: int = 1,
+    preserve_aspect_ratio: bool = True,
+) -> None:
     if page_size is None:
         from qt.core import QPageSize
 
@@ -189,7 +209,7 @@ def get_page_count(path: str) -> int:
     return p.page_count()
 
 
-def test_add_image_page(image='/t/t.jpg', dest='/t/t.pdf', **kw):
+def test_add_image_page(image: str = '/t/t.jpg', dest: str = '/t/t.pdf', **kw: Unpack[AddImagePageKwargs]) -> None:
     with open(image, 'rb') as f:
         image_data = f.read()
     podofo = get_podofo()
@@ -198,7 +218,7 @@ def test_add_image_page(image='/t/t.jpg', dest='/t/t.pdf', **kw):
     p.save(dest)
 
 
-def test_list_fonts(src):
+def test_list_fonts(src: str) -> None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(src, 'rb') as f:
@@ -209,7 +229,7 @@ def test_list_fonts(src):
     pprint.pprint(list_fonts(p))
 
 
-def test_save_to(src, dest):
+def test_save_to(src: str, dest: str) -> None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(src, 'rb') as f:
@@ -220,7 +240,7 @@ def test_save_to(src, dest):
         print('Wrote PDF of size:', out.tell())
 
 
-def test_roundtrip(src, dest):
+def test_roundtrip(src: str, dest: str) -> None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     p.open(src)
@@ -234,7 +254,7 @@ def sample_pdf_data() -> bytes:
     return raw
 
 
-def test_podofo():
+def test_podofo() -> None:
     import tempfile
 
     from calibre.ebooks.metadata.book.base import Metadata
@@ -283,14 +303,14 @@ def test_podofo():
         raise ValueError('Appending failed')
 
 
-def develop(path=sys.argv[-1]):
+def develop(path: str = sys.argv[-1]) -> None:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     p.open(path)
     p.title = 'test'
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import base64
     import unittest
 
@@ -310,30 +330,30 @@ def find_tests():
     class Builder:
         "Builds a PDF file from a list of numbered objects, generating the cross reference table"
 
-        def __init__(self):
-            self.objects = []
+        def __init__(self) -> None:
+            self.objects: list[bytes | None] = []
 
-        def add(self, body):
+        def add(self, body: bytes | None) -> int:
             "Add an object, return its object number. body must be bytes, use reserve() for forward references"
             self.objects.append(body)
             return len(self.objects)
 
-        def reserve(self):
+        def reserve(self) -> int:
             self.objects.append(None)
             return len(self.objects)
 
-        def add_stream(self, dict_items, stream_data):
+        def add_stream(self, dict_items: bytes, stream_data: bytes) -> int:
             body = b'<</Length ' + str(len(stream_data)).encode('ascii') + dict_items + b'>>\nstream\n' + stream_data + b'\nendstream'
             return self.add(body)
 
-        def set(self, num, body):
+        def set(self, num: int, body: bytes) -> None:
             self.objects[num - 1] = body
 
-        def build(self, info=None):
-            ans = []
+        def build(self, info: int | None = None) -> bytes:
+            ans: list[bytes] = []
             pos = 0
 
-            def w(raw):
+            def w(raw: bytes) -> None:
                 nonlocal pos
                 ans.append(raw)
                 pos += len(raw)
@@ -360,13 +380,13 @@ def find_tests():
             return b''.join(ans)
 
     def multi_page_pdf(
-        num_pages=2,
-        uri='',
-        dests=False,
-        unused_type0_font=False,
-        type3_font=False,
-        font_file_data=b'FONTFILEDATA',
-    ):
+        num_pages: int = 2,
+        uri: str = '',
+        dests: bool = False,
+        unused_type0_font: bool = False,
+        type3_font: bool = False,
+        font_file_data: bytes = b'FONTFILEDATA',
+    ) -> bytes:
         "Build a PDF with num_pages pages, all using an indirect Type1 font with a font file, and various optional features"
         b = Builder()
         catalog = b.reserve()
@@ -419,19 +439,19 @@ def find_tests():
         b.set(catalog, (catalog_body + '>>').encode('ascii'))
         return b.build()
 
-    def load(raw):
+    def load(raw: bytes) -> PDFDoc:
         p = get_podofo().PDFDoc()
         p.load(raw)
         return p
 
-    def roundtrip(p):
+    def roundtrip(p: PDFDoc) -> PDFDoc:
         return load(p.write())
 
     class TestPodofo(unittest.TestCase):
-        def test_podofo_basic(self):
+        def test_podofo_basic(self) -> None:
             test_podofo()
 
-        def test_podofo_load_open_save(self):
+        def test_podofo_load_open_save(self) -> None:
             import tempfile
 
             raw = multi_page_pdf(num_pages=3)
@@ -445,7 +465,7 @@ def find_tests():
                 self.assertEqual(q.page_count(), 3)
                 del q  # release file handle before temp dir cleanup (Windows)
 
-        def test_podofo_pages(self):
+        def test_podofo_pages(self) -> None:
             p = load(multi_page_pdf(num_pages=3))
             self.assertEqual(p.page_count(), 3)
             self.assertEqual(p.pages, 3)
@@ -460,7 +480,7 @@ def find_tests():
             self.assertEqual(p.page_count(), 1)
             self.assertEqual(roundtrip(p).page_count(), 1)
 
-        def test_podofo_append(self):
+        def test_podofo_append(self) -> None:
             a = load(multi_page_pdf(num_pages=2))
             b = load(multi_page_pdf(num_pages=3))
             c = load(multi_page_pdf(num_pages=1))
@@ -469,7 +489,7 @@ def find_tests():
             q = roundtrip(a)
             self.assertEqual(q.page_count(), 6)
 
-        def test_podofo_page_boxes(self):
+        def test_podofo_page_boxes(self) -> None:
             p = load(multi_page_pdf())
             self.assertEqual(p.get_page_box('MediaBox', 1), (0, 0, 612, 792))
             p.set_page_box('CropBox', 1, 10, 20, 300, 400)
@@ -478,20 +498,20 @@ def find_tests():
             self.assertRaises(KeyError, p.get_page_box, 'MoosBox', 1)
             self.assertRaises(ValueError, p.get_page_box, 'CropBox', 33)
 
-        def test_podofo_uncompress(self):
+        def test_podofo_uncompress(self) -> None:
             p = load(sample_pdf_data())
             self.assertNotIn(b'xpacket', p.write())
             p.uncompress()
             self.assertIn(b'xpacket', p.write())
 
-        def test_podofo_outlines(self):
+        def test_podofo_outlines(self) -> None:
             p = load(multi_page_pdf(num_pages=3))
             root = p.create_outline('Root', 1)
             child = root.create('Child', 2, True, 11.0, 22.0, 1.5)
             child.create('Grandchild', 3, True)
             root.create('Sibling', 3, False)
             p = roundtrip(p)
-            outline = p.get_outline()
+            outline = cast('dict[str, Any]', p.get_outline())
             self.assertEqual(len(outline['children']), 2)
             r = outline['children'][0]
             self.assertEqual(r['title'], 'Root')
@@ -504,16 +524,16 @@ def find_tests():
             self.assertEqual(s['title'], 'Sibling')
             self.assertEqual(s['dest']['page'], 3)
 
-        def test_podofo_extract_anchors(self):
+        def test_podofo_extract_anchors(self) -> None:
             p = load(multi_page_pdf(num_pages=2, dests=True))
             self.assertEqual(p.extract_anchors(), {'anchor1': (1, 10.5, 20.5, 3)})
 
-        def test_podofo_alter_links(self):
+        def test_podofo_alter_links(self) -> None:
             url = 'https://example.com'
             p = load(multi_page_pdf(num_pages=2, uri=url))
             seen = []
 
-            def callback(uri):
+            def callback(uri: str) -> tuple[int, float, float, float]:
                 seen.append(uri)
                 return (2, 10.0, 20.0, 1.5)
 
@@ -529,7 +549,7 @@ def find_tests():
             p.alter_links(lambda uri: None, False)
             self.assertIn(url.encode('ascii'), p.write())
 
-        def test_podofo_list_fonts(self):
+        def test_podofo_list_fonts(self) -> None:
             p = load(multi_page_pdf(num_pages=2, font_file_data=b'FONTFILEDATA'))
             fonts = p.list_fonts(True)
             self.assertEqual(len(fonts), 1)
@@ -538,7 +558,7 @@ def find_tests():
             self.assertEqual(f['Subtype'], 'Type1')
             self.assertEqual(f['Data'], b'FONTFILEDATA')
 
-        def test_podofo_remove_unused_fonts(self):
+        def test_podofo_remove_unused_fonts(self) -> None:
             p = load(multi_page_pdf(num_pages=2, unused_type0_font=True))
             self.assertEqual(len(p.list_fonts()), 3)
             p.uncompress()
@@ -554,7 +574,7 @@ def find_tests():
             self.assertIn(b'FONTFILEDATA', raw)
             self.assertEqual(len(p.list_fonts()), 1)
 
-        def test_podofo_merge_fonts(self):
+        def test_podofo_merge_fonts(self) -> None:
             p = load(multi_page_pdf(num_pages=1, unused_type0_font=True))
             refs = tuple(f['Reference'] for f in p.list_fonts() if f['StreamRef'] is not None)
             self.assertEqual(len(refs), 2)
@@ -568,14 +588,14 @@ def find_tests():
             self.assertNotIn(b'FONTFILEDATA', raw)
             self.assertNotIn(b'FAKEFONTDATA', raw)
 
-        def test_podofo_replace_font_data(self):
+        def test_podofo_replace_font_data(self) -> None:
             p = load(multi_page_pdf(font_file_data=b'OLDDATA'))
             ref = p.list_fonts(True)[0]['Reference']
             p.replace_font_data(b'NEWDATA', *ref)
             p = roundtrip(p)
             self.assertEqual(p.list_fonts(True)[0]['Data'], b'NEWDATA')
 
-        def test_podofo_dedup_type3_fonts(self):
+        def test_podofo_dedup_type3_fonts(self) -> None:
             p = load(multi_page_pdf(type3_font=True))
             p.uncompress()
             self.assertEqual(p.write().count(b'10 0 0 0 10 10 d1'), 2)
@@ -585,7 +605,7 @@ def find_tests():
             # the duplicate char proc must have been garbage collected when saving
             self.assertEqual(p.write().count(b'10 0 0 0 10 10 d1'), 1)
 
-        def test_podofo_images(self):
+        def test_podofo_images(self) -> None:
             page_size = (0.0, 0.0, 612.0, 792.0)
             p = get_podofo().PDFDoc()
             add_image_page(p, jpeg_data, page_size=page_size)
@@ -598,7 +618,7 @@ def find_tests():
             p = roundtrip(p)
             self.assertEqual(p.image_count(), 1)
 
-        def test_podofo_impose(self):
+        def test_podofo_impose(self) -> None:
             p = load(multi_page_pdf(num_pages=2))
             p.impose(1, 2, 1)
             self.assertEqual(p.page_count(), 1)

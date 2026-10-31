@@ -3,6 +3,7 @@
 
 import operator
 import unittest
+from collections.abc import Callable, Sequence
 
 from calibre.utils.search_query_parser import Parser, SearchQueryParser
 
@@ -189,21 +190,21 @@ class Tester(SearchQueryParser):
 
     _universal_set = set(texts.keys())
 
-    def universal_set(self):
+    def universal_set(self) -> set[int]:
         return self._universal_set
 
-    def get_matches(self, location, query, candidates=None):
+    def get_matches(self, location: str, query: str, candidates: set[int] | None = None) -> set[int]:
         location = location.lower()
         if location in self.fields.keys():
             getter = operator.itemgetter(self.fields[location])
         elif location == 'all':
 
-            def getter(y):
+            def getter(y: Sequence[str | None]) -> str:
                 return ''.join(x or '' for x in y)
 
         else:
 
-            def getter(x):
+            def getter(x: Sequence[str | None]) -> str:
                 return ''
 
         if not query:
@@ -214,14 +215,14 @@ class Tester(SearchQueryParser):
         else:
             return {key for key, val in self.texts.items() if query and query in getattr(getter(val), 'lower', lambda: '')()}
 
-    def run_tests(self, ae):
+    def run_tests(self, ae: Callable[[object, object, str], None]) -> None:  # ty: ignore[invalid-method-override]
         for query in self.tests.keys():
             res = self.parse(query)
             ae(self.tests[query], res, f'Failed for query: {query}')
 
 
 class TestSQP(unittest.TestCase):
-    def do_test(self, optimize=False):
+    def do_test(self, optimize: bool = False) -> None:
         tester = Tester(
             [
                 'authors',
@@ -251,22 +252,22 @@ class TestSQP(unittest.TestCase):
         )
         tester.run_tests(self.assertEqual)
 
-    def test_sqp_optimized(self):
+    def test_sqp_optimized(self) -> None:
         self.do_test(True)
 
-    def test_sqp_unoptimized(self):
+    def test_sqp_unoptimized(self) -> None:
         self.do_test(False)
 
-    def test_sqp_tokenizer(self):
+    def test_sqp_tokenizer(self) -> None:
         p = Parser()
 
-        def tokens(*a):
+        def tokens(*a: str) -> list[tuple[int, str]]:
             ans = []
             for i in range(0, len(a), 2):
                 ans.append(({'O': Parser.OPCODE, 'W': Parser.WORD, 'Q': Parser.QUOTED_WORD}[a[i]], a[i + 1]))
             return ans
 
-        def t(query, *a):
+        def t(query: str, *a: str) -> None:
             self.assertEqual(tokens(*a), p.tokenize(query))
 
         t('xxx', 'W', 'xxx')
@@ -282,16 +283,16 @@ class TestSQP(unittest.TestCase):
         t(r'template:"""program: return ("\"1\"")#@#n:1"""', 'W', r'template:program: return ("\"1\"")#@#n:1')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSQP)
 
 
 class TestRunner(unittest.main):
-    def createTests(self):
+    def createTests(self) -> None:  # ty: ignore[invalid-method-override]
         self.test = find_tests()
 
 
-def run(verbosity=4):
+def run(verbosity: int = 4) -> None:
     TestRunner(verbosity=verbosity, exit=False)
 
 

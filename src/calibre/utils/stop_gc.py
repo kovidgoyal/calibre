@@ -4,6 +4,10 @@
 import gc
 from threading import Lock
 from types import TracebackType
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import unittest
 
 
 class StopGC:
@@ -48,22 +52,22 @@ class StopGC:
 stop_gc = StopGC()
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
     from threading import Barrier, Thread
 
     class TestStopGC(unittest.TestCase):
-        def setUp(self):
+        def setUp(self) -> None:
             self.gc_was_enabled = gc.isenabled()
             gc.enable()
 
-        def tearDown(self):
+        def tearDown(self) -> None:
             if self.gc_was_enabled:
                 gc.enable()
             else:
                 gc.disable()
 
-        def test_stop_gc(self):
+        def test_stop_gc(self) -> None:
             sg = StopGC()
             with sg:
                 self.assertFalse(gc.isenabled())
@@ -85,7 +89,7 @@ def find_tests():
             self.assertTrue(gc.isenabled())
             self.assertEqual(sg._depth, 0)
 
-        def test_stop_gc_threaded(self):
+        def test_stop_gc_threaded(self) -> None:
             sg = StopGC()
             # Interleave two threads as: enter(1) enter(2) exit(1) exit(2)
             # with gc expected to be disabled throughout.

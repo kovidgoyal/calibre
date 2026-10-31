@@ -6,6 +6,7 @@ import sys
 import time
 import traceback
 from threading import Thread
+from typing import TYPE_CHECKING, Self, cast
 
 from calibre import guess_type, prints
 from calibre.constants import DEBUG, __version__, isfrozen, isportable
@@ -14,10 +15,17 @@ from calibre.utils.lock import singleinstance
 from calibre.utils.winreg.lib import HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, Key
 from calibre_extensions import winutil
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from ctypes.wintypes import HKEY
+
+    from calibre.utils.config import JSONConfig
+    from calibre.utils.winreg.lib import RegistryValue
+
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
 
 
-def default_programs():
+def default_programs() -> dict[str, dict[str, str]]:
     return {
         'calibre.exe': {
             'icon_id': 'main_icon',
@@ -43,7 +51,7 @@ def default_programs():
     }
 
 
-def extensions(basename):
+def extensions(basename: str) -> set[str] | None:
     if basename == 'calibre.exe':
         from calibre.ebooks import BOOK_EXTENSIONS
 
@@ -65,7 +73,7 @@ class NotAllowed(ValueError):
     pass
 
 
-def check_allowed():
+def check_allowed() -> None:
     if not isfrozen:
         raise NotAllowed('Not allowed to create associations for non-frozen installs')
     if isportable:
@@ -76,7 +84,7 @@ def check_allowed():
         raise NotAllowed('Disabled by the CALIBRE_NO_DEFAULT_PROGRAMS environment variable')
 
 
-def create_prog_id(ext, prog_id, ext_map, exe):
+def create_prog_id(ext: str, prog_id: str, ext_map: dict[str, str], exe: str) -> None:
     with Key(rf'Software\Classes\{prog_id}') as key:
         type_name = _('%s Document') % ext.upper()
         key.set(value=type_name)
@@ -93,22 +101,22 @@ def create_prog_id(ext, prog_id, ext_map, exe):
         key.set(prog_id)
 
 
-def progid_name(assoc_name, ext):
+def progid_name(assoc_name: str, ext: str) -> str:
     return f'{assoc_name}.AssocFile.{ext.upper()}'
 
 
-def cap_path(data):
+def cap_path(data: dict[str, str]) -> str:
     return r'Software\calibre\{}\Capabilities'.format(data['capability_name'])
 
 
-def register():
+def register() -> None:
     base = os.path.dirname(sys.executable)
 
     for program, data in default_programs().items():
         data = data.copy()
         exe = os.path.join(base, program)
         capabilities_path = cap_path(data)
-        ext_map = {ext.lower(): guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
+        ext_map = {ext.lower(): guess_type('file.' + ext.lower())[0] for ext in extensions(program)}  # ty: ignore[not-iterable]
         ext_map = {ext: mt for ext, mt in ext_map.items() if mt}
         prog_id_map = {ext: progid_name(data['assoc_name'], ext) for ext in ext_map}
 
@@ -133,10 +141,10 @@ def register():
     winutil.notify_associations_changed()
 
 
-def unregister():
+def unregister() -> None:
     for program, data in default_programs().items():
         capabilities_path = cap_path(data).rpartition('\\')[0]
-        ext_map = {ext.lower(): guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
+        ext_map = {ext.lower(): guess_type('file.' + ext.lower())[0] for ext in extensions(program)}  # ty: ignore[not-iterable]
         ext_map = {ext: mt for ext, mt in ext_map.items() if mt}
         prog_id_map = {ext: progid_name(data['assoc_name'], ext) for ext in ext_map}
         with Key(r'Software\RegisteredApplications') as key:
@@ -154,18 +162,18 @@ def unregister():
 class Register(Thread):
     daemon = True
 
-    def __init__(self, prefs):
+    def __init__(self, prefs: JSONConfig) -> None:
         Thread.__init__(self, name='RegisterDP')
         self.prefs = prefs
         self.start()
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.do_register()
         except Exception:
             traceback.print_exc()
 
-    def do_register(self):
+    def do_register(self) -> None:
         try:
             check_allowed()
         except NotAllowed:
@@ -180,16 +188,16 @@ class Register(Thread):
                 if DEBUG:
                     prints(f'Registered with default programs in {time.monotonic() - st:.1f} seconds')
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         # Give the thread some time to finish in case the user quit the
         # application very quickly
         self.join(4.0)
 
 
-def get_prog_id_map(base, key_path):
+def get_prog_id_map(base: HKEY, key_path: str) -> tuple[RegistryValue, dict[str, RegistryValue]]:
     desc, ans = None, {}
     try:
         k = Key(open_at=key_path, root=base)
@@ -206,38 +214,42 @@ def get_prog_id_map(base, key_path):
     return desc, ans
 
 
-def get_open_data(base, prog_id):
+def get_open_data(base: HKEY, prog_id: object) -> tuple[str | None, str | None, str | None]:
     try:
         k = Key(open_at=rf'Software\Classes\{prog_id}', root=base)
     except OSError as err:
         if err.winerror == winutil.ERROR_FILE_NOT_FOUND:
             return None, None, None
     with k:
-        cmd = k.get(sub_key=r'shell\open\command')
+        cmd = cast('str | None', k.get(sub_key=r'shell\open\command'))
         if cmd:
             parts = cmd.split()
             if parts[-1] == '/dde' and '%1' not in cmd:
                 cmd = ' '.join(parts[:-1]) + ' "%1"'
-        return cmd, k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
+        return (
+            cmd,
+            cast('str | None', k.get(sub_key='DefaultIcon')),
+            cast('str | None', k.get_mui_string('FriendlyTypeName') or k.get()),
+        )
 
 
-def split_commandline(commandline):
+def split_commandline(commandline: str) -> list[str]:
     # CommandLineToArgvW returns path to executable if called with empty string.
     if not commandline.strip():
         return []
     return list(winutil.parse_cmdline(commandline))
 
 
-def friendly_app_name(prog_id=None, exe=None):
+def friendly_app_name(prog_id: str | None = None, exe: str | None = None) -> str | None:
     try:
         return winutil.friendly_name(prog_id, exe)
     except Exception:
         traceback.print_exc()
 
 
-def find_programs(extensions):
+def find_programs(extensions: Iterable[str]) -> list[dict[str, RegistryValue]]:
     extensions = frozenset(extensions)
-    ans = []
+    ans: list[dict[str, RegistryValue]] = []
     seen_prog_ids, seen_cmdlines = set(), set()
 
     # Search for programs registered using Default Programs that claim they are
@@ -252,7 +264,7 @@ def find_programs(extensions):
         with k:
             for name, key_path in k.values(get_data=True):
                 try:
-                    app_desc, prog_id_map = get_prog_id_map(base, key_path)
+                    app_desc, prog_id_map = get_prog_id_map(base, cast('str', key_path))
                 except Exception:
                     traceback.print_exc()
                     continue

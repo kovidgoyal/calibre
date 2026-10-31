@@ -63,15 +63,15 @@ def create_kokoro_voice_config(voice: KokoroVoice, rate: float = 0, sentence_del
     )
 
 
-def translate_voice_config(x: Any) -> VoiceConfig:
+def translate_voice_config(x: dict[str, Any]) -> VoiceConfig:
     phoneme_id_map: dict[int, list[int]] = {}
     for s, pids in x.get('phoneme_id_map', {}).items():
         if s:
             phoneme_id_map.setdefault(ord(s[0]), []).extend(map(int, pids))
     inf = x.get('inference')
 
-    def g(d, prop, defval):
-        ans = d.get(prop, VoiceConfig)
+    def g(d: dict[str, Any] | None, prop: str, defval: float) -> float:
+        ans = d.get(prop, VoiceConfig)  # ty: ignore[unresolved-attribute]
         if ans is VoiceConfig:
             ans = defval
         return ans
@@ -142,7 +142,7 @@ class SynthesisResult(NamedTuple):
     is_last: bool
 
 
-def simple_test():
+def simple_test() -> None:
     d = espeak_data_dir()
     if d and not os.path.exists(os.path.join(d, 'voices')):
         raise AssertionError(f'{d} does not contain espeak-ng data')
@@ -175,7 +175,7 @@ ResultCallback = Callable[[SynthesisResult | None, Exception | None, str | None]
 
 
 class Piper(Thread):
-    def __init__(self):
+    def __init__(self) -> None:
         piper.initialize(espeak_data_dir())
         Thread.__init__(self, name='PiperSynth', daemon=True)
         self.commands = Queue()
@@ -201,7 +201,7 @@ class Piper(Thread):
             ans = self._voice_id
         return ans
 
-    def run(self):
+    def run(self) -> None:
         while True:
             voice_id, cmd = self.commands.get(True)
             if cmd is None:
@@ -215,7 +215,7 @@ class Piper(Thread):
 
                 self.result_callback(None, e, traceback.format_exc())
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         vid = self.increment_voice_id()
         self.commands.put((vid, None))
         self.join()
@@ -288,11 +288,11 @@ class Piper(Thread):
         self.increment_voice_id()
         self.result_callback = lambda *a: None
 
-    def synthesize(self, utterance_id: Any, text: str) -> None:
+    def synthesize(self, utterance_id: object, text: str) -> None:
         vid = self.voice_id
         self.commands.put((vid, partial(self._synthesize, vid, utterance_id, text)))
 
-    def _synthesize(self, voice_id: int, utterance_id: Any, text: str) -> None:
+    def _synthesize(self, voice_id: int, utterance_id: object, text: str) -> None:
         if self.g2p is None:
             piper.start(text)
         else:
@@ -327,7 +327,7 @@ def global_piper_instance_if_exists() -> Piper | None:
     return _global_piper_instance
 
 
-def play_wav_data(wav_data: bytes):
+def play_wav_data(wav_data: bytes) -> None:
     from qt.core import QAudioOutput, QBuffer, QByteArray, QCoreApplication, QIODevice, QMediaPlayer, QUrl
 
     app = QCoreApplication([])
@@ -344,20 +344,20 @@ def play_wav_data(wav_data: bytes):
     app.exec()
 
 
-def play_pcm_data(pcm_data, sample_rate):
+def play_pcm_data(pcm_data: bytes, sample_rate: int) -> None:
     from calibre_extensions.ffmpeg import wav_header_for_pcm_data
 
     play_wav_data(wav_header_for_pcm_data(len(pcm_data), sample_rate) + pcm_data)
 
 
-def develop():
+def develop() -> None:
     from calibre.gui2.tts.piper import piper_cache_dir
 
     p = global_piper_instance()
     model_path = os.path.join(piper_cache_dir(), 'en_US-libritts-high.onnx')
     q = Queue()
 
-    def synthesized(*args):
+    def synthesized(*args: object) -> None:
         q.put(args)
 
     sample_rate = p.set_voice(synthesized, model_path + '.json', model_path, sentence_delay=0.3)

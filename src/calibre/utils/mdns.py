@@ -5,9 +5,19 @@ import socket
 import time
 from collections import defaultdict
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from calibre import force_unicode
 from calibre.utils.filenames import ascii_text
+
+if TYPE_CHECKING:
+    from typing import Protocol
+
+    from zeroconf import ServiceInfo, Zeroconf
+
+    class Joinable(Protocol):
+        def __call__(self, timeout: float | None = None) -> None: ...
+
 
 _server = None
 
@@ -15,7 +25,7 @@ _all_ip_addresses = {}
 
 
 class AllIpAddressesGetter(Thread):
-    def get_all_ips(self):
+    def get_all_ips(self) -> dict[str, list[dict[str, str]]]:
         """Return a mapping of interface names to the configuration of the
         interface, which includes the ip address, netmask and broadcast addresses
         """
@@ -36,7 +46,7 @@ class AllIpAddressesGetter(Thread):
                     traceback.print_exc()
         return dict(all_ips)
 
-    def run(self):
+    def run(self) -> None:
         global _all_ip_addresses
         # print('sleeping')
         # time.sleep(15)
@@ -47,7 +57,7 @@ class AllIpAddressesGetter(Thread):
 _ip_address_getter_thread = None
 
 
-def get_all_ips(reinitialize=False):
+def get_all_ips(reinitialize: bool = False) -> dict[str, list[dict[str, str]]]:
     global _all_ip_addresses, _ip_address_getter_thread
     if not _ip_address_getter_thread or (reinitialize and not _ip_address_getter_thread.is_alive()):
         _all_ip_addresses = {}
@@ -57,7 +67,7 @@ def get_all_ips(reinitialize=False):
     return _all_ip_addresses
 
 
-def _get_external_ip():
+def _get_external_ip() -> str:
     "Get IP address of interface used to connect to the outside world"
     try:
         ipaddr = socket.gethostbyname(socket.gethostname())
@@ -98,7 +108,7 @@ def verify_ip_address(addr: str) -> str:
     return result
 
 
-def get_external_ip():
+def get_external_ip() -> str:
     global _ext_ip
     if _ext_ip is None:
         from calibre.utils.ip_routing import get_default_route_src_address
@@ -110,7 +120,7 @@ def get_external_ip():
     return _ext_ip
 
 
-def start_server():
+def start_server() -> Zeroconf:
     global _server
     if _server is None:
         from zeroconf import Zeroconf
@@ -126,14 +136,21 @@ def start_server():
     return _server
 
 
-def inet_aton(addr):
+def inet_aton(addr: str) -> bytes:
     try:
         return socket.inet_pton(socket.AF_INET6, addr)
     except Exception:
         return socket.inet_pton(socket.AF_INET, addr)
 
 
-def create_service(desc, service_type, port, properties, add_hostname, use_ip_address=None):
+def create_service(
+    desc: str,
+    service_type: str,
+    port: int | str,
+    properties: dict[str, str] | None,
+    add_hostname: bool,
+    use_ip_address: str | None = None,
+) -> ServiceInfo:
     port = int(port)
     try:
         hostname = ascii_text(force_unicode(socket.gethostname())).partition('.')[0]
@@ -167,12 +184,20 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
             inet_aton(local_ip),
         ],
         port=port,
-        properties=properties,
+        properties=properties,  # ty: ignore[invalid-argument-type]
         server=server_name,
     )
 
 
-def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip_address=None, strict=True):
+def publish(
+    desc: str,
+    service_type: str,
+    port: int | str,
+    properties: dict[str, str] | None = None,
+    add_hostname: bool = True,
+    use_ip_address: str | None = None,
+    strict: bool = True,
+) -> ServiceInfo:
     """
     Publish a service.
 
@@ -188,7 +213,14 @@ def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip
     return service
 
 
-def unpublish(desc, service_type, port, properties=None, add_hostname=True, wait_for_stop=True):
+def unpublish(
+    desc: str,
+    service_type: str,
+    port: int | str,
+    properties: dict[str, str] | None = None,
+    add_hostname: bool = True,
+    wait_for_stop: bool | float = True,
+) -> None:
     """
     Unpublish a service.
 
@@ -202,7 +234,7 @@ def unpublish(desc, service_type, port, properties=None, add_hostname=True, wait
         stop_server(wait_for_stop=wait_for_stop)
 
 
-def stop_server(wait_for_stop=True):
+def stop_server(wait_for_stop: bool | float = True) -> None:
     global _server
     srv = _server
     _server = None
@@ -217,17 +249,17 @@ def stop_server(wait_for_stop=True):
                 t.join(wait_for_stop)
 
 
-def stop_server_with_joinable():
+def stop_server_with_joinable() -> Joinable:
     global _server
     srv, _server = _server, None
     if srv is None:
 
-        def fake_join(timeout=None):
+        def fake_join(timeout: float | None = None) -> None:
             pass
 
         return fake_join
 
-    def shutdown():
+    def shutdown() -> None:
         srv.close()
 
     t = Thread(target=shutdown, name='CloseMDNSServer', daemon=True)

@@ -1474,7 +1474,7 @@ class Fonts:
             key = bytearray(reversed(tuple(int(key[i : i + 2], 16) for i in range(0, len(key), 2))))
             prefix = bytearray(prefix)
             prefix = bytes(bytearray(prefix[i] ^ key[i % len(key)] for i in range(len(prefix))))
-        if not is_truetype_font(prefix):
+        if not is_truetype_font(prefix):  # ty: ignore[redundant-condition]
             return None
         ext = 'otf' if prefix.startswith(b'OTTO') else 'ttf'
         fname = ascii_filename(f'{name} - {variant}.{ext}').replace(' ', '_').replace('&', '_')

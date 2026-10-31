@@ -2,17 +2,23 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
+from collections.abc import Iterable
 from struct import pack
+from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt.cff.constants import cff_standard_strings
 
+if TYPE_CHECKING:
+    from calibre.utils.fonts.sfnt.cff.dict_data import Dict as CFFDict
+    from calibre.utils.fonts.sfnt.cff.table import CFF
+
 
 class Index(list):
-    def __init__(self):
+    def __init__(self) -> None:
         list.__init__(self)
         self.raw = None
 
-    def calcsize(self, largest_offset):
+    def calcsize(self, largest_offset: int) -> int:
         if largest_offset < 0x100:
             return 1
         elif largest_offset < 0x10000:
@@ -21,7 +27,7 @@ class Index(list):
             return 3
         return 4
 
-    def compile(self):
+    def compile(self) -> bytes:
         if len(self) == 0:
             self.raw = pack(b'>H', 0)
         else:
@@ -43,11 +49,11 @@ class Index(list):
 
 
 class Strings(Index):
-    def __init__(self):
+    def __init__(self) -> None:
         Index.__init__(self)
-        self.added = {x: i for i, x in enumerate(cff_standard_strings)}
+        self.added: dict[str | bytes, int] = {x: i for i, x in enumerate(cff_standard_strings)}
 
-    def __call__(self, x):
+    def __call__(self, x: str | bytes) -> int:
         ans = self.added.get(x, None)
         if ans is None:
             ans = len(self) + len(cff_standard_strings)
@@ -57,17 +63,17 @@ class Strings(Index):
 
 
 class Dict(Index):
-    def __init__(self, src, strings):
+    def __init__(self, src: CFFDict, strings: Strings) -> None:
         Index.__init__(self)
         self.src, self.strings = src, strings
 
-    def compile(self):
+    def compile(self) -> None:  # ty: ignore[invalid-method-override]
         self[:] = [self.src.compile(self.strings)]
         Index.compile(self)
 
 
 class PrivateDict:
-    def __init__(self, src, subrs, strings):
+    def __init__(self, src: CFFDict, subrs: Iterable[bytes] | None, strings: Strings) -> None:
         self.src, self.strings = src, strings
         self.subrs = None
         if subrs is not None:
@@ -75,7 +81,7 @@ class PrivateDict:
             self.subrs.extend(subrs)
             self.subrs.compile()
 
-    def compile(self):
+    def compile(self) -> bytes:
         raw = self.src.compile(self.strings)
         if self.subrs is not None:
             self.src['Subrs'] = len(raw)
@@ -85,11 +91,11 @@ class PrivateDict:
 
 
 class Charsets(list):
-    def __init__(self, strings):
+    def __init__(self, strings: Strings) -> None:
         list.__init__(self)
         self.strings = strings
 
-    def compile(self):
+    def compile(self) -> bytes:
         ans = pack(b'>B', 0)
         sids = [self.strings(x) for x in self]
         ans += pack(f'>{len(self)}H'.encode('ascii'), *sids)
@@ -98,7 +104,7 @@ class Charsets(list):
 
 
 class Subset:
-    def __init__(self, cff, keep_charnames):
+    def __init__(self, cff: CFF, keep_charnames: set[bytes | str | None]) -> None:
         self.cff = cff
         keep_charnames.add(b'.notdef')
 
@@ -169,7 +175,7 @@ class Subset:
             t['Private'] = (len(private_dict.raw), pos)
         top_dict.compile()
 
-        self.raw = fixed_prefix + top_dict.raw + strings.raw + global_subrs.raw + charsets.raw + char_strings.raw
+        self.raw = fixed_prefix + top_dict.raw + strings.raw + global_subrs.raw + charsets.raw + char_strings.raw  # ty: ignore[unsupported-operator]
         if private_dict is not None:
             self.raw += private_dict.raw
             if private_dict.subrs is not None:

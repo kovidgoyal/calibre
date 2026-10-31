@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from struct import error, unpack, unpack_from
 from typing import IO
 
@@ -13,17 +13,19 @@ from calibre.utils.speedups import ReadOnlyFileBuffer
 
 HSIZE = 120
 
+type ImageTest = Callable[[memoryview], str | None]
 
-def what(file, h=None):
+
+def what(file: str | bytes | IO[bytes] | None, h: bytes | memoryview | None = None) -> str | None:
     "Recognize image headers"
     if h is None:
         if isinstance(file, (str, bytes)):
             with open(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:
-            location = file.tell()
-            h = file.read(HSIZE)
-            file.seek(location)
+            location = file.tell()  # ty: ignore[unresolved-attribute]
+            h = file.read(HSIZE)  # ty: ignore[unresolved-attribute]
+            file.seek(location)  # ty: ignore[unresolved-attribute]
     if isinstance(h, bytes):
         h = memoryview(h)
     for tf in tests:
@@ -37,18 +39,18 @@ def what(file, h=None):
     return None
 
 
-def identify(src):
+def identify(src: str | bytes | IO[bytes]) -> tuple[str | None, int, int]:
     """Recognize file format and sizes. Returns format, width, height. width
     and height will be -1 if not found and fmt will be None if the image is not
     recognized."""
 
     if isinstance(src, bytes):
-        src = ReadOnlyFileBuffer(src)
-    with StreamOrPath(src, 'rb') as stream:  # ty: ignore[invalid-argument-type]
+        src = ReadOnlyFileBuffer(src)  # ty: ignore[invalid-assignment]
+    with StreamOrPath(src, 'rb') as stream:
         return _identify(stream)
 
 
-def _identify(stream):
+def _identify(stream: IO[bytes]) -> tuple[str | None, int, int]:
     width = height = -1
 
     pos = stream.tell()
@@ -114,16 +116,16 @@ def _identify(stream):
 # Subroutines per image file type  #
 # ---------------------------------#
 
-_tests = []
+_tests: list[ImageTest] = []
 
 
-def test(f):
+def test(f: ImageTest) -> ImageTest:
     _tests.append(f)
     return f
 
 
 @test
-def jpeg(h):
+def jpeg(h: memoryview) -> str | None:
     """JPEG data in JFIF format (Changed by Kovid to mimic the file utility,
     the original code was failing with some jpegs that included ICC_PROFILE
     data, for example: http://nationalpostnews.files.wordpress.com/2013/03/budget.jpeg?w=300&h=1571)"""
@@ -135,19 +137,19 @@ def jpeg(h):
             return 'jpeg'
 
 
-def jpeg_dimensions(stream):
+def jpeg_dimensions(stream: IO[bytes]) -> tuple[int, int]:
     # A JPEG marker is two bytes of the form 0xff x where 0 < x < 0xff
     # See section B.1.1.2 of https://www.w3.org/Graphics/JPEG/itu-t81.pdf
     # We read the dimensions from the first SOFn section we come across
     stream.seek(2, os.SEEK_CUR)
 
-    def read(n):
+    def read(n: int) -> bytes:
         ans = stream.read(n)
         if len(ans) != n:
             raise ValueError('Truncated JPEG data')
         return ans
 
-    def read_byte():
+    def read_byte() -> int:
         return read(1)[0]
 
     x = None
@@ -181,20 +183,20 @@ def jpeg_dimensions(stream):
 
 
 @test
-def png(h):
+def png(h: memoryview) -> str | None:
     if h[:8] == b'\211PNG\r\n\032\n':
         return 'png'
 
 
 @test
-def gif(h):
+def gif(h: memoryview) -> str | None:
     """GIF ('87 and '89 variants)"""
     if h[:6] in (b'GIF87a', b'GIF89a'):
         return 'gif'
 
 
 @test
-def tiff(h):
+def tiff(h: memoryview) -> str | None:
     """TIFF (can be in Motorola or Intel byte order)"""
     if h[:2] in (b'MM', b'II'):
         if h[2:4] == b'\xbc\x01':
@@ -203,13 +205,13 @@ def tiff(h):
 
 
 @test
-def webp(h):
+def webp(h: memoryview) -> str | None:
     if h[:4] == b'RIFF' and h[8:12] == b'WEBP':
         return 'webp'
 
 
 @test
-def avif(h):
+def avif(h: memoryview) -> str | None:
     """AVIF (still images and image sequences), which is ISOBMFF based, like HEIF"""
     if h[4:8] != b'ftyp':
         return None
@@ -233,7 +235,7 @@ JXL_CONTAINER_SIGNATURE = b'\x00\x00\x00\x0cJXL \x0d\x0a\x87\x0a'
 
 
 @test
-def jxl(h):
+def jxl(h: memoryview) -> str | None:
     """JPEG-XL, either a bare codestream or one in the ISOBMFF based container"""
     if h[:2] == JXL_CODESTREAM_SIGNATURE or h[:12] == JXL_CONTAINER_SIGNATURE:
         return 'jxl'
@@ -493,42 +495,42 @@ def jxl_dimensions(stream: IO[bytes]) -> tuple[int, int]:
 
 
 @test
-def rgb(h):
+def rgb(h: memoryview) -> str | None:
     """SGI image library"""
     if h[:2] == b'\001\332':
         return 'rgb'
 
 
 @test
-def pbm(h):
+def pbm(h: memoryview) -> str | None:
     """PBM (portable bitmap)"""
     if len(h) >= 3 and h[0] == b'P' and h[1] in b'14' and h[2] in b' \t\n\r':
         return 'pbm'
 
 
 @test
-def pgm(h):
+def pgm(h: memoryview) -> str | None:
     """PGM (portable graymap)"""
     if len(h) >= 3 and h[0] == b'P' and h[1] in b'25' and h[2] in b' \t\n\r':
         return 'pgm'
 
 
 @test
-def ppm(h):
+def ppm(h: memoryview) -> str | None:
     """PPM (portable pixmap)"""
     if len(h) >= 3 and h[0] == b'P' and h[1] in b'36' and h[2] in b' \t\n\r':
         return 'ppm'
 
 
 @test
-def rast(h):
+def rast(h: memoryview) -> str | None:
     """Sun raster file"""
     if h[:4] == b'\x59\xa6\x6a\x95':
         return 'rast'
 
 
 @test
-def xbm(h):
+def xbm(h: memoryview) -> str | None:
     """X bitmap (X10 or X11)"""
     s = b'#define '
     if h[: len(s)] == s:
@@ -536,25 +538,25 @@ def xbm(h):
 
 
 @test
-def bmp(h):
+def bmp(h: memoryview) -> str | None:
     if h[:2] == b'BM':
         return 'bmp'
 
 
 @test
-def emf(h):
+def emf(h: memoryview) -> str | None:
     if h[:4] == b'\x01\0\0\0' and h[40:44] == b' EMF':
         return 'emf'
 
 
 @test
-def jpeg2000(h):
+def jpeg2000(h: memoryview) -> str | None:
     if h[:12] == b'\x00\x00\x00\x0cjP  \r\n\x87\n':
         return 'jpeg2000'
 
 
 @test
-def svg(h):
+def svg(h: memoryview) -> str | None:
     if h[:4] == b'<svg' or (h[:2] == b'<?' and h[2:5].tobytes().lower() == b'xml' and b'<svg' in h.tobytes()):
         return 'svg'
 

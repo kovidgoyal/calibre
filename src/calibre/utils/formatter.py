@@ -13,9 +13,10 @@ import string
 import sys
 import traceback
 from collections import OrderedDict
+from collections.abc import Callable, Mapping, Sequence
 from functools import lru_cache, partial
 from math import modf
-from typing import NoReturn
+from typing import TYPE_CHECKING, NoReturn
 
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
@@ -25,10 +26,41 @@ from calibre.utils.icu import strcmp
 from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.formatter_functions import FormatterFunction, FormatterUserFunction
+
+type Expression = Node | list[Expression]
+type Token = tuple[int, str] | int
+type ScanResult = tuple[list[Token], str]
+type Kwargs = Metadata | Mapping[str, object]
+type Book = Metadata | Mapping[str, object] | None
+type Locals = dict[str, str]
+type Funcs = dict[str, FormatterFunction]
+type PythonTemplate = Callable[[Book, PythonTemplateContext], object]
+type TemplateCache = dict[str, list[Expression] | PythonTemplate]
+type BreakReporter = Callable[[str, str, Locals, int], None]
+type TemplateErrorReporter = Callable[[Exception, str, Kwargs, Book, str | None], None]
+type FormatterState = tuple[
+    bool,
+    str | None,
+    TemplateCache | None,
+    Kwargs | None,
+    Metadata | None,
+    dict[str, str],
+    Funcs,
+    Locals,
+    FormatterFuncsCaller | None,
+    PythonTemplateContext | None,
+    Cache | LibraryDatabase | None,
+]
+
 TEMPLATE_ERROR = _('TEMPLATE ERROR')
 
 
-def default_template_error_reporter(e: Exception, fmt, kwargs, book, column_name: str | None):
+def default_template_error_reporter(e: Exception, fmt: str, kwargs: Kwargs, book: Book, column_name: str | None) -> None:
     if DEBUG:
         if tweaks.get('show_stack_traces_in_formatter', False):
             traceback.print_exc()
@@ -39,7 +71,7 @@ def default_template_error_reporter(e: Exception, fmt, kwargs, book, column_name
 template_error_reporter = default_template_error_reporter
 
 
-def set_template_error_reporter(callback=lambda *a: None):
+def set_template_error_reporter(callback: TemplateErrorReporter = lambda *a: None) -> None:
     global template_error_reporter
     template_error_reporter = callback
 
@@ -81,21 +113,23 @@ class Node:
     NODE_WITH = 34
     NODE_FSTRING = 35
 
-    def __init__(self, line_number, name):
+    node_type: int
+
+    def __init__(self, line_number: int, name: str) -> None:
         self.my_line_number = line_number
         self.my_node_name = name
 
     @property
-    def node_name(self):
+    def node_name(self) -> str:
         return self.my_node_name
 
     @property
-    def line_number(self):
+    def line_number(self) -> int:
         return self.my_line_number
 
 
 class WithNode(Node):
-    def __init__(self, line_number, book_id, block):
+    def __init__(self, line_number: int, book_id: Expression, block: list[Expression]) -> None:
         Node.__init__(self, line_number, 'with ...')
         self.node_type = self.NODE_WITH
         self.book_id = book_id
@@ -103,7 +137,7 @@ class WithNode(Node):
 
 
 class IfNode(Node):
-    def __init__(self, line_number, condition, then_part, else_part):
+    def __init__(self, line_number: int, condition: Expression, then_part: Sequence[Expression], else_part: Sequence[Expression] | None) -> None:
         Node.__init__(self, line_number, 'if ...')
         self.node_type = self.NODE_IF
         self.condition = condition
@@ -112,7 +146,7 @@ class IfNode(Node):
 
 
 class ForNode(Node):
-    def __init__(self, line_number, variable, list_field_expr, separator, block):
+    def __init__(self, line_number: int, variable: str, list_field_expr: Expression, separator: Expression | None, block: list[Expression]) -> None:
         Node.__init__(self, line_number, 'for ...:')
         self.node_type = self.NODE_FOR
         self.variable = variable
@@ -122,7 +156,16 @@ class ForNode(Node):
 
 
 class RangeNode(Node):
-    def __init__(self, line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block):
+    def __init__(
+        self,
+        line_number: int,
+        variable: str,
+        start_expr: Expression,
+        stop_expr: Expression,
+        step_expr: Expression,
+        limit_expr: Expression | None,
+        block: list[Expression],
+    ) -> None:
         Node.__init__(self, line_number, 'for ...:')
         self.node_type = self.NODE_RANGE
         self.variable = variable
@@ -134,26 +177,26 @@ class RangeNode(Node):
 
 
 class BreakNode(Node):
-    def __init__(self, line_number):
+    def __init__(self, line_number: int) -> None:
         Node.__init__(self, line_number, 'break')
         self.node_type = self.NODE_BREAK
 
 
 class ContinueNode(Node):
-    def __init__(self, line_number):
+    def __init__(self, line_number: int) -> None:
         Node.__init__(self, line_number, 'continue')
         self.node_type = self.NODE_CONTINUE
 
 
 class ReturnNode(Node):
-    def __init__(self, line_number, expr):
+    def __init__(self, line_number: int, expr: Expression) -> None:
         Node.__init__(self, line_number, 'return')
         self.expr = expr
         self.node_type = self.NODE_RETURN
 
 
 class AssignNode(Node):
-    def __init__(self, line_number, left, right):
+    def __init__(self, line_number: int, left: str, right: Expression) -> None:
         Node.__init__(self, line_number, 'assign to ' + left)
         self.node_type = self.NODE_ASSIGN
         self.left = left
@@ -161,7 +204,7 @@ class AssignNode(Node):
 
 
 class FunctionNode(Node):
-    def __init__(self, line_number, function_name, expression_list):
+    def __init__(self, line_number: int, function_name: str, expression_list: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, function_name + '()')
         self.node_type = self.NODE_FUNC
         self.name = function_name
@@ -169,7 +212,7 @@ class FunctionNode(Node):
 
 
 class StoredTemplateCallNode(Node):
-    def __init__(self, line_number, name, function, expression_list):
+    def __init__(self, line_number: int, name: str, function: FormatterUserFunction, expression_list: list[list[Expression]] | None) -> None:
         Node.__init__(self, line_number, 'call template: ' + name + '()')
         self.node_type = self.NODE_CALL_STORED_TEMPLATE
         self.name = name
@@ -178,19 +221,19 @@ class StoredTemplateCallNode(Node):
 
 
 class LocalFunctionDefineNode(Node):
-    def __init__(self, line_number, function_name, argument_list, block):
+    def __init__(self, line_number: int, function_name: str, argument_list: list[AssignNode], block: list[Expression]) -> None:
         Node.__init__(self, line_number, 'define local function' + function_name + '()')
         self.node_type = self.NODE_LOCAL_FUNCTION_DEFINE
         self.name = function_name
         self.argument_list = argument_list
         self.block = block
 
-    def attributes_to_tuple(self):
+    def attributes_to_tuple(self) -> tuple[int, list[AssignNode], list[Expression]]:
         return (self.line_number, self.argument_list, self.block)
 
 
 class LocalFunctionCallNode(Node):
-    def __init__(self, line_number, name, arguments):
+    def __init__(self, line_number: int, name: str, arguments: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'call local function: ' + name + '()')
         self.node_type = self.NODE_LOCAL_FUNCTION_CALL
         self.name = name
@@ -198,28 +241,28 @@ class LocalFunctionCallNode(Node):
 
 
 class ArgumentsNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[AssignNode]) -> None:
         Node.__init__(self, line_number, 'arguments()')
         self.node_type = self.NODE_ARGUMENTS
         self.expression_list = expression_list
 
 
 class GlobalsNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[AssignNode]) -> None:
         Node.__init__(self, line_number, 'globals()')
         self.node_type = self.NODE_GLOBALS
         self.expression_list = expression_list
 
 
 class SetGlobalsNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[AssignNode]) -> None:
         Node.__init__(self, line_number, 'set_globals()')
         self.node_type = self.NODE_SET_GLOBALS
         self.expression_list = expression_list
 
 
 class StringCompareNode(Node):
-    def __init__(self, line_number, operator, left, right):
+    def __init__(self, line_number: int, operator: str, left: Expression, right: Expression) -> None:
         Node.__init__(self, line_number, 'comparison: ' + operator)
         self.node_type = self.NODE_COMPARE_STRING
         self.operator = operator
@@ -228,7 +271,7 @@ class StringCompareNode(Node):
 
 
 class StringBinaryNode(Node):
-    def __init__(self, line_number, operator, left, right):
+    def __init__(self, line_number: int, operator: str, left: Expression, right: Expression) -> None:
         Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_STRINGOP
         self.operator = operator
@@ -237,7 +280,7 @@ class StringBinaryNode(Node):
 
 
 class NumericCompareNode(Node):
-    def __init__(self, line_number, operator, left, right):
+    def __init__(self, line_number: int, operator: str, left: Expression, right: Expression) -> None:
         Node.__init__(self, line_number, 'comparison: ' + operator)
         self.node_type = self.NODE_COMPARE_NUMERIC
         self.operator = operator
@@ -246,7 +289,7 @@ class NumericCompareNode(Node):
 
 
 class LogopBinaryNode(Node):
-    def __init__(self, line_number, operator, left, right):
+    def __init__(self, line_number: int, operator: str, left: Expression, right: Expression) -> None:
         Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_LOGOP
         self.operator = operator
@@ -255,7 +298,7 @@ class LogopBinaryNode(Node):
 
 
 class LogopUnaryNode(Node):
-    def __init__(self, line_number, operator, expr):
+    def __init__(self, line_number: int, operator: str, expr: Expression) -> None:
         Node.__init__(self, line_number, 'unary operator: ' + operator)
         self.node_type = self.NODE_UNARY_LOGOP
         self.operator = operator
@@ -263,7 +306,7 @@ class LogopUnaryNode(Node):
 
 
 class NumericBinaryNode(Node):
-    def __init__(self, line_number, operator, left, right):
+    def __init__(self, line_number: int, operator: str, left: Expression, right: Expression) -> None:
         Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_ARITHOP
         self.operator = operator
@@ -272,7 +315,7 @@ class NumericBinaryNode(Node):
 
 
 class NumericUnaryNode(Node):
-    def __init__(self, line_number, operator, expr):
+    def __init__(self, line_number: int, operator: str, expr: Expression) -> None:
         Node.__init__(self, line_number, 'unary operator: ' + operator)
         self.node_type = self.NODE_UNARY_ARITHOP
         self.operator = operator
@@ -280,28 +323,28 @@ class NumericUnaryNode(Node):
 
 
 class ConstantNode(Node):
-    def __init__(self, line_number, value):
+    def __init__(self, line_number: int, value: str) -> None:
         Node.__init__(self, line_number, 'constant: ' + value)
         self.node_type = self.NODE_CONSTANT
         self.value = value
 
 
 class VariableNode(Node):
-    def __init__(self, line_number, name):
+    def __init__(self, line_number: int, name: str) -> None:
         Node.__init__(self, line_number, 'variable: ' + name)
         self.node_type = self.NODE_RVALUE
         self.name = name
 
 
 class FieldNode(Node):
-    def __init__(self, line_number, expression):
+    def __init__(self, line_number: int, expression: Expression) -> None:
         Node.__init__(self, line_number, 'field()')
         self.node_type = self.NODE_FIELD
         self.expression = expression
 
 
 class RawFieldNode(Node):
-    def __init__(self, line_number, expression, default=None):
+    def __init__(self, line_number: int, expression: Expression, default: Expression | None = None) -> None:
         Node.__init__(self, line_number, 'raw_field()')
         self.node_type = self.NODE_RAW_FIELD
         self.expression = expression
@@ -309,28 +352,28 @@ class RawFieldNode(Node):
 
 
 class FirstNonEmptyNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'first_non_empty()')
         self.node_type = self.NODE_FIRST_NON_EMPTY
         self.expression_list = expression_list
 
 
 class SwitchNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'first_non_empty()')
         self.node_type = self.NODE_SWITCH
         self.expression_list = expression_list
 
 
 class SwitchIfNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'switch_if()')
         self.node_type = self.NODE_SWITCH_IF
         self.expression_list = expression_list
 
 
 class ContainsNode(Node):
-    def __init__(self, line_number, arguments):
+    def __init__(self, line_number: int, arguments: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'contains()')
         self.node_type = self.NODE_CONTAINS
         self.value_expression = arguments[0]
@@ -340,35 +383,35 @@ class ContainsNode(Node):
 
 
 class PrintNode(Node):
-    def __init__(self, line_number, arguments):
+    def __init__(self, line_number: int, arguments: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'print')
         self.node_type = self.NODE_PRINT
         self.arguments = arguments
 
 
 class CharacterNode(Node):
-    def __init__(self, line_number, expression):
+    def __init__(self, line_number: int, expression: Expression) -> None:
         Node.__init__(self, line_number, 'character()')
         self.node_type = self.NODE_CHARACTER
         self.expression = expression
 
 
 class StrcatNode(Node):
-    def __init__(self, line_number, expression_list):
+    def __init__(self, line_number: int, expression_list: list[list[Expression]]) -> None:
         Node.__init__(self, line_number, 'strcat()')
         self.node_type = self.NODE_STRCAT
         self.expression_list = expression_list
 
 
 class ListCountFieldNode(Node):
-    def __init__(self, line_number, expression):
+    def __init__(self, line_number: int, expression: Expression) -> None:
         Node.__init__(self, line_number, 'list_count_field()')
         self.node_type = self.NODE_LIST_COUNT_FIELD
         self.expression = expression
 
 
 class FStringNode(Node):
-    def __init__(self, line_number, string):
+    def __init__(self, line_number: int, string: Expression) -> None:
         Node.__init__(self, line_number, 'f_string')
         self.node_type = self.NODE_FSTRING
         self.string = string
@@ -384,10 +427,10 @@ class _Parser:
     LEX_KEYWORD = 7
     LEX_NEWLINE = 8
 
-    def error(self, message):
+    def error(self, message: str) -> NoReturn:
         ln = None
         try:
-            tval = "'" + self.prog[self.lex_pos - 1][1] + "'"
+            tval = "'" + self.prog[self.lex_pos - 1][1] + "'"  # ty: ignore[not-subscriptable]
         except Exception:
             tval = _('Unknown')
         if self.lex_pos > 0 and self.lex_pos < self.prog_len:
@@ -400,92 +443,92 @@ class _Parser:
         else:
             raise ValueError(_('{0}: {1} near {2}').format('Formatter', message, location))
 
-    def check_eol(self):
+    def check_eol(self) -> None:
         while self.lex_pos < len(self.prog) and self.prog[self.lex_pos] == self.LEX_NEWLINE:
             self.line_number += 1
             self.consume()
 
-    def token(self):
+    def token(self) -> str | None:
         self.check_eol()
         try:
-            token = self.prog[self.lex_pos][1]
+            token = self.prog[self.lex_pos][1]  # ty: ignore[not-subscriptable]
             self.lex_pos += 1
             return token
         except Exception:
             return None
 
-    def consume(self):
+    def consume(self) -> None:
         self.lex_pos += 1
 
-    def token_op_is(self, op):
+    def token_op_is(self, op: str) -> bool:
         self.check_eol()
         try:
             token = self.prog[self.lex_pos]
-            return token[1] == op and token[0] == self.LEX_OP
+            return token[1] == op and token[0] == self.LEX_OP  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_op_is_string_infix_compare(self):
+    def token_op_is_string_infix_compare(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_STRING_INFIX
+            return self.prog[self.lex_pos][0] == self.LEX_STRING_INFIX  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_op_is_numeric_infix_compare(self):
+    def token_op_is_numeric_infix_compare(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_NUMERIC_INFIX
+            return self.prog[self.lex_pos][0] == self.LEX_NUMERIC_INFIX  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_is_newline(self):
+    def token_is_newline(self) -> bool:
         return self.lex_pos < len(self.prog) and self.prog[self.lex_pos] == self.LEX_NEWLINE
 
-    def token_is_id(self):
+    def token_is_id(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_ID
+            return self.prog[self.lex_pos][0] == self.LEX_ID  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_is(self, candidate):
+    def token_is(self, candidate: str) -> bool:
         self.check_eol()
         try:
             token = self.prog[self.lex_pos]
-            return token[1] == candidate and token[0] == self.LEX_KEYWORD
+            return token[1] == candidate and token[0] == self.LEX_KEYWORD  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_is_keyword(self):
+    def token_is_keyword(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_KEYWORD
+            return self.prog[self.lex_pos][0] == self.LEX_KEYWORD  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_is_constant(self):
+    def token_is_constant(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_CONST
+            return self.prog[self.lex_pos][0] == self.LEX_CONST  # ty: ignore[not-subscriptable]
         except Exception:
             return False
 
-    def token_is_eof(self):
+    def token_is_eof(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_EOF
+            return self.prog[self.lex_pos][0] == self.LEX_EOF  # ty: ignore[not-subscriptable]
         except Exception:
             return True
 
-    def token_text(self):
+    def token_text(self) -> str:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][1]
+            return self.prog[self.lex_pos][1]  # ty: ignore[not-subscriptable]
         except Exception:
             return _("'End of program'")
 
-    def program(self, parent, funcs, prog, local_functions=None):
+    def program(self, parent: TemplateFormatter, funcs: Funcs, prog: ScanResult, local_functions: set[str] | None = None) -> list[Expression]:
         self.line_number = 1
         self.lex_pos = 0
         self.parent = parent
@@ -501,8 +544,8 @@ class _Parser:
             self.error(_("Expected end of program, found '{0}'").format(self.token_text()))
         return tree
 
-    def expression_list(self):
-        expr_list = []
+    def expression_list(self) -> list[Expression]:
+        expr_list: list[Expression] = []
         while True:
             while self.token_is_newline():
                 self.line_number += 1
@@ -516,7 +559,7 @@ class _Parser:
                 break
         return expr_list
 
-    def if_expression(self):
+    def if_expression(self) -> IfNode:
         self.consume()
         line_number = self.line_number
         condition = self.top_expr()
@@ -543,7 +586,7 @@ class _Parser:
         self.consume()
         return IfNode(line_number, condition, then_part, else_part)
 
-    def for_expression(self):
+    def for_expression(self) -> ForNode | RangeNode:
         line_number = self.line_number
         self.consume()
         if not self.token_is_id():
@@ -591,10 +634,10 @@ class _Parser:
             self.error(_("{0} statement: expected '{1}', found '{2}'").format('for', 'rof', self.token_text()))
         self.consume()
         if is_list:
-            return ForNode(line_number, variable, list_expr, separator, block)
-        return RangeNode(line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block)
+            return ForNode(line_number, variable, list_expr, separator, block)  # ty: ignore[invalid-argument-type]
+        return RangeNode(line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block)  # ty: ignore[invalid-argument-type]
 
-    def define_function_expression(self):
+    def define_function_expression(self) -> LocalFunctionDefineNode:
         self.consume()
         line_number = self.line_number
         if not self.token_is_id():
@@ -608,10 +651,10 @@ class _Parser:
         arguments = []
         while not self.token_op_is(')'):
             a = self.top_expr()
-            if a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+            if a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):  # ty: ignore[unresolved-attribute]
                 self.error(_('Parameters to a function must be variables or assignments'))
-            if a.node_type == Node.NODE_RVALUE:
-                a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))
+            if a.node_type == Node.NODE_RVALUE:  # ty: ignore[unresolved-attribute]
+                a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))  # ty: ignore[unresolved-attribute]
             arguments.append(a)
             if not self.token_op_is(','):
                 break
@@ -626,13 +669,13 @@ class _Parser:
         if not self.token_is('fed'):
             self.error(_("'{0}' statement: missing the closing '{1}'").format('def', 'fed'))
         self.consume()
-        self.local_functions.add(function_name)
-        return LocalFunctionDefineNode(line_number, function_name, arguments, block)
+        self.local_functions.add(function_name)  # ty: ignore[invalid-argument-type]
+        return LocalFunctionDefineNode(line_number, function_name, arguments, block)  # ty: ignore[invalid-argument-type]
 
-    def local_call_expression(self, name, arguments):
+    def local_call_expression(self, name: str, arguments: list[list[Expression]]) -> LocalFunctionCallNode:
         return LocalFunctionCallNode(self.line_number, name, arguments)
 
-    def with_expression(self):
+    def with_expression(self) -> WithNode:
         self.consume()
         line_number = self.line_number
         book_id = self.top_expr()
@@ -645,8 +688,8 @@ class _Parser:
         self.consume()
         return WithNode(line_number, book_id, block)
 
-    def call_expression(self, name, arguments):
-        compiled_func = self.funcs[name].cached_compiled_text
+    def call_expression(self, name: str, arguments: list[list[Expression]]) -> StoredTemplateCallNode:
+        compiled_func = self.funcs[name].cached_compiled_text  # ty: ignore[unresolved-attribute]
         if compiled_func is None:
             text = self.funcs[name].program_text
             if function_object_type(text) is StoredObjectType.StoredGPMTemplate:
@@ -657,13 +700,13 @@ class _Parser:
                 compiled_func = self.parent.compile_python_template(text)
             else:
                 self.error(_("A stored template must begin with '{0}' or {1}").format('program:', 'python:'))
-            self.funcs[name].cached_compiled_text = compiled_func
-        return StoredTemplateCallNode(self.line_number, name, self.funcs[name], arguments)
+            self.funcs[name].cached_compiled_text = compiled_func  # ty: ignore[unresolved-attribute]
+        return StoredTemplateCallNode(self.line_number, name, self.funcs[name], arguments)  # ty: ignore[invalid-argument-type]
 
-    def top_expr(self):
+    def top_expr(self) -> Expression:
         return self.or_expr()
 
-    def or_expr(self):
+    def or_expr(self) -> Expression:
         left = self.and_expr()
         while self.token_op_is('||'):
             self.consume()
@@ -671,7 +714,7 @@ class _Parser:
             left = LogopBinaryNode(self.line_number, 'or', left, right)
         return left
 
-    def and_expr(self):
+    def and_expr(self) -> Expression:
         left = self.not_expr()
         while self.token_op_is('&&'):
             self.consume()
@@ -679,47 +722,47 @@ class _Parser:
             left = LogopBinaryNode(self.line_number, 'and', left, right)
         return left
 
-    def not_expr(self):
+    def not_expr(self) -> Expression:
         if self.token_op_is('!'):
             self.consume()
             return LogopUnaryNode(self.line_number, 'not', self.not_expr())
         return self.string_binary_expr()
 
-    def string_binary_expr(self):
+    def string_binary_expr(self) -> Expression:
         left = self.compare_expr()
         while self.token_op_is('&'):
             operator = self.token()
             right = self.compare_expr()
-            left = StringBinaryNode(self.line_number, operator, left, right)
+            left = StringBinaryNode(self.line_number, operator, left, right)  # ty: ignore[invalid-argument-type]
         return left
 
-    def compare_expr(self):
+    def compare_expr(self) -> Expression:
         left = self.add_subtract_expr()
         if self.token_op_is_string_infix_compare() or self.token_is('in') or self.token_is('inlist') or self.token_is('inlist_field'):
             operator = self.token()
-            return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
+            return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())  # ty: ignore[invalid-argument-type]
         if self.token_op_is_numeric_infix_compare():
             operator = self.token()
-            return NumericCompareNode(self.line_number, operator, left, self.add_subtract_expr())
+            return NumericCompareNode(self.line_number, operator, left, self.add_subtract_expr())  # ty: ignore[invalid-argument-type]
         return left
 
-    def add_subtract_expr(self):
+    def add_subtract_expr(self) -> Expression:
         left = self.times_divide_expr()
         while self.token_op_is('+') or self.token_op_is('-'):
             operator = self.token()
             right = self.times_divide_expr()
-            left = NumericBinaryNode(self.line_number, operator, left, right)
+            left = NumericBinaryNode(self.line_number, operator, left, right)  # ty: ignore[invalid-argument-type]
         return left
 
-    def times_divide_expr(self):
+    def times_divide_expr(self) -> Expression:
         left = self.unary_plus_minus_expr()
         while self.token_op_is('*') or self.token_op_is('/'):
             operator = self.token()
             right = self.unary_plus_minus_expr()
-            left = NumericBinaryNode(self.line_number, operator, left, right)
+            left = NumericBinaryNode(self.line_number, operator, left, right)  # ty: ignore[invalid-argument-type]
         return left
 
-    def unary_plus_minus_expr(self):
+    def unary_plus_minus_expr(self) -> Expression:
         if self.token_op_is('+'):
             self.consume()
             return NumericUnaryNode(self.line_number, '+', self.unary_plus_minus_expr())
@@ -758,7 +801,7 @@ class _Parser:
         'f_string': (lambda args: len(args) == 1, lambda ln, args: FStringNode(ln, args[0])),
     }
 
-    def expr(self):
+    def expr(self) -> Expression:
         if self.token_op_is('('):
             self.consume()
             rv = self.expression_list()
@@ -782,10 +825,10 @@ class _Parser:
             # We have an identifier. Check if it is a shorthand field reference
             line_number = self.line_number
             id_ = self.token()
-            if len(id_) > 1 and id_[0] == '$':
-                if id_[1] == '$':
-                    return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))
-                return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))
+            if len(id_) > 1 and id_[0] == '$':  # ty: ignore[invalid-argument-type, not-subscriptable]
+                if id_[1] == '$':  # ty: ignore[not-subscriptable]
+                    return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))  # ty: ignore[not-subscriptable]
+                return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))  # ty: ignore[not-subscriptable]
 
             # Do we have a function call?
             if not self.token_op_is('('):
@@ -793,13 +836,13 @@ class _Parser:
                 if self.token_op_is('='):
                     # classic assignment statement
                     self.consume()
-                    return AssignNode(line_number, id_, self.top_expr())
-                return VariableNode(line_number, id_)
+                    return AssignNode(line_number, id_, self.top_expr())  # ty: ignore[invalid-argument-type]
+                return VariableNode(line_number, id_)  # ty: ignore[invalid-argument-type]
 
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
-            id_ = id_.strip()
+            id_ = id_.strip()  # ty: ignore[unresolved-attribute]
             if id_ not in self.func_names and id_ not in self.local_functions:
                 self.error(_('Unknown function {0}').format(id_))
 
@@ -825,16 +868,16 @@ class _Parser:
                 new_args = []
                 for arg_list in arguments:
                     arg = arg_list[0]
-                    if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+                    if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):  # ty: ignore[unresolved-attribute]
                         self.error(_("Parameters to '{0}' must be variables or assignments").format(id_))
-                    if arg.node_type == Node.NODE_RVALUE:
-                        arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))
+                    if arg.node_type == Node.NODE_RVALUE:  # ty: ignore[unresolved-attribute]
+                        arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))  # ty: ignore[unresolved-attribute]
                     new_args.append(arg)
                 if id_ == 'arguments':
-                    return ArgumentsNode(line_number, new_args)
+                    return ArgumentsNode(line_number, new_args)  # ty: ignore[invalid-argument-type]
                 if id_ == 'set_globals':
-                    return SetGlobalsNode(line_number, new_args)
-                return GlobalsNode(line_number, new_args)
+                    return SetGlobalsNode(line_number, new_args)  # ty: ignore[invalid-argument-type]
+                return GlobalsNode(line_number, new_args)  # ty: ignore[invalid-argument-type]
             # Check for calling a local function template
             if id_ in self.local_functions:
                 return self.local_call_expression(id_, arguments)
@@ -849,46 +892,46 @@ class _Parser:
             return FunctionNode(line_number, id_, arguments)
         elif self.token_is_constant():
             # String or number
-            return ConstantNode(self.line_number, self.token())
+            return ConstantNode(self.line_number, self.token())  # ty: ignore[invalid-argument-type]
         else:
             # Who knows what?
             self.error(_("Expected an expression, found '{0}'").format(self.token_text()))
 
 
 class ExecutionBase(Exception):
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         super().__init__(_('{0} outside of for loop').format(name) if name else '')
         self.value = ''
 
-    def set_value(self, v):
+    def set_value(self, v: str) -> None:
         self.value = v
 
-    def get_value(self):
+    def get_value(self) -> str:
         return self.value
 
 
 class ContinueExecuted(ExecutionBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__('continue')
 
 
 class BreakExecuted(ExecutionBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__('break')
 
 
 class ReturnExecuted(ExecutionBase):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__('return')
 
 
 class StopException(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__('Template evaluation stopped')
 
 
 class PythonTemplateContext:
-    def __init__(self):
+    def __init__(self) -> None:
         # Set attributes we already know must exist.
         object.__init__(self)
         self.db = None
@@ -898,7 +941,7 @@ class PythonTemplateContext:
         self.funcs = None
         self.attrs_set = {'db', 'arguments', 'globals', 'funcs'}
 
-    def set_values(self, **kwargs):
+    def set_values(self, **kwargs: object) -> None:
         # Create/set attributes from the named parameters. Doing it this way we
         # aren't required to change the signature of this method if/when we add
         # attributes in the future. However, if a user depends upon the
@@ -909,11 +952,11 @@ class PythonTemplateContext:
             setattr(self, k, v)
 
     @property
-    def attributes(self):
+    def attributes(self) -> list[str]:
         # return a list of attributes in the context object
         return sorted(self.attrs_set)
 
-    def __str__(self):
+    def __str__(self) -> str:
         # return a string of the attribute with values separated by newlines
         attrs = sorted(self.attrs_set)
         ans = OrderedDict()
@@ -931,12 +974,12 @@ class FormatterFuncsCaller:
     (like .:-), use getattr(). Example: context.funcs.list_re_group()
     """
 
-    def __init__(self, formatter):
+    def __init__(self, formatter: TemplateFormatter) -> None:
         if not isinstance(formatter, TemplateFormatter):
             raise TypeError(f'{formatter} is not an instance of TemplateFormatter')
         self.__formatter__ = formatter
 
-    def __getattribute__(self, name):
+    def __getattribute__(self, name: str) -> object:
         if name.startswith('__') and name.endswith('__'):  # return internal special attribute
             try:
                 return object.__getattribute__(self, name)
@@ -952,8 +995,8 @@ class FormatterFuncsCaller:
 
         if func_name:
 
-            def call(*args, **kargs):
-                def n(d):
+            def call(*args: object, **kargs: object) -> object:
+                def n(d: object) -> str:
                     return '' if d is None else str(d)
 
                 args = tuple(n(a) for a in args)
@@ -980,7 +1023,7 @@ class FormatterFuncsCaller:
                         # built-in/user template functions and Stored GPM/Python templates
                         func = formatter.funcs[func_name]
                         if func.object_type == StoredObjectType.PythonFunction:
-                            rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)
+                            rslt = func.evaluate(formatter, formatter.kwargs, formatter.book, formatter.locals, *args)  # ty: ignore[invalid-argument-type]
                         else:
                             rslt = formatter._eval_sfm_call(func_name, args, formatter.global_vars)
 
@@ -999,23 +1042,33 @@ class FormatterFuncsCaller:
         setattr(e, 'is_internal', True)
         raise e
 
-    def __dir__(self):
+    def __dir__(self) -> list[str]:
         return list(set(list(object.__dir__(self)) + list(self.__formatter__.funcs.keys()) + [f + '_' for f in self.__formatter__.funcs.keys()]))
 
 
 class _Interpreter:
-    def error(self, message, line_number) -> NoReturn:
+    def error(self, message: str, line_number: int) -> NoReturn:
         m = _('Interpreter: {0} - line number {1}').format(message, line_number)
         raise ValueError(m)
 
-    def program(self, funcs, parent, prog, val, is_call=False, args=None, global_vars=None, break_reporter=None):
+    def program(
+        self,
+        funcs: Funcs,
+        parent: TemplateFormatter,
+        prog: Sequence[Expression] | FormatterUserFunction,
+        val: str | None,
+        is_call: bool = False,
+        args: Sequence[str] | None = None,
+        global_vars: dict[str, str] | None = None,
+        break_reporter: BreakReporter | None = None,
+    ) -> str:
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
         self.funcs = funcs
-        self.locals = {'$': val}
-        self.local_functions = {}
-        self.override_line_number = None
+        self.locals: Locals = {'$': val}  # ty: ignore[invalid-assignment]
+        self.local_functions: dict[str, LocalFunctionDefineNode] = {}
+        self.override_line_number: int | None = None
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
         if break_reporter:
             self.break_reporter = self.call_break_reporter
@@ -1026,17 +1079,17 @@ class _Interpreter:
         try:
             if is_call:
                 # prog is an instance of the function definition class
-                ret = self.do_node_stored_template_call(StoredTemplateCallNode(1, prog.name, prog, None), args=args)
+                ret = self.do_node_stored_template_call(StoredTemplateCallNode(1, prog.name, prog, None), args=args)  # ty: ignore[invalid-argument-type, unresolved-attribute]
             else:
-                ret = self.expression_list(prog)
+                ret = self.expression_list(prog)  # ty: ignore[invalid-argument-type]
         except ReturnExecuted as e:
             ret = e.get_value()
         return ret
 
-    def call_break_reporter(self, txt, val, line_number):
+    def call_break_reporter(self, txt: str, val: str, line_number: int) -> None:
         self.real_break_reporter(txt, val, self.locals, self.override_line_number or line_number)
 
-    def expression_list(self, prog):
+    def expression_list(self, prog: Sequence[Expression]) -> str:
         val = ''
         try:
             for p in prog:
@@ -1046,7 +1099,7 @@ class _Interpreter:
             raise
         return val
 
-    def do_node_with(self, prog):
+    def do_node_with(self, prog: WithNode) -> str:
         line_number = prog.line_number
         parent_book = self.parent_book
         v = None
@@ -1066,7 +1119,7 @@ class _Interpreter:
         finally:
             self.parent_book = self.parent.book = parent_book
 
-    def do_node_if(self, prog):
+    def do_node_if(self, prog: IfNode) -> str:
         line_number = prog.line_number
         test_part = self.expr(prog.condition)
         if self.break_reporter:
@@ -1083,7 +1136,7 @@ class _Interpreter:
             return v
         return ''
 
-    def do_node_for(self, prog):
+    def do_node_for(self, prog: ForNode) -> str:
         line_number = prog.line_number
         try:
             separator = ',' if prog.separator is None else self.expr(prog.separator)
@@ -1117,7 +1170,7 @@ class _Interpreter:
         except Exception as e:
             self.error(_("Unhandled exception '{0}'").format(e), line_number)
 
-    def do_node_range(self, prog):
+    def do_node_range(self, prog: RangeNode) -> str:
         line_number = prog.line_number
         try:
             try:
@@ -1168,7 +1221,7 @@ class _Interpreter:
         except Exception as e:
             self.error(_("Unhandled exception '{0}'").format(e), line_number)
 
-    def do_node_rvalue(self, prog):
+    def do_node_rvalue(self, prog: VariableNode) -> str:
         try:
             if self.break_reporter:
                 self.break_reporter(prog.node_name, self.locals[prog.name], prog.line_number)
@@ -1176,7 +1229,7 @@ class _Interpreter:
         except Exception:
             self.error(_("Unknown identifier '{0}'").format(prog.name), prog.line_number)
 
-    def do_node_func(self, prog):
+    def do_node_func(self, prog: FunctionNode) -> str:
         args = []
         for arg in prog.expression_list:
             # evaluate the expression (recursive call)
@@ -1186,15 +1239,15 @@ class _Interpreter:
         cls = self.funcs[id_]
         res = cls.eval_(self.parent, self.parent_kwargs, self.parent_book, self.locals, *args)
         if self.break_reporter:
-            self.break_reporter(prog.node_name, res, prog.line_number)
-        return res
+            self.break_reporter(prog.node_name, res, prog.line_number)  # ty: ignore[invalid-argument-type]
+        return res  # ty: ignore[invalid-return-type]
 
-    def do_node_stored_template_call(self, prog, args=None):
+    def do_node_stored_template_call(self, prog: StoredTemplateCallNode, args: Sequence[str] | None = None) -> str:
         if self.break_reporter:
             self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
         if args is None:
             args = []
-            for arg in prog.expression_list:
+            for arg in prog.expression_list:  # ty: ignore[not-iterable]
                 # evaluate the expression (recursive call)
                 args.append(self.expr(arg))
         saved_locals = self.locals
@@ -1211,9 +1264,9 @@ class _Interpreter:
             saved_line_number = None
         try:
             if function_object_type(prog.function.program_text) is StoredObjectType.StoredGPMTemplate:
-                val = self.expression_list(prog.function.cached_compiled_text)
+                val = self.expression_list(prog.function.cached_compiled_text)  # ty: ignore[invalid-argument-type]
             else:
-                val = self.parent._run_python_template(prog.function.cached_compiled_text, args)
+                val = self.parent._run_python_template(prog.function.cached_compiled_text, args)  # ty: ignore[invalid-argument-type]
         except ReturnExecuted as e:
             val = e.get_value()
         self.override_line_number = saved_line_number
@@ -1223,13 +1276,13 @@ class _Interpreter:
             self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
 
-    def do_node_local_function_define(self, prog):
+    def do_node_local_function_define(self, prog: LocalFunctionDefineNode) -> str:
         if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         self.local_functions[prog.name] = prog
         return ''
 
-    def do_node_local_function_call(self, prog):
+    def do_node_local_function_call(self, prog: LocalFunctionCallNode) -> str:
         if self.break_reporter:
             self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
         line_number, argument_list, block = self.local_functions[prog.name].attributes_to_tuple()
@@ -1263,14 +1316,14 @@ class _Interpreter:
             self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
 
-    def do_node_arguments(self, prog):
+    def do_node_arguments(self, prog: ArgumentsNode) -> str:
         for dex, arg in enumerate(prog.expression_list):
             self.locals[arg.left] = self.locals.get('*arg_' + str(dex), self.expr(arg.right))
         if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
-    def do_node_globals(self, prog):
+    def do_node_globals(self, prog: GlobalsNode) -> str:
         res = ''
         for arg in prog.expression_list:
             res = self.locals[arg.left] = self.global_vars.get(arg.left, self.expr(arg.right))
@@ -1278,7 +1331,7 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_set_globals(self, prog):
+    def do_node_set_globals(self, prog: SetGlobalsNode) -> str:
         res = ''
         for arg in prog.expression_list:
             res = self.global_vars[arg.left] = self.locals.get(arg.left, self.expr(arg.right))
@@ -1286,16 +1339,16 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_constant(self, prog):
+    def do_node_constant(self, prog: ConstantNode) -> str:
         if self.break_reporter:
             self.break_reporter(prog.node_name, prog.value, prog.line_number)
         return prog.value
 
-    def do_node_field(self, prog):
+    def do_node_field(self, prog: FieldNode) -> str:
         try:
             name = self.expr(prog.expression)
             try:
-                res = self.parent.get_value(name, [], self.parent_kwargs)
+                res = self.parent.get_value(name, [], self.parent_kwargs)  # ty: ignore[invalid-argument-type]
                 if self.break_reporter:
                     self.break_reporter(prog.node_name, res, prog.line_number)
                 return res
@@ -1308,7 +1361,7 @@ class _Interpreter:
         except Exception:
             self.error(_("Unknown field '{0}'").format('internal parse error'), prog.line_number)
 
-    def do_node_raw_field(self, prog):
+    def do_node_raw_field(self, prog: RawFieldNode) -> str:
         try:
             name = self.expr(prog.expression)
             name = field_metadata.search_term_to_field_key(name)
@@ -1320,7 +1373,7 @@ class _Interpreter:
                 return res
             if res is not None:
                 if isinstance(res, list):
-                    fm = self.parent_book.metadata_for_field(name)
+                    fm = self.parent_book.metadata_for_field(name)  # ty: ignore[unresolved-attribute]
                     if fm is None:
                         res = ', '.join(res)
                     else:
@@ -1337,14 +1390,14 @@ class _Interpreter:
         except Exception:
             self.error(_("Unknown field '{0}'").format('internal parse error'), prog.line_number)
 
-    def do_node_assign(self, prog):
+    def do_node_assign(self, prog: AssignNode) -> str:
         t = self.expr(prog.right)
         self.locals[prog.left] = t
         if self.break_reporter:
             self.break_reporter(prog.node_name, t, prog.line_number)
         return t
 
-    def do_node_first_non_empty(self, prog):
+    def do_node_first_non_empty(self, prog: FirstNonEmptyNode) -> str:
         for expr in prog.expression_list:
             v = self.expr(expr)
             if v:
@@ -1355,7 +1408,7 @@ class _Interpreter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
-    def do_node_switch(self, prog):
+    def do_node_switch(self, prog: SwitchNode) -> str:
         val = self.expr(prog.expression_list[0])
         for i in range(1, len(prog.expression_list) - 1, 2):
             v = self.expr(prog.expression_list[i])
@@ -1369,7 +1422,7 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_switch_if(self, prog):
+    def do_node_switch_if(self, prog: SwitchIfNode) -> str:
         for i in range(0, len(prog.expression_list) - 1, 2):
             tst = self.expr(prog.expression_list[i])
             if self.break_reporter:
@@ -1384,25 +1437,25 @@ class _Interpreter:
             self.break_reporter('switch_if(): default expr', res, prog.line_number)
         return res
 
-    def do_node_strcat(self, prog):
+    def do_node_strcat(self, prog: StrcatNode) -> str:
         res = ''.join([self.expr(expr) for expr in prog.expression_list])
         if self.break_reporter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_f_string(self, prog):
-        def repl(mo):
+    def do_node_f_string(self, prog: FStringNode) -> str:
+        def repl(mo: re.Match[str]) -> str:
             p = self.parent.gpm_parser.program(
                 self.parent,
                 self.funcs,
                 self.parent.lex_scanner.scan(mo.group()[1:-1]),
-                local_functions=self.local_functions,
+                local_functions=self.local_functions,  # ty: ignore[invalid-argument-type]
             )
             return self.expr(p)
 
         return str(re.sub(r'\{.*?\}', repl, self.expr(prog.string)))
 
-    def do_node_list_count_field(self, prog):
+    def do_node_list_count_field(self, prog: ListCountFieldNode) -> str:
         name = field_metadata.search_term_to_field_key(self.expr(prog.expression))
         res = getattr(self.parent_book, name, None)
         if res is None or not isinstance(res, (list, tuple, set, dict)):
@@ -1412,17 +1465,17 @@ class _Interpreter:
             self.break_reporter(prog.node_name, ans, prog.line_number)
         return ans
 
-    def do_node_break(self, prog):
+    def do_node_break(self, prog: BreakNode) -> NoReturn:
         if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         raise BreakExecuted()
 
-    def do_node_continue(self, prog):
+    def do_node_continue(self, prog: ContinueNode) -> NoReturn:
         if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         raise ContinueExecuted()
 
-    def do_node_return(self, prog):
+    def do_node_return(self, prog: ReturnNode) -> NoReturn:
         v = self.expr(prog.expr)
         if self.break_reporter:
             self.break_reporter(prog.node_name, v, prog.line_number)
@@ -1430,7 +1483,7 @@ class _Interpreter:
         e.set_value(v)
         raise e
 
-    def do_node_contains(self, prog):
+    def do_node_contains(self, prog: ContainsNode) -> str:
         v = self.expr(prog.value_expression)
         t = self.expr(prog.test_expression)
         if re.search(t, v, flags=re.I):
@@ -1452,7 +1505,7 @@ class _Interpreter:
         'inlist': lambda x, y: list(filter(partial(re.search, x, flags=re.I), [v.strip() for v in y.split(',') if v.strip()])),
     }
 
-    def do_inlist_field(self, left, right, prog):
+    def do_inlist_field(self, left: str, right: str, prog: StringCompareNode) -> str:
         res = getattr(self.parent_book, right, None)
         if res is None or not isinstance(res, (list, tuple, set, dict)):
             self.error(_("Field '{0}' is either not a field or not a list").format(right), prog.line_number)
@@ -1467,7 +1520,7 @@ class _Interpreter:
                     return '1'
         return ''
 
-    def do_node_string_infix(self, prog):
+    def do_node_string_infix(self, prog: StringCompareNode) -> str:
         try:
             left = self.expr(prog.left)
             right = self.expr(prog.right)
@@ -1495,12 +1548,12 @@ class _Interpreter:
         '>=#': lambda x, y: x >= y,
     }
 
-    def float_deal_with_none(self, v):
+    def float_deal_with_none(self, v: str | None) -> float:
         # Undefined values and the string 'None' are assumed to be zero.
         # The reason for string 'None': raw_field returns it for undefined values
         return float(v if v and v != 'None' else 0)
 
-    def do_node_numeric_infix(self, prog):
+    def do_node_numeric_infix(self, prog: NumericCompareNode) -> str:
         try:
             left = self.float_deal_with_none(self.expr(prog.left))
             right = self.float_deal_with_none(self.expr(prog.right))
@@ -1518,7 +1571,7 @@ class _Interpreter:
         'or': lambda self, x, y: self.expr(x) or self.expr(y),
     }
 
-    def do_node_logop(self, prog):
+    def do_node_logop(self, prog: LogopBinaryNode) -> str:
         try:
             res = '1' if self.LOGICAL_BINARY_OPS[prog.operator](self, prog.left, prog.right) else ''
             if self.break_reporter:
@@ -1533,7 +1586,7 @@ class _Interpreter:
         'not': lambda x: not x,
     }
 
-    def do_node_logop_unary(self, prog):
+    def do_node_logop_unary(self, prog: LogopUnaryNode) -> str:
         try:
             expr = self.expr(prog.expr)
             res = '1' if self.LOGICAL_UNARY_OPS[prog.operator](expr) else ''
@@ -1552,7 +1605,7 @@ class _Interpreter:
         '/': lambda x, y: x / y,
     }
 
-    def do_node_binary_arithop(self, prog):
+    def do_node_binary_arithop(self, prog: NumericBinaryNode) -> str:
         try:
             answer = self.ARITHMETIC_BINARY_OPS[prog.operator](
                 self.float_deal_with_none(self.expr(prog.left)), self.float_deal_with_none(self.expr(prog.right))
@@ -1571,7 +1624,7 @@ class _Interpreter:
         '-': lambda x: -x,
     }
 
-    def do_node_unary_arithop(self, prog):
+    def do_node_unary_arithop(self, prog: NumericUnaryNode) -> str:
         try:
             expr = self.ARITHMETIC_UNARY_OPS[prog.operator](float(self.expr(prog.expr)))
             res = str(expr if modf(expr)[0] != 0 else int(expr))
@@ -1583,7 +1636,7 @@ class _Interpreter:
         except Exception:
             self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
-    def do_node_stringops(self, prog):
+    def do_node_stringops(self, prog: StringBinaryNode) -> str:
         try:
             res = self.expr(prog.left) + self.expr(prog.right)
             if self.break_reporter:
@@ -1601,7 +1654,7 @@ class _Interpreter:
         'backslash': '\\',
     }
 
-    def do_node_character(self, prog):
+    def do_node_character(self, prog: CharacterNode) -> str:
         key = self.expr(prog.expression)
         ret = self.characters.get(key, None)
         if ret is None:
@@ -1610,8 +1663,8 @@ class _Interpreter:
             self.break_reporter(prog.node_name, ret, prog.line_number)
         return ret
 
-    def do_node_print(self, prog):
-        res = []
+    def do_node_print(self, prog: PrintNode) -> str:
+        res: list[str] = []
         for arg in prog.arguments:
             res.append(self.expr(arg))
         print(res)
@@ -1655,17 +1708,17 @@ class _Interpreter:
         Node.NODE_FSTRING: do_node_f_string,
     }
 
-    def expr(self, prog):
+    def expr(self, prog: Expression) -> str:
         try:
             if isinstance(prog, list):
                 return self.expression_list(prog)
-            return self.NODE_OPS[prog.node_type](self, prog)
+            return self.NODE_OPS[prog.node_type](self, prog)  # ty: ignore[invalid-argument-type]
         except ValueError, ExecutionBase, StopException:
             raise
         except Exception as e:
             if DEBUG:
                 traceback.print_exc()
-            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)), prog.line_number)
+            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)), prog.line_number)  # ty: ignore[unresolved-attribute]
 
 
 @lru_cache(maxsize=2)
@@ -1716,26 +1769,26 @@ class TemplateFormatter(string.Formatter):
     # method to use it. It is cleared when starting to format a template
     composite_values = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         string.Formatter.__init__(self)
-        self.book = None
-        self.kwargs = None
+        self.book: Metadata | None = None
+        self.kwargs: Kwargs | None = None
         self.strip_results = True
-        self.column_name = None
-        self.template_cache = None
-        self.global_vars = {}
-        self.locals = {}
-        self.funcs = formatter_functions().get_functions()
-        self._interpreters = []
-        self._template_parser = None
+        self.column_name: str | None = None
+        self.template_cache: TemplateCache | None = None
+        self.global_vars: dict[str, str] = {}
+        self.locals: Locals = {}
+        self.funcs: Funcs = formatter_functions().get_functions()
+        self._interpreters: list[_Interpreter] = []
+        self._template_parser: _Parser | None = None
         self.recursion_stack = []
         self.recursion_level = -1
-        self._caller = None
-        self.python_context_object = None
-        self.database = None
-        self.allow_python_templates = None
+        self._caller: FormatterFuncsCaller | None = None
+        self.python_context_object: PythonTemplateContext | None = None
+        self.database: Cache | LibraryDatabase | None = None
+        self.allow_python_templates: bool | None = None
 
-    def _do_format(self, val, fmt):
+    def _do_format(self, val: str, fmt: str) -> str:
         if not fmt or not val:
             return val
         if val == self._validation_string:
@@ -1745,17 +1798,17 @@ class TemplateFormatter(string.Formatter):
             pass
         elif 'bcdoxXn'.find(typ) >= 0:
             try:
-                val = int(val)
+                val = int(val)  # ty: ignore[invalid-assignment]
             except Exception:
                 raise ValueError(_('format: type {0} requires an integer value, got {1}').format(typ, val))
         elif 'eEfFgGn%'.find(typ) >= 0:
             try:
-                val = float(val)
+                val = float(val)  # ty: ignore[invalid-assignment]
             except Exception:
                 raise ValueError(_('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
         return str(('{0:' + fmt + '}').format(val))
 
-    def _explode_format_string(self, fmt):
+    def _explode_format_string(self, fmt: str) -> tuple[str, ...]:
         try:
             matches = self.format_string_re.match(fmt)
             if matches is None or matches.lastindex != 3:
@@ -1771,16 +1824,16 @@ class TemplateFormatter(string.Formatter):
     backslash_comma_to_comma = re.compile(r'\\,')
 
     @property
-    def arg_parser(self):
+    def arg_parser(self) -> re.Scanner:  # type: ignore
         return args_scanner()
 
     # ################# Template language lexical analyzer ######################
 
     @property
-    def lex_scanner(self):
+    def lex_scanner(self) -> re.Scanner:  # type: ignore
         return cached_lex_scanner()
 
-    def _eval_program(self, val, prog, column_name, global_vars, break_reporter):
+    def _eval_program(self, val: str | None, prog: str, column_name: str | None, global_vars: dict[str, str], break_reporter: BreakReporter | None) -> str:
         if column_name is not None and self.template_cache is not None:
             tree = self.template_cache.get(column_name, None)
             if not tree:
@@ -1788,23 +1841,23 @@ class TemplateFormatter(string.Formatter):
                 self.template_cache[column_name] = tree
         else:
             tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
-        return self.gpm_interpreter.program(self.funcs, self, tree, val, global_vars=global_vars, break_reporter=break_reporter)
+        return self.gpm_interpreter.program(self.funcs, self, tree, val, global_vars=global_vars, break_reporter=break_reporter)  # ty: ignore[invalid-argument-type]
 
-    def _eval_sfm_call(self, template_name, args, global_vars):
+    def _eval_sfm_call(self, template_name: str, args: Sequence[str], global_vars: dict[str, str]) -> str | None:
         func = self.funcs[template_name]
-        compiled_text = func.cached_compiled_text
+        compiled_text = func.cached_compiled_text  # ty: ignore[unresolved-attribute]
         if func.object_type is StoredObjectType.StoredGPMTemplate:
             if compiled_text is None:
                 compiled_text = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(func.program_text[len('program:') :]))
-                func.cached_compiled_text = compiled_text
-            return self.gpm_interpreter.program(self.funcs, self, func, None, is_call=True, args=args, global_vars=global_vars)
-        elif function_object_type(func) is StoredObjectType.StoredPythonTemplate:
+                func.cached_compiled_text = compiled_text  # ty: ignore[unresolved-attribute]
+            return self.gpm_interpreter.program(self.funcs, self, func, None, is_call=True, args=args, global_vars=global_vars)  # ty: ignore[invalid-argument-type]
+        elif function_object_type(func) is StoredObjectType.StoredPythonTemplate:  # ty: ignore[invalid-argument-type]
             if compiled_text is None:
                 compiled_text = self.compile_python_template(func.program_text[len('python:') :])
-                func.cached_compiled_text = compiled_text
+                func.cached_compiled_text = compiled_text  # ty: ignore[unresolved-attribute]
             return self._run_python_template(compiled_text, args)
 
-    def _eval_python_template(self, template, column_name):
+    def _eval_python_template(self, template: str, column_name: str | None) -> str:
         if column_name is not None and self.template_cache is not None:
             func = self.template_cache.get(column_name + '::python', None)
             if not func:
@@ -1812,9 +1865,9 @@ class TemplateFormatter(string.Formatter):
                 self.template_cache[column_name + '::python'] = func
         else:
             func = self.compile_python_template(template)
-        return self._run_python_template(func, arguments=None)
+        return self._run_python_template(func, arguments=None)  # ty: ignore[invalid-argument-type]
 
-    def _run_python_template(self, compiled_template, arguments):
+    def _run_python_template(self, compiled_template: PythonTemplate, arguments: Sequence[str] | None) -> str:
         try:
             db = get_database(self.book, None)
             db = db if db is not None else self.database
@@ -1839,14 +1892,14 @@ class TemplateFormatter(string.Formatter):
             raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))  # ruff: ignore[type-check-without-type-error]
         return rslt
 
-    def compile_python_template(self, template):
+    def compile_python_template(self, template: str) -> PythonTemplate:
         if self.allow_python_templates is None:
             if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1':
                 raise ValueError(_('Python templates disallowed by the {} environment variable').format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
         elif not self.allow_python_templates:
             raise ValueError(_('Python templates disallowed by policy for this formatter'))
 
-        def replace_func(mo):
+        def replace_func(mo: re.Match[str]) -> str:
             return mo.group().replace('\t', '    ')
 
         prog = '\n'.join([re.sub(r'^\t*', replace_func, line) for line in template.splitlines()])
@@ -1864,10 +1917,10 @@ class TemplateFormatter(string.Formatter):
 
     # ################# Override parent classes methods #####################
 
-    def get_value(self, key, args, kwargs):
+    def get_value(self, key: int | str, args: Sequence[object], kwargs: Kwargs) -> str:
         raise Exception('get_value must be implemented in the subclass')
 
-    def format_field(self, value, format_spec):
+    def format_field(self, value: str, format_spec: str) -> str:
         # ensure we are dealing with a string.
         if isinstance(value, numbers.Number):
             if value:
@@ -1917,16 +1970,16 @@ class TemplateFormatter(string.Formatter):
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                     if func.object_type is not StoredObjectType.PythonFunction:
                         args.insert(0, value)
-                        value = self._eval_sfm_call(fname, args, self.global_vars)
+                        value = self._eval_sfm_call(fname, args, self.global_vars)  # ty: ignore[invalid-assignment]
                     else:
                         if (func.arg_count == 1 and (len(args) != 1 or args[0])) or (func.arg_count > 1 and func.arg_count != len(args) + 1):
                             raise ValueError(_('Incorrect number of arguments for function {0}').format(fname))
                         if func.arg_count == 1:
-                            value = func.eval_(self, self.kwargs, self.book, self.locals, value)
+                            value = func.eval_(self, self.kwargs, self.book, self.locals, value)  # ty: ignore[invalid-assignment]
                             if self.strip_results:
                                 value = value.strip()
                         else:
-                            value = func.eval_(self, self.kwargs, self.book, self.locals, value, *args)
+                            value = func.eval_(self, self.kwargs, self.book, self.locals, value, *args)  # ty: ignore[invalid-assignment]
                             if self.strip_results:
                                 value = value.strip()
                 else:
@@ -1937,13 +1990,15 @@ class TemplateFormatter(string.Formatter):
             return ''
         return prefix + value + suffix
 
-    def evaluate(self, format_spec, args, kwargs, global_vars, break_reporter=None):
+    def evaluate(
+        self, format_spec: str, args: Sequence[object], kwargs: Kwargs, global_vars: dict[str, str], break_reporter: BreakReporter | None = None
+    ) -> str:
         if format_spec.startswith('program:'):
-            ans = self._eval_program(kwargs.get('$', None), format_spec[8:], self.column_name, global_vars, break_reporter)
+            ans = self._eval_program(kwargs.get('$', None), format_spec[8:], self.column_name, global_vars, break_reporter)  # ty: ignore[invalid-argument-type]
         elif format_spec.startswith('python:'):
             ans = self._eval_python_template(format_spec[7:], self.column_name)
         else:
-            ans = self.vformat(format_spec, args, kwargs)
+            ans = self.vformat(format_spec, args, kwargs)  # ty: ignore[no-matching-overload]
             if self.strip_results:
                 ans = self.compress_spaces.sub(' ', ans)
         if self.strip_results:
@@ -1958,7 +2013,7 @@ class TemplateFormatter(string.Formatter):
     # state when recursion is detected. Save state at level zero to be sure that
     # all class instance variables are restored to their base settings.
 
-    def save_state(self):
+    def save_state(self) -> FormatterState:
         self.recursion_level += 1
         return (
             self.strip_results,
@@ -1974,7 +2029,7 @@ class TemplateFormatter(string.Formatter):
             self.database,
         )
 
-    def restore_state(self, state):
+    def restore_state(self, state: FormatterState | None) -> None:
         self.recursion_level -= 1
         if state is None:
             raise ValueError(_('Formatter state restored before saved'))
@@ -2000,7 +2055,7 @@ class TemplateFormatter(string.Formatter):
     # template is encountered.
 
     @property
-    def gpm_interpreter(self):
+    def gpm_interpreter(self) -> _Interpreter:
         while len(self._interpreters) <= self.recursion_level:
             self._interpreters.append(_Interpreter())
         return self._interpreters[self.recursion_level]
@@ -2008,21 +2063,29 @@ class TemplateFormatter(string.Formatter):
     # Allocate a parser if needed. Parsers cannot recurse so one is sufficient.
 
     @property
-    def gpm_parser(self):
+    def gpm_parser(self) -> _Parser:
         if self._template_parser is None:
             self._template_parser = _Parser()
         return self._template_parser
 
     # ######### a formatter that throws exceptions ############
 
-    def unsafe_format(self, format_spec, kwargs, book, strip_results=True, global_vars=None, python_context_object=None):
+    def unsafe_format(
+        self,
+        format_spec: str,
+        kwargs: Kwargs,
+        book: Book,
+        strip_results: bool = True,
+        global_vars: dict[str, str] | None = None,
+        python_context_object: PythonTemplateContext | None = None,
+    ) -> str:
         state = self.save_state()
         try:
             self._caller = FormatterFuncsCaller(self)
             self.strip_results = strip_results
             self.column_name = self.template_cache = None
             self.kwargs = kwargs
-            self.book = book
+            self.book = book  # ty: ignore[invalid-assignment]
             self.composite_values = {}
             self.locals = {}
             self.global_vars = global_vars if isinstance(global_vars, dict) else {}
@@ -2038,19 +2101,19 @@ class TemplateFormatter(string.Formatter):
 
     def safe_format(
         self,
-        format_spec,
-        kwargs,
-        error_value,
-        book,
-        column_name=None,
-        template_cache=None,
-        strip_results=True,
-        template_functions=None,
-        global_vars=None,
-        break_reporter=None,
-        python_context_object=None,
-        database=None,
-    ):
+        format_spec: str,
+        kwargs: Kwargs,
+        error_value: str,
+        book: Book,
+        column_name: str | None = None,
+        template_cache: TemplateCache | None = None,
+        strip_results: bool = True,
+        template_functions: Funcs | None = None,
+        global_vars: dict[str, str] | None = None,
+        break_reporter: BreakReporter | None = None,
+        python_context_object: PythonTemplateContext | None = None,
+        database: Cache | LibraryDatabase | None = None,
+    ) -> str:
         state = self.save_state()
         if self.recursion_level == 0:
             # Initialize the composite values dict and database if this is the
@@ -2063,7 +2126,7 @@ class TemplateFormatter(string.Formatter):
             self.column_name = column_name
             self.template_cache = template_cache
             self.kwargs = kwargs
-            self.book = book
+            self.book = book  # ty: ignore[invalid-assignment]
             self.global_vars = global_vars if isinstance(global_vars, dict) else {}
             if isinstance(python_context_object, PythonTemplateContext):
                 self.python_context_object = python_context_object
@@ -2094,7 +2157,7 @@ class ValidateFormatter:
     It is a class instead of a function for compatibility reasons.
     """
 
-    def validate(self, template):
+    def validate(self, template: str) -> str:
         from calibre.gui2 import is_gui_thread
 
         if not is_gui_thread():
@@ -2114,11 +2177,11 @@ class EvalFormatter(TemplateFormatter):
     A template formatter that uses a simple dict instead of an mi instance
     """
 
-    def get_value(self, key, args, kwargs):
+    def get_value(self, key: int | str, args: Sequence[object], kwargs: Kwargs) -> str:
         if key == '':
             return ''
-        key = key.lower()
-        return kwargs.get(key, _('No such variable {0}').format(key))
+        key = key.lower()  # ty: ignore[unresolved-attribute]
+        return kwargs.get(key, _('No such variable {0}').format(key))  # ty: ignore[invalid-return-type]
 
 
 # DEPRECATED. This is not thread safe. Do not use.

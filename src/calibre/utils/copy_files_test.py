@@ -22,10 +22,10 @@ if iswindows:
 class TestCopyFiles(unittest.TestCase):
     ae = unittest.TestCase.assertEqual
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.tdir = t = tempfile.mkdtemp()
 
-        def wf(*parts):
+        def wf(*parts: str) -> None:
             d = os.path.join(t, *parts)
             os.makedirs(os.path.dirname(d), exist_ok=True)
             with open(d, 'w') as f:
@@ -35,7 +35,7 @@ class TestCopyFiles(unittest.TestCase):
         if not iswindows:
             os.symlink('sub/a', os.path.join(t, 'src/link'))
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if self.tdir:
             try:
                 shutil.rmtree(self.tdir)
@@ -44,21 +44,21 @@ class TestCopyFiles(unittest.TestCase):
                 shutil.rmtree(self.tdir)
         self.tdir = ''
 
-    def s(self, *path):
+    def s(self, *path: str) -> str:
         return os.path.abspath(os.path.join(self.tdir, 'src', *path))
 
-    def d(self, *path):
+    def d(self, *path: str) -> str:
         return os.path.abspath(os.path.join(self.tdir, 'dest', *path))
 
-    def file_data_eq(self, path):
+    def file_data_eq(self, path: str) -> None:
         with open(self.s(path)) as src, open(self.d(path)) as dest:
             self.ae(src.read(), dest.read())
 
-    def reset(self):
+    def reset(self) -> None:
         self.tearDown()
         self.setUp()
 
-    def test_renaming_of_files(self):
+    def test_renaming_of_files(self) -> None:
         for name in 'one two'.split():
             with open(os.path.join(self.tdir, name), 'w') as f:
                 f.write(name)
@@ -67,7 +67,7 @@ class TestCopyFiles(unittest.TestCase):
         contents = set(os.listdir(self.tdir)) - {'base', 'src'}
         self.ae(contents, {'One', 'three'})
 
-    def test_rooted_path_containment(self):
+    def test_rooted_path_containment(self) -> None:
         root = os.path.join(self.tdir, 'Root')
         sibling = os.path.join(self.tdir, 'Root sibling')
         os.makedirs(root), os.makedirs(sibling)
@@ -90,9 +90,9 @@ class TestCopyFiles(unittest.TestCase):
         with self.assertRaises(ValueError):
             path_from_root(root, 'name:with-colon.txt', reject_colon=True)
         with self.assertRaises(ValueError):
-            path_from_root(root, 123)
+            path_from_root(root, 123)  # ty: ignore[invalid-argument-type]
 
-    def test_pread_all(self):
+    def test_pread_all(self) -> None:
         from calibre_extensions.speedup import pread_all
 
         n = os.path.join(self.tdir, 'base')
@@ -104,7 +104,7 @@ class TestCopyFiles(unittest.TestCase):
                 self.assertEqual(data[offset : offset + n], pread_all(f.fileno(), n, offset))
             self.assertEqual(data, pread_all(f.fileno(), len(data)))
 
-    def test_copying_of_trees(self):
+    def test_copying_of_trees(self) -> None:
         src, dest = self.s(), self.d()
         copy_tree(src, dest)
         eq = self.file_data_eq
@@ -122,7 +122,7 @@ class TestCopyFiles(unittest.TestCase):
         self.ae(nlinks_file(self.d('one')), 1)
         self.assertFalse(os.path.exists(src))
 
-        def transform_destination_filename(src, dest):
+        def transform_destination_filename(src: str, dest: str) -> str:
             return dest + '.extra'
 
         self.reset()
@@ -180,5 +180,5 @@ class TestCopyFiles(unittest.TestCase):
             self.ae(before, frozenset(walk(src)), 'Source files were deleted despite there being an error')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCopyFiles)

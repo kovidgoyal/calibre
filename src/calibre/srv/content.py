@@ -181,7 +181,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None, fill=False)
                 # it, for clients that display it with object-fit: cover
                 img = image_from_data(img)
                 w, h = fill_box(img.width(), img.height(), width, height)
-            data = scale_image(img, width=w, height=h, compression_quality=quality)[-1]
+            data = scale_image(img, width=w, height=h, compression_quality=quality)[-1]  # ty: ignore[invalid-argument-type]
             dest.write(data)
 
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)

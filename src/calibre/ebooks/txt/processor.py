@@ -161,7 +161,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
                     continue
             if mf.get('datatype') == 'datetime':
                 try:
-                    val = parse_only_date(val, assume_utc=False)
+                    val = parse_only_date(val, assume_utc=False)  # ty: ignore[invalid-argument-type]
                 except Exception:
                     continue
             setattr(mi, k, val)

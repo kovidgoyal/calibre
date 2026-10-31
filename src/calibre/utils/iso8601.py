@@ -17,7 +17,7 @@ local_tz = ZoneInfo(tz_name)
 UNDEFINED_DATE = datetime(101, 1, 1, tzinfo=utc_tz)
 
 
-def parse_iso8601(date_string, assume_utc=False, as_utc=True, require_aware=False):
+def parse_iso8601(date_string: str | None, assume_utc: bool = False, as_utc: bool = True, require_aware: bool = False) -> datetime:
     if not date_string:
         return UNDEFINED_DATE
     dt, aware, tzseconds = speedup.parse_iso8601(date_string)

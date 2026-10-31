@@ -31,7 +31,7 @@ class DIBHeader:
     bitmasks_size: int
     color_table_size: int
 
-    def __init__(self, raw):
+    def __init__(self, raw: bytes) -> None:
         hsize = struct.unpack(b'<I', raw[:4])[0]
         if hsize == 40:
             parts = struct.unpack(b'<IiiHHIIIIII', raw[:hsize])
@@ -64,7 +64,7 @@ class DIBHeader:
             self.color_table_size = getattr(self, 'ncols', 0) * 4
 
 
-def create_bmp_from_dib(raw):
+def create_bmp_from_dib(raw: bytes) -> bytes:
     size = len(raw) + 14
     dh = DIBHeader(raw)
     pixel_array_offset = dh.header_size + dh.bitmasks_size + dh.color_table_size
@@ -72,7 +72,7 @@ def create_bmp_from_dib(raw):
     return b''.join(parts) + raw
 
 
-def to_png(bmp):
+def to_png(bmp: bytes) -> bytes:
     from qt.core import QBuffer, QByteArray, QImage, QIODevice
 
     i = QImage()

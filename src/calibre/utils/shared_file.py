@@ -3,9 +3,13 @@
 
 import os
 import sys
+from typing import IO, TYPE_CHECKING, Any
 
 from calibre.constants import iswindows
 from polyglot.builtins import reraise
+
+if TYPE_CHECKING:
+    import unittest
 
 '''
 This module defines a share_open() function which is a replacement for
@@ -49,7 +53,7 @@ if iswindows:
         os.O_CREAT | os.O_TRUNC: winutil.CREATE_ALWAYS,
     }
 
-    def os_open(path, flags, mode=0o777, share_flags=winutil.FILE_SHARE_VALID_FLAGS):
+    def os_open(path: str, flags: int, mode: int = 0o777, share_flags: int = winutil.FILE_SHARE_VALID_FLAGS) -> int:
         """
         Replacement for os.open() allowing moving or unlinking before closing
         """
@@ -87,24 +91,24 @@ if iswindows:
         h.detach()
         return ans
 
-    def share_open(*a, **kw):
+    def share_open(*a: object, **kw: object) -> IO[Any]:
         kw['opener'] = os_open
-        return open(*a, **kw)
+        return open(*a, **kw)  # ty: ignore[no-matching-overload]
 
 else:
     share_open = open
 
-    def raise_winerror(x):
+    def raise_winerror(x: object) -> None:
         reraise(NotImplementedError, None, sys.exc_info()[2])
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     from calibre.ptempfile import TemporaryDirectory
 
     class SharedFileTest(unittest.TestCase):
-        def test_shared_file(self):
+        def test_shared_file(self) -> None:
             eq = self.assertEqual
 
             with TemporaryDirectory() as tdir:
@@ -138,7 +142,7 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(SharedFileTest)
 
 
-def run_tests():
+def run_tests() -> None:
     from calibre.utils.run_tests import run_tests
 
     run_tests(find_tests)

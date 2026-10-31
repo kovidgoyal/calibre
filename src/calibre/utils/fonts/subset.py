@@ -3,14 +3,19 @@
 
 import os
 import sys
+from collections.abc import Iterable
+from logging import LogRecord
 from logging.handlers import QueueHandler
 from queue import Empty, SimpleQueue
+from typing import IO
 
 
-def subset(input_file_object_or_path, output_file_object_or_path, container_type, chars_or_text=''):
+def subset(
+    input_file_object_or_path: str | IO[bytes], output_file_object_or_path: str | IO[bytes], container_type: str, chars_or_text: Iterable[str] = ''
+) -> list[str]:
     from fontTools.subset import Subsetter, load_font, log, save_font
 
-    log_messages = SimpleQueue()
+    log_messages: SimpleQueue[LogRecord] = SimpleQueue()
     log_handler = QueueHandler(log_messages)
     log.addHandler(log_handler)
     try:

@@ -3,8 +3,12 @@
 
 import unittest
 from base64 import standard_b64decode as b64decode
+from typing import TYPE_CHECKING
 
 from calibre.utils.imghdr import what
+
+if TYPE_CHECKING:
+    from qt.core import QImage
 
 # An 8x8 image with four quadrants: red, green, blue and fully transparent
 # white, in that order. Losslessly encoded, so the decoded pixels must match
@@ -50,7 +54,7 @@ ROTATED_AVIF = b64decode(
 NOT_AN_IMAGE = b'\x89PNG\r\n\x1a\n' + bytes(64)
 
 
-def pixels(img):
+def pixels(img: QImage) -> list[list[tuple[int | None, int | None, int | None, int | None]]]:
     "The pixels of img as a list of rows of (r, g, b, a) tuples"
     return [[img.pixelColor(x, y).getRgb() for x in range(img.width())] for y in range(img.height())]
 
@@ -60,7 +64,7 @@ TRANSPARENT = (255, 255, 255, 0)
 
 
 class TestAVIF(unittest.TestCase):
-    def test_avif_header_detection(self):
+    def test_avif_header_detection(self) -> None:
         for data in (STILL_AVIF, ANIMATION_AVIF, ROTATED_AVIF):
             self.assertEqual('avif', what(None, data))
         self.assertEqual('png', what(None, NOT_AN_IMAGE))
@@ -68,7 +72,7 @@ class TestAVIF(unittest.TestCase):
         for i in range(32):
             what(None, STILL_AVIF[:i])
 
-    def test_avif_plugin_is_registered_with_qt(self):
+    def test_avif_plugin_is_registered_with_qt(self) -> None:
         from qt.core import QImageReader
 
         from calibre_extensions import avif
@@ -78,7 +82,7 @@ class TestAVIF(unittest.TestCase):
         fmts = {bytes(x).decode('utf-8') for x in QImageReader.supportedImageFormats()}
         self.assertIn('avif', fmts, f'The AVIF image format plugin was not loaded. Available plugins: {fmts}')
 
-    def test_reading_avif_images(self):
+    def test_reading_avif_images(self) -> None:
         from calibre.utils.img import image_and_format_from_data
 
         img, fmt = image_and_format_from_data(STILL_AVIF)
@@ -90,14 +94,14 @@ class TestAVIF(unittest.TestCase):
                 expected = (RED if x < 4 else GREEN) if y < 4 else (BLUE if x < 4 else TRANSPARENT)
                 self.assertEqual(expected, q[y][x], f'Pixel at ({x}, {y}) is incorrect')
 
-    def test_reading_avif_images_applies_transforms(self):
+    def test_reading_avif_images_applies_transforms(self) -> None:
         from calibre.utils.img import image_from_data
 
         img = image_from_data(ROTATED_AVIF)
         self.assertEqual((2, 4), (img.width(), img.height()))
         self.assertEqual([[GREEN, WHITE], [GREEN, WHITE], [RED, BLUE], [RED, BLUE]], pixels(img))
 
-    def test_reading_avif_animations(self):
+    def test_reading_avif_animations(self) -> None:
         from qt.core import QBuffer, QByteArray, QImageReader, QIODevice
 
         ba = QByteArray(ANIMATION_AVIF)  # must outlive buf
@@ -120,14 +124,14 @@ class TestAVIF(unittest.TestCase):
         finally:
             buf.close()
 
-    def test_reading_corrupted_avif_images(self):
+    def test_reading_corrupted_avif_images(self) -> None:
         from calibre.utils.img import NotImage, image_from_data
 
         for data in (STILL_AVIF[:200], STILL_AVIF[:32] + bytes(64), STILL_AVIF[:12]):
             self.assertRaises(NotImage, image_from_data, data)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestAVIF)
 
 

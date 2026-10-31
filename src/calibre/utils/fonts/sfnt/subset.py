@@ -3,21 +3,29 @@
 
 import traceback
 from collections import OrderedDict
+from collections.abc import Iterable, Mapping, Sequence
 from functools import partial
 from operator import itemgetter
+from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from optparse import OptionParser
+
+    from calibre.utils.fonts.sfnt.glyf import GlyfTable, SimpleGlyph
+    from calibre.utils.fonts.sfnt.loca import LocaTable
+
 # TrueType outlines {{{
 
 
-def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
+def resolve_glyphs(loca: LocaTable, glyf: GlyfTable, character_map: Mapping[int, int], extra_glyphs: set[int]) -> OrderedDict[int, SimpleGlyph]:
     unresolved_glyphs = set(character_map.values()) | extra_glyphs
     unresolved_glyphs.add(0)  # We always want the .notdef glyph
-    resolved_glyphs = {}
+    resolved_glyphs: dict[int, SimpleGlyph] = {}
 
     while unresolved_glyphs:
         glyph_id = unresolved_glyphs.pop()
@@ -34,7 +42,7 @@ def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
     return OrderedDict(sorted(resolved_glyphs.items(), key=itemgetter(0)))
 
 
-def subset_truetype(sfnt, character_map, extra_glyphs):
+def subset_truetype(sfnt: Sfnt, character_map: dict[int, int], extra_glyphs: set[int]) -> None:
     loca = sfnt[b'loca']
     glyf = sfnt[b'glyf']
 
@@ -66,13 +74,13 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
 # }}}
 
 
-def subset_postscript(sfnt, character_map, extra_glyphs):
+def subset_postscript(sfnt: Sfnt, character_map: dict[int, int], extra_glyphs: set[int]) -> None:
     cff = sfnt[b'CFF ']
     cff.decompile()
     cff.subset(character_map, extra_glyphs)
 
 
-def do_warn(warnings, *args):
+def do_warn(warnings: list[str] | None, *args: str) -> None:
     for arg in args:
         for line in arg.splitlines():
             if warnings is None:
@@ -85,7 +93,7 @@ def do_warn(warnings, *args):
         warnings.append('')
 
 
-def pdf_subset(sfnt, glyphs):
+def pdf_subset(sfnt: Sfnt, glyphs: set[int]) -> None:
     for tag in tuple(sfnt.tables):
         if tag not in {
             b'hhea',
@@ -114,11 +122,13 @@ def pdf_subset(sfnt, glyphs):
         raise UnsupportedFont('This font does not contain TrueType or PostScript outlines')
 
 
-def safe_ord(x):
+def safe_ord(x: object) -> int:
     return ord_string(str(x))[0]
 
 
-def subset(raw, individual_chars, ranges=(), warnings=None):
+def subset(
+    raw: bytes, individual_chars: Iterable[str], ranges: Iterable[Sequence[str]] = (), warnings: list[str] | None = None
+) -> tuple[bytes, OrderedDict[bytes, int], OrderedDict[bytes, int]]:
     warn = partial(do_warn, warnings)
 
     chars = set()
@@ -230,7 +240,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 # CLI {{{
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     import textwrap
 
     from calibre.utils.config import OptionParser
@@ -259,7 +269,7 @@ def option_parser():
     return parser
 
 
-def print_stats(old_stats, new_stats):
+def print_stats(old_stats: Mapping[bytes, int], new_stats: Mapping[bytes, int]) -> None:
     from calibre import prints
 
     prints('========= Table comparison (original vs. subset) =========')
@@ -280,7 +290,7 @@ def print_stats(old_stats, new_stats):
     prints('=' * 80)
 
 
-def main(args):
+def main(args: list[str]) -> None:
     import sys
     import time
 
@@ -298,14 +308,14 @@ def main(args):
     chars = chars.split(',')
     individual, ranges = set(), set()
 
-    def not_single(c):
+    def not_single(c: str) -> None:
         if len(c) > 1:
             prints(c, 'is not a single character', file=sys.stderr)
             raise SystemExit(1)
 
-    def conv_code(c):
+    def conv_code(c: str) -> str:
         if c.upper()[:2] in ('U+', '0X'):
-            c = int(c[2:], 16)
+            c = int(c[2:], 16)  # ty: ignore[invalid-assignment]
         return safe_chr(int(c))
 
     for c in chars:
@@ -329,7 +339,7 @@ def main(args):
     taken = time.time() - st
     reduced = (len(sf) / len(orig)) * 100
 
-    def sz(x):
+    def sz(x: bytes) -> str:
         return f'{len(x) / 1024.0:g}KB'
 
     print_stats(old_stats, new_stats)
@@ -353,7 +363,7 @@ if __name__ == '__main__':
 # Tests {{{
 
 
-def test_mem():
+def test_mem() -> None:
     import gc
 
     from calibre.utils.mem import memory
@@ -370,14 +380,14 @@ def test_mem():
     print('Leaked memory per call:', (memory() - start_mem) / calls * 1024, 'KB')
 
 
-def test():
+def test() -> None:
     raw = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
     sf, old_stats, new_stats = subset(raw, {'a', 'b', 'c'}, ())
     if len(sf) > 0.3 * len(raw):
         raise Exception('Subsetting failed')
 
 
-def all():
+def all() -> None:
     from calibre.utils.fonts.scanner import font_scanner
 
     failed = []
@@ -394,7 +404,7 @@ def all():
                 w = []
                 sf, old_stats, new_stats = subset(raw, {'a', 'b', 'c'}, (), w)
                 if w:
-                    warnings[font['full_name'] + ' ({})'.format(font['path'])] = w
+                    warnings[font['full_name'] + ' ({})'.format(font['path'])] = w  # ty: ignore[unsupported-operator]
             except NoGlyphs:
                 print('No glyphs!')
                 continue

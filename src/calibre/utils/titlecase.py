@@ -33,7 +33,7 @@ UC_INITIALS = re.compile(r'^(?:[A-Z]{1}\.{1}|[A-Z]{1}\.{1}[A-Z]{1})+$')
 _lang = None
 
 
-def lang():
+def lang() -> str:
     global _lang
     if _lang is None:
         from calibre.utils.localization import get_lang
@@ -42,7 +42,7 @@ def lang():
     return _lang
 
 
-def titlecase(text):
+def titlecase(text: str) -> str:
     '''
     Titlecases input text
 

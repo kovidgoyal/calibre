@@ -4,7 +4,7 @@
 from calibre.utils.magick.legacy import Image, PixelWand  # ruff: ignore[unused-import]
 
 
-def create_canvas(width, height, bgcolor='#ffffff'):
+def create_canvas(width: float, height: float, bgcolor: str = '#ffffff') -> Image:
     canvas = Image()
     canvas.create_canvas(int(width), int(height), str(bgcolor))
     return canvas

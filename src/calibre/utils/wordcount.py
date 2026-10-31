@@ -23,13 +23,25 @@ http://ginstrom.com/scribbles/2008/05/17/counting-words-etc-in-an-html-file-with
 http://ginstrom.com/scribbles/2007/10/06/counting-words-characters-and-asian-characters-with-python/
 """
 
+from typing import TYPE_CHECKING, Protocol, cast
+
+if TYPE_CHECKING:
+
+    class WordCount(Protocol):
+        characters: int
+        chars_no_spaces: int
+        asian_chars: int
+        non_asian_words: int
+        words: int
+
+
 __version__ = 0.1
 __author__ = 'Ryan Ginstrom'
 
 IDEOGRAPHIC_SPACE = 0x3000
 
 
-def is_asian(char):
+def is_asian(char: str) -> bool:
     """Is the character Asian?"""
 
     # 0x3000 is ideographic space (i.e. double-byte space)
@@ -37,14 +49,14 @@ def is_asian(char):
     return ord(char) > IDEOGRAPHIC_SPACE
 
 
-def filter_jchars(c):
+def filter_jchars(c: str) -> str:
     """Filters Asian characters to spaces"""
     if is_asian(c):
         return ' '
     return c
 
 
-def nonj_len(word):
+def nonj_len(word: str) -> int:
     """Returns number of non-Asian words in {word}
     - 日本語AアジアンB -> 2
     - hello -> 1
@@ -60,7 +72,7 @@ def nonj_len(word):
     return len(''.join(chars).split())
 
 
-def get_wordcount(text):
+def get_wordcount(text: str) -> dict[str, int]:
     """Get the word/character count for text
 
     @param text: The text of the segment
@@ -81,16 +93,16 @@ def get_wordcount(text):
     }
 
 
-def dict2obj(dictionary):
+def dict2obj(dictionary: dict[str, int]) -> object:
     """Transform a dictionary into an object"""
 
     class Obj:
-        def __init__(self, dictionary):
+        def __init__(self, dictionary: dict[str, int]) -> None:
             self.__dict__.update(dictionary)
 
     return Obj(dictionary)
 
 
-def get_wordcount_obj(text):
+def get_wordcount_obj(text: str) -> WordCount:
     """Get the wordcount as an object rather than a dictionary"""
-    return dict2obj(get_wordcount(text))
+    return cast('WordCount', dict2obj(get_wordcount(text)))

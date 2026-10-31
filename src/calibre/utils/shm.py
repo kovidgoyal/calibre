@@ -7,7 +7,7 @@ import os
 import secrets
 import stat
 import struct
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from calibre.constants import ismacos, iswindows
 
@@ -17,6 +17,9 @@ if iswindows:
     import _winapi
 else:
     import _posixshmem  # type: ignore
+
+if TYPE_CHECKING:
+    import unittest
 
 
 def make_filename(prefix: str) -> str:
@@ -57,7 +60,7 @@ class SharedMemory:
         readonly: bool = False,
         mode: int = stat.S_IREAD | stat.S_IWRITE,
         prefix: str = 'calibre-',
-    ):
+    ) -> None:
         if size < 0:
             raise TypeError("'size' must be a non-negative integer")
         if size and name:
@@ -223,13 +226,13 @@ class SharedMemory:
             self._name = ''
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TestSHM(unittest.TestCase):
         ae = unittest.TestCase.assertEqual
 
-        def test_shm(self):
+        def test_shm(self) -> None:
             with SharedMemory(size=64) as shm:
                 q = b'test'
                 shm.write_data_with_size(q)

@@ -119,7 +119,7 @@ def fetch_module(full_name, etag=None, timeout=default_timeout, url=None):
     if etag:
         headers['if-none-match'] = f'"{etag}"'
     try:
-        res = get_https_resource_securely(url, headers=headers, get_response=True, timeout=timeout)
+        res = get_https_resource_securely(url, headers=headers, get_response=True, timeout=timeout)  # ty: ignore[no-matching-overload]
     except HTTPError as e:
         if e.code == HTTPStatus.NOT_MODIFIED:
             return None, None

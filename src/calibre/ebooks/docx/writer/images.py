@@ -83,7 +83,7 @@ class ImagesManager:
                 fmt, width, height = identify(item.data)
             image_fname = 'media/' + self.create_filename(href, fmt)
             image_rid = self.document_relationships.add_image(image_fname)
-            self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)
+            self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)  # ty: ignore[invalid-argument-type]
             item.unload_data_from_memory()
         return self.images[href]
 

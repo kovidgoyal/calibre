@@ -6,6 +6,8 @@ import ctypes.wintypes as types
 import datetime
 import numbers
 import struct
+from collections.abc import Callable, Iterator
+from typing import TYPE_CHECKING, Literal, Self, TypedDict, Unpack, overload
 
 from calibre.utils.date import utc_tz
 from calibre_extensions import winutil
@@ -43,7 +45,18 @@ class FILETIME(ctypes.Structure):
     _fields_ = [('dwLowDateTime', DWORD), ('dwHighDateTime', DWORD)]
 
 
-def default_errcheck(result, func, args):
+type RegistryValue = bytes | str | tuple[str, ...] | int | None
+type ErrCheckArgs = tuple[object, ...]
+if TYPE_CHECKING:
+    from _ctypes import CFuncPtr as _CFuncPtr
+    from ctypes import _CData, _SimpleCData
+
+    class CwrapKw(TypedDict, total=False):
+        lib: ctypes.CDLL
+        errcheck: Callable[[int, _CFuncPtr, ErrCheckArgs], ErrCheckArgs]
+
+
+def default_errcheck(result: int, func: _CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if result != getattr(winutil, 'ERROR_SUCCESS', 0):  # On shutdown winutil becomes None
         raise ctypes.WinError(result)
     return args
@@ -53,7 +66,7 @@ null = object()
 
 
 class a:
-    def __init__(self, name, typ, default=null, in_arg=True):
+    def __init__(self, name: str, typ: type[_CData], default: object = null, in_arg: bool = True) -> None:
         self.typ = typ
         if default is null:
             self.spec = ((1 if in_arg else 2), name)
@@ -61,11 +74,11 @@ class a:
             self.spec = ((1 if in_arg else 2), name, default)
 
 
-def cwrap(name, restype, *args, **kw):
+def cwrap(name: str, restype: type[_SimpleCData[int]], *args: a, **kw: Unpack[CwrapKw]) -> _CFuncPtr:
     params = (restype,) + tuple(x.typ for x in args)
     paramflags = tuple(x.spec for x in args)
     func = ctypes.WINFUNCTYPE(*params)((name, kw.get('lib', advapi32)), paramflags)
-    func.errcheck = kw.get('errcheck', default_errcheck)
+    func.errcheck = kw.get('errcheck', default_errcheck)  # ty: ignore[invalid-assignment]
     return func
 
 
@@ -94,7 +107,7 @@ RegCreateKey = cwrap(
 RegCloseKey = cwrap('RegCloseKey', LONG, a('key', HKEY))
 
 
-def enum_value_errcheck(result, func, args):
+def enum_value_errcheck(result: int, func: _CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if result == winutil.ERROR_SUCCESS:
         return args
     if result == winutil.ERROR_MORE_DATA:
@@ -119,7 +132,7 @@ RegEnumValue = cwrap(
 )
 
 
-def last_error_errcheck(result, func, args):
+def last_error_errcheck(result: int, func: _CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if result == 0:
         raise ctypes.WinError()
     return args
@@ -136,17 +149,19 @@ ExpandEnvironmentStrings = cwrap(
 )
 
 
-def expand_environment_strings(src):
+def expand_environment_strings(src: str) -> str:
     buf = ctypes.create_unicode_buffer(32 * 1024)
     ExpandEnvironmentStrings(src, buf, len(buf))
     return buf.value
 
 
-def convert_to_registry_data(value, has_expansions=False):
+def convert_to_registry_data(
+    value: RegistryValue | list[str], has_expansions: bool = False
+) -> tuple[ctypes.Array[ctypes.c_wchar] | ctypes.Array[ctypes.c_char] | None, int, int]:
     if value is None:
         return None, winreg.REG_NONE, 0
     if isinstance(value, (str, bytes)):
-        buf = ctypes.create_unicode_buffer(value)
+        buf = ctypes.create_unicode_buffer(value)  # ty: ignore[invalid-argument-type]
         return buf, (winreg.REG_EXPAND_SZ if has_expansions else winreg.REG_SZ), len(buf) * 2
     if isinstance(value, (list, tuple)):
         buf = ctypes.create_unicode_buffer('\0'.join(map(str, value)) + '\0\0')
@@ -164,7 +179,7 @@ def convert_to_registry_data(value, has_expansions=False):
     raise ValueError(f'Unknown data type: {value!r}')
 
 
-def convert_registry_data(raw, size, dtype):
+def convert_registry_data(raw: ctypes.Array[ctypes.c_char] | ctypes.Array[ctypes.c_ubyte], size: int, dtype: int) -> RegistryValue:
     if dtype == winreg.REG_NONE:
         return None
     if dtype == winreg.REG_BINARY:
@@ -205,7 +220,7 @@ except Exception:
     )
 
 
-def delete_value_errcheck(result, func, args):
+def delete_value_errcheck(result: int, func: _CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if result == winutil.ERROR_FILE_NOT_FOUND:
         return args
     if result != 0:
@@ -237,7 +252,7 @@ RegEnumKeyEx = cwrap(
 )
 
 
-def get_value_errcheck(result, func, args):
+def get_value_errcheck(result: int, func: _CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if result == winutil.ERROR_SUCCESS:
         return args
     if result == winutil.ERROR_MORE_DATA:
@@ -273,7 +288,7 @@ RegLoadMUIString = cwrap(
 )
 
 
-def filetime_to_datettime(ft):
+def filetime_to_datettime(ft: FILETIME) -> datetime.datetime:
     timestamp = ft.dwHighDateTime
     timestamp <<= 32
     timestamp |= ft.dwLowDateTime
@@ -284,7 +299,7 @@ def filetime_to_datettime(ft):
 
 
 class Key:
-    def __init__(self, create_at=None, open_at=None, root=HKEY_CURRENT_USER, open_mode=KEY_READ):
+    def __init__(self, create_at: str | None = None, open_at: str | None = None, root: Key | types.HKEY = HKEY_CURRENT_USER, open_mode: int = KEY_READ) -> None:
         root = getattr(root, 'hkey', root)
         self.was_created = False
         if create_at is not None:
@@ -294,7 +309,7 @@ class Key:
         else:
             self.hkey = HKEY()
 
-    def get(self, value_name=None, default=None, sub_key=None):
+    def get(self, value_name: str | None = None, default: RegistryValue = None, sub_key: str | None = None) -> RegistryValue:
         data_buf = ctypes.create_string_buffer(1024)
         len_data_buf = DWORD(len(data_buf))
         data_type = DWORD(0)
@@ -317,7 +332,9 @@ class Key:
                 return default
         return convert_registry_data(data_buf, len_data_buf.value, data_type.value)
 
-    def get_mui_string(self, value_name=None, default=None, directory=None, fallback=True):
+    def get_mui_string(
+        self, value_name: str | None = None, default: RegistryValue = None, directory: str | None = None, fallback: bool = True
+    ) -> RegistryValue:
         data_buf = ctypes.create_unicode_buffer(1024)
         len_data_buf = DWORD(len(data_buf))
         size = DWORD(0)
@@ -336,7 +353,13 @@ class Key:
                 raise
         return data_buf.value
 
-    def iterkeynames(self, get_last_write_times=False):
+    @overload
+    def iterkeynames(self, get_last_write_times: Literal[False] = False) -> Iterator[str]: ...
+    @overload
+    def iterkeynames(self, get_last_write_times: Literal[True]) -> Iterator[tuple[str, datetime.datetime]]: ...
+    @overload
+    def iterkeynames(self, get_last_write_times: bool) -> Iterator[str | tuple[str, datetime.datetime]]: ...
+    def iterkeynames(self, get_last_write_times: bool = False) -> Iterator[str | tuple[str, datetime.datetime]]:
         "Iterate over the names of all keys in this key"
         name_buf = ctypes.create_unicode_buffer(1024)
         lname_buf = DWORD(len(name_buf))
@@ -355,34 +378,40 @@ class Key:
                 yield name_buf.value[: lname_buf.value]
             i += 1
 
-    def delete_value(self, name=None, sub_key=None):
+    def delete_value(self, name: str | None = None, sub_key: str | None = None) -> None:
         "Delete the named value from this key. If name is None the default value is deleted. If name does not exist, not error is reported."
         RegDeleteKeyValue(self.hkey, sub_key, name)
 
-    def delete_tree(self, sub_key=None):
+    def delete_tree(self, sub_key: str | None = None) -> None:
         """Delete this all children of this key. Note that a key is not
         actually deleted till the last handle to it is closed. Also if you
         specify a sub_key, then the sub-key is deleted completely. If sub_key
         does not exist, no error is reported."""
         RegDeleteTree(self.hkey, sub_key)
 
-    def set(self, name=None, value=None, sub_key=None, has_expansions=False):
+    def set(self, name: str | None = None, value: RegistryValue | list[str] = None, sub_key: str | None = None, has_expansions: bool = False) -> None:
         """Set a value for this key (with optional sub-key). If name is None,
         the Default value is set. value can be an integer, a string, bytes or a list
         of strings. If you want to use expansions, set has_expansions=True."""
-        value, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)
+        value, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)  # ty: ignore[invalid-assignment]
         RegSetKeyValue(self.hkey, sub_key, name, dtype, value, size)
 
-    def set_default_value(self, sub_key=None, value=None, has_expansions=False):
+    def set_default_value(self, sub_key: str | None = None, value: RegistryValue | list[str] = None, has_expansions: bool = False) -> None:
         self.set(sub_key=sub_key, value=value, has_expansions=has_expansions)
 
-    def sub_key(self, path, allow_create=True, open_mode=KEY_READ):
+    def sub_key(self, path: str, allow_create: bool = True, open_mode: int = KEY_READ) -> Key:
         "Create (or open) a sub-key at the specified relative path. When opening instead of creating, use open_mode"
         if allow_create:
             return Key(create_at=path, root=self.hkey)
         return Key(open_at=path, root=self.hkey)
 
-    def itervalues(self, get_data=False, sub_key=None):
+    @overload
+    def itervalues(self, get_data: Literal[False] = False, sub_key: str | None = None) -> Iterator[str]: ...
+    @overload
+    def itervalues(self, get_data: Literal[True], sub_key: str | None = None) -> Iterator[tuple[str, RegistryValue]]: ...
+    @overload
+    def itervalues(self, get_data: bool, sub_key: str | None = None) -> Iterator[str | tuple[str, RegistryValue]]: ...
+    def itervalues(self, get_data: bool = False, sub_key: str | None = None) -> Iterator[str | tuple[str, RegistryValue]]:
         """Iterate over all values in this key (or optionally the specified
         sub-key. If get_data is True also return the data for every value,
         otherwise, just the name."""
@@ -436,16 +465,16 @@ class Key:
 
     values = itervalues
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.close()
 
-    def __nonzero__(self):
+    def __nonzero__(self) -> bool:
         return bool(self.hkey)
 
-    def close(self):
+    def close(self) -> None:
         if not getattr(self, 'hkey', None):
             return
         if RegCloseKey is None or HKEY is None:
@@ -453,7 +482,7 @@ class Key:
         RegCloseKey(self.hkey)
         self.hkey = HKEY()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
 

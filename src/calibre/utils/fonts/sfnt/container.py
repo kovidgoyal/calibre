@@ -2,8 +2,10 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
+from collections.abc import Callable, Iterator
 from io import BytesIO
 from struct import calcsize, pack
+from typing import Literal, overload
 
 from calibre.utils.fonts.sfnt import UnknownTable, align_block, max_power_of_two
 from calibre.utils.fonts.sfnt.cff.table import CFFTable
@@ -37,8 +39,8 @@ class Sfnt:
         b'post': PostTable,
     }
 
-    def __init__(self, raw_or_get_table):
-        self.tables = {}
+    def __init__(self, raw_or_get_table: bytes | Callable[[bytes], bytes]) -> None:
+        self.tables: dict[bytes, UnknownTable] = {}
         if isinstance(raw_or_get_table, bytes):
             raw = raw_or_get_table
             self.sfnt_version = raw[:4]
@@ -88,16 +90,42 @@ class Sfnt:
                 raise UnsupportedFont('This font has no tables')
             self.sfnt_version = b'\0\x01\0\0' if b'glyf' in self.tables else b'OTTO'
 
-    def __getitem__(self, key):
+    @overload
+    def __getitem__(self, key: Literal[b'head']) -> HeadTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'hhea']) -> HorizontalHeader: ...
+    @overload
+    def __getitem__(self, key: Literal[b'vhea']) -> VerticalHeader: ...
+    @overload
+    def __getitem__(self, key: Literal[b'maxp']) -> MaxpTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'loca']) -> LocaTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'glyf']) -> GlyfTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'cmap']) -> CmapTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'CFF ']) -> CFFTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'kern']) -> KernTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'GSUB']) -> GSUBTable: ...
+    @overload
+    def __getitem__(self, key: Literal[b'OS/2']) -> OS2Table: ...
+    @overload
+    def __getitem__(self, key: Literal[b'post']) -> PostTable: ...
+    @overload
+    def __getitem__(self, key: bytes) -> UnknownTable: ...
+    def __getitem__(self, key: bytes) -> UnknownTable:
         return self.tables[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key: bytes) -> bool:
         return key in self.tables
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: bytes) -> None:
         del self.tables[key]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[bytes]:
         """Iterate over the table tags in order."""
         yield from sorted(self.tables)
         # Although the optimal order is not alphabetical, the OTF spec says
@@ -113,23 +141,23 @@ class Sfnt:
         # for x in keys:
         #     yield x
 
-    def pop(self, key, default=None):
+    def pop[T](self, key: bytes, default: T | None = None) -> UnknownTable | T | None:
         return self.tables.pop(key, default)
 
-    def get(self, key, default=None):
+    def get[T](self, key: bytes, default: T | None = None) -> UnknownTable | T | None:
         return self.tables.get(key, default)
 
-    def sizes(self):
+    def sizes(self) -> OrderedDict[bytes, int]:
         ans = OrderedDict()
         for tag in self:
             ans[tag] = len(self[tag])
         return ans
 
-    def __call__(self, stream=None):
+    def __call__(self, stream: BytesIO | None = None) -> tuple[bytes, OrderedDict[bytes, int]]:
         stream = BytesIO() if stream is None else stream
 
-        def spack(*args):
-            stream.write(pack(*args))
+        def spack(*args: bytes | int) -> None:
+            stream.write(pack(*args))  # ty: ignore[invalid-argument-type]
 
         stream.seek(0)
 
@@ -169,7 +197,7 @@ class Sfnt:
         return stream.getvalue(), sizes
 
 
-def test_roundtrip(ff=None):
+def test_roundtrip(ff: str | None = None) -> None:
     if ff is None:
         data = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
     else:

@@ -5,10 +5,10 @@ import importlib
 import os
 import time
 import traceback
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Sequence
 from multiprocessing import Pipe
 from threading import Thread
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
@@ -21,6 +21,16 @@ if iswindows:
 else:
     from multiprocessing.connection import Connection
 
+if TYPE_CHECKING:
+    from subprocess import Popen
+    from threading import Event
+    from typing import IO
+
+    class PipeWorker(Popen[bytes]):
+        # stdin and stdout are pipes unless the caller overrides them
+        stdin: IO[bytes]  # ty: ignore[invalid-mutable-override]
+        stdout: IO[bytes]  # ty: ignore[invalid-mutable-override]
+
 
 # Time to wait for the thread reading the worker's response to finish, once the
 # worker process itself has exited
@@ -28,7 +38,7 @@ WORKER_RESPONSE_TIMEOUT = 5  # seconds
 
 
 class WorkerError(Exception):
-    def __init__(self, msg, orig_tb='', log_path=None):
+    def __init__(self, msg: str, orig_tb: str = '', log_path: str | None = None) -> None:
         Exception.__init__(self, msg)
         self.orig_tb = orig_tb
         self.log_path = log_path
@@ -40,7 +50,7 @@ class WorkerError(Exception):
 
 
 class ConnectedWorker(Thread):
-    def __init__(self, conn, args):
+    def __init__(self, conn: Connection, args: object) -> None:
         Thread.__init__(self)
         self.daemon = True
 
@@ -50,7 +60,7 @@ class ConnectedWorker(Thread):
         self.tb = None
         self.res = None
 
-    def run(self):
+    def run(self) -> None:
         self.accepted = True
         conn = self.conn
         with conn:
@@ -62,18 +72,18 @@ class ConnectedWorker(Thread):
 
 
 class OffloadWorker:
-    def __init__(self, conn, worker):
+    def __init__(self, conn: Connection, worker: Worker) -> None:
         self.conn = conn
         self.worker = worker
         self.kill_thread = t = Thread(target=self.worker.kill)
         t.daemon = True
 
-    def __call__(self, module, func, *args, **kwargs):
+    def __call__(self, module: str, func: str, *args: object, **kwargs: object) -> Any:  # ruff: ignore[any-type]
         assert self.conn is not None
         eintr_retry_call(self.conn.send, (module, func, args, kwargs))
         return eintr_retry_call(self.conn.recv)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         assert self.conn is not None
         try:
             eintr_retry_call(self.conn.send, None)
@@ -86,16 +96,24 @@ class OffloadWorker:
         finally:
             self.conn = None
             try:
-                os.remove(self.worker.log_path)
+                os.remove(self.worker.log_path)  # ty: ignore[invalid-argument-type]
             except Exception:
                 pass
             self.kill_thread.start()
 
-    def is_alive(self):
+    def is_alive(self) -> bool:
         return self.worker.is_alive or self.kill_thread.is_alive()
 
 
-def communicate(ans, worker, conn, args, timeout=300, heartbeat=None, abort=None):
+def communicate(
+    ans: dict[str, Any],
+    worker: Worker,
+    conn: Connection,
+    args: object,
+    timeout: float = 300,
+    heartbeat: Callable[[], bool] | None = None,
+    abort: Event | None = None,
+) -> None:
     cw = ConnectedWorker(conn, args)
     cw.start()
     st = monotonic()
@@ -134,7 +152,7 @@ def communicate(ans, worker, conn, args, timeout=300, heartbeat=None, abort=None
     ans['result'] = cw.res['result']
 
 
-def create_worker(env, priority='normal', cwd=None, func='main'):
+def create_worker(env: dict[str, str], priority: str = 'normal', cwd: str | None = None, func: str = 'main') -> tuple[Connection, Worker]:
     env = dict(env)
     a, b = Pipe()
     with a:
@@ -148,7 +166,7 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
     return b, w
 
 
-def start_pipe_worker(command, env=None, priority='normal', **process_args):
+def start_pipe_worker(command: str, env: dict[str, str] | None = None, priority: str = 'normal', **process_args: object) -> PipeWorker:
     import subprocess
 
     w = Worker(env or {})
@@ -174,24 +192,24 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
         if iswindows and pass_fds:
             for fd in pass_fds:
                 os.set_handle_inheritable(fd, False)
-    return p
+    return p  # ty: ignore[invalid-return-type]
 
 
-def two_part_fork_job(env=None, priority='normal', cwd=None):
+def two_part_fork_job(env: dict[str, str] | None = None, priority: str = 'normal', cwd: str | None = None) -> Callable[..., dict[str, Any]]:
     env = env or {}
     conn, w = create_worker(env, priority, cwd)
 
     def run_job(
-        mod_name,
-        func_name,
-        args=(),
-        kwargs=None,
-        timeout=300,  # seconds
-        no_output=False,
-        heartbeat=None,
-        abort=None,
-        module_is_source_code=False,
-    ):
+        mod_name: str,
+        func_name: str,
+        args: Sequence[object] = (),
+        kwargs: dict[str, object] | None = None,
+        timeout: float = 300,  # seconds
+        no_output: bool = False,
+        heartbeat: Callable[[], bool] | None = None,
+        abort: Event | None = None,
+        module_is_source_code: bool = False,
+    ) -> dict[str, Any]:
         ans = {'result': None, 'stdout_stderr': None}
         kwargs = kwargs or {}
         try:
@@ -214,7 +232,7 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
             t.start()
             if no_output:
                 try:
-                    os.remove(w.log_path)
+                    os.remove(w.log_path)  # ty: ignore[invalid-argument-type]
                 except Exception:
                     pass
         if not no_output:
@@ -227,19 +245,19 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
 
 
 def fork_job(
-    mod_name,
-    func_name,
-    args=(),
-    kwargs=None,
-    timeout=300,  # seconds
-    cwd=None,
-    priority='normal',
-    env=None,
-    no_output=False,
-    heartbeat=None,
-    abort=None,
-    module_is_source_code=False,
-):
+    mod_name: str,
+    func_name: str,
+    args: Sequence[object] = (),
+    kwargs: dict[str, object] | None = None,
+    timeout: float = 300,  # seconds
+    cwd: str | None = None,
+    priority: str = 'normal',
+    env: dict[str, str] | None = None,
+    no_output: bool = False,
+    heartbeat: Callable[[], bool] | None = None,
+    abort: Event | None = None,
+    module_is_source_code: bool = False,
+) -> dict[str, Any]:
     """
     Run a job in a worker process. A job is simply a function that will be
     called with the supplied arguments, in the worker process.
@@ -303,14 +321,14 @@ def fork_job(
     )
 
 
-def offload_worker(env=None, priority='normal', cwd=None):
+def offload_worker(env: dict[str, str] | None = None, priority: str = 'normal', cwd: str | None = None) -> OffloadWorker:
     if env is None:
         env = {}
     conn, w = create_worker(env=env, priority=priority, cwd=cwd, func='offload')
     return OffloadWorker(conn, w)
 
 
-def compile_code(src):
+def compile_code(src: str | bytes) -> dict[str, Any]:
     import io
     import re
 
@@ -333,7 +351,7 @@ def compile_code(src):
     return namespace
 
 
-def main():
+def main() -> None:
     # The entry point for the simple worker process
     with Connection(int(os.environ['CALIBRE_WORKER_FD'])) as conn:
         args = eintr_retry_call(conn.recv)
@@ -361,7 +379,7 @@ def main():
             conn.send(res)
 
 
-def offload():
+def offload() -> None:
     # The entry point for the offload worker process
     func_cache = {}
     with Connection(int(os.environ['CALIBRE_WORKER_FD'])) as conn:

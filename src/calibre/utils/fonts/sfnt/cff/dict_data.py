@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterable
 from struct import pack, unpack_from
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from calibre.utils.fonts.sfnt.cff.table import Strings as TableStrings
+    from calibre.utils.fonts.sfnt.cff.table import Subrs
+    from calibre.utils.fonts.sfnt.cff.writer import Strings as WriterStrings
 
 t1_operand_encoding = [None] * 256
 t1_operand_encoding[0:32] = (32) * ['do_operator']
@@ -24,30 +31,30 @@ real_nibbles_map = {x: i for i, x in enumerate(real_nibbles)}
 
 
 class ByteCode(dict):
-    def read_byte(self, b0, data, index):
+    def read_byte(self, b0: int, data: bytes, index: int) -> tuple[int, int]:
         return b0 - 139, index
 
-    def read_small_int1(self, b0, data, index):
+    def read_small_int1(self, b0: int, data: bytes, index: int) -> tuple[int, int]:
         b1 = ord(data[index : index + 1])
         return (b0 - 247) * 256 + b1 + 108, index + 1
 
-    def read_small_int2(self, b0, data, index):
+    def read_small_int2(self, b0: int, data: bytes, index: int) -> tuple[int, int]:
         b1 = ord(data[index : index + 1])
         return -(b0 - 251) * 256 - b1 - 108, index + 1
 
-    def read_short_int(self, b0, data, index):
+    def read_short_int(self, b0: int, data: bytes, index: int) -> tuple[int, int]:
         (value,) = unpack_from(b'>h', data, index)
         return value, index + 2
 
-    def read_long_int(self, b0, data, index):
+    def read_long_int(self, b0: int, data: bytes, index: int) -> tuple[int, int]:
         (value,) = unpack_from(b'>l', data, index)
         return value, index + 4
 
-    def read_fixed_1616(self, b0, data, index):
+    def read_fixed_1616(self, b0: int, data: bytes, index: int) -> tuple[float, int]:
         (value,) = unpack_from(b'>l', data, index)
         return value / 65536.0, index + 4
 
-    def read_real_number(self, b0, data, index):
+    def read_real_number(self, b0: int, data: bytes, index: int) -> tuple[float, int]:
         number = ''
         while True:
             b = ord(data[index : index + 1])
@@ -62,7 +69,7 @@ class ByteCode(dict):
             number = number + (real_nibbles[nibble1] or '')
         return float(number), index
 
-    def write_float(self, f, encoding='ignored'):
+    def write_float(self, f: float, encoding: str = 'ignored') -> bytes:
         s = str(f).upper()
         if s[:2] == '0.':
             s = s[1:]
@@ -84,7 +91,7 @@ class ByteCode(dict):
             d.append(nibbles[i] << 4 | nibbles[i + 1])
         return bytes(d)
 
-    def write_int(self, value, encoding='cff'):
+    def write_int(self, value: int, encoding: str = 'cff') -> bytes:
         four_byte_op = {'cff': 29, 't1': 255}.get(encoding, None)
 
         if -107 <= value <= 107:
@@ -102,12 +109,12 @@ class ByteCode(dict):
             code = bytes(bytearray([four_byte_op])) + pack(b'>l', value)
         return code
 
-    def write_offset(self, value):
+    def write_offset(self, value: int) -> bytes:
         return bytes(bytearray([29])) + pack(b'>l', value)
 
-    def write_number(self, value, encoding='cff'):
+    def write_number(self, value: float, encoding: str = 'cff') -> bytes:
         f = self.write_float if isinstance(value, float) else self.write_int
-        return f(value, encoding)
+        return f(value, encoding)  # ty: ignore[invalid-argument-type]
 
 
 class Dict(ByteCode):
@@ -116,16 +123,16 @@ class Dict(ByteCode):
     FILTERED = frozenset()
     OFFSETS = frozenset()
 
-    def __init__(self):
+    def __init__(self) -> None:
         ByteCode.__init__(self)
 
         self.operators = {op: (name, arg) for op, name, arg, default in self.TABLE}
         self.defaults = {name: default for op, name, arg, default in self.TABLE}
 
-    def safe_get(self, name):
+    def safe_get(self, name: str) -> Any:  # ruff: ignore[any-type]
         return self.get(name, self.defaults[name])
 
-    def decompile(self, strings, global_subrs, data):
+    def decompile(self, strings: TableStrings, global_subrs: Subrs, data: bytes) -> None:
         self.strings = strings
         self.global_subrs = global_subrs
         self.stack = []
@@ -138,7 +145,7 @@ class Dict(ByteCode):
             if value is not None:
                 self.stack.append(value)
 
-    def do_operator(self, b0, data, index):
+    def do_operator(self, b0: int, data: bytes, index: int) -> tuple[None, int]:
         if b0 == 12:
             op = (b0, ord(data[index : index + 1]))
             index += 1
@@ -148,7 +155,7 @@ class Dict(ByteCode):
         self.handle_operator(operator, arg_type)
         return None, index
 
-    def handle_operator(self, operator, arg_type):
+    def handle_operator(self, operator: str, arg_type: str | tuple[str, ...]) -> None:
         if isinstance(arg_type, tuple):
             value = ()
             for i in range(len(arg_type) - 1, -1, -1):
@@ -160,18 +167,18 @@ class Dict(ByteCode):
             value = arghandler(operator)
         self[operator] = value
 
-    def arg_number(self, name):
+    def arg_number(self, name: str) -> float:
         return self.stack.pop()
 
-    def arg_SID(self, name):
+    def arg_SID(self, name: str) -> bytes:
         return self.strings[self.stack.pop()]
 
-    def arg_array(self, name):
+    def arg_array(self, name: str) -> list[float]:
         ans = self.stack[:]
         del self.stack[:]
         return ans
 
-    def arg_delta(self, name):
+    def arg_delta(self, name: str) -> list[float]:
         out = []
         current = 0
         for v in self.stack:
@@ -180,7 +187,7 @@ class Dict(ByteCode):
         del self.stack[:]
         return out
 
-    def compile(self, strings):
+    def compile(self, strings: WriterStrings) -> bytes:
         data = []
         for op, name, arg, default in self.TABLE:
             if name in self.FILTERED:
@@ -194,7 +201,7 @@ class Dict(ByteCode):
                         raise ValueError(f'Invalid argument {val} for operator: {op}')
                     for typ, v in zip(arg, val):
                         if typ == 'SID':
-                            val = strings(val)
+                            val = strings(val)  # ty: ignore[invalid-argument-type]
                         data.append(getattr(self, 'encode_' + str(typ))(v))
                 else:
                     if arg == 'SID':
@@ -204,18 +211,18 @@ class Dict(ByteCode):
         self.raw = b''.join(data)
         return self.raw
 
-    def encode_number(self, val):
+    def encode_number(self, val: float) -> bytes:
         if self.encoding_offset:
-            return self.write_offset(val)
+            return self.write_offset(val)  # ty: ignore[invalid-argument-type]
         return self.write_number(val)
 
-    def encode_SID(self, val):
+    def encode_SID(self, val: int) -> bytes:
         return self.write_int(val)
 
-    def encode_array(self, val):
+    def encode_array(self, val: Iterable[float]) -> bytes:
         return b''.join(map(self.encode_number, val))
 
-    def encode_delta(self, value):
+    def encode_delta(self, value: Iterable[float]) -> bytes:
         out = []
         last = 0
         for v in value:

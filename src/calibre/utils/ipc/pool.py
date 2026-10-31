@@ -3,10 +3,11 @@
 
 import os
 import sys
+from collections.abc import Callable, Sequence
 from multiprocessing.connection import Pipe
 from queue import Queue
 from threading import Thread
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple, NoReturn
 
 from calibre import as_unicode, detect_ncpus, prints
 from calibre.constants import DEBUG, iswindows
@@ -14,6 +15,12 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
+
+if TYPE_CHECKING:
+    from multiprocessing.connection import Connection, PipeConnection
+    from subprocess import Popen
+
+    from calibre.utils.ipc.simple_worker import PipeWorker
 
 
 class Job(NamedTuple):
@@ -76,7 +83,7 @@ if iswindows:
             worker_kwargs['stdout'] = worker_kwargs['stderr'] = subprocess.DEVNULL
 
 
-def get_stdout(process):
+def get_stdout(process: PipeWorker) -> None:
     import time
 
     while process.poll() is None:
@@ -93,19 +100,19 @@ def get_stdout(process):
             break
 
 
-def start_worker(code, pass_fds, name=''):
+def start_worker(code: str, pass_fds: Sequence[int], name: str = '') -> PipeWorker:
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
     if name:
         name = '-' + name
-    p = start_pipe_worker(code, pass_fds=pass_fds, **worker_kwargs)
+    p = start_pipe_worker(code, pass_fds=pass_fds, **worker_kwargs)  # ty: ignore[invalid-argument-type]
     if get_stdout_from_child:
         Thread(target=get_stdout, name='PoolWorkerGetStdout' + name, args=(p,), daemon=True).start()
     return p
 
 
 class Failure(Exception):
-    def __init__(self, tf):
+    def __init__(self, tf: TerminalFailure) -> None:
         Exception.__init__(self, tf.message)
         self.details = tf.tb
         self.job_id = tf.job_id
@@ -113,12 +120,12 @@ class Failure(Exception):
 
 
 class Worker:
-    def __init__(self, p, conn, events, name):
+    def __init__(self, p: Popen[bytes], conn: Connection | PipeConnection, events: Queue[object], name: str | None) -> None:
         self.process, self.conn = p, conn
         self.events = events
         self.name = name or ''
 
-    def __call__(self, job):
+    def __call__(self, job: Job | None) -> None:
         eintr_retry_call(self.conn.send_bytes, pickle_dumps(job))
         if job is not None:
             self.job_id = job.id
@@ -126,7 +133,7 @@ class Worker:
             t.daemon = True
             t.start()
 
-    def recv(self):
+    def recv(self) -> None:
         try:
             result = pickle_loads(eintr_retry_call(self.conn.recv_bytes))
             wr = WorkerResult(self.job_id, result, False, self)
@@ -137,14 +144,14 @@ class Worker:
             wr = WorkerResult(self.job_id, result, True, self)
         self.events.put(wr)
 
-    def set_common_data(self, data):
+    def set_common_data(self, data: bytes) -> None:
         eintr_retry_call(self.conn.send_bytes, data)
 
 
 class Pool(Thread):
     daemon = True
 
-    def __init__(self, max_workers=None, name=None):
+    def __init__(self, max_workers: int | None = None, name: str | None = None) -> None:
         Thread.__init__(self, name=name)
         self.max_workers = max_workers or detect_ncpus()
         self.available_workers = []
@@ -159,7 +166,7 @@ class Pool(Thread):
 
         self.start()
 
-    def set_common_data(self, data=None):
+    def set_common_data(self, data: object = None) -> None:
         """Set some data that will be passed to all subsequent jobs without
         needing to be transmitted every time. You must call this method before
         queueing any jobs, otherwise the behavior is undefined. You can call it
@@ -167,10 +174,10 @@ class Pool(Thread):
         jobs. Can raise the :class:`Failure` exception is data could not be
         sent to workers."""
         if self.failed:
-            raise Failure(self.terminal_failure)
+            raise Failure(self.terminal_failure)  # ty: ignore[invalid-argument-type]
         self.events.put(data)
 
-    def __call__(self, job_id, module, func, *args, **kwargs):
+    def __call__(self, job_id: int, module: str, func: str, *args: object, **kwargs: object) -> None:
         """
         Schedule a job. The job will be run in a worker process, with the
         result placed in self.results. If a terminal failure has occurred
@@ -184,31 +191,31 @@ class Pool(Thread):
                      executed. ``args`` and ``kwargs`` will be passed to the function.
         """
         if self.failed:
-            raise Failure(self.terminal_failure)
+            raise Failure(self.terminal_failure)  # ty: ignore[invalid-argument-type]
         job = Job(job_id, module, func, args, kwargs)
         self.tracker.put(None)
         self.events.put(job)
 
-    def wait_for_tasks(self, timeout=None):
+    def wait_for_tasks(self, timeout: float | None = None) -> None:
         """Wait for all queued jobs to be completed, if timeout is not None,
         will raise a RuntimeError if jobs are not completed in the specified
         time. Will raise a :class:`Failure` exception if a terminal failure has
         occurred previously."""
         if self.failed:
-            raise Failure(self.terminal_failure)
+            raise Failure(self.terminal_failure)  # ty: ignore[invalid-argument-type]
         if timeout is None:
             self.tracker.join()
         else:
             join_with_timeout(self.tracker, timeout)
 
-    def shutdown(self, wait_time=0.1):
+    def shutdown(self, wait_time: float = 0.1) -> None:
         """Shutdown this pool, terminating all worker process. The pool cannot
         be used after a shutdown."""
         self.shutting_down = True
         self.events.put(None)
         self.shutdown_workers(wait_time=wait_time)
 
-    def create_worker(self):
+    def create_worker(self) -> Worker:
         a, b = Pipe()
         with a:
             cmd = 'from {0} import run_main, {1}; run_main({2!r}, {1})'.format(self.__class__.__module__, 'worker_main', a.fileno())
@@ -217,10 +224,10 @@ class Pool(Thread):
         p.stdin.close()
         w = Worker(p, b, self.events, self.name)
         if self.common_data != pickle_dumps(None):
-            w.set_common_data(self.common_data)
+            w.set_common_data(self.common_data)  # ty: ignore[invalid-argument-type]
         return w
 
-    def start_worker(self):
+    def start_worker(self) -> bool | None:
         try:
             w = self.create_worker()
             if not self.shutting_down:
@@ -232,7 +239,7 @@ class Pool(Thread):
             self.terminal_error()
             return False
 
-    def run(self):
+    def run(self) -> None:
         if self.start_worker() is False:
             return
 
@@ -243,7 +250,7 @@ class Pool(Thread):
             if self.handle_event(event) is False:
                 break
 
-    def handle_event(self, event):
+    def handle_event(self, event: object) -> bool | None:
         if isinstance(event, Job):
             job = event
             if not self.available_workers:
@@ -259,7 +266,7 @@ class Pool(Thread):
             self.available_workers.append(worker_result.worker)
             self.tracker.task_done()
             if worker_result.is_terminal_failure:
-                self.terminal_failure = TerminalFailure('Worker process crashed while executing job', worker_result.result.traceback, worker_result.id)
+                self.terminal_failure = TerminalFailure('Worker process crashed while executing job', worker_result.result.traceback, worker_result.id)  # ty: ignore[invalid-argument-type]
                 self.terminal_error()
                 return False
             self.results.put(worker_result)
@@ -284,7 +291,7 @@ class Pool(Thread):
             if self.run_job(self.pending_jobs.pop()) is False:
                 return False
 
-    def run_job(self, job):
+    def run_job(self, job: Job) -> bool | None:
         worker = self.available_workers.pop()
         try:
             worker(job)
@@ -297,10 +304,10 @@ class Pool(Thread):
         self.busy_workers[worker] = job
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         return self.terminal_failure is not None
 
-    def terminal_error(self):
+    def terminal_error(self) -> None:
         if self.shutting_down:
             return
         for worker, job in self.busy_workers.items():
@@ -312,7 +319,7 @@ class Pool(Thread):
             self.tracker.task_done()
         self.shutdown()
 
-    def shutdown_workers(self, wait_time=0.1):
+    def shutdown_workers(self, wait_time: float = 0.1) -> None:
         self.worker_data = self.common_data = None
         for worker in self.busy_workers:
             if worker.process.poll() is None:
@@ -323,7 +330,7 @@ class Pool(Thread):
         workers = [w.process for w in self.available_workers + list(self.busy_workers)]
         aw = list(self.available_workers)
 
-        def join():
+        def join() -> None:
             for w in aw:
                 try:
                     w(None)
@@ -359,7 +366,7 @@ class Pool(Thread):
                 pass
 
 
-def worker_main(conn):
+def worker_main(conn: Connection | PipeConnection) -> int:
     from importlib import import_module
 
     common_data = None
@@ -416,7 +423,7 @@ def worker_main(conn):
     return 0
 
 
-def run_main(client_fd, func):
+def run_main(client_fd: int, func: Callable[[Connection | PipeConnection], int]) -> NoReturn:
     if iswindows:
         from multiprocessing.connection import PipeConnection as Connection
     else:
@@ -425,12 +432,12 @@ def run_main(client_fd, func):
         raise SystemExit(func(conn))
 
 
-def test_write():
+def test_write() -> None:
     print('Printing to stdout in worker')
 
 
-def test():
-    def get_results(pool, ignore_fail=False):
+def test() -> None:
+    def get_results(pool: Pool, ignore_fail: bool = False) -> dict[int, Result]:
         ans = {}
         while not p.results.empty():
             r = p.results.get()

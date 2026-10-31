@@ -1631,7 +1631,7 @@ class Boss(QObject):
             if ce:
                 cmd.append(ce)
             with sanitize_env_vars():
-                subprocess.Popen(cmd)
+                subprocess.Popen(cmd)  # ty: ignore[no-matching-overload]
         self.gui.show_status_message(msg, 5)
 
     def report_save_error(self, tb):

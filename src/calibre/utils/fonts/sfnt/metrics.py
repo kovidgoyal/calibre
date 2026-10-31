@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
 from calibre.utils.fonts.utils import get_all_font_names
+
+if TYPE_CHECKING:
+    from calibre.utils.fonts.sfnt.container import Sfnt
 
 
 class FontMetrics:
@@ -12,7 +18,7 @@ class FontMetrics:
     (in pixels) and the horizontal stretch factor (between 0.0 and 1.0).
     """
 
-    def __init__(self, sfnt):
+    def __init__(self, sfnt: Sfnt) -> None:
         for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post', b'name', b'maxp'):
             if table not in sfnt:
                 raise UnsupportedFont(f'This font has no {table} table')
@@ -43,11 +49,11 @@ class FontMetrics:
         self.pdf_avg_width = pdf_scale(self.os2.average_char_width)
         self.pdf_stemv = 50 + int((self.os2.weight_class / 65.0) ** 2)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self._sig
 
     @property
-    def postscript_name(self):
+    def postscript_name(self) -> str:
         if 'postscript_name' in self.names:
             return self.names['postscript_name'].replace(' ', '-')
         try:
@@ -55,30 +61,30 @@ class FontMetrics:
         except KeyError:
             return self.names['family_name'].replace(' ', '-')
 
-    def underline_thickness(self, pixel_size=12.0):
+    def underline_thickness(self, pixel_size: float = 12.0) -> float:
         "Thickness for lines (in pixels) at the specified size"
         yscale = pixel_size / self.units_per_em
         return self.post.underline_thickness * yscale
 
-    def underline_position(self, pixel_size=12.0):
+    def underline_position(self, pixel_size: float = 12.0) -> float:
         yscale = pixel_size / self.units_per_em
         return self.post.underline_position * yscale
 
-    def overline_position(self, pixel_size=12.0):
+    def overline_position(self, pixel_size: float = 12.0) -> float:
         yscale = pixel_size / self.units_per_em
         return (self.ascent + 2) * yscale
 
-    def strikeout_size(self, pixel_size=12.0):
+    def strikeout_size(self, pixel_size: float = 12.0) -> float:
         "The width of the strikeout line, in pixels"
         yscale = pixel_size / self.units_per_em
         return yscale * self.os2.strikeout_size
 
-    def strikeout_position(self, pixel_size=12.0):
+    def strikeout_position(self, pixel_size: float = 12.0) -> float:
         "The displacement from the baseline to top of the strikeout line, in pixels"
         yscale = pixel_size / self.units_per_em
         return yscale * self.os2.strikeout_position
 
-    def advance_widths(self, string, pixel_size=12.0, stretch=1.0):
+    def advance_widths(self, string: str, pixel_size: float = 12.0, stretch: float = 1.0) -> tuple[float, ...]:
         """
         Return the advance widths (in pixels) for all glyphs corresponding to
         the characters in string at the specified pixel_size and stretch factor.
@@ -92,11 +98,11 @@ class FontMetrics:
         xscale = pixel_size_x / self.units_per_em
         return tuple(i * xscale for i in self.glyph_widths(glyph_ids))
 
-    def glyph_widths(self, glyph_ids):
+    def glyph_widths(self, glyph_ids: Iterable[int]) -> tuple[int, ...]:
         last = len(self._advance_widths)
         return tuple(self._advance_widths[i if i < last else -1] for i in glyph_ids)
 
-    def width(self, string, pixel_size=12.0, stretch=1.0):
+    def width(self, string: str, pixel_size: float = 12.0, stretch: float = 1.0) -> float:
         "The width of the string at the specified pixel size and stretch, in pixels"
         return sum(self.advance_widths(string, pixel_size, stretch))
 

@@ -363,6 +363,10 @@ smartypants.py license::
 '''
 
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import unittest
 
 # style added by Kovid
 tags_to_skip_regex = re.compile(r'<(/)?(style|pre|code|kbd|script|math)[^>]*>', re.I)
@@ -371,7 +375,7 @@ self_closing_regex = re.compile(r'/\s*>$')
 # internal functions below here
 
 
-def parse_attr(attr):
+def parse_attr(attr: str) -> tuple[int, int, int, int, int]:
     do_dashes = do_backticks = do_quotes = do_ellipses = do_stupefy = 0
 
     if attr == '1':
@@ -416,7 +420,7 @@ def parse_attr(attr):
     return do_dashes, do_backticks, do_quotes, do_ellipses, do_stupefy
 
 
-def smartyPants(text, attr='1'):
+def smartyPants(text: str, attr: str = '1') -> str:
     # Parse attributes:
     # 0 : do nothing
     # 1 : set all
@@ -511,7 +515,7 @@ def smartyPants(text, attr='1'):
     return ''.join(result)
 
 
-def educateQuotes(text):
+def educateQuotes(text: str) -> str:
     '''
     Parameter:  String.
 
@@ -657,7 +661,7 @@ def educateQuotes(text):
     return text
 
 
-def educateBackticks(text):
+def educateBackticks(text: str) -> str:
     """
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
@@ -671,7 +675,7 @@ def educateBackticks(text):
     return text
 
 
-def educateSingleBackticks(text):
+def educateSingleBackticks(text: str) -> str:
     """
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
@@ -686,7 +690,7 @@ def educateSingleBackticks(text):
     return text
 
 
-def educateDashes(text):
+def educateDashes(text: str) -> str:
     '''
     Parameter:  String.
 
@@ -699,7 +703,7 @@ def educateDashes(text):
     return text
 
 
-def educateDashesOldSchool(text):
+def educateDashesOldSchool(text: str) -> str:
     '''
     Parameter:  String.
 
@@ -713,7 +717,7 @@ def educateDashesOldSchool(text):
     return text
 
 
-def educateDashesOldSchoolInverted(text):
+def educateDashesOldSchoolInverted(text: str) -> str:
     '''
     Parameter:  String.
 
@@ -733,7 +737,7 @@ def educateDashesOldSchoolInverted(text):
     return text
 
 
-def educateEllipses(text):
+def educateEllipses(text: str) -> str:
     '''
     Parameter:  String.
     Returns:    The string, with each instance of "..." translated to
@@ -748,7 +752,7 @@ def educateEllipses(text):
     return text
 
 
-def stupefyEntities(text):
+def stupefyEntities(text: str) -> str:
     '''
     Parameter:  String.
     Returns:    The string, with each SmartyPants HTML entity translated to
@@ -772,7 +776,7 @@ def stupefyEntities(text):
     return text
 
 
-def processEscapes(text):
+def processEscapes(text: str) -> str:
     r'''
     Parameter:  String.
     Returns:    The string, with after processing the following backslash
@@ -798,7 +802,7 @@ def processEscapes(text):
     return text
 
 
-def _tokenize(html):
+def _tokenize(html: str) -> list[list[str]]:
     '''
     Parameter:  String containing HTML markup.
     Returns:    Reference to an array of the tokens comprising the input
@@ -839,7 +843,7 @@ def _tokenize(html):
     return tokens
 
 
-def run_tests(return_tests=False):
+def run_tests(return_tests: bool = False) -> unittest.TestSuite | None:
     import unittest
 
     sp = smartyPants
@@ -847,7 +851,7 @@ def run_tests(return_tests=False):
     class TestSmartypantsAllAttributes(unittest.TestCase):
         # the default attribute is "1", which means "all".
 
-        def test_dates(self):
+        def test_dates(self) -> None:
             self.assertEqual(sp("one two '60s"), 'one two &#8217;60s')
             self.assertEqual(sp("1440-80's"), '1440-80&#8217;s')
             self.assertEqual(sp("1440-'80s"), '1440-&#8217;80s')
@@ -857,12 +861,12 @@ def run_tests(return_tests=False):
             self.assertEqual(sp("one two '60s"), 'one two &#8217;60s')
             self.assertEqual(sp("'60s"), '&#8217;60s')
 
-        def test_measurements(self):
+        def test_measurements(self) -> None:
             ae = self.assertEqual
             ae(sp("one two 1.1'2.2\""), 'one two 1.1&#8242;2.2&#8243;')
             ae(sp("1' 2\""), '1&#8242; 2&#8243;')
 
-        def test_skip_tags(self):
+        def test_skip_tags(self) -> None:
             self.assertEqual(
                 sp(
                     '''<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>'''  # ruff: ignore[line-too-long]
@@ -876,11 +880,11 @@ def run_tests(return_tests=False):
 
             self.assertEqual(sp('''<script/><p>It's ok</p>'''), '''<script/><p>It&#8217;s ok</p>''')
 
-        def test_ordinal_numbers(self):
+        def test_ordinal_numbers(self) -> None:
             self.assertEqual(sp('21st century'), '21st century')  # no effect.
             self.assertEqual(sp('3rd'), '3rd')  # no effect.
 
-        def test_educated_quotes(self):
+        def test_educated_quotes(self) -> None:
             self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
             self.assertEqual(sp("'abc'"), '&#8216;abc&#8217;')
 

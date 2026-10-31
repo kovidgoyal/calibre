@@ -50,7 +50,7 @@ class StretchDiBits(NamedTuple):
 
 
 class EMF:
-    def __init__(self, raw, verbose=0):
+    def __init__(self, raw: bytes, verbose: int = 0) -> None:
         self.pos = 0
         self.found_eof = False
         self.verbose = verbose
@@ -60,36 +60,36 @@ class EMF:
             self.read_record(raw)
         self.has_raster_image = bool(self.bitmaps)
 
-    def handle_unknown(self, rtype, size, raw):
+    def handle_unknown(self, rtype: int, size: int, raw: bytes) -> None:
         if self.verbose:
             print('Ignoring unknown record:', RECORD_RMAP.get(rtype, hex(rtype).upper()))
 
-    def handle_header(self, rtype, size, raw):
+    def handle_header(self, rtype: int, size: int, raw: bytes) -> None:
         pass
 
-    def handle_stretchdibits(self, rtype, size, raw):
+    def handle_stretchdibits(self, rtype: int, size: int, raw: bytes) -> None:
         data = StretchDiBits(*unpack_from(b'<18I', raw, 8))
         hdr = raw[data.bmp_hdr_offset : data.bmp_hdr_offset + data.bmp_header_size]
         bits = raw[data.bmp_bits_offset : data.bmp_bits_offset + data.bmp_bits_size]
         bmp = create_bmp_from_dib(hdr + bits)
         self.bitmaps.append(bmp)
 
-    def handle_eof(self, rtype, size, raw):
+    def handle_eof(self, rtype: int, size: int, raw: bytes) -> None:
         self.found_eof = True
 
-    def read_record(self, raw):
+    def read_record(self, raw: bytes) -> None:
         rtype, size = unpack_from(b'<II', raw, self.pos)
         record = raw[self.pos : self.pos + size]
         self.pos += size
         self.func_map.get(rtype, self.handle_unknown)(rtype, size, record)
 
-    def to_png(self):
+    def to_png(self) -> bytes:
         bmps = list(sorted(self.bitmaps, key=len))
         bmp = bmps[-1]
         return to_png(bmp)
 
 
-def emf_unwrap(raw, verbose=0):
+def emf_unwrap(raw: bytes, verbose: int = 0) -> bytes:
     """
     Return the largest embedded raster image in the EMF.
     The returned data is in PNG format.

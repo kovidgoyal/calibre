@@ -5,6 +5,8 @@ import os
 import re
 import shlex
 from collections import defaultdict
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 from calibre import force_unicode, guess_type, prints, walk
 from calibre.constants import cache_dir, filesystem_encoding
@@ -13,23 +15,23 @@ from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
 
-def parse_localized_key(key):
+def parse_localized_key(key: str) -> tuple[str, str | None]:
     name, rest = key.partition('[')[0::2]
     if not rest:
         return name, None
     return name, rest[:-1]
 
 
-def unquote_exec(val):
+def unquote_exec(val: str) -> list[str]:
     val = val.replace(r'\\', '\\')
     return shlex.split(val)
 
 
-def known_localized_items():
+def known_localized_items() -> dict[str, dict[str | None, str]]:
     return {'Name': {}, 'GenericName': {}, 'Comment': {}, 'Icon': {}}
 
 
-def parse_desktop_file(path):
+def parse_desktop_file(path: str) -> dict[str, Any] | None:
     gpat = re.compile(r'^\[(.+?)\]\s*$')
     kpat = re.compile(r'^([-a-zA-Z0-9\[\]@_.]+)\s*=\s*(.+)$')
     try:
@@ -38,7 +40,7 @@ def parse_desktop_file(path):
     except OSError, UnicodeDecodeError:
         return
     group = None
-    ans = {}
+    ans: dict[str, Any] = {}
     ans['desktop_file_path'] = path
     localized_items = known_localized_items()
     for line in raw.splitlines():
@@ -77,10 +79,10 @@ def parse_desktop_file(path):
         return ans
 
 
-icon_data = None
+icon_data: dict[str, str] | None = None
 
 
-def find_icons():
+def find_icons() -> dict[str, str]:
     global icon_data
     if icon_data is not None:
         return icon_data
@@ -92,7 +94,7 @@ def find_icons():
     cache_file = os.path.join(cache_dir(), 'icon-theme-cache.calibre_msgpack')
     exts = {'.svg', '.png', '.xpm'}
 
-    def read_icon_theme_dir(dirpath):
+    def read_icon_theme_dir(dirpath: str) -> dict[str, tuple[int, str]]:
         ans = defaultdict(list)
         for path in walk(dirpath):
             bn = os.path.basename(path)
@@ -167,10 +169,10 @@ def find_icons():
     return icon_data
 
 
-def localize_string(data):
+def localize_string(data: Mapping[str | None, str]) -> str:
     lang = canonicalize_lang(get_lang())
 
-    def key_matches(key):
+    def key_matches(key: str | None) -> bool:
         if key is None:
             return False
         base = re.split(r'[_.@]', key)[0]
@@ -182,7 +184,7 @@ def localize_string(data):
     return data.get(None) or ''
 
 
-def process_desktop_file(data):
+def process_desktop_file(data: dict[str, Any]) -> dict[str, Any]:
     icon = data.get('Icon', {}).get(None)
     if icon and not os.path.isabs(icon):
         icon = find_icons().get(icon)
@@ -199,7 +201,7 @@ def process_desktop_file(data):
     return data
 
 
-def find_programs(extensions):
+def find_programs(extensions: Iterable[str]) -> list[dict[str, Any]]:
     extensions = {ext.lower() for ext in extensions}
     data_dirs = [os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')]
     data_dirs += (os.environ.get('XDG_DATA_DIRS') or '/usr/local/share/:/usr/share/').split(os.pathsep)
@@ -228,11 +230,11 @@ def find_programs(extensions):
     return ans
 
 
-def entry_sort_key(entry):
+def entry_sort_key(entry: Mapping[str, Any]) -> bytes:
     return sort_key(entry['Name'])
 
 
-def entry_to_cmdline(entry, path):
+def entry_to_cmdline(entry: Mapping[str, Any], path: str) -> list[str]:
     path = os.path.abspath(path)
     rmap = {
         'f': path,
@@ -244,7 +246,7 @@ def entry_to_cmdline(entry, path):
         'k': entry.get('desktop_file_path', ''),
     }
 
-    def replace(match):
+    def replace(match: re.Match[str]) -> str:
         char = match.group()[-1]
         repl = rmap.get(char)
         return match.group() if repl is None else repl

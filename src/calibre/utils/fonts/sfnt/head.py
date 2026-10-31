@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import array
+from collections.abc import Mapping
 from struct import calcsize, pack, unpack_from
 
 from calibre.utils.fonts.sfnt import DateTimeProperty, FixedProperty, UnknownTable
@@ -15,7 +16,15 @@ class HeadTable(UnknownTable):
     version_number = FixedProperty('_version_number')
     font_revision = FixedProperty('_font_revision')
 
-    def __init__(self, *args, **kwargs):
+    # The following are set dynamically via setattr() in __init__
+    units_per_em: int
+    x_min: int
+    y_min: int
+    x_max: int
+    y_max: int
+    index_to_loc_format: int
+
+    def __init__(self, *args: bytes, **kwargs: bytes) -> None:
         super().__init__(*args, **kwargs)
 
         field_types = (
@@ -61,12 +70,12 @@ class HeadTable(UnknownTable):
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
-    def update(self):
+    def update(self) -> None:
         vals = [getattr(self, f) for f in self._fields]
         self.raw = pack(self._fmt, *vals)
 
 
-def read_metrics(raw, num_of_metrics, num_of_glyphs, table_name):
+def read_metrics(raw: bytes, num_of_metrics: int, num_of_glyphs: int, table_name: str) -> tuple[array.array[int], array.array[int]]:
     rawsz = 4 * num_of_metrics
     if len(raw) < rawsz:
         raise UnsupportedFont(f'The {table_name} table has insufficient data')
@@ -85,7 +94,7 @@ def read_metrics(raw, num_of_metrics, num_of_glyphs, table_name):
     return advances, bearings
 
 
-def update_metrics_table(metrics_map, mtx_table):
+def update_metrics_table(metrics_map: Mapping[int, tuple[int, int]], mtx_table: UnknownTable) -> tuple[array.array[int], array.array[int]]:
     recs, aw, b = [], array.array('H'), array.array('h')
     for glyph_id in sorted(metrics_map):
         adv, bearing = metrics_map[glyph_id]
@@ -135,7 +144,12 @@ class HorizontalHeader(UnknownTable):
         'H',
     )
 
-    def read_data(self, hmtx, num_glyphs):
+    # The following are set dynamically via setattr() in read_data()
+    ascender: int
+    descender: int
+    number_of_h_metrics: int
+
+    def read_data(self, hmtx: UnknownTable, num_glyphs: int) -> None:
         self._fmt = ('>{}'.format(''.join(self.field_types[1::2]))).encode('ascii')
         self._fields = self.field_types[0::2]
 
@@ -144,13 +158,13 @@ class HorizontalHeader(UnknownTable):
 
         self.advance_widths, self.left_side_bearings = read_metrics(hmtx.raw, self.number_of_h_metrics, num_glyphs, 'hmtx')
 
-    def metrics_for(self, glyph_id):
+    def metrics_for(self, glyph_id: int) -> tuple[int, int]:
         lsb = self.left_side_bearings[glyph_id]
         if glyph_id >= len(self.advance_widths):
             glyph_id = -1
         return self.advance_widths[glyph_id], lsb
 
-    def update(self, metrics_map, mtx_table):
+    def update(self, metrics_map: Mapping[int, tuple[int, int]], mtx_table: UnknownTable) -> None:
         aw, b = update_metrics_table(metrics_map, mtx_table)
         self.advance_widths = aw
         self.left_side_bearings = b
@@ -200,7 +214,10 @@ class VerticalHeader(UnknownTable):
         'H',
     )
 
-    def read_data(self, vmtx, num_glyphs):
+    # The following are set dynamically via setattr() in read_data()
+    number_of_v_metrics: int
+
+    def read_data(self, vmtx: UnknownTable, num_glyphs: int) -> None:
         self._fmt = ('>{}'.format(''.join(self.field_types[1::2]))).encode('ascii')
         self._fields = self.field_types[0::2]
 
@@ -209,13 +226,13 @@ class VerticalHeader(UnknownTable):
 
         self.advance_heights, self.top_side_bearings = read_metrics(vmtx.raw, self.number_of_v_metrics, num_glyphs, 'vmtx')
 
-    def metrics_for(self, glyph_id):
+    def metrics_for(self, glyph_id: int) -> tuple[int, int]:
         tsb = self.top_side_bearings[glyph_id]
         if glyph_id >= len(self.advance_heights):
             glyph_id = -1
         return self.advance_heights[glyph_id], tsb
 
-    def update(self, metrics_map, mtx_table):
+    def update(self, metrics_map: Mapping[int, tuple[int, int]], mtx_table: UnknownTable) -> None:
         aw, b = update_metrics_table(metrics_map, mtx_table)
         self.advance_heights = aw
         self.top_side_bearings = b
@@ -227,7 +244,15 @@ class VerticalHeader(UnknownTable):
 
 
 class OS2Table(UnknownTable):
-    def read_data(self):
+    # The following are set dynamically via setattr() in read_data()
+    average_char_width: int
+    weight_class: int
+    strikeout_size: int
+    strikeout_position: int
+    typo_ascender: int
+    typo_descender: int
+
+    def read_data(self) -> None:
         if hasattr(self, 'char_width'):
             return
         (ver,) = unpack_from(b'>H', self.raw)
@@ -309,7 +334,7 @@ class OS2Table(UnknownTable):
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
-    def zero_fstype(self):
+    def zero_fstype(self) -> None:
         prefix = calcsize(b'>HhHH')
         self.raw = self.raw[:prefix] + b'\0\0' + self.raw[prefix + 2 :]
         self.fs_type = 0
@@ -319,7 +344,7 @@ class PostTable(UnknownTable):
     version_number = FixedProperty('_version')
     italic_angle = FixedProperty('_italic_angle')
 
-    def read_data(self):
+    def read_data(self) -> None:
         if hasattr(self, 'underline_position'):
             return
         (self._version, self._italic_angle, self.underline_position, self.underline_thickness) = unpack_from(b'>llhh', self.raw)

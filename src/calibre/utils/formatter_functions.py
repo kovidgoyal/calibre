@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from enum import Enum, auto
 from functools import partial
 from math import ceil, floor, modf, trunc
+from typing import TYPE_CHECKING, Any, NoReturn, Self, overload
 
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
@@ -32,6 +33,22 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.localization import _ as xlated
 from calibre.utils.titlecase import titlecase
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+    from re import Match
+
+    from calibre.db.backend import DBPrefs
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.formatter import TemplateFormatter
+
+type Formatter = TemplateFormatter
+type Kwargs = Metadata | Mapping[str, object]
+type Locals = dict[str, str]
+type Result = str | int | float | None
+# A user template function preference: [name, doc, arg_count, program_text]
+type UserFunctionPref = list[Any]
 
 UNKNOWN = _('Unknown')
 RELATIONAL = _('Relational')
@@ -64,7 +81,7 @@ class TranslatedStringWithRaw(str):
     saved_args: tuple
     saved_kwargs: dict
 
-    def __new__(cls, raw_english, raw_other, formatted_english, formatted_other, msgid):
+    def __new__(cls, raw_english: str, raw_other: str, formatted_english: str, formatted_other: str, msgid: str) -> Self:
         instance = super().__new__(cls, formatted_other)
         instance.raw_english = raw_english
         instance.raw_other = raw_other
@@ -74,7 +91,7 @@ class TranslatedStringWithRaw(str):
         instance.did_format = False
         return instance
 
-    def format(self, *args, **kw):
+    def format(self, *args: object, **kw: object) -> TranslatedStringWithRaw:
         formatted_english = self.raw_english.format(*args, **kw)
         formatted_other = self.raw_other.format(*args, **kw)
         v = TranslatedStringWithRaw(self.raw_english, self.raw_other, formatted_english, formatted_other, self.msgid)
@@ -83,13 +100,13 @@ class TranslatedStringWithRaw(str):
         v.did_format = True
         return v
 
-    def format_again(self, txt):
+    def format_again(self, txt: str) -> str:
         if self.did_format:
             return txt.format(*self.saved_args, **self.saved_kwargs)
         return txt
 
 
-def translate_ffml(txt):
+def translate_ffml(txt: str) -> TranslatedStringWithRaw:
     from calibre.utils.ffml_processor import FFMLProcessor
 
     msgid = FFMLProcessor().document_to_transifex(txt, '', safe=True).strip()
@@ -111,12 +128,12 @@ class FormatterFunctions:
         '\treturn "' + _('Duplicate user function name {0}. Change the name or ensure that the functions are identical') + '"'
     )
 
-    def __init__(self):
-        self._builtins = {}
-        self._functions = {}
-        self._functions_from_library = {}
+    def __init__(self) -> None:
+        self._builtins: dict[str, BuiltinFormatterFunction] = {}
+        self._functions: dict[str, FormatterFunction] = {}
+        self._functions_from_library: dict[str, list[FormatterUserFunction]] = {}
 
-    def register_builtin(self, func_class):
+    def register_builtin(self, func_class: BuiltinFormatterFunction) -> None:
         if not isinstance(func_class, FormatterFunction):
             raise TypeError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
         name = func_class.name
@@ -127,7 +144,7 @@ class FormatterFunctions:
         for a in func_class.aliases:
             self._functions[a] = func_class
 
-    def _register_function(self, func_class, replace=False):
+    def _register_function(self, func_class: FormatterFunction, replace: bool = False) -> None:
         if not isinstance(func_class, FormatterFunction):
             raise TypeError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
         name = func_class.name
@@ -135,11 +152,11 @@ class FormatterFunctions:
             raise ValueError(f'Name {name} already used')
         self._functions[name] = func_class
 
-    def register_functions(self, library_uuid, funcs):
+    def register_functions(self, library_uuid: str, funcs: list[FormatterUserFunction]) -> None:
         self._functions_from_library[library_uuid] = funcs
         self._register_functions()
 
-    def _register_functions(self):
+    def _register_functions(self) -> None:
         for compiled_funcs in self._functions_from_library.values():
             for cls in compiled_funcs:
                 f = self._functions.get(cls.name, None)
@@ -154,34 +171,34 @@ class FormatterFunctions:
                         if DEBUG:
                             print(f'attempt to replace formatter function {f.name} with a different body')
                         replace = True
-                        func = [cls.name, '', -1, self.error_function_body.format(cls.name)]
+                        func: UserFunctionPref = [cls.name, '', -1, self.error_function_body.format(cls.name)]
                         cls = compile_user_function(*func)
                     else:
                         continue
                 formatter_functions()._register_function(cls, replace=replace)
 
-    def unregister_functions(self, library_uuid):
+    def unregister_functions(self, library_uuid: str) -> None:
         if library_uuid in self._functions_from_library:
             for cls in self._functions_from_library[library_uuid]:
                 self._functions.pop(cls.name, None)
             self._functions_from_library.pop(library_uuid)
             self._register_functions()
 
-    def get_builtins(self):
+    def get_builtins(self) -> dict[str, BuiltinFormatterFunction]:
         return self._builtins
 
-    def get_builtins_and_aliases(self):
-        res = {}
+    def get_builtins_and_aliases(self) -> dict[str, FormatterFunction]:
+        res: dict[str, FormatterFunction] = {}
         for f in self._builtins.values():
             res[f.name] = f
             for a in f.aliases:
                 res[a] = f
         return res
 
-    def get_functions(self):
+    def get_functions(self) -> dict[str, FormatterFunction]:
         return self._functions
 
-    def reset_to_builtins(self):
+    def reset_to_builtins(self) -> None:
         self._functions = {}
         for n, c in self._builtins.items():
             self._functions[n] = c
@@ -192,18 +209,22 @@ class FormatterFunctions:
 _ff = FormatterFunctions()
 
 
-def formatter_functions():
+def formatter_functions() -> FormatterFunctions:
     global _ff
     return _ff
 
 
-def only_in_gui_error(name):
+def only_in_gui_error(name: str) -> NoReturn:
     raise ValueError(_('The function {} can be used only in the GUI').format(name))
 
 
-def get_database(mi, name):
+@overload
+def get_database(mi: Metadata | None, name: str) -> LibraryDatabase: ...
+@overload
+def get_database(mi: Metadata | None, name: None) -> LibraryDatabase | None: ...
+def get_database(mi: Metadata | None, name: str | None) -> LibraryDatabase | None:
     try:
-        proxy = mi.get('_proxy_metadata', None)
+        proxy = mi.get('_proxy_metadata', None)  # ty: ignore[unresolved-attribute]
     except Exception:
         proxy = None
     if proxy is None:
@@ -245,11 +266,11 @@ class FormatterFunction:
         return _('No documentation provided')
 
     @property
-    def doc(self):
+    def doc(self) -> str:
         return self.__doc__getter__()
 
     @property
-    def __doc__(self):
+    def __doc__(self) -> str:
         return self.__doc__getter__()
 
     @property
@@ -263,11 +284,13 @@ class FormatterFunction:
             self._cached_program_text = ''.join(lines)
         return self._cached_program_text
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         raise NotImplementedError()
 
-    def eval_(self, formatter, kwargs, mi, locals, *args):
-        ret = self.evaluate(formatter, kwargs, mi, locals, *args)
+    def eval_(self, formatter: Formatter, kwargs: Kwargs | None, mi: Metadata | None, locals: Locals, *args: str) -> str | bytes | None:
+        # mi is None for formatters without a book, such as EvalFormatter, and
+        # both are None in a formatter that has not been used yet
+        ret = self.evaluate(formatter, kwargs, mi, locals, *args)  # ty: ignore[invalid-argument-type]
         if isinstance(ret, (bytes, str)):
             return ret
         if isinstance(ret, list):
@@ -275,10 +298,10 @@ class FormatterFunction:
         if isinstance(ret, (numbers.Number, bool)):
             return str(ret)
 
-    def only_in_gui_error(self):
+    def only_in_gui_error(self) -> NoReturn:
         only_in_gui_error(self.name)
 
-    def get_database(self, mi, formatter=None):
+    def get_database(self, mi: Metadata, formatter: Formatter | None = None) -> LibraryDatabase:
         # Prefer the db that comes from proxy_metadata because it is probably an
         # instance of LibraryDatabase where the one in the formatter might be an
         # instance of Cache
@@ -296,7 +319,15 @@ class FormatterFunction:
 
 
 class BuiltinFormatterFunction(FormatterFunction):
-    def __init_subclass__(cls):
+    if TYPE_CHECKING:
+        # Type-only declarations: the docs of builtin functions are TranslatedStringWithRaw instances
+
+        def __doc__getter__(self) -> TranslatedStringWithRaw: ...
+
+        @property
+        def doc(self) -> TranslatedStringWithRaw: ...
+
+    def __init_subclass__(cls) -> None:
         formatter_functions().register_builtin(cls())
 
 
@@ -305,7 +336,7 @@ class BuiltinStrcmp(BuiltinFormatterFunction):
     arg_count = 5
     category = RELATIONAL
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive lexical comparison of
@@ -315,7 +346,7 @@ operators (``==``, ``>``, ``<``, etc.)
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         x, y, lt, eq, gt = args
         v = strcmp(x, y)
         if v < 0:
@@ -330,7 +361,7 @@ class BuiltinStrcmpcase(BuiltinFormatterFunction):
     arg_count = 5
     category = RELATIONAL
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``strcmpcase(x, y, lt, eq, gt)`` -- does a case-sensitive lexical comparison of
@@ -343,7 +374,7 @@ cause unexpected results, preferably use ``strcmp()`` whenever possible.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         x, y, lt, eq, gt = args
         from calibre.utils.icu import case_sensitive_strcmp as case_strcmp
 
@@ -360,7 +391,7 @@ class BuiltinCmp(BuiltinFormatterFunction):
     category = RELATIONAL
     arg_count = 5
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``cmp(value, y, lt, eq, gt)`` -- compares ``value`` and ``y`` after converting both to
@@ -370,7 +401,7 @@ This function can usually be replaced with one of the numeric compare operators
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, y, lt, eq, gt = args
         value = float(value if value and value != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
@@ -386,7 +417,7 @@ class BuiltinFirstMatchingCmp(BuiltinFormatterFunction):
     category = RELATIONAL
     arg_count = -1
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``first_matching_cmp(val, [ cmp, result, ]* else_result)`` -- compares ``val < cmp``
@@ -402,7 +433,7 @@ returns ``"large"``. The same example with a first value of 16 returns ``"giant"
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if (len(args) % 2) != 0:
             raise ValueError(_('first_matching_cmp requires an even number of arguments'))
         val = float(args[0] if args[0] and args[0] != 'None' else 0)
@@ -418,7 +449,7 @@ class BuiltinStrcat(BuiltinFormatterFunction):
     arg_count = -1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``strcat(a [, b]*)`` -- returns a string formed by concatenating all the
@@ -427,7 +458,7 @@ arguments.[/] Can take any number of arguments. In most cases you can use the
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         i = 0
         res = ''
         for i in range(len(args)):
@@ -440,14 +471,14 @@ class BuiltinStrlen(BuiltinFormatterFunction):
     arg_count = 1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``strlen(value)`` -- Returns the length of the string ``value``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (a,) = args
         try:
             return len(a)
@@ -460,7 +491,7 @@ class BuiltinAdd(BuiltinFormatterFunction):
     arg_count = -1
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             '''
 ``add(x [, y]*)`` -- returns the sum of its arguments.[/] Throws an exception if an
@@ -469,7 +500,7 @@ of this function.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         res = 0
         for v in args:
             v = float(v if v and v != 'None' else 0)
@@ -482,7 +513,7 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     arg_count = 2
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``subtract(x, y)`` -- returns ``x - y``.[/] Throws an exception if either ``x`` or
@@ -491,7 +522,7 @@ operator.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         x, y = args
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
@@ -503,7 +534,7 @@ class BuiltinMultiply(BuiltinFormatterFunction):
     arg_count = -1
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``multiply(x [, y]*)`` -- returns the product of its arguments.[/] Throws an
@@ -512,7 +543,7 @@ by the ``*`` operator.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         res = 1
         for v in args:
             v = float(v if v and v != 'None' else 0)
@@ -525,7 +556,7 @@ class BuiltinDivide(BuiltinFormatterFunction):
     arg_count = 2
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``divide(x, y)`` -- returns ``x / y``.[/] Throws an exception if either ``x`` or
@@ -534,7 +565,7 @@ operator.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         x, y = args
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
@@ -546,7 +577,7 @@ class BuiltinCeiling(BuiltinFormatterFunction):
     arg_count = 1
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``ceiling(value)`` -- returns the smallest integer greater than or equal to ``value``.[/]
@@ -554,7 +585,7 @@ Throws an exception if ``value`` is not a number.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (value,) = args
         value = float(value if value and value != 'None' else 0)
         return str(ceil(value))
@@ -565,7 +596,7 @@ class BuiltinFloor(BuiltinFormatterFunction):
     arg_count = 1
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``floor(value)`` -- returns the largest integer less than or equal to ``value``.[/] Throws
@@ -573,7 +604,7 @@ an exception if ``value`` is not a number.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (value,) = args
         value = float(value if value and value != 'None' else 0)
         return str(floor(value))
@@ -584,7 +615,7 @@ class BuiltinRound(BuiltinFormatterFunction):
     arg_count = 1
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``round(value)`` -- returns the nearest integer to ``value``.[/] Throws an exception if
@@ -592,7 +623,7 @@ class BuiltinRound(BuiltinFormatterFunction):
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (value,) = args
         value = float(value if value and value != 'None' else 0)
         return str(round(value))
@@ -603,7 +634,7 @@ class BuiltinMod(BuiltinFormatterFunction):
     arg_count = 2
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``mod(value, y)`` -- returns the ``floor`` of the remainder of ``value / y``.[/] Throws an
@@ -611,7 +642,7 @@ exception if either ``value`` or ``y`` is not a number.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, y = args
         value = float(value if value and value != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
@@ -623,7 +654,7 @@ class BuiltinFractionalPart(BuiltinFormatterFunction):
     arg_count = 1
     category = ARITHMETIC
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``fractional_part(value)`` -- returns the part of the value after the decimal
@@ -632,7 +663,7 @@ exception if ``value`` is not a number.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (value,) = args
         value = float(value if value and value != 'None' else 0)
         return str(modf(value)[0])
@@ -643,7 +674,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
     arg_count = 1
     category = RECURSION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``template(x)`` -- evaluates ``x`` as a template.[/] The evaluation is done in its
@@ -658,7 +689,7 @@ mode.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (template,) = args
         template = template.replace('[[', '{').replace(']]', '}')
         new_formatter = formatter.__class__()
@@ -671,7 +702,7 @@ class BuiltinEval(BuiltinFormatterFunction):
     arg_count = 1
     category = RECURSION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``eval(string)`` -- evaluates the string as a program, passing the local
@@ -687,7 +718,7 @@ function when using Template Program Mode.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (template,) = args
         from calibre.utils.formatter import EvalFormatter
 
@@ -702,7 +733,7 @@ class BuiltinAssign(BuiltinFormatterFunction):
     arg_count = 2
     category = OTHER
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``assign(id, value)`` -- assigns ``value`` to ``id``[/], then returns ``value``. ``id``
@@ -711,7 +742,7 @@ operator instead of this function.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         target, value = args
         locals[target] = value
         return value
@@ -722,7 +753,7 @@ class BuiltinListSplit(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_split(list_val, sep, id_prefix)`` -- splits ``list_val`` into separate
@@ -743,7 +774,7 @@ is equivalent to:
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         list_val, sep, id_prefix = args
         l = [v.strip() for v in list_val.split(sep)]
         res = ''
@@ -757,7 +788,7 @@ class BuiltinPrint(BuiltinFormatterFunction):
     arg_count = -1
     category = OTHER
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``print(a [, b]*)`` -- prints the arguments to standard output.[/] Unless you start
@@ -766,7 +797,7 @@ black hole. The ``print`` function always returns its first argument.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         print(args)
         return ''
 
@@ -776,7 +807,7 @@ class BuiltinField(BuiltinFormatterFunction):
     arg_count = 1
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.[/]
@@ -784,7 +815,7 @@ The ``$`` prefix can be used instead of the function, as in ``$tags``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (name,) = args
         return formatter.get_value(name, [], kwargs)
 
@@ -794,7 +825,7 @@ class BuiltinRawField(BuiltinFormatterFunction):
     arg_count = -1
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``raw_field(lookup_name [, optional_default])`` -- returns the metadata field
@@ -805,7 +836,7 @@ as in ``$$pubdate``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         name = args[0]
         default = args[1] if len(args) > 1 else None
         res = getattr(mi, name, None)
@@ -824,7 +855,7 @@ class BuiltinRawList(BuiltinFormatterFunction):
     arg_count = 2
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``raw_list(lookup_name, separator)`` -- returns the metadata list named by
@@ -833,7 +864,7 @@ separated by ``separator``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         name, separator = args
         res = getattr(mi, name, None)
         if not isinstance(res, list):
@@ -846,7 +877,7 @@ class BuiltinSubstr(BuiltinFormatterFunction):
     arg_count = 3
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``substr(value, start, end)`` -- returns the ``start``'th through the ``end``'th
@@ -858,7 +889,7 @@ returns ``'234'``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, start_, end_ = args
         return value[int(start_) : len(value) if int(end_) == 0 else int(end_)]
 
@@ -868,7 +899,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
     arg_count = -1
     category = ITERATING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``lookup(value, [ pattern, key, ]* else_key)`` -- The patterns will be checked against
@@ -878,21 +909,21 @@ the ``value`` in order.[/] If a ``pattern`` matches then the value of the field 
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, *args = args  # ty: ignore[invalid-assignment]
         if len(args) == 2:  # here for backwards compatibility
             if val:
-                return formatter.vformat('{' + args[0].strip() + '}', [], kwargs)
+                return formatter.vformat('{' + args[0].strip() + '}', [], kwargs)  # ty: ignore[no-matching-overload]
             else:
-                return formatter.vformat('{' + args[1].strip() + '}', [], kwargs)
+                return formatter.vformat('{' + args[1].strip() + '}', [], kwargs)  # ty: ignore[no-matching-overload]
         if (len(args) % 2) != 1:
             raise ValueError(_('lookup requires either 2 or an odd number of arguments'))
         i = 0
         while i < len(args):
             if i + 1 >= len(args):
-                return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)
+                return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)  # ty: ignore[no-matching-overload]
             if re.search(args[i], val, flags=re.I):
-                return formatter.vformat('{' + args[i + 1].strip() + '}', [], kwargs)
+                return formatter.vformat('{' + args[i + 1].strip() + '}', [], kwargs)  # ty: ignore[no-matching-overload]
             i += 2
 
 
@@ -901,7 +932,7 @@ class BuiltinTest(BuiltinFormatterFunction):
     arg_count = 3
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``test(value, text_if_not_empty, text_if_empty)`` -- return ``text_if_not_empty`` if
@@ -909,7 +940,7 @@ the value is not empty, otherwise return ``text_if_empty``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, value_if_set, value_not_set = args
         if val:
             return value_if_set
@@ -922,7 +953,7 @@ class BuiltinContains(BuiltinFormatterFunction):
     arg_count = 4
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``contains(value, pattern, text_if_match, text_if_not_match)`` -- checks if the value
@@ -931,7 +962,7 @@ the pattern matches the value, otherwise returns ``text_if_not_match``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, test, value_if_present, value_if_not = args
         if re.search(test, val, flags=re.I):
             return value_if_present
@@ -944,7 +975,7 @@ class BuiltinSwitch(BuiltinFormatterFunction):
     arg_count = -1
     category = ITERATING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``switch(value, [patternN, valueN,]+ else_value)`` -- for each ``patternN, valueN`` pair,
@@ -955,8 +986,8 @@ match is returned.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, *args = args  # ty: ignore[invalid-assignment]
         if (len(args) % 2) != 1:
             raise ValueError(_('switch requires an even number of arguments'))
         i = 0
@@ -973,7 +1004,7 @@ class BuiltinSwitchIf(BuiltinFormatterFunction):
     arg_count = -1
     category = ITERATING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``switch_if([test_expression, value_expression,]+ else_expression)`` -- for each
@@ -984,7 +1015,7 @@ You can have as many ``test_expression, value_expression`` pairs as you want.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if (len(args) % 2) != 1:
             raise ValueError(_('switch_if requires an odd number of arguments'))
         # We shouldn't get here because the function is inlined. However, someone
@@ -1003,7 +1034,7 @@ class BuiltinStrcatMax(BuiltinFormatterFunction):
     arg_count = -1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``strcat_max(max, string1 [, prefix2, string2]*)`` -- Returns a string formed by
@@ -1015,7 +1046,7 @@ many ``prefix, string`` pairs as you wish.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if len(args) < 2:
             raise ValueError(_('strcat_max requires 2 or more arguments'))
         if (len(args) % 2) != 0:
@@ -1043,7 +1074,7 @@ class BuiltinInList(BuiltinFormatterFunction):
     arg_count = -1
     category = LIST_LOOKUP
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_contains(value, separator, [ pattern, found_val, ]* not_found_val)`` -- interpret the
@@ -1060,8 +1091,8 @@ Aliases: in_list(), list_contains()
 
     aliases = ['in_list']
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, sep, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, sep, *args = args  # ty: ignore[invalid-assignment]
         if (len(args) % 2) != 1:
             raise ValueError(_('in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
@@ -1083,7 +1114,7 @@ class BuiltinStrInList(BuiltinFormatterFunction):
     arg_count = -1
     category = LIST_LOOKUP
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``str_in_list(value, separator, [ string, found_val, ]+ not_found_val)`` -- interpret
@@ -1099,8 +1130,8 @@ match is returned.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, sep, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, sep, *args = args  # ty: ignore[invalid-assignment]
         if (len(args) % 2) != 1:
             raise ValueError(_('str_in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
@@ -1124,7 +1155,7 @@ class BuiltinIdentifierInList(BuiltinFormatterFunction):
     arg_count = -1
     category = LIST_LOOKUP
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``identifier_in_list(val, id_name [, found_val, not_found_val])`` -- treat
@@ -1140,8 +1171,8 @@ return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, ident, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, ident, *args = args  # ty: ignore[invalid-assignment]
         if len(args) == 0:
             fv_is_id = True
             nfv = ''
@@ -1169,7 +1200,7 @@ class BuiltinRe(BuiltinFormatterFunction):
     arg_count = 3
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``re(value, pattern, replacement)`` -- return the ``value`` after applying the regular
@@ -1180,7 +1211,7 @@ expressions[/URL].
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, pattern, replacement = args
         return re.sub(pattern, replacement, val, flags=re.I)
 
@@ -1190,7 +1221,7 @@ class BuiltinReGroup(BuiltinFormatterFunction):
     arg_count = -1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``re_group(value, pattern [, template_for_group]*)`` --  return a string made by
@@ -1207,13 +1238,13 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, pattern, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, pattern, *args = args  # ty: ignore[invalid-assignment]
         from calibre.utils.formatter import EvalFormatter
 
         allow_python = formatter.allow_python_templates
 
-        def repl(mo):
+        def repl(mo: Match[str] | None) -> str:
             res = ''
             if mo and mo.lastindex:
                 for dex in range(mo.lastindex):
@@ -1237,7 +1268,7 @@ class BuiltinSwapAroundComma(BuiltinFormatterFunction):
     arg_count = 1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``swap_around_comma(value)`` -- given a ``value`` of the form ``B, A``, return ``A B``.[/]
@@ -1246,7 +1277,7 @@ no comma in the ``value`` then the function returns the value unchanged.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return re.sub(r'^(.*?),\s*(.*$)', r'\2 \1', val, flags=re.I).strip()
 
@@ -1256,7 +1287,7 @@ class BuiltinIfempty(BuiltinFormatterFunction):
     arg_count = 2
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``ifempty(value, text_if_empty)`` -- if the ``value`` is not empty then return that ``value``,
@@ -1264,7 +1295,7 @@ otherwise return ``text_if_empty``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, value_if_empty = args
         if val:
             return val
@@ -1277,7 +1308,7 @@ class BuiltinShorten(BuiltinFormatterFunction):
     arg_count = 4
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``shorten(value, left_chars, middle_text, right_chars)`` -- Return a shortened version
@@ -1297,7 +1328,7 @@ Dome` would not be changed.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, leading, center_string, trailing = args
         l = max(0, int(leading))
         t = max(0, int(trailing))
@@ -1313,7 +1344,7 @@ class BuiltinCount(BuiltinFormatterFunction):
     category = LIST_MANIPULATION
     aliases = ['count']
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_count(value, separator)`` -- interprets the value as a list of items separated by
@@ -1326,7 +1357,7 @@ Aliases: ``count()``, ``list_count()``
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, sep = args
         return str(len([v for v in val.split(sep) if v]))
 
@@ -1337,7 +1368,7 @@ class BuiltinListCountMatching(BuiltinFormatterFunction):
     category = LIST_MANIPULATION
     aliases = ['count_matching']
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_count_matching(value, pattern, separator)`` -- interprets ``value`` as a
@@ -1348,7 +1379,7 @@ Aliases: ``list_count_matching()``, ``count_matching()``
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, pattern, sep = args
         res = 0
         for v in [x.strip() for x in value.split(sep) if x.strip()]:
@@ -1362,7 +1393,7 @@ class BuiltinListitem(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_LOOKUP
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_item(value, index, separator)`` -- interpret the ``value`` as a list of items
@@ -1374,7 +1405,7 @@ usually comma but is ampersand for author-like lists.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, index, sep = args
         if not val:
             return ''
@@ -1391,7 +1422,7 @@ class BuiltinSelect(BuiltinFormatterFunction):
     arg_count = 2
     category = LIST_LOOKUP
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``select(value, key)`` -- interpret the ``value`` as a comma-separated list of items with
@@ -1402,7 +1433,7 @@ string.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, key = args
         if not val:
             return ''
@@ -1419,7 +1450,7 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
     arg_count = 0
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``approximate_formats()`` -- return a comma-separated list of formats associated
@@ -1436,7 +1467,7 @@ column's value in your save/send templates.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if hasattr(mi, '_proxy_metadata'):
             fmt_data = mi._proxy_metadata.db_approx_formats
             if not fmt_data:
@@ -1451,7 +1482,7 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     arg_count = 1
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``formats_modtimes(date_format_string)`` -- return a comma-separated list of
@@ -1463,7 +1494,7 @@ that format names are always uppercase, as in EPUB.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (fmt,) = args
         fmt_data = mi.get('format_metadata', {})
         try:
@@ -1478,7 +1509,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     arg_count = 0
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 
@@ -1489,7 +1520,7 @@ format names are always uppercase, as in EPUB.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         fmt_data = mi.get('format_metadata', {})
         try:
             return ','.join(k.upper() + ':' + str(v['size']) for k, v in fmt_data.items())
@@ -1502,7 +1533,7 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     arg_count = -1
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``formats_paths([separator])`` -- return a ``separator``-separated list of
@@ -1514,7 +1545,7 @@ format names are always uppercase, as in EPUB.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         sep = args[0] if args else ','
         fmt_data = mi.get('format_metadata', {})
         try:
@@ -1528,7 +1559,7 @@ class BuiltinFormatsPathSegments(BuiltinFormatterFunction):
     arg_count = 5
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``formats_path_segments(with_author, with_title, with_format, with_ext, sep)``
@@ -1569,7 +1600,7 @@ The following shows what is returned for various parameters:
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         with_author, with_title, with_format, with_ext, sep = args
         fmt_metadata = mi.get('format_metadata', {})
         if fmt_metadata:
@@ -1597,7 +1628,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
     arg_count = 1
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``human_readable(value)`` -- expects the ``value`` to be a number and returns a string
@@ -1605,7 +1636,7 @@ representing that number in KB, MB, GB, etc.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         try:
             return human_readable(round(float(val)))
@@ -1618,7 +1649,7 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
     arg_count = 2
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``format_number(value, template)`` -- interprets the ``value`` as a number and formats that
@@ -1633,7 +1664,7 @@ Python[/URL] documentation for more examples. Returns the empty string if format
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, template = args
         if val in {'', 'None'}:
             return ''
@@ -1661,7 +1692,7 @@ class BuiltinSublist(BuiltinFormatterFunction):
     arg_count = 4
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``sublist(value, start_index, end_index, separator)`` -- interpret the ``value`` as a
@@ -1679,7 +1710,7 @@ Examples assuming that the tags column (which is comma-separated) contains "A, B
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, start_index, end_index, sep = args
         if not val:
             return ''
@@ -1704,7 +1735,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``subitems(value, start_index, end_index)`` -- This function breaks apart lists of
@@ -1735,7 +1766,7 @@ Examples:
 
     period_pattern = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, start_index, end_index = args
         if not val:
             return ''
@@ -1766,7 +1797,7 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
     arg_count = 2
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``format_date(value, format_string)`` -- format the ``value``, which must be a date
@@ -1812,7 +1843,7 @@ contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, format_string = args
         if not val or val == 'None':
             return ''
@@ -1836,7 +1867,7 @@ class BuiltinFormatDateField(BuiltinFormatterFunction):
     arg_count = 2
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
  ``format_date_field(field_name, format_string)`` -- format the value in the
@@ -1853,7 +1884,7 @@ format_date_field('#date_read', 'MMM dd, yyyy')
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         field, format_string = args
         try:
             field = field_metadata.search_term_to_field_key(field)
@@ -1886,14 +1917,14 @@ class BuiltinUppercase(BuiltinFormatterFunction):
     arg_count = 1
     category = CASE_CHANGES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``uppercase(value)`` -- returns the ``value`` in upper case.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return val.upper()
 
@@ -1903,14 +1934,14 @@ class BuiltinLowercase(BuiltinFormatterFunction):
     arg_count = 1
     category = CASE_CHANGES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``lowercase(value)`` -- returns the ``value`` in lower case.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return val.lower()
 
@@ -1920,14 +1951,14 @@ class BuiltinTitlecase(BuiltinFormatterFunction):
     arg_count = 1
     category = CASE_CHANGES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``titlecase(value)`` -- returns the ``value`` in title case.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return titlecase(val)
 
@@ -1937,14 +1968,14 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
     arg_count = 1
     category = CASE_CHANGES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``capitalize(value)`` -- returns the ``value`` with the first letter in upper case and the rest lower case.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return capitalize(val)
 
@@ -1954,7 +1985,7 @@ class BuiltinBooksize(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``booksize()`` -- returns the value of the calibre ``size`` field. Returns '' if the book has no formats.[/]
@@ -1966,7 +1997,7 @@ column's value in your save/send templates
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if hasattr(mi, '_proxy_metadata'):
             try:
                 v = mi._proxy_metadata.book_size
@@ -1984,7 +2015,7 @@ class BuiltinOndevice(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``ondevice()`` -- return the string ``'Yes'`` if ``ondevice`` is set, otherwise
@@ -1995,7 +2026,7 @@ template, and use that column\'s value in your save/send templates.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if hasattr(mi, '_proxy_metadata'):
             if mi._proxy_metadata.ondevice_col:
                 return _('Yes')
@@ -2008,7 +2039,7 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
     arg_count = 0
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``annotation_count()`` -- return the total number of annotations of all types
@@ -2017,7 +2048,7 @@ content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         c = self.get_database(mi, formatter=formatter).new_api.annotation_count_for_book(mi.id)
         return '' if c == 0 else str(c)
 
@@ -2027,7 +2058,7 @@ class BuiltinIsMarked(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``is_marked()`` -- check whether the book is `marked` in calibre.[/] If it is then
@@ -2037,7 +2068,7 @@ not marked. This function works only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         c = self.get_database(mi, formatter=formatter).data.get_marked(mi.id)
         return c or ''
 
@@ -2047,14 +2078,14 @@ class BuiltinSeriesSort(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``series_sort()`` -- returns the series sort value.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if mi.series:
             langs = mi.languages
             lang = langs[0] if langs else None
@@ -2067,14 +2098,14 @@ class BuiltinHasCover(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if mi.has_cover:
             return _('Yes')
         return ''
@@ -2085,7 +2116,7 @@ class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
     arg_count = -1
     category = ITERATING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``first_non_empty(value [, value]*)`` -- returns the first ``value`` that is not
@@ -2094,7 +2125,7 @@ as many values as you want.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         i = 0
         while i < len(args):
             if args[i]:
@@ -2108,7 +2139,7 @@ class BuiltinAnd(BuiltinFormatterFunction):
     arg_count = -1
     category = BOOLEAN
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``and(value [, value]*)`` -- returns the string ``'1'`` if all values are not empty,
@@ -2120,7 +2151,7 @@ assignments, where the ``&&`` operator won't do the second.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         i = 0
         while i < len(args):
             if not args[i]:
@@ -2134,7 +2165,7 @@ class BuiltinOr(BuiltinFormatterFunction):
     arg_count = -1
     category = BOOLEAN
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``or(value [, value]*)`` -- returns the string ``'1'`` if any value is not
@@ -2145,7 +2176,7 @@ side effects.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         i = 0
         while i < len(args):
             if args[i]:
@@ -2159,7 +2190,7 @@ class BuiltinNot(BuiltinFormatterFunction):
     arg_count = 1
     category = BOOLEAN
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``not(value)`` -- returns the string ``'1'`` if the value is empty, otherwise
@@ -2168,7 +2199,7 @@ not (``!``) operator.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return '' if val else '1'
 
@@ -2178,7 +2209,7 @@ class BuiltinListJoin(BuiltinFormatterFunction):
     arg_count = -1
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_join(with_separator, list1, separator1 [, list2, separator2]*)`` --
@@ -2216,8 +2247,8 @@ program:
 
     # for some reason. And yes, the double backslash is required, for some reason.
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        with_separator, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        with_separator, *args = args  # ty: ignore[invalid-assignment]
         if len(args) % 2 != 0:
             raise ValueError(_("Invalid 'List, separator' pairs. Every list must have one associated separator"))
 
@@ -2236,7 +2267,7 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_union(list1, list2, separator)`` -- return a list made by merging the
@@ -2251,7 +2282,7 @@ Aliases: ``merge_lists()``, ``list_union()``
 
     aliases = ['merge_lists']
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         list1, list2, separator = args
         res = {icu_lower(l.strip()): l.strip() for l in list2.split(separator) if l.strip()}
         res.update({icu_lower(l.strip()): l.strip() for l in list1.split(separator) if l.strip()})
@@ -2265,7 +2296,7 @@ class BuiltinRange(BuiltinFormatterFunction):
     arg_count = -1
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``range(start, stop, step, limit)`` -- returns a list of numbers generated by
@@ -2293,7 +2324,7 @@ range(1, 5, 2, 1) -> error(limit exceeded)
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         limit_val = 1000
         start_val = 0
         step_val = 1
@@ -2319,7 +2350,7 @@ class BuiltinListRemoveDuplicates(BuiltinFormatterFunction):
     arg_count = 2
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_remove_duplicates(list, separator)`` -- return a list made by removing
@@ -2329,7 +2360,7 @@ in the returned list.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         list_, separator = args
         res = {icu_lower(l.strip()): l.strip() for l in list_.split(separator) if l.strip()}
         if separator == ',':
@@ -2342,7 +2373,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_difference(list1, list2, separator)`` -- return a list made by removing
@@ -2352,7 +2383,7 @@ items in the returned list.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         list1, list2, separator = args
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = {icu_lower(l.strip()) for l in list2.split(separator) if l.strip()}
@@ -2371,7 +2402,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_intersection(list1, list2, separator)`` -- return a list made by removing
@@ -2381,7 +2412,7 @@ are the items in the returned list.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         list1, list2, separator = args
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = {icu_lower(l.strip()) for l in list2.split(separator) if l.strip()}
@@ -2400,7 +2431,7 @@ class BuiltinListSort(BuiltinFormatterFunction):
     arg_count = 3
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_sort(value, direction, separator)`` -- return ``value`` sorted using a
@@ -2410,7 +2441,7 @@ by ``separator``, as are the items in the returned list.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, direction, separator = args
         res = [l.strip() for l in value.split(separator) if l.strip()]
         if separator == ',':
@@ -2423,7 +2454,7 @@ class BuiltinListEquals(BuiltinFormatterFunction):
     arg_count = 6
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return ``yes_val``
@@ -2434,7 +2465,7 @@ relevant. The comparison is case-insensitive.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         list1, sep1, list2, sep2, yes_val, no_val = args
         s1 = {icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()}
         s2 = {icu_lower(l.strip()) for l in list2.split(sep2) if l.strip()}
@@ -2448,7 +2479,7 @@ class BuiltinListRe(BuiltinFormatterFunction):
     arg_count = 4
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_re(src_list, separator, include_re, opt_replace)`` -- Construct a list by
@@ -2459,7 +2490,7 @@ apply the replacement before adding the item to the returned list.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         src_list, separator, include_re, opt_replace = args
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
         res = []
@@ -2480,7 +2511,7 @@ class BuiltinListReGroup(BuiltinFormatterFunction):
     arg_count = -1
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_re_group(src_list, separator, include_re, search_re [,template_for_group]*)``
@@ -2489,8 +2520,8 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        src_list, separator, include_re, search_re, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        src_list, separator, include_re, search_re, *args = args  # ty: ignore[invalid-assignment]
         from calibre.utils.formatter import EvalFormatter
 
         allow_python = formatter.allow_python_templates
@@ -2498,7 +2529,7 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
         res = []
         for item in l:
 
-            def repl(mo):
+            def repl(mo: Match[str] | None) -> str:
                 newval = ''
                 if mo and mo.lastindex:
                     for dex in range(mo.lastindex):
@@ -2529,7 +2560,7 @@ class BuiltinToday(BuiltinFormatterFunction):
     arg_count = 0
     category = DATE_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``today()`` -- return a date+time string for today (now).[/] This value is designed
@@ -2539,7 +2570,7 @@ date/time format.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         return format_date(now(), 'iso')
 
 
@@ -2548,7 +2579,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
     arg_count = 2
     category = DATE_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``days_between(date1, date2)`` -- return the number of days between ``date1``
@@ -2558,7 +2589,7 @@ returns the empty string.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         date1, date2 = args
         try:
             d1 = parse_date(date1)
@@ -2578,7 +2609,7 @@ class BuiltinDateArithmetic(BuiltinFormatterFunction):
     arg_count = -1
     category = DATE_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``date_arithmetic(value, calc_spec, fmt)`` -- Calculate a new date from ``value``
@@ -2607,7 +2638,7 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
         'y': lambda v: timedelta(days=v * 365),
     }
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, calc_spec = args[0], args[1]
         fmt = args[2] if len(args) > 2 else None
         try:
@@ -2633,7 +2664,7 @@ class BuiltinLanguageStrings(BuiltinFormatterFunction):
     arg_count = 2
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``language_strings(value, localize)`` -- return the
@@ -2646,7 +2677,7 @@ return the strings in the language of the current locale. ``lang_codes`` is a co
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         lang_codes, localize = args
         retval = []
         for c in [c.strip() for c in lang_codes.split(',') if c.strip()]:
@@ -2664,7 +2695,7 @@ class BuiltinLanguageCodes(BuiltinFormatterFunction):
     arg_count = 1
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``language_codes(lang_strings)`` -- return the
@@ -2674,7 +2705,7 @@ current locale. ``lang_strings`` is a comma-separated list.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (lang_strings,) = args
         retval = []
         for c in [c.strip() for c in lang_strings.split(',') if c.strip()]:
@@ -2684,7 +2715,7 @@ current locale. ``lang_strings`` is a comma-separated list.
                     retval.append(canonicalize_lang(cv))
             except Exception:
                 pass
-        return ', '.join(retval)
+        return ', '.join(retval)  # ty: ignore[no-matching-overload]
 
 
 class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
@@ -2692,14 +2723,14 @@ class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``current_library_name()`` -- return the last name on the path to the current calibre library.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         from calibre.library import current_library_name
 
         return current_library_name()
@@ -2710,7 +2741,7 @@ class BuiltinCurrentLibraryPath(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``current_library_path()`` -- return the full path to the current calibre
@@ -2718,7 +2749,7 @@ library.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         from calibre.library import current_library_path
 
         return current_library_path()
@@ -2729,7 +2760,7 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
     arg_count = 4
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``finish_formatting(value, format, prefix, suffix)`` -- apply the ``format``, ``prefix``, and
@@ -2757,7 +2788,7 @@ program:
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, fmt, prefix, suffix = args
         if not val:
             return val
@@ -2769,7 +2800,7 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``virtual_libraries()`` -- return a comma-separated list of Virtual libraries that
@@ -2780,7 +2811,7 @@ and use that column's value in your save/send templates.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         db = self.get_database(mi, formatter=formatter)
         try:
             a = db.data.get_virtual_libraries_for_books((mi.id,))
@@ -2794,7 +2825,7 @@ class BuiltinCurrentVirtualLibraryName(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``current_virtual_library_name()`` -- return the name of the current
@@ -2807,7 +2838,7 @@ This function works only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         return self.get_database(mi, formatter=formatter).data.get_base_restriction_name()
 
 
@@ -2816,7 +2847,7 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
     arg_count = 0
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``user_categories()`` -- return a comma-separated list of the user categories that
@@ -2827,7 +2858,7 @@ and use that column's value in your save/send templates
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if hasattr(mi, '_proxy_metadata'):
             cats = {k for k, v in mi._proxy_metadata.user_categories.items() if v}
             cats = sorted(cats, key=sort_key)
@@ -2840,7 +2871,7 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
     arg_count = 1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``transliterate(value)`` -- Return a string in a latin alphabet formed by
@@ -2849,7 +2880,7 @@ is ``{0}`` this function returns ``{1}``.
 '''
         ).format('Фёдор Миха́йлович Достоевский', 'Fiodor Mikhailovich Dostoievskii')
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (source,) = args
         from calibre.utils.filenames import ascii_text
 
@@ -2861,7 +2892,7 @@ class BuiltinGetLink(BuiltinFormatterFunction):
     arg_count = 2
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``get_link(field_name, field_value)`` -- fetch the link for field ``field_name``
@@ -2890,7 +2921,7 @@ This function works only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         field_name, field_value = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
@@ -2909,7 +2940,7 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
     arg_count = 2
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``author_links(val_separator, pair_separator)`` -- returns a string containing a
@@ -2925,7 +2956,7 @@ is included even if the author link is empty.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val_sep, pair_sep = args
         if hasattr(mi, '_proxy_metadata'):
             link_data = mi._proxy_metadata.link_maps
@@ -2944,7 +2975,7 @@ class BuiltinAuthorSorts(BuiltinFormatterFunction):
     arg_count = 1
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``author_sorts(val_separator)`` -- returns a string containing a list of
@@ -2957,13 +2988,13 @@ then include them in the ``val_separator`` string.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val_sep,) = args
         sort_data = mi.author_sort_map
         if not sort_data:
             return ''
         names = [sort_data.get(n) for n in mi.authors if n.strip()]
-        return val_sep.join(n for n in names)
+        return val_sep.join(n for n in names)  # ty: ignore[no-matching-overload]
 
 
 class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
@@ -2971,7 +3002,7 @@ class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
     arg_count = 1
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``connected_device_name(storage_location_key)`` -- if a device is connected then
@@ -2981,7 +3012,7 @@ on a device has its own device name. The ``storage_location_key`` names are
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (storage_location,) = args
         # We can't use get_database() here because we need the device manager.
         # In other words, the function really does need the GUI
@@ -3014,7 +3045,7 @@ class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
     arg_count = 1
     category = GET_FROM_METADATA
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``connected_device_uuid(storage_location_key)`` -- if a device is connected then
@@ -3025,7 +3056,7 @@ only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (storage_location,) = args
         # We can't use get_database() here because we need the device manager.
         # In other words, the function really does need the GUI
@@ -3058,7 +3089,7 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
     arg_count = 4
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``check_yes_no(field_name, is_undefined, is_false, is_true)`` -- checks if the
@@ -3075,7 +3106,7 @@ More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         field, is_undefined, is_false, is_true = args
         res = getattr(mi, field, None)
         # Missing fields will return None. Oh well, this lets it be used everywhere,
@@ -3098,7 +3129,7 @@ class BuiltinRatingToStars(BuiltinFormatterFunction):
     arg_count = 2
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``rating_to_stars(value, use_half_stars)`` -- Returns the ``value`` as string of star
@@ -3108,7 +3139,7 @@ available with custom ratings columns.
 '''
         ).format('★')
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, use_half_stars = args
         if not value:
             return ''
@@ -3129,7 +3160,7 @@ class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
     arg_count = 2
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r''' ``swap_around_articles(value, separator)`` -- returns the ``value`` with
 articles moved to the end, separated by a semicolon.[/] The ``value`` can be a
@@ -3141,7 +3172,7 @@ the ``title_sort``.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         val, separator = args
         if not val:
             return ''
@@ -3161,7 +3192,7 @@ class BuiltinArguments(BuiltinFormatterFunction):
     arg_count = -1
     category = OTHER
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``arguments(id[=expression] [, id[=expression]]*)`` -- Used in a stored
@@ -3175,7 +3206,7 @@ is set to the empty string.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         # The arguments function is implemented in-line in the formatter
         raise NotImplementedError()
 
@@ -3185,7 +3216,7 @@ class BuiltinGlobals(BuiltinFormatterFunction):
     arg_count = -1
     category = OTHER
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``globals(id[=expression] [, id[=expression]]*)`` -- Retrieves "global variables"
@@ -3198,7 +3229,7 @@ string.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
@@ -3208,7 +3239,7 @@ class BuiltinSetGlobals(BuiltinFormatterFunction):
     arg_count = -1
     category = OTHER
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``set_globals(id[=expression] [, id[=expression]]*)`` -- Sets `global
@@ -3218,7 +3249,7 @@ provided.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
@@ -3228,7 +3259,7 @@ class BuiltinFieldExists(BuiltinFormatterFunction):
     arg_count = 1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``field_exists(lookup_name)`` -- checks if a field (column) with the lookup name
@@ -3236,7 +3267,7 @@ class BuiltinFieldExists(BuiltinFormatterFunction):
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (field_name,) = args
         if field_name.lower() in mi.all_field_keys():
             return '1'
@@ -3248,7 +3279,7 @@ class BuiltinCharacter(BuiltinFormatterFunction):
     arg_count = 1
     category = STRING_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``character(character_name)`` -- returns the character named by character_name.[/]
@@ -3259,7 +3290,7 @@ of templates.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (character_name,) = args
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
@@ -3270,7 +3301,7 @@ class BuiltinToHex(BuiltinFormatterFunction):
     arg_count = 1
     category = URL_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``to_hex(val)`` -- returns the string ``val`` encoded into hex.[/] This is useful
@@ -3278,7 +3309,7 @@ when constructing calibre URLs.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (val,) = args
         return val.encode().hex()
 
@@ -3288,7 +3319,7 @@ class BuiltinUrlsFromIdentifiers(BuiltinFormatterFunction):
     arg_count = 2
     category = URL_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``urls_from_identifiers(identifiers, sort_results)`` -- given a comma-separated
@@ -3301,7 +3332,7 @@ when shown in Book Details.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         identifiers, sort_results = args
         from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 
@@ -3329,7 +3360,7 @@ class BuiltinBookCount(BuiltinFormatterFunction):
     arg_count = 2
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``book_count(query, use_vl)`` -- returns the count of books found by searching
@@ -3374,7 +3405,7 @@ This function can be used only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         query, use_vl = args
         from calibre.db.fields import rendering_composite_name
 
@@ -3387,7 +3418,7 @@ This function can be used only in the GUI and the content server.
                 # the function work in content server icon rules.
                 ids = db.new_api.search(query, None)
             else:
-                ids = db.search_getting_ids(query, None, use_virtual_library=True)
+                ids = db.search_getting_ids(query, None, use_virtual_library=True)  # ty: ignore[unresolved-attribute]
             return str(len(ids))
         except Exception:
             traceback.print_exc()
@@ -3398,7 +3429,7 @@ class BuiltinBookValues(BuiltinFormatterFunction):
     arg_count = 4
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``book_values(column, query, sep, use_vl)`` -- returns a list of the unique
@@ -3413,7 +3444,7 @@ can be used only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         column, query, sep, use_vl = args
         from calibre.db.fields import rendering_composite_name
 
@@ -3426,7 +3457,7 @@ can be used only in the GUI and the content server.
             if use_vl == '0':
                 ids = db.new_api.search(query, None)
             else:
-                ids = db.search_getting_ids(query, None, use_virtual_library=True)
+                ids = db.search_getting_ids(query, None, use_virtual_library=True)  # ty: ignore[unresolved-attribute]
             s = set()
             for id_ in ids:
                 f = db.new_api.get_proxy_metadata(id_).get(column, None)
@@ -3444,7 +3475,7 @@ class BuiltinHasExtraFiles(BuiltinFormatterFunction):
     arg_count = -1
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``has_extra_files([pattern])`` -- returns the count of extra files, otherwise
@@ -3456,7 +3487,7 @@ This function can be used only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if len(args) > 1:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
         pattern = args[0] if len(args) == 1 else None
@@ -3477,7 +3508,7 @@ class BuiltinExtraFileNames(BuiltinFormatterFunction):
     arg_count = -1
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``extra_file_names(sep [, pattern])`` -- returns a ``sep``-separated list of
@@ -3490,8 +3521,8 @@ content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        sep, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        sep, *args = args  # ty: ignore[invalid-assignment]
         if len(args) > 1:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
         pattern = args[0] if len(args) == 1 else None
@@ -3512,7 +3543,7 @@ class BuiltinExtraFileSize(BuiltinFormatterFunction):
     arg_count = 1
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``extra_file_size(file_name)`` -- returns the size in bytes of the extra file
@@ -3523,7 +3554,7 @@ content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (file_name,) = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
@@ -3542,7 +3573,7 @@ class BuiltinExtraFileModtime(BuiltinFormatterFunction):
     arg_count = 2
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``extra_file_modtime(file_name, format_string)`` -- returns the modification
@@ -3556,7 +3587,7 @@ This function can be used only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         file_name, format_string = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
@@ -3578,7 +3609,7 @@ class BuiltinGetNote(BuiltinFormatterFunction):
     arg_count = 3
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``get_note(field_name, field_value, plain_text)`` -- fetch the note for field
@@ -3602,7 +3633,7 @@ This function works only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         field_name, field_value, plain_text = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
@@ -3648,7 +3679,7 @@ class BuiltinHasNote(BuiltinFormatterFunction):
     arg_count = 2
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``has_note(field_name, field_value)``. Check if a field has a note.[/]
@@ -3678,7 +3709,7 @@ This function works only in the GUI and the content server.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         field_name, field_value = args
         db = self.get_database(mi, formatter=formatter).new_api
         if field_value:
@@ -3705,7 +3736,7 @@ class BuiltinReadingProgress(BuiltinFormatterFunction):
     arg_count = -1
     category = DB_FUNCS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``reading_progress(book_id, [user, output_fmt, which, fmt])`` -- returns the reading progress, in the specified
@@ -3745,8 +3776,8 @@ Some examples:
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        book_id, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        book_id, *args = args  # ty: ignore[invalid-assignment]
         if len(args) > 4:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('reading_progress'))
         book_id = int(book_id)
@@ -3787,7 +3818,7 @@ class BuiltinIsDarkMode(BuiltinFormatterFunction):
     arg_count = 0
     category = OTHER
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``is_dark_mode()`` -- returns ``'1'`` if calibre is running in dark mode, ``''``
@@ -3799,7 +3830,7 @@ icon rules to choose different colors/icons according to the mode. Example:
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         try:
             # Import this here so that Qt isn't referenced unless this function is used.
             from calibre.gui2 import is_dark_theme
@@ -3814,7 +3845,7 @@ class BuiltinFieldListCount(BuiltinFormatterFunction):
     arg_count = 0
     category = LIST_MANIPULATION
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``list_count_field(lookup_name)``-- returns the count of items in the field with
@@ -3825,7 +3856,7 @@ data without converting it to a string first. Example: ``list_count_field('tags'
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
@@ -3835,7 +3866,7 @@ class BuiltinMakeUrl(BuiltinFormatterFunction):
     arg_count = -1
     category = URL_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``make_url(path, [query_name, query_value]+)`` -- this function is the easiest way
@@ -3866,8 +3897,8 @@ See also the functions :ref:`make_url_extended`, :ref:`query_string` and :ref:`e
 '''
         ).format('Niccolò Machiavelli')  # not translated ans gettext wants pure ascii msgid
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        path, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        path, *args = args  # ty: ignore[invalid-assignment]
         if (len(args) % 2) != 0:
             raise ValueError(_('{} requires an odd number of arguments').format('make_url'))
         if len(args) < 2:
@@ -3883,7 +3914,7 @@ class BuiltinMakeUrlExtended(BuiltinFormatterFunction):
     arg_count = -1
     category = URL_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``make_url_extended(...)`` -- this function is similar to :ref:`make_url` but
@@ -3930,8 +3961,8 @@ See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for
 '''
         ).format('Niccolò Machiavelli')  # not translated as gettext wants pure ASCII msgid
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        scheme, authority, path, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        scheme, authority, path, *args = args  # ty: ignore[invalid-assignment]
         if len(args) != 1:
             if (len(args) % 2) != 0:
                 raise ValueError(_('{} requires an odd number of arguments').format('make_url_extended'))
@@ -3953,7 +3984,7 @@ class BuiltinQueryString(BuiltinFormatterFunction):
     arg_count = -1
     category = URL_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``query_string([query_name, query_value, how_to_encode]+)``-- returns a URL query string
@@ -3999,7 +4030,7 @@ See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`encod
 '''
         ).format('Hendrik Bäßler')
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         if (len(args) % 3) != 0 or len(args) < 3:
             raise ValueError(_('{} requires at least one group of 3 arguments').format('query_string'))
         funcs = [
@@ -4020,7 +4051,7 @@ class BuiltinEncodeForURL(BuiltinFormatterFunction):
     arg_count = 2
     category = URL_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``encode_for_url(value, use_plus)`` -- returns the ``value`` encoded for use in a URL as
@@ -4034,7 +4065,7 @@ See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`query
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, use_plus = args
         if use_plus not in ('0', '1'):
             raise ValueError(_('In {} the second argument must be 0, or 1, not {}').format('quote_for_url', use_plus))
@@ -4046,7 +4077,7 @@ class BuiltinFormatDuration(BuiltinFormatterFunction):
     arg_count = -1
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``format_duration(value, template, [largest_unit])`` -- format the value, a number
@@ -4110,7 +4141,7 @@ This can be useful to truncate a value.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         value, template = args[0], args[1]
         largest_unit = args[2] if len(args) > 2 else ''
         if largest_unit not in 'wdhms':
@@ -4137,7 +4168,7 @@ This can be useful to truncate a value.
         minutes, remainder = divmod(remainder, 60) if largest_unit in 'wdhm' else (-1, remainder)
         seconds = remainder
 
-        def repl(mo):
+        def repl(mo: Match[str]) -> str:
             fmt_char = mo.group(1)
             suffixes = mo.group(3)
             if suffixes is None:
@@ -4158,7 +4189,7 @@ This can be useful to truncate a value.
                         raise ValueError(_('The group {} has too many suffixes').format(fmt_char))
                         zero_suffix = one_suffix = more_suffix = '@@too many suffixes@@'
 
-            def val_with_suffix(val, test_val):
+            def val_with_suffix(val: int, test_val: int) -> str:
                 match val:
                     case -1:
                         return ''
@@ -4193,7 +4224,7 @@ class BuiltinSelectedBooks(BuiltinFormatterFunction):
     arg_count = 0
     category = GUI_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``selected_books([sorted_by, ascending])`` -- returns a list of book ids in
@@ -4203,7 +4234,7 @@ This function can be used only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         from calibre.gui2.ui import get_gui
 
         g = get_gui()
@@ -4218,7 +4249,7 @@ class BuiltinSortBookIds(BuiltinFormatterFunction):
     arg_count = -1
     category = GUI_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``sort_book_ids(book_ids, sorted_by, ascending [, sorted_by, ascending]*)`` --
@@ -4232,8 +4263,8 @@ This function can be used only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        book_ids, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        book_ids, *args = args  # ty: ignore[invalid-assignment]
         from calibre.gui2.ui import get_gui
 
         g = get_gui()
@@ -4258,7 +4289,7 @@ class BuiltinSelectedColumn(BuiltinFormatterFunction):
     arg_count = 0
     category = GUI_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``selected_column()`` -- returns the lookup name of the column containing the currently
@@ -4268,7 +4299,7 @@ This function can be used only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         from calibre.gui2.ui import get_gui
 
         g = get_gui()
@@ -4287,7 +4318,7 @@ class BuiltinWidthFromPages(BuiltinFormatterFunction):
     arg_count = -1
     category = GUI_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``width_from_pages(value [, num_of_pages_for_max_width, logarithmic_factor, default_width])`` -- return
@@ -4303,8 +4334,8 @@ arguments control how the width is calculated.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        val, *args = args
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
+        val, *args = args  # ty: ignore[invalid-assignment]
         from calibre.gui2.library.bookshelf_view import width_from_pages
 
         num_of_pages_for_max_width = 1500
@@ -4332,7 +4363,7 @@ class BuiltinShowDialog(BuiltinFormatterFunction):
     arg_count = 1
     category = GUI_FUNCTIONS
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``show_dialog(html_or_text)`` -- show a dialog containing the html or text. The
@@ -4342,23 +4373,23 @@ This function can be used only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (html,) = args
         from qt.core import QDialog, QVBoxLayout
 
         from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 
         class HTMLDialog(Dialog):
-            def __init__(self, title, prefs):
+            def __init__(self, title: str, prefs: DBPrefs) -> None:
                 super().__init__(title, 'formatter_html_dialog', prefs=prefs)
 
-            def setup_ui(self):
+            def setup_ui(self) -> None:
                 l = QVBoxLayout(self)
                 d = self.display = HTMLDisplay()
                 l.addWidget(d)
                 l.addWidget(self.bb)
 
-            def set_html(self, tt_text):
+            def set_html(self, tt_text: str) -> None:
                 self.display.setHtml(tt_text)
 
         db = get_database(mi, 'show_dialog')
@@ -4372,7 +4403,7 @@ class BuiltinFString(BuiltinFormatterFunction):
     arg_count = 1
     category = FORMATTING_VALUES
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> TranslatedStringWithRaw:
         return translate_ffml(
             r'''
 ``f_string(string)`` -- interpret ``string`` similar to how python interprets ``f`` strings.
@@ -4409,13 +4440,13 @@ returns `Foo, book 3 of 5`
 '''
         )
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         (fstring,) = args
         raise ValueError(_('This function cannot be called directly. It is built into the formatter'))
 
 
 class FormatterUserFunction(FormatterFunction):
-    def __init__(self, name, doc, arg_count, program_text, object_type):
+    def __init__(self, name: str, doc: str, arg_count: int, program_text: str, object_type: StoredObjectType) -> None:
         self.object_type = object_type
         self.name = name
         self.user_doc = doc
@@ -4427,17 +4458,17 @@ class FormatterUserFunction(FormatterFunction):
         # if the code depends on stored templates being in GPM.
         self.is_python = object_type is StoredObjectType.PythonFunction
 
-    def to_pref(self):
+    def to_pref(self) -> UserFunctionPref:
         return [self.name, self.doc, self.arg_count, self.program_text]
 
-    def __doc__getter__(self):
+    def __doc__getter__(self) -> str:
         return self.user_doc
 
 
 tabs = re.compile(r'^\t*')
 
 
-def function_object_type(thing):
+def function_object_type(thing: FormatterUserFunction | UserFunctionPref | str) -> StoredObjectType:
     # 'thing' can be a preference instance, program text, or an already-compiled function
     if isinstance(thing, FormatterUserFunction):
         return thing.object_type
@@ -4454,16 +4485,16 @@ def function_object_type(thing):
     raise ValueError('Unknown program type in formatter function pref')
 
 
-def function_pref_name(pref):
+def function_pref_name(pref: UserFunctionPref) -> str:
     return pref[0]
 
 
-def compile_user_function(name, doc, arg_count, eval_func):
+def compile_user_function(name: str, doc: str, arg_count: int, eval_func: str) -> FormatterUserFunction:
     typ = function_object_type(eval_func)
     if typ is not StoredObjectType.PythonFunction:
         return FormatterUserFunction(name, doc, arg_count, eval_func, typ)
 
-    def replace_func(mo):
+    def replace_func(mo: Match[str]) -> str:
         return mo.group().replace('\t', '    ')
 
     func = '    ' + '\n    '.join([tabs.sub(replace_func, line) for line in eval_func.splitlines()])
@@ -4483,7 +4514,7 @@ class UserFunction(FormatterUserFunction):
     return cls
 
 
-def compile_user_template_functions(funcs):
+def compile_user_template_functions(funcs: Iterable[UserFunctionPref]) -> dict[str, FormatterUserFunction]:
     compiled_funcs = {}
     for func in funcs:
         try:
@@ -4509,7 +4540,9 @@ def compile_user_template_functions(funcs):
     return compiled_funcs
 
 
-def load_user_template_functions(library_uuid, funcs, precompiled_user_functions=None):
+def load_user_template_functions(
+    library_uuid: str, funcs: Iterable[UserFunctionPref], precompiled_user_functions: dict[str, FormatterUserFunction] | None = None
+) -> None:
     unload_user_template_functions(library_uuid)
     if precompiled_user_functions:
         compiled_funcs = precompiled_user_functions
@@ -4518,5 +4551,5 @@ def load_user_template_functions(library_uuid, funcs, precompiled_user_functions
     formatter_functions().register_functions(library_uuid, list(compiled_funcs.values()))
 
 
-def unload_user_template_functions(library_uuid):
+def unload_user_template_functions(library_uuid: str) -> None:
     formatter_functions().unregister_functions(library_uuid)

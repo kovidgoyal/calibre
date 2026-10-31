@@ -487,7 +487,7 @@ class ManageUserDictionaries(Dialog):
         if not word:
             return
         if (word, lang) not in self.current_dictionary.words:
-            dictionaries.add_to_user_dictionary(self.current_dictionary.name, word, DictionaryLocale(lang, None))
+            dictionaries.add_to_user_dictionary(self.current_dictionary.name, word, DictionaryLocale(lang, None))  # ty: ignore[invalid-argument-type]
             dictionaries.clear_caches()
             self.show_current_dictionary()
             self.dictionaries_changed = True

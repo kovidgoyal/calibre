@@ -6,17 +6,22 @@ import os
 import re
 import subprocess
 from collections import defaultdict
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from plistlib import loads
+from typing import TYPE_CHECKING, Any, Literal, overload
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
+
+if TYPE_CHECKING:
+    from qt.core import QImage
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
 # Public UTI MAP {{{
 
 
-def generate_public_uti_map():
+def generate_public_uti_map() -> None:
     from urllib.request import urlopen
 
     from html5_parser import parse
@@ -213,7 +218,7 @@ PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 # }}}
 
 
-def find_applications_in(base):
+def find_applications_in(base: str) -> Iterator[str]:
     try:
         entries = os.listdir(base)
     except OSError:
@@ -227,13 +232,13 @@ def find_applications_in(base):
                 yield from find_applications_in(path)
 
 
-def find_applications():
+def find_applications() -> Iterator[str]:
     for base in application_locations:
         base = os.path.expanduser(base)
         yield from find_applications_in(base)
 
 
-def get_extensions_from_utis(utis, plist):
+def get_extensions_from_utis(utis: Iterable[str], plist: Mapping[str, Any]) -> set[str]:
     declared_utis = defaultdict(set)
     for key in ('UTExportedTypeDeclarations', 'UTImportedTypeDeclarations'):
         for decl in plist.get(key, ()):
@@ -257,7 +262,7 @@ def get_extensions_from_utis(utis, plist):
     return ans
 
 
-def get_bundle_data(path):
+def get_bundle_data(path: str) -> dict[str, Any] | None:
     path = os.path.abspath(path)
     info = os.path.join(path, 'Contents', 'Info.plist')
     ans = {
@@ -299,7 +304,7 @@ def get_bundle_data(path):
     return ans
 
 
-def find_programs(extensions):
+def find_programs(extensions: Iterable[str]) -> list[dict[str, Any]]:
     extensions = frozenset(extensions)
     ans = []
     for app in find_applications():
@@ -315,7 +320,15 @@ def find_programs(extensions):
     return ans
 
 
-def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
+@overload
+def get_icon(path: str | None, pixmap_to_data: Callable[[QImage], bytes] | None = None, as_data: Literal[False] = False, size: int = 64) -> QImage | None: ...
+
+
+@overload
+def get_icon(path: str | None, pixmap_to_data: Callable[[QImage], bytes] | None = None, *, as_data: Literal[True], size: int = 64) -> bytes | None: ...
+
+
+def get_icon(path: str | None, pixmap_to_data: Callable[[QImage], bytes] | None = None, as_data: bool = False, size: int = 64) -> QImage | bytes | None:
     if not path:
         return
     with TemporaryDirectory() as tdir:
@@ -348,7 +361,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
     return ans
 
 
-def entry_to_cmdline(entry, path):
+def entry_to_cmdline(entry: Mapping[str, Any], path: str) -> list[str]:
     app = entry['path']
     if os.path.isdir(app):
         return ['open', '-a', app, path]

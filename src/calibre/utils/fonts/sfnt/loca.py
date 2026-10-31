@@ -3,11 +3,17 @@
 
 import array
 import sys
+from collections.abc import Mapping
 from itertools import repeat
 from operator import itemgetter
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from calibre.utils.fonts.sfnt import UnknownTable
+
+if TYPE_CHECKING:
+    from calibre.utils.fonts.sfnt.container import Sfnt
+    from calibre.utils.fonts.sfnt.head import HeadTable
+    from calibre.utils.fonts.sfnt.maxp import MaxpTable
 
 
 def four_byte_type_code() -> Literal['I', 'L']:
@@ -18,7 +24,7 @@ def four_byte_type_code() -> Literal['I', 'L']:
     raise ValueError('No four byte unsigned integer type code found')
 
 
-def read_array(data, fmt='H'):
+def read_array(data: bytes, fmt: Literal['H', 'h', 'I', 'L'] = 'H') -> array.array[int]:
     ans = array.array(fmt, data)
     if sys.byteorder != 'big':
         ans.byteswap()
@@ -26,7 +32,7 @@ def read_array(data, fmt='H'):
 
 
 class LocaTable(UnknownTable):
-    def load_offsets(self, head_table, maxp_table):
+    def load_offsets(self, head_table: HeadTable, maxp_table: MaxpTable) -> None:
         fmt = 'H' if head_table.index_to_loc_format == 0 else four_byte_type_code()
         locs = read_array(self.raw, fmt)
         self.offset_map = locs.tolist()
@@ -34,12 +40,12 @@ class LocaTable(UnknownTable):
             self.offset_map = [2 * i for i in self.offset_map]
         self.fmt = fmt
 
-    def glyph_location(self, glyph_id):
+    def glyph_location(self, glyph_id: int) -> tuple[int, int]:
         offset = self.offset_map[glyph_id]
         next_offset = self.offset_map[glyph_id + 1]
         return offset, next_offset - offset
 
-    def update(self, resolved_glyph_map):
+    def update(self, resolved_glyph_map: Mapping[int, tuple[int, int]]) -> None:
         """
         Update this table to contain pointers only to the glyphs in
         resolved_glyph_map which must be a map of glyph_ids to (offset, sz)
@@ -78,7 +84,7 @@ class LocaTable(UnknownTable):
 
     subset = update
 
-    def dump_glyphs(self, sfnt):
+    def dump_glyphs(self, sfnt: Sfnt) -> None:
         if not hasattr(self, 'offset_map'):
             self.load_offsets(sfnt[b'head'], sfnt[b'maxp'])
         for i in range(len(self.offset_map) - 1):

@@ -1323,7 +1323,7 @@ class SortKeyGenerator:
                         format = tweaks['gui_last_modified_display_format']
                     elif fm['is_custom']:
                         format = fm['display'].get('date_format', None)
-                    val = clean_date_for_sort(val, format)
+                    val = clean_date_for_sort(val, format)  # ty: ignore[invalid-argument-type]
             elif dt == 'series':
                 if val is None:
                     val = ('', 1)

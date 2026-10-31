@@ -2,28 +2,30 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import socket
+from collections.abc import Callable, Sequence
+from typing import IO
 
 from calibre_extensions import certgen
 
 
-def create_key_pair(size=2048):
+def create_key_pair(size: int = 2048) -> object:
     return certgen.create_rsa_keypair(size)
 
 
 def create_cert_request(
-    key_pair,
-    common_name,
-    country='IN',
-    state='Maharashtra',
-    locality='Mumbai',
-    organization=None,
-    organizational_unit=None,
-    email_address=None,
-    alt_names=(),
-    basic_constraints=None,
-    digital_key_usage=None,
-    ext_key_usage=None,
-):
+    key_pair: object,
+    common_name: str,
+    country: str | None = 'IN',
+    state: str | None = 'Maharashtra',
+    locality: str | None = 'Mumbai',
+    organization: str | None = None,
+    organizational_unit: str | None = None,
+    email_address: str | None = None,
+    alt_names: Sequence[str] = (),
+    basic_constraints: str | None = None,
+    digital_key_usage: str | None = None,
+    ext_key_usage: str | None = None,
+) -> object:
     return certgen.create_rsa_cert_req(
         key_pair,
         tuple(alt_names),
@@ -40,44 +42,44 @@ def create_cert_request(
     )
 
 
-def create_cert(req, ca_cert, ca_keypair, expire=365, not_before=0):
+def create_cert(req: object, ca_cert: object, ca_keypair: object, expire: int = 365, not_before: int = 0) -> object:
     return certgen.create_rsa_cert(req, ca_cert, ca_keypair, not_before, expire)
 
 
-def create_ca_cert(req, ca_keypair, expire=365, not_before=0):
+def create_ca_cert(req: object, ca_keypair: object, expire: int = 365, not_before: int = 0) -> object:
     return certgen.create_rsa_cert(req, None, ca_keypair, not_before, expire)
 
 
-def serialize_cert(cert):
+def serialize_cert(cert: object) -> bytes:
     return certgen.serialize_cert(cert)
 
 
-def serialize_key(key_pair, password=None):
+def serialize_key(key_pair: object, password: str | None = None) -> bytes:
     return certgen.serialize_rsa_key(key_pair, password)
 
 
-def cert_info(cert):
+def cert_info(cert: object) -> bytes:
     return certgen.cert_info(cert)
 
 
 def create_server_cert(
-    domain_or_ip,
-    ca_cert_file=None,
-    server_cert_file=None,
-    server_key_file=None,
-    expire=365,
-    ca_key_file=None,
-    ca_name='Dummy Certificate Authority',
-    key_size=2048,
-    country='IN',
-    state='Maharashtra',
-    locality='Mumbai',
-    organization=None,
-    organizational_unit=None,
-    email_address=None,
-    alt_names=(),
-    encrypt_key_with_password=None,
-):
+    domain_or_ip: str,
+    ca_cert_file: str | IO[bytes] | None = None,
+    server_cert_file: str | IO[bytes] | None = None,
+    server_key_file: str | IO[bytes] | None = None,
+    expire: int = 365,
+    ca_key_file: str | IO[bytes] | None = None,
+    ca_name: str = 'Dummy Certificate Authority',
+    key_size: int = 2048,
+    country: str | None = 'IN',
+    state: str | None = 'Maharashtra',
+    locality: str | None = 'Mumbai',
+    organization: str | None = None,
+    organizational_unit: str | None = None,
+    email_address: str | None = None,
+    alt_names: Sequence[str] = (),
+    encrypt_key_with_password: str | None = None,
+) -> tuple[object, object, object, object]:
     is_ip = False
     try:
         socket.inet_pton(socket.AF_INET, domain_or_ip)
@@ -120,13 +122,13 @@ def create_server_cert(
     )
     cert = create_cert(req, cacert, cakey, expire=expire)
 
-    def export(dest, obj, func, *args):
+    def export(dest: str | IO[bytes] | None, obj: object, func: Callable[..., bytes | str], *args: str | None) -> None:
         if dest is not None:
             data = func(obj, *args)
             if isinstance(data, str):
                 data = data.encode('utf-8')
             if hasattr(dest, 'write'):
-                dest.write(data)
+                dest.write(data)  # ty: ignore[call-non-callable]
             else:
                 with open(dest, 'wb') as f:
                     f.write(data)
@@ -138,7 +140,7 @@ def create_server_cert(
     return cacert, cakey, cert, pkey
 
 
-def develop():
+def develop() -> None:
     cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['DNS:moose.cat', 'DNS:huge.bat'])
     print('CA Certificate')
     print(cert_info(cacert))

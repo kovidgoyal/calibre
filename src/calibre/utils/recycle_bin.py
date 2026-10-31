@@ -19,17 +19,17 @@ if iswindows:
     recycler = None
     rlock = Lock()
 
-    def start_recycler():
+    def start_recycler() -> None:
         global recycler
         if recycler is None:
             from calibre.utils.ipc.simple_worker import start_pipe_worker
 
             recycler = start_pipe_worker('from calibre.utils.recycle_bin import recycler_main; recycler_main()')
 
-    def recycle_path(path):
+    def recycle_path(path: str) -> None:
         winutil.move_to_trash(str(path))
 
-    def recycler_main():
+    def recycler_main() -> None:
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
         while True:
@@ -37,7 +37,7 @@ if iswindows:
             if not path:
                 break
             try:
-                path = path.decode('utf-8').rstrip()
+                path = path.decode('utf-8').rstrip()  # ty: ignore[unresolved-attribute]
             except ValueError, TypeError:
                 break
             try:
@@ -55,7 +55,7 @@ if iswindows:
                 eintr_retry_call(stdout.write, b'OK\n')
                 stdout.flush()
 
-    def delegate_recycle(path):
+    def delegate_recycle(path: str) -> None:
         if '\n' in path:
             raise ValueError(f'Cannot recycle paths that have newlines in them ({path!r})')
         with rlock:
@@ -73,7 +73,7 @@ if iswindows:
             if result.rstrip() != b'OK':
                 raise RuntimeError(f'recycler failed to recycle: {path!r}')
 
-    def recycle(path):
+    def recycle(path: str | bytes) -> None:
         # We have to run the delete to recycle bin in a separate process as the
         # morons who wrote SHFileOperation designed it to spin the event loop
         # even when no UI is created. And there is no other way to send files
@@ -91,7 +91,7 @@ if iswindows:
 elif ismacos:
     from calibre_extensions.cocoa import send2trash
 
-    def osx_recycle(path):
+    def osx_recycle(path: str | bytes) -> None:
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         send2trash(path)
@@ -100,7 +100,7 @@ elif ismacos:
 elif islinux:
     from calibre.utils.linux_trash import send2trash
 
-    def fdo_recycle(path):
+    def fdo_recycle(path: str | bytes) -> None:
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
@@ -111,17 +111,17 @@ elif islinux:
 can_recycle = callable(recycle)
 
 
-def nuke_recycle():
+def nuke_recycle() -> None:
     global can_recycle
     can_recycle = False
 
 
-def restore_recyle():
+def restore_recyle() -> None:
     global can_recycle
     can_recycle = callable(recycle)
 
 
-def delete_file(path, permanent=False):
+def delete_file(path: str | bytes, permanent: bool = False) -> None:
     if not permanent and can_recycle and recycle is not None:
         try:
             recycle(path)
@@ -133,7 +133,7 @@ def delete_file(path, permanent=False):
     os.remove(path)
 
 
-def delete_tree(path, permanent=False):
+def delete_tree(path: str | bytes, permanent: bool = False) -> None:
     if permanent:
         try:
             # For completely mysterious reasons, sometimes a file is left open

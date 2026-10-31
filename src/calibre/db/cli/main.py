@@ -68,7 +68,7 @@ def run_cmd(cmd, opts, args, dbctx):
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group(_('GLOBAL OPTIONS'))
-    go.is_global_options = True
+    go.is_global_options = True  # ty: ignore[unresolved-attribute]
     go.add_option(
         '--library-path',
         '--with-library',

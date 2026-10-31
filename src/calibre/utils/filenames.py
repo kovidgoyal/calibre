@@ -8,15 +8,17 @@ import ntpath
 import os
 import shutil
 import time
+from collections.abc import Callable, Iterable
 from contextlib import closing, suppress
 from math import ceil
+from typing import IO, Any, overload
 
 from calibre import force_unicode, prints, sanitize_file_name
 from calibre.constants import filesystem_encoding, ismacos, iswindows, preferred_encoding
 from calibre.utils.localization import _, get_udc
 
 
-def ascii_text(orig):
+def ascii_text(orig: str | bytes) -> str:
     udc = get_udc()
     try:
         ascii = udc.decode(orig)
@@ -29,7 +31,7 @@ def ascii_text(orig):
     return ascii
 
 
-def ascii_filename(orig, substitute='_'):
+def ascii_filename(orig: str | bytes, substitute: str | bytes = '_') -> str:
     if isinstance(substitute, bytes):
         substitute = substitute.decode(filesystem_encoding)
     orig = ascii_text(orig).replace('?', '_')
@@ -37,7 +39,7 @@ def ascii_filename(orig, substitute='_'):
     return sanitize_file_name(ans, substitute=substitute)
 
 
-def shorten_component(s, by_what):
+def shorten_component[T: (str, bytes)](s: T, by_what: int) -> T:
     l = len(s)
     if l < by_what:
         return s
@@ -47,23 +49,23 @@ def shorten_component(s, by_what):
     return s[:l] + s[-l:]
 
 
-def limit_component(x, limit=254):
+def limit_component[T: (str, bytes)](x: T, limit: int = 254) -> T:
     # windows and macs use ytf-16 codepoints for length, linux uses arbitrary
     # binary data, but we will assume utf-8
     filename_encoding_for_length = 'utf-16' if iswindows or ismacos else 'utf-8'
 
-    def encoded_length():
+    def encoded_length() -> int:
         q = x if isinstance(x, bytes) else x.encode(filename_encoding_for_length)
         return len(q)
 
     while encoded_length() > limit:
         delta = encoded_length() - limit
-        x = shorten_component(x, max(2, delta // 2))
+        x = shorten_component(x, max(2, delta // 2))  # ty: ignore[invalid-argument-type]
 
     return x
 
 
-def shorten_components_to(length, components, more_to_take=0, last_has_extension=True):
+def shorten_components_to(length: int, components: Iterable[str], more_to_take: int = 0, last_has_extension: bool = True) -> list[str]:
     components = [limit_component(cx) for cx in components]
     filepath = os.sep.join(components)
     extra = len(filepath) - (length - more_to_take)
@@ -98,19 +100,19 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
     return ans
 
 
-def find_executable_in_path(name, path=None):
+def find_executable_in_path(name: str, path: str | None = None) -> str | None:
     if path is None:
         path = os.environ.get('PATH', '')
     exts = '.exe .cmd .bat'.split() if iswindows and not name.endswith('.exe') else ('',)
-    path = path.split(os.pathsep)
-    for x in path:
+    path = path.split(os.pathsep)  # ty: ignore[invalid-assignment]
+    for x in path:  # ty: ignore[not-iterable]
         for ext in exts:
             q = os.path.abspath(os.path.join(x, name)) + ext
             if os.access(q, os.X_OK):
                 return q
 
 
-def is_case_sensitive(path):
+def is_case_sensitive(path: str) -> bool:
     """
     Return True if the filesystem is case sensitive.
 
@@ -130,7 +132,7 @@ def is_case_sensitive(path):
     return is_case_sensitive
 
 
-def case_ignoring_open_file(path, mode='r'):
+def case_ignoring_open_file(path: str | bytes, mode: str = 'r') -> IO[Any]:
     """
     Open an existing file case insensitively, even on case sensitive file systems
     """
@@ -139,7 +141,7 @@ def case_ignoring_open_file(path, mode='r'):
     except FileNotFoundError as err:
         original_err = err
 
-    def next_component(final_path, components):
+    def next_component(final_path: str, components: list[str]) -> str:
         if not components:
             return final_path
         component = components.pop()
@@ -171,7 +173,11 @@ def case_ignoring_open_file(path, mode='r'):
     return open(next_component(final_path, components), mode)
 
 
-def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
+@overload
+def case_preserving_open_file(path: str | bytes, mode: None, mkdir_mode: int = 0o777) -> tuple[str, str]: ...
+@overload
+def case_preserving_open_file(path: str | bytes, mode: str = 'wb', mkdir_mode: int = 0o777) -> tuple[IO[Any], str]: ...
+def case_preserving_open_file(path: str | bytes, mode: str | None = 'wb', mkdir_mode: int = 0o777) -> tuple[IO[Any] | str, str]:
     """
     Open the file pointed to by path with the specified mode. If any
     directories in path do not exist, they are created. Returns the
@@ -256,7 +262,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     return ans, fpath
 
 
-def windows_get_fileid(path):
+def windows_get_fileid(path: str | bytes) -> tuple[int, int, int] | None:
     """The fileid uniquely identifies actual file contents (it is the same for
     all hardlinks to a file). Similar to inode number on linux."""
     from calibre_extensions.winutil import get_file_id
@@ -267,7 +273,7 @@ def windows_get_fileid(path):
         return get_file_id(path)
 
 
-def samefile_windows(src, dst):
+def samefile_windows(src: str, dst: str) -> bool:
     samestring = os.path.normcase(os.path.abspath(src)) == os.path.normcase(os.path.abspath(dst))
     if samestring:
         return True
@@ -278,7 +284,7 @@ def samefile_windows(src, dst):
     return a == b
 
 
-def samefile(src, dst):
+def samefile(src: str, dst: str) -> bool:
     """
     Check if two paths point to the same actual file on the filesystem. Handles
     symlinks, case insensitivity, mapped drives, etc.
@@ -304,7 +310,7 @@ def samefile(src, dst):
     return samestring
 
 
-def windows_get_size(path):
+def windows_get_size(path: str | bytes) -> int:
     """On windows file sizes are only accurately stored in the actual file,
     not in the directory entry (which could be out of date). So we open the
     file, and get the actual size."""
@@ -324,7 +330,7 @@ def windows_get_size(path):
         return winutil.get_file_size(h)
 
 
-def windows_hardlink(src, dest):
+def windows_hardlink(src: str, dest: str) -> None:
     from calibre_extensions import winutil
 
     winutil.create_hard_link(dest, src)
@@ -347,7 +353,7 @@ def windows_hardlink(src, dest):
         raise OSError(msg + (f'hardlink size: {sz} not the same as source size'))
 
 
-def windows_fast_hardlink(src, dest):
+def windows_fast_hardlink(src: str, dest: str) -> None:
     from calibre_extensions import winutil
 
     winutil.create_hard_link(dest, src)
@@ -357,7 +363,7 @@ def windows_fast_hardlink(src, dest):
         raise OSError(msg + (f'hardlink size: {dsz} not the same as source size: {ssz}'))
 
 
-def windows_nlinks(path):
+def windows_nlinks(path: str | bytes) -> int:
     from calibre_extensions import winutil
 
     if isinstance(path, bytes):
@@ -374,7 +380,7 @@ class WindowsAtomicFolderMove:
     folder, not any sub-folders.
     """
 
-    def __init__(self, path):
+    def __init__(self, path: str | bytes) -> None:
         from collections import defaultdict
 
         from calibre_extensions import winutil
@@ -438,7 +444,7 @@ class WindowsAtomicFolderMove:
                 raise
             self.handle_map[f] = h
 
-    def copy_path_to(self, path, dest):
+    def copy_path_to(self, path: str, dest: str) -> None:
         from calibre_extensions import winutil
 
         handle = None
@@ -465,7 +471,7 @@ class WindowsAtomicFolderMove:
                     break
                 f.write(raw)
 
-    def release_file(self, path):
+    def release_file(self, path: str) -> None:
         "Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path"
         key = None
         for p, h in self.handle_map.items():
@@ -478,12 +484,12 @@ class WindowsAtomicFolderMove:
             for x in remove:
                 self.handle_map.pop(x)
 
-    def close_handles(self):
+    def close_handles(self) -> None:
         for h in self.handle_map.values():
             h.close()
         self.handle_map = {}
 
-    def delete_originals(self):
+    def delete_originals(self) -> None:
         from calibre_extensions import winutil
 
         for path in self.handle_map:
@@ -491,7 +497,7 @@ class WindowsAtomicFolderMove:
         self.close_handles()
 
 
-def hardlink_file(src, dest):
+def hardlink_file(src: str, dest: str) -> None:
     src, dest = make_long_path_useable(src), make_long_path_useable(dest)
     if iswindows:
         windows_hardlink(src, dest)
@@ -499,14 +505,14 @@ def hardlink_file(src, dest):
     os.link(src, dest)
 
 
-def nlinks_file(path):
+def nlinks_file(path: str) -> int:
     "Return number of hardlinks to the file"
     if iswindows:
         return windows_nlinks(path)
     return os.stat(path).st_nlink
 
 
-def retry_on_fail(func, *args, count=10, sleep_time=0.2):
+def retry_on_fail(func: Callable[..., object], *args: object, count: int = 10, sleep_time: float = 0.2) -> None:
     for i in range(count):
         try:
             func(*args)
@@ -519,7 +525,7 @@ def retry_on_fail(func, *args, count=10, sleep_time=0.2):
             time.sleep(sleep_time)
 
 
-def atomic_rename(oldpath, newpath):
+def atomic_rename(oldpath: str, newpath: str) -> None:
     """Replace the file newpath with the file oldpath. Can fail if the files
     are on different volumes. If succeeds, guaranteed to be atomic. newpath may
     or may not exist. If it exists, it is replaced."""
@@ -530,7 +536,7 @@ def atomic_rename(oldpath, newpath):
         os.replace(oldpath, newpath)
 
 
-def remove_dir_if_empty(path, ignore_metadata_caches=False):
+def remove_dir_if_empty(path: str, ignore_metadata_caches: bool = False) -> None:
     """Remove a directory if it is empty or contains only the folder metadata
     caches from different OSes. To delete the folder if it contains only
     metadata caches, set ignore_metadata_caches to True."""
@@ -569,7 +575,7 @@ def remove_dir_if_empty(path, ignore_metadata_caches=False):
 expanduser = os.path.expanduser
 
 
-def format_permissions(st_mode):
+def format_permissions(st_mode: int) -> str:
     import stat
 
     for func, letter in (x.split(':') for x in 'REG:- DIR:d BLK:b CHR:c FIFO:p LNK:l SOCK:s'.split()):
@@ -588,7 +594,7 @@ def format_permissions(st_mode):
     return ''.join(ans)
 
 
-def copyfile(src, dest):
+def copyfile(src: str, dest: str) -> None:
     shutil.copyfile(src, dest)
     try:
         shutil.copystat(src, dest)
@@ -596,7 +602,7 @@ def copyfile(src, dest):
         pass
 
 
-def get_hardlink_function(src, dest):
+def get_hardlink_function(src: str, dest: str) -> Callable[[str, str], None] | None:
     if not iswindows:
         return os.link
     from calibre_extensions import winutil
@@ -608,19 +614,19 @@ def get_hardlink_function(src, dest):
         return windows_fast_hardlink
 
 
-def copyfile_using_links(path, dest, dest_is_dir=True, filecopyfunc=copyfile):
+def copyfile_using_links(path: str, dest: str, dest_is_dir: bool = True, filecopyfunc: Callable[[str, str], object] = copyfile) -> None:
     path, dest = os.path.abspath(path), os.path.abspath(dest)
     if dest_is_dir:
         dest = os.path.join(dest, os.path.basename(path))
     hardlink = get_hardlink_function(path, dest)
     path, dest = make_long_path_useable(path), make_long_path_useable(dest)
     try:
-        hardlink(path, dest)
+        hardlink(path, dest)  # ty: ignore[call-non-callable]
     except Exception:
         filecopyfunc(path, dest)
 
 
-def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile):
+def copytree_using_links(path: str, dest: str, dest_is_parent: bool = True, filecopyfunc: Callable[[str, str], object] = copyfile) -> None:
     path, dest = os.path.abspath(path), os.path.abspath(dest)
     if dest_is_parent:
         dest = os.path.join(dest, os.path.basename(path))
@@ -642,7 +648,7 @@ def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile)
         for fname in filenames:
             src, df = os.path.join(dirpath, fname), os.path.join(dest_base, fname)
             try:
-                hardlink(src, df)
+                hardlink(src, df)  # ty: ignore[call-non-callable]
             except Exception:
                 filecopyfunc(src, df)
 
@@ -681,7 +687,7 @@ def is_windows_reserved_filename(name: str) -> bool:
     return name.partition('.')[0].upper() in windows_reserved_filenames
 
 
-def _normalize_path_for_containment(path, case_sensitive=True):
+def _normalize_path_for_containment(path: str, case_sensitive: bool = True) -> str:
     ans = os.path.abspath(path)
     return ans if case_sensitive else os.path.normcase(ans).lower()
 
@@ -737,12 +743,12 @@ rmtree = shutil.rmtree
 if iswindows:
     long_path_prefix = '\\\\?\\'
 
-    def make_long_path_useable(path, threshold=200):
+    def make_long_path_useable(path: str, threshold: int = 200) -> str:
         if len(path) > threshold and os.path.isabs(path) and not path.startswith(long_path_prefix):
             path = long_path_prefix + os.path.normpath(path)
         return path
 
-    def is_fat_filesystem(path):
+    def is_fat_filesystem(path: str) -> bool:
         try:
             from calibre_extensions.winutil import filesystem_type_name
         except ImportError:
@@ -757,7 +763,7 @@ if iswindows:
         # Values I have seen: FAT32, exFAT, NTFS
         return tn.upper().startswith('FAT')
 
-    def get_long_path_name(path):
+    def get_long_path_name(path: str) -> str:
         from calibre_extensions.winutil import get_long_path_name
 
         lpath = path
@@ -774,13 +780,13 @@ if iswindows:
 
 else:
 
-    def make_long_path_useable(path, threshold=200):
+    def make_long_path_useable(path: str, threshold: int = 200) -> str:
         return path
 
-    def get_long_path_name(path):
+    def get_long_path_name(path: str) -> str:
         return path
 
-    def is_fat_filesystem(path):
+    def is_fat_filesystem(path: str) -> bool:
         # TODO: Implement for Linux and macOS
         return False
 

@@ -10,7 +10,7 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 class MaxpTable(UnknownTable):
     version = FixedProperty('_version')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: bytes, **kwargs: bytes) -> None:
         super().__init__(*args, **kwargs)
 
         self._fmt = b'>lH'
@@ -43,6 +43,6 @@ class MaxpTable(UnknownTable):
             for f, val in zip(self.fields, vals):
                 setattr(self, f, val)
 
-    def update(self):
+    def update(self) -> None:
         vals = [getattr(self, f) for f in self.fields]
         self.raw = pack(self._fmt, *vals)

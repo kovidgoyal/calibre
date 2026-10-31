@@ -26,7 +26,7 @@ class Query:
     outputEncoding: str
     inputEncoding: str
 
-    def __init__(self, format):
+    def __init__(self, format: str) -> None:
         """
         Create a query object by passing it the url format obtained
         from the opensearch Description.
@@ -50,7 +50,7 @@ class Query:
             if macro in Query.standard_macros:
                 self.macro_map[macro] = key
 
-    def url(self):
+    def url(self) -> str:
         # copy the original query string
         query_string = dict(self.query_string)
 
@@ -70,5 +70,5 @@ class Query:
         # recompose and return url
         return urlunparse(tuple(url_parts))
 
-    def has_macro(self, macro):
+    def has_macro(self, macro: str) -> bool:
         return macro in self.macro_map

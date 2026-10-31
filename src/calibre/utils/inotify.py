@@ -5,6 +5,8 @@ import errno
 import os
 import select
 import sys
+from collections.abc import Callable
+from typing import NoReturn, Self
 
 
 class INotifyError(Exception):
@@ -20,7 +22,7 @@ class BaseDirChanged(ValueError):
 
 
 class DirTooLarge(ValueError):
-    def __init__(self, bdir):
+    def __init__(self, bdir: str) -> None:
         ValueError.__init__(
             self,
             f'The directory {bdir} is too large to monitor. Try increasing the value in /proc/sys/fs/inotify/max_user_watches',
@@ -30,7 +32,7 @@ class DirTooLarge(ValueError):
 _inotify = None
 
 
-def load_inotify():  # {{{
+def load_inotify() -> tuple[Callable[..., int], Callable[..., int], Callable[..., int], Callable[..., int]]:  # {{{
     """Initialize the inotify ctypes wrapper"""
     global _inotify
     if _inotify is None:
@@ -136,7 +138,7 @@ class INotify:
     CLOEXEC = 0x80000
     NONBLOCK = 0x800
 
-    def __init__(self, cloexec=True, nonblock=True):
+    def __init__(self, cloexec: bool = True, nonblock: bool = True) -> None:
         import ctypes
         import struct
 
@@ -160,7 +162,7 @@ class INotify:
         # __del__ method
         self.os = os
 
-    def handle_error(self):
+    def handle_error(self) -> NoReturn:
         import ctypes
 
         eno = ctypes.get_errno()
@@ -169,7 +171,7 @@ class INotify:
             extra = 'You may need to increase the inotify limits on your system, via /proc/sys/inotify/max_user_*'
         raise OSError(eno, self.os.strerror(eno) + extra)
 
-    def __del__(self):
+    def __del__(self) -> None:
         # This method can be called during interpreter shutdown, which means we
         # must do the absolute minimum here. Note that there could be running
         # daemon threads that are trying to call other methods on this object.
@@ -178,7 +180,7 @@ class INotify:
         except AttributeError, TypeError:
             pass
 
-    def close(self):
+    def close(self) -> None:
         if hasattr(self, '_inotify_fd'):
             self.os.close(self._inotify_fd)
             del self.os
@@ -186,13 +188,13 @@ class INotify:
             del self._rm_watch
             del self._inotify_fd
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.close()
 
-    def read(self, get_name=True):
+    def read(self, get_name: bool = True) -> None:
         import ctypes
 
         buf = []
@@ -220,29 +222,29 @@ class INotify:
             pos += name_len
             self.process_event(wd, mask, cookie, name)
 
-    def process_event(self, *args):
+    def process_event(self, *args: *tuple[int, int, int, str | None]) -> None:
         raise NotImplementedError()
 
-    def wait(self, timeout=None):
+    def wait(self, timeout: float | None = None) -> bool:
         "Return True iff there are events waiting to be read. Blocks if timeout is None. Polls if timeout is 0."
         return len((select.select([self._inotify_fd], [], []) if timeout is None else select.select([self._inotify_fd], [], [], timeout))[0]) > 0
 
 
-def realpath(path):
+def realpath(path: str) -> str:
     return os.path.abspath(os.path.realpath(path))
 
 
 class INotifyTreeWatcher(INotify):
     is_dummy = False
 
-    def __init__(self, basedir, ignore_event=None):
+    def __init__(self, basedir: str, ignore_event: Callable[[str, str | None], bool] | None = None) -> None:
         super().__init__()
         self.basedir = realpath(basedir)
         self.watch_tree()
         self.modified = set()
         self.ignore_event = (lambda path, name: False) if ignore_event is None else ignore_event
 
-    def watch_tree(self):
+    def watch_tree(self) -> None:
         self.watched_dirs = {}
         self.watched_rmap = {}
         try:
@@ -251,7 +253,7 @@ class INotifyTreeWatcher(INotify):
             if e.errno == errno.ENOSPC:
                 raise DirTooLarge(self.basedir)
 
-    def add_watches(self, base, top_level=True):
+    def add_watches(self, base: str, top_level: bool = True) -> None:
         """Add watches for this directory and all its descendant directories,
         recursively."""
         base = realpath(base)
@@ -293,7 +295,7 @@ class INotifyTreeWatcher(INotify):
                 # The top level dir is a file, not good.
                 raise NoSuchDir(f'The dir {base} does not exist')
 
-    def add_watch(self, path):
+    def add_watch(self, path: str) -> bool:
         import ctypes
 
         bpath = path if isinstance(path, bytes) else path.encode(self.fenc)
@@ -321,7 +323,7 @@ class INotifyTreeWatcher(INotify):
         self.watched_rmap[wd] = path
         return True
 
-    def process_event(self, *args):
+    def process_event(self, *args: *tuple[int, int, int, str | None]) -> None:
         wd, mask, cookie, name = args
         if wd == -1 and (mask & self.Q_OVERFLOW):
             # We missed some INOTIFY events, so we don't
@@ -336,7 +338,7 @@ class INotifyTreeWatcher(INotify):
             if mask & self.CREATE:
                 # A new sub-directory might have been created, monitor it.
                 try:
-                    self.add_watch(os.path.join(path, name))
+                    self.add_watch(os.path.join(path, name))  # ty: ignore[no-matching-overload]
                 except OSError as e:
                     if e.errno == errno.ENOENT:
                         # Deleted before add_watch()
@@ -348,7 +350,7 @@ class INotifyTreeWatcher(INotify):
             if (mask & self.DELETE_SELF or mask & self.MOVE_SELF) and path == self.basedir:
                 raise BaseDirChanged(f'The directory {path} was moved/deleted')
 
-    def __call__(self):
+    def __call__(self) -> set[str | None]:
         self.read()
         ret = self.modified
         self.modified = set()

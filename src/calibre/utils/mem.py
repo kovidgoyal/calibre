@@ -13,7 +13,7 @@ import gc
 import os
 
 
-def get_memory():
+def get_memory() -> int:
     "Return memory usage in bytes"
     # See https://pythonhosted.org/psutil/#psutil.Process.memory_info
     import psutil
@@ -21,14 +21,14 @@ def get_memory():
     return psutil.Process(os.getpid()).memory_info().rss
 
 
-def memory(since=0.0):
+def memory(since: float = 0.0) -> float:
     "Return memory used in MB. The value of since is subtracted from the used memory"
     ans = get_memory()
     ans /= float(1024**2)
     return ans - since
 
 
-def gc_histogram():
+def gc_histogram() -> dict[type, int]:
     """Returns per-class counts of existing objects."""
     result = {}
     for o in gc.get_objects():
@@ -38,9 +38,9 @@ def gc_histogram():
     return result
 
 
-def diff_hists(h1, h2):
+def diff_hists(h1: dict[type, int], h2: dict[type, int]) -> None:
     """Prints differences between two results of gc_histogram()."""
-    for k in h1:
+    for k in h1:  # ruff: ignore[dict-index-missing-items]
         if k not in h2:
             h2[k] = 0
         if h1[k] != h2[k]:

@@ -2,14 +2,19 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
+from collections.abc import Callable, Sequence
 from functools import partial
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from calibre.utils.fonts.sfnt.container import Sfnt
 
 
 class GlyphSizeMismatch(ValueError):
     pass
 
 
-def merge_truetype_fonts_for_pdf(fonts, log=None):
+def merge_truetype_fonts_for_pdf(fonts: Sequence[Sfnt], log: Callable[[str], object] | None = None) -> Sfnt:
     all_glyphs = {}
     ans = fonts[0]
     hmetrics_map = {}

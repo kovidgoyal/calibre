@@ -37,7 +37,7 @@ def get_metadata(stream):
                 'azw1',
                 'azw3',
             }:
-                name, data = extract_member(stream, match=None, name=f)
+                name, data = extract_member(stream, match=None, name=f)  # ty: ignore[not-iterable]
                 stream = BytesIO(data)
                 stream.name = os.path.basename(name)
                 mi = get_metadata(stream, stream_type)

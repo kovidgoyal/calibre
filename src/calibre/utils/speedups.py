@@ -2,6 +2,11 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from collections.abc import Iterator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from qt.core import QPainterPath
 
 
 class ReadOnlyFileBuffer:
@@ -9,12 +14,12 @@ class ReadOnlyFileBuffer:
 
     is_close_frame: bool = False  # used by the srv code
 
-    def __init__(self, raw: bytes, name: str = ''):
+    def __init__(self, raw: bytes, name: str = '') -> None:
         self.sz, self.mv = len(raw), (raw if isinstance(raw, memoryview) else memoryview(raw))
         self.pos = 0
         self.name: str = name
 
-    def tell(self):
+    def tell(self) -> int:
         return self.pos
 
     def read(self, n: int | None = None) -> memoryview:
@@ -26,7 +31,7 @@ class ReadOnlyFileBuffer:
         self.pos = min(self.pos + n, self.sz)
         return ans
 
-    def seek(self, pos, whence=os.SEEK_SET):
+    def seek(self, pos: int, whence: int = os.SEEK_SET) -> int:
         if whence == os.SEEK_SET:
             self.pos = pos
         elif whence == os.SEEK_END:
@@ -36,17 +41,17 @@ class ReadOnlyFileBuffer:
         self.pos = max(0, min(self.pos, self.sz))
         return self.pos
 
-    def seekable(self):
+    def seekable(self) -> bool:
         return True
 
-    def getvalue(self):
+    def getvalue(self) -> memoryview:
         return self.mv
 
-    def close(self):
+    def close(self) -> None:
         pass
 
 
-def svg_path_to_painter_path(d):
+def svg_path_to_painter_path(d: str | bytes) -> QPainterPath:
     """
     Convert a tiny SVG 1.2 path into a QPainterPath.
 
@@ -77,12 +82,12 @@ def svg_path_to_painter_path(d):
     end = len(d)
     pos = [0]
 
-    def read_byte():
+    def read_byte() -> bytes:
         p = pos[0]
         pos[0] += 1
         return d[p : p + 1]
 
-    def parse_float():
+    def parse_float() -> float:
         chars = []
         while pos[0] < end:
             c = read_byte()
@@ -96,7 +101,7 @@ def svg_path_to_painter_path(d):
             raise ValueError('Premature end of input while expecting a number')
         return float(b''.join(chars))
 
-    def parse_floats(num, x_offset=0, y_offset=0):
+    def parse_floats(num: int, x_offset: float = 0, y_offset: float = 0) -> Iterator[float]:
         for i in range(num):
             val = parse_float()
             yield val + (x_offset if i % 2 == 0 else y_offset)

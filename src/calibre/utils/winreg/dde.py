@@ -4,6 +4,13 @@
 import numbers
 from ctypes import POINTER, WINFUNCTYPE, byref, c_char_p, c_ulong, c_void_p, windll
 from ctypes.wintypes import BOOL, DWORD, LPCWSTR, UINT
+from typing import TYPE_CHECKING, NoReturn, Unpack
+
+if TYPE_CHECKING:
+    from _ctypes import CFuncPtr
+    from ctypes import _CData
+
+    from calibre.utils.winreg.lib import CwrapKw, ErrCheckArgs
 
 HCONV = c_void_p  # = DECLARE_HANDLE(HCONV)
 HDDEDATA = c_void_p  # = DECLARE_HANDLE(HDDEDATA)
@@ -92,22 +99,22 @@ class DDEError(ValueError):
     pass
 
 
-def init_errcheck(result, func, args):
+def init_errcheck(result: int, func: CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if result != 0:
         raise DDEError(f'Failed to initialize DDE client with return code: {result:x}')
     return args
 
 
-def no_errcheck(result, func, args):
+def no_errcheck(result: object, func: CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     return args
 
 
-def dde_error(instance):
+def dde_error(instance: object) -> NoReturn:
     errcode = GetLastError(instance)
     raise DDEError(DML_ERRORS.get(errcode, f'Unknown DDE error code: {errcode:x}'))
 
 
-def default_errcheck(result, func, args):
+def default_errcheck(result: object, func: CFuncPtr, args: ErrCheckArgs) -> ErrCheckArgs:
     if (isinstance(result, numbers.Integral) and result == 0) or (getattr(result, 'value', False) is None):
         dde_error(args[0])
     return args
@@ -117,7 +124,7 @@ null = object()
 
 
 class a:
-    def __init__(self, name, typ, default=null, in_arg=True):
+    def __init__(self, name: str, typ: type[_CData], default: object = null, in_arg: bool = True) -> None:
         self.typ = typ
         if default is null:
             self.spec = ((1 if in_arg else 2), name)
@@ -125,11 +132,11 @@ class a:
             self.spec = ((1 if in_arg else 2), name, default)
 
 
-def cwrap(name, restype, *args, **kw):
+def cwrap(name: str, restype: type[_CData], *args: a, **kw: Unpack[CwrapKw]) -> CFuncPtr:
     params = (restype,) + tuple(x.typ for x in args)
     paramflags = tuple(x.spec for x in args)
     func = WINFUNCTYPE(*params)((name, kw.get('lib', user32)), paramflags)
-    func.errcheck = kw.get('errcheck', default_errcheck)
+    func.errcheck = kw.get('errcheck', default_errcheck)  # ty: ignore[invalid-assignment]
     return func
 
 
@@ -165,10 +172,10 @@ Disconnect = cwrap('DdeDisconnect', BOOL, a('conversation', HCONV), errcheck=no_
 Uninitialize = cwrap('DdeUninitialize', BOOL, a('instance', DWORD), errcheck=no_errcheck)
 
 
-def send_dde_command(service, topic, command):
+def send_dde_command(service: str, topic: str, command: bytes) -> None:
     instance = DWORD(0)
 
-    def cb(*args):
+    def cb(*args: object) -> None:
         pass  # ignore callbacks
 
     callback = DDECALLBACK(cb)
@@ -190,4 +197,4 @@ def send_dde_command(service, topic, command):
 
 
 if __name__ == '__main__':
-    send_dde_command('WinWord', 'System', '[REM_DDE_Direct][FileOpen("C:/cygwin64/home/kovid/demo.docx")]')
+    send_dde_command('WinWord', 'System', '[REM_DDE_Direct][FileOpen("C:/cygwin64/home/kovid/demo.docx")]')  # ty: ignore[invalid-argument-type]

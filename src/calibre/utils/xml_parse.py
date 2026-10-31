@@ -2,8 +2,14 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
+from typing import TYPE_CHECKING
 
 from lxml import etree, html
+
+if TYPE_CHECKING:
+    import unittest
+
+    from lxml.etree._docloader import _InputDocument
 
 # resolving of SYSTEM entities is turned off as entities can cause
 # reads of local files, for example:
@@ -14,7 +20,7 @@ hfs = html.fromstring
 
 
 class Resolver(etree.Resolver):
-    def resolve(self, url, id, context):
+    def resolve(self, url: str | None, id: str | None, context: object) -> _InputDocument:
         return self.resolve_string('', context)
 
 
@@ -61,12 +67,12 @@ def document_fromstring(string_or_bytes: str | bytes, ensure_head_body: bool = F
     return html.document_fromstring(raw, parser=create_html_parser(True, encoding=encoding), ensure_head_body=ensure_head_body)
 
 
-def unsafe_xml_fromstring(string_or_bytes):
+def unsafe_xml_fromstring(string_or_bytes: str | bytes) -> etree.Element:
     parser = etree.XMLParser(resolve_entities=True)
     return fs(string_or_bytes, parser=parser)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import os
     import tempfile
     import unittest
@@ -74,7 +80,7 @@ def find_tests():
     from calibre.constants import iswindows
 
     class TestXMLParse(unittest.TestCase):
-        def setUp(self):
+        def setUp(self) -> None:
             with tempfile.NamedTemporaryFile(delete=False) as tf:
                 tf.write(b'external')
                 self.temp_file = os.path.abspath(tf.name)
@@ -83,14 +89,14 @@ def find_tests():
 
                 self.temp_file = get_long_path_name(self.temp_file)
 
-        def tearDown(self):
+        def tearDown(self) -> None:
             os.remove(self.temp_file)
 
-        def test_safe_xml_fromstring(self):
+        def test_safe_xml_fromstring(self) -> None:
             templ = '''<!DOCTYPE foo [ <!ENTITY e {id} "{val}" > ]><r>&e;</r>'''
             external = 'file:///' + self.temp_file.replace(os.sep, '/')
 
-            def t(tid, val, expected, safe=True):
+            def t(tid: str, val: str, expected: str | None, safe: bool = True) -> None:
                 raw = templ.format(id=tid, val=val)
                 err = None
                 try:
@@ -117,7 +123,7 @@ def find_tests():
             ):
                 t(eid, val, expected)
 
-        def test_lxml_unicode_parsing(self):
+        def test_lxml_unicode_parsing(self) -> None:
             from calibre.ebooks.chardet import xml_to_unicode
 
             with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'unicode-test.opf'), 'rb') as f:
@@ -128,7 +134,7 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestXMLParse)
 
 
-def develop():
+def develop() -> None:
     from calibre.ebooks.chardet import xml_to_unicode
 
     # print(etree.tostring(fs('<r/>')).decode())

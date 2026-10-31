@@ -14,8 +14,8 @@ import tempfile
 import time
 import uuid
 from collections import Counter
-from collections.abc import Callable, Iterator
-from typing import NamedTuple
+from collections.abc import Callable, Iterator, Mapping
+from typing import IO, TYPE_CHECKING, NamedTuple, Self
 
 from calibre import prints
 from calibre.constants import config_dir, filesystem_encoding, iswindows
@@ -26,11 +26,18 @@ from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import error_message
 
+if TYPE_CHECKING:
+    from threading import Event
+
+    from calibre.db.cache import Cache
+
+    type ProgressCallback = Callable[[str, int, int], object]
+
 # Export {{{
 
 
 class FileDest:
-    def __init__(self, key, exporter, mtime=None):
+    def __init__(self, key: str, exporter: Exporter, mtime: float | None = None) -> None:
         self.exporter, self.key = exporter, key
         self.hasher = hashlib.sha1()
         self.start_part_number, self.start_pos = exporter.current_pos()
@@ -38,20 +45,20 @@ class FileDest:
         self.mtime = mtime
         self.size = 0
 
-    def discard(self):
+    def discard(self) -> None:
         self._discard = True
 
-    def write(self, data):
+    def write(self, data: bytes) -> None:
         self.size += len(data)
         written = self.exporter.write(data)
         if len(data) != written:
             raise RuntimeError(f'Exporter failed to write all data: {len(data)} != {written}')
         self.hasher.update(data)
 
-    def flush(self):
+    def flush(self) -> None:
         pass
 
-    def close(self):
+    def close(self) -> None:
         if not self._discard:
             digest = str(self.hasher.hexdigest())
             self.exporter.file_metadata[self.key] = (
@@ -63,10 +70,10 @@ class FileDest:
             )
         del self.exporter, self.hasher
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.close()
 
 
@@ -77,10 +84,10 @@ class Exporter:
     EXT = '.calibre-data'
 
     @classmethod
-    def tail_size(cls):
+    def tail_size(cls) -> int:
         return struct.calcsize(cls.TAIL_FMT)
 
-    def __init__(self, path_to_export_dir, part_size=None):
+    def __init__(self, path_to_export_dir: str, part_size: int | None = None) -> None:
         # default part_size is 1 GB
         self.part_size = (1 << 30) if part_size is None else part_size
         self.base = os.path.abspath(path_to_export_dir)
@@ -90,12 +97,12 @@ class Exporter:
         self.tail_sz = self.tail_size()
         self.metadata: dict[str, object] = {'file_metadata': self.file_metadata}
 
-    def set_metadata(self, key, val):
+    def set_metadata(self, key: str, val: object) -> None:
         if key in self.metadata:
             raise KeyError(f'The metadata already contains the key: {key}')
         self.metadata[key] = val
 
-    def current_pos(self):
+    def current_pos(self) -> tuple[int, int]:
         pos = 0
         if self.current_part is not None:
             pos = self.current_part.tell()
@@ -122,18 +129,18 @@ class Exporter:
             written += w
         return written
 
-    def new_part(self):
+    def new_part(self) -> None:
         self.commit_part()
         self.current_part = open(os.path.join(self.base, f'part-{len(self.commited_parts) + 1:04d}{self.EXT}'), 'wb')  # ruff: ignore[open-file-with-context-handler]
 
-    def commit_part(self, is_last=False):
+    def commit_part(self, is_last: bool = False) -> None:
         if self.current_part is not None:
             self.current_part.write(struct.pack(self.TAIL_FMT, len(self.commited_parts) + 1, self.VERSION, is_last))
             self.current_part.close()
             self.commited_parts.append(self.current_part.name)
             self.current_part = None
 
-    def commit(self):
+    def commit(self) -> None:
         raw = json.dumps(self.metadata, ensure_ascii=False)
         if not isinstance(raw, bytes):
             raw = raw.encode('utf-8')
@@ -144,7 +151,7 @@ class Exporter:
         self.part_size = orig
         self.commit_part(is_last=True)
 
-    def add_file(self, fileobj, key):
+    def add_file(self, fileobj: IO[bytes], key: str) -> None:
         try:
             mtime = os.fstat(fileobj.fileno()).st_mtime
         except io.UnsupportedOperation, OSError:
@@ -152,10 +159,10 @@ class Exporter:
         with self.start_file(key, mtime=mtime) as dest:
             shutil.copyfileobj(fileobj, dest)
 
-    def start_file(self, key, mtime=None):
+    def start_file(self, key: str, mtime: float | None = None) -> FileDest:
         return FileDest(key, self, mtime=mtime)
 
-    def export_dir(self, path, dir_key):
+    def export_dir(self, path: str, dir_key: str) -> None:
         pkey = as_hex_unicode(dir_key)
         self.metadata[dir_key] = files = []
         for dirpath, dirnames, filenames in os.walk(path):
@@ -175,7 +182,7 @@ class Exporter:
                 files.append((key, rpath))
 
 
-def all_known_libraries():
+def all_known_libraries() -> dict[str, int]:
     from calibre.gui2 import gprefs
 
     lus = gprefs.get('library_usage_stats', {})
@@ -194,7 +201,14 @@ def all_known_libraries():
     return added
 
 
-def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None, abort=None):
+def export(
+    destdir: str,
+    library_paths: dict[str, int] | None = None,
+    dbmap: dict[str, Cache] | None = None,
+    progress1: ProgressCallback | None = None,
+    progress2: ProgressCallback | None = None,
+    abort: Event | None = None,
+) -> None:
     from calibre.db.backend import DB
     from calibre.db.cache import Cache
 
@@ -245,7 +259,7 @@ class Chunk(NamedTuple):
 
 
 class Pos:
-    def __init__(self, part, pos_in_part, size, importer):
+    def __init__(self, part: int, pos_in_part: int, size: int, importer: Importer) -> None:
         self.size = size
         self.pos_in_file = 0
         self.chunks = chunks = []
@@ -264,7 +278,7 @@ class Pos:
             part += 1
             pos_in_part = 0
 
-    def close(self):
+    def close(self) -> None:
         if self.currently_open_part is not None:
             self.currently_open_part.close()
             self.currently_open_part = None
@@ -273,7 +287,7 @@ class Pos:
     def tell(self) -> int:
         return self.pos_in_file
 
-    def seek(self, amt, whence=os.SEEK_SET) -> int:
+    def seek(self, amt: int, whence: int = os.SEEK_SET) -> int:
         if whence == os.SEEK_SET:
             new_pos_in_file = amt
         if whence == os.SEEK_END:
@@ -283,7 +297,7 @@ class Pos:
         self.pos_in_file = max(0, min(new_pos_in_file, self.size))
         return self.pos_in_file
 
-    def read(self, size=None):
+    def read(self, size: int | None = None) -> bytes:
         if size is None or size < 0:
             size = self.size
         size = min(size, self.size)
@@ -313,7 +327,7 @@ class Pos:
             chunk_idx += 1
         return b''.join(ans)
 
-    def _read_chunk(self, chunk, size, chunk_idx):
+    def _read_chunk(self, chunk: Chunk, size: int, chunk_idx: int) -> bytes:
         if self.currently_open_chunk_index != chunk_idx or self.currently_open_part is None:
             self.close()
             self.currently_open_part = self.open_part(chunk.part_num)
@@ -327,7 +341,7 @@ class Pos:
 
 
 class FileSource:
-    def __init__(self, start_partnum, start_pos, size, digest, description, mtime, importer):
+    def __init__(self, start_partnum: int, start_pos: int, size: int, digest: str, description: str, mtime: float | None, importer: Importer) -> None:
         self.size, self.digest, self.description = size, digest, description
         self.mtime = mtime
         self.start = start_pos
@@ -337,18 +351,18 @@ class FileSource:
         self.importer = importer
         self.check_hash = True
 
-    def seekable(self):
+    def seekable(self) -> bool:
         return False
 
-    def seek(self, amt, whence=os.SEEK_SET):
+    def seek(self, amt: int, whence: int = os.SEEK_SET) -> int:
         assert self.pos is not None
         return self.pos.seek(amt, whence)
 
-    def tell(self):
+    def tell(self) -> int:
         assert self.pos is not None
         return self.pos.tell()
 
-    def read(self, size=None):
+    def read(self, size: int | None = None) -> bytes:
         assert self.pos is not None
         ans = self.pos.read(size)
         if self.check_hash and ans:
@@ -356,7 +370,7 @@ class FileSource:
             self.hasher.update(ans)
         return ans
 
-    def close(self):
+    def close(self) -> None:
         if self.check_hash:
             assert self.hasher is not None
             if self.hasher.hexdigest() != self.digest:
@@ -366,15 +380,15 @@ class FileSource:
         self.pos.close()
         self.pos = None
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *a):
+    def __exit__(self, *a: object) -> None:
         self.close()
 
 
 class Importer:
-    def __init__(self, path_to_export_dir):
+    def __init__(self, path_to_export_dir: str) -> None:
         self.corrupted_files = []
         self.duplicate_parts: dict[int, list[str]] = {}
         part_map = {}
@@ -499,21 +513,21 @@ class Importer:
                 errors.append(f'{key}: {err}')
         return errors
 
-    def size_of_part(self, num):
+    def size_of_part(self, num: int) -> int:
         return self.part_size_map[num] - self.tail_size
 
-    def open_part(self, num):
+    def open_part(self, num: int) -> io.BufferedReader:
         return open(self.part_map[num], 'rb')
 
-    def start_file(self, key, description):
+    def start_file(self, key: str, description: str) -> FileSource:
         partnum, pos, size, digest, mtime = self.file_metadata[key]
         return FileSource(partnum, pos, size, digest, description, mtime, self)
 
-    def save_file(self, key, description, output_path):
+    def save_file(self, key: str, description: str, output_path: str) -> None:
         with open(output_path, 'wb') as dest, self.start_file(key, description) as src:
             shutil.copyfileobj(src, dest)
 
-    def export_config(self, base_dir, library_usage_stats):
+    def export_config(self, base_dir: str, library_usage_stats: Counter[str]) -> None:
         for key, relpath in self.metadata['config_dir']:
             with self.start_file(key, relpath) as f:
                 path = os.path.join(base_dir, relpath.replace('/', os.sep))
@@ -546,7 +560,14 @@ class Importer:
         gprefs['library_usage_stats'] = dict(library_usage_stats)
 
 
-def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None, abort=None):
+def import_data(
+    importer: Importer,
+    library_path_map: Mapping[str, str],
+    config_location: str | None = None,
+    progress1: ProgressCallback | None = None,
+    progress2: ProgressCallback | None = None,
+    abort: Event | None = None,
+) -> None:
     from calibre.db.cache import import_library
 
     config_location = config_location or config_dir
@@ -603,7 +624,7 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
         progress1(_('Completed'), total, total)
 
 
-def test_import(export_dir='/t/ex', import_dir='/t/imp'):
+def test_import(export_dir: str = '/t/ex', import_dir: str = '/t/imp') -> None:
     importer = Importer(export_dir)
     if os.path.exists(import_dir):
         shutil.rmtree(import_dir)
@@ -617,21 +638,21 @@ def test_import(export_dir='/t/ex', import_dir='/t/imp'):
     )
 
 
-def cli_report(*args, **kw):
+def cli_report(*args: object, **kw: object) -> None:
     try:
         prints(*args, **kw)
     except OSError:
         pass
 
 
-def input_unicode(prompt):
+def input_unicode(prompt: str) -> str:
     ans = input(prompt)
     if isinstance(ans, bytes):
         ans = ans.decode(sys.stdin.encoding)
     return ans
 
 
-def run_exporter(export_dir=None, args=None, check_known_libraries=True):
+def run_exporter(export_dir: str | None = None, args: list[str] | None = None, check_known_libraries: bool = True) -> None:
     if args:
         if len(args) < 2:
             raise SystemExit('You must specify the export folder and libraries to export')
@@ -687,7 +708,7 @@ def run_verifier(export_dir: str) -> int:
     return 0
 
 
-def run_importer():
+def run_importer() -> None:
     export_dir = input_unicode('Enter path to folder containing previously exported data: ').rstrip('\r')
     if not os.path.isdir(export_dir):
         raise SystemExit(f'{export_dir} is not a folder')

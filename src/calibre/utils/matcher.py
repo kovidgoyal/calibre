@@ -5,11 +5,13 @@ import atexit
 import os
 import sys
 from collections import OrderedDict
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from itertools import islice
 from math import ceil
 from operator import itemgetter
 from queue import Queue
 from threading import Lock, Thread
+from typing import TYPE_CHECKING
 from unicodedata import normalize
 
 from calibre import as_unicode
@@ -19,9 +21,17 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_collator, primary_find, primary_sort_key
 from calibre.utils.icu import upper as icu_upper
 
+if TYPE_CHECKING:
+    import unittest
+
 DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
 DEFAULT_LEVEL3 = '.'
+
+
+type ScoreResult = tuple[float, Sequence[int]]
+type Scorer = Callable[[str], Iterator[ScoreResult]]
+type ScorerFactory = Callable[[tuple[str, ...]], Scorer]
 
 
 class PluginFailed(RuntimeError):
@@ -31,12 +41,16 @@ class PluginFailed(RuntimeError):
 class Worker(Thread):
     daemon = True
 
-    def __init__(self, requests, results):
+    def __init__(
+        self,
+        requests: Queue[tuple[int, Scorer, str] | None],
+        results: Queue[tuple[bool, tuple[int, Iterator[ScoreResult]] | str]],
+    ) -> None:
         Thread.__init__(self)
         self.requests, self.results = requests, results
         atexit.register(lambda: requests.put(None))
 
-    def run(self):
+    def run(self) -> None:
         while True:
             x = self.requests.get()
             if x is None:
@@ -54,7 +68,7 @@ wlock = Lock()
 workers = []
 
 
-def split(tasks, pool_size):
+def split[T](tasks: Sequence[T], pool_size: int) -> list[list[tuple[int, T]]]:
     """
     Split a list into a list of sub lists, with the number of sub lists being
     no more than pool_size. Each sublist contains
@@ -71,7 +85,7 @@ def split(tasks, pool_size):
     return ans
 
 
-def default_scorer(*args, **kwargs):
+def default_scorer(*args: *tuple[Sequence[str], *tuple[str, ...]], **kwargs: str) -> CScorer | PyScorer:
     try:
         return CScorer(*args, **kwargs)
     except PluginFailed:
@@ -79,7 +93,14 @@ def default_scorer(*args, **kwargs):
 
 
 class Matcher:
-    def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3, scorer=None):
+    def __init__(
+        self,
+        items: Iterable[object],
+        level1: str = DEFAULT_LEVEL1,
+        level2: str = DEFAULT_LEVEL2,
+        level3: str = DEFAULT_LEVEL3,
+        scorer: ScorerFactory | None = None,
+    ) -> None:
         with wlock:
             if not workers:
                 requests, results = Queue(), Queue()
@@ -92,9 +113,9 @@ class Matcher:
         self.task_maps = [{j: i for j, (i, _) in enumerate(task)} for task in tasks]
         scorer = scorer or default_scorer
         self.scorers = [scorer(tuple(map(itemgetter(1), task_items))) for task_items in tasks]
-        self.sort_keys = None
+        self.sort_keys: dict[int, bytes] | None = None
 
-    def __call__(self, query, limit=None):
+    def __call__(self, query: object, limit: int | None = None) -> OrderedDict[str, Sequence[int]]:
         query = normalize('NFC', str(query))
         with wlock:
             for i, scorer in enumerate(self.scorers):
@@ -125,7 +146,7 @@ class Matcher:
         return OrderedDict(x[1:] for x in filter(itemgetter(0), items))
 
 
-def get_items_from_dir(basedir, acceptq=lambda x: True):
+def get_items_from_dir(basedir: str | bytes, acceptq: Callable[[str], object] = lambda x: True) -> Iterator[str]:
     if isinstance(basedir, bytes):
         basedir = basedir.decode(filesystem_encoding)
     relsep = os.sep != '/'
@@ -140,14 +161,14 @@ def get_items_from_dir(basedir, acceptq=lambda x: True):
 
 
 class FilesystemMatcher(Matcher):
-    def __init__(self, basedir, *args, **kwargs):
-        Matcher.__init__(self, get_items_from_dir(basedir), *args, **kwargs)
+    def __init__(self, basedir: str | bytes, *args: str | ScorerFactory | None, **kwargs: str | ScorerFactory | None) -> None:
+        Matcher.__init__(self, get_items_from_dir(basedir), *args, **kwargs)  # ty: ignore[invalid-argument-type]
 
 
 # Python implementation of the scoring algorithm {{{
 
 
-def calc_score_for_char(ctx, prev, current, distance):
+def calc_score_for_char(ctx: PyScorer, prev: str, current: str, distance: int) -> float:
     factor = 1.0
     ans = ctx.max_score_per_char
 
@@ -163,9 +184,9 @@ def calc_score_for_char(ctx, prev, current, distance):
     return ans * factor
 
 
-def process_item(ctx, haystack, needle):
+def process_item(ctx: PyScorer, haystack: str, needle: str) -> tuple[float, list[int]]:
     # non-recursive implementation using a stack
-    stack = [(0, 0, 0, 0, [-1] * len(needle))]
+    stack: list[tuple[int, int, int, float, list[int]]] = [(0, 0, 0, 0, [-1] * len(needle))]
     final_score, final_positions = stack[0][-2:]
     push, pop = stack.append, stack.pop
     while stack:
@@ -209,15 +230,15 @@ class PyScorer:
         'memory',
     )
 
-    def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
+    def __init__(self, items: Sequence[str], level1: str = DEFAULT_LEVEL1, level2: str = DEFAULT_LEVEL2, level3: str = DEFAULT_LEVEL3) -> None:
         self.level1, self.level2, self.level3 = level1, level2, level3
-        self.max_score_per_char = 0
+        self.max_score_per_char: float = 0
         self.items = items
 
-    def __call__(self, needle):
+    def __call__(self, needle: str) -> Iterator[tuple[float, list[int]]]:
         for item in self.items:
             self.max_score_per_char = (1.0 / len(item) + 1.0 / len(needle)) / 2.0
-            self.memory = {}
+            self.memory: dict[tuple[int, int, int], tuple[float, list[int]]] = {}
             yield process_item(self, item, needle)
 
 
@@ -225,23 +246,23 @@ class PyScorer:
 
 
 class CScorer:
-    def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
+    def __init__(self, items: Sequence[str], level1: str = DEFAULT_LEVEL1, level2: str = DEFAULT_LEVEL2, level3: str = DEFAULT_LEVEL3) -> None:
         from calibre_extensions.matcher import Matcher
 
         self.m = Matcher(items, primary_collator().capsule, str(level1), str(level2), str(level3))
 
-    def __call__(self, query):
+    def __call__(self, query: str) -> Iterator[tuple[float, tuple[int, ...]]]:
         scores, positions = self.m.calculate_scores(query)
         yield from zip(scores, positions)
 
 
-def test(return_tests=False):
+def test(return_tests: bool = False) -> unittest.TestSuite | None:
     is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
     import unittest
 
     class Test(unittest.TestCase):
         @unittest.skipIf(is_sanitized, "Sanitizer enabled can't check for leaks")
-        def test_mem_leaks(self):
+        def test_mem_leaks(self) -> None:
             import gc
 
             from calibre.utils.mem import get_memory as memory
@@ -249,7 +270,7 @@ def test(return_tests=False):
             m = Matcher(['a'], scorer=CScorer)
             m('a')
 
-            def doit(c):
+            def doit(c: str) -> None:
                 m = Matcher(
                     [
                         c + 'im/one.gif',
@@ -273,7 +294,7 @@ def test(return_tests=False):
             if used100 > 0 and used10 > 0:
                 self.assertLessEqual(used100, 2 * used10)
 
-        def test_non_bmp(self):
+        def test_non_bmp(self) -> None:
             raw = '_\U0001f431-'
             m = Matcher([raw], scorer=CScorer)
             positions = next(iter(m(raw).values()))
@@ -283,25 +304,25 @@ def test(return_tests=False):
         return unittest.TestLoader().loadTestsFromTestCase(Test)
 
     class TestRunner(unittest.main):
-        def createTests(self, from_discovery=False, Loader=None):
+        def createTests(self, from_discovery: bool = False, Loader: unittest.TestLoader | None = None) -> None:
             tl = unittest.TestLoader()
             self.test = tl.loadTestsFromTestCase(Test)
 
     TestRunner(verbosity=4)
 
 
-def get_char(string, pos):
+def get_char(string: str, pos: int) -> str:
     return string[pos]
 
 
-def input_unicode(prompt):
+def input_unicode(prompt: str) -> str:
     ans = input(prompt)
     if isinstance(ans, bytes):
         ans = ans.decode(sys.stdin.encoding)
     return ans
 
 
-def main(basedir=None, query=None):
+def main(basedir: str | None = None, query: str | None = None) -> None:
     from calibre import prints
     from calibre.utils.terminal import ColoredStream
 

@@ -3,7 +3,9 @@
 
 import os
 from collections import defaultdict
+from collections.abc import Sequence
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from calibre import as_unicode, prints, walk
 from calibre.constants import DEBUG, config_dir, filesystem_encoding, ismacos, iswindows, isworker
@@ -11,6 +13,9 @@ from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from calibre.utils.fonts.metadata import FontFace
 
 
 class NoFonts(ValueError):
@@ -20,7 +25,7 @@ class NoFonts(ValueError):
 # Font dirs {{{
 
 
-def default_font_dirs():
+def default_font_dirs() -> list[str]:
     return [
         '/opt/share/fonts',
         '/usr/share/fonts',
@@ -30,7 +35,7 @@ def default_font_dirs():
     ]
 
 
-def fc_list():
+def fc_list() -> list[str]:
     import ctypes
     from ctypes.util import find_library
 
@@ -94,7 +99,7 @@ def fc_list():
     return parents
 
 
-def font_dirs():
+def font_dirs() -> list[str]:
     if iswindows:
         from calibre_extensions import winutil
 
@@ -125,7 +130,7 @@ def font_dirs():
 # Build font family maps {{{
 
 
-def font_priority(font):
+def font_priority(font: FontFace) -> int:
     '''
     Try to ensure that  the "Regular" face is the first font for a given
     family.
@@ -144,7 +149,7 @@ def font_priority(font):
     return 3 + (3 - num_normal)
 
 
-def path_significance(path, folders):
+def path_significance(path: str, folders: Sequence[str]) -> int:
     path = os.path.normcase(os.path.abspath(path))
     for i, q in enumerate(folders):
         if path.startswith(q):
@@ -152,8 +157,10 @@ def path_significance(path, folders):
     return -1
 
 
-def build_families(cached_fonts, folders, family_attr='font-family'):
-    families = defaultdict(list)
+def build_families(
+    cached_fonts: dict[str, FontFace], folders: Sequence[str], family_attr: str = 'font-family'
+) -> tuple[dict[str, list[FontFace]], tuple[str, ...]]:
+    families: defaultdict[str, list[FontFace]] = defaultdict(list)
     for f in cached_fonts.values():
         if not f:
             continue
@@ -165,8 +172,8 @@ def build_families(cached_fonts, folders, family_attr='font-family'):
         # Look for duplicate font files and choose the copy that is from a
         # more significant font directory (prefer user directories over
         # system directories).
-        fmap = {}
-        remove = []
+        fmap: dict[tuple[str, str, str, str], FontFace] = {}
+        remove: list[FontFace] = []
         for f in fonts:
             fingerprint = (icu_lower(f['font-family']), f['font-weight'], f['font-stretch'], f['font-style'])
             if fingerprint in fmap:
@@ -194,7 +201,7 @@ def build_families(cached_fonts, folders, family_attr='font-family'):
 class FontScanner(Thread):
     CACHE_VERSION = 2
 
-    def __init__(self, folders=None, allowed_extensions=None):
+    def __init__(self, folders: list[str] | None = None, allowed_extensions: set[str] | None = None) -> None:
         if allowed_extensions is None:
             allowed_extensions = {'ttf', 'otf'}
         if folders is None:
@@ -202,15 +209,15 @@ class FontScanner(Thread):
         super().__init__(daemon=True)
         self.folders = folders + font_dirs() + [os.path.join(config_dir, 'fonts'), P('fonts/liberation')]
         self.folders = [os.path.normcase(os.path.abspath(f)) for f in self.folders]
-        self.font_families = ()
+        self.font_families: tuple[str, ...] = ()
         self.allowed_extensions = allowed_extensions
 
     # API {{{
-    def find_font_families(self):
+    def find_font_families(self) -> tuple[str, ...]:
         self.join()
         return self.font_families
 
-    def fonts_for_family(self, family):
+    def fonts_for_family(self, family: str) -> list[FontFace]:
         '''
         Return a list of the faces belonging to the specified family. The first
         face is the "Regular" face of family. Each face is a dictionary with
@@ -224,14 +231,14 @@ class FontScanner(Thread):
         except KeyError:
             raise NoFonts(f'No fonts found for the family: {family!r}')
 
-    def legacy_fonts_for_family(self, family):
+    def legacy_fonts_for_family(self, family: str) -> dict[str, tuple[str, str | None]]:
         """
         Return a simple set of regular, bold, italic and bold-italic faces for
         the specified family. Returns a dictionary with each element being a
         2-tuple of (path to font, full font name) and the keys being: normal,
         bold, italic, bi.
         """
-        ans = {}
+        ans: dict[str, tuple[str, str | None]] = {}
         try:
             faces = self.fonts_for_family(family)
         except NoFonts:
@@ -248,19 +255,19 @@ class FontScanner(Thread):
             ans[key] = (face['path'], face['full_name'])
         return ans
 
-    def get_font_data(self, font_or_path):
+    def get_font_data(self, font_or_path: FontFace | str) -> bytes:
         path = font_or_path
         if isinstance(font_or_path, dict):
             path = font_or_path['path']
-        with open(path, 'rb') as f:
+        with open(path, 'rb') as f:  # ty: ignore[no-matching-overload]
             return f.read()
 
     def find_font_for_text(
         self,
-        text,
-        allowed_families=None,
-        preferred_families=('serif', 'sans-serif', 'monospace', 'cursive', 'fantasy'),
-    ):
+        text: str,
+        allowed_families: set[str] | None = None,
+        preferred_families: Sequence[str] = ('serif', 'sans-serif', 'monospace', 'cursive', 'fantasy'),
+    ) -> tuple[str, list[FontFace]] | tuple[None, None]:
         '''
         Find a font on the system capable of rendering the given text.
 
@@ -277,9 +284,9 @@ class FontScanner(Thread):
         if not isinstance(text, str):
             raise TypeError(f'{text!r} is not unicode')
         text = get_printable_characters(text)
-        found = {}
+        found: dict[str, tuple[str, list[FontFace]]] = {}
 
-        def filter_faces(font):
+        def filter_faces(font: FontFace) -> bool:
             try:
                 raw = self.get_font_data(font)
                 return supports_text(raw, text)
@@ -304,7 +311,7 @@ class FontScanner(Thread):
 
     # }}}
 
-    def reload_cache(self):
+    def reload_cache(self) -> None:
         if not hasattr(self, 'cache'):
             from calibre.utils.config import JSONConfig
 
@@ -315,10 +322,10 @@ class FontScanner(Thread):
             self.cache.clear()
         self.cached_fonts = self.cache.get('fonts', {})
 
-    def run(self):
+    def run(self) -> None:
         self.do_scan()
 
-    def do_scan(self):
+    def do_scan(self) -> None:
         self.reload_cache()
 
         if isworker:
@@ -366,20 +373,20 @@ class FontScanner(Thread):
 
         self.build_families()
 
-    def build_families(self):
+    def build_families(self) -> None:
         self.font_family_map, self.font_families = build_families(self.cached_fonts, self.folders)
 
-    def write_cache(self):
+    def write_cache(self) -> None:
         # writing to the cache is atomic thanks to JSONConfig
         with self.cache:
             self.cache['version'] = self.CACHE_VERSION
             self.cache['fonts'] = self.cached_fonts
 
-    def force_rescan(self):
+    def force_rescan(self) -> None:
         self.cached_fonts = {}
         self.write_cache()
 
-    def read_font_metadata(self, path, fileid):
+    def read_font_metadata(self, path: str, fileid: str) -> None:
         with open(path, 'rb') as f:
             try:
                 fm = FontMetadata(f)
@@ -390,7 +397,7 @@ class FontScanner(Thread):
                 data['path'] = path
                 self.cached_fonts[fileid] = data
 
-    def dump_fonts(self):
+    def dump_fonts(self) -> None:
         self.join()
         for family in self.font_families:
             prints(family)
@@ -412,7 +419,7 @@ font_scanner = FontScanner()
 font_scanner.start()
 
 
-def force_rescan():
+def force_rescan() -> None:
     font_scanner.join()
     font_scanner.force_rescan()
     font_scanner.run()

@@ -5,6 +5,7 @@ import errno
 import json
 import os
 import tarfile
+from collections.abc import Callable
 from functools import lru_cache
 
 from calibre.constants import cache_dir
@@ -16,7 +17,7 @@ from calibre.utils.resources import get_path as P
 _locale_map_cache: dict | None = None
 
 
-def locale_map():
+def locale_map() -> dict[str, str]:
     global _locale_map_cache
     if _locale_map_cache is None:
         _locale_map_cache = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
@@ -24,7 +25,7 @@ def locale_map():
 
 
 @lru_cache
-def dictionary_name_for_locale(loc):
+def dictionary_name_for_locale(loc: str) -> str | None:
     loc = loc.lower().replace('-', '_')
     lmap = locale_map()
     if loc in lmap:
@@ -34,7 +35,7 @@ def dictionary_name_for_locale(loc):
         loc = '_'.join(parts[:2])
         if loc in lmap:
             return lmap[loc]
-    loc = lang_as_iso639_1(parts[0])
+    loc = lang_as_iso639_1(parts[0])  # ty: ignore[invalid-assignment]
     if not loc:
         return
     if loc in lmap:
@@ -52,11 +53,11 @@ def dictionary_name_for_locale(loc):
 
 
 @lru_cache(maxsize=2)
-def expected_hash():
+def expected_hash() -> bytes:
     return P('hyphenation/sha1sum', data=True, allow_user_override=False)
 
 
-def extract_dicts(cache_path):
+def extract_dicts(cache_path: str) -> None:
     dict_tarball = P('hyphenation/dictionaries.tar.xz', allow_user_override=False)
     with TemporaryDirectory(dir=cache_path) as tdir:
         with tarfile.open(dict_tarball) as tf:
@@ -98,7 +99,7 @@ is_cache_up_to_date = _IsCacheUpToDate()
 
 
 @lru_cache
-def get_cache_path(cd):
+def get_cache_path(cd: str) -> str:
     cache_path = os.path.join(cd, 'hyphenation')
     try:
         os.makedirs(cache_path)
@@ -108,7 +109,7 @@ def get_cache_path(cd):
     return cache_path
 
 
-def path_to_dictionary(dictionary_name, cache_callback=None):
+def path_to_dictionary(dictionary_name: str, cache_callback: Callable[[], object] | None = None) -> str:
     cd = getattr(path_to_dictionary, 'cache_dir', None) or cache_dir()
     cache_path = get_cache_path(cd)
     with ExclusiveFile(os.path.join(cache_path, 'lock')):

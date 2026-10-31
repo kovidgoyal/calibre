@@ -5,25 +5,44 @@
 import codecs
 import sys
 import threading
+from collections.abc import Callable, Iterable
 from functools import lru_cache
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, Protocol, overload
 
 from calibre.utils.config_base import prefs, tweaks
 from calibre_extensions import icu as _icu
 from polyglot.builtins import cmp
 
-_locale = None
+if TYPE_CHECKING:
+    from collections import OrderedDict
+
+    class ChangeCaseFunc(Protocol):
+        @overload
+        def __call__(self, x: str) -> str: ...
+
+        @overload
+        def __call__(self, x: bytes) -> str | bytes: ...
+
+    class SortKeyFunc[R](Protocol):
+        # generic so that using this as a key function does not constrain the item type
+        def __call__[T](self, a: T, /) -> R: ...
+
+
+type StrOrBytes = str | bytes | None
+type CollatorKey = tuple[int | None, bool | None, bool | None, bool | None]
+
+_locale: str | None = None
 
 _none = ''
 _none2 = b''
-_cmap = {}
+_cmap: dict[_icu.Collator, frozenset[str]] = {}
 
 icu_unicode_version = _icu.unicode_version
 _nmodes = {m: getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
 
 
 # Ensure that the python internal filesystem and default encodings are not ASCII
-def is_ascii(name):
+def is_ascii(name: str) -> bool:
     try:
         return codecs.lookup(name).name == b'ascii'
     except TypeError, LookupError:
@@ -49,14 +68,16 @@ del is_ascii
 
 
 class ThreadLocalCollatorCache(threading.local):
-    def __init__(self):
-        self.cache = {}
+    def __init__(self) -> None:
+        self.cache: dict[CollatorKey, _icu.Collator] = {}
 
 
 thread_local_collator_cache = ThreadLocalCollatorCache()
 
 
-def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_first=None):
+def collator(
+    strength: int | None = None, numeric: bool | None = None, ignore_alternate_chars: bool | None = None, upper_first: bool | None = None
+) -> _icu.Collator:
     global _locale
     if _locale is None:
         if tweaks['locale_for_sorting']:
@@ -90,7 +111,7 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
     return ans
 
 
-def change_locale(locale=None):
+def change_locale(locale: str | None = None) -> None:
     global _locale
     _locale = locale
     _ascii_no_punc_tables.clear()
@@ -101,40 +122,48 @@ def change_locale(locale=None):
         pass
 
 
-def primary_collator():
+def primary_collator() -> _icu.Collator:
     "Ignores case differences and accented chars"
     return collator(strength=_icu.UCOL_PRIMARY)
 
 
-def primary_collator_without_punctuation():
+def primary_collator_without_punctuation() -> _icu.Collator:
     "Ignores space and punctuation and case differences and accented chars"
     return collator(strength=_icu.UCOL_PRIMARY, ignore_alternate_chars=True)
 
 
-def sort_collator():
+def sort_collator() -> _icu.Collator:
     "Ignores case differences and recognizes numbers in strings (if the tweak is set)"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=prefs['numeric_collation'])
 
 
-def non_numeric_sort_collator():
+def non_numeric_sort_collator() -> _icu.Collator:
     "Ignores case differences only"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=False)
 
 
-def numeric_collator():
+def numeric_collator() -> _icu.Collator:
     "Uses natural sorting for numbers inside strings so something2 will sort before something10"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=True)
 
 
-def case_sensitive_collator():
+def case_sensitive_collator() -> _icu.Collator:
     "Always sorts upper case letter before lower case"
     return collator(numeric=prefs['numeric_collation'], upper_first=True)
 
 
-def make_sort_key_func(collator_function, func_name='sort_key'):
+@overload
+def make_sort_key_func(collator_function: Callable[[], _icu.Collator], func_name: Literal['sort_key'] = 'sort_key') -> SortKeyFunc[bytes]: ...
+
+
+@overload
+def make_sort_key_func(collator_function: Callable[[], _icu.Collator], func_name: Literal['collation_order']) -> SortKeyFunc[tuple[int, int]]: ...
+
+
+def make_sort_key_func(collator_function: Callable[[], _icu.Collator], func_name: str = 'sort_key') -> SortKeyFunc[bytes | tuple[int, int]]:
     func = None
 
-    def sort_key(a):
+    def sort_key(a: object) -> bytes | tuple[int, int]:
         nonlocal func
         if func is None:
             func = getattr(collator_function(), func_name)
@@ -153,10 +182,26 @@ def make_sort_key_func(collator_function, func_name='sort_key'):
     return sort_key
 
 
-def make_two_arg_func(collator_function, func_name='strcmp'):
+@overload
+def make_two_arg_func(collator_function: Callable[[], _icu.Collator], func_name: Literal['strcmp'] = 'strcmp') -> Callable[[StrOrBytes, StrOrBytes], int]: ...
+
+
+@overload
+def make_two_arg_func(collator_function: Callable[[], _icu.Collator], func_name: Literal['find']) -> Callable[[StrOrBytes, StrOrBytes], tuple[int, int]]: ...
+
+
+@overload
+def make_two_arg_func(
+    collator_function: Callable[[], _icu.Collator], func_name: Literal['contains', 'startswith']
+) -> Callable[[StrOrBytes, StrOrBytes], bool]: ...
+
+
+def make_two_arg_func(
+    collator_function: Callable[[], _icu.Collator], func_name: str = 'strcmp'
+) -> Callable[[StrOrBytes, StrOrBytes], int | bool | tuple[int, int]]:
     func = None
 
-    def two_args(a, b):
+    def two_args(a: StrOrBytes, b: StrOrBytes) -> int | bool | tuple[int, int]:
         nonlocal func
         if func is None:
             func = getattr(collator_function(), func_name)
@@ -183,16 +228,22 @@ def make_two_arg_func(collator_function, func_name='strcmp'):
     return two_args
 
 
-def make_change_case_func(which, name):
+def make_change_case_func(which: int, name: str) -> ChangeCaseFunc:
 
-    def change_case(x):
+    @overload
+    def change_case(x: str) -> str: ...
+
+    @overload
+    def change_case(x: bytes) -> str | bytes: ...
+
+    def change_case(x: str | bytes) -> str | bytes:
         try:
             try:
-                return _icu.change_case(x, which, _locale)
+                return _icu.change_case(x, which, _locale)  # ty: ignore[invalid-argument-type]
             except NotImplementedError:
                 pass
             collator()  # sets _locale
-            return _icu.change_case(x, which, _locale)
+            return _icu.change_case(x, which, _locale)  # ty: ignore[invalid-argument-type]
         except TypeError:
             if isinstance(x, bytes):
                 try:
@@ -224,7 +275,7 @@ lower = make_change_case_func(_icu.LOWER_CASE, 'lower')
 title_case = make_change_case_func(_icu.TITLE_CASE, 'title_case')
 
 
-def capitalize(x):
+def capitalize(x: str) -> str:
     try:
         return upper(x[0]) + lower(x[1:])
     except IndexError, TypeError, AttributeError:
@@ -239,10 +290,10 @@ primary_no_punc_find = make_two_arg_func(primary_collator_without_punctuation, '
 contains = make_two_arg_func(collator, 'contains')
 primary_contains = make_two_arg_func(primary_collator, 'contains')
 primary_no_punc_contains = make_two_arg_func(primary_collator_without_punctuation, 'contains')
-_ascii_no_punc_tables = {}
+_ascii_no_punc_tables: dict[str | None, dict[int, None] | None] = {}
 
 
-def _build_ascii_no_punc_table():
+def _build_ascii_no_punc_table() -> dict[int, None] | None:
     # Use the collator itself to find out which ASCII characters it ignores
     # and verify that for ASCII text it otherwise behaves as a simple case
     # insensitive comparison, which is not true for all locales, for example,
@@ -267,7 +318,7 @@ def _build_ascii_no_punc_table():
 
 
 @lru_cache(maxsize=64)
-def ascii_primary_no_punc_matcher(query):
+def ascii_primary_no_punc_matcher(query: str) -> Callable[[str], bool] | None:
     """
     Return a function f(text) that gives the same result as
     primary_no_punc_contains(query, text) but is much faster. It must be
@@ -287,7 +338,7 @@ def ascii_primary_no_punc_matcher(query):
     if not q:
         return None
 
-    def matcher(text):
+    def matcher(text: str) -> bool:
         return q in text.lower().translate(table)
 
     return matcher
@@ -300,21 +351,21 @@ ord_string = _icu.ord_string
 word_prefix_find = _icu.word_prefix_find
 
 
-def character_name(string):
+def character_name(string: object) -> str | None:
     try:
         return _icu.character_name(str(string)) or None
     except TypeError, ValueError, KeyError:
         pass
 
 
-def character_name_from_code(code):
+def character_name_from_code(code: int) -> str:
     try:
         return _icu.character_name_from_code(code) or ''
     except TypeError, ValueError, KeyError:
         return ''
 
 
-def normalize(text, mode='NFC'):
+def normalize(text: object, mode: str = 'NFC') -> str:
     # This is very slightly slower than using unicodedata.normalize, so stick with
     # that unless you have very good reasons not too. Also, it's speed
     # decreases on wide python builds, where conversion to/from ICU's string
@@ -322,7 +373,7 @@ def normalize(text, mode='NFC'):
     return _icu.normalize(_nmodes[mode], str(text))
 
 
-def contractions(col=None):
+def contractions(col: _icu.Collator | None = None) -> frozenset[str]:
     global _cmap
     col = col or collator()
     ans = _cmap.get(col, None)
@@ -333,7 +384,7 @@ def contractions(col=None):
     return ans
 
 
-def partition_by_first_letter(items, reverse=False, key=lambda x: x):
+def partition_by_first_letter[T](items: Iterable[T], reverse: bool = False, key: Callable[[T], str] = lambda x: x) -> OrderedDict[str, list[T]]:
     # Build a list of 'equal' first letters by noticing changes
     # in ICU's 'ordinal' for the first letter.
     from collections import OrderedDict

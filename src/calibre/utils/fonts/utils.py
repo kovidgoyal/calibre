@@ -3,28 +3,72 @@
 
 import struct
 from collections import defaultdict
+from collections.abc import Iterable, Iterator, Sequence
 from io import BytesIO
+from typing import TYPE_CHECKING, Literal, Protocol, overload
 
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes
+
+if TYPE_CHECKING:
+    from fontTools.ttLib.tables._n_a_m_e import table__n_a_m_e
+
+    class TTLibPanose(Protocol):
+        bFamilyType: int
+        bSerifStyle: int
+        bWeight: int
+        bProportion: int
+        bContrast: int
+        bStrokeVariation: int
+        bArmStyle: int
+        bLetterForm: int
+        bMidline: int
+        bXHeight: int
+
+    class TTLibOS2Table(Protocol):
+        xAvgCharWidth: int
+        usWeightClass: int
+        usWidthClass: int
+        fsType: int
+        ySubscriptXSize: int
+        ySubscriptYSize: int
+        ySubscriptXOffset: int
+        ySubscriptYOffset: int
+        ySuperscriptXSize: int
+        ySuperscriptYSize: int
+        ySuperscriptXOffset: int
+        ySuperscriptYOffset: int
+        yStrikeoutSize: int
+        yStrikeoutPosition: int
+        sFamilyClass: int
+        fsSelection: int
+        version: int
+        panose: TTLibPanose
+
+        def getUnicodeRanges(self) -> set[int]: ...
+
+
+type NameRecord = tuple[int, int, int, bytes]
+type FontCharacteristicsShort = tuple[int, bool, bool, bool, int, tuple[int, ...], int, bool, bool, int]
+type FontCharacteristicsAll = tuple[int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, tuple[int, ...], int, bool, bool, bool]
 
 
 class UnsupportedFont(ValueError):
     pass
 
 
-def get_printable_characters(text):
+def get_printable_characters(text: str) -> str:
     import unicodedata
 
     return ''.join(x for x in unicodedata.normalize('NFC', text) if unicodedata.category(x)[0] not in {'C', 'Z', 'M'})
 
 
-def is_truetype_font(raw):
+def is_truetype_font(raw: bytes) -> tuple[bool, bytes]:
     sfnt_version = raw[:4]
     return (sfnt_version in {b'\x00\x01\x00\x00', b'OTTO'}, sfnt_version)
 
 
-def get_tables(raw):
+def get_tables(raw: bytes) -> Iterator[tuple[bytes, bytes, int, int, int]]:
     num_tables = struct.unpack_from(b'>H', raw, 4)[0]
     offset = 4 * 3  # start of the table record entries
     for i in range(num_tables):
@@ -33,7 +77,7 @@ def get_tables(raw):
         offset += 4 * 4
 
 
-def get_table(raw, name):
+def get_table(raw: bytes, name: str | bytes) -> tuple[bytes, int, int, int] | tuple[None, None, None, None]:
     """Get the raw table bytes for the specified table in the font"""
     name = as_bytes(name.lower())
     for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
@@ -42,7 +86,13 @@ def get_table(raw, name):
     return None, None, None, None
 
 
-def get_font_characteristics_from_ttlib_os2_table(t, return_all=False):
+@overload
+def get_font_characteristics_from_ttlib_os2_table(t: TTLibOS2Table, return_all: Literal[False] = False) -> FontCharacteristicsShort: ...
+@overload
+def get_font_characteristics_from_ttlib_os2_table(t: TTLibOS2Table, return_all: Literal[True]) -> FontCharacteristicsAll: ...
+@overload
+def get_font_characteristics_from_ttlib_os2_table(t: TTLibOS2Table, return_all: bool) -> FontCharacteristicsShort | FontCharacteristicsAll: ...
+def get_font_characteristics_from_ttlib_os2_table(t: TTLibOS2Table, return_all: bool = False) -> FontCharacteristicsShort | FontCharacteristicsAll:
     (
         char_width,
         weight,
@@ -127,7 +177,15 @@ def get_font_characteristics_from_ttlib_os2_table(t, return_all=False):
     return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
 
-def get_font_characteristics(raw, raw_is_table=False, return_all=False):
+@overload
+def get_font_characteristics(raw: bytes | TTLibOS2Table, raw_is_table: bool = False, return_all: Literal[False] = False) -> FontCharacteristicsShort: ...
+@overload
+def get_font_characteristics(raw: bytes | TTLibOS2Table, raw_is_table: bool, return_all: Literal[True]) -> FontCharacteristicsAll: ...
+@overload
+def get_font_characteristics(raw: bytes | TTLibOS2Table, *, return_all: Literal[True]) -> FontCharacteristicsAll: ...
+def get_font_characteristics(
+    raw: bytes | TTLibOS2Table, raw_is_table: bool = False, return_all: bool = False
+) -> FontCharacteristicsShort | FontCharacteristicsAll:
     """
     Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
     is_oblique, is_wws). These
@@ -135,7 +193,7 @@ def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     http://www.microsoft.com/typography/otspec/os2.htm for details
     """
     if hasattr(raw, 'getUnicodeRanges'):
-        return get_font_characteristics_from_ttlib_os2_table(raw, return_all)
+        return get_font_characteristics_from_ttlib_os2_table(raw, return_all)  # ty: ignore[no-matching-overload]
     if raw_is_table:
         os2_table = raw
     else:
@@ -204,7 +262,7 @@ def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
 
-def panose_to_css_generic_family(panose):
+def panose_to_css_generic_family(panose: Sequence[int]) -> str:
     proportion = panose[3]
     if proportion == 9:
         return 'monospace'
@@ -219,16 +277,16 @@ def panose_to_css_generic_family(panose):
     return 'serif'
 
 
-def decode_name_record(recs):
+def decode_name_record(recs: Sequence[NameRecord]) -> str | None:
     """
     Get the English names of this font. See
     http://www.microsoft.com/typography/otspec/name.htm for details.
     """
     if not recs:
         return None
-    unicode_names = {}
-    windows_names = {}
-    mac_names = {}
+    unicode_names: dict[int, str] = {}
+    windows_names: dict[int, str] = {}
+    mac_names: dict[int, str] = {}
     for platform_id, encoding_id, language_id, src in recs:
         if language_id > 0x8000:
             continue
@@ -280,7 +338,7 @@ def decode_name_record(recs):
     return None
 
 
-def _get_font_names(raw, raw_is_table=False):
+def _get_font_names(raw: bytes, raw_is_table: bool = False) -> defaultdict[int, list[NameRecord]]:
     if raw_is_table:
         table = raw
     else:
@@ -289,7 +347,7 @@ def _get_font_names(raw, raw_is_table=False):
             raise UnsupportedFont('Not a supported font, has no name table')
     table_type, count, string_offset = struct.unpack_from(b'>3H', table)
 
-    records = defaultdict(list)
+    records: defaultdict[int, list[NameRecord]] = defaultdict(list)
 
     for i in range(count):
         try:
@@ -303,14 +361,16 @@ def _get_font_names(raw, raw_is_table=False):
     return records
 
 
-def get_font_name_records_from_ttlib_names_table(names_table):
-    records = defaultdict(list)
+def get_font_name_records_from_ttlib_names_table(names_table: table__n_a_m_e) -> defaultdict[int, list[NameRecord]]:
+    records: defaultdict[int, list[NameRecord]] = defaultdict(list)
     for rec in names_table.names:
         records[rec.nameID].append((rec.platformID, rec.platEncID, rec.langID, rec.string))
     return records
 
 
-def get_font_names_from_ttlib_names_table(names_table):
+def get_font_names_from_ttlib_names_table(
+    names_table: table__n_a_m_e,
+) -> tuple[str | None, str | None, str | None, str | None, str | None, str | None, str | None]:
     records = get_font_name_records_from_ttlib_names_table(names_table)
     family_name = decode_name_record(records[1])
     subfamily_name = decode_name_record(records[2])
@@ -333,7 +393,7 @@ def get_font_names_from_ttlib_names_table(names_table):
     )
 
 
-def get_font_names(raw, raw_is_table=False):
+def get_font_names(raw: bytes, raw_is_table: bool = False) -> tuple[str | None, str | None, str | None]:
     records = _get_font_names(raw, raw_is_table)
     family_name = decode_name_record(records[1])
     subfamily_name = decode_name_record(records[2])
@@ -342,7 +402,7 @@ def get_font_names(raw, raw_is_table=False):
     return family_name, subfamily_name, full_name
 
 
-def get_font_names2(raw, raw_is_table=False):
+def get_font_names2(raw: bytes, raw_is_table: bool = False) -> tuple[str | None, str | None, str | None, str | None, str | None, str | None, str | None]:
     records = _get_font_names(raw, raw_is_table)
 
     family_name = decode_name_record(records[1])
@@ -366,7 +426,7 @@ def get_font_names2(raw, raw_is_table=False):
     )
 
 
-def get_all_font_names(raw, raw_is_table=False):
+def get_all_font_names(raw: bytes, raw_is_table: bool = False) -> dict[str, str]:
     records = _get_font_names(raw, raw_is_table)
     ans = {}
 
@@ -400,17 +460,17 @@ def get_all_font_names(raw, raw_is_table=False):
             except ValueError:
                 continue
 
-    return ans
+    return ans  # ty: ignore[invalid-return-type]
 
 
-def checksum_of_block(raw):
+def checksum_of_block(raw: bytes) -> int:
     extra = 4 - len(raw) % 4
     raw += b'\0' * extra
     num = len(raw) // 4
     return sum(struct.unpack(b'>%dI' % num, raw)) % (1 << 32)
 
 
-def verify_checksums(raw):
+def verify_checksums(raw: bytes) -> None:
     head_table = None
     for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
         if table_tag.lower() == b'head':
@@ -435,9 +495,9 @@ def verify_checksums(raw):
             raise ValueError('Checksum of entire font incorrect')
 
 
-def set_checksum_adjustment(f):
+def set_checksum_adjustment(f: BytesIO) -> None:
     offset = get_table(f.getvalue(), 'head')[2]
-    offset += 8
+    offset += 8  # ty: ignore[unsupported-operator]
     f.seek(offset)
     f.write(struct.pack(b'>I', 0))
     checksum = checksum_of_block(f.getvalue())
@@ -446,15 +506,15 @@ def set_checksum_adjustment(f):
     f.write(struct.pack(b'>I', q))
 
 
-def set_table_checksum(f, name):
+def set_table_checksum(f: BytesIO, name: str) -> None:
     table, table_index, table_offset, table_checksum = get_table(f.getvalue(), name)
-    checksum = checksum_of_block(table)
+    checksum = checksum_of_block(table)  # ty: ignore[invalid-argument-type]
     if checksum != table_checksum:
-        f.seek(table_index + 4)
+        f.seek(table_index + 4)  # ty: ignore[unsupported-operator]
         f.write(struct.pack(b'>I', checksum))
 
 
-def remove_embed_restriction(raw):
+def remove_embed_restriction(raw: bytes) -> bytes:
     ok, sig = is_truetype_font(raw)
     if not ok:
         raise UnsupportedFont(f'Not a supported font, sfnt_version: {sig!r}')
@@ -469,7 +529,7 @@ def remove_embed_restriction(raw):
         return raw
 
     f = BytesIO(raw)
-    f.seek(fs_type_offset + table_offset)
+    f.seek(fs_type_offset + table_offset)  # ty: ignore[unsupported-operator]
     f.write(struct.pack(b'>H', 0))
 
     set_table_checksum(f, 'os/2')
@@ -479,7 +539,7 @@ def remove_embed_restriction(raw):
     return raw
 
 
-def is_font_embeddable(raw):
+def is_font_embeddable(raw: bytes) -> tuple[bool, int]:
     # https://www.microsoft.com/typography/otspec/os2.htm#fst
     ok, sig = is_truetype_font(raw)
     if not ok:
@@ -499,7 +559,7 @@ def is_font_embeddable(raw):
     return True, fs_type
 
 
-def read_bmp_prefix(table, bmp):
+def read_bmp_prefix(table: bytes, bmp: int) -> tuple[tuple[int, ...], tuple[int, ...], tuple[int, ...], tuple[int, ...], int, tuple[int, ...], int]:
     length, language, segcount = struct.unpack_from(b'>3H', table, bmp + 2)
     array_len = segcount // 2
     offset = bmp + 7 * 2
@@ -519,7 +579,7 @@ def read_bmp_prefix(table, bmp):
     return (start_count, end_count, range_offset, id_delta, glyph_id_len, glyph_id_map, array_len)
 
 
-def get_bmp_glyph_ids(table, bmp, codes):
+def get_bmp_glyph_ids(table: bytes, bmp: int, codes: Iterable[int]) -> Iterator[int]:
     (start_count, end_count, range_offset, id_delta, glyph_id_len, glyph_id_map, array_len) = read_bmp_prefix(table, bmp)
 
     for code in codes:
@@ -543,7 +603,7 @@ def get_bmp_glyph_ids(table, bmp, codes):
             yield 0
 
 
-def get_glyph_ids(raw, text, raw_is_table=False):
+def get_glyph_ids(raw: bytes, text: str, raw_is_table: bool = False) -> Iterator[int]:
     if not isinstance(text, str):
         raise TypeError(f'{text!r} is not a unicode object')
     if raw_is_table:
@@ -567,7 +627,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
     yield from get_bmp_glyph_ids(table, bmp_table, map(ord, text))
 
 
-def supports_text(raw, text, has_only_printable_chars=False):
+def supports_text(raw: bytes, text: str, has_only_printable_chars: bool = False) -> bool:
     if not isinstance(text, str):
         raise TypeError(f'{text!r} is not a unicode object')
     if not has_only_printable_chars:
@@ -581,7 +641,7 @@ def supports_text(raw, text, has_only_printable_chars=False):
     return True
 
 
-def get_font_for_text(text, candidate_font_data=None):
+def get_font_for_text(text: str, candidate_font_data: bytes | None = None) -> bytes | None:
     ok = False
     if candidate_font_data is not None:
         ok = supports_text(candidate_font_data, text)
@@ -595,7 +655,7 @@ def get_font_for_text(text, candidate_font_data=None):
     return candidate_font_data
 
 
-def test_glyph_ids():
+def test_glyph_ids() -> None:
     from calibre.utils.fonts.free_type import FreeType
 
     data = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
@@ -608,7 +668,7 @@ def test_glyph_ids():
         raise Exception('My code and FreeType differ on the glyph ids')
 
 
-def test_supports_text():
+def test_supports_text() -> None:
     data = P('fonts/calibreSymbols.otf', data=True)
     if not supports_text(data, '.★½⯨'):
         raise RuntimeError('Incorrectly returning that text is not supported')
@@ -616,7 +676,7 @@ def test_supports_text():
         raise RuntimeError('Incorrectly claiming that text is supported')
 
 
-def test_find_font():
+def test_find_font() -> None:
     from calibre.utils.fonts.scanner import font_scanner
 
     abcd = '诶比西迪'
@@ -627,13 +687,13 @@ def test_find_font():
     print('Family for Arabic text:', family)
 
 
-def test():
+def test() -> None:
     test_glyph_ids()
     test_supports_text()
     test_find_font()
 
 
-def main():
+def main() -> None:
     import os
     import sys
 

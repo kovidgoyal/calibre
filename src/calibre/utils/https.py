@@ -3,7 +3,9 @@
 
 import http.client
 import ssl
+from collections.abc import Mapping
 from contextlib import closing
+from typing import Any, Literal, overload
 from urllib.parse import urlsplit
 
 from calibre import get_proxies
@@ -11,7 +13,7 @@ from calibre.utils.resources import get_path as P
 
 
 class HTTPError(ValueError):
-    def __init__(self, url, code):
+    def __init__(self, url: str, code: int) -> None:
         msg = f'{url} returned an unsupported http response code: {code} ({http.client.responses.get(code, None)})'
         ValueError.__init__(self, msg)
         self.code = code
@@ -19,7 +21,7 @@ class HTTPError(ValueError):
 
 
 class HTTPSConnection(http.client.HTTPSConnection):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:  # ruff: ignore[any-type]
         cafile = kwargs.pop('cert_file', None)
         capath = kwargs.pop('cadir', None)
         if cafile is None and capath is None:
@@ -37,16 +39,56 @@ class HTTPSConnection(http.client.HTTPSConnection):
         http.client.HTTPSConnection.__init__(self, *args, **kwargs)
 
 
+@overload
 def get_https_resource_securely(
-    url,
-    cacerts='calibre-ebook-root-CA.crt',
-    timeout=60,
-    max_redirects=5,
-    ssl_version=None,
-    headers=None,
-    get_response=False,
-    cadir='',
-):
+    url: str,
+    cacerts: str | None = ...,
+    timeout: float = ...,
+    max_redirects: int = ...,
+    ssl_version: int | None = ...,
+    headers: Mapping[str, str] | None = ...,
+    get_response: Literal[False] = ...,
+    cadir: str = ...,
+) -> bytes: ...
+
+
+@overload
+def get_https_resource_securely(
+    url: str,
+    cacerts: str | None = ...,
+    timeout: float = ...,
+    max_redirects: int = ...,
+    ssl_version: int | None = ...,
+    headers: Mapping[str, str] | None = ...,
+    *,
+    get_response: Literal[True],
+    cadir: str = ...,
+) -> http.client.HTTPResponse: ...
+
+
+@overload
+def get_https_resource_securely(
+    url: str,
+    cacerts: str | None = ...,
+    timeout: float = ...,
+    max_redirects: int = ...,
+    ssl_version: int | None = ...,
+    headers: Mapping[str, str] | None = ...,
+    get_response: bool = ...,
+    cadir: str = ...,
+) -> bytes | http.client.HTTPResponse: ...
+
+
+def get_https_resource_securely(
+    url: str,
+    cacerts: str | None = 'calibre-ebook-root-CA.crt',
+    timeout: float = 60,
+    max_redirects: int = 5,
+    ssl_version: int | None = None,
+    headers: Mapping[str, str] | None = None,
+    get_response: bool = False,
+    cadir: str = '',
+) -> bytes | http.client.HTTPResponse:
     """
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
@@ -87,7 +129,7 @@ def get_https_resource_securely(
         cadir=cadir,
     )
     if has_proxy:
-        c.set_tunnel(p.hostname, p.port)
+        c.set_tunnel(p.hostname, p.port)  # ty: ignore[invalid-argument-type]
 
     with closing(c):
         c.connect()  # This is needed for proxy connections

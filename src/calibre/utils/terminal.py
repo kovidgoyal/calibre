@@ -4,9 +4,13 @@
 import os
 import re
 import sys
+from typing import IO, TYPE_CHECKING, Self
 
 from calibre.constants import iswindows
 from calibre.prints import is_binary
+
+if TYPE_CHECKING:
+    from ctypes import Structure
 
 if iswindows:
     import ctypes.wintypes
@@ -21,11 +25,11 @@ if iswindows:
         ]
 
 
-def fmt(code):
+def fmt(code: int) -> str:
     return f'\x1b[{code}m'
 
 
-def polyglot_write(stream, is_binary, encoding, text):
+def polyglot_write(stream: IO, is_binary: bool, encoding: str, text: str | bytes) -> int:
     binary = isinstance(text, bytes)
     if binary:
         if is_binary:
@@ -70,7 +74,7 @@ COLORS = {v: fmt(k) for k, v in RCOLORS.items()}
 RESET = fmt(0)
 
 
-def colored(text, fg=None, bg=None, bold=False):
+def colored[S: (str, bytes)](text: S, fg: str | None = None, bg: str | None = None, bold: bool = False) -> S:
     prefix = []
     if fg is not None:
         prefix.append(COLORS[fg])
@@ -83,12 +87,12 @@ def colored(text, fg=None, bg=None, bold=False):
     if isinstance(text, bytes):
         prefix = prefix.encode('ascii')
         suffix = suffix.encode('ascii')
-    return prefix + text + suffix
+    return prefix + text + suffix  # ty: ignore[unsupported-operator]
 
 
 class Detect:
-    def __init__(self, stream):
-        self.stream = stream or sys.stdout
+    def __init__(self, stream: IO | None) -> None:
+        self.stream: IO = stream or sys.stdout
         self.is_binary = is_binary(self.stream)
         self.isatty = getattr(self.stream, 'isatty', lambda: False)()
         force_ansi = 'CALIBRE_FORCE_ANSI' in os.environ
@@ -98,11 +102,11 @@ class Detect:
 
 
 class ColoredStream(Detect):
-    def __init__(self, stream=None, fg=None, bg=None, bold=False):
+    def __init__(self, stream: IO | None = None, fg: str | None = None, bg: str | None = None, bold: bool = False) -> None:
         Detect.__init__(self, stream)
         self.fg, self.bg, self.bold = fg, bg, bold
 
-    def cwrite(self, what):
+    def cwrite(self, what: str | bytes) -> None:
         if self.is_binary:
             if not isinstance(what, bytes):
                 what = what.encode('utf-8')
@@ -110,7 +114,7 @@ class ColoredStream(Detect):
             what = what.decode('utf-8', 'replace')
         self.stream.write(what)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         if not self.isatty:
             return self
         if self.isansi:
@@ -122,7 +126,7 @@ class ColoredStream(Detect):
                 self.cwrite(COLORS[self.fg])
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args: object, **kwargs: object) -> None:
         if not self.isatty:
             return
         if not self.fg and not self.bg and not self.bold:
@@ -135,12 +139,12 @@ class ColoredStream(Detect):
 class ANSIStream(Detect):
     ANSI_RE = r'\033\[((?:\d|;)*)([a-zA-Z])'
 
-    def __init__(self, stream=None):
+    def __init__(self, stream: IO | None = None) -> None:
         super().__init__(stream)
         self.encoding = getattr(self.stream, 'encoding', None) or 'utf-8'
         self._ansi_re_bin = self._ansi_re_unicode = None
 
-    def ansi_re(self, binary=False):
+    def ansi_re(self, binary: bool = False) -> re.Pattern:
         attr = '_ansi_re_bin' if binary else '_ansi_re_unicode'
         ans = getattr(self, attr)
         if ans is None:
@@ -151,7 +155,7 @@ class ANSIStream(Detect):
             setattr(self, attr, ans)
         return ans
 
-    def write(self, text):
+    def write(self, text: str | bytes) -> int:
         if not self.isatty:
             return self.strip_and_write(text)
 
@@ -160,17 +164,17 @@ class ANSIStream(Detect):
 
         return self.strip_and_write(text)
 
-    def polyglot_write(self, text):
+    def polyglot_write(self, text: str | bytes) -> int:
         return polyglot_write(self.stream, self.is_binary, self.encoding, text)
 
-    def strip_and_write(self, text):
+    def strip_and_write(self, text: str | bytes) -> int:
         binary = isinstance(text, bytes)
         pat = self.ansi_re(binary)
         repl = b'' if binary else ''
         return self.polyglot_write(pat.sub(repl, text))
 
 
-def windows_terminfo():
+def windows_terminfo() -> Structure:
     from ctypes import Structure, byref
     from ctypes.wintypes import SHORT, WORD
 
@@ -215,12 +219,12 @@ def windows_terminfo():
     return csbi
 
 
-def get_term_geometry():
+def get_term_geometry() -> tuple[int | None, int | None]:
     import fcntl
     import struct
     import termios
 
-    def ioctl_GWINSZ(fd):
+    def ioctl_GWINSZ(fd: int) -> tuple[int | None, int | None]:
         try:
             return struct.unpack(b'HHHH', fcntl.ioctl(fd, termios.TIOCGWINSZ, b'\0' * 8))[:2]
         except Exception:
@@ -243,7 +247,7 @@ def get_term_geometry():
     return None, None
 
 
-def geometry():
+def geometry() -> tuple[int, int]:
     if iswindows:
         try:
             ti = windows_terminfo()
@@ -254,13 +258,13 @@ def geometry():
         try:
             lines, cols = get_term_geometry()
             if lines is not None:
-                return cols, lines
+                return cols, lines  # ty: ignore[invalid-return-type]
         except Exception:
             pass
         return 80, 25
 
 
-def test():
+def test() -> None:
     s = ANSIStream()
 
     text = [

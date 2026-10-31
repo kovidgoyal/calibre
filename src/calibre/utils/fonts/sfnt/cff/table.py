@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterable
 from functools import partial
 from struct import calcsize, unpack, unpack_from
 
@@ -15,7 +16,7 @@ from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 
 
 class CFF:
-    def __init__(self, raw):
+    def __init__(self, raw: bytes) -> None:
         (self.major_version, self.minor_version, self.header_size, self.offset_size) = unpack_from(b'>4B', raw)
         if (self.major_version, self.minor_version) != (1, 0):
             raise UnsupportedFont(f'The CFF table has unknown version: ({self.major_version}, {self.minor_version})')
@@ -76,7 +77,7 @@ class CFF:
 
 
 class Index(list):
-    def __init__(self, raw, offset, prepend=()):
+    def __init__(self, raw: bytes, offset: int, prepend: Iterable[bytes] = ()) -> None:
         list.__init__(self)
         self.extend(prepend)
 
@@ -107,12 +108,12 @@ class Index(list):
 
 
 class Strings(Index):
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         super().__init__(raw, offset, prepend=[x.encode('ascii') for x in cff_standard_strings])
 
 
 class Charset(list):
-    def __init__(self, raw, offset, strings, num_glyphs, is_CID):
+    def __init__(self, raw: bytes, offset: int, strings: Strings, num_glyphs: int, is_CID: bool) -> None:
         super().__init__()
         self.standard_charset = offset if offset in {0, 1, 2} else None
         if is_CID and self.standard_charset is not None:
@@ -126,7 +127,7 @@ class Charset(list):
                 raise UnsupportedFont(f'This font uses unsupported charset table format: {fmt}')
             f(raw, offset, strings, num_glyphs, is_CID)
 
-    def parse_fmt0(self, raw, offset, strings, num_glyphs, is_CID):
+    def parse_fmt0(self, raw: bytes, offset: int, strings: Strings, num_glyphs: int, is_CID: bool) -> None:
         fmt = f'>{num_glyphs - 1}H'.encode('ascii')
         ids = unpack_from(fmt, raw, offset)
         if is_CID:
@@ -135,7 +136,7 @@ class Charset(list):
             ids = (strings[x] for x in ids)
         self.extend(ids)
 
-    def parse_fmt1(self, raw, offset, strings, num_glyphs, is_CID, is_two_byte=False):
+    def parse_fmt1(self, raw: bytes, offset: int, strings: Strings, num_glyphs: int, is_CID: bool, is_two_byte: bool = False) -> None:
         fmt = b'>2H' if is_two_byte else b'>HB'
         sz = calcsize(fmt)
         count = 1
@@ -145,12 +146,12 @@ class Charset(list):
             count += nleft + 1
             self.extend(f'cid{x:05}' if is_CID else strings[x] for x in range(first, first + nleft + 1))
 
-    def lookup(self, glyph_id):
+    def lookup(self, glyph_id: int) -> bytes | str:
         if self.standard_charset is None:
             return self[glyph_id]
         return STANDARD_CHARSETS[self.standard_charset][glyph_id].encode('ascii')
 
-    def safe_lookup(self, glyph_id):
+    def safe_lookup(self, glyph_id: int) -> bytes | str | None:
         try:
             return self.lookup(glyph_id)
         except KeyError, IndexError, ValueError:
@@ -166,10 +167,10 @@ class CharStringsIndex(Index):
 
 
 class CFFTable(UnknownTable):
-    def decompile(self):
+    def decompile(self) -> None:
         self.cff = CFF(self.raw)
 
-    def subset(self, character_map, extra_glyphs):
+    def subset(self, character_map: dict[int, int], extra_glyphs: Iterable[int]) -> None:
         from calibre.utils.fonts.sfnt.cff.writer import Subset
 
         # Map codes from the cmap table to glyph names, this will be used to

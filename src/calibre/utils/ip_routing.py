@@ -3,11 +3,12 @@
 
 import re
 import subprocess
+from collections.abc import Iterator
 
 from calibre.constants import ismacos, iswindows
 
 
-def get_address_of_default_gateway(family='AF_INET'):
+def get_address_of_default_gateway(family: str = 'AF_INET') -> str:
     import netifaces  # type: ignore
 
     ip = netifaces.gateways()['default'][getattr(netifaces, family)][0]
@@ -16,7 +17,7 @@ def get_address_of_default_gateway(family='AF_INET'):
     return ip
 
 
-def get_addresses_for_interface(name, family='AF_INET'):
+def get_addresses_for_interface(name: str, family: str = 'AF_INET') -> Iterator[str]:
     import netifaces  # type: ignore
 
     for entry in netifaces.ifaddresses(name)[getattr(netifaces, family)]:
@@ -30,7 +31,7 @@ def get_addresses_for_interface(name, family='AF_INET'):
 
 if iswindows:
 
-    def get_default_route_src_address_external():
+    def get_default_route_src_address_external() -> str | None:
         # Use -6 for IPv6 addresses
         raw = subprocess.check_output('route -4 print 0.0.0.0'.split(), creationflags=subprocess.DETACHED_PROCESS).decode('utf-8', 'replace')
         in_table = False
@@ -47,7 +48,7 @@ if iswindows:
             elif parts == 'Network Destination Netmask Gateway Interface Metric'.split():
                 in_table = True
 
-    def get_default_route_src_address_api():
+    def get_default_route_src_address_api() -> str | None:
         from calibre.utils.iphlpapi import routes
 
         for route in routes():
@@ -59,7 +60,7 @@ if iswindows:
 
 elif ismacos:
 
-    def get_default_route_src_address():
+    def get_default_route_src_address() -> str | None:
         # Use -inet6 for IPv6
         raw = subprocess.check_output('route -n get -inet default'.split()).decode('utf-8')
         m = re.search(r'^\s*interface:\s*(\S+)\s*$', raw, flags=re.MULTILINE)
@@ -70,7 +71,7 @@ elif ismacos:
 
 else:
 
-    def get_default_route_src_address():
+    def get_default_route_src_address() -> str | None:
         # Use /proc/net/ipv6_route for IPv6 addresses
         with open('/proc/net/route', 'rb') as f:
             raw = f.read().decode('utf-8')

@@ -10,19 +10,23 @@ import traceback
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import ExitStack
 from itertools import batched, chain
-from typing import Any, BinaryIO, NamedTuple, Self
+from types import TracebackType
+from typing import TYPE_CHECKING, Any, BinaryIO, NamedTuple, Self
+
+if TYPE_CHECKING:
+    import unittest
 
 
 class _RemoteTraceback(Exception):
-    def __init__(self, tb):
+    def __init__(self, tb: str) -> None:
         self.tb = tb
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.tb
 
 
 class _ExceptionWithTraceback:
-    def __init__(self, exc):
+    def __init__(self, exc: BaseException) -> None:
         tb = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
         self.exc = exc
         # Traceback object needs to be garbage-collected as its frames
@@ -30,11 +34,11 @@ class _ExceptionWithTraceback:
         self.exc.__traceback__ = None
         self.tb = f'\n"""\n{tb}"""'
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[Callable[[BaseException, str], BaseException], tuple[BaseException, str]]:
         return _rebuild_exc, (self.exc, self.tb)
 
 
-def _rebuild_exc(exc, tb):
+def _rebuild_exc[E: BaseException](exc: E, tb: str) -> E:
     exc.__cause__ = _RemoteTraceback(tb)
     return exc
 
@@ -50,7 +54,7 @@ class Worker:
     pipe: BinaryIO
     unpickler: pickle.Unpickler
 
-    def __init__(self, pid: int, pipe_fd: int):
+    def __init__(self, pid: int, pipe_fd: int) -> None:
         self.pid = pid
         self.pipe = open(pipe_fd, 'rb')  # ruff: ignore[open-file-with-context-handler]
         self.unpickler = pickle.Unpickler(self.pipe)
@@ -58,7 +62,7 @@ class Worker:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type, exc_value, tb) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, tb: TracebackType | None) -> None:
         try:
             self.pipe.close()
         finally:
@@ -192,7 +196,7 @@ def forked_map_test_main() -> None:
         tc.assertEqual(tuple(map(echo, items)), tuple(forked_map(echo, items, num_workers=num_workers)))
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import subprocess
     import unittest
 
@@ -200,7 +204,7 @@ def find_tests():
 
     class TestForkedMap(unittest.TestCase):
         @unittest.skipUnless(forked_map_is_supported, 'forking not supported on this platform')
-        def test_forked_map(self):
+        def test_forked_map(self) -> None:
             proc = start_pipe_worker(
                 'from calibre.utils.forked_map import forked_map_test_main; forked_map_test_main()',
                 stderr=subprocess.STDOUT,

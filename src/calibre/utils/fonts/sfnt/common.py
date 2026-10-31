@@ -2,19 +2,20 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Set as AbstractSet
 from struct import calcsize, unpack_from
-from typing import NamedTuple
+from typing import Any, NamedTuple, overload
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 
 class Unpackable:
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         self.raw, self.offset = raw, offset
         self.start_pos = offset
 
-    def unpack(self, fmt, single_special=True):
+    def unpack(self, fmt: str | bytes, single_special: bool = True) -> Any:  # ruff: ignore[any-type]
         fmt = fmt.encode('ascii') if not isinstance(fmt, bytes) else fmt
         ans = unpack_from(b'>' + fmt, self.raw, self.offset)
         if single_special and len(ans) == 1:
@@ -28,7 +29,7 @@ class SimpleListTable(list):
 
     child_class: Callable[..., object] | None = None
 
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         list.__init__(self)
 
         data = Unpackable(raw, offset)
@@ -41,10 +42,10 @@ class SimpleListTable(list):
                 self.append(self.child_class(raw, data.start_pos + offset))
         self.read_extra_footer(data)
 
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         pass
 
-    def read_extra_footer(self, data):
+    def read_extra_footer(self, data: Unpackable) -> None:
         pass
 
 
@@ -53,7 +54,7 @@ class ListTable(OrderedDict):
 
     child_class: Callable[..., object] | None = None
 
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         OrderedDict.__init__(self)
 
         data = Unpackable(raw, offset)
@@ -67,13 +68,13 @@ class ListTable(OrderedDict):
 
         self.read_extra_footer(data)
 
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         pass
 
-    def read_extra_footer(self, data):
+    def read_extra_footer(self, data: Unpackable) -> None:
         pass
 
-    def dump(self, prefix=''):
+    def dump(self, prefix: str = '') -> None:
         print(prefix, self.__class__.__name__, sep='')
         prefix += '  '
         for tag, child in self.items():
@@ -82,7 +83,7 @@ class ListTable(OrderedDict):
 
 
 class IndexTable(list):
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         data = Unpackable(raw, offset)
         self.read_extra_header(data)
 
@@ -90,15 +91,15 @@ class IndexTable(list):
         for i in range(count):
             self.append(data.unpack('H'))
 
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         pass
 
-    def dump(self, prefix=''):
+    def dump(self, prefix: str = '') -> None:
         print(prefix, self.__class__.__name__, sep='')
 
 
 class LanguageSystemTable(IndexTable):
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         self.lookup_order, self.required_feature_index = data.unpack('2H')
         if self.lookup_order != 0:
             raise UnsupportedFont(f'This LanguageSystemTable has an unknown lookup order: 0x{self.lookup_order:x}')
@@ -107,10 +108,10 @@ class LanguageSystemTable(IndexTable):
 class ScriptTable(ListTable):
     child_class = LanguageSystemTable
 
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         ListTable.__init__(self, raw, offset)
 
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         start_pos = data.offset
         default_offset = data.unpack('H')
         self[b'default'] = LanguageSystemTable(data.raw, start_pos + default_offset) if default_offset else None
@@ -121,7 +122,7 @@ class ScriptListTable(ListTable):
 
 
 class FeatureTable(IndexTable):
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         self.feature_params = data.unpack('H')
         if False and self.feature_params != 0:  # ruff: ignore[expr-and-false]
             # Source code pro sets this to non NULL
@@ -133,19 +134,21 @@ class FeatureListTable(ListTable):
 
 
 class LookupTable(SimpleListTable):
-    def read_extra_header(self, data):
+    def read_extra_header(self, data: Unpackable) -> None:
         self.lookup_type, self.lookup_flag = data.unpack('2H')
         self.set_child_class()
 
-    def set_child_class(self):
+    def set_child_class(self) -> None:
         raise NotImplementedError()
 
-    def read_extra_footer(self, data):
+    def read_extra_footer(self, data: Unpackable) -> None:
         if self.lookup_flag & 0x0010:
             self.mark_filtering_set = data.unpack('H')
 
 
-def ExtensionSubstitution(raw, offset, subtable_map=None):
+def ExtensionSubstitution(
+    raw: bytes, offset: int, subtable_map: Mapping[int, Callable[[bytes, int], UnknownLookupSubTable]] | None = None
+) -> UnknownLookupSubTable:
     if subtable_map is None:
         subtable_map = {}
     data = Unpackable(raw, offset)
@@ -162,7 +165,7 @@ class CoverageRange(NamedTuple):
 
 
 class Coverage:
-    def __init__(self, raw, offset, parent_table_name):
+    def __init__(self, raw: bytes, offset: int, parent_table_name: str) -> None:
         data = Unpackable(raw, offset)
         self.format, count = data.unpack('2H')
 
@@ -178,7 +181,7 @@ class Coverage:
                 start, end, start_coverage_index = ranges[i * 3 : (i + 1) * 3]
                 self.ranges.append(CoverageRange(start, end, start_coverage_index))
 
-    def coverage_indices(self, glyph_ids):
+    def coverage_indices(self, glyph_ids: Iterable[int]) -> OrderedDict[int, int]:
         """Return map of glyph_id -> coverage index. Map contains only those
         glyph_ids that are covered by this table and that are present in
         glyph_ids."""
@@ -198,7 +201,7 @@ class Coverage:
 class UnknownLookupSubTable:
     formats = {}
 
-    def __init__(self, raw, offset):
+    def __init__(self, raw: bytes, offset: int) -> None:
         data = Unpackable(raw, offset)
         self.format = data.unpack('H')
         if self.format not in self.formats:
@@ -209,18 +212,22 @@ class UnknownLookupSubTable:
         self.initialize(data)
 
     @property
-    def has_initial_coverage(self):
+    def has_initial_coverage(self) -> bool:
         return True
 
-    def initialize(self, data):
+    def initialize(self, data: Unpackable) -> None:
         raise NotImplementedError()
 
-    def all_substitutions(self, glyph_ids):
+    def all_substitutions(self, glyph_ids: AbstractSet[int]) -> set[int]:
         """Return a set of all glyph ids that could be substituted for any
         subset of the specified glyph ids (which must be a set)"""
         raise NotImplementedError()
 
-    def read_sets(self, data, read_item=None, set_is_index=False):
+    @overload
+    def read_sets(self, data: Unpackable, read_item: None = None, set_is_index: bool = False) -> list[list[int]]: ...
+    @overload
+    def read_sets[T](self, data: Unpackable, read_item: Callable[[Unpackable], T], set_is_index: bool = False) -> list[list[T]]: ...
+    def read_sets[T](self, data: Unpackable, read_item: Callable[[Unpackable], T] | None = None, set_is_index: bool = False) -> list[list[T]] | list[list[int]]:
         count = data.unpack('H')
         sets = data.unpack(f'{count}H', single_special=False)
         coverage_to_items_map = []

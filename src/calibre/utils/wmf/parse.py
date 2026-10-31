@@ -3,8 +3,12 @@
 
 import struct
 import sys
+from typing import IO, TYPE_CHECKING
 
 from calibre.utils.wmf import create_bmp_from_dib, to_png
+
+if TYPE_CHECKING:
+    from calibre.utils.logging import Log
 
 
 class WMFHeader:
@@ -13,7 +17,7 @@ class WMFHeader:
     http://www.skynet.ie/~caolan/publink/libwmf/libwmf/doc/ora-wmf.html
     """
 
-    def __init__(self, data, log, verbose):
+    def __init__(self, data: bytes, log: Log, verbose: int) -> None:
         self.log, self.verbose = log, verbose
         offset = 0
         file_type, header_size, windows_version = struct.unpack_from('<HHH', data)
@@ -33,7 +37,7 @@ class WMFHeader:
 
 
 class WMF:
-    def __init__(self, log=None, verbose=0):
+    def __init__(self, log: Log | None = None, verbose: int = 0) -> None:
         if log is None:
             from calibre.utils.logging import default_log as log
         self.log = log
@@ -125,10 +129,10 @@ class WMF:
             3907: 'StretchDIBits',
         }  # }}}
 
-    def __call__(self, stream_or_data):
+    def __call__(self, stream_or_data: bytes | IO[bytes]) -> None:
         data = stream_or_data
         if hasattr(data, 'read'):
-            data = data.read()
+            data = data.read()  # ty: ignore[call-non-callable]
         self.log.filter_level = self.log.DEBUG
         self.header = WMFHeader(data, self.log, self.verbose)
 
@@ -162,13 +166,13 @@ class WMF:
 
         self.has_raster_image = len(self.bitmaps) > 0
 
-    def SetMapMode(self, params):
+    def SetMapMode(self, params: bytes) -> None:
         if len(params) == 2:
             self.map_mode = struct.unpack('<H', params)[0]
         else:
             self.log.warn('Invalid SetMapMode param')
 
-    def SetWindowOrg(self, params):
+    def SetWindowOrg(self, params: bytes) -> None:
         if len(params) == 4:
             self.window_origin = struct.unpack('<HH', params)
         elif len(params) == 8:
@@ -178,7 +182,7 @@ class WMF:
         else:
             self.log.warn('Invalid SetWindowOrg param', repr(params))
 
-    def SetWindowExt(self, params):
+    def SetWindowExt(self, params: bytes) -> None:
         if len(params) == 4:
             self.window_extent = struct.unpack('<HH', params)
         elif len(params) == 8:
@@ -188,7 +192,7 @@ class WMF:
         else:
             self.log.warn('Invalid SetWindowExt param', repr(params))
 
-    def DibStretchBlt(self, raw):
+    def DibStretchBlt(self, raw: bytes) -> None:
         offset = 0
         fmt = '<IHHHHHHHH'
         raster_op, src_height, src_width, y_src, x_src, dest_height, dest_width, y_dest, x_dest = struct.unpack_from('<IHHHHHHHH', raw, offset)
@@ -197,13 +201,13 @@ class WMF:
         bmp = create_bmp_from_dib(bmp_data)
         self.bitmaps.append(bmp)
 
-    def to_png(self):
+    def to_png(self) -> bytes:
         bmps = list(sorted(self.bitmaps, key=len))
         bmp = bmps[-1]
         return to_png(bmp)
 
 
-def wmf_unwrap(wmf_data, verbose=0):
+def wmf_unwrap(wmf_data: bytes | IO[bytes], verbose: int = 0) -> bytes:
     """
     Return the largest embedded raster image in the WMF.
     The returned data is in PNG format.

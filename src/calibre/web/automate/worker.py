@@ -13,7 +13,7 @@ import time
 from collections.abc import Awaitable, Callable
 from functools import partial
 from threading import Thread
-from typing import IO, Any, NamedTuple, cast
+from typing import IO, TYPE_CHECKING, Any, NamedTuple, TypedDict, cast
 
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.ptempfile import base_dir
@@ -26,6 +26,12 @@ if iswindows:
     from calibre_extensions import winutil
 else:
     PipeServer = asyncio.Server
+
+if TYPE_CHECKING:
+
+    class StderrKwargs(TypedDict, total=False):
+        stderr: int
+
 
 Handler = Callable[[Any], Awaitable[Any]]
 
@@ -267,7 +273,7 @@ def relay_stderr(stream: IO[bytes]) -> None:
         pass  # the worker has exited
 
 
-def worker_stderr_kwargs() -> dict[str, int]:
+def worker_stderr_kwargs() -> StderrKwargs:
     """Keyword arguments to pass to start_pipe_worker() to give the worker a usable stderr.
 
     The worker is created as a DETACHED_PROCESS on Windows, so if our stderr is a

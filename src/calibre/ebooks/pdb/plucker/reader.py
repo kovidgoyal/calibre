@@ -381,7 +381,7 @@ class Reader(FormatReader):
                         elif self.header_record.compression == 2:
                             idata = zlib.decompress(section_data)
                     try:
-                        save_cover_data_to(idata, f'{uid}.jpg', compression_quality=70)
+                        save_cover_data_to(idata, f'{uid}.jpg', compression_quality=70)  # ty: ignore[no-matching-overload]
                         images.add(uid)
                         self.log.debug(f'Wrote image with uid {uid} to images/{uid}.jpg')
                     except Exception as e:
@@ -425,7 +425,7 @@ class Reader(FormatReader):
                                 largest_height = max(largest_height, h)
                             y_off += largest_height
                     with open(f'{uid}.jpg') as out:
-                        out.write(canvas.export(compression_quality=70))
+                        out.write(canvas.export(compression_quality=70))  # ty: ignore[invalid-argument-type]
                     self.log.debug(f'Wrote composite image with uid {uid} to images/{uid}.jpg')
                 except Exception as e:
                     self.log.error(f'Failed to write composite image with uid {uid}: {e}')

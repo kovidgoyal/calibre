@@ -8,6 +8,7 @@ import time
 from collections import defaultdict
 from collections.abc import Callable
 from contextlib import suppress
+from types import TracebackType
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import make_long_path_useable, samefile, windows_hardlink
@@ -24,7 +25,7 @@ class SourceDeletionFailed(OSError):
 
 
 class UnixFileCopier:
-    def __init__(self, delete_all=False, allow_move=False):
+    def __init__(self, delete_all: bool = False, allow_move: bool = False) -> None:
         self.delete_all = delete_all
         self.allow_move = allow_move
         self.copy_map: dict[str, str] = {}
@@ -38,7 +39,7 @@ class UnixFileCopier:
     def __enter__(self) -> None:
         pass
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
         if self.delete_all and exc_val is None:
             self.delete_all_source_files()
 
@@ -82,7 +83,7 @@ class WindowsFileCopier:
     Locks all files before starting the copy, ensuring other processes cannot interfere
     """
 
-    def __init__(self, delete_all=False, allow_move=False):
+    def __init__(self, delete_all: bool = False, allow_move: bool = False) -> None:
         self.delete_all = delete_all
         self.allow_move = allow_move
         self.path_to_fileid_map: dict[str, WindowsFileId] = {}
@@ -165,7 +166,7 @@ class WindowsFileCopier:
             h.close()
             self.folder_to_handle_map.pop(path)
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
         self.close_all_handles(delete_on_close=self.delete_all and exc_val is None)
 
     def copy_all(self) -> None:
@@ -190,7 +191,7 @@ class WindowsFileCopier:
             os.replace(make_long_path_useable(src_path), make_long_path_useable(dest_path))
 
 
-def get_copier(delete_all=False, allow_move=False) -> UnixFileCopier | WindowsFileCopier:
+def get_copier(delete_all: bool = False, allow_move: bool = False) -> UnixFileCopier | WindowsFileCopier:
     return (WindowsFileCopier if iswindows else UnixFileCopier)(delete_all, allow_move)
 
 

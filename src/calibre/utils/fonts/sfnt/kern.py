@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Container
 from struct import calcsize, pack, unpack_from
 from struct import error as struct_error
 
@@ -11,14 +12,14 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 class KernTable(UnknownTable):
     version = FixedProperty('_version')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: bytes, **kwargs: bytes) -> None:
         super().__init__(*args, **kwargs)
         self._version, self.num_tables = unpack_from(b'>HH', self.raw)
         if self._version == 1 and len(self.raw) >= 8:
             self._version, self.num_tables = unpack_from(b'>LL', self.raw)
         self.headerfmt = b'>HH' if self._version == 0 else b'>LL'
 
-    def restrict_to_glyphs(self, glyph_ids):
+    def restrict_to_glyphs(self, glyph_ids: Container[int]) -> None:
         if self._version not in {0, 0x10000}:
             raise UnsupportedFont(f'kern table has version: {self._version:x}')
         offset = 4 if (self._version == 0) else 8
@@ -39,7 +40,7 @@ class KernTable(UnknownTable):
             offset += length
         self.raw = pack(self.headerfmt, self._version, len(tables)) + b''.join(tables)
 
-    def restrict_format_0(self, raw, glyph_ids):
+    def restrict_format_0(self, raw: bytes, glyph_ids: Container[int]) -> bytes:
         if self._version == 0:
             version, length, coverage, npairs = unpack_from(b'>4H', raw)
             headerfmt = b'>3H'

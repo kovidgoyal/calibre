@@ -16,7 +16,7 @@ from calibre.utils.hyphenation.hyphenate import add_soft_hyphens, add_soft_hyphe
 class TestHyphenation(unittest.TestCase):
     ae = unittest.TestCase.assertEqual
 
-    def setUp(self):
+    def setUp(self) -> None:
         tdir = PersistentTemporaryDirectory()
         path_to_dictionary.cache_dir = tdir
         dictionary_name_for_locale.cache_clear()
@@ -24,7 +24,7 @@ class TestHyphenation(unittest.TestCase):
         get_cache_path.cache_clear()
         is_cache_up_to_date.updated = False
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         dictionary_name_for_locale.cache_clear()
         dictionary_for_locale.cache_clear()
         get_cache_path.cache_clear()
@@ -35,9 +35,9 @@ class TestHyphenation(unittest.TestCase):
             pass
         path_to_dictionary.cache_dir = None
 
-    def test_locale_to_hyphen_dictionary(self):
+    def test_locale_to_hyphen_dictionary(self) -> None:
 
-        def t(x, expected=None):
+        def t(x: str, expected: str | None = None) -> None:
             self.ae(dictionary_name_for_locale(x), f'hyph_{expected}.dic' if expected else None)
 
         t('en', 'en_US')
@@ -50,7 +50,7 @@ class TestHyphenation(unittest.TestCase):
 
         cache = [False]
 
-        def cache_callback():
+        def cache_callback() -> None:
             cache[0] = True
 
         dp = path_to_dictionary(dictionary_name_for_locale('en'), cache_callback)
@@ -60,8 +60,8 @@ class TestHyphenation(unittest.TestCase):
         self.assertTrue(os.path.exists(path_to_dictionary(dictionary_name_for_locale('es'), cache_callback)))
         self.assertFalse(cache[0])
 
-    def test_add_soft_hyphens(self):
-        def t(word, expected):
+    def test_add_soft_hyphens(self) -> None:
+        def t(word: str, expected: str) -> None:
             self.ae(add_soft_hyphens(word, dictionary, '='), expected)
 
         dictionary = dictionary_for_locale('hu')
@@ -71,12 +71,12 @@ class TestHyphenation(unittest.TestCase):
         t('beautiful', 'beau=ti=ful')
         t('BeauTiful', 'Beau=Ti=ful')
 
-        def w(words, expected):
+        def w(words: str, expected: str) -> None:
             self.ae(add_soft_hyphens_to_words(words, dictionary, '='), expected)
 
         w(' A\n beautiful  day. ', ' A\n beau=ti=ful  day. ')
 
-    def test_hyphenate_html(self):
+    def test_hyphenate_html(self) -> None:
         root = parse_html5(
             '''
 <p>beautiful, <span lang="sv"><!-- x -->tillata\n<span lang="en">Expand</span></span> "latitude!''',
@@ -87,5 +87,5 @@ class TestHyphenation(unittest.TestCase):
         self.ae(raw, 'beau=ti=ful, tilla=ta\nEx=pand "lat=i=tude!')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestHyphenation)
