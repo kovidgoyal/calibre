@@ -1,25 +1,40 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
+# This module is live updated and so can be loaded by older calibre versions
+# that evaluate annotations eagerly
+from __future__ import annotations
+
 import json
 import re
 import sys
 from pprint import pprint  # ruff: ignore[unused-import]
+from typing import TYPE_CHECKING
 from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from typing import Any
+
+    from bs4 import BeautifulSoup as Soup
+
+    from calibre.utils.browser import Browser
+
+    JSONDict = dict[str, Any]
+
 module_version = 20  # needed for live updates
 
 
-def safe_dict(data, *names):
+def safe_dict(data: JSONDict, *names: str) -> JSONDict:
     ans = data
     for x in names:
         ans = ans.get(x) or {}
     return ans
 
 
-def parse_image(i):
+def parse_image(i: JSONDict) -> Iterator[str]:
     crop = i.get('crops') or i.get('spanImageCrops')
     if crop:
         yield f'<div><img src="{crop[0]["renditions"][0]["url"]}" title="{i.get("altText", "")}">'
@@ -34,7 +49,7 @@ def parse_image(i):
     yield '</div>'
 
 
-def parse_img_grid(g):
+def parse_img_grid(g: JSONDict) -> Iterator[str]:
     for grd in g.get('gridMedia', {}):
         yield ''.join(parse_image(grd))
     if g.get('caption'):
@@ -44,7 +59,7 @@ def parse_img_grid(g):
         yield '</div>'
 
 
-def parse_vid(v):
+def parse_vid(v: JSONDict) -> Iterator[str]:
     if v.get('promotionalMedia'):
         headline = v.get('headline', {}).get('default', '')
         rendition = v.get('renditions')
@@ -61,7 +76,7 @@ def get_data_wrapper(html: str | None) -> str:
     return ''
 
 
-def parse_emb(e):
+def parse_emb(e: JSONDict) -> Iterator[str]:
     if dw := get_data_wrapper(e.get('html')):
         yield f'<div><img src="https://datawrapper.dwcdn.net/{dw}/full.png"></div>'
     elif e.get('promotionalMedia'):
@@ -72,7 +87,7 @@ def parse_emb(e):
             yield f'<div class="cap">{e["note"]}</div>'
 
 
-def parse_byline(byl):
+def parse_byline(byl: JSONDict) -> Iterator[str]:
     for b in byl.get('bylines', {}):
         yield f'<div><b>{b["renderedRepresentation"]}</b></div>'
     yield '<div><i>'
@@ -82,12 +97,12 @@ def parse_byline(byl):
     yield '</i></div>'
 
 
-def iso_date(x):
+def iso_date(x: str) -> str:
     dt = parse_iso8601(x, as_utc=False)
     return dt.strftime('%b %d, %Y at %I:%M %p')
 
 
-def parse_header(h):
+def parse_header(h: JSONDict) -> Iterator[str]:
     if h.get('label'):
         yield f'<div class="lbl">{"".join(parse_types(h["label"]))}</div>'
     if h.get('headline'):
@@ -102,7 +117,7 @@ def parse_header(h):
         yield ''.join(parse_types(h['timestampBlock']))
 
 
-def parse_fmt_type(fm):
+def parse_fmt_type(fm: JSONDict) -> Iterator[str]:
     for f in fm.get('formats', {}):
         ftype = f.get('__typename', '')
         if ftype == 'BoldFormat':
@@ -123,7 +138,7 @@ def parse_fmt_type(fm):
             yield '</a>'
 
 
-def parse_cnt(cnt):
+def parse_cnt(cnt: JSONDict) -> Iterator[str]:
     for k in cnt:
         if isinstance(cnt[k], list):
             if k == 'formats':
@@ -138,7 +153,7 @@ def parse_cnt(cnt):
             yield cnt['text']
 
 
-def parse_types(x):
+def parse_types(x: JSONDict) -> Iterator[str]:
     typename = x.get('__typename', '')
 
     align = ''
@@ -199,14 +214,14 @@ def parse_types(x):
         yield ''.join(parse_cnt(x))
 
 
-def article_parse(data):
+def article_parse(data: Iterable[JSONDict]) -> Iterator[str]:
     yield '<html><body>'
     for d in data:
         yield from parse_types(d)
     yield '</body></html>'
 
 
-def clean_js_json(text):
+def clean_js_json(text: str) -> str:
     text = re.sub(r'\bundefined\b', 'null', text)
     text = re.sub(r'{\"checkGate\":.*', 'null}}', text, flags=re.DOTALL)
     return text
@@ -220,7 +235,7 @@ def clean_js_json(text):
 ARTICLE_DATA_KEYS = ('loaderData', 'initialData')
 
 
-def article_data(data):
+def article_data(data: JSONDict) -> JSONDict | None:
     """The body bearing article of a page, or None if it has none.
 
     A live blog has no article of its own, its posts live in the Apollo cache
@@ -234,7 +249,7 @@ def article_data(data):
     return None
 
 
-def json_to_html(raw):
+def json_to_html(raw: str) -> str:
     cleaned = clean_js_json(raw)
     data = json.JSONDecoder(strict=False).raw_decode(cleaned)[0]
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
@@ -245,7 +260,7 @@ def json_to_html(raw):
     return '\n'.join(article_parse(content))
 
 
-def add_live_item(item, item_type, lines):
+def add_live_item(item: JSONDict, item_type: str, lines: list[str]) -> None:
     a = lines.append
     if item_type == 'text':
         a('<p>' + item['value'] + '</p>')
@@ -286,7 +301,7 @@ def add_live_item(item, item_type, lines):
         raise Exception(f'Unknown item: {item}')
 
 
-def live_json_to_html(data):
+def live_json_to_html(data: JSONDict) -> str:
     for k, v in data['ROOT_QUERY'].items():
         if isinstance(v, dict) and 'id' in v:
             root = data[v['id']]
@@ -307,10 +322,10 @@ def live_json_to_html(data):
     return '<html><body>' + '\n'.join(lines) + '</body></html>'
 
 
-def extract_html(soup, url):
+def extract_html(soup: Soup, url: str) -> str:
     if '/interactive/' in url:
         return '<html><body><p><em>This is an interactive article, which is supposed to be read in a browser.</p></em></body></html>'
-    candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
+    candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)  # ty: ignore[no-matching-overload]
     if not candidates:
         if soup.find('script', src='https://ct.captcha-delivery.com/c.js'):
             raise ValueError('NYTimes returned a CAPTCHA page from captcha-delivery.com')
@@ -321,7 +336,7 @@ def extract_html(soup, url):
     return json_to_html(raw)
 
 
-def download_url_from_wayback(category, url, br=None):
+def download_url_from_wayback(category: str, url: str, br: Browser | None = None) -> bytes:
     from mechanize import Request
 
     host = 'http://localhost:8090'
@@ -339,7 +354,7 @@ def download_url_from_wayback(category, url, br=None):
     return br.open_novisit(rq, timeout=3 * 60).read()
 
 
-def download_url(url=None, br=None):
+def download_url(url: str | None = None, br: Browser | None = None) -> bytes:
     # Get the URL from the Wayback machine
     if url is None:
         url = sys.argv[-1]

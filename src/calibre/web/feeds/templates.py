@@ -2,6 +2,8 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
+from collections.abc import Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Self
 
 from lxml import etree, html
 from lxml.html.builder import BODY, BR, DIV, H2, H3, HEAD, HR, HTML, IMG, LI, SPAN, STRONG, STYLE, TABLE, TD, TITLE, TR, UL, A
@@ -10,8 +12,11 @@ from lxml.html.builder import P as PT
 from calibre import strftime
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.web.feeds import Article, Feed
 
-def attrs(*args, **kw):
+
+def attrs(*args: str, **kw: object) -> dict[str, object]:
     rescale = kw.pop('rescale', None)
     if rescale is not None:
         kw['data-calibre-rescale'] = str(rescale)
@@ -27,13 +32,13 @@ class Template:
     IS_HTML = True
     root: html.HtmlElement
 
-    def __init__(self, lang=None):
+    def __init__(self, lang: str | None = None) -> None:
         self.html_lang = lang
 
-    def _generate(self, *args, **kwargs) -> None:
+    def _generate(self, *args: Any, **kwargs: Any) -> None:  # ruff: ignore[any-type]
         raise NotImplementedError
 
-    def generate(self, *args, **kwargs):
+    def generate(self, *args: object, **kwargs: object) -> Self:
         if 'style' not in kwargs:
             kwargs['style'] = ''
         for key, val in kwargs.items():
@@ -41,25 +46,25 @@ class Template:
                 kwargs[key] = val.decode('utf-8', 'replace')
             if kwargs[key] is None:
                 kwargs[key] = ''
-        args = list(args)
+        args = list(args)  # ty: ignore[invalid-assignment]
         for i in range(len(args)):
             if isinstance(args[i], bytes):
-                args[i] = args[i].decode('utf-8', 'replace')
+                args[i] = args[i].decode('utf-8', 'replace')  # ty: ignore[invalid-assignment]
             if args[i] is None:
-                args[i] = ''
+                args[i] = ''  # ty: ignore[invalid-assignment]
 
         self._generate(*args, **kwargs)
 
         return self
 
-    def render(self, *args, **kwargs):
+    def render(self, *args: object, **kwargs: object) -> bytes:
         if self.IS_HTML:
             return html.tostring(self.root, encoding='utf-8', include_meta_content_type=True, pretty_print=True)
         return etree.tostring(self.root, encoding='utf-8', xml_declaration=True, pretty_print=True)
 
 
 class EmbeddedContent(Template):
-    def _generate(self, article, style=None, extra_css=None):
+    def _generate(self, article: Article, style: str | None = None, extra_css: str | None = None) -> None:
         content = article.content or ''
         summary = article.summary or ''
         text = content if len(content) > len(summary) else summary
@@ -91,7 +96,7 @@ class EmbeddedContent(Template):
 
 
 class IndexTemplate(Template):
-    def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
+    def _generate(self, title: str, masthead: str, datefmt: str, feeds: Iterable[Feed], extra_css: str | None = None, style: str | None = None) -> None:
         self.IS_HTML = False
         date = strftime(datefmt)
         head = HEAD(TITLE(title))
@@ -116,7 +121,7 @@ class IndexTemplate(Template):
 
 
 class FeedTemplate(Template):
-    def get_navbar(self, f, feeds, top=True):
+    def get_navbar(self, f: int, feeds: Sequence[Feed], top: bool = True) -> html.HtmlElement:
         if len(feeds) < 2:
             return DIV()
         navbar = DIV('| ', attrs('calibre_navbar', rescale=70, style='text-align:center'))
@@ -141,7 +146,7 @@ class FeedTemplate(Template):
             navbar.append(HR())
         return navbar
 
-    def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
+    def _generate(self, f: int, feeds: Sequence[Feed], cutoff: Callable[[str], str], extra_css: str | None = None, style: str | None = None) -> None:
         from calibre.utils.cleantext import clean_xml_chars
 
         feed = feeds[f]
@@ -156,7 +161,7 @@ class FeedTemplate(Template):
         div = DIV(H2(feed.title, attrs('calibre_feed_title', rescale=160)), attrs(rescale=100))
         body.append(div)
         if getattr(feed, 'image', None):
-            div.append(DIV(IMG(alt=feed.image_alt or '', src=feed.image_url), attrs('calibre_feed_image')))
+            div.append(DIV(IMG(alt=feed.image_alt or '', src=feed.image_url), attrs('calibre_feed_image')))  # ty: ignore[invalid-argument-type]
         if getattr(feed, 'description', None):
             d = DIV(clean_xml_chars(feed.description), attrs('calibre_feed_description', rescale=80))
             d.append(BR())
@@ -183,18 +188,18 @@ class FeedTemplate(Template):
 class NavBarTemplate(Template):
     def _generate(
         self,
-        bottom,
-        feed,
-        art,
-        number_of_articles_in_feed,
-        two_levels,
-        url,
-        __appname__,
-        prefix='',
-        center=True,
-        extra_css=None,
-        style=None,
-    ):
+        bottom: bool,
+        feed: int,
+        art: int,
+        number_of_articles_in_feed: int,
+        two_levels: bool,
+        url: str,
+        __appname__: str,
+        prefix: str = '',
+        center: bool = True,
+        extra_css: str | None = None,
+        style: str | None = None,
+    ) -> None:
         head = HEAD(TITLE('navbar'))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -245,7 +250,7 @@ class NavBarTemplate(Template):
 
 # Touchscreen templates
 class TouchscreenIndexTemplate(Template):
-    def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
+    def _generate(self, title: str, masthead: str, datefmt: str, feeds: Iterable[Feed], extra_css: str | None = None, style: str | None = None) -> None:
         self.IS_HTML = False
         date = '{}, {} {}, {}'.format(strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
         masthead_p = etree.Element('p')
@@ -275,10 +280,10 @@ class TouchscreenIndexTemplate(Template):
 
 
 class TouchscreenFeedTemplate(Template):
-    def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
+    def _generate(self, f: int, feeds: Sequence[Feed], cutoff: Callable[[str], str], extra_css: str | None = None, style: str | None = None) -> None:
         from calibre.utils.cleantext import clean_xml_chars
 
-        def trim_title(title, clip=18):
+        def trim_title(title: str, clip: int = 18) -> str:
             if len(title) > clip:
                 tokens = title.split(' ')
                 new_title_tokens = []
@@ -333,7 +338,7 @@ class TouchscreenFeedTemplate(Template):
         body.append(div)
 
         if getattr(feed, 'image', None):
-            div.append(DIV(IMG(alt=feed.image_alt or '', src=feed.image_url), attrs('calibre_feed_image')))
+            div.append(DIV(IMG(alt=feed.image_alt or '', src=feed.image_url), attrs('calibre_feed_image')))  # ty: ignore[invalid-argument-type]
         if getattr(feed, 'description', None):
             d = DIV(clean_xml_chars(feed.description), attrs('calibre_feed_description', rescale=80))
             d.append(BR())
@@ -359,18 +364,18 @@ class TouchscreenFeedTemplate(Template):
 class TouchscreenNavBarTemplate(Template):
     def _generate(
         self,
-        bottom,
-        feed,
-        art,
-        number_of_articles_in_feed,
-        two_levels,
-        url,
-        __appname__,
-        prefix='',
-        center=True,
-        extra_css=None,
-        style=None,
-    ):
+        bottom: bool,
+        feed: int,
+        art: int,
+        number_of_articles_in_feed: int,
+        two_levels: bool,
+        url: str,
+        __appname__: str,
+        prefix: str = '',
+        center: bool = True,
+        extra_css: str | None = None,
+        style: str | None = None,
+    ) -> None:
         head = HEAD(TITLE('navbar'))
         if style:
             head.append(STYLE(style, type='text/css'))

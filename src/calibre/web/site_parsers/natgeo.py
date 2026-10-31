@@ -1,15 +1,26 @@
 #!/usr/bin/env python
 
+# This module is live updated and so can be loaded by older calibre versions
+# that evaluate annotations eagerly
+from __future__ import annotations
+
 import json
 from pprint import pprint  # ruff: ignore[unused-import]
+from typing import TYPE_CHECKING
 
 from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from typing import Any
+
+    JSONDict = dict[str, Any]
+
 module_version = 1  # needed for live updates
 
 
-def extract_json(raw):
+def extract_json(raw: str) -> JSONDict | None:
     s = raw.find("window['__natgeo__']")
     script = raw[s : raw.find('</script>', s)]
     content = json.loads(script[script.find('{') :].rstrip(';'))['page']['content']
@@ -19,7 +30,7 @@ def extract_json(raw):
         return content['article']
 
 
-def parse_contributors(grp):
+def parse_contributors(grp: Iterable[JSONDict]) -> Iterator[str]:
     for item in grp:
         line = '<div class="auth">' + escape(item['title']) + ' '
         for c in item['contributors']:
@@ -27,7 +38,7 @@ def parse_contributors(grp):
         yield line + '</div>'
 
 
-def parse_lead_image(media):
+def parse_lead_image(media: JSONDict) -> Iterator[str]:
     if 'image' in media:
         yield '<p>'
         if 'dsc' in media['image']:
@@ -41,7 +52,7 @@ def parse_lead_image(media):
         yield '</p>'
 
 
-def parse_inline(inl):
+def parse_inline(inl: JSONDict) -> Iterator[str]:
     if inl.get('content', {}).get('name', '') == 'Image':
         props = inl['content']['props']
         yield '<p>'
@@ -61,7 +72,7 @@ def parse_inline(inl):
                 yield '</p>'
 
 
-def parse_cont(content):
+def parse_cont(content: JSONDict) -> Iterator[str]:
     for cont in content.get('content', {}):
         if isinstance(cont, dict):
             yield from parse_body(cont)
@@ -69,7 +80,7 @@ def parse_cont(content):
             yield cont
 
 
-def parse_body(x):
+def parse_body(x: object) -> Iterator[str]:
     if isinstance(x, dict):
         if 'type' in x:
             tag = x['type']
@@ -89,7 +100,7 @@ def parse_body(x):
                 yield from parse_body(y)
 
 
-def parse_bdy(item):
+def parse_bdy(item: JSONDict) -> Iterator[str]:
     c = item['cntnt']
     if item.get('type') == 'inline':
         if c.get('cmsType') == 'listicle':
@@ -113,7 +124,7 @@ def parse_bdy(item):
         yield '<{tag}>{markup}</{tag}>'.format(tag=item['type'], markup=c['mrkup'])
 
 
-def parse_article(edg):
+def parse_article(edg: JSONDict) -> Iterator[str]:
     sc = edg['schma']
     yield '<div class="sub">' + escape(edg['sctn']) + '</div>'
     yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
@@ -143,7 +154,7 @@ def parse_article(edg):
             yield from parse_bdy(item)
 
 
-def article_parse(data):
+def article_parse(data: JSONDict) -> Iterator[str]:
     yield '<html><body>'
     for frm in data['frms']:
         if not frm:
@@ -158,6 +169,6 @@ def article_parse(data):
     yield '</body></html>'
 
 
-def extract_html(raw_html):
+def extract_html(raw_html: str) -> str:
     data = extract_json(raw_html)
-    return '\n'.join(article_parse(data))
+    return '\n'.join(article_parse(data))  # ty: ignore[invalid-argument-type]

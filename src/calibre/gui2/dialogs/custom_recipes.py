@@ -472,10 +472,10 @@ class BasicRecipe(QWidget):  # {{{
             self.max_articles.setValue(100)
         else:
             recipe = compile_recipe(src)
-            self.title.setText(recipe.title)
-            self.oldest_article.setValue(recipe.oldest_article)
-            self.max_articles.setValue(recipe.max_articles_per_feed)
-            for x in recipe.feeds or ():
+            self.title.setText(recipe.title)  # type: ignore
+            self.oldest_article.setValue(recipe.oldest_article)  # type: ignore
+            self.max_articles.setValue(recipe.max_articles_per_feed)  # type: ignore
+            for x in recipe.feeds or ():  # type: ignore
                 title, url = ('', x) if len(x) == 1 else x
                 QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
 
@@ -712,9 +712,9 @@ class CustomRecipes(Dialog):
         row = self.editing_row
         if row is None:
             # Adding a new recipe
-            self.recipe_list.add(recipe.title, src)
+            self.recipe_list.add(recipe.title, src)  # type: ignore
         else:
-            self.recipe_list.update_recipe(row, recipe.title, src)
+            self.recipe_list.update_recipe(row, recipe.title, src)  # type: ignore
         self.stack.setCurrentIndex(0)
 
     def customize_recipe(self):

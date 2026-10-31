@@ -766,7 +766,7 @@ class Scheduler(QObject):
                 'password': pw,
                 'add_title_tag': customize_info.add_title_tag,
                 'custom_tags': customize_info.custom_tags,
-                'title': recipe.get('title', ''),
+                'title': recipe.get('title', ''),  # type: ignore
                 'urn': urn,
                 'keep_issues': str(customize_info.keep_issues),
                 'recipe_specific_options': customize_info.recipe_specific_options,

@@ -4,7 +4,12 @@
 from calibre.utils.img import blend_on_canvas, image_from_data, image_to_data, scale_image
 
 
-def rescale_image(data, scale_news_images, compress_news_images_max_size, compress_news_images_auto_size):
+def rescale_image(
+    data: bytes,
+    scale_news_images: tuple[float, float] | None,
+    compress_news_images_max_size: float | None,
+    compress_news_images_auto_size: float | None,
+) -> bytes:
     orig_data = data  # save it in case compression fails
     img = image_from_data(data)
     orig_w, orig_h = img.width(), img.height()
@@ -37,7 +42,7 @@ def rescale_image(data, scale_news_images, compress_news_images_max_size, compre
     return data
 
 
-def prepare_masthead_image(path_to_image, out_path, mi_width, mi_height):
+def prepare_masthead_image(path_to_image: str, out_path: str, mi_width: float, mi_height: float) -> None:
     with open(path_to_image, 'rb') as f:
         img = image_from_data(f.read())
     img = blend_on_canvas(img, mi_width, mi_height)
@@ -49,4 +54,4 @@ if __name__ == '__main__':
     import sys
 
     data = sys.stdin.read()
-    sys.stdout.write(rescale_image(data, (768, 1024), None, 8))
+    sys.stdout.write(rescale_image(data, (768, 1024), None, 8))  # ty: ignore[invalid-argument-type, no-matching-overload]

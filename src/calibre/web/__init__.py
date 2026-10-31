@@ -1,11 +1,21 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from email.message import Message
+    from typing import Protocol
+
+    class DownloadResponse(Protocol):
+        def geturl(self) -> str: ...
+        def info(self) -> Message: ...
+
 
 class Recipe:
     pass
 
 
-def get_download_filename_from_response(response):
+def get_download_filename_from_response(response: DownloadResponse) -> str:
     from urllib.parse import urlparse
 
     from polyglot.urllib import unquote
@@ -37,7 +47,7 @@ def get_download_filename_from_response(response):
     return filename or last_part_name
 
 
-def get_download_filename(url, cookie_file=None):
+def get_download_filename(url: str, cookie_file: str | None = None) -> str:
     """
     Get a local filename for a URL using the content disposition header
     Returns empty string if an error occurs.

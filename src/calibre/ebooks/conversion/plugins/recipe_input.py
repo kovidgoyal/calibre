@@ -77,8 +77,8 @@ class RecipeInput(InputFormatPlugin):
             with open('download.recipe', 'rb') as f:
                 self.recipe_source = f.read()
             recipe = compile_recipe(self.recipe_source)
-            recipe.needs_subscription = False
-            self.recipe_object = recipe(opts, log, self.report_progress)
+            recipe.needs_subscription = False  # type: ignore
+            self.recipe_object = recipe(opts, log, self.report_progress)  # type: ignore
         else:
             if os.environ.get('CALIBRE_RECIPE_URN'):
                 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id, get_custom_recipe
@@ -119,10 +119,10 @@ class RecipeInput(InputFormatPlugin):
                 )
                 builtin = False
                 try:
-                    recipe = compile_recipe(raw)
+                    recipe = compile_recipe(raw)  # type: ignore
                     self.recipe_source = raw
-                    if recipe.requires_version > numeric_version:
-                        log.warn('Downloaded recipe needs calibre version at least: {}'.format('.'.join(recipe.requires_version)))
+                    if recipe.requires_version > numeric_version:  # type: ignore
+                        log.warn('Downloaded recipe needs calibre version at least: {}'.format('.'.join(recipe.requires_version)))  # type: ignore
                         builtin = True
                 except Exception:
                     log.exception('Failed to compile downloaded recipe. Falling back to builtin one')

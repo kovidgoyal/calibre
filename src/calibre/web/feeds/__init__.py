@@ -9,16 +9,43 @@ import copy
 import re
 import time
 import traceback
+from collections.abc import Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre import force_unicode, replace_entities, strftime
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.date import dt_factory, local_tz, utcnow
 from calibre.utils.localization import _
-from calibre.utils.logging import default_log
+from calibre.utils.logging import Log, default_log
+
+if TYPE_CHECKING:
+    from feedparser import FeedParserDict
+
+
+class IndexArticle(TypedDict, total=False):
+    "An article in the index returned by :meth:`BasicNewsRecipe.parse_index`"
+
+    id: str
+    title: str
+    url: str | None
+    date: str
+    description: str
+    content: str
+    author: str
+    timestamp: float
 
 
 class Article:
-    def __init__(self, id, title, url, author, summary, published, content):
+    def __init__(
+        self,
+        id: str,
+        title: str | bytes | None,
+        url: str | None,
+        author: str | None,
+        summary: str | None,
+        published: time.struct_time,
+        content: str | None,
+    ) -> None:
         from lxml import html
 
         self.downloaded = False
@@ -60,29 +87,29 @@ class Article:
         self._formatted_date = None
 
     @property
-    def formatted_date(self):
+    def formatted_date(self) -> str:
 
         if self._formatted_date is None:
             self._formatted_date = strftime(' [%a, %d %b %H:%M]', t=self.localtime.timetuple())
         return self._formatted_date
 
     @formatted_date.setter
-    def formatted_date(self, val):
+    def formatted_date(self, val: str) -> None:
         if isinstance(val, str):
             self._formatted_date = val
 
     @property
-    def title(self):
+    def title(self) -> str:
         t = self._title
         if not isinstance(t, str) and hasattr(t, 'decode'):
             t = t.decode('utf-8', 'replace')
         return t
 
     @title.setter
-    def title(self, val):
+    def title(self, val: str) -> None:
         self._title = clean_ascii_chars(val)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '''\
 Title       : {}
 URL         : {}
@@ -95,16 +122,16 @@ Has content : {}
             self.title,
             self.url,
             self.author,
-            self.summary[:20] + '...',
+            self.summary[:20] + '...',  # ty: ignore[not-subscriptable]
             self.localtime.strftime('%a, %d %b, %Y %H:%M'),
             self.toc_thumbnail,
             bool(self.content),
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
-    def is_same_as(self, other_article):
+    def is_same_as(self, other_article: object) -> bool:
         # if self.title != getattr(other_article, 'title', False):
         #     return False
         if self.url:
@@ -113,14 +140,14 @@ Has content : {}
 
 
 class Feed:
-    def __init__(self, get_article_url=lambda item: item.get('link', None), log=default_log):
+    def __init__(self, get_article_url: Callable[[FeedParserDict], str | None] = lambda item: item.get('link', None), log: Log = default_log) -> None:
         """
         Parse a feed into articles.
         """
         self.logger = log
         self.get_article_url = get_article_url
 
-    def populate_from_feed(self, feed, title=None, oldest_article=7, max_articles_per_feed=100):
+    def populate_from_feed(self, feed: FeedParserDict, title: str | None = None, oldest_article: float = 7, max_articles_per_feed: int = 100) -> None:
         entries = feed.entries
         feed = feed.feed
         self.title = feed.get('title', _('Unknown section')) if not title else title
@@ -142,7 +169,9 @@ class Feed:
                 break
             self.parse_article(item)
 
-    def populate_from_preparsed_feed(self, title, articles, oldest_article=7, max_articles_per_feed=100):
+    def populate_from_preparsed_feed(
+        self, title: str | None, articles: Iterable[IndexArticle], oldest_article: float = 7, max_articles_per_feed: int = 100
+    ) -> None:
         self.title = str(title or _('Unknown feed'))
         self.description = ''
         self.image_url = None
@@ -178,7 +207,7 @@ class Feed:
             d = item.get('date', '')
             article.formatted_date = d
 
-    def parse_article(self, item):
+    def parse_article(self, item: FeedParserDict) -> None:
         self.id_counter += 1
         id = item.get('id', None)
         if not id:
@@ -237,24 +266,24 @@ class Feed:
                     title = title.decode('utf-8', 'replace')
                 self.logger.debug(f'Skipping article {title} as it is too old')
 
-    def reverse(self):
+    def reverse(self) -> None:
         self.articles.reverse()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Article]:
         return iter(self.articles)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.articles)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         res = ['_' * 20 + f'\n{art!r}' for art in self]
 
         return '\n' + '\n'.join(res) + '\n'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
-    def has_embedded_content(self):
+    def has_embedded_content(self) -> bool:
         length = 0
         for a in self:
             if a.content or a.summary:
@@ -262,21 +291,21 @@ class Feed:
 
         return length > 2000 * len(self)
 
-    def has_article(self, article):
+    def has_article(self, article: Article) -> bool:
         return any(a.is_same_as(article) for a in self)
 
-    def find(self, article):
+    def find(self, article: Article) -> int:
         for i, a in enumerate(self):
             if a.is_same_as(article):
                 return i
         return -1
 
-    def remove(self, article):
+    def remove(self, article: Article) -> None:
         i = self.find(article)
         if i > -1:
             self.articles[i : i + 1] = []
 
-    def remove_article(self, article):
+    def remove_article(self, article: Article) -> None:
         try:
             self.articles.remove(article)
         except ValueError:
@@ -284,12 +313,12 @@ class Feed:
 
 
 class FeedCollection(list):
-    def __init__(self, feeds):
+    def __init__(self, feeds: Iterable[Feed]) -> None:
         list.__init__(self, [f for f in feeds if len(f.articles) > 0])
         found_articles = set()
         duplicates = set()
 
-        def in_set(s, a):
+        def in_set(s: Iterable[Article], a: Article) -> Article | None:
             for x in s:
                 if a.is_same_as(x):
                     return x
@@ -314,17 +343,17 @@ class FeedCollection(list):
         print(list(map(len, self)))
         # raise
 
-    def find_article(self, article):
+    def find_article(self, article: Article) -> tuple[int, int] | None:
         for j, f in enumerate(self):
             for i, a in enumerate(f):
                 if a is article:
                     return j, i
 
-    def restore_duplicates(self):
+    def restore_duplicates(self) -> None:
         temp = []
         for article, feed in self.duplicates:
             art = copy.deepcopy(article)
-            j, i = self.find_article(article)
+            j, i = self.find_article(article)  # ty: ignore[not-iterable]
             art.url = f'../feed_{j}/article_{i}/index.html'
             temp.append((feed, art))
         for feed, art in temp:
@@ -332,13 +361,13 @@ class FeedCollection(list):
 
 
 def feed_from_xml(
-    raw_xml,
-    title=None,
-    oldest_article=7,
-    max_articles_per_feed=100,
-    get_article_url=lambda item: item.get('link', None),
-    log=default_log,
-):
+    raw_xml: bytes,
+    title: str | None = None,
+    oldest_article: float = 7,
+    max_articles_per_feed: int = 100,
+    get_article_url: Callable[[FeedParserDict], str | None] = lambda item: item.get('link', None),
+    log: Log = default_log,
+) -> Feed:
     from feedparser import parse
 
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
@@ -350,7 +379,9 @@ def feed_from_xml(
     return pfeed
 
 
-def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100, log=default_log):
+def feeds_from_index(
+    index: Iterable[tuple[str, Iterable[IndexArticle]]], oldest_article: float = 7, max_articles_per_feed: int = 100, log: Log = default_log
+) -> list[Feed]:
     """
     @param index: A parsed index as returned by L{BasicNewsRecipe.parse_index}.
     @return: A list of L{Feed} objects.
