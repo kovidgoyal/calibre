@@ -104,8 +104,7 @@ def find_executable_in_path(name: str, path: str | None = None) -> str | None:
     if path is None:
         path = os.environ.get('PATH', '')
     exts = '.exe .cmd .bat'.split() if iswindows and not name.endswith('.exe') else ('',)
-    path = path.split(os.pathsep)  # ty: ignore[invalid-assignment]
-    for x in path:  # ty: ignore[not-iterable]
+    for x in path.split(os.pathsep):
         for ext in exts:
             q = os.path.abspath(os.path.join(x, name)) + ext
             if os.access(q, os.X_OK):

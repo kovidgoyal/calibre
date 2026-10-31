@@ -164,12 +164,12 @@ def safeyear(x: int) -> int:
 
 
 def qt_to_dt(qdate_or_qdatetime: QDate | QDateTime | None, as_utc: bool = True) -> datetime:
-    from qt.core import QDateTime, Qt  # ruff: ignore[unused-import]
+    from qt.core import QDateTime, Qt
 
     o = qdate_or_qdatetime
     if o is None or is_date_undefined(qdate_or_qdatetime):
         return UNDEFINED_DATE
-    if hasattr(o, 'toUTC'):  # QDateTime
+    if isinstance(o, QDateTime):
 
         def c(o: QDateTime, tz: tzinfo = utc_tz) -> datetime:
             d, t = o.date(), o.time()
@@ -181,13 +181,13 @@ def qt_to_dt(qdate_or_qdatetime: QDate | QDateTime | None, as_utc: bool = True) 
         # DST causes differences in how python and Qt convert automatically from local to UTC, so convert explicitly ourselves
         # QDateTime::toUTC() and datetime.astimezone(utc_tz) give
         # different results for datetimes in the local_tz when DST is involved. Sigh.
-        spec = o.timeSpec()  # ty: ignore[unresolved-attribute]
+        spec = o.timeSpec()
         if spec == Qt.TimeSpec.LocalTime:
-            ans = c(o, local_tz)  # ty: ignore[invalid-argument-type]
+            ans = c(o, local_tz)
         elif spec == Qt.TimeSpec.UTC:
-            ans = c(o, utc_tz)  # ty: ignore[invalid-argument-type]
+            ans = c(o, utc_tz)
         else:
-            ans = c(o.toUTC(), utc_tz)  # ty: ignore[call-non-callable]
+            ans = c(o.toUTC(), utc_tz)
         return fix_tzinfo(ans, assume_utc=False, as_utc=as_utc)
 
     try:

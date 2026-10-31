@@ -316,7 +316,8 @@ class Canvas(QWidget):
             return
         self.is_valid = False
         try:
-            fmt = identify(data)[0].encode('ascii')  # ty: ignore[unresolved-attribute]
+            ifmt = identify(data)[0]
+            fmt = b'' if ifmt is None else ifmt.encode('ascii')
         except Exception:
             fmt = b''
         self.original_image_format = fmt.decode('ascii').lower()

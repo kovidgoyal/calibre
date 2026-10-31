@@ -219,8 +219,7 @@ class OptionParser(optparse.OptionParser):
 
     def add_option_group(self, *args: Any, **kwargs: Any) -> optparse.OptionGroup:  # ruff: ignore[any-type]
         if isinstance(args[0], (str, bytes)):
-            args = list(args)  # ty: ignore[invalid-assignment]
-            args[0] = str(args[0])  # ty: ignore[invalid-assignment]
+            args = (str(args[0]), *args[1:])
         return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 

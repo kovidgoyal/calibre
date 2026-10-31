@@ -615,9 +615,8 @@ def quantize_image(img: QImage | bytes, max_colors: int = 256, dither: bool = Tr
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
-    if palette and isinstance(palette, (str, bytes)):
-        palette = palette.split()  # ty: ignore[invalid-assignment]
-    return imageops.quantize(img, int(max_colors), dither, tuple(QColor(x).rgb() for x in palette))
+    colors = palette.split() if palette and isinstance(palette, (str, bytes)) else palette
+    return imageops.quantize(img, int(max_colors), dither, tuple(QColor(x).rgb() for x in colors))
 
 
 def eink_dither_image(img: QImage | bytes) -> QImage:

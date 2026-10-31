@@ -127,8 +127,8 @@ def create_server_cert(
             data = func(obj, *args)
             if isinstance(data, str):
                 data = data.encode('utf-8')
-            if hasattr(dest, 'write'):
-                dest.write(data)  # ty: ignore[call-non-callable]
+            if not isinstance(dest, str) and hasattr(dest, 'write'):
+                dest.write(data)
             else:
                 with open(dest, 'wb') as f:
                     f.write(data)

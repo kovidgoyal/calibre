@@ -156,8 +156,8 @@ class Sfnt:
     def __call__(self, stream: BytesIO | None = None) -> tuple[bytes, OrderedDict[bytes, int]]:
         stream = BytesIO() if stream is None else stream
 
-        def spack(*args: bytes | int) -> None:
-            stream.write(pack(*args))  # ty: ignore[invalid-argument-type]
+        def spack(fmt: bytes, *args: bytes | int) -> None:
+            stream.write(pack(fmt, *args))
 
         stream.seek(0)
 

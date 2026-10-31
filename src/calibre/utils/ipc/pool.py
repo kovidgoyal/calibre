@@ -46,7 +46,7 @@ class WorkerResult(NamedTuple):
 
 class TerminalFailure(NamedTuple):
     message: str
-    tb: str
+    tb: str | None
     job_id: int | None
 
 
@@ -173,8 +173,8 @@ class Pool(Thread):
         after all jobs are done, then it will be used for the new round of
         jobs. Can raise the :class:`Failure` exception is data could not be
         sent to workers."""
-        if self.failed:
-            raise Failure(self.terminal_failure)  # ty: ignore[invalid-argument-type]
+        if self.terminal_failure is not None:
+            raise Failure(self.terminal_failure)
         self.events.put(data)
 
     def __call__(self, job_id: int, module: str, func: str, *args: object, **kwargs: object) -> None:
@@ -190,8 +190,8 @@ class Pool(Thread):
         :param func: Name of the function from ``module`` that will be
                      executed. ``args`` and ``kwargs`` will be passed to the function.
         """
-        if self.failed:
-            raise Failure(self.terminal_failure)  # ty: ignore[invalid-argument-type]
+        if self.terminal_failure is not None:
+            raise Failure(self.terminal_failure)
         job = Job(job_id, module, func, args, kwargs)
         self.tracker.put(None)
         self.events.put(job)
@@ -201,8 +201,8 @@ class Pool(Thread):
         will raise a RuntimeError if jobs are not completed in the specified
         time. Will raise a :class:`Failure` exception if a terminal failure has
         occurred previously."""
-        if self.failed:
-            raise Failure(self.terminal_failure)  # ty: ignore[invalid-argument-type]
+        if self.terminal_failure is not None:
+            raise Failure(self.terminal_failure)
         if timeout is None:
             self.tracker.join()
         else:
@@ -266,7 +266,7 @@ class Pool(Thread):
             self.available_workers.append(worker_result.worker)
             self.tracker.task_done()
             if worker_result.is_terminal_failure:
-                self.terminal_failure = TerminalFailure('Worker process crashed while executing job', worker_result.result.traceback, worker_result.id)  # ty: ignore[invalid-argument-type]
+                self.terminal_failure = TerminalFailure('Worker process crashed while executing job', worker_result.result.traceback, worker_result.id)
                 self.terminal_error()
                 return False
             self.results.put(worker_result)

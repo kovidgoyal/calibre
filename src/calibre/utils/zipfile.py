@@ -216,8 +216,8 @@ def is_zipfile(filename: str | ZipStream) -> bool:
     """
     result = False
     try:
-        if hasattr(filename, 'read'):
-            result = _check_zipfile(filename)  # ty: ignore[invalid-argument-type]
+        if not isinstance(filename, str) and hasattr(filename, 'read'):
+            result = _check_zipfile(filename)
         else:
             with open(filename, 'rb') as fp:
                 result = _check_zipfile(fp)

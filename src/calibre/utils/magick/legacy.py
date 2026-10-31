@@ -52,8 +52,8 @@ class Image:
         return ans
 
     def open(self, path_or_file: str | IO[bytes]) -> None:
-        if hasattr(path_or_file, 'read'):
-            self.load(path_or_file.read())  # ty: ignore[call-non-callable]
+        if not isinstance(path_or_file, str) and hasattr(path_or_file, 'read'):
+            self.load(path_or_file.read())
         else:
             with open(path_or_file, 'rb') as f:
                 self.load(f.read())

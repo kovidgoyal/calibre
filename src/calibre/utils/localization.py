@@ -326,7 +326,10 @@ def load_po(path: str) -> bytes | None:
 
 
 def translator_for_lang(lang: str) -> TranslatorsForLang:
-    t = buf = iso639 = iso3166 = lcdata = None
+    buf = iso639_data = iso3166_data = lcdata = None
+    t: Translator | None = None
+    iso639: Translator | None = None
+    iso3166: Translator | None = None
     if 'CALIBRE_TEST_TRANSLATION' in os.environ:
         buf = load_po(os.path.expanduser(os.environ['CALIBRE_TEST_TRANSLATION']))
 
@@ -344,12 +347,12 @@ def translator_for_lang(lang: str) -> TranslatorsForLang:
                 mpath = 'de'
             isof = mpath + '/iso639.mo'
             try:
-                iso639 = zf.read(isof)
+                iso639_data = zf.read(isof)
             except Exception:
                 pass  # No iso639 translations for this lang
             isof = mpath + '/iso3166.mo'
             try:
-                iso3166 = zf.read(isof)
+                iso3166_data = zf.read(isof)
             except Exception:
                 pass  # No iso3166 translations for this lang
             if buf is not None:
@@ -368,17 +371,17 @@ def translator_for_lang(lang: str) -> TranslatorsForLang:
 
             traceback.print_exc()
             t = None
-        if iso639 is not None:
+        if iso639_data is not None:
             try:
-                iso639 = Translator(iso639)
+                iso639 = Translator(iso639_data)
             except Exception:
                 iso639 = None
             else:
                 if t is not None:
                     t.add_fallback(iso639)
-        if iso3166 is not None:
+        if iso3166_data is not None:
             try:
-                iso3166 = Translator(iso3166)
+                iso3166 = Translator(iso3166_data)
             except Exception:
                 iso3166 = None
             else:
@@ -388,7 +391,7 @@ def translator_for_lang(lang: str) -> TranslatorsForLang:
     if t is None:
         t = Translator()
 
-    return {'translator': t, 'iso639_translator': iso639, 'iso3166_translator': iso3166, 'lcdata': lcdata}  # ty: ignore[invalid-return-type, invalid-argument-type]
+    return {'translator': t, 'iso639_translator': iso639, 'iso3166_translator': iso3166, 'lcdata': lcdata}
 
 
 default_translator = Translator()
@@ -549,7 +552,8 @@ def calibre_langcode_to_name(lc: str | None, localize: bool = True) -> str | Non
     iso639 = _load_iso639()
     translate = _ if localize else lambda x: x
     try:
-        return translate(iso639['by_3'][lc])  # ty: ignore[invalid-argument-type]
+        if lc is not None:
+            return translate(iso639['by_3'][lc])
     except Exception:
         pass
     return lc

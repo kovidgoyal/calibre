@@ -448,8 +448,10 @@ def external_compiler_version() -> tuple[str, tuple[int, int, int]]:
 
     rs = find_executable_in_path('rapydscript')
     ver = (0, 0, 0)
+    if rs is None:
+        return '', ver
     try:
-        raw = subprocess.check_output([rs, '--version'])  # ty: ignore[no-matching-overload]
+        raw = subprocess.check_output([rs, '--version'])
     except Exception:
         return '', ver
     if raw.startswith(b'rapydscript-ng '):
@@ -461,7 +463,7 @@ def external_compiler_version() -> tuple[str, tuple[int, int, int]]:
             return '', ver
         if ver < (0, 8, 5):
             return '', ver
-    return rs, ver  # ty: ignore[invalid-return-type]
+    return rs, ver
 
 
 def external_compiler() -> str:

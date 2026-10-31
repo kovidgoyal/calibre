@@ -70,8 +70,8 @@ def max_power_of_two(x: int) -> int:
 
 def load_font(stream_or_path: bytes | IO[bytes]) -> Sfnt:
     raw = stream_or_path
-    if hasattr(raw, 'read'):
-        raw = raw.read()  # ty: ignore[call-non-callable]
+    if not isinstance(raw, bytes) and hasattr(raw, 'read'):
+        raw = raw.read()
     from calibre.utils.fonts.sfnt.container import Sfnt
 
     return Sfnt(raw)

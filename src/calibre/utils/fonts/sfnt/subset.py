@@ -315,7 +315,7 @@ def main(args: list[str]) -> None:
 
     def conv_code(c: str) -> str:
         if c.upper()[:2] in ('U+', '0X'):
-            c = int(c[2:], 16)  # ty: ignore[invalid-assignment]
+            return safe_chr(int(c[2:], 16))
         return safe_chr(int(c))
 
     for c in chars:

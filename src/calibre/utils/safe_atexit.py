@@ -18,11 +18,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import unittest
 
+    from calibre.utils.ipc.simple_worker import PipeWorker
+
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
 
 lock = RLock()
-worker: subprocess.Popen[bytes] | None = None
+worker: PipeWorker | None = None
 RMTREE_ACTION = 'rmtree'
 UNLINK_ACTION = 'unlink'
 RUN_PROGRAM_ACTION = 'run_program'
@@ -66,10 +68,10 @@ def run_program(cmdline: list[str]) -> None:
     Thread(name='WaitProgram', target=process.wait, daemon=True).start()
 
 
-def close_worker(worker: subprocess.Popen[bytes]) -> None:
+def close_worker(worker: PipeWorker) -> None:
     import subprocess
 
-    worker.stdin.close()  # ty: ignore[unresolved-attribute]
+    worker.stdin.close()
     try:
         worker.wait(10)
     except subprocess.TimeoutExpired:
@@ -77,7 +79,7 @@ def close_worker(worker: subprocess.Popen[bytes]) -> None:
     worker.wait()
 
 
-def ensure_worker() -> subprocess.Popen[bytes]:
+def ensure_worker() -> PipeWorker:
     global worker
     if worker is None:
         from calibre.utils.ipc.simple_worker import start_pipe_worker
@@ -95,9 +97,9 @@ def reset_after_fork() -> None:
 
 def _send_command(action: str, payload: str | list[str]) -> None:
     worker = ensure_worker()
-    worker.stdin.write(json.dumps({'action': action, 'payload': payload}).encode('utf-8'))  # ty: ignore[unresolved-attribute]
-    worker.stdin.write(os.linesep.encode())  # ty: ignore[unresolved-attribute]
-    worker.stdin.flush()  # ty: ignore[unresolved-attribute]
+    worker.stdin.write(json.dumps({'action': action, 'payload': payload}).encode('utf-8'))
+    worker.stdin.write(os.linesep.encode())
+    worker.stdin.flush()
 
 
 if iswindows:

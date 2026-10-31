@@ -2619,8 +2619,8 @@ class BibTeX:
         remove.extend(stack)
 
         if remove:
-            text = list(text)  # ty: ignore[invalid-assignment]
+            chars = list(text)
             for i in sorted(remove, reverse=True):
-                text.pop(i)  # ty: ignore[unresolved-attribute]
-            text = ''.join(text)
+                chars.pop(i)
+            text = ''.join(chars)
         return text

@@ -110,10 +110,10 @@ def display_image(png_data: bytes) -> None:
     from base64 import standard_b64encode
 
     def serialize_gr_command(cmd: dict[str, str | int], payload: bytes | None = None) -> bytes:
-        cmd = ','.join(f'{k}={v}' for k, v in cmd.items())  # ty: ignore[invalid-assignment]
+        cmd_str = ','.join(f'{k}={v}' for k, v in cmd.items())
         ans = []
         w = ans.append
-        w(b'\033_G'), w(cmd.encode('ascii'))  # ty: ignore[unresolved-attribute]
+        w(b'\033_G'), w(cmd_str.encode('ascii'))
         if payload:
             w(b';')
             w(payload)

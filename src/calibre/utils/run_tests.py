@@ -160,29 +160,29 @@ def filter_tests(suite: unittest.TestSuite, test_ok: Callable[[unittest.TestCase
 
 
 def filter_tests_by_name(suite: unittest.TestSuite, *names: str) -> unittest.TestSuite:
-    names = {x if x.startswith('test_') else 'test_' + x for x in names}  # ty: ignore[invalid-assignment]
+    wanted = {x if x.startswith('test_') else 'test_' + x for x in names}
 
     def q(test: unittest.TestCase) -> bool:
-        return test._testMethodName in names
+        return test._testMethodName in wanted
 
     return filter_tests(suite, q)
 
 
 def remove_tests_by_name(suite: unittest.TestSuite, *names: str) -> unittest.TestSuite:
-    names = {x if x.startswith('test_') else 'test_' + x for x in names}  # ty: ignore[invalid-assignment]
+    unwanted = {x if x.startswith('test_') else 'test_' + x for x in names}
 
     def q(test: unittest.TestCase) -> bool:
-        return test._testMethodName not in names
+        return test._testMethodName not in unwanted
 
     return filter_tests(suite, q)
 
 
 def filter_tests_by_module(suite: unittest.TestSuite, *names: str) -> unittest.TestSuite:
-    names = frozenset(names)  # ty: ignore[invalid-assignment]
+    modules = frozenset(names)
 
     def q(test: unittest.TestCase) -> bool:
         m = test.__class__.__module__.rpartition('.')[-1]
-        return m in names
+        return m in modules
 
     return filter_tests(suite, q)
 

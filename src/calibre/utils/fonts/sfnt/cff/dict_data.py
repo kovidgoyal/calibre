@@ -113,8 +113,9 @@ class ByteCode(dict):
         return bytes(bytearray([29])) + pack(b'>l', value)
 
     def write_number(self, value: float, encoding: str = 'cff') -> bytes:
-        f = self.write_float if isinstance(value, float) else self.write_int
-        return f(value, encoding)  # ty: ignore[invalid-argument-type]
+        if isinstance(value, float):
+            return self.write_float(value, encoding)
+        return self.write_int(value, encoding)
 
 
 class Dict(ByteCode):

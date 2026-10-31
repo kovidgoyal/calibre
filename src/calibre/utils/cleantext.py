@@ -58,8 +58,8 @@ def clean_ascii_chars(txt: str | bytes | None, charlist: Iterable[int] | None = 
 
 
 def allowed(x: str) -> bool:
-    x = ord(x)  # ty: ignore[invalid-assignment]
-    return (x != 127 and (31 < x < 0xD7FF or x in (9, 10, 13))) or (0xE000 < x < 0xFFFD) or (0x10000 < x < 0x10FFFF)  # ty: ignore[unsupported-operator]
+    cp = ord(x)
+    return (cp != 127 and (31 < cp < 0xD7FF or cp in (9, 10, 13))) or (0xE000 < cp < 0xFFFD) or (0x10000 < cp < 0x10FFFF)
 
 
 def py_clean_xml_chars(unicode_string: str) -> str:

@@ -104,7 +104,9 @@ class WinFonts:
                 name.encode('ascii')
             except ValueError:
                 try:
-                    sub_family_name.encode('ascii')  # ty: ignore[unresolved-attribute]
+                    if sub_family_name is None:
+                        raise ValueError('No sub family name')
+                    sub_family_name.encode('ascii')
                     subf = sub_family_name
                 except Exception:
                     subf = ''

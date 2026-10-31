@@ -141,4 +141,4 @@ def remove_soft_hyphens_from_html(root: etree._Element, hyphen_char: str = '\u00
             elem.tail = elem.tail.replace(hyphen_char, '')
         text = getattr(elem, 'text', None)
         if text:
-            elem.text = elem.text.replace(hyphen_char, '')  # ty: ignore[unresolved-attribute]
+            elem.text = text.replace(hyphen_char, '')

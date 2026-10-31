@@ -224,7 +224,7 @@ def get_database(mi: Metadata | None, name: str) -> LibraryDatabase: ...
 def get_database(mi: Metadata | None, name: None) -> LibraryDatabase | None: ...
 def get_database(mi: Metadata | None, name: str | None) -> LibraryDatabase | None:
     try:
-        proxy = mi.get('_proxy_metadata', None)  # ty: ignore[unresolved-attribute]
+        proxy = None if mi is None else mi.get('_proxy_metadata', None)
     except Exception:
         proxy = None
     if proxy is None:
@@ -909,8 +909,8 @@ the ``value`` in order.[/] If a ``pattern`` matches then the value of the field 
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, *args = all_args
         if len(args) == 2:  # here for backwards compatibility
             if val:
                 return formatter.vformat('{' + args[0].strip() + '}', [], kwargs)  # ty: ignore[no-matching-overload]
@@ -986,8 +986,8 @@ match is returned.
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, *args = all_args
         if (len(args) % 2) != 1:
             raise ValueError(_('switch requires an even number of arguments'))
         i = 0
@@ -1091,8 +1091,8 @@ Aliases: in_list(), list_contains()
 
     aliases = ['in_list']
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, sep, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, sep, *args = all_args
         if (len(args) % 2) != 1:
             raise ValueError(_('in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
@@ -1130,8 +1130,8 @@ match is returned.
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, sep, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, sep, *args = all_args
         if (len(args) % 2) != 1:
             raise ValueError(_('str_in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
@@ -1171,8 +1171,8 @@ return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, ident, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, ident, *args = all_args
         if len(args) == 0:
             fv_is_id = True
             nfv = ''
@@ -1238,8 +1238,8 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, pattern, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, pattern, *args = all_args
         from calibre.utils.formatter import EvalFormatter
 
         allow_python = formatter.allow_python_templates
@@ -2247,8 +2247,8 @@ program:
 
     # for some reason. And yes, the double backslash is required, for some reason.
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        with_separator, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        with_separator, *args = all_args
         if len(args) % 2 != 0:
             raise ValueError(_("Invalid 'List, separator' pairs. Every list must have one associated separator"))
 
@@ -2520,8 +2520,8 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        src_list, separator, include_re, search_re, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        src_list, separator, include_re, search_re, *args = all_args
         from calibre.utils.formatter import EvalFormatter
 
         allow_python = formatter.allow_python_templates
@@ -3523,8 +3523,8 @@ content server.
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        sep, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        sep, *args = all_args
         if len(args) > 1:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
         pattern = args[0] if len(args) == 1 else None
@@ -3778,8 +3778,8 @@ Some examples:
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        book_id, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        book_id, *args = all_args
         if len(args) > 4:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('reading_progress'))
         book_id = int(book_id)
@@ -3899,8 +3899,8 @@ See also the functions :ref:`make_url_extended`, :ref:`query_string` and :ref:`e
 '''
         ).format('Niccolò Machiavelli')  # not translated ans gettext wants pure ascii msgid
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        path, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        path, *args = all_args
         if (len(args) % 2) != 0:
             raise ValueError(_('{} requires an odd number of arguments').format('make_url'))
         if len(args) < 2:
@@ -3963,8 +3963,8 @@ See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for
 '''
         ).format('Niccolò Machiavelli')  # not translated as gettext wants pure ASCII msgid
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        scheme, authority, path, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        scheme, authority, path, *args = all_args
         if len(args) != 1:
             if (len(args) % 2) != 0:
                 raise ValueError(_('{} requires an odd number of arguments').format('make_url_extended'))
@@ -4265,8 +4265,8 @@ This function can be used only in the GUI.
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        book_ids, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        book_ids, *args = all_args
         from calibre.gui2.ui import get_gui
 
         g = get_gui()
@@ -4336,8 +4336,8 @@ arguments control how the width is calculated.
 '''
         )
 
-    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
-        val, *args = args  # ty: ignore[invalid-assignment]
+    def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *all_args: str) -> Result:
+        val, *args = all_args
         from calibre.gui2.library.bookshelf_view import width_from_pages
 
         num_of_pages_for_max_width = 1500

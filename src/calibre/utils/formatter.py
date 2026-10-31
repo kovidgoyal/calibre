@@ -16,7 +16,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
 from functools import lru_cache, partial
 from math import modf
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING, NoReturn, cast
 
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
@@ -430,7 +430,8 @@ class _Parser:
     def error(self, message: str) -> NoReturn:
         ln = None
         try:
-            tval = "'" + self.prog[self.lex_pos - 1][1] + "'"  # ty: ignore[not-subscriptable]
+            prev = self.prog[self.lex_pos - 1]
+            tval = _('Unknown') if isinstance(prev, int) else "'" + prev[1] + "'"
         except Exception:
             tval = _('Unknown')
         if self.lex_pos > 0 and self.lex_pos < self.prog_len:
@@ -451,9 +452,11 @@ class _Parser:
     def token(self) -> str | None:
         self.check_eol()
         try:
-            token = self.prog[self.lex_pos][1]  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            if isinstance(token, int):
+                return None
             self.lex_pos += 1
-            return token
+            return token[1]
         except Exception:
             return None
 
@@ -464,21 +467,23 @@ class _Parser:
         self.check_eol()
         try:
             token = self.prog[self.lex_pos]
-            return token[1] == op and token[0] == self.LEX_OP  # ty: ignore[not-subscriptable]
+            return not isinstance(token, int) and token[1] == op and token[0] == self.LEX_OP
         except Exception:
             return False
 
     def token_op_is_string_infix_compare(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_STRING_INFIX  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            return not isinstance(token, int) and token[0] == self.LEX_STRING_INFIX
         except Exception:
             return False
 
     def token_op_is_numeric_infix_compare(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_NUMERIC_INFIX  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            return not isinstance(token, int) and token[0] == self.LEX_NUMERIC_INFIX
         except Exception:
             return False
 
@@ -488,7 +493,8 @@ class _Parser:
     def token_is_id(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_ID  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            return not isinstance(token, int) and token[0] == self.LEX_ID
         except Exception:
             return False
 
@@ -496,35 +502,41 @@ class _Parser:
         self.check_eol()
         try:
             token = self.prog[self.lex_pos]
-            return token[1] == candidate and token[0] == self.LEX_KEYWORD  # ty: ignore[not-subscriptable]
+            return not isinstance(token, int) and token[1] == candidate and token[0] == self.LEX_KEYWORD
         except Exception:
             return False
 
     def token_is_keyword(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_KEYWORD  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            return not isinstance(token, int) and token[0] == self.LEX_KEYWORD
         except Exception:
             return False
 
     def token_is_constant(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_CONST  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            return not isinstance(token, int) and token[0] == self.LEX_CONST
         except Exception:
             return False
 
     def token_is_eof(self) -> bool:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_EOF  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            return isinstance(token, int) or token[0] == self.LEX_EOF
         except Exception:
             return True
 
     def token_text(self) -> str:
         self.check_eol()
         try:
-            return self.prog[self.lex_pos][1]  # ty: ignore[not-subscriptable]
+            token = self.prog[self.lex_pos]
+            if isinstance(token, int):
+                return _("'End of program'")
+            return token[1]
         except Exception:
             return _("'End of program'")
 
@@ -591,7 +603,7 @@ class _Parser:
         self.consume()
         if not self.token_is_id():
             self.error(_("'{0}' statement: expected an identifier").format('for'))
-        variable = self.token()
+        variable = cast('str', self.token())  # token_is_id() guarantees a token
         if not self.token_is('in'):
             self.error(_("{0} statement: expected '{1}', found '{2}'").format('for', 'in', self.token_text()))
         self.consume()
@@ -634,15 +646,15 @@ class _Parser:
             self.error(_("{0} statement: expected '{1}', found '{2}'").format('for', 'rof', self.token_text()))
         self.consume()
         if is_list:
-            return ForNode(line_number, variable, list_expr, separator, block)  # ty: ignore[invalid-argument-type]
-        return RangeNode(line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block)  # ty: ignore[invalid-argument-type]
+            return ForNode(line_number, variable, list_expr, separator, block)
+        return RangeNode(line_number, variable, start_expr, stop_expr, step_expr, limit_expr, block)
 
     def define_function_expression(self) -> LocalFunctionDefineNode:
         self.consume()
         line_number = self.line_number
         if not self.token_is_id():
             self.error(_("'{0}' statement: expected a function name identifier").format('def'))
-        function_name = self.token()
+        function_name = cast('str', self.token())  # token_is_id() guarantees a token
         if function_name in self.local_functions:
             self.error(_("Function name '{0}' is already defined").format(function_name))
         if not self.token_op_is('('):
@@ -651,10 +663,10 @@ class _Parser:
         arguments = []
         while not self.token_op_is(')'):
             a = self.top_expr()
-            if not isinstance(a, Node) or a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+            if not isinstance(a, (AssignNode, VariableNode)):
                 self.error(_('Parameters to a function must be variables or assignments'))
-            if a.node_type == Node.NODE_RVALUE:
-                a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))  # ty: ignore[unresolved-attribute]
+            if isinstance(a, VariableNode):
+                a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))
             arguments.append(a)
             if not self.token_op_is(','):
                 break
@@ -669,8 +681,8 @@ class _Parser:
         if not self.token_is('fed'):
             self.error(_("'{0}' statement: missing the closing '{1}'").format('def', 'fed'))
         self.consume()
-        self.local_functions.add(function_name)  # ty: ignore[invalid-argument-type]
-        return LocalFunctionDefineNode(line_number, function_name, arguments, block)  # ty: ignore[invalid-argument-type]
+        self.local_functions.add(function_name)
+        return LocalFunctionDefineNode(line_number, function_name, arguments, block)
 
     def local_call_expression(self, name: str, arguments: list[list[Expression]]) -> LocalFunctionCallNode:
         return LocalFunctionCallNode(self.line_number, name, arguments)
@@ -689,9 +701,11 @@ class _Parser:
         return WithNode(line_number, book_id, block)
 
     def call_expression(self, name: str, arguments: list[list[Expression]]) -> StoredTemplateCallNode:
-        compiled_func = self.funcs[name].cached_compiled_text  # ty: ignore[unresolved-attribute]
+        # expr() only calls this for stored templates, which are FormatterUserFunction instances
+        func = cast('FormatterUserFunction', self.funcs[name])
+        compiled_func = func.cached_compiled_text
         if compiled_func is None:
-            text = self.funcs[name].program_text
+            text = func.program_text
             if function_object_type(text) is StoredObjectType.StoredGPMTemplate:
                 text = text[len('program:') :]
                 compiled_func = _Parser().program(self.parent, self.funcs, self.parent.lex_scanner.scan(text))
@@ -700,8 +714,8 @@ class _Parser:
                 compiled_func = self.parent.compile_python_template(text)
             else:
                 self.error(_("A stored template must begin with '{0}' or {1}").format('program:', 'python:'))
-            self.funcs[name].cached_compiled_text = compiled_func  # ty: ignore[unresolved-attribute]
-        return StoredTemplateCallNode(self.line_number, name, self.funcs[name], arguments)  # ty: ignore[invalid-argument-type]
+            func.cached_compiled_text = compiled_func
+        return StoredTemplateCallNode(self.line_number, name, func, arguments)
 
     def top_expr(self) -> Expression:
         return self.or_expr()
@@ -731,35 +745,35 @@ class _Parser:
     def string_binary_expr(self) -> Expression:
         left = self.compare_expr()
         while self.token_op_is('&'):
-            operator = self.token()
+            operator = cast('str', self.token())  # the preceding check guarantees a token
             right = self.compare_expr()
-            left = StringBinaryNode(self.line_number, operator, left, right)  # ty: ignore[invalid-argument-type]
+            left = StringBinaryNode(self.line_number, operator, left, right)
         return left
 
     def compare_expr(self) -> Expression:
         left = self.add_subtract_expr()
         if self.token_op_is_string_infix_compare() or self.token_is('in') or self.token_is('inlist') or self.token_is('inlist_field'):
-            operator = self.token()
-            return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())  # ty: ignore[invalid-argument-type]
+            operator = cast('str', self.token())  # the preceding check guarantees a token
+            return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
-            operator = self.token()
-            return NumericCompareNode(self.line_number, operator, left, self.add_subtract_expr())  # ty: ignore[invalid-argument-type]
+            operator = cast('str', self.token())  # the preceding check guarantees a token
+            return NumericCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         return left
 
     def add_subtract_expr(self) -> Expression:
         left = self.times_divide_expr()
         while self.token_op_is('+') or self.token_op_is('-'):
-            operator = self.token()
+            operator = cast('str', self.token())  # the preceding check guarantees a token
             right = self.times_divide_expr()
-            left = NumericBinaryNode(self.line_number, operator, left, right)  # ty: ignore[invalid-argument-type]
+            left = NumericBinaryNode(self.line_number, operator, left, right)
         return left
 
     def times_divide_expr(self) -> Expression:
         left = self.unary_plus_minus_expr()
         while self.token_op_is('*') or self.token_op_is('/'):
-            operator = self.token()
+            operator = cast('str', self.token())  # the preceding check guarantees a token
             right = self.unary_plus_minus_expr()
-            left = NumericBinaryNode(self.line_number, operator, left, right)  # ty: ignore[invalid-argument-type]
+            left = NumericBinaryNode(self.line_number, operator, left, right)
         return left
 
     def unary_plus_minus_expr(self) -> Expression:
@@ -824,11 +838,11 @@ class _Parser:
         if self.token_is_id():
             # We have an identifier. Check if it is a shorthand field reference
             line_number = self.line_number
-            id_ = self.token()
-            if len(id_) > 1 and id_[0] == '$':  # ty: ignore[invalid-argument-type, not-subscriptable]
-                if id_[1] == '$':  # ty: ignore[not-subscriptable]
-                    return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))  # ty: ignore[not-subscriptable]
-                return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))  # ty: ignore[not-subscriptable]
+            id_ = cast('str', self.token())  # token_is_id() guarantees a token
+            if len(id_) > 1 and id_[0] == '$':
+                if id_[1] == '$':
+                    return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))
+                return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))
 
             # Do we have a function call?
             if not self.token_op_is('('):
@@ -836,13 +850,13 @@ class _Parser:
                 if self.token_op_is('='):
                     # classic assignment statement
                     self.consume()
-                    return AssignNode(line_number, id_, self.top_expr())  # ty: ignore[invalid-argument-type]
-                return VariableNode(line_number, id_)  # ty: ignore[invalid-argument-type]
+                    return AssignNode(line_number, id_, self.top_expr())
+                return VariableNode(line_number, id_)
 
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
-            id_ = id_.strip()  # ty: ignore[unresolved-attribute]
+            id_ = id_.strip()
             if id_ not in self.func_names and id_ not in self.local_functions:
                 self.error(_('Unknown function {0}').format(id_))
 
@@ -868,16 +882,16 @@ class _Parser:
                 new_args = []
                 for arg_list in arguments:
                     arg = arg_list[0]
-                    if not isinstance(arg, Node) or arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+                    if not isinstance(arg, (AssignNode, VariableNode)):
                         self.error(_("Parameters to '{0}' must be variables or assignments").format(id_))
-                    if arg.node_type == Node.NODE_RVALUE:
-                        arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))  # ty: ignore[unresolved-attribute]
+                    if isinstance(arg, VariableNode):
+                        arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))
                     new_args.append(arg)
                 if id_ == 'arguments':
-                    return ArgumentsNode(line_number, new_args)  # ty: ignore[invalid-argument-type]
+                    return ArgumentsNode(line_number, new_args)
                 if id_ == 'set_globals':
-                    return SetGlobalsNode(line_number, new_args)  # ty: ignore[invalid-argument-type]
-                return GlobalsNode(line_number, new_args)  # ty: ignore[invalid-argument-type]
+                    return SetGlobalsNode(line_number, new_args)
+                return GlobalsNode(line_number, new_args)
             # Check for calling a local function template
             if id_ in self.local_functions:
                 return self.local_call_expression(id_, arguments)
@@ -892,7 +906,7 @@ class _Parser:
             return FunctionNode(line_number, id_, arguments)
         elif self.token_is_constant():
             # String or number
-            return ConstantNode(self.line_number, self.token())  # ty: ignore[invalid-argument-type]
+            return ConstantNode(self.line_number, cast('str', self.token()))  # token_is_constant() guarantees a token
         else:
             # Who knows what?
             self.error(_("Expected an expression, found '{0}'").format(self.token_text()))
@@ -1079,9 +1093,10 @@ class _Interpreter:
         try:
             if is_call:
                 # prog is an instance of the function definition class
-                ret = self.do_node_stored_template_call(StoredTemplateCallNode(1, prog.name, prog, None), args=args)  # ty: ignore[invalid-argument-type, unresolved-attribute]
+                func = cast('FormatterUserFunction', prog)
+                ret = self.do_node_stored_template_call(StoredTemplateCallNode(1, func.name, func, None), args=args)
             else:
-                ret = self.expression_list(prog)  # ty: ignore[invalid-argument-type]
+                ret = self.expression_list(cast('Sequence[Expression]', prog))
         except ReturnExecuted as e:
             ret = e.get_value()
         return ret
@@ -1794,19 +1809,20 @@ class TemplateFormatter(string.Formatter):
         if val == self._validation_string:
             val = '0'
         typ = fmt[-1]
+        fval: str | int | float = val
         if typ == 's':
             pass
         elif 'bcdoxXn'.find(typ) >= 0:
             try:
-                val = int(val)  # ty: ignore[invalid-assignment]
+                fval = int(val)
             except Exception:
                 raise ValueError(_('format: type {0} requires an integer value, got {1}').format(typ, val))
         elif 'eEfFgGn%'.find(typ) >= 0:
             try:
-                val = float(val)  # ty: ignore[invalid-assignment]
+                fval = float(val)
             except Exception:
                 raise ValueError(_('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
-        return str(('{0:' + fmt + '}').format(val))
+        return str(('{0:' + fmt + '}').format(fval))
 
     def _explode_format_string(self, fmt: str) -> tuple[str, ...]:
         try:
@@ -1844,17 +1860,18 @@ class TemplateFormatter(string.Formatter):
         return self.gpm_interpreter.program(self.funcs, self, tree, val, global_vars=global_vars, break_reporter=break_reporter)  # ty: ignore[invalid-argument-type]
 
     def _eval_sfm_call(self, template_name: str, args: Sequence[str], global_vars: dict[str, str]) -> str | None:
-        func = self.funcs[template_name]
-        compiled_text = func.cached_compiled_text  # ty: ignore[unresolved-attribute]
+        # Callers only pass names of stored templates, which are FormatterUserFunction instances
+        func = cast('FormatterUserFunction', self.funcs[template_name])
+        compiled_text = func.cached_compiled_text
         if func.object_type is StoredObjectType.StoredGPMTemplate:
             if compiled_text is None:
                 compiled_text = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(func.program_text[len('program:') :]))
-                func.cached_compiled_text = compiled_text  # ty: ignore[unresolved-attribute]
-            return self.gpm_interpreter.program(self.funcs, self, func, None, is_call=True, args=args, global_vars=global_vars)  # ty: ignore[invalid-argument-type]
-        elif function_object_type(func) is StoredObjectType.StoredPythonTemplate:  # ty: ignore[invalid-argument-type]
+                func.cached_compiled_text = compiled_text
+            return self.gpm_interpreter.program(self.funcs, self, func, None, is_call=True, args=args, global_vars=global_vars)
+        elif function_object_type(func) is StoredObjectType.StoredPythonTemplate:
             if compiled_text is None:
                 compiled_text = self.compile_python_template(func.program_text[len('python:') :])
-                func.cached_compiled_text = compiled_text  # ty: ignore[unresolved-attribute]
+                func.cached_compiled_text = compiled_text
             return self._run_python_template(compiled_text, args)
 
     def _eval_python_template(self, template: str, column_name: str | None) -> str:

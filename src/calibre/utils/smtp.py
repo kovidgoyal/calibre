@@ -156,9 +156,9 @@ def sendmail_direct(
 
     hosts = get_mx(to.split('@')[-1].strip(), verbose)  # ruff: ignore[missing-maxsplit-arg]
     timeout = None  # Non blocking sockets sometimes don't work
-    kwargs = dict(timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
+    kwargs: dict[str, object] = dict(timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
     if debug_output is not None:
-        kwargs['debug_to'] = debug_output  # ty: ignore[invalid-assignment]
+        kwargs['debug_to'] = debug_output
     s = smtplib.SMTP(**kwargs)
     s.set_debuglevel(verbose)
     if not hosts:
@@ -216,9 +216,9 @@ def sendmail(
     port = int(port)
     if port < 0:
         port = 25 if encryption != 'SSL' else 465
-    kwargs = dict(host=relay, port=port, timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
+    kwargs: dict[str, object] = dict(host=relay, port=port, timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
     if debug_output is not None:
-        kwargs['debug_to'] = debug_output  # ty: ignore[invalid-assignment]
+        kwargs['debug_to'] = debug_output
     cls = get_smtp_class(use_ssl=encryption == 'SSL', debuglevel=verbose)
     s = cls(**kwargs)
     if encryption == 'TLS':

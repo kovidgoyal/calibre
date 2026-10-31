@@ -4,7 +4,7 @@
 import os
 import re
 import sys
-from typing import IO, TYPE_CHECKING, Self
+from typing import IO, TYPE_CHECKING, Self, overload
 
 from calibre.constants import iswindows
 from calibre.prints import is_binary
@@ -74,7 +74,11 @@ COLORS = {v: fmt(k) for k, v in RCOLORS.items()}
 RESET = fmt(0)
 
 
-def colored[S: (str, bytes)](text: S, fg: str | None = None, bg: str | None = None, bold: bool = False) -> S:
+@overload
+def colored(text: str, fg: str | None = None, bg: str | None = None, bold: bool = False) -> str: ...
+@overload
+def colored(text: bytes, fg: str | None = None, bg: str | None = None, bold: bool = False) -> bytes: ...
+def colored(text: str | bytes, fg: str | None = None, bg: str | None = None, bold: bool = False) -> str | bytes:
     prefix = []
     if fg is not None:
         prefix.append(COLORS[fg])
@@ -82,12 +86,10 @@ def colored[S: (str, bytes)](text: S, fg: str | None = None, bg: str | None = No
         prefix.append(BACKGROUNDS[bg])
     if bold:
         prefix.append(ATTRIBUTES['bold'])
-    prefix = ''.join(prefix)
-    suffix = RESET
+    sprefix = ''.join(prefix)
     if isinstance(text, bytes):
-        prefix = prefix.encode('ascii')
-        suffix = suffix.encode('ascii')
-    return prefix + text + suffix  # ty: ignore[unsupported-operator]
+        return sprefix.encode('ascii') + text + RESET.encode('ascii')
+    return sprefix + text + RESET
 
 
 class Detect:
@@ -257,8 +259,8 @@ def geometry() -> tuple[int, int]:
     else:
         try:
             lines, cols = get_term_geometry()
-            if lines is not None:
-                return cols, lines  # ty: ignore[invalid-return-type]
+            if lines is not None and cols is not None:
+                return cols, lines
         except Exception:
             pass
         return 80, 25

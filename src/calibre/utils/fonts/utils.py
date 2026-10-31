@@ -192,8 +192,8 @@ def get_font_characteristics(
     values are taken from the OS/2 table of the font. See
     http://www.microsoft.com/typography/otspec/os2.htm for details
     """
-    if hasattr(raw, 'getUnicodeRanges'):
-        return get_font_characteristics_from_ttlib_os2_table(raw, return_all)  # ty: ignore[no-matching-overload]
+    if not isinstance(raw, bytes) and hasattr(raw, 'getUnicodeRanges'):
+        return get_font_characteristics_from_ttlib_os2_table(raw, return_all)
     if raw_is_table:
         os2_table = raw
     else:
@@ -428,7 +428,7 @@ def get_font_names2(raw: bytes, raw_is_table: bool = False) -> tuple[str | None,
 
 def get_all_font_names(raw: bytes, raw_is_table: bool = False) -> dict[str, str]:
     records = _get_font_names(raw, raw_is_table)
-    ans = {}
+    ans: dict[str, str] = {}
 
     for name, num in {
         'family_name': 1,
@@ -440,11 +440,11 @@ def get_all_font_names(raw: bytes, raw_is_table: bool = False) -> dict[str, str]
         'wws_subfamily_name': 22,
     }.items():
         try:
-            ans[name] = decode_name_record(records[num])
+            val = decode_name_record(records[num])
         except IndexError, KeyError, ValueError:
             continue
-        if not ans[name]:
-            del ans[name]
+        if val:
+            ans[name] = val
 
     for platform_id, encoding_id, language_id, src in records[6]:
         if (platform_id, encoding_id, language_id) == (1, 0, 0):
@@ -460,7 +460,7 @@ def get_all_font_names(raw: bytes, raw_is_table: bool = False) -> dict[str, str]
             except ValueError:
                 continue
 
-    return ans  # ty: ignore[invalid-return-type]
+    return ans
 
 
 def checksum_of_block(raw: bytes) -> int:
@@ -523,9 +523,10 @@ def remove_embed_restriction(raw: bytes) -> bytes:
     if not ok:
         raise UnsupportedFont(f'Not a supported font, sfnt_version: {sig!r}')
 
-    table, table_index, table_offset = get_table(raw, 'os/2')[:3]
-    if table is None:
+    table_info = get_table(raw, 'os/2')
+    if table_info[0] is None:
         raise UnsupportedFont('Not a supported font, has no OS/2 table')
+    table, table_index, table_offset = table_info[:3]
 
     fs_type_offset = struct.calcsize(b'>HhHH')
     fs_type = struct.unpack_from(b'>H', table, fs_type_offset)[0]
@@ -533,7 +534,7 @@ def remove_embed_restriction(raw: bytes) -> bytes:
         return raw
 
     f = BytesIO(raw)
-    f.seek(fs_type_offset + table_offset)  # ty: ignore[unsupported-operator]
+    f.seek(fs_type_offset + table_offset)
     f.write(struct.pack(b'>H', 0))
 
     set_table_checksum(f, 'os/2')

@@ -74,13 +74,11 @@ def save_cover_data_to(
 
     """
     fmt = os.path.splitext(path)[1]
-    if return_data:
-        path = None  # ty: ignore[invalid-assignment]
     if isinstance(data, Image):
         data = data.img
     return _save_cover_data_to(
         data,
-        path,
+        None if return_data else path,
         bgcolor=bgcolor,
         resize_to=resize_to,
         compression_quality=compression_quality,

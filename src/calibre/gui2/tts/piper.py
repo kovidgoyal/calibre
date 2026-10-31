@@ -648,17 +648,17 @@ class PiperEmbedded:
     def resolve_voice(self, lang: str, voice_name: str) -> Voice:
         from calibre.utils.localization import canonicalize_lang, get_lang
 
-        lang = canonicalize_lang(lang or get_lang() or 'en')  # ty: ignore[invalid-assignment]
+        canonical_lang = canonicalize_lang(lang or get_lang() or 'en')
         pv = self._embedded_settings.preferred_voices or {}
         if voice_name and voice_name in self._voice_name_map:
             voice = self._voice_name_map[voice_name]
         elif voice_name and voice_name in self.human_voice_name_map:
             # Fallback for books marked up with display names, which are translated for Kokoro voices
             voice = self.human_voice_name_map[voice_name]
-        elif (voice_name := pv.get(lang, '')) and voice_name in self._voice_name_map:
+        elif (voice_name := pv.get(canonical_lang, '')) and voice_name in self._voice_name_map:
             voice = self._voice_name_map[voice_name]
         else:
-            voice = self._voice_for_lang.get(lang) or self._default_voice
+            voice = self._voice_for_lang.get(canonical_lang) or self._default_voice
         return voice
 
     def text_to_raw_audio_data(

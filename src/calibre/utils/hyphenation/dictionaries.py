@@ -35,18 +35,18 @@ def dictionary_name_for_locale(loc: str) -> str | None:
         loc = '_'.join(parts[:2])
         if loc in lmap:
             return lmap[loc]
-    loc = lang_as_iso639_1(parts[0])  # ty: ignore[invalid-assignment]
-    if not loc:
+    lang = lang_as_iso639_1(parts[0])
+    if not lang:
         return
-    if loc in lmap:
-        return lmap[loc]
-    if loc == 'en':
+    if lang in lmap:
+        return lmap[lang]
+    if lang == 'en':
         return lmap['en_us']
-    if loc == 'de':
+    if lang == 'de':
         return lmap['de_de']
-    if loc == 'es':
+    if lang == 'es':
         return lmap['es_es']
-    q = loc + '_'
+    q = lang + '_'
     for k, v in lmap.items():
         if k.startswith(q):
             return v

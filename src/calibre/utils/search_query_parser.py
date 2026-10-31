@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     class PrefsAPI(Protocol):
         def pref(self, name: str, default: Any = None) -> Any: ...  # ruff: ignore[any-type]
-        def set_pref(self, name: str, val: Any) -> None: ...  # ruff: ignore[any-type]
+        def set_pref(self, name: str | None, val: Any) -> None: ...  # ruff: ignore[any-type]
 
     class ParseCache(Protocol):
         def get(self, key: str, default: None = None) -> ParseTree | None: ...
@@ -68,7 +68,7 @@ class SavedSearchQueries:
     def save_queries(self) -> None:
         db = self.db
         if db is not None:
-            db.set_pref(self.opt_name, self.queries)  # ty: ignore[invalid-argument-type]
+            db.set_pref(self.opt_name, self.queries)
 
     def force_unicode(self, x: str | bytes) -> str:
         if not isinstance(x, str):

@@ -393,8 +393,8 @@ class Key:
         """Set a value for this key (with optional sub-key). If name is None,
         the Default value is set. value can be an integer, a string, bytes or a list
         of strings. If you want to use expansions, set has_expansions=True."""
-        value, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)  # ty: ignore[invalid-assignment]
-        RegSetKeyValue(self.hkey, sub_key, name, dtype, value, size)
+        data, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)
+        RegSetKeyValue(self.hkey, sub_key, name, dtype, data, size)
 
     def set_default_value(self, sub_key: str | None = None, value: RegistryValue | list[str] = None, has_expansions: bool = False) -> None:
         self.set(sub_key=sub_key, value=value, has_expansions=has_expansions)

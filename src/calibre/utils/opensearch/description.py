@@ -98,16 +98,16 @@ class Description:
             return self.url
 
         # atom
-        if self.get_url_by_type('application/atom+xml'):
-            return self.get_url_by_type('application/atom+xml').template  # ty: ignore[unresolved-attribute]
+        if url := self.get_url_by_type('application/atom+xml'):
+            return url.template
 
         # rss
-        if self.get_url_by_type('application/rss+xml'):
-            return self.get_url_by_type('application/rss+xml').template  # ty: ignore[unresolved-attribute]
+        if url := self.get_url_by_type('application/rss+xml'):
+            return url.template
 
         # other possible rss type
-        if self.get_url_by_type('text/xml'):
-            return self.get_url_by_type('text/xml').template  # ty: ignore[unresolved-attribute]
+        if url := self.get_url_by_type('text/xml'):
+            return url.template
 
         # otherwise just the first one
         if len(self.urls) > 0:

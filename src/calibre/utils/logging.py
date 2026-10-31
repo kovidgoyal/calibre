@@ -7,9 +7,10 @@ import io
 import sys
 import traceback
 from contextlib import suppress
+from enum import Enum
 from functools import partial
 from threading import Lock
-from typing import IO, TYPE_CHECKING, Any, TypedDict, Unpack
+from typing import IO, TYPE_CHECKING, Any, Final, TypedDict, Unpack
 
 from calibre.prints import prints
 from polyglot.builtins import as_unicode
@@ -52,11 +53,15 @@ class Stream:
         prints(*args, **kwargs, file=self.stream)
 
 
-stdout_sentinel = object()
+class _Sentinel(Enum):
+    stdout = object()
+
+
+stdout_sentinel: Final = _Sentinel.stdout
 
 
 class ANSIStream(Stream):
-    def __init__(self, stream: IO[str] | IO[bytes] | None = stdout_sentinel) -> None:  # ty: ignore[invalid-parameter-default]
+    def __init__(self, stream: IO[str] | IO[bytes] | _Sentinel | None = stdout_sentinel) -> None:
         if stream is stdout_sentinel:
             stream = sys.stdout
         Stream.__init__(self, stream)
@@ -91,7 +96,7 @@ class HTMLStream(Stream):
     }
     normal = '</span>'
 
-    def __init__(self, stream: IO[str] | IO[bytes] | None = stdout_sentinel) -> None:  # ty: ignore[invalid-parameter-default]
+    def __init__(self, stream: IO[str] | IO[bytes] | _Sentinel | None = stdout_sentinel) -> None:
         if stream is stdout_sentinel:
             stream = sys.stdout
         Stream.__init__(self, stream)
