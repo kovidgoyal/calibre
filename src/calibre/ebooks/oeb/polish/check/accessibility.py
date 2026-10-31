@@ -6,7 +6,7 @@
 
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.base import OEB_DOCS, SVG, XHTML, XPath
-from calibre.ebooks.oeb.polish.accessibility import has_language, role_for, set_html_language
+from calibre.ebooks.oeb.polish.accessibility import has_language, is_decorative, role_for, set_html_language
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
@@ -22,10 +22,6 @@ WITH_EPUB_TYPE = XPath('//*[@epub:type]')
 def html_names(container):
     # Sorted so that problems are reported in the same order on every system
     return sorted(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
-
-
-def is_decorative(img):
-    return img.get('role') in ('presentation', 'none') or img.get('aria-hidden') == 'true'
 
 
 def svg_has_text_alternative(svg):
@@ -62,7 +58,7 @@ class MissingAltText(BaseError):
             ' readers who cannot see them, such as people using screen readers. For images that are purely'
             ' decorative, use an empty alt attribute, like this: alt="". For SVG images, add a <title> element'
             ' as the first child of the <svg> element, or for decorative SVG images, the attribute aria-hidden="true".'
-            ' The alternative text of all <img> images can be edited in one place with Tools->Accessibility.'
+            ' The alternative text of images, including inline SVG images, can be edited in one place with Tools->Accessibility.'
         )
     )
 

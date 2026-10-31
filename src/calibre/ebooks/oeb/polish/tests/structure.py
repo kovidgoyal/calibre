@@ -963,6 +963,92 @@ class Structure(BaseTest):
         self.assertIn('a.html', c.dirtied)
         self.assertNotIn('b.html', c.dirtied)
 
+    def test_accessibility_tool_svg_images(self):
+        from calibre.ebooks.oeb.polish.accessibility import image_elements, image_uses, set_alt_text
+        from calibre.ebooks.oeb.polish.check.accessibility import MissingAltText, check_accessibility
+
+        a = (
+            '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg"><head/><body>'
+            '<img src="i.png" alt="First"/>'
+            '<figure><svg:svg viewBox="0 0 10 10"><svg:svg><svg:title>Nested</svg:title></svg:svg></svg:svg>'
+            '<figcaption>A diagram</figcaption></figure>'
+            '<img src="i.png"/>'
+            '<svg:svg><svg:title id="title">Old title</svg:title><svg:desc>Long description</svg:desc></svg:svg>'
+            '</body></html>'
+        )
+        b = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body><img src="i.png" alt="Unchanged"/></body></html>'
+        for ver in (2, 3):
+            with self.subTest(version=ver):
+                c = self.create_epub([('a.html', a, None), ('b.html', b, None), ('i.png', b'', None)], spine=('b.html', 'a.html'), ver=ver)
+                uses = image_uses(c)
+                self.assertEqual(
+                    [(u.html_name, u.index, u.alt, u.is_svg) for u in uses],
+                    [
+                        ('b.html', 0, 'Unchanged', False),
+                        ('a.html', 0, 'First', False),
+                        ('a.html', 1, None, True),
+                        ('a.html', 2, None, False),
+                        ('a.html', 3, 'Old title', True),
+                    ],
+                )
+                self.assertEqual(uses[2].context, 'A diagram')
+                self.assertEqual(set_alt_text(c, {('a.html', 1): 'A diagram', ('a.html', 2): 'Last image', ('a.html', 3): 'New title'}), {'a.html'})
+                self.assertEqual([u.alt for u in image_uses(c)], ['Unchanged', 'First', 'A diagram', 'Last image', 'New title'])
+                images = list(image_elements(c.parsed('a.html')))
+                self.assertEqual(images[1][0].tag, '{http://www.w3.org/2000/svg}title')
+                self.assertEqual(images[3][0].get('id'), 'title')
+                self.assertEqual(images[3][1].text, 'Long description')
+                self.assertFalse(any(isinstance(e, MissingAltText) for e in check_accessibility(c)))
+                self.assertFalse(set_alt_text(c, {('a.html', 1): 'A diagram', ('a.html', 3): 'New title'}))
+                self.assertNotIn('b.html', c.dirtied)
+
+    def test_accessibility_tool_svg_labels(self):
+        from lxml import etree
+
+        from calibre.ebooks.oeb.polish.accessibility import image_elements, image_uses, set_alt_text, svg_alt_text
+        from calibre.ebooks.oeb.polish.check.accessibility import MissingAltText, check_accessibility
+
+        a = (
+            '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg"><head/><body>'
+            '<p id="label">Shared label</p><p id="detail">More detail</p>'
+            '<svg:svg aria-labelledby="label detail" aria-label="Fallback" role="img">'
+            '<svg:title>Title</svg:title><svg:desc>Long description</svg:desc></svg:svg>'
+            '<svg:svg aria-label="ARIA label"><svg:title>Other title</svg:title></svg:svg>'
+            '<svg:svg role="presentation"><svg:title>Decoration</svg:title></svg:svg>'
+            '<svg:svg aria-hidden="true" aria-label="Hidden label"/>'
+            '<svg:svg role="none"/>'
+            '</body></html>'
+        )
+        c = self.create_epub([('a.html', a, None)])
+        root = c.parsed('a.html')
+        before = etree.tostring(root)
+        self.assertEqual([u.alt for u in image_uses(c)], ['Shared label More detail', 'ARIA label', '', '', ''])
+        self.assertFalse(set_alt_text(c, {('a.html', u.index): u.alt for u in image_uses(c)}))
+        self.assertEqual(etree.tostring(root), before)
+        self.assertNotIn('a.html', c.dirtied)
+
+        self.assertEqual(set_alt_text(c, {('a.html', 0): 'New label', ('a.html', 1): '', ('a.html', 2): 'Visible', ('a.html', 3): 'Shown'}), {'a.html'})
+        images = list(image_elements(root))
+        self.assertIsNone(images[0].get('aria-labelledby'))
+        self.assertEqual(images[0].get('aria-label'), 'New label')
+        self.assertEqual(images[0].get('role'), 'img')
+        self.assertEqual(root.xpath('//*[@id="label"]')[0].text, 'Shared label')
+        self.assertEqual([e.text for e in images[0]], ['Title', 'Long description'])
+        self.assertEqual(images[1].get('aria-label'), 'ARIA label')
+        self.assertEqual(svg_alt_text(images[1], ignore_decorative=True), 'ARIA label')
+        self.assertEqual(images[1].get('aria-hidden'), 'true')
+        self.assertIsNone(images[2].get('role'))
+        self.assertIsNone(images[3].get('aria-hidden'))
+        self.assertEqual([u.alt for u in image_uses(c)], ['New label', '', 'Visible', 'Shown', ''])
+        self.assertFalse(any(isinstance(e, MissingAltText) for e in check_accessibility(c)))
+
+        self.assertEqual(set_alt_text(c, {('a.html', 0): None, ('a.html', 1): None, ('a.html', 2): None}), {'a.html'})
+        self.assertIsNone(images[0].get('aria-label'))
+        self.assertIsNone(images[1].get('aria-hidden'))
+        self.assertEqual([u.alt for u in image_uses(c)], [None, None, None, 'Shown', ''])
+        self.assertEqual([e.text for e in images[0]], ['Long description'])
+        self.assertFalse(set_alt_text(c, {('a.html', 0): None}))
+
     def test_accessibility_tool_metadata(self):
         from calibre.ebooks.oeb.polish.accessibility import (
             ABSENT,

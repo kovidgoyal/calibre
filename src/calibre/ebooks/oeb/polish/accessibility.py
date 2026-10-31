@@ -9,7 +9,7 @@
 from typing import NamedTuple
 
 from calibre.ebooks.metadata.utils import normalize_languages
-from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, XHTML, XML
+from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, SVG, XHTML, XML
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import canonicalize_lang
@@ -86,17 +86,74 @@ def set_html_language(container: Container, names: list[str], lang: str, replace
 # Alternative text for images {{{
 
 IMG = XHTML('img')
+SVG_ROOT, SVG_TITLE = SVG('svg'), SVG('title')
 CONTEXT_TAGS = frozenset(map(XHTML, ('p', 'figure', 'li', 'td', 'th', 'dd', 'blockquote', 'section', 'div', 'body')))
 MAX_CONTEXT_LENGTH = 300
 
 
 class ImageUse(NamedTuple):
-    html_name: str  # The HTML file containing the <img> tag
-    index: int  # The position of the <img> tag among all <img> tags in the HTML file
-    image_name: str | None  # The image file, None if it is missing or remote
+    html_name: str  # The HTML file containing the image
+    index: int  # The position among the elements yielded by image_elements()
+    image_name: str | None  # The image file, None for inline SVGs and missing or remote files
     sourceline: int | None
-    alt: str | None  # None when the alt attribute is missing, an empty string means the image is decorative
+    alt: str | None  # None when the description is missing, an empty string means the image is decorative
     context: str  # Text surrounding the image, to help describe it
+    is_svg: bool = False
+
+
+def image_elements(root):
+    # Nested SVGs are part of the outer image, not separate images to describe
+    for elem in root.iter(IMG, SVG_ROOT):
+        if next(elem.iterancestors(SVG_ROOT), None) is None:
+            yield elem
+
+
+def is_decorative(img):
+    return img.get('role') in ('presentation', 'none') or img.get('aria-hidden') == 'true'
+
+
+def svg_alt_text(svg, ignore_decorative: bool = False) -> str | None:
+    if not ignore_decorative and is_decorative(svg):
+        return ''
+    if ids := (svg.get('aria-labelledby') or '').split():
+        by_id = {elem.get('id'): elem for elem in svg.getroottree().getroot().iter() if elem.get('id') in ids}
+        text = ' '.join(''.join(by_id[eid].itertext()) for eid in ids if eid in by_id).strip()
+        if text:
+            return text
+    if text := (svg.get('aria-label') or '').strip():
+        return text
+    for title in svg.iterchildren(SVG_TITLE):
+        if text := ''.join(title.itertext()).strip():
+            return text
+    return None
+
+
+def set_svg_alt_text(svg, alt: str | None) -> None:
+    if alt == '':
+        # Keep existing descriptions so they can be restored by unmarking it
+        svg.set('aria-hidden', 'true')
+        return
+    if svg.get('aria-hidden') == 'true':
+        del svg.attrib['aria-hidden']
+    if svg.get('role') in ('presentation', 'none'):
+        del svg.attrib['role']
+    if alt is None:
+        for attr in ('aria-label', 'aria-labelledby'):
+            svg.attrib.pop(attr, None)
+        for title in tuple(svg.iterchildren(SVG_TITLE)):
+            svg.remove(title)
+    elif svg.get('aria-label') or svg.get('aria-labelledby'):
+        # Do not change referenced text, which can also label other elements
+        svg.attrib.pop('aria-labelledby', None)
+        svg.set('aria-label', alt)
+    else:
+        title = next(svg.iterchildren(SVG_TITLE), None)
+        if title is None:
+            title = svg.makeelement(SVG_TITLE)
+            svg.insert(0, title)
+        for child in tuple(title):
+            title.remove(child)
+        title.text = alt
 
 
 def html_names(container: Container) -> list[str]:
@@ -128,7 +185,10 @@ def image_uses(container: Container) -> list[ImageUse]:
     ans = []
     for name in html_names(container):
         root = container.parsed(name)
-        for i, img in enumerate(root.iter(IMG)):
+        for i, img in enumerate(image_elements(root)):
+            if img.tag == SVG_ROOT:
+                ans.append(ImageUse(name, i, None, img.sourceline, svg_alt_text(img), context_text(img), True))
+                continue
             src = (img.get('src') or '').strip()
             image_name = container.href_to_name(src, name) if src else None
             if image_name is not None and not container.has_name(image_name):
@@ -141,8 +201,9 @@ def set_alt_text(container: Container, changes: dict[tuple[str, int], str | None
     """
     Set the alternative text of images. ``changes`` maps (html_name, index), as
     in :class:`ImageUse`, to the new alternative text. Use an empty string for
-    decorative images and None to remove the alt attribute. Returns the names
-    of the changed HTML files.
+    decorative images and None to remove the description. Inline SVGs use a
+    title or ARIA label, and aria-hidden for decorative images. Returns the
+    names of the changed HTML files.
     """
     by_name: dict[str, dict[int, str | None]] = {}
     for (name, index), alt in changes.items():
@@ -150,13 +211,16 @@ def set_alt_text(container: Container, changes: dict[tuple[str, int], str | None
     changed = set()
     for name, alts in by_name.items():
         root = container.parsed(name)
-        for i, img in enumerate(root.iter(IMG)):
+        for i, img in enumerate(image_elements(root)):
             if i not in alts:
                 continue
             alt = alts[i]
-            if alt == img.get('alt'):
+            is_svg = img.tag == SVG_ROOT
+            if alt == (svg_alt_text(img) if is_svg else img.get('alt')):
                 continue
-            if alt is None:
+            if is_svg:
+                set_svg_alt_text(img, alt)
+            elif alt is None:
                 del img.attrib['alt']
             else:
                 img.set('alt', alt)
