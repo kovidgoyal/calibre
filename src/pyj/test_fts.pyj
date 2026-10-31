@@ -1,0 +1,173 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, softwaregames1
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from book_list.fts import apply_search_panel_state, component, init, set_search_status, show_index_panel
+from book_list.globals import get_current_query
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
+from utils import parse_url_params
+
+
+def with_search_panel(proceed):
+    def run(sd):
+        previous_url = window.location.href
+        previous_query = get_current_query()
+        previous_xhr = window.XMLHttpRequest
+        requests = []
+
+        def make_xhr():
+            xhr = E.div()
+            xhr.open = def (method, path): pass
+            xhr.send = def (): requests.push(xhr)
+            xhr.status = 200
+            xhr.statusText = 'OK'
+            return xhr
+
+        try:
+            window.XMLHttpRequest = make_xhr
+            window.history.replaceState(None, '', '#panel=fts&library_id=test')
+            parse_url_params.cache = {}
+            q = {'panel': 'fts', 'library_id': 'test'}
+            get_current_query(q)
+            document.body.appendChild(E.div(id='test-fts'))
+            init('test-fts')
+
+            def search(query):
+                q.fts_query = query
+                apply_search_panel_state()
+                return requests[-1]
+
+            def finish(xhr, books=None, left=0, total=0):
+                query_id = new URL(xhr.request_path, window.location.href).searchParams.get('query_id')
+                xhr.responseText = JSON.stringify({
+                    'query_id': query_id, 'indexing_status': {'left': left, 'total': total},
+                    'results': [{'book_id': bid, 'format': 'EPUB'} for bid in (books or [])],
+                    'metadata': {1: {'title': 'First', 'authors': 'Author'}, 2: {'title': 'Second', 'authors': 'Author'}},
+                })
+                xhr.dispatchEvent(new Event('load'))
+
+            proceed(search, finish, requests)
+        finally:
+            window.XMLHttpRequest = previous_xhr
+            window.history.replaceState(None, '', previous_url)
+            parse_url_params.cache = {}
+            get_current_query(previous_query or {})
+
+    with_empty_session(run)
+
+
+@test
+def fts_status_counts_books_and_preserves_focus():
+    def run(search, finish, requests):
+        status = component('status')
+        assert_equal(status.getAttribute('role'), 'status')
+        assert_equal(status.getAttribute('aria-atomic'), 'true')
+        assert_equal(status.textContent, '')
+        input = component('query').querySelector('input')
+        input.focus()
+        xhr = search('test')
+        assert_true(status.textContent.indexOf('Searching') > -1)
+        finish(xhr, [1, 1, 2])
+        assert_equal(status.textContent, '2 books found')
+        assert_equal(component('status'), status)
+        assert_equal(document.activeElement, input)
+        observer = new MutationObserver(def (): pass;)
+        observer.observe(status, {'childList': True, 'subtree': True, 'characterData': True})
+        try:
+            set_search_status('2 books found')
+            apply_search_panel_state()
+            snippets = requests[-1]
+            query_id = new URL(snippets.request_path, window.location.href).searchParams.get('query_id')
+            snippets.responseText = JSON.stringify({'query_id': query_id, 'snippets': {1: [], 2: []}})
+            snippets.dispatchEvent(new Event('load'))
+            assert_equal(observer.takeRecords().length, 0)
+        finally:
+            observer.disconnect()
+        finish(search('one'), [1])
+        assert_equal(status.textContent, '1 book found')
+        finish(search('none'))
+        assert_equal(status.textContent, 'No matches found')
+
+    with_search_panel(run)
+
+
+@test
+def fts_status_ignores_superseded_and_hidden_searches():
+    def run(search, finish):
+        old = search('old')
+        current = search('current')
+        status = component('status')
+        waiting = status.textContent
+        finish(old, [1])
+        assert_equal(status.textContent, waiting)
+        old.status = 500
+        old.dispatchEvent(new Event('load'))
+        assert_equal(status.textContent, waiting)
+        assert_false(document.getElementById('modal-container'))
+        finish(current)
+        assert_equal(status.textContent, 'No matches found')
+        hidden = search('hidden')
+        waiting = status.textContent
+        show_index_panel()
+        finish(hidden, [1, 2])
+        assert_equal(status.textContent, waiting)
+
+    with_search_panel(run)
+
+
+@test
+def fts_status_ignores_reader_and_removed_panels():
+    def run(search, finish):
+        xhr = search('reader')
+        status = component('status')
+        waiting = status.textContent
+        q = get_current_query()
+        q.mode = 'read_book'
+        finish(xhr, [1])
+        assert_equal(status.textContent, waiting)
+        q.mode = 'book_list'
+        xhr = search('removed')
+        waiting = status.textContent
+        document.getElementById('test-fts').remove()
+        finish(xhr, [1])
+        assert_equal(status.textContent, waiting)
+
+    with_search_panel(run)
+
+
+@test
+def fts_status_restarts_pending_search_when_panel_is_recreated():
+    def run(search, finish):
+        old = search('pending')
+        host = document.getElementById('test-fts')
+        host.remove()
+        document.body.appendChild(E.div(id='test-fts-reopened'))
+        init('test-fts-reopened')
+        status = component('status')
+        waiting = status.textContent
+        finish(old, [1])
+        assert_equal(status.textContent, waiting)
+        finish(search('pending'), [1, 2])
+        assert_equal(status.textContent, '2 books found')
+
+    with_search_panel(run)
+
+
+@test
+def fts_status_warns_about_incomplete_indexing_and_clears_with_query():
+    def run(search, finish):
+        status = component('status')
+        finish(search('partial'), [1], left=5, total=10)
+        assert_true(status.textContent.startsWith('1 book found'))
+        assert_true(status.textContent.indexOf('50%') > -1)
+        pending = search('clear')
+        search('')
+        assert_equal(status.textContent, '')
+        finish(pending, [1])
+        assert_equal(status.textContent, '')
+        assert_true(component('results').querySelector('.fts-help-display'))
+
+    with_search_panel(run)
