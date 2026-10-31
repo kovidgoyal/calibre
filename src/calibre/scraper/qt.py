@@ -198,7 +198,7 @@ class Browser:
     def open(self, url_or_request: Request | str, data=None, timeout=None):
         return self._open(url_or_request, data, timeout)
 
-    def open_novisit(self, url_or_request: Request, data=None, timeout=None):
+    def open_novisit(self, url_or_request: Request | str, data=None, timeout=None):
         return self._open(url_or_request, data, timeout, visit=False)
 
     def is_method_ok(self, method: str) -> bool:

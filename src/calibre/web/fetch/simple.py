@@ -97,7 +97,7 @@ def save_soup(soup: Soup, target: str) -> None:
     for meta in soup.findAll('meta', content=True):  # ty: ignore[unknown-argument]
         if 'charset' in meta['content'].lower():
             meta.extract()
-    for meta in soup.findAll('meta', charset=True):  # ty: ignore[unknown-argument]
+    for meta in soup.find_all('meta', charset=True):
         meta.extract()
     head = soup.find('head')
     if head is not None:
@@ -527,7 +527,7 @@ class RecursiveFetcher:
         tag[key] = path + suffix
 
     def process_return_links(self, soup: Soup, baseurl: str) -> None:
-        for tag in soup.findAll('a', href=True):  # ty: ignore[unknown-argument]
+        for tag in soup.find_all('a', href=True):
             iurl = self.absurl(baseurl, tag, 'href')
             if not iurl:
                 continue
@@ -543,7 +543,7 @@ class RecursiveFetcher:
         prev_dir = self.current_dir
         try:
             self.current_dir = diskpath
-            tags = list(soup.findAll('a', href=True))  # ty: ignore[unknown-argument]
+            tags = list(soup.find_all('a', href=True))
 
             for c, tag in enumerate(tags):
                 if self.show_progress:

@@ -11,9 +11,11 @@ from mechanize import Browser as B
 from mechanize import HTTPSHandler
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import TypedDict
 
     from mechanize import Request
+    from mechanize._response import response_seek_wrapper
 
     class ConnKw(TypedDict, total=False):
         timeout: float | None
@@ -48,6 +50,13 @@ class Browser(B):
 
     handler_classes = B.handler_classes.copy()
     handler_classes['https'] = ModernHTTPSHandler  # type: ignore
+
+    if TYPE_CHECKING:
+        # mechanize's close() sets these methods to None, which confuses type
+        # checkers, so declare them explicitly
+        open: Callable[..., response_seek_wrapper]
+        select_form: Callable[..., None]
+        submit: Callable[..., response_seek_wrapper]
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         self._clone_actions = {}

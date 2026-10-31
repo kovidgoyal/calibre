@@ -815,7 +815,7 @@ class BasicNewsRecipe(Recipe):
             # the recipe implements get_browser() or not
             br = self.clone_browser(self.browser)
             open_func = getattr(br, 'open_novisit', br.open)
-            with closing(open_func(url_or_raw, timeout=self.timeout)) as f:  # ty: ignore[invalid-argument-type, missing-argument]
+            with closing(open_func(url_or_raw, timeout=self.timeout)) as f:  # ty: ignore[invalid-argument-type]
                 _raw = f.read()
             if not _raw:
                 raise RuntimeError(f'Could not fetch index from {url_or_raw}')
@@ -1152,11 +1152,11 @@ class BasicNewsRecipe(Recipe):
         if self.remove_javascript:
             for script in list(soup.findAll('script')):
                 script.extract()
-            for o in soup.findAll(onload=True):  # ty: ignore[missing-argument, unknown-argument]
+            for o in soup.find_all(onload=True):
                 del o['onload']
 
         for attr in self.remove_attributes:
-            for x in soup.findAll(attrs={attr: True}):  # ty: ignore[missing-argument, unknown-argument]
+            for x in soup.find_all(attrs={attr: True}):
                 del x[attr]
         for bad_tag in list(
             soup.findAll([
@@ -1181,7 +1181,7 @@ class BasicNewsRecipe(Recipe):
         # srcset causes some viewers, like calibre's to load images from the
         # web, and it also possible causes iBooks on iOS to barf, see
         # https://bugs.launchpad.net/bugs/1713986
-        for img in soup.findAll('img', srcset=True):  # ty: ignore[unknown-argument]
+        for img in soup.find_all('img', srcset=True):
             del img['srcset']
 
         ans = self.postprocess_html(soup, first_fetch)
@@ -1292,7 +1292,7 @@ class BasicNewsRecipe(Recipe):
                         try:
                             with (
                                 open(img, 'wb') as fi,
-                                closing(self.browser.open(feed.image_url, timeout=self.timeout)) as r,  # ty: ignore[missing-argument]
+                                closing(self.browser.open(feed.image_url, timeout=self.timeout)) as r,
                             ):
                                 fi.write(r.read())
                             self.image_counter += 1
@@ -1512,7 +1512,7 @@ class BasicNewsRecipe(Recipe):
                     cdata = f.read()
             else:
                 self.report_progress(1, _('Downloading cover from %s') % cu)
-                with closing(self.browser.open(cu, timeout=self.timeout)) as r:  # ty: ignore[invalid-argument-type, missing-argument]
+                with closing(self.browser.open(cu, timeout=self.timeout)) as r:
                     cdata = r.read()
             if not cdata:
                 return
@@ -1568,7 +1568,7 @@ class BasicNewsRecipe(Recipe):
             with open(mpath, 'wb') as mfile, open(mu, 'rb') as read:
                 mfile.write(read.read())
         else:
-            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu, timeout=self.timeout)) as r:  # ty: ignore[invalid-argument-type, missing-argument]
+            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu, timeout=self.timeout)) as r:
                 mfile.write(r.read())
             self.report_progress(1, _('Masthead image downloaded'))
         self.prepare_masthead_image(mpath, outfile)
@@ -1743,7 +1743,7 @@ class BasicNewsRecipe(Recipe):
                         self.play_order_counter += 1
                         po = self.play_order_counter
                     arelpath = f'{adir}index.html'
-                    for curl in self.canonicalize_internal_url(a.orig_url, is_link=False):  # ty: ignore[unresolved-attribute]
+                    for curl in self.canonicalize_internal_url(a.orig_url, is_link=False):
                         aumap[curl].add(arelpath)
                     article_toc_entry = parent.add_item(
                         arelpath,
@@ -1761,7 +1761,7 @@ class BasicNewsRecipe(Recipe):
                             po += 1
                             article_toc_entry.add_item(arelpath, entry['anchor'], entry['title'] or _('Unknown section'), play_order=po)
                     last = os.path.join(self.output_dir, (f'{adir}index.html').replace('/', os.sep))
-                    for sp in a.sub_pages:  # ty: ignore[unresolved-attribute]
+                    for sp in a.sub_pages:
                         # length of the character-wise common prefix of opf_path and sp
                         plen = next((i for i, (x, y) in enumerate(zip(opf_path, sp)) if x != y), min(len(opf_path), len(sp)))
                         relp = sp[plen:]
@@ -1781,7 +1781,7 @@ class BasicNewsRecipe(Recipe):
                                 j,
                                 len(f),
                                 not self.has_single_feed,
-                                a.orig_url,  # ty: ignore[unresolved-attribute]
+                                a.orig_url,
                                 __appname__,
                                 prefix=prefix,
                                 center=self.center_navbar,
@@ -1889,7 +1889,7 @@ class BasicNewsRecipe(Recipe):
                     url = purl._replace(netloc=hostname).geturl()  # ty: ignore[invalid-argument-type]
                     if purl.username and purl.password:
                         br.add_password(url, purl.username, purl.password)  # ty: ignore[unresolved-attribute]
-                with closing(br.open_novisit(url, timeout=self.timeout)) as f:  # ty: ignore[invalid-argument-type]
+                with closing(br.open_novisit(url, timeout=self.timeout)) as f:
                     raw = f.read()
                 parsed_feeds.append(
                     feed_from_xml(
@@ -2067,11 +2067,11 @@ class CalibrePeriodical(BasicNewsRecipe):
 
     def get_browser(self) -> MechanizeBrowser:  # ty: ignore[invalid-method-override]
         br = cast('MechanizeBrowser', BasicNewsRecipe.get_browser(self))
-        br.open(self.LOG_IN)  # ty: ignore[invalid-argument-type, missing-argument]
-        br.select_form(name='login')  # ty: ignore[missing-argument]
+        br.open(self.LOG_IN)
+        br.select_form(name='login')
         br['username'] = self.username
         br['password'] = self.password
-        raw = br.submit().read()  # ty: ignore[missing-argument]
+        raw = br.submit().read()
         if 'href="/my-account"' not in raw:
             raise LoginFailed(_('Failed to log in, check your username and password for the calibre Periodicals service.'))
 
@@ -2080,7 +2080,7 @@ class CalibrePeriodical(BasicNewsRecipe):
     def download(self) -> str:
         self.log('Fetching downloaded recipe')
         try:
-            raw = self.browser.open_novisit(f'https://news.calibre-ebook.com/subscribed_files/{self.calibre_periodicals_slug}/0/temp.downloaded_recipe').read()  # ty: ignore[invalid-argument-type]
+            raw = self.browser.open_novisit(f'https://news.calibre-ebook.com/subscribed_files/{self.calibre_periodicals_slug}/0/temp.downloaded_recipe').read()
         except Exception as e:
             if (gc := getattr(e, 'getcode', None)) and gc() == 403:
                 raise DownloadDenied(

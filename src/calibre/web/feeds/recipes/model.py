@@ -29,6 +29,7 @@ from calibre.web.feeds.recipes.collection import (
 
 if TYPE_CHECKING:
     from collections.abc import Container, Iterable
+    from types import EllipsisType
 
     from lxml.etree import _Element
 
@@ -250,11 +251,11 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         zf = P('builtin_recipes.zip', allow_user_override=False)
 
         def factory(cls: type[NewsTreeItem], parent: NewsTreeItem | None, *args: object) -> NewsTreeItem:
-            args = list(args)  # type: ignore
+            cargs = list(args)
             if cls is NewsItem:
-                args.extend([self.default_icon, self.custom_icon, self.favicons, zf])  # type: ignore
-            args += [self.builtin_recipe_collection, self.custom_recipe_collection, self.scheduler_config, parent]  # type: ignore
-            return cls(*args)
+                cargs.extend([self.default_icon, self.custom_icon, self.favicons, zf])
+            cargs += [self.builtin_recipe_collection, self.custom_recipe_collection, self.scheduler_config, parent]
+            return cls(*cargs)  # type: ignore
 
         def ok(urn: str | None) -> bool:
             if restrict_to_urns is None:
@@ -367,16 +368,16 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         self.do_refresh(restrict_to_urns=results)
         self.searched.emit(True)
 
-    def columnCount(self, parent: QModelIndex = ...) -> int:  # type: ignore
+    def columnCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return 1
 
-    def data(self, index: QModelIndex, role: int = ...) -> object:  # type: ignore
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         if not index.isValid():
             return None
         item = index.internalPointer()
         return item.data(role)
 
-    def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...) -> object:  # type: ignore
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int | EllipsisType = ...) -> object:
         return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlag:

@@ -46,14 +46,14 @@ class Template:
                 kwargs[key] = val.decode('utf-8', 'replace')
             if kwargs[key] is None:
                 kwargs[key] = ''
-        args = list(args)  # ty: ignore[invalid-assignment]
-        for i in range(len(args)):
-            if isinstance(args[i], bytes):
-                args[i] = args[i].decode('utf-8', 'replace')  # ty: ignore[invalid-assignment]
-            if args[i] is None:
-                args[i] = ''  # ty: ignore[invalid-assignment]
+        largs = list(args)
+        for i in range(len(largs)):
+            if isinstance(largs[i], bytes):
+                largs[i] = largs[i].decode('utf-8', 'replace')  # ty: ignore[unresolved-attribute]
+            if largs[i] is None:
+                largs[i] = ''
 
-        self._generate(*args, **kwargs)
+        self._generate(*largs, **kwargs)
 
         return self
 

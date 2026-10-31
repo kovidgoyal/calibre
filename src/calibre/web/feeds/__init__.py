@@ -36,6 +36,10 @@ class IndexArticle(TypedDict, total=False):
 
 
 class Article:
+    # Set by BasicNewsRecipe after the article is downloaded
+    orig_url: str
+    sub_pages: list[str]
+
     def __init__(
         self,
         id: str,
