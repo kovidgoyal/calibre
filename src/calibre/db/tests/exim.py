@@ -67,12 +67,14 @@ class VerifyExportTest(unittest.TestCase):
             with open(importer.part_map[part], 'r+b') as f:
                 f.seek(pos)
                 f.write(b'X')
-        self.assertEqual(Importer(self.path).verify(), ['first: Checksum mismatch', 'second: Checksum mismatch'])
+        importer = Importer(self.path)
+        self.assertEqual(importer.verify(), ['first: Checksum mismatch', 'second: Checksum mismatch'])
+        self.assertEqual(importer.corrupted_files, [])
         status, out, err = self.run_verifier()
         self.assertEqual(status, 1)
         self.assertIn('first: Checksum mismatch', err)
         self.assertIn('second: Checksum mismatch', err)
-        self.assertIn('2 of 3 files', err)
+        self.assertIn('with 2 errors', err)
 
     def test_verify_configuration(self):
         with TemporaryDirectory() as config:
@@ -102,9 +104,12 @@ class VerifyExportTest(unittest.TestCase):
             self.assertEqual(self.run_verifier()[0], 1)
             with open(path, 'wb') as f:
                 f.write(original)
-        extra = os.path.join(self.path, 'duplicate.calibre-data')
+        extra = os.path.join(self.path, 'part-0001 (1).calibre-data')
         shutil.copyfile(importer.part_map[1], extra)
-        self.assertIn('duplicate part number', self.run_verifier()[2])
+        self.assertEqual(Importer(self.path).part_map[1], importer.part_map[1])
+        status, out, err = self.run_verifier()
+        self.assertEqual(status, 1)
+        self.assertIn('Part 1 is duplicated in', err)
         os.remove(extra)
         path = importer.part_map[1]
         with open(path, 'rb') as f:
@@ -143,6 +148,22 @@ class VerifyExportTest(unittest.TestCase):
         last.write_bytes(original)
         self.rewrite_metadata(lambda metadata: metadata.__setitem__('file_metadata', []))
         self.assertIn('valid file metadata', self.run_verifier()[2])
+        last.write_bytes(original)
+
+    def test_verify_missing_referenced_files(self):
+        self.export()
+        self.rewrite_metadata(
+            lambda metadata: metadata.update({
+                'config_dir': [['first', 'settings.json'], ['missing-config', 'gui.json']],
+                'libraries': {'lib': 1, 'nolib': 1},
+                'lib': {'metadata.db': 'second', 'format_data': {'1': {'EPUB': 'missing-format'}}, 'extra_files': {}},
+            })
+        )
+        errors = Importer(self.path).verify()
+        self.assertIn('config_dir: Missing file missing-config', errors)
+        self.assertIn('book 1 in lib: Missing file missing-format', errors)
+        self.assertIn('Invalid export metadata: No metadata for the library: nolib', errors)
+        self.assertEqual(self.run_verifier()[0], 1)
 
     def test_verify_bounded_reads_and_cli(self):
         importer = self.export({'large': b'x' * (3 * 1024 * 1024), 'zero': b''}, part_size=2 * 1024 * 1024)
@@ -162,9 +183,11 @@ class VerifyExportTest(unittest.TestCase):
         from calibre.debug import main
 
         with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
-            self.assertEqual(main(['calibre-debug', '--verify-calibre-data', self.path]), 0)
+            self.assertEqual(main(['calibre-debug', '--run-without-debug', '--verify-calibre-data', self.path]), 0)
             with self.assertRaises(SystemExit):
-                main(['calibre-debug', '--verify-calibre-data', self.path, 'extra'])
+                main(['calibre-debug', '--run-without-debug', '--verify-calibre-data', self.path, 'extra'])
+            with self.assertRaises(SystemExit):
+                main(['calibre-debug', '--run-without-debug', '--verify-calibre-data', ' '])
         Path(self.path, '._ignored.calibre-data').write_bytes(b'not an export')
         self.assertEqual(self.run_verifier()[0], 0)
 

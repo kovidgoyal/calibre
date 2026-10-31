@@ -14,6 +14,7 @@ import tempfile
 import time
 import uuid
 from collections import Counter
+from collections.abc import Callable, Iterator
 from typing import NamedTuple
 
 from calibre import prints
@@ -375,10 +376,13 @@ class FileSource:
 class Importer:
     def __init__(self, path_to_export_dir):
         self.corrupted_files = []
+        self.duplicate_parts: dict[int, list[str]] = {}
         part_map = {}
         self.tail_size = tail_size = struct.calcsize(Exporter.TAIL_FMT)
         self.version = -1
-        for name in os.listdir(path_to_export_dir):
+        # Sort shortest name first so that the original is preferred over
+        # copies such as "part-0001 (1).calibre-data"
+        for name in sorted(os.listdir(path_to_export_dir), key=lambda n: (len(n), n)):
             # Exclude the "appledouble" files created by macOS.
             # See https://bugs.launchpad.net/calibre/+bug/2117345
             if name.lower().endswith(Exporter.EXT) and not name.startswith('._'):
@@ -390,11 +394,14 @@ class Importer:
                         raise ValueError(f'The exported data in {name} is not valid, tail too small')
                     f.seek(-tail_size, os.SEEK_END)
                     raw = f.read()
-                if len(raw) != tail_size:
-                    raise ValueError(f'The exported data in {name} is not valid, tail too small')
                 part_num, version, is_last = struct.unpack(Exporter.TAIL_FMT, raw)
-                if part_num < 1 or part_num in part_map:
-                    raise ValueError(f'The exported data in {name} has an invalid or duplicate part number: {part_num}')
+                if part_num < 1:
+                    raise ValueError(f'The exported data in {name} has an invalid part number: {part_num}')
+                if part_num in part_map:
+                    # Copies of parts are often left behind by file sync
+                    # tools, use the original and let verify() report them
+                    self.duplicate_parts.setdefault(part_num, [os.path.basename(part_map[part_num][0])]).append(name)
+                    continue
                 if version > Exporter.VERSION:
                     raise ValueError(
                         f'The exported data in {name} is not valid, version ({version})'
@@ -433,12 +440,35 @@ class Importer:
             f.seek(-sz - offset, os.SEEK_END)
             self.metadata = json.loads(f.read(sz))
             if not isinstance(self.metadata, dict) or not isinstance(self.metadata.get('file_metadata'), dict):
-                raise TypeError('The exported data has no valid file metadata')
+                raise ValueError('The exported data has no valid file metadata')  # ruff: ignore[type-check-without-type-error]
             self.file_metadata = self.metadata['file_metadata']
 
-    def verify(self, progress=None):
+    def referenced_keys(self) -> Iterator[tuple[str, object]]:
+        """Yield (description, key) for every file the import process will read."""
+        for entry in self.metadata.get('config_dir', ()):
+            yield 'config_dir', entry[0]
+        for library_key in self.metadata.get('libraries', {}):
+            lm = self.metadata.get(library_key)
+            if not isinstance(lm, dict):
+                raise ValueError(f'No metadata for the library: {library_key}')  # ruff: ignore[type-check-without-type-error]
+            for name in ('metadata.db', 'notes.db', 'full-text-search.db'):
+                if name in lm:
+                    yield f'{name} for {library_key}', lm[name]
+            for x in ('format_data', 'extra_files'):
+                for book_id, keymap in lm.get(x, {}).items():
+                    for key in keymap.values():
+                        yield f'book {book_id} in {library_key}', key
+
+    def verify(self, progress: Callable[[str, int, int], object] | None = None) -> list[str]:
         """Read every exported file and return errors, without restoring data."""
-        errors, starts, limits, total_size = [], {}, {}, 0
+        errors = [f'Part {num} is duplicated in: {", ".join(names)}' for num, names in sorted(self.duplicate_parts.items())]
+        try:
+            for desc, key in self.referenced_keys():
+                if not isinstance(key, str) or key not in self.file_metadata:
+                    errors.append(f'{desc}: Missing file {key}')
+        except (ValueError, TypeError, AttributeError, IndexError, KeyError) as err:
+            errors.append(f'Invalid export metadata: {err}')
+        starts, limits, total_size = {}, {}, 0
         last_part = max(self.part_map)
         for num in sorted(self.part_map):
             starts[num] = total_size
@@ -455,15 +485,16 @@ class Importer:
                     raise ValueError('File extends outside the exported data')
                 if not isinstance(digest, str) or re.fullmatch(r'[0-9a-f]{40}', digest) is None:
                     raise ValueError('Invalid file checksum')
-                before = len(self.corrupted_files)
+                hasher, count = hashlib.sha1(), 0
                 with self.start_file(key, key) as src:
-                    count = 0
+                    src.check_hash = False
                     while chunk := src.read(1024 * 1024):
+                        hasher.update(chunk)
                         count += len(chunk)
-                    if count != size:
-                        raise ValueError(f'Expected {size} bytes, read {count}')
-                if len(self.corrupted_files) != before:
-                    errors.append(f'{key}: Checksum mismatch')
+                if count != size:
+                    raise ValueError(f'Expected {size} bytes, read {count}')
+                if hasher.hexdigest() != digest:
+                    raise ValueError('Checksum mismatch')
             except (OSError, ValueError, TypeError, KeyError, OverflowError) as err:
                 errors.append(f'{key}: {err}')
         return errors
@@ -638,17 +669,19 @@ def run_exporter(export_dir=None, args=None, check_known_libraries=True):
         raise SystemExit('No libraries selected for export')
 
 
-def run_verifier(export_dir):
+def run_verifier(export_dir: str) -> int:
     try:
         importer = Importer(os.path.abspath(os.path.expanduser(export_dir)))
-        errors = importer.verify(progress=cli_report)
-    except (OSError, ValueError, TypeError, KeyError, OverflowError, struct.error) as err:
+        # Only report per file progress interactively, to keep the output of
+        # backup scripts small
+        errors = importer.verify(progress=cli_report if sys.stdout.isatty() else None)
+    except (OSError, ValueError, struct.error) as err:
         prints(_('Verification failed: {}').format(err), file=sys.stderr)
         return 1
     if errors:
         for err in errors:
             prints(err, file=sys.stderr)
-        prints(_('Verification failed: {0} of {1} files have errors').format(len(errors), len(importer.file_metadata)), file=sys.stderr)
+        prints(_('Verification failed with {} errors').format(len(errors)), file=sys.stderr)
         return 1
     prints(_('Verified all {} exported files').format(len(importer.file_metadata)))
     return 0

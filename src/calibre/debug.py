@@ -490,6 +490,8 @@ def main(args=sys.argv):
 
         if len(args) != 1:
             raise SystemExit(_('Specify only the exported data folder with --verify-calibre-data'))
+        if not opts.verify_calibre_data.strip():
+            raise SystemExit(_('The exported data folder must not be empty'))
         return run_verifier(opts.verify_calibre_data)
     elif opts.import_calibre_data:
         from calibre.utils.exim import run_importer
