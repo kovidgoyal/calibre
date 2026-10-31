@@ -3,8 +3,16 @@
 
 import os
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from calibre.srv.tests.base import BaseTest
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+    from calibre.srv.routes import Route, RouteFunction
 
 
 class TestRouter(BaseTest):
@@ -20,7 +28,7 @@ class TestRouter(BaseTest):
             self.ae(library_id_from_path('X:' + os.sep), 'X')
 
         class MockDB:
-            def __init__(self, base) -> None:
+            def __init__(self, base: str) -> None:
                 self.new_api = self
                 self.server_library_id = 'lid'
                 self.dbpath = os.path.join(base, 'metadata.db')
@@ -38,7 +46,7 @@ class TestRouter(BaseTest):
         "Test route construction"
         from calibre.srv.routes import Route, RouteError, endpoint
 
-        def makeroute(route, func=lambda c, d: None, **kwargs):
+        def makeroute(route: str, func: Callable[..., object] = lambda c, d: None, **kwargs: object) -> Route:
             return Route(endpoint(route, **kwargs)(func))
 
         r = makeroute('/')
@@ -47,7 +55,7 @@ class TestRouter(BaseTest):
         r = makeroute('/slash/')
         self.ae(r.endpoint.route, '/slash')
 
-        def emr(route) -> None:
+        def emr(route: str) -> None:
             self.assertRaises(RouteError, makeroute, route)
 
         emr('no_start')
@@ -65,38 +73,38 @@ class TestRouter(BaseTest):
 
         router = Router()
 
-        def find(path):
+        def find(path: str) -> tuple[RouteFunction, list[object]]:
             path = list(filter(None, path.split('/')))
             ep, args = router.find_route(path)
             args = list(args)
             return ep, args
 
         @endpoint('/')
-        def root(ctx, data) -> None:
+        def root(ctx: Context, data: RequestData) -> None:
             pass
 
         @endpoint('/defval/{a=1}')
-        def defval(ctx, data, a) -> None:
+        def defval(ctx: Context, data: RequestData, a: int) -> None:
             pass
 
         @endpoint('/varpath/{a}/{b}')
-        def varpath(ctx, data, a, b) -> None:
+        def varpath(ctx: Context, data: RequestData, a: str, b: str) -> None:
             pass
 
         @endpoint('/soak/{+rest}')
-        def soak(ctx, dest, rest) -> None:
+        def soak(ctx: Context, dest: RequestData, rest: str) -> None:
             pass
 
         @endpoint('/soak_opt/{+rest="xxx"}')
-        def soak_opt(ctx, dest, rest) -> None:
+        def soak_opt(ctx: Context, dest: RequestData, rest: str) -> None:
             pass
 
         @endpoint('/needs quoting/{x}')
-        def quoting(ctx, dest, x) -> None:
+        def quoting(ctx: Context, dest: RequestData, x: str) -> None:
             pass
 
         @endpoint('/get/{a}/{b=None}')
-        def get(ctx, dest, a, b) -> None:
+        def get(ctx: Context, dest: RequestData, a: str, b: str | None) -> None:
             pass
 
         for x in locals().values():

@@ -10,7 +10,7 @@ import zlib
 from collections.abc import Generator
 from contextlib import contextmanager
 from functools import lru_cache, partial
-from typing import TypedDict
+from typing import TypedDict, cast
 from urllib.parse import urlencode
 
 from lxml import etree
@@ -226,7 +226,8 @@ def comic_page(ctx: Context, rd: RequestData, book_id: int, page: int) -> ETagge
     # transcoding, and replacing the archive invalidates every page URL.
     digest = hashlib.sha256(f'comic-page-v1:{revision}:{page}:{media_type}'.encode()).hexdigest()
     etag = f'"{digest}"'
-    none_match = parse_if_none_match(rd.inheaders.get('If-None-Match', ''))
+    # If-None-Match is always decoded by the HTTP parser
+    none_match = parse_if_none_match(cast('str', rd.inheaders.get('If-None-Match', '')))
     if media_type != actual_type and etag not in none_match and '*' not in none_match:
         # Transcode here, in a worker thread, as the function passed to
         # etagged_dynamic_response() is called on the server's event loop

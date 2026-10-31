@@ -8,7 +8,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 from collections.abc import Set as AbstractSet
 from functools import lru_cache, partial
-from typing import Any, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import urlencode
 
 from html5_parser import parse
@@ -43,6 +43,9 @@ from polyglot.binary import as_hex_unicode, from_hex_unicode
 from polyglot.builtins import as_bytes
 from polyglot.urllib import unquote_plus
 
+if TYPE_CHECKING:
+    from calibre.srv.routes import RouteFunction
+
 
 class Group(NamedTuple):
     text: str
@@ -60,7 +63,8 @@ def accepts_opds2(rd: RequestData) -> bool:
     2.0 is used only when it has a higher quality value than Atom.
     """
     qualities = {OPDS2_MIME: 0.0, 'application/atom+xml': 0.0}
-    for header in rd.inheaders.get('Accept', all=True):
+    # Accept is always decoded by the HTTP parser
+    for header in cast('list[str]', rd.inheaders.get('Accept', all=True)):
         for media_range in header.split(','):
             media_type, *params = (x.strip() for x in media_range.split(';'))
             media_type = media_type.lower()
@@ -81,7 +85,7 @@ def accepts_opds2(rd: RequestData) -> bool:
     return qualities[OPDS2_MIME] > qualities['application/atom+xml']
 
 
-def atom(ctx: Context, rd: RequestData, endpoint: Callable, output: bytes | str | etree.Element | dict[str, Any]) -> bytes:
+def atom(ctx: Context, rd: RequestData, endpoint: RouteFunction, output: bytes | str | etree.Element | dict[str, object]) -> bytes:
     # The same URLs serve both OPDS 1 and OPDS 2.0 feeds, depending on the Accept header
     rd.outheaders.set('Vary', 'Accept', replace_all=True)
     rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
@@ -124,7 +128,7 @@ ID: Callable[..., etree.Element] = E.id
 ICON: Callable[..., etree.Element] = E.icon
 
 
-def UPDATED(dt: datetime.datetime, *args: Any, **kwargs: Any) -> etree.Element:
+def UPDATED(dt: datetime.datetime, *args: etree.Element | str, **kwargs: str) -> etree.Element:
     return E.updated(as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
 
@@ -347,7 +351,7 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
         if len(extra_tag):
             ans.append(E.content(extra_tag, type='xhtml'))
 
-    def get(**kwargs: Any) -> str:
+    def get(**kwargs: object) -> str:
         return request_context.ctx.url_for('/get', book_id=book_id, library_id=request_context.library_id, **kwargs)
 
     if mi.formats:
@@ -491,7 +495,7 @@ class NavFeed(Feed):
         title: str | None = None,
         full_text_search: bool = False,
     ) -> None:
-        kwargs: dict[str, Any] = pagination_links(offsets, page_url, up_url)
+        kwargs: dict[str, str] = pagination_links(offsets, page_url, up_url)
         if title:
             kwargs['title'] = title
         Feed.__init__(self, id_, updated, request_context, full_text_search=full_text_search, **kwargs)
@@ -571,8 +575,8 @@ class CategoryGroupFeed(NavFeed):
 # served at the same URLs, to clients that send Accept: application/opds+json
 
 
-def opds2_link(href: str, rel: str = '', title: str = '', **kwargs: Any) -> dict[str, Any]:
-    ans: dict[str, Any] = {'href': href, 'type': OPDS2_MIME}
+def opds2_link(href: str, rel: str = '', title: str = '', **kwargs: object) -> dict[str, object]:
+    ans: dict[str, object] = {'href': href, 'type': OPDS2_MIME}
     if rel:
         ans['rel'] = rel
     if title:
@@ -590,7 +594,7 @@ def opds2_feed(
     page_url: str = '',
     up_url: str = '',
     full_text_search: bool = False,
-) -> dict[str, Any]:
+) -> dict[str, object]:
     metadata = {'title': title or default_feed_title}
     if subtitle:
         metadata['subtitle'] = subtitle
@@ -610,7 +614,7 @@ def opds2_self_url(page_url: str, offsets: Offsets) -> str:
     return page_url + (f'&offset={offsets.offset}' if offsets.offset else '')
 
 
-def opds2_top_level(categories: list[tuple[str, str, str]], request_context: RequestContext, subtitle: str = _('Books in your library')) -> dict[str, Any]:
+def opds2_top_level(categories: list[tuple[str, str, str]], request_context: RequestContext, subtitle: str = _('Books in your library')) -> dict[str, object]:
     url_for = request_context.url_for
     ans = opds2_feed(request_context, url_for('/opds'), subtitle=subtitle)
     navigation = [opds2_link(navcatalog_url(url_for, q), title=_('By ') + title) for title, desc, q in categories]
@@ -624,7 +628,7 @@ def opds2_top_level(categories: list[tuple[str, str, str]], request_context: Req
 
 def opds2_category_feed(
     items: list[Tag], which: str, request_context: RequestContext, offsets: Offsets, page_url: str, up_url: str, title: str | None = None
-) -> dict[str, Any]:
+) -> dict[str, object]:
     ans = opds2_feed(request_context, opds2_self_url(page_url, offsets), title=title, offsets=offsets, page_url=page_url, up_url=up_url)
     navigation = []
     for item in items:
@@ -640,7 +644,7 @@ def opds2_category_feed(
 
 def opds2_category_group_feed(
     items: list[Group], which: str, request_context: RequestContext, offsets: Offsets, page_url: str, up_url: str, title: str | None = None
-) -> dict[str, Any]:
+) -> dict[str, object]:
     ans = opds2_feed(request_context, opds2_self_url(page_url, offsets), title=title, offsets=offsets, page_url=page_url, up_url=up_url)
     ans['navigation'] = [
         opds2_link(category_group_url(item, which, request_context), title=item.text, properties={'numberOfItems': item.count}) for item in items
@@ -648,8 +652,8 @@ def opds2_category_group_feed(
     return ans
 
 
-def opds2_metadata(mi: Metadata, request_context: RequestContext) -> dict[str, Any]:
-    metadata: dict[str, Any] = {
+def opds2_metadata(mi: Metadata, request_context: RequestContext) -> dict[str, object]:
+    metadata: dict[str, object] = {
         '@type': 'http://schema.org/Book',
         'title': mi.title,
         'author': list(mi.authors),
@@ -671,10 +675,10 @@ def opds2_metadata(mi: Metadata, request_context: RequestContext) -> dict[str, A
     return metadata
 
 
-def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str, Any]:
+def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str, object]:
     mi = request_context.db.get_metadata(book_id)
 
-    def get(**kwargs: Any) -> str:
+    def get(**kwargs: object) -> str:
         return request_context.ctx.url_for('/get', book_id=book_id, library_id=request_context.library_id, **kwargs)
 
     links = []
@@ -690,7 +694,7 @@ def opds2_publication(book_id: int, request_context: RequestContext) -> dict[str
             'href': request_context.url_for('/comic-manifest', book_id=book_id),
             'type': DIVINA_MIME,
         })
-    ans: dict[str, Any] = {'metadata': opds2_metadata(mi, request_context), 'links': links}
+    ans: dict[str, object] = {'metadata': opds2_metadata(mi, request_context), 'links': links}
     if mi.has_cover:
         ans['images'] = [{'href': get(what='cover'), 'type': 'image/jpeg'}, {'href': get(what='thumb'), 'type': 'image/jpeg'}]
     return ans
@@ -717,7 +721,7 @@ def opds2_acquisition_feed(
     up_url: str,
     title: str | None = None,
     full_text_search: bool = False,
-) -> dict[str, Any]:
+) -> dict[str, object]:
     ans = opds2_feed(
         request_context,
         opds2_self_url(page_url, offsets),
@@ -748,7 +752,7 @@ class RequestContext:
         self.ctx, self.rd = ctx, rd
         self.is_opds2 = accepts_opds2(rd)
 
-    def url_for(self, route: str | None, **kwargs: Any) -> str:
+    def url_for(self, route: str | RouteFunction | None, **kwargs: object) -> str:
         lid = kwargs.pop('library_id', self.library_id)
         assert self.ctx.url_for is not None
         ans = self.ctx.url_for(route, **kwargs)
@@ -760,7 +764,7 @@ class RequestContext:
         return self.ctx.allowed_book_ids(self.rd, self.db)
 
     @property
-    def outheaders(self) -> MultiDict:
+    def outheaders(self) -> MultiDict[str]:
         return self.rd.outheaders
 
     @property
@@ -773,7 +777,7 @@ class RequestContext:
     def get_categories(self, report_parse_errors: bool = False) -> dict[str, list[Tag]]:
         return self.ctx.get_categories(self.rd, self.db, report_parse_errors=report_parse_errors)
 
-    def search(self, query: str) -> frozenset[int]:
+    def search(self, query: str) -> AbstractSet[int]:
         return self.ctx.search(self.rd, self.db, query)
 
 
@@ -788,7 +792,7 @@ def get_acquisition_feed(
     ascending: bool = True,
     feed_title: str | None = None,
     full_text_search: bool = False,
-) -> etree.Element | dict[str, Any]:
+) -> etree.Element | dict[str, object]:
     if rc.is_opds2:
         ids = opds2_has_acquisition_links(rc, ids)
     if not ids:
@@ -806,7 +810,7 @@ def get_acquisition_feed(
         return AcquisitionFeed(id_, lm, rc, items, offsets, page_url, up_url, title=feed_title, full_text_search=full_text_search).root
 
 
-def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, Any]:
+def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, object]:
     try:
         offset = int(offset)
     except Exception:
@@ -831,7 +835,7 @@ def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, of
     )
 
 
-def get_navcatalog(request_context: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, Any]:
+def get_navcatalog(request_context: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, object]:
     categories = request_context.get_categories()
     if which not in categories:
         raise HTTPNotFound(f'Category {which!r} not found')
@@ -880,13 +884,13 @@ def get_navcatalog(request_context: RequestContext, which: str, page_url: str, u
 
 
 @endpoint('/opds', postprocess=atom)
-def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, Any]:
+def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, object]:
     rc = RequestContext(ctx, rd)
     db = rc.db
     try:
         categories = rc.get_categories(report_parse_errors=True)
     except ParseException as p:
-        raise HTTPInternalServerError(p.msg)
+        raise HTTPInternalServerError(p.msg)  # ty: ignore[invalid-argument-type]
 
     category_meta = db.field_metadata
     cats = [
@@ -920,7 +924,7 @@ def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, Any]:
 
 
 @endpoint('/opds/navcatalog/{which}', postprocess=atom)
-def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element | dict[str, Any]:
+def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element | dict[str, object]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -943,7 +947,7 @@ def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element 
 
 
 @endpoint('/opds/category/{category}/{which}', postprocess=atom)
-def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element | dict[str, Any]:
+def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element | dict[str, object]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -997,7 +1001,7 @@ def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> e
 
 
 @endpoint('/opds/categorygroup/{category}/{which}', postprocess=atom)
-def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element | dict[str, Any]:
+def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element | dict[str, object]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -1050,7 +1054,7 @@ def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str)
 
 
 @endpoint('/opds/fts', postprocess=atom)
-def opds_full_text_catalog(ctx: Context, rd: RequestData) -> etree.Element | dict[str, Any]:
+def opds_full_text_catalog(ctx: Context, rd: RequestData) -> etree.Element | dict[str, object]:
     rc = RequestContext(ctx, rd, strict_library_id=True)
     if not rc.db.is_fts_enabled():
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
@@ -1073,7 +1077,7 @@ def opds_full_text_catalog(ctx: Context, rd: RequestData) -> etree.Element | dic
 
 
 @endpoint('/opds/search/{query=""}', postprocess=atom)
-def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | dict[str, Any]:
+def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | dict[str, object]:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -1082,7 +1086,8 @@ def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | di
     full_text = rd.query.get('full_text') == 'y'
     rc = RequestContext(ctx, rd, strict_library_id=full_text)
     if query:
-        path = parse_uri(rd.request_original_uri, parse_query=False, unquote_func=unquote_plus)[1]
+        # request_original_uri is always set for requests from HTTPConnection
+        path = parse_uri(cast('bytes', rd.request_original_uri), parse_query=False, unquote_func=unquote_plus)[1]
         query = path[-1]
         if isinstance(query, bytes):
             query = query.decode('utf-8')

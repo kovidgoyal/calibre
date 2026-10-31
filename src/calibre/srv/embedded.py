@@ -6,6 +6,7 @@ import json
 import os
 from contextlib import suppress
 from threading import Thread
+from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode
 from calibre.constants import cache_dir, config_dir, is_running_from_develop
@@ -16,12 +17,20 @@ from calibre.srv.loop import ServerLoop
 from calibre.srv.opts import server_config
 from calibre.srv.utils import RotatingLog
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def log_paths():
+    from calibre.srv.handler import Context, NotifyChanges
+    from calibre.srv.library_broker import LibraryBroker
+    from calibre.srv.pool import ServerPlugin
+    from calibre.srv.users import UserManager
+
+
+def log_paths() -> tuple[str, str]:
     return os.path.join(cache_dir(), 'server-log.txt'), os.path.join(cache_dir(), 'server-access-log.txt')
 
 
-def read_json(path):
+def read_json(path: str) -> object:
     try:
         with open(path, 'rb') as f:
             raw = f.read()
@@ -33,23 +42,27 @@ def read_json(path):
         return json.loads(raw)
 
 
-class _JsonFileFunction:
-    def __init__(self, filename) -> None:
+class _JsonFileFunction[T]:
+    # T is the type of the JSON data stored in the file
+    def __init__(self, filename: str) -> None:
         self.path = os.path.join(config_dir, filename)
 
-    def __call__(self):
-        return read_json(self.path)
+    def __call__(self) -> T | None:
+        return cast('T | None', read_json(self.path))
 
 
-custom_list_template = _JsonFileFunction('server-custom-list-template.json')
-search_the_net_urls = _JsonFileFunction('server-search-the-net.json')
+custom_list_template: _JsonFileFunction[dict] = _JsonFileFunction('server-custom-list-template.json')
+search_the_net_urls: _JsonFileFunction[list] = _JsonFileFunction('server-search-the-net.json')
 
 
 class Server:
-    loop = current_thread = exception = None
-    state_callback = start_failure_callback = None
+    loop: ServerLoop | None = None
+    current_thread: Thread | None = None
+    exception: BaseException | None = None
+    state_callback: Callable[[bool], object] | None = None
+    start_failure_callback: Callable[[str], object] | None = None
 
-    def __init__(self, library_broker, notify_changes) -> None:
+    def __init__(self, library_broker: LibraryBroker, notify_changes: NotifyChanges | None) -> None:
         opts = server_config()
         lp, lap = log_paths()
         try:
@@ -61,7 +74,8 @@ class Server:
         log = RotatingLog(lp, max_size=log_size)
         access_log = RotatingLog(lap, max_size=log_size)
         self.handler = Handler(library_broker, opts, notify_changes=notify_changes)
-        plugins = self.plugins = []
+        plugins: list[ServerPlugin] = []
+        self.plugins = plugins
         if opts.use_bonjour:
             plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))
         self.opts = opts
@@ -73,11 +87,11 @@ class Server:
         ctx.search_the_net_urls = search_the_net_urls()
 
     @property
-    def ctx(self):
+    def ctx(self) -> Context | None:
         return self.handler.router.ctx
 
     @property
-    def user_manager(self):
+    def user_manager(self) -> UserManager:
         assert self.handler.router is not None
         assert self.handler.router.ctx is not None
         return self.handler.router.ctx.user_manager
@@ -153,5 +167,5 @@ class Server:
             self.current_thread = None
 
     @property
-    def is_running(self):
+    def is_running(self) -> bool:
         return self.current_thread is not None and self.current_thread.is_alive()

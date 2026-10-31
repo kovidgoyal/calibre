@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import unittest
+
 from calibre.utils.run_tests import find_tests_in_package, run_tests
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return find_tests_in_package('calibre.srv.tests')
 
 

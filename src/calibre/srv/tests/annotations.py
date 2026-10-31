@@ -38,7 +38,7 @@ class AnnotationsTest(LibraryBaseTest):
                 json.dump({'version': 1, 'type': 'calibre_annotation_collection', 'annotations': [annot]}, f, ensure_ascii=False)
             url = f'http://127.0.0.1:{server.address[1]}/calibre'
 
-            def run(*args, user='owner'):
+            def run(*args: str, user: str = 'owner') -> str:
                 parser = option_parser(get_parser, [])
                 opts, args = parser.parse_args(['--with-library', url, '--username', user, '--password', 'test', *args])
                 with DBCtx(opts, parser) as dbctx, redirect_stdout(StringIO()) as out:
@@ -83,7 +83,7 @@ class AnnotationsTest(LibraryBaseTest):
             other_id = next(key for key, name in ctx.library_broker.library_map.items() if name == os.path.basename(other_path))
             ts = utcnow()
 
-            def a(**kw):
+            def a(**kw: str) -> tuple[dict[str, str], float]:
                 kw['timestamp'] = ts.isoformat()
                 return kw, ts.timestamp()
 
@@ -93,7 +93,7 @@ class AnnotationsTest(LibraryBaseTest):
             ctx.library_broker.get(other_id).set_annotations_for_book(1, 'EPUB', [a(type='bookmark', title='Other library nebula')])
             url = f'http://127.0.0.1:{server.address[1]}/calibre'
 
-            def run(*args, user='owner', library_id=None):
+            def run(*args: str, user: str = 'owner', library_id: str | None = None) -> str:
                 parser = option_parser(get_parser, [])
                 opts, args = parser.parse_args([
                     '--with-library',

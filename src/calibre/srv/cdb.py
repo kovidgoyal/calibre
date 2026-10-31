@@ -6,6 +6,7 @@ import shutil
 import time
 from functools import partial
 from io import BytesIO
+from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode, sanitize_file_name
 from calibre.db.cli import module_for_cmd
@@ -22,11 +23,15 @@ from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import from_base64_bytes
 
+if TYPE_CHECKING:
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+
 receive_data_methods = {'POST'}
 
 
 @endpoint('/cdb/cmd/{which}/{version=0}', postprocess=msgpack_or_json, methods=receive_data_methods, cache_control='no-cache')
-def cdb_run(ctx, rd, which, version):
+def cdb_run(ctx: Context, rd: RequestData, which: str, version: int) -> dict[str, object]:
     try:
         m = module_for_cmd(which)
     except ImportError:
@@ -41,7 +46,8 @@ def cdb_run(ctx, rd, which, version):
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')
     raw = rd.read()
-    ct = rd.inheaders.get('Content-Type', all=True)
+    # Content-Type is not always decoded, but is used as str here
+    ct = cast('list[str]', rd.inheaders.get('Content-Type', all=True))
     ct = {x.lower().partition(';')[0] for x in ct}
     try:
         if MSGPACK_MIME in ct:
@@ -73,7 +79,7 @@ def cdb_run(ctx, rd, which, version):
     methods=receive_data_methods,
     cache_control='no-cache',
 )
-def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
+def cdb_add_book(ctx: Context, rd: RequestData, job_id: str, add_duplicates: str, filename: str, library_id: str | None) -> dict[str, object]:
     """
     Add a file as a new book. The file contents must be in the body of the request.
 
@@ -99,7 +105,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
         raise HTTPForbidden('Cannot use the add book interface to add recipe files, as they allow code execution')
     if isinstance(rd.request_body_file, BytesIO):
         raise HTTPBadRequest('A request body containing the file data must be specified')
-    add_duplicates = add_duplicates in ('y', '1')
+    add_duplicates = add_duplicates in ('y', '1')  # ty: ignore[invalid-assignment]
     path = os.path.join(rd.tdir, sfilename)
     rd.request_body_file.seek(0)
     with open(path, 'wb') as f:
@@ -112,7 +118,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
         f.seek(0)
         nfmt = os.path.splitext(path)[1]
         fmt = nfmt[1:] if nfmt else fmt
-        ids, duplicates = db.add_books([(mi, {fmt: f})], add_duplicates=add_duplicates)
+        ids, duplicates = db.add_books([(mi, {fmt: f})], add_duplicates=add_duplicates)  # ty: ignore[invalid-argument-type]
     ans = {'title': mi.title, 'authors': mi.authors, 'languages': mi.languages, 'filename': filename, 'id': job_id}
     if ids:
         ans['book_id'] = ids[0]
@@ -129,7 +135,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     methods=receive_data_methods,
     cache_control='no-cache',
 )
-def cdb_delete_book(ctx, rd, book_ids, library_id):
+def cdb_delete_book(ctx: Context, rd: RequestData, book_ids: str, library_id: str | None) -> dict[str, object]:
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the delete book interface with a user who has per library restrictions')
@@ -155,7 +161,7 @@ def cdb_delete_book(ctx, rd, book_ids, library_id):
     methods=receive_data_methods,
     cache_control='no-cache',
 )
-def cdb_set_cover(ctx, rd, book_id, library_id):
+def cdb_set_cover(ctx: Context, rd: RequestData, book_id: int, library_id: str | None) -> tuple[int, ...]:
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the add book interface with a user who has per library restrictions')
@@ -165,9 +171,10 @@ def cdb_set_cover(ctx, rd, book_id, library_id):
     return tuple(dirtied)
 
 
-def load_payload_data(rd):
+def load_payload_data(rd: RequestData) -> dict:
     raw = rd.read()
-    ct = rd.inheaders.get('Content-Type', all=True)
+    # Content-Type is not always decoded, but is used as str here
+    ct = cast('list[str]', rd.inheaders.get('Content-Type', all=True))
     ct = {x.lower().partition(';')[0] for x in ct}
     try:
         if MSGPACK_MIME in ct:
@@ -188,7 +195,7 @@ def load_payload_data(rd):
     methods=receive_data_methods,
     cache_control='no-cache',
 )
-def cdb_set_fields(ctx, rd, book_id, library_id):
+def cdb_set_fields(ctx: Context, rd: RequestData, book_id: int, library_id: str | None) -> dict[int, dict[str, object] | None]:
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the set fields interface with a user who has per library restrictions')
@@ -230,7 +237,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
                     fmt_data = from_base64_bytes(data['data_url'].split(',', 1)[-1])
                 except Exception:
                     raise HTTPBadRequest('Format data is not valid base64 encoded data')
-                if db.add_format(book_id, fmt, ReadOnlyFileBuffer(fmt_data)):
+                if db.add_format(book_id, fmt, ReadOnlyFileBuffer(fmt_data)):  # ty: ignore[invalid-argument-type]
                     dirtied.add(book_id)
     removed_formats = changes.pop('removed_formats', False)
     if removed_formats:
@@ -241,7 +248,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
         if field == 'languages' and value:
             rmap = reverse_lang_map_for_ui()
 
-            def to_lang_code(x):
+            def to_lang_code(x: str) -> str | None:
                 return rmap.get(x, canonicalize_lang(x))  # ruff: ignore[function-uses-loop-variable]
 
             if isinstance(value, str):
@@ -262,7 +269,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
     methods=receive_data_methods,
     cache_control='no-cache',
 )
-def cdb_copy_to_library(ctx, rd, target_library_id, library_id):
+def cdb_copy_to_library(ctx: Context, rd: RequestData, target_library_id: str, library_id: str | None) -> dict[int, dict[str, object]]:
     db_src = get_db(ctx, rd, library_id)
     db_dest = get_db(ctx, rd, target_library_id)
     if ctx.restriction_for(rd, db_src) or ctx.restriction_for(rd, db_dest):
@@ -280,7 +287,7 @@ def cdb_copy_to_library(ctx, rd, target_library_id, library_id):
         raise HTTPBadRequest('duplicate_action must be one of: add, add_formats_to_existing, ignore')
     if automerge_action not in ('overwrite', 'ignore', 'new record'):
         raise HTTPBadRequest('automerge_action must be one of: overwrite, ignore, new record')
-    response = {}
+    response: dict[int, dict[str, object]] = {}
     identical_books_data = None
     if duplicate_action != 'add':
         identical_books_data = db_dest.data_for_find_identical_books()

@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
-from typing import Never
+from typing import TYPE_CHECKING, Never, cast
 from urllib.parse import urlencode
 
 from lxml.html import tostring
@@ -22,29 +22,40 @@ from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.field_metadata import FieldMetadata
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+    from calibre.srv.routes import RouteFunction
+
 # /mobile {{{
 
 
-def clean(x):
+def clean(x: object) -> object:
     if isinstance(x, (str, bytes)):
         x = clean_xml_chars(x)
     return x
 
 
 class _EBuilder:
-    def __call__(self, tag, *children, **attribs):
-        children = list(map(clean, children))
+    def __call__(self, tag: str, *children: object, **attribs: object) -> HtmlElement:
+        children = list(map(clean, children))  # ty: ignore[invalid-assignment]
         attribs = {k.rstrip('_').replace('_', '-'): clean(v) for k, v in attribs.items()}
         return getattr(E_, tag)(*children, **attribs)
 
-    def __getattr__(self, tag):
+    def __getattr__(self, tag: str) -> Callable[..., HtmlElement]:
         return partial(self, tag)
 
 
 E = _EBuilder()
 
 
-def html(ctx, rd, endpoint, output):
+def html(ctx: Context, rd: RequestData, endpoint: RouteFunction, output: bytes | HtmlElement) -> bytes:
     rd.outheaders.set('Content-Type', 'text/html; charset=UTF-8', replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 encoded html
@@ -62,7 +73,9 @@ def html(ctx, rd, endpoint, output):
     return ans
 
 
-def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):  # {{{
+def build_search_box(
+    num: int, search: str | None, sort: str, order: str, ctx: Context, field_metadata: FieldMetadata, library_id: str | None
+) -> HtmlElement:  # {{{
     div = E.div(id='search_box')
     form = E.form(_('Show '), method='get', action=ctx.url_for('/mobile'))
     form.set('accept-charset', 'UTF-8')
@@ -110,7 +123,7 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
 # }}}
 
 
-def build_navigation(start, num, total, url_base):  # {{{
+def build_navigation(start: int, num: int, total: int, url_base: str) -> HtmlElement:  # {{{
     end = min((start + num - 1), total)
     tagline = E.span(f'Books {start} to {end} of {total}', style='display: block; text-align: center;')
     left_buttons = E.td(class_='button', style='text-align:left')
@@ -131,7 +144,7 @@ def build_navigation(start, num, total, url_base):  # {{{
 # }}}
 
 
-def build_choose_library(ctx, library_map):
+def build_choose_library(ctx: Context, library_map: dict[str, str]) -> HtmlElement:
     select = E.select(name='library_id')
     for library_id, library_name in library_map.items():
         select.append(E.option(library_name, value=library_id))
@@ -149,7 +162,21 @@ def build_choose_library(ctx, library_map):
     )
 
 
-def build_index(rd, books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
+def build_index(
+    rd: RequestData,
+    books: list[Metadata],
+    num: int,
+    search: str | None,
+    sort: str,
+    order: str,
+    start: int,
+    total: int,
+    url_base: str,
+    field_metadata: FieldMetadata,
+    ctx: Context,
+    library_map: dict[str, str],
+    library_id: str | None,
+) -> HtmlElement:  # {{{
     logo = E.div(E.img(src=ctx.url_for('/static', what='calibre.png'), alt=__appname__), id='logo')
     search_box = build_search_box(num, search, sort, order, ctx, field_metadata, library_id)
     navigation = build_navigation(start, num, total, url_base)
@@ -251,7 +278,7 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
 
 
 @endpoint('/mobile', postprocess=html)
-def mobile(ctx, rd):
+def mobile(ctx: Context, rd: RequestData) -> HtmlElement:
     db, library_id, library_map, default_library = get_library_data(ctx, rd)
     try:
         start = max(1, int(rd.query.get('start', 1)))
@@ -291,7 +318,7 @@ def mobile(ctx, rd):
 
 
 @endpoint('/browse/{+rest=""}')
-def browse(ctx, rd, rest):
+def browse(ctx: Context, rd: RequestData, rest: str) -> bytes:
     if rest.startswith('book/'):
         try:
             book_id = int(rest[5:])
@@ -305,7 +332,7 @@ def browse(ctx, rd, rest):
         return html(
             ctx,
             rd,
-            endpoint,
+            endpoint,  # ty: ignore[invalid-argument-type]
             E.html(
                 E.head(
                     ET.XML('<meta http-equiv="refresh" content="0;url=' + redirect + '"/>'),
@@ -318,15 +345,16 @@ def browse(ctx, rd, rest):
 
 
 @endpoint('/stanza/{+rest=""}')
-def stanza(ctx, rd, rest) -> Never:
+def stanza(ctx: Context, rd: RequestData, rest: str) -> Never:
     raise HTTPRedirect(ctx.url_for('/opds'))
 
 
 @endpoint('/legacy/get/{what}/{book_id}/{library_id}/{+filename=""}', android_workaround=True)
-def legacy_get(ctx, rd, what, book_id, library_id, filename):
+def legacy_get(ctx: Context, rd: RequestData, what: str, book_id: str, library_id: str, filename: str) -> object:
     # See https://www.mobileread.com/forums/showthread.php?p=3531644 for why
     # this is needed for Kobo browsers
-    ua = rd.inheaders.get('User-Agent', '')
+    # User-Agent is not always decoded, but is used as str here
+    ua = cast('str', rd.inheaders.get('User-Agent', ''))
     is_old_kindle = 'Kindle/3' in ua
     ans = get(ctx, rd, what, book_id, library_id)
     if is_old_kindle:
@@ -337,10 +365,11 @@ def legacy_get(ctx, rd, what, book_id, library_id, filename):
 
 
 @endpoint('/legacy/book/{book_id}/{library_id}')
-def legacy_book(ctx, rd, book_id, library_id):
+def legacy_book(ctx: Context, rd: RequestData, book_id: str | int, library_id: str) -> bytes:
     # Set library_id in query to match get_library_data expectations
     rd.query['library_id'] = library_id
     db, library_id, library_map, default_library = get_library_data(ctx, rd)
+    # book_id arrives from the route as a str
     try:
         book_id = int(book_id)
     except Exception:

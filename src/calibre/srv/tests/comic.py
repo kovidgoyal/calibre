@@ -8,6 +8,7 @@ from base64 import standard_b64encode
 from http.client import NOT_FOUND, NOT_MODIFIED, OK, UNAUTHORIZED
 from io import BytesIO
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlencode, urlsplit
 from zipfile import ZipFile
@@ -22,8 +23,21 @@ from calibre.utils.jxl_test import STILL_JXL
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.zipfile import ZipFile as ComicZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from http.client import HTTPConnection, HTTPResponse
+    from typing import TypedDict, Unpack
 
-def cbz(pages):
+    from calibre.db.cache import Cache
+
+    class RequestKwargs(TypedDict, total=False):
+        user: str | None
+        accept: str | None
+        headers: dict[str, str] | None
+        method: str
+
+
+def cbz(pages: Iterable[tuple[str, bytes]]) -> bytes:
     buf = BytesIO()
     with ZipFile(buf, 'w') as archive:
         for name, data in pages:
@@ -31,7 +45,7 @@ def cbz(pages):
     return buf.getvalue()
 
 
-def replace_cbz(db, book_id, data) -> None:
+def replace_cbz(db: Cache, book_id: int, data: bytes) -> None:
     # The download cache only recopies a format whose mtime is newer than its
     # cached copy, which a replacement made in the same filesystem timestamp
     # tick would not be, so move the mtime of the replacement forward.
@@ -46,7 +60,7 @@ class ComicTest(LibraryBaseTest):
         rtl = b'<ComicInfo><Manga>YesAndRightToLeft</Manga></ComicInfo>'
         no = b'<ComicInfo><Manga>No</Manga></ComicInfo>'
 
-        def is_rtl(*entries, pages=(('1.jpg', IMG),)):
+        def is_rtl(*entries: tuple[str, bytes], pages: Iterable[tuple[str, bytes]] = (('1.jpg', IMG),)) -> bool:
             with ComicZipFile(BytesIO(cbz([*pages, *entries]))) as archive:
                 return comic_is_right_to_left(archive, comic_pages(archive))
 
@@ -125,7 +139,16 @@ class ComicTest(LibraryBaseTest):
                         self.ae(response.status, OK)
                         self.ae(raw, data)
 
-    def request(self, conn, url, *, user=None, accept=None, headers=None, method='GET'):
+    def request(
+        self,
+        conn: HTTPConnection,
+        url: str,
+        *,
+        user: str | None = None,
+        accept: str | None = None,
+        headers: dict[str, str] | None = None,
+        method: str = 'GET',
+    ) -> tuple[HTTPResponse, bytes]:
         headers = dict(headers or {})
         if user:
             headers['Authorization'] = 'Basic ' + standard_b64encode(f'{user}:test'.encode()).decode()
@@ -135,7 +158,7 @@ class ComicTest(LibraryBaseTest):
         response = conn.getresponse()
         return response, response.read()
 
-    def manifest(self, conn, url='/comic-manifest/1', **kwargs):
+    def manifest(self, conn: HTTPConnection, url: str = '/comic-manifest/1', **kwargs: Unpack[RequestKwargs]) -> tuple[HTTPResponse, dict]:
         response, raw = self.request(conn, url, **kwargs)
         self.ae(response.status, OK, raw)
         self.ae(response.getheader('Content-Type'), DIVINA_MIME)

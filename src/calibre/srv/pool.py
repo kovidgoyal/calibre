@@ -4,14 +4,38 @@
 import sys
 from queue import Full, Queue
 from threading import Thread
+from typing import TYPE_CHECKING, Protocol
 
 from calibre.utils.monotonic import monotonic
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from calibre.srv.loop import ServerLoop
+    from calibre.utils.logging import Log
+
+    # job_id, func
+    type Job = tuple[int, Callable[[], object]]
+    # job_id, ok, result. When ok is False result is the sys.exc_info() tuple
+    type JobResult = tuple[int, bool, object]
+
+
+class ServerPlugin(Protocol):
+    def start(self, loop: ServerLoop) -> None: ...
+    def stop(self) -> None: ...
 
 
 class Worker(Thread):
     daemon = True
 
-    def __init__(self, log, notify_server, num, request_queue, result_queue) -> None:
+    def __init__(
+        self,
+        log: Log,
+        notify_server: Callable[[], None],
+        num: int,
+        request_queue: Queue[Job | None],
+        result_queue: Queue[JobResult],
+    ) -> None:
         self.request_queue, self.result_queue = request_queue, result_queue
         self.notify_server = notify_server
         self.log = log
@@ -38,26 +62,27 @@ class Worker(Thread):
             except Exception:
                 self.log.exception('ServerWorker failed to notify server on job completion')
 
-    def handle_error(self, job_id) -> None:
+    def handle_error(self, job_id: int) -> None:
         self.result_queue.put((job_id, False, sys.exc_info()))
 
 
 class ThreadPool:
-    def __init__(self, log, notify_server, count=10, queue_size=1000) -> None:
-        self.request_queue, self.result_queue = Queue(queue_size), Queue(queue_size)
+    def __init__(self, log: Log, notify_server: Callable[[], None], count: int = 10, queue_size: int = 1000) -> None:
+        self.request_queue: Queue[Job | None] = Queue(queue_size)
+        self.result_queue: Queue[JobResult] = Queue(queue_size)
         self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in range(count)]
 
     def start(self) -> None:
         for w in self.workers:
             w.start()
 
-    def put_nowait(self, job_id, func) -> None:
+    def put_nowait(self, job_id: int, func: Callable[[], object]) -> None:
         self.request_queue.put_nowait((job_id, func))
 
-    def get_nowait(self):
+    def get_nowait(self) -> JobResult:
         return self.result_queue.get_nowait()
 
-    def stop(self, wait_till) -> None:
+    def stop(self, wait_till: float) -> None:
         for w in self.workers:
             try:
                 self.request_queue.put_nowait(None)
@@ -71,32 +96,32 @@ class ThreadPool:
         self.workers = [w for w in self.workers if w.is_alive()]
 
     @property
-    def busy(self):
+    def busy(self) -> int:
         return sum(int(w.working) for w in self.workers)
 
     @property
-    def idle(self):
+    def idle(self) -> int:
         return sum(int(not w.working) for w in self.workers)
 
 
 class PluginThread(Thread):
-    def __init__(self, plugin, target, name) -> None:
+    def __init__(self, plugin: ServerPlugin, target: Callable[[ServerPlugin], None], name: str) -> None:
         super().__init__(target=target, args=(plugin,), name=name, daemon=True)
         self.plugin = plugin
 
 
 class PluginPool:
-    def __init__(self, loop, plugins) -> None:
+    def __init__(self, loop: ServerLoop, plugins: Iterable[ServerPlugin]) -> None:
         self.workers: list[PluginThread] = []
         self.loop = loop
         for plugin in plugins:
             w = PluginThread(plugin, target=self.run_plugin, name=self.plugin_name(plugin))
             self.workers.append(w)
 
-    def plugin_name(self, plugin):
+    def plugin_name(self, plugin: ServerPlugin) -> str:
         return plugin.__class__.__name__
 
-    def run_plugin(self, plugin) -> None:
+    def run_plugin(self, plugin: ServerPlugin) -> None:
         try:
             plugin.start(self.loop)
         except Exception:
@@ -106,7 +131,7 @@ class PluginPool:
         for w in self.workers:
             w.start()
 
-    def stop(self, wait_till) -> None:
+    def stop(self, wait_till: float) -> None:
         for w in self.workers:
             if w.is_alive():
                 try:

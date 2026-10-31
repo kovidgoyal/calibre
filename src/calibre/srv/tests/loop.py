@@ -9,7 +9,7 @@ import time
 from collections import namedtuple
 from glob import glob
 from threading import Event
-from typing import Never
+from typing import TYPE_CHECKING, Never
 from unittest import skipIf
 
 from calibre.ptempfile import TemporaryDirectory
@@ -17,6 +17,11 @@ from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
+
+if TYPE_CHECKING:
+    import unittest
+
+    from calibre.srv.loop import ServerLoop
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -31,10 +36,10 @@ class LoopTest(BaseTest):
             fname = os.path.join(tdir, 'log')
             l = RotatingLog(fname, max_size=100)
 
-            def history():
+            def history() -> set[int]:
                 return {int(x.rpartition('.')[-1]) for x in glob(fname + '.*')}
 
-            def log_size():
+            def log_size() -> int:
                 ssize = l.outputs[0].stream.tell()
                 self.ae(ssize, os.path.getsize(fname))
                 return ssize
@@ -59,7 +64,7 @@ class LoopTest(BaseTest):
                 self.event = Event()
                 self.port = None
 
-            def start(self, loop) -> None:
+            def start(self, loop: ServerLoop) -> None:
                 self.running.set()
                 self.port = loop.bound_address[1]
                 self.event.wait()
@@ -140,10 +145,10 @@ class LoopTest(BaseTest):
         "Test the ring buffer used for reads"
 
         class FakeSocket:
-            def __init__(self, data) -> None:
+            def __init__(self, data: bytes) -> None:
                 self.data = data
 
-            def recv_into(self, mv):
+            def recv_into(self, mv: memoryview) -> int:
                 sz = min(len(mv), len(self.data))
                 mv[:sz] = self.data[:sz]
                 return sz
@@ -152,10 +157,10 @@ class LoopTest(BaseTest):
 
         buf = ReadBuffer(100)
 
-        def write(data):
+        def write(data: bytes) -> int:
             return buf.recv_from(FakeSocket(data))
 
-        def set(data, rpos, wpos, state) -> None:
+        def set(data: bytes, rpos: int, wpos: int, state: str) -> None:
             buf.ba = bytearray(data)
             buf.buf = memoryview(buf.ba)
             buf.read_pos, buf.write_pos, buf.full_state = rpos, wpos, state
@@ -284,13 +289,13 @@ class LoopTest(BaseTest):
         O = namedtuple('O', 'max_jobs max_job_time')  # ruff: ignore[collections-named-tuple]
 
         class FakeLog(list):
-            def error(self, *args) -> None:
+            def error(self, *args: str) -> None:
                 self.append(' '.join(args))
 
         s = ('waiting', 'running')
         jm = JobsManager(O(1, 5), FakeLog())
 
-        def job_status(jid):
+        def job_status(jid: int) -> str | None:
             return jm.job_status(jid)[0]
 
         # Start jobs
@@ -337,7 +342,7 @@ class LoopTest(BaseTest):
         jm.shutdown(), jm.wait_for_shutdown(monotonic() + 1)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(LoopTest)

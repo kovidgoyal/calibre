@@ -11,7 +11,7 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from io import BytesIO
 from queue import Empty, Full
-from typing import Any
+from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode
 from calibre.constants import iswindows
@@ -37,6 +37,27 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.network import get_fallback_server_addr
 from calibre.utils.socket_inheritance import set_socket_inherit
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+    from io import BufferedReader, BufferedWriter
+
+    from calibre.srv.pool import ServerPlugin
+    from calibre.utils.logging import Log
+
+    type IPAddress = ipaddress.IPv4Address | ipaddress.IPv6Address
+    type IPSpec = IPAddress | ipaddress.IPv4Network | ipaddress.IPv6Network
+    # The address of a remote peer as returned by socket.accept()
+    type RemoteAddress = tuple[str, int] | tuple[str, int, int, int]
+    # The event passed to Connection.handle_event: one of READ, WRITE, RDWR or
+    # an (ok, result) tuple for completed jobs
+    type ConnectionEvent = str | tuple[bool, object]
+    # Creates a connection object for a newly accepted socket, typically a
+    # Connection subclass
+    type ConnectionFactory = Callable[
+        [socket.socket, Options, ssl.SSLContext | None, str, RemoteAddress | None, ThreadPool, Log, Log | None, Callable[[], None]],
+        Connection,
+    ]
+
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = b'\0', b'\x01'
 IPPROTO_IPV6 = getattr(socket, 'IPPROTO_IPV6', 41)
@@ -47,7 +68,7 @@ class ReadBuffer:  # {{{
 
     __slots__ = ('ba', 'buf', 'full_state', 'read_pos', 'write_pos')
 
-    def __init__(self, size=4096) -> None:
+    def __init__(self, size: int = 4096) -> None:
         self.ba = bytearray(size)
         self.buf = memoryview(self.ba)
         self.read_pos = 0
@@ -55,14 +76,14 @@ class ReadBuffer:  # {{{
         self.full_state = WRITE
 
     @property
-    def has_data(self):
+    def has_data(self) -> bool:
         return self.read_pos != self.write_pos or self.full_state is READ
 
     @property
-    def has_space(self):
+    def has_space(self) -> bool:
         return self.read_pos != self.write_pos or self.full_state is WRITE
 
-    def read(self, size):
+    def read(self, size: int) -> bytes:
         # Read from this buffer, retuning the read bytes as a bytestring
         if self.read_pos == self.write_pos and self.full_state is WRITE:
             return b''
@@ -83,7 +104,7 @@ class ReadBuffer:  # {{{
                 ans += self.read(size - len(ans))
         return ans
 
-    def recv_from(self, socket):
+    def recv_from(self, socket: socket.socket) -> int:
         # Write into this buffer from socket, return number of bytes written
         if self.read_pos == self.write_pos and self.full_state is READ:
             return 0
@@ -97,7 +118,7 @@ class ReadBuffer:  # {{{
             self.full_state = READ
         return num
 
-    def readline(self):
+    def readline(self) -> bytes:
         # Return whatever is in the buffer up to (and including) the first \n
         # If no \n is present, returns everything
         if self.read_pos == self.write_pos and self.full_state is WRITE:
@@ -134,7 +155,7 @@ class BadIPSpec(ValueError):
     pass
 
 
-def parse_trusted_ips(spec):
+def parse_trusted_ips(spec: str | bytes) -> Iterator[IPSpec]:
     for part in as_unicode(spec).split(','):
         part = part.strip()
         try:
@@ -146,18 +167,18 @@ def parse_trusted_ips(spec):
             raise BadIPSpec(_('{0} is not a valid IP address/network, with error: {1}').format(part, e))
 
 
-def is_ip_trusted(remote_addr, trusted_ips) -> bool:
+def is_ip_trusted(remote_addr: IPAddress, trusted_ips: Iterable[IPSpec]) -> bool:
     remote_addr = getattr(remote_addr, 'ipv4_mapped', None) or remote_addr
     for tip in trusted_ips:
         if hasattr(tip, 'hosts'):
-            if remote_addr in tip:
+            if remote_addr in cast('ipaddress.IPv4Network | ipaddress.IPv6Network', tip):
                 return True
         elif tip == remote_addr:
             return True
     return False
 
 
-def is_local_address(addr: ipaddress.IPv4Address | ipaddress.IPv6Address | None):
+def is_local_address(addr: ipaddress.IPv4Address | ipaddress.IPv6Address | None) -> bool:
     if addr is None:
         return False
     if addr.is_loopback:
@@ -167,11 +188,25 @@ def is_local_address(addr: ipaddress.IPv4Address | ipaddress.IPv6Address | None)
 
 
 class Connection:  # {{{
-    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup) -> None:
+    def __init__(
+        self,
+        socket: socket.socket,
+        opts: Options,
+        ssl_context: ssl.SSLContext | None,
+        tdir: str,
+        addr: RemoteAddress | None,
+        pool: ThreadPool,
+        log: Log,
+        access_log: Log | None,
+        wakeup: Callable[[], None],
+    ) -> None:
         self.opts, self.pool, self.log, self.wakeup, self.access_log = opts, pool, log, wakeup, access_log
+        self.remote_addr: str | None
+        self.remote_port: int | None
+        self.parsed_remote_addr: IPAddress | None
         try:
-            self.remote_addr = addr[0]
-            self.remote_port = addr[1]
+            self.remote_addr = addr[0]  # ty: ignore[not-subscriptable]
+            self.remote_port = addr[1]  # ty: ignore[not-subscriptable]
             self.parsed_remote_addr = ipaddress.ip_address(as_unicode(self.remote_addr))
         except Exception:
             # In case addr is None, which can occasionally happen
@@ -184,7 +219,7 @@ class Connection:  # {{{
         self.wait_for = READ
         self.response_started = False
         self.read_buffer = ReadBuffer()
-        self.handle_event = None
+        self.handle_event: Callable[..., None] | None = None
         self.ssl_context = ssl_context
         self.ssl_handshake_done = False
         self.ssl_terminated = False
@@ -214,17 +249,17 @@ class Connection:  # {{{
         if self.send_bufsize != self.orig_send_bufsize:
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, self.orig_send_bufsize)
 
-    def set_state(self, wait_for, func, *args, **kwargs) -> None:
+    def set_state(self, wait_for: str, func: Callable[..., None], *args: object, **kwargs: object) -> None:
         self.wait_for = wait_for
         if args or kwargs:
             pfunc = partial(func, *args, **kwargs)
-            setattr(pfunc, '__name__', func.__name__)
+            setattr(pfunc, '__name__', func.__name__)  # ty: ignore[unresolved-attribute]
             func = pfunc
         self.handle_event = func
 
-    def do_ssl_handshake(self, event) -> None:
+    def do_ssl_handshake(self, event: ConnectionEvent) -> None:
         try:
-            self.socket._sslobj.do_handshake()
+            self.socket._sslobj.do_handshake()  # ty: ignore[unresolved-attribute]
         except ssl.SSLWantReadError:
             self.set_state(READ, self.do_ssl_handshake)
         except ssl.SSLWantWriteError:
@@ -233,9 +268,9 @@ class Connection:  # {{{
             self.ssl_handshake_done = True
             self.connection_ready()
 
-    def send(self, data):
+    def send(self, data: bytes | bytearray | memoryview) -> int:
         try:
-            ret = self.socket.send(data) if self.ssl_context is None else self.socket.write(data)
+            ret = self.socket.send(data) if self.ssl_context is None else cast('ssl.SSLSocket', self.socket).write(data)  # ty: ignore[deprecated]
             self.last_activity = monotonic()
             return ret
         except ssl.SSLWantWriteError:
@@ -249,7 +284,7 @@ class Connection:  # {{{
                 return 0
             raise
 
-    def recv(self, amt):
+    def recv(self, amt: int) -> bytes:
         # If there is data in the read buffer we have to return only that,
         # since we don't know if the socket has signalled it is ready for
         # reading
@@ -275,7 +310,7 @@ class Connection:  # {{{
                 return b''
             raise
 
-    def recv_into(self, buf, amt=0):
+    def recv_into(self, buf: bytearray | memoryview, amt: int = 0) -> int:
         amt = amt or len(buf)
         if self.read_buffer.has_data:
             data = self.read_buffer.read(amt)
@@ -347,7 +382,7 @@ class Connection:  # {{{
         except OSError:
             pass
 
-    def queue_job(self, func, *args) -> None:
+    def queue_job(self, func: Callable[..., object], *args: object) -> None:
         if args:
             func = partial(func, *args)
         try:
@@ -356,23 +391,23 @@ class Connection:  # {{{
             raise JobQueueFull()
         self.set_state(WAIT, self._job_done)
 
-    def _job_done(self, event) -> None:
+    def _job_done(self, event: tuple[bool, object]) -> None:
         self.job_done(*event)
 
-    def job_done(self, ok, result):
+    def job_done(self, ok: bool, result: object) -> None:
         raise NotImplementedError()
 
     @property
     def state_description(self) -> str:
         return ''
 
-    def report_unhandled_exception(self, e, formatted_traceback) -> None:
+    def report_unhandled_exception(self, e: BaseException, formatted_traceback: str) -> None:
         pass
 
     def report_busy(self) -> None:
         pass
 
-    def connection_ready(self):
+    def connection_ready(self) -> None:
         raise NotImplementedError()
 
     def handle_timeout(self) -> bool:
@@ -383,31 +418,32 @@ class Connection:  # {{{
 
 
 @lru_cache(maxsize=2)
-def parsed_trusted_ips(raw):
+def parsed_trusted_ips(raw: str | None) -> tuple[IPSpec, ...]:
     return tuple(parse_trusted_ips(raw)) if raw else ()
 
 
 class ServerLoop:
     LISTENING_MSG: str | None = 'calibre server listening on'
-    control_in: Any
-    control_out: Any
+    # A socket on windows and a pipe elsewhere
+    control_in: socket.socket | BufferedWriter
+    control_out: socket.socket | BufferedReader
 
     def __init__(
         self,
-        handler,
+        handler: ConnectionFactory,
         opts: Options | None = None,
-        plugins=(),
+        plugins: Iterable[ServerPlugin] = (),
         # A calibre logging object. If None, a default log that logs to
         # stdout is used
-        log=None,
+        log: Log | None = None,
         # A calibre logging object for access logging, by default no access
         # logging is performed
-        access_log=None,
+        access_log: Log | None = None,
     ) -> None:
         self.ready = False
         self.handler = handler
         self.opts: Options = opts if opts is not None else Options()
-        self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
+        self.log: Log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.jobs_manager = JobsManager(self.opts, self.log)
         self.access_log = access_log
 
@@ -416,16 +452,16 @@ class ServerLoop:
             # AI_PASSIVE does not work with host of '' or None
             ba = (get_fallback_server_addr(), ba[1])
         self.bind_address = ba
-        self.bound_address = None
-        self.connection_map = {}
+        self.bound_address: RemoteAddress | None = None
+        self.connection_map: dict[int, Connection] = {}
 
         self.ssl_context = None
         if self.opts.ssl_certfile is not None and self.opts.ssl_keyfile is not None:
             self.ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
             self.ssl_context.load_cert_chain(certfile=self.opts.ssl_certfile, keyfile=self.opts.ssl_keyfile)
-            self.ssl_context.set_servername_callback(self.on_ssl_servername)
+            self.ssl_context.set_servername_callback(self.on_ssl_servername)  # ty: ignore[invalid-argument-type] typeshed has the wrong type for the third argument
 
-        self.pre_activated_socket = None
+        self.pre_activated_socket: socket.socket | None = None
         self.socket_was_preactivated = False
         if self.opts.allow_socket_preallocation:
             from calibre.srv.pre_activated import pre_activated_socket
@@ -439,7 +475,7 @@ class ServerLoop:
         self.pool = ThreadPool(self.log, self.job_completed, count=self.opts.worker_count)
         self.plugin_pool = PluginPool(self, plugins)
 
-    def on_ssl_servername(self, socket, server_name, ssl_context):
+    def on_ssl_servername(self, socket: ssl.SSLSocket, server_name: str | None, ssl_context: ssl.SSLContext) -> int | None:
         c = self.connection_map.get(socket.fileno())
         if c is not None and getattr(c, 'ssl_handshake_done', False):
             c.ready = False
@@ -469,7 +505,7 @@ class ServerLoop:
     __repr__ = __str__
 
     @property
-    def num_active_connections(self):
+    def num_active_connections(self) -> int:
         return len(self.connection_map)
 
     def do_bind(self) -> None:
@@ -517,7 +553,7 @@ class ServerLoop:
         else:
             self.socket = self.pre_activated_socket
             self.socket_was_preactivated = True
-            self.pre_activated_socket = None
+            self.pre_activated_socket: socket.socket | None = None
             self.setup_socket()
 
     def serve(self) -> None:
@@ -573,7 +609,7 @@ class ServerLoop:
                 pass
         self.socket.setblocking(False)
 
-    def bind(self, family, atype, proto=0) -> None:
+    def bind(self, family: int, atype: int, proto: int = 0) -> None:
         """Create (or recreate) the actual socket object."""
         self.socket = socket.socket(family, atype, proto)
         set_socket_inherit(self.socket, False)
@@ -646,7 +682,7 @@ class ServerLoop:
             if s in ignore:
                 continue
             try:
-                conn.handle_event(event)
+                conn.handle_event(event)  # ty: ignore[call-non-callable]
                 if not conn.ready:
                     self.close(s, conn)
             except JobQueueFull:
@@ -679,12 +715,13 @@ class ServerLoop:
                         self.log.error(f'Error in SSL handshake, terminating connection: {as_unicode(e)}')
                         self.close(s, conn)
 
-    def write_to_control(self, what) -> None:
+    def write_to_control(self, what: bytes) -> None:
         if iswindows:
-            self.control_in.sendall(what)
+            cast('socket.socket', self.control_in).sendall(what)
         else:
-            self.control_in.write(what)
-            self.control_in.flush()
+            control_in = cast('BufferedWriter', self.control_in)
+            control_in.write(what)
+            control_in.flush()
 
     def wakeup(self) -> None:
         self.write_to_control(WAKEUP)
@@ -692,7 +729,7 @@ class ServerLoop:
     def job_completed(self) -> None:
         self.write_to_control(JOB_DONE)
 
-    def dispatch_job_results(self):
+    def dispatch_job_results(self) -> Iterator[tuple[int, Connection, tuple[bool, object]]]:
         while True:
             try:
                 s, ok, result = self.pool.get_nowait()
@@ -702,11 +739,11 @@ class ServerLoop:
             if conn is not None:
                 yield s, conn, (ok, result)
 
-    def close(self, s, conn) -> None:
+    def close(self, s: int, conn: Connection) -> None:
         self.connection_map.pop(s, None)
         conn.close()
 
-    def get_actions(self, readable, writable):
+    def get_actions(self, readable: Iterable[int], writable: Iterable[int]) -> Iterator[tuple[int, Connection, ConnectionEvent]]:
         assert self.socket is not None
         listener = self.socket.fileno()
         control = self.control_out.fileno()
@@ -730,7 +767,7 @@ class ServerLoop:
                         if self.ssl_context is not None:
                             yield s, conn, RDWR
             elif s == control:
-                f = self.control_out.recv if iswindows else self.control_out.read
+                f = cast('socket.socket', self.control_out).recv if iswindows else cast('BufferedReader', self.control_out).read
                 try:
                     c = f(1)
                 except OSError as e:
@@ -757,7 +794,7 @@ class ServerLoop:
                 continue  # Happens if connection was closed during read phase
             yield s, conn, WRITE
 
-    def accept(self):
+    def accept(self) -> tuple[socket.socket, RemoteAddress] | tuple[None, None]:
         assert self.socket is not None
         try:
             sock, addr = self.socket.accept()
@@ -794,7 +831,7 @@ class EchoLine(Connection):  # {{{
         self.rbuf = BytesIO()
         self.set_state(READ, self.read_line)
 
-    def read_line(self, event) -> None:
+    def read_line(self, event: ConnectionEvent) -> None:
         data = self.recv(1)
         if data:
             self.rbuf.write(data)
@@ -806,7 +843,7 @@ class EchoLine(Connection):  # {{{
                 self.set_state(WRITE, self.echo)
                 self.rbuf.seek(0)
 
-    def echo(self, event) -> None:
+    def echo(self, event: ConnectionEvent) -> None:
         pos = self.rbuf.tell()
         self.rbuf.seek(0, os.SEEK_END)
         left = self.rbuf.tell() - pos

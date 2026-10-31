@@ -5,6 +5,7 @@ import json
 import os
 import signal
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode
 from calibre.constants import is_running_from_develop, ismacos, iswindows
@@ -23,6 +24,29 @@ from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from calibre_extensions import speedup
 from polyglot.builtins import error_message
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from calibre.srv.opts import Options
+    from calibre.srv.pool import ServerPlugin
+    from calibre.utils.config import OptionParser
+    from calibre.utils.logging import Log
+
+    class CLIOptions(Options):
+        # The options object created by the parser from create_option_parser(),
+        # it has all server options plus the extra options below
+        log: str | None
+        access_log: str | None
+        custom_list_template: str | None
+        search_the_net_urls: str | None
+        daemonize: bool
+        pidfile: str | None
+        auto_reload: bool
+        manage_users: bool
+        # Set in main()
+        auto_reload_port: int
+        allow_console_print: bool
 
 
 def daemonize() -> None:  # {{{
@@ -56,8 +80,9 @@ def daemonize() -> None:  # {{{
 
 
 class Server:
-    def __init__(self, libraries, opts) -> None:
-        log = access_log = None
+    def __init__(self, libraries: Iterable[str], opts: CLIOptions) -> None:
+        log: Log | None = None
+        access_log: Log | None = None
         log_size = opts.max_log_size * 1024 * 1024
         if opts.log:
             log = RotatingLog(opts.log, max_size=log_size)
@@ -72,7 +97,7 @@ class Server:
         if opts.search_the_net_urls:
             with open(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
                 ctx.search_the_net_urls = json.load(f)
-        plugins = []
+        plugins: list[ServerPlugin] = []
         if opts.use_bonjour:
             plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))
         self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, access_log=access_log, plugins=plugins)
@@ -86,7 +111,7 @@ class Server:
             compile_srv()
 
 
-def create_option_parser():
+def create_option_parser() -> OptionParser:
     parser = opts_to_parser(
         '%prog '
         + _(
@@ -159,7 +184,7 @@ libraries that the main calibre program knows about will be used.
             ' for details. See also the {1} option.'
         ).format('calibre-server --manage-users -- help', '--userdb'),
     )
-    parser.get_option('--userdb').help = _(
+    parser.get_option('--userdb').help = _(  # ty: ignore[invalid-assignment]
         'Path to the user database to use for authentication. The database'
         ' is a SQLite file. To create it use {0}. You can read more'
         ' about managing users at: {1}'
@@ -186,8 +211,8 @@ def ensure_single_instance() -> None:
         )
 
 
-def main(args=sys.argv):
-    opts, args = create_option_parser().parse_args(args)
+def main(args: list[str] = sys.argv) -> None:
+    opts, args = cast('tuple[CLIOptions, list[str]]', create_option_parser().parse_args(args))
     if opts.auto_reload and not opts.manage_users:
         if getattr(opts, 'daemonize', False):
             raise SystemExit('Cannot specify --auto-reload and --daemonize at the same time')

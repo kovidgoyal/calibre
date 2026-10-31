@@ -5,9 +5,11 @@ import errno
 import os
 import reprlib
 import socket
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from email.utils import formatdate
 from http.cookies import SimpleCookie
 from operator import itemgetter
+from typing import IO, TYPE_CHECKING, Literal, cast, overload
 from urllib.parse import parse_qs
 from urllib.parse import quote as urlquote
 
@@ -22,42 +24,54 @@ from polyglot.binary import as_hex_unicode as encode_name  # ruff: ignore[unused
 from polyglot.binary import from_hex_unicode as decode_name  # ruff: ignore[unused-import]
 from polyglot.builtins import as_unicode
 
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+    from calibre_extensions.translator import Translator
+
+    # Maps a BCP 47 language code to the result of get_translator()
+    type TranslatorCache = dict[str, tuple[bool, str, Translator]]
+
 HTTP1 = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
 
 
-def connection_header_tokens(value):
+def connection_header_tokens(value: str) -> set[str]:
     return {x.strip().lower() for x in value.split(',') if x.strip()}
 
 
-def http_date(timeval=None):
+def http_date(timeval: float | None = None) -> str:
     return str(formatdate(timeval=timeval, usegmt=True))
 
 
-class MultiDict(dict):  # {{{
-    def __setitem__(self, key, val) -> None:
+class MultiDict[V](dict[str, list[V]]):  # {{{
+    # Assigning to a key appends a value and reading a key returns the last
+    # value, so the item methods intentionally differ from those of dict
+
+    def __setitem__(self, key: str, val: V) -> None:  # ty: ignore[invalid-method-override]
         vals = dict.get(self, key, [])
         vals.append(val)
         dict.__setitem__(self, key, vals)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> V:  # ty: ignore[invalid-method-override]
         return dict.__getitem__(self, key)[-1]
 
     @staticmethod
-    def create_from_query_string(qs):
-        ans = MultiDict()
+    def create_from_query_string(qs: str | bytes) -> MultiDict[str]:
+        ans: MultiDict[str] = MultiDict()
         qs = as_unicode(qs)
         for k, v in parse_qs(qs, keep_blank_values=True).items():
             dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
 
-    def update_from_listdict(self, ld) -> None:
+    def update_from_listdict(self, ld: Mapping[str, Iterable[V]]) -> None:
         for key, values in ld.items():
             for val in values:
                 self[key] = val
 
-    def items(self, duplicates=True):
+    def items(self, duplicates: bool = True) -> Iterator[tuple[str, V]]:  # ty: ignore[invalid-method-override]
         f = dict.items
         for k, v in f(self):
             if duplicates:
@@ -68,7 +82,7 @@ class MultiDict(dict):  # {{{
 
     iteritems = items
 
-    def values(self, duplicates=True):
+    def values(self, duplicates: bool = True) -> Iterator[V]:  # ty: ignore[invalid-method-override]
         f = dict.values
         for v in f(self):
             if duplicates:
@@ -78,13 +92,21 @@ class MultiDict(dict):  # {{{
 
     itervalues = values
 
-    def set(self, key, val, replace_all=False) -> None:
+    def set(self, key: str, val: V, replace_all: bool = False) -> None:
         if replace_all:
             dict.__setitem__(self, key, [val])
         else:
             self[key] = val
 
-    def get(self, key, default=None, all=False):
+    @overload
+    def get(self, key: str, default: None = None, all: Literal[False] = False) -> V | None: ...
+    @overload
+    def get[D](self, key: str, default: D, all: Literal[False] = False) -> V | D: ...
+    @overload
+    def get(self, key: str, default: object = None, *, all: Literal[True]) -> list[V]: ...
+    @overload
+    def get(self, key: str, default: object, all: Literal[True]) -> list[V]: ...
+    def get(self, key: str, default: object = None, all: bool = False) -> object:  # ty: ignore[invalid-method-override]
         if all:
             try:
                 return dict.__getitem__(self, key)
@@ -95,10 +117,19 @@ class MultiDict(dict):  # {{{
         except KeyError:
             return default
 
-    def pop(self, key, default=None, all=False):
+    @overload
+    def pop(self, key: str, default: None = None, all: Literal[False] = False) -> V | None: ...
+    @overload
+    def pop[D](self, key: str, default: D, all: Literal[False] = False) -> V | D: ...
+    @overload
+    def pop(self, key: str, default: object = None, *, all: Literal[True]) -> list[V]: ...
+    @overload
+    def pop(self, key: str, default: object, all: Literal[True]) -> list[V]: ...
+    def pop(self, key: str, default: object = None, all: bool = False) -> object:  # ty: ignore[invalid-method-override]
         ans = dict.pop(self, key, default)
         if ans is default:
             return [] if all else default
+        ans = cast('list[V]', ans)
         return ans if all else ans[-1]
 
     def __repr__(self) -> str:
@@ -106,7 +137,7 @@ class MultiDict(dict):  # {{{
 
     __str__ = __unicode__ = __repr__
 
-    def pretty(self, leading_whitespace=''):
+    def pretty(self, leading_whitespace: str = '') -> str:
         return leading_whitespace + ('\n' + leading_whitespace).join(
             f'{k}: {(repr(v) if isinstance(v, bytes) else v)}' for k, v in sorted(self.items(), key=itemgetter(0))
         )
@@ -115,11 +146,11 @@ class MultiDict(dict):  # {{{
 # }}}
 
 
-def error_codes(*errnames):
+def error_codes(*errnames: str) -> set[int]:
     """Return error numbers for error names, ignoring non-existent names"""
-    ans = {getattr(errno, x, None) for x in errnames}
+    ans: set[int | None] = {getattr(errno, x, None) for x in errnames}
     ans.discard(None)
-    return ans
+    return cast('set[int]', ans)
 
 
 socket_errors_eintr = error_codes('EINTR', 'WSAEINTR')
@@ -150,24 +181,24 @@ socket_errors_socket_closed = error_codes(  # errors indicating a disconnected c
 socket_errors_nonblocking = error_codes('EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
 
-def start_cork(sock) -> None:
+def start_cork(sock: socket.socket) -> None:
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
 
 
-def stop_cork(sock) -> None:
+def stop_cork(sock: socket.socket) -> None:
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 
-def create_sock_pair():
+def create_sock_pair() -> tuple[socket.socket, socket.socket]:
     """Create socket pair."""
     client_sock, srv_sock = socket.socketpair()
     set_socket_inherit(client_sock, False), set_socket_inherit(srv_sock, False)
     return client_sock, srv_sock
 
 
-def parse_http_list(header_val):
+def parse_http_list(header_val: str) -> Iterator[str]:
     """Parse lists as described by RFC 2068 Section 2.
 
     In particular, parse comma-separated lists where the elements of
@@ -177,8 +208,10 @@ def parse_http_list(header_val):
     Only double-quotes count, not single-quotes.
     """
     if isinstance(header_val, bytes):
+        # Only str works, as iterating over bytes yields ints, which cannot be
+        # appended to part
         slash, dquote, comma = b'\\",'
-        empty = b''
+        empty: str = b''  # ty: ignore[invalid-assignment]
     else:
         slash, dquote, comma = '\\",'
         empty = ''
@@ -213,14 +246,14 @@ def parse_http_list(header_val):
         yield part.strip()
 
 
-def parse_http_dict(header_val):
+def parse_http_dict(header_val: str | None) -> dict[str, str]:
     'Parse an HTTP comma separated header with items of the form a=1, b="xxx" into a dictionary'
     if not header_val:
         return {}
-    ans = {}
+    ans: dict[str, str] = {}
     sep, dquote = b'="' if isinstance(header_val, bytes) else '="'
     for item in parse_http_list(header_val):
-        k, v = item.partition(sep)[::2]
+        k, v = item.partition(sep)[::2]  # ty: ignore[no-matching-overload]
         if k:
             if v.startswith(dquote) and v.endswith(dquote):
                 v = v[1:-1]
@@ -228,12 +261,12 @@ def parse_http_dict(header_val):
     return ans
 
 
-def sort_q_values(header_val):
+def sort_q_values(header_val: str | None) -> Sequence[str]:
     "Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7..."
     if not header_val:
         return []
 
-    def item(x):
+    def item(x: str) -> tuple[str, float]:
         e, r = x.partition(';')[::2]
         p, v = r.partition('=')[::2]
         q = 1.0
@@ -247,7 +280,7 @@ def sort_q_values(header_val):
     return tuple(map(itemgetter(0), sorted(map(item, parse_http_list(header_val)), key=itemgetter(1), reverse=True)))
 
 
-def eintr_retry_call(func, *args, **kwargs):
+def eintr_retry_call[**P, T](func: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     while True:
         try:
             return func(*args, **kwargs)
@@ -257,7 +290,7 @@ def eintr_retry_call(func, *args, **kwargs):
             raise
 
 
-def get_translator_for_lang(cache, bcp_47_code):
+def get_translator_for_lang(cache: TranslatorCache, bcp_47_code: str) -> tuple[bool, str, Translator]:
     try:
         return cache[bcp_47_code]
     except KeyError:
@@ -266,17 +299,17 @@ def get_translator_for_lang(cache, bcp_47_code):
     return ans
 
 
-def encode_path(*components):
+def encode_path(*components: str) -> str:
     "Encode the path specified as a list of path components using URL encoding"
     return '/' + '/'.join(urlquote(x.encode('utf-8'), '') for x in components)
 
 
 class Cookie(SimpleCookie):
-    def _BaseCookie__set(self, key, real_value, coded_value):
+    def _BaseCookie__set(self, key: str, real_value: str, coded_value: str) -> None:
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)  # type: ignore
 
 
-def custom_fields_to_display(db):
+def custom_fields_to_display(db: Cache) -> frozenset[str]:
     return frozenset(db.field_metadata.ignorable_field_keys())
 
 
@@ -288,7 +321,9 @@ class ServerLog(ThreadSafeLog):
 
 
 class RotatingStream:
-    def __init__(self, filename, max_size=None, history=5) -> None:
+    stream: IO[str]
+
+    def __init__(self, filename: str, max_size: int | None = None, history: int = 5) -> None:
         self.filename, self.history, self.max_size = filename, history, max_size
         if iswindows:
             self.filename = '\\\\?\\' + os.path.abspath(self.filename)
@@ -309,12 +344,12 @@ class RotatingStream:
     def flush(self) -> None:
         self.stream.flush()
 
-    def prints(self, level, *args, **kwargs) -> None:
+    def prints(self, level: int, *args: object, **kwargs: object) -> None:
         kwargs['file'] = self.stream
         prints(*args, **kwargs)
         self.rollover()
 
-    def rename(self, src, dest) -> None:
+    def rename(self, src: str, dest: str) -> None:
         try:
             if iswindows:
                 from calibre_extensions import winutil
@@ -336,11 +371,11 @@ class RotatingStream:
         self.rename(self.filename, f'{self.filename}.1')
         self.set_output()
 
-    def clear(self):
+    def clear(self) -> dict[str, OSError] | None:
         if self.filename in ('/dev/stdout', '/dev/stderr'):
             return
         self.stream.close()
-        failed = {}
+        failed: dict[str, OSError] = {}
         try:
             os.remove(self.filename)
         except OSError as e:
@@ -357,7 +392,7 @@ class RotatingStream:
 
 
 class RotatingLog(ServerLog):
-    def __init__(self, filename, max_size=None, history=5) -> None:
+    def __init__(self, filename: str, max_size: int | None = None, history: int = 5) -> None:
         ServerLog.__init__(self)
         self.outputs = [RotatingStream(filename, max_size, history)]
 
@@ -375,7 +410,7 @@ class HandleInterrupt:  # {{{
     # use this special context manager. See the echo server example at the
     # bottom of srv/loop.py for how to use it.
 
-    def __init__(self, action) -> None:
+    def __init__(self, action: Callable[[], object] | None) -> None:
         if not iswindows:
             return  # Interrupts work fine on POSIX
         self.action = action
@@ -391,7 +426,7 @@ class HandleInterrupt:  # {{{
         self.SetConsoleCtrlHandler.restype = BOOL
 
         @PHANDLER_ROUTINE
-        def handle(event) -> int:
+        def handle(event: int) -> int:
             if event == 0:  # CTRL_C_EVENT
                 if self.action is not None:
                     self.action()
@@ -401,14 +436,14 @@ class HandleInterrupt:  # {{{
 
         self.handle = handle
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
                 import ctypes
 
                 raise ctypes.WinError()
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
                 import ctypes
@@ -423,14 +458,14 @@ class Accumulator:  # {{{
     "Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()"
 
     def __init__(self) -> None:
-        self._buf = []
+        self._buf: list[bytes] = []
         self.total_length = 0
 
-    def append(self, b) -> None:
+    def append(self, b: bytes) -> None:
         self._buf.append(b)
         self.total_length += len(b)
 
-    def getvalue(self):
+    def getvalue(self) -> bytes:
         ans = b''.join(self._buf)
         self._buf = []
         self.total_length = 0
@@ -447,14 +482,14 @@ def is_recipe_fmt(fmt: str) -> bool:
     return fmt in ('recipe', 'downloaded_recipe')
 
 
-def get_db(ctx, rd, library_id):
+def get_db(ctx: Context, rd: RequestData, library_id: str | None) -> Cache:
     db = ctx.get_library(rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id!r} not found')
     return db
 
 
-def get_library_data(ctx, rd, strict_library_id=False):
+def get_library_data(ctx: Context, rd: RequestData, strict_library_id: bool = False) -> tuple[Cache, str, dict[str, str], str]:
     # Endpoints that change the database must never fall back to the default
     # library when asked for one that does not exist
     library_id = rd.query.get('library_id')
@@ -470,7 +505,7 @@ def get_library_data(ctx, rd, strict_library_id=False):
 class Offsets:
     "Calculate offsets for a paginated view"
 
-    def __init__(self, offset, delta, total) -> None:
+    def __init__(self, offset: int, delta: int, total: int) -> None:
         offset = max(offset, 0)
         if offset >= total:
             raise HTTPNotFound(f'Invalid offset: {offset!r}')
@@ -486,10 +521,10 @@ class Offsets:
         self.last_offset = (last_allowed_index // delta) * delta
 
 
-_use_roman = None
+_use_roman: bool | None = None
 
 
-def get_use_roman():
+def get_use_roman() -> bool:
     global _use_roman
     if _use_roman is None:
         from calibre.gui2 import config

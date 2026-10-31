@@ -90,9 +90,9 @@ def _get_external_ip() -> str:
 _ext_ip = None
 
 
-def verify_ip_address(addr: str) -> str:
+def verify_ip_address(addr: str | None) -> str:
     result = ''
-    if addr not in ('0.0.0.0', '::'):
+    if addr and addr not in ('0.0.0.0', '::'):
         try:
             socket.inet_pton(socket.AF_INET6, addr)
         except Exception:

@@ -13,10 +13,18 @@ import math
 import re
 import time
 from hashlib import md5
+from typing import TYPE_CHECKING
 
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.routes import endpoint
 from calibre.srv.routes import json as json_postprocess
+
+if TYPE_CHECKING:
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+
+    type ErrorSpec = tuple[int, int, str]
+    type JSONResponse = dict[str, object]
 
 # The error codes and messages used by the reference server, KOReader displays
 # the message to the user
@@ -33,25 +41,25 @@ document_pat = re.compile(r'[A-Za-z0-9_]+')
 MAX_FIELD_LENGTH = 4096
 
 
-def error(rd, err):
+def error(rd: RequestData, err: ErrorSpec) -> JSONResponse:
     rd.status_code, code, message = err
     return {'code': code, 'message': message}
 
 
-def ban_key(rd) -> str:
+def ban_key(rd: RequestData) -> str:
     # Failed logins via these endpoints are banned separately from other
     # logins, so that a device retrying with a stale password in the background
     # does not lock out everyone sharing its IP address, such as all users of a
     # reverse proxy
-    return 'kosync:' + rd.remote_addr
+    return 'kosync:' + rd.remote_addr  # ty: ignore[unsupported-operator]
 
 
-def log_warning(ctx, msg: str) -> None:
+def log_warning(ctx: Context, msg: str) -> None:
     if ctx.log is not None:
         ctx.log.warn(msg)
 
 
-def authorized_user(ctx, rd) -> str | None:
+def authorized_user(ctx: Context, rd: RequestData) -> str | None:
     username = rd.inheaders.get('X-Auth-User', '')
     key = rd.inheaders.get('X-Auth-Key', '')
     # Header values that are not valid UTF-8 are bytes
@@ -74,7 +82,7 @@ def authorized_user(ctx, rd) -> str | None:
     return None
 
 
-def check_user(ctx, rd):
+def check_user(ctx: Context, rd: RequestData) -> tuple[str, None] | tuple[None, JSONResponse]:
     # Return the authorized username or an error response
     ac = ctx.auth_controller
     if ac is not None and (ac.ban_list.is_banned(rd.remote_addr) or ac.ban_list.is_banned(ban_key(rd))):
@@ -90,18 +98,18 @@ def check_user(ctx, rd):
 
 
 @endpoint('/kosync/healthcheck', auth_required=False, postprocess=json_postprocess, cache_control='no-cache')
-def healthcheck(ctx, rd):
+def healthcheck(ctx: Context, rd: RequestData) -> JSONResponse:
     return {'state': 'OK'}
 
 
 @endpoint('/kosync/users/create', auth_required=False, methods=('POST',), postprocess=json_postprocess, cache_control='no-cache')
-def create_user(ctx, rd):
+def create_user(ctx: Context, rd: RequestData) -> JSONResponse:
     # Users are managed by calibre, not via KOReader
     return error(rd, REGISTRATION_DISABLED)
 
 
 @endpoint('/kosync/users/auth', auth_required=False, postprocess=json_postprocess, cache_control='no-cache')
-def auth_user(ctx, rd):
+def auth_user(ctx: Context, rd: RequestData) -> JSONResponse:
     username, err = check_user(ctx, rd)
     return err or {'authorized': 'OK'}
 
@@ -116,20 +124,21 @@ def auth_user(ctx, rd):
     postprocess=json_postprocess,
     cache_control='no-cache',
 )
-def progress(ctx, rd, document):
+def progress(ctx: Context, rd: RequestData, document: str) -> JSONResponse:
     username, err = check_user(ctx, rd)
     if err is not None:
         return err
+    assert username is not None  # check_user() returns an error when there is no username
     if rd.method == 'PUT':
         return update_progress(ctx, rd, username)
     return get_progress(ctx, rd, username, document)
 
 
-def valid_string(x) -> bool:
+def valid_string(x: object) -> bool:
     return isinstance(x, str) and 0 < len(x) <= MAX_FIELD_LENGTH
 
 
-def update_progress(ctx, rd, username):
+def update_progress(ctx: Context, rd: RequestData, username: str) -> JSONResponse:
     try:
         # Anonymous users may only make changes from trusted IP addresses and
         # readonly users not at all, as for the rest of the server
@@ -170,7 +179,7 @@ def update_progress(ctx, rd, username):
     return {'document': document, 'timestamp': timestamp}
 
 
-def get_progress(ctx, rd, username, document):
+def get_progress(ctx: Context, rd: RequestData, username: str, document: str) -> JSONResponse:
     if not document or ':' in document:
         return error(rd, DOCUMENT_MISSING)
     return ctx.user_manager.kosync_progress(username, document, anonymous=not ctx.opts.auth) or {}

@@ -6,6 +6,7 @@ import os
 from contextlib import closing
 from http.client import BAD_REQUEST, NOT_FOUND, OK
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 from urllib.parse import urlencode
 
@@ -13,6 +14,11 @@ from calibre.srv.changes import FormatsAdded
 from calibre.srv.convert import FORBIDDEN_CLIENT_OPTIONS, JobStatus, conversion_jobs, get_conversion_options, sanitize_conversion_options
 from calibre.srv.tests.ajax import make_request
 from calibre.srv.tests.base import LibraryBaseTest
+
+if TYPE_CHECKING:
+    from http.client import HTTPConnection, HTTPResponse
+
+    from calibre.srv.tests.ajax import ResponseData
 
 
 class ConvertTest(LibraryBaseTest):
@@ -65,7 +71,7 @@ class ConvertTest(LibraryBaseTest):
             server.handler.router.ctx.user_manager.add_user('testuser', 'testpw')
             with closing(server.connect()) as conn:
 
-                def start(data):
+                def start(data: bytes) -> HTTPResponse:
                     return make_request(conn, '/conversion/start/1', prefix='', username='testuser', password='testpw', method='POST', data=data)[0]
 
                 for output_fmt in ('/../../../../tmp/x.txt', '../x.epub', 'txt/../../x.epub', 'nosuchformat', 1, 'x' * 100000):
@@ -121,7 +127,7 @@ class ConvertTest(LibraryBaseTest):
             book_id = 1
             data = b'converted text'
 
-            def status(conn, job_id, username, query=''):
+            def status(conn: HTTPConnection, job_id: int, username: str, query: str = '') -> tuple[HTTPResponse, ResponseData]:
                 return make_request(conn, f'/conversion/status/{job_id}{query}', prefix='', username=username, password='pw', method='POST')
 
             with closing(server.connect()) as conn, TemporaryDirectory() as tdir:
@@ -163,7 +169,7 @@ class ConvertTest(LibraryBaseTest):
             book_id = 1
             data = b'converted text'
 
-            def status(conn, job_id, query):
+            def status(conn: HTTPConnection, job_id: int, query: dict[str, str]) -> tuple[HTTPResponse, ResponseData]:
                 return make_request(conn, f'/conversion/status/{job_id}?{urlencode(query)}', prefix='', username='owner', password='pw', method='POST')
 
             with closing(server.connect()) as conn, TemporaryDirectory() as tdir:

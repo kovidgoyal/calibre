@@ -12,19 +12,34 @@ import unittest
 from functools import partial, wraps
 from io import BytesIO
 from threading import Thread
+from typing import TYPE_CHECKING, Self, Unpack
 
 from calibre.srv.utils import ServerLog
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from calibre.srv.handler import NotifyChanges
+    from calibre.srv.http_response import RequestData
+    from calibre.srv.opts import OptionsKwargs
+    from calibre.srv.pool import ServerPlugin
+
+    class LibraryServerKwargs(OptionsKwargs, total=False):
+        libraries: Iterable[str]
+        plugins: Iterable[ServerPlugin]
+        notify_changes: NotifyChanges | None
+
+
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
-def retry(max_attempts=3, delay=0):
-    def decorator(test_func):
+def retry[**Params, R](max_attempts: int = 3, delay: float = 0) -> Callable[[Callable[Params, R]], Callable[Params, R | None]]:
+    def decorator(test_func: Callable[Params, R]) -> Callable[Params, R | None]:
         @wraps(test_func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Params.args, **kwargs: Params.kwargs) -> R | None:
             for attempt in range(max_attempts):
                 try:
                     return test_func(*args, **kwargs)
@@ -48,7 +63,7 @@ class SimpleTest(unittest.TestCase):
 
 
 class BaseTest(SimpleTest):
-    def run(self, result=None):
+    def run(self, result: unittest.TestResult | None = None) -> unittest.TestResult | None:
         # we retry failing server tests since they are flaky on CI
         if result is None:
             result = self.defaultTestResult()
@@ -91,12 +106,12 @@ class LibraryBaseTest(BaseTest):
             time.sleep(2)
             shutil.rmtree(self.library_path)
 
-    def mkdtemp(self):
+    def mkdtemp(self) -> str:
         ans = tempfile.mkdtemp(prefix='db_test_')
         atexit.register(rmtree, ans)
         return ans
 
-    def create_db(self, library_path):
+    def create_db(self, library_path: str) -> str:
         from calibre.db.cache import Cache
         from calibre.db.legacy import create_backend
 
@@ -115,7 +130,7 @@ class LibraryBaseTest(BaseTest):
         db.close()
         return dest
 
-    def create_server(self, *args, **kwargs):
+    def create_server(self, *args: object, **kwargs: Unpack[LibraryServerKwargs]) -> LibraryServer:
         args = (self.library_path,) + args
         return LibraryServer(*args, **kwargs)
 
@@ -123,7 +138,7 @@ class LibraryBaseTest(BaseTest):
 class TestServer(Thread):
     daemon = True
 
-    def __init__(self, handler, plugins=(), **kwargs) -> None:
+    def __init__(self, handler: Callable[[RequestData], object] | None, plugins: Iterable[ServerPlugin] = (), **kwargs: Unpack[OptionsKwargs]) -> None:
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.http_response import create_http_handler
         from calibre.srv.loop import ServerLoop
@@ -138,7 +153,7 @@ class TestServer(Thread):
         )
         self.log = self.loop.log
 
-    def setup_defaults(self, kwargs) -> None:
+    def setup_defaults(self, kwargs: OptionsKwargs) -> None:
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
         kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
         kwargs['port'] = kwargs.get('port', 0)
@@ -150,14 +165,14 @@ class TestServer(Thread):
         except KeyboardInterrupt:
             pass
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         self.start()
         while not self.loop.ready and self.is_alive():
             time.sleep(0.01)
         self.address = self.loop.bound_address[:2]
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         try:
             self.loop.stop()
         except Exception as e:
@@ -166,7 +181,7 @@ class TestServer(Thread):
         self.loop.close_control_connection()
         self.log.close()
 
-    def connect(self, timeout=None, interface=None):
+    def connect(self, timeout: float | None = None, interface: str | None = None) -> http.client.HTTPConnection:
         if timeout is None:
             timeout = self.loop.opts.timeout
         if interface is None:
@@ -175,14 +190,21 @@ class TestServer(Thread):
         ans.connect()
         return ans
 
-    def change_handler(self, handler) -> None:
+    def change_handler(self, handler: Callable[[RequestData], object]) -> None:
         from calibre.srv.http_response import create_http_handler
 
         self.loop.handler = create_http_handler(handler)
 
 
 class LibraryServer(TestServer):
-    def __init__(self, library_path, libraries=(), plugins=(), notify_changes=None, **kwargs) -> None:
+    def __init__(
+        self,
+        library_path: str,
+        libraries: Iterable[str] = (),
+        plugins: Iterable[ServerPlugin] = (),
+        notify_changes: NotifyChanges | None = None,
+        **kwargs: Unpack[OptionsKwargs],
+    ) -> None:
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.handler import Handler
         from calibre.srv.http_response import create_http_handler
@@ -202,7 +224,7 @@ class LibraryServer(TestServer):
         self.log = self.loop.log
         self.handler.set_log(self.log)
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         try:
             self.loop.stop()
         except Exception as e:

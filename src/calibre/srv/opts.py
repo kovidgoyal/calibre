@@ -8,16 +8,59 @@ from collections import OrderedDict
 from functools import partial
 from itertools import zip_longest
 from operator import attrgetter
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from calibre.constants import config_dir
 from calibre.utils.localization import _
 from calibre.utils.lock import ExclusiveFile
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from optparse import Option as OptparseOption
+    from typing import Self, TypedDict, Unpack
+
+    from calibre.utils.config import OptionParser
+
+    class OptionsKwargs(TypedDict, total=False):
+        # Must be kept in sync with the annotations in the Options class
+        ssl_certfile: str | None
+        ssl_keyfile: str | None
+        timeout: float
+        ajax_timeout: float
+        shutdown_timeout: float
+        allow_socket_preallocation: bool
+        max_header_line_size: float
+        max_request_body_size: float
+        compress_min_size: int
+        worker_count: int
+        max_jobs: int
+        max_job_time: int
+        port: int
+        url_prefix: str | None
+        num_per_page: int
+        use_bonjour: bool
+        max_opds_items: int
+        max_opds_ungrouped_items: int
+        listen_on: str | None
+        fallback_to_detected_interface: bool
+        use_sendfile: bool
+        max_log_size: int
+        log_not_found: bool
+        auth: bool
+        local_write: bool
+        trusted_ips: str | None
+        userdb: str | None
+        auth_mode: str
+        ban_for: int
+        ban_after: int
+        ignored_fields: str | None
+        displayed_fields: str | None
+        book_list_mode: str
+
 
 class Option(NamedTuple):
     name: str
-    default: Any | None
+    default: str | int | float | bool | None
     longdoc: str | None
     shortdoc: str
     choices: list[str] | None
@@ -26,7 +69,7 @@ class Option(NamedTuple):
 class Choices(frozenset):
     default: str
 
-    def __new__(cls, *args):
+    def __new__(cls, *args: str) -> Self:
         self = super().__new__(cls, args)
         self.default = args[0]
         return self
@@ -231,7 +274,7 @@ assert len(raw_options) % 4 == 0
 _options_list: list[Option] = []
 
 
-def grouper(n, iterable, fillvalue=None):
+def grouper[T](n: int, iterable: Iterable[T], fillvalue: T | None = None) -> zip_longest[tuple[T | None, ...]]:
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
@@ -242,7 +285,7 @@ for shortdoc, name, default, doc in grouper(4, raw_options):
     if isinstance(default, Choices):
         choices = sorted(default)
         default = default.default
-    _options_list.append(Option(name, default, doc, shortdoc, choices))
+    _options_list.append(Option(cast('str', name), default, cast('str | None', doc), cast('str', shortdoc), choices))
 options: OrderedDict[str, Option] = OrderedDict([(o.name, o) for o in sorted(_options_list, key=attrgetter('name'))])
 del raw_options, _options_list
 
@@ -250,7 +293,8 @@ del raw_options, _options_list
 class Options:
     __slots__ = tuple(name for name in options)
 
-    # Type annotations for all options (for static analysis)
+    # Type annotations for all options (for static analysis). Must be kept in
+    # sync with OptionsKwargs
     ssl_certfile: str | None
     ssl_keyfile: str | None
     timeout: float
@@ -285,12 +329,12 @@ class Options:
     displayed_fields: str | None
     book_list_mode: str
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Unpack[OptionsKwargs]) -> None:
         for opt in options.values():
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
 
 
-def opt_to_cli_help(opt):
+def opt_to_cli_help(opt: Option) -> str:
     ans = opt.shortdoc
     if not ans.endswith('.'):
         ans += '.'
@@ -299,18 +343,18 @@ def opt_to_cli_help(opt):
     return ans
 
 
-def bool_callback(option, opt_str, value, parser, *args, **kwargs) -> None:
-    setattr(parser.values, option.dest, opt_str.startswith('--enable-'))
+def bool_callback(option: OptparseOption, opt_str: str, value: object, parser: OptionParser, *args: object, **kwargs: object) -> None:
+    setattr(parser.values, option.dest, opt_str.startswith('--enable-'))  # ty: ignore[invalid-argument-type]
 
 
-def boolean_option(add_option, opt) -> None:
+def boolean_option(add_option: Callable[..., object], opt: Option) -> None:
     name = opt.name.replace('_', '-')
     help = opt_to_cli_help(opt)
     help += '\n' + (_('By default, this option is enabled.') if opt.default else _('By default, this option is disabled.'))
     add_option('--enable-' + name, '--disable-' + name, action='callback', callback=bool_callback, help=help)
 
 
-def opts_to_parser(usage):
+def opts_to_parser(usage: str) -> OptionParser:
     from calibre.utils.config import OptionParser
 
     parser = OptionParser(usage)
@@ -334,7 +378,7 @@ def opts_to_parser(usage):
 DEFAULT_CONFIG = os.path.join(config_dir, 'server-config.txt')
 
 
-def parse_config_file(path=DEFAULT_CONFIG):
+def parse_config_file(path: str = DEFAULT_CONFIG) -> Options:
     try:
         with ExclusiveFile(path) as f:
             raw = f.read().decode('utf-8')
@@ -342,7 +386,7 @@ def parse_config_file(path=DEFAULT_CONFIG):
         if err.errno != errno.ENOENT:
             raise
         raw = ''
-    ans = {}
+    ans: dict[str, object] = {}
     for line in raw.splitlines():
         line = line.strip()
         if line.startswith('#'):
@@ -363,10 +407,10 @@ def parse_config_file(path=DEFAULT_CONFIG):
             if rest not in opt.choices:
                 raise ValueError(f'The value for {key}: {rest} is not valid')
         ans[key] = val
-    return Options(**ans)
+    return Options(**cast('OptionsKwargs', ans))
 
 
-def write_config_file(opts, path=DEFAULT_CONFIG) -> None:
+def write_config_file(opts: Options, path: str = DEFAULT_CONFIG) -> None:
     changed = {name: getattr(opts, name) for name in options if getattr(opts, name) != options[name].default}
     lines = []
     for name in sorted(changed):
@@ -384,22 +428,22 @@ def write_config_file(opts, path=DEFAULT_CONFIG) -> None:
 _server_config_cache: Options | None = None
 
 
-def server_config(refresh=False):
+def server_config(refresh: bool = False) -> Options:
     global _server_config_cache
     if refresh or _server_config_cache is None:
         _server_config_cache = parse_config_file()
     return _server_config_cache
 
 
-def change_settings(**kwds) -> None:
+def change_settings(**kwds: Unpack[OptionsKwargs]) -> None:
     global _server_config_cache
     new_opts: dict[str, object] = {}
     opts = server_config()
     for name in options:
         if name in kwds:
-            new_opts[name] = kwds[name]
+            new_opts[name] = kwds[name]  # ty: ignore[invalid-key]
         else:
             new_opts[name] = getattr(opts, name)
-    new_opts_obj = Options(**new_opts)
+    new_opts_obj = Options(**cast('OptionsKwargs', new_opts))
     _server_config_cache = new_opts_obj
     write_config_file(new_opts_obj)

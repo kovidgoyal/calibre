@@ -5,10 +5,13 @@ import json
 import os
 import sys
 from collections import defaultdict
+from collections.abc import Callable, Iterator, MutableMapping
+from collections.abc import Set as AbstractSet
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
 from itertools import count
+from typing import TYPE_CHECKING, TypedDict, cast
 from urllib.parse import urlparse
 
 from lxml.etree import Comment
@@ -35,6 +38,28 @@ from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    import socket
+
+    from lxml import etree
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.logging import Log
+
+    class BookHash(TypedDict):
+        size: int
+        mtime: int | float
+        hash: str
+
+    class HtmlData(TypedDict):
+        length: int
+        has_maths: bool
+        anchor_map: list[str]
+
+    # Maps the name of a link target to fragment -> names of the files linking to it
+    type LinkToMap = dict[str, dict[str, set[str]]]
+    type ProcessResult = tuple[LinkToMap, dict[str, HtmlData], set[str], dict]
+
 RENDER_VERSION = 1
 
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # ruff: ignore[line-too-long]
@@ -44,32 +69,32 @@ class Spineless(ValueError):
     pass
 
 
-_xpath_cache: dict = {}
+_xpath_cache: dict[str, etree.XPath] = {}
 
 
-def XPath(expr):
+def XPath(expr: str) -> etree.XPath:
     ans = _xpath_cache.get(expr)
     if ans is None:
         ans = _xpath_cache[expr] = _XPath(expr)
     return ans
 
 
-def encode_url(name, frag=''):
+def encode_url(name: str, frag: str = '') -> str:
     name = encode_component(name)
     if frag:
         name += '#' + frag
     return name
 
 
-def decode_url(x):
+def decode_url(x: str) -> tuple[str, str]:
     parts = x.split('#', 1)
     return decode_component(parts[0]), (parts[1] if len(parts) > 1 else '')
 
 
-def create_link_replacer(container, link_uid, changed, present_names):
+def create_link_replacer(container: ContainerBase, link_uid: str, changed: set[str], present_names: AbstractSet[str]) -> Callable[[str, str], str]:
     resource_template = link_uid + '|{}|'
 
-    def link_replacer(base, url):
+    def link_replacer(base: str, url: str) -> str:
         if url.startswith('#'):
             frag = urlunquote(url[1:])
             changed.add(base)
@@ -100,13 +125,13 @@ def create_link_replacer(container, link_uid, changed, present_names):
     return link_replacer
 
 
-def check_for_maths(root):
+def check_for_maths(root: etree._Element) -> bool:
     for x in root.iterdescendants('{*}math'):
         return True
     return any(s.get('type') == 'text/x-mathjax-config' for s in root.iterdescendants(XHTML('script')))
 
 
-def has_ancestor(elem, q) -> bool:
+def has_ancestor(elem: etree._Element | None, q: etree._Element) -> bool:
     while elem is not None:
         elem = elem.getparent()
         if elem is q:
@@ -114,7 +139,7 @@ def has_ancestor(elem, q) -> bool:
     return False
 
 
-def anchor_map(root):
+def anchor_map(root: etree._Element) -> list[str]:
     ans = []
     seen = set()
     for elem in root.xpath('//*[@id or @name]'):
@@ -129,11 +154,11 @@ def anchor_map(root):
     return ans
 
 
-def toc_anchor_map(toc):
+def toc_anchor_map(toc: dict) -> dict[str, list[dict[str, object]]]:
     ans = defaultdict(list)
     seen_map = defaultdict(set)
 
-    def process_node(node) -> None:
+    def process_node(node: dict) -> None:
         name = node['dest']
         if name and node['id'] not in seen_map[name]:
             ans[name].append({'id': node['id'], 'frag': node['frag']})
@@ -145,7 +170,7 @@ def toc_anchor_map(toc):
     return dict(ans)
 
 
-def pagelist_anchor_map(page_list):
+def pagelist_anchor_map(page_list: list[dict]) -> dict[str, list[dict[str, object]]]:
     ans = defaultdict(list)
     seen_map = defaultdict(set)
     for i, x in enumerate(page_list):
@@ -162,7 +187,7 @@ class SimpleContainer(ContainerBase):
     tweak_mode = True
 
 
-def find_epub_cover(container):
+def find_epub_cover(container: ContainerBase) -> tuple[str | None, str | None]:
     cover_image = find_cover_image(container)
     marked_title_page = find_cover_page(container)
     cover_image_in_first_page = None
@@ -193,7 +218,7 @@ def find_epub_cover(container):
     return None, None
 
 
-def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
+def create_cover_page(container: ContainerBase, input_fmt: str, is_comic: bool, book_metadata: Metadata | None = None) -> tuple[str | None, str | None]:
     templ = '''
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head><style>
@@ -210,7 +235,7 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
     </style></head><body><img src="%s"/></body></html>
     '''
 
-    def generic_cover():
+    def generic_cover() -> bytes:
         if book_metadata is not None:
             from calibre.ebooks.covers import create_cover
 
@@ -241,7 +266,9 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
     return raster_cover_name, titlepage_name
 
 
-def transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names, present_names) -> None:
+def transform_style_sheet(
+    container: ContainerBase, name: str, link_uid: str, virtualize_resources: bool, virtualized_names: set[str], present_names: AbstractSet[str]
+) -> None:
     changed = False
     link_replacer = None
     if virtualize_resources:
@@ -265,7 +292,9 @@ def transform_style_sheet(container, name, link_uid, virtualize_resources, virtu
             f.write(raw.encode('utf-8'))
 
 
-def transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names, present_names) -> None:
+def transform_svg_image(
+    container: ContainerBase, name: str, link_uid: str, virtualize_resources: bool, virtualized_names: set[str], present_names: AbstractSet[str]
+) -> None:
     if not virtualize_resources:
         return
     link_replacer = create_link_replacer(container, link_uid, set(), present_names)
@@ -283,7 +312,7 @@ def transform_svg_image(container, name, link_uid, virtualize_resources, virtual
         container.commit_item(name)
 
 
-def parse_smil_time(x):
+def parse_smil_time(x: str) -> float:
     # https://www.w3.org/TR/SMIL3/smil-timing.html#q22
     parts = x.split(':')
     seconds = 0
@@ -309,14 +338,22 @@ def parse_smil_time(x):
     return seconds
 
 
-def transform_smil(container, name, link_uid, virtualize_resources, virtualized_names, smil_map, present_names) -> None:
+def transform_smil(
+    container: ContainerBase,
+    name: str,
+    link_uid: str,
+    virtualize_resources: bool,
+    virtualized_names: set[str],
+    smil_map: dict,
+    present_names: AbstractSet[str],
+) -> None:
     root = container.parsed(name)
     text_tag, audio_tag = SMIL('text'), SMIL('audio')
     body_tag, seq_tag, par_tag = SMIL('body'), SMIL('seq'), SMIL('par')
     type_attr, textref_attr = EPUB('type'), EPUB('textref')
     parnum = 0
 
-    def make_par(par, target):
+    def make_par(par: etree._Element, target: str) -> dict[str, object]:
         nonlocal parnum
         parnum += 1
         ans = {'num': parnum}
@@ -342,7 +379,7 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
                         ans['end'] = parse_smil_time(e)
         return ans
 
-    def process_seq(seq_xml_element, tref, parent_seq=None) -> None:
+    def process_seq(seq_xml_element: etree._Element, tref: str, parent_seq: dict | None = None) -> None:
         target = container.href_to_name(tref, name)
         seq = {'textref': [target, tref.partition('#')[2]], 'par': [], 'seq': []}
         t = seq_xml_element.get(type_attr)
@@ -363,7 +400,7 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
                 if p.get('audio'):
                     seq['par'].append(p)
             elif child.tag == seq_tag:
-                tref = child.get(textref_attr)
+                tref = child.get(textref_attr)  # ty: ignore[invalid-assignment]  only used when not None
                 if tref:
                     process_seq(child, tref, seq)
         if not seq['par']:
@@ -384,7 +421,7 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
                             process_seq(gc, tref)
 
 
-def transform_inline_styles(container, name, transform_sheet, transform_style):
+def transform_inline_styles(container: ContainerBase, name: str, transform_sheet: Callable[[str], str], transform_style: Callable[[str], str]) -> bool:
     root = container.parsed(name)
     changed = False
     for style in root.xpath('//*[local-name()="style"]'):
@@ -403,7 +440,15 @@ def transform_inline_styles(container, name, transform_sheet, transform_style):
     return changed
 
 
-def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names, present_names) -> None:
+def transform_html(
+    container: ContainerBase,
+    name: str,
+    virtualize_resources: bool,
+    link_uid: str,
+    link_to_map: LinkToMap,
+    virtualized_names: set[str],
+    present_names: AbstractSet[str],
+) -> None:
     link_xpath = XPath('//h:*[@href and (self::h:a or self::h:area)]')
     svg_link_xpath = XPath('//svg:a')
     img_xpath = XPath('//h:img[@src]')
@@ -432,13 +477,13 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
             link.attrib.clear()
 
     # URLs in the inline CSS will be replaced in virtualize_html
-    def transform_sheet(sheet_text):
+    def transform_sheet(sheet_text: str) -> str:
         ans = transform_properties(sheet_text, is_declaration=False)
         if name in changed_names:
             virtualized_names.add(name)
         return ans
 
-    def transform_declaration(decl_text):
+    def transform_declaration(decl_text: str) -> str:
         ans = transform_properties(decl_text, is_declaration=True)
         if name in changed_names:
             virtualized_names.add(name)
@@ -451,7 +496,7 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
         virtualize_html(container, name, link_uid, link_to_map, virtualized_names, present_names)
     else:
 
-        def handle_link(a, attr='href') -> None:
+        def handle_link(a: etree._Element, attr: str = 'href') -> None:
             href = a.get(attr)
             if href:
                 href = link_replacer(name, href)
@@ -484,7 +529,9 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
         f.write(shtml)
 
 
-def virtualize_html(container, name, link_uid, link_to_map, virtualized_names, present_names):
+def virtualize_html(
+    container: ContainerBase, name: str, link_uid: str, link_to_map: LinkToMap, virtualized_names: set[str], present_names: AbstractSet[str]
+) -> bool:
 
     changed = set()
     link_xpath = XPath('//h:*[@href and (self::h:a or self::h:area)]')
@@ -495,7 +542,7 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names, p
     root = container.parsed(name)
     rewrite_links(root, partial(link_replacer, name))
 
-    def handle_link(a, attr='href') -> None:
+    def handle_link(a: etree._Element, attr: str = 'href') -> None:
         href = a.get(attr) or ''
         if href.startswith(link_uid):
             a.set(attr, 'javascript:void(0)')
@@ -532,11 +579,11 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names, p
 __smil_file_names__ = ''
 
 
-def process_book_file(virtualize_resources, link_uid, container, present_names, name):
-    link_to_map = {}
-    html_data = {}
-    smil_map = {__smil_file_names__: []}
-    virtualized_names = set()
+def process_book_file(virtualize_resources: bool, link_uid: str, container: ContainerBase, present_names: AbstractSet[str], name: str | None) -> ProcessResult:
+    link_to_map: LinkToMap = {}
+    html_data: dict[str, HtmlData] = {}
+    smil_map: dict = {__smil_file_names__: []}
+    virtualized_names: set[str] = set()
     if name is not None:
         mt = container.mime_map[name].lower()
         if mt in OEB_DOCS:
@@ -558,23 +605,23 @@ def process_book_file(virtualize_resources, link_uid, container, present_names, 
 
 
 def process_exploded_book(
-    book_fmt,
-    opfpath,
-    input_fmt,
-    tdir,
-    log=None,
-    book_hash=None,
-    save_bookmark_data=False,
-    book_metadata=None,
-    virtualize_resources=True,
-    max_workers=1,
-):
+    book_fmt: str,
+    opfpath: str,
+    input_fmt: str,
+    tdir: str,
+    log: Log | None = None,
+    book_hash: BookHash | None = None,
+    save_bookmark_data: bool = False,
+    book_metadata: Metadata | None = None,
+    virtualize_resources: bool = True,
+    max_workers: int = 1,
+) -> tuple[SimpleContainer, bytes | None]:
     log = log or default_log
     container = SimpleContainer(tdir, opfpath, log)
     input_plugin = plugin_for_input_format(input_fmt)
     is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
 
-    def needs_work(mt):
+    def needs_work(mt: str) -> bool:
         return mt in OEB_STYLES or mt in OEB_DOCS or mt in ('image/svg+xml', 'application/smil', 'application/smil+xml')
 
     bookmark_data = None
@@ -616,7 +663,7 @@ def process_exploded_book(
     except IndexError:
         pass
 
-    book_render_data = {
+    book_render_data: dict = {
         'version': RENDER_VERSION,
         'toc': toc,
         'book_format': book_fmt,
@@ -653,7 +700,7 @@ def process_exploded_book(
     html_data = {}
     virtualized_names = set()
 
-    def merge_ltm(dest, src) -> None:
+    def merge_ltm(dest: dict[str, set[str]], src: dict[str, set[str]]) -> None:
         for k, v in src.items():
             if k in dest:
                 dest[k] |= v
@@ -662,7 +709,7 @@ def process_exploded_book(
 
     final_smil_map = {}
 
-    def merge_smil_map(smil_map) -> None:
+    def merge_smil_map(smil_map: dict) -> None:
         for n in smil_map.pop(__smil_file_names__):
             excluded_names.add(n)
         for n, d in smil_map.items():
@@ -682,7 +729,7 @@ def process_exploded_book(
                 ltm[k] = v
     book_render_data['has_smil'] = bool(final_smil_map)
 
-    def manifest_data(name):
+    def manifest_data(name: str) -> dict[str, object]:
         mt = (container.mime_map.get(name) or 'application/octet-stream').lower()
         ans = {
             'size': os.path.getsize(container.name_path_map[name]),
@@ -723,7 +770,7 @@ def process_exploded_book(
     return container, bookmark_data
 
 
-def split_name(name):
+def split_name(name: str) -> tuple[str | None, str]:
     l, r = name.partition('}')[::2]
     if r:
         return l[1:], r
@@ -734,7 +781,7 @@ known_tags = ('img', 'script', 'link', 'image', 'style')
 discarded_tags = ('meta', 'base')
 
 
-def ensure_body(root) -> None:
+def ensure_body(root: etree._Element) -> None:
     # Make sure we have only a single <body>
     bodies = list(root.iterchildren(XHTML('body')))
     if len(bodies) != 1:
@@ -751,21 +798,22 @@ def ensure_body(root) -> None:
             body.append(div)
 
 
-def html_as_json(root):
+def html_as_json(root: etree._Element) -> bytes:
     from calibre_extensions.html_as_json import serialize
 
-    ns, name = split_name(root.tag)
+    # tag is always a str for elements parsed from (X)HTML
+    ns, name = split_name(cast('str', root.tag))
     if ns not in (None, XHTML_NS):
         raise ValueError('HTML tag must be in empty or XHTML namespace')
     ensure_body(root)
     for child in tuple(root.iterchildren('*')):
-        if child.tag.partition('}')[-1] not in ('head', 'body'):
+        if cast('str', child.tag).partition('}')[-1] not in ('head', 'body'):
             root.remove(child)
     root.text = root.tail = None
     return serialize(root, Comment)
 
 
-def serialize_datetimes(d) -> None:
+def serialize_datetimes(d: MutableMapping[str, object]) -> None:
     for k in tuple(d):
         v = d[k]
         if isinstance(v, datetime):
@@ -776,7 +824,7 @@ def serialize_datetimes(d) -> None:
 EPUB_FILE_TYPE_MAGIC = b'encoding=json+base64:\n'
 
 
-def get_stored_annotations(container, bookmark_data):
+def get_stored_annotations(container: ContainerBase, bookmark_data: bytes | None) -> Iterator[dict[str, object]]:
     raw = bookmark_data or b''
     if not raw:
         return
@@ -799,13 +847,13 @@ def get_stored_annotations(container, bookmark_data):
 
 
 def render(
-    pathtoebook,
-    output_dir,
-    book_hash=None,
-    serialize_metadata=False,
-    extract_annotations=False,
-    virtualize_resources=True,
-    max_workers=0,
+    pathtoebook: str,
+    output_dir: str,
+    book_hash: BookHash | None = None,
+    serialize_metadata: bool = False,
+    extract_annotations: bool = False,
+    virtualize_resources: bool = True,
+    max_workers: int = 0,
 ) -> None:
     pathtoebook = os.path.abspath(pathtoebook)
     mi = None
@@ -844,7 +892,7 @@ def render(
                 f.write(annotations)
 
 
-def render_for_viewer(path, out_dir, book_hash):
+def render_for_viewer(path: str, out_dir: str, book_hash: BookHash) -> None:
     return render(
         path,
         out_dir,
@@ -896,7 +944,7 @@ def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
     return ans
 
 
-def handle_quicklook_client(c) -> None:
+def handle_quicklook_client(c: socket.socket) -> None:
     with c.makefile('r', encoding='utf-8') as inf:
         for line in inf:
             line = line.rstrip()
@@ -974,10 +1022,10 @@ class Profiler:
 
         self.profile = cProfile.Profile()
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.profile.enable()
 
-    def __exit__(self, *a):
+    def __exit__(self, *a: object) -> None:
         self.profile.disable()
         self.profile.create_stats()
         import pstats
@@ -987,7 +1035,7 @@ class Profiler:
         stats.print_stats(0.05)
 
 
-def profile():
+def profile() -> None:
     from calibre.ptempfile import TemporaryDirectory
 
     path = sys.argv[-1]
@@ -995,12 +1043,12 @@ def profile():
         return render(path, tdir, serialize_metadata=True, extract_annotations=True, virtualize_resources=False, max_workers=1)
 
 
-def develop(max_workers=1, wait_for_input=True) -> None:
+def develop(max_workers: int = 1, wait_for_input: bool = True) -> None:
     from calibre.ptempfile import TemporaryDirectory
 
     path = sys.argv[-1]
     if max_workers < 1:
-        max_workers = os.cpu_count()
+        max_workers = os.cpu_count()  # ty: ignore[invalid-assignment]
     with TemporaryDirectory() as tdir:
         render(
             path,

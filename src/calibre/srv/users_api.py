@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
+from typing import TYPE_CHECKING
 
 from calibre import as_unicode
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden
@@ -9,9 +10,13 @@ from calibre.srv.routes import endpoint
 from calibre.srv.users import validate_password
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+
 
 @endpoint('/users/change-pw', methods={'POST'})
-def change_pw(ctx, rd) -> str:
+def change_pw(ctx: Context, rd: RequestData) -> str:
     user = rd.username or None
     if user is None:
         raise HTTPForbidden('Anonymous users are not allowed to change passwords')
@@ -31,5 +36,5 @@ def change_pw(ctx, rd) -> str:
         ctx.user_manager.change_password(user, newpw)
     except Exception as err:
         raise HTTPBadRequest(as_unicode(err))
-    ctx.log.warn('Changed password for user', user)
+    ctx.log.warn('Changed password for user', user)  # ty: ignore[unresolved-attribute]
     return f'password for {user} changed'

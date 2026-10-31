@@ -2,9 +2,13 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 import ast
+from typing import TYPE_CHECKING
 
 from calibre.srv.tests.base import SimpleTest
 from calibre_extensions.fast_css_transform import parse_css_number, transform_properties
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class TestTransform(SimpleTest):
@@ -16,16 +20,16 @@ class TestTransform(SimpleTest):
         self.ae(parse_css_number('3x3'), 3)
 
     def test_basic_css_transforms(self) -> None:
-        def d(src, expected, is_declaration=True, url_callback=None) -> None:
+        def d(src: str, expected: str, is_declaration: bool = True, url_callback: Callable[[str], str] | None = None) -> None:
             self.ae(transform_properties(src, is_declaration=is_declaration, url_callback=url_callback), expected)
 
-        def upper_case(val):
+        def upper_case(val: str) -> str:
             return val.upper()
 
-        def u(src, expected, is_declaration=True, url_callback=upper_case):
+        def u(src: str, expected: str, is_declaration: bool = True, url_callback: Callable[[str], str] = upper_case) -> None:
             return d(src, expected, url_callback=url_callback, is_declaration=is_declaration)
 
-        def s(src, expected, url_callback=upper_case):
+        def s(src: str, expected: str, url_callback: Callable[[str], str] = upper_case) -> None:
             return d(src, expected, url_callback=url_callback, is_declaration=False)
 
         s('.c { page-break-after: 1 always }', '.c { break-after: 1 always ; -webkit-column-break-after: 1 always }')

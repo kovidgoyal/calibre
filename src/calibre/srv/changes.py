@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Mapping
+
 
 class ChangeEvent:
-    book_ids: frozenset
+    book_ids: frozenset[int]
 
     def __init__(self) -> None:
         pass
@@ -13,45 +18,45 @@ class ChangeEvent:
 
 
 class BooksAdded(ChangeEvent):
-    def __init__(self, book_ids) -> None:
+    def __init__(self, book_ids: Iterable[int]) -> None:
         ChangeEvent.__init__(self)
         self.book_ids = frozenset(book_ids)
 
 
 class BooksDeleted(ChangeEvent):
-    def __init__(self, book_ids) -> None:
+    def __init__(self, book_ids: Iterable[int]) -> None:
         ChangeEvent.__init__(self)
         self.book_ids = frozenset(book_ids)
 
 
 class FormatsAdded(ChangeEvent):
-    def __init__(self, formats_map) -> None:
+    def __init__(self, formats_map: Mapping[int, Collection[str]]) -> None:
         ChangeEvent.__init__(self)
         self.formats_map = formats_map
 
     @property
-    def book_ids(self):  # ty: ignore[invalid-property-type-override]
+    def book_ids(self) -> frozenset[int]:  # ty: ignore[invalid-property-type-override]
         return frozenset(self.formats_map)
 
 
 class FormatsRemoved(ChangeEvent):
-    def __init__(self, formats_map) -> None:
+    def __init__(self, formats_map: Mapping[int, Collection[str]]) -> None:
         ChangeEvent.__init__(self)
         self.formats_map = formats_map
 
     @property
-    def book_ids(self):  # ty: ignore[invalid-property-type-override]
+    def book_ids(self) -> frozenset[int]:  # ty: ignore[invalid-property-type-override]
         return frozenset(self.formats_map)
 
 
 class MetadataChanged(ChangeEvent):
-    def __init__(self, book_ids) -> None:
+    def __init__(self, book_ids: Iterable[int]) -> None:
         ChangeEvent.__init__(self)
         self.book_ids = frozenset(book_ids)
 
 
 class SavedSearchesChanged(ChangeEvent):
-    def __init__(self, added=(), removed=()) -> None:
+    def __init__(self, added: Iterable[str] = (), removed: Iterable[str] = ()) -> None:
         ChangeEvent.__init__(self)
         self.added = frozenset(added)
         self.removed = frozenset(removed)
@@ -61,7 +66,7 @@ class SavedSearchesChanged(ChangeEvent):
 
 
 class VirtualLibrariesChanged(ChangeEvent):
-    def __init__(self, added=(), removed=(), renamed=()) -> None:
+    def __init__(self, added: Iterable[str] = (), removed: Iterable[str] = (), renamed: Iterable[tuple[str, str]] = ()) -> None:
         ChangeEvent.__init__(self)
         self.added = frozenset(added)
         self.removed = frozenset(removed)

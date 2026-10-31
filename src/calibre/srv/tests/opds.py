@@ -3,9 +3,13 @@
 
 import json
 from http.client import NOT_FOUND, OK
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from calibre.srv.tests.base import LibraryBaseTest
+
+if TYPE_CHECKING:
+    from http.client import HTTPResponse
 
 OPDS2 = 'application/opds+json'
 
@@ -16,7 +20,7 @@ class OPDSTest(LibraryBaseTest):
         from calibre.srv.utils import MultiDict
 
         class RequestData:
-            def __init__(self, *accept) -> None:
+            def __init__(self, *accept: str) -> None:
                 self.inheaders = MultiDict()
                 for x in accept:
                     self.inheaders['Accept'] = x
@@ -61,13 +65,13 @@ class OPDSTest(LibraryBaseTest):
         with self.create_server(max_opds_items=1, max_opds_ungrouped_items=1) as server:
             conn = server.connect()
 
-            def request(url, accept=OPDS2):
+            def request(url: str, accept: str | None = OPDS2) -> tuple[HTTPResponse, bytes]:
                 conn.request('GET', url, headers={'Accept': accept} if accept else {})
                 r = conn.getresponse()
                 data = r.read()
                 return r, data
 
-            def feed(url):
+            def feed(url: str) -> tuple[dict, dict[str, dict]]:
                 r, data = request(url)
                 self.ae(r.status, OK, f'{url}: {data!r}')
                 self.ae(r.getheader('Content-Type'), OPDS2)

@@ -3,6 +3,7 @@
 
 import json as stdlib_json
 import re
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.errors import HTTPBadRequest, HTTPPreconditionRequired, HTTPUnprocessableEntity
@@ -10,8 +11,19 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
 from calibre.utils.search_query_parser import ParseException
 
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
+    from calibre.db.fts.connect import FTSSearchResult
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
 
-def book_ids_from_user_restriction(ctx, rd, db):
+
+class SnippetEntry(TypedDict):
+    formats: list[str]
+    text: str
+
+
+def book_ids_from_user_restriction(ctx: Context, rd: RequestData, db: Cache) -> frozenset[int] | None:
     try:
         return ctx.get_allowed_book_ids_from_restriction(rd, db)
     except ParseException:
@@ -19,7 +31,7 @@ def book_ids_from_user_restriction(ctx, rd, db):
 
 
 @endpoint('/fts/search', postprocess=json)
-def fts_search(ctx, rd):
+def fts_search(ctx: Context, rd: RequestData) -> dict[str, object]:
     """
     Perform the specified full text query.
 
@@ -29,9 +41,9 @@ def fts_search(ctx, rd):
     db = get_library_data(ctx, rd, strict_library_id=True)[0]
     if not db.is_fts_enabled():
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
-    metadata_cache = {}
+    metadata_cache: dict[int, dict[str, object]] = {}
     l, t = db.fts_indexing_progress()[:2]
-    ans = {'metadata': metadata_cache, 'indexing_status': {'left': l, 'total': t}}
+    ans: dict[str, object] = {'metadata': metadata_cache, 'indexing_status': {'left': l, 'total': t}}
 
     use_stemming = rd.query.get('use_stemming', 'y') == 'y'
     query = rd.query.get('query')
@@ -45,9 +57,9 @@ def fts_search(ctx, rd):
         restricted_ids = db.search('', restriction=rd.query.get('restriction'), allow_templates=False)
         book_ids = restricted_ids if book_ids is None else book_ids & restricted_ids
 
-    def add_metadata(result):
-        result.pop('id', None)
-        result.pop('text', None)
+    def add_metadata(result: FTSSearchResult) -> FTSSearchResult:
+        result.pop('id', None)  # ty: ignore[invalid-argument-type]
+        result.pop('text', None)  # ty: ignore[invalid-argument-type]
         bid = result['book_id']
         if bid not in metadata_cache:
             with db.safe_read_lock:
@@ -75,7 +87,7 @@ def fts_search(ctx, rd):
 
 
 @endpoint('/fts/disable', needs_db_write=True, methods=('POST',))
-def fts_disable(ctx, rd) -> str:
+def fts_disable(ctx: Context, rd: RequestData) -> str:
     db = get_library_data(ctx, rd)[0]
     if db.is_fts_enabled():
         db.enable_fts(enabled=False)
@@ -83,7 +95,7 @@ def fts_disable(ctx, rd) -> str:
 
 
 @endpoint('/fts/reindex', needs_db_write=True, methods=('POST',))
-def fts_reindex(ctx, rd) -> str:
+def fts_reindex(ctx: Context, rd: RequestData) -> str:
     db = get_library_data(ctx, rd)[0]
     if not db.is_fts_enabled():
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
@@ -101,7 +113,7 @@ def fts_reindex(ctx, rd) -> str:
 
 
 @endpoint('/fts/indexing', needs_db_write=True, methods=('POST',))
-def fts_indexing(ctx, rd) -> str:
+def fts_indexing(ctx: Context, rd: RequestData) -> str:
     data = rd.request_body_file.read()
     try:
         enable = stdlib_json.loads(data)
@@ -115,7 +127,7 @@ def fts_indexing(ctx, rd) -> str:
 
 
 @endpoint('/fts/snippets/{book_ids}', postprocess=json)
-def fts_snippets(ctx, rd, book_ids):
+def fts_snippets(ctx: Context, rd: RequestData, book_ids: str) -> dict[str, object]:
     """
     Perform the specified full text query and return the results with snippets restricted to the specified book ids.
 
@@ -141,8 +153,8 @@ def fts_snippets(ctx, rd, book_ids):
         ssz = int(rd.query.get('snippet_size', 32))
     except Exception:
         raise HTTPBadRequest('Invalid snippet size')
-    snippets = {bid: {} for bid in bids}
-    ans = {}
+    snippets: dict[int, dict[str, SnippetEntry]] = {bid: {} for bid in bids}
+    ans: dict[str, object] = {}
     qid = rd.query.get('query_id')
     if qid:
         ans['query_id'] = qid

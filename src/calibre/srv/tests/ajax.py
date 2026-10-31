@@ -8,6 +8,7 @@ from compression import zlib
 from functools import partial
 from http.client import FORBIDDEN, METHOD_NOT_ALLOWED, NOT_FOUND, OK
 from io import BytesIO
+from typing import TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
 from calibre.constants import config_dir
@@ -17,8 +18,24 @@ from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from polyglot.binary import as_base64_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from http.client import HTTPConnection, HTTPResponse
 
-def make_request(conn, url, headers=None, prefix='/ajax', username=None, password=None, method='GET', data=None):
+    # The body of a response: decoded JSON for successful JSON responses, raw bytes otherwise
+    type ResponseData = bytes | dict | list
+
+
+def make_request(
+    conn: HTTPConnection,
+    url: str,
+    headers: Mapping[str | bytes, str | bytes] | None = None,
+    prefix: str = '/ajax',
+    username: str | None = None,
+    password: str | None = None,
+    method: str = 'GET',
+    data: bytes | None = None,
+) -> tuple[HTTPResponse, ResponseData]:
     headers = dict(headers or {})
     if username and password:
         headers[b'Authorization'] = b'Basic ' + as_base64_bytes(username + ':' + password)
@@ -43,11 +60,11 @@ def gui_tag_browser_tags(library_path: str, folders_first_values: tuple[bool, ..
     class Prefs(dict):
         # Use the defaults for everything not set here, without changing the
         # preferences of the user running the tests
-        def __init__(self, fallback, **kw) -> None:
+        def __init__(self, fallback: Mapping[str, object], **kw: object) -> None:
             super().__init__(**kw)
             self.fallback = fallback
 
-        def __missing__(self, key):
+        def __missing__(self, key: str) -> object:
             return self.fallback[key]
 
     model.config = Prefs(config, sort_tags_by='name')
@@ -142,7 +159,7 @@ class ContentTest(LibraryBaseTest):
             other_db = ctx.library_broker.get(other_library_id)
             conn = server.connect()
 
-            def request(path, library_id=None, method='POST', data=None, **query):
+            def request(path: str, library_id: str | None = None, method: str = 'POST', data: bytes | None = None, **query: str) -> int:
                 if library_id is not None:
                     query['library_id'] = library_id
                 return make_request(conn, f'{path}?{urlencode(query)}', username='12', password='test', prefix='', method=method, data=data)[0].status
@@ -236,7 +253,7 @@ class ContentTest(LibraryBaseTest):
             db.set_field('tags', {1: ['Zebra', '[X].a'], 2: ['[X].b', 'Alpha', 'Alpha.b'], 3: ['Yak.c']})
             conn = server.connect()
 
-            def server_tags(**query):
+            def server_tags(**query: str) -> list[tuple[str, list[str]]]:
                 query.update({'library_id': db.server_library_id, 'sort_tags_by': 'name'})
                 r, data = make_request(conn, '/interface-data/tag-browser?' + urlencode(query), prefix='')
                 self.ae(r.status, OK)
@@ -399,7 +416,7 @@ class ContentTest(LibraryBaseTest):
             server.handler.ctx.user_manager.add_user('inv', 'test', restriction={'library_restrictions': {os.path.basename(db.backend.library_path): '"1'}})
             conn = server.connect()
 
-            def url_for(path, **kw):
+            def url_for(path: str, **kw: object) -> str:
                 p, q = path.partition('?')[::2]
                 ans = server.handler.router.url_for(p, **kw)
                 if q:
@@ -408,7 +425,7 @@ class ContentTest(LibraryBaseTest):
 
             ae = self.assertEqual
 
-            def r(path, status=OK, method='GET'):
+            def r(path: str, status: int = OK, method: str = 'GET') -> ResponseData:
                 r, data = make_request(conn, path, username='12', password='test', prefix='', method=method)
                 ae(status, r.status)
                 if status == NOT_FOUND:
@@ -449,7 +466,7 @@ class ContentTest(LibraryBaseTest):
             r(url_for('/cdb/delete-books', book_ids='1'), status=METHOD_NOT_ALLOWED)
 
             # code.py
-            def sr(path, **k):
+            def sr(path: str, **k: object) -> set[int]:
                 return set(ok(url_for(path, **k))['search_result']['book_ids'])
 
             for q in 'books-init init get-books'.split():
@@ -470,13 +487,13 @@ class ContentTest(LibraryBaseTest):
 
             # fts.py
             def fake_fts_search(
-                query,
-                use_stemming=True,
-                return_text=True,
-                process_each_result=None,
-                restrict_to_book_ids=None,
-                **kwargs,
-            ):
+                query: str,
+                use_stemming: bool = True,
+                return_text: bool = True,
+                process_each_result: Callable[[dict[str, object]], object] | None = None,
+                restrict_to_book_ids: Iterable[int] | None = None,
+                **kwargs: object,
+            ) -> Iterator[object]:
                 candidate_ids = {1, 3} if restrict_to_book_ids is None else set(restrict_to_book_ids) & {1, 3}
                 for book_id in sorted(candidate_ids):
                     result = {'id': book_id, 'book_id': book_id, 'format': 'TXT', 'text': 'matching text'}
@@ -521,12 +538,12 @@ class ContentTest(LibraryBaseTest):
             lid = db.server_library_id
             conn = server.connect()
 
-            def get(book_id=1, fmt='FMT1', username='12', status=OK):
+            def get(book_id: int = 1, fmt: str = 'FMT1', username: str = '12', status: int = OK) -> ResponseData | None:
                 r, data = make_request(conn, f'/book-get-storage/{lid}/{book_id}/{fmt}', prefix='', username=username, password='test')
                 ae(r.status, status)
                 return None if data == b'null' else data
 
-            def put(entry, book_id=1, fmt='FMT1', username='12', status=OK):
+            def put(entry: bytes | dict[str, object], book_id: int = 1, fmt: str = 'FMT1', username: str = '12', status: int = OK) -> ResponseData:
                 raw = entry if isinstance(entry, bytes) else json.dumps(entry).encode('utf-8')
                 r, data = make_request(conn, f'/book-set-storage/{lid}/{book_id}/{fmt}', prefix='', username=username, password='test', method='POST', data=raw)
                 ae(r.status, status)
@@ -568,7 +585,15 @@ class ContentTest(LibraryBaseTest):
 
             ae = self.assertEqual
 
-            def a(filename, data=None, status=OK, method='POST', username='12', add_duplicates='n', job_id=1):
+            def a(
+                filename: str,
+                data: bytes | None = None,
+                status: int = OK,
+                method: str = 'POST',
+                username: str = '12',
+                add_duplicates: str = 'n',
+                job_id: int = 1,
+            ) -> ResponseData:
                 r, data = make_request(
                     conn,
                     '/cdb/add-book/{}/{}/{}'.format(job_id, add_duplicates, quote(filename.encode('utf-8'))),
@@ -581,7 +606,7 @@ class ContentTest(LibraryBaseTest):
                 ae(status, r.status)
                 return data
 
-            def d(book_ids, username='12', status=OK):
+            def d(book_ids: Iterable[int], username: str = '12', status: int = OK) -> ResponseData:
                 book_ids = ','.join(map(str, book_ids))
                 r, data = make_request(conn, f'/cdb/delete-books/{book_ids}', username=username, password='test', prefix='', method='POST')
                 ae(status, r.status)

@@ -11,6 +11,7 @@ import sys
 import time
 from queue import Empty, Queue
 from threading import Lock, Thread
+from typing import TYPE_CHECKING, Protocol
 
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.srv.http_response import create_http_handler
@@ -21,6 +22,15 @@ from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import error_message
+
+if TYPE_CHECKING:
+    import weakref
+    from collections.abc import Callable, Collection, Iterable
+    from typing import Literal, Self
+
+    from calibre.srv.http_request import InHeaders
+    from calibre.srv.web_socket import WebSocketConnection
+    from calibre.utils.logging import Log
 
 MAX_RETRIES = 10
 
@@ -36,14 +46,14 @@ class WatcherBase:
     EXTENSIONS_TO_WATCH = frozenset('py pyj svg js css'.split())
     BOUNCE_INTERVAL = 2  # seconds
 
-    def __init__(self, worker, log) -> None:
+    def __init__(self, worker: Worker, log: Log) -> None:
         self.worker, self.log = worker, log
         fpath = os.path.abspath(__file__)
         d = os.path.dirname
         self.base = d(d(d(d(fpath))))
         self.last_restart_time = monotonic()
 
-    def handle_modified(self, modified) -> None:
+    def handle_modified(self, modified: Collection[str | None]) -> None:
         if modified:
             if monotonic() - self.last_restart_time > self.BOUNCE_INTERVAL:
                 modified = {os.path.relpath(x, self.base) if x.startswith(self.base) else x for x in modified if x}
@@ -59,7 +69,7 @@ class WatcherBase:
         self.last_restart_time = monotonic()
 
     @classmethod
-    def file_is_watched(cls, fname):
+    def file_is_watched(cls, fname: str | None) -> str | bool | None:
         return fname and fname.rpartition('.')[-1] in cls.EXTENSIONS_TO_WATCH
 
 
@@ -69,10 +79,10 @@ if islinux:
     from calibre.utils.inotify import INotifyTreeWatcher
 
     class Watcher(WatcherBase):
-        def __init__(self, root_dirs, worker, log) -> None:
+        def __init__(self, root_dirs: Iterable[str], worker: Worker, log: Log) -> None:
             WatcherBase.__init__(self, worker, log)
             self.client_sock, self.srv_sock = create_sock_pair()
-            self.fd_map = {}
+            self.fd_map: dict[int, INotifyTreeWatcher] = {}
             for d in frozenset(root_dirs):
                 w = INotifyTreeWatcher(d, self.ignore_event)
                 self.fd_map[w._inotify_fd] = w
@@ -80,17 +90,17 @@ if islinux:
         def loop(self) -> None:
             while True:
                 r = select.select([self.srv_sock] + list(self.fd_map), [], [])[0]
-                modified = set()
+                modified: set[str | None] = set()
                 for fd in r:
                     if fd is self.srv_sock:
                         self.srv_sock.recv(1000)
                         self.force_restart()
                         continue
-                    w = self.fd_map[fd]
+                    w = self.fd_map[fd]  # ty: ignore[invalid-argument-type]
                     modified |= w()
                 self.handle_modified(modified)
 
-        def ignore_event(self, path, name) -> bool:
+        def ignore_event(self, path: str, name: str | None) -> bool:
             return not self.file_is_watched(name)
 
         def wakeup(self) -> None:
@@ -101,7 +111,7 @@ elif iswindows:
     from calibre_extensions import winutil
 
     class TreeWatcher(Thread):
-        def __init__(self, path_to_watch, modified_queue) -> None:
+        def __init__(self, path_to_watch: str, modified_queue: Queue[str | Literal[True] | None]) -> None:
             Thread.__init__(self, name='TreeWatcher', daemon=True)
             self.modified_queue = modified_queue
             self.path_to_watch = path_to_watch
@@ -141,10 +151,10 @@ elif iswindows:
                 traceback.print_exc()
 
     class Watcher(WatcherBase):
-        def __init__(self, root_dirs, worker, log) -> None:
+        def __init__(self, root_dirs: Iterable[str], worker: Worker, log: Log) -> None:
             WatcherBase.__init__(self, worker, log)
-            self.watchers = []
-            self.modified_queue = Queue()
+            self.watchers: list[TreeWatcher] = []
+            self.modified_queue: Queue[str | Literal[True] | None] = Queue()
             for d in frozenset(root_dirs):
                 self.watchers.append(TreeWatcher(d, self.modified_queue))
 
@@ -167,11 +177,14 @@ elif iswindows:
 elif ismacos:
     from fsevents import Observer, Stream  # type: ignore
 
+    class FSEvent(Protocol):
+        name: str | bytes
+
     class Watcher(WatcherBase):
-        def __init__(self, root_dirs, worker, log) -> None:
+        def __init__(self, root_dirs: Iterable[str], worker: Worker, log: Log) -> None:
             WatcherBase.__init__(self, worker, log)
             self.stream = Stream(self.notify, *root_dirs, file_events=True)
-            self.wait_queue = Queue()
+            self.wait_queue: Queue[bool] = Queue()
 
         def wakeup(self) -> None:
             self.wait_queue.put(True)
@@ -192,7 +205,7 @@ elif ismacos:
                 observer.unschedule(self.stream)
                 observer.stop()
 
-        def notify(self, ev) -> None:
+        def notify(self, ev: FSEvent) -> None:
             name = ev.name
             if isinstance(name, bytes):
                 name = name.decode('utf-8')
@@ -203,10 +216,10 @@ else:
     Watcher = None
 
 
-def find_dirs_to_watch(fpath, dirs, add_default_dirs):
+def find_dirs_to_watch(fpath: str, dirs: Iterable[str], add_default_dirs: bool) -> set[str]:
     dirs = {os.path.abspath(x) for x in dirs}
 
-    def add(x) -> None:
+    def add(x: str) -> None:
         if os.path.isdir(x):
             dirs.add(x)
 
@@ -225,7 +238,7 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
 # }}}
 
 
-def join_process(p, timeout=5):
+def join_process(p: subprocess.Popen[bytes], timeout: float = 5) -> int | None:
     t = Thread(target=p.wait, name='JoinProcess')
     t.daemon = True
     t.start()
@@ -234,12 +247,12 @@ def join_process(p, timeout=5):
 
 
 class Worker:
-    def __init__(self, cmd, log, server, timeout=5) -> None:
+    def __init__(self, cmd: list[str], log: Log, server: ReloadServer, timeout: float = 5) -> None:
         self.cmd = cmd
         self.log = log
         self.server = server
-        self.p = None
-        self.wakeup = None
+        self.p: subprocess.Popen[bytes] | None = None
+        self.wakeup: Callable[[], None] | None = None
         self.timeout = timeout
         cmd = self.cmd
         if 'calibre-debug' in cmd[0].lower():
@@ -264,16 +277,16 @@ class Worker:
             self.server.ping()
             time.sleep(30)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         self.restart()
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         if self.p and self.p.poll() is None:
             # SIGINT will already have been sent to the child process
             self.clean_kill(send_signal=False)
 
-    def clean_kill(self, send_signal=True) -> None:
+    def clean_kill(self, send_signal: bool = True) -> None:
         if self.p is not None:
             if send_signal:
                 self.p.send_signal(getattr(signal, 'CTRL_BREAK_EVENT', signal.SIGINT))
@@ -283,7 +296,7 @@ class Worker:
             self.log(f'Killed server process {self.p.pid} with return code: {self.p.returncode}')
             self.p = None
 
-    def restart(self, forced=False) -> None:
+    def restart(self, forced: bool = False) -> None:
         from calibre.utils.rapydscript import CompileFailure, compile_srv
 
         self.clean_kill()
@@ -337,16 +350,16 @@ class Worker:
 
 
 class ReloadHandler(DummyHandler):
-    def __init__(self, *args, **kw) -> None:
+    def __init__(self, *args: object, **kw: object) -> None:
         DummyHandler.__init__(self, *args, **kw)
-        self.connections = {}
+        self.connections: dict[int, weakref.ref[WebSocketConnection]] = {}
         self.conn_lock = Lock()
 
-    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders) -> None:
+    def handle_websocket_upgrade(self, connection_id: int, connection_ref: weakref.ref[WebSocketConnection], inheaders: InHeaders) -> None:
         with self.conn_lock:
             self.connections[connection_id] = connection_ref
 
-    def handle_websocket_close(self, connection_id) -> None:
+    def handle_websocket_close(self, connection_id: int) -> None:
         with self.conn_lock:
             self.connections.pop(connection_id, None)
 
@@ -368,7 +381,7 @@ class ReloadHandler(DummyHandler):
 class ReloadServer(Thread):
     daemon = True
 
-    def __init__(self, listen_on) -> None:
+    def __init__(self, listen_on: str | None) -> None:
         Thread.__init__(self, name='ReloadServer')
         self.reload_handler = ReloadHandler()
         self.loop = ServerLoop(
@@ -386,7 +399,7 @@ class ReloadServer(Thread):
         except KeyboardInterrupt:
             pass
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         while not self.loop.ready and self.is_alive():
             time.sleep(0.01)
         assert self.loop.bound_address is not None
@@ -394,7 +407,7 @@ class ReloadServer(Thread):
         os.environ['CALIBRE_AUTORELOAD_PORT'] = str(self.address[1])
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.loop.stop()
         self.join(self.loop.opts.shutdown_timeout)
 
@@ -402,7 +415,7 @@ class ReloadServer(Thread):
 # }}}
 
 
-def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_on=None) -> None:
+def auto_reload(log: Log, dirs: Iterable[str] = frozenset(), cmd: list[str] | None = None, add_default_dirs: bool = True, listen_on: str | None = None) -> None:
     if Watcher is None:
         raise NoAutoReload('Auto-reload is not supported on this operating system')
     fpath = os.path.abspath(__file__)

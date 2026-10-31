@@ -14,7 +14,7 @@ class ReadOnlyFileBuffer:
 
     is_close_frame: bool = False  # used by the srv code
 
-    def __init__(self, raw: bytes, name: str = '') -> None:
+    def __init__(self, raw: bytes | memoryview, name: str = '') -> None:
         self.sz, self.mv = len(raw), (raw if isinstance(raw, memoryview) else memoryview(raw))
         self.pos = 0
         self.name: str = name

@@ -9,7 +9,7 @@ import zipfile
 from json import load as load_json_file
 from json import loads as json_loads
 from threading import Lock
-from typing import Any, Never
+from typing import IO, TYPE_CHECKING, Never, cast
 
 from calibre import as_unicode
 from calibre.constants import in_develop_mode
@@ -32,11 +32,27 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps
 
+if TYPE_CHECKING:
+    from collections.abc import Set as AbstractSet
+    from typing import TypedDict
+
+    from calibre.db.cache import Cache
+    from calibre.srv.http_response import ETaggedDynamicOutput
+    from calibre.srv.last_read import RecentlyReadEntry
+
+    class CustomListTemplate(TypedDict):
+        thumbnail: bool
+        thumbnail_height: int
+        height: str
+        comments_fields: list[str]
+        lines: list[str]
+
+
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 
 @endpoint('', auth_required=False)
-def index(ctx: Context, rd: RequestData) -> Any:
+def index(ctx: Context, rd: RequestData) -> IO[bytes]:
     if rd.opts.url_prefix and rd.request_original_uri:
         # We need a trailing slash for relative URLs to resolve correctly, for
         # example the link to the mobile page in index.html
@@ -51,25 +67,25 @@ def index(ctx: Context, rd: RequestData) -> Any:
 
 
 @endpoint('/index.js.map', auth_required=False)
-def index_js_map(ctx, rd):
+def index_js_map(ctx: Context, rd: RequestData) -> IO[bytes]:
     rd.outheaders['Content-Type'] = 'application/json'
     # allow serving the data via sendfile() for performance
     return open(P('content-server/index.js.map'), 'rb')
 
 
 @endpoint('/robots.txt', auth_required=False)
-def robots(ctx, rd) -> bytes:
+def robots(ctx: Context, rd: RequestData) -> bytes:
     return b'User-agent: *\nDisallow: /'
 
 
 @endpoint('/service_worker.js', auth_required=False, cache_control='no-cache')
-def service_worker_js(ctx, rd):
+def service_worker_js(ctx: Context, rd: RequestData) -> IO[bytes]:
     rd.outheaders['Content-Type'] = 'application/javascript; charset=UTF-8'
     return open(P('content-server/service_worker.js', allow_user_override=False), 'rb')
 
 
 @endpoint('/manifest.json', auth_required=False, cache_control='no-cache')
-def manifest_json(ctx, rd):
+def manifest_json(ctx: Context, rd: RequestData) -> bytes:
     rd.outheaders['Content-Type'] = 'application/manifest+json; charset=UTF-8'
     manifest = {
         'name': 'calibre Content Server',
@@ -101,7 +117,7 @@ def manifest_json(ctx, rd):
 
 # auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
 @endpoint('/ajax-setup', auth_required=True, cache_control='no-cache', postprocess=json)
-def ajax_setup(ctx, rd):
+def ajax_setup(ctx: Context, rd: RequestData) -> dict[str, object]:
     auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)
     return {
         'auto_reload_port': max(0, auto_reload_port),
@@ -115,21 +131,22 @@ print_lock = Lock()
 
 
 @endpoint('/console-print', methods=('POST',))
-def console_print(ctx, rd) -> str:
+def console_print(ctx: Context, rd: RequestData) -> str:
     if not getattr(rd.opts, 'allow_console_print', False):
         raise HTTPForbidden('console printing is not allowed')
     with print_lock:
         print(rd.remote_addr, end=' ')
         stdout = getattr(sys.stdout, 'buffer', sys.stdout)
-        shutil.copyfileobj(rd.request_body_file, stdout)
+        shutil.copyfileobj(rd.request_body_file, stdout)  # ty: ignore[invalid-argument-type]
         stdout.flush()
     return ''
 
 
-def get_basic_query_data(ctx, rd):
+def get_basic_query_data(ctx: Context, rd: RequestData) -> tuple[str, Cache, list[str], list[str], str]:
     db, library_id, library_map, default_library = get_library_data(ctx, rd)
     skeys = db.field_metadata.sortable_field_keys()
-    sorts, orders = [], []
+    sorts: list[str] = []
+    orders: list[str] = []
     for x in rd.query.get('sort', '').split(','):
         if x:
             s, o = x.rpartition('.')[::2]
@@ -158,7 +175,7 @@ def get_translations_data() -> bytes | None:
 _translations_cache: dict | bool | None = None
 
 
-def get_translations():
+def get_translations() -> dict | bool:
     global _translations_cache
     if _translations_cache is None:
         _translations_cache = False
@@ -168,10 +185,10 @@ def get_translations():
     return _translations_cache
 
 
-_custom_list_template_cache: dict | None = None
+_custom_list_template_cache: CustomListTemplate | None = None
 
 
-def custom_list_template():
+def custom_list_template() -> CustomListTemplate:
     global _custom_list_template_cache
     if _custom_list_template_cache is None:
         _custom_list_template_cache = {
@@ -190,7 +207,7 @@ def custom_list_template():
     return _custom_list_template_cache
 
 
-def book_exists(x, ctx, rd):
+def book_exists(x: RecentlyReadEntry, ctx: Context, rd: RequestData) -> bool:
     try:
         db = ctx.get_library(rd, x['library_id'])
         if db is None:
@@ -200,8 +217,8 @@ def book_exists(x, ctx, rd):
     return bool(db.new_api.has_format(x['book_id'], x['format']))
 
 
-def basic_interface_data(ctx, rd):
-    ans = {
+def basic_interface_data(ctx: Context, rd: RequestData) -> dict:
+    ans: dict = {
         'username': rd.username,
         'output_format': prefs['output_format'].upper(),
         'input_formats': {x.upper(): True for x in available_input_formats()},
@@ -219,7 +236,7 @@ def basic_interface_data(ctx, rd):
         'default_book_list_mode': rd.opts.book_list_mode,
         'donate_link': localize_website_link('https://calibre-ebook.com/donate'),
         'lang_code_for_user_manual': lang_code_for_user_manual(),
-        'default_author_link': resolve_default_author_link(get_gpref('default_author_link')),
+        'default_author_link': resolve_default_author_link(cast('str | None', get_gpref('default_author_link'))),
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     ans['metadata_writable_library_ids'] = ctx.metadata_writable_library_ids(rd, ans['library_map'])
@@ -231,7 +248,7 @@ def basic_interface_data(ctx, rd):
 
 
 @endpoint('/interface-data/update/{translations_hash=None}', postprocess=json)
-def update_interface_data(ctx, rd, translations_hash):
+def update_interface_data(ctx: Context, rd: RequestData, translations_hash: str | None) -> dict:
     """
     Return the interface data needed for the server UI
     """
@@ -242,8 +259,8 @@ def update_interface_data(ctx, rd, translations_hash):
     return ans
 
 
-def get_field_list(db):
-    fieldlist = list(db.pref('book_display_fields', ()))
+def get_field_list(db: Cache) -> list[str]:
+    fieldlist: list[tuple[str, bool]] = list(db.pref('book_display_fields', ()))
     names = frozenset(x[0] for x in fieldlist)
     available = frozenset(db.field_metadata.displayable_field_keys())
     for field in available:
@@ -274,7 +291,7 @@ BROWSE_FIELD_DESCRIPTIONS = {
 BROWSE_IGNORED_CATEGORIES = frozenset({'identifiers', 'news', 'search'})
 
 
-def browse_field_kind(key, metadata) -> str:
+def browse_field_kind(key: str, metadata: dict | None) -> str:
     if metadata is None or metadata.get('kind') != 'field':
         return ''
     if key == 'pubdate' or (metadata.get('is_custom') and metadata.get('datatype') == 'datetime'):
@@ -284,15 +301,16 @@ def browse_field_kind(key, metadata) -> str:
     return ''
 
 
-def browse_field_custom_icon_url(ctx, key):
-    icon = icon_map().get(key)
+def browse_field_custom_icon_url(ctx: Context, key: str) -> str:
+    # Only the file_type_icons entry is a dict, it is not a field key
+    icon = cast('str | None', icon_map().get(key))
     if icon and icon.startswith('_'):
         # icon_map() returns custom icon names with the leading _ already URL quoted.
         return ctx.url_for('/icon', which='') + '/' + icon
     return ''
 
 
-def browse_field_entry(ctx, key, metadata, kind, hidden_categories):
+def browse_field_entry(ctx: Context, key: str, metadata: dict, kind: str, hidden_categories: AbstractSet[str]) -> dict[str, object]:
     name = metadata.get('name') or key
     return {
         'key': key,
@@ -307,16 +325,17 @@ def browse_field_entry(ctx, key, metadata, kind, hidden_categories):
     }
 
 
-def browse_field_map(ctx, db):
+def browse_field_map(ctx: Context, db: Cache) -> dict[str, dict[str, object]]:
     fm = db.field_metadata
     hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
-    ans = {}
+    ans: dict[str, dict[str, object]] = {}
     for key in BROWSE_FIELD_ORDER:
         metadata = fm.get(key)
         kind = browse_field_kind(key, metadata)
         if kind:
-            ans[key] = browse_field_entry(ctx, key, metadata, kind, hidden_categories)
-    custom_fields = []
+            # browse_field_kind() returns '' when metadata is None
+            ans[key] = browse_field_entry(ctx, key, cast('dict', metadata), kind, hidden_categories)
+    custom_fields: list[tuple[bytes, str, dict, str]] = []
     for key, metadata in fm.custom_field_metadata(include_composites=False).items():
         kind = browse_field_kind(key, metadata)
         if kind and key not in ans:
@@ -326,16 +345,16 @@ def browse_field_map(ctx, db):
     return ans
 
 
-def get_browse_fields(ctx, db):
+def get_browse_fields(ctx: Context, db: Cache) -> tuple[dict[str, object], ...]:
     fields = browse_field_map(ctx, db)
     return tuple(fields[key] for key in category_display_order(db.pref('tag_browser_category_order', ()), tuple(fields)))
 
 
-def escape_search_value(x):
+def escape_search_value(x: object) -> str:
     return str(x or '').replace('\\', '\\\\').replace('"', '\\"')
 
 
-def category_browse_search_expression(field, item):
+def category_browse_search_expression(field: str, item: dict) -> str:
     search = item.get('search_expression')
     if search:
         return search
@@ -353,7 +372,7 @@ def category_browse_search_expression(field, item):
     return f'{field}:"={escape_search_value(search_name)}"'
 
 
-def category_browse_items(ctx, rd, db, field, vl):
+def category_browse_items(ctx: Context, rd: RequestData, db: Cache, field: str, vl: str) -> tuple[dict[str, object], ...]:
     opts = categories_settings(rd.query, db, gst_container=tuple)
     categories = json_loads(categories_as_json(ctx, rd, db, opts, vl))
     root = categories.get('root') or {}
@@ -366,9 +385,10 @@ def category_browse_items(ctx, rd, db, field, vl):
             break
     if category_node is None:
         return ()
-    ans, seen = [], set()
+    ans: list[dict[str, object]] = []
+    seen: set[str] = set()
 
-    def walk(node) -> None:
+    def walk(node: dict) -> None:
         for child in node.get('children', ()):
             item = item_map.get(child.get('id')) or {}
             name = item.get('name') or ''
@@ -388,14 +408,14 @@ def category_browse_items(ctx, rd, db, field, vl):
     return tuple(ans)
 
 
-def next_month(year, month):
+def next_month(year: int, month: int) -> tuple[int, int]:
     month += 1
     if month > 12:
         return year + 1, 1
     return year, month
 
 
-def date_browse_items(ctx, rd, db, field, vl):
+def date_browse_items(ctx: Context, rd: RequestData, db: Cache, field: str, vl: str) -> tuple[dict[str, object], ...]:
     from calibre.db.search import TemplatesNotAllowed
 
     try:
@@ -431,8 +451,8 @@ def date_browse_items(ctx, rd, db, field, vl):
     )
 
 
-def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
-    ans = {}
+def get_library_init_data(ctx: Context, rd: RequestData, db: Cache, num: int, sorts: list[str], orders: list[str], vl: str) -> dict:
+    ans: dict = {}
     with db.safe_read_lock:
         try:
             ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders), vl)
@@ -451,7 +471,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['browse_fields'] = get_browse_fields(ctx, db)
         ans['fts_enabled'] = db.is_fts_enabled()
         ans['book_details_vertical_categories'] = db._pref('book_details_vertical_categories', ())
-        ans['fields_that_support_notes'] = tuple(db._field_supports_notes())
+        ans['fields_that_support_notes'] = tuple(cast('AbstractSet[str]', db._field_supports_notes()))
         ans['categories_using_hierarchy'] = db._pref('categories_using_hierarchy', ())
         mdata = ans['metadata'] = {}
         try:
@@ -472,7 +492,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
 
 
 @endpoint('/interface-data/books-init', postprocess=json)
-def books(ctx, rd):
+def books(ctx: Context, rd: RequestData) -> dict:
     """
     Get data to create list of books
 
@@ -491,7 +511,7 @@ def books(ctx, rd):
 
 
 @endpoint('/interface-data/init', postprocess=json)
-def interface_data(ctx, rd):
+def interface_data(ctx: Context, rd: RequestData) -> dict:
     """
     Return the data needed to create the server UI as well as a list of books.
 
@@ -521,7 +541,7 @@ def interface_data(ctx, rd):
 
 
 @endpoint('/interface-data/newly-added', postprocess=json)
-def newly_added(ctx, rd):
+def newly_added(ctx: Context, rd: RequestData) -> dict[str, object]:
     """
     Get newly added books.
 
@@ -537,7 +557,7 @@ def newly_added(ctx, rd):
 
 
 @endpoint('/interface-data/more-books', postprocess=json, methods=POSTABLE)
-def more_books(ctx, rd):
+def more_books(ctx: Context, rd: RequestData) -> dict:
     """
     Get more results from the specified search-query, which must
     be specified as JSON in the request body.
@@ -563,7 +583,7 @@ def more_books(ctx, rd):
         raise HTTPBadRequest(f'Search query missing key: {as_unicode(err)}')
     except Exception as err:
         raise HTTPBadRequest(f'Invalid query: {as_unicode(err)}')
-    ans = {}
+    ans: dict = {}
     with db.safe_read_lock:
         ans['search_result'] = search_result(ctx, rd, db, query, num, offset, sorts, orders, vl)
         mdata = ans['metadata'] = {}
@@ -576,7 +596,7 @@ def more_books(ctx, rd):
 
 
 @endpoint('/interface-data/set-session-data', postprocess=json, methods=POSTABLE)
-def set_session_data(ctx, rd) -> None:
+def set_session_data(ctx: Context, rd: RequestData) -> None:
     """
     Store session data persistently so that it is propagated automatically to
     new logged in clients
@@ -594,7 +614,7 @@ def set_session_data(ctx, rd) -> None:
 
 
 @endpoint('/interface-data/get-books', postprocess=json)
-def get_books(ctx, rd):
+def get_books(ctx: Context, rd: RequestData) -> dict:
     """
     Get books for the specified query
 
@@ -607,7 +627,7 @@ def get_books(ctx, rd):
         raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     searchq = rd.query.get('search', '')
     db = get_library_data(ctx, rd)[0]
-    ans = {}
+    ans: dict = {}
     mdata = ans['metadata'] = {}
     with db.safe_read_lock:
         try:
@@ -624,7 +644,7 @@ def get_books(ctx, rd):
 
 
 @endpoint('/interface-data/book-metadata/{book_id=0}', postprocess=json)
-def book_metadata(ctx, rd, book_id):
+def book_metadata(ctx: Context, rd: RequestData, book_id: int) -> dict:
     """
     Get metadata for the specified book. If no book_id is specified, return metadata for a random book.
 
@@ -645,7 +665,7 @@ def book_metadata(ctx, rd, book_id):
 
 
 @endpoint('/web-search/{book_id}/{field}/{item_val}', postprocess=json)
-def web_search(ctx, rd, book_id, field, item_val) -> Never:
+def web_search(ctx: Context, rd: RequestData, book_id: str | int, field: str, item_val: str) -> Never:
     """
     Redirect to a web search URL for the specified item.
     Optional: ?library_id=<default library>
@@ -667,7 +687,7 @@ def web_search(ctx, rd, book_id, field, item_val) -> Never:
 
 
 @endpoint('/interface-data/tag-browser')
-def tag_browser(ctx, rd):
+def tag_browser(ctx: Context, rd: RequestData) -> ETaggedDynamicOutput:
     """
     Get the Tag Browser serialized as JSON
     Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
@@ -679,14 +699,15 @@ def tag_browser(ctx, rd):
     etag = json_dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)])
     etag = hashlib.sha256(etag).hexdigest()
 
-    def generate():
-        return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db, opts, vl))
+    def generate() -> str | bytes:
+        # json() returns the JSON encoded bytes
+        return cast('bytes', json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db, opts, vl)))
 
     return rd.etagged_dynamic_response(etag, generate)
 
 
 @endpoint('/interface-data/browse-field/{field}', postprocess=json)
-def browse_field(ctx, rd, field):
+def browse_field(ctx: Context, rd: RequestData, field: str) -> dict[str, object]:
     """
     Get browse-list items for the specified metadata field.
     Optional: ?library_id=<default library>&vl=&date_group=y
@@ -704,10 +725,10 @@ def browse_field(ctx, rd, field):
     return {'field': field, 'items': items}
 
 
-_all_lang_names_cache: tuple | None = None
+_all_lang_names_cache: tuple[str, ...] | None = None
 
 
-def all_lang_names():
+def all_lang_names() -> tuple[str, ...]:
     global _all_lang_names_cache
     if _all_lang_names_cache is None:
         _all_lang_names_cache = tuple(sorted(lang_map_for_ui().values(), key=numeric_sort_key))
@@ -715,7 +736,7 @@ def all_lang_names():
 
 
 @endpoint('/interface-data/field-names/{field}', postprocess=json)
-def field_names(ctx, rd, field):
+def field_names(ctx: Context, rd: RequestData, field: str) -> tuple[str, ...]:
     """
     Get a list of all names for the specified field
     Optional: ?library_id=<default library>
@@ -732,7 +753,7 @@ def field_names(ctx, rd, field):
 
 
 @endpoint('/interface-data/field-id-map/{field}', postprocess=json)
-def field_id_map(ctx, rd, field):
+def field_id_map(ctx: Context, rd: RequestData, field: str) -> dict[int, str]:
     """
     Get a map of all ids:names for the specified field
     Optional: ?library_id=<default library>

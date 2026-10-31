@@ -7,6 +7,7 @@ from base64 import standard_b64encode
 from http.client import BAD_REQUEST, NOT_FOUND, OK, PRECONDITION_REQUIRED, UNAUTHORIZED, UNPROCESSABLE_ENTITY
 from io import BytesIO
 from time import monotonic
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 from urllib.parse import parse_qs, quote, urlencode, urlsplit
 
@@ -15,11 +16,16 @@ from lxml import etree
 from calibre.srv.opds import OPDS2_MIME
 from calibre.srv.tests.base import LibraryBaseTest
 
+if TYPE_CHECKING:
+    from http.client import HTTPConnection, HTTPResponse
+
+    from calibre.db.cache import Cache
+
 NS = {'a': 'http://www.w3.org/2005/Atom'}
 
 
 class OPDSFullTextTest(LibraryBaseTest):
-    def request(self, conn, url, accept=OPDS2_MIME, user=None):
+    def request(self, conn: HTTPConnection, url: str, accept: str = OPDS2_MIME, user: str | None = None) -> tuple[HTTPResponse, bytes]:
         headers = {'Accept': accept}
         if user:
             headers['Authorization'] = 'Basic ' + standard_b64encode(f'{user}:test'.encode()).decode()
@@ -27,7 +33,7 @@ class OPDSFullTextTest(LibraryBaseTest):
         response = conn.getresponse()
         return response, response.read()
 
-    def index(self, db) -> None:
+    def index(self, db: Cache) -> None:
         # Exercise the real FTS database with deterministic extracted text,
         # without starting background format-extraction workers.
         db.enable_fts(start_pool=False)
@@ -40,7 +46,7 @@ class OPDSFullTextTest(LibraryBaseTest):
             db.commit_fts_result(book_id, fmt, len(text), 'fixture', text, '', monotonic())
         db.add_format(3, 'TXT', BytesIO(b'A book waiting to index: pendingterm'), run_hooks=False)
 
-    def search_links(self, raw, accept):
+    def search_links(self, raw: bytes, accept: str) -> list[dict[str, str]]:
         if accept == OPDS2_MIME:
             return [x for x in json.loads(raw)['links'] if x.get('rel') == 'search']
         return [dict(x.attrib) for x in etree.fromstring(raw).xpath('a:link[@rel="search"]', namespaces=NS)]

@@ -7,6 +7,7 @@ import reprlib
 import shutil
 import tempfile
 from threading import Lock
+from typing import TYPE_CHECKING
 
 from calibre.customize.ui import available_output_formats, input_profiles, output_profiles, run_plugins_on_postconvert
 from calibre.db.errors import NoSuchBook
@@ -18,8 +19,17 @@ from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import share_open
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from calibre.customize.profiles import InputProfile, OutputProfile
+    from calibre.db.cache import Cache
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+    from calibre.srv.jobs import Job
+
 receive_data_methods = {'POST'}
-conversion_jobs = {}
+conversion_jobs: dict[int | None, JobStatus] = {}
 cache_lock = Lock()
 
 # Conversion options that must never be honoured when they come from a remote
@@ -39,7 +49,11 @@ FORBIDDEN_CLIENT_OPTIONS = frozenset({
 
 
 class JobStatus:
-    def __init__(self, job_id, book_id, tdir, library_id, pathtoebook, conversion_data, username=None) -> None:
+    traceback: str | None
+
+    def __init__(
+        self, job_id: int | None, book_id: int, tdir: str, library_id: str, pathtoebook: str, conversion_data: dict, username: str | None = None
+    ) -> None:
         self.job_id = job_id
         self.username = username
         self.log = self.traceback = ''
@@ -59,7 +73,7 @@ class JobStatus:
         self.log = self.traceback = ''
 
     @property
-    def current_status(self):
+    def current_status(self) -> tuple[float, str]:
         try:
             with share_open(os.path.join(self.tdir, 'status'), 'rb') as f:
                 lines = f.read().decode('utf-8').splitlines()
@@ -83,21 +97,21 @@ def expire_old_jobs() -> None:
             job_status.cleanup()
 
 
-def safe_delete_file(path) -> None:
+def safe_delete_file(path: str) -> None:
     try:
         os.remove(path)
     except OSError:
         pass
 
 
-def safe_delete_tree(path) -> None:
+def safe_delete_tree(path: str) -> None:
     try:
         shutil.rmtree(path, ignore_errors=True)
     except OSError:
         pass
 
 
-def job_done(job) -> None:
+def job_done(job: Job) -> None:
     with cache_lock:
         try:
             job_status = conversion_jobs[job.job_id]
@@ -112,7 +126,7 @@ def job_done(job) -> None:
     safe_delete_file(job_status.pathtoebook)
 
 
-def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs) -> None:
+def convert_book(path_to_ebook: str, opf_path: str, cover_path: str | None, output_fmt: str, recs: list[tuple[str, object, int]]) -> None:
     from calibre.customize.conversion import OptionRecommendation
     from calibre.ebooks.conversion.plumber import Plumber
     from calibre.utils.logging import Log
@@ -129,7 +143,7 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs) -> None:
     os.chdir(os.path.dirname(path_to_ebook))
     status_file = share_open('status', 'wb')
 
-    def notification(percent, msg='') -> None:
+    def notification(percent: float, msg: str = '') -> None:
         status_file.write(f'{percent}:{msg}|||\n'.encode())
         status_file.flush()
 
@@ -140,7 +154,7 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs) -> None:
     plumber.run()
 
 
-def sanitize_conversion_options(ctx, db, input_fmt, output_fmt, book_id, client_options):
+def sanitize_conversion_options(ctx: Context, db: Cache, input_fmt: str, output_fmt: str, book_id: int, client_options: dict[str, object]) -> dict[str, object]:
     """Restrict the conversion options supplied by a (remote) client to the set
     that the server actually advertises through /conversion/book-data, and drop
     any option that is dangerous to expose remotely. Without this a client can
@@ -151,16 +165,16 @@ def sanitize_conversion_options(ctx, db, input_fmt, output_fmt, book_id, client_
     ans = {}
     for name, val in client_options.items():
         if name in FORBIDDEN_CLIENT_OPTIONS:
-            ctx.log.warn(f'Ignoring conversion option {name!r} from client: not allowed via the network API')
+            ctx.log.warn(f'Ignoring conversion option {name!r} from client: not allowed via the network API')  # ty: ignore[unresolved-attribute]
             continue
         if name not in allowed:
-            ctx.log.warn(f'Ignoring conversion option {name!r} from client: not exposed by the conversion API')
+            ctx.log.warn(f'Ignoring conversion option {name!r} from client: not exposed by the conversion API')  # ty: ignore[unresolved-attribute]
             continue
         ans[name] = val
     return ans
 
 
-def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
+def queue_job(ctx: Context, rd: RequestData, library_id: str, db: Cache, fmt: str, book_id: int, conversion_data: dict) -> int | None:
     from calibre.customize.conversion import OptionRecommendation
     from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics
     from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -202,7 +216,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     types={'book_id': int},
     methods=receive_data_methods,
 )
-def start_conversion(ctx, rd, book_id):
+def start_conversion(ctx: Context, rd: RequestData, book_id: int) -> int | None:
     db, library_id = get_library_data(ctx, rd)[:2]
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
@@ -241,7 +255,7 @@ def start_conversion(ctx, rd, book_id):
     types={'job_id': int},
     methods=receive_data_methods,
 )
-def conversion_status(ctx, rd, job_id):
+def conversion_status(ctx: Context, rd: RequestData, job_id: int) -> dict[str, object]:
     db, library_id = get_library_data(ctx, rd)[:2]
     with cache_lock:
         job_status = conversion_jobs.get(job_id)
@@ -284,7 +298,7 @@ def conversion_status(ctx, rd, job_id):
         job_status.cleanup()
 
 
-def get_conversion_options(input_fmt, output_fmt, book_id, db):
+def get_conversion_options(input_fmt: str, output_fmt: str, book_id: int, db: Cache) -> dict:
     from calibre.customize.conversion import OptionRecommendation
     from calibre.ebooks.conversion.config import OPTIONS, load_defaults, load_specifics, options_for_input_fmt, options_for_output_fmt
     from calibre.ebooks.conversion.plumber import create_dummy_plumber
@@ -306,7 +320,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
         'output_ui_data': plumber.output_plugin.ui_data,
     }
 
-    def merge_group(group_name, option_names) -> None:
+    def merge_group(group_name: str | None, option_names: Iterable[str]) -> None:
         if not group_name or group_name in ('debug', 'metadata'):
             return
         defs = load_defaults(group_name)
@@ -334,14 +348,14 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     return ans
 
 
-_profiles_cache: dict | None = None
+_profiles_cache: dict[str, dict[str, dict[str, str]]] | None = None
 
 
-def profiles():
+def profiles() -> dict[str, dict[str, dict[str, str]]]:
     global _profiles_cache
     if _profiles_cache is None:
 
-        def desc(profile):
+        def desc(profile: InputProfile | OutputProfile) -> dict[str, str]:
             w, h = profile.screen_size
             if w >= 10000:
                 ss = _('unlimited')
@@ -357,7 +371,7 @@ def profiles():
 
 
 @endpoint('/conversion/book-data/{book_id}', postprocess=json, types={'book_id': int})
-def conversion_data(ctx, rd, book_id):
+def conversion_data(ctx: Context, rd: RequestData, book_id: int) -> dict[str, object]:
     from calibre.ebooks.conversion.config import NoSupportedInputFormats, get_input_format_for_book, get_sorted_output_formats
 
     db = get_library_data(ctx, rd)[0]
@@ -369,8 +383,8 @@ def conversion_data(ctx, rd, book_id):
         input_formats = []
     else:
         input_formats = [x for x in input_formats if not is_recipe_fmt(x)]
-        if rd.query.get('input_fmt') and rd.query.get('input_fmt').lower() in input_formats:
-            input_format = rd.query.get('input_fmt').lower()
+        if rd.query.get('input_fmt') and rd.query.get('input_fmt').lower() in input_formats:  # ty: ignore[unresolved-attribute]
+            input_format = rd.query.get('input_fmt').lower()  # ty: ignore[unresolved-attribute]
         if input_format in input_formats:
             input_formats.remove(input_format)
             input_formats.insert(0, input_format)

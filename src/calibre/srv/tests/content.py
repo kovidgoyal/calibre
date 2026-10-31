@@ -7,6 +7,7 @@ import os
 import time
 from compression import zlib
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from calibre.ebooks.metadata.epub import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF
@@ -16,6 +17,9 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 from polyglot.binary import as_base64_bytes, from_hex_unicode
+
+if TYPE_CHECKING:
+    from http.client import HTTPResponse
 
 
 def run_generated_cover_checks() -> list[str]:
@@ -40,7 +44,7 @@ class ContentTest(LibraryBaseTest):
         with self.create_server() as server:
             conn = server.connect()
 
-            def missing(url, body=b'') -> None:
+            def missing(url: str, body: bytes = b'') -> None:
                 conn.request('GET', url)
                 r = conn.getresponse()
                 self.ae(r.status, http.client.NOT_FOUND)
@@ -51,14 +55,14 @@ class ContentTest(LibraryBaseTest):
                 missing(f'/{prefix}/../out.html', b'Naughty, naughty!')
                 missing(f'/{prefix}/C:/out.html', b'Naughty, naughty!')
 
-            def test_response(r) -> None:
+            def test_response(r: HTTPResponse) -> None:
                 self.assertIn('max-age=', r.getheader('Cache-Control'))
                 self.assertIn('public', r.getheader('Cache-Control'))
                 self.assertIsNotNone(r.getheader('Expires'))
                 self.assertIsNotNone(r.getheader('ETag'))
                 self.assertIsNotNone(r.getheader('Content-Type'))
 
-            def test(src, url, sz=None) -> None:
+            def test(src: str, url: str, sz: int | None = None) -> None:
                 raw = P(src, data=True)
                 conn.request('GET', url)
                 r = conn.getresponse()
@@ -108,14 +112,14 @@ class ContentTest(LibraryBaseTest):
             db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
 
-            def get(what, book_id, library_id=None, q=''):
+            def get(what: str, book_id: int | str, library_id: str | None = None, q: str = '') -> tuple[HTTPResponse, bytes]:
                 q = ('?' + q) if q else q
                 conn.request('GET', f'/get/{what}/{book_id}' + (('/' + library_id) if library_id else '') + q)
                 r = conn.getresponse()
                 return r, r.read()
 
             # Test various invalid parameters
-            def bad(*args) -> None:
+            def bad(*args: str | int) -> None:
                 r, data = get(*args)
                 self.ae(r.status, http.client.NOT_FOUND)
 
@@ -184,7 +188,7 @@ class ContentTest(LibraryBaseTest):
                 c.DEBUG = orig
 
             # Test the serving of covers
-            def change_cover(count, book_id=2) -> None:
+            def change_cover(count: int, book_id: int = 2) -> None:
                 cpath = db.format_abspath(book_id, '__COVER_INTERNAL__')
                 db.set_cover({2: I('lt.png', data=True)})
                 t = time.time() + 1 + count
@@ -330,7 +334,7 @@ class ContentTest(LibraryBaseTest):
             auth = {'Authorization': 'Basic ' + as_base64_bytes('12:test').decode()}
             conn = server.connect()
 
-            def request(path, body, content_type='application/json'):
+            def request(path: str, body: str | bytes, content_type: str = 'application/json') -> tuple[int, bytes]:
                 conn.request('POST', path, body=body, headers={'Content-Type': content_type, **auth})
                 r = conn.getresponse()
                 return r.status, r.read()
@@ -374,7 +378,7 @@ class ContentTest(LibraryBaseTest):
         from calibre.ebooks.oeb.parse_utils import html5_parse
         from calibre.srv.render_book import html_as_json
 
-        def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)) -> None:
+        def t(html: str, body_children: list[dict], nsmap: tuple[str, ...] = ('http://www.w3.org/1999/xhtml',)) -> None:
             root = html5_parse(html)
             raw = html_as_json(root)
             # print(raw.decode('utf-8'))

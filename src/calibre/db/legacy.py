@@ -76,7 +76,7 @@ def create_backend(
     )
 
 
-def set_global_state(db: Cache) -> None:
+def set_global_state(db: Cache | LibraryDatabase) -> None:
     backend_set_global_state(db.backend)
     set_saved_searches(db, 'saved_searches')
 

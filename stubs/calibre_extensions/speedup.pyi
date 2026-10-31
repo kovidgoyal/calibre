@@ -51,7 +51,7 @@ def websocket_mask(data: bytearray | memoryview, mask: bytes | memoryview, offse
     "XOR the data (bytestring) with the specified (must be 4-byte bytestring) mask"
     pass
 
-def utf8_decode(data: bytes, state: int = 0, codep: int = 0) -> tuple[str, int, int]:
+def utf8_decode(data: bytes | bytearray | memoryview, state: int = 0, codep: int = 0) -> tuple[str, int, int]:
     "Decode an UTF-8 bytestring, using a strict UTF-8 decoder, that unlike python does not allow orphaned surrogates. Returns a unicode object and the state."
     pass
 

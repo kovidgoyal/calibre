@@ -9,7 +9,7 @@ import socket
 from calibre.constants import islinux
 
 
-def pre_activated_socket() -> None:
+def pre_activated_socket() -> socket.socket | None:
     return None
 
 
@@ -26,7 +26,7 @@ if islinux:
             ('nl_groups', ctypes.c_int),
         ]
 
-    def getsockfamily(fd):
+    def getsockfamily(fd: int) -> int:
         addr = SOCKADDR_NL(0, 0, 0, 0)
         sz = ctypes.c_int(ctypes.sizeof(addr))
         if ctypes.CDLL(None, use_errno=True).getsockname(fd, ctypes.pointer(addr), ctypes.pointer(sz)) != 0:
@@ -45,7 +45,7 @@ if islinux:
         del pre_activated_socket
         has_preactivated_support = True
 
-        def pre_activated_socket():
+        def pre_activated_socket() -> socket.socket | None:
             num = systemd.sd_listen_fds(1)  # Remove systemd env vars so that child processes do not inherit them
             if num > 1:
                 raise OSError('Too many file descriptors received from systemd')
@@ -66,4 +66,4 @@ if __name__ == '__main__':
     # /usr/lib/systemd/systemd-activate -l 8081 calibre-debug pre_activated.py
     # telnet localhost 8081
     s = pre_activated_socket()
-    print(s, s.getsockname())
+    print(s, s.getsockname())  # ty: ignore[unresolved-attribute]

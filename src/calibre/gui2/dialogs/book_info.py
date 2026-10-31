@@ -298,7 +298,7 @@ class BookInfo(QDialog, DropMixin):
             self.view = None
             db = get_gui(fail_if_absent=True).library_broker.get_library(library_path)
             dbn = db.new_api
-            if not dbn.has_id(book_id):
+            if book_id is None or not dbn.has_id(book_id):
                 raise ValueError(_("Book {} doesn't exist").format(book_id))
             mi = dbn.get_metadata(book_id, get_cover=False)
             mi.cover_data = [None, dbn.cover(book_id, as_image=True)]

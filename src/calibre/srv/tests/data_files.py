@@ -31,7 +31,7 @@ class DataFilesServerTest(LibraryBaseTest):
             host, port = server.address
             url = f'http://[{host}]:{port}/calibre' if ':' in host else f'http://{host}:{port}/calibre'
 
-            def run(*args, user='owner', library_id=None):
+            def run(*args: str, user: str = 'owner', library_id: str | None = None) -> str:
                 parser = option_parser(get_parser, [])
                 opts, args = parser.parse_args([
                     '--with-library',

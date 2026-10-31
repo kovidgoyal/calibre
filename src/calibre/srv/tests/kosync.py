@@ -5,16 +5,22 @@ import json
 import os
 import tempfile
 from hashlib import md5
+from typing import TYPE_CHECKING
 
 from calibre.srv.tests.base import LibraryBaseTest
 
+if TYPE_CHECKING:
+    from http.client import HTTPConnection
 
-def key_for(password):
+
+def key_for(password: str) -> str:
     return md5(password.encode('utf-8')).hexdigest()
 
 
 class KOSyncTest(LibraryBaseTest):
-    def request(self, conn, path, method='GET', user=None, key=None, data=None):
+    def request(
+        self, conn: HTTPConnection, path: str, method: str = 'GET', user: str | None = None, key: str | None = None, data: dict | None = None
+    ) -> tuple[int, dict]:
         # Send requests the way KOReader does
         headers = {'Accept': 'application/vnd.koreader.v1+json'}
         if user is not None:
@@ -174,7 +180,7 @@ class KOSyncTest(LibraryBaseTest):
             um.add_user('alice', 'secret')
             um.add_user('bob', 'secret')
 
-            def positions(username, anonymous=False):
+            def positions(username: str, anonymous: bool = False) -> dict[str, object]:
                 return {d: p['progress'] for d in ('d0', 'd1', 'd2', 'd3') if (p := um.kosync_progress(username, d, anonymous=anonymous))}
 
             # Users and anonymous positions are separate even for the same name
