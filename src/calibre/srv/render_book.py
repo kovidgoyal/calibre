@@ -400,9 +400,9 @@ def transform_smil(
                 if p.get('audio'):
                     seq['par'].append(p)
             elif child.tag == seq_tag:
-                tref = child.get(textref_attr)  # ty: ignore[invalid-assignment]  only used when not None
-                if tref:
-                    process_seq(child, tref, seq)
+                child_tref = child.get(textref_attr)
+                if child_tref:
+                    process_seq(child, child_tref, seq)
         if not seq['par']:
             del seq['par']
         if not seq['seq']:
@@ -1048,7 +1048,7 @@ def develop(max_workers: int = 1, wait_for_input: bool = True) -> None:
 
     path = sys.argv[-1]
     if max_workers < 1:
-        max_workers = os.cpu_count()  # ty: ignore[invalid-assignment]
+        max_workers = os.cpu_count() or 1
     with TemporaryDirectory() as tdir:
         render(
             path,

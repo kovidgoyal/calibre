@@ -10,7 +10,7 @@ import zlib
 from collections.abc import Generator
 from contextlib import contextmanager
 from functools import lru_cache, partial
-from typing import TypedDict, cast
+from typing import TypedDict
 from urllib.parse import urlencode
 
 from lxml import etree
@@ -23,6 +23,7 @@ from calibre.srv.handler import Context
 from calibre.srv.http_response import ETaggedDynamicOutput, RequestData, StaticOutput, parse_if_none_match
 from calibre.srv.opds import DIVINA_MIME, RequestContext, opds2_metadata
 from calibre.srv.routes import endpoint
+from calibre.srv.utils import header_as_str
 from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -226,8 +227,7 @@ def comic_page(ctx: Context, rd: RequestData, book_id: int, page: int) -> ETagge
     # transcoding, and replacing the archive invalidates every page URL.
     digest = hashlib.sha256(f'comic-page-v1:{revision}:{page}:{media_type}'.encode()).hexdigest()
     etag = f'"{digest}"'
-    # If-None-Match is always decoded by the HTTP parser
-    none_match = parse_if_none_match(cast('str', rd.inheaders.get('If-None-Match', '')))
+    none_match = parse_if_none_match(header_as_str(rd.inheaders.get('If-None-Match', '')))
     if media_type != actual_type and etag not in none_match and '*' not in none_match:
         # Transcode here, in a worker thread, as the function passed to
         # etagged_dynamic_response() is called on the server's event loop

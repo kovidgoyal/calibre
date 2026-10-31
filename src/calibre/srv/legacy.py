@@ -44,9 +44,9 @@ def clean(x: object) -> object:
 
 class _EBuilder:
     def __call__(self, tag: str, *children: object, **attribs: object) -> HtmlElement:
-        children = list(map(clean, children))  # ty: ignore[invalid-assignment]
+        cleaned = list(map(clean, children))
         attribs = {k.rstrip('_').replace('_', '-'): clean(v) for k, v in attribs.items()}
-        return getattr(E_, tag)(*children, **attribs)
+        return getattr(E_, tag)(*cleaned, **attribs)
 
     def __getattr__(self, tag: str) -> Callable[..., HtmlElement]:
         return partial(self, tag)

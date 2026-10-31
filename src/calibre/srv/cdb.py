@@ -103,7 +103,7 @@ def cdb_add_book(ctx: Context, rd: RequestData, job_id: str, add_duplicates: str
         raise HTTPForbidden('Cannot use the add book interface to add recipe files, as they allow code execution')
     if isinstance(rd.request_body_file, BytesIO):
         raise HTTPBadRequest('A request body containing the file data must be specified')
-    add_duplicates = add_duplicates in ('y', '1')  # ty: ignore[invalid-assignment]
+    allow_duplicates = add_duplicates in ('y', '1')
     path = os.path.join(rd.tdir, sfilename)
     rd.request_body_file.seek(0)
     with open(path, 'wb') as f:
@@ -116,7 +116,7 @@ def cdb_add_book(ctx: Context, rd: RequestData, job_id: str, add_duplicates: str
         f.seek(0)
         nfmt = os.path.splitext(path)[1]
         fmt = nfmt[1:] if nfmt else fmt
-        ids, duplicates = db.add_books([(mi, {fmt: f})], add_duplicates=add_duplicates)  # ty: ignore[invalid-argument-type]
+        ids, duplicates = db.add_books([(mi, {fmt: f})], add_duplicates=allow_duplicates)
     ans = {'title': mi.title, 'authors': mi.authors, 'languages': mi.languages, 'filename': filename, 'id': job_id}
     if ids:
         ans['book_id'] = ids[0]

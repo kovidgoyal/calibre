@@ -76,7 +76,7 @@ def validate_password(pw: str) -> str | None:
     if not pw:
         return _('Empty passwords are not allowed')
     try:
-        pw = pw.encode('ascii', 'strict')  # ty: ignore[invalid-assignment]
+        pw.encode('ascii', 'strict')
     except ValueError:
         return _('The password must contain only ASCII (English) characters and symbols')
 

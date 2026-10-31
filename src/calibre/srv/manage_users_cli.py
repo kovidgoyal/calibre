@@ -146,7 +146,7 @@ Manage the libraries the specified user account is restricted to.
     p.add_option(
         '--action',
         type='choice',
-        choices='allow-all allow block per-library show'.split(),  # ty: ignore[invalid-argument-type]
+        choices=('allow-all', 'allow', 'block', 'per-library', 'show'),
         default='show',
         help=_(
             'Specify the action to perform.'

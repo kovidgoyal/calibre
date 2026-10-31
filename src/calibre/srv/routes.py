@@ -31,11 +31,8 @@ default_methods = frozenset(('HEAD', 'GET'))
 
 
 class JSONEndpoint:
-    def loads(self, *a: object, **kw: object) -> object:
-        return jsonlib.loads(*a, **kw)  # ty: ignore[invalid-argument-type]
-
-    def dumps(self, *a: object, **kw: object) -> str:
-        return jsonlib.dumps(*a, **kw)  # ty: ignore[invalid-argument-type]
+    loads = staticmethod(jsonlib.loads)
+    dumps = staticmethod(jsonlib.dumps)
 
     def __call__(self, ctx: Context, rd: RequestData, endpoint: RouteFunction, output: object) -> object:
         rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
@@ -410,23 +407,24 @@ class Router:
                 outheaders['Expires'] = http_date(10000.0)  # A date in the past
                 outheaders['Cache-Control'] = 'no-cache, must-revalidate'
                 outheaders['Pragma'] = 'no-cache'
-            elif isinstance(cc, numbers.Number):
-                cc = int(60 * 60 * cc)  # ty: ignore[invalid-argument-type]
-                outheaders['Cache-Control'] = f'public, max-age={cc}'
-                if cc == 0:
-                    cc -= 100000
-                outheaders['Expires'] = http_date(cc + time.time())
-            else:
-                ctype, max_age = cc  # ty: ignore[not-iterable]
+            elif isinstance(cc, tuple):
+                ctype, max_age = cc
                 max_age = int(60 * 60 * max_age)
                 outheaders['Cache-Control'] = f'{ctype}, max-age={max_age}'
                 if max_age == 0:
                     max_age -= 100000
                 outheaders['Expires'] = http_date(max_age + time.time())
+            else:  # a number of hours
+                cc = int(60 * 60 * cc)
+                outheaders['Cache-Control'] = f'public, max-age={cc}'
+                if cc == 0:
+                    cc -= 100000
+                outheaders['Expires'] = http_date(cc + time.time())
         return ans
 
     def url_for(self, route: str | RouteFunction | None, **kwargs: object) -> str:
         if route is None:
             return self.url_prefix or '/'
-        route = getattr(route, 'route_key', route)
-        return self.url_prefix + self.routes[route].url_for(**kwargs)  # ty: ignore[invalid-argument-type]
+        if isinstance(route, RouteFunction):
+            route = route.route_key
+        return self.url_prefix + self.routes[route].url_for(**kwargs)

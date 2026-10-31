@@ -185,7 +185,7 @@ def cover(
     if mtime is None:
         return generated_cover(ctx, rd, library_id, db, book_id, width, height)
     prefix = 'cover'
-    if width is None and height is None:
+    if width is None or height is None:  # callers specify either both or neither
 
         def copy_func(dest: IO[bytes]) -> None:
             db.copy_cover_to(book_id, dest)
@@ -204,8 +204,8 @@ def cover(
                 # Scale so the image covers the box rather than fits inside
                 # it, for clients that display it with object-fit: cover
                 img = image_from_data(img)
-                w, h = fill_box(img.width(), img.height(), width, height)  # ty: ignore[invalid-argument-type]
-            data = scale_image(img, width=w, height=h, compression_quality=quality)[-1]  # ty: ignore[invalid-argument-type]
+                w, h = fill_box(img.width(), img.height(), width, height)
+            data = scale_image(img, width=w, height=h, compression_quality=quality)[-1]
             dest.write(data)
 
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)

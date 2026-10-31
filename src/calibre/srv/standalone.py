@@ -184,7 +184,9 @@ libraries that the main calibre program knows about will be used.
             ' for details. See also the {1} option.'
         ).format('calibre-server --manage-users -- help', '--userdb'),
     )
-    parser.get_option('--userdb').help = _(  # ty: ignore[invalid-assignment]
+    userdb_option = parser.get_option('--userdb')
+    assert userdb_option is not None  # added by opts_to_parser()
+    userdb_option.help = _(
         'Path to the user database to use for authentication. The database'
         ' is a SQLite file. To create it use {0}. You can read more'
         ' about managing users at: {1}'

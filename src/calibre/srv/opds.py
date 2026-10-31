@@ -32,7 +32,7 @@ from calibre.srv.http_request import parse_uri
 from calibre.srv.http_response import RequestData
 from calibre.srv.opts import Options
 from calibre.srv.routes import endpoint
-from calibre.srv.utils import MultiDict, Offsets, get_library_data, http_date
+from calibre.srv.utils import MultiDict, Offsets, get_library_data, header_as_str, http_date
 from calibre.utils.config import prefs
 from calibre.utils.date import as_utc, is_date_undefined, timestampfromdt
 from calibre.utils.icu import sort_key
@@ -63,9 +63,8 @@ def accepts_opds2(rd: RequestData) -> bool:
     2.0 is used only when it has a higher quality value than Atom.
     """
     qualities = {OPDS2_MIME: 0.0, 'application/atom+xml': 0.0}
-    # Accept is always decoded by the HTTP parser
-    for header in cast('list[str]', rd.inheaders.get('Accept', all=True)):
-        for media_range in header.split(','):
+    for header in rd.inheaders.get('Accept', all=True):
+        for media_range in header_as_str(header).split(','):
             media_type, *params = (x.strip() for x in media_range.split(';'))
             media_type = media_type.lower()
             if media_type not in qualities:

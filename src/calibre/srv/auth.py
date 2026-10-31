@@ -9,11 +9,11 @@ from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
 from threading import Lock
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, Protocol
 
 from calibre.srv.errors import HTTPAuthRequired, HTTPForbidden, HTTPSimpleResponse
 from calibre.srv.http_request import parse_uri
-from calibre.srv.utils import encode_path, parse_http_dict
+from calibre.srv.utils import encode_path, header_as_str, parse_http_dict
 from calibre.utils.monotonic import monotonic
 from polyglot.binary import as_hex_unicode, from_base64_unicode, from_hex_bytes
 
@@ -138,13 +138,13 @@ class DigestAuth:  # {{{
 
     def __init__(self, header_val: str) -> None:
         data = parse_http_dict(header_val)
-        # The casts are for fields whose presence is validated below
-        self.realm = cast('str', data.get('realm'))
-        self.username = cast('str', data.get('username'))
-        self.nonce = cast('str', data.get('nonce'))
-        self.uri = cast('str', data.get('uri'))
+        # These fields are required, and their presence is validated below
+        self.realm = data.get('realm', '')
+        self.username = data.get('username', '')
+        self.nonce = data.get('nonce', '')
+        self.uri = data.get('uri', '')
         self.method = data.get('method')
-        self.response = cast('str', data.get('response'))
+        self.response = data.get('response', '')
         self.algorithm = data.get('algorithm', 'MD5').upper()
         self.cnonce = data.get('cnonce')
         self.opaque = data.get('opaque')
@@ -294,7 +294,7 @@ class AuthController:
         ban_key = data.remote_addr
         if self.ban_list.is_banned(ban_key):
             raise HTTPForbidden('Too many login attempts', log=f'Too many login attempts from: {data.remote_addr}')
-        auth = cast('str | None', data.inheaders.get('Authorization'))  # Authorization is always decoded to str
+        auth = header_as_str(data.inheaders.get('Authorization', ''))
         nonce_is_stale = False
         log_msg = None
         data.username = None

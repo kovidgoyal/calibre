@@ -57,9 +57,9 @@ class LastReadCache:
     def get(self, sql: str, bindings: Bindings | None = None, /, *, all: Literal[False]) -> SQLiteValue: ...
     @overload
     def get(self, sql: str, bindings: Bindings | None = None, /, *, all: bool) -> list[SQLiteValues] | SQLiteValue: ...
-    def get(self, *args: str | Bindings | None, **kw: bool) -> list[SQLiteValues] | SQLiteValue:
-        ans = self.conn.cursor().execute(*args)  # ty: ignore[invalid-argument-type]
-        if kw.get('all', True):
+    def get(self, sql: str, bindings: Bindings | None = None, /, *, all: bool = True) -> list[SQLiteValues] | SQLiteValue:
+        ans = self.conn.cursor().execute(sql, bindings)
+        if all:
             return ans.fetchall()
         with suppress(StopIteration, IndexError):
             return next(ans)[0]

@@ -22,7 +22,7 @@ from calibre.constants import __version__
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.loop import WRITE
-from calibre.srv.utils import HTTP1, HTTP11, Cookie, MultiDict, get_translator_for_lang, http_date, socket_errors_socket_closed, sort_q_values
+from calibre.srv.utils import HTTP1, HTTP11, Cookie, MultiDict, get_translator_for_lang, header_as_str, http_date, socket_errors_socket_closed, sort_q_values
 from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.builtins import error_message, reraise
@@ -82,13 +82,13 @@ def parse_multipart_byterange(buf: IO[bytes], content_type: str) -> list[tuple[i
         if line.endswith(b'--'):
             return None
         headers = read_headers(buf.readline)
-        cr = headers.get('Content-Range')
+        cr = header_as_str(headers.get('Content-Range', ''))
         if not cr:
             raise ValueError('Missing Content-Range header in sub-part')
-        if not cr.startswith('bytes '):  # ty: ignore[invalid-argument-type]
+        if not cr.startswith('bytes '):
             raise ValueError('Malformed Content-Range header in sub-part, no prefix')
         try:
-            start, stop = (int(x.strip()) for x in cr.partition(' ')[-1].partition('/')[0].partition('-')[::2])  # ty: ignore[invalid-argument-type]
+            start, stop = (int(x.strip()) for x in cr.partition(' ')[-1].partition('/')[0].partition('-')[::2])
         except Exception:
             raise ValueError('Malformed Content-Range header in sub-part, failed to parse byte range')
         content_length = stop - start + 1
@@ -399,7 +399,7 @@ class RequestData:  # {{{
         return get_translator_for_lang(self.translator_cache, bcp_47_code)
 
     def get_preferred_language(self) -> str:
-        return preferred_lang(cast('str | None', self.inheaders.get('Accept-Language')), self.get_translator)  # a decoded header
+        return preferred_lang(header_as_str(self.inheaders.get('Accept-Language', '')), self.get_translator)
 
     def _(self, text: str) -> str:
         return self.gettext_func(text)
@@ -537,11 +537,11 @@ class HTTPConnection(HTTPRequest):
             }.get(status_code, status_code)
 
         self.close_after_response = close_after_response
-        msg = msg.encode('utf-8')  # ty: ignore[invalid-assignment]
+        body = msg.encode('utf-8')
         ct = 'http' if self.method == 'TRACE' else 'plain'
         buf = [
             f'{self.response_protocol} {status_code} {http.client.responses[status_code]}',
-            f'Content-Length: {len(msg)}',
+            f'Content-Length: {len(body)}',
             f'Content-Type: text/{ct}; charset=UTF-8',
             'Date: ' + http_date(),
         ]
@@ -553,7 +553,7 @@ class HTTPConnection(HTTPRequest):
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
         if self.method != 'HEAD':
-            buf.append(msg)  # ty: ignore[invalid-argument-type]
+            buf.append(body)
         response_data = b''.join(buf)
         self.log_access(status_code=status_code, response_size=len(response_data))
         self.response_ready(ReadOnlyFileBuffer(response_data))
@@ -784,7 +784,7 @@ class HTTPConnection(HTTPRequest):
         self.simple_response(http.client.INTERNAL_SERVER_ERROR)
 
     def finalize_output(self, output: object, request: RequestData, is_http1: bool) -> ReadableOutput | GeneratedOutput | None:
-        none_match = parse_if_none_match(cast('str', request.inheaders.get('If-None-Match', '')))  # a decoded header
+        none_match = parse_if_none_match(header_as_str(request.inheaders.get('If-None-Match', '')))
         if isinstance(output, ETaggedDynamicOutput):
             matched = '*' in none_match or (output.etag and output.etag in none_match)
             if matched:
@@ -827,22 +827,25 @@ class HTTPConnection(HTTPRequest):
             and request.status_code == http.client.OK
             # Only output of known length is compressed, generated output is sent as is
             and (opts.compress_min_size > -1 and output.content_length is not None and output.content_length >= opts.compress_min_size)
-            and acceptable_encoding(cast('str', request.inheaders.get('Accept-Encoding', '')))  # a decoded header
+            and acceptable_encoding(header_as_str(request.inheaders.get('Accept-Encoding', '')))
             and not is_http1
         )
         accept_ranges = not compressible and output.accept_ranges is not None and request.status_code == http.client.OK and not is_http1
-        # accept_ranges is True only for ReadableOutput, which has a content_length. A
-        # Range header value that is bytes makes get_ranges() return None.
+        # output.accept_ranges is True only for ReadableOutput, which always has a content_length
+        content_length = output.content_length
+        range_header = request.inheaders.get('Range')
         ranges = (
-            get_ranges(request.inheaders.get('Range'), output.content_length)  # ty: ignore[invalid-argument-type]
-            if output.accept_ranges and self.method in ('GET', 'HEAD')
+            # A Range header that is not valid UTF-8 is ignored
+            get_ranges(range_header if isinstance(range_header, str) else None, content_length)
+            if output.accept_ranges and content_length is not None and self.method in ('GET', 'HEAD')
             else None
         )
         if_range = (request.inheaders.get('If-Range') or '').strip()
         if if_range and if_range != output.etag:
             ranges = None
         if ranges is not None and not ranges:
-            return self.send_range_not_satisfiable(output.content_length)  # ty: ignore[invalid-argument-type]
+            assert content_length is not None  # ranges are only computed when it is not None
+            return self.send_range_not_satisfiable(content_length)
 
         for header in ('Accept-Ranges', 'Content-Encoding', 'Transfer-Encoding', 'ETag', 'Content-Length'):
             outheaders.pop(header, all=True)
@@ -874,13 +877,14 @@ class HTTPConnection(HTTPRequest):
             outheaders.set('Transfer-Encoding', 'chunked', replace_all=True)
 
         if ranges:
+            assert content_length is not None  # ranges are only computed when it is not None
             if len(ranges) == 1:
                 r = ranges[0]
                 outheaders.set('Content-Length', f'{r.size}', replace_all=True)
                 outheaders.set('Content-Range', f'bytes {int(r.start)}-{int(r.stop)}/{output.content_length}', replace_all=True)
                 output.ranges = r
             else:
-                range_parts = get_range_parts(ranges, outheaders.get('Content-Type'), output.content_length)  # ty: ignore[invalid-argument-type]
+                range_parts = get_range_parts(ranges, outheaders.get('Content-Type'), content_length)
                 size = sum(map(len, range_parts)) + sum(r.size + 4 for r in ranges)
                 outheaders.set('Content-Length', f'{size}', replace_all=True)
                 outheaders.set('Content-Type', 'multipart/byteranges; boundary=' + MULTIPART_SEPARATOR, replace_all=True)

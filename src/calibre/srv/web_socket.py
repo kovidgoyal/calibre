@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Protocol, cast
 from calibre import as_unicode
 from calibre.srv.http_response import HTTPConnection, create_http_handler
 from calibre.srv.loop import RDWR, READ, WRITE, Connection, HandleInterrupt, ServerLoop
-from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE, connection_header_tokens
+from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE, connection_header_tokens, header_as_str
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre_extensions.speedup import utf8_decode
 from calibre_extensions.speedup import websocket_mask as fast_mask
@@ -291,11 +291,11 @@ class WebSocketConnection(HTTPConnection):
         self.stop_reading = False
 
     def finalize_headers(self, inheaders: InHeaders) -> None:
-        # These headers are always decoded to str by the header parser
-        upgrade = cast('str', inheaders.get('Upgrade', ''))
-        key = cast('str | None', inheaders.get('Sec-WebSocket-Key', None))
-        conn = connection_header_tokens(cast('str', inheaders.get('Connection', '')))
-        if key is None or upgrade.lower() != 'websocket' or 'upgrade' not in conn:
+        upgrade = header_as_str(inheaders.get('Upgrade', ''))
+        key = inheaders.get('Sec-WebSocket-Key')
+        conn = connection_header_tokens(header_as_str(inheaders.get('Connection', '')))
+        # Sec-WebSocket-Key is always decoded to str by the header parser
+        if not isinstance(key, str) or upgrade.lower() != 'websocket' or 'upgrade' not in conn:
             return HTTPConnection.finalize_headers(self, inheaders)
         ver = inheaders.get('Sec-WebSocket-Version', 'Unknown')
         try:
@@ -396,18 +396,19 @@ class WebSocketConnection(HTTPConnection):
             self.websocket_close(PROTOCOL_ERROR, 'Continuation frame with non-zero opcode')
             return
         message_finished = frame_finished and is_final_frame_of_message
+        payload: str | memoryview = data
         if self.current_recv_opcode == TEXT:
             if message_starting:
                 self.frag_decoder.reset()
             empty_data = len(data) == 0
             try:
-                data = self.frag_decoder(data)  # ty: ignore[invalid-assignment] data is now the decoded str
+                payload = self.frag_decoder(data)
             except ValueError:
                 self.frag_decoder.reset()
                 self.log.error('Client sent undecodeable UTF-8')
                 return self.websocket_close(INCONSISTENT_DATA, 'Not valid UTF-8')
             if message_finished:
-                if (not data and not empty_data) or self.frag_decoder.state:
+                if (not payload and not empty_data) or self.frag_decoder.state:
                     self.frag_decoder.reset()
                     self.log.error('Client sent undecodeable UTF-8')
                     return self.websocket_close(INCONSISTENT_DATA, 'Not valid UTF-8')
@@ -415,7 +416,7 @@ class WebSocketConnection(HTTPConnection):
             self.current_recv_opcode = None
             self.frag_decoder.reset()
         try:
-            self.handle_websocket_data(data, message_starting, message_finished)
+            self.handle_websocket_data(payload, message_starting, message_finished)
         except Exception as err:
             self.log.exception('Error in WebSockets data handler:')
             self.websocket_close(UNEXPECTED_ERROR, f'Unexpected error in handler: {as_unicode(err)!r}')
@@ -558,7 +559,8 @@ class WebSocketConnection(HTTPConnection):
 class DummyHandler:
     def handle_websocket_upgrade(self, connection_id: int, connection_ref: weakref.ref[WebSocketConnection], inheaders: InHeaders) -> None:
         conn = connection_ref()
-        conn.websocket_close(NORMAL_CLOSE, 'No WebSocket handler available')  # ty: ignore[unresolved-attribute]
+        if conn is not None:
+            conn.websocket_close(NORMAL_CLOSE, 'No WebSocket handler available')
 
     def handle_websocket_data(self, connection_id: int, data: str | memoryview, message_starting: bool, message_finished: bool) -> None:
         pass
@@ -589,7 +591,9 @@ class EchoHandler:
         self.ws_connections[connection_id] = connection_ref
 
     def handle_websocket_data(self, connection_id: int, data: str | memoryview, message_starting: bool, message_finished: bool) -> None:
-        self.conn(connection_id).send_websocket_frame(data, message_starting, message_finished)  # ty: ignore[unresolved-attribute]
+        conn = self.conn(connection_id)
+        if conn is not None:
+            conn.send_websocket_frame(data, message_starting, message_finished)
 
     def handle_websocket_pong(self, connection_id: int, data: bytes | memoryview) -> None:
         pass

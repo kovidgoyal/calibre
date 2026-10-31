@@ -6,13 +6,13 @@ import re
 import reprlib
 from collections.abc import Callable, Iterable
 from io import DEFAULT_BUFFER_SIZE, BytesIO
-from typing import IO, TYPE_CHECKING, cast
+from typing import IO, TYPE_CHECKING
 
 from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.loop import READ, WRITE, Connection
-from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict, connection_header_tokens
+from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict, connection_header_tokens, header_as_str
 from polyglot.builtins import error_message
 from polyglot.urllib import unquote
 
@@ -89,9 +89,10 @@ def parse_uri(
     if b'#' in path:
         raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Illegal #fragment in Request-URI.')
 
+    decoded_scheme = None
     if scheme:
         try:
-            scheme = scheme.decode('ascii')
+            decoded_scheme = scheme.decode('ascii')
         except ValueError:
             raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Un-decodeable scheme')
 
@@ -110,8 +111,7 @@ def parse_uri(
         raise HTTPSimpleResponse(http.client.BAD_REQUEST, as_unicode(e))
     path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
 
-    # scheme is either None or non-empty, and so has been decoded to str
-    return scheme, path, query  # ty: ignore[invalid-return-type]
+    return decoded_scheme, path, query
 
 
 # }}}
@@ -213,7 +213,7 @@ class HTTPHeaderParser:
                 existing = self.hdict.pop(key)
                 if existing is not None:
                     # comma separated headers are always decoded to str
-                    val = existing + ', ' + val  # ty: ignore[unsupported-operator]
+                    val = header_as_str(existing) + ', ' + header_as_str(val)
             self.hdict[key] = val
 
         if self.finished:
@@ -392,7 +392,7 @@ class HTTPRequest(Connection):
         except ValueError as e:
             return self.simple_response(http.client.BAD_REQUEST, str(e))
         # Persistent connection support
-        connection = connection_header_tokens(cast('str', inheaders.get('Connection', '')))  # a decoded header
+        connection = connection_header_tokens(header_as_str(inheaders.get('Connection', '')))
         if 'close' in connection:
             self.close_after_response = True
         # Either the server or client (or both) are HTTP/1.0
@@ -402,7 +402,7 @@ class HTTPRequest(Connection):
         # Transfer-Encoding support
         te = ()
         if self.response_protocol is HTTP11:
-            rte = cast('str | None', inheaders.get('Transfer-Encoding'))  # a decoded header
+            rte = header_as_str(inheaders.get('Transfer-Encoding', ''))
             if rte:
                 te = [x.strip().lower() for x in rte.split(',') if x.strip()]
         chunked_read = False

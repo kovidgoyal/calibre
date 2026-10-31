@@ -385,8 +385,9 @@ def conversion_data(ctx: Context, rd: RequestData, book_id: int) -> dict[str, ob
         input_formats = []
     else:
         input_formats = [x for x in input_formats if not is_recipe_fmt(x)]
-        if rd.query.get('input_fmt') and rd.query.get('input_fmt').lower() in input_formats:  # ty: ignore[unresolved-attribute]
-            input_format = rd.query.get('input_fmt').lower()  # ty: ignore[unresolved-attribute]
+        requested_fmt = rd.query.get('input_fmt')
+        if requested_fmt and requested_fmt.lower() in input_formats:
+            input_format = requested_fmt.lower()
         if input_format in input_formats:
             input_formats.remove(input_format)
             input_formats.insert(0, input_format)
