@@ -17,6 +17,7 @@ def with_search_panel(proceed):
         previous_query = get_current_query()
         previous_xhr = window.XMLHttpRequest
         requests = []
+        q = {'panel': 'fts', 'library_id': 'test'}
 
         def make_xhr():
             xhr = E.div()
@@ -26,28 +27,27 @@ def with_search_panel(proceed):
             xhr.statusText = 'OK'
             return xhr
 
+        def search(query):
+            q.fts_query = query
+            apply_search_panel_state()
+            return requests[-1]
+
+        def finish(xhr, books=None, left=0, total=0):
+            query_id = new window.URL(xhr.request_path, window.location.href).searchParams.get('query_id')
+            xhr.responseText = JSON.stringify({
+                'query_id': query_id, 'indexing_status': {'left': left, 'total': total},
+                'results': [{'book_id': bid, 'format': 'EPUB'} for bid in (books or [])],
+                'metadata': {1: {'title': 'First', 'authors': 'Author'}, 2: {'title': 'Second', 'authors': 'Author'}},
+            })
+            xhr.dispatchEvent(new Event('load'))
+
         try:
             window.XMLHttpRequest = make_xhr
             window.history.replaceState(None, '', '#panel=fts&library_id=test')
             parse_url_params.cache = {}
-            q = {'panel': 'fts', 'library_id': 'test'}
             get_current_query(q)
             document.body.appendChild(E.div(id='test-fts'))
             init('test-fts')
-
-            def search(query):
-                q.fts_query = query
-                apply_search_panel_state()
-                return requests[-1]
-
-            def finish(xhr, books=None, left=0, total=0):
-                query_id = new URL(xhr.request_path, window.location.href).searchParams.get('query_id')
-                xhr.responseText = JSON.stringify({
-                    'query_id': query_id, 'indexing_status': {'left': left, 'total': total},
-                    'results': [{'book_id': bid, 'format': 'EPUB'} for bid in (books or [])],
-                    'metadata': {1: {'title': 'First', 'authors': 'Author'}, 2: {'title': 'Second', 'authors': 'Author'}},
-                })
-                xhr.dispatchEvent(new Event('load'))
 
             proceed(search, finish, requests)
         finally:
@@ -74,13 +74,13 @@ def fts_status_counts_books_and_preserves_focus():
         assert_equal(status.textContent, '2 books found')
         assert_equal(component('status'), status)
         assert_equal(document.activeElement, input)
-        observer = new MutationObserver(def (): pass;)
+        observer = new window.MutationObserver(def (): pass;)
         observer.observe(status, {'childList': True, 'subtree': True, 'characterData': True})
         try:
             set_search_status('2 books found')
             apply_search_panel_state()
             snippets = requests[-1]
-            query_id = new URL(snippets.request_path, window.location.href).searchParams.get('query_id')
+            query_id = new window.URL(snippets.request_path, window.location.href).searchParams.get('query_id')
             snippets.responseText = JSON.stringify({'query_id': query_id, 'snippets': {1: [], 2: []}})
             snippets.dispatchEvent(new Event('load'))
             assert_equal(observer.takeRecords().length, 0)
