@@ -115,12 +115,20 @@ class OPDSFullTextTest(LibraryBaseTest):
                 ('/opds/search/%22unterminated?full_text=y', UNPROCESSABLE_ENTITY),
                 ('/opds/search/notindexed?full_text=y', NOT_FOUND),
                 ('/opds/search/pendingterm?full_text=y', NOT_FOUND),
-                ('/opds/search/nebula?full_text=invalid', BAD_REQUEST),
+                # Anything other than full_text=y is a normal metadata search
+                ('/opds/search/nebula?full_text=invalid', NOT_FOUND),
                 ('/opds/search/nebula?full_text=y&offset=invalid', NOT_FOUND),
                 ('/opds/search/nebula?full_text=y&library_id=missing', NOT_FOUND),
             ):
                 for accept in (OPDS2_MIME, 'application/atom+xml'):
                     self.ae(self.request(conn, path, accept)[0].status, status, path)
+            for accept in (OPDS2_MIME, 'application/atom+xml'):
+                # Only content search feeds advertise content search, adding
+                # full_text to the URL of some other feed does not change it
+                for path in ('/opds?full_text=y', '/opds/navcatalog/4f6e6577657374?full_text=y'):
+                    response, raw = self.request(conn, path, accept)
+                    self.ae(response.status, OK, path)
+                    self.assertNotIn('full_text', self.search_links(raw, accept)[0]['href'], path)
             db.enable_fts(False)
             self.ae(len(self.search_links(self.request(conn, '/opds')[1], OPDS2_MIME)), 1)
 

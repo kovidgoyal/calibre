@@ -158,19 +158,15 @@ class CATALOG_LINK(NAVLINK):
 
 
 def search_url(url_for: Callable[..., str], template: str = '{searchTerms}', full_text: bool = False) -> str:
-    if template == '{query}':
-        ans = url_for('/opds/search', query='')
-        ans += ('&' if '?' in ans else '?') + 'query={query}'
-    else:
-        ans = url_for('/opds/search', query='XXX').replace('XXX', template)
+    ans = url_for('/opds/search', query='XXX').replace('XXX', template)
     if full_text:
-        ans += ('&' if '?' in ans else '?') + 'full_text=y'
+        ans += '&full_text=y'
     return ans
 
 
 def SEARCH_LINK(url_for: Callable[..., str], full_text: bool = False, **kwargs: str) -> etree.Element:
     kwargs['rel'] = 'search'
-    kwargs['title'] = _('Search book contents') if full_text else 'Search'
+    kwargs['title'] = _('Search book contents') if full_text else _('Search')
     kwargs['href'] = search_url(url_for, full_text=full_text)
     return LINK()(**kwargs)
 
@@ -404,7 +400,6 @@ class Feed:  # {{{
         full_text_search: bool = False,
     ) -> None:
         self.base_href = request_context.url_for('/opds')
-        full_text_search = full_text_search or request_context.rd.query.get('full_text') == 'y'
 
         self.root = FEED(
             TITLE(title or default_feed_title),
@@ -493,11 +488,12 @@ class NavFeed(Feed):
         page_url: str,
         up_url: str,
         title: str | None = None,
+        full_text_search: bool = False,
     ) -> None:
         kwargs: dict[str, Any] = pagination_links(offsets, page_url, up_url)
         if title:
             kwargs['title'] = title
-        Feed.__init__(self, id_, updated, request_context, **kwargs)
+        Feed.__init__(self, id_, updated, request_context, full_text_search=full_text_search, **kwargs)
 
 
 class AcquisitionFeed(NavFeed):
@@ -513,8 +509,9 @@ class AcquisitionFeed(NavFeed):
         page_url: str,
         up_url: str,
         title: str | None = None,
+        full_text_search: bool = False,
     ) -> None:
-        NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title)
+        NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title, full_text_search=full_text_search)
         for book_id in items:
             self.root.append(ACQUISITION_ENTRY(book_id, updated, request_context))
 
@@ -594,7 +591,6 @@ def opds2_feed(
     full_text_search: bool = False,
 ) -> dict[str, Any]:
     metadata = {'title': title or default_feed_title}
-    full_text_search = full_text_search or request_context.rd.query.get('full_text') == 'y'
     if subtitle:
         metadata['subtitle'] = subtitle
     links = [
@@ -617,10 +613,10 @@ def opds2_top_level(categories: list[tuple[str, str, str]], request_context: Req
     url_for = request_context.url_for
     ans = opds2_feed(request_context, url_for('/opds'), subtitle=subtitle)
     navigation = [opds2_link(navcatalog_url(url_for, q), title=_('By ') + title) for title, desc, q in categories]
-    for library_id, library_name in sorted(request_context.library_map.items(), key=lambda item: sort_key(item[1])):
-        navigation.append(opds2_link(url_for('/opds', library_id=library_id), title=_('Library:') + ' ' + library_name))
     if request_context.db.is_fts_enabled():
         navigation.append(opds2_link(url_for('/opds/fts'), title=_('Search book contents')))
+    for library_id, library_name in sorted(request_context.library_map.items(), key=lambda item: sort_key(item[1])):
+        navigation.append(opds2_link(url_for('/opds', library_id=library_id), title=_('Library:') + ' ' + library_name))
     ans['navigation'] = navigation
     return ans
 
@@ -713,9 +709,23 @@ def opds2_has_acquisition_links(rc: RequestContext, ids: frozenset[int]) -> froz
 
 
 def opds2_acquisition_feed(
-    request_context: RequestContext, items: list[int], offsets: Offsets, page_url: str, up_url: str, title: str | None = None
+    request_context: RequestContext,
+    items: list[int],
+    offsets: Offsets,
+    page_url: str,
+    up_url: str,
+    title: str | None = None,
+    full_text_search: bool = False,
 ) -> dict[str, Any]:
-    ans = opds2_feed(request_context, opds2_self_url(page_url, offsets), title=title, offsets=offsets, page_url=page_url, up_url=up_url)
+    ans = opds2_feed(
+        request_context,
+        opds2_self_url(page_url, offsets),
+        title=title,
+        offsets=offsets,
+        page_url=page_url,
+        up_url=up_url,
+        full_text_search=full_text_search,
+    )
     ans['publications'] = [opds2_publication(book_id, request_context) for book_id in items]
     return ans
 
@@ -776,6 +786,7 @@ def get_acquisition_feed(
     sort_by: str = 'title',
     ascending: bool = True,
     feed_title: str | None = None,
+    full_text_search: bool = False,
 ) -> etree.Element | dict[str, Any]:
     if rc.is_opds2:
         ids = opds2_has_acquisition_links(rc, ids)
@@ -790,8 +801,8 @@ def get_acquisition_feed(
         lm = rc.last_modified()
         rc.outheaders['Last-Modified'] = http_date(timestampfromdt(lm))
         if rc.is_opds2:
-            return opds2_acquisition_feed(rc, items, offsets, page_url, up_url, title=feed_title)
-        return AcquisitionFeed(id_, lm, rc, items, offsets, page_url, up_url, title=feed_title).root
+            return opds2_acquisition_feed(rc, items, offsets, page_url, up_url, title=feed_title, full_text_search=full_text_search)
+        return AcquisitionFeed(id_, lm, rc, items, offsets, page_url, up_url, title=feed_title, full_text_search=full_text_search).root
 
 
 def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element | dict[str, Any]:
@@ -1067,18 +1078,13 @@ def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | di
     except Exception:
         raise HTTPNotFound('Not found')
 
-    mode = rd.query.get('full_text', 'n')
-    if mode not in ('y', 'n'):
-        raise HTTPBadRequest('full_text must be y or n')
-    full_text = mode == 'y'
+    full_text = rd.query.get('full_text') == 'y'
     rc = RequestContext(ctx, rd, strict_library_id=full_text)
     if query:
         path = parse_uri(rd.request_original_uri, parse_query=False, unquote_func=unquote_plus)[1]
         query = path[-1]
         if isinstance(query, bytes):
             query = query.decode('utf-8')
-    else:
-        query = rd.query.get('query', '')
     page_url = rc.url_for('/opds/search', query=query)
     if full_text:
         if not rc.db.is_fts_enabled():
@@ -1102,6 +1108,7 @@ def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element | di
             rc.url_for('/opds'),
             'calibre-full-text-search:' + query,
             feed_title=default_feed_title + ' :: ' + _('Search book contents') + ': ' + query,
+            full_text_search=True,
         )
     try:
         ids = rc.search(query)

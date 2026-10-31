@@ -194,7 +194,7 @@ you can force a sync by tapping in the top quarter and choosing
 Searching book contents in OPDS applications
 ---------------------------------------------
 
-When full text indexing is enabled for a library, its OPDS catalog offers an
+When full text indexing is enabled for a library, its OPDS catalog offers a
 catalog entry titled :guilabel:`Search book contents`. Open this entry and use
 the application's search control to find books by words and phrases inside
 them, using calibre's existing full text index. Each feed has a single search
