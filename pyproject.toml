@@ -291,7 +291,7 @@ ignore = [
 "src/calibre/{rpdb,utils/ipython}.py" = ['T1']
 "src/qt/*.py" = ['I', 'blank-lines-top-level']
 "src/qt/*.pyi" = ['I']
-"!{src/calibre/ai/**/*.py,src/calibre/web/automate/**/*.py,src/calibre/utils/**/*.py}" = ['ANN']
+"!{src/calibre/ai/**/*.py,src/calibre/web/**/*.py,src/calibre/utils/**/*.py}" = ['ANN']
 # These modules wrap a browser, whose operations can all block indefinitely on
 # the network, so every one of them takes an explicit timeout
 "src/calibre/web/automate/{camoufox,recipes}.py" = ['async-function-with-timeout']
