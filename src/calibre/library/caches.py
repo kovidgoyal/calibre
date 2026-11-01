@@ -818,7 +818,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     return self.get_bool_matches(location, query, candidates)
 
                 # take care of the 'count' operator for is_multiples
-                if fm['is_multiple'] and len(query) > 1 and query.startswith('#') and query[1:1] in '=<>!':
+                if fm['is_multiple'] and len(query) > 1 and query.startswith('#') and query[1:2] in '=<>!':
 
                     def vf(item: CacheRow, loc: int = fm['rec_index'], ms: str = fm['is_multiple']['cache_to_list']) -> int:
                         return len(item[loc].split(ms)) if item[loc] is not None else 0

@@ -161,7 +161,7 @@ class CheckLibrary:
             except Exception:
                 traceback.print_exc()
                 # Sort-of check: exception processing directory
-                self.failed_folders.append((title_path, traceback.format_exc(), []))
+                self.failed_folders.append((x[0], traceback.format_exc(), []))
 
         # Check for formats and covers in db for book dirs that are gone
         for id_ in self.all_ids:

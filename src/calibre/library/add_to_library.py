@@ -49,7 +49,7 @@ def find_folders_under(
         ans.add(dirpath)
 
     if not add_root:
-        ans.remove(root)
+        ans.discard(root)
 
     return ans
 
@@ -65,9 +65,9 @@ class FormatCollection:  # {{{
             if fmt:
                 fmt = fmt[1:]
                 self.path_map[fmt] = x
-        self.parent_folder = None
+        self.parent_folder = parent_folder
         self.hash_map = {}
-        for fmt, path in self.format_map.items():
+        for fmt, path in self.path_map.items():
             self.hash_map[fmt] = self.hash_of_file(path)
 
     def hash_of_file(self, path: str) -> bytes:
@@ -76,7 +76,7 @@ class FormatCollection:  # {{{
 
     @property
     def hashes(self) -> frozenset[bytes]:
-        return frozenset(self.formats.values())
+        return frozenset(self.hash_map.values())
 
     @property
     def is_empty(self) -> bool:
@@ -111,7 +111,7 @@ def books_in_folder(
     folder: str,
     one_per_folder: bool,  # {{{
     cancel_callback: Callable[[], bool] = lambda: False,
-) -> list[FormatCollection] | None:
+) -> list[FormatCollection]:
     dirpath = os.path.abspath(folder)
     if one_per_folder:
         formats = set()
@@ -133,7 +133,7 @@ def books_in_folder(
         books = {}
         for path in os.listdir(dirpath):
             if cancel_callback():
-                return
+                return []
             path = os.path.abspath(os.path.join(dirpath, path))
             if os.path.isdir(path) or not os.access(path, os.R_OK):
                 continue
