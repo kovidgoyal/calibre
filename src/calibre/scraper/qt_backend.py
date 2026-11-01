@@ -52,7 +52,7 @@ class Request(TypedDict):
 
 
 class CookieJar(QNetworkCookieJar):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.all_request_cookies = []
 
@@ -84,7 +84,7 @@ def too_slow_or_timed_out(timeout: float, last_activity_at: float, created_at: f
 class DownloadRequest(QObject):
     worth_retry: bool = False
 
-    def __init__(self, url: str, output_path: str, reply: QNetworkReply, timeout: float, req_id: int, parent: FetchBackend):
+    def __init__(self, url: str, output_path: str, reply: QNetworkReply, timeout: float, req_id: int, parent: FetchBackend) -> None:
         super().__init__(parent)
         self.url, self.filename = url, os.path.basename(output_path)
         self.output_path = output_path
@@ -97,7 +97,7 @@ class DownloadRequest(QObject):
         self.reply.uploadProgress.connect(self.on_upload_progress, type=Qt.ConnectionType.QueuedConnection)
         # self.reply.readyRead.connect(self.on_data_available)
 
-    def free_reply(self):
+    def free_reply(self) -> None:
         self.reply.downloadProgress.disconnect()
         self.reply.uploadProgress.disconnect()
         del self.reply
@@ -204,7 +204,7 @@ class FetchBackend(QNetworkAccessManager):
         assert app is not None
         app.exit(1)
 
-    def enforce_timeouts(self):
+    def enforce_timeouts(self) -> None:
         now = monotonic()
         timed_out = tuple(dr for dr in self.live_requests if dr.too_slow_or_timed_out(now))
         for dr in timed_out:
@@ -287,7 +287,7 @@ class FetchBackend(QNetworkAccessManager):
             else:
                 self.set_simple_cookie(c['name'], c['value'], c.get('domain'), c.get('path'))
 
-    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/'):
+    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/') -> None:
         c = QNetworkCookie()
         c.setName(name.encode())
         c.setValue(value.encode())
@@ -361,7 +361,7 @@ def develop(url: str) -> None:
     backend = FetchBackend()
     num_left = 0
 
-    def download_finished(dr: DownloadRequest):
+    def download_finished(dr: DownloadRequest) -> None:
         nonlocal num_left
         num_left -= 1
         if not num_left:

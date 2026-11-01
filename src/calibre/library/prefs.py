@@ -10,7 +10,7 @@ from calibre.utils.config import from_json, to_json
 
 
 class DBPrefs(dict):
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         dict.__init__(self)
         self.db = db
         self.defaults = {}
@@ -40,12 +40,12 @@ class DBPrefs(dict):
         except KeyError:
             return self.defaults[key]
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         dict.__delitem__(self, key)
         self.db.conn.execute('DELETE FROM preferences WHERE key=?', (key,))
         self.db.conn.commit()
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         if self.disable_setting:
             return
         raw = self.to_raw(val)
@@ -53,7 +53,7 @@ class DBPrefs(dict):
         self.db.conn.commit()
         dict.__setitem__(self, key, val)
 
-    def set(self, key, val):
+    def set(self, key, val) -> None:
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
@@ -63,7 +63,7 @@ class DBPrefs(dict):
         except KeyError:
             return default
 
-    def set_namespaced(self, namespace, key, val):
+    def set_namespaced(self, namespace, key, val) -> None:
         if ':' in key:
             raise KeyError('Colons are not allowed in keys')
         if ':' in namespace:
@@ -71,7 +71,7 @@ class DBPrefs(dict):
         key = f'namespaced:{namespace}:{key}'
         self[key] = val
 
-    def write_serialized(self, library_path):
+    def write_serialized(self, library_path) -> None:
         try:
             to_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
             data = json.dumps(self, indent=2, default=to_json)

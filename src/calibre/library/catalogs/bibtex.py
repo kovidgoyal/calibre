@@ -114,7 +114,7 @@ class BIBTEX(CatalogPlugin):
         ),
     ]
 
-    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()) -> None:
         from calibre.library.save_to_disk import preprocess_template
         from calibre.utils.bibtex import BibTeX
         from calibre.utils.date import isoformat

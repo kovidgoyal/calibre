@@ -23,15 +23,15 @@ class RestoreDatabase(LibraryDatabase2):
     PATH_LIMIT = 10
     WINDOWS_LIBRARY_PATH_LIMIT = 180
 
-    def set_path(self, *args, **kwargs):
+    def set_path(self, *args, **kwargs) -> None:
         pass
 
-    def dirtied(self, *args, **kwargs):
+    def dirtied(self, *args, **kwargs) -> None:
         pass
 
 
 class Restore(Thread):
-    def __init__(self, library_path, progress_callback=None):
+    def __init__(self, library_path, progress_callback=None) -> None:
         super().__init__()
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
@@ -84,7 +84,7 @@ class Restore(Thread):
 
         return ans
 
-    def run(self):
+    def run(self) -> None:
         try:
             with TemporaryDirectory('_library_restore') as tdir:
                 self.library_path = tdir
@@ -104,7 +104,7 @@ class Restore(Thread):
         except Exception:
             self.tb = traceback.format_exc()
 
-    def load_preferences(self):
+    def load_preferences(self) -> bool:
         self.progress_callback(None, 1)
         self.progress_callback(_('Starting restoring preferences and column metadata'), 0)
         prefs_path = os.path.join(self.src_library_path, 'metadata_db_prefs_backup.json')
@@ -128,7 +128,7 @@ class Restore(Thread):
             self.progress_callback(_('Restoring preferences and column metadata failed'), 0)
         return False
 
-    def scan_library(self):
+    def scan_library(self) -> None:
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):
             leaf = os.path.basename(dirpath)
             m = self.db_id_regexp.search(leaf)
@@ -146,7 +146,7 @@ class Restore(Thread):
                 self.failed_dirs.append((dirpath, traceback.format_exc()))
             self.progress_callback(_('Processed') + ' ' + dirpath, i + 1)
 
-    def is_ebook_file(self, filename):
+    def is_ebook_file(self, filename) -> bool:
         ext = os.path.splitext(filename)[1]
         if not ext:
             return False
@@ -155,7 +155,7 @@ class Restore(Thread):
             return False
         return True
 
-    def process_dir(self, dirpath, filenames, book_id):
+    def process_dir(self, dirpath, filenames, book_id) -> None:
         book_id = int(book_id)
         formats = list(filter(self.is_ebook_file, filenames))
         fmts = [os.path.splitext(x)[1][1:].upper() for x in formats]
@@ -184,7 +184,7 @@ class Restore(Thread):
             if existing_link is None or (existing_link != link and timestamp < mi.timestamp):
                 self.authors_links[author] = (link, mi.timestamp)
 
-    def create_cc_metadata(self):
+    def create_cc_metadata(self) -> None:
         self.books.sort(key=itemgetter('timestamp'))
         self.custom_columns = {}
         fields = ('label', 'name', 'datatype', 'is_multiple', 'is_editable', 'display')
@@ -216,7 +216,7 @@ class Restore(Thread):
                 self.progress_callback(_('creating custom column ') + args[0], i + 1)
         db.close()
 
-    def restore_books(self):
+    def restore_books(self) -> None:
         self.progress_callback(None, len(self.books))
         self.books.sort(key=itemgetter('id'))
 
@@ -235,7 +235,7 @@ class Restore(Thread):
         db.conn.commit()
         db.close()
 
-    def restore_book(self, book, db):
+    def restore_book(self, book, db) -> None:
         db.create_book_entry(book['mi'], add_duplicates=True, force_id=book['id'])
         if book['mi'].uuid:
             db.set_uuid(book['id'], book['mi'].uuid, commit=False, notify=False)
@@ -254,7 +254,7 @@ class Restore(Thread):
         db.conn.commit()
         self.successes += 1
 
-    def replace_db(self):
+    def replace_db(self) -> None:
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
         ndbpath = os.path.join(self.library_path, 'metadata.db')
 

@@ -48,7 +48,7 @@ CHECKS = [
 
 
 class CheckLibrary:
-    def __init__(self, library_path, db):
+    def __init__(self, library_path, db) -> None:
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
@@ -95,7 +95,7 @@ class CheckLibrary:
     def ignore_name(self, filename):
         return any(fnmatch.fnmatch(filename, filespec) for filespec in self.ignore_names)
 
-    def scan_library(self, name_ignores, extension_ignores):
+    def scan_library(self, name_ignores, extension_ignores) -> None:
         self.ignore_names = frozenset(name_ignores)
         self.ignore_ext = frozenset('.' + e for e in extension_ignores)
 
@@ -179,7 +179,7 @@ class CheckLibrary:
         ext = ext.removeprefix('original_')
         return ext in EBOOK_EXTENSIONS
 
-    def process_book(self, lib, book_info):
+    def process_book(self, lib, book_info) -> None:
         db_path, title_dir, book_id = book_info
         filenames = frozenset(
             f

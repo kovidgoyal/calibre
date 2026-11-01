@@ -51,7 +51,7 @@ class DownloadRequest(QObject):
     aborted_on_timeout: bool = False
     response_received = pyqtSignal(object)
 
-    def __init__(self, url: str, output_path: str, timeout: float, req_id: int, parent: FetchBackend):
+    def __init__(self, url: str, output_path: str, timeout: float, req_id: int, parent: FetchBackend) -> None:
         super().__init__(parent)
         self.url, self.filename = url, os.path.basename(output_path)
         self.output_path = output_path
@@ -110,15 +110,15 @@ class Worker(QWebEnginePage):
     result_received = pyqtSignal(object)
     token: str
 
-    def __init__(self, profile, parent: FetchBackend):
+    def __init__(self, profile, parent: FetchBackend) -> None:
         super().__init__(profile, parent)
         self._parent = parent
         self.messages_dispatch.connect(self.on_messages)
 
-    def javaScriptAlert(self, securityOrigin, msg):
+    def javaScriptAlert(self, securityOrigin, msg) -> None:
         pass
 
-    def javaScriptConfirm(self, securityOrigin, msg):
+    def javaScriptConfirm(self, securityOrigin, msg) -> bool:
         return True
 
     def javaScriptPrompt(self, securityOrigin, msg, defaultValue):
@@ -240,7 +240,7 @@ class FetchBackend(QObject):
         assert app is not None
         app.exit(1)
 
-    def enforce_timeouts(self):
+    def enforce_timeouts(self) -> None:
         now = monotonic()
         has_workers = False
         for w in self.workers:
@@ -319,7 +319,7 @@ class FetchBackend(QObject):
             else:
                 self.set_simple_cookie(c['name'], c['value'], c.get('domain'), c.get('path'))
 
-    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/'):
+    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/') -> None:
         c = QNetworkCookie()
         c.setName(name.encode())
         c.setValue(value.encode())

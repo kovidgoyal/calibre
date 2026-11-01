@@ -150,7 +150,7 @@ class CatalogBuilder:
         report_progress=DummyReporter(),
         stylesheet='content/stylesheet.css',
         init_resources=True,
-    ):
+    ) -> None:
 
         self.formatter = Formatter()
         self.db = db
@@ -301,7 +301,7 @@ class CatalogBuilder:
 
     ''' Methods '''
 
-    def build_sources(self):
+    def build_sources(self) -> None:
         """Generate catalog source files.
 
         Assemble OPF, HTML and NCX files reflecting catalog options.
@@ -365,7 +365,7 @@ class CatalogBuilder:
             self.generate_ncx_descriptions(_('Descriptions'))
         self.write_ncx()
 
-    def calculate_thumbnail_dimensions(self):
+    def calculate_thumbnail_dimensions(self) -> None:
         """Calculate thumb dimensions based on device DPI.
 
         Using the specified output profile, calculate thumb_width
@@ -396,7 +396,7 @@ class CatalogBuilder:
             self.opts.log(' Thumbnails:')
             self.opts.log(f'  DPI = {x.dpi}; thumbnail dimensions: {self.thumb_width} x {self.thumb_height}')
 
-    def compute_total_steps(self):
+    def compute_total_steps(self) -> None:
         """Calculate number of build steps to generate catalog.
 
         Calculate total number of build steps based on enabled sections.
@@ -424,7 +424,7 @@ class CatalogBuilder:
             incremental_jobs += 3
         self.total_steps += incremental_jobs
 
-    def confirm_thumbs_archive(self):
+    def confirm_thumbs_archive(self) -> None:
         """Validate thumbs archive.
 
         Confirm existence of thumbs archive, or create if absent.
@@ -481,7 +481,7 @@ class CatalogBuilder:
         """
         return replace_entities(s)
 
-    def copy_catalog_resources(self):
+    def copy_catalog_resources(self) -> None:
         """Copy resources from calibre source to self.catalog_path.
 
         Copy basic resources - default cover, stylesheet, and masthead (Kindle only)
@@ -513,7 +513,7 @@ class CatalogBuilder:
             except Exception:
                 pass
 
-    def create_catalog_directory_structure(self):
+    def create_catalog_directory_structure(self) -> None:
         """Create subdirs in catalog output dir.
 
         Create /content and /images in self.catalog_path
@@ -534,7 +534,7 @@ class CatalogBuilder:
         if not os.path.isdir(images_path):
             os.makedirs(images_path)
 
-    def detect_author_sort_mismatches(self, books_to_test):
+    def detect_author_sort_mismatches(self, books_to_test) -> None:
         """Detect author_sort mismatches.
 
         Sort by author, look for inconsistencies in author_sort among
@@ -600,7 +600,7 @@ class CatalogBuilder:
          None: no match
         """
 
-        def _log_prefix_rule_match_info(rule, record, matched):
+        def _log_prefix_rule_match_info(rule, record, matched) -> None:
             self.opts.log.info(
                 "  {} '{}' by {} ({}: '{}' contains '{}')".format(
                     rule['prefix'],
@@ -661,7 +661,7 @@ class CatalogBuilder:
 
         return None
 
-    def dump_custom_fields(self):
+    def dump_custom_fields(self) -> None:
         """
         Dump custom field mappings for debugging
         """
@@ -744,7 +744,7 @@ class CatalogBuilder:
 
         return cl_list
 
-    def fetch_books_by_author(self):
+    def fetch_books_by_author(self) -> bool:
         """Generate a list of books sorted by author.
 
         For books with multiple authors, relist book with additional authors.
@@ -847,7 +847,7 @@ class CatalogBuilder:
 
         return True
 
-    def fetch_books_by_title(self):
+    def fetch_books_by_title(self) -> None:
         """Generate a list of books sorted by title.
 
         Sort the database by title.
@@ -1064,7 +1064,7 @@ class CatalogBuilder:
             titles.append(this_title)
         return titles
 
-    def fetch_bookmarks(self):
+    def fetch_bookmarks(self) -> None:
         """Interrogate connected Kindle for bookmarks.
 
         Discover bookmarks associated with books on Kindle downloaded by calibre.
@@ -1093,7 +1093,7 @@ class CatalogBuilder:
         tan_formats = set(TAN_FORMATS)
 
         class BookmarkDevice(Device):
-            def initialize(self, save_template=None):
+            def initialize(self, save_template=None) -> None:
                 self._save_template = save_template
                 self.SUPPORTS_SUB_DIRS = True
 
@@ -1351,7 +1351,7 @@ class CatalogBuilder:
         else:
             return None
 
-    def insert_prefix(self, soup, parent_tag, pos, prefix_char):
+    def insert_prefix(self, soup, parent_tag, pos, prefix_char) -> None:
         """Generate HTML snippet with prefix character.
 
         Insert a <code> snippet for Kindle, <span> snippet for EPUB.
@@ -1405,7 +1405,7 @@ class CatalogBuilder:
         )
         return args
 
-    def generate_html_by_author(self):
+    def generate_html_by_author(self) -> None:
         """Generate content/ByAlphaAuthor.html.
 
         Loop through self.books_by_author, generate HTML
@@ -1629,7 +1629,7 @@ class CatalogBuilder:
             outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_1.append('content/ByAlphaAuthor.html')
 
-    def generate_html_by_date_added(self):
+    def generate_html_by_date_added(self) -> None:
         """Generate content/ByDateAdded.html.
 
         Loop through self.books_to_catalog sorted by reverse date, generate HTML.
@@ -1898,7 +1898,7 @@ class CatalogBuilder:
             outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_2.append('content/ByDateAdded.html')
 
-    def generate_html_by_date_read(self):
+    def generate_html_by_date_read(self) -> None:
         """Generate content/ByDateRead.html.
 
         Create self.bookmarked_books_by_date_read from self.bookmarked_books.
@@ -2073,7 +2073,7 @@ class CatalogBuilder:
             outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_2.append('content/ByDateRead.html')
 
-    def generate_html_by_genres(self):
+    def generate_html_by_genres(self) -> None:
         """Generate individual HTML files per tag.
 
         Filter out excluded tags. For each tag qualifying as a genre,
@@ -2333,7 +2333,7 @@ class CatalogBuilder:
 
         return titles_spanned
 
-    def generate_html_by_series(self):
+    def generate_html_by_series(self) -> None:
         """Generate content/BySeries.html.
 
         Search database for books in series.
@@ -2488,7 +2488,7 @@ class CatalogBuilder:
             outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_1.append('content/BySeries.html')
 
-    def generate_html_by_title(self):
+    def generate_html_by_title(self) -> None:
         """Generate content/ByAlphaTitle.html.
 
         Generate HTML of books sorted by title.
@@ -2847,7 +2847,7 @@ class CatalogBuilder:
 
         return soup
 
-    def generate_html_descriptions(self):
+    def generate_html_descriptions(self) -> None:
         """Generate Description HTML for each book.
 
         Loop though books, write Description HTML for each book.
@@ -2928,7 +2928,7 @@ class CatalogBuilder:
         bodyTag.insert(1, divTag)
         return soup
 
-    def generate_masthead_image(self, out_path):
+    def generate_masthead_image(self, out_path) -> None:
         """Generate a Kindle masthead image.
 
         Generate a Kindle masthead image, used with Kindle periodical format.
@@ -2982,7 +2982,7 @@ class CatalogBuilder:
         with open(out_path, 'wb') as f:
             img.save(f, 'GIF')
 
-    def generate_ncx_header(self):
+    def generate_ncx_header(self) -> None:
         """Generate the basic NCX file.
 
         Generate the initial NCX, which is added to depending on included Sections.
@@ -3051,7 +3051,7 @@ class CatalogBuilder:
         makeelement('content', navPointTag, src=content_src)
         return navPointTag
 
-    def generate_ncx_subsection(self, navPointTag, section_id, section_text, content_src, cm_tags=None):
+    def generate_ncx_subsection(self, navPointTag, section_id, section_text, content_src, cm_tags=None) -> None:
         if cm_tags is None:
             cm_tags = {}
         navPointVolumeTag = makeelement('navPoint', navPointTag, id=section_id, playOrder=self.play_order)
@@ -3066,7 +3066,7 @@ class CatalogBuilder:
             for name, text in cm_tags.items():
                 makeelement('{http://calibre.kovidgoyal.net/2009/metadata}meta', navPointVolumeTag, name=name).text = text
 
-    def generate_ncx_descriptions(self, tocTitle):
+    def generate_ncx_descriptions(self, tocTitle) -> None:
         """Add Descriptions to the basic NCX file.
 
         Generate the Descriptions NCX content, add to self.ncx_soup.
@@ -3138,7 +3138,7 @@ class CatalogBuilder:
                 cm_tags['description'] = self.format_ncx_text(book['short_description'], dest='description')
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_series(self, tocTitle):
+    def generate_ncx_by_series(self, tocTitle) -> None:
         """Add Series to the basic NCX file.
 
         Generate the Series NCX content, add to self.ncx_soup.
@@ -3155,7 +3155,7 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Series'))
 
-        def _add_to_series_by_letter(current_series_list):
+        def _add_to_series_by_letter(current_series_list) -> None:
             current_series_list = ' • '.join(current_series_list)
             current_series_list = self.format_ncx_text(current_series_list, dest='description')
             series_by_letter.append(current_series_list)
@@ -3218,7 +3218,7 @@ class CatalogBuilder:
             cm_tags = {'description': self.format_ncx_text(books, dest='description')}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_title(self, tocTitle):
+    def generate_ncx_by_title(self, tocTitle) -> None:
         """Add Titles to the basic NCX file.
 
         Generate the Titles NCX content, add to self.ncx_soup.
@@ -3235,7 +3235,7 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Titles'))
 
-        def _add_to_books_by_letter(current_book_list):
+        def _add_to_books_by_letter(current_book_list) -> None:
             current_book_list = ' • '.join(current_book_list)
             current_book_list = self.format_ncx_text(current_book_list, dest='description')
             books_by_letter.append(current_book_list)
@@ -3301,7 +3301,7 @@ class CatalogBuilder:
             cm_tags = {'description': self.format_ncx_text(books, dest='description')}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_author(self, tocTitle):
+    def generate_ncx_by_author(self, tocTitle) -> None:
         """Add Authors to the basic NCX file.
 
         Generate the Authors NCX content, add to self.ncx_soup.
@@ -3318,7 +3318,7 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Authors'))
 
-        def _add_to_author_list(current_author_list, current_letter):
+        def _add_to_author_list(current_author_list, current_letter) -> None:
             current_author_list = ' • '.join(current_author_list)
             current_author_list = self.format_ncx_text(current_author_list, dest='description')
             master_author_list.append((current_author_list, current_letter))
@@ -3379,7 +3379,7 @@ class CatalogBuilder:
             cm_tags = {'description': authors_by_letter[0]}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_date_added(self, tocTitle):
+    def generate_ncx_by_date_added(self, tocTitle) -> None:
         """Add Recently Added to the basic NCX file.
 
         Generate the Recently Added NCX content, add to self.ncx_soup.
@@ -3396,13 +3396,13 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Recently Added'))
 
-        def _add_to_master_month_list(current_titles_list):
+        def _add_to_master_month_list(current_titles_list) -> None:
             book_count = len(current_titles_list)
             current_titles_list = ' • '.join(current_titles_list)
             current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
             master_month_list.append((current_titles_list, current_date, book_count))
 
-        def _add_to_master_date_range_list(current_titles_list):
+        def _add_to_master_date_range_list(current_titles_list) -> None:
             book_count = len(current_titles_list)
             current_titles_list = ' • '.join(current_titles_list)
             current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
@@ -3482,7 +3482,7 @@ class CatalogBuilder:
             cm_tags = {'description': books_by_month[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_date_read(self, tocTitle):
+    def generate_ncx_by_date_read(self, tocTitle) -> None:
         """Add By Date Read to the basic NCX file.
 
         Generate the By Date Read NCX content (Kindle only), add to self.ncx_soup.
@@ -3497,13 +3497,13 @@ class CatalogBuilder:
          ncx_soup (file): updated
         """
 
-        def _add_to_master_day_list(current_titles_list):
+        def _add_to_master_day_list(current_titles_list) -> None:
             book_count = len(current_titles_list)
             current_titles_list = ' • '.join(current_titles_list)
             current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
             master_day_list.append((current_titles_list, current_date, book_count))
 
-        def _add_to_master_date_range_list(current_titles_list):
+        def _add_to_master_date_range_list(current_titles_list) -> None:
             book_count = len(current_titles_list)
             current_titles_list = ' • '.join(current_titles_list)
             current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
@@ -3577,7 +3577,7 @@ class CatalogBuilder:
             cm_tags = {'description': books_by_day[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_genre(self, tocTitle):
+    def generate_ncx_by_genre(self, tocTitle) -> None:
         """Add Genres to the basic NCX file.
 
         Generate the Genre NCX content, add to self.ncx_soup.
@@ -3633,7 +3633,7 @@ class CatalogBuilder:
             cm_tags = {'author': author_range, 'description': self.format_ncx_text(titles_list, dest='description')}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_opf(self):
+    def generate_opf(self) -> None:
         """Generate the OPF file.
 
         Start with header template, construct manifest, spine and guide.
@@ -3887,7 +3887,7 @@ class CatalogBuilder:
                 translated.append(word)
         return ' '.join(translated)
 
-    def generate_thumbnail(self, title, image_dir, thumb_file):
+    def generate_thumbnail(self, title, image_dir, thumb_file) -> None:
         """Create thumbnail of cover or return previously cached thumb.
 
         Test thumb archive for currently cached cover. Return cached version, or create
@@ -3949,7 +3949,7 @@ class CatalogBuilder:
                     with zf:
                         zf.writestr(uuid + cover_crc, thumb_data)
 
-    def generate_thumbnails(self):
+    def generate_thumbnails(self) -> None:
         """Generate a thumbnail cover for each book.
 
         Generate or retrieve a thumbnail for each cover. If nonexistent or faulty
@@ -4148,7 +4148,7 @@ class CatalogBuilder:
         else:
             return char
 
-    def load_section_templates(self):
+    def load_section_templates(self) -> None:
         """Add section templates to local namespace.
 
         Load section templates from resource directory. If user has made local copies,
@@ -4330,7 +4330,7 @@ class CatalogBuilder:
 
         return books_by_author
 
-    def update_progress_full_step(self, description):
+    def update_progress_full_step(self, description) -> None:
         """Update calibre's job status UI.
 
         Call ProgessReporter() with updates.
@@ -4356,7 +4356,7 @@ class CatalogBuilder:
             log_msg = f'{self.progress_string} ({datetime.timedelta(seconds=int(time.time() - self.opts.start_time))!s})'
         self.opts.log(log_msg)
 
-    def update_progress_micro_step(self, description, micro_step_pct):
+    def update_progress_micro_step(self, description, micro_step_pct) -> None:
         """Update calibre's job status UI.
 
         Called from steps requiring more time:
@@ -4378,7 +4378,7 @@ class CatalogBuilder:
         self.progress_int = coarse_progress + fine_progress
         self.reporter(self.progress_int, self.progress_string)
 
-    def write_ncx(self):
+    def write_ncx(self) -> None:
         """Write accumulated ncx_soup to file.
 
         Expanded description

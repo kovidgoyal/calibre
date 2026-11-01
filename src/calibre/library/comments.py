@@ -153,7 +153,7 @@ def find_tests():
     import unittest
 
     class Test(unittest.TestCase):
-        def test_comments_to_html(self):
+        def test_comments_to_html(self) -> None:
             for pat, val in [
                 (b'lineone\n\nlinetwo', '<p class="description">lineone</p>\n<p class="description">linetwo</p>'),
                 ('a <b>b&c</b>\nf', '<p class="description">a <b>b&amp;c</b><br/>f</p>'),

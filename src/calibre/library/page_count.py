@@ -219,7 +219,7 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 class Server:
     ALGORITHM = 4
 
-    def __init__(self, max_jobs_per_worker: int = 2048):
+    def __init__(self, max_jobs_per_worker: int = 2048) -> None:
         self.worker: subprocess.Popen | None = None
         self.tasks_run_by_worker = 0
         self.max_jobs_per_worker = max_jobs_per_worker
@@ -296,11 +296,11 @@ def worker_main(pipe_fd: int) -> None:
         serve_requests(pipe)
 
 
-def test_line_counting(self):
+def test_line_counting(self) -> None:
     line = 'a ' * CHARS_PER_LINE
     h1_line = 'h ' * head_map['h1'][0]
 
-    def t(doc: str, expected: int):
+    def t(doc: str, expected: int) -> None:
         root = parse(doc)
         self.assertEqual(expected, get_line_count(root), doc)
 
@@ -332,7 +332,7 @@ def test_page_count(self) -> None:
             self.assertIsInstance(res, int, f'Counting pages for {x} failed with result: {res}')
 
 
-def develop():
+def develop() -> None:
     import time
 
     paths = sys.argv[1:]

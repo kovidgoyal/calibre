@@ -30,7 +30,7 @@ class MetadataBackup(Thread):  # {{{
     GUI thread to prevent Windows' file locking from causing problems.
     """
 
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.db = db
@@ -42,14 +42,14 @@ class MetadataBackup(Thread):  # {{{
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
         self.set_dirtied = FunctionDispatcher(db.dirtied)
 
-    def stop(self):
+    def stop(self) -> None:
         self.keep_running = False
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         # Break cycles so that this object doesn't hold references to db
         self.do_write = self.get_metadata_for_dump = self.clear_dirtied = self.set_dirtied = self.db = None
 
-    def run(self):
+    def run(self) -> None:
         get_metadata_for_dump = self.get_metadata_for_dump
         assert get_metadata_for_dump is not None
         clear_dirtied = self.clear_dirtied
@@ -119,7 +119,7 @@ class MetadataBackup(Thread):  # {{{
             clear_dirtied(id_, sequence)
         self.break_cycles()
 
-    def write(self, path, raw):
+    def write(self, path, raw) -> None:
         with open(path, 'wb') as f:
             f.write(raw)
 
@@ -131,7 +131,7 @@ class MetadataBackup(Thread):  # {{{
 pref_use_primary_find_in_search = False
 
 
-def set_use_primary_find_in_search(toWhat):
+def set_use_primary_find_in_search(toWhat) -> None:
     global pref_use_primary_find_in_search
     pref_use_primary_find_in_search = toWhat
 
@@ -162,7 +162,7 @@ def force_to_bool(val):
 
 
 class CacheRow(list):  # {{{
-    def __init__(self, db, composites, datetimes, val, series_col, series_sort_col):
+    def __init__(self, db, composites, datetimes, val, series_col, series_sort_col) -> None:
         from calibre.db.tables import c_parse
 
         self.db = db
@@ -207,7 +207,7 @@ class CacheRow(list):  # {{{
     def __getslice__(self, i, j):
         return self.__getitem__(slice(i, j))
 
-    def refresh_composites(self):
+    def refresh_composites(self) -> None:
         for c in self._composites:
             self[c] = None
         self._must_do = True
@@ -221,7 +221,7 @@ class ResultCache(SearchQueryParser):  # {{{
     Stores sorted and filtered metadata in memory.
     """
 
-    def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
+    def __init__(self, FIELD_MAP, field_metadata, db_prefs=None) -> None:
         self.FIELD_MAP = FIELD_MAP
         self.db_prefs = db_prefs
         self.composites = {}
@@ -253,7 +253,7 @@ class ResultCache(SearchQueryParser):  # {{{
         self._uuid_column_index = self.FIELD_MAP['uuid']
         self._uuid_map = {}
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self._data = self.field_metadata = self.FIELD_MAP = self.numeric_search_relops = self.date_search_relops = self.db_prefs = self.all_search_locations = (
             None
         )
@@ -264,7 +264,7 @@ class ResultCache(SearchQueryParser):  # {{{
         assert data is not None
         return data[self._map_filtered[row]]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._map_filtered)
 
     def __iter__(self):
@@ -294,11 +294,11 @@ class ResultCache(SearchQueryParser):  # {{{
         assert data is not None
         return {i[0] for i in data if i is not None}
 
-    def change_search_locations(self, locations):
+    def change_search_locations(self, locations) -> None:
         self.sqp_change_locations(locations)
         self.all_search_locations = locations
 
-    def build_date_relop_dict(self):
+    def build_date_relop_dict(self) -> None:
         """
         Because the database dates have time in them, we can't use direct
         comparisons even when field_count == 3. The query has time = 0, but
@@ -340,17 +340,17 @@ class ResultCache(SearchQueryParser):  # {{{
                 return field_count == 3 and db.month == query.month and db.day < query.day
             return False
 
-        def relop_ne(db, query, field_count):
+        def relop_ne(db, query, field_count) -> bool:
             if db.tzinfo != query.tzinfo:
                 db = db.astimezone(tz=query.tzinfo)
             return not relop_eq(db, query, field_count)
 
-        def relop_ge(db, query, field_count):
+        def relop_ge(db, query, field_count) -> bool:
             if db.tzinfo != query.tzinfo:
                 db = db.astimezone(tz=query.tzinfo)
             return not relop_lt(db, query, field_count)
 
-        def relop_le(db, query, field_count):
+        def relop_le(db, query, field_count) -> bool:
             if db.tzinfo != query.tzinfo:
                 db = db.astimezone(tz=query.tzinfo)
             return not relop_gt(db, query, field_count)
@@ -454,7 +454,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 matches.add(item[0])
         return matches
 
-    def build_numeric_relop_dict(self):
+    def build_numeric_relop_dict(self) -> None:
         self.numeric_search_relops = {
             '=': (1, lambda r, q: r == q),
             '>': (1, lambda r, q: r is not None and r > q),
@@ -486,7 +486,7 @@ class ResultCache(SearchQueryParser):  # {{{
         if query == 'false':
             if dt == 'rating' or location == 'cover':
 
-                def relop(x, y):
+                def relop(x, y) -> bool:
                     return not bool(x)
 
             else:
@@ -963,25 +963,25 @@ class ResultCache(SearchQueryParser):  # {{{
     def get_search_restriction(self):
         return self.search_restriction
 
-    def set_search_restriction(self, s):
+    def set_search_restriction(self, s) -> None:
         self.search_restriction = s
 
     def get_base_restriction(self):
         return self.base_restriction
 
-    def set_base_restriction(self, s):
+    def set_base_restriction(self, s) -> None:
         self.base_restriction = s
 
     def get_base_restriction_name(self):
         return self.base_restriction_name
 
-    def set_base_restriction_name(self, s):
+    def set_base_restriction_name(self, s) -> None:
         self.base_restriction_name = s
 
     def get_search_restriction_name(self):
         return self.search_restriction_name
 
-    def set_search_restriction_name(self, s):
+    def set_search_restriction_name(self, s) -> None:
         self.search_restriction_name = s
 
     def search_restriction_applied(self):
@@ -990,7 +990,7 @@ class ResultCache(SearchQueryParser):  # {{{
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
-    def set_marked_ids(self, id_dict):
+    def set_marked_ids(self, id_dict) -> None:
         '''
         ids in id_dict are "marked". They can be searched for by
         using the search term ``marked:true`` or ``marked:value``.
@@ -1027,7 +1027,7 @@ class ResultCache(SearchQueryParser):  # {{{
 
     # }}}
 
-    def remove(self, id):
+    def remove(self, id) -> None:
         data = self._data
         assert data is not None
         try:
@@ -1047,7 +1047,7 @@ class ResultCache(SearchQueryParser):  # {{{
         except ValueError:
             pass
 
-    def set(self, row, col, val, row_is_id=False):
+    def set(self, row, col, val, row_is_id=False) -> None:
         data = self._data
         assert data is not None
         id = row if row_is_id else self._map_filtered[row]
@@ -1110,7 +1110,7 @@ class ResultCache(SearchQueryParser):  # {{{
             pass
         return None
 
-    def books_added(self, ids, db):
+    def books_added(self, ids, db) -> None:
         if not ids:
             return
         _data = self._data
@@ -1132,14 +1132,14 @@ class ResultCache(SearchQueryParser):  # {{{
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
-    def books_deleted(self, ids):
+    def books_deleted(self, ids) -> None:
         for id in ids:
             self.remove(id)
 
     def count(self):
         return len(self._map)
 
-    def refresh_ondevice(self, db):
+    def refresh_ondevice(self, db) -> None:
         field_map = self.FIELD_MAP
         assert field_map is not None
         data = self._data
@@ -1150,7 +1150,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 item[ondevice_col] = db.book_on_device_string(item[0])
                 item.refresh_composites()
 
-    def refresh(self, db, field=None, ascending=True):
+    def refresh(self, db, field=None, ascending=True) -> None:
         # reinitialize the template cache in case a composite column has changed
         db.initialize_template_cache()
 
@@ -1199,10 +1199,10 @@ class ResultCache(SearchQueryParser):  # {{{
             field = 'author_sort'
         return field
 
-    def sort(self, field, ascending, subsort=False):
+    def sort(self, field, ascending, subsort=False) -> None:
         self.multisort([(field, ascending)])
 
-    def multisort(self, fields=None, subsort=False, only_ids=None):
+    def multisort(self, fields=None, subsort=False, only_ids=None) -> None:
         """
         fields is a list of 2-tuple, each tuple is of the form
         (field_name, is_ascending)
@@ -1237,7 +1237,7 @@ class ResultCache(SearchQueryParser):  # {{{
 
 
 class SortKey:
-    def __init__(self, orders, values):
+    def __init__(self, orders, values) -> None:
         self.orders, self.values = orders, values
 
     def compare_to_other(self, other):
@@ -1267,7 +1267,7 @@ class SortKey:
 
 
 class SortKeyGenerator:
-    def __init__(self, fields, field_metadata, data, db_prefs):
+    def __init__(self, fields, field_metadata, data, db_prefs) -> None:
         from calibre.utils.icu import sort_key
 
         self.field_metadata = field_metadata

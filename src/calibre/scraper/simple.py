@@ -12,7 +12,7 @@ def cleanup_overseers():
     browsers = tuple(filter(None, (x() for x in overseers)))
     del overseers[:]
 
-    def join_all():
+    def join_all() -> None:
         for br in browsers:
             br.shutdown()
 

@@ -20,7 +20,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 
 
 class FakeResponse:
-    def __init__(self):
+    def __init__(self) -> None:
         self.queue = Queue()
         self.done = False
         self.final_url = ''
@@ -29,7 +29,7 @@ class FakeResponse:
         self._headers = []
         self._data = BytesIO()
 
-    def _wait(self):
+    def _wait(self) -> None:
         if self.done:
             return
         self.done = True
@@ -101,7 +101,7 @@ class FakeResponse:
     def getinfo(self):
         return self.headers
 
-    def close(self):
+    def close(self) -> None:
         self._data.close()
 
     def __enter__(self):
@@ -111,7 +111,7 @@ class FakeResponse:
         self._data.close()
 
 
-def shutdown_browser(bref):
+def shutdown_browser(bref) -> None:
     br = bref()
     if br is not None:
         br.shutdown()
@@ -124,7 +124,7 @@ class Browser:
         headers: tuple[tuple[str, str], ...] = (),
         verify_ssl_certificates: bool = True,
         start_worker: bool = False,
-    ):
+    ) -> None:
         self.tdir = ''
         self.worker = self.dispatcher = None
         self.dispatch_map = {}
@@ -204,7 +204,7 @@ class Browser:
     def is_method_ok(self, method: str) -> bool:
         return True
 
-    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/'):
+    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/') -> None:
         """
         Set a simple cookie using a name and value. If domain is specified, the cookie is only sent with requests
         to matching domains, otherwise it is sent with all requests. The leading dot in domain is optional.
@@ -222,7 +222,7 @@ class Browser:
     def clone_browser(self):
         return self
 
-    def _send_command(self, cmd):
+    def _send_command(self, cmd) -> None:
         with self.lock:
             self._ensure_state()
             _worker = self.worker
@@ -233,7 +233,7 @@ class Browser:
             _w_stdin.write(b'\n')
             _w_stdin.flush()
 
-    def _ensure_state(self):
+    def _ensure_state(self) -> None:
         with self.lock:
             if not self.tdir:
                 self.tdir = PersistentTemporaryDirectory()
@@ -244,7 +244,7 @@ class Browser:
     def run_worker(self) -> subprocess.Popen:
         return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates)
 
-    def _dispatch(self):
+    def _dispatch(self) -> None:
         try:
             _dispatch_worker = self.worker
             assert _dispatch_worker is not None
@@ -264,7 +264,7 @@ class Browser:
 
                 traceback.print_exc()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.shutting_down = True
         if self.worker:
             w, self.worker = self.worker, None
@@ -289,7 +289,7 @@ class Browser:
             self.dispatcher.join()
             self.dispatcher = None
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.shutdown()
 
 
@@ -304,7 +304,7 @@ def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, functi
     return start_pipe_worker(f'from calibre.scraper.qt import {function}; {function}({tdir!r}, {user_agent!r}, {verify_ssl_certificates!r})')
 
 
-def worker(*args):
+def worker(*args) -> None:
     from calibre.gui2 import must_use_qt
 
     must_use_qt()
@@ -313,7 +313,7 @@ def worker(*args):
     worker(*args)
 
 
-def webengine_worker(*args):
+def webengine_worker(*args) -> None:
     from calibre.gui2 import must_use_qt
 
     must_use_qt()
@@ -322,7 +322,7 @@ def webengine_worker(*args):
     worker(*args)
 
 
-def develop():
+def develop() -> None:
     import sys
 
     br = Browser()

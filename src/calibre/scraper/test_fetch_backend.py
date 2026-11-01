@@ -19,16 +19,16 @@ if is_sanitized:
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-    def __init__(self, test_obj, *a):
+    def __init__(self, test_obj, *a) -> None:
         self.test_obj = test_obj
         super().__init__(*a)
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         if self.test_obj.dont_send_response:
             return
         self.do_response()
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         if self.test_obj.dont_send_response:
             return
         if self.path == '/favicon.ico':
@@ -42,7 +42,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         self.do_response()
 
-    def do_response(self):
+    def do_response(self) -> None:
         h = {}
         for k, v in self.headers.items():
             h.setdefault(k, []).append(v)
@@ -66,7 +66,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         else:
             self.wfile.write(data)
 
-    def log_request(self, code='-', size='-'):
+    def log_request(self, code='-', size='-') -> None:
         pass
 
 
@@ -74,7 +74,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 class TestFetchBackend(unittest.TestCase):
     ae = unittest.TestCase.assertEqual
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.server_started = Event()
         self.server_thread = Thread(target=self.run_server, daemon=True)
         self.server_thread.start()
@@ -84,24 +84,24 @@ class TestFetchBackend(unittest.TestCase):
         self.request_count = 0
         self.dont_send_response = self.dont_send_body = False
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.server.shutdown()
         self.server_thread.join(5)
 
-    def test_recipe_browser_qt(self):
+    def test_recipe_browser_qt(self) -> None:
         self.do_recipe_browser_test(Browser)
 
     @unittest.skipIf(is_ci and (iswindows or ismacos), 'WebEngine browser test hangs on CI')
-    def test_recipe_browser_webengine(self):
+    def test_recipe_browser_webengine(self) -> None:
         self.do_recipe_browser_test(WebEngineBrowser)
 
-    def do_recipe_browser_test(self, browser_class):
+    def do_recipe_browser_test(self, browser_class) -> None:
         from urllib.error import URLError
         from urllib.request import Request
 
         br = browser_class(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
 
-        def u(path=''):
+        def u(path='') -> str:
             return f'http://{self.host}:{self.port}{path}'
 
         def get(path='', headers=None, timeout=None, data=None):
@@ -116,7 +116,7 @@ class TestFetchBackend(unittest.TestCase):
                 ans['final_url'] = res.geturl()
             return ans
 
-        def test_with_timeout(no_response=True):
+        def test_with_timeout(no_response=True) -> None:
             self.dont_send_body = True
             if no_response:
                 self.dont_send_response = True
@@ -135,7 +135,7 @@ class TestFetchBackend(unittest.TestCase):
             # connection in the following requests causes a RemoteHostClosedError
             get()
 
-        def header(name, *expected):
+        def header(name, *expected) -> None:
             name = name.lower()
             ans = []
             for k, v in r['headers'].items():
@@ -143,7 +143,7 @@ class TestFetchBackend(unittest.TestCase):
                     ans.extend(v)
             self.ae(expected, tuple(ans))
 
-        def has_header(name):
+        def has_header(name) -> None:
             self.assertIn(name.lower(), [h.lower() for h in r['headers']])
 
         try:
@@ -178,7 +178,7 @@ class TestFetchBackend(unittest.TestCase):
         finally:
             br.shutdown()
 
-    def run_server(self):
+    def run_server(self) -> None:
         from http.server import HTTPServer
         from socketserver import TCPServer, ThreadingMixIn
 
@@ -192,7 +192,7 @@ class TestFetchBackend(unittest.TestCase):
             # accepting the follow-up connection for a redirect target.
             daemon_threads = True
 
-            def server_bind(self):
+            def server_bind(self) -> None:
                 # Avoid calling socket.getfqdn() which is slow on some systems
                 TCPServer.server_bind(self)
                 self.server_name, self.server_port = self.server_address[:2]

@@ -8,7 +8,7 @@ from calibre.utils.localization import get_lang, lang_as_iso639_1
 
 
 class PerThreadIterators(threading.local):
-    def __init__(self):
+    def __init__(self) -> None:
         self.iterators = {}
         self.sentence_iterators = {}
         self.extra_break_char_word_iterators = {}
@@ -80,7 +80,7 @@ def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: in
         return
     buf, total, start_at = [], 0, 0
 
-    def a(s, e):
+    def a(s, e) -> None:
         nonlocal total, start_at
         t = sentence[s:e]
         if not buf:

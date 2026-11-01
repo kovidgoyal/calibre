@@ -85,25 +85,25 @@ sqlite.register_converter('BOOL', convert_bool)
 
 
 class DynamicFilter:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.ids = frozenset()
 
     def __call__(self, id_):
         return int(id_ in self.ids)
 
-    def change(self, ids):
+    def change(self, ids) -> None:
         self.ids = frozenset(ids)
 
 
 class Concatenate:
     """String concatenation aggregator for sqlite"""
 
-    def __init__(self, sep=','):
+    def __init__(self, sep=',') -> None:
         self.sep = sep
         self.ans = []
 
-    def step(self, value):
+    def step(self, value) -> None:
         if value is not None:
             self.ans.append(value)
 
@@ -124,10 +124,10 @@ class SortedConcatenate:
 
     sep = ','
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.ans = {}
 
-    def step(self, ndx, value):
+    def step(self, ndx, value) -> None:
         if value is not None:
             self.ans[ndx] = value
 
@@ -154,10 +154,10 @@ class SortedConcatenateAmper(SortedConcatenate):
 class IdentifiersConcat:
     """String concatenation aggregator for the identifiers map"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.ans = []
 
-    def step(self, key, val):
+    def step(self, key, val) -> None:
         self.ans.append(f'{key}:{val}')
 
     def finalize(self):
@@ -173,10 +173,10 @@ class IdentifiersConcat:
 class AumSortedConcatenate:
     """String concatenation aggregator for the author sort map"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.ans = {}
 
-    def step(self, ndx, author, sort, link):
+    def step(self, ndx, author, sort, link) -> None:
         if author is not None:
             self.ans[ndx] = ':::'.join((author, sort, link))  # ruff: ignore[static-join-to-f-string]
 
@@ -231,7 +231,7 @@ def icu_collator(s1, s2):
     return cmp(sort_key(force_unicode(s1, 'utf-8')), sort_key(force_unicode(s2, 'utf-8')))
 
 
-def load_c_extensions(conn, debug=DEBUG):
+def load_c_extensions(conn, debug=DEBUG) -> bool:
     try:
         conn.enable_load_extension(True)
         ext_path = os.path.join(plugins_loc, 'sqlite_custom.' + ('pyd' if iswindows else 'so'))
@@ -271,7 +271,7 @@ def do_connect(path, row_factory=None):
 class DBThread(Thread):
     CLOSE = '-------close---------'
 
-    def __init__(self, path, row_factory):
+    def __init__(self, path, row_factory) -> None:
         Thread.__init__(self, daemon=True)
         self.path = path
         self.unhandled_error = (None, '')
@@ -280,10 +280,10 @@ class DBThread(Thread):
         self.results = Queue(1)
         self.conn = None
 
-    def connect(self):
+    def connect(self) -> None:
         self.conn = do_connect(self.path, self.row_factory)
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.connect()
             while True:
@@ -334,7 +334,7 @@ class DBThread(Thread):
 
 
 class DatabaseException(Exception):
-    def __init__(self, err, tb):
+    def __init__(self, err, tb) -> None:
         tb = '\n\t'.join(('\tRemote' + tb).splitlines())
         try:
             msg = str(err) + '\n' + tb
@@ -366,53 +366,53 @@ def proxy(fn):
 
 
 class ConnectionProxy:
-    def __init__(self, proxy):
+    def __init__(self, proxy) -> None:
         self.proxy = proxy
         self.closed = False
 
-    def close(self):
+    def close(self) -> None:
         if self.proxy.unhandled_error[0] is None:
             self.proxy.requests.put((self.proxy.CLOSE, [], {}))
             self.closed = True
 
     @proxy
-    def get(self, query, all=True):
+    def get(self, query, all=True) -> None:
         pass
 
     @proxy
-    def commit(self):
+    def commit(self) -> None:
         pass
 
     @proxy
-    def execute(self):
+    def execute(self) -> None:
         pass
 
     @proxy
-    def executemany(self):
+    def executemany(self) -> None:
         pass
 
     @proxy
-    def executescript(self):
+    def executescript(self) -> None:
         pass
 
     @proxy
-    def create_aggregate(self):
+    def create_aggregate(self) -> None:
         pass
 
     @proxy
-    def create_function(self):
+    def create_function(self) -> None:
         pass
 
     @proxy
-    def cursor(self):
+    def cursor(self) -> None:
         pass
 
     @proxy
-    def dump(self):
+    def dump(self) -> None:
         pass
 
     @proxy
-    def create_dynamic_filter(self):
+    def create_dynamic_filter(self) -> None:
         pass
 
 
@@ -426,7 +426,7 @@ def connect(dbpath, row_factory=None):
     return conn
 
 
-def test():
+def test() -> None:
     c = sqlite.connect(':memory:')
     if load_c_extensions(c, True):
         print('Loaded C extension successfully')

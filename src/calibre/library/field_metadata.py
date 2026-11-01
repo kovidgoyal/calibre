@@ -547,7 +547,7 @@ class FieldMetadata:
     custom_field_prefix = '#'
     __calibre_serializable__ = True
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._field_metadata = _builtin_field_metadata()
         self._tb_cats = OrderedDict()
         self._tb_custom_fields = {}
@@ -571,16 +571,16 @@ class FieldMetadata:
             return self._tb_cats['sort']
         return self._tb_cats[key]
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         raise AttributeError('Assigning to this object is forbidden')
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         del self._tb_cats[key]
 
     def __iter__(self):
         yield from self._tb_cats
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self._tb_cats or key == 'title_sort'
 
     def has_key(self, key):
@@ -717,7 +717,7 @@ class FieldMetadata:
             l[k] = self._tb_cats[k]
         return l
 
-    def add_custom_field(self, label, table, column, datatype, colnum, name, display, is_editable, is_multiple, is_category, is_csp=False):
+    def add_custom_field(self, label, table, column, datatype, colnum, name, display, is_editable, is_multiple, is_category, is_csp=False) -> None:
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError(f'Duplicate custom field [{label}]')
@@ -767,7 +767,7 @@ class FieldMetadata:
             self._add_search_terms_to_map(key, [key])
             self.custom_label_to_key_map[label + '_index'] = key
 
-    def remove_dynamic_categories(self):
+    def remove_dynamic_categories(self) -> None:
         for key in list(self._tb_cats.keys()):
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] in ('user', 'search'):
@@ -776,7 +776,7 @@ class FieldMetadata:
                         del self._search_term_map[k]
                 del self._tb_cats[key]
 
-    def remove_user_categories(self):
+    def remove_user_categories(self) -> None:
         for key in list(self._tb_cats.keys()):
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] == 'user':
@@ -785,12 +785,12 @@ class FieldMetadata:
                         del self._search_term_map[k]
                 del self._tb_cats[key]
 
-    def _remove_grouped_search_terms(self):
+    def _remove_grouped_search_terms(self) -> None:
         to_remove = [v for v in self._search_term_map if isinstance(self._search_term_map[v], list)]
         for v in to_remove:
             del self._search_term_map[v]
 
-    def add_grouped_search_terms(self, gst):
+    def add_grouped_search_terms(self, gst) -> None:
         self._remove_grouped_search_terms()
         for t in gst:
             try:
@@ -801,7 +801,7 @@ class FieldMetadata:
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
 
-    def add_user_category(self, label, name):
+    def add_user_category(self, label, name) -> None:
         if label in self._tb_cats:
             raise ValueError(f'Duplicate user field [{label}]')
         st = [label]
@@ -821,7 +821,7 @@ class FieldMetadata:
         }
         self._add_search_terms_to_map(label, st)
 
-    def add_search_category(self, label, name, fail_on_existing=True):
+    def add_search_category(self, label, name, fail_on_existing=True) -> None:
         if label in self._tb_cats:
             if not fail_on_existing:
                 return
@@ -839,7 +839,7 @@ class FieldMetadata:
             'is_csp': False,
         }
 
-    def set_field_record_index(self, label, index, prefer_custom=False):
+    def set_field_record_index(self, label, index, prefer_custom=False) -> None:
         if prefer_custom:
             key = self.custom_field_prefix + label
             if key not in self._tb_cats:
@@ -856,7 +856,7 @@ class FieldMetadata:
             s_keys.append(v)
         return s_keys
 
-    def _add_search_terms_to_map(self, key, terms):
+    def _add_search_terms_to_map(self, key, terms) -> None:
         if terms is not None:
             for t in terms:
                 if t in self._search_term_map:

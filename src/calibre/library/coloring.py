@@ -16,12 +16,12 @@ class Rule:  # {{{
 
     INVALID_CONDITION = _('INVALID CONDITION')
 
-    def __init__(self, fm, color=None):
+    def __init__(self, fm, color=None) -> None:
         self.color = color
         self.fm = fm
         self.conditions = []
 
-    def add_condition(self, col, action, val):
+    def add_condition(self, col, action, val) -> None:
         if col not in self.fm:
             raise ValueError(f'{col!r} is not a valid column name')
         v = self.validate_condition(col, action, val)
@@ -31,7 +31,7 @@ class Rule:  # {{{
             action = self.INVALID_CONDITION
         self.conditions.append((col, action, val))
 
-    def validate_condition(self, col, action, val):
+    def validate_condition(self, col, action, val) -> str | None:
         m = self.fm[col]
         dt = m['datatype']
         if dt in ('int', 'float', 'rating') and action in ('lt', 'eq', 'gt'):
@@ -102,18 +102,18 @@ class Rule:  # {{{
                 return self.multiple_condition(col, action, val, ism['ui_to_list'])
             return self.text_condition(col, action, val)
 
-    def identifiers_condition(self, col, action, val):
+    def identifiers_condition(self, col, action, val) -> str:
         if action == 'has id':
             return f"identifier_in_list(field('identifiers'), '{val}', '1', '')"
         return f"identifier_in_list(field('identifiers'), '{val}', '', '1')"
 
-    def ondevice_condition(self, col, action, val):
+    def ondevice_condition(self, col, action, val) -> str | None:
         if action == 'is set':
             return 'ondevice()'
         if action == 'is not set':
             return '!ondevice()'
 
-    def bool_condition(self, col, action, val):
+    def bool_condition(self, col, action, val) -> str:
         test = {
             'is true': '0, 0, 1',
             'is not true': '1, 1, 0',
@@ -124,7 +124,7 @@ class Rule:  # {{{
         }[action]
         return f"check_yes_no('{col}', {test})"
 
-    def number_condition(self, col, action, val):
+    def number_condition(self, col, action, val) -> str:
         if action == 'is set':
             return f'${col}'
         if action == 'is not set':
@@ -135,7 +135,7 @@ class Rule:  # {{{
         else:
             return f"cmp(raw_field('{col}', 0), {val}, '{lt}', '{eq}', '{gt}')"
 
-    def rating_condition(self, col, action, val):
+    def rating_condition(self, col, action, val) -> str:
         if action == 'is set':
             return f'${col}'
         if action == 'is not set':
@@ -143,7 +143,7 @@ class Rule:  # {{{
         lt, eq, gt = {'eq': ('', '1', ''), 'lt': ('1', '', ''), 'gt': ('', '', '1')}[action]
         return f"cmp(field('{col}'), {val}, '{lt}', '{eq}', '{gt}')"
 
-    def date_condition(self, col, action, val):
+    def date_condition(self, col, action, val) -> str:
         if action == 'count_days':
             return (
                 f"test(field('{col}'), cmp({val}, "
@@ -177,7 +177,7 @@ class Rule:  # {{{
         lt, eq, gt = {'eq': ('', '1', ''), 'lt': ('1', '', ''), 'gt': ('', '', '1')}[action]
         return f"strcmp(format_date(raw_field('{col}'), 'yyyy-MM-dd'), '{val}', '{lt}', '{eq}', '{gt}')"
 
-    def multiple_condition(self, col, action, val, sep):
+    def multiple_condition(self, col, action, val, sep) -> str | None:
         if not sep or sep == '|':
             sep = ','
         if action == 'is set':
@@ -193,7 +193,7 @@ class Rule:  # {{{
         if action == 'does not have pattern':
             return f"in_list(field('{col}'), '{sep}', \"{val}\", '', '1')"
 
-    def text_condition(self, col, action, val):
+    def text_condition(self, col, action, val) -> str | None:
         if action == 'is set':
             return f'${col}'
         if action == 'is not set':

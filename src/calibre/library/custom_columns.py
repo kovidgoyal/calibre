@@ -38,7 +38,7 @@ class CustomColumns:
             for x in self.conn.get('SELECT name FROM sqlite_master WHERE type="table" AND (name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')
         }
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Verify that CUSTOM_DATA_TYPES is a (possibly improper) subset of
         # VALID_DATA_TYPES
         if len(self.CUSTOM_DATA_TYPES - FieldMetadata.VALID_DATA_TYPES) > 0:
@@ -291,7 +291,7 @@ class CustomColumns:
         ans = self.conn.get(f'SELECT id, value FROM {table}')
         return ans
 
-    def rename_custom_item(self, old_id, new_name, label=None, num=None):
+    def rename_custom_item(self, old_id, new_name, label=None, num=None) -> None:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -329,7 +329,7 @@ class CustomColumns:
         self.dirty_books_referencing('#' + data['label'], new_id, commit=False)
         self.conn.commit()
 
-    def delete_custom_item_using_id(self, id, label=None, num=None):
+    def delete_custom_item_using_id(self, id, label=None, num=None) -> None:
         if id:
             if label is not None:
                 data = self.custom_column_label_map[label]
@@ -410,7 +410,7 @@ class CustomColumns:
         ans = {x[0] for x in ans}
         return ans
 
-    def delete_custom_column(self, label=None, num=None):
+    def delete_custom_column(self, label=None, num=None) -> None:
         data = None
         if label is not None:
             data = self.custom_column_label_map[label]
@@ -444,7 +444,7 @@ class CustomColumns:
 
         return changed
 
-    def set_custom_bulk_multiple(self, ids, add=None, remove=None, label=None, num=None, notify=False):
+    def set_custom_bulk_multiple(self, ids, add=None, remove=None, label=None, num=None, notify=False) -> None:
         """
         Fast algorithm for updating custom column is_multiple datatypes.
         Do not use with other custom column datatypes.
@@ -521,7 +521,7 @@ class CustomColumns:
         if notify:
             self.notify('metadata', ids)
 
-    def set_custom_bulk(self, ids, val, label=None, num=None, append=False, notify=True, extras=None):
+    def set_custom_bulk(self, ids, val, label=None, num=None, append=False, notify=True, extras=None) -> None:
         """
         Change the value of a column for a set of books. The ids parameter is a
         list of book ids to change. The extra field must be None or a list the
@@ -638,7 +638,7 @@ class CustomColumns:
             self.notify('metadata', [id_])
         return books_to_refresh
 
-    def clean_custom(self):
+    def clean_custom(self) -> None:
         st = 'DELETE FROM {table} WHERE (SELECT COUNT(id) FROM {lt} WHERE {lt}.value={table}.id) < 1;'
         statements = []
         for data in self.custom_column_num_map.values():

@@ -22,7 +22,7 @@ def generate_test_db(
     title_length=10,
     max_authors=10,
     max_tags=10,
-):
+) -> None:
     import os
     import random
     import string

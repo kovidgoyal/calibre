@@ -68,7 +68,7 @@ def convert_to_utf8(dic_data, aff_data, errors='strict'):
     return dic_data, aff_data
 
 
-def import_from_libreoffice_source_tree(source_path):
+def import_from_libreoffice_source_tree(source_path) -> None:
     dictionaries = {}
     for x in glob.glob(os.path.join(source_path, '*', 'dictionaries.xcu')):
         origin = os.path.dirname(x)

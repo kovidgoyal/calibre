@@ -55,7 +55,7 @@ class CSV_XML(CatalogPlugin):
         ),
     ]
 
-    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()) -> None:
         from lxml import etree
 
         from calibre.ebooks.metadata import authors_to_string

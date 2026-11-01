@@ -53,7 +53,7 @@ class LoadedDictionary(NamedTuple):
 class UserDictionary:
     __slots__ = ('is_active', 'name', 'words')
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.name = kwargs['name']
         self.is_active = kwargs['is_active']
         self.words = set(map(tuple, kwargs['words']))
@@ -151,7 +151,7 @@ def preferred_dictionary(locale):
     return {parse_lang_code(k): v for k, v in dprefs['preferred_dictionaries'].items()}.get(locale, None)
 
 
-def remove_dictionary(dictionary):
+def remove_dictionary(dictionary) -> None:
     if dictionary.builtin:
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
@@ -159,7 +159,7 @@ def remove_dictionary(dictionary):
     dprefs['preferred_dictionaries'] = {k: v for k, v in dprefs['preferred_dictionaries'].items() if v != dictionary.id}
 
 
-def rename_dictionary(dictionary, name):
+def rename_dictionary(dictionary, name) -> None:
     lf = os.path.join(os.path.dirname(dictionary.dicpath), 'locales')
     with open(lf, 'r+b') as f:
         lines = f.read().splitlines()
@@ -226,7 +226,7 @@ def load_dictionary(dictionary):
 
 
 class Dictionaries:
-    def __init__(self):
+    def __init__(self) -> None:
         self.remove_hyphenation = re.compile(r'[\u2010-]+')
         self.negative_pat = re.compile(r'-[.\d+]')
         self.fix_punctuation_pat = re.compile(r'''[:.]''')
@@ -240,14 +240,14 @@ class Dictionaries:
             self.default_locale = parse_lang_code('en-US')
         self.ui_locale = self.default_locale
 
-    def initialize(self, force=False):
+    def initialize(self, force=False) -> None:
         if force or not hasattr(self, 'active_user_dictionaries'):
             self.read_user_dictionaries()
 
-    def clear_caches(self):
+    def clear_caches(self) -> None:
         self.dictionaries.clear(), self.word_cache.clear()
 
-    def clear_ignored(self):
+    def clear_ignored(self) -> None:
         self.ignored_words.clear()
 
     def dictionary_for_locale(self, locale):
@@ -267,11 +267,11 @@ class Dictionaries:
             self.dictionaries[locale] = ans
         return ans
 
-    def ignore_word(self, word, locale):
+    def ignore_word(self, word, locale) -> None:
         self.ignored_words.add((word, locale.langcode))
         self.word_cache[(word, locale)] = True
 
-    def unignore_word(self, word, locale):
+    def unignore_word(self, word, locale) -> None:
         self.ignored_words.discard((word, locale.langcode))
         self.word_cache.pop((word, locale), None)
 
@@ -287,14 +287,14 @@ class Dictionaries:
             if ud.name == name:
                 return ud
 
-    def read_user_dictionaries(self):
+    def read_user_dictionaries(self) -> None:
         self.active_user_dictionaries = []
         self.inactive_user_dictionaries = []
         for d in dprefs['user_dictionaries'] or dprefs.defaults['user_dictionaries']:
             d = UserDictionary(**d)
             (self.active_user_dictionaries if d.is_active else self.inactive_user_dictionaries).append(d)
 
-    def mark_user_dictionary_as_active(self, name, is_active=True):
+    def mark_user_dictionary_as_active(self, name, is_active=True) -> bool:
         d = self.user_dictionary(name)
         if d is not None:
             d.is_active = is_active
@@ -302,22 +302,22 @@ class Dictionaries:
             return True
         return False
 
-    def save_user_dictionaries(self):
+    def save_user_dictionaries(self) -> None:
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
-    def add_user_words(self, words, langcode):
+    def add_user_words(self, words, langcode) -> None:
         for d in self.dictionaries.values():
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
-    def remove_user_words(self, words, langcode):
+    def remove_user_words(self, words, langcode) -> None:
         for d in self.dictionaries.values():
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)
 
-    def add_to_user_dictionary(self, name, word, locale):
+    def add_to_user_dictionary(self, name, word, locale) -> bool:
         ud = self.user_dictionary(name)
         if ud is None:
             raise ValueError(f'Cannot add to the dictionary named: {name} as no such dictionary exists')
@@ -375,7 +375,7 @@ class Dictionaries:
             if key in ud.words:
                 return ud.name
 
-    def create_user_dictionary(self, name):
+    def create_user_dictionary(self, name) -> None:
         if name in {d.name for d in self.all_user_dictionaries}:
             raise ValueError(f'A dictionary named {name} already exists')
         d = UserDictionary(name=name, is_active=True, words=())
@@ -467,7 +467,7 @@ class Dictionaries:
         return ans
 
 
-def build_test():
+def build_test() -> None:
     dictionaries = Dictionaries()
     dictionaries.initialize()
     eng = parse_lang_code('en')
@@ -479,18 +479,18 @@ def find_tests():
     import unittest
 
     class TestDictionaries(unittest.TestCase):
-        def setUp(self):
+        def setUp(self) -> None:
             dictionaries = Dictionaries()
             dictionaries.initialize()
             eng = parse_lang_code('en-GB')
             self.recognized = partial(dictionaries.recognized, locale=eng)
             self.suggestions = partial(dictionaries.suggestions, locale=eng)
 
-        def ar(self, w):
+        def ar(self, w) -> None:
             if not self.recognized(w):
                 raise AssertionError(f'The word {w!r} was not recognized')
 
-        def test_dictionaries(self):
+        def test_dictionaries(self) -> None:
             for w in 'recognized one-half one\u2010half'.split():
                 self.ar(w)
             d = load_dictionary(get_dictionary(parse_lang_code('es-ES'))).obj
@@ -504,7 +504,7 @@ def find_tests():
     return unittest.TestLoader().loadTestsFromTestCase(TestDictionaries)
 
 
-def test():
+def test() -> None:
     from calibre.utils.run_tests import run_cli
 
     run_cli(find_tests())

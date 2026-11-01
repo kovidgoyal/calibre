@@ -325,12 +325,12 @@ def get_path_components(opts, mi, book_id, path_length):
     return components
 
 
-def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugboard_cache=None):
+def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugboard_cache=None) -> None:
     from calibre.ebooks.metadata.meta import set_metadata
 
     if error_report is not None:
 
-        def report_error(mi, fmt, tb):
+        def report_error(mi, fmt, tb) -> None:
             error_report(fmt, tb)
 
     try:
@@ -482,7 +482,7 @@ def update_serialized_metadata(book, common_data):
         fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
         mi, cdata = read_serialized_metadata(book)
 
-        def report_error(fmt, tb):
+        def report_error(fmt, tb) -> None:
             result.append((fmt, tb))
 
         for fmt, fmtpath in zip(fmts, book['fmts']):

@@ -52,7 +52,7 @@ def find_folders_under(
 
 
 class FormatCollection:  # {{{
-    def __init__(self, parent_folder, formats):
+    def __init__(self, parent_folder, formats) -> None:
         self.path_map = {}
         for x in set(formats):
             fmt = os.path.splitext(x)[1].lower()
@@ -79,10 +79,10 @@ class FormatCollection:  # {{{
     def __iter__(self):
         yield from self.path_map
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.path_map)
 
-    def remove(self, fmt):
+    def remove(self, fmt) -> None:
         self.hash_map.pop(fmt, None)
         self.path_map.pop(fmt, None)
 
@@ -91,7 +91,7 @@ class FormatCollection:  # {{{
             return False
         return all(self.hash_map[fmt] == other.hash_map.get(fmt, False) for fmt in self)
 
-    def merge(self, other):
+    def merge(self, other) -> None:
         for fmt in list(other):
             self.path_map[fmt] = other.path_map[fmt]
             self.hash_map[fmt] = other.hash_map[fmt]
