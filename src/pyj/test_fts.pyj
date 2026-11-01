@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from elementmaker import E
 from gettext import gettext as _, ngettext
 
-from book_list.fts import apply_search_panel_state, component, init, set_search_status, show_index_panel
+from book_list.fts import apply_search_panel_state, component, init, restore_result_focus, set_search_status, show_index_panel
 from book_list.globals import get_current_query
 from modals import close_all_modals, create_modal_container
 from test_book_list_helpers import with_empty_session
@@ -71,6 +71,62 @@ def with_search_panel(proceed):
 
 def found(n):
     return ngettext('{} book found', '{} books found', n).format(n)
+
+
+@test
+def fts_result_titles_are_native_buttons_outside_snippets():
+    def run(search, finish, requests):
+        finish(search('test'), [1, 2])
+        results = component('results')
+        buttons = results.querySelectorAll('.fts-result-title')
+        assert_equal(buttons.length, 2)
+        button = buttons[0]
+        assert_equal(button.tagName, 'BUTTON')
+        assert_equal(button.type, 'button')
+        assert_equal(button.tabIndex, 0)
+        assert_equal(button.getAttribute('aria-haspopup'), 'dialog')
+        assert_equal(button.textContent, 'First ' + _('by') + ' Author')
+        assert_false(button.querySelector('.snippets_container'))
+        button.focus()
+        snippets = requests[-1]
+        query_id = new window.URL(snippets.request_path, window.location.href).searchParams.get('query_id')
+        snippets.responseText = JSON.stringify({'query_id': query_id, 'snippets': {1: [{'formats': ['EPUB'], 'text': 'A match'}], 2: []}})
+        snippets.dispatchEvent(new Event('load'))
+        assert_equal(results.querySelector('.fts-result-title'), button)
+        assert_equal(document.activeElement, button)
+        assert_true(results.querySelector('.snippets_container').textContent.indexOf('A match') > -1)
+
+    with_search_panel(run)
+
+
+@test
+def fts_result_focus_is_restored_only_for_current_visible_results():
+    def run(search, finish):
+        finish(search('test'), [1])
+        button = component('results').querySelector('.fts-result-title')
+        input = component('query').querySelector('input')
+        input.focus()
+        restore_result_focus(button, 'test-fts')
+        assert_equal(document.activeElement, button)
+        input.focus()
+        modal = E.div(id='modal-container', style='display: flex')
+        document.body.appendChild(modal)
+        restore_result_focus(button, 'test-fts')
+        assert_equal(document.activeElement, input)
+        modal.remove()
+        get_current_query().mode = 'read_book'
+        restore_result_focus(button, 'test-fts')
+        assert_equal(document.activeElement, input)
+        get_current_query().mode = 'book_list'
+        show_index_panel()
+        restore_result_focus(button, 'test-fts')
+        assert_equal(document.activeElement, input)
+        search('replacement')
+        assert_false(button.isConnected)
+        restore_result_focus(button, 'test-fts')
+        assert_equal(document.activeElement, input)
+
+    with_search_panel(run)
 
 
 @test
