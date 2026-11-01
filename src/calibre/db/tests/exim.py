@@ -166,6 +166,29 @@ class VerifyExportTest(unittest.TestCase):
         self.assertIn('Invalid export metadata: No metadata for the library: nolib', errors)
         self.assertEqual(self.run_verifier()[0], 1)
 
+    def test_verify_required_database_reference(self) -> None:
+        self.export()
+        libraries = {'lib': 'first', 'other': 'second'}
+        self.rewrite_metadata(
+            lambda metadata: metadata.update({
+                'libraries': dict.fromkeys(libraries, 1),
+                **{key: {'metadata.db': dbkey} for key, dbkey in libraries.items()},
+            })
+        )
+        # Older exports can omit the optional notes and full-text-search databases.
+        self.assertEqual(Importer(self.path).verify(), [])
+        self.assertEqual(self.run_verifier()[0], 0)
+        for library, dbkey in libraries.items():
+            with self.subTest(library=library):
+                self.rewrite_metadata(lambda metadata, library=library: metadata[library].pop('metadata.db'))
+                errors = Importer(self.path).verify()
+                self.assertEqual(len(errors), 1)
+                self.assertIn(f'metadata.db for {library}: Missing file', errors[0])
+                status, out, err = self.run_verifier()
+                self.assertEqual(status, 1)
+                self.assertIn(errors[0], err)
+                self.rewrite_metadata(lambda metadata, library=library, dbkey=dbkey: metadata[library].__setitem__('metadata.db', dbkey))
+
     def test_verify_bounded_reads_and_cli(self) -> None:
         importer = self.export({'large': b'x' * (3 * 1024 * 1024), 'zero': b''}, part_size=2 * 1024 * 1024)
         from calibre.utils.exim import FileSource
