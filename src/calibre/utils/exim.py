@@ -465,7 +465,8 @@ class Importer:
             lm = self.metadata.get(library_key)
             if not isinstance(lm, dict):
                 raise ValueError(f'No metadata for the library: {library_key}')  # ruff: ignore[type-check-without-type-error]
-            for name in ('metadata.db', 'notes.db', 'full-text-search.db'):
+            yield f'metadata.db for {library_key}', lm.get('metadata.db')
+            for name in ('notes.db', 'full-text-search.db'):
                 if name in lm:
                     yield f'{name} for {library_key}', lm[name]
             for x in ('format_data', 'extra_files'):
