@@ -33,6 +33,9 @@ add_extra_css(def ():
     style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: normal; font-weight: 700 }\n'
     style += f'{sel} p' + ' { margin: 0}\n'
     style += '.fts-highlight-match { font-style: normal; font-weight: bold }\n'
+    style += '.fts-result-title { align-self: flex-start; flex-shrink: 0; background: none; border: 0; padding: 0.25ex 0.5ex;'
+    style += ' color: var(--calibre-color-link-foreground); font: inherit; text-align: left; text-decoration: underline; cursor: pointer }\n'
+    style += '.fts-result-title:focus-visible { outline: 2px solid var(--calibre-color-link-foreground); outline-offset: -2px }\n'
     # Hidden visually but still read by screen readers
     style += '.fts-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap }\n'
     return style
@@ -394,8 +397,21 @@ def disable_fts():
     )
 
 
+def restore_result_focus(button, container_id):
+    if button.isConnected and search_page_is_shown(container_id):
+        modal = document.getElementById('modal-container')
+        if not modal or modal.style.display is 'none':
+            button.focus()
+
+
 def book_result_tile_clicked(ev):
     result_tile = ev.currentTarget
+    button = result_tile.querySelector('.fts-result-title')
+    container_id = overall_container_id
+
+    def on_close():
+        window.setTimeout(restore_result_focus.bind(None, button, container_id), 0)
+
     bid = int(result_tile.dataset.bookId)
     results = current_fts_query.results
     formats = []
@@ -428,7 +444,7 @@ def book_result_tile_clicked(ev):
             style='margin-top: 1ex',
             E.a(_('Re-index this book'), class_='blue-link', href='javascript: void(0)', onclick=reindex.bind(None, bid))
         ))
-    )
+    , on_close = on_close)
 
 
 def book_result_tile(book_id, title, authors):
@@ -449,6 +465,7 @@ def book_result_tile(book_id, title, authors):
         ),
         E.div(
             style=f'display:flex; flex-direction: column; height: 100%; overflow-y: auto',
+            E.button(tooltip, type='button', class_='fts-result-title', aria_haspopup='dialog'),
             E.div(E.span(style='font-size: small; font-style: normal; font-weight: 600; opacity: 0.5;', _('loading'), '…'), class_='snippets_container'),
         )
     )
