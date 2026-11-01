@@ -3,12 +3,15 @@
 
 import re
 from collections import defaultdict
+from collections.abc import Callable
 from functools import lru_cache, partial
 from operator import itemgetter
+from typing import TYPE_CHECKING
 
-from css_parser.css import CSSRule, CSSStyleDeclaration
+from css_parser.css import CSSRule, CSSStyleDeclaration, CSSStyleSheet
 from css_selectors import Select, SelectorError, SelectorSyntaxError, parse
 from css_selectors.parser import tokenize
+from lxml import etree
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, css_text
@@ -18,13 +21,26 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Iterator, Mapping
+
+    from css_parser.css import CSSRuleList, CSSStyleRule, Property, Selector
+    from css_parser.css.value import Value
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.utils.logging import Log
+
+type SheetTransform = Callable[[CSSStyleSheet], bool]
+type StyleTransform = Callable[[CSSStyleDeclaration], bool]
+
 
 class SelectorStatus:
     any_used: bool = False
     any_unused: bool = False
 
 
-def mark_used_selectors(rules, log, select):
+def mark_used_selectors(rules: Iterable[CSSStyleRule], log: Log, select: Select) -> SelectorStatus:
     ans = SelectorStatus()
     for rule in rules:
         for selector in rule.selectorList:
@@ -46,13 +62,15 @@ def mark_used_selectors(rules, log, select):
     return ans
 
 
-def get_imported_sheets(name, container, sheets, recursion_level=10, sheet=None):
-    ans = set()
+def get_imported_sheets(
+    name: str, container: Container, sheets: Mapping[str, CSSStyleSheet], recursion_level: int = 10, sheet: CSSStyleSheet | None = None
+) -> set[str]:
+    ans: set[str] = set()
     sheet = sheet or sheets[name]
     for rule in sheet.cssRules.rulesOfType(CSSRule.IMPORT_RULE):
         if rule.href:
             iname = container.href_to_name(rule.href, name)
-            if iname in sheets:
+            if iname is not None and iname in sheets:
                 ans.add(iname)
     if recursion_level > 0:
         for imported_sheet in tuple(ans):
@@ -61,17 +79,17 @@ def get_imported_sheets(name, container, sheets, recursion_level=10, sheet=None)
     return ans
 
 
-def merge_declarations(first, second) -> None:
+def merge_declarations(first: CSSStyleDeclaration, second: CSSStyleDeclaration) -> None:
     for prop in second.getProperties():
         first.setProperty(prop)
 
 
-def merge_identical_selectors(sheet):
+def merge_identical_selectors(sheet: CSSStyleSheet) -> int:
     "Merge rules that have identical selectors"
-    selector_map = defaultdict(list)
+    selector_map: defaultdict[str, list[CSSStyleRule]] = defaultdict(list)
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         selector_map[rule.selectorText].append(rule)
-    remove = []
+    remove: list[CSSStyleRule] = []
     for rule_group in selector_map.values():
         if len(rule_group) > 1:
             for i in range(1, len(rule_group)):
@@ -82,18 +100,18 @@ def merge_identical_selectors(sheet):
     return len(remove)
 
 
-def merge_identical_properties(sheet):
+def merge_identical_properties(sheet: CSSStyleSheet) -> int:
     "Merge rules having identical properties"
-    properties_map = defaultdict(list)
+    properties_map: defaultdict[tuple[tuple[str, str], ...], list[tuple[int, CSSStyleRule]]] = defaultdict(list)
 
-    def declaration_key(declaration):
+    def declaration_key(declaration: CSSStyleDeclaration) -> tuple[tuple[str, str], ...]:
         return tuple(sorted(((prop.name, prop.propertyValue.value) for prop in declaration.getProperties()), key=itemgetter(0)))
 
     for idx, rule in enumerate(sheet.cssRules):
         if rule.type == CSSRule.STYLE_RULE:
             properties_map[declaration_key(rule.style)].append((idx, rule))
 
-    removals = []
+    removals: list[int] = []
     num_merged = 0
     for rule_group in properties_map.values():
         if len(rule_group) < 2:
@@ -115,10 +133,10 @@ def merge_identical_properties(sheet):
     return num_merged
 
 
-def remove_unused_selectors_and_rules(rules_container, rules, removal_stats):
+def remove_unused_selectors_and_rules(rules_container: CSSRuleList, rules: Iterable[CSSStyleRule], removal_stats: dict[str, int]) -> SelectorStatus:
     ans = SelectorStatus()
     for r in rules:
-        removals = []
+        removals: list[int] = []
         for i, sel in enumerate(r.selectorList):
             if getattr(sel, 'calibre_used', True):
                 ans.any_used = True
@@ -137,13 +155,13 @@ def remove_unused_selectors_and_rules(rules_container, rules, removal_stats):
 
 
 def remove_unused_css(
-    container,
-    report=None,
-    remove_unused_classes=False,
-    merge_rules=False,
-    merge_rules_with_identical_properties=False,
-    remove_unreferenced_sheets=False,
-):
+    container: Container,
+    report: Callable[[str], object] | None = None,
+    remove_unused_classes: bool = False,
+    merge_rules: bool = False,
+    merge_rules_with_identical_properties: bool = False,
+    remove_unreferenced_sheets: bool = False,
+) -> bool:
     """
     Remove all unused CSS rules from the book. An unused CSS rule is one that does not match any actual content.
 
@@ -155,14 +173,16 @@ def remove_unused_css(
     """
     report = report or (lambda x: x)
 
-    def safe_parse(name):
+    def safe_parse(name: str) -> CSSStyleSheet | None:
         try:
-            return container.parsed(name)
+            ans = container.parsed(name)
         except TypeError:
-            pass
+            return None
+        assert isinstance(ans, CSSStyleSheet)
+        return ans
 
-    sheets = {name: safe_parse(name) for name, mt in container.mime_map.items() if mt in OEB_STYLES}
-    sheets = {k: v for k, v in sheets.items() if v is not None}
+    maybe_sheets = {name: safe_parse(name) for name, mt in container.mime_map.items() if mt in OEB_STYLES}
+    sheets = {k: v for k, v in maybe_sheets.items() if v is not None}
     num_merged = num_rules_merged = 0
     if merge_rules:
         for name, sheet in sheets.items():
@@ -189,8 +209,9 @@ def remove_unused_css(
         if mt not in OEB_DOCS:
             continue
         root = container.parsed(name)
+        assert isinstance(root, etree._Element)
         select = Select(root, ignore_inappropriate_pseudo_classes=True)
-        used_classes = set()
+        used_classes: set[str] = set()
         for style in root.xpath('//*[local-name()="style"]'):
             if style.get('type', 'text/css') == 'text/css' and style.text:
                 sheet = container.parse_css(style.text)
@@ -236,7 +257,8 @@ def remove_unused_css(
 
         if remove_unused_classes:
             for elem in root.xpath('//*[@class]'):
-                original_classes, classes = elem.get('class', '').split(), []
+                original_classes: list[str] = elem.get('class', '').split()
+                classes: list[str] = []
                 for x in original_classes:
                     if icu_lower(x) in used_classes:
                         classes.append(x)
@@ -307,7 +329,7 @@ def remove_unused_css(
     return num_changes > 0
 
 
-def filter_declaration(style, properties=frozenset()):
+def filter_declaration(style: CSSStyleDeclaration, properties: set[str] | frozenset[str] = frozenset()) -> bool:
     changed = False
     for prop in properties:
         if style.removeProperty(prop) != '':
@@ -326,11 +348,11 @@ def filter_declaration(style, properties=frozenset()):
     return changed
 
 
-def filter_sheet(sheet, properties=()):
+def filter_sheet(sheet: CSSStyleSheet, properties: set[str] | frozenset[str] = frozenset()) -> bool:
     from css_parser.css import CSSRule
 
     changed = False
-    remove = []
+    remove: list[CSSStyleRule] = []
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         if filter_declaration(rule.style, properties):
             changed = True
@@ -341,12 +363,14 @@ def filter_sheet(sheet, properties=()):
     return changed
 
 
-def transform_inline_styles(container, name, transform_sheet, transform_style):
+def transform_inline_styles(container: Container, name: str, transform_sheet: SheetTransform | None, transform_style: StyleTransform | None) -> bool:
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     changed = False
     for style in root.xpath('//*[local-name()="style"]') if transform_sheet is not None else ():
         if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
             sheet = container.parse_css(style.text)
+            assert transform_sheet is not None  # the loop only runs if transform_sheet is not None
             if transform_sheet(sheet):
                 changed = True
                 style.text = force_unicode(sheet.cssText, 'utf-8')
@@ -355,6 +379,7 @@ def transform_inline_styles(container, name, transform_sheet, transform_style):
         text = elem.get('style', None)
         if text:
             style = container.parse_css(text, is_declaration=True)
+            assert transform_style is not None  # the loop only runs if transform_style is not None
             if transform_style(style):
                 changed = True
                 if style.length == 0:
@@ -364,13 +389,16 @@ def transform_inline_styles(container, name, transform_sheet, transform_style):
     return changed
 
 
-def transform_css(container, transform_sheet=None, transform_style=None, names=()):
+def transform_css(
+    container: Container, transform_sheet: SheetTransform | None = None, transform_style: StyleTransform | None = None, names: Collection[str] = ()
+) -> bool:
     if not names:
         types = OEB_STYLES | OEB_DOCS
-        names = []
+        all_names: list[str] = []
         for name, mt in container.mime_map.items():
             if mt in types:
-                names.append(name)
+                all_names.append(name)
+        names = all_names
 
     doc_changed = False
 
@@ -378,6 +406,7 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
         mt = container.mime_map[name]
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
+            assert isinstance(sheet, CSSStyleSheet)
             if transform_sheet is not None and transform_sheet(sheet):
                 container.dirty(name)
                 doc_changed = True
@@ -389,23 +418,23 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
     return doc_changed
 
 
-def filter_css(container, properties, names=()):
+def filter_css(container: Container, properties: Iterable[str], names: Collection[str] = ()) -> bool:
     """
     Remove the specified CSS properties from all CSS rules in the book.
 
     :param properties: Set of properties to remove. For example: :code:`{'font-family', 'color'}`.
     :param names: The files from which to remove the properties. Defaults to all HTML and CSS files in the book.
     """
-    properties = normalize_filter_css(properties)
+    nproperties = normalize_filter_css(properties)
     return transform_css(
         container,
-        transform_sheet=partial(filter_sheet, properties=properties),
-        transform_style=partial(filter_declaration, properties=properties),
+        transform_sheet=partial(filter_sheet, properties=nproperties),
+        transform_style=partial(filter_declaration, properties=nproperties),
         names=names,
     )
 
 
-def _classes_in_selector(selector, classes) -> None:
+def _classes_in_selector(selector: object, classes: set[str]) -> None:
     for attr in ('selector', 'subselector', 'parsed_tree'):
         s = getattr(selector, attr, None)
         if s is not None:
@@ -419,8 +448,8 @@ def _classes_in_selector(selector, classes) -> None:
 
 
 @lru_cache(maxsize=4096)
-def classes_in_selector(text):
-    classes = set()
+def classes_in_selector(text: str) -> set[str]:
+    classes: set[str] = set()
     try:
         for selector in parse(text):
             _classes_in_selector(selector, classes)
@@ -429,8 +458,8 @@ def classes_in_selector(text):
     return classes
 
 
-def classes_in_rule_list(css_rules):
-    classes = set()
+def classes_in_rule_list(css_rules: CSSRuleList) -> set[str]:
+    classes: set[str] = set()
     for rule in css_rules:
         if rule.type == rule.STYLE_RULE:
             classes |= classes_in_selector(rule.selectorText)
@@ -476,7 +505,7 @@ def rename_ids_in_selector(text: str, id_map: dict[str, str]) -> str:
     return text
 
 
-def rename_ids_in_rule_list(css_rules, id_map: dict[str, str]) -> bool:
+def rename_ids_in_rule_list(css_rules: CSSRuleList, id_map: dict[str, str]) -> bool:
     changed = False
     for rule in css_rules:
         if rule.type == rule.STYLE_RULE:
@@ -489,7 +518,7 @@ def rename_ids_in_rule_list(css_rules, id_map: dict[str, str]) -> bool:
     return changed
 
 
-def rename_ids_in_css(container, id_map: dict[str, str], names=()) -> bool:
+def rename_ids_in_css(container: Container, id_map: dict[str, str], names: Collection[str] = ()) -> bool:
     """
     Rename id selectors in all CSS rules in the book, both in stylesheets and
     in <style> tags.
@@ -500,7 +529,7 @@ def rename_ids_in_css(container, id_map: dict[str, str], names=()) -> bool:
     return transform_css(container, transform_sheet=lambda sheet: rename_ids_in_rule_list(sheet.cssRules, id_map), names=names)
 
 
-def iter_declarations(sheet_or_rule):
+def iter_declarations(sheet_or_rule: CSSStyleSheet | CSSRule | CSSStyleDeclaration) -> Iterator[CSSStyleDeclaration]:
     if hasattr(sheet_or_rule, 'cssRules'):
         for rule in sheet_or_rule.cssRules:
             yield from iter_declarations(rule)
@@ -510,7 +539,7 @@ def iter_declarations(sheet_or_rule):
         yield sheet_or_rule
 
 
-def remove_property_value(prop, predicate):
+def remove_property_value(prop: Property, predicate: Callable[[Value], bool]) -> bool:
     """Remove the Values that match the predicate from this property. If all
     values of the property would be removed, the property is removed from its
     parent instead. Note that this means the property must have a parent (a
@@ -529,19 +558,19 @@ def remove_property_value(prop, predicate):
 RULE_PRIORITIES = {t: i for i, t in enumerate((CSSRule.COMMENT, CSSRule.CHARSET_RULE, CSSRule.IMPORT_RULE, CSSRule.NAMESPACE_RULE))}
 
 
-def sort_sheet(container, sheet_or_text):
+def sort_sheet(container: Container, sheet_or_text: str | CSSStyleSheet) -> CSSStyleSheet:
     """Sort the rules in a stylesheet. Note that in the general case this can
     change the effective styles, but for most common sheets, it should be safe.
     """
     sheet = container.parse_css(sheet_or_text) if isinstance(sheet_or_text, str) else sheet_or_text
 
-    def text_sort_key(x):
+    def text_sort_key(x: object) -> bytes:
         return numeric_sort_key(str(x or ''))
 
-    def selector_sort_key(x):
+    def selector_sort_key(x: Selector) -> tuple[tuple[int, int, int, int], bytes]:
         return (x.specificity, text_sort_key(x.selectorText))
 
-    def rule_sort_key(rule):
+    def rule_sort_key(rule: CSSRule) -> tuple[int, bytes, object]:
         primary = RULE_PRIORITIES.get(rule.type, len(RULE_PRIORITIES))
         secondary = text_sort_key(getattr(rule, 'atkeyword', '') or '')
         tertiary = None
@@ -562,13 +591,14 @@ def sort_sheet(container, sheet_or_text):
     return sheet
 
 
-def add_stylesheet_links(container, name, text):
+def add_stylesheet_links(container: Container, name: str, text: str) -> bytes | None:
     root = container.parse_xhtml(text, name)
-    head = root.xpath('//*[local-name() = "head"]')
-    if not head:
+    heads = root.xpath('//*[local-name() = "head"]')
+    if not heads:
         return
-    head = head[0]
-    sheets = tuple(container.manifest_items_of_type(lambda mt: mt in OEB_STYLES))
+    head = heads[0]
+    # skip manifest entries whose href does not resolve to a name in the book
+    sheets = tuple(x for x in container.manifest_items_of_type(lambda mt: mt in OEB_STYLES) if x is not None)
     if not sheets:
         return
     for sname in sheets:
@@ -578,13 +608,13 @@ def add_stylesheet_links(container, name, text):
     return serialize(root, 'text/html')
 
 
-def rename_class_in_rule_list(css_rules, old_name, new_name):
+def rename_class_in_rule_list(css_rules: CSSRuleList, old_name: str, new_name: str) -> bool:
     # this regex will not match class names inside attribute value selectors
     # and it will match id selectors that contain .old_name but its the best
     # that can be done without implementing a full parser for CSS selectors
     pat = re.compile(rf'(?<=\.){re.escape(old_name)}(?:\W|$)')
 
-    def repl(m):
+    def repl(m: re.Match[str]) -> str:
         return m.group().replace(old_name, new_name)
 
     changed = False
@@ -601,11 +631,11 @@ def rename_class_in_rule_list(css_rules, old_name, new_name):
     return changed
 
 
-def rename_class_in_doc(container, root, old_name, new_name):
+def rename_class_in_doc(container: Container, root: _Element, old_name: str, new_name: str) -> bool:
     changed = False
     pat = re.compile(rf'(?:^|\W){re.escape(old_name)}(?:\W|$)')
 
-    def repl(m):
+    def repl(m: re.Match[str]) -> str:
         return m.group().replace(old_name, new_name)
 
     for elem in root.xpath('//*[@class]'):
@@ -624,17 +654,23 @@ def rename_class_in_doc(container, root, old_name, new_name):
     return changed
 
 
-def rename_class(container, old_name, new_name):
+def rename_class(container: Container, old_name: str, new_name: str) -> bool:
     changed = False
     if not old_name or old_name == new_name:
         return changed
     for sheet_name in container.manifest_items_of_type(lambda mt: mt in OEB_STYLES):
+        if sheet_name is None:  # manifest entry whose href does not resolve to a name in the book
+            continue
         sheet = container.parsed(sheet_name)
+        assert isinstance(sheet, CSSStyleSheet)
         if rename_class_in_rule_list(sheet.cssRules, old_name, new_name):
             container.dirty(sheet_name)
             changed = True
     for doc_name in container.manifest_items_of_type(lambda mt: mt in OEB_DOCS):
+        if doc_name is None:  # manifest entry whose href does not resolve to a name in the book
+            continue
         doc = container.parsed(doc_name)
+        assert isinstance(doc, etree._Element)
         if rename_class_in_doc(container, doc, old_name, new_name):
             container.dirty(doc_name)
             changed = True

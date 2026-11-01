@@ -29,7 +29,9 @@ class TestRemoveBracketedText(unittest.TestCase):
 
 
 class TestAuthorToAuthorSort(unittest.TestCase):
-    def check_all_methods(self, name, invert=None, comma=None, nocomma=None, copy=None) -> None:
+    def check_all_methods(
+        self, name: str | None, invert: str | None = None, comma: str | None = None, nocomma: str | None = None, copy: str | None = None
+    ) -> None:
         methods = ('invert', 'copy', 'comma', 'nocomma')
         if invert is None:
             invert = name
@@ -109,10 +111,10 @@ class TestAuthorToAuthorSort(unittest.TestCase):
     def test_falsy(self) -> None:
         self.check_all_methods('')
         self.check_all_methods(None, '', '', '', '')
-        self.check_all_methods([], '', '', '', '')
+        self.check_all_methods([], '', '', '', '')  # ty: ignore[invalid-argument-type]  # deliberately testing a falsy non-str value
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(TestRemoveBracketedText)
     ans.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestAuthorToAuthorSort))
     return ans

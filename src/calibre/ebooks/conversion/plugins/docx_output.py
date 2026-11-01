@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from typing import TYPE_CHECKING
+
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 PAGE_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']
 
@@ -77,7 +85,7 @@ class DOCXOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert_metadata(self, oeb) -> None:
+    def convert_metadata(self, oeb: OEBBook) -> None:
         from io import BytesIO
 
         from lxml import etree
@@ -89,7 +97,7 @@ class DOCXOutput(OutputFormatPlugin):
         oeb.metadata.to_opf2(package)
         self.mi = ReadOPF(BytesIO(etree.tostring(package, encoding='utf-8')), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         oeb = oeb_book
         output_path = output
         from calibre.ebooks.docx.writer.container import DOCX

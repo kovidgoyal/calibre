@@ -16,14 +16,14 @@ class ConvertToTags:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        dtd_path,
-        no_dtd,
-        encoding,
-        indent=None,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        dtd_path: str,
+        no_dtd: int,
+        encoding: str,
+        indent: int | None = None,
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -112,7 +112,7 @@ class ConvertToTags:
             'mi<tg<empty_____': self.__empty_func,
         }
 
-    def __open_func(self, line) -> None:
+    def __open_func(self, line: str) -> None:
         """
         Print the opening tag and newlines when needed.
         """
@@ -125,7 +125,7 @@ class ConvertToTags:
             self.__write_extra_new_line()
         self.__write_obj.write(f'<{info}>')
 
-    def __empty_func(self, line) -> None:
+    def __empty_func(self, line: str) -> None:
         """
         Print out empty tag and newlines when needed.
         """
@@ -137,7 +137,7 @@ class ConvertToTags:
         if info in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __open_att_func(self, line) -> None:
+    def __open_att_func(self, line: str) -> None:
         """
         Process lines for open tags that have attributes.
         The important info is between [17:-1]. Take this info and split it
@@ -170,7 +170,7 @@ class ConvertToTags:
         if element_name in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __empty_att_func(self, line) -> None:
+    def __empty_att_func(self, line: str) -> None:
         """
         Same as the __open_att_func, except a '/' is placed at the end of the tag.
         """
@@ -194,7 +194,7 @@ class ConvertToTags:
         if element_name in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __close_func(self, line) -> None:
+    def __close_func(self, line: str) -> None:
         """
         Print out the closed tag and new lines, if appropriate.
         """
@@ -207,7 +207,7 @@ class ConvertToTags:
         if info in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __text_func(self, line) -> None:
+    def __text_func(self, line: str) -> None:
         """
         Simply print out the information between [17:-1]
         """
@@ -225,7 +225,7 @@ class ConvertToTags:
         if self.__new_line < 2:
             self.__write_obj.write('\n')
 
-    def __default_func(self, line) -> None:
+    def __default_func(self, line: str) -> None:
         pass
 
     def __write_new_line(self) -> None:

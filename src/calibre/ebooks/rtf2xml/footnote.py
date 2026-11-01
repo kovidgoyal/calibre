@@ -28,10 +28,10 @@ class Footnote:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -39,7 +39,7 @@ class Footnote:
         self.__write_to = better_mktemp()
         self.__found_a_footnote = 0
 
-    def __first_line_func(self, line) -> None:
+    def __first_line_func(self, line: str) -> None:
         """
         Print the tag info for footnotes.  Check whether footnote is an
         endnote and make the tag according to that.
@@ -50,7 +50,7 @@ class Footnote:
             self.__write_to_foot_obj.write(f'mi<tg<open-att__<footnote<num>{self.__footnote_count}\n')
         self.__first_line = 0
 
-    def __in_footnote_func(self, line) -> None:
+    def __in_footnote_func(self, line: str) -> None:
         """Handle all tokens that are part of footnote"""
         if self.__first_line:
             self.__first_line_func(line)
@@ -67,7 +67,7 @@ class Footnote:
         else:
             self.__write_to_foot_obj.write(line)
 
-    def __found_footnote(self, line) -> None:
+    def __found_footnote(self, line: str) -> None:
         """Found a footnote"""
         self.__found_a_footnote = 1
         self.__in_footnote = 1
@@ -79,7 +79,7 @@ class Footnote:
         self.__write_obj.write(f'mi<mk<footnt-ind<{self.__footnote_count:04}\n')
         self.__write_to_foot_obj.write(f'mi<mk<footnt-ope<{self.__footnote_count:04}\n')
 
-    def __default_sep(self, line) -> None:
+    def __default_sep(self, line: str) -> None:
         """Handle all tokens that are not footnote tokens"""
         if self.__token_info == 'cw<nt<footnote__':
             self.__found_footnote(line)
@@ -139,14 +139,14 @@ class Footnote:
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
 
-    def update_info(self, file, copy) -> None:
+    def update_info(self, file: str, copy: int | None) -> None:
         """
         Unused method
         """
         self.__file = file
         self.__copy = copy
 
-    def __get_foot_body_func(self, line) -> None:
+    def __get_foot_body_func(self, line: str) -> None:
         """
         Process lines in main body and look for beginning of footnotes.
         """
@@ -156,7 +156,7 @@ class Footnote:
         else:
             self.__write_obj.write(line)
 
-    def __get_foot_foot_func(self, line) -> None:
+    def __get_foot_foot_func(self, line: str) -> None:
         """
         Copy footnotes from bottom of file to a separate, temporary file.
         """
@@ -183,7 +183,7 @@ class Footnote:
                         elif self.__state == 'foot':
                             self.__get_foot_foot_func(line)
 
-    def __get_foot_from_temp(self, num):
+    def __get_foot_from_temp(self, num: str) -> str | None:
         """
         Private method for joining footnotes to body. This method reads from
         the temporary file until the proper footnote marker is found. It
@@ -215,7 +215,10 @@ class Footnote:
                 with open_for_write(self.__write_to2) as self.__write_obj:
                     for line in read_obj:
                         if line[:16] == 'mi<mk<footnt-ind':
-                            line = self.__get_foot_from_temp(line[17:-1])
+                            foot = self.__get_foot_from_temp(line[17:-1])
+                            # separate_footnotes() wrote a footnote for every marker
+                            assert foot is not None
+                            line = foot
                         self.__write_obj.write(line)
 
     def join_footnotes(self) -> None:

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING, TypeGuard
 
 from lxml import etree
 
@@ -12,33 +13,52 @@ from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_html_fromstring, safe_xml_fromstring
 from calibre_extensions.speedup import barename, namespace
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Mapping
+
+    from calibre.ebooks.oeb.base import XPathResult
+    from calibre.utils.logging import Log
+
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
 XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
 
 
 class NotHTML(Exception):
-    def __init__(self, root_tag) -> None:
+    def __init__(self, root_tag: str) -> None:
         Exception.__init__(self, 'Data is not HTML')
         self.root_tag = root_tag
 
 
-def XHTML(name) -> str:
+def XHTML(name: str) -> str:
     return f'{{{XHTML_NS}}}{name}'
 
 
-def xpath(elem, expr):
+def is_element_list(x: object) -> TypeGuard[list[etree._Element]]:
+    """Use as ``assert is_element_list(ans)`` to narrow the result of an XPath
+    expression that selects only elements"""
+    return isinstance(x, list) and all(isinstance(y, etree._Element) for y in x)
+
+
+def is_str_list(x: object) -> TypeGuard[list[str]]:
+    """Use as ``assert is_str_list(ans)`` to narrow the result of an XPath
+    expression that selects only attribute values or text nodes"""
+    return isinstance(x, list) and all(isinstance(y, str) for y in x)
+
+
+def xpath(elem: etree._Element, expr: str) -> XPathResult:
     return elem.xpath(expr, namespaces={'h': XHTML_NS})
 
 
-def XPath(expr):
+def XPath(expr: str) -> etree.XPath:
     return etree.XPath(expr, namespaces={'h': XHTML_NS})
 
 
 META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
 
 
-def merge_multiple_html_heads_and_bodies(root, log=None):
+def merge_multiple_html_heads_and_bodies(root: etree._Element, log: Log | None = None) -> etree._Element:
     heads, bodies = xpath(root, '//h:head'), xpath(root, '//h:body')
+    assert is_element_list(heads) and is_element_list(bodies)
     if not (len(heads) > 1 or len(bodies) > 1):
         return root
     for child in root:
@@ -58,7 +78,7 @@ def merge_multiple_html_heads_and_bodies(root, log=None):
     return root
 
 
-def clone_element(elem, nsmap=None, in_context=True):
+def clone_element(elem: etree._Element, nsmap: Mapping[str | None, str] | None = None, in_context: bool = True) -> etree._Element:
     if nsmap is None:
         nsmap = {}
     if in_context:
@@ -71,7 +91,7 @@ def clone_element(elem, nsmap=None, in_context=True):
     return nelem
 
 
-def node_depth(node):
+def node_depth(node: etree._Element) -> int:
     ans = 0
     p = node.getparent()
     while p is not None:
@@ -80,35 +100,35 @@ def node_depth(node):
     return ans
 
 
-def html5_parse(data, max_nesting_depth=100):
+def html5_parse(data: str, max_nesting_depth: int = 100) -> etree._Element:
     from html5_parser import parse
 
     from calibre.utils.cleantext import clean_xml_chars
 
-    data = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
+    root = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
-    for x in data.iterdescendants():
+    for x in root.iterdescendants():
         if isinstance(x.tag, (str, bytes)) and not len(x):  # Leaf node
             depth = node_depth(x)
             if depth > max_nesting_depth:
                 raise ValueError(f'HTML 5 parsing resulted in a tree with nesting depth > {max_nesting_depth}')
-    return data
+    return root
 
 
-def _html4_parse(data):
-    data = safe_html_fromstring(data)
-    data.attrib.pop('xmlns', None)
-    for elem in data.iter(tag=etree.Comment):
+def _html4_parse(data: str) -> etree._Element:
+    root = safe_html_fromstring(data)
+    root.attrib.pop('xmlns', None)
+    for elem in root.iter(tag=etree.Comment):
         if elem.text:
             elem.text = elem.text.strip('-')
-    data = etree.tostring(data, encoding='unicode')
+    data = etree.tostring(root, encoding='unicode')
 
-    data = safe_xml_fromstring(data)
-    return data
+    root = safe_xml_fromstring(data)
+    return root
 
 
-def clean_word_doc(data, log):
+def clean_word_doc(data: str, log: Log) -> str:
     prefixes = []
     for match in re.finditer(r'xmlns:(\S+?)=".*?microsoft.*?"', data):
         prefixes.append(match.group(1))
@@ -124,7 +144,7 @@ def clean_word_doc(data, log):
     return data
 
 
-def ensure_namespace_prefixes(node, nsmap):
+def ensure_namespace_prefixes(node: etree._Element, nsmap: Mapping[str | None, str]) -> etree._Element:
     namespace_uris = frozenset(nsmap.values())
     fnsmap = {k: v for k, v in node.nsmap.items() if v not in namespace_uris}
     fnsmap.update(nsmap)
@@ -137,13 +157,20 @@ class HTML5Doc(ValueError):
     pass
 
 
-def check_for_html5(prefix, root) -> None:
+def check_for_html5(prefix: str, root: etree._Element) -> None:
     if re.search(r'<!DOCTYPE\s+html\s*>', prefix, re.IGNORECASE) is not None:
         if root.xpath('//svg'):
             raise HTML5Doc('This document appears to be un-namespaced HTML 5, should be parsed by the HTML 5 parser')
 
 
-def parse_html(data, log=None, decoder=None, preprocessor=None, filename='<string>', non_html_file_tags=frozenset()):
+def parse_html(
+    data: str | bytes,
+    log: Log | None = None,
+    decoder: Callable[[bytes], str] | None = None,
+    preprocessor: Callable[[str], str] | None = None,
+    filename: str | bytes = '<string>',
+    non_html_file_tags: Collection[str] = frozenset(),
+) -> etree._Element:
     if log is None:
         from calibre.utils.logging import default_log
 
@@ -194,28 +221,28 @@ def parse_html(data, log=None, decoder=None, preprocessor=None, filename='<strin
 
     # Try with more & more drastic measures to parse
     try:
-        data = safe_xml_fromstring(data, recover=False)
-        check_for_html5(pre, data)
+        root = safe_xml_fromstring(data, recover=False)
+        check_for_html5(pre, root)
     except HTML5Doc, etree.XMLSyntaxError:
         log.debug('Initial parse failed, using more forgiving parsers')
         raw = data = xml_replace_entities(raw)
         try:
-            data = safe_xml_fromstring(data, recover=False)
-            check_for_html5(pre, data)
+            root = safe_xml_fromstring(data, recover=False)
+            check_for_html5(pre, root)
         except HTML5Doc, etree.XMLSyntaxError:
             log.debug(f'Parsing {filename} as HTML')
             data = raw
             try:
-                data = html5_parse(data)
+                root = html5_parse(data)
             except Exception:
                 log.exception('HTML 5 parsing failed, falling back to older parsers')
-                data = _html4_parse(data)
+                root = _html4_parse(data)
 
-    if has_html4_doctype or data.tag == 'HTML' or (len(data) and (data[-1].get('LANG') or data[-1].get('DIR'))):
+    if has_html4_doctype or root.tag == 'HTML' or (len(root) and (root[-1].get('LANG') or root[-1].get('DIR'))):
         # Lower case all tag and attribute names
-        assert isinstance(data.tag, str)
-        data.tag = data.tag.lower()
-        for x in data.iterdescendants():
+        assert isinstance(root.tag, str)
+        root.tag = root.tag.lower()
+        for x in root.iterdescendants():
             try:
                 if isinstance(x.tag, str):
                     x.tag = x.tag.lower()
@@ -226,13 +253,13 @@ def parse_html(data, log=None, decoder=None, preprocessor=None, filename='<strin
             except Exception:
                 pass
 
-    if not isinstance(data.tag, str) or barename(data.tag) != 'html':
-        if isinstance(data.tag, str) and barename(data.tag) in non_html_file_tags:
-            raise NotHTML(data.tag)
+    if not isinstance(root.tag, str) or barename(root.tag) != 'html':
+        if isinstance(root.tag, str) and barename(root.tag) in non_html_file_tags:
+            raise NotHTML(root.tag)
         log.warn(f'File {filename!r} does not appear to be (X)HTML')
         nroot = safe_xml_fromstring('<html></html>')
         has_body = False
-        for child in list(data):
+        for child in list(root):
             if isinstance(child.tag, str) and barename(child.tag) == 'body':
                 has_body = True
                 break
@@ -241,127 +268,141 @@ def parse_html(data, log=None, decoder=None, preprocessor=None, filename='<strin
             log.warn(f'File {filename!r} appears to be a HTML fragment')
             nroot = safe_xml_fromstring('<html><body/></html>')
             parent = nroot[0]
-        for child in list(data.iter()):
+        for child in list(root.iter()):
             oparent = child.getparent()
             if oparent is not None:
                 oparent.remove(child)
             parent.append(child)
-        data = nroot
+        root = nroot
 
     # Force into the XHTML namespace
-    if not isinstance(data.tag, str) or not namespace(data.tag):
+    if not isinstance(root.tag, str) or not namespace(root.tag):
         log.warn('Forcing', filename, 'into XHTML namespace')
-        data.attrib['xmlns'] = XHTML_NS
-        sdata = etree.tostring(data, encoding='unicode')
+        root.attrib['xmlns'] = XHTML_NS
+        sdata = etree.tostring(root, encoding='unicode')
 
         try:
-            data = safe_xml_fromstring(sdata, recover=False)
+            root = safe_xml_fromstring(sdata, recover=False)
         except Exception:
             sdata = sdata.replace(':=', '=').replace(':>', '>')
             sdata = sdata.replace('<http:/>', '')
             try:
-                data = safe_xml_fromstring(sdata, recover=False)
+                root = safe_xml_fromstring(sdata, recover=False)
             except etree.XMLSyntaxError:
                 log.warn(f'Stripping comments from {filename}')
                 sdata = re.compile(r'<!--.*?-->', re.DOTALL).sub('', sdata)
                 sdata = sdata.replace("<?xml version='1.0' encoding='utf-8'?><o:p></o:p>", '')
                 sdata = sdata.replace("<?xml version='1.0' encoding='utf-8'??>", '')
                 try:
-                    data = safe_xml_fromstring(sdata)
+                    root = safe_xml_fromstring(sdata)
                 except etree.XMLSyntaxError:
                     log.warn(f'Stripping meta tags from {filename}')
                     sdata = re.sub(r'<meta\s+[^>]+?>', '', sdata)
-                    data = safe_xml_fromstring(sdata)
-    elif isinstance(data.tag, str) and namespace(data.tag) != XHTML_NS:
+                    root = safe_xml_fromstring(sdata)
+    elif isinstance(root.tag, str) and namespace(root.tag) != XHTML_NS:
         # OEB_DOC_NS, but possibly others
-        ns = namespace(data.tag)
-        attrib = dict(data.attrib)
+        ns = namespace(root.tag)
+        attrib = dict(root.attrib)
         nroot = etree.Element(XHTML('html'), nsmap={None: XHTML_NS}, attrib=attrib)
-        for elem in data.iterdescendants():
+        for elem in root.iterdescendants():
             if isinstance(elem.tag, str) and namespace(elem.tag) == ns:
                 elem.tag = XHTML(barename(elem.tag))
-        for elem in data:
+        for elem in root:
             nroot.append(elem)
-        data = nroot
+        root = nroot
 
     # Remove non default prefixes referring to the XHTML namespace
-    data = ensure_namespace_prefixes(data, {None: XHTML_NS})
+    root = ensure_namespace_prefixes(root, {None: XHTML_NS})
 
-    data = merge_multiple_html_heads_and_bodies(data, log)
+    root = merge_multiple_html_heads_and_bodies(root, log)
     # Ensure has a <head/>
-    head = xpath(data, '/h:html/h:head')
-    head = head[0] if head else None
+    heads = xpath(root, '/h:html/h:head')
+    assert is_element_list(heads)
+    head = heads[0] if heads else None
     if head is None:
         log.warn(f'File {filename} missing <head/> element')
         head = etree.Element(XHTML('head'))
-        data.insert(0, head)
+        root.insert(0, head)
         title = etree.SubElement(head, XHTML('title'))
         title.text = _('Unknown')
-    elif not xpath(data, '/h:html/h:head/h:title'):
+    elif not xpath(root, '/h:html/h:head/h:title'):
         title = etree.SubElement(head, XHTML('title'))
         title.text = _('Unknown')
     # Ensure <title> is not empty
-    title = xpath(data, '/h:html/h:head/h:title')[0]
+    titles = xpath(root, '/h:html/h:head/h:title')
+    assert is_element_list(titles)
+    title = titles[0]
     if not title.text or not title.text.strip():
         title.text = _('Unknown')
     # Remove any encoding-specifying <meta/> elements
-    for meta in META_XP(data):
+    for meta in META_XP(root):
         meta.getparent().remove(meta)
     meta = etree.SubElement(head, XHTML('meta'), attrib={'http-equiv': 'Content-Type'})
     meta.set('content', 'text/html; charset=utf-8')  # Ensure content is second attribute
 
     # Ensure has a <body/>
-    if not xpath(data, '/h:html/h:body'):
-        body = xpath(data, '//h:body')
-        if body:
-            body = body[0]
-            body.getparent().remove(body)
-            data.append(body)
+    if not xpath(root, '/h:html/h:body'):
+        bodies = xpath(root, '//h:body')
+        assert is_element_list(bodies)
+        if bodies:
+            body = bodies[0]
+            bparent = body.getparent()
+            assert bparent is not None  # body is not the root, which is <html>
+            bparent.remove(body)
+            root.append(body)
         else:
             log.warn(f'File {filename} missing <body/> element')
-            etree.SubElement(data, XHTML('body'))
+            etree.SubElement(root, XHTML('body'))
 
     # Remove microsoft office markup
-    r = [x for x in data.iterdescendants(etree.Element) if 'microsoft-com' in x.tag]
+    r: list[etree._Element] = []
+    for x in root.iterdescendants(etree.Element):
+        tag = x.tag
+        assert isinstance(tag, str)  # the etree.Element filter excludes comments/PIs/entities
+        if 'microsoft-com' in tag:
+            r.append(x)
     for x in r:
         x.tag = XHTML('span')
 
-    def remove_elem(a) -> None:
+    def remove_elem(a: etree._Element) -> None:
+
         p = a.getparent()
+        assert p is not None  # a is a descendant of the <html> root
         idx = p.index(a) - 1
         p.remove(a)
         if a.tail:
             if idx < 0:
-                if p.text is None:
-                    p.text = ''
-                p.text += a.tail
+                p.text = (p.text or '') + a.tail
             else:
-                if p[idx].tail is None:
-                    p[idx].tail = ''
-                p[idx].tail += a.tail
+                p[idx].tail = (p[idx].tail or '') + a.tail
 
     # Remove hyperlinks with no content as they cause rendering
     # artifacts in browser based renderers
     # Also remove empty <b>, <u> and <i> tags
-    for a in xpath(data, '//h:a[@href]|//h:i|//h:b|//h:u'):
+    links = xpath(root, '//h:a[@href]|//h:i|//h:b|//h:u')
+    assert is_element_list(links)
+    for a in links:
         if a.get('id', None) is None and a.get('name', None) is None and len(a) == 0 and not a.text:
             remove_elem(a)
 
     # Convert <br>s with content into paragraphs as ADE can't handle
     # them
-    for br in xpath(data, '//h:br'):
+    brs = xpath(root, '//h:br')
+    assert is_element_list(brs)
+    for br in brs:
         if len(br) > 0 or br.text:
             br.tag = XHTML('div')
 
     # Remove any stray text in the <head> section and format it nicely
-    data.text = '\n  '
-    head = xpath(data, '//h:head')
-    if head:
-        head = head[0]
+    root.text = '\n  '
+    heads = xpath(root, '//h:head')
+    assert is_element_list(heads)
+    if heads:
+        head = heads[0]
         head.text = '\n    '
         head.tail = '\n  '
         for child in head:
             child.tail = '\n    '
         child.tail = '\n  '
 
-    return data
+    return root

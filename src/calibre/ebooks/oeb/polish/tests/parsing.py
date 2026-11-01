@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Callable
 from functools import partial
+from typing import TYPE_CHECKING
 
 from html5lib.constants import cdataElements, rcdataElements
 from lxml import etree
@@ -11,8 +13,13 @@ from calibre.ebooks.oeb.parse_utils import html5_parse
 from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 
+if TYPE_CHECKING:
+    import unittest
 
-def nonvoid_cdata_elements(test, parse_function) -> None:
+type ParseFunction = Callable[[str], etree._Element]
+
+
+def nonvoid_cdata_elements(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     """If self closed version of non-void cdata elements like <title/> are
     present, the HTML5 parsing algorithm treats all following data as CDATA"""
     markup = '''
@@ -28,10 +35,10 @@ def nonvoid_cdata_elements(test, parse_function) -> None:
             )
 
 
-def namespaces(test, parse_function) -> None:
+def namespaces(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     ae = test.assertEqual
 
-    def match_and_prefix(root, xpath, prefix, err='') -> None:
+    def match_and_prefix(root: etree._Element, xpath: str, prefix: str | None, err: str = '') -> None:
         matches = XPath(xpath)(root)
         ae(len(matches), 1, err)
         ae(matches[0].prefix, prefix, err)
@@ -90,7 +97,7 @@ def namespaces(test, parse_function) -> None:
     root = parse_function(markup)
     err = 'Arbitrary namespaces not preserved, parsed markup:\n' + etree.tostring(root, encoding='unicode')
 
-    def xpath(expr):
+    def xpath(expr: str) -> list[etree._Element]:
         return etree.XPath(expr, namespaces={'ns1': 'NS', 'ns2': 'NS2'})(root)
 
     ae(len(xpath('//ns1:tag1')), 1, err)
@@ -111,7 +118,7 @@ def namespaces(test, parse_function) -> None:
     # ae(len(XPath('//*[@xml:lang]')(root)), 0, err)
 
 
-def space_characters(test, parse_function) -> None:
+def space_characters(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     markup = '<html><p>\u000cX</p>'
     root = parse_function(markup)
     err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root, encoding='unicode')
@@ -122,21 +129,21 @@ def space_characters(test, parse_function) -> None:
     test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
 
 
-def case_insensitive_element_names(test, parse_function) -> None:
+def case_insensitive_element_names(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     markup = '<HTML><P> </p>'
     root = parse_function(markup)
     err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//h:p')(root)), 1, err)
 
 
-def entities(test, parse_function) -> None:
+def entities(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     markup = '<html><p>&nbsp;&apos;</p>'
     root = parse_function(markup)
     err = 'Entities not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual("\xa0'", root.xpath('//*[local-name()="p"]')[0].text, err)
 
 
-def multiple_html_and_body(test, parse_function) -> None:
+def multiple_html_and_body(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     markup = '<html id="1"><body id="2"><p><html lang="en"><body lang="de"></p>'
     root = parse_function(markup)
     err = 'multiple html and body not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
@@ -146,14 +153,14 @@ def multiple_html_and_body(test, parse_function) -> None:
     test.assertEqual(len(XPath('//h:body[@id and @lang]')(root)), 1, err)
 
 
-def attribute_replacement(test, parse_function) -> None:
+def attribute_replacement(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     markup = f'<html><body><svg viewbox="0"></svg><svg xmlns="{SVG_NS}" viewbox="1">'
     root = parse_function(markup)
     err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//svg:svg[@viewBox]')(root)), 2, err)
 
 
-def comments(test, parse_function) -> None:
+def comments(test: unittest.TestCase, parse_function: ParseFunction) -> None:
     markup = '<html><!-- -- ---><body/></html>'
     root = parse_function(markup)
     test.assertEqual(len(XPath('//h:body')(root)), 1, 'Failed to parse with comment containing dashes')

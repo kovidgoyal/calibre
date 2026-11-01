@@ -5,7 +5,7 @@ import io
 import random
 import time
 from struct import pack
-from typing import cast
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre.ebooks import normalize
 from calibre.ebooks.compression.palmdoc import compress_doc
@@ -16,6 +16,13 @@ from calibre.ebooks.mobi.writer2.indexer import Indexer
 from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.utils.filenames import ascii_filename
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.mobi.writer2.resources import Resources
+    from calibre.ebooks.mobi.writer8.mobi import KF8Book
+    from calibre.ebooks.oeb.base import OEBBook
+
 # Disabled as I don't care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
 NULL_INDEX = 0xFFFFFFFF
@@ -23,7 +30,7 @@ NULL_INDEX = 0xFFFFFFFF
 FLIS = b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01' + b'\xff' * 4
 
 
-def fcis(text_length):
+def fcis(text_length: int) -> bytes:
     fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
     fcis += pack(b'>I', text_length)
     fcis += b'\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
@@ -31,7 +38,7 @@ def fcis(text_length):
 
 
 class MobiWriter:
-    def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True) -> None:
+    def __init__(self, opts: Values, resources: Resources, kf8: KF8Book | None, write_page_breaks_after_item: bool = True) -> None:
         self.opts = opts
         self.resources = resources
         self.kf8 = kf8
@@ -41,7 +48,7 @@ class MobiWriter:
         self.prefer_author_sort = opts.prefer_author_sort
         self.last_text_record_idx = 1
 
-    def __call__(self, oeb, path_or_stream):
+    def __call__(self, oeb: OEBBook, path_or_stream: str | IO[bytes]) -> None:
         self.log = oeb.log
         pt = None
         if oeb.metadata.publication_type:
@@ -51,18 +58,18 @@ class MobiWriter:
         self.publication_type = pt
 
         if hasattr(path_or_stream, 'write'):
-            return self.dump_stream(oeb, path_or_stream)
+            return self.dump_stream(oeb, cast('IO[bytes]', path_or_stream))
         with open(path_or_stream, 'w+b') as stream:
             return self.dump_stream(oeb, stream)
 
-    def write(self, *args) -> None:
+    def write(self, *args: bytes) -> None:
         for datum in args:
             self.stream.write(datum)
 
-    def tell(self):
+    def tell(self) -> int:
         return self.stream.tell()
 
-    def dump_stream(self, oeb, stream) -> None:
+    def dump_stream(self, oeb: OEBBook, stream: IO[bytes]) -> None:
         self.oeb = oeb
         self.stream = stream
         self.records: list[bytes | None] = [None]
@@ -107,7 +114,8 @@ class MobiWriter:
                 if i == 0:
                     continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
-                self.records[i] += encode_trailing_data(tbs)
+                # text records are never None
+                self.records[i] = cast('bytes', self.records[i]) + encode_trailing_data(tbs)
             self.records.extend(self.indexer.records)
 
     # }}}
@@ -374,6 +382,8 @@ class MobiWriter:
         from calibre.ebooks.mobi.writer8.exth import build_exth
         from calibre.ebooks.mobi.writer8.mobi import HEADER_FIELDS, MOBIHeader
 
+        assert self.kf8 is not None  # only called when self.for_joint is True
+
         # Insert resource records
         first_image_record = None
         old = len(self.records)
@@ -393,7 +403,8 @@ class MobiWriter:
         # Insert KF8 records
         self.records.append(b'BOUNDARY')
         kf8_header_index = len(self.records)
-        self.kf8.start_offset = (self.serializer.start_offset, self.kf8.start_offset)
+        # kf8.start_offset is still the int | None value from KF8Writer at this point
+        self.kf8.start_offset = (self.serializer.start_offset, cast('int | None', self.kf8.start_offset))
         self.records.append(self.kf8.record0)
         self.records.extend(self.kf8.records[1:])
 
@@ -480,4 +491,4 @@ class MobiWriter:
 
     def write_content(self) -> None:
         for record in self.records:
-            self.write(record)
+            self.write(cast('bytes', record))

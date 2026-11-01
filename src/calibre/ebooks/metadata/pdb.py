@@ -5,6 +5,7 @@ Read meta information from pdb files.
 """
 
 import re
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.ereader import get_metadata as get_eReader
@@ -12,6 +13,9 @@ from calibre.ebooks.metadata.haodoo import get_metadata as get_Haodoo
 from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
 MREADER = {
     'PNPdPPrs': get_eReader,
@@ -29,7 +33,7 @@ MWRITER = {
 }
 
 
-def get_metadata(stream, extract_cover=True):
+def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     """
     Return metadata as a L{MetaInfo} object
     """
@@ -47,7 +51,7 @@ def get_metadata(stream, extract_cover=True):
     return MetadataReader(stream, extract_cover)
 
 
-def set_metadata(stream, mi) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     stream.seek(0)
 
     pheader = PdbHeaderReader(stream)

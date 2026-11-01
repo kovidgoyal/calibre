@@ -4,6 +4,7 @@
 import os
 import sys
 import unicodedata
+from typing import TYPE_CHECKING, Protocol
 
 from calibre import as_unicode, prints, walk
 from calibre.constants import __appname__, iswindows
@@ -12,12 +13,20 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    class Exploder(Protocol):
+        def __call__(self, path: str, tdir: str, /, question: Callable[[str], bool] = ...) -> str | None: ...
+
+    type Rebuilder = Callable[[str, str], None]
+
 
 class Error(ValueError):
     pass
 
 
-def ask_cli_question(msg):
+def ask_cli_question(msg: str) -> bool:
     prints(msg, end=' [y/N]: ')
     sys.stdout.flush()
 
@@ -33,7 +42,7 @@ def ask_cli_question(msg):
         try:
             tty.setraw(sys.stdin.fileno())
             try:
-                ans = sys.stdin.read(1)
+                ans = sys.stdin.buffer.read(1)
             except KeyboardInterrupt:
                 ans = b''
         finally:
@@ -42,7 +51,7 @@ def ask_cli_question(msg):
     return ans == b'y'
 
 
-def mobi_exploder(path, tdir, question=lambda x: True):
+def mobi_exploder(path: str, tdir: str, question: Callable[[str], bool] = lambda x: True) -> str | None:
     from calibre.ebooks.mobi.tweak import BadFormat, explode
 
     try:
@@ -51,7 +60,7 @@ def mobi_exploder(path, tdir, question=lambda x: True):
         raise Error(as_unicode(e))
 
 
-def zip_exploder(path, tdir, question=lambda x: True):
+def zip_exploder(path: str, tdir: str, question: Callable[[str], bool] = lambda x: True) -> str:
     zipextract(path, tdir)
     for f in walk(tdir):
         if f.lower().endswith('.opf'):
@@ -59,7 +68,7 @@ def zip_exploder(path, tdir, question=lambda x: True):
     raise Error('Invalid book: Could not find .opf')
 
 
-def zip_rebuilder(tdir, path) -> None:
+def zip_rebuilder(tdir: str, path: str) -> None:
     with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
         # Write mimetype
         mt = os.path.join(tdir, 'mimetype')
@@ -76,7 +85,7 @@ def zip_rebuilder(tdir, path) -> None:
                 zf.write(absfn, zfn)
 
 
-def docx_exploder(path, tdir, question=lambda x: True):
+def docx_exploder(path: str, tdir: str, question: Callable[[str], bool] = lambda x: True) -> str:
     zipextract(path, tdir)
     from calibre.ebooks.docx.dump import pretty_all_xml_in_dir
 
@@ -87,9 +96,10 @@ def docx_exploder(path, tdir, question=lambda x: True):
     raise Error('Invalid book: Could not find document.xml')
 
 
-def get_tools(fmt):
+def get_tools(fmt: str) -> tuple[Exploder, Rebuilder] | tuple[None, None]:
     fmt = fmt.lower()
 
+    ans: tuple[Exploder, Rebuilder] | tuple[None, None]
     if fmt in {'mobi', 'azw', 'azw3'}:
         from calibre.ebooks.mobi.tweak import rebuild
 
@@ -104,7 +114,7 @@ def get_tools(fmt):
     return ans
 
 
-def explode(ebook_file, output_dir) -> None:
+def explode(ebook_file: str, output_dir: str) -> None:
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     if not os.path.isdir(output_dir):
@@ -134,7 +144,7 @@ def explode(ebook_file, output_dir) -> None:
     prints('Make your changes and once you are done, use --implode-book to rebuild')
 
 
-def implode(output_dir, ebook_file) -> None:
+def implode(output_dir: str, ebook_file: str) -> None:
     output_dir = os.path.abspath(output_dir)
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)
@@ -159,7 +169,7 @@ def implode(output_dir, ebook_file) -> None:
     prints(ebook_file, 'successfully rebuilt')
 
 
-def tweak(ebook_file) -> None:
+def tweak(ebook_file: str) -> None:
     """Command line interface to the Tweak Book tool"""
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)
@@ -188,6 +198,7 @@ def tweak(ebook_file) -> None:
         proceed = ask_cli_question('Rebuild ' + ebook_file + '?')
 
         if proceed:
+            assert rebuilder is not None  # get_tools() returns both or neither
             prints('Rebuilding', ebook_file, 'please wait ...')
             try:
                 rebuilder(tdir, ebook_file)

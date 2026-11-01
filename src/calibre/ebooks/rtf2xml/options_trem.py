@@ -1,4 +1,8 @@
 import sys
+from typing import Literal, cast
+
+# option name -> [takes an argument, short option name (optional)]
+type OptionSpecs = dict[str, list[int | str]]
 
 
 class ParseOptions:
@@ -31,7 +35,7 @@ class ParseOptions:
             {indents:None, output:'/home/paul/file'}, ['/home/paul/input']
     """
 
-    def __init__(self, system_string, options_dict) -> None:
+    def __init__(self, system_string: list[str], options_dict: OptionSpecs) -> None:
         self.__system_string = system_string[1:]
         long_list = self.__make_long_list_func(options_dict)
         # print(long_list)
@@ -45,7 +49,7 @@ class ParseOptions:
         # print(self.__opt_with_args)
         self.__options_okay = 1
 
-    def __make_long_list_func(self, options_dict):
+    def __make_long_list_func(self, options_dict: OptionSpecs) -> list[str]:
         """
         Required:
             options_dict -- the dictionary mapping options to a list
@@ -59,7 +63,7 @@ class ParseOptions:
             legal_list.append(key)
         return legal_list
 
-    def __make_short_list_func(self, options_dict):
+    def __make_short_list_func(self, options_dict: OptionSpecs) -> list[str]:
         """
         Required:
             options_dict --the dictionary mapping options to a list
@@ -71,12 +75,12 @@ class ParseOptions:
         for key in keys:
             values = options_dict[key]
             try:
-                legal_list.append('-' + values[1])
+                legal_list.append('-' + cast('str', values[1]))  # the second item is the short option name
             except IndexError:
                 pass
         return legal_list
 
-    def __make_short_long_dict_func(self, options_dict):
+    def __make_short_long_dict_func(self, options_dict: OptionSpecs) -> dict[str, str]:
         """
         Required:
             options_dict --the dictionary mapping options to a list
@@ -90,14 +94,14 @@ class ParseOptions:
         for key in keys:
             values = options_dict[key]
             try:
-                short = '-' + values[1]
+                short = '-' + cast('str', values[1])  # the second item is the short option name
                 long = '--' + key
                 short_long_dict[short] = long
             except IndexError:
                 pass
         return short_long_dict
 
-    def __make_options_with_arg_list(self, options_dict):
+    def __make_options_with_arg_list(self, options_dict: OptionSpecs) -> list[str]:
         """
         Required:
             options_dict --the dictionary mapping options to a list
@@ -115,7 +119,7 @@ class ParseOptions:
                 pass
         return opt_with_arg
 
-    def __sub_short_with_long(self):
+    def __sub_short_with_long(self) -> list[str]:
         """
         Required:
             nothing
@@ -132,7 +136,7 @@ class ParseOptions:
             new_string.append(item)
         return new_string
 
-    def __pair_arg_with_option(self):
+    def __pair_arg_with_option(self) -> list[str]:
         """
         Required:
             nothing
@@ -181,7 +185,7 @@ class ParseOptions:
                 new_system_string.append(arg)
         return new_system_string
 
-    def __get_just_options(self):
+    def __get_just_options(self) -> tuple[list[str], list[str]]:
         """
         Requires:
             nothing
@@ -235,7 +239,7 @@ class ParseOptions:
             for not_legal in illegal_options:
                 sys.stderr.write(f'{not_legal}\n')
 
-    def __make_options_dict(self, options):
+    def __make_options_dict(self, options: list[str]) -> dict[str, str | None]:
         options_dict = {}
         for item in options:
             if '=' in item:
@@ -250,7 +254,7 @@ class ParseOptions:
             options_dict[option] = arg
         return options_dict
 
-    def parse_options(self):
+    def parse_options(self) -> tuple[dict[str, str | None], list[str]] | tuple[Literal[0], Literal[0]]:
         self.__system_string = self.__sub_short_with_long()
         # print('subbed list is  %s' % self.__system_string)
         self.__system_string = self.__pair_arg_with_option()

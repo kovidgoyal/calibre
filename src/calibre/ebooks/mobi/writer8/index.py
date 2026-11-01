@@ -3,10 +3,35 @@
 
 from io import BytesIO
 from struct import pack
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, TypedDict
 
 from calibre.ebooks.mobi.utils import CNCX, align_block, encint
 from calibre.ebooks.mobi.writer8.header import Header
+
+if TYPE_CHECKING:
+    from calibre.ebooks.mobi.writer8.main import GuideRef
+    from calibre.ebooks.mobi.writer8.skeleton import Chunker
+
+type TagValue = int | tuple[int, ...]
+type IndexEntry = tuple[str, dict[str, TagValue]]
+
+
+class NCXEntry(TypedDict, total=False):
+    id: int
+    index: int
+    label: str
+    children: list[int]
+    depth: int
+    parent_id: int
+    parent: int
+    first_child: int
+    last_child: int
+    author: str
+    description: str
+    kind: str
+    pos_fid: tuple[int, int]
+    offset: int
+    length: int
 
 
 class TagMeta_(NamedTuple):
@@ -17,7 +42,7 @@ class TagMeta_(NamedTuple):
     end_flag: int
 
 
-def TagMeta(x):
+def TagMeta(x: tuple[str, int, int, int, int]) -> TagMeta_:
     return TagMeta_(*x)
 
 
@@ -99,12 +124,12 @@ class Index:  # {{{
     control_byte_count = 1
     cncx = CNCX()
     tag_types = (EndTagTable,)
-    entries: list
+    entries: list[IndexEntry]
 
     HEADER_LENGTH = IndexHeader.HEADER_LENGTH
 
     @classmethod
-    def generate_tagx(cls):
+    def generate_tagx(cls) -> bytes:
         header = b'TAGX'
         byts = bytearray()
         for tag_meta in cls.tag_types:
@@ -114,7 +139,7 @@ class Index:  # {{{
         return header + bytes(byts)
 
     @classmethod
-    def calculate_control_bytes_for_each_entry(cls, entries):
+    def calculate_control_bytes_for_each_entry(cls, entries: list[IndexEntry]) -> list[list[int]]:
         control_bytes = []
         for lead_text, tags in entries:
             cbs = []
@@ -124,10 +149,8 @@ class Index:  # {{{
                     cbs.append(ans)
                     ans = 0
                     continue
-                try:
-                    nvals = len(tags.get(name, ()))
-                except TypeError:
-                    nvals = 1
+                tv = tags.get(name, ())
+                nvals = 1 if isinstance(tv, int) else len(tv)
                 nentries = nvals // vpe
                 shifts = mask_to_bit_shifts[mask]
                 ans |= mask & (nentries << shifts)
@@ -136,7 +159,7 @@ class Index:  # {{{
             control_bytes.append(cbs)
         return control_bytes
 
-    def __call__(self):
+    def __call__(self) -> list[bytes]:
         self.control_bytes = self.calculate_control_bytes_for_each_entry(self.entries)
 
         index_blocks, idxt_blocks, record_counts, last_indices = [BytesIO()], [BytesIO()], [0], [b'']
@@ -156,10 +179,8 @@ class Index:  # {{{
                 values = tags.get(tag.name, None)
                 if values is None:
                     continue
-                try:
-                    len(values)
-                except TypeError:
-                    values = [values]
+                if isinstance(values, int):
+                    values = (values,)
                 if values:
                     for val in values:
                         try:
@@ -242,7 +263,7 @@ class Index:  # {{{
 class SkelIndex(Index):
     tag_types = tuple(map(TagMeta, (('chunk_count', 1, 1, 3, 0), ('geometry', 6, 2, 12, 0), EndTagTable)))
 
-    def __init__(self, skel_table) -> None:
+    def __init__(self, skel_table: list[Chunker.Skel]) -> None:
         self.entries = [
             (
                 s.name,
@@ -270,7 +291,7 @@ class ChunkIndex(Index):
         )
     )
 
-    def __init__(self, chunk_table) -> None:
+    def __init__(self, chunk_table: list[Chunker.Chunk]) -> None:
         self.cncx = CNCX(c.selector for c in chunk_table)
 
         self.entries = [
@@ -290,7 +311,7 @@ class ChunkIndex(Index):
 class GuideIndex(Index):
     tag_types = tuple(map(TagMeta, (('title', 1, 1, 1, 0), ('pos_fid', 6, 2, 2, 0), EndTagTable)))
 
-    def __init__(self, guide_table) -> None:
+    def __init__(self, guide_table: list[GuideRef]) -> None:
         self.cncx = CNCX(c.title for c in guide_table)
 
         self.entries = [
@@ -334,7 +355,7 @@ class NCXIndex(Index):
         )
     )
 
-    def __init__(self, toc_table) -> None:
+    def __init__(self, toc_table: list[NCXEntry]) -> None:
         strings = []
         for entry in toc_table:
             strings.append(entry['label'])
@@ -355,8 +376,8 @@ class NCXIndex(Index):
             largest = 0
         fmt = '%0{}X'.format(max(2, len(f'{largest:X}')))
 
-        def to_entry(x):
-            ans = {}
+        def to_entry(x: NCXEntry) -> IndexEntry:
+            ans: dict[str, TagValue] = {}
             for f in ('offset', 'length', 'depth', 'pos_fid', 'parent', 'first_child', 'last_child'):
                 if f in x:
                     ans[f] = x[f]

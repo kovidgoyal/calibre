@@ -5,9 +5,16 @@ Directory output OEBBook writer.
 """
 
 import os
+from typing import TYPE_CHECKING, Self
 
 from calibre.ebooks.oeb.base import OPF_MIME, DirContainer, OEBError, xml2str
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.config_base import ConfigInterface, OptionSet
 
 __all__ = ['OEBWriter']
 
@@ -19,13 +26,13 @@ class OEBWriter:
     TRANSFORMS = []
     '''List of transforms to apply to content written with this Writer.'''
 
-    def __init__(self, version='2.0', page_map=False, pretty_print=False) -> None:
+    def __init__(self, version: str = '2.0', page_map: bool = False, pretty_print: bool = False) -> None:
         self.version = version
         self.page_map = page_map
         self.pretty_print = pretty_print
 
     @classmethod
-    def config(cls, cfg):
+    def config[C: OptionSet | ConfigInterface](cls, cfg: C) -> C:
         """Add any book-writing options to the :class:`Config` object
         :param:`cfg`.
         """
@@ -47,14 +54,14 @@ class OEBWriter:
         return cfg
 
     @classmethod
-    def generate(cls, opts):
+    def generate(cls, opts: Values) -> Self:
         """Generate a Writer instance from command-line options."""
         version = opts.opf_version
         page_map = opts.adobe_page_map
         pretty_print = opts.pretty_print
         return cls(version=version, page_map=page_map, pretty_print=pretty_print)
 
-    def __call__(self, oeb, path):
+    def __call__(self, oeb: OEBBook, path: str) -> None:
         """
         Write the book in the :class:`OEBBook` object :param:`oeb` to a folder
         at :param:`path`.

@@ -2,8 +2,10 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from collections.abc import Iterable
 from contextlib import suppress
 from functools import partial
+from typing import TYPE_CHECKING
 
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
@@ -20,6 +22,11 @@ from calibre.utils.localization import _, calibre_langcode_to_name, ngettext
 from calibre.utils.serialize import json_dumps
 from polyglot.binary import as_hex_unicode
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Container, Iterator
+
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict, Metadata
+
 default_sort = (
     'title',
     'title_sort',
@@ -34,15 +41,15 @@ default_sort = (
 )
 
 
-def field_sort(mi, name):
+def field_sort(mi: Metadata, name: str) -> tuple[int, bytes | None]:
     try:
-        title = mi.metadata_for_field(name)['name']
+        title = mi.metadata_for_field(name)['name']  # ty: ignore[not-subscriptable] None is handled by the except
     except Exception:
         title = 'zzz'
     return {x: (i, None) for i, x in enumerate(default_sort)}.get(name, (10000, sort_key(title)))
 
 
-def displayable_field_keys(mi):
+def displayable_field_keys(mi: Metadata) -> Iterator[str]:
     for k in mi.all_field_keys():
         try:
             m = mi.metadata_for_field(k)
@@ -58,26 +65,26 @@ def displayable_field_keys(mi):
             yield k
 
 
-def get_field_list(mi):
+def get_field_list(mi: Metadata) -> Iterator[tuple[str, bool]]:
     for field in sorted(displayable_field_keys(mi), key=partial(field_sort, mi)):
         yield field, True
 
 
-def action(main, **keys):
+def action(main: str, **keys: object) -> str:
     keys['type'] = main
     return 'action:' + as_hex_unicode(json_dumps(keys))
 
 
-def search_action(search_term, value, **k):
+def search_action(search_term: str, value: object, **k: object) -> str:
     return action('search', term=search_term, value=value, **k)
 
 
-def search_action_with_data(search_term, value, book_id, field=None, **k):
+def search_action_with_data(search_term: str, value: object, book_id: int, field: str | None = None, **k: object) -> str:
     field = field or search_term
     return search_action(search_term, value, field=field, book_id=book_id, **k)
 
 
-def web_search_link(template, mi, value):
+def web_search_link(template: str, mi: Metadata, value: object) -> tuple[str, str]:
     formatter = SafeFormat()
     iv = str(value)
     mi.set('item_value', iv)
@@ -89,7 +96,9 @@ def web_search_link(template, mi, value):
     return '', ''
 
 
-def cc_search_action_with_data(search_term, value, book_id, fm, mi, field=None, **k):
+def cc_search_action_with_data(
+    search_term: str, value: object, book_id: int, fm: FieldMetadataDict | None, mi: Metadata, field: str | None = None, **k: str | None
+) -> tuple[str, str]:
     if mi is not None and fm is not None:
         if template := fm.get('display', {}).get('web_search_template'):
             try:
@@ -99,11 +108,12 @@ def cc_search_action_with_data(search_term, value, book_id, fm, mi, field=None, 
                 import traceback
 
                 traceback.print_exc()
-    t = _('Click to see books with {0}: {1}').format(mi.get('name', search_term), prepare_string_for_xml(value))
+    name = (fm.get('name') if fm is not None else None) or search_term
+    t = _('Click to see books with {0}: {1}').format(name, prepare_string_for_xml(value))
     return search_action_with_data(search_term, value, book_id, **k), t
 
 
-def notes_action(**keys):
+def notes_action(**keys: object) -> str:
     return 'notes:' + as_hex_unicode(json_dumps(keys))
 
 
@@ -117,7 +127,7 @@ def resolve_default_author_link(ans: str | None = None) -> str:
     return ans or DEFAULT_AUTHOR_LINK
 
 
-def author_search_href(which, title=None, author=None):
+def author_search_href(which: str, title: str | None = None, author: str | None = None) -> tuple[str, str]:
     if which == 'calibre':
         return 'calibre', _('Search the calibre library for books by %s') % author
     search_type, key = 'author', which
@@ -132,10 +142,10 @@ def author_search_href(which, title=None, author=None):
     else:
         tt = _('Search {0} for the book: {1} by the author {2}').format(name, title, author)
     func = url_for_book_search if search_type == 'book' else url_for_author_search
-    return func(key, title=title, author=author), tt
+    return func(key, title=title, author=author), tt  # ty: ignore[invalid-argument-type] callers always pass strings
 
 
-def render_author_link(default_author_link, author, book_title=None, author_sort=None):
+def render_author_link(default_author_link: str, author: str, book_title: str | None = None, author_sort: str | None = None) -> tuple[str, str]:
     book_title = book_title or ''
     if default_author_link == NO_SEARCH_LINK:
         return NO_SEARCH_LINK, _('Author search links are disabled')
@@ -150,19 +160,19 @@ def render_author_link(default_author_link, author, book_title=None, author_sort
 
 
 def mi_to_html(
-    mi,
-    field_list=None,
-    default_author_link=None,
-    use_roman_numbers=True,
-    rating_font='Liberation Serif',
-    rtl=False,
-    comments_heading_pos='hide',
-    for_qt=False,
-    vertical_fields=(),
-    show_links=True,
-    item_id_if_has_note=None,
-    link_note_icon_size=16,
-):
+    mi: Metadata,
+    field_list: Iterable[tuple[str, bool]] | None = None,
+    default_author_link: str | None = None,
+    use_roman_numbers: bool = True,
+    rating_font: str = 'Liberation Serif',
+    rtl: bool = False,
+    comments_heading_pos: str = 'hide',
+    for_qt: bool = False,
+    vertical_fields: Container[str] = (),
+    show_links: bool = True,
+    item_id_if_has_note: Callable[[str, str], int | None] | None = None,
+    link_note_icon_size: int = 16,
+) -> tuple[str, list[str]]:
 
     link_markup = '↗️'
     if for_qt:
@@ -170,13 +180,13 @@ def mi_to_html(
         link_markup = f'<img valign="bottom" src="calibre-icon:///external-link.png" width={s} height={s}>'
         note_markup = f'<img valign="bottom" src="calibre-icon:///notes.png" width={s} height={s}>'
 
-    def get_link_map(column):
+    def get_link_map(column: str) -> dict[str, str]:
         try:
             return mi.link_maps[column]
         except Exception:
             return {}
 
-    def add_other_links(field, field_value):
+    def add_other_links(field: str, field_value: str) -> str:
         if show_links:
             link = get_link_map(field).get(field_value)
             if link:
@@ -214,7 +224,7 @@ def mi_to_html(
         if not metadata:
             continue
 
-        def value_list(sep, vals):
+        def value_list(sep: str, vals: Iterable[str]) -> str:
             if field in vertical_fields:  # ruff: ignore[function-uses-loop-variable]
                 return '<br/>'.join(vals)
             return sep.join(vals)
@@ -325,22 +335,27 @@ def mi_to_html(
             if isdevice:
                 continue
             path = mi.path or ''
+            assert isinstance(path, str)
             bpath = ''
             if path:
                 h, t = os.path.split(path)
                 bpath = os.sep.join((os.path.basename(h), t))
+            # formats is not null, checked above, and format_files is set
+            # along with path, see gui2.library.models
+            formats, format_files = mi.formats, mi.format_files
+            assert formats is not None
             data = (
                 {
                     'fmt': x,
                     'path': a(path or ''),
-                    'fname': a(mi.format_files.get(x, '')),
+                    'fname': a(format_files.get(x, '')),
                     'ext': x.lower(),
                     'id': book_id,
                     'bpath': bpath,
                     'sep': os.sep,
-                    'action': action('format', book_id=book_id, fmt=x, path=path or '', fname=mi.format_files.get(x, '')),
+                    'action': action('format', book_id=book_id, fmt=x, path=path or '', fname=format_files.get(x, '')),
                 }
-                for x in mi.formats
+                for x in formats
             )
             fmts = ['<a title="{bpath}{sep}{fname}.{ext}" href="{action}">{fmt}</a>'.format(**x) for x in data]
             ans.append((field, row % (name, value_list(', ', fmts))))
@@ -429,6 +444,7 @@ def mi_to_html(
                     sidx = mi.get(field + '_index')
                     if sidx is None:
                         sidx = 1.0
+                    assert isinstance(sidx, (int, float, str))
                     try:
                         st = metadata['search_terms'][0]
                     except Exception:
@@ -477,6 +493,7 @@ def mi_to_html(
                         st = field
                     if metadata['is_multiple']:
                         all_vals = mi.get(field)
+                        assert isinstance(all_vals, Iterable)  # not null, checked above
                         if not metadata.get('display', {}).get('is_names', False):
                             all_vals = sorted(all_vals, key=sort_key)
                         links = []
@@ -546,9 +563,9 @@ def mi_to_html(
         dc = ', '.join(sorted(dc, key=sort_key))
         ans.append(('device_collections', row % (_('Collections') + ':', dc)))
 
-    def classname(field) -> str:
+    def classname(field: str) -> str:
         try:
-            dt = mi.metadata_for_field(field)['datatype']
+            dt = mi.metadata_for_field(field)['datatype']  # ty: ignore[not-subscriptable] None is handled by the except
         except Exception:
             dt = 'text'
         return f'datatype_{dt}'

@@ -13,7 +13,9 @@ import os
 import re
 from collections import OrderedDict
 from contextlib import suppress
+from typing import TYPE_CHECKING, cast
 
+from css_parser.css import CSSStyleSheet
 from css_selectors import Select, SelectorError
 from lxml import etree
 from lxml.etree import XPath as _XPath
@@ -26,17 +28,26 @@ from calibre.ebooks.oeb.polish.split import do_split
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element, _ElementTree
+
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
+
+    type PageBreak = tuple[_XPath, bool]
+
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
 SPLIT_POINT_ATTR = 'csp'
 
 
-def tostring(root):
+def tostring(root: _Element) -> bytes:
     return etree.tostring(root, encoding='utf-8')
 
 
 class SplitError(ValueError):
-    def __init__(self, path, root) -> None:
+    def __init__(self, path: str, root: _Element) -> None:
         size = len(tostring(root)) / 1024.0
         ValueError.__init__(
             self,
@@ -45,28 +56,30 @@ class SplitError(ValueError):
 
 
 class Split:
-    def __init__(self, split_on_page_breaks=True, page_breaks_xpath=None, max_flow_size=0, remove_css_pagebreaks=True) -> None:
+    def __init__(
+        self, split_on_page_breaks: bool = True, page_breaks_xpath: str | None = None, max_flow_size: int = 0, remove_css_pagebreaks: bool = True
+    ) -> None:
         self.split_on_page_breaks = split_on_page_breaks
         self.page_breaks_xpath = page_breaks_xpath
         self.max_flow_size = max_flow_size
-        self.page_break_selectors = None
+        self.page_break_selectors: list[PageBreak] | set[tuple[str, bool]] | None = None
         self.remove_css_pagebreaks = remove_css_pagebreaks
         if self.page_breaks_xpath is not None:
             self.page_break_selectors = [(XPath(self.page_breaks_xpath), False)]
 
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values) -> None:
         self.oeb = oeb
         self.log = oeb.log
         self.log('Splitting markup on page breaks and flow limits, if any...')
         self.opts = opts
-        self.map = {}
+        self.map: dict[str, collections.defaultdict[str | None, str]] = {}
         self.nav_href = getattr(opts, 'epub3_nav_href', '')
         self.existing_nav = getattr(opts, 'epub3_nav_parsed', None)
         output_supports_nav = False
         with suppress(Exception):
             output_supports_nav = int(opts.epub_version) >= 3
 
-        def is_nav(item):
+        def is_nav(item: Manifest.Item) -> bool:
             ans = item.href == self.nav_href and output_supports_nav
             if ans:
                 self.log(f'Not splitting {self.nav_href} as it is the EPUB3 nav document')
@@ -78,8 +91,9 @@ class Split:
 
         self.fix_links()
 
-    def split_item(self, item) -> None:
-        page_breaks, page_break_ids = [], []
+    def split_item(self, item: Manifest.Item) -> None:
+        page_breaks: list[PageBreak] = []
+        page_break_ids: list[str] = []
         if self.split_on_page_breaks:
             page_breaks, page_break_ids = self.find_page_breaks(item)
 
@@ -88,11 +102,16 @@ class Split:
             am = splitter.anchor_map
             self.map[item.href] = collections.defaultdict(am.default_factory, am)
 
-    def find_page_breaks(self, item):
+    def find_page_breaks(self, item: Manifest.Item) -> tuple[list[PageBreak], list[str]]:
         if self.page_break_selectors is None:
             ignored = {'avoid', 'auto', 'inherit', 'never'}
             self.page_break_selectors = set()
-            stylesheets = [x.data for x in self.oeb.manifest if x.media_type in OEB_STYLES]
+            stylesheets: list[CSSStyleSheet] = []
+            for x in self.oeb.manifest:
+                if x.media_type in OEB_STYLES:
+                    sheet = x.data
+                    assert isinstance(sheet, CSSStyleSheet)  # media_type is in OEB_STYLES
+                    stylesheets.append(sheet)
             for rule in rules(stylesheets):
                 before = force_unicode(getattr(rule.style.getPropertyCSSValue('page-break-before'), 'cssText', '').strip().lower())
                 after = force_unicode(getattr(rule.style.getPropertyCSSValue('page-break-after'), 'cssText', '').strip().lower())
@@ -113,15 +132,18 @@ class Split:
         if not self.page_break_selectors:
             return [], []
         page_breaks = set()
-        select = Select(item.data)
-        body = item.data.xpath('//h:body', namespaces=NAMESPACES)
+        root = item.data
+        assert isinstance(root, etree._Element)  # only called for items whose data is an element
+        select = Select(root)
+        body = root.xpath('//h:body', namespaces=NAMESPACES)
         if not body:
             return [], []
         descendants = frozenset(body[0].iterdescendants('*'))
 
         for selector, before in self.page_break_selectors:
             try:
-                for elem in select(selector):
+                matches = select(selector) if isinstance(selector, str) else selector(root)
+                for elem in matches:
                     if elem in descendants and elem.tag.rpartition('}')[2].lower() not in {
                         'html',
                         'body',
@@ -136,7 +158,7 @@ class Split:
             except SelectorError as err:
                 self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {selector!r} ({as_unicode(err)})')
 
-        for i, elem in enumerate(item.data.iter('*')):
+        for i, elem in enumerate(root.iter('*')):
             try:
                 elem.set('pb_order', str(i))
             except TypeError:  # Can't set attributes on comment nodes etc.
@@ -144,7 +166,8 @@ class Split:
 
         page_breaks = list(page_breaks)
         page_breaks.sort(key=lambda x: int(x.get('pb_order')))
-        page_break_ids, page_breaks_ = [], []
+        page_break_ids: list[str] = []
+        page_breaks_: list[PageBreak] = []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', f'calibre_pb_{i}'))
             id = x.get('id')
@@ -163,7 +186,7 @@ class Split:
             page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
             page_break_ids.append(id)
 
-        for elem in item.data.iter(etree.Element):
+        for elem in root.iter(etree.Element):
             elem.attrib.pop('pb_order', False)
             elem.attrib.pop('pb_before', False)
 
@@ -186,15 +209,15 @@ class Split:
             class FakeManifestItem:
                 href = self.nav_href
 
-                def abshref(self):
+                def abshref(self) -> str:
                     return self.href
 
-                def relhref(self, href):
+                def relhref(self, href: str) -> str:
                     return rel_href(self.href, href)
 
             rewrite_links(self.existing_nav, self.rewrite_links)
 
-    def rewrite_links(self, url):
+    def rewrite_links(self, url: str) -> str:
         href, frag = urldefrag(url)
         try:
             href = self.current_item.abshref(href)
@@ -220,7 +243,7 @@ class Split:
 class FlowSplitter:
     "The actual splitting logic"
 
-    def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb, opts) -> None:
+    def __init__(self, item: Manifest.Item, page_breaks: list[PageBreak], page_break_ids: list[str], max_flow_size: int, oeb: OEBBook, opts: Values) -> None:
         self.item = item
         self.oeb = oeb
         self.opts = opts
@@ -234,7 +257,9 @@ class FlowSplitter:
         base, ext = os.path.splitext(self.base)
         self.base = base.replace('%', '%%') + '_split_%.3d' + ext
 
-        self.trees = [self.item.data.getroottree()]
+        root = self.item.data
+        assert isinstance(root, etree._Element)  # only items whose data is an element are split
+        self.trees: list[_ElementTree] = [root.getroottree()]
         self.splitting_on_page_breaks = True
         if self.page_breaks:
             self.split_on_page_breaks(self.trees[0])
@@ -244,7 +269,7 @@ class FlowSplitter:
             lt_found = False
             self.log(f'\tLooking for large trees in {item.href}...')
             trees = list(self.trees)
-            self.tree_map = {}
+            self.tree_map: dict[_ElementTree, list[_ElementTree]] = {}
             for i, tree in enumerate(trees):
                 size = len(tostring(tree.getroot()))
                 if size > self.max_flow_size:
@@ -264,8 +289,8 @@ class FlowSplitter:
             self.log(f'\tSplit into {len(self.trees)} parts')
         self.commit()
 
-    def split_on_page_breaks(self, orig_tree) -> None:
-        ordered_ids = OrderedDict()
+    def split_on_page_breaks(self, orig_tree: _ElementTree) -> None:
+        ordered_ids: OrderedDict[str, PageBreak] = OrderedDict()
         all_page_break_ids = frozenset(self.page_break_ids)
         for elem_id in orig_tree.xpath('//*/@id'):
             if elem_id in all_page_break_ids:
@@ -304,13 +329,13 @@ class FlowSplitter:
                 trees.append(tree)
         self.trees = trees
 
-    def get_body(self, root):
+    def get_body(self, root: _Element) -> _Element | None:
         body = root.xpath('//h:body', namespaces=NAMESPACES)
         if not body:
             return None
         return body[0]
 
-    def do_split(self, tree, split_point, before):
+    def do_split(self, tree: _ElementTree, split_point: _Element, before: bool) -> tuple[_ElementTree, _ElementTree]:
         """
         Split ``tree`` into a *before* and *after* tree at ``split_point``.
 
@@ -319,7 +344,7 @@ class FlowSplitter:
         """
         return do_split(split_point, self.log, before=before)
 
-    def is_page_empty(self, root) -> bool:
+    def is_page_empty(self, root: _Element) -> bool:
         body = self.get_body(root)
         if body is None:
             return False
@@ -333,14 +358,14 @@ class FlowSplitter:
             return False
         return True
 
-    def split_text(self, text, root, size):
+    def split_text(self, text: str, root: _Element, size: int) -> list[str]:
         self.log.debug(f'\t\t\tSplitting text of length: {len(text)}')
         rest = text.replace('\r', '')
         parts = rest.split('\n\n')
         self.log.debug(f'\t\t\t\tFound {len(parts)} parts')
         if max(map(len, parts)) > size:
             raise SplitError('Cannot split as file contains a <pre> tag with a very large paragraph', root)
-        ans = []
+        ans: list[str] = []
         buf = ''
         for part in parts:
             if len(buf) + len(part) < size:
@@ -350,7 +375,7 @@ class FlowSplitter:
                 buf = part
         return ans
 
-    def split_to_size(self, tree) -> None:
+    def split_to_size(self, tree: _ElementTree) -> None:
         self.log.debug('\t\tSplitting...')
         root = tree.getroot()
         # Split large <pre> tags if they contain only text
@@ -394,7 +419,7 @@ class FlowSplitter:
                 self.log.debug(f'\t\t\tSplit tree still too large: {size / 1024.0} KB')
                 self.split_to_size(t)
 
-    def find_split_point(self, root):
+    def find_split_point(self, root: _Element) -> tuple[_Element | None, bool]:
         '''
         Find the tag at which to split the tree rooted at `root`.
         Search order is:
@@ -409,7 +434,7 @@ class FlowSplitter:
         We try to split in the "middle" of the file (as defined by tag counts.
         '''
 
-        def pick_elem(elems):
+        def pick_elem(elems: list[_Element]) -> _Element | None:
             if elems:
                 elems = [i for i in elems if i.get(SPLIT_POINT_ATTR, '0') != '1']
                 if elems:
@@ -446,8 +471,8 @@ class FlowSplitter:
         """
         if not self.was_split:
             return
-        self.anchor_map = collections.defaultdict(lambda: self.base % 0)
-        self.files = []
+        self.anchor_map: collections.defaultdict[str | None, str] = collections.defaultdict(lambda: self.base % 0)
+        self.files: list[str] = []
 
         for i, tree in enumerate(self.trees):
             root = tree.getroot()
@@ -459,7 +484,7 @@ class FlowSplitter:
             for elem in root.xpath(f'//*[@{SPLIT_POINT_ATTR}]'):
                 elem.attrib.pop(SPLIT_POINT_ATTR, '0')
 
-        spine_pos = self.item.spine_position
+        spine_pos = cast('int', self.item.spine_position)  # only items in the spine are split
 
         for current, tree in zip(*map(reversed, (self.files, self.trees))):
             for a in tree.getroot().xpath('//h:a[@href]', namespaces=NAMESPACES):
@@ -484,7 +509,8 @@ class FlowSplitter:
                         nhref = f'{nhref}#{frag}'
                     ref.href = nhref
 
-        def fix_toc_entry(toc) -> None:
+        def fix_toc_entry(toc: TOC) -> None:
+
             if toc.href:
                 href, frag = urldefrag(toc.href)
                 if href == self.item.href:

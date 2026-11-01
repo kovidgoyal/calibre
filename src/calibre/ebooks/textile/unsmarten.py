@@ -3,7 +3,7 @@
 import re
 
 
-def unsmarten(txt):
+def unsmarten(txt: str) -> str:
     txt = re.sub(r'&#162;|&cent;|¢', r'{c\}', txt)  # cent
     txt = re.sub(r'&#163;|&pound;|£', r'{L-}', txt)  # pound
     txt = re.sub(r'&#165;|&yen;|¥', r'{Y=}', txt)  # yen

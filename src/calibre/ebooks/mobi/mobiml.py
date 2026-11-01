@@ -8,7 +8,7 @@ import copy
 import numbers
 import re
 from contextlib import suppress
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
@@ -18,10 +18,16 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.utils.imghdr import identify
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.oeb.stylizer import Style
+
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 
 
-def MBP(name) -> str:
+def MBP(name: str) -> str:
     return f'{{{MBP_NS}}}{name}'
 
 
@@ -59,24 +65,25 @@ PAGE_BREAKS = {'always', 'left', 'right'}
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
 
-def asfloat(value):
+def asfloat(value: object) -> float:
     if not isinstance(value, numbers.Number):
         return 0.0
-    return float(value)
+    return float(cast('float', value))  # the numbers here are ints or floats
 
 
-def convert_margin(style, which):
+def convert_margin(style: Style, which: str) -> float:
     # percentage values come out too large when the user uses a non kindle
     # output profile like the tablet profile
     ans = asfloat(style[which])
     raw = style._get(which)
     if isinstance(raw, str) and '%' in raw:
         with suppress(TypeError):
-            ans = min(style._unit_convert(raw, base=600), ans)
+            # a non-numeric result raises TypeError, suppressed above
+            ans = min(cast('float', style._unit_convert(raw, base=600)), ans)
     return ans
 
 
-def isspace(text):
+def isspace(text: str | None) -> bool:
     if not text:
         return True
     if '\xa0' in text:
@@ -85,9 +92,9 @@ def isspace(text):
 
 
 class BlockState:
-    def __init__(self, body) -> None:
+    def __init__(self, body: etree._Element) -> None:
         self.body = body
-        self.nested = []
+        self.nested: list[etree._Element] = []
         self.para = None
         self.inline = None
         self.anchor = None
@@ -102,8 +109,8 @@ class FormatState:
     def __init__(self) -> None:
         self.rendered = False
         self.left = 0.0
-        self.halign = 'auto'
-        self.indent = 0.0
+        self.halign: str | float | None = 'auto'
+        self.indent: float | str = 0.0
         self.fsize = 3
         self.ids = set()
         self.italic = False
@@ -113,13 +120,14 @@ class FormatState:
         self.preserve = False
         self.pre_wrap = False
         self.family = 'serif'
-        self.bgcolor = 'transparent'
-        self.fgcolor = 'black'
+        self.bgcolor: str | None = 'transparent'
+        self.fgcolor: str | int = 'black'
         self.href = None
         self.list_num = 0
         self.attrib = {}
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        other = cast('FormatState', other)
         return (
             self.fsize == other.fsize
             and self.italic == other.italic
@@ -134,15 +142,15 @@ class FormatState:
             and self.underline == other.underline
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
 
 class MobiMLizer:
-    def __init__(self, ignore_tables=False) -> None:
+    def __init__(self, ignore_tables: bool = False) -> None:
         self.ignore_tables = ignore_tables
 
-    def __call__(self, oeb, context):
+    def __call__(self, oeb: OEBBook, context: Values) -> None:
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
         self.log = self.oeb.logger
@@ -155,8 +163,11 @@ class MobiMLizer:
     def mobimlize_spine(self) -> None:
         "Iterate over the spine and convert it to MOBIML"
         for item in self.oeb.spine:
-            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile)
-            body = item.data.find(XHTML('body'))
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+            stylizer = Stylizer(root, item.href, self.oeb, self.opts, self.profile)
+            body = root.find(XHTML('body'))
+            assert body is not None
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
             nbody = etree.SubElement(nroot, XHTML('body'))
             self.current_spine_item = item
@@ -164,10 +175,10 @@ class MobiMLizer:
             item.data = nroot
             # print(etree.tostring(nroot))
 
-    def mobimlize_font(self, ptsize):
+    def mobimlize_font(self, ptsize: float) -> int:
         return self.fnums[self.fmap[ptsize]]
 
-    def mobimlize_measure(self, ptsize):
+    def mobimlize_measure(self, ptsize: float | str | bytes) -> str | bytes:
         if isinstance(ptsize, (str, bytes)):
             return ptsize
         embase = self.profile.fbase
@@ -175,7 +186,7 @@ class MobiMLizer:
             return f'{round(ptsize)}pt'
         return f'{round(ptsize / embase)}em'
 
-    def preize_text(self, text, pre_wrap=False):
+    def preize_text(self, text: str, pre_wrap: bool = False) -> list[str | etree._Element]:
         text = str(text)
         if pre_wrap:
             # Replace n consecutive spaces with n-1 NBSP + space
@@ -193,7 +204,7 @@ class MobiMLizer:
                 result.append(line)
         return result
 
-    def mobimlize_content(self, tag, text, bstate, istates) -> None:
+    def mobimlize_content(self, tag: str, text: str | None, bstate: BlockState, istates: list[FormatState]) -> None:
         "Convert text content"
         if text or tag != 'br':
             bstate.content = True
@@ -286,7 +297,9 @@ class MobiMLizer:
                     # This could potentially break if inserting an anchor at
                     # this point in the markup is illegal, but I cannot think
                     # of such a case offhand.
-                    if barename(last.tag) in LEAF_TAGS:
+                    last_tag = last.tag
+                    assert isinstance(last_tag, str)  # only contains elements created here
+                    if barename(last_tag) in LEAF_TAGS:
                         last.addprevious(anchor)
                     else:
                         last.append(anchor)
@@ -337,8 +350,9 @@ class MobiMLizer:
             else:
                 inline.append(item)
 
-    def mobimlize_elem(self, elem, stylizer, bstate, istates, ignore_valign=False) -> None:
-        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
+    def mobimlize_elem(self, elem: etree._Element, stylizer: Stylizer, bstate: BlockState, istates: list[FormatState], ignore_valign: bool = False) -> None:
+        elem_tag = elem.tag
+        if not isinstance(elem_tag, str) or namespace(elem_tag) != XHTML_NS:  # lxml element tags are never bytes
             return
         style = stylizer.style(elem)
         # <mbp:frame-set/> does not exist lalalala
@@ -354,10 +368,10 @@ class MobiMLizer:
                 elem.text = None
                 elem.set('id', id_)
                 elem.tail = tail
-                elem.tag = XHTML('a')
+                elem.tag = elem_tag = XHTML('a')
             else:
                 return
-        tag = barename(elem.tag)
+        tag = barename(elem_tag)
         istate = copy.copy(istates[-1])
         istate.rendered = False
         istate.list_num = 0
@@ -369,6 +383,7 @@ class MobiMLizer:
         istates.append(istate)
         left = 0
         display = style['display']
+        assert isinstance(display, str)  # display keywords are not lengths, so are never converted to numbers
         if display == 'table-cell':
             display = 'inline'
         elif display.startswith('table'):
@@ -381,10 +396,12 @@ class MobiMLizer:
             istate.halign = style['text-align']
             rawti = style._get('text-indent')
             try:
-                istate.indent = style['text-indent']
+                ti = style['text-indent']
+                assert ti is not None  # only background-color can be None
+                istate.indent = ti
             except Exception:
                 istate.indent = 0
-            if hasattr(rawti, 'strip') and '%' in rawti:
+            if hasattr(rawti, 'strip') and '%' in cast('str', rawti):
                 # We have a percentage text indent, these can come out looking
                 # too large if the user chooses a wide output profile like
                 # tablet
@@ -408,13 +425,13 @@ class MobiMLizer:
             padding = asfloat(style['padding-left'])
             lspace = margin + padding
             if lspace > 0:
-                spaces = round((lspace * 3) / style['font-size'])
+                spaces = round((lspace * 3) / style.fontSize)
                 elem.text = ('\xa0' * spaces) + (elem.text or '')
             margin = convert_margin(style, 'margin-right')
             padding = asfloat(style['padding-right'])
             rspace = margin + padding
             if rspace > 0:
-                spaces = round((rspace * 3) / style['font-size'])
+                spaces = round((rspace * 3) / style.fontSize)
                 if len(elem) == 0:
                     elem.text = (elem.text or '') + ('\xa0' * spaces)
                 else:
@@ -422,17 +439,18 @@ class MobiMLizer:
                     last.text = (last.text or '') + ('\xa0' * spaces)
         if bstate.content and style['page-break-before'] in PAGE_BREAKS:
             bstate.pbreak = True
-        istate.fsize = self.mobimlize_font(style['font-size'])
+        istate.fsize = self.mobimlize_font(style.fontSize)
         istate.italic = style['font-style'] == 'italic'
         weight = style['font-weight']
         istate.bold = weight in ('bold', 'bolder') or asfloat(weight) > 400
         istate.preserve = style['white-space'] == 'pre'
         istate.pre_wrap = style['white-space'] == 'pre-wrap'
-        istate.bgcolor = style['background-color']
-        istate.fgcolor = style['color']
+        istate.bgcolor = style.backgroundColor
+        istate.fgcolor = style.color
         istate.strikethrough = style.effective_text_decoration == 'line-through'
         istate.underline = style.effective_text_decoration == 'underline'
-        ff = style['font-family'].lower() if hasattr(style['font-family'], 'lower') else ''
+        font_family = style['font-family']
+        ff = font_family.lower() if isinstance(font_family, str) else ''
         if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
         elif 'sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or 'arial' in ff or 'helvetica' in ff:
@@ -455,7 +473,7 @@ class MobiMLizer:
                 istate.attrib['align'] = valign
             for prop in ('width', 'height'):
                 if cssdict[prop] != 'auto':
-                    value = style[prop]
+                    value = style.width if prop == 'width' else style.height
                     if value == getattr(self.profile, prop):
                         result = '100%'
                     else:
@@ -476,7 +494,9 @@ class MobiMLizer:
                     self.oeb.logger.warn('Failed to find image:', href)
                 else:
                     try:
-                        width, height = identify(item.data)[1:]
+                        data = item.data
+                        assert isinstance(data, bytes)  # raises, like identify() would, for non-image items
+                        width, height = identify(data)[1:]
                     except Exception:
                         self.oeb.logger.warn('Invalid image:', href)
                     else:
@@ -500,7 +520,7 @@ class MobiMLizer:
                         item.unload_data_from_memory()
         elif tag == 'hr' and asfloat(style['width']) > 0 and style._get('width') not in {'100%', 'auto'}:
             raww = style._get('width')
-            if hasattr(raww, 'strip') and '%' in raww:
+            if hasattr(raww, 'strip') and '%' in cast('str', raww):
                 istate.attrib['width'] = raww
             else:
                 prop = style['width'] / self.profile.width
@@ -538,13 +558,13 @@ class MobiMLizer:
         if elem.text:
             if istate.preserve or istate.pre_wrap:
                 text = elem.text
-            elif len(elem) > 0 and isspace(elem.text) and hasattr(elem[0].tag, 'rpartition') and elem[0].tag.rpartition('}')[-1] not in INLINE_TAGS:
+            elif len(elem) > 0 and isspace(elem.text) and isinstance(first_tag := elem[0].tag, str) and first_tag.rpartition('}')[-1] not in INLINE_TAGS:
                 text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
-        not_baseline = valign in ('super', 'sub', 'text-top', 'text-bottom', 'top', 'bottom') or (isinstance(valign, numbers.Number) and abs(valign) != 0)
-        issup = valign in ('super', 'text-top', 'top') or (isinstance(valign, numbers.Number) and valign > 0)
+        not_baseline = valign in ('super', 'sub', 'text-top', 'text-bottom', 'top', 'bottom') or (isinstance(valign, (int, float)) and abs(valign) != 0)
+        issup = valign in ('super', 'text-top', 'top') or (isinstance(valign, (int, float)) and valign > 0)
         vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)

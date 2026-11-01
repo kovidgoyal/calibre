@@ -275,6 +275,7 @@ def book_fmt(ctx: Context, rd: RequestData, library_id: str, db: Cache, book_id:
 
     if update_metadata:
         mi = db.get_metadata(book_id)
+        assert mi.last_modified is not None  # Cache.get_metadata() always sets it
         mtime = max(mtime, mi.last_modified)
         # Get any plugboards for the Content server
         plugboards = db.pref('plugboards')
@@ -292,7 +293,7 @@ def book_fmt(ctx: Context, rd: RequestData, library_id: str, db: Cache, book_id:
     def copy_func(dest: IO[bytes]) -> None:
         db.copy_format_to(book_id, fmt, dest)
         if update_metadata:
-            if not mi.cover_data or not mi.cover_data[-1]:
+            if not mi.cover_data[-1]:
                 cdata = db.cover(book_id)
                 if cdata:
                     mi.cover_data = ('jpeg', cdata)
@@ -482,6 +483,7 @@ def get(ctx: Context, rd: RequestData, what: str, book_id: str | int, library_id
         elif what == 'opf':
             mi = db.get_metadata(book_id, get_cover=False)
             rd.outheaders['Content-Type'] = 'application/oebps-package+xml; charset=UTF-8'
+            assert mi.last_modified is not None  # Cache.get_metadata() always sets it
             rd.outheaders['Last-Modified'] = http_date(timestampfromdt(mi.last_modified))
             return metadata_to_opf(mi)
         elif what == 'json':

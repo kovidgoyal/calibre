@@ -284,6 +284,7 @@ class KINDLE(USBMS):
                 time=strftime('%x', timestamp.timetuple()), loc=last_read_location, pr=percent_read
             )
         spanTag = BeautifulSoup('<span style="font-weight:bold">' + markup + '</span>').find('span')
+        assert spanTag is not None  # the markup is wrapped in a span
 
         divTag.insert(dtc, spanTag)
         dtc += 1
@@ -317,6 +318,7 @@ class KINDLE(USBMS):
 
             for annotation in annotations:
                 annot = BeautifulSoup('<span>' + annotation + '</span>').find('span')
+                assert annot is not None  # the markup is wrapped in a span
                 divTag.insert(dtc, annot)
                 dtc += 1
 
@@ -661,7 +663,9 @@ class KINDLE2(KINDLE):
         custom_page_count = 0
         if cust_col_name:
             try:
-                custom_page_count = int(metadata.get(cust_col_name, 0))
+                val = metadata.get(cust_col_name, 0)
+                assert isinstance(val, (int, float, str))  # failures are handled below
+                custom_page_count = int(val)
             except Exception:
                 pass
 

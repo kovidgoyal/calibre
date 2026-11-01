@@ -8,21 +8,31 @@ import os
 import re
 from base64 import standard_b64encode
 from functools import lru_cache
+from typing import TYPE_CHECKING, Literal, Self, overload
 from urllib.parse import urldefrag
 
 from lxml import etree
 from qt.core import QBuffer, QByteArray, QColor, QImage, QIODevice, QPainter, QSvgRenderer, Qt
 
 from calibre import guess_type
-from calibre.ebooks.oeb.base import PNG_MIME, SVG_MIME, XHTML, XLINK, urlnormalize, xml2str, xpath
+from calibre.ebooks.oeb.base import PNG_MIME, SVG_MIME, XHTML, XLINK, is_element_list, urlnormalize, xml2str, xpath
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.imghdr import what
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+    from calibre.ebooks.oeb.stylizer import Style
 
 IMAGE_TAGS = {XHTML('img'), XHTML('object')}
 KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}
 
 
-def test_svg():  # {{{
+def test_svg() -> bytes:  # {{{
     TEST_PNG_DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAWJQTFRFAAAAAAAAAAAAAAAAAAAAAQEAAgIBAwIBBgQCBwUCCAYDCggECwkEDgsFDwwFEA0GHRcKHxkLIBkLIxwMJR0NJx8OKCAOKCAPKSAPMScSPTAWQTQXQzUYSjsaSjsbSzsbUD8dUUAdVEMeWkggW0ggW0ghW0khXUohYk4ja1Umb1gocVoocVopclspc1spdV0qd18reF8riW0xjXEzl3g2mns3nn04nn45n345oIA6ooE7o4I7pII7pIM7pYQ7p4U8qYY8rYo+s45Bxp1Hx55Hy6FJy6JJzaRJz6RKz6RLz6VL0qdL1KpM1apM1qtN16xN2KxN2K1O2a1O2q1O265P3K9P3bBQ3rBP37FP37FQ37JQ4rNR47VR5LVR7LxV7bxV7r1V7r5W8L9W8MBW8b9V8b9W8cBW8cBX8sBW8sBX8sFW8sFX88BX88FW88FX88FY88JX88JY9MFX9MJX9MJY9MNYSw0rOAAAAAR0Uk5T2+rr8giKtGMAAAFDSURBVDjLhdNFUwNBEIbhJWkkuLu7u5PgHtwWl0CGnW34aJLl/3OgUlRlGfKepqafmstUW1Yw8E9By6IMWVn/z7OsQOpYNrE0H4lEwuFwZHmyLnUb+AUzIiLMItDgrWIfKH3mnz4RA6PX/8Im8xuEgVfxxG33g+rVi9OT46OdPQ0kDgv8gCg3FMrLphkNyCD9BYiIqEErraP5ZrDGDrw2MoIhsPACGUH5g2gVqzWDKQ/gETKCZmHwbo4ZbHhJ1q1kBMMJCKbJCCof35V+qjCDOUCrMTKCFkc8vU5GENpW8NwmMxhVccYsGUHVvWKOFhlBySJicV6u7+7s6Ozq6anxgT44Lwy4jlKK4br96WDl09GA/gA4zp7gLh2MM3MS+EgCGl+iD9JB4cDZzbV9ZV/atn1+frvfaPhuX4HMq0cZsjKt/zfXXmDab9zjGwAAAABJRU5ErkJggg=='  # ruff: ignore[line-too-long]
     return f'''
     <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
@@ -38,7 +48,36 @@ class Unavailable(Exception):
     pass
 
 
-def rasterize_svg(data=None, sizes=(), width=0, height=0, print=None, fmt='PNG', as_qimage=False):
+@overload
+def rasterize_svg(
+    data: bytes | None = None,
+    sizes: Sequence[float] | None = (),
+    width: float = 0,
+    height: float = 0,
+    print: Callable[[str], object] | None = None,
+    fmt: str = 'PNG',
+    as_qimage: Literal[False] = False,
+) -> bytes: ...
+@overload
+def rasterize_svg(
+    data: bytes | None = None,
+    sizes: Sequence[float] | None = (),
+    width: float = 0,
+    height: float = 0,
+    print: Callable[[str], object] | None = None,
+    fmt: str = 'PNG',
+    *,
+    as_qimage: Literal[True],
+) -> QImage: ...
+def rasterize_svg(
+    data: bytes | None = None,
+    sizes: Sequence[float] | None = (),
+    width: float = 0,
+    height: float = 0,
+    print: Callable[[str], object] | None = None,
+    fmt: str = 'PNG',
+    as_qimage: bool = False,
+) -> bytes | QImage:
     from calibre.gui2 import must_use_qt
 
     must_use_qt()
@@ -73,33 +112,33 @@ def data_url(mime_type: str, data: bytes) -> str:
 
 
 class SVGRasterizer:
-    def __init__(self, base_css='', save_svg_originals=False) -> None:
+    def __init__(self, base_css: str = '', save_svg_originals: bool = False) -> None:
         self.base_css = base_css
         self.save_svg_originals = save_svg_originals
 
     @classmethod
-    def config(cls, cfg):
+    def config[T](cls, cfg: T) -> T:
         return cfg
 
     @classmethod
-    def generate(cls, opts):
+    def generate(cls, opts: Values) -> Self:
         return cls()
 
-    def __call__(self, oeb, context):
+    def __call__(self, oeb: OEBBook, context: Values) -> None:
         oeb.logger.info('Rasterizing SVG images...')
-        self.stylizer_cache = {}
+        self.stylizer_cache: dict[Manifest.Item, Stylizer] = {}
         self.oeb = oeb
         self.opts = context
         self.profile = context.dest
-        self.images = {}
-        self.svg_originals = {}
+        self.images: dict[tuple[str, int, int], str] = {}
+        self.svg_originals: dict[str, str] = {}
         self.scan_for_linked_resources_in_manifest()
         self.rasterize_spine()
         self.rasterize_cover()
 
-    def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
+    def rasterize_svg(self, elem: _Element, width: float = 0, height: float = 0, format: str = 'PNG') -> bytes:
         view_box = elem.get('viewBox', elem.get('viewbox', None))
-        sizes = None
+        sizes: list[float] | None = None
         logger = self.oeb.logger
 
         if view_box is not None:
@@ -124,13 +163,17 @@ class SVGRasterizer:
             if item.media_type == SVG_MIME and item.data is not None:
                 self.scan_for_linked_resources_in_svg(item)
 
-    def scan_for_linked_resources_in_svg(self, item, svg=None):
+    def scan_for_linked_resources_in_svg(self, item: Manifest.Item, svg: _Element | None = None) -> _Element:
         if svg is None:
-            svg = item.data
+            data = item.data
+            assert isinstance(data, etree._Element)  # a non-empty SVG item, parsed as XML
+            svg = data
         hrefs = self.oeb.manifest.hrefs
         ha = XLINK('href')
-        for elem in xpath(svg, '//svg:*[@xl:href]'):
-            href = urlnormalize(elem.get(ha))
+        elems = xpath(svg, '//svg:*[@xl:href]')
+        assert is_element_list(elems)
+        for elem in elems:
+            href = urlnormalize(elem.attrib[ha])
             path = urldefrag(href)[0]
             if not path:
                 continue
@@ -149,38 +192,47 @@ class SVGRasterizer:
 
         return svg
 
-    def stylizer(self, item):
+    def stylizer(self, item: Manifest.Item) -> Stylizer:
         ans = self.stylizer_cache.get(item, None)
         if ans is None:
-            ans = self.stylizer_cache[item] = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile, base_css=self.base_css)
+            root = item.data
+            assert isinstance(root, etree._Element)  # only called for spine items
+            ans = self.stylizer_cache[item] = Stylizer(root, item.href, self.oeb, self.opts, self.profile, base_css=self.base_css)
         return ans
 
     def rasterize_spine(self) -> None:
         for item in self.oeb.spine:
             self.rasterize_item(item)
 
-    def rasterize_item(self, item) -> None:
+    def rasterize_item(self, item: Manifest.Item) -> None:
         html = item.data
+        assert isinstance(html, etree._Element)  # spine items are always (X)HTML documents
         hrefs = self.oeb.manifest.hrefs
-        for elem in xpath(html, '//h:img[@src]'):
+        imgs = xpath(html, '//h:img[@src]')
+        assert is_element_list(imgs)
+        for elem in imgs:
             src = urlnormalize(elem.attrib['src'])
             image = hrefs.get(item.abshref(src), None)
             if image and image.media_type == SVG_MIME:
                 style = self.stylizer(item).style(elem)
                 self.rasterize_external(elem, style, item, image)
-        for elem in xpath(html, f'//h:object[@type="{SVG_MIME}" and @data]'):
+        objects = xpath(html, f'//h:object[@type="{SVG_MIME}" and @data]')
+        assert is_element_list(objects)
+        for elem in objects:
             data = urlnormalize(elem.attrib['data'])
             image = hrefs.get(item.abshref(data), None)
             if image and image.media_type == SVG_MIME:
                 style = self.stylizer(item).style(elem)
                 self.rasterize_external(elem, style, item, image)
-        for elem in xpath(html, '//svg:svg'):
+        svgs = xpath(html, '//svg:svg')
+        assert is_element_list(svgs)
+        for elem in svgs:
             style = self.stylizer(item).style(elem)
             self.rasterize_inline(elem, style, item)
 
-    def rasterize_inline(self, elem, style, item) -> None:
-        width = style['width']
-        height = style['height']
+    def rasterize_inline(self, elem: _Element, style: Style, item: Manifest.Item) -> None:
+        width = style.width
+        height = style.height
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
         self.scan_for_linked_resources_in_svg(item, elem)
@@ -196,14 +248,15 @@ class SVGRasterizer:
             manifest.add(svg_id, svg_href, SVG_MIME, data=svg_bytes)
             self.svg_originals[href] = svg_href
         img.tail = elem.tail
-        elem.getparent().replace(elem, img)
+        elem.getparent().replace(elem, img)  # ty: ignore[unresolved-attribute] inline <svg> is always inside <body>
         for prop in ('width', 'height'):
             if prop in elem.attrib:
                 img.attrib[prop] = elem.attrib[prop]
 
-    def rasterize_external(self, elem, style, item, svgitem) -> None:
-        width = style['width']
-        height = style['height']
+    def rasterize_external(self, elem: _Element, style: Style, item: Manifest.Item, svgitem: Manifest.Item) -> None:
+
+        width = style.width
+        height = style.height
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
         # Qt is needed only when there is actually an SVG image to rasterize, so
@@ -261,7 +314,9 @@ class SVGRasterizer:
             return
         width = (self.profile.width / 72) * self.profile.dpi
         height = (self.profile.height / 72) * self.profile.dpi
-        data = self.rasterize_svg(cover.data, width, height)
+        svg = cover.data
+        assert isinstance(svg, etree._Element)  # media_type is SVG_MIME, so it is parsed as XML
+        data = self.rasterize_svg(svg, width, height)
         href = os.path.splitext(cover.href)[0] + '.png'
         id, href = self.oeb.manifest.generate(cover.id, href)
         self.oeb.manifest.add(id, href, PNG_MIME, data=data)

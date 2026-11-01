@@ -7,7 +7,7 @@ from collections import defaultdict
 from contextlib import suppress
 from functools import wraps
 from operator import attrgetter
-from typing import NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple, cast, overload
 
 from lxml import etree
 
@@ -23,12 +23,29 @@ from calibre.utils.date import parse_date as parse_date_
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import _, canonicalize_lang
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from datetime import datetime
+
+    from _typeshed import SupportsRead
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.utils import OPFVersion
+
+type Prefixes = dict[str, str]
+type Refines = defaultdict[str | None, list[_Element]]
+type SchemedProperties = defaultdict[str, list[tuple[str | None, str | None, str]]]
+type Refdef = tuple[str, str, str | None]
+type MetadataDict = dict[str, object]
+type DictReader = Callable[[_Element, Prefixes, Refines], MetadataDict | None]
+type DictWriter = Callable[[_Element, Prefixes, Refines, Mapping[str, object] | None], None]
+
 # Utils {{{
-_xpath_cache = {}
-_re_cache = {}
+_xpath_cache: dict[str, etree.XPath] = {}
+_re_cache: dict[tuple[str, int], re.Pattern[str]] = {}
 
 
-def uniq(vals):
+def uniq[T](vals: Iterable[T] | None) -> list[T]:
     """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
@@ -36,11 +53,11 @@ def uniq(vals):
     return [x for x in vals if x not in seen and not seen_add(x)]  # ty: ignore[redundant-condition]
 
 
-def dump_dict(cats):
+def dump_dict(cats: Mapping[str, object] | None) -> str:
     return json.dumps(object_to_unicode(cats or {}), ensure_ascii=False, skipkeys=True)
 
 
-def XPath(x):
+def XPath(x: str) -> etree.XPath:
     try:
         return _xpath_cache[x]
     except KeyError:
@@ -48,7 +65,7 @@ def XPath(x):
         return ans
 
 
-def regex(r, flags=0):
+def regex(r: str, flags: int = 0) -> re.Pattern[str]:
     try:
         return _re_cache[(r, flags)]
     except KeyError:
@@ -56,19 +73,19 @@ def regex(r, flags=0):
         return ans
 
 
-def remove_refines(e, refines) -> None:
+def remove_refines(e: _Element, refines: Refines) -> None:
     for x in refines[e.get('id')]:
-        x.getparent().remove(x)
+        x.getparent().remove(x)  # ty: ignore[unresolved-attribute] refines are only read from/added to the metadata element
     refines.pop(e.get('id'), None)
 
 
-def remove_element(e, refines) -> None:
+def remove_element(e: _Element, refines: Refines) -> None:
     remove_refines(e, refines)
-    e.getparent().remove(e)
+    e.getparent().remove(e)  # ty: ignore[unresolved-attribute] callers only pass elements that are in the OPF tree
 
 
-def properties_for_id(item_id, refines):
-    ans = {}
+def properties_for_id(item_id: str | None, refines: Refines) -> dict[str, str]:
+    ans: dict[str, str] = {}
     if item_id:
         for elem in refines[item_id]:
             key = elem.get('property')
@@ -79,8 +96,8 @@ def properties_for_id(item_id, refines):
     return ans
 
 
-def properties_for_id_with_scheme(item_id, prefixes, refines):
-    ans = defaultdict(list)
+def properties_for_id_with_scheme(item_id: str | None, prefixes: Prefixes, refines: Refines) -> SchemedProperties:
+    ans: SchemedProperties = defaultdict(list)
     if item_id:
         for elem in refines[item_id]:
             key = elem.get('property')
@@ -100,7 +117,7 @@ def properties_for_id_with_scheme(item_id, prefixes, refines):
     return ans
 
 
-def getroot(elem):
+def getroot(elem: _Element) -> _Element:
     while True:
         q = elem.getparent()
         if q is None:
@@ -108,7 +125,7 @@ def getroot(elem):
         elem = q
 
 
-def ensure_id(elem):
+def ensure_id(elem: _Element) -> str:
     root = getroot(elem)
     eid = elem.get('id')
     if not eid:
@@ -117,21 +134,25 @@ def ensure_id(elem):
     return eid
 
 
-def normalize_whitespace(text):
+@overload
+def normalize_whitespace(text: str) -> str: ...
+@overload
+def normalize_whitespace(text: str | None) -> str | None: ...
+def normalize_whitespace(text: str | None) -> str | None:
     if not text:
         return text
     return re.sub(r'\s+', ' ', text).strip()
 
 
-def simple_text(f):
+def simple_text[**P](f: Callable[P, str | None]) -> Callable[P, str | None]:
     @wraps(f)
-    def wrapper(*args, **kw):
+    def wrapper(*args: P.args, **kw: P.kwargs) -> str | None:
         return normalize_whitespace(f(*args, **kw))
 
     return wrapper
 
 
-def items_with_property(root, q, prefixes=None):
+def items_with_property(root: _Element, q: str, prefixes: Prefixes | None = None) -> Iterator[_Element]:
     if prefixes is None:
         prefixes = read_prefixes(root)
     q = expand_prefix(q, known_prefixes).lower()
@@ -165,21 +186,21 @@ known_prefixes = reserved_prefixes.copy()
 known_prefixes['calibre'] = CALIBRE_PREFIX
 
 
-def parse_prefixes(x):
+def parse_prefixes(x: str) -> dict[str, str]:
     return {m.group(1): m.group(2) for m in re.finditer(r'(\S+): \s*(\S+)', x)}
 
 
-def read_prefixes(root):
+def read_prefixes(root: _Element) -> Prefixes:
     ans = reserved_prefixes.copy()
     ans.update(parse_prefixes(root.get('prefix') or ''))
     return ans
 
 
-def expand_prefix(raw, prefixes):
+def expand_prefix(raw: str | None, prefixes: Mapping[str, str]) -> str:
     return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m: prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2), raw or '')
 
 
-def ensure_prefix(root, prefixes, prefix, value=None) -> None:
+def ensure_prefix(root: _Element, prefixes: Prefixes | None, prefix: str, value: str | None = None) -> None:
     if prefixes is None:
         prefixes = read_prefixes(root)
     prefixes[prefix] = value or reserved_prefixes[prefix]
@@ -195,8 +216,8 @@ def ensure_prefix(root, prefixes, prefix, value=None) -> None:
 # Refines {{{
 
 
-def read_refines(root):
-    ans = defaultdict(list)
+def read_refines(root: _Element) -> Refines:
+    ans: Refines = defaultdict(list)
     for meta in XPath('./opf:metadata/opf:meta[@refines]')(root):
         r = meta.get('refines') or ''
         if r.startswith('#'):
@@ -204,11 +225,11 @@ def read_refines(root):
     return ans
 
 
-def refdef(prop, val, scheme=None):
+def refdef(prop: str, val: str, scheme: str | None = None) -> Refdef:
     return prop, val, scheme
 
 
-def set_refines(elem, existing_refines, *new_refines) -> None:
+def set_refines(elem: _Element, existing_refines: Refines, *new_refines: Refdef) -> None:
     eid = ensure_id(elem)
     remove_refines(elem, existing_refines)
     for ref in reversed(new_refines):
@@ -219,6 +240,7 @@ def set_refines(elem, existing_refines, *new_refines) -> None:
         if scheme:
             r.set('scheme', scheme)
         p = elem.getparent()
+        assert p is not None  # all callers pass elements that are in the metadata element
         p.insert(p.index(elem) + 1, r)
 
 
@@ -227,13 +249,13 @@ def set_refines(elem, existing_refines, *new_refines) -> None:
 # Identifiers {{{
 
 
-def parse_identifier(ident, val, refines):
+def parse_identifier(ident: _Element, val: str, refines: Refines) -> tuple[str, str] | tuple[None, None]:
     idid = ident.get('id')
-    refines = refines[idid]
+    _ident_refines = refines[idid]
     scheme = None
     lval = val.lower()
 
-    def finalize(scheme, val, scheme_from_val=False):
+    def finalize(scheme: str | None, val: str | None, scheme_from_val: bool = False) -> tuple[str, str] | tuple[None, None]:
         if not scheme or not val:
             return None, None
         scheme = scheme.lower()
@@ -270,8 +292,8 @@ def parse_identifier(ident, val, refines):
     return finalize(prefix, rest, scheme_from_val=True)
 
 
-def read_identifiers(root, prefixes, refines):
-    ans = defaultdict(list)
+def read_identifiers(root: _Element, prefixes: Prefixes, refines: Refines) -> defaultdict[str, list[str]]:
+    ans: defaultdict[str, list[str]] = defaultdict(list)
     for ident in XPath('./opf:metadata/dc:identifier')(root):
         val = (ident.text or '').strip()
         if val:
@@ -281,7 +303,7 @@ def read_identifiers(root, prefixes, refines):
     return ans
 
 
-def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=False) -> None:
+def set_identifiers(root: _Element, prefixes: Prefixes, refines: Refines, new_identifiers: Mapping[str, str], force_identifiers: bool = False) -> None:
     uid = root.get('unique-identifier')
     package_identifier = None
     for ident in XPath('./opf:metadata/dc:identifier')(root):
@@ -307,8 +329,9 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
             p.insert(p.index(package_identifier), ident)
 
 
-def identifier_writer(name):
-    def writer(root, prefixes, refines, ival=None) -> None:
+def identifier_writer(name: str) -> Callable[[_Element, Prefixes, Refines, int | str | None], None]:
+    # ival is an int for the calibre application id, which is the book id
+    def writer(root: _Element, prefixes: Prefixes, refines: Refines, ival: int | str | None = None) -> None:
         uid = root.get('unique-identifier')
         package_identifier = None
         for ident in XPath('./opf:metadata/dc:identifier')(root):
@@ -339,7 +362,7 @@ set_uuid = identifier_writer('uuid')
 # Title {{{
 
 
-def find_main_title(root, refines, remove_blanks=False):
+def find_main_title(root: _Element, refines: Refines, remove_blanks: bool = False) -> _Element | None:
     first_title = main_title = None
     for title in XPath('./opf:metadata/dc:title')(root):
         if not title.text or not title.text.strip():
@@ -357,7 +380,7 @@ def find_main_title(root, refines, remove_blanks=False):
     return main_title
 
 
-def find_subtitle(root, refines):
+def find_subtitle(root: _Element, refines: Refines) -> _Element | None:
     for title in XPath('./opf:metadata/dc:title')(root):
         if not title.text or not title.text.strip():
             continue
@@ -368,19 +391,21 @@ def find_subtitle(root, refines):
 
 
 @simple_text
-def read_title(root, prefixes, refines):
+def read_title(root: _Element, prefixes: Prefixes, refines: Refines) -> str | None:
     main_title = find_main_title(root, refines)
     if main_title is None:
         return None
+    assert main_title.text is not None  # find_main_title() only returns titles with non-blank text
     ans = main_title.text.strip()
     st = find_subtitle(root, refines)
     if st is not None and st is not main_title:
+        assert st.text is not None  # find_subtitle() only returns titles with non-blank text
         ans += ': ' + st.text.strip()
     return ans
 
 
 @simple_text
-def read_title_sort(root, prefixes, refines):
+def read_title_sort(root: _Element, prefixes: Prefixes, refines: Refines) -> str | None:
     main_title = find_main_title(root, refines)
     if main_title is not None:
         fa = properties_for_id(main_title.get('id'), refines).get('file-as')
@@ -393,7 +418,7 @@ def read_title_sort(root, prefixes, refines):
             return ans
 
 
-def set_title(root, prefixes, refines, title, title_sort=None) -> None:
+def set_title(root: _Element, prefixes: Prefixes, refines: Refines, title: str | None, title_sort: str | None = None) -> None:
     main_title = find_main_title(root, refines, remove_blanks=True)
     st = find_subtitle(root, refines)
     if st is not None:
@@ -414,8 +439,8 @@ def set_title(root, prefixes, refines, title, title_sort=None) -> None:
 # Languages {{{
 
 
-def read_languages(root, prefixes, refines):
-    ans = []
+def read_languages(root: _Element, prefixes: Prefixes, refines: Refines) -> list[str]:
+    ans: list[str] = []
     for lang in XPath('./opf:metadata/dc:language')(root):
         val = canonicalize_lang((lang.text or '').strip())
         if val and val not in ans and val != 'und':
@@ -423,8 +448,8 @@ def read_languages(root, prefixes, refines):
     return uniq(ans)
 
 
-def set_languages(root, prefixes, refines, languages) -> None:
-    opf_languages = []
+def set_languages(root: _Element, prefixes: Prefixes, refines: Refines, languages: Iterable[str]) -> None:
+    opf_languages: list[str] = []
     for lang in XPath('./opf:metadata/dc:language')(root):
         remove_element(lang, refines)
         val = (lang.text or '').strip()
@@ -452,20 +477,23 @@ class Author(NamedTuple):
     seq: int = 0
 
 
-def is_relators_role(props, q) -> bool:
-    for role in props.get('role'):
-        if role:
+def is_relators_role(props: SchemedProperties, q: str) -> bool:
+    roles = props.get('role')
+    assert roles is not None  # all callers check that props has a role
+    for role in roles:
+        if role:  # ty: ignore[redundant-condition]
             scheme_ns, scheme, role = role
             if role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
                 return True
     return False
 
 
-def read_authors(root, prefixes, refines):
-    roled_authors, unroled_authors = [], []
-    editors_map = {}
+def read_authors(root: _Element, prefixes: Prefixes, refines: Refines) -> list[Author]:
+    roled_authors: list[Author] = []
+    unroled_authors: list[Author] = []
+    editors_map: dict[str, Author] = {}
 
-    def author(item, props, val):
+    def author(item: _Element, props: SchemedProperties, val: str) -> Author:
         aus = None
         file_as = props.get('file-as')
         if file_as:
@@ -475,7 +503,7 @@ def read_authors(root, prefixes, refines):
         seq = 0
         ds = props.get('display-seq')
         with suppress(Exception):
-            seq = int(ds[0][-1])
+            seq = int(ds[0][-1])  # ty: ignore[not-subscriptable] the TypeError when ds is None is suppressed
         return Author(normalize_whitespace(val), normalize_whitespace(aus), seq)
 
     for item in XPath('./opf:metadata/dc:creator')(root):
@@ -505,9 +533,9 @@ def read_authors(root, prefixes, refines):
     return ans
 
 
-def set_authors(root, prefixes, refines, authors) -> None:
+def set_authors(root: _Element, prefixes: Prefixes, refines: Refines, authors: Iterable[Author]) -> None:
     ensure_prefix(root, prefixes, 'marc')
-    removals = []
+    removals: list[_Element] = []
     for role in ('aut', 'edt'):
         for item in XPath('./opf:metadata/dc:creator')(root):
             props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
@@ -535,8 +563,8 @@ def set_authors(root, prefixes, refines, authors) -> None:
                 metadata.append(m)
 
 
-def read_book_producers(root, prefixes, refines):
-    ans = []
+def read_book_producers(root: _Element, prefixes: Prefixes, refines: Refines) -> list[str]:
+    ans: list[str] = []
     for item in XPath('./opf:metadata/dc:contributor')(root):
         val = (item.text or '').strip()
         if val:
@@ -551,7 +579,7 @@ def read_book_producers(root, prefixes, refines):
     return ans
 
 
-def set_book_producers(root, prefixes, refines, producers) -> None:
+def set_book_producers(root: _Element, prefixes: Prefixes, refines: Refines, producers: Iterable[str | None]) -> None:
     for item in XPath('./opf:metadata/dc:contributor')(root):
         props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
         opf_role = item.get(OPF('role'))
@@ -575,7 +603,7 @@ def set_book_producers(root, prefixes, refines, producers) -> None:
 # Dates {{{
 
 
-def parse_date(raw, is_w3cdtf=False):
+def parse_date(raw: str, is_w3cdtf: bool = False) -> datetime:
     raw = raw.strip()
     if is_w3cdtf:
         ans = parse_iso8601(raw, assume_utc=True)
@@ -588,7 +616,7 @@ def parse_date(raw, is_w3cdtf=False):
     return ans
 
 
-def read_pubdate(root, prefixes, refines):
+def read_pubdate(root: _Element, prefixes: Prefixes, refines: Refines) -> datetime | None:
     for date in XPath('./opf:metadata/dc:date')(root):
         val = (date.text or '').strip()
         if val:
@@ -598,18 +626,19 @@ def read_pubdate(root, prefixes, refines):
                 continue
 
 
-def set_pubdate(root, prefixes, refines, val) -> None:
+def set_pubdate(root: _Element, prefixes: Prefixes, refines: Refines, val: datetime | None) -> None:
     for date in XPath('./opf:metadata/dc:date')(root):
         remove_element(date, refines)
     if not is_date_undefined(val):
-        val = isoformat(val)
+        assert val is not None  # is_date_undefined(None) is True
+        sval = isoformat(val)
         m = XPath('./opf:metadata')(root)[0]
         d = m.makeelement(DC('date'))
-        d.text = val
+        d.text = sval
         m.append(d)
 
 
-def read_timestamp(root, prefixes, refines):
+def read_timestamp(root: _Element, prefixes: Prefixes, refines: Refines) -> datetime | None:
     pq = f'{CALIBRE_PREFIX}:timestamp'
     sq = '{}:w3cdtf'.format(reserved_prefixes['dcterms'])
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
@@ -631,17 +660,18 @@ def read_timestamp(root, prefixes, refines):
                 continue
 
 
-def create_timestamp(root, prefixes, m, val) -> None:
+def create_timestamp(root: _Element, prefixes: Prefixes, m: _Element, val: datetime | None) -> None:
     if not is_date_undefined(val):
+        assert val is not None  # is_date_undefined(None) is True
         ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
         ensure_prefix(root, prefixes, 'dcterms')
-        val = w3cdtf(val)
+        sval = w3cdtf(val)
         d = m.makeelement(OPF('meta'), attrib={'property': 'calibre:timestamp', 'scheme': 'dcterms:W3CDTF'})
-        d.text = val
+        d.text = sval
         m.append(d)
 
 
-def set_timestamp(root, prefixes, refines, val) -> None:
+def set_timestamp(root: _Element, prefixes: Prefixes, refines: Refines, val: datetime | None) -> None:
     pq = f'{CALIBRE_PREFIX}:timestamp'
     for meta in XPath('./opf:metadata/opf:meta')(root):
         prop = expand_prefix(meta.get('property'), prefixes)
@@ -650,7 +680,7 @@ def set_timestamp(root, prefixes, refines, val) -> None:
     create_timestamp(root, prefixes, XPath('./opf:metadata')(root)[0], val)
 
 
-def read_last_modified(root, prefixes, refines):
+def read_last_modified(root: _Element, prefixes: Prefixes, refines: Refines) -> datetime | None:
     pq = '{}:modified'.format(reserved_prefixes['dcterms'])
     sq = '{}:w3cdtf'.format(reserved_prefixes['dcterms'])
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
@@ -665,9 +695,9 @@ def read_last_modified(root, prefixes, refines):
                     continue
 
 
-def set_last_modified(root, prefixes, refines, val=None) -> None:
+def set_last_modified(root: _Element, prefixes: Prefixes, refines: Refines, val: datetime | None = None) -> None:
     pq = '{}:modified'.format(reserved_prefixes['dcterms'])
-    val = w3cdtf(val or utcnow())
+    sval = w3cdtf(val or utcnow())
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         prop = expand_prefix(meta.get('property'), prefixes)
         if prop.lower() == pq:
@@ -679,7 +709,7 @@ def set_last_modified(root, prefixes, refines, val=None) -> None:
         m = XPath('./opf:metadata')(root)[0]
         meta = m.makeelement(OPF('meta'), attrib={'property': 'dcterms:modified', 'scheme': 'dcterms:W3CDTF'})
         m.append(meta)
-    meta.text = val
+    meta.text = sval
 
 
 # }}}
@@ -687,7 +717,7 @@ def set_last_modified(root, prefixes, refines, val=None) -> None:
 # Comments {{{
 
 
-def read_comments(root, prefixes, refines):
+def read_comments(root: _Element, prefixes: Prefixes, refines: Refines) -> str:
     ans = ''
     for dc in XPath('./opf:metadata/dc:description')(root):
         if dc.text:
@@ -695,7 +725,7 @@ def read_comments(root, prefixes, refines):
     return ans.strip()
 
 
-def set_comments(root, prefixes, refines, val) -> None:
+def set_comments(root: _Element, prefixes: Prefixes, refines: Refines, val: str | None) -> None:
     for dc in XPath('./opf:metadata/dc:description')(root):
         remove_element(dc, refines)
     m = XPath('./opf:metadata')(root)[0]
@@ -713,13 +743,13 @@ def set_comments(root, prefixes, refines, val) -> None:
 
 
 @simple_text
-def read_publisher(root, prefixes, refines):
+def read_publisher(root: _Element, prefixes: Prefixes, refines: Refines) -> str | None:
     for dc in XPath('./opf:metadata/dc:publisher')(root):
         if dc.text:
             return dc.text
 
 
-def set_publisher(root, prefixes, refines, val) -> None:
+def set_publisher(root: _Element, prefixes: Prefixes, refines: Refines, val: str | None) -> None:
     for dc in XPath('./opf:metadata/dc:publisher')(root):
         remove_element(dc, refines)
     m = XPath('./opf:metadata')(root)[0]
@@ -736,15 +766,15 @@ def set_publisher(root, prefixes, refines, val) -> None:
 # Tags {{{
 
 
-def read_tags(root, prefixes, refines):
-    ans = []
+def read_tags(root: _Element, prefixes: Prefixes, refines: Refines) -> list[str]:
+    ans: list[str | None] = []
     for dc in XPath('./opf:metadata/dc:subject')(root):
         if dc.text:
             ans.extend(map(normalize_whitespace, dc.text.split(',')))
     return uniq(list(filter(None, ans)))
 
 
-def set_tags(root, prefixes, refines, val) -> None:
+def set_tags(root: _Element, prefixes: Prefixes, refines: Refines, val: Iterable[str] | None) -> None:
     for dc in XPath('./opf:metadata/dc:subject')(root):
         remove_element(dc, refines)
     m = XPath('./opf:metadata')(root)[0]
@@ -762,7 +792,7 @@ def set_tags(root, prefixes, refines, val) -> None:
 # Rating {{{
 
 
-def read_rating(root, prefixes, refines):
+def read_rating(root: _Element, prefixes: Prefixes, refines: Refines) -> float | None:
     pq = f'{CALIBRE_PREFIX}:rating'
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         val = (meta.text or '').strip()
@@ -782,7 +812,7 @@ def read_rating(root, prefixes, refines):
                 continue
 
 
-def create_rating(root, prefixes, val) -> None:
+def create_rating(root: _Element, prefixes: Prefixes, val: str) -> None:
     ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
     m = XPath('./opf:metadata')(root)[0]
     d = m.makeelement(OPF('meta'), attrib={'property': 'calibre:rating'})
@@ -790,7 +820,7 @@ def create_rating(root, prefixes, val) -> None:
     m.append(d)
 
 
-def set_rating(root, prefixes, refines, val) -> None:
+def set_rating(root: _Element, prefixes: Prefixes, refines: Refines, val: float | None) -> None:
     pq = f'{CALIBRE_PREFIX}:rating'
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
         remove_element(meta, refines)
@@ -807,7 +837,7 @@ def set_rating(root, prefixes, refines, val) -> None:
 # Series {{{
 
 
-def read_series(root, prefixes, refines):
+def read_series(root: _Element, prefixes: Prefixes, refines: Refines) -> tuple[str | None, float]:
     series_index = 1.0
     for meta in XPath('./opf:metadata/opf:meta[@property="belongs-to-collection" and @id]')(root):
         val = (meta.text or '').strip()
@@ -815,7 +845,7 @@ def read_series(root, prefixes, refines):
             props = properties_for_id(meta.get('id'), refines)
             if props.get('collection-type') == 'series':
                 try:
-                    series_index = float(props.get('group-position').strip())
+                    series_index = float(props.get('group-position').strip())  # ty: ignore[unresolved-attribute] the AttributeError when missing is suppressed
                 except Exception:
                     pass
                 return normalize_whitespace(val), series_index
@@ -832,7 +862,7 @@ def read_series(root, prefixes, refines):
     return None, series_index
 
 
-def create_series(root, refines, series, series_index) -> None:
+def create_series(root: _Element, refines: Refines, series: str, series_index: str) -> None:
     m = XPath('./opf:metadata')(root)[0]
     d = m.makeelement(OPF('meta'), attrib={'property': 'belongs-to-collection'})
     d.text = series
@@ -840,7 +870,7 @@ def create_series(root, refines, series, series_index) -> None:
     set_refines(d, refines, refdef('collection-type', 'series'), refdef('group-position', series_index))
 
 
-def set_series(root, prefixes, refines, series, series_index) -> None:
+def set_series(root: _Element, prefixes: Prefixes, refines: Refines, series: str | None, series_index: float) -> None:
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:series" or @name="calibre:series_index"]')(root):
         remove_element(meta, refines)
     for meta in XPath('./opf:metadata/opf:meta[@property="belongs-to-collection"]')(root):
@@ -854,10 +884,10 @@ def set_series(root, prefixes, refines, series, series_index) -> None:
 # User metadata {{{
 
 
-def dict_reader(name, load=json.loads, try2=True):
+def dict_reader(name: str, load: Callable[[str], object] = json.loads, try2: bool = True) -> DictReader:
     pq = f'{CALIBRE_PREFIX}:{name}'
 
-    def reader(root, prefixes, refines):
+    def reader(root: _Element, prefixes: Prefixes, refines: Refines) -> MetadataDict | None:
         for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
             val = (meta.text or '').strip()
             if val:
@@ -888,7 +918,7 @@ _read_link_maps = dict_reader('link_maps')
 _read_author_link_map = dict_reader('author_link_map')
 
 
-def read_link_maps(root, prefixes, refines):
+def read_link_maps(root: _Element, prefixes: Prefixes, refines: Refines) -> MetadataDict | None:
     ans = _read_link_maps(root, prefixes, refines)
     if ans is not None:
         return ans
@@ -899,10 +929,10 @@ def read_link_maps(root, prefixes, refines):
             return {'authors': ans}
 
 
-def dict_writer(name, serialize=dump_dict, remove2=True, extra_remove=''):
+def dict_writer(name: str, serialize: Callable[[Mapping[str, object]], str] = dump_dict, remove2: bool = True, extra_remove: str = '') -> DictWriter:
     pq = f'{CALIBRE_PREFIX}:{name}'
 
-    def writer(root, prefixes, refines, val) -> None:
+    def writer(root: _Element, prefixes: Prefixes, refines: Refines, val: Mapping[str, object] | None) -> None:
         if remove2:
             for meta in XPath(f'./opf:metadata/opf:meta[@name="calibre:{name}"]')(root):
                 remove_element(meta, refines)
@@ -927,9 +957,9 @@ set_user_categories = dict_writer('user_categories')
 set_link_maps = dict_writer('link_maps', extra_remove='author_link_map')
 
 
-def deserialize_user_metadata(val):
+def deserialize_user_metadata(val: str) -> dict[str, MetadataDict]:
     val = json.loads(val, object_hook=from_json)
-    ans = {}
+    ans: dict[str, MetadataDict] = {}
     for name, fm in val.items():
         decode_is_multiple(fm)
         ans[name] = fm
@@ -939,8 +969,8 @@ def deserialize_user_metadata(val):
 read_user_metadata3 = dict_reader('user_metadata', load=deserialize_user_metadata, try2=False)
 
 
-def read_user_metadata2(root, remove_tags=False):
-    ans = {}
+def read_user_metadata2(root: _Element, remove_tags: bool = False) -> dict[str, MetadataDict]:
+    ans: dict[str, MetadataDict] = {}
     for meta in XPath('./opf:metadata/opf:meta[starts-with(@name, "calibre:user_metadata:")]')(root):
         name = meta.get('name')
         name = ':'.join(name.split(':')[2:])
@@ -962,25 +992,29 @@ def read_user_metadata2(root, remove_tags=False):
     return ans
 
 
-def read_user_metadata(root, prefixes, refines):
-    return read_user_metadata3(root, prefixes, refines) or read_user_metadata2(root)
+def read_user_metadata(root: _Element, prefixes: Prefixes, refines: Refines) -> dict[str, MetadataDict]:
+    # read_user_metadata3 uses deserialize_user_metadata() so it returns a dict of field metadata dicts
+    return cast('dict[str, MetadataDict] | None', read_user_metadata3(root, prefixes, refines)) or read_user_metadata2(root)
 
 
-def serialize_user_metadata(val):
+def serialize_user_metadata(val: Mapping[str, object]) -> str:
     return json.dumps(object_to_unicode(val), ensure_ascii=False, default=to_json, indent=2, sort_keys=True)
 
 
 set_user_metadata3 = dict_writer('user_metadata', serialize=serialize_user_metadata, remove2=False)
 
 
-def set_user_metadata(root, prefixes, refines, val) -> None:
+def set_user_metadata(root: _Element, prefixes: Prefixes, refines: Refines, val: Mapping[str, Mapping[str, object]] | None) -> None:
     for meta in XPath('./opf:metadata/opf:meta[starts-with(@name, "calibre:user_metadata:")]')(root):
         remove_element(meta, refines)
     if val:
-        nval = {}
-        for name, fm in val.items():
-            fm = fm.copy()
-            if fm.get('datatype', 'text') == 'composite' and not fm.get('display', {}).get('composite_store_template_value_in_opf', True):
+        nval: dict[str, MetadataDict] = {}
+        for name, ufm in val.items():
+            # shallow copy, the serialized form is not a FieldMetadataDict, see encode_is_multiple()
+            fm: MetadataDict = dict(ufm)
+            if fm.get('datatype', 'text') == 'composite' and not cast(  # the display entry of field metadata is always a dict
+                'MetadataDict', fm.get('display', {})
+            ).get('composite_store_template_value_in_opf', True):
                 fm['#value#'] = ''
             encode_is_multiple(fm)
             nval[name] = fm
@@ -992,9 +1026,9 @@ def set_user_metadata(root, prefixes, refines, val) -> None:
 # Covers {{{
 
 
-def read_raster_cover(root, prefixes, refines):
+def read_raster_cover(root: _Element, prefixes: Prefixes, refines: Refines) -> str | None:
 
-    def get_href(item):
+    def get_href(item: _Element) -> str | None:
         mt = item.get('media-type')
         if mt and 'xml' not in mt and 'html' not in mt:
             href = item.get('href')
@@ -1019,10 +1053,10 @@ def read_raster_cover(root, prefixes, refines):
         break
 
 
-def set_unique_property(property_name, root, prefixes, href):
+def set_unique_property(property_name: str, root: _Element, prefixes: Prefixes, href: str) -> bool:
     changed = False
     for item in items_with_property(root, property_name, prefixes):
-        prop = normalize_whitespace(item.get('properties').replace(property_name, ''))
+        prop = normalize_whitespace(item.get('properties', '').replace(property_name, ''))
         changed = True
         if prop:
             item.set('properties', prop)
@@ -1035,7 +1069,7 @@ def set_unique_property(property_name, root, prefixes, href):
     return changed
 
 
-def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href) -> None:
+def ensure_is_only_raster_cover(root: _Element, prefixes: Prefixes, refines: Refines, raster_cover_item_href: str) -> None:
     for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
         remove_element(item, refines)
     set_unique_property('cover-image', root, prefixes, raster_cover_item_href)
@@ -1046,23 +1080,32 @@ def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href)
 # Reading/setting Metadata objects {{{
 
 
-def first_spine_item(root, prefixes, refines):
+def first_spine_item(root: _Element, prefixes: Prefixes, refines: Refines) -> str | None:
     for i in XPath('./opf:spine/opf:itemref/@idref')(root):
         for item in XPath('./opf:manifest/opf:item')(root):
             if item.get('id') == i:
                 return item.get('href') or None
 
 
-def set_last_modified_in_opf(root) -> None:
+def set_last_modified_in_opf(root: _Element) -> None:
     prefixes, refines = read_prefixes(root), read_refines(root)
     set_last_modified(root, prefixes, refines)
 
 
-def read_metadata(root, ver=None, return_extra_data=False):
+type ExtraData = tuple[Metadata, OPFVersion | None, str | None, str | None]
+
+
+@overload
+def read_metadata(root: _Element, ver: OPFVersion | None = None, return_extra_data: Literal[False] = False) -> Metadata: ...
+@overload
+def read_metadata(root: _Element, ver: OPFVersion | None, return_extra_data: Literal[True]) -> ExtraData: ...
+@overload
+def read_metadata(root: _Element, ver: OPFVersion | None = None, *, return_extra_data: Literal[True]) -> ExtraData: ...
+def read_metadata(root: _Element, ver: OPFVersion | None = None, return_extra_data: bool = False) -> Metadata | ExtraData:
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
     identifiers = read_identifiers(root, prefixes, refines)
-    ids = {}
+    ids: dict[str, str] = {}
     for key, vals in identifiers.items():
         if key == 'calibre':
             ans.application_id = vals[0]
@@ -1074,7 +1117,8 @@ def read_metadata(root, ver=None, return_extra_data=False):
     ans.title = read_title(root, prefixes, refines) or ans.title
     ans.title_sort = read_title_sort(root, prefixes, refines) or ans.title_sort
     ans.languages = read_languages(root, prefixes, refines) or ans.languages
-    auts, aus = [], []
+    auts: list[str] = []
+    aus: list[str | None] = []
     for a in read_authors(root, prefixes, refines):
         auts.append(a.name), aus.append(a.sort)
     ans.authors = auts or ans.authors
@@ -1099,8 +1143,9 @@ def read_metadata(root, ver=None, return_extra_data=False):
     s, si = read_series(root, prefixes, refines)
     if s:
         ans.series, ans.series_index = s, si
-    ans.link_maps = read_link_maps(root, prefixes, refines) or ans.link_maps
-    ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
+    # set() as these are unverified JSON dicts from the OPF
+    ans.set('link_maps', read_link_maps(root, prefixes, refines) or ans.link_maps)
+    ans.set('user_categories', read_user_categories(root, prefixes, refines) or ans.user_categories)
     for name, fm in (read_user_metadata(root, prefixes, refines) or {}).items():
         try:
             ans.set_user_metadata(name, fm)
@@ -1109,35 +1154,35 @@ def read_metadata(root, ver=None, return_extra_data=False):
 
             traceback.print_exc()
     if return_extra_data:
-        ans = ans, ver, read_raster_cover(root, prefixes, refines), first_spine_item(root, prefixes, refines)
+        return ans, ver, read_raster_cover(root, prefixes, refines), first_spine_item(root, prefixes, refines)
     return ans
 
 
-def get_metadata(stream):
+def get_metadata(stream: str | bytes | SupportsRead[bytes]) -> Metadata:
     root = parse_opf(stream)
     return read_metadata(root)
 
 
 def apply_metadata(
-    root,
-    mi,
-    cover_prefix='',
-    cover_data=None,
-    apply_null=False,
-    update_timestamp=False,
-    force_identifiers=False,
-    add_missing_cover=True,
-):
+    root: _Element,
+    mi: Metadata,
+    cover_prefix: str = '',
+    cover_data: bytes | None = None,
+    apply_null: bool = False,
+    update_timestamp: bool = False,
+    force_identifiers: bool = False,
+    add_missing_cover: bool = True,
+) -> str | None:
     prefixes, refines = read_prefixes(root), read_refines(root)
     current_mi = read_metadata(root)
     if apply_null:
 
-        def ok(x) -> bool:
+        def ok(x: str) -> bool:
             return True
 
     else:
 
-        def ok(x) -> bool:
+        def ok(x: str) -> bool:
             return not mi.is_null(x)
 
     if ok('identifiers'):
@@ -1149,7 +1194,7 @@ def apply_metadata(
     if ok('book_producer'):
         set_book_producers(root, prefixes, refines, (mi.book_producer,))
     aus = string_to_authors(mi.author_sort or '')
-    authors = []
+    authors: list[Author] = []
     for i, aut in enumerate(mi.authors):
         authors.append(Author(aut, aus[i] if i < len(aus) else None))
     if authors or apply_null:
@@ -1185,7 +1230,7 @@ def apply_metadata(
         meta = new_user_metadata.get(key)
         if meta is None:
             if apply_null:
-                new_user_metadata[key] = None
+                new_user_metadata[key] = None  # ty: ignore[invalid-assignment] harmless as new_user_metadata is not used after this loop
             continue
         dt = meta.get('datatype')
         if dt == 'text' and meta.get('is_multiple'):
@@ -1218,15 +1263,15 @@ def apply_metadata(
 
 
 def set_metadata(
-    stream,
-    mi,
-    cover_prefix='',
-    cover_data=None,
-    apply_null=False,
-    update_timestamp=False,
-    force_identifiers=False,
-    add_missing_cover=True,
-):
+    stream: str | bytes | SupportsRead[bytes],
+    mi: Metadata,
+    cover_prefix: str = '',
+    cover_data: bytes | None = None,
+    apply_null: bool = False,
+    update_timestamp: bool = False,
+    force_identifiers: bool = False,
+    add_missing_cover: bool = True,
+) -> str | None:
     root = parse_opf(stream)
     return apply_metadata(
         root,

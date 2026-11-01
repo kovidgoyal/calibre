@@ -1,11 +1,17 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from calibre.ebooks.pdb.formatreader import FormatReader
+    from calibre.ebooks.pdb.formatwriter import FormatWriter
+
 
 class PDBError(Exception):
     pass
 
 
-FORMAT_READERS = None
+FORMAT_READERS: dict[str, type[FormatReader]] | None = None
 
 
 def _import_readers() -> None:
@@ -30,7 +36,7 @@ def _import_readers() -> None:
 
 
 ALL_FORMAT_WRITERS = 'doc', 'ereader', 'ztxt'  # keep sorted alphabetically
-FORMAT_WRITERS = None
+FORMAT_WRITERS: dict[str, type[FormatWriter]] | None = None
 
 
 def _import_writers() -> None:
@@ -80,7 +86,7 @@ IDENTITY_TO_NAME = {
 }
 
 
-def get_reader(identity):
+def get_reader(identity: str) -> type[FormatReader] | None:
     """
     Returns None if no reader is found for the identity.
     """
@@ -91,7 +97,7 @@ def get_reader(identity):
     return FORMAT_READERS.get(identity, None)
 
 
-def get_writer(extension):
+def get_writer(extension: str) -> type[FormatWriter] | None:
     """
     Returns None if no writer is found for extension.
     """

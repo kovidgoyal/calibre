@@ -5,9 +5,8 @@ import atexit
 import json
 import numbers
 import sys
-from collections.abc import Iterable
 from itertools import repeat
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, NotRequired, TypedDict, cast
 
 from qt.core import QApplication, QEventLoop, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript
@@ -21,9 +20,36 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import secure_webengine, setup_profile
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     from calibre.ebooks.oeb.polish.check.main import CSSFix
 
 CSS_RULE_ID_PREFIX = 'css:'
+
+
+class StylelintOutput(TypedDict):
+    # Either the JSON serialized lint results or, when fixing, the fixed CSS
+    output: str
+
+
+class StylelintResult(TypedDict):
+    # The results of checking a single CSS source, as returned by stylelint.js
+    type: str
+    error: NotRequired[str]
+    results: NotRequired[StylelintOutput]
+
+
+class StylelintMessage(TypedDict, total=False):
+    rule: str
+    severity: str
+    text: str
+    line: int
+    column: int
+
+
+class StylelintRuleMetadata(TypedDict, total=False):
+    url: str
+    fixable: bool
 
 
 class CSSBaseError(BaseError):
@@ -60,7 +86,7 @@ def stylelint_rules_from_skipped_rules(skipped_rules: Iterable[str]) -> tuple[st
     return tuple(sorted(x[len(CSS_RULE_ID_PREFIX) :] for x in skipped_rules if x.startswith(CSS_RULE_ID_PREFIX)))
 
 
-def as_int_or_none(x):
+def as_int_or_none(x: int | None) -> int | None:
     if x is not None and not isinstance(x, numbers.Integral):
         try:
             x = int(x)
@@ -69,7 +95,7 @@ def as_int_or_none(x):
     return x
 
 
-def message_to_error(message, name, line_offset, rule_metadata):
+def message_to_error(message: StylelintMessage, name: str, line_offset: int, rule_metadata: dict[str, StylelintRuleMetadata]) -> CSSBaseError | None:
     rule_id = message.get('rule')
     if rule_id == 'CssSyntaxError':
         cls = CSSParseError
@@ -103,7 +129,7 @@ def message_to_error(message, name, line_offset, rule_metadata):
 _stylelint_js_cache: tuple[tuple[str, str], ...] | None = None
 
 
-def stylelint_js():
+def stylelint_js() -> tuple[tuple[str, str], ...]:
     global _stylelint_js_cache
     if _stylelint_js_cache is None:
         _stylelint_js_cache = (
@@ -119,7 +145,7 @@ def stylelint_js():
 _create_profile_cache: QWebEngineProfile | None = None
 
 
-def create_profile():
+def create_profile() -> QWebEngineProfile:
     global _create_profile_cache
     if _create_profile_cache is None:
         _create_profile_cache = QWebEngineProfile(QApplication.instance())
@@ -137,6 +163,8 @@ def create_profile():
 
 class Worker(QWebEnginePage):
     work_done = pyqtSignal(object, object)
+    # Set by Pool to the index of the CSS source being checked
+    result_idx: int
 
     def __init__(self) -> None:
         must_use_qt()
@@ -145,10 +173,10 @@ class Worker(QWebEnginePage):
         secure_webengine(self.settings())
         self.ready = False
         self.working = False
-        self.pending = None
+        self.pending: tuple[str, bool, tuple[str, ...]] | None = None
         self.setHtml('')
 
-    def title_changed(self, new_title) -> None:
+    def title_changed(self, new_title: str) -> None:
         new_title = new_title.partition(':')[0]
         if new_title == 'ready':
             self.ready = True
@@ -158,28 +186,28 @@ class Worker(QWebEnginePage):
         elif new_title == 'checked':
             self.runJavaScript('window.get_css_results()', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
         message = f'{sourceID}:{lineNumber}:{message}'
         try:
             print(message)
         except Exception:
             pass
 
-    def check_css(self, src, fix=False, disabled_rules: tuple[str, ...] = ()) -> None:
+    def check_css(self, src: str, fix: bool = False, disabled_rules: tuple[str, ...] = ()) -> None:
         self.working = True
         self.runJavaScript(
             f'window.check_css({json.dumps(src)}, {"true" if fix else "false"}, {json.dumps(disabled_rules)})',
             QWebEngineScript.ScriptWorldId.ApplicationWorld,
         )
 
-    def check_css_when_ready(self, src, fix=False, disabled_rules: tuple[str, ...] = ()) -> None:
+    def check_css_when_ready(self, src: str, fix: bool = False, disabled_rules: tuple[str, ...] = ()) -> None:
         if self.ready:
             self.check_css(src, fix, disabled_rules)
         else:
             self.working = True
             self.pending = src, fix, disabled_rules
 
-    def check_done(self, results) -> None:
+    def check_done(self, results: list[StylelintResult]) -> None:
         self.working = False
         for result in results:
             self.work_done.emit(self, result)
@@ -187,7 +215,7 @@ class Worker(QWebEnginePage):
 
 class Pool:
     def __init__(self) -> None:
-        self.workers = []
+        self.workers: list[Worker] = []
         self.max_workers = cpu_count()
 
     def add_worker(self) -> None:
@@ -195,18 +223,19 @@ class Pool:
         w.work_done.connect(self.work_done)
         self.workers.append(w)
 
-    def check_css(self, css_sources, fix=False, disabled_rules: tuple[str, ...] = ()):
+    def check_css(self, css_sources: Sequence[str], fix: bool = False, disabled_rules: tuple[str, ...] = ()) -> list[StylelintResult]:
         self.doing_fix = fix
         self.disabled_rules = disabled_rules
         self.pending = list(enumerate(css_sources))
-        self.results = list(repeat(None, len(css_sources)))
+        self.results: list[StylelintResult | None] = list(repeat(None, len(css_sources)))
         self.working = True
         self.assign_work()
         app = QApplication.instance()
         assert app is not None
         while self.working:
             app.processEvents(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
-        return self.results
+        # All results have been filled in by work_done() once working is False
+        return cast('list[StylelintResult]', self.results)
 
     def assign_work(self) -> None:
         while self.pending:
@@ -221,7 +250,7 @@ class Pool:
             else:
                 break
 
-    def work_done(self, worker, result) -> None:
+    def work_done(self, worker: Worker, result: StylelintResult) -> None:
         self.results[worker.result_idx] = result
         self.assign_work()
         if not self.pending and not any(w for w in self.workers if w.working):
@@ -229,7 +258,7 @@ class Pool:
 
     def shutdown(self) -> None:
 
-        def safe_delete(x) -> None:
+        def safe_delete(x: Worker) -> None:
             if not sip.isdeleted(x):
                 sip.delete(x)
 
@@ -244,13 +273,13 @@ atexit.register(shutdown)
 
 
 class Job(NamedTuple):
-    name: str | None
-    css: str | None
+    name: str
+    css: str
     line_offset: int
     fix_data: CSSFix | None
 
 
-def create_job(name, css, line_offset=0, is_declaration=False, fix_data=None):
+def create_job(name: str, css: str, line_offset: int = 0, is_declaration: bool = False, fix_data: CSSFix | None = None) -> Job:
     if is_declaration:
         css = 'div{\n' + css + '\n}'
         line_offset -= 1
@@ -260,8 +289,8 @@ def create_job(name, css, line_offset=0, is_declaration=False, fix_data=None):
     return Job(name, css, line_offset, fix_data)
 
 
-def check_css(jobs, skipped_rules: Iterable[str] = ()):
-    errors = []
+def check_css(jobs: Sequence[Job], skipped_rules: Iterable[str] = ()) -> list[BaseError]:
+    errors: list[BaseError] = []
     if not jobs:
         return errors
     results = pool.check_css([j.css for j in jobs], disabled_rules=stylelint_rules_from_skipped_rules(skipped_rules))

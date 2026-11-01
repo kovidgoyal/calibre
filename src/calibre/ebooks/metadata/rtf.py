@@ -7,11 +7,17 @@ Edit metadata in RTF files.
 
 import codecs
 import re
+from typing import IO, TYPE_CHECKING
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.localization import _
 from polyglot.builtins import int_to_byte
+
+if TYPE_CHECKING:
+    import unittest
+
+    from calibre.ebooks.metadata.book.base import Metadata
 
 title_pat = re.compile(rb'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat = re.compile(rb'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
@@ -20,7 +26,7 @@ tags_pat = re.compile(rb'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 publisher_pat = re.compile(rb'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
 
-def get_document_info(stream):
+def get_document_info(stream: IO[bytes]) -> tuple[bytes, int] | tuple[None, int]:
     """
     Extract the \\info block from an RTF file.
     Return the info block as a string and the position in the file at which it
@@ -65,7 +71,7 @@ def get_document_info(stream):
     return b''.join(data), pos
 
 
-def detect_codepage(stream):
+def detect_codepage(stream: IO[bytes]) -> str | None:
     pat = re.compile(rb'\\ansicpg(\d+)')
     match = pat.search(stream.read(512))
     if match is not None:
@@ -80,22 +86,22 @@ def detect_codepage(stream):
             pass
 
 
-def encode(unistr):
+def encode(unistr: str | bytes) -> str:
     if not isinstance(unistr, str):
         unistr = force_unicode(unistr)
     return ''.join(c if ord(c) < 128 else f'\\u{ord(c)}?' for c in unistr)
 
 
-def decode(raw, codec):
+def decode(raw: str | bytes, codec: str | None) -> str:
     # https://en.wikipedia.org/wiki/Rich_Text_Format#Character_encoding
 
-    def codepage(match):
+    def codepage(match: re.Match[str]) -> str:
         try:
             return int_to_byte(int(match.group(1), 16)).decode(codec)
         except ValueError:
             return '?'
 
-    def uni(match):
+    def uni(match: re.Match[str]) -> str:
         try:
             return chr(int(match.group(1)))
         except Exception:
@@ -111,7 +117,7 @@ def decode(raw, codec):
     return raw
 
 
-def get_metadata(stream):
+def get_metadata(stream: IO[bytes]) -> Metadata:
     """
     Return metadata as a L{MetaInfo} object
     """
@@ -156,7 +162,7 @@ def get_metadata(stream):
     return mi
 
 
-def create_metadata(stream, options) -> None:
+def create_metadata(stream: IO[bytes], options: Metadata) -> None:
     md = [r'{\info']
     if options.title:
         title = encode(options.title)
@@ -169,6 +175,7 @@ def create_metadata(stream, options) -> None:
         md.append(rf'{{\author {author}}}')
     comp = options.comment if hasattr(options, 'comment') else options.comments
     if comp:
+        assert isinstance(comp, (str, bytes))
         comment = encode(comp)
         md.append(rf'{{\subject {comment}}}')
     if options.publisher:
@@ -187,13 +194,13 @@ def create_metadata(stream, options) -> None:
         stream.write(ans)
 
 
-def set_metadata(stream, options) -> None:
+def set_metadata(stream: IO[bytes], options: Metadata) -> None:
     """
     Modify/add RTF metadata in stream
     @param options: Object with metadata attributes title, author, comment, category
     """
 
-    def add_metadata_item(src, name, val):
+    def add_metadata_item(src: str, name: str, val: str) -> str:
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
 
@@ -206,7 +213,7 @@ def set_metadata(stream, options) -> None:
 
         base_pat = r'\{\\name(.*?)(?<!\\)\}'
 
-        def replace_or_create(src, name, val):
+        def replace_or_create(src: str, name: str, val: str) -> str:
             val = encode(val)
             pat = re.compile(base_pat.replace('name', name), re.DOTALL)
             src, num = pat.subn(r'{\\' + name.replace('\\', r'\\') + ' ' + val.replace('\\', r'\\') + '}', src)
@@ -232,7 +239,7 @@ def set_metadata(stream, options) -> None:
         stream.write(after)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
     from io import BytesIO
 
@@ -242,7 +249,7 @@ def find_tests():
         def test_rtf_metadata(self) -> None:
             stream = BytesIO(rb'{\rtf1\ansi\ansicpg1252}')
             m = Metadata('Test ø̄title', ['Author One', 'Author БTwo'])
-            m.tags = 'tag1 見tag2'.split()
+            m.tags = ['tag1', '見tag2']
             m.comments = '<p>some ⊹comments</p>'
             m.publisher = 'publiSher'
             set_metadata(stream, m)

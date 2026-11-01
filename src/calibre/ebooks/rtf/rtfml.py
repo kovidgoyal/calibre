@@ -8,12 +8,22 @@ import io
 import os
 import re
 from binascii import hexlify
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import identify
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.oeb.stylizer import Stylizer
+    from calibre.utils.logging import Log
 
 TAGS = {
     'b': '\\b',
@@ -64,7 +74,7 @@ TODO:
 '''
 
 
-def txt2rtf(text):
+def txt2rtf(text: str) -> str:
     # Escape { and } in the text.
     text = text.replace('{', r'\'7b')
     text = text.replace('}', r'\'7d')
@@ -88,16 +98,16 @@ def txt2rtf(text):
 
 
 class RTFMLizer:
-    def __init__(self, log) -> None:
+    def __init__(self, log: Log) -> None:
         self.log = log
 
-    def extract_content(self, oeb_book, opts):
+    def extract_content(self, oeb_book: OEBBook, opts: Values) -> str:
         self.log.info('Converting XHTML to RTF markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.mlize_spine()
 
-    def mlize_spine(self):
+    def mlize_spine(self) -> str:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
@@ -107,21 +117,29 @@ class RTFMLizer:
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+                root = item.data
+                assert isinstance(root, etree._Element)  # the titlepage is an (X)HTML document
+                stylizer = Stylizer(root, item.href, self.oeb_book, self.opts, self.opts.output_profile)
                 self.currently_dumping_item = item
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+                body = root.find(XHTML('body'))
+                assert body is not None
+                output += self.dump_text(body, stylizer)
                 output += r'{\page }'
         for item in self.oeb_book.spine:
             self.log.debug(f'Converting {item.href} to RTF markup...')
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
-            content = re.sub(r'<!--.*?-->', '', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+            content = re.sub(r'<!--.*?-->', '', etree.tostring(root, encoding='unicode'), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = safe_xml_fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             self.currently_dumping_item = item
-            output += self.dump_text(content.find(XHTML('body')), stylizer)
+            body = content.find(XHTML('body'))
+            assert body is not None  # spine items always have a body, see parse_html()
+            output += self.dump_text(body, stylizer)
             output += r'{\page }'
         output += self.footer()
         output = self.insert_images(output)
@@ -129,7 +147,7 @@ class RTFMLizer:
 
         return output
 
-    def remove_newlines(self, text):
+    def remove_newlines(self, text: str) -> str:
         self.log.debug('\tRemove newlines for processing...')
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
@@ -137,13 +155,13 @@ class RTFMLizer:
 
         return text
 
-    def remove_tabs(self, text):
+    def remove_tabs(self, text: str) -> str:
         self.log.debug('Replace tabs with space for processing...')
         text = text.replace('\t', ' ')
 
         return text
 
-    def header(self):
+    def header(self) -> str:
         header = f'{{\\rtf1{{\\info{{\\title {self.oeb_book.metadata.title[0].value}}}{{\\author {authors_to_string([x.value for x in self.oeb_book.metadata.creator])}}}}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n'  # ruff: ignore[line-too-long]
         return header + (
             '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f2\\fswiss\\fprq2\\fcharset128 Arial;}{\\f3\\fnil\\fprq2\\fcharset128 Arial;}{\\f4\\fnil\\fprq2\\fcharset128 MS Mincho;}{\\f5\\fnil\\fprq2\\fcharset128 Tahoma;}{\\f6\\fnil\\fprq0\\fcharset128 Tahoma;}}\n'  # ruff: ignore[line-too-long]
@@ -159,14 +177,16 @@ class RTFMLizer:
     def footer(self) -> str:
         return ' }'
 
-    def insert_images(self, text):
+    def insert_images(self, text: str) -> str:
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
                 src = item.href
                 try:
-                    data, width, height = self.image_to_hexstring(item.data)
+                    idata = item.data
+                    assert isinstance(idata, bytes)  # raster images are unparsed bytes, errors are logged below
+                    data, width, height = self.image_to_hexstring(idata)
                 except Exception:
                     self.log.exception(f'Image {item.href} is corrupted, ignoring')
                     repl = '\n\n'
@@ -175,7 +195,7 @@ class RTFMLizer:
                 text = text.replace(f'SPECIAL_IMAGE-{src}-REPLACE_ME', repl)
         return text
 
-    def image_to_hexstring(self, data):
+    def image_to_hexstring(self, data: bytes) -> tuple[str, int, int]:
         # Images must be hex-encoded in 128 character lines
         data = save_cover_data_to(data)
         width, height = identify(data)[1:]
@@ -186,7 +206,7 @@ class RTFMLizer:
         hex_string = b'\n'.join(lines).decode('ascii')
         return hex_string, width, height
 
-    def clean_text(self, text):
+    def clean_text(self, text: str) -> str:
         # Remove excessive newlines
         text = re.sub(rf'{os.linesep}{{3,}}', f'{os.linesep}{os.linesep}', text)
 
@@ -204,14 +224,14 @@ class RTFMLizer:
 
         return text
 
-    def dump_text(self, elem, stylizer, tag_stack=None):
+    def dump_text(self, elem: _Element, stylizer: Stylizer, tag_stack: list[str] | None = None) -> str:
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace, urlnormalize
 
         if tag_stack is None:
             tag_stack = []
-        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, str) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
+            if p is not None and isinstance(p.tag, str) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return elem.tail
             return ''
 

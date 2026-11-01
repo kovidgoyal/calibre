@@ -2,23 +2,55 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.docx.index import polish_index_markup, process_index
 
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Callable, Mapping
+    from typing import TypedDict
+
+    from lxml.etree import _Element
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.docx.names import DOCXNamespace
+    from calibre.utils.logging import Log
+
+    #: The result of parsing field instructions, maps option names to values
+    type ParsedField = dict[str | None, str | None]
+    type FieldParser = Callable[[str, Log | None], ParsedField]
+    #: A parsed XE field, with some extra keys added by Fields.parse_xe()
+    XEField = TypedDict(
+        'XEField',
+        {
+            'text': str,
+            'bold': None,
+            'italic': None,
+            'entry-type': str | None,
+            'page-range-bookmark': str | None,
+            'page-number-text': str | None,
+            'yomi': str | None,
+            'anchor': str,
+            'start_elem': _Element,
+        },
+        total=False,
+    )
+
 
 class Field:
-    def __init__(self, start) -> None:
+    def __init__(self, start: _Element) -> None:
         self.start = start
-        self.end = None
-        self.contents = []
-        self.buf = []
-        self.instructions = None
-        self.name = None
+        self.end: _Element | None = None
+        self.contents: list[_Element] = []
+        self.buf: list[str] = []
+        self.instructions: str | None = None
+        self.name: str | None = None
 
-    def add_instr(self, elem) -> None:
+    def add_instr(self, elem: _Element) -> None:
         self.add_raw(elem.text)
 
-    def add_raw(self, raw) -> None:
+    def add_raw(self, raw: str | None) -> None:
         if not raw:
             return
         if self.name is None:
@@ -52,13 +84,13 @@ scanner = re.Scanner(  # type: ignore
 null = object()
 
 
-def parser(name, field_map, default_field_name=None):
+def parser(name: str, field_map_spec: str, default_field_name: str | None = None) -> FieldParser:
 
-    field_map = dict(x.split(':') for x in field_map.split())
+    field_map = dict(x.split(':') for x in field_map_spec.split())
 
-    def parse(raw, log=None):
-        ans = {}
-        last_option = None
+    def parse(raw: str, log: Log | None = None) -> ParsedField:
+        ans: dict[object, str | None] = {}
+        last_option: object = None
         raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
         for token, token_type in scanner.scan(raw)[0]:
             token = token.replace('\x01', '\\').replace('\x02', '"')
@@ -73,7 +105,7 @@ def parser(name, field_map, default_field_name=None):
                     ans[last_option] = token
                     last_option = None
         ans.pop(null, None)
-        return ans
+        return cast('ParsedField', ans)  # null has been removed
 
     parse.__name__ = str('parse_' + name)
 
@@ -97,22 +129,22 @@ parse_noteref = parser('noteref', 'f:footnote h:hyperlink p:position')
 
 
 class Fields:
-    def __init__(self, namespace) -> None:
+    def __init__(self, namespace: DOCXNamespace) -> None:
         self.namespace = namespace
-        self.fields = []
+        self.fields: list[Field] = []
         self.index_bookmark_counter = 0
         self.index_bookmark_prefix = 'index-'
-        self.hyperlink_fields: list = []
-        self.xe_fields: list = []
-        self.index_fields: list = []
+        self.hyperlink_fields: list[tuple[ParsedField, list[_Element]]] = []
+        self.xe_fields: list[XEField] = []
+        self.index_fields: list[tuple[ParsedField, list[_Element]]] = []
 
-    def __call__(self, doc, log):
+    def __call__(self, doc: _Element, log: Log) -> None:
         all_ids = frozenset(self.namespace.XPath('//*/@w:id')(doc))
         c = 0
         while self.index_bookmark_prefix in all_ids:
             c += 1
             self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', f'{c}-')
-        stack = []
+        stack: list[Field] = []
         for elem in self.namespace.XPath(
             '//*[name()="w:p" or name()="w:r" or'
             ' name()="w:instrText" or'
@@ -146,7 +178,7 @@ class Fields:
         field_types = ('hyperlink', 'xe', 'index', 'ref', 'noteref')
         parsers = {x.upper(): getattr(self, 'parse_' + x) for x in field_types}
         parsers.update({x: getattr(self, 'parse_' + x) for x in field_types})
-        field_parsers = {f.upper(): globals()[f'parse_{f}'] for f in field_types}
+        field_parsers: dict[str | None, FieldParser] = {f.upper(): globals()[f'parse_{f}'] for f in field_types}
         field_parsers.update({f: globals()[f'parse_{f}'] for f in field_types})
 
         for f in field_types:
@@ -163,33 +195,35 @@ class Fields:
                     log.warn(f'Encountered unknown field: {field.name}, ignoring it.')
                     unknown_fields.add(field.name)
 
-    def get_runs(self, field):
-        all_runs = []
-        current_runs = []
+    def get_runs(self, field: Field) -> list[list[_Element]]:
+        all_runs: list[list[_Element]] = []
+        current_runs: list[_Element] = []
         # We only handle spans in a single paragraph
         # being wrapped in <a>
         for x in field.contents:
-            if x.tag.endswith('}p'):
+            tag = x.tag
+            assert isinstance(tag, str)  # contents are selected by element name XPaths
+            if tag.endswith('}p'):
                 if current_runs:
                     all_runs.append(current_runs)
                 current_runs = []
-            elif x.tag.endswith('}r'):
+            elif tag.endswith('}r'):
                 current_runs.append(x)
         if current_runs:
             all_runs.append(current_runs)
         return all_runs
 
-    def parse_hyperlink(self, field, parse_func, log) -> None:
+    def parse_hyperlink(self, field: Field, parse_func: FieldParser, log: Log) -> None:
         # Parse hyperlink fields
-        hl = parse_func(field.instructions, log)
+        hl = parse_func(cast('str', field.instructions), log)  # only called for fields with instructions
         if hl:
             if 'target' in hl and hl['target'] is None:
                 hl['target'] = '_blank'
             for runs in self.get_runs(field):
                 self.hyperlink_fields.append((hl, runs))
 
-    def parse_ref(self, field, parse_func, log) -> None:
-        ref = parse_func(field.instructions, log)
+    def parse_ref(self, field: Field, parse_func: FieldParser, log: Log) -> None:
+        ref = parse_func(cast('str', field.instructions), log)  # only called for fields with instructions
         dest = ref.get(None, None)
         if dest is not None and 'hyperlink' in ref:
             for runs in self.get_runs(field):
@@ -199,34 +233,37 @@ class Fields:
 
     parse_noteref = parse_ref
 
-    def parse_xe(self, field, parse_func, log) -> None:
+    def parse_xe(self, field: Field, parse_func: FieldParser, log: Log) -> None:
         # Parse XE fields
         if None in (field.start, field.end):
             return
-        xe = parse_func(field.instructions, log)
+        assert field.end is not None
+        xe = cast('XEField', parse_func(cast('str', field.instructions), log))  # only called for fields with instructions
         if xe:
             # We insert a synthetic bookmark around this index item so that we
             # can link to it later
-            def WORD(x):
+            def WORD(x: str) -> str:
                 return self.namespace.expand('w:' + x)
 
             self.index_bookmark_counter += 1
             bmark = xe['anchor'] = f'{self.index_bookmark_prefix}{self.index_bookmark_counter}'
             p = field.start.getparent()
+            assert p is not None  # fldChar elements are always inside a run
             bm = p.makeelement(WORD('bookmarkStart'))
             bm.set(WORD('id'), bmark), bm.set(WORD('name'), bmark)
             p.insert(p.index(field.start), bm)
             p = field.end.getparent()
+            assert p is not None
             bm = p.makeelement(WORD('bookmarkEnd'))
             bm.set(WORD('id'), bmark)
             p.insert(p.index(field.end) + 1, bm)
             xe['start_elem'] = field.start
             self.xe_fields.append(xe)
 
-    def parse_index(self, field, parse_func, log) -> None:
+    def parse_index(self, field: Field, parse_func: FieldParser, log: Log) -> None:
         if not field.contents:
             return
-        idx = parse_func(field.instructions, log)
+        idx = parse_func(cast('str', field.instructions), log)  # only called for fields with instructions
         hyperlinks, blocks = process_index(field, idx, self.xe_fields, log, self.namespace.XPath, self.namespace.expand)
         if not blocks:
             return
@@ -235,7 +272,7 @@ class Fields:
 
         self.index_fields.append((idx, blocks))
 
-    def polish_markup(self, object_map) -> None:
+    def polish_markup(self, object_map: Mapping[HtmlElement, _Element]) -> None:
         if not self.index_fields:
             return
         rmap = {v: k for k, v in object_map.items()}
@@ -243,12 +280,12 @@ class Fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
 
 
-def test_parse_fields(return_tests=False):
+def test_parse_fields(return_tests: bool = False) -> unittest.TestSuite | None:
     import unittest
 
     class TestParseFields(unittest.TestCase):
         def test_hyperlink(self) -> None:
-            def ae(x, y):
+            def ae(x: str, y: ParsedField) -> None:
                 return self.assertEqual(parse_hyperlink(x, None), y)
 
             ae(r'\l anchor1', {'anchor': 'anchor1'})
@@ -261,7 +298,7 @@ def test_parse_fields(return_tests=False):
             ae(r'xxxx \y yyyy', {'url': 'xxxx'})
 
         def test_xe(self) -> None:
-            def ae(x, y):
+            def ae(x: str, y: ParsedField) -> None:
                 return self.assertEqual(parse_xe(x, None), y)
 
             ae(r'"some name"', {'text': 'some name'})
@@ -269,7 +306,7 @@ def test_parse_fields(return_tests=False):
             ae(r'xxx \y a', {'text': 'xxx', 'yomi': 'a'})
 
         def test_index(self) -> None:
-            def ae(x, y):
+            def ae(x: str, y: ParsedField) -> None:
                 return self.assertEqual(parse_index(x, None), y)
 
             ae(r'', {})
@@ -284,15 +321,16 @@ def test_parse_fields(return_tests=False):
             polish_index_markup(None, list(body)[::-1])
             self.assertEqual(len(body), 1, 'blocks for the same top level entry not merged')
 
-            def entry_for_link(a):
+            def entry_for_link(a: HtmlElement) -> str:
                 # The text of the entry a link is under and of its parent entries
                 span = a.getparent()
-                level = float(span.get('style').rpartition(' ')[2][:-2])
-                ans = [a.text]
+                assert span is not None
+                level = float(span.get('style', '').rpartition(' ')[2][:-2])
+                ans = [a.text or '']
                 for s in span.itersiblings(preceding=True):
-                    slevel = float(s.get('style').rpartition(' ')[2][:-2])
+                    slevel = float(s.get('style', '').rpartition(' ')[2][:-2])
                     if slevel < level:
-                        ans.insert(0, s.text)
+                        ans.insert(0, s.text or '')
                         level = slevel
                 return ':'.join(ans)
 
@@ -305,7 +343,7 @@ def test_parse_fields(return_tests=False):
         def test_polish_index_markup_edge_cases(self) -> None:
             from lxml import html
 
-            def polish(*entries):
+            def polish(*entries: tuple[str, str]) -> HtmlElement:
                 # entries are (entry text, extra markup after the link), in sorted order
                 body = html.fromstring('<div>' + ''.join(f'<p><a href="#{i}">{t}</a>{extra}</p>' for i, (t, extra) in enumerate(entries)) + '</div>')
                 polish_index_markup(None, list(body)[::-1])

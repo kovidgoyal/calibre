@@ -2,11 +2,21 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.docx.names import XPathFunc
+    from calibre.ebooks.docx.styles import Styles
+    from calibre.utils.logging import Log
 
 NBSP = '\xa0'
 
 
-def mergeable(previous, current):
+def mergeable(previous: HtmlElement, current: HtmlElement) -> bool:
     if previous.tail or current.tail:
         return False
     if previous.get('class', None) != current.get('class', None):
@@ -22,44 +32,47 @@ def mergeable(previous, current):
         return False
 
 
-def append_text(parent, text) -> None:
+def append_text(parent: HtmlElement, text: str) -> None:
     if len(parent) > 0:
         parent[-1].tail = (parent[-1].tail or '') + text
     else:
         parent.text = (parent.text or '') + text
 
 
-def merge(parent, span) -> None:
+def merge(parent: HtmlElement, span: HtmlElement) -> None:
     if span.text:
         append_text(parent, span.text)
     for child in span:
         parent.append(child)
     if span.tail:
         append_text(parent, span.tail)
-    span.getparent().remove(span)
+    span_parent = span.getparent()
+    assert span_parent is not None  # spans are always inside the body
+    span_parent.remove(span)
 
 
-def merge_run(run) -> None:
+def merge_run(run: list[HtmlElement]) -> None:
     parent = run[0]
     for span in run[1:]:
         merge(parent, span)
 
 
-def liftable(css) -> bool:
+def liftable(css: Iterable[str]) -> bool:
     # A <span> is liftable if all its styling would work just as well if it is
     # specified on the parent element.
     prefixes = {x.partition('-')[0] for x in css}
     return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
 
 
-def add_text(elem, attr, text) -> None:
+def add_text(elem: HtmlElement, attr: str, text: str) -> None:
     old = getattr(elem, attr) or ''
     setattr(elem, attr, old + text)
 
 
-def lift(span) -> None:
+def lift(span: HtmlElement) -> None:
     # Replace an element by its content (text, children and tail)
     parent = span.getparent()
+    assert parent is not None  # spans are always inside the body
     idx = parent.index(span)
     try:
         last_child = span[-1]
@@ -86,7 +99,7 @@ def lift(span) -> None:
             add_text(last_child, 'tail', span.tail)
 
 
-def before_count(root, tag, limit=10):
+def before_count(root: HtmlElement, tag: HtmlElement, limit: int = 10) -> int | None:
     body = root.xpath('//body[1]')
     if not body:
         return limit
@@ -97,7 +110,7 @@ def before_count(root, tag, limit=10):
             return limit
 
 
-def wrap_contents(tag_name, elem) -> None:
+def wrap_contents(tag_name: str, elem: HtmlElement) -> None:
     wrapper = elem.makeelement(tag_name)
     wrapper.text, elem.text = elem.text, ''
     for child in elem:
@@ -106,7 +119,7 @@ def wrap_contents(tag_name, elem) -> None:
     elem.append(wrapper)
 
 
-def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
+def cleanup_markup(log: Log, root: HtmlElement, styles: Styles, dest_dir: str, detect_cover: bool, XPath: XPathFunc, uuid: str) -> str | None:
     # Apply vertical-align
     for span in root.xpath('//span[@data-docx-vert]'):
         wrap_contents(span.attrib.pop('data-docx-vert'), span)
@@ -133,7 +146,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
                 hr.tail = '\n\t'
 
     # Merge consecutive spans that have the same styling
-    current_run = []
+    current_run: list[HtmlElement] = []
     for span in root.xpath('//span'):
         if not current_run:
             current_run.append(span)
@@ -218,7 +231,8 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
         if img:
             img = img[0]
             path = os.path.join(dest_dir, img.get('src'))
-            if os.path.exists(path) and before_count(root, img, limit=10) < 5:
+            # img is inside body so before_count() returns an int
+            if os.path.exists(path) and cast('int', before_count(root, img, limit=10)) < 5:
                 from calibre.utils.imghdr import identify
 
                 try:

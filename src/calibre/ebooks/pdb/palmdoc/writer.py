@@ -5,6 +5,7 @@ Writer content to palmdoc pdb file.
 """
 
 import struct
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
@@ -12,15 +13,21 @@ from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import Metadata, OEBBook
+    from calibre.utils.logging import Log
+
 MAX_RECORD_SIZE = 4096
 
 
 class Writer(FormatWriter):
-    def __init__(self, opts, log) -> None:
+    def __init__(self, opts: Values, log: Log) -> None:
         self.opts = opts
         self.log = log
 
-    def write_content(self, oeb_book, output_stream, metadata=None) -> None:
+    def write_content(self, oeb_book: OEBBook, output_stream: IO[bytes], metadata: Metadata | None = None) -> None:
         out_stream = output_stream
         from calibre.ebooks.compression.palmdoc import compress_doc
 
@@ -43,7 +50,7 @@ class Writer(FormatWriter):
         for record in [header_record] + txt_records:
             out_stream.write(record)
 
-    def _generate_text(self, oeb_book):
+    def _generate_text(self, oeb_book: OEBBook) -> tuple[list[bytes], int]:
         writer = TXTMLizer(self.log)
         self.opts.use_alt_text_for_images = False
         txt = writer.extract_content(oeb_book, self.opts)
@@ -59,7 +66,7 @@ class Writer(FormatWriter):
 
         return txt_records, txt_length
 
-    def _header_record(self, txt_length, record_count):
+    def _header_record(self, txt_length: int, record_count: int) -> bytes:
         record = b''
 
         record += struct.pack('>H', 2)  # [0:2],   PalmDoc compression. (1 = No compression).

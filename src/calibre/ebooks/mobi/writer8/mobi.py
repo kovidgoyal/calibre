@@ -4,6 +4,7 @@
 import random
 import time
 from struct import pack
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.utils import RECORD_SIZE, utf8_text
@@ -12,11 +13,15 @@ from calibre.ebooks.mobi.writer8.exth import build_exth
 from calibre.ebooks.mobi.writer8.header import Header
 from calibre.utils.filenames import ascii_filename
 
+if TYPE_CHECKING:
+    from calibre.ebooks.mobi.writer8.header import HeaderValue
+    from calibre.ebooks.mobi.writer8.main import KF8Writer
+
 NULL_INDEX = 0xFFFFFFFF
 FLIS = b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01' + b'\xff' * 4
 
 
-def fcis(text_length):
+def fcis(text_length: int) -> bytes:
     fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x02\x00\x00\x00\x00'
     fcis += pack(b'>L', text_length)
     fcis += b'\x00\x00\x00\x00\x00\x00\x00\x28\x00\x00\x00\x00\x00\x00\x00'
@@ -190,11 +195,11 @@ class MOBIHeader(Header):  # {{{
     ALIGN = True
     POSITIONS = {'title_offset': 'full_title'}
 
-    def __init__(self, file_version=8) -> None:
+    def __init__(self, file_version: int = 8) -> None:
         self.DEFINITION = self.DEFINITION.format(file_version=file_version, record_size=RECORD_SIZE)
         super().__init__()
 
-    def format_value(self, name, val):
+    def format_value(self, name: str, val: HeaderValue) -> HeaderValue:
         if name == 'compression':
             val = PALMDOC if val else UNCOMPRESSED
         return super().format_value(name, val)
@@ -228,11 +233,13 @@ HEADER_FIELDS = {
 
 
 class KF8Book:
-    cover_offset: object
-    thumbnail_offset: object
-    masthead_offset: object
+    cover_offset: int | None
+    thumbnail_offset: int | None
+    masthead_offset: int
+    # A tuple of (MOBI 6 start offset, KF8 start offset) for joint files, see MobiWriter.generate_joint_record0()
+    start_offset: int | tuple[int | None, int | None] | None
 
-    def __init__(self, writer, for_joint=False) -> None:
+    def __init__(self, writer: KF8Writer, for_joint: bool = False) -> None:
         self.build_records(writer, for_joint)
         self.used_images = writer.used_images
         self.page_progression_direction = writer.oeb.spine.page_progression_direction
@@ -242,7 +249,7 @@ class KF8Book:
             # page_progression_direction
             self.primary_writing_mode = 'horizontal-rl'
 
-    def build_records(self, writer, for_joint) -> None:
+    def build_records(self, writer: KF8Writer, for_joint: bool) -> None:
         metadata = writer.oeb.metadata
         # The text records
         for x in ('last_text_record_idx', 'first_non_text_record_idx'):
@@ -314,7 +321,7 @@ class KF8Book:
         self.kuc = 0 if len(resources.records) > 0 else None
 
     @property
-    def record0(self):
+    def record0(self) -> bytes:
         """We generate the EXTH header and record0 dynamically, to allow other
         code to customize various values after build_records() has been
         called"""
@@ -338,8 +345,9 @@ class KF8Book:
         kwargs = {field: getattr(self, field) for field in HEADER_FIELDS}
         return MOBIHeader()(**kwargs)
 
-    def write(self, outpath) -> None:
-        records = [self.record0] + self.records[1:]
+    def write(self, outpath: str) -> None:
+        # Only the zeroth record is a placeholder (None), the rest are all bytes
+        records = [self.record0] + cast('list[bytes]', self.records[1:])
 
         with open(outpath, 'wb') as f:
             # Write PalmDB Header

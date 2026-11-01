@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
     from calibre.db.cache import Cache
     from calibre.db.cli.main import DBContext
-    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict, Metadata
     from calibre.library.field_metadata import FieldMetadata
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -51,11 +51,13 @@ def implementation(db: Cache, notify_changes: Callable[[ChangeEvent], None] | No
                     if sname:
                         mi.set(field[:-6], sname, extra=val)
                         if field == 'series_index':
+                            assert isinstance(val, (int, float))  # from field_from_string()
                             mi.series_index = val  # extra has no effect for the builtin series field
                 elif field == 'cover':
                     if is_remote:
                         mi.cover_data = None, val[1]  # ty: ignore[not-subscriptable]
                     else:
+                        assert isinstance(val, str)  # a path, see main()
                         mi.cover = val
                         read_cover(mi)
                 else:
@@ -106,7 +108,7 @@ is no need to specify an OPF file.
     return parser
 
 
-def get_fields(dbctx: DBContext) -> Iterator[tuple[str, dict[str, object]]]:
+def get_fields(dbctx: DBContext) -> Iterator[tuple[str, FieldMetadataDict]]:
     fm = cast('FieldMetadata', dbctx.run('set_metadata', 'field_metadata'))
     for key in sorted(fm.all_field_keys()):
         m = fm[key]

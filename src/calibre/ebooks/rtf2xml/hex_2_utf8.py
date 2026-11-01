@@ -28,20 +28,20 @@ class Hex2Utf8:
 
     def __init__(
         self,
-        in_file,
-        area_to_convert,
-        char_file,
-        default_char_map,
-        bug_handler,
-        invalid_rtf_handler,
-        copy=None,
-        temp_dir=None,
-        symbol=None,
-        wingdings=None,
-        caps=None,
-        convert_caps=None,
-        dingbats=None,
-        run_level=1,
+        in_file: str,
+        area_to_convert: str,
+        char_file: str,
+        default_char_map: str,
+        bug_handler: type[Exception],
+        invalid_rtf_handler: type[Exception],
+        copy: int | None = None,
+        temp_dir: str | None = None,
+        symbol: int | None = None,
+        wingdings: int | None = None,
+        caps: int | None = None,
+        convert_caps: int | None = None,
+        dingbats: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -83,19 +83,19 @@ class Hex2Utf8:
 
     def update_values(
         self,
-        file,
-        area_to_convert,
-        char_file,
-        convert_caps,
-        convert_symbol,
-        convert_wingdings,
-        convert_zapf,
-        copy=None,
-        temp_dir=None,
-        symbol=None,
-        wingdings=None,
-        caps=None,
-        dingbats=None,
+        file: str,
+        area_to_convert: str,
+        char_file: str,
+        convert_caps: int | None,
+        convert_symbol: int | None,
+        convert_wingdings: int | None,
+        convert_zapf: int | None,
+        copy: int | None = None,
+        temp_dir: str | None = None,
+        symbol: int | None = None,
+        wingdings: int | None = None,
+        caps: int | None = None,
+        dingbats: int | None = None,
     ) -> None:
         """
         Required:
@@ -211,7 +211,7 @@ class Hex2Utf8:
         self.__caps_list = ['false']
         self.__font_list = ['not-defined']
 
-    def __hex_text_func(self, line) -> None:
+    def __hex_text_func(self, line: str) -> None:
         '''
         Required:
             'line' -- the line
@@ -253,17 +253,17 @@ class Hex2Utf8:
                     msg = f'Character "&#x{token};" does not appear to be valid (or is a control character)\n'
                     raise self.__bug_handler(msg)
 
-    def __found_body_func(self, line) -> None:
+    def __found_body_func(self, line: str) -> None:
         self.__state = 'body'
         self.__write_obj.write(line)
 
-    def __body_func(self, line) -> None:
+    def __body_func(self, line: str) -> None:
         """
         When parsing preamble
         """
         self.__write_obj.write(line)
 
-    def __preamble_func(self, line) -> None:
+    def __preamble_func(self, line: str) -> None:
         action = self.__preamble_state_dict.get(self.__token_info)
         if action is not None:
             action(line)
@@ -287,7 +287,7 @@ class Hex2Utf8:
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
 
-    def __preamble_for_body_func(self, line) -> None:
+    def __preamble_for_body_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -300,7 +300,7 @@ class Hex2Utf8:
             self.__found_body_func(line)
         self.__write_obj.write(line)
 
-    def __body_for_body_func(self, line) -> None:
+    def __body_for_body_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -315,7 +315,7 @@ class Hex2Utf8:
         else:
             self.__write_obj.write(line)
 
-    def __start_font_func(self, line) -> None:
+    def __start_font_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -339,7 +339,7 @@ class Hex2Utf8:
             self.__current_dict_name = 'default'
             self.__current_dict = self.__def_dict.copy()
 
-    def __end_font_func(self, line) -> None:
+    def __end_font_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -368,7 +368,7 @@ class Hex2Utf8:
             self.__current_dict_name = 'default'
             self.__current_dict = self.__def_dict.copy()
 
-    def __start_special_font_func_old(self, line) -> None:
+    def __start_special_font_func_old(self, line: str) -> None:
         """
         Required:
             line -- line
@@ -391,7 +391,7 @@ class Hex2Utf8:
             self.__special_fonts_found += 1
             self.__current_dict_name = 'Zapf Dingbats'
 
-    def __end_special_font_func(self, line) -> None:
+    def __end_special_font_func(self, line: str) -> None:
         """
         Required:
             line --line to parse
@@ -410,7 +410,7 @@ class Hex2Utf8:
             self.__special_fonts_found -= 1
             self.__dict_name = 'default'
 
-    def __start_caps_func_old(self, line) -> None:
+    def __start_caps_func_old(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -422,7 +422,7 @@ class Hex2Utf8:
         """
         self.__in_caps = 1
 
-    def __start_caps_func(self, line) -> None:
+    def __start_caps_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -436,7 +436,7 @@ class Hex2Utf8:
         value = line[17:-1]
         self.__caps_list.append(value)
 
-    def __end_caps_func(self, line) -> None:
+    def __end_caps_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -451,7 +451,7 @@ class Hex2Utf8:
         else:
             sys.stderr.write('Module is hex_2_utf8\nmethod is __end_caps_func\ncaps list should be more than one?\n')  # self.__in_caps not set
 
-    def __text_func(self, line) -> None:
+    def __text_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -483,7 +483,7 @@ class Hex2Utf8:
                 text = text.upper()
             self.__write_obj.write(f'tx<nu<__________<{text}\n')
 
-    def __utf_to_caps_func(self, line) -> None:
+    def __utf_to_caps_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -498,7 +498,7 @@ class Hex2Utf8:
             utf_text = self.__utf_token_to_caps_func(utf_text)
         self.__write_obj.write(f'tx<ut<__________<{utf_text}\n')
 
-    def __utf_token_to_caps_func(self, char_entity):
+    def __utf_token_to_caps_func(self, char_entity: str) -> str:
         """
         Required:
             utf_text -- such as &xxx;

@@ -8,6 +8,7 @@ Try to read metadata from an HTML file.
 import re
 import unittest
 from collections import defaultdict
+from typing import IO, TYPE_CHECKING
 
 from html5_parser import parse
 from lxml.etree import Comment
@@ -19,8 +20,13 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import is_date_undefined, parse_date
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from io import BytesIO
 
-def get_metadata(stream):
+type TagValues = defaultdict[str, list[str]]
+
+
+def get_metadata(stream: IO[bytes]) -> Metadata:
     src = stream.read()
     return get_metadata_(src)
 
@@ -71,7 +77,7 @@ attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'
 _handle_comment_pat: re.Pattern[str] | None = None
 
 
-def handle_comment(data, comment_tags) -> None:
+def handle_comment(data: str, comment_tags: TagValues) -> None:
     global _handle_comment_pat
     if _handle_comment_pat is None:
         _handle_comment_pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
@@ -86,11 +92,11 @@ def handle_comment(data, comment_tags) -> None:
             comment_tags[field].append(replace_entities(match.group('content')))
 
 
-def parse_metadata(src):
+def parse_metadata(src: str) -> tuple[TagValues, TagValues, TagValues, str]:
     root = parse(src)
-    comment_tags = defaultdict(list)
-    meta_tags = defaultdict(list)
-    meta_tag_ids = defaultdict(list)
+    comment_tags: TagValues = defaultdict(list)
+    meta_tags: TagValues = defaultdict(list)
+    meta_tag_ids: TagValues = defaultdict(list)
     title = ''
     identifier_pat = re.compile(r'(?:dc|dcterms)[.:]identifier(?:\.|$)', flags=re.IGNORECASE)
     id_pat2 = re.compile(r'(?:dc|dcterms)[.:]identifier$', flags=re.IGNORECASE)
@@ -134,7 +140,7 @@ def parse_metadata(src):
     return comment_tags, meta_tags, meta_tag_ids, title
 
 
-def get_metadata_(src, encoding=None):
+def get_metadata_(src: str | bytes, encoding: str | None = None) -> Metadata:
     # Meta data definitions as in
     # https://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
 
@@ -146,7 +152,7 @@ def get_metadata_(src, encoding=None):
     src = src[:150000]  # Searching shouldn't take too long
     comment_tags, meta_tags, meta_tag_ids, title_tag = parse_metadata(src)
 
-    def get_all(field):
+    def get_all(field: str) -> list[str] | None:
         ans = comment_tags.get(field, meta_tags.get(field, None))
         if ans:
             ans = [x.strip() for x in ans if x.strip()]
@@ -154,11 +160,10 @@ def get_metadata_(src, encoding=None):
             ans = None
         return ans
 
-    def get(field):
+    def get(field: str) -> str | None:
         ans = get_all(field)
-        if ans:
-            ans = ans[0]
-        return ans
+        # get_all() returns either None or a non-empty list
+        return ans[0] if ans else None
 
     # Title
     title = get('title') or title_tag.strip() or _('Unknown')
@@ -215,13 +220,14 @@ def get_metadata_(src, encoding=None):
             series = series.replace(match.group(), '').strip()
         mi.series = series
         if series_index is None:
-            series_index = get('series_index')
-            try:
-                series_index = float(series_index)
-            except Exception:
-                pass
+            raw_series_index = get('series_index')
+            if raw_series_index is not None:
+                try:
+                    series_index = float(raw_series_index)
+                except ValueError:
+                    pass
         if series_index is not None:
-            mi.series_index = series_index
+            mi.set('series_index', series_index)
 
     # RATING
     rating = get('rating')
@@ -251,7 +257,7 @@ def get_metadata_(src, encoding=None):
 
 
 class MetadataHtmlTest(unittest.TestCase):
-    def compare_metadata(self, meta_a, meta_b) -> None:
+    def compare_metadata(self, meta_a: Metadata, meta_b: Metadata) -> None:
         for attr in (
             'title',
             'authors',
@@ -269,7 +275,7 @@ class MetadataHtmlTest(unittest.TestCase):
         ):
             self.assertEqual(getattr(meta_a, attr), getattr(meta_b, attr))
 
-    def get_stream(self, test):
+    def get_stream(self, test: str) -> BytesIO:
         from io import BytesIO
 
         raw = b'''\
@@ -427,5 +433,5 @@ class MetadataHtmlTest(unittest.TestCase):
         self.compare_metadata(stream_meta, canon_meta)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.TestLoader().loadTestsFromTestCase(MetadataHtmlTest)

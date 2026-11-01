@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 from functools import partial
+from typing import IO, TYPE_CHECKING
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -15,8 +16,11 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_tools():
+
+def get_tools() -> tuple[str, str]:
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
 
     base = os.path.dirname(PDFTOHTML)
@@ -26,19 +30,19 @@ def get_tools():
     return pdfinfo, pdftoppm
 
 
-def check_output(*a):
+def check_output(*a: str) -> bytes:
     from calibre.ebooks.pdf.pdftohtml import creationflags
 
     return subprocess.check_output(list(a), creationflags=creationflags)
 
 
-def check_call(*a) -> None:
+def check_call(*a: str) -> None:
     from calibre.ebooks.pdf.pdftohtml import creationflags
 
     subprocess.check_call(list(a), creationflags=creationflags)
 
 
-def read_info(outputdir, get_cover):
+def read_info(outputdir: str, get_cover: bool) -> dict[str, str | bytes] | None:
     """Read info dict and cover from a pdf file named src.pdf in outputdir.
     Note that this function changes the cwd to outputdir and is therefore not
     thread safe. Run it using fork_job. This is necessary as there is no safe
@@ -47,7 +51,7 @@ def read_info(outputdir, get_cover):
     file, only for src.pdf."""
     os.chdir(outputdir)
     pdfinfo, pdftoppm = get_tools()
-    ans = {}
+    ans: dict[str, str | bytes] = {}
 
     try:
         raw = check_output(pdfinfo, '-enc', 'UTF-8', '-isodates', 'src.pdf')
@@ -94,7 +98,7 @@ def read_info(outputdir, get_cover):
     return ans
 
 
-def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', prefix='page-images') -> None:
+def page_images(pdfpath: str, outputdir: str = '.', first: int = 1, last: int = 1, image_format: str = 'jpeg', prefix: str = 'page-images') -> None:
     pdftoppm = get_tools()[1]
     outputdir = os.path.abspath(outputdir)
     try:
@@ -113,7 +117,7 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
         raise ValueError(f'Failed to render PDF, pdftoppm errorcode: {e.returncode}')
 
 
-def is_pdf_encrypted(path_to_pdf):
+def is_pdf_encrypted(path_to_pdf: str) -> bool:
     pdfinfo = get_tools()[0]
     raw = check_output(pdfinfo, path_to_pdf)
     q = re.search(rb'^Encrypted:\s*(\S+)', raw, flags=re.MULTILINE)
@@ -122,7 +126,7 @@ def is_pdf_encrypted(path_to_pdf):
     return False
 
 
-def get_metadata(stream, cover=True):
+def get_metadata(stream: IO[bytes], cover: bool = True) -> Metadata:
     with TemporaryDirectory('_pdf_metadata_read') as pdfpath:
         stream.seek(0)
         with open(os.path.join(pdfpath, 'src.pdf'), 'wb') as f:
@@ -198,6 +202,6 @@ get_quick_metadata = partial(get_metadata, cover=False)
 from calibre.utils.podofo import set_metadata as podofo_set_metadata
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     stream.seek(0)
     return podofo_set_metadata(stream, mi)

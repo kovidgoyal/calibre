@@ -13,6 +13,8 @@ import os.path
 import posixpath
 import re
 import traceback
+import weakref
+from collections.abc import Mapping
 from contextlib import suppress
 from datetime import datetime, timedelta
 from enum import Enum, auto
@@ -24,7 +26,7 @@ from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.ebooks.metadata import title_sort
-from calibre.ebooks.metadata.book.base import field_metadata
+from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.search_internet import qquote
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
@@ -35,12 +37,11 @@ from calibre.utils.localization import _ as xlated
 from calibre.utils.titlecase import titlecase
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable
     from re import Match
 
     from calibre.db.backend import DBPrefs
     from calibre.db.legacy import LibraryDatabase
-    from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.formatter import TemplateFormatter
 
 type Formatter = TemplateFormatter
@@ -231,11 +232,13 @@ def get_database(mi: Metadata | None, name: str | None) -> LibraryDatabase | Non
         if name is not None:
             only_in_gui_error(name)
         return None
+    assert isinstance(proxy, Metadata)  # a ProxyMetadata
     wr = proxy.get('_db', None)
     if wr is None:
         if name is not None:
             raise ValueError(_('In function {}: The database has been closed').format(name))
         return None
+    assert isinstance(wr, weakref.ref)  # set in ProxyMetadata.__init__
     cache = wr()
     if cache is None:
         if name is not None:
@@ -1498,6 +1501,8 @@ that format names are always uppercase, as in EPUB.
         (fmt,) = args
         fmt_data = mi.get('format_metadata', {})
         try:
+            # a dict or db.lazy.FormatMetadata, other values fail as before
+            assert isinstance(fmt_data, Mapping)
             data = sorted(fmt_data.items(), key=lambda x: x[1]['mtime'], reverse=True)
             return ','.join(k.upper() + ':' + format_date(v['mtime'], fmt) for k, v in data)
         except Exception:
@@ -1523,6 +1528,8 @@ format names are always uppercase, as in EPUB.
     def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         fmt_data = mi.get('format_metadata', {})
         try:
+            # a dict or db.lazy.FormatMetadata, other values fail as before
+            assert isinstance(fmt_data, Mapping)
             return ','.join(k.upper() + ':' + str(v['size']) for k, v in fmt_data.items())
         except Exception:
             return ''
@@ -1549,6 +1556,8 @@ format names are always uppercase, as in EPUB.
         sep = args[0] if args else ','
         fmt_data = mi.get('format_metadata', {})
         try:
+            # a dict or db.lazy.FormatMetadata, other values fail as before
+            assert isinstance(fmt_data, Mapping)
             return sep.join(k.upper() + ':' + str(v['path']) for k, v in fmt_data.items())
         except Exception:
             return ''
@@ -1604,6 +1613,7 @@ The following shows what is returned for various parameters:
         with_author, with_title, with_format, with_ext, sep = args
         fmt_metadata = mi.get('format_metadata', {})
         if fmt_metadata:
+            assert isinstance(fmt_metadata, Mapping)  # a dict or db.lazy.FormatMetadata
             for v in fmt_metadata.values():
                 p = v['path']
                 r, fmt = os.path.split(p)
@@ -1891,17 +1901,21 @@ format_date_field('#date_read', 'MMM dd, yyyy')
             if field not in mi.all_field_keys():
                 raise ValueError(_("Function {0}: Unknown field '{1}'").format('format_date_field', field))
             val = mi.get(field, None)
-            if mi.metadata_for_field(field)['datatype'] != 'datetime':
+            if mi.metadata_for_field(field)['datatype'] != 'datetime':  # ty: ignore[not-subscriptable] None for non-field keys raises TypeError, handled below
                 raise ValueError(_("Function {0}: field '{1}' is not a date").format('format_date_field', field))
             if val is None:
                 s = ''
             elif format_string == 'to_number':
+                assert isinstance(val, datetime)  # the value of a datetime field
                 s = val.timestamp()
             elif format_string.startswith('from_number'):
-                val = datetime.fromtimestamp(float(val))  # ruff: ignore[call-datetime-fromtimestamp]
+                # The value of a datetime field is already a date, so there is
+                # no number to convert, just apply the format
+                assert isinstance(val, datetime)  # the value of a datetime field
                 f = format_string[12:]
                 s = format_date(val, f or 'iso')
             else:
+                assert isinstance(val, datetime)  # the value of a datetime field
                 s = format_date(val, format_string)
             return s
         except ValueError:

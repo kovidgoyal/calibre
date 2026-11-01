@@ -11,12 +11,15 @@ import sys
 import unicodedata
 import uuid
 from collections import defaultdict
+from collections.abc import Callable
 from io import BytesIO
 from itertools import count
 from math import floor
+from typing import IO, TYPE_CHECKING, NotRequired, Protocol, TypedDict, TypeGuard, cast, overload
 from urllib.parse import urlparse
 
 from css_parser import getUrls, replaceUrls
+from lxml import etree
 
 from calibre import CurrentDir, walk
 from calibre.constants import iswindows
@@ -58,6 +61,50 @@ from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Container as AbstractContainer
+    from collections.abc import Iterable, Iterator
+    from typing import Literal
+
+    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.metadata.utils import OPFVersion
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
+
+#: The type of objects returned by :meth:`Container.parsed`: an lxml element
+#: for HTML/XML, a css_parser stylesheet for CSS and raw bytes for everything else
+type ParsedObject = _Element | CSSStyleSheet | bytes
+
+
+class LinkReplacerType(Protocol):
+    "The type of the ``replace_func`` passed to :meth:`Container.replace_links`"
+
+    #: Set to True by the replacer if any link was actually changed
+    replaced: bool
+    #: Set by the container to the type of file being processed
+    file_type: str
+
+    def __call__(self, url: str, /) -> str: ...
+
+
+class CloneData(TypedDict):
+    root: str
+    opf_name: str
+    mime_map: dict[str, str]
+    pretty_print: set[str]
+    encoding_map: dict[str, str | None]
+    tweak_mode: bool
+    cloned: bool
+    name_path_map: dict[str, str]
+    pathtoepub: NotRequired[str]
+    obfuscated_fonts: NotRequired[dict[str, tuple[str, bytes]] | set[str]]
+    is_dir: NotRequired[bool]
+    pathtoazw3: NotRequired[str]
+
+
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 OPF_NAMESPACES = {'opf': OPF2_NS, 'dc': DC11_NS}
 null = object()
@@ -65,11 +112,11 @@ OEB_FONTS  # ruff: ignore[useless-expression] # for plugin compat
 
 
 class CSSPreProcessor(cssp):
-    def __call__(self, data, add_namespace=False):
+    def __call__(self, data: str, add_namespace: bool = False) -> str:
         return self.MS_PAT.sub(self.ms_sub, data)
 
 
-def clone_dir(src, dest) -> None:
+def clone_dir(src: str, dest: str) -> None:
     "Clone a folder using hard links for the files, dest must already exist"
     for x in os.listdir(src):
         dpath = os.path.join(dest, x)
@@ -84,7 +131,7 @@ def clone_dir(src, dest) -> None:
                 shutil.copy2(spath, dpath)
 
 
-def clone_container(container, dest_dir, container_class=None):
+def clone_container[C: Container](container: C, dest_dir: str, container_class: type[C] | None = None) -> C:
     "Efficiently clone a container using hard links"
     dest_dir = os.path.abspath(os.path.realpath(dest_dir))
     clone_data = container.clone_data(dest_dir)
@@ -92,22 +139,22 @@ def clone_container(container, dest_dir, container_class=None):
     return container_class(log=container.log, clone_data=clone_data)
 
 
-def name_to_abspath(name, root):
+def name_to_abspath(name: str, root: str) -> str:
     return os.path.abspath(join(root, *name.split('/')))
 
 
-def abspath_to_name(path, root):
+def abspath_to_name(path: str, root: str) -> str:
     return relpath(os.path.abspath(path), root).replace(os.sep, '/')
 
 
-def name_to_href(name, root, base=None, quote=urlquote):
+def name_to_href(name: str, root: str, base: str | None = None, quote: Callable[[str], str] = urlquote) -> str:
     fullpath = name_to_abspath(name, root)
     basepath = root if base is None else os.path.dirname(name_to_abspath(base, root))
     path = relpath(fullpath, basepath).replace(os.sep, '/')
     return quote(path)
 
 
-def href_to_name(href, root, base=None):
+def href_to_name(href: str | None, root: str, base: str | None = None) -> str | None:
     base = root if base is None else os.path.dirname(name_to_abspath(base, root))
     try:
         purl = urlparse(href)
@@ -147,20 +194,23 @@ class ContainerBase:  # {{{
 
     #: The mode used to parse HTML and CSS (polishing uses tweak_mode=False and the editor uses tweak_mode=True)
     tweak_mode = False
+    #: The encoding used to decode the most recently parsed/decoded file
+    used_encoding: str | None
 
-    def __init__(self, log=default_log) -> None:
-        self.log = log or default_log
-        self.parsed_cache = {}
-        self.mime_map = {}
-        self.encoding_map = {}
+    def __init__(self, log: Log | None = default_log) -> None:
+        self.log: Log = log or default_log
+        self.parsed_cache: dict[str, ParsedObject] = {}
+        self.mime_map: dict[str, str] = {}
+        self.encoding_map: dict[str, str | None] = {}
         self.html_preprocessor = HTMLPreProcessor()
         self.css_preprocessor = CSSPreProcessor()
 
-    def guess_type(self, name):
+    def guess_type(self, name: str) -> str:
         "Return the expected mimetype for the specified file name based on its extension."
-        return adjust_mime_for_epub(filename=name, opf_version=getattr(self, 'opf_version_parsed', None))
+        # ContainerBase has no opf_version_parsed, use the default OPF version for it
+        return adjust_mime_for_epub(filename=name, opf_version=getattr(self, 'opf_version_parsed', (2, 0)))
 
-    def decode(self, data, normalize_to_nfc=True):
+    def decode(self, data: bytes, normalize_to_nfc: bool = True) -> str:
         """
         Automatically decode ``data`` into a ``unicode`` object.
 
@@ -171,12 +221,12 @@ class ContainerBase:  # {{{
             self.used_encoding = used_encoding
         return html
 
-    def parse_xml(self, data):
+    def parse_xml(self, data: str | bytes) -> _Element:
         data, self.used_encoding = xml_to_unicode(data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
         data = unicodedata.normalize('NFC', data)
         return safe_xml_fromstring(data)
 
-    def parse_xhtml(self, data, fname='<string>', force_html5_parse=False):
+    def parse_xhtml(self, data: str | bytes, fname: str = '<string>', force_html5_parse: bool = False) -> _Element:
         if self.tweak_mode:
             return parse_html_tweak(data, log=self.log, decoder=self.decode, force_html5_parse=force_html5_parse)
         else:
@@ -192,7 +242,13 @@ class ContainerBase:  # {{{
             except NotHTML:
                 return self.parse_xml(data)
 
-    def parse_css(self, data, fname='<string>', is_declaration=False):
+    @overload
+    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: Literal[False] = False) -> CSSStyleSheet: ...
+    @overload
+    def parse_css(self, data: str | bytes | None, fname: str = '<string>', *, is_declaration: Literal[True]) -> CSSStyleDeclaration: ...
+    @overload
+    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: bool = False) -> CSSStyleSheet | CSSStyleDeclaration: ...
+    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: bool = False) -> CSSStyleSheet | CSSStyleDeclaration:
         return parse_css(
             data,
             fname=fname,
@@ -238,11 +294,16 @@ class Container(ContainerBase):  # {{{
     SUPPORTS_FILENAMES = True
     MAX_HTML_FILE_SIZE = 0
 
+    #: The canonical name of the OPF file
+    opf_name: str
+    #: The absolute path to the folder containing the OPF file
+    opf_dir: str
+
     @property
-    def book_type_for_display(self):
+    def book_type_for_display(self) -> str:
         return self.book_type.upper()
 
-    def __init__(self, rootpath=None, opfpath=None, log=default_log, clone_data=None) -> None:
+    def __init__(self, rootpath: str | None = None, opfpath: str | None = None, log: Log | None = default_log, clone_data: CloneData | None = None) -> None:
         super().__init__(log=log)
         if clone_data is not None:
             self.root = clone_data['root']
@@ -250,12 +311,12 @@ class Container(ContainerBase):  # {{{
             assert rootpath is not None
             self.root = os.path.abspath(rootpath)
 
-        self.name_path_map = {}
-        self.dirtied = set()
-        self.pretty_print = set()
+        self.name_path_map: dict[str, str] = {}
+        self.dirtied: set[str] = set()
+        self.pretty_print: set[str] = set()
         self.cloned = False
         self.cache_names = ('parsed_cache', 'mime_map', 'name_path_map', 'encoding_map', 'dirtied', 'pretty_print')
-        self.href_to_name_cache = {}
+        self.href_to_name_cache: dict[tuple[str | None, str | None], str | None] = {}
 
         if clone_data is not None:
             for x in ('cloned', 'name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map', 'tweak_mode'):
@@ -267,7 +328,7 @@ class Container(ContainerBase):  # {{{
         # to absolute paths on filesystem with os-specific separators
         assert opfpath is not None
         opfpath = os.path.abspath(os.path.realpath(opfpath))
-        all_opf_files = []
+        all_opf_files: list[tuple[str, str]] = []
         for dirpath, _dirnames, filenames in os.walk(self.root):
             for f in filenames:
                 path = join(dirpath, f)
@@ -304,7 +365,7 @@ class Container(ContainerBase):  # {{{
                 # some epubs include the opf in the manifest with an incorrect mime type
                 self.mime_map[name] = mt
 
-    def data_for_clone(self, dest_dir=None):
+    def data_for_clone(self, dest_dir: str | None = None) -> CloneData:
         dest_dir = dest_dir or self.root
         return {
             'root': dest_dir,
@@ -317,20 +378,20 @@ class Container(ContainerBase):  # {{{
             'name_path_map': {name: os.path.join(dest_dir, os.path.relpath(path, self.root)) for name, path in self.name_path_map.items()},
         }
 
-    def clone_data(self, dest_dir):
+    def clone_data(self, dest_dir: str) -> CloneData:
         Container.commit(self, keep_parsed=False)
         clone_dir(self.root, dest_dir)
         self.cloned = True
         return self.data_for_clone(dest_dir)
 
-    def __getstate__(self):
+    def __getstate__(self) -> CloneData:
         Container.commit(self, keep_parsed=True)
         return self.data_for_clone()
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: CloneData) -> None:
         self.__init__(log=default_log, clone_data=state)
 
-    def add_name_to_manifest(self, name, process_manifest_item=None, suggested_id=''):
+    def add_name_to_manifest(self, name: str, process_manifest_item: Callable[[_Element], object] | None = None, suggested_id: str = '') -> str:
         "Add an entry to the manifest for a file with the specified name. Returns the manifest id."
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
@@ -348,12 +409,12 @@ class Container(ContainerBase):  # {{{
         self.dirty(self.opf_name)
         return item_id
 
-    def manifest_has_name(self, name):
+    def manifest_has_name(self, name: str) -> bool:
         """Return True if the manifest has an entry corresponding to name"""
         all_names = {self.href_to_name(x.get('href'), self.opf_name) for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
         return name in all_names
 
-    def make_name_unique(self, name):
+    def make_name_unique(self, name: str) -> str:
         """Ensure that `name` does not already exist in this book. If it does, return a modified version that does not exist."""
         counter = count()
         while self.has_name_case_insensitive(name) or self.manifest_has_name(name):
@@ -366,14 +427,14 @@ class Container(ContainerBase):  # {{{
 
     def add_file(
         self,
-        name,
-        data=b'',
-        media_type=None,
-        spine_index=None,
-        modify_name_if_needed=False,
-        process_manifest_item=None,
-        suggested_id='',
-    ):
+        name: str,
+        data: bytes | IO[bytes] = b'',
+        media_type: str | None = None,
+        spine_index: int | None = None,
+        modify_name_if_needed: bool = False,
+        process_manifest_item: Callable[[_Element], object] | None = None,
+        suggested_id: str = '',
+    ) -> str:
         """Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document)"""
@@ -395,7 +456,7 @@ class Container(ContainerBase):  # {{{
             os.makedirs(base)
         with open(path, 'wb') as f:
             if hasattr(data, 'read'):
-                shutil.copyfileobj(data, f)
+                shutil.copyfileobj(cast('IO[bytes]', data), f)
             else:
                 f.write(data)
         mt = media_type or self.guess_type(name)
@@ -411,7 +472,7 @@ class Container(ContainerBase):  # {{{
             self.insert_into_xml(spine, si, index=spine_index)
         return name
 
-    def rename(self, current_name, new_name) -> None:
+    def rename(self, current_name: str, new_name: str) -> None:
         """Renames a file from current_name to new_name. It automatically
         rebases all links inside the file if the folder the file is in
         changes. Note however, that links are not updated in the other files
@@ -459,7 +520,7 @@ class Container(ContainerBase):  # {{{
             self.replace_links(new_name, repl)
             self.dirty(new_name)
 
-    def replace_links(self, name, replace_func):
+    def replace_links(self, name: str, replace_func: LinkReplacerType) -> bool:
         """Replace all links in name using replace_func, which must be a
         callable that accepts a URL and returns the replaced URL. It must also
         have a 'replaced' attribute that is set to True if any actual
@@ -474,10 +535,13 @@ class Container(ContainerBase):  # {{{
         if name == self.opf_name:
             replace_func.file_type = 'opf'
             for elem in self.opf_xpath('//*[@href]'):
-                elem.set('href', replace_func(elem.get('href')))
+                href = elem.get('href')
+                assert href is not None  # guaranteed by the XPath expression
+                elem.set('href', replace_func(href))
         elif media_type.lower() in OEB_DOCS:
             replace_func.file_type = 'text'
             root = self.parsed(name)
+            assert isinstance(root, etree._Element)
             rewrite_links(root, replace_func)
             replace_func.file_type = 'idref'
 
@@ -491,14 +555,22 @@ class Container(ContainerBase):  # {{{
             replaceUrls(self.parsed(name), replace_func)
         elif media_type.lower() == guess_type('toc.ncx'):
             replace_func.file_type = 'ncx'
-            for elem in self.parsed(name).xpath('//*[@src]'):
+            root = self.parsed(name)
+            assert isinstance(root, etree._Element)
+            for elem in root.xpath('//*[@src]'):
                 elem.set('src', replace_func(elem.get('src')))
 
         if replace_func.replaced:
             self.dirty(name)
         return replace_func.replaced
 
-    def iterlinks(self, name, get_line_numbers=True):
+    @overload
+    def iterlinks(self, name: str, get_line_numbers: Literal[True] = True) -> Iterator[tuple[str | None, int | None, int]]: ...
+    @overload
+    def iterlinks(self, name: str, get_line_numbers: Literal[False]) -> Iterator[str | None]: ...
+    @overload
+    def iterlinks(self, name: str, get_line_numbers: bool = True) -> Iterator[tuple[str | None, int | None, int]] | Iterator[str | None]: ...
+    def iterlinks(self, name: str, get_line_numbers: bool = True) -> Iterator[tuple[str | None, int | None, int] | str | None]:
         """Iterate over all links in name. If get_line_numbers is True the
         yields results of the form (link, line_number, offset). Where
         line_number is the line_number at which the link occurs and offset is
@@ -509,7 +581,9 @@ class Container(ContainerBase):  # {{{
             for elem in self.opf_xpath('//*[@href]'):
                 yield (elem.get('href'), elem.sourceline, 0) if get_line_numbers else elem.get('href')
         elif media_type.lower() in OEB_DOCS:
-            for el, attr, link, pos in iterlinks(self.parsed(name)):
+            root = self.parsed(name)
+            assert isinstance(root, etree._Element)
+            for el, attr, link, pos in iterlinks(root):
                 yield (link, el.sourceline, pos) if get_line_numbers else link
         elif media_type.lower() in OEB_STYLES:
             if get_line_numbers:
@@ -525,10 +599,12 @@ class Container(ContainerBase):  # {{{
                 for link in getUrls(self.parsed(name)):
                     yield link
         elif media_type.lower() == guess_type('toc.ncx'):
-            for elem in self.parsed(name).xpath('//*[@src]'):
+            root = self.parsed(name)
+            assert isinstance(root, etree._Element)
+            for elem in root.xpath('//*[@src]'):
                 yield (elem.get('src'), elem.sourceline, 0) if get_line_numbers else elem.get('src')
 
-    def abspath_to_name(self, fullpath, root=None):
+    def abspath_to_name(self, fullpath: str, root: str | None = None) -> str:
         """
         Convert an absolute path to a canonical name relative to :attr:`root`
 
@@ -544,11 +620,11 @@ class Container(ContainerBase):  # {{{
         # names in the text and NFC canonical file names.
         return unicodedata.normalize('NFC', abspath_to_name(fullpath, root or self.root))
 
-    def name_to_abspath(self, name):
+    def name_to_abspath(self, name: str) -> str:
         "Convert a canonical name to an absolute OS dependent path"
         return name_to_abspath(name, self.root)
 
-    def exists(self, name):
+    def exists(self, name: str) -> bool:
         """True iff a file/folder corresponding to the canonical name exists. Note
         that this function suffers from the limitations of the underlying OS
         filesystem, in particular case (in)sensitivity. So on a case
@@ -556,31 +632,32 @@ class Container(ContainerBase):  # {{{
         is different from the case of the underlying filesystem file. See also :meth:`has_name`"""
         return os.path.exists(self.name_to_abspath(name))
 
-    def href_to_name(self, href, base=None):
+    def href_to_name(self, href: str | None, base: str | None = None) -> str | None:
         """
         Convert an href (relative to base) to a name. base must be a name or
         None, in which case self.root is used.
         """
         key = href, base
-        ans = self.href_to_name_cache.get(key, null)
-        if ans is null:
+        try:
+            return self.href_to_name_cache[key]
+        except KeyError:
             ans = self.href_to_name_cache[key] = href_to_name(href, self.root, base=base)
-        return ans
+            return ans
 
-    def name_to_href(self, name, base=None):
+    def name_to_href(self, name: str, base: str | None = None) -> str:
         """Convert a name to a href relative to base, which must be a name or
         None in which case self.root is used as the base"""
         return name_to_href(name, self.root, base=base)
 
-    def opf_xpath(self, expr):
+    def opf_xpath(self, expr: str) -> list[_Element]:
         "Convenience method to evaluate an XPath expression on the OPF file, has the opf: and dc: namespace prefixes pre-defined."
         return self.opf.xpath(expr, namespaces=OPF_NAMESPACES)
 
-    def has_name(self, name):
+    def has_name(self, name: str | None) -> TypeGuard[str]:
         """Return True iff a file with the same canonical name as that specified exists. Unlike :meth:`exists` this method is always case-sensitive."""
-        return name and name in self.name_path_map
+        return bool(name) and name in self.name_path_map
 
-    def has_name_and_is_not_empty(self, name):
+    def has_name_and_is_not_empty(self, name: str) -> bool:
         path = self.name_path_map.get(name)
         if not path:
             return False
@@ -594,48 +671,52 @@ class Container(ContainerBase):  # {{{
         except OSError:
             return False
 
-    def has_name_case_insensitive(self, name):
+    def has_name_case_insensitive(self, name: str) -> bool:
         if not name:
             return False
         name = name.lower()
         return any(q.lower() == name for q in self.name_path_map)
 
-    def relpath(self, path, base=None):
+    def relpath(self, path: str, base: str | None = None) -> str:
         """Convert an absolute path (with OS separators) to a path relative to
         base (defaults to self.root). The relative path is *not* a name. Use
         :meth:`abspath_to_name` for that."""
         return relpath(path, base or self.root)
 
-    def ok_to_be_unmanifested(self, name):
+    def ok_to_be_unmanifested(self, name: str) -> bool:
         return name in self.names_that_need_not_be_manifested
 
     @property
-    def names_that_need_not_be_manifested(self):
+    def names_that_need_not_be_manifested(self) -> set[str]:
         "Set of names that are allowed to be missing from the manifest. Depends on the e-book file format."
         return {self.opf_name}
 
     @property
-    def names_that_must_not_be_removed(self):
+    def names_that_must_not_be_removed(self) -> set[str]:
         "Set of names that must never be deleted from the container. Depends on the e-book file format."
         return {self.opf_name}
 
     @property
-    def names_that_must_not_be_changed(self):
+    def names_that_must_not_be_changed(self) -> set[str]:
         "Set of names that must never be renamed. Depends on the e-book file format."
         return set()
 
-    def parse(self, path, mime):
+    def parse(self, path: str, mime: str) -> ParsedObject:
         with open(path, 'rb') as src:
             data = src.read()
         if mime in OEB_DOCS:
-            data = self.parse_xhtml(data, self.relpath(path))
+            return self.parse_xhtml(data, self.relpath(path))
         elif mime[-4:] in {'+xml', '/xml'}:
-            data = self.parse_xml(data)
+            return self.parse_xml(data)
         elif mime in OEB_STYLES:
-            data = self.parse_css(data, self.relpath(path))
+            return self.parse_css(data, self.relpath(path))
         return data
 
-    def raw_data(self, name, decode=True, normalize_to_nfc=True):
+    @overload
+    def raw_data(self, name: str, decode: Literal[False], normalize_to_nfc: bool = True) -> bytes: ...
+    @overload
+    def raw_data(self, name: str, decode: bool = True, normalize_to_nfc: bool = True) -> str | bytes: ...
+    def raw_data(self, name: str, decode: bool = True, normalize_to_nfc: bool = True) -> str | bytes:
         """
         Return the raw data corresponding to the file specified by name
 
@@ -646,10 +727,10 @@ class Container(ContainerBase):  # {{{
             ans = nf.read()
         mime = self.mime_map.get(name, guess_type(name))
         if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime == 'text/plain' or mime[-4:] in {'+xml', '/xml'}):
-            ans = self.decode(ans, normalize_to_nfc=normalize_to_nfc)
+            return self.decode(ans, normalize_to_nfc=normalize_to_nfc)
         return ans
 
-    def parsed(self, name):
+    def parsed(self, name: str) -> ParsedObject:
         """Return a parsed representation of the file specified by name. For
         HTML and XML files an lxml tree is returned. For CSS files a css_parser
         stylesheet is returned. Note that parsed objects are cached for
@@ -664,7 +745,7 @@ class Container(ContainerBase):  # {{{
             self.encoding_map[name] = self.used_encoding
         return ans
 
-    def replace(self, name, obj) -> None:
+    def replace(self, name: str, obj: ParsedObject) -> None:
         """
         Replace the parsed object corresponding to name with obj, which must be
         a similar object, i.e. an lxml tree for HTML/XML or a css_parser
@@ -674,12 +755,14 @@ class Container(ContainerBase):  # {{{
         self.dirty(name)
 
     @property
-    def opf(self):
+    def opf(self) -> _Element:
         "The parsed OPF file"
-        return self.parsed(self.opf_name)
+        ans = self.parsed(self.opf_name)
+        assert isinstance(ans, etree._Element)
+        return ans
 
     @property
-    def mi(self):
+    def mi(self) -> Metadata:
         """The metadata of this book as a Metadata object. Note that this
         object is constructed on the fly every time this property is requested,
         so use it sparingly."""
@@ -689,36 +772,40 @@ class Container(ContainerBase):  # {{{
         return O(BytesIO(mi), basedir=self.opf_dir, unquote_urls=False, populate_spine=False).to_book_metadata()
 
     @property
-    def opf_version(self):
+    def opf_version(self) -> str:
         "The version set on the OPF's <package> element"
         try:
-            return self.opf_xpath('//opf:package/@version')[0]
+            # use xpath() directly as this is an attribute query, which returns strings not elements
+            return self.opf.xpath('//opf:package/@version', namespaces=OPF_NAMESPACES)[0]
         except IndexError:
             return ''
 
     @property
-    def opf_version_parsed(self):
+    def opf_version_parsed(self) -> OPFVersion:
         "The version set on the OPF's <package> element as a tuple of integers"
         return parse_opf_version(self.opf_version)
 
     @property
-    def manifest_items(self):
+    def manifest_items(self) -> list[_Element]:
         return self.opf_xpath('//opf:manifest/opf:item[@href and @id]')
 
     @property
-    def manifest_id_map(self):
+    def manifest_id_map(self) -> dict[str, str | None]:
         "Mapping of manifest id to canonical names"
-        return {item.get('id'): self.href_to_name(item.get('href'), self.opf_name) for item in self.manifest_items}
+        # manifest_items only contains items that have an id
+        return {cast('str', item.get('id')): self.href_to_name(item.get('href'), self.opf_name) for item in self.manifest_items}
 
     @property
-    def manifest_type_map(self):
+    def manifest_type_map(self) -> dict[str, tuple[str | None, ...]]:
         "Mapping of manifest media-type to list of canonical names of that media-type"
-        ans = defaultdict(list)
+        ans: defaultdict[str, list[str | None]] = defaultdict(list)
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
-            ans[item.get('media-type').lower()].append(self.href_to_name(item.get('href'), self.opf_name))
+            ans[cast('str', item.get('media-type')).lower()].append(  # guaranteed by the XPath expression
+                self.href_to_name(item.get('href'), self.opf_name)
+            )
         return {mt: tuple(v) for mt, v in ans.items()}
 
-    def manifest_items_with_property(self, property_name):
+    def manifest_items_with_property(self, property_name: str) -> Iterator[str | None]:
         "All manifest items that have the specified property"
         prefixes = read_prefixes(self.opf)
         for item in items_with_property(self.opf, property_name, prefixes):
@@ -726,34 +813,39 @@ class Container(ContainerBase):  # {{{
             if href:
                 yield self.href_to_name(item.get('href'), self.opf_name)
 
-    def manifest_items_of_type(self, predicate):
+    def manifest_items_of_type(self, predicate: str | AbstractContainer[str] | Callable[[str], bool]) -> Iterator[str | None]:
         """The names of all manifest items whose media-type matches predicate.
         `predicate` can be a set, a list, a string or a function taking a single
         argument, which will be called with the media-type."""
+        pred: Callable[[str], bool]
         if isinstance(predicate, str):
-            predicate = predicate.__eq__
+            pred = predicate.__eq__
         elif hasattr(predicate, '__contains__'):
-            predicate = predicate.__contains__
+            pred = cast('AbstractContainer[str]', predicate).__contains__
+        else:
+            pred = cast('Callable[[str], bool]', predicate)
         for mt, names in self.manifest_type_map.items():
-            if predicate(mt):
+            if pred(mt):
                 yield from names
 
-    def apply_unique_properties(self, name, *properties):
+    def apply_unique_properties(self, name: str | None, *properties: str) -> tuple[list[str | None], list[str | None]]:
         """Ensure that the specified properties are set on only the manifest item
         identified by name. You can pass None as the name to remove the
         property from all items."""
-        properties = frozenset(properties)
-        removed_names, added_names = [], []
-        for p in properties:
+        uproperties = frozenset(properties)
+        removed_names: list[str | None] = []
+        added_names: list[str | None] = []
+        for p in uproperties:
             if p.startswith('calibre:'):
                 ensure_prefix(self.opf, None, 'calibre', CALIBRE_PREFIX)
                 break
 
         for item in self.opf_xpath('//opf:manifest/opf:item'):
             iname = self.href_to_name(item.get('href'), self.opf_name)
-            props = (item.get('properties') or '').split()
+            # the cast is needed as ty infers list[LiteralString] for ''.split()
+            props = cast('list[str]', (item.get('properties') or '').split())
             lprops = {p.lower() for p in props}
-            for prop in properties:
+            for prop in uproperties:
                 if prop.lower() in lprops:
                     if name != iname:
                         removed_names.append(iname)
@@ -769,32 +861,32 @@ class Container(ContainerBase):  # {{{
         self.dirty(self.opf_name)
         return removed_names, added_names
 
-    def add_properties(self, name, *properties) -> bool:
+    def add_properties(self, name: str, *properties: str) -> bool:
         """Add the specified properties to the manifest item identified by name."""
-        properties = frozenset(properties)
-        if not properties:
+        uproperties = frozenset(properties)
+        if not uproperties:
             return True
-        for p in properties:
+        for p in uproperties:
             if p.startswith('calibre:'):
                 ensure_prefix(self.opf, None, 'calibre', CALIBRE_PREFIX)
                 break
         for item in self.opf_xpath('//opf:manifest/opf:item'):
             iname = self.href_to_name(item.get('href'), self.opf_name)
             if name == iname:
-                props = frozenset((item.get('properties') or '').split()) | properties
+                props = frozenset((item.get('properties') or '').split()) | uproperties
                 item.set('properties', ' '.join(props))
                 return True
         return False
 
     @property
-    def guide_type_map(self):
+    def guide_type_map(self) -> dict[str, str | None]:
         "Mapping of guide type to canonical name"
         return {
             item.get('type', ''): self.href_to_name(item.get('href'), self.opf_name) for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')
         }
 
     @property
-    def spine_iter(self):
+    def spine_iter(self) -> Iterator[tuple[_Element, str, bool]]:
         """An iterator that yields item, name is_linear for every item in the
         books' spine. item is the lxml element, name is the canonical file name
         and is_linear is True if the item is linear. See also: :attr:`spine_names` and :attr:`spine_items`."""
@@ -802,9 +894,9 @@ class Container(ContainerBase):  # {{{
         non_linear = []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
             idref = item.get('idref')
-            name = manifest_id_map.get(idref, None)
-            path = self.name_path_map.get(name, None)
-            if path:
+            name = manifest_id_map.get(idref, None) if idref is not None else None
+            path = self.name_path_map.get(name, None) if name is not None else None
+            if path and name is not None:
                 if item.get('linear', 'yes') == 'yes':
                     yield item, name, True
                 else:
@@ -812,7 +904,7 @@ class Container(ContainerBase):  # {{{
         for item, name in non_linear:
             yield item, name, False
 
-    def index_in_spine(self, name):
+    def index_in_spine(self, name: str) -> int | None:
         manifest_id_map = self.manifest_id_map
         for i, item in enumerate(self.opf_xpath('//opf:spine/opf:itemref[@idref]')):
             idref = item.get('idref')
@@ -821,25 +913,25 @@ class Container(ContainerBase):  # {{{
                 return i
 
     @property
-    def spine_names(self):
+    def spine_names(self) -> Iterator[tuple[str, bool]]:
         """An iterator yielding name and is_linear for every item in the
         books' spine. See also: :attr:`spine_iter` and :attr:`spine_items`."""
         for item, name, linear in self.spine_iter:
             yield name, linear
 
     @property
-    def spine_items(self):
+    def spine_items(self) -> Iterator[str]:
         """An iterator yielding the path for every item in the
         books' spine. See also: :attr:`spine_iter` and :attr:`spine_items`."""
         for name, linear in self.spine_names:
             yield self.name_path_map[name]
 
-    def remove_from_spine(self, spine_items, remove_if_no_longer_in_spine=True) -> None:
+    def remove_from_spine(self, spine_items: Iterable[tuple[str, bool]], remove_if_no_longer_in_spine: bool = True) -> None:
         """
         Remove the specified items (by canonical name) from the spine. If ``remove_if_no_longer_in_spine``
         is True, the items are also deleted from the book, not just from the spine.
         """
-        nixed = set()
+        nixed: set[str] = set()
         for (name, remove), (item, xname, linear) in zip(spine_items, self.spine_iter):
             if remove and name == xname:
                 self.remove_from_xml(item)
@@ -850,7 +942,7 @@ class Container(ContainerBase):  # {{{
             for name in nixed:
                 self.remove_item(name)
 
-    def set_spine(self, spine_items) -> None:
+    def set_spine(self, spine_items: Iterable[tuple[str, bool]]) -> None:
         """Set the spine to be spine_items where spine_items is an iterable of
         the form (name, linear). Will raise an error if one of the names is not
         present in the manifest."""
@@ -873,13 +965,13 @@ class Container(ContainerBase):  # {{{
             spine[-1].tail = last_tail
         self.dirty(self.opf_name)
 
-    def remove_item(self, name, remove_from_guide=True) -> None:
+    def remove_item(self, name: str, remove_from_guide: bool = True) -> None:
         """
         Remove the item identified by name from this container. This removes all
         references to the item in the OPF manifest, guide and spine as well as from
         any internal caches.
         """
-        removed = set()
+        removed: set[str] = set()
         for elem in self.opf_xpath('//opf:manifest/opf:item[@href]'):
             if self.href_to_name(elem.get('href'), self.opf_name) == name:
                 id_ = elem.get('id', None)
@@ -907,6 +999,7 @@ class Container(ContainerBase):  # {{{
 
             for meta in self.opf_xpath('//opf:meta[@refines]'):
                 q = meta.get('refines')
+                assert q is not None  # guaranteed by the XPath expression
                 if q.startswith('#') and q[1:] in removed:
                     self.remove_from_xml(meta)
                     self.dirty(self.opf_name)
@@ -924,12 +1017,12 @@ class Container(ContainerBase):  # {{{
         self.parsed_cache.pop(name, None)
         self.dirtied.discard(name)
 
-    def set_media_overlay_durations(self, duration_map=None) -> None:
+    def set_media_overlay_durations(self, duration_map: dict[str, float] | None = None) -> None:
         self.dirty(self.opf_name)
         for meta in self.opf_xpath('//opf:meta[@property="media:duration"]'):
             self.remove_from_xml(meta)
         metadata = self.opf_xpath('//opf:metadata')[0]
-        total_duration = 0
+        total_duration = 0.0
         for item_id, duration in (duration_map or {}).items():
             meta = metadata.makeelement(OPF('meta'), property='media:duration', refines='#' + item_id)
             meta.text = seconds_to_timestamp(duration)
@@ -940,13 +1033,13 @@ class Container(ContainerBase):  # {{{
             meta.text = seconds_to_timestamp(total_duration)
             self.insert_into_xml(metadata, meta)
 
-    def dirty(self, name) -> None:
+    def dirty(self, name: str) -> None:
         """Mark the parsed object corresponding to name as dirty. See also: :meth:`parsed`."""
         self.dirtied.add(name)
 
-    def remove_from_xml(self, item):
+    def remove_from_xml(self, item: _Element) -> _Element:
         "Removes item from parent, fixing indentation (works only with self closing items)"
-        parent = item.getparent()
+        parent = cast('_Element', item.getparent())  # item must be in a tree
         idx = parent.index(item)
         if idx == 0:
             # We are removing the first item - only care about adjusting
@@ -959,12 +1052,12 @@ class Container(ContainerBase):  # {{{
         parent.remove(item)
         return item
 
-    def insert_into_xml(self, parent, item, index=None) -> None:
+    def insert_into_xml(self, parent: _Element, item: _Element, index: int | None = None) -> None:
         """Insert item into parent (or append if index is None), fixing
         indentation. Only works with self closing items."""
         insert_self_closing(parent, item, index)
 
-    def opf_get_or_create(self, name):
+    def opf_get_or_create(self, name: str) -> _Element:
         """Convenience method to either return the first XML element with the
         specified name or create it under the opf:package element and then
         return it, if it does not already exist."""
@@ -978,7 +1071,7 @@ class Container(ContainerBase):  # {{{
         package.append(item)
         return item
 
-    def generate_item(self, name, id_prefix=None, media_type=None, unique_href=True):
+    def generate_item(self, name: str, id_prefix: str | None = None, media_type: str | None = None, unique_href: bool = True) -> _Element:
         """Add an item to the manifest with href derived from the given
         name. Ensures uniqueness of href and id automatically. Returns
         generated item."""
@@ -1002,7 +1095,8 @@ class Container(ContainerBase):  # {{{
         item.set('media-type', media_type)
         self.insert_into_xml(manifest, item)
         self.dirty(self.opf_name)
-        name = self.href_to_name(href, self.opf_name)
+        # href was created from a valid name so it always maps back to a name
+        name = cast('str', self.href_to_name(href, self.opf_name))
         self.name_path_map[name] = path = self.name_to_abspath(name)
         self.mime_map[name] = media_type
         # Ensure that the file corresponding to the newly created item exists
@@ -1038,19 +1132,19 @@ class Container(ContainerBase):  # {{{
             if 'content' in meta.attrib:
                 meta.set('content', meta.attrib.pop('content'))
 
-    def serialize_item(self, name):
+    def serialize_item(self, name: str) -> bytes:
         """Convert a parsed object (identified by canonical name) into a bytestring. See :meth:`parsed`."""
         data = root = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
         data = serialize(data, self.mime_map[name], pretty_print=name in self.pretty_print)
-        if name == self.opf_name and root.nsmap.get(None) == OPF2_NS:
+        if name == self.opf_name and isinstance(root, etree._Element) and root.nsmap.get(None) == OPF2_NS:
             # Needed as I can't get lxml to output opf:role and
             # not output <opf:metadata> as well
             data = re.sub(rb'(<[/]{0,1})opf:', rb'\1', data)
         return data
 
-    def commit_item(self, name, keep_parsed=False) -> None:
+    def commit_item(self, name: str, keep_parsed: bool = False) -> None:
         """Commit a parsed object to disk (it is serialized and written to the
         underlying file). If ``keep_parsed`` is True the parsed representation
         is retained in the cache. See also: :meth:`parsed`"""
@@ -1067,7 +1161,7 @@ class Container(ContainerBase):  # {{{
         with open(dest, 'wb') as f:
             f.write(data)
 
-    def filesize(self, name):
+    def filesize(self, name: str) -> int:
         """Return the size in bytes of the file represented by the specified
         canonical name. Automatically handles dirtied parsed objects. See also:
         :meth:`parsed`"""
@@ -1076,7 +1170,7 @@ class Container(ContainerBase):  # {{{
         path = self.name_to_abspath(name)
         return os.path.getsize(path)
 
-    def get_file_path_for_processing(self, name, allow_modification=True):
+    def get_file_path_for_processing(self, name: str, allow_modification: bool = True) -> str:
         """Similar to open() except that it returns a file path, instead of an open file object."""
         if name in self.dirtied:
             self.commit_item(name)
@@ -1096,14 +1190,14 @@ class Container(ContainerBase):  # {{{
             os.rename(temp, path)
         return path
 
-    def open(self, name, mode='rb'):
+    def open(self, name: str, mode: str = 'rb') -> IO[bytes]:
         """Open the file pointed to by name for direct read/write. Note that
         this will commit the file if it is dirtied and remove it from the parse
         cache. You must finish with this file before accessing the parsed
         version of it again, or bad things will happen."""
         return open(make_long_path_useable(self.get_file_path_for_processing(name, mode not in {'r', 'rb'})), mode)
 
-    def commit(self, outpath=None, keep_parsed=False) -> None:
+    def commit(self, outpath: str | None = None, keep_parsed: bool = False) -> None:
         """
         Commit all dirtied parsed objects to the filesystem and write out the e-book file at outpath.
 
@@ -1113,7 +1207,7 @@ class Container(ContainerBase):  # {{{
         for name in tuple(self.dirtied):
             self.commit_item(name, keep_parsed=keep_parsed)
 
-    def compare_to(self, other):
+    def compare_to(self, other: Container) -> str:
         if set(self.name_path_map) != set(other.name_path_map):
             return 'Set of files is not the same'
         mismatches = []
@@ -1143,7 +1237,7 @@ VCS_IGNORE_FILES = frozenset('.gitignore .hgignore .agignore .bzrignore'.split()
 VCS_DIRS = frozenset(('.git', '.hg', '.svn', '.bzr'))
 
 
-def walk_dir(basedir):
+def walk_dir(basedir: str) -> Iterator[tuple[bool, str, str | None]]:
     for dirpath, dirnames, filenames in os.walk(basedir):
         for vcsdir in VCS_DIRS:
             try:
@@ -1162,7 +1256,7 @@ class EpubContainer(Container):
     MAX_HTML_FILE_SIZE = 260 * 1024
 
     @property
-    def book_type_for_display(self):
+    def book_type_for_display(self) -> str:
         ans = self.book_type.upper()
         try:
             v = self.opf_version_parsed
@@ -1189,7 +1283,10 @@ class EpubContainer(Container):
         'rights.xml': False,
     }
 
-    def __init__(self, pathtoepub=None, log=default_log, clone_data=None, tdir=None) -> None:
+    pathtoepub: str
+    obfuscated_fonts: dict[str, tuple[str, bytes]]
+
+    def __init__(self, pathtoepub: str | None = None, log: Log | None = default_log, clone_data: CloneData | None = None, tdir: str | None = None) -> None:
         if clone_data is not None:
             super().__init__(log=log, clone_data=clone_data)
             for x in ('pathtoepub', 'obfuscated_fonts', 'is_dir'):
@@ -1264,18 +1361,20 @@ class EpubContainer(Container):
             self.process_encryption()
         self.parsed_cache['META-INF/container.xml'] = container
 
-    def data_for_clone(self, dest_dir=None):
+    def data_for_clone(self, dest_dir: str | None = None) -> CloneData:
         ans = super().data_for_clone(dest_dir)
         ans['pathtoepub'] = self.pathtoepub
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         ans['is_dir'] = self.is_dir
         return ans
 
-    def rename(self, current_name, new_name) -> None:
+    def rename(self, current_name: str, new_name: str) -> None:
         is_opf = current_name == self.opf_name
         super().rename(current_name, new_name)
         if is_opf:
-            for elem in self.parsed('META-INF/container.xml').xpath(
+            croot = self.parsed('META-INF/container.xml')
+            assert isinstance(croot, etree._Element)
+            for elem in croot.xpath(
                 (
                     r'child::ocf:rootfiles/ocf:rootfile'
                     '[@media-type="{}" and @full-path]'.format(guess_type('a.opf'))
@@ -1289,33 +1388,35 @@ class EpubContainer(Container):
         if current_name in self.obfuscated_fonts:
             self.obfuscated_fonts[new_name] = self.obfuscated_fonts.pop(current_name)
             enc = self.parsed('META-INF/encryption.xml')
+            assert isinstance(enc, etree._Element)
             for cr in enc.xpath('//*[local-name()="CipherReference" and @URI]'):
                 if self.href_to_name(cr.get('URI')) == current_name:
                     cr.set('URI', self.name_to_href(new_name))
                     self.dirty('META-INF/encryption.xml')
 
     @property
-    def names_that_need_not_be_manifested(self):
+    def names_that_need_not_be_manifested(self) -> set[str]:
         return super().names_that_need_not_be_manifested | {'META-INF/' + x for x in self.META_INF}
 
-    def ok_to_be_unmanifested(self, name):
+    def ok_to_be_unmanifested(self, name: str) -> bool:
         return name in self.names_that_need_not_be_manifested or name.startswith('META-INF/')
 
     @property
-    def names_that_must_not_be_removed(self):
+    def names_that_must_not_be_removed(self) -> set[str]:
         return super().names_that_must_not_be_removed | {'META-INF/container.xml'}
 
     @property
-    def names_that_must_not_be_changed(self):
+    def names_that_must_not_be_changed(self) -> set[str]:
         return super().names_that_must_not_be_changed | {'META-INF/' + x for x in self.META_INF}
 
-    def remove_item(self, name, remove_from_guide=True) -> None:
+    def remove_item(self, name: str, remove_from_guide: bool = True) -> None:
         # Handle removal of obfuscated fonts
         if name == 'META-INF/encryption.xml':
             self.obfuscated_fonts.clear()
         if name in self.obfuscated_fonts:
             self.obfuscated_fonts.pop(name, None)
             enc = self.parsed('META-INF/encryption.xml')
+            assert isinstance(enc, etree._Element)
             for em in enc.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
                 alg = em.get('Algorithm')
                 if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
@@ -1329,8 +1430,10 @@ class EpubContainer(Container):
                     self.dirty('META-INF/encryption.xml')
         super().remove_item(name, remove_from_guide=remove_from_guide)
 
-    def read_raw_unique_identifier(self):
-        package_id = raw_unique_identifier = idpf_key = None
+    def read_raw_unique_identifier(self) -> tuple[str | None, str | None, bytes | None]:
+        package_id: str | None = None
+        raw_unique_identifier: str | None = None
+        idpf_key: bytes | None = None
         for attrib, val in self.opf.attrib.items():
             if attrib.endswith('unique-identifier'):
                 package_id = val
@@ -1341,14 +1444,14 @@ class EpubContainer(Container):
                     raw_unique_identifier = elem.text
                     break
         if raw_unique_identifier is not None:
-            idpf_key = raw_unique_identifier
-            idpf_key = re.sub(r'[ \t\r\n]', '', idpf_key)
-            idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
+            idpf_key_text = re.sub(r'[ \t\r\n]', '', raw_unique_identifier)
+            idpf_key = hashlib.sha1(idpf_key_text.encode('utf-8')).digest()
         return package_id, raw_unique_identifier, idpf_key
 
-    def iter_encryption_entries(self):
+    def iter_encryption_entries(self) -> Iterator[tuple[_Element, _Element | None]]:
         if 'META-INF/encryption.xml' in self.name_path_map:
             enc = self.parsed('META-INF/encryption.xml')
+            assert isinstance(enc, etree._Element)
             for em in enc.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
                 try:
                     cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
@@ -1357,7 +1460,7 @@ class EpubContainer(Container):
                 yield em, cr
 
     def process_encryption(self) -> None:
-        fonts = {}
+        fonts: dict[str, str] = {}
         for em, cr in self.iter_encryption_entries():
             alg = em.get('Algorithm')
             if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
@@ -1365,8 +1468,8 @@ class EpubContainer(Container):
             if cr is None:
                 continue
             name = self.href_to_name(cr.get('URI'))
-            path = self.name_path_map.get(name, None)
-            if path is not None:
+            path = self.name_path_map.get(name, None) if name is not None else None
+            if path is not None and name is not None:
                 fonts[name] = alg
 
         package_id, raw_unique_identifier, idpf_key = self.read_raw_unique_identifier()
@@ -1378,7 +1481,7 @@ class EpubContainer(Container):
                     scheme = item.get(xkey)
             if (scheme and scheme.lower() == 'uuid') or (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = item.text.rpartition(':')[-1]
+                    key = item.text.rpartition(':')[-1]  # ty: ignore[unresolved-attribute] a None text is handled by the except clause
                     key = uuid.UUID(key).bytes
                 except Exception:
                     if self.log is not None:
@@ -1401,7 +1504,7 @@ class EpubContainer(Container):
         set_last_modified_in_opf(self.opf)
         self.dirty(self.opf_name)
 
-    def commit(self, outpath=None, keep_parsed=False) -> None:
+    def commit(self, outpath: str | None = None, keep_parsed: bool = False) -> None:
         if self.opf_version_parsed.major == 3:
             self.update_modified_timestamp()
         super().commit(keep_parsed=keep_parsed)
@@ -1411,7 +1514,7 @@ class EpubContainer(Container):
                 'No META-INF/container.xml in EPUB, this typically happens if the temporary files calibre'
                 ' is using are deleted by some other program while calibre is running'
             )
-        restore_fonts = {}
+        restore_fonts: dict[str, bytes] = {}
         for name in self.obfuscated_fonts:
             if name not in self.name_path_map:
                 continue
@@ -1469,11 +1572,11 @@ class EpubContainer(Container):
             zip_rebuilder(self.root, outpath)
 
     @property
-    def path_to_ebook(self):
+    def path_to_ebook(self) -> str:
         return self.pathtoepub
 
     @path_to_ebook.setter
-    def path_to_ebook(self, val) -> None:
+    def path_to_ebook(self, val: str) -> None:
         self.pathtoepub = val
 
 
@@ -1484,7 +1587,7 @@ class KEPUBContainer(EpubContainer):
     book_type = 'kepub'
     MAX_HTML_FILE_SIZE = 512 * 1024
 
-    def __init__(self, pathtokepub=None, log=default_log, clone_data=None, tdir=None) -> None:
+    def __init__(self, pathtokepub: str | None = None, log: Log | None = default_log, clone_data: CloneData | None = None, tdir: str | None = None) -> None:
         super().__init__(pathtokepub, log=log, clone_data=clone_data, tdir=tdir)
         from calibre.ebooks.oeb.polish.kepubify import unkepubify_container
 
@@ -1509,7 +1612,7 @@ class InvalidMobi(InvalidBook):
     pass
 
 
-def do_explode(path, dest):
+def do_explode(path: str, dest: str) -> tuple[str, list[str]]:
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
     from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
 
@@ -1524,18 +1627,18 @@ def do_explode(path, dest):
     return opf, obfuscated_fonts
 
 
-def opf_to_azw3(opf, outpath, container) -> None:
+def opf_to_azw3(opf: str, outpath: str, container: Container) -> None:
     from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
     from calibre.ebooks.mobi.tweak import set_cover
 
     class Item(Manifest.Item):
-        def _parse_css(self, data):
+        def _parse_css(self, data: str | bytes) -> CSSStyleSheet:
             # The default CSS parser used by oeb.base inserts the h namespace
             # and resolves all @import rules. We don't want that.
             return container.parse_css(data)
 
-    def specialize(oeb) -> None:
-        oeb.manifest.Item = Item
+    def specialize(oeb: OEBBook) -> None:
+        oeb.manifest.Item = Item  # ty: ignore[invalid-assignment] Manifest.Item is designed to be overridden per instance
 
     plumber = Plumber(opf, outpath, container.log)
     plumber.setup_options()
@@ -1548,13 +1651,14 @@ def opf_to_azw3(opf, outpath, container) -> None:
     outp.convert(oeb, outpath, inp, plumber.opts, container.log)
 
 
-def epub_to_azw3(epub, outpath=None) -> None:
+def epub_to_azw3(epub: str, outpath: str | None = None) -> None:
     container = get_container(epub, tweak_mode=True)
     changed = False
     for item in container.opf_xpath('//opf:manifest/opf:item[@properties and @href]'):
-        p = item.get('properties').split()
+        properties, href = item.get('properties'), item.get('href')
+        assert properties is not None and href is not None  # guaranteed by the XPath expression
+        p = properties.split()
         if 'cover-image' in p:
-            href = item.get('href')
             guides = container.opf_xpath('//opf:guide')
             if not guides:
                 guides = (container.opf.makeelement(OPF('guide')),)
@@ -1568,7 +1672,7 @@ def epub_to_azw3(epub, outpath=None) -> None:
                     changed = True
             break
         elif 'calibre:title-page' in p:
-            item.getparent().remove(item)
+            cast('_Element', item.getparent()).remove(item)  # manifest items always have a parent
     if changed:
         container.dirty(container.opf_name)
         container.commit_item(container.opf_name)
@@ -1581,7 +1685,10 @@ class AZW3Container(Container):
     SUPPORTS_TITLEPAGES = False
     SUPPORTS_FILENAMES = False
 
-    def __init__(self, pathtoazw3=None, log=default_log, clone_data=None, tdir=None) -> None:
+    pathtoazw3: str
+    obfuscated_fonts: set[str]
+
+    def __init__(self, pathtoazw3: str | None = None, log: Log | None = default_log, clone_data: CloneData | None = None, tdir: str | None = None) -> None:
         if clone_data is not None:
             super().__init__(log=log, clone_data=clone_data)
             for x in ('pathtoazw3', 'obfuscated_fonts'):
@@ -1631,35 +1738,37 @@ class AZW3Container(Container):
         super().__init__(rootpath=tdir, opfpath=opf_path, log=log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
-    def data_for_clone(self, dest_dir=None):
+    def data_for_clone(self, dest_dir: str | None = None) -> CloneData:
         ans = super().data_for_clone(dest_dir)
         ans['pathtoazw3'] = self.pathtoazw3
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         return ans
 
-    def commit(self, outpath=None, keep_parsed=False) -> None:
+    def commit(self, outpath: str | None = None, keep_parsed: bool = False) -> None:
         super().commit(keep_parsed=keep_parsed)
         if outpath is None:
             outpath = self.pathtoazw3
         opf_to_azw3(self.name_path_map[self.opf_name], outpath, self)
 
     @property
-    def path_to_ebook(self):
+    def path_to_ebook(self) -> str:
         return self.pathtoazw3
 
     @path_to_ebook.setter
-    def path_to_ebook(self, val) -> None:
+    def path_to_ebook(self, val: str) -> None:
         self.pathtoazw3 = val
 
     @property
-    def names_that_must_not_be_changed(self):
+    def names_that_must_not_be_changed(self) -> set[str]:
         return set(self.name_path_map)
 
 
 # }}}
 
 
-def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -> Container:
+def get_container(
+    path: str, log: Log | None = None, tdir: str | None = None, tweak_mode: bool = False, ebook_cls: type[EpubContainer | AZW3Container] | None = None
+) -> Container:
     try:
         isdir = os.path.isdir(path)
     except Exception:

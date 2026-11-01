@@ -94,7 +94,7 @@ class DefaultEncoding:
         'gb18030': '54936',
     }
 
-    def __init__(self, in_file, bug_handler, default_encoding, run_level=1, check_raw=False) -> None:
+    def __init__(self, in_file: str, bug_handler: type[Exception], default_encoding: str, run_level: int = 1, check_raw: bool = False) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__platform = 'Windows'
@@ -103,16 +103,16 @@ class DefaultEncoding:
         self.__datafetched = False
         self.__fetchraw = check_raw
 
-    def find_default_encoding(self):
+    def find_default_encoding(self) -> tuple[str, str, str]:
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True
-            code_page = 'ansicpg' + self.__code_page
             # if self.__code_page == '10000':
             # self.__code_page = 'mac_roman'
+        code_page = 'ansicpg' + self.__code_page
         return self.__platform, code_page, self.__default_num
 
-    def get_codepage(self):
+    def get_codepage(self) -> str:
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True
@@ -120,7 +120,7 @@ class DefaultEncoding:
             # self.__code_page = 'mac_roman'
         return self.__code_page
 
-    def get_platform(self):
+    def get_platform(self) -> str:
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True

@@ -6,7 +6,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import re
 import threading
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from functools import total_ordering
+from typing import IO, TYPE_CHECKING, overload
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
@@ -15,8 +17,29 @@ from calibre.ebooks.metadata.author_mapper import cap_author_token
 from calibre.utils.localization import _, canonicalize_lang, get_lang
 from polyglot.builtins import cmp, iteritems
 
+if TYPE_CHECKING:
+    from queue import Queue
+    from threading import Event
 
-def create_log(ostream=None):
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.metadata.config import ConfigWidget
+    from calibre.utils.browser import Browser
+    from calibre.utils.config import JSONConfig
+    from calibre.utils.logging import Log, ThreadSafeLog
+
+#: Maps identifier type (e.g. isbn) to identifier value
+type Identifiers = dict[str, str]
+#: Queue into which :meth:`Source.identify` puts the Metadata objects it finds
+type IdentifyQueue = Queue[Metadata]
+#: Queue into which :meth:`Source.download_cover` puts (plugin, image data) tuples
+type CoverQueue = Queue[tuple[Source, bytes]]
+#: (identifier type, identifier value, URL) for a book at a metadata source
+type BookURL = tuple[str, str, str]
+#: The dump of the caches of a metadata source, see :meth:`Source.dump_caches`
+type CachesDump = dict[str, dict[str, str]]
+
+
+def create_log(ostream: IO[str] | IO[bytes] | None = None) -> ThreadSafeLog:
     from calibre.utils.logging import FileStream, ThreadSafeLog
 
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
@@ -31,7 +54,7 @@ trailing_paren_pat = re.compile(r'\(.*\)$')
 whitespace_pat = re.compile(r'\s+')
 
 
-def cleanup_title(s):
+def cleanup_title(s: str | None) -> str:
     if not s:
         s = _('Unknown')
     s = s.strip().lower()
@@ -63,7 +86,7 @@ class InternalMetadataCompareKeyGen:
            engine
     """
 
-    def __init__(self, mi, source_plugin, title, authors, identifiers) -> None:
+    def __init__(self, mi: Metadata, source_plugin: Source, title: str | None, authors: Sequence[str] | None, identifiers: Identifiers) -> None:
         same_identifier = 2
         idents = mi.get_identifiers()
         for k, v in iteritems(identifiers):
@@ -87,7 +110,7 @@ class InternalMetadataCompareKeyGen:
         self.comments_len = len((mi.comments or '').strip())
         self.extra = getattr(mi, 'source_relevance', 0)
 
-    def compare_to_other(self, other):
+    def compare_to_other(self, other: InternalMetadataCompareKeyGen) -> int:
         a = cmp(self.base, other.base)
         if a != 0:
             return a
@@ -99,29 +122,29 @@ class InternalMetadataCompareKeyGen:
                 return -1 if delta < 0 else 1
         return cmp(self.extra, other.extra)
 
-    def __eq__(self, other):
+    def __eq__(self, other: InternalMetadataCompareKeyGen) -> bool:  # ty: ignore[invalid-method-override]
         return self.compare_to_other(other) == 0
 
-    def __ne__(self, other):
+    def __ne__(self, other: InternalMetadataCompareKeyGen) -> bool:  # ty: ignore[invalid-method-override]
         return self.compare_to_other(other) != 0
 
-    def __lt__(self, other):
+    def __lt__(self, other: InternalMetadataCompareKeyGen) -> bool:
         return self.compare_to_other(other) < 0
 
-    def __le__(self, other):
+    def __le__(self, other: InternalMetadataCompareKeyGen) -> bool:
         return self.compare_to_other(other) <= 0
 
-    def __gt__(self, other):
+    def __gt__(self, other: InternalMetadataCompareKeyGen) -> bool:
         return self.compare_to_other(other) > 0
 
-    def __ge__(self, other):
+    def __ge__(self, other: InternalMetadataCompareKeyGen) -> bool:
         return self.compare_to_other(other) >= 0
 
 
 # }}}
 
 
-def get_cached_cover_urls(mi):
+def get_cached_cover_urls(mi: Metadata) -> Iterator[tuple[Source, str]]:
     from calibre.customize.ui import metadata_plugins
 
     plugins = list(metadata_plugins(['identify']))
@@ -131,13 +154,13 @@ def get_cached_cover_urls(mi):
             yield (p, url)
 
 
-def dump_caches():
+def dump_caches() -> dict[str, CachesDump]:
     from calibre.customize.ui import metadata_plugins
 
     return {p.name: p.dump_caches() for p in metadata_plugins(['identify'])}
 
 
-def load_caches(dump) -> None:
+def load_caches(dump: dict[str, CachesDump]) -> None:
     from calibre.customize.ui import metadata_plugins
 
     plugins = list(metadata_plugins(['identify']))
@@ -147,7 +170,7 @@ def load_caches(dump) -> None:
             p.load_caches(cache)
 
 
-def fixauthors(authors):
+def fixauthors[T: Sequence[str] | None](authors: T) -> list[str] | T:
     if not authors:
         return authors
     ans = []
@@ -156,7 +179,11 @@ def fixauthors(authors):
     return ans
 
 
-def fixcase(x):
+@overload
+def fixcase(x: str) -> str: ...
+@overload
+def fixcase(x: None) -> None: ...
+def fixcase(x: str | None) -> str | None:
     if x:
         from calibre.utils.titlecase import titlecase
 
@@ -167,7 +194,7 @@ def fixcase(x):
 class Option:
     __slots__ = ('choices', 'default', 'desc', 'label', 'name', 'type')
 
-    def __init__(self, name, type_, default, label, desc, choices=None) -> None:
+    def __init__(self, name: str, type_: str, default: object, label: str, desc: str, choices: dict[str, str] | Iterable[str] | None = None) -> None:
         """
         :param name: The name of this option. Must be a valid python identifier
         :param type_: The type of this option, one of ('number', 'string',
@@ -192,11 +219,11 @@ class Source(Plugin):
 
     #: Set of capabilities supported by this plugin.
     #: Useful capabilities are: 'identify', 'cover'
-    capabilities = frozenset()
+    capabilities: frozenset[str] = frozenset()
 
     #: List of metadata fields that can potentially be download by this plugin
     #: during the identify phase
-    touched_fields = frozenset()
+    touched_fields: frozenset[str] = frozenset()
 
     #: Set this to True if your plugin returns HTML formatted comments
     has_html_comments = False
@@ -218,11 +245,11 @@ class Source(Plugin):
 
     #: A list of :class:`Option` objects. They will be used to automatically
     #: construct the configuration widget for this plugin
-    options = ()
+    options: Sequence[Option] = ()
 
     #: A string that is displayed at the top of the config widget for this
     #: plugin
-    config_help_message = None
+    config_help_message: str | None = None
 
     #: If True this source can return multiple covers for a given query
     can_get_multiple_covers = False
@@ -242,14 +269,18 @@ class Source(Plugin):
     #: source arrives, since downloading with a browser is slow.
     uses_camoufox_worker = False
 
-    def __init__(self, *args, **kwargs) -> None:
+    if TYPE_CHECKING:
+        #: Seconds taken by the last identify() run, set by :func:`calibre.ebooks.metadata.sources.identify.identify`
+        dl_time_spent: float
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
         Plugin.__init__(self, *args, **kwargs)
         self.running_a_test = False  # Set to True when using identify_test()
-        self._isbn_to_identifier_cache = {}
-        self._identifier_to_cover_url_cache = {}
+        self._isbn_to_identifier_cache: dict[str, str] = {}
+        self._identifier_to_cover_url_cache: dict[str, str] = {}
         self.cache_lock = threading.RLock()
-        self._config_obj = None
-        self._browser = None
+        self._config_obj: JSONConfig | None = None
+        self._browser: Browser | None = None
         self.prefs.defaults['ignore_fields'] = []
         for opt in self.options:
             self.prefs.defaults[opt.name] = opt.default
@@ -266,19 +297,19 @@ class Source(Plugin):
     def is_customizable(self) -> bool:
         return True
 
-    def customization_help(self, gui=False) -> str:
+    def customization_help(self, gui: bool = False) -> str:
         return 'This plugin can only be customized using the GUI'
 
-    def config_widget(self):
+    def config_widget(self) -> ConfigWidget:
         from calibre.gui2.metadata.config import ConfigWidget
 
         return ConfigWidget(self)
 
-    def save_settings(self, config_widget) -> None:
+    def save_settings(self, config_widget: ConfigWidget) -> None:
         config_widget.commit()
 
     @property
-    def prefs(self):
+    def prefs(self) -> JSONConfig:
         if self._config_obj is None:
             from calibre.utils.config import JSONConfig
 
@@ -290,13 +321,13 @@ class Source(Plugin):
     # Browser {{{
 
     @property
-    def user_agent(self):
+    def user_agent(self) -> str:
         # Pass in an index to random_user_agent() to test with a particular
         # user agent
         return random_user_agent()
 
     @property
-    def browser(self):
+    def browser(self) -> Browser:
         if self._browser is None:
             self._browser = browser(user_agent=self.user_agent, verify_ssl_certificates=not self.ignore_ssl_errors)
             if self.supports_gzip_transfer_encoding:
@@ -307,36 +338,36 @@ class Source(Plugin):
 
     # Caching {{{
 
-    def get_related_isbns(self, id_):
+    def get_related_isbns(self, id_: str) -> Iterator[str]:
         with self.cache_lock:
             for isbn, q in iteritems(self._isbn_to_identifier_cache):
                 if q == id_:
                     yield isbn
 
-    def cache_isbn_to_identifier(self, isbn, identifier) -> None:
+    def cache_isbn_to_identifier(self, isbn: str, identifier: str) -> None:
         with self.cache_lock:
             self._isbn_to_identifier_cache[isbn] = identifier
 
-    def cached_isbn_to_identifier(self, isbn):
+    def cached_isbn_to_identifier(self, isbn: str) -> str | None:
         with self.cache_lock:
             return self._isbn_to_identifier_cache.get(isbn, None)
 
-    def cache_identifier_to_cover_url(self, id_, url) -> None:
+    def cache_identifier_to_cover_url(self, id_: str, url: str) -> None:
         with self.cache_lock:
             self._identifier_to_cover_url_cache[id_] = url
 
-    def cached_identifier_to_cover_url(self, id_):
+    def cached_identifier_to_cover_url(self, id_: str | None) -> str | None:
         with self.cache_lock:
             return self._identifier_to_cover_url_cache.get(id_, None)
 
-    def dump_caches(self):
+    def dump_caches(self) -> CachesDump:
         with self.cache_lock:
             return {
                 'isbn_to_identifier': self._isbn_to_identifier_cache.copy(),
                 'identifier_to_cover': self._identifier_to_cover_url_cache.copy(),
             }
 
-    def load_caches(self, dump) -> None:
+    def load_caches(self, dump: CachesDump) -> None:
         with self.cache_lock:
             self._isbn_to_identifier_cache.update(dump['isbn_to_identifier'])
             self._identifier_to_cover_url_cache.update(dump['identifier_to_cover'])
@@ -345,7 +376,7 @@ class Source(Plugin):
 
     # Utility functions {{{
 
-    def get_author_tokens(self, authors, only_first_author=True):
+    def get_author_tokens(self, authors: Sequence[str] | None, only_first_author: bool = True) -> Iterator[str]:
         """
         Take a list of authors and return a list of tokens useful for an
         AND search query. This function tries to return tokens in
@@ -371,7 +402,7 @@ class Source(Plugin):
                     if len(tok) > 2 and tok.lower() not in ('von', 'van', _('Unknown').lower()):
                         yield tok
 
-    def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
+    def get_title_tokens(self, title: str | None, strip_joiners: bool = True, strip_subtitle: bool = False) -> Iterator[str]:
         """
         Take a title and return a list of tokens useful for an AND search query.
         Excludes connectives(optionally) and punctuation.
@@ -412,9 +443,9 @@ class Source(Plugin):
                 if token and (not strip_joiners or token.lower() not in ('a', 'and', 'the', '&')):
                     yield token
 
-    def split_jobs(self, jobs, num):
+    def split_jobs[T](self, jobs: Iterable[T], num: int) -> list[list[T]]:
         "Split a list of jobs into at most num groups, as evenly as possible"
-        groups = [[] for i in range(num)]
+        groups: list[list[T]] = [[] for i in range(num)]
         jobs = list(jobs)
         while jobs:
             for gr in groups:
@@ -425,7 +456,7 @@ class Source(Plugin):
                 gr.append(job)
         return [g for g in groups if g]
 
-    def test_fields(self, mi):
+    def test_fields(self, mi: Metadata) -> str | None:
         """
         Return the first field from self.touched_fields that is null on the
         mi object
@@ -438,7 +469,7 @@ class Source(Plugin):
             elif mi.is_null(key):
                 return key
 
-    def clean_downloaded_metadata(self, mi) -> None:
+    def clean_downloaded_metadata(self, mi: Metadata) -> None:
         """
         Call this method in your plugin's identify method to normalize metadata
         before putting the Metadata object into result_queue. You can of
@@ -452,7 +483,18 @@ class Source(Plugin):
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
-    def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log, prefs_name='max_covers') -> None:
+    def download_multiple_covers(
+        self,
+        title: str | None,
+        authors: Sequence[str] | None,
+        urls: Sequence[str],
+        get_best_cover: bool,
+        timeout: float,
+        result_queue: CoverQueue,
+        abort: Event,
+        log: Log,
+        prefs_name: str = 'max_covers',
+    ) -> None:
         if not urls:
             log('No images found for, title: %r and authors: %r' % (title, authors))
             return
@@ -478,7 +520,7 @@ class Source(Plugin):
                     break
             abort.wait(0.1)
 
-    def download_image(self, url, timeout, log, result_queue) -> None:
+    def download_image(self, url: str, timeout: float, log: Log, result_queue: CoverQueue) -> None:
         try:
             ans = self.browser.open_novisit(url, timeout=timeout).read()
             result_queue.put((self, ans))
@@ -489,7 +531,7 @@ class Source(Plugin):
     # }}}
 
     # Metadata API {{{
-    def get_book_url(self, identifiers) -> None:
+    def get_book_url(self, identifiers: Identifiers) -> BookURL | None:
         """
         Return a 3-tuple or None. The 3-tuple is of the form:
         (identifier_type, identifier_value, URL).
@@ -505,13 +547,13 @@ class Source(Plugin):
         """
         return
 
-    def get_book_url_name(self, idtype, idval, url):
+    def get_book_url_name(self, idtype: str, idval: str, url: str) -> str:
         """
         Return a human readable name from the return value of get_book_url().
         """
         return self.name
 
-    def get_book_urls(self, identifiers):
+    def get_book_urls(self, identifiers: Identifiers) -> Sequence[BookURL]:
         """
         Override this method if you would like to return multiple URLs for this book.
         Return a list of 3-tuples. By default this method simply calls :func:`get_book_url`.
@@ -521,7 +563,7 @@ class Source(Plugin):
             return ()
         return (data,)
 
-    def get_cached_cover_url(self, identifiers) -> None:
+    def get_cached_cover_url(self, identifiers: Identifiers) -> str | None:
         """
         Return cached cover URL for the book identified by
         the identifiers dictionary or None if no such URL exists.
@@ -531,7 +573,7 @@ class Source(Plugin):
         """
         return
 
-    def id_from_url(self, url) -> None:
+    def id_from_url(self, url: str) -> tuple[str, str] | None:
         """
         Parse a URL and return a tuple of the form:
         (identifier_type, identifier_value).
@@ -540,7 +582,9 @@ class Source(Plugin):
         """
         return
 
-    def identify_results_keygen(self, title=None, authors=None, identifiers=None):
+    def identify_results_keygen(
+        self, title: str | None = None, authors: Sequence[str] | None = None, identifiers: Identifiers | None = None
+    ) -> Callable[[Metadata], InternalMetadataCompareKeyGen]:
         """
         Return a function that is used to generate a key that can sort Metadata
         objects by their relevance given a search query (title, authors,
@@ -555,12 +599,21 @@ class Source(Plugin):
         if identifiers is None:
             identifiers = {}
 
-        def keygen(mi):
+        def keygen(mi: Metadata) -> InternalMetadataCompareKeyGen:
             return InternalMetadataCompareKeyGen(mi, self, title, authors, identifiers)
 
         return keygen
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30) -> None:
+    def identify(
+        self,
+        log: Log,
+        result_queue: IdentifyQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+    ) -> str | None:
         """
         Identify a book by its Title/Author/ISBN/etc.
 
@@ -600,7 +653,17 @@ class Source(Plugin):
         """
         pass
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False) -> None:
+    def download_cover(
+        self,
+        log: Log,
+        result_queue: CoverQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+        get_best_cover: bool = False,
+    ) -> None:
         '''
         Download a cover and put it into result_queue. The parameters all have
         the same meaning as for :meth:`identify`. Put (self, cover_data) into

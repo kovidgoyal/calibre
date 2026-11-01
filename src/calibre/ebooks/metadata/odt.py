@@ -22,6 +22,7 @@ import io
 import json
 import os
 import re
+from typing import IO, TYPE_CHECKING, cast
 
 from lxml.etree import tostring
 from odf.draw import Frame as odFrame
@@ -36,6 +37,14 @@ from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile, safe_replace
 from polyglot.builtins import as_unicode
+
+if TYPE_CHECKING:
+    from collections.abc import Hashable, Iterable, Iterator
+    from datetime import date
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.book.base import Metadata
 
 fields = {
     'title': (DCNS, 'title'),
@@ -58,7 +67,7 @@ fields = {
 }
 
 
-def uniq(vals):
+def uniq[T: Hashable](vals: Iterable[T] | None) -> list[T]:
     """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
@@ -66,23 +75,23 @@ def uniq(vals):
     return [x for x in vals if x not in seen and not seen_add(x)]  # ty: ignore[redundant-condition]
 
 
-def get_metadata(stream, extract_cover=True):
+def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     whitespace = re.compile(r'\s+')
 
-    def normalize(s):
+    def normalize(s: str) -> str:
         return whitespace.sub(' ', s).strip()
 
     with ZipFile(stream) as zf:
         meta = zf.read('meta.xml')
         root = safe_xml_fromstring(meta)
 
-        def find(field):
+        def find(field: str) -> str | None:
             ns, tag = fields[field]
             ans = root.xpath(f'//ns0:{tag}', namespaces={'ns0': ns})
             if ans:
                 return normalize(tostring(ans[0], method='text', encoding='unicode', with_tail=False)).strip()
 
-        def find_all(field):
+        def find_all(field: str) -> Iterator[str]:
             ns, tag = fields[field]
             for x in root.xpath(f'//ns0:{tag}', namespaces={'ns0': ns}):
                 yield normalize(tostring(x, method='text', encoding='unicode', with_tail=False)).strip()
@@ -98,8 +107,8 @@ def get_metadata(stream, extract_cover=True):
         if desc:
             mi.comments = desc
         lang = find('language')
-        if lang and canonicalize_lang(lang):
-            mi.languages = [canonicalize_lang(lang)]
+        if lang and (clang := canonicalize_lang(lang)):
+            mi.languages = [clang]
         keywords = []
         for q in ('keyword', 'keywords'):
             for kw in find_all(q):
@@ -164,7 +173,7 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def set_metadata(stream, mi) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
 
     with ZipFile(stream) as zf:
         raw = _set_metadata(zf.open('meta.xml').read(), mi)
@@ -174,46 +183,50 @@ def set_metadata(stream, mi) -> None:
     safe_replace(stream, 'meta.xml', io.BytesIO(raw))
 
 
-def _set_metadata(raw, mi):
+def _set_metadata(raw: bytes, mi: Metadata) -> bytes:
     root = safe_xml_fromstring(raw)
     namespaces = {'office': OFFICENS, 'meta': METANS, 'dc': DCNS}
     nsrmap = {v: k for k, v in namespaces.items()}
 
-    def xpath(expr, parent=root):
+    def xpath(expr: str, parent: _Element = root) -> list[_Element]:
         return parent.xpath(expr, namespaces=namespaces)
 
-    def remove(*tag_names) -> None:
+    def remove(*tag_names: str) -> None:
         for tag_name in tag_names:
             ns = fields[tag_name][0]
             tag_name = f'{nsrmap[ns]}:{tag_name}'
             for x in xpath('descendant::' + tag_name, meta):
-                x.getparent().remove(x)
+                p = x.getparent()
+                assert p is not None  # x is a descendant of meta
+                p.remove(x)
 
-    def add(tag, val=None):
+    def add(tag: str, val: str | None = None) -> _Element:
         ans = meta.makeelement('{{{}}}{}'.format(*fields[tag]))
         ans.text = val
         meta.append(ans)
         return ans
 
-    def remove_user_metadata(*names) -> None:
+    def remove_user_metadata(*names: str) -> None:
         for x in xpath('//meta:user-defined'):
             q = (x.get(f'{{{METANS}}}name') or '').lower()
             if q in names:
-                x.getparent().remove(x)
+                p = x.getparent()
+                assert p is not None  # user-defined is never the root element
+                p.remove(x)
 
-    def add_um(name, val, vtype='string') -> None:
+    def add_um(name: str, val: str, vtype: str = 'string') -> None:
         ans = add('user-defined', val)
         ans.set(f'{{{METANS}}}value-type', vtype)
         ans.set(f'{{{METANS}}}name', name)
 
-    def add_user_metadata(name, val) -> None:
+    def add_user_metadata(name: str, val: str | date) -> None:
         if not hasattr(add_user_metadata, 'sentinel_added'):
             setattr(add_user_metadata, 'sentinel_added', True)
             remove_user_metadata('opf.metadata')
             add_um('opf.metadata', 'true', 'boolean')
         val_type = 'string'
         if hasattr(val, 'strftime'):
-            val = isoformat(val, as_utc=True).split('T')[0]
+            val = isoformat(cast('date', val), as_utc=True).split('T')[0]  # hasattr(strftime) means val is a date
             val_type = 'date'
         add_um(name, val, val_type)
 
@@ -224,6 +237,7 @@ def _set_metadata(raw, mi):
         add('title', mi.title)
         if not mi.is_null('title_sort'):
             remove_user_metadata('opf.titlesort')
+            assert mi.title_sort is not None  # not null, checked above
             add_user_metadata('opf.titlesort', mi.title_sort)
     if not mi.is_null('authors'):
         remove('initial-creator', 'creator')
@@ -247,12 +261,15 @@ def _set_metadata(raw, mi):
             add('language', lang)
     if not mi.is_null('pubdate'):
         remove_user_metadata('opf.pubdate')
+        assert mi.pubdate is not None  # not null, checked above
         add_user_metadata('opf.pubdate', mi.pubdate)
     if not mi.is_null('publisher'):
         remove_user_metadata('opf.publisher')
+        assert mi.publisher is not None  # not null, checked above
         add_user_metadata('opf.publisher', mi.publisher)
     if not mi.is_null('series'):
         remove_user_metadata('opf.series', 'opf.seriesindex')
+        assert mi.series is not None  # not null, checked above
         add_user_metadata('opf.series', mi.series)
         add_user_metadata('opf.seriesindex', f'{mi.series_index}')
     if not mi.is_null('identifiers'):
@@ -265,7 +282,7 @@ def _set_metadata(raw, mi):
     return tostring(root, encoding='utf-8', pretty_print=True)
 
 
-def read_cover(stream, zin, mi, opfmeta, extract_cover) -> None:
+def read_cover(stream: IO[bytes], zin: ZipFile, mi: Metadata, opfmeta: bool, extract_cover: bool) -> None:
     # search for an draw:image in a draw:frame with the name 'opf.cover'
     # if opf.metadata prop is false, just use the first image that
     # has a proper size (borrowed from docx)
@@ -312,4 +329,4 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover) -> None:
                     pass
                 else:
                     cover_data = (fmt, raw)
-            mi.cover_data = cover_data
+            mi.set('cover_data', cover_data)  # None is converted to the null value

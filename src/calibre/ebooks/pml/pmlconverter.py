@@ -154,10 +154,10 @@ class PML_HTMLizer:
         self.state = {}
         # toc consists of a tuple
         # (level, (href, id, text))
-        self.toc = []
+        self.toc: list[tuple[int | str, tuple[str, str, str]]] = []
         self.file_name = ''
 
-    def prepare_pml(self, pml):
+    def prepare_pml(self, pml: str) -> str:
         # Give Chapters the form \\*='text'text\\*. This is used for generating
         # the TOC later.
         pml = re.sub(
@@ -204,7 +204,7 @@ class PML_HTMLizer:
 
         return pml
 
-    def strip_pml(self, pml):
+    def strip_pml(self, pml: str) -> str:
         pml = re.sub(r'\\C\d=".*"', '', pml)
         pml = re.sub(r'\\Fn=".*"', '', pml)
         pml = re.sub(r'\\Sd=".*"', '', pml)
@@ -222,7 +222,7 @@ class PML_HTMLizer:
 
         return pml
 
-    def cleanup_html(self, html):
+    def cleanup_html(self, html: str) -> str:
         old = html
         html = self.cleanup_html_remove_redundant(html)
         while html != old:
@@ -231,7 +231,7 @@ class PML_HTMLizer:
         html = re.sub(r'(?imu)^\s*', '', html)
         return html
 
-    def cleanup_html_remove_redundant(self, html):
+    def cleanup_html_remove_redundant(self, html: str) -> str:
         for key in self.STATES_TAGS:
             open, close = self.STATES_TAGS[key]
             if key in self.STATES_VALUE_REQ:
@@ -296,10 +296,10 @@ class PML_HTMLizer:
 
         return f'{end}</p>'
 
-    def process_code(self, code, stream, pre=''):
+    def process_code(self, code: str, stream: io.StringIO, pre: str = '') -> str:
         text = ''
 
-        code = self.CODE_STATES.get(code, None)
+        code = self.CODE_STATES.get(code, '')
         if not code:
             return text
 
@@ -321,7 +321,7 @@ class PML_HTMLizer:
 
         return text
 
-    def process_code_simple(self, code, stream):
+    def process_code_simple(self, code: str, stream: io.StringIO) -> str:
         text = ''
 
         if self.state[code][0]:
@@ -341,7 +341,7 @@ class PML_HTMLizer:
 
         return text
 
-    def process_code_div(self, code, stream):
+    def process_code_div(self, code: str, stream: io.StringIO) -> str:
         text = ''
 
         # Close code.
@@ -395,7 +395,7 @@ class PML_HTMLizer:
 
         return text
 
-    def process_code_span(self, code, stream):
+    def process_code_span(self, code: str, stream: io.StringIO) -> str:
         text = ''
 
         # Close code.
@@ -432,7 +432,7 @@ class PML_HTMLizer:
 
         return text
 
-    def process_code_block(self, code, stream, pre=''):
+    def process_code_block(self, code: str, stream: io.StringIO, pre: str = '') -> str:
         text = ''
 
         # Close all spans
@@ -476,7 +476,7 @@ class PML_HTMLizer:
 
         return text
 
-    def code_value(self, stream):
+    def code_value(self, stream: io.StringIO) -> str:
         value = ''
         # state 0 is before =
         # state 1 is before the first "
@@ -520,7 +520,7 @@ class PML_HTMLizer:
 
         return value.strip()
 
-    def parse_pml(self, pml, file_name=''):
+    def parse_pml(self, pml: str, file_name: str = '') -> str:
         pml = self.prepare_pml(pml)
         output = []
 
@@ -690,7 +690,7 @@ class PML_HTMLizer:
 
         return output
 
-    def get_toc(self):
+    def get_toc(self) -> TOC:
         """
         Toc can have up to 5 levels, 0 - 4 inclusive.
 
@@ -759,12 +759,12 @@ class PML_HTMLizer:
         return n_toc
 
 
-def pml_to_html(pml):
+def pml_to_html(pml: str) -> str:
     hizer = PML_HTMLizer()
     return hizer.parse_pml(pml)
 
 
-def footnote_sidebar_to_html(pre_id, id, pml):
+def footnote_sidebar_to_html(pre_id: str, id: str, pml: str) -> str:
     id = id.strip('\x01')
     if id.strip():
         html = (
@@ -775,9 +775,9 @@ def footnote_sidebar_to_html(pre_id, id, pml):
     return html
 
 
-def footnote_to_html(id, pml):
+def footnote_to_html(id: str, pml: str) -> str:
     return footnote_sidebar_to_html('fn', id, pml)
 
 
-def sidebar_to_html(id, pml):
+def sidebar_to_html(id: str, pml: str) -> str:
     return footnote_sidebar_to_html('sb', id, pml)

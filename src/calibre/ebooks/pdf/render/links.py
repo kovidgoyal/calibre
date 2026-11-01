@@ -2,15 +2,29 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING, TypedDict
 from urllib.parse import urlparse
 
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, String, UTF16String, current_log
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+
+    from calibre.ebooks.metadata.toc import TOC
+    from calibre.ebooks.pdf.render.common import Reference
+    from calibre.ebooks.pdf.render.serialize import PDFStream
+
+
+class AnchorPos(TypedDict):
+    column: int
+    left: float
+    top: float
+
 
 class Destination(Array):
-    def __init__(self, start_page, pos, get_pageref) -> None:
+    def __init__(self, start_page: int, pos: AnchorPos, get_pageref: Callable[[int], Reference[Dictionary]]) -> None:
         pnum = start_page + max(0, pos['column'])
         q = pnum
         while q > -1:
@@ -26,14 +40,14 @@ class Destination(Array):
 
 
 class Links:
-    def __init__(self, pdf, mark_links, page_size) -> None:
-        self.anchors = {}
-        self.links = []
-        self.start = {'top': page_size[1], 'column': 0, 'left': 0}
+    def __init__(self, pdf: PDFStream, mark_links: bool, page_size: tuple[float, float]) -> None:
+        self.anchors: dict[str, dict[str | None, Destination]] = {}
+        self.links: list[tuple[tuple[str, str, str | None], Dictionary, Array]] = []
+        self.start: AnchorPos = {'top': page_size[1], 'column': 0, 'left': 0}
         self.pdf = pdf
         self.mark_links = mark_links
 
-    def add(self, base_path, start_page, links, anchors) -> None:
+    def add(self, base_path: str, start_page: int, links: Iterable[tuple[str, int, Sequence[float]]], anchors: Mapping[str, AnchorPos]) -> None:
         path = os.path.normcase(os.path.abspath(base_path))
         self.anchors[path] = a = {}
         a[None] = Destination(start_page, self.start, self.pdf.get_pageref)
@@ -99,14 +113,14 @@ class Links:
             else:
                 self.pdf.debug(f'Could not find destination for link: {href} in file {path}')
 
-    def add_outline(self, toc) -> None:
+    def add_outline(self, toc: TOC) -> None:
         parent = Dictionary({'Type': Name('Outlines')})
         parentref = self.pdf.objects.add(parent)
         self.process_children(toc, parentref, parent_is_root=True)
         self.pdf.catalog.obj['Outlines'] = parentref
 
-    def process_children(self, toc, parentref, parent_is_root=False) -> None:
-        childrefs = []
+    def process_children(self, toc: TOC, parentref: Reference[Dictionary], parent_is_root: bool = False) -> None:
+        childrefs: list[Reference[Dictionary]] = []
         for child in toc:
             childref = self.process_toc_item(child, parentref)
             if childref is None:
@@ -124,7 +138,7 @@ class Links:
             if not parent_is_root:
                 parentref.obj['Count'] = -len(childrefs)
 
-    def process_toc_item(self, toc, parentref):
+    def process_toc_item(self, toc: TOC, parentref: Reference[Dictionary]) -> Reference[Dictionary] | None:
         path = toc.abspath or None
         frag = toc.fragment or None
         if path is None:

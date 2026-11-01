@@ -6,8 +6,16 @@ Read content from palmdoc pdb file.
 
 import io
 import struct
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.pdb.formatreader import FormatReader
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
 
 
 class HeaderRecord:
@@ -18,13 +26,13 @@ class HeaderRecord:
     defined in the file header.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         (self.compression,) = struct.unpack('>H', raw[0:2])
         (self.num_records,) = struct.unpack('>H', raw[8:10])
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         self.stream = stream
         self.log = log
         self.options = options
@@ -35,10 +43,10 @@ class Reader(FormatReader):
 
         self.header_record = HeaderRecord(self.section_data(0))
 
-    def section_data(self, number):
+    def section_data(self, number: int) -> bytes:
         return self.sections[number]
 
-    def decompress_text(self, number):
+    def decompress_text(self, number: int) -> bytes:
         if self.header_record.compression == 1:
             return self.section_data(number)
         if self.header_record.compression in {2, 258}:
@@ -47,7 +55,7 @@ class Reader(FormatReader):
             return decompress_doc(self.section_data(number))
         return b''
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str | OEBBook:
         raw_txt = b''
 
         self.log.info('Decompressing text...')

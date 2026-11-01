@@ -12,6 +12,7 @@ from collections import OrderedDict
 from io import BytesIO
 from queue import Empty
 from threading import Thread
+from typing import cast
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -444,7 +445,7 @@ class Adder(QObject):
         else:
             paths, opf, has_cover, duplicate_info = result.value
             try:
-                mi = OPF(BytesIO(opf), basedir=self.tdir, populate_spine=False, try_to_guess_cover=False).to_book_metadata()
+                mi = OPF(BytesIO(opf), basedir=cast('str', self.tdir), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
                 mi.read_metadata_failed = False
             except Exception:
                 mi = self.report_metadata_failure(group_id, traceback.format_exc())

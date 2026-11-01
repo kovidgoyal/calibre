@@ -1,7 +1,35 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, TypedDict
+
 import regex
+
+if TYPE_CHECKING:
+    from lxml.etree import _Element
+
+
+class TextAssertion(TypedDict, total=False):
+    before: str
+    after: str
+    params: dict[str, tuple[str, ...]]
+
+
+class CFIStep(TypedDict, total=False):
+    num: int
+    id: str
+    text_offset: int
+    temporal_offset: float
+    spatial_offset: tuple[float, ...]
+    text_assertion: TextAssertion
+
+
+class CFIPath(TypedDict, total=False):
+    steps: list[CFIStep]
+    redirect: CFIPath
+
+
+type CFISortKey = tuple[tuple[int, ...], tuple[float, tuple[float, ...], int]]
 
 
 class Parser:
@@ -25,7 +53,7 @@ class Parser:
         frac = r'\.[0-9]{1,}'
         number = rf'(?:[1-9][0-9]*(?:{frac})?)|(?:0{frac})|(?:0)'
 
-        def c(x):
+        def c(x: str) -> regex.Pattern:  # ty: ignore[invalid-type-form]
             return regex.compile(x, flags=regex.VERSION1)
 
         # A step of the form /integer
@@ -52,9 +80,9 @@ class Parser:
         unescape_pat = c(rf'{escaped_char[:2]}({escaped_char[2:]})')
         self.unescape = lambda x: unescape_pat.sub(r'\1', x)
 
-    def parse_epubcfi(self, raw):
+    def parse_epubcfi(self, raw: str) -> tuple[CFIPath, CFIPath, CFIPath, str]:
         "Parse a full epubcfi of the form epubcfi(path [ , path , path ])"
-        null = {}, {}, {}, raw
+        null: tuple[CFIPath, CFIPath, CFIPath, str] = ({}, {}, {}, raw)
         if not raw:
             return null
 
@@ -64,7 +92,8 @@ class Parser:
         parent_cfi, raw = self.parse_path(raw)
         if not parent_cfi:
             return null
-        start_cfi, end_cfi = {}, {}
+        start_cfi: CFIPath = {}
+        end_cfi: CFIPath = {}
         if raw.startswith(','):
             start_cfi, raw = self.parse_path(raw[1:])
             if raw.startswith(','):
@@ -78,21 +107,21 @@ class Parser:
 
         return parent_cfi, start_cfi, end_cfi, raw
 
-    def parse_path(self, raw):
+    def parse_path(self, raw: str) -> tuple[CFIPath, str]:
         "Parse the path component of an epubcfi of the form /step..."
-        path = {'steps': []}
+        path: CFIPath = {'steps': []}
         raw = self._parse_path(raw, path)
         if not path['steps']:
             path = {}
         return path, raw
 
-    def do_match(self, pat, raw):
+    def do_match(self, pat: regex.Pattern, raw: str) -> tuple[regex.Match | None, str]:  # ty: ignore[invalid-type-form]
         m = pat.match(raw)
         if m is not None:
             raw = raw[len(m.group()) :]
         return m, raw
 
-    def _parse_path(self, raw, ans):
+    def _parse_path(self, raw: str, ans: CFIPath) -> str:
         m, raw = self.do_match(self.step_pat, raw)
         if m is None:
             return raw
@@ -101,13 +130,13 @@ class Parser:
         if m is not None:
             ans['steps'][-1]['id'] = self.unescape(m.group(1))
         if raw.startswith('!'):
-            ans['redirect'] = r = {'steps': []}
+            ans['redirect'] = r = CFIPath(steps=[])
             return self._parse_path(raw[1:], r)
         else:
             remaining_raw = self.parse_offset(raw, ans['steps'][-1])
             return self._parse_path(raw, ans) if remaining_raw is None else remaining_raw
 
-    def parse_offset(self, raw, ans):
+    def parse_offset(self, raw: str, ans: CFIStep) -> str | None:
         m, raw = self.do_match(self.text_offset_pat, raw)
         if m is not None:
             ans['text_offset'] = int(m.group(1))
@@ -127,12 +156,12 @@ class Parser:
             ans['spatial_offset'] = tuple(map(float, m.groups()))
             return raw
 
-    def parse_text_assertion(self, raw, ans):
+    def parse_text_assertion(self, raw: str, ans: CFIStep) -> str:
         oraw = raw
         if not raw.startswith('['):
             return oraw
         raw = raw[1:]
-        ta = {}
+        ta: TextAssertion = {}
         m, raw = self.do_match(self.ta1_pat, raw)
         if m is not None:
             before, after = m.groups()
@@ -147,7 +176,7 @@ class Parser:
         # parse parameters
         m, raw = self.do_match(self.parameters_pat, raw)
         if m is not None:
-            params = {}
+            params: dict[str, tuple[str, ...]] = {}
             for name, value in zip(m.captures(1), m.captures(2)):
                 params[name] = tuple(map(self.unescape, self.csv_pat.match(value).captures(1)))
             if params:
@@ -161,24 +190,24 @@ class Parser:
         return raw[1:]
 
 
-_parser = None
+_parser: Parser | None = None
 
 
-def parser():
+def parser() -> Parser:
     global _parser
     if _parser is None:
         _parser = Parser()
     return _parser
 
 
-def get_steps(pcfi):
+def get_steps(pcfi: CFIPath) -> tuple[CFIStep, ...]:
     ans = tuple(pcfi['steps'])
     if 'redirect' in pcfi:
         ans += get_steps(pcfi['redirect'])
     return ans
 
 
-def cfi_sort_key(cfi, only_path=True):
+def cfi_sort_key(cfi: str, only_path: bool = True) -> CFISortKey:
     p = parser()
     try:
         if only_path:
@@ -207,7 +236,7 @@ def cfi_sort_key(cfi, only_path=True):
     return step_nums, offsets
 
 
-def decode_cfi(root, cfi):
+def decode_cfi(root: _Element, cfi: str) -> _Element | None:
     from lxml.etree import XPathEvalError
 
     p = parser()

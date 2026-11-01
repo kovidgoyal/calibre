@@ -26,11 +26,11 @@ class Fonts:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        default_font_num,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        default_font_num: str,
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -54,7 +54,7 @@ class Fonts:
         """
         Initiate all values.
         """
-        self.__special_font_dict: dict = {
+        self.__special_font_dict: dict[str, int | str] = {
             'Symbol': 0,
             'Wingdings': 0,
             'Zapf Dingbats': 0,
@@ -71,7 +71,7 @@ class Fonts:
         # individual font written
         self.__wrote_ind_font = 0
 
-    def __default_func(self, line) -> None:
+    def __default_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -84,7 +84,7 @@ class Fonts:
             self.__state = 'font_table'
         self.__write_obj.write(line)
 
-    def __font_table_func(self, line) -> None:
+    def __font_table_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -107,7 +107,7 @@ class Fonts:
             self.__text_line = ''
         # self.__write_obj.write(line)
 
-    def __font_in_table_func(self, line) -> None:
+    def __font_in_table_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -153,7 +153,7 @@ class Fonts:
         if not self.__wrote_ind_font:
             self.__write_obj.write('mi<tg<empty-att_<font-in-table<name>Times<num>0\n')
 
-    def __after_font_table_func(self, line) -> None:
+    def __after_font_table_func(self, line: str) -> None:
         """
         Required:
             line
@@ -183,7 +183,7 @@ class Fonts:
         else:
             self.__write_obj.write(line)
 
-    def convert_fonts(self):
+    def convert_fonts(self) -> dict[str, int | str]:
         """
         Required:
             nothing

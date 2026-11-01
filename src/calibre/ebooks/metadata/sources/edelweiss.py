@@ -2,11 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+# annotations: the source plugins are downloaded and run by older calibre versions
+# using older Python, so annotations must not be evaluated at runtime
+from __future__ import absolute_import, annotations, division, print_function, unicode_literals
 
 import re
 import time
 from threading import Thread
+from typing import TYPE_CHECKING, cast
 
 try:
     from queue import Empty, Queue
@@ -19,29 +22,55 @@ from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+    from datetime import datetime
+    from threading import Event
+    from typing import TypedDict
 
-def clean_html(raw):
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.metadata.sources.base import BookURL, CoverQueue, Identifiers, IdentifyQueue
+    from calibre.ebooks.metadata.sources.test import IdentifyTest
+    from calibre.utils.browser import Browser
+    from calibre.utils.logging import Log
+
+    class BasicData(TypedDict):
+        sku: str
+        cover: str | None
+        publisher: str
+        title: str
+        authors: list[str]
+        isbns: list[str]
+        tags: list[str]
+        pubdate: datetime | None
+        format: str
+        rating: float
+
+
+def clean_html(raw: str | bytes) -> str:
     from calibre.ebooks.chardet import xml_to_unicode
     from calibre.utils.cleantext import clean_ascii_chars
 
     return clean_ascii_chars(xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0])
 
 
-def parse_html(raw):
+def parse_html(raw: str | bytes) -> _Element:
     raw = clean_html(raw)
     from html5_parser import parse
 
     return parse(raw)
 
 
-def astext(node):
+def astext(node: _Element) -> str:
     from lxml import etree
 
     return etree.tostring(node, method='text', encoding='unicode', with_tail=False).strip()
 
 
 class Worker(Thread):  # {{{
-    def __init__(self, basic_data, relevance, result_queue, br, timeout, log, plugin) -> None:
+    def __init__(self, basic_data: BasicData, relevance: int, result_queue: IdentifyQueue, br: Browser, timeout: float, log: Log, plugin: Edelweiss) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.basic_data = basic_data
@@ -67,7 +96,7 @@ class Worker(Thread):  # {{{
         except Exception:
             self.log.exception('Failed to parse details for sku: %s' % self.sku)
 
-    def parse(self, raw):
+    def parse(self, raw: bytes) -> Metadata:
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.utils.date import UNDEFINED_DATE
 
@@ -108,7 +137,7 @@ class Worker(Thread):  # {{{
         mi.has_cover = self.plugin.cached_identifier_to_cover_url(self.sku) is not None
         return mi
 
-    def render_comments(self, desc):
+    def render_comments(self, desc: _Element) -> str:
         from lxml import etree
 
         from calibre.library.comments import sanitize_comments_html
@@ -118,22 +147,22 @@ class Worker(Thread):  # {{{
         for a in desc.xpath('descendant::a[@href]'):
             del a.attrib['href']
             a.tag = 'span'
-        desc = etree.tostring(desc, method='html', encoding='unicode').strip()
+        html = etree.tostring(desc, method='html', encoding='unicode').strip()
 
         # remove all attributes from tags
-        desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
+        html = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', html)
         # Collapse whitespace
-        # desc = re.sub(r'\n+', '\n', desc)
-        # desc = re.sub(r' +', ' ', desc)
+        # html = re.sub(r'\n+', '\n', html)
+        # html = re.sub(r' +', ' ', html)
         # Remove comments
-        desc = re.sub(r'(?s)<!--.*?-->', '', desc)
-        return sanitize_comments_html(desc)
+        html = re.sub(r'(?s)<!--.*?-->', '', html)
+        return sanitize_comments_html(html)
 
 
 # }}}
 
 
-def get_basic_data(browser, log, *skus):
+def get_basic_data(browser: Browser, log: Log, *skus: str) -> Iterator[BasicData]:
     from mechanize import Request
 
     from calibre.utils.date import parse_only_date
@@ -170,7 +199,7 @@ def get_basic_data(browser, log, *skus):
             tags = [x.strip() for x in astext(row.xpath('descendant::*[contains(@class, "pev_categories")]')[0]).split('/')]
         except IndexError:
             tags = []
-        rating = 0
+        rating: float = 0
         for bar in row.xpath('descendant::*[contains(@class, "bgdColorCommunity")]/@style'):
             m = re.search(r'width: (\d+)px;.*max-width: (\d+)px', bar)
             if m is not None:
@@ -184,10 +213,10 @@ def get_basic_data(browser, log, *skus):
         except Exception:
             log.exception('Error parsing published date')
             pubdate = None
-        authors = []
+        authors: list[str] = []
         for x in [x.strip() for x in row.xpath('descendant::*[contains(@class, "pev_contributor")]/@title')]:
             authors.extend(a.strip() for a in x.split(','))
-        entry = {
+        entry: BasicData = {
             'sku': sku,
             'cover': row.xpath('descendant::img/@src')[0].split('?')[0],
             'publisher': astext(row.xpath('descendant::*[contains(@class, "headerPublisher")]')[0]),
@@ -226,23 +255,24 @@ class Edelweiss(Source):
     has_html_comments = True
 
     @property
-    def user_agent(self):
+    def user_agent(self) -> str:
         # Pass in an index to random_user_agent() to test with a particular
         # user agent
         return random_user_agent(allow_ie=False)
 
-    def _get_book_url(self, sku):
+    def _get_book_url(self, sku: str | None) -> str | None:
         if sku:
             return 'https://www.edelweiss.plus/#sku={}&page=1'.format(sku)
 
-    def get_book_url(self, identifiers):  # {{{
+    def get_book_url(self, identifiers: Identifiers) -> BookURL | None:  # {{{
         sku = identifiers.get('edelweiss', None)
         if sku:
-            return 'edelweiss', sku, self._get_book_url(sku)
+            # _get_book_url() only returns None for an empty sku
+            return 'edelweiss', sku, cast('str', self._get_book_url(sku))
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers):  # {{{
+    def get_cached_cover_url(self, identifiers: Identifiers) -> str | None:  # {{{
         sku = identifiers.get('edelweiss', None)
         if not sku:
             isbn = identifiers.get('isbn', None)
@@ -252,7 +282,7 @@ class Edelweiss(Source):
 
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers=None):
+    def create_query(self, log: Log, title: str | None = None, authors: Sequence[str] | None = None, identifiers: Identifiers | None = None) -> str | None:
         if identifiers is None:
             identifiers = {}
         try:
@@ -273,9 +303,7 @@ class Edelweiss(Source):
             title_tokens = list(self.get_title_tokens(title))
             if title_tokens:
                 keywords.extend(title_tokens)
-            author_tokens = self.get_author_tokens(authors, only_first_author=True)
-            if author_tokens:
-                keywords.extend(author_tokens)
+            keywords.extend(self.get_author_tokens(authors, only_first_author=True))
         if not keywords:
             return None
         params = {'q': (' '.join(keywords)).encode('utf-8'), '_': type('')(int(time.time()))}
@@ -285,14 +313,14 @@ class Edelweiss(Source):
 
     def identify(
         self,
-        log,
-        result_queue,
-        abort,
-        title=None,
-        authors=None,  # {{{
-        identifiers=None,
-        timeout=30,
-    ):
+        log: Log,
+        result_queue: IdentifyQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,  # {{{
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+    ) -> str | None:
         import json
 
         if identifiers is None:
@@ -369,25 +397,25 @@ class Edelweiss(Source):
 
     def download_cover(
         self,
-        log,
-        result_queue,
-        abort,  # {{{
-        title=None,
-        authors=None,
-        identifiers=None,
-        timeout=30,
-        get_best_cover=False,
+        log: Log,
+        result_queue: CoverQueue,
+        abort: Event,  # {{{
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+        get_best_cover: bool = False,
     ) -> None:
         if identifiers is None:
             identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')
-            rq = Queue()
+            rq: IdentifyQueue = Queue()
             self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers)
             if abort.is_set():
                 return
-            results = []
+            results: list[Metadata] = []
             while True:
                 try:
                     results.append(rq.get_nowait())
@@ -418,7 +446,7 @@ class Edelweiss(Source):
 if __name__ == '__main__':
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, pubdate_test, test_identify_plugin, title_test
 
-    tests = [
+    tests: list[IdentifyTest] = [
         (  # A title and author search
             {'title': "The Husband's Secret", 'authors': ['Liane Moriarty']},
             [title_test("The Husband's Secret", exact=True), authors_test(['Liane Moriarty'])],

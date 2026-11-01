@@ -5,14 +5,31 @@ import io
 import numbers
 from collections import OrderedDict, defaultdict
 from struct import pack
+from typing import TYPE_CHECKING, Self, TypedDict, cast
 
 from calibre.ebooks.mobi.utils import CNCX as CNCX_
 from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, encint, encode_number_as_hex, encode_tbs
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from optparse import Values
+
+    from calibre.ebooks.mobi.writer2.serializer import Serializer
+    from calibre.ebooks.oeb.base import TOC, OEBBook
+
+
+class TBSData(TypedDict, total=False):
+    ends: list[IndexEntry]
+    completes: list[IndexEntry]
+    starts: list[IndexEntry]
+    spans: IndexEntry | None
+    offset: int
+    record_number: int
+
 
 class CNCX(CNCX_):  # {{{
-    def __init__(self, toc, is_periodical) -> None:
+    def __init__(self, toc: TOC, is_periodical: bool) -> None:
         strings = []
         for item in toc.iterdescendants(breadth_first=True):
             strings.append(item.title)
@@ -22,7 +39,12 @@ class CNCX(CNCX_):  # {{{
                     strings.append(item.author)
                 if item.description:
                     strings.append(item.description)
-        CNCX_.__init__(self, strings)
+        # TOC nodes used for indexing always have a title (and klass for periodicals)
+        CNCX_.__init__(self, cast('list[str]', strings))
+
+    def __getitem__(self, string: str | None) -> int:
+        # a None string raises KeyError, which callers handle
+        return CNCX_.__getitem__(self, string)  # ty: ignore[invalid-argument-type]
 
 
 # }}}
@@ -40,7 +62,7 @@ class TAGX:  # {{{
     def __init__(self) -> None:
         self.byts = bytearray()
 
-    def add_tag(self, tag) -> None:
+    def add_tag(self, tag: int) -> None:
         buf = self.byts
         buf.append(tag)
         buf.append(self.NUM_VALUES[tag])
@@ -49,14 +71,14 @@ class TAGX:  # {{{
         # eof
         buf.append(0 if tag else 1)
 
-    def header(self, control_byte_count):
+    def header(self, control_byte_count: int) -> bytes:
         header = b'TAGX'
         # table length, control byte count
         header += pack(b'>II', 12 + len(self.byts), control_byte_count)
         return header
 
     @property
-    def periodical(self):
+    def periodical(self) -> bytes:
         """
         TAGX block for the Primary index header of a periodical
         """
@@ -65,7 +87,7 @@ class TAGX:  # {{{
         return self.header(2) + bytes(self.byts)
 
     @property
-    def secondary(self):
+    def secondary(self) -> bytes:
         """
         TAGX block for the secondary index header of a periodical
         """
@@ -74,7 +96,7 @@ class TAGX:  # {{{
         return self.header(1) + bytes(self.byts)
 
     @property
-    def flat_book(self):
+    def flat_book(self) -> bytes:
         """
         TAGX block for the primary index header of a flat book
         """
@@ -105,7 +127,7 @@ class IndexEntry:
     }
     RTAG_MAP = {v: k for k, v in TAG_VALUES.items()}
 
-    def __init__(self, offset, label_offset) -> None:
+    def __init__(self, offset: int, label_offset: int) -> None:
         self.offset, self.label_offset = offset, label_offset
         self.depth, self.class_offset = 0, None
         self.control_byte_count = 1
@@ -125,36 +147,36 @@ class IndexEntry:
         return f'IndexEntry(offset={self.offset!r}, depth={self.depth!r}, length={self.length!r}, index={self.index!r}, parent_index={self.parent_index!r})'
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self.length
 
     @size.setter
-    def size(self, val) -> None:
+    def size(self, val: int) -> None:
         self.length = val
 
     @property
-    def next_offset(self):
+    def next_offset(self) -> int:
         return self.offset + self.length
 
     @property
-    def tag_nums(self):
+    def tag_nums(self) -> Iterator[int]:
         yield from range(1, 5)
         for attr in ('class_offset', 'parent_index', 'first_child_index', 'last_child_index'):
             if getattr(self, attr) is not None:
                 yield self.TAG_VALUES[attr]
 
     @property
-    def entry_type(self):
+    def entry_type(self) -> int:
         ans = 0
         for tag in self.tag_nums:
             ans |= TAGX.BITMASKS[tag]
         return ans
 
-    def attr_for_tag(self, tag):
+    def attr_for_tag(self, tag: int) -> str:
         return self.RTAG_MAP[tag]
 
     @property
-    def bytestring(self):
+    def bytestring(self) -> bytes:
         buf = io.BytesIO()
         if isinstance(self.index, numbers.Integral):
             buf.write(encode_number_as_hex(self.index))
@@ -195,7 +217,7 @@ class IndexEntry:
 
 
 class PeriodicalIndexEntry(IndexEntry):
-    def __init__(self, offset, label_offset, class_offset, depth) -> None:
+    def __init__(self, offset: int, label_offset: int, class_offset: int, depth: int) -> None:
         IndexEntry.__init__(self, offset, label_offset)
         self.depth = depth
         self.class_offset = class_offset
@@ -204,8 +226,9 @@ class PeriodicalIndexEntry(IndexEntry):
 
 class SecondaryIndexEntry(IndexEntry):
     INDEX_MAP = {'author': 73, 'caption': 72, 'credit': 71, 'description': 70, 'mastheadImage': 69}
+    index: str
 
-    def __init__(self, index) -> None:
+    def __init__(self, index: str) -> None:
         IndexEntry.__init__(self, 0, 0)
         self.index = index
 
@@ -216,7 +239,7 @@ class SecondaryIndexEntry(IndexEntry):
         self.secondary = [5 if tag == min(self.INDEX_MAP.values()) else 0, 0, tag]
 
     @property
-    def tag_nums(self):
+    def tag_nums(self) -> Iterator[int]:
         yield 11
 
     @property
@@ -224,7 +247,7 @@ class SecondaryIndexEntry(IndexEntry):
         return 1
 
     @classmethod
-    def entries(cls):
+    def entries(cls) -> Iterator[Self]:
         rmap = {v: k for k, v in cls.INDEX_MAP.items()}
         for tag in sorted(rmap, reverse=True):
             yield cls(rmap[tag])
@@ -239,7 +262,14 @@ class TBS:  # {{{
     trailing byte sequence for the record.
     """
 
-    def __init__(self, data, is_periodical, first=False, section_map=None, after_first=False) -> None:
+    def __init__(
+        self,
+        data: TBSData,
+        is_periodical: bool,
+        first: bool = False,
+        section_map: dict[int, IndexEntry] | None = None,
+        after_first: bool = False,
+    ) -> None:
         if section_map is None:
             section_map = {}
         self.section_map = section_map
@@ -264,7 +294,7 @@ class TBS:  # {{{
                     byts = self.type_011
                 self.bytestring = byts
             else:
-                depth_map = defaultdict(list)
+                depth_map: defaultdict[int, list[IndexEntry]] = defaultdict(list)
                 for x in ('starts', 'ends', 'completes'):
                     for idx in data[x]:
                         depth_map[idx.depth].append(idx)
@@ -276,7 +306,7 @@ class TBS:  # {{{
         else:
             self.book_tbs(data, first)
 
-    def periodical_tbs(self, data, first, depth_map) -> None:
+    def periodical_tbs(self, data: TBSData, first: bool, depth_map: defaultdict[int, list[IndexEntry]]) -> None:
         buf = io.BytesIO()
 
         has_section_start = depth_map[1] and set(depth_map[1]).intersection(set(data['starts']))
@@ -319,6 +349,8 @@ class TBS:  # {{{
                 parent_section_index = depth_map[1][0].index
             typ = self.type_011
 
+        # All nodes at depth >= 1 (and hence the spanner) have parent_index set in create_periodical_index()
+        assert parent_section_index is not None
         buf.write(typ)
 
         if typ not in (self.type_110, self.type_111) and parent_section_index > 0:
@@ -334,7 +366,8 @@ class TBS:  # {{{
 
         if spanner is None:
             articles = depth_map[2]
-            sections = {self.section_map[a.parent_index] for a in articles}
+            # articles always have parent_index set in create_periodical_index()
+            sections = {self.section_map[cast('int', a.parent_index)] for a in articles}
             sections = sorted(sections, key=lambda x: x.offset)
             section_map = {s: [a for a in articles if a.parent_index == s.index] for s in sections}
             for i, section in enumerate(sections):
@@ -377,7 +410,7 @@ class TBS:  # {{{
 
         self.bytestring = buf.getvalue()
 
-    def book_tbs(self, data, first) -> None:
+    def book_tbs(self, data: TBSData, first: bool) -> None:
         spanner = data['spans']
         if spanner is not None:
             self.bytestring = encode_tbs(spanner.index, {0b010: 0, 0b001: 0}, flag_size=3)
@@ -398,7 +431,16 @@ class TBS:  # {{{
 
 
 class Indexer:  # {{{
-    def __init__(self, serializer, number_of_text_records, size_of_last_text_record, masthead_offset, is_periodical, opts, oeb) -> None:
+    def __init__(
+        self,
+        serializer: Serializer,
+        number_of_text_records: int,
+        size_of_last_text_record: int,
+        masthead_offset: int | None,
+        is_periodical: bool,
+        opts: Values,
+        oeb: OEBBook,
+    ) -> None:
         self.serializer = serializer
         self.number_of_text_records = number_of_text_records
         self.text_size = RECORD_SIZE * (self.number_of_text_records - 1) + size_of_last_text_record
@@ -455,7 +497,7 @@ class Indexer:  # {{{
 
         self.calculate_trailing_byte_sequences()
 
-    def create_index_record(self, secondary=False):  # {{{
+    def create_index_record(self, secondary: bool = False) -> bytes:  # {{{
         header_length = 192
         buf = io.BytesIO()
         indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
@@ -500,7 +542,7 @@ class Indexer:  # {{{
 
     # }}}
 
-    def create_header(self, secondary=False):  # {{{
+    def create_header(self, secondary: bool = False) -> bytes:  # {{{
         buf = io.BytesIO()
         if secondary:
             tagx_block = TAGX().secondary
@@ -564,7 +606,7 @@ class Indexer:  # {{{
 
         # The index of the last entry in the NCX
         idx = indices[-1].index
-        if isinstance(idx, numbers.Integral):
+        if isinstance(idx, int):
             idx = encode_number_as_hex(idx)
         else:
             idx = idx.encode('ascii')
@@ -591,7 +633,7 @@ class Indexer:  # {{{
 
     # }}}
 
-    def create_book_index(self):  # {{{
+    def create_book_index(self) -> list[IndexEntry]:  # {{{
         indices = []
         seen = set()
         id_offsets = self.serializer.id_offsets
@@ -641,7 +683,7 @@ class Indexer:  # {{{
 
     # }}}
 
-    def create_periodical_index(self):  # {{{
+    def create_periodical_index(self) -> list[IndexEntry]:  # {{{
         periodical_node = next(iter(self.oeb.toc))
         periodical_node_offset = self.serializer.body_start_offset
         periodical_node_size = self.serializer.body_end_offset - periodical_node_offset
@@ -687,7 +729,7 @@ class Indexer:  # {{{
                 normalized_articles.append(article)
                 article.author_offset = self.cncx[art.author]
                 article.desc_offset = self.cncx[art.description]
-                if getattr(art, 'toc_thumbnail', None) is not None:
+                if art.toc_thumbnail is not None:
                     try:
                         ii = self.serializer.images[art.toc_thumbnail] - 1
                         if ii > -1:
@@ -778,7 +820,7 @@ class Indexer:  # {{{
                         raise ValueError('Invalid article layout')
 
         # Flatten
-        indices = [periodical]
+        indices: list[IndexEntry] = [periodical]
         for sec, articles in normalized_sections:
             indices.append(sec)
             periodical.last_child_index = sec.index
@@ -802,7 +844,7 @@ class Indexer:  # {{{
         for i in range(self.number_of_text_records):
             offset = i * RECORD_SIZE
             next_offset = offset + RECORD_SIZE
-            data = {'ends': [], 'completes': [], 'starts': [], 'spans': None, 'offset': offset, 'record_number': i + 1}
+            data: TBSData = {'ends': [], 'completes': [], 'starts': [], 'spans': None, 'offset': offset, 'record_number': i + 1}
 
             for index in self.indices:
                 if index.offset >= next_offset:
@@ -834,7 +876,7 @@ class Indexer:  # {{{
             else:
                 self.tbs_map[i + 1] = TBS({}, self.is_periodical, first=False, after_first=found_node, section_map=section_map)
 
-    def get_trailing_byte_sequence(self, num):
+    def get_trailing_byte_sequence(self, num: int) -> bytes:
         return self.tbs_map[num].bytestring
 
     # }}}

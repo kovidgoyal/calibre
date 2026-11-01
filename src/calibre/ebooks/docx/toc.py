@@ -2,12 +2,22 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from itertools import count
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from lxml.etree import _Element
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.docx.names import DOCXNamespace
+    from calibre.ebooks.docx.styles import Styles
+    from calibre.utils.logging import Log
 
 
 class TocItem(NamedTuple):
@@ -16,18 +26,18 @@ class TocItem(NamedTuple):
     indent: float
 
 
-def from_headings(body, log, namespace, num_levels=3):
+def from_headings(body: HtmlElement, log: Log, namespace: DOCXNamespace, num_levels: int = 3) -> TOC | None:
     "Create a TOC from headings in the document"
     tocroot = TOC()
     all_heading_nodes = body.xpath('//*[@data-heading-level]')
-    level_prev = {i + 1: None for i in range(num_levels)}
+    level_prev: dict[int, TOC | None] = {i + 1: None for i in range(num_levels)}
     level_prev[0] = tocroot
     level_item_map = {i: frozenset(x for x in all_heading_nodes if int(x.get('data-heading-level')) == i) for i in range(1, num_levels + 1)}
     item_level_map = {e: i for i, elems in level_item_map.items() for e in elems}
 
     idcount = count()
 
-    def ensure_id(elem):
+    def ensure_id(elem: HtmlElement) -> str:
         ans = elem.get('id', None)
         if not ans:
             ans = f'toc_id_{next(idcount) + 1}'
@@ -56,9 +66,9 @@ def from_headings(body, log, namespace, num_levels=3):
         return tocroot
 
 
-def structure_toc(entries):
+def structure_toc(entries: Sequence[TocItem]) -> TOC:
     indent_vals = sorted({x.indent for x in entries})
-    last_found = [None for i in indent_vals]
+    last_found: list[TOC | None] = [None for i in indent_vals]
     newtoc = TOC()
 
     if len(indent_vals) > 6:
@@ -66,7 +76,7 @@ def structure_toc(entries):
             newtoc.add_item('index.html', x.anchor, x.text)
         return newtoc
 
-    def find_parent(level):
+    def find_parent(level: int) -> TOC:
         candidates = last_found[:level]
         for x in reversed(candidates):
             if x is not None:
@@ -83,23 +93,31 @@ def structure_toc(entries):
     return newtoc
 
 
-def link_to_txt(a, styles, object_map):
+def link_to_txt(a: HtmlElement, styles: Styles, object_map: Mapping[HtmlElement, _Element]) -> str:
     if len(a) > 1:
         for child in a:
             run = object_map.get(child, None)
             if run is not None:
                 rs = styles.resolve(run)
+                assert rs is not None  # object_map only contains w:p and w:r elements
                 if rs.css.get('display', None) == 'none':
                     a.remove(child)
 
     return tostring(a, method='text', with_tail=False, encoding='unicode').strip()
 
 
-def from_toc(docx, link_map, styles, object_map, log, namespace):
+def from_toc(
+    docx: _Element,
+    link_map: Mapping[_Element, HtmlElement],
+    styles: Styles,
+    object_map: Mapping[HtmlElement, _Element],
+    log: Log,
+    namespace: DOCXNamespace,
+) -> TOC | None:
     XPath, get, ancestor = namespace.XPath, namespace.get, namespace.ancestor
     toc_level = None
     level = 0
-    toc = []
+    toc: list[TocItem] = []
     for tag in XPath('//*[(@w:fldCharType and name()="w:fldChar") or name()="w:hyperlink" or name()="w:instrText"]')(docx):
         n = tag.tag.rpartition('}')[-1]
         if n == 'fldChar':
@@ -122,7 +140,7 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
                 if txt and href and p is not None:
                     ps = styles.resolve_paragraph(p)
                     try:
-                        ml = float(ps.margin_left[:-2])
+                        ml = float(ps.margin_left[:-2])  # ty: ignore[not-subscriptable]  # TypeError is handled below
                     except TypeError, ValueError, AttributeError:
                         ml = 0
                     if ps.text_align in {'center', 'right'}:
@@ -133,7 +151,15 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
         return structure_toc(toc)
 
 
-def create_toc(docx, body, link_map, styles, object_map, log, namespace):
+def create_toc(
+    docx: _Element,
+    body: HtmlElement,
+    link_map: Mapping[_Element, HtmlElement],
+    styles: Styles,
+    object_map: Mapping[HtmlElement, _Element],
+    log: Log,
+    namespace: DOCXNamespace,
+) -> TOC | None:
     ans = from_toc(docx, link_map, styles, object_map, log, namespace) or from_headings(body, log, namespace)
     # Remove heading level attributes
     for h in body.xpath('//*[@data-heading-level]'):

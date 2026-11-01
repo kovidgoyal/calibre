@@ -3,8 +3,21 @@
 
 import numbers
 from collections import Counter
+from typing import TYPE_CHECKING
+
+from lxml import etree
 
 from calibre.ebooks.oeb.base import XPath, barename
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from css_parser.css import CSSStyleDeclaration
+    from lxml.etree import _Element
+
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class RemoveAdobeMargins:
@@ -12,7 +25,7 @@ class RemoveAdobeMargins:
     Remove margins specified in Adobe's page templates.
     """
 
-    def __call__(self, oeb, log, opts):
+    def __call__(self, oeb: OEBBook, log: Log, opts: Values | OptionValues) -> None:
         self.oeb, self.opts, self.log = oeb, opts, log
 
         for item in self.oeb.manifest:
@@ -21,9 +34,9 @@ class RemoveAdobeMargins:
                 'application/vnd.adobe.page-template+xml',
                 'application/adobe-page-template+xml',
                 'application/adobe.page-template+xml',
-            } and hasattr(item.data, 'xpath'):
+            } and isinstance(root := item.data, etree._Element):
                 self.log('Removing page margins specified in the Adobe page template')
-                for elem in item.data.xpath('//*[@margin-bottom or @margin-top or @margin-left or @margin-right]'):
+                for elem in root.xpath('//*[@margin-bottom or @margin-top or @margin-left or @margin-right]'):
                     for margin in ('left', 'right', 'top', 'bottom'):
                         attr = 'margin-' + margin
                         elem.attrib.pop(attr, None)
@@ -41,14 +54,14 @@ class RemoveFakeMargins:
     Must be called only after CSS flattening
     """
 
-    def __call__(self, oeb, log, opts):
+    def __call__(self, oeb: OEBBook, log: Log, opts: Values | OptionValues) -> None:
         if not opts.remove_fake_margins:
             return
         self.oeb, self.log, self.opts = oeb, log, opts
         stylesheet = None
-        self.levels = {}
-        self.stats = {}
-        self.selector_map = {}
+        self.levels: dict[str, list[_Element]] = {}
+        self.stats: dict[str, Counter[str]] = {}
+        self.selector_map: dict[str, CSSStyleDeclaration] = {}
 
         stylesheet = self.oeb.manifest.main_stylesheet
         if stylesheet is None:
@@ -56,11 +69,12 @@ class RemoveFakeMargins:
 
         self.log('Removing fake margins...')
 
-        stylesheet = stylesheet.data
+        from css_parser.css import CSSRule, CSSStyleSheet
 
-        from css_parser.css import CSSRule
+        sheet = stylesheet.data
+        assert isinstance(sheet, CSSStyleSheet)  # main_stylesheet has a media type in OEB_STYLES
 
-        for rule in stylesheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
             self.selector_map[rule.selectorList.selectorText] = rule.style
 
         self.find_levels()
@@ -71,7 +85,7 @@ class RemoveFakeMargins:
             except NegativeTextIndent:
                 self.log.debug(f'Negative text indent detected at level  {level}, ignoring this level')
 
-    def get_margins(self, elem):
+    def get_margins(self, elem: _Element) -> tuple[str, str, CSSStyleDeclaration | None]:
         cls = elem.get('class', None)
         if cls:
             style = self.selector_map.get('.' + cls, None)
@@ -86,7 +100,7 @@ class RemoveFakeMargins:
                 return style.marginLeft, style.marginRight, style
         return '', '', None
 
-    def process_level(self, level) -> None:
+    def process_level(self, level: str) -> None:
         elems = self.levels[level]
         self.stats[level + '_left'] = Counter()
         self.stats[level + '_right'] = Counter()
@@ -113,24 +127,29 @@ class RemoveFakeMargins:
         if remove_left or remove_right:
             for elem in elems:
                 lm, rm, style = self.get_margins(elem)
+                # style is None only when the margins are '', which are never removed
                 if remove_left and lm == mcl:
+                    assert style is not None
                     style.removeProperty('margin-left')
                 if remove_right and rm == mcr:
+                    assert style is not None
                     style.removeProperty('margin-right')
 
     def find_levels(self) -> None:
 
-        def level_of(elem, body):
+        def level_of(elem: _Element, body: _Element) -> int:
             ans = 1
             while elem.getparent() is not body:
                 ans += 1
-                elem = elem.getparent()
+                elem = elem.getparent()  # ty: ignore[invalid-assignment] elem is a descendant of body
             return ans
 
         paras = XPath('descendant::h:p|descendant::h:div')
 
         for item in self.oeb.spine:
-            body = XPath('//h:body')(item.data)
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+            body = XPath('//h:body')(root)
             if not body:
                 continue
             body = body[0]
@@ -142,7 +161,7 @@ class RemoveFakeMargins:
                     self.levels[level] = []
                 self.levels[level].append(p)
 
-        remove = set()
+        remove: set[str] = set()
         for k, v in self.levels.items():
             num = len(v)
             self.log.debug(f'Found {num} items of level:', k)
@@ -165,7 +184,8 @@ class RemoveFakeMargins:
             self.levels.pop(k)
             self.log.debug('Ignoring level', k)
 
-    def analyze_stats(self, stats):
+    def analyze_stats(self, stats: Counter[str]) -> bool:
+
         if not stats:
             return False
         mc = stats.most_common(1)

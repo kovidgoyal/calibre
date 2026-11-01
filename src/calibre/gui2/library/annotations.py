@@ -6,6 +6,7 @@ import json
 import os
 import re
 from functools import lru_cache, partial
+from typing import cast
 from urllib.parse import quote
 
 from qt.core import (
@@ -1987,7 +1988,7 @@ class DetailsPanel(QWidget):
         series_text = ''
         if series:
             use_roman_numbers = config['use_roman_numerals_for_series_number']
-            series_text = f'{fmt_sidx(sidx, use_roman=use_roman_numbers)} of {series}'
+            series_text = f'{fmt_sidx(cast("float", sidx), use_roman=use_roman_numbers)} of {series}'  # series_index is a float
         annot = r['annotation']
         atype = annotation_title(annot['type'], singular=True)
         book_format = r['format']

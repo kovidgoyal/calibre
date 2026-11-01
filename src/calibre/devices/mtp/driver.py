@@ -742,7 +742,9 @@ class MTP_DEVICE(BASE):
             cust_col_name = apnx_opts.custom_col_name
             if cust_col_name:
                 try:
-                    custom_page_count = int(mi.get(cust_col_name, 0))
+                    val = mi.get(cust_col_name, 0)
+                    assert isinstance(val, (int, float, str))  # failures are handled below
+                    custom_page_count = int(val)
                 except Exception:
                     pass
 

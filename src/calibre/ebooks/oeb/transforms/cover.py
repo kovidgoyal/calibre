@@ -2,12 +2,19 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import textwrap
+from typing import TYPE_CHECKING
 
 from calibre import guess_type, prepare_string_for_xml
 from calibre.utils.imghdr import identify
 from calibre.utils.localization import lang_as_bcp47
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class CoverManager:
@@ -69,7 +76,7 @@ class CoverManager:
         return template.replace('__lang__', f' xml:lang="{escape(lang)}"' if lang else '')
 
     @staticmethod
-    def book_language(oeb) -> str | None:
+    def book_language(oeb: OEBBook) -> str | None:
         # The language of the book as a BCP 47 language tag, for use in the
         # lang attributes of HTML files. A language guessed from the calibre
         # interface language is not used, as it is likely to be wrong.
@@ -78,7 +85,13 @@ class CoverManager:
                 return ans
         return None
 
-    def __init__(self, no_default_cover=False, no_svg_cover=False, preserve_aspect_ratio=False, fixed_size=None) -> None:
+    def __init__(
+        self,
+        no_default_cover: bool = False,
+        no_svg_cover: bool = False,
+        preserve_aspect_ratio: bool = False,
+        fixed_size: tuple[object, object] | None = None,
+    ) -> None:
         self.no_default_cover = no_default_cover
         self.no_svg_cover = no_svg_cover
         self.preserve_aspect_ratio = preserve_aspect_ratio
@@ -93,12 +106,12 @@ class CoverManager:
             style = f'style="height: {height}; width: {width}"'
         self.non_svg_template = self.NONSVG_TEMPLATE.replace('__style__', style)
 
-    def __call__(self, oeb, opts, log):
+    def __call__(self, oeb: OEBBook, opts: Values, log: Log) -> None:
         self.oeb = oeb
         self.log = log
         self.insert_cover()
 
-    def default_cover(self):
+    def default_cover(self) -> str | None:
         """
         Create a generic cover for books that don't have a cover
         """
@@ -111,11 +124,12 @@ class CoverManager:
         try:
             from calibre.ebooks.covers import create_cover
 
-            series = series_index = None
+            series: str | None = None
+            series_index: float | None = None
             if m.series:
                 try:
-                    series, series_index = str(m.series[0]), m.series_index[0]
-                except IndexError:
+                    series, series_index = str(m.series[0]), float(str(m.series_index[0]))
+                except IndexError, ValueError:
                     pass
             img_data = create_cover(title, authors, series, series_index)
             id, href = self.oeb.manifest.generate('cover', 'cover_image.jpg')
@@ -128,13 +142,15 @@ class CoverManager:
             self.log.exception('Failed to generate default cover')
         return None
 
-    def inspect_cover(self, href):
+    def inspect_cover(self, href: str) -> tuple[int, int]:
         from calibre.ebooks.oeb.base import urlnormalize
 
         for x in self.oeb.manifest:
             if x.href == urlnormalize(href):
                 try:
                     raw = x.data
+                    # an image item, anything else made identify() raise, which is caught below
+                    assert isinstance(raw, (str, bytes))
                     return identify(raw)[1:]
                 except Exception:
                     self.log.exception('Failed to read cover image dimensions')

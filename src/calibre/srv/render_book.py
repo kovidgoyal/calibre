@@ -11,9 +11,10 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
 from itertools import count
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, TypedDict
 from urllib.parse import urlparse
 
+from lxml import etree
 from lxml.etree import Comment
 
 from calibre import prepare_string_for_xml
@@ -40,8 +41,6 @@ from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
     import socket
-
-    from lxml import etree
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.logging import Log
@@ -257,11 +256,14 @@ def create_cover_page(container: ContainerBase, input_fmt: str, is_comic: bool, 
             return raster_cover_name, None
         item = container.generate_item(name='titlepage.html', id_prefix='titlepage')
         titlepage_name = container.href_to_name(item.get('href'), container.opf_name)
+        assert titlepage_name is not None  # generate_item() creates the href from a valid name
         raw = templ % prepare_string_for_xml(container.name_to_href(raster_cover_name, titlepage_name), True)
         with container.open(titlepage_name, 'wb') as f:
             f.write(raw.encode('utf-8'))
         spine = container.opf_xpath('//opf:spine')[0]
-        ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
+        item_id = item.get('id')
+        assert item_id is not None  # generate_item() always sets an id
+        ref = spine.makeelement(OPF('itemref'), idref=item_id)
         container.insert_into_xml(spine, ref, index=0)
     return raster_cover_name, titlepage_name
 
@@ -275,6 +277,7 @@ def transform_style_sheet(
         changed_names = set()
         link_replacer = partial(create_link_replacer(container, link_uid, changed_names, present_names), name)
     raw = container.raw_data(name, decode=True)
+    assert isinstance(raw, str)  # name is a stylesheet and text files are always decoded
     nraw = transform_properties(raw, is_declaration=False, url_callback=link_replacer)
     if virtualize_resources:
         if name in changed_names:
@@ -301,7 +304,9 @@ def transform_svg_image(
     xlink = XLINK('href')
     altered = False
     xlink_xpath = XPath('//*[@xl:href]')
-    for elem in xlink_xpath(container.parsed(name)):
+    root = container.parsed(name)
+    assert isinstance(root, etree._Element)  # SVG images are parsed into lxml trees
+    for elem in xlink_xpath(root):
         href = elem.get(xlink)
         if not href.startswith('#'):
             elem.set(xlink, link_replacer(name, href))
@@ -348,12 +353,14 @@ def transform_smil(
     present_names: AbstractSet[str],
 ) -> None:
     root = container.parsed(name)
+    if not isinstance(root, etree._Element):  # application/smil (without +xml) is not parsed as XML by the container
+        root = container.parse_xml(container.raw_data(name, decode=False))
     text_tag, audio_tag = SMIL('text'), SMIL('audio')
     body_tag, seq_tag, par_tag = SMIL('body'), SMIL('seq'), SMIL('par')
     type_attr, textref_attr = EPUB('type'), EPUB('textref')
     parnum = 0
 
-    def make_par(par: etree._Element, target: str) -> dict[str, object]:
+    def make_par(par: etree._Element, target: str | None) -> dict[str, object]:
         nonlocal parnum
         parnum += 1
         ans = {'num': parnum}
@@ -423,6 +430,7 @@ def transform_smil(
 
 def transform_inline_styles(container: ContainerBase, name: str, transform_sheet: Callable[[str], str], transform_style: Callable[[str], str]) -> bool:
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     changed = False
     for style in root.xpath('//*[local-name()="style"]'):
         if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
@@ -455,6 +463,7 @@ def transform_html(
     svg_img_xpath = XPath('//svg:image[@xl:href]')
     res_link_xpath = XPath('//h:link[@href]')
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     changed_names = set()
     link_replacer = create_link_replacer(container, link_uid, changed_names, present_names)
 
@@ -540,6 +549,7 @@ def virtualize_html(
 
     virtualized_names.add(name)
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     rewrite_links(root, partial(link_replacer, name))
 
     def handle_link(a: etree._Element, attr: str = 'href') -> None:
@@ -588,6 +598,7 @@ def process_book_file(virtualize_resources: bool, link_uid: str, container: Cont
         mt = container.mime_map[name].lower()
         if mt in OEB_DOCS:
             root = container.parsed(name)
+            assert isinstance(root, etree._Element)
             html_data[name] = {
                 'length': get_length(root),
                 'has_maths': check_for_maths(root),
@@ -801,13 +812,16 @@ def ensure_body(root: etree._Element) -> None:
 def html_as_json(root: etree._Element) -> bytes:
     from calibre_extensions.html_as_json import serialize
 
-    # tag is always a str for elements parsed from (X)HTML
-    ns, name = split_name(cast('str', root.tag))
+    root_tag = root.tag
+    assert isinstance(root_tag, str)  # tag is always a str for elements parsed from (X)HTML
+    ns, name = split_name(root_tag)
     if ns not in (None, XHTML_NS):
         raise ValueError('HTML tag must be in empty or XHTML namespace')
     ensure_body(root)
     for child in tuple(root.iterchildren('*')):
-        if cast('str', child.tag).partition('}')[-1] not in ('head', 'body'):
+        child_tag = child.tag
+        assert isinstance(child_tag, str)  # iterchildren('*') yields only elements
+        if child_tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)
     root.text = root.tail = None
     return serialize(root, Comment)
@@ -819,6 +833,15 @@ def serialize_datetimes(d: MutableMapping[str, object]) -> None:
         if isinstance(v, datetime):
             v = encode_datetime(v)
             d[k] = v
+
+
+def serialize_metadata_datetimes(d: MutableMapping[str, object]) -> None:
+    serialize_datetimes(d)
+    um = d.get('user_metadata')
+    if isinstance(um, dict):
+        for fm in um.values():  # the datetimes are in the per-field metadata dicts
+            if isinstance(fm, dict):
+                serialize_datetimes(fm)
 
 
 EPUB_FILE_TYPE_MAGIC = b'encoding=json+base64:\n'
@@ -878,9 +901,10 @@ def render(
     if serialize_metadata:
         from calibre.ebooks.metadata.book.serialize import metadata_as_dict
 
+        assert mi is not None  # set above when serialize_metadata is True
         d = metadata_as_dict(mi)
         d.pop('cover_data', None)
-        serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
+        serialize_metadata_datetimes(d)
         with open(os.path.join(output_dir, 'calibre-book-metadata.json'), 'wb') as f:
             f.write(json_dumps(d))
     if extract_annotations:
@@ -926,7 +950,7 @@ def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
 
     d = metadata_as_dict(mi)
     d.pop('cover_data', None)
-    serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
+    serialize_metadata_datetimes(d)
     input_plugin = plugin_for_input_format(input_fmt)
     is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
     raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, mi)

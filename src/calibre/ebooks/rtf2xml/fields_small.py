@@ -40,10 +40,10 @@ class FieldsSmall:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -88,7 +88,7 @@ class FieldsSmall:
         reg_st = ob + bk_st + tx + cb
         self.__book_start = re.compile(rf'{reg_st}')
 
-    def __before_body_func(self, line) -> None:
+    def __before_body_func(self, line: str) -> None:
         """
         Requires:
             line --the line to parse
@@ -102,7 +102,7 @@ class FieldsSmall:
             self.__state = 'body'
         self.__write_obj.write(line)
 
-    def __body_func(self, line) -> None:
+    def __body_func(self, line: str) -> None:
         """
         Requires:
             line --the line to parse
@@ -118,7 +118,7 @@ class FieldsSmall:
         else:
             self.__write_obj.write(line)
 
-    def __found_bookmark_func(self, line, tag) -> None:
+    def __found_bookmark_func(self, line: str, tag: str | None) -> None:
         """
         Requires:
             line --the line to parse
@@ -134,7 +134,7 @@ class FieldsSmall:
         self.__state = 'bookmark'
         self.__type_of_bookmark = tag
 
-    def __bookmark_func(self, line) -> None:
+    def __bookmark_func(self, line: str) -> None:
         """
         Requires:
             line --the line to parse
@@ -159,7 +159,7 @@ class FieldsSmall:
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
 
-    def __parse_index_func(self, my_string):
+    def __parse_index_func(self, my_string: str) -> str:
         """
         Requires:
             my_string --string to parse
@@ -208,7 +208,7 @@ class FieldsSmall:
         my_changed_string += '\n'
         return my_changed_string
 
-    def __index_see_func(self, my_string):
+    def __index_see_func(self, my_string: str) -> tuple[str, str]:
         in_see = 0
         bracket_count = 0
         see_string = ''
@@ -233,7 +233,7 @@ class FieldsSmall:
                 changed_string += f'{line}\n'
         return changed_string, see_string
 
-    def __index_bookmark_func(self, my_string):
+    def __index_bookmark_func(self, my_string: str) -> tuple[str, str]:
         """
         Requires:
             my_string -- string in all the index
@@ -269,7 +269,7 @@ class FieldsSmall:
                 index_string += f'{line}\n'
         return index_string, bookmark_string
 
-    def __index__format_func(self, my_string):
+    def __index__format_func(self, my_string: str) -> tuple[int, int]:
         italics = 0
         bold = 0
         lines = my_string.split('\n')
@@ -281,7 +281,7 @@ class FieldsSmall:
                 italics = 1
         return italics, bold
 
-    def __parse_toc_func(self, my_string):
+    def __parse_toc_func(self, my_string: str) -> str:
         """
         Requires:
             my_string -- all the string in the toc
@@ -316,7 +316,7 @@ class FieldsSmall:
         my_changed_string += '\n'
         return my_changed_string
 
-    def __parse_bookmark_for_toc(self, my_string):
+    def __parse_bookmark_for_toc(self, my_string: str) -> tuple[str, str, str]:
         """
         Requires:
             the_string --string of toc, with new lines
@@ -361,7 +361,7 @@ class FieldsSmall:
                 toc_string += f'{line}\n'
         return toc_string, book_start_string, book_end_string
 
-    def __parse_bookmark_func(self, my_string, type):
+    def __parse_bookmark_func(self, my_string: str, type: str) -> str:
         """
         Requires:
             my_string --string to parse
@@ -375,7 +375,7 @@ class FieldsSmall:
         my_changed_string = f'mi<tg<empty-att_<field<type>{type}<number>{my_string}<update>none\n'
         return my_changed_string
 
-    def __found_toc_index_func(self, line, tag) -> None:
+    def __found_toc_index_func(self, line: str, tag: str | None) -> None:
         """
         Requires:
             line --the line to parse
@@ -391,7 +391,7 @@ class FieldsSmall:
         self.__state = 'toc_index'
         self.__tag = tag
 
-    def __toc_index_func(self, line) -> None:
+    def __toc_index_func(self, line: str) -> None:
         """
         Requires:
             line --the line to parse

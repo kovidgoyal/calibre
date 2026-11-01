@@ -4,7 +4,7 @@
 import re
 from datetime import datetime
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
@@ -329,7 +329,7 @@ def get_db_id(
     item_id = rid_map.get(kval, None)
     if item_id is None:
         if is_authors:
-            aus = author_to_author_sort(val)
+            aus = author_to_author_sort(cast('str', val))  # author names are always str
             db.execute('INSERT INTO authors(name,sort) VALUES (?,?)', (val.replace(',', '|'), aus))  # ty: ignore[unresolved-attribute]
         else:
             db.execute('INSERT INTO {}({}) VALUES (?)'.format(m['table'], m['column']), (val,))
@@ -359,7 +359,7 @@ def change_case(
         table.id_map[item_id] = val
         dirtied.update(table.col_book_map[item_id])
         if is_authors:
-            table.asort_map[item_id] = author_to_author_sort(val)  # ty: ignore[unresolved-attribute]
+            table.asort_map[item_id] = author_to_author_sort(cast('str', val))  # ty: ignore[unresolved-attribute] author names are always str
 
 
 def many_one(book_id_val_map: Mapping[int, str | int | None], db: DB, field: ManyToOneField, allow_case_change: bool, *args: object) -> set[int]:

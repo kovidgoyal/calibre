@@ -25,10 +25,10 @@ class Tokenize:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
         # out_file = None,
     ) -> None:
         self.__file = in_file
@@ -46,7 +46,7 @@ class Tokenize:
         self.__uc_char = 0
         self.__uc_bin = False
 
-    def __remove_uc_chars(self, startchar, token):
+    def __remove_uc_chars(self, startchar: int, token: str) -> str:
         for i in range(startchar, len(token)):
             if self.__uc_char:
                 self.__uc_char -= 1
@@ -55,7 +55,7 @@ class Tokenize:
         # if only char to skip
         return ''
 
-    def __unicode_process(self, token):
+    def __unicode_process(self, token: str) -> str:
         # change scope in
         if token == r'\{':
             self.__uc_value.append(self.__uc_value[-1])
@@ -114,7 +114,7 @@ class Tokenize:
         # default
         return token
 
-    def __sub_reg_split(self, input_file):
+    def __sub_reg_split(self, input_file: str) -> list[str]:
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
         input_file = self.__par_exp.sub(r'\n\\par \n', input_file)

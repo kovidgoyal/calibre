@@ -5,10 +5,10 @@ import regex
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | regex.UNICODE
 
-regex_cache = {}
+regex_cache: dict[tuple[int, str], regex.Pattern] = {}  # ty: ignore[invalid-type-form]
 
 
-def compile_regular_expression(text, flags=REGEX_FLAGS):
+def compile_regular_expression(text: str, flags: int = REGEX_FLAGS) -> regex.Pattern:  # ty: ignore[invalid-type-form]
     key = flags, text
     ans = regex_cache.get(key)
     if ans is None:

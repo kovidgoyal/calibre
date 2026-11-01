@@ -28,13 +28,13 @@ class Preamble:
 
     def __init__(
         self,
-        file,
-        bug_handler,
-        platform,
-        default_font,
-        code_page,
-        copy=None,
-        temp_dir=None,
+        file: str,
+        bug_handler: type[Exception],
+        platform: str,
+        default_font: int | str | None,
+        code_page: str,
+        copy: int | None = None,
+        temp_dir: str | None = None,
     ) -> None:
         """
         Required:
@@ -79,14 +79,14 @@ class Preamble:
             'mi<mk<body-open_': self.__found_body_func,
         }
 
-    def __default_func(self, line) -> None:
+    def __default_func(self, line: str) -> None:
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
         else:
             self.__write_obj.write(line)
 
-    def __found_rtf_head_func(self, line) -> None:
+    def __found_rtf_head_func(self, line: str) -> None:
         """
         Requires:
             line -- the line to parse
@@ -98,10 +98,10 @@ class Preamble:
         """
         self.__write_obj.write(f'mi<tg<empty-att_<rtf-definition<default-font>{self.__default_font}<code-page>{self.__code_page}<platform>{self.__platform}\n')
 
-    def __found_list_table_func(self, line) -> None:
+    def __found_list_table_func(self, line: str) -> None:
         self.__state = 'list_table'
 
-    def __list_table_func(self, line) -> None:
+    def __list_table_func(self, line: str) -> None:
         if self.__token_info == 'mi<mk<listabend_':
             self.__state = 'default'
         elif line[0:2] == 'tx':
@@ -109,10 +109,10 @@ class Preamble:
         else:
             self.__write_obj.write(line)
 
-    def __found_revision_table_func(self, line) -> None:
+    def __found_revision_table_func(self, line: str) -> None:
         self.__state = 'revision'
 
-    def __revision_table_func(self, line) -> None:
+    def __revision_table_func(self, line: str) -> None:
         if self.__token_info == 'mi<mk<revtbl-end':
             self.__state = 'default'
         elif line[0:2] == 'tx':
@@ -120,11 +120,11 @@ class Preamble:
         else:
             self.__write_obj.write(line)
 
-    def __found_body_func(self, line) -> None:
+    def __found_body_func(self, line: str) -> None:
         self.__state = 'body'
         self.__write_obj.write(line)
 
-    def __body_func(self, line) -> None:
+    def __body_func(self, line: str) -> None:
         self.__write_obj.write(line)
 
     def fix_preamble(self) -> None:

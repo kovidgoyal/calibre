@@ -2,7 +2,7 @@
 
 
 class ConversionUserFeedBack(Exception):
-    def __init__(self, title, msg, level='info', det_msg='') -> None:
+    def __init__(self, title: str, msg: str, level: str = 'info', det_msg: str = '') -> None:
         """Show a simple message to the user
 
         :param title: The title (very short description)

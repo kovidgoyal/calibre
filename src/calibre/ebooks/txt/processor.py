@@ -6,6 +6,7 @@ Read content from txt file.
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.conversion.preprocess import DocAnalysis
@@ -13,10 +14,17 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping
+
+    from markdown import Extension, Markdown
+
+    from calibre.ebooks.metadata.book.base import Metadata
+
 HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 
 
-def clean_txt(txt):
+def clean_txt(txt: str | bytes) -> str:
     """
     Run transformations on the text to put it into
     consistent state.
@@ -44,7 +52,7 @@ def clean_txt(txt):
     return txt
 
 
-def split_txt(txt, epub_split_size_kb=0):
+def split_txt(txt: str | bytes, epub_split_size_kb: int = 0) -> str:
     """
     Ensure there are split points for converting
     to EPUB. A mis-detected paragraph type can
@@ -70,7 +78,7 @@ def split_txt(txt, epub_split_size_kb=0):
     return txt
 
 
-def convert_basic(txt, title='', epub_split_size_kb=0):
+def convert_basic(txt: str | bytes, title: str = '', epub_split_size_kb: int = 0) -> str:
     """
     Converts plain text to html by putting all paragraphs in
     <p> tags. It condense and retains blank lines when necessary.
@@ -98,14 +106,14 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
 
 
-def create_markdown_object(extensions=DEFAULT_MD_EXTENSIONS):
+def create_markdown_object(extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) -> Markdown:
     # Need to load markdown extensions without relying on pkg_resources
     import importlib
 
     from markdown import Extension, Markdown
 
     class NotBrainDeadMarkdown(Markdown):
-        def build_extension(self, ext_name, configs):
+        def build_extension(self, ext_name: str, configs: Mapping[str, object]) -> Extension:
             if '.' in ext_name or ':' in ext_name:
                 return Markdown.build_extension(self, ext_name, configs)
             ext_name = 'markdown.extensions.' + ext_name
@@ -125,12 +133,12 @@ def create_markdown_object(extensions=DEFAULT_MD_EXTENSIONS):
     return md
 
 
-def convert_markdown(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
+def convert_markdown(txt: str, title: str = '', extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) -> str:
     md = create_markdown_object(extensions)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
 
-def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
+def convert_markdown_with_metadata(txt: str, title: str = '', extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) -> tuple[Metadata, str]:
     from calibre.db.write import get_series_values
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.date import parse_only_date
@@ -141,7 +149,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     md = create_markdown_object(extensions)
     html = md.convert(txt)
     mi = Metadata(title or _('Unknown'))
-    m = md.Meta
+    m = md.Meta  # ty: ignore[unresolved-attribute]  # set by the meta extension
     for k, v in {'date': 'pubdate', 'summary': 'comments'}.items():
         if v not in m and k in m:
             m[v] = m.pop(k)
@@ -149,6 +157,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
         val = m.get(k)
         if val:
             mf = mi.metadata_for_field(k)
+            assert mf is not None  # all these are standard fields
             if not mf.get('is_multiple'):
                 val = val[0]
             if k == 'series':
@@ -168,31 +177,31 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     return mi, HTML_TEMPLATE % (mi.title, html)
 
 
-def convert_textile(txt, title=''):
+def convert_textile(txt: str, title: str = '') -> str:
     from calibre.ebooks.textile import textile
 
     html = textile(txt, encoding='utf-8')
     return HTML_TEMPLATE % (title, html)
 
 
-def normalize_line_endings(txt):
+def normalize_line_endings(txt: str) -> str:
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
     return txt
 
 
-def separate_paragraphs_single_line(txt):
+def separate_paragraphs_single_line(txt: str) -> str:
     txt = txt.replace('\n', '\n\n')
     return txt
 
 
-def separate_paragraphs_print_formatted(txt):
+def separate_paragraphs_print_formatted(txt: str) -> str:
     txt = re.sub(r'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n{}'.format(mo.group('indent')), txt)
     return txt
 
 
-def separate_hard_scene_breaks(txt):
-    def sep_break(line):
+def separate_hard_scene_breaks(txt: str) -> str:
+    def sep_break(line: str) -> str:
         if len(line.strip()) > 0:
             return f'\n{line}\n'
         else:
@@ -202,12 +211,12 @@ def separate_hard_scene_breaks(txt):
     return txt
 
 
-def block_to_single_line(txt):
+def block_to_single_line(txt: str) -> str:
     txt = re.sub(r'(?<=.)\n(?=.)', ' ', txt)
     return txt
 
 
-def preserve_spaces(txt):
+def preserve_spaces(txt: str) -> str:
     """
     Replaces spaces multiple spaces with &nbsp; entities.
     """
@@ -216,14 +225,14 @@ def preserve_spaces(txt):
     return txt
 
 
-def remove_indents(txt):
+def remove_indents(txt: str) -> str:
     """
     Remove whitespace at the beginning of each line.
     """
     return re.sub(r'^[\r\t\f\v ]+', '', txt, flags=re.MULTILINE)
 
 
-def opf_writer(path, opf_name, manifest, spine, mi) -> None:
+def opf_writer(path: str, opf_name: str, manifest: Iterable[tuple[str, str | None]], spine: Iterable[str], mi: Metadata) -> None:
     opf = OPFCreator(path, mi)
     opf.create_manifest(manifest)
     opf.create_spine(spine)
@@ -231,21 +240,21 @@ def opf_writer(path, opf_name, manifest, spine, mi) -> None:
         opf.render(opffile)
 
 
-def split_utf8(s, n):
+def split_utf8(s: bytes, n: int) -> Iterator[bytes]:
     """Split UTF-8 s into chunks of maximum length n."""
     if n < 3:
         raise ValueError(f'Cannot split into chunks of less than {n} < 4 bytes')
-    s = memoryview(s)
-    while len(s) > n:
+    view = memoryview(s)
+    while len(view) > n:
         k = n
-        while (s[k] & 0xC0) == 0x80:
+        while (view[k] & 0xC0) == 0x80:
             k -= 1
-        yield bytes(s[:k])
-        s = s[k:]
-    yield bytes(s)
+        yield bytes(view[:k])
+        view = view[k:]
+    yield bytes(view)
 
 
-def split_string_separator(txt, size):
+def split_string_separator(txt: bytes, size: int) -> bytes:
     """
     Splits the text by putting \n\n at the point size.
     """
@@ -263,7 +272,7 @@ def split_string_separator(txt, size):
     return txt
 
 
-def detect_paragraph_type(txt) -> str:
+def detect_paragraph_type(txt: str) -> str:
     """
     Tries to determine the paragraph type of the document.
 
@@ -307,7 +316,7 @@ def detect_paragraph_type(txt) -> str:
     return 'single'
 
 
-def detect_formatting_type(txt) -> str:
+def detect_formatting_type(txt: str) -> str:
     """
     Tries to determine the formatting of the document.
 

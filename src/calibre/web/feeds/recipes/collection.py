@@ -455,7 +455,10 @@ class SchedulerConfig:
 
     def un_serialize_schedule(self, recipe: _Element) -> tuple[str | None, Any, datetime] | None:
         for x in recipe.iterdescendants():
-            if 'schedule' in x.tag:  # type: ignore
+            tag = x.tag
+            if not isinstance(tag, str):
+                continue  # comments and processing instructions
+            if 'schedule' in tag:
                 sch, typ = x.text, x.get('type')
                 if typ == 'interval':
                     sch = float(sch)  # type: ignore

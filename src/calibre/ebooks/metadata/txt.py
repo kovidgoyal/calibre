@@ -6,12 +6,16 @@ Read meta information from TXT files
 
 import os
 import re
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_metadata(stream, extract_cover=True):
+
+def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     """
     Return metadata as a L{MetaInfo} object
     """

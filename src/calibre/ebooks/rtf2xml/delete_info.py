@@ -24,10 +24,10 @@ class DeleteInfo:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -38,7 +38,7 @@ class DeleteInfo:
         self.__bracket_count = 0
         self.__ob_count = 0
         self.__cb_count = 0
-        self.__ob = 0
+        self.__ob = ''
         self.__write_cb = False
         self.__found_delete = False
 
@@ -76,7 +76,7 @@ class DeleteInfo:
             'list': self.__list_func,
         }
 
-    def __default_func(self, line) -> bool:
+    def __default_func(self, line: str) -> bool | None:
         """Handle lines when in no special state. Look for an asterisk to
         begin a special state. Otherwise, print out line."""
         # cw<ml<asterisk__<nu<true
@@ -93,10 +93,10 @@ class DeleteInfo:
             # write previous bracket, since didn't find asterisk
             if self.__ob:
                 self.__write_obj.write(self.__ob)
-                self.__ob = 0
+                self.__ob = ''
             return True
 
-    def __delete_func(self, line) -> bool | None:
+    def __delete_func(self, line: str) -> bool | None:
         """Handle lines when in delete state. Don't print out lines
         unless the state has ended."""
         if self.__delete_count == self.__cb_count:
@@ -106,7 +106,7 @@ class DeleteInfo:
                 return True
             return False
 
-    def __asterisk_func(self, line) -> bool:
+    def __asterisk_func(self, line: str) -> bool | None:
         """
         Determine whether to delete info in group
         Note on self.__cb flag.
@@ -123,7 +123,7 @@ class DeleteInfo:
         if self.__token_info == 'cb<nu<clos-brack':
             if self.__delete_count == self.__cb_count:
                 self.__state = 'default'
-                self.__ob = 0
+                self.__ob = ''
                 # changed this because haven't printed out start
                 return False
             else:
@@ -136,16 +136,16 @@ class DeleteInfo:
         elif self.__token_info in self.__allowable:
             if self.__ob:
                 self.__write_obj.write(self.__ob)
-                self.__ob = 0
+                self.__ob = ''
                 self.__state = 'default'
             return True
         elif self.__token_info == 'cw<ls<list______':
-            self.__ob = 0
+            self.__ob = ''
             self.__found_list_func(line)
         elif self.__token_info in self.__not_allowable:
             if not self.__ob:
                 self.__write_cb = True
-            self.__ob = 0
+            self.__ob = ''
             self.__state = 'delete'
             self.__cb_count = 0
             return False
@@ -156,18 +156,18 @@ class DeleteInfo:
                 raise self.__bug_handler(msg)
             if not self.__ob:
                 self.__write_cb = True
-            self.__ob = 0
+            self.__ob = ''
             self.__state = 'delete'
             self.__cb_count = 0
             return False
 
-    def __found_list_func(self, line) -> None:
+    def __found_list_func(self, line: str) -> None:
         """
         print out control words in this group
         """
         self.__state = 'list'
 
-    def __list_func(self, line):
+    def __list_func(self, line: str) -> bool:
         """
         Check to see if the group has ended.
         Return True for all control words.
@@ -181,7 +181,7 @@ class DeleteInfo:
             return False
         return line[0:2] == 'cw'
 
-    def delete_info(self):
+    def delete_info(self) -> bool:
         """Main method for handling other methods. Read one line at
         a time, and determine whether to print the line based on the state."""
         with open_for_read(self.__file) as read_obj:

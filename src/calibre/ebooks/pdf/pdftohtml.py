@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+from typing import TYPE_CHECKING, Unpack
 
 from calibre import CurrentDir, prints, xml_replace_entities
 from calibre.constants import bundled_binaries_dir, isbsd, iswindows
@@ -17,11 +18,25 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import IO, TypedDict
+
+    from lxml.etree import _Element
+
+    class PopenKwargs(TypedDict, total=False):
+        stdin: int | IO[bytes] | None
+        stdout: int | IO[bytes] | None
+        stderr: int | IO[bytes] | None
+        cwd: str | None
+        creationflags: int
+
+
 PDFTOHTML = 'pdftohtml' + ('.exe' if iswindows else '')
 creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
 
 
-def popen(cmd, **kw):
+def popen(cmd: Sequence[str], **kw: Unpack[PopenKwargs]) -> subprocess.Popen[bytes]:
     if iswindows:
         kw['creationflags'] = creationflags
     return subprocess.Popen(cmd, **kw)
@@ -32,7 +47,7 @@ if bbd := bundled_binaries_dir():
 PDFTOTEXT = os.path.join(os.path.dirname(PDFTOHTML), 'pdftotext' + ('.exe' if iswindows else ''))
 
 
-def pdftohtml(output_dir, pdf_path, no_images, as_xml=False) -> None:
+def pdftohtml(output_dir: str, pdf_path: str, no_images: bool, as_xml: bool = False) -> None:
     """
     Convert the pdf into html using the pdftohtml app.
     This will write the html as index.html into output_dir.
@@ -47,7 +62,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False) -> None:
 
     with CurrentDir(output_dir):
 
-        def a(x):
+        def a(x: str) -> str:
             return os.path.basename(x)
 
         exe = PDFTOHTML
@@ -123,9 +138,10 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False) -> None:
             if isbsd:
                 cmd.remove('-nodrm')
             p = popen(cmd, stdout=subprocess.PIPE)
-            raw = p.stdout.read().strip()
-            if p.wait() == 0 and raw:
-                parse_outline(raw, output_dir)
+            assert p.stdout is not None  # stdout=PIPE
+            rawb = p.stdout.read().strip()
+            if p.wait() == 0 and rawb:
+                parse_outline(rawb, output_dir)
 
         try:
             os.remove(pdfsrc)
@@ -133,13 +149,13 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False) -> None:
             pass
 
 
-def parse_outline(raw, output_dir) -> None:
+def parse_outline(raw: bytes, output_dir: str) -> None:
     from lxml import etree
 
     from calibre.utils.xml_parse import safe_xml_fromstring
 
-    raw = clean_xml_chars(xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0])
-    outline = safe_xml_fromstring(raw).xpath('(//outline)[1]')
+    text = clean_xml_chars(xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0])
+    outline = safe_xml_fromstring(text).xpath('(//outline)[1]')
     if outline:
         from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 
@@ -147,7 +163,7 @@ def parse_outline(raw, output_dir) -> None:
         toc = TOC()
         count = [0]
 
-        def process_node(node, toc) -> None:
+        def process_node(node: _Element, toc: TOC) -> None:
             for child in node.iterchildren('*'):
                 if child.tag == 'outline':
                     parent = toc.children[-1] if toc.children else toc
@@ -164,17 +180,17 @@ def parse_outline(raw, output_dir) -> None:
                 f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
 
-def flip_image(img, flip) -> None:
+def flip_image(img_path: str, flip: str) -> None:
     from calibre.utils.img import flip_image, image_and_format_from_data, image_to_data
 
-    with open(img, 'r+b') as f:
+    with open(img_path, 'r+b') as f:
         img, fmt = image_and_format_from_data(f.read())
         img = flip_image(img, horizontal='x' in flip, vertical='y' in flip)
         f.seek(0), f.truncate()
         f.write(image_to_data(img, fmt=fmt))
 
 
-def flip_images(raw):
+def flip_images(raw: str) -> str:
     for match in re.finditer(r'<IMG[^>]+/?>', raw, flags=re.I):
         img = match.group()
         m = re.search(r'class="(x|y|xy)flip"', img)
@@ -192,7 +208,7 @@ def flip_images(raw):
 
     counter = 0
 
-    def add_alt(m):
+    def add_alt(m: re.Match[str]) -> str:
         nonlocal counter
         counter += 1
         return m.group(1).rstrip('/') + f' alt="Image {counter}"/>'

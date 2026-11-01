@@ -6,6 +6,7 @@ import datetime
 import numbers
 import os
 import struct
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
@@ -13,12 +14,15 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.utils import get_trailing_data
 from calibre.utils.date import utc_tz
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 # PalmDB {{{
 
 
 class PalmDOCAttributes:
     class Attr:
-        def __init__(self, name, field, val) -> None:
+        def __init__(self, name: str, field: int, val: int) -> None:
             self.name = name
             self.val = val & field
 
@@ -27,7 +31,7 @@ class PalmDOCAttributes:
 
         __unicode__ = __str__
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         self.val = struct.unpack(b'<H', raw)[0]
         self.attributes = []
         for name, field in [
@@ -48,7 +52,7 @@ class PalmDOCAttributes:
 
 
 class PalmDB:
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         self.raw = raw
 
         if self.raw.startswith(b'TPZ'):
@@ -104,7 +108,7 @@ class PalmDB:
 
 
 class Record:  # {{{
-    def __init__(self, raw, header) -> None:
+    def __init__(self, raw: bytes, header: tuple[int, int, int]) -> None:
         self.offset, self.flags, self.uid = header
         self.raw = raw
 
@@ -119,9 +123,9 @@ class Record:  # {{{
 
 
 class EXTHRecord:
-    def __init__(self, type_, data, length) -> None:
+    def __init__(self, type_: int, data: bytes, length: int) -> None:
         self.type = type_
-        self.data = data
+        self.data: bytes | int = data
         self.length = length
         self.name = {
             1: 'Drm Server Id',
@@ -221,7 +225,7 @@ class EXTHRecord:
 
 
 class EXTHHeader:
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         self.raw = raw
         if not self.raw.startswith(b'EXTH'):
             raise ValueError('EXTH header does not start with EXTH')
@@ -229,28 +233,28 @@ class EXTHHeader:
         (self.count,) = struct.unpack(b'>L', self.raw[8:12])
 
         pos = 12
-        self.records = []
+        self.records: list[EXTHRecord] = []
         for i in range(self.count):
             pos = self.read_record(pos)
         self.records.sort(key=lambda x: x.type)
         self.rmap = {x.type: x for x in self.records}
 
-    def __getitem__(self, type_):
+    def __getitem__(self, type_: int) -> bytes | int:
         return self.rmap.__getitem__(type_).data
 
-    def get(self, type_, default=None):
+    def get(self, type_: int, default: int | None = None) -> bytes | int | None:
         ans = self.rmap.get(type_, default)
         return getattr(ans, 'data', default)
 
-    def read_record(self, pos):
+    def read_record(self, pos: int) -> int:
         type_, length = struct.unpack(b'>LL', self.raw[pos : pos + 8])
         data = self.raw[(pos + 8) : (pos + length)]
         self.records.append(EXTHRecord(type_, data, length))
         return pos + length
 
     @property
-    def kf8_header_index(self):
-        ans = self.get(121, None)
+    def kf8_header_index(self) -> int | None:
+        ans = cast('int | None', self.get(121, None))  # record 121 is always unpacked to an int
         if ans == NULL_INDEX:
             ans = None
         return ans
@@ -271,7 +275,7 @@ class EXTHHeader:
 
 
 class MOBIHeader:  # {{{
-    def __init__(self, record0, offset) -> None:
+    def __init__(self, record0: Record, offset: int) -> None:
         self.raw = record0.raw
         self.header_offset = offset
 
@@ -418,11 +422,11 @@ class MOBIHeader:  # {{{
 
         a = ans.append
 
-        def i(d, x) -> None:
+        def i(d: str, x: object) -> None:
             x = 'NULL' if x == NULL_INDEX else x
             a(f'{d}: {x}')
 
-        def r(d, attr) -> None:
+        def r(d: str, attr: str) -> None:
             x = getattr(self, attr)
             if attr in self.relative_records and x != NULL_INDEX:
                 a(f'{d}: Absolute: {x} Relative: {x - self.header_offset}')
@@ -512,19 +516,19 @@ class MOBIHeader:  # {{{
 
 
 class MOBIFile:
-    def __init__(self, stream) -> None:
+    def __init__(self, stream: IO[bytes]) -> None:
         self.raw = stream.read()
         self.palmdb = PalmDB(self.raw[:78])
 
-        self.record_headers = []
-        self.records = []
+        self.record_headers: list[tuple[int, int, int]] = []
+        self.records: list[Record] = []
         for i in range(self.palmdb.number_of_records):
             pos = 78 + i * 8
             offset, a1, a2, a3, a4 = struct.unpack(b'>LBBBB', self.raw[pos : pos + 8])
             flags, val = a1, a2 << 16 | a3 << 8 | a4
             self.record_headers.append((offset, flags, val))
 
-        def section(section_number):
+        def section(section_number: int) -> bytes:
             if section_number == self.palmdb.number_of_records - 1:
                 end_off = len(self.raw)
             else:
@@ -536,9 +540,9 @@ class MOBIFile:
             self.records.append(Record(section(i), self.record_headers[i]))
 
         self.mobi_header = MOBIHeader(self.records[0], 0)
-        self.huffman_record_nums = []
+        self.huffman_record_nums: list[int] = []
 
-        self.kf8_type = None
+        self.kf8_type: str | None = None
         mh = mh8 = self.mobi_header
         if mh.file_version >= 8:
             self.kf8_type = 'standalone'
@@ -557,7 +561,7 @@ class MOBIFile:
         if 'huff' in self.mobi_header.compression.lower():
             from calibre.ebooks.mobi.huffcdic import HuffReader
 
-            def huffit(off, cnt):
+            def huffit(off: int, cnt: int) -> tuple[list[int], Callable[[bytes], bytes]]:
                 huffman_record_nums = list(range(off, off + cnt))
                 huffrecs = [self.records[r].raw for r in huffman_record_nums]
                 huffs = HuffReader(huffrecs)
@@ -581,8 +585,10 @@ class MOBIFile:
 
 
 class TextRecord:  # {{{
-    def __init__(self, idx, record, extra_data_flags, decompress) -> None:
-        self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
+    def __init__(self, idx: int, record: Record, extra_data_flags: int, decompress: Callable[[bytes], bytes]) -> None:
+        trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
+        # the numeric keys are replaced by string keys below
+        self.trailing_data = cast('dict[int | str, bytes]', trailing_data)
         raw_trailing_bytes = record.raw[len(self.raw) :]
         self.raw = decompress(self.raw)
 
@@ -600,7 +606,7 @@ class TextRecord:  # {{{
 
         self.idx = idx
 
-    def dump(self, folder) -> None:
+    def dump(self, folder: str) -> None:
         name = f'{self.idx:06}'
         with open(os.path.join(folder, name + '.txt'), 'wb') as f:
             f.write(self.raw)

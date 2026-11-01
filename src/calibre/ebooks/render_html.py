@@ -3,6 +3,7 @@
 
 import os
 import sys
+from typing import TYPE_CHECKING
 
 from qt.core import QApplication, QByteArray, QMarginsF, QPageLayout, QPageSize, Qt, QTimer, QUrl
 from qt.webengine import (
@@ -27,9 +28,13 @@ from calibre.utils.webengine import secure_webengine, send_reply, setup_fake_pro
 LOAD_TIMEOUT = 20
 PRINT_TIMEOUT = 10
 
+if TYPE_CHECKING:
+    from qt.core import QObject
+    from qt.webengine import QWebEngineUrlRequestInfo
+
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
-    def interceptRequest(self, info) -> None:
+    def interceptRequest(self, info: QWebEngineUrlRequestInfo) -> None:
         method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             default_log.warn(f'Blocking URL request with method: {method}')
@@ -43,12 +48,13 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, root, parent=None) -> None:
+    def __init__(self, root: str, parent: QObject | None = None) -> None:
         self.root = root
         super().__init__(parent)
         self.allowed_hosts = (FAKE_HOST,)
 
-    def requestStarted(self, a0):
+    def requestStarted(self, a0: QWebEngineUrlRequestJob | None) -> None:
+        assert a0 is not None  # Qt always passes a job
         if bytes(a0.requestMethod()) != b'GET':
             return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
         url = a0.requestUrl()
@@ -72,7 +78,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
         send_reply(a0, guess_type(os.path.basename(resolved_path)), data)
 
-    def fail_request(self, rq, fail_code=None) -> None:
+    def fail_request(self, rq: QWebEngineUrlRequestJob, fail_code: QWebEngineUrlRequestJob.Error | None = None) -> None:
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
@@ -80,7 +86,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
 
 class Render(QWebEnginePage):
-    def __init__(self, profile) -> None:
+    def __init__(self, profile: QWebEngineProfile) -> None:
         QWebEnginePage.__init__(self, profile, QApplication.instance())
         secure_webengine(self)
         self.printing_started = False
@@ -95,7 +101,7 @@ class Render(QWebEnginePage):
         self.pdfPrintingFinished.disconnect()
         self.setParent(None)
 
-    def load_finished(self, ok) -> None:
+    def load_finished(self, ok: bool) -> None:
         if ok:
             self.runJavaScript(
                 '''
@@ -118,10 +124,10 @@ class Render(QWebEnginePage):
             assert app is not None
             app.exit(1)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
         pass
 
-    def start_load(self, path_to_html, root) -> None:
+    def start_load(self, path_to_html: str, root: str) -> None:
         url = QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}')
         url.setPath('/' + os.path.relpath(path_to_html, root).replace(os.sep, '/'))
         self.setUrl(url)
@@ -139,7 +145,7 @@ class Render(QWebEnginePage):
             self.hang_timer.stop()
             app.exit(3)
 
-    def start_print(self, data) -> None:
+    def start_print(self, data: object) -> None:
         margins = QMarginsF(0, 0, 0, 0)
         page_size = QPageSize(QPageSize.PageSizeId.A4)
         if isinstance(data, dict):
@@ -163,14 +169,14 @@ class Render(QWebEnginePage):
         self.printing_started = True
         self.start_time = monotonic()
 
-    def print_finished(self, path, ok) -> None:
+    def print_finished(self, path: str, ok: bool) -> None:
         app = QApplication.instance()
         assert app is not None
         app.exit(0 if ok else 2)
         self.hang_timer.stop()
 
 
-def main(path_to_html, tdir, image_format='jpeg', root=''):
+def main(path_to_html: str, tdir: str, image_format: str = 'jpeg', root: str = '') -> bool:
     if image_format not in ('jpeg', 'png'):
         raise ValueError('Image format must be either jpeg or png')
     must_use_qt()

@@ -1,22 +1,39 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from lxml.html.builder import TABLE, TD, TR
 
 from calibre.ebooks.docx.block_styles import Inherit, ParagraphStyle, binary_property, border_props, border_to_css, inherit, read_border
 from calibre.ebooks.docx.block_styles import read_shd as rs
 from calibre.ebooks.docx.char_styles import RunStyle
-from calibre.ebooks.docx.styles import PageProperties
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from typing import Required, TypedDict
+
+    from lxml.etree import _Element
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.docx.names import AttrGetter, DOCXNamespace, XPathFunc
+    from calibre.ebooks.docx.styles import PageProperties, Styles
+
+    class _TableStyles(TypedDict, total=False):
+        table: Required[TableStyle]
+        paragraph: ParagraphStyle
+        run: RunStyle
+
 
 # Read from XML {{{
 read_shd = rs
 edges = ('left', 'top', 'right', 'bottom')
 
 
-def _read_width(elem, get):
-    ans = inherit
+def _read_width(elem: _Element, get: AttrGetter) -> str | Inherit:
+    ans: str | Inherit = inherit
     try:
-        w = int(get(elem, 'w:w'))
+        w = int(get(elem, 'w:w', ''))
     except TypeError, ValueError:
         w = 0
     typ = get(elem, 'w:type', 'auto')
@@ -31,23 +48,25 @@ def _read_width(elem, get):
     return ans
 
 
-def read_width(parent, dest, XPath, get) -> None:
+def read_width(parent: _Element, dest: TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for tblW in XPath('./w:tblW')(parent):
         ans = _read_width(tblW, get)
     dest.width = ans
 
 
-def read_cell_width(parent, dest, XPath, get) -> None:
+def read_cell_width(parent: _Element, dest: CellStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for tblW in XPath('./w:tcW')(parent):
         ans = _read_width(tblW, get)
     dest.width = ans
 
 
-def read_padding(parent, dest, XPath, get) -> None:
-    name = 'tblCellMar' if parent.tag.endswith('}tblPr') else 'tcMar'
-    ans = {x: inherit for x in edges}
+def read_padding(parent: _Element, dest: TableStyle | CellStyle, XPath: XPathFunc, get: AttrGetter) -> None:
+    tag = parent.tag
+    assert isinstance(tag, str)  # parent is a w:tblPr or w:tcPr element
+    name = 'tblCellMar' if tag.endswith('}tblPr') else 'tcMar'
+    ans: dict[str, str | Inherit] = {x: inherit for x in edges}
     for mar in XPath(f'./w:{name}')(parent):
         for x in edges:
             for edge in XPath(f'./w:{x}')(mar):
@@ -56,7 +75,7 @@ def read_padding(parent, dest, XPath, get) -> None:
         setattr(dest, f'cell_padding_{x}', ans[x])
 
 
-def read_justification(parent, dest, XPath, get) -> None:
+def read_justification(parent: _Element, dest: TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     left = right = inherit
     for jc in XPath('./w:jc[@w:val]')(parent):
         val = get(jc, 'w:val')
@@ -72,21 +91,21 @@ def read_justification(parent, dest, XPath, get) -> None:
     dest.margin_right = right
 
 
-def read_spacing(parent, dest, XPath, get) -> None:
+def read_spacing(parent: _Element, dest: TableStyle | RowStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for cs in XPath('./w:tblCellSpacing')(parent):
         ans = _read_width(cs, get)
     dest.spacing = ans
 
 
-def read_float(parent, dest, XPath, get) -> None:
+def read_float(parent: _Element, dest: TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
         ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.items()}
     dest.float = ans
 
 
-def read_indent(parent, dest, XPath, get) -> None:
+def read_indent(parent: _Element, dest: TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for cs in XPath('./w:tblInd')(parent):
         ans = _read_width(cs, get)
@@ -96,12 +115,14 @@ def read_indent(parent, dest, XPath, get) -> None:
 border_edges = ('left', 'top', 'right', 'bottom', 'insideH', 'insideV')
 
 
-def read_borders(parent, dest, XPath, get) -> None:
-    name = 'tblBorders' if parent.tag.endswith('}tblPr') else 'tcBorders'
+def read_borders(parent: _Element, dest: TableStyle | CellStyle, XPath: XPathFunc, get: AttrGetter) -> None:
+    tag = parent.tag
+    assert isinstance(tag, str)  # parent is a w:tblPr or w:tcPr element
+    name = 'tblBorders' if tag.endswith('}tblPr') else 'tcBorders'
     read_border(parent, dest, XPath, get, border_edges, name)
 
 
-def read_height(parent, dest, XPath, get) -> None:
+def read_height(parent: _Element, dest: RowStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for rh in XPath('./w:trHeight')(parent):
         rule = get(rh, 'w:hRule', 'auto')
@@ -111,7 +132,7 @@ def read_height(parent, dest, XPath, get) -> None:
     dest.height = ans
 
 
-def read_vertical_align(parent, dest, XPath, get) -> None:
+def read_vertical_align(parent: _Element, dest: CellStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for va in XPath('./w:vAlign')(parent):
         val = get(va, 'w:val')
@@ -119,17 +140,17 @@ def read_vertical_align(parent, dest, XPath, get) -> None:
     dest.vertical_align = ans
 
 
-def read_col_span(parent, dest, XPath, get) -> None:
+def read_col_span(parent: _Element, dest: CellStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for gs in XPath('./w:gridSpan')(parent):
         try:
-            ans = int(get(gs, 'w:val'))
+            ans = int(get(gs, 'w:val', ''))
         except TypeError, ValueError:
             continue
     dest.col_span = ans
 
 
-def read_merge(parent, dest, XPath, get) -> None:
+def read_merge(parent: _Element, dest: CellStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     for x in ('hMerge', 'vMerge'):
         ans = inherit
         for m in XPath(f'./w:{x}')(parent):
@@ -137,22 +158,22 @@ def read_merge(parent, dest, XPath, get) -> None:
         setattr(dest, x, ans)
 
 
-def read_band_size(parent, dest, XPath, get) -> None:
+def read_band_size(parent: _Element, dest: TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     for x in ('Col', 'Row'):
         ans = 1
         for y in XPath(f'./w:tblStyle{x}BandSize')(parent):
             try:
-                ans = int(get(y, 'w:val'))
+                ans = int(get(y, 'w:val', ''))
             except TypeError, ValueError:
                 continue
         setattr(dest, f'{x.lower()}_band_size', ans)
 
 
-def read_look(parent, dest, XPath, get) -> None:
+def read_look(parent: _Element, dest: TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = 0
     for x in XPath('./w:tblLook')(parent):
         try:
-            ans = int(get(x, 'w:val'), 16)
+            ans = int(get(x, 'w:val', ''), 16)
         except ValueError, TypeError:
             continue
     dest.look = ans
@@ -161,23 +182,23 @@ def read_look(parent, dest, XPath, get) -> None:
 # }}}
 
 
-def clone(style):
+def clone[T: (ParagraphStyle, RunStyle)](style: T | None) -> T | None:
     if style is None:
         return None
     try:
         ans = type(style)(style.namespace)
     except TypeError:
         return None
-    ans.update(style)
+    ans.update(style)  # ty: ignore[invalid-argument-type]  # ans has the same type as style
     return ans
 
 
 class Style:
     is_bidi = False
     all_properties: tuple[str, ...] = ()
-    spacing: object = inherit
+    spacing: str | Inherit = inherit
 
-    def update(self, other) -> None:
+    def update(self, other: Style) -> None:
         for prop in self.all_properties:
             nval = getattr(other, prop)
             if nval is not inherit:
@@ -186,18 +207,18 @@ class Style:
     def apply_bidi(self) -> None:
         self.is_bidi = True
 
-    def convert_spacing(self):
-        ans = {}
+    def convert_spacing(self) -> dict[str, str]:
+        ans: dict[str, str] = {}
         if self.spacing is not inherit:
             if self.spacing in {'auto', '0'}:
                 ans['border-collapse'] = 'collapse'
             else:
                 ans['border-collapse'] = 'separate'
-                ans['border-spacing'] = self.spacing
+                ans['border-spacing'] = cast('str', self.spacing)  # spacing is not inherit here
         return ans
 
-    def convert_border(self):
-        c = {}
+    def convert_border(self) -> dict[str, str]:
+        c: dict[str, str] = {}
         for x in edges:
             border_to_css(x, self, c)
             val = getattr(self, f'padding_{x}')
@@ -220,9 +241,12 @@ class RowStyle(Style):
         'hidden',
         'spacing',
     )
+    height: tuple[str, str | None] | Inherit
+    cantSplit: bool | Inherit
+    hidden: bool | Inherit
     height = cantSplit = hidden = spacing = inherit
 
-    def __init__(self, namespace, trPr=None) -> None:
+    def __init__(self, namespace: DOCXNamespace, trPr: _Element | None = None) -> None:
         self.namespace = namespace
         if trPr is None:
             for p in self.all_properties:
@@ -233,10 +257,10 @@ class RowStyle(Style):
             for p in ('spacing', 'height'):
                 f = globals()[f'read_{p}']
                 f(trPr, self, namespace.XPath, namespace.get)
-        self._css = None
+        self._css: dict[str, str] | None = None
 
     @property
-    def css(self):
+    def css(self) -> dict[str, str]:
         if self._css is None:
             c = self._css = {}
             if self.hidden is True:
@@ -269,12 +293,23 @@ class CellStyle(Style):
         'hMerge',
         'row_span',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
+    background_color: str | Inherit
+    width: str | Inherit
+    vertical_align: str | Inherit
+    col_span: int | Inherit
+    vMerge: str | Inherit
+    hMerge: str | Inherit
+    row_span: int | Inherit
+    cell_padding_left: str | Inherit
+    cell_padding_right: str | Inherit
+    cell_padding_top: str | Inherit
+    cell_padding_bottom: str | Inherit
     background_color = width = vertical_align = inherit
     col_span = vMerge = hMerge = row_span = inherit
     cell_padding_left = cell_padding_right = inherit
     cell_padding_top = cell_padding_bottom = inherit
 
-    def __init__(self, namespace, tcPr=None) -> None:
+    def __init__(self, namespace: DOCXNamespace, tcPr: _Element | None = None) -> None:
         self.namespace = namespace
         if tcPr is None:
             for p in self.all_properties:
@@ -284,10 +319,10 @@ class CellStyle(Style):
                 f = globals()[f'read_{x}']
                 f(tcPr, self, namespace.XPath, namespace.get)
             self.row_span = inherit
-        self._css = None
+        self._css: dict[str, str] | None = None
 
     @property
-    def css(self):
+    def css(self) -> dict[str, str]:
         if self._css is None:
             self._css = c = {}
             if self.background_color is not inherit:
@@ -331,6 +366,20 @@ class TableStyle(Style):
         'look',
         'bidi',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
+    width: str | Inherit
+    float: dict[str, str] | Inherit
+    cell_padding_left: str | Inherit
+    cell_padding_right: str | Inherit
+    cell_padding_top: str | Inherit
+    cell_padding_bottom: str | Inherit
+    margin_left: str | Inherit
+    margin_right: str | Inherit
+    background_color: str | Inherit
+    indent: str | Inherit
+    col_band_size: int | Inherit
+    row_band_size: int | Inherit
+    look: int | Inherit
+    bidi: bool | Inherit
     width = float = cell_padding_left = cell_padding_right = inherit
     cell_padding_top = cell_padding_bottom = inherit
     margin_left = margin_right = background_color = inherit
@@ -339,7 +388,7 @@ class TableStyle(Style):
     overrides: dict | Inherit = inherit
     page: PageProperties | None = None
 
-    def __init__(self, namespace, tblPr=None) -> None:
+    def __init__(self, namespace: DOCXNamespace, tblPr: _Element | None = None) -> None:
         self.namespace = namespace
         if tblPr is None:
             for p in self.all_properties:
@@ -362,7 +411,7 @@ class TableStyle(Style):
                 f = globals()[f'read_{x}']
                 f(tblPr, self, self.namespace.XPath, self.namespace.get)
             parent = tblPr.getparent()
-            if self.namespace.is_tag(parent, 'w:style'):
+            if parent is not None and self.namespace.is_tag(parent, 'w:style'):
                 self.overrides = {}
                 for tblStylePr in self.namespace.XPath('./w:tblStylePr[@w:type]')(parent):
                     otype = self.namespace.get(tblStylePr, 'w:type')
@@ -377,16 +426,16 @@ class TableStyle(Style):
                         orides['para'] = ParagraphStyle(self.namespace, pPr)
                     for rPr in self.namespace.XPath('./w:rPr')(tblStylePr):
                         orides['run'] = RunStyle(self.namespace, rPr)
-        self._css = None
+        self._css: dict[str, str] | None = None
 
-    def resolve_based_on(self, parent) -> None:
+    def resolve_based_on(self, parent: TableStyle) -> None:
         for p in self.all_properties:
             val = getattr(self, p)
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
 
     @property
-    def css(self):
+    def css(self) -> dict[str, str]:
         if self._css is None:
             c = self._css = {}
             if self.width not in (inherit, 'auto'):
@@ -427,14 +476,14 @@ class TableStyle(Style):
 
 
 class Table:
-    def __init__(self, namespace, tbl, styles, para_map, is_sub_table=False) -> None:
+    def __init__(self, namespace: DOCXNamespace, tbl: _Element, styles: Styles, para_map: dict[_Element, Table], is_sub_table: bool = False) -> None:
         self.namespace = namespace
         self.tbl = tbl
         self.styles = styles
         self.is_sub_table = is_sub_table
 
         # Read Table Style
-        style = {'table': TableStyle(self.namespace)}
+        style: _TableStyles = {'table': TableStyle(self.namespace)}
         for tblPr in self.namespace.XPath('./w:tblPr')(tbl):
             for ts in self.namespace.XPath('./w:tblStyle[@w:val]')(tblPr):
                 style_id = self.namespace.get(ts, 'w:val')
@@ -486,10 +535,10 @@ class Table:
         self.sub_tables = {x: Table(namespace, x, styles, para_map, is_sub_table=True) for x in self.namespace.XPath('./w:tr/w:tc/w:tbl')(tbl)}
 
     @property
-    def bidi(self):
+    def bidi(self) -> bool:
         return self.table_style.bidi is True
 
-    def override_allowed(self, name) -> bool:
+    def override_allowed(self, name: str) -> bool:
         "Check if the named override is allowed by the tblLook element"
         if name.endswith('Cell') or name == 'wholeTable':
             return True
@@ -509,11 +558,11 @@ class Table:
                 return not bool(look & 0x0400)
         return False
 
-    def get_overrides(self, r, c, num_of_rows, num_of_cols_in_row):
+    def get_overrides(self, r: int, c: int | None, num_of_rows: int, num_of_cols_in_row: int | None) -> tuple[str, ...]:
         "List of possible overrides for the given para"
         overrides = ['wholeTable']
 
-        def divisor(m, n):
+        def divisor(m: int, n: int) -> int:
             return (m - (m % n)) // n
 
         if c is not None:
@@ -529,6 +578,7 @@ class Table:
         # According to the OOXML spec columns should have higher override
         # priority than rows, but Word seems to do it the other way around.
         if c is not None:
+            assert num_of_cols_in_row is not None  # c and num_of_cols_in_row are either both None or both not None
             if c == 0:
                 overrides.append('firstCol')
             if c >= num_of_cols_in_row - 1:
@@ -538,6 +588,7 @@ class Table:
         if r >= num_of_rows - 1:
             overrides.append('lastRow')
         if c is not None:
+            assert num_of_cols_in_row is not None
             if r == 0:
                 if c == 0:
                     overrides.append('nwCell')
@@ -550,7 +601,7 @@ class Table:
                     overrides.append('seCell')
         return tuple(filter(self.override_allowed, overrides))
 
-    def resolve_row_style(self, tr, overrides) -> None:
+    def resolve_row_style(self, tr: _Element, overrides: Iterable[str]) -> None:
         rs = RowStyle(self.namespace)
         for o in overrides:
             ovr = self.overrides.get(o)
@@ -565,7 +616,7 @@ class Table:
             rs.apply_bidi()
         self.style_map[tr] = rs
 
-    def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row) -> None:
+    def resolve_cell_style(self, tc: _Element, overrides: Iterable[str], row: int, col: int, rows: int, cols_in_row: int) -> None:
         cs = CellStyle(self.namespace)
         for o in overrides:
             ovr = self.overrides.get(o)
@@ -609,7 +660,7 @@ class Table:
             cs.apply_bidi()
         self.style_map[tc] = cs
 
-    def resolve_para_style(self, p, overrides) -> None:
+    def resolve_para_style(self, p: _Element, overrides: Iterable[str]) -> None:
         text_styles = [clone(self.paragraph_style), clone(self.run_style)]
 
         for o in overrides:
@@ -678,12 +729,12 @@ class Table:
                     for tc in run[1:]:
                         tc.getparent().remove(tc)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_Element]:
         yield from self.paragraphs
         for t in self.sub_tables.values():
             yield from t
 
-    def apply_markup(self, rmap, page, parent=None) -> None:
+    def apply_markup(self, rmap: dict[_Element, HtmlElement], page: PageProperties, parent: HtmlElement | None = None) -> None:
         table = TABLE('\n\t\t')
         if self.bidi:
             table.set('dir', 'rtl')
@@ -695,6 +746,7 @@ class Table:
             except StopIteration:
                 return
             parent = first_para.getparent()
+            assert parent is not None  # first_para has been inserted into the HTML body
             idx = parent.index(first_para)
             parent.insert(idx, table)
         else:
@@ -729,33 +781,35 @@ class Table:
         for elem, style in style_map.items():
             css = style.css
             if css:
-                elem.set('class', self.styles.register(css, elem.tag))
+                tag = elem.tag
+                assert isinstance(tag, str)  # elem is a table, tr or td HTML element created above
+                elem.set('class', self.styles.register(css, tag))
 
 
 class Tables:
-    def __init__(self, namespace) -> None:
-        self.tables = []
-        self.para_map = {}
-        self.sub_tables = set()
+    def __init__(self, namespace: DOCXNamespace) -> None:
+        self.tables: list[Table] = []
+        self.para_map: dict[_Element, Table] = {}
+        self.sub_tables: set[_Element] = set()
         self.namespace = namespace
 
-    def register(self, tbl, styles) -> None:
+    def register(self, tbl: _Element, styles: Styles) -> None:
         if tbl in self.sub_tables:
             return
         self.tables.append(Table(self.namespace, tbl, styles, self.para_map))
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
-    def apply_markup(self, object_map, page_map) -> None:
+    def apply_markup(self, object_map: dict[HtmlElement, _Element], page_map: dict[_Element, PageProperties]) -> None:
         rmap = {v: k for k, v in object_map.items()}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])
 
-    def para_style(self, p):
+    def para_style(self, p: _Element | None) -> ParagraphStyle | None:
         table = self.para_map.get(p, None)
         if table is not None:
             return table.style_map.get(p, (None, None))[0]
 
-    def run_style(self, p):
+    def run_style(self, p: _Element | None) -> RunStyle | None:
         table = self.para_map.get(p, None)
         if table is not None:
             return table.style_map.get(p, (None, None))[1]

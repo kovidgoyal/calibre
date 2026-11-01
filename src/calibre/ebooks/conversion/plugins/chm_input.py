@@ -3,12 +3,23 @@
 """CHM File decoding support"""
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.constants import filesystem_encoding
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
+    from calibre.utils.logging import Log
 
 
 class CHMInput(InputFormatPlugin):
@@ -18,7 +29,7 @@ class CHMInput(InputFormatPlugin):
     file_types = {'chm'}
     commit_name = 'chm_input'
 
-    def _chmtohtml(self, output_dir, chm_path, no_images, log, debug_dump=False):
+    def _chmtohtml(self, output_dir: str, chm_path: str, no_images: bool, log: Log, debug_dump: str | bool = False) -> str:
         from calibre.ebooks.chm.reader import CHMReader
 
         log.debug('Opening CHM file')
@@ -28,7 +39,7 @@ class CHMInput(InputFormatPlugin):
         self._chm_reader = rdr
         return rdr.hhc_path
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
         from calibre.customize.ui import plugin_for_input_format
         from calibre.ebooks.chm.metadata import get_metadata_from_reader
 
@@ -83,24 +94,28 @@ class CHMInput(InputFormatPlugin):
                 oeb.auto_generated_toc = False
         return oeb
 
-    def parse_html_toc(self, item):
+    def parse_html_toc(self, item: Manifest.Item) -> TOC:
+        from lxml import etree
+
         from calibre.ebooks.oeb.base import TOC, XPath
 
         dx = XPath('./h:div')
         ax = XPath('./h:a[1]')
 
-        def do_node(parent, div) -> None:
+        def do_node(parent: TOC, div: _Element) -> None:
             for child in dx(div):
                 a = ax(child)[0]
                 c = parent.add(a.text, a.attrib['href'])
                 do_node(c, child)
 
         toc = TOC()
-        root = XPath('//h:div[1]')(item.data)[0]
+        data = item.data
+        assert isinstance(data, etree._Element)
+        root = XPath('//h:div[1]')(data)[0]
         do_node(toc, root)
         return toc
 
-    def _create_oebbook_html(self, htmlpath, basedir, opts, log, mi):
+    def _create_oebbook_html(self, htmlpath: str, basedir: str, opts: Values, log: Log, mi: Metadata) -> OEBBook:
         # use HTMLInput plugin to generate book
         from calibre.customize.builtins import HTMLInput
 
@@ -113,7 +128,7 @@ class CHMInput(InputFormatPlugin):
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
         return oeb
 
-    def _create_html_root(self, hhcpath, log, encoding):
+    def _create_html_root(self, hhcpath: str, log: Log, encoding: str) -> tuple[str, TOC]:
         from lxml import html
 
         from calibre.ebooks.chardet import xml_to_unicode
@@ -140,12 +155,12 @@ class CHMInput(InputFormatPlugin):
         htmlpath = os.path.splitext(hhcpath)[0] + '.html'
         base = os.path.dirname(os.path.abspath(htmlpath))
 
-        def unquote(x):
+        def unquote(x: str | bytes) -> str:
             if isinstance(x, str):
                 x = x.encode('utf-8')
             return _unquote(x).decode('utf-8')
 
-        def unquote_path(x):
+        def unquote_path(x: str) -> tuple[str, str]:
             x, _, frag = x.partition('#')
             if frag:
                 frag = '#' + frag
@@ -155,7 +170,7 @@ class CHMInput(InputFormatPlugin):
                     x = y
             return x, frag
 
-        def donode(item, parent, base, subpath) -> None:
+        def donode(item: TOC, parent: HtmlElement, base: str, subpath: str) -> None:
             for child in item:
                 title = child.title
                 if not title:
@@ -179,7 +194,7 @@ class CHMInput(InputFormatPlugin):
                 from lxml.html.builder import BODY, DIV, HTML, A
 
                 path0 = toc[0].href
-                path0 = unquote_path(path0)[0]
+                path0 = unquote_path(path0)[0]  # ty: ignore[invalid-argument-type] add_node() never creates entries with a None href
                 subpath = os.path.dirname(path0)
                 base = os.path.dirname(f.name)
                 root = DIV()
@@ -190,12 +205,12 @@ class CHMInput(InputFormatPlugin):
                 f.write(as_bytes(hhcdata))
         return htmlpath, toc
 
-    def _read_file(self, name):
+    def _read_file(self, name: str) -> bytes:
         with open(name, 'rb') as f:
             data = f.read()
         return data
 
-    def add_node(self, node, toc, ancestor_map) -> None:
+    def add_node(self, node: _Element, toc: TOC, ancestor_map: dict[_Element, TOC]) -> None:
         from calibre.ebooks.chm.reader import match_string
 
         if match_string(node.attrib.get('type', ''), 'text/sitemap'):
@@ -211,11 +226,11 @@ class CHMInput(InputFormatPlugin):
             child = toc.add(title or _('Unknown'), href)
             ancestor_map[node] = child
 
-    def _process_nodes(self, root):
+    def _process_nodes(self, root: _Element) -> TOC:
         from calibre.ebooks.oeb.base import TOC
 
         toc = TOC()
-        ancestor_map = {}
+        ancestor_map: dict[_Element, TOC] = {}
         for node in root.xpath('//object'):
             self.add_node(node, toc, ancestor_map)
         return toc

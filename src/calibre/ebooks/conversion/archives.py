@@ -10,7 +10,7 @@ from calibre.utils.localization import _
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 
 
-def unarchive(path, tdir):
+def unarchive(path: str, tdir: str) -> tuple[str, str]:
     extract(path, tdir)
     files = list(walk(tdir))
     files = [f if isinstance(f, str) else f.decode(filesystem_encoding) for f in files]
@@ -29,7 +29,7 @@ def unarchive(path, tdir):
     return find_html_index(files)
 
 
-def find_html_index(files):
+def find_html_index(files: list[str]) -> tuple[str, str]:
     """
     Given a list of files, find the most likely root HTML file in the
     list.

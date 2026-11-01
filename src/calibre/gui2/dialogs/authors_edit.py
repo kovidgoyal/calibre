@@ -203,7 +203,7 @@ class AuthorsEdit(QDialog):
                     al_it.setText(author)
                 else:
                     self.al.addItem(author)
-                    authors[la] = author
+                    authors[la] = (self.al.count() - 1, author)
         self.author.setText('')
 
 

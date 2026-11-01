@@ -892,14 +892,18 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         for r in range(row_count):
             w = QLineEdit(tv)
             w.setReadOnly(True)
-            w.setText(mi[r].get('title', _('No title provided')))
+            title = mi[r].get('title', _('No title provided'))
+            assert isinstance(title, str)  # title is never None
+            w.setText(title)
             tv.setCellWidget(r, 0, w)
             tb = QToolButton()
             tb.setContentsMargins(0, 0, 0, 0)
             tb.setIcon(QIcon.ic('edit_input.png'))
             tb.setToolTip(_('Open Edit metadata on this book'))
             tb.clicked.connect(partial(self.metadata_button_clicked, r))
-            tb.setEnabled(int(mi[r].get('id', -1)) >= 0)
+            book_id = mi[r].get('id', -1)
+            assert isinstance(book_id, int)  # only books from the library have an id
+            tb.setEnabled(int(book_id) >= 0)
             tv.setCellWidget(r, 1, tb)
             w = QLineEdit(tv)
             w.setReadOnly(True)
@@ -928,7 +932,9 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             new_mi = []
             for mi in self.mi:
                 try:
-                    pmi = db.new_api.get_proxy_metadata(mi.get('id'))
+                    book_id = mi.get('id')
+                    assert isinstance(book_id, int)
+                    pmi = db.new_api.get_proxy_metadata(book_id)
                 except Exception:
                     pmi = None
                 new_mi.append(pmi)
@@ -1275,7 +1281,9 @@ def evaluate(book, context):
         for r, mi in enumerate(self.mi):
             w = tv.cellWidget(r, 0)
             assert isinstance(w, QLineEdit)
-            w.setText(mi.get('title', _('No title provided')))
+            title = mi.get('title', _('No title provided'))
+            assert isinstance(title, str)  # title is never None
+            w.setText(title)
             w.setCursorPosition(0)
             if self.break_box.isChecked() and r == break_on_mi and self.is_python:
                 sys.settrace(self.trace_calls)

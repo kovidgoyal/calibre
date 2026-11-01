@@ -4,10 +4,24 @@
 import os
 import re
 from bisect import bisect
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Literal, TypedDict, overload
 
 from calibre import guess_type as _guess_type
 from calibre import replace_entities
 from calibre.utils.icu import upper as icu_upper
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+type CaseFunc = Callable[[str], str]
+type EntityHandler = Callable[[str, CaseFunc], str]
+FixedLayoutData = TypedDict('FixedLayoutData', {'fixed-layout': bool, 'rendition': dict[str, str | None], 'original-resolution': str | None})
 
 BLOCK_TAG_NAMES = frozenset((
     'address',
@@ -44,7 +58,7 @@ BLOCK_TAG_NAMES = frozenset((
 ))
 
 
-def guess_type(x):
+def guess_type(x: str) -> str:
     return _guess_type(x)[0] or 'application/octet-stream'
 
 
@@ -62,7 +76,7 @@ OEB_FONTS = frozenset({
 })
 
 
-def adjust_mime_for_epub(filename='', mime='', opf_version=(2, 0)):
+def adjust_mime_for_epub(filename: str = '', mime: str = '', opf_version: Sequence[int] = (2, 0)) -> str:
     mime = mime or guess_type(filename)
     if mime == 'text/html':
         # epubcheck complains if the mimetype for text documents is set to text/html in EPUB 2 books. Sigh.
@@ -101,7 +115,7 @@ def adjust_mime_for_epub(filename='', mime='', opf_version=(2, 0)):
     return mime
 
 
-def setup_css_parser_serialization(tab_width=2) -> None:
+def setup_css_parser_serialization(tab_width: int = 2) -> None:
     import css_parser
 
     prefs = css_parser.ser.prefs
@@ -111,14 +125,14 @@ def setup_css_parser_serialization(tab_width=2) -> None:
     prefs.formatUnknownAtRules = False  # True breaks @supports rules
 
 
-def actual_case_for_name(container, name):
+def actual_case_for_name(container: Container, name: str) -> str:
     from calibre.utils.filenames import samefile
 
     if not container.exists(name):
         raise ValueError(f'Cannot get actual case for {name} as it does not exist')
     parts = name.split('/')
     base = ''
-    ans = []
+    ans: list[str] = []
     for i, x in enumerate(parts):
         base = '/'.join(ans + [x])
         path = container.name_to_abspath(base)
@@ -137,9 +151,9 @@ def actual_case_for_name(container, name):
     return '/'.join(ans)
 
 
-def corrected_case_for_name(container, name):
+def corrected_case_for_name(container: Container, name: str) -> str | None:
     parts = name.split('/')
-    ans = []
+    ans: list[str] = []
     base = ''
     for i, x in enumerate(parts):
         base = '/'.join(ans + [x])
@@ -161,11 +175,13 @@ def corrected_case_for_name(container, name):
 
 
 class PositionFinder:
-    def __init__(self, raw) -> None:
-        pat = rb'\n' if isinstance(raw, bytes) else r'\n'
-        self.new_lines = tuple(m.start() + 1 for m in re.finditer(pat, raw))
+    def __init__(self, raw: str | bytes) -> None:
+        if isinstance(raw, bytes):
+            self.new_lines = tuple(m.start() + 1 for m in re.finditer(rb'\n', raw))
+        else:
+            self.new_lines = tuple(m.start() + 1 for m in re.finditer(r'\n', raw))
 
-    def __call__(self, pos):
+    def __call__(self, pos: int) -> tuple[int, int]:
         lnum = bisect(self.new_lines, pos)
         try:
             offset = abs(pos - self.new_lines[lnum - 1])
@@ -175,28 +191,32 @@ class PositionFinder:
 
 
 class CommentFinder:
-    def __init__(self, raw, pat=r'(?s)/\*.*?\*/') -> None:
-        self.starts, self.ends = [], []
+    def __init__(self, raw: str, pat: str = r'(?s)/\*.*?\*/') -> None:
+        self.starts: list[int] = []
+        self.ends: list[int] = []
         for m in re.finditer(pat, raw):
             start, end = m.span()
             self.starts.append(start), self.ends.append(end)
 
-    def __call__(self, offset):
+    def __call__(self, offset: int) -> bool:
         if not self.starts:
             return False
         q = bisect(self.starts, offset) - 1
         return q >= 0 and self.starts[q] <= offset <= self.ends[q]
 
 
-def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
+def link_stylesheets(container: Container, names: Iterable[str], sheets: Sequence[str], remove: bool = False, mtype: str = 'text/css') -> set[str]:
+    from lxml import etree
+
     from calibre.ebooks.oeb.base import XHTML, XPath
 
-    changed_names = set()
+    changed_names: set[str] = set()
     snames = set(sheets)
     lp = XPath('//h:link[@href]')
     hp = XPath('//h:head')
     for name in names:
         root = container.parsed(name)
+        assert isinstance(root, etree._Element)
         if remove:
             for link in lp(root):
                 if (link.get('type', mtype) or mtype) == mtype:
@@ -223,15 +243,15 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
     return changed_names
 
 
-def lead_text(top_elem, num_words=10):
+def lead_text(top_elem: _Element, num_words: int = 10) -> str:
     """Return the leading text contained in top_elem (including descendants)
     up to a maximum of num_words words. More efficient than using
     etree.tostring(method='text') as it does not have to serialize the entire
     sub-tree rooted at top_elem."""
     pat = re.compile(r'\s+', flags=re.UNICODE)
-    words = []
+    words: list[str] = []
 
-    def get_text(x, attr='text') -> None:
+    def get_text(x: _Element, attr: str = 'text') -> None:
         ans = getattr(x, attr)
         if ans:
             words.extend(filter(None, pat.split(ans)))
@@ -247,7 +267,42 @@ def lead_text(top_elem, num_words=10):
     return ' '.join(words[:num_words])
 
 
-def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_level=None, css_preprocessor=None):
+@overload
+def parse_css(
+    data: str | bytes | None,
+    fname: str = '<string>',
+    is_declaration: Literal[False] = False,
+    decode: Callable[[bytes], str] | None = None,
+    log_level: int | None = None,
+    css_preprocessor: Callable[[str], str] | None = None,
+) -> CSSStyleSheet: ...
+@overload
+def parse_css(
+    data: str | bytes | None,
+    fname: str = '<string>',
+    *,
+    is_declaration: Literal[True],
+    decode: Callable[[bytes], str] | None = None,
+    log_level: int | None = None,
+    css_preprocessor: Callable[[str], str] | None = None,
+) -> CSSStyleDeclaration: ...
+@overload
+def parse_css(
+    data: str | bytes | None,
+    fname: str = '<string>',
+    is_declaration: bool = False,
+    decode: Callable[[bytes], str] | None = None,
+    log_level: int | None = None,
+    css_preprocessor: Callable[[str], str] | None = None,
+) -> CSSStyleSheet | CSSStyleDeclaration: ...
+def parse_css(
+    data: str | bytes | None,
+    fname: str = '<string>',
+    is_declaration: bool = False,
+    decode: Callable[[bytes], str] | None = None,
+    log_level: int | None = None,
+    css_preprocessor: Callable[[str], str] | None = None,
+) -> CSSStyleSheet | CSSStyleDeclaration:
     if log_level is None:
         import logging
 
@@ -270,24 +325,23 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
         log=_css_logger,
     )
     if is_declaration:
-        data = parser.parseStyle(data, validate=False)
-    else:
-        data = parser.parseString(data, href=fname, validate=False)
-    return data
+        return parser.parseStyle(data, validate=False)
+    return parser.parseString(data, href=fname, validate=False)
 
 
-def handle_entities(text, func):
+def handle_entities(text: str, func: CaseFunc) -> str:
     return func(replace_entities(text))
 
 
-def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_entities):
+def apply_func_to_match_groups(match: re.Match[str], func: CaseFunc = icu_upper, handle_entities: EntityHandler = handle_entities) -> str:
     """Apply the specified function to individual groups in the match object (the result of re.search() or
     the whole match if no groups were defined. Returns the replaced string."""
     found_groups = False
     i = 0
-    parts, pos = [], match.start()
+    parts: list[str] = []
+    pos = match.start()
 
-    def f(text):
+    def f(text: str) -> str:
         return handle_entities(text, func)
 
     while True:
@@ -307,10 +361,10 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
     return ''.join(parts)
 
 
-def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
+def apply_func_to_html_text(match: re.Match[str], func: CaseFunc = icu_upper, handle_entities: EntityHandler = handle_entities) -> str:
     """Apply the specified function only to text between HTML tag definitions."""
 
-    def f(text):
+    def f(text: str) -> str:
         return handle_entities(text, func)
 
     parts = re.split(r'(<[^>]+>)', match.group())
@@ -318,7 +372,7 @@ def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entiti
     return ''.join(parts)
 
 
-def extract(elem) -> None:
+def extract(elem: _Element) -> None:
     """Remove an element from the tree, keeping elem.tail"""
     p = elem.getparent()
     if p is not None:
@@ -331,7 +385,7 @@ def extract(elem) -> None:
                 p.text = (p.text or '') + elem.tail
 
 
-def insert_self_closing(parent, item, index=None) -> None:
+def insert_self_closing(parent: _Element, item: _Element, index: int | None = None) -> None:
     """Insert item into parent (or append if index is None), fixing
     indentation. Only works with self closing items."""
     if index is None:
@@ -357,7 +411,7 @@ def insert_self_closing(parent, item, index=None) -> None:
             parent[idx - 1].tail = parent.text
 
 
-def fixed_layout_data(container):
+def fixed_layout_data(container: Container) -> FixedLayoutData | None:
     """
     Return a dict of the various data for a fixed-layout rendering.
     Return None if not supported.
@@ -368,7 +422,7 @@ def fixed_layout_data(container):
         return None
     if not container.opf_xpath('//opf:metadata/opf:meta[@name="fixed-layout" and @content="true"]'):
         return None
-    rslt = {
+    rslt: FixedLayoutData = {
         'fixed-layout': True,
         'rendition': {},
         'original-resolution': None,

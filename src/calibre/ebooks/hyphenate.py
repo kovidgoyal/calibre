@@ -15,22 +15,25 @@ This Python code is in the public domain.
 '''
 
 import re
+from typing import cast
+
+type PatternTree = dict[str | None, PatternTree | list[int]]
 
 __version__ = '1.0.20070709'
 
 
 class Hyphenator:
-    def __init__(self, patterns, exceptions='') -> None:
-        self.tree = {}
+    def __init__(self, patterns: str, exceptions: str = '') -> None:
+        self.tree: PatternTree = {}
         for pattern in patterns.split():
             self._insert_pattern(pattern)
 
-        self.exceptions = {}
+        self.exceptions: dict[str, list[int]] = {}
         for ex in exceptions.split():
             # Convert the hyphenated pattern into a point array for use later.
             self.exceptions[ex.replace('-', '')] = [0] + [int(h == '-') for h in re.split(r'[a-z]', ex)]
 
-    def _insert_pattern(self, pattern) -> None:
+    def _insert_pattern(self, pattern: str) -> None:
         # Convert a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub(r'[0-9]', '', pattern)
@@ -43,10 +46,10 @@ class Hyphenator:
         for c in chars:
             if c not in t:
                 t[c] = {}
-            t = t[c]
+            t = cast('PatternTree', t[c])  # only the None key maps to a list
         t[None] = points
 
-    def hyphenate_word(self, word):
+    def hyphenate_word(self, word: str) -> list[str]:
         """Given a word, returns a list of pieces, broken at the possible
         hyphenation points.
         """
@@ -63,9 +66,9 @@ class Hyphenator:
                 t = self.tree
                 for c in work[i:]:
                     if c in t:
-                        t = t[c]
+                        t = cast('PatternTree', t[c])  # only the None key maps to a list
                         if None in t:
-                            p = t[None]
+                            p = cast('list[int]', t[None])
                             for j in range(len(p)):
                                 points[i + j] = max(points[i + j], p[j])
                     else:

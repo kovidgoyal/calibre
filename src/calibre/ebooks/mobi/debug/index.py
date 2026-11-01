@@ -3,11 +3,18 @@
 
 import struct
 from collections import OrderedDict
-from typing import NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record, parse_indx_header, parse_tagx_section
 from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from calibre.ebooks.mobi.debug.headers import Record
+    from calibre.ebooks.mobi.reader.index import IndexHeader, IndexTable
+    from calibre.ebooks.mobi.reader.ncx import NCXEntry as NCXEntryDict
 
 
 class File(NamedTuple):
@@ -20,7 +27,7 @@ class File(NamedTuple):
 
 class Elem(NamedTuple):
     insert_pos: int
-    toc_text: str
+    toc_text: str | None
     file_number: int
     sequence_number: int
     start_pos: int
@@ -29,8 +36,8 @@ class Elem(NamedTuple):
 
 class GuideRef(NamedTuple):
     type: str
-    title: str
-    pos_fid: tuple[int, int]
+    title: str | None
+    pos_fid: list[int] | tuple[list[int], list[int]]
 
 
 class NCXEntry(NamedTuple):
@@ -42,7 +49,7 @@ class NCXEntry(NamedTuple):
     first_child: int | None
     last_child: int | None
     title: str
-    pos_fid: int
+    pos_fid: tuple[int, ...] | None
     kind: str | None
 
 
@@ -64,7 +71,7 @@ FIELD_NAMES = {
 }
 
 
-def read_variable_len_data(data, header) -> None:
+def read_variable_len_data(data: bytes, header: IndexHeader) -> None:
     offset = header['tagx']
     indices = []
     idxt_offset = header['start']
@@ -90,8 +97,9 @@ def read_variable_len_data(data, header) -> None:
     header['indices'] = indices
 
 
-def read_index(sections, idx, codec):
-    table, cncx = OrderedDict(), CNCX([], codec)
+def read_index(sections: Sequence[Record], idx: int, codec: str) -> tuple[IndexTable, CNCX, IndexHeader, list[IndexHeader]]:
+    table: IndexTable = OrderedDict()
+    cncx = CNCX([], codec)
 
     data = sections[idx].raw
 
@@ -107,7 +115,7 @@ def read_index(sections, idx, codec):
     control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
     read_variable_len_data(data, indx_header)
-    index_headers = []
+    index_headers: list[IndexHeader] = []
 
     for i in range(idx + 1, idx + 1 + indx_count):
         # Index record
@@ -118,25 +126,27 @@ def read_index(sections, idx, codec):
 
 
 class Index:
-    def __init__(self, idx, records, codec) -> None:
-        self.table = self.cncx = self.header = None
+    def __init__(self, idx: int, records: Sequence[Record], codec: str) -> None:
+        self.table: IndexTable | None = None
+        self.cncx: CNCX | None = None
+        self.header: IndexHeader | None = None
         self.records: list = []
-        self.index_headers = []
+        self.index_headers: list[IndexHeader] = []
         if idx != NULL_INDEX:
             self.table, self.cncx, self.header, self.index_headers = read_index(records, idx, codec)
 
-    def render(self):
+    def render(self) -> list[str]:
         ans = ['*' * 10 + ' Index Header ' + '*' * 10]
         a = ans.append
         if self.header is not None:
             for field in INDEX_HEADER_FIELDS:
-                a(f'{FIELD_NAMES.get(field, field):<12}: {self.header[field]!r}')
+                a(f'{FIELD_NAMES.get(field, field):<12}: {self.header[field]!r}')  # ty: ignore[invalid-key] field is a key of IndexHeader
         ans.extend(['', ''])
         ans += ['*' * 10 + f' Index Record Headers ({len(self.index_headers)} records) ' + '*' * 10]
         for i, header in enumerate(self.index_headers):
             ans += ['*' * 10 + f' Index Record {i} ' + '*' * 10]
             for field in INDEX_HEADER_FIELDS:
-                a(f'{FIELD_NAMES.get(field, field):<12}: {header[field]!r}')
+                a(f'{FIELD_NAMES.get(field, field):<12}: {header[field]!r}')  # ty: ignore[invalid-key] field is a key of IndexHeader
 
         if self.cncx:
             a('*' * 10 + ' CNCX ' + '*' * 10)
@@ -159,12 +169,12 @@ class Index:
     def __str__(self) -> str:
         return '\n'.join(self.render())
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[NamedTuple]:
         return iter(self.records)
 
 
 class SKELIndex(Index):
-    def __init__(self, skelidx, records, codec) -> None:
+    def __init__(self, skelidx: int, records: Sequence[Record], codec: str) -> None:
         super().__init__(skelidx, records, codec)
         self.records = []
 
@@ -185,7 +195,7 @@ class SKELIndex(Index):
 
 
 class SECTIndex(Index):
-    def __init__(self, sectidx, records, codec) -> None:
+    def __init__(self, sectidx: int, records: Sequence[Record], codec: str) -> None:
         super().__init__(sectidx, records, codec)
         self.records = []
 
@@ -210,7 +220,7 @@ class SECTIndex(Index):
 
 
 class GuideIndex(Index):
-    def __init__(self, guideidx, records, codec) -> None:
+    def __init__(self, guideidx: int, records: Sequence[Record], codec: str) -> None:
         super().__init__(guideidx, records, codec)
         self.records = []
 
@@ -226,14 +236,14 @@ class GuideIndex(Index):
 
 
 class NCXIndex(Index):
-    def __init__(self, ncxidx, records, codec) -> None:
+    def __init__(self, ncxidx: int, records: Sequence[Record], codec: str) -> None:
         super().__init__(ncxidx, records, codec)
         self.records = []
 
         if self.table is not None:
             for num, x in enumerate(self.table.items()):
                 text, tag_map = x
-                e: dict = default_entry.copy()
+                e = default_entry.copy()
                 e['name'] = text
                 e['num'] = num
 
@@ -246,7 +256,7 @@ class NCXIndex(Index):
                             # Appears to be an idx into the KF8 elems table with an
                             # offset
                             fieldvalue = tuple(tag_map[tag])
-                        e[fieldname] = fieldvalue
+                        e[fieldname] = fieldvalue  # ty: ignore[invalid-key] fieldname is always a key of NCXEntryDict
                         for which, name in {
                             3: 'text',
                             5: 'kind',
@@ -258,9 +268,10 @@ class NCXIndex(Index):
                             if tag == which:
                                 cncx = self.cncx
                                 assert cncx is not None
-                                e[name] = cncx.get(fieldvalue, default_entry[name])
+                                # fieldvalue is a CNCX offset for these tags, the result is a string or the default
+                                e[name] = cncx.get(fieldvalue, default_entry[name])  # ty: ignore[invalid-assignment, invalid-argument-type]
 
-                def refindx(e, name):
+                def refindx(e: NCXEntryDict, name: Literal['parent', 'child1', 'childn']) -> int | None:
                     ans = e[name]
                     if ans < 0:
                         ans = None

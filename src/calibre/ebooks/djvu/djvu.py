@@ -8,17 +8,18 @@
 
 import struct
 import sys
+from typing import IO
 
 from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 
 
 class DjvuChunk:
-    def __init__(self, buf, start, end, align=True, bigendian=True, inclheader=False, verbose=0) -> None:
+    def __init__(self, buf: bytes, start: int, end: int, align: bool = True, bigendian: bool = True, inclheader: bool = False, verbose: int = 0) -> None:
         from calibre_extensions import bzzdec
 
         self.speedup = bzzdec
-        self.subtype = None
-        self._subchunks = []
+        self.subtype: bytes | None = None
+        self._subchunks: list[DjvuChunk] = []
         self.buf = buf
         pos = start + 4
         self.type = buf[start:pos]
@@ -54,7 +55,7 @@ class DjvuChunk:
             if verbose > 0:
                 print(f'                  end of chunk {pos} ({pos:x})')
 
-    def dump(self, verbose=0, indent=1, out=None, txtout=None, maxlevel=100) -> None:
+    def dump(self, verbose: int = 0, indent: int = 1, out: IO[bytes] | None = None, txtout: IO[bytes] | None = None, maxlevel: int = 100) -> None:
         if out:
             out.write(b'  ' * indent)
             out.write(b'%s%s [%d]\n' % (self.type, b':' + self.subtype if self.subtype else b'', self.size))
@@ -78,7 +79,7 @@ class DjvuChunk:
                     l <<= 8
                     l += x
                 if verbose > 0 and out:
-                    print(l, file=out)
+                    out.write(b'%d\n' % l)
                 txtout.write(res[3 : 3 + l])
             txtout.write(b'\037')
         if txtout and self.type == b'TXTa':
@@ -88,7 +89,7 @@ class DjvuChunk:
                 l <<= 8
                 l += x
             if verbose > 0 and out:
-                print(l, file=out)
+                out.write(b'%d\n' % l)
             txtout.write(res[3 : 3 + l])
             txtout.write(b'\037')
         if indent >= maxlevel:
@@ -98,24 +99,24 @@ class DjvuChunk:
 
 
 class DJVUFile:
-    def __init__(self, instream, verbose=0) -> None:
+    def __init__(self, instream: IO[bytes], verbose: int = 0) -> None:
         self.instream = instream
         buf = self.instream.read(4)
         assert buf == b'AT&T'
         buf = self.instream.read()
         self.dc = DjvuChunk(buf, 0, len(buf), verbose=verbose)
 
-    def get_text(self, outfile=None) -> None:
+    def get_text(self, outfile: IO[bytes] | None = None) -> None:
         self.dc.dump(txtout=outfile)
 
-    def dump(self, outfile=None, maxlevel=0) -> None:
+    def dump(self, outfile: IO[bytes] | None = None, maxlevel: int = 0) -> None:
         self.dc.dump(out=outfile, maxlevel=maxlevel)
 
 
 def main() -> None:
     with open(sys.argv[-1], 'rb') as r:
         f = DJVUFile(r)
-    print(f.get_text(sys.stdout))
+    print(f.get_text(sys.stdout.buffer))
 
 
 if __name__ == '__main__':

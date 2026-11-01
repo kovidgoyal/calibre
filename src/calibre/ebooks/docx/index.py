@@ -2,13 +2,24 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from operator import itemgetter
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
 from calibre.utils.icu import partition_by_first_letter, sort_key
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
-def get_applicable_xe_fields(index, xe_fields, XPath, expand):
+    from lxml.etree import _Element
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.docx.fields import Field, ParsedField, XEField
+    from calibre.ebooks.docx.names import XPathFunc
+    from calibre.utils.logging import Log
+
+
+def get_applicable_xe_fields(index: ParsedField, xe_fields: list[XEField], XPath: XPathFunc, expand: Callable[[str], str]) -> list[XEField]:
     iet = index.get('entry-type', None)
     xe_fields = [xe for xe in xe_fields if xe.get('entry-type', None) == iet]
 
@@ -18,7 +29,7 @@ def get_applicable_xe_fields(index, xe_fields, XPath, expand):
         sl, el = sl.strip(), el.strip()
         if sl and el:
 
-            def inrange(text):
+            def inrange(text: str) -> bool:
                 return sl <= text[0] <= el
 
             xe_fields = [xe for xe in xe_fields if inrange(xe.get('text', ''))]
@@ -30,7 +41,7 @@ def get_applicable_xe_fields(index, xe_fields, XPath, expand):
     bookmarks = {b for b in XPath('//w:bookmarkStart')(xe_fields[0]['start_elem']) if b.get(attr, None) == bmark}
     ancestors = XPath('ancestor::w:bookmarkStart')
 
-    def contained(xe):
+    def contained(xe: XEField) -> bool:
         # Check if the xe field is contained inside a bookmark with the
         # specified name
         return bool(set(ancestors(xe['start_elem'])) & bookmarks)
@@ -38,7 +49,7 @@ def get_applicable_xe_fields(index, xe_fields, XPath, expand):
     return [xe for xe in xe_fields if contained(xe)]
 
 
-def make_block(expand, style, parent, pos):
+def make_block(expand: Callable[[str], str], style: str | None, parent: _Element, pos: int) -> tuple[_Element, _Element]:
     p = parent.makeelement(expand('w:p'))
     parent.insert(pos, p)
     if style is not None:
@@ -55,13 +66,15 @@ def make_block(expand, style, parent, pos):
     return p, t
 
 
-def add_xe(xe, t, expand):
+def add_xe(xe: XEField, t: _Element, expand: Callable[[str], str]) -> tuple[str, _Element]:
     run = t.getparent()
+    assert run is not None  # t was added to a run by make_block()
     t.text = xe.get('text') or ' '
     pt = xe.get('page-number-text', None)
 
     if pt:
-        p = t.getparent().getparent()
+        p = run.getparent()
+        assert p is not None
         r = p.makeelement(expand('w:r'))
         p.append(r)
         t2 = r.makeelement(expand('w:t'))
@@ -71,21 +84,26 @@ def add_xe(xe, t, expand):
     return xe['anchor'], run
 
 
-def process_index(field, index, xe_fields, log, XPath, expand):
+def process_index(
+    field: Field, index: ParsedField, xe_fields: list[XEField], log: Log, XPath: XPathFunc, expand: Callable[[str], str]
+) -> tuple[list[tuple[str, _Element]], list[_Element]]:
     """
     We remove all the word generated index markup and replace it with our own
     that is more suitable for an ebook.
     """
-    styles = []
+    styles: list[str] = []
     heading_text = index.get('heading', None)
     heading_style = 'IndexHeading'
-    start_pos = None
+    start_pos: tuple[_Element, int] | None = None
     for elem in field.contents:
-        if elem.tag.endswith('}p'):
+        tag = elem.tag
+        assert isinstance(tag, str)  # contents are selected by element name XPaths
+        if tag.endswith('}p'):
             s = XPath('descendant::pStyle/@w:val')(elem)
             if s:
                 styles.append(s[0])
             p = elem.getparent()
+            assert p is not None  # paragraphs always have a parent
             if start_pos is None:
                 start_pos = (p, p.index(elem))
             p.remove(elem)
@@ -95,7 +113,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
         return [], []
     if heading_text is not None:
         groups = partition_by_first_letter(xe_fields, key=itemgetter('text'))
-        items = []
+        items: list[str | XEField] = []
         for key, fields in groups.items():
             items.append(key), items.extend(fields)
         if styles:
@@ -103,17 +121,18 @@ def process_index(field, index, xe_fields, log, XPath, expand):
     else:
         items = sorted(xe_fields, key=lambda x: sort_key(x['text']))
 
-    hyperlinks = []
-    blocks = []
+    hyperlinks: list[tuple[str, _Element]] = []
+    blocks: list[_Element] = []
     for item in reversed(items):
         is_heading = not isinstance(item, dict)
         style = heading_style if is_heading else None
         assert start_pos is not None
         p, t = make_block(expand, style, *start_pos)
         if is_heading:
-            text = heading_text
+            # items only contains headings when heading_text is not None
+            text = cast('str', heading_text)
             if text.lower().startswith('a'):
-                text = item + text[1:]
+                text = cast('str', item) + text[1:]
             t.text = text
         else:
             hyperlinks.append(add_xe(item, t, expand))
@@ -122,7 +141,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
     return hyperlinks, blocks
 
 
-def split_up_block(container, a, parts, ldict, tdict) -> None:
+def split_up_block(container: HtmlElement, a: HtmlElement, parts: list[str], ldict: dict[HtmlElement, int], tdict: dict[HtmlElement, str]) -> None:
     style = 'display:block; margin-left: %.3gem'
     prefix = parts[:-1]
     # Move all existing content, such as the page number text, into the span
@@ -177,7 +196,7 @@ to insert nk+1 and all following entries from n into p immediately following pk.
 '''
 
 
-def find_match(prev_block, pind, nextent, ldict, tdict):
+def find_match(prev_block: HtmlElement, pind: int, nextent: HtmlElement, ldict: dict[HtmlElement, int], tdict: dict[HtmlElement, str]) -> int:
     curlevel = ldict.get(prev_block[pind], -1)
     if curlevel < 0:
         return -1
@@ -194,7 +213,7 @@ def find_match(prev_block, pind, nextent, ldict, tdict):
     return -1
 
 
-def add_link(pent, nent) -> None:
+def add_link(pent: HtmlElement, nent: HtmlElement) -> None:
     # Move the link and any associated content such as the page number text
     # from nent to pent. If there is no link, leave it as text.
     if not nent.xpath('descendant::a'):
@@ -214,7 +233,15 @@ def add_link(pent, nent) -> None:
             pent.append(child)
 
 
-def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict, tdict) -> None:
+def merge_blocks(
+    prev_block: HtmlElement,
+    next_block: HtmlElement,
+    pind: int,
+    nind: int,
+    next_path: Sequence[str],
+    ldict: dict[HtmlElement, int],
+    tdict: dict[HtmlElement, str],
+) -> None:
     # First elements match. Any more in next?
     if len(next_path) == (nind + 1):
         add_link(prev_block[pind], next_block[nind])
@@ -234,12 +261,12 @@ def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict, tdict) ->
         prev_block.insert(pind, next_block[nind])
 
 
-def polish_index_markup(index, blocks) -> None:
+def polish_index_markup(index: ParsedField | None, blocks: list[HtmlElement]) -> None:
     # Blocks are in reverse order at this point
-    path_map = {}
-    containers = {}
-    ldict = {}
-    tdict = {}
+    path_map: dict[HtmlElement, list[str]] = {}
+    containers: dict[HtmlElement, HtmlElement] = {}
+    ldict: dict[HtmlElement, int] = {}
+    tdict: dict[HtmlElement, str] = {}
     for block in blocks:
         cls = block.get('class', '') or ''
         block.set('class', (cls + ' index-entry').lstrip())
@@ -268,7 +295,9 @@ def polish_index_markup(index, blocks) -> None:
             merge_blocks(containers[prev_block], containers[block], 0, 0, pn, ldict, tdict)
             if not block.xpath('descendant::a'):
                 # Everything in block has been merged into prev_block
-                block.getparent().remove(block)
+                parent = block.getparent()
+                assert parent is not None  # blocks are inside the body
+                parent.remove(block)
         else:
             prev_block = block
 

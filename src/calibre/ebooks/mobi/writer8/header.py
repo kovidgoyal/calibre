@@ -1,40 +1,42 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
-import numbers
 import random
 from collections import OrderedDict
 from io import BytesIO
 from struct import pack
+from typing import ClassVar
 
 from calibre.ebooks.mobi.utils import align_block
 from polyglot.builtins import as_bytes
 
 NULL = 0xFFFFFFFF
 
+type HeaderValue = int | bytes | None
 
-def zeroes(x):
+
+def zeroes(x: int) -> bytes:
     return b'\x00' * x
 
 
-def nulls(x):
+def nulls(x: int) -> bytes:
     return b'\xff' * x
 
 
-def short(x):
+def short(x: int) -> bytes:
     return pack(b'>H', x)
 
 
-class Header(OrderedDict):
+class Header(OrderedDict[str, HeaderValue]):
     HEADER_NAME = b''
 
     DEFINITION = '''
     '''
 
     ALIGN_BLOCK = False
-    POSITIONS = {}  # Mapping of position field to field whose position should
+    POSITIONS: ClassVar[dict[str, str]] = {}  # Mapping of position field to field whose position should
     # be stored in the position field
-    SHORT_FIELDS = set()
+    SHORT_FIELDS: ClassVar[set[str]] = set()
 
     def __init__(self) -> None:
         OrderedDict.__init__(self)
@@ -53,10 +55,10 @@ class Header(OrderedDict):
             self[name] = val
 
     @property
-    def dynamic_fields(self):
+    def dynamic_fields(self) -> tuple[str, ...]:
         return tuple(k for k, v in self.items() if v is None)
 
-    def __call__(self, **kwargs):
+    def __call__(self, **kwargs: HeaderValue) -> bytes:
         positions = {}
         for name, val in kwargs.items():
             if name not in self:
@@ -70,7 +72,7 @@ class Header(OrderedDict):
             positions[name] = buf.tell()
             if val is None:
                 raise ValueError(f'Dynamic field {name!r} not set')
-            if isinstance(val, numbers.Integral):
+            if isinstance(val, int):
                 fmt = b'H' if name in self.SHORT_FIELDS else b'I'
                 val = pack(b'>' + fmt, val)
             buf.write(val)
@@ -84,5 +86,5 @@ class Header(OrderedDict):
             ans = align_block(ans)
         return ans
 
-    def format_value(self, name, val):
+    def format_value(self, name: str, val: HeaderValue) -> HeaderValue:
         return val

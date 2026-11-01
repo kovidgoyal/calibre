@@ -10,8 +10,12 @@ import io
 import os
 import struct
 from compression import zlib
+from typing import IO, TYPE_CHECKING
 
 from .pylrfopt import tagListOptimizer
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
 
 PYLRF_VERSION = '1.0'
 
@@ -76,11 +80,11 @@ class LrfError(Exception):
     pass
 
 
-def writeByte(f, byte) -> None:
+def writeByte(f: IO[bytes], byte: int) -> None:
     f.write(struct.pack('<B', byte))
 
 
-def writeWord(f, word) -> None:
+def writeWord(f: IO[bytes], word: int | str) -> None:
     if int(word) > 65535:
         raise LrfError('Cannot encode a number greater than 65535 in a word.')
     if int(word) < 0:
@@ -88,49 +92,49 @@ def writeWord(f, word) -> None:
     f.write(struct.pack('<H', int(word)))
 
 
-def writeSignedWord(f, sword) -> None:
+def writeSignedWord(f: IO[bytes], sword: float | str) -> None:
     f.write(struct.pack('<h', int(float(sword))))
 
 
-def writeWords(f, *words) -> None:
+def writeWords(f: IO[bytes], *words: int) -> None:
     f.write(struct.pack(f'<{len(words)}H', *words))
 
 
-def writeDWord(f, dword) -> None:
+def writeDWord(f: IO[bytes], dword: int | str) -> None:
     f.write(struct.pack('<I', int(dword)))
 
 
-def writeDWords(f, *dwords) -> None:
+def writeDWords(f: IO[bytes], *dwords: int) -> None:
     f.write(struct.pack(f'<{len(dwords)}I', *dwords))
 
 
-def writeQWord(f, qword) -> None:
+def writeQWord(f: IO[bytes], qword: int) -> None:
     f.write(struct.pack('<Q', qword))
 
 
-def writeZeros(f, nZeros) -> None:
+def writeZeros(f: IO[bytes], nZeros: int) -> None:
     f.write(b'\0' * nZeros)
 
 
-def writeString(f, s) -> None:
+def writeString(f: IO[bytes], s: bytes) -> None:
     f.write(s)
 
 
-def writeIdList(f, idList) -> None:
+def writeIdList(f: IO[bytes], idList: Sequence[int]) -> None:
     writeWord(f, len(idList))
     writeDWords(f, *idList)
 
 
-def writeColor(f, color) -> None:
+def writeColor(f: IO[bytes], color: str) -> None:
     # TODO: allow color names, web format
     f.write(struct.pack('>I', int(color, 0)))
 
 
-def writeLineWidth(f, width) -> None:
+def writeLineWidth(f: IO[bytes], width: int | str) -> None:
     writeWord(f, int(width))
 
 
-def writeUnicode(f, string, encoding) -> None:
+def writeUnicode(f: IO[bytes], string: str | bytes, encoding: str) -> None:
     if isinstance(string, bytes):
         string = string.decode(encoding)
     string = string.encode('utf-16-le')
@@ -141,7 +145,7 @@ def writeUnicode(f, string, encoding) -> None:
     writeString(f, string)
 
 
-def writeRaw(f, string, encoding) -> None:
+def writeRaw(f: IO[bytes], string: str | bytes, encoding: str) -> None:
     if isinstance(string, bytes):
         string = string.decode(encoding)
 
@@ -149,28 +153,28 @@ def writeRaw(f, string, encoding) -> None:
     writeString(f, string)
 
 
-def writeRubyAA(f, rubyAA) -> None:
+def writeRubyAA(f: IO[bytes], rubyAA: tuple[str, str]) -> None:
     ralign, radjust = rubyAA
     radjust = {'line-edge': 0x10, 'none': 0}[radjust]
     ralign = {'start': 1, 'center': 2}[ralign]
     writeWord(f, ralign | radjust)
 
 
-def writeBgImage(f, bgInfo) -> None:
+def writeBgImage(f: IO[bytes], bgInfo: tuple[str, int | str]) -> None:
     imode, iid = bgInfo
     imode = {'pfix': 0, 'fix': 1, 'tile': 2, 'centering': 3}[imode]
     writeWord(f, imode)
     writeDWord(f, iid)
 
 
-def writeEmpDots(f, dotsInfo, encoding) -> None:
+def writeEmpDots(f: IO[bytes], dotsInfo: tuple[int | str, str, str], encoding: str) -> None:
     refDotsFont, dotsFontName, dotsCode = dotsInfo
     writeDWord(f, refDotsFont)
     LrfTag('fontfacename', dotsFontName).write(f, encoding)
     writeWord(f, int(dotsCode, 0))
 
 
-def writeRuledLine(f, lineInfo) -> None:
+def writeRuledLine(f: IO[bytes], lineInfo: tuple[int | str, str, int | str, str]) -> None:
     lineLength, lineType, lineWidth, lineColor = lineInfo
     writeWord(f, lineLength)
     writeWord(f, LINE_TYPE_ENCODING[lineType])
@@ -367,17 +371,17 @@ TAG_INFO = dict(
 
 
 class ObjectTableEntry:
-    def __init__(self, objId, offset, size) -> None:
+    def __init__(self, objId: int, offset: int, size: int) -> None:
         self.objId = objId
         self.offset = offset
         self.size = size
 
-    def write(self, f) -> None:
+    def write(self, f: IO[bytes]) -> None:
         writeDWords(f, self.objId, self.offset, self.size, 0)
 
 
 class LrfTag:
-    def __init__(self, name, *parameters) -> None:
+    def __init__(self, name: str, *parameters: object) -> None:
         try:
             tagInfo = TAG_INFO[name]
         except KeyError:
@@ -395,7 +399,7 @@ class LrfTag:
         else:
             self.parameter = parameters[0]
 
-    def write(self, lrf, encoding=None) -> None:
+    def write(self, lrf: IO[bytes], encoding: str | None = None) -> None:
         if self.type != 0:
             writeWord(lrf, self.type)
 
@@ -427,14 +431,14 @@ STREAM_TOC = 0x0051
 
 
 class LrfStreamBase:
-    def __init__(self, streamFlags, streamData=None) -> None:
+    def __init__(self, streamFlags: int, streamData: bytes | None = None) -> None:
         self.streamFlags = streamFlags
         self.streamData = streamData
 
-    def setStreamData(self, streamData) -> None:
+    def setStreamData(self, streamData: bytes) -> None:
         self.streamData = streamData
 
-    def getStreamTags(self, optimize=False):
+    def getStreamTags(self, optimize: bool = False) -> list[LrfTag]:
         # tags:
         #   StreamFlags
         #   StreamSize
@@ -471,22 +475,23 @@ class LrfStreamBase:
 
 
 class LrfTagStream(LrfStreamBase):
-    def __init__(self, streamFlags, streamTags=None) -> None:
+    def __init__(self, streamFlags: int, streamTags: list[LrfTag] | None = None) -> None:
         LrfStreamBase.__init__(self, streamFlags)
+        self.tags: list[LrfTag]
         if streamTags is None:
             self.tags = []
         else:
             self.tags = streamTags[:]
 
-    def appendLrfTag(self, tag) -> None:
+    def appendLrfTag(self, tag: LrfTag) -> None:
         self.tags.append(tag)
 
     def getStreamTags(  # ty: ignore[invalid-method-override]
         self,
-        encoding,
-        optimizeTags=False,
-        optimizeCompression=False,
-    ):
+        encoding: str,
+        optimizeTags: bool = False,
+        optimizeCompression: bool = False,
+    ) -> list[LrfTag]:
         stream = io.BytesIO()
         if optimizeTags:
             tagListOptimizer(self.tags)
@@ -500,21 +505,21 @@ class LrfTagStream(LrfStreamBase):
 
 
 class LrfFileStream(LrfStreamBase):
-    def __init__(self, streamFlags, filename) -> None:
+    def __init__(self, streamFlags: int, filename: str) -> None:
         LrfStreamBase.__init__(self, streamFlags)
         with open(filename, 'rb') as f:
             self.streamData = f.read()
 
 
 class LrfObject:
-    def __init__(self, name, objId) -> None:
+    def __init__(self, name: str, objId: int) -> None:
         if objId <= 0:
             raise LrfError('invalid objId for ' + name)
 
         self.name = name
         self.objId = objId
-        self.tags = []
-        self.saveStreamTags = None
+        self.tags: list[LrfTag] = []
+        self.saveStreamTags: list[LrfTag] | None = None
         try:
             self.type = OBJECT_TYPE_ENCODING[name]
         except KeyError:
@@ -523,21 +528,21 @@ class LrfObject:
     def __str__(self) -> str:
         return 'LRFObject: ' + self.name + ', ' + str(self.objId)
 
-    def appendLrfTag(self, tag) -> None:
+    def appendLrfTag(self, tag: LrfTag) -> None:
         self.tags.append(tag)
 
-    def appendLrfTags(self, tagList) -> None:
+    def appendLrfTags(self, tagList: Iterable[LrfTag]) -> None:
         self.tags.extend(tagList)
 
     # deprecated old name
     append = appendLrfTag
 
-    def appendTagDict(self, tagDict, genClass=None) -> None:
+    def appendTagDict(self, tagDict: Mapping[str, object], genClass: str | None = None) -> None:
         #
         # This code does not really belong here, I think.  But it
         # belongs somewhere, so here it is.
         #
-        composites = {}
+        composites: dict[str, object] = {}
         for name, value in tagDict.items():
             if name == 'rubyAlignAndAdjust':
                 continue
@@ -576,7 +581,7 @@ class LrfObject:
             refdotsfont = composites.get('refempdotsfont', 0)
             self.append(LrfTag('empdots', (refdotsfont, dotsfontname, dotscode)))
 
-    def write(self, lrf, encoding=None) -> None:
+    def write(self, lrf: IO[bytes], encoding: str | None = None) -> None:
         # print('Writing object', self.name)
         LrfTag('ObjectStart', (self.objId, self.type)).write(lrf)
 
@@ -592,16 +597,16 @@ class LrfToc(LrfObject):
     [ (pageid, objid, string)...]
     """
 
-    def __init__(self, objId, toc, se) -> None:
+    def __init__(self, objId: int, toc: Sequence[tuple[int, int, str]], se: str) -> None:
         LrfObject.__init__(self, 'TOC', objId)
         streamData = self._makeTocStream(toc, se)
         self._makeStreamTags(streamData)
 
-    def _makeStreamTags(self, streamData) -> None:
+    def _makeStreamTags(self, streamData: bytes) -> None:
         stream = LrfStreamBase(STREAM_TOC, streamData)
         self.tags.extend(stream.getStreamTags())
 
-    def _makeTocStream(self, toc, se):
+    def _makeTocStream(self, toc: Sequence[tuple[int, int, str]], se: str) -> bytes:
         stream = io.BytesIO()
         nEntries = len(toc)
 
@@ -632,7 +637,7 @@ class LrfToc(LrfObject):
 
 
 class LrfWriter:
-    def __init__(self, sourceEncoding) -> None:
+    def __init__(self, sourceEncoding: str) -> None:
         self.sourceEncoding = sourceEncoding
 
         # The following flags are just to have a place to remember these
@@ -648,7 +653,7 @@ class LrfWriter:
         # End of placeholders
 
         self.rootObjId = 0
-        self.rootObj = None
+        self.rootObj: LrfObject | None = None
         self.binding = 1  # 1=front to back, 16=back to front
         self.dpi = 1600
         self.width = 600
@@ -658,47 +663,47 @@ class LrfWriter:
         self.docInfoXml = ''
         self.thumbnailEncoding = 'JPEG'
         self.thumbnailData = b''
-        self.objects = []
-        self.objectTable = []
+        self.objects: list[LrfObject] = []
+        self.objectTable: list[ObjectTableEntry] = []
 
-    def getSourceEncoding(self):
+    def getSourceEncoding(self) -> str:
         return self.sourceEncoding
 
-    def toUnicode(self, string):
+    def toUnicode(self, string: str | bytes | None) -> str | None:
         if isinstance(string, bytes):
             string = string.decode(self.sourceEncoding)
 
         return string
 
-    def getDocInfoXml(self):
+    def getDocInfoXml(self) -> str:
         return self.docInfoXml
 
-    def setPageTreeId(self, objId) -> None:
+    def setPageTreeId(self, objId: int) -> None:
         self.pageTreeId = objId
 
-    def getPageTreeId(self):
+    def getPageTreeId(self) -> int:
         return self.pageTreeId
 
-    def setRootObject(self, obj) -> None:
+    def setRootObject(self, obj: LrfObject) -> None:
         if self.rootObjId != 0:
             raise LrfError('root object already set')
 
         self.rootObjId = obj.objId
         self.rootObj = obj
 
-    def registerFontId(self, id) -> None:
+    def registerFontId(self, id: int) -> None:
         if self.rootObj is None:
             raise LrfError("can't register font -- no root object")
 
         self.rootObj.append(LrfTag('RegisterFont', id))
 
-    def setTocObject(self, obj) -> None:
+    def setTocObject(self, obj: LrfObject) -> None:
         if self.tocObjId != 0:
             raise LrfError('toc object already set')
 
         self.tocObjId = obj.objId
 
-    def setThumbnailFile(self, filename, encoding=None) -> None:
+    def setThumbnailFile(self, filename: str, encoding: str | None = None) -> None:
         with open(filename, 'rb') as f:
             self.thumbnailData = f.read()
 
@@ -711,13 +716,13 @@ class LrfWriter:
 
         self.thumbnailEncoding = encoding
 
-    def append(self, obj) -> None:
+    def append(self, obj: LrfObject) -> None:
         self.objects.append(obj)
 
-    def addLrfObject(self, objId) -> None:
+    def addLrfObject(self, objId: int) -> None:
         pass
 
-    def writeFile(self, lrf) -> None:
+    def writeFile(self, lrf: IO[bytes]) -> None:
         if self.rootObjId == 0:
             raise LrfError('no root object has been set')
 
@@ -727,7 +732,7 @@ class LrfWriter:
         self.updateTocObjectOffset(lrf)
         self.writeObjectTable(lrf)
 
-    def writeHeader(self, lrf) -> None:
+    def writeHeader(self, lrf: IO[bytes]) -> None:
         writeString(lrf, LRF_SIGNATURE)
         writeWord(lrf, LRF_VERSION)
         writeWord(lrf, XOR_KEY)
@@ -750,7 +755,7 @@ class LrfWriter:
         writeString(lrf, compDocInfo)
         writeString(lrf, self.thumbnailData)
 
-    def writeObjects(self, lrf) -> None:
+    def writeObjects(self, lrf: IO[bytes]) -> None:
         # also appends object entries to the object table
         self.objectTable = []
         for obj in self.objects:
@@ -759,14 +764,14 @@ class LrfWriter:
             objEnd = lrf.tell()
             self.objectTable.append(ObjectTableEntry(obj.objId, objStart, objEnd - objStart))
 
-    def updateObjectTableOffset(self, lrf) -> None:
+    def updateObjectTableOffset(self, lrf: IO[bytes]) -> None:
         # update the offset of the object table
         tableOffset = lrf.tell()
         lrf.seek(0x18, 0)
         writeQWord(lrf, tableOffset)
         lrf.seek(0, 2)
 
-    def updateTocObjectOffset(self, lrf) -> None:
+    def updateTocObjectOffset(self, lrf: IO[bytes]) -> None:
         if self.tocObjId == 0:
             return
 
@@ -779,6 +784,6 @@ class LrfWriter:
         else:
             raise LrfError('toc object not in object table')
 
-    def writeObjectTable(self, lrf) -> None:
+    def writeObjectTable(self, lrf: IO[bytes]) -> None:
         for tableEntry in self.objectTable:
             tableEntry.write(lrf)

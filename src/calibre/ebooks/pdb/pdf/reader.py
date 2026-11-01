@@ -4,18 +4,27 @@
 Read content from palmdoc pdb file.
 """
 
+from typing import IO, TYPE_CHECKING
+
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import PersistentTemporaryFile
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
+
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         self.header = header
         self.stream = stream
         self.log = log
         self.options = options
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str | OEBBook:
         self.log.info('Extracting PDF...')
 
         pdf = PersistentTemporaryFile('.pdf')

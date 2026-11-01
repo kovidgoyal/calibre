@@ -12,11 +12,15 @@
 #########################################################################
 import os
 import re
+from typing import cast
 
 from calibre.ebooks.rtf2xml import check_brackets, copy
 from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
+
+# the numeric argument of a control word, as returned by split_let_num()
+type TokenNum = str | int | None
 
 
 class ProcessTokens:
@@ -28,11 +32,11 @@ class ProcessTokens:
 
     def __init__(
         self,
-        in_file,
-        exception_handler,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        exception_handler: type[Exception],
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -610,28 +614,28 @@ class ProcessTokens:
         # 'picprop'           :   ('un', 'unknown___', self.default_func),
         # 'blipuid'           :   ('un', 'unknown___', self.default_func),
 
-    def __ms_hex_func(self, pre, token, num) -> str:
-        num = num[1:]  # chop off leading 0, which I added
+    def __ms_hex_func(self, pre: str, token: str, num: TokenNum) -> str:
+        num = cast('str', num)[1:]  # chop off leading 0, which I added (\mshex0 is always followed by hex digits)
         num = num.upper()  # the mappings store hex in caps
         return f"tx<hx<__________<'{num}\n"  # add an ' for the mappings
 
-    def ms_sub_func(self, pre, token, num) -> str:
+    def ms_sub_func(self, pre: str, token: str, num: TokenNum) -> str:
         return f'tx<mc<__________<{token}\n'
 
-    def direct_conv_func(self, pre, token, num) -> str:
+    def direct_conv_func(self, pre: str, token: str, num: TokenNum) -> str:
         return f'mi<tg<empty_____<{token}\n'
 
-    def default_func(self, pre, token, num) -> str:
+    def default_func(self, pre: str, token: str, num: TokenNum) -> str:
         if num is None:
             num = 'true'
         return f'cw<{pre}<{token}<nu<{num}\n'
 
-    def colorz_func(self, pre, token, num) -> str:
+    def colorz_func(self, pre: str, token: str, num: TokenNum) -> str:
         if num is None:
             num = '0'
         return f'cw<{pre}<{token}<nu<{num}\n'
 
-    def __list_type_func(self, pre, token, num) -> str:
+    def __list_type_func(self, pre: str, token: str, num: TokenNum) -> str:
         type = 'arabic'
         if num is None:
             type = 'Arabic'
@@ -650,8 +654,8 @@ class ProcessTokens:
                 type = 'Arabic'
         return f'cw<{pre}<{token}<nu<{type}\n'
 
-    def __language_func(self, pre, token, num) -> str:
-        _lang_m = re.search(r'[0-9]+', num)
+    def __language_func(self, pre: str, token: str, num: TokenNum) -> str:
+        _lang_m = re.search(r'[0-9]+', cast('str', num))  # \lang always has a number
         assert _lang_m is not None
         lang_name = self.__language_dict.get(int(_lang_m.group()))
         if not lang_name:
@@ -661,37 +665,38 @@ class ProcessTokens:
                 raise self.__bug_handler(msg)
         return f'cw<{pre}<{token}<nu<{lang_name}\n'
 
-    def two_part_func(self, pre, token, num) -> str:
+    def two_part_func(self, pre: str, token: str, num: TokenNum) -> str:
         list = token.split('<')
         token = list[0]
         num = list[1]
         return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>num<%s\n' % (token, num)
 
-    def divide_by_2(self, pre, token, num) -> str:
+    def divide_by_2(self, pre: str, token: str, num: TokenNum) -> str:
         num = self.divide_num(num, 2)
         return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
-    def divide_by_20(self, pre, token, num) -> str:
+    def divide_by_20(self, pre: str, token: str, num: TokenNum) -> str:
         num = self.divide_num(num, 20)
         return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
-    def text_func(self, pre, token, num=None) -> str:
+    def text_func(self, pre: str, token: str, num: TokenNum = None) -> str:
         return f'tx<nu<__________<{token}\n'
 
-    def ob_func(self, pre, token, num=None) -> str:
+    def ob_func(self, pre: str, token: str, num: TokenNum = None) -> str:
         self.__bracket_count += 1
         return f'ob<nu<open-brack<{self.__bracket_count:04}\n'
 
-    def cb_func(self, pre, token, num=None):
+    def cb_func(self, pre: str, token: str, num: TokenNum = None) -> str:
         line = f'cb<nu<clos-brack<{self.__bracket_count:04}\n'
         self.__bracket_count -= 1
         return line
 
-    def color_func(self, pre, token, num) -> str:
+    def color_func(self, pre: str, token: str, num: TokenNum) -> str:
         third_field = 'nu'
+        num = cast('str', num)  # color table entries always have a number
         if num[-1] == ';':
             num = num[:-1]
             third_field = 'en'
@@ -701,7 +706,7 @@ class ProcessTokens:
         return f'cw<{pre}<{token}<{third_field}<{num}\n'
         # return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
 
-    def bool_st_func(self, pre, token, num) -> str:
+    def bool_st_func(self, pre: str, token: str, num: TokenNum) -> str:
         if num is None or num in {'', '1'}:
             return f'cw<{pre}<{token}<nu<true\n'
             # return 'cw<nu<nu<nu<%s>true<%s\n' % (token, token)
@@ -712,17 +717,17 @@ class ProcessTokens:
             msg = f"boolean should have some value module process tokens\ntoken is {token}\n'{num}'\n"
             raise self.__bug_handler(msg)
 
-    def __no_sup_sub_func(self, pre, token, num):
+    def __no_sup_sub_func(self, pre: str, token: str, num: TokenNum) -> str:
         the_string = 'cw<ci<subscript_<nu<false\n'
         the_string += 'cw<ci<superscrip<nu<false\n'
         return the_string
 
-    def divide_num(self, numerator, denominator):
+    def divide_num(self, numerator: TokenNum, denominator: int) -> str | int:
         try:
             # calibre why ignore negative number? Wrong in case of \fi
-            _num_m = re.search(r'[0-9.\-]+', numerator)
+            _num_m = re.search(r'[0-9.\-]+', numerator)  # ty: ignore[no-matching-overload]  # TypeError for a missing number is handled below
             assert _num_m is not None
-            numerator = float(_num_m.group())
+            numerator_value = float(_num_m.group())
         except TypeError:
             if self.__run_level > 3:
                 msg = (
@@ -733,14 +738,14 @@ class ProcessTokens:
                 raise self.__bug_handler(msg)
             self.__return_code = max(self.__return_code, 5)
             return 0
-        num = f'{round(numerator / denominator, 2):0.2f}'
+        num = f'{round(numerator_value / denominator, 2):0.2f}'
         return num
         string_num = str(num)
         if string_num[-2:] == '.0':
             string_num = string_num[:-2]
         return string_num
 
-    def split_let_num(self, token):
+    def split_let_num(self, token: str) -> tuple[str, str | int]:
         match_obj = re.search(self.__num_exp, token)
         if match_obj is not None:
             first = match_obj.group(1)
@@ -757,7 +762,7 @@ class ProcessTokens:
             return token, 0
         return first, second
 
-    def convert_to_hex(self, number):
+    def convert_to_hex(self, number: str | int) -> str:
         """Convert a string to uppercase hexadecimal"""
         num = int(number)
         try:
@@ -766,7 +771,7 @@ class ProcessTokens:
         except Exception:
             raise self.__bug_handler
 
-    def process_cw(self, token):
+    def process_cw(self, token: str) -> str | None:
         """Change the value of the control word by determining what dictionary
         it belongs to"""
         special = ['*', ':', '}', '{', '~', '_', '-', ';']
@@ -778,17 +783,18 @@ class ProcessTokens:
         num = None
         if not only_alpha and token not in special:
             token, num = self.split_let_num(token)
-        pre, token, action = self.dict_token.get(token, (None, None, None))
+        pre, name, action = self.dict_token.get(token, (None, None, None))
         if action:
-            return action(pre, token, num)
+            assert pre is not None and name is not None  # every dict_token entry is fully populated
+            return action(pre, name, num)
 
-    def __check_brackets(self, in_file) -> int | None:
+    def __check_brackets(self, in_file: str) -> int | None:
         self.__check_brack_obj = check_brackets.CheckBrackets(file=in_file)
         good_br = self.__check_brack_obj.check_brackets()[0]
         if not good_br:
             return 1
 
-    def process_tokens(self):
+    def process_tokens(self) -> int:
         """Main method for handling other methods."""
         line_count = 0
         with open_for_read(self.__file) as read_obj:

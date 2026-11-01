@@ -2,11 +2,17 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import posixpath
+from typing import TYPE_CHECKING
 from urllib.parse import urldefrag, urlparse
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
 
 
 class RenameFiles:  # {{{
@@ -15,11 +21,11 @@ class RenameFiles:  # {{{
     and manifest are not touched by this transform.
     """
 
-    def __init__(self, rename_map, renamed_items_map=None) -> None:
+    def __init__(self, rename_map: dict[str, str], renamed_items_map: dict[str, Manifest.Item] | None = None) -> None:
         self.rename_map = rename_map
         self.renamed_items_map = renamed_items_map
 
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values) -> None:
         import css_parser
 
         self.log = oeb.logger
@@ -28,8 +34,9 @@ class RenameFiles:  # {{{
 
         for item in oeb.manifest.items:
             self.current_item = item
-            if etree.iselement(item.data):
-                rewrite_links(self.current_item.data, self.url_replacer)
+            data = item.data
+            if isinstance(data, etree._Element):
+                rewrite_links(data, self.url_replacer)
             elif hasattr(item.data, 'cssText'):
                 css_parser.replaceUrls(item.data, self.url_replacer)
 
@@ -47,7 +54,7 @@ class RenameFiles:  # {{{
         if self.oeb.toc:
             self.fix_toc_entry(self.oeb.toc)
 
-    def fix_toc_entry(self, toc) -> None:
+    def fix_toc_entry(self, toc: TOC) -> None:
         if toc.href:
             href = urlnormalize(toc.href)
             href, frag = urldefrag(href)
@@ -62,7 +69,7 @@ class RenameFiles:  # {{{
         for x in toc:
             self.fix_toc_entry(x)
 
-    def url_replacer(self, orig_url):
+    def url_replacer(self, orig_url: str) -> str:
         url = urlnormalize(orig_url)
         parts = urlparse(url)
         if parts.scheme:
@@ -87,13 +94,13 @@ class RenameFiles:  # {{{
 class UniqueFilenames:  # {{{
     "Ensure that every item in the manifest has a unique filename"
 
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values) -> None:
         self.log = oeb.logger
         self.opts = opts
         self.oeb = oeb
 
-        self.seen_filenames = set()
-        self.rename_map = {}
+        self.seen_filenames: set[str] = set()
+        self.rename_map: dict[str, str] = {}
 
         for item in list(oeb.manifest.items):
             fname = posixpath.basename(item.href)
@@ -122,7 +129,7 @@ class UniqueFilenames:  # {{{
             renamer = RenameFiles(self.rename_map)
             renamer(oeb, opts)
 
-    def unique_suffix(self, fname):
+    def unique_suffix(self, fname: str) -> str:
         base, ext = posixpath.splitext(fname)
         c = 0
         while True:
@@ -139,13 +146,13 @@ class UniqueFilenames:  # {{{
 class FlatFilenames:  # {{{
     "Ensure that every item in the manifest has a unique filename without subfolders."
 
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values) -> None:
         self.log = oeb.logger
         self.opts = opts
         self.oeb = oeb
 
-        self.rename_map = {}
-        self.renamed_items_map = {}
+        self.rename_map: dict[str, str] = {}
+        self.renamed_items_map: dict[str, Manifest.Item] = {}
 
         for item in list(oeb.manifest.items):
             # Flatten URL by removing directories.

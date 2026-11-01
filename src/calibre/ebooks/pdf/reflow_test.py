@@ -15,10 +15,19 @@ justified line, which does not line up from one row to the next.
 import os
 import random
 import unittest
+from typing import TYPE_CHECKING
 
 from calibre.ebooks.pdf.reflow import Image, Page, PDFDocument
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import logical_to_visual
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+# (left, top, width, text) or (left, top, width, text, height)
+type Fragment = tuple[int, int, int, str] | tuple[int, int, int, str, int]
+# (left, top, width, text, font)
+type FontFragment = tuple[int, int, int, str, int]
 
 
 class Opts:
@@ -31,7 +40,7 @@ class Opts:
     unwrap_factor = 0.4
 
 
-def build(fragments, width=600, height=800, join=True):
+def build(fragments: Sequence[Fragment], width: int = 600, height: int = 800, join: bool = True) -> Page:
     """
     Build a Page from (left, top, width, text) or (left, top, width, text,
     height) fragments, the way poppler reports them.
@@ -59,16 +68,16 @@ LEFT_LINE = 'the left column of this page holds'
 RIGHT_LINE = 'the right column of this page holds'
 
 
-def two_columns(rows=6, left_text=LEFT_LINE, right_text=RIGHT_LINE):
+def two_columns(rows: int = 6, left_text: str = LEFT_LINE, right_text: str = RIGHT_LINE) -> list[Fragment]:
     "A plain two column page with a gutter between x=210 and x=250"
-    ans = []
+    ans: list[Fragment] = []
     for i in range(rows):
         ans.append((10, 10 + i * 20, 200, f'{left_text} {i}'))
         ans.append((250, 10 + i * 20, 200, f'{right_text} {i}'))
     return ans
 
 
-def texts_of(page):
+def texts_of(page: Page) -> list[str]:
     return [t.text_as_string for t in page.texts]
 
 
@@ -79,7 +88,7 @@ class TestSingleColumn(unittest.TestCase):
     PDFs.
     """
 
-    def check_not_split(self, fragments, width=600):
+    def check_not_split(self, fragments: Sequence[Fragment], width: int = 600) -> Page:
         page = build(fragments, width=width)
         self.assertEqual(1, page.column_count)
         for t in page.texts:
@@ -260,8 +269,8 @@ class TestTables(unittest.TestCase):
     strips hold too little text to be prose is left alone.
     """
 
-    def table(self, rows=12):
-        ans = []
+    def table(self, rows: int = 12) -> list[Fragment]:
+        ans: list[Fragment] = []
         for i in range(rows):
             ans.append((10, 10 + i * 20, 80, f'Item {i}'))
             ans.append((230, 10 + i * 20, 60, f'{i * 11}'))
@@ -297,14 +306,14 @@ class TestRightToLeftColumns(unittest.TestCase):
     RTL_LEFT = 'הטור השמאלי של העמוד הזה מכיל'
     RTL_RIGHT = 'הטור הימני של העמוד הזה מכיל'
 
-    def rtl_two_columns(self, rows=6):
-        ans = []
+    def rtl_two_columns(self, rows: int = 6) -> list[Fragment]:
+        ans: list[Fragment] = []
         for i in range(rows):
             ans.append((10, 10 + i * 20, 200, logical_to_visual(f'{self.RTL_LEFT} {i}')))
             ans.append((250, 10 + i * 20, 200, logical_to_visual(f'{self.RTL_RIGHT} {i}')))
         return ans
 
-    def page(self, fragments):
+    def page(self, fragments: Sequence[Fragment]) -> Page:
         page = build(fragments)
         for t in page.texts:
             t.convert_visual_order_to_logical()
@@ -347,7 +356,7 @@ class TestPageBoundaries(unittest.TestCase):
 
     BODY = 'Some ordinary text that fills up most of the width of a line'
 
-    def convert(self, pages):
+    def convert(self, pages: Sequence[Sequence[FontFragment]]) -> str:
         """
         Convert a document whose pages are lists of (left, top, width, text,
         font) fragments, returning the generated HTML.
@@ -377,10 +386,10 @@ class TestPageBoundaries(unittest.TestCase):
             finally:
                 os.chdir(cwd)
 
-    def text_page(self, num, heading='', page_number=True):
+    def text_page(self, num: int, heading: str = '', page_number: bool = True) -> list[FontFragment]:
         # Vary the text so that it is not mistaken for a header or footer
         words = 'alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu'.split()
-        ans = [(337, 132, 800, heading, 1)] if heading else []
+        ans: list[FontFragment] = [(337, 132, 800, heading, 1)] if heading else []
         ans += [(337, 223 + i * 35, 1100, f'{self.BODY} {words[num % len(words)]} {words[i]}.', 0) for i in range(12)]
         if page_number:
             ans.append((892, 1212, 15 * len(str(num)), str(num), 0))
@@ -412,7 +421,7 @@ class TestImages(unittest.TestCase):
     readers must be able to shrink it to fit the screen without distorting it.
     """
 
-    def html(self, width, height, page_width=1800, page_height=1349):
+    def html(self, width: int, height: int, page_width: int = 1800, page_height: int = 1349) -> str:
         from calibre.utils.logging import default_log
         from calibre.utils.xml_parse import safe_xml_fromstring
 
@@ -433,7 +442,7 @@ class TestImages(unittest.TestCase):
         self.assertIn('style="max-width:100%"', self.html(1313, 300))
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromNames([
         f'{__name__}.{x.__name__}'
         for x in (

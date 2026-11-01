@@ -693,7 +693,7 @@ class AuthorsTable(ManyToManyTable):
         for aid, name, sort, link in db.execute('SELECT id, name, sort, link FROM authors'):
             name = us(name)
             im[aid] = name
-            sm[aid] = sort or author_to_author_sort(name)
+            sm[aid] = sort or author_to_author_sort(cast('str', name))  # author names are always str
             lm[aid] = link
 
     def set_sort_names(self, aus_map: Mapping[int, str | None], db: DB) -> dict[int, str]:

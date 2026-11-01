@@ -6,21 +6,24 @@
 # see https://www.w3.org/TR/epub-a11y-11/ and https://www.w3.org/TR/epub-a11y-tech-11/
 # Used by the Edit book accessibility tool.
 
-from collections.abc import Iterator
-from typing import NamedTuple
-
-from lxml import etree
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from calibre.ebooks.metadata.utils import normalize_languages
 from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, SVG, XHTML, XLINK, XML
-from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import canonicalize_lang
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from lxml import etree
+
+    from calibre.ebooks.oeb.polish.container import Container
 
 # Language {{{
 
 
-def has_language(root) -> bool:
+def has_language(root: etree._Element) -> bool:
     return bool(root.get('lang') or root.get(XML('lang')))
 
 
@@ -60,7 +63,8 @@ def set_book_languages(container: Container, languages: list[str]) -> bool:
 
 
 def html_files_without_language(container: Container) -> list[str]:
-    return [name for name in html_names(container) if not has_language(container.parsed(name))]
+    # HTML files are parsed into lxml trees
+    return [name for name in html_names(container) if not has_language(cast('etree._Element', container.parsed(name)))]
 
 
 def set_html_language(container: Container, names: list[str], lang: str, replace: bool = False) -> set[str]:
@@ -73,7 +77,7 @@ def set_html_language(container: Container, names: list[str], lang: str, replace
     attrs = ('lang', XML('lang')) if container.opf_version_parsed.major > 2 else (XML('lang'),)
     changed = set()
     for name in names:
-        root = container.parsed(name)
+        root = cast('etree._Element', container.parsed(name))  # HTML files are parsed into lxml trees
         if replace or not has_language(root):
             if all(root.get(attr) == lang for attr in attrs):
                 continue
@@ -223,7 +227,7 @@ def context_text(img: etree._Element) -> str:
 def image_uses(container: Container) -> list[ImageUse]:
     ans = []
     for name in html_names(container):
-        root = container.parsed(name)
+        root = cast('etree._Element', container.parsed(name))  # HTML files are parsed into lxml trees
         ids = ElementsById(root)
         for i, elem in enumerate(image_elements(root)):
             if elem.tag == IMG:
@@ -344,7 +348,7 @@ def set_alt_text(container: Container, changes: dict[tuple[str, int], str | None
         by_name.setdefault(name, {})[index] = alt
     changed = set()
     for name, alts in by_name.items():
-        root = container.parsed(name)
+        root = cast('etree._Element', container.parsed(name))  # HTML files are parsed into lxml trees
         ids = ElementsById(root)
         for i, elem in enumerate(image_elements(root)):
             if i not in alts:
@@ -448,7 +452,7 @@ def hazard_values(states: dict[str, str]) -> list[str]:
     return ans
 
 
-def property_tags(container: Container, prop: str):
+def property_tags(container: Container, prop: str) -> list[etree._Element]:
     # Only tags that describe the book itself, not other metadata
     return [m for m in container.opf_xpath('//opf:metadata/opf:meta[@property]') if m.get('property') == prop and not m.get('refines')]
 
@@ -493,7 +497,7 @@ def set_accessibility_metadata(container: Container, metadata: dict[str, list[st
 EPUB_TYPE = EPUB('type')
 
 
-def _roles():
+def _roles() -> dict[str, tuple[str, frozenset[str]]]:
     # The epub:type values that have a corresponding role, from the EPUB Type
     # to ARIA Role Authoring Guide, see
     # https://www.w3.org/TR/epub-aria-authoring-11/ and the elements the roles
@@ -515,7 +519,7 @@ def _roles():
         'hr': 'pagebreak',
         'a': 'backlink biblioref glossref noteref',
     } | {f'h{i}': 'subtitle' for i in range(1, 7)}
-    ans = {}
+    ans: dict[str, set[str]] = {}
     for tag, epub_types in allowed_on.items():
         for epub_type in epub_types.split():
             ans.setdefault(epub_type, set()).add(XHTML(tag))
@@ -538,7 +542,7 @@ ACCEPTS_ANY_ROLE = frozenset(
 A, FIGURE, FIGCAPTION = XHTML('a'), XHTML('figure'), XHTML('figcaption')
 
 
-def accepts_any_role(elem) -> bool:
+def accepts_any_role(elem: etree._Element) -> bool:
     if elem.tag in ACCEPTS_ANY_ROLE:
         return True
     if elem.tag == A:
@@ -548,7 +552,7 @@ def accepts_any_role(elem) -> bool:
     return False
 
 
-def role_for(elem) -> str | None:
+def role_for(elem: etree._Element) -> str | None:
     # The role for the first epub:type of the element that has one valid on it
     for epub_type in (elem.get(EPUB_TYPE) or '').split():
         x = ROLE_FOR_EPUB_TYPE.get(epub_type)

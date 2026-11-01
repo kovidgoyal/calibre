@@ -264,7 +264,7 @@ def set_last_read_position(ctx: Context, rd: RequestData, library_id: str, book_
     cfi = cfi or None
     db.set_last_read_position(book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)
     with db.safe_read_lock:
-        tt = db._field_for('title', book_id)
+        tt = cast('str', db._field_for('title', book_id))  # books always have a title
         tt += ' ' + _('by') + ' ' + authors_to_string(db._field_for('authors', book_id))
     last_read_cache().add_last_read_position(library_id, book_id, fmt, user, cfi, pos_frac, tt)
     rd.outheaders['Content-type'] = 'text/plain'

@@ -2,10 +2,17 @@
 
 import io
 import os
+from typing import TYPE_CHECKING
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+    from calibre.utils.logging import Log
 
 
 class PMLOutput(OutputFormatPlugin):
@@ -40,7 +47,7 @@ class PMLOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         output_path = output
         from calibre.ebooks.pml.pmlml import PMLMLizer
         from calibre.utils.zipfile import ZipFile
@@ -60,17 +67,19 @@ class PMLOutput(OutputFormatPlugin):
             pmlz = ZipFile(output_path, 'w')
             pmlz.add_dir(tdir)
 
-    def write_images(self, manifest, image_hrefs, out_dir, opts) -> None:
+    def write_images(self, manifest: Manifest, image_hrefs: dict[str, str], out_dir: str, opts: Values) -> None:
         from PIL import Image
 
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
+                raw = item.data
+                assert isinstance(raw, bytes)
                 if opts.full_image_depth:
-                    im = Image.open(io.BytesIO(item.data))
+                    im = Image.open(io.BytesIO(raw))
                 else:
-                    im = Image.open(io.BytesIO(item.data)).convert('P')
+                    im = Image.open(io.BytesIO(raw)).convert('P')
                     im.thumbnail((300, 300), Image.Resampling.LANCZOS)
 
                 data = io.BytesIO()

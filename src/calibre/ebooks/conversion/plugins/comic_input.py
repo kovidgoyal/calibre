@@ -8,11 +8,17 @@ import codecs
 import os
 import shutil
 import textwrap
+from typing import IO, TYPE_CHECKING
 
 from calibre import CurrentDir
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.utils.logging import Log
 
 
 class ComicInput(InputFormatPlugin):
@@ -120,7 +126,7 @@ class ComicInput(InputFormatPlugin):
         ('linearize_tables', False, OptionRecommendation.HIGH),
     }
 
-    def get_comics_from_collection(self, stream):
+    def get_comics_from_collection(self, stream: IO[bytes]) -> list[list[str]]:
         from calibre.libunzip import extract as zipextract
 
         tdir = PersistentTemporaryDirectory('_comic_collection')
@@ -154,7 +160,7 @@ class ComicInput(InputFormatPlugin):
             raise ValueError(f'{stream.name} has no comics')
         return comics
 
-    def get_pages(self, comic, tdir2):
+    def get_pages(self, comic: str, tdir2: str) -> list[str]:
         from calibre.ebooks.comic.input import extract_comic, find_pages, process_pages
 
         tdir = extract_comic(comic)
@@ -181,10 +187,10 @@ class ComicInput(InputFormatPlugin):
                 thumbnail = None
         return new_pages
 
-    def get_images(self):
+    def get_images(self) -> list[str]:
         return self._images
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
@@ -221,7 +227,7 @@ class ComicInput(InputFormatPlugin):
         opf = OPFCreator(os.getcwd(), mi)
         entries = []
 
-        def href(x):
+        def href(x: str) -> str:
             if len(comics) == 1:
                 return os.path.basename(x)
             return '/'.join(x.split(os.sep)[-2:])
@@ -244,6 +250,7 @@ class ComicInput(InputFormatPlugin):
         if self.for_viewer and cover_href:
             if os.path.isabs(cover_href):
                 cover_href = os.path.relpath(cover_href).replace(os.sep, '/')
+            assert opf.guide is not None  # created by OPFCreator.__init__()
             opf.guide.set_cover(cover_href)
         toc = TOC()
         if len(comics) == 1:
@@ -277,7 +284,7 @@ class ComicInput(InputFormatPlugin):
             opf.render(m, n, 'toc.ncx')
         return os.path.abspath('metadata.opf')
 
-    def create_wrappers(self, pages):
+    def create_wrappers(self, pages: list[str]) -> list[str]:
         from calibre.ebooks.oeb.base import XHTML_NS
 
         wrappers = []
@@ -308,13 +315,13 @@ class ComicInput(InputFormatPlugin):
             wrappers.append(page)
         return wrappers
 
-    def create_viewer_wrapper(self, pages, cdir):
+    def create_viewer_wrapper(self, pages: list[str], cdir: str) -> str:
         from calibre.ebooks.oeb.base import XHTML_NS
 
-        def page(pnum, src) -> str:
+        def page(pnum: int, src: str) -> str:
             return f'<img id="page_{pnum + 1}" src="{os.path.basename(src)}"></img>'
 
-        pages = '\n'.join(page(i, src) for i, src in enumerate(pages))
+        pages_html = '\n'.join(page(i, src) for i, src in enumerate(pages))
         base = os.path.dirname(pages[0])
         wrapper = f'''
         <html xmlns="{XHTML_NS}">
@@ -334,7 +341,7 @@ class ComicInput(InputFormatPlugin):
                 </style>
             </head>
             <body>
-            {pages}
+            {pages_html}
             </body>
         </html>
         '''

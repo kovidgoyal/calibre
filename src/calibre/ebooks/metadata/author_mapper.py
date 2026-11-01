@@ -3,13 +3,24 @@
 
 import re
 from collections import deque
+from typing import TYPE_CHECKING
 
 from calibre.utils.icu import capitalize, lower, upper
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Callable, Hashable, Iterable, Mapping, Sequence
 
-def cap_author_token(token):
+    from calibre.ebooks.metadata.tag_mapper import RegexPattern
+
+type Rule = Mapping[str, str]
+type Matcher = Callable[[str], bool]
+type CompiledRules = tuple[tuple[Rule, Matcher], ...]
+
+
+def cap_author_token(token: str) -> str:
     lt = lower(token)
     if lt in ('von', 'de', 'el', 'van', 'le'):
         return lt
@@ -33,14 +44,14 @@ def cap_author_token(token):
     return ans
 
 
-def compile_pat(pat):
+def compile_pat(pat: str) -> RegexPattern:
     import regex
 
     REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
 
-def matcher(rule):
+def matcher(rule: Rule) -> Matcher:
     mt = rule['match_type']
     if mt == 'one_of':
         authors = {icu_lower(x.strip()) for x in rule['query'].split('&')}
@@ -65,9 +76,9 @@ def matcher(rule):
     return lambda x: False
 
 
-def apply_rules(author, rules):
-    ans = []
-    authors = deque()
+def apply_rules(author: str, rules: Iterable[tuple[Rule, Matcher]]) -> list[str]:
+    ans: list[str] = []
+    authors: deque[str] = deque()
     authors.append(author)
     maxiter = 20
     while authors and maxiter > 0:
@@ -83,7 +94,7 @@ def apply_rules(author, rules):
                     else:
                         author = rule['replace']
                     if '&' in author:
-                        replacement_authors = []
+                        replacement_authors: list[str] = []
                         self_added = False
                         for rauthor in (x.strip() for x in author.split('&')):
                             if icu_lower(rauthor) == lauthor:
@@ -116,44 +127,44 @@ def apply_rules(author, rules):
     return ans
 
 
-def uniq(vals, kmap=icu_lower):
+def uniq(vals: Sequence[str] | None, kmap: Callable[[str], Hashable] = icu_lower) -> list[str]:
     """Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals"""
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
-    seen = set()
+    seen: set[Hashable] = set()
     seen_add = seen.add
     return [x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k)]  # ty: ignore[redundant-condition]
 
 
-def compile_rules(rules):
+def compile_rules(rules: Iterable[Rule]) -> CompiledRules:
     return tuple((r, matcher(r)) for r in rules)
 
 
-def map_authors(authors, rules=()):
+def map_authors(authors: Iterable[str] | None, rules: CompiledRules = ()) -> list[str]:
     if not authors:
         return []
     if not rules:
         return list(authors)
-    ans = []
+    ans: list[str] = []
     for a in authors:
         ans.extend(apply_rules(a, rules))
     return uniq(list(filter(None, ans)))
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TestAuthorMapper(unittest.TestCase):
         def test_author_mapper(self) -> None:
 
-            def rule(action, query, replace=None, match_type='one_of'):
+            def rule(action: str, query: str, replace: str | None = None, match_type: str = 'one_of') -> dict[str, str]:
                 ans = {'action': action, 'query': query, 'match_type': match_type}
                 if replace is not None:
                     ans['replace'] = replace
                 return ans
 
-            def run(rules, authors, expected) -> None:
+            def run(rules: dict[str, str] | list[dict[str, str]], authors: str | list[str], expected: str | list[str]) -> None:
                 if isinstance(rules, dict):
                     rules = [rules]
                 if isinstance(authors, str):

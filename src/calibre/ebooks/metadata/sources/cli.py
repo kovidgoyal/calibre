@@ -5,6 +5,7 @@
 import sys
 from io import BytesIO
 from threading import Event
+from typing import IO, cast
 
 from calibre import prints
 from calibre.customize.ui import all_metadata_plugins
@@ -19,7 +20,7 @@ from calibre.utils.img import save_cover_data_to
 from calibre.utils.localization import _
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = OptionParser(
         _('''\
 %prog [options]
@@ -69,7 +70,7 @@ of title, authors or ISBN.
     return parser
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(args)
 
@@ -122,7 +123,7 @@ def main(args=sys.argv) -> int:
         prints(buf.getvalue(), file=sys.stderr)
 
     if opts.opf:
-        getattr(sys.stdout, 'buffer', sys.stdout).write(metadata_to_opf(result))
+        getattr(sys.stdout, 'buffer', cast('IO[bytes]', sys.stdout)).write(metadata_to_opf(result))
         print()
     else:
         prints(str(result))

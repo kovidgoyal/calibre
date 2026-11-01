@@ -6,11 +6,23 @@ import re
 import sys
 from html import escape
 from operator import attrgetter
-from typing import cast
+from typing import IO, TYPE_CHECKING, cast
 
 from lxml import etree
 
 from calibre.ebooks.pdf.bidi import fix_markup_line, has_rtl, is_predominantly_rtl, markup_to_text
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.toc import TOC
+    from calibre.utils.logging import Log
+
+    type PageElement = Text | Image
+    type FontMap = dict[str | None, Font]
 
 # Global constants affecting formatting decisions
 
@@ -107,7 +119,12 @@ SAME_SPACE = 3.0
 SAME_INDENT = 2.0
 
 
-def adjacent_quotes(first_string, second_string):
+def float_attrs(elem: _Element, *names: str) -> map[float]:
+    "The values of the specified attributes, which pdftohtml always outputs, as floats"
+    return map(float, cast('Iterator[str]', map(elem.get, names)))
+
+
+def adjacent_quotes(first_string: str, second_string: str) -> bool:
     """Does one string end with a closing quote and the next start with an opening quote?"""
 
     # Find last non-space char in first string
@@ -126,24 +143,31 @@ def adjacent_quotes(first_string, second_string):
 
 
 class Font:
-    def __init__(self, spec) -> None:
+    def __init__(self, spec: _Element) -> None:
         self.id = spec.get('id')
-        self.size = float(spec.get('size'))
+        self.size = float(cast('str', spec.get('size')))  # pdftohtml always outputs size
         self.size_em = 0.0
         self.color = spec.get('color')
         self.family = spec.get('family')
 
 
 class Element:
+    # Only used by the unimplemented region detection code
+    idx: int
+    indent_fraction: float
+    width_fraction: float
+    top_gap_ratio: float | None
+
     def __init__(self) -> None:
         self.id: int = 0
         self.starts_block = None
         self.block_style = None
 
-    def __eq__(self, other):
-        return self.id == other.id
+    def __eq__(self, other: object) -> bool:
+        # Elements are only ever compared with other Elements
+        return self.id == cast('Element', other).id
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.id)
 
 
@@ -167,11 +191,11 @@ class DocStats:
 
 
 class Image(Element):
-    def __init__(self, img, page_width, page_height, opts, log, idc) -> None:
+    def __init__(self, img: _Element, page_width: float, page_height: float, opts: Values, log: Log, idc: Iterator[int]) -> None:
         Element.__init__(self)
         self.opts, self.log = opts, log
         self.id = next(idc)
-        self.top, self.left, self.width, self.height = map(float, map(img.get, ('top', 'left', 'width', 'height')))
+        self.top, self.left, self.width, self.height = float_attrs(img, 'top', 'left', 'width', 'height')
         self.page_width, self.page_height = page_width, page_height
         self.src = img.get('src')
         self.bottom = self.top + self.height
@@ -193,24 +217,28 @@ class Image(Element):
             percent = max(1, round(100 * self.width / self.page_width))
         return f'<img src="{self.src}" alt="" style="max-width:{percent}%"/>'
 
-    def dump(self, f) -> None:
+    def dump(self, f: IO[str]) -> None:
         f.write(self.to_html())
         f.write('\n')
 
 
 class Text(Element):
-    def __init__(self, text, font_map, opts, log, idc) -> None:
+    def __init__(self, text: _Element, font_map: FontMap, opts: Values, log: Log, idc: Iterator[int]) -> None:
         Element.__init__(self)
         self.id = next(idc)
         self.opts, self.log = opts, log
         self.font_map = font_map
-        self.top, self.left, self.width, self.height = map(round, map(float, map(text.get, ('top', 'left', 'width', 'height'))))
+        self.top: float
+        self.left: float
+        self.width: float
+        self.height: float
+        self.top, self.left, self.width, self.height = map(round, float_attrs(text, 'top', 'left', 'width', 'height'))
         # This does nothing, as expected,
         # but somewhere left (at least) is changed sometimes to not .0
         if self.left != round(self.left):
             self.left = round(self.left)
-        self.bottom = self.top + self.height
-        self.right = self.left + self.width
+        self.bottom: float = self.top + self.height
+        self.right: float = self.left + self.width
         self.tag = 'p'  # Normal paragraph <p...>
         # Where in the reading order of the page this is, as a (band, column)
         # pair, counted so that sorting by it gives reading order. See
@@ -220,10 +248,10 @@ class Text(Element):
         self.margin_left = 0  # Normal margins
         self.margin_right = 0  # Normal margins
         # When joining lines for a paragraph, remember position of last line joined
-        self.last_left = self.left
-        self.last_right = self.right
+        self.last_left: float = self.left
+        self.last_right: float = self.right
         # Remember the length of this line if it is merged into a paragraph
-        self.final_width = self.width
+        self.final_width: float = self.width
         # Align = Left, Right, Center, Justified.  Default L
         self.align = 'L'
         # Should there be extra space before/after paragraph?
@@ -256,7 +284,7 @@ class Text(Element):
         return not self.raw
 
     @property
-    def is_spaces(self):
+    def is_spaces(self) -> bool:
         # There are only spaces in this Text
         return bool(self.raw) and (
             re.match(r'^\s+$', self.raw) is not None
@@ -267,7 +295,7 @@ class Text(Element):
     def set_av_char_width(self) -> None:
         self.average_character_width = max(0.1, self.width / max(1, len(self.text_as_string)))  # Ensure never zero
 
-    def coalesce(self, other, page_number, left_margin, right_margin) -> None:
+    def coalesce(self, other: Text, page_number: int, left_margin: float, right_margin: float) -> None:
         if self.opts.verbose > 2:
             self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
         # Need to work out how to decide this
@@ -434,22 +462,22 @@ class Text(Element):
         self.text_as_string = markup_to_text(self.raw)
         self.set_av_char_width()
 
-    def to_html(self):
+    def to_html(self) -> str:
         return self.raw
 
-    def dump(self, f) -> None:
+    def dump(self, f: IO[str]) -> None:
         f.write(f'T top={self.top}, left={self.left}, width={self.width}, height={self.height}: ')
-        f.write(self.to_html().encode('utf-8'))
+        f.write(self.to_html())
         f.write('\n')
 
 
 class Paragraph(Text):
-    def __init__(self, text, font_map, opts, log, idc) -> None:
+    def __init__(self, text: _Element, font_map: FontMap, opts: Values, log: Log, idc: Iterator[int]) -> None:
         Element.__init__(self)
         self.id = next(idc)
         self.opts, self.log = opts, log
         self.font_map = font_map
-        self.top, self.left, self.width, self.height = map(float, map(text.get, ('top', 'left', 'width', 'height')))
+        self.top, self.left, self.width, self.height = float_attrs(text, 'top', 'left', 'width', 'height')
         self.bottom = self.top + self.height
         self.right = self.left + self.width
         self.font: Font
@@ -470,17 +498,17 @@ class Paragraph(Text):
             self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.set_av_char_width()
 
-    def to_html(self):
+    def to_html(self) -> str:
         return self.raw
 
-    def dump(self, f) -> None:
+    def dump(self, f: IO[str]) -> None:
         f.write(f'P top={self.top}, left={self.left}, width={self.width}, height={self.height}: ')
-        f.write(self.to_html().encode('utf-8'))
+        f.write(self.to_html())
         f.write('\n')
 
 
-class FontSizeStats(dict):
-    def __init__(self, stats) -> None:
+class FontSizeStats(dict[float, float]):
+    def __init__(self, stats: dict[float, float]) -> None:
         total = float(sum(stats.values()))
         self.most_common_size, self.chars_at_most_common_size = -1, 0
 
@@ -491,27 +519,29 @@ class FontSizeStats(dict):
 
 
 class Interval:
-    def __init__(self, left, right) -> None:
+    def __init__(self, left: float, right: float) -> None:
         self.left, self.right = left, right
         self.width = right - left
 
-    def intersection(self, other):
+    def intersection(self, other: Interval) -> Interval:
         left = max(self.left, other.left)
         right = min(self.right, other.right)
         return Interval(left, right)
 
-    def centered_in(self, parent):
+    def centered_in(self, parent: Interval) -> bool:
         left = abs(self.left - parent.left)
         right = abs(self.right - parent.right)
         return abs(left - right) < 3
 
-    def __nonzero__(self):
+    def __nonzero__(self) -> bool:
         return self.width > 0
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        # Intervals are only ever compared with other Intervals
+        other = cast('Interval', other)
         return self.left == other.left and self.right == other.right
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(f'({self.left:f},{self.right:f})')
 
 
@@ -521,18 +551,24 @@ class Column:
     HFUZZ = 0.2
 
     def __init__(self) -> None:
+        self.left: float = 0
+        self.right: float = 0
+        self.top: float = 0
+        self.bottom: float = 0
         self.left = self.right = self.top = self.bottom = 0
+        self.width: float = 0
+        self.height: float = 0
         self.width = self.height = 0
-        self.elements = []
-        self.average_line_separation = 0
+        self.elements: list[PageElement] = []
+        self.average_line_separation: float = 0
 
-    def add(self, elem) -> None:
+    def add(self, elem: PageElement) -> None:
         if elem in self.elements:
             return
         self.elements.append(elem)
         self._post_add()
 
-    def prepend(self, elem) -> None:
+    def prepend(self, elem: PageElement) -> None:
         if elem in self.elements:
             return
         self.elements.insert(0, elem)
@@ -548,13 +584,13 @@ class Column:
             self.right = max(self.right, x.right)
         self.width, self.height = self.right - self.left, self.bottom - self.top
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[PageElement]:
         yield from self.elements
 
     def __len__(self) -> int:
         return len(self.elements)
 
-    def contains(self, elem):
+    def contains(self, elem: PageElement) -> bool:
         return elem.left > self.left - self.HFUZZ * self.width and elem.right < self.right + self.HFUZZ * self.width
 
     def collect_stats(self) -> None:
@@ -570,22 +606,22 @@ class Column:
             else:
                 elem.top_gap_ratio = (self.elements[i - 1].bottom - elem.top) / self.average_line_separation
 
-    def previous_element(self, idx):
+    def previous_element(self, idx: int) -> PageElement | None:
         if idx == 0:
             return None
         return self.elements[idx - 1]
 
-    def dump(self, f, num) -> None:
+    def dump(self, f: IO[str], num: int) -> None:
         f.write(f'******** Column {num}\n\n')
         for elem in self.elements:
             elem.dump(f)
 
 
-class Box(list):
-    def __init__(self, type='p') -> None:
+class Box(list[Text | Image | int]):
+    def __init__(self, type: str = 'p') -> None:
         self.tag = type
 
-    def to_html(self):
+    def to_html(self) -> list[str]:
         ans = [f'<{self.tag}>']
         for elem in self:
             if isinstance(elem, int):
@@ -597,11 +633,11 @@ class Box(list):
 
 
 class ImageBox(Box):
-    def __init__(self, img) -> None:
+    def __init__(self, img: Image) -> None:
         Box.__init__(self)
         self.img = img
 
-    def to_html(self):
+    def to_html(self) -> list[str]:
         ans = ['<div style="text-align:center">']
         ans.append(self.img.to_html())
         if len(self) > 0:
@@ -616,12 +652,12 @@ class ImageBox(Box):
 
 
 class Region:
-    def __init__(self, opts, log) -> None:
+    def __init__(self, opts: Values, log: Log) -> None:
         self.opts, self.log = opts, log
-        self.columns = []
+        self.columns: list[Column] = []
         self.top = self.bottom = self.left = self.right = self.width = self.height = 0
 
-    def add(self, columns) -> None:
+    def add(self, columns: list[Column]) -> None:
         if not self.columns:
             for x in sorted(columns, key=attrgetter('left')):
                 self.columns.append(x)
@@ -630,7 +666,7 @@ class Region:
                 for elem in columns[i]:
                     self.columns[i].add(elem)
 
-    def contains(self, columns) -> bool:
+    def contains(self, columns: list[Column]) -> bool:
         # TODO: handle unbalanced columns
         if not self.columns:
             return True
@@ -647,24 +683,25 @@ class Region:
         return True
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self.columns) == 0
 
     @property
-    def line_count(self):
+    def line_count(self) -> int:
         max_lines = 0
         for c in self.columns:
             max_lines = max(max_lines, len(c))
         return max_lines
 
     @property
-    def is_small(self):
+    def is_small(self) -> bool:
         return self.line_count < 3
 
-    def absorb(self, singleton) -> None:
+    def absorb(self, singleton: Region) -> None:
 
-        def most_suitable_column(elem):
-            mc, mw = None, 0
+        def most_suitable_column(elem: PageElement) -> Column:
+            mc: Column | None = None
+            mw: float = 0
             for c in self.columns:
                 i = Interval(c.left, c.right)
                 e = Interval(elem.left, elem.right)
@@ -689,27 +726,29 @@ class Region:
             column.collect_stats()
         self.average_line_separation = sum(x.average_line_separation for x in self.columns) / float(len(self.columns))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Column]:
         yield from self.columns
 
-    def absorb_regions(self, regions, at) -> None:
+    def absorb_regions(self, regions: Iterable[Region], at: str) -> None:
         for region in regions:
             self.absorb_region(region, at)
 
-    def absorb_region(self, region, at) -> None:
+    def absorb_region(self, region: Region, at: str) -> None:
         if len(region.columns) <= len(self.columns):
             for i in range(len(region.columns)):
                 src, dest = region.columns[i], self.columns[i]
+                src_elems: Iterable[PageElement] = src
                 if at != 'bottom':
-                    src = reversed(list(iter(src)))
-                for elem in src:
+                    src_elems = reversed(list(iter(src)))
+                for elem in src_elems:
                     func = dest.add if at == 'bottom' else dest.prepend
                     func(elem)
 
         else:
-            col_map = {}
+            col_map: dict[int, int] = {}
             for i, col in enumerate(region.columns):
-                max_overlap, max_overlap_index = 0, 0
+                max_overlap: float = 0
+                max_overlap_index = 0
                 for j, dcol in enumerate(self.columns):
                     sint = Interval(col.left, col.right)
                     dint = Interval(dcol.left, dcol.right)
@@ -718,11 +757,11 @@ class Region:
                         max_overlap = width
                         max_overlap_index = j
                 col_map[i] = max_overlap_index
-            lines = max(map(len, region.columns))
+            num_lines = max(map(len, region.columns))
             if at == 'bottom':
-                lines = range(lines)
+                lines = range(num_lines)
             else:
-                lines = range(lines - 1, -1, -1)
+                lines = range(num_lines - 1, -1, -1)
             for i in lines:
                 for j, src in enumerate(region.columns):
                     dest = self.columns[col_map[j]]
@@ -730,7 +769,7 @@ class Region:
                         func = dest.add if at == 'bottom' else dest.prepend
                         func(src.elements[i])
 
-    def dump(self, f) -> None:
+    def dump(self, f: IO[str]) -> None:
         f.write('############################################################\n')
         f.write(f'########## Region ({len(self.columns)} columns) ###############\n')
         f.write('############################################################\n\n')
@@ -738,10 +777,10 @@ class Region:
             col.dump(f, i)
 
     def linearize(self) -> None:
-        self.elements = []
+        self.elements: list[PageElement] = []
         for x in self.columns:
             self.elements.extend(x)
-        self.boxes = [Box()]
+        self.boxes: list[Box] = [Box()]
         for i, elem in enumerate(self.elements):
             if isinstance(elem, Image):
                 self.boxes.append(ImageBox(elem))
@@ -761,14 +800,14 @@ class Region:
                     indent_diff = elem.indent_fraction - self.elements[i + 1].indent_fraction
                     if indent_diff > 0.05:
                         is_indented = True
-                if elem.top_gap_ratio > 1.2 or is_indented:
+                if elem.top_gap_ratio > 1.2 or is_indented:  # ty: ignore[unsupported-operator] unimplemented code, top_gap_ratio can be None
                     self.boxes.append(Box())
                 self.boxes[-1].append(elem)
 
 
 class Page:
-    def __init__(self, page, font_map, opts, log, idc) -> None:
-        def text_cmp(first, second) -> int:
+    def __init__(self, page: _Element, font_map: FontMap, opts: Values, log: Log, idc: Iterator[int]) -> None:
+        def text_cmp(first: Text, second: Text) -> int:
             # Compare 2 text objects.
             # Order by line (top/bottom) then left
             if (first.top <= second.top and first.bottom >= second.bottom - BOTTOM_FACTOR) or (
@@ -792,9 +831,9 @@ class Page:
 
         self.opts, self.log = opts, log
         self.font_map = font_map
-        self.number = int(page.get('number'))
+        self.number = int(cast('str', page.get('number')))  # pdftohtml always outputs number
         self.odd_even = self.number % 2  # Odd = 1
-        self.top, self.left, self.width, self.height = map(float, map(page.get, ('top', 'left', 'width', 'height')))
+        self.top, self.left, self.width, self.height = float_attrs(page, 'top', 'left', 'width', 'height')
         self.id = f'page{self.number}'
         self.page_break_after = False
 
@@ -804,7 +843,7 @@ class Page:
         self.document_font_stats: FontSizeStats | None = None
         # Set margins to values that will get adjusted
         self.left_margin = self.width
-        self.right_margin = 0
+        self.right_margin: float = 0
         # For whether page number has been put in <a>
         self.id_used = 0
 
@@ -872,8 +911,8 @@ class Page:
         # Multi-line characters make things even more interesting.
         self.texts.sort(key=cmp_to_key(text_cmp))
 
-        self.font_size_stats = {}
-        self.average_text_height = 0
+        self.font_size_stats: dict[float, float] = {}
+        self.average_text_height: float = 0
         for t in self.texts:
             if t.font_size not in self.font_size_stats:
                 self.font_size_stats[t.font_size] = 0
@@ -890,7 +929,7 @@ class Page:
         if self.column_count > 1:
             self.texts.sort(key=attrgetter('column'))
 
-    def rows(self):
+    def rows(self) -> list[list[Text]]:
         # The texts of the page grouped into rows, two texts being in the same
         # row if they overlap vertically by more than half the height of the
         # shorter of the two
@@ -911,7 +950,7 @@ class Page:
             ans.append(current)
         return ans
 
-    def find_gutters(self):
+    def find_gutters(self) -> list[tuple[int, int]]:
         # The x ranges of the page that the text does not cross, which is what
         # separates one column of text from the next. Looking at the page as a
         # whole rather than at the gap between two fragments is what tells a
@@ -953,7 +992,9 @@ class Page:
         # width heading would hide the gutter of a short page.
         max_crossings = max(1, int(COLUMN_CROSS_FACTOR * len(rows)))
         min_width = max(1, int(COLUMN_MIN_GUTTER * self.average_text_height))
-        ans, start, crossing = [], None, 0
+        ans: list[tuple[int, int]] = []
+        start: int | None = None
+        crossing = 0
         for i in range(width):
             crossing += diff[i]
             if crossing <= max_crossings:
@@ -968,7 +1009,7 @@ class Page:
                 start = None
         return ans
 
-    def find_columns(self):
+    def find_columns(self) -> int:
         # Split the page into columns at its gutters and record where in the
         # reading order each text is, as a (band, column) pair. A band is a
         # horizontal slice of the page, started by an element that spans the
@@ -980,7 +1021,7 @@ class Page:
             return 1
         boundaries = [(a + b) / 2.0 for a, b in gutters]
 
-        def column_of(t):
+        def column_of(t: Text) -> int:
             # -1 for an element that spans a gutter rather than sitting in a
             # column, so that it is read before the columns it spans
             for b in boundaries:
@@ -1029,11 +1070,11 @@ class Page:
         return len(columns)
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         # There is nothing in this Page
         return len(self.texts) == 0 and len(self.imgs) == 0
 
-    def find_match(self, frag):
+    def find_match(self, frag: Text) -> Text | None:
         # We have not yet worked out the stats, specifically line_spacing
         # Approximate the line spacing for checking overlapped lines
         line_height = frag.bottom - frag.top
@@ -1062,7 +1103,7 @@ class Page:
                         return t
         return None
 
-    def join_fragments(self, opts) -> None:
+    def join_fragments(self, opts: Values) -> None:
         # Join fragments on a line
         # Do some basic checks on structure
 
@@ -1096,7 +1137,7 @@ class Page:
             if match is not None:
                 self.texts.remove(match)
 
-    def check_centered(self, stats) -> None:
+    def check_centered(self, stats: DocStats) -> None:
         # Check for centered text
         # Also check for right aligned, and basic chapter structure
 
@@ -1179,14 +1220,14 @@ class Page:
             if lmargin > left_max and lmargin != indent_min and lmargin >= rmargin - rmargin * CENTER_FACTOR and lmargin <= rmargin + rmargin * CENTER_FACTOR:
                 i.align = 'C'
 
-    def coalesce_paras(self, stats) -> None:
+    def coalesce_paras(self, stats: DocStats) -> None:
         # Join lines into paragraphs
         left_min = self.stats_left_min
         left_max = self.stats_left_max
         indent_min = self.stats_indent_min
         indent_max = self.stats_indent_max
 
-        def can_merge(self, first_text, second_text, stats) -> bool:
+        def can_merge(self: Page, first_text: Text, second_text: Text, stats: DocStats) -> bool:
             # Can two lines be merged into one paragraph?
             # Some PDFs have a wandering left margin which is consistent on a page
             # but not within the whole document.  Hence use self.stats_left
@@ -1261,7 +1302,7 @@ class Page:
                 match_found = True
                 self.texts.remove(match)  # Leave tind
 
-    def remove_head_foot_regex(self, opts) -> None:
+    def remove_head_foot_regex(self, opts: Values) -> None:
 
         # Remove headers or footers from a page
         # if there is a regex supplied
@@ -1294,7 +1335,7 @@ class Page:
                     #     match = self.find_match(t)
                     self.texts.remove(t)
 
-    def create_page_format(self, stats, opts) -> None:
+    def create_page_format(self, stats: DocStats, opts: Values) -> None:
         # Join fragments into lines
         # then remove any headers/footers/unwanted areas
 
@@ -1312,17 +1353,19 @@ class Page:
         # Do this before automatic actions
         self.remove_head_foot_regex(opts)
 
-    def find_margins(self, tops, indents, line_spaces, bottoms, rights) -> None:
+    def find_margins(
+        self, tops: dict[float, int], indents: dict[float, int], line_spaces: dict[float, int], bottoms: dict[float, int], rights: dict[float, int]
+    ) -> None:
 
         # from collections import Counter
 
         # Should check for left margin and indent for this page
         # Find the most used top, left margins, and gaps between lines
         # The most used font will be treated as size 1em
-        max_bot = 0
-        max_right = 0
-        max_space = 0
-        last_top = 0
+        max_bot: float = 0
+        max_right: float = 0
+        max_space: float = 0
+        last_top: float = 0
         # last_bottom = 0
         first = True
         for text in self.texts:
@@ -1364,13 +1407,13 @@ class Page:
         #########################
         #### NOT IMPLEMENTED ####
         'Sort page into regions and columns'
-        self.regions = []
+        self.regions: list[Region] = []
         if not self.elements:
             return
         for i, x in enumerate(self.elements):
             x.idx = i
         current_region = Region(self.opts, self.log)
-        processed = set()
+        processed: set[PageElement] = set()
         for x in self.elements:
             if x in processed:
                 continue
@@ -1393,10 +1436,10 @@ class Page:
         if self.opts.verbose > 2:
             self.dump_regions('post-coalesce')
 
-    def dump_regions(self, fname) -> None:
+    def dump_regions(self, fname: str) -> None:
         fname = 'regions-' + fname + '.txt'
-        with open(os.path.join(self.debug_dir, fname), 'wb') as f:
-            f.write(f'Page #{self.number}\n\n'.encode('utf-8'))
+        with open(os.path.join(self.debug_dir, fname), 'w', encoding='utf-8') as f:
+            f.write(f'Page #{self.number}\n\n')
             for region in self.regions:
                 region.dump(f)
 
@@ -1406,8 +1449,8 @@ class Page:
         # closer to the avg number of cols in the set, if equal use larger
         # region)
         found = True
-        absorbed = set()
-        processed = set()
+        absorbed: set[Region] = set()
+        processed: set[Region] = set()
         while found:
             found = False
             for i, region in enumerate(self.regions):
@@ -1454,14 +1497,14 @@ class Page:
         for region in absorbed:
             self.regions.remove(region)
 
-    def sort_into_columns(self, elem, neighbors):
+    def sort_into_columns(self, elem: PageElement, neighbors: set[PageElement]) -> list[Column]:
         neighbors.add(elem)
-        neighbors = sorted(neighbors, key=attrgetter('left'))
+        sorted_neighbors: list[PageElement] = sorted(neighbors, key=attrgetter('left'))
         if self.opts.verbose > 3:
-            self.log.debug('Neighbors:', [x.to_html() for x in neighbors])
+            self.log.debug('Neighbors:', [x.to_html() for x in sorted_neighbors])
         columns = [Column()]
         columns[0].add(elem)
-        for x in neighbors:
+        for x in sorted_neighbors:
             added = False
             for c in columns:
                 if c.contains(x):
@@ -1474,7 +1517,7 @@ class Page:
                 columns.sort(key=attrgetter('left'))
         return columns
 
-    def find_elements_in_row_of(self, x):
+    def find_elements_in_row_of(self, x: PageElement) -> Iterator[PageElement]:
         interval = Interval(x.top, x.top + YFUZZ * (self.average_text_height))
         h_interval = Interval(x.left, x.right)
         for y in self.elements[x.idx : x.idx + 15]:
@@ -1484,14 +1527,14 @@ class Page:
                 if interval.intersection(y_interval).width > 0.5 * self.average_text_height and x_interval.intersection(h_interval).width <= 0:
                     yield y
 
-    def update_font_sizes(self, stats) -> None:
+    def update_font_sizes(self, stats: DocStats) -> None:
         # Font sizes start as pixels/points, but em is more useful
         for text in self.texts:
             text.font_size_em = self.font_map[text.font.id].size_em
             if text.font_size_em not in {0.0, 1.0}:
                 text.raw = f'<span style="font-size:{text.font_size_em!s}em">{text.raw}</span>'
 
-    def second_pass(self, stats, opts) -> None:
+    def second_pass(self, stats: DocStats, opts: Values) -> None:
 
         # If there are alternating pages, pick the left and indent for this one
         if self.odd_even:
@@ -1525,9 +1568,9 @@ class Page:
             region.collect_stats()
             region.linearize()
 
-    def to_html(self):
+    def to_html(self) -> list[str]:
         # If ans.append is used, newlines are inserted between each element
-        ans = []
+        ans: list[str] = []
         iind = 0
         itop = 0
         ilen = len(self.imgs)
@@ -1597,7 +1640,7 @@ class Page:
 
 
 class PDFDocument:
-    def __init__(self, xml, opts, log) -> None:
+    def __init__(self, xml: bytes, opts: Values, log: Log) -> None:
         from calibre.utils.xml_parse import safe_xml_fromstring
         # from calibre.rpdb import set_trace;  set_trace()
 
@@ -1613,26 +1656,26 @@ class PDFDocument:
         idc = iter(range(sys.maxsize))
         self.stats = DocStats()
 
-        self.fonts = []
+        self.fonts: list[Font] = []
 
-        self.font_map = {}
+        self.font_map: FontMap = {}
 
         for spec in self.root.xpath('//fontspec'):
             self.fonts.append(Font(spec))
             self.font_map[self.fonts[-1].id] = self.fonts[-1]
 
-        self.pages = []
+        self.pages: list[Page] = []
         for page in self.root.xpath('//page'):
             page = Page(page, self.font_map, opts, log, idc)
             self.pages.append(page)
 
-        self.tops = {}
-        self.indents_odd = {}
-        self.indents_even = {}
-        self.line_spaces = {}
-        self.bottoms = {}
-        self.rights = {}
-        self.font_sizes = {}
+        self.tops: dict[float, int] = {}
+        self.indents_odd: dict[float, int] = {}
+        self.indents_even: dict[float, int] = {}
+        self.line_spaces: dict[float, int] = {}
+        self.bottoms: dict[float, int] = {}
+        self.rights: dict[float, int] = {}
+        self.font_sizes: dict[int, int] = {}
 
         self.collect_font_statistics()
 
@@ -1679,7 +1722,7 @@ class PDFDocument:
         root_toc_node = TOC()
         count = [0]
 
-        def process_node(node, toc) -> None:
+        def process_node(node: _Element, toc: TOC) -> None:
             for child in node.iterchildren('*'):
                 if child.tag == 'outline':
                     parent = toc.children[-1] if toc.children else toc
@@ -1697,7 +1740,7 @@ class PDFDocument:
                 f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
     def collect_font_statistics(self) -> None:
-        self.font_size_stats = {}
+        self.font_size_stats: dict[float, float] = {}
         for p in self.pages:
             for sz in p.font_size_stats:
                 chars = p.font_size_stats[sz]
@@ -1706,7 +1749,7 @@ class PDFDocument:
                 self.font_size_stats[sz] += chars
 
             for text in p.texts:
-                font = int(text.font.id)
+                font = int(cast('str', text.font.id))  # pdftohtml always outputs fontspec ids
                 self.font_sizes[font] = self.font_sizes.get(font, 0) + 1
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
@@ -1739,8 +1782,9 @@ class PDFDocument:
         # At the moment it only does this when spaces are close in popularity.
 
         # Find (next) most popular gap between lines
-        def find_line_space(skip):
-            scount, soffset = 0, 0
+        def find_line_space(skip: int) -> tuple[int, float]:
+            scount: int = 0
+            soffset: float = 0
             for s in self.line_spaces:
                 if scount <= self.line_spaces[s] and (skip <= 0 or self.line_spaces[s] < skip):
                     scount = self.line_spaces[s]
@@ -1748,22 +1792,21 @@ class PDFDocument:
             return scount, soffset
 
         # Find (next) most popular indent
-        def find_indent(indents):
-            icount, ioffset = 0, 0
-            for i in indents:
-                ii = indents[i]
+        def find_indent(indents: dict[float, int]) -> float:
+            icount: int = 0
+            ioffset: float = 0
+            for i, ii in indents.items():
                 if ii > 0 and icount <= ii:
                     icount = ii
                     ioffset = i
             return ioffset
 
-        def set_indents(indents, odd_even) -> None:
+        def set_indents(indents: dict[float, int], odd_even: int) -> None:
             # Find most popular left so that will be treated as left of page
             left_k1 = left_c = 0
             left_k = find_indent(indents)
             # Find any adjacent indents and hide them
-            for k in indents.keys():
-                kc = indents[k]
+            for k, kc in indents.items():
                 if kc > 0 and abs(left_k - k) <= SAME_INDENT:
                     left_k = min(left_k, k)
                     left_k1 = max(left_k1, k)
@@ -1774,8 +1817,7 @@ class PDFDocument:
             indent_k1 = indent_c = 0
             indent_k = find_indent(indents)
             # Find any adjacent indents and hide them
-            for k in indents.keys():
-                kc = indents[k]
+            for k, kc in indents.items():
                 if kc > 0 and abs(indent_k - k) <= SAME_INDENT:
                     indent_k = min(indent_k, k)
                     indent_k1 = max(indent_k1, k)
@@ -1787,8 +1829,7 @@ class PDFDocument:
             third_k1 = third_c = 0
             third_k = find_indent(indents)
             # Find any adjacent indents and hide them
-            for k in indents.keys():
-                kc = indents[k]
+            for k, kc in indents.items():
                 if kc > 0 and abs(third_k - k) <= SAME_INDENT:
                     third_k = min(third_k, k)
                     third_k1 = max(third_k1, k)
@@ -2091,7 +2132,7 @@ class PDFDocument:
                         removed = True
                         break  # Restart loop
 
-    def merge_pages(self, idc) -> None:
+    def merge_pages(self, idc: Iterator[int]) -> None:
         # Check for pages that can be merged
 
         # When merging pages, assume short last lines mean no merge
@@ -2225,8 +2266,9 @@ class PDFDocument:
                     self.pages.remove(merged_page)
 
     def linearize(self) -> None:
-        self.elements = []
-        last_region = last_block = None
+        self.elements: list[Box] = []
+        last_region: Region | None = None
+        last_block: Box | None = None
         for page in self.pages:
             page_number_inserted = False
             for region in page.regions:
@@ -2262,7 +2304,7 @@ class PDFDocument:
             '<meta content="PDF Reflow conversion" name="generator"/>',
             '</head>',
         ]
-        body = []
+        body: list[str] = []
         for page in self.pages:
             body.extend(page.to_html())
             if page.page_break_after:

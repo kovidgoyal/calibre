@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
@@ -11,10 +12,23 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
 
-props = {'font-family': None, 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal'}
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.ebooks.oeb.polish.stats import FontFaceRule, StatsCollector, UsedFont
+    from calibre.utils.fonts.metadata import FontFace
+
+    # An @font-face rule for a font embedded by this module
+    type EmbeddedFontRule = dict[str, str | None]
+    type Report = Callable[[str], object]
+
+props: dict[str, str | None] = {'font-family': None, 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal'}
 
 
-def matching_rule(font, rules):
+def matching_rule(font: UsedFont, rules: Iterable[FontFaceRule]) -> FontFaceRule | None:
     ff = font['font-family']
     if not isinstance(ff, (str, bytes)):
         ff = tuple(ff)[0]
@@ -32,7 +46,7 @@ def matching_rule(font, rules):
                 return rule
 
 
-def format_fallback_match_report(matched_font, font_family, css_font, report) -> None:
+def format_fallback_match_report(matched_font: FontFace, font_family: str, css_font: UsedFont, report: Report) -> None:
     msg = (
         _('Could not find a font in the "%s" family exactly matching the CSS font specification, will embed a fallback font instead. CSS font specification:')
         % font_family
@@ -49,7 +63,7 @@ def format_fallback_match_report(matched_font, font_family, css_font, report) ->
     report('')
 
 
-def stretch_as_number(val):
+def stretch_as_number(val: str) -> int:
     try:
         return int(val)
     except Exception:
@@ -70,24 +84,24 @@ def stretch_as_number(val):
         return 4  # normal
 
 
-def filter_by_stretch(fonts, val):
-    val = stretch_as_number(val)
+def filter_by_stretch(fonts: Sequence[FontFace], val: str) -> list[FontFace]:
+    nval = stretch_as_number(val)
     stretch_map = [stretch_as_number(f['font-stretch']) for f in fonts]
-    equal = [f for i, f in enumerate(fonts) if stretch_map[i] == val]
+    equal = [f for i, f in enumerate(fonts) if stretch_map[i] == nval]
     if equal:
         return equal
     condensed = [i for i in range(len(fonts)) if stretch_map[i] <= 4]
     expanded = [i for i in range(len(fonts)) if stretch_map[i] > 4]
-    if val <= 4:
+    if nval <= 4:
         candidates = condensed or expanded
     else:
         candidates = expanded or condensed
-    distance_map = {i: abs(stretch_map[i] - val) for i in candidates}
+    distance_map = {i: abs(stretch_map[i] - nval) for i in candidates}
     min_dist = min(distance_map.values())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
-def filter_by_style(fonts, val):
+def filter_by_style(fonts: Sequence[FontFace], val: str) -> list[FontFace]:
     order = {
         'normal': ('normal', 'oblique', 'italic'),
         'italic': ('italic', 'oblique', 'normal'),
@@ -99,30 +113,30 @@ def filter_by_style(fonts, val):
         ans = [f for f in fonts if f['font-style'] == q]
         if ans:
             return ans
-    return fonts
+    return list(fonts)
 
 
-def weight_as_number(wt):
+def weight_as_number(wt: str) -> int:
     try:
         return int(wt)
     except Exception:
         return {'normal': 400, 'bold': 700}.get(wt, 400)
 
 
-def filter_by_weight(fonts, val):
-    val = weight_as_number(val)
+def filter_by_weight(fonts: Sequence[FontFace], val: str) -> list[FontFace]:
+    nval = weight_as_number(val)
     weight_map = [weight_as_number(f['font-weight']) for f in fonts]
-    equal = [f for i, f in enumerate(fonts) if weight_map[i] == val]
+    equal = [f for i, f in enumerate(fonts) if weight_map[i] == nval]
     if equal:
         return equal
     rmap = {w: i for i, w in enumerate(weight_map)}
-    below = [i for i in range(len(fonts)) if weight_map[i] < val]
-    above = [i for i in range(len(fonts)) if weight_map[i] > val]
-    if val < 400:
+    below = [i for i in range(len(fonts)) if weight_map[i] < nval]
+    above = [i for i in range(len(fonts)) if weight_map[i] > nval]
+    if nval < 400:
         candidates = below or above
-    elif val > 500:
+    elif nval > 500:
         candidates = above or below
-    elif val == 400:
+    elif nval == 400:
         if 500 in rmap:
             return [fonts[rmap[500]]]
         candidates = below or above
@@ -130,12 +144,12 @@ def filter_by_weight(fonts, val):
         if 400 in rmap:
             return [fonts[rmap[400]]]
         candidates = below or above
-    distance_map = {i: abs(weight_map[i] - val) for i in candidates}
+    distance_map = {i: abs(weight_map[i] - nval) for i in candidates}
     min_dist = min(distance_map.values())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
-def find_matching_font(fonts, weight='normal', style='normal', stretch='normal'):
+def find_matching_font(fonts: Sequence[FontFace], weight: str = 'normal', style: str = 'normal', stretch: str = 'normal') -> FontFace:
     # See https://www.w3.org/TR/css-fonts-3/#font-style-matching
     # We don't implement the unicode character range testing
     # We also don't implement bolder, lighter
@@ -146,16 +160,16 @@ def find_matching_font(fonts, weight='normal', style='normal', stretch='normal')
     return fonts[0]
 
 
-def do_embed(container, font, report):
+def do_embed(container: Container, font: FontFace, report: Report) -> EmbeddedFontRule:
     from calibre.utils.fonts.scanner import font_scanner
 
     report('Embedding font {} from {}'.format(font['full_name'], font['path']))
     data = font_scanner.get_font_data(font)
-    fname = font['full_name']
+    fname = font['full_name'] or font['family_name'] or 'font'
     ext = 'otf' if font['is_otf'] else 'ttf'
     fname = ascii_filename(fname).replace(' ', '-').replace('(', '').replace(')', '')
     item = container.generate_item(f'fonts/{fname}.{ext}', id_prefix='font')
-    name = container.href_to_name(item.get('href'), container.opf_name)
+    name = cast('str', container.href_to_name(item.get('href'), container.opf_name))  # generated items always have a href
     with container.open(name, 'wb') as out:
         out.write(data)
     href = container.name_to_href(name)
@@ -165,7 +179,9 @@ def do_embed(container, font, report):
     return rule
 
 
-def embed_font(container, font, all_font_rules, report, warned):
+def embed_font(
+    container: Container, font: UsedFont, all_font_rules: Iterable[FontFaceRule], report: Report, warned: set[str | tuple[str | int | None, ...]]
+) -> EmbeddedFontRule | None:
     rule = matching_rule(font, all_font_rules)
     ff = font['font-family']
     if not isinstance(ff, (str, bytes)):
@@ -200,22 +216,23 @@ def embed_font(container, font, all_font_rules, report, warned):
         return rule
 
 
-def font_key(font):
+def font_key(font: UsedFont) -> tuple[str | None, ...]:
     return tuple(map(font.get, 'font-family font-weight font-style font-stretch'.split()))
 
 
-def embed_all_fonts(container, stats, report) -> bool:
+def embed_all_fonts(container: Container, stats: StatsCollector, report: Report) -> bool:
     all_font_rules = tuple(stats.all_font_rules.values())
-    warned = set()
-    rules, nrules = [], {}
-    modified = set()
+    warned: set[str | tuple[str | int | None, ...]] = set()
+    rules: list[EmbeddedFontRule] = []
+    nrules: dict[tuple[str | None, ...], EmbeddedFontRule] = {}
+    modified: set[str] = set()
 
     for path in container.spine_items:
         name = container.abspath_to_name(path)
         fu = stats.font_usage_map.get(name, None)
         fs = stats.font_spec_map.get(name, None)
         fr = stats.font_rule_map.get(name, None)
-        if None in (fs, fu, fr):
+        if fs is None or fu is None or fr is None:
             continue
         fs = {icu_lower(x) for x in fs}
         for font in fu.values():
@@ -244,21 +261,21 @@ def embed_all_fonts(container, stats, report) -> bool:
         return False
 
     # Write out CSS
-    rules = [
+    rule_texts = [
         ';\n\t'.join(
             '{}: {}'.format(k, f'"{v}"' if k == 'font-family' else v) for k, v in rulel.items() if (k in props and props[k] != v and v != '400') or k == 'src'
         )
         for rulel in rules
     ]
-    css = '\n\n'.join([f'@font-face {{\n\t{r}\n}}' for r in rules])
+    css = '\n\n'.join([f'@font-face {{\n\t{r}\n}}' for r in rule_texts])
     item = container.generate_item('fonts.css', id_prefix='font_embed')
-    name = container.href_to_name(item.get('href'), container.opf_name)
+    name = cast('str', container.href_to_name(item.get('href'), container.opf_name))  # generated items always have a href
     with container.open(name, 'wb') as out:
         out.write(css.encode('utf-8'))
 
     # Add link to CSS in all files that need it
     for spine_name in modified:
-        root = container.parsed(spine_name)
+        root = cast('_Element', container.parsed(spine_name))  # spine items are HTML, parsed into lxml trees
         try:
             head = root.xpath('//*[local-name()="head"][1]')[0]
         except IndexError:
@@ -280,7 +297,7 @@ if __name__ == '__main__':
     default_log.filter_level = default_log.DEBUG
     inbook = sys.argv[-1]
     ebook = get_container(inbook, default_log)
-    report = []
+    report: list[str] = []
     stats = StatsCollector(ebook, do_embed=True)
     embed_all_fonts(ebook, stats, report.append)
     outbook, ext = inbook.rpartition('.')[0::2]

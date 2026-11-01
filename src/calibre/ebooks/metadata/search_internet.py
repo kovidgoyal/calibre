@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
 from urllib.parse import quote, quote_plus
 
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 AUTHOR_SEARCHES = {
     'goodreads': 'https://www.goodreads.com/book/author/{author}',
@@ -37,7 +41,7 @@ all_book_searches = BOOK_SEARCHES.__iter__
 all_author_searches = AUTHOR_SEARCHES.__iter__
 
 
-def qquote(val, use_plus=True):
+def qquote(val: str | bytes, use_plus: bool = True) -> str:
     if not isinstance(val, bytes):
         val = val.encode('utf-8', 'replace')
     ans = quote_plus(val) if use_plus else quote(val)
@@ -46,17 +50,17 @@ def qquote(val, use_plus=True):
     return ans
 
 
-def specialised_quote(template, val):
+def specialised_quote(template: str, val: str | bytes) -> str:
     return qquote(val, 'goodreads.com' not in template)
 
 
-def url_for(template, data):
+def url_for(template: str, data: Mapping[str, str | bytes]) -> str:
     return template.format(**{k: specialised_quote(template, v) for k, v in data.items()})
 
 
-def url_for_author_search(key, **kw):
+def url_for_author_search(key: str, **kw: str | bytes) -> str:
     return url_for(AUTHOR_SEARCHES[key], kw)
 
 
-def url_for_book_search(key, **kw):
+def url_for_book_search(key: str, **kw: str | bytes) -> str:
     return url_for(BOOK_SEARCHES[key], kw)

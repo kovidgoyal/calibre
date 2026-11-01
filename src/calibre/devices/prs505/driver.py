@@ -288,7 +288,10 @@ class PRS505(USBMS):
             debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
-        if metadata.thumbnail and metadata.thumbnail[-1]:
+        thumbnail = metadata.thumbnail
+        # (width, height, data) or None, see update_thumbnail() in gui2/device.py
+        assert thumbnail is None or isinstance(thumbnail, tuple)
+        if thumbnail and thumbnail[-1]:
             path = path.replace('/', os.sep)
             assert self._main_prefix is not None
             is_main = path.startswith(self._main_prefix)
@@ -312,5 +315,5 @@ class PRS505(USBMS):
                 os.makedirs(thumbnail_dir)
             cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
             with open(cpath, 'wb') as f:
-                f.write(metadata.thumbnail[-1])
+                f.write(thumbnail[-1])
             debug_print(f'Cover uploaded to: {cpath!r}')

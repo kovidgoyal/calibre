@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 
-def format_bytes(byts):
+def format_bytes(byts: bytes | bytearray) -> str:
     byts = bytearray(byts)
-    byts = [f'{b:x}' for b in byts]
-    return ' '.join(byts)
+    hexes = [f'{b:x}' for b in byts]
+    return ' '.join(hexes)

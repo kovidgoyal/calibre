@@ -16,6 +16,14 @@ from calibre.utils.config_base import prefs
 
 
 class Book(Book_):
+    # Set by template_to_attribute() in KOBOTOUCH.set_core_metadata() when
+    # the corresponding template is not None
+    subtitle: str
+    bookstats_pagecount: str
+    bookstats_wordcount: str
+    bookstats_timetoread_upper: str
+    bookstats_timetoread_lower: str
+
     def __init__(
         self,
         prefix: str,
@@ -34,7 +42,7 @@ class Book(Book_):
         # debug_print('Book::__init__ - title=', title)
         show_debug = title is not None and title.lower().find('xxxxx') >= 0
         if other is not None:
-            other.title = title
+            other.set('title', title)
             other.published_date = date
         if show_debug:
             debug_print('Book::__init__ - title=', title, 'authors=', authors)
@@ -83,7 +91,7 @@ class Book(Book_):
         self.kobo_bookstats: dict[str, object] = {}
 
         if thumbnail_name is not None:
-            self._thumbnail_value = ImageWrapper(thumbnail_name)
+            self.thumbnail = ImageWrapper(thumbnail_name)
 
         if show_debug:
             debug_print('Book::__init__ end - self=', self)

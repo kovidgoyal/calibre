@@ -1,21 +1,29 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from tinycss.fonts3 import parse_font, parse_font_family, serialize_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.normalize_css import normalize_font
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
 
+if TYPE_CHECKING:
+    from css_parser.css import CSSFontFaceRule, CSSStyleDeclaration, CSSStyleSheet
+    from lxml.etree import _Element
 
-def unquote(x):
+    from calibre.ebooks.oeb.polish.container import Container
+
+
+def unquote(x: str) -> str:
     if x and len(x) > 1 and x[0] == x[-1] and x[0] in ('"', "'"):
         x = x[1:-1]
     return x
 
 
-def font_family_data_from_declaration(style, families) -> None:
-    font_families = []
+def font_family_data_from_declaration(style: CSSStyleDeclaration, families: dict[str, bool]) -> None:
+    font_families: list[str] = []
     f = style.getProperty('font')
     if f is not None:
         f = normalize_font(f.propertyValue, font_family_as_list=True).get('font-family', None)
@@ -29,7 +37,7 @@ def font_family_data_from_declaration(style, families) -> None:
         families[f] = families.get(f, False)
 
 
-def font_family_data_from_sheet(sheet, families) -> None:
+def font_family_data_from_sheet(sheet: CSSStyleSheet, families: dict[str, bool]) -> None:
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
             font_family_data_from_declaration(rule.style, families)
@@ -40,14 +48,14 @@ def font_family_data_from_sheet(sheet, families) -> None:
                     families[f] = True
 
 
-def font_family_data(container):
-    families = {}
+def font_family_data(container: Container) -> dict[str, bool]:
+    families: dict[str, bool] = {}
     for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
-            sheet = container.parsed(name)
+            sheet = cast('CSSStyleSheet', container.parsed(name))  # CSS files are parsed into css_parser stylesheets
             font_family_data_from_sheet(sheet, families)
         elif mt in OEB_DOCS:
-            root = container.parsed(name)
+            root = cast('_Element', container.parsed(name))  # HTML files are parsed into lxml trees
             for style in root.xpath('//*[local-name() = "style"]'):
                 if style.text and style.get('type', 'text/css').lower() == 'text/css':
                     sheet = container.parse_css(style.text)
@@ -59,7 +67,7 @@ def font_family_data(container):
     return families
 
 
-def change_font_in_declaration(style, old_name, new_name=None):
+def change_font_in_declaration(style: CSSStyleDeclaration, old_name: str, new_name: str | None = None) -> bool:
     changed = False
     ff = style.getProperty('font-family')
     if ff is not None:
@@ -86,7 +94,7 @@ def change_font_in_declaration(style, old_name, new_name=None):
     return changed
 
 
-def remove_embedded_font(container, sheet, rule, sheet_name) -> None:
+def remove_embedded_font(container: Container, sheet: CSSStyleSheet, rule: CSSFontFaceRule, sheet_name: str) -> None:
     src = getattr(rule.style.getProperty('src'), 'value', None)
     if src is not None:
         if src.startswith('url('):
@@ -99,9 +107,9 @@ def remove_embedded_font(container, sheet, rule, sheet_name) -> None:
             container.remove_item(name)
 
 
-def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
+def change_font_in_sheet(container: Container, sheet: CSSStyleSheet, old_name: str, new_name: str | None, sheet_name: str) -> bool:
     changed = False
-    removals = []
+    removals: list[CSSFontFaceRule] = []
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
             changed |= change_font_in_declaration(rule.style, old_name, new_name)
@@ -117,7 +125,7 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
     return changed
 
 
-def change_font(container, old_name, new_name=None):
+def change_font(container: Container, old_name: str, new_name: str | None = None) -> bool:
     """
     Change a font family from old_name to new_name. Changes all occurrences of
     the font family in stylesheets, style tags and style attributes.
@@ -127,12 +135,12 @@ def change_font(container, old_name, new_name=None):
     changed = False
     for name, mt in tuple(container.mime_map.items()):
         if mt in OEB_STYLES:
-            sheet = container.parsed(name)
+            sheet = cast('CSSStyleSheet', container.parsed(name))  # CSS files are parsed into css_parser stylesheets
             if change_font_in_sheet(container, sheet, old_name, new_name, name):
                 container.dirty(name)
                 changed = True
         elif mt in OEB_DOCS:
-            root = container.parsed(name)
+            root = cast('_Element', container.parsed(name))  # HTML files are parsed into lxml trees
             for style in root.xpath('//*[local-name() = "style"]'):
                 if style.text and style.get('type', 'text/css').lower() == 'text/css':
                     sheet = container.parse_css(style.text)

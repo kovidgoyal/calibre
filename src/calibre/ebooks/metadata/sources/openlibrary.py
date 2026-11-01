@@ -2,9 +2,20 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+# annotations: the source plugins are downloaded and run by older calibre versions
+# using older Python, so annotations must not be evaluated at runtime
+from __future__ import absolute_import, annotations, division, print_function, unicode_literals
+
+from typing import TYPE_CHECKING
 
 from calibre.ebooks.metadata.sources.base import Source
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from threading import Event
+
+    from calibre.ebooks.metadata.sources.base import CoverQueue, Identifiers
+    from calibre.utils.logging import Log
 
 try:
     from calibre.utils.localization import _
@@ -22,7 +33,17 @@ class OpenLibrary(Source):
 
     OPENLIBRARY = 'https://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False) -> None:
+    def download_cover(
+        self,
+        log: Log,
+        result_queue: CoverQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+        get_best_cover: bool = False,
+    ) -> None:
         if identifiers is None:
             identifiers = {}
         if 'isbn' not in identifiers:

@@ -8,11 +8,18 @@ azw4 is essentially a PDF stuffed into a MOBI container.
 
 import os
 import re
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 
+if TYPE_CHECKING:
+    from optparse import Values
 
-def unwrap(stream, output_path) -> None:
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
+
+
+def unwrap(stream: IO[bytes], output_path: str) -> None:
     raw_data = stream.read()
     m = re.search(rb'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
     if m is None:
@@ -22,13 +29,13 @@ def unwrap(stream, output_path) -> None:
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         self.header = header
         self.stream = stream
         self.log = log
         self.options = options
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str:
         self.log.info('Extracting PDF from AZW4 Container...')
 
         self.stream.seek(0)

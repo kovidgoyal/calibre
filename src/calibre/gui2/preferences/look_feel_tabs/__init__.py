@@ -3,6 +3,7 @@
 
 import json
 from threading import Thread
+from typing import cast
 
 from qt.core import (
     QAbstractListModel,
@@ -126,10 +127,11 @@ class DefaultAuthorLink(QWidget):
                 assert isinstance(lv_model, _BooksModel)
                 book_id = lv_model.id(row)
                 mi = db.new_api.get_proxy_metadata(book_id)
+                authors = cast('tuple[str, ...]', mi.authors)  # ProxyMetadata attributes are typed as object
                 vals.append({
-                    'author': qquote(mi.authors[0]),
+                    'author': qquote(authors[0]),
                     'title': qquote(mi.title),
-                    'author_sort': qquote(mi.author_sort_map.get(mi.authors[0])),
+                    'author_sort': qquote(cast('str', mi.author_sort_map.get(authors[0]))),  # every author has an entry in author_sort_map
                 })
         d = TemplateDialog(parent=self, text=self.custom_url.text(), mi=vals, formatter=EvalFormatter)
         if d.exec() == QDialog.DialogCode.Accepted:

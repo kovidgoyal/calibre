@@ -25,7 +25,7 @@ class Colors:
     Change lines with color info from color numbers to the actual color names.
     """
 
-    def __init__(self, in_file, bug_handler, copy=None, run_level=1) -> None:
+    def __init__(self, in_file: str, bug_handler: type[Exception], copy: int | None = None, run_level: int = 1) -> None:
         """
         Required:
             'file'--file to parse
@@ -63,7 +63,7 @@ class Colors:
         self.__line_color_exp = re.compile(r'bdr-color_:(\d+)')
         # cw<bd<bor-par-to<nu<bdr-hair__|bdr-li-wid:0.50|bdr-sp-wid:1.00|bdr-color_:2
 
-    def __before_color_func(self, line) -> None:
+    def __before_color_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -79,7 +79,7 @@ class Colors:
             self.__state = 'in_color_table'
         self.__write_obj.write(line)
 
-    def __default_color_func(self, line) -> None:
+    def __default_color_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -91,7 +91,7 @@ class Colors:
         hex_num = line[-3:-1]
         self.__color_string += hex_num
 
-    def __blue_func(self, line) -> None:
+    def __blue_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -111,7 +111,7 @@ class Colors:
         self.__color_num += 1
         self.__color_string = '#'
 
-    def __in_color_func(self, line) -> None:
+    def __in_color_func(self, line: str) -> None:
         """
         Requires:
             line
@@ -134,7 +134,7 @@ class Colors:
             else:
                 action(line)
 
-    def __after_color_func(self, line) -> None:
+    def __after_color_func(self, line: str) -> None:
         """
         Check the to see if it contains color info. If it does, extract the
         number and look up the hex value in the color dictionary. If the color
@@ -178,7 +178,7 @@ class Colors:
             self.__write_obj.write(line)
         # cw<bd<bor-par-to<nu<bdr-hair__|bdr-li-wid:0.50|bdr-sp-wid:1.00|bdr-color_:2
 
-    def __sub_from_line_color(self, match_obj) -> str:
+    def __sub_from_line_color(self, match_obj: re.Match[str]) -> str:
         num = match_obj.group(1)
         try:
             num = int(num)
@@ -191,7 +191,7 @@ class Colors:
         hex_num = self.__figure_num(num)
         return f'bdr-color_:{hex_num}'
 
-    def __figure_num(self, num):
+    def __figure_num(self, num: int) -> str:
         if num == 0:
             hex_num = 'false'
         else:
@@ -203,7 +203,7 @@ class Colors:
                 raise self.__bug_handler(msg)
         return hex_num
 
-    def __do_nothing_func(self, line) -> None:
+    def __do_nothing_func(self, line: str) -> None:
         """
         Bad RTF will have text in the color table
         """

@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import suppress
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from css_parser.css import CSSRule
 from css_selectors import Select, SelectorError
@@ -89,7 +89,9 @@ def find_first_matching_rule(container, html_file_name, raw_html, class_data, ln
     target_elem = tags_on_line[len(tags) - 1]
     select = Select(root, ignore_inappropriate_pseudo_classes=True)
     for tag in root.iter('*'):
-        tn = barename(tag.tag)
+        tag_name = tag.tag
+        assert isinstance(tag_name, str)  # iter('*') only yields elements, which have str tags
+        tn = barename(tag_name)
         if tn == 'style' and tag.text and tag.get('type', 'text/css') == 'text/css':
             try:
                 sheet = container.parse_css(tag.text)
@@ -97,7 +99,7 @@ def find_first_matching_rule(container, html_file_name, raw_html, class_data, ln
                 continue
             res = find_first_rule_that_matches_elem(container, target_elem, select, class_name, sheet.cssRules, html_file_name)
             if res is not None:
-                return res._replace(style_tag_address=(int(tag.get(lnum_attr)), ['style']))
+                return res._replace(style_tag_address=(int(cast('str', tag.get(lnum_attr))), ['style']))  # parse() sets lnum_attr on all elements
         elif tn == 'link' and tag.get('href') and tag.get('rel', '').lower() == 'stylesheet':
             sname = container.href_to_name(tag.get('href'), html_file_name)
             try:

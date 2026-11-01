@@ -6,6 +6,7 @@ Convert an ODT file into a Open Ebook
 
 import logging
 import os
+from typing import IO, TYPE_CHECKING
 
 from css_parser import CSSParser
 from css_parser.css import CSSRule
@@ -22,9 +23,17 @@ from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from css_parser.css import CSSStyleRule
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.logging import Log
+    from calibre.utils.zipfile import ZipFile
+
 
 class Extract(ODF2XHTML):
-    def extract_pictures(self, zf) -> None:
+    def extract_pictures(self, zf: ZipFile) -> None:
         if not os.path.exists('Pictures'):
             os.makedirs('Pictures')
         base = os.path.abspath(os.getcwd())
@@ -39,7 +48,7 @@ class Extract(ODF2XHTML):
                 with open(dest, 'wb') as f:
                     f.write(data)
 
-    def apply_list_starts(self, root, log) -> None:
+    def apply_list_starts(self, root: _Element, log: Log) -> None:
         if not self.list_starts:
             return
         list_starts = frozenset(self.list_starts)
@@ -50,17 +59,16 @@ class Extract(ODF2XHTML):
                 val = self.list_starts[next(iter(found))]
                 ol.set('start', val)
 
-    def fix_markup(self, html, log):
+    def fix_markup(self, html: str, log: Log) -> bytes:
         root = safe_xml_fromstring(html)
         self.filter_css(root, log)
         self.extract_css(root, log)
         self.epubify_markup(root, log)
         self.apply_list_starts(root, log)
-        html = etree.tostring(root, encoding='utf-8', xml_declaration=True)
-        return html
+        return etree.tostring(root, encoding='utf-8', xml_declaration=True)
 
-    def extract_css(self, root, log) -> None:
-        ans = []
+    def extract_css(self, root: _Element, log: Log) -> None:
+        ans: list[str] = []
         for s in root.xpath('//*[local-name() = "style" and @type="text/css"]'):
             ans.append(s.text)
             s.getparent().remove(s)
@@ -80,7 +88,7 @@ class Extract(ODF2XHTML):
         with open('odfpy.css', 'wb') as f:
             f.write(css.encode('utf-8'))
 
-    def get_css_for_class(self, cls):
+    def get_css_for_class(self, cls: str) -> CSSStyleRule | None:
         if not cls:
             return None
         for rule in self._parsed_css.cssRules.rulesOfType(CSSRule.STYLE_RULE):
@@ -89,7 +97,7 @@ class Extract(ODF2XHTML):
                 if q == '.' + cls:
                     return rule
 
-    def epubify_markup(self, root, log) -> None:
+    def epubify_markup(self, root: _Element, log: Log) -> None:
         from calibre.ebooks.oeb.base import XHTML, XPath
 
         # Fix empty title tags
@@ -168,7 +176,7 @@ class Extract(ODF2XHTML):
                 style = div2.attrib['style']
                 div2.attrib['style'] = 'display:inline;' + style
 
-    def filter_css(self, root, log) -> None:
+    def filter_css(self, root: _Element, log: Log) -> None:
         style = root.xpath('//*[local-name() = "style" and @type="text/css"]')
         if style:
             style = style[0]
@@ -186,13 +194,13 @@ class Extract(ODF2XHTML):
                     if extra:
                         x.set('class', orig + ' ' + ' '.join(extra))
 
-    def do_filter_css(self, css):
+    def do_filter_css(self, css: str) -> tuple[str | bytes, dict[str, list[str]]]:
         from css_parser import parseString
         from css_parser.css import CSSRule
 
         sheet = parseString(css, validate=False)
         rules = list(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
-        sel_map = {}
+        sel_map: dict[str, list[str]] = {}
         count = 0
         for r in rules:
             # Check if we have only class selectors for this rule
@@ -211,7 +219,7 @@ class Extract(ODF2XHTML):
                 r.selectorText = '.' + replace_name
         return sheet.cssText, sel_map
 
-    def search_page_img(self, mi, log) -> None:
+    def search_page_img(self, mi: Metadata, log: Log) -> None:
         for frm in self.document.topnode.getElementsByType(odFrame):
             try:
                 if frm.getAttrNS(odTEXTNS, 'anchor-type') == 'page':
@@ -220,7 +228,7 @@ class Extract(ODF2XHTML):
             except ValueError:
                 pass
 
-    def filter_cover(self, mi, log) -> None:
+    def filter_cover(self, mi: Metadata, log: Log) -> None:
         # filter the Element tree (remove the detected cover)
         if mi.cover and mi.odf_cover_frame:
             for frm in self.document.topnode.getElementsByType(odFrame):
@@ -243,7 +251,7 @@ class Extract(ODF2XHTML):
                         log('Removed cover image paragraph from document...')
                         break
 
-    def filter_load(self, odffile, mi, log) -> None:
+    def filter_load(self, odffile: IO[bytes], mi: Metadata, log: Log) -> None:
         """This is an adaption from ODF2XHTML. It adds a step between
         load and parse of the document where the Element tree can be
         modified.
@@ -264,7 +272,7 @@ class Extract(ODF2XHTML):
         # parse the modified tree and generate xhtml
         self._walknode(self.document.topnode)
 
-    def __call__(self, stream, odir, log):
+    def __call__(self, stream: IO[bytes], odir: str, log: Log) -> str:
         from calibre.ebooks.metadata.odt import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.utils.zipfile import ZipFile
@@ -274,7 +282,7 @@ class Extract(ODF2XHTML):
         with CurrentDir(odir):
             log('Extracting ODT file...')
             stream.seek(0)
-            mi = get_metadata(stream, 'odt')
+            mi = get_metadata(stream, True)
             if not mi.title:
                 mi.title = _('Unknown')
             if not mi.authors:

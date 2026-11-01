@@ -5,24 +5,34 @@ import re
 import unicodedata
 from collections import defaultdict
 from io import BytesIO
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urldefrag
+
+from lxml import etree
 
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace, prefixname, urlnormalize
 
+if TYPE_CHECKING:
+    from collections.abc import Buffer
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
+
 
 class Buf(BytesIO):
-    def write(self, x) -> None:
+    def write(self, x: str | Buffer) -> int:
         if isinstance(x, str):
             x = x.encode('utf-8')
-        BytesIO.write(self, x)
+        return BytesIO.write(self, x)
 
 
 class Serializer:
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
-    def __init__(self, oeb, images, is_periodical, write_page_breaks_after_item=True) -> None:
+    def __init__(self, oeb: OEBBook, images: dict[str, int], is_periodical: bool, write_page_breaks_after_item: bool = True) -> None:
         """
         Write all the HTML markup in oeb into a single in memory buffer
         containing a single html document with links replaced by offsets into
@@ -74,18 +84,20 @@ class Serializer:
             item.is_section_start = item.is_section_end = False
             item.is_article_start = item.is_article_end = False
 
-        def spine_item(tocitem):
+        def spine_item(tocitem: TOC) -> Manifest.Item | None:
             href = urldefrag(tocitem.href)[0]
             for item in self.oeb.spine:
                 if item.href == href:
                     return item
 
-        for item in self.oeb.toc.iterdescendants():
-            if item.klass == 'section':
-                articles = list(item)
+        for node in self.oeb.toc.iterdescendants():
+            if node.klass == 'section':
+                articles = list(node)
                 if not articles:
                     continue
-                spine_item(item).is_section_start = True
+                si = spine_item(node)
+                if si is not None:
+                    si.is_section_start = True
                 for i, article in enumerate(articles):
                     si = spine_item(article)
                     if si is not None:
@@ -113,7 +125,7 @@ class Serializer:
 
         item.is_section_end = item.is_article_end = True
 
-    def __call__(self):
+    def __call__(self) -> bytes:
         """
         Return the document serialized as a single UTF-8 encoded bytestring.
         """
@@ -175,7 +187,7 @@ class Serializer:
 
         buf.write(b'</guide>')
 
-    def serialize_href(self, href, base=None) -> bool:
+    def serialize_href(self, href: str, base: Manifest.Item | None = None) -> bool:
         '''
         Serialize the href attribute of an <a> or <reference> tag. It is
         serialized as filepos="000000000" and a pointer to its location is
@@ -214,7 +226,7 @@ class Serializer:
         """
         buf = self.buf
 
-        def serialize_toc_level(tocref, href=None) -> None:
+        def serialize_toc_level(tocref: TOC, href: str | None = None) -> None:
             # add the provided toc level to the output stream
             # if href is provided add a link ref to the toc level output (e.g. feed_0/index.html)
             if href is not None:
@@ -228,7 +240,8 @@ class Serializer:
                 t = tocref.title
                 if isinstance(t, str):
                     t = t.encode('utf-8')
-                buf.write(b'<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t + b'</b></font></h2> <div height="1em"></div>')
+                # section and periodical TOC nodes always have titles
+                buf.write(b'<div></div> <div> <h2 height="1em"><font size="+2"><b>' + cast('bytes', t) + b'</b></font></h2> <div height="1em"></div>')
 
             buf.write(b'<ul>')
 
@@ -240,14 +253,15 @@ class Serializer:
                     # For periodical tocs, the section urls are like r'feed_\d+/index.html'
                     # We don't want to point to the start of the first article
                     # so we change the href.
-                    itemhref = re.sub(r'article_\d+/', '', itemhref)
+                    # section nodes of periodicals always have an href
+                    itemhref = re.sub(r'article_\d+/', '', cast('str', itemhref))
                 self.href_offsets[itemhref].append(buf.tell())
                 buf.write(b'0000000000')
                 buf.write(b' ><font size="+1"><b><u>')
                 t = tocitem.title
                 if isinstance(t, str):
                     t = t.encode('utf-8')
-                buf.write(t)
+                buf.write(cast('bytes', t))  # periodical TOC nodes always have titles
                 buf.write(b'</u></b></font></a></li>')
 
             buf.write(b'</ul><div height="1em"></div></div><mbp:pagebreak />')
@@ -278,7 +292,7 @@ class Serializer:
         self.body_end_offset = buf.tell()
         buf.write(b'</body>')
 
-    def serialize_item(self, item) -> None:
+    def serialize_item(self, item: Manifest.Item) -> None:
         """
         Serialize an individual item from the spine of the input document.
         A reference to this item is stored in self.href_offsets
@@ -291,7 +305,11 @@ class Serializer:
             buf.write(b'<a ></a> ')
         if item.is_article_start:
             buf.write(b'<a ></a> <a ></a>')
-        for elem in item.data.find(XHTML('body')):
+        root = item.data
+        assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+        body = root.find(XHTML('body'))
+        assert body is not None
+        for elem in body:
             self.serialize_elem(elem, item)
         if self.write_page_breaks_after_item:
             buf.write(b'<mbp:pagebreak/>')
@@ -302,9 +320,9 @@ class Serializer:
             buf.write(b' <a ></a>')
         self.anchor_offset = None
 
-    def serialize_elem(self, elem, item, nsrmap=NSRMAP) -> None:
+    def serialize_elem(self, elem: _Element, item: Manifest.Item, nsrmap: dict[str, str | None] = NSRMAP) -> None:
         buf = self.buf
-        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) not in nsrmap:
+        if not isinstance(elem.tag, str) or namespace(elem.tag) not in nsrmap:
             return
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
@@ -352,7 +370,7 @@ class Serializer:
                     self.serialize_text(child.tail)
         buf.write((f'</{tag}>').encode())
 
-    def serialize_text(self, text, quot=False) -> None:
+    def serialize_text(self, text: str, quot: bool = False) -> None:
         text = text.replace('&', '&amp;')
         text = text.replace('<', '&lt;')
         text = text.replace('>', '&gt;')

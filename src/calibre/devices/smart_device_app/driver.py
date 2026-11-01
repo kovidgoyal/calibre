@@ -607,6 +607,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if mdata.tags and _('News') in mdata.tags:
             try:
                 p = mdata.pubdate
+                assert p is not None  # failures are handled below
                 date = (p.year, p.month, p.day)
             except Exception:
                 today = time.localtime()
@@ -683,7 +684,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         for k, v in arg.items():
             if isinstance(v, (Book, Metadata)):
                 res[k] = encoded = self.json_codec.encode_book_metadata(v)
-                series = v.get('series', None)
+                series = v.series
                 if series:
                     tsorder = tweaks['save_template_title_series_sorting']
                     series = title_sort(series, order=tsorder)
@@ -904,7 +905,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     b_thumb = book.get('thumbnail', None)
                     if bool(v_thumb) != bool(b_thumb):
                         return False
-                    return not v_thumb or v_thumb[1] == b_thumb[1]
+                    if not v_thumb:
+                        return True
+                    # (width, height, data)
+                    assert isinstance(v_thumb, Sequence) and isinstance(b_thumb, Sequence)
+                    return v_thumb[1] == b_thumb[1]
         except Exception:
             traceback.print_exc()
         return False
@@ -915,7 +920,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 metadata = b['book']
                 if metadata.get('uuid', '') != uuid:
                     continue
-                if metadata.get('lpath', '').endswith(ext):
+                lpath = metadata.lpath
+                assert lpath is not None  # failures are handled below
+                if lpath.endswith(ext):
                     return metadata
         except Exception:
             traceback.print_exc()
@@ -954,10 +961,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         book = json.loads(raw.decode('utf-8'), object_hook=from_json)
                         key = list(book.keys())[0]
                         metadata = self.json_codec.raw_to_book(book[key]['book'], SDBook, self.PREFIX)
+                        assert metadata is not None  # raw_to_book() returns None on failure, handled by the except below
                         book[key]['book'] = metadata
                         self.device_book_cache.update(book)
 
-                        lpath = metadata.get('lpath')
+                        lpath = metadata.lpath
+                        assert lpath is not None  # failures are handled below
                         self.known_metadata[lpath] = metadata
                         count += 1
             self._debug('loaded', count, 'cache items')
@@ -1013,8 +1022,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.utils.date import now
 
         lpath = book.lpath
+        assert lpath is not None  # device books always have an lpath
         ext = os.path.splitext(lpath)[1]
-        uuid = book.get('uuid', None)
+        uuid = book.uuid
 
         if self.client_cache_uses_lpaths:
             key = self._make_metadata_cache_key(uuid, lpath)
@@ -1029,6 +1039,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # Must try both the extension and the lpath because of the cache change
             existing_uuid = self.known_metadata.get(lpath, {}).get('uuid', None)
             if existing_uuid and existing_uuid != uuid:
+                assert isinstance(existing_uuid, str)
                 self.device_book_cache.pop(self._make_metadata_cache_key(existing_uuid, ext), None)
                 self.device_book_cache.pop(self._make_metadata_cache_key(existing_uuid, lpath), None)
 
@@ -1506,7 +1517,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     for lpath in tuple(self.known_metadata):
                         if lpath not in lpaths_on_device:
                             try:
-                                uuid = self.known_metadata[lpath].get('uuid', None)
+                                uuid = self.known_metadata[lpath].uuid
                                 if uuid is not None:
                                     key = self._make_metadata_cache_key(uuid, lpath)
                                     self.device_book_cache.pop(key, None)
@@ -1533,6 +1544,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         if '_series_sort_' in result:
                             del result['_series_sort_']
                         book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
+                        assert book is not None  # raw_to_book() returns None on failure, handled by the except below
                         book.set('_is_read_', result.get('_is_read_', None))
                         book.set('_sync_type_', result.get('_sync_type_', None))
                         book.set('_last_read_date_', result.get('_last_read_date_', None))
@@ -1830,7 +1842,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if not hasattr(book, '_format_mtime_'):
                 return None, False
 
-            ext = posixpath.splitext(book.lpath)[1][1:]
+            lpath = book.lpath
+            assert lpath is not None  # failures are handled below
+            ext = posixpath.splitext(lpath)[1][1:]
             fmt_metadata = db.new_api.format_metadata(id_, ext)
             if fmt_metadata:
                 calibre_mtime = fmt_metadata['mtime']
@@ -1842,11 +1856,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         self._show_message(_('You have book formats in your library with dates in the future. See calibre for details'))
                     return None, True
 
-                cc_mtime = parse_date(book.get('_format_mtime_'), as_utc=True)
+                format_mtime = book.get('_format_mtime_')
+                assert format_mtime is None or isinstance(format_mtime, (str, bytes))  # an ISO date string from the device
+                cc_mtime = parse_date(format_mtime, as_utc=True)
                 self._debug(book.title, 'cal_mtime', calibre_mtime, 'cc_mtime', cc_mtime)
                 if cc_mtime < calibre_mtime:
                     book.set('_format_mtime_', isoformat(now))
-                    return posixpath.basename(book.lpath), False
+                    return posixpath.basename(lpath), False
         except Exception:
             self._debug('exception checking if must send format', book.title)
             traceback.print_exc()
@@ -1911,7 +1927,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         if hasattr(book_metadata, '_last_read_date_'):
             # parse_date returns UNDEFINED_DATE if the value is None
-            is_read_date = parse_date(book_metadata.get('_last_read_date_', None))
+            last_read_date = book_metadata.get('_last_read_date_', None)
+            assert last_read_date is None or isinstance(last_read_date, (str, bytes))  # an ISO date string from the device
+            is_read_date = parse_date(last_read_date)
             if is_date_undefined(is_read_date):
                 is_read_date = None
             has_is_read_date = True
@@ -2012,7 +2030,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             if has_is_read_date and self.is_read_date_sync_col:
                 try:
+                    from datetime import date
+
                     orig_is_read_date = book_metadata.get(self.is_read_date_sync_col, None)
+                    assert orig_is_read_date is None or isinstance(orig_is_read_date, date)  # a datetime column
                     if is_date_undefined(orig_is_read_date):
                         orig_is_read_date = None
 

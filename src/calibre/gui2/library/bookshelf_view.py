@@ -1048,7 +1048,7 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
         books_in_group = (get_books_in_group(group) & all_book_ids) - seen  # type: ignore
         if books_in_group:
             seen |= books_in_group
-            yield formatter(field_id_map[group]), sorted(books_in_group, key=sort_map.__getitem__)
+            yield formatter(field_id_map[group]), sorted(books_in_group, key=sort_map.__getitem__)  # ty: ignore[invalid-argument-type] formatter matches the field's id map values
     if ungrouped_name and (leftover := all_book_ids - seen):
         yield ungrouped_name, sorted(leftover, key=sort_map.__getitem__)
 

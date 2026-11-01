@@ -2,10 +2,17 @@
 
 import io
 import os
+from typing import TYPE_CHECKING
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class HTMLZOutput(OutputFormatPlugin):
@@ -47,7 +54,7 @@ class HTMLZOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         output_path = output
         from lxml import etree
 
@@ -95,9 +102,12 @@ class HTMLZOutput(OutputFormatPlugin):
                 for item in oeb_book.manifest:
                     if item.media_type in OEB_IMAGES and item.href in images:
                         if item.media_type == SVG_MIME:
-                            data = etree.tostring(item.data, encoding='unicode').encode('utf-8')
+                            svg = item.data
+                            assert isinstance(svg, etree._Element)
+                            data = etree.tostring(svg, encoding='unicode').encode('utf-8')
                         else:
                             data = item.data
+                            assert isinstance(data, bytes)
                         fname = os.path.join(tdir, 'images', images[item.href])
                         with open(fname, 'wb') as img:
                             img.write(data)
@@ -107,6 +117,7 @@ class HTMLZOutput(OutputFormatPlugin):
                 for item in oeb_book.manifest:
                     if item.href in htmlizer.fonts:
                         data = item.data
+                        assert isinstance(data, bytes)
                         fname = os.path.join(tdir, 'fonts', htmlizer.fonts[item.href])
                         with open(fname, 'wb') as f:
                             f.write(data)
@@ -117,9 +128,11 @@ class HTMLZOutput(OutputFormatPlugin):
                 cover_data = None
                 if oeb_book.metadata.cover:
                     term = oeb_book.metadata.cover[0].term
-                    cover_data = oeb_book.guide[term].item.data
+                    cover_data = oeb_book.guide[term].item.data  # ty: ignore[unresolved-attribute] a missing item raises, which is caught below
                 if cover_data:
                     from calibre.utils.img import save_cover_data_to
+
+                    assert isinstance(cover_data, bytes)  # an AssertionError is caught and logged below
 
                     cover_path = os.path.join(tdir, 'cover.jpg')
                     with open(cover_path, 'w') as cf:

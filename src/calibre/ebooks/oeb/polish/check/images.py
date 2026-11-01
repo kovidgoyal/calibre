@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from PIL import Image
 
@@ -11,13 +12,16 @@ from calibre.ebooks.oeb.polish.check.parsing import EmptyFile
 from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.container import Container
+
 
 class InvalidImage(BaseError):
     RULE_NAME = _('Invalid image')
     HELP = _('An invalid image is an image that could not be loaded, typically because it is corrupted. You should replace it with a good image or remove it.')
 
-    def __init__(self, msg, *args, **kwargs) -> None:
-        BaseError.__init__(self, 'Invalid image: ' + msg, *args, **kwargs)
+    def __init__(self, msg: str, name: str, line: int | None = None, col: int | None = None) -> None:
+        BaseError.__init__(self, 'Invalid image: ' + msg, name, line, col)
 
 
 class CMYKImage(BaseError):
@@ -29,7 +33,7 @@ class CMYKImage(BaseError):
     INDIVIDUAL_FIX = _('Convert image to RGB automatically')
     level = WARN
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         from qt.core import QImage
 
         from calibre.gui2 import pixmap_to_data
@@ -53,10 +57,10 @@ class CMYKImage(BaseError):
         return True
 
 
-def check_raster_images(name, mt, raw):
+def check_raster_images(name: str, mt: str, raw: bytes) -> list[BaseError]:
     if not raw:
         return [EmptyFile(name)]
-    errors = []
+    errors: list[BaseError] = []
     try:
         i = Image.open(BytesIO(raw))
     except Exception as e:

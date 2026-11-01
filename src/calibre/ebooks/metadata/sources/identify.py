@@ -10,11 +10,12 @@ from datetime import datetime
 from io import StringIO
 from operator import attrgetter
 from threading import Thread
+from typing import TYPE_CHECKING, overload
 
 from calibre.customize.ui import all_metadata_plugins, metadata_plugins
 from calibre.ebooks.metadata import authors_to_sort_string, check_issn
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.sources.base import create_log
+from calibre.ebooks.metadata.sources.base import Source, create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.utils.date import UNDEFINED_DATE, as_utc, utc_tz
@@ -26,15 +27,44 @@ from polyglot.builtins import as_unicode, iteritems, itervalues
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import quote, urlparse
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Mapping, Sequence
+    from threading import Event
+    from typing import TypedDict
+
+    from calibre.ebooks.metadata.sources.base import Identifiers, IdentifyQueue
+    from calibre.ebooks.metadata.sources.test import IdentifyTest
+    from calibre.utils.logging import Log
+
+    class IdentifyKwargs(TypedDict):
+        title: str | None
+        authors: Sequence[str] | None
+        identifiers: Identifiers
+        timeout: float
+
+    #: (name, identifier type, identifier value, URL)
+    type IdentifierURL = tuple[str, str, str, str]
+
+#: (earliest publication year, results) for a pool of equivalent ISBNs
+type ISBNPool = tuple[int | None, list[Metadata]]
+
+
+def identify_plugin(result: Metadata) -> Source:
+    ans = result.identify_plugin
+    assert isinstance(ans, Source)  # set on every result by identify()
+    return ans
+
+
 # Download worker {{{
 
 
 class Worker(Thread):
-    def __init__(self, plugin, kwargs, abort) -> None:
+    def __init__(self, plugin: Source, kwargs: IdentifyKwargs, abort: Event) -> None:
         Thread.__init__(self)
         self.daemon = True
 
-        self.plugin, self.kwargs, self.rq = plugin, kwargs, Queue()
+        self.rq: IdentifyQueue = Queue()
+        self.plugin, self.kwargs = plugin, kwargs
         self.abort = abort
         self.buf = StringIO()
         self.log = create_log(self.buf)
@@ -48,11 +78,11 @@ class Worker(Thread):
         self.plugin.dl_time_spent = time.time() - start
 
     @property
-    def name(self):  # ty: ignore[invalid-property-type-override]
+    def name(self) -> str:  # ty: ignore[invalid-property-type-override]
         return self.plugin.name
 
 
-def is_worker_alive(workers):
+def is_worker_alive(workers: Iterable[Worker]) -> bool:
     return any(w.is_alive() for w in workers)
 
 
@@ -62,7 +92,7 @@ def is_worker_alive(workers):
 CAMOUFOX_WAIT_AFTER_FIRST_RESULT = 120  # seconds
 
 
-def wait_after_first_result(plugin, wait_time):
+def wait_after_first_result(plugin: Source, wait_time: float) -> float:
     if getattr(plugin, 'uses_camoufox_worker', False):
         return max(wait_time, CAMOUFOX_WAIT_AFTER_FIRST_RESULT)
     return wait_time
@@ -74,13 +104,14 @@ def wait_after_first_result(plugin, wait_time):
 
 
 class xISBN(Thread):
-    def __init__(self, isbn) -> None:
+    def __init__(self, isbn: str) -> None:
         Thread.__init__(self)
         self.isbn = isbn
-        self.isbns = frozenset()
-        self.min_year = None
+        self.isbns: frozenset[str] = frozenset()
+        self.min_year: int | None = None
         self.daemon = True
-        self.exception = self.tb = None
+        self.exception: Exception | None = None
+        self.tb: list[str] | None = None
 
     def run(self) -> None:
         try:
@@ -93,27 +124,27 @@ class xISBN(Thread):
 
 
 class ISBNMerge:
-    def __init__(self, log) -> None:
-        self.pools = {}
-        self.isbnless_results = []
-        self.results = []
+    def __init__(self, log: Log) -> None:
+        self.pools: dict[frozenset[str], ISBNPool] = {}
+        self.isbnless_results: list[Metadata] = []
+        self.results: list[Metadata] = []
         self.log = log
         # The xISBN service has been de-commissioned
         # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
         self.use_xisbn = False
 
-    def isbn_in_pool(self, isbn):
+    def isbn_in_pool(self, isbn: str | None) -> ISBNPool | None:
         if isbn:
             for isbns, pool in iteritems(self.pools):
                 if isbn in isbns:
                     return pool
         return None
 
-    def pool_has_result_from_same_source(self, pool, result):
+    def pool_has_result_from_same_source(self, pool: ISBNPool, result: Metadata) -> bool:
         results = pool[1]
         return any(r.identify_plugin is result.identify_plugin for r in results)
 
-    def add_result(self, result) -> None:
+    def add_result(self, result: Metadata) -> None:
         isbn = result.isbn
         if isbn:
             pool = self.isbn_in_pool(isbn)
@@ -146,14 +177,14 @@ class ISBNMerge:
         else:
             self.isbnless_results.append(result)
 
-    def finalize(self):
+    def finalize(self) -> list[Metadata]:
         has_isbn_result = False
         for results in itervalues(self.pools):
             if results:
                 has_isbn_result = True
                 break
 
-        isbn_sources = frozenset()
+        isbn_sources: Collection[Source] = frozenset()
         if has_isbn_result:
             isbn_sources = self.merge_isbn_results()
 
@@ -161,13 +192,13 @@ class ISBNMerge:
         results = sorted(self.isbnless_results, key=attrgetter('relevance_in_source'))
         # Only use results that are from sources that have not also returned a
         # result with an ISBN
-        results = [r for r in results if r.identify_plugin not in isbn_sources or not r.identify_plugin.prefer_results_with_isbn]
+        results = [r for r in results if identify_plugin(r) not in isbn_sources or not identify_plugin(r).prefer_results_with_isbn]
         if results:
             # Pick only the most relevant result from each source
-            seen = set()
+            seen: set[Source] = set()
             for result in results:
                 if msprefs['keep_dups'] or result.identify_plugin not in seen:
-                    seen.add(result.identify_plugin)
+                    seen.add(identify_plugin(result))
                     self.results.append(result)
                     result.average_source_relevance = result.relevance_in_source
 
@@ -175,7 +206,7 @@ class ISBNMerge:
 
         return self.results
 
-    def merge_metadata_results(self, merge_on_identifiers=False) -> None:
+    def merge_metadata_results(self, merge_on_identifiers: bool = False) -> None:
         """
         Merge results with identical title and authors or an identical
         identifier
@@ -240,9 +271,9 @@ class ISBNMerge:
 
         self.results.sort(key=attrgetter('average_source_relevance'))
 
-    def merge_isbn_results(self):
+    def merge_isbn_results(self) -> set[Source]:
         self.results = []
-        sources = set()
+        sources: set[Source] = set()
         for min_year, results in itervalues(self.pools):
             if results:
                 for r in results:
@@ -252,7 +283,11 @@ class ISBNMerge:
         self.results.sort(key=attrgetter('average_source_relevance'))
         return sources
 
-    def length_merge(self, attr, results, null_value=None, shortest=True):
+    @overload
+    def length_merge[T](self, attr: str, results: Iterable[Metadata], null_value: T, shortest: bool = True) -> T: ...
+    @overload
+    def length_merge(self, attr: str, results: Iterable[Metadata], null_value: None = None, shortest: bool = True) -> object: ...
+    def length_merge(self, attr: str, results: Iterable[Metadata], null_value: object = None, shortest: bool = True) -> object:
         values = [getattr(x, attr) for x in results if not x.is_null(attr)]
         values = [x for x in values if len(x) > 0]
         if not values:
@@ -260,11 +295,15 @@ class ISBNMerge:
         values.sort(key=len, reverse=not shortest)
         return values[0]
 
-    def random_merge(self, attr, results, null_value=None):
+    @overload
+    def random_merge[T](self, attr: str, results: Iterable[Metadata], null_value: T) -> T: ...
+    @overload
+    def random_merge(self, attr: str, results: Iterable[Metadata], null_value: None = None) -> object: ...
+    def random_merge(self, attr: str, results: Iterable[Metadata], null_value: object = None) -> object:
         values = [getattr(x, attr) for x in results if not x.is_null(attr)]
         return values[0] if values else null_value
 
-    def merge(self, results, min_year, do_asr=True):
+    def merge(self, results: Sequence[Metadata], min_year: int | None, do_asr: bool = True) -> Metadata:
         ans = Metadata(_('Unknown'))
 
         # We assume the shortest title has the least cruft in it
@@ -310,6 +349,7 @@ class ISBNMerge:
                     ans.pubdate = r.pubdate
                     break
             if getattr(ans.pubdate, 'year', None) == min_year:
+                assert ans.pubdate is not None
                 min_date = datetime(min_year, ans.pubdate.month, ans.pubdate.day, tzinfo=utc_tz)
             else:
                 min_date = datetime(min_year, 1, 2, tzinfo=utc_tz)
@@ -334,7 +374,7 @@ class ISBNMerge:
         touched_fields = set()
         for r in results:
             if hasattr(r, 'identify_plugin'):
-                touched_fields |= r.identify_plugin.touched_fields
+                touched_fields |= identify_plugin(r).touched_fields
 
         for f in touched_fields:
             if f.startswith('identifier:') or not ans.is_null(f):
@@ -342,14 +382,18 @@ class ISBNMerge:
             setattr(ans, f, self.random_merge(f, results, null_value=getattr(ans, f)))
 
         if do_asr:
-            avg = [x.relevance_in_source for x in results]
-            avg = sum(avg) / len(avg)
+            relevances: list[int] = []
+            for x in results:
+                relevance = x.relevance_in_source
+                assert isinstance(relevance, int)  # set by identify()
+                relevances.append(relevance)
+            avg = sum(relevances) / len(relevances)
             ans.average_source_relevance = avg
 
         return ans
 
 
-def merge_identify_results(result_map, log):
+def merge_identify_results(result_map: Mapping[Source, Iterable[Metadata]], log: Log) -> list[Metadata]:
     isbn_merge = ISBNMerge(log)
     for plugin, results in iteritems(result_map):
         for result in results:
@@ -362,14 +406,14 @@ def merge_identify_results(result_map, log):
 
 
 def identify(
-    log,
-    abort,  # {{{
-    title=None,
-    authors=None,
-    identifiers=None,
-    timeout=30,
-    allowed_plugins=None,
-):
+    log: Log,
+    abort: Event,  # {{{
+    title: str | None = None,
+    authors: Sequence[str] | None = None,
+    identifiers: Identifiers | None = None,
+    timeout: float = 30,
+    allowed_plugins: Collection[str] | None = None,
+) -> list[Metadata]:
     if identifiers is None:
         identifiers = {}
     if title == _('Unknown'):
@@ -380,7 +424,7 @@ def identify(
 
     plugins = [p for p in metadata_plugins(['identify']) if p.is_configured() and (allowed_plugins is None or p.name in allowed_plugins)]
 
-    kwargs = {
+    kwargs: IdentifyKwargs = {
         'title': title,
         'authors': authors,
         'identifiers': identifiers,
@@ -397,12 +441,12 @@ def identify(
         w.start()
 
     first_result_at = None
-    results = {}
+    plugin_results: dict[Source, list[Metadata]] = {}
     for p in plugins:
-        results[p] = []
+        plugin_results[p] = []
     logs = {w.plugin: w.buf for w in workers}
 
-    def get_results():
+    def get_results() -> bool:
         found = False
         for w in workers:
             try:
@@ -410,7 +454,7 @@ def identify(
             except Empty:
                 pass
             else:
-                results[w.plugin].append(result)
+                plugin_results[w.plugin].append(result)
                 found = True
         return found
 
@@ -441,7 +485,7 @@ def identify(
             sort_kwargs.pop(k)
 
     longest, lp = -1, ''
-    for plugin, presults in iteritems(results):
+    for plugin, presults in iteritems(plugin_results):
         presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
 
         # Throw away lower priority results from the same source that have exactly the same
@@ -453,7 +497,7 @@ def identify(
             if key not in filter_results:
                 filtered_results.append(r)
                 filter_results.add(key)
-        results[plugin] = presults = filtered_results
+        plugin_results[plugin] = presults = filtered_results
 
         plog = logs[plugin].getvalue().strip()
         log('\n' + '*' * 30, plugin.name, '%s' % (plugin.version,), '*' * 30)
@@ -494,7 +538,7 @@ def identify(
     log('The longest time (%f) was taken by:' % longest, lp)
     log('Merging results from different sources')
     start_time = time.time()
-    results = merge_identify_results(results, log)
+    results = merge_identify_results(plugin_results, log)
 
     log('We have %d merged results, merging took: %.2f seconds' % (len(results), time.time() - start_time))
     tm_rules = msprefs['tag_map_rules']
@@ -509,7 +553,7 @@ def identify(
         am_rules = compile_rules(am_rules)
 
     # normalize unicode strings
-    def n(x):
+    def n(x: str | None) -> str:
         return unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
 
     for r in results:
@@ -542,7 +586,7 @@ def identify(
     if msprefs['swap_author_names']:
         for r in results:
 
-            def swap_to_ln_fn(a):
+            def swap_to_ln_fn(a: str) -> str:
                 if ',' in a:
                     return a
                 parts = a.split(None)
@@ -566,12 +610,12 @@ def identify(
 # }}}
 
 
-def urls_from_identifiers(identifiers, sort_results=False):  # {{{
+def urls_from_identifiers(identifiers: Mapping[str, str], sort_results: bool = False) -> list[IdentifierURL]:  # {{{
     identifiers = {k.lower(): v for k, v in iteritems(identifiers)}
-    ans = []
+    ans: list[IdentifierURL] = []
     keys_left = set(identifiers)
 
-    def add(name, k, val, url) -> None:
+    def add(name: str, k: str, val: str, url: str) -> None:
         ans.append((name, k, val, url))
         keys_left.discard(k)
 
@@ -633,7 +677,7 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
                 add(name, k, url, url)
     if sort_results:
 
-        def url_key(x):
+        def url_key(x: IdentifierURL) -> bytes:
             return primary_sort_key(str(x[0]))
 
         ans = sorted(ans, key=url_key)
@@ -643,11 +687,11 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
 # }}}
 
 
-def tests(start=0, limit=256) -> None:  # tests {{{
+def tests(start: int = 0, limit: int = 256) -> None:  # tests {{{
     # To run these test use: calibre-debug -c "from calibre.ebooks.metadata.sources.identify import tests; tests()"
     from calibre.ebooks.metadata.sources.test import authors_test, test_identify, title_test
 
-    tests = [
+    tests: list[IdentifyTest] = [
         (
             {'title': 'Magykal Papers', 'authors': ['Sage']},
             [title_test('Septimus Heap: The Magykal Papers', exact=True)],

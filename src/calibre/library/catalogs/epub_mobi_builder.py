@@ -2902,6 +2902,7 @@ class CatalogBuilder:
         # Insert the supplied title
         soup = BeautifulSoup(header)
         titleTag = soup.find('title')
+        assert isinstance(titleTag, Tag)  # header above always has a <title>
         titleTag.insert(0, NavigableString(title))
         return soup
 

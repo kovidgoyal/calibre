@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-from calibre.customize.conversion import OutputFormatPlugin
+from typing import TYPE_CHECKING
+
+from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class LITOutput(OutputFormatPlugin):
@@ -10,7 +18,7 @@ class LITOutput(OutputFormatPlugin):
     file_type = 'lit'
     commit_name = 'lit_output'
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         oeb = oeb_book
         output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb

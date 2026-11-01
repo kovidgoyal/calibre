@@ -5,18 +5,50 @@ import io
 import os
 from contextlib import closing
 from posixpath import basename
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre.customize import FileTypePlugin
 from calibre.utils.localization import _, canonicalize_lang
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import TypedDict
 
-def is_comic(list_of_names):
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    class ComicBookInfoCredit(TypedDict, total=False):
+        person: str
+        role: str
+        primary: bool
+
+    class ComicBookInfo(TypedDict, total=False):
+        """See https://code.google.com/archive/p/comicbookinfo/wikis/Example.wiki"""
+
+        series: str
+        title: str
+        publisher: str
+        publicationMonth: int
+        publicationYear: int
+        issue: int
+        numberOfIssues: int
+        volume: int
+        numberOfVolumes: int
+        rating: float
+        genre: str
+        language: str
+        country: str
+        credits: list[ComicBookInfoCredit]
+        tags: list[str]
+        comments: str
+
+
+def is_comic(list_of_names: Iterable[str]) -> bool:
     extensions = {x.rpartition('.')[-1].lower() for x in list_of_names if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'}
     comic_extensions = {'jpg', 'jpeg', 'png'}
     return len(extensions - comic_extensions) == 0
 
 
-def archive_type(stream):
+def archive_type(stream: IO[bytes]) -> str | None:
     from calibre.utils.zipfile import stringFileHeader
 
     try:
@@ -46,7 +78,7 @@ class KPFExtract(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def run(self, path_to_ebook):
+    def run(self, path_to_ebook: str) -> str:
         from calibre.utils.zipfile import ZipFile
 
         with ZipFile(path_to_ebook, 'r') as zf:
@@ -61,18 +93,18 @@ class KPFExtract(FileTypePlugin):
 
 
 class RAR:
-    def __init__(self, archive) -> None:
+    def __init__(self, archive: str | IO[bytes]) -> None:
         self.archive = archive
 
     def close(self) -> None:
         pass
 
-    def namelist(self):
+    def namelist(self) -> list[str]:
         from calibre.utils.unrar import names
 
         return list(names(self.archive))
 
-    def read(self, fname):
+    def read(self, fname: str) -> bytes:
         from calibre.utils.unrar import extract_member
 
         res = extract_member(self.archive, match=None, name=fname)
@@ -82,25 +114,25 @@ class RAR:
 
 
 class SevenZip:
-    def __init__(self, archive) -> None:
+    def __init__(self, archive: str | IO[bytes]) -> None:
         from py7zr import SevenZipFile
 
         self.zf = SevenZipFile(archive, 'r')
 
-    def namelist(self):
+    def namelist(self) -> list[str]:
         return list(self.zf.getnames())
 
     def close(self) -> None:
         self.zf.close()
 
-    def read(self, fname):
+    def read(self, fname: str) -> bytes:
         from py7zr import WriterFactory
 
         class MemoryFactory(WriterFactory):
             def __init__(self) -> None:
-                self.buffers = {}
+                self.buffers: dict[str, io.BytesIO] = {}
 
-            def create(self, filename):
+            def create(self, filename: str) -> io.BytesIO:  # ty: ignore[invalid-method-override] BytesIO is duck type compatible with Py7zIO
                 # Create an in-memory BytesIO stream for the file
                 self.buffers[filename] = io.BytesIO()
                 return self.buffers[filename]
@@ -112,7 +144,7 @@ class SevenZip:
         return target_buffer.getvalue()
 
 
-def fname_ok(fname) -> bool:
+def fname_ok(fname: str) -> bool:
     fname = fname.replace('\\', '/')
     bn = basename(fname).lower()
     if bn == 'thumbs.db':
@@ -134,7 +166,7 @@ class ArchiveExtract(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def run(self, path_to_ebook):
+    def run(self, path_to_ebook: str) -> str:
         import shutil
 
         q = path_to_ebook.lower()
@@ -190,7 +222,7 @@ class ArchiveExtract(FileTypePlugin):
             return of.name
 
 
-def get_comic_book_info(d, mi, series_index='volume') -> None:
+def get_comic_book_info(d: ComicBookInfo, mi: Metadata, series_index: str = 'volume') -> None:
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     series = d.get('series', '')
     if series.strip():
@@ -204,7 +236,7 @@ def get_comic_book_info(d, mi, series_index='volume') -> None:
             except Exception:
                 mi.series_index = 1
     if d.get('language', None):
-        lang = canonicalize_lang(d.get('lang'))
+        lang = canonicalize_lang(d.get('language'))
         if lang:
             mi.languages = [lang]
     if d.get('rating', -1) > -1:
@@ -216,7 +248,7 @@ def get_comic_book_info(d, mi, series_index='volume') -> None:
     tags = d.get('tags', [])
     if tags:
         mi.tags = tags
-    authors = []
+    authors: list[str] = []
     for credit in d.get('credits', []):
         if credit.get('role', '') in ('Writer', 'Artist', 'Cartoonist', 'Creator'):
             x = credit.get('person', '')
@@ -242,7 +274,7 @@ def get_comic_book_info(d, mi, series_index='volume') -> None:
             pass
 
 
-def parse_comic_comment(comment, series_index='volume'):
+def parse_comic_comment(comment: str | bytes, series_index: str = 'volume') -> Metadata:
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     import json
 
@@ -258,7 +290,7 @@ def parse_comic_comment(comment, series_index='volume'):
     return mi
 
 
-def get_comic_metadata(stream, stream_type, series_index='volume'):
+def get_comic_metadata(stream: IO[bytes], stream_type: str, series_index: str = 'volume') -> Metadata:
     comment = None
     if stream_type == 'cbz':
         from calibre.utils.zipfile import ZipFile
@@ -273,7 +305,7 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
     return parse_comic_comment(comment or b'{}', series_index=series_index)
 
 
-def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based indexing
+def get_comic_images(path: str, tdir: str, first: int = 1, last: int = 0) -> int:  # first and last use 1 based indexing
     from functools import partial
 
     with open(path, 'rb') as f:
@@ -299,7 +331,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
         last = len(pages)
     pages = pages[first - 1 : last]
 
-    def make_filename(num, ext) -> str:
+    def make_filename(num: int, ext: str) -> str:
         return f'{num:08d}{ext}'
 
     if fmt == 'rar':
@@ -308,12 +340,12 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
 
         current = None
 
-        def callback(x) -> bool | None:
+        def callback(x: dict[str, object] | bytes | bool) -> bool | None:
             nonlocal current
             if isinstance(x, dict):
                 if current is not None:
                     current.close()
-                fname = x['filename']
+                fname = cast('str', x['filename'])  # the filename in an unrar header is a str
                 if fname in all_pages:
                     ext = os.path.splitext(fname)[1]
                     num = all_pages[fname]

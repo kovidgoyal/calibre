@@ -105,6 +105,7 @@ def create_upload_path(
     if mdata.tags and _('News') in mdata.tags:
         try:
             p = mdata.pubdate
+            assert p is not None  # failures are handled below
             date = (p.year, p.month, p.day)
         except Exception:
             today = time.localtime()

@@ -3,13 +3,17 @@
 """Read meta information from IMP files"""
 
 import sys
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
 MAGIC = (b'\x00\x01BOOKDOUG', b'\x00\x02BOOKDOUG')
 
 
-def get_metadata(stream):
+def get_metadata(stream: IO[bytes]) -> Metadata:
     """Return metadata as a L{MetaInfo} object"""
     title = 'Unknown'
     mi = MetaInformation(title, ['Unknown'])
@@ -19,7 +23,7 @@ def get_metadata(stream):
             print("Couldn't read IMP header from file", file=sys.stderr)
             return mi
 
-        def cString(skip=0):
+        def cString(skip: int = 0) -> str:
             result = b''
             while 1:
                 data = stream.read(1)

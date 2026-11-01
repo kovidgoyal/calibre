@@ -99,7 +99,7 @@ hex_pat = re.compile(r'#(\d{2})(\d{2})(\d{2})')
 rgb_pat = re.compile(r'rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)', re.IGNORECASE)
 
 
-def lrs_color(html_color):
+def lrs_color(html_color: str) -> str:
     hcol = html_color.lower()
     match = hex_pat.search(hcol)
     if match:

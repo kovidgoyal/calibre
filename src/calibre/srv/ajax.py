@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterable, Mapping
 from functools import partial
 from itertools import cycle
 from typing import TYPE_CHECKING, cast
@@ -92,7 +93,9 @@ def book_to_json(
     codec = JsonCodec(db.field_metadata)
     if not device_compatible:
         try:
-            mi.rating = mi.rating / 2.0
+            rating = mi.rating
+            assert rating is not None  # None is handled below
+            mi.rating = rating / 2.0
         except Exception:
             mi.rating = 0.0
     data = codec.encode_book_metadata(mi)
@@ -104,7 +107,9 @@ def book_to_json(
     data['thumbnail'] = get(what='thumb')
 
     if not device_compatible:
-        mi.format_metadata = {k.lower(): dict(v) for k, v in mi.format_metadata.items()}
+        format_metadata = mi.format_metadata
+        assert isinstance(format_metadata, Mapping)  # set by Cache.get_metadata()
+        mi.format_metadata = {k.lower(): dict(v) for k, v in format_metadata.items()}
         for v in mi.format_metadata.values():
             mtime = v.get('mtime', None)
             if mtime is not None:
@@ -135,6 +140,7 @@ def book_to_json(
                     categories = mi.get(key) or []
                     if isinstance(categories, (str, bytes)):
                         categories = [categories]
+                    assert isinstance(categories, Iterable)  # the values of category fields are lists, strings or dicts
                     category_urls[key] = dbtags = {}
                     for category in categories:
                         for tag in all_cats.get(key, ()):
@@ -147,7 +153,7 @@ def book_to_json(
                                 )
                                 break
     else:
-        series = data.get('series', None) or ''
+        series = cast('str | None', data.get('series', None)) or ''  # series is encoded as a string
         if series:
             tsorder = tweaks['save_template_title_series_sorting']
             series = title_sort(series, order=tsorder)
@@ -165,6 +171,7 @@ def book_to_json(
                     data['_filename_'] = create_upload_path(mi, str(book_id), template, sanitize, path_type=posixpath)
                     break
 
+    assert mi.last_modified is not None  # Cache.get_metadata() always sets it
     return data, mi.last_modified
 
 

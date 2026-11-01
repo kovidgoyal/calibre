@@ -8,6 +8,7 @@ import sys
 import time
 from compression import bz2
 from threading import Thread
+from typing import TYPE_CHECKING, cast
 
 import calibre.ebooks.metadata.sources.search_engines as builtin_search_engines
 from calibre import as_unicode, prints
@@ -18,59 +19,63 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.https import get_https_resource_securely
 from polyglot.builtins import iteritems, itervalues
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from types import ModuleType
+
 cache = JSONConfig('metadata-sources-cache.json')
 
 UPDATE_INTERVAL = 12 * 60 * 60
 
-current_search_engines = builtin_search_engines
+current_search_engines: ModuleType = builtin_search_engines
 
 
-def search_engines_module():
+def search_engines_module() -> ModuleType:
     return current_search_engines
 
 
-def load_plugin(src):
-    src = src.encode('utf-8')
-    ns = {}
-    exec(src, ns)
+def load_plugin(src: str) -> type[Source] | None:
+    ns: dict[str, object] = {}
+    exec(src.encode('utf-8'), ns)
     for x in itervalues(ns):
         if isinstance(x, type) and issubclass(x, Source) and x is not Source:
             return x
 
 
 class PatchedSearchEngines:
-    def __init__(self, ns) -> None:
+    def __init__(self, ns: dict[str, object]) -> None:
         self.__ns = ns
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> object:
         try:
             return self.__ns[attr]
         except KeyError:
             raise AttributeError('{} not present in search_engines_module'.format(attr))
 
 
-def patch_search_engines(src) -> None:
+def patch_search_engines(src: str) -> None:
     global current_search_engines
-    src = src.encode('utf-8')
-    ns = {}
+    ns: dict[str, object] = {}
     try:
-        exec(src, ns)
+        exec(src.encode('utf-8'), ns)
     except Exception:
         mcv = None
     else:
-        mcv = ns.get('minimum_calibre_version')
+        # version tuples as defined in the downloaded search_engines module
+        mcv = cast('tuple[int, ...] | None', ns.get('minimum_calibre_version'))
     if mcv is None or mcv > numeric_version:
         return
-    cv = ns.get('current_version')
+    cv = cast('tuple[int, ...] | None', ns.get('current_version'))
     if cv is None or cv <= builtin_search_engines.current_version:
         return
-    current_search_engines = PatchedSearchEngines(ns)
+    # PatchedSearchEngines duck-types the search_engines module
+    current_search_engines = cast('ModuleType', PatchedSearchEngines(ns))
 
 
 def patch_plugins() -> None:
     from calibre.customize.ui import patch_metadata_plugins
 
-    patches = {}
+    patches: dict[str, type[Source]] = {}
     for name, val in iteritems(cache):
         if name == 'hashes':
             continue
@@ -85,8 +90,8 @@ def patch_plugins() -> None:
     patch_metadata_plugins(patches)
 
 
-def update_needed():
-    needed = {}
+def update_needed() -> dict[str, str]:
+    needed: dict[str, str] = {}
     current_hashes = cache.get('hashes', {})
     hashes = get_https_resource_securely('https://code.calibre-ebook.com/metadata-sources/hashes.json')
     hashes = bz2.decompress(hashes)
@@ -104,7 +109,7 @@ def update_needed():
     return needed
 
 
-def update_plugin(name, updated, expected_hash) -> None:
+def update_plugin(name: str, updated: dict[str, tuple[str, str]], expected_hash: str) -> None:
     raw = get_https_resource_securely('https://code.calibre-ebook.com/metadata-sources/' + name)
     h = hashlib.sha1(raw).hexdigest()
     if h != expected_hash:
@@ -117,7 +122,7 @@ _update_sources_worker: Thread | None = None
 _update_sources_errors: list[str] = []
 
 
-def main(report_error=prints, report_action=prints) -> None:
+def main(report_error: Callable[[str], object] = prints, report_action: Callable[[str], object] = prints) -> None:
     global _update_sources_worker
     try:
         if time.time() - cache.mtime() < UPDATE_INTERVAL:
@@ -132,7 +137,7 @@ def main(report_error=prints, report_action=prints) -> None:
         if not needed:
             cache.touch()
             return
-        updated = {}
+        updated: dict[str, tuple[str, str]] = {}
         for name, expected_hash in iteritems(needed):
             report_action('Updating metadata source {}...'.format(name))
             try:

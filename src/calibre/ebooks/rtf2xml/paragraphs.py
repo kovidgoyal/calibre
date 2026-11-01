@@ -45,11 +45,11 @@ class Paragraphs:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        write_empty_para=1,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        write_empty_para: int = 1,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -108,7 +108,7 @@ class Paragraphs:
             'cw<pf<page-break': self.__empty_pgbk_func,  # page break
         }
 
-    def __before_body_func(self, line) -> None:
+    def __before_body_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -122,7 +122,7 @@ class Paragraphs:
             self.__state = 'not_paragraph'
         self.__write_obj.write(line)
 
-    def __not_paragraph_func(self, line) -> None:
+    def __not_paragraph_func(self, line: str) -> None:
         """
         Required:
             line --line to parse
@@ -138,7 +138,7 @@ class Paragraphs:
             action(line)
         self.__write_obj.write(line)
 
-    def __paragraph_func(self, line) -> None:
+    def __paragraph_func(self, line: str) -> None:
         """
         Required:
             line --line to parse
@@ -156,7 +156,7 @@ class Paragraphs:
         else:
             self.__write_obj.write(line)
 
-    def __start_para_func(self, line) -> None:
+    def __start_para_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -171,7 +171,7 @@ class Paragraphs:
         self.__write_obj.write(self.__start2_marker)
         self.__state = 'paragraph'
 
-    def __empty_para_func(self, line) -> None:
+    def __empty_para_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -186,7 +186,7 @@ class Paragraphs:
             self.__write_obj.write('mi<tg<empty_____<para\n')
             self.__write_obj.write(self.__end_marker)  # marker for later parsing
 
-    def __empty_pgbk_func(self, line) -> None:
+    def __empty_pgbk_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -197,7 +197,7 @@ class Paragraphs:
         """
         self.__write_obj.write('mi<tg<empty_____<page-break\n')
 
-    def __close_para_func(self, line) -> None:
+    def __close_para_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -213,7 +213,7 @@ class Paragraphs:
         self.__write_obj.write(line)
         self.__state = 'not_paragraph'
 
-    def __bogus_para__def_func(self, line) -> None:
+    def __bogus_para__def_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse

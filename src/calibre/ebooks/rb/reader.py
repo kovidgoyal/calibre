@@ -3,6 +3,7 @@
 import os
 import struct
 from compression import zlib
+from typing import IO, TYPE_CHECKING
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -11,10 +12,13 @@ from calibre.ebooks.rb import HEADER, RocketBookError
 from polyglot.builtins import as_unicode
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from calibre.utils.logging import Log
+
 
 class RBToc(list):
     class Item:
-        def __init__(self, name='', size=0, offset=0, flags=0) -> None:
+        def __init__(self, name: bytes = b'', size: int = 0, offset: int = 0, flags: int = 0) -> None:
             self.name = name
             self.size = size
             self.offset = offset
@@ -22,7 +26,7 @@ class RBToc(list):
 
 
 class Reader:
-    def __init__(self, stream, log, encoding=None) -> None:
+    def __init__(self, stream: IO[bytes], log: Log, encoding: str | None = None) -> None:
         self.stream = stream
         self.log = log
         self.encoding = encoding
@@ -32,7 +36,7 @@ class Reader:
         self.mi = get_metadata(self.stream)
         self.toc = self.get_toc()
 
-    def read_i32(self):
+    def read_i32(self) -> int:
         return struct.unpack('<I', self.stream.read(4))[0]
 
     def verify_file(self) -> None:
@@ -47,7 +51,7 @@ class Reader:
         if size != real_size:
             raise RocketBookError('File is corrupt. The file size recorded in the header does not match the actual file size.')
 
-    def get_toc(self):
+    def get_toc(self) -> RBToc:
         self.stream.seek(24)
         toc_offset = self.read_i32()
 
@@ -62,7 +66,7 @@ class Reader:
 
         return toc
 
-    def get_safe_path(self, output_dir, name):
+    def get_safe_path(self, output_dir: str, name: str) -> str:
         base = os.path.abspath(output_dir)
         if not base.endswith(os.sep):
             base += os.sep
@@ -71,7 +75,7 @@ class Reader:
             ans = ''
         return ans
 
-    def get_text(self, toc_item, output_dir) -> None:
+    def get_text(self, toc_item: RBToc.Item, output_dir: str) -> None:
         if toc_item.flags in (1, 2):
             return
 
@@ -95,7 +99,7 @@ class Reader:
             with open(path, 'wb') as html:
                 html.write(output.replace('<TITLE>', '<TITLE> ').encode('utf-8'))
 
-    def get_image(self, toc_item, output_dir) -> None:
+    def get_image(self, toc_item: RBToc.Item, output_dir: str) -> None:
         if toc_item.flags != 0:
             return
 
@@ -106,7 +110,7 @@ class Reader:
             with open(path, 'wb') as img:
                 img.write(data)
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str:
         self.log.debug('Extracting content from file...')
         html = []
         images = []
@@ -126,7 +130,7 @@ class Reader:
 
         return opf_path
 
-    def create_opf(self, output_dir, pages, images):
+    def create_opf(self, output_dir: str, pages: list[str], images: list[str]) -> str:
         with CurrentDir(output_dir):
             opf = OPFCreator(output_dir, self.mi)
 

@@ -8,6 +8,7 @@ import io
 import re
 import struct
 from compression import zlib
+from typing import IO, TYPE_CHECKING
 
 from PIL import Image
 
@@ -17,6 +18,12 @@ from calibre.ebooks.pml.pmlml import PMLMLizer
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import Manifest, Metadata, OEBBook
+    from calibre.utils.logging import Log
+
 IDENTITY = 'PNRdPPrs'
 
 # This is an arbitrary number that is small enough to work. The actual maximum
@@ -25,11 +32,11 @@ MAX_RECORD_SIZE = 8192
 
 
 class Writer(FormatWriter):
-    def __init__(self, opts, log) -> None:
+    def __init__(self, opts: Values, log: Log) -> None:
         self.opts = opts
         self.log = log
 
-    def write_content(self, oeb_book, output_stream, metadata=None) -> None:
+    def write_content(self, oeb_book: OEBBook, output_stream: IO[bytes], metadata: Metadata | None = None) -> None:
         out_stream = output_stream
         pmlmlizer = PMLMLizer(self.log)
         pml = str(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
@@ -40,7 +47,7 @@ class Writer(FormatWriter):
         chapter_index += self._index_item(rb'(?s)\\x(?P<text>.+?)\\x', pml)
         link_index = self._index_item(rb'(?s)\\Q="(?P<text>.+?)"', pml)
         images = self._images(oeb_book.manifest, pmlmlizer.image_hrefs)
-        metadata = [self._metadata(metadata)]
+        metadata_record = [self._metadata(metadata)]
         hr = [self._header_record(len(text), len(chapter_index), len(link_index), len(images))]
 
         '''
@@ -59,21 +66,21 @@ class Writer(FormatWriter):
            12. Text block size record
            13. "MeTaInFo\x00" word record
         '''
-        sections = hr + text + chapter_index + link_index + images + metadata + [text_sizes] + [b'MeTaInFo\x00']
+        sections = hr + text + chapter_index + link_index + images + metadata_record + [text_sizes] + [b'MeTaInFo\x00']
 
         lengths = [len(i) if i not in images else len(i[0]) + len(i[1]) for i in sections]
 
-        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].partition(b'\x00')[0])
+        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata_record[0].partition(b'\x00')[0])
         pdbHeaderBuilder.build_header(lengths, out_stream)
 
         for item in sections:
-            if item in images:
+            if isinstance(item, tuple):  # equivalent to `item in images`: the only tuples in sections are the image records
                 out_stream.write(item[0])
                 out_stream.write(item[1])
             else:
                 out_stream.write(item)
 
-    def _text(self, pml):
+    def _text(self, pml: bytes) -> tuple[list[bytes], bytes]:
         pml_pages = []
         text_sizes = b''
         index = 0
@@ -96,7 +103,7 @@ class Writer(FormatWriter):
 
         return pml_pages, text_sizes
 
-    def _index_item(self, regex, pml):
+    def _index_item(self, regex: bytes, pml: bytes) -> list[bytes]:
         index = []
         for mo in re.finditer(regex, pml):
             item = b''
@@ -116,7 +123,7 @@ class Writer(FormatWriter):
                 index.append(item)
         return index
 
-    def _images(self, manifest, image_hrefs):
+    def _images(self, manifest: Manifest, image_hrefs: dict[str, str]) -> list[tuple[bytes, bytes]]:
         """
         Image format.
 
@@ -133,7 +140,9 @@ class Writer(FormatWriter):
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 try:
-                    im = Image.open(io.BytesIO(item.data)).convert('P')
+                    idata = item.data
+                    assert isinstance(idata, bytes)  # raster images are unparsed bytes, errors are handled below
+                    im = Image.open(io.BytesIO(idata)).convert('P')
                     im.thumbnail((300, 300), Image.Resampling.LANCZOS)
 
                     data = io.BytesIO()
@@ -154,7 +163,7 @@ class Writer(FormatWriter):
 
         return images
 
-    def _metadata(self, metadata):
+    def _metadata(self, metadata: Metadata | None) -> bytes:
         """
         Metadata takes the form:
         title\x00
@@ -184,7 +193,7 @@ class Writer(FormatWriter):
 
         return as_bytes(f'{title}\x00{author}\x00{copyright}\x00{publisher}\x00{isbn}\x00')
 
-    def _header_record(self, text_count, chapter_count, link_count, image_count):
+    def _header_record(self, text_count: int, chapter_count: int, link_count: int, image_count: int) -> bytes:
         """
         text_count = the number of text pages
         image_count = the number of images

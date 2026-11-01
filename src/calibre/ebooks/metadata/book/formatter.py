@@ -2,18 +2,24 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from numbers import Number
+from typing import TYPE_CHECKING
 
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS, TOP_LEVEL_IDENTIFIERS
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from calibre.utils.formatter import Kwargs
 
 
 class SafeFormat(TemplateFormatter):
     def __init__(self) -> None:
         TemplateFormatter.__init__(self)
 
-    def get_value(self, key, args, kwargs):
-        if not key or isinstance(key, Number):
+    def get_value(self, key: int | str, args: Sequence[object], kwargs: Kwargs) -> str:
+        if not key or isinstance(key, (int, Number)):  # int is a virtual subclass of Number, spelled out for the type checker
             return ''
         orig_key = key = key.lower()
         if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and key not in ALL_METADATA_FIELDS:

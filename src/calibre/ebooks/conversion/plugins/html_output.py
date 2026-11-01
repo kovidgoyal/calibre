@@ -5,15 +5,24 @@ import re
 import shutil
 from os.path import abspath, basename, dirname, exists
 from os.path import relpath as _relpath
+from typing import TYPE_CHECKING
 
 from calibre import CurrentDir
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from optparse import Values
 
-def relpath(*args):
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import TOC, OEBBook
+    from calibre.utils.logging import Log
+
+
+def relpath(*args: str) -> str:
     return _relpath(*args).replace(os.sep, '/')
 
 
@@ -41,7 +50,7 @@ class HTMLOutput(OutputFormatPlugin):
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
-    def generate_toc(self, oeb_book, ref_url, output_dir):
+    def generate_toc(self, oeb_book: OEBBook, ref_url: str, output_dir: str) -> _Element:
         """
         Generate table of contents
         """
@@ -53,7 +62,7 @@ class HTMLOutput(OutputFormatPlugin):
 
         with CurrentDir(output_dir):
 
-            def build_node(current_node, parent=None):
+            def build_node(current_node: TOC, parent: _Element | None = None) -> _Element:
                 if parent is None:
                     parent = etree.Element('ul')
                 elif len(current_node.nodes):
@@ -69,7 +78,7 @@ class HTMLOutput(OutputFormatPlugin):
                         title = title.decode('utf-8')
                     if title:
                         title = re.sub(r'\s+', ' ', title)
-                    link.text = clean_xml_chars(title)
+                    link.text = clean_xml_chars(title)  # ty: ignore[invalid-argument-type] non-root TOC nodes always have a title
                     build_node(node, point)
                 return parent
 
@@ -77,13 +86,14 @@ class HTMLOutput(OutputFormatPlugin):
             wrap.append(build_node(oeb_book.toc))
             return wrap
 
-    def generate_html_toc(self, oeb_book, ref_url, output_dir):
+    def generate_html_toc(self, oeb_book: OEBBook, ref_url: str, output_dir: str) -> str:
         from lxml import etree
 
         root = self.generate_toc(oeb_book, ref_url, output_dir)
-        return etree.tostring(root, pretty_print=True, encoding='unicode', xml_declaration=False)
+        # xml_declaration is always off for unicode output, it is not passed as the lxml stubs do not allow it
+        return etree.tostring(root, pretty_print=True, encoding='unicode')
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         output_path = output
         import pystache
         from lxml import etree
@@ -187,7 +197,9 @@ class HTMLOutput(OutputFormatPlugin):
             for item in oeb_book.spine:
                 path = abspath(unquote(item.href))
                 dir = dirname(path)
-                root = item.data.getroottree()
+                data = item.data
+                assert isinstance(data, etree._Element)
+                root = data.getroottree()
 
                 # get & clean HTML <HEAD>-data
                 head = root.xpath('//h:head', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
@@ -203,6 +215,7 @@ class HTMLOutput(OutputFormatPlugin):
                 ebook_content = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ebook_content)
 
                 # generate link to next page
+                assert item.spine_position is not None  # set for all items in the spine
                 if item.spine_position + 1 < len(oeb_book.spine):
                     nextLink = oeb_book.spine[item.spine_position + 1].href
                     nextLink = relpath(abspath(nextLink), dir)

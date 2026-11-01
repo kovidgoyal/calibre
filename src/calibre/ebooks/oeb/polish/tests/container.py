@@ -4,6 +4,7 @@
 import os
 import pickle
 import subprocess
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from calibre import CurrentDir
@@ -16,10 +17,12 @@ from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.utils.filenames import nlinks_file
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.container import Container
 
-def get_container(*args, **kwargs):
-    kwargs['tweak_mode'] = True
-    return _gc(*args, **kwargs)
+
+def get_container(path: str, tdir: str | None = None) -> Container:
+    return _gc(path, tdir=tdir, tweak_mode=True)
 
 
 class ContainerTests(BaseTest):
@@ -87,7 +90,7 @@ class ContainerTests(BaseTest):
         for x in files:
             self.assertNotIn(x, raw)
 
-    def run_external_tools(self, container, vim=False, epubcheck=True) -> None:
+    def run_external_tools(self, container: Container, vim: bool = False, epubcheck: bool = True) -> None:
         with TemporaryFile(suffix='.epub', dir=self.tdir) as f:
             container.commit(outpath=f)
             if vim:
@@ -100,7 +103,7 @@ class ContainerTests(BaseTest):
         book = get_simple_book()
         count = [0]
 
-        def new_container():
+        def new_container() -> Container:
             count[0] += 1
             tdir = os.path.join(self.tdir, str(count[0]))
             os.mkdir(tdir)
@@ -276,7 +279,7 @@ class ContainerTests(BaseTest):
         self.check_links(c)
 
     def test_dir_container(self) -> None:
-        def create_book(source) -> None:
+        def create_book(source: str) -> None:
             with ZipFile(P('quick_start/eng.epub', allow_user_override=False)) as zf:
                 zf.extractall(source)
             with CurrentDir(source):

@@ -1,16 +1,23 @@
 # License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
+
 HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 
-def html_encode(s):
+def html_encode(s: str) -> str:
     return (
         s
         .replace('&', '&amp;')
@@ -32,7 +39,7 @@ class SNBInput(InputFormatPlugin):
 
     options = set()
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
         import uuid
 
         from calibre.ebooks.oeb.base import DirContainer
@@ -107,9 +114,9 @@ class SNBInput(InputFormatPlugin):
                     snbc_body = snbc.find('.//body')
                     for line in snbc_body if snbc_body is not None else []:
                         if line.tag == 'text':
-                            lines.append(f'<p>{html_encode(line.text)}</p>')
+                            lines.append(f'<p>{html_encode(line.text or "")}</p>')
                         elif line.tag == 'img':
-                            lines.append(f'<p><img src="{html_encode(line.text)}" /></p>')
+                            lines.append(f'<p><img src="{html_encode(line.text or "")}" /></p>')
                     with open(os.path.join(tdir, fname), 'wb') as f:
                         f.write((HTML_TEMPLATE % (chapterName, '\n'.join(lines))).encode('utf-8', 'replace'))
                     oeb.toc.add(ch.text, fname)

@@ -5,6 +5,7 @@ import os
 from functools import partial
 from io import BytesIO
 from itertools import count
+from typing import TYPE_CHECKING
 from zipfile import ZIP_STORED, ZipFile
 
 from calibre.ebooks.metadata.book.base import Metadata
@@ -19,6 +20,19 @@ from calibre.ebooks.oeb.polish.toc import from_xpaths as toc_from_xpaths
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.ebooks.oeb.polish.utils import guess_type
 
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Sequence
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.check.base import BaseError
+    from calibre.ebooks.oeb.polish.check.parsing import DanglingIdReference
+    from calibre.ebooks.oeb.polish.container import Container
+
+#: A manifest entry for create_epub() of the form: (name, data, properties)
+type ManifestItem = tuple[str, bytes | str, str | None]
+
 OPF_TEMPLATE = f'''
 <package xmlns="http://www.idpf.org/2007/opf" version="{{ver}}" prefix="calibre: {CALIBRE_PREFIX}" unique-identifier="uid">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
@@ -31,14 +45,20 @@ OPF_TEMPLATE = f'''
 </package>'''
 
 
-def create_manifest_item(name, data=b'', properties=None):
+def create_manifest_item(name: str, data: bytes | str = b'', properties: str | None = None) -> ManifestItem:
     return name, data, properties
 
 
 cmi = create_manifest_item
 
 
-def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
+def create_epub(
+    manifest: Sequence[ManifestItem],
+    spine: Sequence[str] = (),
+    guide: Sequence[tuple[str, str, str]] = (),
+    meta_cover: str | None = None,
+    ver: int = 3,
+) -> BytesIO:
     mo = []
     for name, data, properties in manifest:
         mo.append('<item id="{}" href="{}" media-type="{}" {}/>'.format(name, name, guess_type(name), (f'properties="{properties}"' if properties else '')))
@@ -49,8 +69,8 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     if not spine:
         spine = [x[0] for x in manifest if guess_type(x[0]) in OEB_DOCS]
     spine = ''.join(f'<itemref idref="{name}"/>' for name in spine)
-    guide = ''.join(f'<reference href="{name}" type="{typ}" title="{title}"/>' for name, typ, title in guide)
-    opf = OPF_TEMPLATE.format(manifest=mo, ver=f'{ver}.0', metadata=metadata, spine=spine, guide=guide)
+    guide_xml = ''.join(f'<reference href="{name}" type="{typ}" title="{title}"/>' for name, typ, title in guide)
+    opf = OPF_TEMPLATE.format(manifest=mo, ver=f'{ver}.0', metadata=metadata, spine=spine, guide=guide_xml)
     buf = BytesIO()
     with ZipFile(buf, 'w', ZIP_STORED) as zf:
         zf.writestr(
@@ -75,11 +95,18 @@ counter = count()
 
 
 class Structure(BaseTest):
-    def create_epub(self, *args, **kw):
+    def create_epub(
+        self,
+        manifest: Sequence[ManifestItem],
+        spine: Sequence[str] = (),
+        guide: Sequence[tuple[str, str, str]] = (),
+        meta_cover: str | None = None,
+        ver: int = 3,
+    ) -> Container:
         n = next(counter)
         ep = os.path.join(self.tdir, str(n) + 'book.epub')
         with open(ep, 'wb') as f:
-            f.write(create_epub(*args, **kw).getvalue())
+            f.write(create_epub(manifest, spine, guide, meta_cover, ver).getvalue())
         c = get_container(ep, tdir=os.path.join(self.tdir, f'container{n}'), tweak_mode=True)
         return c
 
@@ -102,7 +129,7 @@ class Structure(BaseTest):
         self.assertTrue(len(toc))
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
 
-        def tfx(linear, expected) -> None:
+        def tfx(linear: str, expected: str) -> None:
             items = [f'<t{x}>{x}</t{x}>' for x in linear]
             html = '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
             html += '<body>{}</body></html>'.format('\n'.join(items))
@@ -110,7 +137,7 @@ class Structure(BaseTest):
                 f.write(html.encode('utf-8'))
             toc = toc_from_xpaths(c, ['//h:t' + x for x in sorted(set(linear))])
 
-            def p(node):
+            def p(node: TOC) -> str:
                 ans = ''
                 if node.children:
                     ans += '['
@@ -154,7 +181,7 @@ class Structure(BaseTest):
         commit_nav_toc(c, toc, landmarks=get_landmarks(c))
         root = c.parsed('nav.html')
 
-        def elem(eid):
+        def elem(eid: str) -> _Element:
             ans = root.xpath(f'//*[@id="{eid}"]')
             self.assertEqual(1, len(ans), eid)
             return ans[0]
@@ -283,6 +310,35 @@ class Structure(BaseTest):
         oeb = create_oebbook(c.log, c.name_to_abspath(c.opf_name), plumber.opts)
         self.assertNotIn(None, oeb.guide)
 
+    def test_missing_attributes(self) -> None:
+        from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
+
+        # Guide references without href are ignored
+        c = self.create_epub([cmi('a.html'), cmi('b.html')], guide=[('b.html', 'toc', 'Contents')], ver=2)
+        for ref in c.opf_xpath('//opf:guide/opf:reference'):
+            ref.attrib.pop('href')
+        self.assertEqual([], get_landmarks(c))
+        # Manifest items without id get a generated id
+        for item in c.opf_xpath('//opf:manifest/opf:item[@href="b.html"]'):
+            item.attrib.pop('id')
+        c.dirty(c.opf_name)
+        c.commit()
+        plumber = Plumber(c.name_to_abspath(c.opf_name), os.path.join(self.tdir, 'out.epub'), c.log)
+        plumber.setup_options()
+        oeb = create_oebbook(c.log, c.name_to_abspath(c.opf_name), plumber.opts)
+        self.assertNotIn(None, oeb.manifest.ids)
+        self.assertIn('b.html', oeb.manifest.hrefs)
+        # Empty page-list entries without title are ignored
+        nav = '''<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><body>
+        <nav epub:type="toc"><ol><li><a href="a.html">A</a></li></ol></nav>
+        <nav epub:type="page-list"><ol><li><a href="a.html#p1"></a></li><li><a href="a.html#p2">2</a></li></ol></nav></body></html>'''
+        c = self.create_epub([cmi('a.html'), cmi('nav.html', nav, 'nav')])
+        self.assertEqual(['2'], [x['pagenum'] for x in get_toc(c).page_list])
+        # Marking a file that is not in the spine as the titlepage does not move other files
+        mark_as_titlepage(c, 'nav.html')
+        mark_as_titlepage(c, 'missing.html')
+        self.assertEqual(['nav.html', 'a.html'], [name for name, is_linear in c.spine_names])
+
     def test_landmarks_detection(self) -> None:
         c = self.create_epub([cmi('xxx.html'), cmi('a.html')], guide=[('xxx.html#moo', 'x', 'XXX'), ('a.html', '', 'YYY')], ver=2)
         self.assertEqual(2, c.opf_version_parsed.major)
@@ -403,7 +459,7 @@ class Structure(BaseTest):
         )
         self.assertEqual(fill('<html__lang__><title>__title__</title></html>', ' ', None), '<html><title>Cover</title></html>')
 
-        def cover_page(ver, no_svg, lang):
+        def cover_page(ver: int, no_svg: bool, lang: str | None) -> tuple[_Element, set[type[BaseError]]]:
             c = self.create_epub([cmi('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>a</p></body></html>')], ver=ver)
             metadata = c.opf_xpath('//opf:metadata')[0]
             for tag, val in (('title', title), ('language', lang)):
@@ -437,7 +493,7 @@ class Structure(BaseTest):
 
         from calibre.ebooks.oeb.polish.tts import id_prefix, mark_sentences_in_html, unmark_sentences_in_html
 
-        def normalize_markup(root):
+        def normalize_markup(root: _Element) -> str:
             actual = html.tostring(root, encoding='unicode')
             actual = actual[actual.find('<body') :]
             actual = actual[: actual.rfind('</body>')]
@@ -527,7 +583,7 @@ class Structure(BaseTest):
         }.items():
             self.assertEqual(rename_ids_in_selector(selector, id_map), expected)
 
-        def html(body, head='') -> str:
+        def html(body: str, head: str = '') -> str:
             return f'''<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="style.css"/>{head}</head><body>{body}</body></html>'''
 
         c = self.create_epub([
@@ -568,7 +624,7 @@ class Structure(BaseTest):
         from calibre.ebooks.oeb.polish.check.main import fix_errors
         from calibre.ebooks.oeb.polish.check.parsing import DanglingIdReference, check_ids
 
-        def html(body) -> str:
+        def html(body: str) -> str:
             return f'<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>{body}</body></html>'
 
         c = self.create_epub([
@@ -583,7 +639,7 @@ class Structure(BaseTest):
             cmi('b.html', html('<p id="x">b</p>')),
         ])
 
-        def dangling():
+        def dangling() -> dict[str, DanglingIdReference]:
             return {e.missing_id: e for e in check_ids(c) if isinstance(e, DanglingIdReference)}
 
         errors = dangling()
@@ -610,7 +666,7 @@ class Structure(BaseTest):
         from calibre.utils.logging import DevNull
         from calibre.utils.resources import get_image_path
 
-        def html_language(*langs, fallback=False):
+        def html_language(*langs: str, fallback: bool = False) -> str | None:
             plugin = EPUBOutput(None)
             plugin.oeb = OEBBook(DevNull())
             for lang in langs:
@@ -631,7 +687,7 @@ class Structure(BaseTest):
             self.assertEqual(html_language(*langs), expected, langs)
         self.assertIsNone(html_language('fra', fallback=True))
 
-        def write(name, raw):
+        def write(name: str, raw: str) -> str:
             path = os.path.join(self.tdir, name)
             with open(path, 'w') as f:
                 f.write(raw)
@@ -698,11 +754,11 @@ class Structure(BaseTest):
         )
         from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
 
-        def html(body, lang=' lang="en"') -> str:
+        def html(body: str, lang: str = ' lang="en"') -> str:
             return f'<html xmlns="http://www.w3.org/1999/xhtml"{lang}><head><title>t</title></head><body>{body}</body></html>'
 
-        def errors(c):
-            ans = {}
+        def errors(c: Container) -> dict[type[BaseError], list[BaseError]]:
+            ans: dict[type[BaseError], list[BaseError]] = {}
             for e in check_accessibility(c):
                 ans.setdefault(type(e), []).append(e)
             return ans
@@ -734,7 +790,7 @@ class Structure(BaseTest):
         self.assertEqual(found[MissingAccessibilityMetadata][0].missing, list(ACCESSIBILITY_PROPERTIES))
 
         # Only values that are actual languages are used, as BCP 47 tags
-        def set_book_language(*langs):
+        def set_book_language(*langs: str) -> str | None:
             metadata = c.opf_xpath('//opf:metadata')[0]
             for e in c.opf_xpath('//dc:language'):
                 e.getparent().remove(e)
@@ -804,13 +860,13 @@ class Structure(BaseTest):
         from calibre.ebooks.oeb.polish.check.accessibility import MissingRole, check_accessibility
         from calibre.ebooks.oeb.polish.check.main import fix_errors
 
-        def html(body, body_type='') -> str:
+        def html(body: str, body_type: str = '') -> str:
             return (
                 '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en"><head><title>t</title></head>'
                 f'<body{body_type}>{body}</body></html>'
             )
 
-        def missing(c):
+        def missing(c: Container) -> dict[str, list[int | None]]:
             return {e.name: [loc[1] for loc in e.all_locations] for e in check_accessibility(c) if isinstance(e, MissingRole)}
 
         # Each line has an element whose role is checked, with the expected role
@@ -861,7 +917,7 @@ class Structure(BaseTest):
         # has none, and roles set by the author are kept, unless they remove
         # the semantics of the nav
 
-        def navs(c):
+        def navs(c: Container) -> tuple[str, dict[str | None, _Element]]:
             name = next(iter(c.manifest_items_with_property('nav')))
             all_navs = tuple(c.parsed(name).iterdescendants(XHTML('nav')))
             ans = {nav.get(EPUB('type')): nav for nav in all_navs}
@@ -897,7 +953,7 @@ class Structure(BaseTest):
             set_book_languages,
         )
 
-        def html(lang='') -> str:
+        def html(lang: str = '') -> str:
             return f'<html xmlns="http://www.w3.org/1999/xhtml"{lang}><head/><body><p>x</p></body></html>'
 
         c = self.create_epub([('a.html', html(), None), ('b.html', html(' lang="fr" xml:lang="fr"'), None)])
@@ -917,7 +973,7 @@ class Structure(BaseTest):
         self.assertEqual(c.opf_xpath('//dc:language/text()'), ['und'])
         self.assertEqual(book_languages(c), [])
 
-        def langs(c):
+        def langs(c: Container) -> list[tuple[str | None, str | None]]:
             return [(c.parsed(n).get('lang'), c.parsed(n).get('{http://www.w3.org/XML/1998/namespace}lang')) for n in ('a.html', 'b.html')]
 
         # Without a book language the HTML files cannot be set
@@ -982,10 +1038,10 @@ class Structure(BaseTest):
         a = f'<html xmlns="http://www.w3.org/1999/xhtml"><head/><body>{body}</body></html>'
         c = self.create_epub([('a.html', a, None), ('i.png', b'', None)])
 
-        def svg_elem(sid):
+        def svg_elem(sid: str) -> _Element:
             return c.parsed('a.html').xpath(f'//*[@id="{sid}"]')[0]
 
-        def ids_without_alt():
+        def ids_without_alt() -> list[str | None]:
             return [e.get('id') or e.get('src') for e in images_without_alt(c.parsed('a.html'))]
 
         uses = image_uses(c)
@@ -1063,7 +1119,7 @@ class Structure(BaseTest):
             set_accessibility_metadata,
         )
 
-        def states(flashing, motion, sound):
+        def states(flashing: str, motion: str, sound: str) -> dict[str, str]:
             return {'flashing': flashing, 'motionSimulation': motion, 'sound': sound}
 
         for values, expected in (
@@ -1100,7 +1156,7 @@ class Structure(BaseTest):
         self.assertEqual(md[SUMMARY], ['A summary'])
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(Structure)

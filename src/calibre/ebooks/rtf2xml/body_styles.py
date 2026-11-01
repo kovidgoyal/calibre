@@ -30,11 +30,11 @@ class BodyStyles:
 
     def __init__(
         self,
-        in_file,
-        list_of_styles,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        list_of_styles: list[str],
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:

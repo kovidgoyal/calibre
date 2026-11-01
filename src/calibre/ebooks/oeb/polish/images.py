@@ -6,16 +6,37 @@ import tempfile
 from functools import partial
 from queue import Empty, Queue
 from threading import Event, Thread
+from typing import TYPE_CHECKING, Literal, cast
 
 from calibre import detect_ncpus, filesystem_encoding, force_unicode, human_readable
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+    type Report = Callable[[str], object]
+    # Maps image name to (True, (size_before, size_after)) or (False, traceback)
+    type CompressionResults = dict[str, tuple[Literal[True], tuple[int, int]] | tuple[Literal[False], str]]
+
 
 class Worker(Thread):
     daemon = True
 
-    def __init__(self, abort, name, queue, results, jpeg_quality, webp_quality, progress_callback) -> None:
+    def __init__(
+        self,
+        abort: Event,
+        name: str,
+        queue: Queue[tuple[str, str, str]],
+        results: CompressionResults,
+        jpeg_quality: int | None,
+        webp_quality: int | None,
+        progress_callback: Callable[[str], None],
+    ) -> None:
         Thread.__init__(self, name=name)
         self.queue, self.results = queue, results
         self.progress_callback = progress_callback
@@ -45,7 +66,7 @@ class Worker(Thread):
                     traceback.print_exc()
                 self.queue.task_done()
 
-    def compress(self, name, path, mime_type) -> None:
+    def compress(self, name: str, path: str, mime_type: str) -> None:
         from calibre.utils.img import encode_jpeg, encode_webp, optimize_jpeg, optimize_png, optimize_webp
 
         if 'png' in mime_type:
@@ -54,7 +75,7 @@ class Worker(Thread):
             if self.webp_quality is None:
                 func = optimize_webp
             else:
-                func = partial(encode_webp, quality=self.jpeg_quality)
+                func = partial(encode_webp, quality=self.webp_quality)
         elif self.jpeg_quality is None:
             func = optimize_jpeg
         else:
@@ -71,15 +92,18 @@ class Worker(Thread):
         self.results[name] = (True, (before, after))
 
 
-def get_compressible_images(container):
+def get_compressible_images(container: Container) -> set[str]:
     mt_map = container.manifest_type_map
-    images = set()
+    images: set[str] = set()
     for mt in 'png jpg jpeg webp gif'.split():
-        images |= set(mt_map.get('image/' + mt, ()))
+        # names are None for manifest items whose href does not point into the book
+        images |= {x for x in mt_map.get('image/' + mt, ()) if x is not None}
     return images
 
 
-def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75, report=None):
+def convert_png_to_format(
+    container: Container, name: str, fmt: str, jpeg_quality: int = 75, webp_quality: int = 75, report: Report | None = None
+) -> tuple[str, int, int]:
     """Convert a PNG image in the container to JPEG or WEBP format.
 
     :param fmt: ``'jpeg'``, ``'webp'`` (lossy), or ``'webp-lossless'``
@@ -161,7 +185,9 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     return new_name, before, after
 
 
-def convert_gif_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75, report=None):
+def convert_gif_to_format(
+    container: Container, name: str, fmt: str, jpeg_quality: int = 75, webp_quality: int = 75, report: Report | None = None
+) -> tuple[str, int, int]:
     """Convert a GIF image in the container to JPEG, WEBP, or PNG format.
 
     Animated GIFs are skipped when converting to JPEG.
@@ -262,16 +288,16 @@ def convert_gif_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
 
 
 def compress_images(
-    container,
-    report=None,
-    names=None,
-    jpeg_quality=None,
-    webp_quality=None,
-    compress_png=True,
-    png_to_format=None,
-    gif_to_format=None,
-    progress_callback=lambda n, t, name: True,
-):
+    container: Container,
+    report: Report | None = None,
+    names: Iterable[str] | None = None,
+    jpeg_quality: int | None = None,
+    webp_quality: int | None = None,
+    compress_png: bool = True,
+    png_to_format: str | None = None,
+    gif_to_format: str | None = None,
+    progress_callback: Callable[[int, int, str], bool] = lambda n, t, name: True,
+) -> tuple[bool, CompressionResults]:
     images = get_compressible_images(container)
     if names is not None:
         images &= set(names)
@@ -318,10 +344,10 @@ def compress_images(
 
     if not compress_png:
         images = {name for name in images if container.mime_map.get(name) != 'image/png'}
-    results = {}
-    queue = Queue()
+    results: CompressionResults = {}
+    queue: Queue[tuple[str, str, str]] = Queue()
     abort = Event()
-    seen = set()
+    seen: set[str] = set()
     num_to_process = 0
     for name in sorted(images):
         path = os.path.abspath(container.get_file_path_for_processing(name))
@@ -331,7 +357,7 @@ def compress_images(
             queue.put((name, path, container.mime_map[name]))
             seen.add(path_key)
 
-    def pc(name) -> None:
+    def pc(name: str) -> None:
         keep_going = progress_callback(len(results), num_to_process, name)
         if not keep_going:
             abort.set()
@@ -345,7 +371,7 @@ def compress_images(
     for name, (ok, res) in results.items():
         name = force_unicode(name, filesystem_encoding)
         if ok:
-            before, after = res
+            before, after = cast('tuple[int, int]', res)  # ok is True so res is (size_before, size_after)
             if before != after:
                 changed = True
                 processed_num += 1
@@ -362,7 +388,7 @@ def compress_images(
                     report(_('{0} could not be further compressed').format(name))
         elif report:
             report(_('Failed to process {0} with error:').format(name))
-            report(res)
+            report(cast('str', res))  # ok is False so res is a traceback
     if report:
         if conv_num:
             report('')
@@ -428,7 +454,7 @@ def compress_images(
     return changed, results
 
 
-def remove_unused_images(container, report=None) -> bool:
+def remove_unused_images(container: Container, report: Report | None = None) -> bool:
     """
     Remove images that are not referenced by any file in the spine or by any
     stylesheet used by files in the spine.
@@ -441,11 +467,11 @@ def remove_unused_images(container, report=None) -> bool:
     spine_docs = {name for name, _ in container.spine_names}
 
     # Collect stylesheets referenced by spine documents
-    used_stylesheets = set()
+    used_stylesheets: set[str] = set()
     for name in spine_docs:
         if not container.exists(name):
             continue
-        root = container.parsed(name)
+        root = cast('_Element', container.parsed(name))  # spine items are HTML, parsed into lxml trees
         for link in root.xpath('//*[local-name()="link" and @href]'):
             sname = safe_href_to_name(container, link.get('href'), name)
             if sname and container.exists(sname):
@@ -455,7 +481,7 @@ def remove_unused_images(container, report=None) -> bool:
 
     # Collect all images referenced by spine docs and their stylesheets
     relevant_sources = spine_docs | used_stylesheets
-    referenced_images = set()
+    referenced_images: set[str] = set()
     for source_name in relevant_sources:
         if not container.exists(source_name):
             continue

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import IO, TYPE_CHECKING, cast
+
 from lxml import etree
 
 from calibre.ebooks.metadata import MetaInformation
@@ -8,16 +10,25 @@ from calibre.ebooks.metadata.opf2 import OPF, pretty_print
 from calibre.ebooks.metadata.opf3 import apply_metadata, read_metadata
 from calibre.ebooks.metadata.utils import create_manifest_item, normalize_languages, parse_opf, parse_opf_version
 
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.metadata.utils import OPFVersion
+
+type MetadataResult = tuple[Metadata, OPFVersion | None, str | None, str | None]
+
 
 class DummyFile:
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         self.raw = raw
 
-    def read(self):
+    def read(self) -> bytes:
         return self.raw
 
 
-def get_metadata2(root, ver, ftype='epub'):
+def get_metadata2(root: _Element, ver: OPFVersion, ftype: str = 'epub') -> MetadataResult:
     opf = OPF(None, preparsed_opf=root, read_toc=False)
     if ftype == 'kepub':
         raster_cover = opf.epub3_raster_cover or opf.raster_cover
@@ -26,35 +37,35 @@ def get_metadata2(root, ver, ftype='epub'):
     return opf.to_book_metadata(), ver, raster_cover, opf.first_spine_item()
 
 
-def get_metadata3(root, ver, ftype='epub'):
+def get_metadata3(root: _Element, ver: OPFVersion, ftype: str = 'epub') -> MetadataResult:
     return read_metadata(root, ver=ver, return_extra_data=True)
 
 
-def get_metadata_from_parsed(root, ftype='epub'):
+def get_metadata_from_parsed(root: _Element, ftype: str = 'epub') -> MetadataResult:
     ver = parse_opf_version(root.get('version'))
     f = get_metadata2 if ver.major < 3 else get_metadata3
     return f(root, ver, ftype)
 
 
-def get_metadata(stream, ftype='epub'):
-    if isinstance(stream, bytes):
-        stream = DummyFile(stream)
-    root = parse_opf(stream)
+def get_metadata(stream: bytes | SupportsRead[bytes], ftype: str = 'epub') -> MetadataResult:
+    # DummyFile provides the read() method that parse_opf needs
+    f = cast('IO[bytes]', DummyFile(stream)) if isinstance(stream, bytes) else stream
+    root = parse_opf(f)
     return get_metadata_from_parsed(root, ftype)
 
 
 def set_metadata_opf2(
-    root,
-    cover_prefix,
-    mi,
-    opf_version,
-    cover_data=None,
-    apply_null=False,
-    update_timestamp=False,
-    force_identifiers=False,
-    add_missing_cover=True,
-    ftype='epub',
-):
+    root: _Element,
+    cover_prefix: str,
+    mi: Metadata,
+    opf_version: OPFVersion,
+    cover_data: bytes | None = None,
+    apply_null: bool = False,
+    update_timestamp: bool = False,
+    force_identifiers: bool = False,
+    add_missing_cover: bool = True,
+    ftype: str = 'epub',
+) -> tuple[bytes, str | None]:
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
@@ -63,7 +74,7 @@ def set_metadata_opf2(
         mi.languages = normalize_languages(list(opf.raw_languages) or [], mi.languages)
 
     opf.smart_update(mi, apply_null=apply_null)
-    if getattr(mi, 'uuid', None):
+    if mi.uuid:
         opf.application_id = mi.uuid
     if apply_null or force_identifiers:
         opf.set_identifiers(mi.get_identifiers())
@@ -91,7 +102,7 @@ def set_metadata_opf2(
             if opf_version.major < 3:
                 [x.getparent().remove(x) for x in opf.root.xpath('//*[local-name()="meta" and @name="cover"]')]
                 m = opf.create_metadata_element('meta', is_dc=False)
-                m.set('name', 'cover'), m.set('content', i.get('id'))
+                m.set('name', 'cover'), m.set('content', i.get('id'))  # ty: ignore[invalid-argument-type] i always has an id
             if opf_version.major > 2 or ftype == 'kepub':
                 for x in opf.root.xpath('//*[local-name()="item" and contains(@properties, "cover-image")]'):
                     x.set('properties', x.get('properties').replace('cover-image', '').strip())
@@ -102,17 +113,17 @@ def set_metadata_opf2(
 
 
 def set_metadata_opf3(
-    root,
-    cover_prefix,
-    mi,
-    opf_version,
-    cover_data=None,
-    apply_null=False,
-    update_timestamp=False,
-    force_identifiers=False,
-    add_missing_cover=True,
-    ftype='epub',
-):
+    root: _Element,
+    cover_prefix: str,
+    mi: Metadata,
+    opf_version: OPFVersion,
+    cover_data: bytes | None = None,
+    apply_null: bool = False,
+    update_timestamp: bool = False,
+    force_identifiers: bool = False,
+    add_missing_cover: bool = True,
+    ftype: str = 'epub',
+) -> tuple[bytes, str | None]:
     raster_cover = apply_metadata(
         root,
         mi,
@@ -127,19 +138,19 @@ def set_metadata_opf3(
 
 
 def set_metadata(
-    stream,
-    mi,
-    cover_prefix='',
-    cover_data=None,
-    apply_null=False,
-    update_timestamp=False,
-    force_identifiers=False,
-    add_missing_cover=True,
-    ftype='epub',
-):
-    if isinstance(stream, bytes):
-        stream = DummyFile(stream)
-    root = parse_opf(stream)
+    stream: bytes | SupportsRead[bytes],
+    mi: Metadata,
+    cover_prefix: str = '',
+    cover_data: bytes | None = None,
+    apply_null: bool = False,
+    update_timestamp: bool = False,
+    force_identifiers: bool = False,
+    add_missing_cover: bool = True,
+    ftype: str = 'epub',
+) -> tuple[bytes, OPFVersion, str | None]:
+    # DummyFile provides the read() method that parse_opf needs
+    f = cast('IO[bytes]', DummyFile(stream)) if isinstance(stream, bytes) else stream
+    root = parse_opf(f)
     ver = parse_opf_version(root.get('version'))
     f = set_metadata_opf2 if ver.major < 3 else set_metadata_opf3
     opfbytes, raster_cover = f(

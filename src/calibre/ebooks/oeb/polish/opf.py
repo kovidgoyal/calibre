@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from lxml import etree
 
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES
 from calibre.utils.localization import canonicalize_lang, lang_as_bcp47
 
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.container import Container
 
-def get_book_language(container):
+
+def get_book_language(container: Container) -> str | None:
     for lang in container.opf_xpath('//dc:language'):
         raw = lang.text
         if raw:
@@ -16,7 +21,7 @@ def get_book_language(container):
                 return code
 
 
-def get_book_language_tag(container) -> str | None:
+def get_book_language_tag(container: Container) -> str | None:
     # The language of the book as a BCP 47 language tag, for use in the lang
     # attributes of HTML files
     for lang in container.opf_xpath('//dc:language'):
@@ -25,7 +30,7 @@ def get_book_language_tag(container) -> str | None:
     return None
 
 
-def set_guide_item(container, item_type, title, name, frag=None) -> None:
+def set_guide_item(container: Container, item_type: str, title: str, name: str | None, frag: str | None = None) -> None:
     ref_tag = '{{{}}}reference'.format(OPF_NAMESPACES['opf'])
     href = None
     if name:

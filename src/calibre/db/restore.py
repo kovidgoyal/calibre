@@ -103,7 +103,7 @@ class Restore(Thread):
         self.notes_errors: list[str] = []
         self.successes = 0
         self.tb: str | None = None
-        self.link_maps: dict[str, dict[str, tuple[str, datetime]]] = {}
+        self.link_maps: dict[str, dict[str, tuple[str, datetime | None]]] = {}
 
     @property
     def errors_occurred(self) -> list[tuple[str, str]] | list[str] | dict[str, list[list[object]]] | list[tuple[RestoreBook, str]]:
@@ -241,6 +241,7 @@ class Restore(Thread):
         mi, timestamp, annotations = read_opf(dirpath)
         path = os.path.relpath(dirpath, self.src_library_path).replace(os.sep, '/')
 
+        assert mi.application_id is not None
         if int(mi.application_id) == book_id:
             self.books.append({
                 'mi': mi,
@@ -254,13 +255,18 @@ class Restore(Thread):
         else:
             self.mismatched_dirs.append(dirpath)
 
-        alm = mi.get('link_maps', {})
+        alm = mi.link_maps
         for field, lmap in alm.items():
             dest = self.link_maps.setdefault(field, {})
             for item, link in lmap.items():
                 existing_link, timestamp = dest.get(item, (None, None))
-                if existing_link is None or (existing_link != link and timestamp < mi.timestamp):
+                if existing_link is None:
                     dest[item] = link, mi.timestamp
+                elif existing_link != link:
+                    # comparing with None raises TypeError
+                    assert timestamp is not None and mi.timestamp is not None
+                    if timestamp < mi.timestamp:
+                        dest[item] = link, mi.timestamp
 
     def create_cc_metadata(self) -> None:
         self.books.sort(key=itemgetter('timestamp'))
@@ -269,6 +275,7 @@ class Restore(Thread):
         for b in self.books:
             for key in b['mi'].custom_field_keys():
                 cfm = b['mi'].metadata_for_field(key)
+                assert cfm is not None  # key is a custom field key
                 args = []
                 for x in fields:
                     if x in cfm:

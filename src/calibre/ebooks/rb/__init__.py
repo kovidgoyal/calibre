@@ -1,6 +1,10 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Container
 
 HEADER = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
@@ -9,7 +13,7 @@ class RocketBookError(Exception):
     pass
 
 
-def unique_name(name, used_names):
+def unique_name(name: str, used_names: Container[str]) -> str:
     name = os.path.basename(name)
     if len(name) < 32 and name not in used_names:
         return name

@@ -14,6 +14,7 @@ that visual order text back recovers the string we started with.
 
 import unicodedata
 import unittest
+from typing import TYPE_CHECKING
 
 from calibre.ebooks.pdf.bidi import (
     OBJECT_REPLACEMENT,
@@ -30,6 +31,11 @@ from calibre.ebooks.pdf.bidi import (
 )
 from calibre.utils.icu import logical_to_visual
 from calibre.utils.icu import visual_to_logical as icu_visual_to_logical
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from calibre.ebooks.pdf.reflow import Page
 
 # Strings in logical order, covering the right-to-left scripts and the things
 # that are easy to get wrong when reordering them
@@ -217,7 +223,7 @@ class TestVisualToLogical(unittest.TestCase):
 
 
 class TestParseMarkup(unittest.TestCase):
-    def round_trip(self, raw):
+    def round_trip(self, raw: str) -> str:
         "Parsing and re-serializing must not change anything"
         runs: list = []
         flatten(parse_markup(raw), (), runs)
@@ -389,7 +395,7 @@ class TestReorderRuns(unittest.TestCase):
 class TestFixPDFToHTML(unittest.TestCase):
     "The whole HTML document produced by pdftohtml"
 
-    def doc(self, body, html_attrs='') -> str:
+    def doc(self, body: str, html_attrs: str = '') -> str:
         return f'<!DOCTYPE html>\n<html{html_attrs}>\n<head><title>t</title></head>\n<body>{body}</body>\n</html>\n'
 
     def test_left_to_right_document_is_untouched(self) -> None:
@@ -450,7 +456,7 @@ class TestReflowIntegration(unittest.TestCase):
     a line that arrives in several pieces is still reordered as a whole.
     """
 
-    def page(self, fragments, page_width=600):
+    def page(self, fragments: Sequence[tuple[int, int, int, str]], page_width: int = 600) -> Page:
         from calibre.ebooks.pdf.reflow import Page
         from calibre.utils.logging import default_log
         from calibre.utils.xml_parse import safe_xml_fromstring
@@ -528,7 +534,7 @@ class TestReflowIntegration(unittest.TestCase):
         self.assertEqual(markup_to_text(t.raw), t.text_as_string)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromNames([
         f'{__name__}.{x.__name__}'
         for x in (

@@ -1,8 +1,16 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from typing import TYPE_CHECKING
+
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.utils import StreamOrPath
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class RBOutput(OutputFormatPlugin):
@@ -20,7 +28,7 @@ class RBOutput(OutputFormatPlugin):
         )
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         from calibre.ebooks.rb.writer import RBWriter
 
         with StreamOrPath(output, 'wb', makedirs=True) as out_stream:

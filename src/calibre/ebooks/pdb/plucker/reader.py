@@ -4,12 +4,21 @@ import os
 import struct
 from collections import OrderedDict
 from compression import zlib
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre import CurrentDir
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.utils.img import Canvas, image_from_data, save_cover_data_to
 from calibre.utils.imghdr import identify
+
+if TYPE_CHECKING:
+    from collections.abc import Container
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1
@@ -109,7 +118,7 @@ class HeaderRecord:
     Plucker header. PDB record 0.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         (self.uid,) = struct.unpack('>H', raw[0:2])
         # This is labeled version in the spec.
         # 2 is ZLIB compressed,
@@ -136,7 +145,7 @@ class SectionHeader:
     details about the section such as it's uid.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         (self.uid,) = struct.unpack('>H', raw[0:2])
         (self.paragraphs,) = struct.unpack('>H', raw[2:4])
         (self.size,) = struct.unpack('>H', raw[4:6])
@@ -149,7 +158,7 @@ class SectionHeaderText:
     Sub header for text records.
     """
 
-    def __init__(self, section_header, raw) -> None:
+    def __init__(self, section_header: SectionHeader, raw: bytes) -> None:
         # The uncompressed size of each paragraph.
         self.sizes = []
         # uncompressed offset of each paragraph starting
@@ -184,7 +193,7 @@ class SectionMetadata:
     can be assigned a different encoding.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         self.default_encoding = 'latin-1'
         self.owner_id = None
 
@@ -218,7 +227,8 @@ class SectionMetadata:
             elif type == 7:
                 pass
 
-            adv += 2 * length
+            # Each record is a 4 byte header (type, length) followed by length 16-bit words of data
+            adv += 4 + 2 * length
 
 
 class SectionText:
@@ -226,7 +236,7 @@ class SectionText:
     Text data. Stores a text section header and the PHTML.
     """
 
-    def __init__(self, section_header, raw) -> None:
+    def __init__(self, section_header: SectionHeader, raw: bytes) -> None:
         self.header = SectionHeaderText(section_header, raw)
         self.data = raw[section_header.paragraphs * 4 :]
 
@@ -238,7 +248,7 @@ class SectionCompositeImage:
     are uid's.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         (self.columns,) = struct.unpack('>H', raw[0:2])
         (self.rows,) = struct.unpack('>H', raw[2:4])
 
@@ -279,7 +289,7 @@ class Reader(FormatReader):
           * DATATYPE_EXT_ANCHOR(_COMPRESSED)
     """
 
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         self.stream = stream
         self.log = log
         self.options = options
@@ -341,7 +351,7 @@ class Reader(FormatReader):
 
         self.mi = get_metadata(stream, False)
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str | OEBBook:
         # Each text record is independent (unless the continuation
         # value is set in the previous record). Put each converted
         # text recorded into a separate file. We will reference the
@@ -357,7 +367,8 @@ class Reader(FormatReader):
                         html += self.process_phtml(section_data.data, section_data.header.paragraph_offsets)
                     elif section_header.type == DATATYPE_PHTML_COMPRESSED:
                         d = self.decompress_phtml(section_data.data)
-                        html += self.process_phtml(d, section_data.header.paragraph_offsets)
+                        # d is None for unsupported compression types, in which case process_phtml() raises TypeError
+                        html += self.process_phtml(cast('bytes', d), section_data.header.paragraph_offsets)
                     html += '</body></html>'
                     htmlf.write(html.encode('utf-8'))
 
@@ -459,7 +470,7 @@ class Reader(FormatReader):
 
         return oeb
 
-    def decompress_phtml(self, data):
+    def decompress_phtml(self, data: bytes) -> bytes | None:
         if self.header_record.compression == 2:
             if self.owner_id:
                 raise NotImplementedError
@@ -469,7 +480,7 @@ class Reader(FormatReader):
 
             return decompress_doc(data)
 
-    def process_phtml(self, d, paragraph_offsets=()):
+    def process_phtml(self, d: bytes, paragraph_offsets: Container[int] = ()) -> str:
         html = '<p id="p0">'
         offset = 0
         paragraph_open = True

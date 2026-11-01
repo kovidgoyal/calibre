@@ -4,6 +4,7 @@
 import os
 import sys
 from io import BytesIO
+from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode, prints
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XPath, css_text
@@ -12,8 +13,17 @@ from calibre.utils.fonts.subset import subset
 from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Mapping
+    from collections.abc import Container as AbstractContainer
 
-def remove_font_face_rules(container, sheet, remove_names, base):
+    from css_parser.css import CSSStyleSheet
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+
+def remove_font_face_rules(container: Container, sheet: CSSStyleSheet, remove_names: AbstractContainer[str | None], base: str) -> bool:
     changed = False
     for rule in tuple(sheet.cssRules):
         if rule.type != rule.FONT_FACE_RULE:
@@ -29,14 +39,14 @@ def remove_font_face_rules(container, sheet, remove_names, base):
     return changed
 
 
-def iter_subsettable_fonts(container):
+def iter_subsettable_fonts(container: Container) -> Iterator[tuple[str, str]]:
     for name, mt in container.mime_map.items():
         if mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}:
             yield name, mt
 
 
-def subset_all_fonts(container, font_stats, report):
-    remove = set()
+def subset_all_fonts(container: Container, font_stats: Mapping[str, set[str]], report: Callable[[str], object]) -> bool:
+    remove: set[str] = set()
     total_old = total_new = 0
     changed = False
     for name, mt in iter_subsettable_fonts(container):
@@ -86,11 +96,11 @@ def subset_all_fonts(container, font_stats, report):
     if remove:
         for name, mt in container.mime_map.items():
             if mt in OEB_STYLES:
-                sheet = container.parsed(name)
+                sheet = cast('CSSStyleSheet', container.parsed(name))  # CSS files are parsed into css_parser stylesheets
                 if remove_font_face_rules(container, sheet, remove, name):
                     container.dirty(name)
             elif mt in OEB_DOCS:
-                for style in XPath('//h:style')(container.parsed(name)):
+                for style in XPath('//h:style')(cast('_Element', container.parsed(name))):  # HTML files are parsed into lxml trees
                     if style.get('type', 'text/css') == 'text/css' and style.text:
                         sheet = container.parse_css(style.text, name)
                         if remove_font_face_rules(container, sheet, remove, name):
@@ -111,7 +121,7 @@ if __name__ == '__main__':
     default_log.filter_level = default_log.DEBUG
     inbook = sys.argv[-1]
     ebook = get_container(inbook, default_log)
-    report = []
+    report: list[str] = []
     stats = StatsCollector(ebook).font_stats
     subset_all_fonts(ebook, stats, report.append)
     outbook, ext = inbook.rpartition('.')[0::2]

@@ -1,11 +1,22 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from typing import TYPE_CHECKING
+
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from optparse import Values
 
-def remove_html_cover(oeb, log) -> None:
+    from calibre.ebooks.mobi.writer2.resources import Resources
+    from calibre.ebooks.mobi.writer8.mobi import KF8Book
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+    from calibre.ebooks.oeb.stylizer import Stylizer
+    from calibre.utils.logging import Log
+
+
+def remove_html_cover(oeb: OEBBook, log: Log) -> None:
     from calibre.ebooks.oeb.base import OEB_DOCS
 
     if not oeb.metadata.cover or 'cover' not in oeb.guide:
@@ -25,7 +36,7 @@ def remove_html_cover(oeb, log) -> None:
             oeb.manifest.remove(item)
 
 
-def extract_mobi(output_path, opts) -> None:
+def extract_mobi(output_path: str, opts: Values) -> None:
     if opts.extract_to is not None:
         from calibre.ebooks.mobi.debug.main import inspect_mobi
 
@@ -176,7 +187,7 @@ class MOBIOutput(OutputFormatPlugin):
                     x.klass = 'section'
                     articles_ = list(x)
                     if articles_:
-                        self.oeb.manifest.remove(self.oeb.manifest.hrefs[x.href])
+                        self.oeb.manifest.remove(self.oeb.manifest.hrefs[x.href])  # ty: ignore[invalid-argument-type] periodical sections always have an href
                         x.href = articles_[0].href
 
             for sec in sections:
@@ -202,7 +213,7 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         oeb = oeb_book
         output_path = output
         from calibre.ebooks.mobi.writer2.resources import Resources
@@ -238,12 +249,12 @@ class MOBIOutput(OutputFormatPlugin):
         self.log('Creating MOBI 6 output')
         self.write_mobi(input_plugin, output_path, kf8, resources)
 
-    def create_kf8(self, resources, for_joint=False):
+    def create_kf8(self, resources: Resources, for_joint: bool = False) -> KF8Book:
         from calibre.ebooks.mobi.writer8.main import create_kf8_book
 
         return create_kf8_book(self.oeb, self.opts, resources, for_joint=for_joint)
 
-    def write_mobi(self, input_plugin, output_path, kf8, resources) -> None:
+    def write_mobi(self, input_plugin: InputFormatPlugin, output_path: str, kf8: KF8Book | None, resources: Resources) -> None:
         from calibre.customize.ui import plugin_for_input_format
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
@@ -275,17 +286,21 @@ class MOBIOutput(OutputFormatPlugin):
         writer(oeb, output_path)
         extract_mobi(output_path, opts)
 
-    def specialize_css_for_output(self, log, opts, item, stylizer) -> None:
+    def specialize_css_for_output(self, log: Log, opts: Values, item: Manifest.Item, stylizer: Stylizer) -> None:
         from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
 
         CSSCleanup(log, opts)(item, stylizer)
 
-    def workaround_fire_bugs(self, jacket) -> None:
+    def workaround_fire_bugs(self, jacket: Manifest.Item) -> None:
         # The idiotic Fire crashes when trying to render the table used to
         # layout the jacket
+        from lxml import etree
+
         from calibre.ebooks.oeb.base import XHTML
 
-        for table in jacket.data.xpath('//*[local-name()="table"]'):
+        root = jacket.data
+        assert isinstance(root, etree._Element)
+        for table in root.xpath('//*[local-name()="table"]'):
             table.tag = XHTML('div')
             for tr in table.xpath('descendant::*[local-name()="tr"]'):
                 cols = tr.xpath('descendant::*[local-name()="td"]')
@@ -342,7 +357,7 @@ class AZW3Output(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         oeb = oeb_book
         output_path = output
         from calibre.ebooks.mobi.writer2.resources import Resources
@@ -369,7 +384,7 @@ class AZW3Output(OutputFormatPlugin):
         kf8.write(output_path)
         extract_mobi(output_path, opts)
 
-    def specialize_css_for_output(self, log, opts, item, stylizer) -> None:
+    def specialize_css_for_output(self, log: Log, opts: Values, item: Manifest.Item, stylizer: Stylizer) -> None:
         from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
 
         CSSCleanup(log, opts)(item, stylizer)

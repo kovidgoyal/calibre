@@ -6,7 +6,7 @@ import pprint
 import shutil
 import sys
 from functools import partial
-from typing import Any
+from typing import IO, TYPE_CHECKING, Any, Protocol
 
 from calibre import filesystem_encoding, get_types_map
 from calibre.constants import __version__
@@ -27,6 +27,22 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.localization import _
 from calibre.utils.zipfile import ZipFile
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from optparse import Values
+
+    from calibre.customize.conversion import ConversionOption, InputFormatPlugin, OutputFormatPlugin
+    from calibre.customize.profiles import InputProfile, OutputProfile
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.oeb.reader import OEBReader
+    from calibre.utils.logging import Log
+
+
+class ProgressReporter(Protocol):
+    def __call__(self, fraction: float, msg: str = '', /) -> None: ...
+
 
 DEBUG_README = b'''
 This debug folder contains snapshots of the e-book as it passes through the
@@ -50,7 +66,7 @@ various stages of conversion. The stages are:
 '''
 
 
-def supported_input_formats():
+def supported_input_formats() -> set[str]:
     fmts = available_input_formats()
     for x in ('zip', 'rar', 'oebzip'):
         fmts.add(x)
@@ -58,7 +74,8 @@ def supported_input_formats():
 
 
 class OptionValues:
-    def __getattr__(self, name: str) -> Any:
+    # option values are set dynamically as attributes
+    def __getattr__(self, name: str) -> Any:  # ruff: ignore[any-type]
         raise AttributeError(name)
 
     def __setattr__(self, name: str, value: object) -> None:
@@ -66,11 +83,11 @@ class OptionValues:
 
 
 class CompositeProgressReporter:
-    def __init__(self, global_min, global_max, global_reporter) -> None:
+    def __init__(self, global_min: float, global_max: float, global_reporter: ProgressReporter) -> None:
         self.global_min, self.global_max = global_min, global_max
         self.global_reporter = global_reporter
 
-    def __call__(self, fraction, msg=''):
+    def __call__(self, fraction: float, msg: str = '') -> None:
         global_frac = self.global_min + fraction * (self.global_max - self.global_min)
         self.global_reporter(global_frac, msg)
 
@@ -103,16 +120,16 @@ class Plumber:
 
     def __init__(
         self,
-        input,
-        output,
-        log,
-        report_progress=DummyReporter(),
-        dummy=False,
-        merge_plugin_recs=True,
-        abort_after_input_dump=False,
-        override_input_metadata=False,
-        for_regex_wizard=False,
-        view_kepub=False,
+        input: str | bytes,
+        output: str | bytes,
+        log: Log,
+        report_progress: ProgressReporter = DummyReporter(),
+        dummy: bool = False,
+        merge_plugin_recs: bool = True,
+        abort_after_input_dump: bool = False,
+        override_input_metadata: bool = False,
+        for_regex_wizard: bool = False,
+        view_kepub: bool = False,
     ) -> None:
         """
         :param input: Path to input file.
@@ -969,26 +986,27 @@ class Plumber:
         if merge_plugin_recs:
             self.merge_plugin_recommendations()
 
-    def get_all_options(self):
+    def get_all_options(self) -> dict[ConversionOption, object]:
         ans = {}
         for group in (self.input_options, self.pipeline_options, self.output_options, self.all_format_options):
             for rec in group:
                 ans[rec.option] = rec.recommended_value
         return ans
 
-    def get_option_by_name(self, name):
+    def get_option_by_name(self, name: str) -> OptionRecommendation | None:
         for group in (self.input_options, self.pipeline_options, self.output_options, self.all_format_options):
             for rec in group:
                 if rec.option == name:
                     return rec
 
-    def get_option_help(self, name):
+    def get_option_help(self, name: str) -> str | None:
         rec = self.get_option_by_name(name)
         help = getattr(rec, 'help', None)
         if help is not None:
+            assert rec is not None  # help can only be non-None if rec is not None
             return help.replace('%default', str(rec.recommended_value))
 
-    def get_all_help(self):
+    def get_all_help(self) -> dict[str, str]:
         ans = {}
         for group in (self.input_options, self.pipeline_options, self.output_options, self.all_format_options):
             for rec in group:
@@ -997,7 +1015,7 @@ class Plumber:
                     ans[rec.option.name] = help
         return ans
 
-    def merge_plugin_recs(self, plugin) -> None:
+    def merge_plugin_recs(self, plugin: InputFormatPlugin | OutputFormatPlugin) -> None:
         for name, val, level in plugin.recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level:
@@ -1008,14 +1026,14 @@ class Plumber:
         for source in (self.input_plugin, self.output_plugin):
             self.merge_plugin_recs(source)
 
-    def merge_ui_recommendations(self, recommendations) -> None:
+    def merge_ui_recommendations(self, recommendations: Iterable[tuple[str, object, int]]) -> None:
         """
         Merge recommendations from the UI. As long as the UI recommendation
         level is >= the baseline recommended level, the UI value is used,
         *except* if the baseline has a recommendation level of `HIGH`.
         """
 
-        def eq(name, a, b):
+        def eq(name: str, a: object, b: object) -> bool:
             if name in {
                 'sr1_search',
                 'sr1_replace',
@@ -1042,7 +1060,7 @@ class Plumber:
                 if changed:
                     self.changed_options.add(rec)
 
-    def opts_to_mi(self, mi) -> None:
+    def opts_to_mi(self, mi: Metadata) -> None:
         from calibre.ebooks.metadata import string_to_authors
 
         for x in self.metadata_option_names:
@@ -1066,7 +1084,7 @@ class Plumber:
                         continue
                 setattr(mi, x, val)
 
-    def download_cover(self, url):
+    def download_cover(self, url: str) -> str:
         import io
 
         from PIL import Image
@@ -1122,7 +1140,7 @@ class Plumber:
             for rec in group:
                 setattr(self.opts, rec.option.name, rec.recommended_value)
 
-        def set_profile(profiles, which) -> None:
+        def set_profile(profiles: Callable[[], Iterable[InputProfile | OutputProfile]], which: str) -> None:
             attr = which + '_profile'
             sval = getattr(self.opts, attr)
             for x in profiles():
@@ -1165,13 +1183,13 @@ class Plumber:
         except Exception:
             pass
 
-    def dump_oeb(self, oeb, out_dir) -> None:
+    def dump_oeb(self, oeb: OEBBook, out_dir: str) -> None:
         from calibre.ebooks.oeb.writer import OEBWriter
 
         w = OEBWriter(pretty_print=self.opts.pretty_print)
         w(oeb, out_dir)
 
-    def dump_input(self, ret, output_dir) -> None:
+    def dump_input(self, ret: OEBBook | str | bytes, output_dir: str) -> None:
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
         if isinstance(ret, (str, bytes)):
             shutil.copytree(output_dir, out_dir)
@@ -1288,6 +1306,7 @@ class Plumber:
 
         pr(0.0, _('Running transforms on e-book...'))
 
+        # dynamic attribute, not declared on OEBBook
         self.oeb.plumber_output_format = self.output_fmt or ''
 
         if self.opts.transform_html_rules:
@@ -1461,25 +1480,25 @@ class Plumber:
 
 # This has to be global as create_oebbook can be called from other locations
 # (for example in the html input plugin)
-regex_wizard_callback = None
+regex_wizard_callback: Callable[[str | None, str], object] | None = None
 
 
-def set_regex_wizard_callback(f) -> None:
+def set_regex_wizard_callback(f: Callable[[str | None, str], object] | None) -> None:
     global regex_wizard_callback
     regex_wizard_callback = f
 
 
 def create_oebbook(
-    log,
-    path_or_stream,
-    opts,
-    reader=None,
-    encoding='utf-8',
-    populate=True,
-    for_regex_wizard=False,
-    specialize=None,
-    removed_items=(),
-):
+    log: Log,
+    path_or_stream: str | IO[bytes] | None,
+    opts: Values | OptionValues,
+    reader: type[OEBReader] | None = None,
+    encoding: str | None = 'utf-8',
+    populate: bool = True,
+    for_regex_wizard: bool = False,
+    specialize: Callable[[OEBBook], OEBBook | None] | None = None,
+    removed_items: tuple[str, ...] = (),
+) -> OEBBook:
     """
     Create an OEBBook.
     """
@@ -1501,11 +1520,12 @@ def create_oebbook(
 
         reader = OEBReader
 
+    assert path_or_stream is not None  # only None when populate is False
     reader()(oeb, path_or_stream)
     return oeb
 
 
-def create_dummy_plumber(input_format, output_format):
+def create_dummy_plumber(input_format: str, output_format: str) -> Plumber:
     from calibre.utils.logging import Log
 
     input_format = input_format.lower()

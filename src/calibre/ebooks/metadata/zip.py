@@ -1,14 +1,18 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre import CurrentDir
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils import StreamOrPath
 from calibre.utils.zipfile import ZipFile
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_metadata(stream):
+
+def get_metadata(stream: IO[bytes]) -> Metadata:
     from calibre.ebooks.metadata.archive import is_comic
     from calibre.ebooks.metadata.meta import get_metadata
 
@@ -57,7 +61,7 @@ def get_metadata(stream):
     raise ValueError('No ebook found in ZIP archive ({})'.format(os.path.basename(getattr(stream, 'name', '') or '<stream>')))
 
 
-def zip_opf_metadata(opfpath, zf):
+def zip_opf_metadata(opfpath: str, zf: ZipFile) -> Metadata:
     from calibre.ebooks.metadata.opf2 import OPF
 
     with StreamOrPath(opfpath, 'rb') as f:
@@ -68,7 +72,7 @@ def zip_opf_metadata(opfpath, zf):
     # when both the OPF file and the cover file are in the root of the
     # zip file and the cover is an actual raster image, but I don't care
     # enough to make it more robust
-    if getattr(mi, 'cover', None):
+    if mi.cover:
         covername = os.path.basename(mi.cover)
         mi.cover = None
         names = zf.namelist()

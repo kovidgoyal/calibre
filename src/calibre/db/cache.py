@@ -478,7 +478,9 @@ class Cache:
         formats = self._field_for('formats', book_id)
         mi.format_metadata = {}
         mi.languages = list(self._field_for('languages', book_id))
-        mi.pages = self._field_for('pages', book_id, default_value=0)
+        pages = self._field_for('pages', book_id, default_value=0)
+        assert pages is None or isinstance(pages, int)
+        mi.pages = pages
         if not formats:
             good_formats = None
         else:
@@ -496,8 +498,12 @@ class Cache:
         mi.tags = list(self._field_for('tags', book_id, default_value=()))
         mi.series = self._field_for('series', book_id)
         if mi.series:
-            mi.series_index = self._field_for('series_index', book_id, default_value=1.0)
-        mi.rating = self._field_for('rating', book_id)
+            series_index = self._field_for('series_index', book_id, default_value=1.0)
+            assert isinstance(series_index, (int, float))
+            mi.series_index = series_index
+        rating = self._field_for('rating', book_id)
+        assert rating is None or isinstance(rating, (int, float))
+        mi.rating = rating
         mi.set_identifiers(self._field_for('identifiers', book_id, default_value={}))
         mi.application_id = book_id
         mi.id = book_id
@@ -2561,7 +2567,7 @@ class Cache:
 
         try:
             # Handle code passing in an OPF object instead of a Metadata object
-            mi = mi.to_book_metadata()
+            mi = mi.to_book_metadata()  # ty: ignore[call-non-callable] only OPF has it, it raises AttributeError for Metadata
         except AttributeError, TypeError:
             pass
 
@@ -2602,7 +2608,7 @@ class Cache:
                 with open(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:
-                self._set_cover({book_id: cdata})  # ty: ignore[invalid-argument-type]
+                self._set_cover({book_id: cdata})
         except Exception:
             if ignore_errors:
                 traceback.print_exc()
@@ -2970,7 +2976,7 @@ class Cache:
             except Exception:
                 series_index = 1.0
         if not mi.authors:
-            mi.authors = (_('Unknown'),)
+            mi.set('authors', [_('Unknown')])
         aus = mi.author_sort if not mi.is_null('author_sort') else self._author_sort_from_authors(mi.authors)
         mi.title = mi.title or _('Unknown')
         if mi.is_null('title_sort'):

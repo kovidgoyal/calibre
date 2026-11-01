@@ -3,6 +3,7 @@
 
 import glob
 import os
+from typing import TYPE_CHECKING
 
 from calibre import CurrentDir
 from calibre.customize.ui import plugin_for_input_format, plugin_for_output_format
@@ -16,18 +17,23 @@ from calibre.utils.ipc.simple_worker import fork_job
 from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from calibre.ebooks.oeb.base import OEBBook
+
 
 class BadFormat(ValueError):
     pass
 
 
-def do_explode(path, dest):
+def do_explode(path: str, dest: str) -> str:
     with open(path, 'rb') as stream:
         mr = MobiReader(stream, default_log, None, None)
 
         with CurrentDir(dest):
-            mr = Mobi8Reader(mr, default_log)
-            opf = os.path.abspath(mr())
+            mr8 = Mobi8Reader(mr, default_log)
+            opf = os.path.abspath(mr8())
             try:
                 os.remove('debug-raw.html')
             except Exception:
@@ -36,7 +42,7 @@ def do_explode(path, dest):
     return opf
 
 
-def explode(path, dest, question=lambda x: True):
+def explode(path: str, dest: str, question: Callable[[str], bool] = lambda x: True) -> str | None:
     with open(path, 'rb') as stream:
         raw = stream.read(3)
         stream.seek(0)
@@ -77,7 +83,7 @@ def explode(path, dest, question=lambda x: True):
     return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path, dest), no_output=True)['result']
 
 
-def set_cover(oeb) -> None:
+def set_cover(oeb: OEBBook) -> None:
     if 'cover' not in oeb.guide or oeb.metadata['cover']:
         return
     cover = oeb.guide['cover']
@@ -87,7 +93,7 @@ def set_cover(oeb) -> None:
         oeb.metadata.add('cover', item.id)
 
 
-def do_rebuild(opf, dest_path) -> None:
+def do_rebuild(opf: str, dest_path: str) -> None:
     plumber = Plumber(opf, dest_path, default_log)
     plumber.setup_options()
     inp = plugin_for_input_format('azw3')
@@ -99,7 +105,7 @@ def do_rebuild(opf, dest_path) -> None:
     outp.convert(oeb, dest_path, inp, plumber.opts, default_log)
 
 
-def rebuild(src_dir, dest_path) -> None:
+def rebuild(src_dir: str, dest_path: str) -> None:
     opf = glob.glob(os.path.join(src_dir, '*.opf'))
     if not opf:
         raise ValueError(f'No OPF file found in {src_dir}')

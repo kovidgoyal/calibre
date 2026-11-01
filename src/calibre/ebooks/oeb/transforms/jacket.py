@@ -5,8 +5,12 @@ import os
 import re
 import sys
 from contextlib import suppress
+from datetime import date
 from string import Formatter
+from typing import TYPE_CHECKING, Self, cast
 from xml.sax.saxutils import escape
+
+from lxml import etree
 
 from calibre import guess_type, prepare_string_for_xml
 from calibre.constants import iswindows
@@ -21,24 +25,40 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, ngettext
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.customize.profiles import OutputProfile
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.oeb.base import Manifest
+    from calibre.utils.logging import Log
+
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
 
 class SafeFormatter(Formatter):
-    def get_value(self, *args, **kwargs):
+    def get_value(self, key: int | str, args: Sequence[object], kwargs: Mapping[str, object]) -> object:
         try:
-            return Formatter.get_value(self, *args, **kwargs)
+            return Formatter.get_value(self, key, args, kwargs)
         except KeyError:
             return ''
 
 
 class Base:
     oeb: OEBBook
+    opts: Values | OptionValues
+    log: Log
 
-    def remove_images(self, item, limit=1):
+    def remove_images(self, item: Manifest.Item, limit: int = 1) -> int:
         path = XPath('//h:img[@src]')
         removed = 0
-        for img in path(item.data):
+        root = item.data
+        assert isinstance(root, etree._Element)  # only called for spine items
+        for img in path(root):
             if removed >= limit:
                 break
             href = item.abshref(img.get('src'))
@@ -58,15 +78,17 @@ class RemoveFirstImage(Base):
     def remove_first_image(self) -> None:
         deleted_item = None
         for item in self.oeb.spine:
-            if XPath(JACKET_XPATH)(item.data):
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+            if XPath(JACKET_XPATH)(root):
                 continue
             removed = self.remove_images(item)
             if removed > 0:
                 self.log('Removed first image')
-                body = XPath('//h:body')(item.data)
+                body = XPath('//h:body')(root)
                 if body:
                     raw = xml2text(body[0]).strip()
-                    imgs = XPath('//h:img|//svg:svg')(item.data)
+                    imgs = XPath('//h:img|//svg:svg')(root)
                     if not raw and not imgs:
                         self.log(f'Removing {item.href} as it has no content')
                         self.oeb.manifest.remove(item)
@@ -81,7 +103,7 @@ class RemoveFirstImage(Base):
                     self.oeb.toc.remove(item)
             self.oeb.guide.remove_by_href(deleted_item.href)
 
-    def __call__(self, oeb, opts, metadata):
+    def __call__(self, oeb: OEBBook, opts: Values | OptionValues, metadata: Metadata) -> None:
         """
         Add metadata in jacket.xhtml if specified in opts
         If not specified, remove previous jacket instance
@@ -97,7 +119,7 @@ class Jacket(Base):
     book.
     """
 
-    def insert_metadata(self, mi) -> None:
+    def insert_metadata(self, mi: Metadata) -> None:
         self.log('Inserting metadata into book...')
 
         try:
@@ -146,13 +168,15 @@ class Jacket(Base):
 
     def remove_existing_jacket(self) -> None:
         for x in self.oeb.spine[:4]:
-            if XPath(JACKET_XPATH)(x.data):
+            root = x.data
+            assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+            if XPath(JACKET_XPATH)(root):
                 self.remove_images(x, limit=sys.maxsize)
                 self.oeb.manifest.remove(x)
                 self.log('Removed existing jacket')
                 break
 
-    def __call__(self, oeb, opts, metadata):
+    def __call__(self, oeb: OEBBook, opts: Values | OptionValues, metadata: Metadata) -> None:
         """
         Add metadata in jacket.xhtml if specified in opts
         If not specified, remove previous jacket instance
@@ -166,10 +190,10 @@ class Jacket(Base):
 # Render Jacket {{{
 
 
-def get_rating(rating, rchar, e_rchar):
+def get_rating(rating: float | str | None, rchar: str, e_rchar: str) -> str:
     ans = ''
     try:
-        num = float(rating) / 2
+        num = float(rating) / 2  # ty: ignore[invalid-argument-type] None raises and is handled below
     except Exception:
         return ans
     num = max(0, num)
@@ -187,7 +211,7 @@ class Series(str):
     number: str
     roman_number: str
 
-    def __new__(cls, series, series_index):
+    def __new__(cls, series: str | None, series_index: float | str | None) -> Self:
         if series and series_index is not None:
             roman = _('{1} of <em>{0}</em>').format(escape(series), escape(fmt_sidx(series_index, use_roman=True)))
             combined = _('{1} of <em>{0}</em>').format(escape(series), escape(fmt_sidx(series_index, use_roman=False)))
@@ -202,10 +226,10 @@ class Series(str):
 
 
 class Timestamp:
-    def __init__(self, dt, render_template) -> None:
+    def __init__(self, dt: date | None, render_template: str | None) -> None:
         self.dt = as_local_time(dt)
         self.is_date_undefined = dt is None or is_date_undefined(dt)
-        self.default_render = '' if self.is_date_undefined else escape(format_date(self.dt, render_template))
+        self.default_render = '' if self.is_date_undefined else escape(format_date(self.dt, render_template))  # ty: ignore[invalid-argument-type] dt is not None here
 
     def __repr__(self) -> str:
         return self.default_render
@@ -215,10 +239,10 @@ class Timestamp:
     def __bool__(self) -> bool:
         return bool(self.default_render)
 
-    def __getattr__(self, template):
+    def __getattr__(self, template: str) -> str:
         with suppress(Exception):
             if not self.is_date_undefined:
-                return escape(format_date(self.dt, template))
+                return escape(format_date(self.dt, template))  # ty: ignore[invalid-argument-type] dt is not None here
         return ''
 
 
@@ -226,7 +250,7 @@ class Tags(str):
     tags_list: list[str]
     alphabetical: str
 
-    def __new__(cls, tags, output_profile):
+    def __new__(cls, tags: Iterable[str] | None, output_profile: OutputProfile) -> Self:
         tags = [escape(x) for x in tags or ()]
         t = str.__new__(cls, ', '.join(tags))
         t.alphabetical = ', '.join(sorted(tags, key=sort_key))
@@ -234,11 +258,11 @@ class Tags(str):
         return t
 
 
-def postprocess_jacket(root, output_profile, has_data) -> None:
+def postprocess_jacket(root: _Element, output_profile: OutputProfile, has_data: dict[str, bool]) -> None:
     # Post-process the generated html to strip out empty header items
 
-    def extract(tag) -> None:
-        parent = tag.getparent()
+    def extract(tag: _Element) -> None:
+        parent = cast('_Element', tag.getparent())  # the cbj_* elements in the template are never the root
         idx = parent.index(tag)
         parent.remove(tag)
         if tag.tail:
@@ -249,7 +273,7 @@ def postprocess_jacket(root, output_profile, has_data) -> None:
                     idx = -1
                 parent[-1].tail = (parent[-1].tail or '') + tag.tail
 
-    def extract_class(cls) -> None:
+    def extract_class(cls: str) -> None:
         for tag in root.xpath('//*[@class="_"]'.replace('_', cls)):
             extract(tag)
 
@@ -263,38 +287,38 @@ def postprocess_jacket(root, output_profile, has_data) -> None:
 
 
 class Attributes:
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> str:
         return 'none'
 
 
 class Identifiers:
-    def __init__(self, idents) -> None:
+    def __init__(self, idents: Mapping[str, str] | None) -> None:
         self.identifiers = idents or {}
         self.display = Attributes()
         for k in self.identifiers:
             setattr(self.display, k, 'initial')
-        links = []
+        links: list[str] = []
         for x in urls_from_identifiers(self.identifiers):
             name, id_typ, id_val, url = (prepare_string_for_xml(e, True) for e in x)
             links.append(f'<a href="{url}" title="{id_typ}:{id_val}">{name}</a>')
         self.links = ', '.join(links)
         setattr(self.display, 'links', 'initial' if self.links else 'none')
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> str:
         return self.identifiers.get(name, '')
 
 
 def render_jacket(
-    mi,
-    output_profile,
-    alt_title=_('Unknown'),
-    alt_tags=None,
-    alt_comments='',
-    alt_publisher='',
-    rescale_fonts=False,
-    alt_authors=None,
-    smarten_punctuation=False,
-):
+    mi: Metadata,
+    output_profile: OutputProfile,
+    alt_title: str = _('Unknown'),
+    alt_tags: Iterable[str] | None = None,
+    alt_comments: str = '',
+    alt_publisher: str = '',
+    rescale_fonts: bool = False,
+    alt_authors: Iterable[str] | None = None,
+    smarten_punctuation: bool = False,
+) -> _Element:
     if alt_tags is None:
         alt_tags = []
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
@@ -315,6 +339,7 @@ def render_jacket(
         publisher = mi.publisher if not mi.is_null('publisher') else alt_publisher
     except Exception:
         publisher = ''
+    assert publisher is not None  # not null
     publisher = escape(publisher)
 
     pubdate = timestamp = None
@@ -343,11 +368,11 @@ def render_jacket(
         author = ''
     mi.authors = orig
     author = escape(author)
-    has_data = {}
+    has_data: dict[str, bool] = {}
 
-    def generate_html(comments):
+    def generate_html(comments: str) -> str:
         display = Attributes()
-        args = {
+        args: dict[str, object] = {
             'xmlns': XHTML_NS,
             'title_str': title_str,
             'identifiers': Identifiers(mi.identifiers),
@@ -378,11 +403,18 @@ def render_jacket(
                 dkey = key.replace('#', '_')
                 dt = m.get('datatype')
                 if dt == 'series':
-                    args[dkey] = Series(mi.get(key), mi.get(key + '_index'))
+                    sval, sidx = mi.get(key), mi.get(key + '_index')
+                    assert sval is None or isinstance(sval, str)
+                    assert sidx is None or isinstance(sidx, (int, float, str))
+                    args[dkey] = Series(sval, sidx)
                 elif dt == 'rating':
-                    args[dkey] = rating_to_stars(mi.get(key), m.get('display', {}).get('allow_half_stars', False))
+                    rval = mi.get(key)
+                    assert rval is None or isinstance(rval, (int, float))
+                    args[dkey] = rating_to_stars(rval, m.get('display', {}).get('allow_half_stars', False))
                 elif dt == 'datetime':
-                    args[dkey] = Timestamp(mi.get(key), m.get('display', {}).get('date_format', 'dd MMM yyyy'))
+                    dval = mi.get(key)
+                    assert dval is None or isinstance(dval, date)
+                    args[dkey] = Timestamp(dval, m.get('display', {}).get('date_format', 'dd MMM yyyy'))
                 elif dt == 'comments':
                     val = val or ''
                     ctype = m.get('display', {}).get('interpret_as') or 'html'
@@ -403,8 +435,8 @@ def render_jacket(
                         val = comments_to_html(val)
                     args[dkey] = val
                 else:
-                    args[dkey] = escape(val)
-                args[dkey + '_label'] = escape(display_name)
+                    args[dkey] = escape(val)  # ty: ignore[invalid-argument-type] None raises and is skipped by the except below
+                args[dkey + '_label'] = escape(display_name)  # ty: ignore[invalid-argument-type] None raises and is skipped by the except below
                 setattr(display, dkey, 'none' if mi.is_null(key) else 'initial')
             except Exception:
                 # if the val (custom column contents) is None, don't add to args
@@ -472,17 +504,20 @@ def render_jacket(
 # }}}
 
 
-def linearize_jacket(oeb) -> None:
+def linearize_jacket(oeb: OEBBook) -> None:
     for x in oeb.spine[:4]:
-        if XPath(JACKET_XPATH)(x.data):
-            for e in XPath('//h:table|//h:tr|//h:th')(x.data):
+        root = x.data
+        assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+        if XPath(JACKET_XPATH)(root):
+            for e in XPath('//h:table|//h:tr|//h:th')(root):
                 e.tag = XHTML('div')
-            for e in XPath('//h:td')(x.data):
+            for e in XPath('//h:td')(root):
                 e.tag = XHTML('span')
             break
 
 
-def referenced_images(root):
+def referenced_images(root: _Element) -> Iterator[tuple[_Element, str]]:
+
     for img in XPath('//h:img[@src]')(root):
         src = img.get('src')
         if src.startswith('file://'):

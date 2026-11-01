@@ -4,38 +4,52 @@ import math
 import numbers
 import re
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.lrf.fonts import get_font
 from calibre.ebooks.lrf.pylrs.pylrs import CR, CharButton, LrsTextTag, Paragraph, Plot, Span, Text, TextBlock
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
 
-def ceil(num):
+    from calibre.ebooks.BeautifulSoup import Tag
+    from calibre.ebooks.lrf.html.convert_from import CSSProps, HTMLConverter
+    from calibre.ebooks.lrf.pylrs.pylrs import AttrValue, ElementSource
+    # Note that in the casts of tag attribute values to str below, only the class
+    # attribute is multi-valued, all other attribute values are str
+
+    # Text (with its attributes), a Plot or a line (1) or paragraph (2) break
+    type Token = tuple[int | str | bytes | Plot, dict[str, AttrValue] | None]
+
+
+def ceil(num: float) -> int:
     return math.ceil(num)
 
 
-def print_xml(elem) -> None:
+def print_xml(elem: ElementSource) -> None:
     from calibre.ebooks.lrf.pylrs.elements import ElementWriter
 
-    elem = elem.toElement('utf8')
-    ew = ElementWriter(elem, sourceEncoding='utf8')
+    # debugging helper, only useful for elements whose toElement() returns an Element
+    elem = elem.toElement('utf8')  # ty: ignore[invalid-assignment]
+    ew = ElementWriter(elem, sourceEncoding='utf8')  # ty: ignore[invalid-argument-type]
     ew.write(sys.stdout)
     print()
 
 
-def cattrs(base, extra):
+def cattrs(base: dict[str, AttrValue], extra: Mapping[str, AttrValue]) -> dict[str, AttrValue]:
     new = base.copy()
     new.update(extra)
     return new
 
 
-def tokens(tb):
+def tokens(tb: TextBlock) -> Iterator[Token]:
     """
     Return the next token. A token is :
     1. A string
     a block of text that has the same style
     """
 
-    def process_element(x, attrs):
+    def process_element(x: object, attrs: dict[str, AttrValue]) -> Iterator[Token]:
         if isinstance(x, CR):
             yield 2, None
         elif isinstance(x, Text):
@@ -60,22 +74,22 @@ def tokens(tb):
             yield 1, None
         elif isinstance(i, Paragraph):
             for j in i.contents:
-                attrs = {}
+                attrs: dict[str, AttrValue] = {}
                 if hasattr(j, 'attrs'):
                     attrs = j.attrs
                 yield from process_element(j, attrs)
 
 
 class Cell:
-    def __init__(self, conv, tag, css) -> None:
+    def __init__(self, conv: HTMLConverter, tag: Tag, css: CSSProps) -> None:
         self.conv = conv
         self.tag = tag
         self.css = css
-        self.text_blocks = []
+        self.text_blocks: list[TextBlock] = []
         self.pwidth = -1.0
         if tag.has_attr('width') and '%' in tag['width']:
             try:
-                self.pwidth = float(tag['width'].replace('%', ''))
+                self.pwidth = float(cast('str', tag['width']).replace('%', ''))
             except ValueError:
                 pass
         if 'width' in css and '%' in css['width']:
@@ -87,8 +101,8 @@ class Cell:
             self.pwidth = -1
         self.rowspan = self.colspan = 1
         try:
-            self.colspan = int(tag['colspan']) if tag.has_attr('colspan') else 1
-            self.rowspan = int(tag['rowspan']) if tag.has_attr('rowspan') else 1
+            self.colspan = int(cast('str', tag['colspan'])) if tag.has_attr('colspan') else 1
+            self.rowspan = int(cast('str', tag['rowspan'])) if tag.has_attr('rowspan') else 1
         except Exception:
             pass
 
@@ -120,16 +134,16 @@ class Cell:
                 if isinstance(tb.contents[-1], Paragraph):
                     tb.contents[-1].append(' ')
 
-    def pts_to_pixels(self, pts):
+    def pts_to_pixels(self, pts: AttrValue | float) -> int:
         pts = int(pts)
         return ceil((float(self.conv.profile.dpi) / 72) * (pts / 10))
 
-    def minimum_width(self):
+    def minimum_width(self) -> float:
         return max(self.minimum_tb_width(tb) for tb in self.text_blocks)
 
-    def minimum_tb_width(self, tb):
+    def minimum_tb_width(self, tb: TextBlock) -> float:
         ts = tb.textStyle.attrs
-        default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
+        default_font = get_font(cast('str', ts['fontfacename']), self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
         mwidth = 0
         for token, attrs in tokens(tb):
@@ -138,26 +152,29 @@ class Cell:
                 continue
             if isinstance(token, Plot):
                 return self.pts_to_pixels(token.xsize)
-            ff = attrs.get('fontfacename', ts['fontfacename'])
-            fs = attrs.get('fontsize', ts['fontsize'])
+            # token is text here so attrs is not None
+            ff = attrs.get('fontfacename', ts['fontfacename'])  # ty: ignore[unresolved-attribute]
+            fs = attrs.get('fontsize', ts['fontsize'])  # ty: ignore[unresolved-attribute]
             if (ff, fs) != (ts['fontfacename'], ts['fontsize']):
-                font = get_font(ff, self.pts_to_pixels(fs))
-            if not token.strip():
+                font = get_font(cast('str', ff), self.pts_to_pixels(fs))
+            if not token.strip():  # ty: ignore[unresolved-attribute] ty does not treat int as Integral
                 continue
-            word = token.split()
+            word = token.split()  # ty: ignore[unresolved-attribute] ty does not treat int as Integral
             word = word[0] if word else ''
-            fl, ft, fr, fb = font.getbbox(word)
+            fl, ft, fr, fb = font.getbbox(word)  # ty: ignore[unresolved-attribute] the fonts of text styles are known fonts
             width = fr - fl
             mwidth = max(mwidth, width)
         return parindent + mwidth + 2
 
-    def text_block_size(self, tb, maxwidth=sys.maxsize, debug=False):
+    def text_block_size(self, tb: TextBlock, maxwidth: float = sys.maxsize, debug: bool = False) -> tuple[float, float]:
         ts = tb.textStyle.attrs
-        default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
+        default_font = get_font(cast('str', ts['fontfacename']), self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
         top, bottom, left, right = 0, 0, parindent, parindent
 
-        def add_word(width, height, left, right, top, bottom, ls, ws):
+        def add_word(
+            width: float, height: float, left: float, right: float, top: float, bottom: float, ls: float, ws: float
+        ) -> tuple[float, float, float, float]:
             if left + width > maxwidth:
                 left = width + ws
                 top += ls
@@ -189,45 +206,45 @@ class Cell:
             ff = attrs.get('fontfacename', ts['fontfacename'])
             fs = attrs.get('fontsize', ts['fontsize'])
             if (ff, fs) != (ts['fontfacename'], ts['fontsize']):
-                font = get_font(ff, self.pts_to_pixels(fs))
-            for word in token.split():
-                fl, ft, fr, fb = font.getbbox(word)
+                font = get_font(cast('str', ff), self.pts_to_pixels(fs))
+            for word in token.split():  # ty: ignore[unresolved-attribute] ty does not treat int as Integral
+                fl, ft, fr, fb = font.getbbox(word)  # ty: ignore[unresolved-attribute] the fonts of text styles are known fonts
                 width, height = fr - fl, abs(fb - ft)
                 left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
         return right + 3 + max(parindent, 10), bottom
 
-    def text_block_preferred_width(self, tb, debug=False):
+    def text_block_preferred_width(self, tb: TextBlock, debug: bool = False) -> float:
         return self.text_block_size(tb, sys.maxsize, debug=debug)[0]
 
-    def preferred_width(self, debug=False):
+    def preferred_width(self, debug: bool = False) -> int:
         return ceil(max(self.text_block_preferred_width(i, debug=debug) for i in self.text_blocks))
 
-    def height(self, width):
+    def height(self, width: float) -> float:
         return sum(self.text_block_size(i, width)[1] for i in self.text_blocks)
 
 
 class Row:
-    def __init__(self, conv, row, css, colpad) -> None:
-        self.cells = []
+    def __init__(self, conv: HTMLConverter, row: Tag, css: CSSProps, colpad: int) -> None:
+        self.cells: list[Cell] = []
         self.colpad = colpad
         cells = row.findAll(re.compile(r'td|th', re.IGNORECASE))
-        self.targets = []
+        self.targets: list[str] = []
         for cell in cells:
             ccss = conv.tag_css(cell, css)[0]
             self.cells.append(Cell(conv, cell, ccss))
-        for a in row.findAll(id=True) + row.findAll(name=True):
+        for a in row.findAll(id=True) + row.findAll(name=True):  # ty: ignore[missing-argument, unknown-argument] bs4 types findAll() as taking one positional argument
             name = a['name'] if a.has_attr('name') else a['id'] if a.has_attr('id') else None
             if name is not None:
                 self.targets.append(name.replace('#', ''))
 
-    def number_of_cells(self):
+    def number_of_cells(self) -> int:
         """Number of cells in this row. Respects colspan"""
         ans = 0
         for cell in self.cells:
             ans += cell.colspan
         return ans
 
-    def height(self, widths):
+    def height(self, widths: list[float]) -> float:
         i, heights = 0, []
         for cell in self.cells:
             width = sum(widths[i : i + cell.colspan])
@@ -237,7 +254,7 @@ class Row:
             return 0
         return max(heights)
 
-    def cell_from_index(self, col):
+    def cell_from_index(self, col: int) -> Cell | None:
         i = -1
         cell = None
         for cell in self.cells:
@@ -249,31 +266,31 @@ class Row:
                 break
         return cell
 
-    def minimum_width(self, col):
+    def minimum_width(self, col: int) -> float:
         cell = self.cell_from_index(col)
         if not cell:
             return 0
         return cell.minimum_width()
 
-    def preferred_width(self, col):
+    def preferred_width(self, col: int) -> int:
         cell = self.cell_from_index(col)
         if not cell:
             return 0
         return 0 if cell.colspan > 1 else cell.preferred_width()
 
-    def width_percent(self, col):
+    def width_percent(self, col: int) -> float:
         cell = self.cell_from_index(col)
         if not cell:
             return -1
         return -1 if cell.colspan > 1 else cell.pwidth
 
-    def cell_iterator(self):
+    def cell_iterator(self) -> Iterator[Cell]:
         yield from self.cells
 
 
 class Table:
-    def __init__(self, conv, table, css, rowpad=10, colpad=10) -> None:
-        self.rows = []
+    def __init__(self, conv: HTMLConverter, table: Tag, css: CSSProps, rowpad: int = 10, colpad: int = 10) -> None:
+        self.rows: list[Row] = []
         self.conv = conv
         self.rowpad = rowpad
         self.colpad = colpad
@@ -284,32 +301,32 @@ class Table:
             self.rows.append(Row(conv, row, rcss, colpad))
         conv.in_table = False
 
-    def number_of_columns(self):
+    def number_of_columns(self) -> int:
         val = 0
         for row in self.rows:
             val = max(val, row.number_of_cells())
         return val
 
-    def number_or_rows(self):
+    def number_or_rows(self) -> int:
         return len(self.rows)
 
-    def height(self, maxwidth):
+    def height(self, maxwidth: int) -> float:
         """Return row heights + self.rowpad"""
         widths = self.get_widths(maxwidth)
         return sum(row.height(widths) + self.rowpad for row in self.rows) - self.rowpad
 
-    def minimum_width(self, col):
+    def minimum_width(self, col: int) -> float:
         return max(row.minimum_width(col) for row in self.rows)
 
-    def width_percent(self, col):
+    def width_percent(self, col: int) -> float:
         return max(row.width_percent(col) for row in self.rows)
 
-    def get_widths(self, maxwidth):
+    def get_widths(self, maxwidth: int) -> list[float]:
         """
         Return widths of columns + self.colpad
         """
         rows, cols = self.number_or_rows(), self.number_of_columns()
-        widths = list(range(cols))
+        widths: list[float] = list(range(cols))
         for c in range(cols):
             cellwidths = [0 for i in range(rows)]
             for r in range(rows):
@@ -334,9 +351,9 @@ class Table:
 
         return [i + self.colpad for i in widths]
 
-    def blocks(self, maxwidth, maxheight):
+    def blocks(self, maxwidth: int, maxheight: int) -> Iterator[tuple[TextBlock | None, float, float, float, list[str] | None]]:
         rows, cols = self.number_or_rows(), self.number_of_columns()
-        cellmatrix = [[None for c in range(cols)] for r in range(rows)]
+        cellmatrix: list[list[Cell | None]] = [[None for c in range(cols)] for r in range(rows)]
         rowpos = [0 for i in range(rows)]
         for r in range(rows):
             nc = self.rows[r].cell_iterator()
@@ -371,4 +388,4 @@ class Table:
                     tb.blockStyle = self.conv.book.create_block_style(blockwidth=width, blockheight=cell.text_block_size(tb, width)[1], blockrule='horz-fixed')
 
                     yield tb, xpos[c], sypos, delta, None
-                    sypos += tb.blockStyle.attrs['blockheight']
+                    sypos += tb.blockStyle.attrs['blockheight']  # ty: ignore[unsupported-operator] set to a number above

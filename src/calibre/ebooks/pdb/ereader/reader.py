@@ -4,14 +4,22 @@
 Read content from ereader pdb file.
 """
 
+from typing import IO, TYPE_CHECKING
+
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.ereader.reader132 import Reader132
 from calibre.ebooks.pdb.ereader.reader202 import Reader202
 from calibre.ebooks.pdb.formatreader import FormatReader
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
+
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         record0_size = len(header.section_data(0))
 
         if record0_size == 132:
@@ -21,11 +29,11 @@ class Reader(FormatReader):
         else:
             raise EreaderError(f'Size mismatch. eReader header record size {record0_size} KB is not supported.')
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str:
         return self.reader.extract_content(output_dir)
 
-    def dump_pml(self):
+    def dump_pml(self) -> str:
         return self.reader.dump_pml()
 
-    def dump_images(self, out_dir):
+    def dump_images(self, out_dir: str) -> None:
         return self.reader.dump_images(out_dir)

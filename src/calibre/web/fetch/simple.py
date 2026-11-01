@@ -226,9 +226,9 @@ class RecursiveFetcher:
                 if isinstance(self.keep_only_tags, dict):
                     self.keep_only_tags = [self.keep_only_tags]
                 for spec in self.keep_only_tags:
-                    for tag in soup.find('body').find_all(**spec):
+                    for tag in soup.find('body').find_all(**spec):  # ty: ignore[unresolved-attribute] None is handled by the except below
                         body.insert(len(body.contents), tag)
-                soup.find('body').replaceWith(body)
+                soup.find('body').replaceWith(body)  # ty: ignore[unresolved-attribute] None is handled by the except below
             except AttributeError:  # soup has no body element
                 pass
 

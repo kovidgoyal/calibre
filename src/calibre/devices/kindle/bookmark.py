@@ -308,7 +308,7 @@ class Bookmark:  # {{{
             try:
                 with open(book_fs, 'rb') as f:
                     mu = MetadataUpdater(f)
-                    self.book_length = mu.book_length
+                    self.book_length = mu.book_length()
             except Exception:
                 pass
         else:

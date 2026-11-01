@@ -2,34 +2,48 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import defaultdict
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from calibre.ebooks.oeb.base import OEB_STYLES
 from calibre.ebooks.oeb.transforms.subset import find_font_face_rules
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from optparse import Values
+    from uuid import UUID
 
-def obfuscate_font_data(data, key):
+    from lxml.etree import _Element
+
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.docx.names import DOCXNamespace
+    from calibre.ebooks.docx.writer.styles import TextStyle
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+
+
+def obfuscate_font_data(data: bytes, key: UUID) -> bytes:
     prefix = bytearray(data[:32])
-    key = bytearray(reversed(key.bytes))
-    prefix = bytes(bytearray(prefix[i] ^ key[i % len(key)] for i in range(len(prefix))))
+    key_bytes = bytearray(reversed(key.bytes))
+    prefix = bytes(bytearray(prefix[i] ^ key_bytes[i % len(key_bytes)] for i in range(len(prefix))))
     return prefix + data[32:]
 
 
 class FontsManager:
-    def __init__(self, namespace, oeb, opts) -> None:
+    def __init__(self, namespace: DOCXNamespace, oeb: OEBBook, opts: Values | OptionValues) -> None:
         self.namespace = namespace
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
-    def serialize(self, text_styles, fonts, embed_relationships, font_data_map) -> None:
+    def serialize(self, text_styles: Iterable[TextStyle], fonts: _Element, embed_relationships: _Element, font_data_map: dict[str, bytes]) -> None:
         makeelement = self.namespace.makeelement
-        font_families, seen = set(), set()
+        font_families: set[str] = set()
+        seen: set[str] = set()
         for ts in text_styles:
             if ts.font_family:
                 lf = ts.font_family.lower()
                 if lf not in seen:
                     seen.add(lf)
                     font_families.add(ts.font_family)
-        family_map = {}
+        family_map: dict[str, _Element] = {}
         for family in sorted(font_families):
             family_map[family] = makeelement(fonts, 'w:font', w_name=family)
 
@@ -39,8 +53,8 @@ class FontsManager:
                 embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
         num = 0
-        face_map = defaultdict(set)
-        rel_map = {}
+        face_map: defaultdict[str, set[str]] = defaultdict(set)
+        rel_map: dict[Manifest.Item, str] = {}
         for ef in embedded_fonts:
             ff = ef['font-family'][0]
             if ff not in font_families:
@@ -72,7 +86,9 @@ class FontsManager:
                     Type=self.namespace.names['EMBEDDED_FONT'],
                     Target=fname,
                 )
-                font_data_map['word/' + fname] = obfuscate_font_data(item.data, key)
+                font_data = item.data
+                assert isinstance(font_data, bytes)  # font files are not parsed
+                font_data_map['word/' + fname] = obfuscate_font_data(font_data, key)
             makeelement(
                 font,
                 'w:embed' + tag,

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
+# annotations: the source plugins are downloaded and run by older calibre versions
+# using older Python, so annotations must not be evaluated at runtime
+from __future__ import absolute_import, annotations, division, print_function, unicode_literals
 
 import hashlib
 import os
@@ -9,6 +11,7 @@ import re
 import sys
 import tempfile
 import time
+from typing import TYPE_CHECKING, Literal, overload
 
 import regex
 
@@ -30,6 +33,18 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.localization import canonicalize_lang
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+    from threading import Event
+
+    from lxml import etree
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.sources.base import BookURL, CoverQueue, Identifiers, IdentifyQueue
+    from calibre.ebooks.metadata.sources.test import IdentifyTest
+    from calibre.utils.browser import Browser
+    from calibre.utils.logging import Log
+
 NAMESPACES = {
     'openSearch': 'http://a9.com/-/spec/opensearchrss/1.0/',
     'atom': 'http://www.w3.org/2005/Atom',
@@ -38,7 +53,7 @@ NAMESPACES = {
 }
 
 
-def pretty_google_books_comments(raw):
+def pretty_google_books_comments(raw: str) -> str:
     raw = replace_entities(raw)
     # Paragraphs in the comments are removed but whatever software googl uses
     # to do this does not insert a space so we often find the pattern
@@ -53,7 +68,7 @@ def pretty_google_books_comments(raw):
     return raw
 
 
-def get_details(browser, url, timeout):  # {{{
+def get_details(browser: Browser, url: str, timeout: float) -> bytes:  # {{{
     try:
         raw = browser.open_novisit(url, timeout=timeout).read()
     except Exception as e:
@@ -69,10 +84,10 @@ def get_details(browser, url, timeout):  # {{{
 
 # }}}
 
-xpath_cache = {}
+xpath_cache: dict[str, etree.XPath] = {}
 
 
-def XPath(x):
+def XPath(x: str) -> etree.XPath:
     ans = xpath_cache.get(x)
     if ans is None:
         from lxml import etree
@@ -81,7 +96,7 @@ def XPath(x):
     return ans
 
 
-def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
+def to_metadata(browser: Browser, log: Log, entry_: _Element | str, timeout: float, running_a_test: bool = False) -> Metadata | None:  # {{{
     from calibre.utils.xml_parse import safe_xml_fromstring
 
     # total_results  = XPath('//openSearch:totalResults')
@@ -101,7 +116,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 
     # print(etree.tostring(entry_, pretty_print=True))
 
-    def get_text(extra, x):
+    def get_text(extra: _Element, x: etree.XPath) -> str | None:
         try:
             ans = x(extra)
             if ans:
@@ -112,7 +127,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
             log.exception('Programming error:')
         return None
 
-    def get_extra_details():
+    def get_extra_details() -> _Element:
         raw = get_details(browser, details_url, timeout)
         if running_a_test:
             with open(os.path.join(tempfile.gettempdir(), 'Google-' + details_url.split('/')[-1] + '.xml'), 'wb') as f:
@@ -133,14 +148,14 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
         details_url = url(entry_)[0]
         title_ = ': '.join([x.text for x in title(entry_)]).strip()
         authors = [x.text.strip() for x in creator(entry_) if x.text]
-        if not id_url or not title:
+        if not id_url or not title_:
             # Silently discard this entry
             return None
         extra = None
 
     if not authors:
         authors = [_('Unknown')]
-    if not title:
+    if not title_:
         return None
     if extra is None:
         extra = get_extra_details()
@@ -228,14 +243,14 @@ class GoogleBooks(Source):
 
     DUMMY_IMAGE_MD5 = frozenset(('0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f'))
 
-    def get_book_url(self, identifiers):  # {{{
+    def get_book_url(self, identifiers: Identifiers) -> BookURL | None:  # {{{
         goog = identifiers.get('google', None)
         if goog is not None:
             return ('google', goog, 'https://books.google.com/books?id=%s' % goog)
 
     # }}}
 
-    def id_from_url(self, url):  # {{{
+    def id_from_url(self, url: str) -> tuple[str, str] | None:  # {{{
         from polyglot.urllib import parse_qs, urlparse
 
         purl = urlparse(url)
@@ -247,7 +262,13 @@ class GoogleBooks(Source):
 
     # }}}
 
-    def create_query(self, title=None, authors=None, identifiers=None, capitalize_isbn=False):  # {{{
+    def create_query(
+        self,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        capitalize_isbn: bool = False,
+    ) -> str | None:  # {{{
         if identifiers is None:
             identifiers = {}
         try:
@@ -261,7 +282,7 @@ class GoogleBooks(Source):
             q += ('ISBN:' if capitalize_isbn else 'isbn:') + isbn
         elif title or authors:
 
-            def build_term(prefix, parts):
+            def build_term(prefix: str, parts: Iterable[str]) -> str:
                 return ' '.join('in' + prefix + ':' + x for x in parts)
 
             title_tokens = list(self.get_title_tokens(title))
@@ -285,18 +306,26 @@ class GoogleBooks(Source):
     # }}}
 
     def download_cover(  # {{{
-        self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False
+        self,
+        log: Log,
+        result_queue: CoverQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+        get_best_cover: bool = False,
     ) -> None:
         if identifiers is None:
             identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')
-            rq = Queue()
+            rq: IdentifyQueue = Queue()
             self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers)
             if abort.is_set():
                 return
-            results = []
+            results: list[Metadata] = []
             while True:
                 try:
                     results.append(rq.get_nowait())
@@ -330,7 +359,7 @@ class GoogleBooks(Source):
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers):  # {{{
+    def get_cached_cover_url(self, identifiers: Identifiers) -> str | None:  # {{{
         url = None
         goog = identifiers.get('google', None)
         if goog is None:
@@ -344,7 +373,11 @@ class GoogleBooks(Source):
 
     # }}}
 
-    def postprocess_downloaded_google_metadata(self, ans, relevance=0):  # {{{
+    @overload
+    def postprocess_downloaded_google_metadata(self, ans: Metadata, relevance: int = 0) -> Metadata: ...
+    @overload
+    def postprocess_downloaded_google_metadata(self, ans: None, relevance: int = 0) -> None: ...
+    def postprocess_downloaded_google_metadata(self, ans: Metadata | None, relevance: int = 0) -> Metadata | None:  # {{{
         if not isinstance(ans, Metadata):
             return ans
         ans.source_relevance = relevance
@@ -361,7 +394,7 @@ class GoogleBooks(Source):
     # }}}
 
     def get_all_details(  # {{{
-        self, br, log, entries, abort, result_queue, timeout
+        self, br: Browser, log: Log, entries: Iterable[_Element], abort: Event, result_queue: IdentifyQueue, timeout: float
     ) -> None:
         from lxml import etree
 
@@ -378,21 +411,28 @@ class GoogleBooks(Source):
     # }}}
 
     def identify_via_web_search(  # {{{
-        self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30
-    ):
+        self,
+        log: Log,
+        result_queue: IdentifyQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+    ) -> str | None:
         from calibre.utils.filenames import ascii_text
         from polyglot.urllib import urlparse
 
         if identifiers is None:
             identifiers = {}
         isbn = check_isbn(identifiers.get('isbn', None))
-        q = []
+        q: list[str] = []
         strip_punc_pat = regex.compile(r'[\p{C}|\p{M}|\p{P}|\p{S}|\p{Z}]+', regex.UNICODE)
-        google_ids = []
-        check_tokens = set()
+        google_ids: list[str] = []
+        check_tokens: set[str] = set()
         has_google_id = 'google' in identifiers
 
-        def to_check_tokens(*tokens):
+        def to_check_tokens(*tokens: str) -> Iterator[str]:
             for t in tokens:
                 if len(t) < 3:
                     continue
@@ -423,7 +463,7 @@ class GoogleBooks(Source):
         if not has_google_id:
             url = se.google_format_query(q, site='books.google.com')
             log('Making query:', url)
-            r = []
+            r: list[str] = []
             root = se.query(br, url, 'google', timeout=timeout, save_raw=r.append)
             pat = re.compile(r'id=([^&]+)')
             for q in se.google_parse_results(root, r[0], log=log, ignore_uncached=False):
@@ -441,7 +481,7 @@ class GoogleBooks(Source):
         if not google_ids and isbn and (title or authors):
             return self.identify_via_web_search(log, result_queue, abort, title, authors, {}, timeout)
         found = False
-        seen = set()
+        seen: set[str] = set()
         for relevance, gid in enumerate(google_ids):
             if gid in seen:
                 continue
@@ -450,7 +490,9 @@ class GoogleBooks(Source):
                 ans = to_metadata(br, log, gid, timeout, self.running_a_test)
                 if isinstance(ans, Metadata):
                     if isbn:
-                        if isbn not in ans.all_isbns:
+                        all_isbns = ans.all_isbns
+                        assert isinstance(all_isbns, list)  # set by to_metadata()
+                        if isbn not in all_isbns:
                             log(
                                 'Excluding',
                                 ans.title,
@@ -459,7 +501,7 @@ class GoogleBooks(Source):
                                 'as it does not match the ISBN:',
                                 isbn,
                                 'not in',
-                                ' '.join(ans.all_isbns),
+                                ' '.join(all_isbns),
                             )
                             continue
                     elif check_tokens:
@@ -487,8 +529,15 @@ class GoogleBooks(Source):
     # }}}
 
     def identify(  # {{{
-        self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30
-    ):
+        self,
+        log: Log,
+        result_queue: IdentifyQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+    ) -> str | None:
         from calibre.utils.xml_parse import safe_xml_fromstring
 
         if identifiers is None:
@@ -512,7 +561,7 @@ class GoogleBooks(Source):
             log.error('Insufficient metadata to construct query')
             return
 
-        def make_query(query):
+        def make_query(query: str) -> tuple[Literal[False], str] | tuple[Literal[True], list[_Element]]:
             log('Making query:', query)
             try:
                 raw = br.open_novisit(query, timeout=timeout).read()
@@ -527,9 +576,10 @@ class GoogleBooks(Source):
                 log.exception('Failed to parse identify results')
                 return False, as_unicode(e)
 
-        ok, entries = make_query(query)
-        if not ok:
-            return entries
+        res = make_query(query)
+        if not res[0]:
+            return res[1]
+        entries = res[1]
         if not entries and not abort.is_set():
             log('No results found, doing a web search instead')
             return self.identify_via_web_search(log, result_queue, abort, title, authors, identifiers, timeout)
@@ -546,7 +596,7 @@ if __name__ == '__main__':  # tests {{{
     # calibre-debug src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import authors_test, test_identify_plugin, title_test
 
-    tests = [
+    tests: list[IdentifyTest] = [
         (
             {
                 'identifiers': {'google': 's7NIrgEACAAJ'},

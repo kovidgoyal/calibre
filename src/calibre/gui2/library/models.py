@@ -1592,12 +1592,12 @@ class BooksModel(QAbstractTableModel):  # {{{
                 db.set_languages(id, val)
             else:
                 if column == 'authors' and val:
-                    val = authors_to_string(string_to_authors(val))
+                    val = authors_to_string(string_to_authors(cast('str', val)))  # edited authors are a str
                 books_to_refresh |= db.set(row, column, val, allow_case_change=True)
                 if column == 'title':
                     if (lang := db.languages(row)) is not None:
                         lang = lang.partition(',')[0]
-                    db.set(row, 'sort', title_sort(val, lang=lang), allow_case_change=True)
+                    db.set(row, 'sort', title_sort(cast('str', val), lang=lang), allow_case_change=True)  # edited titles are a str
             self.refresh_ids(list(books_to_refresh), row)
         self.dataChanged.emit(index, index)
         return True

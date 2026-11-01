@@ -13,11 +13,15 @@
 import os
 import re
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
+
+if TYPE_CHECKING:
+    from calibre.ebooks.rtf2xml.list_table import LevelAttrs, ListAttrs, ListIds, ListInfo
 
 
 class MakeLists:
@@ -30,14 +34,14 @@ class MakeLists:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        headings_to_sections,
-        list_of_lists,
-        copy=None,
-        run_level=1,
-        no_headings_as_list=1,
-        write_list_info=0,
+        in_file: str,
+        bug_handler: type[Exception],
+        headings_to_sections: int,
+        list_of_lists: list[ListInfo],
+        copy: int | None = None,
+        run_level: int = 1,
+        no_headings_as_list: int = 1,
+        write_list_info: int = 0,
     ) -> None:
         """
         Required:
@@ -120,7 +124,7 @@ class MakeLists:
         self.__found_appt = 0
         self.__line_num = 0
 
-    def __in_pard_func(self, line) -> None:
+    def __in_pard_func(self, line: str) -> None:
         """
         Required:
             line -- the line of current text.
@@ -134,7 +138,7 @@ class MakeLists:
             self.__state = 'after_pard'
         self.__write_obj.write(line)
 
-    def __after_pard_func(self, line) -> None:
+    def __after_pard_func(self, line: str) -> None:
         """
         Required:
             line -- the line of current text.
@@ -194,7 +198,7 @@ class MakeLists:
         else:
             self.__list_chunk += line
 
-    def __list_after_par_def_func(self, line, id) -> None:
+    def __list_after_par_def_func(self, line: str, id: str) -> None:
         """
         Required:
             line -- the line of current text.
@@ -271,7 +275,7 @@ class MakeLists:
         self.__write_obj.write('mi<tg<close_____<list\n')
         self.__write_obj.write('mi<mk<list_close\n')
 
-    def __write_start_list(self, id) -> None:
+    def __write_start_list(self, id: str) -> None:
         """
         Required:
             id -- the id of the current list.
@@ -305,11 +309,12 @@ class MakeLists:
             index_of_list = self.__get_index_of_list(id)
             if index_of_list is not None:  # found a matching id
                 curlist = self.__list_of_lists[index_of_list]
-                list_dict = curlist[0]
+                # the first item is the list attributes, the rest are the levels
+                list_dict = cast('ListAttrs', curlist[0])
                 level = int(self.__level) + 1
                 if level >= len(curlist):
                     level = len(curlist) - 1
-                level_dict = curlist[level][0]
+                level_dict = cast('list[LevelAttrs]', curlist[level])[0]
                 list_type = level_dict.get('numbering-type')
                 if list_type == 'bullet':
                     list_type = 'unordered'
@@ -339,7 +344,7 @@ class MakeLists:
         self.__write_obj.write('mi<mk<liststart_\n')
         self.__write_start_item()
 
-    def __get_index_of_list(self, id):
+    def __get_index_of_list(self, id: str) -> int | None:
         """
         Requires:
             id -- id of current paragraph-definition
@@ -357,8 +362,8 @@ class MakeLists:
         if id == '0':
             return
         for the_index, list in enumerate(self.__list_of_lists):
-            the_dict = list[0]
-            id_in_list = the_dict.get('list-id')
+            the_dict = cast('ListAttrs', list[0])  # the first item is the list attributes
+            id_in_list = cast('ListIds', the_dict.get('list-id'))  # list-id is always set by list_table
             if id in id_in_list:
                 return the_index
         if self.__run_level > 0:
@@ -378,7 +383,7 @@ class MakeLists:
         self.__write_obj.write('mi<tg<close_____<item\n')
         self.__write_obj.write('mi<tg<item__end_\n')
 
-    def __default_func(self, line) -> None:
+    def __default_func(self, line: str) -> None:
         """
         Required:
             self, line
@@ -413,17 +418,17 @@ class MakeLists:
         else:
             return 0
 
-    def __get_indent(self, line) -> None:
+    def __get_indent(self, line: str) -> None:
         if self.__token_info == 'mi<mk<left_inden':
             self.__left_indent = float(line[17:-1])
 
-    def __get_list_type(self, line) -> None:
+    def __get_list_type(self, line: str) -> None:
         if self.__token_info == 'mi<mk<list-type_':  # <ordered
             self.__list_type = line[17:-1]
             if self.__list_type == 'item':
                 self.__list_type = 'unordered'
 
-    def __get_style_name(self, line) -> None:
+    def __get_style_name(self, line: str) -> None:
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
 

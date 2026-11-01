@@ -124,26 +124,26 @@ class ParseRtf:
 
     def __init__(
         self,
-        in_file,
-        out_file='',
-        out_dir=None,
-        dtd='',
-        deb_dir=None,
-        convert_symbol=None,
-        convert_wingdings=None,
-        convert_zapf=None,
-        convert_caps=None,
-        run_level=1,
-        indent=None,
-        replace_illegals=1,
-        form_lists=1,
-        headings_to_sections=1,
-        group_styles=1,
-        group_borders=1,
-        empty_paragraphs=1,
-        no_dtd=0,
-        char_data='',
-        default_encoding='cp1252',
+        in_file: str,
+        out_file: str = '',
+        out_dir: str | None = None,
+        dtd: str = '',
+        deb_dir: str | None = None,
+        convert_symbol: int | None = None,
+        convert_wingdings: int | None = None,
+        convert_zapf: int | None = None,
+        convert_caps: int | None = None,
+        run_level: int = 1,
+        indent: int | None = None,
+        replace_illegals: int = 1,
+        form_lists: int = 1,
+        headings_to_sections: int = 1,
+        group_styles: int = 1,
+        group_borders: int = 1,
+        empty_paragraphs: int = 1,
+        no_dtd: int = 0,
+        char_data: str = '',
+        default_encoding: str = 'cp1252',
     ) -> None:
         """
         Requires:
@@ -188,7 +188,7 @@ class ParseRtf:
         self.__no_dtd = no_dtd
         self.__default_encoding = default_encoding
 
-    def __check_file(self, the_file, type) -> None:
+    def __check_file(self, the_file: str, type: str) -> None:
         """Check to see if files exist"""
         if hasattr(the_file, 'read'):
             return
@@ -202,7 +202,7 @@ class ParseRtf:
             msg = f"\nThe file '{the_file}' cannot be found"
             raise RtfInvalidCodeException(msg)
 
-    def __check_dir(self, the_dir) -> int | None:
+    def __check_dir(self, the_dir: str | None) -> int | None:
         """Check to see if directory exists"""
         if not the_dir:
             return
@@ -212,7 +212,7 @@ class ParseRtf:
             raise RtfInvalidCodeException(msg)
         return 1
 
-    def parse_rtf(self):
+    def parse_rtf(self) -> int:
         """
         Parse the file by calling on other classes.
         Requires:
@@ -581,7 +581,7 @@ class ParseRtf:
         os.remove(self.__temp_file)
         return self.__exit_level
 
-    def __bracket_match(self, file_name) -> None:
+    def __bracket_match(self, file_name: str) -> None:
         if self.__run_level > 2:
             good_br, msg = self.__check_brack_obj.check_brackets()
             if good_br:
@@ -591,13 +591,13 @@ class ParseRtf:
                 msg = f'{msg} in file {file_name}'
                 print(msg, file=sys.stderr)
 
-    def __return_code(self, num) -> None:
+    def __return_code(self, num: int | None) -> None:
         if num is None:
             return
         if int(num) > self.__exit_level:
             self.__exit_level = num
 
-    def __make_temp_file(self, file):
+    def __make_temp_file(self, file: str) -> str:
         """Make a temporary file to parse"""
         write_file = 'rtf_write_file'
         read_obj = file if hasattr(file, 'read') else open_for_read(file)

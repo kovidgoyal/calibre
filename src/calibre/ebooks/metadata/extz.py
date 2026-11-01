@@ -6,6 +6,7 @@ Read meta information from extZ (TXTZ, HTMLZ...) files.
 
 import io
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
@@ -13,8 +14,11 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import _
 from calibre.utils.zipfile import ZipFile, safe_replace
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_metadata(stream, extract_cover=True):
+
+def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     """
     Return metadata as a L{MetaInfo} object
     """
@@ -27,7 +31,11 @@ def get_metadata(stream, extract_cover=True):
                 opf = OPF(opf_stream)
             mi = opf.to_book_metadata()
             if extract_cover:
-                cover_href = opf.raster_cover or opf.guide_raster_cover
+                cover_href = opf.raster_cover
+                if not cover_href:
+                    gc = opf.guide_raster_cover
+                    if gc is not None:
+                        cover_href = gc.get('href')
                 if not cover_href:
                     for meta in opf.metadata.xpath('//*[local-name()="meta" and @name="cover"]'):
                         val = meta.get('content')
@@ -55,7 +63,7 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def set_metadata(stream, mi) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     replacements = {}
 
     # Get the OPF in the archive.
@@ -72,6 +80,7 @@ def set_metadata(stream, mi) -> None:
             raise Exception('no cover')
     except Exception:
         try:
+            assert mi.cover is not None  # failures are ignored below
             with open(mi.cover, 'rb') as f:
                 new_cdata = f.read()
         except Exception:
@@ -98,7 +107,7 @@ def set_metadata(stream, mi) -> None:
         pass
 
 
-def get_first_opf_name(zf):
+def get_first_opf_name(zf: ZipFile) -> str:
     names = zf.namelist()
     opfs = []
     for n in names:
@@ -110,7 +119,7 @@ def get_first_opf_name(zf):
     return opfs[0]
 
 
-def _write_new_cover(new_cdata, cpath):
+def _write_new_cover(new_cdata: bytes, cpath: str) -> PersistentTemporaryFile:
     from calibre.utils.img import save_cover_data_to
 
     new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])

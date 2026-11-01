@@ -301,7 +301,7 @@ class BookInfo(QDialog, DropMixin):
             if book_id is None or not dbn.has_id(book_id):
                 raise ValueError(_("Book {} doesn't exist").format(book_id))
             mi = dbn.get_metadata(book_id, get_cover=False)
-            mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
+            mi.set('cover_data', [None, dbn.cover(book_id, as_image=True)])  # a QImage for display
             mi.path = None
             mi.format_files = {}
             mi.formats = []
@@ -318,7 +318,7 @@ class BookInfo(QDialog, DropMixin):
                 db = get_gui(fail_if_absent=True).current_db
                 dbn = db.new_api
                 mi = dbn.get_metadata(book_id, get_cover=False)
-                mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
+                mi.set('cover_data', [None, dbn.cover(book_id, as_image=True)])  # a QImage for display
                 mi.path = dbn.get_book_path(book_id, sep='/')
                 mi.format_files = dbn.format_files(book_id)
                 mi.marked = db.data.get_marked(book_id)

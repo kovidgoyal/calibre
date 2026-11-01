@@ -186,14 +186,17 @@ class LUMIREAD(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'LUMIREAD_600'
 
     def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
-        if metadata.thumbnail and metadata.thumbnail[-1]:
+        thumbnail = metadata.thumbnail
+        # (width, height, data) or None, see update_thumbnail() in gui2/device.py
+        assert thumbnail is None or isinstance(thumbnail, tuple)
+        if thumbnail and thumbnail[-1]:
             cfilepath = filepath.replace('/', os.sep)
             cfilepath = cfilepath.replace(os.sep + 'books' + os.sep, os.sep + 'covers' + os.sep, 1)
             pdir = os.path.dirname(cfilepath)
             if not os.path.exists(pdir):
                 os.makedirs(pdir)
             with open(cfilepath + '.jpg', 'wb') as f:
-                f.write(metadata.thumbnail[-1])
+                f.write(thumbnail[-1])
                 fsync(f)
 
 

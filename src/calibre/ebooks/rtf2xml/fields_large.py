@@ -96,10 +96,10 @@ class FieldsLarge:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -153,7 +153,7 @@ class FieldsLarge:
         self.__sec_in_field = []  # sections in field?
         self.__field_string = []  # list of field strings
 
-    def __before_body_func(self, line) -> None:
+    def __before_body_func(self, line: str) -> None:
         """
         Required:
             line --line ro parse
@@ -167,7 +167,7 @@ class FieldsLarge:
             self.__state = 'in_body'
         self.__write_obj.write(line)
 
-    def __in_body_func(self, line) -> None:
+    def __in_body_func(self, line: str) -> None:
         """
         Required:
             line --line to parse
@@ -181,7 +181,7 @@ class FieldsLarge:
             action(line)
         self.__write_obj.write(line)
 
-    def __found_field_func(self, line) -> None:
+    def __found_field_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -199,7 +199,7 @@ class FieldsLarge:
         self.__sec_in_field.append(0)
         self.__par_in_field.append(0)
 
-    def __in_field_func(self, line) -> None:
+    def __in_field_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -220,7 +220,7 @@ class FieldsLarge:
             else:
                 self.__field_string[-1] += line
 
-    def __par_in_field_func(self, line) -> None:
+    def __par_in_field_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -233,7 +233,7 @@ class FieldsLarge:
         self.__field_string[-1] += line
         self.__par_in_field[-1] = 1
 
-    def __sec_in_field_func(self, line) -> None:
+    def __sec_in_field_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -246,7 +246,7 @@ class FieldsLarge:
         self.__field_string[-1] += line
         self.__sec_in_field[-1] = 1
 
-    def __found_field_instruction_func(self, line) -> None:
+    def __found_field_instruction_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -260,7 +260,7 @@ class FieldsLarge:
         self.__field_instruction_count = self.__ob_count
         self.__cb_count = 0
 
-    def __field_instruction_func(self, line) -> None:
+    def __field_instruction_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -334,7 +334,7 @@ class FieldsLarge:
             self.__field_string[-1] += inner_field_string
         self.__symbol = 0
 
-    def __write_field_string(self, the_string) -> None:
+    def __write_field_string(self, the_string: str) -> None:
         self.__state = 'in_body'
         self.__write_obj.write(the_string)
 

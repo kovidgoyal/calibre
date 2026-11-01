@@ -1,11 +1,18 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class HTMLZInput(InputFormatPlugin):
@@ -15,7 +22,7 @@ class HTMLZInput(InputFormatPlugin):
     file_types = {'htmlz'}
     commit_name = 'htmlz_input'
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
         from calibre.ebooks.chardet import xml_to_unicode
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.utils.zipfile import ZipFile
@@ -74,6 +81,7 @@ class HTMLZInput(InputFormatPlugin):
             ienc = options.input_encoding
         else:
             ienc = xml_to_unicode(html[:4096])[-1]
+            assert ienc is not None  # always detected for non-empty bytes
         html = html.decode(ienc, 'replace')
 
         # Run the HTML through the html processing plugin.

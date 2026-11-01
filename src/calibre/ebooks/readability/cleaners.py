@@ -18,13 +18,13 @@ htmlstrip = re.compile(
 )
 
 
-def clean_attributes(html):
+def clean_attributes(html: str) -> str:
     while htmlstrip.search(html):
         html = htmlstrip.sub(r'<\1\2>', html)
     return html
 
 
-def normalize_spaces(s):
+def normalize_spaces(s: str | None) -> str:
     if not s:
         return ''
     '''replace any sequence of whitespace

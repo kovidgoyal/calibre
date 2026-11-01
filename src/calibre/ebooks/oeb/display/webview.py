@@ -2,13 +2,35 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from calibre import guess_type
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Protocol
+
+    from qt.core import QByteArray, QUrl
+
+    # The legacy QtWebKit API used by load_html()
+    class WebElement(Protocol):
+        def isNull(self) -> bool: ...
+
+    class WebFrame(Protocol):
+        def findFirstElement(self, selector: str, /) -> WebElement: ...
+
+    class WebPage(Protocol):
+        def mainFrame(self) -> WebFrame: ...
+
+    class WebView(Protocol):
+        def setHtml(self, html: str, base_url: QUrl, /) -> None: ...
+        def setContent(self, data: QByteArray, mime_type: str, base_url: QUrl, /) -> None: ...
+        def page(self) -> WebPage: ...
+
 
 class EntityDeclarationProcessor:  # {{{
-    def __init__(self, html) -> None:
-        self.declared_entities = {}
+    def __init__(self, html: str) -> None:
+        self.declared_entities: dict[str, str] = {}
         for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
             tokens = match.group(1).split()
             if len(tokens) > 1:
@@ -21,14 +43,14 @@ class EntityDeclarationProcessor:  # {{{
 # }}}
 
 
-def self_closing_sub(match):
+def self_closing_sub(match: re.Match[str]) -> str:
     tag = match.group(1)
     if tag.lower().strip() == 'br':
         return match.group()
     return f'<{match.group(1)}{match.group(2)}></{match.group(1)}>'
 
 
-def cleanup_html(html):
+def cleanup_html(html: str) -> str:
     html = EntityDeclarationProcessor(html).processed_html
     self_closing_pat = re.compile(r'<\s*([:A-Za-z0-9-]+)([^>]*)/\s*>')
     html = self_closing_pat.sub(self_closing_sub, html)
@@ -38,20 +60,21 @@ def cleanup_html(html):
 xml_detect_pat = re.compile(r'<!(?:\[CDATA\[|ENTITY)')
 
 
-def load_as_html(html):
+def load_as_html(html: str) -> bool:
     return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and xml_detect_pat.search(html) is None
 
 
 def load_html(
-    path,
-    view,
-    codec='utf-8',
-    mime_type=None,
-    pre_load_callback=lambda x: None,
-    path_is_html=False,
-    force_as_html=False,
-    loading_url=None,
+    path: str,
+    view: WebView,
+    codec: str = 'utf-8',
+    mime_type: str | None = None,
+    pre_load_callback: Callable[[QUrl], object] = lambda x: None,
+    path_is_html: bool = False,
+    force_as_html: bool = False,
+    loading_url: QUrl | None = None,
 ) -> bool:
+
     from qt.core import QByteArray, QUrl
 
     if mime_type is None:

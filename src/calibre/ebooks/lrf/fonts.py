@@ -12,10 +12,11 @@ LIBERATION_FONT_MAP = {
     'Courier10 BT Roman': 'LiberationMono-Regular',
 }
 
-FONT_FILE_MAP = {}
+# Maps full font name to font file path, the name is None if the font has no full name
+FONT_FILE_MAP: dict[str | None, str] = {}
 
 
-def get_font(name, size, encoding='unic'):
+def get_font(name: str, size: float, encoding: str = 'unic') -> ImageFont.FreeTypeFont | None:
     """
     Get an ImageFont object by name.
     @param size: Font height in pixels. To convert from pts:

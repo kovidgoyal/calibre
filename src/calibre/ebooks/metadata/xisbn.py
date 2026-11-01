@@ -4,8 +4,20 @@
 import json
 import re
 import threading
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre import browser
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+
+class XISBNRecord(TypedDict, total=False):
+    isbn: list[str]
+    form: list[str]
+    year: str
+    lang: str
+    ed: str
 
 
 class xISBN:
@@ -19,15 +31,15 @@ class xISBN:
 
     def __init__(self) -> None:
         self.lock = threading.RLock()
-        self._data = []
-        self._map = {}
+        self._data: list[list[XISBNRecord]] = []
+        self._map: dict[str, int] = {}
 
         self.isbn_pat = re.compile(r'[^0-9X]', re.IGNORECASE)
 
-    def purify(self, isbn):
+    def purify(self, isbn: str) -> str:
         return self.isbn_pat.sub('', isbn.upper())
 
-    def fetch_data(self, isbn):
+    def fetch_data(self, isbn: str) -> list[XISBNRecord]:
         # xisbn service has been de-comissioned see
         # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
         return []
@@ -46,11 +58,11 @@ class xISBN:
                 ans.append(rec)
         return ans
 
-    def isbns_in_data(self, data):
+    def isbns_in_data(self, data: Iterable[XISBNRecord]) -> Iterator[str]:
         for rec in data:
             yield from rec.get('isbn', [])
 
-    def get_data(self, isbn):
+    def get_data(self, isbn: str) -> list[XISBNRecord]:
         isbn = self.purify(isbn)
         with self.lock:
             if isbn not in self._map:
@@ -68,7 +80,7 @@ class xISBN:
                 self._map[isbn] = id_
             return self._data[self._map[isbn]]
 
-    def get_associated_isbns(self, isbn):
+    def get_associated_isbns(self, isbn: str) -> set[str]:
         data = self.get_data(isbn)
         ans = set()
         for rec in data:
@@ -76,9 +88,9 @@ class xISBN:
                 ans.add(i)
         return ans
 
-    def get_isbn_pool(self, isbn):
+    def get_isbn_pool(self, isbn: str) -> tuple[frozenset[str], int | None]:
         data = self.get_data(isbn)
-        raw = tuple(x.get('isbn') for x in data if 'isbn' in x)
+        raw = tuple(x['isbn'] for x in data if 'isbn' in x)
         isbns = []
         for x in raw:
             isbns += x

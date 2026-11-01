@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import IO, TYPE_CHECKING
+
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.utils.logging import Log
 
 
 class DOCXInput(InputFormatPlugin):
@@ -36,7 +43,7 @@ class DOCXInput(InputFormatPlugin):
 
     recommendations = {('page_breaks_before', '/', OptionRecommendation.MED)}
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         from calibre.ebooks.docx.to_html import Convert
 
         c = Convert(

@@ -3,6 +3,7 @@
 import re
 import sys
 from collections import defaultdict
+from typing import TYPE_CHECKING, TypedDict, Unpack, cast
 
 from lxml import etree
 from lxml.html import tostring as htostring
@@ -12,10 +13,31 @@ from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, sho
 from calibre.utils.xml_parse import document_fromstring, fragment_fromstring
 from polyglot.builtins import reraise
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def tounicode(tree_or_node, **kwargs):
+    from lxml.html import HtmlElement
+
+    from calibre.utils.config import OptionParser
+    from calibre.utils.logging import Log
+
+
+class ReadabilityOptions(TypedDict, total=False):
+    url: str | None
+    keep_elements: str | None
+    debug: bool
+    retry_length: int | None
+    min_text_length: int | None
+
+
+class Candidate(TypedDict):
+    content_score: float
+    elem: HtmlElement
+
+
+def tounicode(tree_or_node: HtmlElement, **kwargs: object) -> str:
     kwargs['encoding'] = str
-    return htostring(tree_or_node, **kwargs)
+    return htostring(tree_or_node, **kwargs)  # ty: ignore[no-matching-overload] kwargs are passed through to lxml
 
 
 REGEXES = {
@@ -40,22 +62,23 @@ REGEXES = {
 }
 
 
-def describe(node, depth=1):
+def describe(node: HtmlElement, depth: int = 1) -> str:
     if not hasattr(node, 'tag'):
         return f'[{type(node)}]'
     name = node.tag
-    if node.get('id', ''):
-        name += '#' + node.get('id')
-    if node.get('class', ''):
-        name += '.' + node.get('class').replace(' ', '.')
+    assert isinstance(name, str)  # comments/PIs would have failed at name[:4] below anyway
+    if nid := node.get('id', ''):
+        name += '#' + nid
+    if ncls := node.get('class', ''):
+        name += '.' + ncls.replace(' ', '.')
     if name[:4] in ['div#', 'div.']:
         name = name[3:]
-    if depth and node.getparent() is not None:
-        return name + ' - ' + describe(node.getparent(), depth - 1)
+    if depth and (parent := node.getparent()) is not None:
+        return name + ' - ' + describe(parent, depth - 1)
     return name
 
 
-def to_int(x):
+def to_int(x: str | None) -> int | None:
     if not x:
         return None
     x = x.strip()
@@ -66,19 +89,19 @@ def to_int(x):
     return int(x)
 
 
-def clean(text):
+def clean(text: str) -> str:
     text = re.sub(r'\s*\n\s*', '\n', text)
     text = re.sub(r'[ \t]{2,}', ' ', text)
     return text.strip()
 
 
-def text_content(elem):
+def text_content(elem: HtmlElement) -> str:
     if hasattr(elem, 'text_content'):
         return elem.text_content()
     return etree.tostring(elem, method='text', encoding='unicode')
 
 
-def text_length(i):
+def text_length(i: HtmlElement) -> int:
     return len(clean(text_content(i) or ''))
 
 
@@ -90,16 +113,16 @@ class Document:
     TEXT_LENGTH_THRESHOLD = 25
     RETRY_LENGTH = 250
 
-    def __init__(self, input, log, **options) -> None:
+    def __init__(self, input: str | bytes, log: Log, **options: Unpack[ReadabilityOptions]) -> None:
         self.input = input
-        self.options = defaultdict(lambda: None)
-        for k, v in options.items():
-            self.options[k] = v
-        self.html = None
+        # missing options read as None
+        self.options = cast('ReadabilityOptions', defaultdict(lambda: None))
+        self.options.update(options)
+        self.html: HtmlElement | None = None
         self.log = log
-        self.keep_elements = set()
+        self.keep_elements: set[HtmlElement] = set()
 
-    def _html(self, force=False):
+    def _html(self, force: bool = False) -> HtmlElement:
         if force or self.html is None:
             self.html = self._parse(self.input)
             path = self.options['keep_elements']
@@ -108,30 +131,31 @@ class Document:
 
         return self.html
 
-    def _parse(self, input):
+    def _parse(self, input: str | bytes) -> HtmlElement:
         doc = build_doc(input)
         doc = html_cleaner.clean_html(doc)
         base_href = self.options['url']
-        if base_href:  # ty: ignore[redundant-condition]
+        if base_href:
             doc.make_links_absolute(base_href, resolve_base_href=True)
         else:
             doc.resolve_base_href()
         return doc
 
-    def content(self):
+    def content(self) -> str:
         return get_body(self._html(True))
 
-    def title(self):
+    def title(self) -> str:
         return get_title(self._html(True))
 
-    def short_title(self):
+    def short_title(self) -> str:
         return shorten_title(self._html(True))
 
-    def summary(self):
+    def summary(self) -> str:
         try:
             ruthless = True
             while True:
                 self._html(True)
+                assert self.html is not None
 
                 for i in self.tags(self.html, 'script', 'style'):
                     i.drop_tree()
@@ -169,15 +193,15 @@ class Document:
             self.log.exception('error getting summary: ')
             reraise(Unparsable, Unparsable(str(e)), sys.exc_info()[2])
 
-    def get_article(self, candidates, best_candidate):
+    def get_article(self, candidates: dict[HtmlElement, Candidate], best_candidate: Candidate) -> HtmlElement:
         # Now that we have the top candidate, look through its siblings for content that might also be related.
         # Things like preambles, content split by ads that we removed, etc.
 
         sibling_score_threshold = max([10, best_candidate['content_score'] * 0.2])
-        output = document_fromstring('<div/>')
+        output = cast('HtmlElement', document_fromstring('<div/>'))  # parsed with the lxml.html parser
         parent = output.xpath('//div')[0]
         best_elem = best_candidate['elem']
-        for sibling in best_elem.getparent().getchildren():
+        for sibling in list(best_elem.getparent()):  # ty: ignore[invalid-argument-type] candidates always have a parent in practice
             # if isinstance(sibling, NavigableString): continue#in lxml there no concept of simple text
             append = False
             if sibling is best_elem:
@@ -201,9 +225,11 @@ class Document:
                 parent.append(sibling)
         # if output is not None:
         #     output.append(best_elem)
-        return output.find('body')
+        body = output.find('body')
+        assert body is not None  # the HTML parser always creates a body
+        return body
 
-    def select_best_candidate(self, candidates):
+    def select_best_candidate(self, candidates: dict[HtmlElement, Candidate]) -> Candidate | None:
         sorted_candidates = sorted(candidates.values(), key=lambda x: x['content_score'], reverse=True)
         for candidate in sorted_candidates[:5]:
             elem = candidate['elem']
@@ -215,7 +241,7 @@ class Document:
         best_candidate = sorted_candidates[0]
         return best_candidate
 
-    def get_link_density(self, elem):
+    def get_link_density(self, elem: HtmlElement) -> float:
         link_length = 0
         for i in elem.findall('.//a'):
             link_length += text_length(i)
@@ -226,9 +252,10 @@ class Document:
 
     def score_paragraphs(
         self,
-    ):
+    ) -> dict[HtmlElement, Candidate]:
         MIN_LEN = self.options.get('min_text_length') or self.TEXT_LENGTH_THRESHOLD
-        candidates = {}
+        candidates: dict[HtmlElement, Candidate] = {}
+        assert self.html is not None
         # self.debug(str([describe(node) for node in self.tags(self.html, "div")]))
 
         ordered = []
@@ -275,27 +302,29 @@ class Document:
 
         return candidates
 
-    def class_weight(self, e):
+    def class_weight(self, e: HtmlElement) -> int:
         weight = 0
-        if e.get('class', None):
-            if REGEXES['negativeRe'].search(e.get('class')):
+        if cls := e.get('class', None):
+            if REGEXES['negativeRe'].search(cls):
                 weight -= 25
 
-            if REGEXES['positiveRe'].search(e.get('class')):
+            if REGEXES['positiveRe'].search(cls):
                 weight += 25
 
-        if e.get('id', None):
-            if REGEXES['negativeRe'].search(e.get('id')):
+        if eid := e.get('id', None):
+            if REGEXES['negativeRe'].search(eid):
                 weight -= 25
 
-            if REGEXES['positiveRe'].search(e.get('id')):
+            if REGEXES['positiveRe'].search(eid):
                 weight += 25
 
         return weight
 
-    def score_node(self, elem):
+    def score_node(self, elem: HtmlElement) -> Candidate:
         content_score = self.class_weight(elem)
-        name = elem.tag.lower()
+        tag = elem.tag
+        assert isinstance(tag, str)  # elem is the parent of an element, so it is an element, not a comment/PI
+        name = tag.lower()
         if name == 'div':
             content_score += 5
         elif name in ['pre', 'td', 'blockquote']:
@@ -306,7 +335,7 @@ class Document:
             content_score -= 5
         return {'content_score': content_score, 'elem': elem}
 
-    def debug(self, *a) -> None:
+    def debug(self, *a: object) -> None:
         # if self.options['debug']:
         self.log.debug(*a)
 
@@ -322,6 +351,7 @@ class Document:
                 elem.drop_tree()
 
     def transform_misused_divs_into_paragraphs(self) -> None:
+        assert self.html is not None
         for elem in self.tags(self.html, 'div'):
             # transform <div>s that do not contain other block elements into <p>s
             if not REGEXES['divToPElementsRe'].search(str(''.join(map(tounicode, list(elem))))):
@@ -331,7 +361,7 @@ class Document:
 
         for elem in self.tags(self.html, 'div'):
             if elem.text and elem.text.strip():
-                p = fragment_fromstring('<p/>')
+                p = cast('HtmlElement', fragment_fromstring('<p/>'))  # parsed with the lxml.html parser
                 p.text = elem.text
                 elem.text = None
                 elem.insert(0, p)
@@ -339,7 +369,7 @@ class Document:
 
             for pos, child in reversed(list(enumerate(elem))):
                 if child.tail and child.tail.strip():
-                    p = fragment_fromstring('<p/>')
+                    p = cast('HtmlElement', fragment_fromstring('<p/>'))  # parsed with the lxml.html parser
                     p.text = child.tail
                     child.tail = None
                     elem.insert(pos + 1, p)
@@ -348,15 +378,15 @@ class Document:
                     # print('Dropped <br> at '+describe(elem))
                     child.drop_tree()
 
-    def tags(self, node, *tag_names):
+    def tags(self, node: HtmlElement, *tag_names: str) -> Iterator[HtmlElement]:
         for tag_name in tag_names:
             yield from node.findall(f'.//{tag_name}')
 
-    def reverse_tags(self, node, *tag_names):
+    def reverse_tags(self, node: HtmlElement, *tag_names: str) -> Iterator[HtmlElement]:
         for tag_name in tag_names:
             yield from reversed(node.findall(f'.//{tag_name}'))
 
-    def sanitize(self, node, candidates):
+    def sanitize(self, node: HtmlElement, candidates: dict[HtmlElement, Candidate]) -> str:
         MIN_LEN = self.options.get('min_text_length') or self.TEXT_LENGTH_THRESHOLD
         for header in self.tags(node, 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             if self.class_weight(header) < 0 or self.get_link_density(header) > 0.33:
@@ -364,7 +394,7 @@ class Document:
 
         for elem in self.tags(node, 'form', 'iframe', 'textarea'):
             elem.drop_tree()
-        allowed = {}
+        allowed: dict[HtmlElement, bool] = {}
         # Conditionally clean <table>s, <ul>s, and <div>s
         for el in self.reverse_tags(node, 'table', 'ul', 'div'):
             if el in allowed or el in self.keep_elements:
@@ -381,7 +411,7 @@ class Document:
                 self.debug(f'Cleaned {describe(el)} with score {content_score:6.3f} and weight {weight:<3}')
                 el.drop_tree()
             elif text_content(el).count(',') < 10:
-                counts = {}
+                counts: dict[str, int] = {}
                 for kind in ['p', 'img', 'li', 'a', 'embed', 'input']:
                     counts[kind] = len(el.findall(f'.//{kind}'))
                 counts['li'] -= 100
@@ -481,7 +511,7 @@ class Document:
         return clean_attributes(tounicode(node))
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     from calibre.utils.config import OptionParser
 
     parser = OptionParser(usage='%prog: [options] file')

@@ -9,13 +9,29 @@ import errno as gerrno
 import os
 import re
 import sys
-from urllib.parse import urlparse, urlunparse
+from typing import TYPE_CHECKING, Protocol
+from urllib.parse import ParseResult, urlparse, urlunparse
 
 from calibre import replace_entities, unicode_path
 from calibre.constants import iswindows
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.utils.filenames import case_ignoring_open_file
+
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Iterator, Sequence
+    from optparse import Values
+
+    from calibre.utils.logging import Log
+
+    class _LinkLike(Protocol):
+        @property
+        def path(self) -> str | None: ...
+
+    class _LinkedFile(Protocol):
+        @property
+        def links(self) -> Sequence[_LinkLike]: ...
 
 
 class Link:
@@ -24,7 +40,7 @@ class Link:
     """
 
     @classmethod
-    def url_to_local_path(cls, url, base):
+    def url_to_local_path(cls, url: ParseResult, base: str) -> str:
         path = url.path
         isabs = False
         if iswindows and path.startswith('/'):
@@ -36,7 +52,7 @@ class Link:
             return path
         return os.path.abspath(os.path.join(base, path))
 
-    def __init__(self, url, base) -> None:
+    def __init__(self, url: str, base: str) -> None:
         """
         :param url:  The url this link points to. Must be an unquoted unicode string.
         :param base: The base folder that relative URLs are with respect to.
@@ -47,17 +63,17 @@ class Link:
         self.parsed_url = urlparse(self.url)
         self.is_local = self.parsed_url.scheme in ('', 'file')
         self.is_internal = self.is_local and not bool(self.parsed_url.path)
-        self.path = None
+        self.path: str | None = None
         self.fragment = urlunquote(self.parsed_url.fragment)
         if self.is_local and not self.is_internal:
             self.path = self.url_to_local_path(self.parsed_url, base)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         if self.path is None:
             return hash(self.url)
         return hash(self.path)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.path == getattr(other, 'path', other)
 
     def __str__(self) -> str:
@@ -65,7 +81,7 @@ class Link:
 
 
 class IgnoreFile(Exception):
-    def __init__(self, msg, errno) -> None:
+    def __init__(self, msg: str, errno: int | None) -> None:
         Exception.__init__(self, msg)
         self.doesnt_exist = errno == gerrno.ENOENT
         self.errno = errno
@@ -89,7 +105,15 @@ class HTMLFile:
         re.DOTALL | re.IGNORECASE,
     )
 
-    def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None, correct_case_mismatches=False) -> None:
+    def __init__(
+        self,
+        path_to_html_file: str,
+        level: int,
+        encoding: str | None,
+        verbose: int,
+        referrer: HTMLFile | None = None,
+        correct_case_mismatches: bool = False,
+    ) -> None:
         """
         :param level: The level of this file. Should be 0 for the root file.
         :param encoding: Use `encoding` to decode HTML.
@@ -98,7 +122,7 @@ class HTMLFile:
         self.path = unicode_path(path_to_html_file, abs=True)
         self.level = level
         self.referrer = referrer
-        self.links = []
+        self.links: list[Link] = []
 
         try:
             with (case_ignoring_open_file if correct_case_mismatches else open)(self.path, 'rb') as f:
@@ -106,10 +130,10 @@ class HTMLFile:
                 self.base = os.path.dirname(self.path)
                 self.title = os.path.splitext(os.path.basename(self.path))[0]
                 src = header = f.read(4096)
-                encoding = detect_xml_encoding(src)[1]
-                if encoding:
+                header_encoding = detect_xml_encoding(src)[1]
+                if header_encoding:
                     try:
-                        header = header.decode(encoding, errors='replace')
+                        header = header.decode(header_encoding, errors='replace')
                     except ValueError:
                         pass
                 self.is_binary = False
@@ -143,10 +167,10 @@ class HTMLFile:
             self.title = match.group(1) if match is not None else self.title
             self.find_links(src)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.path == getattr(other, 'path', other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.path)
 
     def __str__(self) -> str:
@@ -155,7 +179,7 @@ class HTMLFile:
     def __repr__(self) -> str:
         return str(self)
 
-    def find_links(self, src) -> None:
+    def find_links(self, src: str) -> None:
         for match in self.LINK_PAT.finditer(src):
             url = None
             for i in ('url1', 'url2', 'url3'):
@@ -171,19 +195,19 @@ class HTMLFile:
             if link not in self.links:
                 self.links.append(link)
 
-    def resolve(self, url):
+    def resolve(self, url: str) -> Link:
         return Link(url, self.base)
 
 
-def depth_first(root, flat):
+def depth_first[T: _LinkedFile](root: T, flat: Sequence[T]) -> Iterator[T]:
     yield root
-    visited = set()
+    visited: set[T] = set()
     visited.add(root)
     from collections import deque
 
-    stack = deque()
+    stack: deque[_LinkLike] = deque()
 
-    def add_links_from(item) -> None:
+    def add_links_from(item: T) -> None:
         for link in reversed(item.links):
             if link.path is not None and link not in visited:
                 stack.appendleft(link)
@@ -202,22 +226,22 @@ def depth_first(root, flat):
             add_links_from(hf)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class HF:
-        def __init__(self, path) -> None:
+        def __init__(self, path: str) -> None:
             self.path = path
-            self.links = []
+            self.links: list[HF] = []
 
-        def a(self, hf):
+        def a(self, hf: HF) -> HF:
             self.links.append(hf)
             return hf
 
-        def __eq__(self, other):
+        def __eq__(self, other: object) -> bool:
             return self.path == getattr(other, 'path', other)
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return hash(self.path)
 
         def __repr__(self) -> str:
@@ -238,7 +262,9 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestHTMLInput)
 
 
-def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None, correct_case_mismatches=False):
+def traverse(
+    path_to_html_file: str, max_levels: int = sys.maxsize, verbose: int = 0, encoding: str | None = None, correct_case_mismatches: bool = False
+) -> tuple[list[HTMLFile], list[HTMLFile]]:
     """
     Recursively traverse all links in the HTML file.
 
@@ -256,9 +282,9 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
     next_level = list(flat)
     while level < max_levels and len(next_level) > 0:
         level += 1
-        nl = []
+        nl: list[HTMLFile] = []
         for hf in next_level:
-            rejects = []
+            rejects: list[Link] = []
             for link in hf.links:
                 if link.path is None or link.path in seen:
                     continue
@@ -289,7 +315,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
     return flat, list(depth_first(flat[0], flat))
 
 
-def get_filelist(htmlfile, dir, opts, log):
+def get_filelist(htmlfile: str, dir: str, opts: Values, log: Log) -> list[HTMLFile]:
     """
     Build list of files referenced by html file or try to detect and use an
     OPF file instead.

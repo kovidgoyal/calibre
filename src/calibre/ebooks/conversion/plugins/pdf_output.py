@@ -6,10 +6,17 @@ Convert OEB ebook format to PDF.
 
 import glob
 import os
+from typing import TYPE_CHECKING
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 UNITS = ('millimeter', 'centimeter', 'point', 'inch', 'pica', 'didot', 'cicero', 'devicepixel')
 
@@ -208,7 +215,7 @@ class PDFOutput(OutputFormatPlugin):
         ),
     }
 
-    def specialize_options(self, log, opts, input_fmt) -> None:
+    def specialize_options(self, log: Log, opts: Values, input_fmt: str) -> None:
         # Ensure Qt is setup to be used with WebEngine
         # specialize_options is called early enough in the pipeline
         # that hopefully no Qt application has been constructed as yet
@@ -226,7 +233,7 @@ class PDFOutput(OutputFormatPlugin):
             # Prevent the conversion pipeline from overwriting document margins
             opts.margin_left = opts.margin_right = opts.margin_top = opts.margin_bottom = -1
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         output_path = output
         self.stored_page_margins = getattr(opts, '_stored_page_margins', {})
 
@@ -253,7 +260,7 @@ class PDFOutput(OutputFormatPlugin):
             log.debug('Converting input as a text based book...')
             self.convert_text(oeb_book)
 
-    def convert_images(self, images) -> None:
+    def convert_images(self, images: list[str]) -> None:
         from calibre.ebooks.pdf.image_writer import convert
 
         convert(images, self.output_path, self.opts, self.metadata, self.report_progress)
@@ -268,14 +275,17 @@ class PDFOutput(OutputFormatPlugin):
 
     def process_fonts(self) -> None:
         """Make sure all fonts are embeddable"""
+        from css_parser.css import CSSStyleSheet
+
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
 
         processed = set()
         for item in list(self.oeb.manifest):
-            if not hasattr(item.data, 'cssRules'):
+            sheet = item.data
+            if not isinstance(sheet, CSSStyleSheet):
                 continue
-            for i, rule in enumerate(item.data.cssRules):
+            for i, rule in enumerate(sheet.cssRules):
                 if rule.type == rule.FONT_FACE_RULE:
                     try:
                         s = rule.style
@@ -291,15 +301,20 @@ class PDFOutput(OutputFormatPlugin):
                     if path not in processed:
                         processed.add(path)
                         try:
+                            if not isinstance(raw, bytes):
+                                # remove_embed_restriction() raises for non-bytes data, skip such fonts
+                                continue
                             nraw = remove_embed_restriction(raw)
                         except Exception:
                             continue
                         if nraw != raw:
                             ff.data = nraw
-                            self.oeb.container.write(path, nraw)
+                            self.oeb.container.write(path, nraw)  # ty: ignore[unresolved-attribute] the input plugins set a container with a write() method, such as DirContainer
 
-    def convert_text(self, oeb_book) -> None:
+    def convert_text(self, oeb_book: OEBBook) -> None:
         import json
+
+        from lxml import etree
 
         from calibre.ebooks.pdf.html_writer import convert
 
@@ -312,7 +327,7 @@ class PDFOutput(OutputFormatPlugin):
                 item = oeb_book.manifest.hrefs.get(href)
                 if item is not None:
                     root = item.data
-                    if hasattr(root, 'xpath') and margins:
+                    if isinstance(root, etree._Element) and margins:
                         root.set('data-calibre-pdf-output-page-margins', json.dumps(margins))
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:

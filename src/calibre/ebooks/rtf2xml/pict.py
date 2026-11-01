@@ -12,6 +12,7 @@
 #########################################################################
 import os
 import sys
+from typing import IO
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
@@ -24,12 +25,12 @@ class Pict:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        out_file,
-        copy=None,
-        orig_file=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        out_file: str,
+        copy: int | None = None,
+        orig_file: str | None = None,
+        run_level: int = 1,
     ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -53,13 +54,13 @@ class Pict:
             'tx<nu<__________': self.__text_func,
         }
 
-    def __open_br_func(self, line) -> str:
+    def __open_br_func(self, line: str) -> str:
         return '{\n'
 
-    def __close_br_func(self, line) -> str:
+    def __close_br_func(self, line: str) -> str:
         return '}\n'
 
-    def __text_func(self, line):
+    def __text_func(self, line: str) -> str:
         # tx<nu<__________<true text
         return line[17:]
 
@@ -100,7 +101,7 @@ class Pict:
         self.__pict_file = os.path.join(self.__dir_name, 'picts.rtf')
         self.__write_pic_obj = open_for_write(self.__pict_file, append=True)
 
-    def __in_pict_func(self, line) -> bool:
+    def __in_pict_func(self, line: str) -> bool:
         if self.__cb_count == self.__pict_br_count:
             self.__in_pict = False
             self.__write_pic_obj.write('}\n')
@@ -111,7 +112,7 @@ class Pict:
                 self.__write_pic_obj.write(action(line))
             return False
 
-    def __default(self, line, write_obj) -> bool:
+    def __default(self, line: str, write_obj: IO[str]) -> bool:
         """Determine if each token marks the beginning of pict data.
         If it does, create a new file to write data to (if that file
         has not already been created.) Set the self.__in_pict flag to true.

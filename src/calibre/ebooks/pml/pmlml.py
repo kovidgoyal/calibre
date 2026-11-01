@@ -5,12 +5,23 @@ Transform OEB content into PML markup
 """
 
 import re
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
 from calibre.utils.xml_parse import safe_xml_fromstring
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
+    from calibre.ebooks.oeb.stylizer import Stylizer
+    from calibre.utils.logging import Log
 
 TAG_MAP = {
     'b': 'B',
@@ -69,12 +80,12 @@ SEPARATE_TAGS = [
 
 
 class PMLMLizer:
-    def __init__(self, log) -> None:
+    def __init__(self, log: Log) -> None:
         self.log = log
         self.image_hrefs = {}
         self.link_hrefs = {}
 
-    def extract_content(self, oeb_book, opts):
+    def extract_content(self, oeb_book: OEBBook, opts: Values) -> str:
         self.log.info('Converting XHTML to PML markup...')
         self.oeb_book = oeb_book
         self.opts = opts
@@ -86,16 +97,17 @@ class PMLMLizer:
 
         return self.pmlmlize_spine()
 
-    def create_flat_toc(self, nodes, level=0) -> None:
+    def create_flat_toc(self, nodes: Iterable[TOC], level: int = 0) -> None:
         for item in nodes:
-            href, mid, id = item.href.partition('#')
-            self.get_anchor_id(href, id)
-            if not self.toc.get(href, None):
-                self.toc[href] = {}
-            self.toc[href][id] = (item.title, level)
+            if item.href is not None:
+                href, mid, id = item.href.partition('#')
+                self.get_anchor_id(href, id)
+                if not self.toc.get(href, None):
+                    self.toc[href] = {}
+                self.toc[href][id] = (item.title, level)
             self.create_flat_toc(item.nodes, level + 1)
 
-    def pmlmlize_spine(self):
+    def pmlmlize_spine(self) -> str:
         self.image_hrefs = {}
         self.link_hrefs = {}
         output = ['']
@@ -105,7 +117,7 @@ class PMLMLizer:
         output = self.clean_text(output)
         return output
 
-    def get_cover_page(self):
+    def get_cover_page(self) -> str:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
 
@@ -118,46 +130,54 @@ class PMLMLizer:
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-                output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
+                root = item.data
+                assert isinstance(root, etree._Element)  # the titlepage is an (X)HTML document
+                stylizer = Stylizer(root, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+                body = root.find(XHTML('body'))
+                assert body is not None
+                output += ''.join(self.dump_text(body, stylizer, item))
         return output
 
-    def get_text(self):
+    def get_text(self) -> str:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
 
         text = ['']
         for item in self.oeb_book.spine:
             self.log.debug(f'Converting {item.href} to PML markup...')
-            content = etree.tostring(item.data, encoding='unicode')
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+            content = etree.tostring(root, encoding='unicode')
             content = self.prepare_text(content)
             content = safe_xml_fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             text.append(self.add_page_anchor(item))
-            text += self.dump_text(content.find(XHTML('body')), stylizer, item)
+            body = content.find(XHTML('body'))
+            assert body is not None  # spine items always have a body, see parse_html()
+            text += self.dump_text(body, stylizer, item)
         return ''.join(text)
 
-    def add_page_anchor(self, page):
+    def add_page_anchor(self, page: Manifest.Item) -> str:
         return self.get_anchor(page, '')
 
-    def get_anchor_id(self, href, aid):
+    def get_anchor_id(self, href: str, aid: str) -> str:
         aid = f'{href}#{aid}'
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = f'calibre_link-{len(self.link_hrefs.keys())}'
         aid = self.link_hrefs[aid]
         return aid
 
-    def get_anchor(self, page, aid) -> str:
+    def get_anchor(self, page: Manifest.Item, aid: str) -> str:
         aid = self.get_anchor_id(page.href, aid)
         return rf'\Q="{aid}"'
 
-    def remove_newlines(self, text):
+    def remove_newlines(self, text: str) -> str:
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
         return text
 
-    def prepare_string_for_pml(self, text):
+    def prepare_string_for_pml(self, text: str) -> str:
         text = self.remove_newlines(text)
         # Replace \ with \\ so \ in the text is not interpreted as
         # a pml code.
@@ -167,12 +187,12 @@ class PMLMLizer:
         text = text.replace('\\\\c \\\\c', '\\c \n\\c\n')
         return text
 
-    def prepare_text(self, text):
+    def prepare_text(self, text: str) -> str:
         # Replace empty paragraphs with \c pml codes used to denote empty lines.
         text = re.sub(r'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>', r'\\c\n\\c', text)
         return text
 
-    def clean_text(self, text):
+    def clean_text(self, text: str) -> str:
         # Remove excessive \p tags
         text = re.sub(r'\\p\s*\\p', '', text)
 
@@ -222,14 +242,14 @@ class PMLMLizer:
 
         return text
 
-    def dump_text(self, elem, stylizer, page, tag_stack=None):
+    def dump_text(self, elem: _Element, stylizer: Stylizer, page: Manifest.Item, tag_stack: list[str] | None = None) -> list[str]:
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
         if tag_stack is None:
             tag_stack = []
-        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, str) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
+            if p is not None and isinstance(p.tag, str) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return []
 
@@ -337,7 +357,7 @@ class PMLMLizer:
 
         # margin left
         try:
-            mms = int(float(style['margin-left']) * 100 / style.height)
+            mms = int(float(style.marginLeft) * 100 / style.height)
             if mms:
                 text.append(rf'\T="{mms}%"')
         except Exception:
@@ -375,7 +395,7 @@ class PMLMLizer:
 
         return text
 
-    def close_tags(self, tags):
+    def close_tags(self, tags: list[str]) -> list[str]:
         text = []
         for tag in tags:
             # block isn't a real tag we just use

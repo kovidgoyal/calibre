@@ -56,11 +56,11 @@ class ParagraphDef:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        default_font,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        default_font: int | str,
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -308,7 +308,7 @@ class ParagraphDef:
             'mi<mk<lst-txbeg_': self.__stop_block_func,
         }
 
-    def __before_1st_para_def_func(self, line) -> None:
+    def __before_1st_para_def_func(self, line: str) -> None:
         """
         Required:
             line -- line to parse
@@ -323,13 +323,13 @@ class ParagraphDef:
         else:
             self.__write_obj.write(line)
 
-    def __found_para_def_func(self, *a) -> None:
+    def __found_para_def_func(self, *a: str) -> None:
         self.__state = 'collect_tokens'
         # not exactly right--have to reset the dictionary--give it default
         # values
         self.__reset_dict()
 
-    def __collect_tokens_func(self, line) -> None:
+    def __collect_tokens_func(self, line: str) -> None:
         """
         Required:
             line --line to parse
@@ -361,12 +361,12 @@ class ParagraphDef:
                 if token:
                     self.__att_val_dict[token] = line[20:-1]
 
-    def __tab_stop_func(self, line) -> None:
+    def __tab_stop_func(self, line: str) -> None:
         self.__att_val_dict['tabs'] += f'{self.__tab_type}:'
         self.__att_val_dict['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
-    def __tab_type_func(self, line) -> None:
+    def __tab_type_func(self, line: str) -> None:
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -374,7 +374,7 @@ class ParagraphDef:
             msg = f'no entry for {self.__token_info}\n'
             raise self.__bug_handler(msg)
 
-    def __tab_leader_func(self, line) -> None:
+    def __tab_leader_func(self, line: str) -> None:
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
             self.__att_val_dict['tabs'] += f'{leader}^'
@@ -382,12 +382,12 @@ class ParagraphDef:
             msg = f'no entry for {self.__token_info}\n'
             raise self.__bug_handler(msg)
 
-    def __tab_bar_func(self, line) -> None:
+    def __tab_bar_func(self, line: str) -> None:
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
         self.__att_val_dict['tabs'] += f'bar:{line[20:-1]};'
         self.__tab_type = 'left'
 
-    def __parse_border(self, line) -> None:
+    def __parse_border(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -400,7 +400,7 @@ class ParagraphDef:
         border_dict = self.__border_obj.parse_border(line)
         self.__att_val_dict.update(border_dict)
 
-    def __para_def_in_para_def_func(self, line) -> None:
+    def __para_def_in_para_def_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -414,7 +414,7 @@ class ParagraphDef:
         self.__state = 'collect_tokens'
         self.__reset_dict()
 
-    def __end_para_def_func(self, line) -> None:
+    def __end_para_def_func(self, line: str) -> None:
         """
         Requires:
             Nothing
@@ -430,7 +430,7 @@ class ParagraphDef:
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
 
-    def __start_para_after_def_func(self, line) -> None:
+    def __start_para_after_def_func(self, line: str) -> None:
         """
         Requires:
             Nothing
@@ -447,7 +447,7 @@ class ParagraphDef:
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
 
-    def __after_para_def_func(self, line) -> None:
+    def __after_para_def_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -465,7 +465,7 @@ class ParagraphDef:
         else:
             self.__write_obj.write(line)
 
-    def __in_paragraphs_func(self, line) -> None:
+    def __in_paragraphs_func(self, line: str) -> None:
         """
         Requires:
             line --current line
@@ -480,7 +480,7 @@ class ParagraphDef:
         else:
             self.__write_obj.write(line)
 
-    def __found_para_end_func(self, line) -> None:
+    def __found_para_end_func(self, line: str) -> None:
         """
         Requires:
             line -- line to print out
@@ -494,7 +494,7 @@ class ParagraphDef:
         self.__state = 'after_para_end'
         self.__write_obj.write(line)
 
-    def __after_para_end_func(self, line) -> None:
+    def __after_para_end_func(self, line: str) -> None:
         """
         Requires:
             line -- line to output
@@ -518,7 +518,7 @@ class ParagraphDef:
         if action:
             action(line)
 
-    def __continue_block_func(self, line) -> None:
+    def __continue_block_func(self, line: str) -> None:
         """
         Requires:
             line --line to print out
@@ -536,7 +536,7 @@ class ParagraphDef:
 
     # found a new paragraph definition after an end of a paragraph
 
-    def __new_para_def_func(self, line) -> None:
+    def __new_para_def_func(self, line: str) -> None:
         """
         Requires:
             line -- line to output
@@ -553,7 +553,7 @@ class ParagraphDef:
 
     # after a paragraph and found reason to stop this block
 
-    def __stop_block_func(self, line) -> None:
+    def __stop_block_func(self, line: str) -> None:
         """
         Requires:
             line --(shouldn't be here?)
@@ -691,7 +691,7 @@ class ParagraphDef:
             value = self.__att_val_dict['caps']
             self.__write_obj.write(f'mi<mk<caps______<{value}\n')
 
-    def __empty_table_element_func(self, line) -> None:
+    def __empty_table_element_func(self, line: str) -> None:
         self.__write_obj.write('mi<mk<in-table__\n')
         self.__write_obj.write(line)
         self.__state = 'after_para_def'
@@ -717,7 +717,7 @@ class ParagraphDef:
         self.__att_val_dict['tabs-bar'] = ''
         self.__att_val_dict['tabs'] = ''
 
-    def make_paragraph_def(self):
+    def make_paragraph_def(self) -> list[str]:
         """
         Requires:
             nothing

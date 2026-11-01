@@ -12,7 +12,7 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 
 
-def pretty_all_xml_in_dir(path) -> None:
+def pretty_all_xml_in_dir(path: str) -> None:
     for f in walk(path):
         if f.endswith(('.xml', '.rels')):
             with open(f, 'r+b') as stream:
@@ -24,7 +24,7 @@ def pretty_all_xml_in_dir(path) -> None:
                     stream.write(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True))
 
 
-def do_dump(path, dest) -> None:
+def do_dump(path: str, dest: str) -> None:
     if os.path.exists(dest):
         shutil.rmtree(dest)
     with ZipFile(path) as zf:
@@ -32,7 +32,7 @@ def do_dump(path, dest) -> None:
     pretty_all_xml_in_dir(dest)
 
 
-def dump(path) -> None:
+def dump(path: str) -> None:
     dest = os.path.splitext(os.path.basename(path))[0]
     dest += '-dumped'
     do_dump(path, dest)

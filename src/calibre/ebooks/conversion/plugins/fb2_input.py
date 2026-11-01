@@ -6,11 +6,19 @@ Convert .fb2 files to .lrf
 
 import os
 import re
+from typing import IO, TYPE_CHECKING
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.utils.logging import Log
 
 FB2NS = 'http://www.gribuser.ru/xml/fictionbook/2.0'
 FB21NS = 'http://www.gribuser.ru/xml/fictionbook/2.1'
@@ -38,7 +46,7 @@ class FB2Input(InputFormatPlugin):
         )
     }
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         from lxml import etree
 
         from calibre.ebooks.chardet import xml_to_unicode
@@ -143,7 +151,7 @@ class FB2Input(InputFormatPlugin):
         if not mi.authors:
             mi.authors = [_('Unknown')]
         cpath = None
-        if mi.cover_data and mi.cover_data[1]:
+        if mi.cover_data[1]:
             with open('fb2_cover_calibre_mi.jpg', 'wb') as f:
                 f.write(mi.cover_data[1])
             cpath = os.path.abspath('fb2_cover_calibre_mi.jpg')
@@ -160,12 +168,13 @@ class FB2Input(InputFormatPlugin):
         opf.create_manifest(entries)
         opf.create_spine(['index.xhtml'])
         if cpath:
+            assert opf.guide is not None  # created by OPFCreator.__init__()
             opf.guide.set_cover(cpath)
         with open('metadata.opf', 'wb') as f:
             opf.render(f)
         return os.path.join(os.getcwd(), 'metadata.opf')
 
-    def extract_embedded_content(self, doc) -> None:
+    def extract_embedded_content(self, doc: _Element) -> None:
         from calibre import guess_extension, sanitize_file_name
         from calibre.ebooks.fb2 import base64_decode
 

@@ -77,6 +77,7 @@ def render_legacy_book_details(ctx: Context, rd: RequestData, mi: Metadata, libr
 
     # Series
     if series:
+        assert mi.series is not None  # series is only set when mi.series is not empty
         link = search_link(ctx, library_id, series, exact_match_query('series', mi.series))
         metadata_rows.append(f'<tr><td>Series</td><td>{link}</td></tr>')
 

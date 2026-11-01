@@ -4,24 +4,34 @@ import os
 import posixpath
 import re
 from itertools import cycle
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.opf2 import OPF
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 ADOBE_OBFUSCATION = 'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
 
 
-def decrypt_font_data(key, data, algorithm):
+def decrypt_font_data(key: bytes, data: bytes, algorithm: str) -> bytes:
     is_adobe = algorithm == ADOBE_OBFUSCATION
     crypt_len = 1024 if is_adobe else 1040
     crypt = bytearray(data[:crypt_len])
-    key = cycle(iter(bytearray(key)))
-    decrypt = bytes(bytearray(x ^ next(key) for x in crypt))
+    key_bytes = cycle(iter(bytearray(key)))
+    decrypt = bytes(bytearray(x ^ next(key_bytes) for x in crypt))
     return decrypt + data[crypt_len:]
 
 
-def decrypt_font(key, path, algorithm) -> None:
+def decrypt_font(key: bytes, path: str, algorithm: str) -> None:
     with open(path, 'r+b') as f:
         data = decrypt_font_data(key, f.read(), algorithm)
         f.seek(0), f.truncate(), f.write(data)
@@ -37,7 +47,7 @@ class EPUBInput(InputFormatPlugin):
 
     recommendations = {('page_breaks_before', '/', OptionRecommendation.MED)}
 
-    def process_encryption(self, encfile, opf, log) -> bool:
+    def process_encryption(self, encfile: str, opf: OPF, log: Log) -> bool:
         import hashlib
         import uuid
 
@@ -57,7 +67,7 @@ class EPUBInput(InputFormatPlugin):
                     scheme = item.get(xkey)
             if (scheme and scheme.lower() == 'uuid') or (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = item.text.rpartition(':')[-1]
+                    key = item.text.rpartition(':')[-1]  # ty: ignore[unresolved-attribute] None is handled by the except clause
                     key = uuid.UUID(key).bytes
                 except Exception:
                     import traceback
@@ -79,7 +89,7 @@ class EPUBInput(InputFormatPlugin):
                 tkey = key if algorithm == ADOBE_OBFUSCATION else idpf_key
                 if tkey and is_existing_subpath(path, container_base):
                     self._encrypted_font_uris.append(uri)
-                    decrypt_font(tkey, path, algorithm)
+                    decrypt_font(tkey, path, algorithm)  # ty: ignore[invalid-argument-type] a truthy idpf_key has been converted to bytes
             return True
         except Exception:
             import traceback
@@ -87,11 +97,11 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
         return False
 
-    def set_guide_type(self, opf, gtype, href=None, title=''):
+    def set_guide_type(self, opf: OPF, gtype: str, href: str | None = None, title: str = '') -> _Element | None:
         # Set the specified guide entry
         for elem in list(opf.iterguide()):
             if elem.get('type', '').lower() == gtype:
-                elem.getparent().remove(elem)
+                elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] OPF guide entries always have a parent
 
         if href is not None:
             t = opf.create_guide_item(gtype, title, href)
@@ -103,7 +113,7 @@ class EPUBInput(InputFormatPlugin):
             guide.append(t)
             return t
 
-    def rationalize_cover3(self, opf, log):
+    def rationalize_cover3(self, opf: OPF, log: Log) -> str | None:
         """If there is a reference to the cover/titlepage via manifest properties, convert to
         entries in the <guide> so that the rest of the pipeline picks it up."""
         from calibre.ebooks.metadata.opf3 import items_with_property
@@ -148,11 +158,11 @@ class EPUBInput(InputFormatPlugin):
                         if self.for_viewer:
                             item.attrib.pop('linear', None)
                         else:
-                            item.getparent().remove(item)
+                            item.getparent().remove(item)  # ty: ignore[unresolved-attribute] spine items always have a parent
                             removed = titlepage_href
                         return removed
 
-    def rationalize_cover2(self, opf, log):
+    def rationalize_cover2(self, opf: OPF, log: Log) -> str | None:
         '''Ensure that the cover information in the guide is correct. That
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
@@ -177,8 +187,8 @@ class EPUBInput(InputFormatPlugin):
                 else:
                     g = guide_elem.getparent()
                 guide_cover = raster_cover
-                guide_elem = g.makeelement(OPF('reference'), attrib={'href': raster_cover, 'type': 'cover'})
-                g.append(guide_elem)
+                guide_elem = g.makeelement(OPF('reference'), attrib={'href': raster_cover, 'type': 'cover'})  # ty: ignore[unresolved-attribute] guide entries always have a parent
+                g.append(guide_elem)  # ty: ignore[unresolved-attribute] guide entries always have a parent
             return
         spine = list(opf.iterspine())
         if not spine:
@@ -201,16 +211,17 @@ class EPUBInput(InputFormatPlugin):
                 log.warn('There is only a single spine item and it is marked as the cover. Removing cover marking.')
                 for guide_elem in tuple(opf.iterguide()):
                     if guide_elem.get('type', '').lower() == 'cover':
-                        guide_elem.getparent().remove(guide_elem)
+                        guide_elem.getparent().remove(guide_elem)  # ty: ignore[unresolved-attribute] guide entries always have a parent
                 return
             else:
-                spine[0].getparent().remove(spine[0])
+                spine[0].getparent().remove(spine[0])  # ty: ignore[unresolved-attribute] spine items always have a parent
                 removed = guide_cover
         else:
             # Ensure the cover is displayed as the first item in the book, some
             # epub files have it set with linear='no' which causes the cover to
             # display in the end
             spine[0].attrib.pop('linear', None)
+            assert opf.spine is not None  # the OPF has a non-empty <spine>, so OPF.spine was populated
             opf.spine[0].is_linear = True
         # Ensure that the guide has a cover entry pointing to a raster cover
         # and a titlepage entry pointing to the html titlepage. The titlepage
@@ -229,7 +240,7 @@ class EPUBInput(InputFormatPlugin):
             from calibre.ebooks import render_html_svg_workaround
 
             guide_elem.set('href', 'calibre_raster_cover.jpg')
-            t = etree.SubElement(elem[0].getparent(), OPF('item'), href=guide_elem.get('href'), id='calibre_raster_cover')
+            t = etree.SubElement(elem[0].getparent(), OPF('item'), href=guide_elem.get('href'), id='calibre_raster_cover')  # ty: ignore[no-matching-overload] manifest items always have a parent
             t.set('media-type', 'image/jpeg')
             if os.path.exists(guide_cover):
                 renderer = render_html_svg_workaround(guide_cover, log, root=os.getcwd())
@@ -241,10 +252,10 @@ class EPUBInput(InputFormatPlugin):
         self.set_guide_type(opf, 'titlepage', guide_cover, __('Cover page'))
         return removed
 
-    def find_opf(self):
+    def find_opf(self) -> str | None:
         from calibre.utils.xml_parse import safe_xml_fromstring
 
-        def attr(n, attr):
+        def attr(n: _Element, attr: str) -> str | None:
             for k, v in n.attrib.items():
                 if k.endswith(attr):
                     return v
@@ -266,7 +277,7 @@ class EPUBInput(InputFormatPlugin):
 
             traceback.print_exc()
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         from calibre import walk
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
@@ -310,13 +321,13 @@ class EPUBInput(InputFormatPlugin):
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1]) + '/'
 
-            def normpath(x):
-                return posixpath.normpath(delta + elem.get('href'))
+            def normpath(x: str) -> str:
+                return posixpath.normpath(delta + elem.get('href'))  # ty: ignore[unsupported-operator] manifest and guide entries have an href
 
             for elem in opf.itermanifest():
-                elem.set('href', normpath(elem.get('href')))
+                elem.set('href', normpath(elem.get('href')))  # ty: ignore[invalid-argument-type] manifest entries have an href
             for elem in opf.iterguide():
-                elem.set('href', normpath(elem.get('href')))
+                elem.set('href', normpath(elem.get('href')))  # ty: ignore[invalid-argument-type] guide entries have an href
 
         f = self.rationalize_cover3 if opf.package_version >= 3.0 else self.rationalize_cover2
         self.removed_cover = f(opf, log)
@@ -354,7 +365,7 @@ class EPUBInput(InputFormatPlugin):
         for x in list(opf.iterspine()):
             ref = x.get('idref', None)
             if not ref or ref in not_for_spine or ref in seen:
-                x.getparent().remove(x)
+                x.getparent().remove(x)  # ty: ignore[unresolved-attribute] spine items always have a parent
                 continue
             seen.add(ref)
 
@@ -366,7 +377,7 @@ class EPUBInput(InputFormatPlugin):
 
         return os.path.abspath('content.opf')
 
-    def unkepubify(self, path: str, opf: str, log) -> None:
+    def unkepubify(self, path: str, opf: str, log: Log) -> None:
         from calibre.ebooks.oeb.polish.container import Container
         from calibre.ebooks.oeb.polish.errors import drm_message
         from calibre.ebooks.oeb.polish.kepubify import check_for_kobo_drm, unkepubify_container
@@ -382,7 +393,7 @@ class EPUBInput(InputFormatPlugin):
                 unkepubify_container(container)
                 container.commit()
 
-    def landmarks_to_guide(self, root, nav_path, opf, log) -> None:
+    def landmarks_to_guide(self, root: _Element, nav_path: str, opf: OPF, log: Log) -> None:
         # The rest of the conversion pipeline uses only the OPF guide, so
         # replace guide entries with the landmarks from the EPUB 3 nav. Landmark
         # types with no equivalent guide type use custom guide types, see
@@ -418,11 +429,11 @@ class EPUBInput(InputFormatPlugin):
                 title = etree.tostring(a, method='text', encoding='unicode', with_tail=False).strip()
                 self.set_guide_type(opf, gtype, f'{path}#{frag}' if frag else path, title)
         # Put the landmarks first, in their original order
-        refs = sorted((r for r in opf.iterguide() if r.get('type') in seen), key=lambda r: seen[r.get('type')])
+        refs = sorted((r for r in opf.iterguide() if r.get('type') in seen), key=lambda r: seen[r.get('type')])  # ty: ignore[invalid-argument-type] only entries with a type in seen are sorted
         for i, r in enumerate(refs):
-            r.getparent().insert(i, r)
+            r.getparent().insert(i, r)  # ty: ignore[unresolved-attribute] guide entries always have a parent
 
-    def convert_epub3_nav(self, nav_path, opf, log, opts) -> None:
+    def convert_epub3_nav(self, nav_path: str, opf: OPF, log: Log, opts: Values) -> None:
         from tempfile import NamedTemporaryFile
 
         from lxml import etree
@@ -443,7 +454,7 @@ class EPUBInput(InputFormatPlugin):
         et = f'{{{EPUB_NS}}}type'
         bn = os.path.basename(nav_path)
 
-        def add_from_li(li, parent):
+        def add_from_li(li: _Element, parent: _Element) -> _Element:
             href = text = None
             for x in li.iterchildren(XHTML('a'), XHTML('span')):
                 text = (
@@ -463,7 +474,7 @@ class EPUBInput(InputFormatPlugin):
                 np.append(np.makeelement(NCX('content'), attrib={'src': href}))
             return np
 
-        def process_nav_node(node, toc_parent) -> None:
+        def process_nav_node(node: _Element, toc_parent: _Element) -> None:
             for li in node.iterchildren(XHTML('li')):
                 child = add_from_li(li, toc_parent)
                 ol = first_child(li, XHTML('ol'))
@@ -501,7 +512,7 @@ class EPUBInput(InputFormatPlugin):
                 with open(nav_path, 'wb') as f:
                     f.write(serialize(root, 'application/xhtml+xml'))
 
-    def postprocess_book(self, oeb, opts, log) -> None:
+    def postprocess_book(self, oeb: OEBBook, opts: Values, log: Log) -> None:
         rc = getattr(self, 'removed_cover', None)
         if rc:
             cover_toc_item = None
@@ -511,4 +522,5 @@ class EPUBInput(InputFormatPlugin):
                     break
             spine = {x.href for x in oeb.spine}
             if cover_toc_item is not None and cover_toc_item not in spine:
+                # ad-hoc attribute, read via getattr() in plumber.py and oeb/transforms/cover.py
                 oeb.toc.item_that_refers_to_cover = cover_toc_item

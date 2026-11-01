@@ -51,6 +51,8 @@ class NOOK(USBMS):
     def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         from PIL import Image, ImageDraw
 
+        from calibre.ebooks.metadata import authors_to_string
+
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             cover = Image.open(io.BytesIO(coverdata[2]))
@@ -66,8 +68,8 @@ class NOOK(USBMS):
             cover.paste(im, ((96 - x) // 2, (144 - y) // 2))
 
             draw = ImageDraw.Draw(cover)
-            draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
-            draw.text((1, 115), metadata.get('authors', _('Unknown')).encode('ascii', 'ignore'))
+            draw.text((1, 15), metadata.title.encode('ascii', 'ignore'))
+            draw.text((1, 115), authors_to_string(metadata.authors).encode('ascii', 'ignore'))
 
         data = io.BytesIO()
         cover.save(data, 'JPEG')

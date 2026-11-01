@@ -10,13 +10,17 @@ import os
 import re
 import sys
 from contextlib import suppress
+from typing import IO, TYPE_CHECKING, cast, overload
 
 from calibre import prints
 from calibre.ebooks.chardet import xml_to_unicode
 
+if TYPE_CHECKING:
+    from calibre.utils.logging import Log
+
 
 class ConversionError(Exception):
-    def __init__(self, msg, only_msg=False) -> None:
+    def __init__(self, msg: str, only_msg: bool = False) -> None:
         Exception.__init__(self, msg)
         self.only_msg = only_msg
 
@@ -99,7 +103,7 @@ BOOK_EXTENSIONS = [
 ]
 
 
-def return_raster_image(path, root=''):
+def return_raster_image(path: str, root: str = '') -> bytes | None:
     from calibre.utils.filenames import is_existing_subpath
     from calibre.utils.imghdr import what
 
@@ -114,7 +118,7 @@ def return_raster_image(path, root=''):
             return raw
 
 
-def extract_cover_from_embedded_svg(html, base, log, root=''):
+def extract_cover_from_embedded_svg(html: str | bytes, base: str, log: Log, root: str = '') -> bytes | None:
     from calibre.ebooks.oeb.base import SVG, XLINK, XPath
     from calibre.utils.xml_parse import safe_xml_fromstring
 
@@ -129,15 +133,16 @@ def extract_cover_from_embedded_svg(html, base, log, root=''):
             return return_raster_image(path, root or base)
 
 
-def extract_calibre_cover(raw, base, log, root=''):
+def extract_calibre_cover(raw: str | bytes, base: str, log: Log, root: str = '') -> bytes | None:
     from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
     soup = BeautifulSoup(raw)
     matches = soup.find(name=['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'font', 'br'])
     images = soup.find_all('img', src=True)
-    if matches is None and len(images) == 1 and images[0].get('alt', '').lower() == 'cover':
+    # alt and src are not multi-valued attributes so their values are always str
+    if matches is None and len(images) == 1 and cast('str', images[0].get('alt', '')).lower() == 'cover':
         img = images[0]
-        img = os.path.join(base, *img['src'].split('/'))
+        img = os.path.join(base, *cast('str', img['src']).split('/'))
         q = return_raster_image(img, root or base)
         if q is not None:
             return q
@@ -152,11 +157,11 @@ def extract_calibre_cover(raw, base, log, root=''):
                 return
             images = body.find_all('img', src=True)
             if len(images) == 1:
-                img = os.path.join(base, *images[0]['src'].split('/'))
+                img = os.path.join(base, *cast('str', images[0]['src']).split('/'))
                 return return_raster_image(img, root or base)
 
 
-def render_html_svg_workaround(path_to_html, log, width=1200, height=1600, root=''):
+def render_html_svg_workaround(path_to_html: str, log: Log, width: int = 1200, height: int = 1600, root: str = '') -> bytes | None:
     from calibre.ebooks.oeb.base import SVG_NS
 
     with open(path_to_html, 'rb') as f:
@@ -179,13 +184,13 @@ def render_html_svg_workaround(path_to_html, log, width=1200, height=1600, root=
     return data
 
 
-def render_html_data(path_to_html, width, height, root=''):
+def render_html_data(path_to_html: str, width: int, height: int, root: str = '') -> bytes | None:
     from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 
     result = {}
 
-    def report_error(text='') -> None:
+    def report_error(text: str = '') -> None:
         prints('Failed to render', path_to_html, 'with errors:', file=sys.stderr)
         if text:
             prints(text, file=sys.stderr)
@@ -206,7 +211,7 @@ def render_html_data(path_to_html, width, height, root=''):
                 report_error()
 
 
-def check_ebook_format(stream, current_guess):
+def check_ebook_format(stream: IO[bytes], current_guess: str) -> str:
     ans = current_guess
     if current_guess.lower() in ('prc', 'mobi', 'azw', 'azw1', 'azw3'):
         stream.seek(0)
@@ -216,7 +221,11 @@ def check_ebook_format(stream, current_guess):
     return ans
 
 
-def normalize(x):
+@overload
+def normalize(x: str) -> str: ...
+@overload
+def normalize(x: None) -> None: ...
+def normalize(x: str | None) -> str | None:
     if isinstance(x, str):
         import unicodedata
 
@@ -224,7 +233,15 @@ def normalize(x):
     return x
 
 
-def calibre_cover(title, author_string, series_string=None, output_format='jpg', title_size=46, author_size=36, logo_path=None):
+def calibre_cover(
+    title: str,
+    author_string: str,
+    series_string: str | None = None,
+    output_format: str = 'jpg',
+    title_size: int = 46,
+    author_size: int = 36,
+    logo_path: str | None = None,
+) -> bytes:
     title = normalize(title)
     author_string = normalize(author_string)
     series_string = normalize(series_string)
@@ -238,14 +255,14 @@ def calibre_cover(title, author_string, series_string=None, output_format='jpg',
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc|rem|q)$')
 
 
-def unit_convert(value, base, font, dpi, body_font_size=12):
+def unit_convert(value: str | float, base: float, font: float, dpi: float, body_font_size: float = 12) -> float | str:
     "Return value in pts"
     if isinstance(value, numbers.Number):
         return value
     with suppress(Exception):
         return float(value) * 72.0 / dpi
     result = value
-    m = UNIT_RE.match(value)
+    m = UNIT_RE.match(cast('str', value))  # numbers have been returned above
     if m is not None and m.group(1):
         try:
             value = float(m.group(1))
@@ -279,29 +296,36 @@ def unit_convert(value, base, font, dpi, body_font_size=12):
     return result
 
 
-def parse_css_length(value):
+def parse_css_length(value: str | None) -> tuple[float, str] | tuple[None, None]:
+    if value is None:
+        return None, None
     try:
         m = UNIT_RE.match(value)
     except TypeError:
         return None, None
     if m is not None and m.group(1):
-        value = float(m.group(1))
+        num = float(m.group(1))
         unit = m.group(2)
-        return value, unit.lower()
+        return num, unit.lower()
     return None, None
 
 
-def generate_masthead(title, output_path=None, width=600, height=60):
+@overload
+def generate_masthead(title: str, output_path: None = None, width: int = 600, height: int = 60) -> bytes: ...
+@overload
+def generate_masthead(title: str, output_path: str, width: int = 600, height: int = 60) -> None: ...
+def generate_masthead(title: str, output_path: str | None = None, width: int = 600, height: int = 60) -> bytes | None:
     from calibre.ebooks.conversion.config import load_defaults
 
     recs = load_defaults('mobi_output')
     masthead_font_family = recs.get('masthead_font', None)
     from calibre.ebooks.covers import generate_masthead
 
-    return generate_masthead(title, output_path=output_path, width=width, height=height, font_family=masthead_font_family)
+    # as_qimage is False so a QImage is never returned
+    return cast('bytes | None', generate_masthead(title, output_path=output_path, width=width, height=height, font_family=masthead_font_family))
 
 
-def escape_xpath_attr(value):
+def escape_xpath_attr(value: str) -> str:
     if '"' in value:
         if "'" in value:
             parts = re.split(r'("+)', value)

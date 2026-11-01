@@ -6,14 +6,24 @@ Transform OEB content into Textile formatted plain text
 
 import re
 from functools import partial
+from typing import TYPE_CHECKING
+
+from lxml import etree
 
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+
 
 class MarkdownMLizer(OEB2HTML):
-    def extract_content(self, oeb_book, opts):
+    def extract_content(self, oeb_book: OEBBook, opts: Values) -> str:
         self.log.info('Converting XHTML to Markdown formatted TXT...')
         self.opts = opts
         self.in_code = False
@@ -34,18 +44,22 @@ class MarkdownMLizer(OEB2HTML):
 
         return txt
 
-    def mlize_spine(self, oeb_book):
+    def mlize_spine(self, oeb_book: OEBBook) -> str:
         output = ['']
         for item in oeb_book.spine:
             self.log.debug(f'Converting {item.href} to Markdown formatted TXT...')
-            self.rewrite_ids(item.data, item)
-            rewrite_links(item.data, partial(self.rewrite_link, page=item))
-            stylizer = Stylizer(item.data, item.href, oeb_book, self.opts, self.opts.output_profile)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+            self.rewrite_ids(root, item)
+            rewrite_links(root, partial(self.rewrite_link, page=item))
+            stylizer = Stylizer(root, item.href, oeb_book, self.opts, self.opts.output_profile)
+            body = root.find(XHTML('body'))
+            assert body is not None
+            output += self.dump_text(body, stylizer)
             output.append('\n\n')
         return ''.join(output)
 
-    def tidy_up(self, text):
+    def tidy_up(self, text: str) -> str:
         # Remove blank space form beginning of paragraph.
         text = re.sub(r'(?msu)^[ ]{1,3}', '', text)
         # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
@@ -75,7 +89,7 @@ class MarkdownMLizer(OEB2HTML):
 
         return text
 
-    def remove_newlines(self, text):
+    def remove_newlines(self, text: str) -> str:
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
@@ -87,26 +101,26 @@ class MarkdownMLizer(OEB2HTML):
             self.remove_space_after_newline = False
         return text
 
-    def prepare_string_for_markdown(self, txt):
+    def prepare_string_for_markdown(self, txt: str) -> str:
         txt = re.sub(r'([\\`*_{}\[\]()#+!])', r'\\\1', txt)
         return txt
 
-    def prepare_string_for_pre(self, txt):
+    def prepare_string_for_pre(self, txt: str) -> str:
         new_text = []
         for l in txt.splitlines():
             new_text.append('    ' + l)
         return '\n'.join(new_text)
 
-    def dump_text(self, elem, stylizer, page=None):
+    def dump_text(self, elem: _Element, stylizer: Stylizer, page: Manifest.Item | None = None) -> list[str]:
         """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
         """
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, str) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
+            if p is not None and isinstance(p.tag, str) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 

@@ -1,9 +1,16 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class PDBInput(InputFormatPlugin):
@@ -13,7 +20,7 @@ class PDBInput(InputFormatPlugin):
     file_types = {'pdb', 'updb'}
     commit_name = 'pdb_input'
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | OEBBook:
         from calibre.ebooks.pdb import IDENTITY_TO_NAME, PDBError, get_reader
         from calibre.ebooks.pdb.header import PdbHeaderReader
 

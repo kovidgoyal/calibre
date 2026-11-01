@@ -3,19 +3,23 @@
 
 import io
 from struct import pack
+from typing import TYPE_CHECKING
 
 from calibre_extensions import cPalmdoc
 
+if TYPE_CHECKING:
+    import unittest
 
-def decompress_doc(data):
+
+def decompress_doc(data: bytes) -> bytes:
     return cPalmdoc.decompress(data)
 
 
-def compress_doc(data):
+def compress_doc(data: bytes) -> bytes:
     return cPalmdoc.compress(data) if data else b''
 
 
-def py_compress_doc(data):
+def py_compress_doc(data: bytes) -> bytes:
     out = io.BytesIO()
     i = 0
     ldata = len(data)
@@ -66,11 +70,11 @@ def py_compress_doc(data):
     return out.getvalue()
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class Test(unittest.TestCase):
-        def check(self, data) -> None:
+        def check(self, data: bytes) -> None:
             x = compress_doc(data)
             self.assertEqual(py_compress_doc(data), x, f'len(data)={len(data)}')
             self.assertEqual(decompress_doc(x), data)

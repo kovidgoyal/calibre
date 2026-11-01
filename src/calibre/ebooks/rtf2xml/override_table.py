@@ -10,6 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from calibre.ebooks.rtf2xml.list_table import ListAttrs, ListIds, ListInfo
 
 
 class OverrideTable:
@@ -23,8 +27,8 @@ class OverrideTable:
 
     def __init__(
         self,
-        list_of_lists,
-        run_level=1,
+        list_of_lists: list[ListInfo],
+        run_level: int = 1,
     ) -> None:
         self.__list_of_lists = list_of_lists
         self.__initiate_values()
@@ -44,7 +48,7 @@ class OverrideTable:
             'cw<ls<list-id___': 'list-id',
         }
 
-    def __override_func(self, line) -> None:
+    def __override_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -94,13 +98,13 @@ class OverrideTable:
             msg = 'This override does not appear to have a list-table-id\n'
             raise Exception(msg)
         for counter, list in enumerate(self.__list_of_lists):
-            info_dict = list[0]
+            info_dict = cast('ListAttrs', list[0])  # the first item of each list is its attributes dict
             old_table_id = info_dict.get('list-table-id')
             if old_table_id == current_table_id:
-                self.__list_of_lists[counter][0]['list-id'].append(list_id)
+                cast('ListIds', info_dict['list-id']).append(list_id)  # list-id is always a list
                 break
 
-    def __parse_lines(self, line) -> None:
+    def __parse_lines(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -129,7 +133,7 @@ class OverrideTable:
         self.__write_final_string()
         # self.__add_to_final_line()
 
-    def __default_func(self, line) -> None:
+    def __default_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -141,7 +145,7 @@ class OverrideTable:
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
 
-    def __after_bracket_func(self, line) -> None:
+    def __after_bracket_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -189,7 +193,7 @@ class OverrideTable:
         self.__override_table_final += 'mi<mk<overri-end\n' + 'mi<tg<close_____<override-table\n'
         self.__override_table_final += 'mi<mk<overribend_\n'
 
-    def parse_override_table(self, line):
+    def parse_override_table(self, line: str) -> tuple[str, list[ListInfo]]:
         """
         Requires:
             line -- line with border definition in it

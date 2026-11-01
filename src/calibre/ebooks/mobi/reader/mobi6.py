@@ -7,7 +7,7 @@ import re
 import shutil
 import struct
 import textwrap
-from typing import cast
+from typing import IO, TYPE_CHECKING, cast
 
 from lxml import etree, html
 
@@ -28,6 +28,11 @@ from calibre.utils.imghdr import what
 from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_html_fromstring
+
+if TYPE_CHECKING:
+    from lxml.etree import _Element
+
+    from calibre.utils.logging import Log
 
 
 class TopazError(ValueError):
@@ -51,7 +56,14 @@ class MobiReader:
     )
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
-    def __init__(self, filename_or_stream, log=None, user_encoding=None, debug=None, try_extra_data_fix=False) -> None:
+    def __init__(
+        self,
+        filename_or_stream: str | IO[bytes],
+        log: Log | None = None,
+        user_encoding: str | None = None,
+        debug: str | None = None,
+        try_extra_data_fix: bool = False,
+    ) -> None:
         self.log = log or default_log
         self.debug = debug
         self.embedded_mi = None
@@ -103,7 +115,7 @@ class MobiReader:
 
         raw_bytes: bytes = raw
 
-        def section(section_number):
+        def section(section_number: int) -> bytes:
             if section_number == self.num_sections - 1:
                 end_off = len(raw_bytes)
             else:
@@ -160,7 +172,7 @@ class MobiReader:
                 name = self.name
             raise DRMError(name)
 
-    def extract_content(self, output_dir, parse_cache) -> None:
+    def extract_content(self, output_dir: str, parse_cache: dict[str, _Element | bytes]) -> None:
         output_dir = os.path.abspath(output_dir)
         self.check_for_drm()
         processed_records = self.extract_text()
@@ -303,7 +315,7 @@ class MobiReader:
         except AttributeError:
             pass
 
-        def write_as_utf8(path, data) -> None:
+        def write_as_utf8(path: str, data: str | bytes) -> None:
             if isinstance(data, str):
                 data = data.encode('utf-8')
             with open(path, 'wb') as f:
@@ -336,8 +348,8 @@ class MobiReader:
             if ncx:
                 write_as_utf8(os.path.splitext(htmlfile)[0] + '.ncx', ncx)
 
-    def read_embedded_metadata(self, root, elem, guide) -> None:
-        raw = b'<?xml version="1.0" encoding="utf-8" ?>\n<package>' + html.tostring(elem, encoding='utf-8') + b'</package>'
+    def read_embedded_metadata(self, root: _Element, elem: _Element, guide: _Element | None) -> None:
+        raw = b'<?xml version="1.0" encoding="utf-8" ?>\n<package>' + html.tostring(elem, encoding='utf-8') + b'</package>'  # ty: ignore[no-matching-overload] works with any element
         stream = io.BytesIO(raw)
         opf = OPF(stream)
         self.embedded_mi = opf.to_book_metadata()
@@ -356,7 +368,7 @@ class MobiReader:
                             if reached and elem.tag == 'img':
                                 cover = elem.get('src', None)
                                 self.embedded_mi.cover = cover
-                                elem.getparent().remove(elem)
+                                elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] elem is a descendant of root
                                 break
                     break
 
@@ -405,15 +417,15 @@ class MobiReader:
         if htmls > 1:
             self.processed_html = self.processed_html.replace('</html>', '')
 
-    def remove_random_bytes(self, html):
+    def remove_random_bytes(self, html: str) -> str:
         return re.sub(r'\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08|\x01|\x02|\x03|\x04|\x05|\x06|\x07', '', html)
 
-    def ensure_unit(self, raw, unit='px'):
+    def ensure_unit(self, raw: str, unit: str = 'px') -> str:
         if re.search(r'\d+$', raw) is not None:
             raw += unit
         return raw
 
-    def upshift_markup(self, root, image_name_map=None) -> None:
+    def upshift_markup(self, root: _Element, image_name_map: dict[int, str] | None = None) -> None:
         self.log.debug('Converting style information to CSS...')
         image_name_map = image_name_map or {}
         size_map = {
@@ -426,7 +438,7 @@ class MobiReader:
             'xx-large': '6',
         }
 
-        def barename(x):
+        def barename(x: str) -> str:
             return x.rpartition(':')[-1]
 
         mobi_version = self.book_header.mobi_version
@@ -441,9 +453,11 @@ class MobiReader:
             for x in tag.attrib:
                 if ':' in x:
                     del tag.attrib[x]
-            if tag.tag and barename(tag.tag) == 'svg':
+            ttag = tag.tag
+            assert isinstance(ttag, str)  # iter(etree.Element) yields only elements
+            if ttag and barename(ttag) == 'svg':
                 svg_tags.append(tag)
-            if tag.tag and barename(tag.tag.lower()) in (
+            if ttag and barename(ttag.lower()) in (
                 'country-region',
                 'place',
                 'placetype',
@@ -623,6 +637,7 @@ class MobiReader:
             if 'name' in tag.attrib:
                 del tag.attrib['name']
             p = tag.getparent()
+            assert p is not None  # tag is a descendant of root
             a = p.makeelement('a')
             a.attrib['id'] = anchor
             p.insert(p.index(tag) + 1, a)
@@ -631,7 +646,8 @@ class MobiReader:
 
         for tag in forwardable_anchors:
             block = tag.getnext()
-            tag.getparent().remove(tag)
+            assert block is not None  # forwardable anchors are always followed by a block tag
+            tag.getparent().remove(tag)  # ty: ignore[unresolved-attribute] tag was inserted into a parent above
 
             if 'id' in block.attrib:
                 tag.tail = block.text
@@ -644,9 +660,9 @@ class MobiReader:
         for br in root.xpath('/body/br[@id]'):
             br.tag = 'div'
 
-    def get_left_whitespace(self, tag):
+    def get_left_whitespace(self, tag: _Element) -> float:
 
-        def whitespace(tag):
+        def whitespace(tag: _Element) -> float:
             lm = ti = 0.0
             if tag.tag == 'p':
                 ti = unit_convert('1.5em', 12, 500, 166)
@@ -672,10 +688,10 @@ class MobiReader:
 
         return ans
 
-    def create_opf(self, htmlfile, guide=None, root=None):
+    def create_opf(self, htmlfile: str, guide: _Element | None = None, root: _Element | None = None) -> tuple[OPFCreator, str | None]:
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
         if mi is None:
-            mi = MetaInformation(self.book_header.title, [_('Unknown')])
+            mi = MetaInformation(self.book_header.title, [_('Unknown')])  # ty: ignore[invalid-argument-type] title is decoded to str by BookHeader
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
             opf.cover = f'images/{self.book_header.exth.cover_offset + 1:05}.jpg'
@@ -713,8 +729,9 @@ class MobiReader:
         toc = None
         if guide is not None:
             opf.create_guide(guide)
+            assert opf.guide is not None
             for ref in opf.guide:
-                if ref.type.lower() == 'toc':
+                if (ref.type or '').lower() == 'toc':
                     toc = ref.href()
 
         ncx_manifest_entry = None
@@ -740,7 +757,8 @@ class MobiReader:
                                 text = ''
                             text = replace_entities(text)
                             item = tocobj.add_item(toc.partition('#')[0], href[1:], text)
-                            item.left_space = int(self.get_left_whitespace(x))
+                            # left_space is a dynamic attribute used only by structure_toc()
+                            item.left_space = int(self.get_left_whitespace(x))  # ty: ignore[unresolved-attribute]
                             found = True
                     if reached and found and x.get('class', None) == 'mbp_pagebreak':
                         break
@@ -750,10 +768,10 @@ class MobiReader:
 
         return opf, ncx_manifest_entry
 
-    def structure_toc(self, toc):
+    def structure_toc(self, toc: TOC) -> TOC:
         indent_vals = set()
         for item in toc:
-            indent_vals.add(item.left_space)
+            indent_vals.add(item.left_space)  # ty: ignore[unresolved-attribute] set in create_opf()
         if len(indent_vals) > 6 or len(indent_vals) < 2:
             # Too many or too few levels, give up
             return toc
@@ -763,7 +781,7 @@ class MobiReader:
 
         newtoc = TOC()
 
-        def find_parent(level):
+        def find_parent(level: int) -> TOC:
             candidates = last_found[:level]
             for x in reversed(candidates):
                 if x is not None:
@@ -771,14 +789,14 @@ class MobiReader:
             return newtoc
 
         for item in toc:
-            level = indent_vals.index(item.left_space)
+            level = indent_vals.index(item.left_space)  # ty: ignore[unresolved-attribute] set in create_opf()
             parent = find_parent(level)
             last_found[level] = parent.add_item(item.href, item.fragment, item.text)
 
         return newtoc
 
-    def sizeof_trailing_entries(self, data):
-        def sizeof_trailing_entry(ptr, psize):
+    def sizeof_trailing_entries(self, data: bytes) -> int:
+        def sizeof_trailing_entry(ptr: bytes, psize: int) -> int:
             bitpos, result = 0, 0
             while True:
                 v = ord(ptr[psize - 1 : psize])
@@ -813,12 +831,12 @@ class MobiReader:
             self.warned_about_trailing_entry_corruption = True
             self.log.warn('The trailing data entries in this MOBI file are corrupted, you might see corrupted text in the output')
 
-    def text_section(self, index):
+    def text_section(self, index: int) -> bytes:
         data = self.sections[index][0]
         trail_size = self.sizeof_trailing_entries(data)
         return data[: len(data) - trail_size]
 
-    def extract_text(self, offset=1):
+    def extract_text(self, offset: int = 1) -> list[int]:
         self.log.debug('Extracting text...')
         text_sections = [self.text_section(i) for i in range(offset, min(self.book_header.records + offset, len(self.sections)))]
         processed_records = list(range(offset - 1, self.book_header.records + offset))
@@ -836,7 +854,7 @@ class MobiReader:
 
         elif self.book_header.compression_type == b'\x00\x01':
 
-            def unpack(x):
+            def unpack(x: bytes) -> bytes:
                 return x
 
         else:
@@ -887,14 +905,14 @@ class MobiReader:
         # Remove anchors placed inside entities
         self.processed_html = re.sub(rb'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);', rb'&\1\3;\2', processed_html)
 
-    def extract_images(self, processed_records, output_dir):
+    def extract_images(self, processed_records: list[int], output_dir: str) -> dict[int, str]:
         self.log.debug('Extracting images...')
         output_dir = os.path.abspath(os.path.join(output_dir, 'images'))
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         image_index = 0
         self.image_names = []
-        image_name_map = {}
+        image_name_map: dict[int, str] = {}
         start = getattr(self.book_header, 'first_image_index', -1)
         if start > self.num_sections or start < 0:
             # BAEN PRC files have bad headers

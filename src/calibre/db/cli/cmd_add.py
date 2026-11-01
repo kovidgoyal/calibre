@@ -233,7 +233,7 @@ def format_group(
         mi = metadata_from_formats(paths)
         if mi.title is None:
             return None, set(), set(), False
-        if cover_data and (not mi.cover_data or not mi.cover_data[1]):
+        if cover_data and not mi.cover_data[1]:
             mi.cover_data = 'jpeg', cover_data
         format_map = create_format_map(paths)
         added_ids, updated_ids, duplicates = do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_duplicates, oautomerge)
@@ -361,7 +361,7 @@ def do_add(
                     if fmt.lower().endswith('.opf'):
                         with open(fmt, 'rb') as f:
                             mi = get_metadata(f, stream_type='opf')
-                            if mi.cover_data and mi.cover_data[1]:
+                            if mi.cover_data[1]:
                                 cover_data = mi.cover_data[1]
                             elif mi.cover:
                                 try:

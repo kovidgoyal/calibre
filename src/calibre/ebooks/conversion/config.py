@@ -4,6 +4,7 @@
 import ast
 import json
 import os
+from typing import TYPE_CHECKING, Self, TypedDict
 
 from calibre import sanitize_file_name
 from calibre.customize.conversion import OptionRecommendation
@@ -11,14 +12,20 @@ from calibre.customize.ui import available_output_formats
 from calibre.utils.config import config_dir, prefs, tweaks
 from calibre.utils.lock import ExclusiveFile
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+
 config_dir = os.path.join(config_dir, 'conversion')
 
 
-def name_to_path(name):
+def name_to_path(name: str) -> str:
     return os.path.join(config_dir, sanitize_file_name(name) + '.py')
 
 
-def save_defaults(name, recs) -> None:
+def save_defaults(name: str, recs: GuiRecommendations) -> None:
     path = name_to_path(name)
     raw = recs.serialize()
 
@@ -30,7 +37,7 @@ def save_defaults(name, recs) -> None:
         f.write(raw)
 
 
-def load_defaults(name):
+def load_defaults(name: str) -> GuiRecommendations:
     path = name_to_path(name)
 
     os.makedirs(config_dir, exist_ok=True)
@@ -45,33 +52,38 @@ def load_defaults(name):
     return r
 
 
-def save_specifics(db, book_id, recs) -> None:
+def save_specifics(db: LibraryDatabase | Cache, book_id: int, recs: GuiRecommendations) -> None:
     raw = recs.serialize()
     db.new_api.set_conversion_options({book_id: raw}, fmt='PIPE')
 
 
-def load_specifics(db, book_id):
-    raw = db.conversion_options(book_id, 'PIPE')
+def load_specifics(db: LibraryDatabase | Cache, book_id: int) -> GuiRecommendations:
+    raw = db.new_api.conversion_options(book_id, 'PIPE')
     r = GuiRecommendations()
     if raw:
         r.deserialize(raw)
     return r
 
 
-def delete_specifics(db, book_id) -> None:
+def delete_specifics(db: LibraryDatabase, book_id: int) -> None:
     db.delete_conversion_options(book_id, 'PIPE')
+
+
+class GuiRecommendationsDict(TypedDict):
+    options: dict[str, object]
+    disabled: tuple[str, ...]
 
 
 class GuiRecommendations(dict):
     disabled_options: set
 
-    def __new__(cls, *args):
+    def __new__(cls, *args: object) -> Self:
         dict.__new__(cls)
         obj = super().__new__(cls, *args)
         obj.disabled_options = set()
         return obj
 
-    def to_recommendations(self, level=OptionRecommendation.LOW):
+    def to_recommendations(self, level: int = OptionRecommendation.LOW) -> list[tuple[str, object, int]]:
         ans = []
         for key, val in self.items():
             ans.append((key, val, level))
@@ -84,18 +96,18 @@ class GuiRecommendations(dict):
         ans.append('}')
         return '\n'.join(ans)
 
-    def serialize(self):
+    def serialize(self) -> bytes:
         ans = json.dumps(self, indent=2, ensure_ascii=False)
         if isinstance(ans, str):
             ans = ans.encode('utf-8')
         return b'json:' + ans
 
-    def deserialize(self, raw) -> None:
+    def deserialize(self, raw: bytes) -> None:
         try:
             if raw.startswith(b'json:'):
                 d = json.loads(raw[len(b'json:') :])
             else:
-                d = ast.literal_eval(raw)
+                d = ast.literal_eval(raw.decode('utf-8'))
         except Exception:
             pass
         else:
@@ -104,7 +116,9 @@ class GuiRecommendations(dict):
 
     from_string = deserialize
 
-    def merge_recommendations(self, get_option, level, options, only_existing=False) -> None:
+    def merge_recommendations(
+        self, get_option: Callable[[str], OptionRecommendation | None], level: int, options: Iterable[str], only_existing: bool = False
+    ) -> None:
         for name in options:
             if only_existing and name not in self:
                 continue
@@ -117,22 +131,22 @@ class GuiRecommendations(dict):
             elif opt.level > level or name not in self:
                 self[name] = opt.recommended_value
 
-    def as_dict(self):
+    def as_dict(self) -> GuiRecommendationsDict:
         return {'options': self.copy(), 'disabled': tuple(self.disabled_options)}
 
 
-def get_available_formats_for_book(db, book_id):
+def get_available_formats_for_book(db: LibraryDatabase | Cache, book_id: int) -> set[str]:
     available_formats = db.new_api.formats(book_id)
     return {x.lower() for x in available_formats}
 
 
 class NoSupportedInputFormats(Exception):
-    def __init__(self, available_formats) -> None:
+    def __init__(self, available_formats: tuple[str, ...]) -> None:
         Exception.__init__(self)
         self.available_formats = available_formats
 
 
-def get_supported_input_formats_for_book(db, book_id):
+def get_supported_input_formats_for_book(db: LibraryDatabase | Cache, book_id: int) -> list[str]:
     from calibre.ebooks.conversion.plumber import supported_input_formats
 
     available_formats = get_available_formats_for_book(db, book_id)
@@ -143,22 +157,22 @@ def get_supported_input_formats_for_book(db, book_id):
     return input_formats
 
 
-def get_preferred_input_format_for_book(db, book_id):
+def get_preferred_input_format_for_book(db: LibraryDatabase | Cache, book_id: int) -> str | None:
     recs = load_specifics(db, book_id)
     if recs:
         return recs.get('gui_preferred_input_format', None)
 
 
-def sort_formats_by_preference(formats, prefs):
+def sort_formats_by_preference(formats: Iterable[str], prefs: Sequence[str]) -> list[str]:
     uprefs = {x.upper(): i for i, x in enumerate(prefs)}
 
-    def key(x):
+    def key(x: str) -> int:
         return uprefs.get(x.upper(), len(prefs))
 
     return sorted(formats, key=key)
 
 
-def get_input_format_for_book(db, book_id, pref=None):
+def get_input_format_for_book(db: LibraryDatabase | Cache, book_id: int, pref: str | bool | None = None) -> tuple[str, list[str]]:
     """
     Return (preferred input format, list of available formats) for the book
     identified by book_id. Raises an error if the book has no input formats.
@@ -177,7 +191,7 @@ def get_input_format_for_book(db, book_id, pref=None):
     return input_format, input_formats
 
 
-def get_output_formats(preferred_output_format):
+def get_output_formats(preferred_output_format: str | None) -> list[str]:
     all_formats = {x.upper() for x in available_output_formats()}
     all_formats.discard('OEB')
     pfo = preferred_output_format.upper() if preferred_output_format else ''
@@ -191,7 +205,7 @@ def get_output_formats(preferred_output_format):
     return fmts
 
 
-def get_sorted_output_formats(preferred_fmt=None):
+def get_sorted_output_formats(preferred_fmt: str | None = None) -> list[str]:
     preferred_output_format = (preferred_fmt or prefs['output_format']).upper()
     fmts = get_output_formats(preferred_output_format)
     try:
@@ -430,7 +444,7 @@ OPTIONS = {
 OPTIONS['output']['txtz'] = OPTIONS['output']['txt']
 
 
-def options_for_input_fmt(fmt):
+def options_for_input_fmt(fmt: str) -> tuple[str | None, tuple[str, ...]]:
     from calibre.customize.ui import plugin_for_input_format
 
     fmt = fmt.lower()
@@ -442,7 +456,7 @@ def options_for_input_fmt(fmt):
     return full_name, OPTIONS['input'].get(name, ())
 
 
-def options_for_output_fmt(fmt):
+def options_for_output_fmt(fmt: str) -> tuple[str | None, tuple[str, ...]]:
     from calibre.customize.ui import plugin_for_output_format
 
     fmt = fmt.lower()

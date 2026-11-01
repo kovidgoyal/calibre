@@ -16,6 +16,8 @@ from contextlib import closing
 from typing import IO, TYPE_CHECKING, NoReturn, Unpack, cast
 from urllib.parse import urlparse, urlsplit
 
+from lxml import etree
+
 from calibre import __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding, random_user_agent, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, NavigableString, Tag
 from calibre.ebooks.metadata import MetaInformation
@@ -1145,6 +1147,7 @@ class BasicNewsRecipe(Recipe):
                     extra_css=self.get_extra_css() or '',
                 )
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                assert elem is not None  # the navbar template renders a div
                 body.insert(0, elem)
                 # This is needed because otherwise inserting elements into
                 # the soup breaks find()
@@ -1523,7 +1526,7 @@ class BasicNewsRecipe(Recipe):
                 stream = io.BytesIO(cdata)
                 cdata = None
                 mi = get_metadata(stream)
-                if mi.cover_data and mi.cover_data[1]:
+                if mi.cover_data[1]:
                     cdata = mi.cover_data[1]
             if not cdata:
                 return
@@ -1688,6 +1691,7 @@ class BasicNewsRecipe(Recipe):
             ref = Guide.Reference(os.path.basename(mp), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
+            assert opf.guide is not None  # created by OPFCreator.__init__()
             opf.guide.append(ref)
 
         manifest = [os.path.join(dir, f'feed_{i}') for i in range(len(feeds))]
@@ -1710,7 +1714,9 @@ class BasicNewsRecipe(Recipe):
             manifest.append(mpath)
 
         opf.create_manifest_from_files_in(manifest)
+        assert opf.manifest is not None
         for mani in opf.manifest:
+            assert mani.path is not None  # manifest items created from files always have a path
             if mani.path.endswith('.ncx'):
                 mani.id = 'ncx'
             if mani.path.endswith('mastheadImage.jpg'):
@@ -1787,6 +1793,7 @@ class BasicNewsRecipe(Recipe):
                                 center=self.center_navbar,
                             )
                             elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                            assert elem is not None  # the navbar template renders a div
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(str(soup).encode('utf-8'))
@@ -1989,7 +1996,9 @@ class BasicNewsRecipe(Recipe):
     def internal_postprocess_book(self, oeb: OEBBook, opts: Values, log: Log) -> None:
         seen = set()
         for i, item in enumerate(oeb.spine):
-            for a in item.data.xpath('//*[local-name()="a" and @href]'):
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are HTML documents
+            for a in root.xpath('//*[local-name()="a" and @href]'):
                 if (rel := a.get('rel')) == 'calibre-downloaded-from':
                     continue
                 url = a.get('href')

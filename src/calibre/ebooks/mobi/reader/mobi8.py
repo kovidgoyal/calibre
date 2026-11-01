@@ -5,7 +5,7 @@ import os
 import re
 import struct
 from itertools import repeat
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import urldefrag
 from uuid import uuid4
 
@@ -23,6 +23,14 @@ from calibre.ebooks.oeb.base import XHTML, XPath, xml2text
 from calibre.ebooks.oeb.parse_utils import parse_html
 from polyglot.builtins import as_unicode
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.mobi.reader.mobi6 import MobiReader
+    from calibre.utils.logging import Log
+
 
 class File(NamedTuple):
     file_number: int
@@ -34,7 +42,7 @@ class File(NamedTuple):
 
 class Elem(NamedTuple):
     insert_pos: int
-    toc_text: str
+    toc_text: str | None
     file_number: int
     sequence_number: int
     start_pos: int
@@ -59,14 +67,15 @@ class FlowInfo(NamedTuple):
 
 class Item(NamedTuple):
     type: str
-    title: str
-    pos_fid: Any
+    title: str | None
+    # tag 3 gives a single int, tag 6 a (pos, fid) pair, both can be missing
+    pos_fid: int | list[int] | None
 
 
 # locate beginning and ending positions of tag with specific aid attribute
 
 
-def locate_beg_end_of_tag(ml, aid):
+def locate_beg_end_of_tag(ml: bytes, aid: bytes) -> tuple[int, int]:
     pattern = rb'''<[^>]*\said\s*=\s*['"]%s['"][^>]*>''' % aid
     aid_pattern = re.compile(pattern, re.IGNORECASE)
     for m in re.finditer(aid_pattern, ml):
@@ -76,7 +85,7 @@ def locate_beg_end_of_tag(ml, aid):
     return 0, 0
 
 
-def reverse_tag_iter(block):
+def reverse_tag_iter(block: bytes) -> Iterator[bytes]:
     """Iterate over all tags in block in reverse order, i.e. last tag
     to first tag."""
     end = len(block)
@@ -91,7 +100,7 @@ def reverse_tag_iter(block):
         end = plt
 
 
-def get_first_resource_index(first_image_index, num_of_text_records, first_text_record_number):
+def get_first_resource_index(first_image_index: int, num_of_text_records: int, first_text_record_number: int) -> int:
     first_resource_index = first_image_index
     if first_resource_index in {-1, NULL_INDEX}:
         first_resource_index = num_of_text_records + first_text_record_number
@@ -99,7 +108,7 @@ def get_first_resource_index(first_image_index, num_of_text_records, first_text_
 
 
 class Mobi8Reader:
-    def __init__(self, mobi6_reader, log, for_tweak=False) -> None:
+    def __init__(self, mobi6_reader: MobiReader, log: Log, for_tweak: bool = False) -> None:
         self.for_tweak = for_tweak
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
@@ -108,11 +117,13 @@ class Mobi8Reader:
         self.name_re = re.compile(rb'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
         self.aid_re = re.compile(rb'''<[^>]+\s(?:aid|AID)\s*=\s*['"]([^'"]+)['"]''')
 
-    def __call__(self):
+    def __call__(self) -> str:
         self.mobi6_reader.check_for_drm()
         self.aid_anchor_suffix = uuid4().hex.encode('utf-8')
         bh = self.mobi6_reader.book_header
         if self.mobi6_reader.kf8_type == 'joint':
+            # set by MobiReader for joint files
+            assert bh.mobi6_records is not None and bh.kf8_first_image_index is not None
             offset = self.mobi6_reader.kf8_boundary + 2
             self.resource_offsets = [
                 (get_first_resource_index(bh.first_image_index, bh.mobi6_records, 1), offset - 2),
@@ -187,8 +198,8 @@ class Mobi8Reader:
 
     def build_parts(self) -> None:
         raw_ml = self.mobi6_reader.mobi_html
-        self.flows = []
-        self.flowinfo = []
+        self.flows: list[bytes] = []
+        self.flowinfo: list[FlowInfo] = []
         ft = self.flow_table or [(0, len(raw_ml))]
 
         # now split the raw_ml into its flow pieces
@@ -203,8 +214,8 @@ class Mobi8Reader:
         # files *without* destroying any file position information needed for
         # later href processing and create final list of file separation start:
         # stop points and etc in partinfo
-        self.parts = []
-        self.partinfo = []
+        self.parts: list[bytes] = []
+        self.partinfo: list[Part] = []
         divptr = 0
         baseptr = 0
         for skelnum, skelname, divcnt, skelpos, skellen in self.files:
@@ -214,7 +225,7 @@ class Mobi8Reader:
             for i in range(divcnt):
                 insertpos, idtext, filenum, seqnum, startpos, length = self.elems[divptr]
                 if i == 0:
-                    aidtext = idtext[12:-2]
+                    aidtext = idtext[12:-2]  # ty: ignore[not-subscriptable] div table entries always have toc text
                     filename = f'part{filenum:04}.html'
                 part = text[baseptr : baseptr + length]
                 insertpos = insertpos - skelpos
@@ -301,15 +312,15 @@ class Mobi8Reader:
             self.flows[j] = flowpart
             self.flowinfo.append(FlowInfo(typ, format, dir, fname))
 
-    def get_file_info(self, pos):
+    def get_file_info(self, pos: int) -> Part:
         """Get information about the part (file) that exists at pos in
         the raw markup"""
         for part in self.partinfo:
-            if pos >= part.start and pos < part.end:
+            if pos >= part.start and pos < part.end:  # ty: ignore[unsupported-operator] start and end are set for all entries in partinfo
                 return part
         return Part(*repeat(None, len(Part._fields)))
 
-    def get_id_tag_by_pos_fid(self, posfid, offset):
+    def get_id_tag_by_pos_fid(self, posfid: int, offset: int) -> tuple[str, bytes]:
         # first convert kindle:pos:fid and offset info to position in file
         insertpos, idtext, filenum, seqnm, startpos, length = self.elems[posfid]
         pos = insertpos + offset
@@ -324,12 +335,13 @@ class Mobi8Reader:
         idtext = self.get_id_tag(pos)
         return f'{fi.type}/{fi.filename}', idtext
 
-    def get_id_tag(self, pos):
+    def get_id_tag(self, pos: int) -> bytes:
         # Find the first tag with a named anchor (name or id attribute) before
         # pos
         fi = self.get_file_info(pos)
         if fi.num is None and fi.start is None:
             raise ValueError(f'No file contains pos: {pos}')
+        assert fi.num is not None and fi.start is not None  # either all fields are None or none are
         textblock = self.parts[fi.num]
         npos = pos - fi.start
         pgt = textblock.find(b'>', npos)
@@ -354,27 +366,26 @@ class Mobi8Reader:
         # No tag found, link to start of file
         return b''
 
-    def create_guide(self):
+    def create_guide(self) -> Guide:
         guide = Guide()
         has_start = False
         for ref_type, ref_title, pos_fid in self.guide:
-            try:
-                if len(pos_fid) != 2:
-                    continue
-            except TypeError:
+            if not isinstance(pos_fid, list):
                 continue  # thumbnailstandard record, ignore it
+            if len(pos_fid) != 2:
+                continue
             linktgt, idtext = self.get_id_tag_by_pos_fid(*pos_fid)
             if idtext:
                 if isinstance(idtext, bytes):
                     idtext = idtext.decode(self.header.codec)
                 linktgt += '#' + idtext
             g = Guide.Reference(linktgt, os.getcwd())
-            g.title, g.type = ref_title, ref_type
+            g.title, g.type = ref_title, ref_type  # ty: ignore[invalid-assignment] guide entries always have a title in the CNCX
             if g.title == 'start' or g.type == 'text':
                 has_start = True
             guide.append(g)
 
-        so = self.header.exth.start_offset
+        so = self.header.exth.start_offset  # ty: ignore[unresolved-attribute] KF8 files always have an EXTH header
         if so not in {None, NULL_INDEX} and not has_start:
             fi = self.get_file_info(so)
             if fi.filename is not None:
@@ -388,7 +399,7 @@ class Mobi8Reader:
 
         return guide
 
-    def create_ncx(self):
+    def create_ncx(self) -> TOC:
         index_entries = read_ncx(self.kf8_sections, self.header.ncxidx, self.header.codec)
         remove = []
 
@@ -419,10 +430,10 @@ class Mobi8Reader:
         # Build the TOC object
         return build_toc(index_entries)
 
-    def extract_resources(self, sections):
+    def extract_resources(self, sections: Sequence[tuple[bytes, object]]) -> list[str | None]:
         from calibre.ebooks.mobi.writer2.resources import PLACEHOLDER_GIF
 
-        resource_map = []
+        resource_map: list[str | None] = []
         container = None
         for x in ('fonts', 'images'):
             os.mkdir(x)
@@ -484,11 +495,11 @@ class Mobi8Reader:
 
         return resource_map
 
-    def expand_text(self, resource_map):
+    def expand_text(self, resource_map: list[str | None]) -> list[str]:
         return expand_mobi8_markup(self, resource_map, self.log)
 
-    def write_opf(self, guide, toc, spine, resource_map) -> str:
-        mi = self.header.exth.mi
+    def write_opf(self, guide: Guide, toc: TOC, spine: list[str], resource_map: list[str | None]) -> str:
+        mi = self.header.exth.mi  # ty: ignore[unresolved-attribute] KF8 files always have an EXTH header
         if self.cover_offset is not None and self.cover_offset < len(resource_map):
             mi.cover = resource_map[self.cover_offset]
 
@@ -508,7 +519,7 @@ class Mobi8Reader:
         opf = OPFCreator(os.getcwd(), mi)
         opf.guide = guide
 
-        def exclude(path):
+        def exclude(path: str) -> bool:
             return os.path.basename(path) == 'debug-raw.html'
 
         # If there are no images then the azw3 input plugin dumps all
@@ -532,6 +543,7 @@ class Mobi8Reader:
             'font/otf': 'application/vnd.ms-opentype',
             'font/woff': 'application/font-woff',
         }
+        assert opf.manifest is not None  # created by create_manifest_from_files_in() above
         for entry in opf.manifest:
             n = mime_map.get(entry.mime_type)
             if n is not None:
@@ -549,7 +561,7 @@ class Mobi8Reader:
             opf.render(of, ncx, 'toc.ncx')
         return 'metadata.opf'
 
-    def read_inline_toc(self, href, frag):
+    def read_inline_toc(self, href: str, frag: str) -> TOC:
         ans = TOC()
         base_href = '/'.join(href.split('/')[:-1])
         with open(href.replace('/', os.sep), 'rb') as f:
@@ -567,7 +579,7 @@ class Mobi8Reader:
             if elems:
                 start = elems[0]
 
-        def node_depth(elem):
+        def node_depth(elem: _Element) -> int:
             ans = 0
             parent = elem.getparent()
             while parent is not None:
@@ -582,7 +594,7 @@ class Mobi8Reader:
         links = []
         for elem in root.iterdescendants(etree.Element):
             if reached and elem.tag == XHTML('a') and elem.get('href', False):
-                href = elem.get('href')
+                href = cast('str', elem.get('href'))  # checked to be non-empty above
                 href, frag = urldefrag(href)
                 href = base_href + '/' + href
                 text = xml2text(elem).strip()

@@ -7,6 +7,7 @@ import os
 import random
 from functools import partial
 from string import ascii_letters, digits
+from typing import IO, TYPE_CHECKING
 
 from lxml import etree
 
@@ -20,6 +21,13 @@ from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_base64_unicode
 
+if TYPE_CHECKING:
+    import unittest
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.book.base import Metadata
+
 NAMESPACES = {
     'fb2': 'http://www.gribuser.ru/xml/fictionbook/2.0',
     'fb21': 'http://www.gribuser.ru/xml/fictionbook/2.1',
@@ -29,22 +37,22 @@ NAMESPACES = {
 tostring = partial(etree.tostring, method='text', encoding='unicode')
 
 
-def XLINK(tag):
+def XLINK(tag: str) -> str:
     return '{{{}}}{}'.format(NAMESPACES['xlink'], tag)
 
 
 class Context:
-    def __init__(self, root) -> None:
+    def __init__(self, root: _Element) -> None:
         try:
             self.fb_ns = root.nsmap[root.prefix] or NAMESPACES['fb2']
         except Exception:
             self.fb_ns = NAMESPACES['fb2']
         self.namespaces = {'fb': self.fb_ns, 'fb2': self.fb_ns, 'xlink': NAMESPACES['xlink']}
 
-    def XPath(self, *args):
+    def XPath(self, *args: str) -> etree.XPath:
         return etree.XPath(*args, namespaces=self.namespaces)
 
-    def get_or_create(self, parent, tag, attribs=None, at_start=True):
+    def get_or_create(self, parent: _Element, tag: str, attribs: dict[str, str] | None = None, at_start: bool = True) -> _Element:
         if attribs is None:
             attribs = {}
         xpathstr = './fb:' + tag
@@ -57,7 +65,7 @@ class Context:
             ans = self.create_tag(parent, tag, attribs, at_start)
         return ans
 
-    def create_tag(self, parent, tag, attribs=None, at_start=True):
+    def create_tag(self, parent: _Element, tag: str, attribs: dict[str, str] | None = None, at_start: bool = True) -> _Element:
         if attribs is None:
             attribs = {}
         ans = parent.makeelement(f'{{{self.fb_ns}}}{tag}')
@@ -68,12 +76,12 @@ class Context:
             parent.append(ans)
         return ans
 
-    def clear_meta_tags(self, doc, tag) -> None:
+    def clear_meta_tags(self, doc: _Element, tag: str) -> None:
         for parent in ('title-info', 'src-title-info', 'publish-info'):
             for x in self.XPath(f'//fb:{parent}/fb:{tag}')(doc):
                 x.getparent().remove(x)
 
-    def text2fb2(self, parent, text) -> None:
+    def text2fb2(self, parent: _Element, text: str) -> None:
         lines = text.split('\n')
         for line in lines:
             line = line.strip()
@@ -84,7 +92,7 @@ class Context:
                 self.create_tag(parent, 'empty-line', at_start=False)
 
 
-def get_fb2_data(stream):
+def get_fb2_data(stream: IO[bytes]) -> tuple[bytes, str | None]:
     from calibre.utils.zipfile import BadZipfile, ZipFile
 
     pos = stream.tell()
@@ -102,7 +110,7 @@ def get_fb2_data(stream):
     return ans, zip_file_name
 
 
-def get_metadata(stream):
+def get_metadata(stream: IO[bytes]) -> Metadata:
     """Return fb2 metadata as a L{MetaInformation} object"""
 
     root = _get_fbroot(get_fb2_data(stream)[0])
@@ -154,7 +162,7 @@ def get_metadata(stream):
     return mi
 
 
-def _parse_authors(root, ctx):
+def _parse_authors(root: _Element, ctx: Context) -> list[str]:
     authors = []
     # pick up authors but only from 1 section <title-info>; otherwise it is not consistent!
     # Those are fallbacks: <src-title-info>, <document-info>
@@ -174,7 +182,7 @@ def _parse_authors(root, ctx):
     return authors
 
 
-def _parse_author(elm_author, ctx):
+def _parse_author(elm_author: _Element, ctx: Context) -> str:
     """Returns a list of display author and sortable author"""
 
     xp_templ = 'normalize-space(fb:%s/text())'
@@ -197,7 +205,7 @@ def _parse_author(elm_author, ctx):
     return str(author)
 
 
-def _parse_book_title(root, ctx):
+def _parse_book_title(root: _Element, ctx: Context) -> str:
     # <title-info> has a priority.   (actually <title-info>  is mandatory)
     # other are backup solution (sequence is important. Other than in fb2-doc)
     xp_ti = '//fb:title-info/fb:book-title/text()'
@@ -208,7 +216,7 @@ def _parse_book_title(root, ctx):
     return book_title
 
 
-def _parse_cover(root, mi, ctx) -> None:
+def _parse_cover(root: _Element, mi: Metadata, ctx: Context) -> None:
     # pickup from <title-info>, if not exists it fallbacks to <src-title-info>
     imgid = ctx.XPath('substring-after(string(//fb:coverpage/fb:image/@xlink:href), "#")')(root)
     if imgid:
@@ -218,7 +226,7 @@ def _parse_cover(root, mi, ctx) -> None:
             pass
 
 
-def _parse_cover_data(root, imgid, mi, ctx) -> None:
+def _parse_cover_data(root: _Element, imgid: str, mi: Metadata, ctx: Context) -> None:
     from calibre.ebooks.fb2 import base64_decode
 
     elm_binary = ctx.XPath(f'//fb:binary[@id="{imgid}"]')(root)
@@ -241,7 +249,7 @@ def _parse_cover_data(root, imgid, mi, ctx) -> None:
             prints(f"WARNING: Unsupported coverpage mime-type '{mimetype}' (id=#{imgid})")
 
 
-def _parse_tags(root, mi, ctx) -> None:
+def _parse_tags(root: _Element, mi: Metadata, ctx: Context) -> None:
     # pick up genre but only from 1 section <title-info>; otherwise it is not consistent!
     # Those are fallbacks: <src-title-info>
     for genre_sec in ['title-info', 'src-title-info']:
@@ -252,7 +260,7 @@ def _parse_tags(root, mi, ctx) -> None:
             break
 
 
-def _parse_series(root, mi, ctx) -> None:
+def _parse_series(root: _Element, mi: Metadata, ctx: Context) -> None:
     # calibre supports only 1 series: use the 1-st one
     # pick up sequence but only from 1 section in preferred order
     # except <src-title-info>
@@ -269,7 +277,7 @@ def _parse_series(root, mi, ctx) -> None:
                 pass
 
 
-def _parse_isbn(root, mi, ctx) -> None:
+def _parse_isbn(root: _Element, mi: Metadata, ctx: Context) -> None:
     # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
     isbn = ctx.XPath('normalize-space(//fb:publish-info/fb:isbn/text())')(root)
     if isbn:
@@ -280,7 +288,7 @@ def _parse_isbn(root, mi, ctx) -> None:
             mi.isbn = isbn
 
 
-def _parse_comments(root, mi, ctx) -> None:
+def _parse_comments(root: _Element, mi: Metadata, ctx: Context) -> None:
     # pick up annotation but only from 1 section <title-info>;  fallback: <src-title-info>
     for annotation_sec in ['title-info', 'src-title-info']:
         elms_annotation = ctx.XPath(f'//fb:{annotation_sec}/fb:annotation')(root)
@@ -290,40 +298,40 @@ def _parse_comments(root, mi, ctx) -> None:
             break
 
 
-def _parse_publisher(root, mi, ctx) -> None:
+def _parse_publisher(root: _Element, mi: Metadata, ctx: Context) -> None:
     publisher = ctx.XPath('string(//fb:publish-info/fb:publisher/text())')(root)
     if publisher:
         mi.publisher = publisher
 
 
-def _parse_pubdate(root, mi, ctx) -> None:
+def _parse_pubdate(root: _Element, mi: Metadata, ctx: Context) -> None:
     year = ctx.XPath('number(//fb:publish-info/fb:year/text())')(root)
     if float.is_integer(year):
         # only year is available, so use 2nd of June
         mi.pubdate = parse_only_date(str(int(year)))
 
 
-def _parse_language(root, mi, ctx) -> None:
+def _parse_language(root: _Element, mi: Metadata, ctx: Context) -> None:
     language = ctx.XPath('string(//fb:title-info/fb:lang/text())')(root)
     if language:
         mi.language = language
         mi.languages = [language]
 
 
-def _get_fbroot(raw):
-    raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
-    root = safe_xml_fromstring(raw)
+def _get_fbroot(raw: bytes) -> _Element:
+    text = xml_to_unicode(raw, strip_encoding_pats=True)[0]
+    root = safe_xml_fromstring(text)
     return ensure_namespace(root)
 
 
-def _set_title(title_info, mi, ctx) -> None:
+def _set_title(title_info: _Element, mi: Metadata, ctx: Context) -> None:
     if not mi.is_null('title'):
         ctx.clear_meta_tags(title_info, 'book-title')
         title = ctx.get_or_create(title_info, 'book-title')
         title.text = mi.title
 
 
-def _set_comments(title_info, mi, ctx, apply_null=False) -> None:
+def _set_comments(title_info: _Element, mi: Metadata, ctx: Context, apply_null: bool = False) -> None:
     if mi.is_null('comments'):
         if apply_null:
             ctx.clear_meta_tags(title_info, 'annotation')
@@ -332,10 +340,11 @@ def _set_comments(title_info, mi, ctx, apply_null=False) -> None:
 
         ctx.clear_meta_tags(title_info, 'annotation')
         title = ctx.get_or_create(title_info, 'annotation')
+        assert mi.comments is not None  # not null, checked above
         ctx.text2fb2(title, html2text(mi.comments))
 
 
-def _set_authors(title_info, mi, ctx) -> None:
+def _set_authors(title_info: _Element, mi: Metadata, ctx: Context) -> None:
     if not mi.is_null('authors'):
         ctx.clear_meta_tags(title_info, 'author')
         for author in reversed(mi.authors):
@@ -355,7 +364,7 @@ def _set_authors(title_info, mi, ctx) -> None:
                     ctx.create_tag(atag, 'last-name', at_start=False).text = ' '.join(author_parts)
 
 
-def _set_publisher(publish_info, mi, ctx, apply_null=False) -> None:
+def _set_publisher(publish_info: _Element, mi: Metadata, ctx: Context, apply_null: bool = False) -> None:
     if mi.is_null('publisher'):
         if apply_null:
             ctx.clear_meta_tags(publish_info, 'publisher')
@@ -365,7 +374,7 @@ def _set_publisher(publish_info, mi, ctx, apply_null=False) -> None:
     tag.text = mi.publisher
 
 
-def _set_pubdate(publish_info, mi, ctx, apply_null=False) -> None:
+def _set_pubdate(publish_info: _Element, mi: Metadata, ctx: Context, apply_null: bool = False) -> None:
     if mi.is_null('pubdate'):
         if apply_null:
             ctx.clear_meta_tags(publish_info, 'year')
@@ -375,7 +384,7 @@ def _set_pubdate(publish_info, mi, ctx, apply_null=False) -> None:
     tag.text = strftime('%Y', mi.pubdate)
 
 
-def _set_tags(title_info, mi, ctx, apply_null=False) -> None:
+def _set_tags(title_info: _Element, mi: Metadata, ctx: Context, apply_null: bool = False) -> None:
     if mi.is_null('tags'):
         if apply_null:
             ctx.clear_meta_tags(title_info, 'genre')
@@ -386,7 +395,7 @@ def _set_tags(title_info, mi, ctx, apply_null=False) -> None:
             tag.text = t
 
 
-def _set_series(title_info, mi, ctx, apply_null=False) -> None:
+def _set_series(title_info: _Element, mi: Metadata, ctx: Context, apply_null: bool = False) -> None:
     if mi.is_null('series'):
         # An explicitly empty series (as from ebook-meta --series "") also
         # clears the series, matching the behavior of the OPF writer
@@ -395,6 +404,7 @@ def _set_series(title_info, mi, ctx, apply_null=False) -> None:
     else:
         ctx.clear_meta_tags(title_info, 'sequence')
         seq = ctx.get_or_create(title_info, 'sequence')
+        assert mi.series is not None  # not null, checked above
         seq.set('name', mi.series)
         try:
             seq.set('number', f'{mi.series_index:g}')
@@ -402,20 +412,20 @@ def _set_series(title_info, mi, ctx, apply_null=False) -> None:
             seq.set('number', '1')
 
 
-def _rnd_name(size=8, chars=ascii_letters + digits):
+def _rnd_name(size: int = 8, chars: str = ascii_letters + digits) -> str:
     return ''.join(random.choice(chars) for x in range(size))
 
 
-def _rnd_pic_file_name(prefix='calibre_cover_', size=32, ext='jpg'):
+def _rnd_pic_file_name(prefix: str = 'calibre_cover_', size: int = 32, ext: str = 'jpg') -> str:
     return prefix + _rnd_name(size=size) + '.' + ext
 
 
-def _encode_into_jpeg(data):
+def _encode_into_jpeg(data: bytes) -> str:
     data = save_cover_data_to(data)
     return as_base64_unicode(data)
 
 
-def _set_cover(title_info, mi, ctx) -> None:
+def _set_cover(title_info: _Element, mi: Metadata, ctx: Context) -> None:
     if not mi.is_null('cover_data') and mi.cover_data[1]:
         coverpage = ctx.get_or_create(title_info, 'coverpage')
         cim_tag = ctx.get_or_create(coverpage, 'image')
@@ -430,7 +440,7 @@ def _set_cover(title_info, mi, ctx) -> None:
         cim_binary.text = _encode_into_jpeg(mi.cover_data[1])
 
 
-def set_metadata(stream, mi, apply_null=False, update_timestamp=False) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata, apply_null: bool = False, update_timestamp: bool = False) -> None:
     stream.seek(0)
     raw, zip_file_name = get_fb2_data(stream)
     root = _get_fbroot(raw)
@@ -470,13 +480,15 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False) -> None:
         stream.write(raw)
 
 
-def ensure_namespace(doc):
+def ensure_namespace(doc: _Element) -> _Element:
     # Workaround for broken FB2 files produced by convertonlinefree.com. See
     # https://bugs.launchpad.net/bugs/1404701
     bare_tags = False
     for x in ('description', 'body'):
         for z in doc.findall(x):
-            if '{' not in z.tag:
+            ztag = z.tag
+            assert isinstance(ztag, str)  # findall() with a tag name yields only elements
+            if '{' not in ztag:
                 bare_tags = True
                 break
     if bare_tags:
@@ -488,7 +500,7 @@ def ensure_namespace(doc):
     return doc
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
     from io import BytesIO
 
@@ -500,7 +512,7 @@ def find_tests():
 </description><body><section><p>x</p></section></body></FictionBook>'''
 
     class Test(unittest.TestCase):
-        def roundtrip(self, mi, apply_null=False):
+        def roundtrip(self, mi: Metadata, apply_null: bool = False) -> Metadata:
             stream = BytesIO(raw)
             set_metadata(stream, mi, apply_null=apply_null)
             stream.seek(0)

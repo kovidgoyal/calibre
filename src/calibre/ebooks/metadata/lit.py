@@ -6,11 +6,15 @@ Support for reading the metadata from a LIT file.
 
 import io
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks.metadata.opf2 import OPF
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_metadata(stream):
+
+def get_metadata(stream: IO[bytes]) -> Metadata:
     from calibre.ebooks.lit.reader import LitContainer
     from calibre.utils.logging import Log
 
@@ -23,7 +27,7 @@ def get_metadata(stream):
     for item in opf.iterguide():
         if 'cover' not in item.get('type', '').lower():
             continue
-        ctype = item.get('type')
+        ctype = item.get('type', '')  # always present, see the check above
         href = item.get('href', '')
         candidates = [href, href.replace('&', '%26')]
         for item in litfile.manifest.values():
@@ -33,10 +37,11 @@ def get_metadata(stream):
                 except Exception:
                     pass
                 break
-    covers.sort(key=lambda x: len(x[0]), reverse=True)
-    idx = 0
-    if len(covers) > 1:
-        if covers[1][1] == covers[0][1] + '-standard':
-            idx = 1
-    mi.cover_data = ('jpg', covers[idx][0])
+    if covers:
+        covers.sort(key=lambda x: len(x[0]), reverse=True)
+        idx = 0
+        if len(covers) > 1:
+            if covers[1][1] == covers[0][1] + '-standard':
+                idx = 1
+        mi.cover_data = ('jpg', covers[idx][0])
     return mi

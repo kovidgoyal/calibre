@@ -4,6 +4,7 @@
 import os
 import shutil
 import sys
+from typing import IO
 
 from calibre.ebooks.mobi.debug.headers import MOBIFile
 from calibre.ebooks.mobi.debug.mobi6 import inspect_mobi as inspect_mobi6
@@ -11,7 +12,7 @@ from calibre.ebooks.mobi.debug.mobi8 import inspect_mobi as inspect_mobi8
 from calibre.utils import StreamOrPath
 
 
-def inspect_mobi(path_or_stream, ddir=None) -> None:  # {{{
+def inspect_mobi(path_or_stream: str | IO[bytes], ddir: str | None = None) -> None:  # {{{
     with StreamOrPath(path_or_stream, 'rb') as stream:
         f = MOBIFile(stream)
         if ddir is None:

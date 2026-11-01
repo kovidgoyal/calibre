@@ -2,12 +2,24 @@
 # vim:fileencoding=UTF-8
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid@kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+# annotations: the source plugins are downloaded and run by older calibre versions
+# using older Python, so annotations must not be evaluated at runtime
+from __future__ import absolute_import, annotations, division, print_function, unicode_literals
 
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from calibre import random_user_agent
 from calibre.ebooks.metadata.sources.base import Option, Source
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from threading import Event
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.sources.base import CoverQueue, Identifiers
+    from calibre.utils.logging import Log
 
 try:
     from calibre.utils.localization import _
@@ -15,7 +27,7 @@ except ImportError:
     pass
 
 
-def parse_html(raw):
+def parse_html(raw: str) -> _Element:
     try:
         from html5_parser import parse
     except ImportError:
@@ -27,7 +39,7 @@ def parse_html(raw):
         return parse(raw)
 
 
-def imgurl_from_id(raw, tbnid):
+def imgurl_from_id(raw: str, tbnid: str) -> str | None:
     from json import JSONDecoder
 
     q = '"{}",['.format(tbnid)
@@ -53,7 +65,7 @@ def imgurl_from_id(raw, tbnid):
 SOCIAL_MEDIA_DOMAINS = ('instagram.com', 'cdninstagram.com', 'facebook.com', 'fbsbx.com', 'fbcdn.net')
 
 
-def is_social_media(url):
+def is_social_media(url: str) -> bool:
     try:
         from urllib.parse import urlparse
     except ImportError:
@@ -62,11 +74,11 @@ def is_social_media(url):
     return any(host == d or host.endswith('.' + d) for d in SOCIAL_MEDIA_DOMAINS)
 
 
-def parse_google_markup(raw):
+def parse_google_markup(raw: str) -> list[str]:
     root = parse_html(raw)
     # newer markup pages use data-docid not data-tbnid
     results = root.xpath('//div/@data-tbnid') or root.xpath('//div/@data-docid')
-    ans = OrderedDict()
+    ans: OrderedDict[str, bool] = OrderedDict()
     for tbnid in results:
         try:
             imgurl = imgurl_from_id(raw, tbnid)
@@ -137,7 +149,17 @@ class GoogleImages(Source):
         ),
     )
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False) -> None:
+    def download_cover(
+        self,
+        log: Log,
+        result_queue: CoverQueue,
+        abort: Event,
+        title: str | None = None,
+        authors: Sequence[str] | None = None,
+        identifiers: Identifiers | None = None,
+        timeout: float = 30,
+        get_best_cover: bool = False,
+    ) -> None:
         if identifiers is None:
             identifiers = {}
         if not title:
@@ -149,10 +171,10 @@ class GoogleImages(Source):
         self.download_multiple_covers(title, authors, urls, get_best_cover, timeout, result_queue, abort, log)
 
     @property
-    def user_agent(self):
+    def user_agent(self) -> str:
         return random_user_agent(allow_ie=False)
 
-    def get_image_urls(self, title, author, log, abort, timeout):
+    def get_image_urls(self, title: str, author: str, log: Log, abort: Event, timeout: float) -> list[str]:
         from calibre.utils.cleantext import clean_ascii_chars
         from calibre.web.automate.metadata import BrowserFailed
 
@@ -171,7 +193,7 @@ class GoogleImages(Source):
         #     f.write(raw)
         return parse_google_markup(raw)
 
-    def search_url(self, title, author):
+    def search_url(self, title: str, author: str) -> str:
         try:
             from urllib.parse import urlencode
         except ImportError:
@@ -185,7 +207,7 @@ class GoogleImages(Source):
         # URL scheme. imgar=t|xt is for tall and extra tall images.
         return 'https://www.google.com/search?as_st=y&udm=2&{}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images{}&imgar=t%7Cxt'.format(q, sz)
 
-    def search_in_browser(self, url, log, timeout):
+    def search_in_browser(self, url: str, log: Log, timeout: float) -> str | None:
         """The HTML of the search results page, or None if Google would not
         show it. Raises BrowserFailed if the browser could not be used."""
         from calibre.web.automate.metadata import run_in_browser
@@ -198,7 +220,7 @@ class GoogleImages(Source):
             return None
         return result['html']
 
-    def search_without_browser(self, url):
+    def search_without_browser(self, url: str) -> str:
         br = self.browser
         # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
         br.set_simple_cookie('CONSENT', 'PENDING+987', '.google.com', path='/')
@@ -219,7 +241,7 @@ def test_raw() -> None:
         print(x)
 
 
-def test(title='Star Trek: Section 31: Control', authors=('David Mack',)) -> None:
+def test(title: str = 'Star Trek: Section 31: Control', authors: Sequence[str] = ('David Mack',)) -> None:
     try:
         from queue import Queue
     except ImportError:
@@ -230,7 +252,7 @@ def test(title='Star Trek: Section 31: Control', authors=('David Mack',)) -> Non
 
     p = GoogleImages(None)
     setattr(p, 'log', default_log)
-    rq = Queue()
+    rq: CoverQueue = Queue()
     p.download_cover(default_log, rq, Event(), title=title, authors=authors)
     print('Downloaded', rq.qsize(), 'covers')
 

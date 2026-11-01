@@ -1,7 +1,7 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 
-def r(*a):
+def r(*a: int) -> list[int]:
     return list(range(*a))
 
 
@@ -111,7 +111,7 @@ U_CHARS = (
 )
 
 
-def unipmlcode(char):
+def unipmlcode(char: str) -> str:
     try:
         val = ord(char.encode('cp1252'))
         if val in A_CHARS:

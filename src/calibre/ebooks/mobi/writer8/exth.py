@@ -4,11 +4,17 @@
 import re
 from io import BytesIO
 from struct import pack
+from typing import TYPE_CHECKING
 
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.ebooks.mobi.utils import to_base, utf8_text
 from calibre.utils.localization import lang_as_iso639_1
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from calibre.ebooks.oeb.base import Metadata
 
 EXTH_CODES = {
     'creator': 100,
@@ -43,21 +49,21 @@ COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
 
 def build_exth(
-    metadata,
-    prefer_author_sort=False,
-    is_periodical=False,
-    share_not_sync=True,
-    cover_offset=None,
-    thumbnail_offset=None,
-    start_offset=None,
-    mobi_doctype=2,
-    num_of_resources=None,
-    kf8_unknown_count=0,
-    be_kindlegen2=False,
-    kf8_header_index=None,
-    page_progression_direction=None,
-    primary_writing_mode=None,
-):
+    metadata: Metadata,
+    prefer_author_sort: bool = False,
+    is_periodical: bool = False,
+    share_not_sync: bool = True,
+    cover_offset: int | None = None,
+    thumbnail_offset: int | None = None,
+    start_offset: int | Sequence[int | None] | None = None,
+    mobi_doctype: int = 2,
+    num_of_resources: int | None = None,
+    kf8_unknown_count: int | None = 0,
+    be_kindlegen2: bool = False,
+    kf8_header_index: int | None = None,
+    page_progression_direction: str | None = None,
+    primary_writing_mode: str | None = None,
+) -> bytes:
     exth = BytesIO()
     nrecs = 0
 
@@ -107,7 +113,7 @@ def build_exth(
     from calibre.ebooks.oeb.base import OPF
 
     for x in metadata['identifier']:
-        if x.get(OPF('scheme'), None).lower() == 'uuid' or str(x).startswith('urn:uuid:'):
+        if (x.get(OPF('scheme')) or '').lower() == 'uuid' or str(x).startswith('urn:uuid:'):
             uuid = str(x).split(':')[-1]
             break
     if uuid is None:
@@ -142,6 +148,7 @@ def build_exth(
             nrecs += 1
 
     # Add a publication date entry
+    datestr: str | None = None
     if metadata['date']:
         datestr = str(metadata['date'][0])
     elif metadata['timestamp']:
@@ -150,13 +157,13 @@ def build_exth(
     if datestr is None:
         raise ValueError('missing date or timestamp')
 
-    datestr = datestr.encode('utf-8')
-    exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
-    exth.write(datestr)
+    date = datestr.encode('utf-8')
+    exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(date) + 8))
+    exth.write(date)
     nrecs += 1
     if is_periodical:
-        exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(datestr) + 8))
-        exth.write(datestr)
+        exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(date) + 8))
+        exth.write(date)
         nrecs += 1
 
     if be_kindlegen2:
@@ -188,11 +195,8 @@ def build_exth(
         nrecs += 2
 
     if start_offset is not None:
-        try:
-            len(start_offset)
-        except TypeError:
-            start_offset = [start_offset]
-        for so in start_offset:
+        start_offsets = (start_offset,) if isinstance(start_offset, int) else start_offset
+        for so in start_offsets:
             if so is not None:
                 exth.write(pack(b'>III', EXTH_CODES['startreading'], 12, so))
                 nrecs += 1

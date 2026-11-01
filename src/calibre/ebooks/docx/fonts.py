@@ -3,7 +3,7 @@
 
 import os
 import re
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from calibre.ebooks.docx.block_styles import binary_property, inherit
 from calibre.utils.filenames import ascii_filename
@@ -11,31 +11,41 @@ from calibre.utils.fonts.scanner import NoFonts, font_scanner
 from calibre.utils.fonts.utils import is_truetype_font, panose_to_css_generic_family
 from calibre.utils.icu import ord_string
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.docx.block_styles import Inherit
+    from calibre.ebooks.docx.container import DOCX
+    from calibre.ebooks.docx.names import AttrGetter, DOCXNamespace, XPathFunc
+    from calibre.utils.fonts.metadata import FontFace
+
 
 class Embed(NamedTuple):
     name: str
-    key: str
+    key: str | None
     subsetted: bool
 
 
-def has_system_fonts(name):
+def has_system_fonts(name: str) -> bool:
     try:
         return bool(font_scanner.fonts_for_family(name))
     except NoFonts:
         return False
 
 
-def get_variant(bold=False, italic=False):
+def get_variant(bold: bool = False, italic: bool = False) -> str:
     return {(False, False): 'Regular', (False, True): 'Italic', (True, False): 'Bold', (True, True): 'BoldItalic'}[(bold, italic)]
 
 
-def find_fonts_matching(fonts, style='normal', stretch='normal'):
+def find_fonts_matching(fonts: Iterable[FontFace], style: str = 'normal', stretch: str = 'normal') -> Iterator[FontFace]:
     for font in fonts:
         if font['font-style'] == style and font['font-stretch'] == stretch:
             yield font
 
 
-def weight_key(font):
+def weight_key(font: FontFace) -> int:
     w = font['font-weight']
     try:
         return abs(int(w) - 400)
@@ -43,7 +53,7 @@ def weight_key(font):
         return abs({'normal': 400, 'bold': 700}.get(w, 1000000) - 400)
 
 
-def get_best_font(fonts, style, stretch):
+def get_best_font(fonts: Iterable[FontFace], style: str, stretch: str) -> FontFace | None:
     try:
         return min(find_fonts_matching(fonts, style, stretch), key=weight_key)
     except Exception:
@@ -51,16 +61,17 @@ def get_best_font(fonts, style, stretch):
 
 
 class Family:
-    def __init__(self, elem, embed_relationships, XPath, get) -> None:
-        self.name = self.family_name = get(elem, 'w:name')
-        self.alt_names = tuple(get(x, 'w:val') for x in XPath('./w:altName')(elem))
+    def __init__(self, elem: _Element, embed_relationships: dict[str, str], XPath: XPathFunc, get: AttrGetter) -> None:
+        # Family objects are only created for w:font elements that have w:name
+        self.name = self.family_name = cast('str', get(elem, 'w:name'))
+        self.alt_names = tuple(v for v in (get(x, 'w:val') for x in XPath('./w:altName')(elem)) if v)
         if self.alt_names and not has_system_fonts(self.name):
             for x in self.alt_names:
                 if has_system_fonts(x):
                     self.family_name = x
                     break
 
-        self.embedded = {}
+        self.embedded: dict[str, Embed] = {}
         for x in ('Regular', 'Bold', 'Italic', 'BoldItalic'):
             for y in XPath(f'./w:embed{x}[@r:id]')(elem):
                 rid = get(y, 'r:id')
@@ -76,11 +87,11 @@ class Family:
         ntt = binary_property(elem, 'notTrueType', XPath, get)
         self.is_ttf = ntt is inherit or not ntt
 
-        self.panose1 = None
-        self.panose_name = None
+        self.panose1: tuple[int, ...] | None = None
+        self.panose_name: str | None = None
         for x in XPath('./w:panose1[@w:val]')(elem):
             try:
-                v = get(x, 'w:val')
+                v = cast('str', get(x, 'w:val'))  # the XPath ensures w:val exists
                 v = tuple(int(v[i : i + 2], 16) for i in range(0, len(v), 2))
             except TypeError, ValueError, IndexError:
                 pass
@@ -1394,14 +1405,14 @@ SYMBOL_MAPS = {  # {{{
 SYMBOL_FONT_NAMES = frozenset(n.lower() for n in SYMBOL_MAPS)
 
 
-def is_symbol_font(family):
+def is_symbol_font(family: str | Inherit) -> bool:
     try:
-        return family.lower() in SYMBOL_FONT_NAMES
+        return family.lower() in SYMBOL_FONT_NAMES  # ty: ignore[unresolved-attribute]  # AttributeError for inherit is handled below
     except AttributeError:
         return False
 
 
-def do_map(m, points):
+def do_map(m: Sequence[str], points: Iterable[int]) -> Iterator[str]:
     base = 0xF000
     limit = len(m) + base
     for p in points:
@@ -1411,7 +1422,7 @@ def do_map(m, points):
             yield chr(p)
 
 
-def map_symbol_text(text, font):
+def map_symbol_text(text: str | bytes, font: str) -> str:
     m = SYMBOL_MAPS[font]
     if isinstance(text, bytes):
         text = text.decode('utf-8')
@@ -1419,16 +1430,16 @@ def map_symbol_text(text, font):
 
 
 class Fonts:
-    def __init__(self, namespace) -> None:
+    def __init__(self, namespace: DOCXNamespace) -> None:
         self.namespace = namespace
-        self.fonts = {}
-        self.used = set()
+        self.fonts: dict[str | None, Family] = {}
+        self.used: set[tuple[str, str]] = set()
 
-    def __call__(self, root, embed_relationships, docx, dest_dir):
+    def __call__(self, root: _Element, embed_relationships: dict[str, str], docx: DOCX, dest_dir: str) -> None:
         for elem in self.namespace.XPath('//w:font[@w:name]')(root):
             self.fonts[self.namespace.get(elem, 'w:name')] = Family(elem, embed_relationships, self.namespace.XPath, self.namespace.get)
 
-    def family_for(self, name, bold=False, italic=False):
+    def family_for(self, name: str, bold: bool = False, italic: bool = False) -> str:
         f = self.fonts.get(name, None)
         if f is None:
             return 'serif'
@@ -1439,8 +1450,8 @@ class Fonts:
             return name
         return '"{}", {}'.format(name.replace('"', ''), f.css_generic_family)
 
-    def embed_fonts(self, dest_dir, docx):
-        defs = []
+    def embed_fonts(self, dest_dir: str, docx: DOCX) -> str:
+        defs: list[str] = []
         dest_dir = os.path.join(dest_dir, 'fonts')
         for name, variant in self.used:
             f = self.fonts[name]
@@ -1464,7 +1475,7 @@ class Fonts:
                     defs.append(f'@font-face {{\n\t{d}\n}}\n')
         return '\n'.join(defs)
 
-    def write(self, name, dest_dir, docx, variant):
+    def write(self, name: str, dest_dir: str, docx: DOCX, variant: str) -> str | None:
         f = self.fonts[name]
         ef = f.embedded[variant]
         raw = docx.read(ef.name)

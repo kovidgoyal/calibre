@@ -1,7 +1,15 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-from calibre.customize.conversion import OutputFormatPlugin
+from typing import TYPE_CHECKING
+
+from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.utils import StreamOrPath
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class RTFOutput(OutputFormatPlugin):
@@ -10,7 +18,7 @@ class RTFOutput(OutputFormatPlugin):
     file_type = 'rtf'
     commit_name = 'rtf_output'
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         from calibre.ebooks.rtf.rtfml import RTFMLizer
 
         rtfmlitzer = RTFMLizer(log)

@@ -3,11 +3,19 @@
 import glob
 import os
 import shutil
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils import StreamOrPath
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.metadata.toc import TOC
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class PMLInput(InputFormatPlugin):
@@ -18,7 +26,7 @@ class PMLInput(InputFormatPlugin):
     file_types = {'pml', 'pmlz'}
     commit_name = 'pml_input'
 
-    def process_pml(self, pml_path, html_path, close_all=False):
+    def process_pml(self, pml_path: str | IO[bytes], html_path: str, close_all: bool = False) -> TOC:
         from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
 
         with StreamOrPath(pml_path, 'rb') as pml_stream, StreamOrPath(html_path, 'wb') as html_stream:
@@ -37,7 +45,7 @@ class PMLInput(InputFormatPlugin):
             html_stream.write(html.encode('utf-8', 'replace'))
             return hizer.get_toc()
 
-    def get_images(self, stream=None, tdir: str | None = None, top_level=False):
+    def get_images(self, stream: IO[bytes] | None = None, tdir: str | None = None, top_level: bool = False) -> list[str]:
         images = []
         imgs = []
 
@@ -64,12 +72,14 @@ class PMLInput(InputFormatPlugin):
 
         return images
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
         from calibre.utils.zipfile import ZipFile
 
-        self.options = options
+        # PMLInput stores the conversion options on the instance, shadowing the
+        # class level set of OptionRecommendations
+        self.options = options  # ty: ignore[invalid-assignment]
         self.log = log
         pages, images = [], []
         toc = TOC()
@@ -121,23 +131,26 @@ class PMLInput(InputFormatPlugin):
 
         return os.path.join(os.getcwd(), 'metadata.opf')
 
-    def postprocess_book(self, oeb, opts, log) -> None:
+    def postprocess_book(self, oeb: OEBBook, opts: Values, log: Log) -> None:
+        from lxml import etree
+
         from calibre.ebooks.oeb.base import XHTML, barename
 
         for item in oeb.spine:
-            if hasattr(item.data, 'xpath'):
-                for heading in item.data.iterdescendants(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):
+            root = item.data
+            if isinstance(root, etree._Element):
+                for heading in root.iterdescendants(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):
                     if not len(heading):
                         continue
                     span = heading[0]
-                    if not heading.text and not span.text and not len(span) and barename(span.tag) == 'span':
-                        if not heading.get('id') and span.get('id'):
-                            heading.set('id', span.get('id'))
+                    if not heading.text and not span.text and not len(span) and isinstance(span.tag, str) and barename(span.tag) == 'span':
+                        if not heading.get('id') and (span_id := span.get('id')):
+                            heading.set('id', span_id)
                             heading.text = span.tail
                             heading.remove(span)
                     if len(heading) == 1 and heading[0].get('style') == 'text-align: center; margin: auto;':
                         div = heading[0]
-                        if barename(div.tag) == 'div' and not len(div) and not div.get('id') and not heading.get('style'):
+                        if isinstance(div.tag, str) and barename(div.tag) == 'div' and not len(div) and not div.get('id') and not heading.get('style'):
                             heading.text = (heading.text or '') + (div.text or '') + (div.tail or '')
                             heading.remove(div)
                             heading.set('style', 'text-align: center')

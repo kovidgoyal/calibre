@@ -1,11 +1,18 @@
 # License: GPLv3 Copyright: 2010, Fabian Grassl <fg@jusmeum.de>
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from calibre.ebooks.oeb.base import Metadata
+
 
 class EasyMeta:
-    def __init__(self, meta) -> None:
+    def __init__(self, meta: Metadata) -> None:
         self.meta = meta
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[dict[str, str]]:
         from calibre.ebooks.oeb.base import DC11_NS, barename, namespace
 
         meta = self.meta
@@ -20,10 +27,10 @@ class EasyMeta:
             count = count + 1
         return count
 
-    def titles(self):
+    def titles(self) -> Iterator[str]:
         for item in self.meta['title']:
             yield item.value
 
-    def creators(self):
+    def creators(self) -> Iterator[str]:
         for item in self.meta['creator']:
             yield item.value

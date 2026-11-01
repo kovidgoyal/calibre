@@ -2,20 +2,29 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
+
+from lxml import etree
 
 from calibre.ebooks.oeb.base import XPath, urlunquote
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.oeb.base import OEBBook
+
 
 class DataURL:
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values | OptionValues) -> None:
         from calibre.utils.imghdr import what
 
         self.log = oeb.log
         attr_path = XPath('//h:img[@src]')
         for item in oeb.spine:
             root = item.data
-            if not hasattr(root, 'xpath'):
+            if not isinstance(root, etree._Element):
                 continue
             for img in attr_path(root):
                 raw = img.get('src', '')
@@ -42,7 +51,7 @@ class DataURL:
                     continue
                 img.set('src', item.relhref(self.convert_image_data_uri(data, fmt, oeb)))
 
-    def convert_image_data_uri(self, data, fmt, oeb):
+    def convert_image_data_uri(self, data: bytes, fmt: str, oeb: OEBBook) -> str:
         self.log('Found image encoded as data URI converting it to normal image')
         from calibre import guess_type
 

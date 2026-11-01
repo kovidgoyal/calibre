@@ -4,10 +4,20 @@
 import glob
 import os
 import textwrap
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre.constants import numeric_version
 from calibre.customize import FileTypePlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+
+class HTML2ZIPSettings(TypedDict, total=False):
+    encoding: str
+    breadth_first: bool
+    allow_local_files_outside_root: bool
 
 
 class HTML2ZIP(FileTypePlugin):
@@ -25,7 +35,7 @@ every time you add an HTML file to the library.\
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def parse_my_settings(self, sc):
+    def parse_my_settings(self, sc: str | None) -> HTML2ZIPSettings:
         if not sc:
             sc = ''
         if sc.startswith('{'):
@@ -40,7 +50,7 @@ every time you add an HTML file to the library.\
             enc, _, bfs = sc.partition('|')
             return {'encoding': enc, 'breadth_first': bfs == 'bf'}
 
-    def run(self, path_to_ebook):
+    def run(self, path_to_ebook: str) -> str:
         import codecs
 
         from calibre import prints
@@ -79,10 +89,10 @@ every time you add an HTML file to the library.\
 
         return of.name
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui: bool = False) -> str:
         return _('Character encoding for the input HTML files. Common choices include: utf-8, cp1252, cp1251 and latin1.')
 
-    def do_user_config(self, parent=None):
+    def do_user_config(self, parent: QWidget | None = None) -> int:
         """
         This method shows a configuration dialog for this plugin. It returns
         True if the user clicks OK, False otherwise. The changes are
@@ -140,7 +150,7 @@ every time you add an HTML file to the library.\
         config_dialog.exec()
 
         if config_dialog.result() == QDialog.DialogCode.Accepted:
-            settings = {}
+            settings: HTML2ZIPSettings = {}
             enc = str(sc.text()).strip()
             if enc:
                 settings['encoding'] = enc

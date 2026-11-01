@@ -4,8 +4,20 @@
 HTML-TOC-adding transform.
 """
 
+from typing import TYPE_CHECKING, Self
+
+from lxml import etree
+
 from calibre.ebooks.oeb.base import CSS_MIME, XHTML, XHTML_MIME, XHTML_NS, XML, XPath, element
 from calibre.utils.localization import _, __
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import TOC, OEBBook
+    from calibre.utils.config_base import OptionSet
 
 __all__ = ['HTMLTOCAdder']
 
@@ -42,22 +54,22 @@ body > .calibre_toc_block {
 
 
 class HTMLTOCAdder:
-    def __init__(self, title=None, style='nested', position='end') -> None:
+    def __init__(self, title: str | None = None, style: str = 'nested', position: str = 'end') -> None:
         self.title = title
         self.style = style
         self.position = position
 
     @classmethod
-    def config(cls, cfg):
+    def config(cls, cfg: OptionSet) -> OptionSet:
         group = cfg.add_group('htmltoc', _('HTML TOC generation options.'))
         group('toc_title', ['--toc-title'], default=None, help=_('Title for any generated inline table of contents.'))
         return cfg
 
     @classmethod
-    def generate(cls, opts):
+    def generate(cls, opts: Values) -> Self:
         return cls(title=opts.toc_title)
 
-    def __call__(self, oeb, context):
+    def __call__(self, oeb: OEBBook, context: Values) -> None:
         has_toc = getattr(getattr(oeb, 'toc', False), 'nodes', False)
 
         if 'toc' in oeb.guide:
@@ -67,7 +79,7 @@ class HTMLTOCAdder:
             href = urlnormalize(oeb.guide['toc'].href)
             if href in oeb.manifest.hrefs:
                 item = oeb.manifest.hrefs[href]
-                if hasattr(item.data, 'xpath') and XPath('//h:a[@href]')(item.data):
+                if isinstance(root := item.data, etree._Element) and XPath('//h:a[@href]')(root):
                     if oeb.spine.index(item) < 0:
                         if self.position == 'end':
                             oeb.spine.add(item, linear=False)
@@ -106,7 +118,7 @@ class HTMLTOCAdder:
             oeb.spine.insert(0, item, linear=True)
         oeb.guide.add('toc', 'Table of Contents', href)
 
-    def add_toc_level(self, elem, toc) -> None:
+    def add_toc_level(self, elem: _Element, toc: TOC) -> None:
         for node in toc:
             block = element(elem, XHTML('div'), attrib={'class': 'calibre_toc_block'})
             line = element(block, XHTML('a'), attrib={'href': node.href, 'class': 'calibre_toc_line'})

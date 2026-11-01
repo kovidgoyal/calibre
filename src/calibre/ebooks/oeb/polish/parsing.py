@@ -3,6 +3,7 @@
 
 import re
 import unicodedata
+from typing import TYPE_CHECKING
 
 import html5_parser
 from lxml.etree import Element as LxmlElement
@@ -12,13 +13,20 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre_extensions.fast_html_entities import replace_all_entities
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from lxml.etree import _Element
+
+    from calibre.utils.logging import Log
+
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
 
 
-def decode_xml(data: bytes, normalize_to_nfc: bool = True) -> tuple[str, str]:
-    used_encoding = ''
+def decode_xml(data: bytes, normalize_to_nfc: bool = True) -> tuple[str, str | None]:
+    used_encoding: str | None = ''
 
-    def fix_data(d):
+    def fix_data(d: str) -> tuple[str, str | None]:
         return d.replace('\r\n', '\n').replace('\r', '\n'), used_encoding
 
     if isinstance(data, str):
@@ -51,15 +59,15 @@ def decode_xml(data: bytes, normalize_to_nfc: bool = True) -> tuple[str, str]:
 
 
 def parse_html5(
-    raw,
-    decoder=None,
-    log=None,
-    discard_namespaces=False,
-    line_numbers=True,
-    linenumber_attribute=None,
-    replace_entities=True,
-    fix_newlines=True,
-):
+    raw: str | bytes,
+    decoder: Callable[[bytes], str] | None = None,
+    log: Log | None = None,
+    discard_namespaces: bool = False,
+    line_numbers: bool = True,
+    linenumber_attribute: str | None = None,
+    replace_entities: bool = True,
+    fix_newlines: bool = True,
+) -> _Element:
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     assert isinstance(raw, str)
@@ -81,7 +89,7 @@ def parse_html5(
     return root
 
 
-def handle_private_entities(data):
+def handle_private_entities(data: str) -> str:
     # Process private entities
     pre = ''
     idx = data.find('<html')
@@ -105,14 +113,14 @@ def handle_private_entities(data):
 
 
 def parse(
-    raw,
-    decoder=None,
-    log=None,
-    line_numbers=True,
-    linenumber_attribute=None,
-    replace_entities=True,
-    force_html5_parse=False,
-):
+    raw: str | bytes,
+    decoder: Callable[[bytes], str] | None = None,
+    log: Log | None = None,
+    line_numbers: bool = True,
+    linenumber_attribute: str | None = None,
+    replace_entities: bool = True,
+    force_html5_parse: bool = False,
+) -> _Element:
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     assert isinstance(raw, str)

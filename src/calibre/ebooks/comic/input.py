@@ -8,6 +8,7 @@ import os
 import time
 import traceback
 from queue import Empty
+from typing import TYPE_CHECKING, cast
 
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding
@@ -18,12 +19,18 @@ from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from qt.core import QImage
+
 # If the specified screen has either dimension larger than this value, no image
 # rescaling is done (we assume that it is a tablet output profile)
 MAX_SCREEN_SIZE = 3000
 
 
-def extract_comic(path_to_comic_file):
+def extract_comic(path_to_comic_file: str) -> str:
     """
     Un-archive the comic file.
     """
@@ -41,19 +48,19 @@ def extract_comic(path_to_comic_file):
     return tdir
 
 
-def generate_entries_from_dir(path):
+def generate_entries_from_dir(path: str) -> dict[str, Callable[[], float]]:
     from functools import partial
 
     from calibre import walk
 
-    ans = {}
+    ans: dict[str, Callable[[], float]] = {}
     for x in walk(path):
         x = os.path.abspath(x)
         ans[x] = partial(os.path.getmtime, x)
     return ans
 
 
-def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
+def find_pages(dir_or_items: str | Sequence[str] | dict[str, Callable[[], float]], sort_on_mtime: bool = False, verbose: bool = False) -> list[str]:
     """
     Find valid comic pages in a previously un-archived comic.
 
@@ -64,8 +71,8 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
     from calibre.libunzip import comic_exts
 
     items = generate_entries_from_dir(dir_or_items) if isinstance(dir_or_items, str) else dir_or_items
-    sep_counts = set()
-    pages = []
+    sep_counts: set[int] = set()
+    pages: list[str] = []
     for path in items:
         if '__MACOSX' in path:
             continue
@@ -78,12 +85,12 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
     basename = os.path.basename if len(sep_counts) > 1 else lambda x: x
     if sort_on_mtime:
 
-        def key(x):
-            return items[x]()
+        def key(x: str) -> float:
+            return cast('dict[str, Callable[[], float]]', items)[x]()  # sort_on_mtime requires a dict of mtime getters
 
     else:
 
-        def key(x):
+        def key(x: str) -> bytes:
             return numeric_sort_key(basename(x))
 
     pages.sort(key=key)
@@ -98,13 +105,13 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
     return pages
 
 
-class PageProcessor(list):  # {{{
+class PageProcessor(list[str]):  # {{{
     """
     Contains the actual image rendering logic. See :method:`render` and
     :method:`process_pages`.
     """
 
-    def __init__(self, path_to_page, dest, opts, num) -> None:
+    def __init__(self, path_to_page: str, dest: str, opts: Values, num: int) -> None:
         list.__init__(self)
         self.path_to_page = path_to_page
         self.opts = opts
@@ -112,7 +119,7 @@ class PageProcessor(list):  # {{{
         self.dest = dest
         self.rotate = False
         self.src_img_was_grayscale = False
-        self.src_img_format = None
+        self.src_img_format: QImage.Format | None = None
         self.render()
 
     def render(self) -> None:
@@ -132,7 +139,7 @@ class PageProcessor(list):  # {{{
             QImage.Format.Format_Grayscale8,
             QImage.Format.Format_Grayscale16,
         ) or (img.format() == QImage.Format.Format_Indexed8 and img.allGray())
-        self.pages = [img]
+        self.pages: list[QImage] = [img]
         if width > height:
             if self.opts.landscape:
                 self.rotate = True
@@ -254,11 +261,14 @@ class PageProcessor(list):  # {{{
 # }}}
 
 
-def render_pages(tasks, dest, opts, notification=lambda x, y: x):
+def render_pages(
+    tasks: list[tuple[int, str]], dest: str, opts: Values, notification: Callable[[float, str], object] = lambda x, y: x
+) -> tuple[list[str], list[str]]:
     """
     Entry point for the job server.
     """
-    failures, pages = [], []
+    failures: list[str] = []
+    pages: list[str] = []
     for num, path in tasks:
         try:
             pages.extend(PageProcessor(path, dest, opts, num))
@@ -275,24 +285,24 @@ def render_pages(tasks, dest, opts, notification=lambda x, y: x):
 
 
 class Progress:
-    def __init__(self, total, update) -> None:
+    def __init__(self, total: int, update: Callable[[float, str], object]) -> None:
         self.total = total
         self.update = update
         self.done = 0
 
-    def __call__(self, percent, msg=''):
+    def __call__(self, percent: object, msg: str = '') -> None:
         self.done += 1
         # msg = msg%os.path.basename(job.args[0])
         self.update(float(self.done) / self.total, msg)
 
 
-def process_pages(pages, opts, update, tdir):
+def process_pages(pages: list[str], opts: Values, update: Callable[[float, str], object], tdir: str) -> tuple[list[str], list[str]]:
     """
     Render all identified comic pages.
     """
     progress = Progress(len(pages), update)
     server = Server()
-    jobs = []
+    jobs: list[ParallelJob] = []
     tasks = [(p, os.path.join(tdir, os.path.basename(p))) for p in pages]
     tasks = server.split(pages)
     for task in tasks:
@@ -314,7 +324,8 @@ def process_pages(pages, opts, update, tdir):
         if not running:
             break
     server.close()
-    ans, failures = [], []
+    ans: list[str] = []
+    failures: list[str] = []
 
     for job in jobs:
         if job.failed or job.result is None:

@@ -5,6 +5,7 @@ import io
 import numbers
 import os
 from struct import pack, unpack
+from typing import IO, TYPE_CHECKING
 
 from calibre.ebooks import normalize
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MobiError
@@ -14,19 +15,24 @@ from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
 from calibre.utils.localization import _, canonicalize_lang, lang_as_iso639_1
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from calibre.ebooks.metadata.book.base import Metadata
+
 '''
 Retrieve and modify in-place Mobipocket book metadata.
 '''
 
 
-def is_image(ss):
+def is_image(ss: StreamSlicer | None) -> bool:
     if ss is None:
         return False
     return what(None, ss[:200]) is not None
 
 
 class StreamSlicer:
-    def __init__(self, stream, start=0, stop=None) -> None:
+    def __init__(self, stream: IO[bytes], start: int = 0, stop: int | None = None) -> None:
         self._stream = stream
         self.start = start
         if stop is None:
@@ -38,7 +44,7 @@ class StreamSlicer:
     def __len__(self) -> int:
         return self._len
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int | slice) -> bytes:
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
@@ -58,7 +64,7 @@ class StreamSlicer:
             return data
         raise TypeError('stream indices must be integers')
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: int | slice, value: bytes) -> int:
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
@@ -79,7 +85,7 @@ class StreamSlicer:
             return stream.write(value)
         raise TypeError('stream indices must be integers')
 
-    def update(self, data_blocks) -> None:
+    def update(self, data_blocks: Iterable[bytes]) -> None:
         # Rewrite the stream
         stream = self._stream
         base = self.start
@@ -88,14 +94,14 @@ class StreamSlicer:
         for block in data_blocks:
             stream.write(block)
 
-    def truncate(self, value) -> None:
+    def truncate(self, value: int) -> None:
         self._stream.truncate(value)
 
 
 class MetadataUpdater:
     DRM_KEY_SIZE = 48
 
-    def __init__(self, stream) -> None:
+    def __init__(self, stream: IO[bytes]) -> None:
         self.stream = stream
         data = self.data = StreamSlicer(stream)
         self.type = data[60:68]
@@ -116,25 +122,26 @@ class MetadataUpdater:
         (image_base,) = unpack('>I', record0[108:112])
         (flags,) = (self.flags,) = unpack('>I', record0[128:132])
         have_exth = self.have_exth = (flags & 0x40) != 0
-        self.cover_record = self.thumbnail_record = None
-        self.timestamp = None
+        self.cover_record: StreamSlicer | None = None
+        self.thumbnail_record: StreamSlicer | None = None
+        self.timestamp: bytes | None = None
         self.pdbrecords = self.get_pdbrecords()
 
-        self.drm_block = None
+        self.drm_block: bytes | None = None
         if self.encryption_type != 0:
             if self.have_exth:
                 self.drm_block = self.fetchDRMdata()
             else:
                 raise MobiError('Unable to set metadata on DRM file without EXTH header')
 
-        self.original_exth_records = {}
+        self.original_exth_records: dict[int, bytes] = {}
         if not have_exth:
             self.create_exth()
             self.have_exth = True
         # Fetch timestamp, cover_record, thumbnail_record
         self.fetchEXTHFields()
 
-    def fetchDRMdata(self):
+    def fetchDRMdata(self) -> bytes:
         """Fetch the DRM keys"""
         drm_offset = int(unpack('>I', self.record0[0xA8:0xAC])[0])
         self.drm_key_count = int(unpack('>I', self.record0[0xAC:0xB0])[0])
@@ -175,7 +182,7 @@ class MetadataUpdater:
                 if rindex > 0 and rindex != 0xFFFFFFFF:
                     self.thumbnail_record = self.record(rindex + image_base)
 
-    def patch(self, off, new_record0) -> None:
+    def patch(self, off: int, new_record0: bytes) -> None:
         # Save the current size of each record
         record_sizes = [len(new_record0)]
         for i in range(1, self.nrecs - 1):
@@ -212,11 +219,11 @@ class MetadataUpdater:
         else:
             self.data.stop = updated_pdbrecords[-1] + record_sizes[-1]
 
-    def patchSection(self, section, new) -> None:
+    def patchSection(self, section: int, new: bytes) -> None:
         off = self.pdbrecords[section][0]
         self.patch(off, new)
 
-    def create_exth(self, new_title=None, exth=None) -> None:
+    def create_exth(self, new_title: str | bytes | None = None, exth: bytes | None = None) -> None:
         # Add an EXTH block to record 0, rewrite the stream
         if isinstance(new_title, str):
             new_title = new_title.encode(self.codec, 'replace')
@@ -240,8 +247,7 @@ class MetadataUpdater:
         if not exth:
             # Construct an empty EXTH block
             pad = b'\0' * 4
-            exth = [b'EXTH', pack('>II', 12, 0), pad]
-            exth = b''.join(exth)
+            exth = b''.join([b'EXTH', pack('>II', 12, 0), pad])
 
         # Update drm_offset(0xa8), title_offset(0x54)
         if self.encryption_type != 0:
@@ -276,7 +282,7 @@ class MetadataUpdater:
         # Update record0
         self.record0 = self.record(0)
 
-    def hexdump(self, src, length=16) -> None:
+    def hexdump(self, src: str, length: int = 16) -> None:
         # Diagnostic
         FILTER = ''.join([((len(repr(chr(x))) == 3) and chr(x)) or '.' for x in range(256)])
         N = 0
@@ -289,15 +295,15 @@ class MetadataUpdater:
             N += length
         print(result)
 
-    def get_pdbrecords(self):
-        pdbrecords = []
+    def get_pdbrecords(self) -> list[list[int]]:
+        pdbrecords: list[list[int]] = []
         for i in range(self.nrecs):
             offset, a1, a2, a3, a4 = unpack('>LBBBB', self.data[78 + i * 8 : 78 + i * 8 + 8])
             flags, val = a1, a2 << 16 | a3 << 8 | a4
             pdbrecords.append([offset, flags, val])
         return pdbrecords
 
-    def update_pdbrecords(self, updated_pdbrecords) -> None:
+    def update_pdbrecords(self, updated_pdbrecords: list[int]) -> None:
         for i, pdbrecord in enumerate(updated_pdbrecords):
             self.data[78 + i * 8 : 78 + i * 8 + 4] = pack('>L', pdbrecord)
 
@@ -312,7 +318,7 @@ class MetadataUpdater:
             pdbrecord = self.pdbrecords[i]
             print(f'{pdbrecord[0]:10X} {pdbrecord[1]:10X} {pdbrecord[2]:10X}')
 
-    def record(self, n):
+    def record(self, n: int) -> StreamSlicer:
         if n >= self.nrecs:
             raise ValueError(f'non-existent record {n!r}')
         offoff = 78 + (8 * n)
@@ -322,10 +328,10 @@ class MetadataUpdater:
             (stop,) = unpack('>I', self.data[offoff + 8 : offoff + 12])
         return StreamSlicer(self.stream, start, stop)
 
-    def update(self, mi, asin=None) -> None:
+    def update(self, mi: Metadata, asin: str | None = None) -> None:
         mi.title = normalize(mi.title)
 
-        def update_exth_record(rec) -> None:
+        def update_exth_record(rec: tuple[int, bytes]) -> None:
             recs.append(rec)
             if rec[0] in self.original_exth_records:
                 self.original_exth_records.pop(rec[0])
@@ -333,7 +339,7 @@ class MetadataUpdater:
         if self.type != b'BOOKMOBI':
             raise MobiError(f"Setting metadata only supported for MOBI files of type 'BOOK'.\n\tThis is a {self.type[0:4]!r} file of type {self.type[4:8]!r}")
 
-        recs = []
+        recs: list[tuple[int, bytes]] = []
         added_501 = False
         try:
             from calibre.ebooks.conversion.config import load_defaults
@@ -408,7 +414,7 @@ class MetadataUpdater:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
         # Update book producer
-        if getattr(mi, 'book_producer', False):
+        if mi.book_producer:
             update_exth_record((108, mi.book_producer.encode(self.codec, 'replace')))
 
         # Set langcode in EXTH header
@@ -423,15 +429,14 @@ class MetadataUpdater:
             recs.append((id, self.original_exth_records[id]))
         recs = sorted(recs, key=lambda x: (x[0], x[0]))
 
-        exth = io.BytesIO()
+        exth_buf = io.BytesIO()
         for code, data in recs:
-            exth.write(pack('>II', code, len(data) + 8))
-            exth.write(data)
-        exth = exth.getvalue()
-        trail = len(exth) % 4
+            exth_buf.write(pack('>II', code, len(data) + 8))
+            exth_buf.write(data)
+        exth_body = exth_buf.getvalue()
+        trail = len(exth_body) % 4
         pad = b'\0' * (4 - trail)  # Always pad w/ at least 1 byte
-        exth = [b'EXTH', pack('>II', len(exth) + 12, len(recs)), exth, pad]
-        exth = b''.join(exth)
+        exth = b''.join([b'EXTH', pack('>II', len(exth_body) + 12, len(recs)), exth_body, pad])
 
         if getattr(self, 'exth', None) is None:
             raise MobiError('No existing EXTH record. Cannot update metadata.')
@@ -447,6 +452,7 @@ class MetadataUpdater:
             try:
                 data = mi.cover_data[1]
                 if not data:
+                    assert mi.cover is not None  # failures are ignored below
                     with open(mi.cover, 'rb') as f:
                         data = f.read()
             except Exception:
@@ -469,12 +475,12 @@ class MetadataUpdater:
                 return
 
 
-def set_metadata(stream, mi) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     mu = MetadataUpdater(stream)
     mu.update(mi)
 
 
-def get_metadata(stream):
+def get_metadata(stream: IO[bytes]) -> Metadata:
     from calibre import CurrentDir
     from calibre.ebooks.metadata import MetaInformation
     from calibre.ebooks.mobi.reader.headers import MetadataHeader
@@ -501,6 +507,7 @@ def get_metadata(stream):
         mi = MetaInformation(_('Unknown'), [_('Unknown')])
     mh = MetadataHeader(stream, log)
     if mh.title and mh.title != _('Unknown'):
+        assert isinstance(mh.title, str)  # decoded in BookHeader.__init__()
         mi.title = mh.title
 
     if mh.exth is not None:

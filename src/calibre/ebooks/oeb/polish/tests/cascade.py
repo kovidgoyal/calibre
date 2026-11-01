@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING, TypedDict
 
 from css_parser import parseStyle
 
@@ -16,11 +17,33 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.logging import Log, Stream
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Mapping
+
+    from css_parser.css import CSSRule, CSSStyleSheet
+    from css_selectors import Select
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.cascade import Values
+
+FontSpec = TypedDict(
+    'FontSpec',
+    {
+        'font-weight': str,
+        'font-style': str,
+        'font-stretch': str,
+        'font-family': str | list[str],
+        'src': str,
+        'text': set[str],
+    },
+    total=False,
+)
+
 
 class VirtualContainer(ContainerBase):
     tweak_mode = True
 
-    def __init__(self, files) -> None:
+    def __init__(self, files: dict[str, str | bytes]) -> None:
         s = Stream()
         self.log_stream = s.stream
         log = Log()
@@ -30,13 +53,13 @@ class VirtualContainer(ContainerBase):
         self.mime_map = {k: self.guess_type(k) for k in files}
         self.files = files
 
-    def has_name(self, name):
+    def has_name(self, name: str) -> bool:
         return name in self.mime_map
 
-    def href_to_name(self, href, base=None):
+    def href_to_name(self, href: str, base: str | None = None) -> str | None:
         return href_to_name(href, ('C:\\root' if iswindows else '/root'), base)
 
-    def parsed(self, name):
+    def parsed(self, name: str) -> CSSStyleSheet | _Element | str | bytes:
         if name not in self.parsed_cache:
             mt = self.mime_map[name]
             if mt in OEB_STYLES:
@@ -48,7 +71,7 @@ class VirtualContainer(ContainerBase):
         return self.parsed_cache[name]
 
     @property
-    def spine_names(self):
+    def spine_names(self) -> Iterator[tuple[str, bool]]:
         for name in sorted(self.mime_map):
             if self.mime_map[name] in OEB_DOCS:
                 yield name, True
@@ -56,7 +79,9 @@ class VirtualContainer(ContainerBase):
 
 class CascadeTest(BaseTest):
     def test_iterrules(self) -> None:
-        def get_rules(files, name='x/one.css', l=1, rule_type=None):
+        def get_rules(
+            files: dict[str, str | bytes], name: str = 'x/one.css', l: int = 1, rule_type: str | None = None
+        ) -> tuple[tuple[tuple[CSSRule, str, int], ...], VirtualContainer]:
             c = VirtualContainer(files)
             rules = tuple(iterrules(c, name, rule_type=rule_type))
             self.assertEqual(len(rules), l)
@@ -74,14 +99,29 @@ class CascadeTest(BaseTest):
 
     def test_resolve_styles(self) -> None:
 
-        def test_property(select, resolve_property, selector, name, val=None) -> None:
+        def test_property(
+            select: Select,
+            resolve_property: Callable[[_Element, str], Values | None],
+            selector: str,
+            name: str,
+            val: str | tuple[str, ...] | None = None,
+        ) -> None:
             elem = next(select(selector))
             ans = resolve_property(elem, name)
+            assert ans is not None  # all properties used in this test have defaults
             if val is None:
                 val = str(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
-        def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None, abort_on_missing=False) -> None:
+        def test_pseudo_property(
+            select: Select,
+            resolve_pseudo_property: Callable[..., Values | None],
+            selector: str,
+            prop: str,
+            name: str,
+            val: str | None = None,
+            abort_on_missing: bool = False,
+        ) -> None:
             elem = next(select(selector))
             ans = resolve_pseudo_property(elem, prop, name, abort_on_missing=abort_on_missing)
             if abort_on_missing:
@@ -90,9 +130,10 @@ class CascadeTest(BaseTest):
                     return
             if val is None:
                 val = str(DEFAULTS[name])
+            assert ans is not None  # only None when abort_on_missing is True, handled above
             self.assertEqual(val, ans.cssText)
 
-        def get_maps(html, styles=None, pseudo=False):
+        def get_maps(html: str, styles: str | None = None, pseudo: bool = False) -> partial[None]:
             html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
             c = VirtualContainer({
                 'index.html': html,
@@ -147,10 +188,10 @@ class CascadeTest(BaseTest):
     def test_font_stats(self) -> None:
         embeds = '@font-face { font-family: X; src: url(X.otf) }\n@font-face { font-family: X; src: url(XB.otf); font-weight: bold }'
 
-        def get_stats(html, *fonts):
-            styles = []
+        def get_stats(html: str, *fonts: dict[str, str]) -> StatsCollector:
+            styles: list[str] = []
             html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
-            files = {'index.html': html, 'X.otf': b'xxx', 'XB.otf': b'xbxb'}
+            files: dict[str, str | bytes] = {'index.html': html, 'X.otf': b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
                 for k, v in font.items():
@@ -163,8 +204,8 @@ class CascadeTest(BaseTest):
             c = VirtualContainer(files)
             return StatsCollector(c, do_embed=True)
 
-        def font(family, weight=None, style=None):
-            f = {}
+        def font(family: str, weight: str | None = None, style: str | None = None) -> FontSpec:
+            f: FontSpec = {}
             if weight is not None:
                 f['font-weight'] = weight
             if style is not None:
@@ -173,19 +214,19 @@ class CascadeTest(BaseTest):
             f['font-family'] = [family]
             return f
 
-        def font_rule(src, *args, **kw):
+        def font_rule(src: str, *args: str, **kw: str) -> Mapping[str, object]:
             ans = font(*args, **kw)
             ans['font-family'] = list(map(icu_lower, ans['font-family']))
             prepare_font_rule(ans)
             ans['src'] = src
             return ans
 
-        def fkey(*args, **kw):
+        def fkey(*args: str, **kw: str) -> frozenset[tuple[str, object]]:
             f = font(*args, **kw)
             f['font-family'] = icu_lower(f['font-family'][0])
             return frozenset((k, v) for k, v in f.items() if k in font_keys)
 
-        def fu(text, *args, **kw):
+        def fu(text: str, *args: str, **kw: str) -> tuple[frozenset[tuple[str, object]], FontSpec]:
             key = fkey(*args, **kw)
             val = font(*args, **kw)
             val['text'] = set(text)
@@ -219,7 +260,7 @@ class CascadeTest(BaseTest):
         self.assertEqual('background: black fixed', style.cssText.rstrip(';'))
 
     def test_fallback_font_matching(self) -> None:
-        def cf(id, weight='normal', style='normal', stretch='normal'):
+        def cf(id: int, weight: str = 'normal', style: str = 'normal', stretch: str = 'normal') -> dict[str, int | str]:
             return {'id': id, 'font-weight': weight, 'font-style': style, 'font-stretch': stretch}
 
         fonts = [cf(1, '500', 'oblique', 'condensed'), cf(2, '300', 'italic', 'normal')]

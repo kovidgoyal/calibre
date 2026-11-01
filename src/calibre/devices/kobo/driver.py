@@ -256,7 +256,7 @@ class KOBO(USBMS):
         USBMS.__init__(self, *args, **kwargs)
         self.plugboards: dict[str, dict[str, object]] | None = None
         self.plugboard_func: Callable[..., object] | None = None
-        self.files_to_rename_to_kepub: set[str] = set()
+        self.files_to_rename_to_kepub: set[str | None] = set()
 
     def initialize(self) -> None:
         USBMS.initialize(self)
@@ -1136,10 +1136,12 @@ class KOBO(USBMS):
                             if category not in book.device_collections:
                                 book.device_collections.append(category)
 
-                            extension = os.path.splitext(book.path)[1]
-                            ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
+                            book_path = book.path
+                            assert isinstance(book_path, str)  # device books always have a path
+                            extension = os.path.splitext(book_path)[1]
+                            ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book_path)
 
-                            ContentID = self.contentid_from_path(book.path, ContentType)
+                            ContentID = self.contentid_from_path(book_path, ContentType)
 
                             if category in tuple(readstatuslist):
                                 # Manage ReadStatus
@@ -1510,6 +1512,7 @@ class KOBO(USBMS):
                 pr=percent_read,
             )
         spanTag = BeautifulSoup('<span style="font-weight:normal">' + markup + '</span>').find('span')
+        assert spanTag is not None  # the markup is wrapped in a span
 
         divTag.insert(dtc, spanTag)
         dtc += 1
@@ -1589,6 +1592,7 @@ class KOBO(USBMS):
 
             for annotation in annotations:
                 annot = BeautifulSoup('<span>' + annotation + '</span>').find('span')
+                assert annot is not None  # the markup is wrapped in a span
                 divTag.insert(dtc, annot)
                 dtc += 1
 
@@ -2199,10 +2203,17 @@ class KOBOTOUCH(KOBO):
                 authors_list = [a.strip() for a in authors.split('&')] if authors is not None else [_('Unknown')]
                 kobo_metadata = Metadata(title, authors_list)
                 kobo_metadata.series = series
-                kobo_metadata.series_index = seriesnumber
+                # Kobo stores the series number as a string, use its numeric value if it has one
+                series_index = SeriesNumberFloat
+                if series_index is None and seriesnumber:
+                    try:
+                        series_index = float(seriesnumber)
+                    except ValueError:
+                        pass
+                kobo_metadata.series_index = series_index
                 kobo_metadata.comments = Description
                 kobo_metadata.publisher = Publisher
-                kobo_metadata.language = Language
+                kobo_metadata.set('language', Language)
                 kobo_metadata.isbn = ISBN
                 if DateCreated is not None:
                     try:
@@ -2714,8 +2725,7 @@ class KOBOTOUCH(KOBO):
                 from calibre.ebooks.oeb.polish.kepubify import check_if_css_needs_modification
 
                 sheet, self.extra_css_options['has_widows_orphans'], self.extra_css_options['has_atpage'] = check_if_css_needs_modification(css)
-        # check_if_css_needs_modification() returns the parsed stylesheet or None
-        return css, cast('CSSStyleSheet | None', sheet)
+        return css, sheet
 
     def get_extra_css_rules(self, sheet: CSSStyleSheet, css_rule: int) -> list[CSSStyleRule | CSSPageRule]:
         return list(sheet.cssRules.rulesOfType(css_rule))
@@ -2862,12 +2872,15 @@ class KOBOTOUCH(KOBO):
         if not container:
             return False
 
+        from css_parser.css import CSSStyleSheet
+
         from calibre.ebooks.oeb.base import OEB_STYLES
 
         is_dirty = False
         for cssname, mt in container.mime_map.items():
             if mt in OEB_STYLES:
                 newsheet = container.parsed(cssname)
+                assert isinstance(newsheet, CSSStyleSheet)
                 oldrules = len(newsheet.cssRules)
 
                 # future css mods may be epub/kepub specific, so pass file extension arg
@@ -4011,7 +4024,7 @@ class KOBOTOUCH(KOBO):
 
         if plugboard is not None:
             newmi = book.deepcopy_metadata()
-            newmi.template_to_attribute(book, plugboard)
+            newmi.template_to_attribute(book, plugboard)  # ty: ignore[invalid-argument-type] plugboard_func returns a list of (src, dest) pairs
         else:
             newmi = book
 

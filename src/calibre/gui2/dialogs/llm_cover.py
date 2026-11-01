@@ -217,6 +217,7 @@ def resolved_series(mi: Metadata, template: str) -> str:
     if mi.is_null('series'):
         return ''
     s = mi.series
+    assert s is not None  # not null
     if mi.series_index is not None:
         s += f', book {mi.format_series_index()}'
     return s

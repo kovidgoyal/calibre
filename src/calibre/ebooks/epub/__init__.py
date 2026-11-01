@@ -4,10 +4,17 @@
 Conversion to EPUB.
 """
 
+from typing import TYPE_CHECKING
+
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
 
-def rules(stylesheets):
+    from css_parser.css import CSSStyleRule, CSSStyleSheet
+
+
+def rules(stylesheets: Iterable[CSSStyleSheet]) -> Iterator[CSSStyleRule]:
     for s in stylesheets:
         if hasattr(s, 'cssText'):
             for r in s:
@@ -15,7 +22,7 @@ def rules(stylesheets):
                     yield r
 
 
-def simple_container_xml(opf_path, extra_entries='') -> str:
+def simple_container_xml(opf_path: str, extra_entries: str = '') -> str:
     return f'''\
 <?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -27,7 +34,9 @@ def simple_container_xml(opf_path, extra_entries='') -> str:
     '''
 
 
-def initialize_container(path_to_container, opf_name='metadata.opf', extra_entries=None):
+def initialize_container(
+    path_to_container: str, opf_name: str = 'metadata.opf', extra_entries: Sequence[tuple[str, str, bytes | str]] | None = None
+) -> ZipFile:
     """
     Create an empty EPUB document, with a default skeleton.
     """

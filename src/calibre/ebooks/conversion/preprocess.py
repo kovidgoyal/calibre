@@ -5,9 +5,19 @@ import json
 import re
 from functools import lru_cache
 from math import ceil
+from typing import TYPE_CHECKING
 
 from calibre import as_unicode, entity_regex, xml_replace_entities
 from calibre import xml_entity_to_unicode as convert_entities
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from optparse import Values
+
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.utils.logging import Log
+
+    type Rule = tuple[re.Pattern[str], str | Callable[[re.Match[str]], str]]
 
 XMLDECL_RE = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS = 'http://www.w3.org/2000/svg'
@@ -35,13 +45,13 @@ LIGATURES = {
 _ligpat = re.compile('|'.join(LIGATURES))
 
 
-def sanitize_head(match) -> str:
+def sanitize_head(match: re.Match[str]) -> str:
     x = match.group(1).strip()
     x = _span_pat.sub('', x)
     return f'<head>\n{x}\n</head>'
 
 
-def chap_head(match):
+def chap_head(match: re.Match[str]) -> str:
     chap = match.group('chap')
     title = match.group('title')
     if not title:
@@ -50,7 +60,7 @@ def chap_head(match):
         return '<h1>' + chap + '</h1>\n<h3>' + title + '</h3>\n'
 
 
-def wrap_lines(match):
+def wrap_lines(match: re.Match[str]) -> str:
     ital = match.group('ital')
     if not ital:
         return ' '
@@ -58,7 +68,7 @@ def wrap_lines(match):
         return ital + ' '
 
 
-def smarten_punctuation(html, log=None):
+def smarten_punctuation(html: str, log: Log | None = None) -> str:
     from calibre.ebooks.conversion.utils import HeuristicProcessor
     from calibre.utils.smartypants import smartyPants
 
@@ -84,7 +94,7 @@ class DocAnalysis:
     Blank lines are excluded from analysis
     """
 
-    def __init__(self, format='html', raw='') -> None:
+    def __init__(self, format: str = 'html', raw: str = '') -> None:
         raw = raw.replace('&nbsp;', ' ')
         if format == 'html':
             linere = re.compile(r'(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
@@ -96,7 +106,7 @@ class DocAnalysis:
             linere = re.compile(r'.*?\n')
         self.lines = linere.findall(raw)
 
-    def line_length(self, percent):
+    def line_length(self, percent: float) -> int:
         """
         Analyses the document to find the median line length.
         percentage is a decimal number, 0 - 1 which is used to determine
@@ -128,7 +138,7 @@ class DocAnalysis:
 
         return lengths[index]
 
-    def line_histogram(self, percent) -> bool:
+    def line_histogram(self, percent: float) -> bool:
         """
         Creates a broad histogram of the document to determine whether it incorporates hard
         line breaks.  Lines are sorted into 20 'buckets' based on length.
@@ -185,7 +195,7 @@ class Dehyphenator:
     retain hyphens.
     """
 
-    def __init__(self, verbose=0, log=None) -> None:
+    def __init__(self, verbose: int = 0, log: Log | None = None) -> None:
         self.log = log
         self.verbose = verbose
         # Add common suffixes to the regex below to increase the likelihood of a match -
@@ -203,7 +213,7 @@ class Dehyphenator:
         self.prefixes = re.compile(rf'{self.prefix_string}$', re.IGNORECASE)
         self.removeprefix = re.compile(rf'{self.prefix_string}', re.IGNORECASE)
 
-    def dehyphenate(self, match):
+    def dehyphenate(self, match: re.Match[str]) -> str:
         firsthalf = match.group('firstpart')
         secondhalf = match.group('secondpart')
         try:
@@ -223,7 +233,7 @@ class Dehyphenator:
             log = self.log or print
         else:
 
-            def log(*a) -> None:
+            def log(*a: object) -> None:
                 pass
 
         log('lookup word is: ' + lookupword + ', orig is: ' + hyphenated)
@@ -256,7 +266,7 @@ class Dehyphenator:
                 log('          returned hyphenated word: ' + hyphenated)
                 return hyphenated
 
-    def __call__(self, html, format, length=1):
+    def __call__(self, html: str, format: str, length: int = 1) -> str:
         self.html = html
         self.format = format
         if format == 'html':
@@ -304,7 +314,7 @@ class CSSPreProcessor:
         re.MULTILINE | re.IGNORECASE | re.VERBOSE,
     )
 
-    def ms_sub(self, match):
+    def ms_sub(self, match: re.Match[str]) -> str:
         end = match.group('end')
         try:
             start = match.group('start')
@@ -314,7 +324,7 @@ class CSSPreProcessor:
             end = ''
         return start + end
 
-    def __call__(self, data, add_namespace=False):
+    def __call__(self, data: str, add_namespace: bool = False) -> str:
         from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
 
         data = self.MS_PAT.sub(self.ms_sub, data)
@@ -338,16 +348,17 @@ class CSSPreProcessor:
         return '\n'.join(ans)
 
 
-def accent_regex(accent_maps, letter_before=False):
-    accent_cat = set()
-    letters = set()
+def accent_regex(accent_maps: dict[str, str], letter_before: bool = False) -> tuple[re.Pattern[str], Callable[[re.Match[str]], str]]:
+    accent_cat: set[str] = set()
+    letters: set[str] = set()
+    lmaps: dict[str, dict[str, str]] = {}
 
     for accent in tuple(accent_maps):
         accent_cat.add(accent)
         k, v = accent_maps[accent].split(':', 1)
         if len(k) != len(v):
             raise ValueError(f'Invalid mapping for: {k} -> {v}')
-        accent_maps[accent] = lmap = dict(zip(k, v))
+        lmaps[accent] = lmap = dict(zip(k, v))
         letters |= set(lmap)
 
     if letter_before:
@@ -359,15 +370,15 @@ def accent_regex(accent_maps, letter_before=False):
 
     pat = re.compile(r'([{}])\s*(?:<br[^>]*>){{0,1}}\s*([{}])'.format(*args), re.UNICODE)
 
-    def sub(m):
-        lmap = accent_maps[m.group(accent_group)]
+    def sub(m: re.Match[str]) -> str:
+        lmap = lmaps[m.group(accent_group)]
         return lmap.get(m.group(letter_group)) or m.group()
 
     return pat, sub
 
 
 @lru_cache(maxsize=2)
-def html_preprocess_rules():
+def html_preprocess_rules() -> tuple[Rule, ...]:
     return (
         # Remove huge block of contiguous spaces as they slow down
         # the following regexes pretty badly
@@ -383,7 +394,7 @@ def html_preprocess_rules():
 
 
 @lru_cache(maxsize=2)
-def pdftohtml_rules():
+def pdftohtml_rules() -> tuple[Rule, ...]:
     return (
         accent_regex({
             '¨': 'aAeEiIoOuU:äÄëËïÏöÖüÜ',
@@ -424,7 +435,7 @@ def pdftohtml_rules():
 
 
 @lru_cache(maxsize=2)
-def book_designer_rules():
+def book_designer_rules() -> tuple[Rule, ...]:
     return (
         # HR
         (re.compile(r'<hr>', re.IGNORECASE), lambda match: '<span style="page-break-after:always"> </span>'),
@@ -449,22 +460,27 @@ def book_designer_rules():
 
 
 class HTMLPreProcessor:
-    def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None) -> None:
+    def __init__(
+        self,
+        log: Log | None = None,
+        extra_opts: Values | OptionValues | None = None,
+        regex_wizard_callback: Callable[[str | None, str], object] | None = None,
+    ) -> None:
         self.log = log
         self.extra_opts = extra_opts
         self.regex_wizard_callback = regex_wizard_callback
-        self.current_href = None
+        self.current_href: str | None = None
 
-    def is_baen(self, src):
+    def is_baen(self, src: str) -> bool:
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"', re.IGNORECASE).search(src) is not None
 
-    def is_book_designer(self, raw):
+    def is_book_designer(self, raw: str) -> bool:
         return re.search(r'<H2[^><]*id=BookTitle', raw) is not None
 
-    def is_pdftohtml(self, src):
+    def is_pdftohtml(self, src: str) -> bool:
         return "<!-- created by calibre's pdftohtml -->" in src[:1000]
 
-    def __call__(self, html, remove_special_chars=None, get_preprocess_html=False):
+    def __call__(self, html: str, remove_special_chars: re.Pattern[str] | None = None, get_preprocess_html: bool = False) -> str:
         if remove_special_chars is not None:
             html = remove_special_chars.sub('', html)
         html = html.replace('\0', '')
@@ -486,7 +502,7 @@ class HTMLPreProcessor:
         user_sr_rules = {}
         # Function for processing search and replace
 
-        def do_search_replace(search_pattern, replace_txt) -> None:
+        def do_search_replace(search_pattern: str, replace_txt: str) -> None:
             from calibre.ebooks.conversion.search_replace import compile_regular_expression
 
             try:
@@ -558,7 +574,7 @@ class HTMLPreProcessor:
         if get_preprocess_html:
             return html
 
-        def dump(raw, where) -> None:
+        def dump(raw: str, where: str) -> None:
             import os
 
             dp = getattr(self.extra_opts, 'debug_pipeline', None)

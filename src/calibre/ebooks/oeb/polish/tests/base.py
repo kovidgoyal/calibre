@@ -4,6 +4,7 @@
 import os
 import shutil
 import unittest
+from typing import TYPE_CHECKING
 
 import calibre.ebooks.oeb.polish.container as pc
 from calibre import CurrentDir
@@ -12,8 +13,13 @@ from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def get_cache():
+    from calibre.ebooks.oeb.polish.container import Container
+
+
+def get_cache() -> str:
     from calibre.constants import cache_dir
 
     cache = os.path.join(cache_dir(), 'polish-test')
@@ -22,10 +28,10 @@ def get_cache():
     return cache
 
 
-once_per_run = set()
+once_per_run: set[str] = set()
 
 
-def needs_recompile(obj, srcs):
+def needs_recompile(obj: str, srcs: str | Iterable[str]) -> bool:
     is_ci = os.environ.get('CI', '').lower() == 'true'
     if is_ci and obj not in once_per_run:
         once_per_run.add(obj)
@@ -39,13 +45,13 @@ def needs_recompile(obj, srcs):
     return any(os.stat(src).st_mtime > obj_mtime for src in srcs)
 
 
-def build_book(src, dest, args=()) -> None:
+def build_book(src: str, dest: str, args: Iterable[str] = ()) -> None:
     from calibre.ebooks.conversion.cli import main
 
     main(['ebook-convert', src, dest, '-vv'] + list(args))
 
 
-def add_resources(raw, rmap):
+def add_resources(raw: str, rmap: dict[str, str]) -> str:
     for placeholder, path in rmap.items():
         fname = os.path.basename(path)
         shutil.copy2(path, '.')
@@ -53,7 +59,7 @@ def add_resources(raw, rmap):
     return raw
 
 
-def setup_simple_book(src):
+def setup_simple_book(src: str) -> str:
     with open(src, 'rb') as sf:
         raw = sf.read().decode('utf-8')
     raw = add_resources(
@@ -72,7 +78,7 @@ def setup_simple_book(src):
     return x
 
 
-def get_simple_book(fmt='epub'):
+def get_simple_book(fmt: str = 'epub') -> str:
     from calibre.utils.lock import ExclusiveFile
 
     cache = get_cache()
@@ -90,7 +96,7 @@ def get_simple_book(fmt='epub'):
     return ans
 
 
-def get_split_book(fmt='epub'):
+def get_split_book(fmt: str = 'epub') -> str:
     from calibre.utils.lock import ExclusiveFile
 
     cache = get_cache()
@@ -111,7 +117,7 @@ def get_split_book(fmt='epub'):
     return ans
 
 
-def get_book_for_kepubify(has_cover=True, epub_version='3'):
+def get_book_for_kepubify(has_cover: bool = True, epub_version: str = '3') -> str:
     cache = get_cache()
     ans = os.path.join(cache, f'kepubify-{has_cover}-{epub_version}.epub')
     src = os.path.join(os.path.dirname(__file__), 'simple.html')
@@ -149,7 +155,7 @@ class BaseTest(unittest.TestCase):
         shutil.rmtree(self.tdir, ignore_errors=True)
         del self.tdir
 
-    def check_links(self, container) -> None:
+    def check_links(self, container: Container) -> None:
         for name in container.name_path_map:
             for link in container.iterlinks(name, get_line_numbers=False):
                 dest = container.href_to_name(link, name)

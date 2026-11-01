@@ -6,12 +6,12 @@ from struct import error, unpack_from
 from calibre.utils.imghdr import what
 
 
-def find_imgtype(data):
+def find_imgtype(data: bytes) -> str:
     return what(None, data) or 'unknown'
 
 
 class Container:
-    def __init__(self, data) -> None:
+    def __init__(self, data: bytes) -> None:
         self.is_image_container = False
         self.resource_index = 0
 
@@ -32,7 +32,7 @@ class Container:
                     break
                 pos += size
 
-    def load_image(self, data):
+    def load_image(self, data: bytes) -> tuple[bytes, str] | tuple[None, None]:
         self.resource_index += 1
         if self.is_image_container:
             data = data[12:]

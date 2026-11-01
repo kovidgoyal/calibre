@@ -1,10 +1,16 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.utils.logging import Log
 
 ENGINES = 'calibre', 'pdftohtml'
 
@@ -73,7 +79,7 @@ class PDFInput(InputFormatPlugin):
         ),
     }
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.pdf.pdftohtml import pdftohtml
 
@@ -111,6 +117,7 @@ class PDFInput(InputFormatPlugin):
         with open('metadata.opf', 'wb') as opffile:
             opf.render(opffile)
         if os.path.exists('toc.ncx'):
+            assert opf.manifest is not None  # created by create_manifest() above
             ncxid = opf.manifest.id_for_path('toc.ncx')
             if ncxid:
                 with open('metadata.opf', 'r+b') as f:

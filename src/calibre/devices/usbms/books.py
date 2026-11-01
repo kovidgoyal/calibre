@@ -48,8 +48,6 @@ def none_cmp(xx: tuple[Metadata, object, object], yy: tuple[Metadata, object, ob
 
 
 class Book(Metadata):
-    _thumbnail_value = None
-
     def __init__(self, prefix: str, lpath: str, size: int | None = None, other: Metadata | None = None) -> None:
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -64,6 +62,11 @@ class Book(Metadata):
         else:
             self.lpath = lpath
         self.mime = mime_type_ext(path_to_ext(lpath))
+        # The database id in the application database that this file corresponds to.
+        # Note that db_id cannot be a property as Metadata.__getattribute__()
+        # handles all standard field names itself.
+        match = re.search(r'_(\d+)$', lpath.rpartition('.')[0])
+        self.db_id = int(match.group(1)) if match else None
         self.size = size  # will be set later if None
         try:
             self.datetime = time.gmtime(os.path.getctime(self.path))
@@ -77,22 +80,9 @@ class Book(Metadata):
         return self.lpath == getattr(other, 'lpath', None)
 
     @property
-    def db_id(self) -> int | None:
-        """The database id in the application database that this file corresponds to"""
-
-        match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
-        if match:
-            return int(match.group(1))
-        return None
-
-    @property
     def title_sorter(self) -> str:
         """String to sort the title. If absent, title is returned"""
         return title_sort(self.title)
-
-    @property
-    def thumbnail(self) -> object:
-        return self._thumbnail_value
 
 
 class BookList(_BookList):

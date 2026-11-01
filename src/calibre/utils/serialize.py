@@ -79,7 +79,7 @@ def decode_metadata(x: dict[str, Any], for_json: bool) -> Metadata:
     from polyglot.binary import from_base64_bytes
 
     obj = metadata_from_dict(x)
-    if for_json and obj.cover_data and obj.cover_data[1]:
+    if for_json and obj.cover_data[1]:
         obj.cover_data = obj.cover_data[0], from_base64_bytes(obj.cover_data[1])
     return obj
 

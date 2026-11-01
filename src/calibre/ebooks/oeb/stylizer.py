@@ -6,38 +6,52 @@ CSS property propagation class.
 
 import copy
 import logging
-import numbers
 import os
 import re
 import unicodedata
 from operator import itemgetter
-from typing import cast
+from typing import TYPE_CHECKING, Literal, cast
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 
 from css_parser import CSSParser, parseString, parseStyle, profiles, replaceUrls
 from css_parser import log as css_parser_log
 from css_parser import profile as cssprofiles
-from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, cssproperties
+from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, CSSStyleSheet, cssproperties
 from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
 from tinycss.media3 import CSSMedia3Parser
 
 from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, XHTML, XHTML_NS, urlnormalize, xpath
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, XHTML, XHTML_NS, is_element_list, urlnormalize, xpath
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Mapping
+    from optparse import Values
+
+    from css_parser.css import CSSRule, CSSStyleDeclaration
+    from lxml.etree import _Element
+    from tinycss.media3 import MediaQuery
+
+    from calibre.customize.profiles import Plugin as Profile
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.oeb.base import OEBBook
+
+    # (specificity, selector sequence, style, selector text, href of the stylesheet)
+    type FlatRule = tuple[tuple[int, ...], list[object], style_map, str, str | None]
+
 css_parser_log.setLevel(logging.WARNING)
 
-_html_css_stylesheet = None
+_html_css_stylesheet: CSSStyleSheet | None = None
 
 
-def validate_color(col):
+def validate_color(col: object) -> bool:
     return cssprofiles.validateWithProfile('color', col, profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
 
 
-def html_css_stylesheet():
+def html_css_stylesheet() -> CSSStyleSheet:
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         with open(P('templates/html.css'), 'rb') as f:
@@ -98,13 +112,13 @@ IGNORED_MEDIA_FEATURES = frozenset(
 )
 
 
-def media_ok(raw) -> bool:
+def media_ok(raw: str | None) -> bool:
     if not raw:
         return True
     if raw == 'amzn-mobi':  # Optimization for the common case
         return False
 
-    def query_ok(mq):
+    def query_ok(mq: MediaQuery) -> bool:
         matched = True
         if mq.media_type not in ALLOWED_MEDIA_TYPES:
             matched = False
@@ -138,10 +152,10 @@ def test_media_ok() -> None:
     assert not media_ok('screen and (device-width:10px)')
 
 
-class style_map(dict):
+class style_map(dict[str, str]):
     def __init__(self) -> None:
         super().__init__()
-        self.important_properties = set()
+        self.important_properties: set[str] = set()
 
 
 def epub_prefix_properties() -> dict[str, tuple[str, str]]:
@@ -170,13 +184,13 @@ def cleanup_epub_prefixed_properties(style: dict[str, str]) -> None:
 
 
 class StylizerRules:
-    def __init__(self, opts, profile, stylesheets) -> None:
+    def __init__(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[CSSStyleSheet]) -> None:
         self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
 
         index = 0
-        self.rules = []
-        self.page_rule = {}
-        self.font_face_rules = []
+        self.rules: list[FlatRule] = []
+        self.page_rule: dict[str, str] = {}
+        self.font_face_rules: list[CSSFontFaceRule] = []
         for sheet_index, stylesheet in enumerate(stylesheets):
             href = stylesheet.href
             for rule in stylesheet.cssRules:
@@ -190,8 +204,8 @@ class StylizerRules:
                     index = index + 1
         self.rules.sort(key=itemgetter(0))  # sort by specificity
 
-    def flatten_rule(self, rule, href, index, is_user_agent_sheet=False):
-        results = []
+    def flatten_rule(self, rule: CSSRule, href: str | None, index: int, is_user_agent_sheet: bool = False) -> list[FlatRule]:
+        results: list[FlatRule] = []
         sheet_index = 0 if is_user_agent_sheet else 1
         if isinstance(rule, CSSStyleRule):
             style = self.flatten_style(rule.style)
@@ -211,7 +225,7 @@ class StylizerRules:
                 self.font_face_rules.append(rule)
         return results
 
-    def flatten_style(self, cssstyle):
+    def flatten_style(self, cssstyle: CSSStyleDeclaration) -> style_map:
         style = style_map()
         for prop in cssstyle:
             name = prop.name
@@ -241,12 +255,12 @@ class StylizerRules:
         cleanup_epub_prefixed_properties(style)
         return style
 
-    def _apply_text_align(self, text):
+    def _apply_text_align(self, text: str) -> str:
         if text in ('left', 'justify') and self.opts.change_justification in ('left', 'justify'):
             text = self.opts.change_justification
         return text
 
-    def same_rules(self, opts, profile, stylesheets):
+    def same_rules(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[CSSStyleSheet]) -> bool:
         if self.opts != opts:
             # it's unlikely to happen, but better safe than sorry
             return False
@@ -260,10 +274,19 @@ class StylizerRules:
 class Stylizer:
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, opts, profile=None, extra_css='', user_css='', base_css='') -> None:
+    def __init__(
+        self,
+        tree: _Element,
+        path: str,
+        oeb: OEBBook,
+        opts: Values | OptionValues,
+        profile: Profile | None = None,
+        extra_css: str = '',
+        user_css: str = '',
+        base_css: str = '',
+    ) -> None:
         self.oeb, self.opts = oeb, opts
-        self.profile = profile
-        if self.profile is None:
+        if profile is None:
             # Use the default profile. This should really be using
             # opts.output_profile, but I don't want to risk changing it, as
             # doing so might well have hard to debug font size effects.
@@ -271,12 +294,13 @@ class Stylizer:
 
             for x in output_profiles():
                 if x.short_name == 'default':
-                    self.profile = x
+                    profile = x
                     break
-        if self.profile is None:
+        if profile is None:
             # Just in case the default profile is removed in the future :)
-            self.profile = opts.output_profile
-        self.body_font_size = self.profile.fbase
+            profile = opts.output_profile
+        self.profile: Profile = profile
+        self.body_font_size: float = self.profile.fbase
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
@@ -285,6 +309,7 @@ class Stylizer:
         if base_css:
             stylesheets.append(parseString(base_css, validate=False))
         style_tags = xpath(tree, '//*[local-name()="style" or local-name()="link"]')
+        assert is_element_list(style_tags)
 
         # Add css_parser parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
@@ -320,7 +345,9 @@ class Stylizer:
                             if sitem.media_type not in OEB_STYLES:
                                 self.logger.warn(f'CSS @import of non-CSS file {rule.href!r}')
                                 continue
-                            stylesheets.append(sitem.data)
+                            sdata = sitem.data
+                            assert isinstance(sdata, CSSStyleSheet)  # sitem.media_type is in OEB_STYLES
+                            stylesheets.append(sdata)
                     # Make links to resources absolute, since these rules will
                     # be folded into a stylesheet at the root
                     replaceUrls(stylesheet, item.abshref, ignoreImportRules=True)
@@ -338,10 +365,11 @@ class Stylizer:
                 if sitem is None:
                     self.logger.warn(f'Stylesheet {path!r} referenced by file {item.href!r} not in manifest')
                     continue
-                if not hasattr(sitem.data, 'cssRules'):
+                sdata = sitem.data
+                if not isinstance(sdata, CSSStyleSheet):
                     self.logger.warn(f'Stylesheet {path!r} referenced by file {item.href!r} is not CSS')
                     continue
-                stylesheets.append(sitem.data)
+                stylesheets.append(sdata)
         csses = {'extra_css': extra_css, 'user_css': user_css}
         for w, x in csses.items():
             if x:
@@ -356,14 +384,16 @@ class Stylizer:
 
         # using oeb to store the rules, page rule and font face rules
         # and generating them again if opts, profile or stylesheets are different
+        # stylizer_rules is an ad-hoc attribute on OEBBook
         if (not hasattr(self.oeb, 'stylizer_rules')) or not self.oeb.stylizer_rules.same_rules(self.opts, self.profile, stylesheets):
             self.oeb.stylizer_rules = StylizerRules(self.opts, self.profile, stylesheets)
-        self.rules = self.oeb.stylizer_rules.rules
-        self.page_rule = self.oeb.stylizer_rules.page_rule
-        self.font_face_rules = self.oeb.stylizer_rules.font_face_rules
-        self.flatten_style = self.oeb.stylizer_rules.flatten_style
+        stylizer_rules: StylizerRules = self.oeb.stylizer_rules
+        self.rules = stylizer_rules.rules
+        self.page_rule = stylizer_rules.page_rule
+        self.font_face_rules = stylizer_rules.font_face_rules
+        self.flatten_style = stylizer_rules.flatten_style
 
-        self._styles = {}
+        self._styles: dict[_Element, Style] = {}
         pseudo_pat = re.compile(':{{1,2}}({})'.format('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
         select = Select(tree, ignore_inappropriate_pseudo_classes=True)
 
@@ -406,16 +436,20 @@ class Stylizer:
             else:
                 for elem in matches:
                     self.style(elem)._update_cssdict(cssdict)
-        for elem in xpath(tree, '//h:*[@style]'):
+        styled = xpath(tree, '//h:*[@style]')
+        assert is_element_list(styled)
+        for elem in styled:
             self.style(elem)._apply_style_attr(url_replacer=item.abshref)
         num_pat = re.compile(r'[0-9.]+$')
-        for elem in xpath(tree, '//h:img[@width or @height]'):
+        imgs = xpath(tree, '//h:img[@width or @height]')
+        assert is_element_list(imgs)
+        for elem in imgs:
             style = self.style(elem)
             # Check if either height or width is not default
             is_styled = style._style.get('width', 'auto') != 'auto' or style._style.get('height', 'auto') != 'auto'
             if not is_styled:
                 # Update img style dimension using width and height
-                upd = {}
+                upd: dict[str, str] = {}
                 for prop in ('width', 'height'):
                     val = elem.get(prop, '').strip()
                     try:
@@ -429,7 +463,7 @@ class Stylizer:
                 if upd:
                     style._update_cssdict(upd)
 
-    def _fetch_css_file(self, path):
+    def _fetch_css_file(self, path: str) -> tuple[str | None, bytes | None]:
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
             self.logger.warn(f'CSS import of missing file {path!r}')
@@ -438,19 +472,21 @@ class Stylizer:
         if item.media_type not in OEB_STYLES:
             self.logger.warn(f'CSS import of non-CSS file {path!r}')
             return None, None
-        data = item.data.cssText
+        sheet = item.data
+        assert isinstance(sheet, CSSStyleSheet)  # item.media_type is in OEB_STYLES
+        data = sheet.cssText
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         return 'utf-8', data
 
-    def style(self, element):
+    def style(self, element: _Element) -> Style:
         try:
             return self._styles[element]
         except KeyError:
             return Style(element, self)
 
-    def stylesheet(self, name, font_scale=None):
-        rules = []
+    def stylesheet(self, name: str, font_scale: float | None = None) -> str:
+        rules: list[str] = []
         for _, _, style, selector, href in self.rules:
             if href != name:
                 continue
@@ -475,7 +511,7 @@ def is_only_number(x: str) -> bool:
         return False
 
 
-def is_svg_text_tag(x):
+def is_svg_text_tag(x: object) -> bool:
     return getattr(x, 'tag', '') in svg_text_tags
 
 
@@ -483,30 +519,30 @@ class Style:
     MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
     viewport_relative_font_size: str = ''
 
-    def __init__(self, element, stylizer) -> None:
+    def __init__(self, element: _Element, stylizer: Stylizer) -> None:
         self._element = element
         self._profile = stylizer.profile
         self._stylizer = stylizer
-        self._style = style_map()
-        self._fontSize = None
-        self._width = None
-        self._height = None
-        self._lineHeight = None
-        self._bgcolor = None
-        self._fgcolor = None
-        self._pseudo_classes = {}
+        self._style: dict[str, str] = style_map()
+        self._fontSize: float | None = None
+        self._width: float | None = None
+        self._height: float | None = None
+        self._lineHeight: float | str | None = None
+        self._bgcolor: str | Literal[False] | None = None
+        self._fgcolor: str | int | None = None
+        self._pseudo_classes: dict[str, dict[str, str]] = {}
         stylizer._styles[element] = self
 
-    def set(self, prop, val) -> None:
+    def set(self, prop: str, val: str) -> None:
         self._style[prop] = val
 
-    def drop(self, prop, default=None):
+    def drop(self, prop: str, default: str | None = None) -> str | None:
         return self._style.pop(prop, default)
 
-    def _update_cssdict(self, cssdict) -> None:
+    def _update_cssdict(self, cssdict: Mapping[str, str]) -> None:
         self._update_style(cssdict)
 
-    def _update_style(self, cssdict) -> None:
+    def _update_style(self, cssdict: Mapping[str, str]) -> None:
         current_ip = getattr(self._style, 'important_properties', no_important_properties)
         if current_ip is no_important_properties:
             s = style_map()
@@ -524,12 +560,12 @@ class Style:
             if override:
                 self._style[name] = val
 
-    def _update_pseudo_class(self, name, cssdict) -> None:
+    def _update_pseudo_class(self, name: str, cssdict: Mapping[str, str]) -> None:
         orig = self._pseudo_classes.get(name, {})
         orig.update(cssdict)
         self._pseudo_classes[name] = orig
 
-    def _apply_style_attr(self, url_replacer=None) -> None:
+    def _apply_style_attr(self, url_replacer: Callable[[str], str] | None = None) -> None:
         attrib = self._element.attrib
         if 'style' not in attrib:
             return
@@ -546,37 +582,38 @@ class Style:
             replaceUrls(style, url_replacer, ignoreImportRules=True)
         self._update_style(self._stylizer.flatten_style(style))
 
-    def _has_parent(self):
+    def _has_parent(self) -> bool:
         try:
             return self._element.getparent() is not None
         except AttributeError:
             return False  # self._element is None
 
-    def _get_parent(self):
+    def _get_parent(self) -> Style | None:
         elem = self._element.getparent()
         if elem is None:
             return None
         return self._stylizer.style(elem)
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> str | float | None:  # a property value or a length converted to pts
         domname = cssproperties._toDOMname(name)
         if hasattr(self, domname):
             return getattr(self, domname)
         return self._unit_convert(self._get(name))
 
-    def _get(self, name):
+    def _get(self, name: str) -> str | int:
         result = self._style.get(name, None)
         if result == 'inherit' or (result is None and name in INHERITED and self._has_parent()):
             stylizer = self._stylizer
-            result = stylizer.style(self._element.getparent())._get(name)
+            # FIXME: for 'inherit' on the root element getparent() is None, Style() tolerates a None element
+            result = stylizer.style(self._element.getparent())._get(name)  # ty: ignore[invalid-argument-type]
         if result is None:
             result = DEFAULTS[name]
         return result
 
-    def get(self, name, default=None):
+    def get(self, name: str, default: str | None = None) -> str | None:
         return self._style.get(name, default)
 
-    def _unit_convert(self, value, base=None, font=None):
+    def _unit_convert(self, value: str | float, base: float | None = None, font: float | None = None) -> float | str:
         "Return value in pts"
         if base is None:
             base = self.width
@@ -584,11 +621,11 @@ class Style:
             font = self.fontSize
         return unit_convert(value, base, font, self._profile.dpi, body_font_size=self._stylizer.body_font_size)
 
-    def pt_to_px(self, value):
+    def pt_to_px(self, value: float) -> float:
         return (self._profile.dpi / 72) * value
 
     @property
-    def color(self):
+    def color(self) -> str | int:
         if self._fgcolor is None:
             val = self._get('color')
             if val and validate_color(val):
@@ -598,7 +635,7 @@ class Style:
         return self._fgcolor
 
     @property
-    def backgroundColor(self):
+    def backgroundColor(self) -> str | None:
         """
         Return the background color by parsing both the background-color and
         background shortcut properties. Note that inheritance/default values
@@ -637,13 +674,13 @@ class Style:
         return self._bgcolor or None
 
     @property
-    def fontSize(self):
-        def normalize_fontsize(value, base):
+    def fontSize(self) -> float:
+        def normalize_fontsize(value: str, base: float) -> float:
             value = value.replace('"', '').replace("'", '')
-            result = None
+            result: float | None = None
             factor = None
             if value == 'inherit':
-                value = base
+                value = base  # ty: ignore[invalid-assignment] a float, handled by _unit_convert() below
             if value in FONT_SIZE_NAMES:
                 result = self._profile.fnames[value]
             elif value == 'smaller':
@@ -661,14 +698,15 @@ class Style:
                     factor = None
                     result = size
             else:
-                result = self._unit_convert(value, base=base, font=base)
-                if not isinstance(result, numbers.Number):
+                converted = self._unit_convert(value, base=base, font=base)
+                if not isinstance(converted, (int, float)):  # _unit_convert() returns int, float or str
                     return base
+                result = converted
                 if result < 0:
                     result = normalize_fontsize('smaller', base)
             if factor:
                 result = factor * base
-            return result
+            return cast('float', result)  # result is always set when factor is None
 
         if self._fontSize is None:
             result = None
@@ -687,8 +725,8 @@ class Style:
             self._fontSize = result
         return self._fontSize
 
-    def img_dimension(self, attr, img_size):
-        ans = None
+    def img_dimension(self, attr: str, img_size: float) -> float:
+        ans: float | None = None
         parent = self._get_parent()
         if parent is not None:
             base = getattr(parent, attr)
@@ -697,27 +735,27 @@ class Style:
         x = self._style.get(attr)
         if x is not None:
             if x == 'auto':
-                ans = self._unit_convert(str(img_size) + 'px', base=base)
+                ans = cast('float', self._unit_convert(str(img_size) + 'px', base=base))  # px lengths always convert
             else:
-                x = self._unit_convert(x, base=base)
-                if isinstance(x, numbers.Number):
-                    ans = x
+                cx = self._unit_convert(x, base=base)
+                if isinstance(cx, (int, float)):  # _unit_convert() returns int, float or str
+                    ans = cx
         if ans is None:
             x = self._element.get(attr)
             if x is not None:
-                x = self._unit_convert(x + 'px', base=base)
-                if isinstance(x, numbers.Number):
-                    ans = x
+                cx = self._unit_convert(x + 'px', base=base)
+                if isinstance(cx, (int, float)):
+                    ans = cx
         if ans is None:
-            ans = self._unit_convert(str(img_size) + 'px', base=base)
+            ans = cast('float', self._unit_convert(str(img_size) + 'px', base=base))  # px lengths always convert
         maa = self._style.get('max-' + attr)
         if maa is not None:
-            x = self._unit_convert(maa, base=base)
-            if isinstance(x, numbers.Number) and (ans is None or x < ans):
-                ans = x
+            cx = self._unit_convert(maa, base=base)
+            if isinstance(cx, (int, float)) and (ans is None or cx < ans):
+                ans = cx
         return ans
 
-    def img_size(self, width, height):
+    def img_size(self, width: float, height: float) -> tuple[float, float]:
         "Return the final size of an <img> given that it points to an image of size widthxheight"
         w, h = self._get('width'), self._get('height')
         answ, ansh = self.img_dimension('width', width), self.img_dimension('height', height)
@@ -728,7 +766,7 @@ class Style:
         return answ, ansh
 
     @property
-    def width(self):
+    def width(self) -> float:
         if self._width is None:
             width = None
             base = None
@@ -757,14 +795,14 @@ class Style:
         return self._width
 
     @property
-    def parent_width(self):
+    def parent_width(self) -> float:
         parent = self._get_parent()
         if parent is None:
             return self.width
         return parent.width
 
     @property
-    def height(self):
+    def height(self) -> float:
         if self._height is None:
             height = None
             base = None
@@ -793,7 +831,7 @@ class Style:
         return self._height
 
     @property
-    def lineHeight(self):
+    def lineHeight(self) -> float | str:
         if self._lineHeight is None:
             result = None
             parent = self._get_parent()
@@ -814,7 +852,7 @@ class Style:
         return self._lineHeight
 
     @property
-    def effective_text_decoration(self):
+    def effective_text_decoration(self) -> str | None:
         """
         Browsers do this creepy thing with text-decoration where even though the
         property is not inherited, it looks like it is because containing
@@ -834,60 +872,63 @@ class Style:
         return css
 
     @property
-    def first_vertical_align(self):
+    def first_vertical_align(self) -> float | str | None:
         """For docx output where tags are not nested, we cannot directly
         simulate the HTML vertical-align rendering model. Instead use the
         approximation of considering the first non-default vertical-align"""
         val = self['vertical-align']
         if val != 'baseline':
-            raw_val = self._get('vertical-align')
+            raw_val = cast('str', self._get('vertical-align'))  # DEFAULTS['vertical-align'] is a str
             if '%' in raw_val:
-                val = self._unit_convert(raw_val, base=self['line-height'])
+                line_height = self.lineHeight
+                if isinstance(line_height, str):  # unparseable line-height, use the value for line-height: normal
+                    line_height = 1.2 * self.fontSize
+                val = self._unit_convert(raw_val, base=line_height)
             return val
         parent = self._get_parent()
-        if parent is not None and 'inline' in parent['display']:
+        if parent is not None and isinstance(display := parent['display'], str) and 'inline' in display:
             return parent.first_vertical_align
 
     @property
-    def marginTop(self):
+    def marginTop(self) -> float | str:
         return self._unit_convert(self._get('margin-top'), base=self.parent_width)
 
     @property
-    def marginBottom(self):
+    def marginBottom(self) -> float | str:
         return self._unit_convert(self._get('margin-bottom'), base=self.parent_width)
 
     @property
-    def marginLeft(self):
+    def marginLeft(self) -> float | str:
         return self._unit_convert(self._get('margin-left'), base=self.parent_width)
 
     @property
-    def marginRight(self):
+    def marginRight(self) -> float | str:
         return self._unit_convert(self._get('margin-right'), base=self.parent_width)
 
     @property
-    def paddingTop(self):
+    def paddingTop(self) -> float | str:
         return self._unit_convert(self._get('padding-top'), base=self.parent_width)
 
     @property
-    def paddingBottom(self):
+    def paddingBottom(self) -> float | str:
         return self._unit_convert(self._get('padding-bottom'), base=self.parent_width)
 
     @property
-    def paddingLeft(self):
+    def paddingLeft(self) -> float | str:
         return self._unit_convert(self._get('padding-left'), base=self.parent_width)
 
     @property
-    def paddingRight(self):
+    def paddingRight(self) -> float | str:
         return self._unit_convert(self._get('padding-right'), base=self.parent_width)
 
     def __str__(self) -> str:
         items = sorted(self._style.items())
         return '; '.join(f'{key}: {val}' for key, val in items)
 
-    def cssdict(self):
+    def cssdict(self) -> dict[str, str]:
         return dict(self._style)
 
-    def pseudo_classes(self, filter_css):
+    def pseudo_classes(self, filter_css: Collection[str]) -> dict[str, dict[str, str]]:
         if filter_css:
             css = copy.deepcopy(self._pseudo_classes)
             for psel, cssdict in css.items():
@@ -898,5 +939,6 @@ class Style:
         return {k: v for k, v in css.items() if v}
 
     @property
-    def is_hidden(self):
+    def is_hidden(self) -> bool:
+
         return self._style.get('display') == 'none' or self._style.get('visibility') == 'hidden'

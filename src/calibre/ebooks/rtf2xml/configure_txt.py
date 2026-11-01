@@ -1,16 +1,19 @@
 import os
 import sys
+from typing import Literal
 
 from . import open_for_read
+
+type ConfigDict = dict[str, str | int | None]
 
 
 class Configure:
     def __init__(
         self,
-        configuration_file,
-        bug_handler,
-        debug_dir=None,
-        show_config_file=None,
+        configuration_file: str | None,
+        bug_handler: type[Exception],
+        debug_dir: str | None = None,
+        show_config_file: int | None = None,
     ) -> None:
         """
         Requires:
@@ -25,9 +28,9 @@ class Configure:
         self.__bug_handler = bug_handler
         self.__show_config_file = show_config_file
 
-    def get_configuration(self, type):
+    def get_configuration(self, type: str) -> ConfigDict:
         self.__configuration_file = self.__get_file_name()
-        return_dict = {}
+        return_dict: ConfigDict = {}
         return_dict['config-location'] = self.__configuration_file
         if self.__show_config_file and self.__configuration_file:
             sys.stderr.write(f'configuration file is "{self.__configuration_file}"\n')
@@ -58,13 +61,13 @@ class Configure:
                 att = att.strip()
                 value = value.strip()
                 return_dict[att] = value
-        return_dict = self.__parse_dict(return_dict)
-        if return_dict == 1:
+        parsed_dict = self.__parse_dict(return_dict)
+        if parsed_dict == 1:
             msg = f'Please correct the configuration file "{self.__configuration_file}" before continuing\n'
             raise self.__bug_handler(msg)
-        return return_dict
+        return parsed_dict
 
-    def __get_file_name(self):
+    def __get_file_name(self) -> str | None:
         home_var = os.environ.get('HOME')
         if home_var:
             home_config = os.path.join(home_var, '.rtf2xml')
@@ -80,7 +83,7 @@ class Configure:
             return script_file
         return self.__configuration_file
 
-    def __parse_dict(self, return_dict):
+    def __parse_dict(self, return_dict: ConfigDict) -> ConfigDict | Literal[1]:
         allowable = [
             'configuration-directory',
             'smart-output',  # = false
@@ -130,7 +133,7 @@ class Configure:
                     return_dict['indent'] = 0
             else:
                 try:
-                    int_num = int(return_dict[int_option])
+                    int_num = int(value)
                     return_dict[int_option] = int_num
                 except Exception:
                     sys.stderr.write(f'"{int_option}" must be a number\n')

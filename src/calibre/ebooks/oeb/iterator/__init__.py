@@ -4,30 +4,35 @@
 import os
 import re
 import sys
+from typing import TYPE_CHECKING
 
 from calibre.customize.ui import available_input_formats
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.iterator import book
 
-def is_supported(path):
+
+def is_supported(path: str) -> bool:
     ext = os.path.splitext(path)[1].replace('.', '').lower()
     ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
     return ext in available_input_formats() or ext == 'kepub'
 
 
 class UnsupportedFormatError(Exception):
-    def __init__(self, fmt) -> None:
+    def __init__(self, fmt: str) -> None:
         Exception.__init__(self, _('%s format books are not supported') % fmt.upper())
 
 
-def EbookIterator(*args, **kwargs):
+def EbookIterator(*args: object, **kwargs: object) -> book.EbookIterator:
     "For backwards compatibility"
     from calibre.ebooks.oeb.iterator.book import EbookIterator
 
-    return EbookIterator(*args, **kwargs)
+    return EbookIterator(*args, **kwargs)  # ty: ignore[invalid-argument-type] arguments are passed through
 
 
-def get_preprocess_html(path_to_ebook, output=None) -> None:
+def get_preprocess_html(path_to_ebook: str, output: str | None = None) -> None:
+
     from calibre.ebooks.conversion.plumber import Plumber, set_regex_wizard_callback
     from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.logging import DevNull

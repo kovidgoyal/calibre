@@ -6,11 +6,19 @@ Read content from Haodoo.net pdb file.
 
 import os
 import struct
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.txt.processor import HTML_TEMPLATE, opf_writer
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
 
 BPDB_IDENT = 'BOOKMTIT'
 UPDB_IDENT = 'BOOKMTIU'
@@ -45,14 +53,14 @@ punct_table = {
 }
 
 
-def fix_punct(line):
+def fix_punct(line: str) -> str:
     for key, value in punct_table.items():
         line = line.replace(key, value)
     return line
 
 
 class LegacyHeaderRecord:
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         fields = raw.lstrip().replace(b'\x1b\x1b\x1b', b'\x1b').split(b'\x1b')
         self.title = fix_punct(fields[0].decode('cp950', 'replace'))
         self.num_records = int(fields[1])
@@ -60,7 +68,7 @@ class LegacyHeaderRecord:
 
 
 class UnicodeHeaderRecord:
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         fields = raw.lstrip().replace(b'\x1b\x00\x1b\x00\x1b\x00', b'\x1b\x00').split(b'\x1b\x00')
         self.title = fix_punct(fields[0].decode('utf_16_le', 'ignore'))
         self.num_records = int(fields[1])
@@ -68,9 +76,10 @@ class UnicodeHeaderRecord:
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log | None, options: Values | None) -> None:
         self.stream = stream
-        self.log = log
+        # log is None only when constructed by metadata/haodoo.py, which never calls extract_content()
+        self.log = cast('Log', log)
 
         self.sections = []
         for i in range(header.num_sections):
@@ -83,7 +92,7 @@ class Reader(FormatReader):
             self.header_record = UnicodeHeaderRecord(self.section_data(0))
             self.encoding = 'utf_16_le'
 
-    def author(self):
+    def author(self) -> str:
         self.stream.seek(35)
         version = struct.unpack('>b', self.stream.read(1))[0]
         if version == 2:
@@ -93,19 +102,19 @@ class Reader(FormatReader):
         else:
             return 'Unknown'
 
-    def get_metadata(self):
+    def get_metadata(self) -> Metadata:
         mi = MetaInformation(self.header_record.title, [self.author()])
         mi.language = 'zh-tw'
 
         return mi
 
-    def section_data(self, number):
+    def section_data(self, number: int) -> bytes:
         return self.sections[number]
 
-    def decompress_text(self, number):
+    def decompress_text(self, number: int) -> str:
         return self.section_data(number).decode(self.encoding, 'replace').rstrip('\x00')
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str:
         txt = ''
 
         self.log.info('Decompressing text...')

@@ -7,6 +7,7 @@ Read meta information from TXT files
 import glob
 import os
 import re
+from typing import IO, TYPE_CHECKING
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import MetaInformation
@@ -14,8 +15,11 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
 from calibre.utils.zipfile import ZipFile
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_metadata(stream, extract_cover=True):
+
+def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     """Return metadata as a L{MetaInfo} object"""
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
@@ -59,7 +63,7 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def get_cover(name, tdir, top_level=False):
+def get_cover(name: str, tdir: str, top_level: bool = False) -> tuple[str, bytes | None]:
     cover_path = ''
     cover_data = None
 

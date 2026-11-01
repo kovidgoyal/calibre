@@ -6,6 +6,7 @@ import glob
 import os
 import re
 from collections import Counter
+from typing import IO, TYPE_CHECKING, Protocol
 from urllib.parse import urlparse
 
 from lxml import etree
@@ -17,6 +18,22 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterator
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.opf2 import Manifest
+
+    class SoupTag(Protocol):
+        def find(self, name: str, toc: bool = ..., attrs: dict[str, str] = ...) -> SoupTag: ...
+        def __getitem__(self, key: str) -> str: ...
+
+    class LegacyOPFReader(Protocol):
+        soup: SoupTag
+        manifest: Manifest
+
+
 NCX_NS = 'http://www.daisy.org/z3986/2005/ncx/'
 CALIBRE_NS = 'http://calibre.kovidgoyal.net/2009/metadata'
 NSMAP = {None: NCX_NS, 'calibre': CALIBRE_NS}
@@ -24,7 +41,7 @@ E = ElementMaker(namespace=NCX_NS, nsmap=NSMAP)
 C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
 
-def parse_html_toc(data):
+def parse_html_toc(data: str | bytes) -> Iterator[tuple[str, str | None, str]]:
     from html5_parser import parse
     from lxml import etree
 
@@ -46,19 +63,19 @@ def parse_html_toc(data):
         yield href, fragment, txt
 
 
-class TOC(list):
+class TOC(list['TOC']):
     def __init__(
         self,
-        href=None,
-        fragment=None,
-        text=None,
-        parent=None,
-        play_order=0,
-        base_path=os.getcwd(),
-        type='unknown',
-        author=None,
-        description=None,
-        toc_thumbnail=None,
+        href: str | None = None,
+        fragment: str | None = None,
+        text: str | None = None,
+        parent: TOC | None = None,
+        play_order: int = 0,
+        base_path: str = os.getcwd(),
+        type: str = 'unknown',
+        author: str | None = None,
+        description: str | None = None,
+        toc_thumbnail: str | None = None,
     ) -> None:
         self.href = href
         self.fragment = fragment
@@ -81,11 +98,11 @@ class TOC(list):
                 lines.append('\t' + l)
         return '\n'.join(lines)
 
-    def count(self, type):
+    def count(self, type: str) -> int:  # ty: ignore[invalid-method-override] counts entries of the specified type
         return len([i for i in self.flat() if i.type == type])
 
-    def purge(self, types, max=0):
-        remove = []
+    def purge(self, types: Collection[str], max: int = 0) -> list[TOC]:
+        remove: list[TOC] = []
         for entry in self.flat():
             if entry.type in types:
                 remove.append(entry)
@@ -96,11 +113,21 @@ class TOC(list):
             entry.parent.remove(entry)
         return remove
 
-    def remove(self, entry) -> None:
+    def remove(self, entry: TOC) -> None:
         list.remove(self, entry)
         entry.parent = None
 
-    def add_item(self, href, fragment, text, play_order=None, type='unknown', author=None, description=None, toc_thumbnail=None):
+    def add_item(
+        self,
+        href: str | None,
+        fragment: str | None,
+        text: str | None,
+        play_order: int | None = None,
+        type: str = 'unknown',
+        author: str | None = None,
+        description: str | None = None,
+        toc_thumbnail: str | None = None,
+    ) -> TOC:
         if play_order is None:
             play_order = (self[-1].play_order if len(self) else self.play_order) + 1
         self.append(
@@ -119,12 +146,12 @@ class TOC(list):
         )
         return self[-1]
 
-    def top_level_items(self):
+    def top_level_items(self) -> Iterator[TOC]:
         for item in self:
             if item.text is not None:
                 yield item
 
-    def depth(self):
+    def depth(self) -> int:
         depth = 1
         for obj in self:
             c = obj.depth()
@@ -132,14 +159,14 @@ class TOC(list):
                 depth = c + 1
         return depth
 
-    def flat(self):
+    def flat(self) -> Iterator[TOC]:
         "Depth first iteration over the tree rooted at self"
         yield self
         for obj in self:
             yield from obj.flat()
 
     @property
-    def abspath(self):
+    def abspath(self) -> str | None:
         "Return the file this toc entry points to as a absolute path to a file on the system."
 
         if self.href is None:
@@ -149,7 +176,7 @@ class TOC(list):
             path = os.path.join(self.base_path, path)
         return path
 
-    def read_from_opf(self, opfreader) -> None:
+    def read_from_opf(self, opfreader: LegacyOPFReader) -> None:
         toc = opfreader.soup.find('spine', toc=True)
         if toc is not None:
             toc = toc['toc']
@@ -180,9 +207,9 @@ class TOC(list):
             else:
                 path = opfreader.manifest.item(toc.lower())
                 path = getattr(path, 'path', path)
-                if path and os.access(path, os.R_OK):
+                if path and os.access(path, os.R_OK):  # ty: ignore[invalid-argument-type] path is the path of the manifest item
                     try:
-                        self.read_ncx_toc(path)
+                        self.read_ncx_toc(path)  # ty: ignore[invalid-argument-type]
                     except Exception as err:
                         print('WARNING: Invalid NCX file:', err)
                     return
@@ -192,7 +219,7 @@ class TOC(list):
                     toc = m[0]
                     self.read_ncx_toc(toc)
 
-    def read_ncx_toc(self, toc, root=None) -> None:
+    def read_ncx_toc(self, toc: str, root: _Element | None = None) -> None:
         self.base_path = os.path.dirname(toc)
         if root is None:
             with open(toc, 'rb') as f:
@@ -201,7 +228,7 @@ class TOC(list):
         xpn = {'re': 'http://exslt.org/regular-expressions'}
         XPath = functools.partial(etree.XPath, namespaces=xpn)
 
-        def get_attr(node, default=None, attr='playorder'):
+        def get_attr(node: _Element, default: str | int | None = None, attr: str = 'playorder') -> str | int | None:
             for name, val in node.attrib.items():
                 if name and val and name.lower().endswith(attr):
                     return val
@@ -212,9 +239,9 @@ class TOC(list):
         content_path = XPath('./*[re:match(local-name(), "content$", "i")]')
         np_path = XPath('./*[re:match(local-name(), "navpoint$", "i")]')
 
-        def process_navpoint(np, dest) -> None:
+        def process_navpoint(np: _Element, dest: TOC) -> None:
             try:
-                play_order = int(get_attr(np, 1))
+                play_order = int(get_attr(np, 1))  # ty: ignore[invalid-argument-type] get_attr() never returns None here
             except Exception:
                 play_order = 1
             href = fragment = text = None
@@ -245,7 +272,7 @@ class TOC(list):
         for child in np_path(nm):
             process_navpoint(child, self)
 
-    def read_html_toc(self, toc) -> None:
+    def read_html_toc(self, toc: str) -> None:
         self.base_path = os.path.dirname(toc)
         with open(toc, 'rb') as f:
             parsed_toc = parse_html_toc(f.read())
@@ -258,7 +285,7 @@ class TOC(list):
             if add:
                 self.add_item(href, fragment, txt)
 
-    def render(self, stream, uid) -> None:
+    def render(self, stream: IO[bytes], uid: object) -> None:
         root = E.ncx(
             E.head(
                 E.meta(name='dtb:uid', content=str(uid)),
@@ -272,9 +299,9 @@ class TOC(list):
         navmap = E.navMap()
         root.append(navmap)
         root.set('{http://www.w3.org/XML/1998/namespace}lang', 'en')
-        c = Counter()
+        c: Counter[int] = Counter()
 
-        def navpoint(parent, np) -> None:
+        def navpoint(parent: _Element, np: TOC) -> None:
             text = np.text
             if not text:
                 text = ''

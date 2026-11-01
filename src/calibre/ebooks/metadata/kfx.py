@@ -8,6 +8,7 @@ import re
 import struct
 import sys
 from collections import defaultdict
+from typing import IO, TYPE_CHECKING, Literal, cast, overload
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.mobi.utils import decint
@@ -17,6 +18,13 @@ from calibre.utils.date import parse_only_date
 from calibre.utils.imghdr import identify
 from calibre.utils.localization import _, canonicalize_lang
 from polyglot.binary import as_base64_bytes, from_base64_bytes
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+# Values produced by decoding ION data
+type IonValue = bool | int | bytes | str | list[IonValue] | tuple[IonValue, ...] | dict[bytes, IonValue] | None
+type KFXMetadata = defaultdict[str, list[str]]
 
 
 class InvalidKFX(ValueError):
@@ -59,12 +67,13 @@ METADATA_PROPERTIES = {
 COVER_KEY = 'cover_image_base64'
 
 
-def hexs(string, sep=' '):
+def hexs(string: bytes | str, sep: str = ' ') -> str:
+    vals: bytearray | map[int]
     if isinstance(string, bytes):
-        string = bytearray(string)
+        vals = bytearray(string)
     else:
-        string = map(ord, string)
-    return sep.join(f'{b:02x}' for b in string)
+        vals = map(ord, string)
+    return sep.join(f'{b:02x}' for b in vals)
 
 
 class PackedData:
@@ -72,29 +81,37 @@ class PackedData:
     Simplify unpacking of packed binary data structures
     """
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: bytes) -> None:
         self.buffer = data
         self.offset = 0
 
-    def unpack_one(self, fmt, advance=True):
+    @overload
+    def unpack_one(self, fmt: Literal['4s'], advance: bool = True) -> bytes: ...
+    @overload
+    def unpack_one(self, fmt: str, advance: bool = True) -> int: ...
+    def unpack_one(self, fmt: str, advance: bool = True) -> int | bytes:
         return self.unpack_multi(fmt, advance)[0]
 
-    def unpack_multi(self, fmt, advance=True):
-        fmt = fmt.encode('ascii')
-        result = struct.unpack_from(fmt, self.buffer, self.offset)
+    @overload
+    def unpack_multi(self, fmt: Literal['4s'], advance: bool = True) -> tuple[bytes]: ...
+    @overload
+    def unpack_multi(self, fmt: str, advance: bool = True) -> tuple[int, ...]: ...
+    def unpack_multi(self, fmt: str, advance: bool = True) -> tuple[int | bytes, ...]:
+        bfmt = fmt.encode('ascii')
+        result = struct.unpack_from(bfmt, self.buffer, self.offset)
         if advance:
-            self.advance(struct.calcsize(fmt))
+            self.advance(struct.calcsize(bfmt))
         return result
 
-    def extract(self, size):
+    def extract(self, size: int) -> bytes:
         data = self.buffer[self.offset : self.offset + size]
         self.advance(size)
         return data
 
-    def advance(self, size) -> None:
+    def advance(self, size: int) -> None:
         self.offset += size
 
-    def remaining(self):
+    def remaining(self) -> int:
         return len(self.buffer) - self.offset
 
 
@@ -103,7 +120,7 @@ class PackedBlock(PackedData):
     Common header structure of container and entity blocks
     """
 
-    def __init__(self, data, magic) -> None:
+    def __init__(self, data: bytes, magic: bytes) -> None:
         PackedData.__init__(self, data)
 
         self.magic = self.unpack_one('4s')
@@ -119,20 +136,20 @@ class Container(PackedBlock):
     Container file containing data entities
     """
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: bytes) -> None:
         self.data = data
         PackedBlock.__init__(self, data, CONTAINER_MAGIC)
 
         # Unknown data
         self.advance(8)
-        self.entities = []
+        self.entities: list[Entity] = []
 
         while self.unpack_one('4s', advance=False) != ION_MAGIC:
             entity_id, entity_type, entity_offset, entity_len = self.unpack_multi('<LLQQ')
             entity_start = self.header_len + entity_offset
             self.entities.append(Entity(self.data[entity_start : entity_start + entity_len], entity_type, entity_id))
 
-    def decode(self):
+    def decode(self) -> list[tuple[bytes, bytes, IonValue]]:
         return [entity.decode() for entity in self.entities]
 
 
@@ -141,13 +158,13 @@ class Entity(PackedBlock):
     Data entity inside a container
     """
 
-    def __init__(self, data, entity_type, entity_id) -> None:
+    def __init__(self, data: bytes, entity_type: int, entity_id: int) -> None:
         PackedBlock.__init__(self, data, ENTITY_MAGIC)
         self.entity_type = entity_type
         self.entity_id = entity_id
         self.entity_data = data[self.header_len :]
 
-    def decode(self):
+    def decode(self) -> tuple[bytes, bytes, IonValue]:
         if PackedData(self.entity_data).unpack_one('4s') == ION_MAGIC:
             entity_value = PackedIon(self.entity_data).decode()
         else:
@@ -161,16 +178,16 @@ class PackedIon(PackedData):
     Packed structured binary data format used by KFX
     """
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: bytes) -> None:
         PackedData.__init__(self, data)
 
-    def decode(self):
+    def decode(self) -> IonValue:
         if self.unpack_one('4s') != ION_MAGIC:
             raise Exception('ION marker missing at start of data')
 
         return self.unpack_typed_value()
 
-    def unpack_typed_value(self):
+    def unpack_typed_value(self) -> IonValue:
         cmd = self.unpack_one('B')
 
         data_type = cmd >> 4
@@ -224,7 +241,7 @@ class PackedIon(PackedData):
         self.advance(data_len)
         return None
 
-    def unpack_number(self):
+    def unpack_number(self) -> int:
         # variable length numbers, MSB first, 7 bits per byte, last byte is
         # flagged by MSB set
         raw = self.buffer[self.offset : self.offset + 10]
@@ -232,37 +249,40 @@ class PackedIon(PackedData):
         self.advance(consumed)
         return number
 
-    def unpack_unsigned_int(self, length):
+    def unpack_unsigned_int(self, length: int) -> int:
         # unsigned big-endian (MSB first)
         return struct.unpack_from(b'>Q', b'\0' * (8 - length) + self.extract(length))[0]
 
 
-def property_name(property_number) -> bytes:
+def property_name(property_number: int) -> bytes:
     # This should be changed to translate property numbers to the proper
     # strings using a symbol table
     return b'P%d' % property_number
 
 
-def extract_metadata(container_data):
-    metadata = defaultdict(list)
+def extract_metadata(container_data: Iterable[tuple[bytes, bytes, IonValue]]) -> KFXMetadata:
+    metadata: KFXMetadata = defaultdict(list)
 
     # locate book metadata within the container data structures
 
-    metadata_entity = {}
+    metadata_entity: dict[bytes, str] = {}
 
     for entity_type, entity_id, entity_value in container_data:
         if entity_type == PROP_METADATA:
-            metadata_entity = entity_value
+            # a mapping of property name to value
+            metadata_entity = cast('dict[bytes, str]', entity_value)
 
         elif entity_type == PROP_METADATA2:
             if entity_value is not None:
-                for value1 in entity_value[PROP_METADATA3]:
+                # {P491: [{P258: [{P492: key, P307: value}, ...]}, ...]}
+                metadata2 = cast('dict[bytes, list[dict[bytes, list[dict[bytes, str]]]]]', entity_value)
+                for value1 in metadata2[PROP_METADATA3]:
                     for meta in value1[PROP_METADATA]:
                         metadata[meta[PROP_METADATA_KEY]].append(meta[PROP_METADATA_VALUE])
 
         elif entity_type == PROP_IMAGE and COVER_KEY not in metadata:
             # assume first image is the cover
-            metadata[COVER_KEY] = entity_value
+            metadata[COVER_KEY] = entity_value  # ty: ignore[invalid-assignment] the cover is stored as base64 bytes not a list
 
     for key, value in metadata_entity.items():
         if key in METADATA_PROPERTIES and METADATA_PROPERTIES[key] not in metadata:
@@ -271,35 +291,40 @@ def extract_metadata(container_data):
     return metadata
 
 
-def dump_metadata(m) -> None:
-    d = dict(m)
+def dump_metadata(m: KFXMetadata) -> None:
+    d: dict[str, object] = dict(m)
     d[COVER_KEY] = bool(d.get(COVER_KEY))
     from pprint import pprint
 
     pprint(d)
 
 
-def read_book_key_kfx(stream, read_cover=True):
+def read_book_key_kfx(stream: IO[bytes], read_cover: bool = True) -> tuple[str, str]:
     "Read the metadata.kfx file that is found in the sdr book folder for KFX files"
     c = Container(stream.read())
     m = extract_metadata(c.decode())
 
-    def val(x):
+    def val(x: str) -> str:
         return m[x][0] if x in m else ''
 
     return (val('content_id') or val('ASIN')), val('cde_content_type')
 
 
-def read_metadata_kfx(stream, read_cover=True):
+def read_metadata_kfx(stream: IO[bytes], read_cover: bool = True) -> Metadata:
     "Read the metadata.kfx file that is found in the sdr book folder for KFX files"
     c = Container(stream.read())
     m = extract_metadata(c.decode())
     # dump_metadata(m)
 
-    def has(x):
+    def has(x: str) -> list[str] | str:
         return m[x] and m[x][0]
 
-    def get(x, single=True):
+    @overload
+    def get(x: str, single: Literal[True] = True) -> str: ...
+    @overload
+    def get(x: str, single: Literal[False]) -> list[str]: ...
+    def get(x: str, single: bool = True) -> str | list[str]:
+        ans: str | list[str]
         ans = m[x]
         if single:
             ans = clean_xml_chars(ans[0]) if ans else ''
@@ -311,14 +336,14 @@ def read_metadata_kfx(stream, read_cover=True):
     authors = get('author', False) or [_('Unknown')]
     auth_pat = re.compile(r'([^,]+?)\s*,\s+([^,]+)$')
 
-    def fix_author(x):
+    def fix_author(x: str) -> str:
         if tweaks['author_sort_copy_method'] != 'copy':
             m = auth_pat.match(x.strip())
             if m is not None:
                 return m.group(2) + ' ' + m.group(1)
         return x
 
-    unique_authors = []  # remove duplicates while retaining order
+    unique_authors: list[str] = []  # remove duplicates while retaining order
     for f in [fix_author(x) for x in authors]:
         if f not in unique_authors:
             unique_authors.append(f)

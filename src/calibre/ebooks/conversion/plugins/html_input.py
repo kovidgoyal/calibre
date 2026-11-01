@@ -6,6 +6,7 @@ import re
 import tempfile
 from contextlib import suppress
 from functools import partial
+from typing import IO, TYPE_CHECKING
 from urllib.parse import quote
 
 from calibre.constants import filesystem_encoding, isbsd, islinux
@@ -15,8 +16,15 @@ from calibre.utils.imghdr import what
 from calibre.utils.localization import _, __, get_lang
 from polyglot.builtins import as_unicode
 
+if TYPE_CHECKING:
+    from optparse import Values
 
-def sanitize_file_name(x):
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
+
+
+def sanitize_file_name(x: str) -> str:
     ans = re.sub(r'\s+', ' ', ascii_filename(x))
     for ch in '?&=;#/\\':
         ans = ans.replace(ch, '_')
@@ -77,11 +85,11 @@ class HTMLInput(InputFormatPlugin):
         ),
     }
 
-    def set_root_dir_of_input(self, basedir) -> None:
+    def set_root_dir_of_input(self, basedir: str) -> None:
         # realpath so /var and /private/var compare equal on macOS
         self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(os.path.realpath(os.path.abspath(basedir)))).rstrip(os.sep) + os.sep)
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
         opts = options
         self._is_case_sensitive = None
         basedir = os.getcwd()
@@ -115,32 +123,35 @@ class HTMLInput(InputFormatPlugin):
 
         return create_oebbook(log, stream.name, opts, encoding=opts.input_encoding)
 
-    def is_case_sensitive(self, path):
-        if getattr(self, '_is_case_sensitive', None) is not None:
-            return self._is_case_sensitive
+    def is_case_sensitive(self, path: str) -> bool:
+        cached = getattr(self, '_is_case_sensitive', None)
+        if cached is not None:
+            return cached
         if not path or not os.path.exists(path):
             return islinux or isbsd
         self._is_case_sensitive = not (os.path.exists(path.lower()) and os.path.exists(path.upper()))
         return self._is_case_sensitive
 
-    def create_oebbook(self, htmlpath, basedir, opts, log, mi):
+    def create_oebbook(self, htmlpath: str, basedir: str, opts: Values, log: Log, mi: Metadata) -> OEBBook:
         import logging
         import uuid
 
         import css_parser
+        from lxml import etree
 
         from calibre import guess_type
         from calibre.ebooks.conversion.plumber import create_oebbook
         from calibre.ebooks.html.input import get_filelist
         from calibre.ebooks.metadata import string_to_authors
-        from calibre.ebooks.oeb.base import BINARY_MIME, OEB_STYLES, DirContainer, rewrite_links, urldefrag, urlnormalize, urlquote, xpath
+        from calibre.ebooks.oeb.base import BINARY_MIME, OEB_STYLES, DirContainer, is_str_list, rewrite_links, urldefrag, urlnormalize, urlquote, xpath
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         from calibre.utils.localization import canonicalize_lang
 
         self.opts = opts
         css_parser.log.setLevel(logging.WARNING)
         self.OEB_STYLES = OEB_STYLES
-        oeb = create_oebbook(log, None, opts, self, encoding=opts.input_encoding, populate=False)
+        # reader is unused when populate is False
+        oeb = create_oebbook(log, None, opts, self, encoding=opts.input_encoding, populate=False)  # ty: ignore[invalid-argument-type]
         self.oeb = oeb
 
         metadata = oeb.metadata
@@ -148,7 +159,7 @@ class HTMLInput(InputFormatPlugin):
         if not metadata.language:
             l = canonicalize_lang(getattr(opts, 'language', None))
             is_fallback = not l
-            if is_fallback:
+            if not l:
                 oeb.logger.warn('Language not specified')
                 l = get_lang().replace('_', '-')
             metadata.add('language', l).is_fallback = is_fallback
@@ -208,7 +219,9 @@ class HTMLInput(InputFormatPlugin):
                 item = oeb.manifest.hrefs[href]
             except KeyError:
                 item = oeb.manifest.hrefs[urlnormalize(href)]
-            rewrite_links(item.data, partial(self.resource_adder, base=dpath))
+            root = item.data
+            assert isinstance(root, etree._Element)
+            rewrite_links(root, partial(self.resource_adder, base=dpath))
 
         while self.stylesheets_to_process:
             sheet = self.stylesheets_to_process.pop()
@@ -227,14 +240,19 @@ class HTMLInput(InputFormatPlugin):
             if not item.linear:
                 continue
             html = item.data
-            title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
+            assert isinstance(html, etree._Element)
+            title_parts = xpath(html, '/h:html/h:head/h:title/text()')
+            assert is_str_list(title_parts)
+            title = ''.join(title_parts)
             title = re.sub(r'\s+', ' ', title.strip())
             if title:
                 titles.append(title)
             headers.append('(unlabeled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
                 expr = '/h:html/h:body//h:%s[position()=1]/text()'
-                header = ''.join(xpath(html, expr % tag))
+                header_parts = xpath(html, expr % tag)
+                assert is_str_list(header_parts)
+                header = ''.join(header_parts)
                 header = re.sub(r'\s+', ' ', header.strip())
                 if header:
                     headers[-1] = header
@@ -250,7 +268,7 @@ class HTMLInput(InputFormatPlugin):
         oeb.container = DirContainer(os.getcwd(), oeb.log, ignore_opf=True)
         return oeb
 
-    def link_to_local_path(self, link_, base=None):
+    def link_to_local_path(self, link_: str | bytes, base: str | None = None) -> tuple[str | None, str | None]:
         from calibre.ebooks.html.input import Link
 
         if not isinstance(link_, str):
@@ -283,7 +301,7 @@ class HTMLInput(InputFormatPlugin):
                 return None, None
         return link, frag
 
-    def resource_adder(self, link_, base=None):
+    def resource_adder(self, link_: str, base: str | None = None) -> str | None:
         from urllib.parse import quote
 
         link, frag = self.link_to_local_path(link_, base=base)

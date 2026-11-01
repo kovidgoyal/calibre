@@ -4,8 +4,9 @@
 import re
 import sys
 import time
+from collections.abc import Callable
 from functools import partial
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, TypedDict, cast
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import set_cover
@@ -21,6 +22,12 @@ from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.utils.localization import _, ngettext
 from calibre.utils.logging import Log
+
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.utils.config import OptionParser
+
+type Report = Callable[[str], object]
 
 
 class Opts(NamedTuple):
@@ -38,6 +45,29 @@ class Opts(NamedTuple):
     add_soft_hyphens: bool = False
     remove_soft_hyphens: bool = False
     download_external_resources: bool = False
+
+
+class PolishActions(TypedDict, total=False):
+    embed: bool
+    subset: bool
+    opf: str | None
+    cover: str | None
+    jacket: bool
+    remove_jacket: bool
+    smarten_punctuation: bool
+    remove_unused_css: bool
+    remove_unused_images: bool
+    compress_images: bool
+    upgrade_book: bool
+    add_soft_hyphens: bool
+    remove_soft_hyphens: bool
+    download_external_resources: bool
+
+
+class GuiPolishData(PolishActions, total=False):
+    files: list[str]
+    metadata: bool
+    do_cover: bool
 
 
 ALL_OPTS = Opts._field_defaults.copy()
@@ -136,7 +166,7 @@ All such resources will be downloaded and added to the book so that the book no 
 }
 
 
-def hfix(name, raw):
+def hfix(name: str, raw: str) -> str:
     if name == 'about':
         return raw.format('')
     raw = raw.replace('\n\n', '__XX__')
@@ -150,7 +180,7 @@ CLI_HELP = {x: hfix(x, re.sub(r'<.*?>', '', y)) for x, y in HELP.items()}
 # }}}
 
 
-def update_metadata(ebook, new_opf) -> None:
+def update_metadata(ebook: Container, new_opf: str) -> None:
     from calibre.ebooks.metadata.opf import get_metadata, set_metadata
 
     with ebook.open(ebook.opf_name, 'r+b') as stream, open(new_opf, 'rb') as ns:
@@ -162,7 +192,7 @@ def update_metadata(ebook, new_opf) -> None:
         stream.write(opfbytes)
 
 
-def download_resources(ebook, report) -> bool:
+def download_resources(ebook: Container, report: Report) -> bool:
     changed = False
     url_to_referrer_map = get_external_resources(ebook)
     if url_to_referrer_map:
@@ -177,7 +207,7 @@ def download_resources(ebook, report) -> bool:
                 report(_('Failed to download some resources, see details below:'))
             else:
                 report(_('Failed to download all resources, see details below:'))
-            report(tb)
+            report(''.join(tb))
         if replacements:
             if replace_resources(ebook, url_to_referrer_map, replacements):
                 changed = True
@@ -186,8 +216,8 @@ def download_resources(ebook, report) -> bool:
     return changed
 
 
-def polish_one(ebook, opts, report, customization=None):
-    def rt(x):
+def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict[str, bool] | None = None) -> bool:
+    def rt(x: str) -> object:
         return report('\n### ' + x)
 
     jacket = None
@@ -314,7 +344,7 @@ def polish_one(ebook, opts, report, customization=None):
     return changed
 
 
-def polish(file_map, opts, log, report) -> None:
+def polish(file_map: dict[str, str], opts: Opts, log: Log, report: Report) -> None:
     st = time.time()
     for inbook, outbook in file_map.items():
         report(_('## Polishing: %s') % (inbook.rpartition('.')[-1].upper()))
@@ -328,16 +358,16 @@ def polish(file_map, opts, log, report) -> None:
 REPORT = '{0} REPORT {0}'.format('-' * 30)
 
 
-def gui_polish(data):
+def gui_polish(data: GuiPolishData) -> str:
     files = data.pop('files')
     if not data.pop('metadata'):
         data.pop('opf')
     if not data.pop('do_cover'):
         data.pop('cover', None)
     file_map = {x: x for x in files}
-    opts = Opts(**data)
+    opts = Opts(**cast('PolishActions', data))  # the pops above leave only Opts fields in data
     log = Log(level=Log.DEBUG)
-    report = []
+    report: list[str] = []
     polish(file_map, opts, log, report.append)
     log('')
     log(REPORT)
@@ -346,14 +376,14 @@ def gui_polish(data):
     return '\n\n'.join(report)
 
 
-def tweak_polish(container, actions, customization=None):
+def tweak_polish(container: Container, actions: PolishActions, customization: dict[str, bool] | None = None) -> tuple[list[str], bool]:
     opts = Opts(**actions)
-    report = []
+    report: list[str] = []
     changed = polish_one(container, opts, report.append, customization=customization)
     return report, changed
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     from calibre.utils.config import OptionParser
 
     USAGE = _('%prog [options] input_file [output_file]\n\n') + re.sub(r'<.*?>', '', CLI_HELP['about'])
@@ -386,7 +416,7 @@ def option_parser():
     return parser
 
 
-def main(args=None) -> None:
+def main(args: list[str] | None = None) -> None:
     parser = option_parser()
     opts, args = parser.parse_args(args or sys.argv[1:])
     log = Log(level=Log.DEBUG if opts.verbose else Log.INFO)
@@ -410,7 +440,7 @@ def main(args=None) -> None:
         popts[k] = getattr(opts, k, None)
 
     popts = Opts(**popts)
-    report = []
+    report: list[str] = []
     if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):
         parser.print_help()
         log.error(_('You must specify at least one action to perform'))

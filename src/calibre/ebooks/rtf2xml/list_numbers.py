@@ -26,10 +26,10 @@ class ListNumbers:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -65,7 +65,7 @@ class ListNumbers:
             'after_list_text': self.__after_list_text_func,
         }
 
-    def __after_ob_func(self, line) -> None:
+    def __after_ob_func(self, line: str) -> None:
         """
         Handle the line immediately after an open bracket.
         Required:
@@ -83,7 +83,7 @@ class ListNumbers:
             self.__write_obj.write(line)
             self.__state = 'default'
 
-    def __after_list_text_func(self, line) -> None:
+    def __after_list_text_func(self, line: str) -> None:
         """
         Look for an open bracket or a line of text, and then print out the
         self.__list_chunk. Print out the line.
@@ -103,7 +103,7 @@ class ListNumbers:
             self.__list_chunk = ''
         self.__write_obj.write(line)
 
-    def __determine_list_type(self, chunk) -> str:
+    def __determine_list_type(self, chunk: str) -> str:
         """
         Determine if the list is ordered or itemized
         """
@@ -126,7 +126,7 @@ class ListNumbers:
         # must be some type of ordered list -- just a guess!
         return 'unordered'
 
-    def __list_text_func(self, line) -> None:
+    def __list_text_func(self, line: str) -> None:
         """
         Handle lines that are part of the list text. If the end of the list
         text is found (the closing bracket matches the self.__list_text_ob),
@@ -144,7 +144,7 @@ class ListNumbers:
         if self.__token_info != 'cw<pf<par-def___':
             self.__list_chunk = self.__list_chunk + line
 
-    def __default_func(self, line) -> None:
+    def __default_func(self, line: str) -> None:
         """
         Handle the lines that are not part of any special state. Look for an
         opening bracket. If an open bracket is found, add this line to a

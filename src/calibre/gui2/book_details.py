@@ -8,7 +8,7 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from math import ceil
 from time import monotonic
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from qt.core import (
     QAction,
@@ -758,7 +758,7 @@ def create_copy_links(menu, data=None):
     if all_links:
         menu.addSeparator()
         all_links.insert(0, '')
-        all_links.insert(0, mi.get('title') + ' - ' + ' & '.join(mi.get('authors')))
+        all_links.insert(0, mi.title + ' - ' + ' & '.join(mi.authors))
         link_action(_('Copy all the above links'), '\n'.join(all_links))
 
 
@@ -1636,7 +1636,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
             if data.author is None:
                 a = self.last_data['authors']
                 assert a is not None
-                url = url_for_book_search(data.where, title=self.last_data['title'], author=a[0])
+                url = url_for_book_search(data.where, title=cast('str', self.last_data['title']), author=a[0])  # title is always a str
             else:
                 url = url_for_author_search(data.where, author=data.author)
             safe_open_url(url)

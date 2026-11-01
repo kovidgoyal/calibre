@@ -31,7 +31,7 @@ class RenderWorker(QThread):
 
     def run(self):
         try:
-            self.lrf = LRFDocument(self.stream)
+            self.lrf = LRFDocument(self.stream)  # ty: ignore[invalid-argument-type] stream is only None after run()
             self.lrf.parse()
             stream = self.stream
             assert stream is not None

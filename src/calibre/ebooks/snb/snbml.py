@@ -6,11 +6,22 @@ Transform OEB content into SNB format
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from optparse import Values
 
-def ProcessFileName(fileName):
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+    from calibre.ebooks.oeb.stylizer import Stylizer
+    from calibre.utils.logging import Log
+
+    type SubItems = Sequence[tuple[str, str | None]]
+
+
+def ProcessFileName(fileName: str) -> str:
     # Flat the path
     fileName = fileName.replace('/', '_').replace(os.sep, '_')
     # Handle bookmark for HTML file
@@ -54,10 +65,10 @@ class SNBMLizer:
     curSubItem = ''
     # curText = [ ]
 
-    def __init__(self, log) -> None:
+    def __init__(self, log: Log) -> None:
         self.log = log
 
-    def extract_content(self, oeb_book, item, subitems, opts):
+    def extract_content(self, oeb_book: OEBBook, item: Manifest.Item, subitems: SubItems, opts: Values) -> dict[str, etree._Element]:
         self.log.info('Converting XHTML to SNBC...')
         self.oeb_book = oeb_book
         self.opts = opts
@@ -65,25 +76,30 @@ class SNBMLizer:
         self.subitems = subitems
         return self.mlize()
 
-    def merge_content(self, old_tree, oeb_book, item, subitems, opts) -> None:
+    def merge_content(self, old_tree: etree._Element, oeb_book: OEBBook, item: Manifest.Item, subitems: SubItems, opts: Values) -> None:
         newTrees = self.extract_content(oeb_book, item, subitems, opts)
         body = old_tree.find('.//body')
         if body is not None:
             for subName in newTrees:
                 newbody = newTrees[subName].find('.//body')
+                assert newbody is not None  # every tree created by mlize() has a body
                 for entity in newbody:
                     body.append(entity)
 
-    def mlize(self):
+    def mlize(self) -> dict[str, etree._Element]:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
 
         output = ['']
-        stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
-        content = etree.tostring(self.item.data.find(XHTML('body')), encoding='unicode')
+        root = self.item.data
+        assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+        stylizer = Stylizer(root, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
+        body = root.find(XHTML('body'))
+        assert body is not None
+        content = etree.tostring(body, encoding='unicode')
         # content = self.remove_newlines(content)
-        trees = {}
+        trees: dict[str, etree._Element] = {}
         for subitem, subtitle in self.subitems:
             snbcTree = etree.Element('snbc')
             snbcHead = etree.SubElement(snbcTree, 'head')
@@ -128,7 +144,7 @@ class SNBMLizer:
 
         return trees
 
-    def remove_newlines(self, text):
+    def remove_newlines(self, text: str) -> str:
         self.log.debug('\tRemove newlines for processing...')
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
@@ -136,7 +152,7 @@ class SNBMLizer:
 
         return text
 
-    def cleanup_text(self, text):
+    def cleanup_text(self, text: str) -> str:
         self.log.debug('\tClean up text...')
         # Replace bad characters.
         text = text.replace('\xc2', '')
@@ -201,12 +217,14 @@ class SNBMLizer:
 
         return text
 
-    def dump_text(self, subitems, elem, stylizer, end='', pre=False, li=''):
+    def dump_text(
+        self, subitems: SubItems, elem: etree._Element, stylizer: Stylizer, end: str = '', pre: bool = False, li: str = ''
+    ) -> list[str] | tuple[list[str], str]:
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, str) or namespace(elem.tag) != XHTML_NS:  # lxml tags are never bytes
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
+            if p is not None and isinstance(p.tag, str) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 

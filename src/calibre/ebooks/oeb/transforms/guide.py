@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
+from lxml import etree
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.oeb.base import OEBBook
 
 # Guide types that are kept by Clean
 KNOWN_GUIDE_TYPES = frozenset((
@@ -32,7 +41,7 @@ CUSTOM_GUIDE_TYPE_PREFIX = 'other.calibre-epub-type-'
 class Clean:
     """Clean up guide, leaving only known values"""
 
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values | OptionValues) -> None:
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
         if 'cover' not in self.oeb.guide:
@@ -54,7 +63,10 @@ class Clean:
                     except KeyError:
                         continue
                     else:
-                        covers.append((self.oeb.guide[x], len(item.data)))
+                        data = item.data
+                        # len() raised TypeError for stylesheets and missing data
+                        assert isinstance(data, (etree._Element, str, bytes))
+                        covers.append((self.oeb.guide[x], len(data)))
 
             covers.sort(key=lambda x: x[1], reverse=True)
             if covers:

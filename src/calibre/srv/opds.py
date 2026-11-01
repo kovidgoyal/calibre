@@ -5,7 +5,7 @@ import datetime
 import hashlib
 import json
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from collections.abc import Set as AbstractSet
 from functools import lru_cache, partial
 from typing import TYPE_CHECKING, NamedTuple, cast
@@ -335,6 +335,8 @@ def acquisition_extra(mi: Metadata, request_context: RequestContext) -> list[str
 def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
     mi = request_context.db.get_metadata(book_id)
     extra = acquisition_extra(mi, request_context)
+    # Cache.get_metadata() always sets these
+    assert mi.last_modified is not None and mi.timestamp is not None
     ans = E.entry(
         TITLE(mi.title),
         E.author(E.name(authors_to_string(mi.authors))),
@@ -355,6 +357,7 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
 
     if mi.formats:
         fm = mi.format_metadata
+        assert isinstance(fm, Mapping)  # set by Cache.get_metadata()
         for fmt in mi.formats:
             fmt = fmt.lower()
             mt = guess_type('a.' + fmt)[0]
@@ -652,6 +655,7 @@ def opds2_category_group_feed(
 
 
 def opds2_metadata(mi: Metadata, request_context: RequestContext) -> dict[str, object]:
+    assert mi.last_modified is not None  # mi is from Cache.get_metadata() which always sets it
     metadata: dict[str, object] = {
         '@type': 'http://schema.org/Book',
         'title': mi.title,

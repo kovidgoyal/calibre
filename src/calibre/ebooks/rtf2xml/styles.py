@@ -26,10 +26,10 @@ class Styles:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -267,7 +267,7 @@ class Styles:
         self.__tab_type = 'left'
         self.__leader_found = 0
 
-    def __in_individual_style_func(self, line) -> None:
+    def __in_individual_style_func(self, line: str) -> None:
         """
         Required:
             line
@@ -313,7 +313,7 @@ class Styles:
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
 
-    def __tab_stop_func(self, line) -> None:
+    def __tab_stop_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -337,7 +337,7 @@ class Styles:
         self.__tab_type = 'left'
         self.__leader_found = 0
 
-    def __tab_type_func(self, line) -> None:
+    def __tab_type_func(self, line: str) -> None:
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -345,7 +345,7 @@ class Styles:
             msg = f'no entry for {self.__token_info}\n'
             raise self.__bug_handler(msg)
 
-    def __tab_leader_func(self, line) -> None:
+    def __tab_leader_func(self, line: str) -> None:
         """
         Requires:
             line --line to parse
@@ -369,7 +369,7 @@ class Styles:
             msg = f'no entry for {self.__token_info}\n'
             raise self.__bug_handler(msg)
 
-    def __tab_bar_func(self, line) -> None:
+    def __tab_bar_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -389,7 +389,7 @@ class Styles:
             self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
-    def __enter_dict_entry(self, att, value) -> None:
+    def __enter_dict_entry(self, att: str, value: str) -> None:
         '''
         Required:
             att -- the attribute
@@ -406,7 +406,7 @@ class Styles:
         except KeyError:
             self.__add_dict_entry(att, value)
 
-    def __add_dict_entry(self, att, value) -> None:
+    def __add_dict_entry(self, att: str, value: str) -> None:
         """
         Required:
             att --the attribute
@@ -435,7 +435,7 @@ class Styles:
         type_dict[self.__styles_num] = smallest_dict
         self.__styles_dict[self.__type_of_style] = type_dict
 
-    def __para_style_func(self, line) -> None:
+    def __para_style_func(self, line: str) -> None:
         '''
         Required:
             line
@@ -453,7 +453,7 @@ class Styles:
         # self.__enter_dict_entry('tabs-decimal', '')
         # self.__enter_dict_entry('tabs-bar', '')
 
-    def __char_style_func(self, line) -> None:
+    def __char_style_func(self, line: str) -> None:
         '''
         Required:
             line
@@ -466,7 +466,7 @@ class Styles:
         self.__type_of_style = 'char'
         self.__styles_num = line[20:-1]
 
-    def __found_beg_ind_style_func(self, line) -> None:
+    def __found_beg_ind_style_func(self, line: str) -> None:
         """
         Required:
             line
@@ -479,7 +479,7 @@ class Styles:
         """
         self.__state = 'in_individual_style'
 
-    def __found_end_ind_style_func(self, line) -> None:
+    def __found_end_ind_style_func(self, line: str) -> None:
         name = self.__text_string[:-1]  # get rid of semicolon
         # add 2005-04-29
         # get rid of space before or after
@@ -487,7 +487,7 @@ class Styles:
         self.__enter_dict_entry('name', name)
         self.__text_string = ''
 
-    def __found_end_styles_table_func(self, line) -> None:
+    def __found_end_styles_table_func(self, line: str) -> None:
         """
         Required:
             line
@@ -571,7 +571,7 @@ class Styles:
                 self.__write_obj.write('\n')
             self.__write_obj.write(f'mi<tg<close_____<{prefix}-styles\n')
 
-    def __found_styles_table_func(self, line) -> None:
+    def __found_styles_table_func(self, line: str) -> None:
         """
         Required:
             line
@@ -582,7 +582,7 @@ class Styles:
         """
         self.__state = 'in_styles_table'
 
-    def __before_styles_func(self, line) -> None:
+    def __before_styles_func(self, line: str) -> None:
         """
         Required:
             line
@@ -599,7 +599,7 @@ class Styles:
         else:
             action(line)
 
-    def __in_styles_func(self, line) -> None:
+    def __in_styles_func(self, line: str) -> None:
         """
         Required:
             line
@@ -615,7 +615,7 @@ class Styles:
         else:
             action(line)
 
-    def __para_style_in_body_func(self, line, type) -> None:
+    def __para_style_in_body_func(self, line: str, type: str | None) -> None:
         '''
         Required:
             line-- the line
@@ -627,6 +627,7 @@ class Styles:
             Extract the number from a line such as "cw<ss<para-style<nu<15".
             Look up that number in the styles dictionary and put a name for a number
         '''
+        assert type is not None  # every __body_dict entry has a type
         if type == 'par':
             prefix = 'para'
         else:
@@ -642,7 +643,7 @@ class Styles:
         else:
             self.__write_obj.write(f'cw<ss<{prefix}_style<nu<not-defined\n')
 
-    def __after_styles_func(self, line) -> None:
+    def __after_styles_func(self, line: str) -> None:
         """
         Required:
             line

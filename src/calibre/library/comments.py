@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import cast
 
 from calibre import prepare_string_for_xml
 from calibre.constants import preferred_encoding
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, Comment, Declaration, NavigableString, ProcessingInstruction
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, Comment, Declaration, NavigableString, ProcessingInstruction, Tag
 from calibre.utils.html2text import html2text
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
@@ -79,6 +80,8 @@ def comments_to_html(comments):
     soup = BeautifulSoup('<div>' + comments + '</div>').find('div')
     result = BeautifulSoup('<div>')
     container = result.find('div')
+    # both documents are created above with a <div> so these always exist
+    assert isinstance(soup, Tag) and isinstance(container, Tag)
     rtc = 0
     open_pTag = False
 
@@ -94,7 +97,7 @@ def comments_to_html(comments):
                 ptc = 0
             pTag.insert(ptc, token)
             ptc += 1
-        elif token.name in inline_tags:
+        elif cast('Tag', token).name in inline_tags:  # CData etc. and NavigableString are handled above
             if not open_pTag:
                 pTag = result.new_tag('p')
                 open_pTag = True

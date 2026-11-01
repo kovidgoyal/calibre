@@ -1,11 +1,19 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre import walk, xml_replace_entities
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    import unittest
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
@@ -30,11 +38,11 @@ MD_EXTENSIONS = {
 TXTZ_FORMATTING_FOR_EXTENSION = {'md': 'markdown', 'markdown': 'markdown', 'textile': 'textile'}
 
 
-def txtz_file_ext(path):
+def txtz_file_ext(path: str) -> str:
     return os.path.splitext(path)[1].lower().lstrip('.')
 
 
-def txtz_formatting_for_extension(file_ext):
+def txtz_formatting_for_extension(file_ext: str) -> str | None:
     return TXTZ_FORMATTING_FOR_EXTENSION.get(file_ext.lower().lstrip('.'))
 
 
@@ -116,7 +124,7 @@ class TXTInput(InputFormatPlugin):
         ),
     }
 
-    def shift_file(self, fname, data):
+    def shift_file(self, fname: str, data: bytes) -> str:
         name, ext = os.path.splitext(fname)
         candidate = os.path.join(self.output_dir, fname)
         c = 0
@@ -128,7 +136,7 @@ class TXTInput(InputFormatPlugin):
             f.write(data)
         return f.name
 
-    def fix_resources(self, html, base_dir):
+    def fix_resources(self, html: str, base_dir: str) -> str:
         from html5_parser import parse
 
         root = parse(html)
@@ -151,7 +159,7 @@ class TXTInput(InputFormatPlugin):
             html = etree.tostring(root, encoding='unicode')
         return html
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
         from calibre.ebooks.chardet import detect
         from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis
         from calibre.ebooks.txt.processor import (
@@ -390,15 +398,18 @@ class TXTInput(InputFormatPlugin):
 
         return oeb
 
-    def postprocess_book(self, oeb, opts, log) -> None:
+    def postprocess_book(self, oeb: OEBBook, opts: Values, log: Log) -> None:
+        from lxml import etree
+
         for item in oeb.spine:
-            if hasattr(item.data, 'xpath'):
-                for title in item.data.xpath('//*[local-name()="title"]'):
+            root = item.data
+            if isinstance(root, etree._Element):
+                for title in root.xpath('//*[local-name()="title"]'):
                     if title.text == _('Unknown'):
                         title.text = self.html_postprocess_title
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TXTInputTest(unittest.TestCase):

@@ -3,6 +3,7 @@
 import io
 import struct
 from compression import zlib
+from typing import IO, TYPE_CHECKING
 
 from PIL import Image
 
@@ -10,23 +11,30 @@ from calibre.constants import __appname__, __version__
 from calibre.ebooks.rb import HEADER, unique_name
 from calibre.ebooks.rb.rbml import RBMLizer
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+    from calibre.ebooks.oeb.base import Metadata as OEBMetadata
+    from calibre.utils.logging import Log
+
 TEXT_RECORD_SIZE = 4096
 
 
 class TocItem:
-    def __init__(self, name, size, flags) -> None:
+    def __init__(self, name: str, size: int, flags: int) -> None:
         self.name = name
         self.size = size
         self.flags = flags
 
 
 class RBWriter:
-    def __init__(self, opts, log) -> None:
+    def __init__(self, opts: Values, log: Log) -> None:
         self.opts = opts
         self.log = log
-        self.name_map = {}
+        self.name_map: dict[str, str] = {}
 
-    def write_content(self, oeb_book, out_stream, metadata=None) -> None:
+    def write_content(self, oeb_book: OEBBook, out_stream: IO[bytes], metadata: OEBMetadata | None = None) -> None:
         info = [('info.info', self._info_section(metadata))]
         images = self._images(oeb_book.manifest)
         text_size, chunks = self._text(oeb_book)
@@ -90,7 +98,7 @@ class RBWriter:
         out_stream.seek(0x1C)
         out_stream.write(struct.pack('<I', total_size))
 
-    def _text(self, oeb_book):
+    def _text(self, oeb_book: OEBBook) -> tuple[int, list[bytes]]:
         rbmlizer = RBMLizer(self.log, name_map=self.name_map)
         text = rbmlizer.extract_content(oeb_book, self.opts).encode('cp1252', 'xmlcharrefreplace')
         size = len(text)
@@ -102,7 +110,7 @@ class RBWriter:
 
         return size, pages
 
-    def _images(self, manifest):
+    def _images(self, manifest: Manifest) -> list[tuple[str, bytes]]:
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         images = []
@@ -113,7 +121,9 @@ class RBWriter:
                 try:
                     data = b''
 
-                    im = Image.open(io.BytesIO(item.data)).convert('L')
+                    idata = item.data
+                    assert isinstance(idata, bytes)  # raster images are unparsed bytes, errors are handled below
+                    im = Image.open(io.BytesIO(idata)).convert('L')
                     data = io.BytesIO()
                     im.save(data, 'PNG')
                     data = data.getvalue()
@@ -129,7 +139,7 @@ class RBWriter:
 
         return images
 
-    def _info_section(self, metadata):
+    def _info_section(self, metadata: OEBMetadata | None) -> str:
         text = 'TYPE=2\n'
         if metadata:
             if len(metadata.title) >= 1:

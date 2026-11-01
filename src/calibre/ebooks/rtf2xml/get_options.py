@@ -16,29 +16,34 @@ Gets options for main part of script
 
 import os
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.rtf2xml import configure_txt, options_trem
+
+if TYPE_CHECKING:
+    from calibre.ebooks.rtf2xml.configure_txt import ConfigDict
+    from calibre.ebooks.rtf2xml.options_trem import OptionSpecs
 
 
 class GetOptions:
     def __init__(
         self,
-        system_arguments,
-        rtf_dir,
-        bug_handler,
-        configuration_file=None,
+        system_arguments: list[str],
+        rtf_dir: str,
+        bug_handler: type[Exception],
+        configuration_file: str | None = None,
     ) -> None:
         self.__system_arguments = system_arguments
         self.__rtf_dir = rtf_dir
         self.__configuration_file = configuration_file
         self.__bug_handler = bug_handler
 
-    def get_options(self):
+    def get_options(self) -> ConfigDict:
         """
         return valid, output, help, show_warnings, debug, file
         """
         return_options = self.__get_config_options()
-        options_dict = {
+        options_dict: OptionSpecs = {
             'dir': [1],
             'help': [0, 'h'],
             'show-warnings': [0],
@@ -79,6 +84,7 @@ class GetOptions:
         if options == 0:
             return_options['valid'] = 0
             return return_options
+        assert arguments != 0  # parse_options() returns (0, 0) on failure
         the_keys = options.keys()
         return_options['help'] = 0
         if 'help' in the_keys:
@@ -95,7 +101,7 @@ class GetOptions:
         # unused
         return_options['out-dir'] = 0
         if 'dir' in the_keys:
-            out_dir = options['dir']
+            out_dir = cast('str', options['dir'])  # options taking an argument are always paired with it
             if not os.path.isdir(out_dir):
                 sys.stderr.write('Your output must be an existing directory.\n')
                 return_options['valid'] = 0
@@ -200,6 +206,7 @@ class GetOptions:
         elif len(arguments) > 1:
             sys.stderr.write('You can only convert one file at a time.\n')
             return_options['valid'] = 0
+            return return_options
         else:
             return_options['in-file'] = arguments[0]
         # check for out file
@@ -207,7 +214,8 @@ class GetOptions:
         if smart_output == 'false':
             smart_output = 0
         if smart_output and not return_options['out-file']:
-            in_file = return_options['in-file']
+            in_file = return_options['in-file']  # set from arguments[0] above
+            assert isinstance(in_file, str)
             the_file_name, ext = os.path.splitext(in_file)
             if ext != '.rtf':
                 sys.stderr.write(
@@ -228,7 +236,7 @@ class GetOptions:
             pass
         if 'indent' in the_keys:
             try:
-                value = int(options['indent'])
+                value = int(cast('str', options['indent']))  # options taking an argument are always paired with it
                 return_options['indent'] = value
             except ValueError:
                 sys.stderr.write('--indent must take an integer')
@@ -256,7 +264,7 @@ class GetOptions:
         #         return_options['valid'] = 0
         return return_options
 
-    def __get_config_options(self):
+    def __get_config_options(self) -> ConfigDict:
         configure_obj = configure_txt.Configure(bug_handler=self.__bug_handler, configuration_file=self.__configuration_file)
         options_dict = configure_obj.get_configuration(type='normal')
         if options_dict == 1:

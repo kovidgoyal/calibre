@@ -27,10 +27,10 @@ class Info:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:
@@ -106,7 +106,7 @@ class Info:
             'internalID': 'internal-id-number',
         }
 
-    def __before_info_table_func(self, line) -> None:
+    def __before_info_table_func(self, line: str) -> None:
         """
         Required:
             line -- the line to parse
@@ -120,7 +120,7 @@ class Info:
             self.__state = 'in_info_table'
         self.__write_obj.write(line)
 
-    def __in_info_table_func(self, line) -> None:
+    def __in_info_table_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -141,7 +141,7 @@ class Info:
             else:
                 self.__write_obj.write(line)
 
-    def __found_tag_with_text_func(self, line, tag) -> None:
+    def __found_tag_with_text_func(self, line: str, tag: str | None) -> None:
         """
         Requires:
             line -- line to parse
@@ -156,7 +156,7 @@ class Info:
         self.__tag = tag
         self.__state = 'collect_text'
 
-    def __collect_text_func(self, line) -> None:
+    def __collect_text_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -176,7 +176,7 @@ class Info:
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
 
-    def __found_tag_with_tokens_func(self, line, tag) -> None:
+    def __found_tag_with_tokens_func(self, line: str, tag: str | None) -> None:
         """
         Requires:
             line -- line to parse
@@ -193,7 +193,7 @@ class Info:
         self.__text_string = f'mi<tg<empty-att_<{tag}'
         # mi<tg<empty-att_<page-definition<margin>33\n
 
-    def __collect_tokens_func(self, line) -> None:
+    def __collect_tokens_func(self, line: str) -> None:
         """
         Requires:
             line -- line to parse
@@ -229,11 +229,11 @@ class Info:
             else:
                 self.__text_string += f'<{att_changed}>{value}'
 
-    def __single_field_func(self, line, tag) -> None:
+    def __single_field_func(self, line: str, tag: str | None) -> None:
         value = line[20:-1]
         self.__write_obj.write(f'mi<tg<empty-att_<{tag}<{tag}>{value}\n')
 
-    def __after_info_table_func(self, line) -> None:
+    def __after_info_table_func(self, line: str) -> None:
         """
         Requires:
             line --line to write to file

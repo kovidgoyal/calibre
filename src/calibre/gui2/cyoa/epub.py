@@ -22,6 +22,8 @@ from contextlib import suppress
 from html import escape
 from typing import TYPE_CHECKING
 
+from lxml import etree
+
 from calibre import force_unicode
 from calibre.ai.cyoa import PROTAGONIST_ID, CharacterState, GameState
 from calibre.ai.utils import ContentType, response_to_html
@@ -265,6 +267,7 @@ class BookBuilder:
         html = XHTML_TEMPLATE.format(lang=escape(self.lang, True), title=escape(title), css=escape(self.href(CSS_NAME, name), True), etype=etype, body=body)
         self.container.add_file(name, html.encode('utf-8'), media_type=XHTML_MIME)
         root = self.container.parsed(name)
+        assert isinstance(root, etree._Element)
         pretty_html_tree(self.container, root)
         self.container.dirty(name)
         self.spine.append(name)
@@ -554,12 +557,14 @@ def find_tests() -> TestSuite:  # {{{
             with tempfile.TemporaryDirectory() as tdir:
                 c = self.export(state, tdir)
                 prologue = c.raw_data(PROLOGUE_NAME)
+                assert isinstance(prologue, str)  # HTML files are decoded
                 self.assertIn('<b>perpetual</b>', prologue.replace('<strong>', '<b>').replace('</strong>', '</b>'))
                 cast = c.raw_data(CAST_NAME)
                 for name in ('Ada', 'Marlo'):
                     self.assertIn(name, cast)
                 self.assertIn(_('The character you play'), cast)
                 chapter = c.raw_data('text/chapter-001.xhtml')
+                assert isinstance(chapter, str)  # HTML files are decoded
                 self.assertIn('Turn 1: the mist', chapter)
                 self.assertIn('Take step 2', chapter)  # the action that led to the second turn
                 # The divider separates the turns of a chapter, so a chapter

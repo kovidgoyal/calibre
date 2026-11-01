@@ -8,12 +8,20 @@ import os
 import re
 import struct
 from compression import zlib
+from typing import IO, TYPE_CHECKING
 
 from calibre import CurrentDir
 from calibre.ebooks import DRMError
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.metadata.toc import TOC
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
 from calibre.utils.localization import _
 
 
@@ -25,7 +33,7 @@ class HeaderRecord:
     defined in the file header.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         (self.compression,) = struct.unpack('>H', raw[0:2])
         (self.non_text_offset,) = struct.unpack('>H', raw[12:14])
         (self.chapter_count,) = struct.unpack('>H', raw[14:16])
@@ -49,7 +57,7 @@ class HeaderRecord:
 
 
 class Reader132(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         self.log = log
         self.encoding = options.input_encoding
 
@@ -71,18 +79,20 @@ class Reader132(FormatReader):
 
         self.mi = get_metadata(stream, False)
 
-    def section_data(self, number):
+    def section_data(self, number: int) -> bytes:
         return self.sections[number]
 
-    def decompress_text(self, number):
+    def decompress_text(self, number: int) -> str:
         if self.header_record.compression == 2:
             from calibre.ebooks.compression.palmdoc import decompress_doc
 
             return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         if self.header_record.compression == 10:
             return zlib.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
+        # Unreachable: __init__ rejects any other compression value
+        raise EreaderError(f'Unknown book compression {self.header_record.compression}.')
 
-    def get_image(self, number):
+    def get_image(self, number: int) -> tuple[str, bytes]:
         if number < self.header_record.image_data_offset or number > self.header_record.image_data_offset + self.header_record.num_image_pages - 1:
             return 'empty', b''
         data = self.section_data(number)
@@ -90,7 +100,7 @@ class Reader132(FormatReader):
         img = data[62:]
         return name, img
 
-    def image_dest(self, name, cwd):
+    def image_dest(self, name: str, cwd: str) -> str:
         base = os.path.abspath(cwd)
         if not base.endswith(os.sep):
             base += os.sep
@@ -99,7 +109,7 @@ class Reader132(FormatReader):
             ans = ''
         return ans
 
-    def get_text_page(self, number):
+    def get_text_page(self, number: int) -> str:
         """
         Only palmdoc and zlib compressed are supported. The text is
         assumed to be encoded as Windows-1252. The encoding is part of
@@ -110,7 +120,7 @@ class Reader132(FormatReader):
 
         return self.decompress_text(number)
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str:
         from calibre.ebooks.pml.pmlconverter import PML_HTMLizer, footnote_to_html, sidebar_to_html
 
         output_dir = os.path.abspath(output_dir)
@@ -179,10 +189,11 @@ class Reader132(FormatReader):
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         images = []
-        with CurrentDir(os.path.join(output_dir, 'images/')) as cwd:
+        images_dir = os.path.abspath(os.path.join(output_dir, 'images/'))
+        with CurrentDir(images_dir):
             for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
-                if dest := self.image_dest(name, cwd):
+                if dest := self.image_dest(name, images_dir):
                     images.append(name)
                     with open(dest, 'wb') as imgf:
                         self.log.debug(f'Writing image {name} to images/')
@@ -192,7 +203,7 @@ class Reader132(FormatReader):
 
         return opf_path
 
-    def create_opf(self, output_dir, images, toc):
+    def create_opf(self, output_dir: str, images: list[str], toc: TOC) -> str:
         with CurrentDir(output_dir):
             if 'cover.png' in images:
                 self.mi.cover = os.path.join('images', 'cover.png')
@@ -213,7 +224,7 @@ class Reader132(FormatReader):
 
         return os.path.join(output_dir, 'metadata.opf')
 
-    def dump_pml(self):
+    def dump_pml(self) -> str:
         """
         This is primarily used for debugging and 3rd party tools to
         get the plm markup that comprises the text in the file.
@@ -225,7 +236,7 @@ class Reader132(FormatReader):
 
         return pml
 
-    def dump_images(self, output_dir) -> None:
+    def dump_images(self, output_dir: str) -> None:
         """
         This is primarily used for debugging and 3rd party tools to
         get the images in the file.
@@ -233,9 +244,10 @@ class Reader132(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        with CurrentDir(output_dir) as cwd:
+        output_dir = os.path.abspath(output_dir)
+        with CurrentDir(output_dir):
             for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
-                if dest := self.image_dest(name, cwd):
+                if dest := self.image_dest(name, output_dir):
                     with open(dest, 'wb') as imgf:
                         imgf.write(img)

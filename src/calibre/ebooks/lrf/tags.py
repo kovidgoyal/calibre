@@ -1,7 +1,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import struct
-from typing import Never
+from typing import IO, Never
 
 from calibre.ebooks.lrf import LRFParseError
 
@@ -182,7 +182,7 @@ class Tag:
         if temp is not None:
             name_map[key] = temp
 
-    def __init__(self, stream) -> None:
+    def __init__(self, stream: IO[bytes]) -> None:
         self.offset = stream.tell()
         tag_id = struct.unpack('<BB', stream.read(2))
         if tag_id[1] != 0xF5:
@@ -207,48 +207,48 @@ class Tag:
         return s
 
     @property
-    def byte(self):
+    def byte(self) -> int:
         if len(self.contents) != 1:
             raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<B', self.contents)[0]
 
     @property
-    def word(self):
+    def word(self) -> int:
         if len(self.contents) != 2:
             raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<H', self.contents)[0]
 
     @property
-    def sword(self):
+    def sword(self) -> int:
         if len(self.contents) != 2:
             raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<h', self.contents)[0]
 
     @property
-    def dword(self):
+    def dword(self) -> int:
         if len(self.contents) != 4:
             raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<I', self.contents)[0]
 
-    def dummy_parser(self, stream) -> Never:
+    def dummy_parser(self, stream: IO[bytes]) -> Never:
         raise LRFParseError(f'Unknown tag at {stream.tell():08X}')
 
     @classmethod
-    def string_parser(self, stream):
+    def string_parser(self, stream: IO[bytes]) -> str:
         size = struct.unpack('<H', stream.read(2))[0]
         return str(stream.read(size), 'utf_16')
 
-    def type_one_parser(self, stream):
+    def type_one_parser(self, stream: IO[bytes]) -> list[int]:
         cnt = struct.unpack('<H', stream.read(2))[0]
-        res = []
+        res: list[int] = []
         while cnt > 0:
             res.append(struct.unpack('<I', stream.read(4))[0])
             cnt -= 1
         return res
 
-    def tag_78_parser(self, stream):
+    def tag_78_parser(self, stream: IO[bytes]) -> list[int | str | bytes]:
         pos = stream.tell()
-        res = []
+        res: list[int | str | bytes] = []
         res.append(struct.unpack('<I', stream.read(4))[0])
         tag = Tag(stream)
         if tag.id != 0xF516:

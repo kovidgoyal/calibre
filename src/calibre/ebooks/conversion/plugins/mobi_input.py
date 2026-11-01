@@ -1,9 +1,15 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.utils.logging import Log
 
 
 class MOBIInput(InputFormatPlugin):
@@ -13,7 +19,7 @@ class MOBIInput(InputFormatPlugin):
     file_types = {'mobi', 'prc', 'azw', 'azw3', 'pobi'}
     commit_name = 'mobi_input'
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
         self.is_kf8 = False
         self.mobi_is_joint = False
 

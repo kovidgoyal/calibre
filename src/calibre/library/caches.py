@@ -8,6 +8,7 @@ from contextlib import suppress
 from datetime import timedelta
 from itertools import repeat
 from threading import Thread
+from typing import cast
 
 from calibre import force_unicode, prints
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
@@ -1333,7 +1334,7 @@ class SortKeyGenerator:
                             lang = record[self.lang_idx].partition(',')[0]
                         except AttributeError, ValueError, KeyError, IndexError, TypeError:
                             lang = None
-                        val = title_sort(val, order='library_order', lang=lang)
+                        val = title_sort(cast('str', val), order='library_order', lang=lang)  # series names are str
                     sidx_fm = self.field_metadata[name + '_index']
                     sidx = record[sidx_fm['rec_index']]
                     val = (self.string_sort_key(val), sidx)

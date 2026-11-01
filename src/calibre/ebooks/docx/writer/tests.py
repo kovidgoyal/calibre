@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+from typing import TYPE_CHECKING, cast
 from zipfile import ZipFile
 
 from html5_parser import parse
@@ -17,6 +18,12 @@ from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_image_path as I
 
+if TYPE_CHECKING:
+    from calibre.ebooks.docx.writer.links import Link
+    from calibre.ebooks.docx.writer.styles import DescendantTextStyle, StylesManager, TextStyle
+    from calibre.ebooks.oeb.stylizer import Style
+    from calibre.utils.logging import Log
+
 
 class BaseTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -26,21 +33,22 @@ class BaseTest(unittest.TestCase):
         self.item = SimpleNamespace(abshref=lambda href: href or 'test.html')
         self.body = etree.Element(self.namespace.expand('w:body'))
 
-    def link(self, url='https://example.com', tooltip=None):
-        return self.item, url, tooltip
+    def link(self, url: str = 'https://example.com', tooltip: str | None = None) -> Link:
+        return cast('Link', (self.item, url, tooltip))  # self.item is a duck-typed stand-in for a manifest item
 
-    def block(self):
+    def block(self) -> Block:
         styles = SimpleNamespace(create_block_style=lambda *args, **kwargs: SimpleNamespace(id=None))
         styles.create_text_style = lambda style, **kwargs: style.get('font-weight', 'normal')
         style = {'page-break-before': 'auto', 'page-break-inside': 'auto'}
-        return Block(self.namespace, styles, self.links, etree.Element('p'), style)
+        # duck-typed stand-ins for the styles manager and the CSS style
+        return Block(self.namespace, cast('StylesManager', styles), self.links, etree.Element('p'), cast('Style', style))
 
-    def add_text(self, block, text, link=None, bold=False, lang=None, bookmark=None) -> None:
+    def add_text(self, block: Block, text: str, link: Link | None = None, bold: bool = False, lang: str | None = None, bookmark: str | None = None) -> None:
         style = {'white-space': 'normal', 'font-weight': 'bold' if bold else 'normal'}
-        block.add_text(text, style, link=link, lang=lang, bookmark=bookmark)
-        block.runs[-1].descendant_style = SimpleNamespace(id='Bold' if bold else 'Normal')
+        block.add_text(text, cast('Style', style), link=link, lang=lang, bookmark=bookmark)
+        block.runs[-1].descendant_style = cast('DescendantTextStyle', SimpleNamespace(id='Bold' if bold else 'Normal'))
 
-    def floating_drawing(self):
+    def floating_drawing(self) -> etree._Element:
         ans = self.namespace.makeelement(self.body, 'w:drawing', append=False)
         anchor = self.namespace.makeelement(ans, 'wp:anchor')
         self.namespace.makeelement(anchor, 'wp:docPr')
@@ -48,7 +56,7 @@ class BaseTest(unittest.TestCase):
         self.namespace.makeelement(self.namespace.makeelement(self.namespace.makeelement(graphic_data, 'pic:pic'), 'pic:nvPicPr'), 'pic:cNvPr')
         return ans
 
-    def xpath(self, expression, root=None):
+    def xpath(self, expression: str, root: etree._Element | None = None) -> list:  # XPath results can be elements or strings
         return self.namespace.XPath(expression)(self.body if root is None else root)
 
 
@@ -133,7 +141,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(self.xpath('.//w:bookmarkStart/@w:name'), ['bookmark'])
         self.assertEqual(self.xpath('.//w:bookmarkStart/@w:id'), self.xpath('.//w:bookmarkEnd/@w:id'))
         p = self.namespace.makeelement(self.body, 'w:p')
-        run = TextRun(self.namespace, None, None)
+        run = TextRun(self.namespace, cast('TextStyle', None), cast('etree._Element', None))  # not needed for serialization
         run.add_text('legacy', False, link=link)
         run.serialize(p, self.links)
         self.assertEqual(self.xpath('./w:hyperlink/w:r/w:t/text()', p), ['legacy'])
@@ -185,8 +193,8 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(len(self.xpath('.//wp:docPr/a:hlinkClick')), 2)
 
     def test_unsupported_scheme_is_logged(self) -> None:
-        messages = []
-        self.links.log = SimpleNamespace(warn=messages.append)
+        messages: list[str] = []
+        self.links.log = cast('Log', SimpleNamespace(warn=messages.append))
         block = self.block()
         block.add_image(self.floating_drawing(), link=self.link('mailto:test@example.com'), floating=True)
         block.serialize(self.body)
@@ -199,7 +207,7 @@ class TestHyperlinks(BaseTest):
         for _ in range(2):
             block.add_image(etree.Element(self.namespace.expand('w:drawing')), link=self.link())
         self.add_text(block, 'texte', link, lang='fr')
-        blocks = Blocks(self.namespace, SimpleNamespace(document_lang='en'), self.links)
+        blocks = Blocks(self.namespace, cast('StylesManager', SimpleNamespace(document_lang='en')), self.links)
         blocks.all_blocks.append(block)
         blocks.resolve_language()
         self.assertEqual(block.block_lang, 'fr')
@@ -286,9 +294,9 @@ class TestHyperlinks(BaseTest):
 class TestWhitespace(BaseTest):
     """Non-breaking spaces must survive HTML -> DOCX, see https://bugs.launchpad.net/calibre/+bug/2167710"""
 
-    def texts(self, text, **kw):
+    def texts(self, text: str, white_space: str = 'normal', ignore_leading_whitespace: bool = False) -> list:
         block = self.block()
-        block.add_text(text, {'white-space': kw.pop('white_space', 'normal')}, **kw)
+        block.add_text(text, cast('Style', {'white-space': white_space}), ignore_leading_whitespace=ignore_leading_whitespace)
         block.serialize(self.body)
         return self.xpath('.//w:t/text()')
 
@@ -345,6 +353,70 @@ class TestWhitespace(BaseTest):
             self.assertIn('Trailing: text\xa0', paragraphs)
 
 
-def find_tests():
+class TestStyles(BaseTest):
+    def test_html_docx_html_roundtrip(self) -> None:
+        from calibre.ebooks.conversion.plumber import Plumber
+
+        source = (
+            '<html><head><title>Styles</title></head><body>'
+            '<p>Spaced: <span style="letter-spacing: 2pt">wide</span> text</p>'
+            '<p>Border: <span style="border: 1pt solid red">one</span><span style="border: 1pt solid red; font-weight: bold">two</span> after</p>'
+            '</body></html>'
+        )
+        with TemporaryDirectory() as tdir:
+            base = Path(tdir)
+            html, docx, htmlz = (base / name for name in ('input.html', 'output.docx', 'output.htmlz'))
+            html.write_text(source, encoding='utf-8')
+            plumber = Plumber(str(html), str(docx), DevNull())
+            plumber.merge_ui_recommendations([('docx_no_toc', True, 3), ('docx_no_cover', True, 3)])
+            plumber.run()
+            with ZipFile(docx) as zf:
+                styles = etree.fromstring(zf.read('word/styles.xml'))
+            self.assertIn('40', self.xpath('//w:rPr/w:spacing/@w:val', styles))
+            plumber = Plumber(str(docx), str(htmlz), DevNull())
+            plumber.run()
+            with ZipFile(htmlz) as zf:
+                result = etree.fromstring(zf.read('index.html'))
+            wrappers = result.xpath('//*[local-name()="span" and starts-with(@class, "text_border")]')
+            self.assertEqual(len(wrappers), 1)
+            self.assertEqual(''.join(wrappers[0].itertext()), 'onetwo')
+
+    def test_indent_chars_zero(self) -> None:
+        # w:leftChars="0" next to w:left means use the twips value, as written by Word and calibre
+        from calibre.ebooks.docx.block_styles import ParagraphStyle, read_indent
+
+        w = self.namespace.namespaces['w']
+        ppr = etree.fromstring(f'<w:pPr xmlns:w="{w}"><w:ind w:left="720" w:leftChars="0" w:firstLine="360" w:firstLineChars="0"/></w:pPr>')
+        style = ParagraphStyle(self.namespace)
+        read_indent(ppr, style, self.namespace.XPath, self.namespace.get)
+        self.assertEqual((style.margin_left, style.text_indent), ('36pt', '18pt'))
+        ppr = etree.fromstring(f'<w:pPr xmlns:w="{w}"><w:ind w:left="720" w:leftChars="200"/></w:pPr>')
+        style = ParagraphStyle(self.namespace)
+        read_indent(ppr, style, self.namespace.XPath, self.namespace.get)
+        self.assertEqual(style.margin_left, '2em')
+
+    def test_numbering_overrides(self) -> None:
+        from calibre.ebooks.docx.numbering import Numbering
+        from calibre.ebooks.docx.styles import Styles
+
+        w = self.namespace.namespaces['w']
+        root = etree.fromstring(f'''<w:numbering xmlns:w="{w}">
+        <w:abstractNum w:abstractNumId="0">
+        <w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="decimal"/></w:lvl>
+        <w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="lowerLetter"/></w:lvl>
+        </w:abstractNum>
+        <w:num w:numId="1"><w:abstractNumId w:val="0"/>
+        <w:lvlOverride w:ilvl="0"><w:startOverride w:val="5"/></w:lvlOverride>
+        <w:lvlOverride w:ilvl="1"><w:startOverride w:val="7"/></w:lvlOverride>
+        <w:lvlOverride><w:lvl w:ilvl="2"><w:start w:val="3"/><w:numFmt w:val="upperRoman"/></w:lvl></w:lvlOverride>
+        </w:num></w:numbering>''')
+        numbering = Numbering(self.namespace)
+        styles = cast('Styles', SimpleNamespace(numbering_style_links={}))  # only numbering_style_links is used
+        numbering(root, styles, {})
+        self.assertEqual(numbering.starts['1'], {0: 5, 1: 7, 2: 3})
+        self.assertEqual(numbering.instances['1'].levels[2].fmt, 'upper-roman')
+
+
+def find_tests() -> unittest.TestSuite:
     loader = unittest.defaultTestLoader
-    return unittest.TestSuite(loader.loadTestsFromTestCase(cls) for cls in (TestHyperlinks, TestWhitespace))
+    return unittest.TestSuite(loader.loadTestsFromTestCase(cls) for cls in (TestHyperlinks, TestWhitespace, TestStyles))

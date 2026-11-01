@@ -1,15 +1,30 @@
 """elements.py -- replacements and helpers for ElementTree"""
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from xml.etree.ElementTree import Element
+
+    from _typeshed import SupportsWrite
+
 
 class ElementWriter:
-    def __init__(self, e, header=False, sourceEncoding='ascii', spaceBeforeClose=True, outputEncodingName='UTF-16') -> None:
+    def __init__(
+        self,
+        e: Element,
+        header: bool = False,
+        sourceEncoding: str = 'ascii',
+        spaceBeforeClose: bool = True,
+        outputEncodingName: str = 'UTF-16',
+    ) -> None:
         self.header = header
         self.e = e
         self.sourceEncoding = sourceEncoding
         self.spaceBeforeClose = spaceBeforeClose
         self.outputEncodingName = outputEncodingName
 
-    def _encodeCdata(self, rawText):
+    def _encodeCdata(self, rawText: str | bytes) -> str:
         if isinstance(rawText, bytes):
             rawText = rawText.decode(self.sourceEncoding)
 
@@ -18,7 +33,7 @@ class ElementWriter:
         text = text.replace('>', '&gt;')
         return text
 
-    def _writeAttribute(self, f, name, value) -> None:
+    def _writeAttribute(self, f: SupportsWrite[str], name: str, value: object) -> None:
         f.write(f' {name!s}="')
         if not isinstance(value, (str, bytes)):
             value = str(value)
@@ -27,15 +42,14 @@ class ElementWriter:
         f.write(value)
         f.write('"')
 
-    def _writeText(self, f, rawText) -> None:
+    def _writeText(self, f: SupportsWrite[str], rawText: str | bytes) -> None:
         text = self._encodeCdata(rawText)
         f.write(text)
 
-    def _write(self, f, e) -> None:
+    def _write(self, f: SupportsWrite[str], e: Element) -> None:
         f.write('<' + str(e.tag))
 
-        attributes = e.items()
-        attributes.sort()
+        attributes = sorted(e.items())
         for name, value in attributes:
             self._writeAttribute(f, name, value)
 
@@ -57,16 +71,16 @@ class ElementWriter:
         if e.tail is not None:
             self._writeText(f, e.tail)
 
-    def toString(self):
+    def toString(self) -> str:
         class x:
-            write: object
+            write: Callable[[str], None]
 
-        buffer = []
+        buffer: list[str] = []
         x.write = buffer.append
         self.write(x)
         return ''.join(buffer)
 
-    def write(self, f) -> None:
+    def write(self, f: SupportsWrite[str]) -> None:
         if self.header:
             f.write(f'<?xml version="1.0" encoding="{self.outputEncodingName}"?>\n')
 

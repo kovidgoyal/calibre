@@ -285,7 +285,9 @@ class ImagesPanel(QWidget):
         # many inline SVG images, such as rendered math, in a single file
         elems = self.elements_by_file.get(use.html_name)
         if elems is None:
-            elems = self.elements_by_file[use.html_name] = list(image_elements(self.container.parsed(use.html_name)))
+            root = self.container.parsed(use.html_name)
+            assert isinstance(root, etree._Element)
+            elems = self.elements_by_file[use.html_name] = list(image_elements(root))
         elem = elems[use.index] if use.index < len(elems) else None
         # In case the file has changed since the images were found
         return elem if elem is not None and (elem.tag == IMG) != use.is_svg else None

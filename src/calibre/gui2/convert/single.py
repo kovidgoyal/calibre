@@ -267,7 +267,8 @@ class Config(QDialog):
         assert sel_model is not None
         sel_model.currentChanged.connect(self.current_group_changed)
         try:
-            shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
+            if self.plumber.archive_input_tdir is not None:
+                shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
         except Exception:
             pass
 

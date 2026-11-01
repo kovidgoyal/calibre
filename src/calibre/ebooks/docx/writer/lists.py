@@ -3,6 +3,17 @@
 
 from collections import defaultdict
 from operator import attrgetter
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.docx.names import DOCXNamespace
+    from calibre.ebooks.docx.writer.container import DOCX
+    from calibre.ebooks.docx.writer.from_html import Block
+    from calibre.ebooks.oeb.stylizer import Style, Stylizer
 
 LIST_STYLES = frozenset(
     'disc circle square decimal decimal-leading-zero lower-roman upper-roman'
@@ -29,7 +40,7 @@ STYLE_MAP = {
 }
 
 
-def find_list_containers(list_tag, tag_style):
+def find_list_containers(list_tag: _Element, tag_style: Style) -> list[_Element]:
     node = list_tag
     stylizer = tag_style._stylizer
     ans = []
@@ -46,17 +57,17 @@ def find_list_containers(list_tag, tag_style):
 
 
 class NumberingDefinition:
-    def __init__(self, top_most, stylizer, namespace) -> None:
+    def __init__(self, top_most: _Element, stylizer: Stylizer, namespace: DOCXNamespace) -> None:
         self.namespace = namespace
         self.top_most = top_most
         self.stylizer = stylizer
-        self.level_map = defaultdict(list)
-        self.num_id = None
+        self.level_map: defaultdict[int, list[tuple[_Element, _Element, Block, str, Style]]] = defaultdict(list)
+        self.num_id: int | None = None
 
     def finalize(self) -> None:
-        items_for_level = defaultdict(list)
-        container_for_level = {}
-        type_for_level = {}
+        items_for_level: defaultdict[int, list[_Element]] = defaultdict(list)
+        container_for_level: dict[int, _Element] = {}
+        type_for_level: dict[int, str] = {}
         for ilvl, items in self.level_map.items():
             for container, list_tag, block, list_type, tag_style in items:
                 items_for_level[ilvl].append(list_tag)
@@ -64,7 +75,7 @@ class NumberingDefinition:
                 type_for_level[ilvl] = list_type
         self.levels = tuple(Level(type_for_level[ilvl], container_for_level[ilvl], items_for_level[ilvl], ilvl=ilvl) for ilvl in sorted(self.level_map))
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.levels)
 
     def link_blocks(self) -> None:
@@ -73,7 +84,7 @@ class NumberingDefinition:
             for container, list_tag, block, list_type, tag_style in items:
                 block.numbering_id = (self.num_id + 1, ilvl)
 
-    def serialize(self, parent) -> None:
+    def serialize(self, parent: _Element) -> None:
         assert self.num_id is not None
         makeelement = self.namespace.makeelement
         an = makeelement(parent, 'w:abstractNum', w_abstractNumId=str(self.num_id))
@@ -84,15 +95,15 @@ class NumberingDefinition:
 
 
 class Level:
-    def __init__(self, list_type, container, items, ilvl=0) -> None:
+    def __init__(self, list_type: str, container: _Element, items: list[_Element], ilvl: int = 0) -> None:
         self.ilvl = ilvl
         try:
-            self.start = int(container.get('start'))
+            self.start = int(container.get('start', ''))
         except Exception:
             self.start = 1
         if items:
             try:
-                self.start = int(items[0].get('value'))
+                self.start = int(items[0].get('value', ''))
             except Exception:
                 pass
         if list_type in {'disc', 'circle', 'square'}:
@@ -102,10 +113,10 @@ class Level:
             self.lvl_text = f'%{self.ilvl + 1}.'
             self.num_fmt = STYLE_MAP.get(list_type, 'decimal')
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.start, self.num_fmt, self.lvl_text))
 
-    def serialize(self, parent, makeelement) -> None:
+    def serialize(self, parent: _Element, makeelement: Callable[..., _Element]) -> None:
         lvl = makeelement(parent, 'w:lvl', w_ilvl=str(self.ilvl))
         makeelement(lvl, 'w:start', w_val=str(self.start))
         makeelement(lvl, 'w:numFmt', w_val=self.num_fmt)
@@ -118,16 +129,18 @@ class Level:
 
 
 class ListsManager:
-    def __init__(self, docx) -> None:
+    def __init__(self, docx: DOCX) -> None:
         self.namespace = docx.namespace
-        self.lists = {}
+        self.lists: dict[_Element, NumberingDefinition] = {}
 
-    def finalize(self, all_blocks) -> None:
-        lists = {}
+    def finalize(self, all_blocks: Iterable[Block]) -> None:
+        lists: dict[_Element, NumberingDefinition] = {}
         for block in all_blocks:
             if block.list_tag is not None:
                 list_tag, tag_style = block.list_tag
-                list_type = (tag_style['list-style-type'] or '').lower()
+                list_type = tag_style['list-style-type'] or ''
+                assert isinstance(list_type, str)  # list-style-type values are keywords, numbers have no lower()
+                list_type = list_type.lower()
                 if list_type not in LIST_STYLES:
                     continue
                 container_tags = find_list_containers(list_tag, tag_style)
@@ -141,7 +154,7 @@ class ListsManager:
                 l.level_map[ilvl].append((container_tags[0], list_tag, block, list_type, tag_style))
 
         [nd.finalize() for nd in lists.values()]
-        definitions = {}
+        definitions: dict[NumberingDefinition, NumberingDefinition] = {}
         for defn in lists.values():
             try:
                 defn = definitions[defn]
@@ -151,7 +164,7 @@ class ListsManager:
             defn.link_blocks()
         self.definitions = sorted(definitions.values(), key=attrgetter('num_id'))
 
-    def serialize(self, parent) -> None:
+    def serialize(self, parent: _Element) -> None:
         for defn in self.definitions:
             defn.serialize(parent)
         makeelement = self.namespace.makeelement

@@ -148,7 +148,7 @@ def implementation(
 def stringify(data: dict[str, dict[int, object]], metadata: dict[str, dict[str, object]], for_machine: bool) -> None:
     for field, m in metadata.items():
         if field == 'authors':
-            data[field] = {k: authors_to_string(v) for k, v in data[field].items()}
+            data[field] = {k: authors_to_string(cast('Iterable[str]', v)) for k, v in data[field].items()}  # authors values are tuples of str
         else:
             dt = m['datatype']
             if dt == 'datetime':

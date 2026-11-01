@@ -1,9 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
+from lxml import etree
+
 from calibre.ebooks.oeb.base import XHTML, XHTML_MIME, XHTML_NS, XPath, css_text, urlnormalize
 from calibre.utils.localization import __
 from calibre.utils.xml_parse import safe_xml_fromstring
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
 
 DEFAULT_TITLE = __('Table of Contents')
 
@@ -28,17 +39,18 @@ TEMPLATE = '''
 '''
 
 
-def find_previous_calibre_inline_toc(oeb):
+def find_previous_calibre_inline_toc(oeb: OEBBook) -> Manifest.Item | None:
     if 'toc' in oeb.guide:
         href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
         if href in oeb.manifest.hrefs:
             item = oeb.manifest.hrefs[href]
-            if hasattr(item.data, 'xpath') and XPath('//h:body[@id="calibre_generated_inline_toc"]')(item.data):
+            root = item.data
+            if isinstance(root, etree._Element) and XPath('//h:body[@id="calibre_generated_inline_toc"]')(root):  # only parsed XML has xpath()
                 return item
 
 
 class TOCAdder:
-    def __init__(self, oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=False) -> None:
+    def __init__(self, oeb: OEBBook, opts: Values, replace_previous_inline_toc: bool = True, ignore_existing_toc: bool = False) -> None:
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.title = opts.toc_title or DEFAULT_TITLE
         self.at_start = opts.mobi_toc_at_start
@@ -58,7 +70,8 @@ class TOCAdder:
             href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
             if href in oeb.manifest.hrefs:
                 item = oeb.manifest.hrefs[href]
-                if hasattr(item.data, 'xpath') and XPath('//h:a[@href]')(item.data):
+                root = item.data
+                if isinstance(root, etree._Element) and XPath('//h:a[@href]')(root):  # only parsed XML has xpath()
                     if oeb.spine.index(item) < 0:
                         oeb.spine.add(item, linear=False)
                     return
@@ -100,13 +113,13 @@ class TOCAdder:
 
         oeb.guide.add('toc', 'Table of Contents', href)
 
-    def process_toc_node(self, toc, parent, level=0) -> None:
+    def process_toc_node(self, toc: TOC, parent: _Element, level: int = 0) -> None:
         li = parent.makeelement(XHTML('li'))
         li.tail = '\n' + ('\t' * level)
         parent.append(li)
         href = toc.href
         if self.tocitem is not None and href:
-            href = self.tocitem.relhref(toc.href)
+            href = self.tocitem.relhref(href)
         a = parent.makeelement(XHTML('a'), href=href or '#')
         a.text = toc.title
         li.append(a)

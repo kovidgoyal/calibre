@@ -19,11 +19,26 @@ import xml.dom.minidom as dom
 from compression import zlib
 from functools import wraps
 from shutil import copyfileobj
+from typing import IO, TYPE_CHECKING, TypedDict, cast
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
+    from calibre.ebooks.lrf.objects import Image, ImageStream
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.config import OptionParser
+
+
+class PropertyParts(TypedDict, total=False):
+    fget: Callable[..., object]
+    fset: Callable[..., None]
+    doc: str
+
 
 BYTE = '<B'  #: Unsigned char little endian encoded in 1 byte
 WORD = '<H'  #: Unsigned short little endian encoded in 2 bytes
@@ -36,7 +51,7 @@ class field:
     to protocol packets in a human readable way.
     """
 
-    def __init__(self, start=16, fmt=DWORD) -> None:
+    def __init__(self, start: int = 16, fmt: str = DWORD) -> None:
         """
         @param start: The byte at which this field is stored in the buffer
         @param fmt:   The packing format for this field.
@@ -44,10 +59,10 @@ class field:
         """
         self._fmt, self._start = fmt, start
 
-    def __get__(self, obj, typ=None):
-        return obj.unpack(start=self._start, fmt=self._fmt)[0]
+    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> int:
+        return cast('int', obj.unpack(start=self._start, fmt=self._fmt)[0])
 
-    def __set__(self, obj, val) -> None:
+    def __set__(self, obj: LRFMetaFile, val: int) -> None:
         obj.pack(val, start=self._start, fmt=self._fmt)
 
     def __repr__(self) -> str:
@@ -56,20 +71,20 @@ class field:
 
 
 class versioned_field(field):
-    def __init__(self, vfield, version, start=0, fmt=WORD) -> None:
+    def __init__(self, vfield: field, version: int, start: int = 0, fmt: str = WORD) -> None:
         field.__init__(self, start=start, fmt=fmt)
         self.vfield, self.version = vfield, version
 
-    def enabled(self, obj):
+    def enabled(self, obj: LRFMetaFile) -> bool:
         return self.vfield.__get__(obj) > self.version
 
-    def __get__(self, obj, typ=None):
+    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> int | None:  # ty: ignore[invalid-method-override] disabled fields are None
         if self.enabled(obj):
             return field.__get__(self, obj, typ=typ)
         else:
             return None
 
-    def __set__(self, obj, val) -> None:
+    def __set__(self, obj: LRFMetaFile, val: int) -> None:
         if not self.enabled(obj):
             raise LRFException('Trying to set disabled field')
         else:
@@ -83,7 +98,7 @@ class LRFException(Exception):
 class fixed_stringfield:
     """A field storing a variable length string."""
 
-    def __init__(self, length=8, start=0) -> None:
+    def __init__(self, length: int = 8, start: int = 0) -> None:
         """
         @param length: Size of this string
         @param start: The byte at which this field is stored in the buffer
@@ -91,11 +106,11 @@ class fixed_stringfield:
         self._length = length
         self._start = start
 
-    def __get__(self, obj, typ=None):
+    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> bytes:
         length = str(self._length)
-        return obj.unpack(start=self._start, fmt='<' + length + 's')[0]
+        return cast('bytes', obj.unpack(start=self._start, fmt='<' + length + 's')[0])
 
-    def __set__(self, obj, val) -> None:
+    def __set__(self, obj: LRFMetaFile, val: object) -> None:
         if not isinstance(val, (str, bytes)):
             val = str(val)
         if isinstance(val, str):
@@ -109,12 +124,12 @@ class fixed_stringfield:
 
 
 class xml_attr_field:
-    def __init__(self, tag_name, attr, parent='BookInfo') -> None:
+    def __init__(self, tag_name: str, attr: str, parent: str = 'BookInfo') -> None:
         self.tag_name = tag_name
         self.parent = parent
         self.attr = attr
 
-    def __get__(self, obj, typ=None):
+    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> str:
         """Return the data in this field or '' if the field is empty"""
         document = obj.info
         elems = document.getElementsByTagName(self.tag_name)
@@ -127,7 +142,7 @@ class xml_attr_field:
                 return elem.getAttribute(self.attr)
         return ''
 
-    def __set__(self, obj, val) -> None:
+    def __set__(self, obj: LRFMetaFile, val: str | None) -> None:
         if val is None:
             val = ''
         document = obj.info
@@ -154,7 +169,7 @@ class xml_field:
     Works for simple XML fields of the form <tagname>data</tagname>
     """
 
-    def __init__(self, tag_name, parent='BookInfo') -> None:
+    def __init__(self, tag_name: str, parent: str = 'BookInfo') -> None:
         """
         @param tag_name: The XML tag whose data we operate on
         @param parent: The tagname of the parent element of C{tag_name}
@@ -162,7 +177,7 @@ class xml_field:
         self.tag_name = tag_name
         self.parent = parent
 
-    def __get__(self, obj, typ=None):
+    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> str:
         """Return the data in this field or '' if the field is empty"""
         document = obj.info
 
@@ -178,12 +193,12 @@ class xml_field:
                     return elem.firstChild.data.strip()
         return ''
 
-    def __set__(self, obj, val) -> None:
+    def __set__(self, obj: LRFMetaFile, val: str | bytes | None) -> None:
         if not val:
             val = ''
         document = obj.info
 
-        def create_elem():
+        def create_elem() -> dom.Element:
             elem = document.createElement(self.tag_name)
             parent = document.getElementsByTagName(self.parent)[0]
             parent.appendChild(elem)
@@ -219,7 +234,7 @@ class xml_field:
         return 'XML Field: ' + self.tag_name + ' in ' + self.parent
 
 
-def insert_into_file(fileobj, data, start, end):
+def insert_into_file(fileobj: IO[bytes], data: bytes, start: int, end: int) -> int:
     """
     Insert data into fileobj at position C{start}.
 
@@ -249,7 +264,7 @@ def insert_into_file(fileobj, data, start, end):
     return delta
 
 
-def get_metadata(stream):
+def get_metadata(stream: IO[bytes] | LRFMetaFile) -> Metadata:
     """
     Return basic meta-data about the LRF file in C{stream} as a
     L{MetaInformation} object.
@@ -267,7 +282,7 @@ def get_metadata(stream):
     if mi.category.strip() == ',':
         mi.category = None
     mi.publisher = lrf.publisher.strip()
-    mi.cover_data = lrf.get_cover()
+    mi.set('cover_data', lrf.get_cover())  # None is stored as (None, None)
     try:
         mi.title_sort = lrf.title_reading.strip()
         if not mi.title_sort:
@@ -277,13 +292,13 @@ def get_metadata(stream):
     try:
         mi.author_sort = lrf.author_reading.strip()
         if not mi.author_sort:
-            mi.author_sort = None
+            mi.set('author_sort', None)  # stored as _('Unknown')
     except Exception:
         pass
     if not mi.title or 'unknown' in mi.title.lower():
-        mi.title = None
+        mi.set('title', None)  # stored as _('Unknown')
     if not mi.authors:
-        mi.authors = None
+        mi.set('authors', None)  # stored as [_('Unknown')]
     if not mi.author or 'unknown' in mi.author.lower():
         mi.author = None
     if not mi.category or 'unknown' in mi.category.lower():
@@ -294,15 +309,15 @@ def get_metadata(stream):
     return mi
 
 
-def safe(func):
+def safe[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     """
     Decorator that ensures that function calls leave the pos
     in the underlying file unchanged
     """
 
     @wraps(func)
-    def restore_pos(*args, **kwargs):
-        obj = args[0]
+    def restore_pos(*args: P.args, **kwargs: P.kwargs) -> R:
+        obj = cast('LRFMetaFile', args[0])  # only used for LRFMetaFile methods
         pos = obj._file.tell()
         res = func(*args, **kwargs)
         obj._file.seek(0, 2)
@@ -313,15 +328,15 @@ def safe(func):
     return restore_pos
 
 
-def safe_property(func):
+def safe_property(func: Callable[[], PropertyParts]) -> property:
     """
     Decorator that ensures that read or writing a property leaves
     the position in the underlying file unchanged
     """
 
-    def decorator(f):
-        def restore_pos(*args, **kwargs):
-            obj = args[0]
+    def decorator[**P, R](f: Callable[P, R]) -> Callable[P, R]:
+        def restore_pos(*args: P.args, **kwargs: P.kwargs) -> R:
+            obj = cast('LRFMetaFile', args[0])  # only used for LRFMetaFile properties
             pos = obj._file.tell()
             res = f(*args, **kwargs)
             obj._file.seek(0, 2)
@@ -383,13 +398,13 @@ class LRFMetaFile:
     page = xml_field('SumPage', parent='DocInfo')
 
     @safe_property
-    def info():
+    def info() -> PropertyParts:
         doc = '''
         Document meta information as a minidom Document object.
         To set use a minidom document object.
         '''
 
-        def fget(self):
+        def fget(self: LRFMetaFile) -> dom.Document:
             if self.compressed_info_size == 0:
                 raise LRFException('This document has no meta info')
             size = self.compressed_info_size - 4
@@ -407,7 +422,7 @@ class LRFMetaFile:
             except zlib.error:
                 raise LRFException('Unable to decompress document meta information')
 
-        def fset(self, document) -> None:
+        def fset(self: LRFMetaFile, document: dom.Document) -> None:
             info = document.toxml('utf-8')
             self.uncompressed_info_size = len(info)
             stream = zlib.compress(info)
@@ -423,41 +438,41 @@ class LRFMetaFile:
         return {'fget': fget, 'fset': fset, 'doc': doc}
 
     @safe_property
-    def thumbnail_pos():
+    def thumbnail_pos() -> PropertyParts:
         doc = ''' The position of the thumbnail in the LRF file '''
 
-        def fget(self):
+        def fget(self: LRFMetaFile) -> int:
             return self.info_start + self.compressed_info_size - 4
 
         return {'fget': fget, 'doc': doc}
 
     @classmethod
-    def _detect_thumbnail_type(cls, slice):
+    def _detect_thumbnail_type(cls, slice: bytes) -> int:
         """@param slice: The first 16 bytes of the thumbnail"""
         ttype = 0x14  # GIF
-        if 'PNG' in slice:
+        if b'PNG' in slice:
             ttype = 0x12
-        if 'BM' in slice:
+        if b'BM' in slice:
             ttype = 0x13
-        if 'JFIF' in slice:
+        if b'JFIF' in slice:
             ttype = 0x11
         return ttype
 
     @safe_property
-    def thumbnail():
+    def thumbnail() -> PropertyParts:
         doc = '''
         The thumbnail.
         Represented as a string.
         The string you would get from the file read function.
         '''
 
-        def fget(self):
+        def fget(self: LRFMetaFile) -> bytes | None:
             size = self.thumbnail_size
             if size:
                 self._file.seek(self.thumbnail_pos)
                 return self._file.read(size)
 
-        def fset(self, data) -> None:
+        def fset(self: LRFMetaFile, data: bytes) -> None:
             if self.version <= 800:
                 raise LRFException(
                     'Cannot store thumbnails in LRF files \
@@ -474,7 +489,7 @@ class LRFMetaFile:
 
         return {'fget': fget, 'fset': fset, 'doc': doc}
 
-    def __init__(self, file) -> None:
+    def __init__(self, file: IO[bytes]) -> None:
         """@param file: A file object opened in the r+b mode"""
         file.seek(0, 2)
         self.size = file.tell()
@@ -485,7 +500,7 @@ class LRFMetaFile:
         self.info_start = 0x58 if self.version > 800 else 0x53
 
     @safe
-    def update_object_offsets(self, delta) -> None:
+    def update_object_offsets(self, delta: int) -> None:
         """Run through the LRF Object index changing the offset by C{delta}."""
         self._file.seek(self.object_index_offset)
         count = self.number_of_objects
@@ -501,7 +516,7 @@ class LRFMetaFile:
         self._file.flush()
 
     @safe
-    def unpack(self, fmt=DWORD, start=0):
+    def unpack(self, fmt: str = DWORD, start: int = 0) -> tuple[object, ...]:
         """
         Return decoded data from file.
 
@@ -514,7 +529,7 @@ class LRFMetaFile:
         return ret
 
     @safe
-    def pack(self, *args, **kwargs) -> None:
+    def pack(self, *args: int | bytes, **kwargs: str | int) -> None:
         """
         Encode C{args} and write them to file.
         C{kwargs} must contain the keywords C{fmt} and C{start}
@@ -523,12 +538,12 @@ class LRFMetaFile:
         @param fmt: See U{struct<http://docs.python.org/lib/module-struct.html>}
         @param start: Position in file at which to write encoded data
         """
-        encoded = struct.pack(kwargs['fmt'], *args)
-        self._file.seek(kwargs['start'])
+        encoded = struct.pack(cast('str', kwargs['fmt']), *args)
+        self._file.seek(cast('int', kwargs['start']))
         self._file.write(encoded)
         self._file.flush()
 
-    def thumbail_extension(self):
+    def thumbail_extension(self) -> str:
         """
         Return the extension for the thumbnail image type as specified
         by L{self.thumbnail_type}. If the LRF file was created by buggy
@@ -552,23 +567,23 @@ class LRFMetaFile:
         slice = self.thumbnail[0:16]
         self.thumbnail_type = self._detect_thumbnail_type(slice)
 
-    def seek(self, *args):
+    def seek(self, *args: int) -> int:
         """See L{file.seek}"""
         return self._file.seek(*args)
 
-    def tell(self):
+    def tell(self) -> int:
         """See L{file.tell}"""
         return self._file.tell()
 
-    def read(self):
+    def read(self) -> bytes:
         """See L{file.read}"""
         return self._file.read()
 
-    def write(self, val) -> None:
+    def write(self, val: bytes) -> None:
         """See L{file.write}"""
         self._file.write(val)
 
-    def _objects(self):
+    def _objects(self) -> Iterator[tuple[int, int, int]]:
         self._file.seek(self.object_index_offset)
         c = self.number_of_objects
         while c > 0:
@@ -578,7 +593,7 @@ class LRFMetaFile:
             yield struct.unpack('<IIII', raw)[:3]
             self._file.seek(pos)
 
-    def get_objects_by_type(self, type):
+    def get_objects_by_type(self, type: int) -> list[tuple[int, int, int]]:
         from calibre.ebooks.lrf.tags import Tag
 
         objects = []
@@ -591,7 +606,7 @@ class LRFMetaFile:
                     objects.append((obj_id, offset, size))
         return objects
 
-    def get_object_by_id(self, tid):
+    def get_object_by_id(self, tid: int) -> tuple[int, int, int, int] | tuple[bool, bool, bool, bool]:
         from calibre.ebooks.lrf.tags import Tag
 
         for id, offset, size in self._objects():
@@ -604,18 +619,18 @@ class LRFMetaFile:
         return (False, False, False, False)
 
     @safe
-    def get_cover(self):
+    def get_cover(self) -> tuple[str, bytes] | None:
         from calibre.ebooks.lrf.objects import get_object
 
         for id, offset, size in self.get_objects_by_type(0x0C):
-            image = get_object(None, self._file, id, offset, size, self.xor_key)
+            image = cast('Image', get_object(None, self._file, id, offset, size, self.xor_key))  # objects of type 0x0C are Images
             id, offset, size = self.get_object_by_id(image.refstream)[:3]
-            image_stream = get_object(None, self._file, id, offset, size, self.xor_key)
-            return image_stream.file.rpartition('.')[-1], image_stream.stream
+            image_stream = cast('ImageStream', get_object(None, self._file, id, offset, size, self.xor_key))  # Image refstreams are ImageStreams
+            return image_stream.file.rpartition('.')[-1], cast('bytes', image_stream.stream)  # the stream has been read
         return None
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     from calibre.constants import __appname__, __version__
     from calibre.utils.config import OptionParser
 
@@ -694,7 +709,7 @@ Show/edit the metadata in an LRF file.\n\n'''),
     return parser
 
 
-def set_metadata(stream, mi) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     lrf = LRFMetaFile(stream)
     if mi.title:
         lrf.title = mi.title
@@ -703,7 +718,9 @@ def set_metadata(stream, mi) -> None:
     if mi.tags:
         lrf.category = mi.tags[0]
     if getattr(mi, 'category', False):
-        lrf.category = mi.category
+        category = mi.category
+        assert isinstance(category, (str, bytes))  # an arbitrary attribute, set to a string by get_metadata()
+        lrf.category = category
     if mi.comments:
         lrf.free_text = mi.comments
     if mi.author_sort:
@@ -712,7 +729,7 @@ def set_metadata(stream, mi) -> None:
         lrf.publisher = mi.publisher
 
 
-def main(args=sys.argv) -> int | None:
+def main(args: list[str] = sys.argv) -> int | None:
     parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) != 2:
@@ -767,10 +784,11 @@ def main(args=sys.argv) -> int | None:
             print('Thumbnail:', td)
         if options.get_cover:
             try:
-                ext, data = lrf.get_cover()
+                ext, data = lrf.get_cover()  # ty: ignore[not-iterable] the TypeError for None is handled below
             except Exception:  # Fails on books created by LRFCreator 1.0
                 ext, data = None, None
             if data:
+                assert ext is not None  # ext is set whenever data is
                 cover = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.' + ext
                 with open(cover, 'wb') as f:
                     f.write(data)

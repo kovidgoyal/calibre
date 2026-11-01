@@ -443,8 +443,10 @@ class XMLCache:
     def is_sony_periodical(self, book: Metadata) -> bool:
         if _('News') not in book.tags:
             return False
+        assert book.lpath is not None  # device books always have an lpath
         if not book.lpath.lower().endswith('.epub'):
             return False
+        assert book.pubdate is not None
         if book.pubdate.date() < date(2010, 10, 17):
             return False
         return True
@@ -473,6 +475,7 @@ class XMLCache:
         record.set('periodicalName', name)
 
         try:
+            assert book.pubdate is not None  # checked in is_sony_periodical()
             pubdate = strftime(book.pubdate.utctimetuple(), zone=lambda x: x)
             record.set('publicationDate', pubdate)
         except Exception:

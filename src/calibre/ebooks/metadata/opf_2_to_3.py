@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
@@ -25,13 +27,18 @@ from calibre.ebooks.metadata.opf3 import (
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
+if TYPE_CHECKING:
+    from lxml.etree import _Element
+
+    from calibre.ebooks.metadata.opf3 import Prefixes, Refines
+
 
 class Data:
-    prefixes: object
-    refines: object
+    prefixes: Prefixes
+    refines: Refines
 
 
-def upgrade_identifiers(root, data) -> None:
+def upgrade_identifiers(root: _Element, data: Data) -> None:
     for ident in XPath('./opf:metadata/dc:identifier')(root):
         val = (ident.text or '').strip()
         lval = val.lower()
@@ -47,7 +54,7 @@ def upgrade_identifiers(root, data) -> None:
                 del ident.attrib[attr]
 
 
-def upgrade_title(root, data) -> None:
+def upgrade_title(root: _Element, data: Data) -> None:
     first_title = None
     for title in XPath('./opf:metadata/dc:title')(root):
         if not title.text or not title.text.strip():
@@ -68,7 +75,7 @@ def upgrade_title(root, data) -> None:
         set_refines(first_title, data.refines, refdef('title-type', 'main'), *ts)
 
 
-def upgrade_languages(root, data) -> None:
+def upgrade_languages(root: _Element, data: Data) -> None:
     langs = XPath('./opf:metadata/dc:language')(root)
     if langs:
         for lang in langs:
@@ -81,7 +88,7 @@ def upgrade_languages(root, data) -> None:
         metadata.append(l)
 
 
-def upgrade_authors(root, data) -> None:
+def upgrade_authors(root: _Element, data: Data) -> None:
     for which in 'creator', 'contributor':
         for elem in XPath('./opf:metadata/dc:' + which)(root):
             role = elem.attrib.pop(OPF('role'), None)
@@ -99,7 +106,7 @@ def upgrade_authors(root, data) -> None:
                     metadata.append(m)
 
 
-def upgrade_timestamp(root, data) -> None:
+def upgrade_timestamp(root: _Element, data: Data) -> None:
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:timestamp"]')(root):
         m = meta.getparent()
         remove_element(meta, data.refines)
@@ -113,7 +120,7 @@ def upgrade_timestamp(root, data) -> None:
                 create_timestamp(root, data.prefixes, m, val)
 
 
-def upgrade_date(root, data) -> None:
+def upgrade_date(root: _Element, data: Data) -> None:
     found = False
     for date in XPath('./opf:metadata/dc:date')(root):
         val = date.text
@@ -127,7 +134,7 @@ def upgrade_date(root, data) -> None:
             found = True
 
 
-def upgrade_rating(root, data) -> None:
+def upgrade_rating(root: _Element, data: Data) -> None:
     rating = None
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
         remove_element(meta, data.refines)
@@ -136,7 +143,7 @@ def upgrade_rating(root, data) -> None:
         create_rating(root, data.prefixes, rating)
 
 
-def upgrade_series(root, data) -> None:
+def upgrade_series(root: _Element, data: Data) -> None:
     series, series_index = None, '1.0'
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:series"]')(root):
         remove_element(meta, data.refines)
@@ -149,7 +156,7 @@ def upgrade_series(root, data) -> None:
         create_series(root, data.refines, series, series_index)
 
 
-def upgrade_custom(root, data) -> None:
+def upgrade_custom(root: _Element, data: Data) -> None:
     m = read_user_metadata2(root, remove_tags=True)
     if m:
         for fm in m.values():
@@ -157,7 +164,7 @@ def upgrade_custom(root, data) -> None:
         set_user_metadata3(root, data.prefixes, data.refines, m)
 
 
-def upgrade_meta(root, data) -> None:
+def upgrade_meta(root: _Element, data: Data) -> None:
     for meta in XPath('./opf:metadata/opf:meta[@name]')(root):
         name, content = meta.get('name'), meta.get('content') or ''
         if name.startswith('rendition:'):
@@ -178,7 +185,7 @@ def upgrade_meta(root, data) -> None:
             meta.text = content
 
 
-def upgrade_cover(root, data) -> None:
+def upgrade_cover(root: _Element, data: Data) -> None:
     for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
         # Google Play Books does not recognize covers unless the old style
         # <meta name="cover"> is present, so leave it in
@@ -191,14 +198,14 @@ def upgrade_cover(root, data) -> None:
                     item.set('properties', normalize_whitespace((item.get('properties') or '') + ' cover-image'))
 
 
-def remove_invalid_attrs_in_dc_metadata(root, data) -> None:
+def remove_invalid_attrs_in_dc_metadata(root: _Element, data: Data) -> None:
     for tag in XPath('//*[namespace-uri() = "{}"]'.format(DC('')[1:-1]))(root):
         for k in tuple(tag.attrib):
             if k != 'id':
                 del tag.attrib[k]
 
 
-def upgrade_metadata(root) -> None:
+def upgrade_metadata(root: _Element) -> None:
     data = Data()
     data.prefixes = read_prefixes(root)
     data.refines = read_refines(root)

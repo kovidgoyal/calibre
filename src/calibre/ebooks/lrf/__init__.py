@@ -5,10 +5,25 @@ This package contains logic to read and write LRF files.
 The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}.
 """
 
+import os
+from typing import TYPE_CHECKING, cast
+
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.fonts import FONT_FILE_MAP
 from calibre.ebooks.lrf.pylrs.pylrs import BlockStyle, Header, TextBlock, TextStyle
 from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from calibre.ebooks.conversion.plugins.lrf_output import LRFOptions
+    from calibre.ebooks.lrf.pylrs.pylrs import AttrValue, Paragraph
+    from calibre.utils.logging import Log
+
+    # (path to font file, full font name) path is None for the builtin fonts of the reader
+    type FontFace = tuple[str | None, str]
+    # Maps family (serif, sans, mono) to a mapping of face (normal, bold, italic, bi) to FontFace
+    type FontFamilies = dict[str, Mapping[str, FontFace]]
 
 
 class LRFParseError(Exception):
@@ -31,33 +46,47 @@ class PRS500_PROFILE:
     name = 'prs500'
 
 
-def find_custom_fonts(options, logger):
+def find_custom_fonts(options: LRFOptions, logger: Log) -> dict[str, dict[str, tuple[str, str]] | None]:
     from calibre.utils.fonts.scanner import font_scanner
 
-    fonts = {'serif': None, 'sans': None, 'mono': None}
+    fonts: dict[str, dict[str, tuple[str, str]] | None] = {'serif': None, 'sans': None, 'mono': None}
 
-    def family(cmd):
-        return cmd.split(',')[-1].strip()
+    def family(cmd: str) -> str:
+        return cmd.rsplit(',', 1)[-1].strip()
+
+    def legacy_fonts_for_family(f: str) -> dict[str, tuple[str, str]]:
+        # The full name is used to refer to the embedded font, so fonts
+        # without one get a name derived from their file name
+        return {
+            key: (path, full_name or os.path.splitext(os.path.basename(path))[0]) for key, (path, full_name) in font_scanner.legacy_fonts_for_family(f).items()
+        }
 
     if options.serif_family:
         f = family(options.serif_family)
-        fonts['serif'] = font_scanner.legacy_fonts_for_family(f)
+        fonts['serif'] = legacy_fonts_for_family(f)
         if not fonts['serif']:
             logger.warn(f'Unable to find serif family {f}')
     if options.sans_family:
         f = family(options.sans_family)
-        fonts['sans'] = font_scanner.legacy_fonts_for_family(f)
+        fonts['sans'] = legacy_fonts_for_family(f)
         if not fonts['sans']:
             logger.warn(f'Unable to find sans family {f}')
     if options.mono_family:
         f = family(options.mono_family)
-        fonts['mono'] = font_scanner.legacy_fonts_for_family(f)
+        fonts['mono'] = legacy_fonts_for_family(f)
         if not fonts['mono']:
             logger.warn(f'Unable to find mono family {f}')
     return fonts
 
 
-def Book(options, logger, font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
+def Book(
+    options: LRFOptions,
+    logger: Log,
+    font_delta: float = 0,
+    header: Paragraph | None = None,
+    profile: type[PRS500_PROFILE] = PRS500_PROFILE,
+    **settings: object,
+) -> tuple[_Book, FontFamilies]:
     from uuid import uuid4
 
     ps = {}
@@ -83,7 +112,7 @@ def Book(options, logger, font_delta=0, header=None, profile=PRS500_PROFILE, **s
     fontsize = int(10 * profile.font_size + font_delta * 20)
     baselineskip = fontsize + 20
     fonts = find_custom_fonts(options, logger)
-    tsd = dict(
+    tsd: dict[str, AttrValue] = dict(
         fontsize=fontsize,
         parindent=int(10 * profile.parindent),
         linespace=int(10 * profile.line_space),
@@ -98,17 +127,19 @@ def Book(options, logger, font_delta=0, header=None, profile=PRS500_PROFILE, **s
         pagestyledefault=ps,
         blockstyledefault=dict(blockwidth=ps['textwidth']),
         bookid=uuid4().hex,
-        **settings,
+        **settings,  # ty: ignore[invalid-argument-type] arguments are forwarded unchanged
     )
     for family in fonts.keys():
-        if fonts[family]:
-            for font in fonts[family].values():
+        faces = fonts[family]
+        if faces:
+            for font in faces.values():
                 book.embed_font(*font)
                 FONT_FILE_MAP[font[1]] = font[0]
 
+    ans = cast('FontFamilies', fonts)  # the None values are replaced with the builtin fonts below
     for family in ['serif', 'sans', 'mono']:
-        if not fonts[family]:
-            fonts[family] = {'normal': (None, profile.default_fonts[family])}
-        elif 'normal' not in fonts[family]:
+        if not ans[family]:
+            ans[family] = {'normal': (None, profile.default_fonts[family])}
+        elif 'normal' not in ans[family]:
             raise ConversionError('Could not find the normal version of the ' + family + ' font')
-    return book, fonts
+    return book, ans

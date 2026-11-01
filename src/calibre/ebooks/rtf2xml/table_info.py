@@ -30,11 +30,11 @@ class TableInfo:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        table_data,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        table_data: list[dict[str, int | str]],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         """
         Required:

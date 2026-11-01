@@ -1,11 +1,16 @@
 # License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
 import os
+from typing import TYPE_CHECKING
 
 from calibre.constants import __appname__, __version__
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
+from calibre.utils.logging import Log
+
+if TYPE_CHECKING:
+    from optparse import Values
 
 
 class SNBOutput(OutputFormatPlugin):
@@ -59,7 +64,7 @@ class SNBOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         output_path = output
         from lxml import etree
 
@@ -153,8 +158,11 @@ class SNBOutput(OutputFormatPlugin):
                     outputFiles[first.href].append(('', _('Cover pages')))
 
             for tocitem in oeb_book.toc:
-                if tocitem.href.find('#') != -1:
-                    item = tocitem.href.split('#')
+                # top level TOC entries are assumed to have a href and title
+                href = tocitem.href
+                assert href is not None  # a None href would crash on href.find() below
+                if href.find('#') != -1:
+                    item = href.split('#')
                     if len(item) != 2:
                         log.error(f'Error in TOC item: {tocitem}')
                     elif item[0] in outputFiles:
@@ -162,18 +170,18 @@ class SNBOutput(OutputFormatPlugin):
                     else:
                         outputFiles[item[0]] = []
                         if '' not in outputFiles[item[0]]:
-                            outputFiles[item[0]].append(('', tocitem.title + _(' (Preface)')))
+                            outputFiles[item[0]].append(('', tocitem.title + _(' (Preface)')))  # ty: ignore[unsupported-operator]
                             ch = etree.SubElement(tocBody, 'chapter')
                             ch.set('src', ProcessFileName(item[0]) + '.snbc')
-                            ch.text = tocitem.title + _(' (Preface)')
+                            ch.text = tocitem.title + _(' (Preface)')  # ty: ignore[unsupported-operator]
                         outputFiles[item[0]].append((item[1], tocitem.title))
-                elif tocitem.href in outputFiles:
-                    outputFiles[tocitem.href].append(('', tocitem.title))
+                elif href in outputFiles:
+                    outputFiles[href].append(('', tocitem.title))
                 else:
-                    outputFiles[tocitem.href] = []
-                    outputFiles[tocitem.href].append(('', tocitem.title))
+                    outputFiles[href] = []
+                    outputFiles[href].append(('', tocitem.title))
                 ch = etree.SubElement(tocBody, 'chapter')
-                ch.set('src', ProcessFileName(tocitem.href) + '.snbc')
+                ch.set('src', ProcessFileName(href) + '.snbc')
                 ch.text = tocitem.title
 
             etree.SubElement(tocHead, 'chapters').text = str(len(tocBody))
@@ -186,7 +194,7 @@ class SNBOutput(OutputFormatPlugin):
             mergeLast = False
             lastName = None
             for item in s:
-                from calibre.ebooks.oeb.base import OEB_DOCS, OEB_IMAGES
+                from calibre.ebooks.oeb.base import OEB_DOCS
 
                 if m.hrefs[item.href].media_type in OEB_DOCS:
                     if item.href not in outputFiles:
@@ -214,6 +222,8 @@ class SNBOutput(OutputFormatPlugin):
                                 f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                     else:
                         log.debug(f'Merge {item.href} with last TOC item...')
+                        # The first spine item is always in outputFiles (see the TOC handling above)
+                        assert oldTree is not None
                         snbwriter.merge_content(oldTree, oeb_book, item, [('', _('Start'))], opts)
 
             # Output the last one if needed
@@ -224,10 +234,15 @@ class SNBOutput(OutputFormatPlugin):
                     f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                 mergeLast = False
 
+            from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_MIME
+
             for item in m:
-                if m.hrefs[item.href].media_type in OEB_IMAGES:
+                media_type = m.hrefs[item.href].media_type
+                # SVG images are not supported by SNB, references to them have been rasterized above
+                if media_type in OEB_IMAGES and media_type != SVG_MIME:
                     log.debug(f'Converting image: {item.href} ...')
                     content = m.hrefs[item.href].data
+                    assert isinstance(content, bytes)  # raster images are not parsed
                     # Convert & Resize image
                     self.HandleImage(content, os.path.join(snbiDir, ProcessFileName(item.href)))
 
@@ -236,7 +251,7 @@ class SNBOutput(OutputFormatPlugin):
             snbFile.FromDir(tdir)
             snbFile.Output(output_path)
 
-    def HandleImage(self, imageData, imagePath) -> None:
+    def HandleImage(self, imageData: bytes, imagePath: str) -> None:
         from calibre.utils.img import image_from_data, image_to_data, resize_image
 
         img = image_from_data(imageData)
@@ -274,10 +289,11 @@ if __name__ == '__main__':
     opts = OptionValues()
     opts.output_profile = HanlinV3Output(None)
 
-    html_preprocessor = HTMLPreProcessor(None, None, opts)
+    html_preprocessor = HTMLPreProcessor(None, opts)  # ty: ignore[invalid-argument-type] debug only code
     from calibre.utils.logging import default_log
 
     oeb = OEBBook(default_log, html_preprocessor)
     reader = OEBReader
     reader()(oeb, '/tmp/bbb/processed/')
-    SNBOutput(None).convert(oeb, '/tmp/test.snb', None, None, default_log)
+    # Debug only code: input_plugin is unused and HandleImage() handles opts being None
+    SNBOutput(None).convert(oeb, '/tmp/test.snb', None, None, default_log)  # ty: ignore[invalid-argument-type]

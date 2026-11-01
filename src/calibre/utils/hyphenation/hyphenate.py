@@ -114,7 +114,9 @@ def add_soft_hyphens_to_words(words: str, dictionary: object, hyphen_char: str =
 
 
 def add_to_tag(stack: list[tuple[etree._Element, str]], elem: etree._Element, locale: str, hyphen_char: str) -> None:
-    name = barename(elem.tag)  # ty: ignore[invalid-argument-type]
+    tag = elem.tag
+    assert isinstance(tag, str)  # the root and children with non-callable tags, i.e. elements, are the only things pushed onto the stack
+    name = barename(tag)
     if name in tags_not_to_hyphenate:
         return
     tl = elem.get('lang') or elem.get('{http://www.w3.org/XML/1998/namespace}lang') or locale

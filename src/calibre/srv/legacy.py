@@ -242,7 +242,7 @@ def build_index(
         first = E.span(E.a(f'{book.title} {series} by {authors_to_string(book.authors)}', href=book_link), class_='first-line')
         div.append(first)
 
-        ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
+        ds = '' if book.timestamp is None or is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
         second = E.span(f'{ds} {tags} {ctext}', class_='second-line')
         div.append(second)
 

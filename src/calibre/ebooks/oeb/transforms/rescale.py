@@ -1,16 +1,25 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre import fit_image
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.oeb.base import OEBBook
 
 
 class RescaleImages:
     "Rescale all images to fit inside given screen size"
 
-    def __init__(self, check_colorspaces=False) -> None:
+    def __init__(self, check_colorspaces: bool = False) -> None:
         self.check_colorspaces = check_colorspaces
 
-    def __call__(self, oeb, opts, max_size: str = 'profile'):
+    def __call__(self, oeb: OEBBook, opts: Values | OptionValues, max_size: str = 'profile') -> None:
+
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.rescale(max_size)
 
@@ -58,6 +67,7 @@ class RescaleImages:
                     # Probably an svg image
                     continue
                 try:
+                    assert isinstance(raw, bytes)  # BytesIO() raised TypeError for anything else
                     img = Image.open(BytesIO(raw))
                 except Exception:
                     continue

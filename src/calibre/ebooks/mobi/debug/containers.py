@@ -7,7 +7,7 @@ from calibre.ebooks.mobi.debug.headers import EXTHHeader
 
 
 class ContainerHeader:
-    def __init__(self, data) -> None:
+    def __init__(self, data: bytes) -> None:
         self.ident = data[:4]
         self.record_size, self.type, self.count, self.encoding = unpack_from(b'>IHHI', data, 4)
         self.encoding = {
@@ -35,7 +35,7 @@ class ContainerHeader:
         self.bytes_after_exth = data[self.header_length + self.title_length :]
         self.null_bytes_after_exth = len(self.bytes_after_exth) - len(self.bytes_after_exth.replace(b'\0', b''))
 
-    def add_hrefs(self, data) -> None:
+    def add_hrefs(self, data: bytes) -> None:
         # kindlegen inserts a trailing | after the last href
         self.hrefs = list(filter(None, data.decode('utf-8').split('|')))
 

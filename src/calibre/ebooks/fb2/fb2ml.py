@@ -8,6 +8,7 @@ import re
 import textwrap
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
 from lxml import etree
@@ -20,6 +21,16 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_base64_unicode
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from optparse import Values
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.base import TOC, Manifest, OEBBook
+    from calibre.ebooks.oeb.stylizer import Stylizer
+    from calibre.utils.logging import Log
+
 
 class FB2MLizer:
     """
@@ -27,7 +38,7 @@ class FB2MLizer:
           * Handle notes and anchor links.
     """
 
-    def __init__(self, log) -> None:
+    def __init__(self, log: Log) -> None:
         self.log = log
         self.reset_state()
 
@@ -37,13 +48,14 @@ class FB2MLizer:
         # Mapping of image names. OEB allows for images to have the same name but be stored
         # in different directories. FB2 images are all in a flat layout so we rename all images
         # into a sequential numbering system to ensure there are no collisions between image names.
-        self.image_hrefs = {}
+        self.image_hrefs: dict[str, str] = {}
         # Mapping of toc items and their
-        self.toc = {}
+        # Maps href to {None: 'page'} or {id: level}, set to None once the page section has been started
+        self.toc: dict[str, dict[str | None, int | str] | None] = {}
         # Used to see whether a new <section> needs to be opened
         self.section_level = 0
 
-    def extract_content(self, oeb_book, opts):
+    def extract_content(self, oeb_book: OEBBook, opts: Values) -> str:
         self.log.info('Converting XHTML to FB2 markup...')
         self.oeb_book = oeb_book
         self.opts = opts
@@ -56,7 +68,7 @@ class FB2MLizer:
 
         return self.fb2mlize_spine()
 
-    def fb2mlize_spine(self):
+    def fb2mlize_spine(self) -> str:
         output = (
             self.fb2_header(),
             self.get_text(),
@@ -70,7 +82,7 @@ class FB2MLizer:
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + output
 
-    def clean_text(self, text):
+    def clean_text(self, text: str) -> str:
         # Remove pointless tags, but keep their contents.
         text = re.sub(r'(?mu)<(strong|emphasis|strikethrough|sub|sup)>(\s*)</\1>', r'\2', text)
 
@@ -107,7 +119,7 @@ class FB2MLizer:
 
         return text
 
-    def fb2_header(self):
+    def fb2_header(self) -> str:
         from calibre.ebooks.oeb.base import OPF
 
         metadata = {}
@@ -166,7 +178,7 @@ class FB2MLizer:
         year = publisher = isbn = ''
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'uuid' or str(x).startswith('urn:uuid:'):
+            if (x.get(OPF('scheme')) or '').lower() == 'uuid' or str(x).startswith('urn:uuid:'):
                 metadata['id'] = str(x).split(':')[-1]
                 break
         if metadata['id'] is None:
@@ -188,7 +200,7 @@ class FB2MLizer:
             publisher = f'<publisher>{prepare_string_for_xml(publisher.value)}</publisher>'
 
         for x in identifiers:
-            if x.get(OPF('scheme'), None).lower() == 'isbn':
+            if (x.get(OPF('scheme')) or '').lower() == 'isbn':
                 isbn = f'<isbn>{prepare_string_for_xml(x.value)}</isbn>'
 
         metadata['year'], metadata['isbn'], metadata['publisher'] = year, isbn, publisher
@@ -243,7 +255,7 @@ class FB2MLizer:
         return '</FictionBook>'
 
     def get_cover(self) -> str:
-        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES, is_element_list, xpath
 
         cover_href = None
 
@@ -263,20 +275,24 @@ class FB2MLizer:
 
             if page_name:
                 cover_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[page_name].href]
-                # Get the first image in the page
-                for img in cover_item.xpath('//img'):
-                    cover_href = cover_item.abshref(img.get('src'))
-                    break
+                root = cover_item.data
+                if isinstance(root, etree._Element):  # the guide can also point directly to an image
+                    # Get the first image in the page
+                    imgs = xpath(root, '//h:img[@src]')
+                    assert is_element_list(imgs)
+                    for img in imgs:
+                        cover_href = cover_item.abshref(urlnormalize(img.attrib['src']))
+                        break
 
-        if cover_href:
-            # Only write the image tag if it is in the manifest.
-            if cover_href in self.oeb_book.manifest.hrefs and cover_href not in self.image_hrefs:
+        # Only write the image tag if it is in the manifest.
+        if cover_href and cover_href in self.oeb_book.manifest.hrefs:
+            if cover_href not in self.image_hrefs:
                 self.image_hrefs[cover_href] = f'img_{len(self.image_hrefs)}'
             return f'<coverpage><image l:href="#{self.image_hrefs[cover_href]}"/></coverpage>'
 
         return ''
 
-    def get_text(self):
+    def get_text(self) -> str:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
 
@@ -289,16 +305,20 @@ class FB2MLizer:
 
         for item in self.oeb_book.spine:
             self.log.debug(f'Converting {item.href} to FictionBook2 XML')
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
+            stylizer = Stylizer(root, item.href, self.oeb_book, self.opts, self.opts.output_profile)
 
             # Start a <section> if we must sectionize each file or if the TOC references this page
             page_section_open = False
-            if self.opts.sectionize == 'files' or None in self.toc.get(item.href, ()):
+            if self.opts.sectionize == 'files' or None in (self.toc.get(item.href) or ()):
                 text.append('<section>')
                 page_section_open = True
                 self.section_level += 1
 
-            text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+            body = root.find(XHTML('body'))
+            assert body is not None
+            text += self.dump_text(body, stylizer, item)
 
             if page_section_open:
                 text.append('</section>')
@@ -312,7 +332,7 @@ class FB2MLizer:
         text.append('</body>')
         return ''.join(text)
 
-    def fb2mlize_images(self):
+    def fb2mlize_images(self) -> str:
         """
         This function uses the self.image_hrefs dictionary mapping. It is populated by the dump_text function.
         """
@@ -326,7 +346,9 @@ class FB2MLizer:
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
                     if item.media_type not in ('image/jpeg', 'image/png'):
-                        imdata = save_cover_data_to(item.data, compression_quality=70)
+                        idata = item.data
+                        assert isinstance(idata, bytes)  # raster images are unparsed bytes, errors are logged below
+                        imdata = save_cover_data_to(idata, compression_quality=70)
                         raw_data = as_base64_unicode(imdata)
                         content_type = 'image/jpeg'
                     else:
@@ -340,25 +362,29 @@ class FB2MLizer:
                     self.log.error(f'Error: Could not include file {item.href} because {e}.')
         return '\n'.join(images)
 
-    def create_flat_toc(self, nodes, level) -> None:
+    def create_flat_toc(self, nodes: Iterable[TOC], level: int) -> None:
         for item in nodes:
+            if item.href is None:
+                self.create_flat_toc(item.nodes, level + 1)
+                continue
             href, mid, id = item.href.partition('#')
             if not id:
                 self.toc[href] = {None: 'page'}
             else:
-                if not self.toc.get(href, None):
-                    self.toc[href] = {}
-                self.toc[href][id] = level
+                entry = self.toc.get(href, None)
+                if not entry:
+                    entry = self.toc[href] = {}
+                entry[id] = level
                 self.create_flat_toc(item.nodes, level + 1)
 
-    def ensure_p(self):
+    def ensure_p(self) -> tuple[list[str], list[str]]:
         if self.in_p:
             return [], []
         else:
             self.in_p = True
             return ['<p>'], ['p']
 
-    def close_open_p(self, tags):
+    def close_open_p(self, tags: list[str]) -> tuple[list[str], bool]:
         text = ['']
         added_p = False
 
@@ -381,9 +407,9 @@ class FB2MLizer:
 
         return text, added_p
 
-    def handle_simple_tag(self, tag, tags):
-        s_out = []
-        s_tags = []
+    def handle_simple_tag(self, tag: str, tags: list[str]) -> tuple[list[str], list[str]]:
+        s_out: list[str] = []
+        s_tags: list[str] = []
         if tag not in tags:
             p_out, p_tags = self.ensure_p()
             s_out += p_out
@@ -392,7 +418,7 @@ class FB2MLizer:
             s_tags.append(tag)
         return s_out, s_tags
 
-    def dump_text(self, elem_tree, stylizer, page, tag_stack=None):
+    def dump_text(self, elem_tree: _Element, stylizer: Stylizer, page: Manifest.Item, tag_stack: list[str] | None = None) -> list[str]:
         """
         This function is intended to be used in a recursive manner. dump_text will
         run though all elements in the elem_tree and call itself on each element.
@@ -413,9 +439,9 @@ class FB2MLizer:
         elem = elem_tree
 
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.
-        if not isinstance(elem_tree.tag, (str, bytes)) or namespace(elem_tree.tag) != XHTML_NS:
+        if not isinstance(elem_tree.tag, str) or namespace(elem_tree.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
+            if p is not None and isinstance(p.tag, str) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return []
 
@@ -426,9 +452,9 @@ class FB2MLizer:
             return []
 
         # FB2 generated output.
-        fb2_out = []
+        fb2_out: list[str] = []
         # FB2 tags in the order they are opened. This will be used to close the tags.
-        tags = []
+        tags: list[str] = []
         # First tag in tree
         tag = barename(elem_tree.tag)
         # Number of blank lines above tag
@@ -454,7 +480,8 @@ class FB2MLizer:
                             newlevel = 1
                             self.toc[page.href] = None
                     if not newlevel and elem_tree.attrib.get('id', None) is not None:
-                        newlevel = toc_entry.get(elem_tree.attrib.get('id', None), None)
+                        # only the None key maps to a str
+                        newlevel = cast('int | None', toc_entry.get(elem_tree.attrib.get('id', None), None))
 
                 # Start a new section if necessary
                 if newlevel:
@@ -565,8 +592,8 @@ class FB2MLizer:
 
         return fb2_out
 
-    def close_tags(self, tags):
-        text = []
+    def close_tags(self, tags: list[str]) -> list[str]:
+        text: list[str] = []
         for tag in tags:
             text.append(f'</{tag}>')
             if tag == 'p':

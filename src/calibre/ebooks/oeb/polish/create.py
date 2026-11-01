@@ -3,6 +3,7 @@
 
 import os
 import sys
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
@@ -22,10 +23,13 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
+
 valid_empty_formats = {'epub', 'txt', 'docx', 'azw3', 'md'}
 
 
-def create_toc(mi, opf, html_name, lang):
+def create_toc(mi: Metadata, opf: etree._Element, html_name: str, lang: str) -> etree._Element:
     uuid = ''
     for u in opf.xpath('//*[@id="uuid_id"]'):
         uuid = u.text
@@ -34,7 +38,7 @@ def create_toc(mi, opf, html_name, lang):
     return create_ncx(toc, lambda x: x, mi.title, lang, uuid)
 
 
-def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx') -> None:
+def create_book(mi: Metadata, path: str, fmt: str = 'epub', opf_name: str = 'metadata.opf', html_name: str = 'start.xhtml', toc_name: str = 'toc.ncx') -> None:
     """Create an empty book in the specified format at the specified location."""
     if fmt not in valid_empty_formats:
         raise ValueError(f'Cannot create empty book in the {fmt} format')

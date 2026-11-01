@@ -4,6 +4,7 @@
 import re
 import uuid
 from collections import Counter, OrderedDict
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from lxml import etree
@@ -12,19 +13,25 @@ from calibre.ebooks import ConversionError
 from calibre.ebooks.oeb.base import TOC, XHTML, XPNSMAP, barename, xml2text
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from optparse import Values
 
-def XPath(x):
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+
+
+def XPath(x: str) -> etree.XPath:
     try:
         return etree.XPath(x, namespaces=XPNSMAP)
     except etree.XPathSyntaxError:
         raise ConversionError(f'The syntax of the XPath expression {x!r} is invalid.')
 
 
-def isspace(x):
+def isspace(x: str | None) -> bool:
     return not x or x.replace('\xa0', '').isspace()
 
 
-def at_start(elem) -> bool:
+def at_start(elem: etree._Element) -> bool:
     "Return True if there is no content before elem"
     body = XPath('ancestor-or-self::h:body')(elem)
     if not body:
@@ -43,7 +50,7 @@ def at_start(elem) -> bool:
 
 
 class DetectStructure:
-    def __call__(self, oeb, opts):
+    def __call__(self, oeb: OEBBook, opts: Values | OptionValues) -> None:
         self.log = oeb.log
         self.oeb = oeb
         self.opts = opts
@@ -75,7 +82,9 @@ class DetectStructure:
         if opts.page_breaks_before is not None:
             pb_xpath = XPath(opts.page_breaks_before)
             for item in oeb.spine:
-                for elem in pb_xpath(item.data):
+                root = item.data
+                assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+                for elem in pb_xpath(root):
                     try:
                         prev = next(elem.itersiblings(tag=etree.Element, preceding=True))
                         if barename(elem.tag) in {'h1', 'h2'} and barename(prev.tag) in {'h1', 'h2'} and (not prev.tail or not prev.tail.split()):
@@ -105,9 +114,10 @@ class DetectStructure:
             self.log.warn(f'Invalid start reading at XPath expression, ignoring: {expr}')
             return
         for item in self.oeb.spine:
-            if not hasattr(item.data, 'xpath'):
+            root = item.data
+            if not isinstance(root, etree._Element):
                 continue
-            matches = expr(item.data)
+            matches = expr(root)
             if matches:
                 elem = matches[0]
                 eid = elem.get('id', None)
@@ -121,7 +131,7 @@ class DetectStructure:
                 return
         self.log.warn(f'Failed to find start reading at position: {self.opts.start_reading_at}')
 
-    def get_toc_parts_for_xpath(self, expr):
+    def get_toc_parts_for_xpath(self, expr: str) -> tuple[str, str | None]:
         # if an attribute is selected by the xpath expr then truncate it
         # from the path and instead return it as where to find the title text
         title_attribute_regex = re.compile(r'/@([-\w]+)$')
@@ -132,10 +142,10 @@ class DetectStructure:
         return expr, None
 
     def detect_chapters(self) -> None:
-        self.detected_chapters = []
-        self.chapter_title_attribute = None
+        self.detected_chapters: list[tuple[Manifest.Item, etree._Element]] = []
+        self.chapter_title_attribute: str | None = None
 
-        def find_matches(expr, doc):
+        def find_matches(expr: str, doc: etree._Element) -> list[etree._Element]:
             try:
                 ans = XPath(expr)(doc)
                 len(ans)
@@ -148,13 +158,15 @@ class DetectStructure:
             chapter_path, title_attribute = self.get_toc_parts_for_xpath(self.opts.chapter)
             self.chapter_title_attribute = title_attribute
             for item in self.oeb.spine:
-                for x in find_matches(chapter_path, item.data):
+                root = item.data
+                assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+                for x in find_matches(chapter_path, root):
                     self.detected_chapters.append((item, x))
 
             chapter_mark = self.opts.chapter_mark
             page_break_before = 'display: block; page-break-before: always'
             page_break_after = 'display: block; page-break-after: always'
-            c = Counter()
+            c: Counter[Manifest.Item] = Counter()
             for item, elem in self.detected_chapters:
                 c[item] += 1
                 text = xml2text(elem).strip()
@@ -195,7 +207,9 @@ class DetectStructure:
     def create_toc_from_links(self) -> None:
         num = 0
         for item in self.oeb.spine:
-            for a in XPath('//h:a[@href]')(item.data):
+            root = item.data
+            assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
+            for a in XPath('//h:a[@href]')(root):
                 href = a.get('href')
                 try:
                     purl = urlparse(href)
@@ -222,7 +236,7 @@ class DetectStructure:
                             self.log('Maximum TOC links reached, stopping.')
                             return
 
-    def elem_to_link(self, item, elem, title_attribute, counter):
+    def elem_to_link(self, item: Manifest.Item, elem: etree._Element, title_attribute: str | None, counter: int) -> tuple[str, str]:
         text = ''
         if title_attribute is not None:
             text = elem.get(title_attribute, '')
@@ -240,11 +254,11 @@ class DetectStructure:
         return text, href
 
     def add_leveled_toc_items(self) -> None:
-        added = OrderedDict()
-        added2 = OrderedDict()
+        added: OrderedDict[etree._Element, TOC] = OrderedDict()
+        added2: OrderedDict[etree._Element, TOC] = OrderedDict()
         counter = 1
 
-        def find_matches(expr, doc):
+        def find_matches(expr: str, doc: etree._Element) -> list[etree._Element]:
             try:
                 ans = XPath(expr)(doc)
                 len(ans)
@@ -254,11 +268,13 @@ class DetectStructure:
                 return []
 
         for document in self.oeb.spine:
+            root = document.data
+            assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
             previous_level1 = list(added.values())[-1] if added else None
             previous_level2 = list(added2.values())[-1] if added2 else None
 
             level1_toc, level1_title = self.get_toc_parts_for_xpath(self.opts.level1_toc)
-            for elem in find_matches(level1_toc, document.data):
+            for elem in find_matches(level1_toc, root):
                 text, _href = self.elem_to_link(document, elem, level1_title, counter)
                 counter += 1
                 if text:
@@ -268,9 +284,9 @@ class DetectStructure:
 
             if self.opts.level2_toc is not None and added:
                 level2_toc, level2_title = self.get_toc_parts_for_xpath(self.opts.level2_toc)
-                for elem in find_matches(level2_toc, document.data):
+                for elem in find_matches(level2_toc, root):
                     level1 = None
-                    for item in document.data.iterdescendants():
+                    for item in root.iterdescendants():
                         if item in added:
                             level1 = added[item]
                         elif item == elem:
@@ -286,9 +302,9 @@ class DetectStructure:
 
                 if self.opts.level3_toc is not None and added2:
                     level3_toc, level3_title = self.get_toc_parts_for_xpath(self.opts.level3_toc)
-                    for elem in find_matches(level3_toc, document.data):
+                    for elem in find_matches(level3_toc, root):
                         level2 = None
-                        for item in document.data.iterdescendants():
+                        for item in root.iterdescendants():
                             if item in added2:
                                 level2 = added2[item]
                             elif item == elem:

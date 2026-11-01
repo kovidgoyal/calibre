@@ -7,9 +7,9 @@ import re
 import sys
 import tempfile
 from collections import deque
-from collections.abc import Callable
 from itertools import chain
 from math import ceil, floor
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
 from calibre import __appname__, entity_regex, entity_to_unicode, fit_image, force_unicode, preferred_encoding
@@ -47,6 +47,28 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+    from typing import TypedDict
+
+    import bs4
+
+    from calibre.ebooks.conversion.plugins.lrf_output import LRFOptions
+    from calibre.ebooks.lrf import PRS500_PROFILE, FontFamilies
+    from calibre.ebooks.lrf.pylrs.pylrs import AttrValue, LrsContainer, Page, TextContent, TocTarget
+    from calibre.ebooks.lrf.pylrs.pylrs import Book as LrsBook
+    from calibre.ebooks.metadata.toc import TOC
+    from calibre.utils.logging import Log
+
+    # A CSS declaration block, property name -> value
+    type CSSProps = dict[str, str]
+    # pseudo class name -> CSS
+    type PseudoCSS = dict[str, CSSProps]
+    # Note that in the casts of tag attribute values to str below, only the class
+    # attribute is multi-valued, all other attribute values are str
+
+    Link = TypedDict('Link', {'para': Span | EmpLine, 'text': str, 'path': str, 'fragment': str, 'in toc': bool})
+
 '''
 Code to convert HTML ebooks into LRF ebooks.
 
@@ -57,15 +79,15 @@ and to Falstaff for pylrs.
 from PIL import Image as PILImage
 
 
-def update_css(ncss, ocss) -> None:
-    for key in ncss.keys():
+def update_css[V](ncss: dict[str, dict[str, V]], ocss: dict[str, dict[str, V]]) -> None:
+    for key, val in ncss.items():
         if key in ocss:
-            ocss[key].update(ncss[key])
+            ocss[key].update(val)
         else:
-            ocss[key] = ncss[key]
+            ocss[key] = val
 
 
-def munge_paths(basepath, url):
+def munge_paths(basepath: str, url: str) -> tuple[str, str]:
     purl = urlparse(
         unquote(url),
     )
@@ -80,7 +102,7 @@ def munge_paths(basepath, url):
     return os.path.normpath(path), fragment
 
 
-def strip_style_comments(match):
+def strip_style_comments(match: re.Match[str]) -> str:
     src = match.group()
     while True:
         lindex = src.find('/*')
@@ -94,7 +116,7 @@ def strip_style_comments(match):
     return src
 
 
-def tag_regex(tagname):
+def tag_regex(tagname: str) -> dict[str, str]:
     """Return non-grouping regular expressions that match the opening and closing tags for tagname"""
     return dict(
         open=r'(?:<\s*{t}\s+[^<>]*?>|<\s*{t}\s*>)'.format(**dict(t=tagname)),
@@ -181,17 +203,47 @@ class HTMLConverter:
         (re.compile(r'<div[^><]*?>(&nbsp;){4}</div>', re.IGNORECASE), lambda match: '<p></p>'),
     ]
 
-    def __hasattr__(self, attr):
+    # The conversion options, accessed via __getattr__() and __setattr__() below.
+    # The types are the ones after process_file() has pre-processed them.
+    options: LRFOptions
+    _override_css: str | None
+    anchor_ids: bool
+    autorotation: bool
+    baen: bool
+    base_font_size: float
+    blank_after_para: bool
+    book_designer: bool
+    chapter_attr: list[re.Pattern[str] | str]
+    chapter_regex: re.Pattern[str]
+    cover: str | None
+    disable_chapter_detection: bool
+    encoding: str | None
+    font_delta: float
+    force_page_break: re.Pattern[str]
+    force_page_break_attr: list[re.Pattern[str] | str]
+    ignore_colors: bool
+    ignore_tables: bool
+    link_exclude: re.Pattern[str]
+    link_levels: int
+    minimize_memory_usage: bool
+    minimum_indent: float
+    page_break: re.Pattern[str]
+    pdftohtml: bool
+    profile: type[PRS500_PROFILE]
+    use_spine: bool
+    verbose: bool
+
+    def __hasattr__(self, attr: str) -> bool:
         if hasattr(self.options, attr):
             return True
         raise AttributeError(attr)
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> object:
         if hasattr(self.options, attr):
             return getattr(self.options, attr)
         return object.__getattribute__(self, attr)
 
-    def __setattr__(self, attr, val) -> None:
+    def __setattr__(self, attr: str, val: object) -> None:
         if hasattr(self.options, attr):
             setattr(self.options, attr, val)
         else:
@@ -221,7 +273,7 @@ class HTMLConverter:
         'sub': {'vertical-align': 'sub', 'font-size': '60%'},
     }
 
-    def __init__(self, book, fonts, options, logger, paths) -> None:
+    def __init__(self, book: LrsBook, fonts: FontFamilies, options: LRFOptions, logger: Log, paths: list[str]) -> None:
         """
         Convert HTML files at C{paths} and add to C{book}. After creating
         the object, you must call L{self.writeto} to output the LRF/S file.
@@ -323,13 +375,13 @@ class HTMLConverter:
             self.log.info('\tRationalizing font sizes...')
             self.book.rationalize_font_sizes(self.base_font_size)
 
-    def is_baen(self, soup):
+    def is_baen(self, soup: bs4.BeautifulSoup) -> bool:
         return bool(soup.find('meta', attrs={'name': 'Publisher', 'content': re.compile(r'Baen', re.IGNORECASE)}))
 
-    def is_book_designer(self, raw):
+    def is_book_designer(self, raw: str) -> bool:
         return bool(re.search(r'<H2[^><]*id=BookTitle', raw))
 
-    def preprocess(self, raw):
+    def preprocess(self, raw: str) -> bs4.BeautifulSoup:
         nmassage = []
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
 
@@ -375,7 +427,7 @@ class HTMLConverter:
 
         return soup
 
-    def add_file(self, path) -> None:
+    def add_file(self, path: str) -> None:
         self.css = HTMLConverter.CSS.copy()
         self.pseudo_css = self.override_pcss.copy()
         for selector in self.override_css:
@@ -408,14 +460,15 @@ class HTMLConverter:
         self.tops[path] = self.parse_file(soup)
         self.processed_files.append(path)
 
-    def parse_css(self, style):
+    def parse_css(self, style: str) -> tuple[dict[str, CSSProps], dict[str, PseudoCSS]]:
         """
         Parse the contents of a <style> tag or .css file.
         @param style: C{str(style)} should be the CSS to parse.
         @return: A dictionary with one entry per selector where the key is the
         selector name and the value is a dictionary of properties
         """
-        sdict, pdict = {}, {}
+        sdict: dict[str, CSSProps] = {}
+        pdict: dict[str, PseudoCSS] = {}
         style = re.sub(r'/\*.*?\*/', '', style)  # Remove /*...*/ comments
         for sel in re.findall(HTMLConverter.SELECTOR_PAT, style):
             for key in sel[0].split(','):
@@ -438,14 +491,14 @@ class HTMLConverter:
                     sdict[key] = val
         return sdict, pdict
 
-    def parse_style_properties(self, props):
+    def parse_style_properties(self, props: str) -> CSSProps:
         """
         Parses a style attribute. The code within a CSS selector block or in
         the style attribute of an HTML element.
         @return: A dictionary with one entry for each property where the key
                 is the property name and the value is the property value.
         """
-        prop = {}
+        prop: CSSProps = {}
         for s in props.split(';'):
             l = s.split(':', 1)
             if len(l) == 2:
@@ -454,19 +507,19 @@ class HTMLConverter:
                 prop[key] = val
         return prop
 
-    def tag_css(self, tag, parent_css=None):
+    def tag_css(self, tag: Tag, parent_css: CSSProps | None = None) -> tuple[CSSProps, PseudoCSS]:
         """
         Return a dictionary of style properties applicable to Tag tag.
         """
         if parent_css is None:
             parent_css = {}
 
-        def merge_parent_css(prop, pcss) -> None:
+        def merge_parent_css(prop: CSSProps, pcss: CSSProps) -> None:
             # float should not be inherited according to the CSS spec
             # however we need to as we don't do alignment at a block level.
             # float is removed by the process_alignment function.
             inherited = ['text-align', 'float', 'white-space', 'color', 'line-height', 'vertical-align']
-            temp = {}
+            temp: CSSProps = {}
             for key in pcss.keys():
                 chk = key.lower()
                 # float should not be inherited according to the CSS spec
@@ -476,12 +529,13 @@ class HTMLConverter:
                     temp[key] = pcss[key]
             prop.update(temp)
 
-        prop, pprop = {}, {}
+        prop: CSSProps = {}
+        pprop: PseudoCSS = {}
         tagname = tag.name.lower()
         if parent_css:
             merge_parent_css(prop, parent_css)
         if tag.has_attr('align'):
-            al = tag['align'].lower()
+            al = cast('str', tag['align']).lower()
             if al in ('left', 'right', 'center', 'justify'):
                 prop['text-align'] = al
         if tagname in self.css:
@@ -500,13 +554,13 @@ class HTMLConverter:
                     if classname in self.pseudo_css:
                         pprop.update(self.pseudo_css[classname])
         if tag.has_attr('id') and tag['id'] in self.css:
-            prop.update(self.css[tag['id']])
+            prop.update(self.css[cast('str', tag['id'])])
         if tag.has_attr('style'):
-            prop.update(self.parse_style_properties(tag['style']))
+            prop.update(self.parse_style_properties(cast('str', tag['style'])))
         return prop, pprop
 
-    def parse_file(self, soup):
-        def get_valid_block(page):
+    def parse_file(self, soup: bs4.BeautifulSoup) -> TocTarget:
+        def get_valid_block(page: Page) -> TocTarget | None:
             for item in page.contents:
                 if isinstance(item, (Canvas, TextBlock, ImageBlock, RuledLine)):
                     if isinstance(item, TextBlock) and not item.contents:
@@ -537,12 +591,13 @@ class HTMLConverter:
             self.book.append(self.current_page)
             self.current_page = None
 
-        if top not in top.parent.contents:  # May have been removed for a cover image
-            top = top.parent.contents[0]
-        if not top.has_text() and top.parent.contents.index(top) == len(top.parent.contents) - 1:
+        # top has been appended to a page
+        if top not in cast('Page', top.parent).contents:  # May have been removed for a cover image
+            top = cast('Page', top.parent).contents[0]
+        if not top.has_text() and cast('Page', top.parent).contents.index(top) == len(cast('Page', top.parent).contents) - 1:
             # Empty block at the bottom of a page
-            opage = top.parent
-            top.parent.contents.remove(top)
+            opage = cast('Page', top.parent)
+            opage.contents.remove(top)
             if self.book.last_page() is opage:
                 if self.current_page and self.current_page.has_text():
                     for c in self.current_page.contents:
@@ -566,11 +621,11 @@ class HTMLConverter:
 
         return top
 
-    def create_link(self, children, tag):
+    def create_link(self, children: list[LrsContainer], tag: Tag) -> Link:
         para = None
         for i in range(len(children) - 1, -1, -1):
             if isinstance(children[i], (Span, EmpLine)):
-                para = children[i]
+                para = cast('Span | EmpLine', children[i])
                 break
         if para is None:
             raise ConversionError(_('Failed to parse link %(tag)s %(children)s') % dict(tag=tag, children=children))
@@ -580,11 +635,11 @@ class HTMLConverter:
             img = tag.find('img')
             if img:
                 try:
-                    text = img['alt']
+                    text = cast('str', img['alt'])
                 except KeyError:
                     pass
 
-        path, fragment = munge_paths(self.target_prefix, tag['href'])
+        path, fragment = munge_paths(self.target_prefix, cast('str', tag['href']))
         return {
             'para': para,
             'text': text,
@@ -593,7 +648,7 @@ class HTMLConverter:
             'in toc': (self.link_level == 0 and not self.use_spine and not self.options.no_links_in_toc),
         }
 
-    def get_text(self, tag, limit=None):
+    def get_text(self, tag: Tag, limit: int | None = None) -> str:
         css = self.tag_css(tag)[0]
         if ('display' in css and css['display'].lower() == 'none') or ('visibility' in css and css['visibility'].lower() == 'hidden'):
             return ''
@@ -607,25 +662,25 @@ class HTMLConverter:
                 text += str(c)
             elif isinstance(c, Tag):
                 if c.name.lower() == 'img' and c.has_attr('alt'):
-                    alt_text += c['alt']
+                    alt_text += cast('str', c['alt'])
                     continue
                 text += self.get_text(c)
         return text if text.strip() else alt_text
 
-    def process_links(self):
-        def add_toc_entry(text, target) -> None:
+    def process_links(self) -> deque[Link]:
+        def add_toc_entry(text: str, target: TocTarget) -> None:
             # TextBlocks in Canvases have a None parent or an Objects Parent
             if target.parent is not None and hasattr(target.parent, 'objId'):
                 self.book.addTocEntry(ascii_text, tb)
             else:
                 self.log.debug(f'Cannot add link {ascii_text} to TOC')
 
-        def get_target_block(fragment, targets):
+        def get_target_block(fragment: str, targets: dict[str, TocTarget | BlockSpace]) -> TocTarget:
             """Return the correct block for the <a name> element"""
             bs = targets[fragment]
             if not isinstance(bs, BlockSpace):
                 return bs
-            ans, found, page = None, False, bs.parent
+            ans, found, page = None, False, cast('Page', bs.parent)
             for item in page.contents:
                 if found:
                     if isinstance(item, (TextBlock, RuledLine, ImageBlock)):
@@ -652,7 +707,7 @@ class HTMLConverter:
                 page.contents.remove(bs)
             return ans
 
-        outside_links = deque()
+        outside_links: deque[Link] = deque()
         while len(self.links) > 0:
             link = self.links.popleft()
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
@@ -682,15 +737,15 @@ class HTMLConverter:
 
         return outside_links
 
-    def create_toc(self, toc) -> None:
+    def create_toc(self, toc: TOC) -> None:
         for item in toc.top_level_items():
             ascii_text = item.text
             if not item.fragment and item.abspath in self.tops:
-                self.book.addTocEntry(ascii_text, self.tops[item.abspath])
+                self.book.addTocEntry(ascii_text, self.tops[item.abspath])  # ty: ignore[invalid-argument-type] TOC entries from the OPF have text and abspath is in tops
             elif item.abspath:
                 url = item.abspath + (item.fragment or '')
                 if url in self.targets:
-                    self.book.addTocEntry(ascii_text, self.targets[url])
+                    self.book.addTocEntry(ascii_text, self.targets[url])  # ty: ignore[invalid-argument-type] TOC entries from the OPF have text
 
     def end_page(self) -> None:
         """
@@ -701,7 +756,7 @@ class HTMLConverter:
             self.current_para.append_to(self.current_block)
             self.current_para = Paragraph()
         if self.current_block.has_text() or self.current_block.must_append:
-            self.current_block.append_to(self.current_page)
+            self.current_block.append_to(self.current_page)  # ty: ignore[invalid-argument-type] current_page is only None after a file has been parsed
             self.current_block = self.book.create_text_block()
         current_page = self.current_page
         assert current_page is not None
@@ -709,7 +764,7 @@ class HTMLConverter:
             self.book.append(current_page)
             self.current_page = self.book.create_page()
 
-    def add_image_page(self, path) -> None:
+    def add_image_page(self, path: str) -> None:
         if os.access(path, os.R_OK):
             self.end_page()
             pwidth, pheight = self.profile.screen_width, self.profile.screen_height - self.profile.fudge
@@ -734,7 +789,7 @@ class HTMLConverter:
             page.append(canvas)
             self.book.append(page)
 
-    def process_children(self, ptag, pcss, ppcss=None) -> None:
+    def process_children(self, ptag: Tag, pcss: CSSProps, ppcss: PseudoCSS | None = None) -> None:
         """Process the children of ptag"""
         # Need to make a copy of contents as when
         # extract is called on a child, it will
@@ -755,7 +810,7 @@ class HTMLConverter:
             except AttributeError:
                 print(ptag, type(ptag))
 
-    def get_alignment(self, css):
+    def get_alignment(self, css: CSSProps) -> str:
         val = css['text-align'].lower() if 'text-align' in css else None
         align = 'head'
         if val is not None:
@@ -772,7 +827,7 @@ class HTMLConverter:
             css.pop('float')
         return align
 
-    def process_alignment(self, css) -> bool:
+    def process_alignment(self, css: CSSProps) -> bool:
         """
         Create a new TextBlock only if necessary as indicated by css
         @type css: dict
@@ -780,7 +835,7 @@ class HTMLConverter:
         align = self.get_alignment(css)
         if align != self.current_block.textStyle.attrs['align']:
             self.current_para.append_to(self.current_block)
-            self.current_block.append_to(self.current_page)
+            self.current_block.append_to(self.current_page)  # ty: ignore[invalid-argument-type] current_page is only None after a file has been parsed
             ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
             ts.attrs['align'] = align
             try:
@@ -793,13 +848,13 @@ class HTMLConverter:
             return True
         return False
 
-    def add_text(self, tag, css, pseudo_css, force_span_use=False) -> None:
+    def add_text(self, tag: NavigableString | str, css: CSSProps, pseudo_css: PseudoCSS, force_span_use: bool = False) -> None:
         """
         Add text to the current paragraph taking CSS into account.
         @param tag: Either a BeautifulSoup tag or a string
         @param css: A dict
         """
-        src = tag.string if hasattr(tag, 'string') else tag
+        src = cast('str', tag.string if hasattr(tag, 'string') else tag)
         if len(src) > 32760:
             pos = 0
             while pos < len(src):
@@ -826,7 +881,7 @@ class HTMLConverter:
             # Don't want leading blanks in a new paragraph
             src = src.lstrip()
 
-        def append_text(src) -> None:
+        def append_text(src: str) -> None:
             fp, key, variant = self.font_properties(css)
             for x, y in [
                 ('\xad', ''),
@@ -839,7 +894,7 @@ class HTMLConverter:
             ]:
                 src = src.replace(x, y)
 
-            valigner: Callable[..., object] = lambda x: x  # ruff: ignore[lambda-assignment]
+            valigner: Callable[[str], TextContent] = lambda x: x  # ruff: ignore[lambda-assignment]
             if 'vertical-align' in css:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):
@@ -858,11 +913,11 @@ class HTMLConverter:
                         dump.append(Span(valigner(c), fontsize=normal_font_size))
                     else:
                         temp.append(c.upper())
-                src = dump
+                content: TextContent = dump
                 if temp:
-                    src.append(valigner(''.join(temp)))
+                    dump.append(valigner(''.join(temp)))
             else:
-                src = valigner(src)
+                content = valigner(src)
 
             if key in ['italic', 'bi']:
                 already_italic = False
@@ -873,7 +928,7 @@ class HTMLConverter:
                         already_italic = True
                         break
                 if not already_italic:
-                    src = Italic(src)
+                    content = Italic(content)
 
             unneeded = []
             for prop in fp:
@@ -885,7 +940,7 @@ class HTMLConverter:
             if 'color' in css and not self.ignore_colors:
                 attrs['textcolor'] = lrs_color(css['color'])
             attrs.update(fp)
-            elem = Span(text=src, **attrs) if (attrs or force_span_use) else src
+            elem = Span(text=content, **attrs) if (attrs or force_span_use) else content
             if 'text-decoration' in css:
                 dec = css['text-decoration'].lower()
                 linepos = 'after' if dec == 'underline' else 'before' if dec == 'overline' else None
@@ -939,8 +994,16 @@ class HTMLConverter:
             current_page.append(self.current_block)
             self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle, blockStyle=self.current_block.blockStyle)
 
-    def process_image(self, path, tag_css, width=None, height=None, dropcaps=False, rescale=False) -> None:
-        def detect_encoding(im) -> str:
+    def process_image(
+        self,
+        path: str,
+        tag_css: CSSProps,
+        width: int | None = None,
+        height: int | None = None,
+        dropcaps: bool = False,
+        rescale: bool = False,
+    ) -> None:
+        def detect_encoding(im: PILImage.Image) -> str:
             fmt = im.format or 'JPEG'
             if fmt == 'JPG':
                 fmt = 'JPEG'
@@ -959,7 +1022,7 @@ class HTMLConverter:
             return
         encoding = detect_encoding(im)
 
-        def scale_image(width, height):
+        def scale_image(width: float, height: float) -> str | None:
             if width <= 0:
                 width = 1
             if height <= 0:
@@ -977,7 +1040,7 @@ class HTMLConverter:
         if width is None or height is None:
             width, height = im.size
         elif rescale and (width < im.size[0] or height < im.size[1]):
-            path = scale_image(width, height)
+            path = scale_image(width, height)  # ty: ignore[invalid-assignment] None is handled below
             if not path:
                 return
 
@@ -996,7 +1059,7 @@ class HTMLConverter:
                 height = int(0.75 * pheight)
                 scale = True
             if scale:
-                path = scale_image(width, height)
+                path = scale_image(width, height)  # ty: ignore[invalid-assignment] None is handled below
             if path not in self.images:
                 self.images[path] = ImageStream(path)
             lrf_im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height, xsize=width, ysize=height)
@@ -1023,7 +1086,7 @@ class HTMLConverter:
 
         scaled, width, height = fit_image(width, height, pwidth, pheight)
         if scaled:
-            path = scale_image(width, height)
+            path = scale_image(width, height)  # ty: ignore[invalid-assignment] None is handled below
 
         if not path:
             return
@@ -1074,7 +1137,7 @@ class HTMLConverter:
                 0,
             )
 
-    def process_page_breaks(self, tag, tagname, tag_css):
+    def process_page_breaks(self, tag: Tag, tagname: str, tag_css: CSSProps) -> bool:
         if 'page-break-before' in tag_css.keys():
             if tag_css['page-break-before'].lower() != 'avoid':
                 self.end_page()
@@ -1087,9 +1150,10 @@ class HTMLConverter:
                 end_page = True
             tag_css.pop('page-break-after')
         if (
-            self.force_page_break_attr[0].match(tagname)
-            and tag.has_attr(self.force_page_break_attr[1])
-            and self.force_page_break_attr[2].match(tag[self.force_page_break_attr[1]])
+            # force_page_break_attr is [tag name pattern, attribute name, attribute value pattern]
+            self.force_page_break_attr[0].match(tagname)  # ty: ignore[unresolved-attribute]
+            and tag.has_attr(self.force_page_break_attr[1])  # ty: ignore[invalid-argument-type]
+            and self.force_page_break_attr[2].match(tag[self.force_page_break_attr[1]])  # ty: ignore[unresolved-attribute, invalid-argument-type, no-matching-overload]
         ) or self.force_page_break.match(tagname):
             self.end_page()
             self.page_break_found = True
@@ -1105,10 +1169,10 @@ class HTMLConverter:
                 self.log.debug(f'Forcing page break at {tagname}')
         return end_page
 
-    def block_properties(self, tag_css):
+    def block_properties(self, tag_css: CSSProps) -> dict[str, AttrValue]:
 
-        def get(what):
-            src = [None for i in range(4)]
+        def get(what: str) -> list[str | None]:
+            src: list[str | None] = [None for i in range(4)]
             if what in tag_css:
                 msrc = tag_css[what].split()
                 for i in range(min(len(msrc), len(src))):
@@ -1122,7 +1186,7 @@ class HTMLConverter:
 
         bl = str(self.current_block.blockStyle.attrs['blockwidth']) + 'px'
 
-        def set(default, one, two):
+        def set(default: AttrValue, one: str | None, two: str | None) -> AttrValue:
             fval = None
             if one is not None:
                 val = self.unit_convert(one, base_length='10pt' if 'em' in one else bl)
@@ -1136,7 +1200,7 @@ class HTMLConverter:
                 fval = default
             return fval
 
-        ans = {}
+        ans: dict[str, AttrValue] = {}
         ans['topskip'] = set(self.book.defaultBlockStyle.attrs['topskip'], s1[0], s2[0])
         ans['footskip'] = set(self.book.defaultBlockStyle.attrs['footskip'], s1[2], s2[2])
         ans['sidemargin'] = set(self.book.defaultBlockStyle.attrs['sidemargin'], s1[3], s2[3])
@@ -1159,19 +1223,19 @@ class HTMLConverter:
 
         return ans
 
-    def font_properties(self, css):
+    def font_properties(self, css: CSSProps) -> tuple[dict[str, AttrValue], str, str | None]:
         """
         Convert the font propertiess in css to the Xylog equivalents. If the CSS
-        does not contain a particular font property, the default from self.book.defaultTextSytle
+        does not contain a particular font property, the default from self.book.defaultTextStyle
         is used. Assumes 1em = 10pt
         @return: dict, key, variant. The dict contains the Xlog equivalents. key indicates
           the font type (i.e. bold, bi, normal) and variant is None or 'small-caps'
         """
-        t = {}
+        t: dict[str, AttrValue] = {}
         for key in ('fontwidth', 'fontsize', 'wordspace', 'fontfacename', 'fontweight', 'baselineskip'):
             t[key] = self.book.defaultTextStyle.attrs[key]
 
-        def font_weight(val) -> str:
+        def font_weight(val: str) -> str:
             ans = 0
             m = re.search(r'([0-9]+)', val)
             if m:
@@ -1180,13 +1244,13 @@ class HTMLConverter:
                 ans = 700
             return 'bold' if ans >= 700 else 'normal'
 
-        def font_style(val):
+        def font_style(val: str) -> str:
             ans = 'normal'
             if 'italic' in val or 'oblique' in val:
                 ans = 'italic'
             return ans
 
-        def font_family(val):
+        def font_family(val: str) -> str:
             ans = 'serif'
             if max(val.find('courier'), val.find('mono'), val.find('fixed'), val.find('typewriter')) >= 0:
                 ans = 'mono'
@@ -1203,13 +1267,13 @@ class HTMLConverter:
                 ans = 'sans'
             return ans
 
-        def font_variant(val):
+        def font_variant(val: str) -> str | None:
             ans = None
             if 'small-caps' in val.lower():
                 ans = 'small-caps'
             return ans
 
-        def font_key(family, style, weight):
+        def font_key(family: str, style: str, weight: str) -> str:
             key = 'normal'
             if style == 'italic' and weight == 'normal':
                 key = 'italic'
@@ -1219,7 +1283,7 @@ class HTMLConverter:
                 key = 'bi'
             return key
 
-        def font_size(val):
+        def font_size(val: str) -> str | None:
             """
             Assumes 1em=100%=10pt
             """
@@ -1230,11 +1294,11 @@ class HTMLConverter:
                 if ans <= 0:
                     ans += normal
                     if ans == 0:  # Common case of using -1em to mean "smaller"
-                        ans = int(font_size('smaller'))
+                        ans = int(cast('str', font_size('smaller')))
                     if ans < 0:
                         ans = normal
             elif ans == 0:
-                ans = int(font_size('smaller'))
+                ans = int(cast('str', font_size('smaller')))
             elif 'smaller' in val:
                 ans = normal - 20
             elif 'xx-small' in val:
@@ -1315,7 +1379,7 @@ class HTMLConverter:
         t['baselineskip'] = fs + 20
         return t, key, variant
 
-    def unit_convert(self, val, pts=False, base_length='10pt'):
+    def unit_convert(self, val: str, pts: bool = False, base_length: str = '10pt') -> int | None:
         """
         Tries to convert html units in C{val} to pixels.
         @param pts: If True return 10*pts instead of pixels.
@@ -1332,7 +1396,7 @@ class HTMLConverter:
         if m is not None and m.group(1):
             unit = float(m.group(1))
             if m.group(2) == '%':
-                normal = self.unit_convert(base_length)
+                normal = cast('int', self.unit_convert(base_length))  # base_length is a valid length
                 result = (unit / 100) * normal
             elif m.group(2) == 'px':
                 result = unit
@@ -1343,7 +1407,7 @@ class HTMLConverter:
             elif m.group(2) == 'dpt':
                 result = unit * dpi / 720
             elif m.group(2) == 'em':
-                normal = self.unit_convert(base_length)
+                normal = cast('int', self.unit_convert(base_length))  # base_length is a valid length
                 result = unit * normal
             elif m.group(2) == 'pc':
                 result = unit * (dpi / 72) * 12
@@ -1358,7 +1422,7 @@ class HTMLConverter:
                 result = round(result)
         return result
 
-    def text_properties(self, tag_css):
+    def text_properties(self, tag_css: CSSProps) -> dict[str, AttrValue]:
         indent = self.book.defaultTextStyle.attrs['parindent']
         if 'text-indent' in tag_css:
             bl = str(self.current_block.blockStyle.attrs['blockwidth']) + 'px'
@@ -1390,7 +1454,7 @@ class HTMLConverter:
 
         return fp
 
-    def process_block(self, tag, tag_css) -> bool:
+    def process_block(self, tag: Tag, tag_css: CSSProps) -> bool:
         """Ensure padding and text-indent properties are respected"""
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
@@ -1403,7 +1467,7 @@ class HTMLConverter:
 
         align = self.get_alignment(tag_css)
 
-        def fill_out_properties(props, default) -> None:
+        def fill_out_properties(props: dict[str, AttrValue], default: Mapping[str, AttrValue]) -> None:
             for key in default.keys():
                 if key not in props:
                     props[key] = default[key]
@@ -1411,7 +1475,7 @@ class HTMLConverter:
         fill_out_properties(block_properties, self.book.defaultBlockStyle.attrs)
         fill_out_properties(text_properties, self.book.defaultTextStyle.attrs)
 
-        def properties_different(dict1, dict2):
+        def properties_different(dict1: Mapping[str, AttrValue], dict2: Mapping[str, AttrValue]) -> bool:
             return any(dict1[key] != dict2[key] for key in dict1.keys())
 
         if (
@@ -1425,7 +1489,7 @@ class HTMLConverter:
             bs = self.current_block.blockStyle.copy()
             if not self.preserve_block_style:
                 bs.attrs.update(block_properties)
-            self.current_block.append_to(self.current_page)
+            self.current_block.append_to(self.current_page)  # ty: ignore[invalid-argument-type] current_page is only None after a file has been parsed
             try:
                 index = self.text_styles.index(ts)
                 ts = self.text_styles[index]
@@ -1440,10 +1504,10 @@ class HTMLConverter:
             return True
         return False
 
-    def process_anchor(self, tag, tag_css, tag_pseudo_css) -> None:
+    def process_anchor(self, tag: Tag, tag_css: CSSProps, tag_pseudo_css: PseudoCSS) -> None:
         if not self.in_table:  # Anchors in tables are handled separately
             key = 'name' if tag.has_attr('name') else 'id'
-            name = tag[key].replace('#', '')
+            name = cast('str', tag[key]).replace('#', '')
             previous = self.current_block
             self.process_children(tag, tag_css, tag_pseudo_css)
             target = None
@@ -1480,12 +1544,12 @@ class HTMLConverter:
         else:
             self.process_children(tag, tag_css, tag_pseudo_css)
 
-    def parse_tag(self, tag, parent_css) -> None:
+    def parse_tag(self, tag: Tag, parent_css: CSSProps) -> None:
         try:
             tagname = tag.name.lower()
         except AttributeError:
             if not isinstance(tag, HTMLConverter.IGNORED_TAGS):
-                self.add_text(tag, parent_css, {})
+                self.add_text(tag, parent_css, {})  # ty: ignore[invalid-argument-type] only reached for strings
             return
         tag_css, tag_pseudo_css = self.tag_css(tag, parent_css=parent_css)
         try:  # Skip element if its display attribute is set to none
@@ -1494,8 +1558,9 @@ class HTMLConverter:
         except KeyError:
             pass
         if not self.disable_chapter_detection and (
-            self.chapter_attr[0].match(tagname)
-            and (self.chapter_attr[1].lower() == 'none' or (tag.has_attr(self.chapter_attr[1]) and self.chapter_attr[2].match(tag[self.chapter_attr[1]])))
+            # chapter_attr is [tag name pattern, attribute name, attribute value pattern]
+            self.chapter_attr[0].match(tagname)  # ty: ignore[unresolved-attribute]
+            and (self.chapter_attr[1].lower() == 'none' or (tag.has_attr(self.chapter_attr[1]) and self.chapter_attr[2].match(tag[self.chapter_attr[1]])))  # ty: ignore[unresolved-attribute, invalid-argument-type, no-matching-overload]
         ):
             self.log.debug(f'Detected chapter {tagname}')
             self.end_page()
@@ -1510,11 +1575,11 @@ class HTMLConverter:
             if tagname in ['title', 'script', 'meta', 'del', 'frameset']:
                 pass
             elif tagname == 'a' and self.link_levels >= 0:
-                if tag.has_attr('href') and not self.link_exclude.match(tag['href']):
-                    if urlparse(tag['href'])[0] not in ('', 'file'):
+                if tag.has_attr('href') and not self.link_exclude.match(cast('str', tag['href'])):
+                    if urlparse(cast('str', tag['href']))[0] not in ('', 'file'):
                         self.process_children(tag, tag_css, tag_pseudo_css)
                     else:
-                        path = munge_paths(self.target_prefix, tag['href'])[0]
+                        path = munge_paths(self.target_prefix, cast('str', tag['href']))[0]
                         ext = os.path.splitext(path)[1]
                         if ext:
                             ext = ext[1:].lower()
@@ -1529,10 +1594,10 @@ class HTMLConverter:
                                 self.links.append(self.create_link(self.current_para.contents, tag))
                                 if tag.has_attr('id') or tag.has_attr('name'):
                                     key = 'name' if tag.has_attr('name') else 'id'
-                                    self.targets[self.target_prefix + tag[key]] = self.current_block
+                                    self.targets[self.target_prefix + cast('str', tag[key])] = self.current_block
                                     self.current_block.must_append = True
                         else:
-                            self.log.debug('Could not follow link to ' + tag['href'])
+                            self.log.debug('Could not follow link to ' + cast('str', tag['href']))
                             self.process_children(tag, tag_css, tag_pseudo_css)
                 elif tag.has_attr('name') or tag.has_attr('id'):
                     self.process_anchor(tag, tag_css, tag_pseudo_css)
@@ -1540,31 +1605,31 @@ class HTMLConverter:
                     self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'img':
                 if tag.has_attr('src'):
-                    path = munge_paths(self.target_prefix, tag['src'])[0]
+                    path = munge_paths(self.target_prefix, cast('str', tag['src']))[0]
                     if not os.path.exists(path):
                         path = path.replace('&', '%26')  # convertlit replaces & with %26
                     if os.access(path, os.R_OK) and os.path.isfile(path):
                         width, height = None, None
                         try:
-                            width = int(tag['width'])
-                            height = int(tag['height'])
+                            width = int(cast('str', tag['width']))
+                            height = int(cast('str', tag['height']))
                         except Exception:
                             pass
                         dropcaps = tag.get('class') in ('libprs500_dropcaps', ['libprs500_dropcaps'])
                         self.process_image(path, tag_css, width, height, dropcaps=dropcaps, rescale=True)
-                    elif not urlparse(tag['src'])[0]:
-                        self.log.warn('Could not find image: ' + tag['src'])
+                    elif not urlparse(cast('str', tag['src']))[0]:
+                        self.log.warn('Could not find image: ' + cast('str', tag['src']))
                 else:
                     self.log.debug(f'Failed to process: {tag!s}')
             elif tagname in ['style', 'link']:
                 ncss, npcss = {}, {}
                 if tagname == 'style':
-                    text = ''.join([str(i) for i in tag.findAll(text=True)])
+                    text = ''.join([str(i) for i in tag.findAll(text=True)])  # ty: ignore[missing-argument, unknown-argument] bs4 types findAll() as taking one positional argument
                     css, pcss = self.parse_css(text)
                     ncss.update(css)
                     npcss.update(pcss)
                 elif tag.has_attr('type') and tag['type'] in ('text/css', 'text/x-oeb1-css') and tag.has_attr('href'):
-                    path = munge_paths(self.target_prefix, tag['href'])[0]
+                    path = munge_paths(self.target_prefix, cast('str', tag['href']))[0]
                     try:
                         with open(path, 'rb') as f:
                             src = f.read().decode('utf-8', 'replace')
@@ -1573,7 +1638,7 @@ class HTMLConverter:
                             self.page_break_found = True
                         ncss, npcss = self.parse_css(src)
                     except OSError:
-                        self.log.warn('Could not read stylesheet: ' + tag['href'])
+                        self.log.warn('Could not read stylesheet: ' + cast('str', tag['href']))
                 if ncss:
                     update_css(ncss, self.css)
                     self.css.update(self.override_css)
@@ -1604,7 +1669,7 @@ class HTMLConverter:
                     old_counter = self.list_counter
                     self.list_counter = 1
                     try:
-                        self.list_counter = int(tag['start'])
+                        self.list_counter = int(cast('str', tag['start']))
                     except Exception:
                         pass
                 prev_bs = self.current_block.blockStyle
@@ -1654,7 +1719,7 @@ class HTMLConverter:
                     self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'blockquote':
                 self.current_para.append_to(self.current_block)
-                self.current_block.append_to(self.current_page)
+                self.current_block.append_to(self.current_page)  # ty: ignore[invalid-argument-type] current_page is only None after a file has been parsed
                 pb = self.current_block
                 self.current_para = Paragraph()
                 ts = self.book.create_text_style()
@@ -1677,7 +1742,7 @@ class HTMLConverter:
                 self.process_children(tag, tag_css, tag_pseudo_css)
                 self.preserve_block_style = False
                 self.current_para.append_to(self.current_block)
-                self.current_block.append_to(self.current_page)
+                self.current_block.append_to(self.current_page)  # ty: ignore[invalid-argument-type] current_page is only None after a file has been parsed
                 self.current_para = Paragraph()
                 self.current_block = self.book.create_text_block(textStyle=pb.textStyle, blockStyle=pb.blockStyle)
             elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
@@ -1688,7 +1753,7 @@ class HTMLConverter:
                         tag['id'] = __appname__ + '_id_' + str(self.id_counter)
                         self.id_counter += 1
 
-                    tkey = self.target_prefix + tag['id']
+                    tkey = self.target_prefix + cast('str', tag['id'])
                     if not new_block:
                         self.end_current_block()
                     self.current_block.must_append = True
@@ -1732,9 +1797,9 @@ class HTMLConverter:
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'font':
                 if tag.has_attr('face'):
-                    tag_css['font-family'] = tag['face']
+                    tag_css['font-family'] = cast('str', tag['face'])
                 if tag.has_attr('color'):
-                    tag_css['color'] = tag['color']
+                    tag_css['color'] = cast('str', tag['color'])
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'br':
                 self.line_break()
@@ -1771,7 +1836,7 @@ class HTMLConverter:
             if end_page:
                 self.end_page()
 
-    def process_table(self, tag, tag_css) -> None:
+    def process_table(self, tag: Tag, tag_css: CSSProps) -> None:
         self.end_current_block()
         self.current_block = self.book.create_text_block()
         rowpad = 10
@@ -1785,7 +1850,7 @@ class HTMLConverter:
                 if ypos > int(ps['textheight']):
                     raise Exception(_('Table has cell that is too large'))
                 canvases.append(Canvas(int(current_page.pageStyle.attrs['textwidth']), ypos + rowpad, blockrule='block-fixed'))
-                for name in targets:
+                for name in targets:  # ty: ignore[not-iterable] targets is a list when block is None
                     self.targets[self.target_prefix + name] = canvases[-1]
             else:
                 xpos = min(xpos, 65535)
@@ -1800,7 +1865,7 @@ class HTMLConverter:
             block.parent.contents.remove(block)
             block.parent = None
 
-    def writeto(self, path, lrs=False) -> None:
+    def writeto(self, path: str, lrs: bool = False) -> None:
         self.remove_unused_target_blocks()
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
@@ -1809,7 +1874,7 @@ class HTMLConverter:
             _file.__del__()
 
 
-def process_file(path, options, logger):
+def process_file(path: str, options: LRFOptions, logger: Log) -> str:
     path = os.path.abspath(path)
     default_title = force_unicode(os.path.splitext(os.path.basename(path))[0], filesystem_encoding)
     dirpath = os.path.dirname(path)
@@ -1817,7 +1882,7 @@ def process_file(path, options, logger):
     tpath = ''
     try_opf(path, options, logger)
     if getattr(options, 'cover', None):
-        options.cover = os.path.expanduser(options.cover)
+        options.cover = os.path.expanduser(options.cover)  # ty: ignore[no-matching-overload] cover is not None here
         if not os.path.isabs(options.cover):
             options.cover = os.path.join(dirpath, options.cover)
         if os.access(options.cover, os.R_OK):
@@ -1891,30 +1956,31 @@ def process_file(path, options, logger):
         fheader = fheader.replace('%%a', '%a')
         fheader = fheader.replace('%%t', '%t')
         header.append(fheader + '  ')
-    book, fonts = Book(options, logger, header=header, **args)
+    book, fonts = Book(options, logger, header=header, **args)  # ty: ignore[invalid-argument-type] args does not contain the named parameters
     le = re.compile(options.link_exclude) if options.link_exclude else re.compile(r'$')
     pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else re.compile(r'$')
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else re.compile(r'$')
     cq = options.chapter_attr.split(',')
     if len(cq) < 3:
         raise ValueError('The --chapter-attr setting must have 2 commas.')
-    options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], re.compile(cq[2], re.IGNORECASE)]
-    options.force_page_break = fpb
-    options.link_exclude = le
-    options.page_break = pb
+    # The following options are replaced by their compiled form, see the HTMLConverter class
+    options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], re.compile(cq[2], re.IGNORECASE)]  # ty: ignore[invalid-assignment] replaced by the compiled form
+    options.force_page_break = fpb  # ty: ignore[invalid-assignment] replaced by the compiled form
+    options.link_exclude = le  # ty: ignore[invalid-assignment] replaced by the compiled form
+    options.page_break = pb  # ty: ignore[invalid-assignment] replaced by the compiled form
     if not isinstance(options.chapter_regex, str):
         options.chapter_regex = options.chapter_regex.decode(preferred_encoding)
-    options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
+    options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)  # ty: ignore[invalid-assignment] replaced by the compiled form
     fpba = options.force_page_break_attr.split(',')
     if len(fpba) != 3:
         fpba = ['$', '', '$']
-    options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1], re.compile(fpba[2], re.IGNORECASE)]
+    options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1], re.compile(fpba[2], re.IGNORECASE)]  # ty: ignore[invalid-assignment] replaced by the compiled form
     if not hasattr(options, 'anchor_ids'):
-        options.anchor_ids = True
-    files = options.spine if (options.use_spine and hasattr(options, 'spine')) else [path]
+        options.anchor_ids = True  # ty: ignore[invalid-assignment] set dynamically on LRFOptions
+    files = options.spine if (options.use_spine and hasattr(options, 'spine')) else [path]  # spine is set by try_opf()
     conv = HTMLConverter(book, fonts, options, logger, files)
     if options.use_spine and hasattr(options, 'toc') and options.toc is not None:
-        conv.create_toc(options.toc)
+        conv.create_toc(options.toc)  # toc is set by try_opf()
     oname = options.output
     if not oname:
         suffix = '.lrs' if options.lrs else '.lrf'
@@ -1926,9 +1992,9 @@ def process_file(path, options, logger):
     return oname
 
 
-def try_opf(path, options, logger) -> None:
+def try_opf(path: str, options: LRFOptions, logger: Log) -> None:
     if hasattr(options, 'opf'):
-        opf = options.opf
+        opf = cast('str', options.opf)
     else:
         files = glob.glob(os.path.join(os.path.dirname(path), '*'))
         opf = None

@@ -4,6 +4,7 @@ import os
 import struct
 import sys
 from compression import bz2, zlib
+from typing import IO, cast
 
 from calibre import guess_type
 from calibre.utils import StreamOrPath
@@ -18,7 +19,7 @@ class FileStream:
     contentOffset: int
     blockIndex: int
 
-    def IsBinary(self):
+    def IsBinary(self) -> bool:
         return self.attr & 0x41000000 != 0x41000000
 
 
@@ -33,21 +34,21 @@ class SNBFile:
     REVZ1 = 0x00000000
     REVZ2 = 0x00000000
 
-    def __init__(self, inputFile=None) -> None:
-        self.files = []
-        self.blocks = []
+    def __init__(self, inputFile: str | None = None) -> None:
+        self.files: list[FileStream] = []
+        self.blocks: list[BlockData] = []
 
         if inputFile is not None:
             self.Open(inputFile)
 
-    def Open(self, inputFile) -> None:
+    def Open(self, inputFile: str) -> None:
         self.fileName = inputFile
 
         with open(self.fileName, 'rb') as f:
             f.seek(0)
             self.Parse(f)
 
-    def Parse(self, snbFile, metaOnly=False) -> None:
+    def Parse(self, snbFile: IO[bytes], metaOnly: bool = False) -> None:
         # Read header
         vmbr = snbFile.read(44)
         (
@@ -116,7 +117,7 @@ class SNBFile:
             else:
                 raise ValueError(f'Invalid file: {f.attr} {f.fileName}')
 
-    def ParseFile(self, vfat, fileCount) -> None:
+    def ParseFile(self, vfat: bytes, fileCount: int) -> None:
         fileNames = vfat[fileCount * 12 :].split(b'\0')
         for i in range(fileCount):
             f = FileStream()
@@ -125,7 +126,7 @@ class SNBFile:
             f.fileName = fileNames[i].decode('utf-8', 'replace')
             self.files.append(f)
 
-    def ParseTail(self, vtail, fileCount) -> None:
+    def ParseTail(self, vtail: bytes, fileCount: int) -> None:
         self.binBlock = (self.binStreamSize + 0x8000 - 1) // 0x8000
         self.plainBlock = (self.plainStreamSizeUncompressed + 0x8000 - 1) // 0x8000
         for i in range(self.binBlock + self.plainBlock):
@@ -160,7 +161,7 @@ class SNBFile:
             return False
         return True
 
-    def FromDir(self, tdir) -> None:
+    def FromDir(self, tdir: str) -> None:
         for root, dirs, files in os.walk(tdir):
             for name in files:
                 p, ext = os.path.splitext(name)
@@ -169,7 +170,7 @@ class SNBFile:
                 else:
                     self.AppendBinary(os.path.relpath(os.path.join(root, name), tdir), tdir)
 
-    def AppendPlain(self, fileName, tdir) -> None:
+    def AppendPlain(self, fileName: str, tdir: str) -> None:
         f = FileStream()
         f.attr = 0x41000000
         f.fileSize = os.path.getsize(os.path.join(tdir, fileName))
@@ -178,7 +179,7 @@ class SNBFile:
         f.fileName = fileName.replace(os.sep, '/')
         self.files.append(f)
 
-    def AppendBinary(self, fileName, tdir) -> None:
+    def AppendBinary(self, fileName: str, tdir: str) -> None:
         f = FileStream()
         f.attr = 0x01000000
         f.fileSize = os.path.getsize(os.path.join(tdir, fileName))
@@ -187,24 +188,24 @@ class SNBFile:
         f.fileName = fileName.replace(os.sep, '/')
         self.files.append(f)
 
-    def GetFileStream(self, fileName):
+    def GetFileStream(self, fileName: str) -> bytes | None:
         for file in self.files:
             if file.fileName == fileName:
                 return file.fileBody
         return None
 
-    def OutputImageFiles(self, path):
-        fileNames = []
+    def OutputImageFiles(self, path: str) -> list[tuple[str, str]]:
+        fileNames: list[tuple[str, str]] = []
         for f in self.files:
             fname = os.path.basename(f.fileName)
             root, ext = os.path.splitext(fname)
             if ext in ['.jpeg', '.jpg', '.gif', '.svg', '.png']:
                 with open(os.path.join(path, fname), 'wb') as outfile:
                     outfile.write(f.fileBody)
-                fileNames.append((fname, guess_type('a' + ext)[0]))
+                fileNames.append((fname, cast('str', guess_type('a' + ext)[0])))  # all these extensions have known mimetypes
         return fileNames
 
-    def Output(self, outputFile) -> None:
+    def Output(self, outputFile: str | IO[bytes]) -> None:
 
         # Sort the files in file buffer,
         # required by the SNB file format

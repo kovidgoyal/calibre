@@ -3,10 +3,12 @@
 
 import os
 from collections import defaultdict
-from collections.abc import Iterator
 from queue import Empty, Queue
 from threading import Thread
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
+
+from lxml import etree
 
 from calibre import browser
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML_MIME, urlunquote
@@ -16,6 +18,17 @@ from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, actual_case_for_name, corrected_case_for_name, guess_type
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+    from collections.abc import Set as AbstractSet
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+#: (name, href, lnum, col) of an external link
+type ExternalLinkLocation = tuple[str, str, int | None, int | None]
 
 
 class BadLink(BaseError):
@@ -41,7 +54,7 @@ class MalformedURL(BadLink):
 class CaseMismatch(BadLink):
     RULE_NAME = _('Case of link does not match case of file')
 
-    def __init__(self, href, corrected_name, name, lnum, col) -> None:
+    def __init__(self, href: str, corrected_name: str, name: str, lnum: int | None, col: int | None) -> None:
         BadLink.__init__(self, _('The linked to resource {0} does not exist').format(href), name, line=lnum, col=col)
         self.HELP = _(
             'The case of the link {0} and the case of the actual file it points to {1}'
@@ -51,7 +64,7 @@ class CaseMismatch(BadLink):
         self.corrected_name = corrected_name
         self.href = href
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         frag = urlparse(self.href).fragment
         nhref = container.name_to_href(self.corrected_name, self.name)
         if frag:
@@ -60,8 +73,9 @@ class CaseMismatch(BadLink):
 
         class LinkReplacer:
             replaced = False
+            file_type: str  # set by Container.replace_links()
 
-            def __call__(self, url):
+            def __call__(self, url: str) -> str:
                 if url != orig_href:
                     return url
                 self.replaced = True
@@ -75,7 +89,7 @@ class CaseMismatch(BadLink):
 class BadDestinationType(BaseError):
     level = WARN
 
-    def __init__(self, link_source, link_dest, link_elem) -> None:
+    def __init__(self, link_source: str, link_dest: str, link_elem: _Element) -> None:
         BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=link_elem.sourceline)
         self.HELP = _(
             'The link "{0}" points to a file <i>{1}</i> that is not a text (HTML) document.'
@@ -90,7 +104,7 @@ class BadDestinationType(BaseError):
 class BadDestinationFragment(BaseError):
     level = WARN
 
-    def __init__(self, link_source, link_dest, link_elem, fragment) -> None:
+    def __init__(self, link_source: str, link_dest: str, link_elem: _Element, fragment: str) -> None:
         BaseError.__init__(self, _('Link points to a location not present in the target file'), link_source, line=link_elem.sourceline)
         self.bad_href = link_elem.get('href')
         self.HELP = _(
@@ -130,7 +144,7 @@ class UnreferencedResource(BadLink):
         ' probably remove this file from the book or add a link to it somewhere.'
     )
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         BadLink.__init__(self, _('The file %s is not referenced') % name, name)
 
 
@@ -139,7 +153,7 @@ class UnreferencedDoc(UnreferencedResource):
     HELP = _('This file is not in the book spine. All content documents must be in the spine. You should probably add it to the spine.')
     INDIVIDUAL_FIX = _('Append this file to the spine')
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         from calibre.ebooks.oeb.base import OPF
 
         rmap = {v: k for k, v in container.manifest_id_map.items()}
@@ -162,14 +176,14 @@ class Unmanifested(BadLink):
         ' file in the manifest or remove it from the book if it is an unnecessary file.'
     )
 
-    def __init__(self, name, unreferenced=None) -> None:
+    def __init__(self, name: str, unreferenced: bool | None = None) -> None:
         BadLink.__init__(self, _('The file %s is not listed in the manifest') % name, name)
-        self.file_action = None
+        self.file_action: str | None = None
         if unreferenced is not None:
             self.INDIVIDUAL_FIX = _('Remove %s from the book') % name if unreferenced else _('Add %s to the manifest') % name
             self.file_action = 'remove' if unreferenced else 'add'
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         if self.file_action == 'remove':
             container.remove_item(self.name)
         else:
@@ -182,12 +196,12 @@ class Unmanifested(BadLink):
 class DanglingLink(BadLink):
     RULE_NAME = _('Linked resource does not exist')
 
-    def __init__(self, text, target_name, name, lnum, col) -> None:
+    def __init__(self, text: str, target_name: str, name: str, lnum: int | None, col: int | None) -> None:
         BadLink.__init__(self, text, name, lnum, col)
         self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML and CSS in the book') % target_name
         self.target_name = target_name
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         return bool(remove_links_to(container, lambda name, *a: name == self.target_name))
 
 
@@ -202,10 +216,10 @@ class Bookmarks(BadLink):
     INDIVIDUAL_FIX = _('Remove this file')
     level = INFO
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         BadLink.__init__(self, _('The bookmarks file used by the calibre E-book viewer is present'), name)
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         container.remove_item(self.name)
         return True
 
@@ -214,7 +228,7 @@ class MimetypeMismatch(BaseError):
     RULE_NAME = _('MIME type does not match file extension')
     level = WARN
 
-    def __init__(self, container, name, opf_mt, ext_mt) -> None:
+    def __init__(self, container: Container, name: str, opf_mt: str, ext_mt: str) -> None:
         self.opf_mt, self.ext_mt = opf_mt, ext_mt
         self.file_name = name
         BaseError.__init__(self, _('The file %s has a MIME type that does not match its extension') % name, container.opf_name)
@@ -226,12 +240,12 @@ class MimetypeMismatch(BaseError):
         ).format(name, opf_mt, ext, ext_mt)
         if opf_mt in OEB_DOCS and name in {n for n, l in container.spine_names}:
             self.INDIVIDUAL_FIX = _('Change the file extension to .xhtml')
-            self.change_ext_to = 'xhtml'
+            self.change_ext_to: str | None = 'xhtml'
         else:
             self.INDIVIDUAL_FIX = _('Change the MIME type for this file in the OPF to %s') % ext_mt
             self.change_ext_to = None
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         changed = False
         if self.change_ext_to is not None:
             from calibre.ebooks.oeb.polish.replace import rename_files
@@ -255,8 +269,8 @@ class MimetypeMismatch(BaseError):
         return changed
 
 
-def check_mimetypes(container):
-    errors = []
+def check_mimetypes(container: Container) -> list[BaseError]:
+    errors: list[BaseError] = []
     a = errors.append
     for name, mt in container.mime_map.items():
         gt = container.guess_type(name)
@@ -267,7 +281,7 @@ def check_mimetypes(container):
     return errors
 
 
-def check_link_destination(container, dest_map, name, href, a, errors) -> None:
+def check_link_destination(container: Container, dest_map: dict[str, set[str]], name: str, href: str, a: _Element, errors: list[BaseError]) -> None:
     if href.startswith('#'):
         tname = name
     else:
@@ -280,7 +294,7 @@ def check_link_destination(container, dest_map, name, href, a, errors) -> None:
             errors.append(BadDestinationType(name, tname, a))
         else:
             root = container.parsed(tname)
-            if hasattr(root, 'xpath'):
+            if isinstance(root, etree._Element):
                 if tname not in dest_map:
                     dest_map[tname] = set(root.xpath('//*/@id|//*/@name'))
                 purl = urlparse(href)
@@ -290,15 +304,17 @@ def check_link_destination(container, dest_map, name, href, a, errors) -> None:
                 errors.append(BadDestinationType(name, tname, a))
 
 
-def check_link_destinations(container):
+def check_link_destinations(container: Container) -> list[BaseError]:
     "Check destinations of links that point to HTML files"
-    errors = []
-    dest_map = {}
+    errors: list[BaseError] = []
+    dest_map: dict[str, set[str]] = {}
     opf_type = guess_type('a.opf')
     ncx_type = guess_type('a.ncx')
     for name, mt in container.mime_map.items():
         if mt in OEB_DOCS:
-            for a in container.parsed(name).xpath('//*[local-name()="a" and @href]'):
+            root = container.parsed(name)
+            assert isinstance(root, etree._Element)
+            for a in root.xpath('//*[local-name()="a" and @href]'):
                 href = a.get('href')
                 check_link_destination(container, dest_map, name, href, a, errors)
         elif mt == opf_type:
@@ -309,23 +325,26 @@ def check_link_destinations(container):
                     'other.ms-coverimage',
                 }:
                     continue
-                href = a.get('href')
+                href = cast('str', a.get('href'))  # selected by the XPath expression
                 check_link_destination(container, dest_map, name, href, a, errors)
         elif mt == ncx_type:
-            for a in container.parsed(name).xpath('//*[local-name() = "content" and @src]'):
+            root = container.parsed(name)
+            assert isinstance(root, etree._Element)
+            for a in root.xpath('//*[local-name() = "content" and @src]'):
                 href = a.get('src')
                 check_link_destination(container, dest_map, name, href, a, errors)
 
     return errors
 
 
-def find_referenced_names_in_smil(container, name: str) -> Iterator[str]:
+def find_referenced_names_in_smil(container: Container, name: str) -> Iterator[str | None]:
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     for src in root.xpath('//*[local-name()="audio" and @src]/@src'):
         yield container.href_to_name(src, name)
 
 
-def locate_spine_media_overlays(container) -> Iterator[str]:
+def locate_spine_media_overlays(container: Container) -> Iterator[str | None]:
     mmap = {item.get('id', ''): item for item in container.manifest_items}
     for item, name, is_linear in container.spine_iter:
         if (m := mmap.get(item.get('idref', ''), None)) is not None:
@@ -336,13 +355,13 @@ def locate_spine_media_overlays(container) -> Iterator[str]:
                             yield from find_referenced_names_in_smil(container, name)
 
 
-def check_links(container):
-    links_map = defaultdict(set)
+def check_links(container: Container) -> list[BaseError]:
+    links_map: defaultdict[str, set[str]] = defaultdict(set)
     xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
-    errors = []
+    errors: list[BaseError] = []
     a = errors.append
 
-    def fl(x):
+    def fl(x: str) -> str:
         x = repr(x)
         x = x.removeprefix('u')
         return x
@@ -350,6 +369,8 @@ def check_links(container):
     for name, mt in container.mime_map.items():
         if mt in OEB_DOCS or mt in OEB_STYLES or mt in xml_types:
             for href, lnum, col in container.iterlinks(name):
+                # Container.iterlinks() only yields values of attributes that are present
+                href = cast('str', href)
                 if not href:
                     a(EmptyLink(_('The link is empty'), name, lnum, col))
                 try:
@@ -438,8 +459,8 @@ def check_links(container):
     return errors
 
 
-def get_html_ids(raw_data):
-    ans = set()
+def get_html_ids(raw_data: bytes) -> set[str]:
+    ans: set[str] = set()
     root = parse_html5(raw_data, discard_namespaces=True, line_numbers=False, fix_newlines=False)
     for body in root.xpath('//body'):
         ans.update(set(body.xpath('descendant-or-self::*/@id')))
@@ -447,24 +468,28 @@ def get_html_ids(raw_data):
     return ans
 
 
-def check_external_links(container, progress_callback=(lambda num, total: None), check_anchors=True):
+def check_external_links(
+    container: Container, progress_callback: Callable[[int, int], object] = (lambda num, total: None), check_anchors: bool = True
+) -> list[tuple[list[ExternalLinkLocation], Exception, str]]:
     progress_callback(0, 0)
-    external_links = defaultdict(list)
+    external_links: defaultdict[str, list[ExternalLinkLocation]] = defaultdict(list)
     for name, mt in container.mime_map.items():
         if mt in OEB_DOCS or mt in OEB_STYLES:
             for href, lnum, col in container.iterlinks(name):
+                # Container.iterlinks() only yields values of attributes that are present
+                href = cast('str', href)
                 purl = urlparse(href)
                 if purl.scheme in ('http', 'https'):
                     external_links[href].append((name, href, lnum, col))
     if not external_links:
         return []
-    items = Queue()
-    ans = []
+    items: Queue[tuple[str, list[ExternalLinkLocation]]] = Queue()
+    ans: list[tuple[list[ExternalLinkLocation], Exception, str]] = []
     for el in external_links.items():
         items.put(el)
     progress_callback(0, len(external_links))
-    done = []
-    downloaded_html_ids = {}
+    done: list[None] = []
+    downloaded_html_ids: dict[str, AbstractSet[str]] = {}
 
     def check_links() -> None:
         br = browser(honor_time=False, verify_ssl_certificates=False)

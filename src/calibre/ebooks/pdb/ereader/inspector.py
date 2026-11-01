@@ -11,7 +11,7 @@ from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.header import PdbHeaderReader
 
 
-def ereader_header_info(header) -> None:
+def ereader_header_info(header: PdbHeaderReader) -> None:
     h0 = header.section_data(0)
 
     print(f'Header Size:     {len(h0)}')
@@ -28,7 +28,7 @@ def ereader_header_info(header) -> None:
         raise EreaderError(f'Size mismatch. eReader header record size {len(h0)} KB is not supported.')
 
 
-def pdb_header_info(header) -> None:
+def pdb_header_info(header: PdbHeaderReader) -> None:
     print('PDB Header Info:')
     print()
     print(f'Identity:        {header.ident}')
@@ -37,7 +37,7 @@ def pdb_header_info(header) -> None:
     print()
 
 
-def ereader_header_info132(h0) -> None:
+def ereader_header_info132(h0: bytes) -> None:
     print('Ereader Record 0 (Header) Info:')
     print()
     print(f"0-2 Version:             {struct.unpack('>H', h0[0:2])[0]}")
@@ -74,7 +74,7 @@ def ereader_header_info132(h0) -> None:
     print()
 
 
-def ereader_header_info202(h0) -> None:
+def ereader_header_info202(h0: bytes) -> None:
     print('Ereader Record 0 (Header) Info:')
     print()
     print(f"0-2 Version:             {struct.unpack('>H', h0[0:2])[0]}")
@@ -107,7 +107,7 @@ def ereader_header_info202(h0) -> None:
     print()
 
 
-def section_lengths(header) -> None:
+def section_lengths(header: PdbHeaderReader) -> None:
     print('Section Sizes')
     print()
 
@@ -121,7 +121,7 @@ def section_lengths(header) -> None:
         print(f'Section {i}:   {size} {message}')
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     if len(args) < 2:
         print('Error: requires input file.')
         return 1

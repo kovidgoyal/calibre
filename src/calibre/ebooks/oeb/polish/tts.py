@@ -8,9 +8,9 @@ import sys
 from collections import defaultdict
 from contextlib import suppress
 from functools import partial
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast, overload
 
-from lxml.etree import ElementBase as Element
+from lxml import etree
 from lxml.etree import tostring as _tostring
 
 from calibre.ebooks.html_transform_rules import unwrap_tag
@@ -21,6 +21,17 @@ from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.spell.break_iterator import split_into_sentences_for_tts_embed
 from calibre.utils.localization import _, canonicalize_lang, get_lang
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from lxml.etree import _Element
+    from qt.core import QObject
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+    # Called with (stage, item, count, total), returns True to abort
+    type ReportProgressType = Callable[[str, str, int, int], bool]
+
 
 class Sentence(NamedTuple):
     elem_id: str
@@ -29,22 +40,26 @@ class Sentence(NamedTuple):
     voice: str
 
 
-def tostring(x) -> str:
+def tostring(x: _Element) -> str:
     return _tostring(x, encoding='unicode')
 
 
-def lang_for_elem(elem, parent_lang):
+@overload
+def lang_for_elem(elem: _Element, parent_lang: str) -> str: ...
+@overload
+def lang_for_elem(elem: _Element, parent_lang: str | None) -> str | None: ...
+def lang_for_elem(elem: _Element, parent_lang: str | None) -> str | None:
     return canonicalize_lang(elem.get('lang') or elem.get('xml_lang') or elem.get('{http://www.w3.org/XML/1998/namespace}lang')) or parent_lang
 
 
-def has_text(elem):
+def has_text(elem: _Element) -> bool:
     if elem.text and elem.text.strip():
         return True
     return any(child.tail and child.tail.strip() for child in elem)
 
 
 class Chunk(NamedTuple):
-    child: Element | None
+    child: _Element | None
     text: str
     start_at: int
     is_tail: bool = False
@@ -75,24 +90,27 @@ data_name = 'data-calibre-tts'
 skip_name = '__skip__'
 
 
-def unmark_sentences_in_html(root) -> None:
+def unmark_sentences_in_html(root: _Element) -> None:
     for x in root.xpath(f'//*[starts-with(@id, "{id_prefix}")]'):
         x.attrib.pop('id')
         if not x.attrib and x.tag and x.tag.endswith('span'):
             unwrap_tag(x)
 
 
-def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Sentence]:
-    root_lang = canonicalize_lang(lang_for_elem(root, canonicalize_lang(lang or get_lang())) or 'en')
+def mark_sentences_in_html(root: _Element, lang: str = '', voice: str = '') -> list[Sentence]:
+    # canonicalize_lang() of 'en' or of an already canonical language is never None
+    root_lang = cast('str', canonicalize_lang(lang_for_elem(root, canonicalize_lang(lang or get_lang())) or 'en'))
     root_voice = voice
     seen_ids = set(root.xpath('//*/@id'))
     id_counter = 1
     ans = []
     clones_map = defaultdict(list)
-    root_ns, root_sep, _ = root.tag.partition('}')
+    root_tag = root.tag
+    assert isinstance(root_tag, str)  # root is the <html> element
+    root_ns, root_sep, _ = root_tag.partition('}')
 
     class Parent:
-        def __init__(self, elem, tag_name, parent_lang, parent_voice, child_lang='') -> None:
+        def __init__(self, elem: _Element, tag_name: str, parent_lang: str, parent_voice: str, child_lang: str = '') -> None:
             self.elem = elem
             self.tag_name = tag_name
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
@@ -114,12 +132,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.children = tuple(elem.iterchildren())
             self.has_tail = bool((elem.tail or '').strip())
 
-        def add_simple_child(self, elem) -> None:
+        def add_simple_child(self, elem: _Element) -> None:
             if text := elem.text:
                 self.texts.append(Chunk(elem, text, self.pos))
                 self.pos += len(text)
 
-        def add_tail(self, elem, text) -> None:
+        def add_tail(self, elem: _Element, text: str) -> None:
             self.texts.append(Chunk(elem, text, self.pos, is_tail=True))
             self.pos += len(text)
 
@@ -134,28 +152,30 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         ans.append(Sentence(elem_id, stext, self.lang, self.voice))
             if self.has_tail:
                 p = self.elem.getparent()
+                assert p is not None  # an element with tail text always has a parent
+                tail = self.elem.tail or ''  # has_tail means the tail is a non-empty string
                 spans = []
                 before = after = None
-                for start, length in split_into_sentences_for_tts_embed(self.elem.tail, self.parent_lang):
+                for start, length in split_into_sentences_for_tts_embed(tail, self.parent_lang):
                     end = start + length
-                    text = self.elem.tail[start:end]
+                    text = tail[start:end]
                     if not text.strip() or self.parent_voice == '__skip__':
                         continue
                     if before is None:
-                        before = self.elem.tail[:start]
+                        before = tail[:start]
                     span = self.make_wrapper(text, p)
                     spans.append(span)
                     sid = span.get('id')
                     assert sid is not None
                     ans.append(Sentence(sid, text, self.parent_lang, self.parent_voice))
-                    after = self.elem.tail[end:]
+                    after = tail[end:]
                 self.elem.tail = before
                 if after and spans:
                     spans[-1].tail = after
                 idx = p.index(self.elem)
                 p[idx + 1 : idx + 1] = spans
 
-        def make_into_wrapper(self, elem: Element) -> str:
+        def make_into_wrapper(self, elem: _Element) -> str:
             nonlocal id_counter
             while True:
                 q = f'{id_prefix}{id_counter}'
@@ -165,7 +185,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     return q
                 id_counter += 1
 
-        def make_wrapper(self, text: str | None, elem: Element | None = None) -> Element:
+        def make_wrapper(self, text: str | None, elem: _Element | None = None) -> _Element:
             if elem is None:
                 elem = self.elem
             tag = elem.tag
@@ -178,14 +198,14 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.make_into_wrapper(ans)
             return ans
 
-        def replace_reference_to_child(self, elem: Element, replacement: Element) -> None:
+        def replace_reference_to_child(self, elem: _Element, replacement: _Element) -> None:
             for i in range(self.pos + 1, len(self.texts)):
                 if self.texts[i].child is elem:
                     self.texts[i] = self.texts[i]._replace(child=replacement)
                 else:
                     break
 
-        def wrap_contents(self, first_child: Element | None, last_child: Element) -> Element:
+        def wrap_contents(self, first_child: _Element | None, last_child: _Element) -> _Element:
             w = self.make_wrapper(self.elem.text if first_child is None else None)
             in_range = False
             for c in self.elem.iterchildren('*'):
@@ -205,7 +225,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.replace_reference_to_child(last_child, w)
             return w
 
-        def clone_simple_element(self, elem: Element) -> Element:
+        def clone_simple_element(self, elem: _Element) -> _Element:
             ans = elem.makeelement(elem.tag)
             ans.attrib.update(elem.attrib)
             ans.attrib.pop('id', None)
@@ -402,7 +422,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             assert wid is not None
             return wid
 
-    stack_of_parents = [Parent(elem, 'body', root_lang, root_voice) for elem in root.iterchildren('*') if barename(elem.tag).lower() == 'body']
+    stack_of_parents: list[Parent] = []
+    for elem in root.iterchildren('*'):
+        elem_tag = elem.tag
+        assert isinstance(elem_tag, str)  # iterchildren('*') yields only elements
+        if barename(elem_tag).lower() == 'body':
+            stack_of_parents.append(Parent(elem, 'body', root_lang, root_voice))
     while stack_of_parents:
         p = stack_of_parents.pop()
         simple_allowed = True
@@ -452,13 +477,13 @@ class ReportProgress:
         return False
 
 
-def make_par(container, seq, html_href, audio_href, elem_id, pos, duration) -> None:
+def make_par(container: Container, seq: _Element, html_href: str, audio_href: str, elem_id: str, pos: float, duration: float) -> None:
     seq.set(EPUB('textref'), html_href)
     par = seq.makeelement('par')
     par.tail = seq.text
     par.set('id', f'par-{len(seq) + 1}')
     seq.append(par)
-    par.text = seq.text + '  '
+    par.text = (seq.text or '') + '  '
     text = par.makeelement('text')
     text.set('src', f'{html_href}#{elem_id}')
     text.tail = par.text
@@ -471,28 +496,32 @@ def make_par(container, seq, html_href, audio_href, elem_id, pos, duration) -> N
     audio.set('clipEnd', seconds_to_timestamp(pos + duration))
 
 
-def remove_embedded_tts(container) -> None:
+def remove_embedded_tts(container: Container) -> None:
     manifest_items = container.manifest_items
     id_map = {item.get('id'): item for item in manifest_items}
     container.set_media_overlay_durations({})
-    media_files = set()
+    media_files: set[str] = set()
     for item in manifest_items:
         smil_id = item.attrib.pop('media-overlay', '')
         href = item.get('href')
         if href and smil_id:
-            name = container.href_to_name(href, container.opf_name)
+            # items with a media overlay are HTML files in the book, parsed into lxml trees
+            name = cast('str', container.href_to_name(href, container.opf_name))
             root = container.parsed(name)
+            assert isinstance(root, etree._Element)
             unmark_sentences_in_html(root)
             container.dirty(name)
             smil_item = id_map.get(smil_id)
             if smil_item is not None:
                 smil_href = smil_item.get('href')
                 if smil_href:
-                    smil_name = container.href_to_name(smil_item.get('href'), container.opf_name)
+                    # SMIL files and the audio they reference are in the book, SMIL is parsed into lxml trees
+                    smil_name = cast('str', container.href_to_name(smil_item.get('href'), container.opf_name))
                     media_files.add(smil_name)
                     smil_root = container.parsed(smil_name)
+                    assert isinstance(smil_root, etree._Element)
                     for ahref in smil_root.xpath('//*[local-name() = "audio"]/@src'):
-                        aname = container.href_to_name(ahref, smil_name)
+                        aname = cast('str', container.href_to_name(ahref, smil_name))
                         media_files.add(aname)
                     container.remove_from_xml(smil_item)
     for aname in media_files:
@@ -500,7 +529,11 @@ def remove_embedded_tts(container) -> None:
     container.dirty(container.opf_name)
 
 
-def embed_tts(container, report_progress=None, callback_to_download_voices=None) -> bool:
+def embed_tts(
+    container: Container,
+    report_progress: ReportProgressType | None = None,
+    callback_to_download_voices: Callable[[Callable[[QObject | None], bool]], bool] | None = None,
+) -> bool:
     report_progress = report_progress or ReportProgress()
     if container.book_type not in ('epub', 'kepub'):
         raise UnsupportedContainerType(_('Only the EPUB format has support for embedding speech overlay audio'))
@@ -526,7 +559,9 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
     total_num_sentences = 0
     files_with_no_sentences = set()
     for i, (name, pfd) in enumerate(name_map.items()):
-        pfd.root = container.parsed(name)
+        root = container.parsed(name)
+        assert isinstance(root, etree._Element)  # spine items are HTML, parsed into lxml trees
+        pfd.root = root
         pfd.sentences = mark_sentences_in_html(pfd.root, lang=language)
         if not pfd.sentences:
             files_with_no_sentences.add(name)
@@ -577,27 +612,31 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
             continue
 
         afitem = container.generate_item(name + '.m4a', id_prefix='tts-')
-        pfd.audio_file_name = container.href_to_name(afitem.get('href'), container.opf_name)
+        pfd.audio_file_name = cast('str', container.href_to_name(afitem.get('href'), container.opf_name))  # generated items always have a href
         smilitem = container.generate_item(name + '.smil', id_prefix='smil-')
-        pfd.smil_file_name = container.href_to_name(smilitem.get('href'), container.opf_name)
-        with container.open(pfd.smil_file_name, 'w') as sf:
-            sf.write(f'''\
+        pfd.smil_file_name = cast('str', container.href_to_name(smilitem.get('href'), container.opf_name))  # generated items always have a href
+        with container.open(pfd.smil_file_name, 'wb') as sf:
+            sf.write(
+                f'''\
 <smil xmlns="{SMIL_NS}" xmlns:epub="{EPUB_NS}" version="3.0">
   <body>
     <seq id="generated-by-calibre">
       X
     </seq>
   </body>
-</smil>''')
+</smil>'''.encode()
+            )
         smil_root = container.parsed(pfd.smil_file_name)
+        assert isinstance(smil_root, etree._Element)  # SMIL is parsed into lxml trees
         seq = smil_root[0][0]
-        seq.text = seq.text[: seq.text.find('X')]
+        seq_text = seq.text or ''  # set by the template above
+        seq.text = seq_text = seq_text[: seq_text.find('X')]
         audio_href = container.name_to_href(pfd.audio_file_name, pfd.smil_file_name)
         html_href = container.name_to_href(pfd.name, pfd.smil_file_name)
         for elem_id, clip_start, duration in durations:
             make_par(container, seq, html_href, audio_href, elem_id, clip_start, duration)
         if len(seq):
-            seq[-1].tail = seq.text[:-2]
+            seq[-1].tail = seq_text[:-2]
         wav.seek(0)
         with container.open(pfd.audio_file_name, 'wb') as m4a:
             transcode_single_audio_stream(wav, m4a)
@@ -605,8 +644,9 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         container.dirty(pfd.smil_file_name)
         container.serialize_item(pfd.smil_file_name)
         html_item = mmap[name]
-        html_item.set('media-overlay', smilitem.get('id'))
-        duration_map[smilitem.get('id')] = file_duration
+        smil_id = cast('str', smilitem.get('id'))  # generated items always have an id
+        html_item.set('media-overlay', smil_id)
+        duration_map[smil_id] = file_duration
     container.set_media_overlay_durations(duration_map)
     return True
 

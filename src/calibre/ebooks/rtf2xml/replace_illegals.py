@@ -26,9 +26,9 @@ class ReplaceIllegals:
 
     def __init__(
         self,
-        in_file,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         self.__file = in_file
         self.__copy = copy

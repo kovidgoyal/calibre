@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from tinycss.color4 import parse_color_string
 
+if TYPE_CHECKING:
+    import unittest
 
-def int_or_zero(raw):
+
+def int_or_zero(raw: str | float) -> int:
     try:
         return int(raw)
     except ValueError, TypeError, AttributeError:
@@ -14,20 +19,20 @@ def int_or_zero(raw):
 # convert_color() {{{
 
 
-def convert_color(value):
+def convert_color(value: str | None) -> str | None:
     if not value:
-        return
+        return None
     val = parse_color_string(value)
     if val == 'currentColor':
         return 'auto'
     if not isinstance(val, tuple) or val.alpha < 0.01:
-        return
+        return None
     # Round rather than truncate as colors converted from other color spaces
     # are not exact multiples of 1/255
     return ''.join(f'{int(x * 255 + 0.5):02X}' for x in val[:3])
 
 
-def test_convert_color(return_tests=False):
+def test_convert_color(return_tests: bool = False) -> unittest.TestSuite | None:
     import unittest
 
     class TestColors(unittest.TestCase):

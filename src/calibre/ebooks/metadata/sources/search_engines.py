@@ -2,7 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+# annotations: the source plugins are downloaded and run by older calibre versions
+# using older Python, so annotations must not be evaluated at runtime
+from __future__ import absolute_import, annotations, division, print_function, unicode_literals
 
 import json
 import os
@@ -12,7 +14,7 @@ import time
 from contextlib import contextmanager
 from functools import partial
 from threading import Lock
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, overload
 
 try:
     from urllib.parse import parse_qs, quote, quote_plus, urlencode, urlparse
@@ -31,9 +33,21 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Iterable, Iterator
+    from typing import TypeVar
+
+    from lxml.etree import _Element
+
+    from calibre.utils.browser import Browser
+
+    _T = TypeVar('_T')
+    #: A function such as print() or a Log object used to output messages
+    LogFunc = Callable[..., object]
+
 current_version = (1, 2, 15)
 minimum_calibre_version = (2, 80, 0)
-webcache = {}
+webcache: dict[str, bytes] = {}
 webcache_lock = Lock()
 prints = partial(safe_print, file=sys.stderr)
 
@@ -45,7 +59,7 @@ class Result(NamedTuple):
 
 
 @contextmanager
-def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, sleep_time=0.2):
+def rate_limit(name: str = 'test', time_between_visits: float = 2, max_wait_seconds: float = 5 * 60, sleep_time: float = 0.2) -> Generator[None]:
     lock_file = os.path.join(cache_dir(), 'search-engine.' + name + '.lock')
     with ExclusiveFile(lock_file, timeout=max_wait_seconds, sleep_time=sleep_time) as f:
         try:
@@ -65,11 +79,11 @@ def rate_limit(name='test', time_between_visits=2, max_wait_seconds=5 * 60, slee
             f.write(repr(time.time()).encode('utf-8'))
 
 
-def tostring(elem):
+def tostring(elem: _Element) -> str:
     return etree.tostring(elem, encoding='unicode', method='text', with_tail=False)
 
 
-def browser():
+def browser() -> Browser:
     ua = random_user_agent(allow_ie=False)
     # ua = 'Mozilla/5.0 (Linux; Android 8.0.0; VTR-L29; rv:63.0) Gecko/20100101 Firefox/63.0'
     br = _browser(user_agent=ua)
@@ -81,7 +95,7 @@ def browser():
     return br
 
 
-def encode_query(**query):
+def encode_query(**query: str) -> str:
     q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.items()}
     ans = urlencode(q)
     if isinstance(ans, bytes):
@@ -89,7 +103,7 @@ def encode_query(**query):
     return ans
 
 
-def parse_html(raw):
+def parse_html(raw: str | bytes) -> _Element:
     try:
         from html5_parser import parse
     except ImportError:
@@ -101,7 +115,42 @@ def parse_html(raw):
         return parse(raw)
 
 
-def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60, save_raw=None, simple_scraper=None):
+@overload
+def query(
+    br: Browser,
+    url: str,
+    key: str,
+    dump_raw: str | None = None,
+    limit: float = 1,
+    parser: Callable[[str], _Element] = parse_html,
+    timeout: float = 60,
+    save_raw: Callable[[str], object] | None = None,
+    simple_scraper: Callable[..., str] | None = None,
+) -> _Element: ...
+@overload
+def query(
+    br: Browser,
+    url: str,
+    key: str,
+    dump_raw: str | None = None,
+    limit: float = 1,
+    *,
+    parser: Callable[[str], _T],
+    timeout: float = 60,
+    save_raw: Callable[[str], object] | None = None,
+    simple_scraper: Callable[..., str] | None = None,
+) -> _T: ...
+def query(
+    br: Browser,
+    url: str,
+    key: str,
+    dump_raw: str | None = None,
+    limit: float = 1,
+    parser: Callable[[str], object] = parse_html,
+    timeout: float = 60,
+    save_raw: Callable[[str], object] | None = None,
+    simple_scraper: Callable[..., str] | None = None,
+) -> object:
     with rate_limit(key):
         if simple_scraper is None:
             raw = br.open_novisit(url, timeout=timeout).read()
@@ -116,7 +165,7 @@ def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60, s
     return parser(raw)
 
 
-def quote_term(x):
+def quote_term(x: str) -> str:
     ans = quote_plus(x.encode('utf-8'))
     if isinstance(ans, bytes):
         ans = ans.decode('utf-8')
@@ -126,11 +175,11 @@ def quote_term(x):
 # DDG + Wayback machine DDG does a captcha after 2-3 requests {{{
 
 
-def ddg_url_processor(url):
+def ddg_url_processor(url: str) -> str:
     return url
 
 
-def ddg_term(t):
+def ddg_term(t: str) -> str:
     t = t.replace('"', '')
     if t.lower() in {'map', 'news'}:
         t = '"' + t + '"'
@@ -139,14 +188,14 @@ def ddg_term(t):
     return t
 
 
-def ddg_href(url):
+def ddg_href(url: str) -> str:
     if url.startswith('/'):
         q = url.partition('?')[2]
         url = parse_qs(q.encode('utf-8'))[b'uddg'][0].decode('utf-8')
     return url
 
 
-def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
+def wayback_machine_cached_url(url: str, br: Browser | None = None, log: LogFunc = prints, timeout: float = 60) -> str | None:
     q = quote_term(url)
     br = br or browser()
     try:
@@ -175,7 +224,7 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
     log('Response from wayback machine:', pformat(data))
 
 
-def wayback_url_processor(url):
+def wayback_url_processor(url: str) -> str:
     if url.startswith('/'):
         # Use original URL instead of absolutizing to wayback URL as wayback is
         # slow
@@ -187,15 +236,23 @@ def wayback_url_processor(url):
     return url
 
 
-ddg_scraper_storage = []
+ddg_scraper_storage: list[object] = []
 
 
-def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+def ddg_search(
+    terms: Iterable[str],
+    site: str | None = None,
+    br: Browser | None = None,
+    log: LogFunc = prints,
+    safe_search: bool = False,
+    dump_raw: str | None = None,
+    timeout: float = 60,
+) -> tuple[list[Result], str]:
     # https://duck.co/help/results/syntax
-    terms = [quote_term(ddg_term(t)) for t in terms]
+    qterms = [quote_term(ddg_term(t)) for t in terms]
     if site is not None:
-        terms.append(quote_term(('site:' + site)))
-    q = '+'.join(terms)
+        qterms.append(quote_term(('site:' + site)))
+    q = '+'.join(qterms)
     url = 'https://duckduckgo.com/html/?q={q}&kp={kp}'.format(q=q, kp=1 if safe_search else -1)
     log('Making ddg query: ' + url)
     from calibre.scraper.simple import read_url
@@ -226,18 +283,18 @@ def ddg_develop() -> None:
 # Bing uses a CAPTCHA {{{
 
 
-def bing_term(t):
+def bing_term(t: str) -> str:
     t = t.replace('"', '')
     if t in {'OR', 'AND', 'NOT'}:
         t = t.lower()
     return t
 
 
-def bing_url_processor(url):
+def bing_url_processor(url: str) -> str:
     return url
 
 
-def resolve_bing_wrapper_page(url, br, log):
+def resolve_bing_wrapper_page(url: str, br: Browser, log: LogFunc) -> str:
     raw = br.open_novisit(url).read().decode('utf-8', 'replace')
     m = re.search(r'var u = "(.+)"', raw)
     if m is None:
@@ -247,31 +304,32 @@ def resolve_bing_wrapper_page(url, br, log):
     return m.group(1)
 
 
-bing_scraper_storage = []
+bing_scraper_storage: list[object] = []
 
 
 def bing_search(
-    terms,
-    site=None,
-    br=None,
-    log=prints,
-    safe_search=False,
-    dump_raw=None,
-    timeout=60,
-    show_user_agent=False,
-    result_url_is_ok=lambda x: True,
-):
+    terms: Iterable[str],
+    site: str | None = None,
+    br: Browser | None = None,
+    log: LogFunc = prints,
+    safe_search: bool = False,
+    dump_raw: str | None = None,
+    timeout: float = 60,
+    show_user_agent: bool = False,
+    result_url_is_ok: Callable[[str], bool] = lambda x: True,
+) -> tuple[list[Result], str]:
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
-    terms = [quote_term(bing_term(t)) for t in terms]
+    qterms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
-        terms.append(quote_term(('site:' + site)))
-    q = '+'.join(terms)
+        qterms.append(quote_term(('site:' + site)))
+    q = '+'.join(qterms)
     url = 'https://www.bing.com/search?q={q}'.format(q=q)
     log('Making bing query: ' + url)
     from calibre.scraper.simple import read_url
 
+    br = br or browser()
     root = query(br, url, 'bing', dump_raw, timeout=timeout, simple_scraper=partial(read_url, bing_scraper_storage))
-    ans = []
+    ans: list[Result] = []
     result_items = root.xpath('//*[@id="b_results"]/li[@class="b_algo"]')
     if not result_items:
         log('Bing returned no results')
@@ -291,7 +349,7 @@ def bing_search(
     return ans, url
 
 
-def bing_develop(terms='heroes abercrombie') -> None:
+def bing_develop(terms: str | list[str] = 'heroes abercrombie') -> None:
     if isinstance(terms, str):
         terms = terms.split()
     for result in bing_search(terms, 'www.amazon.com', dump_raw='/t/raw.html', show_user_agent=True)[0]:
@@ -307,18 +365,18 @@ def bing_develop(terms='heroes abercrombie') -> None:
 # Google only serves JS enabled search pages as of Sep 11, 2025 {{{
 
 
-def google_term(t):
+def google_term(t: str) -> str:
     t = t.replace('"', '')
     if t in {'OR', 'AND', 'NOT'}:
         t = t.lower()
     return t
 
 
-def google_url_processor(url):
+def google_url_processor(url: str) -> str:
     return url
 
 
-def google_cache_url_for_url(url):
+def google_cache_url_for_url(url: str | bytes) -> str:
     if not isinstance(url, bytes):
         url = url.encode('utf-8')
     cu = quote(url, safe='')
@@ -327,7 +385,7 @@ def google_cache_url_for_url(url):
     return 'https://webcache.googleusercontent.com/search?q=cache:' + cu
 
 
-def google_get_cached_url(url, br=None, log=prints, timeout=60):
+def google_get_cached_url(url: str, br: Browser | None = None, log: LogFunc = prints, timeout: float = 60) -> str | None:
     # Google's webcache was discontinued in september 2024
     cached_url = google_cache_url_for_url(url)
     br = google_specialize_browser(br or browser())
@@ -341,7 +399,7 @@ def google_get_cached_url(url, br=None, log=prints, timeout=60):
         return cached_url
 
 
-def canonicalize_url_for_cache_map(url):
+def canonicalize_url_for_cache_map(url: str) -> str:
     try:
         purl = urlparse(url)
     except Exception:
@@ -351,9 +409,9 @@ def canonicalize_url_for_cache_map(url):
     return url
 
 
-def google_parse_results(root, raw, log=prints, ignore_uncached=True):
-    ans = []
-    seen = set()
+def google_parse_results(root: _Element, raw: str | bytes, log: LogFunc = prints, ignore_uncached: bool = True) -> list[Result]:
+    ans: list[Result] = []
+    seen: set[str] = set()
     for a in root.xpath('//a[@href]'):
         href = a.get('href')
         if not href.startswith('/url?q=http'):
@@ -380,7 +438,7 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
     return ans
 
 
-def google_consent_cookies():
+def google_consent_cookies() -> Iterator[dict[str, str]]:
     # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
     from base64 import standard_b64encode
     from datetime import date
@@ -396,7 +454,7 @@ def google_consent_cookies():
     yield b
 
 
-def google_specialize_browser(br):
+def google_specialize_browser(br: Browser) -> Browser:
     with webcache_lock:
         if not hasattr(br, 'google_consent_cookie_added'):
             for c in google_consent_cookies():
@@ -407,26 +465,26 @@ def google_specialize_browser(br):
     return br
 
 
-def is_probably_book_asin(t):
+def is_probably_book_asin(t: str) -> bool | str:
     return t and len(t) == 10 and t.startswith('B') and t.upper() == t
 
 
-def is_asin_or_isbn(t):
+def is_asin_or_isbn(t: str) -> bool:
     from calibre.ebooks.metadata import check_isbn
 
     return bool(check_isbn(t) or is_probably_book_asin(t))
 
 
-def google_format_query(terms, site=None, tbm=None):
+def google_format_query(terms: Iterable[str], site: str | None = None, tbm: str | None = None) -> str:
     prevent_spelling_correction = False
     for t in terms:
         if is_asin_or_isbn(t):
             prevent_spelling_correction = True
             break
-    terms = [quote_term(google_term(t)) for t in terms]
+    qterms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
-        terms.append(quote_term(('site:' + site)))
-    q = '+'.join(terms)
+        qterms.append(quote_term(('site:' + site)))
+    q = '+'.join(qterms)
     url = 'https://www.google.com/search?q={q}'.format(q=q)
     # tbm causes 403 forbidden errors
     # if tbm:
@@ -436,16 +494,24 @@ def google_format_query(terms, site=None, tbm=None):
     return url
 
 
-def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
+def google_search(
+    terms: Iterable[str],
+    site: str | None = None,
+    br: Browser | None = None,
+    log: LogFunc = prints,
+    safe_search: bool = False,
+    dump_raw: str | None = None,
+    timeout: float = 60,
+) -> tuple[list[Result], str]:
     url = google_format_query(terms, site)
     log('Making google query: ' + url)
     br = google_specialize_browser(br or browser())
-    r = []
+    r: list[str] = []
     root = query(br, url, 'google', dump_raw, timeout=timeout, save_raw=r.append)
     return google_parse_results(root, r[0], log=log), url
 
 
-def google_develop(search_terms='1423146786', raw_from='') -> None:
+def google_develop(search_terms: str = '1423146786', raw_from: str = '') -> None:
     if raw_from:
         with open(raw_from, 'rb') as f:
             raw = f.read()
@@ -465,34 +531,37 @@ def google_develop(search_terms='1423146786', raw_from='') -> None:
 
 
 # Yandex uses a CAPTCHA {{{
-def yandex_term(t):
+def yandex_term(t: str) -> str:
     t = t.replace('"', '')
     if t in {'OR', 'AND', 'NOT'}:
         t = t.lower()
     return t
 
 
-def yandex_format_query(terms, site=None):
-    terms = [quote_term(yandex_term(t)) for t in terms]
+def yandex_format_query(terms: Iterable[str], site: str | None = None) -> str:
+    qterms = [quote_term(yandex_term(t)) for t in terms]
     if site is not None:
-        terms.append(quote_term(('site:' + site)))
-    q = '+'.join(terms)
+        qterms.append(quote_term(('site:' + site)))
+    q = '+'.join(qterms)
     url = 'https://yandex.com/search?text={q}'.format(q=q)
     return url
 
 
-def yandex_parse_results(root, raw, log=prints, ignore_uncached=True) -> None:
-    pass
+def yandex_parse_results(root: _Element, raw: str | bytes, log: LogFunc = prints, ignore_uncached: bool = True) -> list[Result]:
+    # Not implemented, as yandex uses CAPTCHAs
+    return []
 
 
-yandex_scraper_storage = []
+yandex_scraper_storage: list[object] = []
 
 
-def yandex_search(terms, site=None, br=None, dump_raw=None, log=prints, timeout=60):
+def yandex_search(
+    terms: Iterable[str], site: str | None = None, br: Browser | None = None, dump_raw: str | None = None, log: LogFunc = prints, timeout: float = 60
+) -> tuple[list[Result], str]:
     # Sadly yandex uses CAPTCHAs aggresively
     url = yandex_format_query(terms, site)
     br = browser()
-    r = []
+    r: list[str] = []
     from calibre.scraper.simple import read_url
 
     root = query(
@@ -507,7 +576,7 @@ def yandex_search(terms, site=None, br=None, dump_raw=None, log=prints, timeout=
     return yandex_parse_results(root, r[0], log=log), url
 
 
-def yandex_develop(search_terms='1423146786', raw_from='') -> None:
+def yandex_develop(search_terms: str = '1423146786', raw_from: str = '') -> None:
     if raw_from:
         with open(raw_from, 'rb') as f:
             raw = f.read()
@@ -525,19 +594,19 @@ def yandex_develop(search_terms='1423146786', raw_from='') -> None:
 # }}}
 
 
-def get_cached_url(url, br=None, log=prints, timeout=60):
+def get_cached_url(url: str, br: Browser | None = None, log: LogFunc = prints, timeout: float = 60) -> str | None:
     from threading import Lock, Thread
 
     from polyglot.queue import Queue
 
     print_lock = Lock()
-    q = Queue()
+    q: Queue[str | None] = Queue()
 
-    def safe_print(*a) -> None:
+    def safe_print(*a: object) -> None:
         with print_lock:
             log(*a)
 
-    def doit(func) -> None:
+    def doit(func: Callable[[str, Browser | None, LogFunc, float], str | None]) -> None:
         try:
             q.put(func(url, br, safe_print, timeout))
         except Exception as e:
@@ -553,12 +622,12 @@ def get_cached_url(url, br=None, log=prints, timeout=60):
         threads.pop()
 
 
-def get_data_for_cached_url(url):
+def get_data_for_cached_url(url: str) -> bytes | None:
     with webcache_lock:
         return webcache.get(url)
 
 
-def resolve_url(url):
+def resolve_url(url: str) -> str:
     prefix, rest = url.partition(':')[::2]
     if prefix == 'bing':
         return bing_url_processor(rest)

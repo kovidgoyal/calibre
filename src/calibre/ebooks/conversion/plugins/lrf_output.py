@@ -3,14 +3,41 @@
 
 import os
 import sys
+from typing import TYPE_CHECKING
 
-from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from optparse import Values
+
+    from calibre.ebooks.metadata.toc import TOC
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class LRFOptions:
-    def __init__(self, output, opts, oeb) -> None:
-        def f2s(f):
+    # Attributes copied from the conversion options in __init__() via setattr()
+    top_margin: float
+    bottom_margin: float
+    left_margin: float
+    right_margin: float
+    wordspace: float
+    header: bool
+    header_format: str
+    minimum_indent: float
+    serif_family: str | None
+    sans_family: str | None
+    mono_family: str | None
+    render_tables_as_images: bool
+    text_size_multiplier_for_rendered_tables: float
+    # Set by calibre.ebooks.lrf.html.convert_from.try_opf()
+    spine: list[str]
+    toc: TOC | None
+
+    def __init__(self, output: str, opts: Values, oeb: OEBBook) -> None:
+        def f2s(f: Sequence[object]) -> str:
             try:
                 return str(f[0])
             except Exception:
@@ -135,7 +162,7 @@ class LRFOutput(OutputFormatPlugin):
 
     recommendations = {('change_justification', 'original', OptionRecommendation.HIGH)}
 
-    def convert_images(self, pages, opts, wide) -> None:
+    def convert_images(self, pages: list[str], opts: LRFOptions, wide: bool) -> None:
         from uuid import uuid4
 
         from calibre.constants import __appname__, __version__
@@ -185,7 +212,7 @@ class LRFOutput(OutputFormatPlugin):
             nroot.add(x.title, x.href)
         self.oeb.toc = nroot
 
-    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         oeb = oeb_book
         output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb

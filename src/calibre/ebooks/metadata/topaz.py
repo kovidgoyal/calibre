@@ -6,26 +6,40 @@ import io
 import numbers
 import sys
 from struct import pack
+from typing import IO, TYPE_CHECKING, TypedDict
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation
 from polyglot.builtins import int_to_byte
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def is_dkey(x):
+    from calibre.ebooks.metadata.book.base import Metadata
+
+
+class TopazHeader(TypedDict, total=False):
+    blocks: dict[int, dict[str, int]]
+    tag: bytes  # never actually set, see generate_dkey()
+
+
+type TopazHeaders = dict[bytes, TopazHeader]
+
+
+def is_dkey(x: bytes | str) -> bool:
     q = b'dkey' if isinstance(x, bytes) else 'dkey'
     return x == q
 
 
 class StringIO(io.StringIO):
-    def write(self, x):
+    def write(self, x: str | bytes) -> int:
         if isinstance(x, bytes):
             x = x.decode('iso-8859-1')
         return io.StringIO.write(self, x)
 
 
 class StreamSlicer:
-    def __init__(self, stream, start=0, stop=None) -> None:
+    def __init__(self, stream: IO[bytes], start: int = 0, stop: int | None = None) -> None:
         self._stream = stream
         self.start = start
         if stop is None:
@@ -37,7 +51,7 @@ class StreamSlicer:
     def __len__(self) -> int:
         return self._len
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int | slice) -> bytes:
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
@@ -57,7 +71,7 @@ class StreamSlicer:
             return data
         raise TypeError('stream indices must be integers')
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: int | slice, value: bytes) -> int:
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
@@ -78,7 +92,7 @@ class StreamSlicer:
             return stream.write(value)
         raise TypeError('stream indices must be integers')
 
-    def update(self, data_blocks) -> None:
+    def update(self, data_blocks: Iterable[bytes]) -> None:
         # Rewrite the stream
         stream = self._stream
         base = self.start
@@ -87,12 +101,12 @@ class StreamSlicer:
         for block in data_blocks:
             stream.write(block)
 
-    def truncate(self, value) -> None:
+    def truncate(self, value: int) -> None:
         self._stream.truncate(value)
 
 
 class MetadataUpdater:
-    def __init__(self, stream) -> None:
+    def __init__(self, stream: IO[bytes]) -> None:
         self.stream = stream
         self.data = StreamSlicer(stream)
 
@@ -106,23 +120,23 @@ class MetadataUpdater:
         self.topaz_headers, self.th_seq = self.get_headers(offset)
 
         # First integrity test - metadata header
-        if 'metadata' not in self.topaz_headers:
+        if b'metadata' not in self.topaz_headers:
             raise ValueError("'{}': Invalid Topaz format - no metadata record".format(getattr(stream, 'name', 'Unnamed stream')))
 
         # Second integrity test - metadata body
-        md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
+        md_offset = self.topaz_headers[b'metadata']['blocks'][0]['offset']
         md_offset += self.base
         if self.data[md_offset + 1 : md_offset + 9] != b'metadata':
             raise ValueError("'{}': Damaged metadata record".format(getattr(stream, 'name', 'Unnamed stream')))
 
-    def book_length(self):
+    def book_length(self) -> int:
         """convenience method for retrieving book length"""
         self.get_original_metadata()
-        if 'bookLength' in self.metadata:
-            return int(self.metadata['bookLength'])
+        if b'bookLength' in self.metadata:
+            return int(self.metadata[b'bookLength'])
         return 0
 
-    def decode_vwi(self, byts):
+    def decode_vwi(self, byts: bytes | bytearray) -> tuple[int, int]:
         pos, val = 0, 0
         done = False
         byts = bytearray(byts)
@@ -148,7 +162,7 @@ class MetadataUpdater:
             if num_recs:
                 print(' starting offset: 0x{:x}'.format(self.topaz_headers[tag]['blocks'][0]['offset']))
 
-    def dump_hex(self, src, length=16) -> None:
+    def dump_hex(self, src: str, length: int = 16) -> None:
         """Diagnostic"""
         FILTER = ''.join([((len(repr(chr(x))) == 3) and chr(x)) or '.' for x in range(256)])
         N = 0
@@ -166,8 +180,8 @@ class MetadataUpdater:
         for tag in self.metadata:
             print(f'{tag}: {self.metadata[tag]!r}')
 
-    def encode_vwi(self, value):
-        ans = []
+    def encode_vwi(self, value: int) -> bytes:
+        ans: list[int] = []
         multi_byte = value > 0x7F
         while value:
             b = value & 0x7F
@@ -178,22 +192,22 @@ class MetadataUpdater:
                     if ans[-1] == 0xFF:
                         ans.append(0x80)
                     if len(ans) == 4:
-                        return pack('>BBBB', ans[3], ans[2], ans[1], ans[0]).decode('iso-8859-1')
+                        return pack('>BBBB', ans[3], ans[2], ans[1], ans[0])
                     elif len(ans) == 3:
-                        return pack('>BBB', ans[2], ans[1], ans[0]).decode('iso-8859-1')
+                        return pack('>BBB', ans[2], ans[1], ans[0])
                     elif len(ans) == 2:
-                        return pack('>BB', ans[1], ans[0]).decode('iso-8859-1')
+                        return pack('>BB', ans[1], ans[0])
                 else:
-                    return pack('>B', b).decode('iso-8859-1')
+                    return pack('>B', b)
             elif ans:
                 ans.append(b | 0x80)
             else:
                 ans.append(b)
 
         # If value == 0, return 0
-        return pack('>B', 0x0).decode('iso-8859-1')
+        return pack('>B', 0x0)
 
-    def generate_dkey(self):
+    def generate_dkey(self) -> bytes | None:
         for x in self.topaz_headers:
             if is_dkey(self.topaz_headers[x]['tag']):
                 if self.topaz_headers[x]['blocks']:
@@ -213,10 +227,10 @@ class MetadataUpdater:
         dks.write(self.data[offset : offset + len_uncomp].decode('iso-8859-1'))
         return dks.getvalue().encode('iso-8859-1')
 
-    def get_headers(self, offset):
+    def get_headers(self, offset: int) -> tuple[TopazHeaders, list[bytes]]:
         # Build a dict of topaz_header records, list of order
-        topaz_headers = {}
-        th_seq = []
+        topaz_headers: TopazHeaders = {}
+        th_seq: list[bytes] = []
         for x in range(self.header_records):
             offset += 1
             taglen, consumed = self.decode_vwi(self.data[offset : offset + 4])
@@ -225,7 +239,7 @@ class MetadataUpdater:
             offset += taglen
             num_vals, consumed = self.decode_vwi(self.data[offset : offset + 4])
             offset += consumed
-            blocks = {}
+            blocks: dict[int, dict[str, int]] = {}
             for val in range(num_vals):
                 hdr_offset, consumed = self.decode_vwi(self.data[offset : offset + 4])
                 offset += consumed
@@ -241,9 +255,9 @@ class MetadataUpdater:
         self.base = offset
         return topaz_headers, th_seq
 
-    def generate_metadata_stream(self):
-        ms = StringIO()
-        ms.write(self.encode_vwi(len(self.md_header['tag'])).encode('iso-8859-1'))
+    def generate_metadata_stream(self) -> bytes:
+        ms = io.BytesIO()
+        ms.write(self.encode_vwi(len(self.md_header['tag'])))
         ms.write(self.md_header['tag'])
         ms.write(int_to_byte(self.md_header['flags']))
         ms.write(int_to_byte(len(self.metadata)))
@@ -251,22 +265,22 @@ class MetadataUpdater:
         # Add the metadata fields.
         # for tag in self.metadata:
         for tag in self.md_seq:
-            ms.write(self.encode_vwi(len(tag)).encode('iso-8859-1'))
+            ms.write(self.encode_vwi(len(tag)))
             ms.write(tag)
-            ms.write(self.encode_vwi(len(self.metadata[tag])).encode('iso-8859-1'))
+            ms.write(self.encode_vwi(len(self.metadata[tag])))
             ms.write(self.metadata[tag])
 
         return ms.getvalue()
 
-    def get_metadata(self):
+    def get_metadata(self) -> Metadata:
         """Return MetaInformation with title, author"""
         self.get_original_metadata()
-        title = force_unicode(self.metadata['Title'], 'utf-8')
-        authors = force_unicode(self.metadata['Authors'], 'utf-8').split(';')
+        title = force_unicode(self.metadata[b'Title'], 'utf-8')
+        authors = force_unicode(self.metadata[b'Authors'], 'utf-8').split(';')
         return MetaInformation(title, authors)
 
     def get_original_metadata(self) -> None:
-        offset = self.base + self.topaz_headers['metadata']['blocks'][0]['offset']
+        offset = self.base + self.topaz_headers[b'metadata']['blocks'][0]['offset']
         self.md_header: dict = {}
         taglen, consumed = self.decode_vwi(self.data[offset : offset + 4])
         offset += consumed
@@ -278,8 +292,8 @@ class MetadataUpdater:
         offset += 1
         # print('self.md_header: %s' % self.md_header)
 
-        self.metadata = {}
-        self.md_seq = []
+        self.metadata: dict[bytes, bytes] = {}
+        self.md_seq: list[bytes] = []
         for x in range(self.md_header['num_recs']):
             taglen, consumed = self.decode_vwi(self.data[offset : offset + 4])
             offset += consumed
@@ -292,19 +306,19 @@ class MetadataUpdater:
             self.metadata[tag] = metadata
             self.md_seq.append(tag)
 
-    def regenerate_headers(self, updated_md_len):
+    def regenerate_headers(self, updated_md_len: int) -> bytes:
 
-        original_md_len = self.topaz_headers['metadata']['blocks'][0]['len_uncomp']
-        original_md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
+        original_md_len = self.topaz_headers[b'metadata']['blocks'][0]['len_uncomp']
+        original_md_offset = self.topaz_headers[b'metadata']['blocks'][0]['offset']
         delta = updated_md_len - original_md_len
 
         # Copy the first 5 bytes of the file: sig + num_recs
-        ths = io.StringIO()
+        ths = io.BytesIO()
         ths.write(self.data[:5])
 
         # Rewrite the offsets for hdr_offsets > metadata offset
         for tag in self.th_seq:
-            ths.write('c')
+            ths.write(b'c')
             ths.write(self.encode_vwi(len(tag)))
             ths.write(tag)
             if self.topaz_headers[tag]['blocks']:
@@ -317,7 +331,7 @@ class MetadataUpdater:
                     else:
                         ths.write(self.encode_vwi(b['offset'] + delta))
 
-                    if tag == 'metadata':
+                    if tag == b'metadata':
                         ths.write(self.encode_vwi(updated_md_len))
                     else:
                         ths.write(self.encode_vwi(b['len_uncomp']))
@@ -326,9 +340,9 @@ class MetadataUpdater:
                 ths.write(self.encode_vwi(0))
         self.original_md_start = original_md_offset + self.base
         self.original_md_len = original_md_len
-        return ths.getvalue().encode('iso-8859-1')
+        return ths.getvalue()
 
-    def update(self, mi) -> None:
+    def update(self, mi: Metadata) -> None:
         # Collect the original metadata
         self.get_original_metadata()
 
@@ -342,11 +356,11 @@ class MetadataUpdater:
 
         if mi.author_sort and pas:
             authors = mi.author_sort
-            self.metadata['Authors'] = authors.encode('utf-8')
+            self.metadata[b'Authors'] = authors.encode('utf-8')
         elif mi.authors:
             authors = '; '.join(mi.authors)
-            self.metadata['Authors'] = authors.encode('utf-8')
-        self.metadata['Title'] = mi.title.encode('utf-8')
+            self.metadata[b'Authors'] = authors.encode('utf-8')
+        self.metadata[b'Title'] = mi.title.encode('utf-8')
 
         updated_metadata = self.generate_metadata_stream()
         # Skip tag_len, tag, extra
@@ -364,18 +378,18 @@ class MetadataUpdater:
 
         # Write the revised stream
         self.stream.write(head)
-        self.stream.write('d')
+        self.stream.write(b'd')
         self.stream.write(chunk1)
         self.stream.write(updated_metadata)
         self.stream.write(chunk2)
 
 
-def get_metadata(stream):
+def get_metadata(stream: IO[bytes]) -> Metadata:
     mu = MetadataUpdater(stream)
     return mu.get_metadata()
 
 
-def set_metadata(stream, mi) -> None:
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     mu = MetadataUpdater(stream)
     mu.update(mi)
 

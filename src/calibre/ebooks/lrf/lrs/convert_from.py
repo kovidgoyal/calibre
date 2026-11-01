@@ -7,6 +7,7 @@ Compile a LRS file into a LRF file.
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING, cast
 
 from calibre import setup_cli_handlers
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, CData, NavigableString, Tag
@@ -44,14 +45,26 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
 from calibre.utils.config import OptionParser
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Collection
+    from typing import IO
+
+    from bs4.element import AttributeValueList
+
+    from calibre.ebooks.lrf.pylrs.pylrs import LrsContainer
+
 
 class LrsParser:
-    def __init__(self, stream, logger) -> None:
+    def __init__(self, stream: IO[bytes], logger: logging.Logger) -> None:
         self.logger = logger
         src = stream.read()
         self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0])
+        # The XML parser preserves case, but the code below uses lowercase tag
+        # names, as produced by the BeautifulSoup 3 parser
+        for t in self.soup.find_all(True):
+            t.name = t.name.lower()
         self.objects = {}
-        for obj in self.soup.findAll(objid=True):
+        for obj in self.soup.findAll(objid=True):  # ty: ignore[missing-argument, unknown-argument] bs4 types findAll() as taking one positional argument
             self.objects[obj['objid']] = obj
 
         self.parsed_objects = {}
@@ -68,15 +81,16 @@ class LrsParser:
                 canvas.put_object(self.parsed_objects[po.get('refobj')], po.get('x1'), po.get('y1'))
 
     @classmethod
-    def attrs_to_dict(cls, tag, exclude=('objid',)):
-        result = {}
-        for key, val in tag.attrs:
+    def attrs_to_dict(cls, tag: Tag, exclude: Collection[str] = ('objid',)) -> dict[str, str]:
+        result: dict[str, str] = {}
+        for key, val in tag.attrs.items():
             if key in exclude:
                 continue
+            assert isinstance(val, str)  # the XML parser does not create multi-valued attributes
             result[str(key)] = val
         return result
 
-    def text_tag_to_element(self, tag):
+    def text_tag_to_element(self, tag: Tag) -> LrsContainer:
         map = {
             'span': Span,
             'italic': Italic,
@@ -90,13 +104,19 @@ class LrsParser:
         if tag.name == 'charbutton':
             return CharButton(self.parsed_objects[tag.get('refobj')], None)
         if tag.name == 'plot':
-            return Plot(self.parsed_objects[tag.get('refobj')], **self.attrs_to_dict(tag, ['refobj']))
+            settings = self.attrs_to_dict(tag, ['refobj'])
+            return Plot(
+                self.parsed_objects[tag.get('refobj')],
+                xsize=float(settings.get('xsize', 0)),
+                ysize=float(settings.get('ysize', 0)),
+                adjustment=settings.get('adjustment'),
+            )
         settings = self.attrs_to_dict(tag)
         settings.pop('spanstyle', '')
         return map[tag.name](**settings)
 
-    def process_text_element(self, tag, elem) -> None:
-        for item in tag.contents:
+    def process_text_element(self, tag: Tag, elem: LrsContainer) -> None:
+        for item in cast('list[NavigableString | Tag]', tag.contents):
             if isinstance(item, NavigableString):
                 elem.append(item.string)
             else:
@@ -104,9 +124,9 @@ class LrsParser:
                 elem.append(subelem)
                 self.process_text_element(item, subelem)
 
-    def process_paragraph(self, tag):
+    def process_paragraph(self, tag: Tag) -> Paragraph:
         p = Paragraph()
-        contents = list(tag.contents)
+        contents = cast('list[str | NavigableString | Tag]', list(tag.contents))
         if contents:
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()
@@ -121,19 +141,19 @@ class LrsParser:
                     self.process_text_element(item, elem)
         return p
 
-    def process_text_block(self, tag) -> None:
+    def process_text_block(self, tag: Tag) -> None:
         tb = self.parsed_objects[tag.get('objid')]
         for item in tag.contents:
             if hasattr(item, 'name'):
                 if item.name == 'p':
-                    tb.append(self.process_paragraph(item))
+                    tb.append(self.process_paragraph(cast('Tag', item)))
                 elif item.name == 'cr':
                     tb.append(CR())
                 elif item.name == 'charbutton':  # BookDesigner does this
                     p = Paragraph()
                     tb.append(p)
-                    elem = self.text_tag_to_element(item)
-                    self.process_text_element(item, elem)
+                    elem = self.text_tag_to_element(cast('Tag', item))
+                    self.process_text_element(cast('Tag', item), elem)
                     p.append(elem)
 
     def fourth_pass(self) -> None:
@@ -146,7 +166,7 @@ class LrsParser:
                 else:
                     page.append(self.parsed_objects[block_tag.get('objid')])
 
-        for tag in self.soup.find('objects').findAll('button'):
+        for tag in self.soup.find('objects').findAll('button'):  # ty: ignore[unresolved-attribute] required element of LRS files
             jt = tag.find('jumpto')
             tb = self.parsed_objects[jt.get('refobj')]
             jb = JumpButton(tb)
@@ -159,7 +179,7 @@ class LrsParser:
         if toc:
             for tag in toc.findAll('toclabel'):
                 label = self.tag_to_string(tag)
-                self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])  # type: ignore
+                self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])
 
     def third_pass(self) -> None:
         map = {
@@ -184,12 +204,12 @@ class LrsParser:
                         _obj = self.parsed_objects[label] if label in self.parsed_objects else self._style_labels[label]
                         settings[attrmap[a]] = _obj
                 for a in ('evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid'):
-                    if a in tag:
+                    if tag.has_attr(a):
                         settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 args = []
-                if 'refstream' in tag:
+                if tag.has_attr('refstream'):
                     args.append(self.parsed_objects[tag.get('refstream')])
-                if 'canvaswidth' in tag:
+                if tag.has_attr('canvaswidth'):
                     args += [tag.get('canvaswidth'), tag.get('canvasheight')]
                 self.parsed_objects[id] = map[tag.name][0](*args, **settings)
 
@@ -207,7 +227,7 @@ class LrsParser:
                 settings = self.attrs_to_dict(tag, map[tag.name][1] + ['objid'])
                 if tag.name == 'pagestyle':
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):
-                        if a in tag:
+                        if tag.has_attr(a):
                             settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 settings.pop('autoindex', '')
                 self.parsed_objects[id] = map[tag.name][0](**settings)
@@ -218,7 +238,7 @@ class LrsParser:
                     self.book.append(self.parsed_objects[id])
 
     @classmethod
-    def tag_to_string(cls, tag):
+    def tag_to_string(cls, tag: Tag | None) -> str:
         """
         Convenience method to take a BeautifulSoup Tag and extract the text from it
         recursively.
@@ -237,15 +257,15 @@ class LrsParser:
         return ''.join(strings)
 
     def first_pass(self) -> None:
-        info = self.soup.find('bbebxylog').find('bookinformation').find('info')
-        bookinfo = info.find('bookinfo')
-        docinfo = info.find('docinfo')
+        info = self.soup.find('bbebxylog').find('bookinformation').find('info')  # ty: ignore[unresolved-attribute] required element of LRS files
+        bookinfo = info.find('bookinfo')  # ty: ignore[unresolved-attribute] required element of LRS files
+        docinfo = info.find('docinfo')  # ty: ignore[unresolved-attribute] required element of LRS files
 
-        def me(base, tagname):
-            tag = base.find(tagname.lower())
+        def me(base: Tag | None, tagname: str) -> tuple[str, str | AttributeValueList | None] | tuple[str, str, str]:
+            tag = base.find(tagname.lower())  # ty: ignore[unresolved-attribute] required element of LRS files
             if tag is None:
                 return ('', '', '')
-            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')
+            tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_attr('reading') else '')
             return tag
 
         title = me(bookinfo, 'Title')
@@ -260,14 +280,14 @@ class LrsParser:
         bookid = me(bookinfo, 'BookID')[0]
 
         sd = self.soup.find('setdefault')
-        sd = StyleDefault(**self.attrs_to_dict(sd, ['page_tree_id', 'rubyalignandadjust']))
+        sd = StyleDefault(**self.attrs_to_dict(sd, ['page_tree_id', 'rubyalignandadjust']))  # ty: ignore[invalid-argument-type] required element of LRS files
         bs = self.soup.find('booksetting')
-        bs = BookSetting(**self.attrs_to_dict(bs, []))
+        bs = BookSetting(**self.attrs_to_dict(bs, []))  # ty: ignore[invalid-argument-type] required element of LRS files
 
-        settings = {}
+        settings: dict[str, str] = {}
         thumbnail = self.soup.find('cthumbnail')
         if thumbnail is not None:
-            f = thumbnail['file']
+            f = cast('str', thumbnail['file'])  # file is not a multi-valued attribute
             if os.access(f, os.R_OK):
                 settings['thumbnail'] = f
             else:
@@ -286,21 +306,21 @@ class LrsParser:
             bookid=bookid,
             setdefault=sd,
             booksetting=bs,
-            **settings,
+            **settings,  # ty: ignore[invalid-argument-type] settings only contains thumbnail
         )
 
         for hdr in self.soup.findAll(['header', 'footer']):
             elem = Header if hdr.name == 'header' else Footer
             self.parsed_objects[hdr.get('objid')] = elem(**self.attrs_to_dict(hdr))
 
-    def render(self, file, to_lrs=False) -> None:
+    def render(self, file: str, to_lrs: bool = False) -> None:
         if to_lrs:
             self.book.renderLrs(file, 'utf-8')
         else:
             self.book.renderLrf(file)
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = OptionParser(usage=_('%prog [options] file.lrs\nCompile an LRS file into an LRF file.'))
     parser.add_option('-o', '--output', default=None, help=_('Path to output file'))
     parser.add_option('--verbose', default=False, action='store_true', help=_('Verbose processing'))
@@ -308,7 +328,7 @@ def option_parser():
     return parser
 
 
-def main(args=sys.argv, logger=None) -> int:
+def main(args: list[str] = sys.argv, logger: logging.Logger | None = None) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if logger is None:

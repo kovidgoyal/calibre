@@ -14,9 +14,14 @@ are turned into bytes.
 '''
 from collections import OrderedDict
 from operator import attrgetter
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from calibre.ebooks.mobi.utils import encode_tbs, encode_trailing_data
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from calibre.ebooks.mobi.writer8.index import NCXEntry
 
 
 class Entry(NamedTuple):
@@ -27,14 +32,18 @@ class Entry(NamedTuple):
     parent: int | None
     first_child: int | None
     last_child: int | None
-    title: int | None
-    action: int | None
+    title: str | int | None
+    action: str | None
     start_offset: int | None
     length_offset: int | None
     text_record_length: int | None
 
 
-def fill_entry(entry, start_offset, text_record_length):
+type Strand = OrderedDict[int, list[Entry]]
+type TBSSequence = tuple[int, dict[int, int]]
+
+
+def fill_entry(entry: Entry, start_offset: int, text_record_length: int) -> Entry:
     length_offset = start_offset + entry.length
     if start_offset < 0:
         action = 'spans' if length_offset > text_record_length else 'ends'
@@ -44,7 +53,7 @@ def fill_entry(entry, start_offset, text_record_length):
     return Entry(*(entry[:-4] + (action, start_offset, length_offset, text_record_length)))
 
 
-def populate_strand(parent, entries):
+def populate_strand(parent: Entry, entries: list[Entry]) -> list[Entry]:
     ans = [parent]
     children = [c for c in entries if c.parent == parent.index]
     if children:
@@ -72,12 +81,12 @@ def populate_strand(parent, entries):
     return ans
 
 
-def separate_strands(entries):
+def separate_strands(entries: list[Entry]) -> list[Strand]:
     ans = []
     while entries:
         top, entries = entries[0], entries[1:]
         strand = populate_strand(top, entries)
-        layers = OrderedDict()
+        layers: Strand = OrderedDict()
         for entry in strand:
             if entry.depth not in layers:
                 layers[entry.depth] = []
@@ -86,7 +95,7 @@ def separate_strands(entries):
     return ans
 
 
-def collect_indexing_data(entries, text_record_lengths):
+def collect_indexing_data(entries: Iterable[Entry], text_record_lengths: Iterable[int]) -> list[list[Strand]]:
     """For every text record calculate which index entries start, end, span or
     are contained within that record. Arrange these entries in 'strands'."""
 
@@ -117,7 +126,7 @@ class NegativeStrandIndex(Exception):
     pass
 
 
-def encode_strands_as_sequences(strands, tbs_type=8):
+def encode_strands_as_sequences(strands: list[Strand], tbs_type: int = 8) -> list[TBSSequence]:
     """Encode the list of strands for a single text record into a list of
     sequences, ready to be converted into TBS bytes."""
     ans = []
@@ -129,12 +138,13 @@ def encode_strands_as_sequences(strands, tbs_type=8):
             for entry in entries:
                 if first_entry is None:
                     first_entry = entry
-                max_length_offset = max(max_length_offset, entry.length_offset)
+                # entries in strands are created by fill_entry() which always sets length_offset
+                max_length_offset = max(max_length_offset, cast('int', entry.length_offset))
 
     for strand in strands:
-        strand_seqs = []
+        strand_seqs: list[TBSSequence] = []
         for depth, entries in strand.items():
-            extra = {}
+            extra: dict[int, int] = {}
             if entries[-1].action == 'spans':
                 extra[0b1] = 0
             elif False and (  # ruff: ignore[expr-and-false]
@@ -157,6 +167,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
                 # We are in the second or later strands, so we need to use a
                 # special flag and index value. The index value is the entry
                 # index - the index of the last entry in the previous strand.
+                assert last_index is not None  # set when the previous strand's sequences were added to ans
                 index = last_index - entries[0].index
                 if index < 0:
                     if tbs_type == 5:
@@ -180,7 +191,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
     return ans
 
 
-def sequences_to_bytes(sequences):
+def sequences_to_bytes(sequences: Iterable[TBSSequence]) -> bytes:
     ans = []
     flag_size = 3
     for val, extra in sequences:
@@ -190,7 +201,7 @@ def sequences_to_bytes(sequences):
     return b''.join(ans)
 
 
-def calculate_all_tbs(indexing_data, tbs_type=8):
+def calculate_all_tbs(indexing_data: Iterable[list[Strand]], tbs_type: int = 8) -> dict[int, bytes]:
     rmap = {}
     for i, strands in enumerate(indexing_data):
         sequences = encode_strands_as_sequences(strands, tbs_type=tbs_type)
@@ -199,7 +210,7 @@ def calculate_all_tbs(indexing_data, tbs_type=8):
     return rmap
 
 
-def apply_trailing_byte_sequences(index_table, records, text_record_lengths) -> bool:
+def apply_trailing_byte_sequences(index_table: Iterable[NCXEntry], records: list[bytes | None], text_record_lengths: Iterable[int]) -> bool:
     entries = tuple(
         Entry(
             r['index'],
@@ -225,6 +236,7 @@ def apply_trailing_byte_sequences(index_table, records, text_record_lengths) -> 
         rmap = calculate_all_tbs(indexing_data, tbs_type=5)
 
     for i, tbs_bytes in rmap.items():
-        records[i] += encode_trailing_data(tbs_bytes)
+        # text records are never None
+        records[i] = cast('bytes', records[i]) + encode_trailing_data(tbs_bytes)
 
     return True

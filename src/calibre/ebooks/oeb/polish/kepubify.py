@@ -17,7 +17,7 @@ import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
-from typing import NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from css_parser import CSSParser
 from css_parser.css import CSSComment, CSSPageRule, CSSRule
@@ -38,6 +38,11 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
+
+if TYPE_CHECKING:
+    from css_parser.css import CSSStyleSheet
+
+    from calibre.ebooks.metadata.book.base import Metadata
 
 KOBO_CSS_ID = 'kobostylehacks'  # kepubify uses class, actual books from Kobo use id
 EXTRA_CSS_ID = 'kepubify-extra-css'
@@ -87,7 +92,7 @@ class Options(NamedTuple):
         return self.remove_at_page_rules or self.remove_widows_and_orphans or self.for_removal
 
 
-def outer_html(node):
+def outer_html(node: etree._Element) -> str:
     return etree.tostring(node, encoding='unicode', with_tail=False)
 
 
@@ -96,22 +101,22 @@ def kobo_js() -> bytes:
     return P('templates/kobo.js', data=True)
 
 
-def add_style_and_script(root, kobo_js_href: str, opts: Options) -> bool:
+def add_style_and_script(root: etree._Element, kobo_js_href: str, opts: Options) -> bool:
 
-    def add(parent) -> None:
+    def add(parent: etree._Element) -> None:
         e = parent.makeelement(XHTML('style'), type='text/css', id=KOBO_CSS_ID)
         e.text = KOBO_CSS
         insert_self_closing(parent, e)
         e = parent.makeelement(XHTML('style'), type='text/css', id=KOBO_SPAN_STYLE_ID)
         e.text = KOBO_SPAN_CSS
         insert_self_closing(parent, e)
-        e.text += e.tail or ''
+        e.text = (e.text or '') + (e.tail or '')
         extra_css = (opts.hyphenation_css + '\n\n' + opts.extra_css).strip()
         if extra_css:
             e = parent.makeelement(XHTML('style'), type='text/css', id=EXTRA_CSS_ID)
             e.text = '\n' + extra_css
             insert_self_closing(parent, e)
-            e.text += e.tail or ''
+            e.text = (e.text or '') + (e.tail or '')
         e = parent.makeelement(XHTML('script'), type='text/javascript', src=kobo_js_href)
         insert_self_closing(parent, e)
 
@@ -128,7 +133,7 @@ def is_href_to_fname(href: str | None, fname: str) -> bool:
     return bool(href and href.rpartition('/')[-1] == fname)
 
 
-def remove_kobo_styles_and_scripts(root) -> None:
+def remove_kobo_styles_and_scripts(root: etree._Element) -> None:
     ids_to_remove = (KOBO_CSS_ID, EXTRA_CSS_ID, KOBO_SPAN_STYLE_ID)
     for style in XPath('//h:style')(root):
         if style.get('id') in ids_to_remove:
@@ -144,7 +149,7 @@ def remove_kobo_styles_and_scripts(root) -> None:
             extract(comment)
 
 
-def wrap_body_contents(body):
+def wrap_body_contents(body: etree._Element) -> etree._Element:
     # Kobo wraps the body with two div tags,
     # div#book-columns > div#book-inner to provide a target for applying
     # pagination styles.
@@ -162,7 +167,7 @@ def wrap_body_contents(body):
     return inner
 
 
-def unwrap_body_contents(body) -> None:
+def unwrap_body_contents(body: etree._Element) -> None:
     children = []
     text = ''
     for inner in XPath(f'./h:div[@id="{OUTER_DIV_ID}"]/h:div[@id="{INNER_DIV_ID}"]')(body):
@@ -174,23 +179,25 @@ def unwrap_body_contents(body) -> None:
     body.text = text
 
 
-def add_kobo_spans(inner, root_lang, prefer_justification=False) -> None:
+def add_kobo_spans(inner: etree._Element, root_lang: str | None, prefer_justification: bool = False) -> None:
     stack = []
     a, p = stack.append, stack.pop
-    a((inner, None, barename(inner.tag).lower(), lang_for_elem(inner, root_lang)))
+    inner_tag = inner.tag
+    assert isinstance(inner_tag, str)  # inner is a <div>
+    a((inner, None, barename(inner_tag).lower(), lang_for_elem(inner, root_lang)))
     paranum, segnum = 0, 0
     increment_next_para = True
     span_tag_name = XHTML('span')
     lstrip_pat = re.compile(r'^\s+')
     rstrip_pat = re.compile(r'\s+$')
 
-    def lstrip(x):
+    def lstrip(x: str) -> str:
         return lstrip_pat.sub('', x)
 
-    def rstrip(x):
+    def rstrip(x: str) -> str:
         return rstrip_pat.sub('', x)
 
-    def kobo_span(parent):
+    def kobo_span(parent: etree._Element) -> etree._Element:
         nonlocal paranum, segnum
         segnum += 1
         return parent.makeelement(span_tag_name, attrib={'class': KOBO_SPAN_CLASS, 'id': f'kobo.{paranum}.{segnum}'})
@@ -241,7 +248,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False) -> None:
             parent.insert(at, s)
             at += 1
 
-    def wrap_child(child: etree.Element, keep_text=False) -> etree.Element:
+    def wrap_child(child: etree.Element, keep_text: bool = False) -> etree.Element:
         nonlocal increment_next_para, paranum, segnum
         increment_next_para = False
         paranum += 1
@@ -310,14 +317,14 @@ def add_kobo_markup_to_html(root: etree.Element, kobo_js_href: str, opts: Option
         add_kobo_spans(inner, lang_for_elem(body, root_lang), opts.prefer_justification)
 
 
-def remove_kobo_markup_from_html(root) -> None:
+def remove_kobo_markup_from_html(root: etree._Element) -> None:
     remove_kobo_styles_and_scripts(root)
     for body in XPath('./h:body')(root):
         unwrap_body_contents(body)
         remove_kobo_spans(body)
 
 
-def serialize_html(root) -> bytes:
+def serialize_html(root: etree._Element) -> bytes:
     escape_cdata(root)
     ans = cast('str', etree.tostring(root, encoding='unicode', pretty_print=False, with_tail=False, xml_declaration=False))
     ans = ans.replace('\xa0', '&#160;')
@@ -388,7 +395,7 @@ def kepubify_parsed_html(root: etree.Element, kobo_js_href: str, opts: Options, 
         add_kobo_markup_to_html(root, kobo_js_href, opts, metadata_lang)
 
 
-def kepubify_html_data(raw: str | bytes, kobo_js_href: str = KOBO_JS_NAME, opts: Options = Options(), metadata_lang: str = 'en'):
+def kepubify_html_data(raw: str | bytes, kobo_js_href: str = KOBO_JS_NAME, opts: Options = Options(), metadata_lang: str = 'en') -> etree._Element:
     root = parse(raw, decoder=lambda x: decode_xml(x)[0])
     kepubify_parsed_html(root, kobo_js_href, opts, metadata_lang)
     return root
@@ -404,7 +411,7 @@ def kepubify_html_path(path: str, kobo_js_href: str = KOBO_JS_NAME, metadata_lan
         f.write(raw)
 
 
-def is_probably_a_title_page(root):
+def is_probably_a_title_page(root: etree._Element) -> bool:
     for title in XPath('//h:title')(root):
         if title.text:
             words = title.text.lower().split()
@@ -418,7 +425,7 @@ def is_probably_a_title_page(root):
     return (num_images + num_svgs == 1 and textlen <= 10) or (textlen <= 50 and (num_images + num_svgs) < 1)
 
 
-def add_dummy_title_page(container: Container, cover_image_name: str, mi, kobo_js_name: str) -> None:
+def add_dummy_title_page(container: Container, cover_image_name: str, mi: Metadata, kobo_js_name: str) -> str:
     titlepage_name = container.add_file(f'{DUMMY_TITLE_PAGE_NAME}.xhtml', modify_name_if_needed=True, spine_index=0)
     kobo_js_href = container.name_to_href(kobo_js_name, titlepage_name)
     html = f'''\
@@ -458,8 +465,8 @@ def add_dummy_title_page(container: Container, cover_image_name: str, mi, kobo_j
         <h3 style="text-align: center">{aus}</h1>
         ''',
         )
-    with container.open(titlepage_name, 'w') as f:
-        f.write(html)
+    with container.open(titlepage_name, 'wb') as f:
+        f.write(html.encode('utf-8'))
     container.apply_unique_properties(titlepage_name, 'calibre:title-page')
     return titlepage_name
 
@@ -485,6 +492,7 @@ def first_spine_item_is_probably_title_page(container: Container) -> bool:
             if 'cover' in name or 'title' in fname:
                 return True
             root = container.parsed(name)
+            assert isinstance(root, etree._Element)  # spine items are HTML, parsed into lxml trees
             return is_probably_a_title_page(root)
     return False
 
@@ -540,7 +548,7 @@ def do_work_in_parallel(container: Container, kobo_js_name: str, opts: Options, 
                 future.result()
 
 
-def remove_kobo_files(container) -> None:
+def remove_kobo_files(container: Container) -> None:
     for name, mt in tuple(container.mime_map.items()):
         fname = name.rpartition('/')[-1]
         if mt == 'application/javascript' and fname == KOBO_JS_NAME:
@@ -566,7 +574,7 @@ def uniqify_name(container: Container, fname: str) -> str:
     return q
 
 
-def find_cover_image_omf(container):
+def find_cover_image_omf(container: Container) -> str | None:
     '"Open" Media format files'
     images = ('image/jpeg', 'image/webp', 'image/png')
     for name, is_linear in container.spine_names:
@@ -594,7 +602,7 @@ def kepubify_container(container: Container, opts: Options, max_workers: int = 0
     do_work_in_parallel(container, kobo_js_name, opts, metadata_lang, max_workers)
 
 
-def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: Options = Options()):
+def kepubify_path(path: str, outpath: str = '', max_workers: int = 0, allow_overwrite: bool = False, opts: Options = Options()) -> str:
     container = get_container(path, tweak_mode=True)
     kepubify_container(container, opts, max_workers=max_workers)
     base, ext = os.path.splitext(path)
@@ -622,7 +630,7 @@ def check_for_kobo_drm(container: Container) -> None:
             break
 
 
-def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
+def unkepubify_path(path: str, outpath: str = '', max_workers: int = 0, allow_overwrite: bool = False) -> str:
     container = get_container(path, tweak_mode=True, ebook_cls=EpubContainer)
     unkepubify_container(container, max_workers)
     base, ext = os.path.splitext(path)
@@ -635,7 +643,7 @@ def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
     return outpath
 
 
-def check_if_css_needs_modification(extra_css: str) -> tuple[object, bool, bool]:
+def check_if_css_needs_modification(extra_css: str) -> tuple[CSSStyleSheet | None, bool, bool]:
     remove_widows_and_orphans = remove_at_page_rules = False
     sheet = None
     if extra_css:
@@ -733,7 +741,7 @@ def develop() -> None:
         input('Press Enter to quit')
 
 
-def kepubify_main(args=sys.argv) -> None:
+def kepubify_main(args: list[str] = sys.argv) -> None:
     for path in args[1:]:
         outpath = ''
         if path.endswith('.epub'):
@@ -742,7 +750,7 @@ def kepubify_main(args=sys.argv) -> None:
         print(f'{path} converted to: {kepub_path}')
 
 
-def unkepubify_main(args=sys.argv) -> None:
+def unkepubify_main(args: list[str] = sys.argv) -> None:
     for path in args[1:]:
         outpath = ''
         if path.endswith('.kepub.epub'):

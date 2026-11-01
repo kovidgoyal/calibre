@@ -6,11 +6,18 @@ Read content from ereader pdb file with a 116 and 202 byte header created by Mak
 
 import os
 import struct
+from typing import IO, TYPE_CHECKING
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.pdb.header import PdbHeaderReader
+    from calibre.utils.logging import Log
 from polyglot.builtins import as_unicode
 
 
@@ -25,7 +32,7 @@ class HeaderRecord:
     num_image_pages: int
     image_data_offset: int
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw: bytes) -> None:
         (self.version,) = struct.unpack('>H', raw[0:2])
         (self.non_text_offset,) = struct.unpack('>H', raw[8:10])
 
@@ -33,7 +40,7 @@ class HeaderRecord:
 
 
 class Reader202(FormatReader):
-    def __init__(self, header, stream, log, options) -> None:
+    def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         self.log = log
         self.encoding = options.input_encoding
 
@@ -52,17 +59,17 @@ class Reader202(FormatReader):
 
         self.mi = get_metadata(stream, False)
 
-    def section_data(self, number):
+    def section_data(self, number: int) -> bytes:
         return self.sections[number]
 
-    def decompress_text(self, number):
+    def decompress_text(self, number: int) -> str:
         from calibre.ebooks.compression.palmdoc import decompress_doc
 
         data = bytearray(self.section_data(number))
         data = bytes(bytearray(x ^ 0xA5 for x in data))
         return decompress_doc(data).decode(self.encoding or 'cp1252', 'replace')
 
-    def get_image(self, number):
+    def get_image(self, number: int) -> tuple[bytes | None, bytes | None]:
         name = None
         img = None
 
@@ -73,7 +80,7 @@ class Reader202(FormatReader):
 
         return name, img
 
-    def get_text_page(self, number):
+    def get_text_page(self, number: int) -> str:
         """
         Only palmdoc compression is supported. The text is xored with 0xA5 and
         assumed to be encoded as Windows-1252. The encoding is part of
@@ -84,7 +91,7 @@ class Reader202(FormatReader):
 
         return self.decompress_text(number)
 
-    def extract_content(self, output_dir):
+    def extract_content(self, output_dir: str) -> str:
         from calibre.ebooks.pml.pmlconverter import pml_to_html
 
         output_dir = os.path.abspath(output_dir)
@@ -111,11 +118,13 @@ class Reader202(FormatReader):
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         images = []
-        with CurrentDir(os.path.join(output_dir, 'images/')) as cwd:
+        images_dir = os.path.abspath(os.path.join(output_dir, 'images/'))
+        with CurrentDir(images_dir):
             for i in range(self.header_record.non_text_offset, len(self.sections)):
                 name, img = self.get_image(i)
                 name = as_unicode(name or b'')
-                if name and (dest := self.image_dest(name, cwd)):
+                if name and (dest := self.image_dest(name, images_dir)):
+                    assert img is not None  # get_image() returns a non-None img whenever name is non-None
                     images.append(name)
                     with open(dest, 'wb') as imgf:
                         self.log.debug(f'Writing image {name} to images/')
@@ -125,7 +134,7 @@ class Reader202(FormatReader):
 
         return opf_path
 
-    def create_opf(self, output_dir, images):
+    def create_opf(self, output_dir: str, images: list[str]) -> str:
         with CurrentDir(output_dir):
             opf = OPFCreator(output_dir, self.mi)
 
@@ -141,7 +150,7 @@ class Reader202(FormatReader):
 
         return os.path.join(output_dir, 'metadata.opf')
 
-    def dump_pml(self):
+    def dump_pml(self) -> str:
         """
         This is primarily used for debugging and 3rd party tools to
         get the plm markup that comprises the text in the file.
@@ -153,7 +162,7 @@ class Reader202(FormatReader):
 
         return pml
 
-    def image_dest(self, name, cwd):
+    def image_dest(self, name: str, cwd: str) -> str:
         base = os.path.abspath(cwd)
         if not base.endswith(os.sep):
             base += os.sep
@@ -162,7 +171,7 @@ class Reader202(FormatReader):
             ans = ''
         return ans
 
-    def dump_images(self, output_dir) -> None:
+    def dump_images(self, output_dir: str) -> None:
         """
         This is primarily used for debugging and 3rd party tools to
         get the images in the file.
@@ -170,10 +179,12 @@ class Reader202(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        with CurrentDir(output_dir) as cwd:
+        output_dir = os.path.abspath(output_dir)
+        with CurrentDir(output_dir):
             for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
                 name = as_unicode(name or b'')
-                if name and (dest := self.image_dest(name, cwd)):
+                if name and (dest := self.image_dest(name, output_dir)):
+                    assert img is not None  # get_image() returns a non-None img whenever name is non-None
                     with open(dest, 'wb') as imgf:
                         imgf.write(img)

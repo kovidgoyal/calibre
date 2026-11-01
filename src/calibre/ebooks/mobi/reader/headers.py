@@ -4,6 +4,7 @@
 import os
 import re
 import struct
+from typing import IO, TYPE_CHECKING
 
 from calibre import replace_entities
 from calibre.ebooks.metadata import MetaInformation, check_isbn
@@ -14,10 +15,15 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_date
 from calibre.utils.localization import _, canonicalize_lang
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from calibre.utils.logging import Log
+
 NULL_INDEX = 0xFFFFFFFF
 
 
-def uniq(vals):
+def uniq[T](vals: Iterable[T] | None) -> list[T]:
     """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
@@ -26,7 +32,7 @@ def uniq(vals):
 
 
 class EXTHHeader:  # {{{
-    def __init__(self, raw, codec, title) -> None:
+    def __init__(self, raw: bytes, codec: str, title: str) -> None:
         self.doctype = raw[:4]
         self.length, self.num_items = struct.unpack('>LL', raw[4:12])
         raw = raw[12:]
@@ -107,7 +113,7 @@ class EXTHHeader:  # {{{
         if title:
             self.mi.title = replace_entities(clean_xml_chars(clean_ascii_chars(title)))
 
-    def process_metadata(self, idx, content, codec) -> None:
+    def process_metadata(self, idx: int, content: bytes, codec: str) -> None:
         if idx == 100:
             if self.mi.is_null('authors'):
                 self.mi.authors = []
@@ -152,16 +158,16 @@ class EXTHHeader:  # {{{
             self.mi.rights = clean_xml_chars(self.decode(content).strip())
         elif idx == 112:  # dc:source set in some EBSP amazon samples
             try:
-                content = content.decode(codec).strip()
+                text = content.decode(codec).strip()
                 isig = 'urn:isbn:'
-                if content.lower().startswith(isig):
-                    raw = check_isbn(content[len(isig) :])
+                if text.lower().startswith(isig):
+                    raw = check_isbn(text[len(isig) :])
                     if raw and not self.mi.isbn:
                         self.mi.isbn = raw
-                elif content.startswith('calibre:'):
+                elif text.startswith('calibre:'):
                     # calibre book uuid is stored here by recent calibre
                     # releases
-                    cid = content[len('calibre:') :]
+                    cid = text[len('calibre:') :]
                     if cid:
                         self.mi.application_id = self.mi.uuid = cid
             except Exception:
@@ -186,7 +192,7 @@ class EXTHHeader:  # {{{
 
 
 class BookHeader:
-    def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False) -> None:
+    def __init__(self, raw: bytes, ident: bytes, user_encoding: str | None, log: Log, try_extra_data_fix: bool = False) -> None:
         self.log = log
         self.kf8_first_image_index: int | None = None
         self.mobi6_records: int | None = None
@@ -279,7 +285,7 @@ class BookHeader:
 
 
 class MetadataHeader(BookHeader):
-    def __init__(self, stream, log) -> None:
+    def __init__(self, stream: IO[bytes], log: Log) -> None:
         self.stream = stream
         self.ident = self.identity()
         self.num_sections = self.section_count()
@@ -304,22 +310,22 @@ class MetadataHeader(BookHeader):
             pass
         return None
 
-    def identity(self):
+    def identity(self) -> bytes:
         self.stream.seek(60)
         ident = self.stream.read(8).upper()
         if ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise MobiError(f'Unknown book type: {ident}')
         return ident
 
-    def section_count(self):
+    def section_count(self) -> int:
         self.stream.seek(76)
         return struct.unpack('>H', self.stream.read(2))[0]
 
-    def section_offset(self, number):
+    def section_offset(self, number: int) -> int:
         self.stream.seek(78 + number * 8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
-    def header(self):
+    def header(self) -> bytes:
         section_headers = []
         # First section with the metadata
         section_headers.append(self.section_offset(0))
@@ -331,7 +337,7 @@ class MetadataHeader(BookHeader):
         self.stream.seek(off)
         return self.stream.read(end_off - off)
 
-    def section_data(self, number):
+    def section_data(self, number: int) -> bytes:
         start = self.section_offset(number)
         if number == self.num_sections - 1:
             end = os.stat(self.stream.name).st_size

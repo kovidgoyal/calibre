@@ -11,6 +11,7 @@
 #                                                                       #
 #########################################################################
 import os
+from typing import IO
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
@@ -23,10 +24,10 @@ class CombineBorders:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        copy=None,
-        run_level=1,
+        in_file: str,
+        bug_handler: type[Exception],
+        copy: int | None = None,
+        run_level: int = 1,
     ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -36,19 +37,19 @@ class CombineBorders:
         self.__bord_pos = 'default'
         self.__bord_att = []
 
-    def found_bd(self, line) -> None:
+    def found_bd(self, line: str) -> None:
         # cw<bd<bor-t-r-vi
         self.__state = 'border'
         self.__bord_pos = line[6:16]
 
-    def __default_func(self, line):
+    def __default_func(self, line: str) -> str:
         # cw<bd<bor-t-r-vi
         if self.__first_five == 'cw<bd':
             self.found_bd(line)
             return ''
         return line
 
-    def end_border(self, line, write_obj) -> None:
+    def end_border(self, line: str, write_obj: IO[str]) -> None:
         border_string = '|'.join(self.__bord_att)
         self.__bord_att = []
         write_obj.write(f'cw<bd<{self.__bord_pos}<nu<{border_string}\n')
@@ -59,7 +60,7 @@ class CombineBorders:
         else:
             write_obj.write(line)
 
-    def add_to_border_desc(self, line) -> None:
+    def add_to_border_desc(self, line: str) -> None:
         # cw<bt<bdr-hair__<nu<true
         # cw<bt<bdr-linew<nu<0.50
         # tx<__________<some text
@@ -71,7 +72,7 @@ class CombineBorders:
             num = ':' + num
         self.__bord_att.append(border_desc + num)
 
-    def __border_func(self, line, write_obj) -> None:
+    def __border_func(self, line: str, write_obj: IO[str]) -> None:
         if self.__first_five != 'cw<bt':
             self.end_border(line, write_obj)
         else:

@@ -9,6 +9,7 @@ import os
 import sys
 from collections import OrderedDict
 from optparse import Option, OptionGroup
+from typing import TYPE_CHECKING
 
 from calibre import patheq
 from calibre.customize.conversion import OptionRecommendation
@@ -16,6 +17,12 @@ from calibre.ebooks.conversion import ConversionUserFeedBack
 from calibre.utils.config import OptionParser
 from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.logging import Log
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+    from optparse import OptionParser as OptParseOptionParser
+
+    from calibre.ebooks.conversion.plumber import Plumber
 
 USAGE = (
     '%prog '
@@ -63,11 +70,11 @@ HEURISTIC_OPTIONS = [
 DEFAULT_TRUE_OPTIONS = HEURISTIC_OPTIONS + ['remove_fake_margins']
 
 
-def print_help(parser, log) -> None:
+def print_help(parser: OptionParser, log: Log) -> None:
     parser.print_help()
 
 
-def check_command_line_options(parser, args, log):
+def check_command_line_options(parser: OptionParser, args: Sequence[str], log: Log) -> tuple[str, str]:
     if len(args) < 3 or args[1].startswith('-') or args[2].startswith('-'):
         print_help(parser, log)
         log.error('\n\nYou must specify the input AND output files')
@@ -88,8 +95,9 @@ def check_command_line_options(parser, args, log):
     return input, output
 
 
-def option_recommendation_to_cli_option(add_option, rec) -> None:
+def option_recommendation_to_cli_option(add_option: Callable[[Option], object], rec: OptionRecommendation) -> None:
     opt = rec.option
+    assert opt.long_switch is not None  # always set by ConversionOption.__init__
     switches = ['-' + opt.short_switch] if opt.short_switch else []
     switches.append('--' + opt.long_switch)
     attrs = dict(dest=opt.name, help=opt.help, choices=opt.choices, default=rec.recommended_value)
@@ -133,18 +141,21 @@ def option_recommendation_to_cli_option(add_option, rec) -> None:
         ).format(example='--recipe-specific-option=date:2030-11-31', list='--recipe-specific-option=list')
     if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
         switches = ['--disable-' + opt.long_switch]
-    add_option(Option(*switches, **attrs))
+    # attrs holds heterogeneous keyword arguments for Option
+    add_option(Option(*switches, **attrs))  # ty: ignore[invalid-argument-type]
 
 
-def group_titles():
+def group_titles() -> tuple[str, str]:
     return _('INPUT OPTIONS'), _('OUTPUT OPTIONS')
 
 
-def recipe_test(option, opt_str, value, parser) -> None:
+def recipe_test(option: Option, opt_str: str, value: object, parser: OptParseOptionParser) -> None:
     assert value is None
+    # rargs is always set while parsing and dest is set when creating the --test option
+    assert parser.rargs is not None and option.dest is not None
     value = []
 
-    def floatable(s) -> bool | None:
+    def floatable(s: str) -> bool | None:
         try:
             float(s)
             return True
@@ -172,10 +183,10 @@ def recipe_test(option, opt_str, value, parser) -> None:
     setattr(parser.values, option.dest, tuple(value))
 
 
-def add_input_output_options(parser, plumber) -> None:
+def add_input_output_options(parser: OptionParser, plumber: Plumber) -> None:
     input_options, output_options = plumber.input_options, plumber.output_options
 
-    def add_options(group, options) -> None:
+    def add_options(group: Callable[[Option], object], options: Iterable[OptionRecommendation]) -> None:
         for opt in options:
             if plumber.input_fmt == 'recipe' and opt.option.long_switch == 'test':
                 group(Option('--test', dest='test', action='callback', callback=recipe_test))
@@ -195,7 +206,7 @@ def add_input_output_options(parser, plumber) -> None:
         parser.add_option_group(oo)
 
 
-def add_pipeline_options(parser, plumber) -> None:
+def add_pipeline_options(parser: OptionParser, plumber: Plumber) -> None:
     groups = OrderedDict((
         (
             '',
@@ -334,11 +345,12 @@ def add_pipeline_options(parser, plumber) -> None:
 
         for name in options:
             rec = plumber.get_option_by_name(name)
+            assert rec is not None  # all names above are options known to the plumber
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = OptionParser(usage=USAGE)
     parser.add_option(
         '--list-recipes',
@@ -350,16 +362,16 @@ def option_parser():
 
 
 class ProgressBar:
-    def __init__(self, log) -> None:
+    def __init__(self, log: Log) -> None:
         self.log = log
 
-    def __call__(self, frac, msg=''):
+    def __call__(self, frac: float, msg: str = '') -> None:
         if msg:
             percent = int(frac * 100)
             self.log(f'{percent}% {msg}')
 
 
-def create_option_parser(args, log):
+def create_option_parser(args: Sequence[str], log: Log) -> tuple[OptionParser, Plumber]:
     if '--version' in args:
         from calibre.constants import __appname__, __author__, __version__
 
@@ -402,17 +414,17 @@ def create_option_parser(args, log):
     return parser, plumber
 
 
-def abspath(x):
+def abspath(x: str) -> str:
     if x.startswith(('http:', 'https:')):
         return x
     return os.path.abspath(os.path.expanduser(x))
 
 
-def escape_sr_pattern(exp):
+def escape_sr_pattern(exp: str) -> str:
     return exp.replace('\n', '\ue123')
 
 
-def read_sr_patterns(path, log=None):
+def read_sr_patterns(path: str, log: Log | None = None) -> str:
     import json
     import re
 
@@ -441,7 +453,7 @@ def read_sr_patterns(path, log=None):
     return json.dumps(pats)
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     log = Log()
     parser, plumber = create_option_parser(args, log)
     opts, leftover_args = parser.parse_args(args)
@@ -496,7 +508,7 @@ def main(args=sys.argv) -> int:
     return 0
 
 
-def manual_index_strings():
+def manual_index_strings() -> str:
     return _('''\
 The options and default values for the options change depending on both the
 input and output formats, so you should always check with::

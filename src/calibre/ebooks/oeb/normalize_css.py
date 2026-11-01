@@ -3,6 +3,7 @@
 
 import numbers
 from functools import wraps
+from typing import TYPE_CHECKING, Literal, cast, overload
 
 from css_parser import CSSParser
 from css_parser import profile as cssprofiles
@@ -10,6 +11,15 @@ from css_parser.css import PropertyValue
 from tinycss.fonts3 import parse_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
+
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Callable, Iterable, Sequence
+
+    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet, Property
+
+    type Normalizer = Callable[[str, PropertyValue], dict[str, str]]
+    type Condenser = Callable[[CSSStyleDeclaration, Sequence[Property]], None]
 
 DEFAULTS = {
     'azimuth': 'center',
@@ -120,8 +130,8 @@ EDGES = ('top', 'right', 'bottom', 'left')
 BORDER_PROPS = ('color', 'style', 'width')
 
 
-def normalize_edge(name, cssvalue):
-    style = {}
+def normalize_edge(name: str, cssvalue: PropertyValue) -> dict[str, str]:
+    style: dict[str, str] = {}
     if isinstance(cssvalue, PropertyValue):
         primitives = [css_text(v) for v in cssvalue]
     else:
@@ -147,21 +157,22 @@ def normalize_edge(name, cssvalue):
     return style
 
 
-def simple_normalizer(prefix, names, check_inherit=True):
+def simple_normalizer(prefix: str, names: Iterable[str], check_inherit: bool = True) -> Normalizer:
     composition = tuple(f'{prefix}-{n}' for n in names)
 
     @wraps(normalize_simple_composition)
-    def wrapper(name, cssvalue):
+    def wrapper(name: str, cssvalue: PropertyValue) -> dict[str, str]:
         return normalize_simple_composition(name, cssvalue, composition, check_inherit=check_inherit)
 
     return wrapper
 
 
-def normalize_simple_composition(name, cssvalue, composition, check_inherit=True):
+def normalize_simple_composition(name: str, cssvalue: PropertyValue, composition: Iterable[str], check_inherit: bool = True) -> dict[str, str]:
     if check_inherit and css_text(cssvalue) == 'inherit':
         style = {k: 'inherit' for k in composition}
     else:
-        style = {k: DEFAULTS[k] for k in composition}
+        # the defaults of all shorthand components are strings
+        style = cast('dict[str, str]', {k: DEFAULTS[k] for k in composition})
         try:
             primitives = [css_text(v) for v in cssvalue]
         except TypeError:
@@ -178,17 +189,22 @@ def normalize_simple_composition(name, cssvalue, composition, check_inherit=True
 font_composition = ('font-style', 'font-variant', 'font-weight', 'font-size', 'line-height', 'font-family')
 
 
-def normalize_font(cssvalue, font_family_as_list=False):
+@overload
+def normalize_font(cssvalue: PropertyValue, font_family_as_list: Literal[False] = False) -> dict[str, str]: ...
+@overload
+def normalize_font(cssvalue: PropertyValue, font_family_as_list: bool) -> dict[str, str | list[str]]: ...
+def normalize_font(cssvalue: PropertyValue, font_family_as_list: bool = False) -> dict[str, str] | dict[str, str | list[str]]:
     # See https://developer.mozilla.org/en-US/docs/Web/CSS/font
     composition = font_composition
     val = css_text(cssvalue)
-    ans: dict
+    ans: dict[str, str | list[str]]
+    font_defaults = cast('dict[str, str]', DEFAULTS)  # the defaults of all font properties are strings
     if val == 'inherit':
         ans = {k: 'inherit' for k in composition}
     elif val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
-        ans = {k: DEFAULTS[k] for k in composition}
+        ans = {k: font_defaults[k] for k in composition}
     else:
-        ans = {k: DEFAULTS[k] for k in composition}
+        ans = {k: font_defaults[k] for k in composition}
         ans.update(parse_font(val))
     if font_family_as_list:
         if isinstance(ans['font-family'], (str, bytes)):
@@ -198,7 +214,7 @@ def normalize_font(cssvalue, font_family_as_list=False):
     return ans
 
 
-def normalize_border(name, cssvalue):
+def normalize_border(name: str, cssvalue: PropertyValue) -> dict[str, str]:
     style = normalizers['border-' + EDGES[0]]('border-' + EDGES[0], cssvalue)
     vals = style.copy()
     for edge in EDGES[1:]:
@@ -206,7 +222,7 @@ def normalize_border(name, cssvalue):
     return style
 
 
-normalizers = {
+normalizers: dict[str, Normalizer] = {
     'list-style': simple_normalizer('list-style', ('type', 'position', 'image')),
     'font': lambda prop, v: normalize_font(v),
     'border': normalize_border,
@@ -234,10 +250,10 @@ SHORTHAND_DEFAULTS = {
     'font': 'inherit',
 }
 
-_safe_parser = None
+_safe_parser: CSSParser | None = None
 
 
-def safe_parser():
+def safe_parser() -> CSSParser:
     global _safe_parser
     if _safe_parser is None:
         import logging
@@ -246,8 +262,8 @@ def safe_parser():
     return _safe_parser
 
 
-def normalize_filter_css(props):
-    ans = set()
+def normalize_filter_css(props: Iterable[str]) -> set[str]:
+    ans: set[str] = set()
     p = safe_parser()
     for prop in props:
         n = normalizers.get(prop, None)
@@ -259,11 +275,11 @@ def normalize_filter_css(props):
     return ans
 
 
-def condense_edge(vals):
-    edges = {x.name.rpartition('-')[-1]: x.value for x in vals}
+def condense_edge(vals: Sequence[Property]) -> str | None:
+    edges: dict[str, str] = {x.name.rpartition('-')[-1]: x.value for x in vals}
     if len(edges) != 4 or set(edges) != {'left', 'top', 'right', 'bottom'}:
-        return
-    ce = {}
+        return None
+    ce: dict[str, str] = {}
     for x, y in [('left', 'right'), ('top', 'bottom')]:
         if edges[x] == edges[y]:
             ce[x] = edges[x]
@@ -279,11 +295,12 @@ def condense_edge(vals):
         if ce['top'] == ce['left']:
             return ce['top']
         return ' '.join(ce[x] for x in ('top', 'left'))
+    return None
 
 
-def simple_condenser(prefix, func):
+def simple_condenser(prefix: str, func: Callable[[Sequence[Property]], str | None]) -> Condenser:
     @wraps(func)
-    def condense_simple(style, props) -> None:
+    def condense_simple(style: CSSStyleDeclaration, props: Sequence[Property]) -> None:
         cp = func(props)
         if cp is not None:
             for prop in props:
@@ -293,12 +310,12 @@ def simple_condenser(prefix, func):
     return condense_simple
 
 
-def condense_border(style, props) -> None:
+def condense_border(style: CSSStyleDeclaration, props: Sequence[Property]) -> None:
     prop_map = {p.name: p for p in props}
-    edge_vals = []
+    edge_vals: list[Property] = []
     for edge in EDGES:
         name = f'border-{edge}'
-        vals = []
+        vals: list[Property] = []
         for prop in BORDER_PROPS:
             x = prop_map.get(f'{name}-{prop}', None)
             if x is not None:
@@ -317,15 +334,15 @@ def condense_border(style, props) -> None:
         style.setProperty('border', edge_vals[0].value)
 
 
-condensers = {
+condensers: dict[str, Condenser] = {
     'margin': simple_condenser('margin', condense_edge),
     'padding': simple_condenser('padding', condense_edge),
     'border': condense_border,
 }
 
 
-def condense_rule(style) -> None:
-    expanded = {'margin-': [], 'padding-': [], 'border-': []}
+def condense_rule(style: CSSStyleDeclaration) -> None:
+    expanded: dict[str, list[Property]] = {'margin-': [], 'padding-': [], 'border-': []}
     for prop in style.getProperties():
         for x, t in expanded.items():
             if prop.name and prop.name.startswith(x):
@@ -336,13 +353,13 @@ def condense_rule(style) -> None:
             condensers[prefix[:-1]](style, vals)
 
 
-def condense_sheet(sheet) -> None:
+def condense_sheet(sheet: CSSStyleSheet) -> None:
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
             condense_rule(rule.style)
 
 
-def test_normalization(return_tests=False):  # {{{
+def test_normalization(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
     import unittest
     from itertools import product
 
@@ -353,7 +370,7 @@ def test_normalization(return_tests=False):  # {{{
         maxDiff = None
 
         def test_font_normalization(self) -> None:
-            def font_dict(expected):
+            def font_dict(expected: dict[str, str]) -> dict[str, str | int]:
                 ans = {k: DEFAULTS[k] for k in font_composition} if expected else {}
                 ans.update(expected)
                 return ans
@@ -392,19 +409,19 @@ def test_normalization(return_tests=False):  # {{{
                 self.assertDictEqual(font_dict(expected), style, raw)
 
         def test_border_normalization(self) -> None:
-            def border_edge_dict(expected, edge='right'):
+            def border_edge_dict(expected: dict[str, str], edge: str = 'right') -> dict[str, str | int]:
                 ans = {f'border-{edge}-{x}': DEFAULTS[f'border-{edge}-{x}'] for x in ('style', 'width', 'color')}
                 for x, v in expected.items():
                     ans[f'border-{edge}-{x}'] = v
                 return ans
 
-            def border_dict(expected):
-                ans = {}
+            def border_dict(expected: dict[str, str]) -> dict[str, str | int]:
+                ans: dict[str, str | int] = {}
                 for edge in EDGES:
                     ans.update(border_edge_dict(expected, edge))
                 return ans
 
-            def border_val_dict(expected, val='color'):
+            def border_val_dict(expected: str, val: str = 'color') -> dict[str, str | int]:
                 ans = {f'border-{edge}-{val}': DEFAULTS[f'border-{edge}-{val}'] for edge in EDGES}
                 for edge in EDGES:
                     ans[f'border-{edge}-{val}'] = expected
@@ -439,7 +456,7 @@ def test_normalization(return_tests=False):  # {{{
                 self.assertDictEqual(border_val_dict(val, name), normalizers['border-' + name]('border-' + name, cval))
 
         def test_edge_normalization(self) -> None:
-            def edge_dict(prefix, expected):
+            def edge_dict(prefix: str, expected: Sequence[str]) -> dict[str, str]:
                 return {f'{prefix}-{edge}': x for edge, x in zip(EDGES, expected)}
 
             for raw, expected in {
@@ -453,8 +470,8 @@ def test_normalization(return_tests=False):  # {{{
                     self.assertDictEqual(edge_dict(prefix, expected), normalizers[prefix](prefix, cval))
 
         def test_list_style_normalization(self) -> None:
-            def ls_dict(expected):
-                ans: dict = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
+            def ls_dict(expected: dict[str, str]) -> dict[str, str | int]:
+                ans: dict[str, str | int] = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
                 for k, v in expected.items():
                     ans[f'list-style-{k}'] = v
                 return ans
@@ -534,6 +551,7 @@ def test_normalization(return_tests=False):  # {{{
     if return_tests:
         return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
+    return None
 
 
 # }}}

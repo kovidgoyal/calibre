@@ -4,6 +4,10 @@
 # Checks for common accessibility problems, based on the EPUB Accessibility
 # specification and WCAG, see https://www.w3.org/TR/epub-a11y-11/
 
+from typing import TYPE_CHECKING
+
+from lxml import etree
+
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath
 from calibre.ebooks.oeb.polish.accessibility import IMG, ElementsById, has_language, image_elements, is_decorative, role_for, set_html_language, svg_alt_text
@@ -11,18 +15,25 @@ from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.oeb.polish.container import Container
+
 HEADINGS = {XHTML(f'h{i}'): i for i in range(1, 7)}
 ACCESSIBILITY_PROPERTIES = ('schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature', 'schema:accessibilityHazard')
 SUMMARY_PROPERTY = 'schema:accessibilitySummary'
 WITH_EPUB_TYPE = XPath('//*[@epub:type]')
 
 
-def html_names(container):
+def html_names(container: Container) -> list[str]:
     # Sorted so that problems are reported in the same order on every system
     return sorted(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
 
 
-def images_without_alt(root):
+def images_without_alt(root: _Element) -> Iterator[_Element]:
     # Uses the same rules as Tools->Accessibility, so that both report the same images
     ids = ElementsById(root)
     for elem in image_elements(root):
@@ -33,7 +44,7 @@ def images_without_alt(root):
             yield elem
 
 
-def elements_without_role(root):
+def elements_without_role(root: _Element) -> Iterator[tuple[_Element, str]]:
     # Elements that have no role, but whose epub:type has a corresponding
     # role. Elements that already have a role are left alone, even if it is
     # different, as it was chosen by the author.
@@ -56,7 +67,7 @@ class MissingAltText(BaseError):
         )
     )
 
-    def __init__(self, name, lines) -> None:
+    def __init__(self, name: str, lines: Sequence[int | None]) -> None:
         BaseError.__init__(
             self, ngettext('An image has no alternative text', '{} images have no alternative text', len(lines)).format(len(lines)), name, lines[0]
         )
@@ -68,7 +79,7 @@ class MissingLanguage(BaseError):
     has_multiple_locations = True
     RULE_NAME = _('HTML file without a language')
 
-    def __init__(self, names, lang) -> None:
+    def __init__(self, names: Sequence[tuple[str, int | None]], lang: str | None) -> None:
         msg = ngettext('An HTML file does not specify its language', '{} HTML files do not specify their language', len(names))
         BaseError.__init__(self, msg.format(len(names)), names[0][0], names[0][1])
         self.all_locations = [(name, lnum, None) for name, lnum in names]
@@ -84,7 +95,8 @@ class MissingLanguage(BaseError):
             help += ' ' + _('Set the language of the book with Tools->Accessibility so that this can be fixed automatically.')
         self.HELP = xml(help)
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
+        assert self.lang  # only called when INDIVIDUAL_FIX is set, which requires lang
         return bool(set_html_language(container, self.names, self.lang))
 
 
@@ -100,7 +112,7 @@ class SkippedHeadingLevel(BaseError):
         )
     )
 
-    def __init__(self, name, lines) -> None:
+    def __init__(self, name: str, lines: Sequence[int | None]) -> None:
         BaseError.__init__(self, ngettext('A heading skips a level', '{} headings skip a level', len(lines)).format(len(lines)), name, lines[0])
         self.all_locations = [(name, lnum, None) for lnum in lines]
 
@@ -119,7 +131,7 @@ class MissingRole(BaseError):
         )
     )
 
-    def __init__(self, name, lines) -> None:
+    def __init__(self, name: str, lines: Sequence[int | None]) -> None:
         BaseError.__init__(
             self,
             ngettext('An element has an epub:type but no ARIA role', '{} elements have an epub:type but no ARIA role', len(lines)).format(len(lines)),
@@ -128,8 +140,9 @@ class MissingRole(BaseError):
         )
         self.all_locations = [(name, lnum, None) for lnum in lines]
 
-    def __call__(self, container):
+    def __call__(self, container: Container) -> bool:
         root = container.parsed(self.name)
+        assert isinstance(root, etree._Element)
         changed = False
         for elem, role in elements_without_role(root):
             elem.set('role', role)
@@ -139,7 +152,7 @@ class MissingRole(BaseError):
         return changed
 
 
-def existing_properties(container):
+def existing_properties(container: Container) -> set[str | None]:
     return {m.get('property') for m in container.opf_xpath('//opf:metadata/opf:meta[@property]') if (m.text or '').strip() and not m.get('refines')}
 
 
@@ -150,7 +163,7 @@ class MissingAccessibilityMetadata(BaseError):
     level = WARN
     RULE_NAME = _('Missing accessibility metadata')
 
-    def __init__(self, name, missing) -> None:
+    def __init__(self, name: str, missing: Sequence[str]) -> None:
         BaseError.__init__(self, _('The book does not have accessibility metadata'), name)
         self.missing = missing
         self.HELP = xml(
@@ -166,7 +179,7 @@ class MissingAccessibilitySummary(BaseError):
     level = INFO
     RULE_NAME = _('Missing accessibility summary')
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         BaseError.__init__(self, _('The book does not have an accessibility summary'), name)
         self.HELP = xml(
             _(
@@ -177,12 +190,13 @@ class MissingAccessibilitySummary(BaseError):
         )
 
 
-def check_accessibility(container):
-    errors = []
-    missing_lang = []
+def check_accessibility(container: Container) -> list[BaseError]:
+    errors: list[BaseError] = []
+    missing_lang: list[tuple[str, int | None]] = []
     is_epub3 = container.opf_version_parsed.major > 2
     for name in html_names(container):
         root = container.parsed(name)
+        assert isinstance(root, etree._Element)
         if not has_language(root):
             missing_lang.append((name, root.sourceline))
         lines = [img.sourceline for img in images_without_alt(root)]
@@ -190,7 +204,9 @@ def check_accessibility(container):
             errors.append(MissingAltText(name, lines))
         skipped, prev = [], None
         for heading in root.iter(*HEADINGS):
-            level = HEADINGS[heading.tag]
+            tag = heading.tag
+            assert isinstance(tag, str)  # iter() with tag names yields only elements
+            level = HEADINGS[tag]
             if prev is not None and level > prev + 1:
                 skipped.append(heading.sourceline)
             prev = level

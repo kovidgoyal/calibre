@@ -2,10 +2,16 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING, Protocol, overload
 
 from lxml.etree import XPath as X
 
 from calibre.utils.filenames import ascii_text
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Container
+
+    from lxml.etree import _Element
 
 # Names {{{
 TRANSITIONAL_NAMES = {
@@ -76,15 +82,28 @@ USE_LOCAL_DPI_URI = '{28A0092B-C50C-407E-A947-70E740481C1C}'
 # }}}
 
 
-def barename(x):
+#: The type of :meth:`DOCXNamespace.XPath`
+type XPathFunc = Callable[[str], X]
+
+
+class AttrGetter(Protocol):
+    """The type of :meth:`DOCXNamespace.get`"""
+
+    @overload
+    def __call__(self, x: _Element, attr: str, /) -> str | None: ...
+    @overload
+    def __call__[T](self, x: _Element, attr: str, default: T, /) -> str | T: ...
+
+
+def barename(x: str) -> str:
     return x.rpartition('}')[-1]
 
 
-def XML(x):
+def XML(x: str) -> str:
     return '{{{}}}{}'.format(TRANSITIONAL_NAMESPACES['xml'], x)
 
 
-def generate_anchor(name, existing):
+def generate_anchor(name: str, existing: Container[str]) -> str:
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
     c = 1
     while y in existing:
@@ -94,8 +113,8 @@ def generate_anchor(name, existing):
 
 
 class DOCXNamespace:
-    def __init__(self, transitional=True) -> None:
-        self.xpath_cache = {}
+    def __init__(self, transitional: bool = True) -> None:
+        self.xpath_cache: dict[str, X] = {}
         if transitional:
             self.namespaces = TRANSITIONAL_NAMESPACES.copy()
             self.names = TRANSITIONAL_NAMES.copy()
@@ -103,40 +122,44 @@ class DOCXNamespace:
             self.namespaces = STRICT_NAMESPACES.copy()
             self.names = STRICT_NAMES.copy()
 
-    def XPath(self, expr):
+    def XPath(self, expr: str) -> X:
         ans = self.xpath_cache.get(expr, None)
         if ans is None:
             self.xpath_cache[expr] = ans = X(expr, namespaces=self.namespaces)
         return ans
 
-    def is_tag(self, x, q):
+    def is_tag(self, x: _Element | str, q: str) -> bool:
         tag = getattr(x, 'tag', x)
         ns, name = q.partition(':')[0::2]
         return f'{{{self.namespaces.get(ns, None)}}}{name}' == tag
 
-    def expand(self, name, sep=':'):
+    def expand(self, name: str, sep: str = ':') -> str:
         ns, tag = name.partition(sep)[::2]
         if ns and tag:
             tag = f'{{{self.namespaces[ns]}}}{tag}'
         return tag or ns
 
-    def get(self, x, attr, default=None):
+    @overload
+    def get(self, x: _Element, attr: str) -> str | None: ...
+    @overload
+    def get[T](self, x: _Element, attr: str, default: T) -> str | T: ...
+    def get[T](self, x: _Element, attr: str, default: T | None = None) -> str | T | None:
         return x.attrib.get(self.expand(attr), default)
 
-    def ancestor(self, elem, name):
+    def ancestor(self, elem: _Element, name: str) -> _Element | None:
         try:
             return self.XPath(f'ancestor::{name}[1]')(elem)[0]
         except IndexError:
             return None
 
-    def children(self, elem, *args):
+    def children(self, elem: _Element, *args: str) -> list[_Element]:
         return self.XPath('|'.join(f'child::{a}' for a in args))(elem)
 
-    def descendants(self, elem, *args):
+    def descendants(self, elem: _Element, *args: str) -> list[_Element]:
         return self.XPath('|'.join(f'descendant::{a}' for a in args))(elem)
 
-    def makeelement(self, root, tag, append=True, **attrs):
-        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'): v for k, v in attrs.items()})
+    def makeelement(self, root: _Element, tag: str, append: bool = True, **attrs: str) -> _Element:
+        ans = root.makeelement(self.expand(tag), {self.expand(k, sep='_'): v for k, v in attrs.items()})
         if append:
             root.append(ans)
         return ans

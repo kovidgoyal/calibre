@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QMarginsF, QPageLayout, QPageSize, QSizeF
 
 from calibre.constants import filesystem_encoding
@@ -11,9 +13,15 @@ from calibre.utils.imghdr import identify
 from calibre.utils.localization import _
 from polyglot.builtins import as_unicode
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from calibre.ebooks.metadata.book.base import Metadata
+
 
 class PDFMetadata:  # {{{
-    def __init__(self, mi=None) -> None:
+    def __init__(self, mi: Metadata | None = None) -> None:
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
 
@@ -39,7 +47,7 @@ class PDFMetadata:  # {{{
 # Page layout {{{
 
 
-def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
+def parse_pdf_page_size(spec: str, unit: str = 'inch', dpi: float = 72.0) -> QPageSize | None:
     width, sep, height = spec.lower().partition('x')
     if height:
         try:
@@ -67,7 +75,7 @@ def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
             )
 
 
-def get_page_size(opts, for_comic=False):
+def get_page_size(opts: Values, for_comic: bool = False) -> QPageSize:
     use_profile = opts.use_profile_size and opts.output_profile.short_name != 'default' and opts.output_profile.width <= 9999
     if use_profile:
         w = opts.output_profile.comic_screen_size[0] if for_comic else opts.output_profile.width
@@ -84,10 +92,10 @@ def get_page_size(opts, for_comic=False):
     return page_size
 
 
-def get_page_layout(opts, for_comic=False):
+def get_page_layout(opts: Values, for_comic: bool = False) -> QPageLayout:
     page_size = get_page_size(opts, for_comic)
 
-    def m(which):
+    def m(which: str) -> float:
         return max(0, getattr(opts, 'pdf_page_margin_' + which) or getattr(opts, 'margin_' + which))
 
     margins = QMarginsF(m('left'), m('top'), m('right'), m('bottom'))
@@ -100,7 +108,7 @@ def get_page_layout(opts, for_comic=False):
 
 
 class Image:  # {{{
-    def __init__(self, path_or_bytes) -> None:
+    def __init__(self, path_or_bytes: str | bytes) -> None:
         if not isinstance(path_or_bytes, bytes):
             with open(path_or_bytes, 'rb') as f:
                 path_or_bytes = f.read()
@@ -114,7 +122,7 @@ class Image:  # {{{
 # }}}
 
 
-def draw_image_page(writer, img, preserve_aspect_ratio=True) -> None:
+def draw_image_page(writer: PDFStream, img: Image, preserve_aspect_ratio: bool = True) -> None:
     if img.fmt == 'jpeg':
         ref = writer.add_jpeg_image(img.img_data, img.width, img.height, img.cache_key, depth=img.img.depth())
     else:
@@ -134,7 +142,7 @@ def draw_image_page(writer, img, preserve_aspect_ratio=True) -> None:
     writer.draw_image_with_transform(ref, translation=translation, scaling=scaling)
 
 
-def convert(images, output_path, opts, metadata, report_progress) -> None:
+def convert(images: Sequence[str | bytes], output_path: str, opts: Values, metadata: Metadata | None, report_progress: Callable[[float, str], object]) -> None:
     with open(output_path, 'wb') as buf:
         page_layout = get_page_layout(opts, for_comic=True)
         page_size = page_layout.fullRectPoints().size()

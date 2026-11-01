@@ -550,13 +550,16 @@ class PALADIN(USBMS):
                     db_books[row[0]] = row[1]
 
                 for idx, book in enumerate(books):
+                    assert book.lpath is not None  # device books always have an lpath
                     if collection not in book.device_collections:
                         book.device_collections.append(collection)
                     if db_books.get(book.lpath, None) is None:
                         query = '''
                         INSERT INTO booktags (tag_id, book_id) values (?,?)
                         '''
-                        t = (db_collections[collection], book.bookId)
+                        book_id = book.bookId
+                        assert book_id is None or isinstance(book_id, int)  # a database row id
+                        t = (db_collections[collection], book_id)
                         cursor.execute(query, t)
                         debug_print('Inserted Book Into Collection: ' + book.title + ' -> ' + collection)
 

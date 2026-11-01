@@ -9,6 +9,7 @@ import os
 import re
 import sys
 from contextlib import suppress
+from typing import TYPE_CHECKING, cast, overload
 from urllib.parse import quote, urlparse
 
 from calibre import force_unicode, guess_type, prints, relpath
@@ -17,6 +18,12 @@ from calibre.utils.localization import _
 from polyglot.builtins import as_unicode
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Iterator
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.metadata.opf2 import OPF
+
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
 except Exception:
@@ -24,7 +31,7 @@ except Exception:
     _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
 
 
-def string_to_authors(raw):
+def string_to_authors(raw: str | None) -> list[str]:
     if not raw:
         return []
     raw = raw.replace('&&', '\uffff')
@@ -33,19 +40,19 @@ def string_to_authors(raw):
     return [a for a in authors if a]
 
 
-def authors_to_string(authors):
+def authors_to_string(authors: Iterable[str | None] | None) -> str:
     if authors is not None:
         return ' & '.join([a.replace('&', '&&') for a in authors if a])
     else:
         return ''
 
 
-def remove_bracketed_text(src, brackets=None):
+def remove_bracketed_text(src: str | bytes, brackets: dict[str, str] | None = None) -> str:
     if brackets is None:
         brackets = {'(': ')', '[': ']', '{': '}'}
     from collections import Counter
 
-    counts = Counter()
+    counts: Counter[str] = Counter()
     total = 0
     buf = []
     src = force_unicode(src)
@@ -65,14 +72,14 @@ def remove_bracketed_text(src, brackets=None):
 
 
 def author_to_author_sort(
-    author,
-    method=None,
-    copywords=None,
-    use_surname_prefixes=None,
-    surname_prefixes=None,
-    name_prefixes=None,
-    name_suffixes=None,
-):
+    author: str | None,
+    method: str | None = None,
+    copywords: Iterable[str] | None = None,
+    use_surname_prefixes: bool | None = None,
+    surname_prefixes: Iterable[str] | None = None,
+    name_prefixes: Iterable[str] | None = None,
+    name_suffixes: Iterable[str] | None = None,
+) -> str:
     if not author:
         return ''
 
@@ -138,14 +145,14 @@ def author_to_author_sort(
     return ' '.join(atokens)
 
 
-def authors_to_sort_string(authors):
+def authors_to_sort_string(authors: Iterable[str]) -> str:
     return ' & '.join(map(author_to_author_sort, authors))
 
 
-_title_pats = {}
+_title_pats: dict[str | None, re.Pattern[str]] = {}
 
 
-def get_title_sort_pat(lang=None):
+def get_title_sort_pat(lang: str | None = None) -> re.Pattern[str]:
     ans = _title_pats.get(lang, None)
     if ans is not None:
         return ans
@@ -200,7 +207,7 @@ quote_pairs = {
 }
 
 
-def title_sort(title, order=None, lang=None):
+def title_sort(title: str, order: str | None = None, lang: str | None = None) -> str:
     if order is None:
         order = tweaks['title_series_sorting']
     title = title.strip()
@@ -236,7 +243,7 @@ coding = list(
 )
 
 
-def roman(num):
+def roman(num: int) -> str:
     if num <= 0 or num >= 4000 or int(num) != num:
         return str(num)
     result = []
@@ -247,7 +254,7 @@ def roman(num):
     return ''.join(result)
 
 
-def fmt_sidx(i, fmt='%.2f', use_roman=False):
+def fmt_sidx(i: float | str | None, fmt: str = '%.2f', use_roman: bool = False) -> str:
     if i is None or i == '':
         i = 1
     try:
@@ -275,10 +282,10 @@ class Resource:
 
     """
 
-    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True) -> None:
-        self._href = None
+    def __init__(self, href_or_path: str, basedir: str = os.getcwd(), is_path: bool = True) -> None:
+        self._href: str | None = None
         self._basedir = basedir
-        self.path = None
+        self.path: str | None = None
         self.fragment = ''
         try:
             self.mime_type = guess_type(href_or_path)[0]
@@ -305,7 +312,7 @@ class Resource:
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
                 self.fragment = unquote(url[-1])
 
-    def href(self, basedir=None):
+    def href(self, basedir: str | None = None) -> str:
         """
         Return a URL pointing to this resource. If it is a file on the filesystem
         the URL is relative to `basedir`.
@@ -319,6 +326,7 @@ class Resource:
             else:
                 basedir = os.getcwd()
         if self.path is None:
+            assert self._href is not None  # resources without a path are always created with an href
             return self._href
         f = self.fragment.encode('utf-8') if isinstance(self.fragment, str) else self.fragment
         frag = '#' + as_unicode(quote(f)) if self.fragment else ''
@@ -332,10 +340,10 @@ class Resource:
             rpath = rpath.encode('utf-8')
         return as_unicode(quote(rpath.replace(os.sep.encode('utf-8'), b'/'))) + frag
 
-    def set_basedir(self, path) -> None:
+    def set_basedir(self, path: str) -> None:
         self._basedir = path
 
-    def basedir(self):
+    def basedir(self) -> str:
         return self._basedir
 
     def __repr__(self) -> str:
@@ -344,15 +352,15 @@ class Resource:
 
 class ResourceCollection:
     def __init__(self) -> None:
-        self._resources = []
+        self._resources: list[Resource] = []
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Resource]:
         yield from self._resources
 
     def __len__(self) -> int:
         return len(self._resources)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Resource:
         return self._resources[index]
 
     def __bool__(self) -> bool:
@@ -365,20 +373,20 @@ class ResourceCollection:
     def __repr__(self) -> str:
         return str(self)
 
-    def append(self, resource) -> None:
+    def append(self, resource: Resource) -> None:
         if not isinstance(resource, Resource):
             raise TypeError('Can only append objects of type Resource')
         self._resources.append(resource)
 
-    def remove(self, resource) -> None:
+    def remove(self, resource: Resource) -> None:
         self._resources.remove(resource)
 
-    def replace(self, start, end, items) -> None:
+    def replace(self, start: int, end: int, items: Iterable[Resource]) -> None:
         "Same as list[start:end] = items"
         self._resources[start:end] = items
 
     @staticmethod
-    def from_directory_contents(top, topdown=True):
+    def from_directory_contents(top: str, topdown: bool = True) -> ResourceCollection:
         collection = ResourceCollection()
         for dirpath, _dirnames, filenames in os.walk(top, topdown=topdown):
             for fname in filenames:
@@ -388,12 +396,12 @@ class ResourceCollection:
                 collection.append(res)
         return collection
 
-    def set_basedir(self, path) -> None:
+    def set_basedir(self, path: str) -> None:
         for res in self:
             res.set_basedir(path)
 
 
-def MetaInformation(title, authors=(_('Unknown'),)):
+def MetaInformation(title: str | Metadata | OPF | None, authors: Collection[str] | None = (_('Unknown'),)) -> Metadata:
     """Convenient encapsulation of book metadata, needed for compatibility
     @param title: title or ``_('Unknown')`` or a MetaInformation object
     @param authors: List of strings or []
@@ -402,37 +410,37 @@ def MetaInformation(title, authors=(_('Unknown'),)):
 
     mi = None
     if hasattr(title, 'title') and hasattr(title, 'authors'):
-        mi = title
+        mi = cast('Metadata | OPF', title)  # a str has no authors attribute
         title = mi.title
         authors = mi.authors
     return Metadata(title, authors, other=mi)
 
 
-def check_digit_for_isbn10(isbn):
+def check_digit_for_isbn10(isbn: str) -> str:
     check = sum((i + 1) * int(isbn[i]) for i in range(9)) % 11
     return 'X' if check == 10 else str(check)
 
 
-def check_digit_for_isbn13(isbn):
+def check_digit_for_isbn13(isbn: str) -> str:
     check = 10 - sum((1 if i % 2 == 0 else 3) * int(isbn[i]) for i in range(12)) % 10
     if check == 10:
         check = 0
     return str(check)
 
 
-def check_isbn10(isbn):
+def check_isbn10(isbn: str) -> bool:
     with suppress(Exception):
         return check_digit_for_isbn10(isbn) == isbn[9]
     return False
 
 
-def check_isbn13(isbn):
+def check_isbn13(isbn: str) -> bool:
     with suppress(Exception):
         return check_digit_for_isbn13(isbn) == isbn[12]
     return False
 
 
-def check_isbn(isbn, simple_sanitize=False):
+def check_isbn(isbn: str | None, simple_sanitize: bool = False) -> str | None:
     if not isbn:
         return None
     if simple_sanitize:
@@ -452,7 +460,11 @@ def check_isbn(isbn, simple_sanitize=False):
     return None
 
 
-def normalize_isbn(isbn):
+@overload
+def normalize_isbn(isbn: str) -> str: ...
+@overload
+def normalize_isbn(isbn: None) -> None: ...
+def normalize_isbn(isbn: str | None) -> str | None:
     if not isbn:
         return isbn
     ans = check_isbn(isbn)
@@ -464,7 +476,7 @@ def normalize_isbn(isbn):
     return ans
 
 
-def check_issn(issn):
+def check_issn(issn: str | None) -> str | None:
     if not issn:
         return None
     issn = re.sub(r'[^0-9X]', '', issn.upper())
@@ -479,7 +491,11 @@ def check_issn(issn):
     return None
 
 
-def format_isbn(isbn):
+@overload
+def format_isbn(isbn: str) -> str: ...
+@overload
+def format_isbn(isbn: None) -> None: ...
+def format_isbn(isbn: str | None) -> str | None:
     cisbn = check_isbn(isbn)
     if not cisbn:
         return isbn
@@ -489,7 +505,7 @@ def format_isbn(isbn):
     return '-'.join((i[:3], i[3:5], i[5:9], i[9:12], i[12]))
 
 
-def check_doi(doi):
+def check_doi(doi: str | None) -> str | None:
     "Check if something that looks like a DOI is present anywhere in the string"
     if not doi:
         return None
@@ -499,7 +515,7 @@ def check_doi(doi):
     return None
 
 
-def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
+def rating_to_stars(value: float | None, allow_half_stars: bool = False, star: str = '★', half: str = '⯨') -> str:
     r = max(0, min(int(value or 0), 10))
     ans = star * (r // 2)
     if allow_half_stars and r % 2:

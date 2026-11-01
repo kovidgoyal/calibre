@@ -8,6 +8,8 @@ import sys
 import unicodedata
 from typing import TYPE_CHECKING
 
+from lxml import etree
+
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks.conversion.archives import ARCHIVE_FMTS, unarchive
 from calibre.ebooks.oeb.base import XPNSMAP, barename
@@ -57,7 +59,7 @@ def html_to_text(root: _Element) -> Iterator[str]:
 
 def to_text(container: ContainerBase, name: str) -> Iterator[str]:
     root = container.parsed(name)
-    if hasattr(root, 'xpath'):
+    if isinstance(root, etree._Element):
         yield from html_to_text(root)
 
 
@@ -80,6 +82,7 @@ def pdftotext(path: str) -> str:
 
     cmd = [PDFTOTEXT] + '-enc UTF-8 -nodiag -eol unix'.split() + [os.path.basename(path), '-']
     p = popen(cmd, cwd=os.path.dirname(path), stdout=subprocess.PIPE, stdin=subprocess.DEVNULL)
+    assert p.stdout is not None  # stdout=PIPE
     raw = p.stdout.read()
     p.stdout.close()
     if p.wait() != 0:

@@ -3,11 +3,16 @@
 
 import copy
 import sys
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
-from qt.core import QLinearGradient, QPointF, sip
+from qt.core import QGradient, QLinearGradient, QPointF, sip
 
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name
+
+if TYPE_CHECKING:
+    from qt.core import QBrush, QTransform
+
+    from calibre.ebooks.pdf.render.serialize import PDFStream
 
 
 class Stop(NamedTuple):
@@ -16,9 +21,9 @@ class Stop(NamedTuple):
 
 
 class LinearGradientPattern(Dictionary):
-    def __init__(self, brush, matrix, pdf, pixel_page_width, pixel_page_height) -> None:
+    def __init__(self, brush: QBrush, matrix: QTransform, pdf: PDFStream, pixel_page_width: float, pixel_page_height: float) -> None:
         self.matrix = (matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), matrix.dx(), matrix.dy())
-        gradient = sip.cast(brush.gradient(), QLinearGradient)  # type: ignore
+        gradient: QLinearGradient = sip.cast(brush.gradient(), QLinearGradient)  # type: ignore
 
         start, stop, stops = self.spread_gradient(gradient, pixel_page_width, pixel_page_height, matrix)
 
@@ -73,12 +78,14 @@ class LinearGradientPattern(Dictionary):
 
         self.cache_key = (self.__class__.__name__, self.matrix, tuple(shader['Coords']), stops)
 
-    def spread_gradient(self, gradient, pixel_page_width, pixel_page_height, matrix):
+    def spread_gradient(
+        self, gradient: QLinearGradient, pixel_page_width: float, pixel_page_height: float, matrix: QTransform
+    ) -> tuple[QPointF, QPointF, tuple[Stop, ...]]:
         start = gradient.start()
         stop = gradient.finalStop()
         stops = [[x[0], x[1].getRgbF()] for x in gradient.stops()]
         spread = gradient.spread()
-        if spread != gradient.PadSpread:
+        if spread != QGradient.Spread.PadSpread:
             inv = matrix.inverted()[0]
             page_rect = tuple(
                 map(
@@ -98,7 +105,7 @@ class LinearGradientPattern(Dictionary):
                 minx, maxx = min(minx, p.x()), max(maxx, p.x())
                 miny, maxy = min(miny, p.y()), max(maxy, p.y())
 
-            def in_page(point):
+            def in_page(point: QPointF) -> bool:
                 return minx <= point.x() <= maxx and miny <= point.y() <= maxy
 
             offset = stop - start
@@ -107,9 +114,10 @@ class LinearGradientPattern(Dictionary):
             reflect = False
             base_stops = copy.deepcopy(stops)
             reversed_stops = list(reversed(stops))
-            do_reflect = spread == gradient.ReflectSpread
-            totl = abs(stops[-1][0] - stops[0][0])
-            intervals = [abs(stops[i + 1][0] - stops[i][0]) / totl for i in range(len(stops) - 1)]
+            do_reflect = spread == QGradient.Spread.ReflectSpread
+            # stops are mutable [t: float, color] pairs, so index 0 is always a float
+            totl = abs(stops[-1][0] - stops[0][0])  # ty: ignore[unsupported-operator]
+            intervals = [abs(stops[i + 1][0] - stops[i][0]) / totl for i in range(len(stops) - 1)]  # ty: ignore[unsupported-operator]
 
             while in_page(llimit):
                 reflect ^= True
@@ -150,4 +158,5 @@ class LinearGradientPattern(Dictionary):
                 # In case there were rounding errors
                 stops[-1][0] = base_stops[-1][0]
 
-        return start, stop, tuple(Stop(s[0], s[1]) for s in stops)
+        # stops are [t: float, color: (r, g, b, a)] pairs, getRgbF() never returns None components
+        return start, stop, tuple(Stop(s[0], s[1]) for s in stops)  # ty: ignore[invalid-argument-type]

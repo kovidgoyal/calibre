@@ -164,6 +164,7 @@ class UnpackBook(QDialog):
             src = self.db.format(self.book_id, self.current_format, index_is_id=True, as_path=True)
             self._cleanup_files.append(src)
             exploder = get_tools(self.current_format)[0]
+            assert exploder is not None  # only supported formats are offered for unpacking
             opf = exploder(src, tdir, question=self.ask_question)
         except WorkerError as e:
             det_msg = e.orig_tb
@@ -211,6 +212,8 @@ class UnpackBook(QDialog):
         self._cleanup_files.append(of)
         try:
             rebuilder = get_tools(self.current_format)[1]
+            # only supported formats are offered and rebuild is only enabled after a successful explode
+            assert rebuilder is not None and src_dir is not None
             rebuilder(src_dir, of)
         except WorkerError as e:
             det_msg = e.orig_tb

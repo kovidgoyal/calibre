@@ -3,32 +3,43 @@
 
 import numbers
 from collections import OrderedDict
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from lxml.etree import _Element
+
+    from calibre.ebooks.docx.char_styles import RunStyle
+    from calibre.ebooks.docx.names import AttrGetter, DOCXNamespace, XPathFunc
+    from calibre.ebooks.docx.styles import PageProperties
+    from calibre.ebooks.docx.tables import CellStyle, TableStyle
 
 
 class Inherit:
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return other is self
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return id(self)
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
         return False
 
-    def __gt__(self, other):
+    def __gt__(self, other: object) -> bool:
         return other is not self
 
-    def __ge__(self, other):
+    def __ge__(self, other: object) -> bool:
         return True
 
-    def __le__(self, other):
+    def __le__(self, other: object) -> bool:
         return self is other
 
 
 inherit = Inherit()
 
 
-def binary_property(parent, name, XPath, get):
+def binary_property(parent: _Element, name: str, XPath: XPathFunc, get: AttrGetter) -> bool | Inherit:
     vals = XPath(f'./w:{name}')(parent)
     if not vals:
         return inherit
@@ -36,23 +47,32 @@ def binary_property(parent, name, XPath, get):
     return val in {'on', '1', 'true'}
 
 
-def simple_color(col, auto='currentColor'):
+def simple_color(col: str | None, auto: str = 'currentColor') -> str:
     if not col or col == 'auto' or len(col) != 6:
         return auto
     return '#' + col
 
 
-def simple_float(val, mult=1.0):
+def simple_float(val: str | None, mult: float = 1.0) -> float | None:
     try:
-        return float(val) * mult
+        return float(val) * mult  # ty: ignore[invalid-argument-type]  # None raises TypeError, handled below
     except ValueError, TypeError, AttributeError, KeyError:
         pass
 
 
-def twips(val, mult=0.05):
+def chars_or_none(chars: str | None, twips_val: str | None) -> str | None:
+    # Word (and calibre's DOCX output) writes, for example, w:leftChars="0" together
+    # with w:left to override a character based indent from a parent style, meaning
+    # the twips value should be used.
+    if chars is not None and twips_val is not None and simple_float(chars) == 0:
+        return None
+    return chars
+
+
+def twips(val: str | None, mult: float = 0.05) -> float | None:
     """Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts."""
     try:
-        return float(val) * mult
+        return float(val) * mult  # ty: ignore[invalid-argument-type]  # None raises TypeError, handled below
     except ValueError, TypeError, AttributeError, KeyError:
         if val and val.endswith('pt') and mult == 0.05:
             return twips(val[:-2], mult=1.0)
@@ -96,7 +116,7 @@ border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_c
 border_edges = ('left', 'top', 'right', 'bottom', 'between')
 
 
-def read_single_border(parent, edge, XPath, get):
+def read_single_border(parent: _Element, edge: str, XPath: XPathFunc, get: AttrGetter) -> dict[str, float | str | None]:
     color = style = width = padding = None
     for elem in XPath(f'./w:{edge}')(parent):
         c = get(elem, 'w:color')
@@ -121,8 +141,8 @@ def read_single_border(parent, edge, XPath, get):
     return dict(zip(border_props, (padding, width, style, color)))
 
 
-def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr') -> None:
-    vals = {k % edge: inherit for edge in border_edges for k in border_props}
+def read_border(parent: _Element, dest: object, XPath: XPathFunc, get: AttrGetter, border_edges: Sequence[str] = border_edges, name: str = 'pBdr') -> None:
+    vals: dict[str, float | str | Inherit] = {k % edge: inherit for edge in border_edges for k in border_props}
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
@@ -134,7 +154,7 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
         setattr(dest, key, val)
 
 
-def border_to_css(edge, style, css) -> None:
+def border_to_css(edge: str, style: object, css: dict[str, str]) -> None:
     bs = getattr(style, f'border_{edge}_style')
     bc = getattr(style, f'border_{edge}_color')
     bw = getattr(style, f'border_{edge}_width')
@@ -148,10 +168,10 @@ def border_to_css(edge, style, css) -> None:
     if bw is not inherit and bw is not None:
         if isinstance(bw, numbers.Number):
             bw = f'{bw:.3g}pt'
-        css[f'border-{edge}-width'] = bw
+        css[f'border-{edge}-width'] = bw  # ty: ignore[invalid-assignment]  # numbers are converted to str above
 
 
-def read_indent(parent, dest, XPath, get) -> None:
+def read_indent(parent: _Element, dest: ParagraphStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     padding_left = padding_right = text_indent = inherit
     is_rtl = getattr(dest, 'bidi', False)
     for indent in XPath('./w:ind')(parent):
@@ -164,17 +184,20 @@ def read_indent(parent, dest, XPath, get) -> None:
             # TODO: For inherit we should be using textDirection from sectPr
             left, leftChars, right, rightChars = end, endChars, start, startChars
         l, lc = left or get(indent, 'w:left'), leftChars or get(indent, 'w:leftChars')
+        lc = chars_or_none(lc, l)
         pl = simple_float(lc, 0.01) if lc is not None else simple_float(l, 0.05) if l is not None else None
         if pl is not None:
             padding_left = '{:.3g}{}'.format(pl, 'em' if lc is not None else 'pt')
 
         r, rc = right or get(indent, 'w:right'), rightChars or get(indent, 'w:rightChars')
+        rc = chars_or_none(rc, r)
         pr = simple_float(rc, 0.01) if rc is not None else simple_float(r, 0.05) if r is not None else None
         if pr is not None:
             padding_right = '{:.3g}{}'.format(pr, 'em' if rc is not None else 'pt')
 
         h, hc = get(indent, 'w:hanging'), get(indent, 'w:hangingChars')
         fl, flc = get(indent, 'w:firstLine'), get(indent, 'w:firstLineChars')
+        hc, flc = chars_or_none(hc, h), chars_or_none(flc, fl)
         h = h if h is None else '-' + h
         hc = hc if hc is None else '-' + hc
         ti = (
@@ -196,7 +219,7 @@ def read_indent(parent, dest, XPath, get) -> None:
     dest.text_indent = text_indent
 
 
-def read_justification(parent, dest, XPath, get) -> None:
+def read_justification(parent: _Element, dest: ParagraphStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for jc in XPath('./w:jc[@w:val]')(parent):
         val = get(jc, 'w:val')
@@ -211,7 +234,7 @@ def read_justification(parent, dest, XPath, get) -> None:
     dest.text_align = ans
 
 
-def read_spacing(parent, dest, XPath, get) -> None:
+def read_spacing(parent: _Element, dest: ParagraphStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     padding_top = padding_bottom = line_height = inherit
     for s in XPath('./w:spacing')(parent):
         a, al, aa = get(s, 'w:after'), get(s, 'w:afterLines'), get(s, 'w:afterAutospacing')
@@ -235,7 +258,7 @@ def read_spacing(parent, dest, XPath, get) -> None:
     dest.line_height = line_height
 
 
-def read_shd(parent, dest, XPath, get) -> None:
+def read_shd(parent: _Element, dest: ParagraphStyle | RunStyle | CellStyle | TableStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for shd in XPath('./w:shd[@w:fill]')(parent):
         val = get(shd, 'w:fill')
@@ -244,12 +267,12 @@ def read_shd(parent, dest, XPath, get) -> None:
     dest.background_color = ans
 
 
-def read_numbering(parent, dest, XPath, get) -> None:
+def read_numbering(parent: _Element, dest: ParagraphStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     lvl = num_id = inherit
     for np in XPath('./w:numPr')(parent):
         for ilvl in XPath('./w:ilvl[@w:val]')(np):
             try:
-                lvl = int(get(ilvl, 'w:val'))
+                lvl = int(get(ilvl, 'w:val', ''))
             except ValueError, TypeError:
                 pass
         for num in XPath('./w:numId[@w:val]')(np):
@@ -276,22 +299,22 @@ class Frame:
         'y',
     )
 
-    def __init__(self, fp, XPath, get) -> None:
+    def __init__(self, fp: _Element, XPath: XPathFunc, get: AttrGetter) -> None:
         self.drop_cap = get(fp, 'w:dropCap', 'none')
         try:
-            self.h = int(get(fp, 'w:h')) / 20
+            self.h = int(get(fp, 'w:h', '')) / 20
         except ValueError, TypeError:
             self.h = 0
         try:
-            self.w = int(get(fp, 'w:w')) / 20
+            self.w = int(get(fp, 'w:w', '')) / 20
         except ValueError, TypeError:
             self.w = None
         try:
-            self.x = int(get(fp, 'w:x')) / 20
+            self.x = int(get(fp, 'w:x', '')) / 20
         except ValueError, TypeError:
             self.x = 0
         try:
-            self.y = int(get(fp, 'w:y')) / 20
+            self.y = int(get(fp, 'w:y', '')) / 20
         except ValueError, TypeError:
             self.y = 0
 
@@ -303,19 +326,19 @@ class Frame:
         self.y_align = get(fp, 'w:yAlign')
 
         try:
-            self.h_space = int(get(fp, 'w:hSpace')) / 20
+            self.h_space = int(get(fp, 'w:hSpace', '')) / 20
         except ValueError, TypeError:
             self.h_space = 0
         try:
-            self.v_space = int(get(fp, 'w:vSpace')) / 20
+            self.v_space = int(get(fp, 'w:vSpace', '')) / 20
         except ValueError, TypeError:
             self.v_space = 0
         try:
-            self.lines = int(get(fp, 'w:lines'))
+            self.lines = int(get(fp, 'w:lines', ''))
         except ValueError, TypeError:
             self.lines = 1
 
-    def css(self, page):
+    def css(self, page: PageProperties) -> dict[str, str]:
         is_dropcap = self.drop_cap in {'drop', 'margin'}
         ans = {'overflow': 'hidden'}
 
@@ -339,14 +362,14 @@ class Frame:
                 ans['float'] = fl
         return ans
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return all(getattr(other, x, inherit) == getattr(self, x) for x in self.all_attributes)
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
 
-def read_frame(parent, dest, XPath, get) -> None:
+def read_frame(parent: _Element, dest: ParagraphStyle, XPath: XPathFunc, get: AttrGetter) -> None:
     ans = inherit
     for fp in XPath('./w:framePr')(parent):
         ans = Frame(fp, XPath, get)
@@ -412,6 +435,58 @@ class ParagraphStyle:
         'cs_font_size',
         'cs_font_family',
     )
+    adjustRightInd: bool | Inherit
+    autoSpaceDE: bool | Inherit
+    autoSpaceDN: bool | Inherit
+    bidi: bool | Inherit
+    contextualSpacing: bool | Inherit
+    keepLines: bool | Inherit
+    keepNext: bool | Inherit
+    mirrorIndents: bool | Inherit
+    pageBreakBefore: bool | Inherit
+    snapToGrid: bool | Inherit
+    suppressLineNumbers: bool | Inherit
+    suppressOverlap: bool | Inherit
+    topLinePunct: bool | Inherit
+    widowControl: bool | Inherit
+    wordWrap: bool | Inherit
+    border_left_width: float | Inherit
+    border_left_style: str | Inherit
+    border_left_color: str | Inherit
+    padding_left: float | Inherit
+    border_top_width: float | Inherit
+    border_top_style: str | Inherit
+    border_top_color: str | Inherit
+    padding_top: float | Inherit
+    border_right_width: float | Inherit
+    border_right_style: str | Inherit
+    border_right_color: str | Inherit
+    padding_right: float | Inherit
+    border_bottom_width: float | Inherit
+    border_bottom_style: str | Inherit
+    border_bottom_color: str | Inherit
+    padding_bottom: float | Inherit
+    border_between_width: float | Inherit
+    border_between_style: str | Inherit
+    border_between_color: str | Inherit
+    padding_between: float | Inherit
+    margin_left: str | float | Inherit
+    margin_top: str | float | Inherit
+    margin_right: str | float | Inherit
+    margin_bottom: str | float | Inherit
+    text_indent: str | Inherit
+    text_align: str | Inherit
+    line_height: str | Inherit
+    background_color: str | Inherit
+    numbering_id: str | Inherit | None
+    numbering_level: int | Inherit
+    font_family: str | Inherit
+    font_size: float | Inherit
+    color: str | Inherit
+    frame: Frame | Inherit
+    cs_font_size: float | Inherit
+    cs_font_family: str | Inherit
+
     adjustRightInd = autoSpaceDE = autoSpaceDN = bidi = inherit
     contextualSpacing = keepLines = keepNext = mirrorIndents = inherit
     pageBreakBefore = snapToGrid = suppressLineNumbers = inherit
@@ -426,10 +501,10 @@ class ParagraphStyle:
     numbering_id = numbering_level = font_family = font_size = inherit
     color = frame = cs_font_size = cs_font_family = inherit
 
-    linked_style = None
+    linked_style: str | None = None
     style_name: str | None = None
 
-    def __init__(self, namespace, pPr=None) -> None:
+    def __init__(self, namespace: DOCXNamespace, pPr: _Element | None = None) -> None:
         self.namespace = namespace
         if pPr is None:
             for p in self.all_properties:
@@ -463,10 +538,10 @@ class ParagraphStyle:
 
             self.font_family = self.font_size = self.color = self.cs_font_size = self.cs_font_family = inherit
 
-        self._css = None
-        self._border_key = None
+        self._css: OrderedDict[str, str] | None = None
+        self._border_key: tuple[object, ...] | None = None
 
-    def update(self, other) -> None:
+    def update(self, other: ParagraphStyle) -> None:
         for prop in self.all_properties:
             nval = getattr(other, prop)
             if nval is not inherit:
@@ -474,14 +549,14 @@ class ParagraphStyle:
         if other.linked_style is not None:
             self.linked_style = other.linked_style
 
-    def resolve_based_on(self, parent) -> None:
+    def resolve_based_on(self, parent: ParagraphStyle) -> None:
         for p in self.all_properties:
             val = getattr(self, p)
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
 
     @property
-    def css(self):
+    def css(self) -> OrderedDict[str, str]:
         if self._css is None:
             self._css = c = OrderedDict()
             if self.keepLines is True:
@@ -517,7 +592,7 @@ class ParagraphStyle:
         return self._css
 
     @property
-    def border_key(self):
+    def border_key(self) -> tuple[object, ...]:
         if self._border_key is None:
             k = []
             for edge in border_edges:
@@ -527,7 +602,7 @@ class ParagraphStyle:
             self._border_key = tuple(k)
         return self._border_key
 
-    def has_identical_borders(self, other_style):
+    def has_identical_borders(self, other_style: object) -> bool:
         return self.border_key == getattr(other_style, 'border_key', None)
 
     def clear_borders(self) -> None:
@@ -535,7 +610,7 @@ class ParagraphStyle:
             for prop in ('width', 'color', 'style'):
                 setattr(self, f'border_{edge}_{prop}', inherit)
 
-    def clone_border_styles(self):
+    def clone_border_styles(self) -> ParagraphStyle:
         style = ParagraphStyle(self.namespace)
         for edge in border_edges[:-1]:
             for prop in ('width', 'color', 'style'):

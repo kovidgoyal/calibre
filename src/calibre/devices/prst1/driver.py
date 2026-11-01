@@ -699,6 +699,7 @@ class PRST1(USBMS):
                     db_books[row[0]] = row[1]
 
                 for idx, book in enumerate(books):
+                    assert book.lpath is not None  # device books always have an lpath
                     if collection not in book.device_collections:
                         book.device_collections.append(collection)
                     if db_books.get(book.lpath, None) is None:
@@ -800,9 +801,14 @@ class PRST1(USBMS):
 
     def upload_book_cover(self, connection: sqlite3.Connection, book: Metadata, source_id: int) -> None:
         debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
-        if not book.thumbnail or isinstance(book.thumbnail, ImageWrapper) or not book.thumbnail[-1]:
+        thumbnail = book.thumbnail
+        if not thumbnail or isinstance(thumbnail, ImageWrapper):
             # If the thumbnail is an ImageWrapper instance, it refers to a book
             # not in the calibre library
+            return
+        # (width, height, data), see update_thumbnail() in gui2/device.py
+        assert isinstance(thumbnail, tuple)
+        if not thumbnail[-1]:
             return
         cursor = connection.cursor()
 
@@ -816,7 +822,7 @@ class PRST1(USBMS):
             os.makedirs(thumbnail_dir_path)
 
         with open(thumbnail_file_path, 'wb') as f:
-            f.write(book.thumbnail[-1])
+            f.write(thumbnail[-1])
             fsync(f)
 
         query = 'UPDATE books SET thumbnail = ? WHERE _id = ?'
@@ -832,6 +838,7 @@ class PRST1(USBMS):
     def is_sony_periodical(self, book: Metadata) -> bool:
         if _('News') not in book.tags:
             return False
+        assert book.lpath is not None  # device books always have an lpath
         if not book.lpath.lower().endswith('.epub'):
             return False
         if book.pubdate is None or book.pubdate.date() < date(2010, 10, 17):
@@ -858,6 +865,7 @@ class PRST1(USBMS):
 
         pubdate = None
         try:
+            assert book.pubdate is not None  # checked in is_sony_periodical()
             pubdate = int(time.mktime(book.pubdate.timetuple()) * 1000)
         except Exception:
             pass

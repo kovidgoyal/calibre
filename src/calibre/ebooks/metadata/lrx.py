@@ -6,35 +6,39 @@ Read metadata from LRX files
 """
 
 import struct
+from typing import IO, TYPE_CHECKING
 from zlib import decompress
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.utils.xml_parse import safe_xml_fromstring
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def _read(f, at, amount):
+
+def _read(f: IO[bytes], at: int, amount: int) -> bytes:
     f.seek(at)
     return f.read(amount)
 
 
-def word_be(buf):
+def word_be(buf: bytes) -> int:
     return struct.unpack('>L', buf)[0]
 
 
-def word_le(buf):
+def word_le(buf: bytes) -> int:
     return struct.unpack('<L', buf)[0]
 
 
-def short_le(buf):
+def short_le(buf: bytes) -> int:
     return struct.unpack('<H', buf)[0]
 
 
-def short_be(buf):
+def short_be(buf: bytes) -> int:
     return struct.unpack('>H', buf)[0]
 
 
-def get_metadata(f):
-    def read(at, amount):
+def get_metadata(f: IO[bytes]) -> Metadata:
+    def read(at: int, amount: int) -> bytes:
         return _read(f, at, amount)
 
     f.seek(0)
@@ -75,16 +79,17 @@ def get_metadata(f):
         assert author is not None
         author_sort = author.get('reading', None)
         mi = MetaInformation(title, string_to_authors(author.text))
-        mi.title_sort, mi.author_sort = title_sort, author_sort
+        mi.title_sort = title_sort
+        mi.set('author_sort', author_sort)  # None is converted to the null value
         author = author.text
         publisher = bi.find('Publisher')
         mi.publisher = getattr(publisher, 'text', None)
-        mi.tags = [x.text for x in bi.findall('Category')]
+        mi.tags = [x.text for x in bi.findall('Category') if x.text]
         docinfo = root.find('DocInfo')
         assert docinfo is not None
         lang_elem = docinfo.find('Language')
         assert lang_elem is not None
-        mi.language = lang_elem.text
+        mi.set('language', lang_elem.text)  # None is converted to the null value
         return mi
 
     elif buf[4:8] == b'LRX':

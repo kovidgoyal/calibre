@@ -7,11 +7,15 @@ Read metadata from RAR archives
 
 import os
 from io import BytesIO
+from typing import IO, TYPE_CHECKING
 
 from calibre.utils.unrar import extract_member, names
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def get_metadata(stream):
+
+def get_metadata(stream: IO[bytes]) -> Metadata:
     from calibre.ebooks.metadata.archive import is_comic
     from calibre.ebooks.metadata.meta import get_metadata
 

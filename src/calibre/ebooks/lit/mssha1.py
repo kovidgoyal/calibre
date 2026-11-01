@@ -8,6 +8,7 @@ Adapted from the PyPy pure-Python SHA-1 implementation.
 
 import copy
 import struct
+from typing import Self
 
 # ======================================================================
 # Bit-Manipulation helpers
@@ -17,7 +18,7 @@ import struct
 # ======================================================================
 
 
-def _long2bytesBigEndian(n, blocksize=0):
+def _long2bytesBigEndian(n: int, blocksize: int = 0) -> bytes:
     """Convert a long integer to a byte string.
 
     If optional blocksize is given and greater than zero, pad the front
@@ -43,7 +44,7 @@ def _long2bytesBigEndian(n, blocksize=0):
     return s
 
 
-def _bytelist2longBigEndian(blist):
+def _bytelist2longBigEndian(blist: bytes | bytearray) -> list[int]:
     "Transform a list of characters into a list of longs."
 
     imax = len(blist) // 4
@@ -63,7 +64,7 @@ def _bytelist2longBigEndian(blist):
     return hl
 
 
-def _rotateLeft(x, n):
+def _rotateLeft(x: int, n: int) -> int:
     "Rotate x (32 bit) left n bits circular."
 
     return (x << n) | (x >> (32 - n))
@@ -75,26 +76,26 @@ def _rotateLeft(x, n):
 # ======================================================================
 
 
-def f0_19(B, C, D):
+def f0_19(B: int, C: int, D: int) -> int:
     return (B & (C ^ D)) ^ D
 
 
-def f20_39(B, C, D):
+def f20_39(B: int, C: int, D: int) -> int:
     return B ^ C ^ D
 
 
-def f40_59(B, C, D):
+def f40_59(B: int, C: int, D: int) -> int:
     return ((B | C) & D) | (B & C)
 
 
-def f60_79(B, C, D):
+def f60_79(B: int, C: int, D: int) -> int:
     return B ^ C ^ D
 
 
 # Microsoft's lovely addition...
 
 
-def f6_42(B, C, D):
+def f6_42(B: int, C: int, D: int) -> int:
     return (B + C) ^ C
 
 
@@ -151,7 +152,7 @@ class mssha1:
         self.H3 = 0xDC679823
         self.H4 = 0xD0857A34
 
-    def _transform(self, W) -> None:
+    def _transform(self, W: list[int]) -> None:
         for t in range(16, 80):
             W.append(_rotateLeft(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1) & 0xFFFFFFFF)
 
@@ -178,7 +179,7 @@ class mssha1:
     # Down from here all methods follow the Python Standard Library
     # API of the sha module.
 
-    def update(self, inBuf) -> None:
+    def update(self, inBuf: bytes | bytearray) -> None:
         """Add to the current message.
 
         Update the mssha1 object with the string arg. Repeated calls
@@ -220,7 +221,7 @@ class mssha1:
             i = 0
             self.input = self.input + inBuf
 
-    def digest(self):
+    def digest(self) -> bytes:
         """Terminate the message-digest computation and return digest.
 
         Return the digest of the strings passed to the update()
@@ -270,7 +271,7 @@ class mssha1:
 
         return digest
 
-    def hexdigest(self):
+    def hexdigest(self) -> str:
         """Terminate and return digest in HEX form.
 
         Like digest() except the digest is returned as a string of
@@ -280,7 +281,7 @@ class mssha1:
         """
         return ''.join([f'{c:02x}' for c in bytearray(self.digest())])
 
-    def copy(self):
+    def copy(self) -> Self:
         """Return a clone object.
 
         Return a copy ('clone') of the md5 object. This can be used
@@ -303,7 +304,7 @@ digest_size = digestsize = 20
 blocksize = 1
 
 
-def new(arg=None):
+def new(arg: bytes | bytearray | None = None) -> mssha1:
     """Return a new mssha1 crypto object.
 
     If arg is present, the method call update(arg) is made.
@@ -326,7 +327,7 @@ if __name__ == '__main__':
             print(f'usage: {sys.argv[0]} [FILE]')
             return
         elif len(sys.argv) < 2:
-            file = sys.stdin
+            file = sys.stdin.buffer
         else:
             file = open(sys.argv[1], 'rb')  # ruff: ignore[open-file-with-context-handler]
         context = new()

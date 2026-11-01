@@ -60,17 +60,17 @@ from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 
 
 class Unidecoder:
-    codepoints = {}
+    codepoints: dict[str, list[str]] = {}
 
     def __init__(self) -> None:
         self.codepoints = CODEPOINTS
         self.codepoints.update(HANCODES)
 
-    def decode(self, text):
+    def decode(self, text: str) -> str:
         # Replace characters larger than 127 with their ASCII equivalent.
         return re.sub(r'[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
 
-    def replace_point(self, codepoint):
+    def replace_point(self, codepoint: str) -> str:
         """
         Returns the replacement character or ? if none can be found.
         """
@@ -82,7 +82,7 @@ class Unidecoder:
         except Exception:
             return '?'
 
-    def code_group(self, character) -> str:
+    def code_group(self, character: str | bytes) -> str:
         """
         Find what group character is a part of.
         """
@@ -91,7 +91,7 @@ class Unidecoder:
             character = str(character, 'utf-8')
         return f'x{ord(character) >> 8:02x}'
 
-    def grouped_point(self, character):
+    def grouped_point(self, character: str | bytes) -> int:
         """
         Return the location the replacement character is in the list for a
         the group character is a part of.

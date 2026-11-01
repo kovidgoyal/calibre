@@ -5,12 +5,23 @@ import re
 import string
 from collections import Counter, defaultdict
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from lxml.html.builder import OL, SPAN, UL
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle
 from calibre.ebooks.docx.char_styles import RunStyle, inherit
 from calibre.ebooks.metadata import roman
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    from lxml.etree import _Element
+    from lxml.html import HtmlElement
+
+    from calibre.ebooks.docx.images import Images
+    from calibre.ebooks.docx.names import DOCXNamespace
+    from calibre.ebooks.docx.styles import Styles
 
 STYLE_MAP = {
     'aiueo': 'hiragana',
@@ -28,7 +39,7 @@ STYLE_MAP = {
 }
 
 
-def alphabet(val, lower=True):
+def alphabet(val: int, lower: bool = True) -> str:
     x = string.ascii_lowercase if lower else string.ascii_uppercase
     return x[(abs(val - 1)) % len(x)]
 
@@ -43,22 +54,23 @@ alphabet_map = {
 
 
 class Level:
-    def __init__(self, namespace, lvl=None) -> None:
+    def __init__(self, namespace: DOCXNamespace, lvl: _Element | None = None) -> None:
         self.namespace = namespace
-        self.restart = None
+        self.restart: int | None = None
         self.start = 0
         self.fmt = 'decimal'
-        self.para_link = None
-        self.paragraph_style = self.character_style = None
+        self.para_link: str | None = None
+        self.paragraph_style: ParagraphStyle | None = None
+        self.character_style: RunStyle | None = None
         self.is_numbered = False
-        self.num_template = None
-        self.bullet_template = None
-        self.pic_id = None
+        self.num_template: str | None = None
+        self.bullet_template: str | None = None
+        self.pic_id: str | None = None
 
         if lvl is not None:
             self.read_from_xml(lvl)
 
-    def copy(self):
+    def copy(self) -> Level:
         ans = Level(self.namespace)
         for x in (
             'restart',
@@ -75,8 +87,8 @@ class Level:
             setattr(ans, x, getattr(self, x))
         return ans
 
-    def format_template(self, counter, ilvl, template):
-        def sub(m):
+    def format_template(self, counter: Mapping[int, int], ilvl: int, template: str) -> str:
+        def sub(m: re.Match[str]) -> str:
             x = int(m.group(1)) - 1
             if x > ilvl or x not in counter:
                 return ''
@@ -86,17 +98,17 @@ class Level:
 
         return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 
-    def read_from_xml(self, lvl, override=False) -> None:
+    def read_from_xml(self, lvl: _Element, override: bool = False) -> None:
         XPath, get = self.namespace.XPath, self.namespace.get
         for lr in XPath('./w:lvlRestart[@w:val]')(lvl):
             try:
-                self.restart = int(get(lr, 'w:val'))
+                self.restart = int(get(lr, 'w:val', ''))
             except TypeError, ValueError:
                 pass
 
         for lr in XPath('./w:start[@w:val]')(lvl):
             try:
-                self.start = int(get(lr, 'w:val'))
+                self.start = int(get(lr, 'w:val', ''))
             except TypeError, ValueError:
                 pass
 
@@ -140,7 +152,7 @@ class Level:
             else:
                 self.paragraph_style.update(ps)
 
-    def css(self, images, pic_map, rid_map):
+    def css(self, images: Images, pic_map: Mapping[str | None, str | None], rid_map: dict[str, str]) -> dict[str, str]:
         ans = {'list-style-type': self.fmt}
         if self.pic_id:
             rid = pic_map.get(self.pic_id, None)
@@ -153,7 +165,7 @@ class Level:
                     ans['list-style-image'] = f'url("images/{fname}")'
         return ans
 
-    def char_css(self):
+    def char_css(self) -> dict[str, str]:
         character_style = self.character_style
         if character_style is None:
             return {}
@@ -166,10 +178,10 @@ class Level:
 
 
 class NumberingDefinition:
-    def __init__(self, namespace, parent=None, an_id=None) -> None:
+    def __init__(self, namespace: DOCXNamespace, parent: _Element | None = None, an_id: str | None = None) -> None:
         self.namespace = namespace
         XPath, get = self.namespace.XPath, self.namespace.get
-        self.levels = {}
+        self.levels: dict[int, Level] = {}
         self.abstract_numbering_definition_id = an_id
         if parent is not None:
             for lvl in XPath('./w:lvl')(parent):
@@ -179,7 +191,7 @@ class NumberingDefinition:
                     ilvl = 0
                 self.levels[ilvl] = Level(namespace, lvl)
 
-    def copy(self):
+    def copy(self) -> NumberingDefinition:
         ans = NumberingDefinition(self.namespace, an_id=self.abstract_numbering_definition_id)
         for l, lvl in self.levels.items():
             ans.levels[l] = lvl.copy()
@@ -187,15 +199,15 @@ class NumberingDefinition:
 
 
 class Numbering:
-    def __init__(self, namespace) -> None:
+    def __init__(self, namespace: DOCXNamespace) -> None:
         self.namespace = namespace
-        self.definitions = {}
-        self.instances = {}
-        self.counters = defaultdict(Counter)
-        self.starts = {}
-        self.pic_map = {}
+        self.definitions: dict[str | None, NumberingDefinition] = {}
+        self.instances: dict[str | None, NumberingDefinition] = {}
+        self.counters: defaultdict[str | None, Counter[int]] = defaultdict(Counter)
+        self.starts: dict[str | None, dict[int, int]] = {}
+        self.pic_map: dict[str | None, str | None] = {}
 
-    def __call__(self, root, styles, rid_map):
+    def __call__(self, root: _Element, styles: Styles, rid_map: dict[str, str]) -> None:
         "Read all numbering style definitions"
         XPath, get = self.namespace.XPath, self.namespace.get
         self.rid_map = rid_map
@@ -204,7 +216,7 @@ class Numbering:
             for idata in XPath('descendant::v:imagedata[@r:id]')(npb):
                 rid = get(idata, 'r:id')
                 self.pic_map[npbid] = rid
-        lazy_load = {}
+        lazy_load: dict[str | None, str | None] = {}
         for an in XPath('./w:abstractNum[@w:abstractNumId]')(root):
             an_id = get(an, 'w:abstractNumId')
             nsl = XPath('./w:numStyleLink[@w:val]')(an)
@@ -214,36 +226,39 @@ class Numbering:
                 nd = NumberingDefinition(self.namespace, an, an_id=an_id)
                 self.definitions[an_id] = nd
 
-        def create_instance(n, definition):
+        def create_instance(n: _Element, definition: NumberingDefinition) -> NumberingDefinition:
             nd = definition.copy()
-            start_overrides = {}
+            start_overrides: dict[int | None, int] = {}
             for lo in XPath('./w:lvlOverride')(n):
                 try:
-                    ilvl = int(get(lo, 'w:ilvl'))
+                    ilvl = int(get(lo, 'w:ilvl', ''))
                 except ValueError, TypeError:
                     ilvl = None
                 for so in XPath('./w:startOverride[@w:val]')(lo):
                     try:
-                        start_override = int(get(so, 'w:val'))
+                        start_override = int(get(so, 'w:val', ''))
                     except TypeError, ValueError:
                         pass
                     else:
                         start_overrides[ilvl] = start_override
                 for lvl in XPath('./w:lvl')(lo)[:1]:
-                    nilvl = get(lvl, 'w:ilvl')
-                    ilvl = nilvl if ilvl is None else ilvl
-                    alvl = nd.levels.get(ilvl, None)
+                    if ilvl is None:
+                        try:
+                            ilvl = int(get(lvl, 'w:ilvl', ''))
+                        except ValueError, TypeError:
+                            pass
+                    alvl = nd.levels.get(ilvl, None) if ilvl is not None else None
                     if alvl is None:
                         alvl = Level(self.namespace)
+                        if ilvl is not None:
+                            nd.levels[ilvl] = alvl
                     alvl.read_from_xml(lvl, override=True)
             for ilvl, so in start_overrides.items():
-                try:
-                    nd.levels[ilvl].start = start_override
-                except KeyError:
-                    pass
+                if ilvl is not None and ilvl in nd.levels:
+                    nd.levels[ilvl].start = so
             return nd
 
-        next_pass = {}
+        next_pass: dict[str | None, tuple[str | None, _Element]] = {}
         for n in XPath('./w:num[@w:numId]')(root):
             an_id = None
             num_id = get(n, 'w:numId')
@@ -268,28 +283,35 @@ class Numbering:
         for num_id, d in self.instances.items():
             self.starts[num_id] = {lvl: d.levels[lvl].start for lvl in d.levels}
 
-    def get_pstyle(self, num_id, style_id):
+    def get_pstyle(self, num_id: str | None, style_id: str | None) -> int | None:
         d = self.instances.get(num_id, None)
         if d is not None:
             for ilvl, lvl in d.levels.items():
                 if lvl.para_link == style_id:
                     return ilvl
 
-    def get_para_style(self, num_id, lvl):
+    def get_para_style(self, num_id: str | None, lvl: int) -> ParagraphStyle | None:
         d = self.instances.get(num_id, None)
         if d is not None:
-            lvl = d.levels.get(lvl, None)
-            return getattr(lvl, 'paragraph_style', None)
+            level = d.levels.get(lvl, None)
+            return getattr(level, 'paragraph_style', None)
 
-    def update_counter(self, counter, levelnum, levels) -> None:
+    def update_counter(self, counter: Counter[int], levelnum: int, levels: Mapping[int, Level]) -> None:
         counter[levelnum] += 1
         for ilvl, lvl in levels.items():
             restart = lvl.restart
             if (restart is None and ilvl == levelnum + 1) or restart == levelnum + 1:
                 counter[ilvl] = lvl.start
 
-    def apply_markup(self, items, body, styles, object_map, images) -> None:
-        seen_instances = set()
+    def apply_markup(
+        self,
+        items: Iterable[tuple[HtmlElement, str, int]],
+        body: HtmlElement,
+        styles: Styles,
+        object_map: Mapping[HtmlElement, _Element],
+        images: Images,
+    ) -> None:
+        seen_instances: set[str] = set()
         for p, num_id, ilvl in items:
             d = self.instances.get(num_id, None)
             if d is not None:
@@ -312,19 +334,22 @@ class Numbering:
                         p.set('list-template', val)
                     self.update_counter(counter, ilvl, d.levels)
 
-        templates = {}
+        templates: dict[str, str] = {}
 
-        def commit(current_run) -> None:
+        def commit(current_run: list[HtmlElement]) -> None:
             if not current_run:
                 return
             start = current_run[0]
             parent = start.getparent()
+            assert parent is not None  # li elements are always inside body
             idx = parent.index(start)
 
-            d = self.instances[start.get('list-id')]
-            ilvl = int(start.get('list-lvl'))
+            # these attributes are set on all li elements above
+            list_id, list_lvl = cast('str', start.get('list-id')), cast('str', start.get('list-lvl'))
+            d = self.instances[list_id]
+            ilvl = int(list_lvl)
             lvl = d.levels[ilvl]
-            lvlid = start.get('list-id') + start.get('list-lvl')
+            lvlid = list_id + list_lvl
             has_template = 'list-template' in start.attrib
             wrap = (OL if lvl.is_numbered or has_template else UL)('\n\t')
             if has_template:
@@ -332,8 +357,7 @@ class Numbering:
             else:
                 wrap.set('class', styles.register(lvl.css(images, self.pic_map, self.rid_map), 'list'))
             ccss = lvl.char_css()
-            if ccss:
-                ccss = styles.register(ccss, 'bullet')
+            ccss_class = styles.register(ccss, 'bullet') if ccss else ''
             parent.insert(idx, wrap)
             last_val = None
             for child in current_run:
@@ -346,28 +370,28 @@ class Numbering:
                     for gc in child:
                         span.append(gc)
                     child.append(span)
-                    span = SPAN(child.get('list-template'))
-                    if ccss:
-                        span.set('class', ccss)
+                    span = SPAN(cast('str', child.get('list-template')))  # has_template is True
+                    if ccss_class:
+                        span.set('class', ccss_class)
                     last = templates.get(lvlid, '')
                     if span.text and len(span.text) > len(last):
                         templates[lvlid] = span.text
                     child.insert(0, span)
                 for attr in ('list-lvl', 'list-id', 'list-template'):
                     child.attrib.pop(attr, None)
-                val = int(child.get('value'))
+                val = int(cast('str', child.get('value')))  # set on all li elements above
                 if last_val == val - 1 or wrap.tag == 'ul' or (last_val is None and val == 1):
                     child.attrib.pop('value')
                 last_val = val
             current_run[-1].tail = '\n'
             del current_run[:]
 
-        parents = set()
+        parents: set[HtmlElement] = set()
         for child in body.iterdescendants('li'):
-            parents.add(child.getparent())
+            parents.add(cast('HtmlElement', child.getparent()))  # descendants of body always have a parent
 
         for parent in parents:
-            current_run = []
+            current_run: list[HtmlElement] = []
             for child in parent:
                 if child.tag == 'li':
                     if current_run:

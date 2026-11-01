@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from collections.abc import Iterable
 from functools import partial
 from threading import Lock
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre.db.tables import MANY_MANY, MANY_ONE, ONE_ONE, null
 from calibre.db.utils import atof, force_to_bool
@@ -821,7 +821,7 @@ class LazySeriesSortMap:
 class SeriesField(ManyToOneField):
     def sort_keys_for_books(self, get_metadata: Callable[[int], Metadata], lang_map: Mapping[int, Sequence[str]]) -> Callable[[int], object]:
         sso = tweaks['title_series_sorting']
-        ssk = self._sort_key
+        ssk = cast('Callable[[str], object]', self._sort_key)  # series fields use sort_key()
         ts = title_sort
 
         def sk(val: str, lang: str | None) -> object:

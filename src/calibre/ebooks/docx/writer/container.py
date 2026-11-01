@@ -3,6 +3,7 @@
 
 import os
 import textwrap
+from typing import IO, TYPE_CHECKING
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -16,39 +17,47 @@ from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from optparse import Values
 
-def xml2str(root, pretty_print=False, with_tail=False):
+    from calibre.ebooks.conversion.plumber import OptionValues
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.logging import Log
+
+
+def xml2str(root: etree._Element, pretty_print: bool = False, with_tail: bool = False) -> bytes:
     if hasattr(etree, 'cleanup_namespaces'):
         etree.cleanup_namespaces(root)
     ans = etree.tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=pretty_print, with_tail=with_tail)
     return ans
 
 
-def page_size(opts):
+def page_size(opts: Values | OptionValues) -> tuple[float, float]:
     width, height = PAPER_SIZES[opts.docx_page_size]
     if opts.docx_custom_page_size is not None:
         width, height = map(float, opts.docx_custom_page_size.partition('x')[0::2])
     return width, height
 
 
-def page_margin(opts, which):
+def page_margin(opts: Values | OptionValues, which: str) -> float:
     val = getattr(opts, 'docx_page_margin_' + which)
     if val == 0.0:
         val = getattr(opts, 'margin_' + which)
     return val
 
 
-def page_effective_area(opts):
+def page_effective_area(opts: Values | OptionValues) -> tuple[float, float]:
     width, height = page_size(opts)
     width -= page_margin(opts, 'left') + page_margin(opts, 'right')
     height -= page_margin(opts, 'top') + page_margin(opts, 'bottom')
     return width, height  # in pts
 
 
-def create_skeleton(opts, namespaces=None):
+def create_skeleton(opts: Values | OptionValues, namespaces: dict[str, str] | None = None) -> tuple[etree._Element, etree._Element, etree._Element]:
     namespaces = namespaces or DOCXNamespace().namespaces
 
-    def w(x):
+    def w(x: str) -> str:
         return '{{{}}}{}'.format(namespaces['w'], x)
 
     dn = {k: v for k, v in namespaces.items() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
@@ -59,7 +68,7 @@ def create_skeleton(opts, namespaces=None):
     width, height = page_size(opts)
     width, height = int(20 * width), int(20 * height)
 
-    def margin(which):
+    def margin(which: str) -> tuple[str, str]:
         val = page_margin(opts, which)
         return w(which), str(int(val * 20))
 
@@ -95,8 +104,8 @@ def create_skeleton(opts, namespaces=None):
     return doc, styles, body
 
 
-def update_doc_props(root, mi, namespace) -> None:
-    def setm(name, text=None, ns='dc'):
+def update_doc_props(root: etree._Element, mi: Metadata, namespace: DOCXNamespace) -> None:
+    def setm(name: str, text: str | None = None, ns: str = 'dc') -> etree._Element:
         ans = root.makeelement(f'{{{namespace.namespaces[ns]}}}{name}')
         for child in tuple(root):
             if child.tag == ans.tag:
@@ -117,8 +126,8 @@ def update_doc_props(root, mi, namespace) -> None:
 
 
 class DocumentRelationships:
-    def __init__(self, namespace) -> None:
-        self.rmap = {}
+    def __init__(self, namespace: DOCXNamespace) -> None:
+        self.rmap: dict[tuple[str, str, str | None], str] = {}
         self.namespace = namespace
         for typ, target in {
             namespace.names['STYLES']: 'styles.xml',
@@ -128,20 +137,20 @@ class DocumentRelationships:
         }.items():
             self.add_relationship(target, typ)
 
-    def get_relationship_id(self, target, rtype, target_mode=None):
+    def get_relationship_id(self, target: str, rtype: str, target_mode: str | None = None) -> str | None:
         return self.rmap.get((target, rtype, target_mode))
 
-    def add_relationship(self, target, rtype, target_mode=None):
+    def add_relationship(self, target: str, rtype: str, target_mode: str | None = None) -> str:
         ans = self.get_relationship_id(target, rtype, target_mode)
         if ans is None:
             ans = f'rId{len(self.rmap) + 1}'
             self.rmap[(target, rtype, target_mode)] = ans
         return ans
 
-    def add_image(self, target):
+    def add_image(self, target: str) -> str:
         return self.add_relationship(target, self.namespace.names['IMAGES'])
 
-    def serialize(self):
+    def serialize(self) -> bytes:
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None: namespaces['pr']})
         relationships = E.Relationships()
@@ -154,7 +163,7 @@ class DocumentRelationships:
 
 
 class DOCX:
-    def __init__(self, opts, log) -> None:
+    def __init__(self, opts: Values | OptionValues, log: Log) -> None:
         self.namespace = DOCXNamespace()
         namespaces = self.namespace.namespaces
         self.opts, self.log = opts, log
@@ -163,12 +172,12 @@ class DOCX:
         self.numbering = etree.Element('{{{}}}numbering'.format(namespaces['w']), nsmap={k: namespaces[k] for k in 'wr'})
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None: namespaces['pr']})
         self.embedded_fonts = E.Relationships()
-        self.fonts = {}
-        self.images = {}
+        self.fonts: dict[str, bytes] = {}
+        self.images: dict[str, Callable[[], bytes | str]] = {}
 
     # Boilerplate {{{
     @property
-    def contenttypes(self):
+    def contenttypes(self) -> bytes:
         E = ElementMaker(namespace=self.namespace.namespaces['ct'], nsmap={None: self.namespace.namespaces['ct']})
         types = E.Types()
         for partname, mt in {
@@ -204,7 +213,7 @@ class DOCX:
         return xml2str(types)
 
     @property
-    def appproperties(self):
+    def appproperties(self) -> bytes:
         E = ElementMaker(namespace=self.namespace.namespaces['ep'], nsmap={None: self.namespace.namespaces['ep']})
         props = E.Properties(
             E.Application(__appname__),
@@ -220,7 +229,7 @@ class DOCX:
         return xml2str(props)
 
     @property
-    def containerrels(self):
+    def containerrels(self) -> bytes:
         return textwrap.dedent(
             '''\
         <?xml version='1.0' encoding='utf-8'?>
@@ -232,14 +241,14 @@ class DOCX:
         ).encode('utf-8')
 
     @property
-    def websettings(self):
+    def websettings(self) -> bytes:
         E = ElementMaker(namespace=self.namespace.namespaces['w'], nsmap={'w': self.namespace.namespaces['w']})
         ws = E.webSettings(E.optimizeForBrowser, E.allowPNG, E.doNotSaveAsSingleFile)
         return xml2str(ws)
 
     # }}}
 
-    def convert_metadata(self, mi):
+    def convert_metadata(self, mi: Metadata) -> bytes:
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['cp'], nsmap={x: namespaces[x] for x in 'cp dc dcterms xsi'.split()})
         cp = E.coreProperties(E.revision('1'), E.lastModifiedBy('calibre'))
@@ -255,10 +264,10 @@ class DOCX:
         update_doc_props(cp, self.mi, self.namespace)
         return xml2str(cp)
 
-    def create_empty_document(self, mi) -> None:
+    def create_empty_document(self, mi: Metadata) -> None:
         self.document, self.styles = create_skeleton(self.opts)[:2]
 
-    def write(self, path_or_stream, mi, create_empty_document=False) -> None:
+    def write(self, path_or_stream: str | IO[bytes], mi: Metadata, create_empty_document: bool = False) -> None:
         if create_empty_document:
             self.create_empty_document(mi)
         with ZipFile(path_or_stream, 'w') as zf:
@@ -280,5 +289,5 @@ class DOCX:
 
 
 if __name__ == '__main__':
-    d = DOCX(None, None)
+    d = DOCX(None, None)  # ty: ignore[invalid-argument-type]  # opts and log are not used by websettings
     print(d.websettings)

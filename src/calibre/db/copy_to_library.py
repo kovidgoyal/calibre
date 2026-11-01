@@ -3,7 +3,7 @@
 
 import filecmp
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import prefs
@@ -70,8 +70,8 @@ def automerge_book(
         # as otherwise they would be lost when moving books between libraries
         if extra_file_map and not create_new_record:
             merge_extra_files(newdb, identical_book, extra_file_map)
-        if mi.cover_data and mi.cover_data[1] and not newdb.field_for('cover', identical_book):
-            newdb.set_cover({identical_book: mi.cover_data[1]})  # ty: ignore[invalid-argument-type]
+        if mi.cover_data[1] and not newdb.field_for('cover', identical_book):
+            newdb.set_cover({identical_book: mi.cover_data[1]})
 
     if create_new_record:
         new_book_id = newdb.add_books(
@@ -154,7 +154,7 @@ def copy_one_book(
             'book_id': book_id,
             'title': mi.title,
             'authors': mi.authors,
-            'author': mi.format_field('authors')[1],
+            'author': cast('str', mi.format_field('authors')[1]),  # authors is never null, so this is never None
             'action': 'add',
             'new_book_id': None,
         }

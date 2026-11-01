@@ -25,9 +25,9 @@ class OldRtf:
 
     def __init__(
         self,
-        in_file,
-        bug_handler,
-        run_level,
+        in_file: str,
+        bug_handler: type[Exception],
+        run_level: int,
     ) -> None:
         """
         Required:
@@ -82,7 +82,7 @@ class OldRtf:
         self.__found_new = 0
         self.__ob_group = 0
 
-    def __check_tokens_func(self, line) -> str | None:
+    def __check_tokens_func(self, line: str) -> str | None:
         if self.__inline_info in self.__allowable:
             if self.__ob_group == self.__base_ob_count:
                 return 'old_rtf'
@@ -91,12 +91,12 @@ class OldRtf:
         elif self.__token_info == 'cw<pf<par-def___':
             self.__state = 'after_pard'
 
-    def __before_body_func(self, line) -> None:
+    def __before_body_func(self, line: str) -> None:
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'in_body'
             self.__base_ob_count = self.__ob_group
 
-    def __after_pard_func(self, line) -> None:
+    def __after_pard_func(self, line: str) -> None:
         if line[0:2] != 'cw':
             self.__state = 'in_body'
 

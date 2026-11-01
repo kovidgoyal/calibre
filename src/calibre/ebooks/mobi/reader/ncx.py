@@ -2,30 +2,62 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING, NotRequired, TypedDict, cast
 
 from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
 
-tag_fieldname_map = {
-    1: ['pos', 0],
-    2: ['len', 0],
-    3: ['noffs', 0],
-    4: ['hlvl', 0],
-    5: ['koffs', 0],
-    6: ['pos_fid', 0],
-    21: ['parent', 0],
-    22: ['child1', 0],
-    23: ['childn', 0],
-    69: ['image_index', 0],
-    70: ['desc_offset', 0],  # 'Description offset in cncx'
-    71: ['author_offset', 0],  # 'Author offset in cncx'
-    72: ['image_caption_offset', 0],  # 'Image caption offset in cncx',
-    73: ['image_attr_offset', 0],  # 'Image attribution offset in cncx',
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+tag_fieldname_map: dict[int, tuple[str, int]] = {
+    1: ('pos', 0),
+    2: ('len', 0),
+    3: ('noffs', 0),
+    4: ('hlvl', 0),
+    5: ('koffs', 0),
+    6: ('pos_fid', 0),
+    21: ('parent', 0),
+    22: ('child1', 0),
+    23: ('childn', 0),
+    69: ('image_index', 0),
+    70: ('desc_offset', 0),  # 'Description offset in cncx'
+    71: ('author_offset', 0),  # 'Author offset in cncx'
+    72: ('image_caption_offset', 0),  # 'Image caption offset in cncx',
+    73: ('image_attr_offset', 0),  # 'Image attribution offset in cncx',
 }
 
-default_entry = {
+
+class NCXEntry(TypedDict):
+    pos: int
+    len: int
+    noffs: int
+    text: str
+    hlvl: int
+    kind: str
+    pos_fid: tuple[int, ...] | None
+    parent: int
+    child1: int
+    childn: int
+    description: str | None
+    author: str | None
+    image_caption: str | None
+    image_attribution: str | None
+    name: NotRequired[str]
+    num: NotRequired[int]
+    koffs: NotRequired[int]
+    image_index: NotRequired[int]
+    desc_offset: NotRequired[int]
+    author_offset: NotRequired[int]
+    image_caption_offset: NotRequired[int]
+    image_attr_offset: NotRequired[int]
+    href: NotRequired[str]
+    idtag: NotRequired[str]
+
+
+default_entry: NCXEntry = {
     'pos': -1,
     'len': 0,
     'noffs': -1,
@@ -43,15 +75,15 @@ default_entry = {
 }
 
 
-def read_ncx(sections, index, codec):
-    index_entries = []
+def read_ncx(sections: Sequence[tuple[bytes, object]], index: int, codec: str) -> list[NCXEntry]:
+    index_entries: list[NCXEntry] = []
 
     if index != NULL_INDEX:
         table, cncx = read_index(sections, index, codec)
 
         for num, x in enumerate(table.items()):
             text, tag_map = x
-            entry: dict = default_entry.copy()
+            entry = default_entry.copy()
             entry['name'] = text
             entry['num'] = num
 
@@ -62,7 +94,7 @@ def read_ncx(sections, index, codec):
                         # Appears to be an idx into the KF8 elems table with an
                         # offset
                         fieldvalue = tuple(tag_map[tag])
-                    entry[fieldname] = fieldvalue
+                    entry[fieldname] = fieldvalue  # ty: ignore[invalid-key] fieldname is always a key of NCXEntry
                     for which, name in {
                         3: 'text',
                         5: 'kind',
@@ -72,13 +104,14 @@ def read_ncx(sections, index, codec):
                         73: 'image_attribution',
                     }.items():
                         if tag == which:
-                            entry[name] = cncx.get(fieldvalue, default_entry[name])
+                            # fieldvalue is a CNCX offset for these tags, the result is a string or the default
+                            entry[name] = cncx.get(cast('int', fieldvalue), default_entry[name])  # ty: ignore[invalid-assignment]
             index_entries.append(entry)
 
     return index_entries
 
 
-def build_toc(index_entries):
+def build_toc(index_entries: list[NCXEntry]) -> TOC:
     ans = TOC(base_path=os.getcwd())
     levels = {x['hlvl'] for x in index_entries}
     num_map = {-1: ans}

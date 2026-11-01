@@ -4,7 +4,12 @@
 import copy
 import os
 import re
+from collections.abc import Iterator, Sequence
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
+
+from css_parser.css import CSSStyleSheet
+from lxml import etree
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barename, rewrite_idrefs
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
@@ -12,20 +17,30 @@ from calibre.ebooks.oeb.polish.replace import LinkRebaser
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Mapping
+
+    from lxml.etree import _Element, _ElementTree
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.utils.logging import Log
+
 
 class AbortError(ValueError):
     pass
 
 
-def in_table(node) -> bool:
+def in_table(node: _Element | None) -> bool:
     while node is not None:
-        if node.tag.endswith('}table'):
+        tag = node.tag
+        assert isinstance(tag, str)  # split points and their ancestors are always elements with str tags
+        if tag.endswith('}table'):
             return True
         node = node.getparent()
     return False
 
 
-def adjust_split_point(split_point, log):
+def adjust_split_point(split_point: _Element, log: Log) -> _Element:
     '''
     Move the split point up its ancestor chain if it has no content
     before it. This handles the common case:
@@ -35,7 +50,11 @@ def adjust_split_point(split_point, log):
     sp = split_point
     while True:
         parent = sp.getparent()
-        if parent is None or barename(parent.tag) in {'body', 'html'} or (parent.text and parent.text.strip()) or parent.index(sp) > 0:
+        if parent is None:
+            break
+        parent_tag = parent.tag
+        assert isinstance(parent_tag, str)  # the parent of a node is always an element
+        if barename(parent_tag) in {'body', 'html'} or (parent.text and parent.text.strip()) or parent.index(sp) > 0:
             break
         sp = parent
 
@@ -45,11 +64,11 @@ def adjust_split_point(split_point, log):
     return sp
 
 
-def get_body(root):
+def get_body(root: _Element) -> _Element | None:
     return root.find('h:body', namespaces=XPNSMAP)
 
 
-def do_split(split_point, log, before=True):
+def do_split(split_point: _Element, log: Log, before: bool = True) -> tuple[_ElementTree, _ElementTree]:
     """
     Split tree into a *before* and an *after* tree at ``split_point``.
 
@@ -67,14 +86,15 @@ def do_split(split_point, log, before=True):
 
     tree, tree2 = copy.deepcopy(tree), copy.deepcopy(tree)
     root, root2 = tree.getroot(), tree2.getroot()
-    body, body2 = map(get_body, (root, root2))
+    # callers only split documents that have a <body>
+    body, body2 = cast('_Element', get_body(root)), cast('_Element', get_body(root2))
     split_point = root.xpath(path)[0]
     split_point2 = root2.xpath(path)[0]
 
-    def nix_element(elem, top=True) -> None:
+    def nix_element(elem: _Element, top: bool = True) -> None:
         # Remove elem unless top is False in which case replace elem by its
         # children
-        parent = elem.getparent()
+        parent = cast('_Element', elem.getparent())  # descendants of <body> always have a parent
         if top:
             parent.remove(elem)
         else:
@@ -142,13 +162,16 @@ def do_split(split_point, log, before=True):
 
 
 class SplitLinkReplacer:
-    def __init__(self, base, bottom_anchors, top_name, bottom_name, container) -> None:
+    replaced: bool
+    file_type: str
+
+    def __init__(self, base: str, bottom_anchors: Collection[str], top_name: str, bottom_name: str, container: Container) -> None:
         self.bottom_anchors, self.bottom_name = bottom_anchors, bottom_name
         self.container, self.top_name = container, top_name
         self.base = base
         self.replaced = False
 
-    def __call__(self, url):
+    def __call__(self, url: str) -> str:
         if url and url.startswith('#'):
             return url
         name = self.container.href_to_name(url, self.base)
@@ -161,7 +184,7 @@ class SplitLinkReplacer:
         return url
 
 
-def split(container, name, loc_or_xpath, before=True, totals=None):
+def split(container: Container, name: str, loc_or_xpath: str | Sequence[int], before: bool = True, totals: Sequence[int] | None = None) -> str:
     '''
     Split the file specified by name at the position specified by loc_or_xpath.
     Splitting automatically migrates all links and references to the affected
@@ -175,6 +198,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     '''
 
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     if isinstance(loc_or_xpath, str):
         split_point = root.xpath(loc_or_xpath)[0]
     else:
@@ -194,7 +218,9 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
             container.replace(name, root)
     if in_table(split_point):
         raise AbortError('Cannot split inside tables')
-    if split_point.tag.endswith('}body'):
+    split_tag = split_point.tag
+    assert isinstance(split_tag, str)  # split points are always elements, checked in in_table() above
+    if split_tag.endswith('}body'):
         raise AbortError('Cannot split on the <body> tag')
     tree1, tree2 = do_split(split_point, container.log, before=before)
     root1, root2 = tree1.getroot(), tree2.getroot()
@@ -202,17 +228,20 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     anchors_in_bottom = frozenset(root2.xpath('//*/@id')) | frozenset(root2.xpath('//*/@name'))
     base, ext = name.rpartition('.')[0::2]
     base = re.sub(r'_split\d+$', '', base)
-    nname, s = None, 0
+    nname: str | None = None
+    s = 0
     while not nname or container.exists(nname):
         s += 1
         nname = f'{base}_split{s}.{ext}'
     manifest_item = container.generate_item(nname, media_type=container.mime_map[name])
-    bottom_name = container.href_to_name(manifest_item.get('href'), container.opf_name)
+    # the href of a generated item always maps back to a name
+    bottom_name = cast('str', container.href_to_name(manifest_item.get('href'), container.opf_name))
 
     # Fix links in the split trees
     for r in (root1, root2):
         for a in r.xpath('//*[@href]'):
             url = a.get('href')
+            assert url is not None  # guaranteed by the XPath expression
             if url.startswith('#'):
                 fname = name
             else:
@@ -245,7 +274,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
             break
     index = spine.index(spine_item) + 1
 
-    si = spine.makeelement(OPF('itemref'), idref=manifest_item.get('id'))
+    si = spine.makeelement(OPF('itemref'), idref=cast('str', manifest_item.get('id')))  # generated items always have an id
     if not linear:
         si.set('linear', 'no')
     container.insert_into_xml(spine, si, index=index)
@@ -253,7 +282,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     return bottom_name
 
 
-def multisplit(container, name, xpath, before=True):
+def multisplit(container: Container, name: str, xpath: str, before: bool = True) -> list[str]:
     """
     Split the specified file at multiple locations (all tags that match the specified XPath expression). See also: :func:`split`.
     Splitting automatically migrates all links and references to the affected
@@ -262,6 +291,7 @@ def multisplit(container, name, xpath, before=True):
     :param before: If True the splits occur before the identified element otherwise after it.
     """
     root = container.parsed(name)
+    assert isinstance(root, etree._Element)
     nodes = root.xpath(xpath, namespaces=XPNSMAP)
     if not nodes:
         raise AbortError(_('The expression %s did not match any nodes') % xpath)
@@ -281,7 +311,9 @@ def multisplit(container, name, xpath, before=True):
         all_names.append(current)
 
     for x in all_names:
-        for tag in container.parsed(x).xpath('//*[@calibre-split-point]'):
+        xroot = container.parsed(x)
+        assert isinstance(xroot, etree._Element)
+        for tag in xroot.xpath('//*[@calibre-split-point]'):
             tag.attrib.pop('calibre-split-point')
         container.dirty(x)
 
@@ -289,17 +321,20 @@ def multisplit(container, name, xpath, before=True):
 
 
 class MergeLinkReplacer:
-    def __init__(self, base, anchor_map, master, container) -> None:
+    replaced: bool
+    file_type: str
+
+    def __init__(self, base: str, anchor_map: Mapping[str, Mapping[str, str]], master: str, container: Container) -> None:
         self.container, self.anchor_map = container, anchor_map
         self.master = master
         self.base = base
         self.replaced = False
 
-    def __call__(self, url):
+    def __call__(self, url: str) -> str:
         if url and url.startswith('#'):
             return url
         name = self.container.href_to_name(url, self.base)
-        amap = self.anchor_map.get(name, None)
+        amap = self.anchor_map.get(name, None) if name is not None else None
         if amap is None:
             return url
         purl = urlparse(url)
@@ -310,26 +345,28 @@ class MergeLinkReplacer:
         return url
 
 
-def add_text(body, text) -> None:
+def add_text(body: _Element, text: str) -> None:
     if len(body) > 0:
         body[-1].tail = (body[-1].tail or '') + text
     else:
         body.text = (body.text or '') + text
 
 
-def all_anchors(root):
+def all_anchors(root: _Element) -> set[str]:
     return set(root.xpath('//*/@id')) | set(root.xpath('//*/@name'))
 
 
-def all_stylesheets(container, name):
-    for link in XPath('//h:head/h:link[@href]')(container.parsed(name)):
-        name = container.href_to_name(link.get('href'), name)
+def all_stylesheets(container: Container, name: str) -> Iterator[str | None]:
+    root = container.parsed(name)
+    assert isinstance(root, etree._Element)
+    for link in XPath('//h:head/h:link[@href]')(root):
+        sname = container.href_to_name(link.get('href'), name)
         typ = link.get('type', 'text/css')
         if typ == 'text/css':
-            yield name
+            yield sname
 
 
-def unique_anchor(seen_anchors, current):
+def unique_anchor(seen_anchors: Collection[str], current: str) -> str:
     c = 0
     ans = current
     while ans in seen_anchors:
@@ -338,7 +375,7 @@ def unique_anchor(seen_anchors, current):
     return ans
 
 
-def remove_name_attributes(root) -> None:
+def remove_name_attributes(root: _Element) -> None:
     # Remove all name attributes, replacing them with id attributes
     for elem in root.xpath('//*[@id and @name]'):
         del elem.attrib['name']
@@ -346,9 +383,10 @@ def remove_name_attributes(root) -> None:
         elem.set('id', elem.attrib.pop('name'))
 
 
-def merge_html(container, names, master, insert_page_breaks=False):
+def merge_html(container: Container, names: Iterable[str], master: str, insert_page_breaks: bool = False) -> dict[str, str | None]:
     p = container.parsed
     root = p(master)
+    assert isinstance(root, etree._Element)
 
     # Ensure master has a <head>
     head = root.find('h:head', namespaces=XPNSMAP)
@@ -358,17 +396,18 @@ def merge_html(container, names, master, insert_page_breaks=False):
 
     seen_anchors = all_anchors(root)
     seen_stylesheets = set(all_stylesheets(container, master))
-    master_body = p(master).findall('h:body', namespaces=XPNSMAP)[-1]
+    master_body = root.findall('h:body', namespaces=XPNSMAP)[-1]
     master_base = os.path.dirname(master)
-    anchor_map = {n: {} for n in names if n != master}
-    first_anchor_map = {}
+    anchor_map: dict[str, dict[str, str]] = {n: {} for n in names if n != master}
+    first_anchor_map: dict[str, str | None] = {}
 
     for name in names:
         if name == master:
             continue
         # Insert new stylesheets into master
         for sheet in all_stylesheets(container, name):
-            if sheet not in seen_stylesheets:
+            # sheet is None for links that do not point to a file in the book
+            if sheet is not None and sheet not in seen_stylesheets:
                 seen_stylesheets.add(sheet)
                 link = head.makeelement(XHTML('link'), rel='stylesheet', type='text/css', href=container.name_to_href(sheet, master))
                 container.insert_into_xml(head, link)
@@ -378,8 +417,9 @@ def merge_html(container, names, master, insert_page_breaks=False):
             container.replace_links(name, LinkRebaser(container, name, master))
 
         root = p(name)
-        children = []
-        for body in p(name).findall('h:body', namespaces=XPNSMAP):
+        assert isinstance(root, etree._Element)
+        children: list[str | _Element] = []
+        for body in root.findall('h:body', namespaces=XPNSMAP):
             children.append(body.text if body.text and body.text.strip() else '\n\n')
             children.extend(body)
 
@@ -388,9 +428,12 @@ def merge_html(container, names, master, insert_page_breaks=False):
             if not isinstance(first_child, (str, bytes)):
                 break
         if isinstance(first_child, (str, bytes)):
-            # body contained only text, no tags
-            first_child = body.makeelement(XHTML('p'))
-            first_child.text, children[0] = children[0], first_child
+            # body contained only text, no tags, or there is no body
+            first_child = root.makeelement(XHTML('p'))
+            if children:
+                first_child.text, children[0] = cast('str', children[0]), first_child  # the first child is the body text
+            else:
+                children.append(first_child)
 
         amap = anchor_map[name]
         remove_name_attributes(root)
@@ -408,13 +451,13 @@ def merge_html(container, names, master, insert_page_breaks=False):
 
         if 'id' not in first_child.attrib:
             first_child.set('id', unique_anchor(seen_anchors, 'top'))
-            seen_anchors.add(first_child.get('id'))
+            seen_anchors.add(cast('str', first_child.get('id')))
         first_anchor_map[name] = first_child.get('id')
 
         if insert_page_breaks:
             first_child.set('style', first_child.get('style', '') + '; page-break-before: always')
 
-        amap[''] = first_child.get('id')
+        amap[''] = cast('str', first_child.get('id'))  # the id is set above if missing
 
         # Fix links that point to local changed anchors
         for a in XPath('//h:a[starts-with(@href, "#")]')(root):
@@ -439,11 +482,12 @@ def merge_html(container, names, master, insert_page_breaks=False):
     return first_anchor_map
 
 
-def merge_css(container, names, master) -> None:
+def merge_css(container: Container, names: Iterable[str], master: str) -> None:
     p = container.parsed
     msheet = p(master)
+    assert isinstance(msheet, CSSStyleSheet)
     master_base = os.path.dirname(master)
-    merged = set()
+    merged: set[str | None] = set()
 
     for name in names:
         if name == master:
@@ -453,6 +497,7 @@ def merge_css(container, names, master) -> None:
             container.replace_links(name, LinkRebaser(container, name, master))
 
         sheet = p(name)
+        assert isinstance(sheet, CSSStyleSheet)
 
         # Remove charset rules
         cr = [r for r in sheet.cssRules if r.type == r.CHARSET_RULE]
@@ -469,6 +514,7 @@ def merge_css(container, names, master) -> None:
         if mt in OEB_DOCS:
             removed = False
             root = p(name)
+            assert isinstance(root, etree._Element)
             for link in XPath('//h:link[@href]')(root):
                 q = container.href_to_name(link.get('href'), name)
                 if q in merged:
@@ -483,7 +529,7 @@ def merge_css(container, names, master) -> None:
                     container.insert_into_xml(head, link)
 
 
-def merge(container, category, names, master) -> None:
+def merge(container: Container, category: str, names: Sequence[str], master: str) -> None:
     """
     Merge the specified files into a single file, automatically migrating all
     links and references to the affected files. The file must all either be HTML or CSS files.

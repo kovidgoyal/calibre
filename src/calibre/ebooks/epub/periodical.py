@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import time
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from calibre import prepare_string_for_xml as xml
@@ -9,6 +10,9 @@ from calibre import strftime
 from calibre.constants import __appname__, __version__
 from calibre.utils.date import parse_date
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.base import Metadata, OEBBook
 
 SONY_METADATA = '''\
 <?xml version="1.0" encoding="utf-8"?>
@@ -77,7 +81,7 @@ SONY_ATOM_ENTRY = '''\
 '''
 
 
-def sony_metadata(oeb):
+def sony_metadata(oeb: OEBBook) -> tuple[str, bytes]:
     m = oeb.metadata
     title = short_title = str(m.title[0])
     publisher = __appname__ + ' ' + __version__
@@ -107,7 +111,7 @@ def sony_metadata(oeb):
 
     updated = strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
 
-    def cal_id(x) -> bool | None:
+    def cal_id(x: Metadata.Item) -> bool | None:
         for k, v in x.attrib.items():
             if k.endswith('scheme') and v == 'uuid':
                 return True
@@ -168,7 +172,7 @@ def sony_metadata(oeb):
             btitle = atitle
             d = 1
             while atitle in seen_titles:
-                atitle = btitle + ' ' + str(d)
+                atitle = btitle + ' ' + str(d)  # ty: ignore[unsupported-operator] seen_titles only contains str so atitle is not None here
                 d += 1
 
             auth = article.author or ''

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-import numbers
 import operator
 from collections import OrderedDict
 from functools import partial
+from typing import TYPE_CHECKING
 
 from css_parser.css import CSSRule, Property
 
@@ -13,15 +13,26 @@ from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Callable, Collection, Iterable, Iterator, Mapping
 
-def compile_pat(pat):
+    import regex
+    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+    type SerializedRule = Mapping[str, str]
+
+
+def compile_pat(pat: str) -> regex.Pattern:  # ty: ignore[invalid-type-form]
     import regex
 
     REGEX_FLAGS = regex.VERSION1 | regex.UNICODE | regex.IGNORECASE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
 
-def all_properties(decl):
+def all_properties(decl: CSSStyleDeclaration) -> Iterator[Property]:
     "This is needed because CSSStyleDeclaration.getProperties(None, all=True) does not work and is slower than it needs to be."
     for item in decl.seq:
         p = item.value
@@ -30,12 +41,12 @@ def all_properties(decl):
 
 
 class StyleDeclaration:
-    def __init__(self, css_declaration) -> None:
+    def __init__(self, css_declaration: CSSStyleDeclaration) -> None:
         self.css_declaration = css_declaration
-        self.expanded_properties = {}
+        self.expanded_properties: dict[Property, list[Property]] = {}
         self.changed = False
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[Property, Property | None]]:
         dec = self.css_declaration
         for p in all_properties(dec):
             n = normalizers.get(p.name)
@@ -47,7 +58,7 @@ class StyleDeclaration:
                 for ep in self.expanded_properties[p]:
                     yield ep, p
 
-    def expand_property(self, parent_prop) -> None:
+    def expand_property(self, parent_prop: Property) -> None:
         props = self.expanded_properties.pop(parent_prop, None)
         if props is None:
             return
@@ -62,7 +73,7 @@ class StyleDeclaration:
                 seq.appendItem(item)
         dec._setSeq(seq)
 
-    def remove_property(self, prop, parent_prop) -> None:
+    def remove_property(self, prop: Property, parent_prop: Property | None) -> None:
         if parent_prop is not None:
             self.expand_property(parent_prop)
         dec = self.css_declaration
@@ -73,7 +84,13 @@ class StyleDeclaration:
         dec._setSeq(seq)
         self.changed = True
 
-    def change_property(self, prop, parent_prop, val, match_pat=None) -> None:
+    def change_property(
+        self,
+        prop: Property,
+        parent_prop: Property | None,
+        val: str,
+        match_pat: regex.Pattern | None = None,  # ty: ignore[invalid-type-form]
+    ) -> None:
         if parent_prop is not None:
             self.expand_property(parent_prop)
         if match_pat is None:
@@ -82,13 +99,13 @@ class StyleDeclaration:
             prop.value = match_pat.sub(val, prop.value)
         self.changed = True
 
-    def append_properties(self, props) -> None:
+    def append_properties(self, props: list[Property]) -> None:
         if props:
             self.changed = True
             for prop in props:
                 self.css_declaration.setProperty(Property(prop.name, prop.value, prop.literalpriority, parent=self.css_declaration))
 
-    def set_property(self, name, value, priority='', replace=True) -> None:
+    def set_property(self, name: str, value: str, priority: str = '', replace: bool = True) -> None:
         # Note that this does not handle shorthand properties, so you must
         # call remove_property() yourself in that case
         self.changed = True
@@ -114,8 +131,8 @@ operator_map = {
 }
 
 
-def unit_convert(value, unit, dpi=96.0, body_font_size=12):
-    result = None
+def unit_convert(value: float, unit: str | None, dpi: float = 96.0, body_font_size: float = 12) -> float | None:
+    result: float | None = None
     if unit == 'px':
         result = value * 72.0 / dpi
     elif unit == 'in':
@@ -135,8 +152,8 @@ def unit_convert(value, unit, dpi=96.0, body_font_size=12):
     return result
 
 
-def parse_css_length_or_number(raw, default_unit=None):
-    if isinstance(raw, numbers.Number):
+def parse_css_length_or_number(raw: str | float, default_unit: str | None = None) -> tuple[float | None, str | None]:
+    if isinstance(raw, (int, float)):
         return raw, default_unit
     try:
         return float(raw), default_unit
@@ -144,7 +161,7 @@ def parse_css_length_or_number(raw, default_unit=None):
         return parse_css_length(raw)
 
 
-def numeric_match(value, unit, pts, op, raw):
+def numeric_match(value: float | None, unit: str | None, pts: float | None, op: Callable[[float, float | None], bool], raw: str) -> bool:
     try:
         v, u = parse_css_length_or_number(raw)
     except Exception:
@@ -161,12 +178,12 @@ def numeric_match(value, unit, pts, op, raw):
     return op(p, pts)
 
 
-def transform_number(val, op, raw):
+def transform_number(val: float, op: Callable[[float, float], float], raw: str) -> str:
     try:
         v, u = parse_css_length_or_number(raw, default_unit='')
     except Exception:
         return raw
-    if v is None:
+    if v is None or u is None:  # u is None only when v is None
         return raw
     v = op(v, val)
     if int(v) == v:
@@ -175,7 +192,7 @@ def transform_number(val, op, raw):
 
 
 class Rule:
-    def __init__(self, property='color', match_type='*', query='', action='remove', action_data='') -> None:
+    def __init__(self, property: str = 'color', match_type: str = '*', query: str = '', action: str = 'remove', action_data: str = '') -> None:
         self.property_name = property.lower()
         self.action, self.action_data = action, action_data
         self.match_pat = None
@@ -201,10 +218,10 @@ class Rule:
         else:
             value, unit = parse_css_length_or_number(query)
             op = getattr(operator, operator_map[match_type])
-            pts = unit_convert(value, unit)
+            pts = None if value is None else unit_convert(value, unit)  # unit_convert(None, None) is None
             self.property_matches = partial(numeric_match, value, unit, pts, op)
 
-    def process_declaration(self, declaration):
+    def process_declaration(self, declaration: StyleDeclaration) -> bool:
         oval, declaration.changed = declaration.changed, False
         for prop, parent_prop in tuple(declaration):
             if prop.name == self.property_name and self.property_matches(prop.value):
@@ -251,7 +268,7 @@ MATCH_TYPE_MAP = OrderedDict((
 allowed_keys = frozenset('property match_type query action action_data'.split())
 
 
-def validate_rule(rule):
+def validate_rule(rule: SerializedRule) -> tuple[str, str] | tuple[None, None]:
     keys = frozenset(rule)
     extra = keys - allowed_keys
     if extra:
@@ -268,7 +285,7 @@ def validate_rule(rule):
             ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.'
         ).format(rule['property'])
     if not rule['query'] and mt != '*':
-        _('Query required'), _('You must specify a value for the CSS property to match')
+        return _('Query required'), _('You must specify a value for the CSS property to match')
     if mt not in MATCH_TYPE_MAP:
         return _('Unknown match type'), _('The match type %s is not known') % mt
     if 'matches' in mt:
@@ -301,20 +318,20 @@ def validate_rule(rule):
     return None, None
 
 
-def compile_rules(serialized_rules):
+def compile_rules(serialized_rules: Iterable[SerializedRule]) -> list[Rule]:
     return [Rule(**r) for r in serialized_rules]
 
 
-def transform_declaration(compiled_rules, decl):
-    decl = StyleDeclaration(decl)
+def transform_declaration(compiled_rules: Iterable[Rule], decl: CSSStyleDeclaration) -> bool:
+    sdecl = StyleDeclaration(decl)
     changed = False
     for rule in compiled_rules:
-        if rule.process_declaration(decl):
+        if rule.process_declaration(sdecl):
             changed = True
     return changed
 
 
-def transform_sheet(compiled_rules, sheet):
+def transform_sheet(compiled_rules: Iterable[Rule], sheet: CSSStyleSheet) -> bool:
     changed = False
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         if transform_declaration(compiled_rules, rule.style):
@@ -322,7 +339,7 @@ def transform_sheet(compiled_rules, sheet):
     return changed
 
 
-def transform_container(container, serialized_rules, names=()):
+def transform_container(container: Container, serialized_rules: Iterable[SerializedRule], names: Collection[str] = ()) -> bool:
     from calibre.ebooks.oeb.polish.css import transform_css
 
     rules = compile_rules(serialized_rules)
@@ -334,8 +351,8 @@ def transform_container(container, serialized_rules, names=()):
     )
 
 
-def rule_to_text(rule):
-    def get(prop):
+def rule_to_text(rule: SerializedRule) -> str:
+    def get(prop: str) -> str:
         return rule.get(prop) or ''
 
     text = _('If the property {property} {match_type} {query}\n{action}').format(
@@ -349,8 +366,8 @@ def rule_to_text(rule):
     return text
 
 
-def export_rules(serialized_rules):
-    lines = []
+def export_rules(serialized_rules: Iterable[SerializedRule]) -> bytes:
+    lines: list[str] = []
     for rule in serialized_rules:
         lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
         lines.extend('{}: {}'.format(k, v.replace('\n', ' ')) for k, v in rule.items() if k in allowed_keys)
@@ -358,13 +375,13 @@ def export_rules(serialized_rules):
     return '\n'.join(lines).encode('utf-8')
 
 
-def import_rules(raw_data):
+def import_rules(raw_data: bytes) -> Iterator[dict[str, str]]:
     import regex
 
     pat = regex.compile(r'\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
-    current_rule = {}
+    current_rule: dict[str, str] = {}
 
-    def sanitize(r):
+    def sanitize(r: dict[str, str]) -> dict[str, str]:
         return {k: (r.get(k) or '') for k in allowed_keys}
 
     for line in raw_data.decode('utf-8').splitlines():
@@ -384,10 +401,10 @@ def import_rules(raw_data):
         yield sanitize(current_rule)
 
 
-def test(return_tests=False):  # {{{
+def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
     import unittest
 
-    def apply_rule(style, **rule):
+    def apply_rule(style: str, **rule: str) -> str:
         r = Rule(**rule)
         decl = StyleDeclaration(safe_parser().parseStyle(style))
         r.process_declaration(decl)
@@ -400,7 +417,7 @@ def test(return_tests=False):  # {{{
 
         def test_matching(self) -> None:
 
-            def m(match_type='*', query='', action_data='') -> None:
+            def m(match_type: str = '*', query: str = '', action_data: str = '') -> None:
                 action = 'change' if action_data else 'remove'
                 self.ae(
                     apply_rule(css, property=prop, match_type=match_type, query=query, action=action, action_data=action_data),
@@ -441,7 +458,7 @@ def test(return_tests=False):  # {{{
 
         def test_expansion(self) -> None:
 
-            def m(css, ecss, action='remove', action_data='') -> None:
+            def m(css: str, ecss: str, action: str = 'remove', action_data: str = '') -> None:
                 self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
 
             prop = 'margin-top'
@@ -458,14 +475,14 @@ def test(return_tests=False):  # {{{
             )
 
         def test_append(self) -> None:
-            def m(css, ecss, action_data='') -> None:
+            def m(css: str, ecss: str, action_data: str = '') -> None:
                 self.ae(ecss, apply_rule(css, property=prop, action='append', action_data=action_data))
 
             prop = 'color'
             m('color: red', 'color: red;\nmargin: 1pt;\nfont-weight: bold', 'margin: 1pt; font-weight: bold')
 
         def test_change(self) -> None:
-            def m(css, ecss, action='change', action_data='') -> None:
+            def m(css: str, ecss: str, action: str = 'change', action_data: str = '') -> None:
                 self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
 
             prop = 'font-family'

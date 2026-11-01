@@ -293,7 +293,7 @@ IANA_MOBI = {
 }
 
 
-def iana2mobi(icode):
+def iana2mobi(icode: str | None) -> bytes:
     langdict, subtags = IANA_MOBI[None], []
     if icode:
         subtags = list(icode.split('-'))
@@ -317,7 +317,7 @@ def iana2mobi(icode):
     return pack('>HBB', 0, mcode[1], mcode[0])
 
 
-def mobi2iana(langcode, sublangcode):
+def mobi2iana(langcode: int, sublangcode: int) -> str:
     prefix = suffix = None
     for code, d in IANA_MOBI.items():
         for subcode, t in d.items():

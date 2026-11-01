@@ -1,9 +1,16 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 from io import BytesIO
+from typing import IO, TYPE_CHECKING
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
 
 
 class TCRInput(InputFormatPlugin):
@@ -13,7 +20,7 @@ class TCRInput(InputFormatPlugin):
     file_types = {'tcr'}
     commit_name = 'tcr_input'
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
         from calibre.ebooks.compression.tcr import decompress
 
         log.info('Decompressing text...')
@@ -26,7 +33,7 @@ class TCRInput(InputFormatPlugin):
 
         txt_plugin = plugin_for_input_format('txt')
         for opt in txt_plugin.options:
-            if not hasattr(self.options, opt.option.name):
+            if not hasattr(options, opt.option.name):
                 setattr(options, opt.option.name, opt.recommended_value)
 
         stream.seek(0)

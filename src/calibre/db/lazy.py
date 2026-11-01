@@ -14,11 +14,11 @@ from calibre.utils.date import utcnow
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Container, Iterable, Iterator
+    from collections.abc import Callable, Container, Iterable, Iterator, Mapping, Sequence
     from typing import Concatenate
 
     from calibre.db.cache import Cache
-    from calibre.library.field_metadata import FieldMetadata
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.utils.formatter import TemplateCache
 
     # The weakref to the db is assumed to be alive while metadata is read from it
@@ -368,6 +368,12 @@ class ProxyMetadata(Metadata):
     # Set with object.__setattr__ in __init__, they are not stored in _cache
     template_cache: TemplateCache
     formatter: SafeFormat
+    # Fields only available on ProxyMetadata, see getters
+    book_size: int
+    ondevice_col: str
+    db_approx_formats: list[str]
+    has_cover: str
+    virtual_libraries: str
 
     def __init__(self, db: Cache, book_id: int, formatter: SafeFormat | None = None) -> None:
         sa(self, 'template_cache', db.formatter_template_cache)
@@ -436,11 +442,12 @@ class ProxyMetadata(Metadata):
     def has_key(self, key: str) -> bool:
         return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')
 
-    def deepcopy(self, class_generator: Callable[[], Metadata] = lambda: Metadata(None)) -> None:
+    def deepcopy(self, class_generator: Callable[[], Metadata] = lambda: Metadata(None)) -> NoReturn:
         self._unimplemented_exception('deepcopy', add_txt=False)
 
-    def deepcopy_metadata(self) -> FieldMetadata:
-        return deepcopy(ga(self, '_user_metadata'))
+    def deepcopy_metadata(self) -> Metadata:
+        # Return a real, independent Metadata object for this book
+        return ga(self, '_db')().get_metadata(ga(self, '_book_id'))
 
     # def get(self, field, default=None)
 
@@ -458,16 +465,21 @@ class ProxyMetadata(Metadata):
 
     def get_identifiers(self) -> dict[str, str]:
         res = self.get('identifiers')
-        return {} if res is None else res
+        if res is None:
+            return {}
+        assert isinstance(res, dict)
+        return res
 
     def set_identifiers(self, identifiers: dict[str, str]) -> None:
         self._unimplemented_exception('set_identifiers', add_txt=True)
 
-    def set_identifier(self, typ: str, val: str) -> None:
+    def set_identifier(self, typ: str, val: str | None) -> None:
         self._unimplemented_exception('set_identifier', add_txt=True)
 
     def has_identifier(self, typ: str) -> bool:
-        return typ in self.get('identifiers', {})
+        identifiers = self.get('identifiers', {})
+        assert isinstance(identifiers, dict)
+        return typ in identifiers
 
     # def standard_field_keys(self)
 
@@ -479,12 +491,12 @@ class ProxyMetadata(Metadata):
         um = ga(self, '_user_metadata')
         return ALL_METADATA_FIELDS.union(frozenset(um.all_field_keys()))
 
-    def all_non_none_fields(self) -> None:
+    def all_non_none_fields(self) -> NoReturn:
         self._unimplemented_exception('all_non_none_fields', add_txt=False)
 
     # This version can return custom column metadata while the Metadata version
     # won't.
-    def get_standard_metadata(self, field: str, make_copy: bool = False) -> dict[str, object] | None:
+    def get_standard_metadata(self, field: str, make_copy: bool = False) -> FieldMetadataDict | None:
         field_metadata = ga(self, '_user_metadata')
         if field in field_metadata and field_metadata[field]['kind'] == 'field':
             if make_copy:
@@ -494,7 +506,7 @@ class ProxyMetadata(Metadata):
 
     # def get_all_standard_metadata(self, make_copy)
 
-    def get_all_user_metadata(self, make_copy: bool) -> dict[str, dict[str, object]]:
+    def get_all_user_metadata(self, make_copy: bool) -> dict[str, FieldMetadataDict]:
         um = ga(self, '_user_metadata')
         if make_copy:
             res = {k: deepcopy(um[k]) for k in um.custom_field_keys()}
@@ -506,7 +518,7 @@ class ProxyMetadata(Metadata):
     # isn't clear how this method differs from get_standard_metadata other than
     # it will return non-'field' metadata. Leave it in case someone depends on
     # that.
-    def get_user_metadata(self, field: str, make_copy: bool = False) -> dict[str, object] | None:
+    def get_user_metadata(self, field: str, make_copy: bool = False) -> FieldMetadataDict | None:
         um = ga(self, '_user_metadata')
         try:
             ans = um[field]
@@ -517,16 +529,16 @@ class ProxyMetadata(Metadata):
                 ans = deepcopy(ans)
             return ans
 
-    def set_all_user_metadata(self, metadata: dict[str, dict[str, object]]) -> None:
+    def set_all_user_metadata(self, metadata: Mapping[str, Mapping[str, object]] | None) -> None:
         self._unimplemented_exception('set_all_user_metadata', add_txt=True)
 
-    def set_user_metadata(self, field: str, metadata: dict[str, object]) -> None:
+    def set_user_metadata(self, field: str | None, metadata: Mapping[str, object] | None) -> None:
         self._unimplemented_exception('set_user_metadata', add_txt=True)
 
     def remove_stale_user_metadata(self, other_mi: Metadata) -> None:
         self._unimplemented_exception('remove_stale_user_metadata', add_txt=True)
 
-    def template_to_attribute(self, other: Metadata, ops: Iterable[tuple[str, str]]) -> None:
+    def template_to_attribute(self, other: Metadata, ops: Iterable[Sequence[str]] | None) -> None:
         self._unimplemented_exception('template_to_attribute', add_txt=True)
 
     def smart_update(self, *args: object, **kwargs: object) -> None:
@@ -534,7 +546,9 @@ class ProxyMetadata(Metadata):
 
     # The rest of the methods in Metadata can be used as is.
 
+    # Metadata declares _proxy_metadata as a plain attribute (it is assigned in
+    # Cache.get_metadata()), here it is read-only as it is always self
     @property
-    def _proxy_metadata(self) -> ProxyMetadata:
+    def _proxy_metadata(self) -> ProxyMetadata:  # ty: ignore[invalid-property-type-override]
 
         return self

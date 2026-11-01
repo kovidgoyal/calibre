@@ -2,11 +2,19 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre import walk
 from calibre.constants import numeric_version
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.utils.logging import Log
+    from calibre.utils.zipfile import ZipFile
 
 
 class RecipeDisabled(Exception):
@@ -60,7 +68,9 @@ class RecipeInput(InputFormatPlugin):
         OptionRecommendation(name='lrf', recommended_value=False, help='Optimize fetching for subsequent conversion to LRF.'),
     }
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: str | IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | None:
+        # The plumber passes the path to the recipe file rather than an open
+        # stream when the input format is recipe
         recipe_or_file = stream
         opts = options
         listing_recipe_specific_options = 'list' in (opts.recipe_specific_option or ())
@@ -80,6 +90,7 @@ class RecipeInput(InputFormatPlugin):
             recipe.needs_subscription = False  # type: ignore
             self.recipe_object = recipe(opts, log, self.report_progress)  # type: ignore
         else:
+            assert isinstance(recipe_or_file, str)
             if os.environ.get('CALIBRE_RECIPE_URN'):
                 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id, get_custom_recipe
 
@@ -179,21 +190,26 @@ class RecipeInput(InputFormatPlugin):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
-    def postprocess_book(self, oeb, opts, log) -> None:
+    def postprocess_book(self, oeb: OEBBook, opts: Values, log: Log) -> None:
         if self.recipe_object is not None:
             self.recipe_object.internal_postprocess_book(oeb, opts, log)
             self.recipe_object.postprocess_book(oeb, opts, log)
 
-    def specialize(self, oeb, opts, log, output_fmt) -> None:
+    def specialize(self, oeb: OEBBook, opts: Values, log: Log, output_fmt: str) -> None:
         if opts.no_inline_navbars:
+            from lxml import etree
+
             from calibre.ebooks.oeb.base import XPath
 
             for item in oeb.spine:
-                for div in XPath('//h:div[contains(@class, "calibre_navbar")]')(item.data):
+                root = item.data
+                assert isinstance(root, etree._Element)
+                for div in XPath('//h:div[contains(@class, "calibre_navbar")]')(root):
                     div.getparent().remove(div)
 
-    def save_download(self, zf) -> None:
+    def save_download(self, zf: ZipFile) -> None:
         raw = self.recipe_source
         if isinstance(raw, str):
             raw = raw.encode('utf-8')
+        assert raw is not None  # recipe_source is always set by convert(), which runs before this
         zf.writestr('download.recipe', raw)

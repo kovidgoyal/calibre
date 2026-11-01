@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 
-def base64_decode(raw):
+def base64_decode(raw: str | bytes) -> bytes:
     from io import BytesIO
 
     from polyglot.binary import from_base64_bytes
@@ -15,14 +15,15 @@ def base64_decode(raw):
 
     # Try a more robust version (adapted from FBReader sources)
     A, Z, a, z, zero, nine, plus, slash, equal = bytearray(b'AZaz09+/=')
-    raw = bytearray(raw)
+    # Non-ASCII characters are not valid base64 and would be ignored below anyway
+    data = bytearray(raw.encode('ascii', 'ignore') if isinstance(raw, str) else raw)
     out = BytesIO()
     pos = 0
-    while pos < len(raw):
+    while pos < len(data):
         tot = 0
         i = 0
-        while i < 4 and pos < len(raw):
-            byt = raw[pos]
+        while i < 4 and pos < len(data):
+            byt = data[pos]
             pos += 1
             num = 0
             if A <= byt <= Z:
