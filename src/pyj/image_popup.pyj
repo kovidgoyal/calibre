@@ -15,7 +15,7 @@ from utils import debounce
 add_extra_css(def ():
     # Modern, minimal "glass" image viewer styling
     css = ''
-    css += '.calibre-image-popup { background: rgba(10, 10, 12, 0.92); color: rgba(255,255,255,0.92); }\n'
+    css += '.calibre-image-popup { background: rgba(10, 10, 12, 0.92); color: rgba(255,255,255,0.92); outline: none; }\n'
     css += '.calibre-image-popup canvas { outline: none; }\n'
     css += '.calibre-image-popup .cs-image-toolbar {'
     css += ' position: fixed; top: 0; left: 0; width: 100%;'
@@ -25,7 +25,7 @@ add_extra_css(def ():
     css += ' border-bottom: var(--calibre-border-style-subtle);'
     css += ' backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);'
     css += ' }\n'
-    css += '.calibre-image-popup a {'
+    css += '.calibre-image-popup button {'
     css += ' display: inline-flex; align-items: center; justify-content: center;'
     css += ' gap: 0.4rem;'
     css += ' padding: 0.55rem 0.75rem;'
@@ -34,18 +34,19 @@ add_extra_css(def ():
     css += ' background: rgba(255,255,255,0.10);'
     css += ' border: var(--calibre-border-style-subtle);'
     css += ' color: inherit;'
+    css += ' font: inherit; margin: 0;'
     css += ' }\n'
-    css += '.calibre-image-popup a:hover { background: rgba(255,255,255,0.16); }\n'
-    css += '.calibre-image-popup a:active { transform: scale(0.98); }\n'
-    css += '.calibre-image-popup a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\n'
+    css += '.calibre-image-popup button:hover { background: rgba(255,255,255,0.16); }\n'
+    css += '.calibre-image-popup button:active { transform: scale(0.98); }\n'
+    css += '.calibre-image-popup button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\n'
     css += '.calibre-image-popup svg { width: 2.1ex; height: 2.1ex; }\n'
-    css += '.calibre-image-popup.fit-to-window a.fit-to-window {'
+    css += '.calibre-image-popup.fit-to-window button.fit-to-window {'
     css += ' background: rgba(108,180,238,0.28);'
     css += ' border-color: rgba(108,180,238,0.38);'
     css += ' }\n'
     css += '@media (max-width: 720px) {'
     css += ' .calibre-image-popup .cs-image-toolbar { padding-left: 10px; padding-right: 10px; }'
-    css += ' .calibre-image-popup a { padding: 0.65rem 0.9rem; }'
+    css += ' .calibre-image-popup button { padding: 0.65rem 0.9rem; }'
     css += ' }\n'
     return css
 )
@@ -86,6 +87,7 @@ class ImagePopup(TouchHandler):
         self.img = None
         self.img_loading = False
         self.img_ok = False
+        self.previous_focus = None
 
     @property
     def container(self):
@@ -96,14 +98,15 @@ class ImagePopup(TouchHandler):
                     + ' width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box'
                 ),
                 id=self.container_id,
-                tabindex='0',
+                tabindex='-1', role='dialog', aria_modal='true', aria_label=_('Image'),
                 class_='calibre-image-popup',
                 onkeydown=self.onkeydown,
                 onwheel=self.onwheel,
                 E.div(
                     class_='cs-image-toolbar',
-                    E.a(svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window', onclick=self.toggle_fit_to_window,),
-                    E.a(svgicon('close'), title=_('Close'), onclick=self.hide_container),
+                    E.button(svgicon('fit-to-screen'), type='button', title=_('Fit image to screen'), aria_label=_('Fit image to screen'),
+                             class_='fit-to-window', aria_pressed='false', onclick=self.toggle_fit_to_window),
+                    E.button(svgicon('close'), type='button', title=_('Close'), aria_label=_('Close'), onclick=self.hide_container),
                 ),
                 E.canvas(
                     width=window.innerWidth + '', height=window.innerHeight + '',
@@ -127,7 +130,26 @@ class ImagePopup(TouchHandler):
         self.scroll_x(dx)
 
     def onkeydown(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        # Isolate the popup from reader shortcuts without cancelling browser shortcuts
+        ev.stopPropagation()
+        if ev.altKey or ev.metaKey or (ev.ctrlKey and not ev.key.startsWith('Arrow')):
+            return
+        if ev.key is 'Tab':
+            buttons = self.container.querySelectorAll('button')
+            active = document.activeElement
+            if ev.shiftKey and (active is self.container or active is buttons[0]):
+                ev.preventDefault()
+                buttons[-1].focus()
+            elif not ev.shiftKey and active is buttons[-1]:
+                ev.preventDefault()
+                buttons[0].focus()
+            return
+        # Let native buttons activate themselves on Enter and Space
+        if ev.target.closest('button') and ev.key in ('Enter', ' '):
+            return
+        if ev.key not in (' ', 'Escape', 'ArrowDown', 'PageDown', 'ArrowUp', 'PageUp', 'ArrowLeft', 'ArrowRight'):
+            return
+        ev.preventDefault()
         if ev.key is ' ':
             return self.toggle_fit_to_window()
         if ev.key is 'Escape':
@@ -239,12 +261,14 @@ class ImagePopup(TouchHandler):
     @fit_to_window.setter
     def fit_to_window(self, val):
         c = self.container
+        button = c.querySelector('button.fit-to-window')
+        button.setAttribute('aria-pressed', 'true' if val else 'false')
         if val:
             c.classList.add('fit-to-window')
-            c.querySelector('a.fit-to-window').title = _('Do not fit image to window')
+            button.title = _('Do not fit image to window')
         else:
             c.classList.remove('fit-to-window')
-            c.querySelector('a.fit-to-window').title = _('Fit image to window')
+            button.title = _('Fit image to window')
 
     def resize_canvas(self):
         c = self.canvas
@@ -262,11 +286,20 @@ class ImagePopup(TouchHandler):
 
     def show_container(self):
         self.flick_animator.stop()
-        self.container.style.display = 'block'
+        c = self.container
+        if c.style.display is 'none':
+            self.previous_focus = document.activeElement
+            c.style.display = 'block'
+            c.focus()
 
     def hide_container(self):
         self.flick_animator.stop()
-        self.container.style.display = 'none'
+        c = self.container
+        restore = c.contains(document.activeElement)
+        previous, self.previous_focus = self.previous_focus, None
+        c.style.display = 'none'
+        if restore and previous and previous.isConnected and previous.getClientRects().length:
+            previous.focus()
 
     def show_url(self, url):
         self.img = Image()
