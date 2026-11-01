@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from numbers import Number
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS, TOP_LEVEL_IDENTIFIERS
 from calibre.utils.formatter import TemplateFormatter
@@ -25,7 +25,8 @@ class SafeFormat(TemplateFormatter):
         if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and key not in ALL_METADATA_FIELDS:
             from calibre.ebooks.metadata.book.base import field_metadata
 
-            key = field_metadata.search_term_to_field_key(key)
+            # grouped search terms (which map to lists) are not valid here
+            key = cast('str', field_metadata.search_term_to_field_key(key))
             if key is None or (self.book and key not in self.book.all_field_keys()):
                 if hasattr(self.book, orig_key):
                     key = orig_key

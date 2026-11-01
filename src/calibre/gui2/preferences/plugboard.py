@@ -3,6 +3,7 @@
 
 import copy
 from collections import defaultdict
+from typing import cast
 
 from qt.core import QComboBox, QListWidgetItem, Qt
 
@@ -212,7 +213,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         # If we have a specific format/device combination, check if a more
         # general combination matches.
         if self.current_format != plugboard_any_format_value and self.current_device != plugboard_any_device_value:
-            if find_plugboard(self.current_device, self.current_format, self.current_plugboards):
+            if find_plugboard(self.current_device, cast('str', self.current_format), self.current_plugboards):
                 if not question_dialog(
                     self.gui,
                     _('Possibly override plugboard?'),

@@ -5,11 +5,17 @@ import fnmatch
 import os
 import re
 import traceback
+from typing import TYPE_CHECKING
 
 from calibre.constants import filesystem_encoding
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, METADATA_FILE_NAME, NOTES_DIR_NAME, TRASH_DIR_NAME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable
+
+    from calibre.db.legacy import LibraryDatabase
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset({METADATA_FILE_NAME, COVER_FILE_NAME, DATA_DIR_NAME})
@@ -48,7 +54,7 @@ CHECKS = [
 
 
 class CheckLibrary:
-    def __init__(self, library_path, db) -> None:
+    def __init__(self, library_path: str | bytes, db: LibraryDatabase) -> None:
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
@@ -56,7 +62,7 @@ class CheckLibrary:
 
         self.is_case_sensitive = db.is_case_sensitive
 
-        self.all_authors = frozenset(x[1] for x in db.all_authors())
+        self.all_authors = frozenset(x[1] for x in db.all_authors())  # ty: ignore[unresolved-attribute] legacy getter added dynamically in calibre.db.legacy
         self.all_ids = frozenset(id_ for id_ in db.all_ids())
         self.all_dbpaths = frozenset(self.dbpath(id_) for id_ in self.all_ids)
         self.all_lc_dbpaths = frozenset(f.lower() for f in self.all_dbpaths)
@@ -83,19 +89,19 @@ class CheckLibrary:
         self.missing_covers = []
         self.extra_covers = []
 
-        self.failed_folders = []
+        self.failed_folders: list[tuple[str, str, list[str]]] = []
 
-    def dbpath(self, id_):
+    def dbpath(self, id_: int) -> str:
         return self.db.path(id_, index_is_id=True)
 
     @property
-    def errors_occurred(self):
+    def errors_occurred(self) -> list[tuple[str, str, list[str]]]:
         return self.failed_folders
 
-    def ignore_name(self, filename):
+    def ignore_name(self, filename: str) -> bool:
         return any(fnmatch.fnmatch(filename, filespec) for filespec in self.ignore_names)
 
-    def scan_library(self, name_ignores, extension_ignores) -> None:
+    def scan_library(self, name_ignores: Iterable[str], extension_ignores: Iterable[str]) -> None:
         self.ignore_names = frozenset(name_ignores)
         self.ignore_ext = frozenset('.' + e for e in extension_ignores)
 
@@ -171,7 +177,7 @@ class CheckLibrary:
                 if self.db.has_cover(id_):
                     self.missing_covers.append((title_dir, os.path.join(path, COVER_FILE_NAME), id_))
 
-    def is_ebook_file(self, filename):
+    def is_ebook_file(self, filename: str) -> bool:
         ext = os.path.splitext(filename)[1]
         if not ext:
             return False
@@ -179,7 +185,7 @@ class CheckLibrary:
         ext = ext.removeprefix('original_')
         return ext in EBOOK_EXTENSIONS
 
-    def process_book(self, lib, book_info) -> None:
+    def process_book(self, lib: str, book_info: tuple[str, str, str]) -> None:
         db_path, title_dir, book_id = book_info
         filenames = frozenset(
             f
@@ -220,7 +226,7 @@ class CheckLibrary:
                     self.extra_formats.append((title_dir, os.path.join(db_path, e), book_id))
         else:
 
-            def lc_map(fnames, fset):
+            def lc_map(fnames: Iterable[str], fset: Collection[str]) -> dict[str, str]:
                 fn = {}
                 for f in fnames:
                     ff = f.lower()

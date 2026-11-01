@@ -5,6 +5,7 @@ import numbers
 import os
 import re
 from datetime import datetime as _datetime
+from typing import TYPE_CHECKING, Any, cast
 
 from calibre import strftime
 from calibre.customize import CatalogPlugin
@@ -12,6 +13,12 @@ from calibre.customize.conversion import DummyReporter
 from calibre.ebooks.metadata import format_isbn
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS, Option
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
+    from optparse import Values
+
+    from calibre.db.legacy import LibraryDatabase
 
 
 class BIBTEX(CatalogPlugin):
@@ -114,7 +121,14 @@ class BIBTEX(CatalogPlugin):
         ),
     ]
 
-    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()) -> None:
+    def run(
+        self,
+        path_to_output: str,
+        opts: Values,
+        db: LibraryDatabase,
+        ids: Collection[int] | None = None,
+        notification: Callable[[float, str], object] | None = DummyReporter(),
+    ) -> None:
         from calibre.library.save_to_disk import preprocess_template
         from calibre.utils.bibtex import BibTeX
         from calibre.utils.date import isoformat
@@ -124,7 +138,16 @@ class BIBTEX(CatalogPlugin):
 
         library_name = os.path.basename(db.library_path)
 
-        def create_bibtex_entry(entry, fields, mode, template_citation, bibtexdict, db, citation_bibtex=True, calibre_files=True):
+        def create_bibtex_entry(
+            entry: dict[str | int, Any],
+            fields: list[str],
+            mode: str,
+            template_citation: str,
+            bibtexdict: BibTeX,
+            db: LibraryDatabase,
+            citation_bibtex: bool = True,
+            calibre_files: bool = True,
+        ) -> str:
 
             # Bibtex doesn't like UTF-8 but keep unicode until writing
             # Define starting chain or if book valid strict and not book return a Fail string
@@ -145,7 +168,8 @@ class BIBTEX(CatalogPlugin):
 
             for field in fields:
                 if field.startswith('#'):
-                    item = db.get_field(entry['id'], field, index_is_id=True)
+                    # The type of a custom column value depends on the column datatype
+                    item: Any = db.get_field(entry['id'], field, index_is_id=True)
                     m = db.new_api.field_metadata[field]
                     if isinstance(item, (bool, numbers.Number)):
                         item = repr(item)
@@ -237,17 +261,17 @@ class BIBTEX(CatalogPlugin):
 
             return bibtex_entry
 
-        def check_entry_book_valid(entry):
+        def check_entry_book_valid(entry: dict[str | int, Any]) -> bool:
             # Check that the required fields are ok for a book entry
             for field in ['title', 'authors', 'publisher']:
                 if entry[field] is None or len(entry[field]) == 0:
                     return False
             return entry['pubdate'] is not None
 
-        def make_bibtex_citation(entry, template_citation, bibtexclass):
+        def make_bibtex_citation(entry: dict[str | int, Any], template_citation: str, bibtexclass: BibTeX) -> str:
 
             # define a function to replace the template entry by its value
-            def tpl_replace(objtplname):
+            def tpl_replace(objtplname: re.Match[str]) -> str:
 
                 tpl_field = re.sub(r'[\{\}]', '', objtplname.group())
 
@@ -397,7 +421,7 @@ class BIBTEX(CatalogPlugin):
             # If connected device, add 'On Device' values to data
             if opts.connected_device['is_device_connected'] and 'ondevice' in fields:
                 for entry in data:
-                    entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
+                    entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[cast('int', entry['id'])]['ondevice']
 
             # outfile.write('%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
             outfile.write(

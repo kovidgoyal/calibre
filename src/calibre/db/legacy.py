@@ -285,6 +285,8 @@ class LibraryDatabase:
     commit: Callable[..., None]
     # Assigned dynamically in __init__ from self.data
     get_property: Callable[..., object]
+    # Assigned by calibre.gui2.convert.gui_conversion.gui_catalog() for use by catalog plugins
+    catalog_plugin_on_device_temp_mapping: dict[int, dict[str, str | None]]
 
     @classmethod
     def exists_at(cls, path: str | None) -> str | bool | None:
@@ -1413,7 +1415,7 @@ for func in (
 
         elif func == 'search_term_to_field_key':
 
-            def meth(self: LibraryDatabase, term: str) -> str:
+            def meth(self: LibraryDatabase, term: str) -> str | list[str]:
                 return self.field_metadata.search_term_to_field_key(term)
 
         else:

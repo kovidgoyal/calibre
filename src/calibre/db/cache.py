@@ -191,7 +191,7 @@ def _add_default_custom_column_values(mi: Metadata, fm: FieldMetadata) -> None:
             if not (had_meta := mi.get_user_metadata(cc, make_copy=False)):
                 mi.set_user_metadata(cc, col)
             dt = col['datatype']
-            if dt == 'datetime' and icu_lower(dv) == 'now':
+            if dt == 'datetime' and icu_lower(cast('str', dv)) == 'now':
                 dv = nowf()
             if not had_meta or mi.get(cc) is None:
                 mi.set(cc, dv)
@@ -4731,8 +4731,9 @@ class Cache:
                     if not dest_value:
                         dest_value = src_value
                     else:
-                        dest_value = list(dest_value)
-                        dest_value.extend(src_value)
+                        # values of multiple text fields are tuples of strings
+                        dest_value = list(cast('Iterable[str]', dest_value))
+                        dest_value.extend(cast('Iterable[str]', src_value))
                     self._set_field(field, {dest_id: dest_value})
 
     _merge_book_metadata = merge_book_metadata

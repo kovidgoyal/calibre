@@ -3,17 +3,23 @@
 
 import os
 from hashlib import sha1
+from typing import TYPE_CHECKING
 
 from calibre.ebooks import BOOK_EXTENSIONS
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+
+    from calibre.db.legacy import LibraryDatabase
+
 
 def find_folders_under(
-    root,
-    db,
-    add_root=True,  # {{{
-    follow_links=False,
-    cancel_callback=lambda: False,
-):
+    root: str,
+    db: LibraryDatabase,
+    add_root: bool = True,  # {{{
+    follow_links: bool = False,
+    cancel_callback: Callable[[], bool] = lambda: False,
+) -> set[str]:
     """
     Find all folders under the specified root path, ignoring any folders under
     the library path of db
@@ -52,7 +58,7 @@ def find_folders_under(
 
 
 class FormatCollection:  # {{{
-    def __init__(self, parent_folder, formats) -> None:
+    def __init__(self, parent_folder: str, formats: Iterable[str]) -> None:
         self.path_map = {}
         for x in set(formats):
             fmt = os.path.splitext(x)[1].lower()
@@ -64,34 +70,34 @@ class FormatCollection:  # {{{
         for fmt, path in self.format_map.items():
             self.hash_map[fmt] = self.hash_of_file(path)
 
-    def hash_of_file(self, path):
+    def hash_of_file(self, path: str) -> bytes:
         with open(path, 'rb') as f:
             return sha1(f.read()).digest()
 
     @property
-    def hashes(self):
+    def hashes(self) -> frozenset[bytes]:
         return frozenset(self.formats.values())
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self) == 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         yield from self.path_map
 
     def __len__(self) -> int:
         return len(self.path_map)
 
-    def remove(self, fmt) -> None:
+    def remove(self, fmt: str) -> None:
         self.hash_map.pop(fmt, None)
         self.path_map.pop(fmt, None)
 
-    def matches(self, other):
+    def matches(self, other: FormatCollection) -> bool:
         if not self.hashes.intersection(other.hashes):
             return False
         return all(self.hash_map[fmt] == other.hash_map.get(fmt, False) for fmt in self)
 
-    def merge(self, other) -> None:
+    def merge(self, other: FormatCollection) -> None:
         for fmt in list(other):
             self.path_map[fmt] = other.path_map[fmt]
             self.hash_map[fmt] = other.hash_map[fmt]
@@ -102,10 +108,10 @@ class FormatCollection:  # {{{
 
 
 def books_in_folder(
-    folder,
-    one_per_folder,  # {{{
-    cancel_callback=lambda: False,
-):
+    folder: str,
+    one_per_folder: bool,  # {{{
+    cancel_callback: Callable[[], bool] = lambda: False,
+) -> list[FormatCollection] | None:
     dirpath = os.path.abspath(folder)
     if one_per_folder:
         formats = set()
@@ -149,7 +155,7 @@ def books_in_folder(
 # }}}
 
 
-def hash_merge_format_collections(collections, cancel_callback=lambda: False):
+def hash_merge_format_collections(collections: Iterable[FormatCollection], cancel_callback: Callable[[], bool] = lambda: False) -> list[FormatCollection]:
     ans = []
 
     collections = list(collections)

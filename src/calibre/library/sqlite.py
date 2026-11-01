@@ -11,11 +11,12 @@ import sqlite3 as sqlite
 import time
 import traceback
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import partial
 from queue import Queue
 from sqlite3 import IntegrityError, OperationalError
 from threading import RLock, Thread
+from typing import TYPE_CHECKING, Literal, cast, overload
 
 from calibre import force_unicode, prints
 from calibre.constants import DEBUG, iswindows, plugins, plugins_loc
@@ -25,26 +26,39 @@ from calibre.utils.icu import sort_key
 from calibre_extensions import speedup as _c_speedup
 from polyglot.builtins import cmp
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+    from typing import Concatenate as ConcatenateParams
+
+    #: A value as returned from the sqlite database, after conversion by the registered converters
+    type SQLValue = str | int | float | bytes | datetime | None
+    #: A row as returned from the database, see the row_factory in :func:`do_connect`
+    type SQLRow = list[SQLValue]
+    type SQLBindings = Sequence[object] | dict[str, object]
+
 global_lock = RLock()
 
 
-def _c_convert_timestamp(val):
+def _c_convert_timestamp(val: bytes) -> datetime | None:
     if not val:
         return None
     try:
-        ret = _c_speedup.parse_date(val.strip())
+        # NOTE: The C parse_date() only accepts str so this always fails and
+        # falls back to the python parse_date() below. Passing str would
+        # change behavior as the C parser drops fractional seconds.
+        ret = _c_speedup.parse_date(val.strip())  # ty: ignore[invalid-argument-type]
     except Exception:
         ret = None
     if ret is None:
         return parse_date(val, as_utc=False)
     year, month, day, hour, minutes, seconds, tzsecs = ret
     try:
-        return datetime(year, month, day, hour, minutes, seconds, tzinfo=timezone(tzsecs)).astimezone(local_tz)
+        return datetime(year, month, day, hour, minutes, seconds, tzinfo=timezone(timedelta(seconds=tzsecs))).astimezone(local_tz)
     except OverflowError:
         return UNDEFINED_DATE.astimezone(local_tz)
 
 
-def _py_convert_timestamp(val):
+def _py_convert_timestamp(val: bytes) -> datetime | None:
     if val:
         tzsecs = 0
         try:
@@ -57,7 +71,7 @@ def _py_convert_timestamp(val):
             hour = int(val[11:13])
             min = int(val[14:16])
             sec = int(val[17:19])
-            return datetime(year, month, day, hour, min, sec, tzinfo=timezone(tzsecs))
+            return datetime(year, month, day, hour, min, sec, tzinfo=timezone(timedelta(seconds=tzsecs)))
         except Exception:
             pass
         return parse_date(val, as_utc=False)
@@ -67,7 +81,7 @@ def _py_convert_timestamp(val):
 convert_timestamp = _py_convert_timestamp if _c_speedup is None else _c_convert_timestamp
 
 
-def adapt_datetime(dt):
+def adapt_datetime(dt: datetime) -> str:
     return isoformat(dt, sep=' ')
 
 
@@ -75,7 +89,7 @@ sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
 
 
-def convert_bool(val):
+def convert_bool(val: bytes) -> bool:
     return val != '0'
 
 
@@ -85,29 +99,29 @@ sqlite.register_converter('BOOL', convert_bool)
 
 
 class DynamicFilter:
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.ids = frozenset()
+        self.ids: frozenset[int] = frozenset()
 
-    def __call__(self, id_):
+    def __call__(self, id_: int) -> int:
         return int(id_ in self.ids)
 
-    def change(self, ids) -> None:
+    def change(self, ids: Iterable[int]) -> None:
         self.ids = frozenset(ids)
 
 
 class Concatenate:
     """String concatenation aggregator for sqlite"""
 
-    def __init__(self, sep=',') -> None:
+    def __init__(self, sep: str = ',') -> None:
         self.sep = sep
-        self.ans = []
+        self.ans: list[str] = []
 
-    def step(self, value) -> None:
+    def step(self, value: str | None) -> None:
         if value is not None:
             self.ans.append(value)
 
-    def finalize(self):
+    def finalize(self) -> str | None:
         try:
             if not self.ans:
                 return None
@@ -125,17 +139,17 @@ class SortedConcatenate:
     sep = ','
 
     def __init__(self) -> None:
-        self.ans = {}
+        self.ans: dict[int, str] = {}
 
-    def step(self, ndx, value) -> None:
+    def step(self, ndx: int, value: str | None) -> None:
         if value is not None:
             self.ans[ndx] = value
 
-    def finalize(self):
+    def finalize(self) -> str | None:
         try:
             if len(self.ans) == 0:
                 return None
-            return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
+            return self.sep.join(map(self.ans.__getitem__, sorted(self.ans.keys())))
         except Exception:
             import traceback
 
@@ -155,12 +169,12 @@ class IdentifiersConcat:
     """String concatenation aggregator for the identifiers map"""
 
     def __init__(self) -> None:
-        self.ans = []
+        self.ans: list[str] = []
 
-    def step(self, key, val) -> None:
+    def step(self, key: str, val: str) -> None:
         self.ans.append(f'{key}:{val}')
 
-    def finalize(self):
+    def finalize(self) -> str:
         try:
             return ','.join(self.ans)
         except Exception:
@@ -174,13 +188,13 @@ class AumSortedConcatenate:
     """String concatenation aggregator for the author sort map"""
 
     def __init__(self) -> None:
-        self.ans = {}
+        self.ans: dict[int, str] = {}
 
-    def step(self, ndx, author, sort, link) -> None:
+    def step(self, ndx: int, author: str | None, sort: str, link: str) -> None:
         if author is not None:
             self.ans[ndx] = ':::'.join((author, sort, link))  # ruff: ignore[static-join-to-f-string]
 
-    def finalize(self):
+    def finalize(self) -> str | None:
         try:
             keys = tuple(self.ans)
             l = len(keys)
@@ -197,23 +211,29 @@ class AumSortedConcatenate:
 
 
 class Connection(sqlite.Connection):
-    def get(self, *args, **kw):
-        ans = self.execute(*args)
-        if not kw.get('all', True):
-            ans = ans.fetchone()
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: Literal[True] = True) -> list[SQLRow]: ...
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: Literal[False]) -> SQLValue: ...
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: bool) -> list[SQLRow] | SQLValue: ...
+    def get(self, sql: str, bindings: SQLBindings = (), /, *, all: bool = True) -> list[SQLRow] | SQLValue:
+        cursor = self.execute(sql, bindings)
+        if not all:
+            ans = cursor.fetchone()
             if not ans:
                 ans = [None]
             return ans[0]
-        return ans.fetchall()
+        return cursor.fetchall()
 
 
-def _author_to_author_sort(x):
+def _author_to_author_sort(x: str | None) -> str:
     if not x:
         return ''
     return author_to_author_sort(x.replace('|', ','))
 
 
-def pynocase(one, two, encoding='utf-8'):
+def pynocase(one: str | bytes, two: str | bytes, encoding: str = 'utf-8') -> int:
     if isinstance(one, bytes):
         try:
             one = one.decode(encoding, 'replace')
@@ -227,11 +247,11 @@ def pynocase(one, two, encoding='utf-8'):
     return cmp(one.lower(), two.lower())
 
 
-def icu_collator(s1, s2):
+def icu_collator(s1: str, s2: str) -> int:
     return cmp(sort_key(force_unicode(s1, 'utf-8')), sort_key(force_unicode(s2, 'utf-8')))
 
 
-def load_c_extensions(conn, debug=DEBUG) -> bool:
+def load_c_extensions(conn: sqlite.Connection, debug: bool = DEBUG) -> bool:
     try:
         conn.enable_load_extension(True)
         ext_path = os.path.join(plugins_loc, 'sqlite_custom.' + ('pyd' if iswindows else 'so'))
@@ -245,18 +265,18 @@ def load_c_extensions(conn, debug=DEBUG) -> bool:
     return False
 
 
-def do_connect(path, row_factory=None):
+def do_connect(path: str, row_factory: bool | None = None) -> Connection:
     conn = sqlite.connect(path, factory=Connection)
     conn.execute('pragma cache_size=-5000')
     encoding = conn.execute('pragma encoding').fetchone()[0]
-    conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-    conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)
-    conn.create_aggregate('sortconcat_amper', 2, SortedConcatenateAmper)
-    conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
+    conn.create_aggregate('sortconcat', 2, SortedConcatenate)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
+    conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
+    conn.create_aggregate('sortconcat_amper', 2, SortedConcatenateAmper)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
+    conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
     load_c_extensions(conn)
     conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row: list(row))
-    conn.create_aggregate('concat', 1, Concatenate)
-    conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
+    conn.create_aggregate('concat', 1, Concatenate)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
+    conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
     conn.create_collation('PYNOCASE', partial(pynocase, encoding=encoding))
     conn.create_function('title_sort', 1, title_sort)
     conn.create_function('author_to_author_sort', 1, _author_to_author_sort)
@@ -271,14 +291,14 @@ def do_connect(path, row_factory=None):
 class DBThread(Thread):
     CLOSE = '-------close---------'
 
-    def __init__(self, path, row_factory) -> None:
+    def __init__(self, path: str, row_factory: bool | None) -> None:
         Thread.__init__(self, daemon=True)
         self.path = path
-        self.unhandled_error = (None, '')
+        self.unhandled_error: tuple[BaseException | None, str] = (None, '')
         self.row_factory = row_factory
-        self.requests = Queue(1)
-        self.results = Queue(1)
-        self.conn = None
+        self.requests: Queue[tuple[str, Sequence[object], Mapping[str, object]]] = Queue(1)
+        self.results: Queue[tuple[bool, object]] = Queue(1)
+        self.conn: Connection | None = None
 
     def connect(self) -> None:
         self.conn = do_connect(self.path, self.row_factory)
@@ -300,9 +320,9 @@ class DBThread(Thread):
                         ok, res = False, (err, traceback.format_exc())
                 elif func == 'create_dynamic_filter':
                     try:
-                        f = DynamicFilter(args[0])
+                        f = DynamicFilter(cast('str', args[0]))
                         assert self.conn is not None
-                        self.conn.create_function(args[0], 1, f)
+                        self.conn.create_function(cast('str', args[0]), 1, f)
                         ok, res = True, f
                     except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
@@ -334,7 +354,7 @@ class DBThread(Thread):
 
 
 class DatabaseException(Exception):
-    def __init__(self, err, tb) -> None:
+    def __init__(self, err: BaseException | str | None, tb: str) -> None:
         tb = '\n\t'.join(('\tRemote' + tb).splitlines())
         try:
             msg = str(err) + '\n' + tb
@@ -345,28 +365,33 @@ class DatabaseException(Exception):
         self.orig_tb = tb
 
 
-def proxy(fn):
+def proxy[**P, R](fn: Callable[ConcatenateParams[ConnectionProxy, P], R]) -> Callable[ConcatenateParams[ConnectionProxy, P], R]:
     """Decorator to call methods on the database connection in the proxy thread"""
 
-    def run(self, *args, **kwargs):
+    def run(self: ConnectionProxy, *args: P.args, **kwargs: P.kwargs) -> R:
         if self.closed:
             raise DatabaseException('Connection closed', '')
         with global_lock:
             if self.proxy.unhandled_error[0] is not None:
                 raise DatabaseException(*self.proxy.unhandled_error)
-            self.proxy.requests.put((fn.__name__, args, kwargs))
+            self.proxy.requests.put((fn.__name__, args, kwargs))  # ty: ignore[unresolved-attribute] always a function
             ok, res = self.proxy.results.get()
             if not ok:
-                if isinstance(res[0], IntegrityError):
-                    raise IntegrityError(str(res[0]))
-                raise DatabaseException(*res)
-            return res
+                failure = cast('tuple[BaseException, str]', res)
+                if isinstance(failure[0], IntegrityError):
+                    raise IntegrityError(str(failure[0]))
+                raise DatabaseException(*failure)
+            return cast('R', res)
 
     return run
 
 
 class ConnectionProxy:
-    def __init__(self, proxy) -> None:
+    # The bodies of the methods decorated with @proxy are never executed, the
+    # decorator runs the method of the same name on the sqlite Connection
+    # object in the DBThread instead.
+
+    def __init__(self, proxy: DBThread) -> None:
         self.proxy = proxy
         self.closed = False
 
@@ -375,48 +400,54 @@ class ConnectionProxy:
             self.proxy.requests.put((self.proxy.CLOSE, [], {}))
             self.closed = True
 
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: Literal[True] = True) -> list[SQLRow]: ...
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: Literal[False]) -> SQLValue: ...
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: bool) -> list[SQLRow] | SQLValue: ...
     @proxy
-    def get(self, query, all=True) -> None:
-        pass
+    def get(self, sql: str, bindings: SQLBindings = (), /, *, all: bool = True) -> list[SQLRow] | SQLValue:
+        raise NotImplementedError()
 
     @proxy
     def commit(self) -> None:
-        pass
+        raise NotImplementedError()
 
     @proxy
-    def execute(self) -> None:
-        pass
+    def execute(self, sql: str, bindings: SQLBindings = (), /) -> sqlite.Cursor:
+        raise NotImplementedError()
 
     @proxy
-    def executemany(self) -> None:
-        pass
+    def executemany(self, sql: str, seq_of_bindings: Iterable[SQLBindings], /) -> sqlite.Cursor:
+        raise NotImplementedError()
 
     @proxy
-    def executescript(self) -> None:
-        pass
+    def executescript(self, sql_script: str, /) -> sqlite.Cursor:
+        raise NotImplementedError()
 
     @proxy
-    def create_aggregate(self) -> None:
-        pass
+    def create_aggregate(self, name: str, n_arg: int, aggregate_class: Callable[[], object], /) -> None:
+        raise NotImplementedError()
 
     @proxy
-    def create_function(self) -> None:
-        pass
+    def create_function(self, name: str, narg: int, func: Callable[..., object] | None, /) -> None:
+        raise NotImplementedError()
 
     @proxy
-    def cursor(self) -> None:
-        pass
+    def cursor(self) -> sqlite.Cursor:
+        raise NotImplementedError()
 
     @proxy
-    def dump(self) -> None:
-        pass
+    def dump(self) -> tuple[str, ...]:
+        raise NotImplementedError()
 
     @proxy
-    def create_dynamic_filter(self) -> None:
-        pass
+    def create_dynamic_filter(self, name: str, /) -> DynamicFilter:
+        raise NotImplementedError()
 
 
-def connect(dbpath, row_factory=None):
+def connect(dbpath: str, row_factory: bool | None = None) -> ConnectionProxy:
     conn = ConnectionProxy(DBThread(dbpath, row_factory))
     conn.proxy.start()
     while conn.proxy.unhandled_error[0] is None and conn.proxy.conn is None:

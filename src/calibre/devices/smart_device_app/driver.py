@@ -485,7 +485,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     device_book_cache: defaultdict[str, CacheEntry]
     max_book_packet_len: int
     current_library_uuid: str | None
-    current_library_name: str
+    current_library_name: str | None
     device_uuid: str
     driveinfo: dict[str, object]
     client_can_use_metadata_cache: bool

@@ -8,9 +8,10 @@ import re
 import shutil
 import time
 import unicodedata
+from collections.abc import Mapping
 from compression import zlib
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal, cast
 from xml.sax.saxutils import escape
 
 from lxml import etree
@@ -38,10 +39,21 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
+    from optparse import Values
+
+    import bs4
+
+    from calibre.customize import CatalogPlugin
+    from calibre.customize.profiles import OutputProfile
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.utils.formatter import Kwargs
+
 NBSP = '\u00a0'
 
 
-def makeelement(tag_name, parent, **attrs):
+def makeelement(tag_name: str, parent: etree._Element, **attrs: object) -> etree._Element:
     ans = parent.makeelement(tag_name)
     for k, v in attrs.items():
         k = k.replace('_', '-').rstrip('-')
@@ -52,16 +64,17 @@ def makeelement(tag_name, parent, **attrs):
 
 
 class Formatter(TemplateFormatter):
-    def get_value(self, key, args, kwargs):
+    def get_value(self, key: int | str, args: Sequence[object], kwargs: Kwargs) -> str:
         if not key:
             return ''
-        if key in kwargs:
-            return kwargs[key]
+        # kwargs is always the dict of format args built by this module
+        if isinstance(kwargs, Mapping) and isinstance(key, str) and key in kwargs:
+            return cast('str', kwargs[key])
         book = self.book
         assert book is not None
         if key not in book.all_field_keys():
-            raise Exception(_('column not in book: ') + key)
-        return book.format_field(key, series_with_index=False)[1]
+            raise Exception(_('column not in book: ') + str(key))
+        return cast('str', book.format_field(str(key), series_with_index=False)[1])
 
 
 class CatalogBuilder:
@@ -106,19 +119,21 @@ class CatalogBuilder:
     ''' device-specific symbol (default empty star) '''
 
     @property
-    def SYMBOL_EMPTY_RATING(self):
+    def SYMBOL_EMPTY_RATING(self) -> str:
+        assert self.output_profile is not None
         return self.output_profile.empty_ratings_char
 
     ''' device-specific symbol (default filled star) '''
 
     @property
-    def SYMBOL_FULL_RATING(self):
+    def SYMBOL_FULL_RATING(self) -> str:
+        assert self.output_profile is not None
         return self.output_profile.ratings_char
 
     ''' device-specific symbol for reading progress '''
 
     @property
-    def SYMBOL_PROGRESS_READ(self):
+    def SYMBOL_PROGRESS_READ(self) -> str:
         psr = '+'
         if self.generate_for_kindle_mobi:
             psr = '▪'
@@ -127,7 +142,7 @@ class CatalogBuilder:
     ''' device-specific symbol for reading progress '''
 
     @property
-    def SYMBOL_PROGRESS_UNREAD(self):
+    def SYMBOL_PROGRESS_UNREAD(self) -> str:
         psu = '-'
         if self.generate_for_kindle_mobi:
             psu = '▫'
@@ -136,7 +151,7 @@ class CatalogBuilder:
     ''' device-specific symbol for reading progress '''
 
     @property
-    def SYMBOL_READING(self):
+    def SYMBOL_READING(self) -> str:
         if self.generate_for_kindle_mobi:
             return '▷'
         else:
@@ -144,12 +159,12 @@ class CatalogBuilder:
 
     def __init__(
         self,
-        db,
-        _opts,
-        plugin,
-        report_progress=DummyReporter(),
-        stylesheet='content/stylesheet.css',
-        init_resources=True,
+        db: LibraryDatabase,
+        _opts: Values,
+        plugin: CatalogPlugin,
+        report_progress: Callable[[float, str], object] = DummyReporter(),
+        stylesheet: str = 'content/stylesheet.css',
+        init_resources: bool = True,
     ) -> None:
 
         self.formatter = Formatter()
@@ -225,7 +240,7 @@ class CatalogBuilder:
 
     ''' key() functions '''
 
-    def _kf_author_to_author_sort(self, author):
+    def _kf_author_to_author_sort(self, author: str) -> str:
         """Compute author_sort value from author
 
         Tokenize author string, return capitalized string with last token first
@@ -242,7 +257,7 @@ class CatalogBuilder:
             tokens[0] += ','
         return ' '.join(tokens).capitalize()
 
-    def _kf_books_by_author_sorter_author(self, book):
+    def _kf_books_by_author_sorter_author(self, book: dict[str, Any]) -> str:
         """Generate book sort key with computed author_sort.
 
         Generate a sort key of computed author_sort, title. Used to look for
@@ -267,7 +282,7 @@ class CatalogBuilder:
             key = '{} ~{} {}'.format(self._kf_author_to_author_sort(book['author']), self.generate_sort_title(book['series']), series_index)
         return key
 
-    def _kf_books_by_author_sorter_author_sort(self, book, longest_author_sort=60):
+    def _kf_books_by_author_sorter_author_sort(self, book: dict[str, Any], longest_author_sort: int = 60) -> str:
         """Generate book sort key with supplied author_sort.
 
         Generate a sort key of author_sort, title.
@@ -291,7 +306,7 @@ class CatalogBuilder:
             key = fs.format(capitalize(book['author_sort']), self.generate_sort_title(book['series']), series_index)
         return key
 
-    def _kf_books_by_series_sorter(self, book):
+    def _kf_books_by_series_sorter(self, book: dict[str, Any]) -> str:
         index = book['series_index']
         integer = int(index)
         fraction = index - integer
@@ -467,7 +482,7 @@ class CatalogBuilder:
                 else:
                     self.opts.log.info(f'  existing thumb cache at {self.thumbs_path}, cached_thumb_width: {float(cached_thumb_width):1.2f}"')
 
-    def convert_html_entities(self, s):
+    def convert_html_entities(self, s: str) -> str:
         """Convert string containing HTML entities to its unicode equivalent.
 
         Convert a string containing HTML entities of the form '&amp;' or '&97;'
@@ -534,7 +549,7 @@ class CatalogBuilder:
         if not os.path.isdir(images_path):
             os.makedirs(images_path)
 
-    def detect_author_sort_mismatches(self, books_to_test) -> None:
+    def detect_author_sort_mismatches(self, books_to_test: Iterable[dict[str, Any]]) -> None:
         """Detect author_sort mismatches.
 
         Sort by author, look for inconsistencies in author_sort among
@@ -586,7 +601,7 @@ class CatalogBuilder:
 
                 current_author = author
 
-    def discover_prefix(self, record):
+    def discover_prefix(self, record: dict[str | int, Any] | dict[str, Any]) -> str | None:
         """Return a prefix for record.
 
         Evaluate record against self.prefix_rules. Return assigned prefix
@@ -600,14 +615,14 @@ class CatalogBuilder:
          None: no match
         """
 
-        def _log_prefix_rule_match_info(rule, record, matched) -> None:
+        def _log_prefix_rule_match_info(rule: dict[str, str], record: dict[str | int, Any] | dict[str, Any], matched: object) -> None:
             self.opts.log.info(
                 "  {} '{}' by {} ({}: '{}' contains '{}')".format(
                     rule['prefix'],
                     record['title'],
                     record['authors'][0],
                     rule['name'],
-                    self.db.metadata_for_field(rule['field'])['name'],
+                    self._metadata_for_field(rule['field'])['name'],
                     matched,
                 )
             )
@@ -634,15 +649,11 @@ class CatalogBuilder:
 
                 # Handle condition where bools_are_tristate is False,
                 # field is a bool and contents is None, which is displayed as No
-                if (
-                    not self.db.new_api.pref('bools_are_tristate')
-                    and self.db.metadata_for_field(rule['field'])['datatype'] == 'bool'
-                    and field_contents is None
-                ):
+                if not self.db.new_api.pref('bools_are_tristate') and self._metadata_for_field(rule['field'])['datatype'] == 'bool' and field_contents is None:
                     field_contents = _('False')
 
                 if field_contents is not None:
-                    if self.db.metadata_for_field(rule['field'])['datatype'] == 'bool':
+                    if self._metadata_for_field(rule['field'])['datatype'] == 'bool':
                         # For Yes/No fields, need to translate field_contents to
                         # locale version
                         field_contents = _(repr(field_contents))
@@ -661,17 +672,22 @@ class CatalogBuilder:
 
         return None
 
+    def _metadata_for_field(self, field: str) -> dict[str, object]:
+        ans = self.db.metadata_for_field(field)
+        assert ans is not None, f'Unknown field: {field}'
+        return ans
+
     def dump_custom_fields(self) -> None:
         """
         Dump custom field mappings for debugging
         """
         if self.opts.verbose:
             self.opts.log.info(' Custom fields:')
-            all_custom_fields = self.db.custom_field_keys()
+            all_custom_fields = self.db.field_metadata.custom_field_keys()
             for cf in all_custom_fields:
-                self.opts.log.info('  {:<20} {!r:<20} {}'.format(cf, self.db.metadata_for_field(cf)['name'], self.db.metadata_for_field(cf)['datatype']))
+                self.opts.log.info('  {:<20} {!r:<20} {}'.format(cf, self._metadata_for_field(cf)['name'], self._metadata_for_field(cf)['datatype']))
 
-    def establish_equivalencies(self, item_list, key=None):
+    def establish_equivalencies(self, item_list: Sequence[str] | Sequence[dict[str, Any]], key: str | None = None) -> list[str]:
         """Return icu equivalent sort letter.
 
         Returns base sort letter for accented characters. Code provided by
@@ -692,14 +708,14 @@ class CatalogBuilder:
         if key is not None:
             sort_field = key
 
-        cl_list = [None] * len(item_list)
+        cl_list: list[str | None] = [None] * len(item_list)
         last_ordnum = 0
 
         for idx, item in enumerate(item_list):
             if key:
-                c = item[sort_field]
+                c = cast('dict[str, Any]', item)[sort_field]
             else:
-                c = item
+                c = cast('str', item)
 
             ordnum, ordlen = collation_order(c)
             if ismacos and platform.mac_ver()[0] < '10.8':
@@ -738,11 +754,12 @@ class CatalogBuilder:
             print('     establish_equivalencies():')
             if key:
                 for idx, item in enumerate(item_list):
-                    print(f'      {cl_list[idx]} {item[sort_field]}')
+                    print(f"      {cl_list[idx]} {cast('dict[str, Any]', item)[sort_field]}")
             else:
                 print(f'      {cl_list[idx]} {item}')
 
-        return cl_list
+        # Every entry has been filled in by the loop above
+        return cast('list[str]', cl_list)
 
     def fetch_books_by_author(self) -> bool:
         """Generate a list of books sorted by author.
@@ -880,7 +897,7 @@ class CatalogBuilder:
             self.error.append(error_msg)
             raise EmptyCatalogException(error_msg)
 
-    def fetch_books_to_catalog(self):
+    def fetch_books_to_catalog(self) -> list[dict[str, Any]]:
         """Populate self.books_to_catalog from database
 
         Create self.books_to_catalog from filtered database.
@@ -916,9 +933,9 @@ class CatalogBuilder:
          False: Empty data, (check filter restrictions)
         """
 
-        def _populate_title(record):
+        def _populate_title(record: dict[str | int, Any]) -> dict[str, Any]:
             """populate this_title with massaged metadata"""
-            this_title = {}
+            this_title: dict[str, Any] = {}
 
             this_title['id'] = record['id']
             this_title['uuid'] = record['uuid']
@@ -1006,7 +1023,8 @@ class CatalogBuilder:
                     if not isinstance(record_genres, list):
                         record_genres = [record_genres]
 
-                    this_title['genres'] = self.filter_excluded_genres(record_genres, self.opts.exclude_genre)
+                    # genre_source_field is validated to be a text or enumeration column
+                    this_title['genres'] = self.filter_excluded_genres(cast('list[str]', record_genres), self.opts.exclude_genre)
 
             if record['formats']:
                 formats = []
@@ -1017,14 +1035,14 @@ class CatalogBuilder:
             # Add user notes to be displayed in header
             # Special case handling for datetime fields and lists
             if self.opts.header_note_source_field:
-                field_md = self.db.metadata_for_field(self.opts.header_note_source_field)
+                field_md = self._metadata_for_field(self.opts.header_note_source_field)
                 notes = self.db.get_field(record['id'], self.opts.header_note_source_field, index_is_id=True)
                 if notes:
                     if field_md['datatype'] == 'text':
                         if isinstance(notes, list):
                             notes = ' · '.join(notes)
                     elif field_md['datatype'] == 'datetime':
-                        notes = format_date(notes, 'dd MMM yyyy')
+                        notes = format_date(cast('datetime.datetime', notes), 'dd MMM yyyy')
                     this_title['notes'] = {'source': field_md['name'], 'content': notes}
 
             return this_title
@@ -1093,14 +1111,14 @@ class CatalogBuilder:
         tan_formats = set(TAN_FORMATS)
 
         class BookmarkDevice(Device):
-            def initialize(self, save_template=None) -> None:
+            def initialize(self, save_template: str | None = None) -> None:
                 self._save_template = save_template
                 self.SUPPORTS_SUB_DIRS = True
 
-            def save_template(self):
+            def save_template(self) -> str | None:  # ty: ignore[invalid-method-override]
                 return self._save_template
 
-        def _resolve_bookmark_paths(storage, path_map):
+        def _resolve_bookmark_paths(storage: Iterable[str], path_map: dict[int, Any]) -> tuple[dict[int, Any], dict[int, str]]:
             pop_list = []
             book_ext = {}
             for id in path_map:
@@ -1176,7 +1194,7 @@ class CatalogBuilder:
 
             self.bookmarked_books = bookmarks
 
-    def filter_genre_tags(self, max_len):
+    def filter_genre_tags(self, max_len: int) -> dict[str, str]:
         """Remove excluded tags from data set, return normalized genre list.
 
         Filter all db tags, removing excluded tags supplied in opts.
@@ -1190,8 +1208,8 @@ class CatalogBuilder:
          genre_tags_dict (dict): dict of filtered, normalized tags in data set
         """
 
-        def _format_tag_list(tags, indent=1, line_break=70, header='Tag list'):
-            def _next_tag(sorted_tags):
+        def _format_tag_list(tags: Collection[str], indent: int = 1, line_break: int = 70, header: str = 'Tag list') -> str:
+            def _next_tag(sorted_tags: Iterable[str]) -> Iterator[str]:
                 for i, tag in enumerate(sorted_tags):
                     if i < len(tags) - 1:
                         yield tag + ', '
@@ -1209,7 +1227,7 @@ class CatalogBuilder:
                     out_str = ' ' * (indent + 1)
             return ans + out_str
 
-        def _normalize_tag(tag, max_len):
+        def _normalize_tag(tag: str, max_len: int) -> str:
             """Generate an XHTML-legal anchor string from tag.
 
             Parse tag for non-ascii, convert to unicode name.
@@ -1247,10 +1265,10 @@ class CatalogBuilder:
             # Validate custom field is usable as a genre source
             field_md = self.db.metadata_for_field(self.opts.genre_source_field)
             if field_md is None or field_md['datatype'] not in ['enumeration', 'text']:
-                all_custom_fields = self.db.custom_field_keys()
+                all_custom_fields = self.db.field_metadata.custom_field_keys()
                 eligible_custom_fields = []
                 for cf in all_custom_fields:
-                    if self.db.metadata_for_field(cf)['datatype'] in ['enumeration', 'text']:
+                    if self._metadata_for_field(cf)['datatype'] in ['enumeration', 'text']:
                         eligible_custom_fields.append(cf)
                 self.opts.log.error(
                     "Custom genre_source_field must be either:\n"
@@ -1298,7 +1316,7 @@ class CatalogBuilder:
 
         return genre_tags_dict
 
-    def filter_excluded_genres(self, tags, regex):
+    def filter_excluded_genres(self, tags: list[str], regex: str) -> list[str]:
         """Remove excluded tags from a tag list
 
         Run regex against list of tags, remove matching tags. Return filtered list.
@@ -1325,7 +1343,7 @@ class CatalogBuilder:
 
         return tag_list
 
-    def format_ncx_text(self, description, dest=None):
+    def format_ncx_text(self, description: object, dest: str | None = None) -> str | None:
         """Massage NCX text for Kindle.
 
         Convert HTML entities for proper display on Kindle, convert
@@ -1351,7 +1369,7 @@ class CatalogBuilder:
         else:
             return None
 
-    def insert_prefix(self, soup, parent_tag, pos, prefix_char) -> None:
+    def insert_prefix(self, soup: bs4.BeautifulSoup, parent_tag: Tag, pos: int, prefix_char: str | None) -> None:
         """Generate HTML snippet with prefix character.
 
         Insert a <code> snippet for Kindle, <span> snippet for EPUB.
@@ -1365,7 +1383,7 @@ class CatalogBuilder:
         tag.append(prefix_char or NBSP)
         parent_tag.insert(pos, tag)
 
-    def generate_author_anchor(self, author):
+    def generate_author_anchor(self, author: str) -> str:
         """Generate legal XHTML anchor.
 
         Convert author to legal XHTML (may contain unicode chars), stripping
@@ -1379,7 +1397,7 @@ class CatalogBuilder:
         """
         return re.sub(r'\W', '', ascii_text(author))
 
-    def generate_format_args(self, book):
+    def generate_format_args(self, book: dict[str, Any]) -> dict[str, str]:
         """Generate the format args for template substitution.
 
         self.load_section_templates imports string formatting templates of the form
@@ -1423,6 +1441,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_empty_header(friendly_name)
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
 
         btc = 0
 
@@ -1491,6 +1510,8 @@ class CatalogBuilder:
 
                     # Create a divRunningTag for the next author
                     if author_count > 2:
+                        # Created when the previous author was processed
+                        assert divRunningTag is not None
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
 
@@ -1614,6 +1635,7 @@ class CatalogBuilder:
         btc += 1
 
         if author_count == 1:
+            assert divOpeningTag is not None
             divTag.insert(dtc, divOpeningTag)
             dtc += 1
         elif divRunningTag is not None:
@@ -1641,7 +1663,7 @@ class CatalogBuilder:
          content/ByDateAdded.html (file)
         """
 
-        def _add_books_to_html_by_month(this_months_list, dtc):
+        def _add_books_to_html_by_month(this_months_list: list[dict[str, Any]], dtc: int) -> int:
             if len(this_months_list):
                 # Determine the longest author_sort_length before sorting
                 asl = [i['author_sort'] for i in this_months_list]
@@ -1741,7 +1763,7 @@ class CatalogBuilder:
                     dtc += 1
             return dtc
 
-        def _add_books_to_html_by_date_range(date_range_list, date_range, dtc):
+        def _add_books_to_html_by_date_range(date_range_list: list[dict[str, Any]], date_range: str, dtc: int) -> int:
             if len(date_range_list):
                 pIndexTag = soup.new_tag('p')
                 pIndexTag['class'] = 'date_index'
@@ -1815,6 +1837,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_empty_header(friendly_name)
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
 
         btc = 0
 
@@ -1911,7 +1934,7 @@ class CatalogBuilder:
          content/ByDateRead.html (file)
         """
 
-        def _add_books_to_html_by_day(todays_list, dtc):
+        def _add_books_to_html_by_day(todays_list: list[dict[str, Any]], dtc: int) -> int:
             if len(todays_list):
                 # Create a new day anchor
                 date_string = strftime('%A, %B %d', current_date.timetuple())
@@ -1958,7 +1981,7 @@ class CatalogBuilder:
                     dtc += 1
             return dtc
 
-        def _add_books_to_html_by_date_range(date_range_list, date_range, dtc):
+        def _add_books_to_html_by_date_range(date_range_list: list[dict[str, Any]], date_range: str, dtc: int) -> int:
             if len(date_range_list):
                 pIndexTag = soup.new_tag('p')
                 pIndexTag['class'] = 'date_index'
@@ -2015,6 +2038,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_empty_header(friendly_name)
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
 
         btc = 0
 
@@ -2188,7 +2212,7 @@ class CatalogBuilder:
 
         self.genres = master_genre_list
 
-    def generate_html_by_genre(self, genre, section_head, books, outfile):
+    def generate_html_by_genre(self, genre: str, section_head: bool, books: list[dict[str, Any]], outfile: str) -> list[tuple[str, str]] | None:
         """Generate individual genre HTML file.
 
         Generate an individual genre HTML file. Called from generate_html_by_genres()
@@ -2208,6 +2232,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_genre_header(genre)
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
 
         btc = 0
         divTag = soup.new_tag('div')
@@ -2230,10 +2255,12 @@ class CatalogBuilder:
         btc += 1
 
         titleTag = body.find(attrs={'class': 'title'})
+        assert isinstance(titleTag, Tag)  # added by generate_html_genre_header()
         titleTag.insert(0, NavigableString(f'{self.get_friendly_genre_tag(genre)}'))
 
         # Insert the books by author list
         divTag = body.find(attrs={'class': 'authors'})
+        assert isinstance(divTag, Tag)  # added by generate_html_genre_header()
         dtc = 0
 
         current_author = ''
@@ -2323,8 +2350,8 @@ class CatalogBuilder:
             dtc += 1
 
         # Write the generated file to content_dir
-        with open(outfile, 'wb') as outfile:
-            outfile.write(prettify(soup).encode('utf-8'))
+        with open(outfile, 'wb') as f:
+            f.write(prettify(soup).encode('utf-8'))
 
         if len(books) > 1:
             titles_spanned = [(books[0]['author'], books[0]['title']), (books[-1]['author'], books[-1]['title'])]
@@ -2369,6 +2396,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_empty_header(friendly_name)
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
 
         btc = 0
         divTag = soup.new_tag('div')
@@ -2504,6 +2532,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_empty_header('Books By Alpha Title')
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
         btc = 0
 
         pTag = soup.new_tag('p')
@@ -2649,7 +2678,7 @@ class CatalogBuilder:
             outfile.write(prettify(soup).encode('utf-8'))
         self.html_filelist_1.append('content/ByAlphaTitle.html')
 
-    def generate_html_description_header(self, book):
+    def generate_html_description_header(self, book: dict[str, Any]) -> bs4.BeautifulSoup:
         """Generate the HTML Description header from template.
 
         Create HTML Description from book metadata and template.
@@ -2666,7 +2695,7 @@ class CatalogBuilder:
 
         assert self.bookmarked_books is not None
 
-        def _generate_html():
+        def _generate_html() -> bs4.BeautifulSoup:
             args = dict(
                 author=escape(author),
                 author_prefix=escape(author_prefix),
@@ -2796,6 +2825,7 @@ class CatalogBuilder:
 
         # >>>> Post-process the template <<<<
         body = soup.find('body')
+        assert isinstance(body, Tag)  # generated HTML always has a <body>
         btc = 0
         # Insert the title anchor for inbound links
         aTag = soup.new_tag('a')
@@ -2839,7 +2869,7 @@ class CatalogBuilder:
             if tdTag:
                 tdTag.contents[0].replaceWith(NBSP)
 
-        emptyTags = body.findAll('td', attrs={'class': 'empty'})
+        emptyTags = body.find_all('td', attrs={'class': 'empty'})
         for mt in emptyTags:
             newEmptyTag = soup.new_tag('td')
             newEmptyTag.insert(0, NBSP)
@@ -2875,7 +2905,7 @@ class CatalogBuilder:
             with open('{}/book_{}.html'.format(self.content_dir, int(title['id'])), 'wb') as outfile:
                 outfile.write(prettify(soup).encode('utf-8'))
 
-    def generate_html_empty_header(self, title):
+    def generate_html_empty_header(self, title: str) -> bs4.BeautifulSoup:
         """Return a boilerplate HTML header.
 
         Generate an HTML header with document title.
@@ -2906,7 +2936,7 @@ class CatalogBuilder:
         titleTag.insert(0, NavigableString(title))
         return soup
 
-    def generate_html_genre_header(self, title):
+    def generate_html_genre_header(self, title: str) -> bs4.BeautifulSoup:
         """Generate HTML header with initial body content
 
         Start with a generic HTML header, add <p> and <div>
@@ -2920,6 +2950,7 @@ class CatalogBuilder:
 
         soup = self.generate_html_empty_header(title)
         bodyTag = soup.find('body')
+        assert isinstance(bodyTag, Tag)  # generated HTML always has a <body>
         pTag = soup.new_tag('p')
         pTag['class'] = 'title'
         bodyTag.insert(0, pTag)
@@ -2928,7 +2959,7 @@ class CatalogBuilder:
         bodyTag.insert(1, divTag)
         return soup
 
-    def generate_masthead_image(self, out_path) -> None:
+    def generate_masthead_image(self, out_path: str) -> None:
         """Generate a Kindle masthead image.
 
         Generate a Kindle masthead image, used with Kindle periodical format.
@@ -3034,7 +3065,7 @@ class CatalogBuilder:
                 # Descriptions only
                 makeelement('content', navPointTag, src='content/book_{}.html'.format(int(self.books_by_description[0]['id'])))
 
-    def generate_ncx_section_header(self, section_id, section_header, content_src):
+    def generate_ncx_section_header(self, section_id: str, section_header: str, content_src: str) -> etree._Element:
         root = self.ncx_root
         assert root is not None
         if self.generate_for_kindle_mobi:
@@ -3051,7 +3082,9 @@ class CatalogBuilder:
         makeelement('content', navPointTag, src=content_src)
         return navPointTag
 
-    def generate_ncx_subsection(self, navPointTag, section_id, section_text, content_src, cm_tags=None) -> None:
+    def generate_ncx_subsection(
+        self, navPointTag: etree._Element, section_id: str, section_text: str | None, content_src: str, cm_tags: dict[str, str | None] | None = None
+    ) -> None:
         if cm_tags is None:
             cm_tags = {}
         navPointVolumeTag = makeelement('navPoint', navPointTag, id=section_id, playOrder=self.play_order)
@@ -3066,7 +3099,7 @@ class CatalogBuilder:
             for name, text in cm_tags.items():
                 makeelement('{http://calibre.kovidgoyal.net/2009/metadata}meta', navPointVolumeTag, name=name).text = text
 
-    def generate_ncx_descriptions(self, tocTitle) -> None:
+    def generate_ncx_descriptions(self, tocTitle: str) -> None:
         """Add Descriptions to the basic NCX file.
 
         Generate the Descriptions NCX content, add to self.ncx_soup.
@@ -3115,6 +3148,7 @@ class CatalogBuilder:
                     # dot_string = '+' * dots
                     # empty_dots = '-' * (10 - dots)
                     # title_str += ' %s%s' % (dot_string,empty_dots)
+                    assert title_str is not None
                     title_str += '*'
                 sec_text = title_str
             else:
@@ -3138,7 +3172,7 @@ class CatalogBuilder:
                 cm_tags['description'] = self.format_ncx_text(book['short_description'], dest='description')
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_series(self, tocTitle) -> None:
+    def generate_ncx_by_series(self, tocTitle: str) -> None:
         """Add Series to the basic NCX file.
 
         Generate the Series NCX content, add to self.ncx_soup.
@@ -3155,10 +3189,10 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Series'))
 
-        def _add_to_series_by_letter(current_series_list) -> None:
-            current_series_list = ' • '.join(current_series_list)
-            current_series_list = self.format_ncx_text(current_series_list, dest='description')
-            series_by_letter.append(current_series_list)
+        def _add_to_series_by_letter(current_series_list: list[str]) -> None:
+            current_series_text = ' • '.join(current_series_list)
+            current_series_text = self.format_ncx_text(current_series_text, dest='description')
+            series_by_letter.append(current_series_text)
 
         # --- Construct the 'Books By Series' section ---
         section_header = f'{tocTitle} [{len(self.all_series)}]'
@@ -3218,7 +3252,7 @@ class CatalogBuilder:
             cm_tags = {'description': self.format_ncx_text(books, dest='description')}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_title(self, tocTitle) -> None:
+    def generate_ncx_by_title(self, tocTitle: str) -> None:
         """Add Titles to the basic NCX file.
 
         Generate the Titles NCX content, add to self.ncx_soup.
@@ -3235,10 +3269,10 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Titles'))
 
-        def _add_to_books_by_letter(current_book_list) -> None:
-            current_book_list = ' • '.join(current_book_list)
-            current_book_list = self.format_ncx_text(current_book_list, dest='description')
-            books_by_letter.append(current_book_list)
+        def _add_to_books_by_letter(current_book_list: list[str]) -> None:
+            current_book_text = ' • '.join(current_book_list)
+            current_book_text = self.format_ncx_text(current_book_text, dest='description')
+            books_by_letter.append(current_book_text)
 
         # --- Construct the 'Books By Title' section ---
         assert self.books_by_title is not None
@@ -3301,7 +3335,7 @@ class CatalogBuilder:
             cm_tags = {'description': self.format_ncx_text(books, dest='description')}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_author(self, tocTitle) -> None:
+    def generate_ncx_by_author(self, tocTitle: str) -> None:
         """Add Authors to the basic NCX file.
 
         Generate the Authors NCX content, add to self.ncx_soup.
@@ -3318,10 +3352,10 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Authors'))
 
-        def _add_to_author_list(current_author_list, current_letter) -> None:
-            current_author_list = ' • '.join(current_author_list)
-            current_author_list = self.format_ncx_text(current_author_list, dest='description')
-            master_author_list.append((current_author_list, current_letter))
+        def _add_to_author_list(current_author_list: list[str], current_letter: str) -> None:
+            current_author_text = ' • '.join(current_author_list)
+            current_author_text = self.format_ncx_text(current_author_text, dest='description')
+            master_author_list.append((current_author_text, current_letter))
 
         HTML_file = 'content/ByAlphaAuthor.html'
 
@@ -3379,7 +3413,7 @@ class CatalogBuilder:
             cm_tags = {'description': authors_by_letter[0]}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_date_added(self, tocTitle) -> None:
+    def generate_ncx_by_date_added(self, tocTitle: str) -> None:
         """Add Recently Added to the basic NCX file.
 
         Generate the Recently Added NCX content, add to self.ncx_soup.
@@ -3396,17 +3430,17 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('NCX for Recently Added'))
 
-        def _add_to_master_month_list(current_titles_list) -> None:
+        def _add_to_master_month_list(current_titles_list: list[str]) -> None:
             book_count = len(current_titles_list)
-            current_titles_list = ' • '.join(current_titles_list)
-            current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
-            master_month_list.append((current_titles_list, current_date, book_count))
+            current_titles_text = ' • '.join(current_titles_list)
+            current_titles_text = self.format_ncx_text(current_titles_text, dest='description')
+            master_month_list.append((current_titles_text, current_date, book_count))
 
-        def _add_to_master_date_range_list(current_titles_list) -> None:
+        def _add_to_master_date_range_list(current_titles_list: list[str]) -> None:
             book_count = len(current_titles_list)
-            current_titles_list = ' • '.join(current_titles_list)
-            current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
-            master_date_range_list.append((current_titles_list, date_range, book_count))
+            current_titles_text = ' • '.join(current_titles_list)
+            current_titles_text = self.format_ncx_text(current_titles_text, dest='description')
+            master_date_range_list.append((current_titles_text, date_range, book_count))
 
         HTML_file = 'content/ByDateAdded.html'
 
@@ -3482,7 +3516,7 @@ class CatalogBuilder:
             cm_tags = {'description': books_by_month[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_date_read(self, tocTitle) -> None:
+    def generate_ncx_by_date_read(self, tocTitle: str) -> None:
         """Add By Date Read to the basic NCX file.
 
         Generate the By Date Read NCX content (Kindle only), add to self.ncx_soup.
@@ -3497,17 +3531,17 @@ class CatalogBuilder:
          ncx_soup (file): updated
         """
 
-        def _add_to_master_day_list(current_titles_list) -> None:
+        def _add_to_master_day_list(current_titles_list: list[str]) -> None:
             book_count = len(current_titles_list)
-            current_titles_list = ' • '.join(current_titles_list)
-            current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
-            master_day_list.append((current_titles_list, current_date, book_count))
+            current_titles_text = ' • '.join(current_titles_list)
+            current_titles_text = self.format_ncx_text(current_titles_text, dest='description')
+            master_day_list.append((current_titles_text, current_date, book_count))
 
-        def _add_to_master_date_range_list(current_titles_list) -> None:
+        def _add_to_master_date_range_list(current_titles_list: list[str]) -> None:
             book_count = len(current_titles_list)
-            current_titles_list = ' • '.join(current_titles_list)
-            current_titles_list = self.format_ncx_text(current_titles_list, dest='description')
-            master_date_range_list.append((current_titles_list, date_range, book_count))
+            current_titles_text = ' • '.join(current_titles_list)
+            current_titles_text = self.format_ncx_text(current_titles_text, dest='description')
+            master_date_range_list.append((current_titles_text, date_range, book_count))
 
         self.update_progress_full_step(_('NCX for Recently Read'))
 
@@ -3577,7 +3611,7 @@ class CatalogBuilder:
             cm_tags = {'description': books_by_day[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
-    def generate_ncx_by_genre(self, tocTitle) -> None:
+    def generate_ncx_by_genre(self, tocTitle: str) -> None:
         """Add Genres to the basic NCX file.
 
         Generate the Genre NCX content, add to self.ncx_soup.
@@ -3683,7 +3717,7 @@ class CatalogBuilder:
         guide = root.xpath('//*[local-name()="guide"]')[0]
 
         # Create the OPF tags
-        def manifest_item(id, href, media_type, add_to_spine=False):
+        def manifest_item(id: str, href: str, media_type: str, add_to_spine: bool = False) -> etree._Element:
             ans = makeelement('item', manifest, id=id, href=href, media_type=media_type)
             if add_to_spine:
                 makeelement('itemref', spine, idref=id)
@@ -3740,7 +3774,7 @@ class CatalogBuilder:
         with open(f'{self.catalog_path}/{self.opts.basename}.opf', 'wb') as outfile:
             outfile.write(output.strip())
 
-    def generate_rating_string(self, book):
+    def generate_rating_string(self, book: dict[str, Any]) -> str:
         """Generate rating string for Descriptions.
 
         Starting with database rating (0-10), return 5 stars, with 0-5 filled,
@@ -3766,7 +3800,7 @@ class CatalogBuilder:
             pass
         return rating
 
-    def generate_series_anchor(self, series):
+    def generate_series_anchor(self, series: str) -> str:
         """Generate legal XHTML anchor for series names.
 
         Flatten series name to ascii_legal text.
@@ -3784,7 +3818,7 @@ class CatalogBuilder:
         else:
             return '{}_series'.format(re.sub(r'\W', '', ascii_text(series)).lower())
 
-    def generate_short_description(self, description, dest=None):
+    def generate_short_description(self, description: str, dest: str | None = None) -> str | None:
         """Generate a truncated version of the supplied string.
 
         Given a string and NCX destination, truncate string to length specified
@@ -3801,7 +3835,7 @@ class CatalogBuilder:
          (str): truncated description
         """
 
-        def _short_description(description, limit):
+        def _short_description(description: str, limit: int) -> str | None:
             short_description = ''
             words = description.split()
             for word in words:
@@ -3830,7 +3864,7 @@ class CatalogBuilder:
             print(f" returning description with unspecified destination '{description}'")
             raise RuntimeError
 
-    def generate_sort_title(self, title):
+    def generate_sort_title(self, title: str) -> str:
         """Generates a sort string from title.
 
         Based on trunk title_sort algorithm, but also accommodates series
@@ -3887,7 +3921,7 @@ class CatalogBuilder:
                 translated.append(word)
         return ' '.join(translated)
 
-    def generate_thumbnail(self, title, image_dir, thumb_file) -> None:
+    def generate_thumbnail(self, title: dict[str, Any], image_dir: str, thumb_file: str) -> None:
         """Create thumbnail of cover or return previously cached thumb.
 
         Test thumb archive for currently cached cover. Return cached version, or create
@@ -3904,7 +3938,7 @@ class CatalogBuilder:
         """
         from calibre.utils.img import scale_image
 
-        def _open_archive(mode='r'):
+        def _open_archive(mode: Literal['r', 'w', 'a'] = 'r') -> ZipFile | None:
             try:
                 return ZipFile(self.thumbs_path, mode=mode, allowZip64=True)
             except Exception:
@@ -4026,7 +4060,7 @@ class CatalogBuilder:
 
         self.thumbs = thumbs
 
-    def generate_unicode_name(self, c):
+    def generate_unicode_name(self, c: str) -> str:
         """Generate a legal XHTML anchor from unicode character.
 
         Generate a legal XHTML anchor from unicode character.
@@ -4041,7 +4075,7 @@ class CatalogBuilder:
         terms = fullname.split()
         return '_'.join(terms)
 
-    def get_excluded_tags(self):
+    def get_excluded_tags(self) -> list[str]:
         """Get excluded_tags from opts.exclusion_rules.
 
         Parse opts.exclusion_rules for tags to be excluded, return list.
@@ -4064,7 +4098,7 @@ class CatalogBuilder:
         # Report excluded books
         if excluded_tags:
             self.opts.log.info(' Books excluded by tag:')
-            data = self.db.get_data_as_dict(ids=self.opts.ids)
+            data: list[dict[str | int, Any]] = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
                 matched = list(set(record['tags']) & set(excluded_tags))
                 if matched:
@@ -4074,7 +4108,7 @@ class CatalogBuilder:
 
         return excluded_tags
 
-    def get_friendly_genre_tag(self, genre):
+    def get_friendly_genre_tag(self, genre: str) -> str | None:
         """Return the first friendly_tag matching genre.
 
         Scan self.genre_tags_dict[] for first friendly_tag matching genre.
@@ -4092,7 +4126,7 @@ class CatalogBuilder:
             if self.genre_tags_dict[friendly_tag] == genre:
                 return friendly_tag
 
-    def get_output_profile(self, _opts):
+    def get_output_profile(self, _opts: Values) -> OutputProfile | None:
         """Return profile matching opts.output_profile
 
         Input:
@@ -4105,7 +4139,7 @@ class CatalogBuilder:
             if profile.short_name == _opts.output_profile:
                 return profile
 
-    def get_prefix_rules(self):
+    def get_prefix_rules(self) -> list[dict[str, str]]:
         """Convert opts.prefix_rules to dict.
 
         Convert opts.prefix_rules to dict format. The model for a prefix rule is
@@ -4132,7 +4166,7 @@ class CatalogBuilder:
                 raise
         return pr
 
-    def letter_or_symbol(self, char):
+    def letter_or_symbol(self, char: str) -> str:
         """Test asciized char for A-z.
 
         Convert char to ascii, test for A-z.
@@ -4174,7 +4208,7 @@ class CatalogBuilder:
                 if key.endswith('_template'):
                     setattr(self, key, val)
 
-    def merge_comments(self, record):
+    def merge_comments(self, record: dict[str, Any]) -> str | None:
         """Merge comments with custom column content.
 
         Merge comments from book metadata with user-specified custom column
@@ -4195,6 +4229,8 @@ class CatalogBuilder:
                 addendum = ''
             elif isinstance(addendum, list):
                 addendum = ', '.join(addendum)
+            # The merge source is a text-like column
+            addendum = cast('str', addendum)
             include_hr = eval(self.merge_comments_rule['hr'])
             if self.merge_comments_rule['position'] == 'before':
                 merged = addendum
@@ -4216,9 +4252,9 @@ class CatalogBuilder:
             if isinstance(merged, list):
                 merged = ', '.join(merged)
 
-        return merged
+        return cast('str | None', merged)
 
-    def process_exclusions(self, data_set):
+    def process_exclusions(self, data_set: list[dict[str | int, Any]]) -> list[dict[str | int, Any]]:
         """Filter data_set based on exclusion_rules.
 
         Compare each book in data_set to each exclusion_rule. Remove
@@ -4251,13 +4287,13 @@ class CatalogBuilder:
                     if field_contents == '':
                         field_contents = None
 
-                    if self.db.metadata_for_field(field)['datatype'] == 'bool' and field_contents is None:
+                    if self._metadata_for_field(field)['datatype'] == 'bool' and field_contents is None:
                         # Handle condition where field is a bool and contents is None,
                         # which is displayed as No
                         field_contents = _('False')
 
                     if field_contents is not None:
-                        if self.db.metadata_for_field(field)['datatype'] == 'bool':
+                        if self._metadata_for_field(field)['datatype'] == 'bool':
                             # For Yes/No fields, need to translate field_contents to
                             # locale version
                             field_contents = _(repr(field_contents))
@@ -4265,7 +4301,7 @@ class CatalogBuilder:
                         matched = re.search(pat, str(field_contents), re.IGNORECASE)
                         if matched is not None:
                             if self.opts.verbose:
-                                field_md = self.db.metadata_for_field(field)
+                                field_md = self._metadata_for_field(field)
                                 for rule in self.opts.exclusion_rules:
                                     if rule[1] == '#{}'.format(field_md['label']):
                                         self.opts.log.info(
@@ -4273,7 +4309,7 @@ class CatalogBuilder:
                                                 record['title'],
                                                 record['authors'][0],
                                                 rule[0],
-                                                self.db.metadata_for_field(field)['name'],
+                                                self._metadata_for_field(field)['name'],
                                                 field_contents,
                                             )
                                         )
@@ -4293,7 +4329,7 @@ class CatalogBuilder:
         else:
             return data_set
 
-    def relist_multiple_authors(self, books_by_author):
+    def relist_multiple_authors(self, books_by_author: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Create multiple entries for books with multiple authors
 
         Given a list of books by author, scan list for books with multiple
@@ -4330,7 +4366,7 @@ class CatalogBuilder:
 
         return books_by_author
 
-    def update_progress_full_step(self, description) -> None:
+    def update_progress_full_step(self, description: str) -> None:
         """Update calibre's job status UI.
 
         Call ProgessReporter() with updates.
@@ -4356,7 +4392,7 @@ class CatalogBuilder:
             log_msg = f'{self.progress_string} ({datetime.timedelta(seconds=int(time.time() - self.opts.start_time))!s})'
         self.opts.log(log_msg)
 
-    def update_progress_micro_step(self, description, micro_step_pct) -> None:
+    def update_progress_micro_step(self, description: str, micro_step_pct: float) -> None:
         """Update calibre's job status UI.
 
         Called from steps requiring more time:

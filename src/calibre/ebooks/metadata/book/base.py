@@ -69,7 +69,7 @@ FieldMetadataDict = TypedDict(
         # cache_to_list, ui_to_list and list_to_ui
         'is_multiple': dict[str, str],
         'kind': str,
-        'name': str,
+        'name': str | None,
         'search_terms': list[str],
         'is_custom': bool,
         'is_category': bool,
@@ -837,9 +837,9 @@ class Metadata:
             if cmeta and cmeta['datatype'] == 'series':
                 if self.get(tkey):
                     res = self.get_extra(tkey)
-                    return (str(cmeta['name'] + '_index'), self.format_series_index(res), res, cmeta)
+                    return (str(cast('str', cmeta['name']) + '_index'), self.format_series_index(res), res, cmeta)
                 else:
-                    return (str(cmeta['name'] + '_index'), '', '', cmeta)
+                    return (str(cast('str', cmeta['name']) + '_index'), '', '', cmeta)
 
         if key in self.custom_field_keys():
             res = self.get(key, None)  # get evaluates all necessary composites
@@ -884,7 +884,8 @@ class Metadata:
             return (name, res, res, fmeta)
 
         # Translate aliases into the standard field name
-        fmkey = field_metadata.search_term_to_field_key(key)
+        # grouped search terms (which map to lists) are not valid here
+        fmkey = cast('str', field_metadata.search_term_to_field_key(key))
         if fmkey in field_metadata and field_metadata[fmkey]['kind'] == 'field':
             res = self.get(key, None)
             fmeta = field_metadata[fmkey]

@@ -11,7 +11,11 @@ from calibre.library.catalogs import FIELDS, Option
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
     from datetime import datetime
+    from optparse import Values
+
+    from calibre.db.legacy import LibraryDatabase
 
 
 class CSV_XML(CatalogPlugin):
@@ -55,7 +59,14 @@ class CSV_XML(CatalogPlugin):
         ),
     ]
 
-    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()) -> None:
+    def run(
+        self,
+        path_to_output: str,
+        opts: Values,
+        db: LibraryDatabase,
+        ids: Collection[int] | None = None,
+        notification: Callable[[float, str], object] | None = DummyReporter(),
+    ) -> None:
         from lxml import etree
 
         from calibre.ebooks.metadata import authors_to_string
@@ -105,7 +116,7 @@ class CSV_XML(CatalogPlugin):
         # If connected device, add 'On Device' values to data
         if opts.connected_device['is_device_connected'] and 'ondevice' in fields:
             for entry in data:
-                entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
+                entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[cast('int', entry['id'])]['ondevice']
 
         fm = {x: db.field_metadata.get(x, {}) for x in fields}
 
@@ -124,7 +135,7 @@ class CSV_XML(CatalogPlugin):
                         m = fm.get(field, {})
                         disp = m.get('display', {})
                         if field.startswith('#'):
-                            item = db.get_field(entry['id'], field, index_is_id=True)
+                            item = db.get_field(cast('int', entry['id']), field, index_is_id=True)
                             if isinstance(item, (list, tuple)):
                                 sep = ' & ' if disp.get('is_names', False) else ', '
                                 item = sep.join(item)
@@ -183,7 +194,7 @@ class CSV_XML(CatalogPlugin):
 
                     for field in fields:
                         if field.startswith('#'):
-                            val = db.get_field(r['id'], field, index_is_id=True)
+                            val = db.get_field(cast('int', r['id']), field, index_is_id=True)
                             if not isinstance(val, str):
                                 val = str(val)
                             item = getattr(E, field.replace('#', '_'))(val)
@@ -240,7 +251,7 @@ class CSV_XML(CatalogPlugin):
                         record.append(fmt)
 
                     if 'library_name' in fields:
-                        record.append(E.library_name(current_library))
+                        record.append(E.library_name(current_library or ''))
                 except Exception as e:
                     raise Exception('Failed to convert {} to XML with error: {}'.format(r['title'], e)) from e
 

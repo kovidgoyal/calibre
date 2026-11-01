@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from enum import Enum, auto
 from functools import partial
 from math import ceil, floor, modf, trunc
-from typing import TYPE_CHECKING, Any, NoReturn, Self, overload
+from typing import TYPE_CHECKING, Any, NoReturn, Self, cast, overload
 
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
@@ -1897,7 +1897,8 @@ format_date_field('#date_read', 'MMM dd, yyyy')
     def evaluate(self, formatter: Formatter, kwargs: Kwargs, mi: Metadata, locals: Locals, *args: str) -> Result:
         field, format_string = args
         try:
-            field = field_metadata.search_term_to_field_key(field)
+            # grouped search terms map to lists, which are rejected as unknown fields below
+            field = cast('str', field_metadata.search_term_to_field_key(field))
             if field not in mi.all_field_keys():
                 raise ValueError(_("Function {0}: Unknown field '{1}'").format('format_date_field', field))
             val = mi.get(field, None)

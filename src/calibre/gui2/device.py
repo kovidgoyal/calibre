@@ -11,7 +11,7 @@ import time
 import traceback
 import weakref
 from threading import Event, Thread
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QAction, QActionGroup, QCoreApplication, QDialog, QDialogButtonBox, QEventLoop, QIcon, QMenu, QObject, QTimer, QVBoxLayout, pyqtSignal
 
@@ -60,6 +60,7 @@ from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
     from calibre.gui2.ui import Main
+    from calibre.library.save_to_disk import Plugboards
 # }}}
 
 
@@ -673,7 +674,7 @@ class DeviceManager(Thread):  # {{{
             for f, mi in zip(files, metadata):
                 if isinstance(f, str):
                     ext = f.rpartition('.')[-1].lower()
-                    cpb = find_plugboard(device_name_for_plugboards(self.connected_device), ext, plugboards)
+                    cpb = find_plugboard(device_name_for_plugboards(self.connected_device), ext, cast('Plugboards', plugboards))
                     if ext:
                         try:
                             if DEBUG:

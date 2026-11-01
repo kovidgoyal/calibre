@@ -5,6 +5,7 @@ import json
 import numbers
 import re
 from functools import partial
+from typing import TYPE_CHECKING
 
 from calibre import force_unicode, prints
 from calibre.constants import preferred_encoding
@@ -12,6 +13,13 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Sequence
+    from datetime import datetime
+
+    from calibre.db.backend import CustomColumnData, JSONDict
+    from calibre.library.sqlite import SQLRow, SQLValue
 
 
 class CustomColumns:
@@ -28,11 +36,11 @@ class CustomColumns:
         'enumeration',
     ])
 
-    def custom_table_names(self, num):
+    def custom_table_names(self, num: int) -> tuple[str, str]:
         return f'custom_column_{num}', f'books_custom_column_{num}_link'
 
     @property
-    def custom_tables(self):
+    def custom_tables(self) -> set[str]:
         return {
             x[0]
             for x in self.conn.get('SELECT name FROM sqlite_master WHERE type="table" AND (name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')
@@ -129,7 +137,7 @@ class CustomColumns:
             self.conn.commit()
 
         # Setup data adapters
-        def adapt_text(x, d):
+        def adapt_text(x: str | bytes | Iterable[str | bytes] | None, d: CustomColumnData) -> list[str] | str | None:
             if d['is_multiple']:
                 if x is None:
                     return []
@@ -141,12 +149,12 @@ class CustomColumns:
             else:
                 return x if x is None or isinstance(x, str) else x.decode(preferred_encoding, 'replace')
 
-        def adapt_datetime(x, d):
+        def adapt_datetime(x: str | bytes | datetime | None, d: CustomColumnData) -> datetime | None:
             if isinstance(x, (str, bytes)):
                 x = parse_date(x, assume_utc=False, as_utc=False)
             return x
 
-        def adapt_bool(x, d):
+        def adapt_bool(x: str | bytes | bool | None, d: CustomColumnData) -> bool | None:
             if isinstance(x, (str, bytes)):
                 if isinstance(x, bytes):
                     x = force_unicode(x)
@@ -161,13 +169,13 @@ class CustomColumns:
                     x = bool(int(x))
             return x
 
-        def adapt_enum(x, d):
+        def adapt_enum(x: str | bytes | None, d: CustomColumnData) -> list[str] | str | None:
             v = adapt_text(x, d)
             if not v:
                 v = None
             return v
 
-        def adapt_number(x, d):
+        def adapt_number(x: str | bytes | float | None, d: CustomColumnData) -> float | None:
             if x is None:
                 return None
             if isinstance(x, (str, bytes)):
@@ -214,7 +222,7 @@ class CustomColumns:
                 is_csp=False,
             )
 
-    def get_custom(self, idx, label=None, num=None, index_is_id=False):
+    def get_custom(self, idx: int, label: str | None = None, num: int | None = None, index_is_id: bool = False) -> object:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -233,7 +241,7 @@ class CustomColumns:
                 ans = None
         return ans
 
-    def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
+    def get_custom_extra(self, idx: int, label: str | None = None, num: int | None = None, index_is_id: bool = False) -> SQLValue:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -250,7 +258,7 @@ class CustomColumns:
             all=False,
         )
 
-    def get_custom_and_extra(self, idx, label=None, num=None, index_is_id=False):
+    def get_custom_and_extra(self, idx: int, label: str | None = None, num: int | None = None, index_is_id: bool = False) -> tuple[object, SQLValue]:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -280,7 +288,7 @@ class CustomColumns:
         return ans, extra
 
     # convenience methods for tag editing
-    def get_custom_items_with_ids(self, label=None, num=None):
+    def get_custom_items_with_ids(self, label: str | None = None, num: int | None = None) -> list[SQLRow]:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -291,7 +299,7 @@ class CustomColumns:
         ans = self.conn.get(f'SELECT id, value FROM {table}')
         return ans
 
-    def rename_custom_item(self, old_id, new_name, label=None, num=None) -> None:
+    def rename_custom_item(self, old_id: int, new_name: str, label: str | None = None, num: int | None = None) -> None:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -329,7 +337,7 @@ class CustomColumns:
         self.dirty_books_referencing('#' + data['label'], new_id, commit=False)
         self.conn.commit()
 
-    def delete_custom_item_using_id(self, id, label=None, num=None) -> None:
+    def delete_custom_item_using_id(self, id: int, label: str | None = None, num: int | None = None) -> None:
         if id:
             if label is not None:
                 data = self.custom_column_label_map[label]
@@ -341,11 +349,11 @@ class CustomColumns:
             self.conn.execute(f'DELETE FROM {table} WHERE id=?', (id,))
             self.conn.commit()
 
-    def is_item_used_in_multiple(self, item, label=None, num=None):
+    def is_item_used_in_multiple(self, item: str, label: str | None = None, num: int | None = None) -> bool:
         existing_tags = self.all_custom(label=label, num=num)
         return item.lower() in {t.lower() for t in existing_tags}
 
-    def delete_item_from_multiple(self, item, label=None, num=None):
+    def delete_item_from_multiple(self, item: str, label: str | None = None, num: int | None = None) -> list[int]:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -373,7 +381,7 @@ class CustomColumns:
 
     # end convenience methods
 
-    def get_next_cc_series_num_for(self, series, label=None, num=None):
+    def get_next_cc_series_num_for(self, series: str | None, label: str | None = None, num: int | None = None) -> float | None:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -397,7 +405,7 @@ class CustomColumns:
         )
         return self._get_next_series_num_for_list(series_indices)
 
-    def all_custom(self, label=None, num=None):
+    def all_custom(self, label: str | None = None, num: int | None = None) -> set[SQLValue]:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -410,7 +418,7 @@ class CustomColumns:
         ans = {x[0] for x in ans}
         return ans
 
-    def delete_custom_column(self, label=None, num=None) -> None:
+    def delete_custom_column(self, label: str | None = None, num: int | None = None) -> None:
         data = None
         if label is not None:
             data = self.custom_column_label_map[label]
@@ -421,7 +429,16 @@ class CustomColumns:
         self.conn.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
         self.conn.commit()
 
-    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True, update_last_modified=False):
+    def set_custom_column_metadata(
+        self,
+        num: int,
+        name: str | None = None,
+        label: str | None = None,
+        is_editable: bool | None = None,
+        display: JSONDict | None = None,
+        notify: bool = True,
+        update_last_modified: bool = False,
+    ) -> bool:
         changed = False
         if name is not None:
             self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?', (name, num))
@@ -444,7 +461,15 @@ class CustomColumns:
 
         return changed
 
-    def set_custom_bulk_multiple(self, ids, add=None, remove=None, label=None, num=None, notify=False) -> None:
+    def set_custom_bulk_multiple(
+        self,
+        ids: Collection[int],
+        add: Iterable[str] | None = None,
+        remove: Iterable[str] | None = None,
+        label: str | None = None,
+        num: int | None = None,
+        notify: bool = False,
+    ) -> None:
         """
         Fast algorithm for updating custom column is_multiple datatypes.
         Do not use with other custom column datatypes.
@@ -521,7 +546,16 @@ class CustomColumns:
         if notify:
             self.notify('metadata', ids)
 
-    def set_custom_bulk(self, ids, val, label=None, num=None, append=False, notify=True, extras=None) -> None:
+    def set_custom_bulk(
+        self,
+        ids: Sequence[int],
+        val: object,
+        label: str | None = None,
+        num: int | None = None,
+        append: bool = False,
+        notify: bool = True,
+        extras: Sequence[float] | None = None,
+    ) -> None:
         """
         Change the value of a column for a set of books. The ids parameter is a
         list of book ids to change. The extra field must be None or a list the
@@ -537,7 +571,18 @@ class CustomColumns:
         self.dirtied(ids, commit=False)
         self.conn.commit()
 
-    def set_custom(self, id, val, label=None, num=None, append=False, notify=True, extra=None, commit=True, allow_case_change=False):
+    def set_custom(
+        self,
+        id: int,
+        val: object,
+        label: str | None = None,
+        num: int | None = None,
+        append: bool = False,
+        notify: bool = True,
+        extra: float | None = None,
+        commit: bool = True,
+        allow_case_change: bool = False,
+    ) -> set[int]:
         rv = self._set_custom(
             id,
             val,
@@ -553,7 +598,17 @@ class CustomColumns:
             self.conn.commit()
         return rv
 
-    def _set_custom(self, id_, val, label=None, num=None, append=False, notify=True, extra=None, allow_case_change=False):
+    def _set_custom(
+        self,
+        id_: int,
+        val: object,
+        label: str | None = None,
+        num: int | None = None,
+        append: bool = False,
+        notify: bool = True,
+        extra: float | None = None,
+        allow_case_change: bool = False,
+    ) -> set[int]:
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -649,7 +704,7 @@ class CustomColumns:
             self.conn.executescript(' \n'.join(statements))
             self.conn.commit()
 
-    def custom_columns_in_meta(self):
+    def custom_columns_in_meta(self) -> dict[int, str]:
         lines = {}
         for data in self.custom_column_label_map.values():
             table, lt = self.custom_table_names(data['num'])
@@ -680,7 +735,7 @@ class CustomColumns:
             lines[data['num']] = line
         return lines
 
-    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display=None):
+    def create_custom_column(self, label: str, name: str, datatype: str, is_multiple: bool, editable: bool = True, display: JSONDict | None = None) -> int:
         if display is None:
             display = {}
         if not label:

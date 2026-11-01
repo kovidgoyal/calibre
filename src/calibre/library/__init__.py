@@ -3,9 +3,13 @@
 """Code to manage ebook library"""
 
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
 
 
-def db(path=None, read_only=False):
+def db(path: str | None = None, read_only: bool = False) -> LibraryDatabase:
     from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
 
@@ -13,15 +17,15 @@ def db(path=None, read_only=False):
 
 
 def generate_test_db(
-    library_path,  # {{{
-    num_of_records=20000,
-    num_of_authors=6000,
-    num_of_tags=10000,
-    tag_length=7,
-    author_length=7,
-    title_length=10,
-    max_authors=10,
-    max_tags=10,
+    library_path: str,  # {{{
+    num_of_records: int = 20000,
+    num_of_authors: int = 6000,
+    num_of_tags: int = 10000,
+    tag_length: int = 7,
+    author_length: int = 7,
+    title_length: int = 10,
+    max_authors: int = 10,
+    max_tags: int = 10,
 ) -> None:
     import os
     import random
@@ -34,7 +38,7 @@ def generate_test_db(
 
     letters = string.ascii_letters
 
-    def randstr(length):
+    def randstr(length: int) -> str:
         return ''.join(random.choice(letters) for i in range(length))
 
     all_tags = [randstr(tag_length) for j in range(num_of_tags)]
@@ -71,7 +75,7 @@ def generate_test_db(
 # }}}
 
 
-def current_library_path():
+def current_library_path() -> str | None:
     from calibre.utils.config import prefs
 
     path = prefs['library_path']
@@ -82,7 +86,7 @@ def current_library_path():
         return path
 
 
-def current_library_name():
+def current_library_name() -> str | None:
     import posixpath
 
     path = current_library_path()

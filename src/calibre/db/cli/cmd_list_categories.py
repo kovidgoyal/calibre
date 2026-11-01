@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from calibre.db.cache import Cache
     from calibre.db.categories import Tag
     from calibre.db.cli.main import DBContext
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.library.field_metadata import FieldMetadata
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
@@ -142,7 +143,7 @@ def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     data = []
     report_on = [c.strip() for c in opts.report.split(',') if c.strip()]
 
-    def category_metadata(k: str) -> dict[str, object] | None:
+    def category_metadata(k: str) -> FieldMetadataDict | None:
         return field_metadata.get(k)
 
     categories = [k for k in category_data.keys() if category_metadata(k)['kind'] not in ['user', 'search'] and (not report_on or k in report_on)]  # ty: ignore[not-subscriptable]

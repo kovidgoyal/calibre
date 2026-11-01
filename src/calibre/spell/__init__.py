@@ -11,12 +11,12 @@ class DictionaryLocale(NamedTuple):
     countrycode: str | None
 
 
-def get_codes():
+def get_codes() -> tuple[set[str], dict[str, str]]:
     data = load_iso3166()
     return data['codes'], data['three_map']
 
 
-def parse_lang_code(raw):
+def parse_lang_code(raw: str | None) -> DictionaryLocale:
     raw = raw or ''
     parts = raw.replace('_', '-').split('-')
     lc = canonicalize_lang(parts[0])

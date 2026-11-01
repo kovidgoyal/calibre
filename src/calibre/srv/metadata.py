@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from qt.core import QAbstractItemModel, QModelIndex
 
     from calibre.db.cache import Cache
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.library.field_metadata import FieldMetadata
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData
@@ -67,7 +68,7 @@ empty_val = ((), '', {})
 passthrough_comment_types = {'long-text', 'short-text'}
 
 
-def add_field(field: str, db: Cache, book_id: int, ans: dict[str, object], field_metadata: dict) -> None:
+def add_field(field: str, db: Cache, book_id: int, ans: dict[str, object], field_metadata: FieldMetadataDict) -> None:
     datatype = field_metadata.get('datatype')
     if datatype is not None:
         val = db._field_for(field, book_id)
@@ -80,11 +81,11 @@ def add_field(field: str, db: Cache, book_id: int, ans: dict[str, object], field
                 ctype = field_metadata.get('display', {}).get('interpret_as', 'html')
                 if ctype == 'markdown':
                     ans[field + '#markdown#'] = val
-                    val = markdown(val)
+                    val = markdown(cast('str', val))
                 elif ctype not in passthrough_comment_types:
-                    val = comments_to_html(val)
+                    val = comments_to_html(cast('str', val))
             elif datatype == 'composite' and field_metadata['display'].get('contains_html'):
-                val = comments_to_html(val)
+                val = comments_to_html(cast('str', val))
             ans[field] = val
 
 
@@ -432,7 +433,7 @@ def create_toplevel_tree(
                     last_category_node = current_root['id']
                 path += '.'
         else:
-            last_category_node = category_as_json(items, category, field_metadata[category]['name'], len(cdata), tooltip=tooltip)
+            last_category_node = category_as_json(items, category, cast('str', field_metadata[category]['name']), len(cdata), tooltip=tooltip)
             category_node_map[category] = node_id_map[last_category_node] = node = {
                 'id': last_category_node,
                 'children': [],

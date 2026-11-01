@@ -7,6 +7,7 @@ Backend that implements storage of ebooks in an sqlite database.
 import datetime
 import re
 import sqlite3 as sqlite
+from typing import TYPE_CHECKING, Literal, TypedDict, cast, overload
 from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
@@ -15,19 +16,37 @@ from calibre.utils.date import local_tz
 from calibre.utils.localization import _
 from calibre.utils.serialize import pickle_dumps, pickle_loads
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from typing import IO
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.sqlite import SQLBindings, SQLRow, SQLValue
+
+    class OldBookMeta(TypedDict):
+        title: str
+        authors: str | None
+        publisher: str | None
+        tags: str | None
+        comments: str | None
+        rating: int | None
+        timestamp: datetime.datetime
+
+    type OldBookData = dict[str, int | bytes]
+
 
 class Concatenate:
     """String concatenation aggregator for sqlite"""
 
-    def __init__(self, sep=',') -> None:
+    def __init__(self, sep: str = ',') -> None:
         self.sep = sep
         self.ans = ''
 
-    def step(self, value) -> None:
+    def step(self, value: str | None) -> None:
         if value is not None:
             self.ans += value + self.sep
 
-    def finalize(self):
+    def finalize(self) -> str | None:
         try:
             if not self.ans:
                 return None
@@ -42,25 +61,31 @@ class Concatenate:
 
 
 class Connection(sqlite.Connection):
-    def get(self, *args, **kw):
-        ans = self.execute(*args)
-        if not kw.get('all', True):
-            ans = ans.fetchone()
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: Literal[True] = True) -> list[SQLRow]: ...
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: Literal[False]) -> SQLValue: ...
+    @overload
+    def get(self, sql: str, bindings: SQLBindings = ..., /, *, all: bool) -> list[SQLRow] | SQLValue: ...
+    def get(self, sql: str, bindings: SQLBindings = (), /, *, all: bool = True) -> list[SQLRow] | SQLValue:
+        cursor = self.execute(sql, bindings)
+        if not all:
+            ans = cursor.fetchone()
             if not ans:
                 ans = [None]
             return ans[0]
-        return ans.fetchall()
+        return cursor.fetchall()
 
 
-def _connect(path):
+def _connect(path: str | bytes) -> Connection:
     if isinstance(path, str):
         path = path.encode('utf-8')
     conn = sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row: list(row)
-    conn.create_aggregate('concat', 1, Concatenate)
+    conn.create_aggregate('concat', 1, Concatenate)  # ty: ignore[invalid-argument-type] typeshed only allows single int argument aggregates
     title_pat = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
 
-    def title_sort(title):
+    def title_sort(title: str) -> str:
         match = title_pat.search(title)
         if match:
             prep = match.group(1)
@@ -72,8 +97,14 @@ def _connect(path):
 
 
 class LibraryDatabase:
+    if TYPE_CHECKING:
+        # These are implemented in sub-classes
+
+        def delete_tag(self, tag: str) -> None: ...
+        def has_book(self, mi: Metadata) -> bool: ...
+
     @staticmethod
-    def books_in_old_database(path):
+    def books_in_old_database(path: str) -> Iterator[tuple[OldBookMeta, OldBookData, dict[str, OldBookData]]]:
         """
         Iterator over the books in the old pre 0.4.0 database.
         """
@@ -82,7 +113,7 @@ class LibraryDatabase:
         book = cur.fetchone()
         while book:
             id = book[0]
-            meta = {
+            meta: OldBookMeta = {
                 'title': book[1],
                 'authors': book[2],
                 'publisher': book[3],
@@ -91,26 +122,26 @@ class LibraryDatabase:
                 'rating': book[8],
                 'timestamp': datetime.datetime.strptime(book[6], '%Y-%m-%d %H:%M:%S').replace(tzinfo=local_tz),
             }
-            cover = {}
+            cover: OldBookData = {}
             query = conn.execute('select uncompressed_size, data from books_cover where id=?', (id,)).fetchone()
             if query:
                 cover = {'uncompressed_size': query[0], 'data': query[1]}
             query = conn.execute('select extension, uncompressed_size, data from books_data where id=?', (id,)).fetchall()
-            formats = {}
+            formats: dict[str, OldBookData] = {}
             for row in query:
                 formats[row[0]] = {'uncompressed_size': row[1], 'data': row[2]}
             yield meta, cover, formats
             book = cur.fetchone()
 
     @staticmethod
-    def sizeof_old_database(path):
+    def sizeof_old_database(path: str) -> int:
         conn = sqlite.connect(path)
         ans = conn.execute('SELECT COUNT(id) from books_meta').fetchone()[0]
         conn.close()
         return ans
 
     @staticmethod
-    def import_old_database(path, conn, progress=None) -> None:
+    def import_old_database(path: str, conn: Connection, progress: Callable[[int], object] | None = None) -> None:
         count = 0
         for book, cover, formats in LibraryDatabase.books_in_old_database(path):
             authors = book['authors']
@@ -171,7 +202,7 @@ class LibraryDatabase:
                 progress(count)
 
     @staticmethod
-    def create_version1(conn) -> None:
+    def create_version1(conn: Connection) -> None:
         conn.executescript(
             '''
         /**** books table *****/
@@ -587,7 +618,7 @@ class LibraryDatabase:
         conn.commit()
 
     @staticmethod
-    def upgrade_version1(conn) -> None:
+    def upgrade_version1(conn: Connection) -> None:
         conn.executescript(
             '''
 /***** authors_sort table *****/
@@ -648,7 +679,7 @@ class LibraryDatabase:
         conn.commit()
 
     @staticmethod
-    def upgrade_version2(conn) -> None:
+    def upgrade_version2(conn: Connection) -> None:
         conn.executescript(
             '''
 /***** Add ISBN column ******/
@@ -659,7 +690,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version3(conn) -> None:
+    def upgrade_version3(conn: Connection) -> None:
         conn.executescript(
             '''
 /***** Add series_index column to meta view ******/
@@ -684,7 +715,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version4(conn) -> None:
+    def upgrade_version4(conn: Connection) -> None:
         conn.executescript(
             '''
 /***** Add formats column to meta view ******/
@@ -710,7 +741,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version5(conn) -> None:
+    def upgrade_version5(conn: Connection) -> None:
         conn.executescript(
             '''
         DROP TRIGGER fkc_delete_books_tags_link;
@@ -728,7 +759,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version6(conn) -> None:
+    def upgrade_version6(conn: Connection) -> None:
         conn.executescript('''CREATE TABLE feeds ( id   INTEGER PRIMARY KEY,
                               title TEXT NOT NULL,
                               script TEXT NOT NULL,
@@ -738,7 +769,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version7(conn) -> None:
+    def upgrade_version7(conn: Connection) -> None:
         conn.executescript('''\
         DROP TRIGGER fkc_update_books_series_link_b;
         CREATE TRIGGER fkc_update_books_series_link_b
@@ -764,20 +795,20 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version8(conn) -> None:
+    def upgrade_version8(conn: Connection) -> None:
         conn.execute('DELETE FROM feeds')
         conn.execute('pragma user_version=9')
         conn.commit()
 
     @staticmethod
-    def upgrade_version9(conn) -> None:
+    def upgrade_version9(conn: Connection) -> None:
         for id, title in conn.execute('SELECT id, title FROM books').fetchall():
             conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         conn.execute('pragma user_version=10')
         conn.commit()
 
     @staticmethod
-    def upgrade_version10(conn) -> None:
+    def upgrade_version10(conn: Connection) -> None:
         for id, author_sort in conn.execute('SELECT id, author_sort FROM books').fetchall():
             if not author_sort:
                 aus = conn.execute('SELECT authors FROM meta WHERE id=?', (id,)).fetchone()[0]
@@ -786,7 +817,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
 
     @staticmethod
-    def upgrade_version11(conn) -> None:
+    def upgrade_version11(conn: Connection) -> None:
         conn.executescript(
             '''
 /***** Add isbn column to meta view ******/
@@ -812,11 +843,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.execute('pragma user_version=12')
         conn.commit()
 
-    def __init__(self, dbpath, row_factory=False) -> None:
+    def __init__(self, dbpath: str, row_factory: bool = False) -> None:
         self.dbpath = dbpath
         self.conn = _connect(dbpath)
         if row_factory:
             self.conn.row_factory = sqlite.Row
+        # These are not declared with types as sub-classes use different types for them
         self.cache = []
         self.data = []
         if self.user_version == 0:  # No tables have been created
@@ -839,14 +871,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.close()
 
     @property
-    def user_version(self):
+    def user_version(self) -> int:
         "The user version of this database"
-        return self.conn.get('pragma user_version;', all=False)
+        return cast('int', self.conn.get('pragma user_version;', all=False))
 
     def is_empty(self) -> bool:
         return not self.conn.get('SELECT id FROM books LIMIT 1', all=False)
 
-    def refresh(self, sort_field, ascending) -> None:
+    def refresh(self, sort_field: str, ascending: bool) -> None:
         """
         Rebuild self.data and self.cache. Filter results are lost.
         """
@@ -878,14 +910,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.data = self.cache
         self.conn.commit()
 
-    def refresh_ids(self, ids):
+    def refresh_ids(self, ids: Sequence[int]) -> list[int | None]:
         indices = list(map(self.index, ids))
         for id, idx in zip(ids, indices):
             row = self.conn.get('SELECT * from meta WHERE id=?', (id,), all=False)
-            self.data[idx] = row
+            self.data[idx] = row  # ty: ignore[invalid-assignment] legacy code, superseded in LibraryDatabase2
         return indices
 
-    def filter(self, filters, refilter=False, OR=False) -> None:
+    def filter(self, filters: Sequence[SearchToken], refilter: bool = False, OR: bool = False) -> None:
         """
         Filter data based on filters. All the filters must match for an item to
         be accepted. Matching is case independent regexp matching.
@@ -918,110 +950,110 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                         matches.append(item)
             self.data = matches
 
-    def rows(self):
+    def rows(self) -> int:
         return len(self.data) if self.data else 0
 
-    def id(self, index):
-        return self.data[index][0]
+    def id(self, index: int) -> int:
+        return cast('int', self.data[index][0])
 
-    def row(self, id):
+    def row(self, id: int) -> int | None:
         for r, record in enumerate(self.data):
             if record[0] == id:
                 return r
 
-    def title(self, index, index_is_id=False):
+    def title(self, index: int, index_is_id: bool = False) -> str | None:
         if not index_is_id:
-            return self.data[index][1]
+            return cast('str | None', self.data[index][1])
         try:
-            return self.conn.get('SELECT title FROM meta WHERE id=?', (index,), all=False)
+            return cast('str | None', self.conn.get('SELECT title FROM meta WHERE id=?', (index,), all=False))
         except Exception:
             return _('Unknown')
 
-    def authors(self, index, index_is_id=False):
+    def authors(self, index: int, index_is_id: bool = False) -> str | None:
         """
         Authors as a comma separated list or None.
         In the comma separated list, commas in author names are replaced by | symbols
         """
         if not index_is_id:
-            return self.data[index][2]
+            return cast('str | None', self.data[index][2])
         try:
-            return self.conn.get('SELECT authors FROM meta WHERE id=?', (index,), all=False)
+            return cast('str | None', self.conn.get('SELECT authors FROM meta WHERE id=?', (index,), all=False))
         except Exception:
             pass
 
-    def author_id(self, index, index_is_id=False):
+    def author_id(self, index: int, index_is_id: bool = False) -> int | None:
         id = index if index_is_id else self.id(index)
-        return self.conn.get('SELECT author from books_authors_link WHERE book=?', (id,), all=False)
+        return cast('int | None', self.conn.get('SELECT author from books_authors_link WHERE book=?', (id,), all=False))
 
-    def isbn(self, idx, index_is_id=False):
+    def isbn(self, idx: int, index_is_id: bool = False) -> str | None:
         id = idx if index_is_id else self.id(idx)
-        return self.conn.get('SELECT isbn FROM books WHERE id=?', (id,), all=False)
+        return cast('str | None', self.conn.get('SELECT isbn FROM books WHERE id=?', (id,), all=False))
 
-    def author_sort(self, index, index_is_id=False):
+    def author_sort(self, index: int, index_is_id: bool = False) -> str | None:
         id = index if index_is_id else self.id(index)
-        return self.conn.get('SELECT author_sort FROM books WHERE id=?', (id,), all=False)
+        return cast('str | None', self.conn.get('SELECT author_sort FROM books WHERE id=?', (id,), all=False))
 
-    def publisher(self, index, index_is_id=False):
+    def publisher(self, index: int, index_is_id: bool = False) -> str | None:
         if index_is_id:
-            return self.conn.get('SELECT publisher FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][3]
+            return cast('str | None', self.conn.get('SELECT publisher FROM meta WHERE id=?', (index,), all=False))
+        return cast('str | None', self.data[index][3])
 
-    def publisher_id(self, index, index_is_id=False):
+    def publisher_id(self, index: int, index_is_id: bool = False) -> int | None:
         id = index if index_is_id else self.id(index)
-        return self.conn.get('SELECT publisher from books_publishers_link WHERE book=?', (id,), all=False)
+        return cast('int | None', self.conn.get('SELECT publisher from books_publishers_link WHERE book=?', (id,), all=False))
 
-    def rating(self, index, index_is_id=False):
+    def rating(self, index: int, index_is_id: bool = False) -> int | None:
         if index_is_id:
-            return self.conn.get('SELECT rating FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][4]
+            return cast('int | None', self.conn.get('SELECT rating FROM meta WHERE id=?', (index,), all=False))
+        return cast('int | None', self.data[index][4])
 
-    def timestamp(self, index, index_is_id=False):
+    def timestamp(self, index: int, index_is_id: bool = False) -> datetime.datetime | None:
         if index_is_id:
-            return self.conn.get('SELECT timestamp FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][5]
+            return cast('datetime.datetime | None', self.conn.get('SELECT timestamp FROM meta WHERE id=?', (index,), all=False))
+        return cast('datetime.datetime | None', self.data[index][5])
 
-    def max_size(self, index, index_is_id=False):
+    def max_size(self, index: int, index_is_id: bool = False) -> int | None:
         if index_is_id:
-            return self.conn.get('SELECT size FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][4]
+            return cast('int | None', self.conn.get('SELECT size FROM meta WHERE id=?', (index,), all=False))
+        return cast('int | None', self.data[index][4])
 
-    def cover(self, index, index_is_id=False):
+    def cover(self, index: int, index_is_id: bool = False) -> bytes | None:
         """Cover as a data string or None"""
         id = index if index_is_id else self.id(index)
         data = self.conn.get('SELECT data FROM covers WHERE book=?', (id,), all=False)
         if not data:
             return None
-        return decompress(data)
+        return decompress(cast('bytes', data))
 
-    def tags(self, index, index_is_id=False):
+    def tags(self, index: int, index_is_id: bool = False) -> str | None:
         """tags as a comma separated list or None"""
         id = index if index_is_id else self.id(index)
         matches = self.conn.get('SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=?)', (id,))
         if not matches or not matches[0][0]:
             return None
-        matches = [t.lower().strip() for t in matches[0][0].split(',')]
+        matches = [t.lower().strip() for t in cast('str', matches[0][0]).split(',')]
         return ','.join(matches)
 
-    def series_id(self, index, index_is_id=False):
+    def series_id(self, index: int, index_is_id: bool = False) -> int | None:
         id = index if index_is_id else self.id(index)
-        return self.conn.get('SELECT series from books_series_link WHERE book=?', (id,), all=False)
+        return cast('int | None', self.conn.get('SELECT series from books_series_link WHERE book=?', (id,), all=False))
 
-    def series(self, index, index_is_id=False):
+    def series(self, index: int, index_is_id: bool = False) -> str | None:
         id = self.series_id(index, index_is_id)
-        return self.conn.get('SELECT name from series WHERE id=?', (id,), all=False)
+        return cast('str | None', self.conn.get('SELECT name from series WHERE id=?', (id,), all=False))
 
-    def series_index(self, index, index_is_id=False):
+    def series_index(self, index: int, index_is_id: bool = False) -> float:
         ans = None
         if not index_is_id:
             ans = self.data[index][10]
         else:
             ans = self.conn.get('SELECT series_index FROM books WHERE id=?', (index,), all=False)
         try:
-            return float(ans)
+            return float(cast('float', ans))
         except Exception:
             return 1.0
 
-    def books_in_series(self, series_id):
+    def books_in_series(self, series_id: int | None) -> list[int]:
         """
         Return an ordered list of all books in the series.
         The list contains book ids.
@@ -1029,11 +1061,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         ans = self.conn.get('SELECT book from books_series_link WHERE series=?', (series_id,))
         if not ans:
             return []
-        ans = [id[0] for id in ans]
+        ans = [cast('int', id[0]) for id in ans]
         ans.sort(key=lambda x: self.series_index(x, True))
         return ans
 
-    def books_in_series_of(self, index, index_is_id=False):
+    def books_in_series_of(self, index: int, index_is_id: bool = False) -> list[int]:
         """
         Return an ordered list of all books in the series that the book identified by index belongs to.
         If the book does not belong to a series return an empty list. The list contains book ids.
@@ -1041,74 +1073,74 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         series_id = self.series_id(index, index_is_id=index_is_id)
         return self.books_in_series(series_id)
 
-    def comments(self, index, index_is_id=False):
+    def comments(self, index: int, index_is_id: bool = False) -> str | None:
         """Comments as string or None"""
         id = index if index_is_id else self.id(index)
-        return self.conn.get('SELECT text FROM comments WHERE book=?', (id,), all=False)
+        return cast('str | None', self.conn.get('SELECT text FROM comments WHERE book=?', (id,), all=False))
 
-    def formats(self, index, index_is_id=False):
+    def formats(self, index: int, index_is_id: bool = False) -> str | None:
         """Return available formats as a comma separated list"""
         id = index if index_is_id else self.id(index)
-        return self.conn.get('SELECT concat(format) FROM data WHERE data.book=?', (id,), all=False)
+        return cast('str | None', self.conn.get('SELECT concat(format) FROM data WHERE data.book=?', (id,), all=False))
 
-    def sizeof_format(self, index, format, index_is_id=False):
+    def sizeof_format(self, index: int, format: str, index_is_id: bool = False) -> int | None:
         """Return size of C{format} for book C{index} in bytes"""
         id = index if index_is_id else self.id(index)
         format = format.upper()
-        return self.conn.get('SELECT uncompressed_size FROM data WHERE data.book=? AND data.format=?', (id, format), all=False)
+        return cast('int | None', self.conn.get('SELECT uncompressed_size FROM data WHERE data.book=? AND data.format=?', (id, format), all=False))
 
-    def format(self, index, format, index_is_id=False):
+    def format(self, index: int, format: str, index_is_id: bool = False) -> bytes:
         id = index if index_is_id else self.id(index)
-        return decompress(self.conn.get('SELECT data FROM data WHERE book=? AND format=?', (id, format), all=False))
+        return decompress(cast('bytes', self.conn.get('SELECT data FROM data WHERE book=? AND format=?', (id, format), all=False)))
 
-    def all_series(self):
-        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM series')]
+    def all_series(self) -> list[tuple[int, str]]:
+        return [(i[0], i[1]) for i in cast('list[tuple[int, str]]', self.conn.get('SELECT id, name FROM series'))]
 
-    def series_name(self, series_id):
-        return self.conn.get(f'SELECT name FROM series WHERE id={series_id}', all=False)
+    def series_name(self, series_id: int) -> str | None:
+        return cast('str | None', self.conn.get(f'SELECT name FROM series WHERE id={series_id}', all=False))
 
-    def author_name(self, author_id):
-        return self.conn.get(f'SELECT name FROM authors WHERE id={author_id}', all=False)
+    def author_name(self, author_id: int) -> str | None:
+        return cast('str | None', self.conn.get(f'SELECT name FROM authors WHERE id={author_id}', all=False))
 
-    def tag_name(self, tag_id):
-        return self.conn.get(f'SELECT name FROM tags WHERE id={tag_id}', all=False)
+    def tag_name(self, tag_id: int) -> str | None:
+        return cast('str | None', self.conn.get(f'SELECT name FROM tags WHERE id={tag_id}', all=False))
 
-    def all_authors(self):
-        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM authors')]
+    def all_authors(self) -> list[tuple[int, str]]:
+        return [(i[0], i[1]) for i in cast('list[tuple[int, str]]', self.conn.get('SELECT id, name FROM authors'))]
 
-    def all_author_names(self):
-        return list(filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get('SELECT name FROM authors')]))
+    def all_author_names(self) -> list[str]:
+        return list(filter(None, [i[0].strip().replace('|', ',') for i in cast('list[tuple[str]]', self.conn.get('SELECT name FROM authors'))]))
 
-    def all_publishers(self):
-        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM publishers')]
+    def all_publishers(self) -> list[tuple[int, str]]:
+        return [(i[0], i[1]) for i in cast('list[tuple[int, str]]', self.conn.get('SELECT id, name FROM publishers'))]
 
-    def all_tags(self):
-        return [i[0].strip() for i in self.conn.get('SELECT name FROM tags') if i[0].strip()]
+    def all_tags(self) -> list[str]:
+        return [i[0].strip() for i in cast('list[tuple[str]]', self.conn.get('SELECT name FROM tags')) if i[0].strip()]
 
-    def all_tags2(self):
-        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM tags')]
+    def all_tags2(self) -> list[tuple[int, str]]:
+        return [(i[0], i[1]) for i in cast('list[tuple[int, str]]', self.conn.get('SELECT id, name FROM tags'))]
 
-    def all_titles(self):
-        return [(i[0], i[1]) for i in self.conn.get('SELECT id, title FROM books')]
+    def all_titles(self) -> list[tuple[int, str]]:
+        return [(i[0], i[1]) for i in cast('list[tuple[int, str]]', self.conn.get('SELECT id, title FROM books'))]
 
-    def conversion_options(self, id, format):
+    def conversion_options(self, id: int, format: str) -> object:
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
         if data:
-            return pickle_loads(bytes(data))
+            return pickle_loads(bytes(cast('bytes', data)))
         return None
 
-    def has_conversion_options(self, ids, format='PIPE'):
+    def has_conversion_options(self, ids: Iterable[int], format: str = 'PIPE') -> bool:
         ids = tuple(ids)
         if len(ids) > 50000:
             return True
         if len(ids) == 1:
-            ids = f'({ids[0]})'
+            ids_sql = f'({ids[0]})'
         else:
-            ids = repr(ids)
+            ids_sql = repr(ids)
         return (
             self.conn.get(
                 f'''
-            SELECT data FROM conversion_options WHERE book IN {ids} AND
+            SELECT data FROM conversion_options WHERE book IN {ids_sql} AND
         format=? LIMIT 1''',
                 (format,),
                 all=False,
@@ -1116,12 +1148,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             is not None
         )
 
-    def delete_conversion_options(self, id, format, commit=True) -> None:
+    def delete_conversion_options(self, id: int, format: str, commit: bool = True) -> None:
         self.conn.execute('DELETE FROM conversion_options WHERE book=? AND format=?', (id, format.upper()))
         if commit:
             self.conn.commit()
 
-    def add_format(self, index, ext, stream, index_is_id=False) -> None:
+    def add_format(self, index: int, ext: str | None, stream: IO[bytes], index_is_id: bool = False) -> None:
         """
         Add the format specified by ext. If it already exists it is replaced.
         """
@@ -1143,16 +1175,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?, ?, ?, ?)', (id, ext, usize, data))
         self.conn.commit()
 
-    def remove_format(self, index, ext, index_is_id=False) -> None:
+    def remove_format(self, index: int, ext: str, index_is_id: bool = False) -> None:
         id = index if index_is_id else self.id(index)
         self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, ext.lower()))
         self.conn.commit()
 
-    def set(self, row, column, val) -> None:
+    def set(self, row: int, column: str, val: str) -> None:
         """
         Convenience method for setting the title, authors, publisher or rating
         """
-        id = self.data[row][0]
+        id = cast('int', self.data[row][0])
         col = {'title': 1, 'authors': 2, 'publisher': 3, 'rating': 4, 'tags': 7}[column]
 
         self.data[row][col] = val
@@ -1161,8 +1193,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 item[col] = val
                 break
         if column == 'authors':
-            val = string_to_authors(val)
-            self.set_authors(id, val)
+            self.set_authors(id, string_to_authors(val))
         elif column == 'title':
             self.set_title(id, val)
         elif column == 'publisher':
@@ -1172,7 +1203,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         elif column == 'tags':
             self.set_tags(id, val.split(','), append=False)
 
-    def set_conversion_options(self, id, format, options) -> None:
+    def set_conversion_options(self, id: int, format: str, options: object) -> None:
         data = sqlite.Binary(pickle_dumps(options))
         oid = self.conn.get('SELECT id FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
         if oid:
@@ -1181,7 +1212,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.conn.execute('INSERT INTO conversion_options(book,format,data) VALUES (?,?,?)', (id, format.upper(), data))
         self.conn.commit()
 
-    def set_authors(self, id, authors) -> None:
+    def set_authors(self, id: int, authors: Iterable[str]) -> None:
         """
         @param authors: A list of authors.
         """
@@ -1203,21 +1234,21 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 pass
         self.conn.commit()
 
-    def set_author_sort(self, id, sort) -> None:
+    def set_author_sort(self, id: int, sort: str) -> None:
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
         self.conn.commit()
 
-    def set_title(self, id, title) -> None:
+    def set_title(self, id: int, title: str | None) -> None:
         if not title:
             return
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.conn.commit()
 
-    def set_isbn(self, id, isbn) -> None:
+    def set_isbn(self, id: int, isbn: str) -> None:
         self.conn.execute('UPDATE books SET isbn=? WHERE id=?', (isbn, id))
         self.conn.commit()
 
-    def set_publisher(self, id, publisher) -> None:
+    def set_publisher(self, id: int, publisher: str | None) -> None:
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?', (id,))
         if publisher:
             pub = self.conn.get('SELECT id from publishers WHERE name=?', (publisher,), all=False)
@@ -1228,23 +1259,23 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
         self.conn.commit()
 
-    def set_comment(self, id, text) -> None:
+    def set_comment(self, id: int, text: str | None) -> None:
         self.conn.execute('DELETE FROM comments WHERE book=?', (id,))
         self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
         self.conn.commit()
 
-    def delete_tags(self, tags) -> None:
+    def delete_tags(self, tags: Iterable[str]) -> None:
         for tag in tags:
             self.delete_tag(tag)
 
-    def unapply_tags(self, book_id, tags) -> None:
+    def unapply_tags(self, book_id: int, tags: Iterable[str]) -> None:
         for tag in tags:
             id = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
             if id:
                 self.conn.execute('DELETE FROM books_tags_link WHERE tag=? AND book=?', (id, book_id))
         self.conn.commit()
 
-    def set_tags(self, id, tags, append=False) -> None:
+    def set_tags(self, id: int, tags: Iterable[str], append: bool = False) -> None:
         """
         @param tags: list of strings
         @param append: If True existing tags are not removed
@@ -1265,7 +1296,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)', (id, tid))
         self.conn.commit()
 
-    def set_series(self, id, series) -> None:
+    def set_series(self, id: int, series: str) -> None:
         self.conn.execute('DELETE FROM books_series_link WHERE book=?', (id,))
         if series:
             s = self.conn.get('SELECT id from series WHERE name=?', (series,), all=False)
@@ -1285,7 +1316,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.execute('DELETE FROM series WHERE id=?', (id,))
         self.conn.commit()
 
-    def set_series_index(self, id, idx) -> None:
+    def set_series_index(self, id: int, idx: float | str) -> None:
         idx = int(idx)
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
         self.conn.commit()
@@ -1293,7 +1324,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if row is not None:
             self.data[row][10] = idx
 
-    def set_rating(self, id, rating) -> None:
+    def set_rating(self, id: int, rating: float | str) -> None:
         rating = int(rating)
         self.conn.execute('DELETE FROM books_ratings_link WHERE book=?', (id,))
         rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
@@ -1301,7 +1332,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
         self.conn.commit()
 
-    def set_cover(self, id, data) -> None:
+    def set_cover(self, id: int, data: bytes) -> None:
         self.conn.execute('DELETE FROM covers where book=?', (id,))
         if data:
             usize = len(data)
@@ -1309,7 +1340,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.conn.execute('INSERT INTO covers(book, uncompressed_size, data) VALUES (?,?,?)', (id, usize, sqlite.Binary(data)))
         self.conn.commit()
 
-    def set_metadata(self, id, mi) -> None:
+    def set_metadata(self, id: int, mi: Metadata) -> None:
         """
         Set metadata for the book C{id} from the L{MetaInformation} object C{mi}
         """
@@ -1332,7 +1363,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
 
-    def add_books(self, paths, formats, metadata, uris=None, add_duplicates=True):
+    def add_books(
+        self,
+        paths: Iterable[str | IO[bytes]],
+        formats: Iterable[str],
+        metadata: Iterable[Metadata],
+        uris: Iterable[str | None] | None = None,
+        add_duplicates: bool = True,
+    ) -> tuple[tuple[str | IO[bytes], ...], tuple[str, ...], tuple[Metadata, ...], tuple[str | None, ...]] | None:
         """
         Add a book to the database. self.data and self.cache are not updated.
         @param paths: List of paths to book files of file-like objects
@@ -1357,7 +1395,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 'INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
                 (mi.title, uri, series_index, aus),
             )
-            id = obj.lastrowid
+            id = cast('int', obj.lastrowid)  # always an int after a successful INSERT
             self.conn.commit()
             self.set_metadata(id, mi)
             with StreamOrPath(path, 'rb') as stream:
@@ -1378,30 +1416,30 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return (paths, formats, metadata, uris)
         return None
 
-    def index(self, id, cache=False):
+    def index(self, id: int, cache: bool = False) -> int | None:
         data = self.cache if cache else self.data
         for i in range(len(data)):
             if data[i][0] == id:
                 return i
 
-    def get_feeds(self):
+    def get_feeds(self) -> Iterator[SQLRow]:
         feeds = self.conn.get('SELECT title, script FROM feeds')
         yield from feeds
 
-    def get_feed(self, id):
-        return self.conn.get(f'SELECT script FROM feeds WHERE id={id}', all=False)
+    def get_feed(self, id: int) -> str | None:
+        return cast('str | None', self.conn.get(f'SELECT script FROM feeds WHERE id={id}', all=False))
 
-    def update_feed(self, id, script, title) -> None:
+    def update_feed(self, id: int, script: str, title: str) -> None:
         self.conn.execute('UPDATE feeds set title=? WHERE id=?', (title, id))
         self.conn.execute('UPDATE feeds set script=? WHERE id=?', (script, id))
         self.conn.commit()
 
-    def remove_feeds(self, ids) -> None:
+    def remove_feeds(self, ids: Iterable[int]) -> None:
         for x in ids:
             self.conn.execute('DELETE FROM feeds WHERE id=?', (x,))
         self.conn.commit()
 
-    def add_feed(self, title, script) -> None:
+    def add_feed(self, title: str | bytes, script: str | bytes) -> None:
         if isinstance(title, bytes):
             title = title.decode('utf-8')
         if isinstance(script, bytes):
@@ -1409,25 +1447,26 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)', (title, script))
         self.conn.commit()
 
-    def set_feeds(self, feeds) -> None:
+    def set_feeds(self, feeds: Iterable[tuple[str, str]]) -> None:
         self.conn.execute('DELETE FROM feeds')
         for title, script in feeds:
             self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)', (title, script))
         self.conn.commit()
 
-    def delete_book(self, id) -> None:
+    def delete_book(self, id: int) -> None:
         """
         Removes book from self.cache, self.data and underlying database.
         """
         try:
-            self.cache.pop(self.index(id, cache=True))
-            self.data.pop(self.index(id, cache=False))
+            # a None index raises TypeError, handled below
+            self.cache.pop(self.index(id, cache=True))  # ty: ignore[invalid-argument-type]
+            self.data.pop(self.index(id, cache=False))  # ty: ignore[invalid-argument-type]
         except TypeError:  # If data and cache are the same object
             pass
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
 
-    def get_metadata(self, idx, index_is_id=False):
+    def get_metadata(self, idx: int, index_is_id: bool = False) -> Metadata:
         """
         Convenience method to return metadata as a L{MetaInformation} object.
         """
@@ -1435,7 +1474,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if aum:
             aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
-        mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
+        mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)  # ty: ignore[invalid-assignment] can be None in the db
         mi.comments = self.comments(idx, index_is_id=index_is_id)
         mi.publisher = self.publisher(idx, index_is_id=index_is_id)
         tags = self.tags(idx, index_is_id=index_is_id)
@@ -1454,10 +1493,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('VACUUM;')
         self.conn.commit()
 
-    def all_ids(self):
-        return [i[0] for i in self.conn.get('SELECT id FROM books')]
+    def all_ids(self) -> list[int]:
+        return [i[0] for i in cast('list[tuple[int]]', self.conn.get('SELECT id FROM books'))]
 
-    def has_id(self, id):
+    def has_id(self, id: int) -> bool:
         return self.conn.get('SELECT id FROM books where id=?', (id,), all=False) is not None
 
 
@@ -1472,7 +1511,7 @@ class SearchToken:
         'format': 13,
     }
 
-    def __init__(self, text_token) -> None:
+    def __init__(self, text_token: str) -> None:
         self.index = -1
         text_token = text_token.strip()
         for field in self.FIELD_MAP.keys():
@@ -1488,17 +1527,17 @@ class SearchToken:
 
         self.pattern = re.compile(text_token, re.IGNORECASE)
 
-    def match(self, item):
+    def match(self, item: SQLRow) -> bool:
         if self.index >= 0:
-            text = item[self.index]
+            text = cast('str | None', item[self.index])
             if not text:
                 text = ''
         else:
-            text = ' '.join([item[i] or '' for i in self.FIELD_MAP.values()])
+            text = ' '.join([cast('str | None', item[i]) or '' for i in self.FIELD_MAP.values()])
         return bool(self.pattern.search(text)) ^ self.negate
 
 
-def text_to_tokens(text):
+def text_to_tokens(text: str) -> tuple[list[SearchToken], bool]:
     OR = False
     match = re.match(r'\[(.*)\]', text)
     if match:

@@ -7,6 +7,7 @@ import sys
 from contextlib import suppress
 from threading import Thread
 from time import monotonic
+from types import TracebackType
 from typing import Any, TypedDict
 
 from qt.core import (
@@ -52,9 +53,9 @@ class Request(TypedDict):
 
 
 class CookieJar(QNetworkCookieJar):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        self.all_request_cookies = []
+        self.all_request_cookies: list[QNetworkCookie] = []
 
     def add_cookie(self, c: QNetworkCookie) -> None:
         if c.domain():
@@ -115,7 +116,7 @@ class DownloadRequest(QObject):
             ba = self.reply.readAll()
             f.write(memoryview(ba))
 
-    def on_ssl_errors(self, err) -> None:
+    def on_ssl_errors(self, err: list[QSslError]) -> None:
         pass
 
     def as_result(self) -> dict[str, Any]:
@@ -190,7 +191,7 @@ class FetchBackend(QNetworkAccessManager):
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
 
-    def excepthook(self, cls: type[BaseException], exc: BaseException, tb) -> None:
+    def excepthook(self, cls: type[BaseException], exc: BaseException, tb: TracebackType | None) -> None:
         if not isinstance(exc, KeyboardInterrupt):
             sys.__excepthook__(cls, exc, tb)
         app = QApplication.instance()

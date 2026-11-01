@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import tempfile
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
@@ -16,6 +17,9 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Hashable, Sequence
+
 NS_MAP = {
     'oor': 'http://openoffice.org/2001/registry',
     'xs': 'http://www.w3.org/2001/XMLSchema',
@@ -23,7 +27,7 @@ NS_MAP = {
 }
 
 
-def XPath(x):
+def XPath(x: str) -> etree.XPath:
     return etree.XPath(x, namespaces=NS_MAP)
 
 
@@ -31,9 +35,9 @@ BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
 ONLINE_DICTIONARY_BASE_URL = 'https://raw.githubusercontent.com/LibreOffice/dictionaries/master/'
 
 
-def parse_xcu(raw, origin='%origin%'):
+def parse_xcu(raw: str | bytes, origin: str = '%origin%') -> dict[tuple[str, str], list[str]]:
     "Get the dictionary and affix file names as well as supported locales for each dictionary"
-    ans = {}
+    ans: dict[tuple[str, str], list[str]] = {}
     root = safe_xml_fromstring(raw)
 
     for node in XPath('//prop[@oor:name="Format"]/value[text()="DICT_SPELL"]/../..')(root):
@@ -52,7 +56,7 @@ def parse_xcu(raw, origin='%origin%'):
     return ans
 
 
-def convert_to_utf8(dic_data, aff_data, errors='strict'):
+def convert_to_utf8(dic_data: bytes, aff_data: bytes, errors: str = 'strict') -> tuple[bytes, bytes]:
     m = re.search(rb'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
     if m is not None:
         enc = m.group(1).decode('ascii', 'replace')
@@ -68,8 +72,8 @@ def convert_to_utf8(dic_data, aff_data, errors='strict'):
     return dic_data, aff_data
 
 
-def import_from_libreoffice_source_tree(source_path) -> None:
-    dictionaries = {}
+def import_from_libreoffice_source_tree(source_path: str) -> None:
+    dictionaries: dict[tuple[str, str], list[str]] = {}
     for x in glob.glob(os.path.join(source_path, '*', 'dictionaries.xcu')):
         origin = os.path.dirname(x)
         with open(x, 'rb') as f:
@@ -99,21 +103,21 @@ def import_from_libreoffice_source_tree(source_path) -> None:
         raise Exception(f'Failed to find dictionaries for some wanted locales: {want_locales}')
 
 
-def fill_country_code(x):
+def fill_country_code(x: str) -> str:
     return {'lt': 'lt_LT'}.get(x, x)
 
 
-def uniq(vals, kmap=lambda x: x):
+def uniq[T](vals: Sequence[T] | None, kmap: Callable[[T], Hashable] = lambda x: x) -> tuple[T, ...]:
     """Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals"""
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
-    seen = set()
+    seen: set[Hashable] = set()
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))  # ty: ignore[redundant-condition]
 
 
-def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='dic-'):
+def _import_from_virtual_directory(read_file_func: Callable[[str], bytes], name: str, dest_dir: str | None = None, prefix: str = 'dic-') -> int:
     from calibre.spell.dictionary import parse_lang_code
 
     dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
@@ -143,10 +147,10 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
     return num
 
 
-def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
+def import_from_oxt(source_path: str, name: str, dest_dir: str | None = None, prefix: str = 'dic-') -> int:
     with ZipFile(source_path) as zf:
 
-        def read_file(key):
+        def read_file(key: str) -> bytes:
             try:
                 return zf.open(key).read()
             except KeyError:
@@ -161,10 +165,10 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
 
 
-def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
+def import_from_online(directory: str, name: str, dest_dir: str | None = None, prefix: str = 'dic-') -> int:
     br = browser(timeout=30)
 
-    def read_file(key):
+    def read_file(key: str) -> bytes:
         try:
             rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))  # ruff: ignore[static-join-to-f-string]
             return rp.read()

@@ -2,11 +2,22 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING, cast
 
 from calibre.utils.date import DEFAULT_DATE, isoformat
 
+if TYPE_CHECKING:
+    from calibre.library.field_metadata import FieldMetadata
+    from calibre.library.sqlite import ConnectionProxy
+
 
 class SchemaUpgrade:
+    # These are provided by the class this class is mixed into
+    conn: ConnectionProxy
+    user_version: int
+    library_path: str
+    field_metadata: FieldMetadata
+
     def __init__(self) -> None:
         # Upgrade database
         while True:
@@ -231,7 +242,7 @@ class SchemaUpgrade:
     def upgrade_version_8(self) -> None:
         "Add Tag Browser views"
 
-        def create_tag_browser_view(table_name, column_name) -> None:
+        def create_tag_browser_view(table_name: str, column_name: str) -> None:
             self.conn.executescript(f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -269,7 +280,7 @@ class SchemaUpgrade:
     def upgrade_version_10(self) -> None:
         "Add restricted Tag Browser views"
 
-        def create_tag_browser_view(table_name, column_name, view_column_name) -> None:
+        def create_tag_browser_view(table_name: str | None, column_name: str | None, view_column_name: str | None) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -300,7 +311,7 @@ class SchemaUpgrade:
     def upgrade_version_11(self) -> None:
         "Add average rating to tag browser views"
 
-        def create_std_tag_browser_view(table_name, column_name, view_column_name, sort_column_name) -> None:
+        def create_std_tag_browser_view(table_name: str | None, column_name: str | None, view_column_name: str | None, sort_column_name: str | None) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -330,7 +341,7 @@ class SchemaUpgrade:
                 '''
             self.conn.executescript(script)
 
-        def create_cust_tag_browser_view(table_name, link_table_name) -> None:
+        def create_cust_tag_browser_view(table_name: str, link_table_name: str) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -377,8 +388,8 @@ class SchemaUpgrade:
         db_tables = self.conn.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
                                      ORDER BY name''')
-        tables = []
-        for (table,) in db_tables:
+        tables: list[str] = []
+        for (table,) in cast('list[list[str]]', db_tables):
             tables.append(table)
         for table in tables:
             link_table = f'books_{table}_link'
@@ -412,9 +423,9 @@ class SchemaUpgrade:
     def upgrade_version_14(self) -> None:
         "Cache has_cover"
         self.conn.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
-        data = self.conn.get('SELECT id,path FROM books', all=True)
+        data = cast('list[tuple[int, str | None]]', self.conn.get('SELECT id,path FROM books', all=True))
 
-        def has_cover(path):
+        def has_cover(path: str | None) -> bool:
             if path:
                 path = os.path.join(self.library_path, path.replace('/', os.sep), 'cover.jpg')
                 return os.path.exists(path)
@@ -579,7 +590,7 @@ class SchemaUpgrade:
         self.conn.executescript(script)
 
     def upgrade_version_19(self) -> None:
-        recipes = self.conn.get('SELECT id,title,script FROM feeds')
+        recipes = cast('list[tuple[int, str, str | bytes]]', self.conn.get('SELECT id,title,script FROM feeds'))
         if recipes:
             from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
 

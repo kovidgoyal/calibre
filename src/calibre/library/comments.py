@@ -2,12 +2,15 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from calibre import prepare_string_for_xml
 from calibre.constants import preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, Comment, Declaration, NavigableString, ProcessingInstruction, Tag
 from calibre.utils.html2text import html2text
+
+if TYPE_CHECKING:
+    import unittest
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
@@ -16,7 +19,7 @@ lost_cr_exception_pat = re.compile(r'(Ph\.D)|(D\.Phil)|((Dr|Mr|Mrs|Ms)\.[A-Z])')
 sanitize_pat = re.compile(r'<script|<table|<tr|<td|<th|<style|<iframe', re.IGNORECASE)
 
 
-def comments_to_html(comments):
+def comments_to_html(comments: str | bytes | None) -> str:
     """
     Convert random comment text to normalized, xml-legal block of <p>s
     'plain text' returns as
@@ -122,7 +125,7 @@ def comments_to_html(comments):
     return container.decode_contents()
 
 
-def markdown(val):
+def markdown(val: str) -> str:
     from markdown import Markdown
 
     md = Markdown()
@@ -132,11 +135,11 @@ def markdown(val):
     return re.sub(r'<p(|\s+[^>]*?)>\s*<br\s*/?>\s*</p>', '<p\\1>\xa0</p>', val)
 
 
-def merge_comments(one, two):
+def merge_comments(one: str | bytes | None, two: str | bytes | None) -> str:
     return comments_to_html(one) + '\n\n' + comments_to_html(two)
 
 
-def sanitize_comments_html(html):
+def sanitize_comments_html(html: str) -> str:
     from markdown import Markdown
 
     text = html2text(html, single_line_break=False)
@@ -149,7 +152,7 @@ def comments_as_markdown(x: str | None) -> str:
     return html2text(comments_to_html(x or ''), single_line_break=False)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class Test(unittest.TestCase):

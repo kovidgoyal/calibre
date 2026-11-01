@@ -306,7 +306,7 @@ class NumericSearch:  # {{{
             ('<', operator.lt),
         ))
 
-    def __call__(self, query: str, field_iter: FieldIter, location: str, datatype: str, candidates: set[int], is_many: bool = False) -> set[int]:
+    def __call__(self, query: str, field_iter: FieldIter, location: str, datatype: str | None, candidates: set[int], is_many: bool = False) -> set[int]:
         matches: set[int] = set()
         if not query:
             return matches
@@ -685,16 +685,16 @@ class Parser(SearchQueryParser):  # {{{
         # get metadata key associated with the search term. Eliminates
         # dealing with plurals and other aliases
         original_location = location
-        location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
+        field_key = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
         # grouped search terms
-        if isinstance(location, list):
+        if isinstance(field_key, list):
             if allow_recursion:
                 if query.lower() == 'false':
                     invert = True
                     query = 'true'
                 else:
                     invert = False
-                for loc in location:
+                for loc in field_key:
                     c = candidates.copy()
                     m = self.get_matches(loc, query, candidates=c, allow_recursion=False)
                     matches |= m
@@ -705,6 +705,7 @@ class Parser(SearchQueryParser):  # {{{
                     matches = self.all_book_ids - matches
                 return matches
             raise ParseException(_('Recursive query group detected: {0}').format(query))
+        location = field_key
 
         # If the user has asked to restrict searching over all field, apply
         # that restriction

@@ -6,10 +6,27 @@ Created on 25 May 2010
 
 import traceback
 from collections import OrderedDict
+from typing import TYPE_CHECKING, cast
 
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
+    from typing import TypedDict
+
+    from calibre.ebooks.metadata.book.base import DisplayDict, FieldMetadataDict
+
+    class SerializedFieldMetadata(TypedDict):
+        """The serialized form of FieldMetadata, see fm_as_dict()"""
+
+        custom_fields: dict[str, FieldMetadataDict]
+        search_term_map: dict[str, str | list[str]]
+        custom_label_to_key_map: dict[str, str]
+        user_categories: dict[str, FieldMetadataDict]
+        search_categories: dict[str, FieldMetadataDict]
+
 
 category_icon_map = {
     'authors': 'user_profile.png',
@@ -30,7 +47,7 @@ category_icon_map = {
 # Builtin metadata {{{
 
 
-def _builtin_field_metadata():
+def _builtin_field_metadata() -> list[tuple[str, FieldMetadataDict]]:
     # This is a function so that changing the UI language allows newly created
     # field metadata objects to have correctly translated labels for builtin
     # fields.
@@ -204,7 +221,8 @@ def _builtin_field_metadata():
                 'table': None,
                 'column': None,
                 'datatype': 'text',
-                'is_multiple': {'cache_to_list': ',', 'ui_to_list': None, 'list_to_ui': None},
+                # au_map is internal, its ui_to_list and list_to_ui are never used
+                'is_multiple': cast('dict[str, str]', {'cache_to_list': ',', 'ui_to_list': None, 'list_to_ui': None}),
                 'kind': 'field',
                 'name': None,
                 'search_terms': [],
@@ -549,10 +567,10 @@ class FieldMetadata:
 
     def __init__(self) -> None:
         self._field_metadata = _builtin_field_metadata()
-        self._tb_cats = OrderedDict()
-        self._tb_custom_fields = {}
-        self._search_term_map = {}
-        self.custom_label_to_key_map = {}
+        self._tb_cats: OrderedDict[str, FieldMetadataDict] = OrderedDict()
+        self._tb_custom_fields: dict[str, FieldMetadataDict] = {}
+        self._search_term_map: dict[str, str | list[str]] = {}
+        self.custom_label_to_key_map: dict[str, str] = {}
         for k, v in self._field_metadata:
             if v['kind'] == 'field' and v['datatype'] not in self.VALID_DATA_TYPES:
                 raise ValueError('Unknown datatype {} for field {}'.format(v['datatype'], k))
@@ -566,30 +584,30 @@ class FieldMetadata:
         self._tb_cats['last_modified']['display'] = {'date_format': tweaks['gui_last_modified_display_format']}
         self.get = self._tb_cats.get
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> FieldMetadataDict:
         if key == 'title_sort':
             return self._tb_cats['sort']
         return self._tb_cats[key]
 
-    def __setitem__(self, key, val) -> None:
+    def __setitem__(self, key: str, val: object) -> None:
         raise AttributeError('Assigning to this object is forbidden')
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: str) -> None:
         del self._tb_cats[key]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         yield from self._tb_cats
 
-    def __contains__(self, key) -> bool:
+    def __contains__(self, key: object) -> bool:
         return key in self._tb_cats or key == 'title_sort'
 
-    def has_key(self, key):
+    def has_key(self, key: str) -> bool:
         return key in self
 
-    def keys(self):
+    def keys(self) -> list[str]:
         return list(self._tb_cats.keys())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, FieldMetadata):
             return False
         for attr in ('_tb_custom_fields', '_search_term_map', 'custom_label_to_key_map', 'custom_field_prefix'):
@@ -597,35 +615,39 @@ class FieldMetadata:
                 return False
         return dict(self._tb_cats) == dict(other._tb_cats)
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
-    def sortable_field_keys(self):
+    def sortable_field_keys(self) -> list[str]:
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field' and self._tb_cats[k]['datatype'] is not None]
 
-    def ui_sortable_field_keys(self):
-        ans = {
-            k: self._tb_cats[k]['name']
-            for k in set(self.sortable_field_keys())
-            - {
-                'sort',
-                'author_sort',
-                'au_map',
-                'series_sort',
-                'marked',
-                'series_index',
-                'path',
-                'formats',
-                'identifiers',
-                'uuid',
-                'comments',
-            }
-            if self._tb_cats[k]['name']
-        }
+    def ui_sortable_field_keys(self) -> dict[str, str]:
+        # entries without a name are filtered out
+        ans = cast(
+            'dict[str, str]',
+            {
+                k: self._tb_cats[k]['name']
+                for k in set(self.sortable_field_keys())
+                - {
+                    'sort',
+                    'author_sort',
+                    'au_map',
+                    'series_sort',
+                    'marked',
+                    'series_index',
+                    'path',
+                    'formats',
+                    'identifiers',
+                    'uuid',
+                    'comments',
+                }
+                if self._tb_cats[k]['name']
+            },
+        )
         ans['cover'] = _('Has cover')
         return ans
 
-    def displayable_field_keys(self):
+    def displayable_field_keys(self) -> list[str]:
         return [
             k
             for k in self._tb_cats.keys()
@@ -635,10 +657,10 @@ class FieldMetadata:
             and not self.is_series_index(k)
         ]
 
-    def standard_field_keys(self):
+    def standard_field_keys(self) -> list[str]:
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field' and not self._tb_cats[k]['is_custom']]
 
-    def custom_field_keys(self, include_composites=True):
+    def custom_field_keys(self, include_composites: bool = True) -> list[str]:
         res = []
         for k in self._tb_cats.keys():
             fm = self._tb_cats[k]
@@ -646,53 +668,53 @@ class FieldMetadata:
                 res.append(k)
         return res
 
-    def all_field_keys(self):
+    def all_field_keys(self) -> list[str]:
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field']
 
-    def iterkeys(self):
+    def iterkeys(self) -> Iterator[str]:
         yield from self._tb_cats
 
-    def itervalues(self):
+    def itervalues(self) -> Iterator[FieldMetadataDict]:
         yield from self._tb_cats.values()
 
-    def values(self):
+    def values(self) -> list[FieldMetadataDict]:
         return list(self._tb_cats.values())
 
-    def iteritems(self):
+    def iteritems(self) -> Iterator[tuple[str, FieldMetadataDict]]:
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
 
     iter_items = iteritems
 
-    def custom_iteritems(self):
+    def custom_iteritems(self) -> Iterator[tuple[str, FieldMetadataDict]]:
         yield from self._tb_custom_fields.items()
 
-    def items(self):
+    def items(self) -> list[tuple[str, FieldMetadataDict]]:
         return list(self.iter_items())
 
-    def is_custom_field(self, key):
+    def is_custom_field(self, key: str) -> bool:
         return key.startswith(self.custom_field_prefix)
 
-    def is_ignorable_field(self, key):
+    def is_ignorable_field(self, key: str) -> bool:
         "Custom fields and user categories are ignorable"
         return self.is_custom_field(key) or key.startswith('@')
 
-    def ignorable_field_keys(self):
+    def ignorable_field_keys(self) -> list[str]:
         return [k for k in self._tb_cats if self.is_ignorable_field(k)]
 
-    def is_series_index(self, key):
+    def is_series_index(self, key: str) -> bool:
         try:
             m = self._tb_cats[key]
             return m['datatype'] == 'float' and key.endswith('_index') and key[:-6] in self._tb_cats
         except KeyError, ValueError, TypeError, AttributeError:
             return False
 
-    def key_to_label(self, key):
+    def key_to_label(self, key: str) -> str:
         if 'label' not in self._tb_cats[key]:
             return key
         return self._tb_cats[key]['label']
 
-    def label_to_key(self, label, prefer_custom=False):
+    def label_to_key(self, label: str, prefer_custom: bool = False) -> str:
         if prefer_custom:
             if label in self.custom_label_to_key_map:
                 return self.custom_label_to_key_map[label]
@@ -703,21 +725,34 @@ class FieldMetadata:
                 return self.custom_label_to_key_map[label]
         raise ValueError(f'Unknown key [{label}]')
 
-    def all_metadata(self):
-        l = {}
+    def all_metadata(self) -> dict[str, FieldMetadataDict]:
+        l: dict[str, FieldMetadataDict] = {}
         for k in self._tb_cats:
             l[k] = self._tb_cats[k]
         return l
 
-    def custom_field_metadata(self, include_composites=True):
+    def custom_field_metadata(self, include_composites: bool = True) -> dict[str, FieldMetadataDict]:
         if include_composites:
             return self._tb_custom_fields
-        l = {}
+        l: dict[str, FieldMetadataDict] = {}
         for k in self.custom_field_keys(include_composites):
             l[k] = self._tb_cats[k]
         return l
 
-    def add_custom_field(self, label, table, column, datatype, colnum, name, display, is_editable, is_multiple, is_category, is_csp=False) -> None:
+    def add_custom_field(
+        self,
+        label: str,
+        table: str,
+        column: str,
+        datatype: str,
+        colnum: int,
+        name: str,
+        display: DisplayDict,
+        is_editable: bool,
+        is_multiple: dict[str, str],
+        is_category: bool,
+        is_csp: bool = False,
+    ) -> None:
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError(f'Duplicate custom field [{label}]')
@@ -790,7 +825,7 @@ class FieldMetadata:
         for v in to_remove:
             del self._search_term_map[v]
 
-    def add_grouped_search_terms(self, gst) -> None:
+    def add_grouped_search_terms(self, gst: Mapping[str, list[str]]) -> None:
         self._remove_grouped_search_terms()
         for t in gst:
             try:
@@ -798,10 +833,10 @@ class FieldMetadata:
             except ValueError:
                 traceback.print_exc()
 
-    def cc_series_index_column_for(self, key):
+    def cc_series_index_column_for(self, key: str) -> int:
         return self._tb_cats[key]['rec_index'] + 1
 
-    def add_user_category(self, label, name) -> None:
+    def add_user_category(self, label: str, name: str) -> None:
         if label in self._tb_cats:
             raise ValueError(f'Duplicate user field [{label}]')
         st = [label]
@@ -821,7 +856,7 @@ class FieldMetadata:
         }
         self._add_search_terms_to_map(label, st)
 
-    def add_search_category(self, label, name, fail_on_existing=True) -> None:
+    def add_search_category(self, label: str, name: str, fail_on_existing: bool = True) -> None:
         if label in self._tb_cats:
             if not fail_on_existing:
                 return
@@ -839,7 +874,7 @@ class FieldMetadata:
             'is_csp': False,
         }
 
-    def set_field_record_index(self, label, index, prefer_custom=False) -> None:
+    def set_field_record_index(self, label: str, index: int, prefer_custom: bool = False) -> None:
         if prefer_custom:
             key = self.custom_field_prefix + label
             if key not in self._tb_cats:
@@ -850,30 +885,30 @@ class FieldMetadata:
             key = self.custom_field_prefix + label
         self._tb_cats[key]['rec_index'] = index  # let the exception fly ...
 
-    def get_search_terms(self):
+    def get_search_terms(self) -> list[str]:
         s_keys = sorted(self._search_term_map.keys())
         for v in self.search_items:
             s_keys.append(v)
         return s_keys
 
-    def _add_search_terms_to_map(self, key, terms) -> None:
+    def _add_search_terms_to_map(self, key: str | list[str], terms: list[str] | None) -> None:
         if terms is not None:
             for t in terms:
                 if t in self._search_term_map:
                     raise ValueError(f'Attempt to add duplicate search term "{t}"')
                 self._search_term_map[t] = key
 
-    def search_term_to_field_key(self, term):
+    def search_term_to_field_key(self, term: str) -> str | list[str]:
         return self._search_term_map.get(term, term)
 
-    def searchable_fields(self):
+    def searchable_fields(self) -> list[str]:
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field' and len(self._tb_cats[k]['search_terms']) > 0]
 
 
 # The following two methods are to support serialization
 # Note that they do not create copies of internal structures, for performance,
 # so they are not safe to use for anything else
-def fm_as_dict(self):
+def fm_as_dict(self: FieldMetadata) -> SerializedFieldMetadata:
     return {
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
@@ -883,7 +918,7 @@ def fm_as_dict(self):
     }
 
 
-def fm_from_dict(src):
+def fm_from_dict(src: SerializedFieldMetadata) -> FieldMetadata:
     ans = FieldMetadata()
     ans._tb_custom_fields = src['custom_fields']
     ans._search_term_map = src['search_term_map']

@@ -7,7 +7,7 @@ import sys
 import weakref
 from collections.abc import Callable
 from functools import partial
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from calibre.db.write import uniq
 from calibre.ebooks.metadata import title_sort
@@ -22,7 +22,8 @@ if TYPE_CHECKING:
 
 
 def sanitize_sort_field_name(field_metadata: FieldMetadata, field: str) -> str:
-    field = field_metadata.search_term_to_field_key(field.lower().strip())
+    # grouped search terms (which map to lists) are not valid sort fields
+    field = cast('str', field_metadata.search_term_to_field_key(field.lower().strip()))
     # translate some fields to their hidden equivalent
     field = {'title': 'sort', 'authors': 'author_sort'}.get(field, field)
     return field

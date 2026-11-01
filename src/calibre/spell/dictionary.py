@@ -22,7 +22,23 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 
 if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Collection, Iterable, Iterator, Sequence
+    from typing import NotRequired, TypedDict, Unpack
+
     from calibre_extensions import hunspell
+
+    class UserDictionaryData(TypedDict):
+        name: str
+        is_active: bool
+        words: Iterable[Sequence[str]]
+
+    class OnlineDictionary(TypedDict):
+        primary_locale: DictionaryLocale
+        name: str
+        directory: str
+        text: NotRequired[str]
+
 
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
@@ -53,19 +69,20 @@ class LoadedDictionary(NamedTuple):
 class UserDictionary:
     __slots__ = ('is_active', 'name', 'words')
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Unpack[UserDictionaryData]) -> None:
         self.name = kwargs['name']
         self.is_active = kwargs['is_active']
         self.words = set(map(tuple, kwargs['words']))
 
-    def serialize(self):
+    def serialize(self) -> dict[str, str | bool | list[tuple[str, str]]]:
         return {'name': self.name, 'is_active': self.is_active, 'words': list(self.words)}
 
 
-_builtins = _custom = None
+_builtins: frozenset[Dictionary] | None = None
+_custom: frozenset[Dictionary] | None = None
 
 
-def builtin_dictionaries():
+def builtin_dictionaries() -> frozenset[Dictionary]:
     global _builtins
     if _builtins is None:
         dics = []
@@ -89,19 +106,19 @@ def builtin_dictionaries():
     return _builtins
 
 
-def catalog_online_dictionaries():
+def catalog_online_dictionaries() -> list[OnlineDictionary]:
     loaded = json.loads(P('dictionaries/online-catalog.json', allow_user_override=False, data=True))
     try:
         loaded.update(json.loads(P('dictionaries/online-catalog.json', data=True)))
     except Exception:
         pass
-    rslt = []
+    rslt: list[OnlineDictionary] = []
     for lang, directory in loaded.items():
         rslt.append({'primary_locale': parse_lang_code(lang), 'name': lang, 'directory': directory})
     return rslt
 
 
-def custom_dictionaries(reread=False):
+def custom_dictionaries(reread: bool = False) -> frozenset[Dictionary]:
     global _custom
     if _custom is None or reread:
         dics = []
@@ -141,17 +158,17 @@ if ul is not None and ul.langcode == 'eng' and ul.countrycode in 'GB BS BZ GH IE
 default_preferred_locales = {'eng': default_en_locale, 'deu': 'de-DE', 'spa': 'es-ES', 'fra': 'fr-FR'}
 
 
-def best_locale_for_language(langcode):
+def best_locale_for_language(langcode: str) -> DictionaryLocale | None:
     best_locale = dprefs['preferred_locales'].get(langcode, default_preferred_locales.get(langcode, None))
     if best_locale is not None:
         return parse_lang_code(best_locale)
 
 
-def preferred_dictionary(locale):
+def preferred_dictionary(locale: DictionaryLocale) -> str | None:
     return {parse_lang_code(k): v for k, v in dprefs['preferred_dictionaries'].items()}.get(locale, None)
 
 
-def remove_dictionary(dictionary) -> None:
+def remove_dictionary(dictionary: Dictionary) -> None:
     if dictionary.builtin:
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
@@ -159,7 +176,7 @@ def remove_dictionary(dictionary) -> None:
     dprefs['preferred_dictionaries'] = {k: v for k, v in dprefs['preferred_dictionaries'].items() if v != dictionary.id}
 
 
-def rename_dictionary(dictionary, name) -> None:
+def rename_dictionary(dictionary: Dictionary, name: str) -> None:
     lf = os.path.join(os.path.dirname(dictionary.dicpath), 'locales')
     with open(lf, 'r+b') as f:
         lines = f.read().splitlines()
@@ -168,10 +185,10 @@ def rename_dictionary(dictionary, name) -> None:
     custom_dictionaries(reread=True)
 
 
-def get_dictionary(locale, exact_match=False):
+def get_dictionary(locale: DictionaryLocale, exact_match: bool = False) -> Dictionary | None:
     preferred = preferred_dictionary(locale)
     # First find all dictionaries that match locale exactly
-    exact_matches = {}
+    exact_matches: dict[str | None, Dictionary] = {}
     for collection in (custom_dictionaries(), builtin_dictionaries()):
         for d in collection:
             if d.primary_locale == locale:
@@ -210,10 +227,10 @@ def get_dictionary(locale, exact_match=False):
                 return d
 
 
-def load_dictionary(dictionary):
+def load_dictionary(dictionary: Dictionary) -> LoadedDictionary:
     from calibre_extensions import hunspell
 
-    def fix_path(path):
+    def fix_path(path: str | bytes) -> str:
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
@@ -230,9 +247,9 @@ class Dictionaries:
         self.remove_hyphenation = re.compile(r'[\u2010-]+')
         self.negative_pat = re.compile(r'-[.\d+]')
         self.fix_punctuation_pat = re.compile(r'''[:.]''')
-        self.dictionaries = {}
-        self.word_cache = {}
-        self.ignored_words = set()
+        self.dictionaries: dict[DictionaryLocale, LoadedDictionary | None] = {}
+        self.word_cache: dict[tuple[str, DictionaryLocale], bool] = {}
+        self.ignored_words: set[tuple[str, str]] = set()
         self.added_user_words = {}
         try:
             self.default_locale = parse_lang_code(get_lang())
@@ -240,7 +257,7 @@ class Dictionaries:
             self.default_locale = parse_lang_code('en-US')
         self.ui_locale = self.default_locale
 
-    def initialize(self, force=False) -> None:
+    def initialize(self, force: bool = False) -> None:
         if force or not hasattr(self, 'active_user_dictionaries'):
             self.read_user_dictionaries()
 
@@ -250,51 +267,52 @@ class Dictionaries:
     def clear_ignored(self) -> None:
         self.ignored_words.clear()
 
-    def dictionary_for_locale(self, locale):
-        ans = self.dictionaries.get(locale, not_present)
-        if ans is not_present:
-            ans = get_dictionary(locale)
-            if ans is not None:
-                ans = load_dictionary(ans)
-                for ud in self.active_user_dictionaries:
-                    for word, langcode in ud.words:
-                        if langcode == locale.langcode:
-                            try:
-                                ans.obj.add(word)
-                            except Exception:
-                                # not critical since all it means is that the word won't show up in suggestions
-                                prints(f'Failed to add the word {word!r} to the dictionary for {locale}', file=sys.stderr)
-            self.dictionaries[locale] = ans
+    def dictionary_for_locale(self, locale: DictionaryLocale) -> LoadedDictionary | None:
+        if locale in self.dictionaries:
+            return self.dictionaries[locale]
+        ans = None
+        dictionary = get_dictionary(locale)
+        if dictionary is not None:
+            ans = load_dictionary(dictionary)
+            for ud in self.active_user_dictionaries:
+                for word, langcode in ud.words:
+                    if langcode == locale.langcode:
+                        try:
+                            ans.obj.add(word)
+                        except Exception:
+                            # not critical since all it means is that the word won't show up in suggestions
+                            prints(f'Failed to add the word {word!r} to the dictionary for {locale}', file=sys.stderr)
+        self.dictionaries[locale] = ans
         return ans
 
-    def ignore_word(self, word, locale) -> None:
+    def ignore_word(self, word: str, locale: DictionaryLocale) -> None:
         self.ignored_words.add((word, locale.langcode))
         self.word_cache[(word, locale)] = True
 
-    def unignore_word(self, word, locale) -> None:
+    def unignore_word(self, word: str, locale: DictionaryLocale) -> None:
         self.ignored_words.discard((word, locale.langcode))
         self.word_cache.pop((word, locale), None)
 
-    def is_word_ignored(self, word, locale):
+    def is_word_ignored(self, word: str, locale: DictionaryLocale) -> bool:
         return (word, locale.langcode) in self.ignored_words
 
     @property
-    def all_user_dictionaries(self):
+    def all_user_dictionaries(self) -> Iterator[UserDictionary]:
         return chain(self.active_user_dictionaries, self.inactive_user_dictionaries)
 
-    def user_dictionary(self, name):
+    def user_dictionary(self, name: str) -> UserDictionary | None:
         for ud in self.all_user_dictionaries:
             if ud.name == name:
                 return ud
 
     def read_user_dictionaries(self) -> None:
-        self.active_user_dictionaries = []
-        self.inactive_user_dictionaries = []
+        self.active_user_dictionaries: list[UserDictionary] = []
+        self.inactive_user_dictionaries: list[UserDictionary] = []
         for d in dprefs['user_dictionaries'] or dprefs.defaults['user_dictionaries']:
             d = UserDictionary(**d)
             (self.active_user_dictionaries if d.is_active else self.inactive_user_dictionaries).append(d)
 
-    def mark_user_dictionary_as_active(self, name, is_active=True) -> bool:
+    def mark_user_dictionary_as_active(self, name: str, is_active: bool = True) -> bool:
         d = self.user_dictionary(name)
         if d is not None:
             d.is_active = is_active
@@ -305,19 +323,19 @@ class Dictionaries:
     def save_user_dictionaries(self) -> None:
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
-    def add_user_words(self, words, langcode) -> None:
+    def add_user_words(self, words: Iterable[str], langcode: str) -> None:
         for d in self.dictionaries.values():
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
-    def remove_user_words(self, words, langcode) -> None:
+    def remove_user_words(self, words: Iterable[str], langcode: str) -> None:
         for d in self.dictionaries.values():
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)
 
-    def add_to_user_dictionary(self, name, word, locale) -> bool:
+    def add_to_user_dictionary(self, name: str, word: str | set[tuple[str, str]] | frozenset[tuple[str, str]], locale: DictionaryLocale) -> bool:
         ud = self.user_dictionary(name)
         if ud is None:
             raise ValueError(f'Cannot add to the dictionary named: {name} as no such dictionary exists')
@@ -337,7 +355,7 @@ class Dictionaries:
             return True
         return False
 
-    def remove_from_user_dictionaries(self, word, locale):
+    def remove_from_user_dictionaries(self, word: str, locale: DictionaryLocale) -> bool:
         key = (word, locale.langcode)
         changed = False
         for ud in self.active_user_dictionaries:
@@ -350,9 +368,9 @@ class Dictionaries:
             self.remove_user_words((word,), locale.langcode)
         return changed
 
-    def remove_from_user_dictionary(self, name, words):
+    def remove_from_user_dictionary(self, name: str, words: Collection[tuple[str, DictionaryLocale]]) -> bool:
         changed = False
-        removals = defaultdict(set)
+        removals: defaultdict[str, set[str]] = defaultdict(set)
         keys = [(w, l.langcode) for w, l in words]
         for d in self.all_user_dictionaries:
             if d.name == name:
@@ -364,25 +382,25 @@ class Dictionaries:
         if changed:
             for key in words:
                 self.word_cache.pop(key, None)
-            for langcode, words in removals.items():
-                self.remove_user_words(words, langcode)
+            for langcode, removed_words in removals.items():
+                self.remove_user_words(removed_words, langcode)
             self.save_user_dictionaries()
         return changed
 
-    def word_in_user_dictionary(self, word, locale):
+    def word_in_user_dictionary(self, word: str, locale: DictionaryLocale) -> str | None:
         key = (word, locale.langcode)
         for ud in self.active_user_dictionaries:
             if key in ud.words:
                 return ud.name
 
-    def create_user_dictionary(self, name) -> None:
+    def create_user_dictionary(self, name: str) -> None:
         if name in {d.name for d in self.all_user_dictionaries}:
             raise ValueError(f'A dictionary named {name} already exists')
         d = UserDictionary(name=name, is_active=True, words=())
         self.active_user_dictionaries.append(d)
         self.save_user_dictionaries()
 
-    def remove_user_dictionary(self, name):
+    def remove_user_dictionary(self, name: str) -> bool:
         changed = False
         for x in (self.active_user_dictionaries, self.inactive_user_dictionaries):
             for d in tuple(x):
@@ -394,7 +412,7 @@ class Dictionaries:
             self.clear_caches()
         return changed
 
-    def rename_user_dictionary(self, name, new_name):
+    def rename_user_dictionary(self, name: str, new_name: str) -> bool:
         changed = False
         for d in self.all_user_dictionaries:
             if d.name == name:
@@ -404,7 +422,7 @@ class Dictionaries:
             self.save_user_dictionaries()
         return changed
 
-    def recognized(self, word, locale=None):
+    def recognized(self, word: str, locale: DictionaryLocale | None = None) -> bool:
         locale = locale or self.default_locale
         key = (word, locale)
         ans = self.word_cache.get(key, None)
@@ -432,13 +450,13 @@ class Dictionaries:
             self.word_cache[key] = ans
         return ans
 
-    def suggestions(self, word, locale=None):
+    def suggestions(self, word: str, locale: DictionaryLocale | None = None) -> tuple[str, ...]:
         locale = locale or self.default_locale
         d = self.dictionary_for_locale(locale)
         has_unicode_hyphen = '\u2010' in word
-        ans = ()
+        ans: tuple[str, ...] = ()
 
-        def add_suggestion(w, ans):
+        def add_suggestion(w: str, ans: tuple[str, ...]) -> tuple[str, ...]:
             return (w,) + tuple(x for x in ans if x != w)
 
         if d is not None:
@@ -475,7 +493,7 @@ def build_test() -> None:
         raise AssertionError('The word recognized was not recognized')
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TestDictionaries(unittest.TestCase):
@@ -486,17 +504,21 @@ def find_tests():
             self.recognized = partial(dictionaries.recognized, locale=eng)
             self.suggestions = partial(dictionaries.suggestions, locale=eng)
 
-        def ar(self, w) -> None:
+        def ar(self, w: str) -> None:
             if not self.recognized(w):
                 raise AssertionError(f'The word {w!r} was not recognized')
 
         def test_dictionaries(self) -> None:
             for w in 'recognized one-half one\u2010half'.split():
                 self.ar(w)
-            d = load_dictionary(get_dictionary(parse_lang_code('es-ES'))).obj
+            dic = get_dictionary(parse_lang_code('es-ES'))
+            assert dic is not None
+            d = load_dictionary(dic).obj
             self.assertTrue(d.recognized('Ahí'))
             self.assertIn('one\u2010half', self.suggestions('oone\u2010half'))
-            d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
+            dic = get_dictionary(parse_lang_code('es'))
+            assert dic is not None
+            d = load_dictionary(dic).obj
             self.assertIn('adequately', self.suggestions('ade-quately'))
             self.assertIn('magic. Wand', self.suggestions('magic.wand'))
             self.assertIn('List', self.suggestions('Lis𝑘t'))

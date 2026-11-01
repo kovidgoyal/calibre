@@ -41,7 +41,7 @@ class NumberToText:  # {{{
     tens = ['<zero>', '<tens>', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
     hundreds = ['<zero>', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 
-    def __init__(self, number, verbose=False) -> None:
+    def __init__(self, number: str, verbose: bool = False) -> None:
         self.number = number
         self.number_as_float = 0.0
         self.text = ''
@@ -49,7 +49,7 @@ class NumberToText:  # {{{
         self.log = log
         self.numberTranslate()
 
-    def stringFromInt(self, intToTranslate):
+    def stringFromInt(self, intToTranslate: int) -> str:
         # Convert intToTranslate to string
         # intToTranslate is a three-digit number
 

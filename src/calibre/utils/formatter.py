@@ -1379,7 +1379,8 @@ class _Interpreter:
     def do_node_raw_field(self, prog: RawFieldNode) -> str:
         try:
             name = self.expr(prog.expression)
-            name = field_metadata.search_term_to_field_key(name)
+            # grouped search terms (which map to lists) are not valid here
+            name = cast('str', field_metadata.search_term_to_field_key(name))
             res = getattr(self.parent_book, name, None)
             if res is None and prog.default is not None:
                 res = self.expr(prog.default)
@@ -1471,7 +1472,8 @@ class _Interpreter:
         return str(re.sub(r'\{.*?\}', repl, self.expr(prog.string)))
 
     def do_node_list_count_field(self, prog: ListCountFieldNode) -> str:
-        name = field_metadata.search_term_to_field_key(self.expr(prog.expression))
+        # grouped search terms (which map to lists) are not valid here
+        name = cast('str', field_metadata.search_term_to_field_key(self.expr(prog.expression)))
         res = getattr(self.parent_book, name, None)
         if res is None or not isinstance(res, (list, tuple, set, dict)):
             self.error(_("Field '{0}' is either not a field or not a list").format(name), prog.line_number)

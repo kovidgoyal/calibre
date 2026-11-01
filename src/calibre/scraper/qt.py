@@ -5,29 +5,54 @@ import atexit
 import json
 import os
 import shutil
-import subprocess
 import time
 import weakref
 from contextlib import suppress
 from io import BytesIO
 from queue import Queue
 from threading import RLock, Thread
+from typing import TYPE_CHECKING, BinaryIO, Self
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+    from email.message import EmailMessage
+    from typing import Required, TypedDict
+
+    from _typeshed import ReadableBuffer, SupportsRead
+
+    from calibre.utils.ipc.simple_worker import PipeWorker
+
+    # The types accepted by urllib.request.Request plus str and dict which are encoded
+    type RequestData = ReadableBuffer | str | dict[str, str] | SupportsRead[bytes] | Iterable[bytes] | None
+
+    class WorkerResponse(TypedDict, total=False):
+        # A response sent by the worker process, see qt_backend.py
+        action: Required[str]
+        id: int
+        url: str
+        output: str
+        final_url: str
+        headers: list[tuple[str, str]]
+        http_code: int
+        http_status_message: str
+        error: str
+        worth_retry: bool
+
 
 class FakeResponse:
     def __init__(self) -> None:
-        self.queue = Queue()
+        self.queue: Queue[WorkerResponse] = Queue()
         self.done = False
         self.final_url = ''
-        self._reason = ''
-        self._status = None
-        self._headers = []
-        self._data = BytesIO()
+        self._reason: str | None = ''
+        self._status: int | None = None
+        self._headers: list[tuple[str, str]] = []
+        self._data: BinaryIO = BytesIO()
 
     def _wait(self) -> None:
         if self.done:
@@ -43,8 +68,9 @@ class FakeResponse:
         if not self._reason:
             from http.client import responses
 
-            with suppress(KeyError):
-                self._reason = responses[self._status]
+            if self._status is not None:
+                with suppress(KeyError):
+                    self._reason = responses[self._status]
         self._headers = res['headers']
         if 'error' in res:
             ex = URLError(res['error'])
@@ -53,16 +79,16 @@ class FakeResponse:
         with suppress(FileNotFoundError):
             self._data = open(res['output'], 'rb')  # ruff: ignore[open-file-with-context-handler]
 
-    def read(self, *a, **kw):
+    def read(self, *a: int, **kw: int) -> bytes:
         self._wait()
         ans = self._data.read(*a, **kw)
         return ans
 
-    def seek(self, *a, **kw):
+    def seek(self, *a: int, **kw: int) -> int:
         self._wait()
         return self._data.seek(*a, **kw)
 
-    def tell(self, *a, **kw):
+    def tell(self, *a: int, **kw: int) -> int:
         return self._data.tell(*a, **kw)
 
     @property
@@ -78,7 +104,7 @@ class FakeResponse:
     code = status
 
     @property
-    def headers(self):
+    def headers(self) -> EmailMessage:
         self._wait()
         from email.message import EmailMessage
 
@@ -95,23 +121,23 @@ class FakeResponse:
     def getcode(self) -> int | None:
         return self.status
 
-    def geturl(self):
+    def geturl(self) -> str:
         return self.url
 
-    def getinfo(self):
+    def getinfo(self) -> EmailMessage:
         return self.headers
 
     def close(self) -> None:
         self._data.close()
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *a):
+    def __exit__(self, *a: object) -> None:
         self._data.close()
 
 
-def shutdown_browser(bref) -> None:
+def shutdown_browser(bref: weakref.ref[Browser]) -> None:
     br = bref()
     if br is not None:
         br.shutdown()
@@ -126,8 +152,9 @@ class Browser:
         start_worker: bool = False,
     ) -> None:
         self.tdir = ''
-        self.worker = self.dispatcher = None
-        self.dispatch_map = {}
+        self.worker: PipeWorker | None = None
+        self.dispatcher: Thread | None = None
+        self.dispatch_map: dict[int, Queue[WorkerResponse]] = {}
         self.verify_ssl_certificates = verify_ssl_certificates
         self.id_counter = 0
         self.addheaders: list[tuple[str, str]] = list(headers)
@@ -138,7 +165,7 @@ class Browser:
         if start_worker:
             self._ensure_state()
 
-    def _open(self, url_or_request: Request | str, data=None, timeout=None, visit: bool = True):
+    def _open(self, url_or_request: Request | str, data: RequestData = None, timeout: float | None = None, visit: bool = True) -> FakeResponse:
         method = 'POST' if data else 'GET'
         headers = []
         if hasattr(url_or_request, 'get_method'):
@@ -195,10 +222,10 @@ class Browser:
             self._send_command(cmd)
         return res
 
-    def open(self, url_or_request: Request | str, data=None, timeout=None):
+    def open(self, url_or_request: Request | str, data: RequestData = None, timeout: float | None = None) -> FakeResponse:
         return self._open(url_or_request, data, timeout)
 
-    def open_novisit(self, url_or_request: Request | str, data=None, timeout=None):
+    def open_novisit(self, url_or_request: Request | str, data: RequestData = None, timeout: float | None = None) -> FakeResponse:
         return self._open(url_or_request, data, timeout, visit=False)
 
     def is_method_ok(self, method: str) -> bool:
@@ -219,10 +246,10 @@ class Browser:
         self.user_agent = val
         self._send_command({'action': 'set_user_agent', 'user_agent': val})
 
-    def clone_browser(self):
+    def clone_browser(self) -> Self:
         return self
 
-    def _send_command(self, cmd) -> None:
+    def _send_command(self, cmd: Mapping[str, object]) -> None:
         with self.lock:
             self._ensure_state()
             _worker = self.worker
@@ -241,7 +268,7 @@ class Browser:
                 self.dispatcher = Thread(target=self._dispatch, daemon=True)
                 self.dispatcher.start()
 
-    def run_worker(self) -> subprocess.Popen:
+    def run_worker(self) -> PipeWorker:
         return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates)
 
     def _dispatch(self) -> None:
@@ -294,32 +321,32 @@ class Browser:
 
 
 class WebEngineBrowser(Browser):
-    def run_worker(self) -> subprocess.Popen:
+    def run_worker(self) -> PipeWorker:
         return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates, function='webengine_worker')
 
 
-def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, function: str = 'worker'):
+def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, function: str = 'worker') -> PipeWorker:
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
     return start_pipe_worker(f'from calibre.scraper.qt import {function}; {function}({tdir!r}, {user_agent!r}, {verify_ssl_certificates!r})')
 
 
-def worker(*args) -> None:
+def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
     from calibre.gui2 import must_use_qt
 
     must_use_qt()
     from .qt_backend import worker
 
-    worker(*args)
+    worker(tdir, user_agent, verify_ssl_certificates)
 
 
-def webengine_worker(*args) -> None:
+def webengine_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
     from calibre.gui2 import must_use_qt
 
     must_use_qt()
     from .webengine_backend import worker
 
-    worker(*args)
+    worker(tdir, user_agent, verify_ssl_certificates)
 
 
 def develop() -> None:

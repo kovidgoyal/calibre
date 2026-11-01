@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
     from lxml.etree import _Element
 
+    from calibre.scraper.qt import WebEngineBrowser
     from calibre.utils.browser import Browser
 
     _T = TypeVar('_T')
@@ -236,7 +237,7 @@ def wayback_url_processor(url: str) -> str:
     return url
 
 
-ddg_scraper_storage: list[object] = []
+ddg_scraper_storage: list[WebEngineBrowser] = []
 
 
 def ddg_search(
@@ -304,7 +305,7 @@ def resolve_bing_wrapper_page(url: str, br: Browser, log: LogFunc) -> str:
     return m.group(1)
 
 
-bing_scraper_storage: list[object] = []
+bing_scraper_storage: list[WebEngineBrowser] = []
 
 
 def bing_search(
@@ -552,7 +553,7 @@ def yandex_parse_results(root: _Element, raw: str | bytes, log: LogFunc = prints
     return []
 
 
-yandex_scraper_storage: list[object] = []
+yandex_scraper_storage: list[WebEngineBrowser] = []
 
 
 def yandex_search(

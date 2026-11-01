@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections.abc import Buffer, Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from calibre.db.categories import Tag
     from calibre.ebooks.metadata.book.base import Metadata
-    from calibre.library.field_metadata import FieldMetadata
+    from calibre.library.field_metadata import FieldMetadata, SerializedFieldMetadata
 
 
 def encoded(typ: int, data: object, ExtType: type[msgpack.ExtType] | None) -> dict[str, object] | msgpack.ExtType:
@@ -87,7 +87,7 @@ def decode_metadata(x: dict[str, Any], for_json: bool) -> Metadata:
 def decode_field_metadata(x: dict[str, Any], for_json: bool) -> FieldMetadata:
     from calibre.library.field_metadata import fm_from_dict
 
-    return fm_from_dict(x)
+    return fm_from_dict(cast('SerializedFieldMetadata', x))
 
 
 def decode_category_tag(x: dict[str, Any], for_json: bool) -> Tag:

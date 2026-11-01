@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from typing import NotRequired, TypedDict
 
     from calibre.db.cache import Cache
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData
     from calibre.srv.utils import MultiDict
@@ -63,7 +64,7 @@ def get_pagination(query: MultiDict[str], num: int = 100, offset: int = 0) -> tu
     return num, offset
 
 
-def category_icon(category: str, meta: dict) -> str:  # {{{
+def category_icon(category: str, meta: FieldMetadataDict) -> str:  # {{{
     if category in category_icon_map:
         icon = category_icon_map[category]
     elif meta['is_custom']:
@@ -302,7 +303,8 @@ def categories(ctx: Context, rd: RequestData, library_id: str | None) -> list[di
         library_id = db.server_library_id
 
         def getter(x: str) -> str:
-            return category_meta[x]['name']
+            # categories always have a name
+            return cast('str', category_meta[x]['name'])
 
         displayed_custom_fields = custom_fields_to_display(db)
 

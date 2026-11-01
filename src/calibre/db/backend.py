@@ -1244,7 +1244,8 @@ class DB:
         }
 
         for k, v in self.FIELD_MAP.items():
-            self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
+            # at this point FIELD_MAP contains only the builtin fields, keyed by name
+            self.field_metadata.set_field_record_index(cast('str', k), v, prefer_custom=False)
 
         base = max(self.FIELD_MAP.values())
 

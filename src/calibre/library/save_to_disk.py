@@ -4,6 +4,7 @@
 import os
 import re
 import traceback
+from typing import TYPE_CHECKING, cast, overload
 
 from calibre import prints, sanitize_file_name, strftime
 from calibre.constants import DEBUG, iswindows, preferred_encoding
@@ -16,6 +17,41 @@ from calibre.utils.filenames import ascii_filename, make_long_path_useable, shor
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
+    from optparse import Values
+    from typing import IO, TypedDict
+
+    from calibre.db.cache import Cache
+    from calibre.db.cli.cmd_export import DBProxy
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.config_base import OptionValues
+    from calibre.utils.formatter import Kwargs
+    from calibre.utils.formatter_functions import UserFunctionPref
+
+    #: A plugboard is a list of (source template, destination field) pairs
+    type Plugboard = Sequence[Sequence[str]]
+    #: Plugboards keyed by format and then by device name
+    type Plugboards = Mapping[str, Mapping[str, Plugboard]]
+    type SaveOptions = OptionValues | Values
+
+    class SerializedBook(TypedDict, total=False):
+        """Data about a saved book passed to update_serialized_metadata()"""
+
+        last_modified: str
+        cover: str
+        opf: str
+        fmts: list[str]
+
+    class SaveCommonData(TypedDict):
+        """Data common to all books passed to update_serialized_metadata()"""
+
+        plugboard_cache: Mapping[str, Plugboard | None]
+        template_functions: list[UserFunctionPref]
+        library_id: str
+
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -42,12 +78,12 @@ FORMAT_ARG_DESCS = {
     'pages': _('The calibre internal page count'),
 }
 
-FORMAT_ARGS = {}
+FORMAT_ARGS: dict[str, object] = {}
 for x in FORMAT_ARG_DESCS:
     FORMAT_ARGS[x] = ''
 
 
-def find_plugboard(device_name, format, plugboards):
+def find_plugboard(device_name: str, format: str, plugboards: Plugboards) -> Plugboard | None:
     cpb = None
     if format in plugboards:
         pb = plugboards[format]
@@ -66,7 +102,7 @@ def find_plugboard(device_name, format, plugboards):
     return cpb
 
 
-def config(defaults=None):
+def config(defaults: str | None = None) -> Config | StringConfig:
     if defaults is None:
         c = Config('save_to_disk', _('Options to control saving to disk'))
     else:
@@ -144,7 +180,7 @@ def config(defaults=None):
     return c
 
 
-def preprocess_template(template):
+def preprocess_template(template: str) -> str:
     template = template.replace('//', '/')
     template = template.replace('{author}', '{authors}')
     template = template.replace('{tag}', '{tags}')
@@ -158,7 +194,7 @@ class Formatter(TemplateFormatter):
     Provides a format function that substitutes '' for any missing value
     """
 
-    def get_value(self, key, args, kwargs):
+    def get_value(self, key: int | str, args: Sequence[object], kwargs: Kwargs) -> str:
         if not isinstance(key, str) or key == '':
             return ''
         try:
@@ -176,18 +212,20 @@ class Formatter(TemplateFormatter):
                 self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
                 self.composite_values[key] = self.evaluate(b['display']['composite_template'], [], kwargs, {})
                 return self.composite_values[key]
+            # kwargs is always the dict created by get_component_metadata()
+            kwargs = cast('dict[str, object]', kwargs)
             if key in kwargs:
                 val = kwargs[key]
                 if isinstance(val, (list, FormatsList)):
                     val = ','.join(val)
-                return val.replace('/', '_').replace('\\', '_')
+                return cast('str', val).replace('/', '_').replace('\\', '_')
             return ''
         except Exception:
             traceback.print_exc()
             return key
 
 
-def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
+def get_component_metadata(template: str, mi: Metadata, book_id: object, timefmt: str = '%b %Y') -> dict[str, object]:
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
@@ -237,15 +275,15 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
         if key in format_args:
             cm = custom_metadata[key]
             if cm['datatype'] == 'series':
-                format_args[key] = title_sort(format_args[key], order=tsorder)
+                format_args[key] = title_sort(cast('str', format_args[key]), order=tsorder)
                 if key + '_index' in format_args:
-                    format_args[key + '_index'] = fmt_sidx(format_args[key + '_index'])
+                    format_args[key + '_index'] = fmt_sidx(cast('float', format_args[key + '_index']))
             elif cm['datatype'] == 'datetime':
                 format_args[key] = strftime(timefmt, as_local_time(format_args[key]).timetuple())  # ty: ignore[unresolved-attribute]
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
             elif cm['datatype'] == 'rating':
-                format_args[key] = mi.format_rating(format_args[key], divide_by=2.0)
+                format_args[key] = mi.format_rating(cast('float', format_args[key]), divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
                     format_args[key] = str(format_args[key])
@@ -255,18 +293,18 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
 
 
 def get_components(
-    template,
-    mi,
-    book_id,
-    timefmt='%b %Y',
-    length=250,
-    sanitize_func=ascii_filename,
-    replace_whitespace=False,
-    to_lowercase=False,
-    safe_format=True,
-    last_has_extension=True,
-    single_dir=False,
-):
+    template: str,
+    mi: Metadata,
+    book_id: object,
+    timefmt: str = '%b %Y',
+    length: int = 250,
+    sanitize_func: Callable[[str], str] = ascii_filename,
+    replace_whitespace: bool = False,
+    to_lowercase: bool = False,
+    safe_format: bool = True,
+    last_has_extension: bool = True,
+    single_dir: bool = False,
+) -> list[str]:
     format_args = get_component_metadata(template, mi, book_id, timefmt)
     if safe_format:
         components = Formatter().safe_format(template, format_args, 'G_C-EXCEPTION!', mi)
@@ -286,7 +324,7 @@ def get_components(
     return shorten_components_to(length, components, last_has_extension=last_has_extension)
 
 
-def get_formats(available_formats, formats):
+def get_formats(available_formats: Iterable[str], formats: str) -> set[str]:
     available_formats = {x.lower().strip() for x in available_formats}
     if formats == 'all':
         asked_formats = available_formats
@@ -295,15 +333,15 @@ def get_formats(available_formats, formats):
     return available_formats & asked_formats
 
 
-def save_book_to_disk(book_id, db, root, opts, length):
-    db = db.new_api
-    mi = db.get_metadata(book_id, index_is_id=True)
-    plugboards = db.pref('plugboards', {})
-    formats = get_formats(db.formats(book_id), opts.formats)
-    return do_save_book_to_disk(db, book_id, mi, plugboards, formats, root, opts, length)
+def save_book_to_disk(book_id: int, db: LibraryDatabase, root: str, opts: SaveOptions, length: int) -> tuple[bool, int, str]:
+    cache = db.new_api
+    mi = cache.get_metadata(book_id)
+    plugboards: Plugboards = cache.pref('plugboards', {})
+    formats = get_formats(cache.formats(book_id), opts.formats)
+    return do_save_book_to_disk(cache, book_id, mi, plugboards, formats, root, opts, length)
 
 
-def get_path_components(opts, mi, book_id, path_length):
+def get_path_components(opts: SaveOptions, mi: Metadata, book_id: int, path_length: int) -> list[str]:
     try:
         components = get_components(
             opts.template,
@@ -325,12 +363,20 @@ def get_path_components(opts, mi, book_id, path_length):
     return components
 
 
-def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugboard_cache=None) -> None:
+def update_metadata(
+    mi: Metadata,
+    fmt: str,
+    stream: IO[bytes],
+    plugboards: Plugboards,
+    cdata: bytes | None,
+    error_report: Callable[[str, str], None] | None = None,
+    plugboard_cache: Mapping[str, Plugboard | None] | None = None,
+) -> None:
     from calibre.ebooks.metadata.meta import set_metadata
 
     if error_report is not None:
 
-        def report_error(mi, fmt, tb) -> None:
+        def report_error(mi: Metadata, fmt: str, tb: str) -> None:
             error_report(fmt, tb)
 
     try:
@@ -354,7 +400,17 @@ def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugb
             error_report(fmt, traceback.format_exc())
 
 
-def do_save_book_to_disk(db, book_id, mi, plugboards, formats, root, opts, length, extra_files=()):
+def do_save_book_to_disk(
+    db: Cache | DBProxy,
+    book_id: int,
+    mi: Metadata,
+    plugboards: Plugboards,
+    formats: Collection[str],
+    root: str,
+    opts: SaveOptions,
+    length: int,
+    extra_files: Collection[str] = (),
+) -> tuple[bool, int, str]:
     originals = mi.cover, mi.pubdate, mi.timestamp
     formats_written = False
     try:
@@ -410,7 +466,13 @@ def do_save_book_to_disk(db, book_id, mi, plugboards, formats, root, opts, lengt
     return not formats_written, book_id, mi.title
 
 
-def sanitize_args(root, opts):
+@overload
+def sanitize_args(root: str, opts: None) -> tuple[str, OptionValues, int]: ...
+@overload
+def sanitize_args[O: (OptionValues, Values)](root: str, opts: O) -> tuple[str, O, int]: ...
+@overload
+def sanitize_args(root: str, opts: SaveOptions | None) -> tuple[str, SaveOptions, int]: ...
+def sanitize_args(root: str, opts: SaveOptions | None) -> tuple[str, SaveOptions, int]:
     if opts is None:
         opts = config().parse()
     root = os.path.abspath(root)
@@ -424,7 +486,13 @@ def sanitize_args(root, opts):
     return root, opts, length
 
 
-def save_to_disk(db, ids, root, opts=None, callback=None):
+def save_to_disk(
+    db: LibraryDatabase,
+    ids: Iterable[int],
+    root: str,
+    opts: SaveOptions | None = None,
+    callback: Callable[[int, str, bool, str], bool] | None = None,
+) -> list[tuple[int, str, str]]:
     """
     Save books from the database ``db`` to the path specified by ``root``.
 
@@ -444,7 +512,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
             failed, id, title = save_book_to_disk(x, db, root, opts, length)
             tb = _('Requested formats not available')
         except Exception:
-            failed, id, title = True, x, db.title(x, index_is_id=True)
+            failed, id, title = True, x, db.title(x, index_is_id=True)  # ty: ignore[unresolved-attribute] legacy getter added dynamically in calibre.db.legacy
             tb = traceback.format_exc()
         if failed:
             failures.append((id, title, tb))
@@ -454,7 +522,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
     return failures
 
 
-def read_serialized_metadata(data):
+def read_serialized_metadata(data: SerializedBook) -> tuple[Metadata, bytes | None]:
     from calibre.ebooks.metadata.opf2 import OPF
     from calibre.utils.date import parse_date
 
@@ -471,7 +539,7 @@ def read_serialized_metadata(data):
     return mi, cdata
 
 
-def update_serialized_metadata(book, common_data):
+def update_serialized_metadata(book: SerializedBook, common_data: SaveCommonData) -> list[tuple[str, str]]:
     # This is called from a worker process. It must not open the database.
     result = []
     plugboard_cache = common_data['plugboard_cache']
@@ -482,13 +550,13 @@ def update_serialized_metadata(book, common_data):
         fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
         mi, cdata = read_serialized_metadata(book)
 
-        def report_error(fmt, tb) -> None:
+        def report_error(fmt: str, tb: str) -> None:
             result.append((fmt, tb))
 
         for fmt, fmtpath in zip(fmts, book['fmts']):
             try:
                 with open(fmtpath, 'r+b') as stream:
-                    update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
+                    update_metadata(mi, fmt, stream, {}, cdata, error_report=report_error, plugboard_cache=plugboard_cache)
             except Exception:
                 report_error(fmt, traceback.format_exc())
 

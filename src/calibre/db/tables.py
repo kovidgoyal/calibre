@@ -15,58 +15,11 @@ from calibre_extensions.speedup import parse_date as _c_speedup
 if TYPE_CHECKING:
     from collections.abc import Collection, Mapping
     from collections.abc import Set as AbstractSet
-    from typing import TypedDict
 
     from apsw import SQLiteValue
 
     from calibre.db.backend import DB
-
-    class FieldDisplay(TypedDict, total=False):
-        """The display dict of a field, as stored in FieldMetadata"""
-
-        allow_half_stars: bool
-        bools_show_icons: bool
-        bools_show_text: bool
-        composite_show_in_comments: bool
-        composite_sort: str
-        composite_store_template_value_in_opf: bool
-        composite_template: str
-        contains_html: bool
-        date_format: str | None
-        decimals: int
-        default_value: object
-        description: str
-        enum_colors: list[str]
-        enum_values: list[str]
-        heading_position: str
-        interpret_as: str
-        is_names: bool
-        make_category: bool
-        number_format: str | None
-        sort_alpha: bool
-        use_decorations: bool
-        web_search_template: str
-
-    class FieldMetadataEntry(TypedDict, total=False):
-        """The metadata for a single field, as stored in FieldMetadata"""
-
-        category_sort: str | None
-        colnum: int | None
-        column: str | None
-        datatype: str
-        display: FieldDisplay
-        is_category: bool
-        is_csp: bool
-        is_custom: bool
-        is_editable: bool
-        is_multiple: dict[str, str]
-        kind: str
-        label: str
-        link_column: str | None
-        name: str | None
-        rec_index: int
-        search_terms: list[str]
-        table: str | None
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict as FieldMetadataEntry
 
 
 def identity[T](x: T) -> T:

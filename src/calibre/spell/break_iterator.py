@@ -2,28 +2,35 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import threading
+from typing import TYPE_CHECKING
 
 from calibre.utils.icu import _icu
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 
+if TYPE_CHECKING:
+    import re
+    from collections.abc import Iterator
+
+    from calibre_extensions.icu import BreakIterator
+
 
 class PerThreadIterators(threading.local):
     def __init__(self) -> None:
-        self.iterators = {}
-        self.sentence_iterators = {}
-        self.extra_break_char_word_iterators = {}
+        self.iterators: dict[str, BreakIterator] = {}
+        self.sentence_iterators: dict[str, BreakIterator] = {}
+        self.extra_break_char_word_iterators: dict[tuple[str, str | None], BreakIterator] = {}
 
 
 per_thread_iterators = PerThreadIterators()
 
 
-def get_iterator(lang):
+def get_iterator(lang: str) -> BreakIterator:
     if (it := per_thread_iterators.iterators.get(lang)) is None:
         it = per_thread_iterators.iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
     return it
 
 
-def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: str | None = None):
+def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: str | None = None) -> BreakIterator:
     extra_break_chars = extra_break_chars or None
     lang = lang or get_lang() or 'en'
     key = lang, extra_break_chars
@@ -32,55 +39,56 @@ def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: 
     return it
 
 
-def get_sentence_iterator(lang):
+def get_sentence_iterator(lang: str) -> BreakIterator:
     if (it := per_thread_iterators.sentence_iterators.get(lang)) is None:
         it = per_thread_iterators.sentence_iterators[lang] = _icu.BreakIterator(_icu.UBRK_SENTENCE, lang_as_iso639_1(lang) or lang)
     return it
 
 
-def split_into_words(text, lang='en'):
+def split_into_words(text: str, lang: str = 'en') -> list[str]:
     it = get_iterator(lang)
     it.set_text(text)
     return [text[p : p + s] for p, s in it.split2()]
 
 
-def split_into_words_and_positions(text, lang='en'):
+def split_into_words_and_positions(text: str, lang: str = 'en') -> list[tuple[int, int]]:
     it = get_iterator(lang)
     it.set_text(text)
     return it.split2()
 
 
-def sentence_positions(text, lang='en'):
+def sentence_positions(text: str, lang: str = 'en') -> list[tuple[int, int]]:
     it = get_sentence_iterator(lang)
     it.set_text(text)
     return it.split2()
 
 
-def split_into_sentences(text, lang='en'):
+def split_into_sentences(text: str, lang: str = 'en') -> tuple[str, ...]:
     it = get_sentence_iterator(lang)
     it.set_text(text)
     return tuple(text[p : p + s] for p, s in it.split2())
 
 
-def index_of(needle, haystack, lang='en'):
+def index_of(needle: str, haystack: str, lang: str = 'en') -> int:
     it = get_iterator(lang)
     it.set_text(haystack)
     return it.index(needle)
 
 
-def count_words(text, lang='en'):
+def count_words(text: str, lang: str = 'en') -> int:
     it = get_iterator(lang)
     it.set_text(text)
     return it.count_words()
 
 
-def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: int = 2048):
+def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: int = 2048) -> Iterator[tuple[int, str]]:
     if len(sentence) <= limit:
         yield offset, sentence
         return
-    buf, total, start_at = [], 0, 0
+    buf: list[str] = []
+    total, start_at = 0, 0
 
-    def a(s, e) -> None:
+    def a(s: int, e: int) -> None:
         nonlocal total, start_at
         t = sentence[s:e]
         if not buf:
@@ -103,10 +111,10 @@ PARAGRAPH_SEPARATOR = '\u2029'
 def split_into_sentences_for_tts_embed(
     text: str,
     lang: str = 'en',
-):
+) -> Iterator[tuple[int, int]]:
     import re
 
-    def sub(m):
+    def sub(m: re.Match[str]) -> str:
         return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)
 
     text = re.sub(r'\n{2,}', sub, text.replace('\r', ' ')).replace('\n', ' ')
@@ -119,10 +127,10 @@ def split_into_sentences_for_tts(
     min_sentence_length: int = 32,
     max_sentence_length: int = 1024,
     PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR,
-):
+) -> Iterator[tuple[int, str]]:
     import re
 
-    def sub(m):
+    def sub(m: re.Match[str]) -> str:
         return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)
 
     text = re.sub(r'\n{2,}', sub, text.replace('\r', ' ')).replace('\n', ' ')

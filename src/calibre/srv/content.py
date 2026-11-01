@@ -45,6 +45,7 @@ if TYPE_CHECKING:
 
     from calibre.db.cache import Cache
     from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.save_to_disk import Plugboards
     from calibre.srv.handler import Context
     from calibre.srv.http_response import ETaggedFile, RequestData
 
@@ -278,7 +279,7 @@ def book_fmt(ctx: Context, rd: RequestData, library_id: str, db: Cache, book_id:
         assert mi.last_modified is not None  # Cache.get_metadata() always sets it
         mtime = max(mtime, mi.last_modified)
         # Get any plugboards for the Content server
-        plugboards = db.pref('plugboards')
+        plugboards = cast('Plugboards | None', db.pref('plugboards'))
         if plugboards:
             cpb = find_plugboard(plugboard_content_server_value, fmt, plugboards)
             if cpb:

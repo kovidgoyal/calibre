@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from calibre.db.cache import Cache
     from calibre.db.cli.main import DBContext
     from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.library.save_to_disk import Plugboard
     from calibre.srv.changes import ChangeEvent
     from calibre.utils.config import OptionParser
     from calibre.utils.formatter_functions import UserFunctionPref
@@ -33,7 +34,7 @@ def implementation(
     if action == 'all_ids':
         return db.all_book_ids()
     if action == 'setup':
-        book_id, formats = cast('tuple[int, str | None]', args)
+        book_id, formats = cast('tuple[int, str]', args)
         if not db.has_id(book_id):
             raise KeyError(f'No book with id {book_id} present')
         mi = db.get_metadata(book_id)
@@ -80,6 +81,7 @@ You can get id numbers from the search command.
     c = config()
     for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover', 'save_extra_files']:
         opt = c.get_option(pref)
+        assert opt is not None and opt.help is not None
         switch = '--dont-' + pref.replace('_', '-')
         parser.add_option(
             switch,
@@ -91,11 +93,13 @@ You can get id numbers from the search command.
 
     for pref in ['timefmt', 'template', 'formats']:
         opt = c.get_option(pref)
+        assert opt is not None
         switch = '--' + pref
         parser.add_option(switch, default=opt.default, help=opt.help, dest=pref)
 
     for pref in ('replace_whitespace', 'to_lowercase'):
         opt = c.get_option(pref)
+        assert opt is not None
         switch = '--' + pref.replace('_', '-')
         parser.add_option(switch, default=False, action='store_true', help=opt.help)
 
@@ -130,10 +134,11 @@ class DBProxy:
 
 def export(opts: Values, dbctx: DBContext, book_id: int, dest: str, dbproxy: DBProxy, length: int, first: bool) -> tuple[bool, int, str]:
     mi, plugboards, formats, library_id, template_funcs = cast(
-        'tuple[Metadata, dict[str, object], list[str] | set[str], str, list[UserFunctionPref]]',
+        'tuple[Metadata, dict[str, dict[str, Plugboard]], list[str] | set[str], str, list[UserFunctionPref]]',
         dbctx.run('export', 'setup', book_id, opts.formats),
     )
-    extra_files = plugboards.pop('extra_files_for_export', ())
+    # implementation() stores the extra files in the plugboards dict
+    extra_files = cast('tuple[str, ...]', plugboards.pop('extra_files_for_export', ()))
     if dbctx.is_remote and first:
         load_user_template_functions(library_id, template_funcs)
     return do_save_book_to_disk(dbproxy, book_id, mi, plugboards, formats, dest, opts, length, extra_files)

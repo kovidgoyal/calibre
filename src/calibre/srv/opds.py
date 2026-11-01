@@ -903,7 +903,7 @@ def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, object]:
 
     def getter(x: str) -> str:
         try:
-            return category_meta[x]['name'].lower()
+            return cast('str', category_meta[x]['name']).lower()
         except KeyError:
             return x
 
@@ -918,7 +918,9 @@ def opds(ctx: Context, rd: RequestData) -> etree.Element | dict[str, object]:
         meta = category_meta.get(category, None)
         if meta is None:
             continue
-        cats.append((meta['name'], meta['name'], 'N' + category))
+        # categories always have a name
+        name = cast('str', meta['name'])
+        cats.append((name, name, 'N' + category))
     last_modified = db.last_modified()
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
     if rc.is_opds2:

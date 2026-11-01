@@ -6,10 +6,23 @@ import json
 import os
 import unittest
 from threading import Event, Thread
+from typing import TYPE_CHECKING
 
 from calibre.constants import ismacos, iswindows
 
 from .qt import Browser, WebEngineBrowser
+
+if TYPE_CHECKING:
+    from typing import NotRequired, TypedDict
+
+    class EchoResponse(TypedDict):
+        path: str
+        headers: dict[str, list[str]]
+        request_count: int
+        method: str
+        data: NotRequired[str]
+        final_url: str
+
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 skip = ''
@@ -19,7 +32,7 @@ if is_sanitized:
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-    def __init__(self, test_obj, *a) -> None:
+    def __init__(self, test_obj: TestFetchBackend, *a: object) -> None:
         self.test_obj = test_obj
         super().__init__(*a)
 
@@ -66,7 +79,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         else:
             self.wfile.write(data)
 
-    def log_request(self, code='-', size='-') -> None:
+    def log_request(self, code: int | str = '-', size: int | str = '-') -> None:
         pass
 
 
@@ -95,16 +108,16 @@ class TestFetchBackend(unittest.TestCase):
     def test_recipe_browser_webengine(self) -> None:
         self.do_recipe_browser_test(WebEngineBrowser)
 
-    def do_recipe_browser_test(self, browser_class) -> None:
+    def do_recipe_browser_test(self, browser_class: type[Browser]) -> None:
         from urllib.error import URLError
         from urllib.request import Request
 
         br = browser_class(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
 
-        def u(path='') -> str:
+        def u(path: str = '') -> str:
             return f'http://{self.host}:{self.port}{path}'
 
-        def get(path='', headers=None, timeout=None, data=None):
+        def get(path: str = '', headers: dict[str, str] | None = None, timeout: float | None = None, data: bytes | None = None) -> EchoResponse:
             url = u(path)
             if headers:
                 req = Request(url, headers=headers)
@@ -116,7 +129,7 @@ class TestFetchBackend(unittest.TestCase):
                 ans['final_url'] = res.geturl()
             return ans
 
-        def test_with_timeout(no_response=True) -> None:
+        def test_with_timeout(no_response: bool = True) -> None:
             self.dont_send_body = True
             if no_response:
                 self.dont_send_response = True
@@ -135,7 +148,7 @@ class TestFetchBackend(unittest.TestCase):
             # connection in the following requests causes a RemoteHostClosedError
             get()
 
-        def header(name, *expected) -> None:
+        def header(name: str, *expected: str) -> None:
             name = name.lower()
             ans = []
             for k, v in r['headers'].items():
@@ -143,7 +156,7 @@ class TestFetchBackend(unittest.TestCase):
                     ans.extend(v)
             self.ae(expected, tuple(ans))
 
-        def has_header(name) -> None:
+        def has_header(name: str) -> None:
             self.assertIn(name.lower(), [h.lower() for h in r['headers']])
 
         try:
@@ -182,7 +195,7 @@ class TestFetchBackend(unittest.TestCase):
         from http.server import HTTPServer
         from socketserver import TCPServer, ThreadingMixIn
 
-        def create_handler(*a):
+        def create_handler(*a: object) -> Handler:
             ans = Handler(self, *a)
             return ans
 
@@ -205,5 +218,5 @@ class TestFetchBackend(unittest.TestCase):
             httpd.serve_forever()
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestFetchBackend)

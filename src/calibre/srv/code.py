@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from typing import TypedDict
 
     from calibre.db.cache import Cache
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.srv.http_response import ETaggedDynamicOutput
     from calibre.srv.last_read import RecentlyReadEntry
 
@@ -313,7 +314,7 @@ BROWSE_FIELD_DESCRIPTIONS = {
 BROWSE_IGNORED_CATEGORIES = frozenset({'identifiers', 'news', 'search'})
 
 
-def browse_field_kind(key: str, metadata: dict | None) -> str:
+def browse_field_kind(key: str, metadata: FieldMetadataDict | None) -> str:
     if metadata is None or metadata.get('kind') != 'field':
         return ''
     if key == 'pubdate' or (metadata.get('is_custom') and metadata.get('datatype') == 'datetime'):
@@ -332,7 +333,7 @@ def browse_field_custom_icon_url(ctx: Context, key: str) -> str:
     return ''
 
 
-def browse_field_entry(ctx: Context, key: str, metadata: dict, kind: str, hidden_categories: AbstractSet[str]) -> dict[str, object]:
+def browse_field_entry(ctx: Context, key: str, metadata: FieldMetadataDict, kind: str, hidden_categories: AbstractSet[str]) -> dict[str, object]:
     name = metadata.get('name') or key
     return {
         'key': key,
@@ -356,8 +357,8 @@ def browse_field_map(ctx: Context, db: Cache) -> dict[str, dict[str, object]]:
         kind = browse_field_kind(key, metadata)
         if kind:
             # browse_field_kind() returns '' when metadata is None
-            ans[key] = browse_field_entry(ctx, key, cast('dict', metadata), kind, hidden_categories)
-    custom_fields: list[tuple[bytes, str, dict, str]] = []
+            ans[key] = browse_field_entry(ctx, key, cast('FieldMetadataDict', metadata), kind, hidden_categories)
+    custom_fields: list[tuple[bytes, str, FieldMetadataDict, str]] = []
     for key, metadata in fm.custom_field_metadata(include_composites=False).items():
         kind = browse_field_kind(key, metadata)
         if kind and key not in ans:

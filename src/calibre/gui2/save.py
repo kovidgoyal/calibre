@@ -9,7 +9,7 @@ import traceback
 from collections import defaultdict
 from io import BytesIO
 from queue import Empty
-from typing import NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -27,6 +27,9 @@ from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.library.save_to_disk import Plugboards
 
 
 class BookId(NamedTuple):
@@ -178,7 +181,7 @@ class Saver(QObject):
         pd.value = 0
         if self.opts.update_metadata:
             all_fmts = {fmt for data in collected_data.values() for fmt in data[2]}
-            plugboards_cache = {fmt: find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
+            plugboards_cache = {fmt: find_plugboard(plugboard_save_to_disk_value, fmt, cast('Plugboards', self.plugboards)) for fmt in all_fmts}
             self.pool = Pool(name='SaveToDisk') if self.pool is None else self.pool
             try:
                 self.pool.set_common_data({

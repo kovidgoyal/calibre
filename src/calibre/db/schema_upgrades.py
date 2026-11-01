@@ -305,7 +305,7 @@ class SchemaUpgrade:
         assert self.db is not None
         assert self.field_metadata is not None
 
-        def create_tag_browser_view(table_name: str, column_name: str, view_column_name: str) -> None:
+        def create_tag_browser_view(table_name: str | None, column_name: str | None, view_column_name: str | None) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -339,7 +339,7 @@ class SchemaUpgrade:
         assert self.db is not None
         assert self.field_metadata is not None
 
-        def create_std_tag_browser_view(table_name: str, column_name: str, view_column_name: str, sort_column_name: str) -> None:
+        def create_std_tag_browser_view(table_name: str | None, column_name: str | None, view_column_name: str | None, sort_column_name: str | None) -> None:
             script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
