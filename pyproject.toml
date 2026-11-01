@@ -281,7 +281,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"recipes/*" = ['UP', 'FLY', 'DTZ', 'slice-to-remove-prefix-or-suffix']
+"recipes/*" = ['ANN', 'UP', 'FLY', 'DTZ', 'slice-to-remove-prefix-or-suffix']
 "manual/plugin_examples/interface_demo/ui.py" = ['useless-expression']
 "setup/changelog.py" = ['single-line-implicit-string-concatenation']
 "setup/plugins_mirror.py" = ['DTZ']
@@ -291,7 +291,8 @@ ignore = [
 "src/calibre/{rpdb,utils/ipython}.py" = ['T1']
 "src/qt/*.py" = ['I', 'blank-lines-top-level']
 "src/qt/*.pyi" = ['I']
-"!src/calibre/{ai,web,utils,db,srv,devices,ebooks,customize,library,scraper,spell}/**/*.py" = ['ANN']
+"src/{odf,qt,calibre/{gui2,translations}}/*" = ['ANN']
+"{manual,setup,stubs}/*" = ['ANN']
 # These modules wrap a browser, whose operations can all block indefinitely on
 # the network, so every one of them takes an explicit timeout
 "src/calibre/web/automate/{camoufox,recipes}.py" = ['async-function-with-timeout']
@@ -320,7 +321,6 @@ extend-immutable-calls = [
     "qt.core.QModelIndex",
     "qt.core.QColor",
 ]
-
 
 [tool.ruff.lint.flake8-comprehensions]
 allow-dict-calls-with-keyword-arguments = true

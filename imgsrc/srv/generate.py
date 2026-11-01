@@ -12,10 +12,10 @@ SVG_NS = 'http://www.w3.org/2000/svg'
 XLINK_NS = 'http://www.w3.org/1999/xlink'
 
 
-def clone_node(node, parent):
+def clone_node(node: etree.Element, parent: etree.Element) -> etree.Element:
     ans = parent.makeelement(node.tag)
     for k in node.keys():
-        ans.set(k, node.get(k))
+        ans.set(k, node.get(k))  # ty: ignore[invalid-argument-type]
     ans.text, ans.tail = node.text, node.tail
     for child in node.iterchildren('*'):
         clone_node(child, ans)
@@ -23,7 +23,7 @@ def clone_node(node, parent):
     return ans
 
 
-def merge():
+def merge() -> str:
     base = os.path.dirname(os.path.abspath(__file__))
     ans = etree.fromstring(f'<svg xmlns="{SVG_NS}" xmlns:xlink="{XLINK_NS}"/>', parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
     for f in sorted(os.listdir(base)):
@@ -44,4 +44,4 @@ def merge():
 
 
 if __name__ == '__main__':
-    sys.stdout.write(merge().encode('utf-8'))
+    sys.stdout.write(merge())
