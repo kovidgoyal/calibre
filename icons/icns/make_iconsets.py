@@ -87,7 +87,7 @@ def create_icon(name: str, svg_path: str, output_path: str) -> str:
     return icon_dir
 
 
-def create_assets():
+def create_assets() -> None:
     os.chdir(base)
     actool = [
         'xcrun',
@@ -119,7 +119,7 @@ def create_assets():
         shutil.rmtree(x)
 
 
-def main():
+def main() -> None:
     if 'darwin' in sys.platform.lower():
         create_assets()
     else:

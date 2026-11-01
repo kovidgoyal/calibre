@@ -14,8 +14,8 @@ icons = j(os.path.dirname(base), 'icons')
 srv = j(os.path.dirname(os.path.dirname(base)), 'srv')
 
 
-def render(outpath, sz, background=None):
-    sz = str(sz)
+def render(outpath: str, sz: int, background: str | None = None) -> None:
+    sz: str = str(sz)
     cmd = ['rsvg-convert', j(base, 'calibre.svg'), '-w', sz, '-h', sz, '-d', '96', '-p', '96', '-o', outpath]
     if background:
         cmd.insert(2, background), cmd.insert(2, '-b')
