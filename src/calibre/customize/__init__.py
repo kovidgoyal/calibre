@@ -105,11 +105,11 @@ class Plugin:  # {{{
     #: GUI
     type = _('Base')
 
-    def __init__(self, plugin_path):
+    def __init__(self, plugin_path) -> None:
         self.plugin_path = plugin_path
         self.site_customization = None
 
-    def initialize(self):
+    def initialize(self) -> None:
         """
         Called once when calibre plugins are initialized.  Plugins are
         re-initialized every time a new plugin is added. Also note that if the
@@ -163,11 +163,11 @@ class Plugin:  # {{{
         from calibre.gui2.geometry import restore_geometry, save_geometry
 
         class ConfigDialog(QDialog):
-            def __init__(self, parent, config_widget):
+            def __init__(self, parent, config_widget) -> None:
                 super().__init__(parent)
                 self.config_widget = config_widget
 
-            def accept(self):
+            def accept(self) -> None:
                 if (validate := getattr(self.config_widget, 'validate', None)) and getattr(self.config_widget, 'validate_before_accept', False):
                     if not validate():
                         return
@@ -300,7 +300,7 @@ class Plugin:  # {{{
         """
         return PersistentTemporaryFile(suffix)
 
-    def is_customizable(self):
+    def is_customizable(self) -> bool | None:
         try:
             self.customization_help()
             return True
@@ -418,7 +418,7 @@ class FileTypePlugin(Plugin):  # {{{
         # Default implementation does nothing
         return path_to_ebook
 
-    def postimport(self, book_id, book_format, db):
+    def postimport(self, book_id, book_format, db) -> None:
         """
         Called post import, i.e., after the book file has been added to the database. Note that
         this is different from :meth:`postadd` which is called when the book record is created for
@@ -431,7 +431,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
-    def postconvert(self, book_id, book_format, db):
+    def postconvert(self, book_id, book_format, db) -> None:
         """
         Called post conversion, i.e., after the conversion output book file has been added to the database.
         Note that it is run after a conversion only, not after a book is added. It is useful for modifying
@@ -443,7 +443,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
-    def postdelete(self, book_id, book_format, db):
+    def postdelete(self, book_id, book_format, db) -> None:
         """
         Called post deletion, i.e., after the book file has been deleted from the database. Note
         that it is not run when a book record is deleted, only when one or more formats from the
@@ -456,7 +456,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
-    def postadd(self, book_id, fmt_map, db):
+    def postadd(self, book_id, fmt_map, db) -> None:
         """
         Called post add, i.e. after a book has been added to the db. Note that
         this is different from :meth:`postimport`, which is called after a single book file
@@ -493,11 +493,11 @@ class MetadataReaderPlugin(Plugin):  # {{{
 
     type = _('Metadata reader')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Plugin.__init__(self, *args, **kwargs)
         self.quick = False
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream, type) -> None:
         """
         Return metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
@@ -528,12 +528,12 @@ class MetadataWriterPlugin(Plugin):  # {{{
 
     type = _('Metadata writer')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Plugin.__init__(self, *args, **kwargs)
         self.apply_null = False
         self.force_identifiers = False
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         """
         Set metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
@@ -646,7 +646,7 @@ class CatalogPlugin(Plugin):  # {{{
 
         return fields
 
-    def initialize(self):
+    def initialize(self) -> None:
         """
         If plugin is not a built-in, copy the plugin's .ui and .py files from
         the ZIP file to $TMPDIR.
@@ -701,7 +701,7 @@ class InterfaceActionBase(Plugin):  # {{{
 
     actual_plugin = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Plugin.__init__(self, *args, **kwargs)
         self.actual_plugin_ = None
 
@@ -900,10 +900,10 @@ class AIProviderPlugin(Plugin):  # {{{
             return False
         return self.builtin_live_module.is_ready_for_use()
 
-    def initialize(self):
+    def initialize(self) -> None:
         self._builtin_live_module = None
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui=False) -> str:
         return ''
 
     def config_widget(self):

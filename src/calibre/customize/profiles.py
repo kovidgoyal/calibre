@@ -21,7 +21,7 @@ class Plugin(_Plugin):
     screen_size = (1600, 1200)
     dpi = 100
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _Plugin.__init__(self, *args, **kwargs)
         self.width, self.height = self.screen_size
         self.fkey = list(self.font_sizes)

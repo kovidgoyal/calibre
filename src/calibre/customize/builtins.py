@@ -118,7 +118,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
     file_types = {'cbr', 'cbz', 'cb7', 'cbc'}
     description = _('Extract cover from comic files')
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui=False) -> str:
         return 'Read series number from volume or issue number. Default is volume, set this to issue to use issue number instead.'
 
     def get_metadata(self, stream, type):
@@ -456,7 +456,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
     file_types = {'epub', 'kepub'}
     description = _('Set metadata in EPUB and KEPUB files')
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.epub import set_metadata
 
         q = self.site_customization or ''
@@ -481,7 +481,7 @@ class FB2MetadataWriter(MetadataWriterPlugin):
     file_types = {'fb2', 'fbz'}
     description = _('Set metadata in %s files') % 'FB2'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.fb2 import set_metadata
 
         set_metadata(stream, mi, apply_null=self.apply_null)
@@ -493,7 +493,7 @@ class HTMLZMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata from %s files') % 'HTMLZ'
     author = 'John Schember'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.extz import set_metadata
 
         set_metadata(stream, mi)
@@ -504,7 +504,7 @@ class LRFMetadataWriter(MetadataWriterPlugin):
     file_types = {'lrf'}
     description = _('Set metadata in %s files') % 'LRF'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.lrf.meta import set_metadata
 
         set_metadata(stream, mi)
@@ -516,7 +516,7 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata in %s files') % 'MOBI'
     author = 'Marshall T. Vandegrift'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.mobi import set_metadata
 
         set_metadata(stream, mi)
@@ -528,7 +528,7 @@ class PDBMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata from %s files') % 'PDB'
     author = 'John Schember'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.pdb import set_metadata
 
         set_metadata(stream, mi)
@@ -540,7 +540,7 @@ class PDFMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata in %s files') % 'PDF'
     author = 'Kovid Goyal'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.pdf import set_metadata
 
         set_metadata(stream, mi)
@@ -551,7 +551,7 @@ class RTFMetadataWriter(MetadataWriterPlugin):
     file_types = {'rtf'}
     description = _('Set metadata in %s files') % 'RTF'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.rtf import set_metadata
 
         set_metadata(stream, mi)
@@ -563,7 +563,7 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata in %s files') % 'TOPAZ'
     author = 'Greg Riker'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.topaz import set_metadata
 
         set_metadata(stream, mi)
@@ -575,7 +575,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata from %s files') % 'TXTZ'
     author = 'John Schember'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, type) -> None:
         from calibre.ebooks.metadata.extz import set_metadata
 
         set_metadata(stream, mi)
@@ -1228,7 +1228,7 @@ class ActionStore(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.store:StoreAction'
     description = _('Search for books from different book sellers')
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui=False) -> str:
         return 'Customize the behavior of the store search.'
 
     def config_widget(self):
@@ -1236,7 +1236,7 @@ class ActionStore(InterfaceActionBase):
 
         return get_cw()
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget) -> None:
         from calibre.gui2.store.config.store import save_settings as save
 
         save(config_widget)

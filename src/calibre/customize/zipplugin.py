@@ -14,6 +14,7 @@ from functools import lru_cache, partial
 from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
 from importlib.util import decode_source
+from typing import Never
 
 from calibre import as_unicode
 from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
@@ -119,7 +120,7 @@ def get_icons(
 _translations_cache = {}
 
 
-def load_translations(namespace, zfp):
+def load_translations(namespace, zfp) -> None:
     null = object()
     trans = _translations_cache.get(zfp, null)
     if trans is None:
@@ -161,7 +162,7 @@ class CalibrePluginLoader(Loader):
         'zip_file_path',
     )
 
-    def __init__(self, plugin_name, fullname_in_plugin, zip_file_path, names, filename, is_package, all_names):
+    def __init__(self, plugin_name, fullname_in_plugin, zip_file_path, names, filename, is_package, all_names) -> None:
         self.plugin_name = plugin_name
         self.fullname_in_plugin = fullname_in_plugin
         self.zip_file_path = zip_file_path
@@ -179,7 +180,7 @@ class CalibrePluginLoader(Loader):
     def __hash__(self):
         return hash(self.__class__.__name__) ^ hash(self.plugin_name) ^ hash(self.fullname_in_plugin)
 
-    def create_module(self, spec):
+    def create_module(self, spec) -> None:
         pass
 
     def is_package(self, fullname):
@@ -213,7 +214,7 @@ class CalibrePluginLoader(Loader):
             dont_inherit=True,
         )
 
-    def exec_module(self, module):
+    def exec_module(self, module) -> None:
         compiled = self.get_code()
         module.__file__ = self.filename
         if self.zip_file_path:
@@ -223,7 +224,7 @@ class CalibrePluginLoader(Loader):
             module.__dict__['load_translations'] = partial(load_translations, module.__dict__, zfp)
         exec(compiled, module.__dict__)
 
-    def resource_path(self, name):
+    def resource_path(self, name) -> Never:
         raise FileNotFoundError(f'{name} is not available as a filesystem path in calibre plugins')
 
     def contents(self):
@@ -263,7 +264,7 @@ class CalibrePluginLoader(Loader):
 
 
 class CalibrePluginFinder:
-    def __init__(self):
+    def __init__(self) -> None:
         self.loaded_plugins = {}
         self._lock = threading.RLock()
         self._identifier_pat = re.compile(r'[a-zA-Z][_0-9a-zA-Z]*')

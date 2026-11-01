@@ -103,7 +103,7 @@ def disable_plugin_by_name(name: str) -> None:
         config['enabled_plugins'] = ep
 
 
-def disable_plugin(plugin_or_name):
+def disable_plugin(plugin_or_name) -> None:
     x = getattr(plugin_or_name, 'name', plugin_or_name)
     plugin = find_plugin(x)
     if plugin is None:
@@ -113,7 +113,7 @@ def disable_plugin(plugin_or_name):
     disable_plugin_by_name(x)
 
 
-def enable_plugin(plugin_or_name):
+def enable_plugin(plugin_or_name) -> None:
     x = getattr(plugin_or_name, 'name', plugin_or_name)
     dp = config['disabled_plugins']
     if x in dp:
@@ -146,7 +146,7 @@ def can_be_disabled(plugin_or_name):
     return not is_internal_plugin(x) and plugin.can_be_disabled
 
 
-def restore_plugin_state_to_default(plugin_or_name):
+def restore_plugin_state_to_default(plugin_or_name) -> None:
     x = getattr(plugin_or_name, 'name', plugin_or_name)
     dp = config['disabled_plugins']
     if x in dp:
@@ -188,7 +188,7 @@ _on_postprocess = {}
 _on_postadd = []
 
 
-def reread_filetype_plugins():
+def reread_filetype_plugins() -> None:
     global _on_import, _on_postimport, _on_postconvert, _on_postdelete, _on_preprocess, _on_postprocess, _on_postadd
     _on_import = defaultdict(list)
     _on_postimport = defaultdict(list)
@@ -270,7 +270,7 @@ run_plugins_on_preprocess = functools.partial(_run_filetype_plugins, occasion='p
 run_plugins_on_postprocess = functools.partial(_run_filetype_plugins, occasion='postprocess')
 
 
-def run_plugins_on_postimport(db, book_id, fmt):
+def run_plugins_on_postimport(db, book_id, fmt) -> None:
     customization = config['plugin_customization']
     fmt = fmt.lower()
     for plugin in plugins_for_ft(fmt, 'postimport'):
@@ -283,7 +283,7 @@ def run_plugins_on_postimport(db, book_id, fmt):
                 traceback.print_exc()
 
 
-def run_plugins_on_postconvert(db, book_id, fmt):
+def run_plugins_on_postconvert(db, book_id, fmt) -> None:
     customization = config['plugin_customization']
     fmt = fmt.lower()
     for plugin in plugins_for_ft(fmt, 'postconvert'):
@@ -296,7 +296,7 @@ def run_plugins_on_postconvert(db, book_id, fmt):
                 traceback.print_exc()
 
 
-def run_plugins_on_postdelete(db, book_id, fmt):
+def run_plugins_on_postdelete(db, book_id, fmt) -> None:
     customization = config['plugin_customization']
     fmt = fmt.lower()
     for plugin in plugins_for_ft(fmt, 'postdelete'):
@@ -309,7 +309,7 @@ def run_plugins_on_postdelete(db, book_id, fmt):
                 traceback.print_exc()
 
 
-def run_plugins_on_postadd(db, book_id, fmt_map):
+def run_plugins_on_postadd(db, book_id, fmt_map) -> None:
     customization = config['plugin_customization']
     for plugin in _on_postadd:
         if is_disabled(plugin):
@@ -328,7 +328,7 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
 # Plugin customization {{{
 
 
-def customize_plugin(plugin, custom):
+def customize_plugin(plugin, custom) -> None:
     d = config['plugin_customization']
     d[plugin.name] = custom.strip()
     config['plugin_customization'] = d
@@ -397,7 +397,7 @@ def available_library_closed_plugins():
                 yield plugin
 
 
-def has_library_closed_plugins():
+def has_library_closed_plugins() -> bool:
     for plugin in _initialized_plugins:
         if isinstance(plugin, LibraryClosedPlugin):
             if not is_disabled(plugin):
@@ -459,7 +459,7 @@ _metadata_readers = {}
 _metadata_writers: dict[str, list[MetadataWriterPlugin]] = {}
 
 
-def reread_metadata_plugins():
+def reread_metadata_plugins() -> None:
     global _metadata_readers
     global _metadata_writers
     _metadata_readers = defaultdict(list)
@@ -501,7 +501,7 @@ def metadata_writers():
 
 
 class QuickMetadata:
-    def __init__(self):
+    def __init__(self) -> None:
         self.quick = False
 
     def __enter__(self):
@@ -515,7 +515,7 @@ quick_metadata = QuickMetadata()
 
 
 class ApplyNullMetadata:
-    def __init__(self):
+    def __init__(self) -> None:
         self.apply_null = False
 
     def __enter__(self):
@@ -561,7 +561,7 @@ def get_file_type_metadata(stream, ftype):
     return mi
 
 
-def set_file_type_metadata(stream, mi, ftype, report_error=None):
+def set_file_type_metadata(stream, mi, ftype, report_error=None) -> None:
     ftype = ftype.lower().strip()
     if ftype in _metadata_writers:
         customization = config['plugin_customization']
@@ -774,7 +774,7 @@ def all_metadata_plugins():
             yield plugin
 
 
-def patch_metadata_plugins(possibly_updated_plugins):
+def patch_metadata_plugins(possibly_updated_plugins) -> None:
     patches = {}
     for i, plugin in enumerate(_initialized_plugins):
         if isinstance(plugin, Source) and plugin.name in builtin_names:
@@ -854,7 +854,7 @@ def get_system_plugins():
     return dict(ans)
 
 
-def initialize_plugins(perf=False):
+def initialize_plugins(perf=False) -> None:
     global _initialized_plugins
     _initialized_plugins = []
     system_plugins = get_system_plugins().copy()
@@ -937,7 +937,7 @@ def initialized_plugins():
 # CLI {{{
 
 
-def build_plugin(path):
+def build_plugin(path) -> None:
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.zipfile import ZIP_STORED, ZipFile
@@ -995,7 +995,7 @@ def option_parser():
     return parser
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     parser = option_parser()
     if len(args) < 2:
         parser.print_help()

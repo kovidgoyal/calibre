@@ -17,7 +17,7 @@ class ConversionOption:
     Class representing conversion options
     """
 
-    def __init__(self, name='', help=None, long_switch=None, short_switch=None, choices=None):
+    def __init__(self, name='', help=None, long_switch=None, short_switch=None, choices=None) -> None:
         self.name = name
         self.help = help
         self.long_switch = long_switch
@@ -29,7 +29,7 @@ class ConversionOption:
 
         self.validate_parameters()
 
-    def validate_parameters(self):
+    def validate_parameters(self) -> None:
         """
         Validate the parameters passed to :meth:`__init__`.
         """
@@ -59,7 +59,7 @@ class OptionRecommendation:
     MED = 2
     HIGH = 3
 
-    def __init__(self, recommended_value=None, level=LOW, **kwargs):
+    def __init__(self, recommended_value=None, level=LOW, **kwargs) -> None:
         """
         An option recommendation. That is, an option as well as its recommended
         value and the level of the recommendation.
@@ -79,7 +79,7 @@ class OptionRecommendation:
     def clone(self):
         return OptionRecommendation(recommended_value=self.recommended_value, level=self.level, option=self.option.clone())
 
-    def validate_parameters(self):
+    def validate_parameters(self) -> None:
         if self.option.choices and self.recommended_value not in self.option.choices:
             raise ValueError(f'OpRec: {self.option.name}: Recommended value not in choices')
         if not (isinstance(self.recommended_value, (numbers.Number, bytes, str)) or self.recommended_value is None):
@@ -87,7 +87,7 @@ class OptionRecommendation:
 
 
 class DummyReporter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.cancel_requested = False
 
     def __call__(self, percent, msg=''):
@@ -184,7 +184,7 @@ class InputFormatPlugin(Plugin):
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set()
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         Plugin.__init__(self, *args)
         self.report_progress = DummyReporter()
 
@@ -243,14 +243,14 @@ class InputFormatPlugin(Plugin):
 
         return ret
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         """
         Called to allow the input plugin to perform postprocessing after
         the book has been parsed.
         """
         pass
 
-    def specialize(self, oeb, opts, log, output_fmt):
+    def specialize(self, oeb, opts, log, output_fmt) -> None:
         """
         Called to allow the input plugin to specialize the parsed book
         for a particular output format. Called after postprocess_book
@@ -314,7 +314,7 @@ class OutputFormatPlugin(Plugin):
     def description(self):
         return _('Convert e-books to the %s format') % (self.file_type or '').upper()
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         Plugin.__init__(self, *args)
         self.report_progress = DummyReporter()
 
@@ -341,14 +341,14 @@ class OutputFormatPlugin(Plugin):
     def is_periodical(self):
         return self.oeb.metadata.publication_type and str(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 
-    def specialize_options(self, log, opts, input_fmt):
+    def specialize_options(self, log, opts, input_fmt) -> None:
         """
         Can be used to change the values of conversion options, as used by the
         conversion pipeline.
         """
         pass
 
-    def specialize_css_for_output(self, log, opts, item, stylizer):
+    def specialize_css_for_output(self, log, opts, item, stylizer) -> None:
         """
         Can be used to make changes to the CSS during the CSS flattening
         process.
