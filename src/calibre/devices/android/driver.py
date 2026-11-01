@@ -452,7 +452,7 @@ class ANDROID(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         opts = self.settings()
         opts = opts.extra_customization
         if not opts:
@@ -499,14 +499,14 @@ class ANDROID(USBMS):
         return drives
 
     @classmethod
-    def configure_for_kindle_app(cls):
+    def configure_for_kindle_app(cls) -> None:
         proxy = cls._configProxy()
         proxy['format_map'] = ['azw3', 'mobi', 'azw', 'azw1', 'azw4', 'pdf']
         proxy['use_subdirs'] = False
         proxy['extra_customization'] = [','.join(['kindle'] + cls.EBOOK_DIR_MAIN), '']
 
     @classmethod
-    def configure_for_generic_epub_app(cls):
+    def configure_for_generic_epub_app(cls) -> None:
         proxy = cls._configProxy()
         del proxy['format_map']
         del proxy['use_subdirs']
@@ -553,7 +553,7 @@ class WEBOS(USBMS):
     THUMBNAIL_HEIGHT = 160
     THUMBNAIL_WIDTH = 120
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
 
         from PIL import Image, ImageDraw
 

@@ -87,7 +87,7 @@ def uuid():
 
 
 class XMLCache:
-    def __init__(self, paths, ext_paths, prefixes, use_author_sort):
+    def __init__(self, paths, ext_paths, prefixes, use_author_sort) -> None:
         from calibre.utils.xml_parse import safe_xml_fromstring
 
         if DEBUG:
@@ -144,7 +144,7 @@ class XMLCache:
         debug_print('Done building XMLCache...')
 
     # Playlist management {{{
-    def purge_broken_playlist_items(self, root):
+    def purge_broken_playlist_items(self, root) -> None:
         id_map = self.build_id_map(root)
         for pl in root.xpath('//*[local-name()="playlist"]'):
             seen = set()
@@ -170,7 +170,7 @@ class XMLCache:
                     continue
                 seen.add(id_)
 
-    def prune_empty_playlists(self):
+    def prune_empty_playlists(self) -> None:
         for i, root in self.record_roots.items():
             self.purge_broken_playlist_items(root)
             for playlist in root.xpath('//*[local-name()="playlist"]'):
@@ -179,7 +179,7 @@ class XMLCache:
                         debug_print('Removing playlist id:', playlist.get('id', None), playlist.get('title', None))
                     playlist.getparent().remove(playlist)
 
-    def ensure_unique_playlist_titles(self):
+    def ensure_unique_playlist_titles(self) -> None:
         for i, root in self.record_roots.items():
             seen = set()
             for playlist in root.xpath('//*[local-name()="playlist"]'):
@@ -236,7 +236,7 @@ class XMLCache:
         debug_print('Finish build_id_playlist_map. Found', len(playlist_map))
         return playlist_map
 
-    def reset_existing_playlists_map(self):
+    def reset_existing_playlists_map(self) -> None:
         """
         Call this method before calling get_or_create_playlist in the context of
         a given job. Call it again after deleting any playlists. The current
@@ -270,7 +270,7 @@ class XMLCache:
 
     # }}}
 
-    def fix_ids(self):  # {{{
+    def fix_ids(self) -> None:  # {{{
         debug_print('Running fix_ids()')
 
         def ensure_numeric_ids(root):
@@ -288,7 +288,7 @@ class XMLCache:
                 debug_print(list(idmap.keys()))
             return idmap
 
-        def remap_playlist_references(root, idmap):
+        def remap_playlist_references(root, idmap) -> None:
             for playlist in root.xpath('//*[local-name()="playlist"]'):
                 for item in playlist.xpath('descendant::*[@id and local-name()="item"]'):
                     id_ = item.get('id')
@@ -297,7 +297,7 @@ class XMLCache:
                         if DEBUG:
                             debug_print(f'Remapping id {id_} to {idmap[id_]}')
 
-        def ensure_media_xml_base_ids(root):
+        def ensure_media_xml_base_ids(root) -> None:
             for num, tag in enumerate(('library', 'watchSpecial')):
                 for x in root.xpath(f'//*[local-name()="{tag}"]'):
                     x.set('id', str(num))
@@ -352,7 +352,7 @@ class XMLCache:
     # }}}
 
     # Update JSON from XML {{{
-    def update_booklist(self, bl, bl_index):
+    def update_booklist(self, bl, bl_index) -> None:
         if bl_index not in self.record_roots:
             return
         debug_print('Updating JSON cache:', bl_index)
@@ -378,7 +378,7 @@ class XMLCache:
     # }}}
 
     # Update XML from JSON {{{
-    def update(self, booklists, collections_attributes, plugboard):
+    def update(self, booklists, collections_attributes, plugboard) -> None:
         debug_print('Starting update', collections_attributes)
         use_tz_var = False
         for i, booklist in booklists.items():
@@ -432,7 +432,7 @@ class XMLCache:
         self.fix_ids()
         debug_print('Finished update')
 
-    def is_sony_periodical(self, book):
+    def is_sony_periodical(self, book) -> bool:
         if _('News') not in book.tags:
             return False
         if not book.lpath.lower().endswith('.epub'):
@@ -441,7 +441,7 @@ class XMLCache:
             return False
         return True
 
-    def periodicalize_book(self, book, record):
+    def periodicalize_book(self, book, record) -> None:
         if not self.is_sony_periodical(book):
             return
         record.set('conformsTo', 'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0')
@@ -470,14 +470,14 @@ class XMLCache:
         except Exception:
             pass
 
-    def rebuild_collections(self, booklist, bl_index):
+    def rebuild_collections(self, booklist, bl_index) -> None:
         if bl_index not in self.record_roots:
             return
         root = self.record_roots[bl_index]
         self.update_playlists(bl_index, root, booklist, [])
         self.fix_ids()
 
-    def update_playlists(self, bl_index, root, booklist, collections_attributes):
+    def update_playlists(self, bl_index, root, booklist, collections_attributes) -> None:
         debug_print('Starting update_playlists', collections_attributes, bl_index)
         self.reset_existing_playlists_map()
         collections = booklist.get_collections(collections_attributes)
@@ -613,7 +613,7 @@ class XMLCache:
             x.replace('\0', '')
             return x
 
-        def record_set(k, v):
+        def record_set(k, v) -> None:
             try:
                 record.set(k, clean(v))
             except Exception:
@@ -677,7 +677,7 @@ class XMLCache:
     # }}}
 
     # Writing the XML files {{{
-    def cleanup_whitespace(self, bl_index):
+    def cleanup_whitespace(self, bl_index) -> None:
         root = self.record_roots[bl_index]
         level = 2 if bl_index == 0 else 1
         if len(root) > 0:
@@ -691,7 +691,7 @@ class XMLCache:
                     next(child.iterchildren(reversed=True)).tail = '\n' + '\t' * level
             next(root.iterchildren(reversed=True)).tail = '\n' + '\t' * (level - 1)
 
-    def move_playlists_to_bottom(self):
+    def move_playlists_to_bottom(self) -> None:
         for root in self.record_roots.values():
             seen = []
             for pl in root.xpath('//*[local-name()="playlist"]'):
@@ -700,7 +700,7 @@ class XMLCache:
             for pl in seen:
                 root.append(pl)
 
-    def write(self):
+    def write(self) -> None:
         from lxml import etree
 
         for i, path in self.paths.items():
@@ -754,7 +754,7 @@ class XMLCache:
                 continue
         return ans
 
-    def detect_namespaces(self):
+    def detect_namespaces(self) -> None:
         self.nsmaps = {}
         for i, root in self.roots.items():
             self.nsmaps[i] = root.nsmap

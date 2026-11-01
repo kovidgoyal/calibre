@@ -10,7 +10,7 @@ from calibre.devices.errors import DeviceError, FreeSpaceError, WrongDestination
 from calibre.utils.localization import _
 
 
-def sanity_check(on_card, files, card_prefixes, free_space):
+def sanity_check(on_card, files, card_prefixes, free_space) -> None:
     if on_card == 'carda' and not card_prefixes[0]:
         raise WrongDestinationError(
             _(

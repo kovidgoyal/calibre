@@ -52,7 +52,7 @@ APPLE = 0x05AC
 class MTP_DEVICE(MTPDeviceBase):
     supported_platforms = ['freebsd', 'linux', 'osx']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.libmtp = None
         self.known_devices: frozenset[tuple[int, int]] = frozenset()
@@ -100,7 +100,7 @@ class MTP_DEVICE(MTPDeviceBase):
             debug(f'Device {d} claims to be an MTP device in the IOKit registry')
         return bool(ans)
 
-    def set_debug_level(self, lvl):
+    def set_debug_level(self, lvl) -> None:
         libmtp = self.libmtp
         assert libmtp is not None
         libmtp.set_debug_level(lvl)
@@ -142,7 +142,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return None
 
     @synchronous
-    def debug_managed_device_detection(self, devices_on_system, output):
+    def debug_managed_device_detection(self, devices_on_system, output) -> bool:
         if self.currently_connected_dev is not None:
             return True
         p = partial(prints, file=output)
@@ -189,14 +189,14 @@ class MTP_DEVICE(MTPDeviceBase):
         return libmtp.Device(d.busnum, d.devnum, d.vendor_id, d.product_id, man, prod, d.serial)
 
     @synchronous
-    def eject(self):
+    def eject(self) -> None:
         if self.currently_connected_dev is None:
             return
         self.ejected_devices.add(self.currently_connected_dev)
         self.post_yank_cleanup()
 
     @synchronous
-    def post_yank_cleanup(self):
+    def post_yank_cleanup(self) -> None:
         self.dev = self._filesystem_cache = self.current_friendly_name = None
         self.currently_connected_dev = None
         self.current_serial_num = None
@@ -206,7 +206,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return self.currently_connected_dev is not None
 
     @synchronous
-    def startup(self):
+    def startup(self) -> None:
         try:
             from calibre_extensions import libmtp
         except Exception as err:
@@ -222,14 +222,14 @@ class MTP_DEVICE(MTPDeviceBase):
                     setattr(self, x, getattr(self.libmtp, x))
 
     @synchronous
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.dev = self._filesystem_cache = None
 
     def format_errorstack(self, errs):
         return '\n'.join(f'{code}:{as_unicode(msg)}' for code, msg in errs)
 
     @synchronous
-    def open(self, connected_device, library_uuid):
+    def open(self, connected_device, library_uuid) -> None:
         self.dev = self._filesystem_cache = None
 
         try:

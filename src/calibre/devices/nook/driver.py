@@ -44,7 +44,7 @@ class NOOK(USBMS):
     DELETE_EXTS = ['.jpg']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         from PIL import Image, ImageDraw
 
         coverdata = getattr(metadata, 'thumbnail', None)
@@ -102,10 +102,10 @@ class NOOK_COLOR(NOOK):
     SCAN_FROM_ROOT = True
     NEWS_IN_FOLDER = False
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         pass
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         device_info = self.device_being_opened
         if device_info is None:
             return

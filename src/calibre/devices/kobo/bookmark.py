@@ -11,7 +11,7 @@ class Bookmark:  # {{{
     kobo-specific
     """
 
-    def __init__(self, db_connection, contentId, path, id, book_format, bookmark_extension):
+    def __init__(self, db_connection, contentId, path, id, book_format, bookmark_extension) -> None:
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension
         self.book_length = 0  # Not Used
@@ -28,7 +28,7 @@ class Bookmark:  # {{{
         self.get_bookmark_data()
         self.get_book_length()  # Not Used
 
-    def get_bookmark_data(self):
+    def get_bookmark_data(self) -> None:
         """Return the timestamp and last_read_location"""
         user_notes = {}
         self.timestamp = os.path.getmtime(self.path)
@@ -157,19 +157,19 @@ class Bookmark:  # {{{
         # self.last_read_location = self.last_read - self.pdf_page_offset
         self.user_notes = user_notes
 
-    def get_book_length(self):
+    def get_book_length(self) -> None:
         # TL        self.book_length = 0
         # TL        self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
         pass
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         A string representation of this object, suitable for printing to
         console
         """
         parts = ['Kobo bookmark:']
 
-        def fmt(x, y):
+        def fmt(x, y) -> None:
             parts.append(f'{x:<20}: {y}')
 
         if self.contentId:

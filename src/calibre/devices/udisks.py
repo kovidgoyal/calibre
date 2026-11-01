@@ -146,7 +146,7 @@ class UDisks:
                 raise
             return mp
 
-    def unmount(self, device_node_path):
+    def unmount(self, device_node_path) -> None:
         msg = self.filesystem_operation_message(device_node_path, 'Unmount', force=('b', True))
         self.send(msg)
 
@@ -159,7 +159,7 @@ class UDisks:
         r = self.send(msg)
         return r.body[0][1]
 
-    def eject(self, device_node_path):
+    def eject(self, device_node_path) -> None:
         from jeepney import new_method_call
 
         drive = self.drive_for_device(device_node_path)
@@ -176,7 +176,7 @@ class UDisks:
         )
         self.send(msg)
 
-    def rescan(self, device_node_path):
+    def rescan(self, device_node_path) -> None:
         from jeepney import new_method_call
 
         devname = self.device(device_node_path)
@@ -198,22 +198,22 @@ def get_udisks():
     return UDisks()
 
 
-def mount(node_path):
+def mount(node_path) -> None:
     with get_udisks() as u:
         u.mount(node_path)
 
 
-def eject(node_path):
+def eject(node_path) -> None:
     with get_udisks() as u:
         u.eject(node_path)
 
 
-def umount(node_path):
+def umount(node_path) -> None:
     with get_udisks() as u:
         u.unmount(node_path)
 
 
-def rescan(node_path):
+def rescan(node_path) -> None:
     with get_udisks() as u:
         u.rescan(node_path)
 
@@ -223,7 +223,7 @@ def find_device_vols_by_serial(serial):
         return u.find_device_vols_by_serial(serial)
 
 
-def test_udisks():
+def test_udisks() -> None:
     import sys
 
     dev = sys.argv[1]
@@ -237,7 +237,7 @@ def test_udisks():
         u.eject(dev)
 
 
-def develop():
+def develop() -> None:
     dev = '/dev/nvme0n1p3'
     with get_udisks() as u:
         print(u.device(dev))

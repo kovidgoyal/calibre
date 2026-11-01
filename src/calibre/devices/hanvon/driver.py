@@ -38,7 +38,7 @@ class N516(USBMS):
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
 
-    def can_handle(self, device_info, debug=False):
+    def can_handle(self, device_info, debug=False) -> bool:
         return not is_alex(device_info)
 
 
@@ -104,7 +104,7 @@ class ALEX(N516):
         name = os.path.splitext(os.path.basename(file_abspath))[0] + '.png'
         return os.path.join(base, 'covers', name)
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         from calibre.ebooks.covers import calibre_cover2
         from calibre.utils.img import scale_image
 
@@ -124,7 +124,7 @@ class ALEX(N516):
             coverfile.write(cover)
             fsync(coverfile)
 
-    def delete_books(self, paths, end_session=True):
+    def delete_books(self, paths, end_session=True) -> None:
         for i, path in enumerate(paths):
             self.report_progress((i + 1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
@@ -153,10 +153,10 @@ class AZBOOKA(ALEX):
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
-    def can_handle(self, device_info, debug=False):
+    def can_handle(self, device_info, debug=False) -> bool:
         return not is_alex(device_info)
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         pass
 
 

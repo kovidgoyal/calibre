@@ -46,7 +46,7 @@ except ImportError:
 class GUID(Structure):
     _fields_ = [('data1', DWORD), ('data2', WORD), ('data3', WORD), ('data4', c_ubyte * 8)]
 
-    def __init__(self, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8):
+    def __init__(self, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) -> None:
         self.data1 = l
         self.data2 = w1
         self.data3 = w2
@@ -59,7 +59,7 @@ class GUID(Structure):
         self.data4[6] = b7
         self.data4[7] = b8
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '{{{:08x}-{:04x}-{:04x}-{}-{}}}'.format(
             self.data1,
             self.data2,
@@ -123,7 +123,7 @@ class SP_DEVINFO_DATA(Structure):
         ('Reserved', POINTER(ULONG)),
     ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'ClassGuid:{self.ClassGuid} DevInst:{self.DevInst}'
 
 
@@ -138,7 +138,7 @@ class SP_DEVICE_INTERFACE_DATA(Structure):
         ('Reserved', POINTER(ULONG)),
     ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'InterfaceClassGuid:{self.InterfaceClassGuid} Flags:{self.Flags}'
 
 
@@ -170,7 +170,7 @@ class USB_DEVICE_DESCRIPTOR(Structure):
         ('bNumConfigurations', UCHAR),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'USBDevice(class=0x{self.bDeviceClass:x} sub_class=0x{self.bDeviceSubClass:x} protocol=0x{self.bDeviceProtocol:x}'
             f' vendor_id=0x{self.idVendor:x} product_id=0x{self.idProduct:x} bcd=0x{self.bcdDevice:x} manufacturer={self.iManufacturer}'
@@ -519,11 +519,11 @@ def devid_pat():
 
 
 class DeviceSet:
-    def __init__(self, guid=GUID_DEVINTERFACE_VOLUME, enumerator=None, flags=DIGCF_PRESENT | DIGCF_DEVICEINTERFACE):
+    def __init__(self, guid=GUID_DEVINTERFACE_VOLUME, enumerator=None, flags=DIGCF_PRESENT | DIGCF_DEVICEINTERFACE) -> None:
         self.guid_ref, self.enumerator, self.flags = (None if guid is None else byref(guid)), enumerator, flags
         self.dev_list = SetupDiGetClassDevs(self.guid_ref, self.enumerator, None, self.flags)
 
-    def __del__(self):
+    def __del__(self) -> None:
         SetupDiDestroyDeviceInfoList(self.dev_list)
         del self.dev_list
 
@@ -811,8 +811,8 @@ class _USBDevice(NamedTuple):
 
 
 class USBDevice(_USBDevice):
-    def __repr__(self):
-        def r(x):
+    def __repr__(self) -> str:
+        def r(x) -> str:
             if x is None:
                 return 'None'
             return f'0x{x:x}'
@@ -1063,7 +1063,7 @@ def alloc_descriptor_buf(buf):
 def get_device_descriptor(hub_handle, device_port, buf=None):
     buf = alloc_descriptor_buf(buf)
 
-    def initbuf(b):
+    def initbuf(b) -> None:
         cast(b, POINTER(USB_NODE_CONNECTION_INFORMATION_EX)).contents.ConnectionIndex = device_port
 
     buf, bytes_returned = device_io_control(hub_handle, IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX, buf, buf, initbuf)
@@ -1073,7 +1073,7 @@ def get_device_descriptor(hub_handle, device_port, buf=None):
 def get_device_string(hub_handle, device_port, index, buf=None, lang=0x409):
     buf = alloc_descriptor_buf(buf)
 
-    def initbuf(b):
+    def initbuf(b) -> None:
         p = cast(b, PUSB_DESCRIPTOR_REQUEST).contents
         p.ConnectionIndex = device_port
         sp = p.SetupPacket
@@ -1094,7 +1094,7 @@ def get_device_languages(hub_handle, device_port, buf=None):
     "Get the languages supported by the device for strings"
     buf = alloc_descriptor_buf(buf)
 
-    def initbuf(b):
+    def initbuf(b) -> None:
         p = cast(b, PUSB_DESCRIPTOR_REQUEST).contents
         p.ConnectionIndex = device_port
         sp = p.SetupPacket
@@ -1122,7 +1122,7 @@ def is_readonly(drive_letter):  # {{{
 # }}}
 
 
-def develop():  # {{{
+def develop() -> None:  # {{{
     from calibre.customize.ui import device_plugins
 
     usb_devices = scan_usb_devices()
@@ -1150,7 +1150,7 @@ def develop():  # {{{
             print('Device USB data:', get_usb_info(usbdev, debug=True))
 
 
-def drives_for(vendor_id, product_id=None):
+def drives_for(vendor_id, product_id=None) -> None:
     usb_devices = scan_usb_devices()
     pprint(usb_devices)
     for usbdev in usb_devices:

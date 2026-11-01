@@ -77,11 +77,11 @@ class USER_DEFINED(USBMS):
     OPT_CARD_A_FOLDER = 9
     OPT_SWAP_MAIN_AND_CARD = 10
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.plugin_needs_delayed_initialization = True
         USBMS.initialize(self)
 
-    def do_delayed_plugin_initialization(self):
+    def do_delayed_plugin_initialization(self) -> None:
         try:
             e = self.settings().extra_customization
             if e[self.OPT_USB_VENDOR_ID]:

@@ -37,7 +37,7 @@ class ModelMetadata(NamedTuple):
 
 
 class OpenPopupMessage:
-    def __init__(self, title='', message='', level='info', skip_dialog_skip_precheck=True):
+    def __init__(self, title='', message='', level='info', skip_dialog_skip_precheck=True) -> None:
         self.title = title
         self.message = message
         self.level = level
@@ -166,7 +166,7 @@ class DevicePlugin(Plugin):
         return cls.name
 
     @classmethod
-    def get_open_popup_message(self):
+    def get_open_popup_message(self) -> None:
         "GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage"
         return
 
@@ -274,7 +274,7 @@ class DevicePlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def can_handle_windows(self, usbdevice, debug=False):
+    def can_handle_windows(self, usbdevice, debug=False) -> bool:
         """
         Optional method to perform further checks on a device to see if this driver
         is capable of handling it. If it is not it should return False. This method
@@ -291,7 +291,7 @@ class DevicePlugin(Plugin):
         """
         return True
 
-    def can_handle(self, device_info, debug=False):
+    def can_handle(self, device_info, debug=False) -> bool:
         """
         Unix version of :meth:`can_handle_windows`.
 
@@ -539,7 +539,7 @@ class DevicePlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def set_plugboards(self, plugboards, pb_func):
+    def set_plugboards(self, plugboards, pb_func) -> None:
         """
         provide the driver the current set of plugboards and a function to
         select a specific plugboard. This method is called immediately before
@@ -558,7 +558,7 @@ class DevicePlugin(Plugin):
         """
         pass
 
-    def set_driveinfo_name(self, location_code, name):
+    def set_driveinfo_name(self, location_code, name) -> None:
         """
         Set the device name in the driveinfo file to 'name'. This setting will
         persist until the file is re-created or the name is changed again.
@@ -579,7 +579,7 @@ class DevicePlugin(Plugin):
         """
         return paths
 
-    def startup(self):
+    def startup(self) -> None:
         """
         Called when calibre is starting the device. Do any initialization
         required. Note that multiple instances of the class can be instantiated,
@@ -589,7 +589,7 @@ class DevicePlugin(Plugin):
         """
         pass
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """
         Called when calibre is shutting down, either for good or in preparation
         to restart. Do any cleanup required. This method is called on the
@@ -622,13 +622,13 @@ class DevicePlugin(Plugin):
         """
         return {}
 
-    def set_user_blacklisted_devices(self, devices):
+    def set_user_blacklisted_devices(self, devices) -> None:
         """
         Set the list of device uids that should be ignored by this driver.
         """
         pass
 
-    def specialize_global_preferences(self, device_prefs):
+    def specialize_global_preferences(self, device_prefs) -> None:
         """
         Implement this method if your device wants to override a particular
         preference. You must ensure that all call sites that want a preference
@@ -640,7 +640,7 @@ class DevicePlugin(Plugin):
         """
         device_prefs.set_overrides()
 
-    def set_library_info(self, library_name, library_uuid, field_metadata):
+    def set_library_info(self, library_name, library_uuid, field_metadata) -> None:
         """
         Implement this method if you want information about the current calibre
         library. This method is called at startup and when the calibre library
@@ -654,7 +654,7 @@ class DevicePlugin(Plugin):
     # the device_manager might be using the driver at the same time that one of
     # these methods is called.
 
-    def is_dynamically_controllable(self):
+    def is_dynamically_controllable(self) -> None:
         """
         Called by the device manager when starting plugins. If this method returns
         a string, then a) it supports the device manager's dynamic control
@@ -665,7 +665,7 @@ class DevicePlugin(Plugin):
         """
         return
 
-    def start_plugin(self):
+    def start_plugin(self) -> None:
         """
         This method is called to start the plugin. The plugin should begin
         to accept device connections however it does that. If the plugin is
@@ -676,7 +676,7 @@ class DevicePlugin(Plugin):
         """
         pass
 
-    def stop_plugin(self):
+    def stop_plugin(self) -> None:
         """
         This method is called to stop the plugin. The plugin should no longer
         accept connections, and should cleanup behind itself. It is likely that
@@ -699,7 +699,7 @@ class DevicePlugin(Plugin):
         """
         return default
 
-    def set_option(self, opt_string, opt_value):
+    def set_option(self, opt_string, opt_value) -> None:
         """
         Set the value of the option indicated by opt_string. This method can
         be called when the plugin is not started.
@@ -709,7 +709,7 @@ class DevicePlugin(Plugin):
         """
         pass
 
-    def is_running(self):
+    def is_running(self) -> bool:
         """
         Return True if the plugin is started, otherwise false
 
@@ -775,7 +775,7 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
 
-    def __init__(self, oncard=None, prefix=None, settings=None):
+    def __init__(self, oncard=None, prefix=None, settings=None) -> None:
         pass
 
     def supports_collections(self):
@@ -812,7 +812,7 @@ class BookList(list):
 
 
 class CurrentlyConnectedDevice:
-    def __init__(self):
+    def __init__(self) -> None:
         self._device = None
 
     @property

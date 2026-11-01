@@ -35,7 +35,7 @@ class APNXBuilder:
         # ExactPageGenerator.instance.name(): ExactPageGenerator.instance,
     }
 
-    def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0):
+    def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0) -> None:
         """
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated

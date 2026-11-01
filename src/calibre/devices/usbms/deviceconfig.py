@@ -91,7 +91,7 @@ class DeviceConfig:
         )
         return cw
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget) -> None:
         proxy = self._configProxy()
         proxy['format_map'] = config_widget.format_map()
         if self.SUPPORTS_SUB_DIRS:

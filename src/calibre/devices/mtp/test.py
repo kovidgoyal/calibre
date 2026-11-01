@@ -13,7 +13,7 @@ from calibre.utils.stop_gc import stop_gc
 
 
 class ProgressCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.count = 0
         self.end_called = False
 
@@ -25,7 +25,7 @@ class ProgressCallback:
 
 class TestDeviceInteraction(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.dev = cls.storage = None
         cls.dev = MTP_DEVICE(None)
         cls.dev.startup()
@@ -42,27 +42,27 @@ class TestDeviceInteraction(unittest.TestCase):
         cls.storage = cls.dev.filesystem_cache.entries[0]
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         if cls.dev is not None:
             cls.dev.shutdown()
             cls.dev = None
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.cleanup = []
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         dev = self.dev
         assert dev is not None
         for obj in reversed(self.cleanup):
             dev.delete_file_or_folder(obj)
 
-    def check_setup(self):
+    def check_setup(self) -> None:
         if self.dev is None:
             self.skipTest('No MTP device detected')
         if self.storage is None:
             self.skipTest('The connected device does not have enough free space')
 
-    def test_folder_operations(self):
+    def test_folder_operations(self) -> None:
         """Test the creation of folders, duplicate folders and sub folders"""
         self.check_setup()
         dev = self.dev
@@ -102,7 +102,7 @@ class TestDeviceInteraction(unittest.TestCase):
             with self.assertRaises(ValueError):
                 dev.create_folder(root_file[0], 'sub-folder')
 
-    def test_file_transfer(self):
+    def test_file_transfer(self) -> None:
         """Test transferring files to and from the device"""
         self.check_setup()
         dev = self.dev
@@ -180,7 +180,7 @@ class TestDeviceInteraction(unittest.TestCase):
             end_mem = memory()
         return end_mem - start_mem
 
-    def check_memory(self, once, many, msg, factor=2):
+    def check_memory(self, once, many, msg, factor=2) -> None:
         msg += f' for once: {once:g} for many: {many:g}'
         if once > 0:
             self.assertTrue(many <= once * factor, msg=msg)
@@ -188,7 +188,7 @@ class TestDeviceInteraction(unittest.TestCase):
             self.assertTrue(many <= 0.01, msg=msg)
 
     @unittest.skipUnless(iswindows or islinux, 'Can only test for leaks on windows and linux')
-    def test_memory_leaks(self):
+    def test_memory_leaks(self) -> None:
         """Test for memory leaks in the C module"""
         self.check_setup()
         dev = self.dev
@@ -209,7 +209,7 @@ class TestDeviceInteraction(unittest.TestCase):
         raw.seek(0)
         name = 'zzz-test-file.txt'
 
-        def send_file(storage, name, raw, size):
+        def send_file(storage, name, raw, size) -> None:
             raw.seek(0)
             pc = ProgressCallback()
             f = dev.put_file(storage, name, raw, size, callback=pc)
@@ -221,7 +221,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
         self.check_memory(used_once, used_many, 'Memory consumption during put_file:')
 
-        def get_file(f):
+        def get_file(f) -> None:
             raw = io.BytesIO()
             pc = ProgressCallback()
             dev.get_mtp_file(f, raw, callback=pc)
@@ -249,7 +249,7 @@ def tests():
     return tl.loadTestsFromTestCase(TestDeviceInteraction)
 
 
-def run():
+def run() -> None:
     unittest.TextTestRunner(verbosity=2).run(tests())
 
 

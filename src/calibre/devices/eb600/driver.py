@@ -122,7 +122,7 @@ class TOLINO(EB600):
 
         return names
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         # The tolino vision only handles books inside the Books folder
         device_info = self.device_being_opened
         product_id = device_info[1] if device_info is not None else 0

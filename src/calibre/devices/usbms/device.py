@@ -37,7 +37,7 @@ def eject_exe():
 
 
 class USBDevice:
-    def __init__(self, dev):
+    def __init__(self, dev) -> None:
         self.idVendor = dev[0]
         self.idProduct = dev[1]
         self.bcdDevice = dev[2]
@@ -172,12 +172,12 @@ class Device(DeviceConfig, DevicePlugin):
             manufacturer = _('Miscellaneous')
         return (ModelMetadata(manufacturer, model_name, vid, pid, bcd, cls),)
 
-    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None) -> None:
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.detected_device = None if detected_device is None else USBDevice(detected_device)
         self.set_progress_reporter(report_progress)
 
-    def set_progress_reporter(self, report_progress):
+    def set_progress_reporter(self, report_progress) -> None:
         self.report_progress = report_progress
         self.report_progress = report_progress
         if self.report_progress is None:
@@ -242,7 +242,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         return msz, casz, cbsz
 
-    def windows_filter_pnp_id(self, pnp_id):
+    def windows_filter_pnp_id(self, pnp_id) -> bool:
         return False
 
     def windows_sort_drives(self, drives):
@@ -283,7 +283,7 @@ class Device(DeviceConfig, DevicePlugin):
                 prints(f'USB Info for device: {dev}')
         return self.can_handle(dev, debug=debug)
 
-    def open_windows(self):
+    def open_windows(self) -> None:
         from calibre.devices.scanner import drive_is_ok
         from calibre.devices.winusb import get_drive_letters_for_device
 
@@ -441,7 +441,7 @@ class Device(DeviceConfig, DevicePlugin):
             time.sleep(3)
         return drives
 
-    def open_osx(self):
+    def open_osx(self) -> None:
         from calibre_extensions.usbobserver import get_mounted_filesystems
 
         bsd_drives = self.osx_bsd_names()
@@ -607,14 +607,14 @@ class Device(DeviceConfig, DevicePlugin):
             return node
         return nodes[-1][0]
 
-    def open_linux(self):
+    def open_linux(self) -> None:
 
         def mount(node, type):
             mp = self.node_mountpoint(node)
             if mp is not None:
                 return mp, 0
 
-            def do_mount(node):
+            def do_mount(node) -> int | None:
                 try:
                     from calibre.devices.udisks import mount
 
@@ -665,7 +665,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         self.filter_read_only_mount_points()
 
-    def filter_read_only_mount_points(self):
+    def filter_read_only_mount_points(self) -> None:
 
         def is_readonly(mp):
             if mp is None:
@@ -715,7 +715,7 @@ class Device(DeviceConfig, DevicePlugin):
     #              3.  attempt to mount each one using UDisks2
     #              4.  when finished, we have a list of mount points and associated dbus nodes
     #
-    def open_freebsd(self):
+    def open_freebsd(self) -> None:
         from calibre.devices.udisks import find_device_vols_by_serial
 
         # There should be some way to access the -v arg...
@@ -816,7 +816,7 @@ class Device(DeviceConfig, DevicePlugin):
     #        just umount each of the previously
     #        mounted filesystems, using the stored volume object
     #
-    def eject_freebsd(self):
+    def eject_freebsd(self) -> None:
         from calibre.devices.udisks import umount
 
         if self._main_prefix:
@@ -841,7 +841,7 @@ class Device(DeviceConfig, DevicePlugin):
                 return os.path.isdir(self.connected_folder_path)
         return False
 
-    def open(self, connected_device, library_uuid):
+    def open(self, connected_device, library_uuid) -> None:
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.connected_folder_path = ''
         if getattr(connected_device, 'serial', None) and connected_device.serial.startswith(FAKE_DEVICE_SERIAL):
@@ -888,10 +888,10 @@ class Device(DeviceConfig, DevicePlugin):
         finally:
             self.device_being_opened = None
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         pass
 
-    def eject_windows(self):
+    def eject_windows(self) -> None:
         from threading import Thread
 
         drives = []
@@ -900,7 +900,7 @@ class Device(DeviceConfig, DevicePlugin):
             if x is not None:
                 drives.append(x[0].upper())
 
-        def do_it(drives):
+        def do_it(drives) -> None:
             subprocess.Popen([eject_exe()] + drives, creationflags=subprocess.CREATE_NO_WINDOW).wait()
 
         t = Thread(target=do_it, args=[drives])
@@ -908,7 +908,7 @@ class Device(DeviceConfig, DevicePlugin):
         t.start()
         self.__save_win_eject_thread = t
 
-    def eject_osx(self):
+    def eject_osx(self) -> None:
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
             x = getattr(self, x, None)
             if x is not None:
@@ -917,7 +917,7 @@ class Device(DeviceConfig, DevicePlugin):
                 except Exception:
                     pass
 
-    def eject_linux(self):
+    def eject_linux(self) -> None:
         from calibre.devices.udisks import eject, umount
 
         drives = [d for d in self.find_device_nodes() if d]
@@ -933,14 +933,14 @@ class Device(DeviceConfig, DevicePlugin):
                 print('Udisks eject call for:', d, 'failed:')
                 print('\t', e)
 
-    def on_device_close(self):
+    def on_device_close(self) -> None:
         pass
 
-    def unmount_device(self):
+    def unmount_device(self) -> None:
         if self.connected_folder_path:
             self.eject_connected_folder = True
 
-    def eject(self):
+    def eject(self) -> None:
         if islinux:
             try:
                 self.eject_linux()
@@ -964,10 +964,10 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.on_device_close()
 
-    def linux_post_yank(self):
+    def linux_post_yank(self) -> None:
         self._linux_mount_map = {}
 
-    def post_yank_cleanup(self):
+    def post_yank_cleanup(self) -> None:
         if islinux:
             try:
                 self.linux_post_yank()
@@ -1042,7 +1042,7 @@ class Device(DeviceConfig, DevicePlugin):
         """
         return {}
 
-    def add_annotation_to_library(self, db, db_id, annotation):
+    def add_annotation_to_library(self, db, db_id, annotation) -> None:
         """
         Add an annotation to the calibre library
         """

@@ -19,7 +19,7 @@ null = object()
 
 
 class ThreadingViolation(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         Exception.__init__(self, 'You cannot use the MTP driver from a thread other than the  thread in which startup() was called')
 
 
@@ -47,7 +47,7 @@ def sorted_storage(storage):
 class MTP_DEVICE(MTPDeviceBase):
     supported_platforms = ['windows']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.dev = None
         self.blacklisted_devices = set()
@@ -63,7 +63,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.eject_dev_on_next_scan = False
         self.current_device_data = {}
 
-    def startup(self):
+    def startup(self) -> None:
         self.start_thread = threading.current_thread()
         if isxp:
             self.wpd = None
@@ -89,7 +89,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 self.wpd_error = as_unicode(e)
 
     @same_thread
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.dev = self._filesystem_cache = self.start_thread = None
         if self.wpd is not None:
             self.wpd.uninit()
@@ -144,7 +144,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return None
 
     @same_thread
-    def debug_managed_device_detection(self, devices_on_system, output):
+    def debug_managed_device_detection(self, devices_on_system, output) -> bool:
         import pprint
 
         p = partial(prints, file=output)
@@ -287,7 +287,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return self._filesystem_cache
 
     @same_thread
-    def do_eject(self):
+    def do_eject(self) -> None:
         if self.currently_connected_pnp_id is None:
             return
         self.ejected_devices.add(self.currently_connected_pnp_id)
@@ -296,7 +296,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.dev = self._filesystem_cache = None
 
     @same_thread
-    def post_yank_cleanup(self):
+    def post_yank_cleanup(self) -> None:
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
         self.dev = self._filesystem_cache = None
@@ -306,14 +306,14 @@ class MTP_DEVICE(MTPDeviceBase):
     def is_mtp_device_connected(self):
         return self.currently_connected_pnp_id is not None
 
-    def eject(self):
+    def eject(self) -> None:
         if self.currently_connected_pnp_id is None:
             return
         self.eject_dev_on_next_scan = True
         self.current_serial_num = None
 
     @same_thread
-    def open(self, connected_device, library_uuid):
+    def open(self, connected_device, library_uuid) -> None:
         self.dev = self._filesystem_cache = None
         wpd = self.wpd
         assert wpd is not None

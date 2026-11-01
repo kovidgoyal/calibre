@@ -13,10 +13,10 @@ from calibre.utils.localization import _
 
 
 class BookList(BL):
-    def __init__(self, storage_id):
+    def __init__(self, storage_id) -> None:
         self.storage_id = storage_id
 
-    def supports_collections(self):
+    def supports_collections(self) -> bool:
         return False
 
     def add_book(self, book, replace_metadata=True):
@@ -32,12 +32,12 @@ class BookList(BL):
             return self[b]
         return None
 
-    def remove_book(self, book):
+    def remove_book(self, book) -> None:
         self.remove(book)
 
 
 class Book(Metadata):
-    def __init__(self, storage_id, lpath, other=None):
+    def __init__(self, storage_id, lpath, other=None) -> None:
         Metadata.__init__(self, _('Unknown'), other=other)
         self.storage_id, self.lpath = storage_id, lpath
         self.lpath = self.path = self.lpath.replace(os.sep, '/')

@@ -11,7 +11,7 @@ class Bookmark:  # {{{
     Kindle-specific
     """
 
-    def __init__(self, path, id, book_format, bookmark_extension):
+    def __init__(self, path, id, book_format, bookmark_extension) -> None:
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension
         self.book_length = 0
@@ -41,7 +41,7 @@ class Bookmark:  # {{{
             (stop,) = unpack('>I', self.data[offoff + 8 : offoff + 12])
         return StreamSlicer(self.stream, start, stop)
 
-    def get_bookmark_data(self):
+    def get_bookmark_data(self) -> None:
         """Return the timestamp and last_read_location"""
         from calibre.ebooks.metadata.mobi import StreamSlicer
 
@@ -280,7 +280,7 @@ class Bookmark:  # {{{
             print(f'unsupported bookmark_extension: {self.bookmark_extension}')
         self.user_notes = user_notes
 
-    def get_book_length(self):
+    def get_book_length(self) -> None:
         from calibre.ebooks.metadata.mobi import StreamSlicer
 
         book_fs = self.path.replace(f'.{self.bookmark_extension}', f'.{self.book_format}')

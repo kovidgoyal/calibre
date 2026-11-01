@@ -16,7 +16,7 @@ supernote_settings = {
 
 
 class DeviceDefaults:
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules = (
             # Amazon devices
             (

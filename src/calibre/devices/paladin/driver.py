@@ -21,7 +21,7 @@ DBPATH = 'paladin/database/books.db'
 
 
 class ImageWrapper:
-    def __init__(self, image_path):
+    def __init__(self, image_path) -> None:
         self.image_path = image_path
 
 
@@ -138,11 +138,11 @@ class PALADIN(USBMS):
 
         return bl
 
-    def set_plugboards(self, plugboards, pb_func):
+    def set_plugboards(self, plugboards, pb_func) -> None:
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def sync_booklists(self, booklists, end_session=True):
+    def sync_booklists(self, booklists, end_session=True) -> None:
         debug_print('PALADIN: starting sync_booklists')
 
         opts = self.settings()
@@ -160,7 +160,7 @@ class PALADIN(USBMS):
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PALADIN: finished sync_booklists')
 
-    def update_device_database(self, booklist, collections_attributes, oncard):
+    def update_device_database(self, booklist, collections_attributes, oncard) -> None:
         import apsw
 
         debug_print('PALADIN: starting update_device_database')
@@ -188,7 +188,7 @@ class PALADIN(USBMS):
 
         debug_print('PALADIN: finished update_device_database')
 
-    def remove_orphaned_records(self, connection, dbpath):
+    def remove_orphaned_records(self, connection, dbpath) -> None:
         try:
             cursor = connection.cursor()
 
@@ -227,7 +227,7 @@ class PALADIN(USBMS):
 
         return sequence_min
 
-    def set_database_sequence_id(self, connection, table, sequence_id):
+    def set_database_sequence_id(self, connection, table, sequence_id) -> None:
         cursor = connection.cursor()
 
         # Update the sequence Id if it exists
@@ -326,7 +326,7 @@ class PALADIN(USBMS):
         cursor.close()
         return db_books
 
-    def update_device_books(self, connection, booklist, source_id, plugboard, dbpath):
+    def update_device_books(self, connection, booklist, source_id, plugboard, dbpath) -> None:
         from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -511,7 +511,7 @@ class PALADIN(USBMS):
         cursor.close()
         return db_collections
 
-    def update_device_collections(self, connection, booklist, collections, source_id, dbpath):
+    def update_device_collections(self, connection, booklist, collections, source_id, dbpath) -> None:
 
         if collections:
             db_collections = self.read_device_collections(connection, source_id, dbpath)
@@ -578,7 +578,7 @@ class PALADIN(USBMS):
 
             cursor.close()
 
-    def rebuild_collections(self, booklist, oncard):
+    def rebuild_collections(self, booklist, oncard) -> None:
         debug_print('PALADIN: starting rebuild_collections')
 
         opts = self.settings()

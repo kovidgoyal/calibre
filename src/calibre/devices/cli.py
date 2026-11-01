@@ -25,7 +25,7 @@ MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
 class FileFormatter:
     term = None
 
-    def __init__(self, file):
+    def __init__(self, file) -> None:
         self.is_dir = file.is_dir
         self.is_readonly = file.is_readonly
         self.size = file.size
@@ -85,7 +85,7 @@ class FileFormatter:
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.ctime))
 
 
-def info(dev):
+def info(dev) -> None:
     info = dev.get_device_information()
     print('Device name:     ', info[0])
     print('Device version:  ', info[1])
@@ -169,7 +169,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
     return listing
 
 
-def shutdown_plugins():
+def shutdown_plugins() -> None:
     for d in device_plugins():
         try:
             d.shutdown()
@@ -177,7 +177,7 @@ def shutdown_plugins():
             pass
 
 
-def main():
+def main() -> int:
     from calibre.utils.terminal import geometry
 
     cols = geometry()[0]

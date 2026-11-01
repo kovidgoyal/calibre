@@ -10,6 +10,7 @@ import json
 import os
 import shutil
 from itertools import cycle
+from typing import Never
 
 from calibre import fsync, prints
 from calibre.constants import filesystem_encoding, ismacos, numeric_version
@@ -138,7 +139,7 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Get device information...'))
         self.driveinfo = {}
 
-        def raise_os_error(e):
+        def raise_os_error(e) -> Never:
             raise OSError(
                 _(
                     'Failed to access files in the main memory of'
@@ -188,7 +189,7 @@ class USBMS(CLI, Device):
             )
         return (self.get_gui_name(), '', '', '', self.driveinfo)
 
-    def set_driveinfo_name(self, location_code, name):
+    def set_driveinfo_name(self, location_code, name) -> None:
         if location_code == 'main':
             self._update_driveinfo_file(self._main_prefix, location_code, name)
         elif location_code == 'A':
@@ -199,7 +200,7 @@ class USBMS(CLI, Device):
     def formats_to_scan_for(self):
         return set(self.settings().format_map) | set(self.FORMATS)
 
-    def is_allowed_book_file(self, filename, path, prefix):
+    def is_allowed_book_file(self, filename, path, prefix) -> bool:
         return True
 
     def books(self, oncard=None, end_session=True):
@@ -347,7 +348,7 @@ class USBMS(CLI, Device):
         debug_print(f'USBMS: finished uploading {len(files)} books')
         return list(zip(paths, cycle([on_card])))
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         """
         Upload book cover to the device. Default implementation does nothing.
 
@@ -360,7 +361,7 @@ class USBMS(CLI, Device):
         """
         pass
 
-    def add_books_to_metadata(self, locations, metadata, booklists):
+    def add_books_to_metadata(self, locations, metadata, booklists) -> None:
         debug_print(f'USBMS: adding metadata for {len(metadata)} books')
 
         metadata = iter(metadata)
@@ -396,10 +397,10 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
         debug_print('USBMS: finished adding metadata')
 
-    def delete_single_book(self, path):
+    def delete_single_book(self, path) -> None:
         os.unlink(path)
 
-    def delete_extra_book_files(self, path):
+    def delete_extra_book_files(self, path) -> None:
         filepath = os.path.splitext(path)[0]
         for ext in self.DELETE_EXTS:
             for x in (filepath, path):
@@ -416,7 +417,7 @@ class USBMS(CLI, Device):
             except Exception:
                 pass
 
-    def delete_books(self, paths, end_session=True):
+    def delete_books(self, paths, end_session=True) -> None:
         debug_print(f'USBMS: deleting {len(paths)} books')
         for i, path in enumerate(paths):
             self.report_progress((i + 1) / float(len(paths)), _('Removing books from device...'))
@@ -429,7 +430,7 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Removing books from device...'))
         debug_print(f'USBMS: finished deleting {len(paths)} books')
 
-    def remove_books_from_metadata(self, paths, booklists):
+    def remove_books_from_metadata(self, paths, booklists) -> None:
         debug_print(f'USBMS: removing metadata for {len(paths)} books')
 
         for i, path in enumerate(paths):
@@ -444,14 +445,14 @@ class USBMS(CLI, Device):
     # If you override this method and you use book._new_book, then you must
     # complete the processing before you call this method. The flag is cleared
     # at the end just before the return
-    def sync_booklists(self, booklists, end_session=True):
+    def sync_booklists(self, booklists, end_session=True) -> None:
         debug_print('USBMS: starting sync_booklists')
         json_codec = JsonCodec()
 
         if not os.path.exists(self.normalize_path(self._main_prefix)):
             os.makedirs(self.normalize_path(self._main_prefix))
 
-        def write_prefix(prefix, listid):
+        def write_prefix(prefix, listid) -> None:
             if prefix is not None and len(booklists) > listid and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))

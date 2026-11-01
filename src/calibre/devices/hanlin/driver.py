@@ -133,7 +133,7 @@ class BOOX(HANLINV3):
 
     # EBOOK_DIR_CARD_A = 'MyBooks' ## Am quite sure we need this.
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         opts = self.settings()
         dirs = opts.extra_customization
         if not dirs:

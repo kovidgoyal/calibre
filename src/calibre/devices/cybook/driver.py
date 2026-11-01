@@ -40,7 +40,7 @@ class CYBOOK(USBMS):
     DELETE_EXTS = ['.mbp', '.dat', '.bin', '_6090.t2b', '.thn']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             coverdata = coverdata[2]
@@ -80,7 +80,7 @@ class ORIZON(CYBOOK):
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [EBOOK_DIR_CARD_A]
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             coverdata = coverdata[2]
@@ -90,7 +90,7 @@ class ORIZON(CYBOOK):
             t4b.write_t4b(thnfile, coverdata)
             fsync(thnfile)
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         opts = self.settings()
         folder = opts.extra_customization[0]
         if not folder:
@@ -157,5 +157,5 @@ class DIVA(CYBOOK):
     SCAN_FROM_ROOT = True
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info, debug=False) -> bool:
         return True

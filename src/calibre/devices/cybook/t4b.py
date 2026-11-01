@@ -14,7 +14,7 @@ def reduce_color(c):
     return max(0, min(255, c)) // 16
 
 
-def write_t4b(t4bfile, coverdata=None):
+def write_t4b(t4bfile, coverdata=None) -> None:
     """
     t4bfile is a file handle ready to write binary data to disk.
     coverdata is a string representation of a JPEG file.

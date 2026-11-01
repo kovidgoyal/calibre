@@ -10,7 +10,7 @@ from calibre.devices.interface import DevicePlugin
 from calibre.utils.localization import _
 
 
-def debug(*args, **kwargs):
+def debug(*args, **kwargs) -> None:
     if DEBUG:
         prints('MTP:', *args, **kwargs)
 
@@ -37,23 +37,23 @@ class MTPDeviceBase(DevicePlugin):
         @property
         def prefs(self) -> dict[str, Any]: ...
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         DevicePlugin.__init__(self, *args, **kwargs)
         self.progress_reporter = None
         self.current_friendly_name = None
         self.report_progress = lambda x, y: None
         self.current_serial_num = None
 
-    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None) -> None:
         pass
 
-    def set_progress_reporter(self, report_progress):
+    def set_progress_reporter(self, report_progress) -> None:
         self.report_progress = report_progress
 
     def get_gui_name(self):
         return getattr(self, 'current_friendly_name', self.gui_name)
 
-    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
+    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False) -> bool:
         # We manage device presence ourselves, so this method should always
         # return False
         return False
@@ -73,5 +73,5 @@ class MTPDeviceBase(DevicePlugin):
 
         return build_template_regexp(self.save_template)
 
-    def is_customizable(self):
+    def is_customizable(self) -> bool:
         return True

@@ -49,7 +49,7 @@ def none_cmp(xx, yy):
 class Book(Metadata):
     _thumbnail_value = None
 
-    def __init__(self, prefix, lpath, size=None, other=None):
+    def __init__(self, prefix, lpath, size=None, other=None) -> None:
         from calibre.ebooks.metadata.meta import path_to_ext
 
         Metadata.__init__(self, '')
@@ -95,11 +95,11 @@ class Book(Metadata):
 
 
 class BookList(_BookList):
-    def __init__(self, oncard, prefix, settings):
+    def __init__(self, oncard, prefix, settings) -> None:
         _BookList.__init__(self, oncard, prefix, settings)
         self._bookmap = {}
 
-    def supports_collections(self):
+    def supports_collections(self) -> bool:
         return False
 
     def add_book(self, book, replace_metadata):
@@ -122,7 +122,7 @@ class BookList(_BookList):
             return self[b]
         return None
 
-    def remove_book(self, book):
+    def remove_book(self, book) -> None:
         self.remove(book)
 
     def get_collections(self, collection_attributes=None):
@@ -130,7 +130,7 @@ class BookList(_BookList):
 
 
 class CollectionsBookList(BookList):
-    def supports_collections(self):
+    def supports_collections(self) -> bool:
         return True
 
     def in_category_sort_rules(self, attr):
@@ -304,7 +304,7 @@ class CollectionsBookList(BookList):
             result[category] = [x[0] for x in books]
         return result
 
-    def rebuild_collections(self, booklist, oncard):
+    def rebuild_collections(self, booklist, oncard) -> None:
         """
         For each book in the booklist for the card oncard, remove it from all
         its current collections, then add it to the collections specified in

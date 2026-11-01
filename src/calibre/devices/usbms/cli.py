@@ -11,7 +11,7 @@ from calibre.utils.filenames import case_preserving_open_file
 
 
 class File:
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         stats = os.stat(path)
         self.is_dir = os.path.isdir(path)
         self.is_readonly = not os.access(path, os.W_OK)
@@ -39,7 +39,7 @@ class CLI:
     def delete_books(self, paths, end_session=True):
         raise NotImplementedError
 
-    def get_file(self, path, outfile, end_session=True):
+    def get_file(self, path, outfile, end_session=True) -> None:
         path = self.munge_path(path)
         with open(path, 'rb') as src:
             shutil.copyfileobj(src, outfile)
@@ -93,16 +93,16 @@ class CLI:
                 dirs[len(dirs) :] = self.list(_file.path, recurse=True, munge=False)
         return dirs
 
-    def mkdir(self, path, end_session=True):
+    def mkdir(self, path, end_session=True) -> None:
         if self.SUPPORTS_SUB_DIRS:
             path = self.munge_path(path)
             os.mkdir(path)
 
-    def rm(self, path, end_session=True):
+    def rm(self, path, end_session=True) -> None:
         path = self.munge_path(path)
         self.delete_books([path])
 
-    def touch(self, path, end_session=True):
+    def touch(self, path, end_session=True) -> None:
         path = self.munge_path(path)
         if not os.path.exists(path):
             open(path, 'wb').close()

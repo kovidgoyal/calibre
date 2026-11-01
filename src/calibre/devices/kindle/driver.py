@@ -320,7 +320,7 @@ class KINDLE(USBMS):
         ka_soup.insert(0, divTag)
         return ka_soup
 
-    def add_annotation_to_library(self, db, db_id, annotation):
+    def add_annotation_to_library(self, db, db_id, annotation) -> None:
         from calibre.ebooks.BeautifulSoup import prettify
         from calibre.ebooks.metadata import MetaInformation
 
@@ -499,7 +499,7 @@ class KINDLE2(KINDLE):
                 traceback.print_exc()
         return bl
 
-    def kindle_update_booklist(self, bl, collections):
+    def kindle_update_booklist(self, bl, collections) -> None:
         with open(collections, 'rb') as f:
             collections = f.read()
         collections = json.loads(collections)
@@ -519,7 +519,7 @@ class KINDLE2(KINDLE):
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         try:
             self.sync_cover_thumbnails()
         except Exception:
@@ -541,7 +541,7 @@ class KINDLE2(KINDLE):
                         self.sidecar_apnx = True
                         return
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         """
         Upload sidecar files: cover thumbnails and page count
         """
@@ -571,7 +571,7 @@ class KINDLE2(KINDLE):
         # see https://www.mobileread.com/forums/showthread.php?t=329945
         return os.path.join(cast('str', self._main_prefix), 'amazon-cover-bug')
 
-    def upload_kindle_thumbnail(self, metadata, filepath):
+    def upload_kindle_thumbnail(self, metadata, filepath) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if not coverdata or not coverdata[2]:
             return
@@ -590,7 +590,7 @@ class KINDLE2(KINDLE):
                 f.write(coverdata[2])
                 fsync(f)
 
-    def sync_cover_thumbnails(self):
+    def sync_cover_thumbnails(self) -> None:
         import shutil
 
         # See https://www.mobileread.com/forums/showthread.php?t=329945
@@ -620,7 +620,7 @@ class KINDLE2(KINDLE):
         if DEBUG:
             prints(f'Restored {count} cover thumbnails that were destroyed by Amazon')
 
-    def delete_single_book(self, path):
+    def delete_single_book(self, path) -> None:
         try:
             tp1 = self.thumbpath_from_filepath(path)
             if tp1:
@@ -637,7 +637,7 @@ class KINDLE2(KINDLE):
             traceback.print_exc()
         USBMS.delete_single_book(self, path)
 
-    def upload_apnx(self, path, filename, metadata, filepath):
+    def upload_apnx(self, path, filename, metadata, filepath) -> None:
         from calibre.devices.kindle.apnx import APNXBuilder
 
         opts = self.settings()
@@ -695,10 +695,10 @@ class KINDLE_DX(KINDLE2):
     PRODUCT_ID = [0x0003]
     BCD = [0x0100]
 
-    def upload_kindle_thumbnail(self, metadata, filepath):
+    def upload_kindle_thumbnail(self, metadata, filepath) -> None:
         pass
 
-    def delete_single_book(self, path):
+    def delete_single_book(self, path) -> None:
         USBMS.delete_single_book(self, path)
 
 
@@ -718,8 +718,8 @@ class KINDLE_FIRE(KINDLE2):
     VENDOR_NAME = 'AMAZON'
     WINDOWS_MAIN_MEM = 'KINDLE'
 
-    def upload_kindle_thumbnail(self, metadata, filepath):
+    def upload_kindle_thumbnail(self, metadata, filepath) -> None:
         pass
 
-    def delete_single_book(self, path):
+    def delete_single_book(self, path) -> None:
         USBMS.delete_single_book(self, path)

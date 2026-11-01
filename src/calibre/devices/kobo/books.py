@@ -26,7 +26,7 @@ class Book(Book_):
         thumbnail_name=None,
         size=None,
         other=None,
-    ):
+    ) -> None:
         from calibre.utils.date import parse_date
 
         # debug_print('Book::__init__ - title=', title)
@@ -100,14 +100,14 @@ class Book(Book_):
     def is_purchased_kepub(self):
         return self.contentID and not self.contentID.startswith('file')
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         A string representation of this object, suitable for printing to
         console
         """
         ans = ['Kobo metadata:']
 
-        def fmt(x, y):
+        def fmt(x, y) -> None:
             ans.append(f'{x:<20}: {y}')
 
         if self.contentID:
@@ -127,12 +127,12 @@ class Book(Book_):
 
 
 class ImageWrapper:
-    def __init__(self, image_path):
+    def __init__(self, image_path) -> None:
         self.image_path = image_path
 
 
 class KTCollectionsBookList(CollectionsBookList):
-    def __init__(self, oncard, prefix, settings):
+    def __init__(self, oncard, prefix, settings) -> None:
         super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
 
@@ -313,10 +313,10 @@ class KTCollectionsBookList(CollectionsBookList):
         debug_print('KTCollectionsBookList:get_collections - end')
         return result
 
-    def set_device_managed_collections(self, collection_names):
+    def set_device_managed_collections(self, collection_names) -> None:
         self.device_managed_collections = collection_names
 
-    def set_debugging_title(self, title):
+    def set_debugging_title(self, title) -> None:
         self.debugging_title = title
 
     def is_debugging_title(self, title):

@@ -91,7 +91,7 @@ class PDNOVEL(USBMS):
     SUPPORTS_SUB_DIRS = False
     DELETE_EXTS = ['.jpg', '.jpeg', '.png']
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             with open(f'{os.path.join(path, filename)}.jpg', 'wb') as coverfile:
@@ -108,7 +108,7 @@ class PDNOVEL_KOBO(PDNOVEL):
 
     EBOOK_DIR_MAIN = 'eBooks'
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             dirpath = os.path.join(path, '.thumbnail')
@@ -181,7 +181,7 @@ class LUMIREAD(USBMS):
     VENDOR_NAME = 'ACER'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'LUMIREAD_600'
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         if metadata.thumbnail and metadata.thumbnail[-1]:
             cfilepath = filepath.replace('/', os.sep)
             cfilepath = cfilepath.replace(os.sep + 'books' + os.sep, os.sep + 'covers' + os.sep, 1)

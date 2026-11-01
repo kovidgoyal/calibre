@@ -27,7 +27,7 @@ THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
 
 
 class ImageWrapper:
-    def __init__(self, image_path):
+    def __init__(self, image_path) -> None:
         self.image_path = image_path
 
 
@@ -112,7 +112,7 @@ class PRST1(USBMS):
     plugboards = None
     plugboard_func = None
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
         # Set the thumbnail width to the theoretical max if the user has asked
         # that we do not preserve aspect ratio
         ec = self.settings().extra_customization
@@ -135,7 +135,7 @@ class PRST1(USBMS):
             return self.EBOOK_DIR_MAIN
         return ''
 
-    def can_handle(self, device_info, debug=False):
+    def can_handle(self, device_info, debug=False) -> bool:
         if islinux:
             dev = USBDevice(device_info)
             main, carda, cardb = self.find_device_nodes(detected_device=dev)
@@ -226,11 +226,11 @@ class PRST1(USBMS):
 
         return bl
 
-    def set_plugboards(self, plugboards, pb_func):
+    def set_plugboards(self, plugboards, pb_func) -> None:
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def sync_booklists(self, booklists, end_session=True):
+    def sync_booklists(self, booklists, end_session=True) -> None:
         debug_print('PRST1: starting sync_booklists')
 
         opts = self.settings()
@@ -248,7 +248,7 @@ class PRST1(USBMS):
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRST1: finished sync_booklists')
 
-    def update_device_database(self, booklist, collections_attributes, oncard):
+    def update_device_database(self, booklist, collections_attributes, oncard) -> None:
         import sqlite3 as sqlite
 
         debug_print('PRST1: starting update_device_database')
@@ -276,7 +276,7 @@ class PRST1(USBMS):
 
         debug_print('PRST1: finished update_device_database')
 
-    def remove_orphaned_records(self, connection, dbpath):
+    def remove_orphaned_records(self, connection, dbpath) -> None:
         from sqlite3 import DatabaseError
 
         try:
@@ -337,7 +337,7 @@ class PRST1(USBMS):
 
         return sequence_min
 
-    def set_database_sequence_id(self, connection, table, sequence_id):
+    def set_database_sequence_id(self, connection, table, sequence_id) -> None:
         cursor = connection.cursor()
 
         # Update the sequence Id if it exists
@@ -456,7 +456,7 @@ class PRST1(USBMS):
         cursor.close()
         return db_books
 
-    def update_device_books(self, connection, booklist, source_id, plugboard, dbpath):
+    def update_device_books(self, connection, booklist, source_id, plugboard, dbpath) -> None:
         from calibre.ebooks.metadata.meta import path_to_ext
 
         opts = self.settings()
@@ -658,7 +658,7 @@ class PRST1(USBMS):
         cursor.close()
         return db_collections
 
-    def update_device_collections(self, connection, booklist, collections, source_id, dbpath):
+    def update_device_collections(self, connection, booklist, collections, source_id, dbpath) -> None:
 
         if collections:
             db_collections = self.read_device_collections(connection, source_id, dbpath)
@@ -735,7 +735,7 @@ class PRST1(USBMS):
             connection.commit()
             cursor.close()
 
-    def rebuild_collections(self, booklist, oncard):
+    def rebuild_collections(self, booklist, oncard) -> None:
         debug_print('PRST1: starting rebuild_collections')
 
         opts = self.settings()
@@ -749,7 +749,7 @@ class PRST1(USBMS):
 
         debug_print('PRS-T1: finished rebuild_collections')
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         import sqlite3 as sqlite
 
         debug_print('PRS-T1: uploading cover')
@@ -785,7 +785,7 @@ class PRST1(USBMS):
 
         debug_print('PRS-T1: done uploading cover')
 
-    def upload_book_cover(self, connection, book, source_id):
+    def upload_book_cover(self, connection, book, source_id) -> None:
         debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
         if not book.thumbnail or isinstance(book.thumbnail, ImageWrapper) or not book.thumbnail[-1]:
             # If the thumbnail is an ImageWrapper instance, it refers to a book
@@ -816,7 +816,7 @@ class PRST1(USBMS):
         connection.commit()
         cursor.close()
 
-    def is_sony_periodical(self, book):
+    def is_sony_periodical(self, book) -> bool:
         if _('News') not in book.tags:
             return False
         if not book.lpath.lower().endswith('.epub'):
@@ -825,7 +825,7 @@ class PRST1(USBMS):
             return False
         return True
 
-    def periodicalize_book(self, connection, book):
+    def periodicalize_book(self, connection, book) -> None:
         if not self.is_sony_periodical(book):
             return
 

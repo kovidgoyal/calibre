@@ -31,7 +31,7 @@ def convert_timestamp(md):
 
 
 class ListEntry:
-    def __init__(self, entry: FileOrFolder):
+    def __init__(self, entry: FileOrFolder) -> None:
         self.is_dir = entry.is_folder
         self.is_readonly = not entry.can_delete
         self.path = '/'.join(entry.full_path)
@@ -41,7 +41,7 @@ class ListEntry:
 
 
 class FileOrFolder:
-    def __init__(self, entry, fs_cache: FilesystemCache, is_storage: bool = False):
+    def __init__(self, entry, fs_cache: FilesystemCache, is_storage: bool = False) -> None:
         self.object_id = entry['id']
         self.is_storage = is_storage
         self.is_folder = entry['is_folder']
@@ -98,7 +98,7 @@ class FileOrFolder:
                 self.name = f'Scribe {nbk_name} Notebook.kfx'
                 self.is_ebook = True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.is_storage:
             name = 'Storage'
         else:
@@ -116,7 +116,7 @@ class FileOrFolder:
     __unicode__ = __repr__
 
     @property
-    def empty(self):
+    def empty(self) -> bool:
         return not self.files and not self.folders
 
     @property
@@ -167,7 +167,7 @@ class FileOrFolder:
         t.append(ans)
         return ans
 
-    def remove_child(self, entry):
+    def remove_child(self, entry) -> None:
         for x in (self.files, self.folders):
             try:
                 x.remove(entry)
@@ -176,7 +176,7 @@ class FileOrFolder:
         self.id_map.pop(entry.object_id, None)
         entry.deleted = True
 
-    def dump(self, prefix='', out=sys.stdout):
+    def dump(self, prefix='', out=sys.stdout) -> None:
         c = '+' if self.is_folder else '-'
         data = f'{sum(map(len, (self.files, self.folders)))} children' if self.is_folder else human_readable(self.size)
         data += f' modified={self.last_mod_string}'
@@ -240,7 +240,7 @@ class FileOrFolder:
 
 
 class FilesystemCache:
-    def __init__(self, all_storage, entries):
+    def __init__(self, all_storage, entries) -> None:
         self.entries = []
         self.id_maps = defaultdict(dict)
         self.all_storage_ids = tuple(x['id'] for x in all_storage)
@@ -270,7 +270,7 @@ class FilesystemCache:
                     t = p.folders if item.is_folder else p.files
                     t.append(item)
 
-    def dump(self, out=sys.stdout):
+    def dump(self, out=sys.stdout) -> None:
         for e in self.entries:
             e.dump(out=out)
 
@@ -287,7 +287,7 @@ class FilesystemCache:
                     continue  # Ignore .txt files in the root
                 yield x
 
-    def __len__(self):
+    def __len__(self) -> int:
         ans = len(self.id_maps)
         for id_map in self.id_maps.values():
             ans += len(id_map)

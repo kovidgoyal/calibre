@@ -66,16 +66,16 @@ def synchronous(tlockname):
 
 
 class ConnectionListener(Thread):
-    def __init__(self, driver):
+    def __init__(self, driver) -> None:
         super().__init__(name='SmartDeviceConnectionListener', daemon=True)
         self.driver = driver
         self.shutdown_event = Event()
         self.all_ip_addresses = {}
 
-    def stop(self):
+    def stop(self) -> None:
         self.shutdown_event.set()
 
-    def _close_socket(self, the_socket):
+    def _close_socket(self, the_socket) -> None:
         try:
             the_socket.shutdown(socket.SHUT_RDWR)
         except Exception:
@@ -83,7 +83,7 @@ class ConnectionListener(Thread):
             pass
         the_socket.close()
 
-    def run(self):
+    def run(self) -> None:
         device_socket = None
         get_all_ips(reinitialize=True)
 
@@ -177,7 +177,7 @@ class ConnectionListener(Thread):
 
 
 class SDBook(Book):
-    def __init__(self, prefix, lpath, size=None, other=None):
+    def __init__(self, prefix, lpath, size=None, other=None) -> None:
         Book.__init__(self, prefix, lpath, size=size, other=other)
         path = getattr(self, 'path', lpath)
         self.path = path.replace('\\', '/')
@@ -422,7 +422,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'thumbnail_compression_quality': OPT_COMPRESSION_QUALITY,
     }
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         self.sync_lock = RLock()
         self.noop_counter = 0
         self.noop_time = time.monotonic()
@@ -433,7 +433,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # Don't call this method from the GUI unless you are sure that there is no
     # network traffic in progress. Otherwise the gui might hang waiting for the
     # network timeout
-    def _debug(self, *args):
+    def _debug(self, *args) -> None:
         # manual synchronization so we don't lose the calling method name
         import inspect
 
@@ -644,7 +644,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             pos += len(v)
         return data
 
-    def _send_byte_string(self, sock, s):
+    def _send_byte_string(self, sock, s) -> None:
         if not isinstance(s, bytes):
             self._debug('given a non-byte string!')
             self._close_device_socket()
@@ -828,7 +828,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             traceback.print_exc()
         return None
 
-    def _read_metadata_cache(self):
+    def _read_metadata_cache(self) -> None:
         self._debug('device uuid', self.device_uuid)
         from calibre.utils.config import from_json
 
@@ -878,7 +878,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except Exception:
                 traceback.print_exc()
 
-    def _write_metadata_cache(self):
+    def _write_metadata_cache(self) -> None:
         self._debug()
         from calibre.utils.date import now
 
@@ -916,7 +916,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             key = uuid + lpath_or_ext
         return key
 
-    def _set_known_metadata(self, book, remove=False):
+    def _set_known_metadata(self, book, remove=False) -> None:
         from calibre.utils.date import now
 
         lpath = book.lpath
@@ -947,7 +947,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # Force close a socket. The shutdown permits the close even if data transfer
     # is in progress
-    def _close_socket(self, the_socket):
+    def _close_socket(self, the_socket) -> None:
         try:
             the_socket.shutdown(socket.SHUT_RDWR)
         except Exception:
@@ -955,7 +955,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             pass
         the_socket.close()
 
-    def _close_device_socket(self):
+    def _close_device_socket(self) -> None:
         if self.device_socket is not None:
             try:
                 self._close_socket(self.device_socket)
@@ -982,7 +982,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             raise
         return port
 
-    def _close_listen_socket(self):
+    def _close_listen_socket(self) -> None:
         self._close_socket(self.listen_socket)
         self.listen_socket = None
         self.is_connected = False
@@ -1062,7 +1062,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return None
 
     @synchronous('sync_lock')
-    def debug_managed_device_detection(self, devices_on_system, output):
+    def debug_managed_device_detection(self, devices_on_system, output) -> bool:
         from functools import partial
 
         p = partial(prints, file=output)
@@ -1078,7 +1078,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return False
 
     @synchronous('sync_lock')
-    def open(self, connected_device, library_uuid):
+    def open(self, connected_device, library_uuid) -> bool:
         from calibre.utils.date import isoformat, now
 
         self._debug()
@@ -1303,17 +1303,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return (self.get_gui_name(), '', '', '')
 
     @synchronous('sync_lock')
-    def set_driveinfo_name(self, location_code, name):
+    def set_driveinfo_name(self, location_code, name) -> None:
         self._update_driveinfo_record(self.driveinfo, 'main', name)
         self._call_client('SET_CALIBRE_DEVICE_NAME', {'location_code': 'main', 'name': name})
 
     @synchronous('sync_lock')
-    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None) -> None:
         self._debug()
         self.set_progress_reporter(report_progress)
 
     @synchronous('sync_lock')
-    def set_progress_reporter(self, report_progress):
+    def set_progress_reporter(self, report_progress) -> None:
         self._debug()
         self.report_progress = report_progress
         if self.report_progress is None:
@@ -1454,7 +1454,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return bl
 
     @synchronous('sync_lock')
-    def sync_booklists(self, booklists, end_session=True):
+    def sync_booklists(self, booklists, end_session=True) -> None:
         colattrs = [x.strip() for x in self.settings().extra_customization[self.OPT_COLLECTIONS].split(',')]
         self._debug('collection attributes', colattrs)
         coldict = {}
@@ -1524,13 +1524,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._write_metadata_cache()
 
     @synchronous('sync_lock')
-    def eject(self):
+    def eject(self) -> None:
         self._debug()
         self._call_client('NOOP', {'ejecting': True})
         self._close_device_socket()
 
     @synchronous('sync_lock')
-    def post_yank_cleanup(self):
+    def post_yank_cleanup(self) -> None:
         self._debug()
 
     @synchronous('sync_lock')
@@ -1566,7 +1566,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return paths
 
     @synchronous('sync_lock')
-    def add_books_to_metadata(self, locations, metadata, booklists):
+    def add_books_to_metadata(self, locations, metadata, booklists) -> None:
         self._debug(f'adding metadata for {len(metadata)} books')
 
         metadata = iter(metadata)
@@ -1590,7 +1590,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug('finished adding metadata')
 
     @synchronous('sync_lock')
-    def delete_books(self, paths, end_session=True):
+    def delete_books(self, paths, end_session=True) -> None:
         if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
             self._debug(paths)
         else:
@@ -1606,7 +1606,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug('removed', len(new_paths), 'books')
 
     @synchronous('sync_lock')
-    def remove_books_from_metadata(self, paths, booklists):
+    def remove_books_from_metadata(self, paths, booklists) -> None:
         if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
             self._debug(paths)
         else:
@@ -1624,7 +1624,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug(f'finished removing metadata for {len(paths)} books')
 
     @synchronous('sync_lock')
-    def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None):
+    def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None) -> None:
         if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
             self._debug(path)
         else:
@@ -1668,13 +1668,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return paths
 
     @synchronous('sync_lock')
-    def set_plugboards(self, plugboards, pb_func):
+    def set_plugboards(self, plugboards, pb_func) -> None:
         self._debug()
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
     @synchronous('sync_lock')
-    def set_library_info(self, library_name, library_uuid, field_metadata):
+    def set_library_info(self, library_name, library_uuid, field_metadata) -> None:
         self._debug(library_name, library_uuid)
         if self.can_accept_library_info:
             other_info = {}
@@ -1694,10 +1694,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             )
 
     @synchronous('sync_lock')
-    def specialize_global_preferences(self, device_prefs):
+    def specialize_global_preferences(self, device_prefs) -> None:
         device_prefs.set_overrides(manage_device_metadata='on_connect')
 
-    def _show_message(self, message):
+    def _show_message(self, message) -> None:
         self._call_client('DISPLAY_MESSAGE', {'messageKind': self.MESSAGE_SHOW_TOAST, 'message': message})
 
     def _check_if_format_send_needed(self, db, id_, book):
@@ -1921,7 +1921,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return (None, self._check_if_format_send_needed(db, id_, book))
 
     @synchronous('sync_lock')
-    def startup(self):
+    def startup(self) -> None:
         self.listen_socket = None
         self.is_connected = False
 
@@ -2066,7 +2066,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.connection_listener.start()
         return message
 
-    def _shutdown(self):
+    def _shutdown(self) -> None:
         # Force close any socket open by a device. This will cause any IO on the
         # socket to fail, eventually releasing the transaction lock.
         self._close_device_socket()
@@ -2086,13 +2086,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # Methods for dynamic control. Do not call _debug in these methods, as it
     # uses the sync lock.
 
-    def is_dynamically_controllable(self):
+    def is_dynamically_controllable(self) -> str:
         return 'smartdevice'
 
     def start_plugin(self):
         return self._startup_on_demand()
 
-    def stop_plugin(self):
+    def stop_plugin(self) -> None:
         try:
             if self.is_connected:
                 self.eject()
@@ -2108,7 +2108,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.settings().extra_customization[opt]
         return default
 
-    def set_option(self, opt_string, opt_value):
+    def set_option(self, opt_string, opt_value) -> None:
         opt = self.OPTNAME_TO_NUMBER_MAP.get(opt_string)
         if opt is not None:
             config = self._configProxy()

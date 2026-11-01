@@ -12,7 +12,7 @@ class PageGroup:
         page_number_type: PageNumberTypes,
         first_value: int,
         page_labels: str | list[str] | None = None,
-    ):
+    ) -> None:
         if isinstance(page_locations, int):
             self.page_locations: list[int] = [page_locations]
         else:

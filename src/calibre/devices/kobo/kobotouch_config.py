@@ -37,7 +37,7 @@ def wrap_msg(msg):
     return textwrap.fill(msg.strip(), 100)
 
 
-def setToolTipFor(widget, tt):
+def setToolTipFor(widget, tt) -> None:
     widget.setToolTip(wrap_msg(tt))
 
 
@@ -60,7 +60,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         device,
         extra_customization_choices=None,
         parent=None,
-    ):
+    ) -> None:
 
         super().__init__(
             device_settings,
@@ -191,7 +191,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
 
 class Tab1Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent)
 
         self.l = QVBoxLayout(self)
@@ -221,7 +221,7 @@ class Tab1Config(DeviceConfigTab):  # {{{
 
 
 class Tab2Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent)
 
         self.l = QVBoxLayout(self)
@@ -249,7 +249,7 @@ class Tab2Config(DeviceConfigTab):  # {{{
 
 
 class Tab3Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.hyphenation_options = h = HyphenationGroupBox(self, device)
@@ -265,7 +265,7 @@ class Tab3Config(DeviceConfigTab):  # {{{
 
 
 class Tab4Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.modify_css_options = h = ModifyCSSGroupBox(self, device)
@@ -281,7 +281,7 @@ class Tab4Config(DeviceConfigTab):  # {{{
 
 
 class ModifyCSSGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Modify CSS of books sent to the device'))
         self.setCheckable(True)
@@ -328,27 +328,27 @@ class ModifyCSSGroupBox(DeviceOptionsGroupBox):
         for i in range(self.dev_list.count()):
             yield self.dev_list.item(i)
 
-    def clear_all_css(self):
+    def clear_all_css(self) -> None:
         for item in self.items():
             mm, css = item.data(Qt.ItemDataRole.UserRole)
             item.setData(Qt.ItemDataRole.UserRole, (mm, ''))
         self.current_device_changed()
 
-    def current_device_changed(self):
+    def current_device_changed(self) -> None:
         i = self.dev_list.currentItem()
         css = ''
         if i is not None:
             mm, css = i.data(Qt.ItemDataRole.UserRole)
         self.css_edit.setPlainText(css or '')
 
-    def css_text_changed(self):
+    def css_text_changed(self) -> None:
         i = self.dev_list.currentItem()
         if i is not None:
             mm, css = i.data(Qt.ItemDataRole.UserRole)
             css = self.css_edit.toPlainText().strip()
             i.setData(Qt.ItemDataRole.UserRole, (mm, css))
 
-    def validate(self):
+    def validate(self) -> bool:
         return True
 
     @property
@@ -366,7 +366,7 @@ class ModifyCSSGroupBox(DeviceOptionsGroupBox):
 
 
 class BookUploadsGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Uploading of books'))
 
@@ -430,7 +430,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
         self.update_template_state()
         self.kepubify_checkbox.toggled.connect(self.update_template_state)
 
-    def update_template_state(self):
+    def update_template_state(self) -> None:
         self.kepubify_template_edit.setEnabled(self.kepubify)
 
     def validate(self):
@@ -450,7 +450,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
 
 class HyphenationGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Enable/disable hyphenation in KEPUB books'))
         self.setCheckable(True)
@@ -498,7 +498,7 @@ class HyphenationGroupBox(DeviceOptionsGroupBox):
         mc.setRange(0, 20)
         mc.setValue(device.get_pref('hyphenation_limit_lines'))
 
-    def validate(self):
+    def validate(self) -> bool:
         return True
 
     @property
@@ -527,7 +527,7 @@ class HyphenationGroupBox(DeviceOptionsGroupBox):
 
 
 class CollectionsGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Collections'))
 
@@ -620,7 +620,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         v &= self.collections_template_edit.validate()
         return v
 
-    def validate_collections_columns(self):
+    def validate_collections_columns(self) -> bool:
         from calibre.gui2.ui import get_gui
 
         gui = get_gui()
@@ -643,10 +643,10 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
             return False
         return True
 
-    def use_collections_columns_checkbox_clicked(self, checked):
+    def use_collections_columns_checkbox_clicked(self, checked) -> None:
         self.collections_columns_edit.setEnabled(checked)
 
-    def use_collections_template_checkbox_clicked(self, checked):
+    def use_collections_template_checkbox_clicked(self, checked) -> None:
         self.collections_template_edit.setEnabled(checked)
 
     @property
@@ -683,7 +683,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
 
 class CoversGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Upload covers'))
 
@@ -803,7 +803,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 
 
 class DeviceListGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Show as on device'))
 
@@ -858,7 +858,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 
 
 class AdvancedGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device, _('Advanced options'))
         # self.setTitle(_("Advanced Options"))
 
@@ -915,7 +915,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
 
 
 class MetadataGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device):
+    def __init__(self, parent, device) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Update metadata on the device'))
 
@@ -1081,15 +1081,15 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         self.use_series_index_template_checkbox.clicked.connect(self.use_series_index_template_checkbox_clicked)
         self.use_series_index_template_checkbox_clicked(device.get_pref('use_series_index_template'))
 
-    def update_series_checkbox_clicked(self, checked):
+    def update_series_checkbox_clicked(self, checked) -> None:
         self.force_series_id_checkbox.setEnabled(checked)
         if not checked:
             self.force_series_id_checkbox.setChecked(False)
 
-    def use_series_index_template_checkbox_clicked(self, checked):
+    def use_series_index_template_checkbox_clicked(self, checked) -> None:
         self.series_index_template_edit.setEnabled(checked)
 
-    def update_core_metadata_checkbox_clicked(self, checked):
+    def update_core_metadata_checkbox_clicked(self, checked) -> None:
         self.update_series_checkbox.setEnabled(not checked)
         self.force_series_id_checkbox.setEnabled(self.update_series)
         self.subtitle_template_edit.setEnabled(checked)
@@ -1099,17 +1099,17 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         self.update_bookstats_checkbox_clicked(self.update_bookstats)
         self.update_purchased_kepubs_checkbox.setEnabled(checked)
 
-    def update_subtitle_checkbox_clicked(self, checked):
+    def update_subtitle_checkbox_clicked(self, checked) -> None:
         self.subtitle_template_edit.setEnabled(checked and self.update_core_metadata)
 
-    def update_bookstats_checkbox_clicked(self, checked):
+    def update_bookstats_checkbox_clicked(self, checked) -> None:
         self.bookstats_timetoread_label.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_wordcount_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_pagecount_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_timetoread_upper_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_timetoread_lower_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
 
-    def validate(self):
+    def validate(self) -> bool:
         if self.update_subtitle and not self.subtitle_template_edit.validate():
             return False
         if self.update_bookstats and not self.bookstats_pagecount_template_edit.validate():
@@ -1180,7 +1180,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
 
 
 class TemplateConfig(QWidget):  # {{{
-    def __init__(self, name, val, label=None, tooltip=None):
+    def __init__(self, name, val, label=None, tooltip=None) -> None:
         super().__init__()
         self.name = name
         self.l = l = QGridLayout(self)
@@ -1205,16 +1205,16 @@ class TemplateConfig(QWidget):  # {{{
         return str(self.t.text()).strip()
 
     @template.setter
-    def template(self, template):
+    def template(self, template) -> None:
         self.t.setText(template)
 
-    def edit_template(self):
+    def edit_template(self) -> None:
         t = TemplateDialog(self, self.template)
         t.setWindowTitle(_('Edit template'))
         if t.exec():
             self.t.setText(t.rule[1])
 
-    def validate(self):
+    def validate(self) -> bool | None:
         from calibre.utils.formatter import validation_formatter
 
         tmpl = self.template

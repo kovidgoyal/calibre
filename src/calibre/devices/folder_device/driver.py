@@ -62,7 +62,7 @@ class FOLDER_DEVICE(USBMS):
 
     is_connected = False
 
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         if not os.path.isdir(path):
             raise OSError('Path is not a folder')
         path = USBMS.normalize_path(path)
@@ -79,10 +79,10 @@ class FOLDER_DEVICE(USBMS):
                 return os.path.isdir(self._main_prefix)
         return False
 
-    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None) -> None:
         pass
 
-    def unmount_device(self):
+    def unmount_device(self) -> None:
         self._main_prefix = ''
         self.is_connected = False
 
@@ -93,13 +93,13 @@ class FOLDER_DEVICE(USBMS):
         self.current_library_uuid = library_uuid
         return bool(self._main_prefix)
 
-    def set_progress_reporter(self, report_progress):
+    def set_progress_reporter(self, report_progress) -> None:
         self.report_progress = report_progress
 
     def card_prefix(self, end_session=True):
         return None, None
 
-    def eject(self):
+    def eject(self) -> None:
         self.is_connected = False
 
     @classmethod

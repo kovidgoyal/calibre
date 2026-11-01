@@ -19,7 +19,7 @@ osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 if iswindows:
     drive_ok_lock = Lock()
 
-    def drive_is_ok(letter, max_tries=10, debug=False):
+    def drive_is_ok(letter, max_tries=10, debug=False) -> bool:
         from calibre_extensions import winutil
 
         with drive_ok_lock:
@@ -53,7 +53,7 @@ class USBDevice(_USBDevice):
         self.busnum = self.devnum = -1
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'USBDevice(busnum={self.busnum}, devnum={self.devnum}, '
             f'vendor_id=0x{self.vendor_id:04x}, product_id=0x{self.product_id:04x}, bcd=0x{self.bcd:04x}, '
@@ -87,7 +87,7 @@ class LibUSBScanner:
             self.libusb.cache.pop(x, None)
         return ans
 
-    def check_for_mem_leak(self):
+    def check_for_mem_leak(self) -> None:
         import gc
 
         from calibre.utils.mem import memory
@@ -106,7 +106,7 @@ class LibUSBScanner:
 class LinuxScanner:
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.base = os.path.join(self.SYSFS_PATH, 'subsystem', 'usb', 'devices')
         if not os.path.exists(self.base):
             self.base = os.path.join(self.SYSFS_PATH, 'bus', 'usb', 'devices')
@@ -188,7 +188,7 @@ if isnetbsd:
 
 
 class DeviceScanner:
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         if iswindows:
             from calibre.devices.winusb import scan_usb_devices as win_scanner
         self.scanner = (
@@ -208,7 +208,7 @@ class DeviceScanner:
             self.scanner = libusb_scanner
         self.devices = []
 
-    def scan(self):
+    def scan(self) -> None:
         """Fetch list of connected USB devices from operating system"""
         if self.scanner is not None:
             self.devices = self.scanner()
@@ -218,7 +218,7 @@ class DeviceScanner:
         return device.is_usb_connected(self.devices, debug=debug, only_presence=only_presence)
 
 
-def test_for_mem_leak():
+def test_for_mem_leak() -> None:
     import gc
 
     from calibre.utils.mem import diff_hists, gc_histogram, memory
@@ -246,7 +246,7 @@ def test_for_mem_leak():
         prints()
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     test_for_mem_leak()
     return 0
 

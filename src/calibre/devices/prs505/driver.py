@@ -132,9 +132,9 @@ class PRS505(USBMS):
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
-    def post_open_callback(self):
+    def post_open_callback(self) -> None:
 
-        def write_cache(prefix):
+        def write_cache(prefix) -> bool:
             try:
                 cachep = os.path.join(prefix, *(CACHE_XML.split('/')))
                 if not os.path.exists(cachep):
@@ -212,7 +212,7 @@ class PRS505(USBMS):
         debug_print('PRS505: finished fetching books for card', oncard)
         return bl
 
-    def sync_booklists(self, booklists, end_session=True):
+    def sync_booklists(self, booklists, end_session=True) -> None:
         debug_print('PRS505: started sync_booklists')
         c = self.initialize_XML_cache()
         blists = {}
@@ -252,18 +252,18 @@ class PRS505(USBMS):
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRS505: finished sync_booklists')
 
-    def rebuild_collections(self, booklist, oncard):
+    def rebuild_collections(self, booklist, oncard) -> None:
         debug_print('PRS505: started rebuild_collections on card', oncard)
         c = self.initialize_XML_cache()
         c.rebuild_collections(booklist, {'carda': 1, 'cardb': 2}.get(oncard, 0))
         c.write()
         debug_print('PRS505: finished rebuild_collections')
 
-    def set_plugboards(self, plugboards, pb_func):
+    def set_plugboards(self, plugboards, pb_func) -> None:
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def upload_cover(self, path, filename, metadata, filepath):
+    def upload_cover(self, path, filename, metadata, filepath) -> None:
         opts = self.settings()
         if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
             # Building thumbnails disabled
@@ -275,7 +275,7 @@ class PRS505(USBMS):
         except Exception:
             debug_print('FAILED to upload cover', filepath)
 
-    def _upload_cover(self, path, filename, metadata, filepath):
+    def _upload_cover(self, path, filename, metadata, filepath) -> None:
         if metadata.thumbnail and metadata.thumbnail[-1]:
             path = path.replace('/', os.sep)
             is_main = path.startswith(self._main_prefix)

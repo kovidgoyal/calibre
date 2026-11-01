@@ -8,7 +8,7 @@ import os
 class MTPDetect:
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.base = os.path.join(self.SYSFS_PATH, 'subsystem', 'usb', 'devices')
         if not os.path.exists(self.base):
             self.base = os.path.join(self.SYSFS_PATH, 'bus', 'usb', 'devices')

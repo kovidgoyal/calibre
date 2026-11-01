@@ -25,7 +25,7 @@ def wal_path(path: str) -> str:
     return path + '-wal'
 
 
-def copy_db(conn: apsw.Connection, dest_path: str):
+def copy_db(conn: apsw.Connection, dest_path: str) -> None:
     with suppress(AttributeError):  # need a new enough version of apsw
         conn.cache_flush()
     # checkpoint all WAL transactions into the main db file and truncate WAL file to zero
@@ -46,7 +46,7 @@ def copy_db(conn: apsw.Connection, dest_path: str):
 
 
 class Database:
-    def __init__(self, path_on_device: str):
+    def __init__(self, path_on_device: str) -> None:
         self.path_on_device = self.dbpath = path_on_device
         self.dbversion = 0
 
