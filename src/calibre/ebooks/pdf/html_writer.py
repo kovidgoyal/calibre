@@ -66,6 +66,7 @@ if TYPE_CHECKING:
 
 OK, KILL_SIGNAL = range(2)
 HANG_TIME = 60  # seconds
+PRINT_HANG_TIME = 600  # seconds
 
 
 # Utils {{{
@@ -300,6 +301,33 @@ class Renderer(QWebEnginePage):
         t.setInterval(HANG_TIME * 1000)
         t.setSingleShot(True)
         t.timeout.connect(self.on_load_hang)
+        self.print_hang_check_timer = t = QTimer(self)
+        t.setTimerType(Qt.TimerType.VeryCoarseTimer)
+        t.setInterval(PRINT_HANG_TIME * 1000)
+        t.setSingleShot(True)
+        t.timeout.connect(self.on_print_hang)
+        self.renderProcessTerminated.connect(self.render_process_terminated)
+
+    def fail(self, msg: str) -> None:
+        self.load_hang_check_timer.stop()
+        self.print_hang_check_timer.stop()
+        if self.working:
+            self.working = False
+            self.work_done.emit(self, msg)
+
+    def render_process_terminated(self, status: QWebEnginePage.RenderProcessTerminationStatus, exit_code: int) -> None:
+        if self.working:
+            self.fail(
+                f'Rendering of {self.url().toString()} failed as the render process terminated abnormally'
+                f' with status: {status.name} and exit code: {exit_code}.'
+                ' This can be caused by bugs in the rendering engine triggered by some fonts, for example color emoji fonts.'
+            )
+
+    def on_print_hang(self) -> None:
+        self.fail(
+            f'Rendering of {self.url().toString()} not complete after {int(monotonic() - self.job_started_at)} seconds, aborting.'
+            ' This can be caused by bugs in the rendering engine triggered by some fonts, for example color emoji fonts.'
+        )
 
     def load_started(self) -> None:
         self.load_started_at = monotonic()
@@ -324,10 +352,12 @@ class Renderer(QWebEnginePage):
     def load_finished(self, ok: bool) -> None:
         self.load_complete = True
         self.load_hang_check_timer.stop()
-        if not ok:
-            self.working = False
-            self.work_done.emit(self, f'Load of {self.url().toString()} failed')
+        if not self.working:
             return
+        if not ok:
+            self.fail(f'Load of {self.url().toString()} failed')
+            return
+        self.print_hang_check_timer.start()
         if self.wait_for_title and self.title() != self.wait_for_title:
             self.log(self.log_prefix, 'Load finished, waiting for title to change to:', self.wait_for_title)
             return
@@ -346,9 +376,17 @@ class Renderer(QWebEnginePage):
         self.printToPdf(self.printing_done, self.page_layout)
 
     def printing_done(self, pdf_data: QByteArray | bytes | bytearray | memoryview) -> None:
+        if sip.isdeleted(self):
+            return
+        self.print_hang_check_timer.stop()
+        if not self.working:
+            return  # job already failed because of a timeout or render process crash
+        data = bytes(pdf_data)
+        if not data:
+            self.fail(f'Rendering of {self.url().toString()} failed, no PDF data was produced')
+            return
         self.working = False
-        if not sip.isdeleted(self):
-            self.work_done.emit(self, bytes(pdf_data))
+        self.work_done.emit(self, data)
 
     def convert_html_file(self, path: str, page_layout: QPageLayout, settle_time: int = 0, wait_for_title: str | None = None) -> None:
         self.working = True
@@ -443,6 +481,7 @@ class RenderManager(QObject):
         self.pending = list(jobs)
         self.log(f'Rendering {len(self.pending)} HTML files')
         self.results: dict[str, bytes | str] = {}
+        self.failure: str | None = None
         self.settle_time = settle_time
         self.wait_for_title = wait_for_title
         QTimer.singleShot(0, self.assign_work)
@@ -452,6 +491,8 @@ class RenderManager(QObject):
             raise SystemExit('Kill signal received')
         if ret != OK:
             raise SystemExit('Unknown error occurred')
+        if self.failure is not None:
+            raise SystemExit(self.failure)
         return self.results
 
     def evaljs(self, js: str) -> object:
@@ -482,6 +523,12 @@ class RenderManager(QObject):
 
     def work_done(self, worker: Renderer, result: bytes | str) -> None:
         self.results[worker.result_key] = result
+        if isinstance(result, str):
+            # No point rendering the remaining files as the conversion has failed
+            self.failure = result
+            self.pending = []
+            qapplication_or_fail().exit(OK)
+            return
         for w in self.workers:
             if not w.working and w.job_started_at > 0:
                 time_taken = monotonic() - w.job_started_at
