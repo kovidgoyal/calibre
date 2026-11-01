@@ -16,29 +16,59 @@ def goto_cfi(cfi, view):
     view.goto_cfi(cfi, True)
 
 
-def remove_bookmark(annotations_manager, title, list_dom_node):
+def focus_bookmark_action(list_dom_node, button, fallback):
+    if not list_dom_node.isConnected:
+        return
+    modal = document.getElementById('modal-container')
+    if modal and modal.style.display is not 'none':
+        return
+    active = document.activeElement
+    if active is not document.body and active is not button and not (modal and modal.contains(active)):
+        return
+    target = button
+    if not list_dom_node.getClientRects().length:
+        target = None
+        # Prefer the next bookmark, then the previous one, skipping hidden rows
+        for direction in ('nextElementSibling', 'previousElementSibling'):
+            row = list_dom_node[direction]
+            while row:
+                if row.getClientRects().length:
+                    target = row.querySelector('button.item-side-action')
+                    if target:
+                        break
+                row = row[direction]
+            if target:
+                break
+        target = target or fallback
+    if target and target.isConnected and target.getClientRects().length:
+        target.focus()
+
+
+def remove_bookmark(annotations_manager, bookmark, fallback, list_dom_node, button):
     question_dialog(_('Are you sure?'), _('Do you want to permanently delete this bookmark?'), def (yes):
-        if yes:
-            annotations_manager.remove_bookmark(title)
+        if yes and annotations_manager.remove_bookmark(bookmark.title):
             list_dom_node.style.display = 'none'
+        # The confirmation callback can run before the dialog has been hidden
+        window.setTimeout(focus_bookmark_action.bind(None, list_dom_node, button, fallback), 0)
     )
 
 
-def edit_bookmark(annotations_manager, title, list_dom_node):
-    new_title = window.prompt(_('Enter new title for bookmark:'), title)
+def edit_bookmark(annotations_manager, bookmark, list_dom_node, button):
+    new_title = window.prompt(_('Enter new title for bookmark:'), bookmark.title)
     if new_title:
-        if annotations_manager.edit_bookmark(title, new_title):
-            console.log(list_dom_node)
+        if annotations_manager.edit_bookmark(bookmark.title, new_title):
+            bookmark.title = new_title
             list_dom_node.querySelector('.item-title').textContent = new_title
+    window.setTimeout(focus_bookmark_action.bind(None, list_dom_node, button, None), 0)
 
 
-def create_bookmarks_list(annotations_manager, onclick):
+def create_bookmarks_list(annotations_manager, onclick, fallback=None):
     bookmarks = sorted(annotations_manager.all_bookmarks(), key=def (x): return x.title.toLowerCase();)
     items = []
     for bookmark in bookmarks:
         if not bookmark.removed:
-            sa = create_side_action('trash', remove_bookmark.bind(None, annotations_manager, bookmark.title), _('Remove this bookmark'))
-            ea = create_side_action('edit', edit_bookmark.bind(None, annotations_manager, bookmark.title), _('Edit this bookmark'))
+            sa = create_side_action('trash', remove_bookmark.bind(None, annotations_manager, bookmark, fallback), _('Remove this bookmark'))
+            ea = create_side_action('edit', edit_bookmark.bind(None, annotations_manager, bookmark), _('Edit this bookmark'))
             items.push(create_item(
                 bookmark.title, data=bookmark.pos,
                 action=onclick.bind(None, goto_cfi.bind(None, bookmark.pos)),
@@ -73,4 +103,4 @@ def create_bookmarks_panel(annotations_manager, data, book, container, onclick):
     container_id = ensure_id(container)
     button = create_button(_('New bookmark'), 'plus', new_bookmark.bind(None, container_id, annotations_manager, data, onclick))
     container.appendChild(E.div(button))
-    container.appendChild(E.div(create_bookmarks_list(annotations_manager, onclick)))
+    container.appendChild(E.div(create_bookmarks_list(annotations_manager, onclick, button)))
