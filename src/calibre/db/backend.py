@@ -1353,6 +1353,9 @@ class DB:
     def get_notes_resource(self, resource_hash: str) -> JSONDict | None:
         return self.notes.get_resource_data(self.conn, resource_hash)
 
+    def items_using_notes_resource(self, resource_hash: str) -> Iterator[tuple[str, int]]:
+        return self.notes.items_using_resource(self.conn, resource_hash)
+
     def notes_resources_used_by(self, field: str, item_id: int) -> Iterator[str]:
         conn = self.conn
         note_id = self.notes.note_id_for(conn, field, item_id)

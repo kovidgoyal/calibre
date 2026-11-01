@@ -24,7 +24,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
-from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPNotFound
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound
 from calibre.srv.metadata import encode_stat_result
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_use_roman, header_as_str, http_date
@@ -505,12 +505,23 @@ def resource_hash_to_url(ctx: Context, scheme: str, digest: str, library_id: str
     return ctx.url_for('/get-note-resource', **kw)
 
 
+def ensure_field_supports_notes(db: Cache, field: str) -> None:
+    if not db.field_supports_notes(field):
+        raise HTTPNotFound(f'The field {field!r} does not support notes')
+
+
 def _get_note(ctx: Context, rd: RequestData, db: Cache, field: str, item_id: int, library_id: str | None) -> str:
+    ensure_field_supports_notes(db, field)
+    if not ctx.item_is_visible(rd, db, field, item_id):
+        # Use the same error as for a non-existent item so as not to leak the existence of hidden items
+        raise HTTPNotFound(f'Item {field!r}:{item_id!r} not found')
     note_data = db.notes_data_for(field, item_id)
     if not note_data:
-        if db.get_item_name(field, item_id):
-            return ''
-        raise HTTPNotFound(f'Item {field!r}:{item_id!r} not found')
+        try:
+            db.get_item_name(field, item_id)
+        except KeyError:
+            raise HTTPNotFound(f'Item {field!r}:{item_id!r} not found')
+        return ''
     note_data.pop('searchable_text', None)  # ty: ignore[invalid-argument-type]
     resources = note_data.pop('resource_hashes', None)  # ty: ignore[invalid-argument-type]
     if resources:
@@ -553,6 +564,7 @@ def get_note_from_val(ctx: Context, rd: RequestData, field: str, item: str, libr
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
+    ensure_field_supports_notes(db, field)
     item_id = db.get_item_id(field, item)
     if not item_id:
         raise HTTPNotFound(f'Item {field!r}:{item!r} not found')
@@ -568,7 +580,10 @@ def get_note_resource(ctx: Context, rd: RequestData, scheme: str, digest: str, l
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
-    d = db.get_notes_resource(f'{scheme}:{digest}')
+    resource_hash = f'{scheme}:{digest}'
+    if not ctx.notes_resource_is_visible(rd, db, resource_hash):
+        raise HTTPNotFound(f'Notes resource {scheme}:{digest} not found')
+    d = db.get_notes_resource(resource_hash)
     if not d:
         raise HTTPNotFound(f'Notes resource {scheme}:{digest} not found')
     name = d['name']
@@ -590,6 +605,13 @@ def set_note(ctx: Context, rd: RequestData, field: str, item_id: int, library_id
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
+    if ctx.restriction_for(rd, db):
+        raise HTTPForbidden('Cannot use the set note interface with a user who has per library restrictions')
+    ensure_field_supports_notes(db, field)
+    try:
+        db.get_item_name(field, item_id)
+    except KeyError:
+        raise HTTPNotFound(f'Item {field!r}:{item_id!r} not found')
     try:
         data = load_json_file(rd.request_body_file)
         if not isinstance(data, dict):

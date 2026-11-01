@@ -17,7 +17,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.routes import Router, endpoint
 from calibre.srv.tests.base import BaseTest, TestServer
-from polyglot.binary import as_base64_bytes
+from polyglot.binary import as_base64_bytes, as_hex_unicode
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -48,6 +48,11 @@ def android(ctx: Context, data: RequestData) -> str:
 @endpoint('/android2', auth_required=True, android_workaround=True)
 def android2(ctx: Context, data: RequestData) -> str:
     return 'android2'
+
+
+@endpoint('/android-user', auth_required=True, android_workaround=True)
+def android_user(ctx: Context, data: RequestData) -> str:
+    return f'user:{data.username}'
 
 
 def router(prefer_basic_auth: bool = False, ban_for: float = 0, ban_after: int = 5) -> Router:
@@ -373,5 +378,51 @@ class TestAuth(BaseTest):
                 assert True, 'Replay attack succeeded'
             except HTTPError as e:
                 self.ae(e.code, http.client.UNAUTHORIZED)
+
+    def test_android_cookie_is_bound_to_user(self) -> None:
+        "Test that the android workaround cookie authenticates as the user it was issued to"
+        r = router()
+        ac = r.auth_controller
+        assert ac is not None
+        creds = ac.user_credentials
+        assert isinstance(creds, dict)
+        with TestServer(r.dispatch) as server:
+            ac.log = server.log
+            ac.max_age_seconds = 3600
+            url = f'http://localhost:{server.address[1]}/android-user'
+            auth_handler = HTTPDigestAuthHandler()
+            auth_handler.add_password(realm=REALM, uri=url, user='testuser', passwd='testpw')
+            cj = CookieJar()
+            cookie_handler = HTTPCookieProcessor(cj)
+            self.ae(build_opener(auth_handler, cookie_handler).open(url).read(), b'user:testuser')
+            cookie = tuple(cj)[0]
+            original_value = cookie.value
+            assert original_value is not None
+
+            def open_with_cookie(value: str) -> tuple[int, bytes]:
+                conn = server.connect()
+                conn.request('GET', '/android-user', headers={'Cookie': f'{ac.ANDROID_COOKIE}={value}'})
+                res = conn.getresponse()
+                return res.status, res.read()
+
+            # The cookie authenticates as the user it was issued to
+            self.ae(open_with_cookie(original_value), (http.client.OK, b'user:testuser'))
+            # Changing the username in the cookie invalidates it
+            nonce = original_value.rpartition(':')[0]
+            other_user = '!@#$%^&*()-=_+'
+            self.ae(open_with_cookie(f'{nonce}:{as_hex_unicode(other_user)}')[0], http.client.UNAUTHORIZED)
+            # Old style cookies without a username and garbage are rejected
+            self.ae(open_with_cookie(nonce)[0], http.client.UNAUTHORIZED)
+            self.ae(open_with_cookie(f'{nonce}:zz')[0], http.client.UNAUTHORIZED)
+            self.ae(open_with_cookie('')[0], http.client.UNAUTHORIZED)
+            # Changing the password of the user invalidates the cookie
+            creds['testuser'] = 'changed'
+            self.ae(open_with_cookie(original_value)[0], http.client.UNAUTHORIZED)
+            creds['testuser'] = 'testpw'
+            self.ae(open_with_cookie(original_value)[0], http.client.OK)
+            # Removing the user invalidates the cookie
+            del creds['testuser']
+            self.ae(open_with_cookie(original_value)[0], http.client.UNAUTHORIZED)
+            creds['testuser'] = 'testpw'
 
     # }}}

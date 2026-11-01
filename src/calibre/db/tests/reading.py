@@ -942,6 +942,31 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_field_maps_for_books(self) -> None:  # {{{
+        "Test restricting all_field_names() and get_id_map() to a set of books"
+        cache = self.init_cache()
+        ae = self.assertEqual
+        all_books = cache.all_book_ids()
+        for field in ('authors', 'tags', 'publisher', 'series', 'rating', 'languages', 'formats', '#tags', '#series', 'identifiers'):
+            ae(cache.all_field_names(field, all_books), cache.all_field_names(field), field)
+            ae(cache.all_field_names(field, ()), frozenset(), field)
+        for field in ('authors', 'tags', 'publisher', 'series', 'title'):
+            ae(cache.get_id_map(field, ()), {}, field)
+        ae(cache.get_id_map('title', all_books), cache.get_id_map('title'))
+        ae(cache.get_id_map('title', (1, 2, 999)), {1: cache.field_for('title', 1), 2: cache.field_for('title', 2)})
+        for book_ids in ((1,), (2,), (3,), (1, 3)):
+            expected = {i for b in book_ids for i in cache.field_ids_for('authors', b)}
+            ae(set(cache.get_id_map('authors', book_ids)), expected)
+            ae(cache.all_field_names('authors', book_ids), frozenset(n for b in book_ids for n in cache.field_for('authors', b)))
+            ae(cache.all_field_names('formats', book_ids), frozenset(f for b in book_ids for f in (cache.formats(b) or ())))
+        ae(cache.all_field_names('publisher', (3,)), frozenset())
+        with self.assertRaises(ValueError):
+            cache.all_field_names('title', (1,))
+        with self.assertRaises(ValueError):
+            cache.get_id_map('pubdate', (1,))
+
+    # }}}
+
     def test_datetime(self) -> None:  # {{{
         "Test the reading of datetimes stored in the db"
         from calibre.db.tables import UNDEFINED_DATE, _c_speedup, c_parse

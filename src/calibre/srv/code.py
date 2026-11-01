@@ -212,14 +212,33 @@ def custom_list_template() -> CustomListTemplate:
     return _custom_list_template_cache
 
 
-def book_exists(x: RecentlyReadEntry, ctx: Context, rd: RequestData) -> bool:
-    try:
-        db = ctx.get_library(rd, x['library_id'])
-        if db is None:
-            raise Exception('')
-    except Exception:
-        return False
-    return bool(db.new_api.has_format(x['book_id'], x['format']))
+def recently_read_by_user(ctx: Context, rd: RequestData, username: str, library_map: dict[str, str]) -> tuple[RecentlyReadEntry, ...]:
+    # Maps library_id to the library and the book ids the user may access in it (None means no restriction)
+    libraries: dict[str, tuple[Cache, frozenset[int] | None] | None] = {}
+
+    def library_for(library_id: str) -> tuple[Cache, frozenset[int] | None] | None:
+        if library_id not in libraries:
+            try:
+                db = ctx.get_library(rd, library_id)
+            except Exception:
+                # Libraries that are not accessible or fail to load simply
+                # have their entries omitted, as before
+                db = None
+            libraries[library_id] = None if db is None else (db, ctx.restricted_book_ids(rd, db))
+        return libraries[library_id]
+
+    def book_exists(x: RecentlyReadEntry) -> bool:
+        if x['library_id'] not in library_map:
+            return False
+        lib = library_for(x['library_id'])
+        if lib is None:
+            return False
+        db, allowed_book_ids = lib
+        if allowed_book_ids is not None and x['book_id'] not in allowed_book_ids:
+            return False
+        return bool(db.has_format(x['book_id'], x['format']))
+
+    return tuple(x for x in last_read_cache().get_recently_read(username) if book_exists(x))
 
 
 def basic_interface_data(ctx: Context, rd: RequestData) -> dict:
@@ -246,9 +265,7 @@ def basic_interface_data(ctx: Context, rd: RequestData) -> dict:
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     ans['metadata_writable_library_ids'] = ctx.metadata_writable_library_ids(rd, ans['library_map'])
     if ans['username']:
-        ans['recently_read_by_user'] = tuple(
-            x for x in last_read_cache().get_recently_read(ans['username']) if x['library_id'] in ans['library_map'] and book_exists(x, ctx, rd)
-        )
+        ans['recently_read_by_user'] = recently_read_by_user(ctx, rd, ans['username'], ans['library_map'])
     return ans
 
 
@@ -751,7 +768,7 @@ def field_names(ctx: Context, rd: RequestData, field: str) -> tuple[str, ...]:
     else:
         db, library_id = get_library_data(ctx, rd)[:2]
         try:
-            ans = tuple(sorted(db.all_field_names(field), key=numeric_sort_key))
+            ans = tuple(sorted(db.all_field_names(field, ctx.restricted_book_ids(rd, db)), key=numeric_sort_key))
         except ValueError:
             raise HTTPNotFound(f'{field} is not a one-one or many-one field')
     return ans
@@ -765,6 +782,6 @@ def field_id_map(ctx: Context, rd: RequestData, field: str) -> dict[int, str]:
     """
     db, library_id = get_library_data(ctx, rd)[:2]
     try:
-        return db.get_id_map(field)
+        return db.get_id_map(field, ctx.restricted_book_ids(rd, db))
     except ValueError:
         raise HTTPNotFound(f'{field} is not a one-one or many-one field')

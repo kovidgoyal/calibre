@@ -307,6 +307,13 @@ class Notes:
             for (h,) in conn.execute('SELECT resource from notes_db.notes_resources_link WHERE note=?', (note_id,)):
                 yield h
 
+    def items_using_resource(self, conn: Connection, resource_hash: str) -> Iterator[tuple[str, int]]:
+        yield from conn.execute(
+            'SELECT notes.colname, notes.item FROM notes_db.notes_resources_link AS link'
+            ' JOIN notes_db.notes AS notes ON notes.id = link.note WHERE link.resource=?',
+            (resource_hash,),
+        )
+
     def set_backup_for(self, field_name: str, item_id: int, item_value: str, marked_up_text: str, searchable_text: str, resource_hashes: Iterable[str]) -> None:
         path = make_long_path_useable(os.path.join(self.backup_dir, field_name, str(item_id)))
         self.makedirs(os.path.dirname(path))

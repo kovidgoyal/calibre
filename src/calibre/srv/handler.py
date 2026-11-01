@@ -147,6 +147,31 @@ class Context:
             ans = db.all_book_ids()
         return ans
 
+    def restricted_book_ids(self, request_data: RequestData, db: Cache) -> frozenset[int] | None:
+        """
+        Return None if the user has no per library restriction for db, otherwise the set of book ids the
+        user is allowed to access (empty if the restriction is invalid). Cheap for unrestricted users and
+        uses the restriction search cache for restricted users.
+        """
+        try:
+            return self.get_allowed_book_ids_from_restriction(request_data, db)
+        except ParseException:
+            return frozenset()
+
+    def item_is_visible(self, request_data: RequestData, db: Cache, field: str, item_id: int) -> bool:
+        "Return True if the specified item is used by at least one book the user is allowed to access"
+        allowed = self.restricted_book_ids(request_data, db)
+        return allowed is None or not allowed.isdisjoint(db.books_for_field(field, item_id))
+
+    def notes_resource_is_visible(self, request_data: RequestData, db: Cache, resource_hash: str) -> bool:
+        "Return True if the specified notes resource is used by a note the user is allowed to access"
+        allowed = self.restricted_book_ids(request_data, db)
+        if allowed is None:
+            return True
+        if not allowed:
+            return False
+        return any(not allowed.isdisjoint(db.books_for_field(field, item_id)) for field, item_id in db.items_using_notes_resource(resource_hash))
+
     def check_for_write_access(self, request_data: RequestData) -> None:
         if not request_data.username:
             if request_data.is_trusted_ip:

@@ -15,7 +15,7 @@ from calibre.srv.errors import HTTPAuthRequired, HTTPForbidden, HTTPSimpleRespon
 from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import encode_path, header_as_str, parse_http_dict
 from calibre.utils.monotonic import monotonic
-from polyglot.binary import as_hex_unicode, from_base64_unicode, from_hex_bytes
+from polyglot.binary import as_hex_unicode, from_base64_unicode, from_hex_bytes, from_hex_unicode
 
 if TYPE_CHECKING:
     from calibre.srv.http_response import RequestData
@@ -280,15 +280,51 @@ class AuthController:
 
     def __call__(self, data: RequestData, endpoint: RouteFunction) -> None:
         path = encode_path(*data.path)
-        http_auth_needed = not (endpoint.android_workaround and self.validate_android_cookie(path, data.cookies.get(self.ANDROID_COOKIE)))
-        if http_auth_needed:
-            self.do_http_auth(data, endpoint)
-            if endpoint.android_workaround:
-                data.outcookie[self.ANDROID_COOKIE] = synthesize_nonce(self.key_order, path, self.secret)
-                data.outcookie[self.ANDROID_COOKIE]['path'] = path
+        if endpoint.android_workaround:
+            username = self.validate_android_cookie(path, data.cookies.get(self.ANDROID_COOKIE))
+            if username is not None:
+                # Authorization checks done by the endpoint are applied for this user
+                data.username = username
+                return
+        self.do_http_auth(data, endpoint)
+        if endpoint.android_workaround and data.username:
+            data.outcookie[self.ANDROID_COOKIE] = self.android_cookie_for(path, data.username)
+            data.outcookie[self.ANDROID_COOKIE]['path'] = path
 
-    def validate_android_cookie(self, path: str, cookie: str | None) -> str | bool | None:
-        return cookie and validate_nonce(self.key_order, cookie, path, self.secret) and not is_nonce_stale(cookie, self.max_age_seconds)
+    def android_cookie_realm(self, path: str, username: str) -> str | None:
+        """
+        The realm used for the android cookie nonce binds it to the path, the
+        user and the user's current password, so that the cookie is
+        invalidated when the user is removed or their password is changed.
+        Returns None if the user does not exist.
+        """
+        uc = self.user_credentials
+        pw = None if uc is None else uc.get(username)
+        if pw is None:
+            return None
+        return f'{path}\0{username}\0{sha256_hex(pw)}'
+
+    def android_cookie_for(self, path: str, username: str) -> str:
+        realm = self.android_cookie_realm(path, username)
+        if realm is None:
+            raise ValueError(f'No user named {username!r} exists')
+        return f'{synthesize_nonce(self.key_order, realm, self.secret)}:{as_hex_unicode(username)}'
+
+    def validate_android_cookie(self, path: str, cookie: str | None) -> str | None:
+        "Return the username the cookie was issued to if it is valid for path, otherwise None"
+        if not cookie:
+            return None
+        nonce, sep, hex_username = cookie.rpartition(':')
+        if not sep:
+            return None
+        try:
+            username = from_hex_unicode(hex_username)
+        except ValueError:  # covers binascii.Error and UnicodeDecodeError
+            return None
+        realm = self.android_cookie_realm(path, username)
+        if realm is None or not validate_nonce(self.key_order, nonce, realm, self.secret) or is_nonce_stale(nonce, self.max_age_seconds):
+            return None
+        return username
 
     def do_http_auth(self, data: RequestData, endpoint: RouteFunction) -> None:
         ban_key = data.remote_addr

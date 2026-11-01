@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
 from calibre.constants import config_dir
+from calibre.db.notes.connect import hash_data
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.localization import _
@@ -510,6 +511,104 @@ class ContentTest(LibraryBaseTest):
             ae(set(map(int, data['snippets'])), {1})
 
             # Not going test legacy and opds as they are too painful
+
+    # }}}
+
+    def test_srv_restrictions_notes_and_field_maps(self) -> None:  # {{{
+        "Test that notes, field maps and recently read books respect per library restrictions"
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            ctx = server.handler.router.ctx
+            db = ctx.library_broker.get(None)
+            lid = db.server_library_id
+            lname = os.path.basename(db.backend.library_path)
+            ctx.user_manager.add_user('admin', 'test')
+            ctx.user_manager.add_user('12', 'test', restriction={'library_restrictions': {lname: 'id:1 or id:2'}})
+            ctx.user_manager.add_user('inv', 'test', restriction={'library_restrictions': {lname: '"1'}})
+            # Author "Unknown" is only used by book 3, "Author One" by books 1 and 2
+            hidden_author, visible_author = db.get_item_id('authors', 'Unknown'), db.get_item_id('authors', 'Author One')
+            assert hidden_author is not None and visible_author is not None
+            hidden_res = db.add_notes_resource(b'hidden resource', 'hidden.png')
+            visible_res = db.add_notes_resource(b'visible resource', 'visible.png')
+            shared_res = db.add_notes_resource(b'shared resource', 'shared.png')
+            db.set_notes_for('authors', hidden_author, 'hidden note', resource_hashes=(hidden_res, shared_res))
+            db.set_notes_for('authors', visible_author, 'visible note', resource_hashes=(visible_res, shared_res))
+            ae = self.assertEqual
+            ae(db.items_using_notes_resource(shared_res), {('authors', hidden_author), ('authors', visible_author)})
+            ae(db.items_using_notes_resource(hidden_res), {('authors', hidden_author)})
+            ae(db.items_using_notes_resource('xxh64:missing'), frozenset())
+            conn = server.connect()
+
+            def r(path: str, user: str = '12', status: int = OK, method: str = 'GET', data: bytes | None = None) -> ResponseData:
+                res, ans = make_request(conn, path, username=user, password='test', prefix='', method=method, data=data)
+                ae(status, res.status, f'{path} as {user}: {ans!r}')
+                return ans
+
+            def res_url(h: str) -> str:
+                scheme, digest = h.split(':', 1)
+                return f'/get-note-resource/{scheme}/{digest}/{lid}'
+
+            # Notes
+            ae(r(f'/get-note/authors/{visible_author}/{lid}'), b'visible note')
+            r(f'/get-note/authors/{hidden_author}/{lid}', status=NOT_FOUND)
+            r(f'/get-note/authors/999999/{lid}', status=NOT_FOUND)
+            ae(r(f'/get-note-from-item-val/authors/Author%20One/{lid}')['html'], 'visible note')
+            r(f'/get-note-from-item-val/authors/Unknown/{lid}', status=NOT_FOUND)
+            ae(r(f'/get-note/authors/{hidden_author}/{lid}', user='admin'), b'hidden note')
+            ae(r(f'/get-note/authors/{db.get_item_id("authors", "Author Two")}/{lid}', user='admin'), b'')
+            # Non-existent items and fields that do not support notes give 404 rather than a server error
+            for user in ('admin', '12'):
+                r(f'/get-note/authors/999999/{lid}', user=user, status=NOT_FOUND)
+                r(f'/get-note/title/1/{lid}', user=user, status=NOT_FOUND)
+                r(f'/get-note/nosuchfield/1/{lid}', user=user, status=NOT_FOUND)
+                r(f'/get-note-from-item-val/authors/No%20Such%20Author/{lid}', user=user, status=NOT_FOUND)
+                r(f'/get-note-from-item-val/title/Title%20One/{lid}', user=user, status=NOT_FOUND)
+                r(f'/get-note-from-item-val/nosuchfield/x/{lid}', user=user, status=NOT_FOUND)
+            r(f'/get-note/authors/{visible_author}/{lid}', user='inv', status=NOT_FOUND)
+            ae(r(res_url(visible_res)), b'visible resource')
+            ae(r(res_url(shared_res)), b'shared resource')
+            r(res_url(hidden_res), status=NOT_FOUND)
+            r(res_url(visible_res), user='inv', status=NOT_FOUND)
+            ae(r(res_url(hidden_res), user='admin'), b'hidden resource')
+            note = json.dumps({'html': 'changed', 'searchable_text': 'changed', 'images': {}}).encode()
+            for item_id in (hidden_author, visible_author):
+                r(f'/set-note/authors/{item_id}/{lid}', status=FORBIDDEN, method='POST', data=note)
+            ae(db.notes_for('authors', hidden_author), 'hidden note')
+            ae(db.notes_for('authors', visible_author), 'visible note')
+            r(f'/set-note/authors/{visible_author}/{lid}', user='admin', method='POST', data=note)
+            img_note = json.dumps({
+                'html': 'x',
+                'searchable_text': 'x',
+                'images': {'k': {'data': 'data:image/png;base64,eA==', 'filename': 'orphan.png'}},
+            }).encode()
+            for path in ('/set-note/authors/999999', '/set-note/title/1', '/set-note/nosuchfield/1'):
+                r(f'{path}/{lid}', user='admin', status=NOT_FOUND, method='POST', data=img_note)
+            # The image in the rejected requests must not have been added as an orphaned resource
+            self.assertIsNone(db.get_notes_resource(hash_data(b'x')))
+            ae(db.notes_for('authors', visible_author), 'changed')
+
+            # Field names and id maps
+            ae(r(f'/interface-data/field-names/authors?library_id={lid}'), ['Author One', 'Author Two'])
+            ae(r(f'/interface-data/field-names/authors?library_id={lid}', user='admin'), ['Author One', 'Author Two', 'Unknown'])
+            ae(r(f'/interface-data/field-names/formats?library_id={lid}'), sorted(db.all_field_names('formats', (1, 2))))
+            ae(r(f'/interface-data/field-names/authors?library_id={lid}', user='inv'), [])
+            ae(r(f'/interface-data/field-id-map/title?library_id={lid}'), {'1': 'Title Two', '2': 'Title One'})
+            ae(r(f'/interface-data/field-id-map/title?library_id={lid}', user='admin'), {'1': 'Title Two', '2': 'Title One', '3': 'Unknown'})
+            ae(set(r(f'/interface-data/field-id-map/authors?library_id={lid}').values()), {'Author One', 'Author Two'})
+            ae(r(f'/interface-data/field-id-map/authors?library_id={lid}', user='inv'), {})
+            r(f'/interface-data/field-names/title?library_id={lid}', status=NOT_FOUND)
+
+            # Recently read books are filtered by the current restriction
+            pos = b'{"device": "d", "cfi": "epubcfi(/2/4)", "pos_frac": 0.1}'
+            r(f'/book-set-last-read-position/{lid}/1/FMT1', method='POST', data=pos)
+
+            def recently_read() -> set[int]:
+                return {x['book_id'] for x in r('/interface-data/update')['recently_read_by_user']}
+
+            ae(recently_read(), {1})
+            ctx.user_manager.update_user_restrictions('12', {'library_restrictions': {lname: 'id:2'}})
+            ae(recently_read(), set())
+            ctx.user_manager.update_user_restrictions('12', {'library_restrictions': {lname: 'id:1 or id:2'}})
+            ae(recently_read(), {1})
 
     # }}}
 

@@ -907,6 +907,13 @@ class Cache:
     _get_notes_resource = get_notes_resource
 
     @read_api
+    def items_using_notes_resource(self, resource_hash: str) -> frozenset[tuple[str, int]]:
+        "Return the set of (field, item_id) pairs for all notes that use the resource with the specified hash"
+        return frozenset(self.backend.items_using_notes_resource(resource_hash))
+
+    _items_using_notes_resource = items_using_notes_resource
+
+    @read_api
     def notes_resources_used_by(self, field: str, item_id: int) -> frozenset[str]:
         "Return the set of resource hashes of all resources used by the note for the specified item"
         return frozenset(self.backend.notes_resources_used_by(field, item_id))
@@ -1214,15 +1221,23 @@ class Cache:
     _all_field_ids = all_field_ids
 
     @read_api
-    def all_field_names(self, field: str) -> frozenset[str]:
-        """Frozen set of all fields names (should only be used for many-one and many-many fields)"""
+    def all_field_names(self, field: str, book_ids: Iterable[int] | None = None) -> frozenset[str]:
+        """Frozen set of all fields names (should only be used for many-one and many-many fields).
+        If book_ids is not None, only names used by the specified books are returned."""
+        f = self.fields[field]
         if field == 'formats':
-            return frozenset(self.fields[field].table.col_book_map)
+            if book_ids is None:
+                return frozenset(f.table.col_book_map)
+            bcm = f.table.book_col_map
+            return frozenset(fmt for book_id in book_ids for fmt in bcm.get(book_id, ()))
 
         try:
-            return frozenset(self.fields[field].table.id_map.values())
+            id_map = f.table.id_map
         except AttributeError:
             raise ValueError(f'{field} is not a many-one or many-many field')
+        if book_ids is None:
+            return frozenset(id_map.values())
+        return frozenset(id_map[item_id] for book_id in book_ids for item_id in f.ids_for_book(book_id) if item_id in id_map)
 
     _all_field_names = all_field_names
 
@@ -1238,16 +1253,24 @@ class Cache:
     _get_usage_count_by_id = get_usage_count_by_id
 
     @read_api
-    def get_id_map(self, field: str) -> dict[int, str]:
+    def get_id_map(self, field: str, book_ids: Iterable[int] | None = None) -> dict[int, str]:
         """Return a mapping of id numbers to values for the specified field.
         The field must be a many-one or many-many field, otherwise a ValueError
-        is raised."""
+        is raised. If book_ids is not None, only items used by the specified
+        books are returned. For the title field the ids are book ids."""
+        f = self.fields[field]
         try:
-            return self.fields[field].table.id_map.copy()
+            id_map = f.table.id_map
         except AttributeError:
             if field == 'title':
-                return self.fields[field].table.book_col_map.copy()
+                bcm = f.table.book_col_map
+                if book_ids is None:
+                    return bcm.copy()
+                return {book_id: bcm[book_id] for book_id in book_ids if book_id in bcm}
             raise ValueError(f'{field} is not a many-one or many-many field')
+        if book_ids is None:
+            return id_map.copy()
+        return {item_id: id_map[item_id] for book_id in book_ids for item_id in f.ids_for_book(book_id) if item_id in id_map}
 
     _get_id_map = get_id_map
 
