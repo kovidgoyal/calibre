@@ -826,6 +826,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.ebooks.conversion.plugins.txt_input import find_tests
 
         a(find_tests())
+        from calibre.ebooks.txt.txtml import find_tests
+
+        a(find_tests())
         from calibre.ebooks.metadata.rtf import find_tests
 
         a(find_tests())
