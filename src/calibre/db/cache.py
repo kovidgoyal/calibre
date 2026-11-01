@@ -4750,8 +4750,8 @@ def import_library(
 ) -> Cache | None:
     from calibre.db.backend import DB
 
-    metadata = importer.metadata[library_key]
-    total = metadata['total']
+    metadata = importer.library_export(library_key)
+    total = metadata.total
     poff = 0
 
     def report_progress(fname: str) -> None:
@@ -4763,26 +4763,26 @@ def import_library(
     report_progress('metadata.db')
     if abort is not None and abort.is_set():
         return
-    importer.save_file(metadata['metadata.db'], 'metadata.db for ' + library_path, os.path.join(library_path, 'metadata.db'))
-    if 'full-text-search.db' in metadata:
+    importer.save_file(metadata.databases['metadata.db'], 'metadata.db for ' + library_path, os.path.join(library_path, 'metadata.db'))
+    if 'full-text-search.db' in metadata.databases:
         if progress is not None:
             progress('full-text-search.db', 1, total)
         if abort is not None and abort.is_set():
             return
         poff += 1
         importer.save_file(
-            metadata['full-text-search.db'],
+            metadata.databases['full-text-search.db'],
             'full-text-search.db for ' + library_path,
             os.path.join(library_path, 'full-text-search.db'),
         )
     if abort is not None and abort.is_set():
         return
-    if 'notes.db' in metadata:
+    if 'notes.db' in metadata.databases:
         import zipfile
 
         notes_dir = os.path.join(library_path, NOTES_DIR_NAME)
         os.makedirs(notes_dir, exist_ok=True)
-        with importer.start_file(metadata['notes.db'], 'notes.db for ' + library_path) as stream:
+        with importer.start_file(metadata.databases['notes.db'], 'notes.db for ' + library_path) as stream:
             stream.check_hash = False
             with zipfile.ZipFile(stream) as zf:
                 for zi in zf.infolist():
@@ -4797,8 +4797,7 @@ def import_library(
     cache.init()
     aborted = False
     with cache.write_lock:
-        format_data = {int(book_id): data for book_id, data in metadata['format_data'].items()}
-        extra_files = {int(book_id): data for book_id, data in metadata.get('extra_files', {}).items()}
+        format_data, extra_files = metadata.format_data, metadata.extra_files
         for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
             if abort is not None and abort.is_set():
                 aborted = True

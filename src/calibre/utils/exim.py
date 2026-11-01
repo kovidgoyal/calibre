@@ -387,6 +387,28 @@ class FileSource:
         self.close()
 
 
+class LibraryExport(NamedTuple):
+    """The validated export metadata for a single library, as used by import_library()."""
+
+    REQUIRED_DATABASES = ('metadata.db',)
+    # Older exports can omit these
+    OPTIONAL_DATABASES = ('notes.db', 'full-text-search.db')
+
+    total: int
+    databases: dict[str, str]
+    format_data: dict[int, dict[str, str]]
+    extra_files: dict[int, dict[str, str]]
+
+    def referenced_keys(self, library_key: str) -> Iterator[tuple[str, str]]:
+        """Yield (description, key) for every file import_library() will read."""
+        for name, key in self.databases.items():
+            yield f'{name} for {library_key}', key
+        for book_map in (self.format_data, self.extra_files):
+            for book_id, keymap in book_map.items():
+                for key in keymap.values():
+                    yield f'book {book_id} in {library_key}', key
+
+
 class Importer:
     def __init__(self, path_to_export_dir: str) -> None:
         self.corrupted_files = []
@@ -457,32 +479,62 @@ class Importer:
                 raise ValueError('The exported data has no valid file metadata')  # ruff: ignore[type-check-without-type-error]
             self.file_metadata = self.metadata['file_metadata']
 
-    def referenced_keys(self) -> Iterator[tuple[str, object]]:
-        """Yield (description, key) for every file the import process will read."""
-        for entry in self.metadata.get('config_dir', ()):
-            yield 'config_dir', entry[0]
-        for library_key in self.metadata.get('libraries', {}):
-            lm = self.metadata.get(library_key)
-            if not isinstance(lm, dict):
-                raise ValueError(f'No metadata for the library: {library_key}')  # ruff: ignore[type-check-without-type-error]
-            yield f'metadata.db for {library_key}', lm.get('metadata.db')
-            for name in ('notes.db', 'full-text-search.db'):
-                if name in lm:
-                    yield f'{name} for {library_key}', lm[name]
-            for x in ('format_data', 'extra_files'):
-                for book_id, keymap in lm.get(x, {}).items():
-                    for key in keymap.values():
-                        yield f'book {book_id} in {library_key}', key
+    def library_export(self, library_key: str) -> LibraryExport:
+        """Validate and return the export metadata for a library, raising ValueError if import_library() cannot use it."""
+        lm = self.metadata.get(library_key)
+        if not isinstance(lm, dict):
+            raise ValueError(f'No metadata for the library: {library_key}')  # ruff: ignore[type-check-without-type-error]
+        databases = {}
+        for name in LibraryExport.REQUIRED_DATABASES + LibraryExport.OPTIONAL_DATABASES:
+            if name in lm:
+                if not isinstance(lm[name], str):
+                    raise ValueError(f'Invalid {name} reference for the library: {library_key}')
+                databases[name] = lm[name]
+            elif name in LibraryExport.REQUIRED_DATABASES:
+                raise ValueError(f'No {name} reference for the library: {library_key}')
+        total = lm.get('total')
+        if type(total) is not int or total < 0:
+            raise ValueError(f'Invalid book count for the library: {library_key}')
+
+        def book_map(name: str, required: bool) -> dict[int, dict[str, str]]:
+            if name not in lm and not required:
+                return {}
+            raw = lm.get(name)
+            if not isinstance(raw, dict):
+                raise ValueError(f'Invalid {name} for the library: {library_key}')  # ruff: ignore[type-check-without-type-error]
+            ans = {}
+            for book_id, keymap in raw.items():
+                try:
+                    num = int(book_id)
+                except ValueError:
+                    raise ValueError(f'Invalid book id {book_id!r} in {name} for the library: {library_key}') from None
+                if not isinstance(keymap, dict) or not all(isinstance(k, str) for k in keymap.values()):
+                    raise ValueError(f'Invalid {name} for book {book_id} in the library: {library_key}')
+                ans[num] = keymap
+            return ans
+
+        return LibraryExport(total, databases, book_map('format_data', True), book_map('extra_files', False))
 
     def verify(self, progress: Callable[[str, int, int], object] | None = None) -> list[str]:
         """Read every exported file and return errors, without restoring data."""
         errors = [f'Part {num} is duplicated in: {", ".join(names)}' for num, names in sorted(self.duplicate_parts.items())]
+        references: list[tuple[str, object]] = []
         try:
-            for desc, key in self.referenced_keys():
-                if not isinstance(key, str) or key not in self.file_metadata:
-                    errors.append(f'{desc}: Missing file {key}')
-        except (ValueError, TypeError, AttributeError, IndexError, KeyError) as err:
-            errors.append(f'Invalid export metadata: {err}')
+            references.extend(('config_dir', entry[0]) for entry in self.metadata.get('config_dir', ()))
+        except (TypeError, IndexError, KeyError) as err:
+            errors.append(f'Invalid export metadata: config_dir: {err}')
+        libraries = self.metadata.get('libraries', {})
+        if not isinstance(libraries, dict):
+            errors.append('Invalid export metadata: The list of libraries is not valid')
+            libraries = {}
+        for library_key in libraries:
+            try:
+                references.extend(self.library_export(library_key).referenced_keys(library_key))
+            except ValueError as err:
+                errors.append(f'Invalid export metadata: {err}')
+        for desc, key in references:
+            if not isinstance(key, str) or key not in self.file_metadata:
+                errors.append(f'{desc}: Missing file {key}')
         starts, limits, total_size = {}, {}, 0
         last_part = max(self.part_map)
         for num in sorted(self.part_map):

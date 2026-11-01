@@ -157,7 +157,7 @@ class VerifyExportTest(unittest.TestCase):
             lambda metadata: metadata.update({
                 'config_dir': [['first', 'settings.json'], ['missing-config', 'gui.json']],
                 'libraries': {'lib': 1, 'nolib': 1},
-                'lib': {'metadata.db': 'second', 'format_data': {'1': {'EPUB': 'missing-format'}}, 'extra_files': {}},
+                'lib': {'metadata.db': 'second', 'total': 3, 'format_data': {'1': {'EPUB': 'missing-format'}}, 'extra_files': {}},
             })
         )
         errors = Importer(self.path).verify()
@@ -166,28 +166,54 @@ class VerifyExportTest(unittest.TestCase):
         self.assertIn('Invalid export metadata: No metadata for the library: nolib', errors)
         self.assertEqual(self.run_verifier()[0], 1)
 
-    def test_verify_required_database_reference(self) -> None:
-        self.export()
+    def test_verify_library_metadata(self) -> None:
+        importer = self.export()
+        last = Path(importer.part_map[max(importer.part_map)])
         libraries = {'lib': 'first', 'other': 'second'}
         self.rewrite_metadata(
             lambda metadata: metadata.update({
                 'libraries': dict.fromkeys(libraries, 1),
-                **{key: {'metadata.db': dbkey} for key, dbkey in libraries.items()},
+                **{key: {'metadata.db': dbkey, 'total': 2, 'format_data': {'1': {'EPUB': 'empty'}}} for key, dbkey in libraries.items()},
             })
         )
-        # Older exports can omit the optional notes and full-text-search databases.
+        # Older exports can omit the optional notes and full-text-search databases and extra files.
         self.assertEqual(Importer(self.path).verify(), [])
         self.assertEqual(self.run_verifier()[0], 0)
-        for library, dbkey in libraries.items():
-            with self.subTest(library=library):
-                self.rewrite_metadata(lambda metadata, library=library: metadata[library].pop('metadata.db'))
+        valid = last.read_bytes()
+
+        def check(change: Callable[[dict[str, object]], None], *expected: str) -> None:
+            self.rewrite_metadata(change)
+            try:
                 errors = Importer(self.path).verify()
-                self.assertEqual(len(errors), 1)
-                self.assertIn(f'metadata.db for {library}: Missing file', errors[0])
+                self.assertEqual(errors, [f'Invalid export metadata: {x}' for x in expected])
                 status, out, err = self.run_verifier()
                 self.assertEqual(status, 1)
-                self.assertIn(errors[0], err)
-                self.rewrite_metadata(lambda metadata, library=library, dbkey=dbkey: metadata[library].__setitem__('metadata.db', dbkey))
+                for e in errors:
+                    self.assertIn(e, err)
+            finally:
+                last.write_bytes(valid)
+
+        for library in libraries:
+            for key, msg in (
+                ('metadata.db', 'No metadata.db reference'),
+                ('total', 'Invalid book count'),
+                ('format_data', 'Invalid format_data'),
+            ):
+                with self.subTest(library=library, key=key):
+                    check(lambda metadata, library=library, key=key: metadata[library].pop(key), f'{msg} for the library: {library}')
+            with self.subTest(library=library, key='book_id'):
+                check(
+                    lambda metadata, library=library: metadata[library].__setitem__('extra_files', {'abc': {}}),
+                    f"Invalid book id 'abc' in extra_files for the library: {library}",
+                )
+        with self.subTest('every library is reported'):
+            check(
+                lambda metadata: (metadata['libraries'].__setitem__('bad', 1), metadata['other'].pop('metadata.db')),
+                'No metadata.db reference for the library: other',
+                'No metadata for the library: bad',
+            )
+        with self.subTest('libraries not a dict'):
+            check(lambda metadata: metadata.__setitem__('libraries', list(libraries)), 'The list of libraries is not valid')
 
     def test_verify_bounded_reads_and_cli(self) -> None:
         importer = self.export({'large': b'x' * (3 * 1024 * 1024), 'zero': b''}, part_size=2 * 1024 * 1024)
