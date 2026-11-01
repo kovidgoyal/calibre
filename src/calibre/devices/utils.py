@@ -4,13 +4,19 @@
 import os
 import re
 import time
+from collections.abc import Callable, Iterable, Sequence
 from functools import partial
+from types import ModuleType
+from typing import TYPE_CHECKING, cast
 
 from calibre.devices.errors import DeviceError, FreeSpaceError, WrongDestinationError
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def sanity_check(on_card, files, card_prefixes, free_space) -> None:
+
+def sanity_check(on_card: str | None, files: Iterable[object], card_prefixes: Sequence[str | None], free_space: Sequence[int]) -> None:
     if on_card == 'carda' and not card_prefixes[0]:
         raise WrongDestinationError(
             _(
@@ -36,7 +42,8 @@ def sanity_check(on_card, files, card_prefixes, free_space) -> None:
 
     size = 0
     for f in files:
-        size += os.path.getsize(getattr(f, 'name', f))
+        # files are either paths or file objects with a name attribute
+        size += os.path.getsize(cast('str', getattr(f, 'name', f)))
 
     if not on_card and size > free_space[0] - 2 * 1024 * 1024:
         raise FreeSpaceError(_('There is insufficient free space in main memory'))
@@ -46,10 +53,10 @@ def sanity_check(on_card, files, card_prefixes, free_space) -> None:
         raise FreeSpaceError(_('There is insufficient free space on the storage card'))
 
 
-def build_template_regexp(template):
+def build_template_regexp(template: str) -> re.Pattern[str]:
     from calibre import prints
 
-    def replfunc(match, seen=None):
+    def replfunc(match: re.Match[str], seen: set[str] | None = None) -> str:
         v = match.group(1)
         if v in ['authors', 'author_sort']:
             v = 'author'
@@ -60,7 +67,7 @@ def build_template_regexp(template):
                 return '(?P<' + v + '>.+?)'
         return '(.+?)'
 
-    s = set()
+    s: set[str] = set()
     f = partial(replfunc, seen=s)
 
     try:
@@ -73,18 +80,18 @@ def build_template_regexp(template):
 
 
 def create_upload_path(
-    mdata,
-    fname,
-    template,
-    sanitize,
-    prefix_path='',
-    path_type=os.path,
-    maxlen=250,
-    use_subdirs=True,
-    news_in_folder=True,
-    filename_callback=lambda x, y: x,
-    sanitize_path_components=lambda x: x,
-):
+    mdata: Metadata,
+    fname: str,
+    template: str | bytes,
+    sanitize: Callable[[str], str],
+    prefix_path: str = '',
+    path_type: ModuleType = os.path,
+    maxlen: int = 250,
+    use_subdirs: bool = True,
+    news_in_folder: bool = True,
+    filename_callback: Callable[[str, Metadata], str] = lambda x, y: x,
+    sanitize_path_components: Callable[[list[str]], list[str]] = lambda x: x,
+) -> str:
     from calibre.library.save_to_disk import config, get_components
     from calibre.utils.filenames import shorten_components_to
 
@@ -147,7 +154,7 @@ def create_upload_path(
     if not use_subdirs:
         extra_components = extra_components[-1:]
 
-    def remove_trailing_periods(x):
+    def remove_trailing_periods(x: str) -> str:
         ans = x
         while ans.endswith('.'):
             ans = ans[:-1].strip()

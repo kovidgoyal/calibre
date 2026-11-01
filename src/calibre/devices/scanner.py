@@ -8,18 +8,23 @@ manner.
 import os
 import sys
 import time
+from collections.abc import Callable, Collection
 from threading import Lock
-from typing import NamedTuple
+from types import ModuleType
+from typing import TYPE_CHECKING, NamedTuple, Self, cast
 
 from calibre import as_unicode, prints
 from calibre.constants import isfreebsd, islinux, ismacos, isnetbsd, iswindows
+
+if TYPE_CHECKING:
+    from calibre.devices.interface import DetectedDevice, DevicePlugin
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
 if iswindows:
     drive_ok_lock = Lock()
 
-    def drive_is_ok(letter, max_tries=10, debug=False) -> bool:
+    def drive_is_ok(letter: str, max_tries: int = 10, debug: bool = False) -> bool:
         from calibre_extensions import winutil
 
         with drive_ok_lock:
@@ -48,7 +53,7 @@ class USBDevice(_USBDevice):
     busnum: int
     devnum: int
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: *tuple[int, int, int, str | None, str | None, str | None], **kwargs: object) -> Self:
         self = super().__new__(cls, *args)
         self.busnum = self.devnum = -1
         return self
@@ -65,14 +70,16 @@ class USBDevice(_USBDevice):
 
 
 class LibUSBScanner:
-    def __call__(self):
+    libusb: ModuleType
+
+    def __call__(self) -> set[USBDevice]:
         if not hasattr(self, 'libusb'):
             from calibre_extensions import libusb
 
             self.libusb = libusb
 
-        ans = set()
-        seen = set()
+        ans: set[USBDevice] = set()
+        seen: set[tuple[int, int, int, int, int]] = set()
         for fingerprint, ids in self.libusb.get_devices():
             seen.add(fingerprint)
             man = ids.get('manufacturer', None)
@@ -112,12 +119,12 @@ class LinuxScanner:
             self.base = os.path.join(self.SYSFS_PATH, 'bus', 'usb', 'devices')
         self.ok = os.path.exists(self.base)
 
-    def __call__(self):
-        ans = set()
+    def __call__(self) -> set[USBDevice]:
+        ans: set[USBDevice] = set()
         if not self.ok:
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
 
-        def read(f):
+        def read(f: str) -> bytes:
             with open(f, 'rb') as s:
                 return s.read().strip()
 
@@ -129,7 +136,7 @@ class LinuxScanner:
             man = os.path.join(base, 'manufacturer')
             serial = os.path.join(base, 'serial')
             prod_string = os.path.join(base, 'product')
-            dev = []
+            dev: list[int | str] = []
             try:
                 # Ignore USB HUBs
                 if read(os.path.join(base, 'bDeviceClass')) == b'09':
@@ -161,16 +168,17 @@ class LinuxScanner:
             except Exception:
                 dev.append('')
 
-            dev = USBDevice(*dev)
+            # dev has three ints followed by three strings
+            usbdev = USBDevice(*cast('tuple[int, int, int, str, str, str]', dev))
             try:
-                dev.busnum = int(read(os.path.join(base, 'busnum')))
+                usbdev.busnum = int(read(os.path.join(base, 'busnum')))
             except Exception:
                 pass
             try:
-                dev.devnum = int(read(os.path.join(base, 'devnum')))
+                usbdev.devnum = int(read(os.path.join(base, 'devnum')))
             except Exception:
                 pass
-            ans.add(dev)
+            ans.add(usbdev)
         return ans
 
 
@@ -188,7 +196,10 @@ if isnetbsd:
 
 
 class DeviceScanner:
-    def __init__(self, *args) -> None:
+    scanner: Callable[[], Collection[DetectedDevice]] | None
+    devices: Collection[DetectedDevice]
+
+    def __init__(self, *args: object) -> None:
         if iswindows:
             from calibre.devices.winusb import scan_usb_devices as win_scanner
         self.scanner = (
@@ -213,7 +224,7 @@ class DeviceScanner:
         if self.scanner is not None:
             self.devices = self.scanner()
 
-    def is_device_connected(self, device, debug=False, only_presence=False):
+    def is_device_connected(self, device: DevicePlugin, debug: bool = False, only_presence: bool = False) -> tuple[bool, DetectedDevice | None]:
         """If only_presence is True don't perform any expensive checks"""
         return device.is_usb_connected(self.devices, debug=debug, only_presence=only_presence)
 
@@ -246,7 +257,7 @@ def test_for_mem_leak() -> None:
         prints()
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     test_for_mem_leak()
     return 0
 

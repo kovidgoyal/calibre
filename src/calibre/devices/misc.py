@@ -2,10 +2,14 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
 
 class PALMPRE(USBMS):
@@ -91,7 +95,7 @@ class PDNOVEL(USBMS):
     SUPPORTS_SUB_DIRS = False
     DELETE_EXTS = ['.jpg', '.jpeg', '.png']
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             with open(f'{os.path.join(path, filename)}.jpg', 'wb') as coverfile:
@@ -108,7 +112,7 @@ class PDNOVEL_KOBO(PDNOVEL):
 
     EBOOK_DIR_MAIN = 'eBooks'
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             dirpath = os.path.join(path, '.thumbnail')
@@ -181,7 +185,7 @@ class LUMIREAD(USBMS):
     VENDOR_NAME = 'ACER'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'LUMIREAD_600'
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         if metadata.thumbnail and metadata.thumbnail[-1]:
             cfilepath = filepath.replace('/', os.sep)
             cfilepath = cfilepath.replace(os.sep + 'books' + os.sep, os.sep + 'covers' + os.sep, 1)
@@ -377,7 +381,7 @@ class MOOVYBOOK(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def get_main_ebook_dir(self, for_upload=False):
+    def get_main_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         return 'Books' if for_upload else self.EBOOK_DIR_MAIN
 
 
@@ -401,7 +405,7 @@ class COBY(USBMS):
 
     SUPPORTS_SUB_DIRS = False
 
-    def get_carda_ebook_dir(self, for_upload=False):
+    def get_carda_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if for_upload:
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
@@ -428,7 +432,7 @@ class EX124G(USBMS):
 
     SUPPORTS_SUB_DIRS = False
 
-    def get_carda_ebook_dir(self, for_upload=False):
+    def get_carda_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if for_upload:
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
@@ -455,7 +459,7 @@ class WAYTEQ(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['RK28_SDK_DEMO', 'EINK_EBOOK_READE']
     SUPPORTS_SUB_DIRS = True
 
-    def get_gui_name(self):
+    def get_gui_name(self) -> str:
         try:
             detected_device = self.detected_device
             assert detected_device is not None
@@ -465,12 +469,12 @@ class WAYTEQ(USBMS):
             pass
         return self.gui_name
 
-    def get_carda_ebook_dir(self, for_upload=False):
+    def get_carda_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if for_upload:
             return 'Documents'
         return self.EBOOK_DIR_CARD_A
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         if len(drives) < 2:
             return drives
         main = drives.get('main', None)
@@ -480,7 +484,7 @@ class WAYTEQ(USBMS):
             drives['carda'] = main
         return drives
 
-    def linux_swap_drives(self, drives):
+    def linux_swap_drives(self, drives: list[str | None]) -> list[str | None]:
         # See https://bugs.launchpad.net/bugs/1151901
         if len(drives) < 2 or not drives[0] or not drives[1]:
             return drives
@@ -488,9 +492,9 @@ class WAYTEQ(USBMS):
         t = drives[0]
         drives[0] = drives[1]
         drives[1] = t
-        return tuple(drives)
+        return drives
 
-    def osx_sort_names(self, names):
+    def osx_sort_names(self, names: dict[str, str]) -> dict[str, str]:
         if len(names) < 2:
             return names
         main = names.get('main', None)

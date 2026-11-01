@@ -6,11 +6,15 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
 
 class JETBOOK(USBMS):
@@ -43,7 +47,7 @@ class JETBOOK(USBMS):
 
     JETBOOK_FILE_NAME_PATTERN = re.compile(r'(?P<authors>.+)#(?P<title>.+)')
 
-    def filename_callback(self, default, mi):
+    def filename_callback(self, default: str, mi: Metadata) -> str:
         fileext = os.path.splitext(os.path.basename(default))[1]
         if fileext.lower() not in ('txt', 'pdf', 'fb2'):
             return default
@@ -55,9 +59,9 @@ class JETBOOK(USBMS):
         return f'{au}#{title}{fileext}'
 
     @classmethod
-    def metadata_from_path(cls, path):
+    def metadata_from_path(cls, path: str) -> Metadata:
 
-        def check_unicode(txt):
+        def check_unicode(txt: str | bytes) -> str:
             if not isinstance(txt, str):
                 txt = txt.decode(filesystem_encoding, 'replace')
             txt = txt.replace('_', ' ')

@@ -62,7 +62,7 @@ class APNXBuilder:
             fsync(apnxf)
 
     @staticmethod
-    def get_apnx_meta(mobi_file_path) -> dict[str, str]:
+    def get_apnx_meta(mobi_file_path: str) -> dict[str, str]:
         import uuid
 
         apnx_meta = {
@@ -96,7 +96,7 @@ class APNXBuilder:
         return apnx_meta
 
     @staticmethod
-    def generate_apnx(pages: Pages, apnx_meta) -> bytes:
+    def generate_apnx(pages: Pages, apnx_meta: dict[str, str]) -> bytes:
         apnx = b''
 
         if DEBUG:

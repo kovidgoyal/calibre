@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.devices.interface import USBDeviceInfo
 
 
 class ESLICK(USBMS):
@@ -32,7 +37,7 @@ class ESLICK(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return (device_info[3], device_info[4]) != ('philips', 'Philips d')
 
 
@@ -50,5 +55,5 @@ class EBK52(ESLICK):
     STORAGE_CARD_VOLUME_LABEL = 'Sigmatek Storage Card'
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return (device_info[3], device_info[4]) == ('philips', 'Philips d')

@@ -6,25 +6,36 @@ Defines the errors that the device drivers generate.
 G{classtree ProtocolError}
 """
 
+from collections.abc import Hashable
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from qt.core import QDialog, QWidget
+
+
+class ControlQuery(Protocol):
+    query: object
+    response: object
+
 
 class ProtocolError(Exception):
     """The base class for all exceptions in this package"""
 
-    def __init__(self, msg) -> None:
+    def __init__(self, msg: object) -> None:
         Exception.__init__(self, msg)
 
 
 class TimeoutError(ProtocolError):
     """There was a timeout during communication"""
 
-    def __init__(self, func_name) -> None:
+    def __init__(self, func_name: str) -> None:
         ProtocolError.__init__(self, 'There was a timeout while communicating with the device in function: ' + func_name)
 
 
 class DeviceError(ProtocolError):
     """Raised when device is not found"""
 
-    def __init__(self, msg=None) -> None:
+    def __init__(self, msg: object = None) -> None:
         if msg is None:
             msg = 'Unable to find SONY Reader. Is it connected?'
         ProtocolError.__init__(self, msg)
@@ -35,7 +46,7 @@ class UserFeedback(DeviceError):
     WARN = WARNING = 1
     ERROR = 2
 
-    def __init__(self, msg, details, level) -> None:
+    def __init__(self, msg: str, details: str | None, level: int) -> None:
         Exception.__init__(self, msg)
         self.level = level
         self.details = details
@@ -43,11 +54,11 @@ class UserFeedback(DeviceError):
 
 
 class OpenFeedback(DeviceError):
-    def __init__(self, msg) -> None:
+    def __init__(self, msg: str) -> None:
         self.feedback_msg = msg
         DeviceError.__init__(self, msg)
 
-    def custom_dialog(self, parent):
+    def custom_dialog(self, parent: QWidget | None) -> QDialog:
         """
         If you need to show the user a custom dialog, instead of just
         displaying the feedback_msg, create and return it here.
@@ -56,11 +67,11 @@ class OpenFeedback(DeviceError):
 
 
 class OpenActionNeeded(DeviceError):
-    def __init__(self, device_name, msg, only_once_id) -> None:
+    def __init__(self, device_name: str, msg: str, only_once_id: Hashable) -> None:
         self.device_name, self.feedback_msg, self.only_once_id = device_name, msg, only_once_id
         DeviceError.__init__(self, msg)
 
-    def custom_dialog(self, parent):
+    def custom_dialog(self, parent: QWidget | None) -> QDialog:
         raise NotImplementedError()
 
 
@@ -74,7 +85,7 @@ class OpenFailed(ProtocolError):
     The device should continue to be polled for future opens. If the
     message is empty, no exception trace is produced."""
 
-    def __init__(self, msg) -> None:
+    def __init__(self, msg: str) -> None:
         ProtocolError.__init__(self, msg)
         self.show_me = bool(msg and msg.strip())
 
@@ -82,7 +93,7 @@ class OpenFailed(ProtocolError):
 class DeviceBusy(ProtocolError):
     """Raised when device is busy"""
 
-    def __init__(self, uerr='') -> None:
+    def __init__(self, uerr: object = '') -> None:
         ProtocolError.__init__(self, 'Device is in use by another application:\nUnderlying error:' + str(uerr))
 
 
@@ -108,7 +119,7 @@ class ArgumentError(ProtocolError):
 class PathError(ArgumentError):
     """When a user supplies an incorrect/invalid path"""
 
-    def __init__(self, msg, path=None) -> None:
+    def __init__(self, msg: object, path: str | None = None) -> None:
         ArgumentError.__init__(self, msg)
         self.path = path
 
@@ -116,7 +127,7 @@ class PathError(ArgumentError):
 class ControlError(ProtocolError):
     """Errors in Command/Response pairs while communicating with the device"""
 
-    def __init__(self, query=None, response=None, desc=None) -> None:
+    def __init__(self, query: ControlQuery | None = None, response: object = None, desc: str | None = None) -> None:
         self.query = query
         self.response = response
         self.desc = desc

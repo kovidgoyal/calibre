@@ -12,15 +12,24 @@ import hashlib
 import json
 import os
 import re
-from typing import NamedTuple, cast
+from collections.abc import Iterator
+from typing import IO, TYPE_CHECKING, NamedTuple, cast
 
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG, filesystem_encoding
-from calibre.devices.interface import OpenPopupMessage
+from calibre.devices.interface import DevicePlugin, OpenPopupMessage
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.date import utcfromtimestamp
 from polyglot.builtins import as_bytes, as_unicode
+
+if TYPE_CHECKING:
+    from bs4 import BeautifulSoup as Soup
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.devices.usbms.books import BookList
+    from calibre.devices.usbms.device import AnnotationPathInfo
+    from calibre.ebooks.metadata.book.base import Metadata
 
 '''
 Notes on collections:
@@ -45,7 +54,7 @@ file metadata.
 '''
 
 
-def thumbnail_filename(stream) -> str:
+def thumbnail_filename(stream: IO[bytes]) -> str:
     from calibre.ebooks.metadata.kfx import CONTAINER_MAGIC, read_book_key_kfx
     from calibre.ebooks.mobi.reader.headers import MetadataHeader
     from calibre.utils.logging import default_log
@@ -66,7 +75,7 @@ def thumbnail_filename(stream) -> str:
     return f'thumbnail_{uuid}_{cdetype}_portrait.jpg'
 
 
-def get_files_in(path):
+def get_files_in(path: str) -> Iterator[tuple[str, os.stat_result]]:
     if hasattr(os, 'scandir'):
         for dir_entry in os.scandir(path):
             if dir_entry.is_file(follow_symlinks=False):
@@ -124,7 +133,7 @@ class KINDLE(USBMS):
     )
 
     @classmethod
-    def get_open_popup_message(cls):
+    def get_open_popup_message(cls) -> OpenPopupMessage:
         from calibre.utils.localization import localize_website_link
 
         return OpenPopupMessage(
@@ -143,12 +152,12 @@ class KINDLE(USBMS):
             ),
         )
 
-    def is_allowed_book_file(self, filename, path, prefix):
+    def is_allowed_book_file(self, filename: str, path: str, prefix: str) -> bool:
         lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2].replace('\\', '/')
         return '.sdr/' not in lpath
 
     @classmethod
-    def metadata_from_path(cls, path):
+    def metadata_from_path(cls, path: str) -> Metadata:
         if path.endswith('.kfx'):
             from calibre.ebooks.metadata.kfx import read_metadata_kfx
 
@@ -178,7 +187,7 @@ class KINDLE(USBMS):
                 mi.title = match.group('title')
         return mi
 
-    def get_annotations(self, path_map):
+    def get_annotations(self, path_map: dict[int, AnnotationPathInfo]) -> dict[int | str, DevicePlugin.UserAnnotation]:
         MBP_FORMATS = ['azw', 'mobi', 'prc', 'txt']
         mbp_formats = set(MBP_FORMATS)
         PDR_FORMATS = ['pdf']
@@ -186,8 +195,8 @@ class KINDLE(USBMS):
         TAN_FORMATS = ['tpz', 'azw1']
         tan_formats = set(TAN_FORMATS)
 
-        def get_storage():
-            storage = []
+        def get_storage() -> list[str]:
+            storage: list[str] = []
             if self._main_prefix:
                 storage.append(os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN))
             if self._card_a_prefix:
@@ -196,11 +205,11 @@ class KINDLE(USBMS):
                 storage.append(os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B))
             return storage
 
-        def resolve_bookmark_paths(storage, path_map):
-            pop_list = []
-            book_ext = {}
+        def resolve_bookmark_paths(storage: list[str], path_map: dict[int, AnnotationPathInfo]) -> tuple[dict[int, str], dict[int, str]]:
+            bookmark_paths: dict[int, str] = {}
+            book_ext: dict[int, str] = {}
             for id in path_map:
-                file_fmts = set()
+                file_fmts: set[str] = set()
                 for fmt in path_map[id]['fmts']:
                     file_fmts.add(fmt)
                 bookmark_extension = None
@@ -219,20 +228,14 @@ class KINDLE(USBMS):
                         bkmk_path = path_map[id]['path'].replace(os.path.abspath('/<storage>'), vol)
                         bkmk_path = bkmk_path.replace('bookmark', bookmark_extension)
                         if os.path.exists(bkmk_path):
-                            path_map[id] = bkmk_path
+                            bookmark_paths[id] = bkmk_path
                             book_ext[id] = book_extension
                             break
-                    else:
-                        pop_list.append(id)
-                else:
-                    pop_list.append(id)
 
-            # Remove non-existent bookmark templates
-            for id in pop_list:
-                path_map.pop(id)
-            return path_map, book_ext
+            # Books whose bookmark templates do not exist are omitted
+            return bookmark_paths, book_ext
 
-        def get_my_clippings(storage, bookmarked_books):
+        def get_my_clippings(storage: list[str], bookmarked_books: dict[int | str, DevicePlugin.UserAnnotation]) -> str | None:
             # add an entry for 'My Clippings.txt'
             for vol in storage:
                 mc_path = os.path.join(vol, 'My Clippings.txt')
@@ -241,13 +244,13 @@ class KINDLE(USBMS):
             return None
 
         storage = get_storage()
-        path_map, book_ext = resolve_bookmark_paths(storage, path_map)
+        bookmark_paths, book_ext = resolve_bookmark_paths(storage, path_map)
 
-        bookmarked_books = {}
+        bookmarked_books: dict[int | str, DevicePlugin.UserAnnotation] = {}
 
-        for id in path_map:
-            bookmark_ext = path_map[id].rpartition('.')[2]
-            myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
+        for id in bookmark_paths:
+            bookmark_ext = bookmark_paths[id].rpartition('.')[2]
+            myBookmark = Bookmark(bookmark_paths[id], id, book_ext[id], bookmark_ext)
             bookmarked_books[id] = self.UserAnnotation(type='kindle_bookmark', value=myBookmark)
 
         mc_path = get_my_clippings(storage, bookmarked_books)
@@ -258,7 +261,7 @@ class KINDLE(USBMS):
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
 
-    def generate_annotation_html(self, bookmark):
+    def generate_annotation_html(self, bookmark: Bookmark) -> Soup:
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
         # Returns <div class="user_annotations"> ... </div>
@@ -320,7 +323,7 @@ class KINDLE(USBMS):
         ka_soup.insert(0, divTag)
         return ka_soup
 
-    def add_annotation_to_library(self, db, db_id, annotation) -> None:
+    def add_annotation_to_library(self, db: LibraryDatabase, db_id: int, annotation: DevicePlugin.UserAnnotation) -> None:
         from calibre.ebooks.BeautifulSoup import prettify
         from calibre.ebooks.metadata import MetaInformation
 
@@ -349,7 +352,7 @@ class KINDLE(USBMS):
             else:
                 mi.comments = prettify(user_notes_soup)
             # Update library comments
-            db.set_comment(db_id, mi.comments)
+            db.set_comment(db_id, mi.comments)  # ty: ignore[unresolved-attribute] legacy setter added dynamically in calibre.db.legacy
 
             # Add bookmark file to db_id
             db.add_format_with_hooks(db_id, bm.value.bookmark_extension, bm.value.path, index_is_id=True)
@@ -475,17 +478,17 @@ class KINDLE2(KINDLE):
     THUMBNAIL_HEIGHT = 500
 
     @classmethod
-    def migrate_extra_customization(cls, vals):
+    def migrate_extra_customization(cls, vals: list[object]) -> list[object]:
         if isinstance(vals[cls.OPT_APNX_METHOD], bool):
             # Previously this option used to be a bool
             vals[cls.OPT_APNX_METHOD] = 'accurate' if vals[cls.OPT_APNX_METHOD] else 'fast'
         return vals
 
-    def formats_to_scan_for(self):
+    def formats_to_scan_for(self) -> set[str]:
         ans = USBMS.formats_to_scan_for(self) | {'azw3', 'kfx'}
         return ans
 
-    def books(self, oncard=None, end_session=True):
+    def books(self, oncard: str | None = None, end_session: bool = True) -> BookList:
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         # Read collections information
         assert self._main_prefix is not None
@@ -499,12 +502,12 @@ class KINDLE2(KINDLE):
                 traceback.print_exc()
         return bl
 
-    def kindle_update_booklist(self, bl, collections) -> None:
+    def kindle_update_booklist(self, bl: BookList, collections: str) -> None:
         with open(collections, 'rb') as f:
-            collections = f.read()
-        collections = json.loads(collections)
-        path_map = {}
-        for name, val in collections.items():
+            raw = f.read()
+        collections_data = json.loads(raw)
+        path_map: dict[str, set[str]] = {}
+        for name, val in collections_data.items():
             col = name.split('@')[0]
             items = val.get('items', [])
             for x in items:
@@ -533,7 +536,7 @@ class KINDLE2(KINDLE):
         if device_info is None:
             return
         product_id = device_info[1]
-        if product_id > 0x3:
+        if product_id is not None and product_id > 0x3:
             # Check if we need to put the apnx into a sidecar dir
             for _, dirnames, _ in os.walk(self._main_prefix):
                 for x in dirnames:
@@ -541,7 +544,7 @@ class KINDLE2(KINDLE):
                         self.sidecar_apnx = True
                         return
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         """
         Upload sidecar files: cover thumbnails and page count
         """
@@ -555,11 +558,11 @@ class KINDLE2(KINDLE):
         # Upload the apnx file
         self.upload_apnx(path, filename, metadata, filepath)
 
-    def amazon_system_thumbnails_dir(self):
+    def amazon_system_thumbnails_dir(self) -> str:
         assert self._main_prefix is not None
         return os.path.join(self._main_prefix, 'system', 'thumbnails')
 
-    def thumbpath_from_filepath(self, filepath):
+    def thumbpath_from_filepath(self, filepath: str) -> str | None:
         thumb_dir = self.amazon_system_thumbnails_dir()
         if os.path.exists(thumb_dir):
             with open(filepath, 'rb') as f:
@@ -567,11 +570,11 @@ class KINDLE2(KINDLE):
             if tfname:
                 return os.path.join(thumb_dir, tfname)
 
-    def amazon_cover_bug_cache_dir(self):
+    def amazon_cover_bug_cache_dir(self) -> str:
         # see https://www.mobileread.com/forums/showthread.php?t=329945
         return os.path.join(cast('str', self._main_prefix), 'amazon-cover-bug')
 
-    def upload_kindle_thumbnail(self, metadata, filepath) -> None:
+    def upload_kindle_thumbnail(self, metadata: Metadata, filepath: str) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if not coverdata or not coverdata[2]:
             return
@@ -620,7 +623,7 @@ class KINDLE2(KINDLE):
         if DEBUG:
             prints(f'Restored {count} cover thumbnails that were destroyed by Amazon')
 
-    def delete_single_book(self, path) -> None:
+    def delete_single_book(self, path: str) -> None:
         try:
             tp1 = self.thumbpath_from_filepath(path)
             if tp1:
@@ -637,7 +640,7 @@ class KINDLE2(KINDLE):
             traceback.print_exc()
         USBMS.delete_single_book(self, path)
 
-    def upload_apnx(self, path, filename, metadata, filepath) -> None:
+    def upload_apnx(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         from calibre.devices.kindle.apnx import APNXBuilder
 
         opts = self.settings()
@@ -695,10 +698,10 @@ class KINDLE_DX(KINDLE2):
     PRODUCT_ID = [0x0003]
     BCD = [0x0100]
 
-    def upload_kindle_thumbnail(self, metadata, filepath) -> None:
+    def upload_kindle_thumbnail(self, metadata: Metadata, filepath: str) -> None:
         pass
 
-    def delete_single_book(self, path) -> None:
+    def delete_single_book(self, path: str) -> None:
         USBMS.delete_single_book(self, path)
 
 
@@ -718,8 +721,8 @@ class KINDLE_FIRE(KINDLE2):
     VENDOR_NAME = 'AMAZON'
     WINDOWS_MAIN_MEM = 'KINDLE'
 
-    def upload_kindle_thumbnail(self, metadata, filepath) -> None:
+    def upload_kindle_thumbnail(self, metadata: Metadata, filepath: str) -> None:
         pass
 
-    def delete_single_book(self, path) -> None:
+    def delete_single_book(self, path: str) -> None:
         USBMS.delete_single_book(self, path)

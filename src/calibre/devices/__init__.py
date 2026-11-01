@@ -7,7 +7,14 @@ Device drivers.
 import pprint
 import sys
 import time
+from collections.abc import Callable, Collection, Iterable
 from functools import partial
+from typing import IO, TYPE_CHECKING, TypedDict, cast
+
+if TYPE_CHECKING:
+    from io import StringIO
+
+    from calibre.devices.interface import DevicePlugin
 
 DAY_MAP = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
 MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
@@ -15,22 +22,21 @@ INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
 INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
 
 
-def strptime(src):
-    src = src.strip()
-    src = src.split()
-    src[0] = str(DAY_MAP[src[0][:-1]]) + ','
-    src[2] = str(MONTH_MAP[src[2]])
-    return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+def strptime(src: str) -> time.struct_time:
+    parts = src.strip().split()
+    parts[0] = str(DAY_MAP[parts[0][:-1]]) + ','
+    parts[2] = str(MONTH_MAP[parts[2]])
+    return time.strptime(' '.join(parts), '%w, %d %m %Y %H:%M:%S %Z')
 
 
-def strftime(epoch, zone=time.gmtime):
+def strftime(epoch: float, zone: Callable[[float], time.struct_time] = time.gmtime) -> str:
     src = time.strftime('%w, %d %m %Y %H:%M:%S GMT', zone(epoch)).split()
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])] + ','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
 
 
-def get_connected_device():
+def get_connected_device() -> DevicePlugin | None:
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner
 
@@ -60,7 +66,12 @@ def get_connected_device():
     return dev
 
 
-def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
+def debug(
+    ioreg_to_tmp: bool = False,
+    buf: IO[str] | None = None,
+    plugins: Iterable[DevicePlugin] | None = None,
+    disabled_plugins: Collection[DevicePlugin] | None = None,
+) -> str | None:
     """
     If plugins is None, then this method calls startup and shutdown on the
     device plugins. So if you are using it in a context where startup could
@@ -106,7 +117,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
             devices = [list(x) for x in devices]
             for d in devices:
                 for i in range(3):
-                    d[i] = hex(d[i])
+                    # the first three entries are the vendor id, product id and bcd
+                    d[i] = hex(cast('int', d[i]))
         out('USB devices on system:')
         out(pprint.pformat(devices))
 
@@ -150,7 +162,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
                     connected_devices.append((dev, det))
 
             out(' ')
-            errors = {}
+            errors: dict[DevicePlugin, str] = {}
             success = False
             out('Devices possibly connected:', end=' ')
             for dev, det in connected_devices:
@@ -160,7 +172,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
             out(' ')
             for dev, det in connected_devices:
                 out('Trying to open', dev.name, '...', end=' ')
-                dev.do_device_debug = True
+                setattr(dev, 'do_device_debug', True)  # read by drivers via getattr()
                 try:
                     dev.reset(detected_device=det)
                     dev.open(det, None)
@@ -171,7 +183,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
                     errors[dev] = traceback.format_exc()
                     out('failed')
                     continue
-                dev.do_device_debug = False
+                setattr(dev, 'do_device_debug', False)
                 success = True
                 if hasattr(dev, '_main_prefix'):
                     out('Main memory:', repr(dev._main_prefix))
@@ -196,7 +208,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
                     out(ioreg)
 
         if hasattr(buf, 'getvalue'):
-            return buf.getvalue()
+            # buf is a StringIO, either passed in or created above
+            return cast('StringIO', buf).getvalue()
     finally:
         debug(orig_debug)
         sys.stdout = oldo
@@ -209,12 +222,21 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None, disabled_plugins=None):
                     pass
 
 
-def device_info(ioreg_to_tmp=False, buf=None):
+#: A USB device as a tuple of the form (vendor_id, product_id, bcd, ...)
+type DeviceTuple = tuple[int | str | None, ...]
+
+
+class DeviceInfo(TypedDict):
+    device_set: set[DeviceTuple]
+    device_details: dict[DeviceTuple, DeviceTuple]
+
+
+def device_info(ioreg_to_tmp: bool = False, buf: IO[str] | None = None) -> DeviceInfo:
     from calibre.devices.scanner import DeviceScanner
 
-    res = {}
-    res['device_set'] = device_set = set()
-    res['device_details'] = device_details = {}
+    res: DeviceInfo = {'device_set': set(), 'device_details': {}}
+    device_set = res['device_set']
+    device_details = res['device_details']
 
     s = DeviceScanner()
     s.scan()

@@ -8,7 +8,9 @@ Device driver for the Paladin devices
 import os
 import sys
 import time
+from collections.abc import Callable, Sequence
 from contextlib import closing
+from typing import TYPE_CHECKING
 
 from calibre.devices.errors import DeviceError
 from calibre.devices.mime import mime_type_ext
@@ -17,11 +19,17 @@ from calibre.devices.usbms.driver import USBMS
 from calibre.prints import debug_print
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    import apsw
+
+    from calibre.devices.interface import BookList as _BookList
+    from calibre.ebooks.metadata.book.base import Metadata
+
 DBPATH = 'paladin/database/books.db'
 
 
 class ImageWrapper:
-    def __init__(self, image_path) -> None:
+    def __init__(self, image_path: str) -> None:
         self.image_path = image_path
 
 
@@ -55,12 +63,12 @@ class PALADIN(USBMS):
     ]
     OPT_COLLECTIONS = 0
 
-    plugboards = None
-    plugboard_func = None
+    plugboards: dict[str, dict[str, object]] | None = None
+    plugboard_func: Callable[..., object] | None = None
 
-    device_offset = None
+    device_offset: int | None = None
 
-    def books(self, oncard=None, end_session=True):
+    def books(self, oncard: str | None = None, end_session: bool = True) -> BookList:
         import apsw
 
         dummy_bl = BookList(None, None, None)
@@ -138,11 +146,11 @@ class PALADIN(USBMS):
 
         return bl
 
-    def set_plugboards(self, plugboards, pb_func) -> None:
+    def set_plugboards(self, plugboards: dict[str, dict[str, object]], pb_func: Callable[..., object]) -> None:
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def sync_booklists(self, booklists, end_session=True) -> None:
+    def sync_booklists(self, booklists: Sequence[_BookList | None], end_session: bool = True) -> None:
         debug_print('PALADIN: starting sync_booklists')
 
         opts = self.settings()
@@ -160,7 +168,7 @@ class PALADIN(USBMS):
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PALADIN: finished sync_booklists')
 
-    def update_device_database(self, booklist, collections_attributes, oncard) -> None:
+    def update_device_database(self, booklist: _BookList, collections_attributes: Sequence[str], oncard: str | None) -> None:
         import apsw
 
         debug_print('PALADIN: starting update_device_database')
@@ -188,7 +196,7 @@ class PALADIN(USBMS):
 
         debug_print('PALADIN: finished update_device_database')
 
-    def remove_orphaned_records(self, connection, dbpath) -> None:
+    def remove_orphaned_records(self, connection: apsw.Connection, dbpath: str) -> None:
         try:
             cursor = connection.cursor()
 
@@ -220,14 +228,14 @@ class PALADIN(USBMS):
                 '\n' + tb
             )
 
-    def get_database_min_id(self, source_id):
+    def get_database_min_id(self, source_id: int) -> int:
         sequence_min = 0
         if source_id == 1:
             sequence_min = 4294967296
 
         return sequence_min
 
-    def set_database_sequence_id(self, connection, table, sequence_id) -> None:
+    def set_database_sequence_id(self, connection: apsw.Connection, table: str, sequence_id: int) -> None:
         cursor = connection.cursor()
 
         # Update the sequence Id if it exists
@@ -251,7 +259,7 @@ class PALADIN(USBMS):
 
         cursor.close()
 
-    def read_device_books(self, connection, source_id, dbpath):
+    def read_device_books(self, connection: apsw.Connection, source_id: int, dbpath: str) -> dict[str, int | None]:
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0
@@ -299,7 +307,7 @@ class PALADIN(USBMS):
             debug_print(f'Book Sequence Dirty for Source Id: {source_id}')
             sequence_max = sequence_max + 1
             for book, bookId in db_books.items():
-                if bookId < sequence_min:
+                if bookId is not None and bookId < sequence_min:
                     # Record the new Id and write it to the DB
                     db_books[book] = sequence_max
                     sequence_max = sequence_max + 1
@@ -326,7 +334,7 @@ class PALADIN(USBMS):
         cursor.close()
         return db_books
 
-    def update_device_books(self, connection, booklist, source_id, plugboard, dbpath) -> None:
+    def update_device_books(self, connection: apsw.Connection, booklist: _BookList, source_id: int, plugboard: object, dbpath: str) -> None:
         from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -407,7 +415,7 @@ class PALADIN(USBMS):
 
         cursor.close()
 
-    def read_device_collections(self, connection, source_id, dbpath):
+    def read_device_collections(self, connection: apsw.Connection, source_id: int, dbpath: str) -> dict[str, int | None]:
         sequence_min = self.get_database_min_id(source_id)
         sequence_max = sequence_min
         sequence_dirty = 0
@@ -450,7 +458,7 @@ class PALADIN(USBMS):
             debug_print(f'Collection Sequence Dirty for Source Id: {source_id}')
             sequence_max = sequence_max + 1
             for collection, collectionId in db_collections.items():
-                if collectionId < sequence_min:
+                if collectionId is not None and collectionId < sequence_min:
                     # Record the new Id and write it to the DB
                     db_collections[collection] = sequence_max
                     sequence_max = sequence_max + 1
@@ -511,7 +519,9 @@ class PALADIN(USBMS):
         cursor.close()
         return db_collections
 
-    def update_device_collections(self, connection, booklist, collections, source_id, dbpath) -> None:
+    def update_device_collections(
+        self, connection: apsw.Connection, booklist: _BookList, collections: dict[str, list[Metadata]], source_id: int, dbpath: str
+    ) -> None:
 
         if collections:
             db_collections = self.read_device_collections(connection, source_id, dbpath)
@@ -578,7 +588,7 @@ class PALADIN(USBMS):
 
             cursor.close()
 
-    def rebuild_collections(self, booklist, oncard) -> None:
+    def rebuild_collections(self, booklist: _BookList, oncard: str | None) -> None:
         debug_print('PALADIN: starting rebuild_collections')
 
         opts = self.settings()

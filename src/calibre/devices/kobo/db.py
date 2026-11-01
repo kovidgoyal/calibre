@@ -5,11 +5,15 @@ import os
 import shutil
 from contextlib import closing, suppress
 from threading import RLock
+from typing import TYPE_CHECKING
 
 import apsw
 
 from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 # Any plugins not running in the device thread must acquire this lock before
 # trying to access the Kobo database.
@@ -17,7 +21,7 @@ kobo_db_lock = RLock()
 INJECT_9P_ERROR = False
 
 
-def row_factory(cursor: apsw.Cursor, row):
+def row_factory(cursor: apsw.Cursor, row: apsw.SQLiteValues) -> dict[str, apsw.SQLiteValue]:
     return {k[0]: row[i] for i, k in enumerate(cursor.getdescription())}
 
 
@@ -89,7 +93,7 @@ class Database:
             self.conn.setrowtrace(row_factory)
         return self.conn.__enter__()
 
-    def __exit__(self, exc_type, exc_value, tb) -> bool | None:
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, tb: TracebackType | None) -> bool:
         try:
             with closing(self.conn):
                 suppress_exception = self.conn.__exit__(exc_type, exc_value, tb)

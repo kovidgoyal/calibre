@@ -6,13 +6,16 @@ import os
 import re
 import string
 from collections import defaultdict
+from collections.abc import Callable, Collection, Iterator
 from ctypes import (
     POINTER,
     WINFUNCTYPE,
+    Array,
     Structure,
     WinError,
     addressof,
     byref,
+    c_char,
     c_ubyte,
     c_uint,
     c_void_p,
@@ -31,7 +34,8 @@ from ctypes import c_uint64 as QWORD
 from ctypes.wintypes import BOOL, BYTE, DWORD, HANDLE, HWND, LPCWSTR, LPWSTR, UINT, ULONG, USHORT, WORD
 from operator import itemgetter
 from pprint import pformat, pprint
-from typing import NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple, TypedDict, overload
+from typing import cast as type_cast
 
 from calibre import as_unicode, prints
 
@@ -40,13 +44,17 @@ try:
 except ImportError:
     import _winreg as winreg  # type: ignore
 
+if TYPE_CHECKING:
+    from _ctypes import _ECT, CFuncPtr, _CArgObject, _CData
+    from ctypes import WinDLL
+
 # Data and function type definitions {{{
 
 
 class GUID(Structure):
     _fields_ = [('data1', DWORD), ('data2', WORD), ('data3', WORD), ('data4', c_ubyte * 8)]
 
-    def __init__(self, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) -> None:
+    def __init__(self, l: int, w1: int, w2: int, b1: int, b2: int, b3: int, b4: int, b5: int, b6: int, b7: int, b8: int) -> None:
         self.data1 = l
         self.data2 = w1
         self.data3 = w2
@@ -79,11 +87,11 @@ IOCTL_STORAGE_EJECT_MEDIA = 0x2D4808
 IOCTL_STORAGE_GET_DEVICE_NUMBER = 0x2D1080
 
 
-def CTL_CODE(DeviceType, Function, Method, Access):
+def CTL_CODE(DeviceType: int, Function: int, Method: int, Access: int) -> int:
     return (DeviceType << 16) | (Access << 14) | (Function << 2) | Method
 
 
-def USB_CTL(id):
+def USB_CTL(id: int) -> int:
     # CTL_CODE(FILE_DEVICE_USB, (id), METHOD_BUFFERED, FILE_ANY_ACCESS)
     return CTL_CODE(0x22, id, 0, 0)
 
@@ -111,7 +119,7 @@ class StorageDeviceNumber(NamedTuple):
 class STORAGE_DEVICE_NUMBER(Structure):
     _fields_ = [('DeviceType', DWORD), ('DeviceNumber', ULONG), ('PartitionNumber', ULONG)]
 
-    def as_tuple(self):
+    def as_tuple(self) -> StorageDeviceNumber:
         return StorageDeviceNumber(self.DeviceType, self.DeviceNumber, self.PartitionNumber)
 
 
@@ -309,7 +317,8 @@ SPDRP_REMOVAL_POLICY_OVERRIDE = DWORD(0x00000021)
 SPDRP_INSTALL_STATE = DWORD(0x00000022)
 SPDRP_LOCATION_PATHS = DWORD(0x00000023)
 
-CR_CODES, CR_CODE_NAMES = {}, {}
+CR_CODES: dict[str, int] = {}
+CR_CODE_NAMES: dict[int, str] = {}
 for line in '''\
 #define CR_SUCCESS                        0x00000000
 #define CR_DEFAULT                        0x00000001
@@ -392,32 +401,40 @@ cfgmgr = windll.CfgMgr32
 kernel32 = windll.Kernel32
 
 
-def cwrap(name, restype, *argtypes, **kw):
-    errcheck = kw.pop('errcheck', None)
+#: The errcheck attribute of a ctypes foreign function. Called with the
+#: result, the function and the arguments, returns the value to return to the
+#: caller of the foreign function.
+type ErrCheck = Callable[[int | None, CFuncPtr, tuple[object, ...]], object]
+
+
+def cwrap(name: str, restype: type[_CData] | None, *argtypes: type[_CData], **kw: object) -> CFuncPtr:
+    errcheck = type_cast('ErrCheck | None', kw.pop('errcheck', None))
     use_last_error = bool(kw.pop('use_last_error', True))
     prototype = WINFUNCTYPE(restype, *argtypes, use_last_error=use_last_error)
     lib = cfgmgr if name.startswith('CM') else setupapi
-    func = prototype((name, kw.pop('lib', lib)))
+    func = prototype((name, type_cast('WinDLL', kw.pop('lib', lib))))
     if kw:
         raise TypeError(f'Unknown keyword arguments: {kw!r}')
     if errcheck is not None:
-        func.errcheck = errcheck
+        # typeshed's errcheck type does not account for the conversion of
+        # simple restypes to python objects
+        func.errcheck = type_cast('_ECT', errcheck)
     return func
 
 
-def handle_err_check(result, func, args):
+def handle_err_check(result: int | None, func: CFuncPtr, args: tuple[object, ...]) -> int | None:
     if result == INVALID_HANDLE_VALUE:
         raise WinError(get_last_error())
     return result
 
 
-def bool_err_check(result, func, args):
+def bool_err_check(result: int, func: CFuncPtr, args: tuple[object, ...]) -> int:
     if not result:
         raise WinError(get_last_error())
     return result
 
 
-def config_err_check(result, func, args):
+def config_err_check(result: int, func: CFuncPtr, args: tuple[object, ...]) -> tuple[object, ...]:
     if result != CR_CODES['CR_SUCCESS']:
         raise WinError(result, f'The cfgmgr32 function failed with err: {CR_CODE_NAMES.get(result, result)}')
     return args
@@ -508,10 +525,10 @@ CM_Get_Device_ID = cwrap('CM_Get_Device_IDW', CONFIGRET, DEVINST, LPWSTR, ULONG,
 
 # Utility functions {{{
 
-_devid_pat = None
+_devid_pat: re.Pattern[str] | None = None
 
 
-def devid_pat():
+def devid_pat() -> re.Pattern[str]:
     global _devid_pat
     if _devid_pat is None:
         _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9:]{4})', re.I)
@@ -519,7 +536,7 @@ def devid_pat():
 
 
 class DeviceSet:
-    def __init__(self, guid=GUID_DEVINTERFACE_VOLUME, enumerator=None, flags=DIGCF_PRESENT | DIGCF_DEVICEINTERFACE) -> None:
+    def __init__(self, guid: GUID | None = GUID_DEVINTERFACE_VOLUME, enumerator: str | None = None, flags: int = DIGCF_PRESENT | DIGCF_DEVICEINTERFACE) -> None:
         self.guid_ref, self.enumerator, self.flags = (None if guid is None else byref(guid)), enumerator, flags
         self.dev_list = SetupDiGetClassDevs(self.guid_ref, self.enumerator, None, self.flags)
 
@@ -527,7 +544,15 @@ class DeviceSet:
         SetupDiDestroyDeviceInfoList(self.dev_list)
         del self.dev_list
 
-    def interfaces(self, ignore_errors=False, yield_devlist=False):
+    @overload
+    def interfaces(self, ignore_errors: bool = False, yield_devlist: Literal[False] = False) -> Iterator[tuple[SP_DEVINFO_DATA, str]]: ...
+    @overload
+    def interfaces(self, ignore_errors: bool, yield_devlist: Literal[True]) -> Iterator[tuple[int, SP_DEVINFO_DATA, str]]: ...
+    @overload
+    def interfaces(self, *, yield_devlist: Literal[True]) -> Iterator[tuple[int, SP_DEVINFO_DATA, str]]: ...
+    def interfaces(
+        self, ignore_errors: bool = False, yield_devlist: bool = False
+    ) -> Iterator[tuple[SP_DEVINFO_DATA, str]] | Iterator[tuple[int, SP_DEVINFO_DATA, str]]:
         interface_data = SP_DEVICE_INTERFACE_DATA()
         interface_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA)
         buf = None
@@ -547,7 +572,7 @@ class DeviceSet:
             else:
                 yield devinfo, devpath
 
-    def devices(self):
+    def devices(self) -> Iterator[tuple[int, SP_DEVINFO_DATA]]:
         devinfo = SP_DEVINFO_DATA()
         devinfo.cbSize = sizeof(SP_DEVINFO_DATA)
         i = -1
@@ -558,7 +583,7 @@ class DeviceSet:
             yield self.dev_list, devinfo
 
 
-def iterchildren(parent_devinst):
+def iterchildren(parent_devinst: int) -> Iterator[int]:
     child = DEVINST(0)
     NO_MORE = CR_CODES['CR_NO_SUCH_DEVINST']
     try:
@@ -578,13 +603,13 @@ def iterchildren(parent_devinst):
         yield child.value
 
 
-def iterdescendants(parent_devinst):
+def iterdescendants(parent_devinst: int) -> Iterator[int]:
     for child in iterchildren(parent_devinst):
         yield child
         yield from iterdescendants(child)
 
 
-def iterancestors(devinst):
+def iterancestors(devinst: int) -> Iterator[int]:
     NO_MORE = CR_CODES['CR_NO_SUCH_DEVINST']
     parent = DEVINST(devinst)
     while True:
@@ -597,7 +622,9 @@ def iterancestors(devinst):
         yield parent.value
 
 
-def device_io_control(handle, which, inbuf, outbuf, initbuf):
+def device_io_control(
+    handle: int, which: int, inbuf: Array[c_char], outbuf: Array[c_char], initbuf: Callable[[Array[c_char]], None]
+) -> tuple[Array[c_char], DWORD]:
     bytes_returned = DWORD(0)
     while True:
         initbuf(inbuf)
@@ -611,7 +638,7 @@ def device_io_control(handle, which, inbuf, outbuf, initbuf):
             return outbuf, bytes_returned
 
 
-def get_storage_number(devpath):
+def get_storage_number(devpath: str) -> StorageDeviceNumber:
     sdn = STORAGE_DEVICE_NUMBER()
     handle = CreateFile(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
     bytes_returned = DWORD(0)
@@ -631,7 +658,7 @@ def get_storage_number(devpath):
     return sdn.as_tuple()
 
 
-def get_device_id(devinst, buf=None):
+def get_device_id(devinst: int, buf: Array[c_wchar] | None = None) -> tuple[str, Array[c_wchar]]:
     if buf is None:
         buf = create_unicode_buffer(512)
     while True:
@@ -647,7 +674,7 @@ def get_device_id(devinst, buf=None):
     return wstring_at(buf), buf
 
 
-def expand_environment_strings(src):
+def expand_environment_strings(src: str) -> str:
     sz = ExpandEnvironmentStrings(src, None, 0)
     while True:
         buf = create_unicode_buffer(sz)
@@ -657,7 +684,11 @@ def expand_environment_strings(src):
         sz = nsz
 
 
-def convert_registry_data(raw, size, dtype):
+#: A value read from the registry, converted to a python object
+type RegistryValue = bytes | str | tuple[str, ...] | int | None
+
+
+def convert_registry_data(raw: Array[c_char], size: int, dtype: int) -> RegistryValue:
     if dtype == winreg.REG_NONE:
         return None
     if dtype == winreg.REG_BINARY:
@@ -680,7 +711,9 @@ def convert_registry_data(raw, size, dtype):
     raise ValueError(f'Unsupported data type: {dtype!r}')
 
 
-def get_device_registry_property(dev_list, p_devinfo, property_type=SPDRP_HARDWAREID, buf=None):
+def get_device_registry_property(
+    dev_list: int, p_devinfo: _CArgObject, property_type: DWORD = SPDRP_HARDWAREID, buf: Array[c_char] | None = None
+) -> tuple[Array[c_char], RegistryValue]:
     if buf is None:
         buf = create_string_buffer(1024)
     data_type = DWORD(0)
@@ -708,7 +741,9 @@ def get_device_registry_property(dev_list, p_devinfo, property_type=SPDRP_HARDWA
     return buf, ans
 
 
-def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
+def get_device_interface_detail_data(
+    dev_list: int, p_interface_data: _CArgObject, buf: Array[c_char] | None = None
+) -> tuple[Array[c_char], SP_DEVINFO_DATA, str]:
     if buf is None:
         buf = create_string_buffer(512)
     detail = cast(buf, PSP_DEVICE_INTERFACE_DETAIL_DATA)
@@ -731,7 +766,7 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
     return buf, devinfo, wstring_at(addressof(buf) + sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA._fields_[0][1]))
 
 
-def get_volume_information(drive_letter):
+def get_volume_information(drive_letter: str) -> dict[str, str | int]:
     if not drive_letter.endswith('\\'):
         drive_letter += ':\\'
     fsname = create_unicode_buffer(255)
@@ -748,7 +783,7 @@ def get_volume_information(drive_letter):
         len(fsname),
     )
     flags = flags.value
-    ans = {
+    ans: dict[str, str | int] = {
         'name': vname.value,
         'filesystem': fsname.value,
         'serial_number': serial_number.value,
@@ -780,7 +815,7 @@ def get_volume_information(drive_letter):
     return ans
 
 
-def get_volume_pathnames(volume_id, buf=None):
+def get_volume_pathnames(volume_id: str, buf: Array[c_wchar] | None = None) -> tuple[Array[c_wchar], list[str]]:
     if buf is None:
         buf = create_unicode_buffer(512)
     bufsize = DWORD(0)
@@ -812,7 +847,7 @@ class _USBDevice(NamedTuple):
 
 class USBDevice(_USBDevice):
     def __repr__(self) -> str:
-        def r(x) -> str:
+        def r(x: int | None) -> str:
             if x is None:
                 return 'None'
             return f'0x{x:x}'
@@ -820,17 +855,19 @@ class USBDevice(_USBDevice):
         return f'USBDevice(vendor_id={r(self.vendor_id)} product_id={r(self.product_id)} bcd={r(self.bcd)} devid={self.devid} devinst={self.devinst})'
 
 
-def parse_hex(x):
+def parse_hex(x: str) -> int:
     return int(x.replace(':', 'a'), 16)
 
 
-def iterusbdevices():
+def iterusbdevices() -> Iterator[USBDevice]:
     buf = None
     pat = devid_pat()
     for dev_list, devinfo in DeviceSet(guid=None, enumerator='USB', flags=DIGCF_PRESENT | DIGCF_ALLCLASSES).devices():
-        buf, devid = get_device_registry_property(dev_list, byref(devinfo), buf=buf)
-        if devid:
-            devid = devid[0].lower()
+        buf, hwids = get_device_registry_property(dev_list, byref(devinfo), buf=buf)
+        # SPDRP_HARDWAREID is a REG_MULTI_SZ value
+        hwids = type_cast('tuple[str, ...] | None', hwids)
+        if hwids:
+            devid = hwids[0].lower()
             m = pat.search(devid)
             if m is None:
                 yield USBDevice(None, None, None, devid, devinfo.DevInst)
@@ -843,14 +880,27 @@ def iterusbdevices():
                     yield USBDevice(vid, pid, bcd, devid, devinfo.DevInst)
 
 
-def scan_usb_devices():
+def scan_usb_devices() -> tuple[USBDevice, ...]:
     return tuple(iterusbdevices())
 
 
 # }}}
 
 
-def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False):  # {{{
+class DriveLetters(TypedDict):
+    #: Maps drive letter to the device path of the disk the drive is on
+    pnp_id_map: dict[str, str]
+    drive_letters: list[str]
+    readonly_drives: set[str]
+    #: Maps drive letter to (storage number, partition number)
+    sort_map: dict[str, tuple[int, int]]
+
+
+#: Maps (device type, device number) to a sorted list of (partition number, drive letter)
+type StorageNumberMap = dict[tuple[int, int], list[tuple[int, str]]]
+
+
+def get_drive_letters_for_device(usbdev: USBDevice, storage_number_map: StorageNumberMap | None = None, debug: bool = False) -> DriveLetters:  # {{{
     """
     Get the drive letters for a connected device. The drive letters are sorted
     by storage number, which (I think) corresponds to the order they are
@@ -858,7 +908,7 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
 
     :param usbdevice: As returned by :function:`scan_usb_devices`
     """
-    ans = {'pnp_id_map': {}, 'drive_letters': [], 'readonly_drives': set(), 'sort_map': {}}
+    ans: DriveLetters = {'pnp_id_map': {}, 'drive_letters': [], 'readonly_drives': set(), 'sort_map': {}}
 
     sn_map = get_storage_number_map(debug=debug) if storage_number_map is None else storage_number_map
     if debug:
@@ -889,8 +939,8 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
         return get_drive_letters_for_device_single(usbdev, sn_map, debug=debug)
 
 
-def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False):
-    ans = {'pnp_id_map': {}, 'drive_letters': [], 'readonly_drives': set(), 'sort_map': {}}
+def get_drive_letters_for_device_single(usbdev: USBDevice, storage_number_map: StorageNumberMap, debug: bool = False) -> DriveLetters:
+    ans: DriveLetters = {'pnp_id_map': {}, 'drive_letters': [], 'readonly_drives': set(), 'sort_map': {}}
     descendants = frozenset(iterdescendants(usbdev.devinst))
     for devinfo, devpath in DeviceSet(GUID_DEVINTERFACE_DISK).interfaces():
         if devinfo.DevInst in descendants:
@@ -907,16 +957,15 @@ def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False)
                 continue
             if debug:
                 prints(f'Storage number for {devid}: {storage_number}')
-            if storage_number:
-                partitions = storage_number_map.get(storage_number[:2])
-                drive_letters = []
-                for partition_number, dl in partitions or ():
-                    drive_letters.append(dl)
-                    ans['sort_map'][dl] = storage_number.number, partition_number
-                if drive_letters:
-                    for dl in drive_letters:
-                        ans['pnp_id_map'][dl] = devpath
-                        ans['drive_letters'].append(dl)
+            partitions = storage_number_map.get(storage_number[:2])
+            drive_letters = []
+            for partition_number, dl in partitions or ():
+                drive_letters.append(dl)
+                ans['sort_map'][dl] = storage_number.number, partition_number
+            if drive_letters:
+                for dl in drive_letters:
+                    ans['pnp_id_map'][dl] = devpath
+                    ans['drive_letters'].append(dl)
     _sm = ans['sort_map']
     ans['drive_letters'].sort(key=lambda x: _sm.get(x) or (0, 0))
     for dl in ans['drive_letters']:
@@ -930,12 +979,12 @@ def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False)
     return ans
 
 
-def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
+def get_storage_number_map(drive_types: Collection[int] = (DRIVE_REMOVABLE, DRIVE_FIXED), debug: bool = False) -> StorageNumberMap:
     "Get a mapping of drive letters to storage numbers for all drives on system (of the specified types)"
     mask = GetLogicalDrives()
     type_map = {letter: GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
     drives = (letter for letter, dt in type_map.items() if dt in drive_types)
-    ans = defaultdict(list)
+    ans: defaultdict[tuple[int, int], list[tuple[int, str]]] = defaultdict(list)
     for letter in drives:
         try:
             sn = get_storage_number('\\\\.\\' + letter + ':')
@@ -949,10 +998,10 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
     return dict(ans)
 
 
-def get_storage_number_map_alt(debug=False):
+def get_storage_number_map_alt(debug: bool = False) -> StorageNumberMap:
     "Alternate implementation that works without needing to call GetDriveType() (which causes floppy drives to seek)"
     wbuf = create_unicode_buffer(512)
-    ans = defaultdict(list)
+    ans: defaultdict[tuple[int, int], list[tuple[int, str]]] = defaultdict(list)
     for devinfo, devpath in DeviceSet().interfaces():
         if not devpath.endswith(os.sep):
             devpath += os.sep
@@ -992,20 +1041,20 @@ def get_storage_number_map_alt(debug=False):
 # }}}
 
 
-def is_usb_device_connected(vendor_id, product_id):  # {{{
+def is_usb_device_connected(vendor_id: int | None, product_id: int | None) -> bool:  # {{{
     return any(usbdev.vendor_id == vendor_id and usbdev.product_id == product_id for usbdev in iterusbdevices())
 
 
 # }}}
 
 
-def get_usb_info(usbdev, debug=False):  # {{{
+def get_usb_info(usbdev: USBDevice, debug: bool = False) -> dict[str, str]:  # {{{
     """
     The USB info (manufacturer/product names and serial number) Requires communication with the hub the device is connected to.
 
     :param usbdev: A usb device as returned by :function:`scan_usb_devices`
     """
-    ans = {}
+    ans: dict[str, str] = {}
     hub_map = {devinfo.DevInst: path for devinfo, path in DeviceSet(guid=GUID_DEVINTERFACE_USB_HUB).interfaces()}
     for parent in iterancestors(usbdev.devinst):
         parent_path = hub_map.get(parent)
@@ -1017,7 +1066,8 @@ def get_usb_info(usbdev, debug=False):  # {{{
         return ans
     for devlist, devinfo in DeviceSet(guid=GUID_DEVINTERFACE_USB_DEVICE).devices():
         if devinfo.DevInst == usbdev.devinst:
-            device_port = get_device_registry_property(devlist, byref(devinfo), SPDRP_ADDRESS)[1]
+            # SPDRP_ADDRESS is a REG_DWORD value
+            device_port = type_cast('int | None', get_device_registry_property(devlist, byref(devinfo), SPDRP_ADDRESS)[1])
             break
     else:
         return ans
@@ -1052,7 +1102,7 @@ def get_usb_info(usbdev, debug=False):  # {{{
     return ans
 
 
-def alloc_descriptor_buf(buf):
+def alloc_descriptor_buf(buf: Array[c_char] | None) -> Array[c_char]:
     if buf is None:
         buf = create_string_buffer(sizeof(USB_DESCRIPTOR_REQUEST) + 700)
     else:
@@ -1060,20 +1110,20 @@ def alloc_descriptor_buf(buf):
     return buf
 
 
-def get_device_descriptor(hub_handle, device_port, buf=None):
+def get_device_descriptor(hub_handle: int, device_port: int, buf: Array[c_char] | None = None) -> tuple[Array[c_char], USB_DEVICE_DESCRIPTOR]:
     buf = alloc_descriptor_buf(buf)
 
-    def initbuf(b) -> None:
+    def initbuf(b: Array[c_char]) -> None:
         cast(b, POINTER(USB_NODE_CONNECTION_INFORMATION_EX)).contents.ConnectionIndex = device_port
 
     buf, bytes_returned = device_io_control(hub_handle, IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX, buf, buf, initbuf)
     return buf, USB_DEVICE_DESCRIPTOR.from_buffer_copy(cast(buf, POINTER(USB_NODE_CONNECTION_INFORMATION_EX)).contents.DeviceDescriptor)
 
 
-def get_device_string(hub_handle, device_port, index, buf=None, lang=0x409):
+def get_device_string(hub_handle: int, device_port: int, index: int, buf: Array[c_char] | None = None, lang: int = 0x409) -> tuple[Array[c_char], str]:
     buf = alloc_descriptor_buf(buf)
 
-    def initbuf(b) -> None:
+    def initbuf(b: Array[c_char]) -> None:
         p = cast(b, PUSB_DESCRIPTOR_REQUEST).contents
         p.ConnectionIndex = device_port
         sp = p.SetupPacket
@@ -1090,11 +1140,11 @@ def get_device_string(hub_handle, device_port, index, buf=None, lang=0x409):
     return buf, wstring_at(addressof(data.String), sz // 2).rstrip('\0')
 
 
-def get_device_languages(hub_handle, device_port, buf=None):
+def get_device_languages(hub_handle: int, device_port: int, buf: Array[c_char] | None = None) -> tuple[Array[c_char], list[int]]:
     "Get the languages supported by the device for strings"
     buf = alloc_descriptor_buf(buf)
 
-    def initbuf(b) -> None:
+    def initbuf(b: Array[c_char]) -> None:
         p = cast(b, PUSB_DESCRIPTOR_REQUEST).contents
         p.ConnectionIndex = device_port
         sp = p.SetupPacket
@@ -1115,8 +1165,9 @@ def get_device_languages(hub_handle, device_port, buf=None):
 # }}}
 
 
-def is_readonly(drive_letter):  # {{{
-    return get_volume_information(drive_letter)['FILE_READ_ONLY_VOLUME']
+def is_readonly(drive_letter: str) -> bool:  # {{{
+    # the FILE_* flags are stored as bools by get_volume_information()
+    return type_cast('bool', get_volume_information(drive_letter)['FILE_READ_ONLY_VOLUME'])
 
 
 # }}}
@@ -1126,7 +1177,7 @@ def develop() -> None:  # {{{
     from calibre.customize.ui import device_plugins
 
     usb_devices = scan_usb_devices()
-    drive_letters = set()
+    drive_letters: set[str] = set()
     pprint(usb_devices)
     print()
     devplugins = list(sorted(device_plugins(), key=lambda x: x.__class__.__name__))
@@ -1137,6 +1188,8 @@ def develop() -> None:  # {{{
             continue
         connected, usbdev = dev.is_usb_connected(usb_devices, debug=True)
         if connected:
+            # On windows detected devices are always instances of USBDevice from this module
+            usbdev = type_cast('USBDevice', usbdev)
             print('\n')
             print(f'Potentially connected device: {dev.get_gui_name()} at {usbdev}')
             print()
@@ -1150,7 +1203,7 @@ def develop() -> None:  # {{{
             print('Device USB data:', get_usb_info(usbdev, debug=True))
 
 
-def drives_for(vendor_id, product_id=None) -> None:
+def drives_for(vendor_id: int, product_id: int | None = None) -> None:
     usb_devices = scan_usb_devices()
     pprint(usb_devices)
     for usbdev in usb_devices:

@@ -3,6 +3,8 @@
 
 import json
 import textwrap
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QCheckBox,
@@ -32,16 +34,20 @@ from calibre.gui2.widgets2 import ColorButton
 from calibre.prints import debug_print
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.devices.kobo.driver import KOBOTOUCH
+    from calibre.utils.config_base import ConfigProxy, OptionValues
 
-def wrap_msg(msg):
+
+def wrap_msg(msg: str) -> str:
     return textwrap.fill(msg.strip(), 100)
 
 
-def setToolTipFor(widget, tt) -> None:
+def setToolTipFor(widget: QWidget, tt: str) -> None:
     widget.setToolTip(wrap_msg(tt))
 
 
-def create_checkbox(title, tt, state):
+def create_checkbox(title: str, tt: str, state: object) -> QCheckBox:
     cb = QCheckBox(title)
     cb.setToolTip(wrap_msg(tt))
     cb.setChecked(bool(state))
@@ -51,15 +57,15 @@ def create_checkbox(title, tt, state):
 class KOBOTOUCHConfig(TabbedDeviceConfig):
     def __init__(
         self,
-        device_settings,
-        all_formats,
-        supports_subdirs,
-        must_read_metadata,
-        supports_use_author_sort,
-        extra_customization_message,
-        device,
-        extra_customization_choices=None,
-        parent=None,
+        device_settings: OptionValues,
+        all_formats: list[str],
+        supports_subdirs: bool,
+        must_read_metadata: bool,
+        supports_use_author_sort: bool,
+        extra_customization_message: str | list[str] | None,
+        device: type[KOBOTOUCH],
+        extra_customization_choices: dict[int, list[str]] | None = None,
+        parent: QWidget | None = None,
     ) -> None:
 
         super().__init__(
@@ -93,44 +99,45 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         self.addDeviceTab(self.tab3, _('Hyphenation'))
         self.addDeviceTab(self.tab4, _('Modify CSS'))
 
-    def get_pref(self, key):
+    def get_pref(self, key: str) -> object:
         return self.device.get_pref(key)
 
     @property
-    def device(self):
-        return self._device()
+    def device(self) -> type[KOBOTOUCH]:
+        # KOBOTOUCH.config_widget() passes the driver class, which is never garbage collected
+        return cast('type[KOBOTOUCH]', self._device())
 
-    def validate(self):
+    def validate(self) -> bool:
         validated = super().validate()
         validated &= self.tab2.validate()
         validated &= self.tab1.validate()
         return validated
 
     @property
-    def book_uploads_options(self):
+    def book_uploads_options(self) -> BookUploadsGroupBox:
         return self.tab1.book_uploads_options
 
     @property
-    def collections_options(self):
+    def collections_options(self) -> CollectionsGroupBox:
         return self.tab1.collections_options
 
     @property
-    def cover_options(self):
+    def cover_options(self) -> CoversGroupBox:
         return self.tab1.covers_options
 
     @property
-    def device_list_options(self):
+    def device_list_options(self) -> DeviceListGroupBox:
         return self.tab2.device_list_options
 
     @property
-    def advanced_options(self):
+    def advanced_options(self) -> AdvancedGroupBox:
         return self.tab2.advanced_options
 
     @property
-    def metadata_options(self):
+    def metadata_options(self) -> MetadataGroupBox:
         return self.tab2.metadata_options
 
-    def commit(self):
+    def commit(self) -> ConfigProxy:
         debug_print('KOBOTOUCHConfig::commit: start')
         p = super().commit()
 
@@ -191,7 +198,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
 
 class Tab1Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent)
 
         self.l = QVBoxLayout(self)
@@ -211,7 +218,7 @@ class Tab1Config(DeviceConfigTab):  # {{{
 
         self.l.addStretch()
 
-    def validate(self):
+    def validate(self) -> bool:
         v = self.collections_options.validate()
         v &= self.book_uploads_options.validate()
         return v
@@ -221,7 +228,7 @@ class Tab1Config(DeviceConfigTab):  # {{{
 
 
 class Tab2Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent)
 
         self.l = QVBoxLayout(self)
@@ -241,7 +248,7 @@ class Tab2Config(DeviceConfigTab):  # {{{
 
         self.l.addStretch()
 
-    def validate(self):
+    def validate(self) -> bool:
         return self.metadata_options.validate()
 
 
@@ -249,7 +256,7 @@ class Tab2Config(DeviceConfigTab):  # {{{
 
 
 class Tab3Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.hyphenation_options = h = HyphenationGroupBox(self, device)
@@ -257,7 +264,7 @@ class Tab3Config(DeviceConfigTab):  # {{{
         l.addWidget(h)
         l.addStretch()
 
-    def validate(self):
+    def validate(self) -> bool:
         return self.hyphenation_options.validate()
 
 
@@ -265,7 +272,7 @@ class Tab3Config(DeviceConfigTab):  # {{{
 
 
 class Tab4Config(DeviceConfigTab):  # {{{
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.modify_css_options = h = ModifyCSSGroupBox(self, device)
@@ -273,7 +280,7 @@ class Tab4Config(DeviceConfigTab):  # {{{
         l.addWidget(h)
         l.addStretch()
 
-    def validate(self):
+    def validate(self) -> bool:
         return self.modify_css_options.validate()
 
 
@@ -281,7 +288,7 @@ class Tab4Config(DeviceConfigTab):  # {{{
 
 
 class ModifyCSSGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Modify CSS of books sent to the device'))
         self.setCheckable(True)
@@ -324,9 +331,10 @@ class ModifyCSSGroupBox(DeviceOptionsGroupBox):
         l.addWidget(b)
         b.clicked.connect(self.clear_all_css)
 
-    def items(self):
+    def items(self) -> Iterator[QListWidgetItem]:
         for i in range(self.dev_list.count()):
-            yield self.dev_list.item(i)
+            if (item := self.dev_list.item(i)) is not None:
+                yield item
 
     def clear_all_css(self) -> None:
         for item in self.items():
@@ -352,11 +360,11 @@ class ModifyCSSGroupBox(DeviceOptionsGroupBox):
         return True
 
     @property
-    def modify_css(self):
+    def modify_css(self) -> bool:
         return self.isChecked()
 
     @property
-    def per_device_css(self):
+    def per_device_css(self) -> str:
         ans = {}
         for item in self.items():
             mm, css = item.data(Qt.ItemDataRole.UserRole)
@@ -366,7 +374,7 @@ class ModifyCSSGroupBox(DeviceOptionsGroupBox):
 
 
 class BookUploadsGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Uploading of books'))
 
@@ -433,24 +441,24 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
     def update_template_state(self) -> None:
         self.kepubify_template_edit.setEnabled(self.kepubify)
 
-    def validate(self):
+    def validate(self) -> bool:
         return self.kepubify_template_edit.validate()
 
     @property
-    def override_kobo_replace_existing(self):
+    def override_kobo_replace_existing(self) -> bool:
         return self.override_kobo_replace_existing_checkbox.isChecked()
 
     @property
-    def kepubify(self):
+    def kepubify(self) -> bool:
         return self.kepubify_checkbox.isChecked()
 
     @property
-    def template_for_kepubify(self):
+    def template_for_kepubify(self) -> str:
         return (self.kepubify_template_edit.template or '').strip()
 
 
 class HyphenationGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Enable/disable hyphenation in KEPUB books'))
         self.setCheckable(True)
@@ -502,32 +510,32 @@ class HyphenationGroupBox(DeviceOptionsGroupBox):
         return True
 
     @property
-    def affect_hyphenation(self):
+    def affect_hyphenation(self) -> bool:
         return self.isChecked()
 
     @property
-    def disable_hyphenation(self):
+    def disable_hyphenation(self) -> bool:
         return self.disable_hyphenation_checkbox.isChecked()
 
     @property
-    def hyphenation_min_chars(self):
+    def hyphenation_min_chars(self) -> int:
         return self.min_chars.value()
 
     @property
-    def hyphenation_min_chars_before(self):
+    def hyphenation_min_chars_before(self) -> int:
         return self.min_chars_before.value()
 
     @property
-    def hyphenation_min_chars_after(self):
+    def hyphenation_min_chars_after(self) -> int:
         return self.min_chars_after.value()
 
     @property
-    def hyphenation_limit_lines(self):
+    def hyphenation_limit_lines(self) -> int:
         return self.limit_lines.value()
 
 
 class CollectionsGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Collections'))
 
@@ -615,7 +623,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.use_collections_columns_checkbox_clicked(device.get_pref('use_collections_columns'))
         self.use_collections_template_checkbox_clicked(device.get_pref('use_collections_template'))
 
-    def validate(self):
+    def validate(self) -> bool:
         v = self.validate_collections_columns()
         v &= self.collections_template_edit.validate()
         return v
@@ -643,47 +651,47 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
             return False
         return True
 
-    def use_collections_columns_checkbox_clicked(self, checked) -> None:
+    def use_collections_columns_checkbox_clicked(self, checked: bool) -> None:
         self.collections_columns_edit.setEnabled(checked)
 
-    def use_collections_template_checkbox_clicked(self, checked) -> None:
+    def use_collections_template_checkbox_clicked(self, checked: bool) -> None:
         self.collections_template_edit.setEnabled(checked)
 
     @property
-    def manage_collections(self):
+    def manage_collections(self) -> bool:
         return self.isChecked()
 
     @property
-    def use_collections_columns(self):
+    def use_collections_columns(self) -> bool:
         return self.use_collections_columns_checkbox.isChecked()
 
     @property
-    def collections_columns(self):
+    def collections_columns(self) -> str:
         return self.collections_columns_edit.text().strip()
 
     @property
-    def use_collections_template(self):
+    def use_collections_template(self) -> bool:
         return self.use_collections_template_checkbox.isChecked()
 
     @property
-    def collections_template(self):
+    def collections_template(self) -> str:
         return self.collections_template_edit.template
 
     @property
-    def create_collections(self):
+    def create_collections(self) -> bool:
         return self.create_collections_checkbox.isChecked()
 
     @property
-    def delete_empty_collections(self):
+    def delete_empty_collections(self) -> bool:
         return self.delete_empty_collections_checkbox.isChecked()
 
     @property
-    def ignore_collections_names(self):
+    def ignore_collections_names(self) -> str:
         return self.ignore_collections_names_edit.text().strip()
 
 
 class CoversGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Upload covers'))
 
@@ -774,36 +782,36 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         self.options_layout.setColumnStretch(2, 1)
 
     @property
-    def upload_covers(self):
+    def upload_covers(self) -> bool:
         return self.isChecked()
 
     @property
-    def upload_grayscale(self):
+    def upload_grayscale(self) -> bool:
         return self.upload_grayscale_checkbox.isChecked()
 
     @property
-    def dithered_covers(self):
+    def dithered_covers(self) -> bool:
         return self.dithered_covers_checkbox.isChecked()
 
     @property
-    def keep_cover_aspect(self):
+    def keep_cover_aspect(self) -> bool:
         return self.keep_cover_aspect_checkbox.isChecked()
 
     @property
-    def letterbox_fs_covers(self):
+    def letterbox_fs_covers(self) -> bool:
         return self.letterbox_fs_covers_checkbox.isChecked()
 
     @property
-    def letterbox_fs_covers_color(self):
+    def letterbox_fs_covers_color(self) -> str | None:
         return self.letterbox_fs_covers_color_button.color
 
     @property
-    def png_covers(self):
+    def png_covers(self) -> bool:
         return self.png_covers_checkbox.isChecked()
 
 
 class DeviceListGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Show as on device'))
 
@@ -845,20 +853,20 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.show_previews_checkbox, 2, 0, 1, 1)
 
     @property
-    def show_recommendations(self):
+    def show_recommendations(self) -> bool:
         return self.show_recommendations_checkbox.isChecked()
 
     @property
-    def show_archived_books(self):
+    def show_archived_books(self) -> bool:
         return self.show_archived_books_checkbox.isChecked()
 
     @property
-    def show_previews(self):
+    def show_previews(self) -> bool:
         return self.show_previews_checkbox.isChecked()
 
 
 class AdvancedGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device, _('Advanced options'))
         # self.setTitle(_("Advanced Options"))
 
@@ -906,16 +914,16 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.debugging_title_edit, 1, 1, 1, 1)
 
     @property
-    def support_newer_firmware(self):
+    def support_newer_firmware(self) -> bool:
         return self.support_newer_firmware_checkbox.isChecked()
 
     @property
-    def debugging_title(self):
+    def debugging_title(self) -> str:
         return self.debugging_title_edit.text().strip()
 
 
 class MetadataGroupBox(DeviceOptionsGroupBox):
-    def __init__(self, parent, device) -> None:
+    def __init__(self, parent: QWidget, device: type[KOBOTOUCH]) -> None:
         super().__init__(parent, device)
         self.setTitle(_('Update metadata on the device'))
 
@@ -1081,15 +1089,15 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         self.use_series_index_template_checkbox.clicked.connect(self.use_series_index_template_checkbox_clicked)
         self.use_series_index_template_checkbox_clicked(device.get_pref('use_series_index_template'))
 
-    def update_series_checkbox_clicked(self, checked) -> None:
+    def update_series_checkbox_clicked(self, checked: bool) -> None:
         self.force_series_id_checkbox.setEnabled(checked)
         if not checked:
             self.force_series_id_checkbox.setChecked(False)
 
-    def use_series_index_template_checkbox_clicked(self, checked) -> None:
+    def use_series_index_template_checkbox_clicked(self, checked: bool) -> None:
         self.series_index_template_edit.setEnabled(checked)
 
-    def update_core_metadata_checkbox_clicked(self, checked) -> None:
+    def update_core_metadata_checkbox_clicked(self, checked: bool) -> None:
         self.update_series_checkbox.setEnabled(not checked)
         self.force_series_id_checkbox.setEnabled(self.update_series)
         self.subtitle_template_edit.setEnabled(checked)
@@ -1099,10 +1107,10 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         self.update_bookstats_checkbox_clicked(self.update_bookstats)
         self.update_purchased_kepubs_checkbox.setEnabled(checked)
 
-    def update_subtitle_checkbox_clicked(self, checked) -> None:
+    def update_subtitle_checkbox_clicked(self, checked: bool) -> None:
         self.subtitle_template_edit.setEnabled(checked and self.update_core_metadata)
 
-    def update_bookstats_checkbox_clicked(self, checked) -> None:
+    def update_bookstats_checkbox_clicked(self, checked: bool) -> None:
         self.bookstats_timetoread_label.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_wordcount_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_pagecount_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
@@ -1123,64 +1131,64 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         return True
 
     @property
-    def update_series(self):
+    def update_series(self) -> bool:
         return self.update_series_checkbox.isChecked()
 
     @property
-    def force_series_id(self):
+    def force_series_id(self) -> bool:
         return self.update_series and self.force_series_id_checkbox.isChecked()
 
     @property
-    def use_series_index_template(self):
+    def use_series_index_template(self) -> bool:
         return self.use_series_index_template_checkbox.isChecked()
 
     @property
-    def series_index_template(self):
+    def series_index_template(self) -> str:
         return self.series_index_template_edit.template
 
     @property
-    def update_core_metadata(self):
+    def update_core_metadata(self) -> bool:
         return self.update_core_metadata_checkbox.isChecked()
 
     @property
-    def update_purchased_kepubs(self):
+    def update_purchased_kepubs(self) -> bool:
         return self.update_purchased_kepubs_checkbox.isChecked()
 
     @property
-    def update_device_metadata(self):
+    def update_device_metadata(self) -> bool:
         return self.isChecked()
 
     @property
-    def subtitle_template(self):
+    def subtitle_template(self) -> str:
         return self.subtitle_template_edit.template
 
     @property
-    def update_subtitle(self):
+    def update_subtitle(self) -> bool:
         return self.update_subtitle_checkbox.isChecked()
 
     @property
-    def update_bookstats(self):
+    def update_bookstats(self) -> bool:
         return self.update_bookstats_checkbox.isChecked()
 
     @property
-    def bookstats_pagecount_template(self):
+    def bookstats_pagecount_template(self) -> str:
         return self.bookstats_pagecount_template_edit.template
 
     @property
-    def bookstats_wordcount_template(self):
+    def bookstats_wordcount_template(self) -> str:
         return self.bookstats_wordcount_template_edit.template
 
     @property
-    def bookstats_timetoread_lower_template(self):
+    def bookstats_timetoread_lower_template(self) -> str:
         return self.bookstats_timetoread_lower_template_edit.template
 
     @property
-    def bookstats_timetoread_upper_template(self):
+    def bookstats_timetoread_upper_template(self) -> str:
         return self.bookstats_timetoread_upper_template_edit.template
 
 
 class TemplateConfig(QWidget):  # {{{
-    def __init__(self, name, val, label=None, tooltip=None) -> None:
+    def __init__(self, name: str, val: str | None, label: str | None = None, tooltip: str | None = None) -> None:
         super().__init__()
         self.name = name
         self.l = l = QGridLayout(self)
@@ -1198,14 +1206,15 @@ class TemplateConfig(QWidget):  # {{{
         b = self.b = QPushButton(_('&Template editor'))
         l.addWidget(b, 0, col, 1, 1)
         b.clicked.connect(self.edit_template)
-        self.setToolTip(wrap_msg(tooltip))
+        if tooltip is not None:
+            self.setToolTip(wrap_msg(tooltip))
 
     @property
-    def template(self):
+    def template(self) -> str:
         return str(self.t.text()).strip()
 
     @template.setter
-    def template(self, template) -> None:
+    def template(self, template: str) -> None:
         self.t.setText(template)
 
     def edit_template(self) -> None:
@@ -1214,7 +1223,7 @@ class TemplateConfig(QWidget):  # {{{
         if t.exec():
             self.t.setText(t.rule[1])
 
-    def validate(self) -> bool | None:
+    def validate(self) -> bool:
         from calibre.utils.formatter import validation_formatter
 
         tmpl = self.template

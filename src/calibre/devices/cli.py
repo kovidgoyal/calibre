@@ -11,6 +11,7 @@ import os
 import sys
 import time
 from optparse import OptionParser
+from typing import TYPE_CHECKING
 
 from calibre import __appname__, __version__, fsync, human_readable, prints
 from calibre.customize.ui import device_plugins
@@ -19,13 +20,17 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.utils.config import device_prefs
 from polyglot.io import PolyglotStringIO
 
+if TYPE_CHECKING:
+    from calibre.devices.interface import DevicePlugin
+    from calibre.devices.usbms.cli import CLI, File
+
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
 
 
 class FileFormatter:
     term = None
 
-    def __init__(self, file) -> None:
+    def __init__(self, file: File) -> None:
         self.is_dir = file.is_dir
         self.is_readonly = file.is_readonly
         self.size = file.size
@@ -35,7 +40,7 @@ class FileFormatter:
         self.path = file.path
 
     @property
-    def mode_string(self):
+    def mode_string(self) -> str:
         """The mode string for this file. There are only two modes read-only and read-write"""
         mode, x = '-', '-'
         if self.is_dir:
@@ -47,7 +52,7 @@ class FileFormatter:
         return mode
 
     @property
-    def isdir_name(self):
+    def isdir_name(self) -> str:
         """Return self.name + '/' if self is a directory"""
         name = self.name
         if self.is_dir:
@@ -55,7 +60,7 @@ class FileFormatter:
         return name
 
     @property
-    def name_in_color(self):
+    def name_in_color(self) -> str:
         """The name in ANSI text. Directories are blue, ebooks are green"""
         cname = self.name
         blue, green, normal = '', '', ''
@@ -70,22 +75,22 @@ class FileFormatter:
         return cname
 
     @property
-    def human_readable_size(self):
+    def human_readable_size(self) -> str:
         """File size in human readable form"""
         return human_readable(self.size)
 
     @property
-    def modification_time(self):
+    def modification_time(self) -> str:
         """Last modified time in the Linux ls -l format"""
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.wtime))
 
     @property
-    def creation_time(self):
+    def creation_time(self) -> str:
         """Last modified time in the Linux ls -l format"""
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.ctime))
 
 
-def info(dev) -> None:
+def info(dev: DevicePlugin) -> None:
     info = dev.get_device_information()
     print('Device name:     ', info[0])
     print('Device version:  ', info[1])
@@ -93,8 +98,8 @@ def info(dev) -> None:
     print('Mime type:       ', info[3])
 
 
-def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
-    def col_split(l, cols):  # split list l into columns
+def ls(dev: CLI, path: str, recurse: bool = False, human_readable_size: bool = False, ll: bool = False, cols: int = 0) -> str:
+    def col_split(l: list[str], cols: int) -> list[list[str]]:  # split list l into columns
         rows = len(l) // cols
         if len(l) % cols:
             rows += 1
@@ -103,7 +108,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             m.append(l[i::rows])
         return m
 
-    def row_widths(table):  # Calculate widths for each column in the row-wise table
+    def row_widths(table: list[list[str]]) -> list[int]:  # Calculate widths for each column in the row-wise table
         tcols = len(table[0])
         rowwidths = [0 for i in range(tcols)]
         for row in table:

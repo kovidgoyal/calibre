@@ -32,16 +32,16 @@ class README(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def linux_swap_drives(self, drives):
+    def linux_swap_drives(self, drives: list[str | None]) -> list[str | None]:
         if len(drives) < 2:
             return drives
         drives = list(drives)
         t = drives[0]
         drives[0] = drives[1]
         drives[1] = t
-        return tuple(drives)
+        return drives
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         if len(drives) < 2:
             return drives
         main = drives.get('main', None)

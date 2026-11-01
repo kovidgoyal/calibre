@@ -6,12 +6,17 @@ Device driver for Bookeen's Cybook Gen 3 and Opus and Orizon
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from calibre import fsync
 from calibre.constants import isunix
 from calibre.devices.cybook import t2b, t4b
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.devices.interface import USBDeviceInfo
+    from calibre.ebooks.metadata.book.base import Metadata
 
 
 class CYBOOK(USBMS):
@@ -40,7 +45,7 @@ class CYBOOK(USBMS):
     DELETE_EXTS = ['.mbp', '.dat', '.bin', '_6090.t2b', '.thn']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             coverdata = coverdata[2]
@@ -51,7 +56,7 @@ class CYBOOK(USBMS):
             fsync(t2bfile)
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         if isunix:
             return device_info[3] == 'Bookeen' and (device_info[4] == 'Cybook Gen3' or device_info[4] == 'Cybook Opus')
         return True
@@ -80,7 +85,7 @@ class ORIZON(CYBOOK):
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [EBOOK_DIR_CARD_A]
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             coverdata = coverdata[2]
@@ -98,12 +103,12 @@ class ORIZON(CYBOOK):
         self.EBOOK_DIR_CARD_A = folder
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         if isunix:
             return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Orizon'
         return True
 
-    def get_carda_ebook_dir(self, for_upload=False):
+    def get_carda_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if not for_upload:
             return ''
         return self.EBOOK_DIR_CARD_A
@@ -128,7 +133,7 @@ class MUSE(CYBOOK):
     SCAN_FROM_ROOT = True
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         if isunix:
             return device_info[3] == 'Bookeen' and device_info[4] in (
                 'Cybook',
@@ -157,5 +162,5 @@ class DIVA(CYBOOK):
     SCAN_FROM_ROOT = True
 
     @classmethod
-    def can_handle(cls, device_info, debug=False) -> bool:
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return True

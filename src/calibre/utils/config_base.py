@@ -208,6 +208,7 @@ class OptionValues:
     if TYPE_CHECKING:
         # option values are set dynamically as attributes
         def __getattr__(self, name: str) -> Any: ...  # ruff: ignore[any-type]
+        def __setattr__(self, name: str, value: object) -> None: ...
 
     def copy(self) -> OptionValues:
         return deepcopy(self)

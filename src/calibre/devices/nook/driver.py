@@ -6,12 +6,16 @@ Device driver for Barns and Nobel's Nook
 
 import io
 import os
+from typing import TYPE_CHECKING
 
 from calibre import fsync, prints
 from calibre.constants import DEBUG
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import Metadata
 
 
 class NOOK(USBMS):
@@ -44,7 +48,7 @@ class NOOK(USBMS):
     DELETE_EXTS = ['.jpg']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         from PIL import Image, ImageDraw
 
         coverdata = getattr(metadata, 'thumbnail', None)
@@ -73,7 +77,7 @@ class NOOK(USBMS):
             coverfile.write(coverdata)
             fsync(coverfile)
 
-    def sanitize_path_components(self, components):
+    def sanitize_path_components(self, components: list[str]) -> list[str]:
         return [x.replace('#', '_').replace('%', '_') for x in components]
 
 
@@ -102,7 +106,7 @@ class NOOK_COLOR(NOOK):
     SCAN_FROM_ROOT = True
     NEWS_IN_FOLDER = False
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         pass
 
     def post_open_callback(self) -> None:
@@ -112,7 +116,7 @@ class NOOK_COLOR(NOOK):
         product_id = device_info[1]
         if DEBUG:
             prints('Opened NOOK with product id:', product_id)
-        if product_id >= 0xB:
+        if product_id is not None and product_id >= 0xB:
             self.EBOOK_DIR_MAIN = 'NOOK/Books' if product_id >= 0xD else 'NOOK/My Files'
             if DEBUG:
                 prints(f'Setting Nook upload directory to {self.EBOOK_DIR_MAIN}')
@@ -122,12 +126,12 @@ class NOOK_COLOR(NOOK):
             except OSError:
                 self.EBOOK_DIR_MAIN = 'NOOK'
 
-    def get_carda_ebook_dir(self, for_upload=False):
+    def get_carda_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if for_upload:
             return self.EBOOK_DIR_MAIN
         return ''
 
-    def create_upload_path(self, path, mdata, fname, create_dirs=True):
+    def create_upload_path(self, path: str, mdata: Metadata, fname: str, create_dirs: bool = True) -> str:
         is_news = mdata.tags and _('News') in mdata.tags
         subdir = 'Magazines' if is_news else 'Books'
         path = os.path.join(path, subdir)

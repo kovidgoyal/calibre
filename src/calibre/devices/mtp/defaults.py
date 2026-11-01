@@ -3,10 +3,14 @@
 
 import re
 import traceback
+from typing import TYPE_CHECKING, cast
 
 from calibre.constants import iswindows
 
-supernote_settings = {
+if TYPE_CHECKING:
+    from calibre.devices.mtp.unix.driver import MTPCandidate
+
+supernote_settings: dict[str, object] = {
     'calibre_file_paths': {
         'metadata': ['Document/metadata.calibre', 'Documents/metadata.calibre'],
         'driveinfo': ['Document/driveinfo.calibre', 'Documents/driveinfo.calibre'],
@@ -17,7 +21,7 @@ supernote_settings = {
 
 class DeviceDefaults:
     def __init__(self) -> None:
-        self.rules = (
+        self.rules: tuple[tuple[dict[str, int], dict[str, object]], ...] = (
             # Amazon devices
             (
                 {'vendor': 0x1949},
@@ -58,17 +62,19 @@ class DeviceDefaults:
             ({'vendor': 0x2207, 'product': 0x0017}, supernote_settings),  # A6X2
         )
 
-    def __call__(self, device, driver):
+    def __call__(self, device: str | MTPCandidate, driver: object) -> tuple[dict[str, object], int, int]:
         if iswindows:
             vid = pid = 0xFFFF
-            m = re.search(r'(?i)vid_([0-9a-fA-F]+)&pid_([0-9a-fA-F]+)', device)
+            # On Windows device is the PnP id of the device
+            m = re.search(r'(?i)vid_([0-9a-fA-F]+)&pid_([0-9a-fA-F]+)', cast('str', device))
             if m is not None:
                 try:
                     vid, pid = int(m.group(1), 16), int(m.group(2), 16)
                 except Exception:
                     traceback.print_exc()
         else:
-            vid, pid = device.vendor_id, device.product_id
+            udev = cast('MTPCandidate', device)
+            vid, pid = udev.vendor_id, udev.product_id
 
         for rule in self.rules:
             tests = rule[0]

@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+import builtins
 import json
 import sys
 import time
 import weakref
 from collections import defaultdict, deque
+from collections.abc import Iterable, Iterator, Mapping
 from datetime import datetime
 from itertools import chain
 from operator import attrgetter
+from typing import IO, cast
 
 from calibre import force_unicode, human_readable, prints
 from calibre.constants import iswindows
@@ -18,14 +21,19 @@ from calibre.utils.icu import lower, sort_key
 
 bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 
+#: Identifier of an object or storage on the device, an int for libmtp and a str for WPD
+type ObjectId = int | str
+#: Dictionary describing a file, folder or storage on the device
+type MTPEntry = Mapping[str, object]
 
-def convert_timestamp(md):
+
+def convert_timestamp(md: object) -> datetime:
     try:
         if isinstance(md, tuple):
-            year, month, day, hour, minute, second, microsecond = md
+            year, month, day, hour, minute, second, microsecond = cast('tuple[int, int, int, int, int, int, int]', md)
             return datetime(year, month, day, hour, minute, second, microsecond, local_tz)
         else:
-            return datetime.fromtimestamp(md, local_tz)
+            return datetime.fromtimestamp(cast('float', md), local_tz)
     except Exception:
         return datetime.fromtimestamp(0, local_tz)
 
@@ -41,14 +49,14 @@ class ListEntry:
 
 
 class FileOrFolder:
-    def __init__(self, entry, fs_cache: FilesystemCache, is_storage: bool = False) -> None:
-        self.object_id = entry['id']
+    def __init__(self, entry: MTPEntry, fs_cache: FilesystemCache, is_storage: bool = False) -> None:
+        self.object_id = cast('ObjectId', entry['id'])
         self.is_storage = is_storage
-        self.is_folder = entry['is_folder']
-        self.storage_id = entry['storage_id']
+        self.is_folder = cast('bool', entry['is_folder'])
+        self.storage_id = cast('ObjectId', entry['storage_id'])
         # self.parent_id is None for storage objects
-        self.parent_id = entry.get('parent_id', None)
-        self.persistent_id = entry.get('persistent_id', self.object_id)
+        self.parent_id = cast('ObjectId | None', entry.get('parent_id', None))
+        self.persistent_id = cast('ObjectId', entry.get('persistent_id', self.object_id))
         n = entry.get('name', None)
         if not n:
             if self.is_storage:
@@ -56,8 +64,8 @@ class FileOrFolder:
             else:
                 prefix = 'Folder' if self.is_folder else 'File'
             n = f'{prefix}-{self.persistent_id}'
-        self.name = force_unicode(n, 'utf-8')
-        self.size = entry.get('size', 0)
+        self.name: str = force_unicode(cast('str | bytes', n), 'utf-8')
+        self.size = cast('int', entry.get('size', 0))
         md = entry.get('modified', 0)
         self.last_modified = convert_timestamp(md)
         self.last_mod_string = self.last_modified.strftime('%Y/%m/%d %H:%M')
@@ -66,12 +74,12 @@ class FileOrFolder:
         if self.storage_id not in fs_cache.all_storage_ids:
             raise ValueError(f'Storage id {self.storage_id} not valid for {entry}, valid values: {fs_cache.all_storage_ids}')
 
-        self.is_hidden = entry.get('is_hidden', False)
-        self.is_system = entry.get('is_system', False)
-        self.can_delete = entry.get('can_delete', True)
+        self.is_hidden = cast('bool', entry.get('is_hidden', False))
+        self.is_system = cast('bool', entry.get('is_system', False))
+        self.can_delete = cast('bool', entry.get('can_delete', True))
 
-        self.files = []
-        self.folders = []
+        self.files: list[FileOrFolder] = []
+        self.folders: list[FileOrFolder] = []
         if not self.is_storage:
             # storage ids can overlap filesystem object ids on libmtp. See https://bugs.launchpad.net/bugs/2072384
             # so only store actual filesystem object ids in id_map
@@ -120,13 +128,13 @@ class FileOrFolder:
         return not self.files and not self.folders
 
     @property
-    def id_map(self) -> dict[int, FileOrFolder]:
+    def id_map(self) -> dict[ObjectId, FileOrFolder]:
         fs_cache = self.fs_cache()
         assert fs_cache is not None
         return fs_cache.id_maps[self.storage_id]
 
     @property
-    def parent(self):
+    def parent(self) -> FileOrFolder | None:
         if self.parent_id:
             return self.id_map[self.parent_id]
         if self.is_storage or self.parent_id is None:
@@ -136,18 +144,18 @@ class FileOrFolder:
         return fs_cache2.storage(self.storage_id)
 
     @property
-    def in_root(self):
+    def in_root(self) -> bool:
         return self.parent_id is not None and self.parent_id == 0
 
     @property
-    def storage(self):
+    def storage(self) -> FileOrFolder | None:
         fs_cache3 = self.fs_cache()
         assert fs_cache3 is not None
         return fs_cache3.storage(self.storage_id)
 
     @property
     def full_path(self) -> tuple[str, ...]:
-        parts = deque()
+        parts: deque[str] = deque()
         parts.append(self.name)
         p = self.parent
         while p is not None:
@@ -155,11 +163,11 @@ class FileOrFolder:
             p = p.parent
         return tuple(parts)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[FileOrFolder]:
         yield from self.folders
         yield from self.files
 
-    def add_child(self, entry):
+    def add_child(self, entry: MTPEntry) -> FileOrFolder:
         cache = self.fs_cache()
         assert cache is not None
         ans = FileOrFolder(entry, cache)
@@ -167,7 +175,7 @@ class FileOrFolder:
         t.append(ans)
         return ans
 
-    def remove_child(self, entry) -> None:
+    def remove_child(self, entry: FileOrFolder) -> None:
         for x in (self.files, self.folders):
             try:
                 x.remove(entry)
@@ -176,7 +184,7 @@ class FileOrFolder:
         self.id_map.pop(entry.object_id, None)
         entry.deleted = True
 
-    def dump(self, prefix='', out=sys.stdout) -> None:
+    def dump(self, prefix: str = '', out: IO[str] = sys.stdout) -> None:
         c = '+' if self.is_folder else '-'
         data = f'{sum(map(len, (self.files, self.folders)))} children' if self.is_folder else human_readable(self.size)
         data += f' modified={self.last_mod_string}'
@@ -186,9 +194,10 @@ class FileOrFolder:
             for e in sorted(c, key=lambda x: sort_key(x.name)):
                 e.dump(prefix=prefix + '  ', out=out)
 
-    def list(self, recurse=False):
+    def list(self, recurse: bool = False) -> Iterator[tuple[str, ListEntry | builtins.list[ListEntry]]]:
         if not self.is_folder:
             parent = self.parent
+            assert parent is not None
             yield '/'.join(parent.full_path[1:]), ListEntry(self)
             return
         entries = [ListEntry(x) for x in chain(self.folders, self.files)]
@@ -197,21 +206,21 @@ class FileOrFolder:
             for x in self.folders:
                 yield from x.list(recurse=True)
 
-    def folder_named(self, name):
+    def folder_named(self, name: str) -> FileOrFolder | None:
         name = lower(name)
         for e in self.folders:
             if e.name and lower(e.name) == name:
                 return e
         return None
 
-    def file_named(self, name):
+    def file_named(self, name: str) -> FileOrFolder | None:
         name = lower(name)
         for e in self.files:
             if e.name and lower(e.name) == name:
                 return e
         return None
 
-    def find_path(self, path):
+    def find_path(self, path: Iterable[str]) -> FileOrFolder | None:
         """
         Find a path in this folder, where path is a
         tuple of folder and file names like ('eBooks', 'newest',
@@ -231,18 +240,18 @@ class FileOrFolder:
         return parent
 
     @property
-    def mtp_relpath(self):
+    def mtp_relpath(self) -> tuple[str, ...]:
         return tuple(x.lower() for x in self.full_path[1:])
 
     @property
-    def mtp_id_path(self):
+    def mtp_id_path(self) -> str:
         return 'mtp:::' + json.dumps(self.object_id) + ':::' + '/'.join(self.full_path)
 
 
 class FilesystemCache:
-    def __init__(self, all_storage, entries) -> None:
-        self.entries = []
-        self.id_maps = defaultdict(dict)
+    def __init__(self, all_storage: Iterable[dict[str, object]], entries: Iterable[MTPEntry]) -> None:
+        self.entries: list[FileOrFolder] = []
+        self.id_maps: defaultdict[ObjectId, dict[ObjectId, FileOrFolder]] = defaultdict(dict)
         self.all_storage_ids = tuple(x['id'] for x in all_storage)
 
         for storage in all_storage:
@@ -270,16 +279,16 @@ class FilesystemCache:
                     t = p.folders if item.is_folder else p.files
                     t.append(item)
 
-    def dump(self, out=sys.stdout) -> None:
+    def dump(self, out: IO[str] = sys.stdout) -> None:
         for e in self.entries:
             e.dump(out=out)
 
-    def storage(self, storage_id):
+    def storage(self, storage_id: ObjectId | None) -> FileOrFolder | None:
         for e in self.entries:
             if e.storage_id == storage_id:
                 return e
 
-    def iterebooks(self, storage_id):
+    def iterebooks(self, storage_id: ObjectId) -> Iterator[FileOrFolder]:
         id_map = self.id_maps[storage_id]
         for x in id_map.values():
             if x.is_ebook:
@@ -293,7 +302,7 @@ class FilesystemCache:
             ans += len(id_map)
         return ans
 
-    def resolve_mtp_id_path(self, path):
+    def resolve_mtp_id_path(self, path: str) -> FileOrFolder:
         if not path.startswith('mtp:::'):
             raise ValueError(f'{path} is not a valid MTP path')
         parts = path.split(':::', 2)
@@ -303,7 +312,7 @@ class FilesystemCache:
             object_id = json.loads(parts[1])
         except Exception:
             raise ValueError(f'{path} is not a valid MTP path')
-        id_map = {}
+        id_map: dict[ObjectId, FileOrFolder] = {}
         path = parts[2]
         storage_name = path.partition('/')[0]
         for entry in self.entries:

@@ -36,7 +36,7 @@ class HANLINV3(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def osx_sort_names(self, names):
+    def osx_sort_names(self, names: dict[str, str]) -> dict[str, str]:
         main = names.get('main', None)
         card = names.get('carda', None)
 
@@ -49,26 +49,26 @@ class HANLINV3(USBMS):
         except Exception:
             card_num = None
 
-        if card_num is not None and main_num is not None and card_num > main_num:
+        if card and main and card_num is not None and main_num is not None and card_num > main_num:
             names['main'] = card
             names['carda'] = main
 
         if card and not main:
             names['main'] = card
-            names['carda'] = None
+            names.pop('carda', None)
 
         return names
 
-    def linux_swap_drives(self, drives):
+    def linux_swap_drives(self, drives: list[str | None]) -> list[str | None]:
         if len(drives) < 2 or not drives[0] or not drives[1]:
             return drives
         drives = list(drives)
         t = drives[0]
         drives[0] = drives[1]
         drives[1] = t
-        return tuple(drives)
+        return drives
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         if len(drives) < 2:
             return drives
         main = drives.get('main', None)
@@ -142,11 +142,11 @@ class BOOX(HANLINV3):
             dirs = [x.strip() for x in dirs.split(',')]
         self.EBOOK_DIR_MAIN = dirs
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         return drives
 
-    def osx_sort_names(self, names):
+    def osx_sort_names(self, names: dict[str, str]) -> dict[str, str]:
         return names
 
-    def linux_swap_drives(self, drives):
+    def linux_swap_drives(self, drives: list[str | None]) -> list[str | None]:
         return drives

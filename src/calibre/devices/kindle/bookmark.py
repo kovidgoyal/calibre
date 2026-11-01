@@ -3,6 +3,10 @@
 import io
 import os
 from struct import unpack
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.mobi import StreamSlicer
 
 
 class Bookmark:  # {{{
@@ -11,7 +15,7 @@ class Bookmark:  # {{{
     Kindle-specific
     """
 
-    def __init__(self, path, id, book_format, bookmark_extension) -> None:
+    def __init__(self, path: str, id: int, book_format: str, bookmark_extension: str) -> None:
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension
         self.book_length = 0
@@ -29,7 +33,7 @@ class Bookmark:  # {{{
         except Exception:
             self.percent_read = 0
 
-    def record(self, n):
+    def record(self, n: int) -> StreamSlicer:
         from calibre.ebooks.metadata.mobi import StreamSlicer
 
         if n >= self.nrecs:
@@ -138,7 +142,7 @@ class Bookmark:  # {{{
         elif self.bookmark_extension == 'tan':
             from calibre.ebooks.metadata.topaz import get_metadata as get_topaz_metadata
 
-            def get_topaz_highlight(displayed_location):
+            def get_topaz_highlight(displayed_location: float) -> str:
                 # Parse My Clippings.txt for a matching highlight
                 # Search looks for book title match, highlight match, and location match
                 # Author is not matched

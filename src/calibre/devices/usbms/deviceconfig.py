@@ -1,9 +1,14 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
-from calibre.utils.config_base import Config, ConfigProxy
+from calibre.utils.config_base import Config, ConfigProxy, OptionValues
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from qt.core import QCheckBox, QComboBox, QLineEdit, QWidget
+
+    from calibre.gui2.device_drivers.configwidget import ConfigWidget
 
 
 class DeviceConfig:
@@ -46,18 +51,18 @@ class DeviceConfig:
     USER_CAN_ADD_NEW_FORMATS = True
 
     @classmethod
-    def _default_save_template(cls):
+    def _default_save_template(cls) -> str:
         from calibre.library.save_to_disk import config
 
         return cls.SAVE_TEMPLATE or config().parse().send_template
 
     @classmethod
-    def _config_base_name(cls):
+    def _config_base_name(cls) -> str:
         klass = cls if isinstance(cls, type) else cls.__class__
         return klass.__name__
 
     @classmethod
-    def _config(cls):
+    def _config(cls) -> Config:
         name = cls._config_base_name()
         c = Config(f'device_drivers_{name}', _('settings for device drivers'))
         c.add_opt('format_map', default=cls.FORMATS, help=_('Ordered list of formats the device will accept'))
@@ -73,10 +78,10 @@ class DeviceConfig:
         return c
 
     @classmethod
-    def _configProxy(cls):
+    def _configProxy(cls) -> ConfigProxy:
         return ConfigProxy(cls._config())
 
-    def config_widget(self):
+    def config_widget(self) -> QWidget:
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
 
         cw = ConfigWidget(
@@ -91,42 +96,48 @@ class DeviceConfig:
         )
         return cw
 
-    def save_settings(self, config_widget) -> None:
+    def save_settings(self, config_widget: QWidget) -> None:
+        # config_widget is the widget created by config_widget()
+        cw = cast('ConfigWidget', config_widget)
         proxy = self._configProxy()
-        proxy['format_map'] = config_widget.format_map()
+        proxy['format_map'] = cw.format_map()
         if self.SUPPORTS_SUB_DIRS:
-            proxy['use_subdirs'] = config_widget.use_subdirs()
+            proxy['use_subdirs'] = cw.use_subdirs()
         if not self.MUST_READ_METADATA:
-            proxy['read_metadata'] = config_widget.read_metadata()
+            proxy['read_metadata'] = cw.read_metadata()
         if self.SUPPORTS_USE_AUTHOR_SORT:
-            proxy['use_author_sort'] = config_widget.use_author_sort()
+            proxy['use_author_sort'] = cw.use_author_sort()
         if self.EXTRA_CUSTOMIZATION_MESSAGE:
+            ec: list[bool | str | None] | str | None
             if isinstance(self.EXTRA_CUSTOMIZATION_MESSAGE, list):
                 ec = []
+                # When EXTRA_CUSTOMIZATION_MESSAGE is a list, the config widget creates a list of widgets
+                widgets = cast('list[QCheckBox | QComboBox | QLineEdit | None]', cw.opt_extra_customization)
                 for i in range(len(self.EXTRA_CUSTOMIZATION_MESSAGE)):
-                    if config_widget.opt_extra_customization[i] is None:
+                    w = widgets[i]
+                    if w is None:
                         ec.append(None)
                         continue
-                    if hasattr(config_widget.opt_extra_customization[i], 'isChecked'):
-                        ec.append(config_widget.opt_extra_customization[i].isChecked())
-                    elif hasattr(config_widget.opt_extra_customization[i], 'currentText'):
-                        ec.append(str(config_widget.opt_extra_customization[i].currentText()).strip())
+                    if hasattr(w, 'isChecked'):
+                        ec.append(cast('QCheckBox', w).isChecked())
+                    elif hasattr(w, 'currentText'):
+                        ec.append(str(cast('QComboBox', w).currentText()).strip())
                     else:
-                        ec.append(str(config_widget.opt_extra_customization[i].text()).strip())
+                        ec.append(str(cast('QLineEdit', w).text()).strip())
             else:
-                ec = str(config_widget.opt_extra_customization.text()).strip()
+                ec = str(cast('QLineEdit', cw.opt_extra_customization).text()).strip()
                 if not ec:
                     ec = None
             proxy['extra_customization'] = ec
-        st = str(config_widget.opt_save_template.text())
+        st = str(cw.opt_save_template.text())
         proxy['save_template'] = st
 
     @classmethod
-    def migrate_extra_customization(cls, vals):
+    def migrate_extra_customization(cls, vals: list[object]) -> list[object]:
         return vals
 
     @classmethod
-    def settings(cls):
+    def settings(cls) -> OptionValues:
         opts = cls._config().parse()
         if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list):
             if opts.extra_customization is None:
@@ -140,12 +151,12 @@ class DeviceConfig:
         return opts
 
     @classmethod
-    def save_template(cls):
+    def save_template(cls) -> str:
         st = cls.settings().save_template
         if st:
             return st
         else:
             return cls._default_save_template()
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui: bool = False) -> str:
         return self.HELP_MESSAGE

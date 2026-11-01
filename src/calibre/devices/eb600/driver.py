@@ -12,9 +12,13 @@ Windows PNP strings:
 """
 
 import re
+from typing import TYPE_CHECKING
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.devices.interface import DeviceInformation, USBDeviceInfo
 
 
 class EB600(USBMS):
@@ -82,13 +86,13 @@ class TOLINO(EB600):
 
     OPT_SWAP_MEMORY = 0
 
-    def get_device_information(self, end_session=True):
+    def get_device_information(self, end_session: bool = True) -> DeviceInformation:
         self.set_device_name()
         return super().get_device_information(end_session)
 
     # There are apparently two versions of this device, one with swapped
     # drives and one without, see https://bugs.launchpad.net/bugs/1240504
-    def linux_swap_drives(self, drives):
+    def linux_swap_drives(self, drives: list[str | None]) -> list[str | None]:
         e = self.settings().extra_customization
         if len(drives) < 2 or not drives[0] or not drives[1] or not e[self.OPT_SWAP_MEMORY]:
             return drives
@@ -96,9 +100,9 @@ class TOLINO(EB600):
         t = drives[0]
         drives[0] = drives[1]
         drives[1] = t
-        return tuple(drives)
+        return drives
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         e = self.settings().extra_customization
         if len(drives) < 2 or not e[self.OPT_SWAP_MEMORY]:
             return drives
@@ -109,7 +113,7 @@ class TOLINO(EB600):
             drives['carda'] = main
         return drives
 
-    def osx_sort_names(self, names):
+    def osx_sort_names(self, names: dict[str, str]) -> dict[str, str]:
         e = self.settings().extra_customization
         if len(names) < 2 or not e[self.OPT_SWAP_MEMORY]:
             return names
@@ -130,22 +134,22 @@ class TOLINO(EB600):
         is_tolino = product_id in (0x6033, 0x6052, 0x6053) or (product_id == 0x1688 and bcd == 0x226)
         self.ebook_dir_for_upload = 'Books' if is_tolino else ''
 
-    def get_main_ebook_dir(self, for_upload=False):
+    def get_main_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if for_upload:
             return getattr(self, 'ebook_dir_for_upload', self.EBOOK_DIR_MAIN)
         return self.EBOOK_DIR_MAIN
 
-    def isEpos(self):
+    def isEpos(self) -> bool:
         detected_device = self.detected_device
         assert detected_device is not None
         return detected_device.idProduct in self.EPOS_PRODUCT_ID
 
-    def isVision6(self):
+    def isVision6(self) -> bool:
         detected_device = self.detected_device
         assert detected_device is not None
         return detected_device.idProduct in self.VISION6_PRODUCT_ID
 
-    def set_device_name(self):
+    def set_device_name(self) -> str:
         device_name = self.gui_name
         if self.isEpos():
             device_name = 'tolino epos'
@@ -182,7 +186,7 @@ class SHINEBOOK(EB600):
     STORAGE_CARD_VOLUME_LABEL = 'ShineBook Storage Card'
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return device_info[4] == 'ShineBook'
 
 
@@ -206,7 +210,7 @@ class POCKETBOOK360(EB600):
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return device_info[-1] == '1.00' and not device_info[-2] and not device_info[-3]
 
 
@@ -317,7 +321,7 @@ class ELONEX(EB600):
     WINDOWS_CARD_A_MEM = 'EBOOK'
 
     @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle(cls, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return device_info[3] == 'Elonex' and device_info[4] == 'eBook'
 
 
@@ -403,7 +407,7 @@ class POCKETBOOK701(USBMS):
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         if len(drives) < 2:
             return drives
         main = drives.get('main', None)

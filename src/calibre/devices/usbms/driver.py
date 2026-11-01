@@ -8,9 +8,11 @@ for a particular device.
 
 import json
 import os
+import re
 import shutil
+from collections.abc import Callable, Iterator, Sequence
 from itertools import cycle
-from typing import Never
+from typing import TYPE_CHECKING, ClassVar, Never, cast, overload
 
 from calibre import fsync, prints
 from calibre.constants import filesystem_encoding, ismacos, numeric_version
@@ -21,8 +23,19 @@ from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.prints import debug_print
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.devices.interface import BookList as _BookList
+    from calibre.devices.interface import DeviceInformation, DriveInfo
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
+
+def safe_walk(
+    top: str,
+    topdown: bool = True,
+    onerror: Callable[[OSError], object] | None = None,
+    followlinks: bool = False,
+    maxdepth: int = 128,
+) -> Iterator[tuple[str, list[str], list[str]]]:
     "A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem"
     if maxdepth < 0:
         return
@@ -40,7 +53,8 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
             onerror(err)
         return
 
-    dirs, nondirs = [], []
+    dirs: list[str] = []
+    nondirs: list[str] = []
     for name in names:
         if isinstance(name, bytes):
             try:
@@ -82,14 +96,14 @@ class USBMS(CLI, Device):
     booklist_class = BookList
     book_class = Book
 
-    FORMATS = []
+    FORMATS: ClassVar[list[str]] = []
     CAN_SET_METADATA = []
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
 
     SCAN_FROM_ROOT = False
 
-    def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+    def _update_driveinfo_record(self, dinfo: object, prefix: str, location_code: str, name: str | None = None) -> dict[str, object]:
         import uuid
 
         from calibre.utils.date import isoformat, now
@@ -109,7 +123,7 @@ class USBMS(CLI, Device):
         dinfo['prefix'] = prefix.replace('\\', '/')
         return dinfo
 
-    def _update_driveinfo_file(self, prefix, location_code, name=None):
+    def _update_driveinfo_file(self, prefix: str, location_code: str, name: str | None = None) -> dict[str, object]:
         from calibre.utils.config import from_json, to_json
 
         if os.path.exists(os.path.join(prefix, self.DRIVEINFO)):
@@ -135,11 +149,11 @@ class USBMS(CLI, Device):
                 fsync(f)
         return driveinfo
 
-    def get_device_information(self, end_session=True):
+    def get_device_information(self, end_session: bool = True) -> DeviceInformation:
         self.report_progress(1.0, _('Get device information...'))
-        self.driveinfo = {}
+        self.driveinfo: DriveInfo = {}
 
-        def raise_os_error(e) -> Never:
+        def raise_os_error(e: OSError) -> Never:
             raise OSError(
                 _(
                     'Failed to access files in the main memory of'
@@ -189,21 +203,18 @@ class USBMS(CLI, Device):
             )
         return (self.get_gui_name(), '', '', '', self.driveinfo)
 
-    def set_driveinfo_name(self, location_code, name) -> None:
-        if location_code == 'main':
-            self._update_driveinfo_file(self._main_prefix, location_code, name)
-        elif location_code == 'A':
-            self._update_driveinfo_file(self._card_a_prefix, location_code, name)
-        elif location_code == 'B':
-            self._update_driveinfo_file(self._card_b_prefix, location_code, name)
+    def set_driveinfo_name(self, location_code: str, name: str) -> None:
+        prefix = {'main': self._main_prefix, 'A': self._card_a_prefix, 'B': self._card_b_prefix}.get(location_code)
+        if prefix is not None:
+            self._update_driveinfo_file(prefix, location_code, name)
 
-    def formats_to_scan_for(self):
+    def formats_to_scan_for(self) -> set[str]:
         return set(self.settings().format_map) | set(self.FORMATS)
 
-    def is_allowed_book_file(self, filename, path, prefix) -> bool:
+    def is_allowed_book_file(self, filename: str, path: str, prefix: str) -> bool:
         return True
 
-    def books(self, oncard=None, end_session=True):
+    def books(self, oncard: str | None = None, end_session: bool = True) -> BookList:
         from calibre.ebooks.metadata.meta import path_to_ext
 
         debug_print('USBMS: Fetching list of books from device. Device=', self.__class__.__name__, 'oncard=', oncard)
@@ -238,7 +249,7 @@ class USBMS(CLI, Device):
 
         all_formats = self.formats_to_scan_for()
 
-        def update_booklist(filename, path, prefix):
+        def update_booklist(filename: str, path: str, prefix: str) -> bool:
             changed = False
             # Ignore AppleDouble files
             if filename.startswith('._'):
@@ -318,18 +329,25 @@ class USBMS(CLI, Device):
         debug_print('USBMS: Finished fetching list of books from device. oncard=', oncard)
         return bl
 
-    def upload_books(self, files, names, on_card=None, end_session=True, metadata=None):
+    def upload_books(
+        self,
+        files: Sequence[str],
+        names: Sequence[str],
+        on_card: str | None = None,
+        end_session: bool = True,
+        metadata: Sequence[Metadata] | None = None,
+    ) -> list[tuple[str, str | None]]:
         debug_print(f'USBMS: uploading {len(files)} books')
 
         path = self._sanity_check(on_card, files)
 
         assert metadata is not None
         paths = []
-        names = iter(names)
-        metadata = iter(metadata)
+        inames = iter(names)
+        imetadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, fname = next(metadata), next(names)
+            mdata, fname = next(imetadata), next(inames)
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
@@ -348,7 +366,7 @@ class USBMS(CLI, Device):
         debug_print(f'USBMS: finished uploading {len(files)} books')
         return list(zip(paths, cycle([on_card])))
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         """
         Upload book cover to the device. Default implementation does nothing.
 
@@ -361,21 +379,23 @@ class USBMS(CLI, Device):
         """
         pass
 
-    def add_books_to_metadata(self, locations, metadata, booklists) -> None:
+    def add_books_to_metadata(self, locations: Sequence[tuple[object, ...]], metadata: Sequence[Metadata], booklists: Sequence[_BookList]) -> None:
         debug_print(f'USBMS: adding metadata for {len(metadata)} books')
 
-        metadata = iter(metadata)
+        imetadata = iter(metadata)
         locations = tuple(locations)
         for i, location in enumerate(locations):
             self.report_progress((i + 1) / float(len(locations)), _('Adding books to device metadata listing...'))
-            info = next(metadata)
+            info = next(imetadata)
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             # Extract the correct prefix from the pathname. To do this correctly,
             # we must ensure that both the prefix and the path are normalized
             # so that the comparison will work. Book's __init__ will fix up
             # lpath, so we don't need to worry about that here.
-            path = self.normalize_path(location[0])
+            # locations are as returned by upload_books()
+            path = self.normalize_path(cast('str', location[0]))
+            prefix = None
             if self._main_prefix:
                 prefix = self._main_prefix if path.startswith(self.normalize_path(self._main_prefix)) else None
             if not prefix and self._card_a_prefix:
@@ -397,10 +417,10 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
         debug_print('USBMS: finished adding metadata')
 
-    def delete_single_book(self, path) -> None:
+    def delete_single_book(self, path: str) -> None:
         os.unlink(path)
 
-    def delete_extra_book_files(self, path) -> None:
+    def delete_extra_book_files(self, path: str) -> None:
         filepath = os.path.splitext(path)[0]
         for ext in self.DELETE_EXTS:
             for x in (filepath, path):
@@ -417,7 +437,7 @@ class USBMS(CLI, Device):
             except Exception:
                 pass
 
-    def delete_books(self, paths, end_session=True) -> None:
+    def delete_books(self, paths: Sequence[str], end_session: bool = True) -> None:
         debug_print(f'USBMS: deleting {len(paths)} books')
         for i, path in enumerate(paths):
             self.report_progress((i + 1) / float(len(paths)), _('Removing books from device...'))
@@ -430,7 +450,7 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Removing books from device...'))
         debug_print(f'USBMS: finished deleting {len(paths)} books')
 
-    def remove_books_from_metadata(self, paths, booklists) -> None:
+    def remove_books_from_metadata(self, paths: Sequence[str], booklists: Sequence[_BookList]) -> None:
         debug_print(f'USBMS: removing metadata for {len(paths)} books')
 
         for i, path in enumerate(paths):
@@ -445,14 +465,17 @@ class USBMS(CLI, Device):
     # If you override this method and you use book._new_book, then you must
     # complete the processing before you call this method. The flag is cleared
     # at the end just before the return
-    def sync_booklists(self, booklists, end_session=True) -> None:
+    def sync_booklists(self, booklists: Sequence[_BookList | None], end_session: bool = True) -> None:
         debug_print('USBMS: starting sync_booklists')
         json_codec = JsonCodec()
 
-        if not os.path.exists(self.normalize_path(self._main_prefix)):
-            os.makedirs(self.normalize_path(self._main_prefix))
+        main_prefix = self._main_prefix
+        if main_prefix is None:
+            raise ValueError('Cannot sync booklists as the device main memory prefix is not set')
+        if not os.path.exists(self.normalize_path(main_prefix)):
+            os.makedirs(self.normalize_path(main_prefix))
 
-        def write_prefix(prefix, listid) -> None:
+        def write_prefix(prefix: str | None, listid: int) -> None:
             if prefix is not None and len(booklists) > listid and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))
@@ -475,19 +498,25 @@ class USBMS(CLI, Device):
         debug_print('USBMS: finished sync_booklists')
 
     @classmethod
-    def build_template_regexp(cls):
+    def build_template_regexp(cls) -> re.Pattern[str]:
         from calibre.devices.utils import build_template_regexp
 
         return build_template_regexp(cls.save_template())
 
     @classmethod
-    def path_to_unicode(cls, path):
+    def path_to_unicode(cls, path: str | bytes) -> str:
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         return path
 
+    @overload
     @classmethod
-    def normalize_path(cls, path):
+    def normalize_path(cls, path: str) -> str: ...
+    @overload
+    @classmethod
+    def normalize_path(cls, path: None) -> None: ...
+    @classmethod
+    def normalize_path(cls, path: str | None) -> str | None:
         "Return path with platform native path separators"
         if path is None:
             return None
@@ -498,7 +527,7 @@ class USBMS(CLI, Device):
         return cls.path_to_unicode(path)
 
     @classmethod
-    def parse_metadata_cache(cls, bl, prefix, name):
+    def parse_metadata_cache(cls, bl: BookList, prefix: str, name: str) -> bool:
         json_codec = JsonCodec()
         need_sync = False
         cache_file = cls.normalize_path(os.path.join(prefix, name))
@@ -510,14 +539,13 @@ class USBMS(CLI, Device):
                 import traceback
 
                 traceback.print_exc()
-                bl = []
                 need_sync = True
         else:
             need_sync = True
         return need_sync
 
     @classmethod
-    def update_metadata_item(cls, book):
+    def update_metadata_item(cls, book: Book) -> bool:
         changed = False
         size = os.stat(cls.normalize_path(book.path)).st_size
         if size != book.size:
@@ -528,11 +556,11 @@ class USBMS(CLI, Device):
         return changed
 
     @classmethod
-    def metadata_from_path(cls, path):
+    def metadata_from_path(cls, path: str) -> Metadata:
         return cls.metadata_from_formats([path])
 
     @classmethod
-    def metadata_from_formats(cls, fmts):
+    def metadata_from_formats(cls, fmts: list[str]) -> Metadata:
         from calibre.customize.ui import quick_metadata
         from calibre.ebooks.metadata.meta import metadata_from_formats
 
@@ -540,7 +568,7 @@ class USBMS(CLI, Device):
             return metadata_from_formats(fmts, force_read_metadata=True, pattern=cls.build_template_regexp())
 
     @classmethod
-    def book_from_path(cls, prefix, lpath):
+    def book_from_path(cls, prefix: str, lpath: str) -> Book:
         from calibre.ebooks.metadata.book.base import Metadata
 
         if cls.settings().read_metadata or cls.MUST_READ_METADATA:

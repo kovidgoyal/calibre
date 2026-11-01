@@ -5,9 +5,10 @@ import operator
 import pprint
 import time
 import traceback
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from functools import partial
 from threading import RLock
-from typing import NamedTuple
+from typing import IO, TYPE_CHECKING, NamedTuple, cast
 
 from calibre import as_unicode, force_unicode, prints
 from calibre.constants import islinux, ismacos
@@ -15,6 +16,19 @@ from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenActionNee
 from calibre.devices.mtp.base import MTPDeviceBase, debug, synchronous
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.devices.interface import DetectedDevice
+    from calibre.devices.mtp.filesystem_cache import FileOrFolder, FilesystemCache, MTPEntry
+    from calibre.devices.scanner import USBDevice
+    from calibre_extensions.libmtp import Device as LibMTPDevice
+
+    #: Called with the device being checked and an optional function used to
+    #: output debugging information
+    type MTPCheck = Callable[[MTPCandidate, Callable[..., object] | None], bool]
+    #: A device as returned by fingerprint() or, when debugging device
+    #: detection, as returned by the device scanner
+    type MTPCandidate = MTPDevice | USBDevice
 
 
 class MTPDevice(NamedTuple):
@@ -31,11 +45,11 @@ class MTPDevice(NamedTuple):
 null = object()
 
 
-def fingerprint(d):
+def fingerprint(d: USBDevice) -> MTPDevice:
     return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd, d.serial, d.manufacturer, d.product)
 
 
-def sorted_storage(storage_info: list[dict[str, object]]) -> list[dict[str, object]]:
+def sorted_storage[T: Mapping[str, object]](storage_info: Iterable[T]) -> list[T]:
     storage = sorted(storage_info, key=operator.itemgetter('id'))
     if len(storage) > 1 and storage[0].get('removable', False):
         for i in range(1, len(storage)):
@@ -52,19 +66,22 @@ APPLE = 0x05AC
 class MTP_DEVICE(MTPDeviceBase):
     supported_platforms = ['freebsd', 'linux', 'osx']
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.libmtp = None
         self.known_devices: frozenset[tuple[int, int]] = frozenset()
-        self.detect_cache = {}
+        self.detect_cache: dict[MTPCandidate, bool] = {}
 
         self.dev = None
-        self._filesystem_cache = None
+        self._filesystem_cache: FilesystemCache | None = None
         self.lock = RLock()
-        self.blacklisted_devices = set()
-        self.ejected_devices = set()
-        self.currently_connected_dev = None
-        self._is_device_mtp = None
+        self.blacklisted_devices: set[MTPCandidate] = set()
+        self.ejected_devices: set[MTPCandidate] = set()
+        self.currently_connected_dev: MTPCandidate | None = None
+        self._main_id: int | None = None
+        self._carda_id: int | None = None
+        self._cardb_id: int | None = None
+        self._is_device_mtp: MTPCheck | None = None
         if islinux:
             from calibre.devices.mtp.unix.sysfs import MTPDetect
 
@@ -75,16 +92,16 @@ class MTP_DEVICE(MTPDeviceBase):
             self.usbobserver = usbobserver
             self._is_device_mtp = self.osx_is_device_mtp
 
-    def is_device_mtp(self, d, debug=None):
+    def is_device_mtp(self, d: MTPCandidate, debug: Callable[..., object] | None = None) -> bool:
         """Returns True iff the _is_device_mtp check returns True and libmtp
         is able to probe the device successfully."""
         if self._is_device_mtp is None:
             return False
         libmtp = self.libmtp
         assert libmtp is not None
-        return self._is_device_mtp(d, debug=debug) and libmtp.is_mtp_device(d.busnum, d.devnum)
+        return self._is_device_mtp(d, debug) and libmtp.is_mtp_device(d.busnum, d.devnum)
 
-    def osx_is_device_mtp(self, d, debug=None):
+    def osx_is_device_mtp(self, d: MTPCandidate, debug: Callable[..., object] | None = None) -> bool:
         if not d.serial:
             ans = False
         else:
@@ -100,18 +117,19 @@ class MTP_DEVICE(MTPDeviceBase):
             debug(f'Device {d} claims to be an MTP device in the IOKit registry')
         return bool(ans)
 
-    def set_debug_level(self, lvl) -> None:
+    def set_debug_level(self, lvl: int) -> None:
         libmtp = self.libmtp
         assert libmtp is not None
         libmtp.set_debug_level(lvl)
 
     @synchronous
-    def detect_managed_devices(self, devices_on_system, force_refresh=False):
+    def detect_managed_devices(self, devices_on_system: Collection[DetectedDevice], force_refresh: bool = False) -> MTPCandidate | None:
         if self.libmtp is None:
             return None
         # First remove blacklisted devices.
-        devs = set()
-        for d in devices_on_system:
+        devs: set[MTPCandidate] = set()
+        # The device scanner on non-Windows platforms returns scanner.USBDevice objects
+        for d in cast('Collection[USBDevice]', devices_on_system):
             fp = fingerprint(d)
             if fp not in self.blacklisted_devices and fp.vendor_id != APPLE:
                 # Do not try to open Apple devices
@@ -142,7 +160,7 @@ class MTP_DEVICE(MTPDeviceBase):
         return None
 
     @synchronous
-    def debug_managed_device_detection(self, devices_on_system, output) -> bool:
+    def debug_managed_device_detection(self, devices_on_system: Collection[DetectedDevice], output: IO[str]) -> bool:
         if self.currently_connected_dev is not None:
             return True
         p = partial(prints, file=output)
@@ -150,7 +168,11 @@ class MTP_DEVICE(MTPDeviceBase):
             err = 'startup() not called on this device driver'
             p(err)
             return False
-        devs = [d for d in devices_on_system if ((d.vendor_id, d.product_id) in self.known_devices or self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE]
+        devs = [
+            d
+            for d in cast('Collection[USBDevice]', devices_on_system)
+            if ((d.vendor_id, d.product_id) in self.known_devices or self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE
+        ]
         if not devs:
             p('No MTP devices connected to system')
             return False
@@ -179,14 +201,15 @@ class MTP_DEVICE(MTPDeviceBase):
         return False
 
     @synchronous
-    def create_device(self, connected_device):
+    def create_device(self, connected_device: MTPCandidate) -> LibMTPDevice:
         d = connected_device
         man, prod = d.manufacturer, d.product
         man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
         prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
         libmtp = self.libmtp
         assert libmtp is not None
-        return libmtp.Device(d.busnum, d.devnum, d.vendor_id, d.product_id, man, prod, d.serial)
+        # libmtp requires strings for the manufacturer and product
+        return libmtp.Device(d.busnum, d.devnum, d.vendor_id, d.product_id, man or '', prod or '', d.serial)
 
     @synchronous
     def eject(self) -> None:
@@ -202,7 +225,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.current_serial_num = None
 
     @property
-    def is_mtp_device_connected(self):
+    def is_mtp_device_connected(self) -> bool:
         return self.currently_connected_dev is not None
 
     @synchronous
@@ -225,11 +248,13 @@ class MTP_DEVICE(MTPDeviceBase):
     def shutdown(self) -> None:
         self.dev = self._filesystem_cache = None
 
-    def format_errorstack(self, errs):
+    def format_errorstack(self, errs: Iterable[tuple[int, str]]) -> str:
         return '\n'.join(f'{code}:{as_unicode(msg)}' for code, msg in errs)
 
     @synchronous
-    def open(self, connected_device, library_uuid) -> None:
+    def open(self, connected_device: object, library_uuid: str | None) -> None:
+        # connected_device is the device returned by detect_managed_devices()
+        connected_device = cast('MTPCandidate', connected_device)
         self.dev = self._filesystem_cache = None
 
         try:
@@ -278,12 +303,12 @@ class MTP_DEVICE(MTPDeviceBase):
             self.blacklisted_devices.add(connected_device)
             self.dev = None
             raise BlacklistedDevice(f'The {connected_device} device has been blacklisted by the user')
-        self._main_id = storage[0]['id']
+        self._main_id = cast('int', storage[0]['id'])
         self._carda_id = self._cardb_id = None
         if len(storage) > 1:
-            self._carda_id = storage[1]['id']
+            self._carda_id = cast('int', storage[1]['id'])
         if len(storage) > 2:
-            self._cardb_id = storage[2]['id']
+            self._cardb_id = cast('int', storage[2]['id'])
         self.current_friendly_name = self.dev.friendly_name
         if not self.current_friendly_name:
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
@@ -291,7 +316,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.currently_connected_dev = connected_device
 
     @synchronous
-    def device_debug_info(self):
+    def device_debug_info(self) -> str:
         ans = self.get_gui_name()
         ans += f'\nSerial number: {self.current_serial_num}'
         dev = self.dev
@@ -305,26 +330,26 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += pprint.pformat(storage)
         return ans
 
-    def _filesystem_callback(self, fs_map, entry, level):
-        name = entry.get('name', '')
+    def _filesystem_callback(self, fs_map: dict[object, MTPEntry], entry: MTPEntry, level: int) -> bool:
+        name = cast('str', entry.get('name', ''))
         self.filesystem_callback(_('Found object: %s') % name)
         fs_map[entry.get('id', null)] = entry
         path = [name]
         pid = entry.get('parent_id', 0)
         while pid != 0 and pid in fs_map:
             parent = fs_map[pid]
-            path.append(parent.get('name', ''))
+            path.append(cast('str', parent.get('name', '')))
             pid = parent.get('parent_id', 0)
             if fs_map.get(pid, None) is parent:
                 break  # An object is its own parent
-        path = tuple(reversed(path))
-        ok = not self.is_folder_ignored(self._currently_getting_sid, path)
+        rpath = tuple(reversed(path))
+        ok = not self.is_folder_ignored(self._currently_getting_sid, rpath)
         if not ok:
-            debug('Ignored object: {}'.format('/'.join(path)))
+            debug('Ignored object: {}'.format('/'.join(rpath)))
         return ok
 
     @property
-    def filesystem_cache(self):
+    def filesystem_cache(self) -> FilesystemCache:
         if self._filesystem_cache is None:
             st = time.time()
             debug('Loading filesystem metadata...')
@@ -333,7 +358,9 @@ class MTP_DEVICE(MTPDeviceBase):
             with self.lock:
                 dev = self.dev
                 assert dev is not None
-                storage, all_items, all_errs = [], [], []
+                storage: list[dict[str, object]] = []
+                all_items: list[MTPEntry] = []
+                all_errs: list[tuple[int, str]] = []
                 for sid, capacity in zip([self._main_id, self._carda_id, self._cardb_id], self.total_space()):
                     if sid is None:
                         continue
@@ -362,41 +389,41 @@ class MTP_DEVICE(MTPDeviceBase):
         return self._filesystem_cache
 
     @synchronous
-    def get_basic_device_information(self):
+    def get_basic_device_information(self) -> tuple[str | None, str | None, str | None, str]:
         d = self.dev
         assert d is not None
         return (self.current_friendly_name, d.device_version, d.device_version, '')
 
     @synchronous
-    def total_space(self, end_session=True):
+    def total_space(self, end_session: bool = True) -> tuple[int, int, int]:
         ans = [0, 0, 0]
         assert self.dev is not None
         for s in self.dev.storage_info:
-            i = {self._main_id: 0, self._carda_id: 1, self._cardb_id: 2}.get(s['id'], None)
+            i = {self._main_id: 0, self._carda_id: 1, self._cardb_id: 2}.get(cast('int', s['id']), None)
             if i is not None:
-                ans[i] = s['capacity']
-        return tuple(ans)
+                ans[i] = cast('int', s['capacity'])
+        return ans[0], ans[1], ans[2]
 
     @synchronous
-    def free_space(self, end_session=True):
+    def free_space(self, end_session: bool = True) -> tuple[int, int, int]:
         dev = self.dev
         assert dev is not None
         dev.update_storage_info()
         ans = [0, 0, 0]
         for s in dev.storage_info:
-            i = {self._main_id: 0, self._carda_id: 1, self._cardb_id: 2}.get(s['id'], None)
+            i = {self._main_id: 0, self._carda_id: 1, self._cardb_id: 2}.get(cast('int', s['id']), None)
             if i is not None:
-                ans[i] = s['freespace_bytes']
-        return tuple(ans)
+                ans[i] = cast('int', s['freespace_bytes'])
+        return ans[0], ans[1], ans[2]
 
     @synchronous
-    def create_folder(self, parent, name):
+    def create_folder(self, parent: FileOrFolder, name: str) -> FileOrFolder:
         if not parent.is_folder:
             raise ValueError(f'{parent.full_path} is not a folder')
         e = parent.folder_named(name)
         if e is not None:
             return e
-        sid, pid = parent.storage_id, parent.object_id
+        sid, pid = cast('int', parent.storage_id), cast('int', parent.object_id)
         if pid == sid:
             pid = 0
         assert self.dev is not None
@@ -406,7 +433,15 @@ class MTP_DEVICE(MTPDeviceBase):
         return parent.add_child(ans)
 
     @synchronous
-    def put_file(self, parent, name, stream, size, callback=None, replace=True):
+    def put_file(
+        self,
+        parent: FileOrFolder,
+        name: str,
+        stream: IO[bytes],
+        size: int,
+        callback: Callable[[int, int], None] | None = None,
+        replace: bool = True,
+    ) -> FileOrFolder:
         e = parent.folder_named(name)
         if e is not None:
             raise ValueError(f'Cannot upload file, {parent.full_path} already has a folder named: {e.name}')
@@ -415,7 +450,7 @@ class MTP_DEVICE(MTPDeviceBase):
             if not replace:
                 raise ValueError(f'Cannot upload file {e.full_path}, it already exists')
             self.delete_file_or_folder(e)
-        sid, pid = parent.storage_id, parent.object_id
+        sid, pid = cast('int', parent.storage_id), cast('int', parent.object_id)
         if pid == sid:
             pid = 0xFFFFFFFF
 
@@ -426,43 +461,43 @@ class MTP_DEVICE(MTPDeviceBase):
         return parent.add_child(ans)
 
     @synchronous
-    def get_mtp_file(self, f, stream=None, callback=None):
+    def get_mtp_file(self, f: FileOrFolder, stream: IO[bytes] | None = None, callback: Callable[[int, int], None] | None = None) -> IO[bytes]:
         if f.is_folder:
             raise ValueError(f'{f.full_path} if a folder')
         set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5 * 1024 * 1024, '_wpd_receive_file.dat')
         assert self.dev is not None
-        ok, errs = self.dev.get_file(f.object_id, stream, callback)
+        ok, errs = self.dev.get_file(cast('int', f.object_id), stream, callback)
         if not ok:
             raise DeviceError(f'Failed to get file: {f.full_path} with errors: {self.format_errorstack(errs)}')
         stream.seek(0)
         if set_name:
-            stream.name = f.name
+            cast('SpooledTemporaryFile', stream).name = f.name
         return stream
 
     @synchronous
-    def list_mtp_folder_by_name(self, parent, *names: str):
+    def list_mtp_folder_by_name(self, parent: FileOrFolder, *names: str) -> Sequence[MTPEntry]:
         if not parent.is_folder:
             raise ValueError(f'{parent.full_path} is not a folder')
         libmtp = self.libmtp
         assert libmtp is not None
         assert self.dev is not None
-        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
-        x = self.dev.list_folder_by_name(parent.storage_id, parent_id, names)
+        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else cast('int', parent.object_id)
+        x = self.dev.list_folder_by_name(cast('int', parent.storage_id), parent_id, names)
         if x is None:
             raise FileNotFoundError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
         return x
 
     @synchronous
-    def get_mtp_metadata_by_name(self, parent, *names: str):
+    def get_mtp_metadata_by_name(self, parent: FileOrFolder, *names: str) -> MTPEntry:
         if not parent.is_folder:
             raise ValueError(f'{parent.full_path} is not a folder')
         libmtp = self.libmtp
         assert libmtp is not None
         assert self.dev is not None
-        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
-        x = self.dev.get_metadata_by_name(parent.storage_id, parent_id, names)
+        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else cast('int', parent.object_id)
+        x = self.dev.get_metadata_by_name(cast('int', parent.storage_id), parent_id, names)
         if x is None:
             raise DeviceError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
         m, errs = x
@@ -471,7 +506,9 @@ class MTP_DEVICE(MTPDeviceBase):
         return m
 
     @synchronous
-    def get_mtp_file_by_name(self, parent, *names: str, stream=None, callback=None):
+    def get_mtp_file_by_name(
+        self, parent: FileOrFolder, *names: str, stream: IO[bytes] | None = None, callback: Callable[[int, int], None] | None = None
+    ) -> IO[bytes]:
         if not parent.is_folder:
             raise ValueError(f'{parent.full_path} is not a folder')
         set_name = stream is None
@@ -480,8 +517,8 @@ class MTP_DEVICE(MTPDeviceBase):
         libmtp = self.libmtp
         assert libmtp is not None
         assert self.dev is not None
-        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
-        x = self.dev.get_file_by_name(parent.storage_id, parent_id, names, stream, callback)
+        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else cast('int', parent.object_id)
+        x = self.dev.get_file_by_name(cast('int', parent.storage_id), parent_id, names, stream, callback)
         if x is None:
             raise FileNotFoundError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
         ok, errs = x
@@ -489,11 +526,11 @@ class MTP_DEVICE(MTPDeviceBase):
             raise DeviceError(f'Failed to get file: {"/".join(names)} in {parent.full_path} with errors: {self.format_errorstack(errs)}')
         stream.seek(0)
         if set_name:
-            stream.name = '/'.join(names)
+            cast('SpooledTemporaryFile', stream).name = '/'.join(names)
         return stream
 
     @synchronous
-    def delete_file_or_folder(self, obj):
+    def delete_file_or_folder(self, obj: FileOrFolder) -> FileOrFolder | None:
         if obj.deleted:
             return
         if not obj.can_delete:
@@ -503,8 +540,9 @@ class MTP_DEVICE(MTPDeviceBase):
         if obj.files or obj.folders:
             raise ValueError(f'Cannot delete {obj.full_path} as it is not empty')
         parent = obj.parent
+        assert parent is not None
         assert self.dev is not None
-        ok, errs = self.dev.delete_object(obj.object_id)
+        ok, errs = self.dev.delete_object(cast('int', obj.object_id))
         if not ok:
             raise DeviceError(f'Failed to delete {obj.full_path} with error: {self.format_errorstack(errs)}')
         parent.remove_child(obj)

@@ -6,13 +6,19 @@ Device driver for Hanvon devices
 
 import os
 import re
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.devices.interface import USBDeviceInfo
+    from calibre.ebooks.metadata.book.base import Metadata
 
-def is_alex(device_info):
+
+def is_alex(device_info: USBDeviceInfo) -> bool:
     return device_info[3] == 'Linux 2.6.28 with pxa3xx_u2d' and device_info[4] == 'Seleucia Disk'
 
 
@@ -38,7 +44,7 @@ class N516(USBMS):
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
 
-    def can_handle(self, device_info, debug=False) -> bool:
+    def can_handle(self, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return not is_alex(device_info)
 
 
@@ -96,15 +102,15 @@ class ALEX(N516):
     SUPPORTS_SUB_DIRS = False
     THUMBNAIL_HEIGHT = 120
 
-    def can_handle(self, device_info, debug=False):
+    def can_handle(self, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return is_alex(device_info)
 
-    def alex_cpath(self, file_abspath):
+    def alex_cpath(self, file_abspath: str) -> str:
         base = os.path.dirname(file_abspath)
         name = os.path.splitext(os.path.basename(file_abspath))[0] + '.png'
         return os.path.join(base, 'covers', name)
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         from calibre.ebooks.covers import calibre_cover2
         from calibre.utils.img import scale_image
 
@@ -124,7 +130,7 @@ class ALEX(N516):
             coverfile.write(cover)
             fsync(coverfile)
 
-    def delete_books(self, paths, end_session=True) -> None:
+    def delete_books(self, paths: Sequence[str], end_session: bool = True) -> None:
         for i, path in enumerate(paths):
             self.report_progress((i + 1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
@@ -153,10 +159,10 @@ class AZBOOKA(ALEX):
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
-    def can_handle(self, device_info, debug=False) -> bool:
+    def can_handle(self, device_info: USBDeviceInfo, debug: bool = False) -> bool:
         return not is_alex(device_info)
 
-    def upload_cover(self, path, filename, metadata, filepath) -> None:
+    def upload_cover(self, path: str, filename: str, metadata: Metadata, filepath: str) -> None:
         pass
 
 
@@ -194,7 +200,7 @@ class ODYSSEY(N516):
 
     EBOOK_DIR_MAIN = 'Digital Editions'
 
-    def get_main_ebook_dir(self, for_upload=False):
+    def get_main_ebook_dir(self, for_upload: bool = False) -> str | list[str]:
         if for_upload:
             return self.EBOOK_DIR_MAIN
         return ''

@@ -1,23 +1,34 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+import re
+from collections.abc import Callable, Collection, Sequence
 from functools import wraps
-from typing import TYPE_CHECKING, Any
+from threading import RLock
+from typing import TYPE_CHECKING, Any, Concatenate, Protocol
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.devices.interface import DetectedDevice, ProgressReporter
 
-def debug(*args, **kwargs) -> None:
+
+def debug(*args: object, **kwargs: object) -> None:
     if DEBUG:
         prints('MTP:', *args, **kwargs)
 
 
-def synchronous(func):
+class HasLock(Protocol):
+    @property
+    def lock(self) -> RLock: ...
+
+
+def synchronous[S: HasLock, **P, R](func: Callable[Concatenate[S, P], R]) -> Callable[Concatenate[S, P], R]:
     @wraps(func)
-    def synchronizer(self, *args, **kwargs):
+    def synchronizer(self: S, *args: P.args, **kwargs: P.kwargs) -> R:
         with self.lock:
             return func(self, *args, **kwargs)
 
@@ -37,26 +48,34 @@ class MTPDeviceBase(DevicePlugin):
         @property
         def prefs(self) -> dict[str, Any]: ...
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         DevicePlugin.__init__(self, *args, **kwargs)
         self.progress_reporter = None
-        self.current_friendly_name = None
-        self.report_progress = lambda x, y: None
-        self.current_serial_num = None
+        self.current_friendly_name: str | None = None
+        self.report_progress: ProgressReporter = lambda x, y: None
+        self.current_serial_num: str | None = None
 
-    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None) -> None:
+    def reset(
+        self,
+        key: str = '-1',
+        log_packets: bool = False,
+        report_progress: ProgressReporter | None = None,
+        detected_device: DetectedDevice | None = None,
+    ) -> None:
         pass
 
-    def set_progress_reporter(self, report_progress) -> None:
+    def set_progress_reporter(self, report_progress: ProgressReporter) -> None:
         self.report_progress = report_progress
 
-    def get_gui_name(self):
-        return getattr(self, 'current_friendly_name', self.gui_name)
+    def get_gui_name(self) -> str:
+        return self.current_friendly_name or self.gui_name
 
-    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False) -> bool:
+    def is_usb_connected(
+        self, devices_on_system: Collection[DetectedDevice], debug: bool = False, only_presence: bool = False
+    ) -> tuple[bool, DetectedDevice | None]:
         # We manage device presence ourselves, so this method should always
         # return False
-        return False
+        return False, None
 
     @property
     def save_template(self) -> str:
@@ -65,10 +84,10 @@ class MTPDeviceBase(DevicePlugin):
     def filesystem_callback(self, msg: str) -> None:
         pass
 
-    def is_folder_ignored(self, storage_or_storage_id, path) -> bool:
+    def is_folder_ignored(self, storage_or_storage_id: object, path: Sequence[str]) -> bool:
         return False
 
-    def build_template_regexp(self):
+    def build_template_regexp(self) -> re.Pattern[str]:
         from calibre.devices.utils import build_template_regexp
 
         return build_template_regexp(self.save_template)

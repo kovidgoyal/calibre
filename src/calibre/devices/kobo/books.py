@@ -2,6 +2,8 @@
 
 import os
 import time
+from collections.abc import Sequence
+from typing import cast
 
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.usbms.books import Book as Book_
@@ -16,16 +18,16 @@ from calibre.utils.config_base import prefs
 class Book(Book_):
     def __init__(
         self,
-        prefix,
-        lpath,
-        title=None,
-        authors=None,
-        mime=None,
-        date=None,
-        ContentType=None,
-        thumbnail_name=None,
-        size=None,
-        other=None,
+        prefix: str,
+        lpath: str,
+        title: str | None = None,
+        authors: str | None = None,
+        mime: str | None = None,
+        date: str | None = None,
+        ContentType: str | int | None = None,
+        thumbnail_name: str | None = None,
+        size: int | None = None,
+        other: Metadata | None = None,
     ) -> None:
         from calibre.utils.date import parse_date
 
@@ -70,15 +72,15 @@ class Book(Book_):
                                 self.datetime = time.gmtime()
 
         self.kobo_metadata = Metadata(title, self.authors)
-        self.contentID = None
-        self.current_shelves = []
-        self.kobo_collections = []
+        self.contentID: str | None = None
+        self.current_shelves: list[str] = []
+        self.kobo_collections: list[str] = []
         self.can_put_on_shelves = True
-        self.kobo_series = None
-        self.kobo_series_number = None  # Kobo stores the series number as string. And it can have a leading "#".
-        self.kobo_series_id = None
-        self.kobo_subtitle = None
-        self.kobo_bookstats = {}
+        self.kobo_series: str | None = None
+        self.kobo_series_number: str | None = None  # Kobo stores the series number as string. And it can have a leading "#".
+        self.kobo_series_id: str | None = None
+        self.kobo_subtitle: str | None = None
+        self.kobo_bookstats: dict[str, object] = {}
 
         if thumbnail_name is not None:
             self._thumbnail_value = ImageWrapper(thumbnail_name)
@@ -88,17 +90,17 @@ class Book(Book_):
             debug_print('Book::__init__ end - title=', title, 'authors=', authors)
 
     @property
-    def is_sideloaded(self):
+    def is_sideloaded(self) -> bool:
         # If we don't have a content Id, we don't know what type it is.
-        return self.contentID and self.contentID.startswith('file')
+        return bool(self.contentID) and self.contentID.startswith('file')
 
     @property
-    def has_kobo_series(self):
+    def has_kobo_series(self) -> bool:
         return self.kobo_series is not None
 
     @property
-    def is_purchased_kepub(self):
-        return self.contentID and not self.contentID.startswith('file')
+    def is_purchased_kepub(self) -> bool:
+        return bool(self.contentID) and not self.contentID.startswith('file')
 
     def __str__(self) -> str:
         """
@@ -107,7 +109,7 @@ class Book(Book_):
         """
         ans = ['Kobo metadata:']
 
-        def fmt(x, y) -> None:
+        def fmt(x: str, y: object) -> None:
             ans.append(f'{x:<20}: {y}')
 
         if self.contentID:
@@ -127,19 +129,24 @@ class Book(Book_):
 
 
 class ImageWrapper:
-    def __init__(self, image_path) -> None:
+    def __init__(self, image_path: str) -> None:
         self.image_path = image_path
 
 
 class KTCollectionsBookList(CollectionsBookList):
-    def __init__(self, oncard, prefix, settings) -> None:
+    def __init__(self, oncard: str | None, prefix: str | None, settings: object) -> None:
         super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
 
-    def get_collections(self, collection_attributes=None, collections_template=None, template_globals=None):
+    def get_collections(
+        self,
+        collection_attributes: Sequence[str] | None = None,
+        collections_template: str | None = None,
+        template_globals: dict[str, object] | None = None,
+    ) -> dict[str, list[Metadata]]:
         debug_print('KTCollectionsBookList:get_collections - start - collection_attributes=', collection_attributes)
 
-        collections = {}
+        collections: dict[str, dict[str, Metadata]] = {}
 
         ca = []
         for c in collection_attributes or []:
@@ -233,7 +240,9 @@ class KTCollectionsBookList(CollectionsBookList):
                     doing_dc = False
                     val = ''
                     if collections_template is not None:
-                        nv = SafeFormat().safe_format(collections_template, book, 'KOBO', book, global_vars=template_globals)
+                        # the formatter accepts arbitrary values in global_vars at runtime
+                        gv = cast('dict[str, str] | None', template_globals)
+                        nv = SafeFormat().safe_format(collections_template, book, 'KOBO', book, global_vars=gv)
                         if show_debug:
                             debug_print('KTCollectionsBookList:get_collections collections_template - result', nv)
                         if nv:
@@ -305,21 +314,21 @@ class KTCollectionsBookList(CollectionsBookList):
                         debug_print('KTCollectionsBookList:get_collections - cat_name', cat_name)
 
         # Sort collections
-        result = {}
+        result: dict[str, list[Metadata]] = {}
 
         for category, lpaths in collections.items():
-            result[category] = lpaths.values()
+            result[category] = list(lpaths.values())
         # debug_print("KTCollectionsBookList:get_collections - result=", result.keys())
         debug_print('KTCollectionsBookList:get_collections - end')
         return result
 
-    def set_device_managed_collections(self, collection_names) -> None:
+    def set_device_managed_collections(self, collection_names: list[str]) -> None:
         self.device_managed_collections = collection_names
 
-    def set_debugging_title(self, title) -> None:
+    def set_debugging_title(self, title: str) -> None:
         self.debugging_title = title
 
-    def is_debugging_title(self, title):
+    def is_debugging_title(self, title: str | None) -> bool:
         if not DEBUG:
             return False
         # debug_print("KTCollectionsBookList:is_debugging - title=", title, "self.debugging_title=", self.debugging_title)

@@ -103,7 +103,7 @@ class USER_DEFINED(USBMS):
             traceback.print_exc()
         self.plugin_needs_delayed_initialization = False
 
-    def windows_sort_drives(self, drives):
+    def windows_sort_drives(self, drives: dict[str, str]) -> dict[str, str]:
         if len(drives) < 2:
             return drives
         e = self.settings().extra_customization
@@ -116,7 +116,7 @@ class USER_DEFINED(USBMS):
             drives['carda'] = main
         return drives
 
-    def linux_swap_drives(self, drives):
+    def linux_swap_drives(self, drives: list[str | None]) -> list[str | None]:
         if len(drives) < 2 or not drives[0] or not drives[1]:
             return drives
         e = self.settings().extra_customization
@@ -126,9 +126,9 @@ class USER_DEFINED(USBMS):
         t = drives[0]
         drives[0] = drives[1]
         drives[1] = t
-        return tuple(drives)
+        return drives
 
-    def osx_sort_names(self, names):
+    def osx_sort_names(self, names: dict[str, str]) -> dict[str, str]:
         if len(names) < 2:
             return names
         e = self.settings().extra_customization
