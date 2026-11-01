@@ -351,7 +351,7 @@ class Reader(FormatReader):
 
         self.mi = get_metadata(stream, False)
 
-    def extract_content(self, output_dir: str) -> str | OEBBook:
+    def extract_content(self, output_dir: str) -> str | OEBBook | None:
         # Each text record is independent (unless the continuation
         # value is set in the previous record). Put each converted
         # text recorded into a separate file. We will reference the
@@ -448,6 +448,7 @@ class Reader(FormatReader):
         from calibre.customize.ui import plugin_for_input_format
 
         html_input = plugin_for_input_format('html')
+        assert html_input is not None
         for opt in html_input.options:
             setattr(self.options, opt.option.name, opt.recommended_value)
         self.options.input_encoding = 'utf-8'

@@ -66,7 +66,7 @@ APPLE = 0x05AC
 class MTP_DEVICE(MTPDeviceBase):
     supported_platforms = ['freebsd', 'linux', 'osx']
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.libmtp = None
         self.known_devices: frozenset[tuple[int, int]] = frozenset()

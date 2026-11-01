@@ -2,7 +2,7 @@
 
 import collections
 import os
-from typing import IO, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, cast
 
 import regex
 
@@ -154,7 +154,7 @@ def _get_metadata(
         base.title = _('Unknown')
     mi = MetaInformation(None, None)
     if force_read_metadata or prefs['read_file_metadata']:
-        mi = get_file_type_metadata(stream, stream_type)
+        mi = get_file_type_metadata(stream, stream_type or '')
     base.smart_update(mi)
     if opf is not None:
         base.smart_update(opf)
@@ -170,7 +170,8 @@ def set_metadata(
 ) -> None:
     if stream_type:
         stream_type = stream_type.lower()
-    set_file_type_metadata(stream, mi, stream_type, report_error=report_error)
+    # PersistentTemporaryFile is a file like object
+    set_file_type_metadata(cast('IO[bytes]', stream), mi, stream_type or '', report_error=report_error)
 
 
 def metadata_from_filename(name: str | bytes, pat: re.Pattern[str] | None = None, fallback_pat: re.Pattern[str] | None = None) -> Metadata:

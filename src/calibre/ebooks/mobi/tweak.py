@@ -97,7 +97,9 @@ def do_rebuild(opf: str, dest_path: str) -> None:
     plumber = Plumber(opf, dest_path, default_log)
     plumber.setup_options()
     inp = plugin_for_input_format('azw3')
+    assert inp is not None
     outp = plugin_for_output_format('azw3')
+    assert outp is not None
 
     plumber.opts.mobi_passthrough = True
     oeb = create_oebbook(default_log, opf, plumber.opts)

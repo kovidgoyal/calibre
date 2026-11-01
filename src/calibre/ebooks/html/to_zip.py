@@ -134,6 +134,7 @@ every time you add an HTML file to the library.\
         from calibre.customize.ui import plugin_for_input_format
 
         hi = plugin_for_input_format('html')
+        assert hi is not None
         for opt in hi.options:
             if opt.option.name == 'allow_local_files_outside_root':
                 lr.setToolTip(opt.help)

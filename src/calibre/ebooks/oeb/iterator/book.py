@@ -73,11 +73,11 @@ def extract_book(
             # well
             if processed or (plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'} and not hasattr(pathtoopf, 'manifest')):
                 if hasattr(pathtoopf, 'manifest'):
-                    pathtoopf = write_oebbook(pathtoopf, tdir)
+                    pathtoopf = write_oebbook(cast('OEBBook', pathtoopf), tdir)
                 pathtoopf = create_oebbook(log, pathtoopf, plumber.opts)
 
         if hasattr(pathtoopf, 'manifest'):
-            pathtoopf = write_oebbook(pathtoopf, tdir)
+            pathtoopf = write_oebbook(cast('OEBBook', pathtoopf), tdir)
 
     book_format = os.path.splitext(pathtoebook)[1][1:].upper()
     if getattr(plumber.input_plugin, 'is_kf8', False):

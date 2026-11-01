@@ -59,12 +59,14 @@ class ConfigWidget(QWidget):
     def does_model_exist_locally(self, model_name: str) -> bool:
         if not model_name:
             return False
-        plugin = plugin_for_name(OllamaAI.name)
-        return plugin.builtin_live_module.does_model_exist_locally(model_name, self.api_url, self.headers)
+        backend = plugin_for_name(OllamaAI.name).builtin_live_module
+        assert backend is not None
+        return backend.does_model_exist_locally(model_name, self.api_url, self.headers)
 
     def available_models(self) -> list[str]:
-        plugin = plugin_for_name(OllamaAI.name)
-        return sorted(plugin.builtin_live_module.get_available_models(self.api_url, self.headers), key=lambda x: x.lower())
+        backend = plugin_for_name(OllamaAI.name).builtin_live_module
+        assert backend is not None
+        return sorted(backend.get_available_models(self.api_url, self.headers), key=lambda x: x.lower())
 
     @property
     def text_model(self) -> str:

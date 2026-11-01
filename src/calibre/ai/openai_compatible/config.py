@@ -112,6 +112,7 @@ class ConfigWidget(QWidget):
             try:
                 plugin = plugin_for_name(OpenAICompatible.name)
                 backend = plugin.builtin_live_module
+                assert backend is not None
                 backend.get_available_models.cache_clear()
                 encoded_key = encode_secret(self.api_key) if self.api_key else ''
                 models_dict = backend.get_available_models(self.api_url, encoded_key, self.headers)

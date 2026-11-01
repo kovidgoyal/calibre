@@ -336,8 +336,8 @@ class Android(Device):
 
         super().commit()
         for plugin in device_plugins(include_disabled=True):
-            if hasattr(plugin, 'configure_for_generic_epub_app'):
-                plugin.configure_for_generic_epub_app()
+            if (configure := getattr(plugin, 'configure_for_generic_epub_app', None)) is not None:
+                configure()
 
 
 class AndroidTablet(Android):
@@ -358,8 +358,8 @@ class AndroidPhoneWithKindle(Android):
 
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
-            if hasattr(plugin, 'configure_for_kindle_app'):
-                plugin.configure_for_kindle_app()
+            if (configure := getattr(plugin, 'configure_for_kindle_app', None)) is not None:
+                configure()
 
 
 class AndroidTabletWithKindle(AndroidPhoneWithKindle):

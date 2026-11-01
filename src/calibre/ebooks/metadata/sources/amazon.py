@@ -47,10 +47,10 @@ if TYPE_CHECKING:
 
     from css_selectors import Select
     from lxml.etree import _Element
+    from qt.core import QWidget
 
     from calibre.ebooks.metadata.sources.base import BookURL, CoverQueue, Identifiers, IdentifyQueue
     from calibre.ebooks.metadata.sources.test import IdentifyTest
-    from calibre.gui2.metadata.config import ConfigWidget
     from calibre.utils.browser import Browser
     from calibre.utils.logging import Log
 
@@ -1287,7 +1287,7 @@ class Amazon(Source):
         ),
     )
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         Source.__init__(self, *args, **kwargs)
         self.set_amazon_id_touched_fields()
 
@@ -1348,7 +1348,7 @@ class Amazon(Source):
                 ]
         return br
 
-    def save_settings(self, *args: ConfigWidget, **kwargs: ConfigWidget) -> None:
+    def save_settings(self, *args: QWidget, **kwargs: QWidget) -> None:
         Source.save_settings(self, *args, **kwargs)
         self.set_amazon_id_touched_fields()
 

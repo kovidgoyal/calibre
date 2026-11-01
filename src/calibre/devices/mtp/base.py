@@ -48,7 +48,7 @@ class MTPDeviceBase(DevicePlugin):
         @property
         def prefs(self) -> dict[str, Any]: ...
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         DevicePlugin.__init__(self, *args, **kwargs)
         self.progress_reporter = None
         self.current_friendly_name: str | None = None

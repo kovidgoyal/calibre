@@ -56,6 +56,8 @@ class Catalog(QDialog, Ui_Dialog):
                     continue
             else:
                 # Load dynamic tab
+                # Set by CatalogPlugin.initialize() for non builtin plugins
+                assert plugin.resources_path is not None
                 form = os.path.join(plugin.resources_path, f'{name}.ui')
                 klass = os.path.join(plugin.resources_path, f'{name}.py')
                 compiled_form = os.path.join(plugin.resources_path, f'{name}_ui.py')

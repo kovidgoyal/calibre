@@ -18,5 +18,5 @@ class FormatReader:
     def __init__(self, header: PdbHeaderReader, stream: IO[bytes], log: Log, options: Values) -> None:
         raise NotImplementedError()
 
-    def extract_content(self, output_dir: str) -> str | OEBBook:
+    def extract_content(self, output_dir: str) -> str | OEBBook | None:
         raise NotImplementedError()

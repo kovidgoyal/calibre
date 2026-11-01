@@ -3075,7 +3075,8 @@ class Cache:
                 ids.append(book_id)
                 for fmt, stream_or_path in format_map.items():
                     if self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks):
-                        fmt_map[fmt.lower()] = getattr(stream_or_path, 'name', stream_or_path) or '<stream>'
+                        path = stream_or_path if isinstance(stream_or_path, str) else getattr(stream_or_path, 'name', None)
+                        fmt_map[fmt.lower()] = path if isinstance(path, str) and path else '<stream>'
                 run_plugins_on_postadd(dbapi or self, book_id, fmt_map)
         return ids, duplicates
 

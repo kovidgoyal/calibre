@@ -58,7 +58,7 @@ def sorted_storage(storage_info: Iterable[dict[str, object]]) -> list[dict[str, 
 class MTP_DEVICE(MTPDeviceBase):
     supported_platforms = ['windows']
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.dev = None
         self.blacklisted_devices = set()

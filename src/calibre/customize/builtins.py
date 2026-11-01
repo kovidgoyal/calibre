@@ -2,6 +2,7 @@
 
 import glob
 import os
+from typing import IO, TYPE_CHECKING
 
 from calibre.ai.anthropic import AnthropicAI
 from calibre.ai.google import GoogleAI
@@ -13,12 +14,18 @@ from calibre.ai.openai import OpenAI
 from calibre.ai.openai_compatible import OpenAICompatible
 from calibre.ai.venice import VeniceAI
 from calibre.constants import ismacos, numeric_version
-from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
+from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, Plugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP
 from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
 from calibre.utils.localization import _
 
-plugins = []
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.preferences import ConfigWidgetBase
+
+plugins: list[type[Plugin]] = []
 
 # To archive plugins {{{
 
@@ -37,7 +44,7 @@ class PML2PMLZ(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def run(self, path_to_ebook):
+    def run(self, path_to_ebook: str) -> str:
         import zipfile
 
         of = self.temporary_file('_plugin_pml2pmlz.pmlz')
@@ -68,7 +75,7 @@ class TXT2TXTZ(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def run(self, path_to_ebook):
+    def run(self, path_to_ebook: str) -> str:
         from calibre.ebooks.metadata.opf2 import metadata_to_opf
         from calibre.ebooks.txt.processor import get_images_from_polyglot_text
 
@@ -118,10 +125,10 @@ class ComicMetadataReader(MetadataReaderPlugin):
     file_types = {'cbr', 'cbz', 'cb7', 'cbc'}
     description = _('Extract cover from comic files')
 
-    def customization_help(self, gui=False) -> str:
+    def customization_help(self, gui: bool = False) -> str:
         return 'Read series number from volume or issue number. Default is volume, set this to issue to use issue number instead.'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         if type == 'cbc':
             from zipfile import ZipFile
 
@@ -173,7 +180,7 @@ class CHMMetadataReader(MetadataReaderPlugin):
     file_types = {'chm'}
     description = _('Read metadata from %s files') % 'CHM'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.chm.metadata import get_metadata
 
         return get_metadata(stream)
@@ -184,7 +191,7 @@ class EPUBMetadataReader(MetadataReaderPlugin):
     file_types = {'epub', 'kepub'}
     description = _('Read metadata from EPUB and KEPUB files')
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.epub import get_metadata, get_quick_metadata
 
         if self.quick:
@@ -197,7 +204,7 @@ class FB2MetadataReader(MetadataReaderPlugin):
     file_types = {'fb2', 'fbz'}
     description = _('Read metadata from %s files') % 'FB2'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.fb2 import get_metadata
 
         return get_metadata(stream)
@@ -208,7 +215,7 @@ class HTMLMetadataReader(MetadataReaderPlugin):
     file_types = {'html'}
     description = _('Read metadata from %s files') % 'HTML'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.html import get_metadata
 
         return get_metadata(stream)
@@ -220,7 +227,7 @@ class HTMLZMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'HTMLZ'
     author = 'John Schember'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.extz import get_metadata
 
         return get_metadata(stream)
@@ -232,7 +239,7 @@ class IMPMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'IMP'
     author = 'Ashish Kulkarni'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.imp import get_metadata
 
         return get_metadata(stream)
@@ -243,7 +250,7 @@ class LITMetadataReader(MetadataReaderPlugin):
     file_types = {'lit'}
     description = _('Read metadata from %s files') % 'LIT'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.lit import get_metadata
 
         return get_metadata(stream)
@@ -254,7 +261,7 @@ class LRFMetadataReader(MetadataReaderPlugin):
     file_types = {'lrf'}
     description = _('Read metadata from %s files') % 'LRF'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.lrf.meta import get_metadata
 
         return get_metadata(stream)
@@ -265,7 +272,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
     file_types = {'lrx'}
     description = _('Read metadata from %s files') % 'LRX'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.lrx import get_metadata
 
         return get_metadata(stream)
@@ -276,7 +283,7 @@ class MOBIMetadataReader(MetadataReaderPlugin):
     file_types = {'mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'}
     description = _('Read metadata from %s files') % 'MOBI'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.mobi import get_metadata
 
         return get_metadata(stream)
@@ -287,7 +294,7 @@ class ODTMetadataReader(MetadataReaderPlugin):
     file_types = {'odt'}
     description = _('Read metadata from %s files') % 'ODT'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.odt import get_metadata
 
         return get_metadata(stream)
@@ -298,7 +305,7 @@ class DocXMetadataReader(MetadataReaderPlugin):
     file_types = {'docx'}
     description = _('Read metadata from %s files') % 'DOCX'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.docx import get_metadata
 
         return get_metadata(stream)
@@ -309,7 +316,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
     file_types = {'opf'}
     description = _('Read metadata from %s files') % 'OPF'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.opf import get_metadata
 
         return get_metadata(stream)[0]
@@ -321,7 +328,7 @@ class PDBMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'PDB'
     author = 'John Schember'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.pdb import get_metadata
 
         return get_metadata(stream)
@@ -332,7 +339,7 @@ class PDFMetadataReader(MetadataReaderPlugin):
     file_types = {'pdf'}
     description = _('Read metadata from %s files') % 'PDF'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.pdf import get_metadata, get_quick_metadata
 
         if self.quick:
@@ -346,7 +353,7 @@ class PMLMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'PML'
     author = 'John Schember'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.pml import get_metadata
 
         return get_metadata(stream)
@@ -357,7 +364,7 @@ class RARMetadataReader(MetadataReaderPlugin):
     file_types = {'rar'}
     description = _('Read metadata from e-books in RAR archives')
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.rar import get_metadata
 
         return get_metadata(stream)
@@ -369,7 +376,7 @@ class RBMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'RB'
     author = 'Ashish Kulkarni'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.rb import get_metadata
 
         return get_metadata(stream)
@@ -380,7 +387,7 @@ class RTFMetadataReader(MetadataReaderPlugin):
     file_types = {'rtf'}
     description = _('Read metadata from %s files') % 'RTF'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.rtf import get_metadata
 
         return get_metadata(stream)
@@ -392,7 +399,7 @@ class SNBMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'SNB'
     author = 'Li Fanxi'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.snb import get_metadata
 
         return get_metadata(stream)
@@ -403,7 +410,7 @@ class TOPAZMetadataReader(MetadataReaderPlugin):
     file_types = {'tpz', 'azw1'}
     description = _('Read metadata from %s files') % 'MOBI'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.topaz import get_metadata
 
         return get_metadata(stream)
@@ -415,7 +422,7 @@ class TXTMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'TXT'
     author = 'John Schember'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.txt import get_metadata
 
         return get_metadata(stream)
@@ -427,7 +434,7 @@ class TXTZMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files') % 'TXTZ'
     author = 'John Schember'
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.extz import get_metadata
 
         return get_metadata(stream)
@@ -438,7 +445,7 @@ class ZipMetadataReader(MetadataReaderPlugin):
     file_types = {'zip', 'oebzip'}
     description = _('Read metadata from e-books in ZIP archives')
 
-    def get_metadata(self, stream, type):
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata:
         from calibre.ebooks.metadata.zip import get_metadata
 
         return get_metadata(stream)
@@ -456,7 +463,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
     file_types = {'epub', 'kepub'}
     description = _('Set metadata in EPUB and KEPUB files')
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.epub import set_metadata
 
         q = self.site_customization or ''
@@ -469,7 +476,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
             add_missing_cover='disable-add-missing-cover' != q or type == 'kepub',
         )
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui: bool = False) -> str:
         h = 'disable-add-missing-cover'
         if gui:
             h = '<i>' + h + '</i>'
@@ -481,7 +488,7 @@ class FB2MetadataWriter(MetadataWriterPlugin):
     file_types = {'fb2', 'fbz'}
     description = _('Set metadata in %s files') % 'FB2'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.fb2 import set_metadata
 
         set_metadata(stream, mi, apply_null=self.apply_null)
@@ -493,7 +500,7 @@ class HTMLZMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata from %s files') % 'HTMLZ'
     author = 'John Schember'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.extz import set_metadata
 
         set_metadata(stream, mi)
@@ -504,7 +511,7 @@ class LRFMetadataWriter(MetadataWriterPlugin):
     file_types = {'lrf'}
     description = _('Set metadata in %s files') % 'LRF'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.lrf.meta import set_metadata
 
         set_metadata(stream, mi)
@@ -516,7 +523,7 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata in %s files') % 'MOBI'
     author = 'Marshall T. Vandegrift'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.mobi import set_metadata
 
         set_metadata(stream, mi)
@@ -528,7 +535,7 @@ class PDBMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata from %s files') % 'PDB'
     author = 'John Schember'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.pdb import set_metadata
 
         set_metadata(stream, mi)
@@ -540,7 +547,7 @@ class PDFMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata in %s files') % 'PDF'
     author = 'Kovid Goyal'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.pdf import set_metadata
 
         set_metadata(stream, mi)
@@ -551,7 +558,7 @@ class RTFMetadataWriter(MetadataWriterPlugin):
     file_types = {'rtf'}
     description = _('Set metadata in %s files') % 'RTF'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.rtf import set_metadata
 
         set_metadata(stream, mi)
@@ -563,7 +570,7 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata in %s files') % 'TOPAZ'
     author = 'Greg Riker'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.topaz import set_metadata
 
         set_metadata(stream, mi)
@@ -575,7 +582,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
     description = _('Set metadata from %s files') % 'TXTZ'
     author = 'John Schember'
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.extz import set_metadata
 
         set_metadata(stream, mi)
@@ -586,7 +593,7 @@ class ODTMetadataWriter(MetadataWriterPlugin):
     file_types = {'odt'}
     description = _('Set metadata from %s files') % 'ODT'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.odt import set_metadata
 
         return set_metadata(stream, mi)
@@ -597,7 +604,7 @@ class DocXMetadataWriter(MetadataWriterPlugin):
     file_types = {'docx'}
     description = _('Set metadata from %s files') % 'DOCX'
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         from calibre.ebooks.metadata.docx import set_metadata
 
         return set_metadata(stream, mi)
@@ -1228,15 +1235,15 @@ class ActionStore(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.store:StoreAction'
     description = _('Search for books from different book sellers')
 
-    def customization_help(self, gui=False) -> str:
+    def customization_help(self, gui: bool = False) -> str:
         return 'Customize the behavior of the store search.'
 
-    def config_widget(self):
+    def config_widget(self) -> QWidget | tuple[str, str]:
         from calibre.gui2.store.config.store import config_widget as get_cw
 
         return get_cw()
 
-    def save_settings(self, config_widget) -> None:
+    def save_settings(self, config_widget: QWidget) -> None:
         from calibre.gui2.store.config.store import save_settings as save
 
         save(config_widget)
@@ -1390,10 +1397,10 @@ class InputOptions(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
     description = _('Set conversion options specific to each input format')
 
-    def create_widget(self, *args, **kwargs):
+    def create_widget(self, parent: QWidget | None = None) -> ConfigWidgetBase:
         # The DOC Input plugin tries to override this
         self.config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
-        return PreferencesPlugin.create_widget(self, *args, **kwargs)
+        return PreferencesPlugin.create_widget(self, parent)
 
 
 class CommonOptions(PreferencesPlugin):

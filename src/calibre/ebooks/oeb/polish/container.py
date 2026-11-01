@@ -1643,7 +1643,9 @@ def opf_to_azw3(opf: str, outpath: str, container: Container) -> None:
     plumber = Plumber(opf, outpath, container.log)
     plumber.setup_options()
     inp = plugin_for_input_format('azw3')
+    assert inp is not None
     outp = plugin_for_output_format('azw3')
+    assert outp is not None
     plumber.opts.mobi_passthrough = True
     plumber.opts.keep_ligatures = True
     oeb = create_oebbook(container.log, opf, plumber.opts, specialize=specialize)

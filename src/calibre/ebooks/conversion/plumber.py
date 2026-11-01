@@ -6,7 +6,8 @@ import pprint
 import shutil
 import sys
 from functools import partial
-from typing import IO, TYPE_CHECKING, Any, Protocol
+from optparse import Values
+from typing import IO, TYPE_CHECKING, Any, Protocol, cast
 
 from calibre import filesystem_encoding, get_types_map
 from calibre.constants import __version__
@@ -30,10 +31,10 @@ from calibre.utils.zipfile import ZipFile
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from optparse import Values
 
     from calibre.customize.conversion import ConversionOption, InputFormatPlugin, OutputFormatPlugin
     from calibre.customize.profiles import InputProfile, OutputProfile
+    from calibre.ebooks.conversion.plugins.recipe_input import RecipeInput
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.oeb.base import OEBBook
     from calibre.ebooks.oeb.reader import OEBReader
@@ -73,8 +74,15 @@ def supported_input_formats() -> set[str]:
     return fmts
 
 
-class OptionValues:
-    # option values are set dynamically as attributes
+class OptionValues(Values):
+    # option values are set dynamically as attributes. Derives from
+    # optparse.Values so that it can be passed to conversion plugins, but
+    # unlike Values it is hashable and compares by identity.
+    __hash__ = object.__hash__
+
+    def __eq__(self, other: object) -> bool:
+        return self is other
+
     def __getattr__(self, name: str) -> Any:  # ruff: ignore[any-type]
         raise AttributeError(name)
 
@@ -946,14 +954,15 @@ class Plumber:
                 output_fmt = '.oeb'
             output_fmt = output_fmt[1:].lower()
 
-        self.input_plugin = plugin_for_input_format(input_fmt)
-        self.output_plugin = plugin_for_output_format(output_fmt)
+        input_plugin = plugin_for_input_format(input_fmt)
+        output_plugin = plugin_for_output_format(output_fmt)
 
-        if self.input_plugin is None:
+        if input_plugin is None:
             raise ValueError('No plugin to handle input format: ' + input_fmt)
 
-        if self.output_plugin is None:
+        if output_plugin is None:
             raise ValueError('No plugin to handle output format: ' + output_fmt)
+        self.input_plugin, self.output_plugin = input_plugin, output_plugin
 
         self.input_fmt = input_fmt
         self.output_fmt = output_fmt
@@ -1189,9 +1198,9 @@ class Plumber:
         w = OEBWriter(pretty_print=self.opts.pretty_print)
         w(oeb, out_dir)
 
-    def dump_input(self, ret: OEBBook | str | bytes, output_dir: str) -> None:
+    def dump_input(self, ret: OEBBook | str | bytes | None, output_dir: str) -> None:
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, (str, bytes)):
+        if ret is None or isinstance(ret, (str, bytes)):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1201,7 +1210,7 @@ class Plumber:
             zf = ZipFile(os.path.join(self.opts.debug_pipeline, 'periodical.downloaded_recipe'), 'w')
             zf.add_dir(out_dir)
             with self.input_plugin:
-                self.input_plugin.save_download(zf)
+                cast('RecipeInput', self.input_plugin).save_download(zf)
             zf.close()
 
         self.log.info('Input debug saved to:', out_dir)
@@ -1263,6 +1272,7 @@ class Plumber:
             )
             from calibre.ebooks.azw4.reader import unwrap
 
+            assert not isinstance(stream, str)  # only recipe input uses a path rather than a stream
             unwrap(stream, self.output)
             self.ui_reporter(1.0)
             self.log(self.output_fmt.upper(), 'output written to', self.output)
@@ -1276,17 +1286,20 @@ class Plumber:
             self.input_plugin.for_viewer = True
         self.output_plugin.specialize_options(self.log, self.opts, self.input_fmt)
         with self.input_plugin:
-            self.oeb = self.input_plugin(stream, self.opts, self.input_fmt, self.log, accelerators, tdir)
+            ret = self.input_plugin(stream, self.opts, self.input_fmt, self.log, accelerators, tdir)
             if self.opts.debug_pipeline is not None:
-                self.dump_input(self.oeb, tdir)
+                self.dump_input(ret, tdir)
                 if self.abort_after_input_dump:
                     return
             if self.input_fmt in ('recipe', 'downloaded_recipe'):
                 self.opts_to_mi(self.user_metadata)
-            if not hasattr(self.oeb, 'manifest'):
+            if hasattr(ret, 'manifest'):
+                self.oeb = cast('OEBBook', ret)
+            else:
+                # The input plugin returned the path to an OPF file
                 self.oeb = create_oebbook(
                     self.log,
-                    self.oeb,
+                    cast('str | None', ret),
                     self.opts,
                     encoding=self.input_plugin.output_encoding,
                     for_regex_wizard=self.for_regex_wizard,

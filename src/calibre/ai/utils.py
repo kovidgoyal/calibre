@@ -420,7 +420,8 @@ def configure(plugin_name: str, parent: QWidget | None = None) -> None:
 
     class D(QDialog):
         def accept(self) -> None:
-            if not cw.validate():
+            # AI provider config widgets must implement validate()
+            if (validate := getattr(cw, 'validate', None)) is not None and not validate():
                 return
             super().accept()
 

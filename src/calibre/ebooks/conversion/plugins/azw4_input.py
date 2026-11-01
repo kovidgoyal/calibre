@@ -9,6 +9,7 @@ from calibre.utils.localization import _
 if TYPE_CHECKING:
     from optparse import Values
 
+    from calibre.ebooks.oeb.base import OEBBook
     from calibre.utils.logging import Log
 
 
@@ -19,7 +20,7 @@ class AZW4Input(InputFormatPlugin):
     file_types = {'azw4'}
     commit_name = 'azw4_input'
 
-    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str:
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | OEBBook | None:
         from calibre.ebooks.azw4.reader import Reader
         from calibre.ebooks.pdb.header import PdbHeaderReader
 

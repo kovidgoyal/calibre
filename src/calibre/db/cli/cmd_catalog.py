@@ -35,6 +35,7 @@ def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]
         # Fetch the extension-specific CLI options from the plugin
         # library.catalogs.<format>.py
         plugin = plugin_for_catalog_format(fmt)
+        assert plugin is not None  # fmt is checked against available_catalog_formats() by the caller
         p = parser.add_option_group(_('{} OPTIONS').format(fmt.upper()))
         for option in plugin.cli_options:
             p.add_option(option.option, default=option.default, dest=option.dest, action=option.action, help=option.help)
@@ -118,6 +119,7 @@ def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
     }
     dest = os.path.abspath(os.path.expanduser(args[0]))
     plugin = plugin_for_catalog_format(fmt)
+    assert plugin is not None  # fmt is checked against available_catalog_formats() above
     with plugin:
         plugin.run(dest, opts, dbctx.db)
     return 0

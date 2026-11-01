@@ -6,8 +6,9 @@ import shutil
 import sys
 import traceback
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterable, Iterator
 from itertools import chain, repeat
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre.constants import DEBUG, ismacos, numeric_version, system_plugins_loc
 from calibre.customize import (
@@ -21,9 +22,11 @@ from calibre.customize import (
     LibraryClosedPlugin,
     MetadataReaderPlugin,
     MetadataWriterPlugin,
+    Plugin,
     PluginInstallationType,
     PluginNotFound,
     PreferencesPlugin,
+    StoreBase,
     platform,
 )
 from calibre.customize import InterfaceActionBase as InterfaceAction
@@ -38,6 +41,14 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_dir, plugin_dir
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.customize import FileTypePluginDB
+    from calibre.devices.usbms.driver import USBMS
+    from calibre.ebooks.metadata.book.base import Metadata
+
+#: A plugin instance or class, or the name of a plugin
+type PluginOrName = Plugin | type[Plugin] | str
+
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({
     'Marvin XD',
@@ -51,7 +62,7 @@ BLACKLISTED_PLUGINS = frozenset({
 })
 
 
-def zip_value(iterable, value):
+def zip_value[T, V](iterable: Iterable[T], value: V) -> zip[tuple[T, V]]:
     return zip(iterable, repeat(value))
 
 
@@ -59,7 +70,7 @@ class NameConflict(ValueError):
     pass
 
 
-def _config():
+def _config() -> ConfigProxy:
     c = Config('customize')
     c.add_opt('plugins', default={}, help=_('Installed plugins'))
     c.add_opt('filetype_mapping', default={}, help=_('Mapping for filetype plugins'))
@@ -73,13 +84,17 @@ def _config():
 config = _config()
 
 
-def find_plugin(name):
+def _plugin_name(plugin_or_name: PluginOrName) -> str:
+    return plugin_or_name if isinstance(plugin_or_name, str) else cast('str', getattr(plugin_or_name, 'name', plugin_or_name))
+
+
+def find_plugin(name: str) -> Plugin | None:
     for plugin in _initialized_plugins:
         if plugin.name == name:
             return plugin
 
 
-def load_plugin(path_to_zip_file):  # {{{
+def load_plugin(path_to_zip_file: str) -> type[Plugin]:  # {{{
     """
     Load plugin from ZIP file or raise InvalidPlugin error
 
@@ -103,8 +118,8 @@ def disable_plugin_by_name(name: str) -> None:
         config['enabled_plugins'] = ep
 
 
-def disable_plugin(plugin_or_name) -> None:
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
+def disable_plugin(plugin_or_name: PluginOrName) -> None:
+    x = _plugin_name(plugin_or_name)
     plugin = find_plugin(x)
     if plugin is None:
         raise ValueError(f'No plugin named: {x} found')
@@ -113,8 +128,8 @@ def disable_plugin(plugin_or_name) -> None:
     disable_plugin_by_name(x)
 
 
-def enable_plugin(plugin_or_name) -> None:
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
+def enable_plugin(plugin_or_name: PluginOrName) -> None:
+    x = _plugin_name(plugin_or_name)
     dp = config['disabled_plugins']
     if x in dp:
         dp.remove(x)
@@ -124,30 +139,34 @@ def enable_plugin(plugin_or_name) -> None:
     config['enabled_plugins'] = ep
 
 
-def is_internal_plugin(plugin_or_name):
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
+def is_internal_plugin(plugin_or_name: PluginOrName) -> bool:
+    x = _plugin_name(plugin_or_name)
     plugin = find_plugin(x)
-    return plugin.installation_type is PluginInstallationType.BUILTIN and isinstance(
-        plugin,
-        (
-            InterfaceActionBase,
-            PreferencesPlugin,
-            InputFormatPlugin,
-            OutputFormatPlugin,
-            InputProfile,
-            OutputProfile,
-        ),
+    return (
+        plugin is not None
+        and plugin.installation_type is PluginInstallationType.BUILTIN
+        and isinstance(
+            plugin,
+            (
+                InterfaceActionBase,
+                PreferencesPlugin,
+                InputFormatPlugin,
+                OutputFormatPlugin,
+                InputProfile,
+                OutputProfile,
+            ),
+        )
     )
 
 
-def can_be_disabled(plugin_or_name):
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
+def can_be_disabled(plugin_or_name: PluginOrName) -> bool:
+    x = _plugin_name(plugin_or_name)
     plugin = find_plugin(x)
-    return not is_internal_plugin(x) and plugin.can_be_disabled
+    return plugin is not None and not is_internal_plugin(x) and plugin.can_be_disabled
 
 
-def restore_plugin_state_to_default(plugin_or_name) -> None:
-    x = getattr(plugin_or_name, 'name', plugin_or_name)
+def restore_plugin_state_to_default(plugin_or_name: PluginOrName) -> None:
+    x = _plugin_name(plugin_or_name)
     dp = config['disabled_plugins']
     if x in dp:
         dp.remove(x)
@@ -168,8 +187,8 @@ default_disabled_plugins = {
 }
 
 
-def is_disabled(plugin_or_name):
-    name = getattr(plugin_or_name, 'name', plugin_or_name)
+def is_disabled(plugin_or_name: PluginOrName) -> bool:
+    name = _plugin_name(plugin_or_name)
     if name in config['enabled_plugins']:
         return False
     return name in config['disabled_plugins'] or name in default_disabled_plugins
@@ -179,13 +198,13 @@ def is_disabled(plugin_or_name):
 
 # File type plugins {{{
 
-_on_import = {}
-_on_postimport = {}
-_on_postconvert = {}
-_on_postdelete = {}
-_on_preprocess = {}
-_on_postprocess = {}
-_on_postadd = []
+_on_import: dict[str, list[FileTypePlugin]] = {}
+_on_postimport: dict[str, list[FileTypePlugin]] = {}
+_on_postconvert: dict[str, list[FileTypePlugin]] = {}
+_on_postdelete: dict[str, list[FileTypePlugin]] = {}
+_on_preprocess: dict[str, list[FileTypePlugin]] = {}
+_on_postprocess: dict[str, list[FileTypePlugin]] = {}
+_on_postadd: list[FileTypePlugin] = []
 
 
 def reread_filetype_plugins() -> None:
@@ -219,7 +238,7 @@ def reread_filetype_plugins() -> None:
                     _on_postprocess[ft].append(plugin)
 
 
-def plugins_for_ft(ft, occasion):
+def plugins_for_ft(ft: str, occasion: str) -> Iterator[FileTypePlugin]:
     op = {
         'import': _on_import,
         'preprocess': _on_preprocess,
@@ -233,7 +252,7 @@ def plugins_for_ft(ft, occasion):
             yield p
 
 
-def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
+def _run_filetype_plugins(path_to_file: str, ft: str | None = None, occasion: str = 'preprocess') -> str:
     customization = config['plugin_customization']
     if ft is None:
         ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')
@@ -256,7 +275,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
 
-    def x(j):
+    def x(j: str) -> str:
         return os.path.normpath(os.path.normcase(j))
 
     if occasion == 'postprocess' and x(nfp) != x(path_to_file):
@@ -270,7 +289,7 @@ run_plugins_on_preprocess = functools.partial(_run_filetype_plugins, occasion='p
 run_plugins_on_postprocess = functools.partial(_run_filetype_plugins, occasion='postprocess')
 
 
-def run_plugins_on_postimport(db, book_id, fmt) -> None:
+def run_plugins_on_postimport(db: FileTypePluginDB, book_id: int, fmt: str) -> None:
     customization = config['plugin_customization']
     fmt = fmt.lower()
     for plugin in plugins_for_ft(fmt, 'postimport'):
@@ -283,7 +302,7 @@ def run_plugins_on_postimport(db, book_id, fmt) -> None:
                 traceback.print_exc()
 
 
-def run_plugins_on_postconvert(db, book_id, fmt) -> None:
+def run_plugins_on_postconvert(db: FileTypePluginDB, book_id: int, fmt: str) -> None:
     customization = config['plugin_customization']
     fmt = fmt.lower()
     for plugin in plugins_for_ft(fmt, 'postconvert'):
@@ -296,7 +315,7 @@ def run_plugins_on_postconvert(db, book_id, fmt) -> None:
                 traceback.print_exc()
 
 
-def run_plugins_on_postdelete(db, book_id, fmt) -> None:
+def run_plugins_on_postdelete(db: FileTypePluginDB, book_id: int, fmt: str) -> None:
     customization = config['plugin_customization']
     fmt = fmt.lower()
     for plugin in plugins_for_ft(fmt, 'postdelete'):
@@ -309,7 +328,7 @@ def run_plugins_on_postdelete(db, book_id, fmt) -> None:
                 traceback.print_exc()
 
 
-def run_plugins_on_postadd(db, book_id, fmt_map) -> None:
+def run_plugins_on_postadd(db: FileTypePluginDB, book_id: int, fmt_map: dict[str, str]) -> None:
     customization = config['plugin_customization']
     for plugin in _on_postadd:
         if is_disabled(plugin):
@@ -328,13 +347,13 @@ def run_plugins_on_postadd(db, book_id, fmt_map) -> None:
 # Plugin customization {{{
 
 
-def customize_plugin(plugin, custom) -> None:
+def customize_plugin(plugin: Plugin, custom: str) -> None:
     d = config['plugin_customization']
     d[plugin.name] = custom.strip()
     config['plugin_customization'] = d
 
 
-def plugin_customization(plugin):
+def plugin_customization(plugin: Plugin) -> str:
     return config['plugin_customization'].get(plugin.name, '')
 
 
@@ -343,13 +362,13 @@ def plugin_customization(plugin):
 # Input/Output profiles {{{
 
 
-def input_profiles():
+def input_profiles() -> Iterator[InputProfile]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputProfile):
             yield plugin
 
 
-def output_profiles():
+def output_profiles() -> Iterator[OutputProfile]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputProfile):
             yield plugin
@@ -360,7 +379,7 @@ def output_profiles():
 # Interface Actions # {{{
 
 
-def interface_actions():
+def interface_actions() -> Iterator[InterfaceActionBase]:
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, InterfaceAction):
@@ -374,7 +393,7 @@ def interface_actions():
 # Preferences Plugins # {{{
 
 
-def preferences_plugins():
+def preferences_plugins() -> Iterator[PreferencesPlugin]:
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, PreferencesPlugin):
@@ -388,7 +407,7 @@ def preferences_plugins():
 # Library Closed Plugins # {{{
 
 
-def available_library_closed_plugins():
+def available_library_closed_plugins() -> Iterator[LibraryClosedPlugin]:
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, LibraryClosedPlugin):
@@ -423,7 +442,7 @@ def available_ai_provider_plugins() -> Iterator[AIProviderPlugin]:
 # Store Plugins # {{{
 
 
-def store_plugins():
+def store_plugins() -> Iterator[StoreBase]:
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, Store):
@@ -431,21 +450,21 @@ def store_plugins():
             yield plugin
 
 
-def available_store_plugins():
+def available_store_plugins() -> Iterator[StoreBase]:
     for plugin in store_plugins():
         if not is_disabled(plugin):
             yield plugin
 
 
-def stores():
-    stores = set()
+def stores() -> set[str]:
+    stores: set[str] = set()
     for plugin in store_plugins():
         stores.add(plugin.name)
     return stores
 
 
-def available_stores():
-    stores = set()
+def available_stores() -> set[str]:
+    stores: set[str] = set()
     for plugin in available_store_plugins():
         stores.add(plugin.name)
     return stores
@@ -455,7 +474,7 @@ def available_stores():
 
 # Metadata read/write {{{
 
-_metadata_readers = {}
+_metadata_readers: dict[str, list[MetadataReaderPlugin]] = {}
 _metadata_writers: dict[str, list[MetadataWriterPlugin]] = {}
 
 
@@ -474,7 +493,7 @@ def reread_metadata_plugins() -> None:
 
     # Ensure the following metadata plugin preference is used:
     # external > system > builtin
-    def key(plugin):
+    def key(plugin: MetadataReaderPlugin | MetadataWriterPlugin) -> tuple[int, str]:
         order = sys.maxsize if plugin.installation_type is None else plugin.installation_type
         return order, plugin.name
 
@@ -484,16 +503,16 @@ def reread_metadata_plugins() -> None:
                 plugins.sort(key=key)
 
 
-def metadata_readers():
-    ans = set()
+def metadata_readers() -> set[MetadataReaderPlugin]:
+    ans: set[MetadataReaderPlugin] = set()
     for plugins in _metadata_readers.values():
         for plugin in plugins:
             ans.add(plugin)
     return ans
 
 
-def metadata_writers():
-    ans = set()
+def metadata_writers() -> set[MetadataWriterPlugin]:
+    ans: set[MetadataWriterPlugin] = set()
     for plugins in _metadata_writers.values():
         for plugin in plugins:
             ans.add(plugin)
@@ -504,10 +523,10 @@ class QuickMetadata:
     def __init__(self) -> None:
         self.quick = False
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.quick = True
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.quick = False
 
 
@@ -518,10 +537,10 @@ class ApplyNullMetadata:
     def __init__(self) -> None:
         self.apply_null = False
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.apply_null = True
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.apply_null = False
 
 
@@ -531,17 +550,17 @@ apply_null_metadata = ApplyNullMetadata()
 class ForceIdentifiers:
     force_identifiers: bool = False
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.force_identifiers = True
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.force_identifiers = False
 
 
 force_identifiers = ForceIdentifiers()
 
 
-def get_file_type_metadata(stream, ftype):
+def get_file_type_metadata(stream: IO[bytes], ftype: str) -> Metadata:
     mi = MetaInformation(None, None)
 
     ftype = ftype.lower().strip()
@@ -553,7 +572,9 @@ def get_file_type_metadata(stream, ftype):
                         plugin.quick = quick_metadata.quick
                         if hasattr(stream, 'seek'):
                             stream.seek(0)
-                        mi = plugin.get_metadata(stream, ftype.lower().strip())
+                        ans = plugin.get_metadata(stream, ftype.lower().strip())
+                        if ans is not None:
+                            mi = ans
                         break
                     except Exception:
                         traceback.print_exc()
@@ -561,7 +582,7 @@ def get_file_type_metadata(stream, ftype):
     return mi
 
 
-def set_file_type_metadata(stream, mi, ftype, report_error=None) -> None:
+def set_file_type_metadata(stream: IO[bytes], mi: Metadata, ftype: str, report_error: Callable[[Metadata, str, str], object] | None = None) -> None:
     ftype = ftype.lower().strip()
     if ftype in _metadata_writers:
         customization = config['plugin_customization']
@@ -590,7 +611,7 @@ def set_file_type_metadata(stream, mi, ftype, report_error=None) -> None:
                             report_error(mi, ftype, traceback.format_exc())
 
 
-def can_set_metadata(ftype):
+def can_set_metadata(ftype: str) -> bool:
     ftype = ftype.lower().strip()
     return any(not is_disabled(plugin) for plugin in _metadata_writers.get(ftype, ()))
 
@@ -600,7 +621,7 @@ def can_set_metadata(ftype):
 # Add/remove plugins {{{
 
 
-def add_plugin(path_to_zip_file):
+def add_plugin(path_to_zip_file: str) -> Plugin:
     make_config_dir()
     plugin = load_plugin(path_to_zip_file)
     if plugin.name in builtin_names:
@@ -619,8 +640,8 @@ def add_plugin(path_to_zip_file):
     return plugin
 
 
-def remove_plugin(plugin_or_name):
-    name = getattr(plugin_or_name, 'name', plugin_or_name)
+def remove_plugin(plugin_or_name: PluginOrName) -> bool:
+    name = _plugin_name(plugin_or_name)
     plugins = config['plugins']
     removed = False
     if name in plugins:
@@ -645,13 +666,13 @@ def remove_plugin(plugin_or_name):
 # Input/Output format plugins {{{
 
 
-def input_format_plugins():
+def input_format_plugins() -> Iterator[InputFormatPlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputFormatPlugin):
             yield plugin
 
 
-def plugin_for_input_format(fmt):
+def plugin_for_input_format(fmt: str) -> InputFormatPlugin | None:
     customization = config['plugin_customization']
     for plugin in input_format_plugins():
         if fmt.lower() in plugin.file_types:
@@ -659,16 +680,16 @@ def plugin_for_input_format(fmt):
             return plugin
 
 
-def all_input_formats():
-    formats = set()
+def all_input_formats() -> set[str]:
+    formats: set[str] = set()
     for plugin in input_format_plugins():
         for format in plugin.file_types:
             formats.add(format)
     return formats
 
 
-def available_input_formats():
-    formats = set()
+def available_input_formats() -> set[str]:
+    formats: set[str] = set()
     for plugin in input_format_plugins():
         if not is_disabled(plugin):
             for format in plugin.file_types:
@@ -677,13 +698,13 @@ def available_input_formats():
     return formats
 
 
-def output_format_plugins():
+def output_format_plugins() -> Iterator[OutputFormatPlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputFormatPlugin):
             yield plugin
 
 
-def plugin_for_output_format(fmt):
+def plugin_for_output_format(fmt: str) -> OutputFormatPlugin | None:
     customization = config['plugin_customization']
     for plugin in output_format_plugins():
         if fmt.lower() == plugin.file_type:
@@ -691,10 +712,10 @@ def plugin_for_output_format(fmt):
             return plugin
 
 
-def available_output_formats():
-    formats = set()
+def available_output_formats() -> set[str]:
+    formats: set[str] = set()
     for plugin in output_format_plugins():
-        if not is_disabled(plugin):
+        if plugin.file_type is not None and not is_disabled(plugin):
             formats.add(plugin.file_type)
     return formats
 
@@ -704,14 +725,14 @@ def available_output_formats():
 # Catalog plugins {{{
 
 
-def catalog_plugins():
+def catalog_plugins() -> Iterator[CatalogPlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, CatalogPlugin):
             yield plugin
 
 
-def available_catalog_formats():
-    formats = set()
+def available_catalog_formats() -> set[str]:
+    formats: set[str] = set()
     for plugin in catalog_plugins():
         if not is_disabled(plugin):
             for format in plugin.file_types:
@@ -719,7 +740,7 @@ def available_catalog_formats():
     return formats
 
 
-def plugin_for_catalog_format(fmt):
+def plugin_for_catalog_format(fmt: str) -> CatalogPlugin | None:
     for plugin in catalog_plugins():
         if fmt.lower() in plugin.file_types:
             return plugin
@@ -730,17 +751,20 @@ def plugin_for_catalog_format(fmt):
 # Device plugins {{{
 
 
-def device_plugins(include_disabled=False):
+def device_plugins(include_disabled: bool = False) -> Iterator[DevicePlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
             if include_disabled or not is_disabled(plugin):
                 if platform in plugin.supported_platforms:
-                    if getattr(plugin, 'plugin_needs_delayed_initialization', False):
-                        plugin.do_delayed_plugin_initialization()
+                    if (
+                        getattr(plugin, 'plugin_needs_delayed_initialization', False)
+                        and (delayed_init := getattr(plugin, 'do_delayed_plugin_initialization', None)) is not None
+                    ):
+                        delayed_init()
                     yield plugin
 
 
-def usbms_plugins(include_disabled=True):
+def usbms_plugins(include_disabled: bool = True) -> Iterator[USBMS]:
     from calibre.devices.usbms.driver import USBMS
 
     for plugin in device_plugins(include_disabled):
@@ -748,7 +772,7 @@ def usbms_plugins(include_disabled=True):
             yield plugin
 
 
-def disabled_device_plugins():
+def disabled_device_plugins() -> Iterator[DevicePlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
             if is_disabled(plugin):
@@ -761,21 +785,21 @@ def disabled_device_plugins():
 # Metadata sources2 {{{
 
 
-def metadata_plugins(capabilities):
-    capabilities = frozenset(capabilities)
+def metadata_plugins(capabilities: Iterable[str]) -> Iterator[Source]:
+    caps = frozenset(capabilities)
     for plugin in all_metadata_plugins():
-        if plugin.capabilities.intersection(capabilities) and not is_disabled(plugin):
+        if plugin.capabilities.intersection(caps) and not is_disabled(plugin):
             yield plugin
 
 
-def all_metadata_plugins():
+def all_metadata_plugins() -> Iterator[Source]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, Source):
             yield plugin
 
 
-def patch_metadata_plugins(possibly_updated_plugins) -> None:
-    patches = {}
+def patch_metadata_plugins(possibly_updated_plugins: dict[str, type[Source]]) -> None:
+    patches: dict[int, Source] = {}
     for i, plugin in enumerate(_initialized_plugins):
         if isinstance(plugin, Source) and plugin.name in builtin_names:
             pup = possibly_updated_plugins.get(plugin.name)
@@ -794,7 +818,7 @@ def patch_metadata_plugins(possibly_updated_plugins) -> None:
 # Editor plugins {{{
 
 
-def all_edit_book_tool_plugins():
+def all_edit_book_tool_plugins() -> Iterator[EditBookToolPlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, EditBookToolPlugin):
             yield plugin
@@ -805,7 +829,7 @@ def all_edit_book_tool_plugins():
 # Content server plugins {{{
 
 
-def content_server_plugins():
+def content_server_plugins() -> Iterator[ContentServerPlugin]:
     for plugin in _initialized_plugins:
         if isinstance(plugin, ContentServerPlugin):
             if not is_disabled(plugin):
@@ -816,10 +840,12 @@ def content_server_plugins():
 
 # Initialize plugins {{{
 
-_initialized_plugins = []
+_initialized_plugins: list[Plugin] = []
 
 
-def initialize_plugin(plugin, path_to_zip_file=None, installation_type=PluginInstallationType.BUILTIN):
+def initialize_plugin[P: Plugin](
+    plugin: type[P], path_to_zip_file: str | None = None, installation_type: PluginInstallationType = PluginInstallationType.BUILTIN
+) -> P:
     try:
         p = plugin(path_to_zip_file)
         p.installation_type = installation_type
@@ -831,13 +857,13 @@ def initialize_plugin(plugin, path_to_zip_file=None, installation_type=PluginIns
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:') % tb) + '\n' + tb)
 
 
-def has_external_plugins():
+def has_external_plugins() -> bool:
     "True if there are updateable (ZIP file based) plugins"
     return bool(config['plugins'])
 
 
 @functools.lru_cache(maxsize=2)
-def get_system_plugins():
+def get_system_plugins() -> dict[str, str]:
     if not system_plugins_loc:
         return {}
 
@@ -854,7 +880,7 @@ def get_system_plugins():
     return dict(ans)
 
 
-def initialize_plugins(perf=False) -> None:
+def initialize_plugins(perf: bool = False) -> None:
     global _initialized_plugins
     _initialized_plugins = []
     system_plugins = get_system_plugins().copy()
@@ -928,7 +954,7 @@ def initialize_plugins(perf=False) -> None:
 initialize_plugins()
 
 
-def initialized_plugins():
+def initialized_plugins() -> Iterator[Plugin]:
     yield from _initialized_plugins
 
 
@@ -937,7 +963,7 @@ def initialized_plugins():
 # CLI {{{
 
 
-def build_plugin(path) -> None:
+def build_plugin(path: str | os.PathLike[str]) -> None:
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.zipfile import ZIP_STORED, ZipFile
@@ -956,7 +982,7 @@ def build_plugin(path) -> None:
     prints('Plugin updated:', plugin.name, plugin.version)
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = OptionParser(
         usage=_('''\
     %prog options
@@ -995,7 +1021,7 @@ def option_parser():
     return parser
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     parser = option_parser()
     if len(args) < 2:
         parser.print_help()

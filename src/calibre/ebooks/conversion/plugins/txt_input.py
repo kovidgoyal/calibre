@@ -364,6 +364,7 @@ class TXTInput(InputFormatPlugin):
             from calibre.customize.ui import plugin_for_input_format
 
             html_input = plugin_for_input_format('html')
+            assert html_input is not None
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)
             options.input_encoding = 'utf-8'
@@ -373,6 +374,7 @@ class TXTInput(InputFormatPlugin):
             # Generate oeb from html conversion.
             with open(htmlfile, 'rb') as f:
                 oeb = html_input.convert(f, options, 'html', log, {})
+                assert oeb is not None and not isinstance(oeb, str)  # HTML input returns an OEBBook
             options.debug_pipeline = odi
         finally:
             for x in self.shifted_files:

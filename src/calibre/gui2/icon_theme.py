@@ -190,6 +190,7 @@ def read_theme_from_folder(path):
 def icon_for_action(name):
     for plugin in interface_actions():
         if plugin.name == name:
+            assert plugin.actual_plugin is not None
             module, class_name = plugin.actual_plugin.partition(':')[::2]
             mod = importlib.import_module(module)
             cls = getattr(mod, class_name)

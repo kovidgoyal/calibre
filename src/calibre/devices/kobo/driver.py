@@ -252,7 +252,7 @@ class KOBO(USBMS):
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         USBMS.__init__(self, *args, **kwargs)
         self.plugboards: dict[str, dict[str, object]] | None = None
         self.plugboard_func: Callable[..., object] | None = None
@@ -1945,7 +1945,7 @@ class KOBOTOUCH(KOBO):
     #    ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
     # }
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         KOBO.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
 

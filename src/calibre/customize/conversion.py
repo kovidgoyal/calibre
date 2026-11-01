@@ -6,10 +6,28 @@ import numbers
 import os
 import re
 import shutil
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre import CurrentDir
 from calibre.customize import Plugin
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from optparse import Values
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.oeb.base import Manifest, OEBBook
+    from calibre.ebooks.oeb.stylizer import Stylizer
+    from calibre.gui2.convert import Widget
+    from calibre.utils.logging import Log
+
+    #: Creates the widget for configuring a conversion plugin in the GUI, see :func:`gui_configuration_widget`
+    type PluginWidgetFactory = Callable[
+        [QWidget, Callable[[str], OptionRecommendation | None], Callable[[str], str | None], LibraryDatabase, int | None], Widget
+    ]
 
 
 class ConversionOption:
@@ -17,7 +35,14 @@ class ConversionOption:
     Class representing conversion options
     """
 
-    def __init__(self, name='', help=None, long_switch=None, short_switch=None, choices=None) -> None:
+    def __init__(
+        self,
+        name: str = '',
+        help: str | None = None,
+        long_switch: str | None = None,
+        short_switch: str | None = None,
+        choices: Sequence[str] | None = None,
+    ) -> None:
         self.name = name
         self.help = help
         self.long_switch = long_switch
@@ -38,13 +63,13 @@ class ConversionOption:
         if not self.help:
             raise ValueError('You must set the help text')
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.name == getattr(other, 'name', other)
 
-    def clone(self):
+    def clone(self) -> ConversionOption:
         return ConversionOption(
             name=self.name,
             help=self.help,
@@ -59,24 +84,39 @@ class OptionRecommendation:
     MED = 2
     HIGH = 3
 
-    def __init__(self, recommended_value=None, level=LOW, **kwargs) -> None:
+    def __init__(
+        self,
+        recommended_value: object = None,
+        level: int = LOW,
+        *,
+        option: ConversionOption | None = None,
+        name: str = '',
+        help: str | None = None,
+        long_switch: str | None = None,
+        short_switch: str | None = None,
+        choices: Sequence[str] | None = None,
+    ) -> None:
         """
         An option recommendation. That is, an option as well as its recommended
-        value and the level of the recommendation.
+        value and the level of the recommendation. Either specify an existing
+        :class:`ConversionOption` via option or the parameters for creating one.
         """
         self.level = level
+        # Must be a number, string or None, as checked by validate_parameters(),
+        # but can be changed to any value from the GUI after construction, see
+        # Plumber.merge_ui_recommendations()
         self.recommended_value = recommended_value
-        self.option = kwargs.pop('option', None)
-        if self.option is None:
-            self.option = ConversionOption(**kwargs)
+        if option is None:
+            option = ConversionOption(name=name, help=help, long_switch=long_switch, short_switch=short_switch, choices=choices)
+        self.option = option
 
         self.validate_parameters()
 
     @property
-    def help(self):
+    def help(self) -> str | None:
         return self.option.help
 
-    def clone(self):
+    def clone(self) -> OptionRecommendation:
         return OptionRecommendation(recommended_value=self.recommended_value, level=self.level, option=self.option.clone())
 
     def validate_parameters(self) -> None:
@@ -90,14 +130,22 @@ class DummyReporter:
     def __init__(self) -> None:
         self.cancel_requested = False
 
-    def __call__(self, percent, msg=''):
+    def __call__(self, percent: float, msg: str = '') -> None:
         pass
 
 
-def gui_configuration_widget(name, parent, get_option_by_name, get_option_help, db, book_id, for_output=True):
+def gui_configuration_widget(
+    name: str,
+    parent: QWidget,
+    get_option_by_name: Callable[[str], OptionRecommendation | None],
+    get_option_help: Callable[[str], str | None],
+    db: LibraryDatabase,
+    book_id: int | None,
+    for_output: bool = True,
+) -> Widget | None:
     import importlib
 
-    def widget_factory(cls):
+    def widget_factory(cls: PluginWidgetFactory) -> Widget:
         return cls(parent, get_option_by_name, get_option_help, db, book_id)
 
     if for_output:
@@ -184,11 +232,11 @@ class InputFormatPlugin(Plugin):
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set()
 
-    def __init__(self, *args) -> None:
-        Plugin.__init__(self, *args)
-        self.report_progress = DummyReporter()
+    def __init__(self, plugin_path: str | None) -> None:
+        Plugin.__init__(self, plugin_path)
+        self.report_progress: Callable[[float, str], object] = DummyReporter()
 
-    def get_images(self):
+    def get_images(self) -> list[str]:
         """
         Return a list of absolute paths to the images, if this input plugin
         represents an image collection. The list of images is in the same order
@@ -196,7 +244,7 @@ class InputFormatPlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def convert(self, stream, options, file_ext, log, accelerators):
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | OEBBook | None:
         """
         This method must be implemented in sub-classes. It must return
         the path to the created OPF file or an :class:`OEBBook` instance.
@@ -226,7 +274,9 @@ class InputFormatPlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def __call__(self, stream, options, file_ext, log, accelerators, output_dir):
+    def __call__(
+        self, stream: IO[bytes] | str, options: Values, file_ext: str, log: Log, accelerators: dict[str, str], output_dir: str
+    ) -> str | OEBBook | None:
         try:
             log(f'InputFormatPlugin: {self.name} running')
             if hasattr(stream, 'name'):
@@ -239,18 +289,20 @@ class InputFormatPlugin(Plugin):
             for x in os.listdir('.'):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 
-            ret = self.convert(stream, options, file_ext, log, accelerators)
+            # For recipe input the plumber passes the path to the recipe
+            # file rather than a stream, which the recipe input plugin handles
+            ret = self.convert(cast('IO[bytes]', stream), options, file_ext, log, accelerators)
 
         return ret
 
-    def postprocess_book(self, oeb, opts, log) -> None:
+    def postprocess_book(self, oeb: OEBBook, opts: Values, log: Log) -> None:
         """
         Called to allow the input plugin to perform postprocessing after
         the book has been parsed.
         """
         pass
 
-    def specialize(self, oeb, opts, log, output_fmt) -> None:
+    def specialize(self, oeb: OEBBook, opts: Values, log: Log, output_fmt: str) -> None:
         """
         Called to allow the input plugin to specialize the parsed book
         for a particular output format. Called after postprocess_book
@@ -258,7 +310,14 @@ class InputFormatPlugin(Plugin):
         """
         pass
 
-    def gui_configuration_widget(self, parent, get_option_by_name, get_option_help, db, book_id=None):
+    def gui_configuration_widget(
+        self,
+        parent: QWidget,
+        get_option_by_name: Callable[[str], OptionRecommendation | None],
+        get_option_help: Callable[[str], str | None],
+        db: LibraryDatabase,
+        book_id: int | None = None,
+    ) -> Widget | None:
         """
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.
@@ -284,7 +343,7 @@ class OutputFormatPlugin(Plugin):
 
     #: The file type (extension without leading period) that this
     #: plugin outputs
-    file_type = None
+    file_type: str | None = None
 
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :attr:`options` instead. Every option must be an
@@ -311,14 +370,14 @@ class OutputFormatPlugin(Plugin):
     recommendations = set()
 
     @property
-    def description(self):
+    def description(self) -> str:
         return _('Convert e-books to the %s format') % (self.file_type or '').upper()
 
-    def __init__(self, *args) -> None:
-        Plugin.__init__(self, *args)
-        self.report_progress = DummyReporter()
+    def __init__(self, plugin_path: str | None) -> None:
+        Plugin.__init__(self, plugin_path)
+        self.report_progress: Callable[[float, str], object] = DummyReporter()
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         """
         Render the contents of `oeb_book` (which is an instance of
         :class:`calibre.ebooks.oeb.OEBBook`) to the file specified by output.
@@ -338,17 +397,17 @@ class OutputFormatPlugin(Plugin):
         raise NotImplementedError()
 
     @property
-    def is_periodical(self):
-        return self.oeb.metadata.publication_type and str(self.oeb.metadata.publication_type[0]).startswith('periodical:')
+    def is_periodical(self) -> bool:
+        return bool(self.oeb.metadata.publication_type) and str(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 
-    def specialize_options(self, log, opts, input_fmt) -> None:
+    def specialize_options(self, log: Log, opts: Values, input_fmt: str) -> None:
         """
         Can be used to change the values of conversion options, as used by the
         conversion pipeline.
         """
         pass
 
-    def specialize_css_for_output(self, log, opts, item, stylizer) -> None:
+    def specialize_css_for_output(self, log: Log, opts: Values, item: Manifest.Item, stylizer: Stylizer) -> None:
         """
         Can be used to make changes to the CSS during the CSS flattening
         process.
@@ -361,7 +420,14 @@ class OutputFormatPlugin(Plugin):
         """
         pass
 
-    def gui_configuration_widget(self, parent, get_option_by_name, get_option_help, db, book_id=None):
+    def gui_configuration_widget(
+        self,
+        parent: QWidget,
+        get_option_by_name: Callable[[str], OptionRecommendation | None],
+        get_option_help: Callable[[str], str | None],
+        db: LibraryDatabase,
+        book_id: int | None = None,
+    ) -> Widget | None:
         """
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.

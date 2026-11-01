@@ -50,6 +50,7 @@ class CHMInput(InputFormatPlugin):
             if not isinstance(tdir, str):
                 tdir = tdir.decode(filesystem_encoding)
             html_input = plugin_for_input_format('html')
+            assert html_input is not None
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)
             no_images = False  # options.no_images

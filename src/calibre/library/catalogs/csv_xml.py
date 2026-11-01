@@ -3,11 +3,15 @@
 
 import os
 import re
+from typing import TYPE_CHECKING, cast
 
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import DummyReporter
 from calibre.library.catalogs import FIELDS, Option
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 class CSV_XML(CatalogPlugin):
@@ -136,20 +140,20 @@ class CSV_XML(CatalogPlugin):
                             continue
                         elif field == 'formats':
                             fmt_list = []
-                            for format in item:
+                            for format in cast('list[str]', item):
                                 fmt_list.append(format.rpartition('.')[2].lower())
                             item = ', '.join(fmt_list)
                         elif field == 'authors':
-                            item = authors_to_string(item)
+                            item = authors_to_string(cast('list[str]', item))
                         elif field == 'tags':
-                            item = ', '.join(item)
+                            item = ', '.join(cast('list[str]', item))
                         elif field == 'isbn':
                             # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
-                            item = '{}'.format(re.sub(r'[^\dX-]', '', item))
+                            item = '{}'.format(re.sub(r'[^\dX-]', '', cast('str', item)))
                         elif fm.get(field, {}).get('datatype') == 'datetime':
-                            item = isoformat(item, as_utc=False)
+                            item = isoformat(cast('datetime', item), as_utc=False)
                         elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
-                            item = f'{item / 2:.2g}'
+                            item = f"{cast('float', item) / 2:.2g}"
 
                         # Convert HTML to markdown text
                         if isinstance(item, str):
@@ -192,46 +196,46 @@ class CSV_XML(CatalogPlugin):
                                 continue
                             if not isinstance(val, (bytes, str)):
                                 if fm.get(field, {}).get('datatype', None) == 'rating' and val:
-                                    val = f'{val / 2:.2g}'
+                                    val = f"{cast('float', val) / 2:.2g}"
                                 val = str(val)
                             item = getattr(E, field)(val)
                             record.append(item)
 
                     if 'title' in fields:
-                        title = E.title(r['title'], sort=r['sort'])
+                        title = E.title(cast('str', r['title']), sort=cast('str', r['sort']))
                         record.append(title)
 
                     if 'authors' in fields:
-                        aus = E.authors(sort=r['author_sort'])
-                        for au in r['authors']:
+                        aus = E.authors(sort=cast('str', r['author_sort']))
+                        for au in cast('list[str]', r['authors']):
                             aus.append(E.author(au))
                         record.append(aus)
 
                     for field in ('timestamp', 'pubdate'):
                         if field in fields:
-                            record.append(getattr(E, field)(isoformat(r[field], as_utc=False)))
+                            record.append(getattr(E, field)(isoformat(cast('datetime', r[field]), as_utc=False)))
 
                     if 'tags' in fields and r['tags']:
                         tags = E.tags()
-                        for tag in r['tags']:
+                        for tag in cast('list[str]', r['tags']):
                             tags.append(E.tag(tag))
                         record.append(tags)
 
                     if 'comments' in fields and r['comments']:
-                        record.append(E.comments(r['comments']))
+                        record.append(E.comments(cast('str', r['comments'])))
 
                     if 'series' in fields and r['series']:
-                        record.append(E.series(r['series'], index=str(r['series_index'])))
+                        record.append(E.series(cast('str', r['series']), index=str(r['series_index'])))
 
                     if 'languages' in fields and r['languages']:
-                        record.append(E.languages(r['languages']))
+                        record.append(E.languages(cast('str', r['languages'])))
 
                     if 'cover' in fields and r['cover']:
-                        record.append(E.cover(r['cover'].replace(os.sep, '/')))
+                        record.append(E.cover(cast('str', r['cover']).replace(os.sep, '/')))
 
                     if 'formats' in fields and r['formats']:
                         fmt = E.formats()
-                        for f in r['formats']:
+                        for f in cast('list[str]', r['formats']):
                             fmt.append(E.format(f.replace(os.sep, '/')))
                         record.append(fmt)
 

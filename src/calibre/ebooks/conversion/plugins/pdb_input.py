@@ -20,7 +20,7 @@ class PDBInput(InputFormatPlugin):
     file_types = {'pdb', 'updb'}
     commit_name = 'pdb_input'
 
-    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | OEBBook:
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | OEBBook | None:
         from calibre.ebooks.pdb import IDENTITY_TO_NAME, PDBError, get_reader
         from calibre.ebooks.pdb.header import PdbHeaderReader
 

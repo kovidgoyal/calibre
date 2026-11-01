@@ -91,6 +91,7 @@ class ConfigWidget(QWidget):
             try:
                 plugin = plugin_for_name(LMStudioAI.name)
                 backend = plugin.builtin_live_module
+                assert backend is not None
                 models_dict = backend.get_available_models(self.api_url)
                 keys = list(models_dict.keys()) if models_dict else []
                 self._last_models = keys

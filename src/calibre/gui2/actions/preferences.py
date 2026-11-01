@@ -67,6 +67,7 @@ class PreferencesAction(InterfaceAction):
         config_icon = QIcon.ic('config.png')
         current_cat = 0
         for p in plugins:
+            assert p.gui_category is not None and p.gui_name is not None  # must be set by all preferences plugins
             if p.category_order != current_cat:
                 current_cat = p.category_order
                 cm = pm.addMenu(p.gui_category.replace('&', '&&'))

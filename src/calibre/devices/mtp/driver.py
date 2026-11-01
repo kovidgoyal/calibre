@@ -74,7 +74,7 @@ class MTP_DEVICE(BASE):
     SLOW_DRIVEINFO = True
     ASK_TO_ALLOW_CONNECT = True
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         BASE.__init__(self, *args, **kwargs)
         self.plugboards: dict[str, dict[str, object]] | None = None
         self.plugboard_func: Callable[..., object] | None = None

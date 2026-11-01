@@ -810,8 +810,8 @@ class Quickview(QDialog, Ui_Quickview):
             assert view is not None
             view.select_rows([book_id])
             em = find_plugin('Edit Metadata')
-            if em and em.actual_plugin_:
-                em.actual_plugin_.edit_metadata(None)
+            if em and (ac := getattr(em, 'actual_plugin_', None)):
+                ac.edit_metadata(None)
         finally:
             self.follow_library_view = True
 

@@ -15,6 +15,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 if TYPE_CHECKING:
     from optparse import Values
 
+    from calibre.ebooks.oeb.base import OEBBook
     from calibre.ebooks.pdb.header import PdbHeaderReader
     from calibre.utils.logging import Log
 
@@ -35,7 +36,7 @@ class Reader(FormatReader):
         self.log = log
         self.options = options
 
-    def extract_content(self, output_dir: str) -> str:
+    def extract_content(self, output_dir: str) -> str | OEBBook | None:
         self.log.info('Extracting PDF from AZW4 Container...')
 
         self.stream.seek(0)
@@ -51,6 +52,7 @@ class Reader(FormatReader):
         from calibre.customize.ui import plugin_for_input_format
 
         pdf_plugin = plugin_for_input_format('pdf')
+        assert pdf_plugin is not None
         for opt in pdf_plugin.options:
             if not hasattr(self.options, opt.option.name):
                 setattr(self.options, opt.option.name, opt.recommended_value)

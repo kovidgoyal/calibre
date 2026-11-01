@@ -74,7 +74,7 @@ class Reader(FormatReader):
             self.uncompressor = zlib.decompressobj()
         return self.uncompressor.decompress(self.section_data(number))
 
-    def extract_content(self, output_dir: str) -> str | OEBBook:
+    def extract_content(self, output_dir: str) -> str | OEBBook | None:
         raw_txt = b''
 
         self.log.info('Decompressing text...')
@@ -88,6 +88,7 @@ class Reader(FormatReader):
         from calibre.customize.ui import plugin_for_input_format
 
         txt_plugin = plugin_for_input_format('txt')
+        assert txt_plugin is not None
         for opt in txt_plugin.options:
             if not hasattr(self.options, opt.option.name):
                 setattr(self.options, opt.option.name, opt.recommended_value)

@@ -121,6 +121,8 @@ def gui_catalog(
         # Fetch and run the plugin for fmt
         # Returns 0 if successful, 1 if no catalog built
         plugin = plugin_for_catalog_format(fmt)
+        if plugin is None:
+            raise ValueError(f'No catalog plugin available for the format: {fmt}')
         return plugin.run(out_file_name, opts, db, notification=notification)
     finally:
         db.close()

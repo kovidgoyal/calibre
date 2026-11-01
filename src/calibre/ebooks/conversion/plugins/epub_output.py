@@ -4,7 +4,7 @@
 import os
 import re
 import shutil
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre import CurrentDir
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation, OutputFormatPlugin
@@ -13,6 +13,7 @@ from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from optparse import Values
 
     from lxml.etree import _Element
@@ -79,6 +80,9 @@ max_image_size_help = _(
 
 
 class EPUBOutput(OutputFormatPlugin):
+    if TYPE_CHECKING:
+        #: Set temporarily by the KEPUB output plugin to modify the container before it is written out
+        container_callback: Callable[[Container], None]
     name = 'EPUB Output'
     author = 'Kovid Goyal'
     file_type = 'epub'
@@ -328,6 +332,7 @@ class EPUBOutput(OutputFormatPlugin):
                     metadata_xml, atom_xml = sony_metadata(oeb)
                     extra_entries = [('atom.xml', 'application/atom+xml', atom_xml)]
             oeb_output = plugin_for_output_format('oeb')
+            assert oeb_output is not None
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir) if x.endswith('.ncx')][0])
@@ -737,7 +742,8 @@ class KEPUBOutput(OutputFormatPlugin):
             kepubify_container(container, kopts)
             container.commit()
 
-        epub_output = plugin_for_output_format('epub')
+        epub_output = cast('EPUBOutput | None', plugin_for_output_format('epub'))
+        assert epub_output is not None
         dp, et, fs = opts.dont_split_on_page_breaks, opts.extract_to, opts.flow_size
         for opt in epub_output.options:
             setattr(opts, opt.option.name, opt.recommended_value)

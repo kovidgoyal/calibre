@@ -20,7 +20,7 @@ class TCRInput(InputFormatPlugin):
     file_types = {'tcr'}
     commit_name = 'tcr_input'
 
-    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> OEBBook:
+    def convert(self, stream: IO[bytes], options: Values, file_ext: str, log: Log, accelerators: dict[str, str]) -> str | OEBBook | None:
         from calibre.ebooks.compression.tcr import decompress
 
         log.info('Decompressing text...')
@@ -32,6 +32,7 @@ class TCRInput(InputFormatPlugin):
         from calibre.customize.ui import plugin_for_input_format
 
         txt_plugin = plugin_for_input_format('txt')
+        assert txt_plugin is not None
         for opt in txt_plugin.options:
             if not hasattr(options, opt.option.name):
                 setattr(options, opt.option.name, opt.recommended_value)

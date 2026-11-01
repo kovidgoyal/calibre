@@ -680,8 +680,8 @@ class LayoutMixin:  # {{{
         # This must use the base method to find the plugin because it hasn't
         # been fully initialized yet
         self.qv = find_plugin('Quickview')
-        if self.qv and self.qv.actual_plugin_:
-            self.qv = self.qv.actual_plugin_
+        if self.qv and (ac := getattr(self.qv, 'actual_plugin_', None)):
+            self.qv = ac
 
         self.layout_container.initialize_with_gui(self, self.stack)
         self.layout_container.tag_browser_button.toggled.connect(self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)

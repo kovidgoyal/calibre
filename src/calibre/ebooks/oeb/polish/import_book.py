@@ -3,13 +3,16 @@
 
 import os
 import sys
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.ebooks.epub import initialize_container
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, Container
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.logging import Log, default_log
+
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.base import OEBBook
 
 IMPORTABLE = {'htm', 'xhtml', 'html', 'xhtm', 'docx'}
 
@@ -46,7 +49,7 @@ def import_book_as_epub(srcpath: str, destpath: str, log: Log = default_log) -> 
         if hasattr(pathtoopf, 'manifest'):
             from calibre.ebooks.oeb.iterator.book import write_oebbook
 
-            pathtoopf = write_oebbook(pathtoopf, tdir)
+            pathtoopf = write_oebbook(cast('OEBBook', pathtoopf), tdir)
 
         c = Container(tdir, pathtoopf, log)
         auto_fill_manifest(c)

@@ -1030,8 +1030,8 @@ def evaluate(book, context):
         from calibre.customize.ui import find_plugin
 
         tt = find_plugin('Template Tester')
-        if tt and tt.actual_plugin_:
-            self.textbox.setPlainText(tt.actual_plugin_.last_template_text())
+        if tt and (ac := getattr(tt, 'actual_plugin_', None)):
+            self.textbox.setPlainText(ac.last_template_text())
         else:
             # I don't think we can get here, but just in case ...
             self.textbox.setPlainText(_('No Template tester text is available'))

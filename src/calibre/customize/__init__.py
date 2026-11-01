@@ -13,9 +13,25 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
+    from optparse import Values
+    from types import ModuleType
+    from typing import IO
+
+    from qt.core import QSize, QWidget
 
     from calibre.ai import AICapabilities, ChatMessage, ChatResponse, ImageData, ImageGenerationOptions, ImageGenerationResult, StructuredOutputResult
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.actions import InterfaceAction
+    from calibre.gui2.preferences import ConfigWidgetBase
+    from calibre.gui2.store import StorePlugin
+    from calibre.gui2.ui import Main
+    from calibre.srv.routes import RouteFunction
+
+    #: The database passed to the post import/convert/delete/add hooks of file type plugins
+    type FileTypePluginDB = LibraryDatabase | Cache
 else:
     Callable = Iterable = Iterator = Sequence = ChatMessage = ChatResponse = ImageData = ImageGenerationOptions = ImageGenerationResult = (
         StructuredOutputResult
@@ -95,7 +111,7 @@ class Plugin:  # {{{
     minimum_calibre_version = (0, 4, 118)
 
     #: The way this plugin is installed
-    installation_type = None
+    installation_type: PluginInstallationType | None = None
 
     #: If False, the user will not be able to disable this plugin. Use with
     #: care.
@@ -105,7 +121,7 @@ class Plugin:  # {{{
     #: GUI
     type = _('Base')
 
-    def __init__(self, plugin_path) -> None:
+    def __init__(self, plugin_path: str | None) -> None:
         self.plugin_path = plugin_path
         self.site_customization = None
 
@@ -124,7 +140,7 @@ class Plugin:  # {{{
         """
         pass
 
-    def config_widget(self):
+    def config_widget(self) -> QWidget | tuple[str, str]:
         """
         Implement this method and :meth:`save_settings` in your plugin to
         use a custom configuration dialog, rather then relying on the simple
@@ -142,7 +158,7 @@ class Plugin:  # {{{
         """
         raise NotImplementedError()
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget: QWidget) -> None:
         """
         Save the settings specified by the user with config_widget.
 
@@ -151,7 +167,7 @@ class Plugin:  # {{{
         """
         raise NotImplementedError()
 
-    def do_user_config(self, parent=None):
+    def do_user_config(self, parent: QWidget | None = None) -> int:
         """
         This method shows a configuration dialog for this plugin. It returns
         True if the user clicks OK, False otherwise. The changes are
@@ -163,7 +179,7 @@ class Plugin:  # {{{
         from calibre.gui2.geometry import restore_geometry, save_geometry
 
         class ConfigDialog(QDialog):
-            def __init__(self, parent, config_widget) -> None:
+            def __init__(self, parent: QWidget | None, config_widget: QWidget | tuple[str, str] | None) -> None:
                 super().__init__(parent)
                 self.config_widget = config_widget
 
@@ -196,7 +212,7 @@ class Plugin:  # {{{
         if config_widget is not None:
 
             class SA(QScrollArea):
-                def sizeHint(self):
+                def sizeHint(self) -> QSize:
                     sz = sw.sizeHint() if (sw := self.widget()) else QSize(0, 0)
                     fw = 2 * self.frameWidth()
                     vsz = vs.sizeHint().width() if (vs := self.verticalScrollBar()) else 0
@@ -212,8 +228,8 @@ class Plugin:  # {{{
             config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
-                if hasattr(config_widget, 'validate'):
-                    if config_widget.validate():
+                if (validate := getattr(config_widget, 'validate', None)) is not None:
+                    if validate():
                         self.save_settings(config_widget)
                 else:
                     self.save_settings(config_widget)
@@ -243,7 +259,7 @@ class Plugin:  # {{{
         save_geometry(config_dialog, gprefs, prefname)
         return config_dialog.result()
 
-    def load_resources(self, names):
+    def load_resources(self, names: Collection[str]) -> dict[str, bytes]:
         """
         If this plugin comes in a ZIP file (user added plugin), this method
         will allow you to load resources from the ZIP file.
@@ -270,7 +286,7 @@ class Plugin:  # {{{
                     ans[candidate] = zf.read(candidate)
         return ans
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui: bool = False) -> str:
         """
         Return a string giving help on how to customize this plugin.
         By default raise a :class:`NotImplementedError`, which indicates that
@@ -289,7 +305,7 @@ class Plugin:  # {{{
         """
         raise NotImplementedError()
 
-    def temporary_file(self, suffix):
+    def temporary_file(self, suffix: str) -> PersistentTemporaryFile:
         """
         Return a file-like object that is a temporary file on the file system.
         This file will remain available even after being closed and will only
@@ -300,14 +316,14 @@ class Plugin:  # {{{
         """
         return PersistentTemporaryFile(suffix)
 
-    def is_customizable(self) -> bool | None:
+    def is_customizable(self) -> bool:
         try:
             self.customization_help()
             return True
         except NotImplementedError:
             return False
 
-    def __enter__(self, *args):
+    def __enter__(self, *args: object) -> None:
         """
         Add this plugin to the python path so that it's contents become directly importable.
         Useful when bundling large python libraries into the plugin. Use it like this::
@@ -340,14 +356,14 @@ class Plugin:  # {{{
                     zf.extractall(self.sys_insertion_path)
                     sys.path.append(self.sys_insertion_path)
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         ip, it = getattr(self, 'sys_insertion_path', None), getattr(self, '_sys_insertion_tdir', None)
         if ip is not None and ip in sys.path:
             sys.path.remove(ip)
         if hasattr(it, '__exit__'):
             it.__exit__(*args)
 
-    def cli_main(self, args):
+    def cli_main(self, args: list[str]) -> None:
         '''
         This method is the main entry point for your plugins command line
         interface. It is called when the user does: calibre-debug -r "Plugin
@@ -396,7 +412,11 @@ class FileTypePlugin(Plugin):  # {{{
 
     type = _('File type')
 
-    def run(self, path_to_ebook):
+    #: The path to the original file, before any file type plugins are run.
+    #: Set just before :meth:`run` is called.
+    original_path_to_file: str
+
+    def run(self, path_to_ebook: str) -> str:
         """
         Run the plugin. Must be implemented in subclasses.
         It should perform whatever modifications are required
@@ -418,7 +438,7 @@ class FileTypePlugin(Plugin):  # {{{
         # Default implementation does nothing
         return path_to_ebook
 
-    def postimport(self, book_id, book_format, db) -> None:
+    def postimport(self, book_id: int, book_format: str, db: FileTypePluginDB) -> None:
         """
         Called post import, i.e., after the book file has been added to the database. Note that
         this is different from :meth:`postadd` which is called when the book record is created for
@@ -431,7 +451,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
-    def postconvert(self, book_id, book_format, db) -> None:
+    def postconvert(self, book_id: int, book_format: str, db: FileTypePluginDB) -> None:
         """
         Called post conversion, i.e., after the conversion output book file has been added to the database.
         Note that it is run after a conversion only, not after a book is added. It is useful for modifying
@@ -443,7 +463,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
-    def postdelete(self, book_id, book_format, db) -> None:
+    def postdelete(self, book_id: int, book_format: str, db: FileTypePluginDB) -> None:
         """
         Called post deletion, i.e., after the book file has been deleted from the database. Note
         that it is not run when a book record is deleted, only when one or more formats from the
@@ -456,7 +476,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
-    def postadd(self, book_id, fmt_map, db) -> None:
+    def postadd(self, book_id: int, fmt_map: dict[str, str], db: FileTypePluginDB) -> None:
         """
         Called post add, i.e. after a book has been added to the db. Note that
         this is different from :meth:`postimport`, which is called after a single book file
@@ -493,11 +513,11 @@ class MetadataReaderPlugin(Plugin):  # {{{
 
     type = _('Metadata reader')
 
-    def __init__(self, *args, **kwargs) -> None:
-        Plugin.__init__(self, *args, **kwargs)
+    def __init__(self, plugin_path: str | None) -> None:
+        Plugin.__init__(self, plugin_path)
         self.quick = False
 
-    def get_metadata(self, stream, type) -> None:
+    def get_metadata(self, stream: IO[bytes], type: str) -> Metadata | None:
         """
         Return metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
@@ -528,12 +548,12 @@ class MetadataWriterPlugin(Plugin):  # {{{
 
     type = _('Metadata writer')
 
-    def __init__(self, *args, **kwargs) -> None:
-        Plugin.__init__(self, *args, **kwargs)
+    def __init__(self, plugin_path: str | None) -> None:
+        Plugin.__init__(self, plugin_path)
         self.apply_null = False
         self.force_identifiers = False
 
-    def set_metadata(self, stream, mi, type) -> None:
+    def set_metadata(self, stream: IO[bytes], mi: Metadata, type: str) -> None:
         """
         Set metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
@@ -554,7 +574,7 @@ class CatalogPlugin(Plugin):  # {{{
     A plugin that implements a catalog generator.
     """
 
-    resources_path = None
+    resources_path: str | None = None
 
     #: Output file type for which this plugin should be run.
     #: For example: 'epub' or 'xml'
@@ -572,7 +592,7 @@ class CatalogPlugin(Plugin):  # {{{
     #:
     cli_options = []
 
-    def _field_sorter(self, key):
+    def _field_sorter(self, key: str) -> str:
         """
         Custom fields sort after standard fields
         """
@@ -581,16 +601,16 @@ class CatalogPlugin(Plugin):  # {{{
         else:
             return key
 
-    def search_sort_db(self, db, opts):
+    def search_sort_db(self, db: LibraryDatabase, opts: Values) -> list[dict[str | int, object]]:
 
-        db.search(opts.search_text)
+        db.data.search(opts.search_text)
 
         if getattr(opts, 'sort_by', None):
             # 2nd arg = ascending
             db.sort(opts.sort_by, True)
         return db.get_data_as_dict(ids=opts.ids)
 
-    def get_output_fields(self, db, opts):
+    def get_output_fields(self, db: LibraryDatabase, opts: Values) -> list[str]:
         # Return a list of requested fields
         all_std_fields = {
             'author_sort',
@@ -616,7 +636,7 @@ class CatalogPlugin(Plugin):  # {{{
             'languages',
             'identifiers',
         }
-        all_custom_fields = set(db.custom_field_keys())
+        all_custom_fields = set(db.field_metadata.custom_field_keys())
         for field in list(all_custom_fields):
             fm = db.field_metadata[field]
             if fm['datatype'] == 'series':
@@ -659,6 +679,8 @@ class CatalogPlugin(Plugin):  # {{{
 
         if type(self) not in builtin_plugins and self.name not in config['disabled_plugins']:
             files_to_copy = [f'{self.name.lower()}.{ext}' for ext in ['ui', 'py']]
+            # Non builtin plugins are always loaded from a ZIP file
+            assert self.plugin_path is not None
             resources = zipfile.ZipFile(self.plugin_path, 'r')
 
             if self.resources_path is None:
@@ -672,7 +694,14 @@ class CatalogPlugin(Plugin):  # {{{
                     continue
             resources.close()
 
-    def run(self, path_to_output, opts, db, ids, notification=None):
+    def run(
+        self,
+        path_to_output: str,
+        opts: Values,
+        db: LibraryDatabase,
+        ids: Collection[int] | None = None,
+        notification: Callable[[float, str], object] | None = None,
+    ) -> object:
         """
         Run the plugin. Must be implemented in subclasses.
         It should generate the catalog in the format specified
@@ -699,13 +728,14 @@ class InterfaceActionBase(Plugin):  # {{{
     author = 'Kovid Goyal'
     type = _('User interface action')
 
-    actual_plugin = None
+    #: Import path of the actual interface action class as module:class
+    actual_plugin: str | None = None
 
-    def __init__(self, *args, **kwargs) -> None:
-        Plugin.__init__(self, *args, **kwargs)
-        self.actual_plugin_ = None
+    def __init__(self, plugin_path: str | None) -> None:
+        Plugin.__init__(self, plugin_path)
+        self.actual_plugin_: InterfaceAction | None = None
 
-    def load_actual_plugin(self, gui):
+    def load_actual_plugin(self, gui: Main) -> InterfaceAction:
         """
         This method must return the actual interface action plugin object.
         """
@@ -746,21 +776,21 @@ class PreferencesPlugin(Plugin):  # {{{
     name_order = 100
 
     #: The category this plugin should be in
-    category = None
+    category: str | None = None
 
     #: The category name displayed to the user for this plugin
-    gui_category = None
+    gui_category: str | None = None
 
     #: The name displayed to the user for this plugin
-    gui_name = None
+    gui_name: str | None = None
 
     #: The icon for this plugin, should be an absolute path
-    icon = None
+    icon: str | None = None
 
     #: The description used for tooltips and the like
     description = None
 
-    def create_widget(self, parent=None):
+    def create_widget(self, parent: QWidget | None = None) -> ConfigWidgetBase:
         """
         Create and return the actual Qt widget used for setting this group of
         preferences. The widget must implement the
@@ -792,7 +822,8 @@ class StoreBase(Plugin):  # {{{
     minimum_calibre_version = (0, 8, 0)
     version = (1, 0, 1)
 
-    actual_plugin = None
+    #: Import path of the actual store plugin class as module:class
+    actual_plugin: str | None = None
 
     # Does the store only distribute e-books without DRM.
     drm_free_only = False
@@ -804,26 +835,26 @@ class StoreBase(Plugin):  # {{{
     # Is this store on an affiliate program?
     affiliate = False
 
-    def load_actual_plugin(self, gui):
+    def load_actual_plugin(self, gui: Main) -> StorePlugin:
         """
         This method must return the actual interface action plugin object.
         """
         assert self.actual_plugin is not None
         mod, cls = self.actual_plugin.split(':')
-        self.actual_plugin_object = getattr(importlib.import_module(mod), cls)(gui, self.name)
+        self.actual_plugin_object: StorePlugin = getattr(importlib.import_module(mod), cls)(gui, self.name)
         return self.actual_plugin_object
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui: bool = False) -> str:
         if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.customization_help(gui)
         raise NotImplementedError()
 
-    def config_widget(self):
+    def config_widget(self) -> QWidget | tuple[str, str]:
         if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.config_widget()
         raise NotImplementedError()
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget: QWidget) -> None:
         if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.save_settings(config_widget)
         raise NotImplementedError()
@@ -852,7 +883,7 @@ class LibraryClosedPlugin(Plugin):  # {{{
     # minimum version 2.54 because that is when support was added
     minimum_calibre_version = (2, 54, 0)
 
-    def run(self, db):
+    def run(self, db: Cache) -> None:
         """
         The db will be a reference to the new_api (db.cache.py).
 
@@ -878,14 +909,16 @@ class AIProviderPlugin(Plugin):  # {{{
     # Used by builtin AI Provider plugins to live load the backend code
     builtin_live_module_name = ''
 
+    _builtin_live_module: ModuleType | None
+
     # See the AICapabilities enum. Sub-classes *must* implement this to the
     # capabilities they support. Note this is independent of configuration.
     @property
-    def capabilities(self):
+    def capabilities(self) -> AICapabilities:
         raise NotImplementedError()
 
     @property
-    def builtin_live_module(self):
+    def builtin_live_module(self) -> ModuleType | None:
         if not self.builtin_live_module_name:
             return None
         if (ans := self._builtin_live_module) is None:
@@ -896,29 +929,29 @@ class AIProviderPlugin(Plugin):  # {{{
 
     @property
     def is_ready_for_use(self) -> bool:
-        if not self.builtin_live_module_name:
+        if (m := self.builtin_live_module) is None:
             return False
-        return self.builtin_live_module.is_ready_for_use()
+        return m.is_ready_for_use()
 
     def initialize(self) -> None:
         self._builtin_live_module = None
 
-    def customization_help(self, gui=False) -> str:
+    def customization_help(self, gui: bool = False) -> str:
         return ''
 
-    def config_widget(self):
+    def config_widget(self) -> QWidget:
         """
         The config widget for an AI plugin must support validate() and additionally the property
         is_ready_for_use which must be true iff the plugin is ready to be used,
         i.e. it does not require configuration such as an API key or the API key is already set.
         """
-        if self.builtin_live_module_name:
-            return self.builtin_live_module.config_widget()
+        if (m := self.builtin_live_module) is not None:
+            return m.config_widget()
         raise NotImplementedError()
 
-    def save_settings(self, config_widget):
-        if self.builtin_live_module_name:
-            return self.builtin_live_module.save_settings(config_widget)
+    def save_settings(self, config_widget: QWidget) -> None:
+        if (m := self.builtin_live_module) is not None:
+            return m.save_settings(config_widget)
         raise NotImplementedError()
 
     def text_chat(self, messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
@@ -927,9 +960,9 @@ class AIProviderPlugin(Plugin):  # {{{
         The :code:`use_model` parameter will cause the plugin to use a specific model, useful when having
         a conversation, to ensure the same model responds for every subsequent query.
         """
-        if not self.builtin_live_module_name:
+        if (m := self.builtin_live_module) is None:
             raise NotImplementedError()
-        yield from self.builtin_live_module.text_chat(messages, use_model)
+        yield from m.text_chat(messages, use_model)
 
     def generate_image(
         self,
@@ -946,13 +979,13 @@ class AIProviderPlugin(Plugin):  # {{{
         :code:`use_model` parameter causes the plugin to use the specified model rather
         than choosing one automatically.
         """
-        if not self.builtin_live_module_name:
+        if (m := self.builtin_live_module) is None:
             raise NotImplementedError()
         if options is None:
             from calibre.ai import ImageGenerationOptions
 
             options = ImageGenerationOptions()
-        return self.builtin_live_module.generate_image(prompt, source_images, options, use_model)
+        return m.generate_image(prompt, source_images, options, use_model)
 
     # note: builtins.type as the Plugin.type class attribute shadows the builtin here
     def generate_structured_output(
@@ -984,9 +1017,9 @@ class AIProviderPlugin(Plugin):  # {{{
 
     def human_readable_model_name(self, model_id: str) -> str:
         "Return a human readable model name for the specified model id"
-        if not self.builtin_live_module_name:
+        if (m := self.builtin_live_module) is None:
             return model_id
-        return self.builtin_live_module.human_readable_model_name(model_id)
+        return m.human_readable_model_name(model_id)
 
     def configured_model_name(self, capability: AICapabilities) -> str:
         "Return the model id that would be used for a query with the given capability, or empty string if not determinable"
@@ -1005,7 +1038,7 @@ class ContentServerPlugin(Plugin):  # {{{
     # minimum version when support for this plugin type was added
     minimum_calibre_version = (9, 12, 0)
 
-    def content_server_endpoints(self):
+    def content_server_endpoints(self) -> Sequence[RouteFunction]:
         """
         Return endpoint functions decorated with @endpoint().
         These are registered with the content server's router at startup.

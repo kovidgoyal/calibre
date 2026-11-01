@@ -8,7 +8,7 @@ import re
 import threading
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from functools import total_ordering
-from typing import IO, TYPE_CHECKING, overload
+from typing import IO, TYPE_CHECKING, cast, overload
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
@@ -20,6 +20,8 @@ from polyglot.builtins import cmp, iteritems
 if TYPE_CHECKING:
     from queue import Queue
     from threading import Event
+
+    from qt.core import QWidget
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.gui2.metadata.config import ConfigWidget
@@ -273,7 +275,7 @@ class Source(Plugin):
         #: Seconds taken by the last identify() run, set by :func:`calibre.ebooks.metadata.sources.identify.identify`
         dl_time_spent: float
 
-    def __init__(self, *args: object, **kwargs: object) -> None:
+    def __init__(self, *args: str | None, **kwargs: str | None) -> None:
         Plugin.__init__(self, *args, **kwargs)
         self.running_a_test = False  # Set to True when using identify_test()
         self._isbn_to_identifier_cache: dict[str, str] = {}
@@ -305,8 +307,8 @@ class Source(Plugin):
 
         return ConfigWidget(self)
 
-    def save_settings(self, config_widget: ConfigWidget) -> None:
-        config_widget.commit()
+    def save_settings(self, config_widget: QWidget) -> None:
+        cast('ConfigWidget', config_widget).commit()
 
     @property
     def prefs(self) -> JSONConfig:

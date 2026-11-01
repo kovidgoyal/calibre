@@ -9,18 +9,24 @@ import sys
 import threading
 import zipfile
 from collections import OrderedDict
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable, Sequence
 from functools import lru_cache, partial
 from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
 from importlib.util import decode_source
-from typing import Never
+from typing import IO, TYPE_CHECKING, Never, cast
 
 from calibre import as_unicode
 from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
 
+if TYPE_CHECKING:
+    from gettext import GNUTranslations
+    from types import CodeType, ModuleType
 
-def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resources=True):
+    from qt.core import QIcon
+
+
+def get_resources(zfp: str, name_or_list_of_names: str | Sequence[str], print_tracebacks_for_missing_resources: bool = True) -> dict[str, bytes] | bytes | None:
     """
     Load resources from the plugin zip file
 
@@ -35,9 +41,10 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
                 be just the bytes of the resource or None if it wasn't found.
     """
     names = name_or_list_of_names
+    # bytes are not valid names, but are accepted for backwards compatibility
     if isinstance(names, (str, bytes)):
-        names = [names]
-    ans = {}
+        names = [cast('str', names)]
+    ans: dict[str, bytes] = {}
     with zipfile.ZipFile(zfp) as zf:
         for name in names:
             try:
@@ -49,7 +56,7 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
 
                     traceback.print_exc()
     if len(names) == 1:
-        ans = ans.pop(names[0], None)
+        return ans.pop(names[0], None)
 
     return ans
 
@@ -60,11 +67,11 @@ def get_icons_cached(
     namelist: tuple[str, ...],
     plugin_name: str = '',
     folder_in_zip_file: str = '',
-):
+) -> tuple[dict[str, QIcon], dict[str, str]]:
     from qt.core import QIcon
 
-    ans = {}
-    tracebacks = {}
+    ans: dict[str, QIcon] = {}
+    tracebacks: dict[str, str] = {}
     with zipfile.ZipFile(zfp) as zf:
         for name in namelist:
             arcname = posixpath.join(folder_in_zip_file, name)
@@ -86,7 +93,7 @@ def get_icons(
     plugin_name: str = '',
     folder_in_zip_file: str = '',
     print_tracebacks_for_missing_resources: bool = True,
-):
+) -> QIcon | dict[str, QIcon]:
     """
     Load icons from the plugin zip file
 
@@ -106,7 +113,8 @@ def get_icons(
                 If a single path is passed in the return value will
                 be a QIcon.
     """
-    namelist = tuple((name_or_list_of_names,) if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names)
+    # bytes are not valid names, but are accepted for backwards compatibility
+    namelist = tuple((cast('str', name_or_list_of_names),) if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names)
     ans, tracebacks = get_icons_cached(zfp, namelist, plugin_name or '', folder_in_zip_file or '')
     if print_tracebacks_for_missing_resources:
         for name, tb in tracebacks.items():
@@ -117,15 +125,15 @@ def get_icons(
     return ans
 
 
-_translations_cache = {}
+_translations_cache: dict[str, GNUTranslations | None] = {}
 
 
-def load_translations(namespace, zfp) -> None:
-    null = object()
-    trans = _translations_cache.get(zfp, null)
-    if trans is None:
-        return
-    if trans is null:
+def load_translations(namespace: dict[str, object], zfp: str) -> None:
+    if zfp in _translations_cache:
+        trans = _translations_cache[zfp]
+        if trans is None:
+            return
+    else:
         from calibre.utils.localization import get_lang
 
         lang = get_lang()
@@ -162,7 +170,16 @@ class CalibrePluginLoader(Loader):
         'zip_file_path',
     )
 
-    def __init__(self, plugin_name, fullname_in_plugin, zip_file_path, names, filename, is_package, all_names) -> None:
+    def __init__(
+        self,
+        plugin_name: str | None,
+        fullname_in_plugin: str,
+        zip_file_path: str | None,
+        names: dict[str, zipfile.ZipInfo],
+        filename: str | None,
+        is_package: bool,
+        all_names: Collection[str],
+    ) -> None:
         self.plugin_name = plugin_name
         self.fullname_in_plugin = fullname_in_plugin
         self.zip_file_path = zip_file_path
@@ -171,22 +188,27 @@ class CalibrePluginLoader(Loader):
         self._is_package = is_package
         self.all_names = all_names
 
-    def __eq__(self, other):
-        return self.__class__ == other.__class__ and self.plugin_name == other.plugin_name and self.fullname_in_plugin == other.fullname_in_plugin
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, CalibrePluginLoader)
+            and self.__class__ == other.__class__
+            and self.plugin_name == other.plugin_name
+            and self.fullname_in_plugin == other.fullname_in_plugin
+        )
 
-    def get_resource_reader(self, fullname=None):
+    def get_resource_reader(self, fullname: str | None = None) -> CalibrePluginLoader:
         return self
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.__class__.__name__) ^ hash(self.plugin_name) ^ hash(self.fullname_in_plugin)
 
-    def create_module(self, spec) -> None:
+    def create_module(self, spec: ModuleSpec) -> None:
         pass
 
-    def is_package(self, fullname):
+    def is_package(self, fullname: str) -> bool:
         return self._is_package
 
-    def get_source_as_bytes(self, fullname=None):
+    def get_source_as_bytes(self, fullname: str | None = None) -> bytes:
         src = b''
         if self.plugin_name and self.fullname_in_plugin and self.zip_file_path:
             zinfo = self.names.get(self.fullname_in_plugin)
@@ -199,14 +221,14 @@ class CalibrePluginLoader(Loader):
                         src = zf.read(zinfo.filename)
         return src
 
-    def get_source(self, fullname=None):
+    def get_source(self, fullname: str | None = None) -> str:
         raw = self.get_source_as_bytes(fullname)
         return decode_source(raw)
 
-    def get_filename(self, fullname):
+    def get_filename(self, fullname: str) -> str | None:
         return self.filename
 
-    def get_code(self, fullname=None):
+    def get_code(self, fullname: str | None = None) -> CodeType:
         return compile(
             self.get_source_as_bytes(fullname),
             f'calibre_plugins.{self.plugin_name}.{self.fullname_in_plugin}',
@@ -214,7 +236,7 @@ class CalibrePluginLoader(Loader):
             dont_inherit=True,
         )
 
-    def exec_module(self, module) -> None:
+    def exec_module(self, module: ModuleType) -> None:
         compiled = self.get_code()
         module.__file__ = self.filename
         if self.zip_file_path:
@@ -224,10 +246,10 @@ class CalibrePluginLoader(Loader):
             module.__dict__['load_translations'] = partial(load_translations, module.__dict__, zfp)
         exec(compiled, module.__dict__)
 
-    def resource_path(self, name) -> Never:
+    def resource_path(self, name: str) -> Never:
         raise FileNotFoundError(f'{name} is not available as a filesystem path in calibre plugins')
 
-    def contents(self):
+    def contents(self) -> tuple[str, ...]:
         if not self._is_package:
             return ()
         zinfo = self.names.get(self.fullname_in_plugin)
@@ -237,7 +259,7 @@ class CalibrePluginLoader(Loader):
         if base:
             base += '/'
 
-        def is_ok(x):
+        def is_ok(x: str) -> bool:
             if not base or x.startswith(base):
                 rest = x[len(base) :]
                 return '/' not in rest
@@ -245,7 +267,7 @@ class CalibrePluginLoader(Loader):
 
         return tuple(filter(is_ok, self.all_names))
 
-    def is_resource(self, name):
+    def is_resource(self, name: str) -> bool:
         zinfo = self.names.get(self.fullname_in_plugin)
         if zinfo is None:
             return False
@@ -253,9 +275,9 @@ class CalibrePluginLoader(Loader):
         q = posixpath.join(base, name)
         return q in self.all_names
 
-    def open_resource(self, name):
+    def open_resource(self, name: str) -> IO[bytes]:
         zinfo = self.names.get(self.fullname_in_plugin)
-        if zinfo is None:
+        if zinfo is None or self.zip_file_path is None:
             raise FileNotFoundError(f'{self.fullname_in_plugin} not in plugin zip file')
         base = posixpath.dirname(zinfo.filename)
         q = posixpath.join(base, name)
@@ -265,11 +287,12 @@ class CalibrePluginLoader(Loader):
 
 class CalibrePluginFinder:
     def __init__(self) -> None:
-        self.loaded_plugins = {}
+        #: Maps plugin import name to (path to ZIP file, module name to ZipInfo map, names of all files in the ZIP file)
+        self.loaded_plugins: dict[str, tuple[str, dict[str, zipfile.ZipInfo], tuple[str, ...]]] = {}
         self._lock = threading.RLock()
         self._identifier_pat = re.compile(r'[a-zA-Z][_0-9a-zA-Z]*')
 
-    def find_spec(self, fullname, path, target=None):
+    def find_spec(self, fullname: str, path: Sequence[str] | None, target: ModuleType | None = None) -> ModuleSpec | None:
         if not fullname.startswith('calibre_plugins'):
             return
         parts = fullname.split('.')
@@ -277,15 +300,16 @@ class CalibrePluginFinder:
             return
         plugin_name = zip_file_path = filename = None
         fullname_in_plugin = ''
-        all_names = frozenset()
-        names = OrderedDict()
+        all_names: Collection[str] = frozenset()
+        names: dict[str, zipfile.ZipInfo] = OrderedDict()
 
         if len(parts) > 1:
             plugin_name = parts[1]
             with self._lock:
-                zip_file_path, names, all_names = self.loaded_plugins.get(plugin_name, (None, None, None))
-            if zip_file_path is None:
+                entry = self.loaded_plugins.get(plugin_name)
+            if entry is None:
                 return
+            zip_file_path, names, all_names = entry
             fullname_in_plugin = '.'.join(parts[2:])
             if not fullname_in_plugin:
                 fullname_in_plugin = '__init__'
@@ -305,7 +329,7 @@ class CalibrePluginFinder:
             origin=filename,
         )
 
-    def load(self, path_to_zip_file):
+    def load(self, path_to_zip_file: str) -> type[Plugin]:
         if not os.access(path_to_zip_file, os.R_OK):
             raise PluginNotFound(f'Cannot access {path_to_zip_file!r}')
 
@@ -320,7 +344,7 @@ class CalibrePluginFinder:
                 importlib.reload(m)
             else:
                 m = importlib.import_module(plugin_module)
-            plugin_classes = []
+            plugin_classes: list[type[Plugin]] = []
             for obj in m.__dict__.values():
                 if isinstance(obj, type) and issubclass(obj, Plugin) and obj.name != 'Trivial Plugin':
                     plugin_classes.append(obj)
@@ -345,7 +369,7 @@ class CalibrePluginFinder:
                 del self.loaded_plugins[plugin_name]
             raise
 
-    def _locate_code(self, zf, path_to_zip_file):
+    def _locate_code(self, zf: zipfile.ZipFile, path_to_zip_file: str) -> str:
         all_names = frozenset(zf.namelist())
         names = [x[1:] if x[0] == '/' else x for x in all_names]
 
@@ -378,7 +402,7 @@ class CalibrePluginFinder:
                 continue
             valid_packages.add('.'.join(parts))
 
-        names = OrderedDict()
+        name_map: dict[str, zipfile.ZipInfo] = OrderedDict()
 
         for candidate in pynames:
             parts = posixpath.splitext(candidate)[0].split('/')
@@ -386,20 +410,20 @@ class CalibrePluginFinder:
             if package and package not in valid_packages:
                 continue
             name = '.'.join(parts)
-            names[name] = zf.getinfo(candidate)
+            name_map[name] = zf.getinfo(candidate)
 
         # Legacy plugins
-        if '__init__' not in names:
-            for name in tuple(names):
+        if '__init__' not in name_map:
+            for name in tuple(name_map):
                 if '.' not in name and name.endswith('plugin'):
-                    names['__init__'] = names[name]
+                    name_map['__init__'] = name_map[name]
                     break
 
-        if '__init__' not in names:
+        if '__init__' not in name_map:
             raise InvalidPlugin(f'The plugin in {path_to_zip_file!r} is invalid. It does not contain a top-level __init__.py file')
 
         with self._lock:
-            self.loaded_plugins[plugin_name] = path_to_zip_file, names, tuple(all_names)
+            self.loaded_plugins[plugin_name] = path_to_zip_file, name_map, tuple(all_names)
 
         return plugin_name
 

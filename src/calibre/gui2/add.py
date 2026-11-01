@@ -587,6 +587,8 @@ class Adder(QObject):
         assert db is not None
         dbref = self.dbref
         assert dbref is not None
+        db_inst = dbref()
+        assert db_inst is not None
         for fmt, path in fmap.items():
             # The onimport plugins have already been run by the read metadata
             # worker
@@ -594,7 +596,7 @@ class Adder(QObject):
                 continue
             try:
                 if db.add_format(book_id, fmt, path, run_hooks=False, replace=replace):
-                    run_plugins_on_postimport(dbref(), book_id, fmt)
+                    run_plugins_on_postimport(db_inst, book_id, fmt)
                     fmt_map[fmt.lower()] = path
             except Exception:
                 a = self.report.append
@@ -602,7 +604,7 @@ class Adder(QObject):
                 a(_('Failed to add the file {0} to the book: {1}').format(path, mi.title))
                 a(_('With error:')), a(traceback.format_exc())
         if is_an_add:
-            run_plugins_on_postadd(dbref(), book_id, fmt_map)
+            run_plugins_on_postadd(db_inst, book_id, fmt_map)
 
     def process_duplicates(self):
         if self.duplicates:

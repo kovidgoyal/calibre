@@ -17,12 +17,13 @@ from calibre import __appname__, __version__, fsync, human_readable, prints
 from calibre.customize.ui import device_plugins
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.devices.scanner import DeviceScanner
+from calibre.devices.usbms.cli import CLI
 from calibre.utils.config import device_prefs
 from polyglot.io import PolyglotStringIO
 
 if TYPE_CHECKING:
     from calibre.devices.interface import DevicePlugin
-    from calibre.devices.usbms.cli import CLI, File
+    from calibre.devices.usbms.cli import File
 
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
 
@@ -281,6 +282,7 @@ def main() -> int:
             if len(args) != 1:
                 parser.print_help()
                 sys.exit(1)
+            assert isinstance(dev, CLI), 'This device does not support the mkdir command'
             dev.mkdir(args[0])
         elif command == 'ls':
             parser = OptionParser(usage='usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/')
@@ -311,6 +313,7 @@ def main() -> int:
             if len(args) != 1:
                 parser.print_help()
                 return 1
+            assert isinstance(dev, CLI), 'This device does not support the ls command'
             print(
                 ls(dev, args[0], recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),
                 end=' ',
@@ -361,6 +364,7 @@ def main() -> int:
                     print(e, file=sys.stderr)
                     parser.print_help()
                     return 1
+                assert isinstance(dev, CLI), 'This device does not support copying files to it'
                 dev.put_file(infile, args[1][4:], replace_file=options.force)
                 infile.close()
             else:
@@ -379,7 +383,7 @@ def main() -> int:
                 path = args[0][:-1]
             else:
                 path = args[0]
-            outfile = sys.stdout
+            outfile = sys.stdout.buffer
             dev.get_file(path, outfile)
         elif command == 'rm':
             parser = OptionParser(
@@ -391,6 +395,7 @@ def main() -> int:
             if len(args) != 1:
                 parser.print_help()
                 return 1
+            assert isinstance(dev, CLI), 'This device does not support the rm command'
             dev.rm(args[0])
         elif command == 'touch':
             parser = OptionParser(
@@ -401,6 +406,7 @@ def main() -> int:
             if len(args) != 1:
                 parser.print_help()
                 return 1
+            assert isinstance(dev, CLI), 'This device does not support the touch command'
             dev.touch(args[0])
         elif command == 'test_file':
             parser = OptionParser(usage=('usage: %prog test_file path\nOpen device, copy file specified by path to device and then eject device.'))
@@ -417,8 +423,8 @@ def main() -> int:
             dev.eject()
         else:
             parser.print_help()
-            if getattr(dev, 'handle', False):
-                dev.close()
+            if getattr(dev, 'handle', False) and (close := getattr(dev, 'close', None)) is not None:
+                close()
             return 1
     except DeviceLocked:
         print('The device is locked. Use the --unlock option', file=sys.stderr)

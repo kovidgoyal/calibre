@@ -231,6 +231,7 @@ class LRFOutput(OutputFormatPlugin):
             from calibre.customize.ui import plugin_for_output_format
 
             oeb_output = plugin_for_output_format('oeb')
+            assert oeb_output is not None
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             from calibre.ebooks.lrf.html.convert_from import process_file

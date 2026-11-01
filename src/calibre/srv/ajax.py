@@ -166,8 +166,8 @@ def book_to_json(
             from calibre.utils.filenames import ascii_filename as sanitize
 
             for device_class in device_plugins():
-                if device_class.__class__.__name__ == device_for_template:
-                    template = device_class.save_template()
+                if device_class.__class__.__name__ == device_for_template and (save_template := getattr(device_class, 'save_template', None)) is not None:
+                    template = save_template()
                     data['_filename_'] = create_upload_path(mi, str(book_id), template, sanitize, path_type=posixpath)
                     break
 

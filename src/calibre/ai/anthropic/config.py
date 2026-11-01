@@ -94,6 +94,7 @@ class ConfigWidget(QWidget):
                 break
         else:
             raise ValueError(f'Could not find the {AnthropicAI.name} plugin')
+        assert backend is not None
         return tuple(sorted(backend.get_available_models().values(), key=lambda m: (-m.family_version, primary_sort_key(m.name))))
 
     def set_model(self, model_id: str, purpose: AICapabilities) -> bool:

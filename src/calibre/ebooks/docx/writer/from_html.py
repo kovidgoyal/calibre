@@ -20,7 +20,6 @@ from calibre.ebooks.oeb.stylizer import Stylizer as Sz
 from calibre.utils.localization import lang_as_iso639_1
 
 if TYPE_CHECKING:
-    from optparse import Values
     from types import TracebackType
 
     from lxml.etree import _Element
@@ -527,7 +526,7 @@ class Convert:
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
 
         self.svg_rasterizer = SVGRasterizer(base_css=self.base_css)
-        self.svg_rasterizer(self.oeb, cast('Values', self.opts))  # OptionValues provides the same attributes
+        self.svg_rasterizer(self.oeb, self.opts)
 
         self.styles_manager = StylesManager(self.docx.namespace, self.log, self.mi.language)
         self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships, self.log)
