@@ -3,9 +3,11 @@
 from __python__ import hash_literals
 
 from elementmaker import E
+from gettext import gettext as _, ngettext
 
 from book_list.fts import apply_search_panel_state, component, init, set_search_status, show_index_panel
 from book_list.globals import get_current_query
+from modals import close_all_modals, create_modal_container
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_false, assert_true, test
 from utils import parse_url_params
@@ -23,6 +25,9 @@ def with_search_panel(proceed):
             xhr = E.div()
             xhr.open = def (method, path): pass
             xhr.send = def (): requests.push(xhr)
+            xhr.abort = def ():
+                xhr.aborted = True
+                xhr.dispatchEvent(new Event('abort'))
             xhr.status = 200
             xhr.statusText = 'OK'
             return xhr
@@ -31,6 +36,11 @@ def with_search_panel(proceed):
             q.fts_query = query
             apply_search_panel_state()
             return requests[-1]
+
+        def fail(xhr, status):
+            xhr.status = status
+            xhr.responseText = ''
+            xhr.dispatchEvent(new Event('load'))
 
         def finish(xhr, books=None, left=0, total=0):
             query_id = new window.URL(xhr.request_path, window.location.href).searchParams.get('query_id')
@@ -49,7 +59,7 @@ def with_search_panel(proceed):
             document.body.appendChild(E.div(id='test-fts'))
             init('test-fts')
 
-            proceed(search, finish, requests)
+            proceed(search, finish, requests, fail)
         finally:
             window.XMLHttpRequest = previous_xhr
             window.history.replaceState(None, '', previous_url)
@@ -57,6 +67,10 @@ def with_search_panel(proceed):
             get_current_query(previous_query or {})
 
     with_empty_session(run)
+
+
+def found(n):
+    return ngettext('{} book found', '{} books found', n).format(n)
 
 
 @test
@@ -69,15 +83,15 @@ def fts_status_counts_books_and_preserves_focus():
         input = component('query').querySelector('input')
         input.focus()
         xhr = search('test')
-        assert_true(status.textContent.indexOf('Searching') > -1)
+        assert_true(status.textContent.indexOf('test') > -1)
         finish(xhr, [1, 1, 2])
-        assert_equal(status.textContent, '2 books found')
+        assert_equal(status.textContent, found(2))
         assert_equal(component('status'), status)
         assert_equal(document.activeElement, input)
         observer = new window.MutationObserver(def (): pass;)
         observer.observe(status, {'childList': True, 'subtree': True, 'characterData': True})
         try:
-            set_search_status('2 books found')
+            set_search_status(found(2))
             apply_search_panel_state()
             snippets = requests[-1]
             query_id = new window.URL(snippets.request_path, window.location.href).searchParams.get('query_id')
@@ -87,9 +101,9 @@ def fts_status_counts_books_and_preserves_focus():
         finally:
             observer.disconnect()
         finish(search('one'), [1])
-        assert_equal(status.textContent, '1 book found')
+        assert_equal(status.textContent, found(1))
         finish(search('none'))
-        assert_equal(status.textContent, 'No matches found')
+        assert_equal(status.textContent, _('No matches found'))
 
     with_search_panel(run)
 
@@ -108,7 +122,7 @@ def fts_status_ignores_superseded_and_hidden_searches():
         assert_equal(status.textContent, waiting)
         assert_false(document.getElementById('modal-container'))
         finish(current)
-        assert_equal(status.textContent, 'No matches found')
+        assert_equal(status.textContent, _('No matches found'))
         hidden = search('hidden')
         waiting = status.textContent
         show_index_panel()
@@ -151,7 +165,7 @@ def fts_status_restarts_pending_search_when_panel_is_recreated():
         finish(old, [1])
         assert_equal(status.textContent, waiting)
         finish(search('pending'), [1, 2])
-        assert_equal(status.textContent, '2 books found')
+        assert_equal(status.textContent, found(2))
 
     with_search_panel(run)
 
@@ -161,7 +175,7 @@ def fts_status_warns_about_incomplete_indexing_and_clears_with_query():
     def run(search, finish):
         status = component('status')
         finish(search('partial'), [1], left=5, total=10)
-        assert_true(status.textContent.startsWith('1 book found'))
+        assert_true(status.textContent.startsWith(found(1)))
         assert_true(status.textContent.indexOf('50%') > -1)
         pending = search('clear')
         search('')
@@ -169,5 +183,49 @@ def fts_status_warns_about_incomplete_indexing_and_clears_with_query():
         finish(pending, [1])
         assert_equal(status.textContent, '')
         assert_true(component('results').querySelector('.fts-help-display'))
+
+    with_search_panel(run)
+
+
+@test
+def fts_failed_search_is_shown_and_announced():
+    def run(search, finish, requests, fail):
+        create_modal_container()
+        status = component('status')
+        fail(search('broken'), 500)
+        assert_equal(status.textContent, _('Search failed'))
+        assert_equal(component('results').textContent, _('Search failed'))
+        fail(search('disabled'), 428)
+        assert_equal(status.textContent, _('Full text searching disabled'))
+        assert_equal(component('results').textContent, _('Full text searching disabled'))
+        close_all_modals()
+
+    with_search_panel(run)
+
+
+@test
+def fts_superseded_search_is_aborted():
+    def run(search, finish):
+        old = search('old')
+        current = search('current')
+        assert_true(old.aborted)
+        assert_false(current.aborted)
+        search('')
+        assert_true(current.aborted)
+
+    with_search_panel(run)
+
+
+@test
+def fts_status_set_while_building_panel_is_delayed():
+    def run(search, finish):
+        search('pending')
+        document.getElementById('test-fts').remove()
+        document.body.appendChild(E.div(id='test-fts-reopened'))
+        init('test-fts-reopened')
+        # Changes made in the same task that inserts the live region are not
+        # announced, so the update is delayed
+        assert_equal(component('status').textContent, '')
+        assert_true(component('results').textContent.indexOf('pending') > -1)
 
     with_search_panel(run)

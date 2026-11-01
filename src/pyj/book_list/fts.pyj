@@ -20,7 +20,10 @@ from widgets import create_spinner
 
 overall_container_id = ''
 current_fts_query = {}
+current_search_xhr = None
 query_id_counter = 0
+status_region_is_new = False
+status_update_count = 0
 
 add_extra_css(def ():
     sel = '.fts-help-display '
@@ -30,6 +33,8 @@ add_extra_css(def ():
     style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: normal; font-weight: 700 }\n'
     style += f'{sel} p' + ' { margin: 0}\n'
     style += '.fts-highlight-match { font-style: normal; font-weight: bold }\n'
+    # Hidden visually but still read by screen readers
+    style += '.fts-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap }\n'
     return style
 )
 
@@ -50,15 +55,24 @@ def search_page_is_shown(container_id):
     return panel_is_shown(container_id) and showing_search_panel(container_id)
 
 
+def abort_current_search():
+    nonlocal current_search_xhr
+    if current_search_xhr:
+        xhr, current_search_xhr = current_search_xhr, None
+        xhr.abort()
+
+
 def make_new_fts_query(q):
-    nonlocal current_fts_query, query_id_counter
+    nonlocal current_fts_query, query_id_counter, current_search_xhr
+    abort_current_search()
     query_id_counter += 1
     current_fts_query = {'query_id': query_id_counter + ''}
     if current_library_id():
         current_fts_query.library_id = current_library_id()
     Object.assign(current_fts_query, q)
-    xhr = ajax('fts/search', on_initial_fts_fetched.bind(None, current_fts_query, overall_container_id), query=current_fts_query, bypass_cache=True)
-    xhr.send()
+    current_search_xhr = ajax(
+        'fts/search', on_initial_fts_fetched.bind(None, current_fts_query, overall_container_id), query=current_fts_query, bypass_cache=True)
+    current_search_xhr.send()
 
 
 def enable_indexing():
@@ -93,20 +107,22 @@ def report_fts_not_enabled():
 
 
 def on_initial_fts_fetched(query, container_id, end_type, xhr, ev):
+    nonlocal current_search_xhr
+    if xhr is current_search_xhr:
+        current_search_xhr = None
     if (end_type is 'abort' or query is not current_fts_query or container_id is not overall_container_id
             or not search_page_is_shown(container_id)):
         return
     if end_type is not 'load':
-        clear(component('results'))
-        set_search_status(_('Search failed'))
         if xhr.status is 428:
+            clear_to_message(_('Full text searching disabled'))
             return report_fts_not_enabled()
+        clear_to_message(_('Search failed'))
         return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
     try:
         results = JSON.parse(xhr.responseText)
     except Exception as err:
-        clear(component('results'))
-        set_search_status(_('Search failed'))
+        clear_to_message(_('Search failed'))
         return error_dialog(_('Server error'), _('Failed to parse search response from server.'), err + '')
     if results.query_id + '' is not current_fts_query.query_id:
         return
@@ -172,30 +188,45 @@ def build_search_page():
     container.appendChild(E.div(style='padding-top: 1ex; display: flex; width: 100%; align-items: center', svgicon('search'), E.span('\xa0'), restrict_bar))
 
     # Keep the live region outside results, which is cleared while searching
-    container.appendChild(E.div(
-        data_component='status', role='status', aria_atomic='true',
-        style='position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap'
-    ))
+    container.appendChild(E.div(data_component='status', role='status', aria_atomic='true', class_='fts-visually-hidden'))
     container.appendChild(E.div(style='border-top: var(--calibre-border-style); margin-top: 1ex', data_component='results'))
 
 
 def set_search_status(msg):
+    nonlocal status_update_count
     status = component('status')
-    if status and search_page_is_shown(overall_container_id) and status.textContent is not msg:
+    if not status or not search_page_is_shown(overall_container_id):
+        return
+    status_update_count += 1
+    if status_region_is_new:
+        # Screen readers ignore changes made to a live region in the same task
+        # that inserted it, so delay updates made while the panel is built.
+        # Skip the delayed update if a newer one has happened since.
+        count = status_update_count
+        window.setTimeout(def ():
+            if count is status_update_count and status.isConnected and status.textContent is not msg:
+                status.textContent = msg
+        , 100)
+    elif status.textContent is not msg:
         status.textContent = msg
 
 
-def clear_to_waiting_for_results(msg):
+def clear_to_message(msg, show_spinner=False):
     container = component('results')
     if not container:
         return
     clear(container)
-    msg = msg or (_('Searching, please wait') + '…')
     set_search_status(msg)
-    container.appendChild(E.div(
-        style='margin: auto; width: 100%; text-align: center; margin-top: 4ex',
-        create_spinner(), '\xa0' + msg
-    ))
+    div = E.div(style='margin: auto; width: 100%; text-align: center; margin-top: 4ex')
+    if show_spinner:
+        div.appendChild(create_spinner())
+        msg = '\xa0' + msg
+    div.appendChild(document.createTextNode(msg))
+    container.appendChild(div)
+
+
+def clear_to_waiting_for_results(msg):
+    clear_to_message(msg or (_('Searching, please wait') + '…'), show_spinner=True)
 
 
 def toggle_restrict():
@@ -262,10 +293,11 @@ def apply_search_panel_state():
     r.parentNode.style.display = 'flex' if ftsq.restriction is not '' else 'none'
     r.querySelector('input').value = q.restriction or ''
     if not ftsq.query:
+        abort_current_search()
         current_fts_query = {}
         clear_to_help()
         return
-    if (not current_fts_query.results or current_fts_query.library_id is not current_library_id()
+    if (not current_fts_query.results or (current_fts_query.library_id or '') is not (current_library_id() or '')
             or current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming
             or current_fts_query.restriction is not ftsq.restriction):
         make_new_fts_query(ftsq)
@@ -422,8 +454,9 @@ def book_result_tile(book_id, title, authors):
     )
 
 
-def on_snippets_fetched(end_type, xhr, ev):
-    if end_type is 'abort' or not showing_search_panel():
+def on_snippets_fetched(query, container_id, end_type, xhr, ev):
+    if (end_type is 'abort' or query is not current_fts_query or container_id is not overall_container_id
+            or not search_page_is_shown(container_id)):
         return
     if end_type is not 'load':
         return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
@@ -495,7 +528,7 @@ def fetch_snippets():
     q = {}
     Object.assign(q, current_fts_query)
     q.results = v'undefined'
-    xhr = ajax(f'fts/snippets/{ids}', on_snippets_fetched, query=q, bypass_cache=True)
+    xhr = ajax(f'fts/snippets/{ids}', on_snippets_fetched.bind(None, current_fts_query, overall_container_id), query=q, bypass_cache=True)
     xhr.send()
 
 
@@ -506,12 +539,13 @@ def show_initial_results():
     clear(container)
     results = current_fts_query.results
     left, total = results.indexing_status['left'], results.indexing_status['total']
+    indexing_warning = ''
     if left > 0:
         pc = int(((total - left) / total) * 100) if total > 0 else 0
+        indexing_warning = _('Indexing of library only {}% complete, search results may be incomplete.').format(pc)
         container.appendChild(E.div(
             style='margin-top: 0.5ex',
-            E.span(_('WARNING:'), style='color: red; font-weight: bold'), '\xa0',
-            _('Indexing of library only {}% complete, search results may be incomplete.').format(pc)
+            E.span(_('WARNING:'), style='color: red; font-weight: bold'), '\xa0', indexing_warning
         ))
     rc = E.div(style='margin-top: 0.5ex')
     container.appendChild(rc)
@@ -528,8 +562,8 @@ def show_initial_results():
         rc.appendChild(E.div(_('No matches found')))
     num_books = Object.keys(seen).length
     msg = ngettext('{} book found', '{} books found', num_books).format(num_books) if num_books else _('No matches found')
-    if left > 0:
-        msg += ' ' + _('Indexing of library only {}% complete, search results may be incomplete.').format(pc)
+    if indexing_warning:
+        msg += ' ' + indexing_warning
     set_search_status(msg)
     fetch_snippets()
 
@@ -554,7 +588,7 @@ def show_index_panel():
 
 
 def init(container_id):
-    nonlocal overall_container_id
+    nonlocal overall_container_id, status_region_is_new
     overall_container_id = container_id
     container = document.getElementById(container_id)
     create_top_bar(container, title=_('Search text of books'), icon='back')
@@ -565,10 +599,14 @@ def init(container_id):
     ))
     build_search_page()
     q = get_current_query()
-    if not q.fts_panel or q.fts_panel is 'search':
-        show_search_panel()
-    elif q.fts_panel is 'index':
-        show_index_panel()
+    status_region_is_new = True
+    try:
+        if not q.fts_panel or q.fts_panel is 'search':
+            show_search_panel()
+        elif q.fts_panel is 'index':
+            show_index_panel()
+    finally:
+        status_region_is_new = False
 
 
 def set_panel_handlers():
