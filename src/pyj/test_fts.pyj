@@ -74,25 +74,30 @@ def found(n):
 
 
 @test
-def fts_result_titles_are_native_buttons_outside_snippets():
+def fts_result_covers_are_native_buttons_outside_snippets():
     def run(search, finish, requests):
         finish(search('test'), [1, 2])
         results = component('results')
-        buttons = results.querySelectorAll('.fts-result-title')
+        buttons = results.querySelectorAll('.fts-result-cover')
         assert_equal(buttons.length, 2)
         button = buttons[0]
         assert_equal(button.tagName, 'BUTTON')
         assert_equal(button.type, 'button')
-        assert_equal(button.tabIndex, 0)
         assert_equal(button.getAttribute('aria-haspopup'), 'dialog')
-        assert_equal(button.textContent, 'First ' + _('by') + ' Author')
+        assert_equal(button.getAttribute('aria-label'), 'First ' + _('by') + ' Author')
+        assert_equal(button.textContent, '')
+        img = button.querySelector('img')
+        assert_true(img)
+        assert_equal(img.alt, '')
         assert_false(button.querySelector('.snippets_container'))
+        # No visible title is added, the snippets column only holds snippets
+        assert_equal(results.querySelector('.snippets_container').parentNode.childElementCount, 1)
         button.focus()
         snippets = requests[-1]
         query_id = new window.URL(snippets.request_path, window.location.href).searchParams.get('query_id')
         snippets.responseText = JSON.stringify({'query_id': query_id, 'snippets': {1: [{'formats': ['EPUB'], 'text': 'A match'}], 2: []}})
         snippets.dispatchEvent(new Event('load'))
-        assert_equal(results.querySelector('.fts-result-title'), button)
+        assert_equal(results.querySelector('.fts-result-cover'), button)
         assert_equal(document.activeElement, button)
         assert_true(results.querySelector('.snippets_container').textContent.indexOf('A match') > -1)
 
@@ -103,8 +108,13 @@ def fts_result_titles_are_native_buttons_outside_snippets():
 def fts_result_focus_is_restored_only_for_current_visible_results():
     def run(search, finish):
         finish(search('test'), [1])
-        button = component('results').querySelector('.fts-result-title')
+        button = component('results').querySelector('.fts-result-cover')
         input = component('query').querySelector('input')
+        # Focusing the button must not scroll a tile's snippets back to the
+        # top, so it must not be inside the scrollable snippets column
+        column = component('results').querySelector('.snippets_container').parentNode
+        assert_equal(window.getComputedStyle(column).overflowY, 'auto')
+        assert_false(column.contains(button))
         input.focus()
         restore_result_focus(button, 'test-fts')
         assert_equal(document.activeElement, button)

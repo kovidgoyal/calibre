@@ -33,9 +33,9 @@ add_extra_css(def ():
     style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: normal; font-weight: 700 }\n'
     style += f'{sel} p' + ' { margin: 0}\n'
     style += '.fts-highlight-match { font-style: normal; font-weight: bold }\n'
-    style += '.fts-result-title { align-self: flex-start; flex-shrink: 0; background: none; border: 0; padding: 0.25ex 0.5ex;'
-    style += ' color: var(--calibre-color-link-foreground); font: inherit; text-align: left; text-decoration: underline; cursor: pointer }\n'
-    style += '.fts-result-title:focus-visible { outline: 2px solid var(--calibre-color-link-foreground); outline-offset: -2px }\n'
+    # The cover button must look exactly like a bare cover image
+    style += '.fts-result-cover { display: block; margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer }\n'
+    style += '.fts-result-cover:focus-visible { outline: 2px solid var(--calibre-color-link-foreground); outline-offset: 2px }\n'
     # Hidden visually but still read by screen readers
     style += '.fts-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap }\n'
     return style
@@ -406,7 +406,7 @@ def restore_result_focus(button, container_id):
 
 def book_result_tile_clicked(ev):
     result_tile = ev.currentTarget
-    button = result_tile.querySelector('.fts-result-title')
+    button = result_tile.querySelector('.fts-result-cover')
     container_id = overall_container_id
 
     def on_close():
@@ -453,7 +453,8 @@ def book_result_tile(book_id, title, authors):
     img.style.maxHeight = tile_height
     img.style.maxWidth = img_max_width
     tooltip = (title) + ' ' + _('by') + ' ' + (authors)
-    img.alt = _('Cover of') + ' ' + tooltip
+    # The cover is decorative, the button wrapping it is labelled with the title
+    img.alt = ''
     return E.div(
         onclick=book_result_tile_clicked,
         title=tooltip,
@@ -461,11 +462,10 @@ def book_result_tile(book_id, title, authors):
         style=f'cursor: pointer; margin-bottom: 1ex; display:flex; height: {tile_height}; max-height: {tile_height}; width: 100%; align-items: stretch',
         E.div(
             style=f'margin-right: 1ex; width: {img_max_width}',
-            img
+            E.button(img, type='button', class_='fts-result-cover', aria_label=tooltip, aria_haspopup='dialog'),
         ),
         E.div(
             style=f'display:flex; flex-direction: column; height: 100%; overflow-y: auto',
-            E.button(tooltip, type='button', class_='fts-result-title', aria_haspopup='dialog'),
             E.div(E.span(style='font-size: small; font-style: normal; font-weight: 600; opacity: 0.5;', _('loading'), '…'), class_='snippets_container'),
         )
     )
