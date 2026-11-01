@@ -3,7 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
 from ajax import ajax, ajax_send
 from book_list.cover_grid import THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH
@@ -57,7 +57,7 @@ def make_new_fts_query(q):
     if current_library_id():
         current_fts_query.library_id = current_library_id()
     Object.assign(current_fts_query, q)
-    xhr = ajax('fts/search', on_initial_fts_fetched, query=current_fts_query, bypass_cache=True)
+    xhr = ajax('fts/search', on_initial_fts_fetched.bind(None, current_fts_query, overall_container_id), query=current_fts_query, bypass_cache=True)
     xhr.send()
 
 
@@ -92,17 +92,21 @@ def report_fts_not_enabled():
     )
 
 
-def on_initial_fts_fetched(end_type, xhr, ev):
-    if end_type is 'abort' or not showing_search_panel():
+def on_initial_fts_fetched(query, container_id, end_type, xhr, ev):
+    if (end_type is 'abort' or query is not current_fts_query or container_id is not overall_container_id
+            or not search_page_is_shown(container_id)):
         return
     if end_type is not 'load':
-        clear_to_waiting_for_results(_('No matches found'))
+        clear(component('results'))
+        set_search_status(_('Search failed'))
         if xhr.status is 428:
             return report_fts_not_enabled()
         return error_dialog(_('Failed to search'), _('The search failed. Click "Show details" for more information.'), xhr.error_html)
     try:
         results = JSON.parse(xhr.responseText)
     except Exception as err:
+        clear(component('results'))
+        set_search_status(_('Search failed'))
         return error_dialog(_('Server error'), _('Failed to parse search response from server.'), err + '')
     if results.query_id + '' is not current_fts_query.query_id:
         return
@@ -167,8 +171,18 @@ def build_search_page():
     restrict_bar.dataset.component = 'restrict'
     container.appendChild(E.div(style='padding-top: 1ex; display: flex; width: 100%; align-items: center', svgicon('search'), E.span('\xa0'), restrict_bar))
 
-    # Search help
+    # Keep the live region outside results, which is cleared while searching
+    container.appendChild(E.div(
+        data_component='status', role='status', aria_atomic='true',
+        style='position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap'
+    ))
     container.appendChild(E.div(style='border-top: var(--calibre-border-style); margin-top: 1ex', data_component='results'))
+
+
+def set_search_status(msg):
+    status = component('status')
+    if status and search_page_is_shown(overall_container_id) and status.textContent is not msg:
+        status.textContent = msg
 
 
 def clear_to_waiting_for_results(msg):
@@ -177,6 +191,7 @@ def clear_to_waiting_for_results(msg):
         return
     clear(container)
     msg = msg or (_('Searching, please wait') + '…')
+    set_search_status(msg)
     container.appendChild(E.div(
         style='margin: auto; width: 100%; text-align: center; margin-top: 4ex',
         create_spinner(), '\xa0' + msg
@@ -196,6 +211,7 @@ def clear_to_help():
     container = component('results')
     if not container:
         return
+    set_search_status('')
     clear(container)
     container.appendChild(E.div(class_='fts-help-display'))
     restrict = get_current_query().restricted is 'y'
@@ -237,6 +253,7 @@ def clear_to_help():
 
 
 def apply_search_panel_state():
+    nonlocal current_fts_query
     q = get_current_query()
     ftsq = {'query': q.fts_query or '', 'use_stemming': q.fts_use_stemming or 'y', 'restriction': q.restriction if q.restricted is 'y' else ''}
     component('query').querySelector('input').value = ftsq.query
@@ -245,9 +262,11 @@ def apply_search_panel_state():
     r.parentNode.style.display = 'flex' if ftsq.restriction is not '' else 'none'
     r.querySelector('input').value = q.restriction or ''
     if not ftsq.query:
+        current_fts_query = {}
         clear_to_help()
         return
-    if (current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming
+    if (not current_fts_query.results or current_fts_query.library_id is not current_library_id()
+            or current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming
             or current_fts_query.restriction is not ftsq.restriction):
         make_new_fts_query(ftsq)
         clear_to_waiting_for_results(_('Searching for {}, please wait…').format(ftsq.query))
@@ -507,6 +526,11 @@ def show_initial_results():
             rc.appendChild(E.hr())
     if results.results.length < 1:
         rc.appendChild(E.div(_('No matches found')))
+    num_books = Object.keys(seen).length
+    msg = ngettext('{} book found', '{} books found', num_books).format(num_books) if num_books else _('No matches found')
+    if left > 0:
+        msg += ' ' + _('Indexing of library only {}% complete, search results may be incomplete.').format(pc)
+    set_search_status(msg)
     fetch_snippets()
 
 
