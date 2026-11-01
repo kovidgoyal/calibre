@@ -12,10 +12,10 @@ from calibre.ebooks.mobi import MobiError
 
 
 class Reader:
-    def __init__(self):
+    def __init__(self) -> None:
         self.q = struct.Struct(b'>Q').unpack_from
 
-    def load_huff(self, huff):
+    def load_huff(self, huff) -> None:
         if huff[0:8] != b'HUFF\x00\x00\x00\x18':
             raise MobiError('Invalid HUFF header')
         off1, off2 = struct.unpack_from(b'>LL', huff, 8)
@@ -39,7 +39,7 @@ class Reader:
 
         self.dictionary = []
 
-    def load_cdic(self, cdic):
+    def load_cdic(self, cdic) -> None:
         if cdic[0:8] != b'CDIC\x00\x00\x00\x10':
             raise MobiError('Invalid CDIC header')
         phrases, bits = struct.unpack_from(b'>LL', cdic, 8)
@@ -92,7 +92,7 @@ class Reader:
 
 
 class HuffReader:
-    def __init__(self, huffs):
+    def __init__(self, huffs) -> None:
         self.reader = Reader()
         self.reader.load_huff(huffs[0])
         for cdic in huffs[1:]:

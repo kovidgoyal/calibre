@@ -179,12 +179,12 @@ class RecipeInput(InputFormatPlugin):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         if self.recipe_object is not None:
             self.recipe_object.internal_postprocess_book(oeb, opts, log)
             self.recipe_object.postprocess_book(oeb, opts, log)
 
-    def specialize(self, oeb, opts, log, output_fmt):
+    def specialize(self, oeb, opts, log, output_fmt) -> None:
         if opts.no_inline_navbars:
             from calibre.ebooks.oeb.base import XPath
 
@@ -192,7 +192,7 @@ class RecipeInput(InputFormatPlugin):
                 for div in XPath('//h:div[contains(@class, "calibre_navbar")]')(item.data):
                     div.getparent().remove(div)
 
-    def save_download(self, zf):
+    def save_download(self, zf) -> None:
         raw = self.recipe_source
         if isinstance(raw, str):
             raw = raw.encode('utf-8')

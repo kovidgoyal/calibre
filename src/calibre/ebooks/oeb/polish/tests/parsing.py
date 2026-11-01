@@ -12,7 +12,7 @@ from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 
 
-def nonvoid_cdata_elements(test, parse_function):
+def nonvoid_cdata_elements(test, parse_function) -> None:
     """If self closed version of non-void cdata elements like <title/> are
     present, the HTML5 parsing algorithm treats all following data as CDATA"""
     markup = '''
@@ -28,10 +28,10 @@ def nonvoid_cdata_elements(test, parse_function):
             )
 
 
-def namespaces(test, parse_function):
+def namespaces(test, parse_function) -> None:
     ae = test.assertEqual
 
-    def match_and_prefix(root, xpath, prefix, err=''):
+    def match_and_prefix(root, xpath, prefix, err='') -> None:
         matches = XPath(xpath)(root)
         ae(len(matches), 1, err)
         ae(matches[0].prefix, prefix, err)
@@ -111,7 +111,7 @@ def namespaces(test, parse_function):
     # ae(len(XPath('//*[@xml:lang]')(root)), 0, err)
 
 
-def space_characters(test, parse_function):
+def space_characters(test, parse_function) -> None:
     markup = '<html><p>\u000cX</p>'
     root = parse_function(markup)
     err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root, encoding='unicode')
@@ -122,21 +122,21 @@ def space_characters(test, parse_function):
     test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
 
 
-def case_insensitive_element_names(test, parse_function):
+def case_insensitive_element_names(test, parse_function) -> None:
     markup = '<HTML><P> </p>'
     root = parse_function(markup)
     err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//h:p')(root)), 1, err)
 
 
-def entities(test, parse_function):
+def entities(test, parse_function) -> None:
     markup = '<html><p>&nbsp;&apos;</p>'
     root = parse_function(markup)
     err = 'Entities not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual("\xa0'", root.xpath('//*[local-name()="p"]')[0].text, err)
 
 
-def multiple_html_and_body(test, parse_function):
+def multiple_html_and_body(test, parse_function) -> None:
     markup = '<html id="1"><body id="2"><p><html lang="en"><body lang="de"></p>'
     root = parse_function(markup)
     err = 'multiple html and body not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
@@ -146,14 +146,14 @@ def multiple_html_and_body(test, parse_function):
     test.assertEqual(len(XPath('//h:body[@id and @lang]')(root)), 1, err)
 
 
-def attribute_replacement(test, parse_function):
+def attribute_replacement(test, parse_function) -> None:
     markup = f'<html><body><svg viewbox="0"></svg><svg xmlns="{SVG_NS}" viewbox="1">'
     root = parse_function(markup)
     err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//svg:svg[@viewBox]')(root)), 2, err)
 
 
-def comments(test, parse_function):
+def comments(test, parse_function) -> None:
     markup = '<html><!-- -- ---><body/></html>'
     root = parse_function(markup)
     test.assertEqual(len(XPath('//h:body')(root)), 1, 'Failed to parse with comment containing dashes')
@@ -173,7 +173,7 @@ basic_checks = (
 
 
 class ParsingTests(BaseTest):
-    def test_lxml_tostring(self):
+    def test_lxml_tostring(self) -> None:
         "Test for bug in some versions of lxml that causes incorrect serialization of sub-trees"
         from html5_parser import parse
 
@@ -181,12 +181,12 @@ class ParsingTests(BaseTest):
         p = root.xpath('//p')[0]
         self.assertEqual(etree.tostring(p, encoding=str), '<p>a</p>')
 
-    def test_conversion_parser(self):
+    def test_conversion_parser(self) -> None:
         "Test parsing with the HTML5 parser used for conversion"
         for test in basic_checks:
             test(self, html5_parse)
 
-    def test_polish_parser(self):
+    def test_polish_parser(self) -> None:
         "Test parsing with the HTML5 parser used for polishing"
         for test in basic_checks:
             test(self, parse)
@@ -216,7 +216,7 @@ class ParsingTests(BaseTest):
         self.assertIn('extra', root.nsmap, 'Extra namespace declaration on <html> tag not preserved')
 
 
-def timing():
+def timing() -> None:
     import sys
 
     from html5lib import parse as vanilla

@@ -25,7 +25,7 @@ class StringIO(io.StringIO):
 
 
 class StreamSlicer:
-    def __init__(self, stream, start=0, stop=None):
+    def __init__(self, stream, start=0, stop=None) -> None:
         self._stream = stream
         self.start = start
         if stop is None:
@@ -34,7 +34,7 @@ class StreamSlicer:
         self.stop = stop
         self._len = stop - start
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self._len
 
     def __getitem__(self, key):
@@ -57,7 +57,7 @@ class StreamSlicer:
             return data
         raise TypeError('stream indices must be integers')
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
@@ -78,7 +78,7 @@ class StreamSlicer:
             return stream.write(value)
         raise TypeError('stream indices must be integers')
 
-    def update(self, data_blocks):
+    def update(self, data_blocks) -> None:
         # Rewrite the stream
         stream = self._stream
         base = self.start
@@ -87,12 +87,12 @@ class StreamSlicer:
         for block in data_blocks:
             stream.write(block)
 
-    def truncate(self, value):
+    def truncate(self, value) -> None:
         self._stream.truncate(value)
 
 
 class MetadataUpdater:
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         self.stream = stream
         self.data = StreamSlicer(stream)
 
@@ -138,7 +138,7 @@ class MetadataUpdater:
                 break
         return val, pos
 
-    def dump_headers(self):
+    def dump_headers(self) -> None:
         """Diagnostic"""
         print('\ndump_headers():')
         for tag in self.topaz_headers:
@@ -148,7 +148,7 @@ class MetadataUpdater:
             if num_recs:
                 print(' starting offset: 0x{:x}'.format(self.topaz_headers[tag]['blocks'][0]['offset']))
 
-    def dump_hex(self, src, length=16):
+    def dump_hex(self, src, length=16) -> None:
         """Diagnostic"""
         FILTER = ''.join([((len(repr(chr(x))) == 3) and chr(x)) or '.' for x in range(256)])
         N = 0
@@ -161,7 +161,7 @@ class MetadataUpdater:
             N += length
         print(result)
 
-    def dump_metadata(self):
+    def dump_metadata(self) -> None:
         """Diagnostic"""
         for tag in self.metadata:
             print(f'{tag}: {self.metadata[tag]!r}')
@@ -265,7 +265,7 @@ class MetadataUpdater:
         authors = force_unicode(self.metadata['Authors'], 'utf-8').split(';')
         return MetaInformation(title, authors)
 
-    def get_original_metadata(self):
+    def get_original_metadata(self) -> None:
         offset = self.base + self.topaz_headers['metadata']['blocks'][0]['offset']
         self.md_header: dict = {}
         taglen, consumed = self.decode_vwi(self.data[offset : offset + 4])
@@ -328,7 +328,7 @@ class MetadataUpdater:
         self.original_md_len = original_md_len
         return ths.getvalue().encode('iso-8859-1')
 
-    def update(self, mi):
+    def update(self, mi) -> None:
         # Collect the original metadata
         self.get_original_metadata()
 
@@ -375,7 +375,7 @@ def get_metadata(stream):
     return mu.get_metadata()
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
     mu = MetadataUpdater(stream)
     mu.update(mi)
 

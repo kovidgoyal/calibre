@@ -71,7 +71,7 @@ attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'
 _handle_comment_pat: re.Pattern[str] | None = None
 
 
-def handle_comment(data, comment_tags):
+def handle_comment(data, comment_tags) -> None:
     global _handle_comment_pat
     if _handle_comment_pat is None:
         _handle_comment_pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
@@ -251,7 +251,7 @@ def get_metadata_(src, encoding=None):
 
 
 class MetadataHtmlTest(unittest.TestCase):
-    def compare_metadata(self, meta_a, meta_b):
+    def compare_metadata(self, meta_a, meta_b) -> None:
         for attr in (
             'title',
             'authors',
@@ -361,12 +361,12 @@ class MetadataHtmlTest(unittest.TestCase):
 '''
         return BytesIO(raw)
 
-    def test_input_title(self):
+    def test_input_title(self) -> None:
         stream_meta = get_metadata(self.get_stream('title'))
         canon_meta = Metadata('A Title Tag &amp; Title Ⓒ', [_('Unknown')])
         self.compare_metadata(stream_meta, canon_meta)
 
-    def test_input_meta_single(self):
+    def test_input_meta_single(self) -> None:
         stream_meta = get_metadata(self.get_stream('meta_single'))
         canon_meta = Metadata('A Meta Tag &amp; Title Ⓒ', ['George Washington'])
         canon_meta.publisher = 'Publisher A'
@@ -381,7 +381,7 @@ class MetadataHtmlTest(unittest.TestCase):
         canon_meta.set_identifiers({'isbn': '1234567890'})
         self.compare_metadata(stream_meta, canon_meta)
 
-    def test_input_meta_multi(self):
+    def test_input_meta_multi(self) -> None:
         stream_meta = get_metadata(self.get_stream('meta_multi'))
         canon_meta = Metadata('A Meta Tag &amp; Title Ⓒ', ['George Washington', 'John Adams', 'Thomas Jefferson'])
         canon_meta.publisher = 'Publisher A'
@@ -396,7 +396,7 @@ class MetadataHtmlTest(unittest.TestCase):
         canon_meta.set_identifiers({'isbn': '1234567890', 'url': 'http://google.com/search?q=calibre'})
         self.compare_metadata(stream_meta, canon_meta)
 
-    def test_input_comment_single(self):
+    def test_input_comment_single(self) -> None:
         stream_meta = get_metadata(self.get_stream('comment_single'))
         canon_meta = Metadata('A Comment Tag &amp; Title Ⓒ', ['James Madison', 'James Monroe'])
         canon_meta.publisher = 'Publisher C'
@@ -411,7 +411,7 @@ class MetadataHtmlTest(unittest.TestCase):
         canon_meta.set_identifiers({'isbn': '3456789012', 'url': 'http://google.com/search?q=calibre'})
         self.compare_metadata(stream_meta, canon_meta)
 
-    def test_input_comment_multi(self):
+    def test_input_comment_multi(self) -> None:
         stream_meta = get_metadata(self.get_stream('comment_multi'))
         canon_meta = Metadata('A Comment Tag &amp; Title Ⓒ', ['James Madison', 'James Monroe', 'John Quincy Adams'])
         canon_meta.publisher = 'Publisher C'

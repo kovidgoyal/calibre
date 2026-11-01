@@ -19,7 +19,7 @@ from calibre.utils.resources import get_image_path as I
 
 
 class BaseTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.namespace = DOCXNamespace()
         self.relationships = DocumentRelationships(self.namespace)
         self.links = LinksManager(self.namespace, self.relationships, DevNull())
@@ -35,7 +35,7 @@ class BaseTest(unittest.TestCase):
         style = {'page-break-before': 'auto', 'page-break-inside': 'auto'}
         return Block(self.namespace, styles, self.links, etree.Element('p'), style)
 
-    def add_text(self, block, text, link=None, bold=False, lang=None, bookmark=None):
+    def add_text(self, block, text, link=None, bold=False, lang=None, bookmark=None) -> None:
         style = {'white-space': 'normal', 'font-weight': 'bold' if bold else 'normal'}
         block.add_text(text, style, link=link, lang=lang, bookmark=bookmark)
         block.runs[-1].descendant_style = SimpleNamespace(id='Bold' if bold else 'Normal')
@@ -53,7 +53,7 @@ class BaseTest(unittest.TestCase):
 
 
 class TestHyperlinks(BaseTest):
-    def test_styled_hyperlink(self):
+    def test_styled_hyperlink(self) -> None:
         block, link = self.block(), self.link(tooltip='Example')
         self.add_text(block, 'Before ')
         self.add_text(block, 'oddities linktext ', link)
@@ -73,7 +73,7 @@ class TestHyperlinks(BaseTest):
         rid = self.relationships.get_relationship_id('https://example.com', self.namespace.names['LINKS'], 'External')
         self.assertEqual(hyperlink.get(self.namespace.expand('r:id')), rid)
 
-    def test_distinct_source_anchors(self):
+    def test_distinct_source_anchors(self) -> None:
         for second in (self.link(), self.link(tooltip='Different'), self.link(url='https://example.org')):
             with self.subTest(second=second):
                 self.body.clear()
@@ -84,7 +84,7 @@ class TestHyperlinks(BaseTest):
                 block.serialize(self.body)
                 self.assertEqual(len(self.xpath('./w:p/w:hyperlink')), 2)
 
-    def test_link_interrupted_by_plain_text(self):
+    def test_link_interrupted_by_plain_text(self) -> None:
         block, link = self.block(), self.link()
         self.add_text(block, 'one', link)
         self.add_text(block, ' between ')
@@ -93,7 +93,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(len(self.xpath('./w:p/w:hyperlink')), 2)
         self.assertEqual(self.xpath('./w:p/w:r/w:t/text()'), [' between '])
 
-    def test_separate_blocks(self):
+    def test_separate_blocks(self) -> None:
         link = self.link()
         for parent in (self.body, self.namespace.makeelement(self.body, 'w:tc')):
             for text in ('one', 'two'):
@@ -104,7 +104,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(len(self.xpath('.//w:p/w:hyperlink')), 4)
         self.assertTrue(all(len(self.xpath('./w:hyperlink', p)) == 1 for p in self.xpath('.//w:p')))
 
-    def test_internal_link_and_fallback(self):
+    def test_internal_link_and_fallback(self) -> None:
         self.links.document_hrefs.add('test.html')
         self.links.anchor_map[('test.html', 'target')] = 'Target'
         for url, expected in (('#target', 1), ('missing.html#target', 0), ('mailto:test@example.com', 0)):
@@ -119,7 +119,7 @@ class TestHyperlinks(BaseTest):
                 if expected:
                     self.assertEqual(self.xpath('./w:p/w:hyperlink/@w:anchor'), ['Target'])
 
-    def test_run_contents_and_legacy_serialization(self):
+    def test_run_contents_and_legacy_serialization(self) -> None:
         block, link = self.block(), self.link()
         self.add_text(block, 'one', link, bookmark='bookmark')
         block.add_break()
@@ -138,7 +138,7 @@ class TestHyperlinks(BaseTest):
         run.serialize(p, self.links)
         self.assertEqual(self.xpath('./w:hyperlink/w:r/w:t/text()', p), ['legacy'])
 
-    def test_linked_images(self):
+    def test_linked_images(self) -> None:
         block, link = self.block(), self.link()
         drawings = [etree.Element(self.namespace.expand('w:drawing')) for _ in range(3)]
         self.add_text(block, 'text', link)
@@ -149,7 +149,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(self.xpath('./w:p/w:r/w:drawing'), drawings[:1])
         self.assertEqual([self.xpath('./w:r/w:drawing', h) for h in self.xpath('./w:p/w:hyperlink')], [[], drawings[1:2], drawings[2:]])
 
-    def test_linked_floating_images(self):
+    def test_linked_floating_images(self) -> None:
         self.links.document_hrefs.add('test.html')
         self.links.anchor_map[('test.html', 'target')] = 'Target'
         block, link = self.block(), self.link(tooltip='Tip')
@@ -169,7 +169,7 @@ class TestHyperlinks(BaseTest):
             self.assertEqual([self.namespace.get(h, 'r:id') for h in hlinks], [external, internal], pr)
             self.assertEqual([h.get('tooltip') for h in hlinks], ['Tip', None], pr)
 
-    def test_floating_image_does_not_split_link(self):
+    def test_floating_image_does_not_split_link(self) -> None:
         block, link = self.block(), self.link()
         drawings = [self.floating_drawing() for _ in range(2)]
         self.add_text(block, 'before ', link)
@@ -184,7 +184,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(self.xpath('./w:p/w:r/w:drawing'), drawings)
         self.assertEqual(len(self.xpath('.//wp:docPr/a:hlinkClick')), 2)
 
-    def test_unsupported_scheme_is_logged(self):
+    def test_unsupported_scheme_is_logged(self) -> None:
         messages = []
         self.links.log = SimpleNamespace(warn=messages.append)
         block = self.block()
@@ -194,7 +194,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(len(messages), 1)
         self.assertIn('mailto:test@example.com', messages[0])
 
-    def test_image_runs_do_not_affect_language(self):
+    def test_image_runs_do_not_affect_language(self) -> None:
         block, link = self.block(), self.link()
         for _ in range(2):
             block.add_image(etree.Element(self.namespace.expand('w:drawing')), link=self.link())
@@ -205,7 +205,7 @@ class TestHyperlinks(BaseTest):
         self.assertEqual(block.block_lang, 'fr')
         self.assertEqual([r.lang for r in block.runs], [None, None, None])
 
-    def test_html_docx_html_roundtrip(self):
+    def test_html_docx_html_roundtrip(self) -> None:
         from calibre.ebooks.conversion.plumber import Plumber
 
         source = '''<html><head><title>Hyperlinks</title></head><body>
@@ -292,25 +292,25 @@ class TestWhitespace(BaseTest):
         block.serialize(self.body)
         return self.xpath('.//w:t/text()')
 
-    def test_nbsp_is_not_collapsible_whitespace(self):
+    def test_nbsp_is_not_collapsible_whitespace(self) -> None:
         for ch in ('\xa0', '\u2007', '\u202f'):
             with self.subTest(ch=ch):
                 self.body.clear()
                 self.assertEqual(self.texts(f'one{ch}two  three{ch}{ch}four'), [f'one{ch}two three{ch}{ch}four'])
 
-    def test_leading_nbsp_is_preserved(self):
+    def test_leading_nbsp_is_preserved(self) -> None:
         # ignore_leading_whitespace must not eat a leading NBSP
         self.assertEqual(self.texts(' \t\n\xa0 indented', ignore_leading_whitespace=True), ['\xa0 indented'])
 
-    def test_ascii_whitespace_is_still_collapsed(self):
+    def test_ascii_whitespace_is_still_collapsed(self) -> None:
         # In particular the form feed, which lxml refuses to serialize
         self.assertEqual(self.texts('one \t\r\n\f\vtwo'), ['one two'])
 
-    def test_preserved_whitespace_is_untouched(self):
+    def test_preserved_whitespace_is_untouched(self) -> None:
         self.assertEqual(self.texts('  one\xa0 two  ', white_space='pre'), ['  one\xa0 two  '])
         self.assertEqual(self.xpath('.//w:t/@xml:space'), ['preserve'])
 
-    def test_html_docx_html_roundtrip(self):
+    def test_html_docx_html_roundtrip(self) -> None:
         from calibre.ebooks.conversion.plumber import Plumber
 
         source = (

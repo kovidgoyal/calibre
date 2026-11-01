@@ -39,7 +39,7 @@ def needs_recompile(obj, srcs):
     return any(os.stat(src).st_mtime > obj_mtime for src in srcs)
 
 
-def build_book(src, dest, args=()):
+def build_book(src, dest, args=()) -> None:
     from calibre.ebooks.conversion.cli import main
 
     main(['ebook-convert', src, dest, '-vv'] + list(args))
@@ -141,15 +141,15 @@ class BaseTest(unittest.TestCase):
     longMessage = True
     maxDiff = None
 
-    def setUp(self):
+    def setUp(self) -> None:
         pc.default_log = devnull
         self.tdir = PersistentTemporaryDirectory(suffix='-polish-test')
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.tdir, ignore_errors=True)
         del self.tdir
 
-    def check_links(self, container):
+    def check_links(self, container) -> None:
         for name in container.name_path_map:
             for link in container.iterlinks(name, get_line_numbers=False):
                 dest = container.href_to_name(link, name)

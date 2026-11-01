@@ -286,7 +286,7 @@ class GoogleBooks(Source):
 
     def download_cover(  # {{{
         self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False
-    ):
+    ) -> None:
         if identifiers is None:
             identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
@@ -362,7 +362,7 @@ class GoogleBooks(Source):
 
     def get_all_details(  # {{{
         self, br, log, entries, abort, result_queue, timeout
-    ):
+    ) -> None:
         from lxml import etree
 
         for relevance, i in enumerate(entries):

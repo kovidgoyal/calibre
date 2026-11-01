@@ -48,7 +48,7 @@ def get_metadata(stream):
     return mi
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
     from calibre.utils.zipfile import safe_replace
 
     c = DOCX(stream, extract=False)

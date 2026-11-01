@@ -50,7 +50,7 @@ def get_title(doc):
     return norm_title(title)
 
 
-def add_match(collection, text, orig):
+def add_match(collection, text, orig) -> None:
     text = norm_title(text)
     if len(text.split()) >= 2 and len(text) >= 15:
         if text.replace('"', '') in orig.replace('"', ''):

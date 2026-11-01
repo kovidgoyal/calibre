@@ -13,7 +13,7 @@ Compressor = _lzx.Compressor
 
 
 class Decompressor:
-    def __init__(self, wbits):
+    def __init__(self, wbits) -> None:
         self.wbits = wbits
         self.blocksize = 1 << wbits
         _lzx.init(wbits)

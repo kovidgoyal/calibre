@@ -5,7 +5,7 @@ from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugi
 from calibre.utils.localization import _
 
 
-def remove_html_cover(oeb, log):
+def remove_html_cover(oeb, log) -> None:
     from calibre.ebooks.oeb.base import OEB_DOCS
 
     if not oeb.metadata.cover or 'cover' not in oeb.guide:
@@ -25,7 +25,7 @@ def remove_html_cover(oeb, log):
             oeb.manifest.remove(item)
 
 
-def extract_mobi(output_path, opts):
+def extract_mobi(output_path, opts) -> None:
     if opts.extract_to is not None:
         from calibre.ebooks.mobi.debug.main import inspect_mobi
 
@@ -129,7 +129,7 @@ class MOBIOutput(OutputFormatPlugin):
         ),
     }
 
-    def check_for_periodical(self):
+    def check_for_periodical(self) -> None:
         if self.is_periodical:
             self.periodicalize_toc()
             self.check_for_masthead()
@@ -137,7 +137,7 @@ class MOBIOutput(OutputFormatPlugin):
         else:
             self.opts.mobi_periodical = False
 
-    def check_for_masthead(self):
+    def check_for_masthead(self) -> None:
         found = 'masthead' in self.oeb.guide
         if not found:
             from calibre.ebooks import generate_masthead
@@ -150,7 +150,7 @@ class MOBIOutput(OutputFormatPlugin):
         else:
             self.oeb.log.debug('Using mastheadImage supplied in manifest...')
 
-    def periodicalize_toc(self):
+    def periodicalize_toc(self) -> None:
         from calibre.ebooks.oeb.base import TOC
 
         toc = self.oeb.toc
@@ -202,7 +202,7 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         oeb = oeb_book
         output_path = output
         from calibre.ebooks.mobi.writer2.resources import Resources
@@ -243,7 +243,7 @@ class MOBIOutput(OutputFormatPlugin):
 
         return create_kf8_book(self.oeb, self.opts, resources, for_joint=for_joint)
 
-    def write_mobi(self, input_plugin, output_path, kf8, resources):
+    def write_mobi(self, input_plugin, output_path, kf8, resources) -> None:
         from calibre.customize.ui import plugin_for_input_format
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
@@ -275,12 +275,12 @@ class MOBIOutput(OutputFormatPlugin):
         writer(oeb, output_path)
         extract_mobi(output_path, opts)
 
-    def specialize_css_for_output(self, log, opts, item, stylizer):
+    def specialize_css_for_output(self, log, opts, item, stylizer) -> None:
         from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
 
         CSSCleanup(log, opts)(item, stylizer)
 
-    def workaround_fire_bugs(self, jacket):
+    def workaround_fire_bugs(self, jacket) -> None:
         # The idiotic Fire crashes when trying to render the table used to
         # layout the jacket
         from calibre.ebooks.oeb.base import XHTML
@@ -342,7 +342,7 @@ class AZW3Output(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         oeb = oeb_book
         output_path = output
         from calibre.ebooks.mobi.writer2.resources import Resources
@@ -369,7 +369,7 @@ class AZW3Output(OutputFormatPlugin):
         kf8.write(output_path)
         extract_mobi(output_path, opts)
 
-    def specialize_css_for_output(self, log, opts, item, stylizer):
+    def specialize_css_for_output(self, log, opts, item, stylizer) -> None:
         from calibre.ebooks.mobi.writer8.cleanup import CSSCleanup
 
         CSSCleanup(log, opts)(item, stylizer)

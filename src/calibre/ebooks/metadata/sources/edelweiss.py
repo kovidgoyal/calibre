@@ -41,7 +41,7 @@ def astext(node):
 
 
 class Worker(Thread):  # {{{
-    def __init__(self, basic_data, relevance, result_queue, br, timeout, log, plugin):
+    def __init__(self, basic_data, relevance, result_queue, br, timeout, log, plugin) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.basic_data = basic_data
@@ -49,7 +49,7 @@ class Worker(Thread):  # {{{
         self.result_queue, self.plugin, self.sku = result_queue, plugin, self.basic_data['sku']
         self.relevance = relevance
 
-    def run(self):
+    def run(self) -> None:
         url = 'https://www.edelweiss.plus/GetTreelineControl.aspx?controlName=/uc/product/two_Enhanced.ascx&sku={0}&idPrefix=content_1_{0}&mode=0'.format(
             self.sku
         )
@@ -377,7 +377,7 @@ class Edelweiss(Source):
         identifiers=None,
         timeout=30,
         get_best_cover=False,
-    ):
+    ) -> None:
         if identifiers is None:
             identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)

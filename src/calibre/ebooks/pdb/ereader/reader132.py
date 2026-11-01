@@ -25,7 +25,7 @@ class HeaderRecord:
     defined in the file header.
     """
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         (self.compression,) = struct.unpack('>H', raw[0:2])
         (self.non_text_offset,) = struct.unpack('>H', raw[12:14])
         (self.chapter_count,) = struct.unpack('>H', raw[14:16])
@@ -49,7 +49,7 @@ class HeaderRecord:
 
 
 class Reader132(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.log = log
         self.encoding = options.input_encoding
 
@@ -225,7 +225,7 @@ class Reader132(FormatReader):
 
         return pml
 
-    def dump_images(self, output_dir):
+    def dump_images(self, output_dir) -> None:
         """
         This is primarily used for debugging and 3rd party tools to
         get the images in the file.

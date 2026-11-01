@@ -44,7 +44,7 @@ class FieldsSmall:
         bug_handler,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         """
         Required:
             'file'--file to parse
@@ -61,7 +61,7 @@ class FieldsSmall:
         self.__write_to = better_mktemp()
         self.__run_level = run_level
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Initiate all values.
         """
@@ -88,7 +88,7 @@ class FieldsSmall:
         reg_st = ob + bk_st + tx + cb
         self.__book_start = re.compile(rf'{reg_st}')
 
-    def __before_body_func(self, line):
+    def __before_body_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -102,7 +102,7 @@ class FieldsSmall:
             self.__state = 'body'
         self.__write_obj.write(line)
 
-    def __body_func(self, line):
+    def __body_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -118,7 +118,7 @@ class FieldsSmall:
         else:
             self.__write_obj.write(line)
 
-    def __found_bookmark_func(self, line, tag):
+    def __found_bookmark_func(self, line, tag) -> None:
         """
         Requires:
             line --the line to parse
@@ -134,7 +134,7 @@ class FieldsSmall:
         self.__state = 'bookmark'
         self.__type_of_bookmark = tag
 
-    def __bookmark_func(self, line):
+    def __bookmark_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -375,7 +375,7 @@ class FieldsSmall:
         my_changed_string = f'mi<tg<empty-att_<field<type>{type}<number>{my_string}<update>none\n'
         return my_changed_string
 
-    def __found_toc_index_func(self, line, tag):
+    def __found_toc_index_func(self, line, tag) -> None:
         """
         Requires:
             line --the line to parse
@@ -391,7 +391,7 @@ class FieldsSmall:
         self.__state = 'toc_index'
         self.__tag = tag
 
-    def __toc_index_func(self, line):
+    def __toc_index_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -417,7 +417,7 @@ class FieldsSmall:
         else:
             self.__text_string += line
 
-    def fix_fields(self):
+    def fix_fields(self) -> None:
         """
         Requires:
             nothing

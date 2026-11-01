@@ -134,14 +134,14 @@ def decint(value):
 randbytes = os.urandom
 
 
-def warn(x):
+def warn(x) -> None:
     print(x)
 
 
 class ReBinary:
     NSRMAP = {'': None, XML_NS: 'xml'}
 
-    def __init__(self, root, item, oeb, opts, map=HTML_MAP):
+    def __init__(self, root, item, oeb, opts, map=HTML_MAP) -> None:
         self.item = item
         self.logger = oeb.logger
         self.manifest = oeb.manifest
@@ -156,7 +156,7 @@ class ReBinary:
         self.ahc = self.build_ahc() if is_html else None
         self.aht = self.build_aht() if is_html else None
 
-    def write(self, *values):
+    def write(self, *values) -> None:
         for value in values:
             if isinstance(value, numbers.Integral):
                 try:
@@ -169,7 +169,7 @@ class ReBinary:
     def is_block(self, style):
         return style['display'] not in ('inline', 'inline-block')
 
-    def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=None, inhead=False, preserve=False):
+    def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=None, inhead=False, preserve=False) -> None:
         if parents is None:
             parents = []
         if not isinstance(elem.tag, (str, bytes)):
@@ -301,10 +301,10 @@ def preserve(function):
 
 
 class LitWriter:
-    def __init__(self, opts):
+    def __init__(self, opts) -> None:
         self.opts = opts
 
-    def _litize_oeb(self):
+    def _litize_oeb(self) -> None:
         oeb = self._oeb
         oeb.metadata.add('calibre-version', calibre.__version__)
         cover = None
@@ -323,7 +323,7 @@ class LitWriter:
         with open(path, 'w+b') as stream:
             return self._dump_stream(oeb, stream)
 
-    def _dump_stream(self, oeb, stream):
+    def _dump_stream(self, oeb, stream) -> None:
         self._oeb = oeb
         self._logger = oeb.logger
         self._stream = stream
@@ -333,19 +333,19 @@ class LitWriter:
         self._litize_oeb()
         self._write_content()
 
-    def _write(self, *data):
+    def _write(self, *data) -> None:
         for datum in data:
             self._stream.write(datum)
 
     @preserve
-    def _writeat(self, pos, *data):
+    def _writeat(self, pos, *data) -> None:
         self._stream.seek(pos)
         self._write(*data)
 
     def _tell(self):
         return self._stream.tell()
 
-    def _write_content(self):
+    def _write_content(self) -> None:
         # Build content sections
         self._build_sections()
 
@@ -450,7 +450,7 @@ class LitWriter:
         self._write(self._sections[0].getvalue())
         self._writeat(filesz_offset, pack('<Q', self._tell()))
 
-    def _add_file(self, name, data, secnum=0):
+    def _add_file(self, name, data, secnum=0) -> None:
         if len(data) > 0:
             section = self._sections[secnum]
             offset = section.tell()
@@ -459,7 +459,7 @@ class LitWriter:
             offset = 0
         self._directory.append(DirectoryEntry(name, secnum, offset, len(data)))
 
-    def _add_folder(self, name, offset=0, size=0):
+    def _add_folder(self, name, offset=0, size=0) -> None:
         if not name.endswith('/'):
             name += '/'
         self._directory.append(DirectoryEntry(name, 0, offset, size))
@@ -467,7 +467,7 @@ class LitWriter:
     def _djoin(self, *names):
         return '/'.join(names)
 
-    def _build_sections(self):
+    def _build_sections(self) -> None:
         self._add_folder('/', ROOT_OFFSET, ROOT_SIZE)
         self._build_data()
         self._build_manifest()
@@ -479,7 +479,7 @@ class LitWriter:
         self._build_storage()
         self._build_transforms()
 
-    def _build_data(self):
+    def _build_data(self) -> None:
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
@@ -504,7 +504,7 @@ class LitWriter:
             self._add_file(name, data, secnum)
             item.size = len(data)
 
-    def _build_manifest(self):
+    def _build_manifest(self) -> None:
         states = ['linear', 'nonlinear', 'css', 'images']
         manifest = {state: [] for state in states}
         for item in self._oeb.manifest.values():
@@ -538,7 +538,7 @@ class LitWriter:
                 offset += item.size
         self._add_file('/manifest', data.getvalue())
 
-    def _build_page_breaks(self):
+    def _build_page_breaks(self) -> None:
         pb1 = io.BytesIO()
         pb2 = io.BytesIO()
         pb3 = io.BytesIO()
@@ -574,7 +574,7 @@ class LitWriter:
         self._add_file('/pb2', pb2.getvalue(), 0)
         self._add_file('/pb3', pb3.getvalue(), 0)
 
-    def _build_meta(self):
+    def _build_meta(self) -> None:
         _, meta = self._oeb.to_opf1()[OPF_MIME]
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
@@ -584,7 +584,7 @@ class LitWriter:
         self._meta = meta
         self._add_file('/meta', meta)
 
-    def _build_drm_storage(self):
+    def _build_drm_storage(self) -> None:
         drmsource = 'Free as in freedom\0'.encode('utf-16-le')
         self._add_file('/DRMStorage/DRMSource', drmsource)
         tempkey = self._calculate_deskey([self._meta, drmsource])
@@ -593,10 +593,10 @@ class LitWriter:
         self._bookkey = b'\0' * 8
         self._add_file('/DRMStorage/ValidationStream', b'MSReader', 3)
 
-    def _build_version(self):
+    def _build_version(self) -> None:
         self._add_file('/Version', pack('<HH', 8, 1))
 
-    def _build_namelist(self):
+    def _build_namelist(self) -> None:
         data = io.BytesIO()
         data.write(pack('<HH', 0x3C, len(self._sections)))
         names = ['Uncompressed', 'MSCompressed', 'EbEncryptDS', 'EbEncryptOnlyDS']
@@ -606,7 +606,7 @@ class LitWriter:
             data.write(b'\0\0')
         self._add_file('::DataSpace/NameList', data.getvalue())
 
-    def _build_storage(self):
+    def _build_storage(self) -> None:
         mapping = [
             (1, 'MSCompressed', (LZXCOMPRESS_GUID,)),
             (2, 'EbEncryptDS', (LZXCOMPRESS_GUID, DESENCRYPT_GUID)),
@@ -652,7 +652,7 @@ class LitWriter:
                     dname += '/ResetTable'
                     self._add_file(dname, rdata)
 
-    def _build_transforms(self):
+    def _build_transforms(self) -> None:
         for guid in (LZXCOMPRESS_GUID, DESENCRYPT_GUID):
             self._add_folder('::Transform/' + guid)
 

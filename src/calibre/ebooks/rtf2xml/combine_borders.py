@@ -27,7 +27,7 @@ class CombineBorders:
         bug_handler,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -36,7 +36,7 @@ class CombineBorders:
         self.__bord_pos = 'default'
         self.__bord_att = []
 
-    def found_bd(self, line):
+    def found_bd(self, line) -> None:
         # cw<bd<bor-t-r-vi
         self.__state = 'border'
         self.__bord_pos = line[6:16]
@@ -48,7 +48,7 @@ class CombineBorders:
             return ''
         return line
 
-    def end_border(self, line, write_obj):
+    def end_border(self, line, write_obj) -> None:
         border_string = '|'.join(self.__bord_att)
         self.__bord_att = []
         write_obj.write(f'cw<bd<{self.__bord_pos}<nu<{border_string}\n')
@@ -59,7 +59,7 @@ class CombineBorders:
         else:
             write_obj.write(line)
 
-    def add_to_border_desc(self, line):
+    def add_to_border_desc(self, line) -> None:
         # cw<bt<bdr-hair__<nu<true
         # cw<bt<bdr-linew<nu<0.50
         # tx<__________<some text
@@ -71,13 +71,13 @@ class CombineBorders:
             num = ':' + num
         self.__bord_att.append(border_desc + num)
 
-    def __border_func(self, line, write_obj):
+    def __border_func(self, line, write_obj) -> None:
         if self.__first_five != 'cw<bt':
             self.end_border(line, write_obj)
         else:
             self.add_to_border_desc(line)
 
-    def combine_borders(self):
+    def combine_borders(self) -> None:
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:

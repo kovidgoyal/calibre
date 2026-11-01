@@ -34,7 +34,7 @@ class TOC:
     uid: str | None = None
     toc_file_name: str | None = None
 
-    def __init__(self, title=None, dest=None, frag=None):
+    def __init__(self, title=None, dest=None, frag=None) -> None:
         self.title, self.dest, self.frag = title, dest, frag
         self.dest_exists = self.dest_error = None
         if self.title:
@@ -49,11 +49,11 @@ class TOC:
         c.parent = self
         return c
 
-    def remove(self, child):
+    def remove(self, child) -> None:
         self.children.remove(child)
         child.parent = None
 
-    def remove_from_parent(self):
+    def remove_from_parent(self) -> None:
         if self.parent is None:
             return
         idx = self.parent.children.index(self)
@@ -66,7 +66,7 @@ class TOC:
     def __iter__(self):
         yield from self.children
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.children)
 
     def iterdescendants(self, level=None):
@@ -78,7 +78,7 @@ class TOC:
                 yield level, child
             yield from child.iterdescendants(level=gc_level)
 
-    def remove_duplicates(self, only_text=True):
+    def remove_duplicates(self, only_text=True) -> None:
         seen = set()
         remove = []
         for child in self:
@@ -110,7 +110,7 @@ class TOC:
             ans.extend(child.get_lines(lvl + 1))
         return ans
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '\n'.join(self.get_lines())
 
     def to_dict(self, node_counter=None):
@@ -155,7 +155,7 @@ def add_from_navpoint(container, navpoint, parent, ncx_name):
     return parent.add(text or None, dest or None, frag or None)
 
 
-def process_ncx_node(container, node, toc_parent, ncx_name):
+def process_ncx_node(container, node, toc_parent, ncx_name) -> None:
     for navpoint in node.xpath('./*[calibre:lower-case(local-name()) = "navpoint"]'):
         child = add_from_navpoint(container, navpoint, toc_parent, ncx_name)
         if child is not None:
@@ -208,7 +208,7 @@ def first_child(parent, tagname):
         return None
 
 
-def process_nav_node(container, node, toc_parent, nav_name):
+def process_nav_node(container, node, toc_parent, nav_name) -> None:
     for li in node.iterchildren(XHTML('li')):
         child = add_from_li(container, li, toc_parent, nav_name)
         ol = first_child(li, XHTML('ol'))
@@ -250,7 +250,7 @@ def parse_nav(container, nav_name):
     return toc_root
 
 
-def verify_toc_destinations(container, toc):
+def verify_toc_destinations(container, toc) -> None:
     anchor_map = {}
     anchor_xpath = XPath('//*/@id|//h:a/@name')
     for item in toc.iterdescendants():
@@ -294,7 +294,7 @@ def find_existing_nav_toc(container):
         return name
 
 
-def mark_as_nav(container, name):
+def mark_as_nav(container, name) -> None:
     if container.opf_version_parsed.major > 2:
         container.apply_unique_properties(name, 'nav')
 
@@ -397,7 +397,7 @@ def elem_to_toc_text(elem, prefer_title=False):
     return text
 
 
-def item_at_top(elem):
+def item_at_top(elem) -> bool:
     try:
         body = XPath('//h:body')(elem.getroottree().getroot())[0]
     except TypeError, IndexError, KeyError, AttributeError:
@@ -613,7 +613,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
 
     play_order = Counter()
 
-    def process_node(xml_parent, toc_parent):
+    def process_node(xml_parent, toc_parent) -> None:
         for child in toc_parent:
             play_order['c'] += 1
             point = etree.SubElement(xml_parent, NCX('navPoint'), id=f"num_{play_order['c']}", playOrder=str(play_order['c']))
@@ -633,7 +633,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
     return ncx
 
 
-def commit_ncx_toc(container, toc, lang=None, uid=None):
+def commit_ncx_toc(container, toc, lang=None, uid=None) -> None:
     tocname = find_existing_ncx_toc(container)
     if tocname is None:
         item = container.generate_item('toc.ncx', id_prefix='toc')
@@ -688,7 +688,7 @@ def ensure_single_nav_of_type(root, ntype='toc'):
     return nav
 
 
-def set_nav_role(nav):
+def set_nav_role(nav) -> None:
     # Screen readers use the role rather than the epub:type. A role set by the
     # author is kept, unless it removes the semantics of the nav, as calibre
     # has just generated its contents.
@@ -757,7 +757,7 @@ def nav_heading(root, ntype):
             return None
 
 
-def restore_nav_ids(container, root, tocname, nav, saved_ids):
+def restore_nav_ids(container, root, tocname, nav, saved_ids) -> None:
     if not saved_ids:
         return
     existing_ids = {x.get('id') for x in root.xpath('//*[@id]')}
@@ -837,7 +837,7 @@ def ensure_container_has_nav(container, lang=None, previous_nav=None):
     return tocname, root
 
 
-def collapse_li(parent):
+def collapse_li(parent) -> None:
     for li in parent.iterdescendants(XHTML('li')):
         if len(li) == 1:
             li.text = None
@@ -856,7 +856,7 @@ def create_nav_li(container, ol, entry, tocname):
     return a
 
 
-def set_landmarks(container, root, tocname, landmarks):
+def set_landmarks(container, root, tocname, landmarks) -> None:
     saved_ids = save_nav_ids(container, root, tocname, 'landmarks')
     nav = ensure_single_nav_of_type(root, 'landmarks')
     nav.set('hidden', '')
@@ -872,7 +872,7 @@ def set_landmarks(container, root, tocname, landmarks):
     collapse_li(nav)
 
 
-def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None):
+def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None) -> None:
     tocname, root = ensure_container_has_nav(container, lang=lang, previous_nav=previous_nav)
     saved_ids = save_nav_ids(container, root, tocname, 'toc')
     saved_page_list_ids = save_nav_ids(container, root, tocname, 'page-list')
@@ -892,7 +892,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
     to_href = partial(container.name_to_href, base=tocname)
     spat = re.compile(r'\s+')
 
-    def process_node(xml_parent, toc_parent):
+    def process_node(xml_parent, toc_parent) -> None:
         for child in toc_parent:
             li = xml_parent.makeelement(XHTML('li'))
             xml_parent.append(li)
@@ -937,7 +937,7 @@ def commit_nav_toc(container, toc, lang=None, landmarks=None, previous_nav=None)
     container.replace(tocname, root)
 
 
-def commit_toc(container, toc, lang=None, uid=None):
+def commit_toc(container, toc, lang=None, uid=None) -> None:
     commit_ncx_toc(container, toc, lang=lang, uid=uid)
     if container.opf_version_parsed.major > 2:
         commit_nav_toc(container, toc, lang=lang)
@@ -972,7 +972,7 @@ def find_inline_toc(container):
 
 def toc_to_html(toc, container, toc_name, title, lang=None):
 
-    def process_node(html_parent, toc, level=1, indent='  ', style_level=2):
+    def process_node(html_parent, toc, level=1, indent='  ', style_level=2) -> None:
         li = html_parent.makeelement(XHTML('li'))
         li.tail = '\n' + (indent * level)
         html_parent.append(li)

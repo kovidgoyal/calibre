@@ -15,7 +15,7 @@ from calibre.utils.imghdr import what
 
 
 class LinkedImageNotFound(ValueError):
-    def __init__(self, fname):
+    def __init__(self, fname) -> None:
         ValueError.__init__(self, fname)
         self.fname = fname
 
@@ -126,7 +126,7 @@ def get_hpos(anchor, page_width, XPath, get, width_frac):
 
 
 class Images:
-    def __init__(self, namespace, log):
+    def __init__(self, namespace, log) -> None:
         self.namespace = namespace
         self.rid_map = {}
         self.used = {}
@@ -313,7 +313,7 @@ class Images:
                     img.set('style', 'display: block')
                 yield img
 
-    def get_float_properties(self, anchor, style, page):
+    def get_float_properties(self, anchor, style, page) -> None:
         XPath, get = self.namespace.XPath, self.namespace.get
         if 'display' not in style:
             style['display'] = 'block'

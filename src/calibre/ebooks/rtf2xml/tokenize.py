@@ -30,7 +30,7 @@ class Tokenize:
         copy=None,
         run_level=1,
         # out_file = None,
-    ):
+    ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -42,7 +42,7 @@ class Tokenize:
         self.__uc_bin = False
         self.__uc_value = [1]
 
-    def __reini_utf8_counters(self):
+    def __reini_utf8_counters(self) -> None:
         self.__uc_char = 0
         self.__uc_bin = False
 
@@ -129,7 +129,7 @@ class Tokenize:
         # remove empty tokens and \n
         return list(filter(lambda x: len(x) > 0 and x != '\n', tokens))
 
-    def __compile_expressions(self):
+    def __compile_expressions(self) -> None:
         SIMPLE_RPL = {
             '\\\\': '\\backslash ',
             '\\~': '\\~ ',
@@ -171,7 +171,7 @@ class Tokenize:
         # handle cw using a digit as argument and without space as delimiter
         self.__cwdigit_exp = re.compile(r'(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)')
 
-    def tokenize(self):
+    def tokenize(self) -> None:
         """Main class for handling other methods. Reads the file,
         uses method self.sub_reg to make basic substitutions,
         and process tokens by itself"""

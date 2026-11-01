@@ -2,7 +2,7 @@
 
 
 class EasyMeta:
-    def __init__(self, meta):
+    def __init__(self, meta) -> None:
         self.meta = meta
 
     def __iter__(self):
@@ -14,7 +14,7 @@ class EasyMeta:
                 if namespace(item.term) == DC11_NS:
                     yield {'name': barename(item.term), 'value': item.value}
 
-    def __len__(self):
+    def __len__(self) -> int:
         count = 0
         for item in self:
             count = count + 1

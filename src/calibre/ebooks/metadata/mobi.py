@@ -26,7 +26,7 @@ def is_image(ss):
 
 
 class StreamSlicer:
-    def __init__(self, stream, start=0, stop=None):
+    def __init__(self, stream, start=0, stop=None) -> None:
         self._stream = stream
         self.start = start
         if stop is None:
@@ -35,7 +35,7 @@ class StreamSlicer:
         self.stop = stop
         self._len = stop - start
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self._len
 
     def __getitem__(self, key):
@@ -58,7 +58,7 @@ class StreamSlicer:
             return data
         raise TypeError('stream indices must be integers')
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
@@ -79,7 +79,7 @@ class StreamSlicer:
             return stream.write(value)
         raise TypeError('stream indices must be integers')
 
-    def update(self, data_blocks):
+    def update(self, data_blocks) -> None:
         # Rewrite the stream
         stream = self._stream
         base = self.start
@@ -88,14 +88,14 @@ class StreamSlicer:
         for block in data_blocks:
             stream.write(block)
 
-    def truncate(self, value):
+    def truncate(self, value) -> None:
         self._stream.truncate(value)
 
 
 class MetadataUpdater:
     DRM_KEY_SIZE = 48
 
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         self.stream = stream
         data = self.data = StreamSlicer(stream)
         self.type = data[60:68]
@@ -144,7 +144,7 @@ class MetadataUpdater:
             drm_keys += self.record0[base_addr : base_addr + self.DRM_KEY_SIZE]
         return drm_keys
 
-    def fetchEXTHFields(self):
+    def fetchEXTHFields(self) -> None:
         stream = self.stream
         record0 = self.record0
 
@@ -175,7 +175,7 @@ class MetadataUpdater:
                 if rindex > 0 and rindex != 0xFFFFFFFF:
                     self.thumbnail_record = self.record(rindex + image_base)
 
-    def patch(self, off, new_record0):
+    def patch(self, off, new_record0) -> None:
         # Save the current size of each record
         record_sizes = [len(new_record0)]
         for i in range(1, self.nrecs - 1):
@@ -212,11 +212,11 @@ class MetadataUpdater:
         else:
             self.data.stop = updated_pdbrecords[-1] + record_sizes[-1]
 
-    def patchSection(self, section, new):
+    def patchSection(self, section, new) -> None:
         off = self.pdbrecords[section][0]
         self.patch(off, new)
 
-    def create_exth(self, new_title=None, exth=None):
+    def create_exth(self, new_title=None, exth=None) -> None:
         # Add an EXTH block to record 0, rewrite the stream
         if isinstance(new_title, str):
             new_title = new_title.encode(self.codec, 'replace')
@@ -276,7 +276,7 @@ class MetadataUpdater:
         # Update record0
         self.record0 = self.record(0)
 
-    def hexdump(self, src, length=16):
+    def hexdump(self, src, length=16) -> None:
         # Diagnostic
         FILTER = ''.join([((len(repr(chr(x))) == 3) and chr(x)) or '.' for x in range(256)])
         N = 0
@@ -297,14 +297,14 @@ class MetadataUpdater:
             pdbrecords.append([offset, flags, val])
         return pdbrecords
 
-    def update_pdbrecords(self, updated_pdbrecords):
+    def update_pdbrecords(self, updated_pdbrecords) -> None:
         for i, pdbrecord in enumerate(updated_pdbrecords):
             self.data[78 + i * 8 : 78 + i * 8 + 4] = pack('>L', pdbrecord)
 
         # Refresh local copy
         self.pdbrecords = self.get_pdbrecords()
 
-    def dump_pdbrecords(self):
+    def dump_pdbrecords(self) -> None:
         # Diagnostic
         print('MetadataUpdater.dump_pdbrecords()')
         print(f"{'offset':>10} {'flags':>10} {'val':>10}")
@@ -322,10 +322,10 @@ class MetadataUpdater:
             (stop,) = unpack('>I', self.data[offoff + 8 : offoff + 12])
         return StreamSlicer(self.stream, start, stop)
 
-    def update(self, mi, asin=None):
+    def update(self, mi, asin=None) -> None:
         mi.title = normalize(mi.title)
 
-        def update_exth_record(rec):
+        def update_exth_record(rec) -> None:
             recs.append(rec)
             if rec[0] in self.original_exth_records:
                 self.original_exth_records.pop(rec[0])
@@ -469,7 +469,7 @@ class MetadataUpdater:
                 return
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
     mu = MetadataUpdater(stream)
     mu.update(mi)
 

@@ -20,12 +20,12 @@ from polyglot.builtins import as_bytes, print_to_binary_file
 
 
 class TagX:  # {{{
-    def __init__(self, tag, num_values, bitmask, eof):
+    def __init__(self, tag, num_values, bitmask, eof) -> None:
         self.tag, self.num_values, self.bitmask, self.eof = (tag, num_values, bitmask, eof)
         self.num_of_values = num_values
         self.is_eof = self.eof == 1 and self.tag == 0 and self.num_values == 0 and self.bitmask == 0
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'TAGX(tag={self.tag:02}, num_values={self.num_values}, bitmask={bin(self.bitmask)!r}, eof={self.eof})'
 
 
@@ -33,7 +33,7 @@ class TagX:  # {{{
 
 
 class SecondaryIndexHeader:  # {{{
-    def __init__(self, record):
+    def __init__(self, record) -> None:
         self.record = record
         raw = self.record.raw
         # open('/t/index_header.bin', 'wb').write(raw)
@@ -87,11 +87,11 @@ class SecondaryIndexHeader:  # {{{
         if idxt[6:].replace(b'\0', b''):
             raise ValueError('Non null trailing bytes after IDXT')
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + ' Secondary Index Header ' + '*' * 20]
         a = ans.append
 
-        def u(w):
+        def u(w) -> None:
             a('Unknown: {!r} ({} bytes) (All zeros: {!r})'.format(w, len(w), not bool(w.replace(b'\0', b''))))
 
         a(f'Header length: {self.header_length}')
@@ -125,7 +125,7 @@ class SecondaryIndexHeader:  # {{{
 
 
 class IndexHeader:  # {{{
-    def __init__(self, record):
+    def __init__(self, record) -> None:
         self.record = record
         raw = self.record.raw
         # open('/t/index_header.bin', 'wb').write(raw)
@@ -184,11 +184,11 @@ class IndexHeader:  # {{{
         # if idxt[6:].replace(b'\0', b''):
         #     raise ValueError('Non null trailing bytes after IDXT')
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + f' Index Header ({len(self.record.raw)} bytes)' + '*' * 20]
         a = ans.append
 
-        def u(w):
+        def u(w) -> None:
             a('Unknown: {!r} ({} bytes) (All zeros: {!r})'.format(w, len(w), not bool(w.replace(b'\0', b''))))
 
         a(f'Header length: {self.header_length}')
@@ -249,7 +249,7 @@ class Tag:  # {{{
         73: ('image_attr_offset', 'Image attribution offset in cncx'),
     }
 
-    def __init__(self, tag_type, vals, cncx):
+    def __init__(self, tag_type, vals, cncx) -> None:
         self.value = vals if len(vals) > 1 else vals[0] if vals else None
 
         self.cncx_value = None
@@ -263,7 +263,7 @@ class Tag:  # {{{
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.cncx_value is not None:
             return f'{self.desc} : {self.value!r} [{self.cncx_value!r}]'
         return f'{self.desc} : {self.value!r}'
@@ -280,7 +280,7 @@ class IndexEntry:  # {{{
     used in the navigation UI.
     """
 
-    def __init__(self, ident, entry, cncx):
+    def __init__(self, ident, entry, cncx) -> None:
         try:
             self.index = int(ident, 16)
         except ValueError:
@@ -343,7 +343,7 @@ class IndexEntry:  # {{{
                 return tag.value
         return [0, 0]
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = [f'Index Entry(index={self.index}, length={len(self.tags)})']
         for tag in self.tags:
             if tag.value is not None:
@@ -362,7 +362,7 @@ class IndexRecord:  # {{{
     in the trailing data of the text records.
     """
 
-    def __init__(self, records, index_header, cncx):
+    def __init__(self, records, index_header, cncx) -> None:
         self.alltext = None
         table = OrderedDict()
         tags = [TagX(x.tag, x.num_values, x.bitmask, x.eof) for x in index_header.tagx_entries]
@@ -387,7 +387,7 @@ class IndexRecord:  # {{{
         for ident, entry in table.items():
             self.indices.append(IndexEntry(ident, entry, cncx))
 
-    def get_parent(self, index):
+    def get_parent(self, index) -> None:
         if index.depth < 1:
             return
         parent_depth = index.depth - 1
@@ -395,11 +395,11 @@ class IndexRecord:  # {{{
             if p.depth != parent_depth:
                 continue
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + f' Index Entries ({len(self.indices)} entries) ' + '*' * 20]
         a = ans.append
 
-        def u(w):
+        def u(w) -> None:
             a('Unknown: {!r} ({} bytes) (All zeros: {!r})'.format(w, len(w), not bool(w.replace(b'\0', b''))))
 
         for entry in self.indices:
@@ -428,7 +428,7 @@ class CNCX:  # {{{
     data.
     """
 
-    def __init__(self, records, codec):
+    def __init__(self, records, codec) -> None:
         self.records = OrderedDict()
         record_offset = 0
         for record in records:
@@ -451,7 +451,7 @@ class CNCX:  # {{{
     def __getitem__(self, offset):
         return self.records.get(offset)
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + f' cncx ({len(self.records)} strings) ' + '*' * 20]
         for k, v in self.records.items():
             ans.append(f'{k:10} : {v}')
@@ -462,12 +462,12 @@ class CNCX:  # {{{
 
 
 class ImageRecord:  # {{{
-    def __init__(self, idx, record, fmt):
+    def __init__(self, idx, record, fmt) -> None:
         self.raw = record.raw
         self.fmt = fmt
         self.idx = idx
 
-    def dump(self, folder):
+    def dump(self, folder) -> None:
         name = f'{self.idx:06}'
         with open(os.path.join(folder, name + '.' + self.fmt), 'wb') as f:
             f.write(self.raw)
@@ -477,7 +477,7 @@ class ImageRecord:  # {{{
 
 
 class BinaryRecord:  # {{{
-    def __init__(self, idx, record):
+    def __init__(self, idx, record) -> None:
         self.raw = record.raw
         sig = self.raw[:4]
         name = f'{idx:06}'
@@ -500,7 +500,7 @@ class BinaryRecord:  # {{{
             name += '-' + 'EOF'
         self.name = name
 
-    def dump(self, folder):
+    def dump(self, folder) -> None:
         with open(os.path.join(folder, self.name + '.bin'), 'wb') as f:
             f.write(self.raw)
 
@@ -509,7 +509,7 @@ class BinaryRecord:  # {{{
 
 
 class FontRecord:  # {{{
-    def __init__(self, idx, record):
+    def __init__(self, idx, record) -> None:
         self.raw = record.raw
         name = f'{idx:06}'
         self.font = read_font_record(self.raw)
@@ -518,7 +518,7 @@ class FontRecord:  # {{{
         self.payload = self.font['font_data'] or self.font['raw_data']
         self.name = '{}.{}'.format(name, self.font['ext'])
 
-    def dump(self, folder):
+    def dump(self, folder) -> None:
         with open(os.path.join(folder, self.name), 'wb') as f:
             f.write(self.payload)
 
@@ -527,7 +527,7 @@ class FontRecord:  # {{{
 
 
 class TBSIndexing:  # {{{
-    def __init__(self, text_records, indices, doc_type):
+    def __init__(self, text_records, indices, doc_type) -> None:
         self.record_indices = OrderedDict()
         self.doc_type = doc_type
         self.indices = indices
@@ -558,13 +558,13 @@ class TBSIndexing:  # {{{
                 return i
         raise IndexError(f'Index {idx} not found')
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + f' TBS Indexing ({len(self.record_indices)} records) ' + '*' * 20]
         for r, dat in self.record_indices.items():
             ans += self.dump_record(r, dat)[-1]
         return '\n'.join(ans)
 
-    def dump(self, bdir):
+    def dump(self, bdir) -> None:
         types = defaultdict(list)
         for r, dat in self.record_indices.items():
             tbs_type, strings = self.dump_record(r, dat)
@@ -702,7 +702,7 @@ class TBSIndexing:  # {{{
 
 
 class MOBIFile:  # {{{
-    def __init__(self, mf: HeadersMOBIFile):
+    def __init__(self, mf: HeadersMOBIFile) -> None:
         self.raw = mf.raw
         self.palmdb = mf.palmdb
         self.record_headers = mf.record_headers
@@ -775,7 +775,7 @@ class MOBIFile:  # {{{
         if self.index_record is not None:
             self.tbs_indexing = TBSIndexing(self.text_records, self.index_record.indices, self.mobi_header.type_raw)
 
-    def print_header(self, f=sys.stdout):
+    def print_header(self, f=sys.stdout) -> None:
         p = print_to_binary_file(f)
         p(str(self.palmdb))
         p()
@@ -790,7 +790,7 @@ class MOBIFile:  # {{{
 # }}}
 
 
-def inspect_mobi(mobi_file, ddir):
+def inspect_mobi(mobi_file, ddir) -> None:
     f = MOBIFile(mobi_file)
     with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
         f.print_header(f=out)

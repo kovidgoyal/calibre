@@ -11,7 +11,7 @@ from calibre.ebooks.mobi.debug.mobi8 import inspect_mobi as inspect_mobi8
 from calibre.utils import StreamOrPath
 
 
-def inspect_mobi(path_or_stream, ddir=None):  # {{{
+def inspect_mobi(path_or_stream, ddir=None) -> None:  # {{{
     with StreamOrPath(path_or_stream, 'rb') as stream:
         f = MOBIFile(stream)
         if ddir is None:
@@ -39,7 +39,7 @@ def inspect_mobi(path_or_stream, ddir=None):  # {{{
 # }}}
 
 
-def main():
+def main() -> None:
     inspect_mobi(sys.argv[1])
 
 

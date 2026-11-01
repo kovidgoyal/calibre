@@ -98,7 +98,7 @@ IGNORED_MEDIA_FEATURES = frozenset(
 )
 
 
-def media_ok(raw):
+def media_ok(raw) -> bool:
     if not raw:
         return True
     if raw == 'amzn-mobi':  # Optimization for the common case
@@ -125,7 +125,7 @@ def media_ok(raw):
     return True
 
 
-def test_media_ok():
+def test_media_ok() -> None:
     assert media_ok(None)
     assert media_ok('')
     assert not media_ok('amzn-mobi')
@@ -139,7 +139,7 @@ def test_media_ok():
 
 
 class style_map(dict):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.important_properties = set()
 
@@ -170,7 +170,7 @@ def cleanup_epub_prefixed_properties(style: dict[str, str]) -> None:
 
 
 class StylizerRules:
-    def __init__(self, opts, profile, stylesheets):
+    def __init__(self, opts, profile, stylesheets) -> None:
         self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
 
         index = 0
@@ -260,7 +260,7 @@ class StylizerRules:
 class Stylizer:
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, opts, profile=None, extra_css='', user_css='', base_css=''):
+    def __init__(self, tree, path, oeb, opts, profile=None, extra_css='', user_css='', base_css='') -> None:
         self.oeb, self.opts = oeb, opts
         self.profile = profile
         if self.profile is None:
@@ -483,7 +483,7 @@ class Style:
     MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
     viewport_relative_font_size: str = ''
 
-    def __init__(self, element, stylizer):
+    def __init__(self, element, stylizer) -> None:
         self._element = element
         self._profile = stylizer.profile
         self._stylizer = stylizer
@@ -497,16 +497,16 @@ class Style:
         self._pseudo_classes = {}
         stylizer._styles[element] = self
 
-    def set(self, prop, val):
+    def set(self, prop, val) -> None:
         self._style[prop] = val
 
     def drop(self, prop, default=None):
         return self._style.pop(prop, default)
 
-    def _update_cssdict(self, cssdict):
+    def _update_cssdict(self, cssdict) -> None:
         self._update_style(cssdict)
 
-    def _update_style(self, cssdict):
+    def _update_style(self, cssdict) -> None:
         current_ip = getattr(self._style, 'important_properties', no_important_properties)
         if current_ip is no_important_properties:
             s = style_map()
@@ -524,12 +524,12 @@ class Style:
             if override:
                 self._style[name] = val
 
-    def _update_pseudo_class(self, name, cssdict):
+    def _update_pseudo_class(self, name, cssdict) -> None:
         orig = self._pseudo_classes.get(name, {})
         orig.update(cssdict)
         self._pseudo_classes[name] = orig
 
-    def _apply_style_attr(self, url_replacer=None):
+    def _apply_style_attr(self, url_replacer=None) -> None:
         attrib = self._element.attrib
         if 'style' not in attrib:
             return
@@ -880,7 +880,7 @@ class Style:
     def paddingRight(self):
         return self._unit_convert(self._get('padding-right'), base=self.parent_width)
 
-    def __str__(self):
+    def __str__(self) -> str:
         items = sorted(self._style.items())
         return '; '.join(f'{key}: {val}' for key, val in items)
 

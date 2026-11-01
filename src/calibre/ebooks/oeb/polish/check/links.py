@@ -41,7 +41,7 @@ class MalformedURL(BadLink):
 class CaseMismatch(BadLink):
     RULE_NAME = _('Case of link does not match case of file')
 
-    def __init__(self, href, corrected_name, name, lnum, col):
+    def __init__(self, href, corrected_name, name, lnum, col) -> None:
         BadLink.__init__(self, _('The linked to resource {0} does not exist').format(href), name, line=lnum, col=col)
         self.HELP = _(
             'The case of the link {0} and the case of the actual file it points to {1}'
@@ -75,7 +75,7 @@ class CaseMismatch(BadLink):
 class BadDestinationType(BaseError):
     level = WARN
 
-    def __init__(self, link_source, link_dest, link_elem):
+    def __init__(self, link_source, link_dest, link_elem) -> None:
         BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=link_elem.sourceline)
         self.HELP = _(
             'The link "{0}" points to a file <i>{1}</i> that is not a text (HTML) document.'
@@ -90,7 +90,7 @@ class BadDestinationType(BaseError):
 class BadDestinationFragment(BaseError):
     level = WARN
 
-    def __init__(self, link_source, link_dest, link_elem, fragment):
+    def __init__(self, link_source, link_dest, link_elem, fragment) -> None:
         BaseError.__init__(self, _('Link points to a location not present in the target file'), link_source, line=link_elem.sourceline)
         self.bad_href = link_elem.get('href')
         self.HELP = _(
@@ -130,7 +130,7 @@ class UnreferencedResource(BadLink):
         ' probably remove this file from the book or add a link to it somewhere.'
     )
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BadLink.__init__(self, _('The file %s is not referenced') % name, name)
 
 
@@ -162,7 +162,7 @@ class Unmanifested(BadLink):
         ' file in the manifest or remove it from the book if it is an unnecessary file.'
     )
 
-    def __init__(self, name, unreferenced=None):
+    def __init__(self, name, unreferenced=None) -> None:
         BadLink.__init__(self, _('The file %s is not listed in the manifest') % name, name)
         self.file_action = None
         if unreferenced is not None:
@@ -182,7 +182,7 @@ class Unmanifested(BadLink):
 class DanglingLink(BadLink):
     RULE_NAME = _('Linked resource does not exist')
 
-    def __init__(self, text, target_name, name, lnum, col):
+    def __init__(self, text, target_name, name, lnum, col) -> None:
         BadLink.__init__(self, text, name, lnum, col)
         self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML and CSS in the book') % target_name
         self.target_name = target_name
@@ -202,7 +202,7 @@ class Bookmarks(BadLink):
     INDIVIDUAL_FIX = _('Remove this file')
     level = INFO
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BadLink.__init__(self, _('The bookmarks file used by the calibre E-book viewer is present'), name)
 
     def __call__(self, container):
@@ -214,7 +214,7 @@ class MimetypeMismatch(BaseError):
     RULE_NAME = _('MIME type does not match file extension')
     level = WARN
 
-    def __init__(self, container, name, opf_mt, ext_mt):
+    def __init__(self, container, name, opf_mt, ext_mt) -> None:
         self.opf_mt, self.ext_mt = opf_mt, ext_mt
         self.file_name = name
         BaseError.__init__(self, _('The file %s has a MIME type that does not match its extension') % name, container.opf_name)
@@ -267,7 +267,7 @@ def check_mimetypes(container):
     return errors
 
 
-def check_link_destination(container, dest_map, name, href, a, errors):
+def check_link_destination(container, dest_map, name, href, a, errors) -> None:
     if href.startswith('#'):
         tname = name
     else:
@@ -466,7 +466,7 @@ def check_external_links(container, progress_callback=(lambda num, total: None),
     done = []
     downloaded_html_ids = {}
 
-    def check_links():
+    def check_links() -> None:
         br = browser(honor_time=False, verify_ssl_certificates=False)
         while True:
             try:

@@ -52,7 +52,7 @@ STYLES = [
 
 
 class RBMLizer:
-    def __init__(self, log, name_map=None):
+    def __init__(self, log, name_map=None) -> None:
         if name_map is None:
             name_map = {}
         self.log = log
@@ -121,7 +121,7 @@ class RBMLizer:
     def add_page_anchor(self, page):
         return self.get_anchor(page, '')
 
-    def get_anchor(self, page, aid):
+    def get_anchor(self, page, aid) -> str:
         aid = f'{page.href}#{aid}'
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = f'calibre_link-{len(self.link_hrefs.keys())}'

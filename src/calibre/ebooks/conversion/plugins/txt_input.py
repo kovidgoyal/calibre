@@ -390,7 +390,7 @@ class TXTInput(InputFormatPlugin):
 
         return oeb
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         for item in oeb.spine:
             if hasattr(item.data, 'xpath'):
                 for title in item.data.xpath('//*[local-name()="title"]'):
@@ -402,7 +402,7 @@ def find_tests():
     import unittest
 
     class TXTInputTest(unittest.TestCase):
-        def test_txtz_extension_formatting(self):
+        def test_txtz_extension_formatting(self) -> None:
             self.assertEqual(txtz_file_ext('book.md'), 'md')
             self.assertEqual(txtz_file_ext('book.MARKDOWN'), 'markdown')
             self.assertEqual(txtz_formatting_for_extension('.md'), 'markdown')

@@ -164,7 +164,7 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
 
     with ZipFile(stream) as zf:
         raw = _set_metadata(zf.open('meta.xml').read(), mi)
@@ -182,7 +182,7 @@ def _set_metadata(raw, mi):
     def xpath(expr, parent=root):
         return parent.xpath(expr, namespaces=namespaces)
 
-    def remove(*tag_names):
+    def remove(*tag_names) -> None:
         for tag_name in tag_names:
             ns = fields[tag_name][0]
             tag_name = f'{nsrmap[ns]}:{tag_name}'
@@ -195,18 +195,18 @@ def _set_metadata(raw, mi):
         meta.append(ans)
         return ans
 
-    def remove_user_metadata(*names):
+    def remove_user_metadata(*names) -> None:
         for x in xpath('//meta:user-defined'):
             q = (x.get(f'{{{METANS}}}name') or '').lower()
             if q in names:
                 x.getparent().remove(x)
 
-    def add_um(name, val, vtype='string'):
+    def add_um(name, val, vtype='string') -> None:
         ans = add('user-defined', val)
         ans.set(f'{{{METANS}}}value-type', vtype)
         ans.set(f'{{{METANS}}}name', name)
 
-    def add_user_metadata(name, val):
+    def add_user_metadata(name, val) -> None:
         if not hasattr(add_user_metadata, 'sentinel_added'):
             setattr(add_user_metadata, 'sentinel_added', True)
             remove_user_metadata('opf.metadata')
@@ -265,7 +265,7 @@ def _set_metadata(raw, mi):
     return tostring(root, encoding='utf-8', pretty_print=True)
 
 
-def read_cover(stream, zin, mi, opfmeta, extract_cover):
+def read_cover(stream, zin, mi, opfmeta, extract_cover) -> None:
     # search for an draw:image in a draw:frame with the name 'opf.cover'
     # if opf.metadata prop is false, just use the first image that
     # has a proper size (borrowed from docx)

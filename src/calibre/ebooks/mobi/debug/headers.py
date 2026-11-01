@@ -18,16 +18,16 @@ from calibre.utils.date import utc_tz
 
 class PalmDOCAttributes:
     class Attr:
-        def __init__(self, name, field, val):
+        def __init__(self, name, field, val) -> None:
             self.name = name
             self.val = val & field
 
-        def __str__(self):
+        def __str__(self) -> str:
             return f'{self.name}: {bool(self.val)}'
 
         __unicode__ = __str__
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         self.val = struct.unpack(b'<H', raw)[0]
         self.attributes = []
         for name, field in [
@@ -40,7 +40,7 @@ class PalmDOCAttributes:
         ]:
             self.attributes.append(PalmDOCAttributes.Attr(name, field, self.val))
 
-    def __str__(self):
+    def __str__(self) -> str:
         attrs = '\n\t'.join([str(x) for x in self.attributes])
         return f'PalmDOC Attributes: {bin(self.val)}\n\t{attrs}'
 
@@ -48,7 +48,7 @@ class PalmDOCAttributes:
 
 
 class PalmDB:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         self.raw = raw
 
         if self.raw.startswith(b'TPZ'):
@@ -78,7 +78,7 @@ class PalmDB:
 
         (self.number_of_records,) = struct.unpack(b'>H', self.raw[76:78])
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + ' PalmDB Header ' + '*' * 20]
         ans.append(f'Name: {self.name!r}')
         ans.append(str(self.attributes))
@@ -104,12 +104,12 @@ class PalmDB:
 
 
 class Record:  # {{{
-    def __init__(self, raw, header):
+    def __init__(self, raw, header) -> None:
         self.offset, self.flags, self.uid = header
         self.raw = raw
 
     @property
-    def header(self):
+    def header(self) -> str:
         return f'Offset: {self.offset} Flags: {self.flags} UID: {self.uid} First 4 bytes: {self.raw[:4]!r} Size: {len(self.raw)}'
 
 
@@ -119,7 +119,7 @@ class Record:  # {{{
 
 
 class EXTHRecord:
-    def __init__(self, type_, data, length):
+    def __init__(self, type_, data, length) -> None:
         self.type = type_
         self.data = data
         self.length = length
@@ -216,12 +216,12 @@ class EXTHRecord:
         elif self.type in {209, 300}:
             self.data = binascii.hexlify(self.data)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.name} ({self.type}): {self.data!r}'
 
 
 class EXTHHeader:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         self.raw = raw
         if not self.raw.startswith(b'EXTH'):
             raise ValueError('EXTH header does not start with EXTH')
@@ -255,7 +255,7 @@ class EXTHHeader:
             ans = None
         return ans
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + ' EXTH Header ' + '*' * 20]
         ans.append(f'EXTH header length: {self.length}')
         ans.append(f'Number of EXTH records: {self.count}')
@@ -271,7 +271,7 @@ class EXTHHeader:
 
 
 class MOBIHeader:  # {{{
-    def __init__(self, record0, offset):
+    def __init__(self, record0, offset) -> None:
         self.raw = record0.raw
         self.header_offset = offset
 
@@ -413,16 +413,16 @@ class MOBIHeader:  # {{{
                 # MOBI 6 header in a joint file, adjust self.last_resource_record
                 self.last_resource_record = self.exth.kf8_header_index - 2
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['*' * 20 + f' MOBI {self.file_version} Header ' + '*' * 20]
 
         a = ans.append
 
-        def i(d, x):
+        def i(d, x) -> None:
             x = 'NULL' if x == NULL_INDEX else x
             a(f'{d}: {x}')
 
-        def r(d, attr):
+        def r(d, attr) -> None:
             x = getattr(self, attr)
             if attr in self.relative_records and x != NULL_INDEX:
                 a(f'{d}: Absolute: {x} Relative: {x - self.header_offset}')
@@ -512,7 +512,7 @@ class MOBIHeader:  # {{{
 
 
 class MOBIFile:
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         self.raw = stream.read()
         self.palmdb = PalmDB(self.raw[:78])
 
@@ -581,7 +581,7 @@ class MOBIFile:
 
 
 class TextRecord:  # {{{
-    def __init__(self, idx, record, extra_data_flags, decompress):
+    def __init__(self, idx, record, extra_data_flags, decompress) -> None:
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
         raw_trailing_bytes = record.raw[len(self.raw) :]
         self.raw = decompress(self.raw)
@@ -600,7 +600,7 @@ class TextRecord:  # {{{
 
         self.idx = idx
 
-    def dump(self, folder):
+    def dump(self, folder) -> None:
         name = f'{self.idx:06}'
         with open(os.path.join(folder, name + '.txt'), 'wb') as f:
             f.write(self.raw)
@@ -609,7 +609,7 @@ class TextRecord:  # {{{
                 raw = f'{k} : {v!r}\n\n'
                 f.write(raw.encode('utf-8'))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.raw)
 
 

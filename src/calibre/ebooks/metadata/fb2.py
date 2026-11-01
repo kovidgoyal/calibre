@@ -34,7 +34,7 @@ def XLINK(tag):
 
 
 class Context:
-    def __init__(self, root):
+    def __init__(self, root) -> None:
         try:
             self.fb_ns = root.nsmap[root.prefix] or NAMESPACES['fb2']
         except Exception:
@@ -68,12 +68,12 @@ class Context:
             parent.append(ans)
         return ans
 
-    def clear_meta_tags(self, doc, tag):
+    def clear_meta_tags(self, doc, tag) -> None:
         for parent in ('title-info', 'src-title-info', 'publish-info'):
             for x in self.XPath(f'//fb:{parent}/fb:{tag}')(doc):
                 x.getparent().remove(x)
 
-    def text2fb2(self, parent, text):
+    def text2fb2(self, parent, text) -> None:
         lines = text.split('\n')
         for line in lines:
             line = line.strip()
@@ -208,7 +208,7 @@ def _parse_book_title(root, ctx):
     return book_title
 
 
-def _parse_cover(root, mi, ctx):
+def _parse_cover(root, mi, ctx) -> None:
     # pickup from <title-info>, if not exists it fallbacks to <src-title-info>
     imgid = ctx.XPath('substring-after(string(//fb:coverpage/fb:image/@xlink:href), "#")')(root)
     if imgid:
@@ -218,7 +218,7 @@ def _parse_cover(root, mi, ctx):
             pass
 
 
-def _parse_cover_data(root, imgid, mi, ctx):
+def _parse_cover_data(root, imgid, mi, ctx) -> None:
     from calibre.ebooks.fb2 import base64_decode
 
     elm_binary = ctx.XPath(f'//fb:binary[@id="{imgid}"]')(root)
@@ -241,7 +241,7 @@ def _parse_cover_data(root, imgid, mi, ctx):
             prints(f"WARNING: Unsupported coverpage mime-type '{mimetype}' (id=#{imgid})")
 
 
-def _parse_tags(root, mi, ctx):
+def _parse_tags(root, mi, ctx) -> None:
     # pick up genre but only from 1 section <title-info>; otherwise it is not consistent!
     # Those are fallbacks: <src-title-info>
     for genre_sec in ['title-info', 'src-title-info']:
@@ -252,7 +252,7 @@ def _parse_tags(root, mi, ctx):
             break
 
 
-def _parse_series(root, mi, ctx):
+def _parse_series(root, mi, ctx) -> None:
     # calibre supports only 1 series: use the 1-st one
     # pick up sequence but only from 1 section in preferred order
     # except <src-title-info>
@@ -269,7 +269,7 @@ def _parse_series(root, mi, ctx):
                 pass
 
 
-def _parse_isbn(root, mi, ctx):
+def _parse_isbn(root, mi, ctx) -> None:
     # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
     isbn = ctx.XPath('normalize-space(//fb:publish-info/fb:isbn/text())')(root)
     if isbn:
@@ -280,7 +280,7 @@ def _parse_isbn(root, mi, ctx):
             mi.isbn = isbn
 
 
-def _parse_comments(root, mi, ctx):
+def _parse_comments(root, mi, ctx) -> None:
     # pick up annotation but only from 1 section <title-info>;  fallback: <src-title-info>
     for annotation_sec in ['title-info', 'src-title-info']:
         elms_annotation = ctx.XPath(f'//fb:{annotation_sec}/fb:annotation')(root)
@@ -290,20 +290,20 @@ def _parse_comments(root, mi, ctx):
             break
 
 
-def _parse_publisher(root, mi, ctx):
+def _parse_publisher(root, mi, ctx) -> None:
     publisher = ctx.XPath('string(//fb:publish-info/fb:publisher/text())')(root)
     if publisher:
         mi.publisher = publisher
 
 
-def _parse_pubdate(root, mi, ctx):
+def _parse_pubdate(root, mi, ctx) -> None:
     year = ctx.XPath('number(//fb:publish-info/fb:year/text())')(root)
     if float.is_integer(year):
         # only year is available, so use 2nd of June
         mi.pubdate = parse_only_date(str(int(year)))
 
 
-def _parse_language(root, mi, ctx):
+def _parse_language(root, mi, ctx) -> None:
     language = ctx.XPath('string(//fb:title-info/fb:lang/text())')(root)
     if language:
         mi.language = language
@@ -316,14 +316,14 @@ def _get_fbroot(raw):
     return ensure_namespace(root)
 
 
-def _set_title(title_info, mi, ctx):
+def _set_title(title_info, mi, ctx) -> None:
     if not mi.is_null('title'):
         ctx.clear_meta_tags(title_info, 'book-title')
         title = ctx.get_or_create(title_info, 'book-title')
         title.text = mi.title
 
 
-def _set_comments(title_info, mi, ctx, apply_null=False):
+def _set_comments(title_info, mi, ctx, apply_null=False) -> None:
     if mi.is_null('comments'):
         if apply_null:
             ctx.clear_meta_tags(title_info, 'annotation')
@@ -335,7 +335,7 @@ def _set_comments(title_info, mi, ctx, apply_null=False):
         ctx.text2fb2(title, html2text(mi.comments))
 
 
-def _set_authors(title_info, mi, ctx):
+def _set_authors(title_info, mi, ctx) -> None:
     if not mi.is_null('authors'):
         ctx.clear_meta_tags(title_info, 'author')
         for author in reversed(mi.authors):
@@ -355,7 +355,7 @@ def _set_authors(title_info, mi, ctx):
                     ctx.create_tag(atag, 'last-name', at_start=False).text = ' '.join(author_parts)
 
 
-def _set_publisher(publish_info, mi, ctx, apply_null=False):
+def _set_publisher(publish_info, mi, ctx, apply_null=False) -> None:
     if mi.is_null('publisher'):
         if apply_null:
             ctx.clear_meta_tags(publish_info, 'publisher')
@@ -365,7 +365,7 @@ def _set_publisher(publish_info, mi, ctx, apply_null=False):
     tag.text = mi.publisher
 
 
-def _set_pubdate(publish_info, mi, ctx, apply_null=False):
+def _set_pubdate(publish_info, mi, ctx, apply_null=False) -> None:
     if mi.is_null('pubdate'):
         if apply_null:
             ctx.clear_meta_tags(publish_info, 'year')
@@ -375,7 +375,7 @@ def _set_pubdate(publish_info, mi, ctx, apply_null=False):
     tag.text = strftime('%Y', mi.pubdate)
 
 
-def _set_tags(title_info, mi, ctx, apply_null=False):
+def _set_tags(title_info, mi, ctx, apply_null=False) -> None:
     if mi.is_null('tags'):
         if apply_null:
             ctx.clear_meta_tags(title_info, 'genre')
@@ -386,7 +386,7 @@ def _set_tags(title_info, mi, ctx, apply_null=False):
             tag.text = t
 
 
-def _set_series(title_info, mi, ctx, apply_null=False):
+def _set_series(title_info, mi, ctx, apply_null=False) -> None:
     if mi.is_null('series'):
         # An explicitly empty series (as from ebook-meta --series "") also
         # clears the series, matching the behavior of the OPF writer
@@ -415,7 +415,7 @@ def _encode_into_jpeg(data):
     return as_base64_unicode(data)
 
 
-def _set_cover(title_info, mi, ctx):
+def _set_cover(title_info, mi, ctx) -> None:
     if not mi.is_null('cover_data') and mi.cover_data[1]:
         coverpage = ctx.get_or_create(title_info, 'coverpage')
         cim_tag = ctx.get_or_create(coverpage, 'image')
@@ -430,7 +430,7 @@ def _set_cover(title_info, mi, ctx):
         cim_binary.text = _encode_into_jpeg(mi.cover_data[1])
 
 
-def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
+def set_metadata(stream, mi, apply_null=False, update_timestamp=False) -> None:
     stream.seek(0)
     raw, zip_file_name = get_fb2_data(stream)
     root = _get_fbroot(raw)
@@ -506,7 +506,7 @@ def find_tests():
             stream.seek(0)
             return get_metadata(stream)
 
-        def test_fb2_metadata_clear(self):
+        def test_fb2_metadata_clear(self) -> None:
             mi = get_metadata(BytesIO(raw))
             self.assertEqual((mi.series, mi.series_index), ('S', 2))
             # null series without apply_null leaves existing series alone

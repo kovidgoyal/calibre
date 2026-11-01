@@ -72,7 +72,7 @@ class PackedData:
     Simplify unpacking of packed binary data structures
     """
 
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self.buffer = data
         self.offset = 0
 
@@ -91,7 +91,7 @@ class PackedData:
         self.advance(size)
         return data
 
-    def advance(self, size):
+    def advance(self, size) -> None:
         self.offset += size
 
     def remaining(self):
@@ -103,7 +103,7 @@ class PackedBlock(PackedData):
     Common header structure of container and entity blocks
     """
 
-    def __init__(self, data, magic):
+    def __init__(self, data, magic) -> None:
         PackedData.__init__(self, data)
 
         self.magic = self.unpack_one('4s')
@@ -119,7 +119,7 @@ class Container(PackedBlock):
     Container file containing data entities
     """
 
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self.data = data
         PackedBlock.__init__(self, data, CONTAINER_MAGIC)
 
@@ -141,7 +141,7 @@ class Entity(PackedBlock):
     Data entity inside a container
     """
 
-    def __init__(self, data, entity_type, entity_id):
+    def __init__(self, data, entity_type, entity_id) -> None:
         PackedBlock.__init__(self, data, ENTITY_MAGIC)
         self.entity_type = entity_type
         self.entity_id = entity_id
@@ -161,7 +161,7 @@ class PackedIon(PackedData):
     Packed structured binary data format used by KFX
     """
 
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         PackedData.__init__(self, data)
 
     def decode(self):
@@ -237,7 +237,7 @@ class PackedIon(PackedData):
         return struct.unpack_from(b'>Q', b'\0' * (8 - length) + self.extract(length))[0]
 
 
-def property_name(property_number):
+def property_name(property_number) -> bytes:
     # This should be changed to translate property numbers to the proper
     # strings using a symbol table
     return b'P%d' % property_number
@@ -271,7 +271,7 @@ def extract_metadata(container_data):
     return metadata
 
 
-def dump_metadata(m):
+def dump_metadata(m) -> None:
     d = dict(m)
     d[COVER_KEY] = bool(d.get(COVER_KEY))
     from pprint import pprint

@@ -94,7 +94,7 @@ class DefaultEncoding:
         'gb18030': '54936',
     }
 
-    def __init__(self, in_file, bug_handler, default_encoding, run_level=1, check_raw=False):
+    def __init__(self, in_file, bug_handler, default_encoding, run_level=1, check_raw=False) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__platform = 'Windows'
@@ -126,7 +126,7 @@ class DefaultEncoding:
             self.__datafetched = True
         return self.__platform
 
-    def _encoding(self):
+    def _encoding(self) -> None:
         with open_for_read(self.__file) as read_obj:
             cpfound = False
             if not self.__fetchraw:

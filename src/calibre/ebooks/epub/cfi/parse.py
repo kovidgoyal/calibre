@@ -10,7 +10,7 @@ class Parser:
     grako, and the grammar is pretty simple. This parser is thread-safe, i.e.
     it can be used from multiple threads simultaneously."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # All allowed unicode characters + escaped special characters
         special_char = r'[\[\](),;=^]'
         unescaped_char = f'[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--{special_char}]'

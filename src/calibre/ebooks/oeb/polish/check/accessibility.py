@@ -56,7 +56,7 @@ class MissingAltText(BaseError):
         )
     )
 
-    def __init__(self, name, lines):
+    def __init__(self, name, lines) -> None:
         BaseError.__init__(
             self, ngettext('An image has no alternative text', '{} images have no alternative text', len(lines)).format(len(lines)), name, lines[0]
         )
@@ -68,7 +68,7 @@ class MissingLanguage(BaseError):
     has_multiple_locations = True
     RULE_NAME = _('HTML file without a language')
 
-    def __init__(self, names, lang):
+    def __init__(self, names, lang) -> None:
         msg = ngettext('An HTML file does not specify its language', '{} HTML files do not specify their language', len(names))
         BaseError.__init__(self, msg.format(len(names)), names[0][0], names[0][1])
         self.all_locations = [(name, lnum, None) for name, lnum in names]
@@ -100,7 +100,7 @@ class SkippedHeadingLevel(BaseError):
         )
     )
 
-    def __init__(self, name, lines):
+    def __init__(self, name, lines) -> None:
         BaseError.__init__(self, ngettext('A heading skips a level', '{} headings skip a level', len(lines)).format(len(lines)), name, lines[0])
         self.all_locations = [(name, lnum, None) for lnum in lines]
 
@@ -119,7 +119,7 @@ class MissingRole(BaseError):
         )
     )
 
-    def __init__(self, name, lines):
+    def __init__(self, name, lines) -> None:
         BaseError.__init__(
             self,
             ngettext('An element has an epub:type but no ARIA role', '{} elements have an epub:type but no ARIA role', len(lines)).format(len(lines)),
@@ -150,7 +150,7 @@ class MissingAccessibilityMetadata(BaseError):
     level = WARN
     RULE_NAME = _('Missing accessibility metadata')
 
-    def __init__(self, name, missing):
+    def __init__(self, name, missing) -> None:
         BaseError.__init__(self, _('The book does not have accessibility metadata'), name)
         self.missing = missing
         self.HELP = xml(
@@ -166,7 +166,7 @@ class MissingAccessibilitySummary(BaseError):
     level = INFO
     RULE_NAME = _('Missing accessibility summary')
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BaseError.__init__(self, _('The book does not have an accessibility summary'), name)
         self.HELP = xml(
             _(

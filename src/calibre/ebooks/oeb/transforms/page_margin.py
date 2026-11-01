@@ -86,7 +86,7 @@ class RemoveFakeMargins:
                 return style.marginLeft, style.marginRight, style
         return '', '', None
 
-    def process_level(self, level):
+    def process_level(self, level) -> None:
         elems = self.levels[level]
         self.stats[level + '_left'] = Counter()
         self.stats[level + '_right'] = Counter()
@@ -118,7 +118,7 @@ class RemoveFakeMargins:
                 if remove_right and rm == mcr:
                     style.removeProperty('margin-right')
 
-    def find_levels(self):
+    def find_levels(self) -> None:
 
         def level_of(elem, body):
             ans = 1

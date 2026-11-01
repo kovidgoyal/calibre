@@ -38,18 +38,18 @@ def dictdata(dbfile: str):
     return q.read_bytes()
 
 
-def jisyo_init(self, dictname):
+def jisyo_init(self, dictname) -> None:
     self._dict = pickle.loads(dictdata(dictname))
 
 
-def itaiji_init(self):
+def itaiji_init(self) -> None:
     if self._itaijidict is None:
         with self._lock:
             if self._itaijidict is None:
                 self._itaijidict = pickle.loads(dictdata(Configurations.jisyo_itaiji))
 
 
-def kanwa_init(self):
+def kanwa_init(self) -> None:
     if self._jisyo_table is None:
         with self._lock:
             if self._jisyo_table is None:
@@ -62,7 +62,7 @@ Kanwa.__init__ = kanwa_init
 
 
 class Jadecoder(Unidecoder):
-    def __init__(self):
+    def __init__(self) -> None:
         self.codepoints = CODEPOINTS.copy()
         self.codepoints.update(JACODES)
 

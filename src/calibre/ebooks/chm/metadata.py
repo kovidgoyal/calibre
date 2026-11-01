@@ -68,7 +68,7 @@ def _get_isbn(soup):
     return _metadata_from_span(soup, 'isbn') or _metadata_from_table(soup, 'isbn')
 
 
-def _get_comments(soup):
+def _get_comments(soup) -> str | None:
     date = _metadata_from_span(soup, 'cwdate') or _metadata_from_table(soup, 'pub date')
     pages = _metadata_from_span(soup, 'pages') or _metadata_from_table(soup, 'pages')
     try:

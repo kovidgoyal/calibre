@@ -31,7 +31,7 @@ def fcis(text_length):
 
 
 class MobiWriter:
-    def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True):
+    def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True) -> None:
         self.opts = opts
         self.resources = resources
         self.kf8 = kf8
@@ -55,14 +55,14 @@ class MobiWriter:
         with open(path_or_stream, 'w+b') as stream:
             return self.dump_stream(oeb, stream)
 
-    def write(self, *args):
+    def write(self, *args) -> None:
         for datum in args:
             self.stream.write(datum)
 
     def tell(self):
         return self.stream.tell()
 
-    def dump_stream(self, oeb, stream):
+    def dump_stream(self, oeb, stream) -> None:
         self.oeb = oeb
         self.stream = stream
         self.records: list[bytes | None] = [None]
@@ -71,7 +71,7 @@ class MobiWriter:
         self.write_header()
         self.write_content()
 
-    def generate_content(self):
+    def generate_content(self) -> None:
         self.is_periodical = detect_periodical(self.oeb.toc, self.oeb.log)
         # Image records are stored in their own list, they are merged into the
         # main record list at the end
@@ -84,7 +84,7 @@ class MobiWriter:
         self.generate_index()
 
     # Indexing {{{
-    def generate_index(self):
+    def generate_index(self) -> None:
         self.primary_index_record_idx = None
         if self.oeb.toc.count() < 1:
             self.log.warn('No TOC, MOBI index not generated')
@@ -112,7 +112,7 @@ class MobiWriter:
 
     # }}}
 
-    def write_uncrossable_breaks(self):  # {{{
+    def write_uncrossable_breaks(self) -> None:  # {{{
         """
         Write information about uncrossable breaks (non linear items in
         the spine.
@@ -141,7 +141,7 @@ class MobiWriter:
 
     # Images {{{
 
-    def generate_images(self):
+    def generate_images(self) -> None:
         resources = self.resources
         image_records = resources.records
         self.image_map = resources.item_map
@@ -154,7 +154,7 @@ class MobiWriter:
 
     # }}}
 
-    def generate_text(self):  # {{{
+    def generate_text(self) -> None:  # {{{
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map, self.is_periodical, write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
@@ -187,7 +187,7 @@ class MobiWriter:
 
     # }}}
 
-    def generate_record0(self):  # MOBI header {{{
+    def generate_record0(self) -> None:  # MOBI header {{{
         metadata = self.oeb.metadata
         bt = 0x002
         if self.primary_index_record_idx is not None:
@@ -370,7 +370,7 @@ class MobiWriter:
 
     # }}}
 
-    def generate_joint_record0(self):  # {{{
+    def generate_joint_record0(self) -> None:  # {{{
         from calibre.ebooks.mobi.writer8.exth import build_exth
         from calibre.ebooks.mobi.writer8.mobi import HEADER_FIELDS, MOBIHeader
 
@@ -452,7 +452,7 @@ class MobiWriter:
 
     # }}}
 
-    def write_header(self):  # PalmDB header {{{
+    def write_header(self) -> None:  # PalmDB header {{{
         """
         Write the PalmDB header
         """
@@ -478,6 +478,6 @@ class MobiWriter:
 
     # }}}
 
-    def write_content(self):
+    def write_content(self) -> None:
         for record in self.records:
             self.write(record)

@@ -18,13 +18,13 @@ class HeaderRecord:
     defined in the file header.
     """
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         (self.compression,) = struct.unpack('>H', raw[0:2])
         (self.num_records,) = struct.unpack('>H', raw[8:10])
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.stream = stream
         self.log = log
         self.options = options

@@ -211,7 +211,7 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     return ans, url
 
 
-def ddg_develop():
+def ddg_develop() -> None:
     br = browser()
     for result in ddg_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
         if '/dp/' in result.url:
@@ -291,7 +291,7 @@ def bing_search(
     return ans, url
 
 
-def bing_develop(terms='heroes abercrombie'):
+def bing_develop(terms='heroes abercrombie') -> None:
     if isinstance(terms, str):
         terms = terms.split()
     for result in bing_search(terms, 'www.amazon.com', dump_raw='/t/raw.html', show_user_agent=True)[0]:
@@ -445,7 +445,7 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     return google_parse_results(root, r[0], log=log), url
 
 
-def google_develop(search_terms='1423146786', raw_from=''):
+def google_develop(search_terms='1423146786', raw_from='') -> None:
     if raw_from:
         with open(raw_from, 'rb') as f:
             raw = f.read()
@@ -481,7 +481,7 @@ def yandex_format_query(terms, site=None):
     return url
 
 
-def yandex_parse_results(root, raw, log=prints, ignore_uncached=True):
+def yandex_parse_results(root, raw, log=prints, ignore_uncached=True) -> None:
     pass
 
 
@@ -507,7 +507,7 @@ def yandex_search(terms, site=None, br=None, dump_raw=None, log=prints, timeout=
     return yandex_parse_results(root, r[0], log=log), url
 
 
-def yandex_develop(search_terms='1423146786', raw_from=''):
+def yandex_develop(search_terms='1423146786', raw_from='') -> None:
     if raw_from:
         with open(raw_from, 'rb') as f:
             raw = f.read()
@@ -533,11 +533,11 @@ def get_cached_url(url, br=None, log=prints, timeout=60):
     print_lock = Lock()
     q = Queue()
 
-    def safe_print(*a):
+    def safe_print(*a) -> None:
         with print_lock:
             log(*a)
 
-    def doit(func):
+    def doit(func) -> None:
         try:
             q.put(func(url, br, safe_print, timeout))
         except Exception as e:

@@ -14,6 +14,6 @@ from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 class Krdecoder(Unidecoder):
     codepoints = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.codepoints = CODEPOINTS
         self.codepoints.update(HANCODES)

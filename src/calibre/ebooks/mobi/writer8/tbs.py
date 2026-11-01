@@ -199,7 +199,7 @@ def calculate_all_tbs(indexing_data, tbs_type=8):
     return rmap
 
 
-def apply_trailing_byte_sequences(index_table, records, text_record_lengths):
+def apply_trailing_byte_sequences(index_table, records, text_record_lengths) -> bool:
     entries = tuple(
         Entry(
             r['index'],

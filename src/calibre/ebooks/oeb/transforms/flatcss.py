@@ -33,7 +33,7 @@ def asfloat(value, default):
 
 
 class KeyMapper:
-    def __init__(self, sbase, dbase, dkey):
+    def __init__(self, sbase, dbase, dkey) -> None:
         self.sbase = float(sbase)
         self.dprop = [(self.relate(x, dbase), float(x)) for x in dkey]
         self.cache = {}
@@ -82,7 +82,7 @@ class KeyMapper:
 
 
 class ScaleMapper:
-    def __init__(self, sbase, dbase):
+    def __init__(self, sbase, dbase) -> None:
         self.dscale = float(dbase) / float(sbase)
 
     def __getitem__(self, ssize):
@@ -92,7 +92,7 @@ class ScaleMapper:
 
 
 class NullMapper:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def __getitem__(self, ssize):
@@ -109,7 +109,7 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
 
 
 class EmbedFontsCSSRules:
-    def __init__(self, body_font_family, rules):
+    def __init__(self, body_font_family, rules) -> None:
         self.body_font_family, self.rules = body_font_family, rules
         self.href = None
 
@@ -136,7 +136,7 @@ class CSSFlattener:
         page_break_on_body=False,
         specializer=None,
         transform_css_rules=(),
-    ):
+    ) -> None:
         self.fbase = fbase
         self.transform_css_rules = transform_css_rules
         if self.transform_css_rules:
@@ -205,7 +205,7 @@ class CSSFlattener:
 
         self.store_page_margins()
 
-    def store_page_margins(self):
+    def store_page_margins(self) -> None:
         self.opts._stored_page_margins = {}
         for item, stylizer in self.stylizers.items():
             margins = self.opts._stored_page_margins[item.href] = {}
@@ -281,7 +281,7 @@ class CSSFlattener:
 
         return body_font_family, efi
 
-    def stylize_spine(self):
+    def stylize_spine(self) -> None:
         self.stylizers = {}
         profile = self.context.source
         css = ''
@@ -310,7 +310,7 @@ class CSSFlattener:
             stylizer = Stylizer(html, item.href, self.oeb, self.context, profile, user_css=self.context.extra_css, extra_css=css)
             self.stylizers[item] = stylizer
 
-    def baseline_node(self, node, stylizer, sizes, csize):
+    def baseline_node(self, node, stylizer, sizes, csize) -> None:
         csize = stylizer.style(node)['font-size']
         if node.text:
             sizes[csize] += len(COLLAPSE.sub(' ', node.text))
@@ -334,7 +334,7 @@ class CSSFlattener:
         self.oeb.logger.info(f'Source base font size is {sbase:0.5f}pt')
         return sbase
 
-    def clean_edges(self, cssdict, style, fsize):
+    def clean_edges(self, cssdict, style, fsize) -> None:
         assert self.sbase is not None
         slineh = self.sbase * 1.26
         dlineh = self.lineh
@@ -358,7 +358,7 @@ class CSSFlattener:
                         value = 0.0
                     cssdict[property] = f'{value / fsize:0.5f}em'
 
-    def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id, recurse=True):
+    def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id, recurse=True) -> None:
         if not isinstance(node.tag, (str, bytes)) or namespace(node.tag) not in (XHTML_NS, SVG_NS):
             return
         tag = barename(node.tag)
@@ -587,7 +587,7 @@ class CSSFlattener:
             for child in node:
                 self.flatten_node(child, stylizer, names, styles, pseudo_styles, psize, item_id)
 
-    def flatten_head(self, item, href, global_href):
+    def flatten_head(self, item, href, global_href) -> None:
         html = item.data
         head = html.find(XHTML('head'))
 
@@ -682,7 +682,7 @@ class CSSFlattener:
                 ans[item] = gc_map[css]
         return ans
 
-    def flatten_spine(self):
+    def flatten_spine(self) -> None:
         names = defaultdict(int)
         styles, pseudo_styles = {}, defaultdict(dict)
         for item in self.items:

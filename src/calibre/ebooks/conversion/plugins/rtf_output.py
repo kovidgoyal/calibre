@@ -10,7 +10,7 @@ class RTFOutput(OutputFormatPlugin):
     file_type = 'rtf'
     commit_name = 'rtf_output'
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         from calibre.ebooks.rtf.rtfml import RTFMLizer
 
         rtfmlitzer = RTFMLizer(log)

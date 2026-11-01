@@ -38,7 +38,7 @@ def find_previous_calibre_inline_toc(oeb):
 
 
 class TOCAdder:
-    def __init__(self, oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=False):
+    def __init__(self, oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=False) -> None:
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.title = opts.toc_title or DEFAULT_TITLE
         self.at_start = opts.mobi_toc_at_start
@@ -100,7 +100,7 @@ class TOCAdder:
 
         oeb.guide.add('toc', 'Table of Contents', href)
 
-    def process_toc_node(self, toc, parent, level=0):
+    def process_toc_node(self, toc, parent, level=0) -> None:
         li = parent.makeelement(XHTML('li'))
         li.tail = '\n' + ('\t' * level)
         parent.append(li)
@@ -119,7 +119,7 @@ class TOCAdder:
             for child in toc:
                 self.process_toc_node(child, parent, level + 1)
 
-    def remove_generated_toc(self):
+    def remove_generated_toc(self) -> None:
         if self.generated_item is not None:
             self.oeb.manifest.remove(self.generated_item)
             self.generated_item = None

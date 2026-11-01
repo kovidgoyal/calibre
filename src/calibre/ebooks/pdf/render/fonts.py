@@ -53,11 +53,11 @@ import textwrap
 
 
 class FontStream(Stream):
-    def __init__(self, is_otf, compress=False):
+    def __init__(self, is_otf, compress=False) -> None:
         Stream.__init__(self, compress=compress)
         self.is_otf = is_otf
 
-    def add_extra_keys(self, d):
+    def add_extra_keys(self, d) -> None:
         d['Length1'] = d['DL']
         if self.is_otf:
             d['Subtype'] = Name('CIDFontType0C')
@@ -92,7 +92,7 @@ class CMap(Stream):
         end
         ''')
 
-    def __init__(self, name, glyph_map, compress=False):
+    def __init__(self, name, glyph_map, compress=False) -> None:
         Stream.__init__(self, compress)
         current_map = OrderedDict()
         maps = []
@@ -120,7 +120,7 @@ class CMap(Stream):
 
 
 class Font:
-    def __init__(self, metrics, num, objects, compress):
+    def __init__(self, metrics, num, objects, compress) -> None:
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
         self.subset_tag = str(re.sub(r'.', lambda m: chr(int(m.group()) + ord('A')), oct(num).replace('o', ''))).rjust(6, 'A')
@@ -165,7 +165,7 @@ class Font:
 
         self.used_glyphs = set()
 
-    def embed(self, objects, debug):
+    def embed(self, objects, debug) -> None:
         self.font_descriptor['FontFile' + ('3' if self.is_otf else '2')] = objects.add(self.font_stream)
         self.write_widths(objects)
         self.write_to_unicode(objects)
@@ -187,7 +187,7 @@ class Font:
             self.metrics.os2.zero_fstype()
             self.metrics.sfnt(self.font_stream)
 
-    def write_to_unicode(self, objects):
+    def write_to_unicode(self, objects) -> None:
         try:
             name = self.metrics.postscript_name
         except KeyError:
@@ -195,7 +195,7 @@ class Font:
         cmap = CMap(name, self.metrics.glyph_map, compress=self.compress)
         self.font_dict['ToUnicode'] = objects.add(cmap)
 
-    def write_widths(self, objects):
+    def write_widths(self, objects) -> None:
         glyphs = sorted(self.used_glyphs | {0})
         widths = {g: self.metrics.pdf_scale(w) for g, w in zip(glyphs, self.metrics.glyph_widths(glyphs))}
         counter = Counter()
@@ -218,7 +218,7 @@ class Font:
 
 
 class FontManager:
-    def __init__(self, objects, compress):
+    def __init__(self, objects, compress) -> None:
         self.objects = objects
         self.compress = compress
         self.std_map = {}
@@ -242,6 +242,6 @@ class FontManager:
             self.std_map[name] = self.objects.add(Dictionary({'Type': Name('Font'), 'Subtype': Name('Type1'), 'BaseFont': Name(name)}))
         return self.std_map[name]
 
-    def embed_fonts(self, debug):
+    def embed_fonts(self, debug) -> None:
         for font in self.fonts:
             font.embed(self.objects, debug)

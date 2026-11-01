@@ -7,7 +7,7 @@ from calibre import guess_type
 
 
 class EntityDeclarationProcessor:  # {{{
-    def __init__(self, html):
+    def __init__(self, html) -> None:
         self.declared_entities = {}
         for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
             tokens = match.group(1).split()
@@ -51,7 +51,7 @@ def load_html(
     path_is_html=False,
     force_as_html=False,
     loading_url=None,
-):
+) -> bool:
     from qt.core import QByteArray, QUrl
 
     if mime_type is None:

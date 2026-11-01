@@ -16,11 +16,11 @@ def obfuscate_font_data(data, key):
 
 
 class FontsManager:
-    def __init__(self, namespace, oeb, opts):
+    def __init__(self, namespace, oeb, opts) -> None:
         self.namespace = namespace
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
-    def serialize(self, text_styles, fonts, embed_relationships, font_data_map):
+    def serialize(self, text_styles, fonts, embed_relationships, font_data_map) -> None:
         makeelement = self.namespace.makeelement
         font_families, seen = set(), set()
         for ts in text_styles:

@@ -9,7 +9,7 @@ from calibre.utils.localization import _
 
 
 class LRFOptions:
-    def __init__(self, output, opts, oeb):
+    def __init__(self, output, opts, oeb) -> None:
         def f2s(f):
             try:
                 return str(f[0])
@@ -135,7 +135,7 @@ class LRFOutput(OutputFormatPlugin):
 
     recommendations = {('change_justification', 'original', OptionRecommendation.HIGH)}
 
-    def convert_images(self, pages, opts, wide):
+    def convert_images(self, pages, opts, wide) -> None:
         from uuid import uuid4
 
         from calibre.constants import __appname__, __version__
@@ -177,7 +177,7 @@ class LRFOutput(OutputFormatPlugin):
         with open(opts.output, 'wb') as f:
             book.renderLrf(f)
 
-    def flatten_toc(self):
+    def flatten_toc(self) -> None:
         from calibre.ebooks.oeb.base import TOC
 
         nroot = TOC()
@@ -185,7 +185,7 @@ class LRFOutput(OutputFormatPlugin):
             nroot.add(x.title, x.href)
         self.oeb.toc = nroot
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         oeb = oeb_book
         output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb

@@ -14,19 +14,19 @@ TEXT_RECORD_SIZE = 4096
 
 
 class TocItem:
-    def __init__(self, name, size, flags):
+    def __init__(self, name, size, flags) -> None:
         self.name = name
         self.size = size
         self.flags = flags
 
 
 class RBWriter:
-    def __init__(self, opts, log):
+    def __init__(self, opts, log) -> None:
         self.opts = opts
         self.log = log
         self.name_map = {}
 
-    def write_content(self, oeb_book, out_stream, metadata=None):
+    def write_content(self, oeb_book, out_stream, metadata=None) -> None:
         info = [('info.info', self._info_section(metadata))]
         images = self._images(oeb_book.manifest)
         text_size, chunks = self._text(oeb_book)

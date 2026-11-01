@@ -32,7 +32,7 @@ class InvalidFile(ValueError):
     pass
 
 
-def check_signature(data, signature):
+def check_signature(data, signature) -> None:
     if data[: len(signature)] != signature:
         raise InvalidFile(f'Not a valid {signature!r} section')
 
@@ -96,7 +96,7 @@ class CNCX:  # {{{
     data.
     """
 
-    def __init__(self, records, codec):
+    def __init__(self, records, codec) -> None:
         self.records = OrderedDict()
         record_offset = 0
         for raw in records:
@@ -121,7 +121,7 @@ class CNCX:  # {{{
     def get(self, offset, default=None):
         return self.records.get(offset, default)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.records)
 
     __nonzero__ = __bool__

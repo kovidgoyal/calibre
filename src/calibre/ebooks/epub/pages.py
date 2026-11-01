@@ -42,7 +42,7 @@ def build_name_for(expr):
     return name_for
 
 
-def add_page_map(opfpath, opts):
+def add_page_map(opfpath, opts) -> None:
     oeb = OEBBook(opfpath)
     selector = XPath(opts.page, namespaces=NSMAP)
     name_for = build_name_for(opts.page_names)

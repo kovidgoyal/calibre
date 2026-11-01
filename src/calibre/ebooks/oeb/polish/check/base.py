@@ -21,7 +21,7 @@ class BaseError:
     current_location_index: int | None = None
     is_parsing_error = False
 
-    def __init__(self, msg, name, line=None, col=None):
+    def __init__(self, msg, name, line=None, col=None) -> None:
         self.msg, self.line, self.col = msg, line, col
         self.name = name
         # A list with entries of the form: (name, lnum, col)
@@ -40,7 +40,7 @@ class BaseError:
     def can_be_skipped(self) -> bool:
         return not self.is_parsing_error
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.__class__.__name__}:{self.name} ({self.line}, {self.col}):{self.msg}'
 
     __repr__ = __str__

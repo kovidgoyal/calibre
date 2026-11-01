@@ -35,7 +35,7 @@ LIGATURES = {
 _ligpat = re.compile('|'.join(LIGATURES))
 
 
-def sanitize_head(match):
+def sanitize_head(match) -> str:
     x = match.group(1).strip()
     x = _span_pat.sub('', x)
     return f'<head>\n{x}\n</head>'
@@ -84,7 +84,7 @@ class DocAnalysis:
     Blank lines are excluded from analysis
     """
 
-    def __init__(self, format='html', raw=''):
+    def __init__(self, format='html', raw='') -> None:
         raw = raw.replace('&nbsp;', ' ')
         if format == 'html':
             linere = re.compile(r'(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
@@ -128,7 +128,7 @@ class DocAnalysis:
 
         return lengths[index]
 
-    def line_histogram(self, percent):
+    def line_histogram(self, percent) -> bool:
         """
         Creates a broad histogram of the document to determine whether it incorporates hard
         line breaks.  Lines are sorted into 20 'buckets' based on length.
@@ -185,7 +185,7 @@ class Dehyphenator:
     retain hyphens.
     """
 
-    def __init__(self, verbose=0, log=None):
+    def __init__(self, verbose=0, log=None) -> None:
         self.log = log
         self.verbose = verbose
         # Add common suffixes to the regex below to increase the likelihood of a match -
@@ -223,7 +223,7 @@ class Dehyphenator:
             log = self.log or print
         else:
 
-            def log(*a):
+            def log(*a) -> None:
                 pass
 
         log('lookup word is: ' + lookupword + ', orig is: ' + hyphenated)
@@ -449,7 +449,7 @@ def book_designer_rules():
 
 
 class HTMLPreProcessor:
-    def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
+    def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None) -> None:
         self.log = log
         self.extra_opts = extra_opts
         self.regex_wizard_callback = regex_wizard_callback
@@ -486,7 +486,7 @@ class HTMLPreProcessor:
         user_sr_rules = {}
         # Function for processing search and replace
 
-        def do_search_replace(search_pattern, replace_txt):
+        def do_search_replace(search_pattern, replace_txt) -> None:
             from calibre.ebooks.conversion.search_replace import compile_regular_expression
 
             try:
@@ -558,7 +558,7 @@ class HTMLPreProcessor:
         if get_preprocess_html:
             return html
 
-        def dump(raw, where):
+        def dump(raw, where) -> None:
             import os
 
             dp = getattr(self.extra_opts, 'debug_pipeline', None)

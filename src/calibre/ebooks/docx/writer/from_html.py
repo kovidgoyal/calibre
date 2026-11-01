@@ -33,7 +33,7 @@ def lang_for_tag(tag):
 
 
 class Style(St):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         St.__init__(self, *args, **kwargs)
         self._letterSpacing = None
 
@@ -59,7 +59,7 @@ class Stylizer(Sz):
 class TextRun:
     soft_hyphen_pat = None
 
-    def __init__(self, namespace, style, first_html_parent, lang=None):
+    def __init__(self, namespace, style, first_html_parent, lang=None) -> None:
         self.first_html_parent = first_html_parent
         if self.soft_hyphen_pat is None:
             TextRun.soft_hyphen_pat = self.soft_hyphen_pat = re.compile(r'(\xad)')
@@ -71,7 +71,7 @@ class TextRun:
         self.makeelement = namespace.makeelement
         self.descendant_style = None
 
-    def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
+    def add_text(self, text, preserve_whitespace, bookmark=None, link=None) -> None:
         if not preserve_whitespace:
             text = COLLAPSE_WS_PAT.sub(' ', text)
             if text.strip(COLLAPSIBLE_WS) != text:
@@ -81,15 +81,15 @@ class TextRun:
         self.texts.append((text, preserve_whitespace, bookmark))
         self.link = link
 
-    def add_break(self, clear='none', bookmark=None):
+    def add_break(self, clear='none', bookmark=None) -> None:
         self.texts.append((None, clear, bookmark))
 
-    def add_image(self, drawing, bookmark=None, drawing_link=None):
+    def add_image(self, drawing, bookmark=None, drawing_link=None) -> None:
         # As for breaks, the second slot is overloaded, for drawings it holds
         # the link to put on the drawing itself (used for floating images)
         self.texts.append((drawing, drawing_link, bookmark))
 
-    def serialize(self, p, links_manager, parent=None):
+    def serialize(self, p, links_manager, parent=None) -> None:
         makeelement = self.makeelement
         if parent is None:
             parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
@@ -104,7 +104,7 @@ class TextRun:
         if len(rpr) > 0:
             r.append(rpr)
 
-        def add_text(text, preserve_whitespace):
+        def add_text(text, preserve_whitespace) -> None:
             t = makeelement(r, 'w:t')
             t.text = text
             if preserve_whitespace:
@@ -143,10 +143,10 @@ class TextRun:
             if bookmark is not None:
                 makeelement(r, 'w:bookmarkEnd', w_id=str(bid))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.texts)
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         if not self.texts:
             return True
         if len(self.texts) == 1 and self.texts[0][:2] == ('', False):
@@ -178,7 +178,7 @@ class Block:
         float_spec=None,
         is_list_item=False,
         parent_bg=None,
-    ):
+    ) -> None:
         self.force_not_empty = False
         self.namespace = namespace
         self.bookmarks = set()
@@ -203,7 +203,7 @@ class Block:
         self.page_break_after = False
         self.block_lang = None
 
-    def resolve_skipped(self, next_block):
+    def resolve_skipped(self, next_block) -> None:
         if not self.is_empty():
             return
         if len(self.html_block) > 0 and self.html_block[0] is next_block.html_block:
@@ -221,7 +221,7 @@ class Block:
         bookmark=None,
         link=None,
         lang=None,
-    ):
+    ) -> None:
         ws = style['white-space']
         preserve_whitespace = ws in {'pre', 'pre-wrap', '-o-pre-wrap'}
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
@@ -241,7 +241,7 @@ class Block:
         else:
             run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
 
-    def add_break(self, clear='none', bookmark=None):
+    def add_break(self, clear='none', bookmark=None) -> None:
         if self.runs:
             run = self.runs[-1]
         else:
@@ -249,7 +249,7 @@ class Block:
             self.runs.append(run)
         run.add_break(clear=clear, bookmark=bookmark)
 
-    def add_image(self, drawing, bookmark=None, link=None, floating=False):
+    def add_image(self, drawing, bookmark=None, link=None, floating=False) -> None:
         drawing_link = None
         if link is not None and floating:
             # Floating image, the link must go on the image itself, not on the
@@ -271,7 +271,7 @@ class Block:
             self.runs.insert(pos, run)
         run.add_image(drawing, bookmark=bookmark, drawing_link=drawing_link)
 
-    def serialize(self, body):
+    def serialize(self, body) -> None:
         makeelement = self.namespace.makeelement
         p = makeelement(body, 'w:p')
         end_bookmarks = []
@@ -310,7 +310,7 @@ class Block:
         for bmark in end_bookmarks:
             makeelement(p, 'w:bookmarkEnd', w_id=bmark)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Block({self.runs!r})'
 
     __str__ = __repr__
@@ -322,7 +322,7 @@ class Block:
 
 
 class Blocks:
-    def __init__(self, namespace, styles_manager, links_manager):
+    def __init__(self, namespace, styles_manager, links_manager) -> None:
         self.top_bookmark = None
         self.namespace = namespace
         self.styles_manager = styles_manager
@@ -339,7 +339,7 @@ class Blocks:
     def current_or_new_block(self, html_tag, tag_style):
         return self.current_block or self.start_new_block(html_tag, tag_style)
 
-    def end_current_block(self):
+    def end_current_block(self) -> None:
         if self.current_block is not None:
             self.all_blocks.append(self.current_block)
             if self.current_table is not None and self.current_table.current_row is not None:
@@ -375,23 +375,23 @@ class Blocks:
         self.open_html_blocks.add(html_block)
         return self.current_block
 
-    def start_new_table(self, html_tag, tag_style=None):
+    def start_new_table(self, html_tag, tag_style=None) -> None:
         self.current_table = Table(self.namespace, html_tag, tag_style)
         self.tables.append(self.current_table)
 
-    def start_new_row(self, html_tag, tag_style):
+    def start_new_row(self, html_tag, tag_style) -> None:
         if self.current_table is None:
             self.start_new_table(html_tag)
         assert self.current_table is not None
         self.current_table.start_new_row(html_tag, tag_style)
 
-    def start_new_cell(self, html_tag, tag_style):
+    def start_new_cell(self, html_tag, tag_style) -> None:
         if self.current_table is None:
             self.start_new_table(html_tag)
         assert self.current_table is not None
         self.current_table.start_new_cell(html_tag, tag_style)
 
-    def finish_tag(self, html_tag):
+    def finish_tag(self, html_tag) -> None:
         if self.current_block is not None and html_tag in self.open_html_blocks:
             start_block = self.html_tag_start_blocks.get(html_tag)
             if start_block is not None and start_block.html_style['page-break-after'] == 'always':
@@ -412,11 +412,11 @@ class Blocks:
                     self.block_map[table] = len(self.items)
                     self.items.append(table)
 
-    def serialize(self, body):
+    def serialize(self, body) -> None:
         for item in self.items:
             item.serialize(body)
 
-    def delete_block_at(self, pos=None):
+    def delete_block_at(self, pos=None) -> None:
         pos = self.pos if pos is None else pos
         block = self.all_blocks[pos]
         del self.all_blocks[pos]
@@ -459,14 +459,14 @@ class Blocks:
         self.top_bookmark = None
         self.block_map = {}
 
-    def apply_page_break_after(self):
+    def apply_page_break_after(self) -> None:
         for i, block in enumerate(self.all_blocks):
             if block.page_break_after and i < len(self.all_blocks) - 1:
                 next_block = self.all_blocks[i + 1]
                 if next_block.parent_items is block.parent_items and block.parent_items is self.items:
                     next_block.page_break_before = True
 
-    def resolve_language(self):
+    def resolve_language(self) -> None:
         default_lang = self.styles_manager.document_lang
         for block in self.all_blocks:
             count = Counter()
@@ -492,7 +492,7 @@ class Convert:
     a[href] { text-decoration: underline; color: blue }
     '''
 
-    def __init__(self, oeb, docx, mi, add_cover, add_toc):
+    def __init__(self, oeb, docx, mi, add_cover, add_toc) -> None:
         self.oeb, self.docx, self.add_cover, self.add_toc = oeb, docx, add_cover, add_toc
         self.log, self.opts = docx.log, docx.opts
         self.mi = mi
@@ -550,7 +550,7 @@ class Convert:
     def abshref(self, x: str) -> str:
         return x
 
-    def process_item(self, item):
+    def process_item(self, item) -> None:
         self.current_item = item
         stylizer = self.svg_rasterizer.stylizer(item)
         self.abshref = self.images_manager.abshref = item.abshref
@@ -561,7 +561,7 @@ class Convert:
                 self.blocks.top_bookmark = self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
 
-    def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
+    def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None) -> None:
         tagname = barename(html_tag.tag)
         tag_style = stylizer.style(html_tag)
         ignore_tag_contents = tagname in {'script', 'style', 'title', 'meta'} or tag_style.is_hidden
@@ -649,7 +649,7 @@ class Convert:
         block.page_break_before = False
         return block
 
-    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None, is_list_item=False):
+    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None, is_list_item=False) -> None:
         block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
         anchor = html_tag.get('id') or html_tag.get('name')
         if anchor:
@@ -674,7 +674,7 @@ class Convert:
             elif has_sublist:
                 block.force_not_empty = True
 
-    def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
+    def add_inline_tag(self, tagname, html_tag, tag_style, stylizer) -> None:
         anchor = html_tag.get('id') or html_tag.get('name') or None
         bmark = None
         if anchor:
@@ -706,7 +706,7 @@ class Convert:
     def bookmark_for_anchor(self, anchor, html_tag):
         return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)
 
-    def write(self):
+    def write(self) -> None:
         self.docx.document, self.docx.styles, body = create_skeleton(self.opts)
         self.blocks.serialize(body)
         body.append(body[0])  # Move <sectPr> to the end

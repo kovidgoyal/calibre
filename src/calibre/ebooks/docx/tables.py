@@ -31,21 +31,21 @@ def _read_width(elem, get):
     return ans
 
 
-def read_width(parent, dest, XPath, get):
+def read_width(parent, dest, XPath, get) -> None:
     ans = inherit
     for tblW in XPath('./w:tblW')(parent):
         ans = _read_width(tblW, get)
     dest.width = ans
 
 
-def read_cell_width(parent, dest, XPath, get):
+def read_cell_width(parent, dest, XPath, get) -> None:
     ans = inherit
     for tblW in XPath('./w:tcW')(parent):
         ans = _read_width(tblW, get)
     dest.width = ans
 
 
-def read_padding(parent, dest, XPath, get):
+def read_padding(parent, dest, XPath, get) -> None:
     name = 'tblCellMar' if parent.tag.endswith('}tblPr') else 'tcMar'
     ans = {x: inherit for x in edges}
     for mar in XPath(f'./w:{name}')(parent):
@@ -56,7 +56,7 @@ def read_padding(parent, dest, XPath, get):
         setattr(dest, f'cell_padding_{x}', ans[x])
 
 
-def read_justification(parent, dest, XPath, get):
+def read_justification(parent, dest, XPath, get) -> None:
     left = right = inherit
     for jc in XPath('./w:jc[@w:val]')(parent):
         val = get(jc, 'w:val')
@@ -72,21 +72,21 @@ def read_justification(parent, dest, XPath, get):
     dest.margin_right = right
 
 
-def read_spacing(parent, dest, XPath, get):
+def read_spacing(parent, dest, XPath, get) -> None:
     ans = inherit
     for cs in XPath('./w:tblCellSpacing')(parent):
         ans = _read_width(cs, get)
     dest.spacing = ans
 
 
-def read_float(parent, dest, XPath, get):
+def read_float(parent, dest, XPath, get) -> None:
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
         ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.items()}
     dest.float = ans
 
 
-def read_indent(parent, dest, XPath, get):
+def read_indent(parent, dest, XPath, get) -> None:
     ans = inherit
     for cs in XPath('./w:tblInd')(parent):
         ans = _read_width(cs, get)
@@ -96,12 +96,12 @@ def read_indent(parent, dest, XPath, get):
 border_edges = ('left', 'top', 'right', 'bottom', 'insideH', 'insideV')
 
 
-def read_borders(parent, dest, XPath, get):
+def read_borders(parent, dest, XPath, get) -> None:
     name = 'tblBorders' if parent.tag.endswith('}tblPr') else 'tcBorders'
     read_border(parent, dest, XPath, get, border_edges, name)
 
 
-def read_height(parent, dest, XPath, get):
+def read_height(parent, dest, XPath, get) -> None:
     ans = inherit
     for rh in XPath('./w:trHeight')(parent):
         rule = get(rh, 'w:hRule', 'auto')
@@ -111,7 +111,7 @@ def read_height(parent, dest, XPath, get):
     dest.height = ans
 
 
-def read_vertical_align(parent, dest, XPath, get):
+def read_vertical_align(parent, dest, XPath, get) -> None:
     ans = inherit
     for va in XPath('./w:vAlign')(parent):
         val = get(va, 'w:val')
@@ -119,7 +119,7 @@ def read_vertical_align(parent, dest, XPath, get):
     dest.vertical_align = ans
 
 
-def read_col_span(parent, dest, XPath, get):
+def read_col_span(parent, dest, XPath, get) -> None:
     ans = inherit
     for gs in XPath('./w:gridSpan')(parent):
         try:
@@ -129,7 +129,7 @@ def read_col_span(parent, dest, XPath, get):
     dest.col_span = ans
 
 
-def read_merge(parent, dest, XPath, get):
+def read_merge(parent, dest, XPath, get) -> None:
     for x in ('hMerge', 'vMerge'):
         ans = inherit
         for m in XPath(f'./w:{x}')(parent):
@@ -137,7 +137,7 @@ def read_merge(parent, dest, XPath, get):
         setattr(dest, x, ans)
 
 
-def read_band_size(parent, dest, XPath, get):
+def read_band_size(parent, dest, XPath, get) -> None:
     for x in ('Col', 'Row'):
         ans = 1
         for y in XPath(f'./w:tblStyle{x}BandSize')(parent):
@@ -148,7 +148,7 @@ def read_band_size(parent, dest, XPath, get):
         setattr(dest, f'{x.lower()}_band_size', ans)
 
 
-def read_look(parent, dest, XPath, get):
+def read_look(parent, dest, XPath, get) -> None:
     ans = 0
     for x in XPath('./w:tblLook')(parent):
         try:
@@ -177,13 +177,13 @@ class Style:
     all_properties: tuple[str, ...] = ()
     spacing: object = inherit
 
-    def update(self, other):
+    def update(self, other) -> None:
         for prop in self.all_properties:
             nval = getattr(other, prop)
             if nval is not inherit:
                 setattr(self, prop, nval)
 
-    def apply_bidi(self):
+    def apply_bidi(self) -> None:
         self.is_bidi = True
 
     def convert_spacing(self):
@@ -222,7 +222,7 @@ class RowStyle(Style):
     )
     height = cantSplit = hidden = spacing = inherit
 
-    def __init__(self, namespace, trPr=None):
+    def __init__(self, namespace, trPr=None) -> None:
         self.namespace = namespace
         if trPr is None:
             for p in self.all_properties:
@@ -274,7 +274,7 @@ class CellStyle(Style):
     cell_padding_left = cell_padding_right = inherit
     cell_padding_top = cell_padding_bottom = inherit
 
-    def __init__(self, namespace, tcPr=None):
+    def __init__(self, namespace, tcPr=None) -> None:
         self.namespace = namespace
         if tcPr is None:
             for p in self.all_properties:
@@ -339,7 +339,7 @@ class TableStyle(Style):
     overrides: dict | Inherit = inherit
     page: PageProperties | None = None
 
-    def __init__(self, namespace, tblPr=None):
+    def __init__(self, namespace, tblPr=None) -> None:
         self.namespace = namespace
         if tblPr is None:
             for p in self.all_properties:
@@ -379,7 +379,7 @@ class TableStyle(Style):
                         orides['run'] = RunStyle(self.namespace, rPr)
         self._css = None
 
-    def resolve_based_on(self, parent):
+    def resolve_based_on(self, parent) -> None:
         for p in self.all_properties:
             val = getattr(self, p)
             if val is inherit:
@@ -427,7 +427,7 @@ class TableStyle(Style):
 
 
 class Table:
-    def __init__(self, namespace, tbl, styles, para_map, is_sub_table=False):
+    def __init__(self, namespace, tbl, styles, para_map, is_sub_table=False) -> None:
         self.namespace = namespace
         self.tbl = tbl
         self.styles = styles
@@ -489,7 +489,7 @@ class Table:
     def bidi(self):
         return self.table_style.bidi is True
 
-    def override_allowed(self, name):
+    def override_allowed(self, name) -> bool:
         "Check if the named override is allowed by the tblLook element"
         if name.endswith('Cell') or name == 'wholeTable':
             return True
@@ -550,7 +550,7 @@ class Table:
                     overrides.append('seCell')
         return tuple(filter(self.override_allowed, overrides))
 
-    def resolve_row_style(self, tr, overrides):
+    def resolve_row_style(self, tr, overrides) -> None:
         rs = RowStyle(self.namespace)
         for o in overrides:
             ovr = self.overrides.get(o)
@@ -565,7 +565,7 @@ class Table:
             rs.apply_bidi()
         self.style_map[tr] = rs
 
-    def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row):
+    def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row) -> None:
         cs = CellStyle(self.namespace)
         for o in overrides:
             ovr = self.overrides.get(o)
@@ -609,7 +609,7 @@ class Table:
             cs.apply_bidi()
         self.style_map[tc] = cs
 
-    def resolve_para_style(self, p, overrides):
+    def resolve_para_style(self, p, overrides) -> None:
         text_styles = [clone(self.paragraph_style), clone(self.run_style)]
 
         for o in overrides:
@@ -626,7 +626,7 @@ class Table:
                             cur.update(ops)
         self.style_map[p] = text_styles
 
-    def handle_merged_cells(self):
+    def handle_merged_cells(self) -> None:
         if not self.cell_map:
             return
         # Handle vMerge
@@ -683,7 +683,7 @@ class Table:
         for t in self.sub_tables.values():
             yield from t
 
-    def apply_markup(self, rmap, page, parent=None):
+    def apply_markup(self, rmap, page, parent=None) -> None:
         table = TABLE('\n\t\t')
         if self.bidi:
             table.set('dir', 'rtl')
@@ -733,19 +733,19 @@ class Table:
 
 
 class Tables:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.tables = []
         self.para_map = {}
         self.sub_tables = set()
         self.namespace = namespace
 
-    def register(self, tbl, styles):
+    def register(self, tbl, styles) -> None:
         if tbl in self.sub_tables:
             return
         self.tables.append(Table(self.namespace, tbl, styles, self.para_map))
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
-    def apply_markup(self, object_map, page_map):
+    def apply_markup(self, object_map, page_map) -> None:
         rmap = {v: k for k, v in object_map.items()}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])

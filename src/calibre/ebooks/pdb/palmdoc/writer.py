@@ -16,11 +16,11 @@ MAX_RECORD_SIZE = 4096
 
 
 class Writer(FormatWriter):
-    def __init__(self, opts, log):
+    def __init__(self, opts, log) -> None:
         self.opts = opts
         self.log = log
 
-    def write_content(self, oeb_book, output_stream, metadata=None):
+    def write_content(self, oeb_book, output_stream, metadata=None) -> None:
         out_stream = output_stream
         from calibre.ebooks.compression.palmdoc import compress_doc
 

@@ -33,7 +33,7 @@ class ContainerException(OCFException):
 
 
 class Container(dict):
-    def __init__(self, stream=None, file_exists=None):
+    def __init__(self, stream=None, file_exists=None) -> None:
         if not stream:
             return
         container = safe_xml_fromstring(stream.read())
@@ -60,14 +60,14 @@ class OCF:
     CONTAINER_PATH = 'META-INF/container.xml'
     ENCRYPTION_PATH = 'META-INF/encryption.xml'
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise NotImplementedError('Abstract base class')
 
 
 class Encryption:
     OBFUSCATION_ALGORITHMS = frozenset(['http://ns.adobe.com/pdf/enc#RC', 'http://www.idpf.org/2008/embedding'])
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         self.root = safe_xml_fromstring(raw) if raw else None
         self.entries = {}
         if self.root is not None:
@@ -90,7 +90,7 @@ class OCFReader(OCF):
     def open(self, name: str) -> IO[bytes]:
         raise NotImplementedError()
 
-    def __init__(self):
+    def __init__(self) -> None:
         try:
             mimetype = self.read_bytes('mimetype').decode('utf-8').rstrip()
             if mimetype != OCF.MIMETYPE:
@@ -131,7 +131,7 @@ class OCFReader(OCF):
     def read_bytes(self, name):
         return self.open(name).read()
 
-    def exists(self, path):
+    def exists(self, path) -> bool | None:
         try:
             self.open(path).close()
             return True
@@ -140,7 +140,7 @@ class OCFReader(OCF):
 
 
 class OCFZipReader(OCFReader):
-    def __init__(self, stream, mode='r', root=None):
+    def __init__(self, stream, mode='r', root=None) -> None:
         if isinstance(stream, (LocalZipFile, ZipFile)):
             self.archive = stream
         else:
@@ -166,7 +166,7 @@ class OCFZipReader(OCFReader):
     def read_bytes(self, name):
         return self.archive.read(name)
 
-    def exists(self, path):
+    def exists(self, path) -> bool | None:
         try:
             self.archive.getinfo(path)
             return True
@@ -184,7 +184,7 @@ def get_zip_reader(stream, root=None):
 
 
 class OCFDirReader(OCFReader):
-    def __init__(self, path):
+    def __init__(self, path) -> None:
         self.root = path
         super().__init__()
 
@@ -290,7 +290,7 @@ def serialize_cover_data(new_cdata, cpath):
     return save_cover_data_to(new_cdata, data_fmt=os.path.splitext(cpath)[1][1:])
 
 
-def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True, ftype='epub'):
+def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True, ftype='epub') -> None:
     stream.seek(0)
     reader = get_zip_reader(stream, root=os.getcwd())
     new_cdata = None
@@ -370,7 +370,7 @@ def find_tests():
             yield damaged, io.BytesIO(raw[:central_directory_offset] if damaged else raw)
 
     class TestEPUBMetadata(unittest.TestCase):
-        def test_epub_missing_rootfiles(self):
+        def test_epub_missing_rootfiles(self) -> None:
             for compression in (ZIP_STORED, ZIP_DEFLATED):
                 for paths in (
                     ('OPS/content.opf',),
@@ -387,7 +387,7 @@ def find_tests():
                             self.assertEqual(mi.title, 'Recovery test')
                             self.assertEqual(mi.authors, ['Test Author'])
 
-        def test_epub_missing_container_entries(self):
+        def test_epub_missing_container_entries(self) -> None:
             for label, files, msg in (
                 ('no container', {'OPS/content.opf': opf}, 'missing OCF container.xml file'),
                 ('no opf', {OCF.CONTAINER_PATH: container_xml('missing.opf')}, 'missing OPF package file entry in container'),
@@ -396,7 +396,7 @@ def find_tests():
                     with self.subTest(label, damaged=damaged), self.assertRaisesRegex(EPubException, msg):
                         get_zip_reader(stream)
 
-        def test_html_cover_images_confined_to_root(self):
+        def test_html_cover_images_confined_to_root(self) -> None:
             from calibre.ebooks import extract_calibre_cover, extract_cover_from_embedded_svg
             from calibre.ptempfile import TemporaryDirectory
             from calibre.utils.logging import default_log
@@ -412,10 +412,10 @@ def find_tests():
                         f.write(png)
                 outside = os.path.join(tdir, 'secret.png').replace(os.sep, '/')
 
-                def html(src):
+                def html(src) -> str:
                     return f'<html><body><img src="{src}" alt="cover"/></body></html>'
 
-                def svg(src):
+                def svg(src) -> str:
                     return (
                         '<html xmlns="http://www.w3.org/1999/xhtml"><body><svg xmlns="http://www.w3.org/2000/svg"'
                         f' xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="{src}"/></svg></body></html>'

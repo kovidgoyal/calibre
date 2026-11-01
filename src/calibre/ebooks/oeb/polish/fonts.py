@@ -14,7 +14,7 @@ def unquote(x):
     return x
 
 
-def font_family_data_from_declaration(style, families):
+def font_family_data_from_declaration(style, families) -> None:
     font_families = []
     f = style.getProperty('font')
     if f is not None:
@@ -29,7 +29,7 @@ def font_family_data_from_declaration(style, families):
         families[f] = families.get(f, False)
 
 
-def font_family_data_from_sheet(sheet, families):
+def font_family_data_from_sheet(sheet, families) -> None:
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
             font_family_data_from_declaration(rule.style, families)
@@ -86,7 +86,7 @@ def change_font_in_declaration(style, old_name, new_name=None):
     return changed
 
 
-def remove_embedded_font(container, sheet, rule, sheet_name):
+def remove_embedded_font(container, sheet, rule, sheet_name) -> None:
     src = getattr(rule.style.getProperty('src'), 'value', None)
     if src is not None:
         if src.startswith('url('):

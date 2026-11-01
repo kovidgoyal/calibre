@@ -43,7 +43,7 @@ alphabet_map = {
 
 
 class Level:
-    def __init__(self, namespace, lvl=None):
+    def __init__(self, namespace, lvl=None) -> None:
         self.namespace = namespace
         self.restart = None
         self.start = 0
@@ -86,7 +86,7 @@ class Level:
 
         return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 
-    def read_from_xml(self, lvl, override=False):
+    def read_from_xml(self, lvl, override=False) -> None:
         XPath, get = self.namespace.XPath, self.namespace.get
         for lr in XPath('./w:lvlRestart[@w:val]')(lvl):
             try:
@@ -166,7 +166,7 @@ class Level:
 
 
 class NumberingDefinition:
-    def __init__(self, namespace, parent=None, an_id=None):
+    def __init__(self, namespace, parent=None, an_id=None) -> None:
         self.namespace = namespace
         XPath, get = self.namespace.XPath, self.namespace.get
         self.levels = {}
@@ -187,7 +187,7 @@ class NumberingDefinition:
 
 
 class Numbering:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.namespace = namespace
         self.definitions = {}
         self.instances = {}
@@ -281,14 +281,14 @@ class Numbering:
             lvl = d.levels.get(lvl, None)
             return getattr(lvl, 'paragraph_style', None)
 
-    def update_counter(self, counter, levelnum, levels):
+    def update_counter(self, counter, levelnum, levels) -> None:
         counter[levelnum] += 1
         for ilvl, lvl in levels.items():
             restart = lvl.restart
             if (restart is None and ilvl == levelnum + 1) or restart == levelnum + 1:
                 counter[ilvl] = lvl.start
 
-    def apply_markup(self, items, body, styles, object_map, images):
+    def apply_markup(self, items, body, styles, object_map, images) -> None:
         seen_instances = set()
         for p, num_id, ilvl in items:
             d = self.instances.get(num_id, None)
@@ -314,7 +314,7 @@ class Numbering:
 
         templates = {}
 
-        def commit(current_run):
+        def commit(current_run) -> None:
             if not current_run:
                 return
             start = current_run[0]

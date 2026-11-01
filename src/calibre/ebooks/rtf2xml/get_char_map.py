@@ -19,7 +19,7 @@ class GetCharMap:
 
     """
 
-    def __init__(self, bug_handler, char_file):
+    def __init__(self, bug_handler, char_file) -> None:
         """
         Required:
             'char_file'--the file with the mappings

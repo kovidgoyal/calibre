@@ -22,14 +22,14 @@ def mergeable(previous, current):
         return False
 
 
-def append_text(parent, text):
+def append_text(parent, text) -> None:
     if len(parent) > 0:
         parent[-1].tail = (parent[-1].tail or '') + text
     else:
         parent.text = (parent.text or '') + text
 
 
-def merge(parent, span):
+def merge(parent, span) -> None:
     if span.text:
         append_text(parent, span.text)
     for child in span:
@@ -39,25 +39,25 @@ def merge(parent, span):
     span.getparent().remove(span)
 
 
-def merge_run(run):
+def merge_run(run) -> None:
     parent = run[0]
     for span in run[1:]:
         merge(parent, span)
 
 
-def liftable(css):
+def liftable(css) -> bool:
     # A <span> is liftable if all its styling would work just as well if it is
     # specified on the parent element.
     prefixes = {x.partition('-')[0] for x in css}
     return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
 
 
-def add_text(elem, attr, text):
+def add_text(elem, attr, text) -> None:
     old = getattr(elem, attr) or ''
     setattr(elem, attr, old + text)
 
 
-def lift(span):
+def lift(span) -> None:
     # Replace an element by its content (text, children and tail)
     parent = span.getparent()
     idx = parent.index(span)
@@ -97,7 +97,7 @@ def before_count(root, tag, limit=10):
             return limit
 
 
-def wrap_contents(tag_name, elem):
+def wrap_contents(tag_name, elem) -> None:
     wrapper = elem.makeelement(tag_name)
     wrapper.text, elem.text = elem.text, ''
     for child in elem:

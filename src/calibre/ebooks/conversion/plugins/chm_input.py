@@ -89,7 +89,7 @@ class CHMInput(InputFormatPlugin):
         dx = XPath('./h:div')
         ax = XPath('./h:a[1]')
 
-        def do_node(parent, div):
+        def do_node(parent, div) -> None:
             for child in dx(div):
                 a = ax(child)[0]
                 c = parent.add(a.text, a.attrib['href'])
@@ -155,7 +155,7 @@ class CHMInput(InputFormatPlugin):
                     x = y
             return x, frag
 
-        def donode(item, parent, base, subpath):
+        def donode(item, parent, base, subpath) -> None:
             for child in item:
                 title = child.title
                 if not title:
@@ -195,7 +195,7 @@ class CHMInput(InputFormatPlugin):
             data = f.read()
         return data
 
-    def add_node(self, node, toc, ancestor_map):
+    def add_node(self, node, toc, ancestor_map) -> None:
         from calibre.ebooks.chm.reader import match_string
 
         if match_string(node.attrib.get('type', ''), 'text/sitemap'):

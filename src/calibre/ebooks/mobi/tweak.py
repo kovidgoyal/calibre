@@ -77,7 +77,7 @@ def explode(path, dest, question=lambda x: True):
     return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path, dest), no_output=True)['result']
 
 
-def set_cover(oeb):
+def set_cover(oeb) -> None:
     if 'cover' not in oeb.guide or oeb.metadata['cover']:
         return
     cover = oeb.guide['cover']
@@ -87,7 +87,7 @@ def set_cover(oeb):
         oeb.metadata.add('cover', item.id)
 
 
-def do_rebuild(opf, dest_path):
+def do_rebuild(opf, dest_path) -> None:
     plumber = Plumber(opf, dest_path, default_log)
     plumber.setup_options()
     inp = plugin_for_input_format('azw3')
@@ -99,7 +99,7 @@ def do_rebuild(opf, dest_path):
     outp.convert(oeb, dest_path, inp, plumber.opts, default_log)
 
 
-def rebuild(src_dir, dest_path):
+def rebuild(src_dir, dest_path) -> None:
     opf = glob.glob(os.path.join(src_dir, '*.opf'))
     if not opf:
         raise ValueError(f'No OPF file found in {src_dir}')

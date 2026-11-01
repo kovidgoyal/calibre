@@ -24,7 +24,7 @@ from polyglot.builtins import as_bytes
 
 
 class Extract(ODF2XHTML):
-    def extract_pictures(self, zf):
+    def extract_pictures(self, zf) -> None:
         if not os.path.exists('Pictures'):
             os.makedirs('Pictures')
         base = os.path.abspath(os.getcwd())
@@ -39,7 +39,7 @@ class Extract(ODF2XHTML):
                 with open(dest, 'wb') as f:
                     f.write(data)
 
-    def apply_list_starts(self, root, log):
+    def apply_list_starts(self, root, log) -> None:
         if not self.list_starts:
             return
         list_starts = frozenset(self.list_starts)
@@ -59,7 +59,7 @@ class Extract(ODF2XHTML):
         html = etree.tostring(root, encoding='utf-8', xml_declaration=True)
         return html
 
-    def extract_css(self, root, log):
+    def extract_css(self, root, log) -> None:
         ans = []
         for s in root.xpath('//*[local-name() = "style" and @type="text/css"]'):
             ans.append(s.text)
@@ -89,7 +89,7 @@ class Extract(ODF2XHTML):
                 if q == '.' + cls:
                     return rule
 
-    def epubify_markup(self, root, log):
+    def epubify_markup(self, root, log) -> None:
         from calibre.ebooks.oeb.base import XHTML, XPath
 
         # Fix empty title tags
@@ -168,7 +168,7 @@ class Extract(ODF2XHTML):
                 style = div2.attrib['style']
                 div2.attrib['style'] = 'display:inline;' + style
 
-    def filter_css(self, root, log):
+    def filter_css(self, root, log) -> None:
         style = root.xpath('//*[local-name() = "style" and @type="text/css"]')
         if style:
             style = style[0]
@@ -211,7 +211,7 @@ class Extract(ODF2XHTML):
                 r.selectorText = '.' + replace_name
         return sheet.cssText, sel_map
 
-    def search_page_img(self, mi, log):
+    def search_page_img(self, mi, log) -> None:
         for frm in self.document.topnode.getElementsByType(odFrame):
             try:
                 if frm.getAttrNS(odTEXTNS, 'anchor-type') == 'page':
@@ -220,7 +220,7 @@ class Extract(ODF2XHTML):
             except ValueError:
                 pass
 
-    def filter_cover(self, mi, log):
+    def filter_cover(self, mi, log) -> None:
         # filter the Element tree (remove the detected cover)
         if mi.cover and mi.odf_cover_frame:
             for frm in self.document.topnode.getElementsByType(odFrame):
@@ -243,7 +243,7 @@ class Extract(ODF2XHTML):
                         log('Removed cover image paragraph from document...')
                         break
 
-    def filter_load(self, odffile, mi, log):
+    def filter_load(self, odffile, mi, log) -> None:
         """This is an adaption from ODF2XHTML. It adds a step between
         load and parse of the document where the Element tree can be
         modified.

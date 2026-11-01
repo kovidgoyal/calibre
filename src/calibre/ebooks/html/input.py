@@ -36,7 +36,7 @@ class Link:
             return path
         return os.path.abspath(os.path.join(base, path))
 
-    def __init__(self, url, base):
+    def __init__(self, url, base) -> None:
         """
         :param url:  The url this link points to. Must be an unquoted unicode string.
         :param base: The base folder that relative URLs are with respect to.
@@ -60,12 +60,12 @@ class Link:
     def __eq__(self, other):
         return self.path == getattr(other, 'path', other)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Link: {self.url} --> {self.path}'
 
 
 class IgnoreFile(Exception):
-    def __init__(self, msg, errno):
+    def __init__(self, msg, errno) -> None:
         Exception.__init__(self, msg)
         self.doesnt_exist = errno == gerrno.ENOENT
         self.errno = errno
@@ -89,7 +89,7 @@ class HTMLFile:
         re.DOTALL | re.IGNORECASE,
     )
 
-    def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None, correct_case_mismatches=False):
+    def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None, correct_case_mismatches=False) -> None:
         """
         :param level: The level of this file. Should be 0 for the root file.
         :param encoding: Use `encoding` to decode HTML.
@@ -149,13 +149,13 @@ class HTMLFile:
     def __hash__(self):
         return hash(self.path)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"HTMLFile:{self.level}:{'b' if self.is_binary else 'a'}:{self.path!r}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def find_links(self, src):
+    def find_links(self, src) -> None:
         for match in self.LINK_PAT.finditer(src):
             url = None
             for i in ('url1', 'url2', 'url3'):
@@ -183,7 +183,7 @@ def depth_first(root, flat):
 
     stack = deque()
 
-    def add_links_from(item):
+    def add_links_from(item) -> None:
         for link in reversed(item.links):
             if link.path is not None and link not in visited:
                 stack.appendleft(link)
@@ -206,7 +206,7 @@ def find_tests():
     import unittest
 
     class HF:
-        def __init__(self, path):
+        def __init__(self, path) -> None:
             self.path = path
             self.links = []
 
@@ -220,11 +220,11 @@ def find_tests():
         def __hash__(self):
             return hash(self.path)
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return self.path
 
     class TestHTMLInput(unittest.TestCase):
-        def test_depth_first(self):
+        def test_depth_first(self) -> None:
             root = HF('root')
             a = root.a(HF('a'))
             a1 = a.a(HF('a1'))

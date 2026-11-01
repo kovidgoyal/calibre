@@ -54,7 +54,7 @@ class SNBMLizer:
     curSubItem = ''
     # curText = [ ]
 
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.log = log
 
     def extract_content(self, oeb_book, item, subitems, opts):
@@ -65,7 +65,7 @@ class SNBMLizer:
         self.subitems = subitems
         return self.mlize()
 
-    def merge_content(self, old_tree, oeb_book, item, subitems, opts):
+    def merge_content(self, old_tree, oeb_book, item, subitems, opts) -> None:
         newTrees = self.extract_content(oeb_book, item, subitems, opts)
         body = old_tree.find('.//body')
         if body is not None:

@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 from calibre.utils.short_uuid import uuid4
 
 
-def add_properties(item, *props):
+def add_properties(item, *props) -> None:
     existing = set((item.get('properties') or '').split())
     existing |= set(props)
     item.set('properties', ' '.join(sorted(existing)))
@@ -33,7 +33,7 @@ def fix_font_mime_types(container):
     return changed
 
 
-def migrate_obfuscated_fonts(container):
+def migrate_obfuscated_fonts(container) -> None:
     if not container.obfuscated_fonts:
         return
     name_to_elem_map = {}
@@ -65,7 +65,7 @@ def migrate_obfuscated_fonts(container):
     container.commit_item('META-INF/encryption.xml')
 
 
-def collect_properties(container):
+def collect_properties(container) -> None:
     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
         mt = item.get('media-type') or ''
         if mt.lower() not in OEB_DOCS:
@@ -90,7 +90,7 @@ def collect_properties(container):
             add_properties(item, *tuple(properties))
 
 
-def add_lang_attributes(container):
+def add_lang_attributes(container) -> None:
     # The lang attribute is not valid in the XHTML 1.1 used by EPUB 2, so
     # files may only have xml:lang, add lang as well for software that only
     # looks at it
@@ -164,7 +164,7 @@ def guide_type_for_epubtype(epubtype: str) -> str:
     return gtype if gtype in KNOWN_GUIDE_TYPES else (CUSTOM_GUIDE_TYPE_PREFIX + epubtype)
 
 
-def create_nav(container, toc, landmarks, previous_nav=None):
+def create_nav(container, toc, landmarks, previous_nav=None) -> None:
     lang = get_book_language(container)
     if lang == 'und':
         lang = None
@@ -176,7 +176,7 @@ def create_nav(container, toc, landmarks, previous_nav=None):
     commit_nav_toc(container, toc, lang=lang, landmarks=landmarks, previous_nav=previous_nav)
 
 
-def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True):
+def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True) -> None:
     upgrade_metadata(container.opf)
     collect_properties(container)
     add_lang_attributes(container)
@@ -196,7 +196,7 @@ def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True):
     container.dirty(container.opf_name)
 
 
-def upgrade_book(container, report, remove_ncx=True):
+def upgrade_book(container, report, remove_ncx=True) -> bool:
     if container.book_type not in ('epub', 'kepub') or container.opf_version_parsed.major >= 3:
         report(_('No upgrade needed'))
         return False

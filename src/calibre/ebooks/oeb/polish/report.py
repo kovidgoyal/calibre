@@ -471,7 +471,7 @@ def gather_data(container, book_locale):
     return data, timing
 
 
-def debug_data_gather():
+def debug_data_gather() -> None:
     import sys
 
     from calibre.gui2.tweak_book import dictionaries

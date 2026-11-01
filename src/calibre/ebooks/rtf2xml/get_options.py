@@ -27,7 +27,7 @@ class GetOptions:
         rtf_dir,
         bug_handler,
         configuration_file=None,
-    ):
+    ) -> None:
         self.__system_arguments = system_arguments
         self.__rtf_dir = rtf_dir
         self.__configuration_file = configuration_file

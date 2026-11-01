@@ -19,7 +19,7 @@ class LITInput(InputFormatPlugin):
         self.log = log
         return create_oebbook(log, stream, options, reader=LitReader)
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         from calibre.ebooks.oeb.base import XHTML, XHTML_NS, XPath
 
         for item in oeb.spine:

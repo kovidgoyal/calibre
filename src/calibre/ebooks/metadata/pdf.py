@@ -32,7 +32,7 @@ def check_output(*a):
     return subprocess.check_output(list(a), creationflags=creationflags)
 
 
-def check_call(*a):
+def check_call(*a) -> None:
     from calibre.ebooks.pdf.pdftohtml import creationflags
 
     subprocess.check_call(list(a), creationflags=creationflags)
@@ -94,7 +94,7 @@ def read_info(outputdir, get_cover):
     return ans
 
 
-def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', prefix='page-images'):
+def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', prefix='page-images') -> None:
     pdftoppm = get_tools()[1]
     outputdir = os.path.abspath(outputdir)
     try:

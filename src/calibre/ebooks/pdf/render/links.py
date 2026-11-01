@@ -10,7 +10,7 @@ from polyglot.urllib import unquote
 
 
 class Destination(Array):
-    def __init__(self, start_page, pos, get_pageref):
+    def __init__(self, start_page, pos, get_pageref) -> None:
         pnum = start_page + max(0, pos['column'])
         q = pnum
         while q > -1:
@@ -26,14 +26,14 @@ class Destination(Array):
 
 
 class Links:
-    def __init__(self, pdf, mark_links, page_size):
+    def __init__(self, pdf, mark_links, page_size) -> None:
         self.anchors = {}
         self.links = []
         self.start = {'top': page_size[1], 'column': 0, 'left': 0}
         self.pdf = pdf
         self.mark_links = mark_links
 
-    def add(self, base_path, start_page, links, anchors):
+    def add(self, base_path, start_page, links, anchors) -> None:
         path = os.path.normcase(os.path.abspath(base_path))
         self.anchors[path] = a = {}
         a[None] = Destination(start_page, self.start, self.pdf.get_pageref)
@@ -53,7 +53,7 @@ class Links:
                 self.pdf.debug(f'The link {href} points to non-existent page, moving it one page back')
             self.links.append(((path, p, frag or None), pref, Array(rect)))
 
-    def add_links(self):
+    def add_links(self) -> None:
         for link in self.links:
             path, href, frag = link[0]
             page, rect = link[1:]
@@ -99,13 +99,13 @@ class Links:
             else:
                 self.pdf.debug(f'Could not find destination for link: {href} in file {path}')
 
-    def add_outline(self, toc):
+    def add_outline(self, toc) -> None:
         parent = Dictionary({'Type': Name('Outlines')})
         parentref = self.pdf.objects.add(parent)
         self.process_children(toc, parentref, parent_is_root=True)
         self.pdf.catalog.obj['Outlines'] = parentref
 
-    def process_children(self, toc, parentref, parent_is_root=False):
+    def process_children(self, toc, parentref, parent_is_root=False) -> None:
         childrefs = []
         for child in toc:
             childref = self.process_toc_item(child, parentref)

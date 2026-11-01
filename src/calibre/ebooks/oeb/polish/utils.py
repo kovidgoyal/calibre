@@ -101,7 +101,7 @@ def adjust_mime_for_epub(filename='', mime='', opf_version=(2, 0)):
     return mime
 
 
-def setup_css_parser_serialization(tab_width=2):
+def setup_css_parser_serialization(tab_width=2) -> None:
     import css_parser
 
     prefs = css_parser.ser.prefs
@@ -161,7 +161,7 @@ def corrected_case_for_name(container, name):
 
 
 class PositionFinder:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         pat = rb'\n' if isinstance(raw, bytes) else r'\n'
         self.new_lines = tuple(m.start() + 1 for m in re.finditer(pat, raw))
 
@@ -175,7 +175,7 @@ class PositionFinder:
 
 
 class CommentFinder:
-    def __init__(self, raw, pat=r'(?s)/\*.*?\*/'):
+    def __init__(self, raw, pat=r'(?s)/\*.*?\*/') -> None:
         self.starts, self.ends = [], []
         for m in re.finditer(pat, raw):
             start, end = m.span()
@@ -231,7 +231,7 @@ def lead_text(top_elem, num_words=10):
     pat = re.compile(r'\s+', flags=re.UNICODE)
     words = []
 
-    def get_text(x, attr='text'):
+    def get_text(x, attr='text') -> None:
         ans = getattr(x, attr)
         if ans:
             words.extend(filter(None, pat.split(ans)))
@@ -318,7 +318,7 @@ def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entiti
     return ''.join(parts)
 
 
-def extract(elem):
+def extract(elem) -> None:
     """Remove an element from the tree, keeping elem.tail"""
     p = elem.getparent()
     if p is not None:
@@ -331,7 +331,7 @@ def extract(elem):
                 p.text = (p.text or '') + elem.tail
 
 
-def insert_self_closing(parent, item, index=None):
+def insert_self_closing(parent, item, index=None) -> None:
     """Insert item into parent (or append if index is None), fixing
     indentation. Only works with self closing items."""
     if index is None:

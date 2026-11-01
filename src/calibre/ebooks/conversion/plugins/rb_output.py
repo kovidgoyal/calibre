@@ -20,7 +20,7 @@ class RBOutput(OutputFormatPlugin):
         )
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         from calibre.ebooks.rb.writer import RBWriter
 
         with StreamOrPath(output, 'wb', makedirs=True) as out_stream:

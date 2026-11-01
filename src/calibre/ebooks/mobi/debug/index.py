@@ -64,7 +64,7 @@ FIELD_NAMES = {
 }
 
 
-def read_variable_len_data(data, header):
+def read_variable_len_data(data, header) -> None:
     offset = header['tagx']
     indices = []
     idxt_offset = header['start']
@@ -118,7 +118,7 @@ def read_index(sections, idx, codec):
 
 
 class Index:
-    def __init__(self, idx, records, codec):
+    def __init__(self, idx, records, codec) -> None:
         self.table = self.cncx = self.header = None
         self.records: list = []
         self.index_headers = []
@@ -156,7 +156,7 @@ class Index:
 
         return ans + ['']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '\n'.join(self.render())
 
     def __iter__(self):
@@ -164,7 +164,7 @@ class Index:
 
 
 class SKELIndex(Index):
-    def __init__(self, skelidx, records, codec):
+    def __init__(self, skelidx, records, codec) -> None:
         super().__init__(skelidx, records, codec)
         self.records = []
 
@@ -185,7 +185,7 @@ class SKELIndex(Index):
 
 
 class SECTIndex(Index):
-    def __init__(self, sectidx, records, codec):
+    def __init__(self, sectidx, records, codec) -> None:
         super().__init__(sectidx, records, codec)
         self.records = []
 
@@ -210,7 +210,7 @@ class SECTIndex(Index):
 
 
 class GuideIndex(Index):
-    def __init__(self, guideidx, records, codec):
+    def __init__(self, guideidx, records, codec) -> None:
         super().__init__(guideidx, records, codec)
         self.records = []
 
@@ -226,7 +226,7 @@ class GuideIndex(Index):
 
 
 class NCXIndex(Index):
-    def __init__(self, ncxidx, records, codec):
+    def __init__(self, ncxidx, records, codec) -> None:
         super().__init__(ncxidx, records, codec)
         self.records = []
 

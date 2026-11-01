@@ -45,7 +45,7 @@ class Brush(NamedTuple):
 
 
 class TilingPattern(Stream):
-    def __init__(self, cache_key, matrix, w=8, h=8, paint_type=2, compress=False):
+    def __init__(self, cache_key, matrix, w=8, h=8, paint_type=2, compress=False) -> None:
         Stream.__init__(self, compress=compress)
         self.paint_type = paint_type
         self.w, self.h = w, h
@@ -53,7 +53,7 @@ class TilingPattern(Stream):
         self.resources = Dictionary()
         self.cache_key = (self.__class__.__name__, cache_key, self.matrix)
 
-    def add_extra_keys(self, d):
+    def add_extra_keys(self, d) -> None:
         d['Type'] = Name('Pattern')
         d['PatternType'] = 1
         d['PaintType'] = self.paint_type
@@ -82,13 +82,13 @@ class QtPattern(TilingPattern):
         '1 w\n-1 3 m\n5 9 l\n3 -1 m\n9 5 l\n-1 5 m\n5 -1 l\n3 9 m\n9 3 l\nS\n',  # DiagCrossPattern
     )  # }}}
 
-    def __init__(self, pattern_num, matrix):
+    def __init__(self, pattern_num, matrix) -> None:
         super().__init__(pattern_num, matrix)
         self.write(self.qt_patterns[pattern_num - 2])
 
 
 class TexturePattern(TilingPattern):
-    def __init__(self, pixmap, matrix, pdf, clone=None):
+    def __init__(self, pixmap, matrix, pdf, clone=None) -> None:
         if clone is None:
             image = pixmap.toImage()
             cache_key = pixmap.cacheKey()
@@ -107,7 +107,7 @@ class TexturePattern(TilingPattern):
 class GraphicsState:
     FIELDS = ('fill', 'stroke', 'opacity', 'transform', 'brush_origin', 'clip_updated', 'do_fill', 'do_stroke')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.fill = QBrush(Qt.GlobalColor.white)
         self.stroke = QPen()
         self.opacity = 1.0
@@ -134,16 +134,16 @@ class GraphicsState:
 
 
 class Graphics:
-    def __init__(self, page_width_px, page_height_px):
+    def __init__(self, page_width_px, page_height_px) -> None:
         self.base_state = GraphicsState()
         self.current_state = GraphicsState()
         self.pending_state = None
         self.page_width_px, self.page_height_px = (page_width_px, page_height_px)
 
-    def begin(self, pdf):
+    def begin(self, pdf) -> None:
         self.pdf = pdf
 
-    def update_state(self, state, painter):
+    def update_state(self, state, painter) -> None:
         flags = state.state()
         if self.pending_state is None:
             self.pending_state = self.current_state.copy()
@@ -168,7 +168,7 @@ class Graphics:
         if flags & QPaintEngine.DirtyFlag.DirtyClipPath or flags & QPaintEngine.DirtyFlag.DirtyClipRegion:
             s.clip_updated = True
 
-    def reset(self):
+    def reset(self) -> None:
         self.current_state = GraphicsState()
         self.pending_state = None
 
@@ -245,7 +245,7 @@ class Graphics:
             pattern = pdf.add_pattern(pat)
         return color, opacity, pattern, do_fill
 
-    def apply_stroke(self, state, pdf_system, painter):
+    def apply_stroke(self, state, pdf_system, painter) -> None:
         # TODO: Support miter limit by using QPainterPathStroker
         pen = state.stroke
         assert self.pending_state is not None
@@ -293,7 +293,7 @@ class Graphics:
         if pen.style() == Qt.PenStyle.NoPen:
             self.pending_state.do_stroke = False
 
-    def apply_fill(self, state, pdf_system, painter):
+    def apply_fill(self, state, pdf_system, painter) -> None:
         assert self.pending_state is not None
         self.pending_state.do_fill = True
         color, opacity, pattern, self.pending_state.do_fill = self.convert_brush(state.fill, state.brush_origin, state.opacity, pdf_system, painter.transform())
@@ -306,7 +306,7 @@ class Graphics:
     def __exit__(self, *args):
         self.pdf.restore_stack()
 
-    def resolve_fill(self, rect, pdf_system, qt_system):
+    def resolve_fill(self, rect, pdf_system, qt_system) -> None:
         """
         Qt's paint system does not update brushOrigin when using
         TexturePatterns and it also uses TexturePatterns to emulate gradients,

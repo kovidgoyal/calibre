@@ -25,7 +25,7 @@ def get_book_language_tag(container) -> str | None:
     return None
 
 
-def set_guide_item(container, item_type, title, name, frag=None):
+def set_guide_item(container, item_type, title, name, frag=None) -> None:
     ref_tag = '{{{}}}reference'.format(OPF_NAMESPACES['opf'])
     href = None
     if name:

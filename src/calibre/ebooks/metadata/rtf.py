@@ -156,7 +156,7 @@ def get_metadata(stream):
     return mi
 
 
-def create_metadata(stream, options):
+def create_metadata(stream, options) -> None:
     md = [r'{\info']
     if options.title:
         title = encode(options.title)
@@ -187,7 +187,7 @@ def create_metadata(stream, options):
         stream.write(ans)
 
 
-def set_metadata(stream, options):
+def set_metadata(stream, options) -> None:
     """
     Modify/add RTF metadata in stream
     @param options: Object with metadata attributes title, author, comment, category
@@ -239,7 +239,7 @@ def find_tests():
     from calibre.ebooks.metadata.book.base import Metadata
 
     class Test(unittest.TestCase):
-        def test_rtf_metadata(self):
+        def test_rtf_metadata(self) -> None:
             stream = BytesIO(rb'{\rtf1\ansi\ansicpg1252}')
             m = Metadata('Test ø̄title', ['Author One', 'Author БTwo'])
             m.tags = 'tag1 見tag2'.split()

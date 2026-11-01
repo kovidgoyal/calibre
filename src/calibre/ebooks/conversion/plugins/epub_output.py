@@ -151,7 +151,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
-    def workaround_webkit_quirks(self):  # {{{
+    def workaround_webkit_quirks(self) -> None:  # {{{
         from calibre.ebooks.oeb.base import XPath
 
         for x in self.oeb.spine:
@@ -174,7 +174,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         return CoverManager.book_language(self.oeb)
 
-    def set_html_languages(self):
+    def set_html_languages(self) -> None:
         # Screen readers and text-to-speech need the language of the text.
         # For EPUB 3 the lang attribute is added when upgrading.
         from calibre.ebooks.oeb.base import XML
@@ -186,7 +186,7 @@ class EPUBOutput(OutputFormatPlugin):
             if not root.get(XML('lang')) and not root.get('lang'):
                 root.set(XML('lang'), book_lang)
 
-    def upshift_markup(self):  # {{{
+    def upshift_markup(self) -> None:  # {{{
         "Upgrade markup to comply with XHTML 1.1 where possible"
         from calibre.ebooks.oeb.base import XML, XPath
 
@@ -219,7 +219,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         oeb = oeb_book
         output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb
@@ -442,7 +442,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def condense_ncx(self, ncx_path):  # {{{
+    def condense_ncx(self, ncx_path) -> None:  # {{{
         from lxml import etree
 
         if not self.opts.pretty_print:
@@ -458,7 +458,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def workaround_ade_quirks(self):  # {{{
+    def workaround_ade_quirks(self) -> None:  # {{{
         """
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
@@ -598,7 +598,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def workaround_sony_quirks(self):  # {{{
+    def workaround_sony_quirks(self) -> None:  # {{{
         """
         Perform toc link transforms to alleviate slow loading.
         """
@@ -613,7 +613,7 @@ class EPUBOutput(OutputFormatPlugin):
                 return False
             return item_at_top(elem)
 
-        def simplify_toc_entry(toc):
+        def simplify_toc_entry(toc) -> None:
             if toc.href:
                 href, frag = urldefrag(toc.href)
                 if frag:
@@ -689,13 +689,13 @@ class KEPUBOutput(OutputFormatPlugin):
 
     recommendations = set(EPUBOutput.recommendations)
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         oeb = oeb_book
         output_path = output
         from calibre.customize.ui import plugin_for_output_format
         from calibre.ebooks.oeb.polish.kepubify import kepubify_container, make_options
 
-        def kepubify(container):
+        def kepubify(container) -> None:
             log.info('Adding Kobo markup...')
             kopts = make_options(
                 affect_hyphenation=opts.kepub_affect_hyphenation,

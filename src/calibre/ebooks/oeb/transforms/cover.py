@@ -78,7 +78,7 @@ class CoverManager:
                 return ans
         return None
 
-    def __init__(self, no_default_cover=False, no_svg_cover=False, preserve_aspect_ratio=False, fixed_size=None):
+    def __init__(self, no_default_cover=False, no_svg_cover=False, preserve_aspect_ratio=False, fixed_size=None) -> None:
         self.no_default_cover = no_default_cover
         self.no_svg_cover = no_svg_cover
         self.preserve_aspect_ratio = preserve_aspect_ratio
@@ -140,7 +140,7 @@ class CoverManager:
                     self.log.exception('Failed to read cover image dimensions')
         return -1, -1
 
-    def insert_cover(self):
+    def insert_cover(self) -> None:
         from calibre.ebooks.oeb.base import urldefrag
 
         g, m = self.oeb.guide, self.oeb.manifest

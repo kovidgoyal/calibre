@@ -18,7 +18,7 @@ from polyglot.builtins import print_to_binary_file
 
 
 class FDST:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         if raw[:4] != b'FDST':
             raise ValueError('KF8 does not have a valid FDST record')
         self.sec_off, self.num_sections = struct.unpack_from(b'>LL', raw, 4)
@@ -31,7 +31,7 @@ class FDST:
             raise ValueError(f'FDST record has trailing data: {format_bytes(rest)}')
         self.sections = tuple(zip(secs[::2], secs[1::2]))
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['FDST record']
 
         def a(k, v):
@@ -47,12 +47,12 @@ class FDST:
 
 
 class File:
-    def __init__(self, skel, skeleton, text, first_aid, sections):
+    def __init__(self, skel, skeleton, text, first_aid, sections) -> None:
         self.name = f'part{skel.file_number:04}'
         self.skeleton, self.text, self.first_aid = skeleton, text, first_aid
         self.sections = sections
 
-    def dump(self, ddir):
+    def dump(self, ddir) -> None:
         with open(os.path.join(ddir, self.name + '.html'), 'wb') as f:
             f.write(self.text)
         base = os.path.join(ddir, self.name + '-parts')
@@ -66,7 +66,7 @@ class File:
 
 
 class MOBIFile:
-    def __init__(self, mf):
+    def __init__(self, mf) -> None:
         self.mf = mf
         h, h8 = mf.mobi_header, mf.mobi8_header
         first_text_record = 1
@@ -89,7 +89,7 @@ class MOBIFile:
         self.build_files()
         self.read_tbs()
 
-    def print_header(self, f=sys.stdout):
+    def print_header(self, f=sys.stdout) -> None:
         p = print_to_binary_file(f)
         p(str(self.mf.palmdb))
         p()
@@ -100,7 +100,7 @@ class MOBIFile:
         p()
         p(str(self.mf.mobi8_header))
 
-    def read_fdst(self):
+    def read_fdst(self) -> None:
         self.fdst = None
 
         if self.header.fdst_idx != NULL_INDEX:
@@ -109,13 +109,13 @@ class MOBIFile:
             if self.fdst.num_sections != self.header.fdst_count:
                 raise ValueError('KF8 Header contains invalid FDST count')
 
-    def read_indices(self):
+    def read_indices(self) -> None:
         self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records, self.header.encoding)
         self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records, self.header.encoding)
         self.ncx_index = NCXIndex(self.header.primary_index_record, self.mf.records, self.header.encoding)
         self.guide_index = GuideIndex(self.header.oth_idx, self.mf.records, self.header.encoding)
 
-    def build_files(self):
+    def build_files(self) -> None:
         text = self.raw_text
         self.files = []
         for skel in self.skel_index.records:
@@ -134,7 +134,7 @@ class MOBIFile:
 
             self.files.append(File(skel, skeleton, ftext, first_aid, sections))
 
-    def dump_flows(self, ddir):
+    def dump_flows(self, ddir) -> None:
         boundaries = [(0, len(self.raw_text))]
         if self.fdst is not None:
             boundaries = self.fdst.sections
@@ -144,7 +144,7 @@ class MOBIFile:
             with open(os.path.join(ddir, f'flow{i:04}.txt'), 'wb') as f:
                 f.write(raw)
 
-    def extract_resources(self, records):
+    def extract_resources(self, records) -> None:
         self.resource_map = []
         self.containers = []
         known_types = {
@@ -225,7 +225,7 @@ class MOBIFile:
 
             self.resource_map.append((f'{prefix}/{resource_index:06}{suffix}.{ext}', payload))
 
-    def read_tbs(self):
+    def read_tbs(self) -> None:
         from calibre.ebooks.mobi.writer8.tbs import (
             DOC,
             Entry,
@@ -311,7 +311,7 @@ class MOBIFile:
             self.indexing_data.append('\n'.join(desc))
 
 
-def inspect_mobi(mobi_file, ddir):
+def inspect_mobi(mobi_file, ddir) -> None:
     f = MOBIFile(mobi_file)
     with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
         f.print_header(f=out)

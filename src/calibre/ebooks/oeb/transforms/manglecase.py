@@ -38,7 +38,7 @@ class CaseMangler:
         self.profile = context.source
         self.mangle_spine()
 
-    def mangle_spine(self):
+    def mangle_spine(self) -> None:
         id, href = self.oeb.manifest.generate('manglecase', 'manglecase.css')
         self.oeb.manifest.add(id, href, CSS_MIME, data=CASE_MANGLER_CSS)
         for item in self.oeb.spine:
@@ -68,7 +68,7 @@ class CaseMangler:
                 results.append(char)
         return results
 
-    def smallcaps_elem(self, elem, attr):
+    def smallcaps_elem(self, elem, attr) -> None:
         texts = self.split_text(getattr(elem, attr))
         setattr(elem, attr, None)
         last = elem if attr == 'tail' else None
@@ -92,7 +92,7 @@ class CaseMangler:
                     child.tail = None
                 last = child
 
-    def mangle_elem(self, elem, stylizer):
+    def mangle_elem(self, elem, stylizer) -> None:
         if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             return
         children = list(elem)

@@ -14,7 +14,7 @@ from polyglot.urllib import unquote
 
 class RBToc(list):
     class Item:
-        def __init__(self, name='', size=0, offset=0, flags=0):
+        def __init__(self, name='', size=0, offset=0, flags=0) -> None:
             self.name = name
             self.size = size
             self.offset = offset
@@ -22,7 +22,7 @@ class RBToc(list):
 
 
 class Reader:
-    def __init__(self, stream, log, encoding=None):
+    def __init__(self, stream, log, encoding=None) -> None:
         self.stream = stream
         self.log = log
         self.encoding = encoding
@@ -35,7 +35,7 @@ class Reader:
     def read_i32(self):
         return struct.unpack('<I', self.stream.read(4))[0]
 
-    def verify_file(self):
+    def verify_file(self) -> None:
         self.stream.seek(0)
         if self.stream.read(14) != HEADER:
             raise RocketBookError(f'Could not read file: {self.stream.name}. Does not contain a valid RocketBook Header.')
@@ -71,7 +71,7 @@ class Reader:
             ans = ''
         return ans
 
-    def get_text(self, toc_item, output_dir):
+    def get_text(self, toc_item, output_dir) -> None:
         if toc_item.flags in (1, 2):
             return
 
@@ -95,7 +95,7 @@ class Reader:
             with open(path, 'wb') as html:
                 html.write(output.replace('<TITLE>', '<TITLE> ').encode('utf-8'))
 
-    def get_image(self, toc_item, output_dir):
+    def get_image(self, toc_item, output_dir) -> None:
         if toc_item.flags != 0:
             return
 

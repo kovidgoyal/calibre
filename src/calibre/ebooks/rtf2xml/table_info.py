@@ -35,7 +35,7 @@ class TableInfo:
         table_data,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         """
         Required:
             'file'--file to parse
@@ -55,7 +55,7 @@ class TableInfo:
         self.__write_to = better_mktemp()
         # self.__write_to = 'table_info.data'
 
-    def insert_info(self):
+    def insert_info(self) -> None:
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1

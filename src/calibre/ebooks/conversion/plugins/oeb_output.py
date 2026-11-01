@@ -15,7 +15,7 @@ class OEBOutput(OutputFormatPlugin):
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         from lxml import etree
 
@@ -67,7 +67,7 @@ class OEBOutput(OutputFormatPlugin):
                     f.write(item.bytes_representation)
                 item.unload_data_from_memory(memory=path)
 
-    def adjust_mime_types(self, root):
+    def adjust_mime_types(self, root) -> None:
         from calibre.ebooks.oeb.polish.utils import adjust_mime_for_epub
 
         for x in root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item"]'):
@@ -77,7 +77,7 @@ class OEBOutput(OutputFormatPlugin):
                 if nmt != mt:
                     x.set('media-type', nmt)
 
-    def workaround_nook_cover_bug(self, root):  # {{{
+    def workaround_nook_cover_bug(self, root) -> None:  # {{{
         cov = root.xpath('//*[local-name() = "meta" and @name="cover" and @content != "cover"]')
 
         def manifest_items_with_id(id_):
@@ -108,7 +108,7 @@ class OEBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def workaround_pocketbook_cover_bug(self, root):  # {{{
+    def workaround_pocketbook_cover_bug(self, root) -> None:  # {{{
         m = root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item"  and @id="cover"]')
         if len(m) == 1:
             m = m[0]
@@ -118,7 +118,7 @@ class OEBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def migrate_lang_code(self, root):  # {{{
+    def migrate_lang_code(self, root) -> None:  # {{{
         from calibre.utils.localization import lang_as_iso639_1
 
         for lang in root.xpath('//*[local-name() = "language"]'):

@@ -46,7 +46,7 @@ from calibre.utils.localization import _
 
 
 class LrsParser:
-    def __init__(self, stream, logger):
+    def __init__(self, stream, logger) -> None:
         self.logger = logger
         src = stream.read()
         self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0])
@@ -61,7 +61,7 @@ class LrsParser:
         self.fourth_pass()
         self.fifth_pass()
 
-    def fifth_pass(self):
+    def fifth_pass(self) -> None:
         for tag in self.soup.findAll(['canvas', 'header', 'footer']):
             canvas = self.parsed_objects[tag.get('objid')]
             for po in tag.findAll('putobj'):
@@ -95,7 +95,7 @@ class LrsParser:
         settings.pop('spanstyle', '')
         return map[tag.name](**settings)
 
-    def process_text_element(self, tag, elem):
+    def process_text_element(self, tag, elem) -> None:
         for item in tag.contents:
             if isinstance(item, NavigableString):
                 elem.append(item.string)
@@ -121,7 +121,7 @@ class LrsParser:
                     self.process_text_element(item, elem)
         return p
 
-    def process_text_block(self, tag):
+    def process_text_block(self, tag) -> None:
         tb = self.parsed_objects[tag.get('objid')]
         for item in tag.contents:
             if hasattr(item, 'name'):
@@ -136,7 +136,7 @@ class LrsParser:
                     self.process_text_element(item, elem)
                     p.append(elem)
 
-    def fourth_pass(self):
+    def fourth_pass(self) -> None:
         for tag in self.soup.findAll('page'):
             page = self.parsed_objects[tag.get('objid')]
             self.book.append(page)
@@ -161,7 +161,7 @@ class LrsParser:
                 label = self.tag_to_string(tag)
                 self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])  # type: ignore
 
-    def third_pass(self):
+    def third_pass(self) -> None:
         map = {
             'page': (Page, ['pagestyle', 'evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid']),
             'textblock': (TextBlock, ['textstyle', 'blockstyle']),
@@ -193,7 +193,7 @@ class LrsParser:
                     args += [tag.get('canvaswidth'), tag.get('canvasheight')]
                 self.parsed_objects[id] = map[tag.name][0](*args, **settings)
 
-    def second_pass(self):
+    def second_pass(self) -> None:
         map = {
             'pagestyle': (PageStyle, ['stylelabel', 'evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid']),
             'textstyle': (TextStyle, ['stylelabel', 'rubyalignandadjust']),
@@ -236,7 +236,7 @@ class LrsParser:
                     strings.append(res)
         return ''.join(strings)
 
-    def first_pass(self):
+    def first_pass(self) -> None:
         info = self.soup.find('bbebxylog').find('bookinformation').find('info')
         bookinfo = info.find('bookinfo')
         docinfo = info.find('docinfo')
@@ -293,7 +293,7 @@ class LrsParser:
             elem = Header if hdr.name == 'header' else Footer
             self.parsed_objects[hdr.get('objid')] = elem(**self.attrs_to_dict(hdr))
 
-    def render(self, file, to_lrs=False):
+    def render(self, file, to_lrs=False) -> None:
         if to_lrs:
             self.book.renderLrs(file, 'utf-8')
         else:
@@ -308,7 +308,7 @@ def option_parser():
     return parser
 
 
-def main(args=sys.argv, logger=None):
+def main(args=sys.argv, logger=None) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if logger is None:

@@ -20,7 +20,7 @@ __version__ = '1.0.20070709'
 
 
 class Hyphenator:
-    def __init__(self, patterns, exceptions=''):
+    def __init__(self, patterns, exceptions='') -> None:
         self.tree = {}
         for pattern in patterns.split():
             self._insert_pattern(pattern)
@@ -30,7 +30,7 @@ class Hyphenator:
             # Convert the hyphenated pattern into a point array for use later.
             self.exceptions[ex.replace('-', '')] = [0] + [int(h == '-') for h in re.split(r'[a-z]', ex)]
 
-    def _insert_pattern(self, pattern):
+    def _insert_pattern(self, pattern) -> None:
         # Convert a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
         chars = re.sub(r'[0-9]', '', pattern)

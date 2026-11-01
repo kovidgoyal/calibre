@@ -138,7 +138,7 @@ def create_profile():
 class Worker(QWebEnginePage):
     work_done = pyqtSignal(object, object)
 
-    def __init__(self):
+    def __init__(self) -> None:
         must_use_qt()
         QWebEnginePage.__init__(self, create_profile(), QApplication.instance())
         self.titleChanged.connect(self.title_changed)
@@ -148,7 +148,7 @@ class Worker(QWebEnginePage):
         self.pending = None
         self.setHtml('')
 
-    def title_changed(self, new_title):
+    def title_changed(self, new_title) -> None:
         new_title = new_title.partition(':')[0]
         if new_title == 'ready':
             self.ready = True
@@ -158,39 +158,39 @@ class Worker(QWebEnginePage):
         elif new_title == 'checked':
             self.runJavaScript('window.get_css_results()', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
         message = f'{sourceID}:{lineNumber}:{message}'
         try:
             print(message)
         except Exception:
             pass
 
-    def check_css(self, src, fix=False, disabled_rules: tuple[str, ...] = ()):
+    def check_css(self, src, fix=False, disabled_rules: tuple[str, ...] = ()) -> None:
         self.working = True
         self.runJavaScript(
             f'window.check_css({json.dumps(src)}, {"true" if fix else "false"}, {json.dumps(disabled_rules)})',
             QWebEngineScript.ScriptWorldId.ApplicationWorld,
         )
 
-    def check_css_when_ready(self, src, fix=False, disabled_rules: tuple[str, ...] = ()):
+    def check_css_when_ready(self, src, fix=False, disabled_rules: tuple[str, ...] = ()) -> None:
         if self.ready:
             self.check_css(src, fix, disabled_rules)
         else:
             self.working = True
             self.pending = src, fix, disabled_rules
 
-    def check_done(self, results):
+    def check_done(self, results) -> None:
         self.working = False
         for result in results:
             self.work_done.emit(self, result)
 
 
 class Pool:
-    def __init__(self):
+    def __init__(self) -> None:
         self.workers = []
         self.max_workers = cpu_count()
 
-    def add_worker(self):
+    def add_worker(self) -> None:
         w = Worker()
         w.work_done.connect(self.work_done)
         self.workers.append(w)
@@ -208,7 +208,7 @@ class Pool:
             app.processEvents(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
         return self.results
 
-    def assign_work(self):
+    def assign_work(self) -> None:
         while self.pending:
             if len(self.workers) < self.max_workers:
                 self.add_worker()
@@ -221,15 +221,15 @@ class Pool:
             else:
                 break
 
-    def work_done(self, worker, result):
+    def work_done(self, worker, result) -> None:
         self.results[worker.result_idx] = result
         self.assign_work()
         if not self.pending and not any(w for w in self.workers if w.working):
             self.working = False
 
-    def shutdown(self):
+    def shutdown(self) -> None:
 
-        def safe_delete(x):
+        def safe_delete(x) -> None:
             if not sip.isdeleted(x):
                 sip.delete(x)
 
@@ -283,7 +283,7 @@ def check_css(jobs, skipped_rules: Iterable[str] = ()):
     return errors
 
 
-def main():
+def main() -> None:
     with open(sys.argv[-1], 'rb') as f:
         css = f.read().decode('utf-8')
     errors = check_css([create_job(sys.argv[-1], css)])

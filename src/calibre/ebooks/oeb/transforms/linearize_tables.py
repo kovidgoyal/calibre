@@ -5,7 +5,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath
 
 
 class LinearizeTables:
-    def linearize(self, root):
+    def linearize(self, root) -> None:
         for x in XPath('//h:table|//h:td|//h:tr|//h:th|//h:caption|//h:tbody|//h:tfoot|//h:thead|//h:colgroup|//h:col')(root):
             x.tag = XHTML('div')
             for attr in (

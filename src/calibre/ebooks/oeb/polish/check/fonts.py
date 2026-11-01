@@ -31,7 +31,7 @@ class NotEmbeddable(BaseError):
     RULE_NAME = _('Font not allowed to be embedded')
     level = WARN
 
-    def __init__(self, name, fs_type):
+    def __init__(self, name, fs_type) -> None:
         BaseError.__init__(self, _('The font {} is not allowed to be embedded').format(name), name)
         self.HELP = _(
             'The font has a flag in its metadata ({:09b}) set indicating that it is'
@@ -44,7 +44,7 @@ class FontAliasing(BaseError):
     RULE_NAME = _('CSS font-family name does not match actual font name')
     level = WARN
 
-    def __init__(self, font_name, css_name, name, line):
+    def __init__(self, font_name, css_name, name, line) -> None:
         BaseError.__init__(
             self,
             _('The CSS font-family name {0} does not match the actual font name {1}').format(css_name, font_name),

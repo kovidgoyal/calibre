@@ -8,7 +8,7 @@ class PDBError(Exception):
 FORMAT_READERS = None
 
 
-def _import_readers():
+def _import_readers() -> None:
     global FORMAT_READERS
     from calibre.ebooks.pdb.ereader.reader import Reader as ereader_reader
     from calibre.ebooks.pdb.haodoo.reader import Reader as haodoo_reader
@@ -33,7 +33,7 @@ ALL_FORMAT_WRITERS = 'doc', 'ereader', 'ztxt'  # keep sorted alphabetically
 FORMAT_WRITERS = None
 
 
-def _import_writers():
+def _import_writers() -> None:
     global FORMAT_WRITERS
     from calibre.ebooks.pdb.ereader.writer import Writer as ereader_writer
     from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer

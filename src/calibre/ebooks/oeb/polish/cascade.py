@@ -188,7 +188,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
     rule_index_counter = count()
     pseudo_pat = re.compile(':{{1,2}}({})'.format('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
 
-    def process_sheet(sheet, sheet_name):
+    def process_sheet(sheet, sheet_name) -> None:
         if sheet_callback is not None:
             sheet_callback(sheet, sheet_name)
         for rule, name_sheet, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type='STYLE_RULE'):

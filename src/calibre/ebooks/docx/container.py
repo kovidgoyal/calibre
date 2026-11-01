@@ -27,7 +27,7 @@ def fromstring(raw, parser=None):
 # Read metadata {{{
 
 
-def read_doc_props(raw, mi, XPath):
+def read_doc_props(raw, mi, XPath) -> None:
     root = fromstring(raw)
     titles = XPath('//dc:title')(root)
     if titles:
@@ -69,14 +69,14 @@ def read_doc_props(raw, mi, XPath):
         mi.languages = langs
 
 
-def read_app_props(raw, mi):
+def read_app_props(raw, mi) -> None:
     root = fromstring(raw)
     company = root.xpath('//*[local-name()="Company"]')
     if company and company[0].text and company[0].text.strip():
         mi.publisher = company[0].text.strip()
 
 
-def read_default_style_language(raw, mi, XPath):
+def read_default_style_language(raw, mi, XPath) -> None:
     root = fromstring(raw)
     for lang in XPath('/w:styles/w:docDefaults/w:rPrDefault/w:rPr/w:lang/@w:val')(root):
         lang = canonicalize_lang(lang)
@@ -89,7 +89,7 @@ def read_default_style_language(raw, mi, XPath):
 
 
 class DOCX:
-    def __init__(self, path_or_stream, log=None, extract=True):
+    def __init__(self, path_or_stream, log=None, extract=True) -> None:
         self.docx_is_transitional = True
         self.log = log or default_log
         if extract:
@@ -105,11 +105,11 @@ class DOCX:
         self.read_package_relationships()
         self.namespace = DOCXNamespace(self.docx_is_transitional)
 
-    def init_zipfile(self, stream):
+    def init_zipfile(self, stream) -> None:
         self.zipf = ZipFile(stream)
         self.names = frozenset(self.zipf.namelist())
 
-    def extract(self, stream):
+    def extract(self, stream) -> None:
         self.tdir = PersistentTemporaryDirectory('docx_container')
         try:
             zf = ZipFile(stream)
@@ -136,7 +136,7 @@ class DOCX:
         with open(path, 'rb') as f:
             return f.read()
 
-    def read_content_types(self):
+    def read_content_types(self) -> None:
         try:
             raw = self.read('[Content_Types].xml')
         except KeyError:
@@ -158,7 +158,7 @@ class DOCX:
             return self.default_content_types[ext]
         return guess_type(name)[0]
 
-    def read_package_relationships(self):
+    def read_package_relationships(self) -> None:
         try:
             raw = self.read('_rels/.rels')
         except KeyError:
@@ -257,7 +257,7 @@ class DOCX:
 
         return mi
 
-    def close(self):
+    def close(self) -> None:
         if hasattr(self, 'zipf'):
             self.zipf.close()
         else:

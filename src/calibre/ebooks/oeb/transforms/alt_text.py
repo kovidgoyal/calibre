@@ -9,7 +9,7 @@ from calibre.ebooks.oeb.base import SVG_MIME, urlnormalize, xpath
 from calibre.utils.img import read_alt_text
 
 
-def process_spine_item(item, hrefs, log):
+def process_spine_item(item, hrefs, log) -> None:
     html = item.data
     for elem in xpath(html, '//h:img[@src]'):
         src = urlnormalize(elem.attrib['src'])

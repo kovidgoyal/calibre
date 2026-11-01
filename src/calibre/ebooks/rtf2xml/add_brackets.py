@@ -35,7 +35,7 @@ class AddBrackets:
         bug_handler,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         """
         Required:
             'file'--file to parse
@@ -87,7 +87,7 @@ class AddBrackets:
             # 'cw<ul<underlined',
         ]
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Init temp values
         """
@@ -97,7 +97,7 @@ class AddBrackets:
         self.__open_bracket = False
         self.__found_brackets = False
 
-    def __before_body_func(self, line):
+    def __before_body_func(self, line) -> None:
         """
         If we are before the body, not interest in changing anything
         """
@@ -105,7 +105,7 @@ class AddBrackets:
             self.__state = 'in_body'
         self.__write_obj.write(line)
 
-    def __in_body_func(self, line):
+    def __in_body_func(self, line) -> None:
         """
         Select what action to take in body:
             1-At the end of the file close the bracket if a bracket was opened
@@ -130,7 +130,7 @@ class AddBrackets:
         else:
             self.__write_obj.write(line)
 
-    def __after_control_word_func(self, line):
+    def __after_control_word_func(self, line) -> None:
         """
         After a cw either add next allowed cw to temporary list or
         change group and write it.
@@ -149,7 +149,7 @@ class AddBrackets:
             else:
                 self.__state = 'in_body'
 
-    def __write_group(self):
+    def __write_group(self) -> None:
         """
         Write a temporary group after accepted control words end
         But this is mostly useless in my opinion as there is no list of rejected cw
@@ -167,7 +167,7 @@ class AddBrackets:
             self.__open_bracket = True
         self.__temp_group = []
 
-    def __change_permanent_group(self):
+    def __change_permanent_group(self) -> None:
         """
         Use temp group to change permanent group
         If the control word is not accepted remove it
@@ -181,7 +181,7 @@ class AddBrackets:
             if line[:16] in self.__accept
         }
 
-    def __ignore_func(self, line):
+    def __ignore_func(self, line) -> None:
         """
         Just copy data inside of RTF brackets already here.
         """
@@ -196,7 +196,7 @@ class AddBrackets:
         check_brack_obj = check_brackets.CheckBrackets(file=in_file)
         return check_brack_obj.check_brackets()[0]
 
-    def add_brackets(self):
+    def add_brackets(self) -> None:
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:

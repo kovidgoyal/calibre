@@ -68,12 +68,12 @@ class SearchFailed(ValueError):
 
 
 class UrlNotFound(ValueError):
-    def __init__(self, url):
+    def __init__(self, url) -> None:
         ValueError.__init__(self, 'The URL {} was not found (HTTP 404)'.format(url))
 
 
 class UrlTimedOut(ValueError):
-    def __init__(self, url):
+    def __init__(self, url) -> None:
         ValueError.__init__(self, 'Timed out fetching {} try again later'.format(url))
 
 
@@ -90,7 +90,7 @@ def parse_html(raw):
 
 
 class BlackCurtainRedirect(ValueError):
-    def __init__(self, url):
+    def __init__(self, url) -> None:
         ValueError.__init__(self, 'Redirected to the adult content confirmation page: {}'.format(url))
         self.url = url
 
@@ -102,7 +102,7 @@ def parse_details_page(url, log, timeout, browser, domain):
         get_data_for_cached_url = search_engines_module().get_data_for_cached_url
     except Exception:
 
-        def get_data_for_cached_url(*a):
+        def get_data_for_cached_url(*a) -> None:
             return None
 
     raw = get_data_for_cached_url(url)
@@ -213,7 +213,7 @@ class Worker(Thread):  # Get details {{{
         preparsed_root=None,
         cover_url_processor=None,
         filter_result=None,
-    ):
+    ) -> None:
         Thread.__init__(self)
         self.cover_url_processor = cover_url_processor
         self.preparsed_root = preparsed_root
@@ -461,13 +461,13 @@ class Worker(Thread):  # Get details {{{
         ans = ans.replace(' de ', ' ')
         return ans
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.get_details()
         except Exception:
             self.log.exception('get_details failed for url: %r' % self.url)
 
-    def get_details(self):
+    def get_details(self) -> None:
         if self.preparsed_root is None:
             raw, root, selector = parse_details_page(self.url, self.log, self.timeout, self.browser, self.domain)
         else:
@@ -478,7 +478,7 @@ class Worker(Thread):  # Get details {{{
         self.selector = Select(root)
         self.parse_details(raw, root)
 
-    def parse_details(self, raw, root):
+    def parse_details(self, raw, root) -> None:
         asin = parse_asin(root, self.log, self.url)
         if not asin and root.xpath('//form[@action="/errors/validateCaptcha"]'):
             raise CaptchaError('Amazon returned a CAPTCHA page, probably because you downloaded too many books. Wait for some time and try again.')
@@ -1049,7 +1049,7 @@ class Worker(Thread):  # Get details {{{
                 if url:
                     return url
 
-    def parse_detail_bullets(self, root, mi, container, ul_selector='.detail-bullet-list'):
+    def parse_detail_bullets(self, root, mi, container, ul_selector='.detail-bullet-list') -> None:
         try:
             ul = next(self.selector(ul_selector, root=container))
         except StopIteration:
@@ -1059,14 +1059,14 @@ class Worker(Thread):  # Get details {{{
             if len(cells) >= 2:
                 self.parse_detail_cells(mi, cells[0], cells[1])
 
-    def parse_new_details(self, root, mi, non_hero):
+    def parse_new_details(self, root, mi, non_hero) -> None:
         table = non_hero.xpath('descendant::table')[0]
         for tr in table.xpath('descendant::tr'):
             cells = tr.xpath('descendant::*[local-name()="td" or local-name()="th"]')
             if len(cells) == 2:
                 self.parse_detail_cells(mi, cells[0], cells[1])
 
-    def parse_detail_cells(self, mi, c1, c2):
+    def parse_detail_cells(self, mi, c1, c2) -> None:
         name = self.totext(c1, only_printable=True).strip().strip(':').strip()
         val = self.totext(c2)
         val = val.replace('\u200e', '').replace('\u200f', '')
@@ -1253,7 +1253,7 @@ class Amazon(Source):
         ),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Source.__init__(self, *args, **kwargs)
         self.set_amazon_id_touched_fields()
 
@@ -1313,11 +1313,11 @@ class Amazon(Source):
                 ]
         return br
 
-    def save_settings(self, *args, **kwargs):
+    def save_settings(self, *args, **kwargs) -> None:
         Source.save_settings(self, *args, **kwargs)
         self.set_amazon_id_touched_fields()
 
-    def set_amazon_id_touched_fields(self):
+    def set_amazon_id_touched_fields(self) -> None:
         ident_name = 'identifier:amazon'
         if self.domain != 'com':
             ident_name += '_' + self.domain
@@ -1397,7 +1397,7 @@ class Amazon(Source):
     def use_search_engine(self):
         return self.server not in ('auto', 'amazon')
 
-    def clean_downloaded_metadata(self, mi):
+    def clean_downloaded_metadata(self, mi) -> None:
         docase = mi.language == 'eng' or (mi.is_null('language') and self.domain in {'com', 'uk', 'au'})
         if mi.title and docase:
             # Remove series information from title
@@ -1619,7 +1619,7 @@ class Amazon(Source):
             return
         self.parse_all_details_from_browser(log, result_queue, abort, details, domain, timeout, testing)
 
-    def browser_error(self, log, result):
+    def browser_error(self, log, result) -> bool:
         if not result.get('error'):
             return False
         if result.get('kind') == 'captcha':
@@ -1652,7 +1652,7 @@ class Amazon(Source):
             log.exception('Failed to parse amazon details page: %r' % url)
             return None
 
-    def parse_all_details_from_browser(self, log, result_queue, abort, details, domain, timeout, testing, cover_url_processor=None, filter_result=None):
+    def parse_all_details_from_browser(self, log, result_queue, abort, details, domain, timeout, testing, cover_url_processor=None, filter_result=None) -> None:
         if self.prefs['prefer_kindle_edition']:
             order = sort_matches_preferring_kindle_editions([d['url'] for d in details])
             details = sorted(details, key=lambda d: order.index(d['url']))
@@ -1756,7 +1756,7 @@ class Amazon(Source):
 
     # }}}
 
-    def filter_result(self, title, authors, identifiers, mi, log):  # {{{
+    def filter_result(self, title, authors, identifiers, mi, log) -> bool:  # {{{
         # Search engines return all sorts of things, Amazon's own search does
         # not need checking up on like this
         if title is not None:
@@ -1802,7 +1802,7 @@ class Amazon(Source):
         identifiers=None,
         timeout=60,
         get_best_cover=False,
-    ):
+    ) -> None:
         if identifiers is None:
             identifiers = {}
         cached_url = self.get_cached_cover_url(identifiers)
@@ -1844,7 +1844,7 @@ class Amazon(Source):
     # }}}
 
 
-def manual_tests(domain, **kw):  # {{{
+def manual_tests(domain, **kw) -> None:  # {{{
     # To run these test use:
     # calibre-debug -c "from calibre.ebooks.metadata.sources.amazon import *; manual_tests('com')"
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, isbn_test, series_test, test_identify_plugin, title_test
@@ -2026,7 +2026,7 @@ def manual_tests(domain, **kw):  # {{{
         ),
     ]  # }}}
 
-    def do_test(domain, start=0, stop=None, server='auto'):
+    def do_test(domain, start=0, stop=None, server='auto') -> None:
         tests = all_tests[domain]
         if stop is None:
             stop = len(tests)

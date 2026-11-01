@@ -23,7 +23,7 @@ def get_container(*args, **kwargs):
 
 
 class ContainerTests(BaseTest):
-    def test_clone(self):
+    def test_clone(self) -> None:
         "Test cloning of containers"
         for fmt in ('epub', 'azw3'):
             base = os.path.join(self.tdir, fmt + '-')
@@ -71,7 +71,7 @@ class ContainerTests(BaseTest):
             for attr in c1.data_for_clone():
                 self.assertEqual(getattr(c1, attr), getattr(c, attr))
 
-    def test_file_removal(self):
+    def test_file_removal(self) -> None:
         "Test removal of files from the container"
         book = get_simple_book()
         c = get_container(book, tdir=self.tdir)
@@ -87,7 +87,7 @@ class ContainerTests(BaseTest):
         for x in files:
             self.assertNotIn(x, raw)
 
-    def run_external_tools(self, container, vim=False, epubcheck=True):
+    def run_external_tools(self, container, vim=False, epubcheck=True) -> None:
         with TemporaryFile(suffix='.epub', dir=self.tdir) as f:
             container.commit(outpath=f)
             if vim:
@@ -95,7 +95,7 @@ class ContainerTests(BaseTest):
             if epubcheck:
                 subprocess.Popen(['epubcheck', f]).wait()
 
-    def test_file_rename(self):
+    def test_file_rename(self) -> None:
         "Test renaming of files"
         book = get_simple_book()
         count = [0]
@@ -184,7 +184,7 @@ class ContainerTests(BaseTest):
 
         # self.run_external_tools(c, vim=True)
 
-    def test_file_add(self):
+    def test_file_add(self) -> None:
         "Test adding of files"
         book = get_simple_book()
         c = get_container(book)
@@ -205,7 +205,7 @@ class ContainerTests(BaseTest):
 
         self.check_links(c)
 
-    def test_actual_case(self):
+    def test_actual_case(self) -> None:
         "Test getting the actual case for files from names on case insensitive filesystems"
         from calibre.ebooks.oeb.polish.utils import actual_case_for_name, corrected_case_for_name
 
@@ -223,7 +223,7 @@ class ContainerTests(BaseTest):
                 self.assertEqual(name, corrected_case_for_name(c, n))
             self.assertIsNone(corrected_case_for_name(c, name + '/xx'))
 
-    def test_split_file(self):
+    def test_split_file(self) -> None:
         "Test splitting of files"
         book = get_split_book()
         c = get_container(book)
@@ -235,7 +235,7 @@ class ContainerTests(BaseTest):
         self.assertEqual(0, len(troot.xpath('//*[@id="container"]')), 'Split point was not adjusted')
         self.check_links(c)
 
-    def test_merge_file(self):
+    def test_merge_file(self) -> None:
         "Test merging of files"
         book = get_simple_book()
         c = get_container(book)
@@ -275,8 +275,8 @@ class ContainerTests(BaseTest):
         merge(c, 'styles', ('stylesheet.css', 'page_styles.css'), 'stylesheet.css')
         self.check_links(c)
 
-    def test_dir_container(self):
-        def create_book(source):
+    def test_dir_container(self) -> None:
+        def create_book(source) -> None:
             with ZipFile(P('quick_start/eng.epub', allow_user_override=False)) as zf:
                 zf.extractall(source)
             with CurrentDir(source):
@@ -301,7 +301,7 @@ class ContainerTests(BaseTest):
                 self.assertTrue(os.path.exists('images/test-container.xyz'))
                 self.assertFalse(os.path.exists('images/cover.jpg'))
 
-    def test_folder_type_map_case(self):
+    def test_folder_type_map_case(self) -> None:
         book = get_simple_book()
         c = get_container(book)
         c.add_file('Image/testcase.png', b'xxx')

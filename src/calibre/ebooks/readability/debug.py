@@ -1,4 +1,4 @@
-def save_to_file(text, filename):
+def save_to_file(text, filename) -> None:
     with open(filename, 'wb') as f:
         f.write(b'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
         f.write(text.encode('utf-8'))

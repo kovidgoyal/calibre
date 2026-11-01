@@ -13,7 +13,7 @@ from calibre.utils.logging import default_log
 IMPORTABLE = {'htm', 'xhtml', 'html', 'xhtm', 'docx'}
 
 
-def auto_fill_manifest(container):
+def auto_fill_manifest(container) -> None:
     manifest_id_map = container.manifest_id_map
     manifest_name_map = {v: k for k, v in manifest_id_map.items()}
 
@@ -27,7 +27,7 @@ def auto_fill_manifest(container):
             manifest_id_map[mitem.get('id')] = name
 
 
-def import_book_as_epub(srcpath, destpath, log=default_log):
+def import_book_as_epub(srcpath, destpath, log=default_log) -> None:
     if not destpath.lower().endswith('.epub'):
         raise ValueError(f'Can only import books into the EPUB format, not {os.path.basename(destpath)}')
     with TemporaryDirectory('eei') as tdir:

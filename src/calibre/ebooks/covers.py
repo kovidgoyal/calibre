@@ -79,7 +79,7 @@ def get_use_roman():
     return _use_roman
 
 
-def set_use_roman(val):
+def set_use_roman(val) -> None:
     global _use_roman
     _use_roman = bool(val)
 
@@ -146,7 +146,7 @@ def parse_text_formatting(text):
 
 
 class Block:
-    def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignmentFlag.AlignCenter):
+    def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignmentFlag.AlignCenter) -> None:
         self.layouts: list[int | QTextLayout] = []
         self._position = Point(0, 0)
         self.leading = self.line_spacing = 0
@@ -192,7 +192,7 @@ class Block:
         return self._position
 
     @position.setter
-    def position(self, new_pos):
+    def position(self, new_pos) -> None:
         x, y = new_pos
         self._position = Point(x, y)
         if self.layouts:
@@ -207,7 +207,7 @@ class Block:
                     l.setPosition(QPointF(x, y))
                     y += l.boundingRect().height()
 
-    def draw(self, painter):
+    def draw(self, painter) -> None:
         for l in self.layouts:
             if hasattr(l, 'draw'):
                 assert isinstance(l, QTextLayout)
@@ -370,15 +370,15 @@ def color(color_theme, name):
 class Style:
     TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop
 
-    def __init__(self, color_theme, prefs):
+    def __init__(self, color_theme, prefs) -> None:
         self.load_colors(color_theme)
         self.calculate_margins(prefs)
 
-    def calculate_margins(self, prefs):
+    def calculate_margins(self, prefs) -> None:
         self.hmargin = int((50 / 600) * prefs.cover_width)
         self.vmargin = int((50 / 800) * prefs.cover_height)
 
-    def load_colors(self, color_theme):
+    def load_colors(self, color_theme) -> None:
         self.color1 = color(color_theme, 'color1')
         self.color2 = color(color_theme, 'color2')
         self.ccolor1 = color(color_theme, 'contrast_color1')
@@ -424,7 +424,7 @@ def rotate_vector(angle, x, y):
     return x * cos(angle) - y * sin(angle), x * sin(angle) + y * cos(angle)
 
 
-def draw_curved_line(painter_path, dx, dy, c1_frac, c1_amp, c2_frac, c2_amp):
+def draw_curved_line(painter_path, dx, dy, c1_frac, c1_amp, c2_frac, c2_amp) -> None:
     length = sqrt(dx * dx + dy * dy)
     angle = atan2(dy, dx)
     c1 = QPointF(*rotate_vector(angle, c1_frac * length, c1_amp * length))
@@ -438,7 +438,7 @@ class Banner(Style):
     GUI_NAME = _('Banner')
     GRADE = 0.07
 
-    def calculate_margins(self, prefs):
+    def calculate_margins(self, prefs) -> None:
         Style.calculate_margins(self, prefs)
         self.hmargin = int(0.15 * prefs.cover_width)
         self.fold_width = int(0.1 * prefs.cover_width)
@@ -512,7 +512,7 @@ class Ornamental(Style):
     PATH_CACHE = {}
     VIEWPORT = (400, 500)
 
-    def calculate_margins(self, prefs):
+    def calculate_margins(self, prefs) -> None:
         self.hmargin = int((51 / self.VIEWPORT[0]) * prefs.cover_width)
         self.vmargin = int((83 / self.VIEWPORT[1]) * prefs.cover_height)
 
@@ -541,7 +541,7 @@ class Ornamental(Style):
         pen.setColor(self.ccolor1)
         p.setPen(pen)
 
-        def corner():
+        def corner() -> None:
             b = QBrush(self.ccolor1)
             p.fillPath(path, b)
             p.rotate(90), p.translate(100, -100), p.scale(1, -1), p.translate(-103, -97)
@@ -605,7 +605,7 @@ def load_styles(prefs, respect_disabled=True):
 # }}}
 
 
-def init_environment():
+def init_environment() -> None:
     ensure_app()
     load_builtin_fonts()
 
@@ -731,7 +731,7 @@ def message_image(text, width=500, height=400, font_size=20):
     return pixmap_to_data(img)
 
 
-def scale_cover(prefs, scale):
+def scale_cover(prefs, scale) -> None:
     for x in ('cover_width', 'cover_height', 'title_font_size', 'subtitle_font_size', 'footer_font_size'):
         prefs[x] = int(scale * prefs[x])
 
@@ -758,7 +758,7 @@ def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=F
         f.write(data)
 
 
-def test(scale=0.25):
+def test(scale=0.25) -> None:
     from qt.core import QGridLayout, QLabel, QMainWindow, QPixmap, QScrollArea, QWidget
 
     from calibre.gui2 import Application

@@ -118,7 +118,7 @@ class TXTOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
         from calibre.ebooks.txt.txtml import TXTMLizer
@@ -152,7 +152,7 @@ class TXTZOutput(TXTOutput):
     author = 'John Schember'
     file_type = 'txtz'
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         from calibre.ebooks.oeb.base import OEB_IMAGES, xml2str
         from calibre.utils.zipfile import ZipFile

@@ -87,7 +87,7 @@ def run_extract_book(*args, **kwargs):
 class EbookIterator(BookmarksMixin):
     CHARACTERS_PER_PAGE = 1000
 
-    def __init__(self, pathtoebook, log=None, copy_bookmarks_to_file=True, use_tdir_in_cache=False):
+    def __init__(self, pathtoebook, log=None, copy_bookmarks_to_file=True, use_tdir_in_cache=False) -> None:
         BookmarksMixin.__init__(self, copy_bookmarks_to_file=copy_bookmarks_to_file)
         self.use_tdir_in_cache = use_tdir_in_cache
         self.log = log or default_log
@@ -112,7 +112,7 @@ class EbookIterator(BookmarksMixin):
                 root = parse(raw)
                 fragments = []
 
-                def serialize(elem):
+                def serialize(elem) -> None:
                     if elem.text:
                         fragments.append(elem.text.lower())  # ruff: ignore[function-uses-loop-variable]
                     if elem.tail:
@@ -234,7 +234,7 @@ class EbookIterator(BookmarksMixin):
 
         return self
 
-    def verify_links(self):
+    def verify_links(self) -> None:
         spine_paths = {s: s for s in self.spine}
         for item in self.spine:
             base = os.path.dirname(item)

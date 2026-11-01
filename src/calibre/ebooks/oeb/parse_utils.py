@@ -17,12 +17,12 @@ XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
 
 
 class NotHTML(Exception):
-    def __init__(self, root_tag):
+    def __init__(self, root_tag) -> None:
         Exception.__init__(self, 'Data is not HTML')
         self.root_tag = root_tag
 
 
-def XHTML(name):
+def XHTML(name) -> str:
     return f'{{{XHTML_NS}}}{name}'
 
 
@@ -137,7 +137,7 @@ class HTML5Doc(ValueError):
     pass
 
 
-def check_for_html5(prefix, root):
+def check_for_html5(prefix, root) -> None:
     if re.search(r'<!DOCTYPE\s+html\s*>', prefix, re.IGNORECASE) is not None:
         if root.xpath('//svg'):
             raise HTML5Doc('This document appears to be un-namespaced HTML 5, should be parsed by the HTML 5 parser')
@@ -326,7 +326,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None, filename='<strin
     for x in r:
         x.tag = XHTML('span')
 
-    def remove_elem(a):
+    def remove_elem(a) -> None:
         p = a.getparent()
         idx = p.index(a) - 1
         p.remove(a)

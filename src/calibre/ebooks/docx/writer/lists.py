@@ -46,14 +46,14 @@ def find_list_containers(list_tag, tag_style):
 
 
 class NumberingDefinition:
-    def __init__(self, top_most, stylizer, namespace):
+    def __init__(self, top_most, stylizer, namespace) -> None:
         self.namespace = namespace
         self.top_most = top_most
         self.stylizer = stylizer
         self.level_map = defaultdict(list)
         self.num_id = None
 
-    def finalize(self):
+    def finalize(self) -> None:
         items_for_level = defaultdict(list)
         container_for_level = {}
         type_for_level = {}
@@ -67,13 +67,13 @@ class NumberingDefinition:
     def __hash__(self):
         return hash(self.levels)
 
-    def link_blocks(self):
+    def link_blocks(self) -> None:
         assert self.num_id is not None
         for ilvl, items in self.level_map.items():
             for container, list_tag, block, list_type, tag_style in items:
                 block.numbering_id = (self.num_id + 1, ilvl)
 
-    def serialize(self, parent):
+    def serialize(self, parent) -> None:
         assert self.num_id is not None
         makeelement = self.namespace.makeelement
         an = makeelement(parent, 'w:abstractNum', w_abstractNumId=str(self.num_id))
@@ -84,7 +84,7 @@ class NumberingDefinition:
 
 
 class Level:
-    def __init__(self, list_type, container, items, ilvl=0):
+    def __init__(self, list_type, container, items, ilvl=0) -> None:
         self.ilvl = ilvl
         try:
             self.start = int(container.get('start'))
@@ -105,7 +105,7 @@ class Level:
     def __hash__(self):
         return hash((self.start, self.num_fmt, self.lvl_text))
 
-    def serialize(self, parent, makeelement):
+    def serialize(self, parent, makeelement) -> None:
         lvl = makeelement(parent, 'w:lvl', w_ilvl=str(self.ilvl))
         makeelement(lvl, 'w:start', w_val=str(self.start))
         makeelement(lvl, 'w:numFmt', w_val=self.num_fmt)
@@ -118,11 +118,11 @@ class Level:
 
 
 class ListsManager:
-    def __init__(self, docx):
+    def __init__(self, docx) -> None:
         self.namespace = docx.namespace
         self.lists = {}
 
-    def finalize(self, all_blocks):
+    def finalize(self, all_blocks) -> None:
         lists = {}
         for block in all_blocks:
             if block.list_tag is not None:
@@ -151,7 +151,7 @@ class ListsManager:
             defn.link_blocks()
         self.definitions = sorted(definitions.values(), key=attrgetter('num_id'))
 
-    def serialize(self, parent):
+    def serialize(self, parent) -> None:
         for defn in self.definitions:
             defn.serialize(parent)
         makeelement = self.namespace.makeelement

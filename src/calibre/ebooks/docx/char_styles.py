@@ -8,7 +8,7 @@ from calibre.ebooks.docx.block_styles import LINE_STYLES, binary_property, inher
 # Read from XML {{{
 
 
-def read_text_border(parent, dest, XPath, get):
+def read_text_border(parent, dest, XPath, get) -> None:
     border_color = border_style = border_width = padding = inherit
     elems = XPath('./w:bdr')(parent)
     if elems and elems[0].attrib:
@@ -43,7 +43,7 @@ def read_text_border(parent, dest, XPath, get):
     dest.padding = padding
 
 
-def read_color(parent, dest, XPath, get):
+def read_color(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:color[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -66,7 +66,7 @@ def convert_highlight_color(val):
     }.get(val, val)
 
 
-def read_highlight(parent, dest, XPath, get):
+def read_highlight(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:highlight[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -80,7 +80,7 @@ def read_highlight(parent, dest, XPath, get):
     dest.highlight = ans
 
 
-def read_lang(parent, dest, XPath, get):
+def read_lang(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:lang[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -99,7 +99,7 @@ def read_lang(parent, dest, XPath, get):
     dest.lang = ans
 
 
-def read_letter_spacing(parent, dest, XPath, get):
+def read_letter_spacing(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:spacing[@w:val]')(parent):
         val = simple_float(get(col, 'w:val'), 0.05)
@@ -108,7 +108,7 @@ def read_letter_spacing(parent, dest, XPath, get):
     dest.letter_spacing = ans
 
 
-def read_underline(parent, dest, XPath, get):
+def read_underline(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:u[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -143,7 +143,7 @@ def read_underline(parent, dest, XPath, get):
     dest.text_decoration = ans
 
 
-def read_vert_align(parent, dest, XPath, get):
+def read_vert_align(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:vertAlign[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -152,7 +152,7 @@ def read_vert_align(parent, dest, XPath, get):
     dest.vert_align = ans
 
 
-def read_position(parent, dest, XPath, get):
+def read_position(parent, dest, XPath, get) -> None:
     ans = inherit
     for col in XPath('./w:position[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -163,7 +163,7 @@ def read_position(parent, dest, XPath, get):
     dest.position = ans
 
 
-def read_font(parent, dest, XPath, get):
+def read_font(parent, dest, XPath, get) -> None:
     ff = inherit
     for col in XPath('./w:rFonts')(parent):
         val = get(col, 'w:asciiTheme')
@@ -182,7 +182,7 @@ def read_font(parent, dest, XPath, get):
     dest.font_size = inherit
 
 
-def read_font_cs(parent, dest, XPath, get):
+def read_font_cs(parent, dest, XPath, get) -> None:
     ff = inherit
     for col in XPath('./w:rFonts')(parent):
         val = get(col, 'w:csTheme')
@@ -262,7 +262,7 @@ class RunStyle:
     lang = font_family = position = inherit
     cs_font_size = cs_font_family = inherit
 
-    def __init__(self, namespace, rPr=None):
+    def __init__(self, namespace, rPr=None) -> None:
         self.namespace = namespace
         if rPr is None:
             for p in self.all_properties:
@@ -305,7 +305,7 @@ class RunStyle:
 
         self._css = None
 
-    def update(self, other):
+    def update(self, other) -> None:
         for prop in self.all_properties:
             nval = getattr(other, prop)
             if nval is not inherit:
@@ -313,13 +313,13 @@ class RunStyle:
         if other.linked_style is not None:
             self.linked_style = other.linked_style
 
-    def resolve_based_on(self, parent):
+    def resolve_based_on(self, parent) -> None:
         for p in self.all_properties:
             val = getattr(self, p)
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
 
-    def get_border_css(self, ans):
+    def get_border_css(self, ans) -> None:
         for x in ('color', 'style', 'width'):
             val = getattr(self, 'border_' + x)
             if x == 'width' and val is not inherit:
@@ -327,7 +327,7 @@ class RunStyle:
             if val is not inherit:
                 ans[f'border-{x}'] = val
 
-    def clear_border_css(self):
+    def clear_border_css(self) -> None:
         for x in ('color', 'style', 'width'):
             setattr(self, 'border_' + x, inherit)
 

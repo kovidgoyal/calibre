@@ -15,7 +15,7 @@ class TCRCompressor:
     value 81 which corresponds to the string in the code list at position 81.
     '''
 
-    def _reset(self):
+    def _reset(self) -> None:
         # List of indexes in the codes list that are empty and can hold new codes
         self.unused_codes = set()
         self.coded_txt = b''
@@ -24,7 +24,7 @@ class TCRCompressor:
         # in the list
         self.codes = []
 
-    def _combine_codes(self):
+    def _combine_codes(self) -> None:
         """
         Combine two codes that always appear in pair into a single code.
         The intent is to create more unused codes.
@@ -41,7 +41,7 @@ class TCRCompressor:
             self.coded_txt = self.coded_txt.replace(code, code[0:1])
             self.codes[code[0]] = b'%s%s' % (self.codes[code[0]], self.codes[code[1]])
 
-    def _free_unused_codes(self):
+    def _free_unused_codes(self) -> None:
         """
         Look for codes that do no not appear in the coded text and add them to
         the list of free codes.

@@ -20,7 +20,7 @@ class TCROutput(OutputFormatPlugin):
         )
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         from calibre.ebooks.compression.tcr import compress
         from calibre.ebooks.txt.txtml import TXTMLizer
 

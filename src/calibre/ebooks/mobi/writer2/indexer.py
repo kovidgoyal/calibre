@@ -12,7 +12,7 @@ from calibre.utils.localization import _
 
 
 class CNCX(CNCX_):  # {{{
-    def __init__(self, toc, is_periodical):
+    def __init__(self, toc, is_periodical) -> None:
         strings = []
         for item in toc.iterdescendants(breadth_first=True):
             strings.append(item.title)
@@ -37,10 +37,10 @@ class TAGX:  # {{{
     NUM_VALUES[11] = 3
     NUM_VALUES[0] = 0
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.byts = bytearray()
 
-    def add_tag(self, tag):
+    def add_tag(self, tag) -> None:
         buf = self.byts
         buf.append(tag)
         buf.append(self.NUM_VALUES[tag])
@@ -105,7 +105,7 @@ class IndexEntry:
     }
     RTAG_MAP = {v: k for k, v in TAG_VALUES.items()}
 
-    def __init__(self, offset, label_offset):
+    def __init__(self, offset, label_offset) -> None:
         self.offset, self.label_offset = offset, label_offset
         self.depth, self.class_offset = 0, None
         self.control_byte_count = 1
@@ -121,7 +121,7 @@ class IndexEntry:
         self.author_offset = None
         self.desc_offset = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'IndexEntry(offset={self.offset!r}, depth={self.depth!r}, length={self.length!r}, index={self.index!r}, parent_index={self.parent_index!r})'
 
     @property
@@ -129,7 +129,7 @@ class IndexEntry:
         return self.length
 
     @size.setter
-    def size(self, val):
+    def size(self, val) -> None:
         self.length = val
 
     @property
@@ -195,7 +195,7 @@ class IndexEntry:
 
 
 class PeriodicalIndexEntry(IndexEntry):
-    def __init__(self, offset, label_offset, class_offset, depth):
+    def __init__(self, offset, label_offset, class_offset, depth) -> None:
         IndexEntry.__init__(self, offset, label_offset)
         self.depth = depth
         self.class_offset = class_offset
@@ -205,7 +205,7 @@ class PeriodicalIndexEntry(IndexEntry):
 class SecondaryIndexEntry(IndexEntry):
     INDEX_MAP = {'author': 73, 'caption': 72, 'credit': 71, 'description': 70, 'mastheadImage': 69}
 
-    def __init__(self, index):
+    def __init__(self, index) -> None:
         IndexEntry.__init__(self, 0, 0)
         self.index = index
 
@@ -220,7 +220,7 @@ class SecondaryIndexEntry(IndexEntry):
         yield 11
 
     @property
-    def entry_type(self):
+    def entry_type(self) -> int:
         return 1
 
     @classmethod
@@ -239,7 +239,7 @@ class TBS:  # {{{
     trailing byte sequence for the record.
     """
 
-    def __init__(self, data, is_periodical, first=False, section_map=None, after_first=False):
+    def __init__(self, data, is_periodical, first=False, section_map=None, after_first=False) -> None:
         if section_map is None:
             section_map = {}
         self.section_map = section_map
@@ -276,7 +276,7 @@ class TBS:  # {{{
         else:
             self.book_tbs(data, first)
 
-    def periodical_tbs(self, data, first, depth_map):
+    def periodical_tbs(self, data, first, depth_map) -> None:
         buf = io.BytesIO()
 
         has_section_start = depth_map[1] and set(depth_map[1]).intersection(set(data['starts']))
@@ -377,7 +377,7 @@ class TBS:  # {{{
 
         self.bytestring = buf.getvalue()
 
-    def book_tbs(self, data, first):
+    def book_tbs(self, data, first) -> None:
         spanner = data['spans']
         if spanner is not None:
             self.bytestring = encode_tbs(spanner.index, {0b010: 0, 0b001: 0}, flag_size=3)
@@ -398,7 +398,7 @@ class TBS:  # {{{
 
 
 class Indexer:  # {{{
-    def __init__(self, serializer, number_of_text_records, size_of_last_text_record, masthead_offset, is_periodical, opts, oeb):
+    def __init__(self, serializer, number_of_text_records, size_of_last_text_record, masthead_offset, is_periodical, opts, oeb) -> None:
         self.serializer = serializer
         self.number_of_text_records = number_of_text_records
         self.text_size = RECORD_SIZE * (self.number_of_text_records - 1) + size_of_last_text_record
@@ -791,7 +791,7 @@ class Indexer:  # {{{
     # }}}
 
     # TBS {{{
-    def calculate_trailing_byte_sequences(self):
+    def calculate_trailing_byte_sequences(self) -> None:
         self.tbs_map = {}
         found_node = False
         sections = [i for i in self.indices if i.depth == 1]

@@ -11,7 +11,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         record0_size = len(header.section_data(0))
 
         if record0_size == 132:

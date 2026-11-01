@@ -16,7 +16,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 
 
 class ConversionError(Exception):
-    def __init__(self, msg, only_msg=False):
+    def __init__(self, msg, only_msg=False) -> None:
         Exception.__init__(self, msg)
         self.only_msg = only_msg
 
@@ -185,7 +185,7 @@ def render_html_data(path_to_html, width, height, root=''):
 
     result = {}
 
-    def report_error(text=''):
+    def report_error(text='') -> None:
         prints('Failed to render', path_to_html, 'with errors:', file=sys.stderr)
         if text:
             prints(text, file=sys.stderr)

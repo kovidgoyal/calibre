@@ -35,7 +35,7 @@ class GroupBorders:
         copy=None,
         run_level=1,
         wrap=0,
-    ):
+    ) -> None:
         """
         Required:
             'file'
@@ -53,7 +53,7 @@ class GroupBorders:
         self.__write_to = better_mktemp()
         self.__wrap = wrap
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Required:
             Nothing
@@ -123,7 +123,7 @@ class GroupBorders:
         self.__border_regex = re.compile(r'(<border-paragraph[^<]+|<border-for-every-paragraph[^<]+)')
         self.__last_border_string = ''
 
-    def __in_pard_func(self, line):
+    def __in_pard_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -138,7 +138,7 @@ class GroupBorders:
         else:
             self.__write_obj.write(line)
 
-    def __after_pard_func(self, line):
+    def __after_pard_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -164,14 +164,14 @@ class GroupBorders:
         else:
             self.__list_chunk += line
 
-    def __close_pard_(self, line):
+    def __close_pard_(self, line) -> None:
         self.__write_obj.write(self.__list_chunk)
         self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
         self.__write_end_border_tag()
         self.__list_chunk = ''
         self.__state = 'default'
 
-    def __pard_after_par_def_func(self, line):
+    def __pard_after_par_def_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -208,7 +208,7 @@ class GroupBorders:
                 self.__last_border_string = border_string
                 self.__list_chunk = ''
 
-    def __default_func(self, line):
+    def __default_func(self, line) -> None:
         """
         Required:
             self, line
@@ -232,7 +232,7 @@ class GroupBorders:
         else:
             self.__write_obj.write(line)
 
-    def __write_start_border_tag(self, the_string):
+    def __write_start_border_tag(self, the_string) -> None:
         self.__write_obj.write('mi<mk<start-brdg\n')
         self.__border_num += 1
         num = f'{self.__border_num:04}'
@@ -240,11 +240,11 @@ class GroupBorders:
         the_string += f'<num>{num_string}'
         self.__write_obj.write(f'mi<tg<open-att__<border-group{the_string}\n')
 
-    def __write_end_border_tag(self):
+    def __write_end_border_tag(self) -> None:
         self.__write_obj.write('mi<mk<end-brdg__\n')
         self.__write_obj.write('mi<tg<close_____<border-group\n')
 
-    def __is_border_func(self, line):
+    def __is_border_func(self, line) -> int:
         line = re.sub(self.__name_regex, '', line)
         index = line.find('border-paragraph')
         if index > -1:
@@ -262,7 +262,7 @@ class GroupBorders:
                 pard_string += token
         return border_string, pard_string
 
-    def __write_pard_with_border(self, line):
+    def __write_pard_with_border(self, line) -> None:
         border_string = ''
         pard_string = ''
         tokens = re.split(self.__border_regex, line)
@@ -274,11 +274,11 @@ class GroupBorders:
         self.__write_start_border_tag(border_string)
         self.__write_obj.write(pard_string)
 
-    def __get_style_name(self, line):
+    def __get_style_name(self, line) -> None:
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
 
-    def group_borders(self):
+    def group_borders(self) -> None:
         """
         Required:
             nothing

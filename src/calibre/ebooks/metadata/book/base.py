@@ -46,7 +46,7 @@ NULL_VALUES = {
 field_metadata = FieldMetadata()
 
 
-def reset_field_metadata():
+def reset_field_metadata() -> None:
     global field_metadata
     field_metadata = FieldMetadata()
 
@@ -81,7 +81,7 @@ class Metadata:
 
     __calibre_serializable__ = True
 
-    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None, formatter=None):
+    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None, formatter=None) -> None:
         """
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
@@ -128,7 +128,7 @@ class Metadata:
         except Exception:
             return True
 
-    def set_null(self, field):
+    def set_null(self, field) -> None:
         null_val = copy.copy(NULL_VALUES.get(field))
         setattr(self, field, null_val)
 
@@ -170,7 +170,7 @@ class Metadata:
                 pass
         raise AttributeError('Metadata object has no attribute named: ' + repr(field))
 
-    def __setattr__(self, field, val, extra=None):
+    def __setattr__(self, field, val, extra=None) -> None:
         _data = object.__getattribute__(self, '_data')
         if field in SIMPLE_SET:
             if val is None:
@@ -207,12 +207,12 @@ class Metadata:
     def has_key(self, key):
         return key in STANDARD_METADATA_FIELDS or key in object.__getattribute__(self, '_data')['user_metadata']
 
-    def _evaluate_all_composites(self):
+    def _evaluate_all_composites(self) -> None:
         custom_fields = object.__getattribute__(self, '_data')['user_metadata']
         for field in custom_fields:
             self._evaluate_composite(field)
 
-    def _evaluate_composite(self, field):
+    def _evaluate_composite(self, field) -> None:
         f = object.__getattribute__(self, '_data')['user_metadata'].get(field, None)
         if f is not None:
             if f['datatype'] == 'composite' and f['#value#'] is None:
@@ -260,7 +260,7 @@ class Metadata:
                 return default
         raise AttributeError('Metadata object has no attribute named: ' + repr(field))
 
-    def set(self, field, val, extra=None):
+    def set(self, field, val, extra=None) -> None:
         self.__setattr__(field, val, extra)
 
     def get_identifiers(self):
@@ -282,7 +282,7 @@ class Metadata:
             val = cv(val)
         return typ, val
 
-    def set_identifiers(self, identifiers):
+    def set_identifiers(self, identifiers) -> None:
         """
         Set all identifiers. Note that if you previously set ISBN, calling
         this method will delete it.
@@ -290,7 +290,7 @@ class Metadata:
         cleaned = {ck(k): cv(v) for k, v in identifiers.items() if k and v}
         object.__getattribute__(self, '_data')['identifiers'] = cleaned
 
-    def set_identifier(self, typ, val):
+    def set_identifier(self, typ, val) -> None:
         "If val is empty, deletes identifier of type typ"
         typ, val = self._clean_identifier(typ, val)
         if not typ:
@@ -422,7 +422,7 @@ class Metadata:
             return _data[field]
         return None
 
-    def set_all_user_metadata(self, metadata):
+    def set_all_user_metadata(self, metadata) -> None:
         """
         store custom field metadata into the object. Field is the key name
         not the label
@@ -443,7 +443,7 @@ class Metadata:
         _data = object.__getattribute__(self, '_data')
         _data['user_metadata'] = um
 
-    def set_user_metadata(self, field, metadata):
+    def set_user_metadata(self, field, metadata) -> None:
         """
         store custom field metadata for one column into the object. Field is
         the key name not the label
@@ -467,7 +467,7 @@ class Metadata:
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = m
 
-    def remove_stale_user_metadata(self, other_mi):
+    def remove_stale_user_metadata(self, other_mi) -> None:
         """
         Remove user metadata keys (custom column keys) if they
         don't exist in 'other_mi', which must be a metadata object
@@ -480,7 +480,7 @@ class Metadata:
                 new[k] = v
         self.set_all_user_metadata(new)
 
-    def template_to_attribute(self, other, ops):
+    def template_to_attribute(self, other, ops) -> None:
         """
         Takes a list [(src,dest), (src,dest)], evaluates the template in the
         context of other, then copies the result to self[dest]. This is on a
@@ -508,7 +508,7 @@ class Metadata:
                     traceback.print_exc()
 
     # Old Metadata API {{{
-    def print_all_attributes(self):
+    def print_all_attributes(self) -> None:
         for x in STANDARD_METADATA_FIELDS:
             prints(f'{x}:', getattr(self, x, 'None'))
         for x in self.custom_field_keys():
@@ -517,13 +517,13 @@ class Metadata:
                 prints(x, meta)
         prints('--------------')
 
-    def smart_update(self, other, replace_metadata=False):
+    def smart_update(self, other, replace_metadata=False) -> None:
         """
         Merge the information in `other` into self. In case of conflicts, the information
         in `other` takes precedence, unless the information in `other` is NULL.
         """
 
-        def copy_not_none(dest, src, attr):
+        def copy_not_none(dest, src, attr) -> None:
             v = getattr(src, attr, None)
             if v is not None and v != NULL_VALUES.get(attr, None):
                 setattr(dest, attr, copy.deepcopy(v))
@@ -647,7 +647,7 @@ class Metadata:
             x = 1.0
         return fmt_sidx(x)
 
-    def authors_from_string(self, raw):
+    def authors_from_string(self, raw) -> None:
         from calibre.ebooks.metadata import string_to_authors
 
         self.authors = string_to_authors(raw)
@@ -780,7 +780,7 @@ class Metadata:
 
         ans = []
 
-        def fmt(x, y):
+        def fmt(x, y) -> None:
             ans.append(f'{x:<20}: {y}')
 
         fmt('Title', self.title)
@@ -821,7 +821,7 @@ class Metadata:
                 fmt(name, str(val))
         return '\n'.join(ans)
 
-    def to_html(self):
+    def to_html(self) -> str:
         """
         A HTML representation of this object.
         """

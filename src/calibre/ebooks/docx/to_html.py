@@ -34,11 +34,11 @@ NBSP = '\xa0'
 
 
 class Text:
-    def __init__(self, elem, attr, buf):
+    def __init__(self, elem, attr, buf) -> None:
         self.elem, self.attr, self.buf = elem, attr, buf
         self.elems = [self.elem]
 
-    def add_elem(self, elem):
+    def add_elem(self, elem) -> None:
         self.elems.append(elem)
         setattr(self.elem, self.attr, ''.join(self.buf))
         self.elem, self.attr, self.buf = elem, 'tail', []
@@ -65,7 +65,7 @@ class Convert:
         notes_text=None,
         notes_nopb=False,
         nosupsub=False,
-    ):
+    ) -> None:
         self.docx = DOCX(path_or_stream, log=log)
         self.namespace = self.docx.namespace
         self.ms_pat = re.compile(r'\s{2,}')
@@ -249,7 +249,7 @@ class Convert:
 
         return self.write(doc)
 
-    def read_page_properties(self, doc):
+    def read_page_properties(self, doc) -> None:
         current = []
         self.page_map = OrderedDict()
         self.section_starts = []
@@ -277,7 +277,7 @@ class Convert:
             for x in current:
                 self.page_map[x] = pr
 
-    def resolve_alternate_content(self, doc):
+    def resolve_alternate_content(self, doc) -> None:
         # For proprietary extensions in Word documents use the fallback, spec
         # compliant form
         # See https://wiki.openoffice.org/wiki/OOXML/Markup_Compatibility_and_Extensibility
@@ -295,7 +295,7 @@ class Convert:
                         p.insert(idx, q)
                         p.remove(ac)
 
-    def read_styles(self, relationships_by_type):
+    def read_styles(self, relationships_by_type) -> None:
 
         def get_name(rtype, defname):
             name = relationships_by_type.get(rtype, None)
@@ -408,7 +408,7 @@ class Convert:
         if self.cover_image is not None:
             opf.guide.set_cover(self.cover_image)
 
-        def process_guide(E, guide):
+        def process_guide(E, guide) -> None:
             if self.toc_anchor is not None:
                 guide.append(E.reference(href='index.html#' + self.toc_anchor, title=_('Table of Contents'), type='toc'))
 
@@ -419,7 +419,7 @@ class Convert:
             os.remove(toc_file)
         return os.path.join(self.dest_dir, 'metadata.opf')
 
-    def read_block_anchors(self, doc):
+    def read_block_anchors(self, doc) -> None:
         doc_anchors = frozenset(self.namespace.XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
         if doc_anchors:
             current_bm = set()
@@ -584,7 +584,7 @@ class Convert:
             wrapper.append(elem)
         return wrapper
 
-    def resolve_links(self):
+    def resolve_links(self) -> None:
         self.resolved_link_map = {}
         for hyperlink, spans in self.link_map.items():
             relationships_by_id = self.link_source_map[hyperlink]
@@ -748,7 +748,7 @@ class Convert:
             style.font_family = 'sans-serif'
         return ans
 
-    def add_frame(self, html_obj, style):
+    def add_frame(self, html_obj, style) -> None:
         last_run = self.framed[-1]
         if style is inherit:
             if last_run:
@@ -763,7 +763,7 @@ class Convert:
         else:
             last_run.append((html_obj, style))
 
-    def apply_frames(self):
+    def apply_frames(self) -> None:
         for run in filter(None, self.framed):
             style = run[0][1]
             paras = tuple(x[0] for x in run)
@@ -811,9 +811,9 @@ class Convert:
             self.framed_map[frame] = css = border_style.css
             self.styles.register(css, 'frame')
 
-    def mark_block_runs(self, paras):
+    def mark_block_runs(self, paras) -> None:
 
-        def process_run(run):
+        def process_run(run) -> None:
             max_left = max_right = 0
             has_visible_border = None
             for p in run:

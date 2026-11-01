@@ -66,7 +66,7 @@ class OptionValues:
 
 
 class CompositeProgressReporter:
-    def __init__(self, global_min, global_max, global_reporter):
+    def __init__(self, global_min, global_max, global_reporter) -> None:
         self.global_min, self.global_max = global_min, global_max
         self.global_reporter = global_reporter
 
@@ -113,7 +113,7 @@ class Plumber:
         override_input_metadata=False,
         for_regex_wizard=False,
         view_kepub=False,
-    ):
+    ) -> None:
         """
         :param input: Path to input file.
         :param output: Path to output file/folder
@@ -997,18 +997,18 @@ class Plumber:
                     ans[rec.option.name] = help
         return ans
 
-    def merge_plugin_recs(self, plugin):
+    def merge_plugin_recs(self, plugin) -> None:
         for name, val, level in plugin.recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level:
                 rec.recommended_value = val
                 rec.level = level
 
-    def merge_plugin_recommendations(self):
+    def merge_plugin_recommendations(self) -> None:
         for source in (self.input_plugin, self.output_plugin):
             self.merge_plugin_recs(source)
 
-    def merge_ui_recommendations(self, recommendations):
+    def merge_ui_recommendations(self, recommendations) -> None:
         """
         Merge recommendations from the UI. As long as the UI recommendation
         level is >= the baseline recommended level, the UI value is used,
@@ -1042,7 +1042,7 @@ class Plumber:
                 if changed:
                     self.changed_options.add(rec)
 
-    def opts_to_mi(self, mi):
+    def opts_to_mi(self, mi) -> None:
         from calibre.ebooks.metadata import string_to_authors
 
         for x in self.metadata_option_names:
@@ -1084,7 +1084,7 @@ class Plumber:
         img.convert('RGB').save(pt.name)
         return pt.name
 
-    def read_user_metadata(self):
+    def read_user_metadata(self) -> None:
         """
         Read all metadata specified by the user. Command line options override
         metadata from a specified OPF file.
@@ -1113,7 +1113,7 @@ class Plumber:
             mi.cover = None
         self.user_metadata = mi
 
-    def setup_options(self):
+    def setup_options(self) -> None:
         """
         Setup the `self.opts` object.
         """
@@ -1122,7 +1122,7 @@ class Plumber:
             for rec in group:
                 setattr(self.opts, rec.option.name, rec.recommended_value)
 
-        def set_profile(profiles, which):
+        def set_profile(profiles, which) -> None:
             attr = which + '_profile'
             sval = getattr(self.opts, attr)
             for x in profiles():
@@ -1158,20 +1158,20 @@ class Plumber:
             except Exception:
                 self.log.exception('Failed to get resolved conversion options')
 
-    def flush(self):
+    def flush(self) -> None:
         try:
             sys.stdout.flush()
             sys.stderr.flush()
         except Exception:
             pass
 
-    def dump_oeb(self, oeb, out_dir):
+    def dump_oeb(self, oeb, out_dir) -> None:
         from calibre.ebooks.oeb.writer import OEBWriter
 
         w = OEBWriter(pretty_print=self.opts.pretty_print)
         w(oeb, out_dir)
 
-    def dump_input(self, ret, output_dir):
+    def dump_input(self, ret, output_dir) -> None:
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
         if isinstance(ret, (str, bytes)):
             shutil.copytree(output_dir, out_dir)
@@ -1188,7 +1188,7 @@ class Plumber:
 
         self.log.info('Input debug saved to:', out_dir)
 
-    def run(self):
+    def run(self) -> None:
         """
         Run the conversion pipeline
         """
@@ -1464,7 +1464,7 @@ class Plumber:
 regex_wizard_callback = None
 
 
-def set_regex_wizard_callback(f):
+def set_regex_wizard_callback(f) -> None:
     global regex_wizard_callback
     regex_wizard_callback = f
 

@@ -55,7 +55,7 @@ class Sections:
     Instead, ignore all section information in a field-block.
     """
 
-    def __init__(self, in_file, bug_handler, copy=None, run_level=1):
+    def __init__(self, in_file, bug_handler, copy=None, run_level=1) -> None:
         """
         Required:
             'file'--file to parse
@@ -72,7 +72,7 @@ class Sections:
         self.__run_level = run_level
         self.__write_to = better_mktemp()
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Initiate all values.
         """
@@ -122,7 +122,7 @@ class Sections:
             # 'cw<sc<sect-defin'  : self.__found_section_def_in_field_func,
         }
 
-    def __found_section_def_func(self, line):
+    def __found_section_def_func(self, line) -> None:
         """
         Required:
             line -- the line to parse
@@ -136,7 +136,7 @@ class Sections:
         self.__state = 'section_def'
         self.__section_values.clear()
 
-    def __attribute_func(self, line, name):
+    def __attribute_func(self, line, name) -> None:
         """
         Required:
             line -- the line to be parsed
@@ -154,7 +154,7 @@ class Sections:
         value = line[20:-1]
         self.__section_values[attribute] = value
 
-    def __found_section_func(self, line):
+    def __found_section_func(self, line) -> None:
         """
         Requires:
             line -- the line to parse
@@ -168,7 +168,7 @@ class Sections:
         self.__write_obj.write(line)
         self.__section_num += 1
 
-    def __found_section_def_bef_sec_func(self, line):
+    def __found_section_def_bef_sec_func(self, line) -> None:
         """
         Requires:
             line -- the line to parse
@@ -182,7 +182,7 @@ class Sections:
         self.__found_section_def_func(line)
         self.__write_obj.write(line)
 
-    def __section_func(self, line):
+    def __section_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -194,7 +194,7 @@ class Sections:
             self.__found_section_def_func(line)
         self.__write_obj.write(line)
 
-    def __section_def_func(self, line):
+    def __section_def_func(self, line) -> None:
         """
         Required:
             line --line to parse
@@ -216,7 +216,7 @@ class Sections:
         else:
             self.__write_obj.write(line)
 
-    def __end_sec_def_func(self, line, name):
+    def __end_sec_def_func(self, line, name) -> None:
         """
         Requires:
             line --the line to parse
@@ -233,7 +233,7 @@ class Sections:
             self.__state = 'sec_in_field'
         self.__write_section(line)
 
-    def __end_sec_premature_func(self, line, name):
+    def __end_sec_premature_func(self, line, name) -> None:
         """
         Requires:
             line --the line to parse
@@ -255,7 +255,7 @@ class Sections:
         self.__write_obj.write('ob<nu<open-brack<0000\n')
         self.__write_obj.write('cb<nu<clos-brack<0000\n')
 
-    def __write_section(self, line):
+    def __write_section(self, line) -> None:
         """
         Requires:
             nothing
@@ -290,7 +290,7 @@ class Sections:
             msg = 'missed a flag\n'
             raise self.__bug_handler(msg)
 
-    def __handle_sec_def(self, my_string):
+    def __handle_sec_def(self, my_string) -> None:
         """
         Requires:
             my_string -- the string of attributes and values. (Do I need this?)
@@ -303,7 +303,7 @@ class Sections:
         values_dict = self.__section_values
         self.__list_of_sec_values.append(values_dict)
 
-    def __body_func(self, line):
+    def __body_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -319,7 +319,7 @@ class Sections:
         else:
             self.__write_obj.write(line)
 
-    def __before_body_func(self, line):
+    def __before_body_func(self, line) -> None:
         """
         Requires:
             line --line to parse
@@ -332,7 +332,7 @@ class Sections:
             self.__state = 'before_first_sec'
         self.__write_obj.write(line)
 
-    def __before_first_sec_func(self, line):
+    def __before_first_sec_func(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -359,7 +359,7 @@ class Sections:
             self.__found_first_sec = 1
         self.__write_obj.write(line)
 
-    def __found_sec_in_field_func(self, line):
+    def __found_sec_in_field_func(self, line) -> None:
         """
         Requires:
             line --line to parse
@@ -374,7 +374,7 @@ class Sections:
         self.__sec_in_field_string = line
         self.__in_field = 1
 
-    def __sec_in_field_func(self, line):
+    def __sec_in_field_func(self, line) -> None:
         """
         Requires:
             line --the line to parse
@@ -394,7 +394,7 @@ class Sections:
             # self.__sec_in_field_string += line
             self.__write_obj.write(line)
 
-    def __end_sec_in_field_func(self, line):
+    def __end_sec_in_field_func(self, line) -> None:
         """
         Requires:
             line --line to parse
@@ -420,7 +420,7 @@ class Sections:
         # this is changed too
         self.__write_obj.write(line)
 
-    def __print_field_sec_attributes(self):
+    def __print_field_sec_attributes(self) -> None:
         """
         Requires:
             nothing
@@ -454,7 +454,7 @@ class Sections:
         self.__write_obj.write('\n')
         # Look here
 
-    def __found_section_in_field_func(self, line):
+    def __found_section_in_field_func(self, line) -> None:
         """
         Requires:
             line --line to parse
@@ -468,7 +468,7 @@ class Sections:
         self.__field_num.append(self.__section_num)
         self.__sec_in_field_string += line
 
-    def __found_section_def_in_field_func(self, line):
+    def __found_section_def_in_field_func(self, line) -> None:
         """
         Requires:
             line --line to parse
@@ -481,7 +481,7 @@ class Sections:
         self.__state = 'section_def'
         self.__section_values.clear()
 
-    def make_sections(self):
+    def make_sections(self) -> None:
         """
         Requires:
             nothing

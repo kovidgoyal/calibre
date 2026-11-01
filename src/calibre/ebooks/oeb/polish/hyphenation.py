@@ -5,7 +5,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.utils.localization import _
 
 
-def add_soft_hyphens(container, report=None):
+def add_soft_hyphens(container, report=None) -> None:
     from calibre.utils.hyphenation.hyphenate import add_soft_hyphens_to_html
 
     for name, mt in container.mime_map.items():
@@ -17,7 +17,7 @@ def add_soft_hyphens(container, report=None):
         report(_('Soft hyphens added'))
 
 
-def remove_soft_hyphens(container, report=None):
+def remove_soft_hyphens(container, report=None) -> None:
     from calibre.utils.hyphenation.hyphenate import remove_soft_hyphens_from_html
 
     for name, mt in container.mime_map.items():

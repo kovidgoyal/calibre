@@ -25,7 +25,7 @@ class HeaderRecord:
     num_image_pages: int
     image_data_offset: int
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         (self.version,) = struct.unpack('>H', raw[0:2])
         (self.non_text_offset,) = struct.unpack('>H', raw[8:10])
 
@@ -33,7 +33,7 @@ class HeaderRecord:
 
 
 class Reader202(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.log = log
         self.encoding = options.input_encoding
 
@@ -162,7 +162,7 @@ class Reader202(FormatReader):
             ans = ''
         return ans
 
-    def dump_images(self, output_dir):
+    def dump_images(self, output_dir) -> None:
         """
         This is primarily used for debugging and 3rd party tools to
         get the images in the file.

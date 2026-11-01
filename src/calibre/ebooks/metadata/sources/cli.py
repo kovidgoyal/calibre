@@ -69,7 +69,7 @@ of title, authors or ISBN.
     return parser
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(args)
 

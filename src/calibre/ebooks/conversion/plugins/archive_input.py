@@ -34,7 +34,7 @@ def find_tests():
     import unittest
 
     class ArchiveInputTest(unittest.TestCase):
-        def test_archive_file_data(self):
+        def test_archive_file_data(self) -> None:
             with tempfile.TemporaryDirectory() as tdir:
                 root = os.path.abspath(tdir)
                 os.mkdir(os.path.join(root, 'images'))

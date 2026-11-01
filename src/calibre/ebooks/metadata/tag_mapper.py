@@ -144,7 +144,7 @@ def find_tests():
     import unittest
 
     class TestTagMapper(unittest.TestCase):
-        def test_tag_mapper(self):
+        def test_tag_mapper(self) -> None:
 
             def rule(action, query, replace=None, match_type='one_of'):
                 ans = {'action': action, 'query': query, 'match_type': match_type}
@@ -152,7 +152,7 @@ def find_tests():
                     ans['replace'] = replace
                 return ans
 
-            def run(rules, tags, expected, sep=','):
+            def run(rules, tags, expected, sep=',') -> None:
                 if isinstance(rules, dict):
                     rules = [rules]
                 if isinstance(tags, str):

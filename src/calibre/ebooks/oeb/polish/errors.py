@@ -26,7 +26,7 @@ def drm_message(msg: str) -> Generator[None]:
 
 
 class DRMError(_DRMError):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(_drm_message or _('This file is locked with DRM. It cannot be edited.'))
 
 

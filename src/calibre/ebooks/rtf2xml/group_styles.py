@@ -35,7 +35,7 @@ class GroupStyles:
         copy=None,
         run_level=1,
         wrap=0,
-    ):
+    ) -> None:
         """
         Required:
             'file'
@@ -53,7 +53,7 @@ class GroupStyles:
         self.__write_to = better_mktemp()
         self.__wrap = wrap
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Required:
             Nothing
@@ -112,7 +112,7 @@ class GroupStyles:
         self.__found_appt = 0
         self.__line_num = 0
 
-    def __in_pard_func(self, line):
+    def __in_pard_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -127,7 +127,7 @@ class GroupStyles:
         else:
             self.__write_obj.write(line)
 
-    def __after_pard_func(self, line):
+    def __after_pard_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -153,26 +153,26 @@ class GroupStyles:
         else:
             self.__list_chunk += line
 
-    def __close_pard_(self, line):
+    def __close_pard_(self, line) -> None:
         self.__write_obj.write(self.__list_chunk)
         self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
         self.__write_end_wrap()
         self.__list_chunk = ''
         self.__state = 'default'
 
-    def __write_start_wrap(self, name):
+    def __write_start_wrap(self, name) -> None:
         if self.__wrap:
             self.__write_obj.write(f'mi<mk<style-grp_<{name}\n')
             self.__write_obj.write(f'mi<tg<open-att__<style-group<name>{name}\n')
             self.__write_obj.write(f'mi<mk<style_grp_<{name}\n')
 
-    def __write_end_wrap(self):
+    def __write_end_wrap(self) -> None:
         if self.__wrap:
             self.__write_obj.write('mi<mk<style_gend\n')
             self.__write_obj.write('mi<tg<close_____<style-group\n')
             self.__write_obj.write('mi<mk<stylegend_\n')
 
-    def __pard_after_par_def_func(self, line):
+    def __pard_after_par_def_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -201,7 +201,7 @@ class GroupStyles:
             self.__last_style_name = self.__style_name
             self.__list_chunk = ''
 
-    def __default_func(self, line):
+    def __default_func(self, line) -> None:
         """
         Required:
             self, line
@@ -220,11 +220,11 @@ class GroupStyles:
         else:
             self.__write_obj.write(line)
 
-    def __get_style_name(self, line):
+    def __get_style_name(self, line) -> None:
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
 
-    def group_styles(self):
+    def group_styles(self) -> None:
         """
         Required:
             nothing

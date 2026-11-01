@@ -36,7 +36,7 @@ def tostring(root):
 
 
 class SplitError(ValueError):
-    def __init__(self, path, root):
+    def __init__(self, path, root) -> None:
         size = len(tostring(root)) / 1024.0
         ValueError.__init__(
             self,
@@ -45,7 +45,7 @@ class SplitError(ValueError):
 
 
 class Split:
-    def __init__(self, split_on_page_breaks=True, page_breaks_xpath=None, max_flow_size=0, remove_css_pagebreaks=True):
+    def __init__(self, split_on_page_breaks=True, page_breaks_xpath=None, max_flow_size=0, remove_css_pagebreaks=True) -> None:
         self.split_on_page_breaks = split_on_page_breaks
         self.page_breaks_xpath = page_breaks_xpath
         self.max_flow_size = max_flow_size
@@ -78,7 +78,7 @@ class Split:
 
         self.fix_links()
 
-    def split_item(self, item):
+    def split_item(self, item) -> None:
         page_breaks, page_break_ids = [], []
         if self.split_on_page_breaks:
             page_breaks, page_break_ids = self.find_page_breaks(item)
@@ -169,7 +169,7 @@ class Split:
 
         return page_breaks_, page_break_ids
 
-    def fix_links(self):
+    def fix_links(self) -> None:
         """
         Fix references to the split files in other content files.
         """
@@ -220,7 +220,7 @@ class Split:
 class FlowSplitter:
     "The actual splitting logic"
 
-    def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb, opts):
+    def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb, opts) -> None:
         self.item = item
         self.oeb = oeb
         self.opts = opts
@@ -264,7 +264,7 @@ class FlowSplitter:
             self.log(f'\tSplit into {len(self.trees)} parts')
         self.commit()
 
-    def split_on_page_breaks(self, orig_tree):
+    def split_on_page_breaks(self, orig_tree) -> None:
         ordered_ids = OrderedDict()
         all_page_break_ids = frozenset(self.page_break_ids)
         for elem_id in orig_tree.xpath('//*/@id'):
@@ -319,7 +319,7 @@ class FlowSplitter:
         """
         return do_split(split_point, self.log, before=before)
 
-    def is_page_empty(self, root):
+    def is_page_empty(self, root) -> bool:
         body = self.get_body(root)
         if body is None:
             return False
@@ -350,7 +350,7 @@ class FlowSplitter:
                 buf = part
         return ans
 
-    def split_to_size(self, tree):
+    def split_to_size(self, tree) -> None:
         self.log.debug('\t\tSplitting...')
         root = tree.getroot()
         # Split large <pre> tags if they contain only text
@@ -438,7 +438,7 @@ class FlowSplitter:
 
         return None, True
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Commit all changes caused by the split. Calculates an *anchor_map* for
         all anchors in the original tree. Internal links are re-directed. The
@@ -484,7 +484,7 @@ class FlowSplitter:
                         nhref = f'{nhref}#{frag}'
                     ref.href = nhref
 
-        def fix_toc_entry(toc):
+        def fix_toc_entry(toc) -> None:
             if toc.href:
                 href, frag = urldefrag(toc.href)
                 if href == self.item.href:

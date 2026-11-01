@@ -98,7 +98,7 @@ def kobo_js() -> bytes:
 
 def add_style_and_script(root, kobo_js_href: str, opts: Options) -> bool:
 
-    def add(parent):
+    def add(parent) -> None:
         e = parent.makeelement(XHTML('style'), type='text/css', id=KOBO_CSS_ID)
         e.text = KOBO_CSS
         insert_self_closing(parent, e)
@@ -128,7 +128,7 @@ def is_href_to_fname(href: str | None, fname: str) -> bool:
     return bool(href and href.rpartition('/')[-1] == fname)
 
 
-def remove_kobo_styles_and_scripts(root):
+def remove_kobo_styles_and_scripts(root) -> None:
     ids_to_remove = (KOBO_CSS_ID, EXTRA_CSS_ID, KOBO_SPAN_STYLE_ID)
     for style in XPath('//h:style')(root):
         if style.get('id') in ids_to_remove:
@@ -162,7 +162,7 @@ def wrap_body_contents(body):
     return inner
 
 
-def unwrap_body_contents(body):
+def unwrap_body_contents(body) -> None:
     children = []
     text = ''
     for inner in XPath(f'./h:div[@id="{OUTER_DIV_ID}"]/h:div[@id="{INNER_DIV_ID}"]')(body):
@@ -174,7 +174,7 @@ def unwrap_body_contents(body):
     body.text = text
 
 
-def add_kobo_spans(inner, root_lang, prefer_justification=False):
+def add_kobo_spans(inner, root_lang, prefer_justification=False) -> None:
     stack = []
     a, p = stack.append, stack.pop
     a((inner, None, barename(inner.tag).lower(), lang_for_elem(inner, root_lang)))
@@ -310,7 +310,7 @@ def add_kobo_markup_to_html(root: etree.Element, kobo_js_href: str, opts: Option
         add_kobo_spans(inner, lang_for_elem(body, root_lang), opts.prefer_justification)
 
 
-def remove_kobo_markup_from_html(root):
+def remove_kobo_markup_from_html(root) -> None:
     remove_kobo_styles_and_scripts(root)
     for body in XPath('./h:body')(root):
         unwrap_body_contents(body)
@@ -376,7 +376,7 @@ def process_stylesheet(css: str, opts: Options) -> str:
     return sheet.cssText if changed else css
 
 
-def kepubify_parsed_html(root: etree.Element, kobo_js_href: str, opts: Options, metadata_lang: str = 'en'):
+def kepubify_parsed_html(root: etree.Element, kobo_js_href: str, opts: Options, metadata_lang: str = 'en') -> None:
     remove_kobo_markup_from_html(root)
     if not opts.for_removal:
         merge_multiple_html_heads_and_bodies(root)
@@ -394,7 +394,7 @@ def kepubify_html_data(raw: str | bytes, kobo_js_href: str = KOBO_JS_NAME, opts:
     return root
 
 
-def kepubify_html_path(path: str, kobo_js_href: str = KOBO_JS_NAME, metadata_lang: str = 'en', opts: Options = Options()):
+def kepubify_html_path(path: str, kobo_js_href: str = KOBO_JS_NAME, metadata_lang: str = 'en', opts: Options = Options()) -> None:
     with open(make_long_path_useable(path), 'r+b') as f:
         raw = f.read()
         root = kepubify_html_data(raw, kobo_js_href, opts, metadata_lang)
@@ -540,7 +540,7 @@ def do_work_in_parallel(container: Container, kobo_js_name: str, opts: Options, 
                 future.result()
 
 
-def remove_kobo_files(container):
+def remove_kobo_files(container) -> None:
     for name, mt in tuple(container.mime_map.items()):
         fname = name.rpartition('/')[-1]
         if mt == 'application/javascript' and fname == KOBO_JS_NAME:
@@ -713,13 +713,13 @@ h1, h2, h3, h4, h5, h6, td {{
     )
 
 
-def profile():
+def profile() -> None:
     path = sys.argv[-1]
     with Profiler():
         kepubify_path(path, max_workers=1)
 
 
-def develop():
+def develop() -> None:
     from zipfile import ZipFile
 
     from calibre.ptempfile import TemporaryDirectory
@@ -733,7 +733,7 @@ def develop():
         input('Press Enter to quit')
 
 
-def kepubify_main(args=sys.argv):
+def kepubify_main(args=sys.argv) -> None:
     for path in args[1:]:
         outpath = ''
         if path.endswith('.epub'):
@@ -742,7 +742,7 @@ def kepubify_main(args=sys.argv):
         print(f'{path} converted to: {kepub_path}')
 
 
-def unkepubify_main(args=sys.argv):
+def unkepubify_main(args=sys.argv) -> None:
     for path in args[1:]:
         outpath = ''
         if path.endswith('.kepub.epub'):

@@ -26,7 +26,7 @@ def uniq(vals):
 
 
 class EXTHHeader:  # {{{
-    def __init__(self, raw, codec, title):
+    def __init__(self, raw, codec, title) -> None:
         self.doctype = raw[:4]
         self.length, self.num_items = struct.unpack('>LL', raw[4:12])
         raw = raw[12:]
@@ -107,7 +107,7 @@ class EXTHHeader:  # {{{
         if title:
             self.mi.title = replace_entities(clean_xml_chars(clean_ascii_chars(title)))
 
-    def process_metadata(self, idx, content, codec):
+    def process_metadata(self, idx, content, codec) -> None:
         if idx == 100:
             if self.mi.is_null('authors'):
                 self.mi.authors = []
@@ -186,7 +186,7 @@ class EXTHHeader:  # {{{
 
 
 class BookHeader:
-    def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False):
+    def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False) -> None:
         self.log = log
         self.kf8_first_image_index: int | None = None
         self.mobi6_records: int | None = None
@@ -279,7 +279,7 @@ class BookHeader:
 
 
 class MetadataHeader(BookHeader):
-    def __init__(self, stream, log):
+    def __init__(self, stream, log) -> None:
         self.stream = stream
         self.ident = self.identity()
         self.num_sections = self.section_count()
@@ -290,7 +290,7 @@ class MetadataHeader(BookHeader):
             self.exth = None
 
     @property
-    def kf8_type(self):
+    def kf8_type(self) -> str | None:
         if self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) != NULL_INDEX:
             return 'standalone'
 

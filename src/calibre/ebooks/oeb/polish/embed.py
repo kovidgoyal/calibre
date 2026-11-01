@@ -32,7 +32,7 @@ def matching_rule(font, rules):
                 return rule
 
 
-def format_fallback_match_report(matched_font, font_family, css_font, report):
+def format_fallback_match_report(matched_font, font_family, css_font, report) -> None:
     msg = (
         _('Could not find a font in the "%s" family exactly matching the CSS font specification, will embed a fallback font instead. CSS font specification:')
         % font_family
@@ -204,7 +204,7 @@ def font_key(font):
     return tuple(map(font.get, 'font-family font-weight font-style font-stretch'.split()))
 
 
-def embed_all_fonts(container, stats, report):
+def embed_all_fonts(container, stats, report) -> bool:
     all_font_rules = tuple(stats.all_font_rules.values())
     warned = set()
     rules, nrules = [], {}

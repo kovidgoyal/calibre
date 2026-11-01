@@ -18,7 +18,7 @@ from calibre.utils.localization import _
 
 
 class LinkReplacer:
-    def __init__(self, base, container, link_map, frag_map):
+    def __init__(self, base, container, link_map, frag_map) -> None:
         self.base = base
         self.frag_map = frag_map
         self.link_map = link_map
@@ -50,7 +50,7 @@ class LinkReplacer:
 
 
 class IdReplacer:
-    def __init__(self, base, container, id_map):
+    def __init__(self, base, container, id_map) -> None:
         self.base, self.container, self.replaced = base, container, False
         self.id_map = id_map
 
@@ -79,7 +79,7 @@ class IdReplacer:
 
 
 class LinkRebaser:
-    def __init__(self, container, old_name, new_name):
+    def __init__(self, container, old_name, new_name) -> None:
         self.old_name, self.new_name = old_name, new_name
         self.container = container
         self.replaced = False
@@ -102,7 +102,7 @@ class LinkRebaser:
         return href
 
 
-def replace_links(container, link_map, frag_map=lambda name, frag: frag, replace_in_opf=False):
+def replace_links(container, link_map, frag_map=lambda name, frag: frag, replace_in_opf=False) -> None:
     """
     Replace links to files in the container. Will iterate over all files in the container and change the specified links in them.
 
@@ -175,7 +175,7 @@ def smarten_punctuation(container, report):
     return smartened
 
 
-def rename_files(container, file_map):
+def rename_files(container, file_map) -> None:
     """
     Rename files in the container, automatically updating all links to them.
 
@@ -201,7 +201,7 @@ def rename_files(container, file_map):
     replace_links(container, link_map, replace_in_opf=True)
 
 
-def replace_file(container, name, path, basename, force_mt=None):
+def replace_file(container, name, path, basename, force_mt=None) -> None:
     dirname, base = name.rpartition('/')[0::2]
     nname = sanitize_file_name(basename)
     if dirname:

@@ -55,7 +55,7 @@ def fmtnum(o):
     return str(o)
 
 
-def serialize(o, stream):
+def serialize(o, stream) -> None:
     if isinstance(o, float):
         stream.write_raw(pdf_float(o).encode('ascii'))
     elif isinstance(o, bool):
@@ -77,7 +77,7 @@ def serialize(o, stream):
 
 
 class Name(str):
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         raw = self.encode('ascii')
         if len(raw) > 126:
             raise ValueError(f'Name too long: {self!r}')
@@ -111,7 +111,7 @@ def escape_pdf_string(bytestring):
 
 
 class String(str):
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         try:
             raw = self.encode('latin1')
             if raw.startswith(codecs.BOM_UTF16_BE):
@@ -122,7 +122,7 @@ class String(str):
 
 
 class UTF16String(str):
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         raw = codecs.BOM_UTF16_BE + self.encode('utf-16-be')
         if False:
             # Disabled as the parentheses based strings give easier to debug
@@ -133,7 +133,7 @@ class UTF16String(str):
 
 
 class Dictionary(dict):
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         stream.write(b'<<' + EOL)
         sorted_keys = sorted(self, key=lambda x: {'Type': '1', 'Subtype': '2'}.get(x, x) + x)
         for k in sorted_keys:
@@ -145,7 +145,7 @@ class Dictionary(dict):
 
 
 class InlineDictionary(Dictionary):
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         stream.write(b'<< ')
         for k, v in self.items():
             serialize(Name(k), stream)
@@ -156,7 +156,7 @@ class InlineDictionary(Dictionary):
 
 
 class Array(list):
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         stream.write(b'[')
         for i, o in enumerate(self):
             if i != 0:
@@ -166,15 +166,15 @@ class Array(list):
 
 
 class Stream(BytesIO):
-    def __init__(self, compress=False):
+    def __init__(self, compress=False) -> None:
         BytesIO.__init__(self)
         self.compress = compress
         self.filters = Array()
 
-    def add_extra_keys(self, d):
+    def add_extra_keys(self, d) -> None:
         pass
 
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         raw = self.getvalue()
         dl = len(raw)
         filters = self.filters
@@ -191,29 +191,29 @@ class Stream(BytesIO):
         stream.write(raw)
         stream.write(EOL + b'endstream' + EOL)
 
-    def write_line(self, raw=b''):
+    def write_line(self, raw=b'') -> None:
         self.write(raw if isinstance(raw, bytes) else raw.encode('ascii'))
         self.write(EOL)
 
-    def write(self, raw):
+    def write(self, raw) -> None:
         super().write(raw if isinstance(raw, bytes) else raw.encode('ascii'))
 
-    def write_raw(self, raw):
+    def write_raw(self, raw) -> None:
         BytesIO.write(self, raw)
 
 
 class Reference:
-    def __init__(self, num, obj):
+    def __init__(self, num, obj) -> None:
         self.num, self.obj = num, obj
 
-    def pdf_serialize(self, stream):
+    def pdf_serialize(self, stream) -> None:
         raw = f'{self.num} 0 R'
         stream.write(raw.encode('ascii'))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.num} 0 R'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 

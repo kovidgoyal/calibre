@@ -242,7 +242,7 @@ class Index:  # {{{
 class SkelIndex(Index):
     tag_types = tuple(map(TagMeta, (('chunk_count', 1, 1, 3, 0), ('geometry', 6, 2, 12, 0), EndTagTable)))
 
-    def __init__(self, skel_table):
+    def __init__(self, skel_table) -> None:
         self.entries = [
             (
                 s.name,
@@ -270,7 +270,7 @@ class ChunkIndex(Index):
         )
     )
 
-    def __init__(self, chunk_table):
+    def __init__(self, chunk_table) -> None:
         self.cncx = CNCX(c.selector for c in chunk_table)
 
         self.entries = [
@@ -290,7 +290,7 @@ class ChunkIndex(Index):
 class GuideIndex(Index):
     tag_types = tuple(map(TagMeta, (('title', 1, 1, 1, 0), ('pos_fid', 6, 2, 2, 0), EndTagTable)))
 
-    def __init__(self, guide_table):
+    def __init__(self, guide_table) -> None:
         self.cncx = CNCX(c.title for c in guide_table)
 
         self.entries = [
@@ -334,7 +334,7 @@ class NCXIndex(Index):
         )
     )
 
-    def __init__(self, toc_table):
+    def __init__(self, toc_table) -> None:
         strings = []
         for entry in toc_table:
             strings.append(entry['label'])

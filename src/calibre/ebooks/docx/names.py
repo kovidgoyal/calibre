@@ -94,7 +94,7 @@ def generate_anchor(name, existing):
 
 
 class DOCXNamespace:
-    def __init__(self, transitional=True):
+    def __init__(self, transitional=True) -> None:
         self.xpath_cache = {}
         if transitional:
             self.namespaces = TRANSITIONAL_NAMESPACES.copy()

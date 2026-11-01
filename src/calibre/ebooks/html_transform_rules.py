@@ -19,12 +19,12 @@ def non_empty_validator(label, val):
         return _('{} must not be empty').format(label)
 
 
-def always_valid(*a):
+def always_valid(*a) -> None:
     pass
 
 
 class Action:
-    def __init__(self, name, short_text, long_text, placeholder='', validator=None):
+    def __init__(self, name, short_text, long_text, placeholder='', validator=None) -> None:
         self.name = name
         self.short_text = short_text
         self.long_text = long_text
@@ -124,7 +124,7 @@ def validate_xpath_selector(val):
 
 
 class Match:
-    def __init__(self, name, text, placeholder='', validator=None):
+    def __init__(self, name, text, placeholder='', validator=None) -> None:
         self.name = name
         self.text = text
         self.placeholder = placeholder
@@ -174,7 +174,7 @@ def validate_rule(rule):
     return None, None
 
 
-def rename_tag(new_name, tag):
+def rename_tag(new_name, tag) -> bool:
     if new_name != tag.tag:
         tag.tag = new_name
         return True
@@ -185,7 +185,7 @@ def qualify_tag_name(name):
     return XHTML(name)
 
 
-def remove_tag(tag):
+def remove_tag(tag) -> bool:
     p = tag.getparent()
     idx = p.index(tag)
     sibling = p[idx - 1] if idx else None
@@ -198,7 +198,7 @@ def remove_tag(tag):
     return True
 
 
-def unwrap_tag(tag):
+def unwrap_tag(tag) -> bool:
     p = tag.getparent()
     idx = p.index(tag)
     sibling = p[idx - 1] if idx else None
@@ -220,7 +220,7 @@ def unwrap_tag(tag):
     return True
 
 
-def add_classes(classes, tag):
+def add_classes(classes, tag) -> bool:
     orig_cls = tag.get('class', '')
     orig = list(filter(None, str.split(orig_cls)))
     new_cls = ' '.join(uniq(orig + classes))
@@ -230,7 +230,7 @@ def add_classes(classes, tag):
     return False
 
 
-def remove_classes(classes, tag):
+def remove_classes(classes, tag) -> bool:
     orig_cls = tag.get('class', '')
     orig = list(filter(None, str.split(orig_cls)))
     for x in classes:
@@ -286,7 +286,7 @@ def parse_start_tag(text):
     return {'tag': tag.tag, 'attrib': tag.items()}
 
 
-def wrap(data, tag):
+def wrap(data, tag) -> bool:
     elem = tag.makeelement(data['tag'])
     for k, v in data['attrib']:
         elem.set(k, v)
@@ -316,7 +316,7 @@ def clone(src_element, target_tree):
     return ans
 
 
-def insert_snippet(container, before_children, tag):
+def insert_snippet(container, before_children, tag) -> bool:
     if before_children:
         orig_text = tag.text
         tag.text = container.text
@@ -340,7 +340,7 @@ def insert_snippet(container, before_children, tag):
     return True
 
 
-def append_snippet(container, before_tag, tag):
+def append_snippet(container, before_tag, tag) -> bool:
     p = tag.getparent()
     idx = p.index(tag)
     if not before_tag:
@@ -378,7 +378,7 @@ def create_action(serialized_action):
     return action_map[serialized_action['type']](serialized_action.get('data', ''))
 
 
-def text_as_xpath_literal(text):
+def text_as_xpath_literal(text) -> str:
     if '"' in text:
         if "'" not in text:
             return f"'{text}'"
@@ -397,7 +397,7 @@ def text_as_xpath_literal(text):
 
 
 class Rule:
-    def __init__(self, serialized_rule):
+    def __init__(self, serialized_rule) -> None:
         self.sel_type = 'xpath'
         mt = serialized_rule['match_type']
         q = serialized_rule['query']
@@ -475,7 +475,7 @@ def transform_container(container, serialized_rules, names=()):
     return doc_changed
 
 
-def transform_conversion_book(oeb, opts, serialized_rules):
+def transform_conversion_book(oeb, opts, serialized_rules) -> None:
     rules = tuple(Rule(r) for r in serialized_rules)
     for item in oeb.spine:
         root = item.data
@@ -538,7 +538,7 @@ def test(return_tests=False):  # {{{
         maxDiff = None
         ae = unittest.TestCase.assertEqual
 
-        def test_matching(self):
+        def test_matching(self) -> None:
             root = parse(
                 namespace_elements=True,
                 html='''
@@ -558,7 +558,7 @@ def test(return_tests=False):  # {{{
                     ans.append(tag.get('id'))
                 return ans
 
-            def t(mt, query='', expected=None):
+            def t(mt, query='', expected=None) -> None:
                 if expected is None:
                     expected = []
                 self.ae(expected, q(mt, query))
@@ -575,12 +575,12 @@ def test(return_tests=False):  # {{{
             t('contains_text', 'imple', ['p1'])
             t('contains_text', 'a\'b"c', ['p2'])
 
-        def test_validate_rule(self):
-            def av(match_type='*', query='', atype='remove', adata=''):
+        def test_validate_rule(self) -> None:
+            def av(match_type='*', query='', atype='remove', adata='') -> None:
                 rule = {'match_type': match_type, 'query': query, 'actions': [{'type': atype, 'data': adata}]}
                 self.ae(validate_rule(rule), (None, None))
 
-            def ai(match_type='*', query='', atype='remove', adata=''):
+            def ai(match_type='*', query='', atype='remove', adata='') -> None:
                 rule = {'match_type': match_type, 'query': query, 'actions': [{'type': atype, 'data': adata}]}
                 self.assertNotEqual(validate_rule(rule), (None, None))
 
@@ -591,7 +591,7 @@ def test(return_tests=False):  # {{{
             ai('xpath', '//h:p[')
             ai(atype='wrap')
 
-        def test_export_import(self):
+        def test_export_import(self) -> None:
             rule = {
                 'match_type': 'is',
                 'query': 'p',
@@ -602,7 +602,7 @@ def test(return_tests=False):  # {{{
             erule = {'match_type': '*', 'query': '', 'actions': [{'type': 'remove', 'data': ''}]}
             self.ae(erule, next(iter(import_rules(export_rules([rule])))))
 
-        def test_html_transform_actions(self):
+        def test_html_transform_actions(self) -> None:
             parse('a', fragment_context='div')
 
             def r(html='<p>hello'):
@@ -611,7 +611,7 @@ def test(return_tests=False):  # {{{
             def tostring(x, with_tail=True):
                 return etree.tostring(x, encoding='unicode', with_tail=with_tail)
 
-            def ax(x, expected):
+            def ax(x, expected) -> None:
                 v = tostring(x)
                 self.ae(expected, v.replace(' xmlns="http://www.w3.org/1999/xhtml"', ''))
 

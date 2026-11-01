@@ -11,11 +11,11 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.icu import sort_key
 
 
-def isspace(x):
+def isspace(x) -> bool:
     return not x.strip('\u0009\u000a\u000c\u000d\u0020')
 
 
-def pretty_xml_tree(elem, level=0, indent='  '):
+def pretty_xml_tree(elem, level=0, indent='  ') -> None:
     """XML beautifier, assumes that elements that have children do not have
     textual content.  Also assumes that there is no text immediately after
     closing tags. These are true for opf/ncx and container.xml files. If either
@@ -32,7 +32,7 @@ def pretty_xml_tree(elem, level=0, indent='  '):
             child.tail = '\n' + (indent * l)
 
 
-def pretty_opf(root):
+def pretty_opf(root) -> None:
     # Put all dc: tags first starting with title and author. Preserve order for
     # the rest.
     def dckey(x):
@@ -142,7 +142,7 @@ def isblock(x):
     return x.tag in BLOCK_TAGS
 
 
-def has_only_blocks(x):
+def has_only_blocks(x) -> bool:
     if hasattr(x.tag, 'split') and len(x) == 0:
         # Tag with no children,
         return False
@@ -164,7 +164,7 @@ def indent_for_tag(x):
     return s if isspace(s) else ''
 
 
-def set_indent(elem, attr, indent):
+def set_indent(elem, attr, indent) -> None:
     x = getattr(elem, attr)
     if not x:
         x = indent
@@ -178,7 +178,7 @@ def set_indent(elem, attr, indent):
     setattr(elem, attr, x)
 
 
-def pretty_block(parent, level=1, indent='  '):
+def pretty_block(parent, level=1, indent='  ') -> None:
     """Surround block tags with blank lines and recurse into child block tags
     that contain only other block tags"""
     if not parent.text or isspace(parent.text):
@@ -198,7 +198,7 @@ def pretty_block(parent, level=1, indent='  '):
         child.tail = child.tail + nn + (indent * l)
 
 
-def pretty_script_or_style(container, child):
+def pretty_script_or_style(container, child) -> None:
     if child.text:
         indent = indent_for_tag(child)
         if child.tag.endswith('style'):
@@ -208,7 +208,7 @@ def pretty_script_or_style(container, child):
         set_indent(child, 'text', indent)
 
 
-def pretty_html_tree(container, root):
+def pretty_html_tree(container, root) -> None:
     root.text = '\n\n'
     for child in root:
         child.tail = '\n\n'
@@ -263,7 +263,7 @@ def pretty_xml(container, name, raw):
     return serialize(root, 'text/xml')
 
 
-def fix_all_html(container):
+def fix_all_html(container) -> None:
     "Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm."
     for name, mt in container.mime_map.items():
         if mt in OEB_DOCS:
@@ -271,7 +271,7 @@ def fix_all_html(container):
             container.dirty(name)
 
 
-def pretty_all(container):
+def pretty_all(container) -> None:
     "Pretty print all HTML/CSS/XML files in the container"
     xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
     for name, mt in container.mime_map.items():

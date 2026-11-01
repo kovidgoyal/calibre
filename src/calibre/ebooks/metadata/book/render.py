@@ -546,7 +546,7 @@ def mi_to_html(
         dc = ', '.join(sorted(dc, key=sort_key))
         ans.append(('device_collections', row % (_('Collections') + ':', dc)))
 
-    def classname(field):
+    def classname(field) -> str:
         try:
             dt = mi.metadata_for_field(field)['datatype']
         except Exception:

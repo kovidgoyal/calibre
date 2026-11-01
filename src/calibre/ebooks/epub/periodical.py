@@ -107,7 +107,7 @@ def sony_metadata(oeb):
 
     updated = strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
 
-    def cal_id(x):
+    def cal_id(x) -> bool | None:
         for k, v in x.attrib.items():
             if k.endswith('scheme') and v == 'uuid':
                 return True

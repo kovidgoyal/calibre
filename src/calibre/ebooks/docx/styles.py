@@ -14,11 +14,11 @@ class PageProperties:
     sectPr elements.
     """
 
-    def __init__(self, namespace, elems=()):
+    def __init__(self, namespace, elems=()) -> None:
         self.width, self.height = 595.28, 841.89  # pts, A4
         self.margin_left = self.margin_right = 72  # pts
 
-        def setval(attr, val):
+        def setval(attr, val) -> None:
             val = twips(val)
             if val is not None:
                 setattr(self, attr, val)
@@ -37,7 +37,7 @@ class Style:
     Class representing a <w:style> element. Can contain block, character, etc. styles.
     """
 
-    def __init__(self, namespace, elem):
+    def __init__(self, namespace, elem) -> None:
         self.namespace = namespace
         self.name_path = namespace.XPath('./w:name[@w:val]')
         self.based_on_path = namespace.XPath('./w:basedOn[@w:val]')
@@ -84,7 +84,7 @@ class Style:
             for x in namespace.XPath('./w:pPr/w:numPr/w:numId[@w:val]')(elem):
                 self.numbering_style_link = namespace.get(x, 'w:val')
 
-    def resolve_based_on(self, parent):
+    def resolve_based_on(self, parent) -> None:
         if parent.table_style is not None:
             if self.table_style is None:
                 from calibre.ebooks.docx.tables import TableStyle
@@ -106,7 +106,7 @@ class Styles:
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
     """
 
-    def __init__(self, namespace, tables):
+    def __init__(self, namespace, tables) -> None:
         self.namespace = namespace
         self.id_map = OrderedDict()
         self.para_cache = {}
@@ -125,7 +125,7 @@ class Styles:
     def __getitem__(self, key):
         return self.id_map[key]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.id_map)
 
     def get(self, key, default=None):
@@ -160,7 +160,7 @@ class Styles:
                         else:
                             self.default_character_style.update(ps)
 
-        def resolve(s, p):
+        def resolve(s, p) -> None:
             if p is not None:
                 if not p.resolved:
                     resolve(p, self.get(p.based_on))
@@ -326,12 +326,12 @@ class Styles:
         if obj.tag.endswith('}r'):
             return self.resolve_run(obj)
 
-    def cascade(self, layers):
+    def cascade(self, layers) -> None:
         self.body_font_family = 'serif'
         self.body_font_size = '10pt'
         self.body_color = 'currentColor'
 
-        def promote_property(char_styles, block_style, prop):
+        def promote_property(char_styles, block_style, prop) -> None:
             vals = {getattr(s, prop) for s in char_styles}
             if len(vals) == 1:
                 # All the character styles have the same value
@@ -391,7 +391,7 @@ class Styles:
         if color is not None:
             self.body_color = color
 
-    def resolve_numbering(self, numbering):
+    def resolve_numbering(self, numbering) -> None:
         # When a numPr element appears inside a paragraph style, the lvl info
         # must be discarded and pStyle used instead.
         self.numbering = numbering
@@ -404,7 +404,7 @@ class Styles:
                 else:
                     ps.numbering_level = lvl
 
-    def apply_contextual_spacing(self, paras):
+    def apply_contextual_spacing(self, paras) -> None:
         last_para = None
         for p in paras:
             if last_para is not None:
@@ -417,7 +417,7 @@ class Styles:
                         ps.margin_top = 0
             last_para = p
 
-    def apply_section_page_breaks(self, paras):
+    def apply_section_page_breaks(self, paras) -> None:
         for p in paras:
             ps = self.resolve_paragraph(p)
             ps.pageBreakBefore = True
@@ -431,7 +431,7 @@ class Styles:
             self.classes[h] = (ans, css)
         return ans
 
-    def generate_classes(self):
+    def generate_classes(self) -> None:
         for bs in self.para_cache.values():
             css = bs.css
             if css:

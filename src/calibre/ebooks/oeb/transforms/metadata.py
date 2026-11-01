@@ -8,7 +8,7 @@ from calibre import guess_type
 from calibre.utils.date import isoformat, now
 
 
-def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
+def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False) -> None:
     from calibre.ebooks.oeb.base import OPF
 
     if not mi.is_null('title'):
@@ -162,7 +162,7 @@ class MergeMetadata:
             self.remove_old_cover(item, new_cover_item.href)
         return id
 
-    def remove_old_cover(self, cover_item, new_cover_href=None):
+    def remove_old_cover(self, cover_item, new_cover_href=None) -> None:
         from lxml import etree
 
         from calibre.ebooks.oeb.base import XLINK, XPath

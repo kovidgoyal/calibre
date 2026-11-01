@@ -24,15 +24,15 @@ border_style_weight = {x: 100 - i for i, x in enumerate(('double', 'solid', 'das
 
 
 class SpannedCell:
-    def __init__(self, spanning_cell, horizontal=True):
+    def __init__(self, spanning_cell, horizontal=True) -> None:
         self.spanning_cell = spanning_cell
         self.horizontal = horizontal
         self.row_span = self.col_span = 1
 
-    def resolve_borders(self):
+    def resolve_borders(self) -> None:
         pass
 
-    def serialize(self, tr, makeelement):
+    def serialize(self, tr, makeelement) -> None:
         tc = makeelement(tr, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
         makeelement(tcPr, 'w:{}Merge'.format('h' if self.horizontal else 'v'), w_val='continue')
@@ -42,7 +42,7 @@ class SpannedCell:
         return self.spanning_cell.applicable_borders(edge)
 
 
-def read_css_block_borders(self, css):
+def read_css_block_borders(self, css) -> None:
     obj = Dummy()
     rcbb(obj, css, store_css_style=True)
     for edge in border_edges:
@@ -87,7 +87,7 @@ def convert_width(tag_style):
 class Cell:
     BLEVEL = 2
 
-    def __init__(self, row, html_tag, tag_style=None):
+    def __init__(self, row, html_tag, tag_style=None) -> None:
         self.row = row
         self.table = self.row.table
         self.html_tag = html_tag
@@ -108,7 +108,7 @@ class Cell:
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
         read_css_block_borders(self, tag_style)
 
-    def add_block(self, block):
+    def add_block(self, block) -> None:
         self.items.append(block)
         block.parent_items = self.items
 
@@ -116,7 +116,7 @@ class Cell:
         self.items.append(table)
         return table
 
-    def serialize(self, parent, makeelement):
+    def serialize(self, parent, makeelement) -> None:
         tc = makeelement(parent, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
         makeelement(tcPr, 'w:tcW', w_type=self.width[0], w_w=str(self.width[1]))
@@ -196,7 +196,7 @@ class Cell:
         border = max(borders, key=weight)
         return border
 
-    def resolve_borders(self):
+    def resolve_borders(self) -> None:
         self.borders = {edge: self.resolve_border(edge) for edge in border_edges}
 
     def neighbor(self, edge):
@@ -220,7 +220,7 @@ class Cell:
 class Row:
     BLEVEL = 1
 
-    def __init__(self, table, html_tag, tag_style=None):
+    def __init__(self, table, html_tag, tag_style=None) -> None:
         self.table = table
         self.html_tag = html_tag
         self.orig_tag_style = tag_style
@@ -237,16 +237,16 @@ class Row:
     def last_cell(self):
         return self.cells[-1] if self.cells else None
 
-    def start_new_cell(self, html_tag, tag_style):
+    def start_new_cell(self, html_tag, tag_style) -> None:
         self.current_cell = Cell(self, html_tag, tag_style)
 
-    def finish_tag(self, html_tag):
+    def finish_tag(self, html_tag) -> None:
         if self.current_cell is not None:
             if html_tag is self.current_cell.html_tag:
                 self.cells.append(self.current_cell)
                 self.current_cell = None
 
-    def add_block(self, block):
+    def add_block(self, block) -> None:
         if self.current_cell is None:
             self.start_new_cell(self.html_tag, self.orig_tag_style)
         assert self.current_cell is not None
@@ -257,7 +257,7 @@ class Row:
             self.current_cell = Cell(self, self.html_tag, self.orig_tag_style)
         return self.current_cell.add_table(table)
 
-    def serialize(self, parent, makeelement):
+    def serialize(self, parent, makeelement) -> None:
         tr = makeelement(parent, 'w:tr')
         for cell in self.cells:
             cell.serialize(tr, makeelement)
@@ -266,7 +266,7 @@ class Row:
 class Table:
     BLEVEL = 0
 
-    def __init__(self, namespace, html_tag, tag_style=None):
+    def __init__(self, namespace, html_tag, tag_style=None) -> None:
         self.namespace = namespace
         self.html_tag = html_tag
         self.orig_tag_style = tag_style
@@ -308,7 +308,7 @@ class Table:
                     cell.resolve_borders()
         return table_ended
 
-    def expand_spanned_cells(self):
+    def expand_spanned_cells(self) -> None:
         # Expand horizontally
         for row in self.rows:
             for cell in tuple(row.cells):
@@ -335,18 +335,18 @@ class Table:
                         else:
                             nrow.cells.insert(idx, sc)
 
-    def start_new_row(self, html_tag, html_style):
+    def start_new_row(self, html_tag, html_style) -> None:
         if self.current_row is not None:
             self.rows.append(self.current_row)
         self.current_row = Row(self, html_tag, html_style)
 
-    def start_new_cell(self, html_tag, html_style):
+    def start_new_cell(self, html_tag, html_style) -> None:
         if self.current_row is None:
             self.start_new_row(html_tag, None)
         assert self.current_row is not None
         self.current_row.start_new_cell(html_tag, html_style)
 
-    def add_block(self, block):
+    def add_block(self, block) -> None:
         current_row = self.current_row
         assert current_row is not None
         current_row.add_block(block)
@@ -356,7 +356,7 @@ class Table:
             self.current_row = Row(self, self.html_tag, self.orig_tag_style)
         return self.current_row.add_table(table)
 
-    def serialize(self, parent):
+    def serialize(self, parent) -> None:
         makeelement = self.namespace.makeelement
         rows = [r for r in self.rows if r.cells]
         if not rows:

@@ -99,7 +99,7 @@ def get_first_resource_index(first_image_index, num_of_text_records, first_text_
 
 
 class Mobi8Reader:
-    def __init__(self, mobi6_reader, log, for_tweak=False):
+    def __init__(self, mobi6_reader, log, for_tweak=False) -> None:
         self.for_tweak = for_tweak
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
@@ -143,7 +143,7 @@ class Mobi8Reader:
         spine = self.expand_text(resource_map)
         return self.write_opf(guide, ncx, spine, resource_map)
 
-    def read_indices(self):
+    def read_indices(self) -> None:
         self.flow_table = ()
 
         if self.header.fdstidx != NULL_INDEX:
@@ -185,7 +185,7 @@ class Mobi8Reader:
                     ref_type = ref_type.decode(self.header.codec)
                 self.guide.append(Item(ref_type, title, fileno))
 
-    def build_parts(self):
+    def build_parts(self) -> None:
         raw_ml = self.mobi6_reader.mobi_html
         self.flows = []
         self.flowinfo = []
@@ -487,7 +487,7 @@ class Mobi8Reader:
     def expand_text(self, resource_map):
         return expand_mobi8_markup(self, resource_map, self.log)
 
-    def write_opf(self, guide, toc, spine, resource_map):
+    def write_opf(self, guide, toc, spine, resource_map) -> str:
         mi = self.header.exth.mi
         if self.cover_offset is not None and self.cover_offset < len(resource_map):
             mi.cover = resource_map[self.cover_offset]

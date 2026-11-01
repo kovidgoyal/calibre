@@ -20,7 +20,7 @@ class FieldStrings:
     returns a list of three values.
     """
 
-    def __init__(self, bug_handler, run_level=1):
+    def __init__(self, bug_handler, run_level=1) -> None:
         """
         Requires:
             nothing
@@ -31,7 +31,7 @@ class FieldStrings:
         self.__bug_handler = bug_handler
         self.__initiate_values()
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Requires:
             nothing.

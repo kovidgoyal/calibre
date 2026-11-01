@@ -150,7 +150,7 @@ class PML_HTMLizer:
         'h1': 'h1c',
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.state = {}
         # toc consists of a tuple
         # (level, (href, id, text))
@@ -241,7 +241,7 @@ class PML_HTMLizer:
         html = re.sub(r'(?imu)<p>\s*</p>', '', html)
         return html
 
-    def start_line(self):
+    def start_line(self) -> str:
         start = ''
 
         state = deepcopy(self.state)
@@ -273,7 +273,7 @@ class PML_HTMLizer:
 
         return f'<p>{start}'
 
-    def end_line(self):
+    def end_line(self) -> str:
         end = ''
 
         div = []

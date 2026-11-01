@@ -283,7 +283,7 @@ def condense_edge(vals):
 
 def simple_condenser(prefix, func):
     @wraps(func)
-    def condense_simple(style, props):
+    def condense_simple(style, props) -> None:
         cp = func(props)
         if cp is not None:
             for prop in props:
@@ -293,7 +293,7 @@ def simple_condenser(prefix, func):
     return condense_simple
 
 
-def condense_border(style, props):
+def condense_border(style, props) -> None:
     prop_map = {p.name: p for p in props}
     edge_vals = []
     for edge in EDGES:
@@ -324,7 +324,7 @@ condensers = {
 }
 
 
-def condense_rule(style):
+def condense_rule(style) -> None:
     expanded = {'margin-': [], 'padding-': [], 'border-': []}
     for prop in style.getProperties():
         for x, t in expanded.items():
@@ -336,7 +336,7 @@ def condense_rule(style):
             condensers[prefix[:-1]](style, vals)
 
 
-def condense_sheet(sheet):
+def condense_sheet(sheet) -> None:
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
             condense_rule(rule.style)
@@ -352,7 +352,7 @@ def test_normalization(return_tests=False):  # {{{
         longMessage = True
         maxDiff = None
 
-        def test_font_normalization(self):
+        def test_font_normalization(self) -> None:
             def font_dict(expected):
                 ans = {k: DEFAULTS[k] for k in font_composition} if expected else {}
                 ans.update(expected)
@@ -391,7 +391,7 @@ def test_normalization(return_tests=False):  # {{{
                 style = normalizers['font']('font', val)
                 self.assertDictEqual(font_dict(expected), style, raw)
 
-        def test_border_normalization(self):
+        def test_border_normalization(self) -> None:
             def border_edge_dict(expected, edge='right'):
                 ans = {f'border-{edge}-{x}': DEFAULTS[f'border-{edge}-{x}'] for x in ('style', 'width', 'color')}
                 for x, v in expected.items():
@@ -438,7 +438,7 @@ def test_normalization(return_tests=False):  # {{{
                 cval = tuple(parseStyle(f'border-{name}: {val}', validate=False))[0].propertyValue
                 self.assertDictEqual(border_val_dict(val, name), normalizers['border-' + name]('border-' + name, cval))
 
-        def test_edge_normalization(self):
+        def test_edge_normalization(self) -> None:
             def edge_dict(prefix, expected):
                 return {f'{prefix}-{edge}': x for edge, x in zip(EDGES, expected)}
 
@@ -452,7 +452,7 @@ def test_normalization(return_tests=False):  # {{{
                     cval = tuple(parseStyle(f'{prefix}: {raw}', validate=False))[0].propertyValue
                     self.assertDictEqual(edge_dict(prefix, expected), normalizers[prefix](prefix, cval))
 
-        def test_list_style_normalization(self):
+        def test_list_style_normalization(self) -> None:
             def ls_dict(expected):
                 ans: dict = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
                 for k, v in expected.items():
@@ -467,7 +467,7 @@ def test_normalization(return_tests=False):  # {{{
                 cval = tuple(parseStyle(f'list-style: {raw}', validate=False))[0].propertyValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
 
-        def test_filter_css_normalization(self):
+        def test_filter_css_normalization(self) -> None:
             ae = self.assertEqual
             ae({'font'} | set(font_composition), normalize_filter_css({'font'}))
             for p in ('margin', 'padding'):
@@ -485,7 +485,7 @@ def test_normalization(return_tests=False):  # {{{
                 normalize_filter_css({'list-style'}),
             )
 
-        def test_edge_condensation(self):
+        def test_edge_condensation(self) -> None:
             for s, v in {
                 (1, 1, 3): None,
                 (1, 2, 3, 4): '2pt 3pt 4pt 1pt',
@@ -507,7 +507,7 @@ def test_normalization(return_tests=False):  # {{{
                         for edge in EDGES:
                             self.assertFalse(getattr(style.getProperty(f'{prefix}-{edge}'), 'value', None))
 
-        def test_border_condensation(self):
+        def test_border_condensation(self) -> None:
             vals = 'red solid 5px'
             css = '; '.join(f'border-{edge}-{p}: {v}' for edge in EDGES for p, v in zip(BORDER_PROPS, vals.split()))
             style = parseStyle(css)

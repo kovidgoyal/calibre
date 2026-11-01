@@ -3,7 +3,7 @@
 
 
 class Settings:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.default_tab_stop = 720 / 20
         self.namespace = namespace
 

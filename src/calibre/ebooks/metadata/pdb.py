@@ -47,7 +47,7 @@ def get_metadata(stream, extract_cover=True):
     return MetadataReader(stream, extract_cover)
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
     stream.seek(0)
 
     pheader = PdbHeaderReader(stream)

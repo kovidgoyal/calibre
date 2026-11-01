@@ -43,7 +43,7 @@ SPACE_TAGS = [
 
 
 class TXTMLizer:
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.log = log
 
     def extract_content(self, oeb_book, opts):
@@ -108,7 +108,7 @@ class TXTMLizer:
                 toc.append(f'* {item}\n\n')
         return ''.join(toc)
 
-    def create_flat_toc(self, nodes):
+    def create_flat_toc(self, nodes) -> None:
         """
         Turns a hierarchical list of TOC href's into a flat list.
         """

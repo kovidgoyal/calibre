@@ -33,7 +33,7 @@ class ProcessTokens:
         bug_handler,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -46,11 +46,11 @@ class ProcessTokens:
         self.__exception_handler = exception_handler
         self.__bug_handler = bug_handler
 
-    def compile_expressions(self):
+    def compile_expressions(self) -> None:
         self.__num_exp = re.compile(r'([a-zA-Z]+)(.*)')
         self.__utf_exp = re.compile(r'(&.*?;)')
 
-    def initiate_token_dict(self):
+    def initiate_token_dict(self) -> None:
         self.__return_code = 0
         self.dict_token = {
             # unicode
@@ -610,28 +610,28 @@ class ProcessTokens:
         # 'picprop'           :   ('un', 'unknown___', self.default_func),
         # 'blipuid'           :   ('un', 'unknown___', self.default_func),
 
-    def __ms_hex_func(self, pre, token, num):
+    def __ms_hex_func(self, pre, token, num) -> str:
         num = num[1:]  # chop off leading 0, which I added
         num = num.upper()  # the mappings store hex in caps
         return f"tx<hx<__________<'{num}\n"  # add an ' for the mappings
 
-    def ms_sub_func(self, pre, token, num):
+    def ms_sub_func(self, pre, token, num) -> str:
         return f'tx<mc<__________<{token}\n'
 
-    def direct_conv_func(self, pre, token, num):
+    def direct_conv_func(self, pre, token, num) -> str:
         return f'mi<tg<empty_____<{token}\n'
 
-    def default_func(self, pre, token, num):
+    def default_func(self, pre, token, num) -> str:
         if num is None:
             num = 'true'
         return f'cw<{pre}<{token}<nu<{num}\n'
 
-    def colorz_func(self, pre, token, num):
+    def colorz_func(self, pre, token, num) -> str:
         if num is None:
             num = '0'
         return f'cw<{pre}<{token}<nu<{num}\n'
 
-    def __list_type_func(self, pre, token, num):
+    def __list_type_func(self, pre, token, num) -> str:
         type = 'arabic'
         if num is None:
             type = 'Arabic'
@@ -650,7 +650,7 @@ class ProcessTokens:
                 type = 'Arabic'
         return f'cw<{pre}<{token}<nu<{type}\n'
 
-    def __language_func(self, pre, token, num):
+    def __language_func(self, pre, token, num) -> str:
         _lang_m = re.search(r'[0-9]+', num)
         assert _lang_m is not None
         lang_name = self.__language_dict.get(int(_lang_m.group()))
@@ -661,27 +661,27 @@ class ProcessTokens:
                 raise self.__bug_handler(msg)
         return f'cw<{pre}<{token}<nu<{lang_name}\n'
 
-    def two_part_func(self, pre, token, num):
+    def two_part_func(self, pre, token, num) -> str:
         list = token.split('<')
         token = list[0]
         num = list[1]
         return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>num<%s\n' % (token, num)
 
-    def divide_by_2(self, pre, token, num):
+    def divide_by_2(self, pre, token, num) -> str:
         num = self.divide_num(num, 2)
         return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
-    def divide_by_20(self, pre, token, num):
+    def divide_by_20(self, pre, token, num) -> str:
         num = self.divide_num(num, 20)
         return f'cw<{pre}<{token}<nu<{num}\n'
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
-    def text_func(self, pre, token, num=None):
+    def text_func(self, pre, token, num=None) -> str:
         return f'tx<nu<__________<{token}\n'
 
-    def ob_func(self, pre, token, num=None):
+    def ob_func(self, pre, token, num=None) -> str:
         self.__bracket_count += 1
         return f'ob<nu<open-brack<{self.__bracket_count:04}\n'
 
@@ -690,7 +690,7 @@ class ProcessTokens:
         self.__bracket_count -= 1
         return line
 
-    def color_func(self, pre, token, num):
+    def color_func(self, pre, token, num) -> str:
         third_field = 'nu'
         if num[-1] == ';':
             num = num[:-1]
@@ -701,7 +701,7 @@ class ProcessTokens:
         return f'cw<{pre}<{token}<{third_field}<{num}\n'
         # return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
 
-    def bool_st_func(self, pre, token, num):
+    def bool_st_func(self, pre, token, num) -> str:
         if num is None or num in {'', '1'}:
             return f'cw<{pre}<{token}<nu<true\n'
             # return 'cw<nu<nu<nu<%s>true<%s\n' % (token, token)
@@ -782,7 +782,7 @@ class ProcessTokens:
         if action:
             return action(pre, token, num)
 
-    def __check_brackets(self, in_file):
+    def __check_brackets(self, in_file) -> int | None:
         self.__check_brack_obj = check_brackets.CheckBrackets(file=in_file)
         good_br = self.__check_brack_obj.check_brackets()[0]
         if not good_br:

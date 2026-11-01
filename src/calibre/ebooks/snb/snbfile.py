@@ -33,21 +33,21 @@ class SNBFile:
     REVZ1 = 0x00000000
     REVZ2 = 0x00000000
 
-    def __init__(self, inputFile=None):
+    def __init__(self, inputFile=None) -> None:
         self.files = []
         self.blocks = []
 
         if inputFile is not None:
             self.Open(inputFile)
 
-    def Open(self, inputFile):
+    def Open(self, inputFile) -> None:
         self.fileName = inputFile
 
         with open(self.fileName, 'rb') as f:
             f.seek(0)
             self.Parse(f)
 
-    def Parse(self, snbFile, metaOnly=False):
+    def Parse(self, snbFile, metaOnly=False) -> None:
         # Read header
         vmbr = snbFile.read(44)
         (
@@ -116,7 +116,7 @@ class SNBFile:
             else:
                 raise ValueError(f'Invalid file: {f.attr} {f.fileName}')
 
-    def ParseFile(self, vfat, fileCount):
+    def ParseFile(self, vfat, fileCount) -> None:
         fileNames = vfat[fileCount * 12 :].split(b'\0')
         for i in range(fileCount):
             f = FileStream()
@@ -125,7 +125,7 @@ class SNBFile:
             f.fileName = fileNames[i].decode('utf-8', 'replace')
             self.files.append(f)
 
-    def ParseTail(self, vtail, fileCount):
+    def ParseTail(self, vtail, fileCount) -> None:
         self.binBlock = (self.binStreamSize + 0x8000 - 1) // 0x8000
         self.plainBlock = (self.plainStreamSizeUncompressed + 0x8000 - 1) // 0x8000
         for i in range(self.binBlock + self.plainBlock):
@@ -138,7 +138,7 @@ class SNBFile:
                 vtail[(self.binBlock + self.plainBlock) * 4 + i * 8 : (self.binBlock + self.plainBlock) * 4 + (i + 1) * 8],
             )
 
-    def IsValid(self):
+    def IsValid(self) -> bool:
         if self.magic != SNBFile.MAGIC:
             return False
         if self.rev80 != SNBFile.REV80:
@@ -160,7 +160,7 @@ class SNBFile:
             return False
         return True
 
-    def FromDir(self, tdir):
+    def FromDir(self, tdir) -> None:
         for root, dirs, files in os.walk(tdir):
             for name in files:
                 p, ext = os.path.splitext(name)
@@ -169,7 +169,7 @@ class SNBFile:
                 else:
                     self.AppendBinary(os.path.relpath(os.path.join(root, name), tdir), tdir)
 
-    def AppendPlain(self, fileName, tdir):
+    def AppendPlain(self, fileName, tdir) -> None:
         f = FileStream()
         f.attr = 0x41000000
         f.fileSize = os.path.getsize(os.path.join(tdir, fileName))
@@ -178,7 +178,7 @@ class SNBFile:
         f.fileName = fileName.replace(os.sep, '/')
         self.files.append(f)
 
-    def AppendBinary(self, fileName, tdir):
+    def AppendBinary(self, fileName, tdir) -> None:
         f = FileStream()
         f.attr = 0x01000000
         f.fileSize = os.path.getsize(os.path.join(tdir, fileName))
@@ -204,7 +204,7 @@ class SNBFile:
                 fileNames.append((fname, guess_type('a' + ext)[0]))
         return fileNames
 
-    def Output(self, outputFile):
+    def Output(self, outputFile) -> None:
 
         # Sort the files in file buffer,
         # required by the SNB file format
@@ -288,7 +288,7 @@ class SNBFile:
             # Write file end mark
             outputFile.write(SNBFile.MAGIC)
 
-    def Dump(self):
+    def Dump(self) -> None:
         if self.fileName:
             print('File Name:\t', self.fileName)
         print('File Count:\t', self.fileCount)
@@ -309,7 +309,7 @@ class SNBFile:
                 tempFile.write(f.fileBody)
 
 
-def usage():
+def usage() -> None:
     print('This unit test is for INTERNAL usage only!')
     print('This unit test accept two parameters.')
     print('python snbfile.py <INPUTFILE> <DESTFILE>')
@@ -317,7 +317,7 @@ def usage():
     print('Meta data of the file will be shown during this process.')
 
 
-def main():
+def main() -> int:
     if len(sys.argv) != 3:
         usage()
         sys.exit(0)

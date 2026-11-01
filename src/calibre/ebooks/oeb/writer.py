@@ -19,7 +19,7 @@ class OEBWriter:
     TRANSFORMS = []
     '''List of transforms to apply to content written with this Writer.'''
 
-    def __init__(self, version='2.0', page_map=False, pretty_print=False):
+    def __init__(self, version='2.0', page_map=False, pretty_print=False) -> None:
         self.version = version
         self.page_map = page_map
         self.pretty_print = pretty_print

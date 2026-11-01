@@ -15,7 +15,7 @@ from calibre.utils.localization import _, ngettext
 class Worker(Thread):
     daemon = True
 
-    def __init__(self, abort, name, queue, results, jpeg_quality, webp_quality, progress_callback):
+    def __init__(self, abort, name, queue, results, jpeg_quality, webp_quality, progress_callback) -> None:
         Thread.__init__(self, name=name)
         self.queue, self.results = queue, results
         self.progress_callback = progress_callback
@@ -24,7 +24,7 @@ class Worker(Thread):
         self.abort = abort
         self.start()
 
-    def run(self):
+    def run(self) -> None:
         while not self.abort.is_set():
             try:
                 name, path, mt = self.queue.get_nowait()
@@ -45,7 +45,7 @@ class Worker(Thread):
                     traceback.print_exc()
                 self.queue.task_done()
 
-    def compress(self, name, path, mime_type):
+    def compress(self, name, path, mime_type) -> None:
         from calibre.utils.img import encode_jpeg, encode_webp, optimize_jpeg, optimize_png, optimize_webp
 
         if 'png' in mime_type:
@@ -331,7 +331,7 @@ def compress_images(
             queue.put((name, path, container.mime_map[name]))
             seen.add(path_key)
 
-    def pc(name):
+    def pc(name) -> None:
         keep_going = progress_callback(len(results), num_to_process, name)
         if not keep_going:
             abort.set()
@@ -428,7 +428,7 @@ def compress_images(
     return changed, results
 
 
-def remove_unused_images(container, report=None):
+def remove_unused_images(container, report=None) -> bool:
     """
     Remove images that are not referenced by any file in the spine or by any
     stylesheet used by files in the spine.

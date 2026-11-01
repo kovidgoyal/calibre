@@ -69,7 +69,7 @@ class CSSPreProcessor(cssp):
         return self.MS_PAT.sub(self.ms_sub, data)
 
 
-def clone_dir(src, dest):
+def clone_dir(src, dest) -> None:
     "Clone a folder using hard links for the files, dest must already exist"
     for x in os.listdir(src):
         dpath = os.path.join(dest, x)
@@ -148,7 +148,7 @@ class ContainerBase:  # {{{
     #: The mode used to parse HTML and CSS (polishing uses tweak_mode=False and the editor uses tweak_mode=True)
     tweak_mode = False
 
-    def __init__(self, log=default_log):
+    def __init__(self, log=default_log) -> None:
         self.log = log or default_log
         self.parsed_cache = {}
         self.mime_map = {}
@@ -242,7 +242,7 @@ class Container(ContainerBase):  # {{{
     def book_type_for_display(self):
         return self.book_type.upper()
 
-    def __init__(self, rootpath=None, opfpath=None, log=default_log, clone_data=None):
+    def __init__(self, rootpath=None, opfpath=None, log=default_log, clone_data=None) -> None:
         super().__init__(log=log)
         if clone_data is not None:
             self.root = clone_data['root']
@@ -292,7 +292,7 @@ class Container(ContainerBase):  # {{{
         # Update mime map with data from the OPF
         self.refresh_mime_map()
 
-    def refresh_mime_map(self):
+    def refresh_mime_map(self) -> None:
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             href = item.get('href')
             try:
@@ -411,7 +411,7 @@ class Container(ContainerBase):  # {{{
             self.insert_into_xml(spine, si, index=spine_index)
         return name
 
-    def rename(self, current_name, new_name):
+    def rename(self, current_name, new_name) -> None:
         """Renames a file from current_name to new_name. It automatically
         rebases all links inside the file if the folder the file is in
         changes. Note however, that links are not updated in the other files
@@ -664,7 +664,7 @@ class Container(ContainerBase):  # {{{
             self.encoding_map[name] = self.used_encoding
         return ans
 
-    def replace(self, name, obj):
+    def replace(self, name, obj) -> None:
         """
         Replace the parsed object corresponding to name with obj, which must be
         a similar object, i.e. an lxml tree for HTML/XML or a css_parser
@@ -769,7 +769,7 @@ class Container(ContainerBase):  # {{{
         self.dirty(self.opf_name)
         return removed_names, added_names
 
-    def add_properties(self, name, *properties):
+    def add_properties(self, name, *properties) -> bool:
         """Add the specified properties to the manifest item identified by name."""
         properties = frozenset(properties)
         if not properties:
@@ -834,7 +834,7 @@ class Container(ContainerBase):  # {{{
         for name, linear in self.spine_names:
             yield self.name_path_map[name]
 
-    def remove_from_spine(self, spine_items, remove_if_no_longer_in_spine=True):
+    def remove_from_spine(self, spine_items, remove_if_no_longer_in_spine=True) -> None:
         """
         Remove the specified items (by canonical name) from the spine. If ``remove_if_no_longer_in_spine``
         is True, the items are also deleted from the book, not just from the spine.
@@ -850,7 +850,7 @@ class Container(ContainerBase):  # {{{
             for name in nixed:
                 self.remove_item(name)
 
-    def set_spine(self, spine_items):
+    def set_spine(self, spine_items) -> None:
         """Set the spine to be spine_items where spine_items is an iterable of
         the form (name, linear). Will raise an error if one of the names is not
         present in the manifest."""
@@ -873,7 +873,7 @@ class Container(ContainerBase):  # {{{
             spine[-1].tail = last_tail
         self.dirty(self.opf_name)
 
-    def remove_item(self, name, remove_from_guide=True):
+    def remove_item(self, name, remove_from_guide=True) -> None:
         """
         Remove the item identified by name from this container. This removes all
         references to the item in the OPF manifest, guide and spine as well as from
@@ -924,7 +924,7 @@ class Container(ContainerBase):  # {{{
         self.parsed_cache.pop(name, None)
         self.dirtied.discard(name)
 
-    def set_media_overlay_durations(self, duration_map=None):
+    def set_media_overlay_durations(self, duration_map=None) -> None:
         self.dirty(self.opf_name)
         for meta in self.opf_xpath('//opf:meta[@property="media:duration"]'):
             self.remove_from_xml(meta)
@@ -940,7 +940,7 @@ class Container(ContainerBase):  # {{{
             meta.text = seconds_to_timestamp(total_duration)
             self.insert_into_xml(metadata, meta)
 
-    def dirty(self, name):
+    def dirty(self, name) -> None:
         """Mark the parsed object corresponding to name as dirty. See also: :meth:`parsed`."""
         self.dirtied.add(name)
 
@@ -959,7 +959,7 @@ class Container(ContainerBase):  # {{{
         parent.remove(item)
         return item
 
-    def insert_into_xml(self, parent, item, index=None):
+    def insert_into_xml(self, parent, item, index=None) -> None:
         """Insert item into parent (or append if index is None), fixing
         indentation. Only works with self closing items."""
         insert_self_closing(parent, item, index)
@@ -1014,7 +1014,7 @@ class Container(ContainerBase):  # {{{
         open(path, 'wb').close()
         return item
 
-    def format_opf(self):
+    def format_opf(self) -> None:
         try:
             mdata = self.opf_xpath('//opf:metadata')[0]
         except IndexError:
@@ -1050,7 +1050,7 @@ class Container(ContainerBase):  # {{{
             data = re.sub(rb'(<[/]{0,1})opf:', rb'\1', data)
         return data
 
-    def commit_item(self, name, keep_parsed=False):
+    def commit_item(self, name, keep_parsed=False) -> None:
         """Commit a parsed object to disk (it is serialized and written to the
         underlying file). If ``keep_parsed`` is True the parsed representation
         is retained in the cache. See also: :meth:`parsed`"""
@@ -1103,7 +1103,7 @@ class Container(ContainerBase):  # {{{
         version of it again, or bad things will happen."""
         return open(make_long_path_useable(self.get_file_path_for_processing(name, mode not in {'r', 'rb'})), mode)
 
-    def commit(self, outpath=None, keep_parsed=False):
+    def commit(self, outpath=None, keep_parsed=False) -> None:
         """
         Commit all dirtied parsed objects to the filesystem and write out the e-book file at outpath.
 
@@ -1189,7 +1189,7 @@ class EpubContainer(Container):
         'rights.xml': False,
     }
 
-    def __init__(self, pathtoepub=None, log=default_log, clone_data=None, tdir=None):
+    def __init__(self, pathtoepub=None, log=default_log, clone_data=None, tdir=None) -> None:
         if clone_data is not None:
             super().__init__(log=log, clone_data=clone_data)
             for x in ('pathtoepub', 'obfuscated_fonts', 'is_dir'):
@@ -1271,7 +1271,7 @@ class EpubContainer(Container):
         ans['is_dir'] = self.is_dir
         return ans
 
-    def rename(self, current_name, new_name):
+    def rename(self, current_name, new_name) -> None:
         is_opf = current_name == self.opf_name
         super().rename(current_name, new_name)
         if is_opf:
@@ -1309,7 +1309,7 @@ class EpubContainer(Container):
     def names_that_must_not_be_changed(self):
         return super().names_that_must_not_be_changed | {'META-INF/' + x for x in self.META_INF}
 
-    def remove_item(self, name, remove_from_guide=True):
+    def remove_item(self, name, remove_from_guide=True) -> None:
         # Handle removal of obfuscated fonts
         if name == 'META-INF/encryption.xml':
             self.obfuscated_fonts.clear()
@@ -1356,7 +1356,7 @@ class EpubContainer(Container):
                     cr = None
                 yield em, cr
 
-    def process_encryption(self):
+    def process_encryption(self) -> None:
         fonts = {}
         for em, cr in self.iter_encryption_entries():
             alg = em.get('Algorithm')
@@ -1395,13 +1395,13 @@ class EpubContainer(Container):
                 f.write(raw)
             self.obfuscated_fonts[font] = (alg, tkey)
 
-    def update_modified_timestamp(self):
+    def update_modified_timestamp(self) -> None:
         from calibre.ebooks.metadata.opf3 import set_last_modified_in_opf
 
         set_last_modified_in_opf(self.opf)
         self.dirty(self.opf_name)
 
-    def commit(self, outpath=None, keep_parsed=False):
+    def commit(self, outpath=None, keep_parsed=False) -> None:
         if self.opf_version_parsed.major == 3:
             self.update_modified_timestamp()
         super().commit(keep_parsed=keep_parsed)
@@ -1473,7 +1473,7 @@ class EpubContainer(Container):
         return self.pathtoepub
 
     @path_to_ebook.setter
-    def path_to_ebook(self, val):
+    def path_to_ebook(self, val) -> None:
         self.pathtoepub = val
 
 
@@ -1484,7 +1484,7 @@ class KEPUBContainer(EpubContainer):
     book_type = 'kepub'
     MAX_HTML_FILE_SIZE = 512 * 1024
 
-    def __init__(self, pathtokepub=None, log=default_log, clone_data=None, tdir=None):
+    def __init__(self, pathtokepub=None, log=default_log, clone_data=None, tdir=None) -> None:
         super().__init__(pathtokepub, log=log, clone_data=clone_data, tdir=tdir)
         from calibre.ebooks.oeb.polish.kepubify import unkepubify_container
 
@@ -1524,7 +1524,7 @@ def do_explode(path, dest):
     return opf, obfuscated_fonts
 
 
-def opf_to_azw3(opf, outpath, container):
+def opf_to_azw3(opf, outpath, container) -> None:
     from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
     from calibre.ebooks.mobi.tweak import set_cover
 
@@ -1534,7 +1534,7 @@ def opf_to_azw3(opf, outpath, container):
             # and resolves all @import rules. We don't want that.
             return container.parse_css(data)
 
-    def specialize(oeb):
+    def specialize(oeb) -> None:
         oeb.manifest.Item = Item
 
     plumber = Plumber(opf, outpath, container.log)
@@ -1548,7 +1548,7 @@ def opf_to_azw3(opf, outpath, container):
     outp.convert(oeb, outpath, inp, plumber.opts, container.log)
 
 
-def epub_to_azw3(epub, outpath=None):
+def epub_to_azw3(epub, outpath=None) -> None:
     container = get_container(epub, tweak_mode=True)
     changed = False
     for item in container.opf_xpath('//opf:manifest/opf:item[@properties and @href]'):
@@ -1581,7 +1581,7 @@ class AZW3Container(Container):
     SUPPORTS_TITLEPAGES = False
     SUPPORTS_FILENAMES = False
 
-    def __init__(self, pathtoazw3=None, log=default_log, clone_data=None, tdir=None):
+    def __init__(self, pathtoazw3=None, log=default_log, clone_data=None, tdir=None) -> None:
         if clone_data is not None:
             super().__init__(log=log, clone_data=clone_data)
             for x in ('pathtoazw3', 'obfuscated_fonts'):
@@ -1637,7 +1637,7 @@ class AZW3Container(Container):
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         return ans
 
-    def commit(self, outpath=None, keep_parsed=False):
+    def commit(self, outpath=None, keep_parsed=False) -> None:
         super().commit(keep_parsed=keep_parsed)
         if outpath is None:
             outpath = self.pathtoazw3
@@ -1648,7 +1648,7 @@ class AZW3Container(Container):
         return self.pathtoazw3
 
     @path_to_ebook.setter
-    def path_to_ebook(self, val):
+    def path_to_ebook(self, val) -> None:
         self.pathtoazw3 = val
 
     @property
@@ -1686,7 +1686,7 @@ def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -
     return ebook
 
 
-def test_roundtrip():
+def test_roundtrip() -> None:
     ebook = get_container(sys.argv[-1])
     p = PersistentTemporaryFile(suffix='.' + sys.argv[-1].rpartition('.')[-1])
     p.close()

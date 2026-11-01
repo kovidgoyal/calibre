@@ -2182,13 +2182,13 @@ def find_tests():
     import unittest
 
     class TestHTMLEntityReplacement(unittest.TestCase):
-        def test_html_entity_replacement(self):
+        def test_html_entity_replacement(self) -> None:
             from calibre_extensions.fast_html_entities import replace_all_entities
 
-            def t(inp, exp):
+            def t(inp, exp) -> None:
                 self.assertEqual(exp, replace_all_entities(inp), f'Failed for input: {inp!r}')
 
-            def x(inp, exp):
+            def x(inp, exp) -> None:
                 self.assertEqual(exp, replace_all_entities(inp, True), f'Failed for input: {inp!r}')
 
             t('a&#1234;b', 'aӒb')
@@ -2208,7 +2208,7 @@ def find_tests():
             t('a&#0;b&#x000;c', 'abc')
             x('&amp;&lt;&gt;&apos;&quot;', '&amp;&lt;&gt;&apos;&quot;')
 
-        def test_html_entity_replacement_expanding(self):
+        def test_html_entity_replacement_expanding(self) -> None:
             # Some entities decode to more UTF-8 bytes than the entity itself
             from calibre_extensions.fast_html_entities import replace_all_entities
 
@@ -2230,7 +2230,7 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestHTMLEntityReplacement)
 
 
-def generate_entity_lists():
+def generate_entity_lists() -> None:
     import re
     from html import entities as e
 

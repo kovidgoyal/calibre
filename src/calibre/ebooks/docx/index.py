@@ -122,7 +122,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
     return hyperlinks, blocks
 
 
-def split_up_block(container, a, parts, ldict, tdict):
+def split_up_block(container, a, parts, ldict, tdict) -> None:
     style = 'display:block; margin-left: %.3gem'
     prefix = parts[:-1]
     # Move all existing content, such as the page number text, into the span
@@ -194,7 +194,7 @@ def find_match(prev_block, pind, nextent, ldict, tdict):
     return -1
 
 
-def add_link(pent, nent):
+def add_link(pent, nent) -> None:
     # Move the link and any associated content such as the page number text
     # from nent to pent. If there is no link, leave it as text.
     if not nent.xpath('descendant::a'):
@@ -214,7 +214,7 @@ def add_link(pent, nent):
             pent.append(child)
 
 
-def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict, tdict):
+def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict, tdict) -> None:
     # First elements match. Any more in next?
     if len(next_path) == (nind + 1):
         add_link(prev_block[pind], next_block[nind])
@@ -234,7 +234,7 @@ def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict, tdict):
         prev_block.insert(pind, next_block[nind])
 
 
-def polish_index_markup(index, blocks):
+def polish_index_markup(index, blocks) -> None:
     # Blocks are in reverse order at this point
     path_map = {}
     containers = {}

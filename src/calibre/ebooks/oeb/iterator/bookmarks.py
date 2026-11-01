@@ -46,10 +46,10 @@ class BookmarksMixin:
     pathtoebook: str
     base: str
 
-    def __init__(self, copy_bookmarks_to_file=True):
+    def __init__(self, copy_bookmarks_to_file=True) -> None:
         self.copy_bookmarks_to_file = copy_bookmarks_to_file
 
-    def parse_bookmarks(self, raw):
+    def parse_bookmarks(self, raw) -> None:
         for bm in parse_bookmarks(raw):
             self.bookmarks.append(bm)
 
@@ -68,7 +68,7 @@ class BookmarksMixin:
             dat.append(rec)
         return '\n'.join(dat) + '\n'
 
-    def read_bookmarks(self):
+    def read_bookmarks(self) -> None:
         self.bookmarks = []
         raw = self.config['bookmarks_' + self.pathtoebook] or ''
         if not raw:
@@ -81,7 +81,7 @@ class BookmarksMixin:
             raw = raw.decode('utf-8')
         self.parse_bookmarks(raw)
 
-    def save_bookmarks(self, bookmarks=None, no_copy_to_file=False):
+    def save_bookmarks(self, bookmarks=None, no_copy_to_file=False) -> None:
         if bookmarks is None:
             bookmarks = self.bookmarks
         dat = self.serialize_bookmarks(bookmarks)
@@ -97,10 +97,10 @@ class BookmarksMixin:
             except OSError:
                 return
 
-    def add_bookmark(self, bm, no_copy_to_file=False):
+    def add_bookmark(self, bm, no_copy_to_file=False) -> None:
         self.bookmarks = [x for x in self.bookmarks if x['title'] != bm['title']]
         self.bookmarks.append(bm)
         self.save_bookmarks(no_copy_to_file=no_copy_to_file)
 
-    def set_bookmarks(self, bookmarks):
+    def set_bookmarks(self, bookmarks) -> None:
         self.bookmarks = bookmarks

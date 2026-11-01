@@ -27,11 +27,11 @@ def start_text(tag, prefix_len=0, top_level=True):
 
 
 class TOCItem:
-    def __init__(self, title, bmark, level):
+    def __init__(self, title, bmark, level) -> None:
         self.title, self.bmark, self.level = title, bmark, level
         self.is_first = self.is_last = False
 
-    def serialize(self, body, makeelement):
+    def serialize(self, body, makeelement) -> None:
         p = makeelement(body, 'w:p', append=False)
         ppr = makeelement(p, 'w:pPr')
         makeelement(ppr, 'w:pStyle', w_val='Normal')
@@ -68,7 +68,7 @@ Link = tuple[Manifest.Item, str, str | None]
 
 
 class LinksManager:
-    def __init__(self, namespace, document_relationships, log):
+    def __init__(self, namespace, document_relationships, log) -> None:
         self.namespace = namespace
         self.log = log
         self.document_relationships = document_relationships
@@ -156,7 +156,7 @@ class LinksManager:
         for pr in self.namespace.XPath('descendant::wp:docPr | descendant::pic:cNvPr')(drawing):
             pr.insert(0, self.namespace.makeelement(pr, 'a:hlinkClick', append=False, **kw))
 
-    def process_toc_node(self, toc, level=0):
+    def process_toc_node(self, toc, level=0) -> None:
         href = toc.href
         if href:
             purl = urlparse(href)
@@ -171,7 +171,7 @@ class LinksManager:
         for child in toc:
             self.process_toc_node(child, level + 1)
 
-    def process_toc_links(self, oeb):
+    def process_toc_links(self, oeb) -> None:
         self.toc = []
         has_toc = oeb.toc and oeb.toc.count() > 1
         if not has_toc:
@@ -182,7 +182,7 @@ class LinksManager:
             self.toc[0].is_first = True
             self.toc[-1].is_last = True
 
-    def serialize_toc(self, body, primary_heading_style):
+    def serialize_toc(self, body, primary_heading_style) -> None:
         pbb = body[0].xpath('//*[local-name()="pageBreakBefore"]')[0]
         pbb.set('{{{}}}val'.format(self.namespace.namespaces['w']), 'on')
         for block in reversed(self.toc):

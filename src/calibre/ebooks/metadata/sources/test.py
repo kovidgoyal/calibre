@@ -22,7 +22,7 @@ from polyglot.queue import Empty, Queue
 def isbn_test(isbn):
     isbn_ = check_isbn(isbn)
 
-    def test(mi):
+    def test(mi) -> bool:
         misbn = check_isbn(mi.isbn)
         if misbn and misbn == isbn_:
             return True
@@ -36,7 +36,7 @@ def title_test(title, exact=False):
 
     title = title.lower()
 
-    def test(mi):
+    def test(mi) -> bool:
         mt = mi.title.lower()
         if (exact and mt == title) or (not exact and title in mt):
             return True
@@ -49,7 +49,7 @@ def title_test(title, exact=False):
 def authors_test(authors, subset=False):
     authors = {x.lower() for x in authors}
 
-    def test(mi):
+    def test(mi) -> bool:
         au = {x.lower() for x in mi.authors}
         if msprefs['swap_author_names']:
 
@@ -77,7 +77,7 @@ def authors_test(authors, subset=False):
 def tags_test(tags):
     tags = {x.lower() for x in tags}
 
-    def test(mi):
+    def test(mi) -> bool:
         t = {x.lower() for x in mi.tags}
         if t == tags:
             return True
@@ -90,7 +90,7 @@ def tags_test(tags):
 def series_test(series, series_index):
     series = series.lower()
 
-    def test(mi):
+    def test(mi) -> bool:
         ms = mi.series.lower() if mi.series else ''
         if (ms == series) and (series_index == mi.series_index):
             return True
@@ -105,7 +105,7 @@ def series_test(series, series_index):
 
 def comments_test(sentinel):
 
-    def test(mi):
+    def test(mi) -> bool:
         comm = mi.comments.lower() if mi.comments else ''
         if sentinel and sentinel.lower() in comm:
             return True
@@ -132,12 +132,12 @@ def init_test(tdir_name):
     return tdir, abort, log
 
 
-def dump_log(lf):
+def dump_log(lf) -> None:
     with open(lf, 'rb') as f:
         prints(f.read().decode('utf-8'))
 
 
-def test_identify(tests):  # {{{
+def test_identify(tests) -> None:  # {{{
     """
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
                   test_funcs). args is a dict of keyword arguments to pass to
@@ -209,7 +209,7 @@ def test_identify_plugin(
     tests,
     modify_plugin=lambda plugin: None,  # {{{
     fail_missing_meta=True,
-):
+) -> None:
     """
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,

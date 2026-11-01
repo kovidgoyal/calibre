@@ -10,7 +10,7 @@ class LITOutput(OutputFormatPlugin):
     file_type = 'lit'
     commit_name = 'lit_output'
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         oeb = oeb_book
         output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb

@@ -29,7 +29,7 @@ class EmptyFile(BaseError):
     HELP = _('This file is empty, it contains nothing, you should probably remove it.')
     INDIVIDUAL_FIX = _('Remove this file')
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BaseError.__init__(self, _('The file %s is empty') % name, name)
 
     def __call__(self, container):
@@ -48,7 +48,7 @@ class DecodeError(BaseError):
         ' an incorrect media type in the OPF.'
     )
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BaseError.__init__(self, _('Parsing of %s failed, could not decode') % name, name)
 
 
@@ -62,7 +62,7 @@ class XMLParseError(BaseError):
         ' "do the wrong thing".'
     )
 
-    def __init__(self, msg, *args, **kwargs):
+    def __init__(self, msg, *args, **kwargs) -> None:
         msg = msg or ''
         BaseError.__init__(self, 'Parsing failed: ' + msg, *args, **kwargs)
         m = mismatch_pat.search(msg)
@@ -97,7 +97,7 @@ class NamedEntities(BaseError):
         ' represent. This can be done automatically.'
     )
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BaseError.__init__(self, _('Named entities present'), name)
 
     def __call__(self, container):
@@ -128,7 +128,7 @@ def make_filename_safe(name):
 class EscapedName(BaseError):
     level = WARN
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         BaseError.__init__(self, _('Filename contains unsafe characters'), name)
         qname = urlquote(name)
 
@@ -158,7 +158,7 @@ class EscapedName(BaseError):
 class TooLarge(BaseError):
     level = INFO
 
-    def __init__(self, name, max_size):
+    def __init__(self, name, max_size) -> None:
         BaseError.__init__(self, _('File too large'), name)
         self.HELP = _(
             'This HTML file is larger than {}. Too large HTML files can cause performance problems'
@@ -170,14 +170,14 @@ class BadEntity(BaseError):
     RULE_NAME = _('Invalid entity')
     HELP = _('This is an invalid (unrecognized) entity. Replace it with whatever text it is supposed to have represented.')
 
-    def __init__(self, ent, name, lnum, col):
+    def __init__(self, ent, name, lnum, col) -> None:
         BaseError.__init__(self, _('Invalid entity: %s') % ent, name, lnum, col)
 
 
 class BadNamespace(BaseError):
     INDIVIDUAL_FIX = _('Run fix HTML on this file, which will automatically insert the correct namespace')
 
-    def __init__(self, name, namespace):
+    def __init__(self, name, namespace) -> None:
         BaseError.__init__(self, _('Invalid or missing namespace'), name)
         self.HELP = prepare_string_for_xml(
             _(
@@ -196,7 +196,7 @@ class NonUTF8(BaseError):
     level = WARN
     INDIVIDUAL_FIX = _("Change this file's encoding to UTF-8")
 
-    def __init__(self, name, enc):
+    def __init__(self, name, enc) -> None:
         BaseError.__init__(self, _('Non UTF-8 encoding declaration'), name)
         self.HELP = (
             _('This file has its encoding declared as %s. Some reader software cannot handle non-UTF8 encoded files. You should change the encoding to UTF-8.')
@@ -213,7 +213,7 @@ class NonUTF8(BaseError):
 
 
 class EntitityProcessor:
-    def __init__(self, mt):
+    def __init__(self, mt) -> None:
         self.entities = ALL_ENTITIES if mt in OEB_DOCS else XML_ENTITIES
         self.ok_named_entities = []
         self.bad_entities = []
@@ -263,7 +263,7 @@ def check_encoding_declarations(name, container):
     return errors
 
 
-def check_for_private_entities(name, raw):
+def check_for_private_entities(name, raw) -> bool | None:
     if re.search(rb'<!DOCTYPE\s+.+?<!ENTITY\s+.+?]>', raw, flags=re.DOTALL) is not None:
         return True
 
@@ -316,7 +316,7 @@ class DuplicateId(BaseError):
 
     INDIVIDUAL_FIX = _('Remove the duplicate ids from all but the first element')
 
-    def __init__(self, name, eid, locs):
+    def __init__(self, name, eid, locs) -> None:
         BaseError.__init__(self, _('Duplicate id: %s') % eid, name)
         self.HELP = _('The id {0} is present on more than one element in {1}. This is not allowed. Remove the id from all but one of the elements').format(
             eid, name
@@ -350,7 +350,7 @@ class InvalidId(BaseError):
     level = WARN
     INDIVIDUAL_FIX = _('Replace this id with a valid id')
 
-    def __init__(self, name, line, eid):
+    def __init__(self, name, line, eid) -> None:
         BaseError.__init__(self, _('Invalid id: %s') % eid, name, line)
         self.HELP = (
             _(
@@ -403,7 +403,7 @@ class DanglingIdReference(BaseError):
     has_multiple_locations = True
     INDIVIDUAL_FIX = _('Remove the references to this id')
 
-    def __init__(self, name, eid, locs):
+    def __init__(self, name, eid, locs) -> None:
         BaseError.__init__(self, _('Reference to non-existent id: %s') % eid, name)
         self.HELP = _(
             'The id {0} is referred to by attributes such as aria-labelledby or aria-describedby in {1},'
@@ -425,7 +425,7 @@ class BareTextInBody(BaseError):
     HELP = _('You cannot have bare text inside the body tag. The text must be placed inside some other tag, such as p or div')
     has_multiple_locations = True
 
-    def __init__(self, name, lines):
+    def __init__(self, name, lines) -> None:
         BaseError.__init__(self, _('Bare text in body tag'), name)
         self.all_locations = [(name, l, None) for l in sorted(lines)]
 

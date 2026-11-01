@@ -36,7 +36,7 @@ class Header(OrderedDict):
     # be stored in the position field
     SHORT_FIELDS = set()
 
-    def __init__(self):
+    def __init__(self) -> None:
         OrderedDict.__init__(self)
 
         for line in self.DEFINITION.splitlines():

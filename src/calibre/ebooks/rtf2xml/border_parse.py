@@ -18,7 +18,7 @@ class BorderParse:
     Parse a border line and return a dictionary of attributes and values
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # cw<bd<bor-t-r-hi<nu<true
         self.__border_dict = {
             'bor-t-r-hi': 'border-table-row-horizontal-inside',

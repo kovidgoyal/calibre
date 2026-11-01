@@ -32,7 +32,7 @@ if bbd := bundled_binaries_dir():
 PDFTOTEXT = os.path.join(os.path.dirname(PDFTOHTML), 'pdftotext' + ('.exe' if iswindows else ''))
 
 
-def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
+def pdftohtml(output_dir, pdf_path, no_images, as_xml=False) -> None:
     """
     Convert the pdf into html using the pdftohtml app.
     This will write the html as index.html into output_dir.
@@ -133,7 +133,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
             pass
 
 
-def parse_outline(raw, output_dir):
+def parse_outline(raw, output_dir) -> None:
     from lxml import etree
 
     from calibre.utils.xml_parse import safe_xml_fromstring
@@ -147,7 +147,7 @@ def parse_outline(raw, output_dir):
         toc = TOC()
         count = [0]
 
-        def process_node(node, toc):
+        def process_node(node, toc) -> None:
             for child in node.iterchildren('*'):
                 if child.tag == 'outline':
                     parent = toc.children[-1] if toc.children else toc
@@ -164,7 +164,7 @@ def parse_outline(raw, output_dir):
                 f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
 
-def flip_image(img, flip):
+def flip_image(img, flip) -> None:
     from calibre.utils.img import flip_image, image_and_format_from_data, image_to_data
 
     with open(img, 'r+b') as f:

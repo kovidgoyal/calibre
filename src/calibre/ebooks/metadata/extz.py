@@ -55,7 +55,7 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
     replacements = {}
 
     # Get the OPF in the archive.

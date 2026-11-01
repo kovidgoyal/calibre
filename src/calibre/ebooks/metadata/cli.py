@@ -114,7 +114,7 @@ def normalize(x):
     return unicodedata.normalize('NFC', x)
 
 
-def do_set_metadata(opts, mi, stream, stream_type):
+def do_set_metadata(opts, mi, stream, stream_type) -> None:
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
@@ -216,7 +216,7 @@ def one(line: str, lock) -> None:
         print(json.dumps(ans), file=sys.__stdout__, flush=True)
 
 
-def simple_metadata_server():
+def simple_metadata_server() -> None:
     import calibre.ebooks.metadata.docx as speedup
 
     del speedup
@@ -241,7 +241,7 @@ def simple_metadata_server():
                 break
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(list(map(normalize, args)))
     if len(args) < 2:

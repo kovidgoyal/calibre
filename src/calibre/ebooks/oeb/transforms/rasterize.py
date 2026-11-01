@@ -73,7 +73,7 @@ def data_url(mime_type: str, data: bytes) -> str:
 
 
 class SVGRasterizer:
-    def __init__(self, base_css='', save_svg_originals=False):
+    def __init__(self, base_css='', save_svg_originals=False) -> None:
         self.base_css = base_css
         self.save_svg_originals = save_svg_originals
 
@@ -119,7 +119,7 @@ class SVGRasterizer:
 
         return rasterize_svg(xml2str(elem, with_tail=False), sizes=sizes, width=width, height=height, print=logger.info, fmt=format)
 
-    def scan_for_linked_resources_in_manifest(self):
+    def scan_for_linked_resources_in_manifest(self) -> None:
         for item in self.oeb.manifest.values():
             if item.media_type == SVG_MIME and item.data is not None:
                 self.scan_for_linked_resources_in_svg(item)
@@ -155,11 +155,11 @@ class SVGRasterizer:
             ans = self.stylizer_cache[item] = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile, base_css=self.base_css)
         return ans
 
-    def rasterize_spine(self):
+    def rasterize_spine(self) -> None:
         for item in self.oeb.spine:
             self.rasterize_item(item)
 
-    def rasterize_item(self, item):
+    def rasterize_item(self, item) -> None:
         html = item.data
         hrefs = self.oeb.manifest.hrefs
         for elem in xpath(html, '//h:img[@src]'):
@@ -178,7 +178,7 @@ class SVGRasterizer:
             style = self.stylizer(item).style(elem)
             self.rasterize_inline(elem, style, item)
 
-    def rasterize_inline(self, elem, style, item):
+    def rasterize_inline(self, elem, style, item) -> None:
         width = style['width']
         height = style['height']
         width = (width / 72) * self.profile.dpi
@@ -201,7 +201,7 @@ class SVGRasterizer:
             if prop in elem.attrib:
                 img.attrib[prop] = elem.attrib[prop]
 
-    def rasterize_external(self, elem, style, item, svgitem):
+    def rasterize_external(self, elem, style, item, svgitem) -> None:
         width = style['width']
         height = style['height']
         width = (width / 72) * self.profile.dpi
@@ -248,7 +248,7 @@ class SVGRasterizer:
         for child in elem:
             elem.remove(child)
 
-    def rasterize_cover(self):
+    def rasterize_cover(self) -> None:
         covers = self.oeb.metadata.cover
         if not covers:
             return

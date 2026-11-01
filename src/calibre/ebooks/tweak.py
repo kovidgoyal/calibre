@@ -59,7 +59,7 @@ def zip_exploder(path, tdir, question=lambda x: True):
     raise Error('Invalid book: Could not find .opf')
 
 
-def zip_rebuilder(tdir, path):
+def zip_rebuilder(tdir, path) -> None:
     with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
         # Write mimetype
         mt = os.path.join(tdir, 'mimetype')
@@ -104,7 +104,7 @@ def get_tools(fmt):
     return ans
 
 
-def explode(ebook_file, output_dir):
+def explode(ebook_file, output_dir) -> None:
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     if not os.path.isdir(output_dir):
@@ -134,7 +134,7 @@ def explode(ebook_file, output_dir):
     prints('Make your changes and once you are done, use --implode-book to rebuild')
 
 
-def implode(output_dir, ebook_file):
+def implode(output_dir, ebook_file) -> None:
     output_dir = os.path.abspath(output_dir)
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)
@@ -159,7 +159,7 @@ def implode(output_dir, ebook_file):
     prints(ebook_file, 'successfully rebuilt')
 
 
-def tweak(ebook_file):
+def tweak(ebook_file) -> None:
     """Command line interface to the Tweak Book tool"""
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)

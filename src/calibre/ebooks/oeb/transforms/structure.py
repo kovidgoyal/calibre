@@ -24,7 +24,7 @@ def isspace(x):
     return not x or x.replace('\xa0', '').isspace()
 
 
-def at_start(elem):
+def at_start(elem) -> bool:
     "Return True if there is no content before elem"
     body = XPath('ancestor-or-self::h:body')(elem)
     if not body:
@@ -97,7 +97,7 @@ class DetectStructure:
         if self.opts.start_reading_at:
             self.detect_start_reading()
 
-    def detect_start_reading(self):
+    def detect_start_reading(self) -> None:
         expr = self.opts.start_reading_at
         try:
             expr = XPath(expr)
@@ -131,7 +131,7 @@ class DetectStructure:
 
         return expr, None
 
-    def detect_chapters(self):
+    def detect_chapters(self) -> None:
         self.detected_chapters = []
         self.chapter_title_attribute = None
 
@@ -181,18 +181,18 @@ class DetectStructure:
                 except TypeError:
                     self.log.exception('Failed to mark chapter')
 
-    def create_level_based_toc(self):
+    def create_level_based_toc(self) -> None:
         if self.opts.level1_toc is not None:
             self.add_leveled_toc_items()
 
-    def create_toc_from_chapters(self):
+    def create_toc_from_chapters(self) -> None:
         counter = self.oeb.toc.next_play_order()
         for item, elem in self.detected_chapters:
             text, href = self.elem_to_link(item, elem, self.chapter_title_attribute, counter)
             self.oeb.toc.add(text, href, play_order=counter)
             counter += 1
 
-    def create_toc_from_links(self):
+    def create_toc_from_links(self) -> None:
         num = 0
         for item in self.oeb.spine:
             for a in XPath('//h:a[@href]')(item.data):
@@ -239,7 +239,7 @@ class DetectStructure:
         href = f'{item.href}#{id}'
         return text, href
 
-    def add_leveled_toc_items(self):
+    def add_leveled_toc_items(self) -> None:
         added = OrderedDict()
         added2 = OrderedDict()
         counter = 1

@@ -21,7 +21,7 @@ from calibre.utils.imghdr import identify
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 
 
-def MBP(name):
+def MBP(name) -> str:
     return f'{{{MBP_NS}}}{name}'
 
 
@@ -85,7 +85,7 @@ def isspace(text):
 
 
 class BlockState:
-    def __init__(self, body):
+    def __init__(self, body) -> None:
         self.body = body
         self.nested = []
         self.para = None
@@ -99,7 +99,7 @@ class BlockState:
 
 
 class FormatState:
-    def __init__(self):
+    def __init__(self) -> None:
         self.rendered = False
         self.left = 0.0
         self.halign = 'auto'
@@ -139,7 +139,7 @@ class FormatState:
 
 
 class MobiMLizer:
-    def __init__(self, ignore_tables=False):
+    def __init__(self, ignore_tables=False) -> None:
         self.ignore_tables = ignore_tables
 
     def __call__(self, oeb, context):
@@ -152,7 +152,7 @@ class MobiMLizer:
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
         self.mobimlize_spine()
 
-    def mobimlize_spine(self):
+    def mobimlize_spine(self) -> None:
         "Iterate over the spine and convert it to MOBIML"
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile)
@@ -193,7 +193,7 @@ class MobiMLizer:
                 result.append(line)
         return result
 
-    def mobimlize_content(self, tag, text, bstate, istates):
+    def mobimlize_content(self, tag, text, bstate, istates) -> None:
         "Convert text content"
         if text or tag != 'br':
             bstate.content = True
@@ -337,7 +337,7 @@ class MobiMLizer:
             else:
                 inline.append(item)
 
-    def mobimlize_elem(self, elem, stylizer, bstate, istates, ignore_valign=False):
+    def mobimlize_elem(self, elem, stylizer, bstate, istates, ignore_valign=False) -> None:
         if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             return
         style = stylizer.style(elem)

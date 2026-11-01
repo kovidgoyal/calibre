@@ -275,7 +275,7 @@ class Resource:
 
     """
 
-    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True) -> None:
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -332,48 +332,48 @@ class Resource:
             rpath = rpath.encode('utf-8')
         return as_unicode(quote(rpath.replace(os.sep.encode('utf-8'), b'/'))) + frag
 
-    def set_basedir(self, path):
+    def set_basedir(self, path) -> None:
         self._basedir = path
 
     def basedir(self):
         return self._basedir
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Resource({self.path!r}, {self.href()!r})'
 
 
 class ResourceCollection:
-    def __init__(self):
+    def __init__(self) -> None:
         self._resources = []
 
     def __iter__(self):
         yield from self._resources
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._resources)
 
     def __getitem__(self, index):
         return self._resources[index]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return len(self._resources) > 0
 
-    def __str__(self):
+    def __str__(self) -> str:
         resources = map(repr, self)
         return '[{}]'.format(', '.join(resources))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def append(self, resource):
+    def append(self, resource) -> None:
         if not isinstance(resource, Resource):
             raise TypeError('Can only append objects of type Resource')
         self._resources.append(resource)
 
-    def remove(self, resource):
+    def remove(self, resource) -> None:
         self._resources.remove(resource)
 
-    def replace(self, start, end, items):
+    def replace(self, start, end, items) -> None:
         "Same as list[start:end] = items"
         self._resources[start:end] = items
 
@@ -388,7 +388,7 @@ class ResourceCollection:
                 collection.append(res)
         return collection
 
-    def set_basedir(self, path):
+    def set_basedir(self, path) -> None:
         for res in self:
             res.set_basedir(path)
 

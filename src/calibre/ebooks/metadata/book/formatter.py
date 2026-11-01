@@ -9,7 +9,7 @@ from calibre.utils.localization import _
 
 
 class SafeFormat(TemplateFormatter):
-    def __init__(self):
+    def __init__(self) -> None:
         TemplateFormatter.__init__(self)
 
     def get_value(self, key, args, kwargs):

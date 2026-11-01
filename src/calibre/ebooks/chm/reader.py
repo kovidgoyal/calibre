@@ -17,7 +17,7 @@ from calibre.utils.filenames import make_long_path_useable
 from polyglot.builtins import as_unicode
 
 
-def match_string(s1, s2_already_lowered):
+def match_string(s1, s2_already_lowered) -> bool:
     if s1 is not None and s2_already_lowered is not None:
         if s1.lower() == s2_already_lowered:
             return True
@@ -41,7 +41,7 @@ class CHMError(Exception):
 
 
 class CHMReader(CHMFile):
-    def __init__(self, input, log, input_encoding=None):
+    def __init__(self, input, log, input_encoding=None) -> None:
         CHMFile.__init__(self)
         if isinstance(input, str):
             enc = 'mbcs' if iswindows else filesystem_encoding
@@ -105,7 +105,7 @@ class CHMReader(CHMFile):
                 if res == chmlib.CHM_RESOLVE_SUCCESS:
                     return q
 
-    def get_encodings(self):
+    def get_encodings(self) -> None:
         self.encoding_from_system_file = self.encoding_from_lcid = None
         q = self.GetEncoding()
         if q:
@@ -160,7 +160,7 @@ class CHMReader(CHMFile):
     def get_home(self):
         return self.GetFile(self.home)
 
-    def ExtractFiles(self, output_dir=os.getcwd(), debug_dump=False):
+    def ExtractFiles(self, output_dir=os.getcwd(), debug_dump=False) -> None:
         html_files = set()
         base = output_dir = os.path.abspath(output_dir)
         if not base.endswith(os.sep):
@@ -318,7 +318,7 @@ class CHMReader(CHMFile):
             return self._contents
         paths = []
 
-        def get_paths(chm, ui, ctx):
+        def get_paths(chm, ui, ctx) -> None:
             # these are supposed to be UTF-8 in CHM as best as I can determine
             # see https://tika.apache.org/1.11/api/org/apache/tika/parser/chm/accessor/ChmPmgiHeader.html
             path = as_unicode(ui.path, 'utf-8')
@@ -332,9 +332,9 @@ class CHMReader(CHMFile):
         self._contents = paths
         return self._contents
 
-    def _ensure_dir(self, path):
+    def _ensure_dir(self, path) -> None:
         dir = os.path.dirname(path)
         os.makedirs(make_long_path_useable(dir), exist_ok=True)
 
-    def extract_content(self, output_dir=os.getcwd(), debug_dump=False):
+    def extract_content(self, output_dir=os.getcwd(), debug_dump=False) -> None:
         self.ExtractFiles(output_dir=output_dir, debug_dump=debug_dump)

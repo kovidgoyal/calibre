@@ -6,13 +6,13 @@ from lxml import etree
 class InlineClass(etree.XSLTExtension):
     FMTS = ('italics', 'bold', 'strike-through', 'small-caps')
 
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         etree.XSLTExtension.__init__(self)
         self.log = log
         self.font_sizes = []
         self.colors = []
 
-    def execute(self, context, self_node, input_node, output_parent):
+    def execute(self, context, self_node, input_node, output_parent) -> None:
         classes = ['none']
         for x in self.FMTS:
             if input_node.get(x, None) == 'true':

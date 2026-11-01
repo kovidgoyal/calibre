@@ -90,7 +90,7 @@ class Document:
     TEXT_LENGTH_THRESHOLD = 25
     RETRY_LENGTH = 250
 
-    def __init__(self, input, log, **options):
+    def __init__(self, input, log, **options) -> None:
         self.input = input
         self.options = defaultdict(lambda: None)
         for k, v in options.items():
@@ -306,11 +306,11 @@ class Document:
             content_score -= 5
         return {'content_score': content_score, 'elem': elem}
 
-    def debug(self, *a):
+    def debug(self, *a) -> None:
         # if self.options['debug']:
         self.log.debug(*a)
 
-    def remove_unlikely_candidates(self):
+    def remove_unlikely_candidates(self) -> None:
         assert self.html is not None
         for elem in self.html.iter():
             if elem in self.keep_elements:
@@ -321,7 +321,7 @@ class Document:
                 self.debug(f'Removing unlikely candidate - {describe(elem)}')
                 elem.drop_tree()
 
-    def transform_misused_divs_into_paragraphs(self):
+    def transform_misused_divs_into_paragraphs(self) -> None:
         for elem in self.tags(self.html, 'div'):
             # transform <div>s that do not contain other block elements into <p>s
             if not REGEXES['divToPElementsRe'].search(str(''.join(map(tounicode, list(elem))))):
@@ -505,7 +505,7 @@ def option_parser():
     return parser
 
 
-def main():
+def main() -> None:
     from calibre.utils.logging import default_log
 
     parser = option_parser()

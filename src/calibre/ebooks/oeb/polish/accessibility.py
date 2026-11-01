@@ -136,7 +136,7 @@ class ElementsById:
     # The elements of an HTML file by id, built only when first needed, as
     # most files have no aria-labelledby references
 
-    def __init__(self, root: etree._Element):
+    def __init__(self, root: etree._Element) -> None:
         self.root = root
         self.map: dict[str, etree._Element] | None = None
 

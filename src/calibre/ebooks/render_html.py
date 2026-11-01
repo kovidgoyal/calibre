@@ -29,7 +29,7 @@ PRINT_TIMEOUT = 10
 
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
-    def interceptRequest(self, info):
+    def interceptRequest(self, info) -> None:
         method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             default_log.warn(f'Blocking URL request with method: {method}')
@@ -43,7 +43,7 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, root, parent=None):
+    def __init__(self, root, parent=None) -> None:
         self.root = root
         super().__init__(parent)
         self.allowed_hosts = (FAKE_HOST,)
@@ -72,7 +72,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
         send_reply(a0, guess_type(os.path.basename(resolved_path)), data)
 
-    def fail_request(self, rq, fail_code=None):
+    def fail_request(self, rq, fail_code=None) -> None:
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
@@ -80,7 +80,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
 
 class Render(QWebEnginePage):
-    def __init__(self, profile):
+    def __init__(self, profile) -> None:
         QWebEnginePage.__init__(self, profile, QApplication.instance())
         secure_webengine(self)
         self.printing_started = False
@@ -90,12 +90,12 @@ class Render(QWebEnginePage):
         t.setInterval(500)
         t.timeout.connect(self.hang_check)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.hang_timer.timeout.disconnect()
         self.pdfPrintingFinished.disconnect()
         self.setParent(None)
 
-    def load_finished(self, ok):
+    def load_finished(self, ok) -> None:
         if ok:
             self.runJavaScript(
                 '''
@@ -118,17 +118,17 @@ class Render(QWebEnginePage):
             assert app is not None
             app.exit(1)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
         pass
 
-    def start_load(self, path_to_html, root):
+    def start_load(self, path_to_html, root) -> None:
         url = QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}')
         url.setPath('/' + os.path.relpath(path_to_html, root).replace(os.sep, '/'))
         self.setUrl(url)
         self.start_time = monotonic()
         self.hang_timer.start()
 
-    def hang_check(self):
+    def hang_check(self) -> None:
         app = QApplication.instance()
         assert app is not None
         if self.printing_started:
@@ -139,7 +139,7 @@ class Render(QWebEnginePage):
             self.hang_timer.stop()
             app.exit(3)
 
-    def start_print(self, data):
+    def start_print(self, data) -> None:
         margins = QMarginsF(0, 0, 0, 0)
         page_size = QPageSize(QPageSize.PageSizeId.A4)
         if isinstance(data, dict):
@@ -163,7 +163,7 @@ class Render(QWebEnginePage):
         self.printing_started = True
         self.start_time = monotonic()
 
-    def print_finished(self, path, ok):
+    def print_finished(self, path, ok) -> None:
         app = QApplication.instance()
         assert app is not None
         app.exit(0 if ok else 2)

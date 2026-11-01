@@ -25,12 +25,12 @@ class OverrideTable:
         self,
         list_of_lists,
         run_level=1,
-    ):
+    ) -> None:
         self.__list_of_lists = list_of_lists
         self.__initiate_values()
         self.__run_level = run_level
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         self.__override_table_final = ''
         self.__state = 'default'
         self.__override_list = []
@@ -44,7 +44,7 @@ class OverrideTable:
             'cw<ls<list-id___': 'list-id',
         }
 
-    def __override_func(self, line):
+    def __override_func(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -64,7 +64,7 @@ class OverrideTable:
                 value = line[20:]
                 self.__override_list[-1][att] = value
 
-    def __parse_override_dict(self):
+    def __parse_override_dict(self) -> None:
         """
         Requires:
             nothing
@@ -100,7 +100,7 @@ class OverrideTable:
                 self.__list_of_lists[counter][0]['list-id'].append(list_id)
                 break
 
-    def __parse_lines(self, line):
+    def __parse_lines(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -129,7 +129,7 @@ class OverrideTable:
         self.__write_final_string()
         # self.__add_to_final_line()
 
-    def __default_func(self, line):
+    def __default_func(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -141,7 +141,7 @@ class OverrideTable:
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
 
-    def __after_bracket_func(self, line):
+    def __after_bracket_func(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -165,7 +165,7 @@ class OverrideTable:
             msg += f'token is "{line}\n"'
             raise Exception(msg)
 
-    def __write_final_string(self):
+    def __write_final_string(self) -> None:
         '''
         Requires:
             line -- line to parse

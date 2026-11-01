@@ -150,7 +150,7 @@ CLI_HELP = {x: hfix(x, re.sub(r'<.*?>', '', y)) for x, y in HELP.items()}
 # }}}
 
 
-def update_metadata(ebook, new_opf):
+def update_metadata(ebook, new_opf) -> None:
     from calibre.ebooks.metadata.opf import get_metadata, set_metadata
 
     with ebook.open(ebook.opf_name, 'r+b') as stream, open(new_opf, 'rb') as ns:
@@ -314,7 +314,7 @@ def polish_one(ebook, opts, report, customization=None):
     return changed
 
 
-def polish(file_map, opts, log, report):
+def polish(file_map, opts, log, report) -> None:
     st = time.time()
     for inbook, outbook in file_map.items():
         report(_('## Polishing: %s') % (inbook.rpartition('.')[-1].upper()))
@@ -386,7 +386,7 @@ def option_parser():
     return parser
 
 
-def main(args=None):
+def main(args=None) -> None:
     parser = option_parser()
     opts, args = parser.parse_args(args or sys.argv[1:])
     log = Log(level=Log.DEBUG if opts.verbose else Log.INFO)

@@ -77,10 +77,10 @@ MAXLEN = 1024**2
 class BZZDecoderError(Exception):
     """This exception is raised when BZZDecode runs into trouble"""
 
-    def __init__(self, msg):
+    def __init__(self, msg) -> None:
         self.msg = msg
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'BZZDecoderError: {self.msg}'
 
 
@@ -608,7 +608,7 @@ xmtf = (
 
 
 class BZZDecoder:
-    def __init__(self, infile, outfile):
+    def __init__(self, infile, outfile) -> None:
         self.instream = infile
         self.inptr = 0
         self.outf = outfile
@@ -679,7 +679,7 @@ class BZZDecoder:
             # offset += bytes; // for tell()
         return copied
 
-    def preload(self):
+    def preload(self) -> None:
         while self.scount <= 24:
             if not self.read_byte():
                 self.byte = 0xFF
@@ -689,7 +689,7 @@ class BZZDecoder:
             self.bufint = (self.bufint << 8) | self.byte
             self.scount += 8
 
-    def newtable(self, table):
+    def newtable(self, table) -> None:
         for i in range(256):
             self.p[i] = table[i][0]
             self.m[i] = table[i][1]
@@ -930,7 +930,7 @@ class BZZDecoder:
             res = self.decode_sub(ctx, index, z)
         return res
 
-    def read_byte(self):
+    def read_byte(self) -> bool | None:
         try:
             self.byte = self.instream[self.inptr]
             self.inptr += 1
@@ -947,7 +947,7 @@ class BZZDecoder:
 
 
 # for testing
-def main():
+def main() -> None:
     import sys
 
     from calibre_extensions import bzzdec as d

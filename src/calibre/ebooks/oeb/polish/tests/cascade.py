@@ -20,7 +20,7 @@ from calibre.utils.logging import Log, Stream
 class VirtualContainer(ContainerBase):
     tweak_mode = True
 
-    def __init__(self, files):
+    def __init__(self, files) -> None:
         s = Stream()
         self.log_stream = s.stream
         log = Log()
@@ -55,7 +55,7 @@ class VirtualContainer(ContainerBase):
 
 
 class CascadeTest(BaseTest):
-    def test_iterrules(self):
+    def test_iterrules(self) -> None:
         def get_rules(files, name='x/one.css', l=1, rule_type=None):
             c = VirtualContainer(files)
             rules = tuple(iterrules(c, name, rule_type=rule_type))
@@ -72,16 +72,16 @@ class CascadeTest(BaseTest):
         c = get_rules({'x/one.css': '@import "../two.css";', 'two.css': '@import "x/one.css"; body { color: red; }'})[1]
         self.assertIn('Recursive import', c.log_stream.getvalue())
 
-    def test_resolve_styles(self):
+    def test_resolve_styles(self) -> None:
 
-        def test_property(select, resolve_property, selector, name, val=None):
+        def test_property(select, resolve_property, selector, name, val=None) -> None:
             elem = next(select(selector))
             ans = resolve_property(elem, name)
             if val is None:
                 val = str(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
-        def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None, abort_on_missing=False):
+        def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None, abort_on_missing=False) -> None:
             elem = next(select(selector))
             ans = resolve_pseudo_property(elem, prop, name, abort_on_missing=abort_on_missing)
             if abort_on_missing:
@@ -144,7 +144,7 @@ class CascadeTest(BaseTest):
         t('p', 'first-letter', 'content')
         t('p', 'first-letter', 'content', abort_on_missing=True)
 
-    def test_font_stats(self):
+    def test_font_stats(self) -> None:
         embeds = '@font-face { font-family: X; src: url(X.otf) }\n@font-face { font-family: X; src: url(XB.otf); font-weight: bold }'
 
         def get_stats(html, *fonts):
@@ -212,13 +212,13 @@ class CascadeTest(BaseTest):
         # Technically def should not be needed in X but that is hard to achieve
         self.assertEqual(s.font_stats, {'XB.otf': set('def'), 'X.otf': set('abcdef')})
 
-    def test_remove_property_value(self):
+    def test_remove_property_value(self) -> None:
         style = parseStyle('background-image: url(b.png); background: black url(a.png) fixed')
         for prop in style.getProperties(all=True):
             remove_property_value(prop, lambda val: 'png' in val.cssText)
         self.assertEqual('background: black fixed', style.cssText.rstrip(';'))
 
-    def test_fallback_font_matching(self):
+    def test_fallback_font_matching(self) -> None:
         def cf(id, weight='normal', style='normal', stretch='normal'):
             return {'id': id, 'font-weight': weight, 'font-style': style, 'font-stretch': stretch}
 

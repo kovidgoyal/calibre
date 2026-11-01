@@ -9,7 +9,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.header = header
         self.stream = stream
         self.log = log

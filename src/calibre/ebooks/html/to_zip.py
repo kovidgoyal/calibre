@@ -96,7 +96,7 @@ every time you add an HTML file to the library.\
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         v = QVBoxLayout(config_dialog)
 
-        def size_dialog():
+        def size_dialog() -> None:
             config_dialog.resize(config_dialog.sizeHint())
 
         button_box.accepted.connect(config_dialog.accept)

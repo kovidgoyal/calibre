@@ -31,7 +31,7 @@ class ParseOptions:
             {indents:None, output:'/home/paul/file'}, ['/home/paul/input']
     """
 
-    def __init__(self, system_string, options_dict):
+    def __init__(self, system_string, options_dict) -> None:
         self.__system_string = system_string[1:]
         long_list = self.__make_long_list_func(options_dict)
         # print(long_list)
@@ -212,7 +212,7 @@ class ParseOptions:
                     self.__options_okay = 0
         return just_options, arguments
 
-    def __is_legal_option_func(self):
+    def __is_legal_option_func(self) -> None:
         """
         Requires:
             nothing

@@ -126,7 +126,7 @@ def adjacent_quotes(first_string, second_string):
 
 
 class Font:
-    def __init__(self, spec):
+    def __init__(self, spec) -> None:
         self.id = spec.get('id')
         self.size = float(spec.get('size'))
         self.size_em = 0.0
@@ -135,7 +135,7 @@ class Font:
 
 
 class Element:
-    def __init__(self):
+    def __init__(self) -> None:
         self.id: int = 0
         self.starts_block = None
         self.block_style = None
@@ -148,7 +148,7 @@ class Element:
 
 
 class DocStats:
-    def __init__(self):
+    def __init__(self) -> None:
         self.top: float = 0
         self.bottom: float = 0
         self.left_min_odd: float = 0
@@ -167,7 +167,7 @@ class DocStats:
 
 
 class Image(Element):
-    def __init__(self, img, page_width, page_height, opts, log, idc):
+    def __init__(self, img, page_width, page_height, opts, log, idc) -> None:
         Element.__init__(self)
         self.opts, self.log = opts, log
         self.id = next(idc)
@@ -179,7 +179,7 @@ class Image(Element):
         # Check for alignment done later
         self.align = 'L'
 
-    def to_html(self):
+    def to_html(self) -> str:
         # The size of the image in the PDF is in the units of the PDF page, so
         # it is only meaningful relative to the width of the page. Fixing both
         # the width and height distorts the image when the reader has to shrink
@@ -193,13 +193,13 @@ class Image(Element):
             percent = max(1, round(100 * self.width / self.page_width))
         return f'<img src="{self.src}" alt="" style="max-width:{percent}%"/>'
 
-    def dump(self, f):
+    def dump(self, f) -> None:
         f.write(self.to_html())
         f.write('\n')
 
 
 class Text(Element):
-    def __init__(self, text, font_map, opts, log, idc):
+    def __init__(self, text, font_map, opts, log, idc) -> None:
         Element.__init__(self)
         self.id = next(idc)
         self.opts, self.log = opts, log
@@ -251,7 +251,7 @@ class Text(Element):
         self.set_av_char_width()
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         # There is nothing in this Text
         return not self.raw
 
@@ -264,10 +264,10 @@ class Text(Element):
             or re.match(r'^\s*<b>\s*</b>\s*$', self.raw) is not None
         )
 
-    def set_av_char_width(self):
+    def set_av_char_width(self) -> None:
         self.average_character_width = max(0.1, self.width / max(1, len(self.text_as_string)))  # Ensure never zero
 
-    def coalesce(self, other, page_number, left_margin, right_margin):
+    def coalesce(self, other, page_number, left_margin, right_margin) -> None:
         if self.opts.verbose > 2:
             self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
         # Need to work out how to decide this
@@ -422,7 +422,7 @@ class Text(Element):
         self.set_av_char_width()
         # self.last_left = other.left
 
-    def convert_visual_order_to_logical(self):
+    def convert_visual_order_to_logical(self) -> None:
         # pdftohtml outputs the text of a line in visual order, that is, in the
         # order the glyphs are painted from left to right, which means
         # right-to-left text comes out of it with its letters backwards. This
@@ -437,14 +437,14 @@ class Text(Element):
     def to_html(self):
         return self.raw
 
-    def dump(self, f):
+    def dump(self, f) -> None:
         f.write(f'T top={self.top}, left={self.left}, width={self.width}, height={self.height}: ')
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 
 
 class Paragraph(Text):
-    def __init__(self, text, font_map, opts, log, idc):
+    def __init__(self, text, font_map, opts, log, idc) -> None:
         Element.__init__(self)
         self.id = next(idc)
         self.opts, self.log = opts, log
@@ -473,14 +473,14 @@ class Paragraph(Text):
     def to_html(self):
         return self.raw
 
-    def dump(self, f):
+    def dump(self, f) -> None:
         f.write(f'P top={self.top}, left={self.left}, width={self.width}, height={self.height}: ')
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 
 
 class FontSizeStats(dict):
-    def __init__(self, stats):
+    def __init__(self, stats) -> None:
         total = float(sum(stats.values()))
         self.most_common_size, self.chars_at_most_common_size = -1, 0
 
@@ -491,7 +491,7 @@ class FontSizeStats(dict):
 
 
 class Interval:
-    def __init__(self, left, right):
+    def __init__(self, left, right) -> None:
         self.left, self.right = left, right
         self.width = right - left
 
@@ -520,25 +520,25 @@ class Column:
     # the left or the right by at most HFUZZ*col width.
     HFUZZ = 0.2
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.left = self.right = self.top = self.bottom = 0
         self.width = self.height = 0
         self.elements = []
         self.average_line_separation = 0
 
-    def add(self, elem):
+    def add(self, elem) -> None:
         if elem in self.elements:
             return
         self.elements.append(elem)
         self._post_add()
 
-    def prepend(self, elem):
+    def prepend(self, elem) -> None:
         if elem in self.elements:
             return
         self.elements.insert(0, elem)
         self._post_add()
 
-    def _post_add(self):
+    def _post_add(self) -> None:
         self.elements.sort(key=attrgetter('bottom'))
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
@@ -551,13 +551,13 @@ class Column:
     def __iter__(self):
         yield from self.elements
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.elements)
 
     def contains(self, elem):
         return elem.left > self.left - self.HFUZZ * self.width and elem.right < self.right + self.HFUZZ * self.width
 
-    def collect_stats(self):
+    def collect_stats(self) -> None:
         if len(self.elements) > 1:
             gaps = [self.elements[i + 1].top - self.elements[i].bottom for i in range(len(self.elements) - 1)]
             self.average_line_separation = sum(gaps) / len(gaps)
@@ -575,14 +575,14 @@ class Column:
             return None
         return self.elements[idx - 1]
 
-    def dump(self, f, num):
+    def dump(self, f, num) -> None:
         f.write(f'******** Column {num}\n\n')
         for elem in self.elements:
             elem.dump(f)
 
 
 class Box(list):
-    def __init__(self, type='p'):
+    def __init__(self, type='p') -> None:
         self.tag = type
 
     def to_html(self):
@@ -597,7 +597,7 @@ class Box(list):
 
 
 class ImageBox(Box):
-    def __init__(self, img):
+    def __init__(self, img) -> None:
         Box.__init__(self)
         self.img = img
 
@@ -616,12 +616,12 @@ class ImageBox(Box):
 
 
 class Region:
-    def __init__(self, opts, log):
+    def __init__(self, opts, log) -> None:
         self.opts, self.log = opts, log
         self.columns = []
         self.top = self.bottom = self.left = self.right = self.width = self.height = 0
 
-    def add(self, columns):
+    def add(self, columns) -> None:
         if not self.columns:
             for x in sorted(columns, key=attrgetter('left')):
                 self.columns.append(x)
@@ -630,7 +630,7 @@ class Region:
                 for elem in columns[i]:
                     self.columns[i].add(elem)
 
-    def contains(self, columns):
+    def contains(self, columns) -> bool:
         # TODO: handle unbalanced columns
         if not self.columns:
             return True
@@ -661,7 +661,7 @@ class Region:
     def is_small(self):
         return self.line_count < 3
 
-    def absorb(self, singleton):
+    def absorb(self, singleton) -> None:
 
         def most_suitable_column(elem):
             mc, mw = None, 0
@@ -684,7 +684,7 @@ class Region:
                     self.log.debug(f'Absorbing singleton {elem.to_html()} into column', idx)
                 col.add(elem)
 
-    def collect_stats(self):
+    def collect_stats(self) -> None:
         for column in self.columns:
             column.collect_stats()
         self.average_line_separation = sum(x.average_line_separation for x in self.columns) / float(len(self.columns))
@@ -692,11 +692,11 @@ class Region:
     def __iter__(self):
         yield from self.columns
 
-    def absorb_regions(self, regions, at):
+    def absorb_regions(self, regions, at) -> None:
         for region in regions:
             self.absorb_region(region, at)
 
-    def absorb_region(self, region, at):
+    def absorb_region(self, region, at) -> None:
         if len(region.columns) <= len(self.columns):
             for i in range(len(region.columns)):
                 src, dest = region.columns[i], self.columns[i]
@@ -730,14 +730,14 @@ class Region:
                         func = dest.add if at == 'bottom' else dest.prepend
                         func(src.elements[i])
 
-    def dump(self, f):
+    def dump(self, f) -> None:
         f.write('############################################################\n')
         f.write(f'########## Region ({len(self.columns)} columns) ###############\n')
         f.write('############################################################\n\n')
         for i, col in enumerate(self.columns):
             col.dump(f, i)
 
-    def linearize(self):
+    def linearize(self) -> None:
         self.elements = []
         for x in self.columns:
             self.elements.extend(x)
@@ -767,8 +767,8 @@ class Region:
 
 
 class Page:
-    def __init__(self, page, font_map, opts, log, idc):
-        def text_cmp(first, second):
+    def __init__(self, page, font_map, opts, log, idc) -> None:
+        def text_cmp(first, second) -> int:
             # Compare 2 text objects.
             # Order by line (top/bottom) then left
             if (first.top <= second.top and first.bottom >= second.bottom - BOTTOM_FACTOR) or (
@@ -1062,7 +1062,7 @@ class Page:
                         return t
         return None
 
-    def join_fragments(self, opts):
+    def join_fragments(self, opts) -> None:
         # Join fragments on a line
         # Do some basic checks on structure
 
@@ -1096,7 +1096,7 @@ class Page:
             if match is not None:
                 self.texts.remove(match)
 
-    def check_centered(self, stats):
+    def check_centered(self, stats) -> None:
         # Check for centered text
         # Also check for right aligned, and basic chapter structure
 
@@ -1179,14 +1179,14 @@ class Page:
             if lmargin > left_max and lmargin != indent_min and lmargin >= rmargin - rmargin * CENTER_FACTOR and lmargin <= rmargin + rmargin * CENTER_FACTOR:
                 i.align = 'C'
 
-    def coalesce_paras(self, stats):
+    def coalesce_paras(self, stats) -> None:
         # Join lines into paragraphs
         left_min = self.stats_left_min
         left_max = self.stats_left_max
         indent_min = self.stats_indent_min
         indent_max = self.stats_indent_max
 
-        def can_merge(self, first_text, second_text, stats):
+        def can_merge(self, first_text, second_text, stats) -> bool:
             # Can two lines be merged into one paragraph?
             # Some PDFs have a wandering left margin which is consistent on a page
             # but not within the whole document.  Hence use self.stats_left
@@ -1261,7 +1261,7 @@ class Page:
                 match_found = True
                 self.texts.remove(match)  # Leave tind
 
-    def remove_head_foot_regex(self, opts):
+    def remove_head_foot_regex(self, opts) -> None:
 
         # Remove headers or footers from a page
         # if there is a regex supplied
@@ -1294,7 +1294,7 @@ class Page:
                     #     match = self.find_match(t)
                     self.texts.remove(t)
 
-    def create_page_format(self, stats, opts):
+    def create_page_format(self, stats, opts) -> None:
         # Join fragments into lines
         # then remove any headers/footers/unwanted areas
 
@@ -1312,7 +1312,7 @@ class Page:
         # Do this before automatic actions
         self.remove_head_foot_regex(opts)
 
-    def find_margins(self, tops, indents, line_spaces, bottoms, rights):
+    def find_margins(self, tops, indents, line_spaces, bottoms, rights) -> None:
 
         # from collections import Counter
 
@@ -1393,14 +1393,14 @@ class Page:
         if self.opts.verbose > 2:
             self.dump_regions('post-coalesce')
 
-    def dump_regions(self, fname):
+    def dump_regions(self, fname) -> None:
         fname = 'regions-' + fname + '.txt'
         with open(os.path.join(self.debug_dir, fname), 'wb') as f:
             f.write(f'Page #{self.number}\n\n'.encode('utf-8'))
             for region in self.regions:
                 region.dump(f)
 
-    def coalesce_regions(self):
+    def coalesce_regions(self) -> None:
         # find contiguous sets of small regions
         # absorb into a neighboring region (prefer the one with number of cols
         # closer to the avg number of cols in the set, if equal use larger
@@ -1484,14 +1484,14 @@ class Page:
                 if interval.intersection(y_interval).width > 0.5 * self.average_text_height and x_interval.intersection(h_interval).width <= 0:
                     yield y
 
-    def update_font_sizes(self, stats):
+    def update_font_sizes(self, stats) -> None:
         # Font sizes start as pixels/points, but em is more useful
         for text in self.texts:
             text.font_size_em = self.font_map[text.font.id].size_em
             if text.font_size_em not in {0.0, 1.0}:
                 text.raw = f'<span style="font-size:{text.font_size_em!s}em">{text.raw}</span>'
 
-    def second_pass(self, stats, opts):
+    def second_pass(self, stats, opts) -> None:
 
         # If there are alternating pages, pick the left and indent for this one
         if self.odd_even:
@@ -1597,7 +1597,7 @@ class Page:
 
 
 class PDFDocument:
-    def __init__(self, xml, opts, log):
+    def __init__(self, xml, opts, log) -> None:
         from calibre.utils.xml_parse import safe_xml_fromstring
         # from calibre.rpdb import set_trace;  set_trace()
 
@@ -1673,13 +1673,13 @@ class PDFDocument:
         self.render()
         self.generate_toc()
 
-    def generate_toc(self):
+    def generate_toc(self) -> None:
         from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 
         root_toc_node = TOC()
         count = [0]
 
-        def process_node(node, toc):
+        def process_node(node, toc) -> None:
             for child in node.iterchildren('*'):
                 if child.tag == 'outline':
                     parent = toc.children[-1] if toc.children else toc
@@ -1696,7 +1696,7 @@ class PDFDocument:
             with open('toc.ncx', 'wb') as f:
                 f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
-    def collect_font_statistics(self):
+    def collect_font_statistics(self) -> None:
         self.font_size_stats = {}
         for p in self.pages:
             for sz in p.font_size_stats:
@@ -1728,7 +1728,7 @@ class PDFDocument:
         for f in self.fonts:
             f.size_em = round(f.size / self.stats.font_size, 2)
 
-    def setup_stats(self):
+    def setup_stats(self) -> None:
         # This probably needs more work on line spacing/para spacing
         # Maybe sort the line_spaces array.
         # It is possible to have more than 1 line space value, e.g. 8.0, 9.0, 10.0
@@ -1757,7 +1757,7 @@ class PDFDocument:
                     ioffset = i
             return ioffset
 
-        def set_indents(indents, odd_even):
+        def set_indents(indents, odd_even) -> None:
             # Find most popular left so that will be treated as left of page
             left_k1 = left_c = 0
             left_k = find_indent(indents)
@@ -1945,7 +1945,7 @@ class PDFDocument:
                 bcount = self.bottoms[b]
             self.stats.bottom = max(self.stats.bottom, b)
 
-    def find_header_footer(self):
+    def find_header_footer(self) -> None:
         # If requested, scan first few pages for possible headers/footers
 
         if (self.opts.pdf_header_skip >= 0 and self.opts.pdf_footer_skip >= 0) or len(self.pages) < 2:
@@ -2076,7 +2076,7 @@ class PDFDocument:
         if foot_skip > 0:
             self.opts.pdf_footer_skip = foot_skip
 
-    def remove_header_footer(self):
+    def remove_header_footer(self) -> None:
         # Remove any header/footer lines from all pages
         for page in self.pages:
             # If a text is removed, we need to restart the loop or what was the next will be skipped
@@ -2091,7 +2091,7 @@ class PDFDocument:
                         removed = True
                         break  # Restart loop
 
-    def merge_pages(self, idc):
+    def merge_pages(self, idc) -> None:
         # Check for pages that can be merged
 
         # When merging pages, assume short last lines mean no merge
@@ -2224,7 +2224,7 @@ class PDFDocument:
                     save_candidate = candidate
                     self.pages.remove(merged_page)
 
-    def linearize(self):
+    def linearize(self) -> None:
         self.elements = []
         last_region = last_block = None
         for page in self.pages:
@@ -2248,7 +2248,7 @@ class PDFDocument:
                     last_block = block
                 last_region = region
 
-    def render(self):
+    def render(self) -> None:
         #### Where does the title come from if not run from command line?
         title = 'Converted Ebook'
         if len(sys.argv) > 1:

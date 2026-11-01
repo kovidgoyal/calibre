@@ -69,7 +69,7 @@ SEPARATE_TAGS = [
 
 
 class PMLMLizer:
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.log = log
         self.image_hrefs = {}
         self.link_hrefs = {}
@@ -86,7 +86,7 @@ class PMLMLizer:
 
         return self.pmlmlize_spine()
 
-    def create_flat_toc(self, nodes, level=0):
+    def create_flat_toc(self, nodes, level=0) -> None:
         for item in nodes:
             href, mid, id = item.href.partition('#')
             self.get_anchor_id(href, id)
@@ -147,7 +147,7 @@ class PMLMLizer:
         aid = self.link_hrefs[aid]
         return aid
 
-    def get_anchor(self, page, aid):
+    def get_anchor(self, page, aid) -> str:
         aid = self.get_anchor_id(page.href, aid)
         return rf'\Q="{aid}"'
 

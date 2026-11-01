@@ -31,7 +31,7 @@ def test_convert_color(return_tests=False):
     import unittest
 
     class TestColors(unittest.TestCase):
-        def test_color_conversion(self):
+        def test_color_conversion(self) -> None:
             ae = self.assertEqual
             cc = convert_color
             ae(None, cc(None))

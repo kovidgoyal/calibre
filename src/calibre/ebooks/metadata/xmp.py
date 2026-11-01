@@ -44,7 +44,7 @@ NS_MAP = {
 KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
 
 
-def expand(name):
+def expand(name) -> str:
     prefix, name = name.partition(':')[::2]
     return f'{{{NS_MAP[prefix]}}}{name}'
 
@@ -78,7 +78,7 @@ def parse_xmp_packet(raw_bytes):
     return safe_xml_fromstring(raw)
 
 
-def serialize_xmp_packet(root, encoding='utf-8'):
+def serialize_xmp_packet(root, encoding='utf-8') -> bytes:
     root.tail = '\n' + '\n'.join(repeat(' ' * 100, 30))  # Adobe spec recommends inserting padding at the end of the packet
     raw_bytes = etree.tostring(root, encoding=encoding, pretty_print=True, with_tail=True, method='xml')
     return b'<?xpacket begin="%s" id="W5M0MpCehiHzreSzNTczkc9d"?>\n%s\n<?xpacket end="w"?>' % (
@@ -173,7 +173,7 @@ def read_series(root):
     return None, None
 
 
-def read_user_metadata(mi, root):
+def read_user_metadata(mi, root) -> None:
     from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
     from calibre.utils.config import from_json
 
@@ -392,13 +392,13 @@ def nsmap(*args):
     return {x: NS_MAP[x] for x in args}
 
 
-def create_simple_property(parent, tag, value):
+def create_simple_property(parent, tag, value) -> None:
     e = parent.makeelement(expand(tag))
     parent.append(e)
     e.text = value
 
 
-def create_alt_property(parent, tag, value):
+def create_alt_property(parent, tag, value) -> None:
     e = parent.makeelement(expand(tag))
     parent.append(e)
     alt = e.makeelement(expand('rdf:Alt'))
@@ -409,7 +409,7 @@ def create_alt_property(parent, tag, value):
     li.text = value
 
 
-def create_sequence_property(parent, tag, val, ordered=True):
+def create_sequence_property(parent, tag, val, ordered=True) -> None:
     e = parent.makeelement(expand(tag))
     parent.append(e)
     seq = e.makeelement(expand('rdf:' + ('Seq' if ordered else 'Bag')))
@@ -420,7 +420,7 @@ def create_sequence_property(parent, tag, val, ordered=True):
         seq.append(li)
 
 
-def create_identifiers(xmp, identifiers):
+def create_identifiers(xmp, identifiers) -> None:
     xmpid = xmp.makeelement(expand('xmp:Identifier'))
     xmp.append(xmpid)
     bag = xmpid.makeelement(expand('rdf:Bag'))
@@ -437,7 +437,7 @@ def create_identifiers(xmp, identifiers):
         val.text = value
 
 
-def create_series(calibre, series, series_index):
+def create_series(calibre, series, series_index) -> None:
     s = calibre.makeelement(expand('calibre:series'))
     s.set(expand('rdf:parseType'), 'Resource')
     calibre.append(s)
@@ -453,7 +453,7 @@ def create_series(calibre, series, series_index):
     s.append(si)
 
 
-def create_user_metadata(calibre, all_user_metadata):
+def create_user_metadata(calibre, all_user_metadata) -> None:
     from calibre.ebooks.metadata.book.json_codec import encode_is_multiple, object_to_unicode
     from calibre.utils.config import to_json
 
@@ -602,7 +602,7 @@ def find_nsmap(elems):
     return ans
 
 
-def clone_into(parent, elem):
+def clone_into(parent, elem) -> None:
     "Clone the element, assuming that all namespace declarations are present in parent"
     clone = parent.makeelement(elem.tag)
     parent.append(clone)

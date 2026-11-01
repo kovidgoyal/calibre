@@ -70,7 +70,7 @@ class TestOPF3(unittest.TestCase):
     def get_opf(self, metadata='', manifest=''):
         return safe_xml_fromstring(TEMPLATE.format(metadata=metadata, manifest=manifest))
 
-    def test_prefix_parsing(self):  # {{{
+    def test_prefix_parsing(self) -> None:  # {{{
         self.ae(
             parse_prefixes('foaf: http://xmlns.com/foaf/spec/\n dbp: http://dbpedia.org/ontology/'),
             {'foaf': 'http://xmlns.com/foaf/spec/', 'dbp': 'http://dbpedia.org/ontology/'},
@@ -88,7 +88,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_identifiers(self):  # {{{
+    def test_identifiers(self) -> None:  # {{{
         def idt(val, scheme=None, iid=''):
             return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=(f'opf:scheme="{scheme}"' if scheme else ''), val=val, id=iid)
 
@@ -127,7 +127,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_title(self):  # {{{
+    def test_title(self) -> None:  # {{{
         def rt(root):
             return read_title(root, read_prefixes(root), read_refines(root))
 
@@ -147,7 +147,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_languages(self):  # {{{
+    def test_languages(self) -> None:  # {{{
         def rl(root):
             return read_languages(root, read_prefixes(root), read_refines(root))
 
@@ -162,7 +162,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_authors(self):  # {{{
+    def test_authors(self) -> None:  # {{{
         def rl(root):
             return read_authors(root, read_prefixes(root), read_refines(root))
 
@@ -198,7 +198,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_book_producer(self):  # {{{
+    def test_book_producer(self) -> None:  # {{{
         def rl(root):
             return read_book_producers(root, read_prefixes(root), read_refines(root))
 
@@ -218,7 +218,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_dates(self):  # {{{
+    def test_dates(self) -> None:  # {{{
         from calibre.utils.date import utcnow
 
         def rl(root):
@@ -231,7 +231,7 @@ class TestOPF3(unittest.TestCase):
             set_timestamp(root, p, r, ts)
             return rl(root)
 
-        def ae(root, y1=None, y2=None):
+        def ae(root, y1=None, y2=None) -> None:
             x1, x2 = rl(root)
             for x, y in ((x1, y1), (x2, y2)):
                 if y is None:
@@ -251,7 +251,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_comments(self):  # {{{
+    def test_comments(self) -> None:  # {{{
         def rt(root):
             return read_comments(root, read_prefixes(root), read_refines(root))
 
@@ -265,7 +265,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_publisher(self):  # {{{
+    def test_publisher(self) -> None:  # {{{
         def rt(root):
             return read_publisher(root, read_prefixes(root), read_refines(root))
 
@@ -279,7 +279,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_raster_cover(self):  # {{{
+    def test_raster_cover(self) -> None:  # {{{
         def rt(root):
             return read_raster_cover(root, read_prefixes(root), read_refines(root))
 
@@ -297,7 +297,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_tags(self):  # {{{
+    def test_tags(self) -> None:  # {{{
         def rt(root):
             return read_tags(root, read_prefixes(root), read_refines(root))
 
@@ -311,7 +311,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_rating(self):  # {{{
+    def test_rating(self) -> None:  # {{{
         def rt(root):
             return read_rating(root, read_prefixes(root), read_refines(root))
 
@@ -327,7 +327,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_series(self):  # {{{
+    def test_series(self) -> None:  # {{{
         def rt(root):
             return read_series(root, read_prefixes(root), read_refines(root))
 
@@ -347,7 +347,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_user_metadata(self):  # {{{
+    def test_user_metadata(self) -> None:  # {{{
         def rt(root, name):
             f = globals()['read_' + name]
             return f(root, read_prefixes(root), read_refines(root))
@@ -382,7 +382,7 @@ class TestOPF3(unittest.TestCase):
 
     # }}}
 
-    def test_against_opf2(self):  # {{{
+    def test_against_opf2(self) -> None:  # {{{
         # opf2 {{{
         raw = '''<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
@@ -585,7 +585,7 @@ class TestOPF3(unittest.TestCase):
     </metadata><manifest><item href="start.html" media-type="text/html" id="m1"/></manifest><spine><itemref idref="m1"/></spine>
 </package>'''  # }}}
 
-        def compare_metadata(mi2, mi3):
+        def compare_metadata(mi2, mi3) -> None:
             self.ae(mi2.get_all_user_metadata(False), mi3.get_all_user_metadata(False))
             for field in ALL_METADATA_FIELDS:
                 if field not in 'manifest spine':
@@ -632,11 +632,11 @@ def suite():
 
 
 class TestRunner(unittest.main):
-    def createTests(self):
+    def createTests(self) -> None:
         self.test = suite()
 
 
-def run(verbosity=4):
+def run(verbosity=4) -> None:
     TestRunner(verbosity=verbosity, exit=False)
 
 

@@ -61,7 +61,7 @@ def get_imported_sheets(name, container, sheets, recursion_level=10, sheet=None)
     return ans
 
 
-def merge_declarations(first, second):
+def merge_declarations(first, second) -> None:
     for prop in second.getProperties():
         first.setProperty(prop)
 
@@ -405,7 +405,7 @@ def filter_css(container, properties, names=()):
     )
 
 
-def _classes_in_selector(selector, classes):
+def _classes_in_selector(selector, classes) -> None:
     for attr in ('selector', 'subselector', 'parsed_tree'):
         s = getattr(selector, attr, None)
         if s is not None:

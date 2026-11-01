@@ -24,11 +24,11 @@ class Copy:
         bug_handler=RuntimeError,
         file=None,
         deb_dir=None,
-    ):
+    ) -> None:
         self.__file = file
         self.__bug_handler = bug_handler
 
-    def set_dir(self, deb_dir):
+    def set_dir(self, deb_dir) -> None:
         """Set the temporary directory to write files to"""
         if deb_dir is None:
             message = 'No directory has been provided to write to in the copy.py'
@@ -39,11 +39,11 @@ class Copy:
             raise self.__bug_handler(message)
         Copy.__dir = deb_dir
 
-    def remove_files(self):
+    def remove_files(self) -> None:
         """Remove files from directory"""
         self.__remove_the_files(Copy.__dir)
 
-    def __remove_the_files(self, the_dir):
+    def __remove_the_files(self, the_dir) -> None:
         """Remove files from directory"""
         list_of_files = os.listdir(the_dir)
         for file in list_of_files:
@@ -56,7 +56,7 @@ class Copy:
                 except OSError:
                     pass
 
-    def copy_file(self, file, new_file):
+    def copy_file(self, file, new_file) -> None:
         """
         Copy the file to a new name
         If the platform is linux, use the faster linux command
@@ -65,5 +65,5 @@ class Copy:
         write_file = os.path.join(Copy.__dir, new_file)
         shutil.copyfile(file, write_file)
 
-    def rename(self, source, dest):
+    def rename(self, source, dest) -> None:
         shutil.copyfile(source, dest)

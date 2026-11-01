@@ -11,7 +11,7 @@ def find_imgtype(data):
 
 
 class Container:
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self.is_image_container = False
         self.resource_index = 0
 

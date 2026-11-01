@@ -1,4 +1,4 @@
-def _optimize(tagList, tagName, conversion):
+def _optimize(tagList, tagName, conversion) -> None:
     # copy the tag of interest plus any text
     newTagList = []
     for tag in tagList:

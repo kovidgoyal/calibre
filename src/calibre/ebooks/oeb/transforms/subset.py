@@ -140,7 +140,7 @@ class SubsetFonts:
 
         totals = [0, 0]
 
-        def remove(font):
+        def remove(font) -> None:
             totals[1] += len(font['item'].data)
             self.oeb.manifest.remove(font['item'])
             font['rule'].parentStyleSheet.deleteRule(font['rule'])
@@ -181,7 +181,7 @@ class SubsetFonts:
         if totals[0]:
             self.log(f'Reduced total font size to {totals[0] / totals[1] * 100:.1f}% of original')
 
-    def find_embedded_fonts(self):
+    def find_embedded_fonts(self) -> None:
         """
         Find all @font-face rules and extract the relevant info from them.
         """
@@ -194,7 +194,7 @@ class SubsetFonts:
                 continue
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
-    def find_style_rules(self):
+    def find_style_rules(self) -> None:
         """
         Extract all font related style information from all stylesheets into a
         dict mapping classes to font properties specified by that class. All
@@ -221,7 +221,7 @@ class SubsetFonts:
 
         self.style_rules = dict(rules)
 
-    def find_font_usage(self):
+    def find_font_usage(self) -> None:
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'xpath'):
                 continue
@@ -320,7 +320,7 @@ class SubsetFonts:
                 ans |= set(transform(child.tail))
         return ans
 
-    def find_usage_in(self, elem, inherited_style):
+    def find_usage_in(self, elem, inherited_style) -> None:
         style = elem_style(self.style_rules, elem.get('class', '') or '', inherited_style)
         for child in elem:
             self.find_usage_in(child, style)

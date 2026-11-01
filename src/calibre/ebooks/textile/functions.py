@@ -27,7 +27,7 @@ def _normalize_newlines(string):
     return out
 
 
-def getimagesize(url):
+def getimagesize(url) -> str | None:
     '''
     Attempts to determine an image's width and height, and returns a string
     suitable for use in an <img> tag, or None in case of failure.
@@ -210,7 +210,7 @@ class Textile:
         (re.compile(r'\b( ?)[([]C[])]', re.I), r'\1&#169;'),  # copyright
     ]
 
-    def __init__(self, restricted=False, lite=False, noimage=False):
+    def __init__(self, restricted=False, lite=False, noimage=False) -> None:
         """docstring for __init__"""
         self.restricted = restricted
         self.lite = lite
@@ -469,7 +469,7 @@ class Textile:
             result.append(line)
         return '\n'.join(result)
 
-    def lT(self, input):
+    def lT(self, input) -> str:
         if re.search(r'^#+', input):
             return 'o'
         else:
@@ -478,7 +478,7 @@ class Textile:
     def doPBr(self, in_):
         return re.compile(r'<(p)([^>]*?)>(.*)(</\1>)', re.S).sub(self.doBr, in_)
 
-    def doBr(self, match):
+    def doBr(self, match) -> str:
         if self.html_type == 'html':
             content = re.sub(r'(.+)(?:(?<!<br>)|(?<!<br />))\n(?![#*\s|])', '\\1<br>', match.group(3))
         else:
@@ -630,7 +630,7 @@ class Textile:
         '''
         return re.sub(r'\b\[([0-9]+)\](\s)?', self.footnoteID, text)
 
-    def footnoteID(self, match):
+    def footnoteID(self, match) -> str:
         id, t = match.groups()
         if id not in self.fn:
             self.fn[id] = str(uuid.uuid4())
@@ -709,7 +709,7 @@ class Textile:
         text = pattern.sub(self.refs, text)
         return text
 
-    def refs(self, match):
+    def refs(self, match) -> str:
         flag, url = match.groups()
         self.urlrefs[flag] = url
         return ''
@@ -717,7 +717,7 @@ class Textile:
     def checkRefs(self, url):
         return self.urlrefs.get(url, url)
 
-    def isRelURL(self, url):
+    def isRelURL(self, url) -> bool:
         '''
         Identify relative urls.
 

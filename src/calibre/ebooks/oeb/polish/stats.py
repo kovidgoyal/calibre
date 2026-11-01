@@ -180,7 +180,7 @@ skip_tags = {XHTML(x) for x in 'script style title meta link'.split()}
 font_keys = {'font-weight', 'font-style', 'font-stretch', 'font-family'}
 
 
-def prepare_font_rule(cssdict):
+def prepare_font_rule(cssdict) -> None:
     cssdict['font-family'] = frozenset(cssdict['font-family'][:1])
     cssdict['width'] = widths[cssdict['font-stretch']]
     cssdict['weight'] = int(cssdict['font-weight'])
@@ -189,14 +189,14 @@ def prepare_font_rule(cssdict):
 class StatsCollector:
     first_letter_pat = capitalize_pat = None
 
-    def __init__(self, container, do_embed=False):
+    def __init__(self, container, do_embed=False) -> None:
         if self.first_letter_pat is None:
             StatsCollector.first_letter_pat = self.first_letter_pat = regex.compile(r'^[\p{P}]*[\p{L}\p{N}]', regex.VERSION1 | regex.UNICODE)
             StatsCollector.capitalize_pat = self.capitalize_pat = regex.compile(r'[\p{L}\p{N}]', regex.VERSION1 | regex.UNICODE)
 
         self.collect_font_stats(container, do_embed)
 
-    def collect_font_face_rules(self, container, processed, spine_name, sheet, sheet_name):
+    def collect_font_face_rules(self, container, processed, spine_name, sheet, sheet_name) -> None:
         if sheet_name in processed:
             sheet_rules = processed[sheet_name]
         else:
@@ -229,12 +229,12 @@ class StatsCollector:
                 sheet_rules.append(cssdict)
         self.font_rule_map[spine_name].extend(sheet_rules)
 
-    def get_element_font_usage(self, elem, resolve_property, resolve_pseudo_property, font_face_rules, do_embed, font_usage_map, font_spec):
+    def get_element_font_usage(self, elem, resolve_property, resolve_pseudo_property, font_face_rules, do_embed, font_usage_map, font_spec) -> None:
         text = get_element_text(elem, resolve_property, resolve_pseudo_property, self.capitalize_pat)
         if not text:
             return
 
-        def update_usage_for_embed(font, chars):
+        def update_usage_for_embed(font, chars) -> None:
             if not do_embed:
                 return
             ff = [icu_lower(x) for x in font.get('font-family', ())]
@@ -274,7 +274,7 @@ class StatsCollector:
             for rule in get_matching_rules(font_face_rules, font):
                 self.font_stats[rule['src']] |= chars
 
-    def get_font_usage(self, container, spine_name, resolve_property, resolve_pseudo_property, font_face_rules, do_embed):
+    def get_font_usage(self, container, spine_name, resolve_property, resolve_pseudo_property, font_face_rules, do_embed) -> None:
         root = container.parsed(spine_name)
         for body in root.iterchildren(XHTML('body')):
             for elem in body.iter('*'):
@@ -289,7 +289,7 @@ class StatsCollector:
                         self.font_spec_map[spine_name],
                     )
 
-    def collect_font_stats(self, container, do_embed=False):
+    def collect_font_stats(self, container, do_embed=False) -> None:
         self.font_stats: dict = {}
         self.font_usage_map = {}
         self.font_spec_map = {}

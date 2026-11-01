@@ -21,7 +21,7 @@ def decrypt_font_data(key, data, algorithm):
     return decrypt + data[crypt_len:]
 
 
-def decrypt_font(key, path, algorithm):
+def decrypt_font(key, path, algorithm) -> None:
     with open(path, 'r+b') as f:
         data = decrypt_font_data(key, f.read(), algorithm)
         f.seek(0), f.truncate(), f.write(data)
@@ -37,7 +37,7 @@ class EPUBInput(InputFormatPlugin):
 
     recommendations = {('page_breaks_before', '/', OptionRecommendation.MED)}
 
-    def process_encryption(self, encfile, opf, log):
+    def process_encryption(self, encfile, opf, log) -> bool:
         import hashlib
         import uuid
 
@@ -382,7 +382,7 @@ class EPUBInput(InputFormatPlugin):
                 unkepubify_container(container)
                 container.commit()
 
-    def landmarks_to_guide(self, root, nav_path, opf, log):
+    def landmarks_to_guide(self, root, nav_path, opf, log) -> None:
         # The rest of the conversion pipeline uses only the OPF guide, so
         # replace guide entries with the landmarks from the EPUB 3 nav. Landmark
         # types with no equivalent guide type use custom guide types, see
@@ -422,7 +422,7 @@ class EPUBInput(InputFormatPlugin):
         for i, r in enumerate(refs):
             r.getparent().insert(i, r)
 
-    def convert_epub3_nav(self, nav_path, opf, log, opts):
+    def convert_epub3_nav(self, nav_path, opf, log, opts) -> None:
         from tempfile import NamedTemporaryFile
 
         from lxml import etree
@@ -463,7 +463,7 @@ class EPUBInput(InputFormatPlugin):
                 np.append(np.makeelement(NCX('content'), attrib={'src': href}))
             return np
 
-        def process_nav_node(node, toc_parent):
+        def process_nav_node(node, toc_parent) -> None:
             for li in node.iterchildren(XHTML('li')):
                 child = add_from_li(li, toc_parent)
                 ol = first_child(li, XHTML('ol'))
@@ -501,7 +501,7 @@ class EPUBInput(InputFormatPlugin):
                 with open(nav_path, 'wb') as f:
                     f.write(serialize(root, 'application/xhtml+xml'))
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         rc = getattr(self, 'removed_cover', None)
         if rc:
             cover_toc_item = None

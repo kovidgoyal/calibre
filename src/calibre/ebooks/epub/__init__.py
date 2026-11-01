@@ -15,7 +15,7 @@ def rules(stylesheets):
                     yield r
 
 
-def simple_container_xml(opf_path, extra_entries=''):
+def simple_container_xml(opf_path, extra_entries='') -> str:
     return f'''\
 <?xml version="1.0"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">

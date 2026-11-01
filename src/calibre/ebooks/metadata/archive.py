@@ -61,10 +61,10 @@ class KPFExtract(FileTypePlugin):
 
 
 class RAR:
-    def __init__(self, archive):
+    def __init__(self, archive) -> None:
         self.archive = archive
 
-    def close(self):
+    def close(self) -> None:
         pass
 
     def namelist(self):
@@ -82,7 +82,7 @@ class RAR:
 
 
 class SevenZip:
-    def __init__(self, archive):
+    def __init__(self, archive) -> None:
         from py7zr import SevenZipFile
 
         self.zf = SevenZipFile(archive, 'r')
@@ -90,14 +90,14 @@ class SevenZip:
     def namelist(self):
         return list(self.zf.getnames())
 
-    def close(self):
+    def close(self) -> None:
         self.zf.close()
 
     def read(self, fname):
         from py7zr import WriterFactory
 
         class MemoryFactory(WriterFactory):
-            def __init__(self):
+            def __init__(self) -> None:
                 self.buffers = {}
 
             def create(self, filename):
@@ -112,7 +112,7 @@ class SevenZip:
         return target_buffer.getvalue()
 
 
-def fname_ok(fname):
+def fname_ok(fname) -> bool:
     fname = fname.replace('\\', '/')
     bn = basename(fname).lower()
     if bn == 'thumbs.db':
@@ -190,7 +190,7 @@ class ArchiveExtract(FileTypePlugin):
             return of.name
 
 
-def get_comic_book_info(d, mi, series_index='volume'):
+def get_comic_book_info(d, mi, series_index='volume') -> None:
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     series = d.get('series', '')
     if series.strip():
@@ -299,7 +299,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
         last = len(pages)
     pages = pages[first - 1 : last]
 
-    def make_filename(num, ext):
+    def make_filename(num, ext) -> str:
         return f'{num:08d}{ext}'
 
     if fmt == 'rar':
@@ -308,7 +308,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
 
         current = None
 
-        def callback(x):
+        def callback(x) -> bool | None:
             nonlocal current
             if isinstance(x, dict):
                 if current is not None:

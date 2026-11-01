@@ -62,7 +62,7 @@ from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 class Unidecoder:
     codepoints = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.codepoints = CODEPOINTS
         self.codepoints.update(HANCODES)
 
@@ -82,7 +82,7 @@ class Unidecoder:
         except Exception:
             return '?'
 
-    def code_group(self, character):
+    def code_group(self, character) -> str:
         """
         Find what group character is a part of.
         """

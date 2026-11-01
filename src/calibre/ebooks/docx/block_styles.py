@@ -121,7 +121,7 @@ def read_single_border(parent, edge, XPath, get):
     return dict(zip(border_props, (padding, width, style, color)))
 
 
-def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'):
+def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr') -> None:
     vals = {k % edge: inherit for edge in border_edges for k in border_props}
 
     for border in XPath('./w:' + name)(parent):
@@ -134,7 +134,7 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
         setattr(dest, key, val)
 
 
-def border_to_css(edge, style, css):
+def border_to_css(edge, style, css) -> None:
     bs = getattr(style, f'border_{edge}_style')
     bc = getattr(style, f'border_{edge}_color')
     bw = getattr(style, f'border_{edge}_width')
@@ -151,7 +151,7 @@ def border_to_css(edge, style, css):
         css[f'border-{edge}-width'] = bw
 
 
-def read_indent(parent, dest, XPath, get):
+def read_indent(parent, dest, XPath, get) -> None:
     padding_left = padding_right = text_indent = inherit
     is_rtl = getattr(dest, 'bidi', False)
     for indent in XPath('./w:ind')(parent):
@@ -196,7 +196,7 @@ def read_indent(parent, dest, XPath, get):
     dest.text_indent = text_indent
 
 
-def read_justification(parent, dest, XPath, get):
+def read_justification(parent, dest, XPath, get) -> None:
     ans = inherit
     for jc in XPath('./w:jc[@w:val]')(parent):
         val = get(jc, 'w:val')
@@ -211,7 +211,7 @@ def read_justification(parent, dest, XPath, get):
     dest.text_align = ans
 
 
-def read_spacing(parent, dest, XPath, get):
+def read_spacing(parent, dest, XPath, get) -> None:
     padding_top = padding_bottom = line_height = inherit
     for s in XPath('./w:spacing')(parent):
         a, al, aa = get(s, 'w:after'), get(s, 'w:afterLines'), get(s, 'w:afterAutospacing')
@@ -235,7 +235,7 @@ def read_spacing(parent, dest, XPath, get):
     dest.line_height = line_height
 
 
-def read_shd(parent, dest, XPath, get):
+def read_shd(parent, dest, XPath, get) -> None:
     ans = inherit
     for shd in XPath('./w:shd[@w:fill]')(parent):
         val = get(shd, 'w:fill')
@@ -244,7 +244,7 @@ def read_shd(parent, dest, XPath, get):
     dest.background_color = ans
 
 
-def read_numbering(parent, dest, XPath, get):
+def read_numbering(parent, dest, XPath, get) -> None:
     lvl = num_id = inherit
     for np in XPath('./w:numPr')(parent):
         for ilvl in XPath('./w:ilvl[@w:val]')(np):
@@ -276,7 +276,7 @@ class Frame:
         'y',
     )
 
-    def __init__(self, fp, XPath, get):
+    def __init__(self, fp, XPath, get) -> None:
         self.drop_cap = get(fp, 'w:dropCap', 'none')
         try:
             self.h = int(get(fp, 'w:h')) / 20
@@ -346,7 +346,7 @@ class Frame:
         return not self.__eq__(other)
 
 
-def read_frame(parent, dest, XPath, get):
+def read_frame(parent, dest, XPath, get) -> None:
     ans = inherit
     for fp in XPath('./w:framePr')(parent):
         ans = Frame(fp, XPath, get)
@@ -429,7 +429,7 @@ class ParagraphStyle:
     linked_style = None
     style_name: str | None = None
 
-    def __init__(self, namespace, pPr=None):
+    def __init__(self, namespace, pPr=None) -> None:
         self.namespace = namespace
         if pPr is None:
             for p in self.all_properties:
@@ -466,7 +466,7 @@ class ParagraphStyle:
         self._css = None
         self._border_key = None
 
-    def update(self, other):
+    def update(self, other) -> None:
         for prop in self.all_properties:
             nval = getattr(other, prop)
             if nval is not inherit:
@@ -474,7 +474,7 @@ class ParagraphStyle:
         if other.linked_style is not None:
             self.linked_style = other.linked_style
 
-    def resolve_based_on(self, parent):
+    def resolve_based_on(self, parent) -> None:
         for p in self.all_properties:
             val = getattr(self, p)
             if val is inherit:
@@ -530,7 +530,7 @@ class ParagraphStyle:
     def has_identical_borders(self, other_style):
         return self.border_key == getattr(other_style, 'border_key', None)
 
-    def clear_borders(self):
+    def clear_borders(self) -> None:
         for edge in border_edges[:-1]:
             for prop in ('width', 'color', 'style'):
                 setattr(self, f'border_{edge}_{prop}', inherit)
@@ -543,11 +543,11 @@ class ParagraphStyle:
                 setattr(style, attr, getattr(self, attr))
         return style
 
-    def apply_between_border(self):
+    def apply_between_border(self) -> None:
         for prop in ('width', 'color', 'style'):
             setattr(self, f'border_bottom_{prop}', getattr(self, f'border_between_{prop}'))
 
-    def has_visible_border(self):
+    def has_visible_border(self) -> bool:
         for edge in border_edges[:-1]:
             bw, bs = getattr(self, f'border_{edge}_width'), getattr(self, f'border_{edge}_style')
             if bw is not inherit and bw and bs is not inherit and bs != 'none':

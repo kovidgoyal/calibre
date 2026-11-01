@@ -35,7 +35,7 @@ class TopazError(ValueError):
 
 
 class KFXError(ValueError):
-    def __init__(self):
+    def __init__(self) -> None:
         ValueError.__init__(
             self,
             _('This is an Amazon KFX book. It cannot be processed. See {} for information on how to handle KFX books.').format(
@@ -51,7 +51,7 @@ class MobiReader:
     )
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
-    def __init__(self, filename_or_stream, log=None, user_encoding=None, debug=None, try_extra_data_fix=False):
+    def __init__(self, filename_or_stream, log=None, user_encoding=None, debug=None, try_extra_data_fix=False) -> None:
         self.log = log or default_log
         self.debug = debug
         self.embedded_mi = None
@@ -148,7 +148,7 @@ class MobiReader:
                 except Exception:
                     self.book_header = bh
 
-    def check_for_drm(self):
+    def check_for_drm(self) -> None:
         if self.book_header.encryption_type != 0:
             try:
                 exth = self.book_header.exth
@@ -160,7 +160,7 @@ class MobiReader:
                 name = self.name
             raise DRMError(name)
 
-    def extract_content(self, output_dir, parse_cache):
+    def extract_content(self, output_dir, parse_cache) -> None:
         output_dir = os.path.abspath(output_dir)
         self.check_for_drm()
         processed_records = self.extract_text()
@@ -303,7 +303,7 @@ class MobiReader:
         except AttributeError:
             pass
 
-        def write_as_utf8(path, data):
+        def write_as_utf8(path, data) -> None:
             if isinstance(data, str):
                 data = data.encode('utf-8')
             with open(path, 'wb') as f:
@@ -336,7 +336,7 @@ class MobiReader:
             if ncx:
                 write_as_utf8(os.path.splitext(htmlfile)[0] + '.ncx', ncx)
 
-    def read_embedded_metadata(self, root, elem, guide):
+    def read_embedded_metadata(self, root, elem, guide) -> None:
         raw = b'<?xml version="1.0" encoding="utf-8" ?>\n<package>' + html.tostring(elem, encoding='utf-8') + b'</package>'
         stream = io.BytesIO(raw)
         opf = OPF(stream)
@@ -360,7 +360,7 @@ class MobiReader:
                                 break
                     break
 
-    def cleanup_html(self):
+    def cleanup_html(self) -> None:
         self.log.debug('Cleaning up HTML...')
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', cast('str', self.processed_html))
         if self.book_header.ancient and b'<html' not in self.mobi_html[:300].lower():
@@ -413,7 +413,7 @@ class MobiReader:
             raw += unit
         return raw
 
-    def upshift_markup(self, root, image_name_map=None):
+    def upshift_markup(self, root, image_name_map=None) -> None:
         self.log.debug('Converting style information to CSS...')
         image_name_map = image_name_map or {}
         size_map = {
@@ -808,7 +808,7 @@ class MobiReader:
                 num += 1
         return num
 
-    def warn_about_trailing_entry_corruption(self):
+    def warn_about_trailing_entry_corruption(self) -> None:
         if not self.warned_about_trailing_entry_corruption:
             self.warned_about_trailing_entry_corruption = True
             self.log.warn('The trailing data entries in this MOBI file are corrupted, you might see corrupted text in the output')
@@ -853,10 +853,10 @@ class MobiReader:
             self.mobi_html = self.mobi_html.replace(b'\x02', b'')  # start of text
         return processed_records
 
-    def replace_page_breaks(self):
+    def replace_page_breaks(self) -> None:
         self.processed_html = self.PAGE_BREAK_PAT.sub(r'<div \1 class="mbp_pagebreak" />', cast('str', self.processed_html))
 
-    def add_anchors(self):
+    def add_anchors(self) -> None:
         self.log.debug('Adding anchors...')
         positions = set()
         link_pattern = re.compile(rb'''<[^<>]+filepos=['"]{0,1}(\d+)[^<>]*>''', re.IGNORECASE)
@@ -952,7 +952,7 @@ class MobiReader:
         return image_name_map
 
 
-def test_mbp_regex():
+def test_mbp_regex() -> None:
     for raw, m in {
         '<mbp:pagebreak></mbp:pagebreak>': '',
         '<mbp:pagebreak xxx></mbp:pagebreak>yyy': ' xxxyyy',

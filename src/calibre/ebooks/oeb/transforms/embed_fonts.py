@@ -115,7 +115,7 @@ class EmbedFonts:
             if sheets:
                 self.process_item(item, sheets)
 
-    def find_embedded_fonts(self):
+    def find_embedded_fonts(self) -> None:
         """
         Find all @font-face rules and extract the relevant info from them.
         """
@@ -125,7 +125,7 @@ class EmbedFonts:
                 continue
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
-    def find_style_rules(self):
+    def find_style_rules(self) -> None:
         """
         Extract all font related style information from all stylesheets into a
         dict mapping classes to font properties specified by that class. All
@@ -166,7 +166,7 @@ class EmbedFonts:
                 self.log.warn('No <head> cannot embed font rules')
         return self.page_sheet
 
-    def process_item(self, item, sheets):
+    def process_item(self, item, sheets) -> None:
         ff_rules = []
         self.current_item = item
         self.page_sheet = None
@@ -180,7 +180,7 @@ class EmbedFonts:
         for body in item.data.xpath('//*[local-name()="body"]'):
             self.find_usage_in(body, base, ff_rules)
 
-    def find_usage_in(self, elem, inherited_style, ff_rules):
+    def find_usage_in(self, elem, inherited_style, ff_rules) -> None:
         style = elem_style(self.style_rules, elem.get('class', '') or '', inherited_style)
         for child in elem:
             self.find_usage_in(child, style, ff_rules)

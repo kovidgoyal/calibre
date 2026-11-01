@@ -14,6 +14,7 @@ from collections.abc import Callable, Iterator
 from functools import lru_cache
 from itertools import count
 from operator import attrgetter
+from typing import Never
 from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
 from lxml import etree, html
@@ -77,47 +78,47 @@ OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
 OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS, 'xsi': XSI_NS, 'calibre': CALIBRE_NS}
 
 
-def XML(name):
+def XML(name) -> str:
     return f'{{{XML_NS}}}{name}'
 
 
-def OPF(name):
+def OPF(name) -> str:
     return f'{{{OPF2_NS}}}{name}'
 
 
-def DC(name):
+def DC(name) -> str:
     return f'{{{DC11_NS}}}{name}'
 
 
-def XSI(name):
+def XSI(name) -> str:
     return f'{{{XSI_NS}}}{name}'
 
 
-def DCTERMS(name):
+def DCTERMS(name) -> str:
     return f'{{{DCTERMS_NS}}}{name}'
 
 
-def NCX(name):
+def NCX(name) -> str:
     return f'{{{NCX_NS}}}{name}'
 
 
-def SVG(name):
+def SVG(name) -> str:
     return f'{{{SVG_NS}}}{name}'
 
 
-def XLINK(name):
+def XLINK(name) -> str:
     return f'{{{XLINK_NS}}}{name}'
 
 
-def SMIL(name):
+def SMIL(name) -> str:
     return f'{{{SMIL_NS}}}{name}'
 
 
-def EPUB(name):
+def EPUB(name) -> str:
     return f'{{{EPUB_NS}}}{name}'
 
 
-def CALIBRE(name):
+def CALIBRE(name) -> str:
     return f'{{{CALIBRE_NS}}}{name}'
 
 
@@ -300,7 +301,7 @@ def iterlinks(root, find_links_in_css=True):
                 yield (el, 'style', match.group(1), match.start(1))
 
 
-def make_links_absolute(root, base_url):
+def make_links_absolute(root, base_url) -> None:
     """
     Make all links in the document absolute, given the
     ``base_url`` for the document (the full URL where the document
@@ -313,7 +314,7 @@ def make_links_absolute(root, base_url):
     rewrite_links(root, link_repl)
 
 
-def resolve_base_href(root):
+def resolve_base_href(root) -> None:
     base_href = None
     basetags = root.xpath('//base[@href]|//h:base[@href]', namespaces=XPNSMAP)
     for b in basetags:
@@ -324,7 +325,7 @@ def resolve_base_href(root):
     make_links_absolute(root, base_href)
 
 
-def rewrite_links(root, link_repl_func, resolve_base_href=False):
+def rewrite_links(root, link_repl_func, resolve_base_href=False) -> None:
     """
     Rewrite all the links in the document.  For each link
     ``link_repl_func(link)`` will be called, and the return value
@@ -551,7 +552,7 @@ def xml2text(elem, pretty_print=False, method='text'):
     return etree.tostring(elem, method=method, encoding='unicode', with_tail=False, pretty_print=pretty_print)
 
 
-def escape_cdata(root):
+def escape_cdata(root) -> None:
     pat = re.compile(r'[<>&]')
     for elem in root.iterdescendants(f'{{{XHTML_NS}}}style', f'{{{XHTML_NS}}}script'):
         if elem.text and pat.search(elem.text) is not None:
@@ -629,7 +630,7 @@ def urlnormalize(href):
     return urlunparse(parts)
 
 
-def extract(elem):
+def extract(elem) -> None:
     """
     Removes this element from the tree, including its children and
     text.  The tail text is joined to the previous element or
@@ -647,12 +648,12 @@ def extract(elem):
 
 
 class DummyHandler(logging.Handler):
-    def __init__(self):
+    def __init__(self) -> None:
         logging.Handler.__init__(self, logging.WARNING)
         self.setFormatter(logging.Formatter('%(message)s'))
         self.log = None
 
-    def emit(self, record):
+    def emit(self, record) -> None:
         if self.log is not None:
             msg = self.format(record)
             f = self.log.error if record.levelno >= logging.ERROR else self.log.warn
@@ -677,16 +678,16 @@ class NullContainer:
     For use with book formats which do not support container-like access.
     """
 
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.log = log
 
-    def read(self, path):
+    def read(self, path) -> Never:
         raise OEBError('Attempt to read from NullContainer')
 
-    def write(self, path):
+    def write(self, path) -> Never:
         raise OEBError('Attempt to write to NullContainer')
 
-    def exists(self, path):
+    def exists(self, path) -> bool:
         return False
 
     def namelist(self):
@@ -696,7 +697,7 @@ class NullContainer:
 class DirContainer:
     """Filesystem directory container."""
 
-    def __init__(self, path, log, ignore_opf=False):
+    def __init__(self, path, log, ignore_opf=False) -> None:
         self.log = log
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
@@ -843,7 +844,7 @@ class Metadata:
         class Attribute:
             """Smart accessor for allowed OEB metadata item attributes."""
 
-            def __init__(self, attr, allowed=None):
+            def __init__(self, attr, allowed=None) -> None:
                 if not callable(attr):
                     attr_, attr = attr, lambda term: attr_
                 self.attr = attr
@@ -863,10 +864,10 @@ class Metadata:
                     return None
                 return obj.attrib.get(self.term_attr(obj), '')
 
-            def __set__(self, obj, value):
+            def __set__(self, obj, value) -> None:
                 obj.attrib[self.term_attr(obj)] = value
 
-        def __init__(self, term, value, attrib=None, nsmap=None, **kwargs):
+        def __init__(self, term, value, attrib=None, nsmap=None, **kwargs) -> None:
             if nsmap is None:
                 nsmap = {}
             if attrib is None:
@@ -905,7 +906,7 @@ class Metadata:
             return self.value
 
         @content.setter
-        def content(self, value):
+        def content(self, value) -> None:
             self.value = value
 
         scheme = Attribute(lambda term: 'scheme' if term == OPF('meta') else OPF('scheme'), [DC('identifier'), OPF('meta')])
@@ -935,19 +936,19 @@ class Metadata:
         def __getitem__(self, key):
             return self.attrib[key]
 
-        def __setitem__(self, key, value):
+        def __setitem__(self, key, value) -> None:
             self.attrib[key] = value
 
-        def __contains__(self, key):
+        def __contains__(self, key) -> bool:
             return key in self.attrib
 
         def get(self, key, default=None):
             return self.attrib.get(key, default)
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f'Item(term={barename(self.term)!r}, value={self.value!r}, attrib={self.attrib!r})'
 
-        def __str__(self):
+        def __str__(self) -> str:
             return as_unicode(self.value)
 
         def to_opf1(self, dcmeta=None, xmeta=None, nsrmap=None):
@@ -986,7 +987,7 @@ class Metadata:
                 elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
 
-    def __init__(self, oeb):
+    def __init__(self, oeb) -> None:
         self.oeb = oeb
         self.items = defaultdict(list)
         self.primary_writing_mode = None
@@ -1007,12 +1008,12 @@ class Metadata:
 
     __iter__ = iterkeys
 
-    def clear(self, key):
+    def clear(self, key) -> None:
         l = self.items[key]
         for x in list(l):
             l.remove(x)
 
-    def filter(self, key, predicate):
+    def filter(self, key, predicate) -> None:
         l = self.items[key]
         for x in list(l):
             if predicate(x):
@@ -1021,7 +1022,7 @@ class Metadata:
     def __getitem__(self, key):
         return self.items[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.items
 
     def __getattr__(self, term):
@@ -1111,7 +1112,7 @@ class Manifest:
             have a :attr:`spine_position` of `None`.
         """
 
-        def __init__(self, oeb, id, href, media_type, fallback=None, loader=str, data=None):
+        def __init__(self, oeb, id, href, media_type, fallback=None, loader=str, data=None) -> None:
             if href:
                 href = str(href)
             self.oeb = oeb
@@ -1128,7 +1129,7 @@ class Manifest:
             self._loader = loader
             self._data = data
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f'Item(id={self.id!r}, href={self.href!r}, media_type={self.media_type!r})'
 
         # Parsing {{{
@@ -1250,17 +1251,17 @@ class Manifest:
             return data
 
         @data.setter
-        def data(self, value):
+        def data(self, value) -> None:
             self._data = value
 
         @data.deleter
-        def data(self):
+        def data(self) -> None:
             self._data = None
 
-        def reparse_css(self):
+        def reparse_css(self) -> None:
             self._data = self._parse_css(str(self))
 
-        def unload_data_from_memory(self, memory=None):
+        def unload_data_from_memory(self, memory=None) -> None:
             if isinstance(self._data, bytes):
                 if memory is None:
                     from calibre.ptempfile import PersistentTemporaryFile
@@ -1302,7 +1303,7 @@ class Manifest:
         def bytes_representation(self):
             return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
 
-        def __str__(self):
+        def __str__(self) -> str:
             return self.unicode_representation
 
         def __eq__(self, other):
@@ -1355,7 +1356,7 @@ class Manifest:
             href = os.path.normpath(href).replace('\\', '/')
             return href
 
-    def __init__(self, oeb):
+    def __init__(self, oeb) -> None:
         self.oeb = oeb
         self.items = set()
         self.ids = {}
@@ -1377,7 +1378,7 @@ class Manifest:
         self.hrefs[item.href] = item
         return item
 
-    def remove(self, item):
+    def remove(self, item) -> None:
         """Removes :param:`item` from the manifest."""
         if item in self.ids:
             item = self.ids[item]
@@ -1388,7 +1389,7 @@ class Manifest:
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
-    def remove_duplicate_item(self, item):
+    def remove_duplicate_item(self, item) -> None:
         if item in self.ids:
             item = self.ids[item]
         del self.ids[item.id]
@@ -1422,13 +1423,13 @@ class Manifest:
     def __iter__(self):
         yield from self.items
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.items)
 
     def values(self):
         return list(self.items)
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return item in self.items
 
     def to_opf1(self, parent=None):
@@ -1470,7 +1471,7 @@ class Manifest:
         return ans
 
     @main_stylesheet.setter
-    def main_stylesheet(self, item):
+    def main_stylesheet(self, item) -> None:
         self._main_stylesheet = item
 
 
@@ -1483,7 +1484,7 @@ class Spine:
     access as a list-like object.
     """
 
-    def __init__(self, oeb):
+    def __init__(self, oeb) -> None:
         self.oeb = oeb
         self.items = []
         self.page_progression_direction = None
@@ -1513,7 +1514,7 @@ class Spine:
             self.items[i].spine_position = i
         return item
 
-    def remove(self, item):
+    def remove(self, item) -> None:
         """Remove :param:`item` from the `Spine`."""
         index = item.spine_position
         self.items.pop(index)
@@ -1533,10 +1534,10 @@ class Spine:
     def __getitem__(self, index):
         return self.items[index]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.items)
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return item in self.items
 
     def to_opf1(self, parent=None):
@@ -1599,7 +1600,7 @@ class Guide:
         TYPES = frozenset(TITLES)
         ORDER = {t: i for i, (t, _) in enumerate(_TYPES_TITLES)}
 
-        def __init__(self, oeb, type, title, href):
+        def __init__(self, oeb, type, title, href) -> None:
             self.oeb = oeb
             if type.lower() in self.TYPES:
                 type = type.lower()
@@ -1611,7 +1612,7 @@ class Guide:
             self.title = title
             self.href = urlnormalize(href)
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f'Reference(type={self.type!r}, title={self.title!r}, href={self.href!r})'
 
         @property
@@ -1621,7 +1622,7 @@ class Guide:
             hrefs = self.oeb.manifest.hrefs
             return hrefs.get(path, None)
 
-    def __init__(self, oeb):
+    def __init__(self, oeb) -> None:
         self.oeb = oeb
         self.refs = {}
 
@@ -1636,7 +1637,7 @@ class Guide:
     def remove(self, type):
         return self.refs.pop(type, None)
 
-    def remove_by_href(self, href):
+    def remove_by_href(self, href) -> None:
         remove = [r for r, i in self.refs.items() if i.href == href]
         for r in remove:
             self.remove(r)
@@ -1658,13 +1659,13 @@ class Guide:
     def get(self, key):
         return self.refs.get(key)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         del self.refs[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.refs
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.refs)
 
     def to_opf1(self, parent=None):
@@ -1714,7 +1715,7 @@ class TOC:
         author=None,
         description=None,
         toc_thumbnail=None,
-    ):
+    ) -> None:
         self.title = title
         self.href = urlnormalize(href) if href else href
         self.klass = klass
@@ -1734,7 +1735,7 @@ class TOC:
         self.nodes.append(node)
         return node
 
-    def remove(self, node):
+    def remove(self, node) -> bool:
         for child in self.nodes:
             if child is node:
                 self.nodes.remove(child)
@@ -1781,7 +1782,7 @@ class TOC:
     def __getitem__(self, index):
         return self.nodes[index]
 
-    def autolayer(self):
+    def autolayer(self) -> None:
         """Make sequences of children pointing to the same content file into
         children of the first node referencing that file.
         """
@@ -1806,7 +1807,7 @@ class TOC:
             ans.extend(child.get_lines(lvl + 1))
         return ans
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '\n'.join(self.get_lines())
 
     def to_opf1(self, tour):
@@ -1838,7 +1839,7 @@ class TOC:
             node.to_ncx(point)
         return parent
 
-    def rationalize_play_orders(self):
+    def rationalize_play_orders(self) -> None:
         """
         Ensure that all nodes with the same play_order have the same href and
         with different play_orders have different hrefs.
@@ -1894,14 +1895,14 @@ class PageList:
 
         TYPES = {'front', 'normal', 'special'}
 
-        def __init__(self, name, href, type='normal', klass=None, id=None):
+        def __init__(self, name, href, type='normal', klass=None, id=None) -> None:
             self.name = str(name)
             self.href = urlnormalize(href)
             self.type = type if type in self.TYPES else 'normal'
             self.id = id
             self.klass = klass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.pages = []
 
     def add(self, name, href, type='normal', klass=None, id=None):
@@ -1910,7 +1911,7 @@ class PageList:
         self.pages.append(page)
         return page
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.pages)
 
     def __iter__(self):
@@ -1964,7 +1965,7 @@ class OEBBook:
         encoding='utf-8',
         pretty_print=False,
         input_encoding='utf-8',
-    ):
+    ) -> None:
         '''Create empty book.  Arguments:
 
         :param:`encoding`: Default encoding for textual content read
@@ -2015,7 +2016,7 @@ class OEBBook:
         self._temp_files = []
         self.removed_items_to_ignore: tuple = ()
 
-    def set_page_progression_direction_if_needed(self):
+    def set_page_progression_direction_if_needed(self) -> None:
         if not self.spine.page_progression_direction:
             try:
                 lang = self.metadata.language[0].value
@@ -2024,7 +2025,7 @@ class OEBBook:
             except Exception:
                 pass
 
-    def clean_temp_files(self):
+    def clean_temp_files(self) -> None:
         for path in self._temp_files:
             try:
                 os.remove(path)
@@ -2099,7 +2100,7 @@ class OEBBook:
         self.guide.to_opf1(package)
         return {OPF_MIME: ('content.opf', package)}
 
-    def _update_playorder(self, ncx):
+    def _update_playorder(self, ncx) -> None:
         hrefs = set(map(urlnormalize, xpath(ncx, '//ncx:content/@src')))
         playorder = {}
         next = 1

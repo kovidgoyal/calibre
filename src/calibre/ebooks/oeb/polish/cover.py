@@ -10,7 +10,7 @@ from calibre.utils.imghdr import identify
 from calibre.utils.localization import _
 
 
-def set_azw3_cover(container, cover_path, report, options=None):
+def set_azw3_cover(container, cover_path, report, options=None) -> None:
     existing_image = options is not None and options.get('existing_image', False)
     name = None
     found = True
@@ -41,7 +41,7 @@ def get_azw3_raster_cover_name(container):
         return container.href_to_name(items[0].get('href'))
 
 
-def mark_as_cover_azw3(container, name):
+def mark_as_cover_azw3(container, name) -> None:
     href = container.name_to_href(name, container.opf_name)
     found = False
     for item in container.opf_xpath('//opf:guide/opf:reference[@href and contains(@type, "cover")]'):
@@ -65,7 +65,7 @@ def get_cover_page_name(container):
     return find_cover_page(container)
 
 
-def set_cover(container, cover_path, report=None, options=None):
+def set_cover(container, cover_path, report=None, options=None) -> None:
     """
     Set the cover of the book to the image pointed to by cover_path.
 
@@ -86,7 +86,7 @@ def set_cover(container, cover_path, report=None, options=None):
         set_epub_cover(container, cover_path, report, options=options)
 
 
-def mark_as_cover(container, name):
+def mark_as_cover(container, name) -> None:
     """
     Mark the specified image as the cover image.
     """
@@ -185,7 +185,7 @@ def get_guides(container):
     return guides
 
 
-def mark_as_cover_epub(container, name):
+def mark_as_cover_epub(container, name) -> None:
     mmap = {v: k for k, v in container.manifest_id_map.items()}
     if name not in mmap:
         raise ValueError(f'Cannot mark {name} as cover as it is not in manifest')
@@ -223,7 +223,7 @@ def mark_as_cover_epub(container, name):
     container.dirty(container.opf_name)
 
 
-def mark_as_titlepage(container, name, move_to_start=True):
+def mark_as_titlepage(container, name, move_to_start=True) -> None:
     """
     Mark the specified HTML file as the titlepage of the EPUB.
 
@@ -272,7 +272,7 @@ def find_cover_page(container):
                 return landmark['dest']
 
 
-def fix_conversion_titlepage_links_in_nav(container):
+def fix_conversion_titlepage_links_in_nav(container) -> None:
     from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc
 
     cover_page_name = find_cover_page(container)
@@ -448,7 +448,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
     return raster_cover, titlepage
 
 
-def remove_cover_image_in_page(container, page, cover_images):
+def remove_cover_image_in_page(container, page, cover_images) -> None:
     for img in container.parsed(page).xpath('//*[local-name()="img" and @src]'):
         href = img.get('src')
         name = container.href_to_name(href, page)
@@ -457,7 +457,7 @@ def remove_cover_image_in_page(container, page, cover_images):
         break
 
 
-def has_epub_cover(container):
+def has_epub_cover(container) -> bool:
     if find_cover_image(container):
         return True
     if find_cover_page(container):

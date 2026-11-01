@@ -100,7 +100,7 @@ def create_manifest_item(root, href_template, id_template, media_type=None):
         return i
 
 
-def pretty_print_opf(root):
+def pretty_print_opf(root) -> None:
     from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 
     pretty_opf(root)

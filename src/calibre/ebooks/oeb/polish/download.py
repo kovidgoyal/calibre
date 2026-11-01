@@ -79,7 +79,7 @@ def get_content_length(response):
 
 
 class ProgressTracker:
-    def __init__(self, fobj, url, sz, progress_report):
+    def __init__(self, fobj, url, sz, progress_report) -> None:
         self.fobj = fobj
         self.progress_report = progress_report
         self.url, self.sz = url, sz
@@ -178,7 +178,7 @@ def download_external_resources(container, urls, timeout=60, progress_report=lam
 
 
 class replacer:
-    def __init__(self, url_map):
+    def __init__(self, url_map) -> None:
         self.url_map = url_map
         self.replaced = False
 

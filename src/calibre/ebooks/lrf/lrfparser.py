@@ -37,7 +37,7 @@ class LRFDocument(LRFMetaFile):
         width: int
         height: int
 
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         LRFMetaFile.__init__(self, stream)
         self.scramble_key = self.xor_key
         self.page_trees = []
@@ -46,7 +46,7 @@ class LRFDocument(LRFMetaFile):
         self.toc = ''
         self.keep_parsing = True
 
-    def parse(self):
+    def parse(self) -> None:
         self._parse_objects()
         self.metadata = LRFDocument.temp()
         for a in (
@@ -70,7 +70,7 @@ class LRFDocument(LRFMetaFile):
         for a in ('dpi', 'width', 'height'):
             setattr(self.device_info, a, getattr(self, a))
 
-    def _parse_objects(self):
+    def _parse_objects(self) -> None:
         self.objects = {}
         self._file.seek(self.object_index_offset)
         obj_array = array.array('I', self._file.read(4 * 4 * self.number_of_objects))
@@ -87,7 +87,7 @@ class LRFDocument(LRFMetaFile):
             if hasattr(obj, 'initialize'):
                 obj.initialize()
 
-    def _parse_object(self, objid, objoff, objsize):
+    def _parse_object(self, objid, objoff, objsize) -> None:
         obj = get_object(self, self._file, objid, objoff, objsize, self.scramble_key)
         self.objects[objid] = obj
         if isinstance(obj, PageTree):
@@ -104,7 +104,7 @@ class LRFDocument(LRFMetaFile):
     def __iter__(self):
         yield from self.page_trees
 
-    def write_files(self):
+    def write_files(self) -> None:
         for obj in chain(self.image_map.values(), self.font_map.values()):
             with open(obj.file, 'wb') as f:
                 f.write(obj.stream)
@@ -180,7 +180,7 @@ def option_parser():
     return parser
 
 
-def main(args=sys.argv, logger=None):
+def main(args=sys.argv, logger=None) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if logger is None:

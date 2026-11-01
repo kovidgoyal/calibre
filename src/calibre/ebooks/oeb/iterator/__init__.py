@@ -16,7 +16,7 @@ def is_supported(path):
 
 
 class UnsupportedFormatError(Exception):
-    def __init__(self, fmt):
+    def __init__(self, fmt) -> None:
         Exception.__init__(self, _('%s format books are not supported') % fmt.upper())
 
 
@@ -27,7 +27,7 @@ def EbookIterator(*args, **kwargs):
     return EbookIterator(*args, **kwargs)
 
 
-def get_preprocess_html(path_to_ebook, output=None):
+def get_preprocess_html(path_to_ebook, output=None) -> None:
     from calibre.ebooks.conversion.plumber import Plumber, set_regex_wizard_callback
     from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.logging import DevNull

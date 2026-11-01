@@ -123,7 +123,7 @@ K = [
 class mssha1:
     "An implementation of the MD5 hash function in pure Python."
 
-    def __init__(self):
+    def __init__(self) -> None:
         "Initialisation."
 
         # Initial message length in bits(!).
@@ -137,7 +137,7 @@ class mssha1:
         # to start from scratch on the same object.
         self.init()
 
-    def init(self):
+    def init(self) -> None:
         "Initialize the message-digest and set all fields to zero."
 
         self.length = 0
@@ -151,7 +151,7 @@ class mssha1:
         self.H3 = 0xDC679823
         self.H4 = 0xD0857A34
 
-    def _transform(self, W):
+    def _transform(self, W) -> None:
         for t in range(16, 80):
             W.append(_rotateLeft(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1) & 0xFFFFFFFF)
 
@@ -178,7 +178,7 @@ class mssha1:
     # Down from here all methods follow the Python Standard Library
     # API of the sha module.
 
-    def update(self, inBuf):
+    def update(self, inBuf) -> None:
         """Add to the current message.
 
         Update the mssha1 object with the string arg. Repeated calls
@@ -318,7 +318,7 @@ def new(arg=None):
 
 if __name__ == '__main__':
 
-    def main():
+    def main() -> None:
         import sys
 
         file = None

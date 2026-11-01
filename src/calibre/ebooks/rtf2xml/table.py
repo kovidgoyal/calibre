@@ -60,7 +60,7 @@ class Table:
         bug_handler,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         """
         Required:
             'file'--file to parse
@@ -77,7 +77,7 @@ class Table:
         self.__run_level = run_level
         self.__write_to = better_mktemp()
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Initiate all values.
         """
@@ -114,7 +114,7 @@ class Table:
         self.__cell_list = []
         self.__cell_widths = []
 
-    def __in_table_func(self, line):
+    def __in_table_func(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -141,7 +141,7 @@ class Table:
             self.__empty_cell(line)
         self.__write_obj.write(line)
 
-    def __not_in_table_func(self, line):
+    def __not_in_table_func(self, line) -> None:
         """
         Requires:
             line -- the line of text read in from document
@@ -158,7 +158,7 @@ class Table:
             action(line)
         self.__write_obj.write(line)
 
-    def __close_table(self, line):
+    def __close_table(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -178,7 +178,7 @@ class Table:
         average_cell_width = self.__mode(self.__cell_widths)
         self.__table_data[-1]['average-cell-width'] = average_cell_width
 
-    def __found_row_def_func(self, line):
+    def __found_row_def_func(self, line) -> None:
         """
         Requires:
             line don't need this except for consistency with other methods.
@@ -195,7 +195,7 @@ class Table:
         self.__cell_list.append({})
         self.__cell_widths = []
 
-    def __start_table_func(self, line):
+    def __start_table_func(self, line) -> None:
         """
         Requires:
             line -- line to parse
@@ -215,7 +215,7 @@ class Table:
         self.__write_obj.write('mi<mk<tabl-start\n')
         self.__state.append('in_table')
 
-    def __end_row_table_func(self, line):
+    def __end_row_table_func(self, line) -> None:
         """
         Requires:
             line --just for consistencey
@@ -226,7 +226,7 @@ class Table:
         """
         self.__close_table(line)
 
-    def __end_row_def_func(self, line):
+    def __end_row_def_func(self, line) -> None:
         """
         Requires:
             line --just for consistency
@@ -249,7 +249,7 @@ class Table:
             num_cells = len(width_list)
             self.__row_dict['number-of-cells'] = num_cells
 
-    def __in_row_def_func(self, line):
+    def __in_row_def_func(self, line) -> None:
         """
         Requires:
             line --line to parse
@@ -292,7 +292,7 @@ class Table:
         else:
             self.__write_obj.write(line)
 
-    def __handle_row_token(self, line):
+    def __handle_row_token(self, line) -> None:
         """
             Requires:
                 line -- line to parse
@@ -333,7 +333,7 @@ class Table:
         elif self.__token_info == 'cw<tb<row-header':
             self.__row_dict['header'] = 'true'
 
-    def __start_cell_func(self, line):
+    def __start_cell_func(self, line) -> None:
         """
         Required:
             line -- the line of text
@@ -364,7 +364,7 @@ class Table:
         self.__cells_in_table += 1
         self.__cells_in_row += 1
 
-    def __start_row_func(self, line):
+    def __start_row_func(self, line) -> None:
         """
         Required:
             line -- the line of text
@@ -383,7 +383,7 @@ class Table:
         self.__cells_in_row = 0
         self.__rows_in_table += 1
 
-    def __found_cell_position(self, line):
+    def __found_cell_position(self, line) -> None:
         """
         needs:
             line: current line
@@ -414,7 +414,7 @@ class Table:
         self.__cell_list.append({})
         self.__cell_widths.append(width)
 
-    def __in_cell_func(self, line):
+    def __in_cell_func(self, line) -> None:
         """
         Required:
             line
@@ -445,7 +445,7 @@ class Table:
         else:
             self.__write_obj.write(line)
 
-    def __end_cell_func(self, line):
+    def __end_cell_func(self, line) -> None:
         """
         Requires:
             line
@@ -461,7 +461,7 @@ class Table:
         self.__write_obj.write('mi<tg<close_____<cell\n')
         self.__write_obj.write('mi<mk<closecell_\n')
 
-    def __in_row_func(self, line):
+    def __in_row_func(self, line) -> None:
         if self.__token_info in {
             'mi<mk<not-in-tbl',
             'mi<mk<sect-start',
@@ -485,7 +485,7 @@ class Table:
         # else:
         #     self.__write_obj.write(line)
 
-    def __end_row_func(self, line):
+    def __end_row_func(self, line) -> None:
         if len(self.__state) > 1 and self.__state[-1] == 'in_row':
             self.__state.pop()
             self.__write_obj.write('mi<tg<close_____<row\n')
@@ -495,7 +495,7 @@ class Table:
         self.__max_number_cells_in_row = max(self.__max_number_cells_in_row, self.__cells_in_row)
         self.__list_of_cells_in_row.append(self.__cells_in_row)
 
-    def __empty_cell(self, line):
+    def __empty_cell(self, line) -> None:
         """
         Required:
             line -- line of text

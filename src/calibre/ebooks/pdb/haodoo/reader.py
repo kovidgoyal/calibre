@@ -52,7 +52,7 @@ def fix_punct(line):
 
 
 class LegacyHeaderRecord:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         fields = raw.lstrip().replace(b'\x1b\x1b\x1b', b'\x1b').split(b'\x1b')
         self.title = fix_punct(fields[0].decode('cp950', 'replace'))
         self.num_records = int(fields[1])
@@ -60,7 +60,7 @@ class LegacyHeaderRecord:
 
 
 class UnicodeHeaderRecord:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         fields = raw.lstrip().replace(b'\x1b\x00\x1b\x00\x1b\x00', b'\x1b\x00').split(b'\x1b\x00')
         self.title = fix_punct(fields[0].decode('utf_16_le', 'ignore'))
         self.num_records = int(fields[1])
@@ -68,7 +68,7 @@ class UnicodeHeaderRecord:
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.stream = stream
         self.log = log
 

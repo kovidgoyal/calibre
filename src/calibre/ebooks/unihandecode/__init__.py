@@ -21,7 +21,7 @@ class Unihandecoder:
     preferred_encoding = None
     decoder = None
 
-    def __init__(self, lang='zh', encoding='utf-8'):
+    def __init__(self, lang='zh', encoding='utf-8') -> None:
         self.preferred_encoding = encoding
         lang = lang.lower()
         if lang[:2] == 'ja':

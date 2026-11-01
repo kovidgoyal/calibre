@@ -45,7 +45,7 @@ class FDST(NamedTuple):
 
 
 class KF8Writer:
-    def __init__(self, oeb, opts, resources):
+    def __init__(self, oeb, opts, resources) -> None:
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         try:
             self.compress = not self.opts.dont_compress
@@ -80,7 +80,7 @@ class KF8Writer:
         # We do not want to use this ToC for MOBI 6, so remove it
         self.toc_adder.remove_generated_toc()
 
-    def dup_data(self):
+    def dup_data(self) -> None:
         """Duplicate data so that any changes we make to markup/CSS only
         affect KF8 output and not MOBI 6 output"""
         self._data_cache = {}
@@ -99,7 +99,7 @@ class KF8Writer:
     def data(self, item):
         return self._data_cache.get(item.href, item.data)
 
-    def cleanup_markup(self):
+    def cleanup_markup(self) -> None:
         for item in self.oeb.spine:
             root = self.data(item)
 
@@ -113,7 +113,7 @@ class KF8Writer:
             for tag in XPath('//*[@aid or @cid]')(root):
                 tag.attrib.pop('aid', None), tag.attrib.pop('cid', None)
 
-    def replace_resource_links(self):
+    def replace_resource_links(self) -> None:
         """Replace links to resources (raster images/fonts) with pointers to
         the MOBI record containing the resource. The pointers are of the form:
         kindle:embed:XXXX?mime=image/* The ?mime= is apparently optional and
@@ -155,7 +155,7 @@ class KF8Writer:
                 replacer = partial(pointer, item)
                 css_parser.replaceUrls(sheet, replacer, ignoreImportRules=True)
 
-    def extract_css_into_flows(self):
+    def extract_css_into_flows(self) -> None:
         inlines = defaultdict(list)  # Ensure identical <style>s not repeated
         sheets = {}
         passthrough = getattr(self.opts, 'mobi_passthrough', False)
@@ -223,7 +223,7 @@ class KF8Writer:
             if hasattr(sheet, 'cssText'):
                 self.flows[i] = force_unicode(sheet.cssText, 'utf-8')
 
-    def extract_svg_into_flows(self):
+    def extract_svg_into_flows(self) -> None:
         images = {}
 
         for item in self.oeb.manifest:
@@ -252,7 +252,7 @@ class KF8Writer:
                 if idx is not None:
                     img.set('src', f'kindle:flow:{to_ref(idx)}?mime=image/svg+xml')
 
-    def replace_internal_links_with_placeholders(self):
+    def replace_internal_links_with_placeholders(self) -> None:
         self.link_map = {}
         count = 0
         hrefs = {item.href for item in self.oeb.spine}
@@ -273,7 +273,7 @@ class KF8Writer:
                     self.link_map[placeholder] = (href, frag)
                     a.set('href', placeholder)
 
-    def insert_aid_attributes(self):
+    def insert_aid_attributes(self) -> None:
         self.id_map = {}
         cid = 0
         for i, item in enumerate(self.oeb.spine):
@@ -317,7 +317,7 @@ class KF8Writer:
 
                         j += 1
 
-    def chunk_it_up(self):
+    def chunk_it_up(self) -> None:
         placeholder_map = {}
         for placeholder, x in self.link_map.items():
             href, frag = x
@@ -333,7 +333,7 @@ class KF8Writer:
 
         self.flows[0] = chunker.text
 
-    def create_text_records(self):
+    def create_text_records(self) -> None:
         encoded_flows: list[bytes] = [x.encode('utf-8') if isinstance(x, str) else x for x in self.flows]
         self.flows.clear()
         self.flows.extend(encoded_flows)
@@ -367,7 +367,7 @@ class KF8Writer:
             self.records.append(b'\x00' * (records_size % 4))
             self.first_non_text_record_idx += 1
 
-    def create_fdst_records(self):
+    def create_fdst_records(self) -> None:
         entries = []
         self.fdst_table = []
         for i, flow in enumerate(self.flows):
@@ -378,7 +378,7 @@ class KF8Writer:
         self.fdst_records = [rec]
         self.fdst_count = len(self.fdst_table)
 
-    def create_indices(self):
+    def create_indices(self) -> None:
         self.skel_records = SkelIndex(self.skel_table)()
         self.chunk_records = ChunkIndex(self.chunk_table)()
         self.ncx_records = []
@@ -467,7 +467,7 @@ class KF8Writer:
         idx_type = NonLinearNCXIndex if is_non_linear else NCXIndex
         self.ncx_records = idx_type(entries)()
 
-    def create_guide(self):
+    def create_guide(self) -> None:
         self.start_offset = None
         self.guide_table = []
         self.guide_records = []

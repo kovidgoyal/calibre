@@ -31,7 +31,7 @@ class Fonts:
         default_font_num,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         """
         Required:
             'file'--file to parse
@@ -50,7 +50,7 @@ class Fonts:
         self.__write_to = better_mktemp()
         self.__run_level = run_level
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Initiate all values.
         """
@@ -71,7 +71,7 @@ class Fonts:
         # individual font written
         self.__wrote_ind_font = 0
 
-    def __default_func(self, line):
+    def __default_func(self, line) -> None:
         """
         Requires:
             line
@@ -84,7 +84,7 @@ class Fonts:
             self.__state = 'font_table'
         self.__write_obj.write(line)
 
-    def __font_table_func(self, line):
+    def __font_table_func(self, line) -> None:
         """
         Requires:
             line
@@ -107,7 +107,7 @@ class Fonts:
             self.__text_line = ''
         # self.__write_obj.write(line)
 
-    def __font_in_table_func(self, line):
+    def __font_in_table_func(self, line) -> None:
         """
         Requires:
             line
@@ -141,7 +141,7 @@ class Fonts:
             self.__found_end_font_table_func()
             self.__state = 'after_font_table'
 
-    def __found_end_font_table_func(self):
+    def __found_end_font_table_func(self) -> None:
         """
         Required:
             nothing
@@ -153,7 +153,7 @@ class Fonts:
         if not self.__wrote_ind_font:
             self.__write_obj.write('mi<tg<empty-att_<font-in-table<name>Times<num>0\n')
 
-    def __after_font_table_func(self, line):
+    def __after_font_table_func(self, line) -> None:
         """
         Required:
             line

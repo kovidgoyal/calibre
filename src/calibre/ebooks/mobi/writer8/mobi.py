@@ -190,7 +190,7 @@ class MOBIHeader(Header):  # {{{
     ALIGN = True
     POSITIONS = {'title_offset': 'full_title'}
 
-    def __init__(self, file_version=8):
+    def __init__(self, file_version=8) -> None:
         self.DEFINITION = self.DEFINITION.format(file_version=file_version, record_size=RECORD_SIZE)
         super().__init__()
 
@@ -232,7 +232,7 @@ class KF8Book:
     thumbnail_offset: object
     masthead_offset: object
 
-    def __init__(self, writer, for_joint=False):
+    def __init__(self, writer, for_joint=False) -> None:
         self.build_records(writer, for_joint)
         self.used_images = writer.used_images
         self.page_progression_direction = writer.oeb.spine.page_progression_direction
@@ -242,7 +242,7 @@ class KF8Book:
             # page_progression_direction
             self.primary_writing_mode = 'horizontal-rl'
 
-    def build_records(self, writer, for_joint):
+    def build_records(self, writer, for_joint) -> None:
         metadata = writer.oeb.metadata
         # The text records
         for x in ('last_text_record_idx', 'first_non_text_record_idx'):
@@ -338,7 +338,7 @@ class KF8Book:
         kwargs = {field: getattr(self, field) for field in HEADER_FIELDS}
         return MOBIHeader()(**kwargs)
 
-    def write(self, outpath):
+    def write(self, outpath) -> None:
         records = [self.record0] + self.records[1:]
 
         with open(outpath, 'wb') as f:

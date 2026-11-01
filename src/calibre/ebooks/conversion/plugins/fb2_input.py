@@ -165,7 +165,7 @@ class FB2Input(InputFormatPlugin):
             opf.render(f)
         return os.path.join(os.getcwd(), 'metadata.opf')
 
-    def extract_embedded_content(self, doc):
+    def extract_embedded_content(self, doc) -> None:
         from calibre import guess_extension, sanitize_file_name
         from calibre.ebooks.fb2 import base64_decode
 

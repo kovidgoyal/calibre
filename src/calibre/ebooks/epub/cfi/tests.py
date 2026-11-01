@@ -8,7 +8,7 @@ from calibre.ebooks.epub.cfi.parse import cfi_sort_key, decode_cfi, parser
 
 
 class Tests(unittest.TestCase):
-    def test_sorting(self):
+    def test_sorting(self) -> None:
         null_offsets = (0, (0, 0), 0)
         for path, key in [
             ('/1/2/3', ((1, 2, 3), null_offsets)),
@@ -18,7 +18,7 @@ class Tests(unittest.TestCase):
         ]:
             self.assertEqual(cfi_sort_key(path), key)
 
-    def test_parsing(self):
+    def test_parsing(self) -> None:
         p = parser()
 
         def step(x):
@@ -91,7 +91,7 @@ class Tests(unittest.TestCase):
         ]:
             self.assertEqual(p.parse_path(raw), (path, leftover))
 
-    def test_cfi_decode(self):
+    def test_cfi_decode(self) -> None:
         from calibre.ebooks.oeb.polish.parsing import parse
 
         root = parse(
@@ -117,7 +117,7 @@ class Tests(unittest.TestCase):
         )
         body = root[-1]
 
-        def test(cfi, expected):
+        def test(cfi, expected) -> None:
             self.assertIs(decode_cfi(root, cfi), expected)
 
         for cfi in '/4 /4[body01] /900[body01] /2[body01]'.split():

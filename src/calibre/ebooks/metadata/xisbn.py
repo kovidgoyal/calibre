@@ -17,7 +17,7 @@ class xISBN:
 
     QUERY = 'http://xisbn.worldcat.org/webservices/xid/isbn/%s?method=getEditions&format=json&fl=form,year,lang,ed'
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.lock = threading.RLock()
         self._data = []
         self._map = {}

@@ -21,7 +21,7 @@ RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
 
 
 class PolyglotDict(dict):
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         if isinstance(key, str):
             key = key.encode('utf-8')
         dict.__setitem__(self, key, val)
@@ -31,7 +31,7 @@ class PolyglotDict(dict):
             key = key.encode('utf-8')
         return dict.__getitem__(self, key)
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         if isinstance(key, str):
             key = key.encode('utf-8')
         return dict.__contains__(self, key)
@@ -147,7 +147,7 @@ def decint(raw, forward=True):
     return val, len(byts)
 
 
-def test_decint(num):
+def test_decint(num) -> None:
     for d in (True, False):
         raw = encint(num, forward=d)
         sz = len(raw)
@@ -352,7 +352,7 @@ def align_block(raw, multiple=4, pad=b'\0'):
     return raw + pad * (multiple - extra)
 
 
-def detect_periodical(toc, log=None):
+def detect_periodical(toc, log=None) -> bool:
     """
     Detect if the TOC object toc contains a periodical that conforms to the
     structure required by kindlegen to generate a periodical.
@@ -583,7 +583,7 @@ class CNCX:  # {{{
 
     MAX_STRING_LENGTH = 500
 
-    def __init__(self, strings=()):
+    def __init__(self, strings=()) -> None:
         self.strings = OrderedDict((s, 0) for s in strings)
 
         self.records = []
@@ -610,12 +610,12 @@ class CNCX:  # {{{
     def __getitem__(self, string):
         return self.strings[string]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.records)
 
     __nonzero__ = __bool__
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.records)
 
 
@@ -639,7 +639,7 @@ def find_tests():
     import unittest
 
     class TestConvertColor(unittest.TestCase):
-        def test_convert_color_for_font_tag(self):
+        def test_convert_color_for_font_tag(self) -> None:
             ae = self.assertEqual
             cc = convert_color_for_font_tag
             ae('currentColor', cc('currentColor'))

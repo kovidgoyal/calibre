@@ -60,7 +60,7 @@ def update_internal_links(mobi8_reader, log):
     return parts
 
 
-def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
+def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids) -> None:
 
     # we can safely remove all of the Kindlegen generated aid attributes and
     # calibre generated cid attributes
@@ -214,7 +214,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     return flows
 
 
-def insert_flows_into_markup(parts, flows, mobi8_reader, log):
+def insert_flows_into_markup(parts, flows, mobi8_reader, log) -> None:
     mr = mobi8_reader
 
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
@@ -247,7 +247,7 @@ def insert_flows_into_markup(parts, flows, mobi8_reader, log):
         parts[i] = part
 
 
-def insert_images_into_markup(parts, resource_map, log):
+def insert_images_into_markup(parts, resource_map, log) -> None:
     # Handle any embedded raster images links in the xhtml text
     # kindle:embed:XXXX?mime=image/gif (png, jpeg, etc) (used for images)
     img_pattern = re.compile(r'''(<[img\s|image\s][^>]*>)''', re.IGNORECASE)
@@ -297,7 +297,7 @@ def insert_images_into_markup(parts, resource_map, log):
         parts[i] = part
 
 
-def upshift_markup(parts):
+def upshift_markup(parts) -> None:
     tag_pattern = re.compile(r'''(<(?:svg)[^>]*>)''', re.IGNORECASE)
 
     for i in range(len(parts)):
@@ -398,7 +398,7 @@ def find_tests():
             self.assertEqual(output, expected)
             self.assertEqual(warnings, [])
 
-        def test_quoting_is_preserved(self):
+        def test_quoting_is_preserved(self) -> None:
             for url, expected in (
                 ('kindle:embed:0002?mime=application/x-font-ttf', '../fonts/00002.ttf'),
                 ('kindle:embed:0002', '../fonts/00002.ttf'),
@@ -410,23 +410,23 @@ def find_tests():
                         self.assert_converts(f'a {{ b: url({q}{url}{q}); }}', f'a {{ b: url({q}{expected}{q}); }}')
             self.assert_converts('@import url( "kindle:flow:0001?mime=text/css" );', '@import url("../styles/0001.css");')
 
-        def test_multiple_urls(self):
+        def test_multiple_urls(self) -> None:
             self.assert_converts(
                 '@font-face { src: url(kindle:embed:0002?mime=font/ttf) format("truetype"), url("kindle:embed:0002") }'
                 ' p { background: url(KINDLE:EMBED:0001?mime=image/jpeg) }',
                 '@font-face { src: url(../fonts/00002.ttf) format("truetype"), url("../fonts/00002.ttf") } p { background: url(../images/00001.jpeg) }',
             )
 
-        def test_extra_query_parameters(self):
+        def test_extra_query_parameters(self) -> None:
             self.assert_converts('url(kindle:embed:0002?foo=1&mime=font/ttf)', 'url(../fonts/00002.ttf)')
 
-        def test_style_attribute_is_not_broken(self):
+        def test_style_attribute_is_not_broken(self) -> None:
             self.assert_converts(
                 '<div style="background: url(kindle:embed:0001?mime=image/jpeg)"/>',
                 '<div style="background: url(../images/00001.jpeg)"/>',
             )
 
-        def test_invalid_references_are_preserved_with_warning(self):
+        def test_invalid_references_are_preserved_with_warning(self) -> None:
             for url, expected_warning in (
                 ('url("kindle:embed:0003?mime=font/ttf")', 'Referenced font 3'),
                 ('url(kindle:embed:0003?mime=image/png)', 'Referenced image 3'),
@@ -444,11 +444,11 @@ def find_tests():
                     self.assertEqual(len(warnings), 1, warnings)
                     self.assertIn(expected_warning, warnings[0])
 
-        def test_non_kindle_urls_untouched(self):
+        def test_non_kindle_urls_untouched(self) -> None:
             self.assert_converts('url(images/x.png) url("kindle.png")', 'url(images/x.png) url("kindle.png")')
 
     class TestImageLinks(unittest.TestCase):
-        def test_out_of_range_image_references(self):
+        def test_out_of_range_image_references(self) -> None:
             parts = ['<img src="kindle:embed:0000?mime=image/jpeg"/><p style="background: url(kindle:embed:0005)"/>']
             log = RecordingLog()
             insert_images_into_markup(parts, ['images/00001.jpeg'], log)

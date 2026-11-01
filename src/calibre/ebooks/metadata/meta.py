@@ -141,7 +141,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata, force_read_metadata=
     return base
 
 
-def set_metadata(stream, mi, stream_type='lrf', report_error=None):
+def set_metadata(stream, mi, stream_type='lrf', report_error=None) -> None:
     if stream_type:
         stream_type = stream_type.lower()
     set_file_type_metadata(stream, mi, stream_type, report_error=report_error)
@@ -253,7 +253,7 @@ def opf_metadata(opfpath):
         traceback.print_exc()
 
 
-def forked_read_metadata(original_path, tdir):
+def forked_read_metadata(original_path, tdir) -> None:
     from calibre.ebooks.metadata.opf2 import metadata_to_opf
     from calibre.ebooks.metadata.worker import run_import_plugins
     from calibre.utils.filenames import make_long_path_useable

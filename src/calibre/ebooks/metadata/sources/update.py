@@ -39,7 +39,7 @@ def load_plugin(src):
 
 
 class PatchedSearchEngines:
-    def __init__(self, ns):
+    def __init__(self, ns) -> None:
         self.__ns = ns
 
     def __getattr__(self, attr):
@@ -49,7 +49,7 @@ class PatchedSearchEngines:
             raise AttributeError('{} not present in search_engines_module'.format(attr))
 
 
-def patch_search_engines(src):
+def patch_search_engines(src) -> None:
     global current_search_engines
     src = src.encode('utf-8')
     ns = {}
@@ -67,7 +67,7 @@ def patch_search_engines(src):
     current_search_engines = PatchedSearchEngines(ns)
 
 
-def patch_plugins():
+def patch_plugins() -> None:
     from calibre.customize.ui import patch_metadata_plugins
 
     patches = {}
@@ -104,7 +104,7 @@ def update_needed():
     return needed
 
 
-def update_plugin(name, updated, expected_hash):
+def update_plugin(name, updated, expected_hash) -> None:
     raw = get_https_resource_securely('https://code.calibre-ebook.com/metadata-sources/' + name)
     h = hashlib.sha1(raw).hexdigest()
     if h != expected_hash:
@@ -117,7 +117,7 @@ _update_sources_worker: Thread | None = None
 _update_sources_errors: list[str] = []
 
 
-def main(report_error=prints, report_action=prints):
+def main(report_error=prints, report_action=prints) -> None:
     global _update_sources_worker
     try:
         if time.time() - cache.mtime() < UPDATE_INTERVAL:

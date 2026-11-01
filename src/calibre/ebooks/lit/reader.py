@@ -130,7 +130,7 @@ class UnBinary:
     DOUBLE_ANGLE_RE = re.compile(rb'([<>])\1')
     EMPTY_ATOMS = ({}, {})
 
-    def __init__(self, bin, path, manifest=None, map=HTML_MAP, atoms=EMPTY_ATOMS):
+    def __init__(self, bin, path, manifest=None, map=HTML_MAP, atoms=EMPTY_ATOMS) -> None:
         if manifest is None:
             manifest = {}
         self.manifest = manifest
@@ -144,7 +144,7 @@ class UnBinary:
         self.escape_reserved()
         self._tree = None
 
-    def escape_reserved(self):
+    def escape_reserved(self) -> None:
         raw = self.raw
         raw = self.AMPERSAND_RE.sub(rb'&amp;', raw)
         raw = self.OPEN_ANGLE_RE.sub(rb'&lt;', raw)
@@ -180,17 +180,17 @@ class UnBinary:
     def __unicode__(self):
         return self.unicode_representation
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.unicode_representation
 
-    def binary_to_text(self, bin, buf):
+    def binary_to_text(self, bin, buf) -> None:
         stack = [(0, None, None, 0, 0, False, False, 'text', 0)]
         self.cpos = 0
         while stack:
             self.binary_to_text_inner(bin, buf, stack)
         del self.cpos
 
-    def binary_to_text_inner(self, bin, buf, stack):
+    def binary_to_text_inner(self, bin, buf, stack) -> None:
         (depth, tag_name, current_map, dynamic_tag, errors, in_censorship, is_goingdown, state, flags) = stack.pop()
 
         if state == 'close tag':
@@ -388,21 +388,21 @@ class UnBinary:
 
 
 class DirectoryEntry:
-    def __init__(self, name, section, offset, size):
+    def __init__(self, name, section, offset, size) -> None:
         self.name = name
         self.section = section
         self.offset = offset
         self.size = size
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'DirectoryEntry(name={self.name!r}, section={self.section}, offset={self.offset}, size={self.size})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 
 class ManifestItem:
-    def __init__(self, original, internal, mime_type, offset, root, state):
+    def __init__(self, original, internal, mime_type, offset, root, state) -> None:
         self.original = original
         self.internal = internal
         self.mime_type = mime_type.lower() if hasattr(mime_type, 'lower') else mime_type
@@ -424,7 +424,7 @@ class ManifestItem:
             return self.internal == other.internal
         return self.internal == other
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'ManifestItem(internal={self.internal!r}, path={self.path!r}, mime_type={self.mime_type!r},'
             f' offset={self.offset}, root={self.root!r}, state={self.state!r})'
@@ -446,7 +446,7 @@ def preserve(function):
 class LitFile:
     PIECE_SIZE = 16
 
-    def __init__(self, filename_or_stream, log):
+    def __init__(self, filename_or_stream, log) -> None:
         self._warn = log.warn
         if hasattr(filename_or_stream, 'read'):
             self.stream = filename_or_stream
@@ -466,7 +466,7 @@ class LitFile:
         self.read_manifest()
         self.read_drm()
 
-    def warn(self, msg):
+    def warn(self, msg) -> None:
         self._warn(msg)
 
     @property
@@ -513,7 +513,7 @@ class LitFile:
         return self.stream.read(size)
 
     @preserve
-    def __len__(self):
+    def __len__(self) -> int:
         self.stream.seek(0, 2)
         return self.stream.tell()
 
@@ -525,7 +525,7 @@ class LitFile:
     def read_content(self, offset, size):
         return self.read_raw(self.content_offset + offset, size)
 
-    def read_secondary_header(self):
+    def read_secondary_header(self) -> None:
         offset = self.hdr_len + (self.num_pieces * self.PIECE_SIZE)
         byts = self.read_raw(offset, self.sec_hdr_len)
         offset = int32(byts[4:])
@@ -553,7 +553,7 @@ class LitFile:
         if not hasattr(self, 'content_offset'):
             raise LitError('Could not figure out the content offset')
 
-    def read_header_pieces(self):
+    def read_header_pieces(self) -> None:
         src = self.header[self.hdr_len :]
         for i in range(self.num_pieces):
             piece = src[i * self.PIECE_SIZE : (i + 1) * self.PIECE_SIZE]
@@ -576,7 +576,7 @@ class LitFile:
             elif i == 4:
                 self.piece4_guid = piece
 
-    def read_directory(self, piece):
+    def read_directory(self, piece) -> None:
         if not piece.startswith(b'IFCM'):
             raise LitError('Header piece #1 is not main directory.')
         chunk_size, num_chunks = int32(piece[8:12]), int32(piece[24:28])
@@ -618,7 +618,7 @@ class LitFile:
                 entry = DirectoryEntry(name, section, offset, size)
                 self.entries[name] = entry
 
-    def read_section_names(self):
+    def read_section_names(self) -> None:
         if '::DataSpace/NameList' not in self.entries:
             raise LitError('Lit file does not have a valid NameList')
         raw = self.get_file('::DataSpace/NameList')
@@ -637,7 +637,7 @@ class LitFile:
             self.section_names[section] = raw[pos : pos + size].decode('utf-16-le').rstrip('\0')
             pos += size
 
-    def read_manifest(self):
+    def read_manifest(self) -> None:
         if '/manifest' not in self.entries:
             raise LitError('Lit file does not have a valid manifest')
         raw = self.get_file('/manifest')
@@ -688,7 +688,7 @@ class LitFile:
                 item.path = os.path.basename(item.path)
             self.paths[item.path] = item
 
-    def read_drm(self):
+    def read_drm(self) -> None:
         self.drmlevel = 0
         if '/DRMStorage/Licenses/EUL' in self.entries:
             self.drmlevel = 5
@@ -868,7 +868,7 @@ class LitFile:
 class LitContainer:
     """Simple Container-interface, read-only accessor for LIT files."""
 
-    def __init__(self, filename_or_stream, log):
+    def __init__(self, filename_or_stream, log) -> None:
         self._litfile = LitFile(filename_or_stream, log)
         self.log = log
 
@@ -919,7 +919,7 @@ class LitReader(OEBReader):
     Container = LitContainer
     DEFAULT_PROFILE = 'MSReader'
 
-    def _spine_from_opf(self, opf):
+    def _spine_from_opf(self, opf) -> None:
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
             idref = elem.get('idref')

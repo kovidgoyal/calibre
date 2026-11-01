@@ -223,7 +223,7 @@ def remove_indents(txt):
     return re.sub(r'^[\r\t\f\v ]+', '', txt, flags=re.MULTILINE)
 
 
-def opf_writer(path, opf_name, manifest, spine, mi):
+def opf_writer(path, opf_name, manifest, spine, mi) -> None:
     opf = OPFCreator(path, mi)
     opf.create_manifest(manifest)
     opf.create_spine(spine)
@@ -263,7 +263,7 @@ def split_string_separator(txt, size):
     return txt
 
 
-def detect_paragraph_type(txt):
+def detect_paragraph_type(txt) -> str:
     """
     Tries to determine the paragraph type of the document.
 
@@ -307,7 +307,7 @@ def detect_paragraph_type(txt):
     return 'single'
 
 
-def detect_formatting_type(txt):
+def detect_formatting_type(txt) -> str:
     """
     Tries to determine the formatting of the document.
 

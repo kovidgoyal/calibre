@@ -137,7 +137,7 @@ class GoogleImages(Source):
         ),
     )
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False) -> None:
         if identifiers is None:
             identifiers = {}
         if not title:
@@ -210,7 +210,7 @@ class GoogleImages(Source):
         return br.open(url).read().decode('utf-8')
 
 
-def test_raw():
+def test_raw() -> None:
     import sys
 
     with open(sys.argv[-1]) as f:
@@ -219,7 +219,7 @@ def test_raw():
         print(x)
 
 
-def test(title='Star Trek: Section 31: Control', authors=('David Mack',)):
+def test(title='Star Trek: Section 31: Control', authors=('David Mack',)) -> None:
     try:
         from queue import Queue
     except ImportError:

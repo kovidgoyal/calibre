@@ -8,7 +8,7 @@ Convert CBR/CBZ files to LRF.
 import sys
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     return 0
 
 

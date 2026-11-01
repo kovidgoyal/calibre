@@ -17,7 +17,7 @@ from . import open_for_read
 class CheckBrackets:
     """Check that brackets match up"""
 
-    def __init__(self, bug_handler=None, file=None):
+    def __init__(self, bug_handler=None, file=None) -> None:
         self.__file = file
         self.__bug_handler = bug_handler
         self.__bracket_count = 0
@@ -25,12 +25,12 @@ class CheckBrackets:
         self.__cb_count = 0
         self.__open_bracket_num = []
 
-    def open_brack(self, line):
+    def open_brack(self, line) -> None:
         num = line[-5:-1]
         self.__open_bracket_num.append(num)
         self.__bracket_count += 1
 
-    def close_brack(self, line):
+    def close_brack(self, line) -> bool:
         num = line[-5:-1]
         try:
             last_num = self.__open_bracket_num.pop()

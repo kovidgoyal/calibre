@@ -15,7 +15,7 @@ class RenameFiles:  # {{{
     and manifest are not touched by this transform.
     """
 
-    def __init__(self, rename_map, renamed_items_map=None):
+    def __init__(self, rename_map, renamed_items_map=None) -> None:
         self.rename_map = rename_map
         self.renamed_items_map = renamed_items_map
 
@@ -47,7 +47,7 @@ class RenameFiles:  # {{{
         if self.oeb.toc:
             self.fix_toc_entry(self.oeb.toc)
 
-    def fix_toc_entry(self, toc):
+    def fix_toc_entry(self, toc) -> None:
         if toc.href:
             href = urlnormalize(toc.href)
             href, frag = urldefrag(href)

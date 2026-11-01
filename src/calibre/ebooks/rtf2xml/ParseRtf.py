@@ -144,7 +144,7 @@ class ParseRtf:
         no_dtd=0,
         char_data='',
         default_encoding='cp1252',
-    ):
+    ) -> None:
         """
         Requires:
         'file' --file to parse
@@ -188,7 +188,7 @@ class ParseRtf:
         self.__no_dtd = no_dtd
         self.__default_encoding = default_encoding
 
-    def __check_file(self, the_file, type):
+    def __check_file(self, the_file, type) -> None:
         """Check to see if files exist"""
         if hasattr(the_file, 'read'):
             return
@@ -202,7 +202,7 @@ class ParseRtf:
             msg = f"\nThe file '{the_file}' cannot be found"
             raise RtfInvalidCodeException(msg)
 
-    def __check_dir(self, the_dir):
+    def __check_dir(self, the_dir) -> int | None:
         """Check to see if directory exists"""
         if not the_dir:
             return
@@ -581,7 +581,7 @@ class ParseRtf:
         os.remove(self.__temp_file)
         return self.__exit_level
 
-    def __bracket_match(self, file_name):
+    def __bracket_match(self, file_name) -> None:
         if self.__run_level > 2:
             good_br, msg = self.__check_brack_obj.check_brackets()
             if good_br:
@@ -591,7 +591,7 @@ class ParseRtf:
                 msg = f'{msg} in file {file_name}'
                 print(msg, file=sys.stderr)
 
-    def __return_code(self, num):
+    def __return_code(self, num) -> None:
         if num is None:
             return
         if int(num) > self.__exit_level:

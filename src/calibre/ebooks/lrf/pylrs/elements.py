@@ -2,7 +2,7 @@
 
 
 class ElementWriter:
-    def __init__(self, e, header=False, sourceEncoding='ascii', spaceBeforeClose=True, outputEncodingName='UTF-16'):
+    def __init__(self, e, header=False, sourceEncoding='ascii', spaceBeforeClose=True, outputEncodingName='UTF-16') -> None:
         self.header = header
         self.e = e
         self.sourceEncoding = sourceEncoding
@@ -18,7 +18,7 @@ class ElementWriter:
         text = text.replace('>', '&gt;')
         return text
 
-    def _writeAttribute(self, f, name, value):
+    def _writeAttribute(self, f, name, value) -> None:
         f.write(f' {name!s}="')
         if not isinstance(value, (str, bytes)):
             value = str(value)
@@ -27,11 +27,11 @@ class ElementWriter:
         f.write(value)
         f.write('"')
 
-    def _writeText(self, f, rawText):
+    def _writeText(self, f, rawText) -> None:
         text = self._encodeCdata(rawText)
         f.write(text)
 
-    def _write(self, f, e):
+    def _write(self, f, e) -> None:
         f.write('<' + str(e.tag))
 
         attributes = e.items()
@@ -66,7 +66,7 @@ class ElementWriter:
         self.write(x)
         return ''.join(buffer)
 
-    def write(self, f):
+    def write(self, f) -> None:
         if self.header:
             f.write(f'<?xml version="1.0" encoding="{self.outputEncodingName}"?>\n')
 

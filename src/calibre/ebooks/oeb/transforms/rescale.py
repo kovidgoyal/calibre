@@ -7,14 +7,14 @@ from calibre import fit_image
 class RescaleImages:
     "Rescale all images to fit inside given screen size"
 
-    def __init__(self, check_colorspaces=False):
+    def __init__(self, check_colorspaces=False) -> None:
         self.check_colorspaces = check_colorspaces
 
     def __call__(self, oeb, opts, max_size: str = 'profile'):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.rescale(max_size)
 
-    def rescale(self, max_size: str = 'profile'):
+    def rescale(self, max_size: str = 'profile') -> None:
         from io import BytesIO
 
         from PIL import Image

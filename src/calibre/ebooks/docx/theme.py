@@ -3,7 +3,7 @@
 
 
 class Theme:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.major_latin_font = 'Cambria'
         self.minor_latin_font = 'Calibri'
         self.namespace = namespace

@@ -12,7 +12,7 @@ import re
 from calibre.ebooks.pdb.formatreader import FormatReader
 
 
-def unwrap(stream, output_path):
+def unwrap(stream, output_path) -> None:
     raw_data = stream.read()
     m = re.search(rb'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
     if m is None:
@@ -22,7 +22,7 @@ def unwrap(stream, output_path):
 
 
 class Reader(FormatReader):
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.header = header
         self.stream = stream
         self.log = log

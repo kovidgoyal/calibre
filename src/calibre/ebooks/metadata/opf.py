@@ -10,7 +10,7 @@ from calibre.ebooks.metadata.utils import create_manifest_item, normalize_langua
 
 
 class DummyFile:
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         self.raw = raw
 
     def read(self):

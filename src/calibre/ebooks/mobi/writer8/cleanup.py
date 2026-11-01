@@ -5,7 +5,7 @@ from calibre.ebooks.oeb.base import XPath
 
 
 class CSSCleanup:
-    def __init__(self, log, opts):
+    def __init__(self, log, opts) -> None:
         self.log, self.opts = log, opts
 
     def __call__(self, item, stylizer):
@@ -19,7 +19,7 @@ class CSSCleanup:
             style.drop('height')
 
 
-def remove_duplicate_anchors(oeb):
+def remove_duplicate_anchors(oeb) -> None:
     # The Kindle apparently has incorrect behavior for duplicate anchors, see
     # https://bugs.launchpad.net/calibre/+bug/1454199
     for item in oeb.spine:

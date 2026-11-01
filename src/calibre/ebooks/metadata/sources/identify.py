@@ -30,7 +30,7 @@ from polyglot.urllib import quote, urlparse
 
 
 class Worker(Thread):
-    def __init__(self, plugin, kwargs, abort):
+    def __init__(self, plugin, kwargs, abort) -> None:
         Thread.__init__(self)
         self.daemon = True
 
@@ -39,7 +39,7 @@ class Worker(Thread):
         self.buf = StringIO()
         self.log = create_log(self.buf)
 
-    def run(self):
+    def run(self) -> None:
         start = time.time()
         try:
             self.plugin.identify(self.log, self.rq, self.abort, **self.kwargs)
@@ -74,7 +74,7 @@ def wait_after_first_result(plugin, wait_time):
 
 
 class xISBN(Thread):
-    def __init__(self, isbn):
+    def __init__(self, isbn) -> None:
         Thread.__init__(self)
         self.isbn = isbn
         self.isbns = frozenset()
@@ -82,7 +82,7 @@ class xISBN(Thread):
         self.daemon = True
         self.exception = self.tb = None
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.isbns, self.min_year = xisbn.get_isbn_pool(self.isbn)
         except Exception as e:
@@ -93,7 +93,7 @@ class xISBN(Thread):
 
 
 class ISBNMerge:
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.pools = {}
         self.isbnless_results = []
         self.results = []
@@ -113,7 +113,7 @@ class ISBNMerge:
         results = pool[1]
         return any(r.identify_plugin is result.identify_plugin for r in results)
 
-    def add_result(self, result):
+    def add_result(self, result) -> None:
         isbn = result.isbn
         if isbn:
             pool = self.isbn_in_pool(isbn)
@@ -175,7 +175,7 @@ class ISBNMerge:
 
         return self.results
 
-    def merge_metadata_results(self, merge_on_identifiers=False):
+    def merge_metadata_results(self, merge_on_identifiers=False) -> None:
         """
         Merge results with identical title and authors or an identical
         identifier
@@ -571,7 +571,7 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
     ans = []
     keys_left = set(identifiers)
 
-    def add(name, k, val, url):
+    def add(name, k, val, url) -> None:
         ans.append((name, k, val, url))
         keys_left.discard(k)
 
@@ -643,7 +643,7 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
 # }}}
 
 
-def tests(start=0, limit=256):  # tests {{{
+def tests(start=0, limit=256) -> None:  # tests {{{
     # To run these test use: calibre-debug -c "from calibre.ebooks.metadata.sources.identify import tests; tests()"
     from calibre.ebooks.metadata.sources.test import authors_test, test_identify, title_test
 

@@ -128,7 +128,7 @@ def tostring(raw, xml_declaration: bool = False, encoding: str = 'UTF-8', with_t
 
 
 class Chunk:
-    def __init__(self, raw, selector):
+    def __init__(self, raw, selector) -> None:
         self.raw = raw
         self.starts_tags = []
         self.ends_tags = []
@@ -136,14 +136,14 @@ class Chunk:
         self.is_first_chunk = False
         self.selector = "{}-//*[@aid='{}']".format(*selector)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.raw)
 
-    def merge(self, chunk):
+    def merge(self, chunk) -> None:
         self.raw += chunk.raw
         self.ends_tags = chunk.ends_tags
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Chunk(len={len(self.raw)!r} insert_pos={self.insert_pos!r} starts_tags={self.starts_tags!r} ends_tags={self.ends_tags!r})'
 
     __str__ = __repr__
@@ -156,7 +156,7 @@ class Skeleton:
         start: int
         end: int
 
-    def __init__(self, file_number, item, root, chunks):
+    def __init__(self, file_number, item, root, chunks) -> None:
         self.file_number, self.item = file_number, item
         self.chunks = chunks
 
@@ -172,7 +172,7 @@ class Skeleton:
         raw = close_self_closing_tags(raw)
         return raw
 
-    def calculate_metrics(self, root):
+    def calculate_metrics(self, root) -> None:
         self.metrics = {}
         for tag in root.xpath('//*[@aid]'):
             text = (tag.text or '').encode('utf-8')
@@ -181,7 +181,7 @@ class Skeleton:
             end_length = len(raw.rpartition(b'<')[-1]) + 1
             self.metrics[tag.get('aid')] = Skeleton.Metric(start_length, end_length)
 
-    def calculate_insert_positions(self):
+    def calculate_insert_positions(self) -> None:
         pos = self.body_offset
         for chunk in self.chunks:
             for tag in chunk.starts_tags:
@@ -198,7 +198,7 @@ class Skeleton:
             ans = ans[:i] + chunk.raw + ans[i:]
         return ans
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.skeleton) + sum(len(x.raw) for x in self.chunks)
 
     @property
@@ -222,7 +222,7 @@ class Chunker:
         start_pos: int
         length: int
 
-    def __init__(self, oeb, data_func, placeholder_map):
+    def __init__(self, oeb, data_func, placeholder_map) -> None:
         self.oeb, self.log = oeb, oeb.log
         self.data = data_func
         self.placeholder_map = placeholder_map
@@ -321,7 +321,7 @@ class Chunker:
 
         return nroot
 
-    def step_into_tag(self, tag, chunks):
+    def step_into_tag(self, tag, chunks) -> None:
         aid = tag.get('aid')
         self.chunk_selector = ('P', aid)
 
@@ -399,7 +399,7 @@ class Chunker:
                 prev.merge(chunk)
         return ans
 
-    def create_tables(self):
+    def create_tables(self) -> None:
         sp = 0
         for s in self.skeletons:
             s.start_pos = sp
@@ -464,7 +464,7 @@ class Chunker:
 
         return re.sub(rb'<[^>]+(kindle:pos:fid:0000:off:[0-9A-Za-z]{10})', sub, text)
 
-    def dump(self, orig_dumps):
+    def dump(self, orig_dumps) -> None:
         import os
         import shutil
         import tempfile

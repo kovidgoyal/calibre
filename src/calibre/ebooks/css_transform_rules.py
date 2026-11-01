@@ -30,7 +30,7 @@ def all_properties(decl):
 
 
 class StyleDeclaration:
-    def __init__(self, css_declaration):
+    def __init__(self, css_declaration) -> None:
         self.css_declaration = css_declaration
         self.expanded_properties = {}
         self.changed = False
@@ -47,7 +47,7 @@ class StyleDeclaration:
                 for ep in self.expanded_properties[p]:
                     yield ep, p
 
-    def expand_property(self, parent_prop):
+    def expand_property(self, parent_prop) -> None:
         props = self.expanded_properties.pop(parent_prop, None)
         if props is None:
             return
@@ -62,7 +62,7 @@ class StyleDeclaration:
                 seq.appendItem(item)
         dec._setSeq(seq)
 
-    def remove_property(self, prop, parent_prop):
+    def remove_property(self, prop, parent_prop) -> None:
         if parent_prop is not None:
             self.expand_property(parent_prop)
         dec = self.css_declaration
@@ -73,7 +73,7 @@ class StyleDeclaration:
         dec._setSeq(seq)
         self.changed = True
 
-    def change_property(self, prop, parent_prop, val, match_pat=None):
+    def change_property(self, prop, parent_prop, val, match_pat=None) -> None:
         if parent_prop is not None:
             self.expand_property(parent_prop)
         if match_pat is None:
@@ -82,13 +82,13 @@ class StyleDeclaration:
             prop.value = match_pat.sub(val, prop.value)
         self.changed = True
 
-    def append_properties(self, props):
+    def append_properties(self, props) -> None:
         if props:
             self.changed = True
             for prop in props:
                 self.css_declaration.setProperty(Property(prop.name, prop.value, prop.literalpriority, parent=self.css_declaration))
 
-    def set_property(self, name, value, priority='', replace=True):
+    def set_property(self, name, value, priority='', replace=True) -> None:
         # Note that this does not handle shorthand properties, so you must
         # call remove_property() yourself in that case
         self.changed = True
@@ -96,7 +96,7 @@ class StyleDeclaration:
             self.css_declaration.removeProperty(name)
         self.css_declaration.setProperty(Property(name, value, priority, parent=self.css_declaration))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return force_unicode(self.css_declaration.cssText, 'utf-8')
 
 
@@ -175,7 +175,7 @@ def transform_number(val, op, raw):
 
 
 class Rule:
-    def __init__(self, property='color', match_type='*', query='', action='remove', action_data=''):
+    def __init__(self, property='color', match_type='*', query='', action='remove', action_data='') -> None:
         self.property_name = property.lower()
         self.action, self.action_data = action, action_data
         self.match_pat = None
@@ -398,9 +398,9 @@ def test(return_tests=False):  # {{{
         maxDiff = None
         ae = unittest.TestCase.assertEqual
 
-        def test_matching(self):
+        def test_matching(self) -> None:
 
-            def m(match_type='*', query='', action_data=''):
+            def m(match_type='*', query='', action_data='') -> None:
                 action = 'change' if action_data else 'remove'
                 self.ae(
                     apply_rule(css, property=prop, match_type=match_type, query=query, action=action, action_data=action_data),
@@ -439,9 +439,9 @@ def test(return_tests=False):  # {{{
             ecss = css.replace('; ', ';\n')
             m('==', '1pt')
 
-        def test_expansion(self):
+        def test_expansion(self) -> None:
 
-            def m(css, ecss, action='remove', action_data=''):
+            def m(css, ecss, action='remove', action_data='') -> None:
                 self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
 
             prop = 'margin-top'
@@ -457,15 +457,15 @@ def test(return_tests=False):  # {{{
                 'font-size: 10em;\nfont-style: normal;\nfont-variant: normal;\nfont-weight: normal;\nline-height: normal',
             )
 
-        def test_append(self):
-            def m(css, ecss, action_data=''):
+        def test_append(self) -> None:
+            def m(css, ecss, action_data='') -> None:
                 self.ae(ecss, apply_rule(css, property=prop, action='append', action_data=action_data))
 
             prop = 'color'
             m('color: red', 'color: red;\nmargin: 1pt;\nfont-weight: bold', 'margin: 1pt; font-weight: bold')
 
-        def test_change(self):
-            def m(css, ecss, action='change', action_data=''):
+        def test_change(self) -> None:
+            def m(css, ecss, action='change', action_data='') -> None:
                 self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
 
             prop = 'font-family'
@@ -484,7 +484,7 @@ def test(return_tests=False):  # {{{
             )
             prop = 'font-size'
 
-        def test_export_import(self):
+        def test_export_import(self) -> None:
             rule = {
                 'property': 'a',
                 'match_type': '*',

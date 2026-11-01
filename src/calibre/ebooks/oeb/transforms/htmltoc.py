@@ -42,7 +42,7 @@ body > .calibre_toc_block {
 
 
 class HTMLTOCAdder:
-    def __init__(self, title=None, style='nested', position='end'):
+    def __init__(self, title=None, style='nested', position='end') -> None:
         self.title = title
         self.style = style
         self.position = position
@@ -106,7 +106,7 @@ class HTMLTOCAdder:
             oeb.spine.insert(0, item, linear=True)
         oeb.guide.add('toc', 'Table of Contents', href)
 
-    def add_toc_level(self, elem, toc):
+    def add_toc_level(self, elem, toc) -> None:
         for node in toc:
             block = element(elem, XHTML('div'), attrib={'class': 'calibre_toc_block'})
             line = element(block, XHTML('a'), attrib={'href': node.href, 'class': 'calibre_toc_line'})

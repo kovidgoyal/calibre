@@ -50,13 +50,13 @@ def find_existing_jacket(container):
                 return name
 
 
-def replace_jacket(container, name):
+def replace_jacket(container, name) -> None:
     root = render_jacket(container, name)
     container.parsed_cache[name] = root
     container.dirty(name)
 
 
-def remove_jacket(container):
+def remove_jacket(container) -> bool:
     "Remove an existing jacket, if any. Returns False if no existing jacket was found."
     name = find_existing_jacket(container)
     if name is not None:
@@ -66,7 +66,7 @@ def remove_jacket(container):
     return False
 
 
-def remove_jacket_images(container, name):
+def remove_jacket_images(container, name) -> None:
     root = container.parsed_cache[name]
     for img in root.xpath('//*[local-name() = "img" and @src]'):
         iname = container.href_to_name(img.get('src'), name)

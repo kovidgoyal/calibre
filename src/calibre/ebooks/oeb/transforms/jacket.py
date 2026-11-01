@@ -55,7 +55,7 @@ class Base:
 
 
 class RemoveFirstImage(Base):
-    def remove_first_image(self):
+    def remove_first_image(self) -> None:
         deleted_item = None
         for item in self.oeb.spine:
             if XPath(JACKET_XPATH)(item.data):
@@ -97,7 +97,7 @@ class Jacket(Base):
     book.
     """
 
-    def insert_metadata(self, mi):
+    def insert_metadata(self, mi) -> None:
         self.log('Inserting metadata into book...')
 
         try:
@@ -144,7 +144,7 @@ class Jacket(Base):
             item.unload_data_from_memory()
             img.set('src', jacket.relhref(item.href))
 
-    def remove_existing_jacket(self):
+    def remove_existing_jacket(self) -> None:
         for x in self.oeb.spine[:4]:
             if XPath(JACKET_XPATH)(x.data):
                 self.remove_images(x, limit=sys.maxsize)
@@ -202,17 +202,17 @@ class Series(str):
 
 
 class Timestamp:
-    def __init__(self, dt, render_template):
+    def __init__(self, dt, render_template) -> None:
         self.dt = as_local_time(dt)
         self.is_date_undefined = dt is None or is_date_undefined(dt)
         self.default_render = '' if self.is_date_undefined else escape(format_date(self.dt, render_template))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.default_render
 
     __str__ = __repr__
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.default_render)
 
     def __getattr__(self, template):
@@ -234,10 +234,10 @@ class Tags(str):
         return t
 
 
-def postprocess_jacket(root, output_profile, has_data):
+def postprocess_jacket(root, output_profile, has_data) -> None:
     # Post-process the generated html to strip out empty header items
 
-    def extract(tag):
+    def extract(tag) -> None:
         parent = tag.getparent()
         idx = parent.index(tag)
         parent.remove(tag)
@@ -249,7 +249,7 @@ def postprocess_jacket(root, output_profile, has_data):
                     idx = -1
                 parent[-1].tail = (parent[-1].tail or '') + tag.tail
 
-    def extract_class(cls):
+    def extract_class(cls) -> None:
         for tag in root.xpath('//*[@class="_"]'.replace('_', cls)):
             extract(tag)
 
@@ -268,7 +268,7 @@ class Attributes:
 
 
 class Identifiers:
-    def __init__(self, idents):
+    def __init__(self, idents) -> None:
         self.identifiers = idents or {}
         self.display = Attributes()
         for k in self.identifiers:
@@ -472,7 +472,7 @@ def render_jacket(
 # }}}
 
 
-def linearize_jacket(oeb):
+def linearize_jacket(oeb) -> None:
     for x in oeb.spine[:4]:
         if XPath(JACKET_XPATH)(x.data):
             for e in XPath('//h:table|//h:tr|//h:th')(x.data):

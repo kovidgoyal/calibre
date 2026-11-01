@@ -51,7 +51,7 @@ def get_best_font(fonts, style, stretch):
 
 
 class Family:
-    def __init__(self, elem, embed_relationships, XPath, get):
+    def __init__(self, elem, embed_relationships, XPath, get) -> None:
         self.name = self.family_name = get(elem, 'w:name')
         self.alt_names = tuple(get(x, 'w:val') for x in XPath('./w:altName')(elem))
         if self.alt_names and not has_system_fonts(self.name):
@@ -1419,7 +1419,7 @@ def map_symbol_text(text, font):
 
 
 class Fonts:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.namespace = namespace
         self.fonts = {}
         self.used = set()

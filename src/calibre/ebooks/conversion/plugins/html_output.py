@@ -83,7 +83,7 @@ class HTMLOutput(OutputFormatPlugin):
         root = self.generate_toc(oeb_book, ref_url, output_dir)
         return etree.tostring(root, pretty_print=True, encoding='unicode', xml_declaration=False)
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         import pystache
         from lxml import etree
@@ -221,7 +221,7 @@ class HTMLOutput(OutputFormatPlugin):
                 firstContentPageLink = oeb_book.spine[0].href
 
                 # render template
-                def toc():
+                def toc() -> None:
                     return
 
                 toc_as_html = self.generate_html_toc(oeb_book, path, output_dir) if has_toc else ''

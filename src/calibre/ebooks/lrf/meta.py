@@ -36,7 +36,7 @@ class field:
     to protocol packets in a human readable way.
     """
 
-    def __init__(self, start=16, fmt=DWORD):
+    def __init__(self, start=16, fmt=DWORD) -> None:
         """
         @param start: The byte at which this field is stored in the buffer
         @param fmt:   The packing format for this field.
@@ -47,16 +47,16 @@ class field:
     def __get__(self, obj, typ=None):
         return obj.unpack(start=self._start, fmt=self._fmt)[0]
 
-    def __set__(self, obj, val):
+    def __set__(self, obj, val) -> None:
         obj.pack(val, start=self._start, fmt=self._fmt)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         typ = {DWORD: 'unsigned int', 'QWORD': 'unsigned long long', BYTE: 'unsigned char', WORD: 'unsigned short'}.get(self._fmt, '')
         return 'An ' + typ + ' stored in ' + str(struct.calcsize(self._fmt)) + ' bytes starting at byte ' + str(self._start)
 
 
 class versioned_field(field):
-    def __init__(self, vfield, version, start=0, fmt=WORD):
+    def __init__(self, vfield, version, start=0, fmt=WORD) -> None:
         field.__init__(self, start=start, fmt=fmt)
         self.vfield, self.version = vfield, version
 
@@ -69,7 +69,7 @@ class versioned_field(field):
         else:
             return None
 
-    def __set__(self, obj, val):
+    def __set__(self, obj, val) -> None:
         if not self.enabled(obj):
             raise LRFException('Trying to set disabled field')
         else:
@@ -83,7 +83,7 @@ class LRFException(Exception):
 class fixed_stringfield:
     """A field storing a variable length string."""
 
-    def __init__(self, length=8, start=0):
+    def __init__(self, length=8, start=0) -> None:
         """
         @param length: Size of this string
         @param start: The byte at which this field is stored in the buffer
@@ -95,7 +95,7 @@ class fixed_stringfield:
         length = str(self._length)
         return obj.unpack(start=self._start, fmt='<' + length + 's')[0]
 
-    def __set__(self, obj, val):
+    def __set__(self, obj, val) -> None:
         if not isinstance(val, (str, bytes)):
             val = str(val)
         if isinstance(val, str):
@@ -104,12 +104,12 @@ class fixed_stringfield:
             raise LRFException('Trying to set fixed_stringfield with a ' + 'string of  incorrect length')
         obj.pack(val, start=self._start, fmt='<' + str(len(val)) + 's')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'A string of length ' + str(self._length) + ' starting at byte ' + str(self._start)
 
 
 class xml_attr_field:
-    def __init__(self, tag_name, attr, parent='BookInfo'):
+    def __init__(self, tag_name, attr, parent='BookInfo') -> None:
         self.tag_name = tag_name
         self.parent = parent
         self.attr = attr
@@ -127,7 +127,7 @@ class xml_attr_field:
                 return elem.getAttribute(self.attr)
         return ''
 
-    def __set__(self, obj, val):
+    def __set__(self, obj, val) -> None:
         if val is None:
             val = ''
         document = obj.info
@@ -141,10 +141,10 @@ class xml_attr_field:
             elem.setAttribute(self.attr, val)
         obj.info = document
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'XML Attr Field: ' + self.tag_name + ' in ' + self.parent
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.tag_name + '.' + self.attr
 
 
@@ -154,7 +154,7 @@ class xml_field:
     Works for simple XML fields of the form <tagname>data</tagname>
     """
 
-    def __init__(self, tag_name, parent='BookInfo'):
+    def __init__(self, tag_name, parent='BookInfo') -> None:
         """
         @param tag_name: The XML tag whose data we operate on
         @param parent: The tagname of the parent element of C{tag_name}
@@ -178,7 +178,7 @@ class xml_field:
                     return elem.firstChild.data.strip()
         return ''
 
-    def __set__(self, obj, val):
+    def __set__(self, obj, val) -> None:
         if not val:
             val = ''
         document = obj.info
@@ -212,10 +212,10 @@ class xml_field:
 
         obj.info = document
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.tag_name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'XML Field: ' + self.tag_name + ' in ' + self.parent
 
 
@@ -407,7 +407,7 @@ class LRFMetaFile:
             except zlib.error:
                 raise LRFException('Unable to decompress document meta information')
 
-        def fset(self, document):
+        def fset(self, document) -> None:
             info = document.toxml('utf-8')
             self.uncompressed_info_size = len(info)
             stream = zlib.compress(info)
@@ -457,7 +457,7 @@ class LRFMetaFile:
                 self._file.seek(self.thumbnail_pos)
                 return self._file.read(size)
 
-        def fset(self, data):
+        def fset(self, data) -> None:
             if self.version <= 800:
                 raise LRFException(
                     'Cannot store thumbnails in LRF files \
@@ -474,7 +474,7 @@ class LRFMetaFile:
 
         return {'fget': fget, 'fset': fset, 'doc': doc}
 
-    def __init__(self, file):
+    def __init__(self, file) -> None:
         """@param file: A file object opened in the r+b mode"""
         file.seek(0, 2)
         self.size = file.tell()
@@ -485,7 +485,7 @@ class LRFMetaFile:
         self.info_start = 0x58 if self.version > 800 else 0x53
 
     @safe
-    def update_object_offsets(self, delta):
+    def update_object_offsets(self, delta) -> None:
         """Run through the LRF Object index changing the offset by C{delta}."""
         self._file.seek(self.object_index_offset)
         count = self.number_of_objects
@@ -514,7 +514,7 @@ class LRFMetaFile:
         return ret
 
     @safe
-    def pack(self, *args, **kwargs):
+    def pack(self, *args, **kwargs) -> None:
         """
         Encode C{args} and write them to file.
         C{kwargs} must contain the keywords C{fmt} and C{start}
@@ -544,7 +544,7 @@ class LRFMetaFile:
             ext = 'bmp'
         return ext
 
-    def fix_thumbnail_type(self):
+    def fix_thumbnail_type(self) -> None:
         """
         Attempt to guess the thumbnail image format and set
         L{self.thumbnail_type} accordingly.
@@ -564,7 +564,7 @@ class LRFMetaFile:
         """See L{file.read}"""
         return self._file.read()
 
-    def write(self, val):
+    def write(self, val) -> None:
         """See L{file.write}"""
         self._file.write(val)
 
@@ -694,7 +694,7 @@ Show/edit the metadata in an LRF file.\n\n'''),
     return parser
 
 
-def set_metadata(stream, mi):
+def set_metadata(stream, mi) -> None:
     lrf = LRFMetaFile(stream)
     if mi.title:
         lrf.title = mi.title
@@ -712,7 +712,7 @@ def set_metadata(stream, mi):
         lrf.publisher = mi.publisher
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int | None:
     parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) != 2:

@@ -13,7 +13,7 @@ from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 
 
 class DjvuChunk:
-    def __init__(self, buf, start, end, align=True, bigendian=True, inclheader=False, verbose=0):
+    def __init__(self, buf, start, end, align=True, bigendian=True, inclheader=False, verbose=0) -> None:
         from calibre_extensions import bzzdec
 
         self.speedup = bzzdec
@@ -54,7 +54,7 @@ class DjvuChunk:
             if verbose > 0:
                 print(f'                  end of chunk {pos} ({pos:x})')
 
-    def dump(self, verbose=0, indent=1, out=None, txtout=None, maxlevel=100):
+    def dump(self, verbose=0, indent=1, out=None, txtout=None, maxlevel=100) -> None:
         if out:
             out.write(b'  ' * indent)
             out.write(b'%s%s [%d]\n' % (self.type, b':' + self.subtype if self.subtype else b'', self.size))
@@ -98,21 +98,21 @@ class DjvuChunk:
 
 
 class DJVUFile:
-    def __init__(self, instream, verbose=0):
+    def __init__(self, instream, verbose=0) -> None:
         self.instream = instream
         buf = self.instream.read(4)
         assert buf == b'AT&T'
         buf = self.instream.read()
         self.dc = DjvuChunk(buf, 0, len(buf), verbose=verbose)
 
-    def get_text(self, outfile=None):
+    def get_text(self, outfile=None) -> None:
         self.dc.dump(txtout=outfile)
 
-    def dump(self, outfile=None, maxlevel=0):
+    def dump(self, outfile=None, maxlevel=0) -> None:
         self.dc.dump(out=outfile, maxlevel=maxlevel)
 
 
-def main():
+def main() -> None:
     with open(sys.argv[-1], 'rb') as r:
         f = DJVUFile(r)
     print(f.get_text(sys.stdout))

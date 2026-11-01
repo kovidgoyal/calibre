@@ -71,13 +71,13 @@ def find_tests():
             img = PILImage.open(BytesIO(data))
             return 'exif' in img.info
 
-        def test_jpeg_without_exif_is_unchanged(self):
+        def test_jpeg_without_exif_is_unchanged(self) -> None:
             data = self._make_minimal_jpeg()
             # PIL saves with JFIF by default, not EXIF — should pass through unchanged
             result = process_jpegs_for_amazon(data)
             self.assertFalse(self._has_exif_segment(result))
 
-        def test_jpeg_with_populated_exif_is_stripped(self):
+        def test_jpeg_with_populated_exif_is_stripped(self) -> None:
             from PIL import Image as PILImage
 
             img = PILImage.new('RGB', (8, 8), color=(0, 255, 0))
@@ -90,7 +90,7 @@ def find_tests():
             result = process_jpegs_for_amazon(data)
             self.assertFalse(self._has_exif_segment(result))
 
-        def test_jpeg_with_empty_exif_segment_is_stripped(self):
+        def test_jpeg_with_empty_exif_segment_is_stripped(self) -> None:
             # Regression test for https://bugs.launchpad.net/bugs/1943495:
             # empty EXIF segments (APP1 marker, zero tag entries) must also be removed.
             base = self._make_minimal_jpeg()
@@ -103,7 +103,7 @@ def find_tests():
 
 
 class Resources:
-    def __init__(self, oeb, opts, is_periodical, add_fonts=False, process_images=True):
+    def __init__(self, oeb, opts, is_periodical, add_fonts=False, process_images=True) -> None:
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
         self.is_periodical = is_periodical
         self.process_images = process_images
@@ -140,7 +140,7 @@ class Resources:
                 os.remove(pt.name)
             return func(data)
 
-    def add_resources(self, add_fonts):
+    def add_resources(self, add_fonts) -> None:
         oeb = self.oeb
         oeb.logger.info('Serializing resources...')
         index = 1
@@ -210,7 +210,7 @@ class Resources:
                     self.item_map[item.href] = len(self.records)
                     self.has_fonts = True
 
-    def convert_unsupported_image(self, item):
+    def convert_unsupported_image(self, item) -> None:
         from calibre.utils.img import image_and_format_from_data, image_to_data
 
         img, fmt = image_and_format_from_data(item.data)
@@ -219,7 +219,7 @@ class Resources:
             item.data = image_to_data(img, fmt='PNG')
             item.media_type = 'image/png'
 
-    def add_extra_images(self):
+    def add_extra_images(self) -> None:
         """
         Add any images that were created after the call to add_resources()
         """
@@ -236,13 +236,13 @@ class Resources:
             finally:
                 item.unload_data_from_memory()
 
-    def serialize(self, records, used_images):
+    def serialize(self, records, used_images) -> None:
         used_image_indices = self.used_image_indices | {v - 1 for k, v in self.item_map.items() if k in used_images}
         for i in self.image_indices - used_image_indices:
             self.records[i] = PLACEHOLDER_GIF
         records.extend(self.records)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.records)
 
     __nonzero__ = __bool__

@@ -18,7 +18,7 @@ from polyglot.queue import Empty, Queue
 
 
 class Worker(Thread):
-    def __init__(self, plugin, abort, title, authors, identifiers, timeout, rq, get_best_cover=False):
+    def __init__(self, plugin, abort, title, authors, identifiers, timeout, rq, get_best_cover=False) -> None:
         Thread.__init__(self)
         self.daemon = True
 
@@ -31,7 +31,7 @@ class Worker(Thread):
         self.timeout, self.rq = timeout, rq
         self.time_spent = None
 
-    def run(self):
+    def run(self) -> None:
         start_time = time.time()
         if not self.abort.is_set():
             try:
@@ -85,7 +85,7 @@ def process_result(log, result):
     return (plugin, width, height, fmt, data)
 
 
-def run_download(log, results, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
+def run_download(log, results, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False) -> None:
     """
     Run the cover download, putting results into the queue :param:`results`.
 

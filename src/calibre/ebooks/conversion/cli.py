@@ -63,7 +63,7 @@ HEURISTIC_OPTIONS = [
 DEFAULT_TRUE_OPTIONS = HEURISTIC_OPTIONS + ['remove_fake_margins']
 
 
-def print_help(parser, log):
+def print_help(parser, log) -> None:
     parser.print_help()
 
 
@@ -88,7 +88,7 @@ def check_command_line_options(parser, args, log):
     return input, output
 
 
-def option_recommendation_to_cli_option(add_option, rec):
+def option_recommendation_to_cli_option(add_option, rec) -> None:
     opt = rec.option
     switches = ['-' + opt.short_switch] if opt.short_switch else []
     switches.append('--' + opt.long_switch)
@@ -140,11 +140,11 @@ def group_titles():
     return _('INPUT OPTIONS'), _('OUTPUT OPTIONS')
 
 
-def recipe_test(option, opt_str, value, parser):
+def recipe_test(option, opt_str, value, parser) -> None:
     assert value is None
     value = []
 
-    def floatable(s):
+    def floatable(s) -> bool | None:
         try:
             float(s)
             return True
@@ -172,10 +172,10 @@ def recipe_test(option, opt_str, value, parser):
     setattr(parser.values, option.dest, tuple(value))
 
 
-def add_input_output_options(parser, plumber):
+def add_input_output_options(parser, plumber) -> None:
     input_options, output_options = plumber.input_options, plumber.output_options
 
-    def add_options(group, options):
+    def add_options(group, options) -> None:
         for opt in options:
             if plumber.input_fmt == 'recipe' and opt.option.long_switch == 'test':
                 group(Option('--test', dest='test', action='callback', callback=recipe_test))
@@ -195,7 +195,7 @@ def add_input_output_options(parser, plumber):
         parser.add_option_group(oo)
 
 
-def add_pipeline_options(parser, plumber):
+def add_pipeline_options(parser, plumber) -> None:
     groups = OrderedDict((
         (
             '',
@@ -350,7 +350,7 @@ def option_parser():
 
 
 class ProgressBar:
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.log = log
 
     def __call__(self, frac, msg=''):
@@ -441,7 +441,7 @@ def read_sr_patterns(path, log=None):
     return json.dumps(pats)
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     log = Log()
     parser, plumber = create_option_parser(args, log)
     opts, leftover_args = parser.parse_args(args)

@@ -63,7 +63,7 @@ class InternalMetadataCompareKeyGen:
            engine
     """
 
-    def __init__(self, mi, source_plugin, title, authors, identifiers):
+    def __init__(self, mi, source_plugin, title, authors, identifiers) -> None:
         same_identifier = 2
         idents = mi.get_identifiers()
         for k, v in iteritems(identifiers):
@@ -137,7 +137,7 @@ def dump_caches():
     return {p.name: p.dump_caches() for p in metadata_plugins(['identify'])}
 
 
-def load_caches(dump):
+def load_caches(dump) -> None:
     from calibre.customize.ui import metadata_plugins
 
     plugins = list(metadata_plugins(['identify']))
@@ -167,7 +167,7 @@ def fixcase(x):
 class Option:
     __slots__ = ('choices', 'default', 'desc', 'label', 'name', 'type')
 
-    def __init__(self, name, type_, default, label, desc, choices=None):
+    def __init__(self, name, type_, default, label, desc, choices=None) -> None:
         """
         :param name: The name of this option. Must be a valid python identifier
         :param type_: The type of this option, one of ('number', 'string',
@@ -242,7 +242,7 @@ class Source(Plugin):
     #: source arrives, since downloading with a browser is slow.
     uses_camoufox_worker = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Plugin.__init__(self, *args, **kwargs)
         self.running_a_test = False  # Set to True when using identify_test()
         self._isbn_to_identifier_cache = {}
@@ -256,17 +256,17 @@ class Source(Plugin):
 
     # Configuration {{{
 
-    def is_configured(self):
+    def is_configured(self) -> bool:
         """
         Return False if your plugin needs to be configured before it can be
         used. For example, it might need a username/password/API key.
         """
         return True
 
-    def is_customizable(self):
+    def is_customizable(self) -> bool:
         return True
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui=False) -> str:
         return 'This plugin can only be customized using the GUI'
 
     def config_widget(self):
@@ -274,7 +274,7 @@ class Source(Plugin):
 
         return ConfigWidget(self)
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget) -> None:
         config_widget.commit()
 
     @property
@@ -313,7 +313,7 @@ class Source(Plugin):
                 if q == id_:
                     yield isbn
 
-    def cache_isbn_to_identifier(self, isbn, identifier):
+    def cache_isbn_to_identifier(self, isbn, identifier) -> None:
         with self.cache_lock:
             self._isbn_to_identifier_cache[isbn] = identifier
 
@@ -321,7 +321,7 @@ class Source(Plugin):
         with self.cache_lock:
             return self._isbn_to_identifier_cache.get(isbn, None)
 
-    def cache_identifier_to_cover_url(self, id_, url):
+    def cache_identifier_to_cover_url(self, id_, url) -> None:
         with self.cache_lock:
             self._identifier_to_cover_url_cache[id_] = url
 
@@ -336,7 +336,7 @@ class Source(Plugin):
                 'identifier_to_cover': self._identifier_to_cover_url_cache.copy(),
             }
 
-    def load_caches(self, dump):
+    def load_caches(self, dump) -> None:
         with self.cache_lock:
             self._isbn_to_identifier_cache.update(dump['isbn_to_identifier'])
             self._identifier_to_cover_url_cache.update(dump['identifier_to_cover'])
@@ -438,7 +438,7 @@ class Source(Plugin):
             elif mi.is_null(key):
                 return key
 
-    def clean_downloaded_metadata(self, mi):
+    def clean_downloaded_metadata(self, mi) -> None:
         """
         Call this method in your plugin's identify method to normalize metadata
         before putting the Metadata object into result_queue. You can of
@@ -452,7 +452,7 @@ class Source(Plugin):
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
-    def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log, prefs_name='max_covers'):
+    def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log, prefs_name='max_covers') -> None:
         if not urls:
             log('No images found for, title: %r and authors: %r' % (title, authors))
             return
@@ -478,7 +478,7 @@ class Source(Plugin):
                     break
             abort.wait(0.1)
 
-    def download_image(self, url, timeout, log, result_queue):
+    def download_image(self, url, timeout, log, result_queue) -> None:
         try:
             ans = self.browser.open_novisit(url, timeout=timeout).read()
             result_queue.put((self, ans))
@@ -489,7 +489,7 @@ class Source(Plugin):
     # }}}
 
     # Metadata API {{{
-    def get_book_url(self, identifiers):
+    def get_book_url(self, identifiers) -> None:
         """
         Return a 3-tuple or None. The 3-tuple is of the form:
         (identifier_type, identifier_value, URL).
@@ -521,7 +521,7 @@ class Source(Plugin):
             return ()
         return (data,)
 
-    def get_cached_cover_url(self, identifiers):
+    def get_cached_cover_url(self, identifiers) -> None:
         """
         Return cached cover URL for the book identified by
         the identifiers dictionary or None if no such URL exists.
@@ -531,7 +531,7 @@ class Source(Plugin):
         """
         return
 
-    def id_from_url(self, url):
+    def id_from_url(self, url) -> None:
         """
         Parse a URL and return a tuple of the form:
         (identifier_type, identifier_value).
@@ -560,7 +560,7 @@ class Source(Plugin):
 
         return keygen
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30):
+    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30) -> None:
         """
         Identify a book by its Title/Author/ISBN/etc.
 
@@ -600,7 +600,7 @@ class Source(Plugin):
         """
         pass
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False) -> None:
         '''
         Download a cover and put it into result_queue. The parameters all have
         the same meaning as for :meth:`identify`. Put (self, cover_data) into

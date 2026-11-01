@@ -13,6 +13,6 @@ from calibre.ebooks.unihandecode.vncodepoints import CODEPOINTS as HANCODES
 class Vndecoder(Unidecoder):
     codepoints = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.codepoints = CODEPOINTS
         self.codepoints.update(HANCODES)

@@ -44,7 +44,7 @@ def get_image_margins(style):
 
 
 class ImagesManager:
-    def __init__(self, oeb, document_relationships, opts, svg_rasterizer):
+    def __init__(self, oeb, document_relationships, opts, svg_rasterizer) -> None:
         self.oeb, self.log = oeb, oeb.log
         self.svg_rasterizer = svg_rasterizer
         self.page_width, self.page_height = opts.output_profile.width_pts, opts.output_profile.height_pts
@@ -184,7 +184,7 @@ class ImagesManager:
         self.create_docx_image_markup(parent, name, html_img.get('alt') or name, img.rid, width, height, svg_rid=svg_rid)
         return ans, floating is not None
 
-    def create_docx_image_markup(self, parent, name, alt, img_rid, width, height, svg_rid=''):
+    def create_docx_image_markup(self, parent, name, alt, img_rid, width, height, svg_rid='') -> None:
         makeelement, namespaces = (
             self.document_relationships.namespace.makeelement,
             self.document_relationships.namespace.namespaces,
@@ -222,7 +222,7 @@ class ImagesManager:
         fname += os.extsep + fmt.lower()
         return fname
 
-    def serialize(self, images_map):
+    def serialize(self, images_map) -> None:
         for img in self.images.values():
             images_map['word/' + img.fname] = partial(self.get_data, img.item)
 
@@ -272,7 +272,7 @@ class ImagesManager:
         self.create_docx_image_markup(parent, 'cover.jpg', _('Cover'), img.rid, width, height)
         return ans
 
-    def write_cover_block(self, body, cover_image):
+    def write_cover_block(self, body, cover_image) -> None:
         makeelement, namespaces = (
             self.document_relationships.namespace.makeelement,
             self.document_relationships.namespace.namespaces,

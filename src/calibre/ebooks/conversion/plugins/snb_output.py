@@ -59,7 +59,7 @@ class SNBOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         from lxml import etree
 
@@ -236,7 +236,7 @@ class SNBOutput(OutputFormatPlugin):
             snbFile.FromDir(tdir)
             snbFile.Output(output_path)
 
-    def HandleImage(self, imageData, imagePath):
+    def HandleImage(self, imageData, imagePath) -> None:
         from calibre.utils.img import image_from_data, image_to_data, resize_image
 
         img = image_from_data(imageData)

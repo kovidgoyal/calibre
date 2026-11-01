@@ -38,7 +38,7 @@ class MakeLists:
         run_level=1,
         no_headings_as_list=1,
         write_list_info=0,
-    ):
+    ) -> None:
         """
         Required:
             'file'
@@ -59,7 +59,7 @@ class MakeLists:
         self.__list_of_lists = list_of_lists
         self.__write_list_info = write_list_info
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Required:
             Nothing
@@ -120,7 +120,7 @@ class MakeLists:
         self.__found_appt = 0
         self.__line_num = 0
 
-    def __in_pard_func(self, line):
+    def __in_pard_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -134,7 +134,7 @@ class MakeLists:
             self.__state = 'after_pard'
         self.__write_obj.write(line)
 
-    def __after_pard_func(self, line):
+    def __after_pard_func(self, line) -> None:
         """
         Required:
             line -- the line of current text.
@@ -194,7 +194,7 @@ class MakeLists:
         else:
             self.__list_chunk += line
 
-    def __list_after_par_def_func(self, line, id):
+    def __list_after_par_def_func(self, line, id) -> None:
         """
         Required:
             line -- the line of current text.
@@ -228,7 +228,7 @@ class MakeLists:
                 self.__write_start_item()
             self.__list_chunk = ''
 
-    def __close_lists(self):
+    def __close_lists(self) -> None:
         """
         Required:
             Nothing
@@ -259,7 +259,7 @@ class MakeLists:
         self.__all_lists = self.__all_lists[num_levels_closed:]
         self.__all_lists.reverse()
 
-    def __write_end_list(self):
+    def __write_end_list(self) -> None:
         """
         Required:
             Nothing
@@ -271,7 +271,7 @@ class MakeLists:
         self.__write_obj.write('mi<tg<close_____<list\n')
         self.__write_obj.write('mi<mk<list_close\n')
 
-    def __write_start_list(self, id):
+    def __write_start_list(self, id) -> None:
         """
         Required:
             id -- the id of the current list.
@@ -368,17 +368,17 @@ class MakeLists:
         #     msg = 'level is "%s"\n' % self.__run_level
         #     self.__bug_handler
 
-    def __write_start_item(self):
+    def __write_start_item(self) -> None:
         self.__write_obj.write('mi<mk<item_start\n')
         self.__write_obj.write('mi<tg<open______<item\n')
         self.__write_obj.write('mi<mk<itemstart_\n')
 
-    def __write_end_item(self):
+    def __write_end_item(self) -> None:
         self.__write_obj.write('mi<tg<item_end__\n')
         self.__write_obj.write('mi<tg<close_____<item\n')
         self.__write_obj.write('mi<tg<item__end_\n')
 
-    def __default_func(self, line):
+    def __default_func(self, line) -> None:
         """
         Required:
             self, line
@@ -402,7 +402,7 @@ class MakeLists:
                     self.__write_start_list(num)
         self.__write_obj.write(line)
 
-    def __is_a_heading(self):
+    def __is_a_heading(self) -> int:
         if self.__style_name in self.__headings:
             if self.__headings_to_sections:
                 return 1
@@ -413,21 +413,21 @@ class MakeLists:
         else:
             return 0
 
-    def __get_indent(self, line):
+    def __get_indent(self, line) -> None:
         if self.__token_info == 'mi<mk<left_inden':
             self.__left_indent = float(line[17:-1])
 
-    def __get_list_type(self, line):
+    def __get_list_type(self, line) -> None:
         if self.__token_info == 'mi<mk<list-type_':  # <ordered
             self.__list_type = line[17:-1]
             if self.__list_type == 'item':
                 self.__list_type = 'unordered'
 
-    def __get_style_name(self, line):
+    def __get_style_name(self, line) -> None:
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
 
-    def make_lists(self):
+    def make_lists(self) -> None:
         """
         Required:
             nothing

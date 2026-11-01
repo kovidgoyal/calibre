@@ -311,7 +311,7 @@ class ComicInput(InputFormatPlugin):
     def create_viewer_wrapper(self, pages, cdir):
         from calibre.ebooks.oeb.base import XHTML_NS
 
-        def page(pnum, src):
+        def page(pnum, src) -> str:
             return f'<img id="page_{pnum + 1}" src="{os.path.basename(src)}"></img>'
 
         pages = '\n'.join(page(i, src) for i, src in enumerate(pages))

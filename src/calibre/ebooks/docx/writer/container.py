@@ -95,7 +95,7 @@ def create_skeleton(opts, namespaces=None):
     return doc, styles, body
 
 
-def update_doc_props(root, mi, namespace):
+def update_doc_props(root, mi, namespace) -> None:
     def setm(name, text=None, ns='dc'):
         ans = root.makeelement(f'{{{namespace.namespaces[ns]}}}{name}')
         for child in tuple(root):
@@ -117,7 +117,7 @@ def update_doc_props(root, mi, namespace):
 
 
 class DocumentRelationships:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.rmap = {}
         self.namespace = namespace
         for typ, target in {
@@ -154,7 +154,7 @@ class DocumentRelationships:
 
 
 class DOCX:
-    def __init__(self, opts, log):
+    def __init__(self, opts, log) -> None:
         self.namespace = DOCXNamespace()
         namespaces = self.namespace.namespaces
         self.opts, self.log = opts, log
@@ -255,10 +255,10 @@ class DOCX:
         update_doc_props(cp, self.mi, self.namespace)
         return xml2str(cp)
 
-    def create_empty_document(self, mi):
+    def create_empty_document(self, mi) -> None:
         self.document, self.styles = create_skeleton(self.opts)[:2]
 
-    def write(self, path_or_stream, mi, create_empty_document=False):
+    def write(self, path_or_stream, mi, create_empty_document=False) -> None:
         if create_empty_document:
             self.create_empty_document(mi)
         with ZipFile(path_or_stream, 'w') as zf:

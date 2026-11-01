@@ -59,7 +59,7 @@ class TOC(list):
         author=None,
         description=None,
         toc_thumbnail=None,
-    ):
+    ) -> None:
         self.href = href
         self.fragment = fragment
         if not self.fragment:
@@ -73,7 +73,7 @@ class TOC(list):
         self.description = description
         self.toc_thumbnail = toc_thumbnail
 
-    def __str__(self):
+    def __str__(self) -> str:
         lines = [f'TOC: {self.href}#{self.fragment} {self.text}']
         for child in self:
             c = str(child).splitlines()
@@ -96,7 +96,7 @@ class TOC(list):
             entry.parent.remove(entry)
         return remove
 
-    def remove(self, entry):
+    def remove(self, entry) -> None:
         list.remove(self, entry)
         entry.parent = None
 
@@ -149,7 +149,7 @@ class TOC(list):
             path = os.path.join(self.base_path, path)
         return path
 
-    def read_from_opf(self, opfreader):
+    def read_from_opf(self, opfreader) -> None:
         toc = opfreader.soup.find('spine', toc=True)
         if toc is not None:
             toc = toc['toc']
@@ -192,7 +192,7 @@ class TOC(list):
                     toc = m[0]
                     self.read_ncx_toc(toc)
 
-    def read_ncx_toc(self, toc, root=None):
+    def read_ncx_toc(self, toc, root=None) -> None:
         self.base_path = os.path.dirname(toc)
         if root is None:
             with open(toc, 'rb') as f:
@@ -212,7 +212,7 @@ class TOC(list):
         content_path = XPath('./*[re:match(local-name(), "content$", "i")]')
         np_path = XPath('./*[re:match(local-name(), "navpoint$", "i")]')
 
-        def process_navpoint(np, dest):
+        def process_navpoint(np, dest) -> None:
             try:
                 play_order = int(get_attr(np, 1))
             except Exception:
@@ -245,7 +245,7 @@ class TOC(list):
         for child in np_path(nm):
             process_navpoint(child, self)
 
-    def read_html_toc(self, toc):
+    def read_html_toc(self, toc) -> None:
         self.base_path = os.path.dirname(toc)
         with open(toc, 'rb') as f:
             parsed_toc = parse_html_toc(f.read())
@@ -258,7 +258,7 @@ class TOC(list):
             if add:
                 self.add_item(href, fragment, txt)
 
-    def render(self, stream, uid):
+    def render(self, stream, uid) -> None:
         root = E.ncx(
             E.head(
                 E.meta(name='dtb:uid', content=str(uid)),
@@ -274,7 +274,7 @@ class TOC(list):
         root.set('{http://www.w3.org/XML/1998/namespace}lang', 'en')
         c = Counter()
 
-        def navpoint(parent, np):
+        def navpoint(parent, np) -> None:
             text = np.text
             if not text:
                 text = ''

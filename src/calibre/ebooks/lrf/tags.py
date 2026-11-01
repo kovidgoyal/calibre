@@ -1,6 +1,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import struct
+from typing import Never
 
 from calibre.ebooks.lrf import LRFParseError
 
@@ -181,7 +182,7 @@ class Tag:
         if temp is not None:
             name_map[key] = temp
 
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         self.offset = stream.tell()
         tag_id = struct.unpack('<BB', stream.read(2))
         if tag_id[1] != 0xF5:
@@ -198,7 +199,7 @@ class Tag:
         else:
             self.contents = stream.read(size)
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = f'Tag {self.id:04X} '
         if self.name:
             s += self.name
@@ -229,7 +230,7 @@ class Tag:
             raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<I', self.contents)[0]
 
-    def dummy_parser(self, stream):
+    def dummy_parser(self, stream) -> Never:
         raise LRFParseError(f'Unknown tag at {stream.tell():08X}')
 
     @classmethod

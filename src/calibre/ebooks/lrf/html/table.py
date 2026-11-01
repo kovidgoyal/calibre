@@ -13,7 +13,7 @@ def ceil(num):
     return math.ceil(num)
 
 
-def print_xml(elem):
+def print_xml(elem) -> None:
     from calibre.ebooks.lrf.pylrs.elements import ElementWriter
 
     elem = elem.toElement('utf8')
@@ -67,7 +67,7 @@ def tokens(tb):
 
 
 class Cell:
-    def __init__(self, conv, tag, css):
+    def __init__(self, conv, tag, css) -> None:
         self.conv = conv
         self.tag = tag
         self.css = css
@@ -207,7 +207,7 @@ class Cell:
 
 
 class Row:
-    def __init__(self, conv, row, css, colpad):
+    def __init__(self, conv, row, css, colpad) -> None:
         self.cells = []
         self.colpad = colpad
         cells = row.findAll(re.compile(r'td|th', re.IGNORECASE))
@@ -272,7 +272,7 @@ class Row:
 
 
 class Table:
-    def __init__(self, conv, table, css, rowpad=10, colpad=10):
+    def __init__(self, conv, table, css, rowpad=10, colpad=10) -> None:
         self.rows = []
         self.conv = conv
         self.rowpad = rowpad

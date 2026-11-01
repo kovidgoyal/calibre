@@ -133,7 +133,7 @@ def reorder_runs(runs: list, convert=icu_visual_to_logical) -> list:
 class Elem:
     "An element with inline markup, such as <b>...</b>"
 
-    def __init__(self, open_tag: str, name: str):
+    def __init__(self, open_tag: str, name: str) -> None:
         self.open_tag = open_tag
         self.name = name
         self.children: list = []
@@ -163,7 +163,7 @@ class Elem:
 class Atom:
     "A piece of markup with no text in it, such as an image or an anchor"
 
-    def __init__(self, markup: str, is_marker: bool = False):
+    def __init__(self, markup: str, is_marker: bool = False) -> None:
         self.raw = markup
         # A marker is an anchor that is the target of a link rather than
         # something that is drawn on the page. It has no glyphs, so unlike an

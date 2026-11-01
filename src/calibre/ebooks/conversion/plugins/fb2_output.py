@@ -172,7 +172,7 @@ class FB2Output(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         from calibre.ebooks.fb2.fb2ml import FB2MLizer
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable

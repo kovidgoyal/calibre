@@ -7,7 +7,7 @@ from calibre.ebooks.docx.index import polish_index_markup, process_index
 
 
 class Field:
-    def __init__(self, start):
+    def __init__(self, start) -> None:
         self.start = start
         self.end = None
         self.contents = []
@@ -15,10 +15,10 @@ class Field:
         self.instructions = None
         self.name = None
 
-    def add_instr(self, elem):
+    def add_instr(self, elem) -> None:
         self.add_raw(elem.text)
 
-    def add_raw(self, raw):
+    def add_raw(self, raw) -> None:
         if not raw:
             return
         if self.name is None:
@@ -30,7 +30,7 @@ class Field:
             self.name, raw = raw.lstrip().partition(' ')[0::2]
         self.buf.append(raw)
 
-    def finalize(self):
+    def finalize(self) -> None:
         self.instructions = ''.join(self.buf)
         del self.buf
 
@@ -97,7 +97,7 @@ parse_noteref = parser('noteref', 'f:footnote h:hyperlink p:position')
 
 
 class Fields:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.namespace = namespace
         self.fields = []
         self.index_bookmark_counter = 0
@@ -179,7 +179,7 @@ class Fields:
             all_runs.append(current_runs)
         return all_runs
 
-    def parse_hyperlink(self, field, parse_func, log):
+    def parse_hyperlink(self, field, parse_func, log) -> None:
         # Parse hyperlink fields
         hl = parse_func(field.instructions, log)
         if hl:
@@ -188,7 +188,7 @@ class Fields:
             for runs in self.get_runs(field):
                 self.hyperlink_fields.append((hl, runs))
 
-    def parse_ref(self, field, parse_func, log):
+    def parse_ref(self, field, parse_func, log) -> None:
         ref = parse_func(field.instructions, log)
         dest = ref.get(None, None)
         if dest is not None and 'hyperlink' in ref:
@@ -199,7 +199,7 @@ class Fields:
 
     parse_noteref = parse_ref
 
-    def parse_xe(self, field, parse_func, log):
+    def parse_xe(self, field, parse_func, log) -> None:
         # Parse XE fields
         if None in (field.start, field.end):
             return
@@ -223,7 +223,7 @@ class Fields:
             xe['start_elem'] = field.start
             self.xe_fields.append(xe)
 
-    def parse_index(self, field, parse_func, log):
+    def parse_index(self, field, parse_func, log) -> None:
         if not field.contents:
             return
         idx = parse_func(field.instructions, log)
@@ -235,7 +235,7 @@ class Fields:
 
         self.index_fields.append((idx, blocks))
 
-    def polish_markup(self, object_map):
+    def polish_markup(self, object_map) -> None:
         if not self.index_fields:
             return
         rmap = {v: k for k, v in object_map.items()}
@@ -247,7 +247,7 @@ def test_parse_fields(return_tests=False):
     import unittest
 
     class TestParseFields(unittest.TestCase):
-        def test_hyperlink(self):
+        def test_hyperlink(self) -> None:
             def ae(x, y):
                 return self.assertEqual(parse_hyperlink(x, None), y)
 
@@ -260,7 +260,7 @@ def test_parse_fields(return_tests=False):
             ae(r'"c:\\Some Folder"', {'url': 'c:\\Some Folder'})
             ae(r'xxxx \y yyyy', {'url': 'xxxx'})
 
-        def test_xe(self):
+        def test_xe(self) -> None:
             def ae(x, y):
                 return self.assertEqual(parse_xe(x, None), y)
 
@@ -268,14 +268,14 @@ def test_parse_fields(return_tests=False):
             ae(r'name \b \i', {'text': 'name', 'bold': None, 'italic': None})
             ae(r'xxx \y a', {'text': 'xxx', 'yomi': 'a'})
 
-        def test_index(self):
+        def test_index(self) -> None:
             def ae(x, y):
                 return self.assertEqual(parse_index(x, None), y)
 
             ae(r'', {})
             ae(r'\b \c 1', {'bookmark': None, 'columns-per-page': '1'})
 
-        def test_polish_index_markup(self):
+        def test_polish_index_markup(self) -> None:
             from lxml import html
 
             entries = ('A:Ab', 'A:Dogs', 'A:Dogs', 'A:Y:Ab')
@@ -302,7 +302,7 @@ def test_parse_fields(return_tests=False):
             self.assertEqual([s[-1].tag for s in body[0]], ['br'] * 5)
             self.assertEqual(len(body[0][2].xpath('descendant::br')), 1)
 
-        def test_polish_index_markup_edge_cases(self):
+        def test_polish_index_markup_edge_cases(self) -> None:
             from lxml import html
 
             def polish(*entries):

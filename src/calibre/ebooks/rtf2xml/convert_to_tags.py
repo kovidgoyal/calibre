@@ -24,7 +24,7 @@ class ConvertToTags:
         indent=None,
         copy=None,
         run_level=1,
-    ):
+    ) -> None:
         """
         Required:
             'file'
@@ -49,7 +49,7 @@ class ConvertToTags:
         self.__convert_utf = False
         self.__bad_encoding = False
 
-    def __initiate_values(self):
+    def __initiate_values(self) -> None:
         """
         Set values, including those for the dictionary.
         """
@@ -112,7 +112,7 @@ class ConvertToTags:
             'mi<tg<empty_____': self.__empty_func,
         }
 
-    def __open_func(self, line):
+    def __open_func(self, line) -> None:
         """
         Print the opening tag and newlines when needed.
         """
@@ -125,7 +125,7 @@ class ConvertToTags:
             self.__write_extra_new_line()
         self.__write_obj.write(f'<{info}>')
 
-    def __empty_func(self, line):
+    def __empty_func(self, line) -> None:
         """
         Print out empty tag and newlines when needed.
         """
@@ -137,7 +137,7 @@ class ConvertToTags:
         if info in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __open_att_func(self, line):
+    def __open_att_func(self, line) -> None:
         """
         Process lines for open tags that have attributes.
         The important info is between [17:-1]. Take this info and split it
@@ -170,7 +170,7 @@ class ConvertToTags:
         if element_name in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __empty_att_func(self, line):
+    def __empty_att_func(self, line) -> None:
         """
         Same as the __open_att_func, except a '/' is placed at the end of the tag.
         """
@@ -194,7 +194,7 @@ class ConvertToTags:
         if element_name in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __close_func(self, line):
+    def __close_func(self, line) -> None:
         """
         Print out the closed tag and new lines, if appropriate.
         """
@@ -207,7 +207,7 @@ class ConvertToTags:
         if info in self.__two_new_line:
             self.__write_extra_new_line()
 
-    def __text_func(self, line):
+    def __text_func(self, line) -> None:
         """
         Simply print out the information between [17:-1]
         """
@@ -215,7 +215,7 @@ class ConvertToTags:
         # change this!
         self.__write_obj.write(line[17:-1])
 
-    def __write_extra_new_line(self):
+    def __write_extra_new_line(self) -> None:
         """
         Print out extra new lines if the new lines have not exceeded two. If
         the new lines are greater than two, do nothing.
@@ -225,10 +225,10 @@ class ConvertToTags:
         if self.__new_line < 2:
             self.__write_obj.write('\n')
 
-    def __default_func(self, line):
+    def __default_func(self, line) -> None:
         pass
 
-    def __write_new_line(self):
+    def __write_new_line(self) -> None:
         """
         Print out a new line if a new line has not already been printed out.
         """
@@ -238,7 +238,7 @@ class ConvertToTags:
             self.__write_obj.write('\n')
             self.__new_line += 1
 
-    def __write_dec(self):
+    def __write_dec(self) -> None:
         """
         Write the XML declaration at the top of the document.
         """
@@ -269,7 +269,7 @@ class ConvertToTags:
         self.__new_line = 0
         self.__write_new_line()
 
-    def convert_to_tags(self):
+    def convert_to_tags(self) -> None:
         """
         Read in the file one line at a time. Get the important info, between
         [:16]. Check if this info matches a dictionary entry. If it does, call

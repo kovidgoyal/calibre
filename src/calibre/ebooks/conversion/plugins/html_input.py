@@ -77,7 +77,7 @@ class HTMLInput(InputFormatPlugin):
         ),
     }
 
-    def set_root_dir_of_input(self, basedir):
+    def set_root_dir_of_input(self, basedir) -> None:
         # realpath so /var and /private/var compare equal on macOS
         self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(os.path.realpath(os.path.abspath(basedir)))).rstrip(os.sep) + os.sep)
 

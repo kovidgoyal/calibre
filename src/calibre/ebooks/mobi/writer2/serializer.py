@@ -13,7 +13,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace
 
 
 class Buf(BytesIO):
-    def write(self, x):
+    def write(self, x) -> None:
         if isinstance(x, str):
             x = x.encode('utf-8')
         BytesIO.write(self, x)
@@ -22,7 +22,7 @@ class Buf(BytesIO):
 class Serializer:
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
-    def __init__(self, oeb, images, is_periodical, write_page_breaks_after_item=True):
+    def __init__(self, oeb, images, is_periodical, write_page_breaks_after_item=True) -> None:
         """
         Write all the HTML markup in oeb into a single in memory buffer
         containing a single html document with links replaced by offsets into
@@ -65,7 +65,7 @@ class Serializer:
 
         self.find_blocks()
 
-    def find_blocks(self):
+    def find_blocks(self) -> None:
         """
         Mark every item in the spine if it is the start/end of a
         section/article, so that it can be wrapped in divs appropriately.
@@ -132,14 +132,14 @@ class Serializer:
             self.start_offset = self.body_start_offset
         return buf.getvalue()
 
-    def serialize_head(self):
+    def serialize_head(self) -> None:
         buf = self.buf
         buf.write(b'<head>')
         if len(self.oeb.guide) > 0:
             self.serialize_guide()
         buf.write(b'</head>')
 
-    def serialize_guide(self):
+    def serialize_guide(self) -> None:
         '''
         The Kindle decides where to open a book based on the presence of
         an item in the guide that looks like
@@ -175,7 +175,7 @@ class Serializer:
 
         buf.write(b'</guide>')
 
-    def serialize_href(self, href, base=None):
+    def serialize_href(self, href, base=None) -> bool:
         '''
         Serialize the href attribute of an <a> or <reference> tag. It is
         serialized as filepos="000000000" and a pointer to its location is
@@ -207,14 +207,14 @@ class Serializer:
         buf.write(b'0000000000')
         return True
 
-    def serialize_body(self):
+    def serialize_body(self) -> None:
         """
         Serialize all items in the spine of the document. Non linear items are
         moved to the end.
         """
         buf = self.buf
 
-        def serialize_toc_level(tocref, href=None):
+        def serialize_toc_level(tocref, href=None) -> None:
             # add the provided toc level to the output stream
             # if href is provided add a link ref to the toc level output (e.g. feed_0/index.html)
             if href is not None:
@@ -278,7 +278,7 @@ class Serializer:
         self.body_end_offset = buf.tell()
         buf.write(b'</body>')
 
-    def serialize_item(self, item):
+    def serialize_item(self, item) -> None:
         """
         Serialize an individual item from the spine of the input document.
         A reference to this item is stored in self.href_offsets
@@ -302,7 +302,7 @@ class Serializer:
             buf.write(b' <a ></a>')
         self.anchor_offset = None
 
-    def serialize_elem(self, elem, item, nsrmap=NSRMAP):
+    def serialize_elem(self, elem, item, nsrmap=NSRMAP) -> None:
         buf = self.buf
         if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) not in nsrmap:
             return
@@ -352,7 +352,7 @@ class Serializer:
                     self.serialize_text(child.tail)
         buf.write((f'</{tag}>').encode())
 
-    def serialize_text(self, text, quot=False):
+    def serialize_text(self, text, quot=False) -> None:
         text = text.replace('&', '&amp;')
         text = text.replace('<', '&lt;')
         text = text.replace('>', '&gt;')
@@ -363,7 +363,7 @@ class Serializer:
             text = unicodedata.normalize('NFC', text)
         self.buf.write(text.encode('utf-8'))
 
-    def fixup_links(self):
+    def fixup_links(self) -> None:
         '''
         Fill in the correct values for all filepos="..." links with the offsets
         of the linked to content (as stored in id_offsets).

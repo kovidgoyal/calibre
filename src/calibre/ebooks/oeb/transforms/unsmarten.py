@@ -5,10 +5,10 @@ from calibre.utils.unsmarten import unsmarten_text
 
 
 class UnsmartenPunctuation:
-    def __init__(self):
+    def __init__(self) -> None:
         self.html_tags = XPath('descendant::h:*')
 
-    def unsmarten(self, root):
+    def unsmarten(self, root) -> None:
         for x in self.html_tags(root):
             if barename(x.tag) != 'pre':
                 if getattr(x, 'text', None):

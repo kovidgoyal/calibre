@@ -121,7 +121,7 @@ class PMLInput(InputFormatPlugin):
 
         return os.path.join(os.getcwd(), 'metadata.opf')
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         from calibre.ebooks.oeb.base import XHTML, barename
 
         for item in oeb.spine:

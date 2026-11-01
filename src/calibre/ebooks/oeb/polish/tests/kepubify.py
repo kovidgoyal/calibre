@@ -20,8 +20,8 @@ from calibre.utils.ipc.simple_worker import fork_job
 
 
 class KepubifyTests(BaseTest):
-    def test_kepubify(self):
-        def b(has_cover=True, epub_version='3'):
+    def test_kepubify(self) -> None:
+        def b(has_cover=True, epub_version='3') -> None:
             path = get_book_for_kepubify(has_cover=has_cover, epub_version=epub_version)
             opts = Options()._replace(remove_widows_and_orphans=True, remove_at_page_rules=True)
             # Run in a worker process as generating the dummy cover for books
@@ -59,7 +59,7 @@ class KepubifyTests(BaseTest):
             for epub_version in '23':
                 b(has_cover, epub_version)
 
-    def test_kepubify_html(self):
+    def test_kepubify_html(self) -> None:
         prefix = f'''<?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml"><head>\
 <style type="text/css" id="kobostylehacks">div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style>\
@@ -68,7 +68,7 @@ class KepubifyTests(BaseTest):
 <body><div id="book-columns"><div id="book-inner">'''
         suffix = '</div></div></body></html>'
 
-        def perform(src, expected, prefer_justification):
+        def perform(src, expected, prefer_justification) -> None:
             opts = Options(remove_widows_and_orphans=True, remove_at_page_rules=True, prefer_justification=prefer_justification)
             root = kepubify_html_data(src, KOBO_JS_NAME, opts)
             actual = serialize_html(root).decode('utf-8')

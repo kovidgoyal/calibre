@@ -11,7 +11,7 @@ class Configure:
         bug_handler,
         debug_dir=None,
         show_config_file=None,
-    ):
+    ) -> None:
         """
         Requires:
             file --file to be read

@@ -13,11 +13,11 @@ OUTPUT = '/t/dev.pdf'
 
 
 class Renderer(QWebEnginePage):
-    def do_print(self, ok):
+    def do_print(self, ok) -> None:
         p = QPageLayout(QPageSize(QPageSize(QPageSize.PageSizeId.A4)), QPageLayout.Orientation.Portrait, QMarginsF(72, 0, 72, 0))
         self.printToPdf(self.print_finished, p)
 
-    def print_finished(self, pdf_data):
+    def print_finished(self, pdf_data) -> None:
         with open(OUTPUT, 'wb') as f:
             f.write(pdf_data)
         _app = QApplication.instance()
@@ -28,7 +28,7 @@ class Renderer(QWebEnginePage):
         doc.load(pdf_data)
 
 
-def main():
+def main() -> None:
     must_use_qt()
     load_builtin_fonts()
     renderer = Renderer()

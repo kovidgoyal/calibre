@@ -10,7 +10,7 @@ import time
 
 
 class PdbHeaderReader:
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         self.stream = stream
         self.ident = self.identity()
         self.num_sections = self.section_count()
@@ -60,13 +60,13 @@ class PdbHeaderReader:
 
 
 class PdbHeaderBuilder:
-    def __init__(self, identity, title):
+    def __init__(self, identity, title) -> None:
         self.identity = identity.ljust(3, '\x00')[:8].encode('utf-8')
         if isinstance(title, str):
             title = title.encode('ascii', 'replace')
         self.title = b'%s\x00' % re.sub(rb'[^-A-Za-z0-9 ]+', b'_', title).ljust(31, b'\x00')[:31]
 
-    def build_header(self, section_lengths, out_stream):
+    def build_header(self, section_lengths, out_stream) -> None:
         """
         section_lengths = Length of each section in file.
         """

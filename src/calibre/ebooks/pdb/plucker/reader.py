@@ -109,7 +109,7 @@ class HeaderRecord:
     Plucker header. PDB record 0.
     """
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         (self.uid,) = struct.unpack('>H', raw[0:2])
         # This is labeled version in the spec.
         # 2 is ZLIB compressed,
@@ -136,7 +136,7 @@ class SectionHeader:
     details about the section such as it's uid.
     """
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         (self.uid,) = struct.unpack('>H', raw[0:2])
         (self.paragraphs,) = struct.unpack('>H', raw[2:4])
         (self.size,) = struct.unpack('>H', raw[4:6])
@@ -149,7 +149,7 @@ class SectionHeaderText:
     Sub header for text records.
     """
 
-    def __init__(self, section_header, raw):
+    def __init__(self, section_header, raw) -> None:
         # The uncompressed size of each paragraph.
         self.sizes = []
         # uncompressed offset of each paragraph starting
@@ -184,7 +184,7 @@ class SectionMetadata:
     can be assigned a different encoding.
     """
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         self.default_encoding = 'latin-1'
         self.owner_id = None
 
@@ -226,7 +226,7 @@ class SectionText:
     Text data. Stores a text section header and the PHTML.
     """
 
-    def __init__(self, section_header, raw):
+    def __init__(self, section_header, raw) -> None:
         self.header = SectionHeaderText(section_header, raw)
         self.data = raw[section_header.paragraphs * 4 :]
 
@@ -238,7 +238,7 @@ class SectionCompositeImage:
     are uid's.
     """
 
-    def __init__(self, raw):
+    def __init__(self, raw) -> None:
         (self.columns,) = struct.unpack('>H', raw[0:2])
         (self.rows,) = struct.unpack('>H', raw[2:4])
 
@@ -279,7 +279,7 @@ class Reader(FormatReader):
           * DATATYPE_EXT_ANCHOR(_COMPRESSED)
     """
 
-    def __init__(self, header, stream, log, options):
+    def __init__(self, header, stream, log, options) -> None:
         self.stream = stream
         self.log = log
         self.options = options

@@ -18,7 +18,7 @@ def name_to_path(name):
     return os.path.join(config_dir, sanitize_file_name(name) + '.py')
 
 
-def save_defaults(name, recs):
+def save_defaults(name, recs) -> None:
     path = name_to_path(name)
     raw = recs.serialize()
 
@@ -45,7 +45,7 @@ def load_defaults(name):
     return r
 
 
-def save_specifics(db, book_id, recs):
+def save_specifics(db, book_id, recs) -> None:
     raw = recs.serialize()
     db.new_api.set_conversion_options({book_id: raw}, fmt='PIPE')
 
@@ -58,7 +58,7 @@ def load_specifics(db, book_id):
     return r
 
 
-def delete_specifics(db, book_id):
+def delete_specifics(db, book_id) -> None:
     db.delete_conversion_options(book_id, 'PIPE')
 
 
@@ -77,7 +77,7 @@ class GuiRecommendations(dict):
             ans.append((key, val, level))
         return ans
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['{']
         for key, val in self.items():
             ans.append('\t' + repr(key) + ' : ' + repr(val) + ',')
@@ -90,7 +90,7 @@ class GuiRecommendations(dict):
             ans = ans.encode('utf-8')
         return b'json:' + ans
 
-    def deserialize(self, raw):
+    def deserialize(self, raw) -> None:
         try:
             if raw.startswith(b'json:'):
                 d = json.loads(raw[len(b'json:') :])
@@ -104,7 +104,7 @@ class GuiRecommendations(dict):
 
     from_string = deserialize
 
-    def merge_recommendations(self, get_option, level, options, only_existing=False):
+    def merge_recommendations(self, get_option, level, options, only_existing=False) -> None:
         for name in options:
             if only_existing and name not in self:
                 continue
@@ -127,7 +127,7 @@ def get_available_formats_for_book(db, book_id):
 
 
 class NoSupportedInputFormats(Exception):
-    def __init__(self, available_formats):
+    def __init__(self, available_formats) -> None:
         Exception.__init__(self)
         self.available_formats = available_formats
 

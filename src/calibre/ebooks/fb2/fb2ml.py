@@ -27,11 +27,11 @@ class FB2MLizer:
           * Handle notes and anchor links.
     """
 
-    def __init__(self, log):
+    def __init__(self, log) -> None:
         self.log = log
         self.reset_state()
 
-    def reset_state(self):
+    def reset_state(self) -> None:
         # Used to ensure text and tags are always within <p> and </p>
         self.in_p = False
         # Mapping of image names. OEB allows for images to have the same name but be stored
@@ -239,10 +239,10 @@ class FB2MLizer:
         # Remove empty lines.
         return '\n'.join(filter(str.strip, header.splitlines()))
 
-    def fb2_footer(self):
+    def fb2_footer(self) -> str:
         return '</FictionBook>'
 
-    def get_cover(self):
+    def get_cover(self) -> str:
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         cover_href = None
@@ -340,7 +340,7 @@ class FB2MLizer:
                     self.log.error(f'Error: Could not include file {item.href} because {e}.')
         return '\n'.join(images)
 
-    def create_flat_toc(self, nodes, level):
+    def create_flat_toc(self, nodes, level) -> None:
         for item in nodes:
             href, mid, id = item.href.partition('#')
             if not id:

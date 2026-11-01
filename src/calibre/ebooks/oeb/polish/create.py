@@ -34,7 +34,7 @@ def create_toc(mi, opf, html_name, lang):
     return create_ncx(toc, lambda x: x, mi.title, lang, uuid)
 
 
-def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
+def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx') -> None:
     """Create an empty book in the specified format at the specified location."""
     if fmt not in valid_empty_formats:
         raise ValueError(f'Cannot create empty book in the {fmt} format')

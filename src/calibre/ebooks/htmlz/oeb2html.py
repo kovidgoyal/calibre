@@ -33,7 +33,7 @@ class OEB2HTML:
     Use get_css to get the CSS classes for the OEB document as a string.
     """
 
-    def __init__(self, log=None):
+    def __init__(self, log=None) -> None:
         self.log = default_log if log is None else log
         self.links = {}
         self.images = {}
@@ -81,7 +81,7 @@ class OEB2HTML:
             self.links[href] = f'#calibre_link-{len(self.links.keys())}'
         return self.links[href]
 
-    def map_resources(self, oeb_book):
+    def map_resources(self, oeb_book) -> None:
         from operator import attrgetter
 
         images = sorted((item for item in oeb_book.manifest if item.media_type in OEB_IMAGES), key=attrgetter('href'))
@@ -130,7 +130,7 @@ class OEB2HTML:
             return f'fonts/{self.fonts[abs_url]}'
         return url
 
-    def rewrite_ids(self, root, page):
+    def rewrite_ids(self, root, page) -> None:
         for el in root.iter():
             try:
                 tag = el.tag

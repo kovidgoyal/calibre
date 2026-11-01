@@ -40,7 +40,7 @@ class PMLOutput(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         from calibre.ebooks.pml.pmlml import PMLMLizer
         from calibre.utils.zipfile import ZipFile
@@ -60,7 +60,7 @@ class PMLOutput(OutputFormatPlugin):
             pmlz = ZipFile(output_path, 'w')
             pmlz.add_dir(tdir)
 
-    def write_images(self, manifest, image_hrefs, out_dir, opts):
+    def write_images(self, manifest, image_hrefs, out_dir, opts) -> None:
         from PIL import Image
 
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES

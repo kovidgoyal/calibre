@@ -75,7 +75,7 @@ data_name = 'data-calibre-tts'
 skip_name = '__skip__'
 
 
-def unmark_sentences_in_html(root):
+def unmark_sentences_in_html(root) -> None:
     for x in root.xpath(f'//*[starts-with(@id, "{id_prefix}")]'):
         x.attrib.pop('id')
         if not x.attrib and x.tag and x.tag.endswith('span'):
@@ -92,7 +92,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
     root_ns, root_sep, _ = root.tag.partition('}')
 
     class Parent:
-        def __init__(self, elem, tag_name, parent_lang, parent_voice, child_lang=''):
+        def __init__(self, elem, tag_name, parent_lang, parent_voice, child_lang='') -> None:
             self.elem = elem
             self.tag_name = tag_name
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
@@ -114,12 +114,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.children = tuple(elem.iterchildren())
             self.has_tail = bool((elem.tail or '').strip())
 
-        def add_simple_child(self, elem):
+        def add_simple_child(self, elem) -> None:
             if text := elem.text:
                 self.texts.append(Chunk(elem, text, self.pos))
                 self.pos += len(text)
 
-        def add_tail(self, elem, text):
+        def add_tail(self, elem, text) -> None:
             self.texts.append(Chunk(elem, text, self.pos, is_tail=True))
             self.pos += len(text)
 
@@ -429,7 +429,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
 
 
 class PerFileData:
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.root = None
         self.sentences: list[Sentence] = []
@@ -438,7 +438,7 @@ class PerFileData:
 
 
 class ReportProgress:
-    def __init__(self):
+    def __init__(self) -> None:
         self.current_stage = ''
 
     def __call__(self, stage: str, item: str, count: int, total: int) -> bool:
@@ -471,7 +471,7 @@ def make_par(container, seq, html_href, audio_href, elem_id, pos, duration) -> N
     audio.set('clipEnd', seconds_to_timestamp(pos + duration))
 
 
-def remove_embedded_tts(container):
+def remove_embedded_tts(container) -> None:
     manifest_items = container.manifest_items
     id_map = {item.get('id'): item for item in manifest_items}
     container.set_media_overlay_durations({})
@@ -500,7 +500,7 @@ def remove_embedded_tts(container):
     container.dirty(container.opf_name)
 
 
-def embed_tts(container, report_progress=None, callback_to_download_voices=None):
+def embed_tts(container, report_progress=None, callback_to_download_voices=None) -> bool:
     report_progress = report_progress or ReportProgress()
     if container.book_type not in ('epub', 'kepub'):
         raise UnsupportedContainerType(_('Only the EPUB format has support for embedding speech overlay audio'))
@@ -611,7 +611,7 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
     return True
 
 
-def develop():
+def develop() -> None:
     from calibre.ebooks.oeb.polish.container import get_container
 
     path = sys.argv[-1]

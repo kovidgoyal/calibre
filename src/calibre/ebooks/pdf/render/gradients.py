@@ -16,7 +16,7 @@ class Stop(NamedTuple):
 
 
 class LinearGradientPattern(Dictionary):
-    def __init__(self, brush, matrix, pdf, pixel_page_width, pixel_page_height):
+    def __init__(self, brush, matrix, pdf, pixel_page_width, pixel_page_height) -> None:
         self.matrix = (matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), matrix.dx(), matrix.dy())
         gradient = sip.cast(brush.gradient(), QLinearGradient)  # type: ignore
 

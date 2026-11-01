@@ -91,7 +91,7 @@ class SpineItem(str):
 
 
 class IndexEntry:
-    def __init__(self, spine, toc_entry, num):
+    def __init__(self, spine, toc_entry, num) -> None:
         self.num = num
         self.text = toc_entry.text or _('Unknown')
         self.key = toc_entry.abspath
@@ -113,7 +113,7 @@ class IndexEntry:
         self.sort_key = (self.spine_pos, self.anchor_pos)
         self.spine_count = len(spine)
 
-    def find_end(self, all_entries):
+    def find_end(self, all_entries) -> None:
         potential_enders = [
             i
             for i in all_entries
@@ -135,7 +135,7 @@ class IndexElement(NamedTuple):
     end_anchor: int | None
 
 
-def create_indexing_data(spine, toc):
+def create_indexing_data(spine, toc) -> None:
     if not toc:
         return
     f = partial(IndexEntry, spine)

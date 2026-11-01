@@ -104,7 +104,7 @@ class PageProcessor(list):  # {{{
     :method:`process_pages`.
     """
 
-    def __init__(self, path_to_page, dest, opts, num):
+    def __init__(self, path_to_page, dest, opts, num) -> None:
         list.__init__(self)
         self.path_to_page = path_to_page
         self.opts = opts
@@ -115,7 +115,7 @@ class PageProcessor(list):  # {{{
         self.src_img_format = None
         self.render()
 
-    def render(self):
+    def render(self) -> None:
         from qt.core import QImage
 
         from calibre.utils.filenames import make_long_path_useable
@@ -143,7 +143,7 @@ class PageProcessor(list):  # {{{
                 self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
         self.process_pages()
 
-    def process_pages(self):
+    def process_pages(self) -> None:
         from qt.core import QImage
 
         from calibre.utils.img import (
@@ -275,7 +275,7 @@ def render_pages(tasks, dest, opts, notification=lambda x, y: x):
 
 
 class Progress:
-    def __init__(self, total, update):
+    def __init__(self, total, update) -> None:
         self.total = total
         self.update = update
         self.done = 0

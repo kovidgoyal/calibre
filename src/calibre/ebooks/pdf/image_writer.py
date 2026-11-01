@@ -13,7 +13,7 @@ from polyglot.builtins import as_unicode
 
 
 class PDFMetadata:  # {{{
-    def __init__(self, mi=None):
+    def __init__(self, mi=None) -> None:
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
 
@@ -100,7 +100,7 @@ def get_page_layout(opts, for_comic=False):
 
 
 class Image:  # {{{
-    def __init__(self, path_or_bytes):
+    def __init__(self, path_or_bytes) -> None:
         if not isinstance(path_or_bytes, bytes):
             with open(path_or_bytes, 'rb') as f:
                 path_or_bytes = f.read()
@@ -114,7 +114,7 @@ class Image:  # {{{
 # }}}
 
 
-def draw_image_page(writer, img, preserve_aspect_ratio=True):
+def draw_image_page(writer, img, preserve_aspect_ratio=True) -> None:
     if img.fmt == 'jpeg':
         ref = writer.add_jpeg_image(img.img_data, img.width, img.height, img.cache_key, depth=img.img.depth())
     else:
@@ -134,7 +134,7 @@ def draw_image_page(writer, img, preserve_aspect_ratio=True):
     writer.draw_image_with_transform(ref, translation=translation, scaling=scaling)
 
 
-def convert(images, output_path, opts, metadata, report_progress):
+def convert(images, output_path, opts, metadata, report_progress) -> None:
     with open(output_path, 'wb') as buf:
         page_layout = get_page_layout(opts, for_comic=True)
         page_size = page_layout.fullRectPoints().size()

@@ -57,7 +57,7 @@ and to Falstaff for pylrs.
 from PIL import Image as PILImage
 
 
-def update_css(ncss, ocss):
+def update_css(ncss, ocss) -> None:
     for key in ncss.keys():
         if key in ocss:
             ocss[key].update(ncss[key])
@@ -191,7 +191,7 @@ class HTMLConverter:
             return getattr(self.options, attr)
         return object.__getattribute__(self, attr)
 
-    def __setattr__(self, attr, val):
+    def __setattr__(self, attr, val) -> None:
         if hasattr(self.options, attr):
             setattr(self.options, attr, val)
         else:
@@ -221,7 +221,7 @@ class HTMLConverter:
         'sub': {'vertical-align': 'sub', 'font-size': '60%'},
     }
 
-    def __init__(self, book, fonts, options, logger, paths):
+    def __init__(self, book, fonts, options, logger, paths) -> None:
         """
         Convert HTML files at C{paths} and add to C{book}. After creating
         the object, you must call L{self.writeto} to output the LRF/S file.
@@ -375,7 +375,7 @@ class HTMLConverter:
 
         return soup
 
-    def add_file(self, path):
+    def add_file(self, path) -> None:
         self.css = HTMLConverter.CSS.copy()
         self.pseudo_css = self.override_pcss.copy()
         for selector in self.override_css:
@@ -461,7 +461,7 @@ class HTMLConverter:
         if parent_css is None:
             parent_css = {}
 
-        def merge_parent_css(prop, pcss):
+        def merge_parent_css(prop, pcss) -> None:
             # float should not be inherited according to the CSS spec
             # however we need to as we don't do alignment at a block level.
             # float is removed by the process_alignment function.
@@ -613,7 +613,7 @@ class HTMLConverter:
         return text if text.strip() else alt_text
 
     def process_links(self):
-        def add_toc_entry(text, target):
+        def add_toc_entry(text, target) -> None:
             # TextBlocks in Canvases have a None parent or an Objects Parent
             if target.parent is not None and hasattr(target.parent, 'objId'):
                 self.book.addTocEntry(ascii_text, tb)
@@ -682,7 +682,7 @@ class HTMLConverter:
 
         return outside_links
 
-    def create_toc(self, toc):
+    def create_toc(self, toc) -> None:
         for item in toc.top_level_items():
             ascii_text = item.text
             if not item.fragment and item.abspath in self.tops:
@@ -692,7 +692,7 @@ class HTMLConverter:
                 if url in self.targets:
                     self.book.addTocEntry(ascii_text, self.targets[url])
 
-    def end_page(self):
+    def end_page(self) -> None:
         """
         End the current page, ensuring that any further content is displayed
         on a new page.
@@ -709,7 +709,7 @@ class HTMLConverter:
             self.book.append(current_page)
             self.current_page = self.book.create_page()
 
-    def add_image_page(self, path):
+    def add_image_page(self, path) -> None:
         if os.access(path, os.R_OK):
             self.end_page()
             pwidth, pheight = self.profile.screen_width, self.profile.screen_height - self.profile.fudge
@@ -734,7 +734,7 @@ class HTMLConverter:
             page.append(canvas)
             self.book.append(page)
 
-    def process_children(self, ptag, pcss, ppcss=None):
+    def process_children(self, ptag, pcss, ppcss=None) -> None:
         """Process the children of ptag"""
         # Need to make a copy of contents as when
         # extract is called on a child, it will
@@ -772,7 +772,7 @@ class HTMLConverter:
             css.pop('float')
         return align
 
-    def process_alignment(self, css):
+    def process_alignment(self, css) -> bool:
         """
         Create a new TextBlock only if necessary as indicated by css
         @type css: dict
@@ -793,7 +793,7 @@ class HTMLConverter:
             return True
         return False
 
-    def add_text(self, tag, css, pseudo_css, force_span_use=False):
+    def add_text(self, tag, css, pseudo_css, force_span_use=False) -> None:
         """
         Add text to the current paragraph taking CSS into account.
         @param tag: Either a BeautifulSoup tag or a string
@@ -826,7 +826,7 @@ class HTMLConverter:
             # Don't want leading blanks in a new paragraph
             src = src.lstrip()
 
-        def append_text(src):
+        def append_text(src) -> None:
             fp, key, variant = self.font_properties(css)
             for x, y in [
                 ('\xad', ''),
@@ -913,11 +913,11 @@ class HTMLConverter:
             if len(last):
                 append_text(last)
 
-    def line_break(self):
+    def line_break(self) -> None:
         self.current_para.append(CR())
         self.previous_text = '\n'
 
-    def end_current_para(self):
+    def end_current_para(self) -> None:
         """
         End current paragraph with a paragraph break after it.
         """
@@ -926,7 +926,7 @@ class HTMLConverter:
         self.current_block.append(CR())
         self.current_para = Paragraph()
 
-    def end_current_block(self):
+    def end_current_block(self) -> None:
         """
         End current TextBlock. Create new TextBlock with the same styles.
         """
@@ -939,7 +939,7 @@ class HTMLConverter:
             current_page.append(self.current_block)
             self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle, blockStyle=self.current_block.blockStyle)
 
-    def process_image(self, path, tag_css, width=None, height=None, dropcaps=False, rescale=False):
+    def process_image(self, path, tag_css, width=None, height=None, dropcaps=False, rescale=False) -> None:
         def detect_encoding(im) -> str:
             fmt = im.format or 'JPEG'
             if fmt == 'JPG':
@@ -1171,7 +1171,7 @@ class HTMLConverter:
         for key in ('fontwidth', 'fontsize', 'wordspace', 'fontfacename', 'fontweight', 'baselineskip'):
             t[key] = self.book.defaultTextStyle.attrs[key]
 
-        def font_weight(val):
+        def font_weight(val) -> str:
             ans = 0
             m = re.search(r'([0-9]+)', val)
             if m:
@@ -1390,7 +1390,7 @@ class HTMLConverter:
 
         return fp
 
-    def process_block(self, tag, tag_css):
+    def process_block(self, tag, tag_css) -> bool:
         """Ensure padding and text-indent properties are respected"""
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
@@ -1403,7 +1403,7 @@ class HTMLConverter:
 
         align = self.get_alignment(tag_css)
 
-        def fill_out_properties(props, default):
+        def fill_out_properties(props, default) -> None:
             for key in default.keys():
                 if key not in props:
                     props[key] = default[key]
@@ -1440,7 +1440,7 @@ class HTMLConverter:
             return True
         return False
 
-    def process_anchor(self, tag, tag_css, tag_pseudo_css):
+    def process_anchor(self, tag, tag_css, tag_pseudo_css) -> None:
         if not self.in_table:  # Anchors in tables are handled separately
             key = 'name' if tag.has_attr('name') else 'id'
             name = tag[key].replace('#', '')
@@ -1480,7 +1480,7 @@ class HTMLConverter:
         else:
             self.process_children(tag, tag_css, tag_pseudo_css)
 
-    def parse_tag(self, tag, parent_css):
+    def parse_tag(self, tag, parent_css) -> None:
         try:
             tagname = tag.name.lower()
         except AttributeError:
@@ -1771,7 +1771,7 @@ class HTMLConverter:
             if end_page:
                 self.end_page()
 
-    def process_table(self, tag, tag_css):
+    def process_table(self, tag, tag_css) -> None:
         self.end_current_block()
         self.current_block = self.book.create_text_block()
         rowpad = 10
@@ -1795,16 +1795,16 @@ class HTMLConverter:
             current_page.append(canvas)
         self.end_current_block()
 
-    def remove_unused_target_blocks(self):
+    def remove_unused_target_blocks(self) -> None:
         for block in self.unused_target_blocks:
             block.parent.contents.remove(block)
             block.parent = None
 
-    def writeto(self, path, lrs=False):
+    def writeto(self, path, lrs=False) -> None:
         self.remove_unused_target_blocks()
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         for _file in chain(self.scaled_images.values(), self.rotated_images.values()):
             _file.__del__()
 
@@ -1926,7 +1926,7 @@ def process_file(path, options, logger):
     return oname
 
 
-def try_opf(path, options, logger):
+def try_opf(path, options, logger) -> None:
     if hasattr(options, 'opf'):
         opf = options.opf
     else:

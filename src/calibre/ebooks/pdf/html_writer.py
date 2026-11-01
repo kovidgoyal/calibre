@@ -98,9 +98,9 @@ def local_name(x):
     return x.split('}', 1)[-1].lower()
 
 
-def fix_fullscreen_images(container):
+def fix_fullscreen_images(container) -> None:
 
-    def is_svg_fs_markup(names, svg):
+    def is_svg_fs_markup(names, svg) -> bool:
         if svg is not None:
             if len(names) == 2 or len(names) == 3:
                 if names[-1] == 'image' and names[-2] == 'svg':
@@ -147,12 +147,12 @@ class Container(ContainerBase):
     tweak_mode = True
     is_dir = True
 
-    def __init__(self, opf_path, log, root_dir=None):
+    def __init__(self, opf_path, log, root_dir=None) -> None:
         ContainerBase.__init__(self, root_dir or os.path.dirname(opf_path), opf_path, log)
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, container, parent=None):
+    def __init__(self, container, parent=None) -> None:
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST,)
         self.container = container
@@ -224,7 +224,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         else:
             return self.fail_request(a0)
 
-    def fail_request(self, rq, fail_code=None):
+    def fail_request(self, rq, fail_code=None) -> None:
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
@@ -237,7 +237,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 class Renderer(QWebEnginePage):
     work_done = pyqtSignal(object, object)
 
-    def __init__(self, opts, parent, log):
+    def __init__(self, opts, parent, log) -> None:
         QWebEnginePage.__init__(self, parent.profile, parent)
         secure_webengine(self)
         self.working = False
@@ -273,19 +273,19 @@ class Renderer(QWebEnginePage):
         t.setSingleShot(True)
         t.timeout.connect(self.on_load_hang)
 
-    def load_started(self):
+    def load_started(self) -> None:
         self.load_started_at = monotonic()
         self.load_complete = False
         self.load_hang_check_timer.start()
 
-    def load_progress(self, amt):
+    def load_progress(self, amt) -> None:
         self.load_hang_check_timer.start()
 
-    def on_load_hang(self):
+    def on_load_hang(self) -> None:
         self.log(self.log_prefix, f'Loading not complete after {int(monotonic() - self.load_started_at)} seconds, aborting.')
         self.load_finished(False)
 
-    def title_changed(self, title):
+    def title_changed(self, title) -> None:
         if self.wait_for_title and title == self.wait_for_title and self.load_complete:
             QTimer.singleShot(self.settle_time, self.print_to_pdf)
 
@@ -293,7 +293,7 @@ class Renderer(QWebEnginePage):
     def log_prefix(self):
         return os.path.basename(self.url().toLocalFile()) + ':'
 
-    def load_finished(self, ok):
+    def load_finished(self, ok) -> None:
         self.load_complete = True
         self.load_hang_check_timer.stop()
         if not ok:
@@ -305,24 +305,24 @@ class Renderer(QWebEnginePage):
             return
         QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
         try:
             self.log(f'{sourceID}:{lineNumber}:{message}')
         except Exception:
             pass
 
-    def print_to_pdf(self):
+    def print_to_pdf(self) -> None:
         self.runJavaScript(preprint_js(), self.start_print)
 
-    def start_print(self, *a):
+    def start_print(self, *a) -> None:
         self.printToPdf(self.printing_done, self.page_layout)
 
-    def printing_done(self, pdf_data):
+    def printing_done(self, pdf_data) -> None:
         self.working = False
         if not sip.isdeleted(self):
             self.work_done.emit(self, bytes(pdf_data))
 
-    def convert_html_file(self, path, page_layout, settle_time=0, wait_for_title=None):
+    def convert_html_file(self, path, page_layout, settle_time=0, wait_for_title=None) -> None:
         self.working = True
         self.load_complete = False
         self.wait_for_title = wait_for_title
@@ -338,7 +338,7 @@ class Renderer(QWebEnginePage):
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
     log: Log
 
-    def interceptRequest(self, info):
+    def interceptRequest(self, info) -> None:
         method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             self.log.warn(f'Blocking URL request with method: {method}')
@@ -352,7 +352,7 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
 
 class RenderManager(QObject):
-    def __init__(self, opts, log, container):
+    def __init__(self, opts, log, container) -> None:
         QObject.__init__(self)
         self.interceptor = RequestInterceptor(self)
         self.has_maths = {}
@@ -377,23 +377,23 @@ class RenderManager(QObject):
         else:
             self.original_signal_handlers = setup_unix_signals(self)
 
-    def create_worker(self):
+    def create_worker(self) -> None:
         worker = Renderer(self.opts, self, self.log)
         worker.work_done.connect(self.work_done)
         self.workers.append(worker)
 
-    def signal_received(self, read_fd):
+    def signal_received(self, read_fd) -> None:
         try:
             os.read(read_fd, 1024)
         except OSError:
             return
         qapplication_or_fail().exit(KILL_SIGNAL)
 
-    def block_signal_handlers(self):
+    def block_signal_handlers(self) -> None:
         for sig in self.original_signal_handlers:
             signal.signal(sig, lambda x, y: None)
 
-    def restore_signal_handlers(self):
+    def restore_signal_handlers(self) -> None:
         for sig, handler in self.original_signal_handlers.items():
             signal.signal(sig, handler)
 
@@ -433,11 +433,11 @@ class RenderManager(QObject):
         QApplication.exec()
         return self.evaljs_result
 
-    def evaljs_callback(self, result):
+    def evaljs_callback(self, result) -> None:
         self.evaljs_result = result
         qapplication_or_fail().exit(0)
 
-    def assign_work(self):
+    def assign_work(self) -> None:
         free_workers = [w for w in self.workers if not w.working]
         while free_workers and self.pending:
             html_file, page_layout, result_key = self.pending.pop()
@@ -450,7 +450,7 @@ class RenderManager(QObject):
                 settle_time *= 2
             w.convert_html_file(html_file, page_layout, settle_time=settle_time, wait_for_title=wait_for_title)
 
-    def work_done(self, worker, result):
+    def work_done(self, worker, result) -> None:
         self.results[worker.result_key] = result
         for w in self.workers:
             if not w.working and w.job_started_at > 0:
@@ -493,7 +493,7 @@ def job_for_name(container, name, margins, page_layout):
 
 
 # Metadata {{{
-def update_metadata(pdf_doc, pdf_metadata):
+def update_metadata(pdf_doc, pdf_metadata) -> None:
     if pdf_metadata.mi:
         xmp_packet = metadata_to_xmp_packet(pdf_metadata.mi)
         set_metadata_implementation(
@@ -506,7 +506,7 @@ def update_metadata(pdf_doc, pdf_metadata):
         )
 
 
-def add_cover(pdf_doc, cover_data, page_layout, opts):
+def add_cover(pdf_doc, cover_data, page_layout, opts) -> None:
     r = page_layout.fullRect(QPageLayout.Unit.Point)
     add_image_page(
         pdf_doc,
@@ -550,7 +550,7 @@ def create_margin_files(container):
 
 
 # Link handling {{{
-def add_anchors_markup(root, uuid, anchors):
+def add_anchors_markup(root, uuid, anchors) -> None:
     body = last_tag(root)
     # A separate column spanning element is used to force the page break, as
     # when body is multi-column a page break on a non-spanning element only
@@ -576,7 +576,7 @@ def add_anchors_markup(root, uuid, anchors):
     body.append(div)
     c = count()
 
-    def a(anchor):
+    def a(anchor) -> None:
         num = next(c)
         a = div.makeelement(
             XHTML('a'),
@@ -685,10 +685,10 @@ def make_anchors_unique(container: ContainerBase, log: Log) -> dict[str, str | N
 class AnchorLocation:
     __slots__ = ('left', 'pagenum', 'top', 'zoom')
 
-    def __init__(self, pagenum=1, left=0, top=0, zoom=0):
+    def __init__(self, pagenum=1, left=0, top=0, zoom=0) -> None:
         self.pagenum, self.left, self.top, self.zoom = pagenum, left, top, zoom
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'AnchorLocation(pagenum={}, left={}, top={}, zoom={})'.format(*self.as_tuple)
 
     @property
@@ -719,7 +719,7 @@ def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log, top_margi
     return ans
 
 
-def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
+def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log) -> None:
     pc = pdf_doc.page_count()
 
     def replace_link(url):
@@ -750,7 +750,7 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
 
 # Outline creation {{{
 class PDFOutlineRoot:
-    def __init__(self, pdf_doc):
+    def __init__(self, pdf_doc) -> None:
         self.pdf_doc = pdf_doc
         self.root_item = None
 
@@ -762,7 +762,7 @@ class PDFOutlineRoot:
         return self.root_item
 
 
-def annotate_toc(toc, anchor_locations, name_anchor_map, log):
+def annotate_toc(toc, anchor_locations, name_anchor_map, log) -> None:
     for child in toc.iterdescendants():
         frag = child.frag
         try:
@@ -776,7 +776,7 @@ def annotate_toc(toc, anchor_locations, name_anchor_map, log):
         child.pdf_loc = loc
 
 
-def add_toc(pdf_parent, toc_parent, log, pdf_doc):
+def add_toc(pdf_parent, toc_parent, log, pdf_doc) -> None:
     for child in toc_parent:
         title, loc = child.title, child.pdf_loc
         try:
@@ -814,7 +814,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
     return default_map
 
 
-def add_pagenum_toc(root, toc, opts, page_number_display_map):
+def add_pagenum_toc(root, toc, opts, page_number_display_map) -> None:
     body = last_tag(root)
     indents = []
     for i in range(1, 7):
@@ -885,7 +885,7 @@ def all_glyph_ids_in_w_arrays(arrays, as_set=False):
     return ans if as_set else sorted(ans)
 
 
-def fonts_are_identical(fonts):
+def fonts_are_identical(fonts) -> bool:
     sentinel = object()
     for key in ('ToUnicode', 'Data', 'W', 'W2'):
         prev_val = sentinel
@@ -927,7 +927,7 @@ def merge_font_files(fonts, log):
     return font_data, tuple(f['Reference'] for f in descendant_fonts)
 
 
-def merge_fonts(pdf_doc, log):
+def merge_fonts(pdf_doc, log) -> None:
     all_fonts = pdf_doc.list_fonts(True)
     base_font_map = {}
 
@@ -958,7 +958,7 @@ def merge_fonts(pdf_doc, log):
             pdf_doc.merge_fonts(font_data, references)
 
 
-def test_merge_fonts():
+def test_merge_fonts() -> None:
     path = sys.argv[-1]
     podofo = get_podofo()
     pdf_doc = podofo.PDFDoc()
@@ -990,7 +990,7 @@ def add_header_footer(
     report_progress,
     toc,
     log,
-):
+) -> None:
     header_template, footer_template = opts.pdf_header_template, opts.pdf_footer_template
     if not footer_template and opts.pdf_page_numbers:
         footer_template = PAGE_NUMBER_TEMPLATE
@@ -1201,7 +1201,7 @@ def add_maths_script(container):
 # }}}
 
 
-def fix_markup(container):
+def fix_markup(container) -> None:
     xp = XPath('//h:canvas')
     for file_name, is_linear in container.spine_names:
         root = container.parsed(file_name)

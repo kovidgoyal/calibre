@@ -11,41 +11,41 @@ In the process the UTF8 tokens are altered to be supported by the RTF2XML and al
 
 
 class tokenDelimitatorStart:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def toRTF(self):
+    def toRTF(self) -> str:
         return '{'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{'
 
 
 class tokenDelimitatorEnd:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def toRTF(self):
+    def toRTF(self) -> str:
         return '}'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '}'
 
 
 class tokenControlWord:
-    def __init__(self, name, separator=''):
+    def __init__(self, name, separator='') -> None:
         self.name = name
         self.separator = separator
 
     def toRTF(self):
         return self.name + self.separator
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name + self.separator
 
 
 class tokenControlWordWithNumericArgument:
-    def __init__(self, name, argument, separator=''):
+    def __init__(self, name, argument, separator='') -> None:
         self.name = name
         self.argument = argument
         self.separator = separator
@@ -53,57 +53,57 @@ class tokenControlWordWithNumericArgument:
     def toRTF(self):
         return self.name + repr(self.argument) + self.separator
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name + repr(self.argument) + self.separator
 
 
 class tokenControlSymbol:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
 
     def toRTF(self):
         return self.name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 
 class tokenData:
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self.data = data
 
     def toRTF(self):
         return self.data
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.data
 
 
 class tokenBinN:
-    def __init__(self, data, separator=''):
+    def __init__(self, data, separator='') -> None:
         self.data = data
         self.separator = separator
 
     def toRTF(self):
         return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
 
 class token8bitChar:
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self.data = data
 
     def toRTF(self):
         return "\\'" + self.data
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "\\'" + self.data
 
 
 class tokenUnicode:
-    def __init__(self, data, separator='', current_ucn=1, eqList=None):
+    def __init__(self, data, separator='', current_ucn=1, eqList=None) -> None:
         if eqList is None:
             eqList = []
         self.data = data
@@ -124,7 +124,7 @@ class tokenUnicode:
             result = result + eq.toRTF()
         return result
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '\\u' + repr(self.data)
 
 
@@ -145,12 +145,12 @@ def isString(buffer, string):
 
 
 class RtfTokenParser:
-    def __init__(self, tokens):
+    def __init__(self, tokens) -> None:
         self.tokens = tokens
         self.process()
         self.processUnicode()
 
-    def process(self):
+    def process(self) -> None:
         i = 0
         newTokens = []
         while i < len(self.tokens):
@@ -172,7 +172,7 @@ class RtfTokenParser:
 
         self.tokens = list(newTokens)
 
-    def processUnicode(self):
+    def processUnicode(self) -> None:
         i = 0
         newTokens = []
         ucNbStack = [1]
@@ -245,12 +245,12 @@ class RtfTokenParser:
 
 
 class RtfTokenizer:
-    def __init__(self, rtfData):
+    def __init__(self, rtfData) -> None:
         self.rtfData = rtfData
         self.tokens = []
         self.tokenize()
 
-    def tokenize(self):
+    def tokenize(self) -> None:
         i = 0
         lastDataStart = -1
         while i < len(self.rtfData):

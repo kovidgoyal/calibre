@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 
 class Note:
-    def __init__(self, namespace, parent, rels):
+    def __init__(self, namespace, parent, rels) -> None:
         self.type = namespace.get(parent, 'w:type', 'normal')
         self.parent = parent
         self.rels = rels
@@ -16,7 +16,7 @@ class Note:
 
 
 class Footnotes:
-    def __init__(self, namespace):
+    def __init__(self, namespace) -> None:
         self.namespace = namespace
         self.footnotes = {}
         self.endnotes = {}

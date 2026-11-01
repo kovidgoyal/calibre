@@ -208,7 +208,7 @@ class PDFOutput(OutputFormatPlugin):
         ),
     }
 
-    def specialize_options(self, log, opts, input_fmt):
+    def specialize_options(self, log, opts, input_fmt) -> None:
         # Ensure Qt is setup to be used with WebEngine
         # specialize_options is called early enough in the pipeline
         # that hopefully no Qt application has been constructed as yet
@@ -226,7 +226,7 @@ class PDFOutput(OutputFormatPlugin):
             # Prevent the conversion pipeline from overwriting document margins
             opts.margin_left = opts.margin_right = opts.margin_top = opts.margin_bottom = -1
 
-    def convert(self, oeb_book, output, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log) -> None:
         output_path = output
         self.stored_page_margins = getattr(opts, '_stored_page_margins', {})
 
@@ -253,12 +253,12 @@ class PDFOutput(OutputFormatPlugin):
             log.debug('Converting input as a text based book...')
             self.convert_text(oeb_book)
 
-    def convert_images(self, images):
+    def convert_images(self, images) -> None:
         from calibre.ebooks.pdf.image_writer import convert
 
         convert(images, self.output_path, self.opts, self.metadata, self.report_progress)
 
-    def get_cover_data(self):
+    def get_cover_data(self) -> None:
         oeb = self.oeb
         if oeb.metadata.cover and str(oeb.metadata.cover[0]) in oeb.manifest.ids:
             cover_id = str(oeb.metadata.cover[0])
@@ -266,7 +266,7 @@ class PDFOutput(OutputFormatPlugin):
             if isinstance(item.data, bytes):
                 self.cover_data = item.data
 
-    def process_fonts(self):
+    def process_fonts(self) -> None:
         """Make sure all fonts are embeddable"""
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
@@ -298,7 +298,7 @@ class PDFOutput(OutputFormatPlugin):
                             ff.data = nraw
                             self.oeb.container.write(path, nraw)
 
-    def convert_text(self, oeb_book):
+    def convert_text(self, oeb_book) -> None:
         import json
 
         from calibre.ebooks.pdf.html_writer import convert

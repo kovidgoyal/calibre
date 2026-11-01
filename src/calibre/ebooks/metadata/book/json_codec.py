@@ -90,7 +90,7 @@ def object_to_unicode(obj, enc=preferred_encoding):
     return obj
 
 
-def encode_is_multiple(fm):
+def encode_is_multiple(fm) -> None:
     if fm.get('is_multiple', None):
         # migrate is_multiple back to a character
         fm['is_multiple2'] = fm.get('is_multiple', {})
@@ -104,7 +104,7 @@ def encode_is_multiple(fm):
         fm['is_multiple2'] = {}
 
 
-def decode_is_multiple(fm):
+def decode_is_multiple(fm) -> None:
     im = fm.get('is_multiple2', None)
     if im:
         fm['is_multiple'] = im
@@ -126,10 +126,10 @@ def decode_is_multiple(fm):
 
 
 class JsonCodec:
-    def __init__(self, field_metadata=None):
+    def __init__(self, field_metadata=None) -> None:
         self.field_metadata = field_metadata or FieldMetadata()
 
-    def encode_to_file(self, file_, booklist):
+    def encode_to_file(self, file_, booklist) -> None:
         data = json.dumps(self.encode_booklist_metadata(booklist), indent=2)
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
@@ -170,7 +170,7 @@ class JsonCodec:
         else:
             return object_to_unicode(value)
 
-    def decode_from_file(self, file_, booklist, book_class, prefix):
+    def decode_from_file(self, file_, booklist, book_class, prefix) -> None:
         js = []
         try:
             js = json.load(file_)

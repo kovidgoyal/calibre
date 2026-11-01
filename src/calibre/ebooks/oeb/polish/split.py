@@ -17,7 +17,7 @@ class AbortError(ValueError):
     pass
 
 
-def in_table(node):
+def in_table(node) -> bool:
     while node is not None:
         if node.tag.endswith('}table'):
             return True
@@ -71,7 +71,7 @@ def do_split(split_point, log, before=True):
     split_point = root.xpath(path)[0]
     split_point2 = root2.xpath(path)[0]
 
-    def nix_element(elem, top=True):
+    def nix_element(elem, top=True) -> None:
         # Remove elem unless top is False in which case replace elem by its
         # children
         parent = elem.getparent()
@@ -142,7 +142,7 @@ def do_split(split_point, log, before=True):
 
 
 class SplitLinkReplacer:
-    def __init__(self, base, bottom_anchors, top_name, bottom_name, container):
+    def __init__(self, base, bottom_anchors, top_name, bottom_name, container) -> None:
         self.bottom_anchors, self.bottom_name = bottom_anchors, bottom_name
         self.container, self.top_name = container, top_name
         self.base = base
@@ -289,7 +289,7 @@ def multisplit(container, name, xpath, before=True):
 
 
 class MergeLinkReplacer:
-    def __init__(self, base, anchor_map, master, container):
+    def __init__(self, base, anchor_map, master, container) -> None:
         self.container, self.anchor_map = container, anchor_map
         self.master = master
         self.base = base
@@ -310,7 +310,7 @@ class MergeLinkReplacer:
         return url
 
 
-def add_text(body, text):
+def add_text(body, text) -> None:
     if len(body) > 0:
         body[-1].tail = (body[-1].tail or '') + text
     else:
@@ -338,7 +338,7 @@ def unique_anchor(seen_anchors, current):
     return ans
 
 
-def remove_name_attributes(root):
+def remove_name_attributes(root) -> None:
     # Remove all name attributes, replacing them with id attributes
     for elem in root.xpath('//*[@id and @name]'):
         del elem.attrib['name']
@@ -439,7 +439,7 @@ def merge_html(container, names, master, insert_page_breaks=False):
     return first_anchor_map
 
 
-def merge_css(container, names, master):
+def merge_css(container, names, master) -> None:
     p = container.parsed
     msheet = p(master)
     master_base = os.path.dirname(master)
@@ -483,7 +483,7 @@ def merge_css(container, names, master):
                     container.insert_into_xml(head, link)
 
 
-def merge(container, category, names, master):
+def merge(container, category, names, master) -> None:
     """
     Merge the specified files into a single file, automatically migrating all
     links and references to the affected files. The file must all either be HTML or CSS files.

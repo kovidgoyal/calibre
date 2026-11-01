@@ -10,7 +10,7 @@ from calibre.utils.wordcount import get_wordcount_obj
 
 
 class HeuristicProcessor:
-    def __init__(self, extra_opts=None, log=None):
+    def __init__(self, extra_opts=None, log=None) -> None:
         self.log = default_log if log is None else log
         self.html_preprocess_sections = 0
         self.found_indents = 0
@@ -68,7 +68,7 @@ class HeuristicProcessor:
         self.log.debug('marked ' + str(self.html_preprocess_sections) + ' section markers based on punctuation. - ' + str(chap))
         return '<' + styles + ' style="page-break-before:always">' + chap
 
-    def analyze_title_matches(self, match):
+    def analyze_title_matches(self, match) -> None:
         # chap = match.group('chap')
         title = match.group('title')
         if not title:
@@ -116,7 +116,7 @@ class HeuristicProcessor:
         # self.log.debug("There must be fewer than " + str(min_lns) + " unmarked lines to add markup")
         return min_lns > tot_htm_ends
 
-    def dump(self, raw, where):
+    def dump(self, raw, where) -> None:
         import os
 
         dp = getattr(self.extra_opts, 'debug_pipeline', None)
@@ -585,7 +585,7 @@ class HeuristicProcessor:
         self.deleted_nbsps = True
         return html
 
-    def analyze_line_endings(self, html):
+    def analyze_line_endings(self, html) -> str:
         """
         determines the type of html line ending used most commonly in a document
         use before calling docanalysis functions
@@ -609,7 +609,7 @@ class HeuristicProcessor:
             self.log.debug('There are ' + str(len(blanklines)) + ' blank lines. ' + str(float(len(blanklines)) / float(len(lines))) + ' percent blank')
             return float(len(blanklines)) / float(len(lines)) > 0.4
 
-    def cleanup_required(self):
+    def cleanup_required(self) -> bool:
         for option in ['unwrap_lines', 'markup_chapter_headings', 'format_scene_breaks', 'delete_blank_paragraphs']:
             if getattr(self.extra_opts, option, False):
                 return True
@@ -775,7 +775,7 @@ class HeuristicProcessor:
 
         return scene_break
 
-    def check_paragraph(self, content):
+    def check_paragraph(self, content) -> bool:
         content = re.sub(r'\s*</?span[^>]*>\s*', '', content)
         if re.match(r'.*["\'.!?:]$', content):
             # print('detected this as a paragraph')

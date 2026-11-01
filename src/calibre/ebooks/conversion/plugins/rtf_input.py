@@ -183,7 +183,7 @@ class RTFInput(InputFormatPlugin):
             f.write(data)
         return name
 
-    def write_inline_css(self, ic, border_styles):
+    def write_inline_css(self, ic, border_styles) -> None:
         font_size_classes = [f'span.fs{i} {{ font-size: {x}pt }}' for i, x in enumerate(ic.font_sizes)]
         color_classes = [f'span.col{i} {{ color: {x} }}' for i, x in enumerate(ic.colors) if x != 'false']
         css = textwrap.dedent('''
@@ -303,7 +303,7 @@ class RTFInput(InputFormatPlugin):
             opf.render(f)
         return os.path.abspath('metadata.opf')
 
-    def postprocess_book(self, oeb, opts, log):
+    def postprocess_book(self, oeb, opts, log) -> None:
         for item in oeb.spine:
             for img in item.data.xpath('//*[local-name()="img" and @src="__REMOVE_ME__"]'):
                 p = img.getparent()

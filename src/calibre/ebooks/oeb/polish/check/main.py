@@ -33,11 +33,11 @@ XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {
 
 
 class CSSChecker:
-    def __init__(self, skipped_rules: frozenset[str] = frozenset()):
+    def __init__(self, skipped_rules: frozenset[str] = frozenset()) -> None:
         self.jobs = []
         self.skipped_rules = skipped_rules
 
-    def create_job(self, name, raw, line_offset=0, is_declaration=False):
+    def create_job(self, name, raw, line_offset=0, is_declaration=False) -> None:
         from calibre.ebooks.oeb.polish.check.css import create_job
 
         self.jobs.append(create_job(name, as_unicode(raw), line_offset, is_declaration))

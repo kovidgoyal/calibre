@@ -74,7 +74,7 @@ class OEBReader:
     '''List of transforms to apply to content read with this Reader.'''
 
     @classmethod
-    def config(cls, cfg):
+    def config(cls, cfg) -> None:
         """Add any book-reading options to the :class:`Config` object
         :param:`cfg`.
         """
@@ -152,7 +152,7 @@ class OEBReader:
         opf = self._clean_opf(opf)
         return opf
 
-    def _metadata_from_opf(self, opf):
+    def _metadata_from_opf(self, opf) -> None:
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
 
@@ -205,7 +205,7 @@ class OEBReader:
                     self.oeb.manifest.remove(item)
         return bad
 
-    def _manifest_add_missing(self, invalid):
+    def _manifest_add_missing(self, invalid) -> None:
         import css_parser
 
         manifest = self.oeb.manifest
@@ -282,7 +282,7 @@ class OEBReader:
             for item in invalid:
                 self.oeb.manifest.remove(item)
 
-    def _manifest_from_opf(self, opf):
+    def _manifest_from_opf(self, opf) -> None:
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
             id = elem.get('id')
@@ -309,7 +309,7 @@ class OEBReader:
         invalid = self._manifest_prune_invalid()
         self._manifest_add_missing(invalid)
 
-    def _spine_add_extra(self):
+    def _spine_add_extra(self) -> None:
         manifest = self.oeb.manifest
         spine = self.oeb.spine
         unchecked = set(spine)
@@ -346,7 +346,7 @@ class OEBReader:
                 self.logger.warn(f'Spine-referenced file {item.href!r} not in spine')
             spine.add(item, linear=False)
 
-    def _spine_from_opf(self, opf):
+    def _spine_from_opf(self, opf) -> None:
         spine = self.oeb.spine
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
@@ -369,7 +369,7 @@ class OEBReader:
             if val in {'ltr', 'rtl'}:
                 spine.page_progression_direction = val
 
-    def _guide_from_opf(self, opf):
+    def _guide_from_opf(self, opf) -> None:
         guide = self.oeb.guide
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
@@ -406,7 +406,7 @@ class OEBReader:
                 return item
         return None
 
-    def _toc_from_navpoint(self, item, toc, navpoint):
+    def _toc_from_navpoint(self, item, toc, navpoint) -> None:
         children = xpath(navpoint, 'ncx:navPoint')
         for child in children:
             title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
@@ -468,7 +468,7 @@ class OEBReader:
 
             self._toc_from_navpoint(item, node, child)
 
-    def _toc_from_ncx(self, item):
+    def _toc_from_ncx(self, item) -> bool:
         if (item is None) or (item.data is None):
             return False
         self.log.debug('Reading TOC from NCX...')
@@ -483,7 +483,7 @@ class OEBReader:
             self._toc_from_navpoint(item, toc, navmap)
         return True
 
-    def _toc_from_tour(self, opf):
+    def _toc_from_tour(self, opf) -> bool:
         result = xpath(opf, 'o2:tours/o2:tour')
         if not result:
             return False
@@ -505,7 +505,7 @@ class OEBReader:
             toc.add(title, href, id=id)
         return True
 
-    def _toc_from_html(self, opf):
+    def _toc_from_html(self, opf) -> bool:
         if 'toc' not in self.oeb.guide:
             return False
         self.log.debug('Reading TOC from HTML...')
@@ -538,7 +538,7 @@ class OEBReader:
             toc.add(' '.join(titles[href]), href)
         return True
 
-    def _toc_from_spine(self, opf):
+    def _toc_from_spine(self, opf) -> bool:
         self.log.warn('Generating default TOC from spine...')
         toc = self.oeb.toc
         titles = []
@@ -568,7 +568,7 @@ class OEBReader:
             toc.add(title, item.href)
         return True
 
-    def _toc_from_opf(self, opf, item):
+    def _toc_from_opf(self, opf, item) -> None:
         self.oeb.auto_generated_toc = False
         if self._toc_from_ncx(item):
             return
@@ -581,7 +581,7 @@ class OEBReader:
         self._toc_from_spine(opf)
         self.oeb.auto_generated_toc = True
 
-    def _pages_from_ncx(self, opf, item):
+    def _pages_from_ncx(self, opf, item) -> bool:
         if item is None:
             return False
         ncx = item.data
@@ -619,7 +619,7 @@ class OEBReader:
                 return item
         return None
 
-    def _pages_from_page_map(self, opf):
+    def _pages_from_page_map(self, opf) -> bool:
         item = self._find_page_map(opf)
         if item is None:
             return False
@@ -640,7 +640,7 @@ class OEBReader:
             pages.add(name, href, type=type)
         return True
 
-    def _pages_from_opf(self, opf, item):
+    def _pages_from_opf(self, opf, item) -> None:
         if self._pages_from_ncx(opf, item):
             return
         if self._pages_from_page_map(opf):
@@ -698,14 +698,14 @@ class OEBReader:
                 return item
         return self._cover_from_html(hcover)
 
-    def _ensure_cover_image(self):
+    def _ensure_cover_image(self) -> None:
         cover = self._locate_cover_image()
         if self.oeb.metadata.cover:
             self.oeb.metadata.cover[0].value = cover.id
             return
         self.oeb.metadata.add('cover', cover.id)
 
-    def _manifest_remove_duplicates(self):
+    def _manifest_remove_duplicates(self) -> None:
         seen = set()
         dups = set()
         for item in self.oeb.manifest:
@@ -720,7 +720,7 @@ class OEBReader:
                     self.oeb.log.warn('Removing duplicate manifest item with id:', x.id)
                     self.oeb.manifest.remove_duplicate_item(x)
 
-    def _all_from_opf(self, opf):
+    def _all_from_opf(self, opf) -> None:
         self.oeb.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
         self._manifest_from_opf(opf)
@@ -733,7 +733,7 @@ class OEBReader:
         # self._ensure_cover_image()
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv) -> int:
     from calibre.utils.logging import default_log
 
     reader = OEBReader()
