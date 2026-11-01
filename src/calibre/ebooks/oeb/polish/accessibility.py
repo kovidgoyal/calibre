@@ -6,10 +6,13 @@
 # see https://www.w3.org/TR/epub-a11y-11/ and https://www.w3.org/TR/epub-a11y-tech-11/
 # Used by the Edit book accessibility tool.
 
+from collections.abc import Iterator
 from typing import NamedTuple
 
+from lxml import etree
+
 from calibre.ebooks.metadata.utils import normalize_languages
-from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, XHTML, XML
+from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, SVG, XHTML, XLINK, XML
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import canonicalize_lang
@@ -85,18 +88,21 @@ def set_html_language(container: Container, names: list[str], lang: str, replace
 
 # Alternative text for images {{{
 
-IMG = XHTML('img')
+IMG, SVG_ROOT, SVG_TITLE, SVG_IMAGE = XHTML('img'), SVG('svg'), SVG('title'), SVG('image')
+DECORATIVE_ROLES = frozenset(('presentation', 'none'))
 CONTEXT_TAGS = frozenset(map(XHTML, ('p', 'figure', 'li', 'td', 'th', 'dd', 'blockquote', 'section', 'div', 'body')))
 MAX_CONTEXT_LENGTH = 300
 
 
 class ImageUse(NamedTuple):
-    html_name: str  # The HTML file containing the <img> tag
-    index: int  # The position of the <img> tag among all <img> tags in the HTML file
-    image_name: str | None  # The image file, None if it is missing or remote
+    html_name: str  # The HTML file containing the image
+    index: int  # The position of the image among all images in the HTML file, as returned by image_elements()
+    image_name: str | None  # The image file, None if it is missing or remote. For SVG images, the first image they link to.
     sourceline: int | None
-    alt: str | None  # None when the alt attribute is missing, an empty string means the image is decorative
+    alt: str | None  # None when there is no description, an empty string means the image is decorative
     context: str  # Text surrounding the image, to help describe it
+    is_svg: bool = False  # True for inline <svg> images, False for <img> tags
+    label: str | None = None  # The description of the image, even if it is decorative, as alt is then empty
 
 
 def html_names(container: Container) -> list[str]:
@@ -107,7 +113,97 @@ def html_names(container: Container) -> list[str]:
     return ans
 
 
-def context_text(img) -> str:
+def normalize_text(text: str) -> str:
+    return ' '.join(text.split())
+
+
+def image_elements(root: etree._Element) -> Iterator[etree._Element]:
+    # The <img> and outermost <svg> elements, in document order. Nested <svg>
+    # elements are part of the image of the outer one.
+    for elem in root.iter(IMG, SVG_ROOT):
+        if elem.tag == IMG or next(elem.iterancestors(SVG_ROOT), None) is None:
+            yield elem
+
+
+def is_decorative(elem: etree._Element) -> bool:
+    # Hidden from screen readers by ARIA. For <img> an empty alt attribute
+    # also means decorative, but that is handled with the alt attribute.
+    roles = (elem.get('role') or '').split()
+    return bool(roles and roles[0] in DECORATIVE_ROLES) or (elem.get('aria-hidden') or '').strip().lower() == 'true'
+
+
+class ElementsById:
+    # The elements of an HTML file by id, built only when first needed, as
+    # most files have no aria-labelledby references
+
+    def __init__(self, root: etree._Element):
+        self.root = root
+        self.map: dict[str, etree._Element] | None = None
+
+    def get(self, elem_id: str) -> etree._Element | None:
+        if self.map is None:
+            self.map = {}
+            for elem in self.root.iter('*'):
+                if (x := elem.get('id')) and x not in self.map:
+                    self.map[x] = elem
+        return self.map.get(elem_id)
+
+
+def svg_titles(svg: etree._Element) -> list[etree._Element]:
+    return list(svg.iterchildren(SVG_TITLE))
+
+
+def svg_label(svg: etree._Element, ids: ElementsById) -> str | None:
+    """
+    The description of an SVG image, ignoring whether it is decorative, in the
+    order of precedence used by screen readers: aria-labelledby, aria-label
+    and then the <title> child of the <svg>, see
+    https://www.w3.org/TR/svg-aam-1.0/#mapping_additional_nd
+    """
+    parts = []
+    for elem_id in (svg.get('aria-labelledby') or '').split():
+        if (elem := ids.get(elem_id)) is not None:
+            parts.append(''.join(elem.itertext()))
+    for text in (' '.join(parts), svg.get('aria-label') or '', *(''.join(t.itertext()) for t in svg_titles(svg))):
+        if text := normalize_text(text):
+            return text
+    return None
+
+
+def svg_alt_text(svg: etree._Element, ids: ElementsById | None = None) -> str | None:
+    # As for ImageUse.alt
+    if is_decorative(svg):
+        return ''
+    return svg_label(svg, ElementsById(svg.getroottree().getroot()) if ids is None else ids)
+
+
+def linked_image_name(container: Container, name: str, svg: etree._Element) -> str | None:
+    for image in svg.iter(SVG_IMAGE):
+        href = (image.get(XLINK('href')) or image.get('href') or '').strip()
+        if href and (image_name := container.href_to_name(href, name)) and container.has_name(image_name):
+            return image_name
+    return None
+
+
+def text_without_images(root: etree._Element) -> str:
+    # The text of root, without the text inside SVG images, such as their
+    # <title>, which is their description, not text near the image
+    parts: list[str] = []
+
+    def walk(elem: etree._Element) -> None:
+        if isinstance(elem.tag, str) and elem.text:
+            parts.append(elem.text)
+        for child in elem:
+            if child.tag != SVG_ROOT:
+                walk(child)
+            if child.tail:
+                parts.append(child.tail)
+
+    walk(root)
+    return ''.join(parts)
+
+
+def context_text(img: etree._Element) -> str:
     parent = img.getparent()
     while parent is not None and parent.tag not in CONTEXT_TAGS:
         parent = parent.getparent()
@@ -115,10 +211,10 @@ def context_text(img) -> str:
         return ''
     if parent.tag == XHTML('figure'):
         for caption in parent.iter(XHTML('figcaption')):
-            text = ' '.join(''.join(caption.itertext()).split())
+            text = normalize_text(text_without_images(caption))
             if text:
                 return text
-    text = ' '.join(''.join(parent.itertext()).split())
+    text = normalize_text(text_without_images(parent))
     if len(text) > MAX_CONTEXT_LENGTH:
         text = text[: MAX_CONTEXT_LENGTH - 1].rstrip() + '…'
     return text
@@ -128,21 +224,120 @@ def image_uses(container: Container) -> list[ImageUse]:
     ans = []
     for name in html_names(container):
         root = container.parsed(name)
-        for i, img in enumerate(root.iter(IMG)):
-            src = (img.get('src') or '').strip()
-            image_name = container.href_to_name(src, name) if src else None
-            if image_name is not None and not container.has_name(image_name):
-                image_name = None
-            ans.append(ImageUse(name, i, image_name, img.sourceline, img.get('alt'), context_text(img)))
+        ids = ElementsById(root)
+        for i, elem in enumerate(image_elements(root)):
+            if elem.tag == IMG:
+                src = (elem.get('src') or '').strip()
+                image_name = container.href_to_name(src, name) if src else None
+                if image_name is not None and not container.has_name(image_name):
+                    image_name = None
+                alt = elem.get('alt')
+                ans.append(ImageUse(name, i, image_name, elem.sourceline, alt, context_text(elem), label=alt or None))
+            else:
+                ans.append(
+                    ImageUse(
+                        name,
+                        i,
+                        linked_image_name(container, name, elem),
+                        elem.sourceline,
+                        svg_alt_text(elem, ids),
+                        context_text(elem),
+                        is_svg=True,
+                        label=svg_label(elem, ids),
+                    )
+                )
     return ans
+
+
+def remove_keeping_tail(elem: etree._Element) -> None:
+    parent = elem.getparent()
+    if parent is None:
+        return
+    if elem.tail:
+        prev = elem.getprevious()
+        if prev is None:
+            parent.text = (parent.text or '') + elem.tail
+        else:
+            prev.tail = (prev.tail or '') + elem.tail
+    parent.remove(elem)
+
+
+def set_text(elem: etree._Element, text: str | None) -> None:
+    for child in tuple(elem):
+        elem.remove(child)
+    elem.text = text
+
+
+def set_svg_alt_text(svg: etree._Element, alt: str | None, ids: ElementsById) -> bool:
+    """
+    Set the description of an SVG image, as for set_alt_text(). The existing
+    markup is changed as little as possible. Text referenced with
+    aria-labelledby is never changed, as it may be shared with other elements,
+    the reference is replaced instead. Returns True if the SVG was changed.
+    """
+    if alt == '':
+        # The existing description is kept, so that it is not lost if the
+        # image is later marked as not decorative
+        if is_decorative(svg):
+            return False
+        svg.set('aria-hidden', 'true')
+        return True
+
+    changed = False
+    if (svg.get('aria-hidden') or '').strip().lower() == 'true':
+        del svg.attrib['aria-hidden']
+        changed = True
+    roles = (svg.get('role') or '').split()
+    if roles and roles[0] in DECORATIVE_ROLES:
+        if remaining := [r for r in roles if r not in DECORATIVE_ROLES]:
+            svg.set('role', ' '.join(remaining))
+        else:
+            del svg.attrib['role']
+        changed = True
+
+    alt = normalize_text(alt or '') or None
+    current = svg_label(svg, ids)
+    if alt == current:
+        # For example, when only the decorative status was changed
+        return changed
+
+    if alt is None:
+        for attr in ('aria-labelledby', 'aria-label'):
+            svg.attrib.pop(attr, None)
+        for title in svg_titles(svg):
+            if title.get('id'):
+                # Other elements may refer to it, so keep it
+                set_text(title, None)
+            else:
+                remove_keeping_tail(title)
+        return True
+
+    svg.attrib.pop('aria-labelledby', None)
+    has_label = svg.get('aria-label') is not None
+    if has_label:
+        svg.set('aria-label', alt)
+    titles = svg_titles(svg)
+    if titles:
+        # Change the title that is used as the description, so that it and
+        # the tooltip that reading systems may show for it are not left stale
+        title = next((t for t in titles if normalize_text(''.join(t.itertext()))), titles[0])
+        set_text(title, alt)
+    elif not has_label:
+        # A <title> is used rather than aria-label as it is valid in EPUB 2 as well
+        title = svg.makeelement(SVG_TITLE)
+        title.text = alt
+        if svg.text and not svg.text.strip():
+            title.tail = svg.text
+        svg.insert(0, title)
+    return True
 
 
 def set_alt_text(container: Container, changes: dict[tuple[str, int], str | None]) -> set[str]:
     """
     Set the alternative text of images. ``changes`` maps (html_name, index), as
     in :class:`ImageUse`, to the new alternative text. Use an empty string for
-    decorative images and None to remove the alt attribute. Returns the names
-    of the changed HTML files.
+    decorative images and None to remove the alternative text. Returns the
+    names of the changed HTML files.
     """
     by_name: dict[str, dict[int, str | None]] = {}
     for (name, index), alt in changes.items():
@@ -150,17 +345,21 @@ def set_alt_text(container: Container, changes: dict[tuple[str, int], str | None
     changed = set()
     for name, alts in by_name.items():
         root = container.parsed(name)
-        for i, img in enumerate(root.iter(IMG)):
+        ids = ElementsById(root)
+        for i, elem in enumerate(image_elements(root)):
             if i not in alts:
                 continue
             alt = alts[i]
-            if alt == img.get('alt'):
-                continue
-            if alt is None:
-                del img.attrib['alt']
-            else:
-                img.set('alt', alt)
-            changed.add(name)
+            if elem.tag == IMG:
+                if alt == elem.get('alt'):
+                    continue
+                if alt is None:
+                    del elem.attrib['alt']
+                else:
+                    elem.set('alt', alt)
+                changed.add(name)
+            elif set_svg_alt_text(elem, alt, ids):
+                changed.add(name)
         if name in changed:
             container.dirty(name)
     return changed

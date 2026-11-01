@@ -3,8 +3,10 @@
 
 import posixpath
 
+from lxml import etree
 from qt.core import (
     QAbstractItemView,
+    QByteArray,
     QCheckBox,
     QComboBox,
     QFormLayout,
@@ -13,15 +15,18 @@ from qt.core import (
     QHBoxLayout,
     QHeaderView,
     QIcon,
+    QImage,
     QImageReader,
     QLabel,
     QLineEdit,
+    QPainter,
     QPixmap,
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
     QSize,
     QSplitter,
+    QSvgRenderer,
     Qt,
     QTableWidget,
     QTableWidgetItem,
@@ -45,16 +50,19 @@ from calibre.ebooks.oeb.polish.accessibility import (
     HAZARDS,
     HTML_LANGUAGE_ALL,
     HTML_LANGUAGE_MISSING,
+    IMG,
     PRESENT,
     SUFFICIENT_ACCESS_MODES,
     SUMMARY,
     UNKNOWN,
     AccessibilityChanges,
+    ImageUse,
     book_languages,
     hazard_states,
     hazard_values,
     html_files_without_language,
     html_names,
+    image_elements,
     image_uses,
     read_accessibility_metadata,
 )
@@ -140,6 +148,7 @@ class LanguagePanel(QWidget):
 THUMBNAIL_SIZE = 64
 PREVIEW_SIZE = 300
 IMAGE, LOCATION, DECORATIVE, ALT = range(4)
+HIDDEN_TEXT_ROLE = Qt.ItemDataRole.UserRole
 
 
 def load_pixmap(path: str, size: int, dpr: float) -> QPixmap:
@@ -158,12 +167,35 @@ def load_pixmap(path: str, size: int, dpr: float) -> QPixmap:
     return ans
 
 
+def render_svg(svg: etree._Element, size: int, dpr: float) -> QPixmap:
+    renderer = QSvgRenderer(QByteArray(etree.tostring(svg, encoding='utf-8', with_tail=False)))
+    if not renderer.isValid():
+        return QPixmap()
+    sz = renderer.defaultSize()
+    width = height = int(size * dpr)
+    if not sz.isEmpty():
+        width, height = fit_image(sz.width(), sz.height(), width, height)[1:]
+    if width < 1 or height < 1:
+        return QPixmap()
+    img = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
+    img.fill(Qt.GlobalColor.transparent)
+    p = QPainter(img)
+    try:
+        renderer.render(p)
+    finally:
+        p.end()
+    ans = QPixmap.fromImage(img)
+    ans.setDevicePixelRatio(dpr)
+    return ans
+
+
 class ImagesPanel(QWidget):
     def __init__(self, container: Container, parent: QWidget | None = None):
         QWidget.__init__(self, parent)
         self.container = container
         self.uses = image_uses(container)
-        self.thumbnails: dict[str | None, QIcon] = {}
+        self.thumbnails: dict[str, QIcon] = {}
+        self.elements_by_file: dict[str, list[etree._Element]] = {}
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(
             _(
@@ -248,21 +280,48 @@ class ImagesPanel(QWidget):
         self.update_summary()
         t.setCurrentCell(0, ALT)
 
-    def thumbnail(self, image_name: str | None) -> QIcon:
-        if image_name not in self.thumbnails:
-            pmap = QPixmap()
-            if image_name is not None:
-                pmap = load_pixmap(self.container.name_to_abspath(image_name), THUMBNAIL_SIZE, self.devicePixelRatioF())
-            self.thumbnails[image_name] = QIcon(pmap) if not pmap.isNull() else QIcon()
-        return self.thumbnails[image_name]
+    def image_element(self, use: ImageUse) -> etree._Element | None:
+        # The elements of each HTML file are found only once, as books can have
+        # many inline SVG images, such as rendered math, in a single file
+        elems = self.elements_by_file.get(use.html_name)
+        if elems is None:
+            elems = self.elements_by_file[use.html_name] = list(image_elements(self.container.parsed(use.html_name)))
+        elem = elems[use.index] if use.index < len(elems) else None
+        # In case the file has changed since the images were found
+        return elem if elem is not None and (elem.tag == IMG) != use.is_svg else None
+
+    def image_pixmap(self, use: ImageUse, size: int) -> QPixmap:
+        dpr = self.devicePixelRatioF()
+        if use.image_name is not None:
+            return load_pixmap(self.container.name_to_abspath(use.image_name), size, dpr)
+        if use.is_svg and (svg := self.image_element(use)) is not None:
+            return render_svg(svg, size, dpr)
+        return QPixmap()
+
+    def thumbnail(self, use: ImageUse) -> QIcon:
+        if use.image_name is None:
+            # Inline SVG images without a linked image are each different,
+            # so there is nothing to cache
+            pmap = self.image_pixmap(use, THUMBNAIL_SIZE)
+            return QIcon(pmap) if not pmap.isNull() else QIcon()
+        if use.image_name not in self.thumbnails:
+            pmap = self.image_pixmap(use, THUMBNAIL_SIZE)
+            self.thumbnails[use.image_name] = QIcon(pmap) if not pmap.isNull() else QIcon()
+        return self.thumbnails[use.image_name]
+
+    def image_label(self, use: ImageUse) -> str:
+        if use.image_name is not None:
+            name = posixpath.basename(use.image_name)
+            return _('{} (SVG)').format(name) if use.is_svg else name
+        return _('SVG image') if use.is_svg else _('Missing image')
 
     def populate(self) -> None:
         t = self.table
         ro = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         for row, use in enumerate(self.uses):
-            i = QTableWidgetItem(self.thumbnail(use.image_name), posixpath.basename(use.image_name) if use.image_name else _('Missing image'))
+            i = QTableWidgetItem(self.thumbnail(use), self.image_label(use))
             i.setFlags(ro)
-            i.setToolTip(use.image_name or '')
+            i.setToolTip(use.image_name or (_('An image in SVG format inside the HTML file') if use.is_svg else ''))
             t.setItem(row, IMAGE, i)
             i = QTableWidgetItem(use.html_name)
             i.setFlags(ro)
@@ -276,6 +335,9 @@ class ImagesPanel(QWidget):
             t.setItem(row, DECORATIVE, i)
             i = QTableWidgetItem(use.alt or '')
             i.setFlags(ro if use.alt == '' else ro | Qt.ItemFlag.ItemIsEditable)
+            # The description is kept for decorative images, so that it is not
+            # lost when they are marked as not decorative
+            i.setData(HIDDEN_TEXT_ROLE, use.label or '')
             t.setItem(row, ALT, i)
 
     def item(self, row: int, col: int) -> QTableWidgetItem:
@@ -291,12 +353,18 @@ class ImagesPanel(QWidget):
             return ''
         return ' '.join(self.item(row, ALT).text().split()) or None
 
+    def description(self, row: int) -> str:
+        # The description shown for the image, or the hidden one if it is decorative
+        ai = self.item(row, ALT)
+        return str(ai.data(HIDDEN_TEXT_ROLE) or '') if self.is_decorative(row) else ai.text()
+
     def set_row(self, row: int, decorative: bool, text: str) -> None:
         t = self.table
         t.blockSignals(True)
         try:
             self.item(row, DECORATIVE).setCheckState(Qt.CheckState.Checked if decorative else Qt.CheckState.Unchecked)
             ai = self.item(row, ALT)
+            ai.setData(HIDDEN_TEXT_ROLE, text)
             ai.setText('' if decorative else text)
             flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
             ai.setFlags(flags if decorative else flags | Qt.ItemFlag.ItemIsEditable)
@@ -306,7 +374,10 @@ class ImagesPanel(QWidget):
     def item_changed(self, item: QTableWidgetItem) -> None:
         row, col = item.row(), item.column()
         if col == DECORATIVE:
-            self.set_row(row, self.is_decorative(row), self.item(row, ALT).text())
+            # The check state has already changed, so the description is the
+            # visible text if the image has just been marked decorative
+            decorative, ai = self.is_decorative(row), self.item(row, ALT)
+            self.set_row(row, decorative, ai.text() if decorative else str(ai.data(HIDDEN_TEXT_ROLE) or ''))
         self.update_summary()
 
     def update_summary(self) -> None:
@@ -327,14 +398,15 @@ class ImagesPanel(QWidget):
             self.image_name_label.clear()
             self.context_label.clear()
             return
-        pmap = QPixmap()
-        if use.image_name is not None:
-            pmap = load_pixmap(self.container.name_to_abspath(use.image_name), PREVIEW_SIZE, self.devicePixelRatioF())
+        pmap = self.image_pixmap(use, PREVIEW_SIZE)
         if pmap.isNull():
             self.preview.setText(_('No preview available'))
         else:
             self.preview.setPixmap(pmap)
-        self.image_name_label.setText(use.image_name or _('The image file is missing'))
+        if use.is_svg:
+            self.image_name_label.setText(_('An SVG image showing {}').format(use.image_name) if use.image_name else _('An SVG image inside the HTML file'))
+        else:
+            self.image_name_label.setText(use.image_name or _('The image file is missing'))
         if use.context:
             self.context_label.setText('<p><b>{}</b></p><p>{}</p>'.format(_('Text near the image:'), prepare_string_for_xml(use.context)))
         else:
@@ -345,7 +417,7 @@ class ImagesPanel(QWidget):
         if not 0 <= row < len(self.uses):
             return
         image_name = self.uses[row].image_name
-        decorative, text = self.row_state(row)
+        decorative, text = self.is_decorative(row), self.description(row)
         for other, use in enumerate(self.uses):
             if other != row and use.image_name == image_name:
                 self.set_row(other, decorative, text)

@@ -5,15 +5,13 @@
 # specification and WCAG, see https://www.w3.org/TR/epub-a11y-11/
 
 from calibre import prepare_string_for_xml as xml
-from calibre.ebooks.oeb.base import OEB_DOCS, SVG, XHTML, XPath
-from calibre.ebooks.oeb.polish.accessibility import has_language, role_for, set_html_language
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath
+from calibre.ebooks.oeb.polish.accessibility import IMG, ElementsById, has_language, image_elements, is_decorative, role_for, set_html_language, svg_alt_text
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
 
 HEADINGS = {XHTML(f'h{i}'): i for i in range(1, 7)}
-IMG = XHTML('img')
-SVG_ROOT, SVG_TITLE = SVG('svg'), SVG('title')
 ACCESSIBILITY_PROPERTIES = ('schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature', 'schema:accessibilityHazard')
 SUMMARY_PROPERTY = 'schema:accessibilitySummary'
 WITH_EPUB_TYPE = XPath('//*[@epub:type]')
@@ -24,23 +22,15 @@ def html_names(container):
     return sorted(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
 
 
-def is_decorative(img):
-    return img.get('role') in ('presentation', 'none') or img.get('aria-hidden') == 'true'
-
-
-def svg_has_text_alternative(svg):
-    if (svg.get('aria-label') or '').strip() or (svg.get('aria-labelledby') or '').strip():
-        return True
-    return any((title.text or '').strip() for title in svg.iterchildren(SVG_TITLE))
-
-
 def images_without_alt(root):
-    ans = [img for img in root.iter(IMG) if img.get('alt') is None and not is_decorative(img)]
-    # Only outermost <svg> elements, as nested ones are part of the same image
-    ans.extend(
-        svg for svg in root.iter(SVG_ROOT) if next(svg.iterancestors(SVG_ROOT), None) is None and not is_decorative(svg) and not svg_has_text_alternative(svg)
-    )
-    return sorted(ans, key=lambda x: x.sourceline)
+    # Uses the same rules as Tools->Accessibility, so that both report the same images
+    ids = ElementsById(root)
+    for elem in image_elements(root):
+        if elem.tag == IMG:
+            if elem.get('alt') is None and not is_decorative(elem):
+                yield elem
+        elif svg_alt_text(elem, ids) is None:
+            yield elem
 
 
 def elements_without_role(root):
@@ -62,7 +52,7 @@ class MissingAltText(BaseError):
             ' readers who cannot see them, such as people using screen readers. For images that are purely'
             ' decorative, use an empty alt attribute, like this: alt="". For SVG images, add a <title> element'
             ' as the first child of the <svg> element, or for decorative SVG images, the attribute aria-hidden="true".'
-            ' The alternative text of all <img> images can be edited in one place with Tools->Accessibility.'
+            ' The alternative text of all images, including SVG images, can be edited in one place with Tools->Accessibility.'
         )
     )
 

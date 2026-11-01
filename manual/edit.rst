@@ -523,8 +523,10 @@ people using screen readers. It can be accessed via
 :guilabel:`Image descriptions`
     Images should have a description, called *alternative text*, for readers
     who cannot see them. This lists every image in the book, in reading order,
-    along with its current description, so you can add or change descriptions
-    for all of them in one place. Selecting an image shows a larger preview
+    including SVG images inside the HTML files, along with its current
+    description, so you can add or change descriptions for all of them in one
+    place. The description of an SVG image is stored in its ``<title>``
+    element, or its ``aria-label`` attribute if it already has one. Selecting an image shows a larger preview
     along with the text near the image in the book, to help you describe it.
     Images that are purely decorative, such as ornaments and scene separators,
     should be marked as :guilabel:`Decorative` so that screen readers skip

@@ -963,6 +963,91 @@ class Structure(BaseTest):
         self.assertIn('a.html', c.dirtied)
         self.assertNotIn('b.html', c.dirtied)
 
+    def test_accessibility_tool_svg_alt_text(self):
+        from calibre.ebooks.oeb.polish.accessibility import image_uses, set_alt_text
+        from calibre.ebooks.oeb.polish.check.accessibility import images_without_alt
+
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"'
+        body = (
+            f'<p id="cap">Figure  1\n caption</p>'
+            f'{svg} id="s0" aria-hidden="true" aria-labelledby="cap"><title>Figure\n 1</title><circle r="1"/></svg>'
+            '<img src="i.png" alt="An img"/>'
+            f'{svg} id="s2" aria-label="Old"><title>Old</title><svg><title>Nested</title></svg></svg>'
+            f'{svg} id="s3">\n  <image xlink:href="i.png"/></svg>'
+            f'{svg} id="s4" aria-labelledby="missing"><circle r="1"/></svg>'
+            f'{svg} id="s5" role="presentation"><circle r="1"/></svg>'
+            f'{svg} id="s6"><title id="t6">Referenced</title><title>Other</title></svg>'
+            '\n<p aria-describedby="t6">x</p>'
+        )
+        a = f'<html xmlns="http://www.w3.org/1999/xhtml"><head/><body>{body}</body></html>'
+        c = self.create_epub([('a.html', a, None), ('i.png', b'', None)])
+
+        def svg_elem(sid):
+            return c.parsed('a.html').xpath(f'//*[@id="{sid}"]')[0]
+
+        def ids_without_alt():
+            return [e.get('id') or e.get('src') for e in images_without_alt(c.parsed('a.html'))]
+
+        uses = image_uses(c)
+        # Nested <svg> elements are part of the outer image and <img> tags and
+        # <svg> images are numbered together, in document order
+        self.assertEqual(
+            [(u.index, u.is_svg, u.image_name, u.alt, u.label) for u in uses],
+            [
+                (0, True, None, '', 'Figure 1 caption'),
+                (1, False, 'i.png', 'An img', 'An img'),
+                (2, True, None, 'Old', 'Old'),
+                (3, True, 'i.png', None, None),
+                (4, True, None, None, None),
+                (5, True, None, '', None),
+                (6, True, None, 'Referenced', 'Referenced'),
+            ],
+        )
+        # Check book reports the same images as having no description, in
+        # particular aria-labelledby that refers to nothing is not a description
+        self.assertEqual(ids_without_alt(), ['s3', 's4'])
+        # The text of SVG images, such as their titles, is not text near the image
+        self.assertEqual(uses[0].context, 'Figure 1 caption x')
+
+        # Unchanged descriptions do not modify the file, even when they differ in whitespace
+        self.assertFalse(set_alt_text(c, {('a.html', 0): '', ('a.html', 2): ' Old ', ('a.html', 5): ''}))
+        self.assertNotIn('a.html', c.dirtied)
+
+        # Marking as not decorative with the existing description only removes
+        # aria-hidden, the referenced text and the title are not changed
+        self.assertEqual(set_alt_text(c, {('a.html', 0): 'Figure 1 caption'}), {'a.html'})
+        s0 = svg_elem('s0')
+        self.assertEqual((s0.get('aria-hidden'), s0.get('aria-labelledby')), (None, 'cap'))
+        self.assertEqual(s0[0].text, 'Figure\n 1')
+        # Changing it replaces the reference, leaving the referenced text alone
+        set_alt_text(c, {('a.html', 0): 'A  circle'})
+        s0 = svg_elem('s0')
+        self.assertEqual((s0.get('aria-labelledby'), s0.get('aria-label'), s0[0].text), (None, None, 'A circle'))
+        self.assertEqual(svg_elem('cap').text, 'Figure  1\n caption')
+        # Marking as decorative keeps the description
+        set_alt_text(c, {('a.html', 0): ''})
+        self.assertEqual((svg_elem('s0').get('aria-hidden'), svg_elem('s0')[0].text), ('true', 'A circle'))
+
+        # Both aria-label and the title, used as a tooltip, are changed, the nested <svg> is not
+        set_alt_text(c, {('a.html', 2): 'New'})
+        s2 = svg_elem('s2')
+        self.assertEqual((s2.get('aria-label'), s2[0].text, s2[1][0].text), ('New', 'New', 'Nested'))
+        # A title is added to SVG images without a description
+        set_alt_text(c, {('a.html', 3): 'Cover', ('a.html', 4): 'Shape', ('a.html', 5): 'Dot', ('a.html', 1): ''})
+        s3 = svg_elem('s3')
+        self.assertEqual((s3[0].tag.rpartition('}')[2], s3[0].text, s3.text, s3[0].tail), ('title', 'Cover', '\n  ', '\n  '))
+        self.assertEqual((svg_elem('s4').get('aria-labelledby'), svg_elem('s4')[0].text), (None, 'Shape'))
+        self.assertIsNone(svg_elem('s5').get('role'))
+        self.assertEqual(ids_without_alt(), [])
+        self.assertEqual([u.alt for u in image_uses(c)], ['', '', 'New', 'Cover', 'Shape', 'Dot', 'Referenced'])
+
+        # Removing a description keeps titles other elements may refer to
+        set_alt_text(c, {('a.html', 6): None, ('a.html', 2): None})
+        s6 = svg_elem('s6')
+        self.assertEqual([(t.get('id'), t.text) for t in s6], [('t6', None)])
+        self.assertEqual((svg_elem('s2').get('aria-label'), len(svg_elem('s2'))), (None, 1))
+        self.assertEqual(ids_without_alt(), ['s2', 's6'])
+
     def test_accessibility_tool_metadata(self):
         from calibre.ebooks.oeb.polish.accessibility import (
             ABSENT,
