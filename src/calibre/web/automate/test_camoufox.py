@@ -758,9 +758,11 @@ class Server:
 
 async def navigate_after(page: camoufox.Page, delay: float, url: str) -> None:
     """Navigate page to url after delay, to run alongside a wait that the
-    navigation is expected not to disturb."""
+    navigation is expected not to disturb. The navigation is given the default
+    timeout, which is long enough to ride out the times a heavily loaded CI
+    machine starves the whole browser of CPU, see Page.send_input()."""
     await asyncio.sleep(delay)
-    await page.open(url, timeout=30)
+    await page.open(url)
 
 
 class TestCamoufoxMouse(unittest.TestCase):
@@ -1354,13 +1356,16 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # Page.context_to_retry_in(), until it finds it again
             page.contexts[page.main_frame] = 'id-no-such-context'
             asyncio.get_running_loop().call_later(0.3, page.contexts.__setitem__, page.main_frame, real)
-            self.assertEqual(await page.evaluate('1 + 1', timeout=30), 2)
-            self.assertEqual(await page.call('(a, b) => a + b', 2, 3, timeout=30), 5)
+            # The default timeouts are used, rather than shorter ones, as the
+            # whole browser can stop answering anything for tens of seconds on
+            # a heavily loaded CI machine, see Page.send_input()
+            self.assertEqual(await page.evaluate('1 + 1'), 2)
+            self.assertEqual(await page.call('(a, b) => a + b', 2, 3), 5)
             # Or a navigation replaces it
             page.contexts[page.main_frame] = 'id-no-such-context'
             navigate = asyncio.create_task(navigate_after(page, 0.3, base + 'type.html'))
             try:
-                self.assertTrue((await page.evaluate('location.href', timeout=30)).endswith('type.html'))
+                self.assertTrue((await page.evaluate('location.href')).endswith('type.html'))
             finally:
                 await navigate
             # A context that is never found is an error once the time is up
