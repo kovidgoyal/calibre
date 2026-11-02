@@ -2,9 +2,9 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
-from collections.abc import Callable
 from contextlib import suppress
 from enum import IntEnum
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -44,6 +44,9 @@ from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Cover(CoverView):

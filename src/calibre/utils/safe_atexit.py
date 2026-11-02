@@ -9,7 +9,6 @@ import os
 import subprocess
 import sys
 import time
-from collections.abc import Callable
 from contextlib import suppress
 from functools import wraps
 from threading import RLock, Thread
@@ -17,6 +16,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import unittest
+    from collections.abc import Callable
 
     from calibre.utils.ipc.simple_worker import PipeWorker
 

@@ -2,10 +2,12 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import ctypes
-from collections.abc import Generator
 from contextlib import contextmanager
 from ctypes import windll, wintypes
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # Wraps (part of) the IPHelper API, useful to enumerate the network routes and
 # adapters on the local machine

@@ -9,9 +9,8 @@ import sys
 import time
 import traceback
 from collections import defaultdict
-from collections.abc import Callable
 from itertools import groupby
-from typing import NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import (
     QAbstractTableModel,
@@ -51,6 +50,9 @@ from calibre.utils.localization import _, calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from calibre_extensions.imageops import load_from_data_without_gil
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Counts(NamedTuple):

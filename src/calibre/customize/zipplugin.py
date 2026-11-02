@@ -9,7 +9,6 @@ import sys
 import threading
 import zipfile
 from collections import OrderedDict
-from collections.abc import Collection, Iterable, Sequence
 from functools import lru_cache, partial
 from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
@@ -20,6 +19,7 @@ from calibre import as_unicode
 from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Sequence
     from gettext import GNUTranslations
     from types import CodeType, ModuleType
 

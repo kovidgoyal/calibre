@@ -11,7 +11,6 @@ import sys
 import time
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Sequence
 from contextlib import closing
 from typing import IO, TYPE_CHECKING, NoReturn, Unpack, cast
 from urllib.parse import urlparse, urlsplit
@@ -37,6 +36,7 @@ from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.utils import prepare_masthead_image
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
     from datetime import datetime
     from optparse import Values
     from typing import TypedDict

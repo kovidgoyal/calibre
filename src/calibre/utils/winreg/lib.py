@@ -6,7 +6,6 @@ import ctypes.wintypes as types
 import datetime
 import numbers
 import struct
-from collections.abc import Callable, Iterator
 from typing import TYPE_CHECKING, Literal, Self, TypedDict, Unpack, overload
 
 from calibre.utils.date import utc_tz
@@ -49,6 +48,7 @@ type RegistryValue = bytes | str | tuple[str, ...] | int | None
 type ErrCheckArgs = tuple[object, ...]
 if TYPE_CHECKING:
     from _ctypes import CFuncPtr as _CFuncPtr
+    from collections.abc import Callable, Iterator
     from ctypes import _CData, _SimpleCData
 
     class CwrapKw(TypedDict, total=False):

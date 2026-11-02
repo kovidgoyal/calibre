@@ -6,10 +6,11 @@ Defines the errors that the device drivers generate.
 G{classtree ProtocolError}
 """
 
-from collections.abc import Hashable
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
+    from collections.abc import Hashable
+
     from qt.core import QDialog, QWidget
 
 

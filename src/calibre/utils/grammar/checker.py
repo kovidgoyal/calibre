@@ -20,8 +20,7 @@
 
 import sys
 from collections import Counter
-from collections.abc import Callable, Sequence
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre.utils.grammar.backend import DEFAULT_ERROR_THRESHOLD, HAS_WORD, Backend, Edit, ModelNotDownloaded, Suggestion, overlaps
 from calibre.utils.grammar.models import default_model
@@ -35,6 +34,9 @@ from calibre.utils.grammar.rules import (
     is_language_data_downloaded,
 )
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 # Increment when changes to this module change the results of checks, so that
 # cached results are discarded

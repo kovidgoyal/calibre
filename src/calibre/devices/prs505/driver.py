@@ -7,7 +7,6 @@ Device driver for the SONY devices
 import os
 import re
 import time
-from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
 from calibre import __appname__, fsync, prints
@@ -18,6 +17,8 @@ from calibre.prints import debug_print
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
     from calibre.devices.interface import BookList as _BookList
     from calibre.devices.prs505.sony_cache import XMLCache
     from calibre.devices.usbms.books import BookList

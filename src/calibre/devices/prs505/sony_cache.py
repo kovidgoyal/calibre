@@ -3,7 +3,6 @@
 
 import os
 import time
-from collections.abc import Callable, Sequence
 from datetime import date
 from typing import TYPE_CHECKING
 
@@ -17,6 +16,8 @@ from calibre.utils.localization import _
 from polyglot.binary import from_base64_bytes
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
     from lxml.etree import _Element
 
     from calibre.devices.interface import BookList

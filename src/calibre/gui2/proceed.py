@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
-from collections.abc import Callable
-from typing import Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from qt.core import (
     QAbstractScrollArea,
@@ -38,6 +37,9 @@ from qt.core import (
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Question(NamedTuple):

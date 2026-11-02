@@ -3,10 +3,10 @@
 
 import os
 import sys
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Self, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from contextlib import AbstractContextManager
 
     from calibre.utils.config import OptionParser

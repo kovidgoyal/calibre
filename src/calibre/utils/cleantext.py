@@ -2,12 +2,14 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-from collections.abc import Iterable
 from html.entities import name2codepoint
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 from calibre.constants import preferred_encoding
 from calibre_extensions.speedup import clean_xml_chars as _ncxc
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def native_clean_xml_chars(x: str | bytes) -> str:

@@ -4,12 +4,16 @@
 # See https://bugreports.qt.io/browse/QTBUG-69104 for why we need to implement
 # our own restore geometry
 
-from collections.abc import Callable
+
+from typing import TYPE_CHECKING
 
 from qt.core import QRect, QScreen, QSize, Qt, QWidget
 
 from calibre.constants import is_debugging as _is_debugging
 from calibre.utils.config_base import Prefs, tweaks
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def geometry_pref_name(name):

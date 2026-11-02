@@ -7,7 +7,6 @@ import shutil
 import sys
 import time
 import traceback
-from collections.abc import Callable
 from contextlib import closing, suppress
 from operator import itemgetter
 from threading import Thread
@@ -24,6 +23,7 @@ from calibre.utils.date import utcfromtimestamp
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from datetime import datetime
     from typing import TypedDict
 

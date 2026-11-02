@@ -12,6 +12,7 @@ import threading
 import unittest
 from collections import Counter
 from http.cookies import SimpleCookie
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 from urllib.error import URLError
 from urllib.parse import parse_qs, urlparse
@@ -22,8 +23,10 @@ from calibre.web.automate import browser as browser_module
 from calibre.web.automate import recipes
 from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.automate.browser import Warmup
-from calibre.web.automate.download_deps import Install
 from calibre.web.automate.test_camoufox import TEST_MAX_MOVE_TIME, TEST_TYPING_WPM, installed_camoufox
+
+if TYPE_CHECKING:
+    from calibre.web.automate.download_deps import Install
 
 ARTICLE_PAGE = '''<!DOCTYPE html><html><head><title>An Article</title>
 <link rel="stylesheet" type="text/css" href="style.css">

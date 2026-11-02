@@ -5,7 +5,6 @@
 import codecs
 import sys
 import threading
-from collections.abc import Callable, Iterable
 from functools import lru_cache
 from typing import TYPE_CHECKING, Literal, Protocol, overload
 
@@ -14,6 +13,7 @@ from calibre_extensions import icu as _icu
 
 if TYPE_CHECKING:
     from collections import OrderedDict
+    from collections.abc import Callable, Iterable
 
     class ChangeCaseFunc(Protocol):
         @overload

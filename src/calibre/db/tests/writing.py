@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections.abc import Callable, Iterable
 from functools import partial
 from io import BytesIO
 from typing import TYPE_CHECKING, NamedTuple
@@ -18,6 +17,7 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     import datetime
+    from collections.abc import Callable, Iterable
 
     from calibre.db.listeners import EventType
     from calibre.library.database2 import LibraryDatabase2

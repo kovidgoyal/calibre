@@ -3,7 +3,6 @@
 
 import sys
 from collections import defaultdict
-from collections.abc import Callable
 from itertools import chain
 from typing import TYPE_CHECKING, Self, overload
 from urllib.parse import quote
@@ -14,7 +13,7 @@ from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     type CFISortKey = tuple[tuple[int, ...], tuple[float, tuple[float, ...], int]]
 

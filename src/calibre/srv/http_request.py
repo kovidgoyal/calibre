@@ -4,7 +4,6 @@
 import http.client
 import re
 import reprlib
-from collections.abc import Callable, Iterable
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from typing import IO, TYPE_CHECKING
 
@@ -17,6 +16,8 @@ from polyglot.builtins import error_message
 from polyglot.urllib import unquote
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
     from calibre.srv.http_response import RequestData, StaticOutput
     from calibre.srv.loop import ConnectionEvent
     from calibre.srv.utils import TranslatorCache

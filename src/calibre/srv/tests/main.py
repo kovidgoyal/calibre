@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import unittest
+
+from typing import TYPE_CHECKING
 
 from calibre.utils.run_tests import find_tests_in_package, run_tests
+
+if TYPE_CHECKING:
+    import unittest
 
 
 def find_tests() -> unittest.TestSuite:

@@ -8,7 +8,6 @@ Device driver for the Paladin devices
 import os
 import sys
 import time
-from collections.abc import Callable, Sequence
 from contextlib import closing
 from typing import TYPE_CHECKING
 
@@ -20,6 +19,8 @@ from calibre.prints import debug_print
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
     import apsw
 
     from calibre.devices.interface import BookList as _BookList

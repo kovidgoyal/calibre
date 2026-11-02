@@ -6,7 +6,6 @@ import os
 import re
 import subprocess
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, Mapping
 from plistlib import loads
 from typing import TYPE_CHECKING, Any, Literal, overload
 
@@ -14,6 +13,8 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Mapping
+
     from qt.core import QImage
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')

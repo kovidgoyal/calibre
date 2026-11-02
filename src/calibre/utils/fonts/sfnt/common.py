@@ -2,12 +2,14 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
-from collections.abc import Callable, Iterable, Mapping
-from collections.abc import Set as AbstractSet
 from struct import calcsize, unpack_from
-from typing import Any, NamedTuple, overload
+from typing import TYPE_CHECKING, Any, NamedTuple, overload
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping
+    from collections.abc import Set as AbstractSet
 
 
 class Unpackable:

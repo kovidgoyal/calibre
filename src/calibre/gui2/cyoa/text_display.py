@@ -11,7 +11,6 @@
 # applied to all of them at once, including those that are not visible.
 
 import weakref
-from collections.abc import Callable, Iterator
 from functools import partial
 from typing import TYPE_CHECKING
 
@@ -34,6 +33,9 @@ from qt.core import (
 
 from calibre.gui2.cyoa import data
 from calibre.gui2.palette import dark_link_color, light_link_color
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
 
 # One wheel click is 120 in angle delta units and changes the font size by
 # this many points.

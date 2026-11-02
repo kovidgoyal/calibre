@@ -3,7 +3,6 @@
 
 import datetime
 import textwrap
-from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING, Any, cast
 
@@ -50,6 +49,8 @@ from calibre.utils.localization import _
 pref = partial(pref_for_provider, OpenRouterAI.name)
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from calibre.ai.open_router.backend import Model as AIModel
 
 

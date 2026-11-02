@@ -3,7 +3,6 @@
 
 import os
 from collections import defaultdict
-from collections.abc import Sequence
 from threading import Thread
 from typing import TYPE_CHECKING
 
@@ -15,6 +14,8 @@ from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from calibre.utils.fonts.metadata import FontFace
 
 

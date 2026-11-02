@@ -5,8 +5,10 @@ import errno
 import os
 import select
 import sys
-from collections.abc import Callable
-from typing import NoReturn, Self
+from typing import TYPE_CHECKING, NoReturn, Self
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class INotifyError(Exception):

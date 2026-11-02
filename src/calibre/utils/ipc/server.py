@@ -6,7 +6,6 @@ import sys
 import tempfile
 import time
 from collections import deque
-from collections.abc import Callable, Sequence
 from itertools import count
 from math import ceil
 from multiprocessing import Pipe
@@ -26,6 +25,7 @@ from polyglot.binary import as_hex_unicode
 from polyglot.builtins import environ_item
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
     from multiprocessing.connection import Connection, PipeConnection
 
     from calibre.utils.ipc.job import BaseJob, ParallelJob

@@ -22,10 +22,13 @@
 
 import xml.dom.minidom
 import zipfile
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from .elementtypes import empty_elements, inline_elements
 from .namespaces import nsdict
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 IGNORED_TAGS = [
     'draw:adraw:g',

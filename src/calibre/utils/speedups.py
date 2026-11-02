@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from qt.core import QPainterPath
 
 

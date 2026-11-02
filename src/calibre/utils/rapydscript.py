@@ -11,7 +11,6 @@ import sys
 import tempfile
 import time
 from base64 import standard_b64decode, standard_b64encode
-from collections.abc import Callable, Iterable, Mapping
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NoReturn, Protocol
 
@@ -31,6 +30,8 @@ from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes, exec_path
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping
+
     from qt.core import QObject
 
     class RapydScriptCompiler(Protocol):

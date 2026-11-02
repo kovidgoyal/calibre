@@ -4,8 +4,8 @@ import os
 import re
 import sys
 import time
-from collections.abc import Sequence
 from functools import cmp_to_key
+from typing import TYPE_CHECKING
 
 from calibre import force_unicode
 from calibre.constants import preferred_encoding
@@ -17,6 +17,9 @@ from calibre.prints import debug_print
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from polyglot.builtins import cmp
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def none_cmp(xx: tuple[Metadata, object, object], yy: tuple[Metadata, object, object]) -> int:

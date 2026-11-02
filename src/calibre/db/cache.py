@@ -27,7 +27,6 @@ from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
-from calibre.db.book_storage import BookStorageEntry
 from calibre.db.categories import CategoriesCache, CategoriesInvalidatingLock, get_categories, items_of_books
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import BooksNotRemoved, NoSuchBook, NoSuchFormat
@@ -68,6 +67,7 @@ if TYPE_CHECKING:
 
     from calibre.db.backend import DB, JSONDict
     from calibre.db.backend import FormatMetadata as FormatMetadataDict
+    from calibre.db.book_storage import BookStorageEntry
     from calibre.db.categories import Tag
     from calibre.db.constants import TrashEntry
     from calibre.db.fields import Field

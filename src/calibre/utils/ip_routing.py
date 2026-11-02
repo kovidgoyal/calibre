@@ -3,9 +3,12 @@
 
 import re
 import subprocess
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 from calibre.constants import ismacos, iswindows
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def get_address_of_default_gateway(family: str = 'AF_INET') -> str:

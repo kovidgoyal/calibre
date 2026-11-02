@@ -7,12 +7,14 @@ being closed.
 
 import os
 import tempfile
-from collections.abc import Buffer, Generator, Iterable, Iterator
 from contextlib import contextmanager
-from typing import IO, Any, Self
+from typing import IO, TYPE_CHECKING, Any, Self
 
 from calibre.constants import __appname__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
 from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
+
+if TYPE_CHECKING:
+    from collections.abc import Buffer, Generator, Iterable, Iterator
 
 _base_dir = _osx_cache_dir = None
 _prevent_recursion = False

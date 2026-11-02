@@ -5,7 +5,6 @@ import os
 import threading
 import time
 import traceback
-from collections.abc import Callable, Collection, Iterable, Sequence
 from functools import partial, wraps
 from itertools import chain
 from typing import IO, TYPE_CHECKING, Concatenate, Protocol, cast
@@ -18,6 +17,8 @@ from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Sequence
+
     from calibre.devices.interface import DetectedDevice
     from calibre.devices.mtp.filesystem_cache import FileOrFolder, FilesystemCache, MTPEntry
 

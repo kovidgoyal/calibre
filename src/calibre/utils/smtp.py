@@ -11,7 +11,6 @@ import os
 import socket
 import sys
 import traceback
-from collections.abc import Callable, Sequence
 from encodings import idna
 from typing import IO, TYPE_CHECKING
 
@@ -22,6 +21,7 @@ from polyglot.builtins import as_unicode
 
 if TYPE_CHECKING:
     import optparse
+    from collections.abc import Callable, Sequence
     from email.message import EmailMessage, Message
 
     from calibre.utils.config_base import Config, StringConfig

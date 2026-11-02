@@ -6,12 +6,11 @@ import json
 import os
 import sys
 from collections import deque
-from collections.abc import Iterable, Iterator
 from contextlib import suppress
 from dataclasses import dataclass
 from itertools import count
 from time import monotonic
-from typing import NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import (
     QAudio,
@@ -39,6 +38,9 @@ from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 from calibre.utils.tts.kokoro import FileData, kokoro_metadata
 from calibre.utils.tts.piper import KokoroVoice, ResultCallback, SynthesisResult, global_piper_instance, global_piper_instance_if_exists, play_pcm_data
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
 
 HIGH_QUALITY_SAMPLE_RATE = 22050
 

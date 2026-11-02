@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from datetime import datetime
 
 COVER_FILE_NAME = 'cover.jpg'
 METADATA_FILE_NAME = 'metadata.opf'

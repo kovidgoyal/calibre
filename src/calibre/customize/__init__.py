@@ -1,6 +1,5 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-import builtins
 import enum
 import importlib
 import os
@@ -13,6 +12,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
     from optparse import Values
     from types import ModuleType

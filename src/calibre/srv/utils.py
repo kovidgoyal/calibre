@@ -5,7 +5,6 @@ import errno
 import os
 import reprlib
 import socket
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from email.utils import formatdate
 from http.cookies import SimpleCookie
 from operator import itemgetter
@@ -25,6 +24,8 @@ from polyglot.binary import from_hex_unicode as decode_name  # ruff: ignore[unus
 from polyglot.builtins import as_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+
     from calibre.db.cache import Cache
     from calibre.prints import PrintKwargs
     from calibre.srv.handler import Context

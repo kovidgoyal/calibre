@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import weakref
-from collections.abc import Callable
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
@@ -67,6 +66,9 @@ from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class HistoryMixin:

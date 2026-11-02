@@ -11,10 +11,10 @@ import os
 import re
 import shlex
 import sys
-from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
     from optparse import Option, OptionParser
 
 prints = print

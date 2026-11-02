@@ -12,10 +12,9 @@ import threading
 import time
 import unittest
 from collections import Counter
-from collections.abc import Callable, Coroutine, Mapping, Sequence
 from queue import Empty, Queue
 from threading import Event as ThreadingEvent
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote_plus, urljoin
 
@@ -43,6 +42,9 @@ from calibre.web.automate.metadata import (
     run_in_browser,
 )
 from calibre.web.automate.worker import start_worker
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine, Mapping, Sequence
 
 HOME = 'https://www.amazon.com/'
 OPTIONS = (

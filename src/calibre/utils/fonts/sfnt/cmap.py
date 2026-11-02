@@ -5,12 +5,15 @@
 # thanks from the fonttools project (BSD licensed).
 
 from collections import OrderedDict
-from collections.abc import Container, Iterable, Iterator, Mapping
 from struct import calcsize, pack, unpack_from
+from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import read_bmp_prefix
+
+if TYPE_CHECKING:
+    from collections.abc import Container, Iterable, Iterator, Mapping
 
 
 def split_range(start_code: int, end_code: int, cmap: Mapping[int, int]) -> tuple[list[int], list[int]]:  # {{{

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterable
-from collections.abc import Set as AbstractSet
 from functools import partial
 from struct import unpack_from
 from typing import TYPE_CHECKING
@@ -12,6 +10,9 @@ from calibre.utils.fonts.sfnt.common import ExtensionSubstitution, FeatureListTa
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from collections.abc import Set as AbstractSet
+
     from calibre.utils.fonts.sfnt.common import Unpackable
 
 

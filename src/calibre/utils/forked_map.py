@@ -7,14 +7,14 @@ import select
 import signal
 import ssl
 import traceback
-from collections.abc import Callable, Iterator, Sequence
 from contextlib import ExitStack
 from itertools import batched, chain
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, BinaryIO, NamedTuple, Self
 
 if TYPE_CHECKING:
     import unittest
+    from collections.abc import Callable, Iterator, Sequence
+    from types import TracebackType
 
 
 class _RemoteTraceback(Exception):

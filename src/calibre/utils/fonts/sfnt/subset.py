@@ -3,7 +3,6 @@
 
 import traceback
 from collections import OrderedDict
-from collections.abc import Iterable, Mapping, Sequence
 from functools import partial
 from operator import itemgetter
 from typing import TYPE_CHECKING
@@ -14,6 +13,7 @@ from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
     from optparse import OptionParser
 
     from calibre.utils.fonts.sfnt.glyf import GlyfTable, SimpleGlyph

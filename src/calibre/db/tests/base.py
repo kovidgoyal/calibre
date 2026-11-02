@@ -6,7 +6,6 @@ import os
 import shutil
 import tempfile
 import unittest
-from collections.abc import Container
 from functools import partial
 from io import BytesIO
 from typing import TYPE_CHECKING
@@ -15,6 +14,8 @@ from calibre.constants import iswindows
 from calibre.utils.resources import get_image_path as I
 
 if TYPE_CHECKING:
+    from collections.abc import Container
+
     from calibre.db.cache import Cache
     from calibre.db.legacy import LibraryDatabase
     from calibre.ebooks.metadata.book.base import Metadata

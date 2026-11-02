@@ -5,14 +5,16 @@ import os
 import re
 import shlex
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from calibre import force_unicode, guess_type, prints, walk
 from calibre.constants import cache_dir, filesystem_encoding
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
 
 
 def parse_localized_key(key: str) -> tuple[str, str | None]:

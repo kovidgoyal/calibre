@@ -10,13 +10,15 @@
 
 import os
 from collections import OrderedDict
-from collections.abc import Callable, Sequence
 from functools import lru_cache
 from threading import Event, Lock, local
-from types import ModuleType
-from typing import Literal, NamedTuple, Protocol, cast
+from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, cast
 
 from calibre.utils.grammar.models import DownloadAborted, Readable
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from types import ModuleType
 
 # Increment when changes to this module change the results of checks, so that
 # cached results are discarded

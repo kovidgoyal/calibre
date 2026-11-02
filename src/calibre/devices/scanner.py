@@ -8,15 +8,16 @@ manner.
 import os
 import sys
 import time
-from collections.abc import Callable, Collection
 from threading import Lock
-from types import ModuleType
 from typing import TYPE_CHECKING, NamedTuple, Self, cast
 
 from calibre import as_unicode, prints
 from calibre.constants import isfreebsd, islinux, ismacos, isnetbsd, iswindows
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
+    from types import ModuleType
+
     from calibre.devices.interface import DetectedDevice, DevicePlugin
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None

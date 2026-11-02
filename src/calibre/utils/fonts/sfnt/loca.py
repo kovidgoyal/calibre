@@ -3,7 +3,6 @@
 
 import array
 import sys
-from collections.abc import Mapping
 from itertools import repeat
 from operator import itemgetter
 from typing import TYPE_CHECKING, Literal
@@ -11,6 +10,8 @@ from typing import TYPE_CHECKING, Literal
 from calibre.utils.fonts.sfnt import UnknownTable
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from calibre.utils.fonts.sfnt.container import Sfnt
     from calibre.utils.fonts.sfnt.head import HeadTable
     from calibre.utils.fonts.sfnt.maxp import MaxpTable

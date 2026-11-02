@@ -5,7 +5,6 @@ import calendar
 import json
 import os
 import zipfile
-from collections.abc import Sequence
 from datetime import datetime, timedelta
 from threading import RLock
 from typing import TYPE_CHECKING, Any, NamedTuple
@@ -24,7 +23,7 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from lxml.etree import _Element
 

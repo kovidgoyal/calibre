@@ -16,10 +16,8 @@ import asyncio
 import os
 import re
 import time
-from collections.abc import AsyncGenerator, Callable, Coroutine, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager, suppress
 from threading import Lock, Thread
-from types import ModuleType
 from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 from urllib.parse import urljoin, urlparse
 
@@ -29,6 +27,9 @@ from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Callable, Coroutine, Iterable, Mapping, Sequence
+    from types import ModuleType
+
     from lxml.etree import _Element
 
     from calibre.web.automate.camoufox import Browser

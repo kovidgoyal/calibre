@@ -3,7 +3,6 @@
 
 import os
 import re
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Protocol
 
 from qt.core import (
@@ -54,6 +53,9 @@ from calibre.gui2.removable_history import enable_item_removal_for_combobox, rem
 from calibre.startup import connect_lambda
 from calibre.utils.config import XMLConfig, prefs
 from calibre.utils.localization import _, localize_user_manual_link
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 history = XMLConfig('history')
 

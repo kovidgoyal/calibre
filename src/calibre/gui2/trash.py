@@ -3,9 +3,9 @@
 
 import time
 import traceback
-from collections.abc import Iterator
 from dataclasses import replace
 from operator import attrgetter
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -37,6 +37,9 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 THUMBNAIL_SIZE = 60, 80
 MARGIN_SIZE = 8

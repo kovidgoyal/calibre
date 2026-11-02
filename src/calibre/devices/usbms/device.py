@@ -12,7 +12,6 @@ import re
 import subprocess
 import sys
 import time
-from collections.abc import Callable, Collection, Iterator, Sequence
 from contextlib import suppress
 from itertools import repeat
 from typing import TYPE_CHECKING, NamedTuple, TypedDict, cast
@@ -26,6 +25,8 @@ from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterator, Sequence
+
     from calibre.db.legacy import LibraryDatabase
     from calibre.devices.interface import DetectedDevice, ProgressReporter, USBDeviceInfo
     from calibre.devices.winusb import USBDevice as WinUSBDevice

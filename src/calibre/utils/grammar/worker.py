@@ -10,13 +10,12 @@
 import subprocess
 import sys
 import traceback
-from collections.abc import Callable, Sequence
 from contextlib import suppress
 from itertools import count
 from multiprocessing import Pipe
 from queue import Queue
 from threading import Lock, Thread
-from typing import NamedTuple, Protocol, Self
+from typing import TYPE_CHECKING, NamedTuple, Protocol, Self
 
 from calibre.constants import iswindows
 from calibre.utils.grammar.backend import Backend, ModelNotDownloaded, Suggestion, SuggestionsAborted, UnsupportedLanguage
@@ -34,6 +33,9 @@ from calibre.utils.grammar.rules import (
 )
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 if iswindows:
     from multiprocessing.connection import PipeConnection as Connection

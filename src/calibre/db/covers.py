@@ -2,12 +2,15 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections.abc import Callable
 from queue import Queue
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from calibre import detect_ncpus
 from calibre.utils.img import encode_jpeg, optimize_jpeg
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def compress_worker(input_queue: Queue[tuple[int, str] | None], output_queue: Queue[tuple[int, int | str]], jpeg_quality: int) -> None:

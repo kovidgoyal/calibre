@@ -2,8 +2,6 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
-from collections.abc import Callable, Iterable
-from collections.abc import Set as AbstractSet
 from functools import partial
 from importlib import import_module
 from threading import Lock
@@ -19,6 +17,8 @@ from calibre.utils.search_query_parser import ParseException
 
 if TYPE_CHECKING:
     from collections import OrderedDict
+    from collections.abc import Callable, Iterable
+    from collections.abc import Set as AbstractSet
 
     from calibre.db.cache import Cache
     from calibre.db.categories import Tag

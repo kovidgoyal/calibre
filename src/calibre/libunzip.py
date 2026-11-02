@@ -2,13 +2,14 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
 import re
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from calibre.utils import zipfile
 from calibre.utils.icu import numeric_sort_key
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from calibre.utils.zipfile import ZipStream
 
 

@@ -2,8 +2,8 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import textwrap
-from collections.abc import Callable
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractSpinBox,
@@ -33,6 +33,9 @@ from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.config import ConfigProxy
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class AbortCommit(Exception):

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qt.core import QComboBox, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QMenu, QPushButton, QSize, QTextCursor, QVBoxLayout, QWidget, pyqtSignal
 
@@ -26,6 +25,9 @@ from calibre.gui2.tag_mapper import SaveLoadMixin
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import _, localize_user_manual_link
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class RuleEdit(QWidget):  # {{{

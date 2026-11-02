@@ -8,7 +8,6 @@ Device driver for the SONY T1 devices
 import os
 import re
 import time
-from collections.abc import Callable, Sequence
 from contextlib import closing
 from datetime import date
 from typing import TYPE_CHECKING
@@ -26,6 +25,7 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     import sqlite3
+    from collections.abc import Callable, Sequence
 
     from calibre.devices.interface import BookList as _BookList
     from calibre.devices.interface import USBDeviceInfo

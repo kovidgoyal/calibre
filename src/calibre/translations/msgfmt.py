@@ -31,9 +31,11 @@ import getopt
 import os
 import struct
 import sys
-from collections.abc import Iterable, Iterator, Sequence
 from email.parser import HeaderParser
-from typing import IO, NoReturn
+from typing import IO, TYPE_CHECKING, NoReturn
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
 
 __version__ = '1.2'
 

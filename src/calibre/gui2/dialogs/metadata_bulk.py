@@ -3,10 +3,9 @@
 
 import numbers
 from collections import defaultdict
-from datetime import datetime
 from io import BytesIO
 from threading import Thread
-from typing import NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import regex
 from qt.core import (
@@ -50,6 +49,9 @@ from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, ngettext
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 null = object()
 

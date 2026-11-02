@@ -11,7 +11,6 @@ from collections import deque
 from contextlib import suppress
 from http import HTTPStatus
 from time import monotonic
-from types import TracebackType
 from typing import TYPE_CHECKING
 
 from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal, sip
@@ -24,6 +23,7 @@ from calibre.utils.webengine import create_script, insert_scripts, setup_profile
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from types import TracebackType
 
 
 def create_base_profile(cache_name: str = '', allow_js: bool = False) -> QWebEngineProfile:

@@ -3,10 +3,12 @@
 
 import json
 import random
-from collections.abc import Iterator, Sequence
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
 
 
 class UserAgentData(TypedDict):

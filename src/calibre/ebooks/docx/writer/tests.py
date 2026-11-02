@@ -19,6 +19,7 @@ from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_image_path as I
 
 if TYPE_CHECKING:
+    from calibre.ebooks.docx.styles import Styles
     from calibre.ebooks.docx.writer.links import Link
     from calibre.ebooks.docx.writer.styles import DescendantTextStyle, StylesManager, TextStyle
     from calibre.ebooks.oeb.stylizer import Style
@@ -397,7 +398,6 @@ class TestStyles(BaseTest):
 
     def test_numbering_overrides(self) -> None:
         from calibre.ebooks.docx.numbering import Numbering
-        from calibre.ebooks.docx.styles import Styles
 
         w = self.namespace.namespaces['w']
         root = etree.fromstring(f'''<w:numbering xmlns:w="{w}">

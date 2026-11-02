@@ -5,9 +5,12 @@ import os
 import re
 import sys
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from calibre.db.book_storage import BookStorageEntry
 from calibre.db.constants import EBOOK_VIEWER_DEVICE, EBOOK_VIEWER_USER
+
+if TYPE_CHECKING:
+    from calibre.db.book_storage import BookStorageEntry
 
 
 def get_book_library_details(absolute_path_to_ebook):

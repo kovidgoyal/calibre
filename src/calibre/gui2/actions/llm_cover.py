@@ -2,20 +2,21 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
-from queue import Queue
-from threading import Event
 from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QModelIndex
 
 from calibre.ai import ImageGenerationOptions
-from calibre.customize import AIProviderPlugin
 from calibre.gui2 import Dispatcher, error_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
+    from queue import Queue
+    from threading import Event
+
+    from calibre.customize import AIProviderPlugin
     from calibre.utils.logging import GUILog
 else:
     GUILog = None

@@ -6,9 +6,7 @@ Manage application-wide preferences.
 
 import optparse
 import os
-from collections.abc import Iterable, Iterator
 from copy import deepcopy
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, NoReturn
 
 from calibre.constants import CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows
@@ -34,6 +32,9 @@ from calibre.utils.config_base import (  # ruff: ignore[unused-import]
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from types import TracebackType
+
     from _typeshed import SupportsWrite
 
 # optparse uses gettext.gettext instead of _ from builtins, so we

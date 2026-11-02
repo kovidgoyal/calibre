@@ -1,16 +1,18 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-import builtins
 import os
 import shutil
 import time
-from collections.abc import Sequence
-from typing import IO
+from typing import IO, TYPE_CHECKING
 
 from calibre import fsync
 from calibre.devices.errors import PathError
 from calibre.utils import StreamOrPath
 from calibre.utils.filenames import case_preserving_open_file
+
+if TYPE_CHECKING:
+    import builtins
+    from collections.abc import Sequence
 
 
 class File:

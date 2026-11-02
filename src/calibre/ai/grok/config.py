@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any
 
 from qt.core import QCheckBox, QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QWidget
 
-from calibre.ai import AICapabilities
 from calibre.ai.grok import GrokAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, model_choice_config_widget, model_choice_strategy_config_widget, plugin_for_name, reasoning_strategy_config_widget
@@ -15,6 +14,7 @@ from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
+    from calibre.ai import AICapabilities
     from calibre.ai.grok.backend import Model as AIModel
 else:
     AIModel = object

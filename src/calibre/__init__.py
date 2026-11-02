@@ -7,7 +7,6 @@ import re
 import sys
 import time
 import warnings
-from collections.abc import Collection, Iterator, Mapping
 from functools import lru_cache, partial
 from math import floor
 from typing import IO, TYPE_CHECKING, Any, TextIO, TypedDict, Unpack, cast, overload
@@ -46,6 +45,7 @@ from calibre.utils.resources import get_path as P
 if TYPE_CHECKING:
     import ctypes
     import logging
+    from collections.abc import Collection, Iterator, Mapping
     from datetime import date
 
     from calibre.utils.browser import Browser

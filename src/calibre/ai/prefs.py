@@ -2,21 +2,22 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import threading
-from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from copy import deepcopy
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 
 from calibre.ai import AICapabilities
-from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import primary_sort_key
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
     from unittest.suite import TestSuite
+
+    from calibre.customize import AIProviderPlugin
 else:
     TestSuite = object
 

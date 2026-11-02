@@ -5,7 +5,6 @@ import importlib
 import os
 import time
 import traceback
-from collections.abc import Callable, Iterable, Sequence
 from multiprocessing import Pipe
 from threading import Thread
 from typing import TYPE_CHECKING, Any
@@ -22,6 +21,7 @@ else:
     from multiprocessing.connection import Connection
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
     from subprocess import Popen
     from threading import Event
     from typing import IO

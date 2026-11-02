@@ -8,9 +8,7 @@ for a particular device.
 
 import json
 import os
-import re
 import shutil
-from collections.abc import Callable, Iterator, Sequence
 from itertools import cycle
 from typing import TYPE_CHECKING, ClassVar, Never, cast, overload
 
@@ -24,6 +22,9 @@ from calibre.prints import debug_print
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    import re
+    from collections.abc import Callable, Iterator, Sequence
+
     from calibre.devices.interface import BookList as _BookList
     from calibre.devices.interface import DeviceInformation, DriveInfo
     from calibre.ebooks.metadata.book.base import Metadata

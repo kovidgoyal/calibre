@@ -4,13 +4,14 @@
 
 import json
 import posixpath
-from collections.abc import Iterable, Iterator
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     from calibre.ai.lm_studio.config import ConfigWidget
 else:
     ConfigWidget = object

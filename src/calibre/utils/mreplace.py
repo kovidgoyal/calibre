@@ -4,7 +4,10 @@
 
 import re
 from collections import UserDict
-from collections.abc import Mapping
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class MReplace(UserDict):

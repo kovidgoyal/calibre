@@ -1,9 +1,13 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QWidget
 
 from calibre.gui2.store.basic_config_widget_ui import Ui_Form
-from calibre.utils.config import JSONConfig
+
+if TYPE_CHECKING:
+    from calibre.utils.config import JSONConfig
 
 
 class BasicStoreConfigWidget(QWidget, Ui_Form):

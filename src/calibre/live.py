@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import types
-from collections.abc import Callable
 from compression import gzip
 from contextlib import suppress
 from datetime import datetime, timedelta
@@ -26,6 +25,7 @@ from calibre.utils.iso8601 import parse_iso8601
 
 if TYPE_CHECKING:
     import unittest
+    from collections.abc import Callable
 
 download_queue: Queue[str | None] = Queue()
 default_timeout = object()

@@ -3,7 +3,6 @@
 
 import os
 from collections import OrderedDict
-from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING, Any, cast
 
@@ -46,6 +45,9 @@ from calibre.utils.date import as_local_time, as_utc, internal_iso_format_string
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class EditWithComplete(EWC):

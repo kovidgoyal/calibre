@@ -3,7 +3,6 @@
 
 import struct
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, Sequence
 from io import BytesIO
 from typing import TYPE_CHECKING, Literal, Protocol, overload
 
@@ -11,6 +10,8 @@ from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from fontTools.ttLib.tables._n_a_m_e import table__n_a_m_e
 
     class TTLibPanose(Protocol):

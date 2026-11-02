@@ -5,7 +5,6 @@ import datetime
 import http
 import json
 import posixpath
-from collections.abc import Iterable, Iterator, Sequence
 from contextlib import suppress
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
@@ -13,6 +12,8 @@ from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from calibre.ai.ollama.config import ConfigWidget
 else:
     ConfigWidget = object

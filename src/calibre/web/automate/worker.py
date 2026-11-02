@@ -28,6 +28,7 @@ else:
     PipeServer = asyncio.Server
 
 if TYPE_CHECKING:
+    from asyncio.windows_events import ProactorEventLoop
 
     class StderrKwargs(TypedDict, total=False):
         stderr: int
@@ -161,7 +162,6 @@ async def start_server(
         try:
             if iswindows:
                 from asyncio import Transport
-                from asyncio.windows_events import ProactorEventLoop
 
                 wserver = await cast('ProactorEventLoop', loop).start_serving_pipe(protocol_factory, path)
                 server = cast('list[Transport]', wserver)

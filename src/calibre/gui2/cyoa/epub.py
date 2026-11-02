@@ -17,7 +17,6 @@
 
 import os
 from base64 import standard_b64decode
-from collections.abc import Iterator, Mapping
 from contextlib import suppress
 from html import escape
 from typing import TYPE_CHECKING
@@ -39,6 +38,7 @@ from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_image_path
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
     from unittest.suite import TestSuite
 else:
     TestSuite = object

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Sequence
 from enum import Enum, Flag, auto
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class ChatMessageType(Enum):

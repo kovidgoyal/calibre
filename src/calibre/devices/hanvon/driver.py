@@ -6,7 +6,6 @@ Device driver for Hanvon devices
 
 import os
 import re
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from calibre import fsync
@@ -14,6 +13,8 @@ from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from calibre.devices.interface import USBDeviceInfo
     from calibre.ebooks.metadata.book.base import Metadata
 

@@ -4,8 +4,6 @@
 import os
 import shutil
 import sys
-from collections.abc import Iterable
-from types import ModuleType
 from typing import IO, TYPE_CHECKING, Any, TypedDict, Unpack, cast
 
 from calibre.constants import preferred_encoding
@@ -15,6 +13,8 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 
 if TYPE_CHECKING:
     import unittest
+    from collections.abc import Iterable
+    from types import ModuleType
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre_extensions.podofo import PDFDoc

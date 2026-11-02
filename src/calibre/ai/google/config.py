@@ -2,15 +2,18 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QComboBox, QFormLayout, QGroupBox, QLabel, QLineEdit, QWidget
 
-from calibre.ai import AICapabilities
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, model_choice_strategy_config_widget, reasoning_strategy_config_widget
 from calibre.gui2 import error_dialog
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ai import AICapabilities
 
 pref = partial(pref_for_provider, GoogleAI.name)
 

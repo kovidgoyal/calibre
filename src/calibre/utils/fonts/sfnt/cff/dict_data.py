@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterable
 from struct import pack, unpack_from
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from calibre.utils.fonts.sfnt.cff.table import Strings as TableStrings
     from calibre.utils.fonts.sfnt.cff.table import Subrs
     from calibre.utils.fonts.sfnt.cff.writer import Strings as WriterStrings

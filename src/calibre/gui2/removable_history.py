@@ -8,7 +8,7 @@ web browsers: hovering over an entry shows a small remove button at the right
 edge of the entry and Shift+Delete removes the entry under the mouse cursor.
 """
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -30,6 +30,9 @@ from qt.core import (
 )
 
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 MARGIN = 2
 

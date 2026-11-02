@@ -5,7 +5,6 @@ import numbers
 import operator
 import sys
 import weakref
-from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING, Any, cast
 
@@ -14,7 +13,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import prefs, tweaks
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Container, Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Callable, Collection, Container, Iterable, Iterator, Mapping, Sequence
 
     from calibre.db.cache import Cache
     from calibre.db.lazy import ProxyMetadata

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-import builtins
 import json
 import sys
 import time
@@ -11,13 +10,16 @@ from collections.abc import Iterable, Iterator, Mapping
 from datetime import datetime
 from itertools import chain
 from operator import attrgetter
-from typing import IO, cast
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre import force_unicode, human_readable, prints
 from calibre.constants import iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.date import as_utc, local_tz
 from calibre.utils.icu import lower, sort_key
+
+if TYPE_CHECKING:
+    import builtins
 
 bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 

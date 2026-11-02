@@ -3,10 +3,11 @@
 
 import glob
 import os
-from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from calibre.devices.mtp.unix.driver import MTPCandidate
 
 

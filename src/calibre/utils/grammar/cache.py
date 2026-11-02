@@ -11,11 +11,10 @@ import json
 import os
 import sys
 from collections import OrderedDict
-from collections.abc import Iterable, Sequence
 from contextlib import suppress
 from threading import Lock
 from time import time
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 import apsw
 
@@ -23,6 +22,9 @@ from calibre.utils.grammar.backend import ALGORITHM_VERSION, Edit, Suggestion
 from calibre.utils.grammar.checker import ParagraphResult
 from calibre.utils.grammar.models import variant_files
 from calibre.utils.grammar.rules import Issue, IssueSource
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 DEFAULT_MAX_ENTRIES = 250_000
 DEFAULT_MEMORY_ENTRIES = 20_000

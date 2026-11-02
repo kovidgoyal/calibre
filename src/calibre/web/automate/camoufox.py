@@ -46,11 +46,10 @@ import tempfile
 import threading
 import time
 import unicodedata
-from collections.abc import AsyncGenerator, Callable, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from http import HTTPStatus
-from typing import Any, NamedTuple, Self
+from typing import TYPE_CHECKING, Any, NamedTuple, Self
 
 from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_in
 from calibre.utils.filenames import make_long_path_useable
@@ -66,6 +65,9 @@ from calibre.web.automate.download_deps import (
     lock_camoufox_install,
     use_camoufox,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Callable, Iterable, Mapping, Sequence
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,

@@ -3,7 +3,6 @@
 
 import re
 from collections import defaultdict
-from collections.abc import Callable
 from functools import partial
 from itertools import count
 from operator import itemgetter
@@ -22,7 +21,7 @@ from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from css_parser.css import CSSRuleList, CSSStyleDeclaration, Selector
     from css_parser.css.value import Value

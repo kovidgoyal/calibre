@@ -30,12 +30,11 @@ import secrets
 import time
 import weakref
 from collections import OrderedDict
-from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import suppress
 from http import HTTPStatus
 from io import BytesIO
 from threading import RLock
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 from urllib.error import URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request
@@ -43,6 +42,9 @@ from urllib.request import Request
 from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, InputWedged, Page, TimeoutExceeded, debug
 from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping, Sequence
 
 # The recipe thread pool defaults to five threads and a tab costs real memory,
 # so the pool of them is kept to a size that a download actually uses

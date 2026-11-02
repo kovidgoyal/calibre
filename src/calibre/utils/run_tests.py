@@ -12,7 +12,6 @@ import sys
 import tempfile
 import threading
 import unittest
-from collections.abc import Callable, Collection, Iterable, Iterator
 from typing import TYPE_CHECKING, NoReturn, Protocol, TextIO
 
 from calibre.constants import debug, isbsd, islinux, ismacos, iswindows
@@ -21,6 +20,7 @@ from calibre.utils.serialize import msgpack_dumps
 from polyglot.binary import as_hex_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Iterator
     from subprocess import Popen
 
     from _typeshed import OptExcInfo

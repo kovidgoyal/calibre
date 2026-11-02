@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from copy import copy
 from datetime import date, datetime, time
 from functools import lru_cache, partial
@@ -24,6 +23,8 @@ from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, calibre_langcode_to_name
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+
     from qt.core import QAbstractItemModel, QModelIndex
 
     from calibre.db.cache import Cache

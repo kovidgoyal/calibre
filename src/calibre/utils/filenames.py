@@ -8,14 +8,16 @@ import ntpath
 import os
 import shutil
 import time
-from collections.abc import Callable, Iterable
 from contextlib import closing, suppress
 from math import ceil
-from typing import IO, Any, overload
+from typing import IO, TYPE_CHECKING, Any, overload
 
 from calibre import force_unicode, prints, sanitize_file_name
 from calibre.constants import filesystem_encoding, ismacos, iswindows, preferred_encoding
 from calibre.utils.localization import _, get_udc
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
 
 
 def ascii_text(orig: str | bytes) -> str:

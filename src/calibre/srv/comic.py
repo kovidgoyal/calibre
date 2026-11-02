@@ -7,10 +7,9 @@ import hashlib
 import json
 import posixpath
 import zlib
-from collections.abc import Generator
 from contextlib import contextmanager
 from functools import lru_cache, partial
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 from urllib.parse import urlencode
 
 from lxml import etree
@@ -19,7 +18,6 @@ from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.comic.input import find_pages
 from calibre.srv.content import create_file_copy
 from calibre.srv.errors import BookNotFound, HTTPNotFound
-from calibre.srv.handler import Context
 from calibre.srv.http_response import ETaggedDynamicOutput, RequestData, StaticOutput, parse_if_none_match
 from calibre.srv.opds import DIVINA_MIME, RequestContext, opds2_metadata
 from calibre.srv.routes import endpoint
@@ -28,6 +26,11 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile, ZipInfo
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from calibre.srv.handler import Context
 
 DIVINA_PROFILE = 'https://readium.org/webpub-manifest/profiles/divina'
 IMAGE_TYPES = {

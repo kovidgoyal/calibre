@@ -3,11 +3,13 @@
 
 import os
 import sys
-from collections.abc import Iterable
-from logging import LogRecord
 from logging.handlers import QueueHandler
 from queue import Empty, SimpleQueue
-from typing import IO
+from typing import IO, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from logging import LogRecord
 
 
 def subset(

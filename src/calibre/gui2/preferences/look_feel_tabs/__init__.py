@@ -3,7 +3,7 @@
 
 import json
 from threading import Thread
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractListModel,
@@ -45,6 +45,9 @@ from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.library.caches import ThumbnailRenderer
 
 
 class DefaultAuthorLink(QWidget):
@@ -575,7 +578,6 @@ class CoverCacheConfig(LazyConfigWidgetBase):
         self.gui = gui
 
     def link(self, cover_cache, name_disk_cache_size, name_cache_size_multiple=None):
-        from calibre.gui2.library.caches import ThumbnailRenderer
 
         self.cover_cache: ThumbnailRenderer = cover_cache.renderer
         self.name_disk_cache_size = name_disk_cache_size

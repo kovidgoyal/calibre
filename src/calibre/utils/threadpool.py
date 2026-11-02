@@ -50,10 +50,10 @@ __date__ = '$Date: 2006/06/23 12:32:25 $'
 import queue
 import threading
 import time
-from collections.abc import Callable, Hashable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Unpack
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Hashable, Iterable, Sequence
     from typing import TypedDict
 
     class ThreadKw(TypedDict, total=False):

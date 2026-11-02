@@ -2,12 +2,15 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import array
-from collections.abc import Mapping
 from struct import calcsize, pack, unpack_from
+from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt import DateTimeProperty, FixedProperty, UnknownTable
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.sfnt.loca import read_array
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class HeadTable(UnknownTable):

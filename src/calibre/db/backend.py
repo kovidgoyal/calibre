@@ -13,7 +13,6 @@ import tempfile
 import time
 import uuid
 from contextlib import closing, suppress
-from datetime import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Any, Literal, NotRequired, TypedDict, cast, overload
 
@@ -84,6 +83,7 @@ if iswindows:
     from calibre_extensions import winutil
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Container, Generator, Iterable, Iterator, Mapping
+    from datetime import datetime
     from threading import Event
     from types import TracebackType
     from typing import IO, BinaryIO

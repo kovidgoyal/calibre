@@ -2,13 +2,14 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import threading
-from collections.abc import Callable, Iterator
 from functools import wraps
 from typing import TYPE_CHECKING, Concatenate
 
 from calibre_extensions.freetype import FreeType as _FreeType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
     from calibre_extensions.freetype import Face as _Face
 
 

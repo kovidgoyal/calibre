@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
-from collections.abc import Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Self
 
 from lxml import etree, html
@@ -13,6 +12,8 @@ from calibre import strftime
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+
     from calibre.web.feeds import Article, Feed
 
 

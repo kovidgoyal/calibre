@@ -3,15 +3,17 @@
 
 import io
 import time
-from collections.abc import Callable, Sequence
 from itertools import count
 from queue import Empty, Queue
-from typing import BinaryIO
+from typing import TYPE_CHECKING, BinaryIO
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.localization import _
 from polyglot.builtins import cmp
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 job_counter = count()
 

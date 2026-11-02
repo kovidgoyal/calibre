@@ -3,7 +3,6 @@
 
 import sys
 from collections import Counter, defaultdict
-from collections.abc import Iterable
 from functools import partial
 from threading import Lock
 from typing import TYPE_CHECKING, cast
@@ -19,7 +18,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, calibre_langcode_to_name
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
+    from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
     from datetime import datetime
 
     from calibre.db.backend import DB

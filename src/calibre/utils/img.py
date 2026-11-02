@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from collections.abc import Sequence
 from io import BytesIO
 from threading import Thread
 from typing import IO, TYPE_CHECKING, Self, TypedDict, Unpack, overload
@@ -25,6 +24,8 @@ from calibre_extensions import avif as _avif_plugin  # ruff: ignore[unused-impor
 from calibre_extensions import imageops
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from lxml.etree import _Element
     from PIL.Image import Image as PILImage
 
