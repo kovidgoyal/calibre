@@ -9,7 +9,7 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from complete import create_search_bar
-from dom import clear, add_extra_css, build_rule
+from dom import clear, add_extra_css, build_rule, unique_id
 from modals import error_dialog
 from read_book.globals import current_book, ui_operations
 from read_book.search_worker import (
@@ -168,10 +168,13 @@ Regex: Interpret the entered text as a regular expression'''),
 
     def show_results(self):
         c = self.bottom_container
+        was_showing = c.style.display is 'block' and c.lastChild.style.display is 'block'
         c.style.display = 'block'
         c.firstChild.style.display = 'none'
         c.lastChild.style.display = 'block'
-        c.focus()
+        # Later matches must not take focus from a result or chapter button
+        if not was_showing and self.is_visible:
+            c.focus()
 
     def clear_results(self):
         clear(self.results_container)
@@ -262,6 +265,11 @@ Regex: Interpret the entered text as a regular expression'''),
             style='margin: 1rem',
             _('No matching results found')))
 
+    def toggle_chapter(self, ev):
+        button = ev.currentTarget
+        collapsed = button.closest('[data-toc-node-id]').classList.toggle('collapsed')
+        button.setAttribute('aria-expanded', 'false' if collapsed else 'true')
+
     def result_received(self, result):
         self.show_results()
         self.result_map[result.result_num] = result
@@ -272,17 +280,18 @@ Regex: Interpret the entered text as a regular expression'''),
         c = self.results_container
         group = c.querySelector(f'[data-toc-node-id="{toc_node_id}"]')
         if not group:
+            results_id = unique_id('book-search-results')
             group = E.div(
                 data_toc_node_id=toc_node_id + '',
                 data_spine_index=result.spine_idx + '',
-                E.div(
-                    E.span('+\xa0', style='display: none'),
+                E.button(
+                    E.span('+\xa0', style='display: none', aria_hidden='true'),
                     E.span(toc_node?.title or _('Unknown')),
+                    type='button', class_='book-search-button', aria_expanded='true', aria_controls=results_id,
                     title=_('Click to show/hide the results in this chapter'),
-                    onclick=def (ev):
-                        ev.target.closest('[data-toc-node-id]').classList.toggle('collapsed')
+                    onclick=self.toggle_chapter,
                 ),
-                E.ul()
+                E.ul(id=results_id)
             )
             appended = False
             for child in c.querySelectorAll('[data-spine-index]'):
@@ -302,14 +311,14 @@ Regex: Interpret the entered text as a regular expression'''),
             tt = ngettext('Table of Contents section:', 'Table of Contents sections:', lines.length)
             tt += '\n' + lines.join('\n')
         rnum = result.result_num
-        entry = E.li(title=tt, data_result_num=rnum + '', onclick=self.result_clicked.bind(None, rnum))
+        entry = E.button(type='button', class_='book-search-button', onclick=self.result_clicked.bind(None, rnum))
 
         if result.before:
             entry.appendChild(E.span('…' + result.before))
         entry.appendChild(E.strong(result.text))
         if result.after:
             entry.appendChild(E.span(result.after + '…'))
-        ul.appendChild(entry)
+        ul.appendChild(E.li(title=tt, data_result_num=rnum + '', entry))
 
     @property
     def current_result_container(self):
@@ -379,6 +388,11 @@ Regex: Interpret the entered text as a regular expression'''),
             event.stopPropagation(), event.preventDefault()
 
     def onkeydown(self, event):
+        if (event.key is 'Enter' or event.key is ' ') and event.target.closest('.book-search-button') and not (
+                event.ctrlKey or event.altKey or event.metaKey):
+            # Native activation takes precedence over the next/previous match shortcuts
+            event.stopPropagation()
+            return
         sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
         if sc_name is 'next_match':
             self.next_match(1)
@@ -425,11 +439,17 @@ Regex: Interpret the entered text as a regular expression'''),
 add_extra_css(def ():
     css = ''
     sel = f'#{SearchOverlay.CONTAINER_ID} '
+    css += build_rule(sel + '.book-search-button',
+        display='block', width='100%', margin='0', padding='0', border='0', background='none',
+        color='inherit', font='inherit', line_height='inherit', text_align='inherit',
+        white_space='normal', cursor='pointer')
+    css += build_rule(sel + '.book-search-button:focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='2px')
     sel += ' div[data-toc-node-id]'
     css += build_rule(sel, margin='1rem')
-    css += sel + '.collapsed > div > span { display: inline !important; }'
+    css += sel + '.collapsed > button > span { display: inline !important; }'
     css += build_rule(sel + '.collapsed > ul', display='none')
-    css += build_rule(sel + ' > div', font_style='italic', font_weight='bold', cursor='pointer')
+    css += build_rule(sel + ' > button', font_style='italic', font_weight='bold')
     css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0', cursor='pointer')
     css += build_rule(sel + ' li.current', border_left='solid 2px var(--calibre-color-primary)', padding_left='2px')
     css += build_rule(sel + ' li strong', color='var(--calibre-color-primary)', font_style='italic')

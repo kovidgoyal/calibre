@@ -1,0 +1,151 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, softwaregames1
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.globals import ui_operations
+from read_book.search import SearchOverlay
+from read_book.shortcuts import create_shortcut_map
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def search_result(num, chapter=1):
+    return {
+        'result_num': num, 'toc_nodes': [chapter], 'spine_idx': chapter - 1,
+        'before': 'Before ', 'text': 'match ' + num, 'after': ' after',
+    }
+
+
+def with_search_overlay(proceed):
+    def run():
+        container = E.div(id=SearchOverlay.CONTAINER_ID, style='display: flex')
+        document.body.appendChild(container)
+        calls = {'selected': [], 'focused_reader': 0}
+
+        def show_search_result(result):
+            calls.selected.push(result.result_num)
+
+        def focus_iframe():
+            calls.focused_reader += 1
+
+        view = {
+            'keyboard_shortcut_map': create_shortcut_map(),
+            'discover_search_result': def (): pass;,
+            'show_search_result': show_search_result,
+        }
+        overlay = SearchOverlay(view)
+        overlay.toc_data = {'toc_id_map': {1: {'title': 'First chapter'}, 2: {'title': 'Second chapter'}}}
+        previous = ui_operations.focus_iframe
+        ui_operations.focus_iframe = focus_iframe
+        try:
+            proceed(overlay, calls)
+        finally:
+            ui_operations.focus_iframe = previous
+
+    with_empty_session(run)
+
+
+def keydown(target, key, **kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    target.dispatchEvent(ev)
+    return ev
+
+
+@test
+def book_search_chapters_are_buttons_with_expanded_state():
+    def run(overlay):
+        overlay.result_received(search_result(1))
+        group = overlay.results_container.firstChild
+        button, results = group.children
+        assert_equal(button.tagName, 'BUTTON')
+        assert_equal(button.type, 'button')
+        assert_equal(button.textContent, '+\xa0First chapter')
+        assert_equal(button.getAttribute('aria-controls'), results.id)
+        assert_equal(button.getAttribute('aria-expanded'), 'true')
+        button.focus()
+        button.lastChild.click()
+        assert_true(group.classList.contains('collapsed'))
+        assert_equal(button.getAttribute('aria-expanded'), 'false')
+        overlay.result_received(search_result(2))
+        assert_equal(document.activeElement, button)
+        assert_equal(button.getAttribute('aria-expanded'), 'false')
+        button.click()
+        assert_false(group.classList.contains('collapsed'))
+        assert_equal(button.getAttribute('aria-expanded'), 'true')
+
+    with_search_overlay(run)
+
+
+@test
+def book_search_result_buttons_open_the_chosen_match_once():
+    def run(overlay, calls):
+        overlay.result_received(search_result(1))
+        overlay.result_received(search_result(2))
+        row = overlay.results_container.querySelector('[data-result-num="2"]')
+        button = row.firstChild
+        assert_equal(button.tagName, 'BUTTON')
+        assert_equal(button.type, 'button')
+        assert_equal(button.textContent, '…Before match 2 after…')
+        button.focus()
+        button.querySelector('strong').click()
+        assert_equal(calls.selected, [2])
+        assert_equal(calls.focused_reader, 1)
+        assert_false(overlay.is_visible)
+        assert_true(row.classList.contains('current'))
+
+    with_search_overlay(run)
+
+
+@test
+def book_search_streamed_matches_do_not_take_focus_or_reopen_hidden_search():
+    def run(overlay, calls):
+        overlay.show_wait()
+        overlay.result_received(search_result(1))
+        assert_equal(document.activeElement, overlay.bottom_container)
+        button = overlay.results_container.querySelector('li button')
+        button.focus()
+        overlay.result_received(search_result(2, 2))
+        assert_equal(document.activeElement, button)
+        overlay.hide()
+        other = E.button('Reader control')
+        document.body.appendChild(other)
+        other.focus()
+        overlay.result_received(search_result(3))
+        assert_equal(document.activeElement, other)
+        assert_false(overlay.is_visible)
+        assert_equal(calls.selected, [])
+
+    with_search_overlay(run)
+
+
+@test
+def book_search_buttons_keep_native_activation_and_find_shortcuts():
+    def run(overlay, calls):
+        overlay.result_received(search_result(1))
+        overlay.result_received(search_result(2))
+        chapter = overlay.results_container.firstChild.firstChild
+        button = overlay.results_container.querySelector('li button')
+        seen = []
+
+        def listener(ev):
+            seen.push(ev.key)
+
+        document.body.addEventListener('keydown', listener)
+        try:
+            for control in [chapter, button]:
+                assert_false(keydown(control, 'Enter').defaultPrevented)
+                assert_false(keydown(control, ' ').defaultPrevented)
+            assert_equal(seen, [])
+            assert_equal(calls.selected, [])
+            assert_true(keydown(button, 'F3').defaultPrevented)
+            assert_equal(calls.selected, [1])
+            assert_true(keydown(button, 'F3', shiftKey=True).defaultPrevented)
+            assert_equal(calls.selected, [1, 2])
+            assert_true(keydown(overlay.bottom_container, 'Enter').defaultPrevented)
+            assert_equal(calls.selected, [1, 2, 1])
+        finally:
+            document.body.removeEventListener('keydown', listener)
+
+    with_search_overlay(run)
